@@ -54,7 +54,7 @@ public struct WYResponse: Codable {
     }
 }
 
-public enum WYHandler {
+@frozen public enum WYHandler {
     
     /// 进度回调
     case progress(_ progress: WYProgress)

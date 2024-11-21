@@ -73,7 +73,7 @@ class WYTestDownloadController: UIViewController {
             
         }else {
             
-            WYNetworkManager.download(path: "https://www.apple.com.cn/v/iphone-13-pro/b/images/overview/camera/macro/macro_photography__dphcvz878gia_large_2x.jpg", assetName: "AAAAA") { result in
+            WYNetworkManager.download(path: "https://pic1.zhimg.com/v2-fc20b20ea15bfd6190ddeabf5ed2b5ba_1440w.jpg", assetName: "AAAAA") { result in
                 
                 switch result {
                     

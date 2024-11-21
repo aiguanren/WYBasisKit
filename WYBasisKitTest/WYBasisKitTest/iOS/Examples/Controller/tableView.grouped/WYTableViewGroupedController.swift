@@ -17,6 +17,7 @@ class WYGroupedHeaderView: UITableViewHeaderFooterView {
         self.contentView.backgroundColor = .white
         
         bannerView.backgroundColor = .wy_random
+        bannerView.imageContentMode = .scaleAspectFill
         contentView.addSubview(bannerView)
         bannerView.snp.makeConstraints { make in
             make.size.equalTo(CGSize(width: 300, height: 600))
@@ -81,15 +82,15 @@ extension WYTableViewGroupedController: UITableViewDelegate, UITableViewDataSour
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
 
         let headerView: WYGroupedHeaderView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "WYGroupedHeaderView") as! WYGroupedHeaderView
-        headerView.reload(images: ["https://p.qqan.com/up/2021-7/16261459342701887.jpg",
-                                   "https://p.qqan.com/up/2021-7/16261459347670454.jpg",
-                                   "https://p.qqan.com/up/2021-7/16261459345506147.jpg",
-                                   "https://p.qqan.com/up/2021-7/16261459348844893.jpg",
-                                   "https://p.qqan.com/up/2021-7/16261459344331708.jpg",
-                                   "https://p.qqan.com/up/2021-7/16261459343183637.jpg",
-                                   "https://p.qqan.com/up/2021-7/16261459349940230.jpg",
-                                   "https://p.qqan.com/up/2021-7/16261459352807355.jpg",
-                                   "https://p.qqan.com/up/2021-7/16261459353902692.jpg"])
+        headerView.reload(images: ["https://pic4.zhimg.com/v2-f4fa00c730322fb24143e4a33dbec223_1440w.jpg",
+                                   "https://pic4.zhimg.com/v2-d2d0eda42a507e4e5215352a5454b117_1440w.jpg",
+                                   "https://picx.zhimg.com/v2-4d913fbfef97730e8a6f65fc69f87cd1_1440w.jpg",
+                                   "https://pic2.zhimg.com/v2-007cfca521fce9b8c3db588c484d87b1_1440w.jpg",
+                                   "https://pic3.zhimg.com/v2-08d43a5cdddcbf948e9240d08bbc3068_1440w.jpg",
+                                   "https://pic4.zhimg.com/v2-b40b07cdbe0229e4011df2545f9336e7_1440w.jpg",
+                                   "https://pic4.zhimg.com/v2-25ae3f2b5912e43b988d623f4b32afff_1440w.jpg",
+                                   "https://pic4.zhimg.com/v2-f012f54144d0364c33a9ccdc42e789b7_1440w.jpg",
+                                   "https://picx.zhimg.com/v2-399017a28614691ebe64df664701fb2f_1440w.jpg"])
 
         return headerView
     }

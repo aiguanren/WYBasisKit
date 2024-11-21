@@ -12,7 +12,7 @@ import WYBasisKit
 /// 自定义聊天UITableViewCell
 public var customChatRegisterClasss: [AnyClass] = []
 
-public enum WYChatTouchStyle {
+@frozen public enum WYChatTouchStyle {
     case done
     case more
     case emoji

@@ -12,7 +12,7 @@ import Kingfisher
 import IJKMediaFramework
 
 /// 播放器状态回调
-@objc public enum WYLivePlayerState: Int {
+@objc @frozen public enum WYLivePlayerState: Int {
     /// 未知状态
     case unknown
     /// 第一帧渲染完成

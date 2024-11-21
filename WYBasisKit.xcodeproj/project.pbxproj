@@ -14,6 +14,7 @@
 		1F99DCC8257DCFAE003D2408 /* WYPagingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F99DCC7257DCFAE003D2408 /* WYPagingView.swift */; };
 		6570FEF02C5A1C2C00757C8B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 6570FEEF2C5A1C2C00757C8B /* PrivacyInfo.xcprivacy */; };
 		65AF369E2C18103800B294CB /* WYProtocolManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AF369B2C18103800B294CB /* WYProtocolManager.swift */; };
+		65F6CA882CEF225D00BEFBD8 /* Object.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F6CA872CEF225D00BEFBD8 /* Object.swift */; };
 		AA06A3582B60DC000049A555 /* WYDecodingStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA06A3502B60DC000049A555 /* WYDecodingStorage.swift */; };
 		AA06A3592B60DC000049A555 /* WYCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA06A3512B60DC000049A555 /* WYCodable.swift */; };
 		AA06A35A2B60DC000049A555 /* WYCodingKeyedDecodingContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA06A3522B60DC000049A555 /* WYCodingKeyedDecodingContainer.swift */; };
@@ -128,6 +129,7 @@
 		1F99DCC7257DCFAE003D2408 /* WYPagingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPagingView.swift; sourceTree = "<group>"; };
 		6570FEEF2C5A1C2C00757C8B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		65AF369B2C18103800B294CB /* WYProtocolManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WYProtocolManager.swift; sourceTree = "<group>"; };
+		65F6CA872CEF225D00BEFBD8 /* Object.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Object.swift; sourceTree = "<group>"; };
 		75FD4F7DFBF58D8B82417F4D /* Pods-WYBasisKit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.release.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.release.xcconfig"; sourceTree = "<group>"; };
 		95FF853B47A9BDC19CFD8BF0 /* Pods-WYBasisKit.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.debug.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.debug.xcconfig"; sourceTree = "<group>"; };
 		AA06A3502B60DC000049A555 /* WYDecodingStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WYDecodingStorage.swift; sourceTree = "<group>"; };
@@ -321,6 +323,14 @@
 				65AF369C2C18103800B294CB /* ProtocolManager */,
 			);
 			path = Other;
+			sourceTree = "<group>";
+		};
+		65F6CA862CEF221A00BEFBD8 /* Object */ = {
+			isa = PBXGroup;
+			children = (
+				65F6CA872CEF225D00BEFBD8 /* Object.swift */,
+			);
+			path = Object;
 			sourceTree = "<group>";
 		};
 		94F8A53F1CB5643B124486A8 /* Frameworks */ = {
@@ -808,6 +818,7 @@
 				AA771BAB2568F834002C748B /* String */,
 				AA78B6822B6E111C000AA35B /* Double */,
 				AA78B6842B6E1128000AA35B /* CGFloat */,
+				65F6CA862CEF221A00BEFBD8 /* Object */,
 				AA78B6852B6E1154000AA35B /* Decimal */,
 				DC94950428152F9B005AE3F7 /* Bool */,
 				AAB2712626B571F300771549 /* Timer */,
@@ -1151,6 +1162,7 @@
 				AA06A35E2B60DC000049A555 /* WYCodableAdapter.swift in Sources */,
 				AA771BDA2568F834002C748B /* NumberFormatter.swift in Sources */,
 				AA4A49F42C15897E0069646C /* WYEmojiViewCell.swift in Sources */,
+				65F6CA882CEF225D00BEFBD8 /* Object.swift in Sources */,
 				AA771BD22568F834002C748B /* UIAlertController.swift in Sources */,
 				AA4A49F02C15897E0069646C /* WYChatPhotoCell.swift in Sources */,
 				AA4A49DC2C15897E0069646C /* WYRecordAnimationView.swift in Sources */,

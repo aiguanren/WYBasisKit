@@ -20,11 +20,18 @@
   },
   "swift_versions": "5.0",
   "requires_arc": true,
-  "source_files": "**/*",
+  "source_files": [
+    "AudioManager/**/*",
+    "Config/**/*",
+    "Models/**/*",
+    "RecordAnimation/**/*",
+    "Views/**/*"
+  ],
   "frameworks": [
     "Foundation",
     "UIKit"
   ],
+  "resources": "WYChatView.bundle",
   "dependencies": {
     "WYBasisKit": [
 

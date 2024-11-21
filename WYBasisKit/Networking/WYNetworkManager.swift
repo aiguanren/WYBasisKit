@@ -10,7 +10,7 @@ import Moya
 import Alamofire
 
 /// 网络请求任务类型
-public enum WYTaskMethod {
+@frozen public enum WYTaskMethod {
     
     /// 数据任务
     case parameters
@@ -23,7 +23,7 @@ public enum WYTaskMethod {
 }
 
 /// 上传类型
-public enum WYFileType {
+@frozen public enum WYFileType {
     
     /// 上传图片
     case image
@@ -36,7 +36,7 @@ public enum WYFileType {
 }
 
 /// 需要映射的Key
-public enum WYMappingKey {
+@frozen public enum WYMappingKey {
     case message, code, data
 }
 
@@ -54,7 +54,7 @@ public struct WYResponse: Codable {
     }
 }
 
-public enum WYHandler {
+@frozen public enum WYHandler {
     
     /// 进度回调
     case progress(_ progress: WYProgress)

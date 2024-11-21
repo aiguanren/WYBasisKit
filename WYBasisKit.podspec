@@ -14,12 +14,11 @@ Pod::Spec.new do |kit|
                          Authorization: 各种权限请求与判断
                    DESC
 
-  kit.homepage     = 'https://github.com/Jacke-xu/WYBasisKit-swift'
+  kit.homepage     = 'https://github.com/gaunren/WYBasisKit-swift'
   kit.license      = { :type => 'MIT', :file => 'License.md' }
   kit.author             = { '官人' => 'mobileAppDvlp@icloud.com' }
-  kit.ios.deployment_target = '12.0'
-  kit.source       = { :git => 'https://github.com/Jacke-xu/WYBasisKit-swift.git', :tag => "#{kit.version}" }
-  #kit.source       = { :svn => "http://119.3.227.245:8000/svn/sdk_wan_client/FastSDK"}
+  kit.ios.deployment_target = '13.0'
+  kit.source       = { :git => 'https://github.com/gaunren/WYBasisKit-swift.git', :tag => "#{kit.version}" }
   kit.swift_versions = '5.0'
   kit.requires_arc = true
   kit.default_subspecs = 'Extension'

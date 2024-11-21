@@ -11,7 +11,7 @@ import Foundation
 public var messageWithdrawalInterval: TimeInterval = 120
 
 /// 聊天消息类型
-public enum WYChatMessageStyle: String, Codable {
+@frozen public enum WYChatMessageStyle: String, Codable {
     /// 未知
     case none = "WYChatBasicCell"
     /// 文本
@@ -52,7 +52,7 @@ public enum WYChatMessageStyle: String, Codable {
 }
 
 /// 红包、转账收款状态
-public enum WYChatFundsState: NSInteger {
+@frozen public enum WYChatFundsState: NSInteger {
     
     /// 待收款
     case unreceived = 0
@@ -68,7 +68,7 @@ public enum WYChatFundsState: NSInteger {
 }
 
 /// 通话类型
-public enum WYChatCallStyle: NSInteger {
+@frozen public enum WYChatCallStyle: NSInteger {
     
     /// 一对一语音
     case oneToOneVoice = 0
@@ -84,7 +84,7 @@ public enum WYChatCallStyle: NSInteger {
 }
 
 /// 消息发送状态
-public enum WYChatMessageSendState: NSInteger {
+@frozen public enum WYChatMessageSendState: NSInteger {
     /// 未发送
     case notSent = 0
     /// 发送中

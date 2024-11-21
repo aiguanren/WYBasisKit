@@ -21,8 +21,9 @@ Pod::Spec.new do |chat|
   chat.source       = { :git => 'https://github.com/Jacke-xu/WYBasisKit-swift.git', :tag => "#{chat.version}" }
   chat.swift_versions = '5.0'
   chat.requires_arc = true
-  chat.source_files = '**/*'
+  chat.source_files = 'AudioManager/**/*', 'Config/**/*', 'Models/**/*', 'RecordAnimation/**/*', 'Views/**/*'
   chat.frameworks = 'Foundation', 'UIKit'
+  chat.resource = 'WYChatView.bundle'
   chat.dependency 'WYBasisKit'
   chat.dependency 'WYBasisKit/Localizable'
   chat.dependency 'SnapKit'

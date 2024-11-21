@@ -60,7 +60,7 @@ public extension UIDevice {
         let HOST_BASIC_INFO_COUNT = MemoryLayout<host_basic_info>.stride/MemoryLayout<integer_t>.stride
         var size = mach_msg_type_number_t(HOST_BASIC_INFO_COUNT)
         var hostInfo = host_basic_info()
-        let result = withUnsafeMutablePointer(to: &hostInfo) {
+        _ = withUnsafeMutablePointer(to: &hostInfo) {
             $0.withMemoryRebound(to: integer_t.self, capacity:Int(size)){
                 host_info(mach_host_self(), Int32(HOST_BASIC_INFO), $0, &size)
             }

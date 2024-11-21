@@ -15,9 +15,9 @@ Pod::Spec.new do |livePlayer|
                           pod 'WYLivePlayerLite', :podspec => 'https://raw.githubusercontent.com/Jacke-xu/WYBasisKit-swift/master/WYLivePlayerLite.podspec'
                    DESC
 
-  livePlayer.homepage     = 'https://github.com/Jacke-xu/WYBasisKit-swift'
+  livePlayer.homepage     = 'https://github.com/gaunren/WYBasisKit-swift'
   livePlayer.license      = { :type => 'MIT', :file => 'License.md' }
-  livePlayer.author             = { 'Jacke-xu' => 'mobileAppDvlp@icloud.com' }
+  livePlayer.author             = { '官人' => 'mobileAppDvlp@icloud.com' }
   livePlayer.ios.deployment_target = '12.0'
   livePlayer.source       = { :http => 'https://github.com/Jacke-xu/WYBasisKit-swift/blob/master/WYBasisKit/LivePlayer/WYLivePlayerLite.zip?raw=true' }
   livePlayer.swift_versions = '5.0'

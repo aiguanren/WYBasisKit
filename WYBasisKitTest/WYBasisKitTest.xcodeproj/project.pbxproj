@@ -15,6 +15,9 @@
 		6535C6692C883920002FF69B /* SDKRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6535C6662C883920002FF69B /* SDKRequest.swift */; };
 		6535C66C2C8839F1002FF69B /* UserRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6535C66A2C8839F1002FF69B /* UserRequest.swift */; };
 		6535C66D2C8839F1002FF69B /* UserResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6535C66B2C8839F1002FF69B /* UserResponse.swift */; };
+		65F6CA832CEF11FA00BEFBD8 /* [唇].png in Resources */ = {isa = PBXBuildFile; fileRef = 65F6CA802CEF11FA00BEFBD8 /* [唇].png */; };
+		65F6CA842CEF11FA00BEFBD8 /* [喝彩].png in Resources */ = {isa = PBXBuildFile; fileRef = 65F6CA812CEF11FA00BEFBD8 /* [喝彩].png */; };
+		65F6CA852CEF11FA00BEFBD8 /* [爱心].png in Resources */ = {isa = PBXBuildFile; fileRef = 65F6CA822CEF11FA00BEFBD8 /* [爱心].png */; };
 		DC42B0ED2A42EC900004EB4C /* WYTestChatDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC42B0EC2A42EC900004EB4C /* WYTestChatDataSource.swift */; };
 		DC7D92E72A137D7300800761 /* CollectionReusableHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7D92E62A137D7300800761 /* CollectionReusableHeaderView.swift */; };
 		DC7D92E92A137D8100800761 /* CollectionReusableFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7D92E82A137D8100800761 /* CollectionReusableFooterView.swift */; };
@@ -90,6 +93,9 @@
 		6535C6662C883920002FF69B /* SDKRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SDKRequest.swift; sourceTree = "<group>"; };
 		6535C66A2C8839F1002FF69B /* UserRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserRequest.swift; sourceTree = "<group>"; };
 		6535C66B2C8839F1002FF69B /* UserResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserResponse.swift; sourceTree = "<group>"; };
+		65F6CA802CEF11FA00BEFBD8 /* [唇].png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "[唇].png"; sourceTree = "<group>"; };
+		65F6CA812CEF11FA00BEFBD8 /* [喝彩].png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "[喝彩].png"; sourceTree = "<group>"; };
+		65F6CA822CEF11FA00BEFBD8 /* [爱心].png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "[爱心].png"; sourceTree = "<group>"; };
 		865E1EDDAF0233568A70050C /* Pods-WYBasisKitTest.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKitTest.debug.xcconfig"; path = "Target Support Files/Pods-WYBasisKitTest/Pods-WYBasisKitTest.debug.xcconfig"; sourceTree = "<group>"; };
 		DC42B0EC2A42EC900004EB4C /* WYTestChatDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestChatDataSource.swift; sourceTree = "<group>"; };
 		DC7D92E62A137D7300800761 /* CollectionReusableHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionReusableHeaderView.swift; sourceTree = "<group>"; };
@@ -227,6 +233,9 @@
 				DCFEBFE829EFDE2F001AE8E7 /* AppDelegate.swift */,
 				DCFEC01C29EFE496001AE8E7 /* WYTabBarController.swift */,
 				DCFEBFF629EFDE30001AE8E7 /* Info.plist */,
+				65F6CA822CEF11FA00BEFBD8 /* [爱心].png */,
+				65F6CA802CEF11FA00BEFBD8 /* [唇].png */,
+				65F6CA812CEF11FA00BEFBD8 /* [喝彩].png */,
 				DCFEBFEE29EFDE2F001AE8E7 /* Main.storyboard */,
 				DCFEBFF129EFDE30001AE8E7 /* Assets.xcassets */,
 				DCFEBFF329EFDE30001AE8E7 /* LaunchScreen.storyboard */,
@@ -672,11 +681,14 @@
 				DCFEC08E29EFE52B001AE8E7 /* apng格式图片2.png in Resources */,
 				DCFEBFF529EFDE30001AE8E7 /* LaunchScreen.storyboard in Resources */,
 				DCFEC16029FA783D001AE8E7 /* apng_[666].png in Resources */,
+				65F6CA842CEF11FA00BEFBD8 /* [喝彩].png in Resources */,
+				65F6CA832CEF11FA00BEFBD8 /* [唇].png in Resources */,
 				DCFEC0FB29EFE52C001AE8E7 /* apng格式图片1.png in Resources */,
 				DCFEBFF229EFDE30001AE8E7 /* Assets.xcassets in Resources */,
 				DCFEC09029EFE52B001AE8E7 /* 动图2.gif in Resources */,
 				DCFEC16129FA783D001AE8E7 /* [666].gif in Resources */,
 				DCC3409B2A317E6C0026CAD8 /* WYSpeechRecognitionController.xib in Resources */,
+				65F6CA852CEF11FA00BEFBD8 /* [爱心].png in Resources */,
 				DCFEC08F29EFE52B001AE8E7 /* 动图1.gif in Resources */,
 				DCFEC09229EFE52B001AE8E7 /* mpeg4_local.mp4 in Resources */,
 				DCFEC09129EFE52B001AE8E7 /* 1650855755919.mp4 in Resources */,

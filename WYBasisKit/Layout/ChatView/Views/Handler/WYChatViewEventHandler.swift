@@ -113,7 +113,7 @@ extension WYChatView: WYChatInputViewDelegate, WYChatInputViewEventsHandler {
         let readers: String = "0"
         
         /// 消息发送状态
-        var sendState: WYChatMessageSendState = .sending
+        let sendState: WYChatMessageSendState = .sending
         
         /// 已读回执发送状态
         let readBackState: WYChatMessageSendState = .notSent
