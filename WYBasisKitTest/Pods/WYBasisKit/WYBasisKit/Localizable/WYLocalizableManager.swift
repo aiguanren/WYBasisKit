@@ -9,7 +9,7 @@
 import UIKit
 
 /// 国际化语言版本(目前只国际化了简体中文、繁体中文、英语、法语、德语、俄语等29种语言，其他的可以调用WYLanguage.other属性来查看并设置需要加载的自定义本地化语言读取表)
-public enum WYLanguage: RawRepresentable {
+@frozen public enum WYLanguage: RawRepresentable {
     
     /// 简体中文(zh-Hans)
     case zh_Hans

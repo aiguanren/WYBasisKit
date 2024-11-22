@@ -10,7 +10,7 @@ import Foundation
 import Alamofire
 
 /// 网络请求验证方式
-public enum WYNetworkRequestStyle {
+@frozen public enum WYNetworkRequestStyle {
     
     /// HTTP和CAHTTPS(无需额外配置  CAHTTPS：即向正规CA机构购买的HTTPS服务)
     case httpOrCAHttps
@@ -24,7 +24,7 @@ public enum WYNetworkRequestStyle {
 public struct WYHttpsConfig {
     
     /// HTTPS自建证书验证策略
-    public enum WYHttpsVerifyStrategy {
+    @frozen public enum WYHttpsVerifyStrategy {
         
         /// 证书验证模式，客户端会将服务器返回的证书和本地保存的证书中的 所有内容 全部进行校验，如果正确，才继续执行
         case pinnedCertificates

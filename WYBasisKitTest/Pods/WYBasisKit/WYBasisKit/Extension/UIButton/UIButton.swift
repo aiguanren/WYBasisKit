@@ -9,7 +9,7 @@
 import UIKit
 
 /// UIButton图片控件和文本控件显示位置
-public enum WYButtonPosition {
+@frozen public enum WYButtonPosition {
     
     /** 图片在左，文字在右，默认 */
     case imageLeftTitleRight

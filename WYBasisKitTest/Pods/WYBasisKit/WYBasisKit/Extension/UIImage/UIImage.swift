@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 /// 动图格式类型
-public enum WYAnimatedImageStyle {
+@frozen public enum WYAnimatedImageStyle {
     
     /// 普通 GIF 图片
     case GIF

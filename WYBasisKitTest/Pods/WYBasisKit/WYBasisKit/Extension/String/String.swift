@@ -10,7 +10,7 @@ import UIKit
 import CommonCrypto.CommonDigest
 
 /// 获取时间戳的模式
-public enum WYTimestampMode {
+@frozen public enum WYTimestampMode {
     
     /// 秒
     case second
@@ -23,7 +23,7 @@ public enum WYTimestampMode {
 }
 
 /// 时间格式化模式
-public enum WYTimeFormat {
+@frozen public enum WYTimeFormat {
     
     /// 时:分
     case HM
@@ -42,7 +42,7 @@ public enum WYTimeFormat {
 }
 
 /// 星期几
-public enum WYWhatDay: NSInteger {
+@frozen public enum WYWhatDay: NSInteger {
     
     /// 未知
     case unknown = 0
@@ -69,7 +69,7 @@ public enum WYWhatDay: NSInteger {
     case saturday
 }
 
-public enum WYTimeDistance {
+@frozen public enum WYTimeDistance {
     
     /// 未知
     case unknown

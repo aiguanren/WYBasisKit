@@ -9,7 +9,7 @@
 import UIKit
 
 /// UITableView注册类型
-public enum WYTableViewRegisterStyle {
+@frozen public enum WYTableViewRegisterStyle {
     
     /// 注册Cell
     case cell

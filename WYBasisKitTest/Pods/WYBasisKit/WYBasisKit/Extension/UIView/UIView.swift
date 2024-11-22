@@ -9,7 +9,7 @@
 import UIKit
 
 /// 渐变方向
-public enum WYGradientDirection: UInt {
+@frozen public enum WYGradientDirection: UInt {
     
     /// 从上到下
     case topToBottom = 0

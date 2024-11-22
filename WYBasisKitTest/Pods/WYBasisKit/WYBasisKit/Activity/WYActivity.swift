@@ -10,7 +10,7 @@ import UIKit
 import Foundation
 
 /// 信息提示窗口的显示位置
-public enum WYActivityPosition: NSInteger {
+@frozen public enum WYActivityPosition: NSInteger {
     
     /// 相对于父控件的顶部
     case top = 0
@@ -23,7 +23,7 @@ public enum WYActivityPosition: NSInteger {
 }
 
 /// Loading提示窗动画类型
-public enum WYActivityAnimation {
+@frozen public enum WYActivityAnimation {
     
     /// 默认，系统小菊花
     case indicator

@@ -9,7 +9,7 @@
 import UIKit
 
 /// viewController显示模式
-public enum WYDisplaMode {
+@frozen public enum WYDisplaMode {
     
     /// push模式
     case push

@@ -29,7 +29,7 @@ open class WYCodable: JSONDecoder {
         return try decode(type, from: topLevel)
     }
     
-    /// 将Dictionary及Array解析成传入的类型
+    /// 将Dictionary及Array解析成传入的Model类型
     open func decode<T: Decodable>(_ type: T.Type, from convertible: WYCodableContainerConvertible
     ) throws -> T {
         try decode(type, from: convertible.asJSONContainer())

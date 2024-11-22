@@ -284,16 +284,16 @@ public func wy_sharedPropertys(object: Any? = nil, className: String = "") -> [S
 /// 项目名字
 public let wy_projectName: String = Bundle.main.infoDictionary!["CFBundleName"] as? String ?? ""
 
-/// 商店应用名
+/// 项目App名
 public let wy_appStoreName: String = Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ?? ""
 
-/// 应用标识
+/// BundleID
 public let wy_appIdentifier: String = Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String ?? ""
 
 /// 应用商店版本号
 public let wy_appStoreVersion: String = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
 
-/// 应用构建版本号
+/// 应用Build版本号
 public let wy_appBuildVersion: String = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
 
 /// DEBUG打印日志
