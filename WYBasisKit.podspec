@@ -26,17 +26,49 @@ Pod::Spec.new do |kit|
   kit.default_subspecs = 'Extension'
   # 自动解压脚本
   kit.prepare_command = <<-SH
-    echo "Preparing WYLivePlayer..."
-    if [ ! -d "WYBasisKit/LivePlayer/WYLivePlayer/IJKMediaFramework.framework" ]; then
-      curl -L -o WYLivePlayer.zip https://github.com/gaunren/WYBasisKit-swift/raw/refs/heads/master/WYBasisKit/LivePlayer/WYLivePlayer.zip
-      unzip -o WYLivePlayer.zip -d WYBasisKit/LivePlayer/
+    set -e # 开启脚本出错终止模式
+
+    echo "Starting preparation for LivePlayer..."
+
+    # 下载并解压 WYLivePlayer
+    if [ ! -e "WYBasisKit/LivePlayer/WYLivePlayer/IJKMediaFramework.framework" ]; then
+      echo "Downloading WYLivePlayer.zip..."
+      if ! curl -L -o WYLivePlayer.zip https://github.com/gaunren/WYBasisKit-swift/raw/refs/heads/master/WYBasisKit/LivePlayer/WYLivePlayer.zip; then
+        echo "Error: Failed to download WYLivePlayer.zip"
+        exit 1
+      fi
+      echo "Extracting WYLivePlayer.zip..."
+      if ! unzip -o WYLivePlayer.zip -d WYBasisKit/LivePlayer/; then
+        echo "Error: Failed to extract WYLivePlayer.zip"
+        exit 1
+      fi
       rm WYLivePlayer.zip
+    else
+      echo "WYLivePlayer is already prepared."
     fi
-    if [ ! -d "WYBasisKit/LivePlayer/WYLivePlayerLite/IJKMediaFramework.framework" ]; then
-      curl -L -o WYLivePlayerLite.zip https://github.com/gaunren/WYBasisKit-swift/raw/refs/heads/master/WYBasisKit/LivePlayer/WYLivePlayerLite.zip
-      unzip -o WYLivePlayerLite.zip -d WYBasisKit/LivePlayer/
+
+    # 下载并解压 WYLivePlayerLite
+    if [ ! -e "WYBasisKit/LivePlayer/WYLivePlayerLite/IJKMediaFramework.framework" ]; then
+      echo "Downloading WYLivePlayerLite.zip..."
+      if ! curl -L -o WYLivePlayerLite.zip https://github.com/gaunren/WYBasisKit-swift/raw/refs/heads/master/WYBasisKit/LivePlayer/WYLivePlayerLite.zip; then
+        echo "Error: Failed to download WYLivePlayerLite.zip"
+        exit 1
+      fi
+      echo "Extracting WYLivePlayerLite.zip..."
+      if ! unzip -o WYLivePlayerLite.zip -d WYBasisKit/LivePlayer/; then
+        echo "Error: Failed to extract WYLivePlayerLite.zip"
+        exit 1
+      fi
       rm WYLivePlayerLite.zip
+    else
+      echo "WYLivePlayerLite is already prepared."
     fi
+
+    # 删除解压过程生成的 __MACOSX 文件夹
+    echo "Cleaning up unnecessary files..."
+    find WYBasisKit/LivePlayer/ -name "__MACOSX" -type d -exec rm -rf {} +
+
+    echo "Preparation completed successfully!"
   SH
 
     kit.subspec 'Config' do |config|
@@ -171,5 +203,8 @@ Pod::Spec.new do |kit|
           lite.libraries = 'c++', 'z', 'bz2'
           lite.frameworks = 'UIKit', 'AudioToolbox', 'CoreGraphics', 'AVFoundation', 'CoreMedia', 'CoreVideo', 'MediaPlayer', 'CoreServices', 'Metal', 'QuartzCore', 'VideoToolbox'
        end
+
+       # 禁止同时选择 Full 和 Lite，不然验证时会报错有两个IJKMediaFramework.framework
+       livePlayer.default_subspecs = 'Full'
     end
 end
