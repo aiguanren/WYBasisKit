@@ -26,9 +26,12 @@ Pod::Spec.new do |kit|
   kit.default_subspecs = 'Extension'
   # 自动解压脚本
   kit.prepare_command = <<-SH
+    
+    # WYLivePlayer和WYLivePlayerLite只需要验证一个就可以了，不能两个同时验证，否则会报错有同名的IJKMediaFramework.framework
+
     set -e # 开启脚本出错终止模式
 
-    echo "Starting preparation for LivePlayer..."
+    echo "Starting preparation for WYLivePlayer..."
 
     # 下载并解压 WYLivePlayer
     if [ ! -e "WYBasisKit/LivePlayer/WYLivePlayer/IJKMediaFramework.framework" ]; then
@@ -48,21 +51,21 @@ Pod::Spec.new do |kit|
     fi
 
     # 下载并解压 WYLivePlayerLite
-    if [ ! -e "WYBasisKit/LivePlayer/WYLivePlayerLite/IJKMediaFramework.framework" ]; then
-      echo "Downloading WYLivePlayerLite.zip..."
-      if ! curl -L -o WYLivePlayerLite.zip https://github.com/gaunren/WYBasisKit-swift/raw/refs/heads/master/WYBasisKit/LivePlayer/WYLivePlayerLite.zip; then
-        echo "Error: Failed to download WYLivePlayerLite.zip"
-        exit 1
-      fi
-      echo "Extracting WYLivePlayerLite.zip..."
-      if ! unzip -o WYLivePlayerLite.zip -d WYBasisKit/LivePlayer/; then
-        echo "Error: Failed to extract WYLivePlayerLite.zip"
-        exit 1
-      fi
-      rm WYLivePlayerLite.zip
-    else
-      echo "WYLivePlayerLite is already prepared."
-    fi
+    #if [ ! -e "WYBasisKit/LivePlayer/WYLivePlayerLite/IJKMediaFramework.framework" ]; then
+      #echo "Downloading WYLivePlayerLite.zip..."
+      #if ! curl -L -o WYLivePlayerLite.zip https://github.com/gaunren/WYBasisKit-swift/raw/refs/heads/master/WYBasisKit/LivePlayer/WYLivePlayerLite.zip; then
+        #echo "Error: Failed to download WYLivePlayerLite.zip"
+        #exit 1
+      #fi
+      #echo "Extracting WYLivePlayerLite.zip..."
+      #if ! unzip -o WYLivePlayerLite.zip -d WYBasisKit/LivePlayer/; then
+        #echo "Error: Failed to extract WYLivePlayerLite.zip"
+        #exit 1
+      #fi
+      #rm WYLivePlayerLite.zip
+    #else
+      #echo "WYLivePlayerLite is already prepared."
+    #fi
 
     # 删除解压过程生成的 __MACOSX 文件夹
     echo "Cleaning up unnecessary files..."
@@ -203,8 +206,5 @@ Pod::Spec.new do |kit|
           lite.libraries = 'c++', 'z', 'bz2'
           lite.frameworks = 'UIKit', 'AudioToolbox', 'CoreGraphics', 'AVFoundation', 'CoreMedia', 'CoreVideo', 'MediaPlayer', 'CoreServices', 'Metal', 'QuartzCore', 'VideoToolbox'
        end
-
-       # 禁止同时选择 Full 和 Lite，不然验证时会报错有两个IJKMediaFramework.framework
-       livePlayer.default_subspecs = 'Full'
     end
 end
