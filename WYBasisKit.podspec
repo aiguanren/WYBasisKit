@@ -1,7 +1,7 @@
 Pod::Spec.new do |kit|
 
   kit.name         = 'WYBasisKit'
-  kit.version      = '1.3.3'
+  kit.version      = '1.3.4'
   kit.summary      = 'WYBasisKit 不仅可以帮助开发者快速构建一个工程，还有基于常用网络框架和系统API而封装的各种实用方法、扩展，开发者只需简单的调用API就可以快速实现相应功能， 大幅提高开发效率。'
   kit.description  = <<-DESC
                          Localizable: 国际化解决方案
@@ -9,9 +9,10 @@ Pod::Spec.new do |kit|
                          Networking: 网络请求解决方案
                          Activity: 活动指示器
                          Storage: 本地存储
-                         Layout: 布局相关
+                         Layout: 各种自定义控件
                          Codable: 数据解析
                          Authorization: 各种权限请求与判断
+                         LivePlayer: 基于IJKPlayer编译封装的直播播放器(也可作为视屏播放器)，支持RTMP/RTMPS/RTMPT/RTMPE/RTSP/HLS/HTTP(S)-FLV/KMP 等直播协议与MP4、FLV等格式， 支持录屏功能, 完整版支持支持arm64与x86_64，轻量版仅支持arm64'
                    DESC
 
   kit.homepage     = 'https://github.com/gaunren/WYBasisKit-swift'
@@ -115,8 +116,7 @@ Pod::Spec.new do |kit|
     end
 
     kit.subspec 'Layout' do |layout|
-
-        layout.subspec 'ScrollText' do |scrollText|
+       layout.subspec 'ScrollText' do |scrollText|
           scrollText.source_files = 'WYBasisKit/Layout/ScrollText/**/*', 'WYBasisKit/Config/WYBasisKitConfig.swift'
           scrollText.frameworks = 'Foundation', 'UIKit'
           scrollText.resource = 'WYBasisKit/Localizable/WYLocalizable.bundle'
@@ -124,18 +124,52 @@ Pod::Spec.new do |kit|
           scrollText.dependency 'SnapKit'
        end
 
-        layout.subspec 'PagingView' do |pagingView|
+       layout.subspec 'PagingView' do |pagingView|
           pagingView.source_files = 'WYBasisKit/Layout/PagingView/**/*', 'WYBasisKit/Extension/UIView/**/*', 'WYBasisKit/Extension/UIButton/**/*', 'WYBasisKit/Extension/UIColor/**/*', 'WYBasisKit/Extension/UIImage/**/*', 'WYBasisKit/Config/WYBasisKitConfig.swift'
           pagingView.frameworks = 'Foundation', 'UIKit'
           pagingView.dependency 'SnapKit'
        end
 
-        layout.subspec 'BannerView' do |bannerView|
+       layout.subspec 'BannerView' do |bannerView|
           bannerView.source_files = 'WYBasisKit/Layout/BannerView/WYBannerView.swift', 'WYBasisKit/Extension/UIView/**/*', 'WYBasisKit/Config/WYBasisKitConfig.swift'
           bannerView.frameworks = 'Foundation', 'UIKit'
           bannerView.resource = 'WYBasisKit/Layout/BannerView/WYBannerView.bundle', 'WYBasisKit/Localizable/WYLocalizable.bundle'
           bannerView.dependency 'WYBasisKit/Localizable'
           bannerView.dependency 'Kingfisher'
+       end
+    end
+
+    kit.subspec 'LivePlayer' do |livePlayer|
+       livePlayer.subspec 'Full' do |full|
+          # 集成时通过脚本自动解压
+          full.prepare_command = <<-SH
+            echo "Downloading and extracting LivePlayer..."
+            curl -L -o WYLivePlayer.zip https://github.com/gaunren/WYBasisKit-swift/raw/refs/heads/master/WYBasisKit/LivePlayer/WYLivePlayer.zip
+            unzip -o WYLivePlayer.zip -d WYBasisKit/LivePlayer/
+            rm WYLivePlayer.zip
+          SH
+          full.dependency 'SnapKit'
+          full.dependency 'Kingfisher'
+          full.vendored_frameworks = 'WYBasisKit/LivePlayer/WYLivePlayer/IJKMediaFramework.framework'
+          #full.vendored_libraries = 'xxx.a'
+          full.libraries = 'c++', 'z', 'bz2'
+          full.frameworks = 'UIKit', 'AudioToolbox', 'CoreGraphics', 'AVFoundation', 'CoreMedia', 'CoreVideo', 'MediaPlayer', 'CoreServices', 'Metal', 'QuartzCore', 'VideoToolbox'
+       end
+
+       livePlayer.subspec 'Lite' do |lite|
+           # 集成时通过脚本自动解压
+           lite.prepare_command = <<-SH
+             echo "Downloading and extracting LivePlayer Lite..."
+             curl -L -o WYLivePlayerLite.zip https://github.com/gaunren/WYBasisKit-swift/raw/refs/heads/master/WYBasisKit/LivePlayer/WYLivePlayerLite.zip
+             unzip -o WYLivePlayerLite.zip -d WYBasisKit/LivePlayer/
+             rm WYLivePlayerLite.zip
+          SH
+          lite.dependency 'SnapKit'
+          lite.dependency 'Kingfisher'
+          lite.vendored_frameworks = 'WYBasisKit/LivePlayer/WYLivePlayerLite/IJKMediaFramework.framework'
+          #lite.vendored_libraries = 'xxx.a'
+          lite.libraries = 'c++', 'z', 'bz2'
+          lite.frameworks = 'UIKit', 'AudioToolbox', 'CoreGraphics', 'AVFoundation', 'CoreMedia', 'CoreVideo', 'MediaPlayer', 'CoreServices', 'Metal', 'QuartzCore', 'VideoToolbox'
        end
     end
 end

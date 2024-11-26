@@ -2,7 +2,12 @@ platform :ios, '13.0'
 inhibit_all_warnings!
 use_frameworks!
 use_modular_headers!
+
+#使用Cocoapods清华源
 source 'https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git'
+
+#使用Cocoapods官方源
+#source 'https://github.com/CocoaPods/Specs.git' 
 
 target 'WYBasisKit' do
   pod 'SnapKit'
