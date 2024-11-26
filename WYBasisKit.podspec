@@ -24,6 +24,20 @@ Pod::Spec.new do |kit|
   kit.swift_versions = '5.0'
   kit.requires_arc = true
   kit.default_subspecs = 'Extension'
+  # 自动解压脚本
+  kit.prepare_command = <<-SH
+    echo "Preparing WYLivePlayer..."
+    if [ ! -d "WYBasisKit/LivePlayer/WYLivePlayer/IJKMediaFramework.framework" ]; then
+      curl -L -o WYLivePlayer.zip https://github.com/gaunren/WYBasisKit-swift/raw/refs/heads/master/WYBasisKit/LivePlayer/WYLivePlayer.zip
+      unzip -o WYLivePlayer.zip -d WYBasisKit/LivePlayer/
+      rm WYLivePlayer.zip
+    fi
+    if [ ! -d "WYBasisKit/LivePlayer/WYLivePlayerLite/IJKMediaFramework.framework" ]; then
+      curl -L -o WYLivePlayerLite.zip https://github.com/gaunren/WYBasisKit-swift/raw/refs/heads/master/WYBasisKit/LivePlayer/WYLivePlayerLite.zip
+      unzip -o WYLivePlayerLite.zip -d WYBasisKit/LivePlayer/
+      rm WYLivePlayerLite.zip
+    fi
+  SH
 
     kit.subspec 'Config' do |config|
        config.source_files = 'WYBasisKit/Config/**/*'
@@ -141,13 +155,6 @@ Pod::Spec.new do |kit|
 
     kit.subspec 'LivePlayer' do |livePlayer|
        livePlayer.subspec 'Full' do |full|
-          # 集成时通过脚本自动解压
-          full.prepare_command = <<-SH
-            echo "Downloading and extracting LivePlayer..."
-            curl -L -o WYLivePlayer.zip https://github.com/gaunren/WYBasisKit-swift/raw/refs/heads/master/WYBasisKit/LivePlayer/WYLivePlayer.zip
-            unzip -o WYLivePlayer.zip -d WYBasisKit/LivePlayer/
-            rm WYLivePlayer.zip
-          SH
           full.dependency 'SnapKit'
           full.dependency 'Kingfisher'
           full.vendored_frameworks = 'WYBasisKit/LivePlayer/WYLivePlayer/IJKMediaFramework.framework'
@@ -157,13 +164,6 @@ Pod::Spec.new do |kit|
        end
 
        livePlayer.subspec 'Lite' do |lite|
-           # 集成时通过脚本自动解压
-           lite.prepare_command = <<-SH
-             echo "Downloading and extracting LivePlayer Lite..."
-             curl -L -o WYLivePlayerLite.zip https://github.com/gaunren/WYBasisKit-swift/raw/refs/heads/master/WYBasisKit/LivePlayer/WYLivePlayerLite.zip
-             unzip -o WYLivePlayerLite.zip -d WYBasisKit/LivePlayer/
-             rm WYLivePlayerLite.zip
-          SH
           lite.dependency 'SnapKit'
           lite.dependency 'Kingfisher'
           lite.vendored_frameworks = 'WYBasisKit/LivePlayer/WYLivePlayerLite/IJKMediaFramework.framework'
