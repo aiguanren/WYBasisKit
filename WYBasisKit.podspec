@@ -1,7 +1,7 @@
 Pod::Spec.new do |kit|
 
   kit.name         = 'WYBasisKit'
-  kit.version      = '1.3.4'
+  kit.version      = '1.3.3'
   kit.summary      = 'WYBasisKit 不仅可以帮助开发者快速构建一个工程，还有基于常用网络框架和系统API而封装的各种实用方法、扩展，开发者只需简单的调用API就可以快速实现相应功能， 大幅提高开发效率。'
   kit.description  = <<-DESC
                          Localizable: 国际化解决方案
@@ -11,8 +11,7 @@ Pod::Spec.new do |kit|
                          Storage: 本地存储
                          Layout: 各种自定义控件
                          Codable: 数据解析
-                         Authorization: 各种权限请求与判断
-                         LivePlayer: 基于IJKPlayer编译封装的直播播放器(也可作为视屏播放器)，支持RTMP/RTMPS/RTMPT/RTMPE/RTSP/HLS/HTTP(S)-FLV/KMP 等直播协议与MP4、FLV等格式， 支持录屏功能, 完整版支持支持arm64与x86_64，轻量版仅支持arm64'
+                         Authorization: 各种权限请求与判断'
                    DESC
 
   kit.homepage     = 'https://github.com/gaunren/WYBasisKit-swift'
@@ -24,52 +23,6 @@ Pod::Spec.new do |kit|
   kit.swift_versions = '5.0'
   kit.requires_arc = true
   kit.default_subspecs = 'Extension'
-  # 自动解压脚本
-  kit.prepare_command = <<-SH
-    set -e # 开启脚本出错终止模式
-
-    echo "Starting preparation for LivePlayer..."
-
-    # 下载并解压 WYLivePlayer
-    if [ ! -e "WYBasisKit/LivePlayer/IJKMediaFramework.framework" ]; then
-      echo "Downloading IJKMediaFramework.zip..."
-      if ! curl -L -o WYLivePlayer.zip https://github.com/gaunren/WYBasisKit-swift/raw/refs/heads/master/WYBasisKit/LivePlayer/WYLivePlayer.zip; then
-        echo "Error: Failed to download IJKMediaFramework.zip"
-        exit 1
-      fi
-      echo "Extracting WYLivePlayer.zip..."
-      if ! unzip -o WYLivePlayer.zip -d WYBasisKit/LivePlayer/; then
-        echo "Error: Failed to extract WYLivePlayer.zip"
-        exit 1
-      fi
-      rm WYLivePlayer.zip
-    else
-      echo "WYLivePlayer is already prepared."
-    fi
-
-    # 下载并解压 WYLivePlayerLite
-    if [ ! -e "WYBasisKit/LivePlayer/WYLivePlayerLite/IJKMediaFramework.framework" ]; then
-      echo "Downloading WYLivePlayerLite.zip..."
-      if ! curl -L -o WYLivePlayerLite.zip https://github.com/gaunren/WYBasisKit-swift/raw/refs/heads/master/WYBasisKit/LivePlayer/WYLivePlayerLite.zip; then
-        echo "Error: Failed to download WYLivePlayerLite.zip"
-        exit 1
-      fi
-      echo "Extracting WYLivePlayerLite.zip..."
-      if ! unzip -o WYLivePlayerLite.zip -d WYBasisKit/LivePlayer/; then
-        echo "Error: Failed to extract WYLivePlayerLite.zip"
-        exit 1
-      fi
-      rm WYLivePlayerLite.zip
-    else
-      echo "WYLivePlayerLite is already prepared."
-    fi
-
-    # 删除解压过程生成的 __MACOSX 文件夹
-    echo "Cleaning up unnecessary files..."
-    find WYBasisKit/LivePlayer/ -name "__MACOSX" -type d -exec rm -rf {} +
-
-    echo "Preparation completed successfully!"
-  SH
 
     kit.subspec 'Config' do |config|
        config.source_files = 'WYBasisKit/Config/**/*'
@@ -182,28 +135,6 @@ Pod::Spec.new do |kit|
           bannerView.resource = 'WYBasisKit/Layout/BannerView/WYBannerView.bundle', 'WYBasisKit/Localizable/WYLocalizable.bundle'
           bannerView.dependency 'WYBasisKit/Localizable'
           bannerView.dependency 'Kingfisher'
-       end
-    end
-
-    kit.subspec 'LivePlayer' do |livePlayer|
-       livePlayer.subspec 'Full' do |full|
-          full.source_files = 'WYBasisKit/LivePlayer/WYLivePlayer.swift'
-          full.dependency 'SnapKit'
-          full.dependency 'Kingfisher'
-          full.vendored_frameworks = 'WYBasisKit/LivePlayer/IJKMediaFramework.framework'
-          #full.vendored_libraries = 'xxx.a'
-          full.libraries = 'c++', 'z', 'bz2'
-          full.frameworks = 'UIKit', 'AudioToolbox', 'CoreGraphics', 'AVFoundation', 'CoreMedia', 'CoreVideo', 'MediaPlayer', 'CoreServices', 'Metal', 'QuartzCore', 'VideoToolbox'
-       end
-
-       livePlayer.subspec 'Lite' do |lite|
-          lite.source_files = 'WYBasisKit/LivePlayer/WYLivePlayer.swift'
-          lite.dependency 'SnapKit'
-          lite.dependency 'Kingfisher'
-          lite.vendored_frameworks = 'WYBasisKit/LivePlayer/IJKMediaFramework.framework'
-          #lite.vendored_libraries = 'xxx.a'
-          lite.libraries = 'c++', 'z', 'bz2'
-          lite.frameworks = 'UIKit', 'AudioToolbox', 'CoreGraphics', 'AVFoundation', 'CoreMedia', 'CoreVideo', 'MediaPlayer', 'CoreServices', 'Metal', 'QuartzCore', 'VideoToolbox'
        end
     end
 end

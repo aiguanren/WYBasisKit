@@ -1,1 +1,1 @@
-如需要更新WYLivePlayer和WYLivePlayerLite，则需要将两个压缩包解压到当前文件夹，否则pod验证时会报错路径不正确
+WYLivePlayer和WYLivePlayerLite共用一个WYLivePlayer.swift，唯一的区别是IJKMediaFramework.framework包不同，更新Cocoapods版本库的时候，需要手动解压对应的IJKMediaFramework包到当前目录中，不然验证会不通过
