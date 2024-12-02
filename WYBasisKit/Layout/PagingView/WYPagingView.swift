@@ -196,9 +196,9 @@ extension WYPagingView: UIScrollViewDelegate {
 
             let index: CGFloat = scrollView.contentOffset.x / self.frame.size.width
             
-            let channeItem: WYPagingItem =  barScrollView.viewWithTag(buttonItemTagBegin + Int(index)) as! WYPagingItem
-            //重新赋值标签属性
-            updateButtonItemProperty(currentItem: channeItem)
+            let changeItem: WYPagingItem =  barScrollView.viewWithTag(buttonItemTagBegin + Int(index)) as! WYPagingItem
+            // 重新赋值标签属性
+            updateButtonItemProperty(currentItem: changeItem)
         }
     }
 }
@@ -286,7 +286,12 @@ extension WYPagingView {
         
         if(((defaultImages.count == controllers.count) || (selectedImages.count == controllers.count)) && (titles.count == controllers.count)) {
             
-            sender.wy_updateInsets(position: buttonPosition, spacing: barButton_dividingOffset)
+            if sender is WYButton {
+                (sender as! WYButton).position = buttonPosition
+                (sender as! WYButton).spacing = barButton_dividingOffset
+            }else {
+                sender.wy_updateInsets(position: buttonPosition, spacing: barButton_dividingOffset)
+            }
             
             sender.superview?.wy_rectCorner(.allCorners).wy_cornerRadius(bar_item_cornerRadius).wy_showVisual()
         }
@@ -524,15 +529,15 @@ extension WYPagingView {
 
 private class WYPagingItem: UIButton {
     
-    let contentView: UIButton = UIButton(type: .custom)
+    let contentView: WYButton = WYButton(type: .custom)
     
     init(appendSize: CGSize) {
         
         super.init(frame: .zero)
         contentView.isUserInteractionEnabled = false
+        contentView.titleLabel?.textAlignment = .center
         addSubview(contentView)
         contentView.snp.makeConstraints { (make) in
-            
             make.left.equalToSuperview().offset(appendSize.width / 2)
             make.top.equalToSuperview().offset(appendSize.height / 2)
             make.right.equalToSuperview().offset(-(appendSize.width / 2))

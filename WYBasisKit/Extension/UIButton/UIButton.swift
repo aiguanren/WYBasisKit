@@ -21,6 +21,97 @@ import UIKit
     case imageBottomTitleTop
 }
 
+/// 自定义Button，此Button可以实现设置Button内部的imageView和titleLabel的size，弥补iOS15以后分类方法wy_updateInsets只能调整imageView和titleLabel的位置，而不能设置imageView和titleLabel的size的遗憾
+public class WYButton: UIButton {
+    
+    /// 按钮中imageView和titleLabe的展示位置
+    public var position: WYButtonPosition = .imageLeftTitleRight
+    
+    /// 按钮中imageView和titleLabe的间距
+    public var spacing: CGFloat = 0
+    
+    /// 按钮中imageView的自定义size(可选)
+    public var imageViewSize: CGSize?
+    
+    /// 按钮中titleLabe的自定义size(可选)
+    public var titleLabelSize: CGSize?
+    
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        guard let imageView = self.imageView, let titleLabel = self.titleLabel else {
+            return
+        }
+        
+        let buttonWidth = self.frame.size.width
+        let buttonHeight = self.frame.size.height
+        let imageWidth = imageViewSize?.width ?? imageView.frame.size.width
+        let imageHeight = imageViewSize?.height ?? imageView.frame.size.height
+        let labelWidth = titleLabelSize?.width ?? titleLabel.frame.size.width
+        let labelHeight = titleLabelSize?.height ?? titleLabel.frame.size.height
+        
+        let totalWidth = imageWidth + labelWidth + spacing
+        
+        switch position {
+        case .imageLeftTitleRight:
+            imageView.frame = CGRect(
+                x: (buttonWidth - totalWidth) / 2,
+                y: (buttonHeight - imageHeight) / 2,
+                width: imageWidth,
+                height: imageHeight
+            )
+            titleLabel.frame = CGRect(
+                x: imageView.frame.maxX + spacing,
+                y: (buttonHeight - labelHeight) / 2,
+                width: labelWidth,
+                height: labelHeight
+            )
+            
+        case .imageRightTitleLeft:
+            titleLabel.frame = CGRect(
+                x: (buttonWidth - totalWidth) / 2,
+                y: (buttonHeight - labelHeight) / 2,
+                width: labelWidth,
+                height: labelHeight
+            )
+            imageView.frame = CGRect(
+                x: titleLabel.frame.maxX + spacing,
+                y: (buttonHeight - imageHeight) / 2,
+                width: imageWidth,
+                height: imageHeight
+            )
+            
+        case .imageTopTitleBottom:
+            imageView.frame = CGRect(
+                x: (buttonWidth - imageWidth) / 2,
+                y: (buttonHeight - imageHeight - labelHeight - spacing) / 2,
+                width: imageWidth,
+                height: imageHeight
+            )
+            titleLabel.frame = CGRect(
+                x: (buttonWidth - labelWidth) / 2,
+                y: imageView.frame.maxY + spacing,
+                width: labelWidth,
+                height: labelHeight
+            )
+            
+        case .imageBottomTitleTop:
+            titleLabel.frame = CGRect(
+                x: (buttonWidth - labelWidth) / 2,
+                y: (buttonHeight - imageHeight - labelHeight - spacing) / 2,
+                width: labelWidth,
+                height: labelHeight
+            )
+            imageView.frame = CGRect(
+                x: (buttonWidth - imageWidth) / 2,
+                y: titleLabel.frame.maxY + spacing,
+                width: imageWidth,
+                height: imageHeight
+            )
+        }
+    }
+}
+
 public extension UIButton {
     
     /**
@@ -44,11 +135,11 @@ public extension UIButton {
             let imageHeight: CGFloat = (self.imageView?.frame.size.height)!
             let labelWidth: CGFloat = CGFloat(self.titleLabel!.intrinsicContentSize.width)
             let labelHeight: CGFloat = CGFloat(self.titleLabel!.intrinsicContentSize.height)
-
+            
             switch position {
                 
             case .imageRightTitleLeft:
-
+                
                 if #available(iOS 15.0, *) {
                     
                     var configuration: UIButton.Configuration = .plain()
@@ -305,5 +396,9 @@ private extension UIButton {
     struct WYAssociatedKeys {
         static let intervalSelector = UnsafeRawPointer(bitPattern: "IntervalSelector".hashValue)!
         static let selectorInterval = UnsafeRawPointer(bitPattern: "selectorInterval".hashValue)!
+        static let positionKey = UnsafeRawPointer(bitPattern: "positionKey".hashValue)!
+        static var spacingKey = UnsafeRawPointer(bitPattern: "spacingKey".hashValue)!
+        static var imageViewSizeKey = UnsafeRawPointer(bitPattern: "imageViewSizeKey".hashValue)!
+        static var titleLabelSizeKey = UnsafeRawPointer(bitPattern: "titleLabelSizeKey".hashValue)!
     }
 }

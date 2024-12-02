@@ -435,9 +435,7 @@ public extension WYCollectionViewFlowLayout {
                 
                 // 设置headerView在最上层
                 let headerView: UICollectionReusableView? = collectionView?.supplementaryView(forElementKind: UICollectionView.elementKindSectionHeader, at: indexPath)
-                if headerView != nil {
-                    headerView?.superview?.bringSubviewToFront(headerView!)
-                }
+                headerView?.layer.zPosition = 1
                 
                 if scrollDirection == .vertical {
                     

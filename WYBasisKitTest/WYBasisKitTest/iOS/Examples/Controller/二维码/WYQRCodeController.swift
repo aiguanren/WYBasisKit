@@ -17,7 +17,7 @@ class WYQRCodeController: UIViewController {
         
         view.backgroundColor = .white
         
-        let qrData = try! JSONSerialization.data(withJSONObject: ["简书": "http://events.jianshu.io/p/88f00643076b", "GitHub": "https://github.com/Jacke-xu/WYBasisKit-swift"], options: [JSONSerialization.WritingOptions.prettyPrinted])
+        let qrData = try! JSONSerialization.data(withJSONObject: ["简书": "https://www.jianshu.com/p/dec880e5d401", "GitHub": "https://github.com/gaunren/WYBasisKit-swift"], options: [JSONSerialization.WritingOptions.prettyPrinted])
         //let qrData = "WYBasisKit".data(using: .utf8)!
 
         let imageView = UIImageView(image: UIImage.wy_createQrCode(with: qrData, size: CGSize(width: 350, height: 350), waterImage: UIImage.wy_find("WYBasisKit_60*60")))
