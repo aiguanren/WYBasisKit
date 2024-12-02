@@ -83,7 +83,7 @@ public static func clearDiskCache(path: String, asset: String = "", completion:(
 
 ##### 暗夜模式切换
 
-![暗夜模式切换](/Users/zhanxun/Desktop/WYBasisKit-swift/DemoEffect/暗夜模式切换.gif)
+![暗夜模式切换](https://github.com/user-attachments/assets/5ff41050-bd01-4c09-bb51-09c76765f75d)
 
 
 
@@ -91,55 +91,65 @@ public static func clearDiskCache(path: String, asset: String = "", completion:(
 
 ##### UIView控件设置 圆角、阴影、边框等
 
-![UIView控件圆角、阴影、边框](/Users/zhanxun/Desktop/WYBasisKit-swift/DemoEffect/UIView控件圆角、阴影、边框.png)
+![UIView控件圆角、阴影、边框](https://github.com/user-attachments/assets/12c8668e-88fe-41f5-8e38-215865a37b5b)
+
+
 
 
 
 ##### 自定义按钮的图片和文本控件位置
 
-![自定义按钮的图片和文本控件位置](/Users/zhanxun/Desktop/WYBasisKit-swift/DemoEffect/自定义按钮的图片和文本控件位置.png)
+![自定义按钮的图片和文本控件位置](https://github.com/user-attachments/assets/e5cd32b4-8755-4dfc-b876-172a7943c8be)
+
 
 
 
 ##### 二维码识别
 
-![二维码](/Users/zhanxun/Desktop/WYBasisKit-swift/DemoEffect/二维码.png)
+![二维码](https://github.com/user-attachments/assets/b437436a-6285-45d4-a4f0-433de4600e38)
+
 
 
 
 ##### 自定义Banner控件(2个ImageView极限优化)
 
-![自定义Banner控件(2个ImageView极限优化)](/Users/zhanxun/Desktop/WYBasisKit-swift/DemoEffect/自定义Banner控件(2个ImageView极限优化).gif)
+![自定义Banner控件(2个ImageView极限优化)](https://github.com/user-attachments/assets/b7f5a299-3b8c-40fd-85bc-91b9f5ec47b8)
+
 
 
 
 ##### 富文本控件
 
-![富文本控件](/Users/zhanxun/Desktop/WYBasisKit-swift/DemoEffect/富文本控件.gif)
+![富文本](https://github.com/user-attachments/assets/a6aea065-f36e-4fae-b2ad-86dd85f63ab9)
+
 
 
 
 ##### 资源下载、保存(可设置本地资源过期时间)
 
-![资源下载、保存](/Users/zhanxun/Desktop/WYBasisKit-swift/DemoEffect/资源下载、保存.gif)
+![资源下载、保存](https://github.com/user-attachments/assets/0369a405-a41f-4a11-a1b2-f30bec64931e)
+
 
 
 
 ##### 网络请求
 
-![网络请求](/Users/zhanxun/Desktop/WYBasisKit-swift/DemoEffect/网络请求.gif)
+![网络请求](https://github.com/user-attachments/assets/0feed3c8-dc51-4817-b7db-9534b901477b)
+
 
 
 
 ##### 屏幕旋转
 
-![屏幕旋转](/Users/zhanxun/Desktop/WYBasisKit-swift/DemoEffect/屏幕旋转.gif)
+![屏幕旋转](https://github.com/user-attachments/assets/bee3de20-3484-423b-9592-5403122e96be)
+
 
 
 
 ##### Gif加载
 
-![Gif加载](/Users/zhanxun/Desktop/WYBasisKit-swift/DemoEffect/Gif加载.gif)
+
+![Gif加载](https://github.com/user-attachments/assets/1dedcf9a-93c5-432f-8bae-02a357cd8256)
 
 
 
@@ -147,19 +157,22 @@ public static func clearDiskCache(path: String, asset: String = "", completion:(
 
 ##### 魔改UICollectionViewFlowLayout，支持各种瀑布流
 
-![魔改UICollectionViewFlowLayout，支持各种瀑布流](/Users/zhanxun/Desktop/WYBasisKit-swift/DemoEffect/魔改UICollectionViewFlowLayout，支持各种瀑布流.gif)
+![瀑布流](https://github.com/user-attachments/assets/b08b055f-ae6a-4599-8b3c-d834ac711b7d)
+
 
 
 
 ##### 直播、点播播放器(也可作为本地播放器)
 
-![直播](/Users/zhanxun/Desktop/WYBasisKit-swift/DemoEffect/直播.gif)
+
+![直播](https://github.com/user-attachments/assets/dc1d107b-1fa4-41f6-a048-3802c16a37a8)
 
 
 
 ##### 分页控制器
 
-![分页控制器](/Users/zhanxun/Desktop/WYBasisKit-swift/DemoEffect/分页控制器.gif)
+![分页控制器](https://github.com/user-attachments/assets/96b9771b-78c0-4ebc-9a53-a7415fe55213)
+
 
 
 
