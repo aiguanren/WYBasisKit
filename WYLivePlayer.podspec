@@ -19,13 +19,13 @@ Pod::Spec.new do |livePlayer|
   livePlayer.license      = { :type => 'MIT', :file => 'License.md' }
   livePlayer.author             = { '官人' => 'mobileAppDvlp@icloud.com' }
   livePlayer.ios.deployment_target = '13.0'
-  livePlayer.source       = { :http => 'https://github.com/gaunren/WYBasisKit-swift/raw/refs/heads/master/WYBasisKit/LivePlayer/IJKMediaFrameworkFull.zip' }
+  livePlayer.source       = { :http => 'https://github.com/gaunren/WYBasisKit-swift/raw/refs/heads/master/WYBasisKit/LivePlayer/Full.zip' }
   livePlayer.swift_versions = '5.0'
   livePlayer.requires_arc = true
-  livePlayer.source_files = 'WYBasisKit/LivePlayer/WYLivePlayer.swift'
+  livePlayer.source_files = 'Full/WYLivePlayer.swift'
   livePlayer.dependency 'SnapKit'
   livePlayer.dependency 'Kingfisher'
-  livePlayer.vendored_frameworks = 'WYBasisKit/LivePlayer/IJKMediaFramework.framework'
+  livePlayer.vendored_frameworks = 'Full/IJKMediaFramework.framework'
   #livePlayer.vendored_libraries = 'xxx.a'
   livePlayer.libraries = 'c++', 'z', 'bz2'
   livePlayer.frameworks = 'UIKit', 'AudioToolbox', 'CoreGraphics', 'AVFoundation', 'CoreMedia', 'CoreVideo', 'MediaPlayer', 'CoreServices', 'Metal', 'QuartzCore', 'VideoToolbox'
