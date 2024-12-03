@@ -22,10 +22,10 @@ Pod::Spec.new do |livePlayer|
   livePlayer.source       = { :http => 'https://github.com/gaunren/WYBasisKit-swift/raw/refs/heads/master/WYBasisKit/LivePlayer/IJKMediaFrameworkLite.zip' }
   livePlayer.swift_versions = '5.0'
   livePlayer.requires_arc = true
-  livePlayer.source_files = '/WYBasisKit/LivePlayer/WYLivePlayer.swift'
+  livePlayer.source_files = 'WYBasisKit/LivePlayer/WYLivePlayer.swift'
   livePlayer.dependency 'SnapKit'
   livePlayer.dependency 'Kingfisher'
-  livePlayer.vendored_frameworks = '/WYBasisKit/LivePlayer/IJKMediaFramework.framework'
+  livePlayer.vendored_frameworks = 'WYBasisKit/LivePlayer/IJKMediaFramework.framework'
   livePlayer.libraries = 'c++', 'z', 'bz2'
   livePlayer.frameworks = 'UIKit', 'AudioToolbox', 'CoreGraphics', 'AVFoundation', 'CoreMedia', 'CoreVideo', 'MediaPlayer', 'CoreServices', 'Metal', 'QuartzCore', 'VideoToolbox'
 end
