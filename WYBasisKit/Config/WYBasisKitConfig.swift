@@ -31,7 +31,7 @@ public struct WYRatio {
     
     /// 最小比率
     public var min: Double
-
+    
     /// 最大比率
     public var max: Double
     
@@ -238,20 +238,59 @@ public func wy_randomFloat(minimux: CGFloat = 0.01, maximum: CGFloat = 99999.99,
  */
 public func wy_randomString(minimux: NSInteger = 1, maximum: NSInteger = 100) -> String {
     
-    let contentString: String = "关关雎鸠，在河之洲。窈窕淑女，君子好逑。参差荇菜，左右流之。窈窕淑女，寤寐求之。求之不得，寤寐思服。悠哉悠哉，辗转反侧。参差荇菜，左右采之。窈窕淑女，琴瑟友之。参差荇菜，左右芼之。窈窕淑女，钟鼓乐之。"
+    guard maximum >= minimux else { return "" }
     
-    guard maximum <= contentString.count else {
-        return contentString
+    // 先确定一个随机目标长度
+    let targetLength = Int.random(in: minimux...maximum)
+    
+    let hanziRange: ClosedRange<UInt32> = 0x4E00...0x9FA5
+    let punctuations = ["，", "。", "；", "？", "！"]
+    let maxSentenceLength = 7
+    let minSentenceLength = 3
+    
+    var result = ""
+    var currentSentenceLength = 0
+    
+    // 以targetLength为终止条件
+    while result.count < targetLength {
+        if currentSentenceLength >= minSentenceLength {
+            let shouldEnd = currentSentenceLength >= maxSentenceLength || Bool.random()
+            
+            if shouldEnd {
+                result.append(punctuations.randomElement()!)
+                currentSentenceLength = 0
+                
+                // 随机换行，几率10%
+                if (Double.random(in: 0...1) < 0.1) && result.count < targetLength {
+                    result.append("\n")
+                }
+                continue
+            }
+        }
+        
+        if let scalar = UnicodeScalar(UInt32.random(in: hanziRange)) {
+            result.append(Character(scalar))
+            currentSentenceLength += 1
+        }
     }
     
-    guard minimux <= maximum else {
-        return contentString
+    // 直接截断到目标长度
+    if result.count > targetLength {
+        result = String(result.prefix(targetLength))
     }
     
-    let startIndex = contentString.index(contentString.startIndex, offsetBy: 0)
-    let endIndex = contentString.index(contentString.startIndex, offsetBy: wy_randomInteger(minimux: minimux, maximum: maximum) - (minimux > 0 ? 1 : 0))
-
-    return String(contentString[startIndex...endIndex])
+    // 移除末尾标点（若需要）
+    if let last = result.last, last.isPunctuation {
+        result.removeLast()
+    }
+    
+    // 补全最小值（极端情况处理）
+    while result.count < minimux {
+        if let scalar = UnicodeScalar(UInt32.random(in: hanziRange)) {
+            result.append(Character(scalar))
+        }
+    }
+    return result
 }
 
 /// 获取对象或者类的所有属性和对应的类型
@@ -260,7 +299,7 @@ public func wy_sharedPropertys(object: Any? = nil, className: String = "") -> [S
     var propertys: [String: Any] = [:]
     
     if (object != nil) {
-
+        
         Mirror(reflecting: object!).children.forEach { (child) in
             propertys[child.label ?? ""] = type(of: child.value)
         }
@@ -298,7 +337,7 @@ public let wy_appBuildVersion: String = Bundle.main.infoDictionary?["CFBundleVer
 
 /// DEBUG打印日志
 public func wy_print(_ messages: Any..., file: String = #file, function: String = #function, line: Int = #line) {
-    #if DEBUG
+#if DEBUG
     if WYBasisKitConfig.debugModeLog == true {
         let timeFormatter = DateFormatter()
         timeFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
@@ -306,5 +345,5 @@ public func wy_print(_ messages: Any..., file: String = #file, function: String 
         let message = messages.compactMap { "\($0)" }.joined(separator: " ")
         print("\n\(time) ——> \((file as NSString).lastPathComponent) ——> \(function) ——> line:\(line)\n\n\(message)\n\n\n")
     }
-    #endif
+#endif
 }
