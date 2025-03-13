@@ -240,57 +240,121 @@ public func wy_randomString(minimux: NSInteger = 1, maximum: NSInteger = 100) ->
     
     guard maximum >= minimux else { return "" }
     
-    // 先确定一个随机目标长度
+    let phrases = [
+        "嗨",
+        "美女",
+        "么么哒",
+        "阳光明媚",
+        "春风拂面暖",
+        "梦想照亮前路",
+        "窗外繁花正盛开",
+        "风花雪月诗意生活",
+        "让时光沉淀爱的芬芳",
+        "樱花飘落，温柔了梦乡",
+        "微风不燥，时光正好，你我相遇，此时甚好。",
+        "早知混成这样，不如找个对象，少妇一直是我的理想，她已有车有房，不用我去闯荡，吃着软饭是真的很香。",
+        "关关雎鸠，在河之洲。窈窕淑女，君子好逑。参差荇菜，左右流之。窈窕淑女，寤寐求之。求之不得，寤寐思服。悠哉悠哉，辗转反侧。参差荇菜，左右采之。窈窕淑女，琴瑟友之。参差荇菜，左右芼之。窈窕淑女，钟鼓乐之。",
+        "漫步海边，脚下的沙砾带着白日阳光的余温，细腻而柔软。海浪层层叠叠地涌来，热情地亲吻沙滩，又恋恋不舍地退去，发出悦耳声响。海风肆意穿梭，咸湿气息钻进鼻腔，带来大海独有的韵味。抬眼望去，落日熔金，余晖将海面染成橙红，粼粼波光像是无数碎钻在闪烁。我沉醉其中，心也被这梦幻海景悄然填满。"
+    ]
+    
+    // 随机字符长度
     let targetLength = Int.random(in: minimux...maximum)
     
-    let hanziRange: ClosedRange<UInt32> = 0x4E00...0x9FA5
-    let punctuations = ["，", "。", "；", "？", "！"]
-    let maxSentenceLength = 7
-    let minSentenceLength = 3
+    guard targetLength >= 1 else { return "" }
     
-    var result = ""
-    var currentSentenceLength = 0
+    var contentPhrases: [String] = [];
+    for _ in 0..<targetLength {
+        // 获取拼接后的符合长度的字符串
+        contentPhrases = findSpliceCharacter(targetLength: targetLength, phrases: contentPhrases)
+        if (contentPhrases.joined().count >= targetLength) {
+            break
+        }
+    }
+    return contentPhrases.joined()
     
-    // 以targetLength为终止条件
-    while result.count < targetLength {
-        if currentSentenceLength >= minSentenceLength {
-            let shouldEnd = currentSentenceLength >= maxSentenceLength || Bool.random()
+    /// 找出长度最接近 surplusLength 且小于 surplusLength 的 phrase
+    func sharedBestFitPhrase(surplusLength: NSInteger) -> String {
+        var selectedPhrase = ""
+        for phrase in phrases {
             
-            if shouldEnd {
-                result.append(punctuations.randomElement()!)
-                currentSentenceLength = 0
-                
-                // 随机换行，几率10%
-                if (Double.random(in: 0...1) < 0.1) && result.count < targetLength {
-                    result.append("\n")
-                }
-                continue
+            if (phrase.count == surplusLength) {
+                return phrase
+            }
+            
+            if phrase.count < surplusLength, phrase.count > selectedPhrase.count {
+                selectedPhrase = phrase
+            }else {
+                break
             }
         }
+        return selectedPhrase
+    }
+    
+    /// 判断字符串最后或第一个字符是否是标点符号
+    func phraseEndingsComplete(phrase: String, suffix: Bool) -> Bool {
+        // 去除首尾空格和换行符
+        let trimmedString = phrase.trimmingCharacters(in: .whitespacesAndNewlines)
         
-        if let scalar = UnicodeScalar(UInt32.random(in: hanziRange)) {
-            result.append(Character(scalar))
-            currentSentenceLength += 1
+        // 检查字符串是否为空
+        guard let targetChar = (suffix ? trimmedString.last : trimmedString.first) else {
+            return false
         }
+        
+        // 定义中英文标点集合（可根据需要扩展）
+        let punctuation = ",，.。：:；;！!？?"
+        
+        // 判断最后一个字符是否在标点集合中
+        return punctuation.contains(targetChar)
     }
     
-    // 直接截断到目标长度
-    if result.count > targetLength {
-        result = String(result.prefix(targetLength))
+    /// 判断下一个匹配的字符串尾部是否有标点符号
+    func nextPhraseEndingsComplete(surplusLength: NSInteger) -> Bool {
+        
+        // 获取下一个字符串
+        let nextPhrase: String = sharedBestFitPhrase(surplusLength: surplusLength)
+        
+        // 判断nextPhrase中最后一个字符是否是标点符号
+        return phraseEndingsComplete(phrase: nextPhrase, suffix: true)
     }
     
-    // 移除末尾标点（若需要）
-    if let last = result.last, last.isPunctuation {
-        result.removeLast()
-    }
-    
-    // 补全最小值（极端情况处理）
-    while result.count < minimux {
-        if let scalar = UnicodeScalar(UInt32.random(in: hanziRange)) {
-            result.append(Character(scalar))
+    /// 查找并拼接字符长度至目标长度
+    func findSpliceCharacter(targetLength: NSInteger, phrases: [String] = []) ->[String] {
+
+        // 当前字符串
+        let currentPhrase: String = phrases.joined()
+        
+        // 获取最接近targetLength的字符串
+        let targetPhrase: String = sharedBestFitPhrase(surplusLength: targetLength - currentPhrase.count)
+        
+        var contentPhrases: [String] = phrases
+        
+        // 判断targetPhrase中最后一个字符是否是标点符号
+        let suffix: Bool = phraseEndingsComplete(phrase: targetPhrase, suffix: true)
+        
+        // 获取并判断下一个匹配的字符串尾部是否是标点符号
+        let nextSuffix: Bool = nextPhraseEndingsComplete(surplusLength: targetLength - currentPhrase.count - targetPhrase.count - 1)
+        
+        if suffix == false {
+            // 判断拼接标点符号后是否满足长度
+            if ((targetPhrase.count + currentPhrase.count) == targetLength) {
+                contentPhrases.insert(targetPhrase, at: 0)
+            }else if ((targetPhrase.count + currentPhrase.count + 1) == targetLength) {
+                contentPhrases.insert("😄" + targetPhrase, at: 0)
+            }else {
+                contentPhrases.insert(((nextSuffix == true) ? "" : "，") + targetPhrase, at: 0)
+            }
+        }else {
+            // 判断拼接标点符号后是否满足长度
+            if ((targetPhrase.count + currentPhrase.count) == targetLength) {
+                contentPhrases.insert(targetPhrase, at: 0)
+            }else if ((targetPhrase.count + currentPhrase.count + 1) == targetLength) {
+                contentPhrases.insert("😄" + targetPhrase, at: 0)
+            }else {
+                contentPhrases.insert(((nextSuffix == true) ? "" : "，") + targetPhrase, at: 0)
+            }
         }
+        return contentPhrases
     }
-    return result
 }
 
 /// 获取对象或者类的所有属性和对应的类型
