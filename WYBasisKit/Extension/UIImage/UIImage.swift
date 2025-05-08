@@ -109,7 +109,7 @@ public extension UIImage {
             start = CGPoint.zero
             end = CGPoint(x: size.width, y: size.height)
             break
-        case .rightToLowlLeft:
+        case .rightToLowLeft:
             start = CGPoint(x: size.width, y: 0)
             end = CGPoint(x: 0, y: size.height)
             break

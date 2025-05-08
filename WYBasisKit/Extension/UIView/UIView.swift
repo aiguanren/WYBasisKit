@@ -18,7 +18,7 @@ import UIKit
     /// 左上到右下
     case leftToLowRight = 2
     /// 右上到左下
-    case rightToLowlLeft = 3
+    case rightToLowLeft = 3
 }
 
 public extension UIView {
