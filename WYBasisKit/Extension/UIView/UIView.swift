@@ -332,7 +332,7 @@ public extension UIView {
         return self
     }
     
-    /// 显示边框、阴影、圆角
+    /// 显示(更新)边框、阴影、圆角、渐变
     @discardableResult
     func wy_showVisual() -> UIView {
         
@@ -522,6 +522,15 @@ public extension UIView {
             default:
                 startPoint = CGPoint(x: 1.0, y: 0.0)
                 endPoint = CGPoint(x: 0.0, y: 1.0)
+            }
+            
+            // 新增GradientLayer前先移除上次新增的GradientLayer
+            if self.layer.sublayers?.isEmpty == false {
+                for sublayer in self.layer.sublayers! {
+                    if (sublayer.name == WYAssociatedKeys.gradientLayer) {
+                        sublayer.removeFromSuperlayer()
+                    }
+                }
             }
             
             let gradientLayer = CAGradientLayer()

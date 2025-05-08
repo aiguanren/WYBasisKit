@@ -9,10 +9,10 @@
 import UIKit
 
 class WYTestVisualController: UIViewController {
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         // Do any additional setup after loading the view.
         
         let button1 = UIButton(type: .custom)
@@ -24,11 +24,12 @@ class WYTestVisualController: UIViewController {
         button1.frame = CGRect(x: 20, y: 200, width: 100, height: 100)
         
         let button = UIButton(type: .custom)
+        button.addTarget(self, action: #selector(updateButtonConstraints(button:)), for: .touchUpInside)
         button.titleLabel?.numberOfLines = 0
         button.setTitle("约束控件", for: .normal)
         view.addSubview(button)
         button.wy_makeVisual { (current) in
-
+            
             current.wy_gradualColors([.yellow, .purple])
             current.wy_gradientDirection(.leftToLowRight)
             current.wy_borderWidth(5)
@@ -42,7 +43,7 @@ class WYTestVisualController: UIViewController {
             //current.wy_bezierPath(UIBezierPath(ovalIn: CGRect(x: 0, y: 0, width: 100, height: 50)))
         }
         button.snp.makeConstraints { (make) in
-
+            
             make.right.equalToSuperview().offset(-20)
             make.top.equalToSuperview().offset(200)
             make.size.equalTo(CGSize(width: 100, height: 100))
@@ -52,27 +53,36 @@ class WYTestVisualController: UIViewController {
         gradualView.backgroundColor = .orange
         view.addSubview(gradualView)
         gradualView.snp.makeConstraints { (make) in
-
-            make.right.equalToSuperview().offset(-20)
-            make.top.equalToSuperview().offset(200)
+            make.left.equalToSuperview().offset(20)
+            make.top.equalToSuperview().offset(500)
             make.size.equalTo(CGSize(width: 100, height: 100))
         }
+        gradualView.wy_add(rectCorner: .allCorners, cornerRadius: 10, borderColor: .black, borderWidth: 5, gradualColors: [UIColor.orange,
+                                                                                                          UIColor.red], gradientDirection: .leftToRight)
         
-        gradualView.wy_add(rectCorner: .allCorners, cornerRadius: 10, borderColor: .white,gradualColors: [UIColor.orange,
-                                           UIColor.red], gradientDirection: .leftToRight, viewBounds: CGRect(x: 200, y: 300, width: 100, height: 100))
+        
+    }
+    
+    @objc func updateButtonConstraints(button: UIButton) {
+        button.snp.updateConstraints { (make) in
+            make.right.equalToSuperview().offset(-20)
+            make.top.equalToSuperview().offset(200)
+            make.size.equalTo(CGSize(width: 200, height: 100))
+        }
+        button.wy_showVisual()
     }
     
     deinit {
         wy_print("WYTestVisualController release")
     }
     /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
+     // MARK: - Navigation
+     
+     // In a storyboard-based application, you will often want to do a little preparation before navigation
+     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+     // Get the new view controller using segue.destination.
+     // Pass the selected object to the new view controller.
+     }
+     */
+    
 }
