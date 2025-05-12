@@ -18,7 +18,7 @@ import UIKit
     /// 左上到右下
     case leftToLowRight = 2
     /// 右上到左下
-    case rightToLowlLeft = 3
+    case rightToLowLeft = 3
 }
 
 public extension UIView {
@@ -272,7 +272,17 @@ public extension UIView {
     /// 边框宽度 默认0.0
     @discardableResult
     func wy_borderWidth(_ width: CGFloat) -> UIView {
+        if (privateAdjustBorderWidth != width) && (privateAdjustBorderWidth == 0) {
+            privateAdjustBorderWidth = privateBorderWidth
+        }
+        if (privateAdjustBorderWidth > width) {
+            privateAdjustBorderWidth = privateAdjustBorderWidth - width
+        }
+        if (privateAdjustBorderWidth == width) {
+            privateAdjustBorderWidth = privateAdjustBorderWidth - (width / 2)
+        }
         privateBorderWidth = width
+        
         return self
     }
     
@@ -336,15 +346,19 @@ public extension UIView {
     @discardableResult
     func wy_showVisual() -> UIView {
         
+        // 强制更新布局以确保获取最新尺寸
+        self.superview?.layoutIfNeeded()
+        self.layoutIfNeeded()
+        
         // 抗锯齿边缘
         layer.rasterizationScale = UIScreen.main.scale
         
-        // 添加阴影
-        wy_addShadow()
         // 添加边框、圆角
         wy_addBorderAndRadius()
         // 添加渐变
         wy_addGradual()
+        // 添加阴影
+        wy_addShadow()
         
         return self
     }
@@ -369,18 +383,19 @@ public extension UIView {
         }
         
         // 恢复默认设置
-        privateRectCorner    = .allCorners
-        privateConrnerRadius = 0.0
-        privateBorderColor   = .clear
-        privateBorderWidth   = 0.0
-        privateShadowOpacity = 0.0
-        privateShadowRadius  = 0.0
-        privateShadowOffset  = .zero
-        privateViewBounds    = .zero
-        privateShadowColor   = .clear
-        privateGradualColors = nil
-        privateGradientDirection = .leftToRight
-        shadowBackgroundView = nil
+        privateRectCorner          = .allCorners
+        privateConrnerRadius       = 0.0
+        privateBorderColor         = .clear
+        privateBorderWidth         = 0.0
+        privateAdjustBorderWidth   = 0.0
+        privateShadowOpacity       = 0.0
+        privateShadowRadius        = 0.0
+        privateShadowOffset        = .zero
+        privateViewBounds          = .zero
+        privateShadowColor         = .clear
+        privateGradualColors       = nil
+        privateGradientDirection   = .leftToRight
+        shadowBackgroundView       = nil
         
         layer.cornerRadius   = 0.0
         layer.borderWidth    = 0.0
@@ -399,13 +414,14 @@ public extension UIView {
         
         DispatchQueue.main.async {
             var shadowView = self
+            
+            if self.shadowBackgroundView != nil {
+                self.shadowBackgroundView?.removeFromSuperview()
+                self.shadowBackgroundView = nil
+            }
+            
             // 同时存在阴影和圆角
             if (((self.privateShadowOpacity > 0) && (self.privateConrnerRadius > 0)) || (self.privateBezierPath != nil)) {
-                
-                if self.shadowBackgroundView != nil {
-                    self.shadowBackgroundView?.removeFromSuperview()
-                    self.shadowBackgroundView = nil
-                }
                 
                 if self.superview == nil { wy_print("添加阴影和圆角时，请先将view加到父视图上") }
                 
@@ -438,47 +454,51 @@ public extension UIView {
     /// 添加圆角和边框
     private func wy_addBorderAndRadius() {
         DispatchQueue.main.async {
+            
+            // 移除旧边框图层
+            if self.layer.sublayers?.isEmpty == false {
+                for sublayer in self.layer.sublayers! {
+                    if (sublayer.name == WYAssociatedKeys.boardLayer) {
+                        sublayer.removeFromSuperlayer()
+                        self.layer.mask = nil
+                    }
+                }
+            }
+            
             // 圆角或阴影或自定义曲线
             if ((self.privateConrnerRadius > 0) || (self.privateShadowOpacity > 0) || (self.privateBezierPath != nil)) {
                 
                 // 圆角
                 if ((self.privateConrnerRadius > 0) || (self.privateBezierPath != nil)) {
                     
-                    let path: UIBezierPath = self.wy_sharedBezierPath()
+                    let bezierPath: UIBezierPath = self.wy_sharedBezierPath()
                     let maskLayer: CAShapeLayer = CAShapeLayer()
                     maskLayer.frame = self.wy_sharedBounds()
-                    maskLayer.path = path.cgPath
+                    maskLayer.path = bezierPath.cgPath
                     self.layer.mask = maskLayer
                 }
                 
                 // 边框
                 if ((self.privateBorderWidth > 0) || (self.privateBezierPath != nil)) {
                     
-                    if self.layer.sublayers?.isEmpty == false {
-                        for sublayer in self.layer.sublayers! {
-                            if sublayer.name == WYAssociatedKeys.boardLayer {
-                                sublayer.removeFromSuperlayer()
-                            }
-                        }
-                    }
-                    
-                    let path: UIBezierPath = self.wy_sharedBezierPath()
-                    let shapeLayer = CAShapeLayer()
-                    shapeLayer.name = WYAssociatedKeys.boardLayer
-                    shapeLayer.frame = self.wy_sharedBounds()
-                    shapeLayer.path = path.cgPath
-                    shapeLayer.lineWidth   = self.privateBorderWidth
-                    shapeLayer.strokeColor = self.privateBorderColor.cgColor
-                    shapeLayer.fillColor   = UIColor.clear.cgColor
-                    shapeLayer.lineCap = .square
-                    shapeLayer.lineJoin = .miter
-                    self.layer.addSublayer(shapeLayer)
+                    let bezierPath: UIBezierPath = self.wy_sharedBezierPath()
+                    let borderLayer = CAShapeLayer()
+                    borderLayer.name = WYAssociatedKeys.boardLayer
+                    borderLayer.frame = self.wy_sharedBounds()
+                    borderLayer.path = bezierPath.cgPath
+                    borderLayer.lineWidth = (self.privateConrnerRadius > 0) ? (self.privateBorderWidth * 2) : self.privateBorderWidth
+                    borderLayer.strokeColor = self.privateBorderColor.cgColor
+                    borderLayer.fillColor = UIColor.clear.cgColor
+                    borderLayer.lineCap = .square
+                    borderLayer.lineJoin = .miter
+                    self.layer.addSublayer(borderLayer)
                 }
                 
             }else {
                 
                 // 只有边框
                 let borderLayer = CAShapeLayer()
+                borderLayer.name = WYAssociatedKeys.boardLayer
                 borderLayer.path = self.wy_sharedBezierPath().cgPath
                 borderLayer.fillColor = UIColor.clear.cgColor
                 borderLayer.strokeColor = self.privateBorderColor.cgColor
@@ -494,13 +514,14 @@ public extension UIView {
     /// 添加渐变色
     private func wy_addGradual() {
         DispatchQueue.main.async {
-            guard self.privateGradualColors?.isEmpty == false else {
+            // 渐变色数组个数必须大于1才能满足渐变要求
+            guard (self.privateGradualColors?.count ?? 0) > 1 else {
+                wy_print("渐变色数组个数必须大于1才能满足渐变要求")
                 return
             }
             
             var CGColors: [CGColor] = NSMutableArray.init() as! [CGColor]
             for color: UIColor in self.privateGradualColors! {
-                
                 CGColors.append(color.cgColor)
             }
             
@@ -519,12 +540,13 @@ public extension UIView {
                 startPoint = CGPoint(x: 0.0, y: 0.0)
                 endPoint = CGPoint(x: 1.0, y: 1.0)
                 break
-            default:
+            case .rightToLowLeft:
                 startPoint = CGPoint(x: 1.0, y: 0.0)
                 endPoint = CGPoint(x: 0.0, y: 1.0)
+                break
             }
             
-            // 新增gradientLayer前先移除上次新增的gradientLayer
+            // 新增GradientLayer前先移除上次新增的GradientLayer
             if self.layer.sublayers?.isEmpty == false {
                 for sublayer in self.layer.sublayers! {
                     if (sublayer.name == WYAssociatedKeys.gradientLayer) {
@@ -565,7 +587,27 @@ public extension UIView {
             return privateBezierPath!
             
         }else {
-            return UIBezierPath(roundedRect: wy_sharedBounds(), byRoundingCorners: privateRectCorner, cornerRadii: CGSize(width: privateConrnerRadius, height: privateConrnerRadius))
+            let bounds = wy_sharedBounds()
+            
+            // 内缩量为边框宽度的一半
+            let borderInset = (privateBorderWidth / 2.0)
+            // 减去privateAdjustBorderWidth是因为要补全上次减去的边框宽度
+            var adjustBorderWidth = privateAdjustBorderWidth
+            if (adjustBorderWidth == 0) && (privateConrnerRadius > 0) {
+                adjustBorderWidth = (privateBorderWidth / 2)
+            }
+            if (adjustBorderWidth != 0) && (privateConrnerRadius == 0) {
+                adjustBorderWidth = 0
+            }
+            let adjustedRect = bounds.insetBy(dx: borderInset - adjustBorderWidth, dy: borderInset - adjustBorderWidth)
+            // 调整圆角半径防止负值
+            let adjustedRadius = max(0, privateConrnerRadius - borderInset)
+            
+            return UIBezierPath(
+                roundedRect: adjustedRect,
+                byRoundingCorners: privateRectCorner,
+                cornerRadii: CGSize(width: adjustedRadius, height: adjustedRadius)
+            )
         }
     }
     
@@ -602,6 +644,15 @@ public extension UIView {
         }
         get {
             return objc_getAssociatedObject(self, WYAssociatedKeys.privateBorderWidth) as? CGFloat ?? 0.0
+        }
+    }
+    
+    private var privateAdjustBorderWidth: CGFloat {
+        set(newValue) {
+            objc_setAssociatedObject(self, WYAssociatedKeys.privateAdjustBorderWidth, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+        get {
+            return objc_getAssociatedObject(self, WYAssociatedKeys.privateAdjustBorderWidth) as? CGFloat ?? 0.0
         }
     }
     
@@ -691,6 +742,7 @@ public extension UIView {
         static let privateConrnerRadius = UnsafeRawPointer(bitPattern: "privateConrnerRadius".hashValue)!
         static let privateBorderColor = UnsafeRawPointer(bitPattern: "privateBorderColor".hashValue)!
         static let privateBorderWidth = UnsafeRawPointer(bitPattern: "privateBorderWidth".hashValue)!
+        static let privateAdjustBorderWidth = UnsafeRawPointer(bitPattern: "privateAdjustBorderWidth".hashValue)!
         static let privateShadowColor = UnsafeRawPointer(bitPattern: "privateShadowColor".hashValue)!
         static let privateShadowOffset = UnsafeRawPointer(bitPattern: "privateShadowOffset".hashValue)!
         static let privateShadowRadius = UnsafeRawPointer(bitPattern: "privateShadowRadius".hashValue)!

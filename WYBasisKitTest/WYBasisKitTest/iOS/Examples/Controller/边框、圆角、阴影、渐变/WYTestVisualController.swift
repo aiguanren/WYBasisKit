@@ -15,6 +15,45 @@ class WYTestVisualController: UIViewController {
         
         // Do any additional setup after loading the view.
         
+        let lineView1 = createLineView()
+        lineView1.snp.makeConstraints { make in
+            make.width.equalTo(1)
+            make.top.equalToSuperview().offset(wy_navViewHeight)
+            make.bottom.equalToSuperview()
+            make.right.equalToSuperview().offset(-20)
+        }
+        
+        let lineView2 = createLineView()
+        lineView2.snp.makeConstraints { make in
+            make.width.top.bottom.equalTo(lineView1)
+            make.right.equalToSuperview().offset(-220)
+        }
+        
+        let lineView3 = createLineView()
+        lineView3.snp.makeConstraints { make in
+            make.left.right.equalToSuperview()
+            make.top.equalToSuperview().offset(200)
+            make.height.equalTo(1)
+        }
+        
+        let lineView4 = createLineView()
+        lineView4.snp.makeConstraints { make in
+            make.left.right.height.equalTo(lineView3)
+            make.top.equalToSuperview().offset(300)
+        }
+        
+        let lineView5 = createLineView()
+        lineView5.snp.makeConstraints { make in
+            make.left.right.height.equalTo(lineView3)
+            make.top.equalToSuperview().offset(350)
+        }
+        
+        let lineView6 = createLineView()
+        lineView6.snp.makeConstraints { make in
+            make.width.top.bottom.equalTo(lineView1)
+            make.right.equalToSuperview().offset(-120)
+        }
+        
         let button1 = UIButton(type: .custom)
         view.addSubview(button1)
         button1.wy_backgroundColor(.orange, forState: .normal)
@@ -33,7 +72,7 @@ class WYTestVisualController: UIViewController {
             current.wy_gradualColors([.yellow, .purple])
             current.wy_gradientDirection(.leftToLowRight)
             current.wy_borderWidth(5)
-            current.wy_borderColor(.black)
+            current.wy_borderColor(UIColor.black)
             current.wy_rectCorner(.topRight)
             current.wy_cornerRadius(20)
             current.wy_shadowRadius(30)
@@ -59,17 +98,32 @@ class WYTestVisualController: UIViewController {
         }
         gradualView.wy_add(rectCorner: .allCorners, cornerRadius: 10, borderColor: .black, borderWidth: 5, gradualColors: [UIColor.orange,
                                                                                                           UIColor.red], gradientDirection: .leftToRight)
-        
-        
     }
     
     @objc func updateButtonConstraints(button: UIButton) {
         button.snp.updateConstraints { (make) in
             make.right.equalToSuperview().offset(-20)
             make.top.equalToSuperview().offset(200)
-            make.size.equalTo(CGSize(width: 200, height: 100))
+            make.size.equalTo(CGSize(width: 200, height: 150))
         }
+        button.wy_gradualColors([.orange, .red])
+        button.wy_gradientDirection(.topToBottom)
+        button.wy_borderWidth(10)
+        button.wy_borderColor(UIColor.purple.withAlphaComponent(0.025))
+        button.wy_rectCorner(.topLeft)
+        button.wy_cornerRadius(30)
+        button.wy_shadowRadius(10)
+        button.wy_shadowColor(.red)
+        button.wy_shadowOffset(.zero)
+        button.wy_shadowOpacity(0.5)
         button.wy_showVisual()
+    }
+    
+    func createLineView() -> UIView {
+        let lineView = UIView()
+        lineView.backgroundColor = .wy_random
+        view.addSubview(lineView)
+        return lineView
     }
     
     deinit {
