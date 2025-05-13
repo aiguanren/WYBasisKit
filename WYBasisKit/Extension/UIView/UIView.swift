@@ -374,13 +374,8 @@ public extension UIView {
         }
         
         // 圆角、边框、渐变
-        if layer.sublayers?.isEmpty == false {
-            for sublayer in layer.sublayers! {
-                if ((sublayer.name == WYAssociatedKeys.boardLayer) || (sublayer.name == WYAssociatedKeys.gradientLayer)) {
-                    sublayer.removeFromSuperlayer()
-                }
-            }
-        }
+        wy_removeLayer(WYAssociatedKeys.boardLayer)
+        wy_removeLayer(WYAssociatedKeys.gradientLayer)
         
         // 恢复默认设置
         privateRectCorner          = .allCorners
@@ -456,14 +451,9 @@ public extension UIView {
         DispatchQueue.main.async {
             
             // 移除旧边框图层
-            if self.layer.sublayers?.isEmpty == false {
-                for sublayer in self.layer.sublayers! {
-                    if (sublayer.name == WYAssociatedKeys.boardLayer) {
-                        sublayer.removeFromSuperlayer()
-                        self.layer.mask = nil
-                    }
-                }
-            }
+            self.wy_removeLayer(WYAssociatedKeys.boardLayer)
+            self.layer.mask = nil;
+            
             
             // 圆角或阴影或自定义曲线
             if ((self.privateConrnerRadius > 0) || (self.privateShadowOpacity > 0) || (self.privateBezierPath != nil)) {
@@ -547,13 +537,7 @@ public extension UIView {
             }
             
             // 新增GradientLayer前先移除上次新增的GradientLayer
-            if self.layer.sublayers?.isEmpty == false {
-                for sublayer in self.layer.sublayers! {
-                    if (sublayer.name == WYAssociatedKeys.gradientLayer) {
-                        sublayer.removeFromSuperlayer()
-                    }
-                }
-            }
+            self.wy_removeLayer(WYAssociatedKeys.gradientLayer)
             
             let gradientLayer = CAGradientLayer()
             gradientLayer.name = WYAssociatedKeys.gradientLayer
@@ -562,6 +546,19 @@ public extension UIView {
             gradientLayer.startPoint = startPoint
             gradientLayer.endPoint = endPoint
             self.layer.insertSublayer(gradientLayer, at: 0)
+        }
+    }
+    
+    /// 移除上次添加的layer
+    private func wy_removeLayer(_ layerKey: String) {
+        
+        let layersToRemove = self.layer.sublayers?.filter {
+            $0.name == layerKey
+        } ?? []
+        
+        // 统一移除图层
+        layersToRemove.forEach {
+            $0.removeFromSuperlayer()
         }
     }
     
