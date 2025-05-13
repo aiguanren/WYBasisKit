@@ -109,7 +109,7 @@ class WYTestVisualController: UIViewController {
         button.wy_gradualColors([.orange, .red])
         button.wy_gradientDirection(.topToBottom)
         button.wy_borderWidth(10)
-        button.wy_borderColor(UIColor.purple.withAlphaComponent(0.025))
+        button.wy_borderColor(UIColor.purple)
         button.wy_rectCorner(.topLeft)
         button.wy_cornerRadius(30)
         button.wy_shadowRadius(10)
