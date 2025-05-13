@@ -12,6 +12,7 @@
 		1F5C3E612578B61B00E0DBFF /* UIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5C3E602578B61B00E0DBFF /* UIApplication.swift */; };
 		1F5C3E942578CD5400E0DBFF /* WYLocalizableManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5C3E932578CD5400E0DBFF /* WYLocalizableManager.swift */; };
 		1F99DCC8257DCFAE003D2408 /* WYPagingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F99DCC7257DCFAE003D2408 /* WYPagingView.swift */; };
+		5838FAB42DD3515600912642 /* WKWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5838FAB32DD3515600912642 /* WKWebView.swift */; };
 		6570FEF02C5A1C2C00757C8B /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 6570FEEF2C5A1C2C00757C8B /* PrivacyInfo.xcprivacy */; };
 		65AF369E2C18103800B294CB /* WYProtocolManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AF369B2C18103800B294CB /* WYProtocolManager.swift */; };
 		65E8372C2CF807CE003212AA /* IJKMediaFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65E8372B2CF807CE003212AA /* IJKMediaFramework.framework */; };
@@ -125,6 +126,7 @@
 		1F5C3E602578B61B00E0DBFF /* UIApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIApplication.swift; sourceTree = "<group>"; };
 		1F5C3E932578CD5400E0DBFF /* WYLocalizableManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WYLocalizableManager.swift; sourceTree = "<group>"; };
 		1F99DCC7257DCFAE003D2408 /* WYPagingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPagingView.swift; sourceTree = "<group>"; };
+		5838FAB32DD3515600912642 /* WKWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WKWebView.swift; sourceTree = "<group>"; };
 		6570FEEF2C5A1C2C00757C8B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		65AF369B2C18103800B294CB /* WYProtocolManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WYProtocolManager.swift; sourceTree = "<group>"; };
 		65E8372B2CF807CE003212AA /* IJKMediaFramework.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = IJKMediaFramework.framework; sourceTree = "<group>"; };
@@ -303,6 +305,14 @@
 				75FD4F7DFBF58D8B82417F4D /* Pods-WYBasisKit.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		5838FAB22DD3514400912642 /* WKWebView */ = {
+			isa = PBXGroup;
+			children = (
+				5838FAB32DD3515600912642 /* WKWebView.swift */,
+			);
+			path = WKWebView;
 			sourceTree = "<group>";
 		};
 		65AF369C2C18103800B294CB /* ProtocolManager */ = {
@@ -826,8 +836,9 @@
 				AA771B932568F834002C748B /* UIImage */,
 				AA771B9F2568F834002C748B /* UIDevice */,
 				AA771BBE2568F834002C748B /* UITextField */,
-				1F5C3E5F2578B60C00E0DBFF /* UIApplication */,
+				5838FAB22DD3514400912642 /* WKWebView */,
 				AA771BBC2568F834002C748B /* UITableView */,
+				1F5C3E5F2578B60C00E0DBFF /* UIApplication */,
 				AAF09E7226DA2DEC0063102C /* UICollectionView */,
 				AA771BA92568F834002C748B /* NumberFormatter */,
 				AA771BA12568F834002C748B /* UIViewController */,
@@ -1092,9 +1103,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1154,6 +1169,7 @@
 				AA06A35E2B60DC000049A555 /* WYCodableAdapter.swift in Sources */,
 				AA771BDA2568F834002C748B /* NumberFormatter.swift in Sources */,
 				AA4A49F42C15897E0069646C /* WYEmojiViewCell.swift in Sources */,
+				5838FAB42DD3515600912642 /* WKWebView.swift in Sources */,
 				65F6CA882CEF225D00BEFBD8 /* Object.swift in Sources */,
 				AA771BD22568F834002C748B /* UIAlertController.swift in Sources */,
 				AA4A49F02C15897E0069646C /* WYChatPhotoCell.swift in Sources */,

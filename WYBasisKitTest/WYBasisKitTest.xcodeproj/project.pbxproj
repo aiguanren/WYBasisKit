@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4A027019DE606531773A44D7 /* Pods_WYBasisKitTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3961A58ED9E18016F754F2FB /* Pods_WYBasisKitTest.framework */; };
+		5838FAB12DD34A5300912642 /* WYWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5838FAB02DD34A5300912642 /* WYWebViewController.swift */; };
 		6535C6612C8838C3002FF69B /* WYGenericTypeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6535C6602C8838C3002FF69B /* WYGenericTypeController.swift */; };
 		6535C6632C8838E6002FF69B /* WYOffLineMethodController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6535C6622C8838E6002FF69B /* WYOffLineMethodController.swift */; };
 		6535C6672C883920002FF69B /* SDKResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6535C6642C883920002FF69B /* SDKResponse.swift */; };
@@ -86,6 +87,7 @@
 /* Begin PBXFileReference section */
 		3961A58ED9E18016F754F2FB /* Pods_WYBasisKitTest.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WYBasisKitTest.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A628127A2EA1456F04DE740 /* Pods-WYBasisKitTest.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKitTest.release.xcconfig"; path = "Target Support Files/Pods-WYBasisKitTest/Pods-WYBasisKitTest.release.xcconfig"; sourceTree = "<group>"; };
+		5838FAB02DD34A5300912642 /* WYWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYWebViewController.swift; sourceTree = "<group>"; };
 		6535C6602C8838C3002FF69B /* WYGenericTypeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYGenericTypeController.swift; sourceTree = "<group>"; };
 		6535C6622C8838E6002FF69B /* WYOffLineMethodController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYOffLineMethodController.swift; sourceTree = "<group>"; };
 		6535C6642C883920002FF69B /* SDKResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SDKResponse.swift; sourceTree = "<group>"; };
@@ -185,6 +187,14 @@
 				3961A58ED9E18016F754F2FB /* Pods_WYBasisKitTest.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		5838FAAF2DD34A0A00912642 /* WKWebView */ = {
+			isa = PBXGroup;
+			children = (
+				5838FAB02DD34A5300912642 /* WYWebViewController.swift */,
+			);
+			path = WKWebView;
 			sourceTree = "<group>";
 		};
 		6535C65E2C88386F002FF69B /* 离线方法调用 */ = {
@@ -393,6 +403,7 @@
 				DCFEC15129F27F9C001AE8E7 /* RichText */,
 				DCFEC14E29F27F95001AE8E7 /* tableView.grouped */,
 				DCFEC14F29F27F98001AE8E7 /* tableView.plain */,
+				5838FAAF2DD34A0A00912642 /* WKWebView */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -721,9 +732,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-WYBasisKitTest/Pods-WYBasisKitTest-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-WYBasisKitTest/Pods-WYBasisKitTest-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -779,6 +794,7 @@
 				DCFEC12529EFED62001AE8E7 /* WYCenterController.swift in Sources */,
 				DCFEC12B29EFED62001AE8E7 /* WYTestDownloadController.swift in Sources */,
 				DCFEC11B29EFED62001AE8E7 /* WYTestTableViewFooterView.swift in Sources */,
+				5838FAB12DD34A5300912642 /* WYWebViewController.swift in Sources */,
 				DC7D92E92A137D8100800761 /* CollectionReusableFooterView.swift in Sources */,
 				DCFEC12629EFED62001AE8E7 /* WYTestRequestController.swift in Sources */,
 				DCFEBFE929EFDE2F001AE8E7 /* AppDelegate.swift in Sources */,
