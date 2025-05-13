@@ -67,22 +67,20 @@ class WYTestVisualController: UIViewController {
         button.titleLabel?.numberOfLines = 0
         button.setTitle("约束控件", for: .normal)
         view.addSubview(button)
-        button.wy_makeVisual { (current) in
-            
-            current.wy_gradualColors([.yellow, .purple])
-            current.wy_gradientDirection(.leftToLowRight)
-            current.wy_borderWidth(5)
-            current.wy_borderColor(UIColor.black)
-            current.wy_rectCorner(.topRight)
-            current.wy_cornerRadius(20)
-            current.wy_shadowRadius(30)
-            current.wy_shadowColor(.green)
-            current.wy_shadowOffset(.zero)
-            current.wy_shadowOpacity(0.5)
-            //current.wy_bezierPath(UIBezierPath(ovalIn: CGRect(x: 0, y: 0, width: 100, height: 50)))
+        button.wy_makeVisual { make in
+            make.wy_gradualColors([.yellow, .purple])
+            make.wy_gradientDirection(.leftToLowRight)
+            make.wy_borderWidth(5)
+            make.wy_borderColor(UIColor.black)
+            make.wy_rectCorner(.topRight)
+            make.wy_cornerRadius(20)
+            make.wy_shadowRadius(30)
+            make.wy_shadowColor(.green)
+            make.wy_shadowOffset(.zero)
+            make.wy_shadowOpacity(0.5)
+            //make.wy_bezierPath(UIBezierPath(ovalIn: CGRect(x: 0, y: 0, width: 100, height: 50)))
         }
         button.snp.makeConstraints { (make) in
-            
             make.right.equalToSuperview().offset(-20)
             make.top.equalToSuperview().offset(200)
             make.size.equalTo(CGSize(width: 100, height: 100))
@@ -96,8 +94,14 @@ class WYTestVisualController: UIViewController {
             make.top.equalToSuperview().offset(500)
             make.size.equalTo(CGSize(width: 100, height: 100))
         }
-        gradualView.wy_add(rectCorner: .allCorners, cornerRadius: 10, borderColor: .black, borderWidth: 5, gradualColors: [UIColor.orange,
-                                                                                                          UIColor.red], gradientDirection: .leftToRight)
+        gradualView.wy_rectCorner(.allCorners)
+        gradualView.wy_cornerRadius(10)
+        gradualView.wy_borderColor(.black)
+        gradualView.wy_borderWidth(5)
+        gradualView.wy_gradualColors([UIColor.orange,
+                                      UIColor.red])
+        gradualView.wy_gradientDirection(.leftToRight)
+        gradualView.wy_showVisual()
     }
     
     @objc func updateButtonConstraints(button: UIButton) {

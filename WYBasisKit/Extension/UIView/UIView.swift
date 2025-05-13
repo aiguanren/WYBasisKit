@@ -185,63 +185,7 @@ public extension UIView {
 
 public extension UIView {
     
-    /**
-     * 设置圆角、边框、阴影、渐变
-     * @param rectCorner        要圆角的位置，默认4角圆角
-     * @param cornerRadius      圆角半径， 默认0
-     * @param borderColor       边框颜色，默认透明
-     * @param borderWidth       边框宽度， 默认0
-     * @param shadowColor       阴影颜色， 默认透明
-     * @param shadowRadius      阴影半径， 默认0
-     * @param shadowOpacity     阴影透明度，默认值是0.5，取值范围0~1
-     * @param shadowOffset      阴影偏移度，默认CGSize.zero (width : 为正数时，向右偏移，为负数时，向左偏移，height : 为正数时，向下偏移，为负数时，向上偏移)
-     * @param gradualColors     渐变色数组，默认为空 (设置渐变色时不能设置背景色，会有影响)
-     * @param gradientDirection 渐变色方向，默认从左到右
-     * @param viewBounds        设置圆角时，会去获取视图的Bounds属性，如果此时获取不到，则需要传入该参数，默认为 nil，如果传入该参数，会使用传入的bounds
-     */
-    func wy_add(rectCorner: UIRectCorner? = nil, cornerRadius: CGFloat? = nil, borderColor: UIColor? = nil, borderWidth: CGFloat? = nil, shadowColor: UIColor? = nil, shadowRadius: CGFloat? = nil, shadowOpacity: CGFloat? = nil, shadowOffset: CGSize? = nil, gradualColors: [UIColor]? = nil, gradientDirection: WYGradientDirection? = nil, viewBounds: CGRect? = nil) {
-        
-        DispatchQueue.main.async {
-            
-            if rectCorner != nil {
-                self.wy_rectCorner(rectCorner ?? self.privateRectCorner)
-            }
-            if cornerRadius != nil {
-                self.wy_cornerRadius(cornerRadius ?? self.privateConrnerRadius)
-            }
-            if borderColor != nil {
-                self.wy_borderColor(borderColor ?? self.privateBorderColor)
-            }
-            if borderWidth != nil {
-                self.wy_borderWidth(borderWidth ?? self.privateBorderWidth)
-            }
-            if shadowColor != nil {
-                self.wy_shadowColor(shadowColor ?? self.privateShadowColor)
-            }
-            if shadowRadius != nil {
-                self.wy_shadowRadius(shadowRadius ?? self.privateShadowRadius)
-            }
-            if shadowOpacity != nil {
-                self.wy_shadowOpacity(shadowOpacity ?? self.privateShadowOpacity)
-            }
-            if shadowOffset != nil {
-                self.wy_shadowOffset(shadowOffset ?? self.privateShadowOffset)
-            }
-            if gradualColors != nil {
-                self.wy_gradualColors((gradualColors ?? self.privateGradualColors) ?? [])
-            }
-            if gradientDirection != nil {
-                self.wy_gradientDirection(gradientDirection ?? self.privateGradientDirection)
-            }
-            
-            if viewBounds != nil {
-                self.wy_viewBounds(viewBounds ?? self.privateViewBounds)
-            }
-            self.wy_showVisual()
-        }
-    }
-    
-    /// 使用链式编程设置圆角、边框、阴影(调用方式类似SnapKit， 也可直接.语法)
+    /// 使用链式编程设置圆角、边框、阴影、渐变(调用方式类似SnapKit， 也可直接.语法调用，点语法时需要自己在最后一个设置后面调用wy_showVisual后设置才会生效)
     @discardableResult
     func wy_makeVisual(_ visualView: (_ make: UIView) -> Void) -> UIView {
         visualView(self)

@@ -335,7 +335,11 @@ private class WYActivityInfoView: UIView {
         contentLabel.attributedText = attributedText
         
         self.backgroundColor = config.backgroundColor
-        self.wy_add(rectCorner: .allCorners, cornerRadius: wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels))
+        self.wy_makeVisual { make in
+            make.wy_rectCorner(.allCorners)
+            make.wy_cornerRadius(wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels))
+            
+        }
         contentView.addSubview(self)
         
         layoutActivity(contentView: contentView, position: position, offset: offset, config: config)
@@ -527,7 +531,11 @@ private class WYActivityLoadingView: UIView {
         
         loadingView.layoutActivity(content: content, contentView: contentView, animation: animation, delay: delay, config: config)
         
-        loadingView.wy_add(rectCorner: .allCorners, cornerRadius: wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels))
+        loadingView.wy_makeVisual { make in
+            make.wy_rectCorner(.allCorners)
+            make.wy_cornerRadius(wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels))
+            
+        }
         
         contentView.wy_loadingView = loadingView
     }
