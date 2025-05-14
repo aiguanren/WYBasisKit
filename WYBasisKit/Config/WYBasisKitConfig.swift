@@ -65,7 +65,7 @@ public struct WYBasisKitConfig {
     public static var debugModeLog: Bool = true
 }
 
-/// 电池条高度
+/// 状态栏高度
 public var wy_statusBarHeight: CGFloat {
     get {
         if #available(iOS 13.0, *) {
@@ -76,9 +76,6 @@ public var wy_statusBarHeight: CGFloat {
         }
     }
 }
-
-/// NavBar高度 self.navigationController.navigationBar.frame.size.height
-public let wy_navBarHeight: CGFloat = 44.0
 
 /// 导航栏安全区域
 public var wy_navBarSafetyZone: CGFloat {
@@ -94,7 +91,15 @@ public var wy_navBarSafetyZone: CGFloat {
 }
 
 /// 导航栏高度
-public let wy_navViewHeight: CGFloat = (wy_statusBarHeight+wy_navBarHeight)
+public var wy_navBarHeight: CGFloat {
+    // 使用系统默认导航栏获取标准高度
+    return UINavigationBar().intrinsicContentSize.height
+}
+
+/// 导航视图高度（状态栏+导航栏）
+public var wy_navViewHeight: CGFloat {
+    return wy_statusBarHeight + wy_navBarHeight
+}
 
 /// tabBar安全区域
 public var wy_tabbarSafetyZone: CGFloat {

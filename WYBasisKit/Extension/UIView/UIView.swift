@@ -450,7 +450,7 @@ public extension UIView {
         DispatchQueue.main.async {
             // 渐变色数组个数必须大于1才能满足渐变要求
             guard (self.privateGradualColors?.count ?? 0) > 1 else {
-                wy_print("渐变色数组个数必须大于1才能满足渐变要求")
+                // 渐变色数组个数必须大于1才能满足渐变要求
                 return
             }
             
