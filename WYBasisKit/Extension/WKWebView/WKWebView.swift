@@ -49,7 +49,32 @@ import WebKit
 }
 
 /// WKWebView 进度条扩展
-public extension WKWebView {
+@objc public extension WKWebView {
+
+    /// 进度条颜色（默认 lightGray）
+    @objc var progressTintColor: UIColor {
+        get { progressObserver?.progressView.progressTintColor ?? UIColor.lightGray }
+        set { progressObserver?.progressView.progressTintColor = newValue }
+    }
+
+    /// 进度条背景颜色（默认透明）
+    @objc var trackTintColor: UIColor {
+        get { progressObserver?.progressView.trackTintColor ?? .clear }
+        set { progressObserver?.progressView.trackTintColor = newValue }
+    }
+
+    /// 进度条高度（默认 2）
+    @objc var progressHeight: CGFloat {
+        get { progressObserver?.height ?? 2 }
+        set { progressObserver?.updateHeight(newValue) }
+    }
+
+    /// 启用进度条监听
+    @objc func enableProgressView() {
+        guard progressObserver == nil else { return }
+        let observer = WebViewProgressObserver(webView: self)
+        progressObserver = observer
+    }
     
     /// 事件监听代理
     @objc var navigationProxy: WKWebViewNavigationDelegateProxy? {
@@ -73,31 +98,6 @@ public extension WKWebView {
             // 设置 WebView 的 navigationDelegate
             self.navigationDelegate = delegator
         }
-    }
-
-    /// 进度条颜色（默认 lightGray）
-    var progressTintColor: UIColor {
-        get { progressObserver?.progressView.progressTintColor ?? UIColor.lightGray }
-        set { progressObserver?.progressView.progressTintColor = newValue }
-    }
-
-    /// 进度条背景颜色（默认透明）
-    var trackTintColor: UIColor {
-        get { progressObserver?.progressView.trackTintColor ?? .clear }
-        set { progressObserver?.progressView.trackTintColor = newValue }
-    }
-
-    /// 进度条高度（默认 2）
-    var progressHeight: CGFloat {
-        get { progressObserver?.height ?? 2 }
-        set { progressObserver?.updateHeight(newValue) }
-    }
-
-    /// 启用进度条监听
-    func enableProgressView() {
-        guard progressObserver == nil else { return }
-        let observer = WebViewProgressObserver(webView: self)
-        progressObserver = observer
     }
 }
 
