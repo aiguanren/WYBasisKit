@@ -237,7 +237,7 @@ public extension UINavigationController {
     }
 }
 
-extension UINavigationController: UINavigationBarDelegate, UIGestureRecognizerDelegate {
+extension UINavigationController: @retroactive UINavigationBarDelegate, @retroactive UIGestureRecognizerDelegate {
     
     public func navigationBar(_ navigationBar: UINavigationBar, didPush item: UINavigationItem) {
         

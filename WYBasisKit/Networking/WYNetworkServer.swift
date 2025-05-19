@@ -250,7 +250,7 @@ struct WYProviderConfig<target: TargetType> {
     }
 }
 
-private class WYBothwayVerifyDeleagte: SessionDelegate {
+private class WYBothwayVerifyDeleagte: SessionDelegate, @unchecked Sendable {
     
     override func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         switch challenge.protectionSpace.authenticationMethod {

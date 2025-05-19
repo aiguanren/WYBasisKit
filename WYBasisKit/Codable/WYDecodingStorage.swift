@@ -152,7 +152,6 @@ private extension WYCodableInfo {
 }
 
 extension WYCodableInfo : SingleValueDecodingContainer {
-    // MARK: SingleValueDecodingContainer Methods
     
     public func decodeNil() -> Bool {
         return storage.topContainer is NSNull
@@ -171,11 +170,6 @@ extension WYCodableInfo : SingleValueDecodingContainer {
     public func decode(_ type: UInt.Type) throws -> UInt {
         if let value = try unbox(storage.topContainer, as: UInt.self) { return value }
         return UInt.defaultValue
-    }
-    
-    public func decode(_ type: CGFloat.Type) throws -> CGFloat {
-        if let value = try unbox(storage.topContainer, as: CGFloat.self) { return value }
-        return CGFloat.defaultValue
     }
     
     public func decode(_ type: Double.Type) throws -> Double {

@@ -21,184 +21,7 @@ import UIKit
     case imageBottomTitleTop
 }
 
-public class WYButton: UIButton {
-    
-    /// 按钮中imageView和titleLabe的展示位置
-    public var position: WYButtonPosition = .imageLeftTitleRight
-    
-    /// 按钮中imageView和titleLabe的间距
-    public var spacing: CGFloat = 0
-    
-    /// 按钮中imageView的自定义size(可选)
-    public var imageViewSize: CGSize?
-    
-    /// 按钮中titleLabe的自定义size(可选)
-    public var titleLabelSize: CGSize?
-    
-    public override func layoutSubviews() {
-        super.layoutSubviews()
-        
-        guard let imageView = self.imageView, let titleLabel = self.titleLabel else {
-            return
-        }
-        
-        let buttonWidth = self.frame.size.width
-        let buttonHeight = self.frame.size.height
-        let imageWidth = imageViewSize?.width ?? imageView.frame.size.width
-        let imageHeight = imageViewSize?.height ?? imageView.frame.size.height
-        let labelWidth = titleLabelSize?.width ?? titleLabel.frame.size.width
-        let labelHeight = titleLabelSize?.height ?? titleLabel.frame.size.height
-        
-        let totalWidth = imageWidth + labelWidth + spacing
-        
-        switch position {
-        case .imageLeftTitleRight:
-            imageView.frame = CGRect(
-                x: (buttonWidth - totalWidth) / 2,
-                y: (buttonHeight - imageHeight) / 2,
-                width: imageWidth,
-                height: imageHeight
-            )
-            titleLabel.frame = CGRect(
-                x: imageView.frame.maxX + spacing,
-                y: (buttonHeight - labelHeight) / 2,
-                width: labelWidth,
-                height: labelHeight
-            )
-            
-        case .imageRightTitleLeft:
-            titleLabel.frame = CGRect(
-                x: (buttonWidth - totalWidth) / 2,
-                y: (buttonHeight - labelHeight) / 2,
-                width: labelWidth,
-                height: labelHeight
-            )
-            imageView.frame = CGRect(
-                x: titleLabel.frame.maxX + spacing,
-                y: (buttonHeight - imageHeight) / 2,
-                width: imageWidth,
-                height: imageHeight
-            )
-            
-        case .imageTopTitleBottom:
-            imageView.frame = CGRect(
-                x: (buttonWidth - imageWidth) / 2,
-                y: (buttonHeight - imageHeight - labelHeight - spacing) / 2,
-                width: imageWidth,
-                height: imageHeight
-            )
-            titleLabel.frame = CGRect(
-                x: (buttonWidth - labelWidth) / 2,
-                y: imageView.frame.maxY + spacing,
-                width: labelWidth,
-                height: labelHeight
-            )
-            
-        case .imageBottomTitleTop:
-            titleLabel.frame = CGRect(
-                x: (buttonWidth - labelWidth) / 2,
-                y: (buttonHeight - imageHeight - labelHeight - spacing) / 2,
-                width: labelWidth,
-                height: labelHeight
-            )
-            imageView.frame = CGRect(
-                x: (buttonWidth - imageWidth) / 2,
-                y: titleLabel.frame.maxY + spacing,
-                width: imageWidth,
-                height: imageHeight
-            )
-        }
-    }
-}
-
 public extension UIButton {
-    
-    /**
-     *  实现Button内部文字和图片的自由排列
-     *  注意：这个方法需要在设置图片和文字之后才可以调用，且button的大小要大于 图片大小+文字大小+spacing
-     *  什么都不设置默认为图片在左，文字在右，居中且挨着排列的
-     *  @param spacing 图片和文字的间隔
-     */
-    func wy_updateInsets(position: WYButtonPosition, spacing: CGFloat = 0) {
-        
-        DispatchQueue.main.async {
-            
-            if self.imageView?.image == nil || self.currentImage == nil || self.currentTitle?.isEmpty == true || self.titleLabel?.text?.isEmpty == true {
-                
-                //wy_print("wy_layouEdgeInsets方法 需要在设置图片、文字与约束或者frame之后才可以调用，且button的size最好大于 图片大小+文字大小+spacing")
-                return
-            }
-            self.superview?.layoutIfNeeded()
-            
-            let imageWidth: CGFloat = (self.imageView?.frame.size.width)!
-            let imageHeight: CGFloat = (self.imageView?.frame.size.height)!
-            let labelWidth: CGFloat = CGFloat(self.titleLabel!.intrinsicContentSize.width)
-            let labelHeight: CGFloat = CGFloat(self.titleLabel!.intrinsicContentSize.height)
-            
-            switch position {
-                
-            case .imageRightTitleLeft:
-                
-                if #available(iOS 15.0, *) {
-                    
-                    var configuration: UIButton.Configuration = .plain()
-                    configuration.imagePlacement = .trailing
-                    configuration.imagePadding = spacing
-                    self.configuration = configuration
-                    
-                }else {
-                    self.imageEdgeInsets = UIEdgeInsets(top:0, left:labelWidth+spacing/2.0, bottom: 0, right: -labelWidth-spacing/2.0)
-                    self.titleEdgeInsets =  UIEdgeInsets(top:0, left:-imageWidth-spacing/2.0, bottom: 0, right:imageWidth+spacing/2.0)
-                }
-                break
-                
-            case .imageLeftTitleRight:
-                
-                if #available(iOS 15.0, *) {
-                    
-                    var configuration: UIButton.Configuration = .plain()
-                    configuration.imagePlacement = .leading
-                    configuration.imagePadding = spacing
-                    self.configuration = configuration
-                    
-                }else {
-                    self.titleEdgeInsets = UIEdgeInsets(top:0, left:spacing/2.0, bottom: 0, right: -spacing/2.0)
-                    self.imageEdgeInsets = UIEdgeInsets(top:0, left:-spacing/2.0, bottom: 0, right:spacing/2.0)
-                }
-                break
-                
-            case .imageTopTitleBottom:
-                
-                if #available(iOS 15.0, *) {
-                    
-                    var configuration: UIButton.Configuration = .plain()
-                    configuration.imagePlacement = .top
-                    configuration.imagePadding = spacing
-                    self.configuration = configuration
-                    
-                }else {
-                    self.imageEdgeInsets = UIEdgeInsets(top: -labelHeight - spacing/2.0, left: 0, bottom: 0, right:  -labelWidth)
-                    self.titleEdgeInsets =  UIEdgeInsets(top:0, left: -imageWidth, bottom: -imageHeight-spacing/2.0, right: 0)
-                }
-                break
-                
-            case .imageBottomTitleTop:
-                
-                if #available(iOS 15.0, *) {
-                    
-                    var configuration: UIButton.Configuration = .plain()
-                    configuration.imagePlacement = .bottom
-                    configuration.imagePadding = spacing
-                    self.configuration = configuration
-                    
-                }else {
-                    self.imageEdgeInsets = UIEdgeInsets(top:0, left:0, bottom: -labelHeight-spacing/2.0, right: -labelWidth)
-                    self.titleEdgeInsets =  UIEdgeInsets(top:-imageHeight-spacing/2.0, left:-imageWidth, bottom: 0, right: 0)
-                }
-                break
-            }
-        }
-    }
     
     /** 按钮默认状态文字 */
     var wy_nTitle: String {
@@ -315,6 +138,30 @@ public extension UIButton {
         }
     }
     
+    /** 利用运行时设置UIButton的titleLabel的显示位置 */
+    var wy_titleRect: CGRect? {
+        set {
+            objc_setAssociatedObject(self, WYAssociatedKeys.wy_titleRect, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            UIButton.swizzleLayoutSubviews()
+            setNeedsLayout()
+        }
+        get {
+            objc_getAssociatedObject(self, WYAssociatedKeys.wy_titleRect) as? CGRect
+        }
+    }
+    
+    /** 利用运行时设置UIButton的imageView的显示位置 */
+    var wy_imageRect: CGRect? {
+        set {
+            objc_setAssociatedObject(self, WYAssociatedKeys.wy_imageRect, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            UIButton.swizzleLayoutSubviews()
+            setNeedsLayout()
+        }
+        get {
+            objc_getAssociatedObject(self, WYAssociatedKeys.wy_imageRect) as? CGRect
+        }
+    }
+    
     /** 设置按钮左对齐 */
     func wy_leftAlignment() {
         contentHorizontalAlignment = .left
@@ -358,6 +205,93 @@ public extension UIButton {
         addTarget(target, action: action, for: .touchUpInside)
         wy_addHandler(interval: interval) { _ in }
     }
+    
+    /**
+     *  利用configuration或EdgeInsets自由设置UIButton的titleLabel和imageView的显示位置
+     *  注意：这个方法需要在设置图片和文字之后才可以调用，且button的大小要大于 图片大小+文字大小+spacing
+     *  什么都不设置默认为图片在左，文字在右，居中且挨着排列的
+     *  @param spacing 图片和文字的间隔
+     */
+    func wy_adjust(position: WYButtonPosition, spacing: CGFloat = 0) {
+        
+        DispatchQueue.main.async {
+            
+            if self.imageView?.image == nil || self.currentImage == nil || self.currentTitle?.isEmpty == true || self.titleLabel?.text?.isEmpty == true {
+                
+                //wy_print("wy_layouEdgeInsets方法 需要在设置图片、文字与约束或者frame之后才可以调用，且button的size最好大于 图片大小+文字大小+spacing")
+                return
+            }
+            self.superview?.layoutIfNeeded()
+            
+            let imageWidth: CGFloat = (self.imageView?.frame.size.width) ?? 0
+            let imageHeight: CGFloat = (self.imageView?.frame.size.height) ?? 0
+            let labelWidth: CGFloat = CGFloat(self.titleLabel?.intrinsicContentSize.width ?? 0)
+            let labelHeight: CGFloat = CGFloat(self.titleLabel?.intrinsicContentSize.height ?? 0)
+            
+            switch position {
+                
+            case .imageRightTitleLeft:
+                
+                if #available(iOS 15.0, *) {
+                    
+                    var configuration: UIButton.Configuration = .plain()
+                    configuration.imagePlacement = .trailing
+                    configuration.imagePadding = spacing
+                    self.configuration = configuration
+                    
+                }else {
+                    self.imageEdgeInsets = UIEdgeInsets(top:0, left:labelWidth+spacing/2.0, bottom: 0, right: -labelWidth-spacing/2.0)
+                    self.titleEdgeInsets =  UIEdgeInsets(top:0, left:-imageWidth-spacing/2.0, bottom: 0, right:imageWidth+spacing/2.0)
+                }
+                break
+                
+            case .imageLeftTitleRight:
+                
+                if #available(iOS 15.0, *) {
+                    
+                    var configuration: UIButton.Configuration = .plain()
+                    configuration.imagePlacement = .leading
+                    configuration.imagePadding = spacing
+                    self.configuration = configuration
+                    
+                }else {
+                    self.titleEdgeInsets = UIEdgeInsets(top:0, left:spacing/2.0, bottom: 0, right: -spacing/2.0)
+                    self.imageEdgeInsets = UIEdgeInsets(top:0, left:-spacing/2.0, bottom: 0, right:spacing/2.0)
+                }
+                break
+                
+            case .imageTopTitleBottom:
+                
+                if #available(iOS 15.0, *) {
+                    
+                    var configuration: UIButton.Configuration = .plain()
+                    configuration.imagePlacement = .top
+                    configuration.imagePadding = spacing
+                    self.configuration = configuration
+                    
+                }else {
+                    self.imageEdgeInsets = UIEdgeInsets(top: -labelHeight - spacing/2.0, left: 0, bottom: 0, right:  -labelWidth)
+                    self.titleEdgeInsets =  UIEdgeInsets(top:0, left: -imageWidth, bottom: -imageHeight-spacing/2.0, right: 0)
+                }
+                break
+                
+            case .imageBottomTitleTop:
+                
+                if #available(iOS 15.0, *) {
+                    
+                    var configuration: UIButton.Configuration = .plain()
+                    configuration.imagePlacement = .bottom
+                    configuration.imagePadding = spacing
+                    self.configuration = configuration
+                    
+                }else {
+                    self.imageEdgeInsets = UIEdgeInsets(top:0, left:0, bottom: -labelHeight-spacing/2.0, right: -labelWidth)
+                    self.titleEdgeInsets =  UIEdgeInsets(top:-imageHeight-spacing/2.0, left:-imageWidth, bottom: 0, right: 0)
+                }
+                break
+            }
+        }
+    }
 }
 
 public typealias IntervalSelector = ((UIButton)->Void)
@@ -392,6 +326,45 @@ private extension UIButton {
         }
     }
     
+    /***** 利用运行时自由设置UIButton的titleLabel和imageView的显示位置 *****/
+    static func swizzleLayoutSubviews() {
+        _ = self.swizzleLayoutSubviewsOnce
+    }
+    
+    // 方法交换
+    private static let swizzleLayoutSubviewsOnce: Void = {
+        let cls = UIButton.self
+        let original = #selector(UIButton.layoutSubviews)
+        let swizzled = #selector(UIButton._custom_layoutSubviews)
+
+        if let originalMethod = class_getInstanceMethod(cls, original),
+           let swizzledMethod = class_getInstanceMethod(cls, swizzled) {
+            method_exchangeImplementations(originalMethod, swizzledMethod)
+        }
+    }()
+
+    // 替换 layoutSubviews
+    @objc private func _custom_layoutSubviews() {
+        self._custom_layoutSubviews() // 调用原始 layoutSubviews
+
+        // 强制 layout 前先 sizeToFit 避免 size 0
+        self.titleLabel?.sizeToFit()
+        self.imageView?.sizeToFit()
+
+        if let imageView = self.imageView {
+            if let frame = self.wy_imageRect {
+                imageView.frame = frame
+            }
+        }
+
+        if let titleLabel = self.titleLabel {
+            if let frame = self.wy_titleRect {
+                titleLabel.frame = frame
+            }
+        }
+    }
+    /***** 利用运行时自由设置UIButton的titleLabel和imageView的显示位置 *****/
+    
     struct WYAssociatedKeys {
         static let intervalSelector = UnsafeRawPointer(bitPattern: "IntervalSelector".hashValue)!
         static let selectorInterval = UnsafeRawPointer(bitPattern: "selectorInterval".hashValue)!
@@ -399,5 +372,7 @@ private extension UIButton {
         static var spacingKey = UnsafeRawPointer(bitPattern: "spacingKey".hashValue)!
         static var imageViewSizeKey = UnsafeRawPointer(bitPattern: "imageViewSizeKey".hashValue)!
         static var titleLabelSizeKey = UnsafeRawPointer(bitPattern: "titleLabelSizeKey".hashValue)!
+        static var wy_imageRect = UnsafeRawPointer(bitPattern: "wy_imageRect".hashValue)!
+        static var wy_titleRect = UnsafeRawPointer(bitPattern: "wy_titleRect".hashValue)!
     }
 }

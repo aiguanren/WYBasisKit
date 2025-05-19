@@ -31,16 +31,15 @@ class WYTestButtonEdgeInsetsController: UIViewController {
             make.height.equalTo(200)
             make.centerY.equalToSuperview()
         }
-        button.wy_updateInsets(position: .imageRightTitleLeft, spacing: 5)
+        button.wy_adjust(position: .imageRightTitleLeft, spacing: 5)
         
-        let itemButton: WYButton = WYButton(type: .custom)
+        let itemButton: UIButton = UIButton(type: .custom)
+        itemButton.backgroundColor = .wy_random
         itemButton.titleLabel?.textAlignment = .center
-        itemButton.position = .imageTopTitleBottom
-        itemButton.spacing = 5
-        itemButton.imageViewSize = CGSize(width: 80, height: 80)
-        itemButton.titleLabelSize = CGSizeMake(350, 50)
         itemButton.imageView?.backgroundColor = .wy_random
         itemButton.titleLabel?.backgroundColor = .wy_random
+        itemButton.wy_titleRect = CGRect(x: 0, y: 0, width: wy_screenWidth - 50, height: 50)
+        itemButton.wy_imageRect = CGRect(x: 50, y: 50, width: 80, height: 80)
         itemButton.wy_nTitle = "继承的方式自定义图片和文本控件位置"
         itemButton.wy_nImage = UIImage.wy_find("tabbar_right_selected")
         itemButton.wy_makeVisual { make in

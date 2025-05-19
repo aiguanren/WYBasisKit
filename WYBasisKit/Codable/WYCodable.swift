@@ -7,7 +7,7 @@
 
 import Foundation
 
-open class WYCodable: JSONDecoder {
+open class WYCodable: JSONDecoder, @unchecked Sendable {
     
     /// 解析时需要映射的Key(仅针对第一层数据映射，第二层级以后的(第一层也可以)建议在对应的model类中使用Codable原生映射方法)
     open var mappingKeys: KeyDecodingStrategy = .useDefaultKeys

@@ -45,7 +45,7 @@ PODS:
     - IQKeyboardCore
   - IQTextView (1.0.5):
     - IQKeyboardToolbar/Placeholderable
-  - Kingfisher (8.1.1)
+  - Kingfisher (8.1.2)
   - Moya (15.0.0):
     - Moya/Core (= 15.0.0)
   - Moya/Core (15.0.0):
@@ -104,7 +104,7 @@ PODS:
     - SnapKit
 
 DEPENDENCIES:
-  - ChatView (from `../WYBasisKit/Layout/ChatView`)
+  - ChatView (from `../ChatView`)
   - IQKeyboardManagerSwift
   - WYBasisKit
   - WYBasisKit/Activity
@@ -135,7 +135,7 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   ChatView:
-    :path: "../WYBasisKit/Layout/ChatView"
+    :path: "../ChatView"
 
 SPEC CHECKSUMS:
   Alamofire: 7193b3b92c74a07f85569e1a6c4f4237291e7496
@@ -148,12 +148,12 @@ SPEC CHECKSUMS:
   IQKeyboardToolbarManager: 6f4072ac620c2572d4af8c09f42a801f3e4909f7
   IQTextInputViewNotification: f5e954d8881fd9808b744e49e024cc0d4bcfe572
   IQTextView: ae13b4922f22e6f027f62c557d9f4f236b19d5c7
-  Kingfisher: fc2788e497306f97fdef6e4df49f02106cb57788
+  Kingfisher: dc989619594e24713c83e5a98f89f08850e0c529
   Moya: 138f0573e53411fb3dc17016add0b748dfbd78ee
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
   WYBasisKit: 64e36ad592726d5af4bc4ae78683d9c3260fa9b5
   WYLivePlayer: cc4a80531488cad20ca45ebe58f529f31bbc44d9
 
-PODFILE CHECKSUM: 7f49f904c6d3e05e2c0057f45a983b0b1eda9fb8
+PODFILE CHECKSUM: 52920528206a5685331353ba0db640fe8a8a3231
 
 COCOAPODS: 1.16.2

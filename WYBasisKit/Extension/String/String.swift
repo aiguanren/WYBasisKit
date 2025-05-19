@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import CommonCrypto.CommonDigest
+import CryptoKit
 
 /// 获取时间戳的模式
 @frozen public enum WYTimestampMode {
@@ -227,26 +227,14 @@ public extension String {
     }
     
     /**
-     *  MD5加密
+     *  SHA256加密
      *  @param uppercase: 是否需要大写，默认false
-     *  @param 𝟯𝟮bits: 是否需要32位加密，默认true，32位，传false则16位
      */
-    func wy_md5(_ uppercase: Bool = false, 𝟯𝟮bits: Bool = true) -> String {
-        guard let str = self.cString(using: .utf8) else { fatalError("传入的待加密字符串有误") }
-        let strLen = CUnsignedInt(self.lengthOfBytes(using: .utf8))
-        let digestLen = Int(CC_MD5_DIGEST_LENGTH)
-        let result = UnsafeMutablePointer<CUnsignedChar>.allocate(capacity:digestLen)
-        CC_MD5(str, strLen, result)
-            
-        let hash = NSMutableString()
-        // 16位实际上是从 32 位字符串中，取中间的第 9 位到第 24 位的部分
-        let start: NSInteger = 𝟯𝟮bits ? 0 : 4
-        let end: NSInteger = 𝟯𝟮bits ? digestLen : 12
-        for i in start ..< end {
-            hash.appendFormat(uppercase ? "%02X" : "%02x", result[i])
-        }
-        free(result) // 解决MD5加密造成的内存泄漏问题
-        return String(format: hash as String)
+    func wy_sha256(uppercase: Bool = false) -> String {
+        let inputData = Data(self.utf8)
+        let hashed = SHA256.hash(data: inputData)
+        let hashString = hashed.map { String(format: "%02x", $0) }.joined()
+        return uppercase ? hashString.uppercased() : hashString
     }
     
     /// Encode

@@ -15,7 +15,7 @@ target 'WYBasisKitTest' do
   pod 'WYBasisKit/Codable'
   pod 'WYBasisKit/Authorization'
   pod 'IQKeyboardManagerSwift'
-  pod 'ChatView', :path => '../WYBasisKit/Layout/ChatView'
+  pod 'ChatView', :path => '../ChatView'
 end
 
 post_install do |installer|

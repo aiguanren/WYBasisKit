@@ -62,7 +62,7 @@ class WYTestDownloadController: UIViewController {
                 switch result {
                 case .success(let source):
                     downloadImageView.image = source.image.wy_blur(20)
-                    wy_print("cacheKey = \(source.originalSource.cacheKey), \nmd5 = \(url.wy_md5()), \n缓存路径 = \(cache.diskStorage.cacheFileURL(forKey: source.source.cacheKey))")
+                    wy_print("cacheKey = \(source.originalSource.cacheKey), \nmd5 = \(url.wy_sha256()), \n缓存路径 = \(cache.diskStorage.cacheFileURL(forKey: source.source.cacheKey))")
                     break
                 case .failure(let error):
                     wy_print("\(error)")

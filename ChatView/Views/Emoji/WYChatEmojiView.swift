@@ -6,12 +6,12 @@
 //  Copyright © 2023 官人. All rights reserved.
 //
 
+import UIKit
+import WYBasisKit
+
 private let emojiViewRecentlyCountKey: String = "emojiViewRecentlyCountKey"
 
 private let emojiPath: String = Bundle(path: (((Bundle(for: WYBannerView.self).path(forResource: "WYChatView", ofType: "bundle")) ?? (Bundle.main.path(forResource: "WYChatView", ofType: "bundle"))) ?? ""))?.path(forResource: "WYChatViewEmoji", ofType: "plist") ?? ""
-
-import UIKit
-import WYBasisKit
 
 public struct WYEmojiViewConfig {
     

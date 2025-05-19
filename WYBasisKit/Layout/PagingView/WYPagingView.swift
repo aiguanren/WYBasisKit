@@ -70,7 +70,7 @@ public class WYPagingView: UIView {
     /// 分页栏Item高度 默认bar_Height-bar_dividingStripHeight(若传入则整体使用传入高度)
     public var bar_item_height: CGFloat = 0
     
-    /// 分页栏Item在约束size的基础上追加如传入的size大小，默认.zero(高度等于bar_Height)
+    /// 分页栏Item在约束size的基础上追加传入的size大小，默认.zero(高度等于bar_Height)
     public var bar_item_appendSize: CGSize = .zero
 
     /// 分页栏item默认背景色 默认白色
@@ -197,7 +197,7 @@ extension WYPagingView: UIScrollViewDelegate {
             let index: CGFloat = scrollView.contentOffset.x / self.frame.size.width
             
             let changeItem: WYPagingItem =  barScrollView.viewWithTag(buttonItemTagBegin + Int(index)) as! WYPagingItem
-            // 重新赋值标签属性
+            //重新赋值标签属性
             updateButtonItemProperty(currentItem: changeItem)
         }
     }
@@ -289,10 +289,7 @@ extension WYPagingView {
             if sender is WYButton {
                 (sender as! WYButton).position = buttonPosition
                 (sender as! WYButton).spacing = barButton_dividingOffset
-            }else {
-                sender.wy_updateInsets(position: buttonPosition, spacing: barButton_dividingOffset)
             }
-            
             sender.superview?.wy_rectCorner(.allCorners).wy_cornerRadius(bar_item_cornerRadius).wy_showVisual()
         }
     }
@@ -547,5 +544,95 @@ private class WYPagingItem: UIButton {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+}
+
+public class WYButton: UIButton {
+    
+    /// 按钮中imageView和titleLabe的展示位置
+    public var position: WYButtonPosition = .imageLeftTitleRight
+    
+    /// 按钮中imageView和titleLabe的间距
+    public var spacing: CGFloat = 0
+    
+    /// 按钮中imageView的自定义size(可选)
+    public var imageViewSize: CGSize?
+    
+    /// 按钮中titleLabe的自定义size(可选)
+    public var titleLabelSize: CGSize?
+    
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        guard let imageView = self.imageView, let titleLabel = self.titleLabel else {
+            return
+        }
+        
+        let buttonWidth = self.frame.size.width
+        let buttonHeight = self.frame.size.height
+        let imageWidth = imageViewSize?.width ?? imageView.frame.size.width
+        let imageHeight = imageViewSize?.height ?? imageView.frame.size.height
+        let labelWidth = titleLabelSize?.width ?? titleLabel.frame.size.width
+        let labelHeight = titleLabelSize?.height ?? titleLabel.frame.size.height
+        
+        let totalWidth = imageWidth + labelWidth + spacing
+        
+        switch position {
+        case .imageLeftTitleRight:
+            imageView.frame = CGRect(
+                x: (buttonWidth - totalWidth) / 2,
+                y: (buttonHeight - imageHeight) / 2,
+                width: imageWidth,
+                height: imageHeight
+            )
+            titleLabel.frame = CGRect(
+                x: imageView.frame.maxX + spacing,
+                y: (buttonHeight - labelHeight) / 2,
+                width: labelWidth,
+                height: labelHeight
+            )
+            
+        case .imageRightTitleLeft:
+            titleLabel.frame = CGRect(
+                x: (buttonWidth - totalWidth) / 2,
+                y: (buttonHeight - labelHeight) / 2,
+                width: labelWidth,
+                height: labelHeight
+            )
+            imageView.frame = CGRect(
+                x: titleLabel.frame.maxX + spacing,
+                y: (buttonHeight - imageHeight) / 2,
+                width: imageWidth,
+                height: imageHeight
+            )
+            
+        case .imageTopTitleBottom:
+            imageView.frame = CGRect(
+                x: (buttonWidth - imageWidth) / 2,
+                y: (buttonHeight - imageHeight - labelHeight - spacing) / 2,
+                width: imageWidth,
+                height: imageHeight
+            )
+            titleLabel.frame = CGRect(
+                x: (buttonWidth - labelWidth) / 2,
+                y: imageView.frame.maxY + spacing,
+                width: labelWidth,
+                height: labelHeight
+            )
+            
+        case .imageBottomTitleTop:
+            titleLabel.frame = CGRect(
+                x: (buttonWidth - labelWidth) / 2,
+                y: (buttonHeight - imageHeight - labelHeight - spacing) / 2,
+                width: labelWidth,
+                height: labelHeight
+            )
+            imageView.frame = CGRect(
+                x: (buttonWidth - imageWidth) / 2,
+                y: titleLabel.frame.maxY + spacing,
+                width: imageWidth,
+                height: imageHeight
+            )
+        }
     }
 }

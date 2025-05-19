@@ -8,7 +8,7 @@
 
 import UIKit
 
-extension UIApplication: UIApplicationDelegate {
+extension UIApplication: @retroactive UIApplicationDelegate {
     
     /// 获取当前当前正在显示的window
     public class var wy_sharedWindow: UIWindow {

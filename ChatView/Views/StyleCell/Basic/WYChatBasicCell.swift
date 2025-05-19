@@ -334,8 +334,8 @@ public extension WYChatBasicCell {
             case .success(let source):
                 imageView.image = source.image
                 self.message.sendor.avatar.localPath = imageCache.cachePath(forKey: urlString)
-                self.message.sendor.avatar.id = urlString.wy_md5()
-                self.message.sendor.avatar.name = urlString.wy_md5()
+                self.message.sendor.avatar.id = urlString.wy_sha256()
+                self.message.sendor.avatar.name = urlString.wy_sha256()
                 break
             case .failure(let error):
                 wy_print("\(error)")
