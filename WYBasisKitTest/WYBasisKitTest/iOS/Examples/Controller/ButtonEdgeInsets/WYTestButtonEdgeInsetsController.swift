@@ -16,7 +16,7 @@ class WYTestButtonEdgeInsetsController: UIViewController {
         view.backgroundColor = .white
 
         let button: UIButton = UIButton(type: .custom)
-        button.wy_nTitle = "扩展的方式自定义图片和文本控件位置"
+        button.wy_nTitle = "wy_adjust"
         button.wy_nImage = UIImage.wy_find("tabbar_right_selected")
         button.wy_makeVisual { make in
             make.wy_cornerRadius(5)
@@ -38,9 +38,9 @@ class WYTestButtonEdgeInsetsController: UIViewController {
         itemButton.titleLabel?.textAlignment = .center
         itemButton.imageView?.backgroundColor = .wy_random
         itemButton.titleLabel?.backgroundColor = .wy_random
-        itemButton.wy_titleRect = CGRect(x: 0, y: 0, width: wy_screenWidth - 50, height: 50)
-        itemButton.wy_imageRect = CGRect(x: 50, y: 50, width: 80, height: 80)
-        itemButton.wy_nTitle = "继承的方式自定义图片和文本控件位置"
+        itemButton.wy_titleRect = CGRect(x: 10, y: 10, width: 80, height: 30)
+        itemButton.wy_imageRect = CGRect(x: 100, y: 10, width: 80, height: 80)
+        itemButton.wy_nTitle = "frame"
         itemButton.wy_nImage = UIImage.wy_find("tabbar_right_selected")
         itemButton.wy_makeVisual { make in
             make.wy_cornerRadius(5)

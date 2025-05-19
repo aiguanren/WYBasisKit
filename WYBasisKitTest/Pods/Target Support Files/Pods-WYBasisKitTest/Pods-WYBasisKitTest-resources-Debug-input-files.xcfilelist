@@ -1,9 +1,16 @@
 ${PODS_ROOT}/Target Support Files/Pods-WYBasisKitTest/Pods-WYBasisKitTest-resources.sh
 ${PODS_CONFIGURATION_BUILD_DIR}/Alamofire/Alamofire.bundle
-${PODS_ROOT}/../../WYBasisKit/Layout/ChatView/WYChatView.bundle
-${PODS_ROOT}/IQKeyboardManagerSwift/IQKeyboardManagerSwift/PrivacyInfo.xcprivacy
+${PODS_ROOT}/../../ChatView/WYChatView.bundle
+${PODS_CONFIGURATION_BUILD_DIR}/IQKeyboardCore/IQKeyboardCore.bundle
+${PODS_CONFIGURATION_BUILD_DIR}/IQKeyboardManagerSwift/IQKeyboardManagerSwift.bundle
+${PODS_CONFIGURATION_BUILD_DIR}/IQKeyboardNotification/IQKeyboardNotification.bundle
+${PODS_CONFIGURATION_BUILD_DIR}/IQKeyboardReturnManager/IQKeyboardReturnManager.bundle
+${PODS_CONFIGURATION_BUILD_DIR}/IQKeyboardToolbar/IQKeyboardToolbar.bundle
+${PODS_CONFIGURATION_BUILD_DIR}/IQKeyboardToolbarManager/IQKeyboardToolbarManager.bundle
+${PODS_CONFIGURATION_BUILD_DIR}/IQTextInputViewNotification/IQTextInputViewNotification.bundle
+${PODS_CONFIGURATION_BUILD_DIR}/IQTextView/IQTextView.bundle
 ${PODS_CONFIGURATION_BUILD_DIR}/Kingfisher/Kingfisher.bundle
 ${PODS_CONFIGURATION_BUILD_DIR}/SnapKit/SnapKit_Privacy.bundle
-${PODS_ROOT}/WYBasisKit/WYBasisKit/Activity/WYActivity.bundle
-${PODS_ROOT}/WYBasisKit/WYBasisKit/Localizable/WYLocalizable.bundle
-${PODS_ROOT}/WYBasisKit/WYBasisKit/Layout/BannerView/WYBannerView.bundle
+${PODS_ROOT}/../../WYBasisKit/Activity/WYActivity.bundle
+${PODS_ROOT}/../../WYBasisKit/Localizable/WYLocalizable.bundle
+${PODS_ROOT}/../../WYBasisKit/Layout/BannerView/WYBannerView.bundle

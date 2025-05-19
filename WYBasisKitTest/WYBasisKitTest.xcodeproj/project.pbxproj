@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4A027019DE606531773A44D7 /* Pods_WYBasisKitTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3961A58ED9E18016F754F2FB /* Pods_WYBasisKitTest.framework */; };
 		5838FAB12DD34A5300912642 /* WYWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5838FAB02DD34A5300912642 /* WYWebViewController.swift */; };
 		6535C6612C8838C3002FF69B /* WYGenericTypeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6535C6602C8838C3002FF69B /* WYGenericTypeController.swift */; };
 		6535C6632C8838E6002FF69B /* WYOffLineMethodController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6535C6622C8838E6002FF69B /* WYOffLineMethodController.swift */; };
@@ -19,6 +18,7 @@
 		65F6CA832CEF11FA00BEFBD8 /* [唇].png in Resources */ = {isa = PBXBuildFile; fileRef = 65F6CA802CEF11FA00BEFBD8 /* [唇].png */; };
 		65F6CA842CEF11FA00BEFBD8 /* [喝彩].png in Resources */ = {isa = PBXBuildFile; fileRef = 65F6CA812CEF11FA00BEFBD8 /* [喝彩].png */; };
 		65F6CA852CEF11FA00BEFBD8 /* [爱心].png in Resources */ = {isa = PBXBuildFile; fileRef = 65F6CA822CEF11FA00BEFBD8 /* [爱心].png */; };
+		B1647EE6778EFDAE07E9632F /* Pods_WYBasisKitTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB940289C6A3E15AD9710B26 /* Pods_WYBasisKitTest.framework */; };
 		DC42B0ED2A42EC900004EB4C /* WYTestChatDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC42B0EC2A42EC900004EB4C /* WYTestChatDataSource.swift */; };
 		DC7D92E72A137D7300800761 /* CollectionReusableHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7D92E62A137D7300800761 /* CollectionReusableHeaderView.swift */; };
 		DC7D92E92A137D8100800761 /* CollectionReusableFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7D92E82A137D8100800761 /* CollectionReusableFooterView.swift */; };
@@ -85,7 +85,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		3961A58ED9E18016F754F2FB /* Pods_WYBasisKitTest.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WYBasisKitTest.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A628127A2EA1456F04DE740 /* Pods-WYBasisKitTest.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKitTest.release.xcconfig"; path = "Target Support Files/Pods-WYBasisKitTest/Pods-WYBasisKitTest.release.xcconfig"; sourceTree = "<group>"; };
 		5838FAB02DD34A5300912642 /* WYWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYWebViewController.swift; sourceTree = "<group>"; };
 		6535C6602C8838C3002FF69B /* WYGenericTypeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYGenericTypeController.swift; sourceTree = "<group>"; };
@@ -99,6 +98,7 @@
 		65F6CA812CEF11FA00BEFBD8 /* [喝彩].png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "[喝彩].png"; sourceTree = "<group>"; };
 		65F6CA822CEF11FA00BEFBD8 /* [爱心].png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "[爱心].png"; sourceTree = "<group>"; };
 		865E1EDDAF0233568A70050C /* Pods-WYBasisKitTest.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKitTest.debug.xcconfig"; path = "Target Support Files/Pods-WYBasisKitTest/Pods-WYBasisKitTest.debug.xcconfig"; sourceTree = "<group>"; };
+		BB940289C6A3E15AD9710B26 /* Pods_WYBasisKitTest.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WYBasisKitTest.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC42B0EC2A42EC900004EB4C /* WYTestChatDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestChatDataSource.swift; sourceTree = "<group>"; };
 		DC7D92E62A137D7300800761 /* CollectionReusableHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionReusableHeaderView.swift; sourceTree = "<group>"; };
 		DC7D92E82A137D8100800761 /* CollectionReusableFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionReusableFooterView.swift; sourceTree = "<group>"; };
@@ -160,7 +160,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4A027019DE606531773A44D7 /* Pods_WYBasisKitTest.framework in Frameworks */,
+				B1647EE6778EFDAE07E9632F /* Pods_WYBasisKitTest.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -184,7 +184,7 @@
 		28F3FAA1AF7DD7074EB3F250 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				3961A58ED9E18016F754F2FB /* Pods_WYBasisKitTest.framework */,
+				BB940289C6A3E15AD9710B26 /* Pods_WYBasisKitTest.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -590,7 +590,7 @@
 				DCFEBFE129EFDE2F001AE8E7 /* Sources */,
 				DCFEBFE229EFDE2F001AE8E7 /* Frameworks */,
 				DCFEBFE329EFDE2F001AE8E7 /* Resources */,
-				D4B2CCFDEF7D7564F49D90F4 /* [CP] Embed Pods Frameworks */,
+				03E56113C7C25689A4F6BD2E /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -724,7 +724,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		D4B2CCFDEF7D7564F49D90F4 /* [CP] Embed Pods Frameworks */ = {
+		03E56113C7C25689A4F6BD2E /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
