@@ -1,15 +1,15 @@
 CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO
 CONFIGURATION_BUILD_DIR = ${PODS_CONFIGURATION_BUILD_DIR}/WYLivePlayer
-FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/Kingfisher" "${PODS_CONFIGURATION_BUILD_DIR}/SnapKit" "${PODS_ROOT}/WYLivePlayer/Full"
+FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_CONFIGURATION_BUILD_DIR}/Kingfisher" "${PODS_CONFIGURATION_BUILD_DIR}/SnapKit" "${PODS_ROOT}/../../WYBasisKit/LivePlayer/Full" "${PODS_XCFRAMEWORKS_BUILD_DIR}/WYLivePlayer"
 GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
 LIBRARY_SEARCH_PATHS = $(inherited) "${TOOLCHAIN_DIR}/usr/lib/swift/${PLATFORM_NAME}" /usr/lib/swift
-OTHER_LDFLAGS = $(inherited) -l"bz2" -l"c++" -l"z" -framework "AVFoundation" -framework "Accelerate" -framework "AudioToolbox" -framework "CFNetwork" -framework "CoreGraphics" -framework "CoreMedia" -framework "CoreServices" -framework "CoreVideo" -framework "IJKMediaFramework" -framework "Kingfisher" -framework "MediaPlayer" -framework "Metal" -framework "QuartzCore" -framework "SnapKit" -framework "UIKit" -framework "VideoToolbox" -weak_framework "Combine" -weak_framework "SwiftUI"
+OTHER_LDFLAGS = $(inherited) -l"bz2" -l"c++" -l"z" -framework "AVFoundation" -framework "Accelerate" -framework "AudioToolbox" -framework "CFNetwork" -framework "CoreGraphics" -framework "CoreMedia" -framework "CoreServices" -framework "CoreVideo" -framework "IJKMediaPlayer" -framework "Kingfisher" -framework "MediaPlayer" -framework "Metal" -framework "QuartzCore" -framework "SnapKit" -framework "UIKit" -framework "VideoToolbox" -weak_framework "Combine" -weak_framework "SwiftUI"
 OTHER_SWIFT_FLAGS = $(inherited) -D COCOAPODS -suppress-warnings
 PODS_BUILD_DIR = ${BUILD_DIR}
 PODS_CONFIGURATION_BUILD_DIR = ${PODS_BUILD_DIR}/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)
 PODS_DEVELOPMENT_LANGUAGE = ${DEVELOPMENT_LANGUAGE}
 PODS_ROOT = ${SRCROOT}
-PODS_TARGET_SRCROOT = ${PODS_ROOT}/WYLivePlayer
+PODS_TARGET_SRCROOT = ${PODS_ROOT}/../../WYBasisKit/LivePlayer
 PODS_XCFRAMEWORKS_BUILD_DIR = $(PODS_CONFIGURATION_BUILD_DIR)/XCFrameworkIntermediates
 PRODUCT_BUNDLE_IDENTIFIER = org.cocoapods.${PRODUCT_NAME:rfc1034identifier}
 SKIP_INSTALL = YES

@@ -5,7 +5,8 @@ use_modular_headers!
 source 'https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git'
 
 target 'WYBasisKitTest' do
-  pod 'WYLivePlayer'
+  pod 'WYLivePlayer', :path => '../WYBasisKit/LivePlayer'
+  #pod 'WYLivePlayerLite', :path => '../WYBasisKit/LivePlayer'
   pod 'WYBasisKit', :path => '../'
   pod 'WYBasisKit/Networking', :path => '../'
   pod 'WYBasisKit/Layout', :path => '../'

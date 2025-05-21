@@ -223,73 +223,69 @@ public extension UIButton {
             }
             self.superview?.layoutIfNeeded()
             
-            let imageWidth: CGFloat = (self.imageView?.frame.size.width) ?? 0
-            let imageHeight: CGFloat = (self.imageView?.frame.size.height) ?? 0
-            let labelWidth: CGFloat = CGFloat(self.titleLabel?.intrinsicContentSize.width ?? 0)
-            let labelHeight: CGFloat = CGFloat(self.titleLabel?.intrinsicContentSize.height ?? 0)
-            
-            switch position {
+            if #available(iOS 15.0, *) {
                 
-            case .imageRightTitleLeft:
+                var configuration: UIButton.Configuration = self.configuration ?? .plain()
                 
-                if #available(iOS 15.0, *) {
+                switch position {
                     
-                    var configuration: UIButton.Configuration = .plain()
+                case .imageRightTitleLeft:
                     configuration.imagePlacement = .trailing
-                    configuration.imagePadding = spacing
-                    self.configuration = configuration
+                    break
                     
-                }else {
+                case .imageLeftTitleRight:
+                    configuration.imagePlacement = .leading
+                    break
+                    
+                case .imageTopTitleBottom:
+                    configuration.imagePlacement = .top
+                    break
+                    
+                case .imageBottomTitleTop:
+                    configuration.imagePlacement = .bottom
+                    break
+                }
+                configuration.imagePadding = spacing
+                self.configuration = configuration
+                self.setNeedsUpdateConfiguration()
+                
+            }else {
+                
+                let imageWidth: CGFloat = (self.imageView?.frame.size.width) ?? 0
+                let imageHeight: CGFloat = (self.imageView?.frame.size.height) ?? 0
+                let labelWidth: CGFloat = CGFloat(self.titleLabel?.intrinsicContentSize.width ?? 0)
+                let labelHeight: CGFloat = CGFloat(self.titleLabel?.intrinsicContentSize.height ?? 0)
+                
+                switch position {
+
+                case .imageRightTitleLeft:
+                    
                     self.imageEdgeInsets = UIEdgeInsets(top:0, left:labelWidth+spacing/2.0, bottom: 0, right: -labelWidth-spacing/2.0)
                     self.titleEdgeInsets =  UIEdgeInsets(top:0, left:-imageWidth-spacing/2.0, bottom: 0, right:imageWidth+spacing/2.0)
-                }
-                break
-                
-            case .imageLeftTitleRight:
-                
-                if #available(iOS 15.0, *) {
+                    break
                     
-                    var configuration: UIButton.Configuration = .plain()
-                    configuration.imagePlacement = .leading
-                    configuration.imagePadding = spacing
-                    self.configuration = configuration
+                case .imageLeftTitleRight:
                     
-                }else {
                     self.titleEdgeInsets = UIEdgeInsets(top:0, left:spacing/2.0, bottom: 0, right: -spacing/2.0)
                     self.imageEdgeInsets = UIEdgeInsets(top:0, left:-spacing/2.0, bottom: 0, right:spacing/2.0)
-                }
-                break
-                
-            case .imageTopTitleBottom:
-                
-                if #available(iOS 15.0, *) {
+                    break
                     
-                    var configuration: UIButton.Configuration = .plain()
-                    configuration.imagePlacement = .top
-                    configuration.imagePadding = spacing
-                    self.configuration = configuration
+                case .imageTopTitleBottom:
                     
-                }else {
                     self.imageEdgeInsets = UIEdgeInsets(top: -labelHeight - spacing/2.0, left: 0, bottom: 0, right:  -labelWidth)
                     self.titleEdgeInsets =  UIEdgeInsets(top:0, left: -imageWidth, bottom: -imageHeight-spacing/2.0, right: 0)
-                }
-                break
-                
-            case .imageBottomTitleTop:
-                
-                if #available(iOS 15.0, *) {
+                    break
                     
-                    var configuration: UIButton.Configuration = .plain()
-                    configuration.imagePlacement = .bottom
-                    configuration.imagePadding = spacing
-                    self.configuration = configuration
+                case .imageBottomTitleTop:
                     
-                }else {
                     self.imageEdgeInsets = UIEdgeInsets(top:0, left:0, bottom: -labelHeight-spacing/2.0, right: -labelWidth)
                     self.titleEdgeInsets =  UIEdgeInsets(top:-imageHeight-spacing/2.0, left:-imageWidth, bottom: 0, right: 0)
+                    break
                 }
-                break
             }
+            // 强制刷新布局
+            self.superview?.setNeedsLayout()
+            self.superview?.layoutIfNeeded()
         }
     }
 }
