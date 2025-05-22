@@ -145,4 +145,4 @@ public static func clearDiskCache(path: String, asset: String = "", completion:(
 
 ### 目前WYBasisKit已基本开发完毕，更多功能敬请期待。
 
-如您在使用过程中发现BUG,或有好的意见建议，可发邮件至[mobileAppDvlp@icloud.com](mailto:mobileAppDvlp@icloud.com)
+如您在使用过程中发现BUG,或有好的意见建议，可发邮件至[aiguanren@icloud.com](mailto:aiguanren@icloud.com)
