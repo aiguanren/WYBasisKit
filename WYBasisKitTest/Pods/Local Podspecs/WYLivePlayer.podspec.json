@@ -9,13 +9,13 @@
     "file": "License.md"
   },
   "authors": {
-    "官人": "mobileAppDvlp@icloud.com"
+    "官人": "aiguanren@icloud.com"
   },
   "platforms": {
     "ios": "13.0"
   },
   "source": {
-    "http": "https://github.com/gaunren/WYBasisKit-swift/raw/refs/heads/master/WYBasisKit/LivePlayer/Full.zip"
+    "http": "https://github.com/gaunren/WYBasisKit-swift/raw/refs/heads/master/WYBasisKit/LivePlayer/Full/Full.zip"
   },
   "swift_versions": "5.0",
   "requires_arc": true,
