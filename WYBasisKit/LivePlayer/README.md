@@ -1,4 +1,4 @@
-WYLivePlayer和WYLivePlayerLite使用的WYLivePlayer.swift完全一致，唯一的区别是IJKMediaFramework.framework不同，更新Cocoapods版本库的时候，需要手动解压对应的压缩包到当前目录中(提交代码的时候先删除)，不然验证会不通过
+WYLivePlayer和WYLivePlayerLite使用的WYLivePlayer.swift完全一致，唯一的区别是IJKMediaPlayer.(xc)framework不同，更新Cocoapods版本库的时候，需要手动解压对应的压缩包到当前目录中(提交代码的时候先删除)，不然验证会不通过
 
 获取Github仓库中某个文件的下载地址
 
