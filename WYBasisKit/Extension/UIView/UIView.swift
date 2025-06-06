@@ -156,6 +156,14 @@ public extension UIView {
         removeFromSuperview()
     }
     
+    /// 防止View在短时间内快速重复点击
+    func wy_temporarilyDisable(for duration: TimeInterval) {
+        self.isUserInteractionEnabled = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+            self.isUserInteractionEnabled = true
+        }
+    }
+    
     /// 添加手势点击事件
     @discardableResult
     func wy_addGesture(target: Any?, action: Selector?) -> UITapGestureRecognizer {

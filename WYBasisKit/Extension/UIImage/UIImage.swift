@@ -72,7 +72,7 @@ public extension UIImage {
     class func wy_createImage(from color: UIColor, size: CGSize = CGSize(width: 1, height: 1)) -> UIImage {
         
         let rect = CGRect(x: 0, y: 0, width: size.width, height: size.height)
-        UIGraphicsBeginImageContext(rect.size)
+        UIGraphicsBeginImageContextWithOptions(rect.size, false, 0)
         let context = UIGraphicsGetCurrentContext()
         context!.setFillColor(color.cgColor)
         context!.fill(rect)
@@ -88,7 +88,7 @@ public extension UIImage {
         for color in colors {
             array.append(color.cgColor)
         }
-        UIGraphicsBeginImageContextWithOptions(size, true, 1)
+        UIGraphicsBeginImageContextWithOptions(size, false, 0)
         let context = UIGraphicsGetCurrentContext()
         context?.saveGState()
         let colorSpace = CGColorSpaceCreateDeviceRGB()
