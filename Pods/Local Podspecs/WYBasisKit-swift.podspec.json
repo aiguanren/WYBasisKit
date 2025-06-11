@@ -1,0 +1,406 @@
+{
+  "name": "WYBasisKit-swift",
+  "version": "2.0.0",
+  "summary": "WYBasisKit 不仅可以帮助开发者快速构建一个工程，还有基于常用网络框架和系统API而封装的各种实用方法、扩展，开发者只需简单的调用API就可以快速实现相应功能， 大幅提高开发效率。",
+  "description": "Localizable: 国际化解决方案\nExtension: 各种系统扩展\nNetworking: 网络请求解决方案\nActivity: 活动指示器\nStorage: 本地存储\nLayout: 各种自定义控件\nMediaPlayer: 直播、视频播放器\nCodable: 数据解析\nAuthorization: 各种权限请求与判断",
+  "homepage": "https://github.com/aiguanren/WYBasisKit-swift",
+  "license": {
+    "type": "MIT",
+    "file": "License.md"
+  },
+  "authors": {
+    "官人": "aiguanren@icloud.com"
+  },
+  "platforms": {
+    "ios": "13.0"
+  },
+  "source": {
+    "git": "https://github.com/aiguanren/WYBasisKit-swift.git",
+    "tag": "2.0.0"
+  },
+  "swift_versions": "5.0",
+  "requires_arc": true,
+  "default_subspecs": "Extension",
+  "prepare_command": "bash SDK/WYBasisKit/MediaPlayer/WYMediaPlayerFramework.sh",
+  "subspecs": [
+    {
+      "name": "Config",
+      "source_files": "WYBasisKit/Config/**/*",
+      "frameworks": [
+        "Foundation",
+        "UIKit"
+      ]
+    },
+    {
+      "name": "Localizable",
+      "source_files": "SDK/WYBasisKit/Localizable/WYLocalizableManager.swift",
+      "frameworks": [
+        "Foundation",
+        "UIKit"
+      ],
+      "dependencies": {
+        "WYBasisKit-swift/Config": [
+
+        ]
+      }
+    },
+    {
+      "name": "Extension",
+      "source_files": "SDK/WYBasisKit/Extension/**/*",
+      "frameworks": [
+        "Foundation",
+        "UIKit",
+        "LocalAuthentication",
+        "Photos",
+        "CoreFoundation"
+      ],
+      "resources": "SDK/WYBasisKit/Localizable/WYLocalizable.bundle",
+      "dependencies": {
+        "WYBasisKit-swift/Localizable": [
+
+        ],
+        "WYBasisKit-swift/Config": [
+
+        ]
+      }
+    },
+    {
+      "name": "Codable",
+      "source_files": "SDK/WYBasisKit/Codable/**/*",
+      "frameworks": [
+        "Foundation",
+        "UIKit"
+      ]
+    },
+    {
+      "name": "Networking",
+      "source_files": [
+        "SDK/WYBasisKit/Networking/**/*",
+        "SDK/WYBasisKit/Extension/UIAlertController/**/*"
+      ],
+      "frameworks": [
+        "Foundation",
+        "UIKit"
+      ],
+      "resources": "SDK/WYBasisKit/Localizable/WYLocalizable.bundle",
+      "dependencies": {
+        "WYBasisKit-swift/Localizable": [
+
+        ],
+        "WYBasisKit-swift/Storage": [
+
+        ],
+        "WYBasisKit-swift/Codable": [
+
+        ],
+        "Moya": [
+
+        ]
+      }
+    },
+    {
+      "name": "Activity",
+      "source_files": [
+        "SDK/WYBasisKit/Activity/WYActivity.swift",
+        "SDK/WYBasisKit/Extension/UIView/UIView.swift",
+        "SDK/WYBasisKit/Extension/UIViewController/UIViewController.swift",
+        "SDK/WYBasisKit/Extension/NSAttributedString/NSAttributedString.swift",
+        "SDK/WYBasisKit/Extension/String/String.swift",
+        "SDK/WYBasisKit/Extension/UIImage/UIImage.swift",
+        "SDK/WYBasisKit/Config/WYBasisKitConfig.swift"
+      ],
+      "frameworks": [
+        "Foundation",
+        "UIKit"
+      ],
+      "resources": [
+        "SDK/WYBasisKit/Activity/WYActivity.bundle",
+        "SDK/WYBasisKit/Localizable/WYLocalizable.bundle"
+      ],
+      "dependencies": {
+        "WYBasisKit-swift/Localizable": [
+
+        ]
+      }
+    },
+    {
+      "name": "Storage",
+      "source_files": "SDK/WYBasisKit/Storage/**/*",
+      "frameworks": [
+        "Foundation",
+        "UIKit"
+      ]
+    },
+    {
+      "name": "Authorization",
+      "subspecs": [
+        {
+          "name": "Camera",
+          "source_files": [
+            "SDK/WYBasisKit/Authorization/Camera/**/*",
+            "SDK/WYBasisKit/Extension/UIAlertController/**/*"
+          ],
+          "frameworks": [
+            "AVFoundation",
+            "UIKit",
+            "Photos"
+          ],
+          "resources": "SDK/WYBasisKit/Localizable/WYLocalizable.bundle",
+          "dependencies": {
+            "WYBasisKit-swift/Localizable": [
+
+            ]
+          }
+        },
+        {
+          "name": "Biometric",
+          "source_files": "SDK/WYBasisKit/Authorization/Biometric/**/*",
+          "frameworks": [
+            "Foundation",
+            "LocalAuthentication"
+          ],
+          "resources": "SDK/WYBasisKit/Localizable/WYLocalizable.bundle",
+          "dependencies": {
+            "WYBasisKit-swift/Localizable": [
+
+            ]
+          }
+        },
+        {
+          "name": "Contacts",
+          "source_files": [
+            "SDK/WYBasisKit/Authorization/Contacts/**/*",
+            "SDK/WYBasisKit/Extension/UIAlertController/**/*"
+          ],
+          "frameworks": [
+            "Contacts",
+            "UIKit"
+          ],
+          "resources": "SDK/WYBasisKit/Localizable/WYLocalizable.bundle",
+          "dependencies": {
+            "WYBasisKit-swift/Localizable": [
+
+            ]
+          }
+        },
+        {
+          "name": "PhotoAlbums",
+          "source_files": [
+            "SDK/WYBasisKit/Authorization/PhotoAlbums/**/*",
+            "SDK/WYBasisKit/Extension/UIAlertController/**/*"
+          ],
+          "frameworks": [
+            "Photos",
+            "UIKit"
+          ],
+          "resources": "SDK/WYBasisKit/Localizable/WYLocalizable.bundle",
+          "dependencies": {
+            "WYBasisKit-swift/Localizable": [
+
+            ]
+          }
+        },
+        {
+          "name": "Microphone",
+          "source_files": [
+            "SDK/WYBasisKit/Authorization/Microphone/**/*",
+            "SDK/WYBasisKit/Extension/UIAlertController/**/*"
+          ],
+          "frameworks": [
+            "Photos",
+            "UIKit"
+          ],
+          "resources": "SDK/WYBasisKit/Localizable/WYLocalizable.bundle",
+          "dependencies": {
+            "WYBasisKit-swift/Localizable": [
+
+            ]
+          }
+        },
+        {
+          "name": "SpeechRecognition",
+          "source_files": [
+            "SDK/WYBasisKit/Authorization/SpeechRecognition/**/*",
+            "SDK/WYBasisKit/Extension/UIAlertController/**/*"
+          ],
+          "frameworks": [
+            "Speech",
+            "UIKit"
+          ],
+          "resources": "SDK/WYBasisKit/Localizable/WYLocalizable.bundle",
+          "dependencies": {
+            "WYBasisKit-swift/Localizable": [
+
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Layout",
+      "subspecs": [
+        {
+          "name": "ScrollText",
+          "source_files": [
+            "SDK/WYBasisKit/Layout/ScrollText/**/*",
+            "SDK/WYBasisKit/Config/WYBasisKitConfig.swift"
+          ],
+          "frameworks": [
+            "Foundation",
+            "UIKit"
+          ],
+          "resources": "SDK/WYBasisKit/Localizable/WYLocalizable.bundle",
+          "dependencies": {
+            "WYBasisKit-swift/Localizable": [
+
+            ],
+            "SnapKit": [
+
+            ]
+          }
+        },
+        {
+          "name": "PagingView",
+          "source_files": [
+            "SDK/WYBasisKit/Layout/PagingView/**/*",
+            "SDK/WYBasisKit/Extension/UIView/**/*",
+            "SDK/WYBasisKit/Extension/UIButton/**/*",
+            "SDK/WYBasisKit/Extension/UIColor/**/*",
+            "SDK/WYBasisKit/Extension/UIImage/**/*",
+            "SDK/WYBasisKit/Config/WYBasisKitConfig.swift"
+          ],
+          "frameworks": [
+            "Foundation",
+            "UIKit"
+          ],
+          "dependencies": {
+            "SnapKit": [
+
+            ]
+          }
+        },
+        {
+          "name": "BannerView",
+          "source_files": [
+            "SDK/WYBasisKit/Layout/BannerView/WYBannerView.swift",
+            "SDK/WYBasisKit/Extension/UIView/**/*",
+            "SDK/WYBasisKit/Config/WYBasisKitConfig.swift"
+          ],
+          "frameworks": [
+            "Foundation",
+            "UIKit"
+          ],
+          "resources": [
+            "SDK/WYBasisKit/Layout/BannerView/WYBannerView.bundle",
+            "SDK/WYBasisKit/Localizable/WYLocalizable.bundle"
+          ],
+          "dependencies": {
+            "WYBasisKit-swift/Localizable": [
+
+            ],
+            "Kingfisher": [
+
+            ]
+          }
+        },
+        {
+          "name": "ChatView",
+          "source_files": [
+            "SDK/WYBasisKit/Layout/ChatView/AudioManager/**/*",
+            "SDK/WYBasisKit/Layout/ChatView/Config/**/*",
+            "SDK/WYBasisKit/Layout/ChatView/Models/**/*",
+            "SDK/WYBasisKit/Layout/ChatView/RecordAnimation/**/*",
+            "SDK/WYBasisKit/Layout/ChatView/Views/**/*"
+          ],
+          "frameworks": [
+            "Foundation",
+            "UIKit"
+          ],
+          "resources": "SDK/WYBasisKit/Layout/ChatView/WYChatView.bundle",
+          "dependencies": {
+            "WYBasisKit-swift/Extension": [
+
+            ],
+            "WYBasisKit-swift/Localizable": [
+
+            ],
+            "SnapKit": [
+
+            ],
+            "Kingfisher": [
+
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "MediaPlayer",
+      "subspecs": [
+        {
+          "name": "Full",
+          "source_files": "SDK/WYBasisKit/MediaPlayer/WYMediaPlayer.swift",
+          "vendored_frameworks": "SDK/WYBasisKit/MediaPlayer/WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework",
+          "dependencies": {
+            "SnapKit": [
+
+            ],
+            "Kingfisher": [
+
+            ]
+          },
+          "libraries": [
+            "c++",
+            "z",
+            "bz2"
+          ],
+          "frameworks": [
+            "UIKit",
+            "AudioToolbox",
+            "CoreGraphics",
+            "AVFoundation",
+            "CoreMedia",
+            "CoreVideo",
+            "MediaPlayer",
+            "CoreServices",
+            "Metal",
+            "QuartzCore",
+            "VideoToolbox"
+          ]
+        },
+        {
+          "name": "Lite",
+          "source_files": "SDK/WYBasisKit/MediaPlayer/WYMediaPlayer.swift",
+          "vendored_frameworks": "SDK/WYBasisKit/MediaPlayer/WYMediaPlayerFramework/arm64/IJKMediaPlayer.xcframework",
+          "dependencies": {
+            "SnapKit": [
+
+            ],
+            "Kingfisher": [
+
+            ]
+          },
+          "libraries": [
+            "c++",
+            "z",
+            "bz2"
+          ],
+          "frameworks": [
+            "UIKit",
+            "AudioToolbox",
+            "CoreGraphics",
+            "AVFoundation",
+            "CoreMedia",
+            "CoreVideo",
+            "MediaPlayer",
+            "CoreServices",
+            "Metal",
+            "QuartzCore",
+            "VideoToolbox"
+          ]
+        }
+      ]
+    }
+  ],
+  "swift_version": "5.0"
+}

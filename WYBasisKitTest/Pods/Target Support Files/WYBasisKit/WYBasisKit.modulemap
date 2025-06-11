@@ -1,6 +1,0 @@
-framework module WYBasisKit {
-  umbrella header "WYBasisKit-umbrella.h"
-
-  export *
-  module * { export * }
-}
