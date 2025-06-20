@@ -6,6 +6,12 @@ set -x  # 显示每条执行的命令
 # 当前目录
 echo "📁 当前路径: $(pwd)"
 
+# 判断是否在 MediaPlayer 模块环境下
+if [[ ! -f "MediaPlayer/WYMediaPlayer.swift" ]]; then
+    echo "🛑 当前模块不是 MediaPlayer，跳过本次下载"
+    exit 0
+fi
+
 # 下载地址和目标路径
 ZIP_URL="https://github.com/aiguanren/WYBasisKit-swift/releases/download/1.0.0/WYMediaPlayerFramework.zip"
 ZIP_PATH="./MediaPlayer/WYMediaPlayerFramework.zip"
