@@ -1,2 +1,2 @@
 ${PODS_ROOT}/Target Support Files/WYBasisKit-swift/WYBasisKit-swift-xcframeworks.sh
-${PODS_ROOT}/../SDK/WYBasisKit/MediaPlayer/WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework
+${PODS_ROOT}/../WYBasisKit/WYBasisKit/WYBasisKit/MediaPlayer/WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework

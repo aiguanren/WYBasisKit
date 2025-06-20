@@ -1,0 +1,137 @@
+/*
+  WYLocalizable.strings
+  WYBasisKit
+  西班牙语
+  Created by 官人 on 2020/11/21.
+  Copyright © 2020 官人. All rights reserved.
+*/
+
+"WYLocalizable_01" = "Entendido";
+
+"WYLocalizable_02" = "Contraseña";
+
+"WYLocalizable_03" = "Cancelar";
+
+"WYLocalizable_04" = "Eliminar";
+
+"WYLocalizable_05" = "Biometría no disponible";
+
+"WYLocalizable_06" = "La biometría se ha bloqueado, bloquee la pantalla y desbloquee correctamente el dispositivo y vuelva a abrir esta página para volver a abrir";
+
+"WYLocalizable_07" = "El sistema interrumpió esta identificación";
+
+"WYLocalizable_08" = "Establezca una contraseña de desbloqueo antes de activar la biometría";
+
+"WYLocalizable_09" = "Habilite/establezca la biometría en la configuración del dispositivo";
+
+"WYLocalizable_10" = "Introduzca la contraseña para verificar los datos biométricos";
+
+"WYLocalizable_11" = "Todavía no hay noticias";
+
+"WYLocalizable_12" = "Desautorizar";
+
+"WYLocalizable_13" = "La aplicación no tiene permiso para acceder al álbum de fotos, ¿va a autorizar ahora?";
+
+"WYLocalizable_14" = "La aplicación no tiene permiso para acceder a la cámara. ¿Ahora ve a autorizar?";
+
+"WYLocalizable_15" = "La aplicación no tiene permiso para acceder al micrófono. ¿Ahora ve a autorizar?";
+
+"WYLocalizable_16" = "La aplicación no tiene permiso para acceder a la ubicación. ¿Desea autorizar ahora?";
+
+"WYLocalizable_17" = "La aplicación no tiene permiso para acceder a la libreta de direcciones. ¿Desea autorizar ahora?";
+
+"WYLocalizable_18" = "Continuar para conectarse";
+
+"WYLocalizable_19" = "Cancelar conexión";
+
+"WYLocalizable_20" = "Error en la solicitud de datos";
+
+"WYLocalizable_21" = "Código de estado anómalo";
+
+"WYLocalizable_22" = "Red desconocida, puede haber riesgos de seguridad, ¿continuar?";
+
+"WYLocalizable_23" = "Ir a Configuración";
+
+"WYLocalizable_24" = "Conexión de red no segura cancelada";
+
+"WYLocalizable_25" = "Sin conexión de red, verifique la configuración de su red";
+
+"WYLocalizable_26" = "Está utilizando Wi-Fi";
+
+"WYLocalizable_27" = "Está conectado a Internet mediante una red móvil";
+
+"WYLocalizable_28" = "Red no disponible. Confirme que su entorno de red o los permisos de conexión de red se han configurado correctamente";
+
+"WYLocalizable_29" = "Error en la verificación del código de datos de respuesta";
+
+"WYLocalizable_30" = "Justo ahora";
+
+"WYLocalizable_31" = "Hace %@ minutos";
+
+"WYLocalizable_32" = "Hace %@ horas";
+
+"WYLocalizable_33" = "Hace %@ días";
+
+"WYLocalizable_34" = "Hace %@ mes";
+
+"WYLocalizable_35" = "Hace %@ años";
+
+"WYLocalizable_36" = "Sin tarjeta SIM";
+
+"WYLocalizable_37" = "Capricornio";
+
+"WYLocalizable_38" = "Acuario";
+
+"WYLocalizable_39" = "Piscis";
+
+"WYLocalizable_40" = "Aries";
+
+"WYLocalizable_41" = "Tauro";
+
+"WYLocalizable_42" = "Géminis";
+
+"WYLocalizable_43" = "Cáncer";
+
+"WYLocalizable_44" = "León";
+
+"WYLocalizable_45" = "Virgo";
+
+"WYLocalizable_46" = "Libra";
+
+"WYLocalizable_47" = "Escorpio";
+
+"WYLocalizable_48" = "Sagitario";
+
+"WYLocalizable_49" = "La aplicación no tiene permiso para acceder al reconocimiento de voz, ¿va a autorizar ahora?";
+
+"WYLocalizable_50" = "Hoy";
+
+"WYLocalizable_51" = "Ayer";
+
+"WYLocalizable_52" = "Anteayer";
+
+"WYLocalizable_53" = "Domingo";
+
+"WYLocalizable_54" = "Lunes";
+
+"WYLocalizable_55" = "Martes";
+
+"WYLocalizable_56" = "Miércoles";
+
+"WYLocalizable_57" = "Jueves";
+
+"WYLocalizable_58" = "Viernes";
+
+"WYLocalizable_59" = "Sábado";
+
+"WYLocalizable_60" = "Año";
+
+"WYLocalizable_61" = "Mes";
+
+"WYLocalizable_62" = "Día";
+
+"WYLocalizable_63" = "Hora";
+
+"WYLocalizable_64" = "Minutos";
+
+"WYLocalizable_65" = "Segundos";

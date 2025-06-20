@@ -1,0 +1,137 @@
+/*
+  WYLocalizable.strings
+  WYBasisKit
+  印尼语
+  Created by 官人 on 2020/11/21.
+  Copyright © 2020 官人. All rights reserved.
+*/
+
+"WYLocalizable_01" = "Mengerti";
+
+"WYLocalizable_02" = "Kata Sandi";
+
+"WYLocalizable_03" = "Batalkan";
+
+"WYLocalizable_04" = "Hapus";
+
+"WYLocalizable_05" = "Biometrik tidak tersedia";
+
+"WYLocalizable_06" = "Biometrik telah dikunci, kunci layar dan berhasil membuka kunci perangkat dan buka kembali halaman ini untuk membuka kembali";
+
+"WYLocalizable_07" = "Sistem menghentikan identifikasi ini";
+
+"WYLocalizable_08" = "Atur kata sandi buka kunci sebelum menyalakan biometrik";
+
+"WYLocalizable_09" = "Harap aktifkan/setel biometrik di pengaturan perangkat";
+
+"WYLocalizable_10" = "Masukkan kata sandi untuk memverifikasi biometrik";
+
+"WYLocalizable_11" = "Belum ada berita";
+
+"WYLocalizable_12" = "Batalkan otorisasi";
+
+"WYLocalizable_13" = "Aplikasi tidak memiliki izin untuk mengakses album foto, sekarang izinkan?";
+
+"WYLocalizable_14" = "Aplikasi tidak memiliki izin untuk mengakses kamera, sekarang buka otorisasi?";
+
+"WYLocalizable_15" = "Aplikasi tidak memiliki izin untuk mengakses mikrofon, sekarang buka otorisasi?";
+
+"WYLocalizable_16" = "Aplikasi tidak memiliki izin untuk mengakses lokasi, sekarang buka otorisasi?";
+
+"WYLocalizable_17" = "Aplikasi tidak memiliki izin untuk mengakses buku alamat, sekarang buka otorisasi?";
+
+"WYLocalizable_18" = "Lanjutkan menghubungkan";
+
+"WYLocalizable_19" = "Batalkan Koneksi";
+
+"WYLocalizable_20" = "Permintaan data gagal";
+
+"WYLocalizable_21" = "Kode Status Tidak Normal";
+
+"WYLocalizable_22" = "Jaringan tidak diketahui, mungkin ada risiko keamanan, lanjutkan?";
+
+"WYLocalizable_23" = "Pergi ke Pengaturan";
+
+"WYLocalizable_24" = "Koneksi jaringan yang tidak aman dibatalkan";
+
+"WYLocalizable_25" = "Tidak ada koneksi jaringan, harap periksa pengaturan jaringan Anda";
+
+"WYLocalizable_26" = "Anda menggunakan Wi-Fi";
+
+"WYLocalizable_27" = "Anda tersambung ke Internet menggunakan jaringan seluler";
+
+"WYLocalizable_28" = "Jaringan tidak tersedia, konfirmasi lingkungan jaringan atau izin koneksi jaringan Anda telah disetel dengan benar";
+
+"WYLocalizable_29" = "Verifikasi kode data respons gagal";
+
+"WYLocalizable_30" = "Baru saja";
+
+"WYLocalizable_31" = "%@ menit yang lalu";
+
+"WYLocalizable_32" = "%@ jam lalu";
+
+"WYLocalizable_33" = "%@ hari lalu";
+
+"WYLocalizable_34" = "%@ bulan yang lalu";
+
+"WYLocalizable_35" = "%@ tahun yang lalu";
+
+"WYLocalizable_36" = "Tidak ada kartu SIM";
+
+"WYLocalizable_37" = "Capricornus";
+
+"WYLocalizable_38" = "Aquarius";
+
+"WYLocalizable_39" = "Pisces";
+
+"WYLocalizable_40" = "Aries";
+
+"WYLocalizable_41" = "Taurus";
+
+"WYLocalizable_42" = "Gemini";
+
+"WYLocalizable_43" = "Kanker";
+
+"WYLocalizable_44" = "Leo";
+
+"WYLocalizable_45" = "Virgo";
+
+"WYLocalizable_46" = "Libra";
+
+"WYLocalizable_47" = "Scorpio";
+
+"WYLocalizable_48" = "Sagitarius";
+
+"WYLocalizable_49" = "Aplikasi tidak memiliki izin untuk mengakses pengenalan ucapan, sekarang pergi ke otorisasi?";
+
+"WYLocalizable_50" = "Hari Ini";
+
+"WYLocalizable_51" = "Kemarin";
+
+"WYLocalizable_52" = "Sehari sebelum kemarin";
+
+"WYLocalizable_53" = "Minggu";
+
+"WYLocalizable_54" = "Senin";
+
+"WYLocalizable_55" = "Selasa";
+
+"WYLocalizable_56" = "Rabu";
+
+"WYLocalizable_57" = "Kamis";
+
+"WYLocalizable_58" = "Jumat";
+
+"WYLocalizable_59" = "Sabtu";
+
+"WYLocalizable_60" = "Tahun";
+
+"WYLocalizable_61" = "Bulan";
+
+"WYLocalizable_62" = "Hari";
+
+"WYLocalizable_63" = "Jam";
+
+"WYLocalizable_64" = "Menit";
+
+"WYLocalizable_65" = "detik";

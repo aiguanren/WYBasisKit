@@ -10,7 +10,7 @@ import UIKit
 
 class WYTestLiveStreamingController: UIViewController {
     
-    let player: WYLivePlayer = WYLivePlayer()
+    let player: WYMediaPlayer = WYMediaPlayer()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -196,9 +196,9 @@ class WYTestLiveStreamingController: UIViewController {
     
 }
 
-extension WYTestLiveStreamingController: WYLivePlayerDelegate {
+extension WYTestLiveStreamingController: WYMediaPlayerDelegate {
     
-    func livePlayerDidChangeState(_ player: WYLivePlayer, _ state: WYLivePlayerState) {
+    func mediaPlayerDidChangeState(_ player: WYMediaPlayer, _ state: WYMediaPlayerState) {
         switch state {
         case .unknown:
             wy_print("未知状态")

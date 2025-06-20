@@ -18,14 +18,27 @@
     "git": "https://github.com/aiguanren/WYBasisKit-swift.git",
     "tag": "2.0.0"
   },
+  "resource_bundles": {
+    "WYBasisKit-swift": [
+      "PrivacyInfo.xcprivacy"
+    ]
+  },
   "swift_versions": "5.0",
   "requires_arc": true,
-  "default_subspecs": "Extension",
-  "prepare_command": "bash SDK/WYBasisKit/MediaPlayer/WYMediaPlayerFramework.sh",
+  "default_subspecs": [
+    "Config",
+    "Localizable",
+    "Extension",
+    "Networking",
+    "Activity",
+    "Storage",
+    "Codable"
+  ],
+  "prepare_command": "bash MediaPlayer/WYMediaPlayerFramework.sh",
   "subspecs": [
     {
       "name": "Config",
-      "source_files": "WYBasisKit/Config/**/*",
+      "source_files": "Config/**/*",
       "frameworks": [
         "Foundation",
         "UIKit"
@@ -33,7 +46,7 @@
     },
     {
       "name": "Localizable",
-      "source_files": "SDK/WYBasisKit/Localizable/WYLocalizableManager.swift",
+      "source_files": "Localizable/WYLocalizableManager.swift",
       "frameworks": [
         "Foundation",
         "UIKit"
@@ -46,7 +59,7 @@
     },
     {
       "name": "Extension",
-      "source_files": "SDK/WYBasisKit/Extension/**/*",
+      "source_files": "Extension/**/*",
       "frameworks": [
         "Foundation",
         "UIKit",
@@ -54,7 +67,7 @@
         "Photos",
         "CoreFoundation"
       ],
-      "resources": "SDK/WYBasisKit/Localizable/WYLocalizable.bundle",
+      "resources": "Localizable/WYLocalizable.bundle",
       "dependencies": {
         "WYBasisKit-swift/Localizable": [
 
@@ -66,7 +79,7 @@
     },
     {
       "name": "Codable",
-      "source_files": "SDK/WYBasisKit/Codable/**/*",
+      "source_files": "Codable/**/*",
       "frameworks": [
         "Foundation",
         "UIKit"
@@ -75,14 +88,14 @@
     {
       "name": "Networking",
       "source_files": [
-        "SDK/WYBasisKit/Networking/**/*",
-        "SDK/WYBasisKit/Extension/UIAlertController/**/*"
+        "Networking/**/*",
+        "Networking/Extension/UIAlertController/**/*"
       ],
+      "resources": "Localizable/WYLocalizable.bundle",
       "frameworks": [
         "Foundation",
         "UIKit"
       ],
-      "resources": "SDK/WYBasisKit/Localizable/WYLocalizable.bundle",
       "dependencies": {
         "WYBasisKit-swift/Localizable": [
 
@@ -101,21 +114,21 @@
     {
       "name": "Activity",
       "source_files": [
-        "SDK/WYBasisKit/Activity/WYActivity.swift",
-        "SDK/WYBasisKit/Extension/UIView/UIView.swift",
-        "SDK/WYBasisKit/Extension/UIViewController/UIViewController.swift",
-        "SDK/WYBasisKit/Extension/NSAttributedString/NSAttributedString.swift",
-        "SDK/WYBasisKit/Extension/String/String.swift",
-        "SDK/WYBasisKit/Extension/UIImage/UIImage.swift",
-        "SDK/WYBasisKit/Config/WYBasisKitConfig.swift"
+        "Activity/WYActivity.swift",
+        "Extension/UIView/UIView.swift",
+        "Extension/UIViewController/UIViewController.swift",
+        "Extension/NSAttributedString/NSAttributedString.swift",
+        "Extension/String/String.swift",
+        "Extension/UIImage/UIImage.swift",
+        "Config/WYBasisKitConfig.swift"
+      ],
+      "resources": [
+        "Activity/WYActivity.bundle",
+        "Localizable/WYLocalizable.bundle"
       ],
       "frameworks": [
         "Foundation",
         "UIKit"
-      ],
-      "resources": [
-        "SDK/WYBasisKit/Activity/WYActivity.bundle",
-        "SDK/WYBasisKit/Localizable/WYLocalizable.bundle"
       ],
       "dependencies": {
         "WYBasisKit-swift/Localizable": [
@@ -125,7 +138,7 @@
     },
     {
       "name": "Storage",
-      "source_files": "SDK/WYBasisKit/Storage/**/*",
+      "source_files": "Storage/**/*",
       "frameworks": [
         "Foundation",
         "UIKit"
@@ -137,15 +150,15 @@
         {
           "name": "Camera",
           "source_files": [
-            "SDK/WYBasisKit/Authorization/Camera/**/*",
-            "SDK/WYBasisKit/Extension/UIAlertController/**/*"
+            "Authorization/Camera/**/*",
+            "Extension/UIAlertController/**/*"
           ],
+          "resources": "Localizable/WYLocalizable.bundle",
           "frameworks": [
             "AVFoundation",
             "UIKit",
             "Photos"
           ],
-          "resources": "SDK/WYBasisKit/Localizable/WYLocalizable.bundle",
           "dependencies": {
             "WYBasisKit-swift/Localizable": [
 
@@ -154,12 +167,12 @@
         },
         {
           "name": "Biometric",
-          "source_files": "SDK/WYBasisKit/Authorization/Biometric/**/*",
+          "source_files": "Authorization/Biometric/**/*",
+          "resources": "Localizable/WYLocalizable.bundle",
           "frameworks": [
             "Foundation",
             "LocalAuthentication"
           ],
-          "resources": "SDK/WYBasisKit/Localizable/WYLocalizable.bundle",
           "dependencies": {
             "WYBasisKit-swift/Localizable": [
 
@@ -169,14 +182,14 @@
         {
           "name": "Contacts",
           "source_files": [
-            "SDK/WYBasisKit/Authorization/Contacts/**/*",
-            "SDK/WYBasisKit/Extension/UIAlertController/**/*"
+            "Authorization/Contacts/**/*",
+            "Extension/UIAlertController/**/*"
           ],
+          "resources": "Localizable/WYLocalizable.bundle",
           "frameworks": [
             "Contacts",
             "UIKit"
           ],
-          "resources": "SDK/WYBasisKit/Localizable/WYLocalizable.bundle",
           "dependencies": {
             "WYBasisKit-swift/Localizable": [
 
@@ -186,14 +199,14 @@
         {
           "name": "PhotoAlbums",
           "source_files": [
-            "SDK/WYBasisKit/Authorization/PhotoAlbums/**/*",
-            "SDK/WYBasisKit/Extension/UIAlertController/**/*"
+            "Authorization/PhotoAlbums/**/*",
+            "Extension/UIAlertController/**/*"
           ],
+          "resources": "Localizable/WYLocalizable.bundle",
           "frameworks": [
             "Photos",
             "UIKit"
           ],
-          "resources": "SDK/WYBasisKit/Localizable/WYLocalizable.bundle",
           "dependencies": {
             "WYBasisKit-swift/Localizable": [
 
@@ -203,14 +216,14 @@
         {
           "name": "Microphone",
           "source_files": [
-            "SDK/WYBasisKit/Authorization/Microphone/**/*",
-            "SDK/WYBasisKit/Extension/UIAlertController/**/*"
+            "Authorization/Microphone/**/*",
+            "Extension/UIAlertController/**/*"
           ],
+          "resources": "Localizable/WYLocalizable.bundle",
           "frameworks": [
             "Photos",
             "UIKit"
           ],
-          "resources": "SDK/WYBasisKit/Localizable/WYLocalizable.bundle",
           "dependencies": {
             "WYBasisKit-swift/Localizable": [
 
@@ -220,14 +233,14 @@
         {
           "name": "SpeechRecognition",
           "source_files": [
-            "SDK/WYBasisKit/Authorization/SpeechRecognition/**/*",
-            "SDK/WYBasisKit/Extension/UIAlertController/**/*"
+            "Authorization/SpeechRecognition/**/*",
+            "Extension/UIAlertController/**/*"
           ],
+          "resources": "Localizable/WYLocalizable.bundle",
           "frameworks": [
             "Speech",
             "UIKit"
           ],
-          "resources": "SDK/WYBasisKit/Localizable/WYLocalizable.bundle",
           "dependencies": {
             "WYBasisKit-swift/Localizable": [
 
@@ -242,14 +255,14 @@
         {
           "name": "ScrollText",
           "source_files": [
-            "SDK/WYBasisKit/Layout/ScrollText/**/*",
-            "SDK/WYBasisKit/Config/WYBasisKitConfig.swift"
+            "Layout/ScrollText/**/*",
+            "Config/WYBasisKitConfig.swift"
           ],
+          "resources": "Localizable/WYLocalizable.bundle",
           "frameworks": [
             "Foundation",
             "UIKit"
           ],
-          "resources": "SDK/WYBasisKit/Localizable/WYLocalizable.bundle",
           "dependencies": {
             "WYBasisKit-swift/Localizable": [
 
@@ -262,12 +275,12 @@
         {
           "name": "PagingView",
           "source_files": [
-            "SDK/WYBasisKit/Layout/PagingView/**/*",
-            "SDK/WYBasisKit/Extension/UIView/**/*",
-            "SDK/WYBasisKit/Extension/UIButton/**/*",
-            "SDK/WYBasisKit/Extension/UIColor/**/*",
-            "SDK/WYBasisKit/Extension/UIImage/**/*",
-            "SDK/WYBasisKit/Config/WYBasisKitConfig.swift"
+            "Layout/PagingView/**/*",
+            "Extension/UIView/**/*",
+            "Extension/UIButton/**/*",
+            "Extension/UIColor/**/*",
+            "Extension/UIImage/**/*",
+            "Config/WYBasisKitConfig.swift"
           ],
           "frameworks": [
             "Foundation",
@@ -282,17 +295,17 @@
         {
           "name": "BannerView",
           "source_files": [
-            "SDK/WYBasisKit/Layout/BannerView/WYBannerView.swift",
-            "SDK/WYBasisKit/Extension/UIView/**/*",
-            "SDK/WYBasisKit/Config/WYBasisKitConfig.swift"
+            "Layout/BannerView/WYBannerView.swift",
+            "Extension/UIView/**/*",
+            "Config/WYBasisKitConfig.swift"
+          ],
+          "resources": [
+            "Layout/BannerView/WYBannerView.bundle",
+            "Localizable/WYLocalizable.bundle"
           ],
           "frameworks": [
             "Foundation",
             "UIKit"
-          ],
-          "resources": [
-            "SDK/WYBasisKit/Layout/BannerView/WYBannerView.bundle",
-            "SDK/WYBasisKit/Localizable/WYLocalizable.bundle"
           ],
           "dependencies": {
             "WYBasisKit-swift/Localizable": [
@@ -306,17 +319,17 @@
         {
           "name": "ChatView",
           "source_files": [
-            "SDK/WYBasisKit/Layout/ChatView/AudioManager/**/*",
-            "SDK/WYBasisKit/Layout/ChatView/Config/**/*",
-            "SDK/WYBasisKit/Layout/ChatView/Models/**/*",
-            "SDK/WYBasisKit/Layout/ChatView/RecordAnimation/**/*",
-            "SDK/WYBasisKit/Layout/ChatView/Views/**/*"
+            "Layout/ChatView/AudioManager/**/*",
+            "Layout/ChatView/Config/**/*",
+            "Layout/ChatView/Models/**/*",
+            "Layout/ChatView/RecordAnimation/**/*",
+            "Layout/ChatView/Views/**/*"
           ],
+          "resources": "Layout/ChatView/WYChatView.bundle",
           "frameworks": [
             "Foundation",
             "UIKit"
           ],
-          "resources": "SDK/WYBasisKit/Layout/ChatView/WYChatView.bundle",
           "dependencies": {
             "WYBasisKit-swift/Extension": [
 
@@ -339,8 +352,8 @@
       "subspecs": [
         {
           "name": "Full",
-          "source_files": "SDK/WYBasisKit/MediaPlayer/WYMediaPlayer.swift",
-          "vendored_frameworks": "SDK/WYBasisKit/MediaPlayer/WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework",
+          "source_files": "MediaPlayer/WYMediaPlayer.swift",
+          "vendored_frameworks": "MediaPlayer/WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework",
           "dependencies": {
             "SnapKit": [
 
@@ -370,8 +383,8 @@
         },
         {
           "name": "Lite",
-          "source_files": "SDK/WYBasisKit/MediaPlayer/WYMediaPlayer.swift",
-          "vendored_frameworks": "SDK/WYBasisKit/MediaPlayer/WYMediaPlayerFramework/arm64/IJKMediaPlayer.xcframework",
+          "source_files": "MediaPlayer/WYMediaPlayer.swift",
+          "vendored_frameworks": "MediaPlayer/WYMediaPlayerFramework/arm64/IJKMediaPlayer.xcframework",
           "dependencies": {
             "SnapKit": [
 

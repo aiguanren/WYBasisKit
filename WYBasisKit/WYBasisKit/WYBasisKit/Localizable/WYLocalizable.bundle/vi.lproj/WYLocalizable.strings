@@ -1,0 +1,137 @@
+/*
+  WYLocalizable.strings
+  WYBasisKit
+  越南语
+  Created by 官人 on 2020/11/21.
+  Copyright © 2020 官人. All rights reserved.
+*/
+
+"WYLocalizable_01" = "Hiểu rồi";
+
+"WYLocalizable_02" = "Mật khẩu";
+
+"WYLocalizable_03" = "Hủy";
+
+"WYLocalizable_04" = "Xóa";
+
+"WYLocalizable_05" = "Không có thông tin sinh trắc học";
+
+"WYLocalizable_06" = "Đã khóa sinh trắc học, khóa màn hình và mở khóa thiết bị thành công và mở lại trang này để mở lại";
+
+"WYLocalizable_07" = "Hệ thống đã làm gián đoạn nhận dạng này";
+
+"WYLocalizable_08" = "Vui lòng đặt mật khẩu mở khóa trước khi bật sinh trắc học";
+
+"WYLocalizable_09" = "Vui lòng bật/đặt sinh trắc học trong cài đặt thiết bị";
+
+"WYLocalizable_10" = "Vui lòng nhập mật khẩu để xác minh sinh trắc học";
+
+"WYLocalizable_11" = "Chưa có tin mới";
+
+"WYLocalizable_12" = "Hủy cấp quyền";
+
+"WYLocalizable_13" = "Ứng dụng không có quyền truy cập album ảnh, giờ phải cấp quyền?";
+
+"WYLocalizable_14" = "Ứng dụng không có quyền truy cập vào máy ảnh, giờ phải cấp quyền?";
+
+"WYLocalizable_15" = "Ứng dụng không có quyền truy cập micrô, bây giờ chuyển sang cấp quyền?";
+
+"WYLocalizable_16" = "Ứng dụng không có quyền truy cập vị trí, giờ phải cấp quyền?";
+
+"WYLocalizable_17" = "Ứng dụng không có quyền truy cập sổ địa chỉ, giờ phải cấp quyền?";
+
+"WYLocalizable_18" = "Tiếp tục kết nối";
+
+"WYLocalizable_19" = "Hủy kết nối";
+
+"WYLocalizable_20" = "Yêu cầu dữ liệu không thành công";
+
+"WYLocalizable_21" = "Mã trạng thái bất thường";
+
+"WYLocalizable_22" = "Mạng không xác định, có thể có rủi ro bảo mật, tiếp tục?";
+
+"WYLocalizable_23" = "Vào Cài đặt";
+
+"WYLocalizable_24" = "Đã hủy kết nối mạng không an toàn";
+
+"WYLocalizable_25" = "Không có kết nối mạng, vui lòng kiểm tra cài đặt mạng của bạn";
+
+"WYLocalizable_26" = "Bạn đang sử dụng Wifi";
+
+"WYLocalizable_27" = "Bạn đã kết nối Internet bằng mạng di động";
+
+"WYLocalizable_28" = "Mạng không khả dụng, vui lòng xác nhận môi trường mạng hoặc quyền kết nối mạng của bạn đã được đặt chính xác";
+
+"WYLocalizable_29" = "Xác minh mã dữ liệu phản hồi không thành công";
+
+"WYLocalizable_30" = "Ngay bây giờ";
+
+"WYLocalizable_31" = "%@ phút trước";
+
+"WYLocalizable_32" = "%@ giờ trước";
+
+"WYLocalizable_33" = "%@ ngày trước";
+
+"WYLocalizable_34" = "%@ tháng trước";
+
+"WYLocalizable_35" = "%@ năm trước";
+
+"WYLocalizable_36" = "Không có thẻ SIM";
+
+"WYLocalizable_37" = "Ma Kết";
+
+"WYLocalizable_38" = "Bảo Bình";
+
+"WYLocalizable_39" = "Song Ngư";
+
+"WYLocalizable_40" = "Bạch Dương";
+
+"WYLocalizable_41" = "Kim Ngưu";
+
+"WYLocalizable_42" = "Song Tử";
+
+"WYLocalizable_43" = "Ung thư";
+
+"WYLocalizable_44" = "Leo";
+
+"WYLocalizable_45" = "Xử Nữ";
+
+"WYLocalizable_46" = "Thiên Bình";
+
+"WYLocalizable_47" = "Scorpio";
+
+"WYLocalizable_48" = "Nhân Mã";
+
+"WYLocalizable_49" = "Ứng dụng không có quyền truy cập nhận dạng giọng nói, bây giờ chuyển sang cấp quyền?";
+
+"WYLocalizable_50" = "Hôm nay";
+
+"WYLocalizable_51" = "Hôm qua";
+
+"WYLocalizable_52" = "Hôm kia";
+
+"WYLocalizable_53" = "Chủ Nhật";
+
+"WYLocalizable_54" = "Thứ Hai";
+
+"WYLocalizable_55" = "Thứ Ba";
+
+"WYLocalizable_56" = "Thứ Tư";
+
+"WYLocalizable_57" = "Thứ Năm";
+
+"WYLocalizable_58" = "Thứ Sáu";
+
+"WYLocalizable_59" = "Thứ Bảy";
+
+"WYLocalizable_60" = "Năm";
+
+"WYLocalizable_61" = "Tháng";
+
+"WYLocalizable_62" = "Ngày";
+
+"WYLocalizable_63" = "Giờ";
+
+"WYLocalizable_64" = "Phút";
+
+"WYLocalizable_65" = "giây";

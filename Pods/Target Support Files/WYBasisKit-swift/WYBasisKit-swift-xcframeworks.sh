@@ -117,5 +117,5 @@ install_xcframework() {
   echo "Copied $source to $destination"
 }
 
-install_xcframework "${PODS_ROOT}/../SDK/WYBasisKit/MediaPlayer/WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework" "WYBasisKit-swift/MediaPlayer/Full" "framework" "ios-arm64" "ios-x86_64-simulator"
+install_xcframework "${PODS_ROOT}/../WYBasisKit/WYBasisKit/WYBasisKit/MediaPlayer/WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework" "WYBasisKit-swift/MediaPlayer/Full" "framework" "ios-arm64" "ios-x86_64-simulator"
 

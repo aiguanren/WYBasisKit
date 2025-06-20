@@ -1,0 +1,137 @@
+/*
+  WYLocalizable.strings
+  WYBasisKit
+  法语
+  Created by 官人 on 2020/11/21.
+  Copyright © 2020 官人. All rights reserved.
+*/
+
+"WYLocalizable_01" = "Compris";
+
+"WYLocalizable_02" = "Mot de passe";
+
+"WYLocalizable_03" = "Annuler";
+
+"WYLocalizable_04" = "Supprimer";
+
+"WYLocalizable_05" = "Biométrie non disponible";
+
+"WYLocalizable_06" = "La biométrie a été verrouillée, verrouillez l'écran et déverrouillez l'appareil avec succès, puis rouvrez cette page pour rouvrir";
+
+"WYLocalizable_07" = "Le système a interrompu cette identification";
+
+"WYLocalizable_08" = "Veuillez définir un mot de passe de déverrouillage avant d'activer la biométrie";
+
+"WYLocalizable_09" = "Veuillez activer/définir la biométrie dans les paramètres de l'appareil";
+
+"WYLocalizable_10" = "Veuillez entrer le mot de passe pour vérifier la biométrie";
+
+"WYLocalizable_11" = "Aucune nouvelle pour le moment";
+
+"WYLocalizable_12" = "Annuler l'autorisation";
+
+"WYLocalizable_13" = "L'application n'a pas la permission d'accéder à l'album photo, allez maintenant autoriser ?";
+
+"WYLocalizable_14" = "L'application n'a pas l'autorisation d'accéder à la caméra, allez maintenant autoriser ?";
+
+"WYLocalizable_15" = "L'application n'a pas l'autorisation d'accéder au microphone, allez maintenant autoriser ?";
+
+"WYLocalizable_16" = "L'application n'a pas l'autorisation d'accéder à l'emplacement, allez maintenant autoriser ?";
+
+"WYLocalizable_17" = "L'application n'a pas l'autorisation d'accéder au carnet d'adresses, allez maintenant sur autoriser ?";
+
+"WYLocalizable_18" = "Continuer à se connecter";
+
+"WYLocalizable_19" = "Annuler la connexion";
+
+"WYLocalizable_20" = "La demande de données a échoué";
+
+"WYLocalizable_21" = "Code d'état anormal";
+
+"WYLocalizable_22" = "Réseau inconnu, il peut y avoir des risques de sécurité, continuer ?";
+
+"WYLocalizable_23" = "Aller aux paramètres";
+
+"WYLocalizable_24" = "Connexion réseau non sécurisée annulée";
+
+"WYLocalizable_25" = "Aucune connexion réseau, veuillez vérifier vos paramètres réseau";
+
+"WYLocalizable_26" = "Vous utilisez le Wifi";
+
+"WYLocalizable_27" = "Vous êtes connecté à Internet via un réseau cellulaire";
+
+"WYLocalizable_28" = "Réseau indisponible, veuillez confirmer que votre environnement réseau ou les autorisations de connexion réseau ont été correctement définis";
+
+"WYLocalizable_29" = "La vérification du code des données de réponse a échoué";
+
+"WYLocalizable_30" = "Juste maintenant";
+
+"WYLocalizable_31" = "il y a %@ minutes";
+
+"WYLocalizable_32" = "il y a %@ heures";
+
+"WYLocalizable_33" = "il y a %@ jours";
+
+"WYLocalizable_34" = "il y a %@ mois";
+
+"WYLocalizable_35" = "il y a %@ ans";
+
+"WYLocalizable_36" = "Pas de carte SIM";
+
+"WYLocalizable_37" = "Capricorne";
+
+"WYLocalizable_38" = "Verseau";
+
+"WYLocalizable_39" = "Poissons";
+
+"WYLocalizable_40" = "Bélier";
+
+"WYLocalizable_41" = "Taureau";
+
+"WYLocalizable_42" = "Gémeaux";
+
+"WYLocalizable_43" = "Cancer";
+
+"WYLocalizable_44" = "Léo";
+
+"WYLocalizable_45" = "Vierge";
+
+"WYLocalizable_46" = "Balance";
+
+"WYLocalizable_47" = "Scorpion";
+
+"WYLocalizable_48" = "Sagittaire";
+
+"WYLocalizable_49" = "L'application n'est pas autorisée à accéder à la reconnaissance vocale, allez maintenant sur autoriser ?";
+
+"WYLocalizable_50" = "Aujourd'hui";
+
+"WYLocalizable_51" = "Hier";
+
+"WYLocalizable_52" = "Avant-hier";
+
+"WYLocalizable_53" = "Dimanche";
+
+"WYLocalizable_54" = "Lundi";
+
+"WYLocalizable_55" = "Mardi";
+
+"WYLocalizable_56" = "Mercredi";
+
+"WYLocalizable_57" = "Jeudi";
+
+"WYLocalizable_58" = "Vendredi";
+
+"WYLocalizable_59" = "Samedi";
+
+"WYLocalizable_60" = "Année";
+
+"WYLocalizable_61" = "Mois";
+
+"WYLocalizable_62" = "Jour";
+
+"WYLocalizable_63" = "Heure";
+
+"WYLocalizable_64" = "Minutes";
+
+"WYLocalizable_65" = "Secondes";

@@ -1,0 +1,137 @@
+/*
+  WYLocalizable.strings
+  WYBasisKit
+  匈牙利语
+  Created by 官人 on 2020/11/21.
+  Copyright © 2020 官人. All rights reserved.
+*/
+
+"WYLocalizable_01" = "Értem";
+
+"WYLocalizable_02" = "Jelszó";
+
+"WYLocalizable_03" = "Mégse";
+
+"WYLocalizable_04" = "Törlés";
+
+"WYLocalizable_05" = "A biometrikus adatok nem állnak rendelkezésre";
+
+"WYLocalizable_06" = "A biometria zárolva lett, zárja le a képernyőt, és sikeresen oldja fel az eszközt, és nyissa meg újra ezt az oldalt az újranyitáshoz";
+
+"WYLocalizable_07" = "A rendszer megszakította ezt az azonosítást";
+
+"WYLocalizable_08" = "Kérjük, állítson be egy feloldó jelszót a biometrikus adatok bekapcsolása előtt";
+
+"WYLocalizable_09" = "Kérjük, engedélyezze/állítsa be a biometrikus adatokat az eszközbeállításokban";
+
+"WYLocalizable_10" = "Kérjük, adja meg a jelszót a biometrikus adatok ellenőrzéséhez";
+
+"WYLocalizable_11" = "Még nincs hír";
+
+"WYLocalizable_12" = "Jogosultság visszavonása";
+
+"WYLocalizable_13" = "Az alkalmazásnak nincs engedélye a fotóalbum elérésére, most menjen az engedélyezéshez?";
+
+"WYLocalizable_14" = "Az alkalmazásnak nincs engedélye a kamera elérésére, most menjen az engedélyezéshez?";
+
+"WYLocalizable_15" = "Az alkalmazásnak nincs engedélye a mikrofonhoz való hozzáférésre, most menjen az engedélyezéshez?";
+
+"WYLocalizable_16" = "Az alkalmazásnak nincs engedélye a hely elérésére, most menjen az engedélyezéshez?";
+
+"WYLocalizable_17" = "Az alkalmazásnak nincs engedélye a címjegyzék elérésére, most menjen az engedélyezéshez?";
+
+"WYLocalizable_18" = "A csatlakozás folytatása";
+
+"WYLocalizable_19" = "Kapcsolat megszakítása";
+
+"WYLocalizable_20" = "Az adatkérés sikertelen";
+
+"WYLocalizable_21" = "Az állapotkód rendellenes";
+
+"WYLocalizable_22" = "Ismeretlen hálózat, biztonsági kockázatok lehetnek, folytatja?";
+
+"WYLocalizable_23" = "Ugrás a Beállításokhoz";
+
+"WYLocalizable_24" = "Nem biztonságos hálózati kapcsolat megszakítva";
+
+"WYLocalizable_25" = "Nincs hálózati kapcsolat, ellenőrizze a hálózati beállításokat";
+
+"WYLocalizable_26" = "Ön Wi-Fi-t használ";
+
+"WYLocalizable_27" = "Mobilhálózaton keresztül csatlakozik az internethez";
+
+"WYLocalizable_28" = "Nem elérhető hálózat, kérjük, ellenőrizze, hogy a hálózati környezet vagy a hálózati csatlakozás engedélyei megfelelően lettek beállítva";
+
+"WYLocalizable_29" = "A válaszadatok kódellenőrzése sikertelen";
+
+"WYLocalizable_30" = "Csak most";
+
+"WYLocalizable_31" = "%@ perce";
+
+"WYLocalizable_32" = "%@ órája";
+
+"WYLocalizable_33" = "%@ napja";
+
+"WYLocalizable_34" = "%@ hónapja";
+
+"WYLocalizable_35" = "%@ évvel ezelőtt";
+
+"WYLocalizable_36" = "Nincs SIM-kártya";
+
+"WYLocalizable_37" = "Bak";
+
+"WYLocalizable_38" = "Vízöntő";
+
+"WYLocalizable_39" = "Halak";
+
+"WYLocalizable_40" = "Kos";
+
+"WYLocalizable_41" = "Bika";
+
+"WYLocalizable_42" = "Ikrek";
+
+"WYLocalizable_43" = "Rák";
+
+"WYLocalizable_44" = "Oroszlán";
+
+"WYLocalizable_45" = "Szűz";
+
+"WYLocalizable_46" = "Mérleg";
+
+"WYLocalizable_47" = "Skorpió";
+
+"WYLocalizable_48" = "Nyilas";
+
+"WYLocalizable_49" = "Az alkalmazásnak nincs engedélye a beszédfelismerés elérésére, most menjen az engedélyezéshez?";
+
+"WYLocalizable_50" = "Ma";
+
+"WYLocalizable_51" = "Tegnap";
+
+"WYLocalizable_52" = "Tegnapelőtt";
+
+"WYLocalizable_53" = "Vasárnap";
+
+"WYLocalizable_54" = "Hétfő";
+
+"WYLocalizable_55" = "Kedd";
+
+"WYLocalizable_56" = "Szerda";
+
+"WYLocalizable_57" = "Csütörtök";
+
+"WYLocalizable_58" = "Péntek";
+
+"WYLocalizable_59" = "Szombat";
+
+"WYLocalizable_60" = "Év";
+
+"WYLocalizable_61" = "Hónap";
+
+"WYLocalizable_62" = "Nap";
+
+"WYLocalizable_63" = "Óra";
+
+"WYLocalizable_64" = "Percek";
+
+"WYLocalizable_65" = "Másodpercek";

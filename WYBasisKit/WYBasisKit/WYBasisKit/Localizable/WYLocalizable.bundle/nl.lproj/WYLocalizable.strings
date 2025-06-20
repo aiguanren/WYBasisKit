@@ -1,0 +1,137 @@
+/*
+  WYLocalizable.strings
+  WYBasisKit
+  荷兰语
+  Created by 官人 on 2020/11/21.
+  Copyright © 2020 官人. All rights reserved.
+*/
+
+"WYLocalizable_01" = "Begrepen";
+
+"WYLocalizable_02" = "Wachtwoord";
+
+"WYLocalizable_03" = "Annuleren";
+
+"WYLocalizable_04" = "Verwijderen";
+
+"WYLocalizable_05" = "Biometrie niet beschikbaar";
+
+"WYLocalizable_06" = "Biometrie is vergrendeld, vergrendel het scherm en ontgrendel het apparaat en open deze pagina opnieuw om opnieuw te openen";
+
+"WYLocalizable_07" = "Het systeem heeft deze identificatie onderbroken";
+
+"WYLocalizable_08" = "Stel een ontgrendelingswachtwoord in voordat u biometrie inschakelt";
+
+"WYLocalizable_09" = "Schakel biometrische gegevens in/in in apparaatinstellingen";
+
+"WYLocalizable_10" = "Voer het wachtwoord in om biometrie te verifiëren";
+
+"WYLocalizable_11" = "Nog geen nieuws";
+
+"WYLocalizable_12" = "Machtiging intrekken";
+
+"WYLocalizable_13" = "App heeft geen toestemming voor toegang tot het fotoalbum. Ga nu naar autoriseren?";
+
+"WYLocalizable_14" = "App heeft geen toestemming voor toegang tot de camera. Ga nu naar autoriseren?";
+
+"WYLocalizable_15" = "App heeft geen toestemming voor toegang tot de microfoon. Ga nu naar autoriseren?";
+
+"WYLocalizable_16" = "App heeft geen toestemming voor toegang tot locatie. Ga nu naar autoriseren?";
+
+"WYLocalizable_17" = "App heeft geen toestemming voor toegang tot het adresboek. Ga nu naar autoriseren?";
+
+"WYLocalizable_18" = "Doorgaan met verbinden";
+
+"WYLocalizable_19" = "Verbinding annuleren";
+
+"WYLocalizable_20" = "Gegevensverzoek mislukt";
+
+"WYLocalizable_21" = "Statuscode abnormaal";
+
+"WYLocalizable_22" = "Onbekend netwerk, er kunnen beveiligingsrisico's zijn, doorgaan?";
+
+"WYLocalizable_23" = "Ga naar Instellingen";
+
+"WYLocalizable_24" = "Onveilige netwerkverbinding geannuleerd";
+
+"WYLocalizable_25" = "Geen netwerkverbinding, controleer uw netwerkinstellingen";
+
+"WYLocalizable_26" = "U gebruikt wifi";
+
+"WYLocalizable_27" = "U bent verbonden met internet via een mobiel netwerk";
+
+"WYLocalizable_28" = "Netwerk niet beschikbaar. Controleer of uw netwerkomgeving of machtigingen voor netwerkverbinding correct zijn ingesteld";
+
+"WYLocalizable_29" = "Verificatie van de code van de responsgegevens is mislukt";
+
+"WYLocalizable_30" = "Zojuist";
+
+"WYLocalizable_31" = "%@ minuten geleden";
+
+"WYLocalizable_32" = "%@ uur geleden";
+
+"WYLocalizable_33" = "%@ dagen geleden";
+
+"WYLocalizable_34" = "%@ maand geleden";
+
+"WYLocalizable_35" = "%@ jaar geleden";
+
+"WYLocalizable_36" = "Geen simkaart";
+
+"WYLocalizable_37" = "Steenbok";
+
+"WYLocalizable_38" = "Waterman";
+
+"WYLocalizable_39" = "Vissen";
+
+"WYLocalizable_40" = "Ram";
+
+"WYLocalizable_41" = "Stier";
+
+"WYLocalizable_42" = "Tweelingen";
+
+"WYLocalizable_43" = "Kanker";
+
+"WYLocalizable_44" = "Leeuw";
+
+"WYLocalizable_45" = "Maagd";
+
+"WYLocalizable_46" = "Weegschaal";
+
+"WYLocalizable_47" = "Schorpioen";
+
+"WYLocalizable_48" = "Boogschutter";
+
+"WYLocalizable_49" = "App heeft geen toestemming voor toegang tot spraakherkenning. Ga nu naar autoriseren?";
+
+"WYLocalizable_50" = "Vandaag";
+
+"WYLocalizable_51" = "Gisteren";
+
+"WYLocalizable_52" = "Eergisteren";
+
+"WYLocalizable_53" = "Zondag";
+
+"WYLocalizable_54" = "Maandag";
+
+"WYLocalizable_55" = "Dinsdag";
+
+"WYLocalizable_56" = "woensdag";
+
+"WYLocalizable_57" = "donderdag";
+
+"WYLocalizable_58" = "Vrijdag";
+
+"WYLocalizable_59" = "Zaterdag";
+
+"WYLocalizable_60" = "Jaar";
+
+"WYLocalizable_61" = "Maand";
+
+"WYLocalizable_62" = "Dag";
+
+"WYLocalizable_63" = "Uur";
+
+"WYLocalizable_64" = "Minuten";
+
+"WYLocalizable_65" = "seconden";

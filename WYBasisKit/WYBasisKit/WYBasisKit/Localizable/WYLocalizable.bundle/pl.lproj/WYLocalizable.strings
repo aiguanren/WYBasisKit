@@ -1,0 +1,137 @@
+/*
+  WYLocalizable.strings
+  WYBasisKit
+  波兰语
+  Created by 官人 on 2020/11/21.
+  Copyright © 2020 官人. All rights reserved.
+*/
+
+"WYLocalizable_01" = "Rozumiem";
+
+"WYLocalizable_02" = "Hasło";
+
+"WYLocalizable_03" = "Anuluj";
+
+"WYLocalizable_04" = "Usuń";
+
+"WYLocalizable_05" = "Dane biometryczne niedostępne";
+
+"WYLocalizable_06" = "Biometria została zablokowana, zablokuj ekran i pomyślnie odblokuj urządzenie i ponownie otwórz tę stronę, aby ponownie ją otworzyć";
+
+"WYLocalizable_07" = "System przerwał tę identyfikację";
+
+"WYLocalizable_08" = "Proszę ustawić hasło odblokowujące przed włączeniem biometrii";
+
+"WYLocalizable_09" = "Włącz/ustaw dane biometryczne w ustawieniach urządzenia";
+
+"WYLocalizable_10" = "Wprowadź hasło, aby zweryfikować dane biometryczne";
+
+"WYLocalizable_11" = "Nie ma jeszcze żadnych wiadomości";
+
+"WYLocalizable_12" = "Wycofaj autoryzację";
+
+"WYLocalizable_13" = "Aplikacja nie ma uprawnień dostępu do albumu ze zdjęciami, czy teraz przejść do autoryzacji?";
+
+"WYLocalizable_14" = "Aplikacja nie ma uprawnień dostępu do kamery, czy teraz przejść do autoryzacji?";
+
+"WYLocalizable_15" = "Aplikacja nie ma uprawnień dostępu do mikrofonu, czy teraz przejść do autoryzacji?";
+
+"WYLocalizable_16" = "Aplikacja nie ma uprawnień dostępu do lokalizacji, czy teraz przejść do autoryzacji?";
+
+"WYLocalizable_17" = "Aplikacja nie ma uprawnień dostępu do książki adresowej, czy teraz przejść do autoryzacji?";
+
+"WYLocalizable_18" = "Kontynuuj łączenie";
+
+"WYLocalizable_19" = "Anuluj połączenie";
+
+"WYLocalizable_20" = "Żądanie danych nie powiodło się";
+
+"WYLocalizable_21" = "Nieprawidłowy kod stanu";
+
+"WYLocalizable_22" = "Nieznana sieć, mogą występować zagrożenia bezpieczeństwa, kontynuować?";
+
+"WYLocalizable_23" = "Przejdź do ustawień";
+
+"WYLocalizable_24" = "Niebezpieczne połączenie sieciowe zostało anulowane";
+
+"WYLocalizable_25" = "Brak połączenia sieciowego, sprawdź ustawienia sieciowe";
+
+"WYLocalizable_26" = "Używasz Wi-Fi";
+
+"WYLocalizable_27" = "Masz połączenie z Internetem przez sieć komórkową";
+
+"WYLocalizable_28" = "Sieć niedostępna, potwierdź, że środowisko sieciowe lub uprawnienia połączenia sieciowego zostały ustawione poprawnie";
+
+"WYLocalizable_29" = "Weryfikacja kodu danych odpowiedzi nie powiodła się";
+
+"WYLocalizable_30" = "Właśnie teraz";
+
+"WYLocalizable_31" = "%@ minut temu";
+
+"WYLocalizable_32" = "%@ godzin temu";
+
+"WYLocalizable_33" = "%@ dni temu";
+
+"WYLocalizable_34" = "%@ miesiąc temu";
+
+"WYLocalizable_35" = "%@ lat temu";
+
+"WYLocalizable_36" = "Brak karty SIM";
+
+"WYLocalizable_37" = "Koziorożec";
+
+"WYLocalizable_38" = "Wodnik";
+
+"WYLocalizable_39" = "Ryby";
+
+"WYLocalizable_40" = "Baran";
+
+"WYLocalizable_41" = "Byk";
+
+"WYLocalizable_42" = "Bliźnięta";
+
+"WYLocalizable_43" = "Rak";
+
+"WYLocalizable_44" = "Lew";
+
+"WYLocalizable_45" = "Panna";
+
+"WYLocalizable_46" = "Waga";
+
+"WYLocalizable_47" = "Skorpion";
+
+"WYLocalizable_48" = "Strzelec";
+
+"WYLocalizable_49" = "Aplikacja nie ma uprawnień dostępu do rozpoznawania mowy, czy teraz przejść do autoryzacji?";
+
+"WYLocalizable_50" = "Dzisiaj";
+
+"WYLocalizable_51" = "Wczoraj";
+
+"WYLocalizable_52" = "Przedwczoraj";
+
+"WYLocalizable_53" = "Niedziela";
+
+"WYLocalizable_54" = "Poniedziałek";
+
+"WYLocalizable_55" = "Wtorek";
+
+"WYLocalizable_56" = "Środa";
+
+"WYLocalizable_57" = "Czwartek";
+
+"WYLocalizable_58" = "Piątek";
+
+"WYLocalizable_59" = "Sobota";
+
+"WYLocalizable_60" = "Rok";
+
+"WYLocalizable_61" = "Miesiąc";
+
+"WYLocalizable_62" = "Dzień";
+
+"WYLocalizable_63" = "Godzina";
+
+"WYLocalizable_64" = "Minuty";
+
+"WYLocalizable_65" = "sekundy";

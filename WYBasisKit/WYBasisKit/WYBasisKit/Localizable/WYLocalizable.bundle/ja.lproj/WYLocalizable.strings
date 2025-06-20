@@ -1,0 +1,137 @@
+/*
+  WYLocalizable.strings
+  WYBasisKit
+  日语
+  Created by 官人 on 2020/11/21.
+  Copyright © 2020 官人. All rights reserved.
+*/
+
+"WYLocalizable_01" = "わかりました";
+
+"WYLocalizable_02" = "パスワード";
+
+"WYLocalizable_03" = "キャンセル";
+
+"WYLocalizable_04" = "削除";
+
+"WYLocalizable_05" = "生体認証は利用できません";
+
+"WYLocalizable_06" = "生体認証はロックされています。画面をロックしてデバイスのロックを正常に解除し、このページをもう一度開いて再度開きます。";
+
+"WYLocalizable_07" = "システムがこの識別を中断しました";
+
+"WYLocalizable_08" = "生体認証をオンにする前に、ロック解除パスワードを設定してください";
+
+"WYLocalizable_09" = "デバイス設定で生体認証を有効/設定してください";
+
+"WYLocalizable_10" = "生体認証を確認するにはパスワードを入力してください";
+
+"WYLocalizable_11" = "まだニュースはありません";
+
+"WYLocalizable_12" = "認証解除";
+
+"WYLocalizable_13" = "アプリにはフォト アルバムにアクセスする権限がありません。次に認証を行いますか?";
+
+"WYLocalizable_14" = "アプリにはカメラにアクセスする権限がありません。認証を行いますか?";
+
+"WYLocalizable_15" = "アプリにはマイクにアクセスする権限がありません。次に認証を行いますか?";
+
+"WYLocalizable_16" = "アプリには位置情報にアクセスする権限がありません。次に認証を行いますか?";
+
+"WYLocalizable_17" = "アプリにはアドレス帳にアクセスする権限がありません。次に認証を行いますか?";
+
+"WYLocalizable_18" = "接続を続行します";
+
+"WYLocalizable_19" = "接続をキャンセル";
+
+"WYLocalizable_20" = "データ要求が失敗しました";
+
+"WYLocalizable_21" = "ステータスコード異常";
+
+"WYLocalizable_22" = "不明なネットワーク。セキュリティ上のリスクがある可能性があります。続行しますか?";
+
+"WYLocalizable_23" = "設定に移動";
+
+"WYLocalizable_24" = "安全でないネットワーク接続はキャンセルされました";
+
+"WYLocalizable_25" = "ネットワーク接続がありません。ネットワーク設定を確認してください。";
+
+"WYLocalizable_26" = "Wi-Fi を使用しています";
+
+"WYLocalizable_27" = "携帯電話ネットワークを使用してインターネットに接続しています";
+
+"WYLocalizable_28" = "ネットワークが利用できません。ネットワーク環境またはネットワーク接続許可が正しく設定されていることを確認してください。";
+
+"WYLocalizable_29" = "応答データ コード検証に失敗しました";
+
+"WYLocalizable_30" = "今だけ";
+
+"WYLocalizable_31" = "%@ 分前";
+
+"WYLocalizable_32" = "%@ 時間前";
+
+"WYLocalizable_33" = "%@ 日前";
+
+"WYLocalizable_34" = "%@ か月前";
+
+"WYLocalizable_35" = "%@ 年前";
+
+"WYLocalizable_36" = "SIM カードなし";
+
+"WYLocalizable_37" = "山羊座";
+
+"WYLocalizable_38" = "アクエリアス";
+
+"WYLocalizable_39" = "魚座";
+
+"WYLocalizable_40" = "牡羊座";
+
+"WYLocalizable_41" = "おうし座";
+
+"WYLocalizable_42" = "ジェミニ";
+
+"WYLocalizable_43" = "癌";
+
+"WYLocalizable_44" = "レオ";
+
+"WYLocalizable_45" = "乙女座";
+
+"WYLocalizable_46" = "天秤座";
+
+"WYLocalizable_47" = "蠍座";
+
+"WYLocalizable_48" = "射手座";
+
+"WYLocalizable_49" = "アプリには音声認識にアクセスする権限がありません。今度は認証に進みますか?";
+
+"WYLocalizable_50" = "今日";
+
+"WYLocalizable_51" = "昨日";
+
+"WYLocalizable_52" = "一昨日";
+
+"WYLocalizable_53" = "日曜日";
+
+"WYLocalizable_54" = "月曜日";
+
+"WYLocalizable_55" = "火曜日";
+
+"WYLocalizable_56" = "水曜日";
+
+"WYLocalizable_57" = "木曜日";
+
+"WYLocalizable_58" = "金曜日";
+
+"WYLocalizable_59" = "土曜日";
+
+"WYLocalizable_60" = "年";
+
+"WYLocalizable_61" = "月";
+
+"WYLocalizable_62" = "日";
+
+"WYLocalizable_63" = "時間";
+
+"WYLocalizable_64" = "分";
+
+"WYLocalizable_65" = "秒";

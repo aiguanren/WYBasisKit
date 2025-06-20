@@ -1,0 +1,137 @@
+/*
+  WYLocalizable.strings
+  WYBasisKit
+  土耳其语
+  Created by 官人 on 2020/11/21.
+  Copyright © 2020 官人. All rights reserved.
+*/
+
+"WYLocalizable_01" = "Anladım";
+
+"WYLocalizable_02" = "Şifre";
+
+"WYLocalizable_03" = "İptal";
+
+"WYLocalizable_04" = "Sil";
+
+"WYLocalizable_05" = "Biyometri mevcut değil";
+
+"WYLocalizable_06" = "Biometrics kilitlendi, ekranı kilitleyin ve cihazın kilidini başarıyla açın ve yeniden açmak için bu sayfayı yeniden açın";
+
+"WYLocalizable_07" = "Sistem bu tanımlamayı yarıda kesti";
+
+"WYLocalizable_08" = "Biyometriyi açmadan önce lütfen bir kilit açma parolası ayarlayın";
+
+"WYLocalizable_09" = "Lütfen cihaz ayarlarında biyometriyi etkinleştirin/ayarlayın";
+
+"WYLocalizable_10" = "Biyometriyi doğrulamak için lütfen şifreyi girin";
+
+"WYLocalizable_11" = "Henüz haber yok";
+
+"WYLocalizable_12" = "Yetkisini Kaldır";
+
+"WYLocalizable_13" = "Uygulamanın fotoğraf albümüne erişim izni yok, şimdi yetkilendirmeye geçilsin mi?";
+
+"WYLocalizable_14" = "Uygulamanın kameraya erişim izni yok, şimdi yetkilendirmeye geçilsin mi?";
+
+"WYLocalizable_15" = "Uygulamanın mikrofona erişim izni yok, şimdi yetkilendirmeye geçilsin mi?";
+
+"WYLocalizable_16" = "Uygulamanın konuma erişim izni yok, şimdi yetkilendirmeye geçilsin mi?";
+
+"WYLocalizable_17" = "Uygulamanın adres defterine erişim izni yok, şimdi yetkilendirmeye gidin?";
+
+"WYLocalizable_18" = "Bağlanmaya devam et";
+
+"WYLocalizable_19" = "Bağlantıyı İptal Et";
+
+"WYLocalizable_20" = "Veri isteği başarısız oldu";
+
+"WYLocalizable_21" = "Durum Kodu Anormal";
+
+"WYLocalizable_22" = "Bilinmeyen ağ, güvenlik riskleri olabilir, devam edilsin mi?";
+
+"WYLocalizable_23" = "Ayarlara Git";
+
+"WYLocalizable_24" = "Güvenli olmayan ağ bağlantısı iptal edildi";
+
+"WYLocalizable_25" = "Ağ bağlantısı yok, lütfen ağ ayarlarınızı kontrol edin";
+
+"WYLocalizable_26" = "Wifi kullanıyorsunuz";
+
+"WYLocalizable_27" = "İnternete bir hücresel ağ üzerinden bağlısınız";
+
+"WYLocalizable_28" = "Ağ kullanılamıyor, lütfen ağ ortamınızın veya ağ bağlantısı izinlerinizin doğru ayarlandığını onaylayın";
+
+"WYLocalizable_29" = "Yanıt verisi Kodu doğrulaması başarısız oldu";
+
+"WYLocalizable_30" = "Az önce";
+
+"WYLocalizable_31" = "%@ dakika önce";
+
+"WYLocalizable_32" = "%@ saat önce";
+
+"WYLocalizable_33" = "%@ gün önce";
+
+"WYLocalizable_34" = "%@ ay önce";
+
+"WYLocalizable_35" = "%@ yıl önce";
+
+"WYLocalizable_36" = "SIM kart yok";
+
+"WYLocalizable_37" = "Oğlak";
+
+"WYLocalizable_38" = "Kova";
+
+"WYLocalizable_39" = "Balık";
+
+"WYLocalizable_40" = "Koç";
+
+"WYLocalizable_41" = "Boğa";
+
+"WYLocalizable_42" = "İkizler";
+
+"WYLocalizable_43" = "Kanser";
+
+"WYLocalizable_44" = "Aslan";
+
+"WYLocalizable_45" = "Başak";
+
+"WYLocalizable_46" = "Terazi";
+
+"WYLocalizable_47" = "Akrep";
+
+"WYLocalizable_48" = "Yay";
+
+"WYLocalizable_49" = "Uygulamanın konuşma tanımaya erişim izni yok, şimdi yetkilendirmeye geçilsin mi?";
+
+"WYLocalizable_50" = "Bugün";
+
+"WYLocalizable_51" = "Dün";
+
+"WYLocalizable_52" = "Dünden önceki gün";
+
+"WYLocalizable_53" = "Pazar";
+
+"WYLocalizable_54" = "Pazartesi";
+
+"WYLocalizable_55" = "Salı";
+
+"WYLocalizable_56" = "Çarşamba";
+
+"WYLocalizable_57" = "Perşembe";
+
+"WYLocalizable_58" = "Cuma";
+
+"WYLocalizable_59" = "Cumartesi";
+
+"WYLocalizable_60" = "Yıl";
+
+"WYLocalizable_61" = "Ay";
+
+"WYLocalizable_62" = "Gün";
+
+"WYLocalizable_63" = "Saat";
+
+"WYLocalizable_64" = "Dakika";
+
+"WYLocalizable_65" = "Saniye";
