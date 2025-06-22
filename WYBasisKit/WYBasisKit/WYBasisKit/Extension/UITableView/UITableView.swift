@@ -128,7 +128,12 @@ public extension UITableView {
     }
 }
 
-extension UITableView: @retroactive UIGestureRecognizerDelegate {
+#if swift(>=5.8)
+typealias WYGestureDelegateProtocol = @retroactive UIGestureRecognizerDelegate
+#else
+typealias WYGestureDelegateProtocol = UIGestureRecognizerDelegate
+#endif
+extension UITableView: WYGestureDelegateProtocol {
     
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return wy_allowOtherGestureRecognizer

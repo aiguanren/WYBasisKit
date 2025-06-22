@@ -25,10 +25,10 @@
 import Foundation
 
 /// A dictionary of parameters to apply to a `URLRequest`.
-public typealias Parameters = [String: any Any & Sendable]
+public typealias Parameters = [String: Any]
 
 /// A type used to define how a set of parameters are applied to a `URLRequest`.
-public protocol ParameterEncoding: Sendable {
+public protocol ParameterEncoding {
     /// Creates a `URLRequest` by encoding parameters and applying them on the passed request.
     ///
     /// - Parameters:
@@ -37,7 +37,7 @@ public protocol ParameterEncoding: Sendable {
     ///
     /// - Returns:      The encoded `URLRequest`.
     /// - Throws:       Any `Error` produced during parameter encoding.
-    func encode(_ urlRequest: any URLRequestConvertible, with parameters: Parameters?) throws -> URLRequest
+    func encode(_ urlRequest: URLRequestConvertible, with parameters: Parameters?) throws -> URLRequest
 }
 
 // MARK: -
@@ -61,7 +61,7 @@ public struct URLEncoding: ParameterEncoding {
 
     /// Defines whether the url-encoded query string is applied to the existing query string or HTTP body of the
     /// resulting URL request.
-    public enum Destination: Sendable {
+    public enum Destination {
         /// Applies encoded query string result to existing query string for `GET`, `HEAD` and `DELETE` requests and
         /// sets as the HTTP body for requests with any other HTTP method.
         case methodDependent
@@ -72,15 +72,15 @@ public struct URLEncoding: ParameterEncoding {
 
         func encodesParametersInURL(for method: HTTPMethod) -> Bool {
             switch self {
-            case .methodDependent: [.get, .head, .delete].contains(method)
-            case .queryString: true
-            case .httpBody: false
+            case .methodDependent: return [.get, .head, .delete].contains(method)
+            case .queryString: return true
+            case .httpBody: return false
             }
         }
     }
 
     /// Configures how `Array` parameters are encoded.
-    public enum ArrayEncoding: Sendable {
+    public enum ArrayEncoding {
         /// An empty set of square brackets is appended to the key for every value. This is the default behavior.
         case brackets
         /// No brackets are appended. The key is encoded as is.
@@ -88,24 +88,24 @@ public struct URLEncoding: ParameterEncoding {
         /// Brackets containing the item index are appended. This matches the jQuery and Node.js behavior.
         case indexInBrackets
         /// Provide a custom array key encoding with the given closure.
-        case custom(@Sendable (_ key: String, _ index: Int) -> String)
+        case custom((_ key: String, _ index: Int) -> String)
 
         func encode(key: String, atIndex index: Int) -> String {
             switch self {
             case .brackets:
-                "\(key)[]"
+                return "\(key)[]"
             case .noBrackets:
-                key
+                return key
             case .indexInBrackets:
-                "\(key)[\(index)]"
+                return "\(key)[\(index)]"
             case let .custom(encoding):
-                encoding(key, index)
+                return encoding(key, index)
             }
         }
     }
 
     /// Configures how `Bool` parameters are encoded.
-    public enum BoolEncoding: Sendable {
+    public enum BoolEncoding {
         /// Encode `true` as `1` and `false` as `0`. This is the default behavior.
         case numeric
         /// Encode `true` and `false` as string literals.
@@ -114,9 +114,9 @@ public struct URLEncoding: ParameterEncoding {
         func encode(value: Bool) -> String {
             switch self {
             case .numeric:
-                value ? "1" : "0"
+                return value ? "1" : "0"
             case .literal:
-                value ? "true" : "false"
+                return value ? "true" : "false"
             }
         }
     }
@@ -160,7 +160,7 @@ public struct URLEncoding: ParameterEncoding {
 
     // MARK: Encoding
 
-    public func encode(_ urlRequest: any URLRequestConvertible, with parameters: Parameters?) throws -> URLRequest {
+    public func encode(_ urlRequest: URLRequestConvertible, with parameters: Parameters?) throws -> URLRequest {
         var urlRequest = try urlRequest.asURLRequest()
 
         guard let parameters else { return urlRequest }
@@ -272,7 +272,7 @@ public struct JSONEncoding: ParameterEncoding {
 
     // MARK: Encoding
 
-    public func encode(_ urlRequest: any URLRequestConvertible, with parameters: Parameters?) throws -> URLRequest {
+    public func encode(_ urlRequest: URLRequestConvertible, with parameters: Parameters?) throws -> URLRequest {
         var urlRequest = try urlRequest.asURLRequest()
 
         guard let parameters else { return urlRequest }
@@ -304,7 +304,7 @@ public struct JSONEncoding: ParameterEncoding {
     ///
     /// - Returns:      The encoded `URLRequest`.
     /// - Throws:       Any `Error` produced during encoding.
-    public func encode(_ urlRequest: any URLRequestConvertible, withJSONObject jsonObject: Any? = nil) throws -> URLRequest {
+    public func encode(_ urlRequest: URLRequestConvertible, withJSONObject jsonObject: Any? = nil) throws -> URLRequest {
         var urlRequest = try urlRequest.asURLRequest()
 
         guard let jsonObject else { return urlRequest }

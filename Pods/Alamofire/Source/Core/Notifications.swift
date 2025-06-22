@@ -81,9 +81,6 @@ extension String {
 
 /// `EventMonitor` that provides Alamofire's notifications.
 public final class AlamofireNotifications: EventMonitor {
-    /// Creates an instance.
-    public init() {}
-
     public func requestDidResume(_ request: Request) {
         NotificationCenter.default.postNotification(named: Request.didResumeNotification, with: request)
     }

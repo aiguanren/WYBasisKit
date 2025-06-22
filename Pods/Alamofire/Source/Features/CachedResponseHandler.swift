@@ -25,7 +25,7 @@
 import Foundation
 
 /// A type that handles whether the data task should store the HTTP response in the cache.
-public protocol CachedResponseHandler: Sendable {
+public protocol CachedResponseHandler {
     /// Determines whether the HTTP response should be stored in the cache.
     ///
     /// The `completion` closure should be passed one of three possible options:
@@ -49,13 +49,13 @@ public protocol CachedResponseHandler: Sendable {
 /// response.
 public struct ResponseCacher {
     /// Defines the behavior of the `ResponseCacher` type.
-    public enum Behavior: Sendable {
+    public enum Behavior {
         /// Stores the cached response in the cache.
         case cache
         /// Prevents the cached response from being stored in the cache.
         case doNotCache
         /// Modifies the cached response before storing it in the cache.
-        case modify(@Sendable (_ task: URLSessionDataTask, _ cachedResponse: CachedURLResponse) -> CachedURLResponse?)
+        case modify((URLSessionDataTask, CachedURLResponse) -> CachedURLResponse?)
     }
 
     /// Returns a `ResponseCacher` with a `.cache` `Behavior`.
@@ -101,7 +101,7 @@ extension CachedResponseHandler where Self == ResponseCacher {
     ///
     /// - Parameter closure: Closure used to modify the `CachedURLResponse`.
     /// - Returns:           The `ResponseCacher`.
-    public static func modify(using closure: @escaping (@Sendable (URLSessionDataTask, CachedURLResponse) -> CachedURLResponse?)) -> ResponseCacher {
+    public static func modify(using closure: @escaping ((URLSessionDataTask, CachedURLResponse) -> CachedURLResponse?)) -> ResponseCacher {
         ResponseCacher(behavior: .modify(closure))
     }
 }

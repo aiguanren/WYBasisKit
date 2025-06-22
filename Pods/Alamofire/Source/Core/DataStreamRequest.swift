@@ -25,13 +25,13 @@
 import Foundation
 
 /// `Request` subclass which streams HTTP response `Data` through a `Handler` closure.
-public final class DataStreamRequest: Request, @unchecked Sendable {
+public final class DataStreamRequest: Request {
     /// Closure type handling `DataStreamRequest.Stream` values.
-    public typealias Handler<Success, Failure: Error> = @Sendable (Stream<Success, Failure>) throws -> Void
+    public typealias Handler<Success, Failure: Error> = (Stream<Success, Failure>) throws -> Void
 
     /// Type encapsulating an `Event` as it flows through the stream, as well as a `CancellationToken` which can be used
     /// to stop the stream at any time.
-    public struct Stream<Success, Failure: Error>: Sendable where Success: Sendable, Failure: Sendable {
+    public struct Stream<Success, Failure: Error> {
         /// Latest `Event` from the stream.
         public let event: Event<Success, Failure>
         /// Token used to cancel the stream.
@@ -45,7 +45,7 @@ public final class DataStreamRequest: Request, @unchecked Sendable {
 
     /// Type representing an event flowing through the stream. Contains either the `Result` of processing streamed
     /// `Data` or the completion of the stream.
-    public enum Event<Success, Failure: Error>: Sendable where Success: Sendable, Failure: Sendable {
+    public enum Event<Success, Failure: Error> {
         /// Output produced every time the instance receives additional `Data`. The associated value contains the
         /// `Result` of processing the incoming `Data`.
         case stream(Result<Success, Failure>)
@@ -55,7 +55,7 @@ public final class DataStreamRequest: Request, @unchecked Sendable {
     }
 
     /// Value containing the state of a `DataStreamRequest` when the stream was completed.
-    public struct Completion: Sendable {
+    public struct Completion {
         /// Last `URLRequest` issued by the instance.
         public let request: URLRequest?
         /// Last `HTTPURLResponse` received by the instance.
@@ -67,7 +67,7 @@ public final class DataStreamRequest: Request, @unchecked Sendable {
     }
 
     /// Type used to cancel an ongoing stream.
-    public struct CancellationToken: Sendable {
+    public struct CancellationToken {
         weak var request: DataStreamRequest?
 
         init(_ request: DataStreamRequest) {
@@ -81,7 +81,7 @@ public final class DataStreamRequest: Request, @unchecked Sendable {
     }
 
     /// `URLRequestConvertible` value used to create `URLRequest`s for this instance.
-    public let convertible: any URLRequestConvertible
+    public let convertible: URLRequestConvertible
     /// Whether or not the instance will be cancelled if stream parsing encounters an error.
     public let automaticallyCancelOnStreamError: Bool
 
@@ -90,16 +90,16 @@ public final class DataStreamRequest: Request, @unchecked Sendable {
         /// `OutputStream` bound to the `InputStream` produced by `asInputStream`, if it has been called.
         var outputStream: OutputStream?
         /// Stream closures called as `Data` is received.
-        var streams: [@Sendable (_ data: Data) -> Void] = []
+        var streams: [(_ data: Data) -> Void] = []
         /// Number of currently executing streams. Used to ensure completions are only fired after all streams are
         /// enqueued.
         var numberOfExecutingStreams = 0
         /// Completion calls enqueued while streams are still executing.
-        var enqueuedCompletionEvents: [@Sendable () -> Void] = []
+        var enqueuedCompletionEvents: [() -> Void] = []
         /// Handler for any `HTTPURLResponse`s received.
         var httpResponseHandler: (queue: DispatchQueue,
-                                  handler: @Sendable (_ response: HTTPURLResponse,
-                                                      _ completionHandler: @escaping @Sendable (ResponseDisposition) -> Void) -> Void)?
+                                  handler: (_ response: HTTPURLResponse,
+                                            _ completionHandler: @escaping (ResponseDisposition) -> Void) -> Void)?
     }
 
     let streamMutableState = Protected(StreamMutableState())
@@ -122,13 +122,13 @@ public final class DataStreamRequest: Request, @unchecked Sendable {
     ///   - delegate:                         `RequestDelegate` that provides an interface to actions not performed by
     ///                                       the `Request`.
     init(id: UUID = UUID(),
-         convertible: any URLRequestConvertible,
+         convertible: URLRequestConvertible,
          automaticallyCancelOnStreamError: Bool,
          underlyingQueue: DispatchQueue,
          serializationQueue: DispatchQueue,
-         eventMonitor: (any EventMonitor)?,
-         interceptor: (any RequestInterceptor)?,
-         delegate: any RequestDelegate) {
+         eventMonitor: EventMonitor?,
+         interceptor: RequestInterceptor?,
+         delegate: RequestDelegate) {
         self.convertible = convertible
         self.automaticallyCancelOnStreamError = automaticallyCancelOnStreamError
 
@@ -164,11 +164,12 @@ public final class DataStreamRequest: Request, @unchecked Sendable {
             }
             #endif
             state.numberOfExecutingStreams += state.streams.count
-            underlyingQueue.async { [streams = state.streams] in streams.forEach { $0(data) } }
+            let localState = state
+            underlyingQueue.async { localState.streams.forEach { $0(data) } }
         }
     }
 
-    func didReceiveResponse(_ response: HTTPURLResponse, completionHandler: @escaping @Sendable (URLSession.ResponseDisposition) -> Void) {
+    func didReceiveResponse(_ response: HTTPURLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
         streamMutableState.read { dataMutableState in
             guard let httpResponseHandler = dataMutableState.httpResponseHandler else {
                 underlyingQueue.async { completionHandler(.allow) }
@@ -199,7 +200,7 @@ public final class DataStreamRequest: Request, @unchecked Sendable {
     /// - Returns:              The `DataStreamRequest`.
     @discardableResult
     public func validate(_ validation: @escaping Validation) -> Self {
-        let validator: @Sendable () -> Void = { [unowned self] in
+        let validator: () -> Void = { [unowned self] in
             guard error == nil, let response else { return }
 
             let result = validation(request, response)
@@ -254,12 +255,11 @@ public final class DataStreamRequest: Request, @unchecked Sendable {
     ///
     /// - Returns:   The instance.
     @_disfavoredOverload
-    @preconcurrency
     @discardableResult
     public func onHTTPResponse(
         on queue: DispatchQueue = .main,
-        perform handler: @escaping @Sendable (_ response: HTTPURLResponse,
-                                              _ completionHandler: @escaping @Sendable (ResponseDisposition) -> Void) -> Void
+        perform handler: @escaping (_ response: HTTPURLResponse,
+                                    _ completionHandler: @escaping (ResponseDisposition) -> Void) -> Void
     ) -> Self {
         streamMutableState.write { mutableState in
             mutableState.httpResponseHandler = (queue, handler)
@@ -275,10 +275,9 @@ public final class DataStreamRequest: Request, @unchecked Sendable {
     ///   - handler: Closure called when the instance produces an `HTTPURLResponse`.
     ///
     /// - Returns:   The instance.
-    @preconcurrency
     @discardableResult
     public func onHTTPResponse(on queue: DispatchQueue = .main,
-                               perform handler: @escaping @Sendable (HTTPURLResponse) -> Void) -> Self {
+                               perform handler: @escaping (HTTPURLResponse) -> Void) -> Self {
         onHTTPResponse(on: queue) { response, completionHandler in
             handler(response)
             completionHandler(.allow)
@@ -297,7 +296,7 @@ public final class DataStreamRequest: Request, @unchecked Sendable {
     }
 
     func appendStreamCompletion<Success, Failure>(on queue: DispatchQueue,
-                                                  stream: @escaping Handler<Success, Failure>) where Success: Sendable, Failure: Sendable {
+                                                  stream: @escaping Handler<Success, Failure>) {
         appendResponseSerializer {
             self.underlyingQueue.async {
                 self.responseSerializerDidComplete {
@@ -318,7 +317,7 @@ public final class DataStreamRequest: Request, @unchecked Sendable {
     }
 
     func enqueueCompletion<Success, Failure>(on queue: DispatchQueue,
-                                             stream: @escaping Handler<Success, Failure>) where Success: Sendable, Failure: Sendable {
+                                             stream: @escaping Handler<Success, Failure>) {
         queue.async {
             do {
                 let completion = Completion(request: self.request,
@@ -341,10 +340,9 @@ public final class DataStreamRequest: Request, @unchecked Sendable {
     ///   - stream: `StreamHandler` closure called as `Data` is received. May be called multiple times.
     ///
     /// - Returns:  The `DataStreamRequest`.
-    @preconcurrency
     @discardableResult
     public func responseStream(on queue: DispatchQueue = .main, stream: @escaping Handler<Data, Never>) -> Self {
-        let parser = { @Sendable [unowned self] (data: Data) in
+        let parser = { [unowned self] (data: Data) in
             queue.async {
                 self.capturingError {
                     try stream(.init(event: .stream(.success(data)), token: .init(self)))
@@ -368,12 +366,11 @@ public final class DataStreamRequest: Request, @unchecked Sendable {
     ///   - stream:     `StreamHandler` closure called as `Data` is received. May be called multiple times.
     ///
     /// - Returns:      The `DataStreamRequest`.
-    @preconcurrency
     @discardableResult
     public func responseStream<Serializer: DataStreamSerializer>(using serializer: Serializer,
                                                                  on queue: DispatchQueue = .main,
                                                                  stream: @escaping Handler<Serializer.SerializedObject, AFError>) -> Self {
-        let parser = { @Sendable [unowned self] (data: Data) in
+        let parser = { [unowned self] (data: Data) in
             serializationQueue.async {
                 // Start work on serialization queue.
                 let result = Result { try serializer.serialize(data) }
@@ -410,11 +407,10 @@ public final class DataStreamRequest: Request, @unchecked Sendable {
     ///   - stream:     `StreamHandler` closure called as `Data` is received. May be called multiple times.
     ///
     /// - Returns:  The `DataStreamRequest`.
-    @preconcurrency
     @discardableResult
     public func responseStreamString(on queue: DispatchQueue = .main,
                                      stream: @escaping Handler<String, Never>) -> Self {
-        let parser = { @Sendable [unowned self] (data: Data) in
+        let parser = { [unowned self] (data: Data) in
             serializationQueue.async {
                 // Start work on serialization queue.
                 let string = String(decoding: data, as: UTF8.self)
@@ -461,15 +457,13 @@ public final class DataStreamRequest: Request, @unchecked Sendable {
     ///   - stream:       `StreamHandler` closure called as `Data` is received. May be called multiple times.
     ///
     /// - Returns: The `DataStreamRequest`.
-    @preconcurrency
     @discardableResult
     public func responseStreamDecodable<T: Decodable>(of type: T.Type = T.self,
                                                       on queue: DispatchQueue = .main,
-                                                      using decoder: any DataDecoder = JSONDecoder(),
-                                                      preprocessor: any DataPreprocessor = PassthroughPreprocessor(),
-                                                      stream: @escaping Handler<T, AFError>) -> Self where T: Sendable {
+                                                      using decoder: DataDecoder = JSONDecoder(),
+                                                      preprocessor: DataPreprocessor = PassthroughPreprocessor(),
+                                                      stream: @escaping Handler<T, AFError>) -> Self {
         responseStream(using: DecodableStreamSerializer<T>(decoder: decoder, dataPreprocessor: preprocessor),
-                       on: queue,
                        stream: stream)
     }
 }
@@ -507,9 +501,9 @@ extension DataStreamRequest.Stream {
 // MARK: - Serialization
 
 /// A type which can serialize incoming `Data`.
-public protocol DataStreamSerializer: Sendable {
+public protocol DataStreamSerializer {
     /// Type produced from the serialized `Data`.
-    associatedtype SerializedObject: Sendable
+    associatedtype SerializedObject
 
     /// Serializes incoming `Data` into a `SerializedObject` value.
     ///
@@ -520,18 +514,18 @@ public protocol DataStreamSerializer: Sendable {
 }
 
 /// `DataStreamSerializer` which uses the provided `DataPreprocessor` and `DataDecoder` to serialize the incoming `Data`.
-public struct DecodableStreamSerializer<T: Decodable>: DataStreamSerializer where T: Sendable {
+public struct DecodableStreamSerializer<T: Decodable>: DataStreamSerializer {
     /// `DataDecoder` used to decode incoming `Data`.
-    public let decoder: any DataDecoder
+    public let decoder: DataDecoder
     /// `DataPreprocessor` incoming `Data` is passed through before being passed to the `DataDecoder`.
-    public let dataPreprocessor: any DataPreprocessor
+    public let dataPreprocessor: DataPreprocessor
 
     /// Creates an instance with the provided `DataDecoder` and `DataPreprocessor`.
     /// - Parameters:
     ///   - decoder: `        DataDecoder` used to decode incoming `Data`. `JSONDecoder()` by default.
     ///   - dataPreprocessor: `DataPreprocessor` used to process incoming `Data` before it's passed through the
     ///                       `decoder`. `PassthroughPreprocessor()` by default.
-    public init(decoder: any DataDecoder = JSONDecoder(), dataPreprocessor: any DataPreprocessor = PassthroughPreprocessor()) {
+    public init(decoder: DataDecoder = JSONDecoder(), dataPreprocessor: DataPreprocessor = PassthroughPreprocessor()) {
         self.decoder = decoder
         self.dataPreprocessor = dataPreprocessor
     }
@@ -573,8 +567,8 @@ extension DataStreamSerializer {
     ///   - dataPreprocessor: `DataPreprocessor` used to process incoming `Data` before it's passed through the
     ///                       `decoder`. `PassthroughPreprocessor()` by default.
     public static func decodable<T: Decodable>(of type: T.Type,
-                                               decoder: any DataDecoder = JSONDecoder(),
-                                               dataPreprocessor: any DataPreprocessor = PassthroughPreprocessor()) -> Self where Self == DecodableStreamSerializer<T> {
+                                               decoder: DataDecoder = JSONDecoder(),
+                                               dataPreprocessor: DataPreprocessor = PassthroughPreprocessor()) -> Self where Self == DecodableStreamSerializer<T> {
         DecodableStreamSerializer<T>(decoder: decoder, dataPreprocessor: dataPreprocessor)
     }
 }

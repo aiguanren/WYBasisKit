@@ -25,14 +25,14 @@
 import Foundation
 
 #if canImport(Security)
-@preconcurrency import Security
+import Security
 #endif
 
 /// `AFError` is the error type returned by Alamofire. It encompasses a few different types of errors, each with
 /// their own associated reasons.
-public enum AFError: Error, Sendable {
+public enum AFError: Error {
     /// The underlying reason the `.multipartEncodingFailed` error occurred.
-    public enum MultipartEncodingFailureReason: Sendable {
+    public enum MultipartEncodingFailureReason {
         /// The `fileURL` provided for reading an encodable body part isn't a file `URL`.
         case bodyPartURLInvalid(url: URL)
         /// The filename of the `fileURL` provided has either an empty `lastPathComponent` or `pathExtension`.
@@ -40,13 +40,13 @@ public enum AFError: Error, Sendable {
         /// The file at the `fileURL` provided was not reachable.
         case bodyPartFileNotReachable(at: URL)
         /// Attempting to check the reachability of the `fileURL` provided threw an error.
-        case bodyPartFileNotReachableWithError(atURL: URL, error: any Error)
+        case bodyPartFileNotReachableWithError(atURL: URL, error: Error)
         /// The file at the `fileURL` provided is actually a directory.
         case bodyPartFileIsDirectory(at: URL)
         /// The size of the file at the `fileURL` provided was not returned by the system.
         case bodyPartFileSizeNotAvailable(at: URL)
         /// The attempt to find the size of the file at the `fileURL` provided threw an error.
-        case bodyPartFileSizeQueryFailedWithError(forURL: URL, error: any Error)
+        case bodyPartFileSizeQueryFailedWithError(forURL: URL, error: Error)
         /// An `InputStream` could not be created for the provided `fileURL`.
         case bodyPartInputStreamCreationFailed(for: URL)
         /// An `OutputStream` could not be created when attempting to write the encoded data to disk.
@@ -56,9 +56,9 @@ public enum AFError: Error, Sendable {
         /// The `fileURL` provided for writing the encoded body data to disk is not a file `URL`.
         case outputStreamURLInvalid(url: URL)
         /// The attempt to write the encoded body data to disk failed with an underlying error.
-        case outputStreamWriteFailed(error: any Error)
+        case outputStreamWriteFailed(error: Error)
         /// The attempt to read an encoded body part `InputStream` failed with underlying system error.
-        case inputStreamReadFailed(error: any Error)
+        case inputStreamReadFailed(error: Error)
     }
 
     /// Represents unexpected input stream length that occur when encoding the `MultipartFormData`. Instances will be
@@ -71,19 +71,19 @@ public enum AFError: Error, Sendable {
     }
 
     /// The underlying reason the `.parameterEncodingFailed` error occurred.
-    public enum ParameterEncodingFailureReason: Sendable {
+    public enum ParameterEncodingFailureReason {
         /// The `URLRequest` did not have a `URL` to encode.
         case missingURL
         /// JSON serialization failed with an underlying system error during the encoding process.
-        case jsonEncodingFailed(error: any Error)
+        case jsonEncodingFailed(error: Error)
         /// Custom parameter encoding failed due to the associated `Error`.
-        case customEncodingFailed(error: any Error)
+        case customEncodingFailed(error: Error)
     }
 
     /// The underlying reason the `.parameterEncoderFailed` error occurred.
-    public enum ParameterEncoderFailureReason: Sendable {
+    public enum ParameterEncoderFailureReason {
         /// Possible missing components.
-        public enum RequiredComponent: Sendable {
+        public enum RequiredComponent {
             /// The `URL` was missing or unable to be extracted from the passed `URLRequest` or during encoding.
             case url
             /// The `HTTPMethod` could not be extracted from the passed `URLRequest`.
@@ -93,11 +93,11 @@ public enum AFError: Error, Sendable {
         /// A `RequiredComponent` was missing during encoding.
         case missingRequiredComponent(RequiredComponent)
         /// The underlying encoder failed with the associated error.
-        case encoderFailed(error: any Error)
+        case encoderFailed(error: Error)
     }
 
     /// The underlying reason the `.responseValidationFailed` error occurred.
-    public enum ResponseValidationFailureReason: Sendable {
+    public enum ResponseValidationFailureReason {
         /// The data file containing the server response did not exist.
         case dataFileNil
         /// The data file containing the server response at the associated `URL` could not be read.
@@ -110,11 +110,11 @@ public enum AFError: Error, Sendable {
         /// The response status code was not acceptable.
         case unacceptableStatusCode(code: Int)
         /// Custom response validation failed due to the associated `Error`.
-        case customValidationFailed(error: any Error)
+        case customValidationFailed(error: Error)
     }
 
     /// The underlying reason the response serialization error occurred.
-    public enum ResponseSerializationFailureReason: Sendable {
+    public enum ResponseSerializationFailureReason {
         /// The server response contained no data or the data was zero length.
         case inputDataNilOrZeroLength
         /// The file containing the server response did not exist.
@@ -124,20 +124,20 @@ public enum AFError: Error, Sendable {
         /// String serialization failed using the provided `String.Encoding`.
         case stringSerializationFailed(encoding: String.Encoding)
         /// JSON serialization failed with an underlying system error.
-        case jsonSerializationFailed(error: any Error)
+        case jsonSerializationFailed(error: Error)
         /// A `DataDecoder` failed to decode the response due to the associated `Error`.
-        case decodingFailed(error: any Error)
+        case decodingFailed(error: Error)
         /// A custom response serializer failed due to the associated `Error`.
-        case customSerializationFailed(error: any Error)
+        case customSerializationFailed(error: Error)
         /// Generic serialization failed for an empty response that wasn't type `Empty` but instead the associated type.
         case invalidEmptyResponse(type: String)
     }
 
     #if canImport(Security)
     /// Underlying reason a server trust evaluation error occurred.
-    public enum ServerTrustFailureReason: Sendable {
+    public enum ServerTrustFailureReason {
         /// The output of a server trust evaluation.
-        public struct Output: Sendable {
+        public struct Output {
             /// The host for which the evaluation was performed.
             public let host: String
             /// The `SecTrust` value which was evaluated.
@@ -169,7 +169,7 @@ public enum AFError: Error, Sendable {
         /// During evaluation, creation of the revocation policy failed.
         case revocationPolicyCreationFailed
         /// `SecTrust` evaluation failed with the associated `Error`, if one was produced.
-        case trustEvaluationFailed(error: (any Error)?)
+        case trustEvaluationFailed(error: Error?)
         /// Default evaluation failed with the associated `Output`.
         case defaultEvaluationFailed(output: Output)
         /// Host validation failed with the associated `Output`.
@@ -181,26 +181,26 @@ public enum AFError: Error, Sendable {
         /// Public key pinning failed.
         case publicKeyPinningFailed(host: String, trust: SecTrust, pinnedKeys: [SecKey], serverKeys: [SecKey])
         /// Custom server trust evaluation failed due to the associated `Error`.
-        case customEvaluationFailed(error: any Error)
+        case customEvaluationFailed(error: Error)
     }
     #endif
 
     /// The underlying reason the `.urlRequestValidationFailed` error occurred.
-    public enum URLRequestValidationFailureReason: Sendable {
+    public enum URLRequestValidationFailureReason {
         /// URLRequest with GET method had body data.
         case bodyDataInGETRequest(Data)
     }
 
     ///  `UploadableConvertible` threw an error in `createUploadable()`.
-    case createUploadableFailed(error: any Error)
+    case createUploadableFailed(error: Error)
     ///  `URLRequestConvertible` threw an error in `asURLRequest()`.
-    case createURLRequestFailed(error: any Error)
+    case createURLRequestFailed(error: Error)
     /// `SessionDelegate` threw an error while attempting to move downloaded file to destination URL.
-    case downloadedFileMoveFailed(error: any Error, source: URL, destination: URL)
+    case downloadedFileMoveFailed(error: Error, source: URL, destination: URL)
     /// `Request` was explicitly cancelled.
     case explicitlyCancelled
     /// `URLConvertible` type failed to create a valid `URL`.
-    case invalidURL(url: any URLConvertible)
+    case invalidURL(url: URLConvertible)
     /// Multipart form encoding failed.
     case multipartEncodingFailed(reason: MultipartEncodingFailureReason)
     /// `ParameterEncoding` threw an error during the encoding process.
@@ -208,9 +208,9 @@ public enum AFError: Error, Sendable {
     /// `ParameterEncoder` threw an error while running the encoder.
     case parameterEncoderFailed(reason: ParameterEncoderFailureReason)
     /// `RequestAdapter` threw an error during adaptation.
-    case requestAdaptationFailed(error: any Error)
+    case requestAdaptationFailed(error: Error)
     /// `RequestRetrier` threw an error during the request retry process.
-    case requestRetryFailed(retryError: any Error, originalError: any Error)
+    case requestRetryFailed(retryError: Error, originalError: Error)
     /// Response validation failed.
     case responseValidationFailed(reason: ResponseValidationFailureReason)
     /// Response serialization failed.
@@ -222,9 +222,9 @@ public enum AFError: Error, Sendable {
     /// `Session` which issued the `Request` was deinitialized, most likely because its reference went out of scope.
     case sessionDeinitialized
     /// `Session` was explicitly invalidated, possibly with the `Error` produced by the underlying `URLSession`.
-    case sessionInvalidated(error: (any Error)?)
+    case sessionInvalidated(error: Error?)
     /// `URLSessionTask` completed with error.
-    case sessionTaskFailed(error: any Error)
+    case sessionTaskFailed(error: Error)
     /// `URLRequest` failed validation.
     case urlRequestValidationFailed(reason: URLRequestValidationFailureReason)
 }
@@ -367,7 +367,7 @@ extension AFError {
 
 extension AFError {
     /// The `URLConvertible` associated with the error.
-    public var urlConvertible: (any URLConvertible)? {
+    public var urlConvertible: URLConvertible? {
         guard case let .invalidURL(url) = self else { return nil }
         return url
     }
@@ -381,7 +381,7 @@ extension AFError {
     /// The underlying `Error` responsible for generating the failure associated with `.sessionInvalidated`,
     /// `.parameterEncodingFailed`, `.parameterEncoderFailed`, `.multipartEncodingFailed`, `.requestAdaptationFailed`,
     /// `.responseSerializationFailed`, `.requestRetryFailed` errors.
-    public var underlyingError: (any Error)? {
+    public var underlyingError: Error? {
         switch self {
         case let .multipartEncodingFailed(reason):
             return reason.underlyingError
@@ -464,24 +464,24 @@ extension AFError {
 }
 
 extension AFError.ParameterEncodingFailureReason {
-    var underlyingError: (any Error)? {
+    var underlyingError: Error? {
         switch self {
         case let .jsonEncodingFailed(error),
              let .customEncodingFailed(error):
-            error
+            return error
         case .missingURL:
-            nil
+            return nil
         }
     }
 }
 
 extension AFError.ParameterEncoderFailureReason {
-    var underlyingError: (any Error)? {
+    var underlyingError: Error? {
         switch self {
         case let .encoderFailed(error):
-            error
+            return error
         case .missingRequiredComponent:
-            nil
+            return nil
         }
     }
 }
@@ -500,20 +500,20 @@ extension AFError.MultipartEncodingFailureReason {
              let .outputStreamURLInvalid(url),
              let .bodyPartFileNotReachableWithError(url, _),
              let .bodyPartFileSizeQueryFailedWithError(url, _):
-            url
+            return url
         case .outputStreamWriteFailed,
              .inputStreamReadFailed:
-            nil
+            return nil
         }
     }
 
-    var underlyingError: (any Error)? {
+    var underlyingError: Error? {
         switch self {
         case let .bodyPartFileNotReachableWithError(_, error),
              let .bodyPartFileSizeQueryFailedWithError(_, error),
              let .outputStreamWriteFailed(error),
              let .inputStreamReadFailed(error):
-            error
+            return error
         case .bodyPartURLInvalid,
              .bodyPartFilenameInvalid,
              .bodyPartFileNotReachable,
@@ -523,7 +523,7 @@ extension AFError.MultipartEncodingFailureReason {
              .outputStreamCreationFailed,
              .outputStreamFileAlreadyExists,
              .outputStreamURLInvalid:
-            nil
+            return nil
         }
     }
 }
@@ -533,51 +533,51 @@ extension AFError.ResponseValidationFailureReason {
         switch self {
         case let .missingContentType(types),
              let .unacceptableContentType(types, _):
-            types
+            return types
         case .dataFileNil,
              .dataFileReadFailed,
              .unacceptableStatusCode,
              .customValidationFailed:
-            nil
+            return nil
         }
     }
 
     var responseContentType: String? {
         switch self {
         case let .unacceptableContentType(_, responseType):
-            responseType
+            return responseType
         case .dataFileNil,
              .dataFileReadFailed,
              .missingContentType,
              .unacceptableStatusCode,
              .customValidationFailed:
-            nil
+            return nil
         }
     }
 
     var responseCode: Int? {
         switch self {
         case let .unacceptableStatusCode(code):
-            code
+            return code
         case .dataFileNil,
              .dataFileReadFailed,
              .missingContentType,
              .unacceptableContentType,
              .customValidationFailed:
-            nil
+            return nil
         }
     }
 
-    var underlyingError: (any Error)? {
+    var underlyingError: Error? {
         switch self {
         case let .customValidationFailed(error):
-            error
+            return error
         case .dataFileNil,
              .dataFileReadFailed,
              .missingContentType,
              .unacceptableContentType,
              .unacceptableStatusCode:
-            nil
+            return nil
         }
     }
 }
@@ -586,7 +586,7 @@ extension AFError.ResponseSerializationFailureReason {
     var failedStringEncoding: String.Encoding? {
         switch self {
         case let .stringSerializationFailed(encoding):
-            encoding
+            return encoding
         case .inputDataNilOrZeroLength,
              .inputFileNil,
              .inputFileReadFailed(_),
@@ -594,22 +594,22 @@ extension AFError.ResponseSerializationFailureReason {
              .decodingFailed(_),
              .customSerializationFailed(_),
              .invalidEmptyResponse:
-            nil
+            return nil
         }
     }
 
-    var underlyingError: (any Error)? {
+    var underlyingError: Error? {
         switch self {
         case let .jsonSerializationFailed(error),
              let .decodingFailed(error),
              let .customSerializationFailed(error):
-            error
+            return error
         case .inputDataNilOrZeroLength,
              .inputFileNil,
              .inputFileReadFailed,
              .stringSerializationFailed,
              .invalidEmptyResponse:
-            nil
+            return nil
         }
     }
 }
@@ -621,7 +621,7 @@ extension AFError.ServerTrustFailureReason {
         case let .defaultEvaluationFailed(output),
              let .hostValidationFailed(output),
              let .revocationCheckFailed(output, _):
-            output
+            return output
         case .noRequiredEvaluator,
              .noCertificatesFound,
              .noPublicKeysFound,
@@ -632,16 +632,16 @@ extension AFError.ServerTrustFailureReason {
              .certificatePinningFailed,
              .publicKeyPinningFailed,
              .customEvaluationFailed:
-            nil
+            return nil
         }
     }
 
-    var underlyingError: (any Error)? {
+    var underlyingError: Error? {
         switch self {
         case let .customEvaluationFailed(error):
-            error
+            return error
         case let .trustEvaluationFailed(error):
-            error
+            return error
         case .noRequiredEvaluator,
              .noCertificatesFound,
              .noPublicKeysFound,
@@ -653,7 +653,7 @@ extension AFError.ServerTrustFailureReason {
              .revocationCheckFailed,
              .certificatePinningFailed,
              .publicKeyPinningFailed:
-            nil
+            return nil
         }
     }
 }
@@ -714,11 +714,11 @@ extension AFError.ParameterEncodingFailureReason {
     var localizedDescription: String {
         switch self {
         case .missingURL:
-            "URL request to encode was missing a URL"
+            return "URL request to encode was missing a URL"
         case let .jsonEncodingFailed(error):
-            "JSON could not be encoded because of error:\n\(error.localizedDescription)"
+            return "JSON could not be encoded because of error:\n\(error.localizedDescription)"
         case let .customEncodingFailed(error):
-            "Custom parameter encoder failed with error: \(error.localizedDescription)"
+            return "Custom parameter encoder failed with error: \(error.localizedDescription)"
         }
     }
 }
@@ -727,9 +727,9 @@ extension AFError.ParameterEncoderFailureReason {
     var localizedDescription: String {
         switch self {
         case let .missingRequiredComponent(component):
-            "Encoding failed due to a missing request component: \(component)"
+            return "Encoding failed due to a missing request component: \(component)"
         case let .encoderFailed(error):
-            "The underlying encoder failed with the error: \(error)"
+            return "The underlying encoder failed with the error: \(error)"
         }
     }
 }
@@ -738,39 +738,39 @@ extension AFError.MultipartEncodingFailureReason {
     var localizedDescription: String {
         switch self {
         case let .bodyPartURLInvalid(url):
-            "The URL provided is not a file URL: \(url)"
+            return "The URL provided is not a file URL: \(url)"
         case let .bodyPartFilenameInvalid(url):
-            "The URL provided does not have a valid filename: \(url)"
+            return "The URL provided does not have a valid filename: \(url)"
         case let .bodyPartFileNotReachable(url):
-            "The URL provided is not reachable: \(url)"
+            return "The URL provided is not reachable: \(url)"
         case let .bodyPartFileNotReachableWithError(url, error):
-            """
+            return """
             The system returned an error while checking the provided URL for reachability.
             URL: \(url)
             Error: \(error)
             """
         case let .bodyPartFileIsDirectory(url):
-            "The URL provided is a directory: \(url)"
+            return "The URL provided is a directory: \(url)"
         case let .bodyPartFileSizeNotAvailable(url):
-            "Could not fetch the file size from the provided URL: \(url)"
+            return "Could not fetch the file size from the provided URL: \(url)"
         case let .bodyPartFileSizeQueryFailedWithError(url, error):
-            """
+            return """
             The system returned an error while attempting to fetch the file size from the provided URL.
             URL: \(url)
             Error: \(error)
             """
         case let .bodyPartInputStreamCreationFailed(url):
-            "Failed to create an InputStream for the provided URL: \(url)"
+            return "Failed to create an InputStream for the provided URL: \(url)"
         case let .outputStreamCreationFailed(url):
-            "Failed to create an OutputStream for URL: \(url)"
+            return "Failed to create an OutputStream for URL: \(url)"
         case let .outputStreamFileAlreadyExists(url):
-            "A file already exists at the provided URL: \(url)"
+            return "A file already exists at the provided URL: \(url)"
         case let .outputStreamURLInvalid(url):
-            "The provided OutputStream URL is invalid: \(url)"
+            return "The provided OutputStream URL is invalid: \(url)"
         case let .outputStreamWriteFailed(error):
-            "OutputStream write failed with error: \(error)"
+            return "OutputStream write failed with error: \(error)"
         case let .inputStreamReadFailed(error):
-            "InputStream read failed with error: \(error)"
+            return "InputStream read failed with error: \(error)"
         }
     }
 }
@@ -779,24 +779,24 @@ extension AFError.ResponseSerializationFailureReason {
     var localizedDescription: String {
         switch self {
         case .inputDataNilOrZeroLength:
-            "Response could not be serialized, input data was nil or zero length."
+            return "Response could not be serialized, input data was nil or zero length."
         case .inputFileNil:
-            "Response could not be serialized, input file was nil."
+            return "Response could not be serialized, input file was nil."
         case let .inputFileReadFailed(url):
-            "Response could not be serialized, input file could not be read: \(url)."
+            return "Response could not be serialized, input file could not be read: \(url)."
         case let .stringSerializationFailed(encoding):
-            "String could not be serialized with encoding: \(encoding)."
+            return "String could not be serialized with encoding: \(encoding)."
         case let .jsonSerializationFailed(error):
-            "JSON could not be serialized because of error:\n\(error.localizedDescription)"
+            return "JSON could not be serialized because of error:\n\(error.localizedDescription)"
         case let .invalidEmptyResponse(type):
-            """
+            return """
             Empty response could not be serialized to type: \(type). \
             Use Empty as the expected type for such responses.
             """
         case let .decodingFailed(error):
-            "Response could not be decoded because of error:\n\(error.localizedDescription)"
+            return "Response could not be decoded because of error:\n\(error.localizedDescription)"
         case let .customSerializationFailed(error):
-            "Custom response serializer failed with error:\n\(error.localizedDescription)"
+            return "Custom response serializer failed with error:\n\(error.localizedDescription)"
         }
     }
 }
@@ -805,23 +805,23 @@ extension AFError.ResponseValidationFailureReason {
     var localizedDescription: String {
         switch self {
         case .dataFileNil:
-            "Response could not be validated, data file was nil."
+            return "Response could not be validated, data file was nil."
         case let .dataFileReadFailed(url):
-            "Response could not be validated, data file could not be read: \(url)."
+            return "Response could not be validated, data file could not be read: \(url)."
         case let .missingContentType(types):
-            """
+            return """
             Response Content-Type was missing and acceptable content types \
             (\(types.joined(separator: ","))) do not match "*/*".
             """
         case let .unacceptableContentType(acceptableTypes, responseType):
-            """
+            return """
             Response Content-Type "\(responseType)" does not match any acceptable types: \
             \(acceptableTypes.joined(separator: ",")).
             """
         case let .unacceptableStatusCode(code):
-            "Response status code was unacceptable: \(code)."
+            return "Response status code was unacceptable: \(code)."
         case let .customValidationFailed(error):
-            "Custom response validation failed with error: \(error.localizedDescription)"
+            return "Custom response validation failed with error: \(error.localizedDescription)"
         }
     }
 }
@@ -831,31 +831,31 @@ extension AFError.ServerTrustFailureReason {
     var localizedDescription: String {
         switch self {
         case let .noRequiredEvaluator(host):
-            "A ServerTrustEvaluating value is required for host \(host) but none was found."
+            return "A ServerTrustEvaluating value is required for host \(host) but none was found."
         case .noCertificatesFound:
-            "No certificates were found or provided for evaluation."
+            return "No certificates were found or provided for evaluation."
         case .noPublicKeysFound:
-            "No public keys were found or provided for evaluation."
+            return "No public keys were found or provided for evaluation."
         case .policyApplicationFailed:
-            "Attempting to set a SecPolicy failed."
+            return "Attempting to set a SecPolicy failed."
         case .settingAnchorCertificatesFailed:
-            "Attempting to set the provided certificates as anchor certificates failed."
+            return "Attempting to set the provided certificates as anchor certificates failed."
         case .revocationPolicyCreationFailed:
-            "Attempting to create a revocation policy failed."
+            return "Attempting to create a revocation policy failed."
         case let .trustEvaluationFailed(error):
-            "SecTrust evaluation failed with error: \(error?.localizedDescription ?? "None")"
+            return "SecTrust evaluation failed with error: \(error?.localizedDescription ?? "None")"
         case let .defaultEvaluationFailed(output):
-            "Default evaluation failed for host \(output.host)."
+            return "Default evaluation failed for host \(output.host)."
         case let .hostValidationFailed(output):
-            "Host validation failed for host \(output.host)."
+            return "Host validation failed for host \(output.host)."
         case let .revocationCheckFailed(output, _):
-            "Revocation check failed for host \(output.host)."
+            return "Revocation check failed for host \(output.host)."
         case let .certificatePinningFailed(host, _, _, _):
-            "Certificate pinning failed for host \(host)."
+            return "Certificate pinning failed for host \(host)."
         case let .publicKeyPinningFailed(host, _, _, _):
-            "Public key pinning failed for host \(host)."
+            return "Public key pinning failed for host \(host)."
         case let .customEvaluationFailed(error):
-            "Custom trust evaluation failed with error: \(error.localizedDescription)"
+            return "Custom trust evaluation failed with error: \(error.localizedDescription)"
         }
     }
 }
@@ -865,7 +865,7 @@ extension AFError.URLRequestValidationFailureReason {
     var localizedDescription: String {
         switch self {
         case let .bodyDataInGETRequest(data):
-            """
+            return """
             Invalid URLRequest: Requests with GET method cannot have body data:
             \(String(decoding: data, as: UTF8.self))
             """

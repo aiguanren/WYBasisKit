@@ -25,17 +25,17 @@
 import Foundation
 
 /// `Request` subclass which handles in-memory `Data` download using `URLSessionDataTask`.
-public class DataRequest: Request, @unchecked Sendable {
+public class DataRequest: Request {
     /// `URLRequestConvertible` value used to create `URLRequest`s for this instance.
-    public let convertible: any URLRequestConvertible
+    public let convertible: URLRequestConvertible
     /// `Data` read from the server so far.
     public var data: Data? { dataMutableState.data }
 
     private struct DataMutableState {
         var data: Data?
         var httpResponseHandler: (queue: DispatchQueue,
-                                  handler: @Sendable (_ response: HTTPURLResponse,
-                                                      _ completionHandler: @escaping @Sendable (ResponseDisposition) -> Void) -> Void)?
+                                  handler: (_ response: HTTPURLResponse,
+                                            _ completionHandler: @escaping (ResponseDisposition) -> Void) -> Void)?
     }
 
     private let dataMutableState = Protected(DataMutableState())
@@ -52,12 +52,12 @@ public class DataRequest: Request, @unchecked Sendable {
     ///   - interceptor:        `RequestInterceptor` used throughout the request lifecycle.
     ///   - delegate:           `RequestDelegate` that provides an interface to actions not performed by the `Request`.
     init(id: UUID = UUID(),
-         convertible: any URLRequestConvertible,
+         convertible: URLRequestConvertible,
          underlyingQueue: DispatchQueue,
          serializationQueue: DispatchQueue,
-         eventMonitor: (any EventMonitor)?,
-         interceptor: (any RequestInterceptor)?,
-         delegate: any RequestDelegate) {
+         eventMonitor: EventMonitor?,
+         interceptor: RequestInterceptor?,
+         delegate: RequestDelegate) {
         self.convertible = convertible
 
         super.init(id: id,
@@ -93,7 +93,7 @@ public class DataRequest: Request, @unchecked Sendable {
         updateDownloadProgress()
     }
 
-    func didReceiveResponse(_ response: HTTPURLResponse, completionHandler: @escaping @Sendable (URLSession.ResponseDisposition) -> Void) {
+    func didReceiveResponse(_ response: HTTPURLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
         dataMutableState.read { dataMutableState in
             guard let httpResponseHandler = dataMutableState.httpResponseHandler else {
                 underlyingQueue.async { completionHandler(.allow) }
@@ -140,10 +140,9 @@ public class DataRequest: Request, @unchecked Sendable {
     /// - Parameter validation: `Validation` closure used to validate the response.
     ///
     /// - Returns:              The instance.
-    @preconcurrency
     @discardableResult
     public func validate(_ validation: @escaping Validation) -> Self {
-        let validator: @Sendable () -> Void = { [unowned self] in
+        let validator: () -> Void = { [unowned self] in
             guard error == nil, let response else { return }
 
             let result = validation(request, response, data)
@@ -172,12 +171,11 @@ public class DataRequest: Request, @unchecked Sendable {
     ///
     /// - Returns:   The instance.
     @_disfavoredOverload
-    @preconcurrency
     @discardableResult
     public func onHTTPResponse(
         on queue: DispatchQueue = .main,
-        perform handler: @escaping @Sendable (_ response: HTTPURLResponse,
-                                              _ completionHandler: @escaping @Sendable (ResponseDisposition) -> Void) -> Void
+        perform handler: @escaping (_ response: HTTPURLResponse,
+                                    _ completionHandler: @escaping (ResponseDisposition) -> Void) -> Void
     ) -> Self {
         dataMutableState.write { mutableState in
             mutableState.httpResponseHandler = (queue, handler)
@@ -193,10 +191,9 @@ public class DataRequest: Request, @unchecked Sendable {
     ///   - handler: Closure called when the instance produces an `HTTPURLResponse`.
     ///
     /// - Returns:   The instance.
-    @preconcurrency
     @discardableResult
     public func onHTTPResponse(on queue: DispatchQueue = .main,
-                               perform handler: @escaping @Sendable (HTTPURLResponse) -> Void) -> Self {
+                               perform handler: @escaping (HTTPURLResponse) -> Void) -> Self {
         onHTTPResponse(on: queue) { response, completionHandler in
             handler(response)
             completionHandler(.allow)
@@ -214,9 +211,8 @@ public class DataRequest: Request, @unchecked Sendable {
     ///   - completionHandler: The code to be executed once the request has finished.
     ///
     /// - Returns:             The request.
-    @preconcurrency
     @discardableResult
-    public func response(queue: DispatchQueue = .main, completionHandler: @escaping @Sendable (AFDataResponse<Data?>) -> Void) -> Self {
+    public func response(queue: DispatchQueue = .main, completionHandler: @escaping (AFDataResponse<Data?>) -> Void) -> Self {
         appendResponseSerializer {
             // Start work that should be on the serialization queue.
             let result = AFResult<Data?>(value: self.data, error: self.error)
@@ -241,7 +237,7 @@ public class DataRequest: Request, @unchecked Sendable {
 
     private func _response<Serializer: DataResponseSerializerProtocol>(queue: DispatchQueue = .main,
                                                                        responseSerializer: Serializer,
-                                                                       completionHandler: @escaping @Sendable (AFDataResponse<Serializer.SerializedObject>) -> Void)
+                                                                       completionHandler: @escaping (AFDataResponse<Serializer.SerializedObject>) -> Void)
         -> Self {
         appendResponseSerializer {
             // Start work that should be on the serialization queue.
@@ -274,7 +270,7 @@ public class DataRequest: Request, @unchecked Sendable {
                 }
 
                 delegate.retryResult(for: self, dueTo: serializerError) { retryResult in
-                    var didComplete: (@Sendable () -> Void)?
+                    var didComplete: (() -> Void)?
 
                     defer {
                         if let didComplete {
@@ -316,11 +312,10 @@ public class DataRequest: Request, @unchecked Sendable {
     ///   - completionHandler:  The code to be executed once the request has finished.
     ///
     /// - Returns:              The request.
-    @preconcurrency
     @discardableResult
     public func response<Serializer: DataResponseSerializerProtocol>(queue: DispatchQueue = .main,
                                                                      responseSerializer: Serializer,
-                                                                     completionHandler: @escaping @Sendable (AFDataResponse<Serializer.SerializedObject>) -> Void)
+                                                                     completionHandler: @escaping (AFDataResponse<Serializer.SerializedObject>) -> Void)
         -> Self {
         _response(queue: queue, responseSerializer: responseSerializer, completionHandler: completionHandler)
     }
@@ -333,11 +328,10 @@ public class DataRequest: Request, @unchecked Sendable {
     ///   - completionHandler:  The code to be executed once the request has finished.
     ///
     /// - Returns:              The request.
-    @preconcurrency
     @discardableResult
     public func response<Serializer: ResponseSerializer>(queue: DispatchQueue = .main,
                                                          responseSerializer: Serializer,
-                                                         completionHandler: @escaping @Sendable (AFDataResponse<Serializer.SerializedObject>) -> Void)
+                                                         completionHandler: @escaping (AFDataResponse<Serializer.SerializedObject>) -> Void)
         -> Self {
         _response(queue: queue, responseSerializer: responseSerializer, completionHandler: completionHandler)
     }
@@ -353,13 +347,12 @@ public class DataRequest: Request, @unchecked Sendable {
     ///   - completionHandler:   A closure to be executed once the request has finished.
     ///
     /// - Returns:               The request.
-    @preconcurrency
     @discardableResult
     public func responseData(queue: DispatchQueue = .main,
-                             dataPreprocessor: any DataPreprocessor = DataResponseSerializer.defaultDataPreprocessor,
+                             dataPreprocessor: DataPreprocessor = DataResponseSerializer.defaultDataPreprocessor,
                              emptyResponseCodes: Set<Int> = DataResponseSerializer.defaultEmptyResponseCodes,
                              emptyRequestMethods: Set<HTTPMethod> = DataResponseSerializer.defaultEmptyRequestMethods,
-                             completionHandler: @escaping @Sendable (AFDataResponse<Data>) -> Void) -> Self {
+                             completionHandler: @escaping (AFDataResponse<Data>) -> Void) -> Self {
         response(queue: queue,
                  responseSerializer: DataResponseSerializer(dataPreprocessor: dataPreprocessor,
                                                             emptyResponseCodes: emptyResponseCodes,
@@ -380,14 +373,13 @@ public class DataRequest: Request, @unchecked Sendable {
     ///   - completionHandler:   A closure to be executed once the request has finished.
     ///
     /// - Returns:               The request.
-    @preconcurrency
     @discardableResult
     public func responseString(queue: DispatchQueue = .main,
-                               dataPreprocessor: any DataPreprocessor = StringResponseSerializer.defaultDataPreprocessor,
+                               dataPreprocessor: DataPreprocessor = StringResponseSerializer.defaultDataPreprocessor,
                                encoding: String.Encoding? = nil,
                                emptyResponseCodes: Set<Int> = StringResponseSerializer.defaultEmptyResponseCodes,
                                emptyRequestMethods: Set<HTTPMethod> = StringResponseSerializer.defaultEmptyRequestMethods,
-                               completionHandler: @escaping @Sendable (AFDataResponse<String>) -> Void) -> Self {
+                               completionHandler: @escaping (AFDataResponse<String>) -> Void) -> Self {
         response(queue: queue,
                  responseSerializer: StringResponseSerializer(dataPreprocessor: dataPreprocessor,
                                                               encoding: encoding,
@@ -410,14 +402,13 @@ public class DataRequest: Request, @unchecked Sendable {
     ///
     /// - Returns:               The request.
     @available(*, deprecated, message: "responseJSON deprecated and will be removed in Alamofire 6. Use responseDecodable instead.")
-    @preconcurrency
     @discardableResult
     public func responseJSON(queue: DispatchQueue = .main,
-                             dataPreprocessor: any DataPreprocessor = JSONResponseSerializer.defaultDataPreprocessor,
+                             dataPreprocessor: DataPreprocessor = JSONResponseSerializer.defaultDataPreprocessor,
                              emptyResponseCodes: Set<Int> = JSONResponseSerializer.defaultEmptyResponseCodes,
                              emptyRequestMethods: Set<HTTPMethod> = JSONResponseSerializer.defaultEmptyRequestMethods,
                              options: JSONSerialization.ReadingOptions = .allowFragments,
-                             completionHandler: @escaping @Sendable (AFDataResponse<Any>) -> Void) -> Self {
+                             completionHandler: @escaping (AFDataResponse<Any>) -> Void) -> Self {
         response(queue: queue,
                  responseSerializer: JSONResponseSerializer(dataPreprocessor: dataPreprocessor,
                                                             emptyResponseCodes: emptyResponseCodes,
@@ -439,15 +430,14 @@ public class DataRequest: Request, @unchecked Sendable {
     ///   - completionHandler:   A closure to be executed once the request has finished.
     ///
     /// - Returns:               The request.
-    @preconcurrency
     @discardableResult
-    public func responseDecodable<Value>(of type: Value.Type = Value.self,
-                                         queue: DispatchQueue = .main,
-                                         dataPreprocessor: any DataPreprocessor = DecodableResponseSerializer<Value>.defaultDataPreprocessor,
-                                         decoder: any DataDecoder = JSONDecoder(),
-                                         emptyResponseCodes: Set<Int> = DecodableResponseSerializer<Value>.defaultEmptyResponseCodes,
-                                         emptyRequestMethods: Set<HTTPMethod> = DecodableResponseSerializer<Value>.defaultEmptyRequestMethods,
-                                         completionHandler: @escaping @Sendable (AFDataResponse<Value>) -> Void) -> Self where Value: Decodable, Value: Sendable {
+    public func responseDecodable<T: Decodable>(of type: T.Type = T.self,
+                                                queue: DispatchQueue = .main,
+                                                dataPreprocessor: DataPreprocessor = DecodableResponseSerializer<T>.defaultDataPreprocessor,
+                                                decoder: DataDecoder = JSONDecoder(),
+                                                emptyResponseCodes: Set<Int> = DecodableResponseSerializer<T>.defaultEmptyResponseCodes,
+                                                emptyRequestMethods: Set<HTTPMethod> = DecodableResponseSerializer<T>.defaultEmptyRequestMethods,
+                                                completionHandler: @escaping (AFDataResponse<T>) -> Void) -> Self {
         response(queue: queue,
                  responseSerializer: DecodableResponseSerializer(dataPreprocessor: dataPreprocessor,
                                                                  decoder: decoder,

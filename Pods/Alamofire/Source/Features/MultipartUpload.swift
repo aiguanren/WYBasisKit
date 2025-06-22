@@ -25,27 +25,17 @@
 import Foundation
 
 /// Internal type which encapsulates a `MultipartFormData` upload.
-final class MultipartUpload: @unchecked Sendable { // Must be @unchecked due to FileManager not being properly Sendable.
-    private let _result = Protected<Result<UploadRequest.Uploadable, any Error>?>(nil)
-    var result: Result<UploadRequest.Uploadable, any Error> {
-        if let value = _result.read({ $0 }) {
-            return value
-        } else {
-            let result = Result { try build() }
-            _result.write(result)
-
-            return result
-        }
-    }
+final class MultipartUpload {
+    lazy var result = Result { try build() }
 
     private let multipartFormData: Protected<MultipartFormData>
 
     let encodingMemoryThreshold: UInt64
-    let request: any URLRequestConvertible
+    let request: URLRequestConvertible
     let fileManager: FileManager
 
     init(encodingMemoryThreshold: UInt64,
-         request: any URLRequestConvertible,
+         request: URLRequestConvertible,
          multipartFormData: MultipartFormData) {
         self.encodingMemoryThreshold = encodingMemoryThreshold
         self.request = request

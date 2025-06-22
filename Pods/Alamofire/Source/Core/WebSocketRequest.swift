@@ -32,7 +32,7 @@ import Foundation
 ///         especially around adoption of the typed throws feature in Swift 6. Please report any missing features or
 ///         bugs to https://github.com/Alamofire/Alamofire/issues.
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-@_spi(WebSocket) public final class WebSocketRequest: Request, @unchecked Sendable {
+@_spi(WebSocket) public final class WebSocketRequest: Request {
     enum IncomingEvent {
         case connected(protocol: String?)
         case receivedMessage(URLSessionWebSocketTask.Message)
@@ -40,8 +40,8 @@ import Foundation
         case completed(Completion)
     }
 
-    public struct Event<Success: Sendable, Failure: Error>: Sendable {
-        public enum Kind: Sendable {
+    public struct Event<Success, Failure: Error> {
+        public enum Kind {
             case connected(protocol: String?)
             case receivedMessage(Success)
             case serializerFailed(Failure)
@@ -72,12 +72,12 @@ import Foundation
             socket?.cancel()
         }
 
-        public func sendPing(respondingOn queue: DispatchQueue = .main, onResponse: @escaping @Sendable (PingResponse) -> Void) {
+        public func sendPing(respondingOn queue: DispatchQueue = .main, onResponse: @escaping (PingResponse) -> Void) {
             socket?.sendPing(respondingOn: queue, onResponse: onResponse)
         }
     }
 
-    public struct Completion: Sendable {
+    public struct Completion {
         /// Last `URLRequest` issued by the instance.
         public let request: URLRequest?
         /// Last `HTTPURLResponse` received by the instance.
@@ -115,8 +115,8 @@ import Foundation
     }
 
     /// Response to a sent ping.
-    public enum PingResponse: Sendable {
-        public struct Pong: Sendable {
+    public enum PingResponse {
+        public struct Pong {
             let start: Date
             let end: Date
             let latency: TimeInterval
@@ -125,7 +125,7 @@ import Foundation
         /// Received a pong with the associated state.
         case pong(Pong)
         /// Received an error.
-        case error(any Error)
+        case error(Error)
         /// Did not send the ping, the request is cancelled or suspended.
         case unsent
     }
@@ -133,7 +133,7 @@ import Foundation
     struct SocketMutableState {
         var enqueuedSends: [(message: URLSessionWebSocketTask.Message,
                              queue: DispatchQueue,
-                             completionHandler: @Sendable (Result<Void, any Error>) -> Void)] = []
+                             completionHandler: (Result<Void, Error>) -> Void)] = []
         var handlers: [(queue: DispatchQueue, handler: (_ event: IncomingEvent) -> Void)] = []
         var pingTimerItem: DispatchWorkItem?
     }
@@ -144,17 +144,17 @@ import Foundation
         task as? URLSessionWebSocketTask
     }
 
-    public let convertible: any URLRequestConvertible
+    public let convertible: URLRequestConvertible
     public let configuration: Configuration
 
     init(id: UUID = UUID(),
-         convertible: any URLRequestConvertible,
+         convertible: URLRequestConvertible,
          configuration: Configuration,
          underlyingQueue: DispatchQueue,
          serializationQueue: DispatchQueue,
-         eventMonitor: (any EventMonitor)?,
-         interceptor: (any RequestInterceptor)?,
-         delegate: any RequestDelegate) {
+         eventMonitor: EventMonitor?,
+         interceptor: RequestInterceptor?,
+         delegate: RequestDelegate) {
         self.convertible = convertible
         self.configuration = configuration
 
@@ -273,8 +273,7 @@ import Foundation
         }
     }
 
-    @preconcurrency
-    public func sendPing(respondingOn queue: DispatchQueue = .main, onResponse: @escaping @Sendable (PingResponse) -> Void) {
+    public func sendPing(respondingOn queue: DispatchQueue = .main, onResponse: @escaping (PingResponse) -> Void) {
         guard isResumed else {
             queue.async { onResponse(.unsent) }
             return
@@ -310,9 +309,9 @@ import Foundation
             }
 
             let item = DispatchWorkItem { [weak self] in
-                guard let self, isResumed else { return }
+                guard let self, self.isResumed else { return }
 
-                sendPing(respondingOn: underlyingQueue) { response in
+                self.sendPing(respondingOn: self.underlyingQueue) { response in
                     guard case .pong = response else { return }
 
                     self.startAutomaticPing(every: pingInterval)
@@ -324,11 +323,13 @@ import Foundation
         }
     }
 
+    #if swift(>=5.8)
     @available(macOS 13, iOS 16, tvOS 16, watchOS 9, *)
     func startAutomaticPing(every duration: Duration) {
         let interval = TimeInterval(duration.components.seconds) + (Double(duration.components.attoseconds) / 1e18)
         startAutomaticPing(every: interval)
     }
+    #endif
 
     func cancelAutomaticPing() {
         socketMutableState.write { mutableState in
@@ -370,13 +371,12 @@ import Foundation
         }
     }
 
-    @preconcurrency
     @discardableResult
     public func streamSerializer<Serializer>(
         _ serializer: Serializer,
         on queue: DispatchQueue = .main,
-        handler: @escaping @Sendable (_ event: Event<Serializer.Output, Serializer.Failure>) -> Void
-    ) -> Self where Serializer: WebSocketMessageSerializer, Serializer.Failure == any Error {
+        handler: @escaping (_ event: Event<Serializer.Output, Serializer.Failure>) -> Void
+    ) -> Self where Serializer: WebSocketMessageSerializer, Serializer.Failure == Error {
         forIncomingEvent(on: queue) { incomingEvent in
             let event: Event<Serializer.Output, Serializer.Failure>
             switch incomingEvent {
@@ -399,64 +399,61 @@ import Foundation
         }
     }
 
-    @preconcurrency
     @discardableResult
     public func streamDecodableEvents<Value>(
         _ type: Value.Type = Value.self,
         on queue: DispatchQueue = .main,
-        using decoder: any DataDecoder = JSONDecoder(),
-        handler: @escaping @Sendable (_ event: Event<Value, any Error>) -> Void
+        using decoder: DataDecoder = JSONDecoder(),
+        handler: @escaping (_ event: Event<Value, Error>) -> Void
     ) -> Self where Value: Decodable {
         streamSerializer(DecodableWebSocketMessageDecoder<Value>(decoder: decoder), on: queue, handler: handler)
     }
 
-    @preconcurrency
     @discardableResult
     public func streamDecodable<Value>(
         _ type: Value.Type = Value.self,
         on queue: DispatchQueue = .main,
-        using decoder: any DataDecoder = JSONDecoder(),
-        handler: @escaping @Sendable (_ value: Value) -> Void
-    ) -> Self where Value: Decodable & Sendable {
+        using decoder: DataDecoder = JSONDecoder(),
+        handler: @escaping (_ value: Value) -> Void
+    ) -> Self where Value: Decodable {
         streamDecodableEvents(Value.self, on: queue) { event in
             event.message.map(handler)
         }
     }
 
-    @preconcurrency
     @discardableResult
     public func streamMessageEvents(
         on queue: DispatchQueue = .main,
-        handler: @escaping @Sendable (_ event: Event<URLSessionWebSocketTask.Message, Never>) -> Void
+        handler: @escaping (_ event: Event<URLSessionWebSocketTask.Message, Never>) -> Void
     ) -> Self {
         forIncomingEvent(on: queue) { incomingEvent in
-            let event: Event<URLSessionWebSocketTask.Message, Never> = switch incomingEvent {
+            let event: Event<URLSessionWebSocketTask.Message, Never>
+            switch incomingEvent {
             case let .connected(`protocol`):
-                .init(socket: self, kind: .connected(protocol: `protocol`))
+                event = .init(socket: self, kind: .connected(protocol: `protocol`))
             case let .receivedMessage(message):
-                .init(socket: self, kind: .receivedMessage(message))
+                event = .init(socket: self, kind: .receivedMessage(message))
             case let .disconnected(closeCode, reason):
-                .init(socket: self, kind: .disconnected(closeCode: closeCode, reason: reason))
+                event = .init(socket: self, kind: .disconnected(closeCode: closeCode, reason: reason))
             case let .completed(completion):
-                .init(socket: self, kind: .completed(completion))
+                event = .init(socket: self, kind: .completed(completion))
             }
 
             queue.async { handler(event) }
         }
     }
 
-    @preconcurrency
     @discardableResult
     public func streamMessages(
         on queue: DispatchQueue = .main,
-        handler: @escaping @Sendable (_ message: URLSessionWebSocketTask.Message) -> Void
+        handler: @escaping (_ message: URLSessionWebSocketTask.Message) -> Void
     ) -> Self {
         streamMessageEvents(on: queue) { event in
             event.message.map(handler)
         }
     }
 
-    func forIncomingEvent(on queue: DispatchQueue, handler: @escaping @Sendable (IncomingEvent) -> Void) -> Self {
+    func forIncomingEvent(on queue: DispatchQueue, handler: @escaping (IncomingEvent) -> Void) -> Self {
         socketMutableState.write { state in
             state.handlers.append((queue: queue, handler: { incomingEvent in
                 self.serializationQueue.async {
@@ -479,10 +476,9 @@ import Foundation
         return self
     }
 
-    @preconcurrency
     public func send(_ message: URLSessionWebSocketTask.Message,
                      queue: DispatchQueue = .main,
-                     completionHandler: @escaping @Sendable (Result<Void, any Error>) -> Void) {
+                     completionHandler: @escaping (Result<Void, Error>) -> Void) {
         guard !(isCancelled || isFinished) else { return }
 
         guard let socket else {
@@ -503,9 +499,9 @@ import Foundation
 }
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public protocol WebSocketMessageSerializer<Output, Failure>: Sendable {
-    associatedtype Output: Sendable
-    associatedtype Failure: Error = any Error
+public protocol WebSocketMessageSerializer<Output, Failure> {
+    associatedtype Output
+    associatedtype Failure: Error = Error
 
     func decode(_ message: URLSessionWebSocketTask.Message) throws -> Output
 }
@@ -534,15 +530,15 @@ struct PassthroughWebSocketMessageDecoder: WebSocketMessageSerializer {
 }
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-public struct DecodableWebSocketMessageDecoder<Value: Decodable & Sendable>: WebSocketMessageSerializer {
+public struct DecodableWebSocketMessageDecoder<Value: Decodable>: WebSocketMessageSerializer {
     public enum Error: Swift.Error {
-        case decoding(any Swift.Error)
+        case decoding(Swift.Error)
         case unknownMessage(description: String)
     }
 
-    public let decoder: any DataDecoder
+    public let decoder: DataDecoder
 
-    public init(decoder: any DataDecoder) {
+    public init(decoder: DataDecoder) {
         self.decoder = decoder
     }
 

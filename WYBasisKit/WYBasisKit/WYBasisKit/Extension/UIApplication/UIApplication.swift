@@ -8,7 +8,12 @@
 
 import UIKit
 
-extension UIApplication: @retroactive UIApplicationDelegate {
+#if swift(>=5.8)
+typealias WYApplicationDelegateProtocol = @retroactive UIApplicationDelegate
+#else
+typealias WYApplicationDelegateProtocol = UIApplicationDelegate
+#endif
+extension UIApplication: WYApplicationDelegateProtocol {
     
     /// 获取当前当前正在显示的window
     public class var wy_sharedWindow: UIWindow {
