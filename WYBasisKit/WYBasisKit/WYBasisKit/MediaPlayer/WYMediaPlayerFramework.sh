@@ -26,7 +26,7 @@ ZIP_PATH="./MediaPlayer/WYMediaPlayerFramework.zip"     # ZIP 包保存路径
 UNZIP_TEMP_DIR="$FRAMEWORK_DIR/__temp__"                # 解压临时目录
 MAX_INTERVAL_HOURS=5                # 最大允许的间隔时间（小时）超过则强制重新下载
 
-printf "📁 当前路径: %s\n" "$(pwd)"
+printf "⏩ 当前路径: %s\n" "$(pwd)"
 
 # ————— 判断本地 WYMediaPlayerFramework 是否存在 ————— #
 if [[ ! -d "$FRAMEWORK_DIR" ]]; then
@@ -49,10 +49,10 @@ DIFF_MINUTES=$(( (DIFF_SECS % 3600) / 60 ))        # 分钟
 NEED_DOWNLOAD=false                                 # 默认不需要下载
 if [[ $LAST_TS -eq 0 ]]; then
   NEED_DOWNLOAD=true
-  printf "👁  未检测到 WYMediaPlayerFramework 下载记录\n"
+  printf "🔍 未检测到 WYMediaPlayerFramework 下载记录\n"
 elif [[ "$LOCAL_EXIST" = false ]]; then
   NEED_DOWNLOAD=true
-  printf "👁  本地未发现 WYMediaPlayerFramework\n"
+  printf "🔍 本地未发现 WYMediaPlayerFramework\n"
 elif [[ $DIFF_HOURS -ge $MAX_INTERVAL_HOURS ]]; then
   NEED_DOWNLOAD=true
   printf "📔 本地已存在 WYMediaPlayerFramework，但距离上次下载时间间隔已超过 ${DIFF_HOURS}小时${DIFF_MINUTES}分(默认间隔时间为${MAX_INTERVAL_HOURS}小时)\n"

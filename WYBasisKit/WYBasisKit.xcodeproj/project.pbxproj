@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 53;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -101,6 +101,8 @@
 		58678EE32DFA627C0035673E /* WYLocalizable.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 58678E782DFA627C0035673E /* WYLocalizable.bundle */; };
 		58678EE42DFA627C0035673E /* WYBannerView.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 58678E332DFA627C0035673E /* WYBannerView.bundle */; };
 		58678EE62DFA627C0035673E /* WYChatView.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 58678E712DFA627C0035673E /* WYChatView.bundle */; };
+		587CDF902E09151500929E1D /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 587CDF8F2E09151500929E1D /* libz.tbd */; };
+		587CDF922E09153B00929E1D /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 587CDF912E09153B00929E1D /* libbz2.tbd */; };
 		58C31BFB2DFA62FF009EDD3E /* IJKMediaPlayer.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58C31BFA2DFA62FF009EDD3E /* IJKMediaPlayer.xcframework */; };
 		AAC46AD02E07E28F0068B0DF /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = AAC46ACF2E07E28F0068B0DF /* libc++.tbd */; };
 		ED4EB416B83B179C621C40F0 /* Pods_WYBasisKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEB6297DCF484666E8FC6223 /* Pods_WYBasisKit.framework */; };
@@ -204,6 +206,8 @@
 		58678E842DFA627C0035673E /* WYNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkManager.swift; sourceTree = "<group>"; };
 		58678E852DFA627C0035673E /* WYNetworkServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkServer.swift; sourceTree = "<group>"; };
 		58678E872DFA627C0035673E /* WYStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYStorage.swift; sourceTree = "<group>"; };
+		587CDF8F2E09151500929E1D /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		587CDF912E09153B00929E1D /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
 		58C31BFA2DFA62FF009EDD3E /* IJKMediaPlayer.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = IJKMediaPlayer.xcframework; path = "WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework"; sourceTree = "<group>"; };
 		8B8A3708E351CE0BB9E30715 /* Pods-WYBasisKit.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.debug.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.debug.xcconfig"; sourceTree = "<group>"; };
 		AAC46ACF2E07E28F0068B0DF /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
@@ -215,6 +219,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				587CDF922E09153B00929E1D /* libbz2.tbd in Frameworks */,
+				587CDF902E09151500929E1D /* libz.tbd in Frameworks */,
 				AAC46AD02E07E28F0068B0DF /* libc++.tbd in Frameworks */,
 				58C31BFB2DFA62FF009EDD3E /* IJKMediaPlayer.xcframework in Frameworks */,
 				ED4EB416B83B179C621C40F0 /* Pods_WYBasisKit.framework in Frameworks */,
@@ -940,6 +946,8 @@
 		74BEC470B6E92D82AAD2D137 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				587CDF912E09153B00929E1D /* libbz2.tbd */,
+				587CDF8F2E09151500929E1D /* libz.tbd */,
 				AAC46ACF2E07E28F0068B0DF /* libc++.tbd */,
 				FEB6297DCF484666E8FC6223 /* Pods_WYBasisKit.framework */,
 			);
@@ -1202,7 +1210,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = JX362P6GEC;
+				DEVELOPMENT_TEAM = 48Q2YZZG66;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WYBasisKit/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = WYBasisKit;
@@ -1233,7 +1241,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = JX362P6GEC;
+				DEVELOPMENT_TEAM = 48Q2YZZG66;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WYBasisKit/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = WYBasisKit;

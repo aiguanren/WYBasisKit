@@ -237,12 +237,7 @@ public extension UINavigationController {
     }
 }
 
-#if swift(>=5.8)
-typealias WYNavigationDelegateProtocol = @retroactive UINavigationBarDelegate & @retroactive UIGestureRecognizerDelegate
-#else
-typealias WYNavigationDelegateProtocol = UINavigationBarDelegate & UIGestureRecognizerDelegate
-#endif
-extension UINavigationController: WYNavigationDelegateProtocol {
+extension UINavigationController: @retroactive UINavigationBarDelegate, @retroactive UIGestureRecognizerDelegate {
     
     public func navigationBar(_ navigationBar: UINavigationBar, didPush item: UINavigationItem) {
         

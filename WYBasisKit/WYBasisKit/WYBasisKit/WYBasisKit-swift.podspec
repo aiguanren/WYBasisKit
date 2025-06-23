@@ -170,6 +170,7 @@ Pod::Spec.new do |kit|
          full.vendored_frameworks = 'MediaPlayer/WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework'
          full.dependency 'SnapKit'
          full.dependency 'Kingfisher'
+         # libraries 这里需要忽略前面的lib和后面的tbd，例如libz.tbd直接写为z即可
          full.libraries = 'c++', 'z', 'bz2'  #mediaPlayer.libraries = 'xxx.a'
          full.frameworks = 'UIKit', 'AudioToolbox', 'CoreGraphics', 'AVFoundation', 'CoreMedia', 'CoreVideo', 'MediaPlayer', 'CoreServices', 'Metal', 'QuartzCore', 'VideoToolbox'
          #full.vendored_libraries = 'xxx.a'
@@ -180,6 +181,7 @@ Pod::Spec.new do |kit|
          lite.vendored_frameworks = 'MediaPlayer/WYMediaPlayerFramework/arm64/IJKMediaPlayer.xcframework'
          lite.dependency 'SnapKit'
          lite.dependency 'Kingfisher'
+         # libraries 这里需要忽略前面的lib和后面的tbd，例如libz.tbd直接写为z即可
          lite.libraries = 'c++', 'z', 'bz2'  #mediaPlayer.libraries = 'xxx.a'
          lite.frameworks = 'UIKit', 'AudioToolbox', 'CoreGraphics', 'AVFoundation', 'CoreMedia', 'CoreVideo', 'MediaPlayer', 'CoreServices', 'Metal', 'QuartzCore', 'VideoToolbox'
          #lite.vendored_libraries = 'xxx.a'
