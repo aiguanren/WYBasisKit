@@ -19,7 +19,7 @@ require_relative 'PodFileScripts/Podfile'
 configure_settings_option(SETTING_OPTIONS[:all_projects])   # 设置所有项目(默认)
 
 # 设置Pods项目版本(仅限从Podfile解析部署版本失败时有效)
-set_pods_deployment_target('13.0')
+#set_pods_deployment_target('13.0')
 
 workspace 'WYBasisKit.xcworkspace' # 多个项目时需要指定target对应的xcworkspace文件
 
