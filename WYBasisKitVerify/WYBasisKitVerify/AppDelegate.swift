@@ -7,7 +7,7 @@
 //
 
 import UIKit
-@_exported import WYBasisKit_swift
+@_exported import WYBasisKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
