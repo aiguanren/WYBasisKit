@@ -77,12 +77,43 @@ public extension NSMutableAttributedString {
     @discardableResult
     func wy_lineSpacing(lineSpacing: CGFloat, string: String? = nil, alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
         
-        let paragraphStyle: NSMutableParagraphStyle = NSMutableParagraphStyle()
+        // 创建NSString副本用于安全范围计算
+        let nsString = self.string as NSString
+        let targetRange: NSRange
+        
+        // 确定目标范围（整个文本或指定子串）
+        if let substring = string {
+            targetRange = nsString.range(of: substring)
+            guard targetRange.location != NSNotFound else { return self }
+        } else {
+            targetRange = NSRange(location: 0, length: self.length)
+        }
+        
+        // 获取或创建段落样式
+        let paragraphStyle: NSMutableParagraphStyle
+        
+        // 安全地获取并复制现有段落样式
+        if let existingStyle = self.attribute(
+            .paragraphStyle,
+            at: targetRange.location,
+            effectiveRange: nil
+        ) as? NSParagraphStyle,
+           let mutableStyle = existingStyle.mutableCopy() as? NSMutableParagraphStyle {
+            paragraphStyle = mutableStyle
+        } else {
+            paragraphStyle = NSMutableParagraphStyle()
+        }
+        
+        // 设置新属性
         paragraphStyle.lineSpacing = lineSpacing
         paragraphStyle.alignment = alignment
         
-        let selfStr: NSString = self.string as NSString
-        addAttribute(NSAttributedString.Key.paragraphStyle, value: paragraphStyle, range: selfStr.range(of: (string == nil ? self.string : string!)))
+        // 应用更新到目标范围
+        self.addAttribute(
+            .paragraphStyle,
+            value: paragraphStyle,
+            range: targetRange
+        )
         
         return self
     }
@@ -121,21 +152,53 @@ public extension NSMutableAttributedString {
     
     /**
      *  文本添加内边距
+     *  @param string  要添加内边距的字符串，不传则代码所有字符串
      *  @param firstLineHeadIndent  首行左边距
      *  @param headIndent  第二行及以后的左边距(换行符\n除外)
      *  @param tailIndent  尾部右边距
      */
     @discardableResult
-    func wy_innerMargin(firstLineHeadIndent: CGFloat = 0, headIndent: CGFloat = 0, tailIndent: CGFloat = 0, alignment: NSTextAlignment = .justified) -> NSMutableAttributedString {
+    func wy_innerMargin(string: String? = nil, firstLineHeadIndent: CGFloat = 0, headIndent: CGFloat = 0, tailIndent: CGFloat = 0, alignment: NSTextAlignment = .justified) -> NSMutableAttributedString {
         
-        let paragraphStyle: NSMutableParagraphStyle = NSMutableParagraphStyle()
+        // 创建NSString用于安全范围计算
+        let nsString = self.string as NSString
+        let targetRange: NSRange
+        
+        // 确定目标范围（整个文本或指定子串）
+        if let substring = string {
+            targetRange = nsString.range(of: substring)
+            guard targetRange.location != NSNotFound else { return self }
+        } else {
+            targetRange = NSRange(location: 0, length: self.length)
+        }
+        
+        // 获取或创建段落样式
+        let paragraphStyle: NSMutableParagraphStyle
+        
+        // 安全地获取并复制现有段落样式
+        if let existingStyle = self.attribute(
+            .paragraphStyle,
+            at: targetRange.location,
+            effectiveRange: nil
+        ) as? NSParagraphStyle,
+           let mutableStyle = existingStyle.mutableCopy() as? NSMutableParagraphStyle {
+            paragraphStyle = mutableStyle
+        } else {
+            paragraphStyle = NSMutableParagraphStyle()
+        }
+        
+        // 设置内边距属性
         paragraphStyle.alignment = alignment
         paragraphStyle.firstLineHeadIndent = firstLineHeadIndent
         paragraphStyle.headIndent = headIndent
         paragraphStyle.tailIndent = tailIndent
         
-        let selfStr: NSString = self.string as NSString
-        addAttribute(NSAttributedString.Key.paragraphStyle, value: paragraphStyle, range: selfStr.range(of: self.string))
+        // 应用更新到目标范围
+        self.addAttribute(
+            .paragraphStyle,
+            value: paragraphStyle,
+            range: targetRange
+        )
         
         return self
     }
