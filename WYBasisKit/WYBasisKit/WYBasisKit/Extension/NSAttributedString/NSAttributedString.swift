@@ -204,6 +204,113 @@ public extension NSMutableAttributedString {
     }
     
     /**
+     向富文本中插入图片（支持图文混排，自动处理位置和对齐方式）
+     
+     - Parameter attachments: 富文本图片插入配置数组，每个元素定义了图片、位置、尺寸、对齐方式和间距
+     - Returns: 当前 NSMutableAttributedString 对象本身（链式返回）
+     
+     使用说明：
+     1. position 支持插入到指定文本前/后或指定字符下标处；
+     2. alignment 支持图片在字体行内的垂直对齐方式；
+     3. spacingBefore / spacingAfter 可用于设置插入图片前后的间距；
+     */
+    @discardableResult
+    func wy_insertImage(_ attachments: [WYImageAttachmentOption]) -> NSMutableAttributedString {
+        
+        if string.isEmpty || attachments.isEmpty {
+            return self
+        }
+        
+        let fullText = self.string as NSString
+        
+        // 将插入项统一转换为 (index, attr) 类型，便于排序和插入
+        var insertionItems: [(index: Int, attr: NSAttributedString)] = []
+        
+        for option in attachments {
+            
+            // 计算插入位置 index
+            let insertIndex: Int
+            switch option.position {
+            case .index(let value):
+                insertIndex = max(0, min(self.length, value))
+                
+            case .before(let target):
+                let range = fullText.range(of: target)
+                insertIndex = range.location != NSNotFound ? range.location : self.length
+                
+            case .after(let target):
+                let range = fullText.range(of: target)
+                insertIndex = (range.location != NSNotFound) ? (range.location + range.length) : self.length
+            }
+            
+            // 构建图片 attachment
+            let attachment = NSTextAttachment()
+            attachment.image = option.image
+            
+            // 获取当前索引处的字体
+            let lineFont = self.attribute(.font, at: min(insertIndex, self.length - 1), effectiveRange: nil) as? UIFont ?? UIFont.systemFont(ofSize: 15)
+            
+            // 计算图片(Y)偏移量（文字对齐用）
+            let yOffset: CGFloat
+            switch option.alignment {
+            case .center:
+                // 精确居中：图片中心点与字体基线对齐
+                let baselinePosition = lineFont.ascender - lineFont.capHeight
+                yOffset = lineFont.ascender - (option.size.height * 0.5)
+                
+            case .top:
+                // 居上对齐：图片顶部与字体顶部对齐
+                yOffset = lineFont.ascender - option.size.height
+                
+            case .bottom:
+                // 居下对齐：图片底部与字体底部对齐
+                yOffset = lineFont.descender
+                
+            case .custom(let offset):
+                yOffset = -offset
+            }
+            
+            attachment.bounds = CGRect(x: 0, y: yOffset, width: option.size.width, height: option.size.height)
+            
+            let imageAttr = NSAttributedString(attachment: attachment)
+            
+            // 构建前后间距（使用透明附件）
+            let beforeSpace: NSAttributedString
+            if option.spacingBefore > 0 {
+                let spaceAttachment = NSTextAttachment()
+                spaceAttachment.bounds = CGRect(x: 0, y: 0, width: option.spacingBefore, height: 0.01)
+                beforeSpace = NSAttributedString(attachment: spaceAttachment)
+            } else {
+                beforeSpace = NSAttributedString()
+            }
+            
+            let afterSpace: NSAttributedString
+            if option.spacingAfter > 0 {
+                let spaceAttachment = NSTextAttachment()
+                spaceAttachment.bounds = CGRect(x: 0, y: 0, width: option.spacingAfter, height: 0.01)
+                afterSpace = NSAttributedString(attachment: spaceAttachment)
+            } else {
+                afterSpace = NSAttributedString()
+            }
+            
+            // 拼接完整插入内容：前间距 + 图片 + 后间距
+            let fullInsert = NSMutableAttributedString()
+            fullInsert.append(beforeSpace)
+            fullInsert.append(imageAttr)
+            fullInsert.append(afterSpace)
+            
+            // 保存待插入数据
+            insertionItems.append((index: insertIndex, attr: fullInsert))
+        }
+        
+        // 倒序插入，避免偏移
+        for item in insertionItems.sorted(by: { $0.index > $1.index }) {
+            insert(item.attr, at: item.index)
+        }
+        return self
+    }
+    
+    /**
      *  根据传入的表情字符串生成富文本，例如字符串 "哈哈[哈哈]" 会生成 "哈哈😄"
      *  @param emojiString   待转换的表情字符串
      *  @param textColor     富文本的字体颜色
@@ -394,4 +501,62 @@ public extension NSAttributedString {
 public class WYTextAttachment: NSTextAttachment {
     public var imageName: String = ""
     public var imageRange: NSRange = NSMakeRange(0, 0)
+}
+
+/// 富文本图片插入配置
+public struct WYImageAttachmentOption {
+    
+    /// 图片插入位置
+    public enum Position {
+        /// 插入到文本前面
+        case before(text: String)
+        /// 插入到文本后面
+        case after(text: String)
+        /// 根据文本下标插入到指定为止
+        case index(NSInteger)
+    }
+    
+    /// 图片对齐方式
+    public enum Alignment {
+        /// 与文本居中对齐
+        case center
+        /// 与文本顶部对齐
+        case top
+        /// 与文本底部对齐
+        case bottom
+        /// 相对文本底部(Y轴)自定义偏移量对齐(负向上，正向下)
+        case custom(offset: CGFloat)
+    }
+    
+    /// 要插入的图片
+    public let image: UIImage
+    
+    /// 图片尺寸
+    public let size: CGSize
+    
+    /// 图片插入位置
+    public let position: Position
+    
+    /// 图片对齐方式
+    public let alignment: Alignment
+    
+    /// 图片与前面文本的间距（单位：pt）
+    public let spacingBefore: CGFloat
+    
+    /// 图片与后面文本的间距（单位：pt）
+    public let spacingAfter: CGFloat
+    
+    public init(image: UIImage,
+                size: CGSize,
+                position: Position,
+                alignment: Alignment = .center,
+                spacingBefore: CGFloat = 0,
+                spacingAfter: CGFloat = 0) {
+        self.image = image
+        self.size = size
+        self.position = position
+        self.alignment = alignment
+        self.spacingBefore = spacingBefore
+        self.spacingAfter = spacingAfter
+    }
 }
