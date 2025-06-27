@@ -38,12 +38,12 @@ Pod::Spec.new do |kit|
   ]
 
   # 解决 Xcode 12+ 模拟器架构问题
-  kit.user_target_xcconfig = {
-    'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'
-  }
-  kit.pod_target_xcconfig = {
-    'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'
-  }
+  # kit.user_target_xcconfig = {
+  #   'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'
+  # }
+  # kit.pod_target_xcconfig = {
+  #   'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'
+  # }
   
   # 下载并解压 WYMediaPlayerFramework
   kit.prepare_command = 'bash MediaPlayer/WYMediaPlayerFramework.sh'
@@ -185,7 +185,6 @@ Pod::Spec.new do |kit|
     framework.vendored_frameworks = 'MediaPlayer/WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework'
     framework.pod_target_xcconfig = {
       'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64', # 过滤模拟器arm64，解决 Xcode 12+ 模拟器架构问题
-      'VALID_ARCHS' => 'arm64 x86_64'  # 明确有效架构
     }
   end
 
@@ -195,8 +194,7 @@ Pod::Spec.new do |kit|
     # framework.vendored_libraries = 'xxx.a'
     framework.vendored_frameworks = 'MediaPlayer/WYMediaPlayerFramework/arm64/IJKMediaPlayer.xcframework'
     framework.pod_target_xcconfig = {
-      'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64', # 过滤模拟器arm64，解决 Xcode 12+ 模拟器架构问题
-      'VALID_ARCHS' => 'arm64 x86_64'  # 明确有效架构
+      'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64 x86_64', # 过滤模拟器arm64，解决 Xcode 12+ 模拟器架构问题
     }
   end
   
