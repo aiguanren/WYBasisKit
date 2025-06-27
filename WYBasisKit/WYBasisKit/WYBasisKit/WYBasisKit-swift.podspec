@@ -85,6 +85,11 @@ Pod::Spec.new do |kit|
     storage.source_files = 'Storage/**/*'
     storage.frameworks = 'Foundation', 'UIKit'
   end
+
+  kit.subspec 'EventHandler' do |eventHandler|
+    eventHandler.source_files = 'EventHandler/**/*'
+    eventHandler.frameworks = 'Foundation'
+  end
   
   kit.subspec 'Authorization' do |authorization|
     authorization.subspec 'Camera' do |camera|
@@ -164,8 +169,33 @@ Pod::Spec.new do |kit|
       chatView.dependency 'Kingfisher'
     end
   end
+
+  # kit.subspec 'IJKMediaPlayerFull' do |framework|  # IJKMediaPlayerFramework (真机+模拟器)
+  #   framework.libraries = 'c++', 'z', 'bz2'  # 这里需要忽略前面的lib和后面的tbd，例如libz.tbd直接写为z即可，如果是.a则需要写全，如：'xxx.a'
+  #   framework.frameworks = 'UIKit', 'AudioToolbox', 'CoreGraphics', 'AVFoundation', 'CoreMedia', 'CoreVideo', 'MediaPlayer', 'CoreServices', 'Metal', 'QuartzCore', 'VideoToolbox'
+  #   # framework.vendored_libraries = 'xxx.a'
+  #   framework.vendored_frameworks = 'MediaPlayer/WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework'
+  #   framework.pod_target_xcconfig = {
+  #       'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) IJKMediaPlayerStyle=1',
+  #   }
+  # end
+
+  # kit.subspec 'IJKMediaPlayerLite' do |framework|  # IJKMediaPlayerFramework (仅真机)
+  #   framework.libraries = 'c++', 'z', 'bz2'  # 这里需要忽略前面的lib和后面的tbd，例如libz.tbd直接写为z即可，如果是.a则需要写全，如：'xxx.a'
+  #   framework.frameworks = 'UIKit', 'AudioToolbox', 'CoreGraphics', 'AVFoundation', 'CoreMedia', 'CoreVideo', 'MediaPlayer', 'CoreServices', 'Metal', 'QuartzCore', 'VideoToolbox'
+  #   # framework.vendored_libraries = 'xxx.a'
+  #   framework.vendored_frameworks = 'MediaPlayer/WYMediaPlayerFramework/arm64/IJKMediaPlayer.xcframework'
+  #   framework.pod_target_xcconfig = {
+  #       'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) IJKMediaPlayerStyle=2',
+  #   }
+  # end
   
   kit.subspec 'MediaPlayer' do |mediaPlayer|
+    # mediaPlayer.source_files = 'MediaPlayer/WYMediaPlayer.swift'
+    # mediaPlayer.dependency 'SnapKit'
+    # mediaPlayer.dependency 'Kingfisher'
+    # mediaPlayer.dependency 'WYBasisKit-swift/IJKMediaPlayerFull'
+
     mediaPlayer.subspec 'Full' do |full|
       full.source_files = 'MediaPlayer/WYMediaPlayer.swift'
       full.dependency 'SnapKit'
@@ -185,5 +215,5 @@ Pod::Spec.new do |kit|
       # lite.vendored_libraries = 'xxx.a'
       lite.vendored_frameworks = 'MediaPlayer/WYMediaPlayerFramework/arm64/IJKMediaPlayer.xcframework'
     end
-  end
+ end
 end

@@ -9,6 +9,16 @@
 import UIKit
 @_exported import WYBasisKit
 
+protocol AppEventDelegate: AnyObject {
+    func didShowBannerView(data: String)
+}
+
+enum AppEvent {
+    static let buttonDidMove = "button starts to move downwards"
+    static let buttonDidReturn = "button starts to return to its original position"
+    static let didShowBannerView = "didShowBannerView"
+}
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     

@@ -58,7 +58,6 @@
 		585B3AD32DF819DC00E6E08F /* WYTestTableViewFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A852DF819DC00E6E08F /* WYTestTableViewFooterView.swift */; };
 		585B3AD42DF819DC00E6E08F /* WYTestTableViewHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A862DF819DC00E6E08F /* WYTestTableViewHeaderView.swift */; };
 		585B3AD52DF819DC00E6E08F /* WYTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A872DF819DC00E6E08F /* WYTestView.swift */; };
-		585B3AD62DF819DC00E6E08F /* WYProtocolManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A8A2DF819DC00E6E08F /* WYProtocolManager.swift */; };
 		585B3AD72DF819DC00E6E08F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A982DF819DC00E6E08F /* AppDelegate.swift */; };
 		585B3AD82DF819DC00E6E08F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A9F2DF819DC00E6E08F /* ViewController.swift */; };
 		585B3AD92DF819DC00E6E08F /* WYTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3AA02DF819DC00E6E08F /* WYTabBarController.swift */; };
@@ -106,7 +105,6 @@
 		585B3A852DF819DC00E6E08F /* WYTestTableViewFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestTableViewFooterView.swift; sourceTree = "<group>"; };
 		585B3A862DF819DC00E6E08F /* WYTestTableViewHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestTableViewHeaderView.swift; sourceTree = "<group>"; };
 		585B3A872DF819DC00E6E08F /* WYTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestView.swift; sourceTree = "<group>"; };
-		585B3A8A2DF819DC00E6E08F /* WYProtocolManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYProtocolManager.swift; sourceTree = "<group>"; };
 		585B3A8C2DF819DC00E6E08F /* [666].gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "[666].gif"; sourceTree = "<group>"; };
 		585B3A8D2DF819DC00E6E08F /* 1650855755919.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 1650855755919.mp4; sourceTree = "<group>"; };
 		585B3A8E2DF819DC00E6E08F /* 动图1.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "动图1.gif"; sourceTree = "<group>"; };
@@ -424,14 +422,6 @@
 			path = Examples;
 			sourceTree = "<group>";
 		};
-		585B3A8B2DF819DC00E6E08F /* ProtocolManager */ = {
-			isa = PBXGroup;
-			children = (
-				585B3A8A2DF819DC00E6E08F /* WYProtocolManager.swift */,
-			);
-			path = ProtocolManager;
-			sourceTree = "<group>";
-		};
 		585B3A942DF819DC00E6E08F /* Resource */ = {
 			isa = PBXGroup;
 			children = (
@@ -451,7 +441,6 @@
 			isa = PBXGroup;
 			children = (
 				585B3A892DF819DC00E6E08F /* Examples */,
-				585B3A8B2DF819DC00E6E08F /* ProtocolManager */,
 				585B3A942DF819DC00E6E08F /* Resource */,
 				585B3A952DF819DC00E6E08F /* [爱心].png */,
 				585B3A962DF819DC00E6E08F /* [唇].png */,
@@ -665,7 +654,6 @@
 				585B3AD32DF819DC00E6E08F /* WYTestTableViewFooterView.swift in Sources */,
 				585B3AD42DF819DC00E6E08F /* WYTestTableViewHeaderView.swift in Sources */,
 				585B3AD52DF819DC00E6E08F /* WYTestView.swift in Sources */,
-				585B3AD62DF819DC00E6E08F /* WYProtocolManager.swift in Sources */,
 				585B3AD72DF819DC00E6E08F /* AppDelegate.swift in Sources */,
 				585B3AD82DF819DC00E6E08F /* ViewController.swift in Sources */,
 				585B3AD92DF819DC00E6E08F /* WYTabBarController.swift in Sources */,

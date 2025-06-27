@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		585B396D2DF8125400E6E08F /* WYProtocolManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B38F32DF8125400E6E08F /* WYProtocolManager.swift */; };
 		585B39A22DF8125400E6E08F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B39622DF8125400E6E08F /* AppDelegate.swift */; };
 		585B39A32DF8125400E6E08F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B396A2DF8125400E6E08F /* ViewController.swift */; };
 		585B39AC2DF8125400E6E08F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 585B39632DF8125400E6E08F /* Assets.xcassets */; };
@@ -101,9 +100,10 @@
 		58678EE32DFA627C0035673E /* WYLocalizable.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 58678E782DFA627C0035673E /* WYLocalizable.bundle */; };
 		58678EE42DFA627C0035673E /* WYBannerView.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 58678E332DFA627C0035673E /* WYBannerView.bundle */; };
 		58678EE62DFA627C0035673E /* WYChatView.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 58678E712DFA627C0035673E /* WYChatView.bundle */; };
+		58682F732E0D1AD90057CC53 /* IJKMediaPlayer.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58682F722E0D1AD90057CC53 /* IJKMediaPlayer.xcframework */; };
+		58682F7C2E0E440E0057CC53 /* WYEventHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58682F7A2E0E440E0057CC53 /* WYEventHandler.swift */; };
 		587CDF902E09151500929E1D /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 587CDF8F2E09151500929E1D /* libz.tbd */; };
 		587CDF922E09153B00929E1D /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 587CDF912E09153B00929E1D /* libbz2.tbd */; };
-		58C31BFB2DFA62FF009EDD3E /* IJKMediaPlayer.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58C31BFA2DFA62FF009EDD3E /* IJKMediaPlayer.xcframework */; };
 		AAC46AD02E07E28F0068B0DF /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = AAC46ACF2E07E28F0068B0DF /* libc++.tbd */; };
 		ED4EB416B83B179C621C40F0 /* Pods_WYBasisKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEB6297DCF484666E8FC6223 /* Pods_WYBasisKit.framework */; };
 /* End PBXBuildFile section */
@@ -111,7 +111,6 @@
 /* Begin PBXFileReference section */
 		53C1C8E1255F64288E08B8AC /* Pods-WYBasisKit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.release.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.release.xcconfig"; sourceTree = "<group>"; };
 		585B35642DF8086C00E6E08F /* WYBasisKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WYBasisKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		585B38F32DF8125400E6E08F /* WYProtocolManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYProtocolManager.swift; sourceTree = "<group>"; };
 		585B39622DF8125400E6E08F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		585B39632DF8125400E6E08F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		585B39642DF8125400E6E08F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -206,9 +205,10 @@
 		58678E842DFA627C0035673E /* WYNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkManager.swift; sourceTree = "<group>"; };
 		58678E852DFA627C0035673E /* WYNetworkServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkServer.swift; sourceTree = "<group>"; };
 		58678E872DFA627C0035673E /* WYStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYStorage.swift; sourceTree = "<group>"; };
+		58682F722E0D1AD90057CC53 /* IJKMediaPlayer.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = IJKMediaPlayer.xcframework; path = "WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework"; sourceTree = "<group>"; };
+		58682F7A2E0E440E0057CC53 /* WYEventHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYEventHandler.swift; sourceTree = "<group>"; };
 		587CDF8F2E09151500929E1D /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		587CDF912E09153B00929E1D /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
-		58C31BFA2DFA62FF009EDD3E /* IJKMediaPlayer.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = IJKMediaPlayer.xcframework; path = "WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework"; sourceTree = "<group>"; };
 		8B8A3708E351CE0BB9E30715 /* Pods-WYBasisKit.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.debug.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.debug.xcconfig"; sourceTree = "<group>"; };
 		AAC46ACF2E07E28F0068B0DF /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		FEB6297DCF484666E8FC6223 /* Pods_WYBasisKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WYBasisKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -219,10 +219,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				58682F732E0D1AD90057CC53 /* IJKMediaPlayer.xcframework in Frameworks */,
 				587CDF922E09153B00929E1D /* libbz2.tbd in Frameworks */,
 				587CDF902E09151500929E1D /* libz.tbd in Frameworks */,
 				AAC46AD02E07E28F0068B0DF /* libc++.tbd in Frameworks */,
-				58C31BFB2DFA62FF009EDD3E /* IJKMediaPlayer.xcframework in Frameworks */,
 				ED4EB416B83B179C621C40F0 /* Pods_WYBasisKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -248,18 +248,9 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		585B38F42DF8125400E6E08F /* ProtocolManager */ = {
-			isa = PBXGroup;
-			children = (
-				585B38F32DF8125400E6E08F /* WYProtocolManager.swift */,
-			);
-			path = ProtocolManager;
-			sourceTree = "<group>";
-		};
 		585B38F52DF8125400E6E08F /* Other */ = {
 			isa = PBXGroup;
 			children = (
-				585B38F42DF8125400E6E08F /* ProtocolManager */,
 			);
 			path = Other;
 			sourceTree = "<group>";
@@ -903,7 +894,7 @@
 			isa = PBXGroup;
 			children = (
 				58678E802DFA627C0035673E /* WYMediaPlayer.swift */,
-				58C31BFA2DFA62FF009EDD3E /* IJKMediaPlayer.xcframework */,
+				58682F722E0D1AD90057CC53 /* IJKMediaPlayer.xcframework */,
 			);
 			path = MediaPlayer;
 			sourceTree = "<group>";
@@ -939,8 +930,17 @@
 				58678E822DFA627C0035673E /* MediaPlayer */,
 				58678E862DFA627C0035673E /* Networking */,
 				58678E882DFA627C0035673E /* Storage */,
+				58682F7B2E0E440E0057CC53 /* EventHandler */,
 			);
 			path = WYBasisKit;
+			sourceTree = "<group>";
+		};
+		58682F7B2E0E440E0057CC53 /* EventHandler */ = {
+			isa = PBXGroup;
+			children = (
+				58682F7A2E0E440E0057CC53 /* WYEventHandler.swift */,
+			);
+			path = EventHandler;
 			sourceTree = "<group>";
 		};
 		74BEC470B6E92D82AAD2D137 /* Frameworks */ = {
@@ -1090,7 +1090,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				585B396D2DF8125400E6E08F /* WYProtocolManager.swift in Sources */,
 				585B39A22DF8125400E6E08F /* AppDelegate.swift in Sources */,
 				585B39A32DF8125400E6E08F /* ViewController.swift in Sources */,
 				58678E8D2DFA627C0035673E /* WYMicrophoneAuthorization.swift in Sources */,
@@ -1137,6 +1136,7 @@
 				58678EB62DFA627C0035673E /* WYLocalizableManager.swift in Sources */,
 				58678EB72DFA627C0035673E /* WYNetworkServer.swift in Sources */,
 				58678EB82DFA627C0035673E /* Bool.swift in Sources */,
+				58682F7C2E0E440E0057CC53 /* WYEventHandler.swift in Sources */,
 				58678EB92DFA627C0035673E /* WYCodingKeyedDecodingContainer.swift in Sources */,
 				58678EBA2DFA627C0035673E /* UINavigationController.swift in Sources */,
 				58678EBB2DFA627C0035673E /* Decimal.swift in Sources */,

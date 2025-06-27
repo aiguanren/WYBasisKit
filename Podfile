@@ -34,20 +34,21 @@ target 'WYBasisKit' do
   end
 end
 
-SDK = 'WYBasisKit/WYBasisKit/WYBasisKit'
+SDKPATH = 'WYBasisKit/WYBasisKit/WYBasisKit'
 target 'WYBasisKitVerify' do
   project 'WYBasisKitVerify/WYBasisKitVerify.xcodeproj' # 多个项目时需要指定target对应的xcodeproj文件
-  #pod 'WYBasisKit-swift', :path => SDK
-  pod 'WYBasisKit-swift/Extension', :path => SDK
-  pod 'WYBasisKit-swift/Networking', :path => SDK
-  pod 'WYBasisKit-swift/Layout', :path => SDK
-  pod 'WYBasisKit-swift/MediaPlayer/Full', :path => SDK
-  #pod 'WYBasisKit-swift/MediaPlayer/Lite', :path => SDK
-  pod 'WYBasisKit-swift/Localizable', :path => SDK
-  pod 'WYBasisKit-swift/Activity', :path => SDK
-  pod 'WYBasisKit-swift/Storage', :path => SDK
-  pod 'WYBasisKit-swift/Codable', :path => SDK
-  pod 'WYBasisKit-swift/Authorization', :path => SDK
+  #pod 'WYBasisKit-swift', :path => SDKPATH
+  pod 'WYBasisKit-swift/Extension', :path => SDKPATH
+  pod 'WYBasisKit-swift/Networking', :path => SDKPATH
+  pod 'WYBasisKit-swift/Layout', :path => SDKPATH
+  pod 'WYBasisKit-swift/MediaPlayer/Full', :path => SDKPATH
+  #pod 'WYBasisKit-swift/MediaPlayer/Lite', :path => SDKPATH
+  pod 'WYBasisKit-swift/Localizable', :path => SDKPATH
+  pod 'WYBasisKit-swift/Activity', :path => SDKPATH
+  pod 'WYBasisKit-swift/Storage', :path => SDKPATH
+  pod 'WYBasisKit-swift/EventHandler', :path => SDKPATH
+  pod 'WYBasisKit-swift/Codable', :path => SDKPATH
+  pod 'WYBasisKit-swift/Authorization', :path => SDKPATH
   # 根据Xcode版本号指定三方库的版本号
   if xcode_version_less_than_or_equal_to(14, 2)
     pod 'Alamofire', '5.9.1'

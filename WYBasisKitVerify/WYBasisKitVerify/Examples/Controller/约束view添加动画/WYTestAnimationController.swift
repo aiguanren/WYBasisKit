@@ -41,7 +41,7 @@ class WYTestAnimationController: UIViewController {
     
     @objc func clickButton(sender: UIButton) {
         
-        WYProtocolManager.shared.test()
+        WYEventHandler.shared.response(event: AppEvent.buttonDidMove, data: "按钮开始向下移动")
 
         /// 约束控件实现动画的关键是在animate方法中调用父视图的layoutIfNeeded方法
         UIView.animate(withDuration: 1) {
@@ -50,7 +50,7 @@ class WYTestAnimationController: UIViewController {
             }
             sender.superview!.layoutIfNeeded()
         }completion: { _ in
-            WYProtocolManager.shared.test2()
+            WYEventHandler.shared.response(event: AppEvent.buttonDidReturn, data: "按钮开始归位")
             sender.snp.updateConstraints { (make) in
                 make.top.equalToSuperview().offset(100)
             }

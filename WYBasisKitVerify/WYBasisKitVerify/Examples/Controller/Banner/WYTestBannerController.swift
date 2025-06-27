@@ -44,6 +44,8 @@ class WYTestBannerController: UIViewController {
         bannerView.didScroll { offset, index in
             //wy_print("Block监听，滑动Banner到第 \(index+1) 张图片了， offset = \(offset)")
         }
+        
+        WYEventHandler.shared.response(event: AppEvent.didShowBannerView, data: "didShowBannerView")
     }
     
 

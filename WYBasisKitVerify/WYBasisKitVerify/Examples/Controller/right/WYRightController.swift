@@ -17,7 +17,24 @@ class WYRightController: UIViewController {
         
         view.backgroundColor = .white
         
-        WYProtocolManager.shared.add(delegate: self)
+        WYEventHandler.shared.register(event: AppEvent.buttonDidMove, target: self) { data in
+            if let stingValue = data {
+                wy_print("data = \(stingValue), controller: \(NSStringFromClass(type(of: self)))")
+            }
+        }
+        
+        WYEventHandler.shared.register(event: AppEvent.buttonDidReturn, target: self) { data in
+            if let stingValue = data {
+                wy_print("data = \(stingValue), controller: \(NSStringFromClass(type(of: self)))")
+            }
+        }
+        
+        WYEventHandler.shared.register(event: AppEvent.didShowBannerView, target: self) { [weak self] data in
+            if let dataString = data as? String,
+               let delegate = self {
+                delegate.didShowBannerView(data: dataString)
+            }
+        }
         
         var controllerAry: [UIViewController] = []
         var titleAry: [String] = []
@@ -89,13 +106,9 @@ extension WYRightController: WYPagingViewDelegate {
     }
 }
 
-extension WYRightController: WYProtocoDelegate {
+extension WYRightController: AppEventDelegate {
     
-    func test() {
-        wy_print("按钮开始向下移动")
-    }
-    
-    func test2() {
-        wy_print("按钮开始归位")
+    func didShowBannerView(data: String) {
+        wy_print("data = \(data), controller: \(NSStringFromClass(type(of: self)))")
     }
 }
