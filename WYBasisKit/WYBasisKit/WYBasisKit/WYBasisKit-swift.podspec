@@ -36,6 +36,14 @@ Pod::Spec.new do |kit|
     'Storage',
     'Codable',
   ]
+
+  # 解决 Xcode 12+ 模拟器架构问题
+  kit.user_target_xcconfig = {
+    'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'
+  }
+  kit.pod_target_xcconfig = {
+    'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'
+  }
   
   # 下载并解压 WYMediaPlayerFramework
   kit.prepare_command = 'bash MediaPlayer/WYMediaPlayerFramework.sh'
@@ -159,61 +167,50 @@ Pod::Spec.new do |kit|
       
     end
     
-    layout.subspec 'ChatView' do |chatView|
-      chatView.source_files = 'Layout/ChatView/AudioManager/**/*', 'Layout/ChatView/Config/**/*', 'Layout/ChatView/Models/**/*', 'Layout/ChatView/RecordAnimation/**/*', 'Layout/ChatView/Views/**/*'
-      chatView.resource = 'Layout/ChatView/WYChatView.bundle'
-      chatView.frameworks = 'Foundation', 'UIKit'
-      chatView.dependency 'WYBasisKit-swift/Extension'
-      chatView.dependency 'WYBasisKit-swift/Localizable'
-      chatView.dependency 'SnapKit'
-      chatView.dependency 'Kingfisher'
-    end
+    # layout.subspec 'ChatView' do |chatView|
+    #   chatView.source_files = 'Layout/ChatView/AudioManager/**/*', 'Layout/ChatView/Config/**/*', 'Layout/ChatView/Models/**/*', 'Layout/ChatView/RecordAnimation/**/*', 'Layout/ChatView/Views/**/*'
+    #   chatView.resource = 'Layout/ChatView/WYChatView.bundle'
+    #   chatView.frameworks = 'Foundation', 'UIKit'
+    #   chatView.dependency 'WYBasisKit-swift/Extension'
+    #   chatView.dependency 'WYBasisKit-swift/Localizable'
+    #   chatView.dependency 'SnapKit'
+    #   chatView.dependency 'Kingfisher'
+    # end
   end
 
-  # kit.subspec 'IJKMediaPlayerFull' do |framework|  # IJKMediaPlayerFramework (真机+模拟器)
-  #   framework.libraries = 'c++', 'z', 'bz2'  # 这里需要忽略前面的lib和后面的tbd，例如libz.tbd直接写为z即可，如果是.a则需要写全，如：'xxx.a'
-  #   framework.frameworks = 'UIKit', 'AudioToolbox', 'CoreGraphics', 'AVFoundation', 'CoreMedia', 'CoreVideo', 'MediaPlayer', 'CoreServices', 'Metal', 'QuartzCore', 'VideoToolbox'
-  #   # framework.vendored_libraries = 'xxx.a'
-  #   framework.vendored_frameworks = 'MediaPlayer/WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework'
-  #   framework.pod_target_xcconfig = {
-  #       'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) IJKMediaPlayerStyle=1',
-  #   }
-  # end
+  kit.subspec 'IJKFrameworkFull' do |framework|  # IJKMediaPlayerFramework (真机+模拟器)
+    framework.libraries = 'c++', 'z', 'bz2'  # 这里需要忽略前面的lib和后面的tbd，例如libz.tbd直接写为z即可，如果是.a则需要写全，如：'xxx.a'
+    framework.frameworks = 'UIKit', 'AudioToolbox', 'CoreGraphics', 'AVFoundation', 'CoreMedia', 'CoreVideo', 'MediaPlayer', 'CoreServices', 'Metal', 'QuartzCore', 'VideoToolbox'
+    # framework.vendored_libraries = 'xxx.a'
+    framework.vendored_frameworks = 'MediaPlayer/WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework'
+    framework.pod_target_xcconfig = {
+      'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64', # 过滤模拟器arm64，解决 Xcode 12+ 模拟器架构问题
+      'VALID_ARCHS' => 'arm64 x86_64'  # 明确有效架构
+    }
+  end
 
-  # kit.subspec 'IJKMediaPlayerLite' do |framework|  # IJKMediaPlayerFramework (仅真机)
-  #   framework.libraries = 'c++', 'z', 'bz2'  # 这里需要忽略前面的lib和后面的tbd，例如libz.tbd直接写为z即可，如果是.a则需要写全，如：'xxx.a'
-  #   framework.frameworks = 'UIKit', 'AudioToolbox', 'CoreGraphics', 'AVFoundation', 'CoreMedia', 'CoreVideo', 'MediaPlayer', 'CoreServices', 'Metal', 'QuartzCore', 'VideoToolbox'
-  #   # framework.vendored_libraries = 'xxx.a'
-  #   framework.vendored_frameworks = 'MediaPlayer/WYMediaPlayerFramework/arm64/IJKMediaPlayer.xcframework'
-  #   framework.pod_target_xcconfig = {
-  #       'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) IJKMediaPlayerStyle=2',
-  #   }
-  # end
+  kit.subspec 'IJKFrameworkLite' do |framework|  # IJKMediaPlayerFramework (仅真机)
+    framework.libraries = 'c++', 'z', 'bz2'  # 这里需要忽略前面的lib和后面的tbd，例如libz.tbd直接写为z即可，如果是.a则需要写全，如：'xxx.a'
+    framework.frameworks = 'UIKit', 'AudioToolbox', 'CoreGraphics', 'AVFoundation', 'CoreMedia', 'CoreVideo', 'MediaPlayer', 'CoreServices', 'Metal', 'QuartzCore', 'VideoToolbox'
+    # framework.vendored_libraries = 'xxx.a'
+    framework.vendored_frameworks = 'MediaPlayer/WYMediaPlayerFramework/arm64/IJKMediaPlayer.xcframework'
+    framework.pod_target_xcconfig = {
+      'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64', # 过滤模拟器arm64，解决 Xcode 12+ 模拟器架构问题
+      'VALID_ARCHS' => 'arm64 x86_64'  # 明确有效架构
+    }
+  end
   
-  kit.subspec 'MediaPlayer' do |mediaPlayer|
-    # mediaPlayer.source_files = 'MediaPlayer/WYMediaPlayer.swift'
-    # mediaPlayer.dependency 'SnapKit'
-    # mediaPlayer.dependency 'Kingfisher'
-    # mediaPlayer.dependency 'WYBasisKit-swift/IJKMediaPlayerFull'
+  kit.subspec 'MediaPlayerFull' do |mediaPlayer|
+    mediaPlayer.source_files = 'MediaPlayer/WYMediaPlayer.swift'
+    mediaPlayer.dependency 'SnapKit'
+    mediaPlayer.dependency 'Kingfisher'
+    mediaPlayer.dependency 'WYBasisKit-swift/IJKFrameworkFull'
+  end
 
-    mediaPlayer.subspec 'Full' do |full|
-      full.source_files = 'MediaPlayer/WYMediaPlayer.swift'
-      full.dependency 'SnapKit'
-      full.dependency 'Kingfisher'
-      full.libraries = 'c++', 'z', 'bz2'  # 这里需要忽略前面的lib和后面的tbd，例如libz.tbd直接写为z即可，如果是.a则需要写全，如：'xxx.a'
-      full.frameworks = 'UIKit', 'AudioToolbox', 'CoreGraphics', 'AVFoundation', 'CoreMedia', 'CoreVideo', 'MediaPlayer', 'CoreServices', 'Metal', 'QuartzCore', 'VideoToolbox'
-      # full.vendored_libraries = 'xxx.a'
-      full.vendored_frameworks = 'MediaPlayer/WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework'
-    end
-    
-    mediaPlayer.subspec 'Lite' do |lite|
-      lite.source_files = 'MediaPlayer/WYMediaPlayer.swift'
-      lite.dependency 'SnapKit'
-      lite.dependency 'Kingfisher'
-      lite.libraries = 'c++', 'z', 'bz2'  # 这里需要忽略前面的lib和后面的tbd，例如libz.tbd直接写为z即可，如果是.a则需要写全，如：'xxx.a'
-      lite.frameworks = 'UIKit', 'AudioToolbox', 'CoreGraphics', 'AVFoundation', 'CoreMedia', 'CoreVideo', 'MediaPlayer', 'CoreServices', 'Metal', 'QuartzCore', 'VideoToolbox'
-      # lite.vendored_libraries = 'xxx.a'
-      lite.vendored_frameworks = 'MediaPlayer/WYMediaPlayerFramework/arm64/IJKMediaPlayer.xcframework'
-    end
- end
+  kit.subspec 'MediaPlayerLite' do |mediaPlayer|
+    mediaPlayer.source_files = 'MediaPlayer/WYMediaPlayer.swift'
+    mediaPlayer.dependency 'SnapKit'
+    mediaPlayer.dependency 'Kingfisher'
+    mediaPlayer.dependency 'WYBasisKit-swift/IJKFrameworkLite'
+  end
 end
