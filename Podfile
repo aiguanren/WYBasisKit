@@ -37,12 +37,12 @@ end
 SDKPATH = 'WYBasisKit/WYBasisKit/WYBasisKit'
 target 'WYBasisKitVerify' do
   project 'WYBasisKitVerify/WYBasisKitVerify.xcodeproj' # 多个项目时需要指定target对应的xcodeproj文件
-  #pod 'WYBasisKit-swift', :path => SDKPATH
+  pod 'WYBasisKit-swift', :path => SDKPATH
   pod 'WYBasisKit-swift/Extension', :path => SDKPATH
   pod 'WYBasisKit-swift/Networking', :path => SDKPATH
   pod 'WYBasisKit-swift/Layout', :path => SDKPATH
-  pod 'WYBasisKit-swift/MediaPlayer/Full', :path => SDKPATH
-  #pod 'WYBasisKit-swift/MediaPlayer/Lite', :path => SDKPATH
+  pod 'WYBasisKit-swift/MediaPlayerFull', :path => SDKPATH
+  #pod 'WYBasisKit-swift/MediaPlayerLite', :path => SDKPATH
   pod 'WYBasisKit-swift/Localizable', :path => SDKPATH
   pod 'WYBasisKit-swift/Activity', :path => SDKPATH
   pod 'WYBasisKit-swift/Storage', :path => SDKPATH

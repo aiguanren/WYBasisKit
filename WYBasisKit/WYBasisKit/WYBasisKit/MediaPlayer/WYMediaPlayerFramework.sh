@@ -55,16 +55,16 @@ elif [[ "$LOCAL_EXIST" = false ]]; then
   printf "🔍 本地未发现 WYMediaPlayerFramework\n"
 elif [[ $DIFF_HOURS -ge $MAX_INTERVAL_HOURS ]]; then
   NEED_DOWNLOAD=true
-  printf "📔 本地已存在 WYMediaPlayerFramework，但距离上次下载时间间隔已超过 ${DIFF_HOURS}小时${DIFF_MINUTES}分(默认间隔时间为${MAX_INTERVAL_HOURS}小时)\n"
+  printf "⏰ 本地已存在 WYMediaPlayerFramework，但距离上次下载时间间隔已超过 ${DIFF_HOURS}小时${DIFF_MINUTES}分(默认间隔时间为${MAX_INTERVAL_HOURS}小时)\n"
 fi
 
 if ! $NEED_DOWNLOAD; then
-  printf "📔 本地已存在 WYMediaPlayerFramework，且距离上次下载时间间隔不超过 %s 小时（当前间隔 %s小时%s分），本次无需下载\n" "$MAX_INTERVAL_HOURS" "$DIFF_HOURS" "$DIFF_MINUTES"
+  printf "💼 本地已存在 WYMediaPlayerFramework，且距离上次下载时间间隔不超过 %s 小时（当前间隔 %s小时%s分），本次无需下载\n" "$MAX_INTERVAL_HOURS" "$DIFF_HOURS" "$DIFF_MINUTES"
   exit 0
 fi
 
 # ————— 执行下载与解压 ————— #
-printf "⬇️  开始下载 WYMediaPlayerFramework...\n"
+printf "🚀 开始下载 WYMediaPlayerFramework...\n"
 
 rm -rf "$FRAMEWORK_DIR"               # 删除旧的WYMediaPlayerFramework
 mkdir -p "$FRAMEWORK_DIR"            # 新建WYMediaPlayerFramework目录
@@ -86,4 +86,4 @@ fi
 
 printf "✅ 下载完成（已更新/记录本次下载时间戳到当前脚本文件中）\n"
 
-# LAST_DOWNLOAD_TIMESTAMP=1751013931
+# LAST_DOWNLOAD_TIMESTAMP=1751168381

@@ -23,6 +23,7 @@ Pod::Spec.new do |kit|
   #kit.source       = { :svn => "http://192.168.xxx.xxx:xxxx/xxx/xxx/WYBasiskit"}
   #kit.source       = { :http => 'http://192.168.xxx.xxx:xxxx/xxx/xxx/WYBasiskit.zip' }
   kit.resource_bundles = {'WYBasisKit-swift' => ['PrivacyInfo.xcprivacy']}
+  #kit.resources = ['PrivacyInfo.xcprivacy']
   kit.swift_versions = '5.0'
   kit.requires_arc = true
   kit.module_name  = 'WYBasisKit'  # 手动指定模块名
@@ -36,14 +37,6 @@ Pod::Spec.new do |kit|
     'Storage',
     'Codable',
   ]
-
-  # 解决 Xcode 12+ 模拟器架构问题
-  # kit.user_target_xcconfig = {
-  #   'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'
-  # }
-  # kit.pod_target_xcconfig = {
-  #   'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'
-  # }
   
   # 下载并解压 WYMediaPlayerFramework
   kit.prepare_command = 'bash MediaPlayer/WYMediaPlayerFramework.sh'
@@ -167,15 +160,15 @@ Pod::Spec.new do |kit|
       
     end
     
-    # layout.subspec 'ChatView' do |chatView|
-    #   chatView.source_files = 'Layout/ChatView/AudioManager/**/*', 'Layout/ChatView/Config/**/*', 'Layout/ChatView/Models/**/*', 'Layout/ChatView/RecordAnimation/**/*', 'Layout/ChatView/Views/**/*'
-    #   chatView.resource = 'Layout/ChatView/WYChatView.bundle'
-    #   chatView.frameworks = 'Foundation', 'UIKit'
-    #   chatView.dependency 'WYBasisKit-swift/Extension'
-    #   chatView.dependency 'WYBasisKit-swift/Localizable'
-    #   chatView.dependency 'SnapKit'
-    #   chatView.dependency 'Kingfisher'
-    # end
+     layout.subspec 'ChatView' do |chatView|
+       chatView.source_files = 'Layout/ChatView/AudioManager/**/*', 'Layout/ChatView/Config/**/*', 'Layout/ChatView/Models/**/*', 'Layout/ChatView/RecordAnimation/**/*', 'Layout/ChatView/Views/**/*'
+       chatView.resource = 'Layout/ChatView/WYChatView.bundle'
+       chatView.frameworks = 'Foundation', 'UIKit'
+       chatView.dependency 'WYBasisKit-swift/Extension'
+       chatView.dependency 'WYBasisKit-swift/Localizable'
+       chatView.dependency 'SnapKit'
+       chatView.dependency 'Kingfisher'
+     end
   end
 
   kit.subspec 'IJKFrameworkFull' do |framework|  # IJKMediaPlayerFramework (真机+模拟器)
@@ -184,7 +177,8 @@ Pod::Spec.new do |kit|
     # framework.vendored_libraries = 'xxx.a'
     framework.vendored_frameworks = 'MediaPlayer/WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework'
     framework.pod_target_xcconfig = {
-      'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64', # 过滤模拟器arm64，解决 Xcode 12+ 模拟器架构问题
+      'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64', # 过滤模拟器arm64，解决M系列芯片MAC上模拟器架构问题
+      'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) WYMediaPlayer_SUPPORTS_SIMULATOR=1',
     }
   end
 
@@ -194,7 +188,12 @@ Pod::Spec.new do |kit|
     # framework.vendored_libraries = 'xxx.a'
     framework.vendored_frameworks = 'MediaPlayer/WYMediaPlayerFramework/arm64/IJKMediaPlayer.xcframework'
     framework.pod_target_xcconfig = {
-      'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64 x86_64', # 过滤模拟器arm64，解决 Xcode 12+ 模拟器架构问题
+      'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64', # 过滤模拟器arm64，解决，解决M系列芯片MAC上模拟器架构问题
+      'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) WYMediaPlayer_SUPPORTS_SIMULATOR=0',
+      # 模拟器环境下清空IJKMediaPlayer.xcframework相关的链接，避免链接导致的验证不通过与编译错误
+      'OTHER_LDFLAGS[sdk=iphonesimulator*]' => '',
+      'LD_RUNPATH_SEARCH_PATHS[sdk=iphonesimulator*]' => '',
+      # 模拟器环境下清空IJKMediaPlayer.xcframework相关的链接，避免链接导致的验证不通过与编译错误
     }
   end
   

@@ -6,11 +6,20 @@
 //  Copyright © 2022 官人. All rights reserved.
 //
 
+// 定义框架是否支持模拟器的编译常量
+#if WYMediaPlayer_SUPPORTS_SIMULATOR
+let WYMediaPlayerSupportsSimulator = true
+#else
+let WYMediaPlayerSupportsSimulator = false
+#endif
+
 import UIKit
 
 class WYTestLiveStreamingController: UIViewController {
     
+#if (targetEnvironment(simulator) && WYMediaPlayerSupportsSimulator) || !targetEnvironment(simulator)
     let player: WYMediaPlayer = WYMediaPlayer()
+#endif
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -81,7 +90,7 @@ class WYTestLiveStreamingController: UIViewController {
         // http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear2/prog_index.m3u8
         
         // http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8
-        
+#if (targetEnvironment(simulator) && WYMediaPlayerSupportsSimulator) || !targetEnvironment(simulator)
         player.delegate = self
         player.looping = 1
         player.backgroundColor = .white
@@ -107,6 +116,7 @@ class WYTestLiveStreamingController: UIViewController {
         player.play(with: "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8")
         
         WYActivity.showLoading(in: player, animation: .gifOrApng, config: WYActivityConfig.concise)
+#endif
         
         /**
          let options: IJKFFOptions = IJKFFOptions.byDefault()
@@ -155,29 +165,41 @@ class WYTestLiveStreamingController: UIViewController {
     }
     
     @objc func shouldAutoplay(sender: UIButton) {
+#if (targetEnvironment(simulator) && WYMediaPlayerSupportsSimulator) || !targetEnvironment(simulator)
         player.shouldAutoplay = !player.shouldAutoplay
+#endif
     }
     
     @objc func mute(sender: UIButton) {
         sender.isSelected = !sender.isSelected
+#if (targetEnvironment(simulator) && WYMediaPlayerSupportsSimulator) || !targetEnvironment(simulator)
         player.muted(sender.isSelected)
+#endif
     }
     
     @objc func play(sender: UIButton) {
+#if (targetEnvironment(simulator) && WYMediaPlayerSupportsSimulator) || !targetEnvironment(simulator)
         player.play()
+#endif
     }
     
     @objc func pause(sender: UIButton) {
+#if (targetEnvironment(simulator) && WYMediaPlayerSupportsSimulator) || !targetEnvironment(simulator)
         player.pause()
+#endif
     }
     
     @objc func stop(sender: UIButton) {
+#if (targetEnvironment(simulator) && WYMediaPlayerSupportsSimulator) || !targetEnvironment(simulator)
         player.stop()
+#endif
     }
     
     @objc func url(sender: UIButton) {
+#if (targetEnvironment(simulator) && WYMediaPlayerSupportsSimulator) || !targetEnvironment(simulator)
         player.play(with: "https://files.cochat.lenovo.com/download/dbb26a06-4604-3d2b-bb2c-6293989e63a7/55deb281e01b27194daf6da391fdfe83.mp4")
         WYActivity.showLoading(in: player, animation: .gifOrApng, config: WYActivityConfig.concise)
+#endif
     }
     
     deinit {
@@ -196,6 +218,7 @@ class WYTestLiveStreamingController: UIViewController {
     
 }
 
+#if (targetEnvironment(simulator) && WYMediaPlayerSupportsSimulator) || !targetEnvironment(simulator)
 extension WYTestLiveStreamingController: WYMediaPlayerDelegate {
     
     func mediaPlayerDidChangeState(_ player: WYMediaPlayer, _ state: WYMediaPlayerState) {
@@ -240,4 +263,5 @@ extension WYTestLiveStreamingController: WYMediaPlayerDelegate {
         }
     }
 }
+#endif
 

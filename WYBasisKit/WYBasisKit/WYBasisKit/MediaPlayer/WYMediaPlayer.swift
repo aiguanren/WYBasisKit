@@ -7,9 +7,20 @@
 //
 
 import UIKit
+
+// 定义框架是否支持模拟器的编译常量
+#if WYMediaPlayer_SUPPORTS_SIMULATOR
+let WYMediaPlayerSupportsSimulator = true
+#else
+let WYMediaPlayerSupportsSimulator = false
+#endif
+
+// 仅在支持模拟器或真机环境下导入IJKMediaPlayer
+#if (targetEnvironment(simulator) && WYMediaPlayerSupportsSimulator) || !targetEnvironment(simulator)
 import SnapKit
 import Kingfisher
 import IJKMediaPlayer
+#endif
 
 /// 播放器状态回调
 @objc @frozen public enum WYMediaPlayerState: Int {
@@ -49,6 +60,7 @@ import IJKMediaPlayer
 
 public class WYMediaPlayer: UIImageView {
     
+#if (targetEnvironment(simulator) && WYMediaPlayerSupportsSimulator) || !targetEnvironment(simulator)
     /// 播放器组件
     public var ijkPlayer: IJKFFMoviePlayerController?
     
@@ -286,13 +298,14 @@ public class WYMediaPlayer: UIImageView {
     deinit {
         release()
     }
-
+#endif
+    
     /*
-    // Only override draw() if you perform custom drawing.
-    // An empty implementation adversely affects performance during animation.
-    override func draw(_ rect: CGRect) {
-        // Drawing code
-    }
-    */
-
+     // Only override draw() if you perform custom drawing.
+     // An empty implementation adversely affects performance during animation.
+     override func draw(_ rect: CGRect) {
+     // Drawing code
+     }
+     */
+    
 }
