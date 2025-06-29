@@ -22,8 +22,7 @@ Pod::Spec.new do |kit|
   kit.source       = { :git => 'https://github.com/aiguanren/WYBasisKit-swift.git', :tag => "#{kit.version}" }
   #kit.source       = { :svn => "http://192.168.xxx.xxx:xxxx/xxx/xxx/WYBasiskit"}
   #kit.source       = { :http => 'http://192.168.xxx.xxx:xxxx/xxx/xxx/WYBasiskit.zip' }
-  kit.resource_bundles = {'WYBasisKit-swift' => ['PrivacyInfo.xcprivacy']}
-  #kit.resources = ['PrivacyInfo.xcprivacy']
+  kit.resource_bundles = {'WYBasisKit' => ['PrivacyInfo.xcprivacy']}
   kit.swift_versions = '5.0'
   kit.requires_arc = true
   kit.module_name  = 'WYBasisKit'  # 手动指定模块名
@@ -36,38 +35,44 @@ Pod::Spec.new do |kit|
     'Activity',
     'Storage',
     'Codable',
+    'EventHandler',
   ]
   
   # 下载并解压 WYMediaPlayerFramework
   kit.prepare_command = 'bash MediaPlayer/WYMediaPlayerFramework.sh'
   
   kit.subspec 'Config' do |config|
-    config.source_files = 'Config/**/*'
+    config.source_files = 'Config/**/*.{swift,h,m}'
+    config.resource_bundles = {'WYBasisKitConfig' => ['Config/PrivacyInfo.xcprivacy']}
     config.frameworks = 'Foundation', 'UIKit'
   end
   
   kit.subspec 'Localizable' do |localizable|
     localizable.source_files = 'Localizable/WYLocalizableManager.swift'
+    localizable.resource_bundles = {'WYBasisKitLocalizable' => ['Localizable/PrivacyInfo.xcprivacy']}
     localizable.frameworks = 'Foundation', 'UIKit'
     localizable.dependency 'WYBasisKit-swift/Config'
   end
   
   kit.subspec 'Extension' do |extension|
-    extension.source_files = 'Extension/**/*'
-    extension.frameworks = 'Foundation', 'UIKit', 'LocalAuthentication', 'Photos', 'CoreFoundation'
+    extension.source_files = 'Extension/**/*.{swift,h,m}'
     extension.resource = 'Localizable/WYLocalizable.bundle'
+    extension.resource_bundles = {'WYBasisKitExtension' => ['Extension/PrivacyInfo.xcprivacy']}
+    extension.frameworks = 'Foundation', 'UIKit', 'LocalAuthentication', 'Photos', 'CoreFoundation'
     extension.dependency 'WYBasisKit-swift/Localizable'
     extension.dependency 'WYBasisKit-swift/Config'
   end
   
   kit.subspec 'Codable' do |codable|
-    codable.source_files = 'Codable/**/*'
+    codable.source_files = 'Codable/**/*.{swift,h,m}'
+    codable.resource_bundles = {'WYBasisKitCodable' => ['Codable/PrivacyInfo.xcprivacy']}
     codable.frameworks = 'Foundation', 'UIKit'
   end
   
   kit.subspec 'Networking' do |networking|
-    networking.source_files = 'Networking/**/*', 'Extension/UIAlertController/**/*'
+    networking.source_files = 'Networking/**/*.{swift,h,m}', 'Extension/UIAlertController/**/*.{swift,h,m}'
     networking.resource = 'Localizable/WYLocalizable.bundle'
+    networking.resource_bundles = {'WYBasisKitNetworking' => ['Networking/PrivacyInfo.xcprivacy']}
     networking.frameworks = 'Foundation', 'UIKit'
     networking.dependency 'WYBasisKit-swift/Localizable'
     networking.dependency 'WYBasisKit-swift/Storage'
@@ -76,93 +81,107 @@ Pod::Spec.new do |kit|
   end
   
   kit.subspec 'Activity' do |activity|
-    activity.source_files = 'Activity/WYActivity.swift', 'Extension/UIView/UIView.swift', 'Extension/UIViewController/UIViewController.swift', 'Extension/NSAttributedString/NSAttributedString.swift', 'Extension/String/String.swift', 'Extension/UIImage/UIImage.swift', 'Config/WYBasisKitConfig.swift'
+    activity.source_files = 'Activity/**/*.{swift,h,m}', 'Extension/UIView/UIView.swift', 'Extension/UIViewController/UIViewController.swift', 'Extension/NSAttributedString/NSAttributedString.swift', 'Extension/String/String.swift', 'Extension/UIImage/UIImage.swift', 'Config/WYBasisKitConfig.swift'
     activity.resource = 'Activity/WYActivity.bundle', 'Localizable/WYLocalizable.bundle'
+    activity.resource_bundles = {'WYBasisKitActivity' => ['Activity/PrivacyInfo.xcprivacy']}
     activity.frameworks = 'Foundation', 'UIKit'
     activity.dependency 'WYBasisKit-swift/Localizable'
   end
   
   kit.subspec 'Storage' do |storage|
-    storage.source_files = 'Storage/**/*'
+    storage.source_files = 'Storage/**/*.{swift,h,m}'
+    storage.resource_bundles = {'WYBasisKitStorage' => ['Storage/PrivacyInfo.xcprivacy']}
     storage.frameworks = 'Foundation', 'UIKit'
   end
 
   kit.subspec 'EventHandler' do |eventHandler|
-    eventHandler.source_files = 'EventHandler/**/*'
+    eventHandler.source_files = 'EventHandler/**/*.{swift,h,m}'
+    eventHandler.resource_bundles = {'WYBasisKitEventHandler' => ['EventHandler/PrivacyInfo.xcprivacy']}
     eventHandler.frameworks = 'Foundation'
   end
   
   kit.subspec 'Authorization' do |authorization|
+    authorization.resource_bundles = {'WYBasisKitAuthorization' => ['Authorization/PrivacyInfo.xcprivacy']}
     authorization.subspec 'Camera' do |camera|
-      camera.source_files = 'Authorization/Camera/**/*', 'Extension/UIAlertController/**/*'
+      camera.source_files = 'Authorization/Camera/**/*.{swift,h,m}', 'Extension/UIAlertController/**/*.{swift,h,m}'
       camera.resource = 'Localizable/WYLocalizable.bundle'
+      camera.resource_bundles = {'WYBasisKitAuthorizationCamera' => ['Authorization/Camera/PrivacyInfo.xcprivacy']}
       camera.frameworks = 'AVFoundation', 'UIKit', 'Photos'
       camera.dependency 'WYBasisKit-swift/Localizable'
     end
     
     authorization.subspec 'Biometric' do |biometric|
-      biometric.source_files = 'Authorization/Biometric/**/*'
+      biometric.source_files = 'Authorization/Biometric/**/*.{swift,h,m}'
       biometric.resource = 'Localizable/WYLocalizable.bundle'
+      biometric.resource_bundles = {'WYBasisKitAuthorizationBiometric' => ['Authorization/Biometric/PrivacyInfo.xcprivacy']}
       biometric.frameworks = 'Foundation', 'LocalAuthentication'
       biometric.dependency 'WYBasisKit-swift/Localizable'
     end
     
     authorization.subspec 'Contacts' do |contacts|
-      contacts.source_files = 'Authorization/Contacts/**/*', 'Extension/UIAlertController/**/*'
+      contacts.source_files = 'Authorization/Contacts/**/*.{swift,h,m}', 'Extension/UIAlertController/**/*.{swift,h,m}'
       contacts.resource = 'Localizable/WYLocalizable.bundle'
+      contacts.resource_bundles = {'WYBasisKitAuthorizationContacts' => ['Authorization/Contacts/PrivacyInfo.xcprivacy']}
       contacts.frameworks = 'Contacts', 'UIKit'
       contacts.dependency 'WYBasisKit-swift/Localizable'
     end
     
     authorization.subspec 'PhotoAlbums' do |photoAlbums|
-      photoAlbums.source_files = 'Authorization/PhotoAlbums/**/*', 'Extension/UIAlertController/**/*'
+      photoAlbums.source_files = 'Authorization/PhotoAlbums/**/*.{swift,h,m}', 'Extension/UIAlertController/**/*.{swift,h,m}'
       photoAlbums.resource = 'Localizable/WYLocalizable.bundle'
+      photoAlbums.resource_bundles = {'WYBasisKitAuthorizationPhotoAlbums' => ['Authorization/PhotoAlbums/PrivacyInfo.xcprivacy']}
       photoAlbums.frameworks = 'Photos', 'UIKit'
       photoAlbums.dependency 'WYBasisKit-swift/Localizable'
     end
     
     authorization.subspec 'Microphone' do |microphone|
-      microphone.source_files = 'Authorization/Microphone/**/*', 'Extension/UIAlertController/**/*'
+      microphone.source_files = 'Authorization/Microphone/**/*.{swift,h,m}', 'Extension/UIAlertController/**/*.{swift,h,m}'
       microphone.resource = 'Localizable/WYLocalizable.bundle'
+      microphone.resource_bundles = {'WYBasisKitAuthorizationMicrophone' => ['Authorization/Microphone/PrivacyInfo.xcprivacy']}
       microphone.frameworks = 'Photos', 'UIKit'
       microphone.dependency 'WYBasisKit-swift/Localizable'
     end
     
     authorization.subspec 'SpeechRecognition' do |speechRecognition|
-      speechRecognition.source_files = 'Authorization/SpeechRecognition/**/*', 'Extension/UIAlertController/**/*'
+      speechRecognition.source_files = 'Authorization/SpeechRecognition/**/*.{swift,h,m}', 'Extension/UIAlertController/**/*.{swift,h,m}'
       speechRecognition.resource = 'Localizable/WYLocalizable.bundle'
+      speechRecognition.resource_bundles = {'WYBasisKitAuthorizationSpeechRecognition' => ['Authorization/SpeechRecognition/PrivacyInfo.xcprivacy']}
       speechRecognition.frameworks = 'Speech', 'UIKit'
       speechRecognition.dependency 'WYBasisKit-swift/Localizable'
     end
   end
   
   kit.subspec 'Layout' do |layout|
+    layout.resource_bundles = {'WYBasisKitLayout' => ['Layout/PrivacyInfo.xcprivacy']}
     layout.subspec 'ScrollText' do |scrollText|
-      scrollText.source_files = 'Layout/ScrollText/**/*', 'Config/WYBasisKitConfig.swift'
+      scrollText.source_files = 'Layout/ScrollText/**/*.{swift,h,m}', 'Config/WYBasisKitConfig.swift'
       scrollText.resource = 'Localizable/WYLocalizable.bundle'
+      scrollText.resource_bundles = {'WYBasisKitLayoutScrollText' => ['Layout/ScrollText/PrivacyInfo.xcprivacy']}
       scrollText.frameworks = 'Foundation', 'UIKit'
       scrollText.dependency 'WYBasisKit-swift/Localizable'
       scrollText.dependency 'SnapKit'
     end
     
     layout.subspec 'PagingView' do |pagingView|
-      pagingView.source_files = 'Layout/PagingView/**/*', 'Extension/UIView/**/*', 'Extension/UIButton/**/*', 'Extension/UIColor/**/*', 'Extension/UIImage/**/*', 'Config/WYBasisKitConfig.swift'
+      pagingView.source_files = 'Layout/PagingView/**/*.{swift,h,m}', 'Extension/UIView/**/*.{swift,h,m}', 'Extension/UIButton/**/*.{swift,h,m}', 'Extension/UIColor/**/*.{swift,h,m}', 'Extension/UIImage/**/*.{swift,h,m}', 'Config/WYBasisKitConfig.swift'
+      pagingView.resource_bundles = {'WYBasisKitLayoutPagingView' => ['Layout/PagingView/PrivacyInfo.xcprivacy']}
       pagingView.frameworks = 'Foundation', 'UIKit'
       pagingView.dependency 'SnapKit'
     end
     
     layout.subspec 'BannerView' do |bannerView|
-      bannerView.source_files = 'Layout/BannerView/WYBannerView.swift', 'Extension/UIView/**/*', 'Config/WYBasisKitConfig.swift'
+      bannerView.source_files = 'Layout/BannerView/WYBannerView.swift', 'Extension/UIView/**/*.{swift,h,m}', 'Config/WYBasisKitConfig.swift'
       bannerView.resource = 'Layout/BannerView/WYBannerView.bundle', 'Localizable/WYLocalizable.bundle'
+      bannerView.resource_bundles = {'WYBasisKitLayoutBannerView' => ['Layout/BannerView/PrivacyInfo.xcprivacy']}
       bannerView.frameworks = 'Foundation', 'UIKit'
       bannerView.dependency 'WYBasisKit-swift/Localizable'
       bannerView.dependency 'Kingfisher'
-      
     end
     
      layout.subspec 'ChatView' do |chatView|
-       chatView.source_files = 'Layout/ChatView/AudioManager/**/*', 'Layout/ChatView/Config/**/*', 'Layout/ChatView/Models/**/*', 'Layout/ChatView/RecordAnimation/**/*', 'Layout/ChatView/Views/**/*'
+       chatView.source_files = 'Layout/ChatView/AudioManager/**/*.{swift,h,m}', 'Layout/ChatView/Config/**/*.{swift,h,m}', 'Layout/ChatView/Models/**/*.{swift,h,m}', 'Layout/ChatView/RecordAnimation/**/*.{swift,h,m}', 'Layout/ChatView/Views/**/*.{swift,h,m}'
        chatView.resource = 'Layout/ChatView/WYChatView.bundle'
+       chatView.resource_bundles = {'WYBasisKitLayoutChatView' => ['Layout/ChatView/PrivacyInfo.xcprivacy']}
        chatView.frameworks = 'Foundation', 'UIKit'
        chatView.dependency 'WYBasisKit-swift/Extension'
        chatView.dependency 'WYBasisKit-swift/Localizable'
@@ -172,6 +191,8 @@ Pod::Spec.new do |kit|
   end
 
   kit.subspec 'IJKFrameworkFull' do |framework|  # IJKMediaPlayerFramework (真机+模拟器)
+    framework.preserve_paths = 'MediaPlayer/WYMediaPlayerFramework.sh'
+    framework.resource_bundles = {'WYBasisKitIJKFrameworkFull' => ['MediaPlayer/PrivacyInfo.xcprivacy']}
     framework.libraries = 'c++', 'z', 'bz2'  # 这里需要忽略前面的lib和后面的tbd，例如libz.tbd直接写为z即可，如果是.a则需要写全，如：'xxx.a'
     framework.frameworks = 'UIKit', 'AudioToolbox', 'CoreGraphics', 'AVFoundation', 'CoreMedia', 'CoreVideo', 'MediaPlayer', 'CoreServices', 'Metal', 'QuartzCore', 'VideoToolbox'
     # framework.vendored_libraries = 'xxx.a'
@@ -183,6 +204,8 @@ Pod::Spec.new do |kit|
   end
 
   kit.subspec 'IJKFrameworkLite' do |framework|  # IJKMediaPlayerFramework (仅真机)
+    framework.preserve_paths = 'MediaPlayer/WYMediaPlayerFramework.sh'
+    framework.resource_bundles = {'WYBasisKitIJKFrameworkLite' => ['MediaPlayer/PrivacyInfo.xcprivacy']}
     framework.libraries = 'c++', 'z', 'bz2'  # 这里需要忽略前面的lib和后面的tbd，例如libz.tbd直接写为z即可，如果是.a则需要写全，如：'xxx.a'
     framework.frameworks = 'UIKit', 'AudioToolbox', 'CoreGraphics', 'AVFoundation', 'CoreMedia', 'CoreVideo', 'MediaPlayer', 'CoreServices', 'Metal', 'QuartzCore', 'VideoToolbox'
     # framework.vendored_libraries = 'xxx.a'
@@ -198,14 +221,16 @@ Pod::Spec.new do |kit|
   end
   
   kit.subspec 'MediaPlayerFull' do |mediaPlayer|
-    mediaPlayer.source_files = 'MediaPlayer/WYMediaPlayer.swift'
+    mediaPlayer.source_files = 'MediaPlayer/**/*.{swift,h,m}'
+    mediaPlayer.resource_bundles = {'WYBasisKitMediaPlayerFull' => ['MediaPlayer/PrivacyInfo.xcprivacy']}
     mediaPlayer.dependency 'SnapKit'
     mediaPlayer.dependency 'Kingfisher'
     mediaPlayer.dependency 'WYBasisKit-swift/IJKFrameworkFull'
   end
 
   kit.subspec 'MediaPlayerLite' do |mediaPlayer|
-    mediaPlayer.source_files = 'MediaPlayer/WYMediaPlayer.swift'
+    mediaPlayer.source_files = 'MediaPlayer/**/*.{swift,h,m}'
+    mediaPlayer.resource_bundles = {'WYBasisKitMediaPlayerLite' => ['MediaPlayer/PrivacyInfo.xcprivacy']}
     mediaPlayer.dependency 'SnapKit'
     mediaPlayer.dependency 'Kingfisher'
     mediaPlayer.dependency 'WYBasisKit-swift/IJKFrameworkLite'
