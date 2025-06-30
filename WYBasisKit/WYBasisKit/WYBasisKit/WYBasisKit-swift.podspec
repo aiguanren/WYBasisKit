@@ -38,8 +38,14 @@ Pod::Spec.new do |kit|
     'EventHandler',
   ]
   
-  kit.prepare_command = 'bash ./MediaPlayer/WYMediaPlayerFramework.sh' # 下载并解压 WYMediaPlayerFramework
-  kit.preserve_paths = 'MediaPlayer/WYMediaPlayerFramework.sh' # 将脚本和podspec关联，否则远程会报错找不到脚本文件
+  # 下载并解压 WYMediaPlayerFramework，两个路径是分别对应本地验证和远程验证时WYMediaPlayerFramework.sh脚本的路径(远程验证时路径是从WYBasisKit-swift开始的)
+  kit.prepare_command = <<-CMD
+    bash MediaPlayer/WYMediaPlayerFramework.sh || bash WYBasisKit/WYBasisKit/WYBasisKit/MediaPlayer/WYMediaPlayerFramework.sh  
+  CMD
+  kit.preserve_paths = [
+    'MediaPlayer/WYMediaPlayerFramework.sh',
+    'WYBasisKit/WYBasisKit/WYBasisKit/MediaPlayer/WYMediaPlayerFramework.sh'
+  ]
   
   kit.subspec 'Config' do |config|
     config.source_files = 'Config/**/*.{swift,h,m}'
