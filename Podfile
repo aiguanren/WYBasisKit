@@ -24,6 +24,8 @@ configure_settings_option(SETTING_OPTIONS[:all_projects])   # 设置所有项目
 
 workspace 'WYBasisKit.xcworkspace' # 多个项目时需要指定target对应的xcworkspace文件
 
+SDKPATH = 'WYBasisKit/WYBasisKit/WYBasisKit'
+
 target 'WYBasisKit' do
   project 'WYBasisKit/WYBasisKit.xcodeproj' # 多个项目时需要指定target对应的xcodeproj文件
   pod 'SnapKit'
@@ -35,7 +37,6 @@ target 'WYBasisKit' do
   end
 end
 
-SDKPATH = 'WYBasisKit/WYBasisKit/WYBasisKit'
 target 'WYBasisKitVerify' do
   project 'WYBasisKitVerify/WYBasisKitVerify.xcodeproj' # 多个项目时需要指定target对应的xcodeproj文件
   pod 'WYBasisKit-swift', :path => SDKPATH
