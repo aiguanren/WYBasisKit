@@ -116,6 +116,8 @@ class WYTestLiveStreamingController: UIViewController {
         player.play(with: "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8")
         
         WYActivity.showLoading(in: player, animation: .gifOrApng, config: WYActivityConfig.concise)
+#else
+        WYActivity.showInfo("IJKFrameworkLite和MediaPlayerLite不支持模拟器运行，请切换真机或使用Full版本", in: view)
 #endif
         
         /**

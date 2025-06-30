@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 53;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -1210,7 +1210,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = AAZ295K3HU;
+				DEVELOPMENT_TEAM = GEJUYBB76V;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WYBasisKit/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = WYBasisKit;
@@ -1241,7 +1241,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = AAZ295K3HU;
+				DEVELOPMENT_TEAM = GEJUYBB76V;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WYBasisKit/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = WYBasisKit;

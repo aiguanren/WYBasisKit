@@ -3,6 +3,7 @@ inhibit_all_warnings!
 use_frameworks!
 #use_frameworks! :linkage => :static：
 use_modular_headers!
+install! 'cocoapods', warn_for_unused_master_specs_repo: false
 
 # 使用Cocoapods清华源
 source 'https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git'

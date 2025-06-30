@@ -178,16 +178,16 @@ Pod::Spec.new do |kit|
       bannerView.dependency 'Kingfisher'
     end
     
-     layout.subspec 'ChatView' do |chatView|
-       chatView.source_files = 'Layout/ChatView/AudioManager/**/*.{swift,h,m}', 'Layout/ChatView/Config/**/*.{swift,h,m}', 'Layout/ChatView/Models/**/*.{swift,h,m}', 'Layout/ChatView/RecordAnimation/**/*.{swift,h,m}', 'Layout/ChatView/Views/**/*.{swift,h,m}'
-       chatView.resource = 'Layout/ChatView/WYChatView.bundle'
-       chatView.resource_bundles = {'WYBasisKitLayoutChatView' => ['Layout/ChatView/PrivacyInfo.xcprivacy']}
-       chatView.frameworks = 'Foundation', 'UIKit'
-       chatView.dependency 'WYBasisKit-swift/Extension'
-       chatView.dependency 'WYBasisKit-swift/Localizable'
-       chatView.dependency 'SnapKit'
-       chatView.dependency 'Kingfisher'
-     end
+     # layout.subspec 'ChatView' do |chatView|
+     #   chatView.source_files = 'Layout/ChatView/AudioManager/**/*.{swift,h,m}', 'Layout/ChatView/Config/**/*.{swift,h,m}', 'Layout/ChatView/Models/**/*.{swift,h,m}', 'Layout/ChatView/RecordAnimation/**/*.{swift,h,m}', 'Layout/ChatView/Views/**/*.{swift,h,m}'
+     #   chatView.resource = 'Layout/ChatView/WYChatView.bundle'
+     #   chatView.resource_bundles = {'WYBasisKitLayoutChatView' => ['Layout/ChatView/PrivacyInfo.xcprivacy']}
+     #   chatView.frameworks = 'Foundation', 'UIKit'
+     #   chatView.dependency 'WYBasisKit-swift/Extension'
+     #   chatView.dependency 'WYBasisKit-swift/Localizable'
+     #   chatView.dependency 'SnapKit'
+     #   chatView.dependency 'Kingfisher'
+     # end
   end
 
   kit.subspec 'IJKFrameworkFull' do |framework|  # IJKMediaPlayerFramework (真机+模拟器)
@@ -222,6 +222,7 @@ Pod::Spec.new do |kit|
   
   kit.subspec 'MediaPlayerFull' do |mediaPlayer|
     mediaPlayer.source_files = 'MediaPlayer/**/*.{swift,h,m}'
+    mediaPlayer.exclude_files = 'MediaPlayer/WYMediaPlayerFramework/**/*'  # 排除匹配WYMediaPlayerFramework下面的.{swift,h,m}文件
     mediaPlayer.resource_bundles = {'WYBasisKitMediaPlayerFull' => ['MediaPlayer/PrivacyInfo.xcprivacy']}
     mediaPlayer.dependency 'SnapKit'
     mediaPlayer.dependency 'Kingfisher'
@@ -230,6 +231,7 @@ Pod::Spec.new do |kit|
 
   kit.subspec 'MediaPlayerLite' do |mediaPlayer|
     mediaPlayer.source_files = 'MediaPlayer/**/*.{swift,h,m}'
+    mediaPlayer.exclude_files = 'MediaPlayer/WYMediaPlayerFramework/**/*'  # 排除匹配WYMediaPlayerFramework下面的.{swift,h,m}文件
     mediaPlayer.resource_bundles = {'WYBasisKitMediaPlayerLite' => ['MediaPlayer/PrivacyInfo.xcprivacy']}
     mediaPlayer.dependency 'SnapKit'
     mediaPlayer.dependency 'Kingfisher'
