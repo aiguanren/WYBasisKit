@@ -38,8 +38,8 @@ Pod::Spec.new do |kit|
     'EventHandler',
   ]
   
-  # 下载并解压 WYMediaPlayerFramework
-  kit.prepare_command = 'bash MediaPlayer/WYMediaPlayerFramework.sh'
+  kit.prepare_command = 'bash MediaPlayer/WYMediaPlayerFramework.sh' # 下载并解压 WYMediaPlayerFramework
+  kit.preserve_paths = 'MediaPlayer/WYMediaPlayerFramework.sh' # 将脚本和podspec关联，否则远程会报错找不到脚本文件
   
   kit.subspec 'Config' do |config|
     config.source_files = 'Config/**/*.{swift,h,m}'
