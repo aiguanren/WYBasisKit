@@ -28,6 +28,18 @@ MAX_INTERVAL_HOURS=5                # 最大允许的间隔时间（小时）超
 
 printf "⏩ 当前路径: %s\n" "$(pwd)"
 
+# ————— 如果本地存在WYMediaPlayerFramework.zip则跳过下载(直接解压) ————— #
+if [[ -f "$ZIP_PATH" ]]; then
+  printf "💼 检测到 %s 已存在，解压中...\n" "$ZIP_PATH"
+  rm -rf "$FRAMEWORK_DIR"
+  mkdir -p "$FRAMEWORK_DIR"
+  unzip -o -q "$ZIP_PATH" -d "$UNZIP_TEMP_DIR"
+  mv "$UNZIP_TEMP_DIR/WYMediaPlayerFramework/"* "$FRAMEWORK_DIR/"
+  rm -rf "$UNZIP_TEMP_DIR" "$FRAMEWORK_DIR/__MACOSX"
+  printf "✅ 解压成功，路径：%s\n" "$FRAMEWORK_DIR"
+  exit 0
+fi
+
 # ————— 判断本地 WYMediaPlayerFramework 是否存在 ————— #
 if [[ ! -d "$FRAMEWORK_DIR" ]]; then
   LOCAL_EXIST=false     # 不存在则标记为 false
@@ -73,7 +85,7 @@ curl -sSL -o "$ZIP_PATH" "$ZIP_URL"  # 下载 ZIP 包到指定位置（静默模
 unzip -o -q "$ZIP_PATH" -d "$UNZIP_TEMP_DIR"   # 解压到临时目录
 mv "$UNZIP_TEMP_DIR/WYMediaPlayerFramework/"* "$FRAMEWORK_DIR/"  # 移动文件到目标目录
 
-rm -rf "$UNZIP_TEMP_DIR" "$FRAMEWORK_DIR/__MACOSX" "$ZIP_PATH"   # 清理临时文件和压缩包
+rm -rf "$UNZIP_TEMP_DIR" "$FRAMEWORK_DIR/__MACOSX" "$ZIP_PATH"   # 清理临时文件和WYMediaPlayerFramework.zip（仅下载的WYMediaPlayerFramework.zip会被删）
 
 # ————— 更新时间戳到脚本文件中 ————— #
 if grep -q "^# LAST_DOWNLOAD_TIMESTAMP=" "$SCRIPT_PATH"; then
@@ -86,4 +98,4 @@ fi
 
 printf "✅ 下载完成（已更新/记录本次下载时间戳到当前脚本文件中）\n"
 
-# LAST_DOWNLOAD_TIMESTAMP=1751332610
+# LAST_DOWNLOAD_TIMESTAMP=1751372765
