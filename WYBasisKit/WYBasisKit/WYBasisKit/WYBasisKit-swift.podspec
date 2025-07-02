@@ -47,6 +47,10 @@ Pod::Spec.new do |kit|
   
   # 下载并解压 WYMediaPlayerFramework
   kit.prepare_command = "bash #{SDKPath}MediaPlayer/WYMediaPlayerFramework.sh"
+  # 将脚本和podspec关联
+  kit.preserve_paths = [
+    "#{SDKPath}MediaPlayer/WYMediaPlayerFramework.sh"
+  ]
 
   kit.subspec "Config" do |config|
     config.source_files = [
