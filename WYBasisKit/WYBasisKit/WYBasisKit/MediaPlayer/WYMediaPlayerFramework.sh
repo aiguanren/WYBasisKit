@@ -4,6 +4,7 @@
 #
 # 自动下载解压远程 WYMediaPlayerFramework。
 # 默认行为如下：
+#   - 如果 ZIP_PATH 存在，则直接解压使用(解压后不删除压缩包)
 #   - 如果脚本文件中没有记录下载时间戳，强制下载；
 #   - 如果距离上次下载已超过 MAX_INTERVAL_HOURS 小时，强制重新下载；
 #   - 如果本地 MediaPlayer/WYMediaPlayerFramework 文件夹不存在，也会强制下载；
