@@ -118,6 +118,55 @@ public extension NSMutableAttributedString {
         return self
     }
     
+    /// 设置不同段落间的行间距
+    @discardableResult
+    public func wy_lineSpacing(lineSpacing: CGFloat, beforeString: String, afterString: String, alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
+        
+        guard lineSpacing > 0,
+              !beforeString.isEmpty,
+              !afterString.isEmpty,
+              self.length > 0 else {
+            return self
+        }
+        
+        let fullText = self.string
+        let nsFullText = fullText as NSString
+        
+        // 查找 beforeString 的位置
+        let beforeRange = nsFullText.range(of: beforeString)
+        guard beforeRange.location != NSNotFound else {
+            return self
+        }
+        
+        // 在 beforeString 之后查找 afterString
+        let afterSearchRange = NSRange(
+            location: beforeRange.upperBound,
+            length: nsFullText.length - beforeRange.upperBound
+        )
+        
+        let afterRange = nsFullText.range(of: afterString, options: [], range: afterSearchRange)
+        guard afterRange.location != NSNotFound else {
+            return self
+        }
+        
+        // 获取 beforeString 所在段落范围
+        let paragraphRange = nsFullText.paragraphRange(for: beforeRange)
+        
+        // 创建并配置段落样式
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.paragraphSpacing = lineSpacing
+        paragraphStyle.alignment = alignment
+        
+        // 应用段落样式
+        self.addAttribute(
+            .paragraphStyle,
+            value: paragraphStyle,
+            range: paragraphRange
+        )
+        
+        return self
+    }
+    
     /// 设置字间距
     @discardableResult
     func wy_wordsSpacing(wordsSpacing: CGFloat, string: String? = nil) -> NSMutableAttributedString {

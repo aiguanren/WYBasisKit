@@ -53,7 +53,10 @@ class WYTestRichTextController: UIViewController {
         emojiLabel.numberOfLines = 0
         emojiLabel.backgroundColor = .white
         emojiLabel.textColor = .black
-        emojiLabel.attributedText = NSMutableAttributedString.wy_convertEmojiAttributed(emojiString: "Hello，这是一个测试表情匹配的UILabel，现在开始匹配 喝彩[喝彩] 唇[唇]  爱心[爱心] 三个表情，看见了吗，他可以用在即时通讯等需要表情匹配的地方", textColor: emojiLabel.textColor, textFont: emojiLabel.font, emojiTable: ["[喝彩]","[唇]","[爱心]"])
+        let emojiLabelAttributed = NSMutableAttributedString.wy_convertEmojiAttributed(emojiString: "Hello\n这是一个测试表情匹配的UILabel\n现在开始匹配\n喝彩[喝彩] 唇[唇]  爱心[爱心] 三个表情\n看见了吗\n他可以用在即时通讯等需要表情匹配的地方\n嘻嘻\n哈哈", textColor: emojiLabel.textColor, textFont: emojiLabel.font, emojiTable: ["[喝彩]","[唇]","[爱心]"])
+        emojiLabelAttributed.wy_lineSpacing(lineSpacing: 5, beforeString: "Hello", afterString: "这是一个测试表情匹配的UILabel", alignment: .left)
+        emojiLabelAttributed.wy_lineSpacing(lineSpacing: 15, beforeString: "看见了吗", afterString: "他可以用在即时通讯等需要表情匹配的地方", alignment: .left)
+        emojiLabel.attributedText = emojiLabelAttributed
         view.addSubview(emojiLabel)
         emojiLabel.snp.makeConstraints { (make) in
             make.top.equalTo(label.snp.bottom).offset(50)

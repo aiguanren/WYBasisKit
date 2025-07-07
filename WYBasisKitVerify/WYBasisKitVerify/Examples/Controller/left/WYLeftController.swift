@@ -30,7 +30,8 @@ class WYLeftController: UIViewController {
                                 "语音识别",
                                 "泛型",
                                 "离线方法调用",
-                                "WKWebView进度条"]
+                                "WKWebView进度条",
+                                "归档/解归档"]
 
     let controller: [String] = ["WYTestDarkNightModeController",
                                 "WYTestAnimationController",
@@ -52,7 +53,8 @@ class WYLeftController: UIViewController {
                                 "WYSpeechRecognitionController",
                                 "WYGenericTypeController",
                                 "WYOffLineMethodController",
-                                "WYWebViewController"]
+                                "WYWebViewController",
+                                "WYArchivedController"]
 
     lazy var tableView: UITableView = {
 

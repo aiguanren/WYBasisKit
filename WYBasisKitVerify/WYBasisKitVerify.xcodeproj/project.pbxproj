@@ -61,6 +61,7 @@
 		585B3AD72DF819DC00E6E08F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A982DF819DC00E6E08F /* AppDelegate.swift */; };
 		585B3AD82DF819DC00E6E08F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A9F2DF819DC00E6E08F /* ViewController.swift */; };
 		585B3AD92DF819DC00E6E08F /* WYTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3AA02DF819DC00E6E08F /* WYTabBarController.swift */; };
+		AAA708702E1C11060040F2ED /* WYArchivedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA7086F2E1C11060040F2ED /* WYArchivedController.swift */; };
 		FF665BAF99A0FF358ACBC747 /* Pods_WYBasisKitVerify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2F2A0EF269DCCF460460F5A /* Pods_WYBasisKitVerify.framework */; };
 /* End PBXBuildFile section */
 
@@ -127,6 +128,7 @@
 		585B3ADD2DF8202500E6E08F /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		5874BC852DF9176700703A4B /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
 		5874BC892DF9179300703A4B /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Main.strings"; sourceTree = "<group>"; };
+		AAA7086F2E1C11060040F2ED /* WYArchivedController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYArchivedController.swift; sourceTree = "<group>"; };
 		D2F2A0EF269DCCF460460F5A /* Pods_WYBasisKitVerify.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WYBasisKitVerify.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -374,6 +376,7 @@
 		585B3A832DF819DC00E6E08F /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				AAA7086B2E1C10AE0040F2ED /* 归档解归档 */,
 				585B3A4B2DF819DC00E6E08F /* 暗夜、白昼模式 */,
 				585B3A4D2DF819DC00E6E08F /* 边框、圆角、阴影、渐变 */,
 				585B3A4F2DF819DC00E6E08F /* 二维码 */,
@@ -464,6 +467,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		AAA7086B2E1C10AE0040F2ED /* 归档解归档 */ = {
+			isa = PBXGroup;
+			children = (
+				AAA7086F2E1C11060040F2ED /* WYArchivedController.swift */,
+			);
+			path = "归档解归档";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -498,6 +509,7 @@
 				TargetAttributes = {
 					585B35422DF8081800E6E08F = {
 						CreatedOnToolsVersion = 14.2;
+						LastSwiftMigration = 1420;
 					};
 				};
 			};
@@ -558,14 +570,7 @@
 				"${BUILT_PRODUCTS_DIR}/Kingfisher/Kingfisher.framework",
 				"${BUILT_PRODUCTS_DIR}/Moya/Moya.framework",
 				"${BUILT_PRODUCTS_DIR}/SnapKit/SnapKit.framework",
-				"${BUILT_PRODUCTS_DIR}/IQKeyboardCore/IQKeyboardCore.framework",
 				"${BUILT_PRODUCTS_DIR}/IQKeyboardManagerSwift/IQKeyboardManagerSwift.framework",
-				"${BUILT_PRODUCTS_DIR}/IQKeyboardNotification/IQKeyboardNotification.framework",
-				"${BUILT_PRODUCTS_DIR}/IQKeyboardReturnManager/IQKeyboardReturnManager.framework",
-				"${BUILT_PRODUCTS_DIR}/IQKeyboardToolbar/IQKeyboardToolbar.framework",
-				"${BUILT_PRODUCTS_DIR}/IQKeyboardToolbarManager/IQKeyboardToolbarManager.framework",
-				"${BUILT_PRODUCTS_DIR}/IQTextInputViewNotification/IQTextInputViewNotification.framework",
-				"${BUILT_PRODUCTS_DIR}/IQTextView/IQTextView.framework",
 				"${BUILT_PRODUCTS_DIR}/WYBasisKit-swift/WYBasisKit.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
@@ -574,14 +579,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Kingfisher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Moya.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SnapKit.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQKeyboardCore.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQKeyboardManagerSwift.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQKeyboardNotification.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQKeyboardReturnManager.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQKeyboardToolbar.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQKeyboardToolbarManager.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQTextInputViewNotification.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQTextView.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WYBasisKit.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -657,6 +655,7 @@
 				585B3AD72DF819DC00E6E08F /* AppDelegate.swift in Sources */,
 				585B3AD82DF819DC00E6E08F /* ViewController.swift in Sources */,
 				585B3AD92DF819DC00E6E08F /* WYTabBarController.swift in Sources */,
+				AAA708702E1C11060040F2ED /* WYArchivedController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -692,6 +691,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = AAZ295K3HU;
@@ -716,6 +716,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.guanren.WYBasisKit-swift.WYBasisKitVerify";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -727,6 +728,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = AAZ295K3HU;
