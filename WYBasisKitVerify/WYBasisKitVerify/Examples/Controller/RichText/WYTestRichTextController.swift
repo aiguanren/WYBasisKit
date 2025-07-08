@@ -12,10 +12,16 @@ class WYTestRichTextController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        // Do any additional setup after loading the view.
         
         view.backgroundColor = .white
+
+        let scrollView: UIScrollView = UIScrollView()
+        view.addSubview(scrollView);
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
         
-        // Do any additional setup after loading the view.
         let label = UILabel()
         let str = "治性之道，必审己之所有余而强其所不足，盖聪明疏通者戒于太察，寡闻少见者戒于壅蔽，勇猛刚强者戒于太暴，仁爱温良者戒于无断，湛静安舒者戒于后时，广心浩大者戒于遗忘。必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"
         label.numberOfLines = 0
@@ -42,9 +48,10 @@ class WYTestRichTextController: UIViewController {
             }
         }
         label.wy_addRichText(strings: ["勇猛刚强", "仁爱温良者戒于无断", "安舒", "必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"], delegate: self)
-        view.addSubview(label)
+        scrollView.addSubview(label)
         label.snp.makeConstraints { (make) in
-            make.left.right.equalToSuperview()
+            make.centerX.equalToSuperview()
+            make.width.equalTo(wy_screenWidth - 30)
             make.top.equalToSuperview().offset(wy_navViewHeight + 20)
         }
         
@@ -53,11 +60,10 @@ class WYTestRichTextController: UIViewController {
         emojiLabel.numberOfLines = 0
         emojiLabel.backgroundColor = .white
         emojiLabel.textColor = .black
-        let emojiLabelAttributed = NSMutableAttributedString.wy_convertEmojiAttributed(emojiString: "Hello\n这是一个测试表情匹配的UILabel\n现在开始匹配\n喝彩[喝彩] 唇[唇]  爱心[爱心] 三个表情\n看见了吗\n他可以用在即时通讯等需要表情匹配的地方\n嘻嘻\n哈哈", textColor: emojiLabel.textColor, textFont: emojiLabel.font, emojiTable: ["[喝彩]","[唇]","[爱心]"])
-        emojiLabelAttributed.wy_lineSpacing(lineSpacing: 5, beforeString: "Hello", afterString: "这是一个测试表情匹配的UILabel", alignment: .left)
-        emojiLabelAttributed.wy_lineSpacing(lineSpacing: 15, beforeString: "看见了吗", afterString: "他可以用在即时通讯等需要表情匹配的地方", alignment: .left)
+        let emojiLabelAttributed = NSMutableAttributedString.wy_convertEmojiAttributed(emojiString: "Hello，这是一个测试表情匹配的UILabel，现在开始匹配，喝彩[喝彩] 唇[唇]  爱心[爱心] 三个表情，看见了吗，他可以用在即时通讯等需要表情匹配的地方，嘻嘻，哈哈", textColor: emojiLabel.textColor, textFont: emojiLabel.font, emojiTable: ["[喝彩]","[唇]","[爱心]"])
+        emojiLabelAttributed.wy_lineSpacing(lineSpacing: 5)
         emojiLabel.attributedText = emojiLabelAttributed
-        view.addSubview(emojiLabel)
+        scrollView.addSubview(emojiLabel)
         emojiLabel.snp.makeConstraints { (make) in
             make.top.equalTo(label.snp.bottom).offset(50)
             make.centerX.equalToSuperview()
@@ -75,7 +81,7 @@ class WYTestRichTextController: UIViewController {
         
         marginLabel.numberOfLines = 0
         marginLabel.attributedText = attrText
-        view.addSubview(marginLabel)
+        scrollView.addSubview(marginLabel)
         
         marginLabel.sizeToFit()
         marginLabel.snp.makeConstraints { (make) in
@@ -92,7 +98,7 @@ class WYTestRichTextController: UIViewController {
         wy_print("\(subFrame), labelFrame = \(label.frame)")
         
         let lineView = UIView(frame: CGRect(x: subFrame.origin.x, y: subFrame.origin.y, width: subFrame.size.width, height: subFrame.size.height))
-        lineView.backgroundColor = .white.withAlphaComponent(0.2)
+        lineView.backgroundColor = .orange.withAlphaComponent(0.2)
         label.addSubview(lineView)
         
         let attachmentView: UILabel = UILabel()
@@ -118,12 +124,38 @@ class WYTestRichTextController: UIViewController {
         attributed.wy_insertImage(options)
         attributed.wy_lineSpacing(lineSpacing: 10)
         attachmentView.attributedText = attributed
-        view.addSubview(attachmentView)
+        scrollView.addSubview(attachmentView)
         attachmentView.snp.makeConstraints { make in
-            make.width.equalTo(wy_screenWidth - 50)
+            make.width.equalTo(wy_screenWidth - 30)
             make.centerX.equalToSuperview()
             make.top.equalTo(marginLabel.snp.bottom).offset(50)
         }
+        
+        let spacingView = UILabel()
+        spacingView.textColor = .wy_random
+        spacingView.numberOfLines = 0
+        scrollView.addSubview(spacingView)
+        spacingView.snp.makeConstraints { make in
+            make.width.equalTo(wy_screenWidth - 30)
+            make.centerX.equalToSuperview()
+            make.top.equalTo(attachmentView.snp.bottom).offset(50)
+            make.bottom.equalToSuperview().offset(-50)
+        }
+        
+        let spacing10: String = wy_randomString(minimux: 50, maximum: 100)
+        
+        let spacing15: String = wy_randomString(minimux: 30, maximum: 80)
+        
+        let spacing30: String = wy_randomString(minimux: 25, maximum: 60)
+        
+        let spacing20: String = wy_randomString(minimux: 80, maximum: 100)
+        
+        let spacingAttributed = NSMutableAttributedString(string: spacing10 + "\n" + spacing15 + "\n" + spacing30 + "\n" + spacing20)
+        spacingAttributed.wy_lineSpacing(lineSpacing: 10, beforeString: spacing10, afterString: spacing15, alignment: .left)
+        spacingAttributed.wy_lineSpacing(lineSpacing: 15, beforeString: spacing15, afterString: spacing30, alignment: .left)
+        spacingAttributed.wy_lineSpacing(lineSpacing: 30, beforeString: spacing30, afterString: spacing20, alignment: .left)
+        spacingAttributed.wy_lineSpacing(lineSpacing: 5, string: spacing20)
+        spacingView.attributedText = spacingAttributed
     }
     
     deinit {

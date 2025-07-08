@@ -120,7 +120,7 @@ public extension NSMutableAttributedString {
     
     /// 设置不同段落间的行间距
     @discardableResult
-    public func wy_lineSpacing(lineSpacing: CGFloat, beforeString: String, afterString: String, alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
+    func wy_lineSpacing(lineSpacing: CGFloat, beforeString: String, afterString: String, alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
         
         guard lineSpacing > 0,
               !beforeString.isEmpty,
