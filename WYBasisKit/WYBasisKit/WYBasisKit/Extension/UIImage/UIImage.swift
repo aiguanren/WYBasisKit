@@ -36,6 +36,22 @@ public struct WYSourceBundle {
 public extension UIImage {
     
     /**
+     * 根据传入的宽度获取图片的等比高度
+     */
+    func wy_height(forWidth width: CGFloat) -> CGFloat {
+        guard width > 0, size.width > 0 else { return 0 }
+        return size.height * (width / size.width)
+    }
+    
+    /**
+     * 根据传入的高度获取图片的等比宽度
+     */
+    func wy_width(forHeight height: CGFloat) -> CGFloat {
+        guard height > 0, size.height > 0 else { return 0 }
+        return size.width * (height / size.height)
+    }
+    
+    /**
      *  图片翻转(旋转)
      *  orientation: 图片翻转(旋转)的方向
      *    case up // 默认方向
