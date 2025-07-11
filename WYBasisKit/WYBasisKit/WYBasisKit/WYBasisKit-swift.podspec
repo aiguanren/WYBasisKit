@@ -1,5 +1,5 @@
 # 定义podspec执行路径(远程验证时路径是从WYBasisKit-swift开始的，所以远程验证时需要填入podspec文件的路径：WYBasisKit/WYBasisKit/WYBasisKit/)
-SDKPath = "WYBasisKit/WYBasisKit/WYBasisKit/"
+SDKPath = ""
 # 国际化资源需要的bundle，多地方使用，抽为变量
 localizable_bundle = "#{SDKPath}Localizable/WYLocalizable.bundle"
 
@@ -285,26 +285,26 @@ Pod::Spec.new do |kit|
       bannerView.dependency "Kingfisher"
     end
     
-     # layout.subspec "ChatView" do |chatView|
-     #   chatView.source_files = [
-     #     "#{SDKPath}Layout/ChatView/AudioManager/**/*.{swift,h,m}",
-     #     "#{SDKPath}Layout/ChatView/Config/**/*.{swift,h,m}",
-     #     "#{SDKPath}Layout/ChatView/Models/**/*.{swift,h,m}",
-     #     "#{SDKPath}Layout/ChatView/RecordAnimation/**/*.{swift,h,m}",
-     #     "#{SDKPath}Layout/ChatView/Views/**/*.{swift,h,m}"
-     #   ]
-     #   chatView.resources = [
-     #     "#{SDKPath}Layout/ChatView/WYChatView.bundle"
-     #   ]
-     #   chatView.resource_bundles = {"WYBasisKitLayoutChatView" => [
-     #     "#{SDKPath}Layout/ChatView/PrivacyInfo.xcprivacy"
-     #   ]}
-     #   chatView.frameworks = "Foundation", "UIKit"
-     #   chatView.dependency "WYBasisKit-swift/Extension"
-     #   chatView.dependency "WYBasisKit-swift/Localizable"
-     #   chatView.dependency "SnapKit"
-     #   chatView.dependency "Kingfisher"
-     # end
+     layout.subspec "ChatView" do |chatView|
+       chatView.source_files = [
+         "#{SDKPath}Layout/ChatView/AudioManager/**/*.{swift,h,m}",
+         "#{SDKPath}Layout/ChatView/Config/**/*.{swift,h,m}",
+         "#{SDKPath}Layout/ChatView/Models/**/*.{swift,h,m}",
+         "#{SDKPath}Layout/ChatView/RecordAnimation/**/*.{swift,h,m}",
+         "#{SDKPath}Layout/ChatView/Views/**/*.{swift,h,m}"
+       ]
+       chatView.resources = [
+         "#{SDKPath}Layout/ChatView/WYChatView.bundle"
+       ]
+       chatView.resource_bundles = {"WYBasisKitLayoutChatView" => [
+         "#{SDKPath}Layout/ChatView/PrivacyInfo.xcprivacy"
+       ]}
+       chatView.frameworks = "Foundation", "UIKit"
+       chatView.dependency "WYBasisKit-swift/Extension"
+       chatView.dependency "WYBasisKit-swift/Localizable"
+       chatView.dependency "SnapKit"
+       chatView.dependency "Kingfisher"
+     end
   end
 
   kit.subspec "IJKFrameworkFull" do |framework|  # IJKMediaPlayerFramework (真机+模拟器)
