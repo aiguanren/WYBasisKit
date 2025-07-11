@@ -487,6 +487,7 @@
 				585B35402DF8081800E6E08F /* Frameworks */,
 				585B35412DF8081800E6E08F /* Resources */,
 				B1D3ECAAFAD5E0D1C9324DD5 /* [CP] Embed Pods Frameworks */,
+				BE95B3DC9111E500271E279E /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -578,7 +579,6 @@
 				"${BUILT_PRODUCTS_DIR}/IQKeyboardToolbarManager/IQKeyboardToolbarManager.framework",
 				"${BUILT_PRODUCTS_DIR}/IQTextInputViewNotification/IQTextInputViewNotification.framework",
 				"${BUILT_PRODUCTS_DIR}/IQTextView/IQTextView.framework",
-				"${BUILT_PRODUCTS_DIR}/WYBasisKit-swift/WYBasisKit.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -594,11 +594,70 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQKeyboardToolbarManager.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQTextInputViewNotification.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQTextView.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WYBasisKit.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-WYBasisKitVerify/Pods-WYBasisKitVerify-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		BE95B3DC9111E500271E279E /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-WYBasisKitVerify/Pods-WYBasisKitVerify-resources.sh",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKit.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitActivity.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitAuthorization.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitAuthorizationBiometric.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitAuthorizationCamera.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitAuthorizationContacts.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitAuthorizationMicrophone.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitAuthorizationPhotoAlbums.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitAuthorizationSpeechRecognition.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitCodable.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitConfig.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitEventHandler.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitExtension.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitIJKFrameworkLite.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitLayout.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitLayoutBannerView.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitLayoutPagingView.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitLayoutScrollText.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitLocalizable.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitMediaPlayerLite.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitNetworking.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitStorage.bundle",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKit.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitActivity.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitAuthorization.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitAuthorizationBiometric.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitAuthorizationCamera.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitAuthorizationContacts.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitAuthorizationMicrophone.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitAuthorizationPhotoAlbums.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitAuthorizationSpeechRecognition.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitCodable.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitConfig.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitEventHandler.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitExtension.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitIJKFrameworkLite.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitLayout.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitLayoutBannerView.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitLayoutPagingView.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitLayoutScrollText.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitLocalizable.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitMediaPlayerLite.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitNetworking.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitStorage.bundle",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-WYBasisKitVerify/Pods-WYBasisKitVerify-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		C3C2EF56AB0D9126FDA130CD /* [CP] Check Pods Manifest.lock */ = {

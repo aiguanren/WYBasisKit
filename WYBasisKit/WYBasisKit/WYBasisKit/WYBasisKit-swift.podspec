@@ -55,7 +55,7 @@ Pod::Spec.new do |kit|
   kit.preserve_paths = [
     "MediaPlayer/WYMediaPlayerFramework.sh",
     "#{SDKPath}MediaPlayer/WYMediaPlayerFramework.sh",
-    "MediaPlayer/WYMediaPlayerFramework.zip"
+    "MediaPlayer/WYMediaPlayerFramework.zip",
     "#{SDKPath}MediaPlayer/WYMediaPlayerFramework.zip"
   ]
 
