@@ -46,15 +46,13 @@ Pod::Spec.new do |kit|
   ]
   
   # 下载并解压 WYMediaPlayerFramework
-  kit.prepare_command = <<-CMD
-    bash MediaPlayer/WYMediaPlayerFramework.sh || bash #{SDKPath}MediaPlayer/WYMediaPlayerFramework.sh
-  CMD
+  kit.prepare_command = "bash MediaPlayer/WYMediaPlayerFramework.sh"
 
   # 将脚本和podspec关联
-  kit.preserve_paths = [
-    "MediaPlayer/WYMediaPlayerFramework.sh",
-    "#{SDKPath}MediaPlayer/WYMediaPlayerFramework.sh"
-  ]
+  # kit.preserve_paths = [
+  #   "MediaPlayer/WYMediaPlayerFramework.sh",
+  #   "#{SDKPath}MediaPlayer/WYMediaPlayerFramework.sh"
+  # ]
 
   kit.subspec "Config" do |config|
     config.source_files = [
@@ -322,8 +320,7 @@ Pod::Spec.new do |kit|
     framework.frameworks = "UIKit", "AudioToolbox", "CoreGraphics", "AVFoundation", "CoreMedia", "CoreVideo", "MediaPlayer", "CoreServices", "Metal", "QuartzCore", "VideoToolbox"
     # framework.vendored_libraries = "xxx.a"
     framework.vendored_frameworks = [
-      "MediaPlayer/WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework",
-      "#{SDKPath}MediaPlayer/WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework"
+      "MediaPlayer/WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework"
     ]
     framework.pod_target_xcconfig = {
       "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64", # 过滤模拟器arm64，解决M系列芯片MAC上模拟器架构问题
@@ -340,8 +337,7 @@ Pod::Spec.new do |kit|
     framework.frameworks = "UIKit", "AudioToolbox", "CoreGraphics", "AVFoundation", "CoreMedia", "CoreVideo", "MediaPlayer", "CoreServices", "Metal", "QuartzCore", "VideoToolbox"
     # framework.vendored_libraries = "xxx.a"
     framework.vendored_frameworks = [
-      "MediaPlayer/WYMediaPlayerFramework/arm64/IJKMediaPlayer.xcframework",
-      "#{SDKPath}MediaPlayer/WYMediaPlayerFramework/arm64/IJKMediaPlayer.xcframework"
+      "MediaPlayer/WYMediaPlayerFramework/arm64/IJKMediaPlayer.xcframework"
     ]
     framework.pod_target_xcconfig = {
       "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64", # 过滤模拟器arm64，解决，解决M系列芯片MAC上模拟器架构问题
