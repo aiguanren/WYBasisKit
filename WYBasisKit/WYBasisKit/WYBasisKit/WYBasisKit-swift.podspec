@@ -1,5 +1,5 @@
 # 定义podspec执行路径(远程验证时路径是从WYBasisKit-swift开始的，所以远程验证时需要填入podspec文件的路径：WYBasisKit/WYBasisKit/WYBasisKit/)
-SDKPath = ""
+SDKPath = "WYBasisKit/WYBasisKit/WYBasisKit/"
 # 国际化资源需要的bundle，多地方使用，抽为变量
 localizable_bundle = "#{SDKPath}Localizable/WYLocalizable.bundle"
 
@@ -46,10 +46,16 @@ Pod::Spec.new do |kit|
   ]
   
   # 下载并解压 WYMediaPlayerFramework
-  kit.prepare_command = "bash #{SDKPath}MediaPlayer/WYMediaPlayerFramework.sh"
+  #kit.prepare_command = "bash #{SDKPath}MediaPlayer/WYMediaPlayerFramework.sh"
+  kit.prepare_command = <<-CMD
+    bash MediaPlayer/WYMediaPlayerFramework.sh || bash #{SDKPath}MediaPlayer/WYMediaPlayerFramework.sh
+  CMD
+
   # 将脚本和podspec关联
   kit.preserve_paths = [
+    "MediaPlayer/WYMediaPlayerFramework.sh",
     "#{SDKPath}MediaPlayer/WYMediaPlayerFramework.sh",
+    "MediaPlayer/WYMediaPlayerFramework.zip"
     "#{SDKPath}MediaPlayer/WYMediaPlayerFramework.zip"
   ]
 
@@ -288,26 +294,26 @@ Pod::Spec.new do |kit|
       bannerView.dependency "Kingfisher"
     end
     
-     layout.subspec "ChatView" do |chatView|
-       chatView.source_files = [
-         "#{SDKPath}Layout/ChatView/AudioManager/**/*.{swift,h,m}",
-         "#{SDKPath}Layout/ChatView/Config/**/*.{swift,h,m}",
-         "#{SDKPath}Layout/ChatView/Models/**/*.{swift,h,m}",
-         "#{SDKPath}Layout/ChatView/RecordAnimation/**/*.{swift,h,m}",
-         "#{SDKPath}Layout/ChatView/Views/**/*.{swift,h,m}"
-       ]
-       chatView.resources = [
-         "#{SDKPath}Layout/ChatView/WYChatView.bundle"
-       ]
-       chatView.resource_bundles = {"WYBasisKitLayoutChatView" => [
-         "#{SDKPath}Layout/ChatView/PrivacyInfo.xcprivacy"
-       ]}
-       chatView.frameworks = "Foundation", "UIKit"
-       chatView.dependency "WYBasisKit-swift/Extension"
-       chatView.dependency "WYBasisKit-swift/Localizable"
-       chatView.dependency "SnapKit"
-       chatView.dependency "Kingfisher"
-     end
+     # layout.subspec "ChatView" do |chatView|
+     #   chatView.source_files = [
+     #     "#{SDKPath}Layout/ChatView/AudioManager/**/*.{swift,h,m}",
+     #     "#{SDKPath}Layout/ChatView/Config/**/*.{swift,h,m}",
+     #     "#{SDKPath}Layout/ChatView/Models/**/*.{swift,h,m}",
+     #     "#{SDKPath}Layout/ChatView/RecordAnimation/**/*.{swift,h,m}",
+     #     "#{SDKPath}Layout/ChatView/Views/**/*.{swift,h,m}"
+     #   ]
+     #   chatView.resources = [
+     #     "#{SDKPath}Layout/ChatView/WYChatView.bundle"
+     #   ]
+     #   chatView.resource_bundles = {"WYBasisKitLayoutChatView" => [
+     #     "#{SDKPath}Layout/ChatView/PrivacyInfo.xcprivacy"
+     #   ]}
+     #   chatView.frameworks = "Foundation", "UIKit"
+     #   chatView.dependency "WYBasisKit-swift/Extension"
+     #   chatView.dependency "WYBasisKit-swift/Localizable"
+     #   chatView.dependency "SnapKit"
+     #   chatView.dependency "Kingfisher"
+     # end
   end
 
   kit.subspec "IJKFrameworkFull" do |framework|  # IJKMediaPlayerFramework (真机+模拟器)
@@ -319,6 +325,7 @@ Pod::Spec.new do |kit|
     framework.frameworks = "UIKit", "AudioToolbox", "CoreGraphics", "AVFoundation", "CoreMedia", "CoreVideo", "MediaPlayer", "CoreServices", "Metal", "QuartzCore", "VideoToolbox"
     # framework.vendored_libraries = "xxx.a"
     framework.vendored_frameworks = [
+      "MediaPlayer/WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework",
       "#{SDKPath}MediaPlayer/WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework"
     ]
     framework.pod_target_xcconfig = {
@@ -336,6 +343,7 @@ Pod::Spec.new do |kit|
     framework.frameworks = "UIKit", "AudioToolbox", "CoreGraphics", "AVFoundation", "CoreMedia", "CoreVideo", "MediaPlayer", "CoreServices", "Metal", "QuartzCore", "VideoToolbox"
     # framework.vendored_libraries = "xxx.a"
     framework.vendored_frameworks = [
+      "MediaPlayer/WYMediaPlayerFramework/arm64/IJKMediaPlayer.xcframework",
       "#{SDKPath}MediaPlayer/WYMediaPlayerFramework/arm64/IJKMediaPlayer.xcframework"
     ]
     framework.pod_target_xcconfig = {
