@@ -113,6 +113,22 @@ public extension UICollectionView {
         return collectionview
     }
     
+    /// 滚动到底部
+    func wy_scrollToBottom(animated: Bool) {
+        let section = max(0, numberOfSections - 1)
+        let item = max(0, numberOfItems(inSection: section) - 1)
+        guard section >= 0, item >= 0 else { return }
+        let indexPath = IndexPath(item: item, section: section)
+        scrollToItem(at: indexPath, at: .bottom, animated: animated)
+    }
+    
+    /// 滚动到指定 IndexPath
+    func wy_scrollTo(indexPath: IndexPath, at position: UICollectionView.ScrollPosition = .centeredVertically, animated: Bool = true) {
+        guard indexPath.section < numberOfSections,
+              indexPath.item < numberOfItems(inSection: indexPath.section) else { return }
+        scrollToItem(at: indexPath, at: position, animated: animated)
+    }
+    
     /// 批量注册UICollectionView的Cell或Header/FooterView
     func wy_register(_ contentClasss: [AnyClass], _ styles: [WYCollectionViewRegisterStyle]) {
         for index in 0..<contentClasss.count {

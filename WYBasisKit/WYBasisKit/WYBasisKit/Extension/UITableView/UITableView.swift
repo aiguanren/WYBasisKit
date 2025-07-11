@@ -71,6 +71,22 @@ public extension UITableView {
         return tableview
     }
     
+    /// 滚动到底部
+    func wy_scrollToBottom(animated: Bool) {
+        let section = max(0, numberOfSections - 1)
+        let row = max(0, numberOfRows(inSection: section) - 1)
+        guard section >= 0, row >= 0 else { return }
+        let indexPath = IndexPath(row: row, section: section)
+        scrollToRow(at: indexPath, at: .bottom, animated: animated)
+    }
+    
+    /// 滚动到指定 IndexPath
+    func wy_scrollTo(indexPath: IndexPath, at position: UITableView.ScrollPosition = .middle, animated: Bool = true) {
+        guard indexPath.section < numberOfSections,
+              indexPath.row < numberOfRows(inSection: indexPath.section) else { return }
+        scrollToRow(at: indexPath, at: position, animated: animated)
+    }
+    
     /// 是否允许其它手势识别，默认false，在tableView嵌套的类似需求下可设置为true
     var wy_allowOtherGestureRecognizer: Bool {
         
