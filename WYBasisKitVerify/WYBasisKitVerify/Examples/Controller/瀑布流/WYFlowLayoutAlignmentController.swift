@@ -24,8 +24,8 @@ class WYFlowLayoutAlignmentController: UIViewController {
         collectionView.isPagingEnabled = isPagingEnabled
         collectionView.snp.makeConstraints { make in
             make.left.right.equalToSuperview()
-            make.top.equalToSuperview().offset(wy_navViewHeight)
-            make.height.equalTo(wy_screenWidth(235))
+            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight)
+            make.height.equalTo(UIDevice.wy_screenWidth(235))
         }
         return collectionView
     }()
@@ -36,7 +36,7 @@ class WYFlowLayoutAlignmentController: UIViewController {
         collectionView.isPagingEnabled = isPagingEnabled
         collectionView.snp.makeConstraints { make in
             make.left.right.bottom.equalToSuperview()
-            make.top.equalToSuperview().offset(wy_navViewHeight + wy_screenWidth(235))
+            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight + UIDevice.wy_screenWidth(235))
         }
         return collectionView
     }()
@@ -71,7 +71,7 @@ extension WYFlowLayoutAlignmentController: UICollectionViewDelegate, UICollectio
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 //        return 80
-        return wy_randomInteger(minimux: 1, maximum: 129)
+        return NSInteger.wy_random(minimux: 1, maximum: 129)
 //        return 9
 //        return 169
     }
@@ -87,7 +87,7 @@ extension WYFlowLayoutAlignmentController: UICollectionViewDelegate, UICollectio
                     if wy_collectionView(collectionView, layout: collectionViewLayout, hoverForHeaderForSectionAt: indexPath.section) == true {
                         return CGSize(width: 35, height: indexPath.row + 10)
                     }else {
-                        return CGSize(width: 35, height: wy_randomInteger(minimux: 35, maximum: 135))
+                        return CGSize(width: 35, height: NSInteger.wy_random(minimux: 35, maximum: 135))
                     }
                 }
             }else {
@@ -96,7 +96,7 @@ extension WYFlowLayoutAlignmentController: UICollectionViewDelegate, UICollectio
                     return CGSize(width: 35, height: 35)
                 }
                 
-                let testString: String = wy_randomString(minimux: 1, maximum: 20)
+                let testString: String = String.wy_random(minimux: 1, maximum: 20)
                 
                 let testFont: UIFont = .systemFont(ofSize: 15)
                 
@@ -133,7 +133,7 @@ extension WYFlowLayoutAlignmentController: UICollectionViewDelegate, UICollectio
             if collectionView.isPagingEnabled == true {
                 return CGSize(width: 35, height: 35)
             }
-            return CGSize(width: wy_randomInteger(minimux: 35, maximum: 135), height: 35)
+            return CGSize(width: NSInteger.wy_random(minimux: 35, maximum: 135), height: 35)
         }
     }
     
@@ -187,14 +187,14 @@ extension WYFlowLayoutAlignmentController: UICollectionViewDelegate, UICollectio
         if collectionView.isPagingEnabled || collectionView == horizontal {
             return .zero
         }
-        return CGSize(width: wy_screenWidth, height: 50)
+        return CGSize(width: UIDevice.wy_screenWidth, height: 50)
     }
     
     func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: NSInteger) -> CGSize {
         if collectionView.isPagingEnabled || collectionView == horizontal {
             return .zero
         }
-        return CGSize(width: wy_screenWidth, height: 50)
+        return CGSize(width: UIDevice.wy_screenWidth, height: 50)
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {

@@ -19,55 +19,55 @@ public struct WYEmojiFuncAreaConfig {
     public var wrapLastLineOfEmoji: Bool = true
     
     /// 整个功能区高度
-    public var areaHeight: CGFloat = wy_screenWidth(100)
+    public var areaHeight: CGFloat = UIDevice.wy_screenWidth(100)
     
     /// 删除按钮是否需要支持长按连续删除输入框内容
     public var longPressDelete: Bool = true
     
     /// 整个功能区距离emoji控件右侧的间距
-    public var areaRightOffset: CGFloat = wy_screenWidth(15)
+    public var areaRightOffset: CGFloat = UIDevice.wy_screenWidth(15)
     
     /// 整个功能区距离emoji控件底部的间距
     public var areaBottomOffset: CGFloat = 0
     
     /// 删除按钮左侧距离功能区左侧的间距
-    public var deleteViewLeftOffsetWithArea: CGFloat = inputBarConfig.showSpecialSendButton ? wy_screenWidth(20) : 0
+    public var deleteViewLeftOffsetWithArea: CGFloat = inputBarConfig.showSpecialSendButton ? UIDevice.wy_screenWidth(20) : 0
     
     /// 发送按钮size
-    public var sendViewSize: CGSize = CGSize(width: wy_screenWidth(60), height: wy_screenWidth(50))
+    public var sendViewSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(60), height: UIDevice.wy_screenWidth(50))
     
     /// 删除按钮size
-    public var deleteViewSize: CGSize = CGSize(width: wy_screenWidth(60), height: wy_screenWidth(50))
+    public var deleteViewSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(60), height: UIDevice.wy_screenWidth(50))
     
     /// 发送按钮左侧和删除按钮右侧之间的间距
-    public var sendViewLeftOffsetWithDeleteView: CGFloat = wy_screenWidth(8)
+    public var sendViewLeftOffsetWithDeleteView: CGFloat = UIDevice.wy_screenWidth(8)
     
     /// 发送按钮距离功能区右侧间距
     public var sendViewRightOffset: CGFloat = 0
     
     /// 发送按钮和删除按钮距离功能区顶部的间距
-    public var sendViewAndDeleteViewTopOffset: CGFloat = wy_screenWidth(40)
+    public var sendViewAndDeleteViewTopOffset: CGFloat = UIDevice.wy_screenWidth(40)
     
     /// 删除按钮和发送按钮的圆角半径
-    public var deleteViewAndSendViewCornerRadius: CGFloat = wy_screenWidth(5)
+    public var deleteViewAndSendViewCornerRadius: CGFloat = UIDevice.wy_screenWidth(5)
     
     /// 删除按钮不可点击时背景图
     public var deleteViewImageWithUnenable: UIImage = UIImage.wy_find("WYChatDeleteUnenable", inBundle: WYChatSourceBundle)
     
     /// 发送按钮不可点击时背景图
-    public var sendViewImageWithUnenable: UIImage = UIImage.wy_createImage(from: .white, size: CGSize(width: wy_screenWidth(60), height: wy_screenWidth(50)))
+    public var sendViewImageWithUnenable: UIImage = UIImage.wy_createImage(from: .white, size: CGSize(width: UIDevice.wy_screenWidth(60), height: UIDevice.wy_screenWidth(50)))
     
     /// 删除按钮可点击时背景图
     public var deleteViewImageWithEnable: UIImage = UIImage.wy_find("WYChatDeleteEnable", inBundle: WYChatSourceBundle)
     
     /// 发送按钮可点击时背景图
-    public var sendViewImageWithEnable: UIImage = UIImage.wy_createImage(from: .wy_rgb(64, 118, 246), size: CGSize(width: wy_screenWidth(60), height: wy_screenWidth(50)))
+    public var sendViewImageWithEnable: UIImage = UIImage.wy_createImage(from: .wy_rgb(64, 118, 246), size: CGSize(width: UIDevice.wy_screenWidth(60), height: UIDevice.wy_screenWidth(50)))
     
     /// 删除按钮按压状态背景图
     public var deleteViewImageWithHighly: UIImage = UIImage.wy_find("WYChatDeleteEnable", inBundle: WYChatSourceBundle)
     
     /// 发送按钮按压状态背景图
-    public var sendViewImageWithHighly: UIImage = UIImage.wy_createImage(from: .wy_rgb(64, 118, 246), size: CGSize(width: wy_screenWidth(60), height: wy_screenWidth(50)))
+    public var sendViewImageWithHighly: UIImage = UIImage.wy_createImage(from: .wy_rgb(64, 118, 246), size: CGSize(width: UIDevice.wy_screenWidth(60), height: UIDevice.wy_screenWidth(50)))
     
     /// 删除按钮文本
     public var deleteViewText: String = "删除"
@@ -76,10 +76,10 @@ public struct WYEmojiFuncAreaConfig {
     public var sendViewText: String = "发送"
     
     /// 删除按钮字体字号
-    public var deleteViewFont: UIFont = .boldSystemFont(ofSize: wy_screenWidth(16.5))
+    public var deleteViewFont: UIFont = .boldSystemFont(ofSize: UIDevice.wy_screenWidth(16.5))
     
     /// 发送按钮字体字号
-    public var sendViewFont: UIFont = .boldSystemFont(ofSize: wy_screenWidth(16.5))
+    public var sendViewFont: UIFont = .boldSystemFont(ofSize: UIDevice.wy_screenWidth(16.5))
     
     /// 删除按钮不可点击时文本颜色
     public var deleteViewTextColorWithUnenable: UIColor = .wy_hex("#E5E5E5")

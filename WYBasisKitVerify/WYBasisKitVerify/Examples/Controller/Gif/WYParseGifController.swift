@@ -24,7 +24,7 @@ class WYParseGifController: UIViewController {
         view.addSubview(oneGifView)
         oneGifView.snp.makeConstraints { make in
             make.left.equalToSuperview().offset(10)
-            make.top.equalToSuperview().offset(wy_navViewHeight + 80)
+            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight + 80)
             make.width.height.equalTo(widthHeight)
         }
         
@@ -33,7 +33,7 @@ class WYParseGifController: UIViewController {
         view.addSubview(animatedGifView)
         animatedGifView.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.top.equalToSuperview().offset(wy_navViewHeight + 80)
+            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight + 80)
             make.width.height.equalTo(widthHeight)
         }
         
@@ -42,7 +42,7 @@ class WYParseGifController: UIViewController {
         view.addSubview(customGifView)
         customGifView.snp.makeConstraints { make in
             make.right.equalToSuperview().offset(-10)
-            make.top.equalToSuperview().offset(wy_navViewHeight + 80)
+            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight + 80)
             make.width.height.equalTo(widthHeight)
         }
         
@@ -52,7 +52,7 @@ class WYParseGifController: UIViewController {
         view.addSubview(oneApngView)
         oneApngView.snp.makeConstraints { make in
             make.left.equalToSuperview().offset(10)
-            make.top.equalToSuperview().offset(wy_navViewHeight + 80 + widthHeight + 50)
+            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight + 80 + widthHeight + 50)
             make.width.height.equalTo(widthHeight)
         }
         
@@ -61,7 +61,7 @@ class WYParseGifController: UIViewController {
         view.addSubview(animatedApngView)
         animatedApngView.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.top.equalToSuperview().offset(wy_navViewHeight + 80 + widthHeight + 50)
+            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight + 80 + widthHeight + 50)
             make.width.height.equalTo(widthHeight)
         }
         
@@ -71,7 +71,7 @@ class WYParseGifController: UIViewController {
         view.addSubview(customApngView)
         customApngView.snp.makeConstraints { make in
             make.right.equalToSuperview().offset(-10)
-            make.top.equalToSuperview().offset(wy_navViewHeight + 80 + widthHeight + 50)
+            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight + 80 + widthHeight + 50)
             make.width.height.equalTo(widthHeight)
         }
         

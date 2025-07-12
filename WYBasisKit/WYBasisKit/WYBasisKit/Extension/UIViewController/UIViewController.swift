@@ -120,7 +120,7 @@ public extension UIViewController {
     /** 返回到指定的视图控制器 */
     func wy_backToViewController(className: String, animated: Bool = true) {
         
-        let controller = wy_projectName + "." + className
+        let controller = WYProjectInfo.projectName + "." + className
         guard let controllerClass = NSClassFromString(controller) as? UIViewController.Type else {
             
             return
@@ -166,7 +166,7 @@ public extension UIViewController {
     /** 根据字符串获得对应控制器 */
     func wy_controller(from className: String) -> UIViewController? {
         
-        let controller = wy_projectName + "." + className
+        let controller = WYProjectInfo.projectName + "." + className
         
         guard let controllerClass = NSClassFromString(controller) as? UIViewController.Type else {
 

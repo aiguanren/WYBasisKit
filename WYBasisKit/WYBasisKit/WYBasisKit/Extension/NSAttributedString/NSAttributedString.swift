@@ -89,6 +89,10 @@ public extension NSMutableAttributedString {
             targetRange = NSRange(location: 0, length: self.length)
         }
         
+        guard targetRange.location < self.length else {
+            return self
+        }
+        
         // 获取或创建段落样式
         let paragraphStyle: NSMutableParagraphStyle
         
@@ -304,7 +308,6 @@ public extension NSMutableAttributedString {
             switch option.alignment {
             case .center:
                 // 精确居中：图片中心点与字体基线对齐
-                let baselinePosition = lineFont.ascender - lineFont.capHeight
                 yOffset = lineFont.ascender - (option.size.height * 0.5)
                 
             case .top:

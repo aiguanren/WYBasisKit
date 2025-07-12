@@ -143,6 +143,22 @@ public extension UIView {
         }
     }
     
+    /**
+     *  获取自定义控件所需要的换行数
+     *
+     *  @param total     总共有多少个自定义控件
+     *
+     *  @param perLine   每行显示多少个控件
+     *
+     */
+    static func wy_numberOfLines(total: NSInteger, perLine: NSInteger) -> NSInteger {
+        if CGFloat(total).truncatingRemainder(dividingBy: CGFloat(perLine)) == 0 {
+            return total / perLine
+        }else {
+            return (total / perLine) + 1
+        }
+    }
+    
     /// 移除所有子控件
     func wy_removeAllSubviews() {
         if subviews.isEmpty == false {

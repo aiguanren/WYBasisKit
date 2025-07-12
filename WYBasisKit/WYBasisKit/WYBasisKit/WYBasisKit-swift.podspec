@@ -3,6 +3,22 @@ SDKPath = ""
 # 国际化资源需要的bundle，多地方使用，抽为变量
 localizable_bundle = "#{SDKPath}Localizable/WYLocalizable.bundle"
 
+$mediaPlayer_full_config = {
+  "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64", # 过滤模拟器arm64，解决M系列芯片MAC上模拟器架构问题
+  "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) WYMediaPlayer_SUPPORTS_SIMULATOR_FULL=1",  # 用于 Objective-C 的 #if 判断
+  "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) WYMediaPlayer_SUPPORTS_SIMULATOR_FULL" # 用于 Swift 的 #if 判断（注意不带 =1，就是直接使用宏名即可）
+}
+
+$mediaPlayer_lite_config = {
+  "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64", # 过滤模拟器arm64，解决，解决M系列芯片MAC上模拟器架构问题
+  "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) WYMediaPlayer_SUPPORTS_SIMULATOR_LITE=1",  # 用于 Objective-C 的 #if 判断
+  "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) WYMediaPlayer_SUPPORTS_SIMULATOR_LITE", # 用于 Swift 的 #if 判断（注意不带 =1，就是直接使用宏名即可）
+  # 模拟器环境下清空IJKMediaPlayer.xcframework相关的链接，避免链接导致的验证不通过与编译错误
+  "OTHER_LDFLAGS[sdk=iphonesimulator*]" => "",
+  "LD_RUNPATH_SEARCH_PATHS[sdk=iphonesimulator*]" => "",
+  # 模拟器环境下清空IJKMediaPlayer.xcframework相关的链接，避免链接导致的验证不通过与编译错误
+}
+
 Pod::Spec.new do |kit|
   kit.name         = "WYBasisKit-swift"
   kit.version      = "2.0.0"
@@ -13,7 +29,7 @@ Pod::Spec.new do |kit|
     Networking: 网络请求解决方案
     Activity: 活动指示器
     Storage: 本地存储
-    Layout: 各种自定义控件
+    Layout: 各种自定义控件(注意：ChatView尚未开发完毕)
     MediaPlayer: 直播、视频播放器
     Codable: 数据解析
     Authorization: 各种权限请求与判断
@@ -118,6 +134,7 @@ Pod::Spec.new do |kit|
       "#{SDKPath}Extension/NSAttributedString/**/*.{swift,h,m}",
       "#{SDKPath}Extension/String/**/*.{swift,h,m}",
       "#{SDKPath}Extension/UIImage/**/*.{swift,h,m}",
+      "#{SDKPath}Extension/UIDevice/**/*.{swift,h,m}",
       "#{SDKPath}Config/**/*.{swift}"
     ]
     activity.resources = [
@@ -240,6 +257,9 @@ Pod::Spec.new do |kit|
     layout.subspec "ScrollText" do |scrollText|
       scrollText.source_files = [
         "#{SDKPath}Layout/ScrollText/**/*.{swift,h,m}",
+        "#{SDKPath}Extension/UIFont/**/*.{swift,h,m}",
+        "#{SDKPath}Extension/UIDevice/**/*.{swift,h,m}",
+        "#{SDKPath}Extension/UIViewController/**/*.{swift,h,m}",
         "#{SDKPath}Config/**/*.{swift}"
       ]
       scrollText.resources = [localizable_bundle]
@@ -258,6 +278,9 @@ Pod::Spec.new do |kit|
         "#{SDKPath}Extension/UIButton/**/*.{swift,h,m}",
         "#{SDKPath}Extension/UIColor/**/*.{swift,h,m}",
         "#{SDKPath}Extension/UIImage/**/*.{swift,h,m}",
+        "#{SDKPath}Extension/UIDevice/**/*.{swift,h,m}",
+        "#{SDKPath}Extension/UIFont/**/*.{swift,h,m}",
+        "#{SDKPath}Extension/UIViewController/**/*.{swift,h,m}",
         "#{SDKPath}Config/**/*.{swift,h,m}"
       ]
       pagingView.resource_bundles = {"WYBasisKitLayoutPagingView" => [
@@ -271,6 +294,8 @@ Pod::Spec.new do |kit|
       bannerView.source_files = [
         "#{SDKPath}Layout/BannerView/**/*.{swift,h,m}",
         "#{SDKPath}Extension/UIView/**/*.{swift,h,m}",
+        "#{SDKPath}Extension/UIDevice/**/*.{swift,h,m}",
+        "#{SDKPath}Extension/UIViewController/**/*.{swift,h,m}",
         "#{SDKPath}Config/**/*.{swift,h,m}"
       ]
       bannerView.resources = [
@@ -302,6 +327,8 @@ Pod::Spec.new do |kit|
        chatView.frameworks = "Foundation", "UIKit"
        chatView.dependency "WYBasisKit-swift/Extension"
        chatView.dependency "WYBasisKit-swift/Localizable"
+       chatView.dependency "WYBasisKit-swift/Authorization/Microphone"
+       chatView.dependency "WYBasisKit-swift/Storage"
        chatView.dependency "SnapKit"
        chatView.dependency "Kingfisher"
      end
@@ -315,13 +342,10 @@ Pod::Spec.new do |kit|
     framework.libraries = "c++", "z", "bz2" 
     framework.frameworks = "UIKit", "AudioToolbox", "CoreGraphics", "AVFoundation", "CoreMedia", "CoreVideo", "MediaPlayer", "CoreServices", "Metal", "QuartzCore", "VideoToolbox"
     # framework.vendored_libraries = "xxx.a"
+    framework.pod_target_xcconfig = $mediaPlayer_full_config
     framework.vendored_frameworks = [
       "MediaPlayer/WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework"
     ]
-    framework.pod_target_xcconfig = {
-      "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64", # 过滤模拟器arm64，解决M系列芯片MAC上模拟器架构问题
-      "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) WYMediaPlayer_SUPPORTS_SIMULATOR=1",
-    }
   end
 
   kit.subspec "IJKFrameworkLite" do |framework|  # IJKMediaPlayerFramework (仅真机)
@@ -332,17 +356,10 @@ Pod::Spec.new do |kit|
     framework.libraries = "c++", "z", "bz2"  
     framework.frameworks = "UIKit", "AudioToolbox", "CoreGraphics", "AVFoundation", "CoreMedia", "CoreVideo", "MediaPlayer", "CoreServices", "Metal", "QuartzCore", "VideoToolbox"
     # framework.vendored_libraries = "xxx.a"
+    framework.pod_target_xcconfig = $mediaPlayer_lite_config
     framework.vendored_frameworks = [
       "MediaPlayer/WYMediaPlayerFramework/arm64/IJKMediaPlayer.xcframework"
     ]
-    framework.pod_target_xcconfig = {
-      "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64", # 过滤模拟器arm64，解决，解决M系列芯片MAC上模拟器架构问题
-      "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) WYMediaPlayer_SUPPORTS_SIMULATOR=0",
-      # 模拟器环境下清空IJKMediaPlayer.xcframework相关的链接，避免链接导致的验证不通过与编译错误
-      "OTHER_LDFLAGS[sdk=iphonesimulator*]" => "",
-      "LD_RUNPATH_SEARCH_PATHS[sdk=iphonesimulator*]" => "",
-      # 模拟器环境下清空IJKMediaPlayer.xcframework相关的链接，避免链接导致的验证不通过与编译错误
-    }
   end
   
   kit.subspec "MediaPlayerFull" do |mediaPlayer|
@@ -356,6 +373,7 @@ Pod::Spec.new do |kit|
     mediaPlayer.resource_bundles = {"WYBasisKitMediaPlayerFull" => [
       "#{SDKPath}MediaPlayer/PrivacyInfo.xcprivacy"
     ]}
+    mediaPlayer.pod_target_xcconfig = $mediaPlayer_full_config
     mediaPlayer.dependency "SnapKit"
     mediaPlayer.dependency "Kingfisher"
     mediaPlayer.dependency "WYBasisKit-swift/IJKFrameworkFull"
@@ -372,6 +390,7 @@ Pod::Spec.new do |kit|
     mediaPlayer.resource_bundles = {"WYBasisKitMediaPlayerLite" => [
       "#{SDKPath}MediaPlayer/PrivacyInfo.xcprivacy"
     ]}
+    mediaPlayer.pod_target_xcconfig = $mediaPlayer_lite_config
     mediaPlayer.dependency "SnapKit"
     mediaPlayer.dependency "Kingfisher"
     mediaPlayer.dependency "WYBasisKit-swift/IJKFrameworkLite"

@@ -7,11 +7,12 @@
 //
 
 import UIKit
+import SnapKit
 
 public struct WYInputBarConfig {
     
     /// 录音按钮长按手势允许手指移动的最大距离
-    public var recordViewLongPressMaxOffset: CGFloat = wy_screenWidth(100)
+    public var recordViewLongPressMaxOffset: CGFloat = UIDevice.wy_screenWidth(100)
     
     /// inputBar弹起或者收回时动画持续时长
     public var animateDuration: TimeInterval = 0.25
@@ -62,7 +63,7 @@ public struct WYInputBarConfig {
     public var voicePlaceholderColor: UIColor = .black
 
     /// 语音框输入占位文本字体、字号
-    public var voicePlaceholderFont: UIFont = .boldSystemFont(ofSize: wy_screenWidth(15))
+    public var voicePlaceholderFont: UIFont = .boldSystemFont(ofSize: UIFont.wy_fontSize(15))
     
     /// 键盘类型
     public var chatKeyboardType: UIKeyboardType = .default
@@ -77,13 +78,13 @@ public struct WYInputBarConfig {
     public var textPlaceholderColor: UIColor = .lightGray
 
     /// 输入框占位文本字体、字号
-    public var textPlaceholderFont: UIFont = .systemFont(ofSize: wy_screenWidth(15))
+    public var textPlaceholderFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(15))
 
     /// 输入框占位文本距离输入框左侧和顶部的间距
-    public var textPlaceholderOffset: CGPoint = CGPoint(x: wy_screenWidth(16), y: wy_screenWidth(12.5))
+    public var textPlaceholderOffset: CGPoint = CGPoint(x: UIDevice.wy_screenWidth(16), y: UIDevice.wy_screenWidth(12.5))
     
     /// 输入框内文本偏移量
-    public var inputTextEdgeInsets: UIEdgeInsets = UIEdgeInsets(top: wy_screenWidth(13), left: wy_screenWidth(10), bottom: wy_screenWidth(5), right: wy_screenWidth(5))
+    public var inputTextEdgeInsets: UIEdgeInsets = UIEdgeInsets(top: UIDevice.wy_screenWidth(13), left: UIDevice.wy_screenWidth(10), bottom: UIDevice.wy_screenWidth(5), right: UIDevice.wy_screenWidth(5))
     
     /// 输入字符长度限制
     public var inputTextLength: NSInteger = Int.max
@@ -113,16 +114,16 @@ public struct WYInputBarConfig {
     public var textColor: UIColor = .black
 
     /// 输入框输入文本字体、字号
-    public var textFont: UIFont = .systemFont(ofSize: wy_screenWidth(15))
+    public var textFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(15))
     
     /// 输入框文本行间距
-    public var textLineSpacing: CGFloat = wy_screenWidth(5)
+    public var textLineSpacing: CGFloat = UIDevice.wy_screenWidth(5)
 
     /// 输入框的最高高度
     public var textViewMaxHeight: CGFloat = CGFLOAT_MAX
     
     /// 输入框、语音框的圆角半径
-    public var textViewCornerRadius: CGFloat = wy_screenWidth(8)
+    public var textViewCornerRadius: CGFloat = UIDevice.wy_screenWidth(8)
 
     /// 输入框、语音框的边框颜色
     public var textViewBorderColor: UIColor = .gray
@@ -131,58 +132,58 @@ public struct WYInputBarConfig {
     public var textViewBorderWidth: CGFloat = 1
 
     /// 输入框、语音框的高度
-    public var inputViewHeight: CGFloat = wy_screenWidth(42)
+    public var inputViewHeight: CGFloat = UIDevice.wy_screenWidth(42)
 
     /// 输入框、语音框距离InputBar的间距
-    public var inputViewEdgeInsets: UIEdgeInsets = UIEdgeInsets(top: wy_screenWidth(12), left: wy_screenWidth(57), bottom: wy_screenWidth(12), right: wy_screenWidth(100))
+    public var inputViewEdgeInsets: UIEdgeInsets = UIEdgeInsets(top: UIDevice.wy_screenWidth(12), left: UIDevice.wy_screenWidth(57), bottom: UIDevice.wy_screenWidth(12), right: UIDevice.wy_screenWidth(100))
     
     /// 语音、文本切换按钮的size
-    public var voiceTextButtonSize: CGSize = CGSize(width: wy_screenWidth(31), height: wy_screenWidth(31))
+    public var voiceTextButtonSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(31), height: UIDevice.wy_screenWidth(31))
     
     /// 表情、文本切换按钮的size
-    public var emojiTextButtonSize: CGSize = CGSize(width: wy_screenWidth(31), height: wy_screenWidth(31))
+    public var emojiTextButtonSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(31), height: UIDevice.wy_screenWidth(31))
     
     /// 更多按钮的size
-    public var moreButtonSize: CGSize = CGSize(width: wy_screenWidth(31), height: wy_screenWidth(31))
+    public var moreButtonSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(31), height: UIDevice.wy_screenWidth(31))
 
     /// 语音、文本切换按钮距离 输入框、语音框 左侧的间距
-    public var voiceTextButtonRightOffset: CGFloat = wy_screenWidth(13)
+    public var voiceTextButtonRightOffset: CGFloat = UIDevice.wy_screenWidth(13)
 
     /// 语音、文本切换按钮距离 输入框、语音框 底部的间距
-    public var voiceTextButtonBottomOffset: CGFloat = wy_screenWidth(5)
+    public var voiceTextButtonBottomOffset: CGFloat = UIDevice.wy_screenWidth(5)
 
     /// 表情、文本切换按钮距离 输入框、语音框 右侧的间距
-    public var emojiTextButtonLeftOffset: CGFloat = wy_screenWidth(13)
+    public var emojiTextButtonLeftOffset: CGFloat = UIDevice.wy_screenWidth(13)
 
     /// 表情、文本切换按钮距离 输入框、语音框 底部的间距
-    public var emojiTextButtonBottomOffset: CGFloat = wy_screenWidth(5)
+    public var emojiTextButtonBottomOffset: CGFloat = UIDevice.wy_screenWidth(5)
     
     /// 更多按钮距离 输入框、语音框 右侧的间距(默认 emojiTextButtonLeftOffset + emojiTextButtonSize.width + emojiTextButtonLeftOffset)
-    public var moreButtonLeftOffset: CGFloat = wy_screenWidth(13) + wy_screenWidth(31) + wy_screenWidth(13)
+    public var moreButtonLeftOffset: CGFloat = UIDevice.wy_screenWidth(13) + UIDevice.wy_screenWidth(31) + UIDevice.wy_screenWidth(13)
 
     /// 更多按钮距离 输入框、语音框 底部的间距
-    public var moreButtonBottomOffset: CGFloat = wy_screenWidth(5)
+    public var moreButtonBottomOffset: CGFloat = UIDevice.wy_screenWidth(5)
     
     /// 是否使用独立的发送按钮(开启后当输入框中有字符出现时，会在InputBar的右侧出现一个独立的发送按钮)
     public var showSpecialSendButton: Bool = true
     
     /// 独立发送按钮的Size
-    public var specialSendButtonSize: CGSize = CGSize(width: wy_screenWidth(50), height: wy_screenWidth(35))
+    public var specialSendButtonSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(50), height: UIDevice.wy_screenWidth(35))
     
     /// 独立发送按钮左侧距离输入框、语音框右侧的间距
-    public var specialSendButtonLeftOffset: CGFloat = wy_screenWidth(57)
+    public var specialSendButtonLeftOffset: CGFloat = UIDevice.wy_screenWidth(57)
     
     /// 独立发送按钮右侧距离InputBar右侧的间距(默认 emojiTextButtonLeftOffset)
-    public var specialSendButtonRightOffset: CGFloat = wy_screenWidth(13)
+    public var specialSendButtonRightOffset: CGFloat = UIDevice.wy_screenWidth(13)
     
     /// 独立发送按钮底部距离 输入框、语音框 底部的间距
-    public var specialSendButtonBottomOffset: CGFloat = wy_screenWidth(5)
+    public var specialSendButtonBottomOffset: CGFloat = UIDevice.wy_screenWidth(5)
     
     /// 独立发送按钮图片
-    public var specialSendButtonImage: UIImage = UIImage.wy_createImage(from: .wy_rgb(64, 118, 246), size: CGSize(width: wy_screenWidth(50), height: wy_screenWidth(35)))
+    public var specialSendButtonImage: UIImage = UIImage.wy_createImage(from: .wy_rgb(64, 118, 246), size: CGSize(width: UIDevice.wy_screenWidth(50), height: UIDevice.wy_screenWidth(35)))
     
     /// 独立发送按钮的圆角半径
-    public var specialSendButtonCornerRadius: CGFloat = wy_screenWidth(5)
+    public var specialSendButtonCornerRadius: CGFloat = UIDevice.wy_screenWidth(5)
 
     /// 独立发送按钮的边框颜色
     public var specialSendButtonBorderColor: UIColor = .clear
@@ -191,7 +192,7 @@ public struct WYInputBarConfig {
     public var specialSendButtonBorderWidth: CGFloat = 0
     
     /// 独立发送按钮的字体字号
-    public var specialSendButtonFont: UIFont = .boldSystemFont(ofSize: wy_screenWidth(15))
+    public var specialSendButtonFont: UIFont = .boldSystemFont(ofSize: UIFont.wy_fontSize(15))
     
     /// 独立发送按钮的字体颜色
     public var specialSendButtonTextColor: UIColor = .white
@@ -374,7 +375,7 @@ public class WYChatInputView: UIImageView {
         textPlaceholderView.snp.makeConstraints { make in
             make.left.equalToSuperview().offset(inputBarConfig.textPlaceholderOffset.x)
             make.top.equalToSuperview().offset(inputBarConfig.textPlaceholderOffset.y)
-            make.right.lessThanOrEqualToSuperview().offset(-wy_screenWidth(5))
+            make.right.lessThanOrEqualToSuperview().offset(-UIDevice.wy_screenWidth(5))
         }
         
         textVoiceView.wy_nImage = inputBarConfig.voiceButtonImage
@@ -575,9 +576,9 @@ public class WYChatInputView: UIImageView {
 
         var textHeight: CGFloat = 0
         if (inputBarConfig.showSpecialSendButton == true) {
-            textHeight = textView.attributedText.wy_calculateHeight(controlWidth: wy_screenWidth - inputBarConfig.inputViewEdgeInsets.left - inputBarConfig.specialSendButtonLeftOffset - inputBarConfig.specialSendButtonRightOffset - inputBarConfig.specialSendButtonSize.width - inputBarConfig.inputTextEdgeInsets.left - inputBarConfig.inputTextEdgeInsets.right - wy_screenWidth(10)) + inputBarConfig.inputTextEdgeInsets.top + inputBarConfig.inputTextEdgeInsets.bottom
+            textHeight = textView.attributedText.wy_calculateHeight(controlWidth: UIDevice.wy_screenWidth - inputBarConfig.inputViewEdgeInsets.left - inputBarConfig.specialSendButtonLeftOffset - inputBarConfig.specialSendButtonRightOffset - inputBarConfig.specialSendButtonSize.width - inputBarConfig.inputTextEdgeInsets.left - inputBarConfig.inputTextEdgeInsets.right - UIDevice.wy_screenWidth(10)) + inputBarConfig.inputTextEdgeInsets.top + inputBarConfig.inputTextEdgeInsets.bottom
         }else {
-            textHeight = textView.attributedText.wy_calculateHeight(controlWidth: wy_screenWidth - inputBarConfig.inputViewEdgeInsets.left - inputBarConfig.inputViewEdgeInsets.right - inputBarConfig.inputTextEdgeInsets.left - inputBarConfig.inputTextEdgeInsets.right - wy_screenWidth(10)) + inputBarConfig.inputTextEdgeInsets.top + inputBarConfig.inputTextEdgeInsets.bottom
+            textHeight = textView.attributedText.wy_calculateHeight(controlWidth: UIDevice.wy_screenWidth - inputBarConfig.inputViewEdgeInsets.left - inputBarConfig.inputViewEdgeInsets.right - inputBarConfig.inputTextEdgeInsets.left - inputBarConfig.inputTextEdgeInsets.right - UIDevice.wy_screenWidth(10)) + inputBarConfig.inputTextEdgeInsets.top + inputBarConfig.inputTextEdgeInsets.bottom
         }
         
         var contentHeight: CGFloat = [textHeight,textView.contentSize.height,inputBarConfig.inputViewHeight].max()!
@@ -647,7 +648,7 @@ public class WYChatInputView: UIImageView {
         
         textPlaceholderView.isHidden = !emojiText.isEmpty
         if silence == false {
-            delegate?.textDidChanged?(wy_safe(emojiText))
+            delegate?.textDidChanged?(emojiText.wy_safe)
         }
         updateContentViewHeight()
         
@@ -657,7 +658,7 @@ public class WYChatInputView: UIImageView {
             textView.selectedTextRange = textView.textRange(from: start, to: end)
         }
         
-        UserDefaults.standard.setValue(wy_safe(emojiText), forKey: canSaveLastInputTextKey)
+        UserDefaults.standard.setValue(emojiText.wy_safe, forKey: canSaveLastInputTextKey)
         UserDefaults.standard.synchronize()
         
         updateTextViewOffset()
@@ -689,8 +690,8 @@ public class WYChatInputView: UIImageView {
     @objc public func didClickSendView(_ sender: UIButton? = nil) {
         let emojiText: String = NSMutableAttributedString(attributedString: textView.attributedText).wy_convertEmojiAttributedString(textColor: inputBarConfig.textColor, textFont: inputBarConfig.textFont).string
         
-        if wy_safe(emojiText).wy_replace(appointSymbol: "\n", replacement: "").count > 0 {
-            delegate?.didClickKeyboardEvent?(wy_safe(emojiText))
+        if emojiText.wy_safe.wy_replace(appointSymbol: "\n", replacement: "").count > 0 {
+            delegate?.didClickKeyboardEvent?(emojiText.wy_safe)
         }
     }
     

@@ -1,5 +1,5 @@
 //
-//  Object.swift
+//  NSObject.swift
 //  WYBasisKit
 //
 //  Created by 官人 on 2024/11/21.
@@ -68,5 +68,32 @@ public extension NSObject {
             free(methods)
         }
         return methodList
+    }
+    
+    /// 获取对象或者类的所有属性和对应的类型(struct类型也适用本方法)
+    class func wy_sharedPropertys(object: Any? = nil, className: String = "") -> [String: Any] {
+        
+        var propertys: [String: Any] = [:]
+        
+        if (object != nil) {
+            
+            Mirror(reflecting: object!).children.forEach { (child) in
+                propertys[child.label ?? ""] = type(of: child.value)
+            }
+        }
+        guard let objClass = NSClassFromString(className) else {
+            return propertys
+        }
+        
+        var count: UInt32 = 0
+        let ivars = class_copyIvarList(objClass, &count)
+        for i in 0..<count {
+            let ivar = ivars?[Int(i)]
+            let ivarName = NSString(cString: ivar_getName(ivar!)!, encoding: String.Encoding.utf8.rawValue)
+            let ivarType = NSString(cString: ivar_getTypeEncoding(ivar!)!, encoding: String.Encoding.utf8.rawValue)
+            
+            propertys[((ivarName ?? "") as String)] = (ivarType as String?) ?? ""
+        }
+        return propertys
     }
 }

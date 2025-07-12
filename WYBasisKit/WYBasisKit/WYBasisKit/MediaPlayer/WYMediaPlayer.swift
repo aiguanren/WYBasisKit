@@ -8,18 +8,11 @@
 
 import UIKit
 
-// 定义框架是否支持模拟器的编译常量
-#if WYMediaPlayer_SUPPORTS_SIMULATOR
-let WYMediaPlayerSupportsSimulator = true
-#else
-let WYMediaPlayerSupportsSimulator = false
-#endif
-
 // 仅在支持模拟器或真机环境下导入IJKMediaPlayer
-#if (targetEnvironment(simulator) && WYMediaPlayerSupportsSimulator) || !targetEnvironment(simulator)
+#if WYMediaPlayer_SUPPORTS_SIMULATOR_FULL || !targetEnvironment(simulator)
+import IJKMediaPlayer
 import SnapKit
 import Kingfisher
-import IJKMediaPlayer
 #endif
 
 /// 播放器状态回调
@@ -60,7 +53,8 @@ import IJKMediaPlayer
 
 public class WYMediaPlayer: UIImageView {
     
-#if (targetEnvironment(simulator) && WYMediaPlayerSupportsSimulator) || !targetEnvironment(simulator)
+#if WYMediaPlayer_SUPPORTS_SIMULATOR_FULL || !targetEnvironment(simulator)
+    
     /// 播放器组件
     public var ijkPlayer: IJKFFMoviePlayerController?
     
@@ -294,11 +288,40 @@ public class WYMediaPlayer: UIImageView {
         state = currentState
         delegate?.mediaPlayerDidChangeState?(self, state)
     }
+#else
+    public var ijkPlayer: AnyClass?
+    public private(set) var mediaUrl: String = ""
+    public var options: AnyObject?
+    public weak var delegate: WYMediaPlayerDelegate?
+    public var looping: Int64 = 0
+    public var failReplay: Int = 2
+    public var shouldAutoplay: Bool = true
+    public var scalingMode: UIView.ContentMode = .scaleAspectFill
+    public private(set) var state: WYMediaPlayerState = .unknown
+    public var thumbnailImageAtCurrentTime: UIImage?
+    public func play(with url: String, background: Any? = nil, placeholder: UIImage? = nil) {
+        showUnavailable("⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️\nIJKFrameworkLite与MediaPlayerLite\n不支持模拟器运行请切换真机或使用Full版本\n⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️")
+    }
+    public func muted(_ mute: Bool) { }
+    public func play() { }
+    public func pause() { }
+    public func stop(_ keepLast: Bool = true) { }
+    public func release() { }
+    
+    private func showUnavailable(_ messages: Any..., file: String = #file, function: String = #function, line: Int = #line) {
+    #if DEBUG
+        let timeFormatter = DateFormatter()
+        timeFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
+        let time = timeFormatter.string(from: Date())
+        let message = messages.compactMap { "\($0)" }.joined(separator: " ")
+        print("\n\(time) ——> \((file as NSString).lastPathComponent) ——> \(function) ——> line:\(line)\n\n\(message)\n\n\n")
+    #endif
+    }
+#endif
     
     deinit {
         release()
     }
-#endif
     
     /*
      // Only override draw() if you perform custom drawing.
@@ -307,5 +330,4 @@ public class WYMediaPlayer: UIImageView {
      // Drawing code
      }
      */
-    
 }

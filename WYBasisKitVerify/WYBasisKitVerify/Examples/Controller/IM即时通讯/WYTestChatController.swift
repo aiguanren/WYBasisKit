@@ -29,11 +29,11 @@ class WYTestChatController: UIViewController {
 //        moreViewConfig.isPagingEnabled = true
 //        moreViewConfig.scrollDirection = .vertical
         if (moreViewConfig.scrollDirection == .horizontal) && (moreViewConfig.showTotalItemInPage() == false) {
-            moreViewConfig.contentInset = UIEdgeInsets(top: wy_screenWidth(10), left: wy_screenWidth(20), bottom: wy_screenWidth(40), right: wy_screenWidth(20))
+            moreViewConfig.contentInset = UIEdgeInsets(top: UIDevice.wy_screenWidth(10), left: UIDevice.wy_screenWidth(20), bottom: UIDevice.wy_screenWidth(40), right: UIDevice.wy_screenWidth(20))
         }
         
         if (moreViewConfig.scrollDirection == .vertical) && (moreViewConfig.showTotalItemInPage() == false) {
-            moreViewConfig.contentInset = UIEdgeInsets(top: wy_screenWidth(10), left: wy_screenWidth(20), bottom: wy_screenWidth(20), right: wy_screenWidth(40))
+            moreViewConfig.contentInset = UIEdgeInsets(top: UIDevice.wy_screenWidth(10), left: UIDevice.wy_screenWidth(20), bottom: UIDevice.wy_screenWidth(20), right: UIDevice.wy_screenWidth(40))
         }
         
         chatView = WYChatView()
@@ -43,9 +43,9 @@ class WYTestChatController: UIViewController {
         chatView.delegate = self
         view.addSubview(chatView)
         chatView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(wy_navViewHeight)
+            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight)
             make.left.right.equalToSuperview()
-            make.bottom.equalToSuperview().offset(-wy_tabbarSafetyZone)
+            make.bottom.equalToSuperview().offset(-UIDevice.wy_tabbarSafetyZone)
         }
     }
 
@@ -130,7 +130,7 @@ extension WYTestChatController: WYChatViewDelegate {
             replyMessage.lastMessageTimestamp = replyMessage.sharedLastMessageTimestamp(self.chatView.dataSource)
             replyMessage.clientTimestamp = String.wy_sharedDeviceTimestamp()
             replyMessage.sendor = self.sharedUaerInfo(id: "88888", name: "大官人", avatar: "https://img1.baidu.com/it/u=3709586903,1286591012&fm=253&fmt=auto&app=138&f=JPEG")
-            replyMessage.content.text = ["这是自动模拟的回复消息😄😄😄😄😄😄", "回复消息", "这是自动模拟的多行回复消息😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄"][wy_randomInteger(minimux: 0, maximum: 2)]
+            replyMessage.content.text = ["这是自动模拟的回复消息😄😄😄😄😄😄", "回复消息", "这是自动模拟的多行回复消息😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄"][NSInteger.wy_random(minimux: 0, maximum: 2)]
             replyMessage.index = message.index + 1
             replyMessage.sendState = .success
             replyMessage.readers = "1"

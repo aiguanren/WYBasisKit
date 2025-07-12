@@ -19,9 +19,9 @@ class WYWebViewController: UIViewController {
         let webView = WKWebView()
         view.addSubview(webView)
         webView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(wy_navViewHeight + 2)
+            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight + 2)
             make.width.equalToSuperview()
-            make.bottom.equalToSuperview().offset(-wy_tabbarSafetyZone)
+            make.bottom.equalToSuperview().offset(-UIDevice.wy_tabbarSafetyZone)
         }
         // 启用加载进度条
         webView.enableProgressView()

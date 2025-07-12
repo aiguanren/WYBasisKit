@@ -26,7 +26,7 @@ public class WYScrollText: UIView {
     /// 文本颜色
     public var textColor: UIColor = .black
     /// 文本字体
-    public var textFont: UIFont = .systemFont(ofSize: wy_fontSize(12, WYBasisKitConfig.defaultScreenPixels))
+    public var textFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(12, WYBasisKitConfig.defaultScreenPixels))
     /// 轮播间隔，默认3s  为保证轮播流畅，该值要求最小为2s
     public var interval: TimeInterval = 3
     /// 背景色, 默认透明色

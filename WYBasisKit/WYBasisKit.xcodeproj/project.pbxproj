@@ -25,7 +25,7 @@
 		58678E972DFA627C0035673E /* WYMoreViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E4D2DFA627C0035673E /* WYMoreViewCell.swift */; };
 		58678E982DFA627C0035673E /* WYSpeechRecognitionAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678DF12DFA627C0035673E /* WYSpeechRecognitionAuthorization.swift */; };
 		58678E992DFA627C0035673E /* WYStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E872DFA627C0035673E /* WYStorage.swift */; };
-		58678E9A2DFA627C0035673E /* Object.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E102DFA627C0035673E /* Object.swift */; };
+		58678E9A2DFA627C0035673E /* NSObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E102DFA627C0035673E /* NSObject.swift */; };
 		58678E9B2DFA627C0035673E /* WYChatMoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E4C2DFA627C0035673E /* WYChatMoreView.swift */; };
 		58678E9C2DFA627C0035673E /* WKWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E302DFA627C0035673E /* WKWebView.swift */; };
 		58678E9D2DFA627C0035673E /* WYScrollText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E752DFA627C0035673E /* WYScrollText.swift */; };
@@ -62,7 +62,6 @@
 		58678EBC2DFA627C0035673E /* WYChatConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E382DFA627C0035673E /* WYChatConfig.swift */; };
 		58678EBD2DFA627C0035673E /* UIButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E1A2DFA627C0035673E /* UIButton.swift */; };
 		58678EBE2DFA627C0035673E /* WYBasisKitConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678DFE2DFA627C0035673E /* WYBasisKitConfig.swift */; };
-		58678EBF2DFA627C0035673E /* Int.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E0A2DFA627C0035673E /* Int.swift */; };
 		58678EC02DFA627C0035673E /* UITableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E282DFA627C0035673E /* UITableView.swift */; };
 		58678EC12DFA627C0035673E /* WYCameraAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678DE92DFA627C0035673E /* WYCameraAuthorization.swift */; };
 		58678EC22DFA627C0035673E /* WYNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E842DFA627C0035673E /* WYNetworkManager.swift */; };
@@ -104,6 +103,9 @@
 		58682F7C2E0E440E0057CC53 /* WYEventHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58682F7A2E0E440E0057CC53 /* WYEventHandler.swift */; };
 		587CDF902E09151500929E1D /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 587CDF8F2E09151500929E1D /* libz.tbd */; };
 		587CDF922E09153B00929E1D /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 587CDF912E09153B00929E1D /* libbz2.tbd */; };
+		58F3786D2E2224A9007F7C55 /* UIFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3786C2E2224A9007F7C55 /* UIFont.swift */; };
+		58F378702E2239D5007F7C55 /* FloatingPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3786F2E2239D5007F7C55 /* FloatingPoint.swift */; };
+		58F378732E2240C3007F7C55 /* NSInteger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F378722E2240C3007F7C55 /* NSInteger.swift */; };
 		AAC46AD02E07E28F0068B0DF /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = AAC46ACF2E07E28F0068B0DF /* libc++.tbd */; };
 		ED4EB416B83B179C621C40F0 /* Pods_WYBasisKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEB6297DCF484666E8FC6223 /* Pods_WYBasisKit.framework */; };
 /* End PBXBuildFile section */
@@ -140,10 +142,9 @@
 		58678E042DFA627C0035673E /* CGFloat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGFloat.swift; sourceTree = "<group>"; };
 		58678E062DFA627C0035673E /* Decimal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Decimal.swift; sourceTree = "<group>"; };
 		58678E082DFA627C0035673E /* Double.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Double.swift; sourceTree = "<group>"; };
-		58678E0A2DFA627C0035673E /* Int.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Int.swift; sourceTree = "<group>"; };
 		58678E0C2DFA627C0035673E /* NSAttributedString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSAttributedString.swift; sourceTree = "<group>"; };
 		58678E0E2DFA627C0035673E /* NumberFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberFormatter.swift; sourceTree = "<group>"; };
-		58678E102DFA627C0035673E /* Object.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Object.swift; sourceTree = "<group>"; };
+		58678E102DFA627C0035673E /* NSObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSObject.swift; sourceTree = "<group>"; };
 		58678E122DFA627C0035673E /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
 		58678E142DFA627C0035673E /* Timer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Timer.swift; sourceTree = "<group>"; };
 		58678E162DFA627C0035673E /* UIAlertController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIAlertController.swift; sourceTree = "<group>"; };
@@ -209,6 +210,9 @@
 		58682F7A2E0E440E0057CC53 /* WYEventHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYEventHandler.swift; sourceTree = "<group>"; };
 		587CDF8F2E09151500929E1D /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		587CDF912E09153B00929E1D /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
+		58F3786C2E2224A9007F7C55 /* UIFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIFont.swift; sourceTree = "<group>"; };
+		58F3786F2E2239D5007F7C55 /* FloatingPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPoint.swift; sourceTree = "<group>"; };
+		58F378722E2240C3007F7C55 /* NSInteger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSInteger.swift; sourceTree = "<group>"; };
 		8B8A3708E351CE0BB9E30715 /* Pods-WYBasisKit.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.debug.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.debug.xcconfig"; sourceTree = "<group>"; };
 		AAC46ACF2E07E28F0068B0DF /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		FEB6297DCF484666E8FC6223 /* Pods_WYBasisKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WYBasisKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -404,14 +408,6 @@
 			path = Double;
 			sourceTree = "<group>";
 		};
-		58678E0B2DFA627C0035673E /* Int */ = {
-			isa = PBXGroup;
-			children = (
-				58678E0A2DFA627C0035673E /* Int.swift */,
-			);
-			path = Int;
-			sourceTree = "<group>";
-		};
 		58678E0D2DFA627C0035673E /* NSAttributedString */ = {
 			isa = PBXGroup;
 			children = (
@@ -428,12 +424,12 @@
 			path = NumberFormatter;
 			sourceTree = "<group>";
 		};
-		58678E112DFA627C0035673E /* Object */ = {
+		58678E112DFA627C0035673E /* NSObject */ = {
 			isa = PBXGroup;
 			children = (
-				58678E102DFA627C0035673E /* Object.swift */,
+				58678E102DFA627C0035673E /* NSObject.swift */,
 			);
-			path = Object;
+			path = NSObject;
 			sourceTree = "<group>";
 		};
 		58678E132DFA627C0035673E /* String */ = {
@@ -567,15 +563,17 @@
 		58678E322DFA627C0035673E /* Extension */ = {
 			isa = PBXGroup;
 			children = (
+				58F378712E2240B9007F7C55 /* NSInteger */,
+				58F3786E2E2239A7007F7C55 /* FloatingPoint */,
+				58F3786B2E22244B007F7C55 /* UIFont */,
 				58678E012DFA627C0035673E /* Bool */,
 				58678E032DFA627C0035673E /* CALayer */,
 				58678E052DFA627C0035673E /* CGFloat */,
 				58678E072DFA627C0035673E /* Decimal */,
 				58678E092DFA627C0035673E /* Double */,
-				58678E0B2DFA627C0035673E /* Int */,
 				58678E0D2DFA627C0035673E /* NSAttributedString */,
 				58678E0F2DFA627C0035673E /* NumberFormatter */,
-				58678E112DFA627C0035673E /* Object */,
+				58678E112DFA627C0035673E /* NSObject */,
 				58678E132DFA627C0035673E /* String */,
 				58678E152DFA627C0035673E /* Timer */,
 				58678E172DFA627C0035673E /* UIAlertController */,
@@ -943,6 +941,30 @@
 			path = EventHandler;
 			sourceTree = "<group>";
 		};
+		58F3786B2E22244B007F7C55 /* UIFont */ = {
+			isa = PBXGroup;
+			children = (
+				58F3786C2E2224A9007F7C55 /* UIFont.swift */,
+			);
+			path = UIFont;
+			sourceTree = "<group>";
+		};
+		58F3786E2E2239A7007F7C55 /* FloatingPoint */ = {
+			isa = PBXGroup;
+			children = (
+				58F3786F2E2239D5007F7C55 /* FloatingPoint.swift */,
+			);
+			path = FloatingPoint;
+			sourceTree = "<group>";
+		};
+		58F378712E2240B9007F7C55 /* NSInteger */ = {
+			isa = PBXGroup;
+			children = (
+				58F378722E2240C3007F7C55 /* NSInteger.swift */,
+			);
+			path = NSInteger;
+			sourceTree = "<group>";
+		};
 		74BEC470B6E92D82AAD2D137 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -1091,6 +1113,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				585B39A22DF8125400E6E08F /* AppDelegate.swift in Sources */,
+				58F378732E2240C3007F7C55 /* NSInteger.swift in Sources */,
 				585B39A32DF8125400E6E08F /* ViewController.swift in Sources */,
 				58678E8D2DFA627C0035673E /* WYMicrophoneAuthorization.swift in Sources */,
 				58678E8E2DFA627C0035673E /* WYCodingKeysConverter.swift in Sources */,
@@ -1105,7 +1128,7 @@
 				58678E972DFA627C0035673E /* WYMoreViewCell.swift in Sources */,
 				58678E982DFA627C0035673E /* WYSpeechRecognitionAuthorization.swift in Sources */,
 				58678E992DFA627C0035673E /* WYStorage.swift in Sources */,
-				58678E9A2DFA627C0035673E /* Object.swift in Sources */,
+				58678E9A2DFA627C0035673E /* NSObject.swift in Sources */,
 				58678E9B2DFA627C0035673E /* WYChatMoreView.swift in Sources */,
 				58678E9C2DFA627C0035673E /* WKWebView.swift in Sources */,
 				58678E9D2DFA627C0035673E /* WYScrollText.swift in Sources */,
@@ -1115,9 +1138,11 @@
 				58678EA12DFA627C0035673E /* WYChatVideoCell.swift in Sources */,
 				58678EA22DFA627C0035673E /* WYPhotoAlbumsAuthorization.swift in Sources */,
 				58678EA32DFA627C0035673E /* WYMoveupTipsView.swift in Sources */,
+				58F378702E2239D5007F7C55 /* FloatingPoint.swift in Sources */,
 				58678EA42DFA627C0035673E /* WYEmojiFuncAreaView.swift in Sources */,
 				58678EA52DFA627C0035673E /* WYEmojiHeaderView.swift in Sources */,
 				58678EA62DFA627C0035673E /* WYEmojiViewCell.swift in Sources */,
+				58F3786D2E2224A9007F7C55 /* UIFont.swift in Sources */,
 				58678EA72DFA627C0035673E /* WYChatInputView.swift in Sources */,
 				58678EA82DFA627C0035673E /* UIAlertController.swift in Sources */,
 				58678EA92DFA627C0035673E /* WYEmojiPreviewView.swift in Sources */,
@@ -1143,7 +1168,6 @@
 				58678EBC2DFA627C0035673E /* WYChatConfig.swift in Sources */,
 				58678EBD2DFA627C0035673E /* UIButton.swift in Sources */,
 				58678EBE2DFA627C0035673E /* WYBasisKitConfig.swift in Sources */,
-				58678EBF2DFA627C0035673E /* Int.swift in Sources */,
 				58678EC02DFA627C0035673E /* UITableView.swift in Sources */,
 				58678EC12DFA627C0035673E /* WYCameraAuthorization.swift in Sources */,
 				58678EC22DFA627C0035673E /* WYNetworkManager.swift in Sources */,

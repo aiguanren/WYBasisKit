@@ -18,7 +18,7 @@ class WYTestRequestController: UIViewController {
         view.backgroundColor = .white
         
         let textView = UITextView()
-        textView.frame = CGRect(x: 0, y: wy_navViewHeight, width: wy_screenWidth, height: wy_screenHeight - wy_navViewHeight)
+        textView.frame = CGRect(x: 0, y: UIDevice.wy_navViewHeight, width: UIDevice.wy_screenWidth, height: UIDevice.wy_screenHeight - UIDevice.wy_navViewHeight)
         textView.isEditable = false
         textView.textColor = .black
         view.addSubview(textView)

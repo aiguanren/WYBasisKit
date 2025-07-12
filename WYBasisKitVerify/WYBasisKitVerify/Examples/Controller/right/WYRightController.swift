@@ -58,7 +58,7 @@ class WYRightController: UIViewController {
         pagingView.snp.makeConstraints { (make) in
 
             make.left.bottom.right.equalToSuperview()
-            make.top.equalToSuperview().offset(wy_navViewHeight)
+            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight)
         }
         pagingView.delegate = self
         pagingView.bar_Height = 100

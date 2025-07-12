@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SnapKit
 
 /// 文本聊天配置选项
 public struct WYTextChatConfig {
@@ -14,19 +15,19 @@ public struct WYTextChatConfig {
     public var basic: WYBasicChatConfig = WYBasicChatConfig()
     
     /// 单聊时气泡图距离昵称控件的偏移量
-    public var bubbleOffsetForSingle: (sendor: CGPoint, receive: CGPoint) = (sendor: CGPoint(x: wy_screenWidth(12), y: 0), receive: CGPoint(x: -wy_screenWidth(12), y: 0))
+    public var bubbleOffsetForSingle: (sendor: CGPoint, receive: CGPoint) = (sendor: CGPoint(x: UIDevice.wy_screenWidth(12), y: 0), receive: CGPoint(x: -UIDevice.wy_screenWidth(12), y: 0))
     
     /// 群聊时气泡图距离昵称控件的偏移量
-    public var bubbleOffsetForGroup: (sendor: CGPoint, receive: CGPoint) = (sendor: CGPoint(x: wy_screenWidth(12), y: 0), receive: CGPoint(x: -wy_screenWidth(12), y: 0))
+    public var bubbleOffsetForGroup: (sendor: CGPoint, receive: CGPoint) = (sendor: CGPoint(x: UIDevice.wy_screenWidth(12), y: 0), receive: CGPoint(x: -UIDevice.wy_screenWidth(12), y: 0))
     
     /// 气泡图距离对侧头像控件的间距
-    public var bubbleMaxOffset: CGFloat = wy_screenWidth(5)
+    public var bubbleMaxOffset: CGFloat = UIDevice.wy_screenWidth(5)
     
     /// 左侧(接收方)气泡图
-    public var receiveBubbleImage: UIImage = UIImage.wy_find("WYChatTextBubblesRight", inBundle: WYChatSourceBundle).withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: wy_screenWidth(35), left: wy_screenWidth(10), bottom: wy_screenWidth(10), right: wy_screenWidth(10)), resizingMode: .stretch)
+    public var receiveBubbleImage: UIImage = UIImage.wy_find("WYChatTextBubblesRight", inBundle: WYChatSourceBundle).withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: UIDevice.wy_screenWidth(35), left: UIDevice.wy_screenWidth(10), bottom: UIDevice.wy_screenWidth(10), right: UIDevice.wy_screenWidth(10)), resizingMode: .stretch)
     
     /// 右侧(发送方)气泡图
-    public var sendorBubbleImage: UIImage = UIImage.wy_find("WYChatTextBubblesLeft", inBundle: WYChatSourceBundle).withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: wy_screenWidth(35), left: wy_screenWidth(10), bottom: wy_screenWidth(10), right: wy_screenWidth(10)), resizingMode: .stretch)
+    public var sendorBubbleImage: UIImage = UIImage.wy_find("WYChatTextBubblesLeft", inBundle: WYChatSourceBundle).withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: UIDevice.wy_screenWidth(35), left: UIDevice.wy_screenWidth(10), bottom: UIDevice.wy_screenWidth(10), right: UIDevice.wy_screenWidth(10)), resizingMode: .stretch)
     
     /// 左侧(接收方)气泡背景色
     public var receiveBubbleColor: UIColor? = .white
@@ -35,26 +36,26 @@ public struct WYTextChatConfig {
     public var sendorBubbleColor: UIColor? = .wy_rgb(169, 233, 121)
     
     /// 气泡图距离cell底部的间距
-    public var bubbleOffsetForBottom: CGFloat = -wy_screenWidth(15)
+    public var bubbleOffsetForBottom: CGFloat = -UIDevice.wy_screenWidth(15)
     
     /// 文本距离气泡内部的边界距离
     public var textEdgeInsets: (sendor: UIEdgeInsets, receive: UIEdgeInsets) = (
         
-        sendor: UIEdgeInsets(top: wy_screenWidth(10), left: wy_screenWidth(10), bottom: wy_screenWidth(10), right: wy_screenWidth(15)),
+        sendor: UIEdgeInsets(top: UIDevice.wy_screenWidth(10), left: UIDevice.wy_screenWidth(10), bottom: UIDevice.wy_screenWidth(10), right: UIDevice.wy_screenWidth(15)),
         
-        receive: UIEdgeInsets(top: wy_screenWidth(10), left: wy_screenWidth(15), bottom: wy_screenWidth(10), right: wy_screenWidth(10)))
+        receive: UIEdgeInsets(top: UIDevice.wy_screenWidth(10), left: UIDevice.wy_screenWidth(15), bottom: UIDevice.wy_screenWidth(10), right: UIDevice.wy_screenWidth(10)))
     
     /// 字符行数限制(0为不限制行数)
     public var textMaximumNumberOfLines: NSInteger = 0
     
     /// 文本字体、字号
-    public var textFont: UIFont = .systemFont(ofSize: wy_screenWidth(15))
+    public var textFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(15))
     
     /// 文本字体颜色
     public var textColor: UIColor = .black
     
     /// 输入框文本行间距
-    public var textLineSpacing: CGFloat = wy_screenWidth(5)
+    public var textLineSpacing: CGFloat = UIDevice.wy_screenWidth(5)
     
     public init() {}
 }

@@ -29,7 +29,7 @@ public class WYPagingView: UIView {
     }
 
     /// 分页栏的高度 默认45
-    public var bar_Height: CGFloat = wy_screenWidth(45, WYBasisKitConfig.defaultScreenPixels)
+    public var bar_Height: CGFloat = UIDevice.wy_screenWidth(45, WYBasisKitConfig.defaultScreenPixels)
     
     /// 图片和文字显示模式
     public var buttonPosition: WYButtonPosition = .imageTopTitleBottom
@@ -47,10 +47,10 @@ public class WYPagingView: UIView {
     public var bar_adjustOffset: Bool = true
 
     /// 左右分页栏之间的间距，默认20像素
-    public var bar_dividingOffset: CGFloat = wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels)
+    public var bar_dividingOffset: CGFloat = UIDevice.wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels)
 
     /// 内部按钮图片和文字的上下或左右间距 默认5
-    public var barButton_dividingOffset: CGFloat = wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels)
+    public var barButton_dividingOffset: CGFloat = UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels)
     
     /// 分页控制器底部背景色 默认白色
     public var bar_pagingContro_content_color: UIColor = .white
@@ -101,22 +101,22 @@ public class WYPagingView: UIView {
     public var bar_scrollLineImage: UIImage? = nil
 
     /// 滑动线条宽度 默认25像素
-    public var bar_scrollLineWidth: CGFloat = wy_screenWidth(25, WYBasisKitConfig.defaultScreenPixels)
+    public var bar_scrollLineWidth: CGFloat = UIDevice.wy_screenWidth(25, WYBasisKitConfig.defaultScreenPixels)
 
     /// 滑动线条距离分页栏底部的距离 默认5像素
-    public var bar_scrollLineBottomOffset: CGFloat = wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels)
+    public var bar_scrollLineBottomOffset: CGFloat = UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels)
 
     /// 分隔带高度 默认2像素
-    public var bar_dividingStripHeight: CGFloat = wy_screenWidth(2, WYBasisKitConfig.defaultScreenPixels)
+    public var bar_dividingStripHeight: CGFloat = UIDevice.wy_screenWidth(2, WYBasisKitConfig.defaultScreenPixels)
 
     /// 滑动线条高度 默认2像素
-    public var bar_scrollLineHeight: CGFloat = wy_screenWidth(2, WYBasisKitConfig.defaultScreenPixels)
+    public var bar_scrollLineHeight: CGFloat = UIDevice.wy_screenWidth(2, WYBasisKitConfig.defaultScreenPixels)
 
     /// 分页栏标题默认字号 默认15号；
-    public var bar_title_defaultFont: UIFont = .systemFont(ofSize: wy_fontSize(15, WYBasisKitConfig.defaultScreenPixels))
+    public var bar_title_defaultFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(15, WYBasisKitConfig.defaultScreenPixels))
 
     /// 分页栏标题选中字号 默认15号；
-    public var bar_title_selectedFont: UIFont = .systemFont(ofSize: wy_fontSize(15, WYBasisKitConfig.defaultScreenPixels))
+    public var bar_title_selectedFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(15, WYBasisKitConfig.defaultScreenPixels))
 
     /// 初始选中第几项  默认第一项
     public var bar_selectedIndex: NSInteger = 0
@@ -298,7 +298,7 @@ extension WYPagingView {
         
         layoutIfNeeded()
         
-        if ((bar_adjustOffset == true) && (bar_item_width > 0) && (bar_item_width * CGFloat(controllers.count) <= wy_screenWidth)) {
+        if ((bar_adjustOffset == true) && (bar_item_width > 0) && (bar_item_width * CGFloat(controllers.count) <= UIDevice.wy_screenWidth)) {
             
             bar_originlLeftOffset = (self.frame.size.width - (bar_item_width * CGFloat(controllers.count)) - bar_dividingOffset) / 2
             

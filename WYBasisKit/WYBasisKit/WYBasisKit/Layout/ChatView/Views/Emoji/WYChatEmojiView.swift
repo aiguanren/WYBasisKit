@@ -10,7 +10,7 @@ import UIKit
 
 private let emojiViewRecentlyCountKey: String = "emojiViewRecentlyCountKey"
 
-private let emojiPath: String = Bundle(path: (((Bundle(for: WYBannerView.self).path(forResource: "WYChatView", ofType: "bundle")) ?? (Bundle.main.path(forResource: "WYChatView", ofType: "bundle"))) ?? ""))?.path(forResource: "WYChatViewEmoji", ofType: "plist") ?? ""
+private let emojiPath: String = Bundle(path: (((Bundle(for: WYChatEmojiView.self).path(forResource: "WYChatView", ofType: "bundle")) ?? (Bundle.main.path(forResource: "WYChatView", ofType: "bundle"))) ?? ""))?.path(forResource: "WYChatViewEmoji", ofType: "plist") ?? ""
 
 public struct WYEmojiViewConfig {
     
@@ -21,7 +21,7 @@ public struct WYEmojiViewConfig {
     public var backgroundColor: UIColor = .wy_hex("#f6f6f6")
 
     /// 自定义Emoji控件的高度
-    public var contentHeight: CGFloat = wy_screenWidth(350)
+    public var contentHeight: CGFloat = UIDevice.wy_screenWidth(350)
     
     /// 自定义Emoji控件内collectionView底部距离Emoji控件底部的偏移量
     public var collectionViewBottomOffset: CGFloat = 0
@@ -48,7 +48,7 @@ public struct WYEmojiViewConfig {
     public var totalHeaderText: String = "所有表情"
 
     /// 自定义Emoji控件Header文本字体、字号
-    public var headerTextFont: UIFont = .systemFont(ofSize: wy_screenWidth(15))
+    public var headerTextFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(15))
 
     /// 自定义Emoji控件Header文本字体颜色
     public var headerTextColor: UIColor = .wy_hex("#1B1B1B")
@@ -57,25 +57,25 @@ public struct WYEmojiViewConfig {
     public var headerBackgroundColor: UIColor = .wy_hex("#f6f6f6")
 
     /// 自定义Emoji控件HeaderView高度
-    public var headerHeight: CGFloat = wy_screenWidth(30)
+    public var headerHeight: CGFloat = UIDevice.wy_screenWidth(30)
 
     /// 自定义Emoji控件HeaderView中TextView的偏移量
-    public var headerTextOffset: CGPoint = CGPoint(x: wy_screenWidth(15), y: (wy_screenWidth(30) - UIFont.systemFont(ofSize: wy_screenWidth(15)).lineHeight) / 2)
+    public var headerTextOffset: CGPoint = CGPoint(x: UIDevice.wy_screenWidth(15), y: (UIDevice.wy_screenWidth(30) - UIFont.systemFont(ofSize: UIDevice.wy_screenWidth(15)).lineHeight) / 2)
 
     /// 自定义Emoji控件每行显示几个表情
     public var minimumLineCount: Int = 8
 
     /// 自定义Emoji控件单元格的Size
-    public var itemSize: CGSize = CGSize(width: wy_screenWidth(30), height: wy_screenWidth(30))
+    public var itemSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(30), height: UIDevice.wy_screenWidth(30))
 
     /// 自定义Emoji控件全部表情的sectionInset
-    public var sectionInset: UIEdgeInsets = UIEdgeInsets(top: 0, left: wy_screenWidth(15), bottom: wy_screenWidth(20), right: wy_screenWidth(15))
+    public var sectionInset: UIEdgeInsets = UIEdgeInsets(top: 0, left: UIDevice.wy_screenWidth(15), bottom: UIDevice.wy_screenWidth(20), right: UIDevice.wy_screenWidth(15))
 
     /// 自定义Emoji控件最近使用分区的sectionInset
-    public var recentlySectionInset: UIEdgeInsets = UIEdgeInsets(top: 0, left: wy_screenWidth(15), bottom: wy_screenWidth(15), right: wy_screenWidth(15))
+    public var recentlySectionInset: UIEdgeInsets = UIEdgeInsets(top: 0, left: UIDevice.wy_screenWidth(15), bottom: UIDevice.wy_screenWidth(15), right: UIDevice.wy_screenWidth(15))
 
     /// 自定义Emoji控件的行间距
-    public var minimumLineSpacing: CGFloat = wy_screenWidth(16)
+    public var minimumLineSpacing: CGFloat = UIDevice.wy_screenWidth(16)
 
     /// 自定义Emoji控件右下角功能区配置
     public var funcAreaConfig: WYEmojiFuncAreaConfig = WYEmojiFuncAreaConfig()
@@ -126,7 +126,7 @@ public class WYChatEmojiView: UIView, WYEmojiFuncAreaViewDelegate {
     
     public lazy var collectionView: UICollectionView = {
         
-        let minimumInteritemSpacing: CGFloat = (wy_screenWidth - emojiViewConfig.sectionInset.left - emojiViewConfig.sectionInset.right - (CGFloat(emojiViewConfig.minimumLineCount) * emojiViewConfig.itemSize.width)) / (CGFloat(emojiViewConfig.minimumLineCount) - 1.0)
+        let minimumInteritemSpacing: CGFloat = (UIDevice.wy_screenWidth - emojiViewConfig.sectionInset.left - emojiViewConfig.sectionInset.right - (CGFloat(emojiViewConfig.minimumLineCount) * emojiViewConfig.itemSize.width)) / (CGFloat(emojiViewConfig.minimumLineCount) - 1.0)
         
         let collectionView: UICollectionView = UICollectionView.wy_shared(scrollDirection: .vertical, minimumLineSpacing: emojiViewConfig.minimumLineSpacing, minimumInteritemSpacing: minimumInteritemSpacing, itemSize: emojiViewConfig.itemSize, delegate: self, dataSource: self, superView: self)
         collectionView.register(WYEmojiViewCell.self, forCellWithReuseIdentifier: "WYEmojiViewCell")

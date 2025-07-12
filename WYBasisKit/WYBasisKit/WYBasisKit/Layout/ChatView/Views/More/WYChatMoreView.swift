@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SnapKit
 
 public struct WYMoreViewConfig {
     
@@ -35,28 +36,28 @@ public struct WYMoreViewConfig {
     public var moreSource: [[String: String]] = []
 
     /// 自定义More控件的Inset
-    public var contentInset: UIEdgeInsets = UIEdgeInsets(top: wy_screenWidth(10), left: wy_screenWidth(20), bottom: wy_screenWidth(20), right: wy_screenWidth(20))
+    public var contentInset: UIEdgeInsets = UIEdgeInsets(top: UIDevice.wy_screenWidth(10), left: UIDevice.wy_screenWidth(20), bottom: UIDevice.wy_screenWidth(20), right: UIDevice.wy_screenWidth(20))
     
     /// 自定义More控件内imageView的背景色
     public var imageViewBackgroundColor: UIColor = .white
     
     /// 自定义More控件内imageView的Size
-    public var imageViewSize: CGSize = CGSize(width: wy_screenWidth(65), height: wy_screenWidth(60))
+    public var imageViewSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(65), height: UIDevice.wy_screenWidth(60))
     
     /// 自定义More控件内imageView的圆角半径
-    public var imageViewCornerRadius: CGFloat = wy_screenWidth(15)
+    public var imageViewCornerRadius: CGFloat = UIDevice.wy_screenWidth(15)
     
     /// 自定义More控件内imageView的背景色
     public var imageBackgroundColor: UIColor = .white
     
     /// 自定义More控件内文本控件的字体、字号
-    public var textViewFont: UIFont = .systemFont(ofSize: wy_screenWidth(13))
+    public var textViewFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(13))
     
     /// 自定义More控件内文本控件的色值
     public var textColor: UIColor = .wy_hex("#1B1B1B")
     
     /// 自定义More控件内文本控件顶部距离图片控件底部的间距
-    public var textTopOffset: CGFloat = wy_screenWidth(10)
+    public var textTopOffset: CGFloat = UIDevice.wy_screenWidth(10)
     
     /// 自定义More控件内一行显示几个item
     public var itemMaxCountWithLine: NSInteger = 4
@@ -71,7 +72,7 @@ public struct WYMoreViewConfig {
     public var maxHeightForever: Bool = false
     
     /// 自定义More控件内item的行间距
-    public var minimumLineSpacing: CGFloat = wy_screenWidth(16)
+    public var minimumLineSpacing: CGFloat = UIDevice.wy_screenWidth(16)
     
     /// 分页控件原点位置
     public var pageControlPosition: CGPoint?
@@ -122,9 +123,9 @@ public extension WYMoreViewConfig {
         
         let pageControlSize: CGSize = pageControl.size(forNumberOfPages: pageControl.numberOfPages)
         if scrollDirection == .horizontal {
-            return CGPoint(x: (wy_screenWidth - pageControlSize.width) / 2, y: contentHeight() - pageControlSize.height - wy_screenWidth(15))
+            return CGPoint(x: (UIDevice.wy_screenWidth - pageControlSize.width) / 2, y: contentHeight() - pageControlSize.height - UIDevice.wy_screenWidth(15))
         }else {
-            return CGPoint(x: wy_screenWidth - (pageControlSize.width / 2) - (pageControlSize.height / 2) - wy_screenWidth(15), y: (contentHeight() - pageControlSize.height) / 2)
+            return CGPoint(x: UIDevice.wy_screenWidth - (pageControlSize.width / 2) - (pageControlSize.height / 2) - UIDevice.wy_screenWidth(15), y: (contentHeight() - pageControlSize.height) / 2)
         }
     }
 }
@@ -152,7 +153,7 @@ public class WYChatMoreView: UIView {
         
         let numberOfCountInLine: NSInteger = moreViewConfig.scrollDirection == .horizontal ? moreViewConfig.itemMaxCountWithLine : moreViewConfig.itemMaxCountWithColumn
         
-        let minimumInteritemSpacing: CGFloat = (wy_screenWidth - moreViewConfig.contentInset.left - moreViewConfig.contentInset.right - (moreViewConfig.moreItemSize().width * CGFloat(numberOfCountInLine))) / CGFloat(numberOfCountInLine - 1)
+        let minimumInteritemSpacing: CGFloat = (UIDevice.wy_screenWidth - moreViewConfig.contentInset.left - moreViewConfig.contentInset.right - (moreViewConfig.moreItemSize().width * CGFloat(numberOfCountInLine))) / CGFloat(numberOfCountInLine - 1)
         
         let flowLayout: WYCollectionViewFlowLayout = WYCollectionViewFlowLayout(delegate: self)
         flowLayout.itemSize = moreViewConfig.moreItemSize()

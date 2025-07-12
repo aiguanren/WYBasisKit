@@ -18,7 +18,7 @@ class WYTestVisualController: UIViewController {
         let lineView1 = createLineView()
         lineView1.snp.makeConstraints { make in
             make.width.equalTo(1)
-            make.top.equalToSuperview().offset(wy_navViewHeight)
+            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight)
             make.bottom.equalToSuperview()
             make.right.equalToSuperview().offset(-20)
         }

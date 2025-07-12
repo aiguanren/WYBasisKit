@@ -95,6 +95,145 @@ import CryptoKit
 
 public extension String {
     
+    /// 获取非空字符串
+    var wy_safe: String {
+        return isEmpty ? "" : self
+    }
+    
+    /// 获取非空字符串
+    static func wy_safe(_ string: String) -> String {
+        return string.wy_safe
+    }
+    
+    /**
+     *  获取一个随机字符串
+     *
+     *  @param min   最少需要多少个字符
+     *
+     *  @param max   最多需要多少个字符
+     *
+     */
+    static func wy_random(minimux: NSInteger = 1, maximum: NSInteger = 100) -> String {
+        
+        guard maximum >= minimux else { return "" }
+        
+        let phrases = [
+            "嗨",
+            "美女",
+            "么么哒",
+            "阳光明媚",
+            "春风拂面暖",
+            "梦想照亮前路",
+            "窗外繁花正盛开",
+            "风花雪月诗意生活",
+            "让时光沉淀爱的芬芳",
+            "樱花飘落，温柔了梦乡",
+            "微风不燥，时光正好，你我相遇，此时甚好。",
+            "早知混成这样，不如找个对象，少妇一直是我的理想，她已有车有房，不用我去闯荡，吃着软饭是真的很香。",
+            "关关雎鸠，在河之洲。窈窕淑女，君子好逑。参差荇菜，左右流之。窈窕淑女，寤寐求之。求之不得，寤寐思服。悠哉悠哉，辗转反侧。参差荇菜，左右采之。窈窕淑女，琴瑟友之。参差荇菜，左右芼之。窈窕淑女，钟鼓乐之。",
+            "漫步海边，脚下的沙砾带着白日阳光的余温，细腻而柔软。海浪层层叠叠地涌来，热情地亲吻沙滩，又恋恋不舍地退去，发出悦耳声响。海风肆意穿梭，咸湿气息钻进鼻腔，带来大海独有的韵味。抬眼望去，落日熔金，余晖将海面染成橙红，粼粼波光像是无数碎钻在闪烁。我沉醉其中，心也被这梦幻海景悄然填满。"
+        ]
+        
+        // 随机字符长度
+        let targetLength = Int.random(in: minimux...maximum)
+        
+        guard targetLength >= 1 else { return "" }
+        
+        var contentPhrases: [String] = [];
+        for _ in 0..<targetLength {
+            // 获取拼接后的符合长度的字符串
+            contentPhrases = findSpliceCharacter(targetLength: targetLength, phrases: contentPhrases)
+            if (contentPhrases.joined().count >= targetLength) {
+                break
+            }
+        }
+        return contentPhrases.joined()
+        
+        /// 找出长度最接近 surplusLength 且小于 surplusLength 的 phrase
+        func sharedBestFitPhrase(surplusLength: NSInteger) -> String {
+            var selectedPhrase = ""
+            for phrase in phrases {
+                
+                if (phrase.count == surplusLength) {
+                    return phrase
+                }
+                
+                if phrase.count < surplusLength, phrase.count > selectedPhrase.count {
+                    selectedPhrase = phrase
+                }else {
+                    break
+                }
+            }
+            return selectedPhrase
+        }
+        
+        /// 判断字符串最后或第一个字符是否是标点符号
+        func phraseEndingsComplete(phrase: String, suffix: Bool) -> Bool {
+            // 去除首尾空格和换行符
+            let trimmedString = phrase.trimmingCharacters(in: .whitespacesAndNewlines)
+            
+            // 检查字符串是否为空
+            guard let targetChar = (suffix ? trimmedString.last : trimmedString.first) else {
+                return false
+            }
+            
+            // 定义中英文标点集合（可根据需要扩展）
+            let punctuation = ",，.。：:；;！!？?"
+            
+            // 判断最后一个字符是否在标点集合中
+            return punctuation.contains(targetChar)
+        }
+        
+        /// 判断下一个匹配的字符串尾部是否有标点符号
+        func nextPhraseEndingsComplete(surplusLength: NSInteger) -> Bool {
+            
+            // 获取下一个字符串
+            let nextPhrase: String = sharedBestFitPhrase(surplusLength: surplusLength)
+            
+            // 判断nextPhrase中最后一个字符是否是标点符号
+            return phraseEndingsComplete(phrase: nextPhrase, suffix: true)
+        }
+        
+        /// 查找并拼接字符长度至目标长度
+        func findSpliceCharacter(targetLength: NSInteger, phrases: [String] = []) ->[String] {
+            
+            // 当前字符串
+            let currentPhrase: String = phrases.joined()
+            
+            // 获取最接近targetLength的字符串
+            let targetPhrase: String = sharedBestFitPhrase(surplusLength: targetLength - currentPhrase.count)
+            
+            var contentPhrases: [String] = phrases
+            
+            // 判断targetPhrase中最后一个字符是否是标点符号
+            let suffix: Bool = phraseEndingsComplete(phrase: targetPhrase, suffix: true)
+            
+            // 获取并判断下一个匹配的字符串尾部是否是标点符号
+            let nextSuffix: Bool = nextPhraseEndingsComplete(surplusLength: targetLength - currentPhrase.count - targetPhrase.count - 1)
+            
+            if suffix == false {
+                // 判断拼接标点符号后是否满足长度
+                if ((targetPhrase.count + currentPhrase.count) == targetLength) {
+                    contentPhrases.insert(targetPhrase, at: 0)
+                }else if ((targetPhrase.count + currentPhrase.count + 1) == targetLength) {
+                    contentPhrases.insert("😄" + targetPhrase, at: 0)
+                }else {
+                    contentPhrases.insert(((nextSuffix == true) ? "" : "，") + targetPhrase, at: 0)
+                }
+            }else {
+                // 判断拼接标点符号后是否满足长度
+                if ((targetPhrase.count + currentPhrase.count) == targetLength) {
+                    contentPhrases.insert(targetPhrase, at: 0)
+                }else if ((targetPhrase.count + currentPhrase.count + 1) == targetLength) {
+                    contentPhrases.insert("😄" + targetPhrase, at: 0)
+                }else {
+                    contentPhrases.insert(((nextSuffix == true) ? "" : "，") + targetPhrase, at: 0)
+                }
+            }
+            return contentPhrases
+        }
+    }
+    
     /// String转CGFloat、Double、Int、NSInteger、Decimal
     func wy_convertTo<T: Any>(_ type: T.Type) -> T {
         
@@ -356,15 +495,15 @@ public extension String {
     
     /// 时间戳转星期几
     var wy_whatDay: WYWhatDay {
-
+        
         guard [10, 13].contains(count) else {
             return .unknown
         }
         
         let timeInterval: TimeInterval = NumberFormatter().number(from: self)?.doubleValue ?? 0.0
-
+        
         let date: Date = Date(timeIntervalSince1970: timeInterval / (count == 13 ? 1000.0 : 1.0))
-
+        
         var calendar: Calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = NSTimeZone.local
         
@@ -395,24 +534,24 @@ public extension String {
      *  clientTimestamp 客户端时间戳(当前的网络时间戳或者设备本地的时间戳)
      */
     static func wy_timeIntervalCycle(_ messageTimestamp: String, _ clientTimestamp: String = wy_sharedDeviceTimestamp()) -> WYTimeDistance {
-
+        
         guard ([10, 13].contains(messageTimestamp.count)) && ([10, 13].contains(clientTimestamp.count)) else {
             return .unknown
         }
-
+        
         var calendar: Calendar = Calendar(identifier: .iso8601)
         calendar.timeZone = NSTimeZone.local
-
+        
         let dateFormatter: DateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
         dateFormatter.calendar = calendar
-
+        
         var clientDate: Date!
-
+        
         let message_timestamp: TimeInterval = NumberFormatter().number(from: messageTimestamp)?.doubleValue ?? 0
-
+        
         let client_timestamp: TimeInterval = NumberFormatter().number(from: clientTimestamp)?.doubleValue ?? 0
-
+        
         if ((message_timestamp >= client_timestamp) || (message_timestamp <= 0)) {
             clientDate = Date(timeIntervalSince1970: client_timestamp / (clientTimestamp.count == 13 ? 1000.0 : 1.0))
         }else {
@@ -440,15 +579,15 @@ public extension String {
                               fourDaysAgo: components(4),
                               fiveDaysAgo: components(5),
                               sixDaysAgo: components(6))
-
+        
         if ((clientComponents.year == dateComponents.today.year) && (clientComponents.month == dateComponents.today.month) && (clientComponents.day == dateComponents.today.day)) {
             return .today
         }
-
+        
         if ((clientComponents.year == dateComponents.aDayAgo.year) && (clientComponents.month == dateComponents.aDayAgo.month) && (clientComponents.day == dateComponents.aDayAgo.day)) {
             return .yesterday
         }
-
+        
         if ((clientComponents.year == dateComponents.twoDaysAgo.year) && (clientComponents.month == dateComponents.twoDaysAgo.month) && (clientComponents.day == dateComponents.twoDaysAgo.day)) {
             return .yesterdayBefore
         }

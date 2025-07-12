@@ -274,7 +274,7 @@ extension WYBannerView {
                 describeView = UILabel()
                 describeView?.lineBreakMode = .byTruncatingTail
                 describeView?.textAlignment = .center
-                describeView?.font = .systemFont(ofSize: wy_screenWidth(15, WYBasisKitConfig.defaultScreenPixels))
+                describeView?.font = .systemFont(ofSize: UIDevice.wy_screenWidth(15, WYBasisKitConfig.defaultScreenPixels))
                 describeView?.textColor = .white
                 describeView?.numberOfLines = 1
                 describeView?.backgroundColor = .clear
@@ -284,7 +284,7 @@ extension WYBannerView {
                 nextView?.addSubview(nextDescribeView!)
                 
                 if describeViewPosition == .zero {
-                    describeViewPosition = CGRect(x: wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels), y: wy_height - describeView!.font.lineHeight - wy_screenWidth(30, WYBasisKitConfig.defaultScreenPixels), width: wy_width - (wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels) * 2), height: describeView!.font.lineHeight)
+                    describeViewPosition = CGRect(x: UIDevice.wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels), y: wy_height - describeView!.font.lineHeight - UIDevice.wy_screenWidth(30, WYBasisKitConfig.defaultScreenPixels), width: wy_width - (UIDevice.wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels) * 2), height: describeView!.font.lineHeight)
                 }else {
                     describeViewPosition = CGRect(x: describeViewPosition.origin.x, y: describeViewPosition.origin.y, width: describeViewPosition.size.width, height: describeViewPosition.size.height)
                 }
@@ -331,7 +331,7 @@ extension WYBannerView {
                 
                 if pageControlPosition == .zero {
                     let pageControlSize: CGSize = pagecontrol.size(forNumberOfPages: pagecontrol.numberOfPages)
-                    pageControlPosition = CGPoint(x: (wy_width - pageControlSize.width) / 2, y: wy_height - pageControlSize.height - wy_screenWidth(10))
+                    pageControlPosition = CGPoint(x: (wy_width - pageControlSize.width) / 2, y: wy_height - pageControlSize.height - UIDevice.wy_screenWidth(10))
                 }else {
                     pageControlPosition = CGPoint(x: pageControlPosition.x, y: pageControlPosition.y)
                 }

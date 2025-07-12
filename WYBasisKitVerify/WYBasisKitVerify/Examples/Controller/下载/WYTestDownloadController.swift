@@ -30,7 +30,7 @@ class WYTestDownloadController: UIViewController {
         self.view.addSubview(localImageView)
         localImageView.snp.makeConstraints { make in
             make.left.right.top.equalToSuperview()
-            make.height.equalTo(wy_screenHeight / 2)
+            make.height.equalTo(UIDevice.wy_screenHeight / 2)
         }
         
         let downloadImageView = UIImageView()
@@ -38,7 +38,7 @@ class WYTestDownloadController: UIViewController {
         self.view.addSubview(downloadImageView)
         downloadImageView.snp.makeConstraints { make in
             make.left.right.bottom.equalToSuperview()
-            make.height.equalTo(wy_screenHeight / 2)
+            make.height.equalTo(UIDevice.wy_screenHeight / 2)
         }
         
         WYActivity.showLoading(in: self.view)

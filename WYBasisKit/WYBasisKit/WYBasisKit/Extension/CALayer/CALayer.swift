@@ -27,7 +27,7 @@ public extension CALayer {
     * @param length       每段虚线长度
     * @param spacing      每段虚线间隔
     */
-    class func drawDashLine(direction: WYDashDirection, bounds: CGRect, color: UIColor, length: Double = Double(wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels)), spacing: Double = Double(wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels))) -> CALayer {
+    class func drawDashLine(direction: WYDashDirection, bounds: CGRect, color: UIColor, length: Double = Double(UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels)), spacing: Double = Double(UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels))) -> CALayer {
         
         let shapeLayer = CAShapeLayer()
         shapeLayer.bounds = bounds

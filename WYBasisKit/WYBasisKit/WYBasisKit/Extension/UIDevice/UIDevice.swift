@@ -12,6 +12,104 @@ import CoreTelephony
 
 public extension UIDevice {
     
+    /// 状态栏高度
+    class var wy_statusBarHeight: CGFloat {
+        get {
+            if #available(iOS 13.0, *) {
+                let window = UIApplication.shared.connectedScenes.map({ $0 as? UIWindowScene }).compactMap({ $0 }).first?.windows.first
+                return window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0.0
+            } else {
+                return UIApplication.shared.statusBarFrame.height
+            }
+        }
+    }
+
+    /// 导航栏安全区域
+    class var wy_navBarSafetyZone: CGFloat {
+        get {
+            if #available(iOS 13.0, *) {
+                let window = UIApplication.shared.connectedScenes.map({ $0 as? UIWindowScene }).compactMap({ $0 }).first?.windows.first
+                return window?.safeAreaInsets.top ?? 0.0
+            } else {
+                let window = UIApplication.shared.windows.first
+                return window?.safeAreaInsets.top ?? 0.0
+            }
+        }
+    }
+
+    /// 导航栏高度
+    class var wy_navBarHeight: CGFloat {
+        // 使用系统默认导航栏获取标准高度
+        return UINavigationBar().intrinsicContentSize.height
+    }
+
+    /// 导航视图高度（状态栏+导航栏）
+    class var wy_navViewHeight: CGFloat {
+        return wy_statusBarHeight + wy_navBarHeight
+    }
+
+    /// tabBar安全区域
+    class var wy_tabbarSafetyZone: CGFloat {
+        get {
+            if #available(iOS 13.0, *) {
+                let window = UIApplication.shared.connectedScenes.map({ $0 as? UIWindowScene }).compactMap({ $0 }).first?.windows.first
+                return window?.safeAreaInsets.bottom ?? 0.0
+            } else {
+                let window = UIApplication.shared.windows.first
+                return window?.safeAreaInsets.bottom ?? 0.0
+            }
+        }
+    }
+
+    /// tabBar高度(含安全区域高度)
+    class var wy_tabBarHeight: CGFloat {
+        return UITabBar().sizeThatFits(.zero).height + wy_tabbarSafetyZone
+    }
+
+    /// 屏幕宽
+    class var wy_screenWidth: CGFloat {
+        return UIScreen.main.bounds.size.width
+    }
+
+    /// 屏幕高
+    class var wy_screenHeight: CGFloat {
+        return UIScreen.main.bounds.size.height
+    }
+
+    /// 屏幕宽度比率
+    class func wy_screenWidthRatio(_ pixels: WYScreenPixels = WYBasisKitConfig.defaultScreenPixels) -> CGFloat {
+        let widthRatio = (wy_screenWidth / pixels.width)
+        if widthRatio < WYBasisKitConfig.screenWidthRatio.min {
+            return WYBasisKitConfig.screenWidthRatio.min
+        }else if widthRatio > WYBasisKitConfig.screenWidthRatio.max {
+            return WYBasisKitConfig.screenWidthRatio.max
+        }else {
+            return widthRatio
+        }
+    }
+
+    /// 屏幕高度比率
+    class func wy_screenHeightRatio(_ pixels: WYScreenPixels = WYBasisKitConfig.defaultScreenPixels) -> CGFloat {
+        let heightRatio = (wy_screenHeight / pixels.height)
+        if heightRatio < WYBasisKitConfig.screenHeightRatio.min {
+            return WYBasisKitConfig.screenHeightRatio.min
+        }else if heightRatio > WYBasisKitConfig.screenHeightRatio.max {
+            return WYBasisKitConfig.screenHeightRatio.max
+        }else {
+            return heightRatio
+        }
+    }
+
+    /// 屏幕宽度比率转换
+    class func wy_screenWidth(_ ratioValue: CGFloat, _ pixels: WYScreenPixels = WYBasisKitConfig.defaultScreenPixels) -> CGFloat {
+        return round(ratioValue*wy_screenWidthRatio(pixels))
+    }
+
+    /// 屏幕高度比率转换
+    class func wy_screenHeight(_ ratioValue: CGFloat, _ pixels: WYScreenPixels = WYBasisKitConfig.defaultScreenPixels) -> CGFloat {
+        return round(ratioValue*wy_screenHeightRatio(pixels))
+    }
+    
     /// 设备型号
     var wy_deviceName: String {
         return name
@@ -54,7 +152,7 @@ public extension UIDevice {
         return Int(ncpu)
     }
     
-    ///获取cpu类型
+    ///获取CPU类型
     var wy_cpuType: String {
         
         let HOST_BASIC_INFO_COUNT = MemoryLayout<host_basic_info>.stride/MemoryLayout<integer_t>.stride
@@ -103,9 +201,63 @@ public extension UIDevice {
         }
     }
     
-    /// uuid 注意其实uuid并不是唯一不变的
+    /// UUID (注意：UUID并不是唯一不变的)
     var wy_uuid: String {
         return identifierForVendor?.uuidString ?? ""
+    }
+    
+    
+    /// 是否是全屏手机
+    var wy_isFullScreen: Bool {
+        if #available(iOS 15.0, *) {
+            let window = UIApplication.shared.connectedScenes.map({ $0 as? UIWindowScene }).compactMap({ $0 }).first?.windows.first
+            return (window?.safeAreaInsets ?? UIEdgeInsets.zero).bottom != 0
+        } else {
+            return (UIApplication.shared.windows.first?.safeAreaInsets)?.bottom != 0
+        }
+    }
+    
+    /// 是否是传入的分辨率
+    func wy_resolutionRatio(horizontal: CGFloat, vertical: CGFloat) -> Bool {
+        return (UIScreen.instancesRespond(to: #selector(getter: UIScreen.main.currentMode)) ? CGSize(width: horizontal, height: vertical).equalTo((UIScreen.main.currentMode?.size)!) && !wy_iPadSeries : false)
+    }
+    
+    /// 是否是竖屏模式
+    var wy_verticalScreen: Bool {
+        
+        var orientation: UIInterfaceOrientation = .portrait
+        if #available(iOS 13.0, *) {
+            let window = UIApplication.shared.connectedScenes.map({ $0 as? UIWindowScene }).compactMap({ $0 }).first?.windows.first
+            orientation = (window?.windowScene?.interfaceOrientation) ?? .portrait
+        }else {
+            orientation = UIApplication.shared.statusBarOrientation
+        }
+        
+        if (orientation == UIInterfaceOrientation.portrait) ||
+            (orientation == UIInterfaceOrientation.portraitUpsideDown) {
+            return true
+        } else {
+            return false
+        }
+    }
+    
+    /// 是否是横屏模式
+    var wy_horizontalScreen: Bool {
+        
+        var orientation: UIInterfaceOrientation = .portrait
+        if #available(iOS 13.0, *) {
+            let window = UIApplication.shared.connectedScenes.map({ $0 as? UIWindowScene }).compactMap({ $0 }).first?.windows.first
+            orientation = (window?.windowScene?.interfaceOrientation) ?? .portrait
+        }else {
+            orientation = UIApplication.shared.statusBarOrientation
+        }
+        
+        if (orientation == UIInterfaceOrientation.landscapeLeft) ||
+            (orientation == UIInterfaceOrientation.landscapeRight) {
+            return true
+        } else {
+            return false
+        }
     }
     
     /// 获取运营商IP地址
@@ -135,7 +287,7 @@ public extension UIDevice {
         return addresses.first ?? "0.0.0.0"
     }
     
-    /// 获取WIFIIP地址
+    /// 获取 Wifi IP地址
     var wy_wifiIP: String {
         
         var address: String?
@@ -218,59 +370,6 @@ public extension UIDevice {
         }
         
         return ByteCountFormatter.string(fromByteCount: totalDiskSpaceInBytes - freeDiskSpaceInBytes, countStyle: ByteCountFormatter.CountStyle.decimal)
-    }
-    
-    /// 是否是齐刘海手机
-    var wy_isFullScreen: Bool {
-        if #available(iOS 15.0, *) {
-            let window = UIApplication.shared.connectedScenes.map({ $0 as? UIWindowScene }).compactMap({ $0 }).first?.windows.first
-            return (window?.safeAreaInsets ?? UIEdgeInsets.zero).bottom != 0
-        } else {
-            return (UIApplication.shared.windows.first?.safeAreaInsets)?.bottom != 0
-        }
-    }
-    
-    /// 是否是传入的分辨率
-    func wy_resolutionRatio(horizontal: CGFloat, vertical: CGFloat) -> Bool {
-        return (UIScreen.instancesRespond(to: #selector(getter: UIScreen.main.currentMode)) ? CGSize(width: horizontal, height: vertical).equalTo((UIScreen.main.currentMode?.size)!) && !wy_iPadSeries : false)
-    }
-    
-    /// 是否是竖屏模式
-    var wy_verticalScreen: Bool {
-        
-        var orientation: UIInterfaceOrientation = .portrait
-        if #available(iOS 13.0, *) {
-            let window = UIApplication.shared.connectedScenes.map({ $0 as? UIWindowScene }).compactMap({ $0 }).first?.windows.first
-            orientation = (window?.windowScene?.interfaceOrientation) ?? .portrait
-        }else {
-            orientation = UIApplication.shared.statusBarOrientation
-        }
-        
-        if (orientation == UIInterfaceOrientation.portrait) ||
-            (orientation == UIInterfaceOrientation.portraitUpsideDown) {
-            return true
-        } else {
-            return false
-        }
-    }
-    
-    /// 是否是横屏模式
-    var wy_horizontalScreen: Bool {
-        
-        var orientation: UIInterfaceOrientation = .portrait
-        if #available(iOS 13.0, *) {
-            let window = UIApplication.shared.connectedScenes.map({ $0 as? UIWindowScene }).compactMap({ $0 }).first?.windows.first
-            orientation = (window?.windowScene?.interfaceOrientation) ?? .portrait
-        }else {
-            orientation = UIApplication.shared.statusBarOrientation
-        }
-        
-        if (orientation == UIInterfaceOrientation.landscapeLeft) ||
-            (orientation == UIInterfaceOrientation.landscapeRight) {
-            return true
-        } else {
-            return false
-        }
     }
     
     /// 旋转屏幕，设置界面方向，支持重力感应切换(默认竖屏)
@@ -358,7 +457,7 @@ private extension UIDevice {
             motionManager!.startAccelerometerUpdates(to: OperationQueue.current!) { [weak self] (accelerometerData, error) in
                 if error != nil {
                     self?.stopMotionManager()
-                    wy_print("启用加速传感器出错：\(wy_safe(error?.localizedDescription))")
+                    wy_print("启用加速传感器出错：\(error!.localizedDescription)")
                 }else {
                     
                     let x: Double = accelerometerData!.acceleration.x

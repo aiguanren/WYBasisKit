@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SnapKit
 
 /// 自定义聊天UITableViewCell
 public var customChatRegisterClasss: [AnyClass] = []
@@ -168,7 +169,7 @@ public class WYChatView: UIView {
         }
         
         let keyboardRect = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
-        updateInputViewOffset(offsety: keyboardRect.size.height - wy_tabbarSafetyZone)
+        updateInputViewOffset(offsety: keyboardRect.size.height - UIDevice.wy_tabbarSafetyZone)
         updateEmojiViewConstraints(false)
         updateMoreViewConstraints(false)
     }

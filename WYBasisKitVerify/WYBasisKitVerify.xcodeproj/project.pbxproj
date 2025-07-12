@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 53;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -376,6 +376,9 @@
 		585B3A832DF819DC00E6E08F /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				585B3A782DF819DC00E6E08F /* left */,
+				585B3A712DF819DC00E6E08F /* center */,
+				585B3A7C2DF819DC00E6E08F /* right */,
 				AAA7086B2E1C10AE0040F2ED /* 归档解归档 */,
 				585B3A4B2DF819DC00E6E08F /* 暗夜、白昼模式 */,
 				585B3A4D2DF819DC00E6E08F /* 边框、圆角、阴影、渐变 */,
@@ -392,12 +395,9 @@
 				585B3A6B2DF819DC00E6E08F /* 直播、点播播放器 */,
 				585B3A6D2DF819DC00E6E08F /* Banner */,
 				585B3A6F2DF819DC00E6E08F /* ButtonEdgeInsets */,
-				585B3A712DF819DC00E6E08F /* center */,
 				585B3A732DF819DC00E6E08F /* Gif */,
 				585B3A762DF819DC00E6E08F /* IM即时通讯 */,
-				585B3A782DF819DC00E6E08F /* left */,
 				585B3A7A2DF819DC00E6E08F /* RichText */,
-				585B3A7C2DF819DC00E6E08F /* right */,
 				585B3A7E2DF819DC00E6E08F /* tableView.grouped */,
 				585B3A802DF819DC00E6E08F /* tableView.plain */,
 				585B3A822DF819DC00E6E08F /* WKWebView */,

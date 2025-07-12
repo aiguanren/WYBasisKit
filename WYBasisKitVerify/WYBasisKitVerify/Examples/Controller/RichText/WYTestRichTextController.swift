@@ -51,8 +51,8 @@ class WYTestRichTextController: UIViewController {
         scrollView.addSubview(label)
         label.snp.makeConstraints { (make) in
             make.centerX.equalToSuperview()
-            make.width.equalTo(wy_screenWidth - 30)
-            make.top.equalToSuperview().offset(wy_navViewHeight + 20)
+            make.width.equalTo(UIDevice.wy_screenWidth - 30)
+            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight + 20)
         }
         
         let emojiLabel = UILabel()
@@ -67,7 +67,7 @@ class WYTestRichTextController: UIViewController {
         emojiLabel.snp.makeConstraints { (make) in
             make.top.equalTo(label.snp.bottom).offset(50)
             make.centerX.equalToSuperview()
-            make.width.equalTo(wy_screenWidth - 30)
+            make.width.equalTo(UIDevice.wy_screenWidth - 30)
         }
         
         let marginLabel = UILabel()
@@ -91,7 +91,7 @@ class WYTestRichTextController: UIViewController {
             make.top.equalTo(emojiLabel.snp.bottom).offset(50)
         }
         
-        wy_print("每行显示的分别是 \(String(describing: label.attributedText?.wy_stringPerLine(controlWidth: wy_screenWidth))), 一共 \(String(describing: label.attributedText?.wy_numberOfRows(controlWidth: wy_screenWidth))) 行")
+        wy_print("每行显示的分别是 \(String(describing: label.attributedText?.wy_stringPerLine(controlWidth: UIDevice.wy_screenWidth))), 一共 \(String(describing: label.attributedText?.wy_numberOfRows(controlWidth: UIDevice.wy_screenWidth))) 行")
         
         label.layoutIfNeeded()
         let subFrame = attribute.wy_calculateFrame(range: NSMakeRange(attribute.string.count - 2, 1), controlSize: label.frame.size)
@@ -110,7 +110,7 @@ class WYTestRichTextController: UIViewController {
         let image_font_30: UIImage = UIImage.wy_find("嘴唇")
         let image_font_40: UIImage = UIImage.wy_find("爱心")
         let image_font_50: UIImage = UIImage.wy_find("喝彩")
-        let attributed: NSMutableAttributedString = NSMutableAttributedString(string: wy_randomString(minimux:10, maximum: 20) + "\n" + string_font_30  + "\n" + string_font_40  + "\n" + string_font_50  + "\n" + wy_randomString(minimux:10, maximum: 20))
+        let attributed: NSMutableAttributedString = NSMutableAttributedString(string: String.wy_random(minimux:10, maximum: 20) + "\n" + string_font_30  + "\n" + string_font_40  + "\n" + string_font_50  + "\n" + String.wy_random(minimux:10, maximum: 20))
         
         let string_font_50Index: NSInteger = (attributed.string as NSString).range(of: string_font_50).location - 1
         let options: [WYImageAttachmentOption] = [
@@ -126,7 +126,7 @@ class WYTestRichTextController: UIViewController {
         attachmentView.attributedText = attributed
         scrollView.addSubview(attachmentView)
         attachmentView.snp.makeConstraints { make in
-            make.width.equalTo(wy_screenWidth - 30)
+            make.width.equalTo(UIDevice.wy_screenWidth - 30)
             make.centerX.equalToSuperview()
             make.top.equalTo(marginLabel.snp.bottom).offset(50)
         }
@@ -136,19 +136,19 @@ class WYTestRichTextController: UIViewController {
         spacingView.numberOfLines = 0
         scrollView.addSubview(spacingView)
         spacingView.snp.makeConstraints { make in
-            make.width.equalTo(wy_screenWidth - 30)
+            make.width.equalTo(UIDevice.wy_screenWidth - 30)
             make.centerX.equalToSuperview()
             make.top.equalTo(attachmentView.snp.bottom).offset(50)
             make.bottom.equalToSuperview().offset(-50)
         }
         
-        let spacing10: String = wy_randomString(minimux: 50, maximum: 100)
+        let spacing10: String = String.wy_random(minimux: 50, maximum: 100)
         
-        let spacing15: String = wy_randomString(minimux: 30, maximum: 80)
+        let spacing15: String = String.wy_random(minimux: 30, maximum: 80)
         
-        let spacing30: String = wy_randomString(minimux: 25, maximum: 60)
+        let spacing30: String = String.wy_random(minimux: 25, maximum: 60)
         
-        let spacing20: String = wy_randomString(minimux: 80, maximum: 100)
+        let spacing20: String = String.wy_random(minimux: 80, maximum: 100)
         
         let spacingAttributed = NSMutableAttributedString(string: spacing10 + "\n" + spacing15 + "\n" + spacing30 + "\n" + spacing20)
         spacingAttributed.wy_lineSpacing(lineSpacing: 10, beforeString: spacing10, afterString: spacing15, alignment: .left)

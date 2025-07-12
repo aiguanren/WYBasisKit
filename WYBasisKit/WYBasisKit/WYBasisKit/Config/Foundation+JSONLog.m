@@ -37,7 +37,6 @@ static inline void wy_swizzleSelector(Class class, SEL originalSelector, SEL swi
     }
 }
 
-
 #pragma mark - NSObject分类
 @implementation NSObject (JSONLog)
 // 将obj转换成json字符串。如果失败则返回nil.
@@ -52,7 +51,6 @@ static inline void wy_swizzleSelector(Class class, SEL originalSelector, SEL swi
     return jsonString;
 }
 @end
-
 
 #pragma mark - NSDictionary分类
 @implementation NSDictionary (JSONLog)

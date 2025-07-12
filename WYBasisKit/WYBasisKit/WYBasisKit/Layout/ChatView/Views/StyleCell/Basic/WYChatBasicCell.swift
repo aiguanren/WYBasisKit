@@ -7,6 +7,7 @@
 
 import UIKit
 import Kingfisher
+import SnapKit
 
 /// 通用聊天配置选项
 public struct WYBasicChatConfig {
@@ -21,10 +22,10 @@ public struct WYBasicChatConfig {
     public var messageSendingGif : WYGifInfo = UIImage.wy_animatedParse(name: "WYChatSending", inBundle: WYChatSourceBundle)!
     
     /// 消息发送状态图标size
-    public var messageSendingStateSize: CGSize = CGSize(width: wy_screenWidth(15), height: wy_screenWidth(15))
+    public var messageSendingStateSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(15), height: UIDevice.wy_screenWidth(15))
     
     /// 消息发送状态图标距离消息内容(气泡)边界的偏移量
-    public var messageSendingStateOffset: CGFloat = wy_screenWidth(10)
+    public var messageSendingStateOffset: CGFloat = UIDevice.wy_screenWidth(10)
     
     /// 默认头像(placeholder)
     public var defaultAvatar: UIImage = UIImage.wy_createImage(from: .wy_random)
@@ -35,15 +36,15 @@ public struct WYBasicChatConfig {
     /// 显示昵称时头像距离cell的偏移量
     public var avatarOffset: (sendor: CGPoint, receive: CGPoint) = (
         
-        sendor: CGPoint(x: wy_screenWidth(15), y: 0),
+        sendor: CGPoint(x: UIDevice.wy_screenWidth(15), y: 0),
         
-        receive: CGPoint(x: wy_screenWidth(15), y: 0))
+        receive: CGPoint(x: UIDevice.wy_screenWidth(15), y: 0))
 
     /// 头像size
-    public var avatarSize: CGSize = CGSize(width: wy_screenWidth(50), height: wy_screenWidth(50))
+    public var avatarSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(50), height: UIDevice.wy_screenWidth(50))
 
     /// 头像圆角半径
-    public var avatarCornerRadius: CGFloat = wy_screenWidth(5)
+    public var avatarCornerRadius: CGFloat = UIDevice.wy_screenWidth(5)
     
     /// 单聊时是否显示昵称
     public var showNicknameForSingle: (sendor: Bool, receive: Bool) = (sendor: false, receive: false)
@@ -54,28 +55,28 @@ public struct WYBasicChatConfig {
     /// 单聊时昵称距离时间控件的偏移量
     public var nameViewOffsetForSingle: (sendor: CGPoint, receive: CGPoint) = (
         
-        sendor: CGPoint(x: -wy_screenWidth(20), y: wy_screenWidth(20)),
+        sendor: CGPoint(x: -UIDevice.wy_screenWidth(20), y: UIDevice.wy_screenWidth(20)),
         
-        receive: CGPoint(x: wy_screenWidth(20), y: wy_screenWidth(20)))
+        receive: CGPoint(x: UIDevice.wy_screenWidth(20), y: UIDevice.wy_screenWidth(20)))
     
     /// 群聊时昵称距离时间控件的偏移量
     public var nameViewOffsetForGroup: (sendor: CGPoint, receive: CGPoint) = (
         
-        sendor: CGPoint(x: -wy_screenWidth(20), y: wy_screenWidth(20)),
+        sendor: CGPoint(x: -UIDevice.wy_screenWidth(20), y: UIDevice.wy_screenWidth(20)),
         
-        receive: CGPoint(x: wy_screenWidth(20), y: wy_screenWidth(20)))
+        receive: CGPoint(x: UIDevice.wy_screenWidth(20), y: UIDevice.wy_screenWidth(20)))
 
     /// 昵称字体、字号
-    public var nicknameFont: UIFont = .systemFont(ofSize: wy_screenWidth(13))
+    public var nicknameFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(13))
 
     /// 昵称字体颜色
     public var nicknameColor: UIColor = .black
     
     /// 时间控件顶部距离cell的偏移量
-    public var timeViewOffset: CGFloat = wy_screenWidth(10)
+    public var timeViewOffset: CGFloat = UIDevice.wy_screenWidth(10)
 
     /// 时间字体、字号
-    public var timeFont: UIFont = .systemFont(ofSize: wy_screenWidth(13))
+    public var timeFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(13))
 
     /// 时间字体颜色
     public var timeColor: UIColor = .black
@@ -87,13 +88,13 @@ public struct WYBasicChatConfig {
     public var showReadMark: Bool = false
     
     /// 已读未读标识的字体
-    public var readMarkFont: UIFont = .systemFont(ofSize: wy_screenWidth(10))
+    public var readMarkFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(10))
     
     /// 已读未读标识的字体颜色
     public var readMarkColor: (browse: UIColor, unread: UIColor) = (browse: .lightGray, unread: .blue)
     
     /// 已读未读标识距离消息内容(气泡)边界的偏移量(y用于距离底部的偏移量)
-    public var readMarkOffset: CGPoint = CGPoint(x: wy_screenWidth(5), y: wy_screenWidth(5))
+    public var readMarkOffset: CGPoint = CGPoint(x: UIDevice.wy_screenWidth(5), y: UIDevice.wy_screenWidth(5))
     
     /// 已读未读标识的文本
     public var readMarkText: (browse: String, unread: String) = (browse: "已读", unread: "未读")

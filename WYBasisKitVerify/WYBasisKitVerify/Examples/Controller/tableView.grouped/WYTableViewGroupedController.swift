@@ -42,7 +42,7 @@ class WYTableViewGroupedController: UIViewController {
         tableview.wy_register(UITableViewCell.self, .cell)
         tableview.wy_register(WYGroupedHeaderView.self, .headerFooterView)
         tableview.snp.makeConstraints { (make) in
-            make.top.equalToSuperview().offset(wy_navViewHeight)
+            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight)
             make.left.right.bottom.equalToSuperview()
         }
         return tableview
@@ -100,7 +100,7 @@ extension WYTableViewGroupedController: UITableViewDelegate, UITableViewDataSour
         let cell = tableView.dequeueReusableCell(withIdentifier: "UITableViewCell", for: indexPath)
         cell.textLabel?.text = "\(indexPath.row)"
         cell.textLabel?.textColor = UIColor.wy_dynamic(.black, .white)
-        cell.textLabel?.font = .systemFont(ofSize: wy_fontSize(15, WYBasisKitConfig.defaultScreenPixels))
+        cell.textLabel?.font = .systemFont(ofSize: UIFont.wy_fontSize(15, WYBasisKitConfig.defaultScreenPixels))
 
         return cell
     }

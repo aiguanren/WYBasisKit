@@ -24,7 +24,7 @@ public extension CGFloat {
         if type == Double.self {
             return Double(self) as! T
         }
-            
+        
         if type == Int.self {
             return Int(self) as! T
         }
@@ -34,5 +34,28 @@ public extension CGFloat {
         }
         
         return self as! T
+    }
+    
+    /**
+     *  获取一个随机浮点数
+     *
+     *  @param minimux   最小可以是多少
+     *
+     *  @param maximum   最大可以是多少
+     *
+     *  @param precision 精度(默认保留2位小数)
+     *
+     */
+    static func wy_randomFloat(minimux: CGFloat = 0.01, maximum: CGFloat = 99999.99, precision: NSInteger = 2) -> CGFloat {
+        
+        guard minimux < maximum else {
+            return maximum
+        }
+        
+        let range = Swift.abs(minimux - maximum)
+        let base = CGFloat(arc4random()) / CGFloat(UInt32.max)
+        let rawValue = base * range + Swift.min(minimux, maximum)
+        let format = "%.\(precision)f"
+        return CGFloat(Double(String(format: format, rawValue)) ?? 0)
     }
 }

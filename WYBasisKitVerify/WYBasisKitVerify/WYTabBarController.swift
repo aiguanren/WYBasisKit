@@ -60,7 +60,7 @@ class WYTabBarController: UITabBarController {
             //nav.tabBarItem.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.ly_tabbar_title_font, NSAttributedString.Key.foregroundColor: UIColor.ly_tabbar_title_highlightColor], for: .selected)
         }
         
-        let clearView = UIView(frame: CGRect(x: 0, y: 0, width: wy_screenWidth, height: wy_tabBarHeight))
+        let clearView = UIView(frame: CGRect(x: 0, y: 0, width: UIDevice.wy_screenWidth, height: UIDevice.wy_tabBarHeight))
         clearView.backgroundColor = .wy_dynamic(.white, .black)
         self.tabBar.insertSubview(clearView, at: 0)
     }

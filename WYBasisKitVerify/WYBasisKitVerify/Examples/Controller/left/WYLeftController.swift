@@ -10,51 +10,31 @@ import UIKit
 
 class WYLeftController: UIViewController {
 
-    let cellTitles: [String] = ["暗夜、白昼模式",
-                                "约束view添加动画",
-                                "边框、圆角、阴影、渐变",
-                                "ButtonEdgeInsets",
-                                "Banner",
-                                "RichText",
-                                "无限层折叠TableView",
-                                "tableView.plain",
-                                "tableView.grouped",
-                                "下载",
-                                "网络请求",
-                                "屏幕旋转",
-                                "二维码",
-                                "Gif",
-                                "瀑布流",
-                                "直播、点播播放器",
-                                "IM即时通讯",
-                                "语音识别",
-                                "泛型",
-                                "离线方法调用",
-                                "WKWebView进度条",
-                                "归档/解归档"]
-
-    let controller: [String] = ["WYTestDarkNightModeController",
-                                "WYTestAnimationController",
-                                "WYTestVisualController",
-                                "WYTestButtonEdgeInsetsController",
-                                "WYTestBannerController",
-                                "WYTestRichTextController",
-                                "WYMultilevelTableViewController",
-                                "WYTableViewPlainController",
-                                "WYTableViewGroupedController",
-                                "WYTestDownloadController",
-                                "WYTestRequestController",
-                                "WYTestInterfaceOrientationController",
-                                "WYQRCodeController",
-                                "WYParseGifController",
-                                "WYFlowLayoutAlignmentController",
-                                "WYTestLiveStreamingController",
-                                "WYTestChatController",
-                                "WYSpeechRecognitionController",
-                                "WYGenericTypeController",
-                                "WYOffLineMethodController",
-                                "WYWebViewController",
-                                "WYArchivedController"]
+    // 由于字典是无序的，所以每次显示的排序位置都可能会不一样
+    let cellObjs: [String: String] = [
+        "暗夜、白昼模式": "WYTestDarkNightModeController",
+        "约束view添加动画": "WYTestAnimationController",
+        "边框、圆角、阴影、渐变": "WYTestVisualController",
+        "ButtonEdgeInsets": "WYTestButtonEdgeInsetsController",
+        "Banner": "WYTestBannerController",
+        "富文本": "WYTestRichTextController",
+        "无限层折叠TableView": "WYMultilevelTableViewController",
+        "tableView.plain": "WYTableViewPlainController",
+        "tableView.grouped": "WYTableViewGroupedController",
+        "下载与缓存": "WYTestDownloadController",
+        "网络请求": "WYTestRequestController",
+        "屏幕旋转": "WYTestInterfaceOrientationController",
+        "二维码": "WYQRCodeController",
+        "Gif加载": "WYParseGifController",
+        "瀑布流": "WYFlowLayoutAlignmentController",
+        "直播、点播播放器": "WYTestLiveStreamingController",
+        "IM即时通讯(开发中)": "WYTestChatController",
+        "语音识别": "WYSpeechRecognitionController",
+        "泛型": "WYGenericTypeController",
+        "离线方法调用": "WYOffLineMethodController",
+        "WKWebView进度条": "WYWebViewController",
+        "归档/解归档": "WYArchivedController"
+    ]
 
     lazy var tableView: UITableView = {
 
@@ -62,9 +42,9 @@ class WYLeftController: UIViewController {
         tableview.wy_register(UITableViewCell.self, .cell)
         tableview.wy_register(WYLeftControllerHeaderView.self, .headerFooterView)
         tableview.snp.makeConstraints { (make) in
-            make.top.equalToSuperview().offset(wy_navViewHeight)
+            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight)
             make.left.right.equalToSuperview()
-            make.bottom.equalToSuperview().offset(-wy_tabBarHeight)
+            make.bottom.equalToSuperview().offset(-UIDevice.wy_tabBarHeight)
         }
         return tableview
     }()
@@ -128,25 +108,25 @@ extension WYLeftController: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 
-        return cellTitles.count
+        return cellObjs.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
         let cell = tableView.dequeueReusableCell(withIdentifier: "UITableViewCell", for: indexPath)
 
-        cell.textLabel?.text = cellTitles[indexPath.row]
+        
+        cell.textLabel?.text = Array(cellObjs.keys)[indexPath.row]
         cell.textLabel?.textColor = UIColor.wy_dynamic(.black, .white)
         //cell.textLabel?.adjustsFontSizeToFitWidth = true
-        cell.textLabel?.font = .systemFont(ofSize: wy_screenWidth(15))
+        cell.textLabel?.font = .systemFont(ofSize: UIDevice.wy_screenWidth(15))
 
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-
         tableView.deselectRow(at: indexPath, animated: true)
-        let className: String = controller[indexPath.row]
+        let className: String = Array(cellObjs.values)[indexPath.row]
         wy_showViewController(className: className)
     }
 }

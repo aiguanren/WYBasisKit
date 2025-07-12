@@ -23,7 +23,7 @@ class WYMultilevelTableViewController: UIViewController {
         let tableview = UITableView.wy_shared(style: .plain, separatorStyle: .singleLine, delegate: self, dataSource: self, superView: view)
         tableview.wy_register(UITableViewCell.self, .cell)
         tableview.snp.makeConstraints { (make) in
-            make.top.equalToSuperview().offset(wy_navViewHeight)
+            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight)
             make.left.right.bottom.equalToSuperview()
         }
         dataSource.append(WYMultilevelTable(superLevel: 0, level: 0))
@@ -118,7 +118,7 @@ extension WYMultilevelTableViewController: UITableViewDelegate, UITableViewDataS
         let cell = tableView.dequeueReusableCell(withIdentifier: "UITableViewCell", for: indexPath)
         
         cell.textLabel?.textColor = UIColor.wy_dynamic(.black, .white)
-        cell.textLabel?.font = .systemFont(ofSize: wy_fontSize(15, WYBasisKitConfig.defaultScreenPixels))
+        cell.textLabel?.font = .systemFont(ofSize: UIFont.wy_fontSize(15, WYBasisKitConfig.defaultScreenPixels))
         cell.textLabel?.text = sharedLevelName(model: dataSource[indexPath.row])
         
         return cell

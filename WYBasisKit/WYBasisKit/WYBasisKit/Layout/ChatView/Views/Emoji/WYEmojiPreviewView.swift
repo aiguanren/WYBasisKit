@@ -19,22 +19,22 @@ public struct WYEmojiPreviewConfig {
     public var backgroundImage: UIImage = UIImage.wy_find("WYChatEmojiPreview", inBundle: WYChatSourceBundle)
     
     /// 表情预览控件的size
-    public var previewSize: CGSize = CGSize(width: wy_screenWidth(80), height: wy_screenWidth(120))
+    public var previewSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(80), height: UIDevice.wy_screenWidth(120))
     
     /// 表情预览控件内Emoji的size
-    public var emojiSize: CGSize = CGSize(width: wy_screenWidth(30), height: wy_screenWidth(30))
+    public var emojiSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(30), height: UIDevice.wy_screenWidth(30))
     
     /// Emoji距离表情预览控件顶部的间距
-    public var emojiTopOffset: CGFloat = wy_screenWidth(16)
+    public var emojiTopOffset: CGFloat = UIDevice.wy_screenWidth(16)
     
     /// 表情预览控件内文本控件的字体、字号
-    public var textFont: UIFont = .systemFont(ofSize: wy_screenWidth(12))
+    public var textFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(12))
     
     /// 表情预览控件内文本控件的字体颜色
     public var textColor: UIColor = .wy_rgb(120, 120, 120)
     
     /// 表情预览控件内文本控件顶部距离Emoji控件底部的间距
-    public var textTopOffsetWithEmoji: CGFloat = wy_screenWidth(5)
+    public var textTopOffsetWithEmoji: CGFloat = UIDevice.wy_screenWidth(5)
     
     public init() {}
 }
@@ -90,8 +90,8 @@ public class WYEmojiPreviewView: UIImageView {
         textView.adjustsFontSizeToFitWidth = true
         addSubview(textView)
         textView.snp.makeConstraints { make in
-            make.left.equalToSuperview().offset(wy_screenWidth(5))
-            make.right.equalToSuperview().offset(wy_screenWidth(-5))
+            make.left.equalToSuperview().offset(UIDevice.wy_screenWidth(5))
+            make.right.equalToSuperview().offset(UIDevice.wy_screenWidth(-5))
             make.top.equalTo(emojiView.snp.bottom).offset(emojiViewConfig.previewConfig.textTopOffsetWithEmoji)
         }
     }
