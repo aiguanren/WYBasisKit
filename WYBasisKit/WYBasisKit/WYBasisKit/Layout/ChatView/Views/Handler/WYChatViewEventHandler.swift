@@ -194,7 +194,7 @@ extension WYChatView: WYChatEmojiViewDelegate, WYChatEmojiViewEventsHandler {
     
     public func didClickEmojiSendView(_ sendView: UIButton) {
         let emojiText: String = NSMutableAttributedString(attributedString: chatInput.textView.attributedText).wy_convertEmojiAttributedString(textColor: inputBarConfig.textColor, textFont: inputBarConfig.textFont).string
-        didClickKeyboardEvent(emojiText.wy_safe, silence: true)
+        didClickKeyboardEvent(emojiText, silence: true)
         delegate?.didClickEmojiSendView?(sendView)
     }
     

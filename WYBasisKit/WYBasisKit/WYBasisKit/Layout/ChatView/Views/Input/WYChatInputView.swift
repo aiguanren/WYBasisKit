@@ -648,7 +648,7 @@ public class WYChatInputView: UIImageView {
         
         textPlaceholderView.isHidden = !emojiText.isEmpty
         if silence == false {
-            delegate?.textDidChanged?(emojiText.wy_safe)
+            delegate?.textDidChanged?(emojiText)
         }
         updateContentViewHeight()
         
@@ -658,7 +658,7 @@ public class WYChatInputView: UIImageView {
             textView.selectedTextRange = textView.textRange(from: start, to: end)
         }
         
-        UserDefaults.standard.setValue(emojiText.wy_safe, forKey: canSaveLastInputTextKey)
+        UserDefaults.standard.setValue(emojiText, forKey: canSaveLastInputTextKey)
         UserDefaults.standard.synchronize()
         
         updateTextViewOffset()
@@ -690,8 +690,8 @@ public class WYChatInputView: UIImageView {
     @objc public func didClickSendView(_ sender: UIButton? = nil) {
         let emojiText: String = NSMutableAttributedString(attributedString: textView.attributedText).wy_convertEmojiAttributedString(textColor: inputBarConfig.textColor, textFont: inputBarConfig.textFont).string
         
-        if emojiText.wy_safe.wy_replace(appointSymbol: "\n", replacement: "").count > 0 {
-            delegate?.didClickKeyboardEvent?(emojiText.wy_safe)
+        if emojiText.wy_replace(appointSymbol: "\n", replacement: "").count > 0 {
+            delegate?.didClickKeyboardEvent?(emojiText)
         }
     }
     

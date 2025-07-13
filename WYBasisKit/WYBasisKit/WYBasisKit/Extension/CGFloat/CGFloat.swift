@@ -8,6 +8,13 @@
 
 import Foundation
 
+public extension Optional where Wrapped == CGFloat {
+    /// 获取非空安全值
+    var wy_safe: CGFloat {
+        return self ?? 0.0
+    }
+}
+
 public extension CGFloat {
     
     /// CGFloat转String、Double、Int、NSInteger、Decimal

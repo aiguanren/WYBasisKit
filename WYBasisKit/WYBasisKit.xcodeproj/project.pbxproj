@@ -103,6 +103,7 @@
 		58682F7C2E0E440E0057CC53 /* WYEventHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58682F7A2E0E440E0057CC53 /* WYEventHandler.swift */; };
 		587CDF902E09151500929E1D /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 587CDF8F2E09151500929E1D /* libz.tbd */; };
 		587CDF922E09153B00929E1D /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 587CDF912E09153B00929E1D /* libbz2.tbd */; };
+		5895ADAD2E237D42001849B2 /* NSNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5895ADAC2E237D42001849B2 /* NSNumber.swift */; };
 		58F3786D2E2224A9007F7C55 /* UIFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3786C2E2224A9007F7C55 /* UIFont.swift */; };
 		58F378702E2239D5007F7C55 /* FloatingPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3786F2E2239D5007F7C55 /* FloatingPoint.swift */; };
 		58F378732E2240C3007F7C55 /* NSInteger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F378722E2240C3007F7C55 /* NSInteger.swift */; };
@@ -210,6 +211,7 @@
 		58682F7A2E0E440E0057CC53 /* WYEventHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYEventHandler.swift; sourceTree = "<group>"; };
 		587CDF8F2E09151500929E1D /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		587CDF912E09153B00929E1D /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
+		5895ADAC2E237D42001849B2 /* NSNumber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSNumber.swift; sourceTree = "<group>"; };
 		58F3786C2E2224A9007F7C55 /* UIFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIFont.swift; sourceTree = "<group>"; };
 		58F3786F2E2239D5007F7C55 /* FloatingPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPoint.swift; sourceTree = "<group>"; };
 		58F378722E2240C3007F7C55 /* NSInteger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSInteger.swift; sourceTree = "<group>"; };
@@ -563,18 +565,19 @@
 		58678E322DFA627C0035673E /* Extension */ = {
 			isa = PBXGroup;
 			children = (
+				58678E132DFA627C0035673E /* String */,
 				58F378712E2240B9007F7C55 /* NSInteger */,
+				58678E052DFA627C0035673E /* CGFloat */,
+				58678E092DFA627C0035673E /* Double */,
+				58678E012DFA627C0035673E /* Bool */,
+				5895ADAB2E237D16001849B2 /* NSNumber */,
 				58F3786E2E2239A7007F7C55 /* FloatingPoint */,
 				58F3786B2E22244B007F7C55 /* UIFont */,
-				58678E012DFA627C0035673E /* Bool */,
 				58678E032DFA627C0035673E /* CALayer */,
-				58678E052DFA627C0035673E /* CGFloat */,
 				58678E072DFA627C0035673E /* Decimal */,
-				58678E092DFA627C0035673E /* Double */,
 				58678E0D2DFA627C0035673E /* NSAttributedString */,
 				58678E0F2DFA627C0035673E /* NumberFormatter */,
 				58678E112DFA627C0035673E /* NSObject */,
-				58678E132DFA627C0035673E /* String */,
 				58678E152DFA627C0035673E /* Timer */,
 				58678E172DFA627C0035673E /* UIAlertController */,
 				58678E192DFA627C0035673E /* UIApplication */,
@@ -941,6 +944,14 @@
 			path = EventHandler;
 			sourceTree = "<group>";
 		};
+		5895ADAB2E237D16001849B2 /* NSNumber */ = {
+			isa = PBXGroup;
+			children = (
+				5895ADAC2E237D42001849B2 /* NSNumber.swift */,
+			);
+			path = NSNumber;
+			sourceTree = "<group>";
+		};
 		58F3786B2E22244B007F7C55 /* UIFont */ = {
 			isa = PBXGroup;
 			children = (
@@ -1185,6 +1196,7 @@
 				58678ECE2DFA627C0035673E /* WYChatLocationCell.swift in Sources */,
 				58678ECF2DFA627C0035673E /* UICollectionView.swift in Sources */,
 				58678ED02DFA627C0035673E /* CALayer.swift in Sources */,
+				5895ADAD2E237D42001849B2 /* NSNumber.swift in Sources */,
 				58678ED12DFA627C0035673E /* UIColor.swift in Sources */,
 				58678ED22DFA627C0035673E /* WYPagingView.swift in Sources */,
 				58678ED32DFA627C0035673E /* UIViewController.swift in Sources */,

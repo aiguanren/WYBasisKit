@@ -8,6 +8,13 @@
 
 import Foundation
 
+public extension Optional where Wrapped == Bool {
+    /// 获取非空安全值
+    var wy_safe: Bool {
+        return self ?? false
+    }
+}
+
 public extension Bool {
     
     /// 判断是否是纯数字

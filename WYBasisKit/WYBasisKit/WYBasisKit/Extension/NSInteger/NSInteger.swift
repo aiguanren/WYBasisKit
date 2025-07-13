@@ -7,6 +7,13 @@
 
 import Foundation
 
+public extension Optional where Wrapped == NSInteger {
+    /// 获取非空安全值
+    var wy_safe: NSInteger {
+        return self ?? 0
+    }
+}
+
 public extension NSInteger {
     
     /// NSInteger转String、CGFloat、Double、Int、Decimal

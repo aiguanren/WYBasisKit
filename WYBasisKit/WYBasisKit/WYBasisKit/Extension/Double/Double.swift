@@ -8,6 +8,13 @@
 
 import Foundation
 
+public extension Optional where Wrapped == Double {
+    /// 获取非空安全值
+    var wy_safe: Double {
+        return self ?? 0.0
+    }
+}
+
 public extension Double {
     
     /// Double转String、CGFloat、Int、NSInteger、Decimal

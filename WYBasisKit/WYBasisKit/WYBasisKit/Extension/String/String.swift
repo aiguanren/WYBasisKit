@@ -93,17 +93,17 @@ import CryptoKit
     case withinSameYear
 }
 
-public extension String {
-    
-    /// 获取非空字符串
+public extension Optional where Wrapped == String {
+    /// 获取非空安全值
     var wy_safe: String {
-        return isEmpty ? "" : self
+        if let value = self, !value.isEmpty {
+            return value
+        }
+        return ""
     }
-    
-    /// 获取非空字符串
-    static func wy_safe(_ string: String) -> String {
-        return string.wy_safe
-    }
+}
+
+public extension String {
     
     /**
      *  获取一个随机字符串

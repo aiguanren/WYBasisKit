@@ -71,41 +71,26 @@ class WYTestLiveStreamingController: UIViewController {
         let url = UIButton(type: .custom)
         url.backgroundColor = .wy_random
         url.setTitle("url", for: .normal)
-        url.addTarget(self, action: #selector(url(sender:)), for: .touchUpInside)
+        url.addTarget(self, action: #selector(switchUrl), for: .touchUpInside)
         view.addSubview(url)
         url.snp.makeConstraints { make in
             make.left.equalTo(stop.snp.right)
             make.top.equalTo(mute.snp.bottom)
         }
         
-        // http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear2/prog_index.m3u8
-        
-        // http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8
         player.delegate = self
         player.looping = 1
         player.backgroundColor = .white
-        view.addSubview(player)
+        view.insertSubview(player, at: 0)
         player.snp.makeConstraints { make in
-            make.left.right.centerY.equalToSuperview()
-            make.height.equalTo(300)
+            make.left.right.bottom.equalToSuperview()
+            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight)
         }
         player.layoutIfNeeded()
         
-        //        let videoPath: String = Bundle.main.path(forResource: "mpeg4_local", ofType: "mp4") ?? ""
-        //        let videoUrl = URL(fileURLWithPath: videoPath)
-        //        player.play(with: videoUrl.absoluteString)
+        player.play(with: "https://files.cochat.lenovo.com/download/dbb26a06-4604-3d2b-bb2c-6293989e63a7/55deb281e01b27194daf6da391fdfe83.mp4")
         
-        //        let videoPath: String = Bundle.main.path(forResource: "1650855755919", ofType: "mp4") ?? ""
-        //        let videoUrl = URL(fileURLWithPath: videoPath)
-        //        player.play(with: videoUrl.absoluteString)
-        
-        //        player.play(with: "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mp4")
-        
-        //        player.play(with: "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8")
-        
-        player.play(with: "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8")
-        
-        WYActivity.showLoading(in: player, animation: .gifOrApng, config: WYActivityConfig.concise)
+        WYActivity.showLoading(in: view, animation: .gifOrApng, config: WYActivityConfig.concise)
         
         /**
          let options: IJKFFOptions = IJKFFOptions.byDefault()
@@ -174,9 +159,27 @@ class WYTestLiveStreamingController: UIViewController {
         player.stop()
     }
     
-    @objc func url(sender: UIButton) {
-        player.play(with: "https://files.cochat.lenovo.com/download/dbb26a06-4604-3d2b-bb2c-6293989e63a7/55deb281e01b27194daf6da391fdfe83.mp4")
-        WYActivity.showLoading(in: player, animation: .gifOrApng, config: WYActivityConfig.concise)
+    @objc func switchUrl() {
+        let mediaUrls: [String] = [
+            "https://files.cochat.lenovo.com/download/dbb26a06-4604-3d2b-bb2c-6293989e63a7/55deb281e01b27194daf6da391fdfe83.mp4",
+            "http://www.w3school.com.cn/i/movie.mp4",
+            "http://vjs.zencdn.net/v/oceans.mp4",
+            URL(fileURLWithPath: Bundle.main.path(forResource: "mpeg4_local", ofType: "mp4").wy_safe).absoluteString,
+            URL(fileURLWithPath: Bundle.main.path(forResource: "1650855755919", ofType: "mp4").wy_safe).absoluteString,
+            "https://media.w3.org/2010/05/sintel/trailer.mp4",
+            "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+            "rtmp://liteavapp.qcloud.com/live/liteavdemoplayerstreamid",
+            "https://playertest.longtailvideo.com/adaptive/oceans_aes/oceans_aes.m3u8",
+            "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8",
+            "rtmp://ns8.indexforce.com/home/mystream"]
+        
+        var mediaUrlIndex: NSInteger = mediaUrls.firstIndex(of: player.mediaUrl) ?? 0
+        mediaUrlIndex = ((mediaUrlIndex + 1) < mediaUrls.count) ? (mediaUrlIndex + 1) : 0
+        let mediaUrl = mediaUrls[mediaUrlIndex]
+        player.play(with: mediaUrl)
+        WYActivity.showLoading(in: view, animation: .gifOrApng, config: WYActivityConfig.concise)
+        
+        wy_print("当前播放：\(mediaUrl), index：\(mediaUrlIndex), mediaUrlsCount：\(mediaUrls.count)")
     }
     
     deinit {
@@ -203,39 +206,40 @@ extension WYTestLiveStreamingController: WYMediaPlayerDelegate {
             wy_print("未知状态")
         case .rendered:
             wy_print("第一帧渲染完成")
-            WYActivity.dismissLoading(in: player)
+            WYActivity.dismissLoading(in: view)
         case .ready:
             wy_print("可以播放了")
         case .playing:
             wy_print("正在播放")
-            WYActivity.dismissLoading(in: player)
+            WYActivity.dismissLoading(in: view)
         case .buffering:
             wy_print("缓冲中")
-            WYActivity.showLoading(in: player, animation: .gifOrApng, config: WYActivityConfig.concise)
+            WYActivity.showLoading(in: view, animation: .gifOrApng, config: WYActivityConfig.concise)
         case .playable:
             wy_print("缓冲结束")
-            WYActivity.dismissLoading(in: player)
+            WYActivity.dismissLoading(in: view)
         case .paused:
             wy_print("播放暂停")
-            WYActivity.dismissLoading(in: player)
+            WYActivity.dismissLoading(in: view)
         case .interrupted:
             wy_print("播放被中断")
-            WYActivity.dismissLoading(in: player)
+            WYActivity.dismissLoading(in: view)
         case .seekingForward:
             wy_print("快进")
-            WYActivity.dismissLoading(in: player)
+            WYActivity.dismissLoading(in: view)
         case .seekingBackward:
             wy_print("快退")
-            WYActivity.dismissLoading(in: player)
+            WYActivity.dismissLoading(in: view)
         case .ended:
             wy_print("播放完毕")
-            WYActivity.dismissLoading(in: player)
+            WYActivity.dismissLoading(in: view)
+            switchUrl()
         case .userExited:
             wy_print("用户中断播放")
-            WYActivity.dismissLoading(in: player)
+            WYActivity.dismissLoading(in: view)
         case .error:
             wy_print("播放出现异常")
-            WYActivity.dismissLoading(in: player)
+            WYActivity.dismissLoading(in: view)
         }
     }
 }
