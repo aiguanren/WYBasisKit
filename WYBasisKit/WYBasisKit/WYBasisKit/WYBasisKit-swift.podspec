@@ -10,7 +10,7 @@ $mediaPlayer_full_config = {
 }
 
 $mediaPlayer_lite_config = {
-  "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64", # 过滤模拟器arm64，解决，解决M系列芯片MAC上模拟器架构问题
+  "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64", # 过滤模拟器arm64，解决M系列芯片MAC上模拟器架构问题
   "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) WYMediaPlayer_SUPPORTS_SIMULATOR_LITE=1",  # 用于 Objective-C 的 #if 判断
   "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) WYMediaPlayer_SUPPORTS_SIMULATOR_LITE", # 用于 Swift 的 #if 判断（注意不带 =1，就是直接使用宏名即可）
   # 模拟器环境下清空IJKMediaPlayer.xcframework相关的链接，避免链接导致的验证不通过与编译错误
@@ -29,7 +29,7 @@ Pod::Spec.new do |kit|
     Networking: 网络请求解决方案
     Activity: 活动指示器
     Storage: 本地存储
-    Layout: 各种自定义控件(注意：ChatView尚未开发完毕)
+    Layout: 各种自定义控件(注意：ChatView尚未开发完毕，敬请期待)
     MediaPlayer: 直播、视频播放器
     Codable: 数据解析
     Authorization: 各种权限请求与判断
@@ -65,6 +65,11 @@ Pod::Spec.new do |kit|
   kit.prepare_command = <<-CMD
     bash MediaPlayer/WYMediaPlayerFramework.sh || bash #{SDKPath}MediaPlayer/WYMediaPlayerFramework.sh
   CMD
+
+  # 过滤模拟器arm64，解决M系列芯片MAC上模拟器架构问题
+  kit.user_target_xcconfig = {
+    "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64"
+  }
 
   kit.subspec "Config" do |config|
     config.source_files = [
@@ -356,7 +361,10 @@ Pod::Spec.new do |kit|
     framework.libraries = "c++", "z", "bz2"  
     framework.frameworks = "UIKit", "AudioToolbox", "CoreGraphics", "AVFoundation", "CoreMedia", "CoreVideo", "MediaPlayer", "CoreServices", "Metal", "QuartzCore", "VideoToolbox"
     # framework.vendored_libraries = "xxx.a"
-    framework.pod_target_xcconfig = $mediaPlayer_lite_config
+    # 排除模拟器环境下的所有架构（x86_64, arm64）
+    framework.pod_target_xcconfig = $mediaPlayer_lite_config.merge({
+      "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "x86_64 arm64" 
+    })
     framework.vendored_frameworks = [
       "MediaPlayer/WYMediaPlayerFramework/arm64/IJKMediaPlayer.xcframework"
     ]
