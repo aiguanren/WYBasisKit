@@ -66,11 +66,6 @@ Pod::Spec.new do |kit|
     bash MediaPlayer/WYMediaPlayerFramework.sh || bash #{SDKPath}MediaPlayer/WYMediaPlayerFramework.sh
   CMD
 
-  # 过滤模拟器arm64，解决M系列芯片MAC上模拟器架构问题
-  kit.user_target_xcconfig = {
-    "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64"
-  }
-
   kit.subspec "Config" do |config|
     config.source_files = [
       "#{SDKPath}Config/**/*.{swift,h,m}"
@@ -361,10 +356,7 @@ Pod::Spec.new do |kit|
     framework.libraries = "c++", "z", "bz2"  
     framework.frameworks = "UIKit", "AudioToolbox", "CoreGraphics", "AVFoundation", "CoreMedia", "CoreVideo", "MediaPlayer", "CoreServices", "Metal", "QuartzCore", "VideoToolbox"
     # framework.vendored_libraries = "xxx.a"
-    # 排除模拟器环境下的所有架构（x86_64, arm64）
-    framework.pod_target_xcconfig = $mediaPlayer_lite_config.merge({
-      "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "x86_64 arm64" 
-    })
+    framework.pod_target_xcconfig = $mediaPlayer_lite_config
     framework.vendored_frameworks = [
       "MediaPlayer/WYMediaPlayerFramework/arm64/IJKMediaPlayer.xcframework"
     ]
