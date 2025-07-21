@@ -66,6 +66,11 @@ Pod::Spec.new do |kit|
     bash MediaPlayer/WYMediaPlayerFramework.sh || bash #{SDKPath}MediaPlayer/WYMediaPlayerFramework.sh
   CMD
 
+  # 主工程设置
+  # kit.user_target_xcconfig = {
+  #   "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64" # 过滤模拟器arm64，解决M系列芯片MAC上模拟器架构问题
+  # }
+
   kit.subspec "Config" do |config|
     config.source_files = [
       "#{SDKPath}Config/**/*.{swift,h,m}"
