@@ -434,11 +434,11 @@ private extension UIDevice {
             if let windowScene: UIWindowScene = window?.windowScene {
                 UIViewController.wy_currentController()?.setNeedsUpdateOfSupportedInterfaceOrientations()
                 windowScene.requestGeometryUpdate(UIWindowScene.GeometryPreferences.iOS(interfaceOrientations: wy_currentInterfaceOrientation)) { error in
-                    wy_print("旋转屏幕方向出错啦： \(error.localizedDescription)")
+                    WYLogManager.output("旋转屏幕方向出错啦： \(error.localizedDescription)")
                 }
                 
             }else {
-                wy_print("旋转屏幕方向出错啦")
+                WYLogManager.output("旋转屏幕方向出错啦")
             }
         }else {
             UIDevice.current.setValue(orientation.rawValue, forKey: "orientation")
@@ -457,7 +457,7 @@ private extension UIDevice {
             motionManager!.startAccelerometerUpdates(to: OperationQueue.current!) { [weak self] (accelerometerData, error) in
                 if error != nil {
                     self?.stopMotionManager()
-                    wy_print("启用加速传感器出错：\(error!.localizedDescription)")
+                    WYLogManager.output("启用加速传感器出错：\(error!.localizedDescription)")
                 }else {
                     
                     let x: Double = accelerometerData!.acceleration.x
@@ -499,7 +499,7 @@ private extension UIDevice {
                 }
             }
         }else {
-            wy_print("当前设备不支持加速传感器")
+            WYLogManager.output("当前设备不支持加速传感器")
         }
     }
     

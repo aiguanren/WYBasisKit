@@ -60,9 +60,6 @@ public struct WYBasisKitConfig {
     
     /// 设置WYBasisKit内部国际化语言读取表，设置后需自己将WYLocalizable表中的国际化文本写入自定义的表中(如果有Bundle，则要求Bundle名与表名一致，否则会读取失败)，默认使用自带的表：WYLocalizable
     public static var kitLocalizableTable: String = "WYLocalizable"
-    
-    /// Debug模式下是否打印日志
-    public static var debugModeLog: Bool = true
 }
 
 public struct WYProjectInfo {
@@ -81,17 +78,4 @@ public struct WYProjectInfo {
 
     /// 应用Build版本号
     public static let appBuildVersion: String = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
-}
-
-/// DEBUG打印日志
-public func wy_print(_ messages: Any..., file: String = #file, function: String = #function, line: Int = #line) {
-#if DEBUG
-    if WYBasisKitConfig.debugModeLog == true {
-        let timeFormatter = DateFormatter()
-        timeFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
-        let time = timeFormatter.string(from: Date())
-        let message = messages.compactMap { "\($0)" }.joined(separator: " ")
-        print("\n\(time) ——> \((file as NSString).lastPathComponent) ——> \(function) ——> line:\(line)\n\n\(message)\n\n\n")
-    }
-#endif
 }

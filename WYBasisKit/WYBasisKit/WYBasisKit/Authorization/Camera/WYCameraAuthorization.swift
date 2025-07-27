@@ -50,7 +50,7 @@ public func wy_authorizeCameraAccess(showAlert: Bool = true, handler: @escaping 
         }
         
     }else {
-        wy_print("请先在Info.plist中添加key：\(cameraKey)")
+        WYLogManager.output("请先在Info.plist中添加key：\(cameraKey)")
         handler(false)
         return
     }

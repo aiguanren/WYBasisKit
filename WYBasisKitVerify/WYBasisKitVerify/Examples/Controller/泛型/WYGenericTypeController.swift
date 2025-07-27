@@ -22,7 +22,7 @@ class WYGenericTypeController: UIViewController {
     }
     
     func userMoudleSuccessMethod(context: SDKRequestContext<UserRequest, UserResponse>) {
-        wy_print("context.request?.eventId = \(context.request?.eventId ?? "")")
+        WYLogManager.output("context.request?.eventId = \(context.request?.eventId ?? "")")
     
         let respone: UserResponse = UserResponse()
         respone.errorCode = "100"
@@ -32,7 +32,7 @@ class WYGenericTypeController: UIViewController {
     }
     
     @objc func testMothod(data: String) {
-        wy_print("离线方法调用,data = \(data)")
+        WYLogManager.output("离线方法调用,data = \(data)")
     }
 
     /*

@@ -45,7 +45,7 @@ class WYTestRequestController: UIViewController {
 
             case .success(let success):
 
-                wy_print((success.isCache ? "是" : "不是") + "缓存数据" + "\n" + "\((config.originObject ? success.origin : success.parse))")
+                WYLogManager.output((success.isCache ? "是" : "不是") + "缓存数据" + "\n" + "\((config.originObject ? success.origin : success.parse))")
 
                 textView.text = (config.originObject ? success.origin : success.parse)
 
@@ -54,12 +54,12 @@ class WYTestRequestController: UIViewController {
                 }
 
                 if success.storage != nil {
-                    wy_print("缓存路径：\((success.storage?.path?.path) ?? "")")
+                    WYLogManager.output("缓存路径：\((success.storage?.path?.path) ?? "")")
                 }
                 break
 
             case .error(let error):
-                wy_print("\(error)")
+                WYLogManager.output("\(error)")
                 WYActivity.dismissLoading(in: self!.view)
                 WYActivity.showInfo(error.describe)
                 break

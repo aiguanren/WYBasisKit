@@ -68,7 +68,7 @@ public func wy_authorizeSpeechRecognition(showAlert: Bool = true, handler: @esca
         }
         
     }else {
-        wy_print("请先在Info.plist中添加key：\(speechRecognitionKey)")
+        WYLogManager.output("请先在Info.plist中添加key：\(speechRecognitionKey)")
         handler(false)
     }
 }

@@ -48,7 +48,7 @@ public func wy_authorizeMicrophoneAccess(showAlert: Bool = true, handler: @escap
         }
         
     }else {
-        wy_print("请先在Info.plist中添加key：\(microphoneKey)")
+        WYLogManager.output("请先在Info.plist中添加key：\(microphoneKey)")
         handler(false)
         return
     }

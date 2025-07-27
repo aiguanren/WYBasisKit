@@ -9,7 +9,7 @@
 import UIKit
 
 /// 虚线方向
-@frozen public enum WYDashDirection: UInt {
+@frozen public enum WYDashDirection: Int {
     
     /// 从上到下
     case topToBottom = 0

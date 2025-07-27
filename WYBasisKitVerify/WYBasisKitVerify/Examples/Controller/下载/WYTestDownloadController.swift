@@ -21,7 +21,7 @@ class WYTestDownloadController: UIViewController {
         if memoryData.userData != nil {
             localImage = UIImage(data: memoryData.userData!)
         }else {
-            wy_print("\(memoryData.error!)")
+            WYLogManager.output("\(memoryData.error!)")
         }
         
         let localImageView = UIImageView()
@@ -62,10 +62,10 @@ class WYTestDownloadController: UIViewController {
                 switch result {
                 case .success(let source):
                     downloadImageView.image = source.image.wy_blur(20)
-                    wy_print("cacheKey = \(source.originalSource.cacheKey), \nmd5 = \(url.wy_sha256()), \n缓存路径 = \(cache.diskStorage.cacheFileURL(forKey: source.source.cacheKey))")
+                    WYLogManager.output("cacheKey = \(source.originalSource.cacheKey), \nmd5 = \(url.wy_sha256()), \n缓存路径 = \(cache.diskStorage.cacheFileURL(forKey: source.source.cacheKey))")
                     break
                 case .failure(let error):
-                    wy_print("\(error)")
+                    WYLogManager.output("\(error)")
                     WYActivity.dismissLoading(in: self.view)
                     break
                 }
@@ -79,7 +79,7 @@ class WYTestDownloadController: UIViewController {
                     
                 case .progress(let progress):
                     
-                    wy_print("\(progress.progress)")
+                    WYLogManager.output("\(progress.progress)")
                     
                     break
                 case .success(let success):
@@ -88,7 +88,7 @@ class WYTestDownloadController: UIViewController {
                     
                     let assetObj: WYDownloadModel? = try! WYCodable().decode(WYDownloadModel.self, from: success.origin.data(using: .utf8)!)
                     
-                    wy_print("assetObj = \(String(describing: assetObj))")
+                    WYLogManager.output("assetObj = \(String(describing: assetObj))")
                     
                     let imagePath: String = assetObj?.assetPath ?? ""
                     let image = UIImage(contentsOfFile: imagePath)
@@ -100,18 +100,18 @@ class WYTestDownloadController: UIViewController {
                     
                     let memoryData: WYStorageData = WYStorage.storage(forKey: "AAAAA", data: image!.jpegData(compressionQuality: 1.0)!, durable: .minute(2))
                     if memoryData.error == nil {
-                        wy_print("缓存成功 = \(memoryData)")
+                        WYLogManager.output("缓存成功 = \(memoryData)")
                         localImageView.image = UIImage(data: memoryData.userData!)
                     }else {
-                        wy_print("缓存失败 = \(memoryData.error ?? "")")
+                        WYLogManager.output("缓存失败 = \(memoryData.error ?? "")")
                     }
                     
                     WYNetworkManager.clearDiskCache(path: diskCachePath, asset: asset) { error in
                         
                         if error != nil {
-                            wy_print("error = \(error!)")
+                            WYLogManager.output("error = \(error!)")
                         }else {
-                            wy_print("移除成功")
+                            WYLogManager.output("移除成功")
                         }
                     }
                     
@@ -126,7 +126,7 @@ class WYTestDownloadController: UIViewController {
                     
                     break
                 case .error(let error):
-                    wy_print("\(error)")
+                    WYLogManager.output("\(error)")
                     WYActivity.dismissLoading(in: self.view)
                     break
                 }

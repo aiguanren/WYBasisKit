@@ -104,6 +104,7 @@
 		587CDF902E09151500929E1D /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 587CDF8F2E09151500929E1D /* libz.tbd */; };
 		587CDF922E09153B00929E1D /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 587CDF912E09153B00929E1D /* libbz2.tbd */; };
 		5895ADAD2E237D42001849B2 /* NSNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5895ADAC2E237D42001849B2 /* NSNumber.swift */; };
+		58CDEE582E34780D00ACE975 /* WYLogManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CDEE572E34780D00ACE975 /* WYLogManager.swift */; };
 		58F3786D2E2224A9007F7C55 /* UIFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3786C2E2224A9007F7C55 /* UIFont.swift */; };
 		58F378702E2239D5007F7C55 /* FloatingPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3786F2E2239D5007F7C55 /* FloatingPoint.swift */; };
 		58F378732E2240C3007F7C55 /* NSInteger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F378722E2240C3007F7C55 /* NSInteger.swift */; };
@@ -212,6 +213,7 @@
 		587CDF8F2E09151500929E1D /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		587CDF912E09153B00929E1D /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
 		5895ADAC2E237D42001849B2 /* NSNumber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSNumber.swift; sourceTree = "<group>"; };
+		58CDEE572E34780D00ACE975 /* WYLogManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLogManager.swift; sourceTree = "<group>"; };
 		58F3786C2E2224A9007F7C55 /* UIFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIFont.swift; sourceTree = "<group>"; };
 		58F3786F2E2239D5007F7C55 /* FloatingPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPoint.swift; sourceTree = "<group>"; };
 		58F378722E2240C3007F7C55 /* NSInteger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSInteger.swift; sourceTree = "<group>"; };
@@ -932,6 +934,7 @@
 				58678E862DFA627C0035673E /* Networking */,
 				58678E882DFA627C0035673E /* Storage */,
 				58682F7B2E0E440E0057CC53 /* EventHandler */,
+				58CDEE562E34777400ACE975 /* LogManager */,
 			);
 			path = WYBasisKit;
 			sourceTree = "<group>";
@@ -950,6 +953,14 @@
 				5895ADAC2E237D42001849B2 /* NSNumber.swift */,
 			);
 			path = NSNumber;
+			sourceTree = "<group>";
+		};
+		58CDEE562E34777400ACE975 /* LogManager */ = {
+			isa = PBXGroup;
+			children = (
+				58CDEE572E34780D00ACE975 /* WYLogManager.swift */,
+			);
+			path = LogManager;
 			sourceTree = "<group>";
 		};
 		58F3786B2E22244B007F7C55 /* UIFont */ = {
@@ -1137,6 +1148,7 @@
 				58678E952DFA627C0035673E /* WYRecordAnimationView.swift in Sources */,
 				58678E962DFA627C0035673E /* WYMediaPlayer.swift in Sources */,
 				58678E972DFA627C0035673E /* WYMoreViewCell.swift in Sources */,
+				58CDEE582E34780D00ACE975 /* WYLogManager.swift in Sources */,
 				58678E982DFA627C0035673E /* WYSpeechRecognitionAuthorization.swift in Sources */,
 				58678E992DFA627C0035673E /* WYStorage.swift in Sources */,
 				58678E9A2DFA627C0035673E /* NSObject.swift in Sources */,

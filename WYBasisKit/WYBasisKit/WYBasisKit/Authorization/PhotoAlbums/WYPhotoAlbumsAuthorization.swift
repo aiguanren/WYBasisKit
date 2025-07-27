@@ -30,7 +30,7 @@ public func wy_authorizeAlbumAccess(showAlert: Bool = true, handler: @escaping (
             return
         }
     }else {
-        wy_print("请先在Info.plist中添加key：\(photoLibraryKey)")
+        WYLogManager.output("请先在Info.plist中添加key：\(photoLibraryKey)")
         handler(false, false)
         return
     }

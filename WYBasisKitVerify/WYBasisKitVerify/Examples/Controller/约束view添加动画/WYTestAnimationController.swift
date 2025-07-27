@@ -35,7 +35,7 @@ class WYTestAnimationController: UIViewController {
             make.size.equalTo(button)
         }
         testButton.wy_addHandler(interval: 1) { _ in
-            wy_print("点击了按钮")
+            WYLogManager.output("点击了按钮")
         }
     }
     

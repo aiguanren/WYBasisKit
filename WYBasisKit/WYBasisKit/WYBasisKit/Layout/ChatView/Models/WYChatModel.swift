@@ -52,7 +52,7 @@ public var messageWithdrawalInterval: TimeInterval = 120
 }
 
 /// 红包、转账收款状态
-@frozen public enum WYChatFundsState: NSInteger {
+@frozen public enum WYChatFundsState: Int {
     
     /// 待收款
     case unreceived = 0
@@ -68,7 +68,7 @@ public var messageWithdrawalInterval: TimeInterval = 120
 }
 
 /// 通话类型
-@frozen public enum WYChatCallStyle: NSInteger {
+@frozen public enum WYChatCallStyle: Int {
     
     /// 一对一语音
     case oneToOneVoice = 0
@@ -84,7 +84,7 @@ public var messageWithdrawalInterval: TimeInterval = 120
 }
 
 /// 消息发送状态
-@frozen public enum WYChatMessageSendState: NSInteger {
+@frozen public enum WYChatMessageSendState: Int {
     /// 未发送
     case notSent = 0
     /// 发送中

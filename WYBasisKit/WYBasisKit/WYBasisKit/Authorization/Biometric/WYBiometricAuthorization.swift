@@ -68,7 +68,7 @@ public func wy_verifyBiometrics(localizedFallbackTitle: String = "", localizedRe
             wy_checkBiometrics(localizedFallbackTitle: localizedFallbackTitle, localizedReason: localizedReason, handler: handler)
             return
         }else {
-            wy_print("请先在Info.plist中添加key：\(faceIDKey)")
+            WYLogManager.output("请先在Info.plist中添加key：\(faceIDKey)")
             handler(false, false, WYLocalized("WYLocalizable_05", table: WYBasisKitConfig.kitLocalizableTable))
             return
         }

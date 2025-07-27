@@ -45,18 +45,18 @@ class WYSpeechRecognitionController: UIViewController {
         WYNetworkStatus.listening("SpeechRecognition") { status in
             switch status {
             case .notReachable:
-                wy_print("无网络连接")
+                WYLogManager.output("无网络连接")
             case .unknown :
-                wy_print("未知网络连接状态")
+                WYLogManager.output("未知网络连接状态")
             case .reachable(.ethernetOrWiFi):
-                wy_print("连接到WiFi网络")
+                WYLogManager.output("连接到WiFi网络")
             case .reachable(.cellular):
-                wy_print("连接到移动网络")
+                WYLogManager.output("连接到移动网络")
             }
         }
         
         // 输出一下语音识别器支持的区域，就是上边初始化SFSpeechRecognizer 时 locale 所需要的 identifier
-        wy_print(SFSpeechRecognizer.supportedLocales())
+        WYLogManager.output(SFSpeechRecognizer.supportedLocales())
         
         voiceView.isEnabled = false
         // 设置语音识别器代理
@@ -89,7 +89,7 @@ class WYSpeechRecognitionController: UIViewController {
             // 开启 audioSession
             try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
         } catch {
-            wy_print("audioSession properties weren't set because of an error.")
+            WYLogManager.output("audioSession properties weren't set because of an error.")
         }
         
         // 初始化RecognitionRequest，在后边我们会用它将录音数据转发给苹果服务器
@@ -166,7 +166,7 @@ class WYSpeechRecognitionController: UIViewController {
             // 开始录音
             try audioEngine?.start()
         } catch {
-            wy_print("audioEngine couldn't start because of an error.")
+            WYLogManager.output("audioEngine couldn't start because of an error.")
         }
         textView.text = "请讲话..."
     }
@@ -206,7 +206,7 @@ extension WYSpeechRecognitionController: SFSpeechRecognizerDelegate, SFSpeechRec
     
     // Called when the task first detects speech in the source audio
     func speechRecognitionDidDetectSpeech(_ task: SFSpeechRecognitionTask) {
-        wy_print("Called when the task first detects speech in the source audio")
+        WYLogManager.output("Called when the task first detects speech in the source audio")
     }
     
     
@@ -233,13 +233,13 @@ extension WYSpeechRecognitionController: SFSpeechRecognizerDelegate, SFSpeechRec
     
     // Called when the task is no longer accepting new audio but may be finishing final processing
     func speechRecognitionTaskFinishedReadingAudio(_ task: SFSpeechRecognitionTask) {
-        wy_print("Called when the task is no longer accepting new audio but may be finishing final processing")
+        WYLogManager.output("Called when the task is no longer accepting new audio but may be finishing final processing")
     }
     
     
     // Called when the task has been cancelled, either by client app, the user, or the system
     func speechRecognitionTaskWasCancelled(_ task: SFSpeechRecognitionTask) {
-        wy_print("Called when the task has been cancelled, either by client app, the user, or the system")
+        WYLogManager.output("Called when the task has been cancelled, either by client app, the user, or the system")
     }
     
     

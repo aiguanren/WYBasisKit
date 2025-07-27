@@ -46,7 +46,7 @@ public func wy_authorizeAddressBookAccess(showAlert: Bool = true, keysToFetch: [
         }
         
     }else {
-        wy_print("请先在Info.plist中添加key：\(contactsKey)")
+        WYLogManager.output("请先在Info.plist中添加key：\(contactsKey)")
         handler(false, nil)
         return
     }

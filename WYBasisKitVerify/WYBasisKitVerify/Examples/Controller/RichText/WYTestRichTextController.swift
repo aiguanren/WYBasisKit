@@ -91,11 +91,11 @@ class WYTestRichTextController: UIViewController {
             make.top.equalTo(emojiLabel.snp.bottom).offset(50)
         }
         
-        wy_print("每行显示的分别是 \(String(describing: label.attributedText?.wy_stringPerLine(controlWidth: UIDevice.wy_screenWidth))), 一共 \(String(describing: label.attributedText?.wy_numberOfRows(controlWidth: UIDevice.wy_screenWidth))) 行")
+        WYLogManager.output("每行显示的分别是 \(String(describing: label.attributedText?.wy_stringPerLine(controlWidth: UIDevice.wy_screenWidth))), 一共 \(String(describing: label.attributedText?.wy_numberOfRows(controlWidth: UIDevice.wy_screenWidth))) 行")
         
         label.layoutIfNeeded()
         let subFrame = attribute.wy_calculateFrame(range: NSMakeRange(attribute.string.count - 2, 1), controlSize: label.frame.size)
-        wy_print("\(subFrame), labelFrame = \(label.frame)")
+        WYLogManager.output("\(subFrame), labelFrame = \(label.frame)")
         
         let lineView = UIView(frame: CGRect(x: subFrame.origin.x, y: subFrame.origin.y, width: subFrame.size.width, height: subFrame.size.height))
         lineView.backgroundColor = .orange.withAlphaComponent(0.2)
@@ -159,7 +159,7 @@ class WYTestRichTextController: UIViewController {
     }
     
     deinit {
-        wy_print("deinit")
+        WYLogManager.output("deinit")
     }
     
     

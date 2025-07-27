@@ -28,11 +28,11 @@ class WYQRCodeController: UIViewController {
 
         // 获取二维码信息(必须要真机环境才能获取到相关信息)
         guard let infoArr = imageView.image?.wy_recognitionQRCode() else {return}
-        wy_print("二维码信息 = \(infoArr)")
+        WYLogManager.output("二维码信息 = \(infoArr)")
     }
     
     deinit {
-        wy_print("WYQRCodeController release")
+        WYLogManager.output("WYQRCodeController release")
     }
 
     /*

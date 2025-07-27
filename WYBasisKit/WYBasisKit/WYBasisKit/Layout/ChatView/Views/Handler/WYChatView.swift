@@ -113,7 +113,7 @@ public class WYChatView: UIView {
     public var dataSource: [WYChatMessageModel] = [] {
         didSet {
             guard userInfo != nil else {
-                wy_print("当前登录用户的用户信息为空")
+                WYLogManager.output("当前登录用户的用户信息为空")
                 return
             }
             tableView.reloadData()

@@ -80,6 +80,16 @@ Pod::Spec.new do |kit|
     ]}
     config.frameworks = "Foundation", "UIKit"
   end
+
+  kit.subspec "LogManager" do |logManager|
+    logManager.source_files = [
+      "#{sdk_path}LogManager/**/*.{swift,h,m}"
+    ]
+    logManager.resource_bundles = {"WYBasisKitLogManager" => [
+      "#{sdk_path}LogManager/PrivacyInfo.xcprivacy"
+    ]}
+    logManager.frameworks = "Foundation", "UIKit"
+  end
   
   kit.subspec "Localizable" do |localizable|
     localizable.source_files = [
@@ -103,6 +113,7 @@ Pod::Spec.new do |kit|
     extension.frameworks = "Foundation", "UIKit", "LocalAuthentication", "Photos", "CoreFoundation"
     extension.dependency "WYBasisKit-swift/Localizable"
     extension.dependency "WYBasisKit-swift/Config"
+    extension.dependency "WYBasisKit-swift/LogManager"
   end
   
   kit.subspec "Codable" do |codable|
@@ -151,6 +162,7 @@ Pod::Spec.new do |kit|
     ]}
     activity.frameworks = "Foundation", "UIKit"
     activity.dependency "WYBasisKit-swift/Localizable"
+    activity.dependency "WYBasisKit-swift/LogManager"
   end
   
   kit.subspec "Storage" do |storage|
@@ -188,6 +200,7 @@ Pod::Spec.new do |kit|
       ]}
       camera.frameworks = "AVFoundation", "UIKit", "Photos"
       camera.dependency "WYBasisKit-swift/Localizable"
+      camera.dependency "WYBasisKit-swift/LogManager"
     end
     
     authorization.subspec "Biometric" do |biometric|
@@ -200,6 +213,7 @@ Pod::Spec.new do |kit|
       ]}
       biometric.frameworks = "Foundation", "LocalAuthentication"
       biometric.dependency "WYBasisKit-swift/Localizable"
+      biometric.dependency "WYBasisKit-swift/LogManager"
     end
     
     authorization.subspec "Contacts" do |contacts|
@@ -213,6 +227,7 @@ Pod::Spec.new do |kit|
       ]}
       contacts.frameworks = "Contacts", "UIKit"
       contacts.dependency "WYBasisKit-swift/Localizable"
+      contacts.dependency "WYBasisKit-swift/LogManager"
     end
     
     authorization.subspec "PhotoAlbums" do |photoAlbums|
@@ -226,6 +241,7 @@ Pod::Spec.new do |kit|
       ]}
       photoAlbums.frameworks = "Photos", "UIKit"
       photoAlbums.dependency "WYBasisKit-swift/Localizable"
+      photoAlbums.dependency "WYBasisKit-swift/LogManager"
     end
     
     authorization.subspec "Microphone" do |microphone|
@@ -239,6 +255,7 @@ Pod::Spec.new do |kit|
       ]}
       microphone.frameworks = "Photos", "UIKit"
       microphone.dependency "WYBasisKit-swift/Localizable"
+      microphone.dependency "WYBasisKit-swift/LogManager"
     end
     
     authorization.subspec "SpeechRecognition" do |speechRecognition|
@@ -252,6 +269,7 @@ Pod::Spec.new do |kit|
       ]}
       speechRecognition.frameworks = "Speech", "UIKit"
       speechRecognition.dependency "WYBasisKit-swift/Localizable"
+      speechRecognition.dependency "WYBasisKit-swift/LogManager"
     end
   end
   
@@ -274,6 +292,7 @@ Pod::Spec.new do |kit|
       scrollText.frameworks = "Foundation", "UIKit"
       scrollText.dependency "WYBasisKit-swift/Localizable"
       scrollText.dependency "SnapKit"
+      scrollText.dependency "WYBasisKit-swift/LogManager"
     end
     
     layout.subspec "PagingView" do |pagingView|
@@ -293,6 +312,7 @@ Pod::Spec.new do |kit|
       ]}
       pagingView.frameworks = "Foundation", "UIKit"
       pagingView.dependency "SnapKit"
+      pagingView.dependency "WYBasisKit-swift/LogManager"
     end
     
     layout.subspec "BannerView" do |bannerView|
@@ -313,6 +333,7 @@ Pod::Spec.new do |kit|
       bannerView.frameworks = "Foundation", "UIKit"
       bannerView.dependency "WYBasisKit-swift/Localizable"
       bannerView.dependency "Kingfisher"
+      bannerView.dependency "WYBasisKit-swift/LogManager"
     end
     
      layout.subspec "ChatView" do |chatView|
@@ -334,6 +355,7 @@ Pod::Spec.new do |kit|
        chatView.dependency "WYBasisKit-swift/Localizable"
        chatView.dependency "WYBasisKit-swift/Authorization/Microphone"
        chatView.dependency "WYBasisKit-swift/Storage"
+       chatView.dependency "WYBasisKit-swift/LogManager"
        chatView.dependency "SnapKit"
        chatView.dependency "Kingfisher"
      end

@@ -49,6 +49,7 @@ target 'WYBasisKitVerify' do
   pod 'WYBasisKit-swift/Activity', :path => SDKPATH
   pod 'WYBasisKit-swift/Storage', :path => SDKPATH
   pod 'WYBasisKit-swift/EventHandler', :path => SDKPATH
+  pod 'WYBasisKit-swift/LogManager', :path => SDKPATH
   pod 'WYBasisKit-swift/Codable', :path => SDKPATH
   pod 'WYBasisKit-swift/Authorization', :path => SDKPATH
   # 根据Xcode版本号指定三方库的版本号

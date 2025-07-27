@@ -14,7 +14,7 @@ import UIKit
     public func setResponse(response: SDKResponse) {
         
         if let request: SDKRequest = request as? SDKRequest, let data = try? WYCodable().encode(String.self, from: response) {
-            wy_print("eventId = \(request.eventId), responseJson = \(data)")
+            WYLogManager.output("eventId = \(request.eventId), responseJson = \(data)")
         }
     }
 }

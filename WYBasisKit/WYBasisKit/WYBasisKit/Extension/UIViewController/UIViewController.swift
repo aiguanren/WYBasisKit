@@ -170,7 +170,7 @@ public extension UIViewController {
         
         guard let controllerClass = NSClassFromString(controller) as? UIViewController.Type else {
 
-            wy_print("找不到 \(className) 这个控制器")
+            WYLogManager.output("找不到 \(className) 这个控制器")
             return nil
         }
         return controllerClass.init()

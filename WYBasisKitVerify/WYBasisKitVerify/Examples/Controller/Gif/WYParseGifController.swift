@@ -114,7 +114,7 @@ class WYParseGifController: UIViewController {
     }
     
     deinit {
-        wy_print("release")
+        WYLogManager.output("release")
     }
     
 

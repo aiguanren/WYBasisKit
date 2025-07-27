@@ -338,7 +338,7 @@ public extension WYChatBasicCell {
                 self.message.sendor.avatar.name = urlString.wy_sha256()
                 break
             case .failure(let error):
-                wy_print("\(error)")
+                WYLogManager.output("\(error)")
                 break
             }
         }

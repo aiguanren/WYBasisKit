@@ -19,13 +19,13 @@ class WYRightController: UIViewController {
         
         WYEventHandler.shared.register(event: AppEvent.buttonDidMove, target: self) { data in
             if let stingValue = data {
-                wy_print("data = \(stingValue), controller: \(NSStringFromClass(type(of: self)))")
+                WYLogManager.output("data = \(stingValue), controller: \(NSStringFromClass(type(of: self)))")
             }
         }
         
         WYEventHandler.shared.register(event: AppEvent.buttonDidReturn, target: self) { data in
             if let stingValue = data {
-                wy_print("data = \(stingValue), controller: \(NSStringFromClass(type(of: self)))")
+                WYLogManager.output("data = \(stingValue), controller: \(NSStringFromClass(type(of: self)))")
             }
         }
         
@@ -109,6 +109,6 @@ extension WYRightController: WYPagingViewDelegate {
 extension WYRightController: AppEventDelegate {
     
     func didShowBannerView(data: String) {
-        wy_print("data = \(data), controller: \(NSStringFromClass(type(of: self)))")
+        WYLogManager.output("data = \(data), controller: \(NSStringFromClass(type(of: self)))")
     }
 }

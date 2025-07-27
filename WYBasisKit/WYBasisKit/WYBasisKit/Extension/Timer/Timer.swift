@@ -22,12 +22,12 @@ public extension Timer {
         wy_cancel(alias)
         
         guard remainingTime > 0 else {
-            wy_print("计时器倒计时时长必须大于0")
+            WYLogManager.output("计时器倒计时时长必须大于0")
             return
         }
         
         guard alias.isEmpty == false else {
-            wy_print("计时器别名不能为空")
+            WYLogManager.output("计时器别名不能为空")
             return
         }
         

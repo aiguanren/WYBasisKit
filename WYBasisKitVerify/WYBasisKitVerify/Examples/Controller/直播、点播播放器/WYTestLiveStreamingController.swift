@@ -179,11 +179,11 @@ class WYTestLiveStreamingController: UIViewController {
         player.play(with: mediaUrl)
         WYActivity.showLoading(in: view, animation: .gifOrApng, config: WYActivityConfig.concise)
         
-        wy_print("当前播放：\(mediaUrl), index：\(mediaUrlIndex), mediaUrlsCount：\(mediaUrls.count)")
+        WYLogManager.output("当前播放：\(mediaUrl), index：\(mediaUrlIndex), mediaUrlsCount：\(mediaUrls.count)")
     }
     
     deinit {
-        wy_print("WYTestLiveStreamingController release")
+        WYLogManager.output("WYTestLiveStreamingController release")
     }
     
     /*
@@ -203,42 +203,42 @@ extension WYTestLiveStreamingController: WYMediaPlayerDelegate {
     func mediaPlayerDidChangeState(_ player: WYMediaPlayer, _ state: WYMediaPlayerState) {
         switch state {
         case .unknown:
-            wy_print("未知状态")
+            WYLogManager.output("未知状态")
         case .rendered:
-            wy_print("第一帧渲染完成")
+            WYLogManager.output("第一帧渲染完成")
             WYActivity.dismissLoading(in: view)
         case .ready:
-            wy_print("可以播放了")
+            WYLogManager.output("可以播放了")
         case .playing:
-            wy_print("正在播放")
+            WYLogManager.output("正在播放")
             WYActivity.dismissLoading(in: view)
         case .buffering:
-            wy_print("缓冲中")
+            WYLogManager.output("缓冲中")
             WYActivity.showLoading(in: view, animation: .gifOrApng, config: WYActivityConfig.concise)
         case .playable:
-            wy_print("缓冲结束")
+            WYLogManager.output("缓冲结束")
             WYActivity.dismissLoading(in: view)
         case .paused:
-            wy_print("播放暂停")
+            WYLogManager.output("播放暂停")
             WYActivity.dismissLoading(in: view)
         case .interrupted:
-            wy_print("播放被中断")
+            WYLogManager.output("播放被中断")
             WYActivity.dismissLoading(in: view)
         case .seekingForward:
-            wy_print("快进")
+            WYLogManager.output("快进")
             WYActivity.dismissLoading(in: view)
         case .seekingBackward:
-            wy_print("快退")
+            WYLogManager.output("快退")
             WYActivity.dismissLoading(in: view)
         case .ended:
-            wy_print("播放完毕")
+            WYLogManager.output("播放完毕")
             WYActivity.dismissLoading(in: view)
             switchUrl()
         case .userExited:
-            wy_print("用户中断播放")
+            WYLogManager.output("用户中断播放")
             WYActivity.dismissLoading(in: view)
         case .error:
-            wy_print("播放出现异常")
+            WYLogManager.output("播放出现异常")
             WYActivity.dismissLoading(in: view)
         }
     }

@@ -173,7 +173,7 @@ public extension UICollectionView {
 }
 
 /// 瀑布流对齐方式
-@objc @frozen public enum WYFlowLayoutAlignment: NSInteger {
+@objc @frozen public enum WYFlowLayoutAlignment: Int {
     
     /// 默认左对齐，等同于left，该选项只是内部用来判断是否需要调整分区对齐方式的
     case `default` = 0

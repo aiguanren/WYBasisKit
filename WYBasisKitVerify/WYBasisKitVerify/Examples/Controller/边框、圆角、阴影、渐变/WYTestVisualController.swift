@@ -131,7 +131,7 @@ class WYTestVisualController: UIViewController {
     }
     
     deinit {
-        wy_print("WYTestVisualController release")
+        WYLogManager.output("WYTestVisualController release")
     }
     /*
      // MARK: - Navigation

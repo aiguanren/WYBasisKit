@@ -42,7 +42,7 @@ import CryptoKit
 }
 
 /// 星期几
-@frozen public enum WYWhatDay: NSInteger {
+@frozen public enum WYWhatDay: Int {
     
     /// 未知
     case unknown = 0

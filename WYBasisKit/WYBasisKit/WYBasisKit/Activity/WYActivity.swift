@@ -10,7 +10,7 @@ import UIKit
 import Foundation
 
 /// 信息提示窗口的显示位置
-@frozen public enum WYActivityPosition: NSInteger {
+@frozen public enum WYActivityPosition: Int {
     
     /// 相对于父控件的顶部
     case top = 0

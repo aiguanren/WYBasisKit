@@ -61,6 +61,7 @@
 		585B3AD72DF819DC00E6E08F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A982DF819DC00E6E08F /* AppDelegate.swift */; };
 		585B3AD82DF819DC00E6E08F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A9F2DF819DC00E6E08F /* ViewController.swift */; };
 		585B3AD92DF819DC00E6E08F /* WYTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3AA02DF819DC00E6E08F /* WYTabBarController.swift */; };
+		58CDEE5D2E34907800ACE975 /* WYLogController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CDEE5C2E34907800ACE975 /* WYLogController.swift */; };
 		AAA708702E1C11060040F2ED /* WYArchivedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA7086F2E1C11060040F2ED /* WYArchivedController.swift */; };
 		FF665BAF99A0FF358ACBC747 /* Pods_WYBasisKitVerify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2F2A0EF269DCCF460460F5A /* Pods_WYBasisKitVerify.framework */; };
 /* End PBXBuildFile section */
@@ -128,6 +129,7 @@
 		585B3ADD2DF8202500E6E08F /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		5874BC852DF9176700703A4B /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
 		5874BC892DF9179300703A4B /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Main.strings"; sourceTree = "<group>"; };
+		58CDEE5C2E34907800ACE975 /* WYLogController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLogController.swift; sourceTree = "<group>"; };
 		AAA7086F2E1C11060040F2ED /* WYArchivedController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYArchivedController.swift; sourceTree = "<group>"; };
 		D2F2A0EF269DCCF460460F5A /* Pods_WYBasisKitVerify.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WYBasisKitVerify.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -376,14 +378,12 @@
 		585B3A832DF819DC00E6E08F /* Controller */ = {
 			isa = PBXGroup;
 			children = (
-				585B3A782DF819DC00E6E08F /* left */,
-				585B3A712DF819DC00E6E08F /* center */,
-				585B3A7C2DF819DC00E6E08F /* right */,
-				AAA7086B2E1C10AE0040F2ED /* 归档解归档 */,
+				58CDEE592E34900D00ACE975 /* 日志输出与保存 */,
 				585B3A4B2DF819DC00E6E08F /* 暗夜、白昼模式 */,
 				585B3A4D2DF819DC00E6E08F /* 边框、圆角、阴影、渐变 */,
 				585B3A4F2DF819DC00E6E08F /* 二维码 */,
 				585B3A562DF819DC00E6E08F /* 泛型 */,
+				AAA7086B2E1C10AE0040F2ED /* 归档解归档 */,
 				585B3A582DF819DC00E6E08F /* 离线方法调用 */,
 				585B3A5A2DF819DC00E6E08F /* 屏幕旋转 */,
 				585B3A5E2DF819DC00E6E08F /* 瀑布流 */,
@@ -395,9 +395,12 @@
 				585B3A6B2DF819DC00E6E08F /* 直播、点播播放器 */,
 				585B3A6D2DF819DC00E6E08F /* Banner */,
 				585B3A6F2DF819DC00E6E08F /* ButtonEdgeInsets */,
+				585B3A712DF819DC00E6E08F /* center */,
 				585B3A732DF819DC00E6E08F /* Gif */,
 				585B3A762DF819DC00E6E08F /* IM即时通讯 */,
+				585B3A782DF819DC00E6E08F /* left */,
 				585B3A7A2DF819DC00E6E08F /* RichText */,
+				585B3A7C2DF819DC00E6E08F /* right */,
 				585B3A7E2DF819DC00E6E08F /* tableView.grouped */,
 				585B3A802DF819DC00E6E08F /* tableView.plain */,
 				585B3A822DF819DC00E6E08F /* WKWebView */,
@@ -457,6 +460,14 @@
 				585B3A9E2DF819DC00E6E08F /* Main.storyboard */,
 			);
 			path = WYBasisKitVerify;
+			sourceTree = "<group>";
+		};
+		58CDEE592E34900D00ACE975 /* 日志输出与保存 */ = {
+			isa = PBXGroup;
+			children = (
+				58CDEE5C2E34907800ACE975 /* WYLogController.swift */,
+			);
+			path = "日志输出与保存";
 			sourceTree = "<group>";
 		};
 		59C921CD84EA9D39B92C17B9 /* Frameworks */ = {
@@ -634,6 +645,7 @@
 				585B3AB32DF819DC00E6E08F /* WYTestVisualController.swift in Sources */,
 				585B3AB42DF819DC00E6E08F /* WYQRCodeController.swift in Sources */,
 				585B3AB52DF819DC00E6E08F /* SDKRequest.swift in Sources */,
+				58CDEE5D2E34907800ACE975 /* WYLogController.swift in Sources */,
 				585B3AB62DF819DC00E6E08F /* SDKRequestContext.swift in Sources */,
 				585B3AB72DF819DC00E6E08F /* SDKResponse.swift in Sources */,
 				585B3AB82DF819DC00E6E08F /* UserRequest.swift in Sources */,
@@ -713,6 +725,7 @@
 				INFOPLIST_FILE = WYBasisKitVerify/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = WYBasisKit;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "WYBasisKit申请使用相机权限，用于拍摄相关的测试";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "WYBasisKit申请使用位置权限，用于定位相关的测试";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "WYBasisKit申请使用麦克风权限用于语音相关的测试";
@@ -750,6 +763,7 @@
 				INFOPLIST_FILE = WYBasisKitVerify/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = WYBasisKit;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "WYBasisKit申请使用相机权限，用于拍摄相关的测试";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "WYBasisKit申请使用位置权限，用于定位相关的测试";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "WYBasisKit申请使用麦克风权限用于语音相关的测试";

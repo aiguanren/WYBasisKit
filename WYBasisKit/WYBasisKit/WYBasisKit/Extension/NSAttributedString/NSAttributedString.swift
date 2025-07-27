@@ -386,7 +386,7 @@ public extension NSMutableAttributedString {
         do {
             regex = try NSRegularExpression(pattern: pattern, options: .caseInsensitive)
         } catch let error {
-            wy_print(error.localizedDescription)
+            WYLogManager.output(error.localizedDescription)
         }
         
         // 获取到匹配正则的数据

@@ -54,7 +54,7 @@ class WYArchivedController: UIViewController {
         do {
             let data = try codable.encode(Data.self, from: user)
             let back = try codable.decode(User.self, from: data)
-            wy_print(back)
+            WYLogManager.output(back)
         } catch {
             print("归档或解档失败：", error)
         }
