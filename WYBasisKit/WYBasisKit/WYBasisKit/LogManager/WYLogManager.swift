@@ -50,6 +50,9 @@ public struct WYLogManager {
     /// 写文件使用串行队列，避免并发冲突
     private static let logQueue = DispatchQueue(label: "com.WYBasisKit.WYLogManager.queue")
     
+    /// 日志分隔符（用于日志条目之间的换行与逻辑隔断）
+    internal static let logEntrySeparator = "\n\n\n"
+    
     /// 日志文件路径（可根据路径获取并导出显示或者上传）
     public static var logFilePath: String {
         let docURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
@@ -81,7 +84,8 @@ public struct WYLogManager {
         let message = messages.compactMap { "\($0)" }.joined(separator: " ")
         
         // 日志内容
-        let fullLog = "\n\(timestamp) ——> \(fileName) ——> \(function) ——> line:\(line)\n\n\(message)\n\n\n"
+        let fullLog = "\(timestamp) ——> \(fileName) ——> \(function) ——> line:\(line)\n\n\(message)\(logEntrySeparator)"
+        
         
         switch outputMode {
         case .debugConsoleOnly:
@@ -317,12 +321,15 @@ extension WYLogPreviewViewController: UISearchBarDelegate {
         if searchText.isEmpty {
             textView.text = logs
         } else {
-            let filteredLogs = logs
-                .components(separatedBy: .newlines)
-                .filter { $0.localizedCaseInsensitiveContains(searchText) }
-                .joined(separator: "\n\n\n\n")
+            // 用logEntrySeparator属性分割日志
+            let logChunks = logs.components(separatedBy: WYLogManager.logEntrySeparator)
             
-            textView.text = filteredLogs.isEmpty ? "未找到匹配的日志内容" : filteredLogs
+            // 匹配包含搜索词的完整日志
+            let matchedLogs = logChunks
+                .filter { $0.localizedCaseInsensitiveContains(searchText) }
+                .joined(separator: WYLogManager.logEntrySeparator)
+            
+            textView.text = matchedLogs.isEmpty ? "未找到匹配的日志内容" : matchedLogs
         }
     }
 }
