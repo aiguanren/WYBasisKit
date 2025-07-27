@@ -12,11 +12,22 @@ import QuickLook
 public struct WYLogManager {
     
     /**
-     * 日志输出模式，如果要通过“文件”App查看日志文件则需要在Info.plist中设置以下key
-     <key>UIFileSharingEnabled</key>
-     <true/>
-     <key>LSSupportsOpeningDocumentsInPlace</key>
-     <true/>
+     * 日志输出模式
+     *
+     * 重要提示：
+     * 1. 若选择包含文件存储的模式
+     *    需要在 Info.plist 中配置以下键值，否则无法直接通过设备“文件”App 查看日志：
+     *    <key>UIFileSharingEnabled</key>
+     *    <true/>
+     *    <key>LSSupportsOpeningDocumentsInPlace</key>
+     *    <true/>
+     *
+     * 2. 若在Info.plist中配置上述键值会导致整个 Documents 目录暴露在”文件“App 中，用户将能直接看到 Documents 下的所有文件（包括敏感数据）
+     *
+     * 3. 若只需共享日志文件，建议通过预览界面的分享功能导出日志（无需配置 Info.plist，不会暴露 Documents 目录），具体可通过以下方式查看日志：
+     *    - 调用 showPreview() 显示悬浮按钮
+     *    - 点击按钮进入日志预览界面
+     *    - 使用右上角分享功能导出日志文件
      */
     @frozen public enum WYLogOutputMode: Int {
         
@@ -153,21 +164,6 @@ public struct WYLogManager {
     private static func saveLogToFile(_ log: String) {
         logQueue.async {
             
-            // 检查 Info.plist 配置
-            let fileSharingEnabled = Bundle.main.object(forInfoDictionaryKey: "UIFileSharingEnabled") as? Bool ?? false
-            let supportsOpeningInPlace = Bundle.main.object(forInfoDictionaryKey: "LSSupportsOpeningDocumentsInPlace") as? Bool ?? false
-            
-            if !fileSharingEnabled || !supportsOpeningInPlace {
-                output("""
-                        检测到 Info.plist 未正确配置文件共享权限：
-                        请确保已设置以下键值以便通过“文件”App查看日志文件：
-                        <key>UIFileSharingEnabled</key>
-                        <true/>
-                        <key>LSSupportsOpeningDocumentsInPlace</key>
-                        <true/>
-                        """)
-            }
-            
             let path = logFilePath
             let fileManager = FileManager.default
             
@@ -262,7 +258,6 @@ final class WYLogPreviewViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        title = "日志预览"
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(close))
         navigationItem.rightBarButtonItems = [

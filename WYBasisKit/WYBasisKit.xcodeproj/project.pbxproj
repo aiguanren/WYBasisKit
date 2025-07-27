@@ -51,7 +51,6 @@
 		58678EB12DFA627C0035673E /* UIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E182DFA627C0035673E /* UIApplication.swift */; };
 		58678EB22DFA627C0035673E /* WYChatEmojiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E402DFA627C0035673E /* WYChatEmojiView.swift */; };
 		58678EB32DFA627C0035673E /* WYChatFileCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E572DFA627C0035673E /* WYChatFileCell.swift */; };
-		58678EB42DFA627C0035673E /* Foundation+JSONLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 58678DFD2DFA627C0035673E /* Foundation+JSONLog.m */; };
 		58678EB52DFA627C0035673E /* WYDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678DFA2DFA627C0035673E /* WYDecoder.swift */; };
 		58678EB62DFA627C0035673E /* WYLocalizableManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E792DFA627C0035673E /* WYLocalizableManager.swift */; };
 		58678EB72DFA627C0035673E /* WYNetworkServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E852DFA627C0035673E /* WYNetworkServer.swift */; };
@@ -137,7 +136,6 @@
 		58678DF92DFA627C0035673E /* WYCodingKeysConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodingKeysConverter.swift; sourceTree = "<group>"; };
 		58678DFA2DFA627C0035673E /* WYDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYDecoder.swift; sourceTree = "<group>"; };
 		58678DFB2DFA627C0035673E /* WYDecodingStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYDecodingStorage.swift; sourceTree = "<group>"; };
-		58678DFD2DFA627C0035673E /* Foundation+JSONLog.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Foundation+JSONLog.m"; sourceTree = "<group>"; };
 		58678DFE2DFA627C0035673E /* WYBasisKitConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYBasisKitConfig.swift; sourceTree = "<group>"; };
 		58678E002DFA627C0035673E /* Bool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bool.swift; sourceTree = "<group>"; };
 		58678E022DFA627C0035673E /* CALayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CALayer.swift; sourceTree = "<group>"; };
@@ -366,7 +364,6 @@
 		58678DFF2DFA627C0035673E /* Config */ = {
 			isa = PBXGroup;
 			children = (
-				58678DFD2DFA627C0035673E /* Foundation+JSONLog.m */,
 				58678DFE2DFA627C0035673E /* WYBasisKitConfig.swift */,
 			);
 			path = Config;
@@ -1179,7 +1176,6 @@
 				58678EB12DFA627C0035673E /* UIApplication.swift in Sources */,
 				58678EB22DFA627C0035673E /* WYChatEmojiView.swift in Sources */,
 				58678EB32DFA627C0035673E /* WYChatFileCell.swift in Sources */,
-				58678EB42DFA627C0035673E /* Foundation+JSONLog.m in Sources */,
 				58678EB52DFA627C0035673E /* WYDecoder.swift in Sources */,
 				58678EB62DFA627C0035673E /* WYLocalizableManager.swift in Sources */,
 				58678EB72DFA627C0035673E /* WYNetworkServer.swift in Sources */,
