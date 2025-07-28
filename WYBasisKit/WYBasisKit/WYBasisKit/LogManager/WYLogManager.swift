@@ -254,10 +254,76 @@ final class WYLogFloatingButton: UIButton {
     }
 }
 
+/// 自定义日志 Cell，右侧带有复制按钮
+final class WYLogCell: UITableViewCell {
+    private let label = UILabel()
+    private let copyButton = UIButton(type: .system)
+    var copyAction: (() -> Void)?
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        
+        selectionStyle = .none
+        
+        label.numberOfLines = 0
+        label.font = .monospacedSystemFont(ofSize: 13, weight: .regular)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        copyButton.setTitle("复制", for: .normal)
+        copyButton.titleLabel?.font = .systemFont(ofSize: 13, weight: .medium)
+        copyButton.contentEdgeInsets = UIEdgeInsets(top: 4, left: 10, bottom: 4, right: 10)
+        copyButton.translatesAutoresizingMaskIntoConstraints = false
+        copyButton.layer.cornerRadius = 5
+        copyButton.layer.borderWidth = 1
+        copyButton.layer.masksToBounds = true
+        copyButton.addTarget(self, action: #selector(handleCopy), for: .touchUpInside)
+        
+        contentView.addSubview(label)
+        contentView.addSubview(copyButton)
+        
+        NSLayoutConstraint.activate([
+            copyButton.topAnchor.constraint(equalTo: label.topAnchor, constant: 2),
+            copyButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            copyButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 50),
+            
+            label.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+            label.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            label.trailingAnchor.constraint(lessThanOrEqualTo: copyButton.leadingAnchor, constant: -10),
+            label.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
+        ])
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func configure(text: String, keyword: String?, canCopyed: Bool = true) {
+        if let keyword = keyword, !keyword.isEmpty {
+            let attributed = NSMutableAttributedString(string: text)
+            let range = (text as NSString).range(of: keyword, options: .caseInsensitive)
+            if range.location != NSNotFound {
+                attributed.addAttribute(.backgroundColor, value: UIColor.yellow, range: range)
+            }
+            label.attributedText = attributed
+        } else {
+            label.text = text
+        }
+        copyButton.isEnabled = canCopyed;
+        copyButton.layer.borderColor = copyButton.isEnabled ?  copyButton.titleLabel?.textColor.cgColor : UIColor.lightGray.cgColor
+    }
+    
+    @objc private func handleCopy() {
+        copyAction?()
+    }
+}
+
 /// 日志预览控制器
 final class WYLogPreviewViewController: UIViewController {
     private var logs: String = ""
-    private let textView = UITextView()
+    private var logChunks: [String] = [] // 每条日志记录
+    private var filteredLogChunks: [String] = [] // 当前搜索后的日志列表
+    private var currentSearchText: String = "" // 当前搜索关键词
+    private let tableView = UITableView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -274,24 +340,42 @@ final class WYLogPreviewViewController: UIViewController {
         searchBar.placeholder = "搜索日志关键字"
         navigationItem.titleView = searchBar
         
-        textView.isEditable = false
-        textView.font = .monospacedSystemFont(ofSize: 13, weight: .regular)
-        textView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(textView)
+        tableView.register(WYLogCell.self, forCellReuseIdentifier: "WYLogCell")
+        tableView.dataSource = self
+        tableView.estimatedRowHeight = 100
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.separatorStyle = .none
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.keyboardDismissMode = .onDrag // 滑动收起键盘
+        view.addSubview(tableView)
         
         NSLayoutConstraint.activate([
-            textView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            textView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            textView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            textView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
         
         loadLogs()
+        
+        // 收起键盘的点击手势
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false // 允许点击事件继续传递到 tableView 等
+        view.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
     
     private func loadLogs() {
         logs = (try? String(contentsOfFile: WYLogManager.logFilePath, encoding: .utf8)) ?? "暂无日志"
-        textView.text = logs
+        logChunks = logs
+            .components(separatedBy: WYLogManager.logEntrySeparator)
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        filteredLogChunks = logChunks
+        tableView.reloadData()
     }
     
     @objc private func close() {
@@ -305,7 +389,9 @@ final class WYLogPreviewViewController: UIViewController {
         }
         WYLogManager.clearLogFile()
         logs = ""
-        textView.text = "日志已清除"
+        logChunks = []
+        filteredLogChunks = []
+        tableView.reloadData()
     }
     
     @objc private func share() {
@@ -317,19 +403,67 @@ final class WYLogPreviewViewController: UIViewController {
 }
 
 extension WYLogPreviewViewController: UISearchBarDelegate {
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        searchBar.showsCancelButton = true
+    }
+
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.text = ""
+        searchBar.resignFirstResponder()
+        searchBar.showsCancelButton = false
+        currentSearchText = ""
+        filteredLogChunks = logChunks
+        tableView.reloadData()
+    }
+
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        searchBar.showsCancelButton = false
+    }
+
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        currentSearchText = searchText
         if searchText.isEmpty {
-            textView.text = logs
+            filteredLogChunks = logChunks
         } else {
-            // 用logEntrySeparator属性分割日志
-            let logChunks = logs.components(separatedBy: WYLogManager.logEntrySeparator)
-            
-            // 匹配包含搜索词的完整日志
-            let matchedLogs = logChunks
-                .filter { $0.localizedCaseInsensitiveContains(searchText) }
-                .joined(separator: WYLogManager.logEntrySeparator)
-            
-            textView.text = matchedLogs.isEmpty ? "未找到匹配的日志内容" : matchedLogs
+            filteredLogChunks = logChunks.filter {
+                $0.localizedCaseInsensitiveContains(searchText)
+            }
         }
+        tableView.reloadData()
+    }
+}
+
+extension WYLogPreviewViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if filteredLogChunks.isEmpty {
+            return 1
+        }
+        return filteredLogChunks.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        let cell = tableView.dequeueReusableCell(withIdentifier: "WYLogCell", for: indexPath) as! WYLogCell
+        
+        if filteredLogChunks.isEmpty ||
+           filteredLogChunks.first == "暂无日志" ||
+           filteredLogChunks.first == "日志已清除" {
+            let message = logs.isEmpty || logs == "日志已清除" ? "日志已清除" : "未找到匹配的日志内容"
+            cell.configure(text: message, keyword: nil, canCopyed: false)
+            cell.copyAction = nil
+        } else {
+            let logText = filteredLogChunks[indexPath.row]
+            cell.configure(text: logText, keyword: currentSearchText)
+            cell.copyAction = {
+                UIPasteboard.general.string = logText
+                let alert = UIAlertController(title: "复制成功", message: "日志已复制到剪贴板", preferredStyle: .alert)
+                self.present(alert, animated: true) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        alert.dismiss(animated: true)
+                    }
+                }
+            }
+        }
+        return cell
     }
 }
