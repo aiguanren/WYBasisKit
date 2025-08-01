@@ -15,7 +15,7 @@ class WYLogController: UIViewController {
         // Do any additional setup after loading the view.
         view.backgroundColor = .white
         
-        WYLogManager.clearLogFile()
+        //WYLogManager.clearLogFile()
         
         WYLogManager.output("不保存日志，仅在 DEBUG 模式下输出到控制台（默认）")
         
@@ -26,6 +26,8 @@ class WYLogController: UIViewController {
         WYLogManager.output("保存日志，DEBUG 和 RELEASE 都输出到控制台", outputMode: .alwaysConsoleAndFile)
         
         WYLogManager.output("仅保存日志，DEBUG 和 RELEASE 均不输出到控制台", outputMode: .onlySaveToFile)
+        
+        WYLogManager.output(String.wy_random(minimux: 20, maximum: 100), outputMode: .debugConsoleAndFile)
         
         WYLogManager.showPreview()
     }
