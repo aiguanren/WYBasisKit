@@ -14,7 +14,7 @@ public extension UIColor {
     class func wy_rgb(_ red: CGFloat, _ green: CGFloat, _ blue: CGFloat, _ aplha: CGFloat = 1.0) -> UIColor {
         return UIColor.init(red: red/255.0, green: green/255.0, blue: blue/255.0, alpha: aplha)
     }
-
+    
     /// hexColor convert UIColor
     class func wy_hex(_ hexColor: String, _ alpha: CGFloat = 1.0) -> UIColor {
         var colorStr = hexColor.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).uppercased() as NSString
@@ -59,7 +59,7 @@ public extension UIColor {
             alpha: CGFloat(alpha)
         )
     }
-
+    
     /// randomColor
     class var wy_random: UIColor {
         return UIColor(red: CGFloat(arc4random()%256)/255.0, green: CGFloat(arc4random()%256)/255.0, blue: CGFloat(arc4random()%256)/255.0, alpha: 1.0)
@@ -67,18 +67,13 @@ public extension UIColor {
     
     /// 动态颜色
     class func wy_dynamic(_ light: UIColor, _ dark: UIColor) -> UIColor {
-        if #available(iOS 13.0, *) {
-            let dynamicColor = UIColor { (trainCollection) -> UIColor in
-                if trainCollection.userInterfaceStyle == UIUserInterfaceStyle.light {
-                    return light
-                }else {
-                    return dark
-                }
+        let dynamicColor = UIColor { (trainCollection) -> UIColor in
+            if trainCollection.userInterfaceStyle == UIUserInterfaceStyle.light {
+                return light
+            }else {
+                return dark
             }
-            return dynamicColor
-            
-        } else {
-            return light
         }
+        return dynamicColor
     }
 }

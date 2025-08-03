@@ -45,9 +45,7 @@ class WYTestDarkNightModeController: UIViewController {
                     navController.topViewController!.wy_showViewController(className: "WYTestDarkNightModeController", animated: false)
                 })
             }
-            if #available(iOS 13.0, *) {
-                UIApplication.shared.wy_switchAppDisplayBrightness(style: .dark)
-            }
+            UIApplication.shared.wy_switchAppDisplayBrightness(style: .dark)
 
         }else {
 
@@ -60,9 +58,7 @@ class WYTestDarkNightModeController: UIViewController {
                     navController.topViewController!.wy_showViewController(className: "WYTestDarkNightModeController", animated: false)
                 })
             }
-            if #available(iOS 13.0, *) {
-                UIApplication.shared.wy_switchAppDisplayBrightness(style: .light)
-            }
+            UIApplication.shared.wy_switchAppDisplayBrightness(style: .light)
         }
     }
 

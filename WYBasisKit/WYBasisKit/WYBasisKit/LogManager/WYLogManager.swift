@@ -135,10 +135,10 @@ public struct WYLogManager {
     /**
      * 显示预览组件
      * - Parameters:
-     *   - contentView: 预览按钮的父控件，如果不传则为UIApplication.shared.keyWindow
+     *   - contentView: 预览按钮的父控件，如果不传则为当前正在显示的Window
      */
-    public static func showPreview(_ contentView: UIView = UIApplication.shared.keyWindow ?? UIView()) {
-        if floatingButton != nil { return }
+    public static func showPreview(_ contentView: UIView = UIApplication.shared.wy_keyWindow) {
+        if floatingButton != nil { return } // 防止重复创建预览组件和页面
         
         let button = WYLogFloatingButton()
         button.setTitle("日志", for: .normal)

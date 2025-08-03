@@ -1,5 +1,5 @@
 # 定义podspec执行路径(远程验证时路径是从WYBasisKit-swift开始的，所以远程验证时需要填入podspec文件的路径：WYBasisKit/WYBasisKit/WYBasisKit/)
-kit_path = "WYBasisKit/WYBasisKit/WYBasisKit/"
+kit_path = ""
 # 国际化资源需要的bundle，多地方使用，抽为变量
 localizable_bundle = "#{kit_path}Localizable/WYLocalizable.bundle"
 
@@ -83,7 +83,8 @@ Pod::Spec.new do |kit|
 
   kit.subspec "LogManager" do |logManager|
     logManager.source_files = [
-      "#{kit_path}LogManager/**/*.{swift,h,m}"
+      "#{kit_path}LogManager/**/*.{swift,h,m}",
+      "#{kit_path}Extension/UIApplication/**/*.{swift,h,m}"
     ]
     logManager.resource_bundles = {"WYBasisKitLogManager" => [
       "#{kit_path}LogManager/PrivacyInfo.xcprivacy"
@@ -321,6 +322,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}Extension/UIView/**/*.{swift,h,m}",
         "#{kit_path}Extension/UIDevice/**/*.{swift,h,m}",
         "#{kit_path}Extension/UIViewController/**/*.{swift,h,m}",
+        "#{kit_path}Extension/UIApplication/**/*.{swift,h,m}",
         "#{kit_path}Config/**/*.{swift,h,m}"
       ]
       bannerView.resources = [

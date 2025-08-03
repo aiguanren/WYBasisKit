@@ -15,25 +15,18 @@ public extension UIDevice {
     /// 状态栏高度
     class var wy_statusBarHeight: CGFloat {
         get {
-            if #available(iOS 13.0, *) {
-                let window = UIApplication.shared.connectedScenes.map({ $0 as? UIWindowScene }).compactMap({ $0 }).first?.windows.first
-                return window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0.0
-            } else {
-                return UIApplication.shared.statusBarFrame.height
-            }
+            return UIApplication.shared.wy_keyWindow
+                .windowScene?
+                .statusBarManager?
+                .statusBarFrame
+                .height ?? 0.0
         }
     }
 
-    /// 导航栏安全区域
+    /// 导航栏安全区域高度
     class var wy_navBarSafetyZone: CGFloat {
         get {
-            if #available(iOS 13.0, *) {
-                let window = UIApplication.shared.connectedScenes.map({ $0 as? UIWindowScene }).compactMap({ $0 }).first?.windows.first
-                return window?.safeAreaInsets.top ?? 0.0
-            } else {
-                let window = UIApplication.shared.windows.first
-                return window?.safeAreaInsets.top ?? 0.0
-            }
+            return UIApplication.shared.wy_keyWindow.safeAreaInsets.top
         }
     }
 
@@ -48,16 +41,10 @@ public extension UIDevice {
         return wy_statusBarHeight + wy_navBarHeight
     }
 
-    /// tabBar安全区域
+    /// tabBar安全区域高度
     class var wy_tabbarSafetyZone: CGFloat {
         get {
-            if #available(iOS 13.0, *) {
-                let window = UIApplication.shared.connectedScenes.map({ $0 as? UIWindowScene }).compactMap({ $0 }).first?.windows.first
-                return window?.safeAreaInsets.bottom ?? 0.0
-            } else {
-                let window = UIApplication.shared.windows.first
-                return window?.safeAreaInsets.bottom ?? 0.0
-            }
+            return UIApplication.shared.wy_keyWindow.safeAreaInsets.bottom
         }
     }
 
@@ -209,55 +196,27 @@ public extension UIDevice {
     
     /// 是否是全屏手机
     var wy_isFullScreen: Bool {
-        if #available(iOS 15.0, *) {
-            let window = UIApplication.shared.connectedScenes.map({ $0 as? UIWindowScene }).compactMap({ $0 }).first?.windows.first
-            return (window?.safeAreaInsets ?? UIEdgeInsets.zero).bottom != 0
-        } else {
-            return (UIApplication.shared.windows.first?.safeAreaInsets)?.bottom != 0
-        }
+        return UIApplication.shared.wy_keyWindow.safeAreaInsets.bottom > 0
     }
     
     /// 是否是传入的分辨率
     func wy_resolutionRatio(horizontal: CGFloat, vertical: CGFloat) -> Bool {
-        return (UIScreen.instancesRespond(to: #selector(getter: UIScreen.main.currentMode)) ? CGSize(width: horizontal, height: vertical).equalTo((UIScreen.main.currentMode?.size)!) && !wy_iPadSeries : false)
+        if let modeSize = UIScreen.main.currentMode?.size {
+            return CGSize(width: horizontal, height: vertical).equalTo(modeSize) && !wy_iPadSeries
+        }
+        return false
     }
     
     /// 是否是竖屏模式
     var wy_verticalScreen: Bool {
-        
-        var orientation: UIInterfaceOrientation = .portrait
-        if #available(iOS 13.0, *) {
-            let window = UIApplication.shared.connectedScenes.map({ $0 as? UIWindowScene }).compactMap({ $0 }).first?.windows.first
-            orientation = (window?.windowScene?.interfaceOrientation) ?? .portrait
-        }else {
-            orientation = UIApplication.shared.statusBarOrientation
-        }
-        
-        if (orientation == UIInterfaceOrientation.portrait) ||
-            (orientation == UIInterfaceOrientation.portraitUpsideDown) {
-            return true
-        } else {
-            return false
-        }
+        let orientation: UIInterfaceOrientation = UIApplication.shared.wy_keyWindow.windowScene?.interfaceOrientation ?? .unknown
+        return orientation == .portrait || orientation == .portraitUpsideDown
     }
     
     /// 是否是横屏模式
     var wy_horizontalScreen: Bool {
-        
-        var orientation: UIInterfaceOrientation = .portrait
-        if #available(iOS 13.0, *) {
-            let window = UIApplication.shared.connectedScenes.map({ $0 as? UIWindowScene }).compactMap({ $0 }).first?.windows.first
-            orientation = (window?.windowScene?.interfaceOrientation) ?? .portrait
-        }else {
-            orientation = UIApplication.shared.statusBarOrientation
-        }
-        
-        if (orientation == UIInterfaceOrientation.landscapeLeft) ||
-            (orientation == UIInterfaceOrientation.landscapeRight) {
-            return true
-        } else {
-            return false
-        }
+        let orientation: UIInterfaceOrientation = UIApplication.shared.wy_keyWindow.windowScene?.interfaceOrientation ?? .unknown
+        return orientation == .landscapeLeft || orientation == .landscapeRight
     }
     
     /// 获取运营商IP地址
@@ -322,7 +281,9 @@ public extension UIDevice {
     
     /// 当前电池健康度
     var wy_batteryLevel: CGFloat {
-        return 100.0 + CGFloat(self.batteryLevel)
+        UIDevice.current.isBatteryMonitoringEnabled = true
+        let level = UIDevice.current.batteryLevel
+        return CGFloat(level >= 0 ? (level * 100) : -1)
     }
     
     /// 磁盘总大小
@@ -338,15 +299,8 @@ public extension UIDevice {
     var wy_availableDiskSize: String {
         
         var freeDiskSpaceInBytes: Int64 = 0
-        if #available(iOS 11.0, *) {
-            if let space = try? URL(fileURLWithPath: NSHomeDirectory() as String).resourceValues(forKeys: [URLResourceKey.volumeAvailableCapacityForImportantUsageKey]).volumeAvailableCapacityForImportantUsage {
-                freeDiskSpaceInBytes = space
-            }
-        } else {
-            if let systemAttributes = try? FileManager.default.attributesOfFileSystem(forPath: NSHomeDirectory() as String),
-               let freeSpace = (systemAttributes[FileAttributeKey.systemFreeSize] as? NSNumber)?.int64Value {
-                freeDiskSpaceInBytes = freeSpace
-            }
+        if let space = try? URL(fileURLWithPath: NSHomeDirectory() as String).resourceValues(forKeys: [URLResourceKey.volumeAvailableCapacityForImportantUsageKey]).volumeAvailableCapacityForImportantUsage {
+            freeDiskSpaceInBytes = space
         }
         return ByteCountFormatter.string(fromByteCount: freeDiskSpaceInBytes, countStyle: ByteCountFormatter.CountStyle.decimal)
     }
@@ -358,22 +312,15 @@ public extension UIDevice {
               let totalDiskSpaceInBytes = (systemAttributes[FileAttributeKey.systemSize] as? NSNumber)?.int64Value else { return "0" }
         
         var freeDiskSpaceInBytes: Int64 = 0
-        if #available(iOS 11.0, *) {
-            if let space = try? URL(fileURLWithPath: NSHomeDirectory() as String).resourceValues(forKeys: [URLResourceKey.volumeAvailableCapacityForImportantUsageKey]).volumeAvailableCapacityForImportantUsage {
-                freeDiskSpaceInBytes = space
-            }
-        } else {
-            if let systemAttributes = try? FileManager.default.attributesOfFileSystem(forPath: NSHomeDirectory() as String),
-               let freeSpace = (systemAttributes[FileAttributeKey.systemFreeSize] as? NSNumber)?.int64Value {
-                freeDiskSpaceInBytes = freeSpace
-            }
+        if let space = try? URL(fileURLWithPath: NSHomeDirectory() as String).resourceValues(forKeys: [URLResourceKey.volumeAvailableCapacityForImportantUsageKey]).volumeAvailableCapacityForImportantUsage {
+            freeDiskSpaceInBytes = space
         }
         
         return ByteCountFormatter.string(fromByteCount: totalDiskSpaceInBytes - freeDiskSpaceInBytes, countStyle: ByteCountFormatter.CountStyle.decimal)
     }
     
     /// 旋转屏幕，设置界面方向，支持重力感应切换(默认竖屏)
-    var wy_interfaceOrientation: UIInterfaceOrientationMask {
+    var wy_setInterfaceOrientation: UIInterfaceOrientationMask {
         
         set(newValue) {
             
@@ -428,15 +375,11 @@ private extension UIDevice {
     // 旋转屏幕到指定方向
     private func wy_rotateScreenTo(_ orientation: UIInterfaceOrientation) {
         if #available(iOS 16.0, *) {
-            
-            let window = UIApplication.shared.connectedScenes.map({ $0 as? UIWindowScene }).compactMap({ $0 }).first?.windows.first
-            
-            if let windowScene: UIWindowScene = window?.windowScene {
+            if let windowScene: UIWindowScene = UIApplication.shared.wy_keyWindow.windowScene {
                 UIViewController.wy_currentController()?.setNeedsUpdateOfSupportedInterfaceOrientations()
-                windowScene.requestGeometryUpdate(UIWindowScene.GeometryPreferences.iOS(interfaceOrientations: wy_currentInterfaceOrientation)) { error in
+                windowScene.requestGeometryUpdate(UIWindowScene.GeometryPreferences.iOS(interfaceOrientations: self.wy_currentInterfaceOrientation)) { error in
                     WYLogManager.output("旋转屏幕方向出错啦： \(error.localizedDescription)")
                 }
-                
             }else {
                 WYLogManager.output("旋转屏幕方向出错啦")
             }

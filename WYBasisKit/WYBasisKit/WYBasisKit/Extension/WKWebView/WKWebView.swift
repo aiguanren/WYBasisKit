@@ -30,8 +30,7 @@ import WebKit
     /// 接收到服务器跳转请求（服务重定向时之后调用）
     @objc optional func didReceiveServerRedirectForProvisionalNavigation(_ urlString: String)
 
-    /// 根据 WebView 对于即将跳转的 HTTP 请求信息决定是否跳转（iOS 13+ 支持 WebpagePreferences）
-    @available(iOS 13.0, *)
+    /// 根据 WebView 对于即将跳转的 HTTP 请求信息决定是否跳转
     @objc optional func decidePolicyForNavigationAction(_ navigationAction: WKNavigationAction,
                                          preferences: WKWebpagePreferences,
                                          decisionHandler: @escaping (WKNavigationActionPolicy, WKWebpagePreferences) -> Void)
@@ -252,7 +251,6 @@ public class WKWebViewDelegator: NSObject, WKNavigationDelegate {
     }
 
     /// 决定是否允许加载请求（可用于拦截 URL）
-    @available(iOS 13.0, *)
     public func webView(_ webView: WKWebView,
                         decidePolicyFor navigationAction: WKNavigationAction,
                         preferences: WKWebpagePreferences,

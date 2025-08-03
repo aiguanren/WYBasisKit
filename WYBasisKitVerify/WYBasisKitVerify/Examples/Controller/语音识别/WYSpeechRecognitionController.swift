@@ -114,13 +114,9 @@ class WYSpeechRecognitionController: UIViewController {
             // iOS16以下需要自己处理标点符号，建议可以参考：PaddleSpeech
         }
         
-        if #available(iOS 13, *) {
-            // 防止通过网络发送音频，识别将不再那么准确
-            if speechRecognizer?.supportsOnDeviceRecognition ?? false {
-                recognitionRequest.requiresOnDeviceRecognition = true
-            }
-        } else {
-            // Fallback on earlier versions
+        // 防止通过网络发送音频，识别将不再那么准确
+        if speechRecognizer?.supportsOnDeviceRecognition ?? false {
+            recognitionRequest.requiresOnDeviceRecognition = true
         }
         
         // 使用recognitionTask方法开始识别，这里推荐代理实现方式，闭包方式无法将已经识别到的文本和新识别到的文本连接起来

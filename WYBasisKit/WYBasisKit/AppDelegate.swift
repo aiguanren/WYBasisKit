@@ -22,10 +22,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     /// 切换为深色或浅色模式
     func applicationDidBecomeActive(_ application: UIApplication) {
-        
-        if #available(iOS 13.0, *) {
-            application.wy_switchAppDisplayBrightness(style: (WYLocalizableManager.currentLanguage() == .english) ? .dark : .light)
-        }
+        application.wy_switchAppDisplayBrightness(style: (WYLocalizableManager.currentLanguage() == .english) ? .dark : .light)
     }
     
     /// 屏幕旋转需要支持的方向

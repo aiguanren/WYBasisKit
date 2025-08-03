@@ -96,8 +96,7 @@ extension WYWebViewController: WKWebViewNavigationDelegateProxy {
         WYLogManager.output("didReceiveServerRedirectForProvisionalNavigation：\(urlString)")
     }
 
-    /// 根据 WebView 对于即将跳转的 HTTP 请求信息决定是否跳转（iOS 13+ 支持 WebpagePreferences）
-    @available(iOS 13.0, *)
+    /// 根据 WebView 对于即将跳转的 HTTP 请求信息决定是否跳转
     func decidePolicyForNavigationAction(_ navigationAction: WKNavigationAction, preferences: WKWebpagePreferences, decisionHandler: @escaping (WKNavigationActionPolicy, WKWebpagePreferences) -> Void) {
         WYLogManager.output("decidePolicyForNavigationAction：\(navigationAction)，preferences：\(preferences)")
         decisionHandler(.allow, preferences)

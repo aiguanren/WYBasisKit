@@ -504,12 +504,7 @@ private class WYActivityLoadingView: UIView {
     
     lazy var indicator: UIActivityIndicatorView = {
         
-        let activity: UIActivityIndicatorView!
-        if #available(iOS 13.0, *) {
-            activity = UIActivityIndicatorView(style: .large)
-        }else {
-            activity = UIActivityIndicatorView(style: .whiteLarge)
-        }
+        let activity: UIActivityIndicatorView = UIActivityIndicatorView(style: .large)
         addSubview(activity)
         return activity
     }()

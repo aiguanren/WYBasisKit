@@ -29,7 +29,7 @@ class WYTestInterfaceOrientationController: UIViewController {
              return UIDevice.current.wy_currentInterfaceOrientation
          }
          
-         *  2.在需要旋转操作的时候，动态设置 UIDevice.current.wy_interfaceOrientation 属性为需要支持的旋转方向
+         *  2.在需要旋转操作的时候，动态设置 UIDevice.current.wy_setInterfaceOrientation 属性为需要支持的旋转方向
          
          *  3.在旋转结束时，恢复 UIDevice.current.wy_interfaceOrientation 属性为默认方向(看具体需求，也可以不用恢复为默认方向)
          */
@@ -49,6 +49,7 @@ class WYTestInterfaceOrientationController: UIViewController {
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(tap)
     }
+
     
     @objc func layoutInterfaceOrientation() {
         
@@ -60,39 +61,52 @@ class WYTestInterfaceOrientationController: UIViewController {
                     
                     switch actionStr {
                     case "竖向":
-                        UIDevice.current.wy_interfaceOrientation = .portrait
+                        UIDevice.current.wy_setInterfaceOrientation = .portrait
 
                     case "横向-左":
-                        UIDevice.current.wy_interfaceOrientation = .landscapeLeft
+                        UIDevice.current.wy_setInterfaceOrientation = .landscapeLeft
 
                     case "横向-右":
-                        UIDevice.current.wy_interfaceOrientation = .landscapeRight
+                        UIDevice.current.wy_setInterfaceOrientation = .landscapeRight
                         
                     case "竖向-颠倒":
-                        UIDevice.current.wy_interfaceOrientation = .portraitUpsideDown
+                        UIDevice.current.wy_setInterfaceOrientation = .portraitUpsideDown
                         
                     case "横向":
-                        UIDevice.current.wy_interfaceOrientation = .landscape
+                        UIDevice.current.wy_setInterfaceOrientation = .landscape
                         
                     case "竖向 / 横向":
-                        UIDevice.current.wy_interfaceOrientation = .allButUpsideDown
+                        UIDevice.current.wy_setInterfaceOrientation = .allButUpsideDown
                      
                     case "竖向 / 横向 /  竖向-颠倒":
-                        UIDevice.current.wy_interfaceOrientation = .all
+                        UIDevice.current.wy_setInterfaceOrientation = .all
                         
                     default:
                         break
                     }
                     self?.label.text = self?.sharedInterfaceOrientationString()
                 }
+                self?.perform(#selector(self?.outputScreenOrientationInfo), with: nil, afterDelay: 0.5)
             }
+        }
+    }
+    
+    @objc func outputScreenOrientationInfo() {
+        if (UIDevice.current.wy_verticalScreen) {
+            WYLogManager
+                .output("当前是竖屏模式")
+        }
+        
+        if (UIDevice.current.wy_horizontalScreen) {
+            WYLogManager
+                .output("当前是横屏模式")
         }
     }
     
     func sharedInterfaceOrientationString() -> String {
         
         var string: String = ""
-        switch UIDevice.current.wy_interfaceOrientation {
+        switch UIDevice.current.wy_setInterfaceOrientation {
         case .portrait:
             string = "竖向\n\(sharedScreenResolution())"
         case .landscapeLeft:
@@ -126,7 +140,7 @@ class WYTestInterfaceOrientationController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        UIDevice.current.wy_interfaceOrientation = .portrait
+        UIDevice.current.wy_setInterfaceOrientation = .portrait
     }
 
     /*

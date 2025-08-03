@@ -44,21 +44,13 @@ class WYTabBarController: UITabBarController {
         nav.tabBarItem.selectedImage = selectedImage.withRenderingMode(.alwaysOriginal)
         self.addChild(nav)
         
-        if #available(iOS 13, *) {
-            
-            let appearance = self.tabBar.standardAppearance.copy()
-            
-            //appearance.stackedLayoutAppearance.normal.titleTextAttributes = [NSAttributedString.Key.font: UIFont.ly_tabbar_title_font, NSAttributedString.Key.foregroundColor: UIColor.ly_tabbar_title_defaultColor]
-            
-            //appearance.stackedLayoutAppearance.selected.titleTextAttributes = [NSAttributedString.Key.font: UIFont.ly_tabbar_title_font, NSAttributedString.Key.foregroundColor: UIColor.ly_tabbar_title_highlightColor]
-            
-            self.tabBar.standardAppearance = appearance
-            
-        } else {
-            
-            //nav.tabBarItem.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.ly_tabbar_title_font, NSAttributedString.Key.foregroundColor: UIColor.ly_tabbar_title_defaultColor], for: .normal)
-            //nav.tabBarItem.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.ly_tabbar_title_font, NSAttributedString.Key.foregroundColor: UIColor.ly_tabbar_title_highlightColor], for: .selected)
-        }
+        let appearance = self.tabBar.standardAppearance.copy()
+        
+        //appearance.stackedLayoutAppearance.normal.titleTextAttributes = [NSAttributedString.Key.font: UIFont.ly_tabbar_title_font, NSAttributedString.Key.foregroundColor: UIColor.ly_tabbar_title_defaultColor]
+        
+        //appearance.stackedLayoutAppearance.selected.titleTextAttributes = [NSAttributedString.Key.font: UIFont.ly_tabbar_title_font, NSAttributedString.Key.foregroundColor: UIColor.ly_tabbar_title_highlightColor]
+        
+        self.tabBar.standardAppearance = appearance
         
         let clearView = UIView(frame: CGRect(x: 0, y: 0, width: UIDevice.wy_screenWidth, height: UIDevice.wy_tabBarHeight))
         clearView.backgroundColor = .wy_dynamic(.white, .black)
