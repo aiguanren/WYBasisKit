@@ -254,17 +254,9 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		585B38F52DF8125400E6E08F /* Other */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Other;
-			sourceTree = "<group>";
-		};
 		585B396C2DF8125400E6E08F /* WYBasisKit */ = {
 			isa = PBXGroup;
 			children = (
-				585B38F52DF8125400E6E08F /* Other */,
 				58678E8C2DFA627C0035673E /* WYBasisKit */,
 				585B39622DF8125400E6E08F /* AppDelegate.swift */,
 				585B396A2DF8125400E6E08F /* ViewController.swift */,

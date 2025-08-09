@@ -1,6 +1,6 @@
 # 定义podspec执行路径(远程验证时路径是从WYBasisKit-swift开始的，所以远程验证时需要填入podspec文件的路径：WYBasisKit/WYBasisKit/WYBasisKit/)
-kit_path = ""
-# 国际化资源需要的bundle
+kit_path = "WYBasisKit/WYBasisKit/WYBasisKit/"
+# 国际化资源需要的Bundle
 localizable_bundle = "#{kit_path}Localizable/WYLocalizable.bundle"
 
 $mediaPlayer_full_config = {
@@ -61,9 +61,9 @@ Pod::Spec.new do |kit|
     "EventHandler",
   ]
   
-  # 下载并解压 WYMediaPlayerFramework
+  # 执行配置脚本
   kit.prepare_command = <<-CMD
-    bash MediaPlayer/WYMediaPlayerFramework.sh || bash #{kit_path}MediaPlayer/WYMediaPlayerFramework.sh
+    bash WYBasisKit.sh || bash #{kit_path}WYBasisKit.sh
   CMD
 
   # 主工程设置

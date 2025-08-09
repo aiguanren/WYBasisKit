@@ -1,8 +1,8 @@
 #!/bin/bash
-
 # WYMediaPlayerFramework 自动下载脚本
+# 用途：自动下载解压远程 WYMediaPlayerFramework
+# 作者：官人
 #
-# 自动下载解压远程 WYMediaPlayerFramework。
 # 默认行为如下：
 #   - 如果 ZIP_PATH 存在，则直接解压使用(解压后不删除压缩包)，否则就执行下载逻辑
 #   - 如果脚本文件中没有记录下载时间戳，强制下载；
@@ -99,4 +99,4 @@ fi
 
 printf "✅ 下载完成（已更新/记录本次下载时间戳到当前脚本文件中）\n"
 
-# LAST_DOWNLOAD_TIMESTAMP=1754270755
+# LAST_DOWNLOAD_TIMESTAMP=1754744165
