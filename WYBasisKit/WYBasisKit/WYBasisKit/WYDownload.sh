@@ -1,5 +1,5 @@
 #!/bin/bash
-# WYMediaPlayerFramework 自动下载脚本
+# WYDownload.sh 自动下载脚本
 # 用途：自动下载解压远程 WYMediaPlayerFramework
 # 作者：官人
 #
@@ -99,4 +99,4 @@ fi
 
 printf "✅ 下载完成（已更新/记录本次下载时间戳到当前脚本文件中）\n"
 
-# LAST_DOWNLOAD_TIMESTAMP=1754801817
+# LAST_DOWNLOAD_TIMESTAMP=1754823917

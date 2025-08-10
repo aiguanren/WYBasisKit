@@ -21,7 +21,6 @@
 		58678E932DFA627C0035673E /* UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E2C2DFA627C0035673E /* UIView.swift */; };
 		58678E942DFA627C0035673E /* NumberFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E0E2DFA627C0035673E /* NumberFormatter.swift */; };
 		58678E952DFA627C0035673E /* WYRecordAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E3D2DFA627C0035673E /* WYRecordAnimationView.swift */; };
-		58678E962DFA627C0035673E /* WYMediaPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E802DFA627C0035673E /* WYMediaPlayer.swift */; };
 		58678E972DFA627C0035673E /* WYMoreViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E4D2DFA627C0035673E /* WYMoreViewCell.swift */; };
 		58678E982DFA627C0035673E /* WYSpeechRecognitionAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678DF12DFA627C0035673E /* WYSpeechRecognitionAuthorization.swift */; };
 		58678E992DFA627C0035673E /* WYStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E872DFA627C0035673E /* WYStorage.swift */; };
@@ -98,7 +97,6 @@
 		58678EE32DFA627C0035673E /* WYLocalizable.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 58678E782DFA627C0035673E /* WYLocalizable.bundle */; };
 		58678EE42DFA627C0035673E /* WYBannerView.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 58678E332DFA627C0035673E /* WYBannerView.bundle */; };
 		58678EE62DFA627C0035673E /* WYChatView.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 58678E712DFA627C0035673E /* WYChatView.bundle */; };
-		58682F732E0D1AD90057CC53 /* IJKMediaPlayer.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58682F722E0D1AD90057CC53 /* IJKMediaPlayer.xcframework */; };
 		58682F7C2E0E440E0057CC53 /* WYEventHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58682F7A2E0E440E0057CC53 /* WYEventHandler.swift */; };
 		587CDF902E09151500929E1D /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 587CDF8F2E09151500929E1D /* libz.tbd */; };
 		587CDF922E09153B00929E1D /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 587CDF912E09153B00929E1D /* libbz2.tbd */; };
@@ -201,12 +199,10 @@
 		58678E752DFA627C0035673E /* WYScrollText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYScrollText.swift; sourceTree = "<group>"; };
 		58678E782DFA627C0035673E /* WYLocalizable.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = WYLocalizable.bundle; sourceTree = "<group>"; };
 		58678E792DFA627C0035673E /* WYLocalizableManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLocalizableManager.swift; sourceTree = "<group>"; };
-		58678E802DFA627C0035673E /* WYMediaPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaPlayer.swift; sourceTree = "<group>"; };
 		58678E832DFA627C0035673E /* WYNetworkConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkConfig.swift; sourceTree = "<group>"; };
 		58678E842DFA627C0035673E /* WYNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkManager.swift; sourceTree = "<group>"; };
 		58678E852DFA627C0035673E /* WYNetworkServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkServer.swift; sourceTree = "<group>"; };
 		58678E872DFA627C0035673E /* WYStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYStorage.swift; sourceTree = "<group>"; };
-		58682F722E0D1AD90057CC53 /* IJKMediaPlayer.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = IJKMediaPlayer.xcframework; path = "WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework"; sourceTree = "<group>"; };
 		58682F7A2E0E440E0057CC53 /* WYEventHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYEventHandler.swift; sourceTree = "<group>"; };
 		587CDF8F2E09151500929E1D /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		587CDF912E09153B00929E1D /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
@@ -225,7 +221,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				58682F732E0D1AD90057CC53 /* IJKMediaPlayer.xcframework in Frameworks */,
 				587CDF922E09153B00929E1D /* libbz2.tbd in Frameworks */,
 				587CDF902E09151500929E1D /* libz.tbd in Frameworks */,
 				AAC46AD02E07E28F0068B0DF /* libc++.tbd in Frameworks */,
@@ -882,15 +877,6 @@
 			path = Localizable;
 			sourceTree = "<group>";
 		};
-		58678E822DFA627C0035673E /* MediaPlayer */ = {
-			isa = PBXGroup;
-			children = (
-				58678E802DFA627C0035673E /* WYMediaPlayer.swift */,
-				58682F722E0D1AD90057CC53 /* IJKMediaPlayer.xcframework */,
-			);
-			path = MediaPlayer;
-			sourceTree = "<group>";
-		};
 		58678E862DFA627C0035673E /* Networking */ = {
 			isa = PBXGroup;
 			children = (
@@ -919,7 +905,6 @@
 				58678E322DFA627C0035673E /* Extension */,
 				58678E772DFA627C0035673E /* Layout */,
 				58678E7A2DFA627C0035673E /* Localizable */,
-				58678E822DFA627C0035673E /* MediaPlayer */,
 				58678E862DFA627C0035673E /* Networking */,
 				58678E882DFA627C0035673E /* Storage */,
 				58682F7B2E0E440E0057CC53 /* EventHandler */,
@@ -1135,7 +1120,6 @@
 				58678E932DFA627C0035673E /* UIView.swift in Sources */,
 				58678E942DFA627C0035673E /* NumberFormatter.swift in Sources */,
 				58678E952DFA627C0035673E /* WYRecordAnimationView.swift in Sources */,
-				58678E962DFA627C0035673E /* WYMediaPlayer.swift in Sources */,
 				58678E972DFA627C0035673E /* WYMoreViewCell.swift in Sources */,
 				58CDEE582E34780D00ACE975 /* WYLogManager.swift in Sources */,
 				58678E982DFA627C0035673E /* WYSpeechRecognitionAuthorization.swift in Sources */,

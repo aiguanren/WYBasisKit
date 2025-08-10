@@ -36,7 +36,7 @@ run_script() {
 }
 
 # 执行 MediaPlayer 相关脚本
-run_script "$SCRIPT_DIR/MediaPlayer/WYMediaPlayerFramework.sh"
+#run_script "$SCRIPT_DIR/MediaPlayer/WYDownload.sh"
 
 # 如果以后有别的脚本
 # run_script "$SCRIPT_DIR/OtherModule/SomeOtherScript.sh"

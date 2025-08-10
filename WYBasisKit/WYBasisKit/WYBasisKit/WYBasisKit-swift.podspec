@@ -1,5 +1,5 @@
 # 定义podspec执行路径(远程验证时路径是从WYBasisKit-swift开始的，所以远程验证时需要填入podspec文件的路径：WYBasisKit/WYBasisKit/WYBasisKit/)
-kit_path = ""
+kit_path = "WYBasisKit/WYBasisKit/WYBasisKit/"
 
 # 国际化资源需要的Bundle
 localizable_bundle = "#{kit_path}Localizable/WYLocalizable.bundle"
@@ -18,7 +18,6 @@ Pod::Spec.new do |kit|
     Codable: 数据解析
     Authorization: 各种权限请求与判断
     LogManager: 日志打印，日志导出等日志管理相关
-    ImageCropper: 图片裁剪
   DESC
   
   kit.homepage     = "https://github.com/aiguanren/WYBasisKit-swift"
@@ -181,16 +180,6 @@ Pod::Spec.new do |kit|
       "#{kit_path}EventHandler/PrivacyInfo.xcprivacy"
     ]}
     eventHandler.frameworks = "Foundation"
-  end
-
-  kit.subspec "ImageCropper" do |imageCropper|
-    imageCropper.source_files = [
-      "#{kit_path}ImageCropper/**/*.{swift,h,m}"
-    ]
-    imageCropper.resource_bundles = {"WYBasisKitImageCropper" => [
-      "#{kit_path}ImageCropper/PrivacyInfo.xcprivacy"
-    ]}
-    imageCropper.frameworks = "UIKit"
   end
   
   kit.subspec "Authorization" do |authorization|
