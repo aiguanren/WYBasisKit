@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import WYBasisKit
 
 class Address: NSObject, Codable {
     var city: String

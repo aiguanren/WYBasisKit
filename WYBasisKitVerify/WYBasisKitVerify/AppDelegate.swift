@@ -7,7 +7,7 @@
 //
 
 import UIKit
-@_exported import WYBasisKit
+@_exported import WYBasisKitSwift
 
 protocol AppEventDelegate: AnyObject {
     func didShowBannerView(data: String)

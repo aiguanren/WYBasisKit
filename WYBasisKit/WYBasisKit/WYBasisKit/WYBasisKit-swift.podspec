@@ -33,6 +33,7 @@ Pod::Spec.new do |kit|
     MediaPlayer: 直播、视频播放器
     Codable: 数据解析
     Authorization: 各种权限请求与判断
+    LogManager: 日志打印，日志导出等日志管理相关
   DESC
   
   kit.homepage     = "https://github.com/aiguanren/WYBasisKit-swift"
@@ -48,7 +49,7 @@ Pod::Spec.new do |kit|
   kit.swift_versions = "5.0"
   kit.requires_arc = true
   # 手动指定模块名
-  kit.module_name  = "WYBasisKit" 
+  kit.module_name  = "WYBasisKitSwift" 
   #指定默认模块，不指定则表示全部模块
   kit.default_subspecs = [
     "Config",
