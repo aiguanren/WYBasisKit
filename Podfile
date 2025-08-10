@@ -46,7 +46,6 @@ target 'WYBasisKitVerify' do
   pod 'WYBasisKit-swift/Extension', :path => SDKPATH
   pod 'WYBasisKit-swift/Networking', :path => SDKPATH
   pod 'WYBasisKit-swift/Layout', :path => SDKPATH
-  pod 'WYBasisKit-swift/MediaPlayer', :path => SDKPATH
   pod 'WYBasisKit-swift/Localizable', :path => SDKPATH
   pod 'WYBasisKit-swift/Activity', :path => SDKPATH
   pod 'WYBasisKit-swift/Storage', :path => SDKPATH
@@ -54,6 +53,14 @@ target 'WYBasisKitVerify' do
   pod 'WYBasisKit-swift/LogManager', :path => SDKPATH
   pod 'WYBasisKit-swift/Codable', :path => SDKPATH
   pod 'WYBasisKit-swift/Authorization', :path => SDKPATH
+  pod 'WYBasisKit-swift/ImageCropper', :path => SDKPATH
+  
+  # 图片裁剪库
+  pod 'Mantis'
+  
+  # 直播/视频播放器(基于IJK编写优化)
+  pod "FSPlayer", :podspec => 'https://github.com/debugly/fsplayer/releases/download/1.0.2/FSPlayer.spec.json'
+  
   # 根据Xcode版本号指定三方库的版本号
   if xcode_version_less_than_or_equal_to(14, 2)
     pod 'Alamofire', '5.9.1'

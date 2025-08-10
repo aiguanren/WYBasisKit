@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 53;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -41,7 +41,6 @@
 		585B3AC22DF819DC00E6E08F /* WYTestDownloadController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A632DF819DC00E6E08F /* WYTestDownloadController.swift */; };
 		585B3AC32DF819DC00E6E08F /* WYSpeechRecognitionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A652DF819DC00E6E08F /* WYSpeechRecognitionController.swift */; };
 		585B3AC42DF819DC00E6E08F /* WYTestAnimationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A682DF819DC00E6E08F /* WYTestAnimationController.swift */; };
-		585B3AC52DF819DC00E6E08F /* WYTestLiveStreamingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A6A2DF819DC00E6E08F /* WYTestLiveStreamingController.swift */; };
 		585B3AC62DF819DC00E6E08F /* WYTestBannerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A6C2DF819DC00E6E08F /* WYTestBannerController.swift */; };
 		585B3AC72DF819DC00E6E08F /* WYTestButtonEdgeInsetsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A6E2DF819DC00E6E08F /* WYTestButtonEdgeInsetsController.swift */; };
 		585B3AC82DF819DC00E6E08F /* WYCenterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A702DF819DC00E6E08F /* WYCenterController.swift */; };
@@ -90,7 +89,6 @@
 		585B3A652DF819DC00E6E08F /* WYSpeechRecognitionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYSpeechRecognitionController.swift; sourceTree = "<group>"; };
 		585B3A662DF819DC00E6E08F /* WYSpeechRecognitionController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WYSpeechRecognitionController.xib; sourceTree = "<group>"; };
 		585B3A682DF819DC00E6E08F /* WYTestAnimationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestAnimationController.swift; sourceTree = "<group>"; };
-		585B3A6A2DF819DC00E6E08F /* WYTestLiveStreamingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestLiveStreamingController.swift; sourceTree = "<group>"; };
 		585B3A6C2DF819DC00E6E08F /* WYTestBannerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestBannerController.swift; sourceTree = "<group>"; };
 		585B3A6E2DF819DC00E6E08F /* WYTestButtonEdgeInsetsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestButtonEdgeInsetsController.swift; sourceTree = "<group>"; };
 		585B3A702DF819DC00E6E08F /* WYCenterController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCenterController.swift; sourceTree = "<group>"; };
@@ -278,14 +276,6 @@
 			path = "约束view添加动画";
 			sourceTree = "<group>";
 		};
-		585B3A6B2DF819DC00E6E08F /* 直播、点播播放器 */ = {
-			isa = PBXGroup;
-			children = (
-				585B3A6A2DF819DC00E6E08F /* WYTestLiveStreamingController.swift */,
-			);
-			path = "直播、点播播放器";
-			sourceTree = "<group>";
-		};
 		585B3A6D2DF819DC00E6E08F /* Banner */ = {
 			isa = PBXGroup;
 			children = (
@@ -392,7 +382,6 @@
 				585B3A642DF819DC00E6E08F /* 下载 */,
 				585B3A672DF819DC00E6E08F /* 语音识别 */,
 				585B3A692DF819DC00E6E08F /* 约束view添加动画 */,
-				585B3A6B2DF819DC00E6E08F /* 直播、点播播放器 */,
 				585B3A6D2DF819DC00E6E08F /* Banner */,
 				585B3A6F2DF819DC00E6E08F /* ButtonEdgeInsets */,
 				585B3A712DF819DC00E6E08F /* center */,
@@ -589,7 +578,9 @@
 				"${BUILT_PRODUCTS_DIR}/IQKeyboardToolbarManager/IQKeyboardToolbarManager.framework",
 				"${BUILT_PRODUCTS_DIR}/IQTextInputViewNotification/IQTextInputViewNotification.framework",
 				"${BUILT_PRODUCTS_DIR}/IQTextView/IQTextView.framework",
+				"${BUILT_PRODUCTS_DIR}/Mantis/Mantis.framework",
 				"${BUILT_PRODUCTS_DIR}/WYBasisKit-swift/WYBasisKitSwift.framework",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/FSPlayer/FSPlayer.framework/FSPlayer",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -605,7 +596,9 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQKeyboardToolbarManager.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQTextInputViewNotification.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQTextView.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Mantis.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WYBasisKitSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FSPlayer.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -661,7 +654,6 @@
 				585B3AC22DF819DC00E6E08F /* WYTestDownloadController.swift in Sources */,
 				585B3AC32DF819DC00E6E08F /* WYSpeechRecognitionController.swift in Sources */,
 				585B3AC42DF819DC00E6E08F /* WYTestAnimationController.swift in Sources */,
-				585B3AC52DF819DC00E6E08F /* WYTestLiveStreamingController.swift in Sources */,
 				585B3AC62DF819DC00E6E08F /* WYTestBannerController.swift in Sources */,
 				585B3AC72DF819DC00E6E08F /* WYTestButtonEdgeInsetsController.swift in Sources */,
 				585B3AC82DF819DC00E6E08F /* WYCenterController.swift in Sources */,

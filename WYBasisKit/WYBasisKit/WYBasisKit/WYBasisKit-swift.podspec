@@ -1,18 +1,8 @@
 # 定义podspec执行路径(远程验证时路径是从WYBasisKit-swift开始的，所以远程验证时需要填入podspec文件的路径：WYBasisKit/WYBasisKit/WYBasisKit/)
-kit_path = "WYBasisKit/WYBasisKit/WYBasisKit/"
+kit_path = ""
+
 # 国际化资源需要的Bundle
 localizable_bundle = "#{kit_path}Localizable/WYLocalizable.bundle"
-
-$mediaPlayer_config = {
-  "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64", # 过滤模拟器arm64，解决M系列芯片MAC上模拟器架构问题
-  "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) WYMediaPlayer_SUPPORTS_SIMULATOR_FULL=1",  # 用于 Objective-C 的 #if 判断
-  "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) WYMediaPlayer_SUPPORTS_SIMULATOR_FULL" # 用于 Swift 的 #if 判断（注意不带 =1，就是直接使用宏名即可）
-
-  # 模拟器环境下清空IJKMediaPlayer.xcframework相关的链接，避免链接导致的验证不通过与编译错误(如果不想支持模拟器编译就放开下面注释)
-  # "OTHER_LDFLAGS[sdk=iphonesimulator*]" => "",
-  # "LD_RUNPATH_SEARCH_PATHS[sdk=iphonesimulator*]" => "",
-  # 模拟器环境下清空IJKMediaPlayer.xcframework相关的链接，避免链接导致的验证不通过与编译错误(如果不想支持模拟器编译就放开上面注释)
-}
 
 Pod::Spec.new do |kit|
   kit.name         = "WYBasisKit-swift"
@@ -25,10 +15,10 @@ Pod::Spec.new do |kit|
     Activity: 活动指示器
     Storage: 本地存储
     Layout: 各种自定义控件(注意：ChatView尚未开发完毕，敬请期待)
-    MediaPlayer: 直播、视频播放器
     Codable: 数据解析
     Authorization: 各种权限请求与判断
     LogManager: 日志打印，日志导出等日志管理相关
+    ImageCropper: 图片裁剪
   DESC
   
   kit.homepage     = "https://github.com/aiguanren/WYBasisKit-swift"
@@ -43,6 +33,9 @@ Pod::Spec.new do |kit|
   ]}
   kit.swift_versions = "5.0"
   kit.requires_arc = true
+  # 这里需要忽略前面的lib和后面的tbd，例如libz.tbd直接写为z即可，如果是.a则需要写全，如："xxx.a"
+  # kit.libraries = "z", "xxx.a"  # 这里的.a是指系统的
+  # kit.vendored_libraries = "xxx.a"  # 这里的.a是指第三方或者自己自定义的
   # 手动指定模块名
   kit.module_name  = "WYBasisKitSwift" 
   #指定默认模块，不指定则表示全部模块
@@ -58,8 +51,22 @@ Pod::Spec.new do |kit|
 
   # 主工程设置
   # kit.user_target_xcconfig = {
-  #   "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64" # 过滤模拟器arm64，解决M系列芯片MAC上模拟器架构问题
+  #   "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64" # 跟多常见设置可以参照kit.pod_target_xcconfig
   # }
+
+  # Pod工程设置
+  # kit.pod_target_xcconfig = {
+  #   "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64", # 过滤模拟器arm64，解决M系列芯片MAC上模拟器架构问题
+  #   "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) WYBasisKit_SUPPORTS_SIMULATOR_FULL=1",  # 用于 Objective-C 的 #if 判断
+  #   "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) WYBasisKit_SUPPORTS_SIMULATOR_FULL", # 用于 Swift 的 #if 判断（注意不带 =1，就是直接使用宏名即可）
+  #   "OTHER_LDFLAGS[sdk=iphonesimulator*]" => "", # 模拟器环境下清空与 aaa.xcframework 相关的链接标记，避免链接导致的验证不通过与编译错误(如果aaa.xcframework仅支持真机又想让模拟器环境编译通过就需要设置)
+  #   "LD_RUNPATH_SEARCH_PATHS[sdk=iphonesimulator*]" => "" # 模拟器环境下清空与 aaa.xcframework 相关的运行路径设置，避免链接导致的验证不通过与编译错误(如果aaa.xcframework仅支持真机又想让模拟器环境编译通过就需要设置)
+  # }
+
+  # 排除匹配某个文件夹下面的所有文件和文件夹，如排除匹配aaa文件夹下面的所有文件和文件夹
+  # kit.exclude_files = [
+  #   "#{kit_path}aaa/**/*"
+  # ]  
 
   kit.subspec "Config" do |config|
     config.source_files = [
@@ -174,6 +181,16 @@ Pod::Spec.new do |kit|
       "#{kit_path}EventHandler/PrivacyInfo.xcprivacy"
     ]}
     eventHandler.frameworks = "Foundation"
+  end
+
+  kit.subspec "ImageCropper" do |imageCropper|
+    imageCropper.source_files = [
+      "#{kit_path}ImageCropper/**/*.{swift,h,m}"
+    ]
+    imageCropper.resource_bundles = {"WYBasisKitImageCropper" => [
+      "#{kit_path}ImageCropper/PrivacyInfo.xcprivacy"
+    ]}
+    imageCropper.frameworks = "UIKit"
   end
   
   kit.subspec "Authorization" do |authorization|
@@ -351,36 +368,5 @@ Pod::Spec.new do |kit|
        chatView.dependency "SnapKit"
        chatView.dependency "Kingfisher"
      end
-  end
-
-  kit.subspec "IJKFramework" do |framework|  # IJKMediaPlayer.xcframework (真机+模拟器)
-    framework.resource_bundles = {"WYBasisKitIJKFramework" => [
-      "#{kit_path}MediaPlayer/PrivacyInfo.xcprivacy"
-    ]}
-    # 这里需要忽略前面的lib和后面的tbd，例如libz.tbd直接写为z即可，如果是.a则需要写全，如："xxx.a"
-    framework.libraries = "c++", "z", "bz2" 
-    framework.frameworks = "UIKit", "AudioToolbox", "CoreGraphics", "AVFoundation", "CoreMedia", "CoreVideo", "MediaPlayer", "CoreServices", "Metal", "QuartzCore", "VideoToolbox"
-    # framework.vendored_libraries = "xxx.a"
-    framework.pod_target_xcconfig = $mediaPlayer_config
-    framework.vendored_frameworks = [
-      "MediaPlayer/WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework"
-    ]
-  end
-  
-  kit.subspec "MediaPlayer" do |mediaPlayer|
-    mediaPlayer.source_files = [
-      "#{kit_path}MediaPlayer/**/*.{swift,h,m}"
-    ]
-    # 排除匹配WYMediaPlayerFramework下面的所有文件
-    mediaPlayer.exclude_files = [
-      "#{kit_path}MediaPlayer/WYMediaPlayerFramework/**/*"
-    ]  
-    mediaPlayer.resource_bundles = {"WYBasisKitMediaPlayer" => [
-      "#{kit_path}MediaPlayer/PrivacyInfo.xcprivacy"
-    ]}
-    mediaPlayer.pod_target_xcconfig = $mediaPlayer_config
-    mediaPlayer.dependency "SnapKit"
-    mediaPlayer.dependency "Kingfisher"
-    mediaPlayer.dependency "WYBasisKit-swift/IJKFramework"
   end
 end
