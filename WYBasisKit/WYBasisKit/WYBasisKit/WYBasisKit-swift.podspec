@@ -3,20 +3,15 @@ kit_path = "WYBasisKit/WYBasisKit/WYBasisKit/"
 # 国际化资源需要的Bundle
 localizable_bundle = "#{kit_path}Localizable/WYLocalizable.bundle"
 
-$mediaPlayer_full_config = {
+$mediaPlayer_config = {
   "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64", # 过滤模拟器arm64，解决M系列芯片MAC上模拟器架构问题
   "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) WYMediaPlayer_SUPPORTS_SIMULATOR_FULL=1",  # 用于 Objective-C 的 #if 判断
   "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) WYMediaPlayer_SUPPORTS_SIMULATOR_FULL" # 用于 Swift 的 #if 判断（注意不带 =1，就是直接使用宏名即可）
-}
 
-$mediaPlayer_lite_config = {
-  "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64", # 过滤模拟器arm64，解决M系列芯片MAC上模拟器架构问题
-  "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) WYMediaPlayer_SUPPORTS_SIMULATOR_LITE=1",  # 用于 Objective-C 的 #if 判断
-  "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) WYMediaPlayer_SUPPORTS_SIMULATOR_LITE", # 用于 Swift 的 #if 判断（注意不带 =1，就是直接使用宏名即可）
-  # 模拟器环境下清空IJKMediaPlayer.xcframework相关的链接，避免链接导致的验证不通过与编译错误
-  "OTHER_LDFLAGS[sdk=iphonesimulator*]" => "",
-  "LD_RUNPATH_SEARCH_PATHS[sdk=iphonesimulator*]" => "",
-  # 模拟器环境下清空IJKMediaPlayer.xcframework相关的链接，避免链接导致的验证不通过与编译错误
+  # 模拟器环境下清空IJKMediaPlayer.xcframework相关的链接，避免链接导致的验证不通过与编译错误(如果不想支持模拟器编译就放开下面注释)
+  # "OTHER_LDFLAGS[sdk=iphonesimulator*]" => "",
+  # "LD_RUNPATH_SEARCH_PATHS[sdk=iphonesimulator*]" => "",
+  # 模拟器环境下清空IJKMediaPlayer.xcframework相关的链接，避免链接导致的验证不通过与编译错误(如果不想支持模拟器编译就放开上面注释)
 }
 
 Pod::Spec.new do |kit|
@@ -52,20 +47,14 @@ Pod::Spec.new do |kit|
   kit.module_name  = "WYBasisKitSwift" 
   #指定默认模块，不指定则表示全部模块
   kit.default_subspecs = [
-    "Config",
-    "Localizable",
     "Extension",
-    "Networking",
-    "Activity",
-    "Storage",
-    "Codable",
-    "EventHandler",
+    # "OtherSubSpec"
   ]
   
   # 执行配置脚本
-  # kit.prepare_command = <<-CMD
-  #   bash WYBasisKit.sh || bash #{kit_path}WYBasisKit.sh
-  # CMD
+  kit.prepare_command = <<-CMD
+    bash WYBasisKit.sh || bash #{kit_path}WYBasisKit.sh
+  CMD
 
   # 主工程设置
   # kit.user_target_xcconfig = {
@@ -364,65 +353,34 @@ Pod::Spec.new do |kit|
      end
   end
 
-  # kit.subspec "IJKFrameworkFull" do |framework|  # IJKMediaPlayerFramework (真机+模拟器)
-  #   framework.resource_bundles = {"WYBasisKitIJKFrameworkFull" => [
-  #     "#{kit_path}MediaPlayer/PrivacyInfo.xcprivacy"
-  #   ]}
-  #   # 这里需要忽略前面的lib和后面的tbd，例如libz.tbd直接写为z即可，如果是.a则需要写全，如："xxx.a"
-  #   framework.libraries = "c++", "z", "bz2" 
-  #   framework.frameworks = "UIKit", "AudioToolbox", "CoreGraphics", "AVFoundation", "CoreMedia", "CoreVideo", "MediaPlayer", "CoreServices", "Metal", "QuartzCore", "VideoToolbox"
-  #   # framework.vendored_libraries = "xxx.a"
-  #   framework.pod_target_xcconfig = $mediaPlayer_full_config
-  #   framework.vendored_frameworks = [
-  #     "MediaPlayer/WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework"
-  #   ]
-  # end
-
-  # kit.subspec "IJKFrameworkLite" do |framework|  # IJKMediaPlayerFramework (仅真机)
-  #   framework.resource_bundles = {"WYBasisKitIJKFrameworkLite" => [
-  #     "#{kit_path}MediaPlayer/PrivacyInfo.xcprivacy"
-  #   ]}
-  #   # 这里需要忽略前面的lib和后面的tbd，例如libz.tbd直接写为z即可，如果是.a则需要写全，如："xxx.a"
-  #   framework.libraries = "c++", "z", "bz2"  
-  #   framework.frameworks = "UIKit", "AudioToolbox", "CoreGraphics", "AVFoundation", "CoreMedia", "CoreVideo", "MediaPlayer", "CoreServices", "Metal", "QuartzCore", "VideoToolbox"
-  #   # framework.vendored_libraries = "xxx.a"
-  #   framework.pod_target_xcconfig = $mediaPlayer_lite_config
-  #   framework.vendored_frameworks = [
-  #     "MediaPlayer/WYMediaPlayerFramework/arm64/IJKMediaPlayer.xcframework"
-  #   ]
-  # end
+  kit.subspec "IJKFramework" do |framework|  # IJKMediaPlayer.xcframework (真机+模拟器)
+    framework.resource_bundles = {"WYBasisKitIJKFramework" => [
+      "#{kit_path}MediaPlayer/PrivacyInfo.xcprivacy"
+    ]}
+    # 这里需要忽略前面的lib和后面的tbd，例如libz.tbd直接写为z即可，如果是.a则需要写全，如："xxx.a"
+    framework.libraries = "c++", "z", "bz2" 
+    framework.frameworks = "UIKit", "AudioToolbox", "CoreGraphics", "AVFoundation", "CoreMedia", "CoreVideo", "MediaPlayer", "CoreServices", "Metal", "QuartzCore", "VideoToolbox"
+    # framework.vendored_libraries = "xxx.a"
+    framework.pod_target_xcconfig = $mediaPlayer_config
+    framework.vendored_frameworks = [
+      "MediaPlayer/WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework"
+    ]
+  end
   
-  # kit.subspec "MediaPlayerFull" do |mediaPlayer|
-  #   mediaPlayer.source_files = [
-  #     "#{kit_path}MediaPlayer/**/*.{swift,h,m}"
-  #   ]
-  #   # 排除匹配WYMediaPlayerFramework下面的所有文件
-  #   mediaPlayer.exclude_files = [
-  #     "#{kit_path}MediaPlayer/WYMediaPlayerFramework/**/*"
-  #   ]  
-  #   mediaPlayer.resource_bundles = {"WYBasisKitMediaPlayerFull" => [
-  #     "#{kit_path}MediaPlayer/PrivacyInfo.xcprivacy"
-  #   ]}
-  #   mediaPlayer.pod_target_xcconfig = $mediaPlayer_full_config
-  #   mediaPlayer.dependency "SnapKit"
-  #   mediaPlayer.dependency "Kingfisher"
-  #   mediaPlayer.dependency "WYBasisKit-swift/IJKFrameworkFull"
-  # end
-
-  # kit.subspec "MediaPlayerLite" do |mediaPlayer|
-  #   mediaPlayer.source_files = [
-  #     "#{kit_path}MediaPlayer/**/*.{swift,h,m}"
-  #   ]
-  #   # 排除匹配WYMediaPlayerFramework下面的所有文件
-  #   mediaPlayer.exclude_files = [
-  #     "#{kit_path}MediaPlayer/WYMediaPlayerFramework/**/*"
-  #   ]  
-  #   mediaPlayer.resource_bundles = {"WYBasisKitMediaPlayerLite" => [
-  #     "#{kit_path}MediaPlayer/PrivacyInfo.xcprivacy"
-  #   ]}
-  #   mediaPlayer.pod_target_xcconfig = $mediaPlayer_lite_config
-  #   mediaPlayer.dependency "SnapKit"
-  #   mediaPlayer.dependency "Kingfisher"
-  #   mediaPlayer.dependency "WYBasisKit-swift/IJKFrameworkLite"
-  # end
+  kit.subspec "MediaPlayer" do |mediaPlayer|
+    mediaPlayer.source_files = [
+      "#{kit_path}MediaPlayer/**/*.{swift,h,m}"
+    ]
+    # 排除匹配WYMediaPlayerFramework下面的所有文件
+    mediaPlayer.exclude_files = [
+      "#{kit_path}MediaPlayer/WYMediaPlayerFramework/**/*"
+    ]  
+    mediaPlayer.resource_bundles = {"WYBasisKitMediaPlayer" => [
+      "#{kit_path}MediaPlayer/PrivacyInfo.xcprivacy"
+    ]}
+    mediaPlayer.pod_target_xcconfig = $mediaPlayer_config
+    mediaPlayer.dependency "SnapKit"
+    mediaPlayer.dependency "Kingfisher"
+    mediaPlayer.dependency "WYBasisKit-swift/IJKFramework"
+  end
 end

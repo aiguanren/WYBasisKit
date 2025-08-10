@@ -46,8 +46,7 @@ target 'WYBasisKitVerify' do
   pod 'WYBasisKit-swift/Extension', :path => SDKPATH
   pod 'WYBasisKit-swift/Networking', :path => SDKPATH
   pod 'WYBasisKit-swift/Layout', :path => SDKPATH
-  pod 'WYBasisKit-swift/MediaPlayerFull', :path => SDKPATH
-  #pod 'WYBasisKit-swift/MediaPlayerLite', :path => SDKPATH
+  pod 'WYBasisKit-swift/MediaPlayer', :path => SDKPATH
   pod 'WYBasisKit-swift/Localizable', :path => SDKPATH
   pod 'WYBasisKit-swift/Activity', :path => SDKPATH
   pod 'WYBasisKit-swift/Storage', :path => SDKPATH
