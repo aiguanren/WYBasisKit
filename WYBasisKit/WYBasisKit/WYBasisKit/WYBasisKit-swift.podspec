@@ -42,11 +42,6 @@ Pod::Spec.new do |kit|
     "Extension",
     # "OtherSubSpec"
   ]
-  
-  # 执行配置脚本
-  kit.prepare_command = <<-CMD
-    bash #{kit_path}WYBasisKit.sh
-  CMD
 
   # 主工程设置
   # kit.user_target_xcconfig = {
