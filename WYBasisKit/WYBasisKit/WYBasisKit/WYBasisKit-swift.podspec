@@ -43,6 +43,11 @@ Pod::Spec.new do |kit|
     # "OtherSubSpec"
   ]
 
+  # 执行配置脚本
+  kit.prepare_command = <<-CMD
+    bash #{kit_path}WYBasisKit.sh
+  CMD
+
   # 主工程设置
   # kit.user_target_xcconfig = {
   #   "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64" # 跟多常见设置可以参照kit.pod_target_xcconfig
@@ -352,5 +357,29 @@ Pod::Spec.new do |kit|
        chatView.dependency "SnapKit"
        chatView.dependency "Kingfisher"
      end
+  end
+
+  kit.subspec "IJKFramework" do |framework|  # IJKMediaPlayerFramework (真机+模拟器)
+    framework.resource_bundles = {"WYBasisKitIJKFrameworkFull" => [
+      "#{kit_path}MediaPlayer/PrivacyInfo.xcprivacy"
+    ]}
+    framework.vendored_frameworks = [
+      "MediaPlayer/WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework"
+    ]
+  end
+
+  kit.subspec "MediaPlayer" do |mediaPlayer|
+    mediaPlayer.source_files = [
+      "#{kit_path}MediaPlayer/**/*.{swift,h,m}"
+    ]
+    mediaPlayer.exclude_files = [
+      "#{kit_path}MediaPlayer/WYMediaPlayerFramework/**/*"
+    ]  
+    mediaPlayer.resource_bundles = {"WYBasisKitMediaPlayerFull" => [
+      "#{kit_path}MediaPlayer/PrivacyInfo.xcprivacy"
+    ]}
+    mediaPlayer.dependency "SnapKit"
+    mediaPlayer.dependency "Kingfisher"
+    mediaPlayer.dependency "WYBasisKit-swift/IJKFramework"
   end
 end

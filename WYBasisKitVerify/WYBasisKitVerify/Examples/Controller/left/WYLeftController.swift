@@ -27,6 +27,7 @@ class WYLeftController: UIViewController {
         "二维码": "WYQRCodeController",
         "Gif加载": "WYParseGifController",
         "瀑布流": "WYFlowLayoutAlignmentController",
+        "直播、点播播放器": "WYTestLiveStreamingController",
         "IM即时通讯(开发中)": "WYTestChatController",
         "语音识别": "WYSpeechRecognitionController",
         "泛型": "WYGenericTypeController",
