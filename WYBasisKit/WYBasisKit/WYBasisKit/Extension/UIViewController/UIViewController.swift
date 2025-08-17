@@ -70,7 +70,7 @@ public extension UIViewController {
         }
     }
     
-    /** 从导航控制器栈中查找ViewController，没有时返回nil */
+    /// 从导航控制器栈中查找ViewController，没有时返回nil
     func wy_findViewController(className: String) -> UIViewController? {
         
         guard let controller = wy_controller(from: className) else { return nil }
@@ -80,7 +80,7 @@ public extension UIViewController {
         return self.navigationController?.viewControllers.first(where: { $0 == controller })
     }
     
-    /** 删除指定的视图控制器 */
+    /// 删除指定的视图控制器
     func wy_deleteViewController(className: String, complete:(() -> Void)? = nil) {
         
         guard let controller = wy_controller(from: className) else { return }
@@ -94,30 +94,31 @@ public extension UIViewController {
         self.navigationController?.viewControllers = controllers
         
         if complete != nil {
-            
             complete!()
         }
     }
     
-    /** 跳转到指定的视图控制器 */
-    func wy_showViewController(className: String, parameters: AnyObject? = nil, displaMode: WYDisplaMode = .push, animated: Bool = true) {
+    /// 跳转到指定的视图控制器
+    @discardableResult
+    func wy_showViewController(className: String, parameters: AnyObject? = nil, displaMode: WYDisplaMode = .push, animated: Bool = true) -> UIViewController? {
 
-        guard let controller = wy_controller(from: className)  else { return }
+        guard let controller = wy_controller(from: className)  else { return nil}
         
         wy_showViewController(controller: controller, parameters: parameters, displaMode: displaMode, animated: animated)
-    }
-    
-    /** 跳转到指定的视图控制器，此方法可防止循环跳转 */
-    func wy_showOnlyViewController(className: String, parameters: AnyObject? = nil, displaMode: WYDisplaMode = .push, animated: Bool = true) {
         
-        weak var weakSelf = self
-        wy_deleteViewController(className: className) {
-            
-            weakSelf?.wy_showViewController(className: className, parameters: parameters, displaMode: displaMode, animated: animated)
-        }
+        return controller
     }
     
-    /** 返回到指定的视图控制器 */
+    /// 跳转到指定的视图控制器，此方法可防止循环跳转
+    @discardableResult
+    func wy_showOnlyViewController(className: String, parameters: AnyObject? = nil, displaMode: WYDisplaMode = .push, animated: Bool = true) -> UIViewController? {
+        
+        wy_deleteViewController(className: className)
+        
+        return wy_showViewController(className: className, parameters: parameters, displaMode: displaMode, animated: animated)
+    }
+    
+    /// 返回到指定的视图控制器
     func wy_backToViewController(className: String, animated: Bool = true) {
         
         let controller = WYProjectInfo.projectName + "." + className
@@ -150,7 +151,7 @@ public extension UIViewController {
         }
     }
     
-    /** 跳转到指定的视图控制器(通用) */
+    /// 跳转到指定的视图控制器(通用)
     func wy_showViewController(controller: UIViewController, parameters: AnyObject? = nil, displaMode: WYDisplaMode = .push, animated: Bool = true) {
         
         controller.hidesBottomBarWhenPushed = true
@@ -163,7 +164,7 @@ public extension UIViewController {
         }
     }
     
-    /** 根据字符串获得对应控制器 */
+    /// 根据字符串获得对应控制器
     func wy_controller(from className: String) -> UIViewController? {
         
         let controller = WYProjectInfo.projectName + "." + className
@@ -176,7 +177,7 @@ public extension UIViewController {
         return controllerClass.init()
     }
     
-    /** 获取viewController跳转模式 */
+    /// 获取viewController跳转模式
     func wy_viewControllerDisplaMode() -> WYDisplaMode {
         
         let viewcontrollers = self.navigationController?.viewControllers
@@ -206,7 +207,6 @@ public extension UIViewController {
     }
     
     private struct WYAssociatedKeys {
-        
         static let wy_parameters = UnsafeRawPointer(bitPattern: "wy_parameters".hashValue)!
     }
 }

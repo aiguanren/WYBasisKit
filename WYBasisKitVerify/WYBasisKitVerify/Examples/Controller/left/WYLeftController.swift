@@ -35,6 +35,8 @@ class WYLeftController: UIViewController {
         "WKWebView进度条": "WYWebViewController",
         "归档/解归档": "WYArchivedController",
         "日志输出与保存": "WYLogController",
+        "音频录制与播放": "TestAudioController",
+        "设备振动": "WYTestVibrateController"
     ]
 
     lazy var tableView: UITableView = {
@@ -128,7 +130,8 @@ extension WYLeftController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let className: String = Array(cellObjs.values)[indexPath.row]
-        wy_showViewController(className: className)
+        let nextController = wy_showViewController(className: className)
+        nextController?.navigationItem.title = Array(cellObjs.keys)[indexPath.row]
     }
 }
 

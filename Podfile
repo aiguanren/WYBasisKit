@@ -1,7 +1,7 @@
 platform :ios, '13.0'
 inhibit_all_warnings!
 use_frameworks!
-#use_frameworks! :linkage => :static：
+#use_frameworks! :linkage => :static
 use_modular_headers!
 install! 'cocoapods', warn_for_unused_master_specs_repo: false
 
@@ -14,8 +14,23 @@ source 'https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git'
 # 加载脚本管理器
 require_relative 'Scripts/PodFileConfig/Podfile'
 
-# 执行本地验证或者pod命令的时候需要把podspec里面kit_path设置为 ""(空) 才能正确加载代码、资源等文件路径
+# 执行本地验证或者pod命令的时候需要把podspec里面kit_path设置为 ""(空) 才能正确加载代码、资源等文件，然后等pod install/update执行失败或者成功后再还原kit_path
 modify_kit_path_in_podspec("./WYBasisKit/WYBasisKit/WYBasisKit/WYBasisKit-swift.podspec", "", false)
+
+# 内部之所以要用if else区分，主要是体现出如何判断执行失败和成功
+at_exit do
+  if $! # $! 不为空说明有异常
+    # pod install/update 执行失败
+    
+    # 执行失败后还原podspec文件中要修改的kit_path的值
+    restore_kit_path_in_podspec(false)
+  else
+    # pod install/update 执行成功
+    
+    # 执行成功后还原podspec文件中要修改的kit_path的值
+    restore_kit_path_in_podspec(false)
+  end
+end
 
 # 选择设置选项（三选一）
 # configure_settings_option(SETTING_OPTIONS[:pods_only])    # 只设置Pods项目
@@ -25,45 +40,61 @@ configure_settings_option(SETTING_OPTIONS[:all_projects])   # 设置所有项目
 # 设置Pods项目版本(仅限从Podfile解析部署版本失败时有效)
 #configure_pods_deployment_target('13.0')
 
-workspace 'WYBasisKit.xcworkspace' # 多个项目时需要指定target对应的xcworkspace文件
+# 多个项目时需要指定target对应的xcworkspace文件
+workspace 'WYBasisKit.xcworkspace'
 
-SDKPATH = 'WYBasisKit/WYBasisKit/WYBasisKit'
+KITPATH = 'WYBasisKit/WYBasisKit/WYBasisKit'
 
 target 'WYBasisKit' do
-  project 'WYBasisKit/WYBasisKit.xcodeproj' # 多个项目时需要指定target对应的xcodeproj文件
+  
+  # 多个项目时需要指定target对应的xcodeproj文件
+  project 'WYBasisKit/WYBasisKit.xcodeproj'
+  
+  # 约束
   pod 'SnapKit'
+  
+  # 图片下载/缓存
   pod 'Kingfisher'
+  
+  # 网络请求
   pod 'Moya'
+
+  
   # 根据Xcode版本号指定三方库的版本号
   if xcode_version_less_than_or_equal_to(14, 2)
+    # 网络请求
     pod 'Alamofire', '5.9.1'
   end
 end
 
 target 'WYBasisKitVerify' do
   project 'WYBasisKitVerify/WYBasisKitVerify.xcodeproj' # 多个项目时需要指定target对应的xcodeproj文件
-  pod 'WYBasisKit-swift', :path => SDKPATH
-  pod 'WYBasisKit-swift/Extension', :path => SDKPATH
-  pod 'WYBasisKit-swift/Networking', :path => SDKPATH
-  pod 'WYBasisKit-swift/Layout', :path => SDKPATH
-  pod 'WYBasisKit-swift/MediaPlayer', :path => SDKPATH
-  pod 'WYBasisKit-swift/Localizable', :path => SDKPATH
-  pod 'WYBasisKit-swift/Activity', :path => SDKPATH
-  pod 'WYBasisKit-swift/Storage', :path => SDKPATH
-  pod 'WYBasisKit-swift/EventHandler', :path => SDKPATH
-  pod 'WYBasisKit-swift/LogManager', :path => SDKPATH
-  pod 'WYBasisKit-swift/Codable', :path => SDKPATH
-  pod 'WYBasisKit-swift/Authorization', :path => SDKPATH
+  pod 'WYBasisKit-swift', :path => KITPATH
+  pod 'WYBasisKit-swift/Extension', :path => KITPATH
+  pod 'WYBasisKit-swift/Networking', :path => KITPATH
+  pod 'WYBasisKit-swift/Layout', :path => KITPATH
+  pod 'WYBasisKit-swift/Localizable', :path => KITPATH
+  pod 'WYBasisKit-swift/AudioKit', :path => KITPATH
+  pod 'WYBasisKit-swift/Activity', :path => KITPATH
+  pod 'WYBasisKit-swift/Storage', :path => KITPATH
+  pod 'WYBasisKit-swift/EventHandler', :path => KITPATH
+  pod 'WYBasisKit-swift/LogManager', :path => KITPATH
+  pod 'WYBasisKit-swift/Codable', :path => KITPATH
+  pod 'WYBasisKit-swift/Authorization', :path => KITPATH
+
   
   # 图片裁剪库
-  pod 'Mantis'
-    
-  # 直播/视频播放器(基于IJK编写优化)
-  pod "FSPlayer", :podspec => 'https://github.com/debugly/fsplayer/releases/download/1.0.2/FSPlayer.spec.json'
+  #pod 'Mantis'
+  
+  # 照片选择库
+  #pod 'ZLPhotoBrowser'
   
   # 根据Xcode版本号指定三方库的版本号
   if xcode_version_less_than_or_equal_to(14, 2)
+    # 网络请求
     pod 'Alamofire', '5.9.1'
+    
+    # 管理键盘弹出时的界面适配
     pod 'IQKeyboardManagerSwift', '7.0.0'
   else
     pod 'IQKeyboardManagerSwift'
@@ -78,5 +109,4 @@ end
 # 结束执行pod命令(执行pod命令后的处理)
 post_install do |installer|
   apply_selected_settings(installer)
-  restore_kit_path_in_podspec(false)
 end

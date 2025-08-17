@@ -3,10 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 53;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		581955332E4DB9B800469F1A /* 世间美好与你环环相扣.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 581955322E4DB9B800469F1A /* 世间美好与你环环相扣.mp3 */; };
 		585B3AA22DF819DC00E6E08F /* WYSpeechRecognitionController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 585B3A662DF819DC00E6E08F /* WYSpeechRecognitionController.xib */; };
 		585B3AA32DF819DC00E6E08F /* [666].gif in Resources */ = {isa = PBXBuildFile; fileRef = 585B3A8C2DF819DC00E6E08F /* [666].gif */; };
 		585B3AA42DF819DC00E6E08F /* 1650855755919.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 585B3A8D2DF819DC00E6E08F /* 1650855755919.mp4 */; };
@@ -61,7 +62,29 @@
 		585B3AD72DF819DC00E6E08F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A982DF819DC00E6E08F /* AppDelegate.swift */; };
 		585B3AD82DF819DC00E6E08F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A9F2DF819DC00E6E08F /* ViewController.swift */; };
 		585B3AD92DF819DC00E6E08F /* WYTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3AA02DF819DC00E6E08F /* WYTabBarController.swift */; };
+		5882EAF12E518A5D00638FD3 /* WYTestVibrateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5882EAF02E518A5D00638FD3 /* WYTestVibrateController.swift */; };
+		589B0A3C2E49CE12000DBD10 /* bird.gif in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A3B2E49CE12000DBD10 /* bird.gif */; };
+		589B0A3D2E49CE12000DBD10 /* 彩色花.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A292E49CE12000DBD10 /* 彩色花.jpg */; };
+		589B0A3E2E49CE12000DBD10 /* 夕阳下的花.png in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A372E49CE12000DBD10 /* 夕阳下的花.png */; };
+		589B0A3F2E49CE12000DBD10 /* 粉色花.webp in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A2C2E49CE12000DBD10 /* 粉色花.webp */; };
+		589B0A402E49CE12000DBD10 /* 阳光蓝天下的花.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A392E49CE12000DBD10 /* 阳光蓝天下的花.jpg */; };
+		589B0A412E49CE12000DBD10 /* 红色爱心.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A2E2E49CE12000DBD10 /* 红色爱心.jpg */; };
+		589B0A422E49CE12000DBD10 /* 帆船.png in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A2B2E49CE12000DBD10 /* 帆船.png */; };
+		589B0A432E49CE12000DBD10 /* 樱花.png in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A3A2E49CE12000DBD10 /* 樱花.png */; };
+		589B0A442E49CE12000DBD10 /* 秋天的树.png in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A322E49CE12000DBD10 /* 秋天的树.png */; };
+		589B0A452E49CE12000DBD10 /* 沙滩上的花.png in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A342E49CE12000DBD10 /* 沙滩上的花.png */; };
+		589B0A462E49CE12000DBD10 /* 窗边的插画.png in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A2A2E49CE12000DBD10 /* 窗边的插画.png */; };
+		589B0A472E49CE12000DBD10 /* 沙滩.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A332E49CE12000DBD10 /* 沙滩.jpg */; };
+		589B0A482E49CE12000DBD10 /* 石头上的花.png in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A362E49CE12000DBD10 /* 石头上的花.png */; };
+		589B0A492E49CE12000DBD10 /* 风景.webp in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A2D2E49CE12000DBD10 /* 风景.webp */; };
+		589B0A4A2E49CE12000DBD10 /* 蓝天下的花.png in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A312E49CE12000DBD10 /* 蓝天下的花.png */; };
+		589B0A4B2E49CE12000DBD10 /* 阳光和窗户.png in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A382E49CE12000DBD10 /* 阳光和窗户.png */; };
+		589B0A4C2E49CE12000DBD10 /* 红色花.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A2F2E49CE12000DBD10 /* 红色花.jpg */; };
+		589B0A4D2E49CE12000DBD10 /* 冰啤.webp in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A282E49CE12000DBD10 /* 冰啤.webp */; };
+		589B0A4E2E49CE12000DBD10 /* 沙滩上的石头.png in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A352E49CE12000DBD10 /* 沙滩上的石头.png */; };
+		589B0A4F2E49CE12000DBD10 /* 蓝天下的红色花.png in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A302E49CE12000DBD10 /* 蓝天下的红色花.png */; };
 		58CDEE5D2E34907800ACE975 /* WYLogController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CDEE5C2E34907800ACE975 /* WYLogController.swift */; };
+		58E712812E4B0CE90095E71C /* TestAudioController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E712802E4B0CE90095E71C /* TestAudioController.swift */; };
 		AAA708702E1C11060040F2ED /* WYArchivedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA7086F2E1C11060040F2ED /* WYArchivedController.swift */; };
 		FF665BAF99A0FF358ACBC747 /* Pods_WYBasisKitVerify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2F2A0EF269DCCF460460F5A /* Pods_WYBasisKitVerify.framework */; };
 /* End PBXBuildFile section */
@@ -69,6 +92,7 @@
 /* Begin PBXFileReference section */
 		2DB9925AC3DD1E2ABC6B0159 /* Pods-WYBasisKitVerify.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKitVerify.release.xcconfig"; path = "Target Support Files/Pods-WYBasisKitVerify/Pods-WYBasisKitVerify.release.xcconfig"; sourceTree = "<group>"; };
 		36C6640364725F7848269A13 /* Pods-WYBasisKitVerify.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKitVerify.debug.xcconfig"; path = "Target Support Files/Pods-WYBasisKitVerify/Pods-WYBasisKitVerify.debug.xcconfig"; sourceTree = "<group>"; };
+		581955322E4DB9B800469F1A /* 世间美好与你环环相扣.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "世间美好与你环环相扣.mp3"; sourceTree = "<group>"; };
 		585B35432DF8081800E6E08F /* WYBasisKitVerify.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WYBasisKitVerify.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		585B3A4A2DF819DC00E6E08F /* WYTestDarkNightModeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestDarkNightModeController.swift; sourceTree = "<group>"; };
 		585B3A4C2DF819DC00E6E08F /* WYTestVisualController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestVisualController.swift; sourceTree = "<group>"; };
@@ -129,7 +153,29 @@
 		585B3ADD2DF8202500E6E08F /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		5874BC852DF9176700703A4B /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
 		5874BC892DF9179300703A4B /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Main.strings"; sourceTree = "<group>"; };
+		5882EAF02E518A5D00638FD3 /* WYTestVibrateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestVibrateController.swift; sourceTree = "<group>"; };
+		589B0A282E49CE12000DBD10 /* 冰啤.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = "冰啤.webp"; sourceTree = "<group>"; };
+		589B0A292E49CE12000DBD10 /* 彩色花.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "彩色花.jpg"; sourceTree = "<group>"; };
+		589B0A2A2E49CE12000DBD10 /* 窗边的插画.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "窗边的插画.png"; sourceTree = "<group>"; };
+		589B0A2B2E49CE12000DBD10 /* 帆船.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "帆船.png"; sourceTree = "<group>"; };
+		589B0A2C2E49CE12000DBD10 /* 粉色花.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = "粉色花.webp"; sourceTree = "<group>"; };
+		589B0A2D2E49CE12000DBD10 /* 风景.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = "风景.webp"; sourceTree = "<group>"; };
+		589B0A2E2E49CE12000DBD10 /* 红色爱心.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "红色爱心.jpg"; sourceTree = "<group>"; };
+		589B0A2F2E49CE12000DBD10 /* 红色花.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "红色花.jpg"; sourceTree = "<group>"; };
+		589B0A302E49CE12000DBD10 /* 蓝天下的红色花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "蓝天下的红色花.png"; sourceTree = "<group>"; };
+		589B0A312E49CE12000DBD10 /* 蓝天下的花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "蓝天下的花.png"; sourceTree = "<group>"; };
+		589B0A322E49CE12000DBD10 /* 秋天的树.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "秋天的树.png"; sourceTree = "<group>"; };
+		589B0A332E49CE12000DBD10 /* 沙滩.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "沙滩.jpg"; sourceTree = "<group>"; };
+		589B0A342E49CE12000DBD10 /* 沙滩上的花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "沙滩上的花.png"; sourceTree = "<group>"; };
+		589B0A352E49CE12000DBD10 /* 沙滩上的石头.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "沙滩上的石头.png"; sourceTree = "<group>"; };
+		589B0A362E49CE12000DBD10 /* 石头上的花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "石头上的花.png"; sourceTree = "<group>"; };
+		589B0A372E49CE12000DBD10 /* 夕阳下的花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "夕阳下的花.png"; sourceTree = "<group>"; };
+		589B0A382E49CE12000DBD10 /* 阳光和窗户.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "阳光和窗户.png"; sourceTree = "<group>"; };
+		589B0A392E49CE12000DBD10 /* 阳光蓝天下的花.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "阳光蓝天下的花.jpg"; sourceTree = "<group>"; };
+		589B0A3A2E49CE12000DBD10 /* 樱花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "樱花.png"; sourceTree = "<group>"; };
+		589B0A3B2E49CE12000DBD10 /* bird.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = bird.gif; sourceTree = "<group>"; };
 		58CDEE5C2E34907800ACE975 /* WYLogController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLogController.swift; sourceTree = "<group>"; };
+		58E712802E4B0CE90095E71C /* TestAudioController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestAudioController.swift; sourceTree = "<group>"; };
 		AAA7086F2E1C11060040F2ED /* WYArchivedController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYArchivedController.swift; sourceTree = "<group>"; };
 		D2F2A0EF269DCCF460460F5A /* Pods_WYBasisKitVerify.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WYBasisKitVerify.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -378,6 +424,8 @@
 		585B3A832DF819DC00E6E08F /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				5882EAEF2E518A4900638FD3 /* 设备振动 */,
+				58E7127F2E4B0CC30095E71C /* 音频录制与播放 */,
 				58CDEE592E34900D00ACE975 /* 日志输出与保存 */,
 				585B3A4B2DF819DC00E6E08F /* 暗夜、白昼模式 */,
 				585B3A4D2DF819DC00E6E08F /* 边框、圆角、阴影、渐变 */,
@@ -431,6 +479,26 @@
 		585B3A942DF819DC00E6E08F /* Resource */ = {
 			isa = PBXGroup;
 			children = (
+				589B0A282E49CE12000DBD10 /* 冰啤.webp */,
+				589B0A292E49CE12000DBD10 /* 彩色花.jpg */,
+				589B0A2A2E49CE12000DBD10 /* 窗边的插画.png */,
+				589B0A2B2E49CE12000DBD10 /* 帆船.png */,
+				589B0A2C2E49CE12000DBD10 /* 粉色花.webp */,
+				589B0A2D2E49CE12000DBD10 /* 风景.webp */,
+				589B0A2E2E49CE12000DBD10 /* 红色爱心.jpg */,
+				589B0A2F2E49CE12000DBD10 /* 红色花.jpg */,
+				589B0A302E49CE12000DBD10 /* 蓝天下的红色花.png */,
+				589B0A312E49CE12000DBD10 /* 蓝天下的花.png */,
+				589B0A322E49CE12000DBD10 /* 秋天的树.png */,
+				589B0A332E49CE12000DBD10 /* 沙滩.jpg */,
+				589B0A342E49CE12000DBD10 /* 沙滩上的花.png */,
+				589B0A352E49CE12000DBD10 /* 沙滩上的石头.png */,
+				589B0A362E49CE12000DBD10 /* 石头上的花.png */,
+				589B0A372E49CE12000DBD10 /* 夕阳下的花.png */,
+				589B0A382E49CE12000DBD10 /* 阳光和窗户.png */,
+				589B0A392E49CE12000DBD10 /* 阳光蓝天下的花.jpg */,
+				589B0A3A2E49CE12000DBD10 /* 樱花.png */,
+				589B0A3B2E49CE12000DBD10 /* bird.gif */,
 				585B3A8C2DF819DC00E6E08F /* [666].gif */,
 				585B3A8D2DF819DC00E6E08F /* 1650855755919.mp4 */,
 				585B3A8E2DF819DC00E6E08F /* 动图1.gif */,
@@ -451,6 +519,7 @@
 				585B3A952DF819DC00E6E08F /* [爱心].png */,
 				585B3A962DF819DC00E6E08F /* [唇].png */,
 				585B3A972DF819DC00E6E08F /* [喝彩].png */,
+				581955322E4DB9B800469F1A /* 世间美好与你环环相扣.mp3 */,
 				585B3A982DF819DC00E6E08F /* AppDelegate.swift */,
 				585B3A9F2DF819DC00E6E08F /* ViewController.swift */,
 				585B3AA02DF819DC00E6E08F /* WYTabBarController.swift */,
@@ -462,12 +531,28 @@
 			path = WYBasisKitVerify;
 			sourceTree = "<group>";
 		};
+		5882EAEF2E518A4900638FD3 /* 设备振动 */ = {
+			isa = PBXGroup;
+			children = (
+				5882EAF02E518A5D00638FD3 /* WYTestVibrateController.swift */,
+			);
+			path = "设备振动";
+			sourceTree = "<group>";
+		};
 		58CDEE592E34900D00ACE975 /* 日志输出与保存 */ = {
 			isa = PBXGroup;
 			children = (
 				58CDEE5C2E34907800ACE975 /* WYLogController.swift */,
 			);
 			path = "日志输出与保存";
+			sourceTree = "<group>";
+		};
+		58E7127F2E4B0CC30095E71C /* 音频录制与播放 */ = {
+			isa = PBXGroup;
+			children = (
+				58E712802E4B0CE90095E71C /* TestAudioController.swift */,
+			);
+			path = "音频录制与播放";
 			sourceTree = "<group>";
 		};
 		59C921CD84EA9D39B92C17B9 /* Frameworks */ = {
@@ -497,7 +582,8 @@
 				585B353F2DF8081800E6E08F /* Sources */,
 				585B35402DF8081800E6E08F /* Frameworks */,
 				585B35412DF8081800E6E08F /* Resources */,
-				B1D3ECAAFAD5E0D1C9324DD5 /* [CP] Embed Pods Frameworks */,
+				7A623E1F3422EA687315B2FE /* [CP] Embed Pods Frameworks */,
+				99F27454179BF2620E521DD3 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -557,8 +643,29 @@
 				585B3AA72DF819DC00E6E08F /* apng_[666].png in Resources */,
 				585B3AA82DF819DC00E6E08F /* apng格式图片1.png in Resources */,
 				585B3AA92DF819DC00E6E08F /* apng格式图片2.png in Resources */,
+				581955332E4DB9B800469F1A /* 世间美好与你环环相扣.mp3 in Resources */,
 				585B3AAA2DF819DC00E6E08F /* mpeg4_local.mp4 in Resources */,
 				585B3AAB2DF819DC00E6E08F /* [爱心].png in Resources */,
+				589B0A3C2E49CE12000DBD10 /* bird.gif in Resources */,
+				589B0A3D2E49CE12000DBD10 /* 彩色花.jpg in Resources */,
+				589B0A3E2E49CE12000DBD10 /* 夕阳下的花.png in Resources */,
+				589B0A3F2E49CE12000DBD10 /* 粉色花.webp in Resources */,
+				589B0A402E49CE12000DBD10 /* 阳光蓝天下的花.jpg in Resources */,
+				589B0A412E49CE12000DBD10 /* 红色爱心.jpg in Resources */,
+				589B0A422E49CE12000DBD10 /* 帆船.png in Resources */,
+				589B0A432E49CE12000DBD10 /* 樱花.png in Resources */,
+				589B0A442E49CE12000DBD10 /* 秋天的树.png in Resources */,
+				589B0A452E49CE12000DBD10 /* 沙滩上的花.png in Resources */,
+				589B0A462E49CE12000DBD10 /* 窗边的插画.png in Resources */,
+				589B0A472E49CE12000DBD10 /* 沙滩.jpg in Resources */,
+				589B0A482E49CE12000DBD10 /* 石头上的花.png in Resources */,
+				589B0A492E49CE12000DBD10 /* 风景.webp in Resources */,
+				589B0A4A2E49CE12000DBD10 /* 蓝天下的花.png in Resources */,
+				589B0A4B2E49CE12000DBD10 /* 阳光和窗户.png in Resources */,
+				589B0A4C2E49CE12000DBD10 /* 红色花.jpg in Resources */,
+				589B0A4D2E49CE12000DBD10 /* 冰啤.webp in Resources */,
+				589B0A4E2E49CE12000DBD10 /* 沙滩上的石头.png in Resources */,
+				589B0A4F2E49CE12000DBD10 /* 蓝天下的红色花.png in Resources */,
 				585B3AAC2DF819DC00E6E08F /* [唇].png in Resources */,
 				585B3AAD2DF819DC00E6E08F /* [喝彩].png in Resources */,
 				585B3AAE2DF819DC00E6E08F /* Assets.xcassets in Resources */,
@@ -570,7 +677,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		B1D3ECAAFAD5E0D1C9324DD5 /* [CP] Embed Pods Frameworks */ = {
+		7A623E1F3422EA687315B2FE /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -589,9 +696,7 @@
 				"${BUILT_PRODUCTS_DIR}/IQKeyboardToolbarManager/IQKeyboardToolbarManager.framework",
 				"${BUILT_PRODUCTS_DIR}/IQTextInputViewNotification/IQTextInputViewNotification.framework",
 				"${BUILT_PRODUCTS_DIR}/IQTextView/IQTextView.framework",
-				"${BUILT_PRODUCTS_DIR}/Mantis/Mantis.framework",
-				"${BUILT_PRODUCTS_DIR}/WYBasisKit-swift/WYBasisKitSwift.framework",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/FSPlayer/FSPlayer.framework/FSPlayer",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/IJKPlayerKit/FSPlayer.framework/FSPlayer",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -607,13 +712,85 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQKeyboardToolbarManager.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQTextInputViewNotification.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQTextView.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Mantis.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WYBasisKitSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FSPlayer.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-WYBasisKitVerify/Pods-WYBasisKitVerify-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		99F27454179BF2620E521DD3 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-WYBasisKitVerify/Pods-WYBasisKitVerify-resources.sh",
+				"${PODS_CONFIGURATION_BUILD_DIR}/IJKPlayerKit/IJKPlayerKit.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKit.bundle",
+				"${PODS_ROOT}/../WYBasisKit/WYBasisKit/WYBasisKit/Localizable/WYLocalizable.bundle",
+				"${PODS_ROOT}/../WYBasisKit/WYBasisKit/WYBasisKit/Activity/WYActivity.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitActivity.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitAudioKit.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitAuthorization.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitAuthorizationBiometric.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitAuthorizationCamera.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitAuthorizationContacts.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitAuthorizationMicrophone.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitAuthorizationPhotoAlbums.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitAuthorizationSpeechRecognition.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitCodable.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitConfig.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitEventHandler.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitExtension.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitLayout.bundle",
+				"${PODS_ROOT}/../WYBasisKit/WYBasisKit/WYBasisKit/Layout/BannerView/WYBannerView.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitLayoutBannerView.bundle",
+				"${PODS_ROOT}/../WYBasisKit/WYBasisKit/WYBasisKit/Layout/ChatView/WYChatView.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitLayoutChatView.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitMediaPlayerFS.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitLayoutPagingView.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitLayoutScrollText.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitLocalizable.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitLogManager.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitNetworking.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitStorage.bundle",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/IJKPlayerKit.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKit.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYLocalizable.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYActivity.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitActivity.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitAudioKit.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitAuthorization.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitAuthorizationBiometric.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitAuthorizationCamera.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitAuthorizationContacts.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitAuthorizationMicrophone.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitAuthorizationPhotoAlbums.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitAuthorizationSpeechRecognition.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitCodable.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitConfig.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitEventHandler.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitExtension.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitLayout.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBannerView.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitLayoutBannerView.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYChatView.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitLayoutChatView.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitMediaPlayerFS.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitLayoutPagingView.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitLayoutScrollText.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitLocalizable.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitLogManager.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitNetworking.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitStorage.bundle",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-WYBasisKitVerify/Pods-WYBasisKitVerify-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		C3C2EF56AB0D9126FDA130CD /* [CP] Check Pods Manifest.lock */ = {
@@ -663,6 +840,7 @@
 				585B3AC02DF819DC00E6E08F /* WYTestRequestController.swift in Sources */,
 				585B3AC12DF819DC00E6E08F /* WYMultilevelTableViewController.swift in Sources */,
 				585B3AC22DF819DC00E6E08F /* WYTestDownloadController.swift in Sources */,
+				58E712812E4B0CE90095E71C /* TestAudioController.swift in Sources */,
 				585B3AC32DF819DC00E6E08F /* WYSpeechRecognitionController.swift in Sources */,
 				585B3AC42DF819DC00E6E08F /* WYTestAnimationController.swift in Sources */,
 				585B3AC52DF819DC00E6E08F /* WYTestLiveStreamingController.swift in Sources */,
@@ -674,6 +852,7 @@
 				585B3ACB2DF819DC00E6E08F /* WYTestChatDataSource.swift in Sources */,
 				585B3ACC2DF819DC00E6E08F /* WYLeftController.swift in Sources */,
 				585B3ACD2DF819DC00E6E08F /* WYTestRichTextController.swift in Sources */,
+				5882EAF12E518A5D00638FD3 /* WYTestVibrateController.swift in Sources */,
 				585B3ACE2DF819DC00E6E08F /* WYRightController.swift in Sources */,
 				585B3ACF2DF819DC00E6E08F /* WYTableViewGroupedController.swift in Sources */,
 				585B3AD02DF819DC00E6E08F /* WYTableViewPlainController.swift in Sources */,

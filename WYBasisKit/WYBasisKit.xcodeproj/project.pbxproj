@@ -21,7 +21,6 @@
 		58678E932DFA627C0035673E /* UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E2C2DFA627C0035673E /* UIView.swift */; };
 		58678E942DFA627C0035673E /* NumberFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E0E2DFA627C0035673E /* NumberFormatter.swift */; };
 		58678E952DFA627C0035673E /* WYRecordAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E3D2DFA627C0035673E /* WYRecordAnimationView.swift */; };
-		58678E962DFA627C0035673E /* WYMediaPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E802DFA627C0035673E /* WYMediaPlayer.swift */; };
 		58678E972DFA627C0035673E /* WYMoreViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E4D2DFA627C0035673E /* WYMoreViewCell.swift */; };
 		58678E982DFA627C0035673E /* WYSpeechRecognitionAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678DF12DFA627C0035673E /* WYSpeechRecognitionAuthorization.swift */; };
 		58678E992DFA627C0035673E /* WYStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E872DFA627C0035673E /* WYStorage.swift */; };
@@ -98,12 +97,13 @@
 		58678EE32DFA627C0035673E /* WYLocalizable.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 58678E782DFA627C0035673E /* WYLocalizable.bundle */; };
 		58678EE42DFA627C0035673E /* WYBannerView.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 58678E332DFA627C0035673E /* WYBannerView.bundle */; };
 		58678EE62DFA627C0035673E /* WYChatView.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 58678E712DFA627C0035673E /* WYChatView.bundle */; };
-		58682F732E0D1AD90057CC53 /* IJKMediaPlayer.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58682F722E0D1AD90057CC53 /* IJKMediaPlayer.xcframework */; };
 		58682F7C2E0E440E0057CC53 /* WYEventHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58682F7A2E0E440E0057CC53 /* WYEventHandler.swift */; };
 		587CDF902E09151500929E1D /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 587CDF8F2E09151500929E1D /* libz.tbd */; };
 		587CDF922E09153B00929E1D /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 587CDF912E09153B00929E1D /* libbz2.tbd */; };
+		5882EAF32E519EA800638FD3 /* WYMediaPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5882EAF22E519EA800638FD3 /* WYMediaPlayer.swift */; };
 		5895ADAD2E237D42001849B2 /* NSNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5895ADAC2E237D42001849B2 /* NSNumber.swift */; };
 		58CDEE582E34780D00ACE975 /* WYLogManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CDEE572E34780D00ACE975 /* WYLogManager.swift */; };
+		58E7127E2E4B03C20095E71C /* WYAudioKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E7127D2E4B03C20095E71C /* WYAudioKit.swift */; };
 		58F3786D2E2224A9007F7C55 /* UIFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3786C2E2224A9007F7C55 /* UIFont.swift */; };
 		58F378702E2239D5007F7C55 /* FloatingPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3786F2E2239D5007F7C55 /* FloatingPoint.swift */; };
 		58F378732E2240C3007F7C55 /* NSInteger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F378722E2240C3007F7C55 /* NSInteger.swift */; };
@@ -201,17 +201,17 @@
 		58678E752DFA627C0035673E /* WYScrollText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYScrollText.swift; sourceTree = "<group>"; };
 		58678E782DFA627C0035673E /* WYLocalizable.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = WYLocalizable.bundle; sourceTree = "<group>"; };
 		58678E792DFA627C0035673E /* WYLocalizableManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLocalizableManager.swift; sourceTree = "<group>"; };
-		58678E802DFA627C0035673E /* WYMediaPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaPlayer.swift; sourceTree = "<group>"; };
 		58678E832DFA627C0035673E /* WYNetworkConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkConfig.swift; sourceTree = "<group>"; };
 		58678E842DFA627C0035673E /* WYNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkManager.swift; sourceTree = "<group>"; };
 		58678E852DFA627C0035673E /* WYNetworkServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkServer.swift; sourceTree = "<group>"; };
 		58678E872DFA627C0035673E /* WYStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYStorage.swift; sourceTree = "<group>"; };
-		58682F722E0D1AD90057CC53 /* IJKMediaPlayer.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = IJKMediaPlayer.xcframework; path = "WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework"; sourceTree = "<group>"; };
 		58682F7A2E0E440E0057CC53 /* WYEventHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYEventHandler.swift; sourceTree = "<group>"; };
 		587CDF8F2E09151500929E1D /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		587CDF912E09153B00929E1D /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
+		5882EAF22E519EA800638FD3 /* WYMediaPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaPlayer.swift; sourceTree = "<group>"; };
 		5895ADAC2E237D42001849B2 /* NSNumber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSNumber.swift; sourceTree = "<group>"; };
 		58CDEE572E34780D00ACE975 /* WYLogManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLogManager.swift; sourceTree = "<group>"; };
+		58E7127D2E4B03C20095E71C /* WYAudioKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAudioKit.swift; sourceTree = "<group>"; };
 		58F3786C2E2224A9007F7C55 /* UIFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIFont.swift; sourceTree = "<group>"; };
 		58F3786F2E2239D5007F7C55 /* FloatingPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPoint.swift; sourceTree = "<group>"; };
 		58F378722E2240C3007F7C55 /* NSInteger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSInteger.swift; sourceTree = "<group>"; };
@@ -225,7 +225,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				58682F732E0D1AD90057CC53 /* IJKMediaPlayer.xcframework in Frameworks */,
 				587CDF922E09153B00929E1D /* libbz2.tbd in Frameworks */,
 				587CDF902E09151500929E1D /* libz.tbd in Frameworks */,
 				AAC46AD02E07E28F0068B0DF /* libc++.tbd in Frameworks */,
@@ -869,6 +868,7 @@
 				58678E722DFA627C0035673E /* ChatView */,
 				58678E742DFA627C0035673E /* PagingView */,
 				58678E762DFA627C0035673E /* ScrollText */,
+				58678E822DFA627C0035673E /* MediaPlayer */,
 			);
 			path = Layout;
 			sourceTree = "<group>";
@@ -885,8 +885,7 @@
 		58678E822DFA627C0035673E /* MediaPlayer */ = {
 			isa = PBXGroup;
 			children = (
-				58678E802DFA627C0035673E /* WYMediaPlayer.swift */,
-				58682F722E0D1AD90057CC53 /* IJKMediaPlayer.xcframework */,
+				5882EAF22E519EA800638FD3 /* WYMediaPlayer.swift */,
 			);
 			path = MediaPlayer;
 			sourceTree = "<group>";
@@ -919,7 +918,7 @@
 				58678E322DFA627C0035673E /* Extension */,
 				58678E772DFA627C0035673E /* Layout */,
 				58678E7A2DFA627C0035673E /* Localizable */,
-				58678E822DFA627C0035673E /* MediaPlayer */,
+				58E7127C2E4B029B0095E71C /* AudioKit */,
 				58678E862DFA627C0035673E /* Networking */,
 				58678E882DFA627C0035673E /* Storage */,
 				58682F7B2E0E440E0057CC53 /* EventHandler */,
@@ -950,6 +949,14 @@
 				58CDEE572E34780D00ACE975 /* WYLogManager.swift */,
 			);
 			path = LogManager;
+			sourceTree = "<group>";
+		};
+		58E7127C2E4B029B0095E71C /* AudioKit */ = {
+			isa = PBXGroup;
+			children = (
+				58E7127D2E4B03C20095E71C /* WYAudioKit.swift */,
+			);
+			path = AudioKit;
 			sourceTree = "<group>";
 		};
 		58F3786B2E22244B007F7C55 /* UIFont */ = {
@@ -1008,7 +1015,7 @@
 				585B35602DF8086C00E6E08F /* Sources */,
 				585B35612DF8086C00E6E08F /* Frameworks */,
 				585B35622DF8086C00E6E08F /* Resources */,
-				2BB507E166741E488E60A8C0 /* [CP] Embed Pods Frameworks */,
+				E5C068A3CFEE36C61CC0D71E /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -1092,7 +1099,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		2BB507E166741E488E60A8C0 /* [CP] Embed Pods Frameworks */ = {
+		E5C068A3CFEE36C61CC0D71E /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1135,7 +1142,6 @@
 				58678E932DFA627C0035673E /* UIView.swift in Sources */,
 				58678E942DFA627C0035673E /* NumberFormatter.swift in Sources */,
 				58678E952DFA627C0035673E /* WYRecordAnimationView.swift in Sources */,
-				58678E962DFA627C0035673E /* WYMediaPlayer.swift in Sources */,
 				58678E972DFA627C0035673E /* WYMoreViewCell.swift in Sources */,
 				58CDEE582E34780D00ACE975 /* WYLogManager.swift in Sources */,
 				58678E982DFA627C0035673E /* WYSpeechRecognitionAuthorization.swift in Sources */,
@@ -1148,6 +1154,7 @@
 				58678E9F2DFA627C0035673E /* WYChatViewEventHandler.swift in Sources */,
 				58678EA02DFA627C0035673E /* Double.swift in Sources */,
 				58678EA12DFA627C0035673E /* WYChatVideoCell.swift in Sources */,
+				58E7127E2E4B03C20095E71C /* WYAudioKit.swift in Sources */,
 				58678EA22DFA627C0035673E /* WYPhotoAlbumsAuthorization.swift in Sources */,
 				58678EA32DFA627C0035673E /* WYMoveupTipsView.swift in Sources */,
 				58F378702E2239D5007F7C55 /* FloatingPoint.swift in Sources */,
@@ -1185,6 +1192,7 @@
 				58678EC32DFA627C0035673E /* String.swift in Sources */,
 				58678EC42DFA627C0035673E /* CGFloat.swift in Sources */,
 				58678EC52DFA627C0035673E /* WYChatCallCell.swift in Sources */,
+				5882EAF32E519EA800638FD3 /* WYMediaPlayer.swift in Sources */,
 				58678EC62DFA627C0035673E /* WYContactsAuthorization.swift in Sources */,
 				58678EC72DFA627C0035673E /* WYChatWebpageCell.swift in Sources */,
 				58678EC82DFA627C0035673E /* WYActivity.swift in Sources */,

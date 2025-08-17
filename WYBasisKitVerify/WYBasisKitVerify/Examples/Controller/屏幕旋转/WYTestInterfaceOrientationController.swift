@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import CloudKit
 
 class WYTestInterfaceOrientationController: UIViewController {
     
@@ -49,7 +48,6 @@ class WYTestInterfaceOrientationController: UIViewController {
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(tap)
     }
-
     
     @objc func layoutInterfaceOrientation() {
         

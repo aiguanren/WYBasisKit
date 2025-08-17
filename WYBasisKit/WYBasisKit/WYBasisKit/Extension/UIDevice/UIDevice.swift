@@ -4,11 +4,34 @@
 //
 //  Created by 官人 on 2020/8/29.
 //  Copyright © 2020 官人. All rights reserved.
-//  
+//
 
 import UIKit
 import CoreMotion
 import CoreTelephony
+import AudioToolbox
+
+/// 设备振动模式
+@frozen public enum WYVibrationStyle {
+    /// 系统震动（强烈）
+    case system
+    /// 轻
+    case light
+    /// 中
+    case medium
+    /// 重
+    case heavy
+    /// 柔和
+    case soft
+    /// 生硬
+    case rigid
+    /// 成功提示
+    case success
+    /// 警告提示
+    case warning
+    /// 错误提示
+    case error
+}
 
 public extension UIDevice {
     
@@ -22,47 +45,47 @@ public extension UIDevice {
                 .height ?? 0.0
         }
     }
-
+    
     /// 导航栏安全区域高度
     class var wy_navBarSafetyZone: CGFloat {
         get {
             return UIApplication.shared.wy_keyWindow.safeAreaInsets.top
         }
     }
-
+    
     /// 导航栏高度
     class var wy_navBarHeight: CGFloat {
         // 使用系统默认导航栏获取标准高度
         return UINavigationBar().intrinsicContentSize.height
     }
-
+    
     /// 导航视图高度（状态栏+导航栏）
     class var wy_navViewHeight: CGFloat {
         return wy_statusBarHeight + wy_navBarHeight
     }
-
+    
     /// tabBar安全区域高度
     class var wy_tabbarSafetyZone: CGFloat {
         get {
             return UIApplication.shared.wy_keyWindow.safeAreaInsets.bottom
         }
     }
-
+    
     /// tabBar高度(含安全区域高度)
     class var wy_tabBarHeight: CGFloat {
         return UITabBar().sizeThatFits(.zero).height + wy_tabbarSafetyZone
     }
-
+    
     /// 屏幕宽
     class var wy_screenWidth: CGFloat {
         return UIScreen.main.bounds.size.width
     }
-
+    
     /// 屏幕高
     class var wy_screenHeight: CGFloat {
         return UIScreen.main.bounds.size.height
     }
-
+    
     /// 屏幕宽度比率
     class func wy_screenWidthRatio(_ pixels: WYScreenPixels = WYBasisKitConfig.defaultScreenPixels) -> CGFloat {
         let widthRatio = (wy_screenWidth / pixels.width)
@@ -74,7 +97,7 @@ public extension UIDevice {
             return widthRatio
         }
     }
-
+    
     /// 屏幕高度比率
     class func wy_screenHeightRatio(_ pixels: WYScreenPixels = WYBasisKitConfig.defaultScreenPixels) -> CGFloat {
         let heightRatio = (wy_screenHeight / pixels.height)
@@ -86,12 +109,12 @@ public extension UIDevice {
             return heightRatio
         }
     }
-
+    
     /// 屏幕宽度比率转换
     class func wy_screenWidth(_ ratioValue: CGFloat, _ pixels: WYScreenPixels = WYBasisKitConfig.defaultScreenPixels) -> CGFloat {
         return round(ratioValue*wy_screenWidthRatio(pixels))
     }
-
+    
     /// 屏幕高度比率转换
     class func wy_screenHeight(_ ratioValue: CGFloat, _ pixels: WYScreenPixels = WYBasisKitConfig.defaultScreenPixels) -> CGFloat {
         return round(ratioValue*wy_screenHeightRatio(pixels))
@@ -366,6 +389,50 @@ public extension UIDevice {
         
         get {
             return objc_getAssociatedObject(self, WYAssociatedKeys.privateCurrentInterfaceOrientation) as? UIInterfaceOrientationMask ?? .portrait
+        }
+    }
+    
+    /**
+     *  设备震动一次
+     *  @param style   震动风格
+     */
+    func wy_vibrate(_ style: WYVibrationStyle) {
+        switch style {
+        case .system:
+            // 系统震动 (需要导入 AudioToolbox)
+            AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+        case .light:
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        case .medium:
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        case .heavy:
+            UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+        case .soft:
+            UIImpactFeedbackGenerator(style: .soft).impactOccurred()
+        case .rigid:
+            UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
+        case .success:
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
+        case .warning:
+            UINotificationFeedbackGenerator().notificationOccurred(.warning)
+        case .error:
+            UINotificationFeedbackGenerator().notificationOccurred(.error)
+        }
+    }
+    
+    /**
+     *  设备连续震动
+     *  @param style         震动风格
+     *  @param repeatCount   重复次数
+     *  @param interval      间隔（秒）
+     */
+    func wy_vibrate(_ style: WYVibrationStyle, repeatCount: Int, interval: TimeInterval) {
+        guard repeatCount > 0 else { return }
+        
+        for i in 0..<repeatCount {
+            DispatchQueue.main.asyncAfter(deadline: .now() + interval * Double(i)) {
+                self.wy_vibrate(style)
+            }
         }
     }
 }

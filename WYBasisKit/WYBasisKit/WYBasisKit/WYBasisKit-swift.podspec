@@ -6,7 +6,7 @@ localizable_bundle = "#{kit_path}Localizable/WYLocalizable.bundle"
 
 Pod::Spec.new do |kit|
   kit.name         = "WYBasisKit-swift"
-  kit.version      = "2.0.0"
+  kit.version      = "2.0.1"
   kit.summary      = "WYBasisKit 不仅可以帮助开发者快速构建一个工程，还有基于常用网络框架和系统API而封装的各种实用方法、扩展，开发者只需简单的调用API就可以快速实现相应功能， 大幅提高开发效率。"
   kit.description  = <<-DESC
     Localizable: 国际化解决方案
@@ -18,6 +18,7 @@ Pod::Spec.new do |kit|
     Codable: 数据解析
     Authorization: 各种权限请求与判断
     LogManager: 日志打印，日志导出等日志管理相关
+    AudioKit: 音频录制与播放
   DESC
   
   kit.homepage     = "https://github.com/aiguanren/WYBasisKit-swift"
@@ -32,6 +33,7 @@ Pod::Spec.new do |kit|
   ]}
   kit.swift_versions = "5.0"
   kit.requires_arc = true
+  kit.static_framework = true
   # 这里需要忽略前面的lib和后面的tbd，例如libz.tbd直接写为z即可，如果是.a则需要写全，如："xxx.a"
   # kit.libraries = "z", "xxx.a"  # 这里的.a是指系统的
   # kit.vendored_libraries = "xxx.a"  # 这里的.a是指第三方或者自己自定义的
@@ -42,11 +44,6 @@ Pod::Spec.new do |kit|
     "Extension",
     # "OtherSubSpec"
   ]
-
-  # 执行配置脚本
-  kit.prepare_command = <<-CMD
-    bash #{kit_path}WYBasisKit.sh
-  CMD
 
   # 主工程设置
   # kit.user_target_xcconfig = {
@@ -107,7 +104,7 @@ Pod::Spec.new do |kit|
     extension.resource_bundles = {"WYBasisKitExtension" => [
       "#{kit_path}Extension/PrivacyInfo.xcprivacy"
     ]}
-    extension.frameworks = "Foundation", "UIKit", "LocalAuthentication", "Photos", "CoreFoundation"
+    extension.frameworks = "Foundation", "UIKit", "LocalAuthentication", "Photos", "CoreFoundation", "AudioToolbox", "CoreMotion", "CoreTelephony"
     extension.dependency "WYBasisKit-swift/Localizable"
     extension.dependency "WYBasisKit-swift/Config"
     extension.dependency "WYBasisKit-swift/LogManager"
@@ -180,6 +177,16 @@ Pod::Spec.new do |kit|
       "#{kit_path}EventHandler/PrivacyInfo.xcprivacy"
     ]}
     eventHandler.frameworks = "Foundation"
+  end
+
+  kit.subspec "AudioKit" do |audioKit|
+    audioKit.source_files = [
+      "#{kit_path}AudioKit/**/*.{swift,h,m}"
+    ] 
+    audioKit.resource_bundles = {"WYBasisKitAudioKit" => [
+      "#{kit_path}AudioKit/PrivacyInfo.xcprivacy"
+    ]}
+    audioKit.frameworks = "Foundation", "AVFoundation", "Combine", "QuartzCore"
   end
   
   kit.subspec "Authorization" do |authorization|
@@ -334,52 +341,42 @@ Pod::Spec.new do |kit|
       bannerView.dependency "WYBasisKit-swift/LogManager"
     end
     
-     layout.subspec "ChatView" do |chatView|
-       chatView.source_files = [
-         "#{kit_path}Layout/ChatView/AudioManager/**/*.{swift,h,m}",
-         "#{kit_path}Layout/ChatView/Config/**/*.{swift,h,m}",
-         "#{kit_path}Layout/ChatView/Models/**/*.{swift,h,m}",
-         "#{kit_path}Layout/ChatView/RecordAnimation/**/*.{swift,h,m}",
-         "#{kit_path}Layout/ChatView/Views/**/*.{swift,h,m}"
-       ]
-       chatView.resources = [
-         "#{kit_path}Layout/ChatView/WYChatView.bundle"
-       ]
-       chatView.resource_bundles = {"WYBasisKitLayoutChatView" => [
+    layout.subspec "ChatView" do |chatView|
+      chatView.source_files = [
+        "#{kit_path}Layout/ChatView/AudioManager/**/*.{swift,h,m}",
+        "#{kit_path}Layout/ChatView/Config/**/*.{swift,h,m}",
+        "#{kit_path}Layout/ChatView/Models/**/*.{swift,h,m}",
+        "#{kit_path}Layout/ChatView/RecordAnimation/**/*.{swift,h,m}",
+        "#{kit_path}Layout/ChatView/Views/**/*.{swift,h,m}"
+      ]
+      chatView.resources = [
+        "#{kit_path}Layout/ChatView/WYChatView.bundle"
+      ]
+      chatView.resource_bundles = {"WYBasisKitLayoutChatView" => [
          "#{kit_path}Layout/ChatView/PrivacyInfo.xcprivacy"
-       ]}
-       chatView.frameworks = "Foundation", "UIKit"
-       chatView.dependency "WYBasisKit-swift/Extension"
-       chatView.dependency "WYBasisKit-swift/Localizable"
-       chatView.dependency "WYBasisKit-swift/Authorization/Microphone"
-       chatView.dependency "WYBasisKit-swift/Storage"
-       chatView.dependency "WYBasisKit-swift/LogManager"
-       chatView.dependency "SnapKit"
-       chatView.dependency "Kingfisher"
-     end
-  end
+      ]}
+      chatView.frameworks = "Foundation", "UIKit"
+      chatView.dependency "WYBasisKit-swift/Extension"
+      chatView.dependency "WYBasisKit-swift/Localizable"
+      chatView.dependency "WYBasisKit-swift/Authorization/Microphone"
+      chatView.dependency "WYBasisKit-swift/Storage"
+      chatView.dependency "WYBasisKit-swift/LogManager"
+      chatView.dependency "SnapKit"
+      chatView.dependency "Kingfisher"
+    end
 
-  kit.subspec "IJKFramework" do |framework|  # IJKMediaPlayerFramework (真机+模拟器)
-    framework.resource_bundles = {"WYBasisKitIJKFrameworkFull" => [
-      "#{kit_path}MediaPlayer/PrivacyInfo.xcprivacy"
-    ]}
-    framework.vendored_frameworks = [
-      "MediaPlayer/WYMediaPlayerFramework/arm64&x86_64/IJKMediaPlayer.xcframework"
-    ]
-  end
-
-  kit.subspec "MediaPlayer" do |mediaPlayer|
-    mediaPlayer.source_files = [
-      "#{kit_path}MediaPlayer/**/*.{swift,h,m}"
-    ]
-    mediaPlayer.exclude_files = [
-      "#{kit_path}MediaPlayer/WYMediaPlayerFramework/**/*"
-    ]  
-    mediaPlayer.resource_bundles = {"WYBasisKitMediaPlayerFull" => [
-      "#{kit_path}MediaPlayer/PrivacyInfo.xcprivacy"
-    ]}
-    mediaPlayer.dependency "SnapKit"
-    mediaPlayer.dependency "Kingfisher"
-    mediaPlayer.dependency "WYBasisKit-swift/IJKFramework"
+    layout.subspec "MediaPlayer" do |mediaPlayer|
+      mediaPlayer.source_files = [
+        "#{kit_path}Layout/MediaPlayer/**/*.{swift,h,m}"
+      ]
+      mediaPlayer.resource_bundles = {"WYBasisKitMediaPlayerFS" => [
+      "#{kit_path}Layout/MediaPlayer/PrivacyInfo.xcprivacy"
+      ]}
+      mediaPlayer.pod_target_xcconfig = {
+        "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) WYBasisKit_Supports_MediaPlayer_FS=1",  # 用于 Objective-C 的 #if 判断
+        "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) WYBasisKit_Supports_MediaPlayer_FS", # 用于 Swift 的 #if 判断（注意不带 =1，就是直接使用宏名即可）
+      }
+      mediaPlayer.dependency "IJKPlayerKit"
+    end
   end
 end

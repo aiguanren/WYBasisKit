@@ -215,10 +215,11 @@ public struct WYActivity {
     
     /**
      *  移除Loading窗口
+     *  @param animate             true时0.5秒后移除(有个动画), false时无动画，立刻移除，
      */
-    public static func dismissLoading(in contentView: UIView) {
+    public static func dismissLoading(in contentView: UIView, animate: Bool = true) {
         
-        WYActivityLoadingView.dismissLoading(in: contentView)
+        WYActivityLoadingView.dismissLoading(in: contentView, animate: animate)
     }
 }
 
@@ -529,7 +530,6 @@ private class WYActivityLoadingView: UIView {
         loadingView.wy_makeVisual { make in
             make.wy_rectCorner(.allCorners)
             make.wy_cornerRadius(UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels))
-            
         }
         
         contentView.wy_loadingView = loadingView
@@ -632,14 +632,19 @@ private class WYActivityLoadingView: UIView {
         }
     }
     
-    class func dismissLoading(in contentView: UIView) {
+    class func dismissLoading(in contentView: UIView, animate: Bool) {
         
         guard let loadingView = contentView.wy_loadingView else {
             return
         }
-        UIView.animate(withDuration: 0.5) {
-            loadingView.alpha = 0.0;
-        } completion: { _ in
+        if animate {
+            UIView.animate(withDuration: 0.5) {
+                loadingView.alpha = 0.0;
+            } completion: { _ in
+                loadingView.removeActivity()
+                contentView.wy_loadingView = nil
+            }
+        }else {
             loadingView.removeActivity()
             contentView.wy_loadingView = nil
         }

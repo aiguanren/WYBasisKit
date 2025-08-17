@@ -1,0 +1,6 @@
+framework module WYBasisKitSwift {
+  umbrella header "WYBasisKit-swift-umbrella.h"
+
+  export *
+  module * { export * }
+}
