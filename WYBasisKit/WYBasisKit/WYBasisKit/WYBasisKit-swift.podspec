@@ -6,7 +6,7 @@ localizable_bundle = "#{kit_path}Localizable/WYLocalizable.bundle"
 
 Pod::Spec.new do |kit|
   kit.name         = "WYBasisKit-swift"
-  kit.version      = "2.0.1"
+  kit.version      = "2.0.2"
   kit.summary      = "WYBasisKit 不仅可以帮助开发者快速构建一个工程，还有基于常用网络框架和系统API而封装的各种实用方法、扩展，开发者只需简单的调用API就可以快速实现相应功能， 大幅提高开发效率。"
   kit.description  = <<-DESC
     Localizable: 国际化解决方案
@@ -39,11 +39,12 @@ Pod::Spec.new do |kit|
   # kit.vendored_libraries = "xxx.a"  # 这里的.a是指第三方或者自己自定义的
   # 手动指定模块名
   kit.module_name  = "WYBasisKitSwift" 
+  
   #指定默认模块，不指定则表示全部模块
-  kit.default_subspecs = [
-    "Extension",
-    # "OtherSubSpec"
-  ]
+  # kit.default_subspecs = [
+  #   "Extension",
+  #   "OtherSubSpec"
+  # ]
 
   # 主工程设置
   # kit.user_target_xcconfig = {

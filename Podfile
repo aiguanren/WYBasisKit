@@ -70,18 +70,6 @@ end
 target 'WYBasisKitVerify' do
   project 'WYBasisKitVerify/WYBasisKitVerify.xcodeproj' # 多个项目时需要指定target对应的xcodeproj文件
   pod 'WYBasisKit-swift', :path => KITPATH
-  pod 'WYBasisKit-swift/Extension', :path => KITPATH
-  pod 'WYBasisKit-swift/Networking', :path => KITPATH
-  pod 'WYBasisKit-swift/Layout', :path => KITPATH
-  pod 'WYBasisKit-swift/Localizable', :path => KITPATH
-  pod 'WYBasisKit-swift/AudioKit', :path => KITPATH
-  pod 'WYBasisKit-swift/Activity', :path => KITPATH
-  pod 'WYBasisKit-swift/Storage', :path => KITPATH
-  pod 'WYBasisKit-swift/EventHandler', :path => KITPATH
-  pod 'WYBasisKit-swift/LogManager', :path => KITPATH
-  pod 'WYBasisKit-swift/Codable', :path => KITPATH
-  pod 'WYBasisKit-swift/Authorization', :path => KITPATH
-
   
   # 图片裁剪库
   #pod 'Mantis'
