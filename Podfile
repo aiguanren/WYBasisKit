@@ -59,7 +59,6 @@ target 'WYBasisKit' do
   # 网络请求
   pod 'Moya'
 
-  
   # 根据Xcode版本号指定三方库的版本号
   if xcode_version_less_than_or_equal_to(14, 2)
     # 网络请求
@@ -67,8 +66,8 @@ target 'WYBasisKit' do
   end
 end
 
-target 'WYBasisKitVerify' do
-  project 'WYBasisKitVerify/WYBasisKitVerify.xcodeproj' # 多个项目时需要指定target对应的xcodeproj文件
+target 'SwiftVerify' do
+  project 'SwiftVerify/SwiftVerify.xcodeproj' # 多个项目时需要指定target对应的xcodeproj文件
   pod 'WYBasisKit-swift', :path => KITPATH
   
   # 图片裁剪库
@@ -88,6 +87,29 @@ target 'WYBasisKitVerify' do
     pod 'IQKeyboardManagerSwift'
   end
 end
+
+target 'ObjCVerify' do
+  project 'ObjCVerify/ObjCVerify.xcodeproj' # 多个项目时需要指定target对应的xcodeproj文件
+  pod 'WYBasisKit-swift', :path => KITPATH
+  
+  # 图片裁剪库
+  #pod 'Mantis'
+  
+  # 照片选择库
+  #pod 'ZLPhotoBrowser'
+  
+  # 根据Xcode版本号指定三方库的版本号
+  if xcode_version_less_than_or_equal_to(14, 2)
+    # 网络请求
+    pod 'Alamofire', '5.9.1'
+    
+    # 管理键盘弹出时的界面适配
+    pod 'IQKeyboardManagerSwift', '7.0.0'
+  else
+    pod 'IQKeyboardManagerSwift'
+  end
+end
+
 
 # 准备执行pod命令(执行pod命令前的处理)
 pre_install do |installer|

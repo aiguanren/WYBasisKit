@@ -1,4 +1,4 @@
-// 
+//
 //  WYCodable.swift
 //  WYBasisKit
 //
@@ -9,10 +9,10 @@ import Foundation
 
 open class WYCodable: JSONDecoder, @unchecked Sendable {
     
-    /// 解析时需要映射的Key(仅针对第一层数据映射，第二层级以后的(第一层也可以)建议在对应的model类中使用Codable原生映射方法)
+    /// 解析时需要映射的Key的策略(仅针对第一层数据映射，第二层级以后的(第一层也可以)建议在对应的model类中使用Codable原生映射方法)
     open var mappingKeys: KeyDecodingStrategy = .useDefaultKeys
     
-    /// 将Data类型数据解析成传入的Model类型
+    /// 将Data类型数据解析成传入的Model类型(String、Dictionary、Array三种类型可以转为Data后再调用本方法)
     open override func decode<T: Decodable>(_ type: T.Type, from data: Data) throws -> T {
         let topLevel: Any
         do {
@@ -29,13 +29,7 @@ open class WYCodable: JSONDecoder, @unchecked Sendable {
         return try decode(type, from: topLevel)
     }
     
-    /// 将Dictionary及Array解析成传入的Model类型
-    open func decode<T: Decodable>(_ type: T.Type, from convertible: WYCodableContainerConvertible
-    ) throws -> T {
-        try decode(type, from: convertible.asJSONContainer())
-    }
-    
-    /// 将传入的model转换成指定类型(convertType限Dictionary、Array、Data、String)
+    /// 将传入的model转换成指定类型(convertType限String、Dictionary、Array、Data)
     open func encode<T: Any>(_ convertType: T.Type, from model: Codable) throws -> T {
         let encoder = JSONEncoder()
         if (convertType.self == String.self) || (convertType.self == Data.self) {
@@ -73,39 +67,32 @@ public extension String {
     
     /// String转Dictionary
     func wy_convertToDictionary() throws -> Dictionary<String, Any> {
-        
         do {
-            let data = try wy_convertToData()
-            
-            guard let dictionary = try? JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.mutableContainers) else {
+            let obj = try self.wy_convertToDictionaryOrArray()
+            guard let dictionary: [String: Any] = obj as? [String: Any] else {
                 throw WYCodableError.stringToDictionaryError
             }
-            return dictionary as! Dictionary<String, Any>
-            
+            return dictionary
         } catch {
-            throw WYCodableError.stringToDictionaryError
+            throw error
         }
     }
     
     /// String转Array
     func wy_convertToArray() throws -> Array<Any> {
-        
         do {
-            let data = try wy_convertToData()
-            
-            guard let array = try? JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.mutableContainers) else {
+            let obj = try self.wy_convertToDictionaryOrArray()
+            guard let array: [Any] = obj as? [Any] else {
                 throw WYCodableError.stringToArrayError
             }
-            return array as! Array<Any>
-            
+            return array
         } catch {
-            throw WYCodableError.stringToArrayError
+            throw error
         }
     }
     
     /// String转Data
     func wy_convertToData() throws -> Data {
-        
         guard let data = self.data(using: String.Encoding.utf8) else {
             throw WYCodableError.stringToDataError
         }
@@ -151,7 +138,7 @@ public extension Array {
         guard JSONSerialization.isValidJSONObject(self) else {
             throw WYCodableError.arrayToStringError
         }
-
+        
         do {
             let data = try wy_convertToData()
             
@@ -161,7 +148,7 @@ public extension Array {
             return string
             
         } catch {
-            throw WYCodableError.arrayToStringError
+            throw error
         }
     }
     
@@ -197,7 +184,7 @@ public extension Dictionary {
             return string
             
         } catch {
-            throw WYCodableError.dictionaryToStringError
+            throw error
         }
     }
     
@@ -212,6 +199,24 @@ public extension Dictionary {
             throw WYCodableError.dictionaryToDataError
         }
         return data
+    }
+}
+
+private extension String {
+    
+    /// String转Dictionary或Array
+    func wy_convertToDictionaryOrArray() throws -> Any {
+        do {
+            let data = try wy_convertToData()
+            do {
+                let obj = try JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.mutableContainers)
+                return obj
+            } catch {
+                throw error
+            }
+        } catch {
+            throw error
+        }
     }
 }
 
@@ -233,5 +238,13 @@ private extension WYCodable {
             )
         }
         return value
+    }
+}
+
+extension WYCodable {
+    
+    public func decode<T: Decodable>(_ type: T.Type, from convertible: WYCodableContainerConvertible
+    ) throws -> T {
+        try decode(type, from: convertible.asJSONContainer())
     }
 }

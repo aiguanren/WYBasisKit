@@ -13,10 +13,10 @@ import LocalAuthentication
 public let faceIDKey: String = "NSFaceIDUsageDescription"
 
 /// 生物识别模式
-@frozen public enum WYBiometricMode {
+public enum WYBiometricMode: Int {
     
     /// 未知或者不支持
-    case none
+    case none = 0
     
     /// 指纹识别
     case touchID

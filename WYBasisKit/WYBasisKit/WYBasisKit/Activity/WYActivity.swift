@@ -10,23 +10,23 @@ import UIKit
 import Foundation
 
 /// 信息提示窗口的显示位置
-@frozen public enum WYActivityPosition: Int {
-    
-    /// 相对于父控件的顶部
-    case top = 0
+public enum WYActivityPosition: Int {
     
     /// 相对于父控件的中部
-    case middle
+    case middle = 0
+    
+    /// 相对于父控件的顶部
+    case top
     
     /// 相对于父控件的底部
     case bottom
 }
 
 /// Loading提示窗动画类型
-@frozen public enum WYActivityAnimation {
+public enum WYActivityAnimation: Int {
     
     /// 默认，系统小菊花
-    case indicator
+    case indicator = 0
     
     /// gif图或者apng格式图片
     case gifOrApng
@@ -37,19 +37,19 @@ public struct WYScrollInfoConfig {
     
     /// 设置滚动信息提示窗口的默认背景色
     public static var backgroundColor: UIColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.8)
-    public var backgroundColor: UIColor = backgroundColor
+    public var backgroundColor: UIColor
     
     /// 设置滚动信息提示窗口的移动速度
     public static var movingSpeed: CGFloat = 1.2
-    public var movingSpeed: CGFloat = movingSpeed
+    public var movingSpeed: CGFloat
     
     /// 设置滚动信息提示窗口文本控件的默认颜色
     public static var textColor: UIColor = .white
-    public var textColor: UIColor = textColor
+    public var textColor: UIColor
     
     /// 设置滚动信息提示窗口文本控件的默认字体、字号
     public static var textFont: UIFont = .systemFont(ofSize: 15)
-    public var textFont: UIFont = textFont
+    public var textFont: UIFont
     
     public init(backgroundColor: UIColor = backgroundColor, movingSpeed: CGFloat = movingSpeed, textColor: UIColor = textColor, textFont: UIFont = textFont) {
         self.backgroundColor = backgroundColor
@@ -64,15 +64,15 @@ public struct WYMessageInfoConfig {
     
     /// 设置信息提示窗口的默认背景色
     public static var backgroundColor: UIColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.8)
-    public var backgroundColor: UIColor = backgroundColor
+    public var backgroundColor: UIColor
     
     /// 设置信息提示窗口文本控件的默认颜色
     public static var textColor: UIColor = .white
-    public var textColor: UIColor = textColor
+    public var textColor: UIColor
     
     /// 设置信息提示窗口文本控件的默认字体、字号
     public static var textFont: UIFont = .systemFont(ofSize: 15)
-    public var textFont: UIFont = textFont
+    public var textFont: UIFont
     
     public init(backgroundColor: UIColor = backgroundColor, textColor: UIColor = textColor, textFont: UIFont = textFont) {
         self.backgroundColor = backgroundColor
@@ -86,31 +86,35 @@ public struct WYLoadingConfig {
     
     /// 设置Loading提示窗口的默认背景色
     public static var backgroundColor: UIColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.8)
-    public var backgroundColor: UIColor = backgroundColor
+    public var backgroundColor: UIColor
     
     /// 设置Loading提示窗口文本控件的默认颜色
     public static var textColor: UIColor = .white
-    public var textColor: UIColor = textColor
+    public var textColor: UIColor
     
     /// 设置Loading提示窗口文本控件的默认字体、字号
     public static var textFont: UIFont = .boldSystemFont(ofSize: 15)
-    public var textFont: UIFont = textFont
+    public var textFont: UIFont
     
     /// 设置Loading提示窗口 indicator 的颜色
     public static var indicatorColor: UIColor = .white
-    public var indicatorColor: UIColor = indicatorColor
+    public var indicatorColor: UIColor
     
     /// 设置Loading提示窗口文本最多可显示几行
-    public static var numberOfLines: NSInteger = 2
-    public var numberOfLines: NSInteger = numberOfLines
+    public static var numberOfLines: Int = 2
+    public var numberOfLines: Int
+    
+    /// 设置Loading提示窗口文本距离窗口底部的间距
+    public static var textBottomOffset: CGFloat = 5
+    public var textBottomOffset: CGFloat
     
     /// 设置Loading提示窗口动画控件的Size
     public static var animationSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(45, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(45, WYBasisKitConfig.defaultScreenPixels))
-    public var animationSize: CGSize = animationSize
+    public var animationSize: CGSize
     
     /// 设置Loading提示窗口动图信息
     public static var gifInfo: WYGifInfo = defaultGifInfo()
-    public var gifInfo: WYGifInfo = gifInfo
+    public var gifInfo: WYGifInfo
     
     /// 获取Loading提示窗口默认Gif图
     private static func defaultGifInfo() -> WYGifInfo {
@@ -122,12 +126,13 @@ public struct WYLoadingConfig {
         return WYGifInfo(animationImages: defaultImages, animationDuration: 0.8)
     }
     
-    public init(backgroundColor: UIColor = backgroundColor, textColor: UIColor = textColor, textFont: UIFont = textFont, indicatorColor: UIColor = indicatorColor, numberOfLines: NSInteger = numberOfLines, animationSize: CGSize = animationSize, gifInfo: WYGifInfo = gifInfo) {
+    public init(backgroundColor: UIColor = backgroundColor, textColor: UIColor = textColor, textFont: UIFont = textFont, indicatorColor: UIColor = indicatorColor, numberOfLines: Int = numberOfLines, textBottomOffset: CGFloat = textBottomOffset, animationSize: CGSize = animationSize, gifInfo: WYGifInfo = gifInfo) {
         self.backgroundColor = backgroundColor
         self.textColor = textColor
         self.textFont = textFont
         self.indicatorColor = indicatorColor
         self.numberOfLines = numberOfLines
+        self.textBottomOffset = textBottomOffset
         self.animationSize = animationSize
         self.gifInfo = gifInfo
     }
@@ -154,7 +159,7 @@ public struct WYActivity {
     /**
      *  显示一个滚动信息提示窗口
      *
-     *  @param content            要显示的文本内容，支持 String 与 NSAttributedString
+     *  @param content            要显示的文本内容，支持 String 与 AttributedString
      *
      *  @param contentView        加载活动控件的父视图，内部会按照 传入的View、控制器的View 的顺序去设置显示
      *
@@ -174,7 +179,7 @@ public struct WYActivity {
     /**
      *  显示一个信息提示窗口
      *
-     *  @param content            要显示的文本内容，支持 String 与 NSAttributedString
+     *  @param content            要显示的文本内容，支持 String 与 AttributedString
      *
      *  @param contentView        加载信息提示窗口的父视图，内部会按照 传入的View、控制器的View 的顺序去设置显示
      *
@@ -195,7 +200,7 @@ public struct WYActivity {
     /**
      *  显示一个Loading提示窗口
      *
-     *  @param content            要显示的文本内容，支持 String 与 NSAttributedString
+     *  @param content            要显示的文本内容，支持 String 与 AttributedString
      *
      *  @param contentView        加载活动控件的父视图
      *
@@ -203,7 +208,7 @@ public struct WYActivity {
      *
      *  @param animation          动画类型，默认系统小菊花
      *
-     *  @param delay              是否需要延时显示，设置后会延时 delay 后再显示Loading窗口
+     *  @param delay              是否需要延时显示，设置后会延时 delay(秒) 后再显示Loading窗口
      *
      *  @param config             信息提示窗口配置选项
      *
@@ -215,7 +220,7 @@ public struct WYActivity {
     
     /**
      *  移除Loading窗口
-     *  @param animate             true时0.5秒后移除(有个动画), false时无动画，立刻移除，
+     *  @param animate             true时0.5秒后才会移除(有个动画), false时无动画，立刻移除，
      */
     public static func dismissLoading(in contentView: UIView, animate: Bool = true) {
         
@@ -250,6 +255,10 @@ private class WYActivityScrollInfoView: UIView {
         }
         
         let attributedText = WYActivity.sharedContentAttributed(content: content, textColor: config.textColor, textFont: config.textFont)
+        
+        guard attributedText.string.isEmpty == false else {
+            return
+        }
         
         let contentSize: CGSize = attributedText.wy_calculateSize(controlSize: CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude))
         
@@ -332,6 +341,10 @@ private class WYActivityInfoView: UIView {
         }
         
         let attributedText = WYActivity.sharedContentAttributed(content: content, textColor: config.textColor, textFont: config.textFont)
+        
+        guard attributedText.string.isEmpty == false else {
+            return
+        }
         
         contentLabel.attributedText = attributedText
         
@@ -567,64 +580,65 @@ private class WYActivityLoadingView: UIView {
             
             let contentString: String? = (content is String) ? (content as? String) : ((content as? NSAttributedString)?.string)
             
-            guard contentString?.count ?? 0 > 0 else {
-                return
-            }
-            
-            let attributedText = WYActivity.sharedContentAttributed(content: content!, textColor: config.textColor, textFont: config.textFont, alignment: .center)
-            
-            textlabel.numberOfLines = config.numberOfLines
-            textlabel.attributedText = attributedText
-            
-            textlabel.sizeToFit()
-            
-            let textMinimux: CGFloat = frame.size.width
-            var textMaximum: CGFloat = 0
-            if config.numberOfLines > 0 {
+            if contentString?.isEmpty == false {
                 
-                textMaximum = (frame.size.width * 1.5) + (CGFloat(config.numberOfLines) * textlabel.frame.size.height)
-                if (textMaximum > (contentView.frame.size.width - UIDevice.wy_screenWidth(120, WYBasisKitConfig.defaultScreenPixels))) {
+                let attributedText = WYActivity.sharedContentAttributed(content: content!, textColor: config.textColor, textFont: config.textFont, alignment: .center)
+                
+                textlabel.numberOfLines = config.numberOfLines
+                textlabel.attributedText = attributedText
+                
+                textlabel.sizeToFit()
+                
+                let textMinimux: CGFloat = frame.size.width
+                var textMaximum: CGFloat = 0
+                if config.numberOfLines > 0 {
+                    
+                    textMaximum = (frame.size.width * 1.5) + (CGFloat(config.numberOfLines) * textlabel.frame.size.height)
+                    if (textMaximum > (contentView.frame.size.width - UIDevice.wy_screenWidth(120, WYBasisKitConfig.defaultScreenPixels))) {
+                        textMaximum = (contentView.frame.size.width - UIDevice.wy_screenWidth(120, WYBasisKitConfig.defaultScreenPixels))
+                    }
+                    
+                }else {
                     textMaximum = (contentView.frame.size.width - UIDevice.wy_screenWidth(120, WYBasisKitConfig.defaultScreenPixels))
                 }
+                textlabel.wy_width = WYActivity.sharedLayoutSize(contentView: contentView, contentLabel: textlabel, minimux: textMinimux, maxWidth: textMaximum, defaultFont: config.textFont).width
                 
-            }else {
-                textMaximum = (contentView.frame.size.width - UIDevice.wy_screenWidth(120, WYBasisKitConfig.defaultScreenPixels))
-            }
-            textlabel.wy_width = WYActivity.sharedLayoutSize(contentView: contentView, contentLabel: textlabel, minimux: textMinimux, maxWidth: textMaximum, defaultFont: config.textFont).width
-            
-            textlabel.sizeToFit()
-            
-            let controWidth = textlabel.frame.size.width < textMinimux ? textMinimux : textlabel.frame.size.width
-            
-            var controSize = CGSize(width: controWidth + (UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels) * 2), height: frame.size.height + textlabel.frame.size.height)
-            
-            if controSize.width < controSize.height {
-                controSize.width = controSize.height
-                textlabel.wy_width = controSize.width - (UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels) * 2)
                 textlabel.sizeToFit()
-                controSize.height = frame.size.height + textlabel.frame.size.height
-            }
-            
-            self.frame = CGRect(x: (contentView.frame.size.width - controSize.width) / 2, y: (contentView.frame.size.height - controSize.height - navViewHeight(contentView: contentView)) / 2, width: controSize.width, height: controSize.height)
-            
-            switch animation {
-            case .indicator:
-                textLayout(subContro: indicator, contentView: contentView)
-                if #available(iOS 14.0, *) {
-                    indicator.wy_left = indicator.wy_left + 1.5;
-                    indicator.wy_top = indicator.wy_top + 1.5;
-                }
-                break
                 
-            case .gifOrApng:
-                textLayout(subContro: imageView, contentView: contentView)
-                break
+                let controWidth = textlabel.frame.size.width < textMinimux ? textMinimux : textlabel.frame.size.width
+                
+                var controSize = CGSize(width: controWidth + (UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels) * 2), height: frame.size.height + textlabel.frame.size.height)
+                
+                if controSize.width < controSize.height {
+                    controSize.width = controSize.height
+                    textlabel.wy_width = controSize.width - (UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels) * 2)
+                    textlabel.sizeToFit()
+                    controSize.height = frame.size.height + textlabel.frame.size.height
+                }
+                
+                self.frame = CGRect(x: (contentView.frame.size.width - controSize.width) / 2, y: (contentView.frame.size.height - controSize.height - navViewHeight(contentView: contentView)) / 2, width: controSize.width, height: controSize.height)
+                
+                switch animation {
+                case .indicator:
+                    textLayout(textBottomOffset: config.textBottomOffset, subContro: indicator, contentView: contentView)
+                    if #available(iOS 14.0, *) {
+                        indicator.wy_left = indicator.wy_left + 1.5;
+                        indicator.wy_top = indicator.wy_top + 1.5;
+                    }
+                    break
+                    
+                case .gifOrApng:
+                    textLayout(textBottomOffset: config.textBottomOffset, subContro: imageView, contentView: contentView)
+                    break
+                }
             }
         }
-        perform(#selector(showAnimate), with: nil, afterDelay: delay)
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+            self?.showAnimate()
+        }
     }
     
-    @objc func showAnimate() {
+    func showAnimate() {
         self.isHidden = false
         self.alpha = 0.0
         UIView.animate(withDuration: 0.5) {
@@ -657,11 +671,11 @@ private class WYActivityLoadingView: UIView {
         subContro.frame = CGRect(x: (frame.size.width - subControSize.width) / 2, y: (frame.size.height - subControSize.height) / 2, width: subControSize.width, height: subControSize.height)
     }
     
-    private func textLayout(subContro: UIView, contentView: UIView) {
+    private func textLayout(textBottomOffset: CGFloat, subContro: UIView, contentView: UIView) {
         
         subContro.frame = CGRect(x: UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels), y: UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels), width: frame.size.width - (UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels) * 2), height: subContro.frame.size.height)
         
-        textlabel.frame = CGRect(x: (frame.size.width - textlabel.frame.size.width) / 2, y: subContro.wy_bottom, width: textlabel.frame.size.width, height: textlabel.frame.size.height)
+        textlabel.frame = CGRect(x: (frame.size.width - textlabel.frame.size.width) / 2, y: subContro.wy_bottom - textBottomOffset, width: textlabel.frame.size.width, height: textlabel.frame.size.height)
     }
     
     func navViewHeight(contentView: UIView) -> CGFloat {
@@ -762,12 +776,12 @@ private extension WYActivity {
     }
     
     /// 计算文本控件显示需要的行数
-    static func textNumberOfLines(controlWidth: CGFloat = 0, contentLabel: UILabel, defaultFont: UIFont) -> NSInteger {
+    static func textNumberOfLines(controlWidth: CGFloat = 0, contentLabel: UILabel, defaultFont: UIFont) -> Int {
         
         guard contentLabel.attributedText?.string.isEmpty == false else {
             return 0
         }
-        let numberOfLines: NSInteger = contentLabel.attributedText?.wy_numberOfRows(controlWidth: (controlWidth > 0 ? controlWidth : contentLabel.frame.size.width)) ?? 1
+        let numberOfLines: Int = contentLabel.attributedText?.wy_numberOfRows(controlWidth: (controlWidth > 0 ? controlWidth : contentLabel.frame.size.width)) ?? 1
         
         return numberOfLines
     }
@@ -779,10 +793,10 @@ private extension UIView {
         
         set(newValue) {
             
-            objc_setAssociatedObject(self, WYAssociatedKeys.private_wy_scrollInfoView, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.private_wy_scrollInfoView, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.private_wy_scrollInfoView) as? WYActivityScrollInfoView
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.private_wy_scrollInfoView) as? WYActivityScrollInfoView
         }
     }
     
@@ -790,10 +804,10 @@ private extension UIView {
         
         set(newValue) {
             
-            objc_setAssociatedObject(self, WYAssociatedKeys.private_wy_infoView, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.private_wy_infoView, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.private_wy_infoView) as? WYActivityInfoView
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.private_wy_infoView) as? WYActivityInfoView
         }
     }
     
@@ -801,17 +815,16 @@ private extension UIView {
         
         set(newValue) {
             
-            objc_setAssociatedObject(self, WYAssociatedKeys.private_wy_loadingView, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.private_wy_loadingView, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.private_wy_loadingView) as? WYActivityLoadingView
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.private_wy_loadingView) as? WYActivityLoadingView
         }
     }
     
     private struct WYAssociatedKeys {
-        
-        static let private_wy_scrollInfoView = UnsafeRawPointer(bitPattern: "private_wy_scrollInfoView".hashValue)!
-        static let private_wy_infoView = UnsafeRawPointer(bitPattern: "private_wy_infoView".hashValue)!
-        static let private_wy_loadingView = UnsafeRawPointer(bitPattern: "private_wy_loadingView".hashValue)!
+        static var private_wy_scrollInfoView: UInt8 = 0
+        static var private_wy_infoView: UInt8 = 0
+        static var private_wy_loadingView: UInt8 = 0
     }
 }

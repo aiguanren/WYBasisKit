@@ -5,7 +5,10 @@
       location = "group:WYBasisKit/WYBasisKit.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:WYBasisKitVerify/WYBasisKitVerify.xcodeproj">
+      location = "group:SwiftVerify/SwiftVerify.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:ObjCVerify/ObjCVerify.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Pods/Pods.xcodeproj">

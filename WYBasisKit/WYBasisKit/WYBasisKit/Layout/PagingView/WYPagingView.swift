@@ -139,8 +139,11 @@ public class WYPagingView: UIView {
     /// 传入的选中的图片数组
     public private(set) var selectedImages: [UIImage] = []
     
+    /// 按钮栏所有按钮组件
+    public private(set) var buttonItems: [WYPagingItem] = []
+    
     /// 传入的父控制器
-    public private(set) weak var superController: UIViewController!
+    public private(set) weak var superController: UIViewController?
     
     /**
      *调用后开始布局
@@ -375,6 +378,8 @@ extension WYPagingView {
                 buttonItem.wy_rectCorner(.allCorners).wy_cornerRadius(bar_item_cornerRadius).wy_showVisual()
             }
             
+            buttonItems.append(buttonItem)
+            
             lastView = buttonItem
             
             /// 设置scrollView的ContentSize让其滚动
@@ -428,7 +433,7 @@ extension WYPagingView {
             var lastView: UIView? = nil
             for index in 0..<controllers.count {
                 
-                superController.addChild(controllers[index])
+                superController?.addChild(controllers[index])
                 
                 let controllerView = controllers[index].view
                 if let controller_bg_color: UIColor = bar_pagingContro_bg_color {
@@ -521,11 +526,11 @@ extension WYPagingView {
     }
 }
 
-private class WYPagingItem: UIButton {
+public class WYPagingItem: UIButton {
     
-    let contentView: UIButton = UIButton(type: .custom)
+    public let contentView: UIButton = UIButton(type: .custom)
     
-    init(appendSize: CGSize) {
+    public init(appendSize: CGSize) {
         
         super.init(frame: .zero)
         contentView.isUserInteractionEnabled = false
@@ -539,7 +544,7 @@ private class WYPagingItem: UIButton {
         }
     }
     
-    required init?(coder: NSCoder) {
+    public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 }
