@@ -16,10 +16,6 @@ class WYTabBarController: UITabBarController {
         // Do any additional setup after loading the view.
         view.backgroundColor = .wy_dynamic(.white, .black)
         layoutTabBar()
-        
-        tabBar.wy_badgeTextColor = .purple
-        tabBar.wy_badgeBackgroundColor = .blue
-        tabBar.wy_tabBarBadgeStyle(.colorDot, badgeValue: 1, tabBarIndex: 2)
     }
     
     func layoutTabBar() {

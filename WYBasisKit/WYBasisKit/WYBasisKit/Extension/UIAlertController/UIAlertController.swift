@@ -190,21 +190,20 @@ public extension UIAlertController {
         return propertys.keys.contains(property)
     }
     
-    private struct UIAlertControllerRuntimeKey {
-        
-        static let wy_alertWindow = UnsafeRawPointer(bitPattern: "wy_alertWindow".hashValue)!
+    private struct WYAssociatedKeys {
+        static var wy_alertWindow: UInt8 = 0
     }
     
     private var wy_alertWindow: UIWindow? {
         
         get {
-            var showWindow: UIWindow? = objc_getAssociatedObject(self, UIAlertControllerRuntimeKey.wy_alertWindow) as? UIWindow
+            var showWindow: UIWindow? = objc_getAssociatedObject(self, &WYAssociatedKeys.wy_alertWindow) as? UIWindow
             
             if showWindow == nil {
                 
                 showWindow = UIWindow(frame: UIScreen.main.bounds)
                 showWindow!.rootViewController = UIViewController()
-                objc_setAssociatedObject(self, UIAlertControllerRuntimeKey.wy_alertWindow, showWindow, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+                objc_setAssociatedObject(self, &WYAssociatedKeys.wy_alertWindow, showWindow, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
             }
             showWindow?.makeKeyAndVisible()
             

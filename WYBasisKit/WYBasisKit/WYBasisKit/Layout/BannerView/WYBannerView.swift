@@ -65,7 +65,7 @@ public class WYBannerView: UIView {
     /// 描述文本控件位置，默认底部居中
     public var describeViewPosition: CGRect = .zero {
         willSet {
-            if let _ = objc_getAssociatedObject(self, WYAssociatedKeys.nextDescribeView) as? UILabel {
+            if let _ = objc_getAssociatedObject(self, &WYAssociatedKeys.nextDescribeView) as? UILabel {
                 describeView?.frame = CGRect(x: newValue.origin.x, y: newValue.origin.y, width: newValue.size.width, height: newValue.size.height)
                 nextDescribeView?.frame = CGRect(x: newValue.origin.x, y: newValue.origin.y, width: newValue.size.width, height: newValue.size.height)
             }
@@ -127,7 +127,7 @@ public class WYBannerView: UIView {
     /// 分页控件原点位置，默认底部居中
     public var pageControlPosition: CGPoint = .zero {
         willSet {
-            guard let pagecontrol: UIPageControl = objc_getAssociatedObject(self, WYAssociatedKeys.pageControl) as? UIPageControl else {
+            guard let pagecontrol: UIPageControl = objc_getAssociatedObject(self, &WYAssociatedKeys.pageControl) as? UIPageControl else {
                 return
             }
             let pageControlSize: CGSize = pagecontrol.size(forNumberOfPages: pagecontrol.numberOfPages)
@@ -241,10 +241,10 @@ extension WYBannerView {
     /// 滚动控件
     private var scrollView: UIScrollView {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.scrollView, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.scrollView, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            guard let scrollview: UIScrollView = objc_getAssociatedObject(self, WYAssociatedKeys.scrollView) as? UIScrollView else {
+            guard let scrollview: UIScrollView = objc_getAssociatedObject(self, &WYAssociatedKeys.scrollView) as? UIScrollView else {
                 
                 let scrollview = UIScrollView(frame: CGRect(x: 0, y: 0, width: wy_width, height: wy_height))
                 scrollview.delegate = self
@@ -298,7 +298,7 @@ extension WYBannerView {
                 let gestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(didClickBanner))
                     scrollview.addGestureRecognizer(gestureRecognizer)
                 
-                objc_setAssociatedObject(self, WYAssociatedKeys.scrollView, scrollview, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+                objc_setAssociatedObject(self, &WYAssociatedKeys.scrollView, scrollview, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
                 
                 return scrollview
             }
@@ -309,10 +309,10 @@ extension WYBannerView {
     /// 分页控件
     private var pageControl: UIPageControl {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.pageControl, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.pageControl, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            guard let pagecontrol: UIPageControl = objc_getAssociatedObject(self, WYAssociatedKeys.pageControl) as? UIPageControl else {
+            guard let pagecontrol: UIPageControl = objc_getAssociatedObject(self, &WYAssociatedKeys.pageControl) as? UIPageControl else {
                 
                 let pagecontrol = UIPageControl()
                 pagecontrol.hidesForSinglePage = pageControlHideForSingle
@@ -325,7 +325,7 @@ extension WYBannerView {
                 }
                 addSubview(pagecontrol)
                 
-                objc_setAssociatedObject(self, WYAssociatedKeys.pageControl, pagecontrol, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+                objc_setAssociatedObject(self, &WYAssociatedKeys.pageControl, pagecontrol, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
                 
                 updatePageControlStyle()
                 
@@ -345,80 +345,80 @@ extension WYBannerView {
     /// 当前banner
     private var currentView: UIImageView? {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.currentView, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.currentView, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.currentView) as? UIImageView
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.currentView) as? UIImageView
         }
     }
     
     /// 下一个banner
     private var nextView: UIImageView? {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.nextView, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.nextView, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.nextView) as? UIImageView
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.nextView) as? UIImageView
         }
     }
     
     /// 下一个描述文本控件
     private var nextDescribeView: UILabel? {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.nextDescribeView, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.nextDescribeView, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.nextDescribeView) as? UILabel
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.nextDescribeView) as? UILabel
         }
     }
     
     /// 当前banner索引
     private var currentIndex: Int {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.currentIndex, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.currentIndex, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.currentIndex) as? Int ?? 0
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.currentIndex) as? Int ?? 0
         }
     }
     
     /// 下一个banner索引
     private var nextIndex: Int {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.nextIndex, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.nextIndex, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.nextIndex) as? Int ?? 0
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.nextIndex) as? Int ?? 0
         }
     }
     
     /// 图片数据源
     private var imageSource: [Any] {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.imageSource, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.imageSource, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.imageSource) as? [Any] ?? []
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.imageSource) as? [Any] ?? []
         }
     }
     
     /// 描述文本数据源
     private var describeSource: [String] {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.describeSource, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.describeSource, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.describeSource) as? [String] ?? []
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.describeSource) as? [String] ?? []
         }
     }
     
     /// 计时器
     private var timer: Timer? {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.timer, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.timer, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.timer) as? Timer
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.timer) as? Timer
         }
     }
     
@@ -434,7 +434,7 @@ extension WYBannerView {
     /// 滚动方向
     private var scrollDirection: WYBannerScrollDirection {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.scrollDirection, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.scrollDirection, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
             
             // 向右滚动
             if newValue == .right {
@@ -458,7 +458,7 @@ extension WYBannerView {
             setData(with: imageSource[nextIndex], describe: describeString, imageView: nextView, textView: nextDescribeView)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.scrollDirection) as? WYBannerScrollDirection ?? .none
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.scrollDirection) as? WYBannerScrollDirection ?? .none
         }
     }
     
@@ -516,10 +516,10 @@ extension WYBannerView {
     /// 分页控制器设置选项
     private var pageControlSetting: (currentColor: UIColor?, defaultColor: UIColor?, currentImage: UIImage?, defaultImage: UIImage?) {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.pageControlSetting, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.pageControlSetting, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.pageControlSetting) as? (currentColor: UIColor?, defaultColor: UIColor?, currentImage: UIImage?, defaultImage: UIImage?) ?? (currentColor: nil, defaultColor: nil, currentImage: nil, defaultImage: nil)
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.pageControlSetting) as? (currentColor: UIColor?, defaultColor: UIColor?, currentImage: UIImage?, defaultImage: UIImage?) ?? (currentColor: nil, defaultColor: nil, currentImage: nil, defaultImage: nil)
         }
     }
     
@@ -604,30 +604,30 @@ extension WYBannerView {
     /// 判断手动拖拽后是否需要启动定时器
     private var canRestartedTimer: Bool {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.canRestartedTimer, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.canRestartedTimer, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.canRestartedTimer) as? Bool ?? false
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.canRestartedTimer) as? Bool ?? false
         }
     }
     
     /// block点击事件
     private var clickHandler: ((_ index: Int) -> Void)? {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.clickHandler, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.clickHandler, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.clickHandler) as? (Int) -> Void
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.clickHandler) as? (Int) -> Void
         }
     }
     
     /// block轮播事件
     private var scrollHandler: ((_ offset: CGFloat, _ index: Int) -> Void)? {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.scrollHandler, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.scrollHandler, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.scrollHandler) as? (CGFloat, Int) -> Void
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.scrollHandler) as? (CGFloat, Int) -> Void
         }
     }
     
@@ -645,30 +645,30 @@ extension WYBannerView {
     /// 判断是否可以切换页面
     private var canSwitchedPage: Bool {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.canSwitchedPage, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.canSwitchedPage, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.canSwitchedPage) as? Bool ?? false
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.canSwitchedPage) as? Bool ?? false
         }
     }
     
     private struct WYAssociatedKeys {
-        static let scrollView = UnsafeRawPointer(bitPattern: "scrollView".hashValue)!
-        static let pageControl = UnsafeRawPointer(bitPattern: "pageControl".hashValue)!
-        static let currentView = UnsafeRawPointer(bitPattern: "currentView".hashValue)!
-        static let nextView = UnsafeRawPointer(bitPattern: "nextView".hashValue)!
-        static let nextDescribeView = UnsafeRawPointer(bitPattern: "nextDescribeView".hashValue)!
-        static let currentIndex = UnsafeRawPointer(bitPattern: "currentIndex".hashValue)!
-        static let nextIndex = UnsafeRawPointer(bitPattern: "nextIndex".hashValue)!
-        static let imageSource = UnsafeRawPointer(bitPattern: "imageSource".hashValue)!
-        static let describeSource = UnsafeRawPointer(bitPattern: "describeSource".hashValue)!
-        static let timer = UnsafeRawPointer(bitPattern: "timer".hashValue)!
-        static let scrollDirection = UnsafeRawPointer(bitPattern: "scrollDirection".hashValue)!
-        static let pageControlSetting = UnsafeRawPointer(bitPattern: "pageControlSetting".hashValue)!
-        static let canRestartedTimer = UnsafeRawPointer(bitPattern: "canRestartedTimer".hashValue)!
-        static let clickHandler = UnsafeRawPointer(bitPattern: "clickHandler".hashValue)!
-        static let scrollHandler = UnsafeRawPointer(bitPattern: "scrollHandler".hashValue)!
-        static let canSwitchedPage = UnsafeRawPointer(bitPattern: "canSwitchedPage".hashValue)!
+        static var scrollView: UInt8 = 0
+        static var pageControl: UInt8 = 0
+        static var currentView: UInt8 = 0
+        static var nextView: UInt8 = 0
+        static var nextDescribeView: UInt8 = 0
+        static var currentIndex: UInt8 = 0
+        static var nextIndex: UInt8 = 0
+        static var imageSource: UInt8 = 0
+        static var describeSource: UInt8 = 0
+        static var timer: UInt8 = 0
+        static var scrollDirection: UInt8 = 0
+        static var pageControlSetting: UInt8 = 0
+        static var canRestartedTimer: UInt8 = 0
+        static var clickHandler: UInt8 = 0
+        static var scrollHandler: UInt8 = 0
+        static var canSwitchedPage: UInt8 = 0
     }
 }
 

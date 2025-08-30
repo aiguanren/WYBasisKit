@@ -410,7 +410,7 @@ extension WYPagingView {
     
     var controllerScrollView: UIScrollView {
         
-        var scrollView: UIScrollView? = objc_getAssociatedObject(self, WYAssociatedKeys.controllerScrollView) as? UIScrollView
+        var scrollView: UIScrollView? = objc_getAssociatedObject(self, &WYAssociatedKeys.controllerScrollView) as? UIScrollView
         
         if scrollView == nil {
             
@@ -457,7 +457,7 @@ extension WYPagingView {
                 lastView = controllerView!
             }
             
-            objc_setAssociatedObject(self, WYAssociatedKeys.controllerScrollView, scrollView, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.controllerScrollView, scrollView, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         
         return scrollView!
@@ -465,7 +465,7 @@ extension WYPagingView {
     
     var barScrollView: UIScrollView {
         
-        var barScroll: UIScrollView? = objc_getAssociatedObject(self, WYAssociatedKeys.barScrollView) as? UIScrollView
+        var barScroll: UIScrollView? = objc_getAssociatedObject(self, &WYAssociatedKeys.barScrollView) as? UIScrollView
         
         if barScroll == nil {
             
@@ -480,7 +480,7 @@ extension WYPagingView {
                 make.top.left.width.equalToSuperview()
                 make.height.equalTo(bar_Height)
             }
-            objc_setAssociatedObject(self, WYAssociatedKeys.barScrollView, barScroll, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.barScrollView, barScroll, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         barScroll!.contentSize = CGSize(width: barScroll!.contentSize.width, height: bar_Height)
         
@@ -489,7 +489,7 @@ extension WYPagingView {
     
     var barScrollLine: UIImageView {
         
-        var scrollLine: UIImageView? = objc_getAssociatedObject(self, WYAssociatedKeys.barScrollLine) as? UIImageView
+        var scrollLine: UIImageView? = objc_getAssociatedObject(self, &WYAssociatedKeys.barScrollLine) as? UIImageView
         
         if scrollLine == nil {
             
@@ -507,7 +507,7 @@ extension WYPagingView {
             }
             scrollLine?.wy_rectCorner(.allCorners).wy_cornerRadius(bar_scrollLineHeight / 2).wy_showVisual()
             
-            objc_setAssociatedObject(self, WYAssociatedKeys.barScrollLine, scrollLine!, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.barScrollLine, scrollLine!, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         return scrollLine!
     }
@@ -518,11 +518,11 @@ extension WYPagingView {
     
     private struct WYAssociatedKeys {
         
-        static let barScrollView = UnsafeRawPointer(bitPattern: "barScrollView".hashValue)!
+        static var barScrollView: UInt8 = 0
         
-        static let controllerScrollView = UnsafeRawPointer(bitPattern: "controllerScrollView".hashValue)!
+        static var controllerScrollView: UInt8 = 0
         
-        static let barScrollLine = UnsafeRawPointer(bitPattern: "barScrollLine".hashValue)!
+        static var barScrollLine: UInt8 = 0
     }
 }
 

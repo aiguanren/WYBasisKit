@@ -114,26 +114,26 @@ struct WYTarget: TargetType {
     }
 }
 
+private struct WYAssociatedKeys {
+    static var configKey: UInt8 = 0
+}
+
 extension MoyaProvider {
     
     static var config: WYNetworkConfig {
         
         set(newValue) {
             
-            objc_setAssociatedObject(self, configKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.configKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, configKey) as? WYNetworkConfig ?? .default
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.configKey) as? WYNetworkConfig ?? .default
         }
     }
     
     static func config(requestClosure: @escaping Moya.MoyaProvider<WYTarget>.RequestClosure = WYProviderConfig<WYTarget>.requestClosure,
                        session: Moya.Session = WYProviderConfig<WYTarget>.session()) -> MoyaProvider {
         return MoyaProvider(requestClosure: requestClosure, session: session)
-    }
-    
-    static var configKey: UnsafeRawPointer {
-        return UnsafeRawPointer(bitPattern: "configKey".hashValue)!
     }
 }
 

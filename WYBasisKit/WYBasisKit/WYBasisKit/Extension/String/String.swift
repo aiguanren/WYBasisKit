@@ -365,6 +365,26 @@ public extension String {
             .reduce(replacement) { $0 + String($1) }
     }
     
+    /// 将 NSRange 转换为 Swift String.Index 范围（安全转换，避免越界，比如UITextView.selectedRange 是 NSRange，它的单位是 UTF-16 的位置。 而 Swift 的 String 是基于 Unicode 标量 来索引的，一些字符（尤其是 emoji）占 2 个或更多 UTF-16 单元。如果直接用 NSRange.location/length 来切 String，Swift 会按照字符来计算索引，这就可能导致越界或者切到半个 emoji，从而引起闪退，就像你有一个尺子，一个是厘米刻度（Swift String 的索引），一个是毫米刻度（NSRange 的 UTF16 单元），直接按毫米数去量厘米会出问题。正确的方法是先把毫米换算成厘米，再去量）
+    func wy_range(from nsRange: NSRange) -> Range<String.Index>? {
+        
+        // 起点
+        guard let from16 = utf16.index(utf16.startIndex,
+                                       offsetBy: nsRange.location,
+                                       limitedBy: utf16.endIndex) else { return nil }
+        
+        // 终点
+        guard let to16 = utf16.index(from16,
+                                     offsetBy: nsRange.length,
+                                     limitedBy: utf16.endIndex) else { return nil }
+        
+        // 转换成 Swift String.Index
+        guard let from = String.Index(from16, within: self),
+              let to = String.Index(to16, within: self) else { return nil }
+        
+        return from..<to
+    }
+    
     /**
      *  SHA256加密
      *  @param uppercase: 是否需要大写，默认false

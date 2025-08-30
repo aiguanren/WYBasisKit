@@ -94,6 +94,7 @@
 		587CDF902E09151500929E1D /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 587CDF8F2E09151500929E1D /* libz.tbd */; };
 		587CDF922E09153B00929E1D /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 587CDF912E09153B00929E1D /* libbz2.tbd */; };
 		5882EAF32E519EA800638FD3 /* WYMediaPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5882EAF22E519EA800638FD3 /* WYMediaPlayer.swift */; };
+		588D00812E5FEB570034A1CF /* AutoLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588D00802E5FEB570034A1CF /* AutoLayout.swift */; };
 		5895ADAD2E237D42001849B2 /* NSNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5895ADAC2E237D42001849B2 /* NSNumber.swift */; };
 		58B59FF82E5D5515008F9C38 /* WYActivityObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B59FF72E5D5515008F9C38 /* WYActivityObjC.swift */; };
 		58B59FFA2E5D55C9008F9C38 /* WYBiometricAuthorizationObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B59FF92E5D55C9008F9C38 /* WYBiometricAuthorizationObjC.swift */; };
@@ -112,8 +113,8 @@
 		58B5A0152E5D5726008F9C38 /* WYCodableObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B5A0142E5D5726008F9C38 /* WYCodableObjC.swift */; };
 		58B5A0172E5D573E008F9C38 /* WYBasisKitConfigObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B5A0162E5D573E008F9C38 /* WYBasisKitConfigObjC.swift */; };
 		58B5A0192E5D5752008F9C38 /* UIImageObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B5A0182E5D5752008F9C38 /* UIImageObjC.swift */; };
-		58B5A01C2E5D5795008F9C38 /* UITabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B5A01A2E5D5795008F9C38 /* UITabBar.swift */; };
 		58B5A01F2E5D579A008F9C38 /* UITextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B5A01D2E5D579A008F9C38 /* UITextView.swift */; };
+		58BE5F032E5E94210046AD5D /* Swift↔ObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BE5F022E5E94210046AD5D /* Swift↔ObjC.swift */; };
 		58CDEE582E34780D00ACE975 /* WYLogManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CDEE572E34780D00ACE975 /* WYLogManager.swift */; };
 		58E7127E2E4B03C20095E71C /* WYAudioKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E7127D2E4B03C20095E71C /* WYAudioKit.swift */; };
 		58F3786D2E2224A9007F7C55 /* UIFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3786C2E2224A9007F7C55 /* UIFont.swift */; };
@@ -214,6 +215,7 @@
 		587CDF8F2E09151500929E1D /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		587CDF912E09153B00929E1D /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
 		5882EAF22E519EA800638FD3 /* WYMediaPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaPlayer.swift; sourceTree = "<group>"; };
+		588D00802E5FEB570034A1CF /* AutoLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoLayout.swift; sourceTree = "<group>"; };
 		5895ADAC2E237D42001849B2 /* NSNumber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSNumber.swift; sourceTree = "<group>"; };
 		58B59FF72E5D5515008F9C38 /* WYActivityObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYActivityObjC.swift; sourceTree = "<group>"; };
 		58B59FF92E5D55C9008F9C38 /* WYBiometricAuthorizationObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYBiometricAuthorizationObjC.swift; sourceTree = "<group>"; };
@@ -232,8 +234,8 @@
 		58B5A0142E5D5726008F9C38 /* WYCodableObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableObjC.swift; sourceTree = "<group>"; };
 		58B5A0162E5D573E008F9C38 /* WYBasisKitConfigObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYBasisKitConfigObjC.swift; sourceTree = "<group>"; };
 		58B5A0182E5D5752008F9C38 /* UIImageObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageObjC.swift; sourceTree = "<group>"; };
-		58B5A01A2E5D5795008F9C38 /* UITabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITabBar.swift; sourceTree = "<group>"; };
 		58B5A01D2E5D579A008F9C38 /* UITextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITextView.swift; sourceTree = "<group>"; };
+		58BE5F022E5E94210046AD5D /* Swift↔ObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Swift↔ObjC.swift"; sourceTree = "<group>"; };
 		58CDEE572E34780D00ACE975 /* WYLogManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLogManager.swift; sourceTree = "<group>"; };
 		58E7127D2E4B03C20095E71C /* WYAudioKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAudioKit.swift; sourceTree = "<group>"; };
 		58F3786C2E2224A9007F7C55 /* UIFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIFont.swift; sourceTree = "<group>"; };
@@ -281,12 +283,13 @@
 			isa = PBXGroup;
 			children = (
 				58678E8C2DFA627C0035673E /* WYBasisKit */,
-				585B39622DF8125400E6E08F /* AppDelegate.swift */,
-				585B396A2DF8125400E6E08F /* ViewController.swift */,
+				588D007F2E5FEB3C0034A1CF /* Remarks */,
 				585B39642DF8125400E6E08F /* Info.plist */,
 				585B39632DF8125400E6E08F /* Assets.xcassets */,
-				585B39662DF8125400E6E08F /* LaunchScreen.storyboard */,
 				585B39682DF8125400E6E08F /* Main.storyboard */,
+				585B39662DF8125400E6E08F /* LaunchScreen.storyboard */,
+				585B39622DF8125400E6E08F /* AppDelegate.swift */,
+				585B396A2DF8125400E6E08F /* ViewController.swift */,
 			);
 			path = WYBasisKit;
 			sourceTree = "<group>";
@@ -584,7 +587,6 @@
 			isa = PBXGroup;
 			children = (
 				58B5A01E2E5D579A008F9C38 /* UITextView */,
-				58B5A01B2E5D5795008F9C38 /* UITabBar */,
 				58678E132DFA627C0035673E /* String */,
 				58F378712E2240B9007F7C55 /* NSInteger */,
 				58678E052DFA627C0035673E /* CGFloat */,
@@ -965,6 +967,15 @@
 			path = EventHandler;
 			sourceTree = "<group>";
 		};
+		588D007F2E5FEB3C0034A1CF /* Remarks */ = {
+			isa = PBXGroup;
+			children = (
+				58BE5F022E5E94210046AD5D /* Swift↔ObjC.swift */,
+				588D00802E5FEB570034A1CF /* AutoLayout.swift */,
+			);
+			path = Remarks;
+			sourceTree = "<group>";
+		};
 		5895ADAB2E237D16001849B2 /* NSNumber */ = {
 			isa = PBXGroup;
 			children = (
@@ -985,14 +996,6 @@
 				58B5A00B2E5D5720008F9C38 /* WYDecodingStorage.swift */,
 			);
 			path = Achieve;
-			sourceTree = "<group>";
-		};
-		58B5A01B2E5D5795008F9C38 /* UITabBar */ = {
-			isa = PBXGroup;
-			children = (
-				58B5A01A2E5D5795008F9C38 /* UITabBar.swift */,
-			);
-			path = UITabBar;
 			sourceTree = "<group>";
 		};
 		58B5A01E2E5D579A008F9C38 /* UITextView */ = {
@@ -1195,7 +1198,6 @@
 				58B5A0152E5D5726008F9C38 /* WYCodableObjC.swift in Sources */,
 				585B39A32DF8125400E6E08F /* ViewController.swift in Sources */,
 				58678E8D2DFA627C0035673E /* WYMicrophoneAuthorization.swift in Sources */,
-				58B5A01C2E5D5795008F9C38 /* UITabBar.swift in Sources */,
 				58678E8F2DFA627C0035673E /* WYChatBusinessCardCell.swift in Sources */,
 				58678E902DFA627C0035673E /* UIDevice.swift in Sources */,
 				58678E912DFA627C0035673E /* WYChatLuckyMoneyCell.swift in Sources */,
@@ -1224,6 +1226,7 @@
 				58678EA32DFA627C0035673E /* WYMoveupTipsView.swift in Sources */,
 				58F378702E2239D5007F7C55 /* FloatingPoint.swift in Sources */,
 				58678EA42DFA627C0035673E /* WYEmojiFuncAreaView.swift in Sources */,
+				588D00812E5FEB570034A1CF /* AutoLayout.swift in Sources */,
 				58678EA52DFA627C0035673E /* WYEmojiHeaderView.swift in Sources */,
 				58678EA62DFA627C0035673E /* WYEmojiViewCell.swift in Sources */,
 				58F3786D2E2224A9007F7C55 /* UIFont.swift in Sources */,
@@ -1282,6 +1285,7 @@
 				58678ED12DFA627C0035673E /* UIColor.swift in Sources */,
 				58678ED22DFA627C0035673E /* WYPagingView.swift in Sources */,
 				58678ED32DFA627C0035673E /* UIViewController.swift in Sources */,
+				58BE5F032E5E94210046AD5D /* Swift↔ObjC.swift in Sources */,
 				58678ED42DFA627C0035673E /* WYChatWithdrawnCell.swift in Sources */,
 				58678ED62DFA627C0035673E /* WYChatTextCell.swift in Sources */,
 				58678ED72DFA627C0035673E /* WYCodable.swift in Sources */,

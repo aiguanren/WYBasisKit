@@ -78,17 +78,17 @@ import WebKit
     /// 事件监听代理
     @objc var navigationProxy: WKWebViewNavigationDelegateProxy? {
         get {
-            objc_getAssociatedObject(self, &navigationProxyKey) as? WKWebViewNavigationDelegateProxy
+            objc_getAssociatedObject(self, &WYAssociatedKeys.navigationProxyKey) as? WKWebViewNavigationDelegateProxy
         }
         set {
-            objc_setAssociatedObject(self, &navigationProxyKey, newValue, .OBJC_ASSOCIATION_ASSIGN)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.navigationProxyKey, newValue, .OBJC_ASSOCIATION_ASSIGN)
             
             // 创建并绑定 delegator（仅创建一次）
-            var delegator = objc_getAssociatedObject(self, &navigationDelegatorKey) as? WKWebViewDelegator
+            var delegator = objc_getAssociatedObject(self, &WYAssociatedKeys.navigationDelegatorKey) as? WKWebViewDelegator
             if delegator == nil {
                 delegator = WKWebViewDelegator(proxy: newValue)
                 delegator?.bindToWebView(self)
-                objc_setAssociatedObject(self, &navigationDelegatorKey, delegator, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+                objc_setAssociatedObject(self, &WYAssociatedKeys.navigationDelegatorKey, delegator, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
             } else {
                 // 已有 delegator，仅更新 proxy
                 delegator?.proxy = newValue
@@ -362,11 +362,13 @@ public extension WKWebView {
     
     /// 使用关联对象绑定进度监听器对象
     private var progressObserver: WebViewProgressObserver? {
-        get { objc_getAssociatedObject(self, &progressObserverKey) as? WebViewProgressObserver }
-        set { objc_setAssociatedObject(self, &progressObserverKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+        get { objc_getAssociatedObject(self, &WYAssociatedKeys.progressObserverKey) as? WebViewProgressObserver }
+        set { objc_setAssociatedObject(self, &WYAssociatedKeys.progressObserverKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+    }
+    
+    private struct WYAssociatedKeys {
+        static var progressObserverKey: UInt8 = 0
+        static var navigationDelegatorKey: UInt8 = 0
+        static var navigationProxyKey: UInt8 = 0
     }
 }
-
-private var progressObserverKey: UInt8 = 0
-private var navigationDelegatorKey: UInt8 = 0
-private var navigationProxyKey: UInt8 = 0

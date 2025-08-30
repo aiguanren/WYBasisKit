@@ -66,7 +66,7 @@ public extension UIViewController {
     var wy_navBarAppearance: WYNavigationBarAppearance {
         get {
             // 如果当前控制器有自定义样式，则返回自定义样式
-            if let custom = objc_getAssociatedObject(self, &AssociatedKeys.customAppearanceKey) as? WYNavigationBarAppearance {
+            if let custom = objc_getAssociatedObject(self, &WYAssociatedKeys.customAppearanceKey) as? WYNavigationBarAppearance {
                 return custom
             }
             
@@ -75,7 +75,7 @@ public extension UIViewController {
         }
         set {
             // 存储自定义样式
-            objc_setAssociatedObject(self, &AssociatedKeys.customAppearanceKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.customAppearanceKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
             // 立即更新导航栏
             updateNavigationBarAppearance()
         }
@@ -128,8 +128,8 @@ public extension UIViewController {
     }
     
     /// 关联对象键
-    private struct AssociatedKeys {
-        static var customAppearanceKey = "com.wybasisKit.navBarCustomAppearance"
+    private struct WYAssociatedKeys {
+        static var customAppearanceKey: UInt8 = 0
     }
 }
 
@@ -246,7 +246,7 @@ extension UINavigationController: UINavigationBarDelegate, UIGestureRecognizerDe
     
     public func navigationBar(_ navigationBar: UINavigationBar, didPush item: UINavigationItem) {
         // 保存原始的交互式pop手势代理
-        objc_setAssociatedObject(self, &AssociatedKeys.barReturnButtonDelegate,
+        objc_setAssociatedObject(self, &WYAssociatedKeys.barReturnButtonDelegate,
                                  self.interactivePopGestureRecognizer?.delegate,
                                  .OBJC_ASSOCIATION_ASSIGN)
         self.interactivePopGestureRecognizer?.delegate = self
@@ -289,7 +289,7 @@ extension UINavigationController: UINavigationBarDelegate, UIGestureRecognizerDe
                 return vc.wy_navigationBarWillReturn()
             }
             
-            if let originDelegate = objc_getAssociatedObject(self, &AssociatedKeys.barReturnButtonDelegate) as? UIGestureRecognizerDelegate {
+            if let originDelegate = objc_getAssociatedObject(self, &WYAssociatedKeys.barReturnButtonDelegate) as? UIGestureRecognizerDelegate {
                 return originDelegate.gestureRecognizerShouldBegin?(gestureRecognizer) ?? true
             }
         }
@@ -297,8 +297,8 @@ extension UINavigationController: UINavigationBarDelegate, UIGestureRecognizerDe
         return true
     }
     
-    private struct AssociatedKeys {
-        static var barReturnButtonDelegate = "com.wybasisKit.barReturnButtonDelegate"
+    private struct WYAssociatedKeys {
+        static var barReturnButtonDelegate: UInt8 = 0
     }
 }
 

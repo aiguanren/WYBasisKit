@@ -347,7 +347,7 @@ public extension UIDevice {
         
         set(newValue) {
             
-            objc_setAssociatedObject(self, WYAssociatedKeys.privateInterfaceOrientation, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.privateInterfaceOrientation, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
             
             switch newValue {
             case .portrait:
@@ -376,7 +376,7 @@ public extension UIDevice {
             }
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.privateInterfaceOrientation) as? UIInterfaceOrientationMask ?? .portrait
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.privateInterfaceOrientation) as? UIInterfaceOrientationMask ?? .portrait
         }
     }
     
@@ -384,11 +384,11 @@ public extension UIDevice {
     private(set) var wy_currentInterfaceOrientation: UIInterfaceOrientationMask {
         set(newValue) {
             
-            objc_setAssociatedObject(self, WYAssociatedKeys.privateCurrentInterfaceOrientation, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.privateCurrentInterfaceOrientation, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.privateCurrentInterfaceOrientation) as? UIInterfaceOrientationMask ?? .portrait
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.privateCurrentInterfaceOrientation) as? UIInterfaceOrientationMask ?? .portrait
         }
     }
     
@@ -529,19 +529,19 @@ private extension UIDevice {
         
         set(newValue) {
             
-            objc_setAssociatedObject(self, WYAssociatedKeys.privateMotionManager, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.privateMotionManager, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.privateMotionManager) as? CMMotionManager
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.privateMotionManager) as? CMMotionManager
         }
     }
     
     struct WYAssociatedKeys {
         
-        static let privateMotionManager = UnsafeRawPointer(bitPattern: "privateMotionManager".hashValue)!
+        static var privateMotionManager: UInt8 = 0
         
-        static let privateInterfaceOrientation = UnsafeRawPointer(bitPattern: "privateInterfaceOrientation".hashValue)!
+        static var privateInterfaceOrientation: UInt8 = 0
         
-        static let privateCurrentInterfaceOrientation = UnsafeRawPointer(bitPattern: "privateCurrentInterfaceOrientation".hashValue)!
+        static var privateCurrentInterfaceOrientation: UInt8 = 0
     }
 }

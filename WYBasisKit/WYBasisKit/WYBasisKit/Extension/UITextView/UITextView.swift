@@ -1,6 +1,6 @@
 //
 //  UITextView.swift
-//  WYBasisKit
+//  WYBasiskit
 //
 //  Created by guanren on 2025/8/25.
 //
@@ -14,170 +14,63 @@ public extension UITextView {
         return placeholderLabel
     }
     
+    /// 占位文本可以展示几行(默认0，无限换行)
+    var wy_placeholderNumberOfLines: Int {
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.placeholderNumberOfLines) as? Int ?? 0
+        }
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.placeholderNumberOfLines, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            placeholderLabel.numberOfLines = newValue
+        }
+    }
+    
     /// 字符长度标签
     var wy_charactersLengthLabel: UILabel {
         return charactersLengthLabel
     }
     
-    /// 设置字符长度标签的Frame
-    var wy_charactersLengthLabelFrame: CGRect {
-        get {
-            if let frame = objc_getAssociatedObject(self, &WYAssociatedKeys.charactersLengthLableFrameKey) as? CGRect {
-                return frame
-            }
-            // 默认frame
-            return CGRect(x: self.frame.origin.x,
-                         y: self.frame.maxY,
-                         width: self.frame.width,
-                         height: 25)
-        }
-        set {
-            objc_setAssociatedObject(self, &WYAssociatedKeys.charactersLengthLableFrameKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-            charactersLengthLabel.frame = newValue
-            updateTextContainerInsets()
-        }
-    }
-    
-    /// 占位标签原点位置
-    var wy_placeholderOrigin: CGPoint {
-        get {
-            return placeholderLabel.frame.origin
-        }
-        set {
-            placeholderLabel.frame.origin = newValue
-            updateTextContainerInsets()
-        }
-    }
-    
-    /// 最大显示字符限制
-    var wy_maximumLimit: Int {
-        get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.maximumLimitKey) as? Int ?? Int.max
-        }
-        set {
-            objc_setAssociatedObject(self, &WYAssociatedKeys.maximumLimitKey, newValue, .OBJC_ASSOCIATION_ASSIGN)
-            wy_fixMessyDisplay()
-        }
-    }
-    
-    /// 是否允许复制粘贴
+    /// 是否允许复制粘贴(默认true)
     var wy_allowCopyPaste: Bool {
         get {
             return objc_getAssociatedObject(self, &WYAssociatedKeys.allowCopyPasteKey) as? Bool ?? true
         }
         set {
             objc_setAssociatedObject(self, &WYAssociatedKeys.allowCopyPasteKey, newValue, .OBJC_ASSOCIATION_ASSIGN)
-        }
-    }
-    
-    /// 是否显示字符长度提示
-    var wy_characterLengthPrompt: Bool {
-        get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.characterLengthPromptKey) as? Bool ?? false
-        }
-        set {
-            objc_setAssociatedObject(self, &WYAssociatedKeys.characterLengthPromptKey, newValue, .OBJC_ASSOCIATION_ASSIGN)
-            wy_fixMessyDisplay()
             
-            charactersLengthLabel.isHidden = !newValue
-            updateTextContainerInsets()
+            UITextView.wy_enableAllMonitors()
         }
     }
-    
-    /// 占位文本是否支持换行(默认true)
-    var wy_placeholderAllowsNewlines: Bool {
-        get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.placeholderAllowsNewlinesKey) as? Bool ?? true
-        }
-        set {
-            objc_setAssociatedObject(self, &WYAssociatedKeys.placeholderAllowsNewlinesKey, newValue, .OBJC_ASSOCIATION_ASSIGN)
-            placeholderLabel.numberOfLines = newValue ? 0 : 1
-        }
-    }
-    
-    /// 文本发生改变时回调
-    func wy_textDidChange(handle: @escaping (String) -> Void) {
-        wy_textHandle = handle
-        wy_fixMessyDisplay()
-    }
-    
-    /// 处理系统输入法导致的乱码
-    func wy_fixMessyDisplay() {
-        if wy_maximumLimit <= 0 {
-            wy_maximumLimit = Int.max
-        }
-        wy_addTextChangeNoti()
+
+    /**
+     * 实现最大显示字符限制与占位文本标签的显示与隐藏
+     * 本方法需要使用者在textViewDidChange等文本发生改变的事件中调用此方法，否则无法处理最大显示字符限制与占位文本标签的显示与隐藏
+     */
+    func wy_maximumLimit(_ maximumLength: Int) {
+        UITextView.wy_enableAllMonitors()
+        wy_textDidChangeHandler(maximumLength)
     }
 }
 
-extension UITextView {
+// 属性管理
+private extension UITextView {
     
-    private var wy_addNoti: Bool {
-        get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.addNotiKey) as? Bool ?? false
-        }
-        set {
-            objc_setAssociatedObject(self, &WYAssociatedKeys.addNotiKey, newValue, .OBJC_ASSOCIATION_ASSIGN)
-        }
-    }
-    
-    private var wy_havePlaceholderLable: Bool {
-        get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.havePlaceholderLableKey) as? Bool ?? false
-        }
-        set {
-            objc_setAssociatedObject(self, &WYAssociatedKeys.havePlaceholderLableKey, newValue, .OBJC_ASSOCIATION_ASSIGN)
-        }
-    }
-    
-    private var wy_haveCharactersLengthLable: Bool {
-        get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.haveCharactersLengthLableKey) as? Bool ?? false
-        }
-        set {
-            objc_setAssociatedObject(self, &WYAssociatedKeys.haveCharactersLengthLableKey, newValue, .OBJC_ASSOCIATION_ASSIGN)
-        }
-    }
-    
-    private var wy_lastTextStr: String {
-        get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.lastTextStrKey) as? String ?? ""
-        }
-        set {
-            objc_setAssociatedObject(self, &WYAssociatedKeys.lastTextStrKey, newValue, .OBJC_ASSOCIATION_COPY_NONATOMIC)
-        }
-    }
-    
-    private var wy_textHandle: ((String) -> Void)? {
-        get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.textHandleKey) as? (String) -> Void
-        }
-        set {
-            objc_setAssociatedObject(self, &WYAssociatedKeys.textHandleKey, newValue, .OBJC_ASSOCIATION_COPY_NONATOMIC)
-        }
-    }
-    
-    private var placeholderLabel: UILabel {
+    var placeholderLabel: UILabel {
         get {
             if let label = objc_getAssociatedObject(self, &WYAssociatedKeys.placeholderLableKey) as? UILabel {
                 return label
             }
-            
             let label = UILabel()
-            label.frame.origin = CGPoint(x: 5, y: 8)
-            label.frame.size.width = self.frame.width - 10
-            label.numberOfLines = wy_placeholderAllowsNewlines ? 0 : 1
+            label.numberOfLines = 0
             label.isUserInteractionEnabled = false
             label.font = self.font
             label.textColor = .lightGray
-            
-            self.insertSubview(label, at: 0)
+            label.translatesAutoresizingMaskIntoConstraints = false
             
             objc_setAssociatedObject(self, &WYAssociatedKeys.placeholderLableKey, label, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-            wy_havePlaceholderLable = true
             
-            // 更新文本容器边距
-            updateTextContainerInsets()
+            // 初始添加约束
+            setupLabelDefaultConstraints()
             
             return label
         }
@@ -192,22 +85,18 @@ extension UITextView {
                 return label
             }
             
-            let label = UILabel(frame: wy_charactersLengthLabelFrame)
-            label.backgroundColor = self.backgroundColor
+            let label = UILabel()
             label.textAlignment = .right
-            label.isUserInteractionEnabled = true
+            label.isUserInteractionEnabled = false
             label.font = self.font
             label.textColor = .lightGray
-            label.isHidden = !wy_characterLengthPrompt
-            
-            let tap = UITapGestureRecognizer(target: self, action: #selector(showTextView))
-            label.addGestureRecognizer(tap)
+            label.backgroundColor = .clear
+            label.translatesAutoresizingMaskIntoConstraints = false
             
             objc_setAssociatedObject(self, &WYAssociatedKeys.charactersLengthLableKey, label, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-            wy_haveCharactersLengthLable = true
             
-            // 更新文本容器边距
-            updateTextContainerInsets()
+            // 初始添加约束
+            setupLabelDefaultConstraints()
             
             return label
         }
@@ -216,141 +105,36 @@ extension UITextView {
         }
     }
     
-    /// 保存原始文本容器边距
-    private var originalTextContainerInset: UIEdgeInsets {
-        get {
-            if let inset = objc_getAssociatedObject(self, &WYAssociatedKeys.textContainerInsetKey) as? UIEdgeInsets {
-                return inset
-            }
-            return self.textContainerInset
-        }
-        set {
-            objc_setAssociatedObject(self, &WYAssociatedKeys.textContainerInsetKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-        }
+    struct WYAssociatedKeys {
+        // 占位标签相关
+        static var placeholderLableKey: UInt8 = 0
+        static var placeholderNumberOfLines: UInt8 = 0
+        
+        // 字符长度标签相关
+        static var charactersLengthLableKey: UInt8 = 0
+        
+        // 添加约束的关联键
+        static var placeholderLeadingConstraintKey: UInt8 = 0
+        static var placeholderTopConstraintKey: UInt8 = 0
+        static var placeholderWidthConstraintKey: UInt8 = 0
+        
+        static var lengthTrailingAnchorConstraintKey: UInt8 = 0
+        static var lengthBottomConstraintKey: UInt8 = 0
+        
+        static var allowCopyPasteKey: UInt8 = 0
     }
+}
+
+// 方法实现
+extension UITextView {
     
-    /// 更新文本容器边距，确保文本与占位标签对齐且不超过字符长度标签
-    private func updateTextContainerInsets() {
-        // 保存原始边距
-        if originalTextContainerInset == .zero {
-            originalTextContainerInset = self.textContainerInset
-        }
-        
-        // 计算新的边距
-        var newInset = originalTextContainerInset
-        
-        // 设置左边距和上边距与占位标签位置一致
-        newInset.left = wy_placeholderOrigin.x
-        newInset.top = wy_placeholderOrigin.y
-        
-        // 设置下边距，确保文本底部不超过字符长度标签底部
-        if wy_characterLengthPrompt {
-            let textViewBottom = self.frame.maxY
-            let charactersLabelBottom = charactersLengthLabel.frame.maxY
-            
-            if charactersLabelBottom > textViewBottom {
-                // 字符长度标签在文本视图下方，增加下边距
-                newInset.bottom += (charactersLabelBottom - textViewBottom) + 5 // 额外增加5pt间距
-            }
-        }
-        
-        // 应用新的边距
-        self.textContainerInset = newInset
-    }
-    
-    private static let swizzleTextViewImplementation: Void = {
-        let originalSelector = #selector(UITextView.layoutSubviews)
-        let swizzledSelector = #selector(UITextView.wy_layoutSubviews)
-        
-        guard let originalMethod = class_getInstanceMethod(UITextView.self, originalSelector),
-              let swizzledMethod = class_getInstanceMethod(UITextView.self, swizzledSelector) else {
-            return
-        }
-        
-        let didAddMethod = class_addMethod(UITextView.self,
-                                          originalSelector,
-                                          method_getImplementation(swizzledMethod),
-                                          method_getTypeEncoding(swizzledMethod))
-        
-        if didAddMethod {
-            class_replaceMethod(UITextView.self,
-                               swizzledSelector,
-                               method_getImplementation(originalMethod),
-                               method_getTypeEncoding(originalMethod))
-        } else {
-            method_exchangeImplementations(originalMethod, swizzledMethod)
-        }
-    }()
-    
-    @objc private func wy_layoutSubviews() {
-        // 调用原始实现
-        self.wy_layoutSubviews()
-        
-        // 更新字符长度标签
-        if wy_characterLengthPrompt {
-            let currentLength = min(self.text.count, wy_maximumLimit)
-            charactersLengthLabel.text = "\(currentLength)/\(wy_maximumLimit)\t"
-            charactersLengthLabel.isHidden = false
-            
-            charactersLengthLabel.layer.borderWidth = self.layer.borderWidth
-            charactersLengthLabel.layer.borderColor = self.layer.borderColor
-            
-            if charactersLengthLabel.superview == nil {
-                self.superview?.addSubview(charactersLengthLabel)
-            }
-            
-            // 更新文本容器边距
-            updateTextContainerInsets()
-        }
-    }
-    
-    private func wy_addTextChangeNoti() {
-        if !wy_addNoti {
-            // 使用方法交换替代通知
-            UITextView.swizzleTextViewImplementation
-            wy_addNoti = true
-        }
-    }
-    
-    @objc private func wy_textDidChange() {
-        wy_characterTruncation()
-    }
-    
-    private func wy_characterTruncation() {
-        // 字符截取
-        if wy_maximumLimit > 0 {
-            if let selectedRange = self.markedTextRange,
-               let _ = self.position(from: selectedRange.start, offset: 0) {
-                // 有高亮文本，不处理
-            } else if self.text.count > wy_maximumLimit {
-                let index = self.text.index(self.text.startIndex, offsetBy: wy_maximumLimit)
-                self.text = String(self.text[..<index])
-            }
-        }
-        
-        // 文本变化回调
-        if let handle = wy_textHandle, self.text != wy_lastTextStr {
-            handle(self.text)
-        }
-        wy_lastTextStr = self.text
-        
-        // 更新占位标签显示
-        if wy_havePlaceholderLable {
-            placeholderLabel.isHidden = !self.text.isEmpty
-        }
-        
-        // 更新字符长度标签
-        if wy_haveCharactersLengthLable {
-            let currentLength = min(self.text.count, wy_maximumLimit)
-            charactersLengthLabel.text = "\(currentLength)/\(wy_maximumLimit)\t"
-        }
-    }
-    
-    @objc private func showTextView() {
-        self.becomeFirstResponder()
+    open override func updateConstraints() {
+        super.updateConstraints()
+        updateLabelConstraints()
     }
     
     open override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+        
         // 禁止剪切
         if action == #selector(cut(_:)) {
             return wy_allowCopyPaste
@@ -374,24 +158,199 @@ extension UITextView {
         return super.canPerformAction(action, withSender: sender)
     }
     
-    private static func initializeMethod() {
-        // 确保方法交换只执行一次
-        _ = swizzleTextViewImplementation
+    private func setupLabelDefaultConstraints() {
+        if (placeholderLabel.superview == nil) {
+            insertSubview(placeholderLabel, at: 0)
+            
+            // 移除现有约束
+            if let leadingConstraint = objc_getAssociatedObject(self, &WYAssociatedKeys.placeholderLeadingConstraintKey) as? NSLayoutConstraint {
+                leadingConstraint.isActive = false
+            }
+            if let topConstraint = objc_getAssociatedObject(self, &WYAssociatedKeys.placeholderTopConstraintKey) as? NSLayoutConstraint {
+                topConstraint.isActive = false
+            }
+            if let widthConstraint = objc_getAssociatedObject(self, &WYAssociatedKeys.placeholderWidthConstraintKey) as? NSLayoutConstraint {
+                widthConstraint.isActive = false
+            }
+            
+            // 创建新约束
+            let leadingConstraint = placeholderLabel.leadingAnchor.constraint(
+                equalTo: self.leadingAnchor,
+                constant: textContainerInset.left + 3 // 这里加3是因为设置textContainerInset.left后，看起来会比placeholderLabel的x大一些，所以手动处理下
+            )
+            let topConstraint = placeholderLabel.topAnchor.constraint(
+                equalTo: self.topAnchor,
+                constant: textContainerInset.top
+            )
+            let widthConstraint = placeholderLabel.widthAnchor.constraint(
+                lessThanOrEqualTo: self.widthAnchor,
+                constant: -(textContainerInset.left + textContainerInset.right) // 两边都要减去边距
+            )
+            
+            // 存储约束引用
+            objc_setAssociatedObject(self, &WYAssociatedKeys.placeholderLeadingConstraintKey, leadingConstraint, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.placeholderTopConstraintKey, topConstraint, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.placeholderWidthConstraintKey, widthConstraint, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            
+            // 激活约束
+            NSLayoutConstraint.activate([leadingConstraint, topConstraint, widthConstraint])
+        }
+        
+        if charactersLengthLabel.superview == nil {
+            superview?.addSubview(charactersLengthLabel)
+            
+            if let trailingConstraint = objc_getAssociatedObject(self, &WYAssociatedKeys.lengthTrailingAnchorConstraintKey) as? NSLayoutConstraint {
+                trailingConstraint.isActive = false
+            }
+            if let bottomConstraint = objc_getAssociatedObject(self, &WYAssociatedKeys.lengthBottomConstraintKey) as? NSLayoutConstraint {
+                bottomConstraint.isActive = false
+            }
+            
+            let trailingConstraint = charactersLengthLabel.trailingAnchor.constraint(
+                equalTo: self.trailingAnchor,
+                constant: -(textContainerInset.right + 3)
+            )
+            let bottomConstraint = charactersLengthLabel.bottomAnchor.constraint(
+                equalTo: self.bottomAnchor,
+                constant: -textContainerInset.bottom
+            )
+            
+            objc_setAssociatedObject(self, &WYAssociatedKeys.lengthTrailingAnchorConstraintKey, trailingConstraint, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.lengthBottomConstraintKey, bottomConstraint, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            
+            NSLayoutConstraint.activate([trailingConstraint, bottomConstraint])
+        }
     }
     
-    private struct WYAssociatedKeys {
-        static var maximumLimitKey: UInt8 = 0
-        static var characterLengthPromptKey: UInt8 = 0
-        static var allowCopyPasteKey: UInt8 = 0
-        static var placeholderAllowsNewlinesKey: UInt8 = 0
-        static var addNotiKey: UInt8 = 0
-        static var havePlaceholderLableKey: UInt8 = 0
-        static var haveCharactersLengthLableKey: UInt8 = 0
-        static var lastTextStrKey: UInt8 = 0
-        static var textHandleKey: UInt8 = 0
-        static var placeholderLableKey: UInt8 = 0
-        static var charactersLengthLableKey: UInt8 = 0
-        static var charactersLengthLableFrameKey: UInt8 = 0
-        static var textContainerInsetKey: UInt8 = 0
+    private func updateLabelConstraints() {
+        // 更新现有约束的constant值
+        if let leadingConstraint = objc_getAssociatedObject(self, &WYAssociatedKeys.placeholderLeadingConstraintKey) as? NSLayoutConstraint {
+            leadingConstraint.constant = textContainerInset.left + 3
+        }
+        if let topConstraint = objc_getAssociatedObject(self, &WYAssociatedKeys.placeholderTopConstraintKey) as? NSLayoutConstraint {
+            topConstraint.constant = textContainerInset.top
+        }
+        if let widthConstraint = objc_getAssociatedObject(self, &WYAssociatedKeys.placeholderWidthConstraintKey) as? NSLayoutConstraint {
+            widthConstraint.constant = -(textContainerInset.left + textContainerInset.right)
+        }
+        
+        if let trailingConstraint = objc_getAssociatedObject(self, &WYAssociatedKeys.lengthTrailingAnchorConstraintKey) as? NSLayoutConstraint {
+            trailingConstraint.constant = -(textContainerInset.right + 3)
+        }
+        if let bottomConstraint = objc_getAssociatedObject(self, &WYAssociatedKeys.lengthBottomConstraintKey) as? NSLayoutConstraint {
+            bottomConstraint.constant = -textContainerInset.bottom
+        }
+    }
+}
+
+// 方法交换，实现文本与textContainerInset变化监听
+private extension UITextView {
+    
+    /// 开启所有监听（文本变化 + textContainerInset 变化）
+    static func wy_enableAllMonitors() {
+        _ = swizzleTextDidChangeImplementation
+        _ = swizzleInsetSetterImplementation
+    }
+    
+    static let swizzleTextDidChangeImplementation: Void = {
+        // 交换 setText 方法
+        let originalSetText = class_getInstanceMethod(UITextView.self, #selector(setter: UITextView.text))
+        let swizzledSetText = class_getInstanceMethod(UITextView.self, #selector(wy_setText(_:)))
+        method_exchangeImplementations(originalSetText!, swizzledSetText!)
+        
+        // 交换文本修改相关方法
+        let methodsToSwizzle = [
+            #selector(copy(_:)),
+            #selector(paste(_:)),
+            #selector(cut(_:))
+        ]
+        
+        let swizzledMethods = [
+            #selector(wy_copy(_:)),
+            #selector(wy_paste(_:)),
+            #selector(wy_cut(_:))
+        ]
+        
+        for i in 0..<methodsToSwizzle.count {
+            guard let originalMethod = class_getInstanceMethod(UITextView.self, methodsToSwizzle[i]),
+                  let swizzledMethod = class_getInstanceMethod(UITextView.self, swizzledMethods[i]) else {
+                continue
+            }
+            method_exchangeImplementations(originalMethod, swizzledMethod)
+        }
+    }()
+    
+    static let swizzleInsetSetterImplementation: Void = {
+        let originalSelector = #selector(setter: UITextView.textContainerInset)
+        let swizzledSelector = #selector(UITextView.wy_setTextContainerInset(_:))
+        
+        if let originalMethod = class_getInstanceMethod(UITextView.self, originalSelector),
+           let swizzledMethod = class_getInstanceMethod(UITextView.self, swizzledSelector) {
+            method_exchangeImplementations(originalMethod, swizzledMethod)
+        }
+    }()
+    
+    // 文本修改方法交换实现
+    @objc func wy_setText(_ text: String?) {
+        let originalText: String = self.text
+        self.wy_setText(text)
+    }
+    
+    @objc func wy_copy(_ sender: Any?) {
+        guard wy_allowCopyPaste else {
+            // 清空通用剪贴板内容
+            UIPasteboard.general.string = ""
+            return
+        }
+        self.wy_copy(sender)
+    }
+    
+    @objc func wy_paste(_ sender: Any?) {
+        guard wy_allowCopyPaste else { return }
+        self.wy_paste(sender)
+    }
+    
+    @objc func wy_cut(_ sender: Any?) {
+        guard wy_allowCopyPaste else {
+            // 清空通用剪贴板内容
+            UIPasteboard.general.string = ""
+            return
+        }
+        
+        self.wy_cut(sender)
+    }
+    
+    /// 统一的变化处理逻辑
+    func wy_textDidChangeHandler(_ maximumLength: Int) {
+        // 更新 placeholder 显示/隐藏
+        placeholderLabel.isHidden = !self.text.isEmpty
+        
+        // 更新字符长度
+        if maximumLength > 0 {
+            let currentLength = min(self.text.count, maximumLength)
+            charactersLengthLabel.text = "\(currentLength)/\(maximumLength)"
+            
+            // 超过限制直接截断
+            if self.text.count > maximumLength {
+                let endIndex = self.text.index(self.text.startIndex, offsetBy: maximumLength)
+                self.text = String(self.text[..<endIndex])
+                
+                // 截断后移动光标到末尾，使用异步确保在系统操作之后执行
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
+                    // 确保光标位置正确，移动到文本末尾
+                    let newPosition = self.endOfDocument
+                    self.selectedTextRange = self.textRange(from: newPosition, to: newPosition)
+                }
+            }
+        }
+    }
+    
+    @objc func wy_setTextContainerInset(_ inset: UIEdgeInsets) {
+        // 调用原始实现
+        self.wy_setTextContainerInset(inset)
+        
+        // 更新 placeholder / lengthLabel 约束
+        updateLabelConstraints()
     }
 }

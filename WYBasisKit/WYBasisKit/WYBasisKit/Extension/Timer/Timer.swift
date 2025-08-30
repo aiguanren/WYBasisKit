@@ -173,14 +173,14 @@ private extension Timer {
     private class var wy_timerContainer: [String: (timer: DispatchSourceTimer?, remainingTime: Int, enterBackground: Bool, handler: ((_ remainingTime: Int) -> Void)?)] {
         
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.timerContainer, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.timerContainer, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return (objc_getAssociatedObject(self, WYAssociatedKeys.timerContainer) as? [String: (timer: DispatchSourceTimer?, remainingTime: Int, enterBackground: Bool, handler: ((_ remainingTime: Int) -> Void)?)]) ?? [:]
+            return (objc_getAssociatedObject(self, &WYAssociatedKeys.timerContainer) as? [String: (timer: DispatchSourceTimer?, remainingTime: Int, enterBackground: Bool, handler: ((_ remainingTime: Int) -> Void)?)]) ?? [:]
         }
     }
     
     private struct WYAssociatedKeys {
-        static let timerContainer = UnsafeRawPointer(bitPattern: "timerContainer".hashValue)!
+        static var timerContainer: UInt8 = 0
     }
 }

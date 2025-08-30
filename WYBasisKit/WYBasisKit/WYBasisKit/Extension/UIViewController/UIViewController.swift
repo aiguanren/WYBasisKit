@@ -199,15 +199,15 @@ public extension UIViewController {
     var wy_parameters: AnyObject? {
         
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.wy_parameters, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_parameters, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.wy_parameters) as AnyObject
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_parameters) as AnyObject
         }
     }
     
     private struct WYAssociatedKeys {
-        static let wy_parameters = UnsafeRawPointer(bitPattern: "wy_parameters".hashValue)!
+        static var wy_parameters: UInt8 = 0
     }
 }
 

@@ -28,11 +28,11 @@ public extension UILabel {
     var wy_enableClickEffect: Bool {
         
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.wy_enableClickEffect, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_enableClickEffect, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
             wy_isClickEffect = newValue
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.wy_enableClickEffect) as? Bool ?? true
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_enableClickEffect) as? Bool ?? true
         }
     }
     
@@ -40,10 +40,10 @@ public extension UILabel {
     var wy_clickEffectColor: UIColor {
         
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.wy_clickEffectColor, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_clickEffectColor, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.wy_clickEffectColor) as? UIColor ?? .clear
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_clickEffectColor) as? UIColor ?? .clear
         }
     }
     
@@ -309,74 +309,74 @@ extension UILabel {
     private var wy_clickBlock: ((_ richText: String, _ range: NSRange, _ index : NSInteger) -> Void)? {
         
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.wy_clickBlock, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_clickBlock, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.wy_clickBlock) as? (String, NSRange, NSInteger) -> Void
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_clickBlock) as? (String, NSRange, NSInteger) -> Void
         }
     }
     
     private weak var wy_richTextDelegate: WYRichTextDelegate? {
         
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.wy_richTextDelegate, newValue, .OBJC_ASSOCIATION_ASSIGN)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_richTextDelegate, newValue, .OBJC_ASSOCIATION_ASSIGN)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.wy_richTextDelegate) as? WYRichTextDelegate
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_richTextDelegate) as? WYRichTextDelegate
         }
     }
     
     private var wy_isClickEffect: Bool {
         
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.wy_isClickEffect, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_isClickEffect, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.wy_isClickEffect) as? Bool ?? true
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_isClickEffect) as? Bool ?? true
         }
     }
     
     private var wy_isClickAction: Bool {
         
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.wy_isClickAction, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_isClickAction, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.wy_isClickAction) as? Bool ?? true
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_isClickAction) as? Bool ?? true
         }
     }
     
     private var wy_attributeStrings: [WYRichTextModel] {
         
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.wy_attributeStrings, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_attributeStrings, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.wy_attributeStrings) as? [WYRichTextModel] ?? []
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_attributeStrings) as? [WYRichTextModel] ?? []
         }
     }
     
     private var wy_effectDic: [String: NSAttributedString]? {
         
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.wy_effectDic, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_effectDic, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.wy_effectDic) as? [String: NSAttributedString]
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_effectDic) as? [String: NSAttributedString]
         }
     }
     
     private struct WYAssociatedKeys {
         
-        static let wy_richTextDelegate = UnsafeRawPointer(bitPattern: "wy_richTextDelegate".hashValue)!
-        static let wy_enableClickEffect = UnsafeRawPointer(bitPattern: "wy_enableClickEffect".hashValue)!
-        static let wy_isClickEffect = UnsafeRawPointer(bitPattern: "wy_isClickEffect".hashValue)!
-        static let wy_isClickAction = UnsafeRawPointer(bitPattern: "wy_isClickAction".hashValue)!
-        static let wy_clickEffectColor = UnsafeRawPointer(bitPattern: "wy_clickEffectColor".hashValue)!
-        static let wy_attributeStrings = UnsafeRawPointer(bitPattern: "wy_attributeStrings".hashValue)!
-        static let wy_effectDic = UnsafeRawPointer(bitPattern: "wy_effectDic".hashValue)!
-        static let wy_clickBlock = UnsafeRawPointer(bitPattern: "wy_clickBlock".hashValue)!
-        static let wy_transformForCoreText = UnsafeRawPointer(bitPattern: "wy_transformForCoreText".hashValue)!
+        static var wy_richTextDelegate: UInt8 = 0
+        static var wy_enableClickEffect: UInt8 = 0
+        static var wy_isClickEffect: UInt8 = 0
+        static var wy_isClickAction: UInt8 = 0
+        static var wy_clickEffectColor: UInt8 = 0
+        static var wy_attributeStrings: UInt8 = 0
+        static var wy_effectDic: UInt8 = 0
+        static var wy_clickBlock: UInt8 = 0
+        static var wy_transformForCoreText: UInt8 = 0
     }
 }
 

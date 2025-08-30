@@ -127,7 +127,7 @@ public final class WYEventHandler {
     
     /// 判断某对象是否已设置自动释放监听器
     private func hasDeallocWatcher(for target: AnyObject) -> Bool {
-        return objc_getAssociatedObject(target, &Self.deallocWatcherKey) != nil
+        return objc_getAssociatedObject(target, &WYAssociatedKeys.deallocWatcherKey) != nil
     }
     
     /// 为对象设置释放监听器，用于自动移除绑定的事件监听
@@ -135,7 +135,7 @@ public final class WYEventHandler {
         let watcher = KitDeallocWatcher { [weak self] in
             self?.remove(target: target)
         }
-        objc_setAssociatedObject(target, &Self.deallocWatcherKey, watcher, .OBJC_ASSOCIATION_RETAIN)
+        objc_setAssociatedObject(target, &WYAssociatedKeys.deallocWatcherKey, watcher, .OBJC_ASSOCIATION_RETAIN)
     }
     
     /// 事件处理器
@@ -186,8 +186,12 @@ public final class WYEventHandler {
     }
     
     /// 用于关联对象的 Key
-    private static var deallocWatcherKey: UInt8 = 0
+    private struct WYAssociatedKeys {
+        static var deallocWatcherKey: UInt8 = 0
+    }
     
     /// 构造函数私有化，防止外部初始化
     private init() {}
 }
+
+

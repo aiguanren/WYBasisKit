@@ -92,10 +92,10 @@ public extension UITableView {
         
         set(newValue) {
             
-            objc_setAssociatedObject(self, WYAssociatedKeys.wy_allowOtherGestureRecognizer, newValue, .OBJC_ASSOCIATION_ASSIGN)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_allowOtherGestureRecognizer, newValue, .OBJC_ASSOCIATION_ASSIGN)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.wy_allowOtherGestureRecognizer) as? Bool ?? false
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_allowOtherGestureRecognizer) as? Bool ?? false
         }
     }
     
@@ -140,7 +140,7 @@ public extension UITableView {
     }
     
     private struct WYAssociatedKeys {
-        static let wy_allowOtherGestureRecognizer = UnsafeRawPointer(bitPattern: "wy_allowOtherGestureRecognizer".hashValue)!
+        static var wy_allowOtherGestureRecognizer: UInt8 = 0
     }
 }
 

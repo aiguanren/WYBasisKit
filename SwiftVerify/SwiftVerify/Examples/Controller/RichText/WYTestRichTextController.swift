@@ -32,7 +32,6 @@ class WYTestRichTextController: UIViewController {
         attribute.wy_lineSpacing(lineSpacing: 5, string: attribute.string)
         
         label.attributedText = attribute
-        label.textAlignment = NSTextAlignment.center
         label.wy_clickEffectColor = .green
         label.wy_addRichText(strings: ["勇猛刚强", "仁爱温良者戒于无断", "安舒", "必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"]) { [weak self] (string, range, index) in
             //wy_print("string = \(string), range = \(range), index = \(index)")
@@ -94,7 +93,7 @@ class WYTestRichTextController: UIViewController {
         WYLogManager.output("每行显示的分别是 \(String(describing: label.attributedText?.wy_stringPerLine(controlWidth: UIDevice.wy_screenWidth))), 一共 \(String(describing: label.attributedText?.wy_numberOfRows(controlWidth: UIDevice.wy_screenWidth))) 行")
         
         label.layoutIfNeeded()
-        let subFrame = attribute.wy_calculateFrame(range: NSMakeRange(attribute.string.count - 2, 1), controlSize: label.frame.size)
+        let subFrame = attribute.wy_calculateFrame(range: NSMakeRange(attribute.string.count - 7, 6), controlSize: label.frame.size)
         WYLogManager.output("\(subFrame), labelFrame = \(label.frame)")
         
         let lineView = UIView(frame: CGRect(x: subFrame.origin.x, y: subFrame.origin.y, width: subFrame.size.width, height: subFrame.size.height))

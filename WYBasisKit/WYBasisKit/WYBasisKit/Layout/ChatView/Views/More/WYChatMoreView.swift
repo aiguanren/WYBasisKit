@@ -261,13 +261,13 @@ public extension WYChatMoreView {
     var pageControl: UIPageControl? {
         
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.pageControl, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.pageControl, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
             guard (moreViewConfig.isPagingEnabled == true) && (moreViewConfig.showPageControl == true) else {
                 return nil
             }
-            guard let pagecontrol: UIPageControl = objc_getAssociatedObject(self, WYAssociatedKeys.pageControl) as? UIPageControl else {
+            guard let pagecontrol: UIPageControl = objc_getAssociatedObject(self, &WYAssociatedKeys.pageControl) as? UIPageControl else {
                 
                 let pagecontrol = UIPageControl()
                 pagecontrol.hidesForSinglePage = moreViewConfig.pageControlHideForSingle
@@ -284,7 +284,7 @@ public extension WYChatMoreView {
                 }
                 addSubview(pagecontrol)
                 
-                objc_setAssociatedObject(self, WYAssociatedKeys.pageControl, pagecontrol, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+                objc_setAssociatedObject(self, &WYAssociatedKeys.pageControl, pagecontrol, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
                 
                 updatePageControlStyle()
                 
@@ -337,10 +337,10 @@ public extension WYChatMoreView {
     /// 分页控制器设置选项
     private var pageControlSetting: (currentColor: UIColor?, defaultColor: UIColor?, currentImage: UIImage?, defaultImage: UIImage?) {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.pageControlSetting, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.pageControlSetting, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.pageControlSetting) as? (currentColor: UIColor?, defaultColor: UIColor?, currentImage: UIImage?, defaultImage: UIImage?) ?? (currentColor: nil, defaultColor: nil, currentImage: nil, defaultImage: nil)
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.pageControlSetting) as? (currentColor: UIColor?, defaultColor: UIColor?, currentImage: UIImage?, defaultImage: UIImage?) ?? (currentColor: nil, defaultColor: nil, currentImage: nil, defaultImage: nil)
         }
     }
     
@@ -388,7 +388,7 @@ public extension WYChatMoreView {
     }
     
     private struct WYAssociatedKeys {
-        static let pageControl = UnsafeRawPointer(bitPattern: "pageControl".hashValue)!
-        static let pageControlSetting = UnsafeRawPointer(bitPattern: "pageControlSetting".hashValue)!
+        static var pageControl: UInt8 = 0
+        static var pageControlSetting: UInt8 = 0
     }
 }

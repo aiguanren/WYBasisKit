@@ -578,146 +578,146 @@ public extension UIView {
     
     private var privateRectCorner: UIRectCorner {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.privateRectCorner, newValue.rawValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.privateRectCorner, newValue.rawValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return UIRectCorner.init(rawValue: objc_getAssociatedObject(self, WYAssociatedKeys.privateRectCorner) as? UInt ?? UInt(UIRectCorner.allCorners.rawValue))
+            return UIRectCorner.init(rawValue: objc_getAssociatedObject(self, &WYAssociatedKeys.privateRectCorner) as? UInt ?? UInt(UIRectCorner.allCorners.rawValue))
         }
     }
     
     private var privateConrnerRadius: CGFloat {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.privateConrnerRadius, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.privateConrnerRadius, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.privateConrnerRadius) as? CGFloat ?? 0.0
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.privateConrnerRadius) as? CGFloat ?? 0.0
         }
     }
     
     private var privateBorderColor: UIColor {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.privateBorderColor, newValue, .OBJC_ASSOCIATION_COPY_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.privateBorderColor, newValue, .OBJC_ASSOCIATION_COPY_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.privateBorderColor) as? UIColor ?? .clear
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.privateBorderColor) as? UIColor ?? .clear
         }
     }
     
     private var privateBorderWidth: CGFloat {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.privateBorderWidth, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.privateBorderWidth, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.privateBorderWidth) as? CGFloat ?? 0.0
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.privateBorderWidth) as? CGFloat ?? 0.0
         }
     }
     
     private var privateAdjustBorderWidth: CGFloat {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.privateAdjustBorderWidth, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.privateAdjustBorderWidth, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.privateAdjustBorderWidth) as? CGFloat ?? 0.0
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.privateAdjustBorderWidth) as? CGFloat ?? 0.0
         }
     }
     
     private var privateShadowColor: UIColor {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.privateShadowColor, newValue, .OBJC_ASSOCIATION_COPY_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.privateShadowColor, newValue, .OBJC_ASSOCIATION_COPY_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.privateShadowColor) as? UIColor ?? .clear
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.privateShadowColor) as? UIColor ?? .clear
         }
     }
     
     private var privateShadowOffset: CGSize {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.privateShadowOffset, NSCoder.string(for: newValue), .OBJC_ASSOCIATION_COPY_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.privateShadowOffset, NSCoder.string(for: newValue), .OBJC_ASSOCIATION_COPY_NONATOMIC)
         }
         get {
-            return NSCoder.cgSize(for: objc_getAssociatedObject(self, WYAssociatedKeys.privateShadowOffset) as? String ?? (NSCoder.string(for: CGSize.zero)))
+            return NSCoder.cgSize(for: objc_getAssociatedObject(self, &WYAssociatedKeys.privateShadowOffset) as? String ?? (NSCoder.string(for: CGSize.zero)))
         }
     }
     
     private var privateShadowRadius: CGFloat {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.privateShadowRadius, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.privateShadowRadius, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.privateShadowRadius) as? CGFloat ?? 0.0
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.privateShadowRadius) as? CGFloat ?? 0.0
         }
     }
     
     private var privateShadowOpacity: CGFloat {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.privateShadowOpacity, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.privateShadowOpacity, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.privateShadowOpacity) as? CGFloat ?? 0.5
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.privateShadowOpacity) as? CGFloat ?? 0.5
         }
     }
     
     private var privateGradientDirection: WYGradientDirection {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.privateGradientDirection, newValue.rawValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.privateGradientDirection, newValue.rawValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return WYGradientDirection.init(rawValue: objc_getAssociatedObject(self, WYAssociatedKeys.privateGradientDirection) as? UInt ?? WYGradientDirection.leftToRight.rawValue) ?? .leftToRight
+            return WYGradientDirection.init(rawValue: objc_getAssociatedObject(self, &WYAssociatedKeys.privateGradientDirection) as? UInt ?? WYGradientDirection.leftToRight.rawValue) ?? .leftToRight
         }
     }
     
     private var privateGradualColors: [UIColor]? {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.privateGradualColors, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.privateGradualColors, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.privateGradualColors) as? [UIColor]
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.privateGradualColors) as? [UIColor]
         }
     }
     
     private var privateViewBounds: CGRect {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.privateViewBounds, NSCoder.string(for: newValue), .OBJC_ASSOCIATION_COPY_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.privateViewBounds, NSCoder.string(for: newValue), .OBJC_ASSOCIATION_COPY_NONATOMIC)
         }
         get {
-            return NSCoder.cgRect(for: objc_getAssociatedObject(self, WYAssociatedKeys.privateViewBounds) as? String ?? (NSCoder.string(for: CGRect.zero)))
+            return NSCoder.cgRect(for: objc_getAssociatedObject(self, &WYAssociatedKeys.privateViewBounds) as? String ?? (NSCoder.string(for: CGRect.zero)))
         }
     }
     
     private var privateBezierPath: UIBezierPath? {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.privateBezierPath, newValue, .OBJC_ASSOCIATION_COPY_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.privateBezierPath, newValue, .OBJC_ASSOCIATION_COPY_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.privateBezierPath) as? UIBezierPath
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.privateBezierPath) as? UIBezierPath
         }
     }
     
     private var shadowBackgroundView: UIView? {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.shadowBackgroundView, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.shadowBackgroundView, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.shadowBackgroundView) as? UIView
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.shadowBackgroundView) as? UIView
         }
     }
     
     private struct WYAssociatedKeys {
-        static let privateRectCorner = UnsafeRawPointer(bitPattern: "privateRectCorner".hashValue)!
-        static let privateConrnerRadius = UnsafeRawPointer(bitPattern: "privateConrnerRadius".hashValue)!
-        static let privateBorderColor = UnsafeRawPointer(bitPattern: "privateBorderColor".hashValue)!
-        static let privateBorderWidth = UnsafeRawPointer(bitPattern: "privateBorderWidth".hashValue)!
-        static let privateAdjustBorderWidth = UnsafeRawPointer(bitPattern: "privateAdjustBorderWidth".hashValue)!
-        static let privateShadowColor = UnsafeRawPointer(bitPattern: "privateShadowColor".hashValue)!
-        static let privateShadowOffset = UnsafeRawPointer(bitPattern: "privateShadowOffset".hashValue)!
-        static let privateShadowRadius = UnsafeRawPointer(bitPattern: "privateShadowRadius".hashValue)!
-        static let privateShadowOpacity = UnsafeRawPointer(bitPattern: "privateShadowOpacity".hashValue)!
-        static let privateGradualColors = UnsafeRawPointer(bitPattern: "privateGradualColors".hashValue)!
-        static let privateGradientDirection = UnsafeRawPointer(bitPattern: "privateGradientDirection".hashValue)!
-        static let privateViewBounds = UnsafeRawPointer(bitPattern: "privateViewBounds".hashValue)!
-        static let privateBezierPath = UnsafeRawPointer(bitPattern: "privateBezierPath".hashValue)!
-        static let shadowBackgroundView = UnsafeRawPointer(bitPattern: "shadowBackgroundView".hashValue)!
-        static let boardLayer = "\(UnsafeRawPointer(bitPattern: "boardLayer".hashValue)!)"
+        static var privateRectCorner: UInt8 = 0
+        static var privateConrnerRadius: UInt8 = 0
+        static var privateBorderColor: UInt8 = 0
+        static var privateBorderWidth: UInt8 = 0
+        static var privateAdjustBorderWidth: UInt8 = 0
+        static var privateShadowColor: UInt8 = 0
+        static var privateShadowOffset: UInt8 = 0
+        static var privateShadowRadius: UInt8 = 0
+        static var privateShadowOpacity: UInt8 = 0
+        static var privateGradualColors: UInt8 = 0
+        static var privateGradientDirection: UInt8 = 0
+        static var privateViewBounds: UInt8 = 0
+        static var privateBezierPath: UInt8 = 0
+        static var shadowBackgroundView: UInt8 = 0
+        static var boardLayer = "\(UnsafeRawPointer(bitPattern: "boardLayer".hashValue)!)"
         static let gradientLayer = "\(UnsafeRawPointer(bitPattern: "gradientLayer".hashValue)!)"
     }
 }

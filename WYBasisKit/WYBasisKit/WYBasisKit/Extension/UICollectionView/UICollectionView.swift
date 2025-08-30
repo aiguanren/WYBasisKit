@@ -892,71 +892,70 @@ extension WYCollectionViewFlowLayout {
     /** 存放所有cell的布局属性 */
     private var attributesArray: [UICollectionViewLayoutAttributes] {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.wy_attributesArray, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_attributesArray, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.wy_attributesArray) as? [UICollectionViewLayoutAttributes] ?? []
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_attributesArray) as? [UICollectionViewLayoutAttributes] ?? []
         }
     }
     
     /** 存放每个section中各个行的最后一个宽度 */
     private var columnWidths: [CGFloat] {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.wy_columnWidths, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_columnWidths, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.wy_columnWidths) as? [CGFloat] ?? []
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_columnWidths) as? [CGFloat] ?? []
         }
     }
     
     /** 存放每个section中各个列的最后一个高度 */
     private var columnHeights: [CGFloat] {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.wy_columnHeights, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_columnHeights, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.wy_columnHeights) as? [CGFloat] ?? []
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_columnHeights) as? [CGFloat] ?? []
         }
     }
     
     /** 内容的宽高 */
     private var contentSize: CGSize {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.wy_contentSize, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_contentSize, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.wy_contentSize) as? CGSize ?? .zero
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_contentSize) as? CGSize ?? .zero
         }
     }
     
     /** 记录上个section宽度最宽一行的宽度 */
     private var lastContentWidth: CGFloat {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.wy_lastContentWidth, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_lastContentWidth, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.wy_lastContentWidth) as? CGFloat ?? 0.0
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_lastContentWidth) as? CGFloat ?? 0.0
         }
     }
     
     /** 记录上个section高度最高一列的高度 */
     private var lastContentHeight: CGFloat {
         set(newValue) {
-            objc_setAssociatedObject(self, WYAssociatedKeys.wy_lastContentHeight, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_lastContentHeight, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, WYAssociatedKeys.wy_lastContentHeight) as? CGFloat ?? 0.0
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_lastContentHeight) as? CGFloat ?? 0.0
         }
     }
     
     private struct WYAssociatedKeys {
-        
-        static let wy_attributesArray = UnsafeRawPointer(bitPattern: "wy_attributesArray".hashValue)!
-        static let wy_columnWidths = UnsafeRawPointer(bitPattern: "wy_columnWidths".hashValue)!
-        static let wy_columnHeights = UnsafeRawPointer(bitPattern: "wy_columnHeights".hashValue)!
-        static let wy_contentSize = UnsafeRawPointer(bitPattern: "wy_contentSize".hashValue)!
-        static let wy_lastContentWidth = UnsafeRawPointer(bitPattern: "wy_lastContentWidth".hashValue)!
-        static let wy_lastContentHeight = UnsafeRawPointer(bitPattern: "wy_lastContentHeight".hashValue)!
+        static var wy_attributesArray: UInt8 = 0
+        static var wy_columnWidths: UInt8 = 0
+        static var wy_columnHeights: UInt8 = 0
+        static var wy_contentSize: UInt8 = 0
+        static var wy_lastContentWidth: UInt8 = 0
+        static var wy_lastContentHeight: UInt8 = 0
     }
 }
 

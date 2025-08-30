@@ -83,6 +83,8 @@
 		589B0A4D2E49CE12000DBD10 /* 冰啤.webp in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A282E49CE12000DBD10 /* 冰啤.webp */; };
 		589B0A4E2E49CE12000DBD10 /* 沙滩上的石头.png in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A352E49CE12000DBD10 /* 沙滩上的石头.png */; };
 		589B0A4F2E49CE12000DBD10 /* 蓝天下的红色花.png in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A302E49CE12000DBD10 /* 蓝天下的红色花.png */; };
+		58B5A0252E5DBBF3008F9C38 /* WYTestTextViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 58B5A0242E5DBBF3008F9C38 /* WYTestTextViewController.xib */; };
+		58B5A0262E5DBBF3008F9C38 /* WYTestTextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B5A0232E5DBBF3008F9C38 /* WYTestTextViewController.swift */; };
 		58CDEE5D2E34907800ACE975 /* WYLogController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CDEE5C2E34907800ACE975 /* WYLogController.swift */; };
 		58E712812E4B0CE90095E71C /* TestAudioController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E712802E4B0CE90095E71C /* TestAudioController.swift */; };
 		9964A95003E532968F604219 /* Pods_SwiftVerify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B9AF69CF29055B1125EF34F /* Pods_SwiftVerify.framework */; };
@@ -177,6 +179,8 @@
 		589B0A392E49CE12000DBD10 /* 阳光蓝天下的花.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "阳光蓝天下的花.jpg"; sourceTree = "<group>"; };
 		589B0A3A2E49CE12000DBD10 /* 樱花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "樱花.png"; sourceTree = "<group>"; };
 		589B0A3B2E49CE12000DBD10 /* bird.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = bird.gif; sourceTree = "<group>"; };
+		58B5A0232E5DBBF3008F9C38 /* WYTestTextViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestTextViewController.swift; sourceTree = "<group>"; };
+		58B5A0242E5DBBF3008F9C38 /* WYTestTextViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WYTestTextViewController.xib; sourceTree = "<group>"; };
 		58CDEE5C2E34907800ACE975 /* WYLogController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLogController.swift; sourceTree = "<group>"; };
 		58E712802E4B0CE90095E71C /* TestAudioController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestAudioController.swift; sourceTree = "<group>"; };
 		AAA7086F2E1C11060040F2ED /* WYArchivedController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYArchivedController.swift; sourceTree = "<group>"; };
@@ -428,6 +432,7 @@
 		585B3A832DF819DC00E6E08F /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				58B5A0202E5D837C008F9C38 /* TextView */,
 				5882EAEF2E518A4900638FD3 /* 设备振动 */,
 				58E7127F2E4B0CC30095E71C /* 音频录制与播放 */,
 				58CDEE592E34900D00ACE975 /* 日志输出与保存 */,
@@ -541,6 +546,15 @@
 				5882EAF02E518A5D00638FD3 /* WYTestVibrateController.swift */,
 			);
 			path = "设备振动";
+			sourceTree = "<group>";
+		};
+		58B5A0202E5D837C008F9C38 /* TextView */ = {
+			isa = PBXGroup;
+			children = (
+				58B5A0232E5DBBF3008F9C38 /* WYTestTextViewController.swift */,
+				58B5A0242E5DBBF3008F9C38 /* WYTestTextViewController.xib */,
+			);
+			path = TextView;
 			sourceTree = "<group>";
 		};
 		58CDEE592E34900D00ACE975 /* 日志输出与保存 */ = {
@@ -662,6 +676,7 @@
 				589B0A452E49CE12000DBD10 /* 沙滩上的花.png in Resources */,
 				589B0A462E49CE12000DBD10 /* 窗边的插画.png in Resources */,
 				589B0A472E49CE12000DBD10 /* 沙滩.jpg in Resources */,
+				58B5A0252E5DBBF3008F9C38 /* WYTestTextViewController.xib in Resources */,
 				589B0A482E49CE12000DBD10 /* 石头上的花.png in Resources */,
 				589B0A492E49CE12000DBD10 /* 风景.webp in Resources */,
 				589B0A4A2E49CE12000DBD10 /* 蓝天下的花.png in Resources */,
@@ -831,6 +846,7 @@
 				585B3AB42DF819DC00E6E08F /* WYQRCodeController.swift in Sources */,
 				585B3AB52DF819DC00E6E08F /* SDKRequest.swift in Sources */,
 				58CDEE5D2E34907800ACE975 /* WYLogController.swift in Sources */,
+				58B5A0262E5DBBF3008F9C38 /* WYTestTextViewController.swift in Sources */,
 				585B3AB62DF819DC00E6E08F /* SDKRequestContext.swift in Sources */,
 				585B3AB72DF819DC00E6E08F /* SDKResponse.swift in Sources */,
 				585B3AB82DF819DC00E6E08F /* UserRequest.swift in Sources */,
