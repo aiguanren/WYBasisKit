@@ -478,24 +478,33 @@ public extension String {
      */
     func  wy_timestampConvertDate(_ dateFormat: WYTimeFormat, _ showAmPmSymbol: Bool = false) -> String {
         
-        if self.isEmpty {return ""}
+        guard !self.isEmpty else { return "" }
         
-        let dateString: String = self.count <= 10 ? self : "\(((NumberFormatter().number(from: self)?.doubleValue ?? 0.0) / 1000))"
+        // 转为秒级时间戳
+        let timestamp: Double
+        if self.count <= 10, let t = Double(self) {
+            timestamp = t
+        } else if let t = Double(self) {
+            timestamp = t / 1000
+        } else {
+            return ""
+        }
         
-        let date: Date = Date(timeIntervalSince1970: Double(dateString)!)
+        let date = Date(timeIntervalSince1970: timestamp)
         
         let formatter = DateFormatter()
         formatter.calendar = Calendar(identifier: .iso8601)
-        formatter.calendar.timeZone = NSTimeZone.local
-        if showAmPmSymbol == false {
-            // 不显示上午或者下午标识
+        formatter.timeZone = TimeZone.current
+        
+        if !showAmPmSymbol {
+            // 不显示上午/下午标识，使用 24 小时制
             formatter.amSymbol = ""
             formatter.pmSymbol = ""
-            formatter.locale = Locale(identifier: "")
+            formatter.locale = Locale(identifier: "en_US_POSIX") // 推荐固定 locale 避免地区差异
         }
-        formatter.dateFormat = sharedTimeFormat(dateFormat: dateFormat)
         
-        return formatter.string(from: date as Date)
+        formatter.dateFormat = sharedTimeFormat(dateFormat: dateFormat)
+        return formatter.string(from: date)
     }
     
     /// 获取当前的 年、月、日
@@ -515,20 +524,27 @@ public extension String {
     /// 时间戳转星期几
     var wy_whatDay: WYWhatDay {
         
-        guard [10, 13].contains(count) else {
+        // 仅支持 10 位或 13 位时间戳
+        guard [10, 13].contains(self.count) else {
             return .unknown
         }
         
-        let timeInterval: TimeInterval = NumberFormatter().number(from: self)?.doubleValue ?? 0.0
+        // 转换为 Double
+        guard let timestamp = Double(self) else {
+            return .unknown
+        }
         
-        let date: Date = Date(timeIntervalSince1970: timeInterval / (count == 13 ? 1000.0 : 1.0))
+        // 时间戳统一为秒
+        let timeInterval = count == 13 ? timestamp / 1000.0 : timestamp
+        let date = Date(timeIntervalSince1970: timeInterval)
         
-        var calendar: Calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = NSTimeZone.local
+        // 使用 Gregorian 日历和当前时区
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone.current
         
-        let dateComponents: DateComponents = calendar.dateComponents([Calendar.Component.year,Calendar.Component.month,Calendar.Component.weekday,Calendar.Component.day], from: date)
+        let components = calendar.dateComponents([.year, .month, .day, .weekday], from: date)
         
-        return WYWhatDay(rawValue: dateComponents.weekday ?? 0) ?? .unknown
+        return WYWhatDay(rawValue: components.weekday ?? 0) ?? .unknown
     }
     
     /// 年月日格式转时间戳
@@ -554,74 +570,57 @@ public extension String {
      */
     static func wy_timeIntervalCycle(_ messageTimestamp: String, _ clientTimestamp: String = wy_sharedDeviceTimestamp()) -> WYTimeDistance {
         
-        guard ([10, 13].contains(messageTimestamp.count)) && ([10, 13].contains(clientTimestamp.count)) else {
+        // 支持 10 位或 13 位时间戳
+        guard [10, 13].contains(messageTimestamp.count), [10, 13].contains(clientTimestamp.count),
+              let messageTime = Double(messageTimestamp), let clientTime = Double(clientTimestamp) else {
             return .unknown
         }
         
-        var calendar: Calendar = Calendar(identifier: .iso8601)
-        calendar.timeZone = NSTimeZone.local
+        // 统一时间戳为秒
+        let messageInterval = messageTimestamp.count == 13 ? messageTime / 1000 : messageTime
+        let clientInterval = clientTimestamp.count == 13 ? clientTime / 1000 : clientTime
         
-        let dateFormatter: DateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        dateFormatter.calendar = calendar
+        // 选择参考时间（取消息时间或客户端时间）
+        let referenceDate = (messageInterval <= 0 || messageInterval >= clientInterval)
+        ? Date(timeIntervalSince1970: clientInterval)
+        : Date(timeIntervalSince1970: messageInterval)
         
-        var clientDate: Date!
+        let calendar = Calendar(identifier: .iso8601)
+        let componentsSet: Set<Calendar.Component> = [.year, .month, .day]
         
-        let message_timestamp: TimeInterval = NumberFormatter().number(from: messageTimestamp)?.doubleValue ?? 0
-        
-        let client_timestamp: TimeInterval = NumberFormatter().number(from: clientTimestamp)?.doubleValue ?? 0
-        
-        if ((message_timestamp >= client_timestamp) || (message_timestamp <= 0)) {
-            clientDate = Date(timeIntervalSince1970: client_timestamp / (clientTimestamp.count == 13 ? 1000.0 : 1.0))
-        }else {
-            clientDate = Date(timeIntervalSince1970: message_timestamp / (messageTimestamp.count == 13 ? 1000.0 : 1.0))
-        }
-        
-        /// 一天的秒数
-        let secondsPerDay: TimeInterval = 24 * 60 * 60
-        
-        let componentsSet: Set<Calendar.Component> = [Calendar.Component.year, Calendar.Component.month, Calendar.Component.day]
-        
-        func components(_ day: TimeInterval) -> DateComponents {
-            
-            let date: Date = Date(timeIntervalSince1970: (client_timestamp / (clientTimestamp.count == 13 ? 1000.0 : 1.0)) - (day * secondsPerDay))
-            
+        func dateComponents(daysAgo: Int) -> DateComponents {
+            let date = Calendar.current.date(byAdding: .day, value: -daysAgo, to: referenceDate) ?? referenceDate
             return calendar.dateComponents(componentsSet, from: date)
         }
         
-        let clientComponents = calendar.dateComponents(componentsSet, from: clientDate)
+        let today = dateComponents(daysAgo: 0)
+        let aDayAgo = dateComponents(daysAgo: 1)
+        let twoDaysAgo = dateComponents(daysAgo: 2)
+        let threeDaysAgo = dateComponents(daysAgo: 3)
+        let fourDaysAgo = dateComponents(daysAgo: 4)
+        let fiveDaysAgo = dateComponents(daysAgo: 5)
+        let sixDaysAgo = dateComponents(daysAgo: 6)
         
-        let dateComponents = (today: components(0),
-                              aDayAgo: components(1),
-                              twoDaysAgo: components(2),
-                              threeDaysAgo: components(3),
-                              fourDaysAgo: components(4),
-                              fiveDaysAgo: components(5),
-                              sixDaysAgo: components(6))
+        let clientComponents = calendar.dateComponents(componentsSet, from: Date(timeIntervalSince1970: clientInterval))
         
-        if ((clientComponents.year == dateComponents.today.year) && (clientComponents.month == dateComponents.today.month) && (clientComponents.day == dateComponents.today.day)) {
-            return .today
+        func isSameDay(_ comp1: DateComponents, _ comp2: DateComponents) -> Bool {
+            return comp1.year == comp2.year && comp1.month == comp2.month && comp1.day == comp2.day
         }
         
-        if ((clientComponents.year == dateComponents.aDayAgo.year) && (clientComponents.month == dateComponents.aDayAgo.month) && (clientComponents.day == dateComponents.aDayAgo.day)) {
-            return .yesterday
-        }
+        if isSameDay(clientComponents, today) { return .today }
+        if isSameDay(clientComponents, aDayAgo) { return .yesterday }
+        if isSameDay(clientComponents, twoDaysAgo) { return .yesterdayBefore }
         
-        if ((clientComponents.year == dateComponents.twoDaysAgo.year) && (clientComponents.month == dateComponents.twoDaysAgo.month) && (clientComponents.day == dateComponents.twoDaysAgo.day)) {
-            return .yesterdayBefore
-        }
-        
-        if (((clientComponents.year == dateComponents.threeDaysAgo.year) && (clientComponents.month == dateComponents.threeDaysAgo.month) && (clientComponents.day == dateComponents.threeDaysAgo.day)) || ((clientComponents.year == dateComponents.fourDaysAgo.year) && (clientComponents.month == dateComponents.fourDaysAgo.month) && (clientComponents.day == dateComponents.fourDaysAgo.day)) ||
-            ((clientComponents.year == dateComponents.fiveDaysAgo.year) && (clientComponents.month == dateComponents.fiveDaysAgo.month) && (clientComponents.day == dateComponents.fiveDaysAgo.day)) ||
-            ((clientComponents.year == dateComponents.sixDaysAgo.year) && (clientComponents.month == dateComponents.sixDaysAgo.month) && (clientComponents.day == dateComponents.sixDaysAgo.day))) {
+        if isSameDay(clientComponents, threeDaysAgo) || isSameDay(clientComponents, fourDaysAgo)
+            || isSameDay(clientComponents, fiveDaysAgo) || isSameDay(clientComponents, sixDaysAgo) {
             return .withinWeek
         }
         
-        if ((clientComponents.year == dateComponents.twoDaysAgo.year) && (clientComponents.month == dateComponents.twoDaysAgo.month)) {
+        if clientComponents.year == twoDaysAgo.year && clientComponents.month == twoDaysAgo.month {
             return .withinSameMonth
         }
         
-        if clientComponents.year == dateComponents.twoDaysAgo.year {
+        if clientComponents.year == twoDaysAgo.year {
             return .withinSameYear
         }
         
