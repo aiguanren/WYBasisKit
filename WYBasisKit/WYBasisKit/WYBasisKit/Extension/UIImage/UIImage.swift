@@ -424,7 +424,7 @@ public extension UIImage {
             contentPath = ((Bundle(for: WYLocalizableClass.self).path(forResource: animatedImageName, ofType: nil)) ?? (Bundle.main.path(forResource: animatedImageName, ofType: nil))) ?? ""
         }
         
-        guard let contentData = NSData(contentsOfFile: contentPath) else {
+        guard let contentData = try? Data(contentsOf: URL(fileURLWithPath: contentPath)) else {
             return nil
         }
         
