@@ -397,8 +397,7 @@ public extension String {
     
     /// Encode
     func wy_encoded(escape: String = "?!@#$^&%*+,:;='\"`<>()[]{}/\\| ") -> String {
-        
-        let characterSet = NSCharacterSet(charactersIn: escape).inverted
+        let characterSet = CharacterSet(charactersIn: escape).inverted
         return self.addingPercentEncoding(withAllowedCharacters: characterSet) ?? self
     }
     
@@ -675,7 +674,7 @@ public extension String {
     
     /// 从字符串中提取数字
     var wy_extractNumbers: [String] {
-        return self.components(separatedBy: NSCharacterSet.decimalDigits.inverted).compactMap({$0.count > 0 ? $0 : nil})
+        return self.components(separatedBy: CharacterSet.decimalDigits.inverted).compactMap({$0.count > 0 ? $0 : nil})
     }
     
     /**
