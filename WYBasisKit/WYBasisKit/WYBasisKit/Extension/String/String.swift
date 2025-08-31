@@ -405,9 +405,10 @@ public extension String {
     /// Decode
     var wy_decoded: String {
         
-        let targetString: NSMutableString = NSMutableString(string: self)
-        targetString.replaceOccurrences(of: "+", with: "", options: .literal, range: NSMakeRange(0, targetString.length))
-        return targetString.removingPercentEncoding ?? self
+        // 去掉所有 "+" 符号
+        let cleaned = self.replacingOccurrences(of: "+", with: "")
+        // 进行 URL 解码，如果失败返回原字符串
+        return cleaned.removingPercentEncoding ?? self
     }
     
     /// base64编码
