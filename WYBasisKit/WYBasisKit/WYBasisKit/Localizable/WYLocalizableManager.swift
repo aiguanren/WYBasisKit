@@ -340,12 +340,22 @@ public struct WYLocalizableManager {
     /// 获取当前系统语言
     public static func currentSystemLanguage() -> String {
         
-        let appleLanguages: [String] = (UserDefaults.standard.object(forKey: WYBasisKitLanguage) as! [String])
-        let countryCode: String = (Locale.current as NSLocale).object(forKey: NSLocale.Key.countryCode) as? String ?? ""
-        var appleLanguage: String = appleLanguages.first!.replacingOccurrences(of: "-" + countryCode, with: "")
+        // 获取用户设置的语言列表
+        let appleLanguages = UserDefaults.standard.array(forKey: WYBasisKitLanguage) as? [String] ?? []
+        let countryCode = Locale.current.regionCode ?? ""
+        
+        guard var appleLanguage = appleLanguages.first else {
+            return Locale.current.languageCode ?? "en"
+        }
+        
+        // 去掉语言中的国家码
+        appleLanguage = appleLanguage.replacingOccurrences(of: "-" + countryCode, with: "")
+        
+        // English 统一返回 "en"
         if appleLanguage.hasPrefix("en") {
             appleLanguage = "en"
         }
+        
         return appleLanguage
     }
     
