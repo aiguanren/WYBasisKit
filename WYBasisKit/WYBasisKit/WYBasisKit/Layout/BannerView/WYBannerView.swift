@@ -46,6 +46,7 @@ public class WYBannerView: UIView {
      *  @param images    轮播图片数组(支持UIImage、URL、String)
      */
     public func reload(images: [Any] = [], describes: [String] = []) {
+        cancelAllDownloads()
         imageSource = images
         describeSource = describes
     }
@@ -216,6 +217,32 @@ public class WYBannerView: UIView {
         }
     }
     
+    /// 根据图片url获取缓存图片
+    public func cacheImage(_ urlString: String) -> UIImage? {
+        
+        guard urlString.isEmpty == false else {
+            return nil
+        }
+        
+        // 内存缓存优先
+        if let image = WYBannerView.imageCache.object(forKey: urlString as NSString) {
+            return image
+        }
+        
+        // 沙盒缓存
+        let fileName = URL(string: urlString)?.lastPathComponent ?? ""
+        let pathURL = cacheURL.appendingPathComponent(fileName)
+        if let data = try? Data(contentsOf: pathURL),
+           let image = UIImage(data: data) {
+            // 如果从沙盒取到图片，也放入内存缓存
+            WYBannerView.imageCache.setObject(image, forKey: urlString as NSString)
+            return image
+        }
+        
+        // 如果内存和沙盒都没有，则返回 nil
+        return nil
+    }
+    
     /// 获取缓存大小的可读字符串，例如 "1.2 MB"
     public func cacheSizeString() -> String {
         let byteCount = cacheSize()
@@ -239,7 +266,6 @@ public class WYBannerView: UIView {
                 }
             }
         }
-        
         return size
     }
     
@@ -254,10 +280,13 @@ public class WYBannerView: UIView {
                 try? fileManager.removeItem(at: fileURL)
             }
         }
+        // 清空内存缓存
+        WYBannerView.imageCache.removeAllObjects()
     }
     
     deinit {
-        stopTimer()
+        stopTimer() // 停止计时器
+        cancelAllDownloads() // 取消所有下载任务
     }
     
     /*
@@ -336,7 +365,7 @@ extension WYBannerView {
                 }
                 
                 let gestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(didClickBanner))
-                    scrollview.addGestureRecognizer(gestureRecognizer)
+                scrollview.addGestureRecognizer(gestureRecognizer)
                 
                 objc_setAssociatedObject(self, &WYAssociatedKeys.scrollView, scrollview, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
                 
@@ -688,13 +717,17 @@ extension WYBannerView {
         }
     }
     
-    /// OperationQueue
-    var queue: OperationQueue {
+    // 添加内存缓存
+    private static let imageCache = NSCache<NSString, UIImage>()
+    
+    /// DispatchQueue
+    var downloadQueue: DispatchQueue {
         get {
-            if let q = objc_getAssociatedObject(self, &WYAssociatedKeys.queueKey) as? OperationQueue {
+            if let q = objc_getAssociatedObject(self, &WYAssociatedKeys.queueKey) as? DispatchQueue {
                 return q
             }
-            let q = OperationQueue()
+            // 创建串行队列
+            let q = DispatchQueue(label: "com.WYBasisKit.WYBannerView.downloadQueue", qos: .userInitiated)
             objc_setAssociatedObject(self, &WYAssociatedKeys.queueKey, q, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
             return q
         }
@@ -735,60 +768,134 @@ extension WYBannerView {
         
         var sourceUrl: URL? = nil
         var imageIndex: Int? = nil
-        if let imageUrl = imageSource as? URL, imageUrl.absoluteString.isEmpty == false {
+        
+        // 判断 URL 或 String
+        if let imageUrl = imageSource as? URL, !imageUrl.absoluteString.isEmpty {
             sourceUrl = imageUrl
             if let index = self.imageSource.firstIndex(where: { ($0 as? URL) == imageUrl }) {
                 imageIndex = index
             }
-        }else if let imageString: String = imageSource as? String, imageString.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false {
-            sourceUrl = URL(string: (imageString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)) ?? "")
-            if let index = self.imageSource.firstIndex(where: { ($0 as? String) == imageString }) {
-                imageIndex = index
+        } else if let imageString = imageSource as? String, !imageString.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            if let encodedString = imageString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+               let url = URL(string: encodedString) {
+                sourceUrl = url
+                if let index = self.imageSource.firstIndex(where: { ($0 as? String) == imageString }) {
+                    imageIndex = index
+                }
+            } else {
+                imageView?.image = placeholderImage
+                return
             }
-        }else {
-            // 如果走到这里来了，说明要么是空内容，要么是不支持的资源类型，直接显示占位图
+        } else {
             imageView?.image = placeholderImage
             return
         }
         
-        // 拼接缓存路径
         guard let url = sourceUrl else { return }
-        let fileName = url.lastPathComponent
-        let pathURL = cacheURL.appendingPathComponent(fileName)
+        let cacheKey = url.absoluteString
+        let pathURL = cacheURL.appendingPathComponent(url.lastPathComponent)
         
-        // 从沙盒取图片
-        if let data = try? Data(contentsOf: pathURL),
-           let image = UIImage(data: data) {
-            imageView?.image = image
+        // 尝试从缓存获取图片（内存或沙盒）
+        if let cachedImage = cacheImage(cacheKey) {
+            imageView?.image = cachedImage
             if let index = imageIndex {
-                // 沙河有图片就替换对应图片为沙河中的图片
-                self.imageSource[index] = image
+                self.imageSource[index] = cachedImage
             }
             return
         }
         
-        // 沙河中没有获取到图片就先展示占位图，之后在下载替换
+        // 占位图先显示
         imageView?.image = placeholderImage
         
-        // 下载图片
-        let download = BlockOperation { [weak self] in
-            guard let self = self,
-                  let data = try? Data(contentsOf: url),
-                  let image = UIImage(data: data), let index = imageIndex else { return }
-            
-            // 沙河有图片就替换对应图片为沙河中的图片
-            self.imageSource[index] = image
-            
-            // 如果下载的图片是当前要显示的图片，则直接更新 UI
-            if currentIndex == index {
+        // 线程安全访问 downloadOperations
+        downloadQueue.sync {
+            if downloadOperations[cacheKey] != nil {
+                // 已经有任务在进行中
+                return
+            }
+
+            // 创建 URLSession 下载任务
+            let task = URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
+                guard let self = self else { return }
+
+                defer {
+                    // 下载完成后移除任务
+                    self.downloadQueue.async {
+                        self.downloadOperations.removeValue(forKey: cacheKey)
+                    }
+                }
+
+                guard let data = data, error == nil, let image = UIImage(data: data) else {
+                    DispatchQueue.main.async {
+                        // 下载失败显示占位图
+                        if let index = imageIndex, let visibleImageView = self.currentView {
+                            visibleImageView.image = self.placeholderImage
+                        } else {
+                            imageView?.image = self.placeholderImage
+                        }
+                    }
+                    return
+                }
+
+                // 写入内存缓存
+                WYBannerView.imageCache.setObject(image, forKey: cacheKey as NSString)
+
+                // 写入沙盒
+                try? data.write(to: pathURL)
+
+                // 回到主线程更新 UI
                 DispatchQueue.main.async {
-                    imageView?.image = image
+                    // 通过 index 查找当前显示的 imageView，避免第一次空白
+                    if let index = imageIndex, let visibleImageView = self.currentView {
+                        visibleImageView.image = image
+                    } else {
+                        // 兜底，直接更新传入的 imageView
+                        imageView?.image = image
+                    }
+
+                    if let index = imageIndex {
+                        self.imageSource[index] = image
+                    }
+
+                    // 如果是当前显示的 imageView，也更新 currentView
+                    if let visibleImageView = self.currentView, let index = imageIndex,
+                       visibleImageView == self.currentView {
+                        self.currentView?.image = image
+                    }
                 }
             }
-            // 写入沙盒
-            try? data.write(to: pathURL)
+
+            // 保存任务到字典
+            downloadOperations[cacheKey] = task
+
+            // 开始下载
+            task.resume()
         }
-        queue.addOperation(download)
+    }
+    
+    // 添加下载任务跟踪字典
+    var downloadOperations: [String: URLSessionDataTask] {
+        get {
+            if let tasks = objc_getAssociatedObject(self, &WYAssociatedKeys.downloadOperations) as? [String: URLSessionDataTask] {
+                return tasks
+            }
+            let tasks = [String: URLSessionDataTask]()
+            objc_setAssociatedObject(self, &WYAssociatedKeys.downloadOperations, tasks, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            return tasks
+        }
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.downloadOperations, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+    }
+    
+    // 取消所有下载
+    func cancelAllDownloads() {
+        downloadQueue.sync {
+            for (_, task) in downloadOperations {
+                task.cancel()
+            }
+            downloadOperations.removeAll()
+        }
     }
     
     private struct WYAssociatedKeys {
@@ -810,6 +917,7 @@ extension WYBannerView {
         static var canSwitchedPage: UInt8 = 0
         static var queueKey: UInt8 = 0
         static var cacheURLKey: UInt8 = 0
+        static var downloadOperations: UInt8 = 0
     }
 }
 
@@ -832,7 +940,7 @@ extension WYBannerView: UIScrollViewDelegate {
         }
         
         canSwitchedPage = (abs(offsetX - wy_width) >= wy_width)
-
+        
         scrollDirection = offsetX > wy_width ? .left : (offsetX < wy_width ? .right : .none)
         
         if let delegate = delegate {

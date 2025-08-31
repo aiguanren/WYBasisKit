@@ -17,9 +17,9 @@ class WYGroupedHeaderView: UITableViewHeaderFooterView {
         self.contentView.backgroundColor = .white
         
         bannerView.backgroundColor = .wy_random
+        bannerView.automaticCarousel = false
         bannerView.imageContentMode = .scaleAspectFit
         WYLogManager.output("字节描述(KB或MB等)：\(bannerView.cacheSizeString())，\(bannerView.cacheSize())字节")
-        //bannerView.clearDiskCache()
         contentView.addSubview(bannerView)
         bannerView.snp.makeConstraints { make in
             make.size.equalTo(CGSize(width: 300, height: 600))
@@ -28,6 +28,7 @@ class WYGroupedHeaderView: UITableViewHeaderFooterView {
     }
     
     func reload(images: [String]) {
+        WYLogManager.output("第一张图片信息：\(String(describing: bannerView.cacheImage(images.first ?? "")))")
         bannerView.reload(images: images)
     }
     
@@ -58,6 +59,9 @@ class WYTableViewGroupedController: UIViewController {
         tableView.backgroundColor = UIColor.wy_dynamic(.white, .black)
     }
     
+    deinit {
+        WYLogManager.output("deinit")
+    }
 
     /*
     // MARK: - Navigation

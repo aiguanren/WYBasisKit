@@ -296,7 +296,6 @@ Pod::Spec.new do |kit|
       ]}
       scrollText.frameworks = "Foundation", "UIKit"
       scrollText.dependency "WYBasisKit-swift/Localizable"
-      scrollText.dependency "SnapKit"
       scrollText.dependency "WYBasisKit-swift/LogManager"
     end
     
@@ -316,7 +315,6 @@ Pod::Spec.new do |kit|
         "#{kit_path}Layout/PagingView/PrivacyInfo.xcprivacy"
       ]}
       pagingView.frameworks = "Foundation", "UIKit"
-      pagingView.dependency "SnapKit"
       pagingView.dependency "WYBasisKit-swift/LogManager"
     end
     
