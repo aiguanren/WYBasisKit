@@ -49,7 +49,7 @@ class AutoLayout: UIViewController {
          - 在大多数从左到右 (LTR) 的语言环境下 = left（通常是“左边”）
          - 在少数从右到左 (RTL) 的语言环境下 = right（例如阿拉伯语、希伯来语）
          - 推荐用于国际化布局（支持 RTL 的自动翻转）
-        trailingAnchor  : 右/后边（与 leading 相反，也会随语言方向变化）
+         trailingAnchor  : 右/后边（与 leading 相反，也会随语言方向变化）
          leftAnchor      : 固定的左边（物理左边，**不随语言方向变化**）
          rightAnchor     : 固定的右边（物理右边，**不随语言方向变化**）
          topAnchor       : 顶部（垂直方向上的上边）
