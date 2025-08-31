@@ -14,6 +14,7 @@ UserInterfaceState.xcuserstate  # 用户界面状态
 
 
 # Xcode 工作区和项目文件
+*.xcworkspace          # 忽略所有 Xcode 工作区文件（单个文件）
 *.xcworkspace/         # Xcode 工作区文件夹
 project.xcworkspace/   # Xcode 工程工作区
 
