@@ -823,7 +823,8 @@ extension WYNetworkManager {
         timeFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
         let time = timeFormatter.string(from: Date())
         let message = messages.compactMap { "\($0)" }.joined(separator: " ")
-        print("\n\(time) ——> \((file as NSString).lastPathComponent) ——> \(function) ——> line:\(line)\n\n \(message)\n\n\n")
+        let fileName = URL(fileURLWithPath: file).lastPathComponent
+        print("\n\(time) ——> \(fileName) ——> \(function) ——> line:\(line)\n\n \(message)\n\n\n")
         #endif
     }
 }

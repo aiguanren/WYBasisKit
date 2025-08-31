@@ -11,7 +11,7 @@ import UIKit
 public extension UIFont {
     
     /// 字号比率转换
-    class func wy_fontSize(_ ratioValue: CGFloat, _ pixels: WYScreenPixels = WYBasisKitConfig.defaultScreenPixels) -> CGFloat {
+    static func wy_fontSize(_ ratioValue: CGFloat, _ pixels: WYScreenPixels = WYBasisKitConfig.defaultScreenPixels) -> CGFloat {
         if UIDevice.wy_screenWidthRatio(pixels) > WYBasisKitConfig.fontRatio.max {
             return ratioValue * WYBasisKitConfig.fontRatio.max
         }else if UIDevice.wy_screenWidthRatio(pixels) < WYBasisKitConfig.fontRatio.min {

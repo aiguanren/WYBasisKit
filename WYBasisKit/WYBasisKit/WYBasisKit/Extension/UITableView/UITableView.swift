@@ -39,7 +39,7 @@ public extension UITableView {
      */
     
     /// 创建一个UITableView
-    class func wy_shared(frame: CGRect = .zero,
+    static func wy_shared(frame: CGRect = .zero,
                          style: UITableView.Style = .plain,
                          headerHeight: CGFloat = UITableView.automaticDimension,
                          footerHeight: CGFloat = UITableView.automaticDimension,
@@ -109,7 +109,7 @@ public extension UITableView {
     /// 注册UITableView的Cell或HeaderFooterView
     func wy_register(_ contentClass: AnyClass, _ style: WYTableViewRegisterStyle) {
         
-        let reuseIdentifier: String = NSStringFromClass(contentClass).components(separatedBy: ".").last ?? ""
+        let reuseIdentifier: String = String(describing: contentClass).components(separatedBy: ".").last ?? ""
         
         switch style {
         case .cell:

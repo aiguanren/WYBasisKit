@@ -32,7 +32,7 @@ extension UIViewController: ViewControllerHandlerProtocol {
 public extension UIViewController {
     
     /// 全局设置UIViewController present 跳转模式为全屏
-    class func wy_globalPresentationFullScreen() {
+    static func wy_globalPresentationFullScreen() {
         let originalSelector = #selector(UIViewController.present(_:animated:completion:))
         let swizzledSelector = #selector(UIViewController.wy_present(_:animated:completion:))
         let originalMethod = class_getInstanceMethod(self, originalSelector)
@@ -54,7 +54,7 @@ public extension UIViewController {
     
     
     /// 获取当前正在显示的控制器
-    class func wy_currentController(windowController: UIViewController? = (UIApplication.shared.delegate?.window)??.rootViewController) -> UIViewController? {
+    static func wy_currentController(windowController: UIViewController? = (UIApplication.shared.delegate?.window)??.rootViewController) -> UIViewController? {
         
         if let navigationController = windowController as? UINavigationController {
             return wy_currentController(windowController: navigationController.visibleViewController)

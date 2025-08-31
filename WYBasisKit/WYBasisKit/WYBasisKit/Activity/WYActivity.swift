@@ -523,7 +523,7 @@ private class WYActivityLoadingView: UIView {
         return activity
     }()
     
-    class func showContent(_ content: Any?, in contentView: UIView, userInteraction: Bool = true, animation: WYActivityAnimation, delay: TimeInterval, config: WYLoadingConfig) {
+    static func showContent(_ content: Any?, in contentView: UIView, userInteraction: Bool = true, animation: WYActivityAnimation, delay: TimeInterval, config: WYLoadingConfig) {
         
         if contentView.wy_loadingView != nil {
             contentView.wy_loadingView?.removeActivity()
@@ -646,7 +646,7 @@ private class WYActivityLoadingView: UIView {
         }
     }
     
-    class func dismissLoading(in contentView: UIView, animate: Bool) {
+    static func dismissLoading(in contentView: UIView, animate: Bool) {
         
         guard let loadingView = contentView.wy_loadingView else {
             return
@@ -733,7 +733,7 @@ private extension WYActivity {
             attributed?.wy_colorsOfRanges(colorsOfRanges: [[textColor: attributed?.string as Any]])
             attributed?.wy_fontsOfRanges(fontsOfRanges: [[textFont: attributed?.string as Any]])
             attributed?.wy_wordsSpacing(wordsSpacing: 1)
-            attributed?.wy_lineSpacing(lineSpacing: UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels), string: attributed?.string, alignment: alignment)
+            attributed?.wy_lineSpacing(lineSpacing: UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels), subString: attributed?.string, alignment: alignment)
         }else {
             attributed = NSMutableAttributedString(attributedString: content as? NSAttributedString ?? NSAttributedString())
         }

@@ -98,7 +98,7 @@ struct WYTarget: TargetType {
             }
             return .uploadCompositeMultipart(multiparts, urlParameters: request.parameter)
         case .download:
-
+            
             let downloadDestination: DownloadDestination = { temporaryURL, response in
                 
                 let format: String = ((response.mimeType ?? "").components(separatedBy: "/").count > 1) ? ((response.mimeType ?? "").components(separatedBy: "/").last ?? "") : ""
@@ -260,9 +260,9 @@ private class WYBothwayVerifyDeleagte: SessionDelegate, @unchecked Sendable {
             
             guard let p12Path = ((Bundle(for: WYBothwayVerifyDeleagte.self).path(forResource: config.httpsConfig.clientP12, ofType: "p12")) ?? (Bundle.main.path(forResource: config.httpsConfig.clientP12, ofType: "p12"))),
                   let p12Data = try? Data(contentsOf: URL(fileURLWithPath: p12Path)) else {
-                      completionHandler(.performDefaultHandling, nil)
-                      return
-                  }
+                completionHandler(.performDefaultHandling, nil)
+                return
+            }
             
             let p12Contents = PKCS12(pkcs12Data: p12Data, password: config.httpsConfig.clientP12Password, clientP12: config.httpsConfig.clientP12)
             guard let identity = p12Contents.identity else {
@@ -282,43 +282,41 @@ private class WYBothwayVerifyDeleagte: SessionDelegate, @unchecked Sendable {
     
     private struct PKCS12 {
         let label: String?
-        let keyID: NSData?
+        let keyID: Data?
         let trust: SecTrust?
         let certChain: [SecTrust]?
         let identity: SecIdentity?
         
         public init(pkcs12Data: Data, password: String, clientP12: String) {
-            let importPasswordOption: NSDictionary
-            = [kSecImportExportPassphrase as NSString: password]
+            let importPasswordOption = [kSecImportExportPassphrase: password] as CFDictionary
             var items: CFArray?
-            let secError: OSStatus
-            = SecPKCS12Import(pkcs12Data as NSData,
-                              importPasswordOption, &items)
+            let secError = SecPKCS12Import(pkcs12Data as CFData, importPasswordOption, &items)
+            
             guard secError == errSecSuccess else {
                 if secError == errSecAuthFailed {
-                    WYNetworkManager.wy_networkPrint("\(clientP12).p12 证书密码错误")
+                    print("\(clientP12).p12 证书密码错误")
                 }
-                fatalError("尝试导入 \(pkcs12Data) 时出错")
+                fatalError("尝试导入证书时出错，错误代码：\(secError)")
             }
-            guard let theItemsCFArray = items else { fatalError() }
-            let theItemsNSArray: NSArray = theItemsCFArray as NSArray
-            guard let dictArray
-                    = theItemsNSArray as? [[String: AnyObject]] else {
-                        fatalError()
-                    }
-            func f<T>(key: CFString) -> T? {
-                for dict in dictArray {
+            
+            guard let theItems = items as? [[String: Any]] else {
+                fatalError("无效的 PKCS12 数据")
+            }
+            
+            func value<T>(forKey key: CFString) -> T? {
+                for dict in theItems {
                     if let value = dict[key as String] as? T {
                         return value
                     }
                 }
                 return nil
             }
-            self.label = f(key: kSecImportItemLabel)
-            self.keyID = f(key: kSecImportItemKeyID)
-            self.trust = f(key: kSecImportItemTrust)
-            self.certChain = f(key: kSecImportItemCertChain)
-            self.identity = f(key: kSecImportItemIdentity)
+            
+            self.label = value(forKey: kSecImportItemLabel)
+            self.keyID = value(forKey: kSecImportItemKeyID)
+            self.trust = value(forKey: kSecImportItemTrust)
+            self.certChain = value(forKey: kSecImportItemCertChain)
+            self.identity = value(forKey: kSecImportItemIdentity)
         }
     }
 }

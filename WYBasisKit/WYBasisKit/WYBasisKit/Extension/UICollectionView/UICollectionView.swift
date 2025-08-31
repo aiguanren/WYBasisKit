@@ -30,7 +30,7 @@ public extension UICollectionView {
      *  @param backgroundColor: 背景色
      *  @param superView: 父view
      */
-    class func wy_shared(frame: CGRect = .zero,
+    static func wy_shared(frame: CGRect = .zero,
                          flowLayout: UICollectionViewLayout,
                          delegate: UICollectionViewDelegate,
                          dataSource: UICollectionViewDataSource,
@@ -59,7 +59,7 @@ public extension UICollectionView {
      *  @param backgroundColor: 背景色
      *  @param superView: 父view
      */
-    class func wy_shared(frame: CGRect = .zero,
+    static func wy_shared(frame: CGRect = .zero,
                          scrollDirection: UICollectionView.ScrollDirection = .vertical,
                          sectionInset: UIEdgeInsets = .zero,
                          minimumLineSpacing: CGFloat = 0,
@@ -97,7 +97,7 @@ public extension UICollectionView {
      *  @param backgroundColor: 背景色
      *  @param superView: 父view
      */
-    class func wy_shared(frame: CGRect = .zero,
+    static func wy_shared(frame: CGRect = .zero,
                          flowLayout: UICollectionViewFlowLayout,
                          delegate: UICollectionViewDelegate,
                          dataSource: UICollectionViewDataSource,
@@ -139,7 +139,7 @@ public extension UICollectionView {
     /// 注册UICollectionView的Cell或Header/FooterView
     func wy_register(_ contentClass: AnyClass, _ style: WYCollectionViewRegisterStyle) {
         
-        let reuseIdentifier: String = NSStringFromClass(contentClass).components(separatedBy: ".").last ?? ""
+        let reuseIdentifier: String = String(describing: contentClass).components(separatedBy: ".").last ?? ""
         
         switch style {
         case .cell:

@@ -77,15 +77,17 @@ public struct WYLogManager {
      */
     public static func output(_ messages: Any..., outputMode: WYLogOutputMode = .debugConsoleOnly, file: String = #file, function: String = #function, line: Int = #line) {
         
-        let timeFormatter = DateFormatter()
-        timeFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
-        let timestamp = timeFormatter.string(from: Date())
-        let fileName = (file as NSString).lastPathComponent
-        let message = messages.compactMap { "\($0)" }.joined(separator: " ")
+        let timestamp: String = {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
+            return formatter.string(from: Date())
+        }()
+        
+        let fileName = URL(fileURLWithPath: file).lastPathComponent
+        let message = messages.map { "\($0)" }.joined(separator: " ")
         
         // 日志内容
         let fullLog = "\(timestamp) ——> \(fileName) ——> \(function) ——> line:\(line)\n\n\(message)\(logEntrySeparator)"
-        
         
         switch outputMode {
         case .debugConsoleOnly:
@@ -172,7 +174,7 @@ public struct WYLogManager {
             let fileManager = FileManager.default
             
             // 确保目录存在
-            let directory = (path as NSString).deletingLastPathComponent
+            let directory = URL(fileURLWithPath: path).deletingLastPathComponent().path
             if !fileManager.fileExists(atPath: directory) {
                 try? fileManager.createDirectory(atPath: directory, withIntermediateDirectories: true)
             }
@@ -300,16 +302,20 @@ final class WYLogCell: UITableViewCell {
     func configure(text: String, keyword: String?, canCopyed: Bool = true) {
         if let keyword = keyword, !keyword.isEmpty {
             let attributed = NSMutableAttributedString(string: text)
-            let range = (text as NSString).range(of: keyword, options: .caseInsensitive)
-            if range.location != NSNotFound {
-                attributed.addAttribute(.backgroundColor, value: UIColor.yellow, range: range)
+            
+            if let range = text.range(of: keyword, options: .caseInsensitive) {
+                let nsRange = NSRange(range, in: text)
+                attributed.addAttribute(.backgroundColor, value: UIColor.yellow, range: nsRange)
             }
             label.attributedText = attributed
         } else {
             label.text = text
         }
-        copyButton.isEnabled = canCopyed;
-        copyButton.layer.borderColor = copyButton.isEnabled ?  copyButton.titleLabel?.textColor.cgColor : UIColor.lightGray.cgColor
+        
+        copyButton.isEnabled = canCopyed
+        copyButton.layer.borderColor = copyButton.isEnabled
+            ? copyButton.titleLabel?.textColor.cgColor
+            : UIColor.lightGray.cgColor
     }
     
     @objc private func handleCopy() {
@@ -406,7 +412,7 @@ extension WYLogPreviewViewController: UISearchBarDelegate {
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         searchBar.showsCancelButton = true
     }
-
+    
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         searchBar.text = ""
         searchBar.resignFirstResponder()
@@ -415,11 +421,11 @@ extension WYLogPreviewViewController: UISearchBarDelegate {
         filteredLogChunks = logChunks
         tableView.reloadData()
     }
-
+    
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
         searchBar.showsCancelButton = false
     }
-
+    
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         currentSearchText = searchText
         if searchText.isEmpty {
@@ -446,8 +452,8 @@ extension WYLogPreviewViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "WYLogCell", for: indexPath) as! WYLogCell
         
         if filteredLogChunks.isEmpty ||
-           filteredLogChunks.first == "暂无日志" ||
-           filteredLogChunks.first == "日志已清除" {
+            filteredLogChunks.first == "暂无日志" ||
+            filteredLogChunks.first == "日志已清除" {
             let message = logs.isEmpty || logs == "日志已清除" ? "日志已清除" : "未找到匹配的日志内容"
             cell.configure(text: message, keyword: nil, canCopyed: false)
             cell.copyAction = nil

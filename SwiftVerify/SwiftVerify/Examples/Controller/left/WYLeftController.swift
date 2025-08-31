@@ -61,14 +61,14 @@ class WYLeftController: UIViewController {
         tableView.backgroundColor = UIColor.wy_dynamic(.white, .black)
         
         WYEventHandler.shared.register(event: AppEvent.buttonDidMove, target: self) { data in
-            if let stingValue = data {
-                WYLogManager.output("data = \(stingValue), controller: \(NSStringFromClass(type(of: self)))")
+            if let stringValue = data {
+                WYLogManager.output("data = \(stringValue), controller: \(type(of: self))")
             }
         }
         
         WYEventHandler.shared.register(event: AppEvent.buttonDidReturn, target: self) { data in
-            if let stingValue = data {
-                WYLogManager.output("data = \(stingValue), controller: \(NSStringFromClass(type(of: self)))")
+            if let stringValue = data {
+                WYLogManager.output("data = \(stringValue), controller: \(type(of: self))")
             }
         }
         
@@ -137,6 +137,6 @@ extension WYLeftController: UITableViewDelegate, UITableViewDataSource {
 
 extension WYLeftController: AppEventDelegate {
     func didShowBannerView(data: String) {
-        WYLogManager.output("data = \(data), controller: \(NSStringFromClass(type(of: self)))")
+        WYLogManager.output("data = \(data), controller: \(type(of: self))")
     }
 }

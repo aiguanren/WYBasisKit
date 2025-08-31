@@ -17,7 +17,7 @@ public extension Timer {
      *  @param duration: 隔几秒回调一次倒计时，默认1秒
      *  @param handler: remainingTime == 0 倒计时已结束,  remainingTime > 0 倒计时正在进行中,剩余 remainingTime 秒,  remainingTime < 0 倒计时已结束，并且超时了 remainingTime 秒才回调的(例如后台返回前台)
      */
-    class func wy_start(_ alias: String, _ remainingTime: Int, _ duration: TimeInterval = 1, _ queue: DispatchQueue = .main, handler: @escaping (_ remainingTime: Int) -> Void) {
+    static func wy_start(_ alias: String, _ remainingTime: Int, _ duration: TimeInterval = 1, _ queue: DispatchQueue = .main, handler: @escaping (_ remainingTime: Int) -> Void) {
         
         wy_cancel(alias)
         
@@ -55,7 +55,7 @@ public extension Timer {
     }
     
     /// 更新计时器剩余时间，单位 "秒"
-    class func wy_updateRemainingTime(_ alias: String, _ remainingTime: Int) {
+    static func wy_updateRemainingTime(_ alias: String, _ remainingTime: Int) {
 
         guard wy_existTimer(alias) == true else {
             return
@@ -64,21 +64,21 @@ public extension Timer {
     }
     
     /// 取消所有计时器
-    class func wy_cancel() {
+    static func wy_cancel() {
         for alias in wy_timerContainer.keys {
             wy_cancel(alias)
         }
     }
     
     /// 取消某一组计时器
-    class func wy_cancel(_ alias: [String]) {
+    static func wy_cancel(_ alias: [String]) {
         for index in 0..<alias.count {
             wy_cancel(alias[index])
         }
     }
     
     /// 取消某一个计时器
-    class func wy_cancel(_ alias: String) {
+    static func wy_cancel(_ alias: String) {
         
         if wy_timerContainer.keys.contains(alias) == true {
             wy_timerContainer[alias]?.timer?.cancel()
@@ -97,7 +97,7 @@ public extension Timer {
 private extension Timer {
     
     /// 倒计时方法
-    private class func wy_beginTimer(_ alias: String) {
+    private static func wy_beginTimer(_ alias: String) {
         
         guard wy_timerContainer.keys.contains(alias) == true else {
             return
@@ -117,7 +117,7 @@ private extension Timer {
     }
     
     /// 进入后台
-    private class func wy_timerDidEnterBackground(_ alias: String) {
+    private static func wy_timerDidEnterBackground(_ alias: String) {
         guard wy_existTimer(alias) == true else {
             return
         }
@@ -129,7 +129,7 @@ private extension Timer {
     }
     
     /// 返回前台
-    private class func wy_timerDidBecomeActive(_ alias: String) {
+    private static func wy_timerDidBecomeActive(_ alias: String) {
         guard wy_existTimer(alias) == true else {
             return
         }
@@ -156,7 +156,7 @@ private extension Timer {
     }
     
     /// 检查计时器是否存在
-    private class func wy_existTimer(_ alias: String) ->Bool {
+    private static func wy_existTimer(_ alias: String) ->Bool {
         
         guard wy_timerContainer.keys.contains(alias) == true else {
             return false
@@ -170,7 +170,7 @@ private extension Timer {
     }
     
     /// 计时器容器
-    private class var wy_timerContainer: [String: (timer: DispatchSourceTimer?, remainingTime: Int, enterBackground: Bool, handler: ((_ remainingTime: Int) -> Void)?)] {
+    private static var wy_timerContainer: [String: (timer: DispatchSourceTimer?, remainingTime: Int, enterBackground: Bool, handler: ((_ remainingTime: Int) -> Void)?)] {
         
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.timerContainer, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)

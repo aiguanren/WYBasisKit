@@ -503,7 +503,7 @@ extension WYBannerView {
         updatePageControlStyle()
     }
     
-    private class func getPlaceholderImage() -> UIImage {
+    private static func getPlaceholderImage() -> UIImage {
         guard let imageSource = UIImage(named: "wy_placeholder_" + WYLocalizableManager.currentLanguage().rawValue) ?? UIImage(named: "wy_placeholder_" + WYLanguage.english.rawValue) else {
             
             let resourcePath = ((Bundle(for: WYBannerView.self).path(forResource: "WYBannerView", ofType: "bundle")) ?? (Bundle.main.path(forResource: "WYBannerView", ofType: "bundle"))) ?? ""

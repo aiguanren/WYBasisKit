@@ -18,13 +18,15 @@ public extension NSObject {
      *
      *  @return 获取到的继承自superClass的子类
      */
-    class func sharedSubClass(superClass: AnyClass) -> [String] {
+    static func sharedSubClass(superClass: AnyClass) -> [String] {
         
         var count: UInt32 = 0
         // 获取所有已注册的类
         guard let allClassesPointer = objc_copyClassList(&count) else {
             return []
         }
+        
+        defer { free(UnsafeMutableRawPointer(allClassesPointer)) }
         
         // 手动复制所有类
         let allClasses = Array(UnsafeBufferPointer(start: allClassesPointer, count: Int(count)))
@@ -34,7 +36,7 @@ public extension NSObject {
         // 遍历所有类并筛选出继承自superClass的子类
         for someClass in allClasses {
             if class_getSuperclass(someClass) == superClass {
-                subClasses.append(NSStringFromClass(someClass))
+                subClasses.append(String(describing: someClass))
             }
         }
         
@@ -48,7 +50,7 @@ public extension NSObject {
      *
      *  @return 获取到的className类中的所有方法
      */
-    class func sharedClassMethod(className: String) -> [String] {
+    static func sharedClassMethod(className: String) -> [String] {
         
         guard let classType = NSClassFromString(className) else {
             return []
@@ -62,7 +64,7 @@ public extension NSObject {
             for i in 0..<Int(methodCount) {
                 let method = methods[i]
                 let selector = method_getName(method)
-                let methodName = NSStringFromSelector(selector)
+                let methodName = String(describing: selector)
                 methodList.append(methodName)
             }
             free(methods)
@@ -71,29 +73,39 @@ public extension NSObject {
     }
     
     /// 获取对象或者类的所有属性和对应的类型(struct类型也适用本方法)
-    class func wy_sharedPropertys(object: Any? = nil, className: String = "") -> [String: Any] {
+    static func wy_sharedPropertys(object: Any? = nil, className: String = "") -> [String: Any] {
         
-        var propertys: [String: Any] = [:]
+        var properties: [String: Any] = [:]
         
-        if (object != nil) {
-            
-            Mirror(reflecting: object!).children.forEach { (child) in
-                propertys[child.label ?? ""] = type(of: child.value)
+        // 通过 Mirror 获取对象属性（支持 struct、class）
+        if let obj = object {
+            for child in Mirror(reflecting: obj).children {
+                if let label = child.label {
+                    properties[label] = type(of: child.value)
+                }
             }
         }
+        
+        // 获取类的 Ivar 列表
         guard let objClass = NSClassFromString(className) else {
-            return propertys
+            return properties
         }
         
         var count: UInt32 = 0
-        let ivars = class_copyIvarList(objClass, &count)
-        for i in 0..<count {
-            let ivar = ivars?[Int(i)]
-            let ivarName = NSString(cString: ivar_getName(ivar!)!, encoding: String.Encoding.utf8.rawValue)
-            let ivarType = NSString(cString: ivar_getTypeEncoding(ivar!)!, encoding: String.Encoding.utf8.rawValue)
-            
-            propertys[((ivarName ?? "") as String)] = (ivarType as String?) ?? ""
+        guard let ivars = class_copyIvarList(objClass, &count) else {
+            return properties
         }
-        return propertys
+        defer { free(ivars) }
+        
+        for i in 0..<Int(count) {
+            let ivar = ivars[i]
+            if let nameC = ivar_getName(ivar), let typeC = ivar_getTypeEncoding(ivar) {
+                let name = String(cString: nameC)
+                let type = String(cString: typeC)
+                properties[name] = type
+            }
+        }
+        
+        return properties
     }
 }

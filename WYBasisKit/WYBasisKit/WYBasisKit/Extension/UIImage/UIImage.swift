@@ -68,7 +68,7 @@ public extension UIImage {
     }
     
     /// 截取指定View快照
-    class func wy_screenshot(_ view: UIView) -> UIImage {
+    static func wy_screenshot(_ view: UIView) -> UIImage {
         
         // 设置屏幕倍率可以保证截图的质量
         let scale: CGFloat = UIScreen.main.scale
@@ -85,7 +85,7 @@ public extension UIImage {
     }
     
     /// 根据颜色创建图片
-    class func wy_createImage(from color: UIColor, size: CGSize = CGSize(width: 1, height: 1)) -> UIImage {
+    static func wy_createImage(from color: UIColor, size: CGSize = CGSize(width: 1, height: 1)) -> UIImage {
         
         let rect = CGRect(x: 0, y: 0, width: size.width, height: size.height)
         UIGraphicsBeginImageContextWithOptions(rect.size, false, 0)
@@ -98,7 +98,7 @@ public extension UIImage {
     }
     
     /// 生成渐变图片
-    class func wy_gradient(from colors: [UIColor], direction: WYGradientDirection, size: CGSize) -> UIImage {
+    static func wy_gradient(from colors: [UIColor], direction: WYGradientDirection, size: CGSize) -> UIImage {
         
         var array: [CGColor] = []
         for color in colors {
@@ -151,7 +151,7 @@ public extension UIImage {
      *
      *  @return 二维码图片
      */
-    class func wy_createQrCode(with info: Data, size: CGSize, waterImage: UIImage? = nil) -> UIImage {
+    static func wy_createQrCode(with info: Data, size: CGSize, waterImage: UIImage? = nil) -> UIImage {
         
         // CIFilter
         let filter = CIFilter(name: "CIQRCodeGenerator")
@@ -294,34 +294,48 @@ public extension UIImage {
     /** 图片上绘制文字 */
     func wy_addText(text: String, font: UIFont, color: UIColor, titlePoint: CGPoint, lineSpacing: CGFloat = 0, wordsSpacing: CGFloat = 0) -> UIImage {
         
-        // 画布大小
-        let size = CGSize(width: self.size.width, height: self.size.height)
+        let size = self.size
         
-        // 创建一个基于位图的上下文
+        // 创建基于位图的图形上下文
         UIGraphicsBeginImageContextWithOptions(size, false, 0.0)
+        defer { UIGraphicsEndImageContext() } // 确保上下文结束
         
-        self.draw(at: CGPoint.zero)
+        self.draw(at: .zero)
         
-        // 文字显示在画布上
-        let paragraphStyle: NSMutableParagraphStyle = NSMutableParagraphStyle()
+        // 段落样式
+        let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineBreakMode = .byCharWrapping
         paragraphStyle.alignment = .center
         paragraphStyle.lineSpacing = lineSpacing
-        let attributes = [NSAttributedString.Key.font: font, NSAttributedString.Key.paragraphStyle: paragraphStyle, NSAttributedString.Key.kern: NSNumber(value: Double(wordsSpacing))]
         
-        let stringSize: CGSize = text.boundingRect(with: size, options: NSStringDrawingOptions(rawValue: NSStringDrawingOptions.truncatesLastVisibleLine.rawValue | NSStringDrawingOptions.usesLineFragmentOrigin.rawValue | NSStringDrawingOptions.usesFontLeading.rawValue), attributes: attributes, context: nil).size
+        // 文字属性
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .foregroundColor: color,
+            .paragraphStyle: paragraphStyle,
+            .kern: wordsSpacing
+        ]
         
-        let textSize: CGSize = CGSize(width: ceil(stringSize.width), height: ceil(stringSize.height))
+        // 计算文字绘制大小
+        let stringRect = text.boundingRect(
+            with: size,
+            options: [.usesLineFragmentOrigin, .usesFontLeading, .truncatesLastVisibleLine],
+            attributes: attributes,
+            context: nil
+        )
         
-        let rect = CGRect(x: titlePoint.x, y: titlePoint.y, width: textSize.width, height: textSize.height)
+        let textRect = CGRect(
+            x: titlePoint.x,
+            y: titlePoint.y,
+            width: ceil(stringRect.width),
+            height: ceil(stringRect.height)
+        )
         
         // 绘制文字
-        (text as NSString).draw(in: rect, withAttributes: [NSAttributedString.Key.font: font, NSAttributedString.Key.foregroundColor: color, NSAttributedString.Key.paragraphStyle: paragraphStyle])
+        text.draw(in: textRect, withAttributes: attributes)
         
-        // 返回绘制的新图形
-        let newImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return newImage!
+        // 获取绘制后的图片
+        return UIGraphicsGetImageFromCurrentImageContext() ?? self
     }
     
     /**
@@ -332,7 +346,7 @@ public extension UIImage {
      *  @param bundle                从哪个bundle文件内查找，如果为空，则直接在本地路径下查找
      *
      */
-    class func wy_find(_ imageName: String, inBundle bundle: WYSourceBundle? = nil) -> UIImage {
+    static func wy_find(_ imageName: String, inBundle bundle: WYSourceBundle? = nil) -> UIImage {
         
         if imageName.isEmpty {
             
@@ -385,7 +399,7 @@ public extension UIImage {
      *  @return Gif       图片解析结果
      */
     
-    class func wy_animatedParse(_ style: WYAnimatedImageStyle = .GIF, name imageName: String, inBundle bundle: WYSourceBundle? = nil) -> WYGifInfo? {
+    static func wy_animatedParse(_ style: WYAnimatedImageStyle = .GIF, name imageName: String, inBundle bundle: WYSourceBundle? = nil) -> WYGifInfo? {
         
         guard imageName.isEmpty == false else {
             return nil
@@ -417,7 +431,7 @@ public extension UIImage {
         guard let imageSource: CGImageSource = CGImageSourceCreateWithData(contentData as CFData, nil) else {
             return nil
         }
-
+        
         let imageCount = CGImageSourceGetCount(imageSource)
         
         var images = [UIImage]()
@@ -429,7 +443,7 @@ public extension UIImage {
             guard let properties: NSDictionary = CGImageSourceCopyPropertiesAtIndex(imageSource, i, nil) else {
                 continue
             }
-
+            
             var pngDic: NSDictionary? = nil
             if let gifDic = properties[kCGImagePropertyGIFDictionary] as? NSDictionary {
                 pngDic = gifDic
@@ -453,7 +467,7 @@ public extension UIImage {
             let image = UIImage(cgImage: cgImage)
             images.append(image)
         }
-   
+        
         return WYGifInfo(animationImages: images, animationDuration: totalDuration, animatedImage: UIImage.animatedImage(with: images, duration: totalDuration))
     }
 }

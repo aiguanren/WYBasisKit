@@ -97,7 +97,7 @@ public class WYEmojiPreviewView: UIImageView {
     }
     
     @discardableResult
-    public class func show(emoji: String, according: UIView, handler: @escaping ((_ imageName: String, _ imageView: UIImageView) -> Void)) ->WYEmojiPreviewView?  {
+    public static func show(emoji: String, according: UIView, handler: @escaping ((_ imageName: String, _ imageView: UIImageView) -> Void)) ->WYEmojiPreviewView?  {
         
         release()
         
@@ -125,7 +125,7 @@ public class WYEmojiPreviewView: UIImageView {
         }
     }
     
-    public class func dismiss() {
+    public static func dismiss() {
         
         guard previewView != nil else {
             return
@@ -138,7 +138,7 @@ public class WYEmojiPreviewView: UIImageView {
         }
     }
     
-    private class func release() {
+    private static func release() {
         previewView?.wy_removeAllSubviews()
         previewView?.removeFromSuperview()
         previewView = nil

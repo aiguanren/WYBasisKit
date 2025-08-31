@@ -11,7 +11,7 @@ import UIKit
 
 public extension UIAlertController {
     
-    class func wy_show(style: UIAlertController.Style = .alert, title: Any? = nil, message: Any? = nil, duration: TimeInterval = 0.0, actionSheetNeedCancel: Bool = true, textFieldPlaceholders: [Any] = [], actions: [Any] = [], handler:((_ action: String, _ inputTexts: [String]) -> Void)? = nil) {
+    static func wy_show(style: UIAlertController.Style = .alert, title: Any? = nil, message: Any? = nil, duration: TimeInterval = 0.0, actionSheetNeedCancel: Bool = true, textFieldPlaceholders: [Any] = [], actions: [Any] = [], handler:((_ action: String, _ inputTexts: [String]) -> Void)? = nil) {
         
         DispatchQueue.main.async {
             
@@ -66,7 +66,7 @@ public extension UIAlertController {
     }
 
     @discardableResult
-    private class func wy_internalShow(style: UIAlertController.Style = .alert, title: String = "", message: String = "", duration: TimeInterval = 0.0, actionSheetNeedCancel: Bool = true, textFieldPlaceholders: [String] = [], actions: [String] = [], handler:((_ actionStr: String, _ textFieldTexts: [String]) -> Void)? = nil) -> UIAlertController? {
+    private static func wy_internalShow(style: UIAlertController.Style = .alert, title: String = "", message: String = "", duration: TimeInterval = 0.0, actionSheetNeedCancel: Bool = true, textFieldPlaceholders: [String] = [], actions: [String] = [], handler:((_ actionStr: String, _ textFieldTexts: [String]) -> Void)? = nil) -> UIAlertController? {
         
         if title.isEmpty && message.isEmpty && textFieldPlaceholders.isEmpty && actions.isEmpty {
             return nil
@@ -149,7 +149,7 @@ public extension UIAlertController {
         return placeholder.range(of: WYLocalized("WYLocalizable_02", table: WYBasisKitConfig.kitLocalizableTable), options: .caseInsensitive) != nil
     }
     
-    private class func wy_sharedGenericString<T>(object: T?) -> String {
+    private static func wy_sharedGenericString<T>(object: T?) -> String {
         
         guard let obj = object else {
             return ""
@@ -165,29 +165,41 @@ public extension UIAlertController {
         }
     }
     
-    private class func checkPropertySecurity(property: String, object: AnyObject?, className: String) -> Bool {
+    private static func checkPropertySecurity(property: String, object: AnyObject?, className: String) -> Bool {
         
-        var propertys: [String: Any] = [:]
+        var properties: [String: Any] = [:]
         
-        if (object != nil) {
-            Mirror(reflecting: object!).children.forEach { (child) in
-                propertys[child.label ?? "未知"] = type(of: child.value)
+        // 通过 Mirror 获取对象属性
+        if let obj = object {
+            for child in Mirror(reflecting: obj).children {
+                if let label = child.label {
+                    properties[label] = type(of: child.value)
+                }
             }
         }
+        
+        // 获取类的 Ivar 列表
         guard let objClass = NSClassFromString(className) else {
-            return propertys.keys.contains(property)
+            return properties.keys.contains(property)
         }
         
         var count: UInt32 = 0
-        let ivars = class_copyIvarList(objClass, &count)
-        for i in 0..<count {
-            let ivar = ivars?[Int(i)]
-            let ivarName = NSString(cString: ivar_getName(ivar!)!, encoding: String.Encoding.utf8.rawValue)
-            let ivarType = NSString(cString: ivar_getTypeEncoding(ivar!)!, encoding: String.Encoding.utf8.rawValue)
-            
-            propertys[((ivarName ?? "") as String)] = (ivarType as String?) ?? "未知"
+        guard let ivars = class_copyIvarList(objClass, &count) else {
+            return properties.keys.contains(property)
         }
-        return propertys.keys.contains(property)
+        
+        for i in 0..<Int(count) {
+            let ivar = ivars[i]
+            if let nameC = ivar_getName(ivar), let typeC = ivar_getTypeEncoding(ivar) {
+                let name = String(cString: nameC)
+                let type = String(cString: typeC)
+                properties[name] = type
+            }
+        }
+        
+        free(ivars)
+        
+        return properties.keys.contains(property)
     }
     
     private struct WYAssociatedKeys {

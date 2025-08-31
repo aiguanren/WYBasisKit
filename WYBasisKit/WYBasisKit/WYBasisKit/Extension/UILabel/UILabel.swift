@@ -260,40 +260,33 @@ extension UILabel {
         
         wy_effectDic = [:]
         
-        let subAttribute = attributedText?.attributedSubstring(from: range)
+        guard let subAttribute = attributedText?.attributedSubstring(from: range) else { return }
         
-        _ = wy_effectDic?.updateValue(subAttribute!, forKey: NSStringFromRange(range))
+        _ = wy_effectDic?[String(describing: range)] = subAttribute
     }
     
     private func wy_richTextRanges(strings: [String]) {
         
-        wy_isClickAction = (attributedText == nil) ? false : true
-        if attributedText == nil {
-            return
-        }
+        wy_isClickAction = attributedText != nil
+        guard let attributed = attributedText else { return }
         
         wy_isClickEffect = true
-        
         isUserInteractionEnabled = true
         
-        var totalString = attributedText?.string
-        
+        var totalString = attributed.string
         wy_attributeStrings = []
         
-        for str: String in strings {
+        for str in strings {
+            guard let range = totalString.range(of: str) else { continue }
             
-            let nsrange: NSRange = ((attributedText?.string ?? "") as NSString).range(of: str)
-            let range: Range? = attributedText?.string.range(from: nsrange)
-            if (range?.lowerBound != nil) {
-                
-                totalString = totalString?.replacingCharacters(in: range!, with: wy_sharedString(count: str.count))
-
-                var model = WYRichTextModel()
-                model.wy_range = totalString?.nsRange(from: range!) ?? NSRange()
-                model.wy_richText = str
-                
-                wy_attributeStrings.append(model)
-            }
+            // 先生成模型 NSRange
+            var model = WYRichTextModel()
+            model.wy_range = NSRange(range, in: totalString)
+            model.wy_richText = str
+            wy_attributeStrings.append(model)
+            
+            // 用占位符替换原文本
+            totalString.replaceSubrange(range, with: wy_sharedString(count: str.count))
         }
     }
     

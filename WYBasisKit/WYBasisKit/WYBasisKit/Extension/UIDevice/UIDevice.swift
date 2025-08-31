@@ -36,7 +36,7 @@ import AudioToolbox
 public extension UIDevice {
     
     /// 状态栏高度
-    class var wy_statusBarHeight: CGFloat {
+    static var wy_statusBarHeight: CGFloat {
         get {
             return UIApplication.shared.wy_keyWindow
                 .windowScene?
@@ -47,47 +47,47 @@ public extension UIDevice {
     }
     
     /// 导航栏安全区域高度
-    class var wy_navBarSafetyZone: CGFloat {
+    static var wy_navBarSafetyZone: CGFloat {
         get {
             return UIApplication.shared.wy_keyWindow.safeAreaInsets.top
         }
     }
     
     /// 导航栏高度
-    class var wy_navBarHeight: CGFloat {
+    static var wy_navBarHeight: CGFloat {
         // 使用系统默认导航栏获取标准高度
         return UINavigationBar().intrinsicContentSize.height
     }
     
     /// 导航视图高度（状态栏+导航栏）
-    class var wy_navViewHeight: CGFloat {
+    static var wy_navViewHeight: CGFloat {
         return wy_statusBarHeight + wy_navBarHeight
     }
     
     /// tabBar安全区域高度
-    class var wy_tabbarSafetyZone: CGFloat {
+    static var wy_tabbarSafetyZone: CGFloat {
         get {
             return UIApplication.shared.wy_keyWindow.safeAreaInsets.bottom
         }
     }
     
     /// tabBar高度(含安全区域高度)
-    class var wy_tabBarHeight: CGFloat {
+    static var wy_tabBarHeight: CGFloat {
         return UITabBar().sizeThatFits(.zero).height + wy_tabbarSafetyZone
     }
     
     /// 屏幕宽
-    class var wy_screenWidth: CGFloat {
+    static var wy_screenWidth: CGFloat {
         return UIScreen.main.bounds.size.width
     }
     
     /// 屏幕高
-    class var wy_screenHeight: CGFloat {
+    static var wy_screenHeight: CGFloat {
         return UIScreen.main.bounds.size.height
     }
     
     /// 屏幕宽度比率
-    class func wy_screenWidthRatio(_ pixels: WYScreenPixels = WYBasisKitConfig.defaultScreenPixels) -> CGFloat {
+    static func wy_screenWidthRatio(_ pixels: WYScreenPixels = WYBasisKitConfig.defaultScreenPixels) -> CGFloat {
         let widthRatio = (wy_screenWidth / pixels.width)
         if widthRatio < WYBasisKitConfig.screenWidthRatio.min {
             return WYBasisKitConfig.screenWidthRatio.min
@@ -99,7 +99,7 @@ public extension UIDevice {
     }
     
     /// 屏幕高度比率
-    class func wy_screenHeightRatio(_ pixels: WYScreenPixels = WYBasisKitConfig.defaultScreenPixels) -> CGFloat {
+    static func wy_screenHeightRatio(_ pixels: WYScreenPixels = WYBasisKitConfig.defaultScreenPixels) -> CGFloat {
         let heightRatio = (wy_screenHeight / pixels.height)
         if heightRatio < WYBasisKitConfig.screenHeightRatio.min {
             return WYBasisKitConfig.screenHeightRatio.min
@@ -111,12 +111,12 @@ public extension UIDevice {
     }
     
     /// 屏幕宽度比率转换
-    class func wy_screenWidth(_ ratioValue: CGFloat, _ pixels: WYScreenPixels = WYBasisKitConfig.defaultScreenPixels) -> CGFloat {
+    static func wy_screenWidth(_ ratioValue: CGFloat, _ pixels: WYScreenPixels = WYBasisKitConfig.defaultScreenPixels) -> CGFloat {
         return round(ratioValue*wy_screenWidthRatio(pixels))
     }
     
     /// 屏幕高度比率转换
-    class func wy_screenHeight(_ ratioValue: CGFloat, _ pixels: WYScreenPixels = WYBasisKitConfig.defaultScreenPixels) -> CGFloat {
+    static func wy_screenHeight(_ ratioValue: CGFloat, _ pixels: WYScreenPixels = WYBasisKitConfig.defaultScreenPixels) -> CGFloat {
         return round(ratioValue*wy_screenHeightRatio(pixels))
     }
     

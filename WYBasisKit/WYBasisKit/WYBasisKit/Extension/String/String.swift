@@ -284,11 +284,10 @@ public extension String {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = lineSpacing
         let attributes = [NSAttributedString.Key.font: controlFont, NSAttributedString.Key.paragraphStyle: paragraphStyle, NSAttributedString.Key.kern: NSNumber(value: Double(wordsSpacing))]
+    
+        let attributeText: NSAttributedString = NSAttributedString(string: self, attributes: attributes)
         
-        let string = self as NSString
-        let stringSize: CGSize = string.boundingRect(with: controlSize, options: NSStringDrawingOptions(rawValue: NSStringDrawingOptions.truncatesLastVisibleLine.rawValue | NSStringDrawingOptions.usesLineFragmentOrigin.rawValue | NSStringDrawingOptions.usesFontLeading.rawValue), attributes: attributes, context: nil).size
-        
-        return CGSize(width: ceil(stringSize.width), height: ceil(stringSize.height))
+        return attributeText.wy_calculateSize(controlSize: controlSize)
     }
     
     /// 判断字符串包含某个字符串
@@ -447,8 +446,8 @@ public extension String {
     }
     
     /// 秒 转 时分秒（00:00:00）格式
-    func wy_secondConvertDate(check: Bool) -> String {
-        let totalSeconds: Int = Int((self as NSString).doubleValue)
+    func wy_secondConvertDate(check: Bool = true) -> String {
+        let totalSeconds: Int = self.wy_convertTo(Int.self)
         var hours = 0
         var minutes = 0
         var seconds = 0
@@ -696,7 +695,7 @@ public extension String {
             CFStringTransform(mString, nil, kCFStringTransformStripDiacritics, false)
         }
         
-        let phonetic = (NSString(string: mString) as String)
+        let phonetic = mString as String
         
         if !interval {
             // 去除字符串之间的空格

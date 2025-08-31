@@ -56,7 +56,8 @@ public class WYChatView: UIView {
                                           WYChatRecordsCell.self]
         
         for register: AnyClass in (registerClasss + customChatRegisterClasss) {
-            tableView.register(register, forCellReuseIdentifier: (NSStringFromClass(register).components(separatedBy: ".").last ?? ""))
+            let reuseIdentifier = String(describing: register).components(separatedBy: ".").last ?? ""
+            tableView.register(register, forCellReuseIdentifier: reuseIdentifier)
         }
         tableView.snp.makeConstraints { (make) in
             make.left.right.top.equalToSuperview()

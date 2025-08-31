@@ -29,7 +29,7 @@ class WYTestRichTextController: UIViewController {
         
         attribute.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 20), range: NSMakeRange(0, str.count))
         attribute.wy_colorsOfRanges(colorsOfRanges: [[UIColor.blue: "勇猛刚强"], [UIColor.orange: "仁爱温良者戒于无断"], [UIColor.purple: "安舒"], [UIColor.magenta: "必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"]])
-        attribute.wy_lineSpacing(lineSpacing: 5, string: attribute.string)
+        attribute.wy_lineSpacing(lineSpacing: 15, subString: attribute.string)
         
         label.attributedText = attribute
         label.wy_clickEffectColor = .green
@@ -37,13 +37,13 @@ class WYTestRichTextController: UIViewController {
             //wy_print("string = \(string), range = \(range), index = \(index)")
             
             if string == "勇猛刚强" {
-                WYActivity.showInfo("string = \(string), range = \(range), index = \(index)", in: self?.view, position: .middle)
+                WYActivity.showInfo("string = \(string) range = \(range) index = \(index)", in: self?.view, position: .middle)
             }
             if string == "仁爱温良者戒于无断" {
-                WYActivity.showInfo("string = \(string), range = \(range), index = \(index)", in: self?.view, position: .top)
+                WYActivity.showInfo("string = \(string) range = \(range) index = \(index)", in: self?.view, position: .top)
             }
             if string == "安舒" {
-                WYActivity.showInfo("string = \(string), range = \(range), index = \(index)", in: self?.view, position: .bottom)
+                WYActivity.showInfo("string = \(string) range = \(range) index = \(index)", in: self?.view, position: .bottom)
             }
         }
         label.wy_addRichText(strings: ["勇猛刚强", "仁爱温良者戒于无断", "安舒", "必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"], delegate: self)
@@ -93,12 +93,14 @@ class WYTestRichTextController: UIViewController {
         WYLogManager.output("每行显示的分别是 \(String(describing: label.attributedText?.wy_stringPerLine(controlWidth: UIDevice.wy_screenWidth))), 一共 \(String(describing: label.attributedText?.wy_numberOfRows(controlWidth: UIDevice.wy_screenWidth))) 行")
         
         label.layoutIfNeeded()
-        let subFrame = attribute.wy_calculateFrame(range: NSMakeRange(attribute.string.count - 7, 6), controlSize: label.frame.size)
-        WYLogManager.output("\(subFrame), labelFrame = \(label.frame)")
+        let subFrameRange = attribute.wy_calculateFrame(range: NSMakeRange(attribute.string.count - 7, 6), controlSize: label.frame.size)
         
-        let lineView = UIView(frame: CGRect(x: subFrame.origin.x, y: subFrame.origin.y, width: subFrame.size.width, height: subFrame.size.height))
-        lineView.backgroundColor = .orange.withAlphaComponent(0.2)
-        label.addSubview(lineView)
+        let subFrameString = attribute.wy_calculateFrame(subString: "敢比周而望进", controlSize: label.frame.size)
+        WYLogManager.output("subFrameRange = \(subFrameRange), subFrameString = \(subFrameString), labelFrame = \(label.frame)")
+        
+        let frameView = UIView(frame: CGRect(x: subFrameRange.origin.x, y: subFrameRange.origin.y, width: subFrameRange.size.width, height: subFrameRange.size.height))
+        frameView.backgroundColor = .red.withAlphaComponent(0.2)
+        label.addSubview(frameView)
         
         let attachmentView: UILabel = UILabel()
         attachmentView.font = UIFont.systemFont(ofSize: 15)
@@ -111,7 +113,12 @@ class WYTestRichTextController: UIViewController {
         let image_font_50: UIImage = UIImage.wy_find("喝彩")
         let attributed: NSMutableAttributedString = NSMutableAttributedString(string: String.wy_random(minimux:10, maximum: 20) + "\n" + string_font_30  + "\n" + string_font_40  + "\n" + string_font_50  + "\n" + String.wy_random(minimux:10, maximum: 20))
         
-        let string_font_50Index: Int = (attributed.string as NSString).range(of: string_font_50).location - 1
+        var string_font_50Index: Int = 0
+        if let range = attributed.string.range(of: string_font_50) {
+            string_font_50Index = attributed.string.distance(from: attributed.string.startIndex, to: range.lowerBound) - 1
+        } else {
+            string_font_50Index = 0 // 未找到的情况，可根据需求调整
+        }
         let options: [WYImageAttachmentOption] = [
             .init(image: image_font_30, size: CGSize(width: 20, height: 20), position: .before(text: string_font_30), alignment: .top, spacingAfter:20),
             .init(image: image_font_30, size: CGSize(width: 10, height: 10), position: .index(1), alignment: .top, spacingAfter:20),
@@ -138,7 +145,6 @@ class WYTestRichTextController: UIViewController {
             make.width.equalTo(UIDevice.wy_screenWidth - 30)
             make.centerX.equalToSuperview()
             make.top.equalTo(attachmentView.snp.bottom).offset(50)
-            make.bottom.equalToSuperview().offset(-50)
         }
         
         let spacing10: String = String.wy_random(minimux: 50, maximum: 100)
@@ -149,12 +155,89 @@ class WYTestRichTextController: UIViewController {
         
         let spacing20: String = String.wy_random(minimux: 80, maximum: 100)
         
+        WYLogManager.output("spacing10 = \(spacing10), spacing15 = \(spacing15), spacing30 = \(spacing30), spacing20 = \(spacing20)")
+        
         let spacingAttributed = NSMutableAttributedString(string: spacing10 + "\n" + spacing15 + "\n" + spacing30 + "\n" + spacing20)
         spacingAttributed.wy_lineSpacing(lineSpacing: 10, beforeString: spacing10, afterString: spacing15, alignment: .left)
-        spacingAttributed.wy_lineSpacing(lineSpacing: 15, beforeString: spacing15, afterString: spacing30, alignment: .left)
+        spacingAttributed.wy_lineSpacing(lineSpacing: 15, beforeString: spacing15, afterString: spacing30, alignment: .right)
         spacingAttributed.wy_lineSpacing(lineSpacing: 30, beforeString: spacing30, afterString: spacing20, alignment: .left)
-        spacingAttributed.wy_lineSpacing(lineSpacing: 5, string: spacing20)
+        spacingAttributed.wy_lineSpacing(lineSpacing: 50, subString: spacing20)
         spacingView.attributedText = spacingAttributed
+        
+        let sizeWidth: CGFloat = UIDevice.wy_screenWidth - 30
+        let sizeHeight: CGFloat = 30
+
+        let widthView: UILabel = UILabel()
+        widthView.backgroundColor = .wy_random
+        widthView.font = UIFont.boldSystemFont(ofSize: 15)
+        widthView.text = String.wy_random(minimux: 5, maximum: 20)
+        scrollView.addSubview(widthView)
+        widthView.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalTo(spacingView.snp.bottom).offset(UIDevice.wy_screenWidth(50))
+            make.height.equalTo(sizeHeight)
+        }
+        
+        let textWidth: CGFloat = widthView.text!.wy_calculateWidth(controlHeight: sizeHeight, controlFont: widthView.font)
+        
+        let widthAttributed: NSMutableAttributedString = NSMutableAttributedString(string: widthView.text!)
+        widthAttributed.wy_setFont(widthView.font)
+        let attributedWidth: CGFloat = widthAttributed.wy_calculateWidth(controlHeight: sizeHeight)
+        
+        let heightView: UILabel = UILabel()
+        heightView.backgroundColor = .wy_random
+        heightView.numberOfLines = 0
+        heightView.font = UIFont.boldSystemFont(ofSize: 15)
+        heightView.text = String.wy_random(minimux: 150, maximum: 300)
+        scrollView.addSubview(heightView)
+        heightView.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalTo(widthView.snp.bottom).offset(UIDevice.wy_screenWidth(50))
+            make.width.equalTo(sizeWidth)
+            make.bottom.equalToSuperview().offset(-50)
+        }
+        
+        let textHeight: CGFloat = heightView.text!.wy_calculateHeight(controlWidth: sizeWidth, controlFont: heightView.font)
+        
+        let heightAttributed: NSMutableAttributedString = NSMutableAttributedString(string: heightView.text!)
+        heightAttributed.wy_setFont(heightView.font)
+        let attributedHeight: CGFloat = heightAttributed.wy_calculateHeight(controlWidth: sizeWidth)
+        
+        let textWidthLine: UIView = UIView()
+        textWidthLine.backgroundColor = .orange
+        scrollView.addSubview(textWidthLine)
+        textWidthLine.snp.makeConstraints { make in
+            make.left.top.equalTo(widthView)
+            make.height.equalTo(2)
+            make.width.equalTo(textWidth)
+        }
+        
+        let attributedWidthLine: UIView = UIView()
+        attributedWidthLine.backgroundColor = .orange
+        scrollView.addSubview(attributedWidthLine)
+        attributedWidthLine.snp.makeConstraints { make in
+            make.left.bottom.equalTo(widthView)
+            make.height.equalTo(2)
+            make.width.equalTo(attributedWidth)
+        }
+
+        let textHeightLine: UIView = UIView()
+        textHeightLine.backgroundColor = .red
+        scrollView.addSubview(textHeightLine)
+        textHeightLine.snp.makeConstraints { make in
+            make.left.top.equalTo(heightView)
+            make.height.equalTo(textHeight)
+            make.width.equalTo(2)
+        }
+        
+        let attributedHeightLine: UIView = UIView()
+        attributedHeightLine.backgroundColor = .red
+        scrollView.addSubview(attributedHeightLine)
+        attributedHeightLine.snp.makeConstraints { make in
+            make.right.top.equalTo(heightView)
+            make.height.equalTo(attributedHeight)
+            make.width.equalTo(2)
+        }
     }
     
     deinit {

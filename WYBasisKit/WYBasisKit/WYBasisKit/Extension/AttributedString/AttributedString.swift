@@ -1,5 +1,5 @@
 //
-//  NSAttributedString.swift
+//  AttributedString.swift
 //  WYBasisKit
 //
 //  Created by 官人 on 2020/8/29.
@@ -12,79 +12,56 @@ import UIKit
 public extension NSMutableAttributedString {
     
     /**
-     
      *  需要修改的字符颜色数组及量程，由字典组成  key = 颜色   value = 量程或需要修改的字符串
      *  例：NSArray *colorsOfRanges = @[@{color:@[@"0",@"1"]},@{color:@[@"1",@"2"]}]
      *  或：NSArray *colorsOfRanges = @[@{color:str},@{color:str}]
      */
     @discardableResult
     func wy_colorsOfRanges(colorsOfRanges: Array<Dictionary<UIColor, Any>>) -> NSMutableAttributedString {
-        
-        for dic: Dictionary in colorsOfRanges {
-            
-            let color: UIColor = dic.keys.first!
-            let rangeValue = dic.values.first
-            if rangeValue is String || rangeValue is NSString {
-                
-                let rangeStr: String = rangeValue as! String
-                let selfStr = self.string as NSString
-                
-                addAttribute(NSAttributedString.Key.foregroundColor, value: color, range: selfStr.range(of: rangeStr))
-                
-            }else {
-                
-                let rangeAry: Array = rangeValue as! Array<Any>
-                let firstRangeStr: String = rangeAry.first as! String
-                let lastRangeStr: String = rangeAry.last as! String
-                addAttribute(NSAttributedString.Key.foregroundColor, value: color, range: NSMakeRange(Int(firstRangeStr) ?? 0, Int(lastRangeStr) ?? 0))
+        for dic in colorsOfRanges {
+            if let color = dic.keys.first,
+               let rangeValue = dic.values.first {
+                wy_applyFontsOrColorsAttributes(key: NSAttributedString.Key.foregroundColor, value: color, rangeValue: rangeValue)
             }
         }
-        
         return self
     }
     
     /**
-     
      *  需要修改的字符字体数组及量程，由字典组成  key = 颜色   value = 量程或需要修改的字符串
      *  例：NSArray *fontsOfRanges = @[@{font:@[@"0",@"1"]},@{font:@[@"1",@"2"]}]
      *  或：NSArray *fontsOfRanges = @[@{font:str},@{font:str}]
      */
     @discardableResult
     func wy_fontsOfRanges(fontsOfRanges: Array<Dictionary<UIFont, Any>>) -> NSMutableAttributedString {
-        for dic: Dictionary in fontsOfRanges {
-            
-            let font: UIFont = dic.keys.first!
-            let rangeValue = dic.values.first
-            if rangeValue is String || rangeValue is NSString {
-                
-                let rangeStr: String = rangeValue as! String
-                let selfStr = self.string as NSString
-                
-                addAttribute(NSAttributedString.Key.font, value: font, range: selfStr.range(of: rangeStr))
-                
-            }else {
-                
-                let rangeAry = rangeValue as! Array<Any>
-                let firstRangeStr: String = rangeAry.first as! String
-                let lastRangeStr: String = rangeAry.last as! String
-                addAttribute(NSAttributedString.Key.font, value: font, range: NSMakeRange(Int(firstRangeStr) ?? 0, Int(lastRangeStr) ?? 0))
+        for dic in fontsOfRanges {
+            if let font = dic.keys.first,
+               let rangeValue = dic.values.first {
+                wy_applyFontsOrColorsAttributes(key: NSAttributedString.Key.font, value: font, rangeValue: rangeValue)
             }
         }
         return self
     }
     
+    /**
+     *  修改字符字体(整个富文本统一设置字体)
+     */
+    @discardableResult
+    func wy_setFont(_ font: UIFont) -> NSMutableAttributedString {
+        addAttribute(NSAttributedString.Key.font, value: font, range: NSRange(location: 0, length: self.length))
+        return self
+    }
+    
     /// 设置行间距
     @discardableResult
-    func wy_lineSpacing(lineSpacing: CGFloat, string: String? = nil, alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
+    func wy_lineSpacing(lineSpacing: CGFloat, subString: String? = nil, alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
         
-        // 创建NSString副本用于安全范围计算
-        let nsString = self.string as NSString
         let targetRange: NSRange
         
         // 确定目标范围（整个文本或指定子串）
-        if let substring = string {
-            targetRange = nsString.range(of: substring)
-            guard targetRange.location != NSNotFound else { return self }
+        if let substring = subString,
+           let range = self.string.range(of: substring) {
+            targetRange = NSRange(range, in: self.string)
         } else {
             targetRange = NSRange(location: 0, length: self.length)
         }
@@ -124,7 +101,10 @@ public extension NSMutableAttributedString {
     
     /// 设置不同段落间的行间距
     @discardableResult
-    func wy_lineSpacing(lineSpacing: CGFloat, beforeString: String, afterString: String, alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
+    func wy_lineSpacing(lineSpacing: CGFloat,
+                        beforeString: String,
+                        afterString: String,
+                        alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
         
         guard lineSpacing > 0,
               !beforeString.isEmpty,
@@ -134,40 +114,35 @@ public extension NSMutableAttributedString {
         }
         
         let fullText = self.string
-        let nsFullText = fullText as NSString
         
         // 查找 beforeString 的位置
-        let beforeRange = nsFullText.range(of: beforeString)
-        guard beforeRange.location != NSNotFound else {
+        guard let beforeRange = fullText.range(of: beforeString) else {
             return self
         }
         
         // 在 beforeString 之后查找 afterString
-        let afterSearchRange = NSRange(
-            location: beforeRange.upperBound,
-            length: nsFullText.length - beforeRange.upperBound
-        )
+        let afterSearchStart = beforeRange.upperBound
+        let afterSearchRange = afterSearchStart..<fullText.endIndex
         
-        let afterRange = nsFullText.range(of: afterString, options: [], range: afterSearchRange)
-        guard afterRange.location != NSNotFound else {
+        guard let afterRange = fullText.range(of: afterString, range: afterSearchRange) else {
             return self
         }
         
         // 获取 beforeString 所在段落范围
-        let paragraphRange = nsFullText.paragraphRange(for: beforeRange)
-        
-        // 创建并配置段落样式
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.paragraphSpacing = lineSpacing
-        paragraphStyle.alignment = alignment
-        
-        // 应用段落样式
-        self.addAttribute(
-            .paragraphStyle,
-            value: paragraphStyle,
-            range: paragraphRange
-        )
-        
+        if let paragraphRange = paragraphRange(containing: beforeRange, value: fullText) {
+            
+            // 创建并配置段落样式
+            let paragraphStyle = NSMutableParagraphStyle()
+            paragraphStyle.paragraphSpacing = lineSpacing
+            paragraphStyle.alignment = alignment
+            
+            // 应用段落样式
+            self.addAttribute(
+                .paragraphStyle,
+                value: paragraphStyle,
+                range: NSRange(paragraphRange, in: fullText)
+            )
+        }
         return self
     }
     
@@ -175,19 +150,33 @@ public extension NSMutableAttributedString {
     @discardableResult
     func wy_wordsSpacing(wordsSpacing: CGFloat, string: String? = nil) -> NSMutableAttributedString {
         
-        let selfStr: NSString = self.string as NSString
-        addAttributes([NSAttributedString.Key.kern: NSNumber(value: Double(wordsSpacing))], range: selfStr.range(of: string == nil ? self.string : string!))
+        let targetRange: NSRange
+        if let substring = string,
+           let range = self.string.range(of: substring) {
+            targetRange = NSRange(range, in: self.string)
+        } else {
+            targetRange = NSRange(location: 0, length: self.length)
+        }
+        
+        addAttribute(.kern, value: wordsSpacing, range: targetRange)
         
         return self
     }
     
-    /// 文本添加下滑线
+    /// 文本添加下划线
     @discardableResult
     func wy_underline(color: UIColor, string: String? = nil) -> NSMutableAttributedString {
         
-        let selfStr: NSString = self.string as NSString
-        addAttribute(NSAttributedString.Key.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: selfStr.range(of: string == nil ? self.string : string!))
-        addAttribute(NSAttributedString.Key.underlineColor, value: color, range: selfStr.range(of: string == nil ? self.string : string!))
+        let targetRange: NSRange
+        if let substring = string,
+           let range = self.string.range(of: substring) {
+            targetRange = NSRange(range, in: self.string)
+        } else {
+            targetRange = NSRange(location: 0, length: self.length)
+        }
+        
+        addAttribute(.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: targetRange)
+        addAttribute(.underlineColor, value: color, range: targetRange)
         
         return self
     }
@@ -196,9 +185,16 @@ public extension NSMutableAttributedString {
     @discardableResult
     func wy_strikethrough(color: UIColor, string: String? = nil) -> NSMutableAttributedString {
         
-        let selfStr: NSString = self.string as NSString
-        addAttribute(NSAttributedString.Key.strikethroughStyle, value: NSUnderlineStyle.single.rawValue, range: selfStr.range(of: string == nil ? self.string : string!))
-        addAttribute(NSAttributedString.Key.strikethroughColor, value: color, range: selfStr.range(of: string == nil ? self.string : string!))
+        let targetRange: NSRange
+        if let substring = string,
+           let range = self.string.range(of: substring) {
+            targetRange = NSRange(range, in: self.string)
+        } else {
+            targetRange = NSRange(location: 0, length: self.length)
+        }
+        
+        addAttribute(.strikethroughStyle, value: NSUnderlineStyle.single.rawValue, range: targetRange)
+        addAttribute(.strikethroughColor, value: color, range: targetRange)
         
         return self
     }
@@ -211,29 +207,25 @@ public extension NSMutableAttributedString {
      *  @param tailIndent  尾部右边距
      */
     @discardableResult
-    func wy_innerMargin(string: String? = nil, firstLineHeadIndent: CGFloat = 0, headIndent: CGFloat = 0, tailIndent: CGFloat = 0, alignment: NSTextAlignment = .justified) -> NSMutableAttributedString {
+    func wy_innerMargin(string: String? = nil,
+                        firstLineHeadIndent: CGFloat = 0,
+                        headIndent: CGFloat = 0,
+                        tailIndent: CGFloat = 0,
+                        alignment: NSTextAlignment = .justified) -> NSMutableAttributedString {
         
-        // 创建NSString用于安全范围计算
-        let nsString = self.string as NSString
         let targetRange: NSRange
-        
-        // 确定目标范围（整个文本或指定子串）
-        if let substring = string {
-            targetRange = nsString.range(of: substring)
-            guard targetRange.location != NSNotFound else { return self }
+        if let substring = string,
+           let range = self.string.range(of: substring) {
+            targetRange = NSRange(range, in: self.string)
         } else {
             targetRange = NSRange(location: 0, length: self.length)
         }
         
         // 获取或创建段落样式
         let paragraphStyle: NSMutableParagraphStyle
-        
-        // 安全地获取并复制现有段落样式
-        if let existingStyle = self.attribute(
-            .paragraphStyle,
-            at: targetRange.location,
-            effectiveRange: nil
-        ) as? NSParagraphStyle,
+        if let existingStyle = self.attribute(.paragraphStyle,
+                                              at: targetRange.location,
+                                              effectiveRange: nil) as? NSParagraphStyle,
            let mutableStyle = existingStyle.mutableCopy() as? NSMutableParagraphStyle {
             paragraphStyle = mutableStyle
         } else {
@@ -247,11 +239,7 @@ public extension NSMutableAttributedString {
         paragraphStyle.tailIndent = tailIndent
         
         // 应用更新到目标范围
-        self.addAttribute(
-            .paragraphStyle,
-            value: paragraphStyle,
-            range: targetRange
-        )
+        self.addAttribute(.paragraphStyle, value: paragraphStyle, range: targetRange)
         
         return self
     }
@@ -270,11 +258,7 @@ public extension NSMutableAttributedString {
     @discardableResult
     func wy_insertImage(_ attachments: [WYImageAttachmentOption]) -> NSMutableAttributedString {
         
-        if string.isEmpty || attachments.isEmpty {
-            return self
-        }
-        
-        let fullText = self.string as NSString
+        guard !string.isEmpty, !attachments.isEmpty else { return self }
         
         // 将插入项统一转换为 (index, attr) 类型，便于排序和插入
         var insertionItems: [(index: Int, attr: NSAttributedString)] = []
@@ -288,12 +272,18 @@ public extension NSMutableAttributedString {
                 insertIndex = max(0, min(self.length, value))
                 
             case .before(let target):
-                let range = fullText.range(of: target)
-                insertIndex = range.location != NSNotFound ? range.location : self.length
+                if let range = string.range(of: target) {
+                    insertIndex = string.distance(from: string.startIndex, to: range.lowerBound)
+                } else {
+                    insertIndex = self.length
+                }
                 
             case .after(let target):
-                let range = fullText.range(of: target)
-                insertIndex = (range.location != NSNotFound) ? (range.location + range.length) : self.length
+                if let range = string.range(of: target) {
+                    insertIndex = string.distance(from: string.startIndex, to: range.upperBound)
+                } else {
+                    insertIndex = self.length
+                }
             }
             
             // 构建图片 attachment
@@ -301,49 +291,38 @@ public extension NSMutableAttributedString {
             attachment.image = option.image
             
             // 获取当前索引处的字体
-            let lineFont = self.attribute(.font, at: min(insertIndex, self.length - 1), effectiveRange: nil) as? UIFont ?? UIFont.systemFont(ofSize: 15)
+            let lineFont = self.attribute(.font, at: max(0, min(insertIndex, self.length - 1)), effectiveRange: nil) as? UIFont ?? UIFont.systemFont(ofSize: 15)
             
             // 计算图片(Y)偏移量（文字对齐用）
             let yOffset: CGFloat
             switch option.alignment {
             case .center:
-                // 精确居中：图片中心点与字体基线对齐
                 yOffset = lineFont.ascender - (option.size.height * 0.5)
-                
             case .top:
-                // 居上对齐：图片顶部与字体顶部对齐
                 yOffset = lineFont.ascender - option.size.height
-                
             case .bottom:
-                // 居下对齐：图片底部与字体底部对齐
                 yOffset = lineFont.descender
-                
             case .custom(let offset):
                 yOffset = -offset
             }
             
             attachment.bounds = CGRect(x: 0, y: yOffset, width: option.size.width, height: option.size.height)
-            
             let imageAttr = NSAttributedString(attachment: attachment)
             
             // 构建前后间距（使用透明附件）
-            let beforeSpace: NSAttributedString
-            if option.spacingBefore > 0 {
-                let spaceAttachment = NSTextAttachment()
-                spaceAttachment.bounds = CGRect(x: 0, y: 0, width: option.spacingBefore, height: 0.01)
-                beforeSpace = NSAttributedString(attachment: spaceAttachment)
-            } else {
-                beforeSpace = NSAttributedString()
-            }
+            let beforeSpace: NSAttributedString = {
+                guard option.spacingBefore > 0 else { return NSAttributedString() }
+                let space = NSTextAttachment()
+                space.bounds = CGRect(x: 0, y: 0, width: option.spacingBefore, height: 0)
+                return NSAttributedString(attachment: space)
+            }()
             
-            let afterSpace: NSAttributedString
-            if option.spacingAfter > 0 {
-                let spaceAttachment = NSTextAttachment()
-                spaceAttachment.bounds = CGRect(x: 0, y: 0, width: option.spacingAfter, height: 0.01)
-                afterSpace = NSAttributedString(attachment: spaceAttachment)
-            } else {
-                afterSpace = NSAttributedString()
-            }
+            let afterSpace: NSAttributedString = {
+                guard option.spacingAfter > 0 else { return NSAttributedString() }
+                let space = NSTextAttachment()
+                space.bounds = CGRect(x: 0, y: 0, width: option.spacingAfter, height: 0)
+                return NSAttributedString(attachment: space)
+            }()
             
             // 拼接完整插入内容：前间距 + 图片 + 后间距
             let fullInsert = NSMutableAttributedString()
@@ -359,6 +338,7 @@ public extension NSMutableAttributedString {
         for item in insertionItems.sorted(by: { $0.index > $1.index }) {
             insert(item.attr, at: item.index)
         }
+        
         return self
     }
     
@@ -371,57 +351,57 @@ public extension NSMutableAttributedString {
      *  @param bundle        从哪个bundle文件内查找图片资源，如果为空，则直接在本地路径下查找
      *  @param pattern       正则匹配规则, 默认匹配1到3位, 如 [哈] [哈哈] [哈哈哈] 这种
      */
-    class func wy_convertEmojiAttributed(emojiString: String, textColor: UIColor, textFont: UIFont, emojiTable: [String], sourceBundle: WYSourceBundle? = nil, pattern: String = "\\[.{1,3}\\]") -> NSMutableAttributedString {
+    static func wy_convertEmojiAttributed(emojiString: String, textColor: UIColor, textFont: UIFont, emojiTable: [String], sourceBundle: WYSourceBundle? = nil, pattern: String = "\\[.{1,3}\\]") -> NSMutableAttributedString {
         
         // 字体、颜色
-        let textAttributes = [NSAttributedString.Key.font: textFont, NSAttributedString.Key.foregroundColor: textColor]
+        let textAttributes: [NSAttributedString.Key: Any] = [.font: textFont, .foregroundColor: textColor]
         
-        // 获取字体的行高，作为表情的高度
-        let attachmentHeight = textFont.lineHeight
-        
-        // 通过 emojiString 获得 NSMutableAttributedString
+        // 富文本初始对象
         let attributedString = NSMutableAttributedString(string: emojiString, attributes: textAttributes)
         
-        var regex: NSRegularExpression?
+        // 表情高度
+        let attachmentHeight = textFont.lineHeight
+        
+        // 正则匹配
+        let regex: NSRegularExpression?
         do {
             regex = try NSRegularExpression(pattern: pattern, options: .caseInsensitive)
         } catch let error {
             WYLogManager.output(error.localizedDescription)
+            regex = nil
         }
         
-        // 获取到匹配正则的数据
-        if let matches = regex?.matches(in: emojiString, options: .withoutAnchoringBounds, range: NSMakeRange(0, attributedString.string.utf16.count)) {
-            if matches.count > 0 {
-                // 遍历符合的数据进行解析
-                for i in 0..<matches.count {
-                    let result = matches[matches.count-i-1]
-                    let range = result.range
-                    let emojiStr = (emojiString as NSString).substring(with: range)
-                    // 符合的数据是否为表情
-                    if emojiTable.contains(emojiStr) {
-                        
-                        // 获取表情对应的图片名
-                        let image: UIImage = UIImage.wy_find(emojiStr, inBundle: sourceBundle)
-                        
-                        // 创建一个NSTextAttachment
-                        let attachment = WYTextAttachment()
-                        attachment.image  = image
-                        attachment.imageName = emojiStr
-                        attachment.imageRange = range
-                        
-                        let attachmentWidth = attachmentHeight * (image.size.width / image.size.height)
-                        
-                        attachment.bounds = CGRect(x: 0, y: (textFont.capHeight - textFont.lineHeight)/2, width: attachmentWidth, height: attachmentHeight)
-                        
-                        // 通过NSTextAttachment生成一个NSAttributedString
-                        let replace = NSAttributedString(attachment: attachment)
-                        
-                        // 替换表情字符串
-                        attributedString.replaceCharacters(in: range, with: replace)
-                    }
-                }
+        guard let matches = regex?.matches(in: emojiString, options: [], range: NSRange(emojiString.startIndex..., in: emojiString)),
+              !matches.isEmpty else {
+            return attributedString
+        }
+        
+        // 倒序遍历，防止替换偏移
+        for result in matches.reversed() {
+            let nsRange = result.range
+            guard let range = Range(nsRange, in: emojiString) else { continue }
+            let emojiStr = String(emojiString[range])
+            
+            // 检查是否是表情
+            if emojiTable.contains(emojiStr) {
+                let image = UIImage.wy_find(emojiStr, inBundle: sourceBundle)
+                
+                let attachment = WYTextAttachment()
+                attachment.image = image
+                attachment.imageName = emojiStr
+                attachment.imageRange = nsRange
+                
+                // 计算宽度，保持图片比例
+                let attachmentWidth = attachmentHeight * (image.size.width / image.size.height)
+                attachment.bounds = CGRect(x: 0, y: (textFont.capHeight - textFont.lineHeight)/2,
+                                           width: attachmentWidth, height: attachmentHeight)
+                
+                // 替换表情为附件
+                let replace = NSAttributedString(attachment: attachment)
+                attributedString.replaceCharacters(in: nsRange, with: replace)
             }
         }
+        
         return attributedString
     }
     
@@ -474,28 +454,42 @@ public extension NSAttributedString {
         
         var glyphRange: NSRange = NSRange()
         layoutManager.characterRange(forGlyphRange: range, actualGlyphRange: &glyphRange)
-        return layoutManager.boundingRect(forGlyphRange: glyphRange, in: textContainer)
+        
+        // 返回 boundingRect
+        let boundingRect: CGRect = layoutManager.boundingRect(forGlyphRange: glyphRange, in: textContainer)
+        return CGRect(x: ceil(boundingRect.origin.x), y: ceil(boundingRect.origin.y), width: ceil(boundingRect.size.width), height: ceil(boundingRect.size.height))
     }
     
     /// 获取某段文字的frame
     func wy_calculateFrame(subString: String, controlSize: CGSize, numberOfLines: Int = 0, lineBreakMode: NSLineBreakMode = .byWordWrapping) -> CGRect {
         
-        guard subString.isEmpty == false else {
-            return CGRect.zero
+        guard !subString.isEmpty else {
+            return .zero
         }
         
-        let textStorage: NSTextStorage = NSTextStorage(attributedString: self)
-        let layoutManager: NSLayoutManager = NSLayoutManager()
+        // 查找子串的 range
+        guard let range = string.range(of: subString) else {
+            return .zero
+        }
+        let nsRange = NSRange(range, in: string)
+        
+        // 准备文本排版相关对象
+        let textStorage = NSTextStorage(attributedString: self)
+        let layoutManager = NSLayoutManager()
         textStorage.addLayoutManager(layoutManager)
-        let textContainer: NSTextContainer = NSTextContainer(size: controlSize)
+        
+        let textContainer = NSTextContainer(size: controlSize)
         textContainer.lineFragmentPadding = 0
         textContainer.lineBreakMode = lineBreakMode
         textContainer.maximumNumberOfLines = numberOfLines
         layoutManager.addTextContainer(textContainer)
         
-        var glyphRange: NSRange = NSRange()
-        layoutManager.characterRange(forGlyphRange: (string as NSString).range(of: subString), actualGlyphRange: &glyphRange)
-        return layoutManager.boundingRect(forGlyphRange: glyphRange, in: textContainer)
+        // 获取 glyphRange
+        let glyphRange = layoutManager.glyphRange(forCharacterRange: nsRange, actualCharacterRange: nil)
+        
+        // 返回 boundingRect
+        let boundingRect: CGRect = layoutManager.boundingRect(forGlyphRange: glyphRange, in: textContainer)
+        return CGRect(x: ceil(boundingRect.origin.x), y: ceil(boundingRect.origin.y), width: ceil(boundingRect.size.width), height: ceil(boundingRect.size.height))
     }
     
     /// 计算富文本宽度
@@ -510,6 +504,7 @@ public extension NSAttributedString {
     
     /// 计算富文本宽高
     func wy_calculateSize(controlSize: CGSize) -> CGSize {
+        
         let attributedSize = boundingRect(with: controlSize, options: [.truncatesLastVisibleLine, .usesLineFragmentOrigin, .usesFontLeading], context: nil)
         
         return CGSize(width: ceil(attributedSize.width), height: ceil(attributedSize.height))
@@ -610,5 +605,40 @@ public struct WYImageAttachmentOption {
         self.alignment = alignment
         self.spacingBefore = spacingBefore
         self.spacingAfter = spacingAfter
+    }
+}
+
+private extension NSMutableAttributedString {
+    
+    /**
+     *  内部通用方法：根据 rangeValue 类型(字符串或区间数组)批量设置属性
+     */
+    private func wy_applyFontsOrColorsAttributes(key: NSAttributedString.Key, value: Any, rangeValue: Any) {
+        
+        if let rangeStr = rangeValue as? String {
+            // 按字符串查找并设置属性
+            if let range = self.string.range(of: rangeStr) {
+                let nsRange = NSRange(range, in: self.string)
+                addAttribute(key, value: value, range: nsRange)
+            }
+        } else if let rangeAry = rangeValue as? [String],
+                  rangeAry.count == 2,
+                  let location = Int(rangeAry[0]),
+                  let length = Int(rangeAry[1]) {
+            // 按区间范围设置属性
+            let nsRange = NSRange(location: location, length: length)
+            if nsRange.location + nsRange.length <= self.length {
+                addAttribute(key, value: value, range: nsRange)
+            }
+        }
+    }
+    
+    /// 获取包含指定范围的段落范围
+    func paragraphRange(containing range: Range<String.Index>, value: String) -> Range<String.Index>? {
+        guard !value.isEmpty else { return nil }
+        
+        let paragraphStart = value[..<range.lowerBound].lastIndex(of: "\n") ?? value.startIndex
+        let paragraphEnd = value[range.upperBound...].firstIndex(of: "\n") ?? value.endIndex
+        return paragraphStart..<paragraphEnd
     }
 }

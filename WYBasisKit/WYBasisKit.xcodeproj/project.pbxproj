@@ -44,7 +44,7 @@
 		58678EAC2DFA627C0035673E /* WYChatBasicCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E4F2DFA627C0035673E /* WYChatBasicCell.swift */; };
 		58678EAD2DFA627C0035673E /* WYAudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E362DFA627C0035673E /* WYAudioManager.swift */; };
 		58678EAE2DFA627C0035673E /* WYChatRecordsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E552DFA627C0035673E /* WYChatRecordsCell.swift */; };
-		58678EB02DFA627C0035673E /* NSAttributedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E0C2DFA627C0035673E /* NSAttributedString.swift */; };
+		58678EB02DFA627C0035673E /* AttributedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E0C2DFA627C0035673E /* AttributedString.swift */; };
 		58678EB12DFA627C0035673E /* UIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E182DFA627C0035673E /* UIApplication.swift */; };
 		58678EB22DFA627C0035673E /* WYChatEmojiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E402DFA627C0035673E /* WYChatEmojiView.swift */; };
 		58678EB32DFA627C0035673E /* WYChatFileCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58678E572DFA627C0035673E /* WYChatFileCell.swift */; };
@@ -147,7 +147,7 @@
 		58678E042DFA627C0035673E /* CGFloat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGFloat.swift; sourceTree = "<group>"; };
 		58678E062DFA627C0035673E /* Decimal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Decimal.swift; sourceTree = "<group>"; };
 		58678E082DFA627C0035673E /* Double.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Double.swift; sourceTree = "<group>"; };
-		58678E0C2DFA627C0035673E /* NSAttributedString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSAttributedString.swift; sourceTree = "<group>"; };
+		58678E0C2DFA627C0035673E /* AttributedString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttributedString.swift; sourceTree = "<group>"; };
 		58678E0E2DFA627C0035673E /* NumberFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberFormatter.swift; sourceTree = "<group>"; };
 		58678E102DFA627C0035673E /* NSObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSObject.swift; sourceTree = "<group>"; };
 		58678E122DFA627C0035673E /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
@@ -428,12 +428,12 @@
 			path = Double;
 			sourceTree = "<group>";
 		};
-		58678E0D2DFA627C0035673E /* NSAttributedString */ = {
+		58678E0D2DFA627C0035673E /* AttributedString */ = {
 			isa = PBXGroup;
 			children = (
-				58678E0C2DFA627C0035673E /* NSAttributedString.swift */,
+				58678E0C2DFA627C0035673E /* AttributedString.swift */,
 			);
-			path = NSAttributedString;
+			path = AttributedString;
 			sourceTree = "<group>";
 		};
 		58678E0F2DFA627C0035673E /* NumberFormatter */ = {
@@ -594,7 +594,7 @@
 				58F3786B2E22244B007F7C55 /* UIFont */,
 				58678E032DFA627C0035673E /* CALayer */,
 				58678E072DFA627C0035673E /* Decimal */,
-				58678E0D2DFA627C0035673E /* NSAttributedString */,
+				58678E0D2DFA627C0035673E /* AttributedString */,
 				58678E0F2DFA627C0035673E /* NumberFormatter */,
 				58678E112DFA627C0035673E /* NSObject */,
 				58678E152DFA627C0035673E /* Timer */,
@@ -1227,7 +1227,7 @@
 				58678EAC2DFA627C0035673E /* WYChatBasicCell.swift in Sources */,
 				58678EAD2DFA627C0035673E /* WYAudioManager.swift in Sources */,
 				58678EAE2DFA627C0035673E /* WYChatRecordsCell.swift in Sources */,
-				58678EB02DFA627C0035673E /* NSAttributedString.swift in Sources */,
+				58678EB02DFA627C0035673E /* AttributedString.swift in Sources */,
 				58678EB12DFA627C0035673E /* UIApplication.swift in Sources */,
 				58678EB22DFA627C0035673E /* WYChatEmojiView.swift in Sources */,
 				58678EB32DFA627C0035673E /* WYChatFileCell.swift in Sources */,
