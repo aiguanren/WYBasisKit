@@ -440,17 +440,18 @@ public extension UIImage {
             guard let cgImage = CGImageSourceCreateImageAtIndex(imageSource, i, nil) else {
                 continue
             }
-            guard let properties: NSDictionary = CGImageSourceCopyPropertiesAtIndex(imageSource, i, nil) else {
+            guard let properties = CGImageSourceCopyPropertiesAtIndex(imageSource, i, nil) as? [CFString: Any] else {
                 continue
             }
-            
-            var pngDic: NSDictionary? = nil
-            if let gifDic = properties[kCGImagePropertyGIFDictionary] as? NSDictionary {
+
+            var pngDic: [CFString: Any]? = nil
+
+            if let gifDic = properties[kCGImagePropertyGIFDictionary] as? [CFString: Any] {
                 pngDic = gifDic
             }
-            
-            if (pngDic == nil) {
-                pngDic = properties[kCGImagePropertyPNGDictionary] as? NSDictionary
+
+            if pngDic == nil {
+                pngDic = properties[kCGImagePropertyPNGDictionary] as? [CFString: Any]
             }
             
             guard let animatedDic = pngDic else {
