@@ -16,7 +16,7 @@ import WebKit
     @objc optional func webPageLoadProgress(_ progress: CGFloat)
 
     /// 页面加载失败时调用（首次请求）
-    @objc optional func didFailProvisionalNavigation(_ urlString: String, withError error: NSError)
+    @objc optional func didFailProvisionalNavigation(_ urlString: String, withError error: Error)
 
     /// 当内容开始返回时调用
     @objc optional func didCommitNavigation(_ urlString: String)
@@ -25,7 +25,7 @@ import WebKit
     @objc optional func didFinishNavigation(_ urlString: String)
 
     /// 提交发生错误时调用（通常指加载后期失败）
-    @objc optional func didFailNavigation(_ urlString: String, withError error: NSError)
+    @objc optional func didFailNavigation(_ urlString: String, withError error: Error)
 
     /// 接收到服务器跳转请求（服务重定向时之后调用）
     @objc optional func didReceiveServerRedirectForProvisionalNavigation(_ urlString: String)
@@ -237,12 +237,12 @@ public class WKWebViewDelegator: NSObject, WKNavigationDelegate {
 
     /// 页面加载过程中发生错误（一般指加载过程中出现中断）
     public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        proxy?.didFailNavigation?(webView.url?.absoluteString ?? "", withError: error as NSError)
+        proxy?.didFailNavigation?(webView.url?.absoluteString ?? "", withError: error)
     }
 
     /// 页面加载失败（首次请求失败，例如 DNS 解析失败等）
     public func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        proxy?.didFailProvisionalNavigation?(webView.url?.absoluteString ?? "", withError: error as NSError)
+        proxy?.didFailProvisionalNavigation?(webView.url?.absoluteString ?? "", withError: error )
     }
 
     /// 接收到服务器的重定向（HTTP 3xx 跳转）

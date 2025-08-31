@@ -235,7 +235,7 @@ KVO / KVC
 
 九、用户默认（偏好）
 ────────────────────
-用户默认
+UserDefaults
 - Swift: UserDefaults
 - ObjC: NSUserDefaults
 - 特点: 类型化存取（bool(forKey:), integer(forKey:)…）

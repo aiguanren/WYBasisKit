@@ -72,7 +72,7 @@ extension WYWebViewController: WKWebViewNavigationDelegateProxy {
     }
 
     /// 页面加载失败时调用（首次请求）
-    func didFailProvisionalNavigation(_ urlString: String, withError error: NSError) {
+    func didFailProvisionalNavigation(_ urlString: String, withError error: Error) {
         WYLogManager.output("didFailProvisionalNavigation：\(urlString)， error：\(error)")
     }
 
@@ -87,7 +87,7 @@ extension WYWebViewController: WKWebViewNavigationDelegateProxy {
     }
 
     /// 提交发生错误时调用（通常指加载后期失败）
-    func didFailNavigation(_ urlString: String, withError error: NSError) {
+    func didFailNavigation(_ urlString: String, withError error: Error) {
         WYLogManager.output("didFailNavigation：\(urlString)，error：\(error)")
     }
 

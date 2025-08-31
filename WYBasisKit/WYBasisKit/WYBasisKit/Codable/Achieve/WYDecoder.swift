@@ -277,7 +277,7 @@ extension WYCodableInfo {
     }
     
     func unbox_(_ value: Any, as type: Decodable.Type) throws -> Any? {
-        if type == URL.self || type == NSURL.self {
+        if type == URL.self {
             return try unbox(value, as: URL.self)
         } else if let stringKeyedDictType = type as? _JSONStringDictionaryDecodableMarker.Type {
             return try unbox(value, as: stringKeyedDictType)

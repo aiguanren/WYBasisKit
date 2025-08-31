@@ -31,9 +31,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         WYBasisKitConfig.defaultScreenPixels = WYScreenPixels(width: 375, height: 812)
         
-        let aaa = CGFloat.wy_randomFloat(minimum: 10, maximum: 20, precision: 3)
-        let bbb = Int.wy_random(minimum: 1, maximum: 20)
-        
         return true
     }
     
