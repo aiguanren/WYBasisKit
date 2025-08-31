@@ -44,7 +44,7 @@ class WYMultilevelTableViewController: UIViewController {
 
         var reloadRows: [IndexPath] = []
         let insertLocation: Int = indexPath.row + 1
-        let subLevel: Int = randomNumber()
+        let subLevel: Int = Int.wy_random(minimum: 1, maximum: 5)
         model.subLevel = subLevel
         for index in 0..<subLevel {
 
@@ -83,16 +83,12 @@ class WYMultilevelTableViewController: UIViewController {
     }
 
     func sharedLevelName(model: WYMultilevelTable) -> String {
-
+        
         var offset: String = ""
         for _ in 0..<model.level {
             offset = offset + "    "
         }
         return offset + "第\(model.level)级"
-    }
-
-    func randomNumber(min: Int = 1, max: Int = 5) -> Int {
-        return min + Int(arc4random_uniform(UInt32(max - min)))
     }
     
     /*

@@ -45,16 +45,15 @@ public extension Int {
     /**
      *  获取一个随机整数
      *
-     *  @param minimux   最小可以是多少
+     *  @param minimum   最小可以是多少
      *
      *  @param maximum   最大可以是多少
      *
      */
-    static func wy_random(minimux: Int = 1, maximum: Int = 99999) -> Int {
-        
-        guard minimux < maximum else {
+    static func wy_random(minimum: Int = 1, maximum: Int = 99999) -> Int {
+        guard minimum < maximum else {
             return maximum
         }
-        return minimux + (Int(arc4random()) % (maximum - minimux))
+        return Int.random(in: minimum..<maximum)
     }
 }

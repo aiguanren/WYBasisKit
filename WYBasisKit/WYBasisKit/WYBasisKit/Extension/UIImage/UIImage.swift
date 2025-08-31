@@ -348,10 +348,20 @@ public extension UIImage {
      */
     static func wy_find(_ imageName: String, inBundle bundle: WYSourceBundle? = nil) -> UIImage {
         
+        func randomImage() -> UIImage {
+            let randomColor = UIColor(
+                red: CGFloat.random(in: 0...1),
+                green: CGFloat.random(in: 0...1),
+                blue: CGFloat.random(in: 0...1),
+                alpha: 1.0
+            )
+            return wy_createImage(from: randomColor)
+        }
+        
         if imageName.isEmpty {
             
             WYLogManager.output("没有找到相关图片，因为传入的 imageName 为空， 已默认创建一张随机颜色图片供您使用")
-            return wy_createImage(from: UIColor(red: CGFloat(arc4random()%256)/255.0, green: CGFloat(arc4random()%256)/255.0, blue: CGFloat(arc4random()%256)/255.0, alpha: 1.0))
+            return randomImage()
         }
         
         if let imageBundle: WYSourceBundle = bundle {
@@ -366,7 +376,8 @@ public extension UIImage {
             guard let contentImage = UIImage(named: imageName, in: Bundle(path: resourcePath), compatibleWith: nil) else {
                 
                 WYLogManager.output("在 \(imageBundle.bundleName).bundle/\(imageBundle.subdirectory) 中没有找到 \(imageName) 这张图片，已默认创建一张随机颜色图片供您使用")
-                return wy_createImage(from: UIColor(red: CGFloat(arc4random()%256)/255.0, green: CGFloat(arc4random()%256)/255.0, blue: CGFloat(arc4random()%256)/255.0, alpha: 1.0))
+                
+                return randomImage()
             }
             return contentImage
         }else {
@@ -379,7 +390,7 @@ public extension UIImage {
                     
                     WYLogManager.output("在项目路径或Assets下面，没有找到 \(imageName) 这张图片，已默认创建一张随机颜色图片供您使用")
                     
-                    return wy_createImage(from: UIColor(red: CGFloat(arc4random()%256)/255.0, green: CGFloat(arc4random()%256)/255.0, blue: CGFloat(arc4random()%256)/255.0, alpha: 1.0))
+                    return randomImage()
                 }
                 return contentImage
             }

@@ -71,7 +71,7 @@ extension WYFlowLayoutAlignmentController: UICollectionViewDelegate, UICollectio
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 //        return 80
-        return Int.wy_random(minimux: 1, maximum: 129)
+        return Int.wy_random(minimum: 1, maximum: 129)
 //        return 9
 //        return 169
     }
@@ -87,7 +87,7 @@ extension WYFlowLayoutAlignmentController: UICollectionViewDelegate, UICollectio
                     if wy_collectionView(collectionView, layout: collectionViewLayout, hoverForHeaderForSectionAt: indexPath.section) == true {
                         return CGSize(width: 35, height: indexPath.row + 10)
                     }else {
-                        return CGSize(width: 35, height: Int.wy_random(minimux: 35, maximum: 135))
+                        return CGSize(width: 35, height: Int.wy_random(minimum: 35, maximum: 135))
                     }
                 }
             }else {
@@ -133,7 +133,7 @@ extension WYFlowLayoutAlignmentController: UICollectionViewDelegate, UICollectio
             if collectionView.isPagingEnabled == true {
                 return CGSize(width: 35, height: 35)
             }
-            return CGSize(width: Int.wy_random(minimux: 35, maximum: 135), height: 35)
+            return CGSize(width: Int.wy_random(minimum: 35, maximum: 135), height: 35)
         }
     }
     

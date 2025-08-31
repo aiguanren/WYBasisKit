@@ -24,14 +24,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var window: UIWindow?
     
-    func applicattoion(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         
         // 屏蔽控制台约束输出
         UserDefaults.standard.setValue(false, forKey: "_UIConstraintBasedLayoutLogUnsatisfiable")
         
         WYBasisKitConfig.defaultScreenPixels = WYScreenPixels(width: 375, height: 812)
-
+        
+        let aaa = CGFloat.wy_randomFloat(minimum: 10, maximum: 20, precision: 3)
+        let bbb = Int.wy_random(minimum: 1, maximum: 20)
+        
         return true
     }
     
