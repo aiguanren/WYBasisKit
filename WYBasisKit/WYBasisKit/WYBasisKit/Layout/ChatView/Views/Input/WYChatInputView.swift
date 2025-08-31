@@ -87,10 +87,10 @@ public struct WYInputBarConfig {
     public var inputTextEdgeInsets: UIEdgeInsets = UIEdgeInsets(top: UIDevice.wy_screenWidth(13), left: UIDevice.wy_screenWidth(10), bottom: UIDevice.wy_screenWidth(5), right: UIDevice.wy_screenWidth(5))
     
     /// 输入字符长度限制
-    public var inputTextLength: NSInteger = Int.max
+    public var inputTextLength: Int = Int.max
 
     /// 输入字符行数限制(0为不限制行数)
-    public var inputTextMaximumNumberOfLines: NSInteger = 0
+    public var inputTextMaximumNumberOfLines: Int = 0
 
     /// 输入字符的截断方式
     public var textLineBreakMode: NSLineBreakMode = .byTruncatingTail

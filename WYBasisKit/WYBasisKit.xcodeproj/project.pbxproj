@@ -113,13 +113,12 @@
 		58B5A0152E5D5726008F9C38 /* WYCodableObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B5A0142E5D5726008F9C38 /* WYCodableObjC.swift */; };
 		58B5A0172E5D573E008F9C38 /* WYBasisKitConfigObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B5A0162E5D573E008F9C38 /* WYBasisKitConfigObjC.swift */; };
 		58B5A0192E5D5752008F9C38 /* UIImageObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B5A0182E5D5752008F9C38 /* UIImageObjC.swift */; };
-		58B5A01F2E5D579A008F9C38 /* UITextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B5A01D2E5D579A008F9C38 /* UITextView.swift */; };
 		58BE5F032E5E94210046AD5D /* Swift↔ObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BE5F022E5E94210046AD5D /* Swift↔ObjC.swift */; };
 		58CDEE582E34780D00ACE975 /* WYLogManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CDEE572E34780D00ACE975 /* WYLogManager.swift */; };
 		58E7127E2E4B03C20095E71C /* WYAudioKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E7127D2E4B03C20095E71C /* WYAudioKit.swift */; };
 		58F3786D2E2224A9007F7C55 /* UIFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3786C2E2224A9007F7C55 /* UIFont.swift */; };
 		58F378702E2239D5007F7C55 /* FloatingPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3786F2E2239D5007F7C55 /* FloatingPoint.swift */; };
-		58F378732E2240C3007F7C55 /* NSInteger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F378722E2240C3007F7C55 /* NSInteger.swift */; };
+		58F378732E2240C3007F7C55 /* Int.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F378722E2240C3007F7C55 /* Int.swift */; };
 		AAC46AD02E07E28F0068B0DF /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = AAC46ACF2E07E28F0068B0DF /* libc++.tbd */; };
 		ED4EB416B83B179C621C40F0 /* Pods_WYBasisKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEB6297DCF484666E8FC6223 /* Pods_WYBasisKit.framework */; };
 /* End PBXBuildFile section */
@@ -234,13 +233,12 @@
 		58B5A0142E5D5726008F9C38 /* WYCodableObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableObjC.swift; sourceTree = "<group>"; };
 		58B5A0162E5D573E008F9C38 /* WYBasisKitConfigObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYBasisKitConfigObjC.swift; sourceTree = "<group>"; };
 		58B5A0182E5D5752008F9C38 /* UIImageObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageObjC.swift; sourceTree = "<group>"; };
-		58B5A01D2E5D579A008F9C38 /* UITextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITextView.swift; sourceTree = "<group>"; };
 		58BE5F022E5E94210046AD5D /* Swift↔ObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Swift↔ObjC.swift"; sourceTree = "<group>"; };
 		58CDEE572E34780D00ACE975 /* WYLogManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLogManager.swift; sourceTree = "<group>"; };
 		58E7127D2E4B03C20095E71C /* WYAudioKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAudioKit.swift; sourceTree = "<group>"; };
 		58F3786C2E2224A9007F7C55 /* UIFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIFont.swift; sourceTree = "<group>"; };
 		58F3786F2E2239D5007F7C55 /* FloatingPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPoint.swift; sourceTree = "<group>"; };
-		58F378722E2240C3007F7C55 /* NSInteger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSInteger.swift; sourceTree = "<group>"; };
+		58F378722E2240C3007F7C55 /* Int.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Int.swift; sourceTree = "<group>"; };
 		8B8A3708E351CE0BB9E30715 /* Pods-WYBasisKit.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.debug.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.debug.xcconfig"; sourceTree = "<group>"; };
 		AAC46ACF2E07E28F0068B0DF /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		FEB6297DCF484666E8FC6223 /* Pods_WYBasisKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WYBasisKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -586,9 +584,8 @@
 		58678E322DFA627C0035673E /* Extension */ = {
 			isa = PBXGroup;
 			children = (
-				58B5A01E2E5D579A008F9C38 /* UITextView */,
 				58678E132DFA627C0035673E /* String */,
-				58F378712E2240B9007F7C55 /* NSInteger */,
+				58F378712E2240B9007F7C55 /* Int */,
 				58678E052DFA627C0035673E /* CGFloat */,
 				58678E092DFA627C0035673E /* Double */,
 				58678E012DFA627C0035673E /* Bool */,
@@ -998,14 +995,6 @@
 			path = Achieve;
 			sourceTree = "<group>";
 		};
-		58B5A01E2E5D579A008F9C38 /* UITextView */ = {
-			isa = PBXGroup;
-			children = (
-				58B5A01D2E5D579A008F9C38 /* UITextView.swift */,
-			);
-			path = UITextView;
-			sourceTree = "<group>";
-		};
 		58CDEE562E34777400ACE975 /* LogManager */ = {
 			isa = PBXGroup;
 			children = (
@@ -1038,12 +1027,12 @@
 			path = FloatingPoint;
 			sourceTree = "<group>";
 		};
-		58F378712E2240B9007F7C55 /* NSInteger */ = {
+		58F378712E2240B9007F7C55 /* Int */ = {
 			isa = PBXGroup;
 			children = (
-				58F378722E2240C3007F7C55 /* NSInteger.swift */,
+				58F378722E2240C3007F7C55 /* Int.swift */,
 			);
-			path = NSInteger;
+			path = Int;
 			sourceTree = "<group>";
 		};
 		74BEC470B6E92D82AAD2D137 /* Frameworks */ = {
@@ -1194,7 +1183,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				585B39A22DF8125400E6E08F /* AppDelegate.swift in Sources */,
-				58F378732E2240C3007F7C55 /* NSInteger.swift in Sources */,
+				58F378732E2240C3007F7C55 /* Int.swift in Sources */,
 				58B5A0152E5D5726008F9C38 /* WYCodableObjC.swift in Sources */,
 				585B39A32DF8125400E6E08F /* ViewController.swift in Sources */,
 				58678E8D2DFA627C0035673E /* WYMicrophoneAuthorization.swift in Sources */,
@@ -1206,7 +1195,6 @@
 				58678E942DFA627C0035673E /* NumberFormatter.swift in Sources */,
 				58B5A0172E5D573E008F9C38 /* WYBasisKitConfigObjC.swift in Sources */,
 				58678E952DFA627C0035673E /* WYRecordAnimationView.swift in Sources */,
-				58B5A01F2E5D579A008F9C38 /* UITextView.swift in Sources */,
 				58678E972DFA627C0035673E /* WYMoreViewCell.swift in Sources */,
 				58CDEE582E34780D00ACE975 /* WYLogManager.swift in Sources */,
 				58B59FF82E5D5515008F9C38 /* WYActivityObjC.swift in Sources */,

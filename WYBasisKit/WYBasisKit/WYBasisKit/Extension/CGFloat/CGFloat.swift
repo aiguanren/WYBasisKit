@@ -17,11 +17,11 @@ public extension Optional where Wrapped == CGFloat {
 
 public extension CGFloat {
     
-    /// CGFloat转String、Double、Int、NSInteger、Decimal
+    /// CGFloat转String、Double、Int、Decimal
     func wy_convertTo<T: Any>(_ type: T.Type) -> T {
         
-        guard (type == String.self) || (type == Double.self) || (type == Int.self) || (type == NSInteger.self) || (type == Decimal.self)  || (type == CGFloat.self) else {
-            fatalError("type只能是String、Double、Int、NSInteger、Decimal中的一种")
+        guard (type == String.self) || (type == Double.self) || (type == Int.self) || (type == Decimal.self)  || (type == CGFloat.self) else {
+            fatalError("type只能是String、Double、Int、Decimal中的一种")
         }
         
         if type == String.self {
@@ -53,7 +53,7 @@ public extension CGFloat {
      *  @param precision 精度(默认保留2位小数)
      *
      */
-    static func wy_randomFloat(minimux: CGFloat = 0.01, maximum: CGFloat = 99999.99, precision: NSInteger = 2) -> CGFloat {
+    static func wy_randomFloat(minimux: CGFloat = 0.01, maximum: CGFloat = 99999.99, precision: Int = 2) -> CGFloat {
         
         guard minimux < maximum else {
             return maximum

@@ -36,8 +36,7 @@ class WYLeftController: UIViewController {
         "归档/解归档": "WYArchivedController",
         "日志输出与保存": "WYLogController",
         "音频录制与播放": "TestAudioController",
-        "设备振动": "WYTestVibrateController",
-        "TextView": "WYTestTextViewController"
+        "设备振动": "WYTestVibrateController"
     ]
 
     lazy var tableView: UITableView = {

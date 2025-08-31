@@ -10,7 +10,7 @@ import SnapKit
 
 @objc public protocol WYScrollTextDelegate {
     
-    @objc optional func itemDidClick(_ itemIndex: NSInteger)
+    @objc optional func itemDidClick(_ itemIndex: Int)
 }
 
 public class WYScrollText: UIView {
@@ -18,7 +18,7 @@ public class WYScrollText: UIView {
     /// 点击事件代理(也可以通过传入block监听)
     public weak var delegate: WYScrollTextDelegate?
     /// 点击事件(也可以通过实现代理监听)
-    public func didClickHandler(handler:((_ index: NSInteger) -> Void)? = .none) {
+    public func didClickHandler(handler:((_ index: Int) -> Void)? = .none) {
         actionHandler = handler
     }
     /// 占位文本
@@ -81,10 +81,10 @@ public class WYScrollText: UIView {
         return collectionview
     }()
     
-    private var actionHandler: ((_ index: NSInteger) -> Void)?
+    private var actionHandler: ((_ index: Int) -> Void)?
     
     /// 当前文本下标
-    private var textIndex: NSInteger = 0
+    private var textIndex: Int = 0
     
     /// 定时器
     private var timer: Timer?

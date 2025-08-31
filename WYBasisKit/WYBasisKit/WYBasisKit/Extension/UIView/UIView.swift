@@ -151,7 +151,7 @@ public extension UIView {
      *  @param perLine   每行显示多少个控件
      *
      */
-    static func wy_numberOfLines(total: NSInteger, perLine: NSInteger) -> NSInteger {
+    static func wy_numberOfLines(total: Int, perLine: Int) -> Int {
         if CGFloat(total).truncatingRemainder(dividingBy: CGFloat(perLine)) == 0 {
             return total / perLine
         }else {

@@ -545,7 +545,7 @@ public extension NSAttributedString {
     }
     
     /// 判断字符串显示完毕需要几行(为了计算准确，尽量将使用到的属性如字间距、缩进、换行模式、字体等设置到调用本方法的attributedString对象中来, 没有用到的直接忽略)
-    func wy_numberOfRows(controlWidth: CGFloat) -> NSInteger {
+    func wy_numberOfRows(controlWidth: CGFloat) -> Int {
         return wy_stringPerLine(controlWidth: controlWidth).count
     }
 }
@@ -565,7 +565,7 @@ public struct WYImageAttachmentOption {
         /// 插入到文本后面
         case after(text: String)
         /// 根据文本下标插入到指定为止
-        case index(NSInteger)
+        case index(Int)
     }
     
     /// 图片对齐方式

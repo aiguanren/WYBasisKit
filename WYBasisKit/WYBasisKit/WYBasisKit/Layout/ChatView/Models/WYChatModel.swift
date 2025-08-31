@@ -233,10 +233,10 @@ public class WYChatLuckyMoneyModel: NSObject {
     public var amounts: String = ""
     
     /// 红包个数(1为个人红包，否则为多人红包)
-    public var numberOfLuckyMoney: NSInteger = 1
+    public var numberOfLuckyMoney: Int = 1
     
     /// 已抢红包个数
-    public var numberOfRobbed: NSInteger = 0
+    public var numberOfRobbed: Int = 0
     
     /// 红包已抢金额
     public var amountsStolen: Double = 0
@@ -442,7 +442,7 @@ public class WYChatMeesageContentModel: NSObject {
     /// 获取消息类型
     public func style() -> WYChatMessageStyle {
 
-        let index: NSInteger = [nil, text, voice, photo, music, video, luckyMoney, transfer, location, takePat, withdrawn, call, webpage, file, businessCard, chatRecords].firstIndex(where: { $0 != nil }) ?? 0
+        let index: Int = [nil, text, voice, photo, music, video, luckyMoney, transfer, location, takePat, withdrawn, call, webpage, file, businessCard, chatRecords].firstIndex(where: { $0 != nil }) ?? 0
         return WYChatMessageStyle.members()[index]
     }
 }
@@ -487,7 +487,7 @@ public class WYChatUaerModel: NSObject {
     public var moreInfo: Data? = nil
     
     /// model在数组中对应的下标
-    public var index: NSInteger = 0
+    public var index: Int = 0
 }
 
 /// 群聊Model
@@ -530,7 +530,7 @@ public class WYChatGroupModel: NSObject {
     public var members: [WYChatUaerModel] = []
     
     /// model在数组中对应的下标
-    public var index: NSInteger = 0
+    public var index: Int = 0
 }
 
 /// 聊天model
@@ -604,7 +604,7 @@ public class WYChatMessageModel: NSObject {
     public var reference: WYChatMeesageContentModel? = nil
     
     /// model在数组中对应的下标
-    public var index: NSInteger = 0
+    public var index: Int = 0
 
     /**
      *  查看某人是否是该条消息的发送者

@@ -17,11 +17,11 @@ public extension Optional where Wrapped == Double {
 
 public extension Double {
     
-    /// Double转String、CGFloat、Int、NSInteger、Decimal
+    /// Double转String、CGFloat、Int、Decimal
     func wy_convertTo<T: Any>(_ type: T.Type) -> T {
         
-        guard (type == String.self) || (type == CGFloat.self) || (type == Int.self) || (type == NSInteger.self)  || (type == Decimal.self) || (type == Double.self) else {
-            fatalError("type只能是String、CGFloat、Int、NSInteger、Decimal中的一种")
+        guard (type == String.self) || (type == CGFloat.self) || (type == Int.self) || (type == Decimal.self) || (type == Double.self) else {
+            fatalError("type只能是String、CGFloat、Int、Decimal中的一种")
         }
         
         if type == String.self {

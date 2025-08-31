@@ -111,7 +111,7 @@ class WYTestRichTextController: UIViewController {
         let image_font_50: UIImage = UIImage.wy_find("喝彩")
         let attributed: NSMutableAttributedString = NSMutableAttributedString(string: String.wy_random(minimux:10, maximum: 20) + "\n" + string_font_30  + "\n" + string_font_40  + "\n" + string_font_50  + "\n" + String.wy_random(minimux:10, maximum: 20))
         
-        let string_font_50Index: NSInteger = (attributed.string as NSString).range(of: string_font_50).location - 1
+        let string_font_50Index: Int = (attributed.string as NSString).range(of: string_font_50).location - 1
         let options: [WYImageAttachmentOption] = [
             .init(image: image_font_30, size: CGSize(width: 20, height: 20), position: .before(text: string_font_30), alignment: .top, spacingAfter:20),
             .init(image: image_font_30, size: CGSize(width: 10, height: 10), position: .index(1), alignment: .top, spacingAfter:20),
@@ -176,7 +176,7 @@ class WYTestRichTextController: UIViewController {
 
 extension WYTestRichTextController: WYRichTextDelegate {
     
-    func wy_didClick(richText: String, range: NSRange, index: NSInteger) {
+    func wy_didClick(richText: String, range: NSRange, index: Int) {
         
         //wy_print("string = \(richText), range = \(range), index = \(index)")
         //WYActivity.showInfo("string = \(richText), range = \(range), index = \(index)", in: self.view, position: .middle)

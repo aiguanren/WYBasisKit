@@ -1,5 +1,5 @@
 //
-//  NSInteger.swift
+//  Int.swift
 //  WYBasisKit
 //
 //  Created by 官人 on 2025/7/12.
@@ -7,20 +7,20 @@
 
 import Foundation
 
-public extension Optional where Wrapped == NSInteger {
+public extension Optional where Wrapped == Int {
     /// 获取非空安全值
-    var wy_safe: NSInteger {
+    var wy_safe: Int {
         return self ?? 0
     }
 }
 
-public extension NSInteger {
+public extension Int {
     
-    /// NSInteger转String、CGFloat、Double、Int、Decimal
+    /// Int转String、CGFloat、Double、Decimal
     func wy_convertTo<T: Any>(_ type: T.Type) -> T {
 
-        guard (type == String.self) || (type == Double.self) || (type == CGFloat.self) || (type == NSInteger.self) || (type == Decimal.self)  || (type == Int.self) else {
-            fatalError("type只能是String、CGFloat、Double、Int、Decimal中的一种")
+        guard (type == String.self) || (type == Double.self) || (type == CGFloat.self) || (type == Decimal.self)  || (type == Int.self) else {
+            fatalError("type只能是String、CGFloat、Double、Decimal中的一种")
         }
         
         if type == String.self {
@@ -39,10 +39,6 @@ public extension NSInteger {
             return "\(self)".wy_convertTo(Decimal.self) as! T
         }
         
-        if type == Int.self {
-            return Int(self) as! T
-        }
-        
         return self as! T
     }
     
@@ -54,11 +50,11 @@ public extension NSInteger {
      *  @param maximum   最大可以是多少
      *
      */
-    static func wy_random(minimux: NSInteger = 1, maximum: NSInteger = 99999) -> NSInteger {
+    static func wy_random(minimux: Int = 1, maximum: Int = 99999) -> Int {
         
         guard minimux < maximum else {
             return maximum
         }
-        return minimux + (NSInteger(arc4random()) % (maximum - minimux))
+        return minimux + (Int(arc4random()) % (maximum - minimux))
     }
 }

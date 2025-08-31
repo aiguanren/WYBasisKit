@@ -46,7 +46,7 @@ public struct WYTextChatConfig {
         receive: UIEdgeInsets(top: UIDevice.wy_screenWidth(10), left: UIDevice.wy_screenWidth(15), bottom: UIDevice.wy_screenWidth(10), right: UIDevice.wy_screenWidth(10)))
     
     /// 字符行数限制(0为不限制行数)
-    public var textMaximumNumberOfLines: NSInteger = 0
+    public var textMaximumNumberOfLines: Int = 0
     
     /// 文本字体、字号
     public var textFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(15))
@@ -102,7 +102,7 @@ public class WYChatTextCell: WYChatBasicCell {
         bubblesView.image = (message.isSender(userID) ? config.sendorBubbleImage : config.receiveBubbleImage)
         
         textView.attributedText = sharedEmojiAttributed(string: message.content.text ?? "")
-        let numberOfRows: NSInteger = textView.attributedText.wy_numberOfRows(controlWidth: sharedTextMaxWidth())
+        let numberOfRows: Int = textView.attributedText.wy_numberOfRows(controlWidth: sharedTextMaxWidth())
         if message.isSender(userID) {
             if numberOfRows > 1 {
                 textView.textContainerInset = chatTextConfig.textEdgeInsets.sendor

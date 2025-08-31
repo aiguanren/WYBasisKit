@@ -19,7 +19,7 @@ import CoreText
      *  @param range   点击的字符串range
      *  @param index   点击的字符在数组中的index
      */
-    @objc optional func wy_didClick(richText: String, range: NSRange, index: NSInteger)
+    @objc optional func wy_didClick(richText: String, range: NSRange, index: Int)
 }
 
 public extension UILabel {
@@ -54,7 +54,7 @@ public extension UILabel {
      *  @param handler  点击事件回调
      *
      */
-    func wy_addRichText(strings: [String], handler:((_ string: String, _ range: NSRange, _ index: NSInteger) -> Void)? = nil) {
+    func wy_addRichText(strings: [String], handler:((_ string: String, _ range: NSRange, _ index: Int) -> Void)? = nil) {
         
         DispatchQueue.main.async {
             self.superview?.layoutIfNeeded()
@@ -134,7 +134,7 @@ extension UILabel {
     }
     
     @discardableResult
-    private func wy_richTextFrame(touchPoint: CGPoint, handler:((_ string: String, _ range: NSRange, _ index: NSInteger) -> Void)? = nil) -> Bool {
+    private func wy_richTextFrame(touchPoint: CGPoint, handler:((_ string: String, _ range: NSRange, _ index: Int) -> Void)? = nil) -> Bool {
         
         let framesetter = CTFramesetterCreateWithAttributedString(attributedText!)
         
@@ -306,13 +306,13 @@ extension UILabel {
         return string
     }
     
-    private var wy_clickBlock: ((_ richText: String, _ range: NSRange, _ index : NSInteger) -> Void)? {
+    private var wy_clickBlock: ((_ richText: String, _ range: NSRange, _ index : Int) -> Void)? {
         
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.wy_clickBlock, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_clickBlock) as? (String, NSRange, NSInteger) -> Void
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_clickBlock) as? (String, NSRange, Int) -> Void
         }
     }
     

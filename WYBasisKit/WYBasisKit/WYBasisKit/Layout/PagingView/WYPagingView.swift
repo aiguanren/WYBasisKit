@@ -11,7 +11,7 @@ import SnapKit
 
 @objc public protocol WYPagingViewDelegate {
     
-    @objc optional func itemDidScroll(_ pagingIndex: NSInteger)
+    @objc optional func itemDidScroll(_ pagingIndex: Int)
 }
 
 public class WYPagingView: UIView {
@@ -24,7 +24,7 @@ public class WYPagingView: UIView {
      *
      * @param handler 点击或滚动事件的block
      */
-    public func itemDidScroll(handler: @escaping ((_ pagingIndex: NSInteger) -> Void)) {
+    public func itemDidScroll(handler: @escaping ((_ pagingIndex: Int) -> Void)) {
         actionHandler = handler
     }
 
@@ -119,7 +119,7 @@ public class WYPagingView: UIView {
     public var bar_title_selectedFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(15, WYBasisKitConfig.defaultScreenPixels))
 
     /// 初始选中第几项  默认第一项
-    public var bar_selectedIndex: NSInteger = 0
+    public var bar_selectedIndex: Int = 0
     
     /// 控制器是否需要左右滑动(默认支持)
     public var canScrollController: Bool = true
@@ -170,7 +170,7 @@ public class WYPagingView: UIView {
     
     private var currentButtonItem: WYPagingItem!
     
-    private var actionHandler: ((_ index: NSInteger) -> Void)?
+    private var actionHandler: ((_ index: Int) -> Void)?
     
     public init() {
         super.init(frame: .zero)
@@ -512,7 +512,7 @@ extension WYPagingView {
         return scrollLine!
     }
     
-    var buttonItemTagBegin: NSInteger {
+    var buttonItemTagBegin: Int {
         return 1000
     }
     

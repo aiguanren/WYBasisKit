@@ -10,11 +10,11 @@ import Foundation
 
 public extension Decimal {
     
-    /// Decimal转String、CGFloat、Double、NSInteger、Int
+    /// Decimal转String、CGFloat、Double、Int
     func wy_convertTo<T: Any>(_ type: T.Type) -> T {
 
-        guard (type == String.self) || (type == Double.self) || (type == CGFloat.self) || (type == NSInteger.self) || (type == Int.self) || (type == Decimal.self) else {
-            fatalError("type只能是String、CGFloat、Double、NSInteger、Int中的一种")
+        guard (type == String.self) || (type == Double.self) || (type == CGFloat.self) || (type == Int.self) || (type == Decimal.self) else {
+            fatalError("type只能是String、CGFloat、Double、Int中的一种")
         }
         
         if type == String.self {

@@ -100,7 +100,7 @@ class WYRightController: UIViewController {
 
 extension WYRightController: WYPagingViewDelegate {
     
-    func itemDidScroll(_ pagingIndex: NSInteger) {
+    func itemDidScroll(_ pagingIndex: Int) {
         
         //wy_print("pagingIndex = \(pagingIndex)")
     }

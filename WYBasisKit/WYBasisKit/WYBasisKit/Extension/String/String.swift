@@ -113,7 +113,7 @@ public extension String {
      *  @param max   最多需要多少个字符
      *
      */
-    static func wy_random(minimux: NSInteger = 1, maximum: NSInteger = 100) -> String {
+    static func wy_random(minimux: Int = 1, maximum: Int = 100) -> String {
         
         guard maximum >= minimux else { return "" }
         
@@ -150,7 +150,7 @@ public extension String {
         return contentPhrases.joined()
         
         /// 找出长度最接近 surplusLength 且小于 surplusLength 的 phrase
-        func sharedBestFitPhrase(surplusLength: NSInteger) -> String {
+        func sharedBestFitPhrase(surplusLength: Int) -> String {
             var selectedPhrase = ""
             for phrase in phrases {
                 
@@ -185,7 +185,7 @@ public extension String {
         }
         
         /// 判断下一个匹配的字符串尾部是否有标点符号
-        func nextPhraseEndingsComplete(surplusLength: NSInteger) -> Bool {
+        func nextPhraseEndingsComplete(surplusLength: Int) -> Bool {
             
             // 获取下一个字符串
             let nextPhrase: String = sharedBestFitPhrase(surplusLength: surplusLength)
@@ -195,7 +195,7 @@ public extension String {
         }
         
         /// 查找并拼接字符长度至目标长度
-        func findSpliceCharacter(targetLength: NSInteger, phrases: [String] = []) ->[String] {
+        func findSpliceCharacter(targetLength: Int, phrases: [String] = []) ->[String] {
             
             // 当前字符串
             let currentPhrase: String = phrases.joined()
@@ -234,11 +234,11 @@ public extension String {
         }
     }
     
-    /// String转CGFloat、Double、Int、NSInteger、Decimal
+    /// String转CGFloat、Double、Int、Decimal
     func wy_convertTo<T: Any>(_ type: T.Type) -> T {
         
-        guard (type == CGFloat.self) || (type == Double.self) || (type == Int.self) || (type == NSInteger.self) || (type == Decimal.self) || (type == String.self) else {
-            fatalError("type只能是CGFloat、Double、Int、NSInteger、Decimal中的一种")
+        guard (type == CGFloat.self) || (type == Double.self) || (type == Int.self) || (type == Decimal.self) || (type == String.self) else {
+            fatalError("type只能是CGFloat、Double、Int、Decimal中的一种")
         }
         
         /// 判断是否是纯数字
@@ -302,7 +302,7 @@ public extension String {
     }
     
     /// 字符串截取(从第几位截取到第几位)
-    func wy_substring(from: NSInteger, to: NSInteger) -> String {
+    func wy_substring(from: Int, to: Int) -> String {
         
         guard from < self.count else {
             return self
@@ -319,7 +319,7 @@ public extension String {
     }
     
     /// 字符串截取(从第几位往后截取几位)
-    func wy_substring(from: NSInteger, after: NSInteger) -> String {
+    func wy_substring(from: Int, after: Int) -> String {
         
         guard from < self.count else {
             return self
@@ -635,9 +635,9 @@ public extension String {
         // 当前时时间戳
         let currentTime = Date().timeIntervalSince1970
         // 传入的时间
-        let computingTime = (self.count <= 10) ? (NSInteger(self) ?? 0) : ((NSInteger(self) ?? 0) / 1000)
+        let computingTime = (self.count <= 10) ? (Int(self) ?? 0) : ((Int(self) ?? 0) / 1000)
         // 距离当前的时间差
-        let timeDifference = NSInteger(currentTime) - computingTime
+        let timeDifference = Int(currentTime) - computingTime
         // 秒转分钟
         let second = timeDifference / 60
         if (second <= 0) {

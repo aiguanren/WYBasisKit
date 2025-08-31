@@ -43,9 +43,9 @@ public struct WYRecordAnimationConfig {
     public var soundWavesSpace: CGFloat = UIDevice.wy_screenWidth(3)
     
     /// 声波显示条数
-    public var severalSoundWaves: (recording: NSInteger,
-                                   cancel: NSInteger,
-                                   transfer: NSInteger) = (recording: 25,
+    public var severalSoundWaves: (recording: Int,
+                                   cancel: Int,
+                                   transfer: Int) = (recording: 25,
                                                            cancel: 10,
                                                            transfer: 10)
     
@@ -229,7 +229,7 @@ public class WYRecordAnimationView: UIView {
     }
     
     public func addSoundMeter(item: CGFloat) {
-        var canSoundMetersCount: NSInteger = 0
+        var canSoundMetersCount: Int = 0
         
         switch soundWavesStatus {
         case .recording:
@@ -245,7 +245,7 @@ public class WYRecordAnimationView: UIView {
         if soundMeters.count <  canSoundMetersCount {
             soundMeters.append(item)
         }else {
-            for index: NSInteger in 0 ..< soundMeters.count {
+            for index: Int in 0 ..< soundMeters.count {
                 if index < (canSoundMetersCount - 1) {
                     soundMeters[index] = soundMeters[index + 1]
                 }

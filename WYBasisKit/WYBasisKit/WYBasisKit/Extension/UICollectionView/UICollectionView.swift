@@ -194,40 +194,40 @@ public extension UICollectionView {
     @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize
     
     /** header.size */
-    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: NSInteger) -> CGSize
+    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize
     
     /** footer.size */
-    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: NSInteger) -> CGSize
+    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize
     
     /** number of lines(scrollDirection == .horizontal时需设置) */
-    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, numberOfLinesIn section: NSInteger) -> NSInteger
+    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, numberOfLinesIn section: Int) -> Int
     
     /** number of columns(scrollDirection == .vertical时需设置) */
-    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, numberOfColumnsIn section: NSInteger) -> NSInteger
+    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, numberOfColumnsIn section: Int) -> Int
     
     /** inset for section */
-    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: NSInteger) -> UIEdgeInsets
+    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets
     
     /** item.leftRightSpacing */
-    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: NSInteger) -> CGFloat
+    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat
     
     /** item.upDownSpacing */
-    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: NSInteger) -> CGFloat
+    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat
     
     /** 分区header与上个分区footer之间的间距(仅UICollectionView滚动方向为竖向时生效) */
-    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, spacingBetweenHeaderAndLastPartitionFooter section: NSInteger) -> CGFloat
+    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, spacingBetweenHeaderAndLastPartitionFooter section: Int) -> CGFloat
     
     /** 分区item对齐方式(默认左对齐，如果调用此方法并且返回值不是`default`，则需要保证该分区每个cell的高度相同，且该分区不支持设置isPagingEnabled) */
-    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, flowLayoutAlignmentForSectionAt section: NSInteger) -> WYFlowLayoutAlignment
+    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, flowLayoutAlignmentForSectionAt section: Int) -> WYFlowLayoutAlignment
     
     /** 当控件所需宽度超过 分区最大的显示宽度时，最多能显示几行, 默认0(无限换行) */
-    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, itemNumberOfLinesForSectionAt section: NSInteger) -> NSInteger
+    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, itemNumberOfLinesForSectionAt section: Int) -> Int
     
     /** 水平滚动时，分区的item排列方式是否需要调整为水平排列(系统默认为竖向排列) */
-    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, horizontalScrollItemArrangementDirectionForSectionAt section: NSInteger) -> Bool
+    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, horizontalScrollItemArrangementDirectionForSectionAt section: Int) -> Bool
     
     /** 分区header是否需要悬停 */
-    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, hoverForHeaderForSectionAt section: NSInteger) -> Bool
+    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, hoverForHeaderForSectionAt section: Int) -> Bool
 }
 
 /**
@@ -271,7 +271,7 @@ public extension WYCollectionViewFlowLayout {
         attributesArray.removeAll()
         
         // 开始创建每一组cell的布局属性
-        let sectionCount: NSInteger = collectionView?.numberOfSections ?? 0
+        let sectionCount: Int = collectionView?.numberOfSections ?? 0
         // 遍历section
         for section in 0..<sectionCount {
             
@@ -279,19 +279,19 @@ public extension WYCollectionViewFlowLayout {
             lastContentHeight = contentSize.height
             
             // 初始化分区 x 值
-            let numberOfLinesInSection: NSInteger = numberOfLinesIn(section)
+            let numberOfLinesInSection: Int = numberOfLinesIn(section)
             for _ in 0..<numberOfLinesInSection {
                 columnWidths.append(contentSize.width)
             }
             
             // 初始化分区 y 值
-            let numberOfColumnsInSection: NSInteger = numberOfColumnsIn(section)
+            let numberOfColumnsInSection: Int = numberOfColumnsIn(section)
             for _ in 0..<numberOfColumnsInSection {
                 columnHeights.append(contentSize.height)
             }
             
             // 开始创建组内的每一个cell的布局属性
-            let itemCount: NSInteger = collectionView?.numberOfItems(inSection: section) ?? 0
+            let itemCount: Int = collectionView?.numberOfItems(inSection: section) ?? 0
             
             // 分区对齐方式
             let alignment: WYFlowLayoutAlignment = flowLayoutAlignmentIn(section)
@@ -475,7 +475,7 @@ public extension WYCollectionViewFlowLayout {
                 attributes.frame = .zero
             }
             
-            let itemCount: NSInteger = collectionView?.numberOfItems(inSection: indexPath.section) ?? 0
+            let itemCount: Int = collectionView?.numberOfItems(inSection: indexPath.section) ?? 0
             if itemCount == 0 {
                 contentSize.height = attributes.frame.maxY
             }
@@ -512,7 +512,7 @@ public extension WYCollectionViewFlowLayout {
             let visibleSections: [IndexPath]? = collectionView?.indexPathsForVisibleSupplementaryElements(ofKind: UICollectionView.elementKindSectionHeader)
             
             if visibleSections?.isEmpty == false {
-                let firstVisibleSection: NSInteger = (visibleSections?.first?.section == 0) ? 0 : (visibleSections?.last!.section)!
+                let firstVisibleSection: Int = (visibleSections?.first?.section == 0) ? 0 : (visibleSections?.last!.section)!
                 return hoverForHeaderIn(firstVisibleSection)
                 
             }else {
@@ -547,12 +547,12 @@ extension WYCollectionViewFlowLayout {
         if scrollDirection == .vertical {
             
             // 分区列数
-            let numberOfColumns: NSInteger = numberOfColumnsIn(indexPath.section)
+            let numberOfColumns: Int = numberOfColumnsIn(indexPath.section)
             
             // 布局宽度
             let collectionWidth: CGFloat = headerSize.width - sectionInsets.left - sectionInsets.right
             
-            let adjustColumns: NSInteger = (collectionView?.numberOfItems(inSection: indexPath.section) ?? 0) < numberOfColumns ? (collectionView?.numberOfItems(inSection: indexPath.section) ?? 0) : numberOfColumns
+            let adjustColumns: Int = (collectionView?.numberOfItems(inSection: indexPath.section) ?? 0) < numberOfColumns ? (collectionView?.numberOfItems(inSection: indexPath.section) ?? 0) : numberOfColumns
             
             // 总的item宽度
             let totalItemWidth: CGFloat = CGFloat(adjustColumns) * itemLayoutSize.width
@@ -570,7 +570,7 @@ extension WYCollectionViewFlowLayout {
             var minColumnHeight: CGFloat = columnHeights.min() ?? 0.0
             
             // 最小的列
-            let minColumn: NSInteger = columnHeights.firstIndex(of: minColumnHeight) ?? 0
+            let minColumn: Int = columnHeights.firstIndex(of: minColumnHeight) ?? 0
             
             // item的x值
             var itemOffsetx: CGFloat = sectionInsets.left + (CGFloat(minColumn) * (itemLayoutSize.width + columnsSpacing))
@@ -579,20 +579,20 @@ extension WYCollectionViewFlowLayout {
             var itemOffsety: CGFloat = 0
             
             // 计算每页可以显示几行
-            var numberOfLines: NSInteger = 0
+            var numberOfLines: Int = 0
             
             if collectionView?.isPagingEnabled == true {
                 
                 // 布局高度
                 let collectionHeight: CGFloat = (collectionView?.frame.size.height ?? 0) - sectionInsets.top - sectionInsets.bottom
                 
-                numberOfLines = NSInteger(round(((collectionHeight + lineSpacing) / (lineSpacing + itemLayoutSize.height))))
+                numberOfLines = Int(round(((collectionHeight + lineSpacing) / (lineSpacing + itemLayoutSize.height))))
                 if numberOfLines <= 0 {
                     numberOfLines = 1
                 }
                 
                 // 总页数
-                let pageNumber: NSInteger = indexPath.item / (numberOfLines * numberOfColumns)
+                let pageNumber: Int = indexPath.item / (numberOfLines * numberOfColumns)
                 
                 // 每页总的item高度
                 let totalItemHeight: CGFloat = CGFloat(numberOfLines) * itemLayoutSize.height
@@ -603,13 +603,13 @@ extension WYCollectionViewFlowLayout {
                 }
                 
                 // 该页中item的序号
-                let itemInPage: NSInteger = indexPath.item % (numberOfLines * numberOfColumns)
+                let itemInPage: Int = indexPath.item % (numberOfLines * numberOfColumns)
                 
                 // item的所在列
-                let itemInColumns: NSInteger = itemInPage % numberOfColumns
+                let itemInColumns: Int = itemInPage % numberOfColumns
 
                 // item的所在行
-                let itemInLines: NSInteger = itemInPage / numberOfColumns
+                let itemInLines: Int = itemInPage / numberOfColumns
                 
                 itemOffsetx = sectionInsets.left + ((itemLayoutSize.width + columnsSpacing)) * CGFloat(itemInColumns)
                 
@@ -625,7 +625,7 @@ extension WYCollectionViewFlowLayout {
             if ((indexPath.item + 1) == collectionView?.numberOfItems(inSection: indexPath.section) && (collectionView?.isPagingEnabled == true)) {
                 
                 // 总页数
-                var lastPageNumber: NSInteger = NSInteger(ceil(CGFloat(indexPath.item + 1) / CGFloat((numberOfLines * numberOfColumns))))
+                var lastPageNumber: Int = Int(ceil(CGFloat(indexPath.item + 1) / CGFloat((numberOfLines * numberOfColumns))))
                 if lastPageNumber <= 0 {
                     lastPageNumber = 1
                 }
@@ -643,7 +643,7 @@ extension WYCollectionViewFlowLayout {
             
         }else {
             // 分区行数
-            let numberOfLines: NSInteger = numberOfLinesIn(indexPath.section)
+            let numberOfLines: Int = numberOfLinesIn(indexPath.section)
             
             // 布局高度
             let collectionHeight: CGFloat = (collectionView?.frame.size.height ?? 0.0) - sectionInsets.top - sectionInsets.bottom
@@ -651,7 +651,7 @@ extension WYCollectionViewFlowLayout {
             // 布局宽度
             let collectionWidth: CGFloat = (collectionView?.frame.size.width ?? 0) - sectionInsets.left - sectionInsets.right
             
-            let adjustLines: NSInteger = (collectionView?.numberOfItems(inSection: indexPath.section) ?? 0) < numberOfLines ? (collectionView?.numberOfItems(inSection: indexPath.section) ?? 0) : numberOfLines
+            let adjustLines: Int = (collectionView?.numberOfItems(inSection: indexPath.section) ?? 0) < numberOfLines ? (collectionView?.numberOfItems(inSection: indexPath.section) ?? 0) : numberOfLines
             
             // 总的item高度
             let totalItemHeight: CGFloat = CGFloat(adjustLines) * itemLayoutSize.height
@@ -666,7 +666,7 @@ extension WYCollectionViewFlowLayout {
             var columnsSpacing: CGFloat = minimumInteritemSpacingForSectionAt(indexPath.section)
             
             // 计算每页可以显示几列
-            var numberOfColumns: NSInteger = NSInteger(round(((collectionWidth + columnsSpacing) / (columnsSpacing + itemLayoutSize.width))))
+            var numberOfColumns: Int = Int(round(((collectionWidth + columnsSpacing) / (columnsSpacing + itemLayoutSize.width))))
             if numberOfColumns <= 0 {
                 numberOfColumns = 1
             }
@@ -678,7 +678,7 @@ extension WYCollectionViewFlowLayout {
             var minLineWidth: CGFloat = columnWidths.min() ?? 0.0
             
             // 最短的行
-            let minLine: NSInteger = columnWidths.firstIndex(of: minLineWidth) ?? 0
+            let minLine: Int = columnWidths.firstIndex(of: minLineWidth) ?? 0
             
             // item的x值
             var itemOffsetx: CGFloat = 0
@@ -686,10 +686,10 @@ extension WYCollectionViewFlowLayout {
             var itemOffsety: CGFloat = 0
             
             // 每页可以显示多少个item
-            let totalItemInPage: NSInteger = numberOfLines * numberOfColumns
+            let totalItemInPage: Int = numberOfLines * numberOfColumns
             
             // item的所在行
-            var itemInLines: NSInteger = 0
+            var itemInLines: Int = 0
             
             // 水平滚动时，分区的item排列方式是否需要调整为水平排列(系统默认为竖向排列)
             if horizontalScrollItemArrangementDirectionIn(indexPath.section) == true {
@@ -697,10 +697,10 @@ extension WYCollectionViewFlowLayout {
                 if collectionView?.isPagingEnabled == false {
                     
                     // 总共有多少个item需要显示
-                    let totalItem: NSInteger = collectionView?.numberOfItems(inSection: indexPath.section) ?? 0
+                    let totalItem: Int = collectionView?.numberOfItems(inSection: indexPath.section) ?? 0
                     
                     if totalItem > totalItemInPage {
-                        numberOfColumns = NSInteger(ceil(CGFloat(totalItem) / CGFloat(numberOfLines)))
+                        numberOfColumns = Int(ceil(CGFloat(totalItem) / CGFloat(numberOfLines)))
                     }
                 }
                 
@@ -712,7 +712,7 @@ extension WYCollectionViewFlowLayout {
                 }
                 
                 // 该页中item的序号
-                let itemInPage: NSInteger = indexPath.item % (numberOfLines * numberOfColumns)
+                let itemInPage: Int = indexPath.item % (numberOfLines * numberOfColumns)
                 
                 itemInLines = itemInPage / numberOfColumns
                 
@@ -763,7 +763,7 @@ extension WYCollectionViewFlowLayout {
             if ((indexPath.item + 1) == collectionView?.numberOfItems(inSection: indexPath.section) && (collectionView?.isPagingEnabled == true)) {
                 
                 // 总页数
-                var lastPageNumber: NSInteger = NSInteger(ceil(CGFloat(indexPath.item + 1) / CGFloat((numberOfLines * numberOfColumns))))
+                var lastPageNumber: Int = Int(ceil(CGFloat(indexPath.item + 1) / CGFloat((numberOfLines * numberOfColumns))))
                 if lastPageNumber <= 0 {
                     lastPageNumber = 1
                 }
@@ -797,7 +797,7 @@ extension WYCollectionViewFlowLayout {
     private func adjustAlignmentAttributesAt(indexPath: IndexPath, attributes: [UICollectionViewLayoutAttributes], itemOffset: inout CGPoint, layoutMaxWidth: CGFloat, totalWidth: CGFloat, sectionInsets: UIEdgeInsets, lineSpacing: CGFloat, columnsSpacing: CGFloat, alignment: WYFlowLayoutAlignment) {
  
         let collectionWidth: CGFloat = collectionView?.frame.size.width ?? 0
-        for index: NSInteger in 0..<attributes.count {
+        for index: Int in 0..<attributes.count {
             
             let attribute: UICollectionViewLayoutAttributes = attributes[index]
             
@@ -827,64 +827,64 @@ extension WYCollectionViewFlowLayout {
         return delegate?.wy_collectionView?(collectionView, layout: self, sizeForItemAt: indexPath) ?? itemSize
     }
     
-    private func referenceSizeForHeaderIn(_ section: NSInteger) -> CGSize {
+    private func referenceSizeForHeaderIn(_ section: Int) -> CGSize {
         
         guard let collectionView = collectionView else { return headerReferenceSize }
         return delegate?.wy_collectionView?(collectionView, layout: self, referenceSizeForHeaderInSection: section) ?? ((headerReferenceSize == .zero) ? CGSize(width: collectionView.frame.size.width, height: 0) : headerReferenceSize)
     }
     
-    private func referenceSizeForFooterIn(_ section: NSInteger) -> CGSize {
+    private func referenceSizeForFooterIn(_ section: Int) -> CGSize {
         
         guard let collectionView = collectionView else { return footerReferenceSize }
         return delegate?.wy_collectionView?(collectionView, layout: self, referenceSizeForFooterInSection: section) ?? ((footerReferenceSize == .zero) ? CGSize(width: collectionView.frame.size.width, height: 0) : footerReferenceSize)
     }
     
-    private func numberOfLinesIn(_ section: NSInteger) -> NSInteger {
+    private func numberOfLinesIn(_ section: Int) -> Int {
         guard let collectionView = collectionView else { return 1 }
         return delegate?.wy_collectionView?(collectionView, layout: self, numberOfLinesIn: section) ?? 1
     }
     
-    private func numberOfColumnsIn(_ section: NSInteger) -> NSInteger {
+    private func numberOfColumnsIn(_ section: Int) -> Int {
         guard let collectionView = collectionView else { return 1 }
         return delegate?.wy_collectionView?(collectionView, layout: self, numberOfColumnsIn: section) ?? 1
     }
     
-    private func insetForSectionAt(_ section: NSInteger) -> UIEdgeInsets {
+    private func insetForSectionAt(_ section: Int) -> UIEdgeInsets {
         guard let collectionView = collectionView else { return sectionInset }
         return delegate?.wy_collectionView?(collectionView, layout: self, insetForSectionAt: section) ?? sectionInset
     }
     
-    private func minimumInteritemSpacingForSectionAt(_ section: NSInteger) -> CGFloat {
+    private func minimumInteritemSpacingForSectionAt(_ section: Int) -> CGFloat {
         guard let collectionView = collectionView else { return minimumInteritemSpacing }
         return delegate?.wy_collectionView?(collectionView, layout: self, minimumInteritemSpacingForSectionAt: section) ?? minimumInteritemSpacing
     }
     
-    private func minimumLineSpacingForSectionAt(_ section: NSInteger) -> CGFloat {
+    private func minimumLineSpacingForSectionAt(_ section: Int) -> CGFloat {
         guard let collectionView = collectionView else { return minimumLineSpacing }
         return delegate?.wy_collectionView?(collectionView, layout: self, minimumLineSpacingForSectionAt: section) ?? minimumLineSpacing
     }
     
-    private func spacingBetweenHeaderAndLastPartitionFooter(_ section: NSInteger) -> CGFloat {
+    private func spacingBetweenHeaderAndLastPartitionFooter(_ section: Int) -> CGFloat {
         guard let collectionView = collectionView else { return 0.0 }
         return delegate?.wy_collectionView?(collectionView, layout: self, spacingBetweenHeaderAndLastPartitionFooter: section) ?? 0.0
     }
     
-    private func flowLayoutAlignmentIn(_ section: NSInteger) -> WYFlowLayoutAlignment {
+    private func flowLayoutAlignmentIn(_ section: Int) -> WYFlowLayoutAlignment {
         guard let collectionView = collectionView else { return .center }
         return delegate?.wy_collectionView?(collectionView, layout: self, flowLayoutAlignmentForSectionAt: section) ?? .default
     }
     
-    private func itemNumberOfLines(_ section: NSInteger) -> NSInteger {
+    private func itemNumberOfLines(_ section: Int) -> Int {
         guard let collectionView = collectionView else { return 0 }
         return delegate?.wy_collectionView?(collectionView, layout: self, itemNumberOfLinesForSectionAt: section) ?? 0
     }
     
-    private func horizontalScrollItemArrangementDirectionIn(_ section: NSInteger) -> Bool {
+    private func horizontalScrollItemArrangementDirectionIn(_ section: Int) -> Bool {
         guard let collectionView = collectionView else { return false }
         return delegate?.wy_collectionView?(collectionView, layout: self, horizontalScrollItemArrangementDirectionForSectionAt: section) ?? false
     }
     
-    private func hoverForHeaderIn(_ section: NSInteger) -> Bool {
+    private func hoverForHeaderIn(_ section: Int) -> Bool {
         guard let collectionView = collectionView else { return false }
         return delegate?.wy_collectionView?(collectionView, layout: self, hoverForHeaderForSectionAt: section) ?? false
     }

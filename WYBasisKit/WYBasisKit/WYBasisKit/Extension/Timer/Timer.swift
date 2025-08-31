@@ -140,7 +140,7 @@ private extension Timer {
             return
         }
         
-        let lastRemainingTime: Int = NSInteger(UserDefaults.standard.value(forKey: "\(alias) timer remainingTime") as? String ?? "0") ?? 0
+        let lastRemainingTime: Int = Int(UserDefaults.standard.value(forKey: "\(alias) timer remainingTime") as? String ?? "0") ?? 0
         
         let different: Int = Int(Date().timeIntervalSince(date!))
         

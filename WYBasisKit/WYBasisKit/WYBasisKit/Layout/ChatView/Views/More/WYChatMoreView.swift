@@ -60,13 +60,13 @@ public struct WYMoreViewConfig {
     public var textTopOffset: CGFloat = UIDevice.wy_screenWidth(10)
     
     /// 自定义More控件内一行显示几个item
-    public var itemMaxCountWithLine: NSInteger = 4
+    public var itemMaxCountWithLine: Int = 4
     
     /// scrollDirection == vertical时 自定义More控件内每页可以显示几列
-    public var itemMaxCountWithColumn: NSInteger = 4
+    public var itemMaxCountWithColumn: Int = 4
     
     /// 自定义More控件内一页最多显示几行
-    public var itemMaxLineWithPage: NSInteger = 2
+    public var itemMaxLineWithPage: Int = 2
     
     /// 自定义More控件是否需要按照 itemMaxLineWithPage 来显示高度，false的话高度会自动计算
     public var maxHeightForever: Bool = false
@@ -88,13 +88,13 @@ public extension WYMoreViewConfig {
     }
     
     /// 计算每页需要显示几行item
-    func numberOfLinesInPage() -> NSInteger {
-        return maxHeightForever ? itemMaxLineWithPage : min(itemMaxLineWithPage, NSInteger(ceil(CGFloat(moreSource.count) / CGFloat(itemMaxCountWithLine))))
+    func numberOfLinesInPage() -> Int {
+        return maxHeightForever ? itemMaxLineWithPage : min(itemMaxLineWithPage, Int(ceil(CGFloat(moreSource.count) / CGFloat(itemMaxCountWithLine))))
     }
     
     /// 计算需要几页才能显示完毕所有Item
-    func numberOfPages() -> NSInteger {
-        return NSInteger(ceil(CGFloat(moreViewConfig.moreSource.count) / CGFloat((itemMaxLineWithPage * itemMaxCountWithColumn))))
+    func numberOfPages() -> Int {
+        return Int(ceil(CGFloat(moreViewConfig.moreSource.count) / CGFloat((itemMaxLineWithPage * itemMaxCountWithColumn))))
     }
     
     /// 返回一个bool值，判断一页是否能否显示完毕所有的item
@@ -133,13 +133,13 @@ public extension WYMoreViewConfig {
 /// 返回一个Bool值来判定各控件的点击或手势事件是否需要内部处理(默认返回True)
 @objc public protocol WYMoreViewEventsHandler {
     /// 是否需要内部处理 cell 的点击事件
-    @objc optional func canManagerMoreViewClickEvents(_ moreView: WYChatMoreView, _ itemIndex: NSInteger) -> Bool
+    @objc optional func canManagerMoreViewClickEvents(_ moreView: WYChatMoreView, _ itemIndex: Int) -> Bool
 }
 
 @objc public protocol WYChatMoreViewDelegate {
     
     /// 监控cell点击事件
-    @objc optional func didClickMoreViewAt(_ itemIndex: NSInteger)
+    @objc optional func didClickMoreViewAt(_ itemIndex: Int)
 }
 
 public class WYChatMoreView: UIView {
@@ -151,7 +151,7 @@ public class WYChatMoreView: UIView {
     
     public lazy var collectionView: UICollectionView = {
         
-        let numberOfCountInLine: NSInteger = moreViewConfig.scrollDirection == .horizontal ? moreViewConfig.itemMaxCountWithLine : moreViewConfig.itemMaxCountWithColumn
+        let numberOfCountInLine: Int = moreViewConfig.scrollDirection == .horizontal ? moreViewConfig.itemMaxCountWithLine : moreViewConfig.itemMaxCountWithColumn
         
         let minimumInteritemSpacing: CGFloat = (UIDevice.wy_screenWidth - moreViewConfig.contentInset.left - moreViewConfig.contentInset.right - (moreViewConfig.moreItemSize().width * CGFloat(numberOfCountInLine))) / CGFloat(numberOfCountInLine - 1)
         
@@ -183,9 +183,9 @@ public class WYChatMoreView: UIView {
     // 如果放scrollViewDidScroll里面的话，当从右往左滑动的时候就会出现刚一滑动就切换页码的问题
     public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         if moreViewConfig.scrollDirection == .horizontal {
-            pageControl?.currentPage = NSInteger(scrollView.contentOffset.x / wy_width)
+            pageControl?.currentPage = Int(scrollView.contentOffset.x / wy_width)
         }else {
-            pageControl?.currentPage = NSInteger(scrollView.contentOffset.y / wy_height)
+            pageControl?.currentPage = Int(scrollView.contentOffset.y / wy_height)
         }
     }
     
@@ -221,7 +221,7 @@ extension WYChatMoreView: UICollectionViewDelegate, UICollectionViewDataSource, 
         return moreViewConfig.numberOfLinesInPage()
     }
     
-    public func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, numberOfColumnsIn section: NSInteger) -> NSInteger {
+    public func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, numberOfColumnsIn section: Int) -> Int {
         return moreViewConfig.itemMaxCountWithColumn
     }
     

@@ -201,7 +201,7 @@ public class WYBannerView: UIView {
     }
     
     /// 切换到指定下标处
-    @objc public func switchImage(_ pageIndex: NSInteger) {
+    @objc public func switchImage(_ pageIndex: Int) {
         
         guard pageIndex != currentIndex else {
             return
