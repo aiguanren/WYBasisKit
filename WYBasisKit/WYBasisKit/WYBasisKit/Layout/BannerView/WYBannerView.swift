@@ -5,8 +5,8 @@
 //  Created by 官人 on 2021/4/13.
 //  Copyright © 2021 官人. All rights reserved.
 //
+
 import UIKit
-import Kingfisher
 
 @objc public protocol WYBannerViewDelegate {
     
@@ -213,6 +213,46 @@ public class WYBannerView: UIView {
         }else {
             currentIndex = (pageIndex - 1)
             nextImage()
+        }
+    }
+    
+    /// 获取缓存大小的可读字符串，例如 "1.2 MB"
+    public func cacheSizeString() -> String {
+        let byteCount = cacheSize()
+        let formatter = ByteCountFormatter()
+        formatter.countStyle = .file
+        return formatter.string(fromByteCount: Int64(byteCount))
+    }
+    
+    /// 获取缓存目录下所有文件的总大小（单位：字节）
+    public func cacheSize() -> UInt64 {
+        let fileManager = FileManager.default
+        var size: UInt64 = 0
+        
+        // 获取缓存目录下所有文件 URL
+        if let contents = try? fileManager.contentsOfDirectory(at: cacheURL,
+                                                               includingPropertiesForKeys: [.fileSizeKey],
+                                                               options: []) {
+            for fileURL in contents {
+                if let fileSize = try? fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize {
+                    size += UInt64(fileSize)
+                }
+            }
+        }
+        
+        return size
+    }
+    
+    /// 清空缓存目录
+    public func clearDiskCache() {
+        let fileManager = FileManager.default
+        
+        if let contents = try? fileManager.contentsOfDirectory(at: cacheURL,
+                                                               includingPropertiesForKeys: nil,
+                                                               options: []) {
+            for fileURL in contents {
+                try? fileManager.removeItem(at: fileURL)
+            }
         }
     }
     
@@ -464,16 +504,12 @@ extension WYBannerView {
     
     private func setData(with imageSource: Any?, describe: String? = nil, imageView: UIImageView?, textView: UILabel?) {
         
-        if let imageUrl: URL = imageSource as? URL {
-            imageView?.kf.setImage(with: URL(string: (imageUrl.absoluteString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")), placeholder: placeholderImage)
-        }
-        
-        if let imageString: String = imageSource as? String {
-            imageView?.kf.setImage(with: URL(string: (imageString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")), placeholder: placeholderImage)
-        }
-        
         if let image: UIImage = imageSource as? UIImage {
+            // 本地图片直接显示
             imageView?.image = image
+        }else {
+            // 如果是网络图片就走下载逻辑
+            downloadImages(imageSource: imageSource, imageView: imageView)
         }
         
         textView?.text = (describe?.isEmpty ?? true) ? placeholderDescribe : describe
@@ -652,6 +688,109 @@ extension WYBannerView {
         }
     }
     
+    /// OperationQueue
+    var queue: OperationQueue {
+        get {
+            if let q = objc_getAssociatedObject(self, &WYAssociatedKeys.queueKey) as? OperationQueue {
+                return q
+            }
+            let q = OperationQueue()
+            objc_setAssociatedObject(self, &WYAssociatedKeys.queueKey, q, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            return q
+        }
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.queueKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+    }
+    
+    /// 缓存图片的文件夹路径
+    var cacheURL: URL {
+        get {
+            if let url = objc_getAssociatedObject(self, &WYAssociatedKeys.cacheURLKey) as? URL {
+                return url
+            }
+            
+            let cachesURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).last!
+            let pathURL = cachesURL.appendingPathComponent("WYBannerView", isDirectory: true)
+            
+            var isDir: ObjCBool = false
+            let exists = FileManager.default.fileExists(atPath: pathURL.path, isDirectory: &isDir)
+            
+            if !exists || !isDir.boolValue {
+                try? FileManager.default.createDirectory(at: pathURL,
+                                                         withIntermediateDirectories: true,
+                                                         attributes: nil)
+            }
+            
+            objc_setAssociatedObject(self, &WYAssociatedKeys.cacheURLKey, pathURL, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            return pathURL
+        }
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.cacheURLKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+    }
+    
+    /// 下载图片
+    func downloadImages(imageSource: Any, imageView: UIImageView?) {
+        
+        var sourceUrl: URL? = nil
+        var imageIndex: Int? = nil
+        if let imageUrl = imageSource as? URL, imageUrl.absoluteString.isEmpty == false {
+            sourceUrl = imageUrl
+            if let index = self.imageSource.firstIndex(where: { ($0 as? URL) == imageUrl }) {
+                imageIndex = index
+            }
+        }else if let imageString: String = imageSource as? String, imageString.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false {
+            sourceUrl = URL(string: (imageString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)) ?? "")
+            if let index = self.imageSource.firstIndex(where: { ($0 as? String) == imageString }) {
+                imageIndex = index
+            }
+        }else {
+            // 如果走到这里来了，说明要么是空内容，要么是不支持的资源类型，直接显示占位图
+            imageView?.image = placeholderImage
+            return
+        }
+        
+        // 拼接缓存路径
+        guard let url = sourceUrl else { return }
+        let fileName = url.lastPathComponent
+        let pathURL = cacheURL.appendingPathComponent(fileName)
+        
+        // 从沙盒取图片
+        if let data = try? Data(contentsOf: pathURL),
+           let image = UIImage(data: data) {
+            imageView?.image = image
+            if let index = imageIndex {
+                // 沙河有图片就替换对应图片为沙河中的图片
+                self.imageSource[index] = image
+            }
+            return
+        }
+        
+        // 沙河中没有获取到图片就先展示占位图，之后在下载替换
+        imageView?.image = placeholderImage
+        
+        // 下载图片
+        let download = BlockOperation { [weak self] in
+            guard let self = self,
+                  let data = try? Data(contentsOf: url),
+                  let image = UIImage(data: data), let index = imageIndex else { return }
+            
+            // 沙河有图片就替换对应图片为沙河中的图片
+            self.imageSource[index] = image
+            
+            // 如果下载的图片是当前要显示的图片，则直接更新 UI
+            if currentIndex == index {
+                DispatchQueue.main.async {
+                    imageView?.image = image
+                }
+            }
+            // 写入沙盒
+            try? data.write(to: pathURL)
+        }
+        queue.addOperation(download)
+    }
+    
     private struct WYAssociatedKeys {
         static var scrollView: UInt8 = 0
         static var pageControl: UInt8 = 0
@@ -669,6 +808,8 @@ extension WYBannerView {
         static var clickHandler: UInt8 = 0
         static var scrollHandler: UInt8 = 0
         static var canSwitchedPage: UInt8 = 0
+        static var queueKey: UInt8 = 0
+        static var cacheURLKey: UInt8 = 0
     }
 }
 

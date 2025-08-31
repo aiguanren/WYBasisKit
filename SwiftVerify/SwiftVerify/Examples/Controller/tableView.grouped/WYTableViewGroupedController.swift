@@ -17,7 +17,9 @@ class WYGroupedHeaderView: UITableViewHeaderFooterView {
         self.contentView.backgroundColor = .white
         
         bannerView.backgroundColor = .wy_random
-        bannerView.imageContentMode = .scaleAspectFill
+        bannerView.imageContentMode = .scaleAspectFit
+        WYLogManager.output("字节描述(KB或MB等)：\(bannerView.cacheSizeString())，\(bannerView.cacheSize())字节")
+        //bannerView.clearDiskCache()
         contentView.addSubview(bannerView)
         bannerView.snp.makeConstraints { make in
             make.size.equalTo(CGSize(width: 300, height: 600))

@@ -47,66 +47,65 @@ PODS:
   - Moya/Core (15.0.0):
     - Alamofire (~> 5.0)
   - SnapKit (5.7.1)
-  - WYBasisKit-swift (2.0.2):
-    - WYBasisKit-swift/Activity (= 2.0.2)
-    - WYBasisKit-swift/AudioKit (= 2.0.2)
-    - WYBasisKit-swift/Authorization (= 2.0.2)
-    - WYBasisKit-swift/Codable (= 2.0.2)
-    - WYBasisKit-swift/Config (= 2.0.2)
-    - WYBasisKit-swift/EventHandler (= 2.0.2)
-    - WYBasisKit-swift/Extension (= 2.0.2)
-    - WYBasisKit-swift/Layout (= 2.0.2)
-    - WYBasisKit-swift/Localizable (= 2.0.2)
-    - WYBasisKit-swift/LogManager (= 2.0.2)
-    - WYBasisKit-swift/Networking (= 2.0.2)
-    - WYBasisKit-swift/Storage (= 2.0.2)
-  - WYBasisKit-swift/Activity (2.0.2):
+  - WYBasisKit-swift (2.0.0):
+    - WYBasisKit-swift/Activity (= 2.0.0)
+    - WYBasisKit-swift/AudioKit (= 2.0.0)
+    - WYBasisKit-swift/Authorization (= 2.0.0)
+    - WYBasisKit-swift/Codable (= 2.0.0)
+    - WYBasisKit-swift/Config (= 2.0.0)
+    - WYBasisKit-swift/EventHandler (= 2.0.0)
+    - WYBasisKit-swift/Extension (= 2.0.0)
+    - WYBasisKit-swift/Layout (= 2.0.0)
+    - WYBasisKit-swift/Localizable (= 2.0.0)
+    - WYBasisKit-swift/LogManager (= 2.0.0)
+    - WYBasisKit-swift/Networking (= 2.0.0)
+    - WYBasisKit-swift/Storage (= 2.0.0)
+  - WYBasisKit-swift/Activity (2.0.0):
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/AudioKit (2.0.2)
-  - WYBasisKit-swift/Authorization (2.0.2):
-    - WYBasisKit-swift/Authorization/Biometric (= 2.0.2)
-    - WYBasisKit-swift/Authorization/Camera (= 2.0.2)
-    - WYBasisKit-swift/Authorization/Contacts (= 2.0.2)
-    - WYBasisKit-swift/Authorization/Microphone (= 2.0.2)
-    - WYBasisKit-swift/Authorization/PhotoAlbums (= 2.0.2)
-    - WYBasisKit-swift/Authorization/SpeechRecognition (= 2.0.2)
-  - WYBasisKit-swift/Authorization/Biometric (2.0.2):
+  - WYBasisKit-swift/AudioKit (2.0.0)
+  - WYBasisKit-swift/Authorization (2.0.0):
+    - WYBasisKit-swift/Authorization/Biometric (= 2.0.0)
+    - WYBasisKit-swift/Authorization/Camera (= 2.0.0)
+    - WYBasisKit-swift/Authorization/Contacts (= 2.0.0)
+    - WYBasisKit-swift/Authorization/Microphone (= 2.0.0)
+    - WYBasisKit-swift/Authorization/PhotoAlbums (= 2.0.0)
+    - WYBasisKit-swift/Authorization/SpeechRecognition (= 2.0.0)
+  - WYBasisKit-swift/Authorization/Biometric (2.0.0):
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Authorization/Camera (2.0.2):
+  - WYBasisKit-swift/Authorization/Camera (2.0.0):
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Authorization/Contacts (2.0.2):
+  - WYBasisKit-swift/Authorization/Contacts (2.0.0):
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Authorization/Microphone (2.0.2):
+  - WYBasisKit-swift/Authorization/Microphone (2.0.0):
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Authorization/PhotoAlbums (2.0.2):
+  - WYBasisKit-swift/Authorization/PhotoAlbums (2.0.0):
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Authorization/SpeechRecognition (2.0.2):
+  - WYBasisKit-swift/Authorization/SpeechRecognition (2.0.0):
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Codable (2.0.2)
-  - WYBasisKit-swift/Config (2.0.2)
-  - WYBasisKit-swift/EventHandler (2.0.2)
-  - WYBasisKit-swift/Extension (2.0.2):
+  - WYBasisKit-swift/Codable (2.0.0)
+  - WYBasisKit-swift/Config (2.0.0)
+  - WYBasisKit-swift/EventHandler (2.0.0)
+  - WYBasisKit-swift/Extension (2.0.0):
     - WYBasisKit-swift/Config
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Layout (2.0.2):
-    - WYBasisKit-swift/Layout/BannerView (= 2.0.2)
-    - WYBasisKit-swift/Layout/ChatView (= 2.0.2)
-    - WYBasisKit-swift/Layout/MediaPlayer (= 2.0.2)
-    - WYBasisKit-swift/Layout/PagingView (= 2.0.2)
-    - WYBasisKit-swift/Layout/ScrollText (= 2.0.2)
-  - WYBasisKit-swift/Layout/BannerView (2.0.2):
-    - Kingfisher
+  - WYBasisKit-swift/Layout (2.0.0):
+    - WYBasisKit-swift/Layout/BannerView (= 2.0.0)
+    - WYBasisKit-swift/Layout/ChatView (= 2.0.0)
+    - WYBasisKit-swift/Layout/MediaPlayer (= 2.0.0)
+    - WYBasisKit-swift/Layout/PagingView (= 2.0.0)
+    - WYBasisKit-swift/Layout/ScrollText (= 2.0.0)
+  - WYBasisKit-swift/Layout/BannerView (2.0.0):
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Layout/ChatView (2.0.2):
+  - WYBasisKit-swift/Layout/ChatView (2.0.0):
     - Kingfisher
     - SnapKit
     - WYBasisKit-swift/Authorization/Microphone
@@ -114,24 +113,24 @@ PODS:
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
     - WYBasisKit-swift/Storage
-  - WYBasisKit-swift/Layout/MediaPlayer (2.0.2):
+  - WYBasisKit-swift/Layout/MediaPlayer (2.0.0):
     - IJKPlayerKit
-  - WYBasisKit-swift/Layout/PagingView (2.0.2):
+  - WYBasisKit-swift/Layout/PagingView (2.0.0):
     - SnapKit
     - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Layout/ScrollText (2.0.2):
+  - WYBasisKit-swift/Layout/ScrollText (2.0.0):
     - SnapKit
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Localizable (2.0.2):
+  - WYBasisKit-swift/Localizable (2.0.0):
     - WYBasisKit-swift/Config
-  - WYBasisKit-swift/LogManager (2.0.2)
-  - WYBasisKit-swift/Networking (2.0.2):
+  - WYBasisKit-swift/LogManager (2.0.0)
+  - WYBasisKit-swift/Networking (2.0.0):
     - Moya
     - WYBasisKit-swift/Codable
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/Storage
-  - WYBasisKit-swift/Storage (2.0.2)
+  - WYBasisKit-swift/Storage (2.0.0)
 
 DEPENDENCIES:
   - IQKeyboardManagerSwift
@@ -174,7 +173,7 @@ SPEC CHECKSUMS:
   Kingfisher: ff0d31a1f07bdff6a1ebb3ba08b8e6e567b6500c
   Moya: 138f0573e53411fb3dc17016add0b748dfbd78ee
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
-  WYBasisKit-swift: 06243de0488bec48a42f6be45bc0943915a28ded
+  WYBasisKit-swift: 2e763735470aaa966232a4a4efa69298296f8e08
 
 PODFILE CHECKSUM: 70e846e22ba7acb3ad04252a5974de6b66ad96ff
 

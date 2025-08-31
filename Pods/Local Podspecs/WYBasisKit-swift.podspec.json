@@ -1,6 +1,6 @@
 {
   "name": "WYBasisKit-swift",
-  "version": "2.0.2",
+  "version": "2.0.0",
   "summary": "WYBasisKit 不仅可以帮助开发者快速构建一个工程，还有基于常用网络框架和系统API而封装的各种实用方法、扩展，开发者只需简单的调用API就可以快速实现相应功能， 大幅提高开发效率。",
   "description": "Localizable: 国际化解决方案\nExtension: 各种系统扩展\nNetworking: 网络请求解决方案\nActivity: 活动指示器\nStorage: 本地存储\nLayout: 各种自定义控件(注意：ChatView尚未开发完毕，敬请期待)\nCodable: 数据解析\nAuthorization: 各种权限请求与判断\nLogManager: 日志打印，日志导出等日志管理相关\nAudioKit: 音频录制与播放",
   "homepage": "https://github.com/aiguanren/WYBasisKit-swift",
@@ -16,7 +16,7 @@
   },
   "source": {
     "git": "https://github.com/aiguanren/WYBasisKit-swift.git",
-    "tag": "2.0.2"
+    "tag": "2.0.0"
   },
   "resource_bundles": {
     "WYBasisKit": [
@@ -509,9 +509,6 @@
           ],
           "dependencies": {
             "WYBasisKit-swift/Localizable": [
-
-            ],
-            "Kingfisher": [
 
             ],
             "WYBasisKit-swift/LogManager": [
