@@ -1,14 +1,12 @@
 # 系统文件（不需要版本控制的系统生成文件）
-.DS_Store              # macOS 系统自动生成的文件
-*.DS_Store
-*/.DS_Store            # 子目录中的 .DS_Store
+**/.DS_Store           # macOS 系统自动生成的文件（包含所有子目录）
 *.swp                  # Vim 等编辑器生成的临时交换文件
 *.lock                 # 锁文件（例如依赖管理时生成的）
 
 
 # Xcode 用户个人配置文件（不应提交到版本库）
-xcuserdata             # Xcode 用户数据文件夹
-*.xcuserstate          # Xcode 界面状态文件
+**/xcuserdata/         # 忽略所有层级下的 Xcode 用户数据文件夹
+**/*.xcuserstate       # 忽略所有层级下的 Xcode 界面状态文件
 
 
 # Xcode 工作区
@@ -90,6 +88,3 @@ vendor/                # 其他依赖管理工具（如 Composer、Bundler、Go 
 # 禁止忽略文件（这里列出的文件不受 *.lock 规则影响，不会被通配符标记的忽略文件忽略）
 !Podfile.lock          # 保留 Podfile.lock
 !Gemfile.lock          # 保留 Gemfile.lock
-
-
-# 其他自定义忽略文件
