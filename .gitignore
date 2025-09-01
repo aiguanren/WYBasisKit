@@ -7,16 +7,12 @@
 
 # Xcode 用户个人配置文件（不应提交到版本库）
 xcuserdata             # Xcode 用户数据文件夹
-xcuserdata/            # 同上（确保覆盖目录匹配）
 *.xcuserstate          # Xcode 界面状态文件
-UserInterface.xcuserstate       # 用户界面状态
-UserInterfaceState.xcuserstate  # 用户界面状态
+*.xcuserdatad/         # 忽略 workspace 内的 xcuserdatad 文件夹
 
 
-# Xcode 工作区和项目文件
-*.xcworkspace          # 忽略所有 Xcode 工作区文件（单个文件）
-*.xcworkspace/         # Xcode 工作区文件夹
-project.xcworkspace/   # Xcode 工程工作区
+# Xcode 工作区
+*.xcworkspace         # Xcode 工作区文件
 
 
 # Xcode 构建产物（编译后生成，可随时重新生成）
@@ -36,6 +32,7 @@ yarn-error.log*        # yarn 错误日志
 
 # Swift Package Manager
 .build/                # SwiftPM 构建输出目录
+.swiftpm/              # SwiftPM 项目配置和本地状态目录
  
 
 # Fastlane 自动化工具生成的文件
@@ -62,8 +59,9 @@ Carthage/Checkouts/    # Carthage 下载的依赖源码目录（由 Cartfile 指
 vendor/                # 其他依赖管理工具（如 Composer、Bundler、Go vendor）生成的依赖目录，可通过依赖配置文件重新安装
 
 
-# 禁止忽略文件(这里列出的文件不会被通配符标记的忽略文件忽略)
-!Podfile.lock          # 保留 Podfile.lock，不受 *.lock 规则影响
+# 禁止忽略文件(这里列出的文件不受 *.lock 规则影响，不会被通配符标记的忽略文件忽略)
+!Podfile.lock          # 保留 Podfile.lock
+!Gemfile.lock          # 保留 Gemfile.lock
 
 
 # 其他自定义忽略文件
