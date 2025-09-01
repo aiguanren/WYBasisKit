@@ -1,49 +1,49 @@
 # 系统文件（不需要版本控制的系统生成文件）
-**/.DS_Store              # macOS 系统自动生成的文件（包含所有子目录）
-**/*.swp                 # Vim 等编辑器生成的临时交换文件
-**/*.lock                # 锁文件（例如依赖管理时生成）
+**/.DS_Store
+**/*.swp
+**/*.lock
 
 # Xcode 用户个人配置文件（不应提交到版本库）
-**/xcuserdata/            # 忽略所有层级下的 Xcode 用户数据文件夹
-**/*.xcuserstate         # 忽略所有层级下的 Xcode 界面状态文件
+**/xcuserdata/
+**/*.xcuserstate
 
 # Xcode 工作区
-**/*.xcworkspace/         # 明确忽略任何层级的 Xcode 工作区文件夹
+**/*.xcworkspace/
 
 # Xcode 构建产物（编译后生成，可随时重新生成）
-**/build/                 # 明确忽略任何层级的 build 目录
-**/DerivedData/           # 明确忽略任何层级的 DerivedData 目录
-**/*.ipa                  # 明确忽略任何层级的 .ipa 文件
-**/*.dSYM.zip             # 明确忽略任何层级的 .dSYM.zip 文件
-**/*.dSYM                 # 明确忽略任何层级的 .dSYM 文件
-**/*.hmap                 # 明确忽略任何层级的 .hmap 文件
+**/build/
+**/DerivedData/
+**/*.ipa
+**/*.dSYM.zip
+**/*.dSYM
+**/*.hmap
 
 # JetBrains / 其他 IDE 配置
-**/.idea/                 # 明确忽略任何层级的 .idea 目录
+**/.idea/
 
 # Node.js 依赖
-**/node_modules/          # 明确忽略任何层级的 node_modules 目录
+**/node_modules/
 
 # Xcode 文件移动或重命名时的临时文件
-**/*.moved-aside          # 明确忽略任何层级的 .moved-aside 文件
+**/*.moved-aside
 
 # Xcode 源代码控制配置
-**/.xccheckout            # 明确忽略任何层级的 .xccheckout 文件
+**/.xccheckout
 
 # Xcode 界面和调试配置文件
-**/*.perspectivev3        # 明确忽略任何层级的 .perspectivev3 文件
-**/*.mode2v3              # 明确忽略任何层级的 .mode2v3 文件
-**/*.mode1v3              # 明确忽略任何层级的 .mode1v3 文件
-**/*.pbxuser              # 明确忽略任何层级的 .pbxuser 文件
+**/*.perspectivev3
+**/*.mode2v3
+**/*.mode1v3
+**/*.pbxuser
 
 # 日志和缓存文件
-**/*.log                  # 明确忽略任何层级的 .log 文件
-**/npm-debug.log*         # 明确忽略任何层级的 npm 调试日志
-**/yarn*.log*             # 明确忽略任何层级的 yarn 日志
+**/*.log
+**/npm-debug.log*
+**/yarn*.log*
 
 # Swift Package Manager
-**/.build/                # 明确忽略任何层级的 .build 目录
-**/.swiftpm/              # 明确忽略任何层级的 .swiftpm 目录
+**/.build/
+**/.swiftpm/
 
 # Fastlane 自动化工具生成的文件
 **/fastlane/report.xml
@@ -52,18 +52,18 @@
 **/fastlane/test_output/
 
 # Playground 文件
-**/timeline.xctimeline    # 明确忽略任何层级的 timeline.xctimeline 文件
+**/timeline.xctimeline
 
 # 临时文件
-**/*.tmp                  # 明确忽略任何层级的 .tmp 文件
-**/*.temp                 # 明确忽略任何层级的 .temp 文件
+**/*.tmp
+**/*.temp
 
 # 依赖和第三方框架（由依赖管理工具生成）
-**/Pods/                  # 明确忽略任何层级的 Pods 目录
-**/Carthage/Build/        # 明确忽略任何层级的 Carthage/Build 目录
-**/Carthage/Checkouts/    # 明确忽略任何层级的 Carthage/Checkouts 目录
-**/vendor/                # 明确忽略任何层级的 vendor 目录
+**/Pods/
+**/Carthage/Build/
+**/Carthage/Checkouts/
+**/vendor/
 
 # 禁止忽略文件（这里列出的文件不受 *.lock 规则影响，不会被通配符标记的忽略文件忽略）
-!**/Podfile.lock       # 保留任何层级的 Podfile.lock
-!**/Gemfile.lock       # 保留任何层级的 Gemfile.lock
+!**/Podfile.lock
+!**/Gemfile.lock
