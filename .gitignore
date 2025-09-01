@@ -10,8 +10,9 @@
 
 
 # Xcode 工作区
-project.xcworkspace/   # 工程默认生成的工作区
+project.xcworkspace/   # Xcode 工程工作区
 playground.xcworkspace # Swift Playground 工作区
+*.xcworkspace/         # Xcode 工作区文件夹
 
 
 # Xcode 构建产物（编译后生成，可随时重新生成）
