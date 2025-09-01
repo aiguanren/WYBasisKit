@@ -191,18 +191,28 @@ public class WYBannerView: UIView {
         timer = nil
     }
     
+    /// 取消所有下载任务
+    public func cancelAllDownloads() {
+        downloadQueue.sync {
+            for (_, task) in downloadOperations {
+                task.cancel()
+            }
+            downloadOperations.removeAll()
+        }
+    }
+    
     /// 切换下一张图片
-    @objc public func nextImage() {
+    public func nextImage() {
         scrollView.setContentOffset(CGPoint(x: wy_width*2, y: 0), animated: true)
     }
     
     /// 切换上一张图片
-    @objc public func lastImage() {
+    public func lastImage() {
         scrollView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
     }
     
     /// 切换到指定下标处
-    @objc public func switchImage(_ pageIndex: Int) {
+    public func switchImage(_ pageIndex: Int) {
         
         guard pageIndex != currentIndex else {
             return
@@ -285,8 +295,8 @@ public class WYBannerView: UIView {
     }
     
     deinit {
-        stopTimer() // 停止计时器
-        cancelAllDownloads() // 取消所有下载任务
+        stopTimer()
+        cancelAllDownloads()
     }
     
     /*
@@ -885,16 +895,6 @@ extension WYBannerView {
         }
         set {
             objc_setAssociatedObject(self, &WYAssociatedKeys.downloadOperations, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-        }
-    }
-    
-    // 取消所有下载
-    func cancelAllDownloads() {
-        downloadQueue.sync {
-            for (_, task) in downloadOperations {
-                task.cancel()
-            }
-            downloadOperations.removeAll()
         }
     }
     

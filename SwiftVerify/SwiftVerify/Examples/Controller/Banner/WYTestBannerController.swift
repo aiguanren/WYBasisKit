@@ -30,7 +30,27 @@ class WYTestBannerController: UIViewController {
 //        bannerView.describeViewPosition = CGRect(x: 50, y: 50, width: 100, height: 20)
 //        bannerView.placeholderDescribe = "测试"
         
-        bannerView.reload(images: [UIImage(named: "banner_1")!, UIImage(named: "banner_2")!, UIImage(named: "banner_3")!, UIImage(named: "banner_4")!, UIImage(named: "banner_5")!, UIImage(named: "banner_6")!, UIImage(named: "banner_7")!, UIImage(named: "banner_8")!, UIImage(named: "banner_9")!], describes: ["banner_1", "banner_2", "banner_3", "banner_4", "banner_5", "banner_6", "banner_7", "banner_8", "banner_9"])
+        let images = [UIImage(named: "banner_1")!,
+                      UIImage(named: "banner_2")!,
+                      UIImage(named: "banner_3")!,
+                      UIImage(named: "banner_4")!,
+                      UIImage(named: "banner_5")!,
+                      UIImage(named: "banner_6")!,
+                      UIImage(named: "banner_7")!,
+                      UIImage(named: "banner_8")!,
+                      UIImage(named: "banner_9")!]
+        
+        let describes = ["banner_1",
+                         "banner_2",
+                         "banner_3",
+                         "banner_4",
+                         "banner_5",
+                         "banner_6",
+                         "banner_7",
+                         "banner_8",
+                         "banner_9"]
+        
+        bannerView.reload(images: images, describes: describes)
         view.addSubview(bannerView)
         bannerView.snp.makeConstraints { make in
             make.center.equalToSuperview()
