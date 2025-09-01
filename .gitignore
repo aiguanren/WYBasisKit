@@ -1,16 +1,16 @@
-# 系统文件（不需要版本控制的系统生成文件）
+# 系统文件
 **/.DS_Store
 **/*.swp
 **/*.lock
 
-# Xcode 用户个人配置文件（不应提交到版本库）
+# Xcode 用户个人配置文件
 **/xcuserdata/
 **/*.xcuserstate
 
 # Xcode 工作区
 **/*.xcworkspace/
 
-# Xcode 构建产物（编译后生成，可随时重新生成）
+# Xcode 构建产物
 **/build/
 **/DerivedData/
 **/*.ipa
@@ -58,7 +58,7 @@
 **/*.tmp
 **/*.temp
 
-# 依赖和第三方框架（由依赖管理工具生成）
+# 依赖和第三方框架
 **/Pods/
 **/Carthage/Build/
 **/Carthage/Checkouts/
@@ -67,3 +67,5 @@
 # 禁止忽略文件（这里列出的文件不受 *.lock 规则影响，不会被通配符标记的忽略文件忽略）
 !**/Podfile.lock
 !**/Gemfile.lock
+
+# 其他需要自定义忽略的文件或文件夹
