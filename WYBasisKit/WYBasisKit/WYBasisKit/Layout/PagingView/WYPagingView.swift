@@ -7,13 +7,12 @@
 //
 
 import UIKit
-import SnapKit
 
 @objc public protocol WYPagingViewDelegate {
     
     @objc optional func itemDidScroll(_ pagingIndex: Int)
 }
-
+    
 public class WYPagingView: UIView {
     
     /// 点击或滚动事件代理(也可以通过传入block监听)

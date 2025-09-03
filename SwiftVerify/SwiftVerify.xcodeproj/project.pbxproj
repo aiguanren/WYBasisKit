@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		581955332E4DB9B800469F1A /* 世间美好与你环环相扣.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 581955322E4DB9B800469F1A /* 世间美好与你环环相扣.mp3 */; };
+		583234162E68219E00EFCAD9 /* WYTestScrollTextController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583234152E68219E00EFCAD9 /* WYTestScrollTextController.swift */; };
 		585B3AA22DF819DC00E6E08F /* WYSpeechRecognitionController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 585B3A662DF819DC00E6E08F /* WYSpeechRecognitionController.xib */; };
 		585B3AA32DF819DC00E6E08F /* [666].gif in Resources */ = {isa = PBXBuildFile; fileRef = 585B3A8C2DF819DC00E6E08F /* [666].gif */; };
 		585B3AA42DF819DC00E6E08F /* 1650855755919.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 585B3A8D2DF819DC00E6E08F /* 1650855755919.mp4 */; };
@@ -96,6 +97,7 @@
 		36C6640364725F7848269A13 /* Pods-WYBasisKitVerify.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKitVerify.debug.xcconfig"; path = "Target Support Files/Pods-WYBasisKitVerify/Pods-WYBasisKitVerify.debug.xcconfig"; sourceTree = "<group>"; };
 		3B9AF69CF29055B1125EF34F /* Pods_SwiftVerify.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwiftVerify.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		581955322E4DB9B800469F1A /* 世间美好与你环环相扣.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "世间美好与你环环相扣.mp3"; sourceTree = "<group>"; };
+		583234152E68219E00EFCAD9 /* WYTestScrollTextController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestScrollTextController.swift; sourceTree = "<group>"; };
 		585B35432DF8081800E6E08F /* SwiftVerify.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftVerify.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		585B3A4A2DF819DC00E6E08F /* WYTestDarkNightModeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestDarkNightModeController.swift; sourceTree = "<group>"; };
 		585B3A4C2DF819DC00E6E08F /* WYTestVisualController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestVisualController.swift; sourceTree = "<group>"; };
@@ -204,6 +206,14 @@
 			);
 			name = Pods;
 			path = ../Pods;
+			sourceTree = "<group>";
+		};
+		583234142E68216600EFCAD9 /* 文本滚动 */ = {
+			isa = PBXGroup;
+			children = (
+				583234152E68219E00EFCAD9 /* WYTestScrollTextController.swift */,
+			);
+			path = "文本滚动";
 			sourceTree = "<group>";
 		};
 		585B353A2DF8081800E6E08F = {
@@ -428,6 +438,7 @@
 		585B3A832DF819DC00E6E08F /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				583234142E68216600EFCAD9 /* 文本滚动 */,
 				5882EAEF2E518A4900638FD3 /* 设备振动 */,
 				58E7127F2E4B0CC30095E71C /* 音频录制与播放 */,
 				58CDEE592E34900D00ACE975 /* 日志输出与保存 */,
@@ -832,6 +843,7 @@
 				585B3AB52DF819DC00E6E08F /* SDKRequest.swift in Sources */,
 				58CDEE5D2E34907800ACE975 /* WYLogController.swift in Sources */,
 				585B3AB62DF819DC00E6E08F /* SDKRequestContext.swift in Sources */,
+				583234162E68219E00EFCAD9 /* WYTestScrollTextController.swift in Sources */,
 				585B3AB72DF819DC00E6E08F /* SDKResponse.swift in Sources */,
 				585B3AB82DF819DC00E6E08F /* UserRequest.swift in Sources */,
 				585B3AB92DF819DC00E6E08F /* UserResponse.swift in Sources */,
