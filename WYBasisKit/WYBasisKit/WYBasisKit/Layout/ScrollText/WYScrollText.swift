@@ -13,6 +13,16 @@ import UIKit
     @objc optional func itemDidClick(_ itemIndex: Int)
 }
 
+/// ScrollText滚动方向
+public enum WYScrollTextDirection: Int {
+    
+    /// 上下
+    case upAndDown = 0
+    
+    /// 左右
+    case leftAndRight
+}
+
 public class WYScrollText: UIView {
     
     /// 点击事件代理(也可以通过传入block监听)
@@ -31,6 +41,12 @@ public class WYScrollText: UIView {
     
     /// 文本字体
     public var textFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(12, WYBasisKitConfig.defaultScreenPixels))
+    
+    /// 轮播方向(默认:upAndDown)
+    public var scrollDirection: WYScrollTextDirection = .upAndDown
+    
+    /// 轮播动画时长(默认0.5)
+    public var carouselDuration: TimeInterval = 0.5
     
     /// 轮播间隔，默认3s  为保证轮播流畅，该值要求最小为2s
     public var interval: TimeInterval = 3 {
@@ -77,7 +93,7 @@ public class WYScrollText: UIView {
     
     private lazy var collectionView: UICollectionView = {
         let flowLayout = UICollectionViewFlowLayout()
-        flowLayout.scrollDirection = .vertical
+        flowLayout.scrollDirection = (scrollDirection == .upAndDown) ? .vertical : .horizontal
         flowLayout.minimumLineSpacing = 0 // 行间距
         flowLayout.minimumInteritemSpacing = 0 // 列间距
         
@@ -171,7 +187,16 @@ public class WYScrollText: UIView {
         textIndex += 1
         
         if textIndex < textArray.count {
-            collectionView.scrollToItem(at: IndexPath(item: textIndex, section: 0), at: .top, animated: true)
+            UIView.animate(withDuration: carouselDuration) { [weak self] in
+                guard let self = self else { return }
+                let contentOffset: CGPoint
+                if self.scrollDirection == .upAndDown {
+                    contentOffset = CGPoint(x: 0, y: CGFloat(self.textIndex) * self.collectionView.bounds.height)
+                } else {
+                    contentOffset = CGPoint(x: CGFloat(self.textIndex) * self.collectionView.bounds.width, y: 0)
+                }
+                self.collectionView.contentOffset = contentOffset
+            }
         }
         
         if textIndex >= (textArray.count - 1) {
@@ -200,7 +225,7 @@ extension WYScrollText: UICollectionViewDelegate, UICollectionViewDataSource, UI
     
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "SctolTextCell", for: indexPath) as! SctolTextCell
-
+        
         cell.textView.font = self.textFont
         cell.textView.textColor = self.textColor
         cell.textView.backgroundColor = contentColor
