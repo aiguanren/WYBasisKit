@@ -168,8 +168,8 @@ public class WYPagingView: UIView {
     }
     
     private var currentButtonItem: WYPagingItem!
-    
     private var actionHandler: ((_ index: Int) -> Void)?
+    private var barScrollLineLeftConstraint: NSLayoutConstraint?
     
     public init() {
         super.init(frame: .zero)
@@ -239,11 +239,7 @@ extension WYPagingView {
         }
         
         UIView.animate(withDuration: 0.2) {
-
-            self.barScrollLine.snp.updateConstraints { (make) in
-
-                make.left.equalToSuperview().offset(self.currentButtonItem.center.x-(self.barScrollLine.frame.size.width * 0.5))
-            }
+            self.barScrollLineLeftConstraint?.constant = self.currentButtonItem.center.x - (self.barScrollLine.frame.size.width * 0.5)
             self.barScrollLine.superview?.layoutIfNeeded()
         }
         
@@ -311,6 +307,7 @@ extension WYPagingView {
         for index in 0..<controllers.count {
             
             let buttonItem = WYPagingItem(appendSize: bar_item_appendSize)
+            buttonItem.translatesAutoresizingMaskIntoConstraints = false
             
             if (titles.isEmpty == false) {
                 
@@ -341,35 +338,34 @@ extension WYPagingView {
                 buttonItem.contentView.isSelected = true
                 currentButtonItem = buttonItem
             }
-            barScrollView.insertSubview(buttonItem, at: 0)
+            barScrollView.addSubview(buttonItem)
             
-            buttonItem.snp.makeConstraints { (make) in
-
-                if bar_itemTopOffset == nil {
-                    make.centerY.equalToSuperview()
-                }else {
-                    make.top.equalToSuperview().offset(bar_itemTopOffset!)
-                }
-                if lastView == nil {
-                    make.left.equalToSuperview().offset(bar_originlLeftOffset)
-                }else {
-                    make.left.equalTo(lastView!.snp.right).offset(bar_dividingOffset)
-                }
-                if bar_item_width > 0 {
-                    make.width.equalTo(bar_item_width)
-                }
-                if bar_item_height > 0 {
-                    make.height.equalTo(bar_item_height)
-                }else {
-                    if (bar_item_appendSize.equalTo(.zero)) {
-                        
-                        make.top.equalToSuperview()
-                        make.bottom.equalToSuperview().offset(-bar_dividingStripHeight)
-                    }
-                }
-                if(index == (controllers.count-1)) {
-                    make.right.equalToSuperview().offset(-bar_originlRightOffset)
-                }
+            // 设置约束
+            if bar_itemTopOffset == nil {
+                buttonItem.centerYAnchor.constraint(equalTo: barScrollView.centerYAnchor).isActive = true
+            } else {
+                buttonItem.topAnchor.constraint(equalTo: barScrollView.topAnchor, constant: bar_itemTopOffset!).isActive = true
+            }
+            
+            if lastView == nil {
+                buttonItem.leadingAnchor.constraint(equalTo: barScrollView.leadingAnchor, constant: bar_originlLeftOffset).isActive = true
+            } else {
+                buttonItem.leadingAnchor.constraint(equalTo: lastView!.trailingAnchor, constant: bar_dividingOffset).isActive = true
+            }
+            
+            if bar_item_width > 0 {
+                buttonItem.widthAnchor.constraint(equalToConstant: bar_item_width).isActive = true
+            }
+            
+            if bar_item_height > 0 {
+                buttonItem.heightAnchor.constraint(equalToConstant: bar_item_height).isActive = true
+            } else if bar_item_appendSize.equalTo(.zero) {
+                buttonItem.topAnchor.constraint(equalTo: barScrollView.topAnchor).isActive = true
+                buttonItem.bottomAnchor.constraint(equalTo: barScrollView.bottomAnchor, constant: -bar_dividingStripHeight).isActive = true
+            }
+            
+            if index == (controllers.count-1) {
+                buttonItem.trailingAnchor.constraint(equalTo: barScrollView.trailingAnchor, constant: -bar_originlRightOffset).isActive = true
             }
             
             if (bar_item_cornerRadius > 0) {
@@ -389,17 +385,18 @@ extension WYPagingView {
 
                 /// 底部分隔带
                 let dividingView = UIImageView()
+                dividingView.translatesAutoresizingMaskIntoConstraints = false
                 dividingView.backgroundColor = bar_dividingStripColor
                 if let dividingStripImage: UIImage = bar_dividingStripImage {
                     dividingView.image = dividingStripImage
                 }
                 addSubview(dividingView)
-                dividingView.snp.makeConstraints { (make) in
-
-                    make.left.right.equalToSuperview()
-                    make.height.equalTo(bar_dividingStripHeight)
-                    make.bottom.equalTo(barScrollView)
-                }
+                
+                // 设置分隔带约束
+                dividingView.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
+                dividingView.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
+                dividingView.heightAnchor.constraint(equalToConstant: bar_dividingStripHeight).isActive = true
+                dividingView.bottomAnchor.constraint(equalTo: barScrollView.bottomAnchor).isActive = true
             }
         }
         DispatchQueue.main.async(execute: {
@@ -414,6 +411,7 @@ extension WYPagingView {
         if scrollView == nil {
             
             scrollView = UIScrollView()
+            scrollView!.translatesAutoresizingMaskIntoConstraints = false
             scrollView!.delegate = self
             scrollView!.isPagingEnabled = true
             scrollView!.isScrollEnabled = canScrollController
@@ -422,10 +420,12 @@ extension WYPagingView {
             scrollView!.backgroundColor = bar_pagingContro_content_color
             scrollView!.bounces = bar_pagingContro_bounce
             addSubview(scrollView!)
-            scrollView!.snp.makeConstraints { (make) in
-                make.top.equalTo(barScrollView.snp.bottom)
-                make.left.bottom.width.equalToSuperview()
-            }
+            
+            // 设置控制器滚动视图约束
+            scrollView!.topAnchor.constraint(equalTo: barScrollView.bottomAnchor).isActive = true
+            scrollView!.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
+            scrollView!.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
+            scrollView!.widthAnchor.constraint(equalTo: self.widthAnchor).isActive = true
             
             UIScrollView.appearance().contentInsetAdjustmentBehavior = .never
             
@@ -435,24 +435,28 @@ extension WYPagingView {
                 superController?.addChild(controllers[index])
                 
                 let controllerView = controllers[index].view
+                controllerView?.translatesAutoresizingMaskIntoConstraints = false
                 if let controller_bg_color: UIColor = bar_pagingContro_bg_color {
                     controllerView?.backgroundColor = controller_bg_color
                 }
                 scrollView!.addSubview(controllerView!)
-                controllerView!.snp.makeConstraints({ (make) in
-
-                    make.top.bottom.equalToSuperview()
-                    make.height.equalTo(self).offset(-bar_Height)
-                    make.width.equalTo(self)
-                    if lastView == nil {
-                        make.left.equalToSuperview()
-                    }else {
-                        make.left.equalTo(lastView!.snp.right)
-                    }
-                    if (index == (controllers.count - 1)) {
-                        make.right.equalToSuperview()
-                    }
-                })
+                
+                // 设置控制器视图约束
+                controllerView!.topAnchor.constraint(equalTo: scrollView!.topAnchor).isActive = true
+                controllerView!.bottomAnchor.constraint(equalTo: scrollView!.bottomAnchor).isActive = true
+                controllerView!.heightAnchor.constraint(equalTo: self.heightAnchor, constant: -bar_Height).isActive = true
+                controllerView!.widthAnchor.constraint(equalTo: self.widthAnchor).isActive = true
+                
+                if lastView == nil {
+                    controllerView!.leadingAnchor.constraint(equalTo: scrollView!.leadingAnchor).isActive = true
+                } else {
+                    controllerView!.leadingAnchor.constraint(equalTo: lastView!.trailingAnchor).isActive = true
+                }
+                
+                if index == (controllers.count - 1) {
+                    controllerView!.trailingAnchor.constraint(equalTo: scrollView!.trailingAnchor).isActive = true
+                }
+                
                 lastView = controllerView!
             }
             
@@ -469,16 +473,20 @@ extension WYPagingView {
         if barScroll == nil {
             
             barScroll = UIScrollView()
+            barScroll!.translatesAutoresizingMaskIntoConstraints = false
             barScroll!.showsHorizontalScrollIndicator = false
             barScroll!.showsVerticalScrollIndicator = false
             barScroll!.backgroundColor = bar_bg_defaultColor
             barScroll!.bounces = bar_pagingContro_bounce
             barScroll!.isScrollEnabled = canScrollBar
             addSubview(barScroll!)
-            barScroll!.snp.makeConstraints { (make) in
-                make.top.left.width.equalToSuperview()
-                make.height.equalTo(bar_Height)
-            }
+            
+            // 设置分页栏滚动视图约束
+            barScroll!.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
+            barScroll!.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
+            barScroll!.widthAnchor.constraint(equalTo: self.widthAnchor).isActive = true
+            barScroll!.heightAnchor.constraint(equalToConstant: bar_Height).isActive = true
+            
             objc_setAssociatedObject(self, &WYAssociatedKeys.barScrollView, barScroll, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         barScroll!.contentSize = CGSize(width: barScroll!.contentSize.width, height: bar_Height)
@@ -493,17 +501,20 @@ extension WYPagingView {
         if scrollLine == nil {
             
             scrollLine = UIImageView()
+            scrollLine!.translatesAutoresizingMaskIntoConstraints = false
             scrollLine!.backgroundColor = (controllers.count > 1) ? bar_scrollLineColor : .clear
             barScrollView.addSubview(scrollLine!)
-            if let scrollLineImage: UIImage = bar_scrollLineImage{
+            if let scrollLineImage: UIImage = bar_scrollLineImage {
                 scrollLine?.image = scrollLineImage
             }
             
-            scrollLine!.snp.makeConstraints { (make) in
-                make.left.equalToSuperview()
-                make.size.equalTo(CGSize(width: bar_scrollLineWidth, height: bar_scrollLineHeight))
-                make.top.equalToSuperview().offset(bar_Height-bar_scrollLineBottomOffset-bar_scrollLineHeight)
-            }
+            // 设置滑动线条约束
+            barScrollLineLeftConstraint = scrollLine!.leadingAnchor.constraint(equalTo: barScrollView.leadingAnchor)
+            barScrollLineLeftConstraint!.isActive = true
+            scrollLine!.widthAnchor.constraint(equalToConstant: bar_scrollLineWidth).isActive = true
+            scrollLine!.heightAnchor.constraint(equalToConstant: bar_scrollLineHeight).isActive = true
+            scrollLine!.topAnchor.constraint(equalTo: barScrollView.topAnchor, constant: bar_Height - bar_scrollLineBottomOffset - bar_scrollLineHeight).isActive = true
+            
             scrollLine?.wy_rectCorner(.allCorners).wy_cornerRadius(bar_scrollLineHeight / 2).wy_showVisual()
             
             objc_setAssociatedObject(self, &WYAssociatedKeys.barScrollLine, scrollLine!, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -532,15 +543,16 @@ public class WYPagingItem: UIButton {
     public init(appendSize: CGSize) {
         
         super.init(frame: .zero)
+        contentView.translatesAutoresizingMaskIntoConstraints = false
         contentView.isUserInteractionEnabled = false
         contentView.titleLabel?.textAlignment = .center
         addSubview(contentView)
-        contentView.snp.makeConstraints { (make) in
-            make.left.equalToSuperview().offset(appendSize.width / 2)
-            make.top.equalToSuperview().offset(appendSize.height / 2)
-            make.right.equalToSuperview().offset(-(appendSize.width / 2))
-            make.bottom.equalToSuperview().offset(-(appendSize.height / 2))
-        }
+        
+        // 设置内容视图约束
+        contentView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: appendSize.width / 2).isActive = true
+        contentView.topAnchor.constraint(equalTo: self.topAnchor, constant: appendSize.height / 2).isActive = true
+        contentView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -(appendSize.width / 2)).isActive = true
+        contentView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -(appendSize.height / 2)).isActive = true
     }
     
     public required init?(coder: NSCoder) {
