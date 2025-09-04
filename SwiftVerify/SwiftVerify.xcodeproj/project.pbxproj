@@ -711,34 +711,34 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SwiftVerify/Pods-SwiftVerify-resources.sh",
 				"${PODS_CONFIGURATION_BUILD_DIR}/IJKPlayerKit/IJKPlayerKit.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKit.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit/WYBasisKit.bundle",
 				"${PODS_ROOT}/../WYBasisKit/WYBasisKit/WYBasisKit/Localizable/WYLocalizable.bundle",
 				"${PODS_ROOT}/../WYBasisKit/WYBasisKit/WYBasisKit/Activity/WYActivity.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitActivity.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitAudioKit.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitAuthorization.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitAuthorizationBiometric.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitAuthorizationCamera.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitAuthorizationContacts.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitAuthorizationMicrophone.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitAuthorizationPhotoAlbums.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitAuthorizationSpeechRecognition.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitCodable.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitConfig.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitEventHandler.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitExtension.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitLayout.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit/WYBasisKitActivity.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit/WYBasisKitAudioKit.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit/WYBasisKitAuthorization.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit/WYBasisKitAuthorizationBiometric.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit/WYBasisKitAuthorizationCamera.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit/WYBasisKitAuthorizationContacts.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit/WYBasisKitAuthorizationMicrophone.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit/WYBasisKitAuthorizationPhotoAlbums.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit/WYBasisKitAuthorizationSpeechRecognition.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit/WYBasisKitCodable.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit/WYBasisKitConfig.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit/WYBasisKitEventHandler.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit/WYBasisKitExtension.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit/WYBasisKitLayout.bundle",
 				"${PODS_ROOT}/../WYBasisKit/WYBasisKit/WYBasisKit/Layout/BannerView/WYBannerView.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitLayoutBannerView.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit/WYBasisKitLayoutBannerView.bundle",
 				"${PODS_ROOT}/../WYBasisKit/WYBasisKit/WYBasisKit/Layout/ChatView/WYChatView.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitLayoutChatView.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitMediaPlayerFS.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitLayoutPagingView.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitLayoutScrollText.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitLocalizable.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitLogManager.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitNetworking.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitStorage.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit/WYBasisKitLayoutChatView.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit/WYBasisKitMediaPlayerFS.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit/WYBasisKitLayoutPagingView.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit/WYBasisKitLayoutScrollText.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit/WYBasisKitLocalizable.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit/WYBasisKitLogManager.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit/WYBasisKitNetworking.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit/WYBasisKitStorage.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
@@ -944,14 +944,14 @@
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "WYBasisKit申请使用语音转文字权限，用于语音与文字之间的转换测试";
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.guanren.WYBasisKit-swift.WYBasisKitVerify";
+				PRODUCT_BUNDLE_IDENTIFIER = com.guanren.SwiftVerify;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -982,14 +982,14 @@
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "WYBasisKit申请使用语音转文字权限，用于语音与文字之间的转换测试";
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.guanren.WYBasisKit-swift.WYBasisKitVerify";
+				PRODUCT_BUNDLE_IDENTIFIER = com.guanren.SwiftVerify;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

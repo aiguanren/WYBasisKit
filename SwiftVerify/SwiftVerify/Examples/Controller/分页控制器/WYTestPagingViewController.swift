@@ -23,7 +23,7 @@ class WYTestPagingViewController: UIViewController {
         let colors: [UIColor] = [.red, .green, .blue, .yellow, .purple, .orange, .cyan, .magenta]
         return colors.prefix(5).map { color in
             let vc = UIViewController()
-            vc.view.backgroundColor = color
+            vc.view.backgroundColor = .white
             vc.view.layer.borderWidth = 2
             vc.view.layer.borderColor = UIColor.black.cgColor
             return vc
@@ -56,7 +56,7 @@ class WYTestPagingViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        view.backgroundColor = .white
         setupNavigationBar()
         setupInitialPagingView()
     }
@@ -168,13 +168,13 @@ class WYTestPagingViewController: UIViewController {
         // 设置代理和回调
         pagingView.delegate = self
         pagingView.itemDidScroll { [weak self] index in
-            guard self == self else { return }
+            guard self != nil else { return }
             print("分页滚动到第 \(index) 页 - 通过闭包回调")
         }
     }
     
     deinit {
-        WYLogManager.output("WYTestPagingViewController deinit")
+        print("WYTestPagingViewController deinit")
     }
 }
 
@@ -201,7 +201,7 @@ extension WYTestPagingViewController: PagingSettingsDelegate {
 // MARK: - 设置数据模型
 struct PagingSettingsModel {
     // 基本属性
-    var barHeight: CGFloat = 45
+    var barHeight: CGFloat = 65
     var buttonPosition: WYButtonPosition = .imageTopTitleBottom
     var originlLeftOffset: CGFloat = 0
     var originlRightOffset: CGFloat = 0
@@ -236,8 +236,8 @@ struct PagingSettingsModel {
     var scrollLineHeight: CGFloat = 2
     
     // 字体
-    var titleDefaultFont: UIFont = .systemFont(ofSize: 15)
-    var titleSelectedFont: UIFont = .systemFont(ofSize: 15)
+    var titleDefaultFont: UIFont = UIFont.systemFont(ofSize: 15)
+    var titleSelectedFont: UIFont = UIFont.boldSystemFont(ofSize: 15)
     
     // 其他
     var selectedIndex: Int = 0
@@ -318,6 +318,24 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         ]
     ]
     
+    // 颜色选项
+    private let colorOptions: [String: UIColor] = [
+        "白色": .white,
+        "黑色": .black,
+        "红色": .red,
+        "绿色": .green,
+        "蓝色": .blue,
+        "黄色": .yellow,
+        "橙色": .orange,
+        "紫色": .purple,
+        "灰色": .gray,
+        "浅灰色": .lightGray,
+        "默认标题色": .wy_hex("#7B809E"),
+        "选中标题色": .wy_hex("#2D3952"),
+        "分隔带色": .wy_hex("#F2F2F2"),
+        "滑动线色": .wy_hex("#2D3952")
+    ]
+    
     init(settings: PagingSettingsModel) {
         self.settings = settings
         super.init(nibName: nil, bundle: nil)
@@ -393,6 +411,41 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         cell.detailTextLabel?.text = getValueDescription(for: item.1)
         cell.accessoryType = .disclosureIndicator
         
+        // 为颜色设置项添加颜色预览
+        if item.1.contains("Color") {
+            let colorView = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
+            colorView.layer.cornerRadius = 4
+            colorView.layer.borderWidth = 1
+            colorView.layer.borderColor = UIColor.lightGray.cgColor
+            
+            switch item.1 {
+            case "pagingContentColor":
+                colorView.backgroundColor = settings.pagingContentColor
+            case "pagingBgColor":
+                colorView.backgroundColor = settings.pagingBgColor
+            case "barBgColor":
+                colorView.backgroundColor = settings.barBgColor
+            case "itemDefaultBgColor":
+                colorView.backgroundColor = settings.itemDefaultBgColor
+            case "itemSelectedBgColor":
+                colorView.backgroundColor = settings.itemSelectedBgColor
+            case "titleDefaultColor":
+                colorView.backgroundColor = settings.titleDefaultColor
+            case "titleSelectedColor":
+                colorView.backgroundColor = settings.titleSelectedColor
+            case "dividingStripColor":
+                colorView.backgroundColor = settings.dividingStripColor
+            case "scrollLineColor":
+                colorView.backgroundColor = settings.scrollLineColor
+            default:
+                break
+            }
+            
+            cell.accessoryView = colorView
+        } else {
+            cell.accessoryView = nil
+        }
+        
         return cell
     }
     
@@ -421,7 +474,7 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         case "originlRightOffset":
             return "\(settings.originlRightOffset)"
         case "itemTopOffset":
-            return settings.itemTopOffset?.description ?? "nil"
+            return settings.itemTopOffset?.description ?? "0"
         case "adjustOffset":
             return settings.adjustOffset ? "是" : "否"
         case "dividingOffset":
@@ -463,9 +516,9 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         case "scrollLineHeight":
             return "\(settings.scrollLineHeight)"
         case "titleDefaultFont":
-            return "\(settings.titleDefaultFont.pointSize)"
+            return "\(Int(settings.titleDefaultFont.pointSize))"
         case "titleSelectedFont":
-            return "\(settings.titleSelectedFont.pointSize)"
+            return "\(Int(settings.titleSelectedFont.pointSize))"
         case "selectedIndex":
             return "\(settings.selectedIndex)"
         case "canScrollController":
@@ -534,7 +587,7 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
             
         case "titleDefaultFont", "titleSelectedFont":
             alert.addTextField { textField in
-                textField.keyboardType = .decimalPad
+                textField.keyboardType = .numberPad
                 textField.placeholder = "请输入字体大小"
                 let currentSize: CGFloat
                 if key == "titleDefaultFont" {
@@ -542,16 +595,16 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
                 } else {
                     currentSize = self.settings.titleSelectedFont.pointSize
                 }
-                textField.text = "\(currentSize)"
+                textField.text = "\(Int(currentSize))"
             }
             
             alert.addAction(UIAlertAction(title: "确定", style: .default) { _ in
-                if let text = alert.textFields?.first?.text, let size = Double(text) {
+                if let text = alert.textFields?.first?.text, let size = Int(text) {
                     let fontSize = CGFloat(size)
                     if key == "titleDefaultFont" {
-                        self.settings.titleDefaultFont = .systemFont(ofSize: fontSize)
+                        self.settings.titleDefaultFont = UIFont.systemFont(ofSize: fontSize)
                     } else {
-                        self.settings.titleSelectedFont = .systemFont(ofSize: fontSize)
+                        self.settings.titleSelectedFont = UIFont.boldSystemFont(ofSize: fontSize)
                     }
                     self.tableView.reloadData()
                 }
@@ -566,7 +619,7 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
             
             alert.addAction(UIAlertAction(title: "确定", style: .default) { _ in
                 if let text = alert.textFields?.first?.text, let index = Int(text) {
-                    self.settings.selectedIndex = max(0, min(index, 4)) // 限制在0-4范围内
+                    self.settings.selectedIndex = max(0, min(index, 4))
                     self.tableView.reloadData()
                 }
             })
@@ -643,15 +696,109 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
                 }
             })
             
-        // 颜色设置项暂时不支持编辑
+        // 颜色设置项
         case "pagingContentColor", "pagingBgColor", "barBgColor", "itemDefaultBgColor",
              "itemSelectedBgColor", "titleDefaultColor", "titleSelectedColor",
              "dividingStripColor", "scrollLineColor":
-            alert.message = "颜色设置项暂不支持在此编辑"
+            
+            let colorAlert = UIAlertController(title: "选择 \(key) 颜色", message: nil, preferredStyle: .actionSheet)
+            
+            for (name, color) in colorOptions {
+                colorAlert.addAction(UIAlertAction(title: name, style: .default) { _ in
+                    self.setColor(color, for: key)
+                    self.tableView.reloadData()
+                })
+            }
+            
+            // 添加自定义颜色选项
+            colorAlert.addAction(UIAlertAction(title: "自定义颜色", style: .default) { _ in
+                self.showCustomColorPicker(for: key)
+            })
+            
+            colorAlert.addAction(UIAlertAction(title: "取消", style: .cancel))
+            // 适配 iPad
+            if let popoverController = colorAlert.popoverPresentationController {
+                // 找到包含当前key的section和row
+                var foundIndexPath: IndexPath?
+                for section in 0..<items.count {
+                    for row in 0..<items[section].count {
+                        if items[section][row].1 == key {
+                            foundIndexPath = IndexPath(row: row, section: section)
+                            break
+                        }
+                    }
+                    if foundIndexPath != nil {
+                        break
+                    }
+                }
+                
+                if let indexPath = foundIndexPath,
+                   let cell = tableView.cellForRow(at: indexPath) {
+                    popoverController.sourceView = cell
+                    popoverController.sourceRect = cell.bounds
+                }
+            }
+            
+            present(colorAlert, animated: true)
             
         default:
             alert.message = "该设置项暂不支持编辑"
+            alert.addAction(UIAlertAction(title: "确定", style: .default))
         }
+        
+        if !key.contains("Color") {
+            alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+            present(alert, animated: true)
+        }
+    }
+    
+    private func setColor(_ color: UIColor, for key: String) {
+        switch key {
+        case "pagingContentColor": settings.pagingContentColor = color
+        case "pagingBgColor": settings.pagingBgColor = color
+        case "barBgColor": settings.barBgColor = color
+        case "itemDefaultBgColor": settings.itemDefaultBgColor = color
+        case "itemSelectedBgColor": settings.itemSelectedBgColor = color
+        case "titleDefaultColor": settings.titleDefaultColor = color
+        case "titleSelectedColor": settings.titleSelectedColor = color
+        case "dividingStripColor": settings.dividingStripColor = color
+        case "scrollLineColor": settings.scrollLineColor = color
+        default: break
+        }
+    }
+    
+    private func showCustomColorPicker(for key: String) {
+        let alert = UIAlertController(title: "自定义颜色 - \(key)", message: "请输入RGB值 (0-255)", preferredStyle: .alert)
+        
+        alert.addTextField { textField in
+            textField.placeholder = "红色 (0-255)"
+            textField.keyboardType = .numberPad
+        }
+        
+        alert.addTextField { textField in
+            textField.placeholder = "绿色 (0-255)"
+            textField.keyboardType = .numberPad
+        }
+        
+        alert.addTextField { textField in
+            textField.placeholder = "蓝色 (0-255)"
+            textField.keyboardType = .numberPad
+        }
+        
+        alert.addAction(UIAlertAction(title: "确定", style: .default) { _ in
+            if let redText = alert.textFields?[0].text,
+               let greenText = alert.textFields?[1].text,
+               let blueText = alert.textFields?[2].text,
+               let red = Int(redText), let green = Int(greenText), let blue = Int(blueText) {
+                
+                let color = UIColor(red: CGFloat(red)/255.0,
+                                  green: CGFloat(green)/255.0,
+                                  blue: CGFloat(blue)/255.0,
+                                  alpha: 1.0)
+                self.setColor(color, for: key)
+                self.tableView.reloadData()
+            }
+        })
         
         alert.addAction(UIAlertAction(title: "取消", style: .cancel))
         present(alert, animated: true)

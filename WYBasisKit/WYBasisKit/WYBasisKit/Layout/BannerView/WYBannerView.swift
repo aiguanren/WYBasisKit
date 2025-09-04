@@ -774,7 +774,7 @@ extension WYBannerView {
     }
     
     /// 下载图片
-    func downloadImages(imageSource: Any, imageView: UIImageView?) {
+    func downloadImages(imageSource: Any?, imageView: UIImageView?) {
         
         var sourceUrl: URL? = nil
         var imageIndex: Int? = nil
@@ -838,7 +838,7 @@ extension WYBannerView {
                 guard let data = data, error == nil, let image = UIImage(data: data) else {
                     DispatchQueue.main.async {
                         // 下载失败显示占位图
-                        if let index = imageIndex, let visibleImageView = self.currentView {
+                        if let visibleImageView = self.currentView {
                             visibleImageView.image = self.placeholderImage
                         } else {
                             imageView?.image = self.placeholderImage
@@ -856,7 +856,7 @@ extension WYBannerView {
                 // 回到主线程更新 UI
                 DispatchQueue.main.async {
                     // 通过 index 查找当前显示的 imageView，避免第一次空白
-                    if let index = imageIndex, let visibleImageView = self.currentView {
+                    if let visibleImageView = self.currentView {
                         visibleImageView.image = image
                     } else {
                         // 兜底，直接更新传入的 imageView
@@ -868,7 +868,7 @@ extension WYBannerView {
                     }
 
                     // 如果是当前显示的 imageView，也更新 currentView
-                    if let visibleImageView = self.currentView, let index = imageIndex,
+                    if let visibleImageView = self.currentView,
                        visibleImageView == self.currentView {
                         self.currentView?.image = image
                     }

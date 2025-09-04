@@ -39,7 +39,7 @@ public class WYPagingView: UIView {
     /// 分页栏右起始点距离(最后一个标题栏距离屏幕边界的距离) 默认0
     public var bar_originlRightOffset: CGFloat = 0
     
-    /// item距离分页栏顶部的偏移量， 默认nil
+    /// item距离分页栏顶部的偏移量(需要设置bar_item_height后才会生效)， 默认nil
     public var bar_itemTopOffset: CGFloat?
     
     /// 显示整体宽度小于一屏，且设置了bar_Width != 0，是否需要居中显示，默认 居中 (居中后，将会动态调整bar_originlLeftOffset和bar_originlRightOffset的距离)
@@ -51,7 +51,7 @@ public class WYPagingView: UIView {
     /// 内部按钮图片和文字的上下或左右间距 默认5
     public var barButton_dividingOffset: CGFloat = UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels)
     
-    /// 分页控制器底部背景色 默认白色
+    /// 分页控制器底部背景色(即分页控制器所在的scrollView的背景色) 默认白色
     public var bar_pagingContro_content_color: UIColor = .white
     
     /// 分页控制器背景色
@@ -261,8 +261,7 @@ extension WYPagingView {
             currentButtonItem.contentView.isSelected = false
             
             currentButtonItem.backgroundColor = bar_item_bg_defaultColor
-            currentButtonItem.contentView.setTitleColor(bar_title_defaultColor, for: .normal)
-            currentButtonItem.contentView.titleLabel?.font = bar_title_defaultFont
+            
             updateButtonContentMode(sender: currentButtonItem.contentView)
             
             /// 将当前选中的item赋值
@@ -271,8 +270,7 @@ extension WYPagingView {
             currentButtonItem = currentItem
             
             currentButtonItem.backgroundColor = bar_item_bg_selectedColor
-            currentButtonItem.contentView.setTitleColor(bar_title_selectedColor, for: .selected)
-            currentButtonItem.contentView.titleLabel?.font = bar_title_selectedFont
+
             updateButtonContentMode(sender: currentButtonItem.contentView)
             
             /// 调用最终的方法
@@ -310,11 +308,8 @@ extension WYPagingView {
             buttonItem.translatesAutoresizingMaskIntoConstraints = false
             
             if (titles.isEmpty == false) {
-                
-                buttonItem.contentView.setTitleColor(bar_title_defaultColor, for: .normal)
-                buttonItem.contentView.setTitleColor(bar_title_selectedColor, for: .selected)
-                buttonItem.contentView.titleLabel?.font = (index == bar_selectedIndex) ? bar_title_selectedFont : bar_title_defaultFont
-                buttonItem.contentView.setTitle(titles[index], for: .normal)
+                buttonItem.setContentAttributed(title: titles[index], titleColor: bar_title_defaultColor, font: bar_title_defaultFont, isSelected: false)
+                buttonItem.setContentAttributed(title: titles[index], titleColor: bar_title_selectedColor, font: bar_title_selectedFont, isSelected: true)
             }
             
             if ((defaultImages.isEmpty == false) || (selectedImages.isEmpty == false)) {
@@ -338,7 +333,7 @@ extension WYPagingView {
                 buttonItem.contentView.isSelected = true
                 currentButtonItem = buttonItem
             }
-            barScrollView.addSubview(buttonItem)
+            barScrollView.insertSubview(buttonItem, at: 0)
             
             // 设置约束
             if bar_itemTopOffset == nil {
@@ -553,6 +548,24 @@ public class WYPagingItem: UIButton {
         contentView.topAnchor.constraint(equalTo: self.topAnchor, constant: appendSize.height / 2).isActive = true
         contentView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -(appendSize.width / 2)).isActive = true
         contentView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -(appendSize.height / 2)).isActive = true
+    }
+    
+    /// 设置按钮富文本
+    func setContentAttributed(title: String? = nil, titleColor: UIColor, font: UIFont, isSelected: Bool) {
+        
+        // 当前按钮文字
+        let showTitle: String = (title == nil) ? (contentView.currentTitle ?? "") : (title ?? "")
+        
+        // 生成属性字符串
+        let attributedString = NSAttributedString(
+            string: showTitle,
+            attributes: [
+                .font: font,
+                .foregroundColor: titleColor
+            ]
+        )
+        // 设置到当前状态
+        contentView.setAttributedTitle(attributedString, for: isSelected ? .selected : .normal)
     }
     
     public required init?(coder: NSCoder) {

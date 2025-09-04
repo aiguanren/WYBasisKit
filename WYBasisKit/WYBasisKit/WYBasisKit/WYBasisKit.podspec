@@ -1,11 +1,11 @@
-# 定义podspec执行路径(远程验证时路径是从WYBasisKit-swift开始的，所以远程验证时需要填入podspec文件的路径：WYBasisKit/WYBasisKit/WYBasisKit/)
+# 定义podspec执行路径(远程验证时路径是从WYBasisKit开始的，所以远程验证时需要填入podspec文件的路径：WYBasisKit/WYBasisKit/WYBasisKit/)
 kit_path = "WYBasisKit/WYBasisKit/WYBasisKit/"
 
 # 国际化资源需要的Bundle
 localizable_bundle = "#{kit_path}Localizable/WYLocalizable.bundle"
 
 Pod::Spec.new do |kit|
-  kit.name         = "WYBasisKit-swift"
+  kit.name         = "WYBasisKit"
   kit.version      = "2.0.0"
   kit.summary      = "WYBasisKit 不仅可以帮助开发者快速构建一个工程，还有基于常用网络框架和系统API而封装的各种实用方法、扩展，开发者只需简单的调用API就可以快速实现相应功能， 大幅提高开发效率。"
   kit.description  = <<-DESC
@@ -21,11 +21,11 @@ Pod::Spec.new do |kit|
     AudioKit: 音频录制与播放
   DESC
   
-  kit.homepage     = "https://github.com/aiguanren/WYBasisKit-swift"
+  kit.homepage     = "https://github.com/aiguanren/WYBasisKit"
   kit.license      = { :type => "MIT", :file => "#{kit_path}License.md" }
   kit.author             = { "官人" => "aiguanren@icloud.com" }
   kit.ios.deployment_target = "13.0"
-  kit.source       = { :git => "https://github.com/aiguanren/WYBasisKit-swift.git", :tag => "#{kit.version}" }
+  kit.source       = { :git => "https://github.com/aiguanren/WYBasisKit.git", :tag => "#{kit.version}" }
   #kit.source       = { :svn => "http://192.168.xxx.xxx:xxxx/xxx/xxx/WYBasiskit"}
   #kit.source       = { :http => "http://192.168.xxx.xxx:xxxx/xxx/xxx/WYBasiskit.zip" }
   kit.resource_bundles = {"WYBasisKit" => [
@@ -38,7 +38,7 @@ Pod::Spec.new do |kit|
   # kit.libraries = "z", "xxx.a"  # 这里的.a是指系统的
   # kit.vendored_libraries = "xxx.a"  # 这里的.a是指第三方或者自己自定义的
   # 手动指定模块名
-  kit.module_name  = "WYBasisKitSwift" 
+  #kit.module_name  = "WYBasisKitSwift" 
   
   #指定默认模块，不指定则表示全部模块
   # kit.default_subspecs = [
@@ -94,7 +94,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}Localizable/PrivacyInfo.xcprivacy"
     ]}
     localizable.frameworks = "Foundation", "UIKit"
-    localizable.dependency "WYBasisKit-swift/Config"
+    localizable.dependency "WYBasisKit/Config"
   end
   
   kit.subspec "Extension" do |extension|
@@ -106,9 +106,9 @@ Pod::Spec.new do |kit|
       "#{kit_path}Extension/PrivacyInfo.xcprivacy"
     ]}
     extension.frameworks = "Foundation", "UIKit", "LocalAuthentication", "Photos", "CoreFoundation", "AudioToolbox", "CoreMotion", "CoreTelephony"
-    extension.dependency "WYBasisKit-swift/Localizable"
-    extension.dependency "WYBasisKit-swift/Config"
-    extension.dependency "WYBasisKit-swift/LogManager"
+    extension.dependency "WYBasisKit/Localizable"
+    extension.dependency "WYBasisKit/Config"
+    extension.dependency "WYBasisKit/LogManager"
   end
   
   kit.subspec "Codable" do |codable|
@@ -131,9 +131,9 @@ Pod::Spec.new do |kit|
       "#{kit_path}Networking/PrivacyInfo.xcprivacy"
     ]}
     networking.frameworks = "Foundation", "UIKit"
-    networking.dependency "WYBasisKit-swift/Localizable"
-    networking.dependency "WYBasisKit-swift/Storage"
-    networking.dependency "WYBasisKit-swift/Codable"
+    networking.dependency "WYBasisKit/Localizable"
+    networking.dependency "WYBasisKit/Storage"
+    networking.dependency "WYBasisKit/Codable"
     networking.dependency "Moya"
   end
   
@@ -142,7 +142,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}Activity/**/*.{swift,h,m}",
       "#{kit_path}Extension/UIView/**/*.{swift,h,m}",
       "#{kit_path}Extension/UIViewController/**/*.{swift,h,m}",
-      "#{kit_path}Extension/NSAttributedString/**/*.{swift,h,m}",
+      "#{kit_path}Extension/AttributedString/**/*.{swift,h,m}",
       "#{kit_path}Extension/String/**/*.{swift,h,m}",
       "#{kit_path}Extension/UIImage/**/*.{swift,h,m}",
       "#{kit_path}Extension/UIDevice/**/*.{swift,h,m}",
@@ -156,8 +156,8 @@ Pod::Spec.new do |kit|
       "#{kit_path}Activity/PrivacyInfo.xcprivacy"
     ]}
     activity.frameworks = "Foundation", "UIKit"
-    activity.dependency "WYBasisKit-swift/Localizable"
-    activity.dependency "WYBasisKit-swift/LogManager"
+    activity.dependency "WYBasisKit/Localizable"
+    activity.dependency "WYBasisKit/LogManager"
   end
   
   kit.subspec "Storage" do |storage|
@@ -204,8 +204,8 @@ Pod::Spec.new do |kit|
         "#{kit_path}Authorization/Camera/PrivacyInfo.xcprivacy"
       ]}
       camera.frameworks = "AVFoundation", "UIKit", "Photos"
-      camera.dependency "WYBasisKit-swift/Localizable"
-      camera.dependency "WYBasisKit-swift/LogManager"
+      camera.dependency "WYBasisKit/Localizable"
+      camera.dependency "WYBasisKit/LogManager"
     end
     
     authorization.subspec "Biometric" do |biometric|
@@ -217,8 +217,8 @@ Pod::Spec.new do |kit|
         "#{kit_path}Authorization/Biometric/PrivacyInfo.xcprivacy"
       ]}
       biometric.frameworks = "Foundation", "LocalAuthentication"
-      biometric.dependency "WYBasisKit-swift/Localizable"
-      biometric.dependency "WYBasisKit-swift/LogManager"
+      biometric.dependency "WYBasisKit/Localizable"
+      biometric.dependency "WYBasisKit/LogManager"
     end
     
     authorization.subspec "Contacts" do |contacts|
@@ -231,8 +231,8 @@ Pod::Spec.new do |kit|
         "#{kit_path}Authorization/Contacts/PrivacyInfo.xcprivacy"
       ]}
       contacts.frameworks = "Contacts", "UIKit"
-      contacts.dependency "WYBasisKit-swift/Localizable"
-      contacts.dependency "WYBasisKit-swift/LogManager"
+      contacts.dependency "WYBasisKit/Localizable"
+      contacts.dependency "WYBasisKit/LogManager"
     end
     
     authorization.subspec "PhotoAlbums" do |photoAlbums|
@@ -245,8 +245,8 @@ Pod::Spec.new do |kit|
         "#{kit_path}Authorization/PhotoAlbums/PrivacyInfo.xcprivacy"
       ]}
       photoAlbums.frameworks = "Photos", "UIKit"
-      photoAlbums.dependency "WYBasisKit-swift/Localizable"
-      photoAlbums.dependency "WYBasisKit-swift/LogManager"
+      photoAlbums.dependency "WYBasisKit/Localizable"
+      photoAlbums.dependency "WYBasisKit/LogManager"
     end
     
     authorization.subspec "Microphone" do |microphone|
@@ -259,8 +259,8 @@ Pod::Spec.new do |kit|
         "#{kit_path}Authorization/Microphone/PrivacyInfo.xcprivacy"
       ]}
       microphone.frameworks = "Photos", "UIKit"
-      microphone.dependency "WYBasisKit-swift/Localizable"
-      microphone.dependency "WYBasisKit-swift/LogManager"
+      microphone.dependency "WYBasisKit/Localizable"
+      microphone.dependency "WYBasisKit/LogManager"
     end
     
     authorization.subspec "SpeechRecognition" do |speechRecognition|
@@ -273,8 +273,8 @@ Pod::Spec.new do |kit|
         "#{kit_path}Authorization/SpeechRecognition/PrivacyInfo.xcprivacy"
       ]}
       speechRecognition.frameworks = "Speech", "UIKit"
-      speechRecognition.dependency "WYBasisKit-swift/Localizable"
-      speechRecognition.dependency "WYBasisKit-swift/LogManager"
+      speechRecognition.dependency "WYBasisKit/Localizable"
+      speechRecognition.dependency "WYBasisKit/LogManager"
     end
   end
   
@@ -295,8 +295,8 @@ Pod::Spec.new do |kit|
         "#{kit_path}Layout/ScrollText/PrivacyInfo.xcprivacy"
       ]}
       scrollText.frameworks = "Foundation", "UIKit"
-      scrollText.dependency "WYBasisKit-swift/Localizable"
-      scrollText.dependency "WYBasisKit-swift/LogManager"
+      scrollText.dependency "WYBasisKit/Localizable"
+      scrollText.dependency "WYBasisKit/LogManager"
     end
     
     layout.subspec "PagingView" do |pagingView|
@@ -315,7 +315,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}Layout/PagingView/PrivacyInfo.xcprivacy"
       ]}
       pagingView.frameworks = "Foundation", "UIKit"
-      pagingView.dependency "WYBasisKit-swift/LogManager"
+      pagingView.dependency "WYBasisKit/LogManager"
     end
     
     layout.subspec "BannerView" do |bannerView|
@@ -335,8 +335,8 @@ Pod::Spec.new do |kit|
         "#{kit_path}Layout/BannerView/PrivacyInfo.xcprivacy"
       ]}
       bannerView.frameworks = "Foundation", "UIKit"
-      bannerView.dependency "WYBasisKit-swift/Localizable"
-      bannerView.dependency "WYBasisKit-swift/LogManager"
+      bannerView.dependency "WYBasisKit/Localizable"
+      bannerView.dependency "WYBasisKit/LogManager"
     end
     
     layout.subspec "ChatView" do |chatView|
@@ -354,11 +354,11 @@ Pod::Spec.new do |kit|
          "#{kit_path}Layout/ChatView/PrivacyInfo.xcprivacy"
       ]}
       chatView.frameworks = "Foundation", "UIKit"
-      chatView.dependency "WYBasisKit-swift/Extension"
-      chatView.dependency "WYBasisKit-swift/Localizable"
-      chatView.dependency "WYBasisKit-swift/Authorization/Microphone"
-      chatView.dependency "WYBasisKit-swift/Storage"
-      chatView.dependency "WYBasisKit-swift/LogManager"
+      chatView.dependency "WYBasisKit/Extension"
+      chatView.dependency "WYBasisKit/Localizable"
+      chatView.dependency "WYBasisKit/Authorization/Microphone"
+      chatView.dependency "WYBasisKit/Storage"
+      chatView.dependency "WYBasisKit/LogManager"
       chatView.dependency "SnapKit"
       chatView.dependency "Kingfisher"
     end

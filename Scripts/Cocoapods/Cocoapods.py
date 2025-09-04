@@ -5,7 +5,7 @@ import os
 
 CONFIG = {
     'kit_path_local': '',  # 本地验证时要把 kit_path 设置为空字符串 ""，验证完毕后再还原成原本的值
-    'podspec_relative_path': '../../WYBasisKit/WYBasisKit/WYBasisKit/WYBasisKit-swift.podspec',  # podspec 文件相对脚本的路径
+    'podspec_relative_path': '../../WYBasisKit/WYBasisKit/WYBasisKit/WYBasisKit.podspec',  # podspec 文件相对脚本的路径
     'local_validation_params': ['--verbose', '--allow-warnings', '--skip-import-validation', '--no-clean'],  # 本地验证额外参数
     'remote_validation_params': ['--verbose', '--allow-warnings', '--skip-import-validation', '--no-clean'],  # 远程验证额外参数
     'publish_validation_params': ['--allow-warnings', '--skip-import-validation'],  # 发布时的参数
@@ -131,7 +131,7 @@ def main():
             print_green(f"选择的 subspec：{selected_subspec}")
             if subspec_choice != 1:
                 podspec_basename = os.path.basename(CONFIG['podspec_relative_path'])
-                podspec_name_without_ext = os.path.splitext(podspec_basename)[0]  # WYBasisKit-swift
+                podspec_name_without_ext = os.path.splitext(podspec_basename)[0]  # WYBasisKit
                 subspec_arg = f"--subspec={podspec_name_without_ext}/{subspecs[subspec_choice - 2]}"
         else:
             print_red("未检测到任何 subspec，默认验证全部")

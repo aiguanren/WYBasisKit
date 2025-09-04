@@ -135,7 +135,7 @@ public static func clearDiskCache(path: String, asset: String = "", completion:(
 
 *   **简书**：[https://www.jianshu.com/u/2404ca96b483](https://www.jianshu.com/u/2404ca96b483)
 
-*   **GitHub**：[https://github.com/gaunren/WYBasisKit-swift](https://github.com/gaunren/WYBasisKit-swift)
+*   **GitHub**：[https://github.com/aiguanren/WYBasisKit](https://github.com/aiguanren/WYBasisKit)
 
 *   **CSDN**：[https://blog.csdn.net/qq_17157763?type=blog](https://blog.csdn.net/qq_17157763?type=blog)
 

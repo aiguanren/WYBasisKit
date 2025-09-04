@@ -6,7 +6,7 @@
 //
 
 #import "ViewController.h"
-#import <WYBasisKitSwift-Swift.h>
+#import <WYBasisKit/WYBasisKit-Swift.h>
 
 @interface ViewController ()
 

@@ -47,95 +47,95 @@ PODS:
   - Moya/Core (15.0.0):
     - Alamofire (~> 5.0)
   - SnapKit (5.7.1)
-  - WYBasisKit-swift (2.0.0):
-    - WYBasisKit-swift/Activity (= 2.0.0)
-    - WYBasisKit-swift/AudioKit (= 2.0.0)
-    - WYBasisKit-swift/Authorization (= 2.0.0)
-    - WYBasisKit-swift/Codable (= 2.0.0)
-    - WYBasisKit-swift/Config (= 2.0.0)
-    - WYBasisKit-swift/EventHandler (= 2.0.0)
-    - WYBasisKit-swift/Extension (= 2.0.0)
-    - WYBasisKit-swift/Layout (= 2.0.0)
-    - WYBasisKit-swift/Localizable (= 2.0.0)
-    - WYBasisKit-swift/LogManager (= 2.0.0)
-    - WYBasisKit-swift/Networking (= 2.0.0)
-    - WYBasisKit-swift/Storage (= 2.0.0)
-  - WYBasisKit-swift/Activity (2.0.0):
-    - WYBasisKit-swift/Localizable
-    - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/AudioKit (2.0.0)
-  - WYBasisKit-swift/Authorization (2.0.0):
-    - WYBasisKit-swift/Authorization/Biometric (= 2.0.0)
-    - WYBasisKit-swift/Authorization/Camera (= 2.0.0)
-    - WYBasisKit-swift/Authorization/Contacts (= 2.0.0)
-    - WYBasisKit-swift/Authorization/Microphone (= 2.0.0)
-    - WYBasisKit-swift/Authorization/PhotoAlbums (= 2.0.0)
-    - WYBasisKit-swift/Authorization/SpeechRecognition (= 2.0.0)
-  - WYBasisKit-swift/Authorization/Biometric (2.0.0):
-    - WYBasisKit-swift/Localizable
-    - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Authorization/Camera (2.0.0):
-    - WYBasisKit-swift/Localizable
-    - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Authorization/Contacts (2.0.0):
-    - WYBasisKit-swift/Localizable
-    - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Authorization/Microphone (2.0.0):
-    - WYBasisKit-swift/Localizable
-    - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Authorization/PhotoAlbums (2.0.0):
-    - WYBasisKit-swift/Localizable
-    - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Authorization/SpeechRecognition (2.0.0):
-    - WYBasisKit-swift/Localizable
-    - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Codable (2.0.0)
-  - WYBasisKit-swift/Config (2.0.0)
-  - WYBasisKit-swift/EventHandler (2.0.0)
-  - WYBasisKit-swift/Extension (2.0.0):
-    - WYBasisKit-swift/Config
-    - WYBasisKit-swift/Localizable
-    - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Layout (2.0.0):
-    - WYBasisKit-swift/Layout/BannerView (= 2.0.0)
-    - WYBasisKit-swift/Layout/ChatView (= 2.0.0)
-    - WYBasisKit-swift/Layout/MediaPlayer (= 2.0.0)
-    - WYBasisKit-swift/Layout/PagingView (= 2.0.0)
-    - WYBasisKit-swift/Layout/ScrollText (= 2.0.0)
-  - WYBasisKit-swift/Layout/BannerView (2.0.0):
-    - WYBasisKit-swift/Localizable
-    - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Layout/ChatView (2.0.0):
+  - WYBasisKit (2.0.0):
+    - WYBasisKit/Activity (= 2.0.0)
+    - WYBasisKit/AudioKit (= 2.0.0)
+    - WYBasisKit/Authorization (= 2.0.0)
+    - WYBasisKit/Codable (= 2.0.0)
+    - WYBasisKit/Config (= 2.0.0)
+    - WYBasisKit/EventHandler (= 2.0.0)
+    - WYBasisKit/Extension (= 2.0.0)
+    - WYBasisKit/Layout (= 2.0.0)
+    - WYBasisKit/Localizable (= 2.0.0)
+    - WYBasisKit/LogManager (= 2.0.0)
+    - WYBasisKit/Networking (= 2.0.0)
+    - WYBasisKit/Storage (= 2.0.0)
+  - WYBasisKit/Activity (2.0.0):
+    - WYBasisKit/Localizable
+    - WYBasisKit/LogManager
+  - WYBasisKit/AudioKit (2.0.0)
+  - WYBasisKit/Authorization (2.0.0):
+    - WYBasisKit/Authorization/Biometric (= 2.0.0)
+    - WYBasisKit/Authorization/Camera (= 2.0.0)
+    - WYBasisKit/Authorization/Contacts (= 2.0.0)
+    - WYBasisKit/Authorization/Microphone (= 2.0.0)
+    - WYBasisKit/Authorization/PhotoAlbums (= 2.0.0)
+    - WYBasisKit/Authorization/SpeechRecognition (= 2.0.0)
+  - WYBasisKit/Authorization/Biometric (2.0.0):
+    - WYBasisKit/Localizable
+    - WYBasisKit/LogManager
+  - WYBasisKit/Authorization/Camera (2.0.0):
+    - WYBasisKit/Localizable
+    - WYBasisKit/LogManager
+  - WYBasisKit/Authorization/Contacts (2.0.0):
+    - WYBasisKit/Localizable
+    - WYBasisKit/LogManager
+  - WYBasisKit/Authorization/Microphone (2.0.0):
+    - WYBasisKit/Localizable
+    - WYBasisKit/LogManager
+  - WYBasisKit/Authorization/PhotoAlbums (2.0.0):
+    - WYBasisKit/Localizable
+    - WYBasisKit/LogManager
+  - WYBasisKit/Authorization/SpeechRecognition (2.0.0):
+    - WYBasisKit/Localizable
+    - WYBasisKit/LogManager
+  - WYBasisKit/Codable (2.0.0)
+  - WYBasisKit/Config (2.0.0)
+  - WYBasisKit/EventHandler (2.0.0)
+  - WYBasisKit/Extension (2.0.0):
+    - WYBasisKit/Config
+    - WYBasisKit/Localizable
+    - WYBasisKit/LogManager
+  - WYBasisKit/Layout (2.0.0):
+    - WYBasisKit/Layout/BannerView (= 2.0.0)
+    - WYBasisKit/Layout/ChatView (= 2.0.0)
+    - WYBasisKit/Layout/MediaPlayer (= 2.0.0)
+    - WYBasisKit/Layout/PagingView (= 2.0.0)
+    - WYBasisKit/Layout/ScrollText (= 2.0.0)
+  - WYBasisKit/Layout/BannerView (2.0.0):
+    - WYBasisKit/Localizable
+    - WYBasisKit/LogManager
+  - WYBasisKit/Layout/ChatView (2.0.0):
     - Kingfisher
     - SnapKit
-    - WYBasisKit-swift/Authorization/Microphone
-    - WYBasisKit-swift/Extension
-    - WYBasisKit-swift/Localizable
-    - WYBasisKit-swift/LogManager
-    - WYBasisKit-swift/Storage
-  - WYBasisKit-swift/Layout/MediaPlayer (2.0.0):
+    - WYBasisKit/Authorization/Microphone
+    - WYBasisKit/Extension
+    - WYBasisKit/Localizable
+    - WYBasisKit/LogManager
+    - WYBasisKit/Storage
+  - WYBasisKit/Layout/MediaPlayer (2.0.0):
     - IJKPlayerKit
-  - WYBasisKit-swift/Layout/PagingView (2.0.0):
-    - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Layout/ScrollText (2.0.0):
-    - WYBasisKit-swift/Localizable
-    - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Localizable (2.0.0):
-    - WYBasisKit-swift/Config
-  - WYBasisKit-swift/LogManager (2.0.0)
-  - WYBasisKit-swift/Networking (2.0.0):
+  - WYBasisKit/Layout/PagingView (2.0.0):
+    - WYBasisKit/LogManager
+  - WYBasisKit/Layout/ScrollText (2.0.0):
+    - WYBasisKit/Localizable
+    - WYBasisKit/LogManager
+  - WYBasisKit/Localizable (2.0.0):
+    - WYBasisKit/Config
+  - WYBasisKit/LogManager (2.0.0)
+  - WYBasisKit/Networking (2.0.0):
     - Moya
-    - WYBasisKit-swift/Codable
-    - WYBasisKit-swift/Localizable
-    - WYBasisKit-swift/Storage
-  - WYBasisKit-swift/Storage (2.0.0)
+    - WYBasisKit/Codable
+    - WYBasisKit/Localizable
+    - WYBasisKit/Storage
+  - WYBasisKit/Storage (2.0.0)
 
 DEPENDENCIES:
   - IQKeyboardManagerSwift
   - Kingfisher
   - Moya
   - SnapKit
-  - WYBasisKit-swift (from `WYBasisKit/WYBasisKit/WYBasisKit`)
+  - WYBasisKit (from `WYBasisKit/WYBasisKit/WYBasisKit`)
 
 SPEC REPOS:
   https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git:
@@ -154,7 +154,7 @@ SPEC REPOS:
     - SnapKit
 
 EXTERNAL SOURCES:
-  WYBasisKit-swift:
+  WYBasisKit:
     :path: WYBasisKit/WYBasisKit/WYBasisKit
 
 SPEC CHECKSUMS:
@@ -171,8 +171,8 @@ SPEC CHECKSUMS:
   Kingfisher: ff0d31a1f07bdff6a1ebb3ba08b8e6e567b6500c
   Moya: 138f0573e53411fb3dc17016add0b748dfbd78ee
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
-  WYBasisKit-swift: ae8df700f12d3141af405275e67a699d2b608d34
+  WYBasisKit: 654bebde67a8b66d27925c202d00ac3a21e3e86c
 
-PODFILE CHECKSUM: 70e846e22ba7acb3ad04252a5974de6b66ad96ff
+PODFILE CHECKSUM: 70734125517d8b32e100b93ab2f5bc2386067dbd
 
 COCOAPODS: 1.16.2

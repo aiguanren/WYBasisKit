@@ -124,7 +124,7 @@ public extension NSMutableAttributedString {
         let afterSearchStart = beforeRange.upperBound
         let afterSearchRange = afterSearchStart..<fullText.endIndex
         
-        guard let afterRange = fullText.range(of: afterString, range: afterSearchRange) else {
+        guard let _ = fullText.range(of: afterString, range: afterSearchRange) else {
             return self
         }
         

@@ -242,7 +242,8 @@ public extension UINavigationController {
 }
 
 /// 返回按钮拦截处理(内部)
-extension UINavigationController: UINavigationBarDelegate, UIGestureRecognizerDelegate {
+extension UINavigationController: @retroactive UIBarPositioningDelegate {}
+extension UINavigationController: @retroactive UINavigationBarDelegate, @retroactive UIGestureRecognizerDelegate {
     
     public func navigationBar(_ navigationBar: UINavigationBar, didPush item: UINavigationItem) {
         // 保存原始的交互式pop手势代理
@@ -303,7 +304,7 @@ extension UINavigationController: UINavigationBarDelegate, UIGestureRecognizerDe
 }
 
 /// 导航控制器代理(内部)
-extension UINavigationController: UINavigationControllerDelegate {
+extension UINavigationController: @retroactive UINavigationControllerDelegate {
     override open func viewDidLoad() {
         super.viewDidLoad()
         delegate = self
