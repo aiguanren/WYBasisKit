@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		58155C0C2E6A802A00D957F3 /* NSString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58155C0B2E6A802A00D957F3 /* NSString.swift */; };
 		585B39A22DF8125400E6E08F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B39622DF8125400E6E08F /* AppDelegate.swift */; };
 		585B39A32DF8125400E6E08F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B396A2DF8125400E6E08F /* ViewController.swift */; };
 		585B39AC2DF8125400E6E08F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 585B39632DF8125400E6E08F /* Assets.xcassets */; };
@@ -125,6 +126,7 @@
 
 /* Begin PBXFileReference section */
 		53C1C8E1255F64288E08B8AC /* Pods-WYBasisKit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.release.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.release.xcconfig"; sourceTree = "<group>"; };
+		58155C0B2E6A802A00D957F3 /* NSString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSString.swift; sourceTree = "<group>"; };
 		585B35642DF8086C00E6E08F /* WYBasisKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WYBasisKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		585B39622DF8125400E6E08F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		585B39632DF8125400E6E08F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -456,6 +458,7 @@
 			isa = PBXGroup;
 			children = (
 				58678E122DFA627C0035673E /* String.swift */,
+				58155C0B2E6A802A00D957F3 /* NSString.swift */,
 			);
 			path = String;
 			sourceTree = "<group>";
@@ -1279,6 +1282,7 @@
 				58678ED72DFA627C0035673E /* WYCodable.swift in Sources */,
 				58B5A0022E5D55F7008F9C38 /* WYPhotoAlbumsAuthorizationObjC.swift in Sources */,
 				58678ED82DFA627C0035673E /* WYChatViewDelegateHandler.swift in Sources */,
+				58155C0C2E6A802A00D957F3 /* NSString.swift in Sources */,
 				58678ED92DFA627C0035673E /* WYChatPhotoCell.swift in Sources */,
 				58678EDA2DFA627C0035673E /* WYChatVoiceCell.swift in Sources */,
 				58678EDB2DFA627C0035673E /* WYChatMusicCell.swift in Sources */,

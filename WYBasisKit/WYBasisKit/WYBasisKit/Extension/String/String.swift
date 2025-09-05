@@ -69,7 +69,7 @@ import CryptoKit
     case saturday
 }
 
-@frozen public enum WYTimeDistance {
+@frozen public enum WYTimeDistance: Int {
     
     /// 未知
     case unknown
@@ -267,8 +267,9 @@ public extension String {
     
     /// 返回一个计算好的字符串的宽度
     func wy_calculateWidth(controlHeight: CGFloat, controlFont: UIFont, lineSpacing: CGFloat = 0, wordsSpacing: CGFloat = 0) -> CGFloat {
-        
+
         let sharedControlHeight = (controlHeight == 0) ? controlFont.lineHeight : controlHeight
+        
         return wy_calculategSize(controlSize: CGSize(width: .greatestFiniteMagnitude, height: sharedControlHeight), controlFont: controlFont, lineSpacing: lineSpacing, wordsSpacing: wordsSpacing).width
     }
     
@@ -290,14 +291,10 @@ public extension String {
         return attributeText.wy_calculateSize(controlSize: controlSize)
     }
     
-    /// 判断字符串包含某个字符串
-    func wy_stringContains(find: String) -> Bool{
-        return self.range(of: find) != nil
-    }
-    
-    /// 判断字符串包含某个字符串(忽略大小写)
-    func wy_stringContainsIgnoringCase(find: String) -> Bool{
-        return self.range(of: find, options: .caseInsensitive) != nil
+    /// 判断字符串是否包含某个字符串(ignoreCase:是否忽略大小写)
+    func wy_contains(_ find: String, ignoreCase: Bool = false) -> Bool {
+        let options: String.CompareOptions = ignoreCase ? .caseInsensitive : []
+        return self.range(of: find, options: options) != nil
     }
     
     /// 字符串截取(从第几位截取到第几位)
@@ -352,12 +349,12 @@ public extension String {
         }
     }
     
-    /// 字符串去除特殊字符
+    /// 字符串去除特殊字符(特属字符编码)
     func wy_specialCharactersEncoding(_ characterSet: CharacterSet = .urlQueryAllowed) -> String {
         return self.addingPercentEncoding(withAllowedCharacters: characterSet) ?? ""
     }
     
-    /// 字符串去除Emoji表情
+    /// 字符串去除Emoji表情(replacement:表情用什么来替换)
     func wy_replaceEmoji(_ replacement: String = "") -> String {
         return self.unicodeScalars
             .filter { !$0.properties.isEmojiPresentation}
@@ -476,7 +473,7 @@ public extension String {
      *  dateFormat 要转换的格式
      *  showAmPmSymbol 是否显示上午下午，为true时为12小时制，否则为24小时制
      */
-    func  wy_timestampConvertDate(_ dateFormat: WYTimeFormat, _ showAmPmSymbol: Bool = false) -> String {
+    func wy_timestampConvertDate(_ dateFormat: WYTimeFormat, _ showAmPmSymbol: Bool = false) -> String {
         
         guard !self.isEmpty else { return "" }
         
@@ -500,11 +497,30 @@ public extension String {
             // 不显示上午/下午标识，使用 24 小时制
             formatter.amSymbol = ""
             formatter.pmSymbol = ""
-            formatter.locale = Locale(identifier: "en_US_POSIX") // 推荐固定 locale 避免地区差异
+            formatter.locale = Locale(identifier: "")
         }
         
         formatter.dateFormat = sharedTimeFormat(dateFormat: dateFormat)
         return formatter.string(from: date)
+    }
+    
+    /**
+     *  年月日格式转时间戳
+     *  dateFormat 要转换的格式
+     */
+    func wy_dateStrConvertTimestamp(_ dateFormat: WYTimeFormat) -> String {
+        
+        if self.isEmpty {return ""}
+        
+        let format = DateFormatter()
+        
+        format.dateStyle = .medium
+        format.timeStyle = .short
+        format.dateFormat = sharedTimeFormat(dateFormat: dateFormat)
+        
+        let date = format.date(from: self)
+        
+        return String(date!.timeIntervalSince1970)
     }
     
     /// 获取当前的 年、月、日
@@ -523,44 +539,34 @@ public extension String {
     
     /// 时间戳转星期几
     var wy_whatDay: WYWhatDay {
-        
-        // 仅支持 10 位或 13 位时间戳
-        guard [10, 13].contains(self.count) else {
+        // 支持 10位（秒）、13位（毫秒）、16位（微秒）时间戳
+        guard [10, 13, 16].contains(self.count),
+              let timestamp = Double(self) else {
             return .unknown
         }
         
-        // 转换为 Double
-        guard let timestamp = Double(self) else {
+        // 转换为秒级时间戳
+        let timeInterval: Double
+        switch self.count {
+        case 10:
+            timeInterval = timestamp // 秒
+        case 13:
+            timeInterval = timestamp / 1000.0 // 毫秒
+        case 16:
+            timeInterval = timestamp / 1_000_000.0 // 微秒
+        default:
             return .unknown
         }
         
-        // 时间戳统一为秒
-        let timeInterval = count == 13 ? timestamp / 1000.0 : timestamp
         let date = Date(timeIntervalSince1970: timeInterval)
         
         // 使用 Gregorian 日历和当前时区
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = TimeZone.current
         
-        let components = calendar.dateComponents([.year, .month, .day, .weekday], from: date)
+        let components = calendar.dateComponents([.weekday], from: date)
         
         return WYWhatDay(rawValue: components.weekday ?? 0) ?? .unknown
-    }
-    
-    /// 年月日格式转时间戳
-    func wy_dateStrConvertTimestamp(_ dateFormat: WYTimeFormat) -> String {
-        
-        if self.isEmpty {return ""}
-        
-        let format = DateFormatter()
-        
-        format.dateStyle = .medium
-        format.timeStyle = .short
-        format.dateFormat = sharedTimeFormat(dateFormat: dateFormat)
-        
-        let date = format.date(from: self)
-        
-        return String(date!.timeIntervalSince1970)
     }
     
     /**
@@ -570,15 +576,25 @@ public extension String {
      */
     static func wy_timeIntervalCycle(_ messageTimestamp: String, _ clientTimestamp: String = wy_sharedDeviceTimestamp()) -> WYTimeDistance {
         
-        // 支持 10 位或 13 位时间戳
-        guard [10, 13].contains(messageTimestamp.count), [10, 13].contains(clientTimestamp.count),
-              let messageTime = Double(messageTimestamp), let clientTime = Double(clientTimestamp) else {
-            return .unknown
+        // 判断输入是否合法
+        func normalize(_ ts: String) -> Double? {
+            guard let t = Double(ts) else { return nil }
+            switch ts.count {
+            case 0...10: // 秒级（<=10位都算秒）
+                return t
+            case 13: // 毫秒
+                return t / 1000
+            case 16: // 微秒
+                return t / 1_000_000
+            default:
+                return nil
+            }
         }
         
-        // 统一时间戳为秒
-        let messageInterval = messageTimestamp.count == 13 ? messageTime / 1000 : messageTime
-        let clientInterval = clientTimestamp.count == 13 ? clientTime / 1000 : clientTime
+        guard let messageInterval = normalize(messageTimestamp),
+              let clientInterval = normalize(clientTimestamp) else {
+            return .unknown
+        }
         
         // 选择参考时间（取消息时间或客户端时间）
         let referenceDate = (messageInterval <= 0 || messageInterval >= clientInterval)
@@ -627,15 +643,36 @@ public extension String {
         return .unknown
     }
     
-    /// 时间戳距离现在的间隔时间
+    /**
+     *  时间戳距离现在的间隔时间
+     *  dateFormat 要转换的格式
+     */
     func wy_dateDifferenceWithNowTimer(_ dateFormat: WYTimeFormat) -> String {
         
-        // 当前时时间戳
+        // 当前时间戳（秒级）
         let currentTime = Date().timeIntervalSince1970
-        // 传入的时间
-        let computingTime = (self.count <= 10) ? (Int(self) ?? 0) : ((Int(self) ?? 0) / 1000)
-        // 距离当前的时间差
-        let timeDifference = Int(currentTime) - computingTime
+        
+        // 转换传入的时间戳为秒级
+        var computingTime: Double = 0
+        if let timestamp = Double(self) {
+            switch self.count {
+            case 0...10: // 秒级（<=10位都算秒）
+                computingTime = timestamp
+            case 13: // 毫秒级
+                computingTime = timestamp / 1000
+            case 16: // 微秒级
+                computingTime = timestamp / 1_000_000
+            default:
+                return "" // 非法长度
+            }
+        } else {
+            return ""
+        }
+        
+        
+        // 距离当前的时间差（秒）
+        let timeDifference = Int(currentTime - computingTime)
+        
         // 秒转分钟
         let second = timeDifference / 60
         if (second <= 0) {
@@ -706,31 +743,60 @@ public extension String {
     /// 根据时间戳获取星座
     static func wy_constellation(from timestamp: String) -> String {
         
-        let timeInterval: TimeInterval = timestamp.count <= 10 ? (NumberFormatter().number(from: timestamp)?.doubleValue ?? 0.0) : ((NumberFormatter().number(from: timestamp)?.doubleValue ?? 0.0) / 1000)
+        // 默认返回值
+        let defaultValue: String = ""
+        
+        // 统一时间戳为秒
+        let timeInterval: TimeInterval
+        if let t = Double(timestamp) {
+            switch timestamp.count {
+            case 0...10: // 秒
+                timeInterval = t
+            case 13: // 毫秒
+                timeInterval = t / 1000
+            case 16: // 微秒
+                timeInterval = t / 1_000_000
+            default:
+                return defaultValue
+            }
+        } else {
+            return defaultValue
+        }
         
         let oneDay:Double = 86400
-        let constellationDics = [WYLocalized("WYLocalizable_37", table: WYBasisKitConfig.kitLocalizableTable): "12.22-1.19",
-                                 WYLocalized("WYLocalizable_38", table: WYBasisKitConfig.kitLocalizableTable): "1.20-2.18",
-                                 WYLocalized("WYLocalizable_39", table: WYBasisKitConfig.kitLocalizableTable): "2.19-3.20",
-                                 WYLocalized("WYLocalizable_40", table: WYBasisKitConfig.kitLocalizableTable): "3.21-4.19",
-                                 WYLocalized("WYLocalizable_41", table: WYBasisKitConfig.kitLocalizableTable): "4.20-5.20",
-                                 WYLocalized("WYLocalizable_42", table: WYBasisKitConfig.kitLocalizableTable): "5.21-6.21",
-                                 WYLocalized("WYLocalizable_43", table: WYBasisKitConfig.kitLocalizableTable): "6.22-7.22",
-                                 WYLocalized("WYLocalizable_44", table: WYBasisKitConfig.kitLocalizableTable): "7.23-8.22",
-                                 WYLocalized("WYLocalizable_45", table: WYBasisKitConfig.kitLocalizableTable): "8.23-9.22",
-                                 WYLocalized("WYLocalizable_46", table: WYBasisKitConfig.kitLocalizableTable): "9.23-10.23",
-                                 WYLocalized("WYLocalizable_47", table: WYBasisKitConfig.kitLocalizableTable): "10.24-11.22",
-                                 WYLocalized("WYLocalizable_48", table: WYBasisKitConfig.kitLocalizableTable): "11.23-12.21"]
+        let constellationDics = [
+            WYLocalized("WYLocalizable_37", table: WYBasisKitConfig.kitLocalizableTable): "12.22-1.19",
+                                 
+            WYLocalized("WYLocalizable_38", table: WYBasisKitConfig.kitLocalizableTable): "1.20-2.18",
+                                 
+            WYLocalized("WYLocalizable_39", table: WYBasisKitConfig.kitLocalizableTable): "2.19-3.20",
+                                 
+            WYLocalized("WYLocalizable_40", table: WYBasisKitConfig.kitLocalizableTable): "3.21-4.19",
+                                 
+            WYLocalized("WYLocalizable_41", table: WYBasisKitConfig.kitLocalizableTable): "4.20-5.20",
+                                 
+            WYLocalized("WYLocalizable_42", table: WYBasisKitConfig.kitLocalizableTable): "5.21-6.21",
+                                 
+            WYLocalized("WYLocalizable_43", table: WYBasisKitConfig.kitLocalizableTable): "6.22-7.22",
+                                 
+            WYLocalized("WYLocalizable_44", table: WYBasisKitConfig.kitLocalizableTable): "7.23-8.22",
+                                 
+            WYLocalized("WYLocalizable_45", table: WYBasisKitConfig.kitLocalizableTable): "8.23-9.22",
+                                 
+            WYLocalized("WYLocalizable_46", table: WYBasisKitConfig.kitLocalizableTable): "9.23-10.23",
+                                 
+            WYLocalized("WYLocalizable_47", table: WYBasisKitConfig.kitLocalizableTable): "10.24-11.22",
+                                 
+            WYLocalized("WYLocalizable_48", table: WYBasisKitConfig.kitLocalizableTable): "11.23-12.21"]
         
         let currConstellation = constellationDics.filter {
-            
             let timeRange = constellationDivision(timestamp: timestamp, range: $1)
             let startTime = timeRange.0
             let endTime = timeRange.1 + oneDay
             
             return timeInterval > startTime && timeInterval < endTime
         }
-        return currConstellation.first?.key ?? WYLocalized("WYLocalizable_37", table: WYBasisKitConfig.kitLocalizableTable)
+        return currConstellation.first?.key ?? defaultValue
     }
 }
 
@@ -782,7 +848,21 @@ private extension String {
         
         let timeStrArr = range.components(separatedBy: "-")
         
-        let timeInterval: TimeInterval = timestamp.count <= 10 ? (NumberFormatter().number(from: timestamp)?.doubleValue ?? 0.0) : ((NumberFormatter().number(from: timestamp)?.doubleValue ?? 0.0) / 1000)
+        let timeInterval: TimeInterval
+        if let t = Double(timestamp) {
+            switch timestamp.count {
+            case 0...10:       // 秒
+                timeInterval = t
+            case 13:           // 毫秒
+                timeInterval = t / 1000
+            case 16:           // 微秒
+                timeInterval = t / 1_000_000
+            default:
+                timeInterval = t  // 避免崩溃，直接按秒处理
+            }
+        } else {
+            timeInterval = 0
+        }
         
         let dateYear = getCurrYear(date: Date(timeIntervalSince1970: timeInterval))
         let startTimeStr = dateYear + timeStrArr.first!
