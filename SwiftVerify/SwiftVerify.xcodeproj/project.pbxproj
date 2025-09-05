@@ -7,6 +7,25 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		58155BF62E6A7ABA00D957F3 /* 沙滩上的花.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BEF2E6A7ABA00D957F3 /* 沙滩上的花.png */; };
+		58155BF72E6A7ABA00D957F3 /* 沙滩上的石头.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BF02E6A7ABA00D957F3 /* 沙滩上的石头.png */; };
+		58155BF82E6A7ABA00D957F3 /* 啤酒.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BEB2E6A7ABA00D957F3 /* 啤酒.png */; };
+		58155BF92E6A7ABA00D957F3 /* 红色花.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BE72E6A7ABA00D957F3 /* 红色花.png */; };
+		58155BFA2E6A7ABA00D957F3 /* 彩色花.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BE32E6A7ABA00D957F3 /* 彩色花.png */; };
+		58155BFB2E6A7ABA00D957F3 /* 帆船.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BE52E6A7ABA00D957F3 /* 帆船.png */; };
+		58155BFC2E6A7ABA00D957F3 /* 红色爱心.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BE62E6A7ABA00D957F3 /* 红色爱心.png */; };
+		58155BFD2E6A7ABA00D957F3 /* 沙滩.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BEE2E6A7ABA00D957F3 /* 沙滩.png */; };
+		58155BFE2E6A7ABA00D957F3 /* 蓝色小屋.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BE82E6A7ABA00D957F3 /* 蓝色小屋.png */; };
+		58155BFF2E6A7ABA00D957F3 /* 阳光蓝天下的花.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BF42E6A7ABA00D957F3 /* 阳光蓝天下的花.png */; };
+		58155C002E6A7ABA00D957F3 /* 蓝天下的花.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BEA2E6A7ABA00D957F3 /* 蓝天下的花.png */; };
+		58155C012E6A7ABA00D957F3 /* 窗花.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BE42E6A7ABA00D957F3 /* 窗花.png */; };
+		58155C022E6A7ABA00D957F3 /* 蓝天下的红色花.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BE92E6A7ABA00D957F3 /* 蓝天下的红色花.png */; };
+		58155C032E6A7ABA00D957F3 /* 墙上的花.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BEC2E6A7ABA00D957F3 /* 墙上的花.png */; };
+		58155C042E6A7ABA00D957F3 /* 石头上的花.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BF12E6A7ABA00D957F3 /* 石头上的花.png */; };
+		58155C052E6A7ABA00D957F3 /* 夕阳下的花.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BF22E6A7ABA00D957F3 /* 夕阳下的花.png */; };
+		58155C062E6A7ABA00D957F3 /* 樱花.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BF52E6A7ABA00D957F3 /* 樱花.png */; };
+		58155C072E6A7ABA00D957F3 /* 阳光和窗户.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BF32E6A7ABA00D957F3 /* 阳光和窗户.png */; };
+		58155C082E6A7ABA00D957F3 /* 秋天的树.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BED2E6A7ABA00D957F3 /* 秋天的树.png */; };
 		581955332E4DB9B800469F1A /* 世间美好与你环环相扣.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 581955322E4DB9B800469F1A /* 世间美好与你环环相扣.mp3 */; };
 		583234162E68219E00EFCAD9 /* WYTestScrollTextController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583234152E68219E00EFCAD9 /* WYTestScrollTextController.swift */; };
 		583234192E68382700EFCAD9 /* WYTestPagingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583234182E68382700EFCAD9 /* WYTestPagingViewController.swift */; };
@@ -51,7 +70,7 @@
 		585B3AC92DF819DC00E6E08F /* WYParseGifController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A722DF819DC00E6E08F /* WYParseGifController.swift */; };
 		585B3ACA2DF819DC00E6E08F /* WYTestChatController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A742DF819DC00E6E08F /* WYTestChatController.swift */; };
 		585B3ACB2DF819DC00E6E08F /* WYTestChatDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A752DF819DC00E6E08F /* WYTestChatDataSource.swift */; };
-		585B3ACC2DF819DC00E6E08F /* WYLeftController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A772DF819DC00E6E08F /* WYLeftController.swift */; };
+		585B3ACC2DF819DC00E6E08F /* WYMainController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A772DF819DC00E6E08F /* WYMainController.swift */; };
 		585B3ACD2DF819DC00E6E08F /* WYTestRichTextController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A792DF819DC00E6E08F /* WYTestRichTextController.swift */; };
 		585B3ACE2DF819DC00E6E08F /* WYRightController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A7B2DF819DC00E6E08F /* WYRightController.swift */; };
 		585B3ACF2DF819DC00E6E08F /* WYTableViewGroupedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A7D2DF819DC00E6E08F /* WYTableViewGroupedController.swift */; };
@@ -66,25 +85,6 @@
 		585B3AD92DF819DC00E6E08F /* WYTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3AA02DF819DC00E6E08F /* WYTabBarController.swift */; };
 		5882EAF12E518A5D00638FD3 /* WYTestVibrateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5882EAF02E518A5D00638FD3 /* WYTestVibrateController.swift */; };
 		589B0A3C2E49CE12000DBD10 /* bird.gif in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A3B2E49CE12000DBD10 /* bird.gif */; };
-		589B0A3D2E49CE12000DBD10 /* 彩色花.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A292E49CE12000DBD10 /* 彩色花.jpg */; };
-		589B0A3E2E49CE12000DBD10 /* 夕阳下的花.png in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A372E49CE12000DBD10 /* 夕阳下的花.png */; };
-		589B0A3F2E49CE12000DBD10 /* 粉色花.webp in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A2C2E49CE12000DBD10 /* 粉色花.webp */; };
-		589B0A402E49CE12000DBD10 /* 阳光蓝天下的花.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A392E49CE12000DBD10 /* 阳光蓝天下的花.jpg */; };
-		589B0A412E49CE12000DBD10 /* 红色爱心.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A2E2E49CE12000DBD10 /* 红色爱心.jpg */; };
-		589B0A422E49CE12000DBD10 /* 帆船.png in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A2B2E49CE12000DBD10 /* 帆船.png */; };
-		589B0A432E49CE12000DBD10 /* 樱花.png in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A3A2E49CE12000DBD10 /* 樱花.png */; };
-		589B0A442E49CE12000DBD10 /* 秋天的树.png in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A322E49CE12000DBD10 /* 秋天的树.png */; };
-		589B0A452E49CE12000DBD10 /* 沙滩上的花.png in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A342E49CE12000DBD10 /* 沙滩上的花.png */; };
-		589B0A462E49CE12000DBD10 /* 窗边的插画.png in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A2A2E49CE12000DBD10 /* 窗边的插画.png */; };
-		589B0A472E49CE12000DBD10 /* 沙滩.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A332E49CE12000DBD10 /* 沙滩.jpg */; };
-		589B0A482E49CE12000DBD10 /* 石头上的花.png in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A362E49CE12000DBD10 /* 石头上的花.png */; };
-		589B0A492E49CE12000DBD10 /* 风景.webp in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A2D2E49CE12000DBD10 /* 风景.webp */; };
-		589B0A4A2E49CE12000DBD10 /* 蓝天下的花.png in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A312E49CE12000DBD10 /* 蓝天下的花.png */; };
-		589B0A4B2E49CE12000DBD10 /* 阳光和窗户.png in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A382E49CE12000DBD10 /* 阳光和窗户.png */; };
-		589B0A4C2E49CE12000DBD10 /* 红色花.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A2F2E49CE12000DBD10 /* 红色花.jpg */; };
-		589B0A4D2E49CE12000DBD10 /* 冰啤.webp in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A282E49CE12000DBD10 /* 冰啤.webp */; };
-		589B0A4E2E49CE12000DBD10 /* 沙滩上的石头.png in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A352E49CE12000DBD10 /* 沙滩上的石头.png */; };
-		589B0A4F2E49CE12000DBD10 /* 蓝天下的红色花.png in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A302E49CE12000DBD10 /* 蓝天下的红色花.png */; };
 		58CDEE5D2E34907800ACE975 /* WYLogController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CDEE5C2E34907800ACE975 /* WYLogController.swift */; };
 		58E712812E4B0CE90095E71C /* TestAudioController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E712802E4B0CE90095E71C /* TestAudioController.swift */; };
 		9964A95003E532968F604219 /* Pods_SwiftVerify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B9AF69CF29055B1125EF34F /* Pods_SwiftVerify.framework */; };
@@ -97,6 +97,25 @@
 		2DB9925AC3DD1E2ABC6B0159 /* Pods-WYBasisKitVerify.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKitVerify.release.xcconfig"; path = "Target Support Files/Pods-WYBasisKitVerify/Pods-WYBasisKitVerify.release.xcconfig"; sourceTree = "<group>"; };
 		36C6640364725F7848269A13 /* Pods-WYBasisKitVerify.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKitVerify.debug.xcconfig"; path = "Target Support Files/Pods-WYBasisKitVerify/Pods-WYBasisKitVerify.debug.xcconfig"; sourceTree = "<group>"; };
 		3B9AF69CF29055B1125EF34F /* Pods_SwiftVerify.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwiftVerify.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		58155BE32E6A7ABA00D957F3 /* 彩色花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "彩色花.png"; sourceTree = "<group>"; };
+		58155BE42E6A7ABA00D957F3 /* 窗花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "窗花.png"; sourceTree = "<group>"; };
+		58155BE52E6A7ABA00D957F3 /* 帆船.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "帆船.png"; sourceTree = "<group>"; };
+		58155BE62E6A7ABA00D957F3 /* 红色爱心.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "红色爱心.png"; sourceTree = "<group>"; };
+		58155BE72E6A7ABA00D957F3 /* 红色花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "红色花.png"; sourceTree = "<group>"; };
+		58155BE82E6A7ABA00D957F3 /* 蓝色小屋.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "蓝色小屋.png"; sourceTree = "<group>"; };
+		58155BE92E6A7ABA00D957F3 /* 蓝天下的红色花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "蓝天下的红色花.png"; sourceTree = "<group>"; };
+		58155BEA2E6A7ABA00D957F3 /* 蓝天下的花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "蓝天下的花.png"; sourceTree = "<group>"; };
+		58155BEB2E6A7ABA00D957F3 /* 啤酒.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "啤酒.png"; sourceTree = "<group>"; };
+		58155BEC2E6A7ABA00D957F3 /* 墙上的花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "墙上的花.png"; sourceTree = "<group>"; };
+		58155BED2E6A7ABA00D957F3 /* 秋天的树.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "秋天的树.png"; sourceTree = "<group>"; };
+		58155BEE2E6A7ABA00D957F3 /* 沙滩.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "沙滩.png"; sourceTree = "<group>"; };
+		58155BEF2E6A7ABA00D957F3 /* 沙滩上的花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "沙滩上的花.png"; sourceTree = "<group>"; };
+		58155BF02E6A7ABA00D957F3 /* 沙滩上的石头.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "沙滩上的石头.png"; sourceTree = "<group>"; };
+		58155BF12E6A7ABA00D957F3 /* 石头上的花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "石头上的花.png"; sourceTree = "<group>"; };
+		58155BF22E6A7ABA00D957F3 /* 夕阳下的花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "夕阳下的花.png"; sourceTree = "<group>"; };
+		58155BF32E6A7ABA00D957F3 /* 阳光和窗户.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "阳光和窗户.png"; sourceTree = "<group>"; };
+		58155BF42E6A7ABA00D957F3 /* 阳光蓝天下的花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "阳光蓝天下的花.png"; sourceTree = "<group>"; };
+		58155BF52E6A7ABA00D957F3 /* 樱花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "樱花.png"; sourceTree = "<group>"; };
 		581955322E4DB9B800469F1A /* 世间美好与你环环相扣.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "世间美好与你环环相扣.mp3"; sourceTree = "<group>"; };
 		583234152E68219E00EFCAD9 /* WYTestScrollTextController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestScrollTextController.swift; sourceTree = "<group>"; };
 		583234182E68382700EFCAD9 /* WYTestPagingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestPagingViewController.swift; sourceTree = "<group>"; };
@@ -128,7 +147,7 @@
 		585B3A722DF819DC00E6E08F /* WYParseGifController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYParseGifController.swift; sourceTree = "<group>"; };
 		585B3A742DF819DC00E6E08F /* WYTestChatController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestChatController.swift; sourceTree = "<group>"; };
 		585B3A752DF819DC00E6E08F /* WYTestChatDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestChatDataSource.swift; sourceTree = "<group>"; };
-		585B3A772DF819DC00E6E08F /* WYLeftController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLeftController.swift; sourceTree = "<group>"; };
+		585B3A772DF819DC00E6E08F /* WYMainController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMainController.swift; sourceTree = "<group>"; };
 		585B3A792DF819DC00E6E08F /* WYTestRichTextController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestRichTextController.swift; sourceTree = "<group>"; };
 		585B3A7B2DF819DC00E6E08F /* WYRightController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYRightController.swift; sourceTree = "<group>"; };
 		585B3A7D2DF819DC00E6E08F /* WYTableViewGroupedController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTableViewGroupedController.swift; sourceTree = "<group>"; };
@@ -161,25 +180,6 @@
 		5874BC852DF9176700703A4B /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
 		5874BC892DF9179300703A4B /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Main.strings"; sourceTree = "<group>"; };
 		5882EAF02E518A5D00638FD3 /* WYTestVibrateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestVibrateController.swift; sourceTree = "<group>"; };
-		589B0A282E49CE12000DBD10 /* 冰啤.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = "冰啤.webp"; sourceTree = "<group>"; };
-		589B0A292E49CE12000DBD10 /* 彩色花.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "彩色花.jpg"; sourceTree = "<group>"; };
-		589B0A2A2E49CE12000DBD10 /* 窗边的插画.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "窗边的插画.png"; sourceTree = "<group>"; };
-		589B0A2B2E49CE12000DBD10 /* 帆船.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "帆船.png"; sourceTree = "<group>"; };
-		589B0A2C2E49CE12000DBD10 /* 粉色花.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = "粉色花.webp"; sourceTree = "<group>"; };
-		589B0A2D2E49CE12000DBD10 /* 风景.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = "风景.webp"; sourceTree = "<group>"; };
-		589B0A2E2E49CE12000DBD10 /* 红色爱心.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "红色爱心.jpg"; sourceTree = "<group>"; };
-		589B0A2F2E49CE12000DBD10 /* 红色花.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "红色花.jpg"; sourceTree = "<group>"; };
-		589B0A302E49CE12000DBD10 /* 蓝天下的红色花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "蓝天下的红色花.png"; sourceTree = "<group>"; };
-		589B0A312E49CE12000DBD10 /* 蓝天下的花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "蓝天下的花.png"; sourceTree = "<group>"; };
-		589B0A322E49CE12000DBD10 /* 秋天的树.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "秋天的树.png"; sourceTree = "<group>"; };
-		589B0A332E49CE12000DBD10 /* 沙滩.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "沙滩.jpg"; sourceTree = "<group>"; };
-		589B0A342E49CE12000DBD10 /* 沙滩上的花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "沙滩上的花.png"; sourceTree = "<group>"; };
-		589B0A352E49CE12000DBD10 /* 沙滩上的石头.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "沙滩上的石头.png"; sourceTree = "<group>"; };
-		589B0A362E49CE12000DBD10 /* 石头上的花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "石头上的花.png"; sourceTree = "<group>"; };
-		589B0A372E49CE12000DBD10 /* 夕阳下的花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "夕阳下的花.png"; sourceTree = "<group>"; };
-		589B0A382E49CE12000DBD10 /* 阳光和窗户.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "阳光和窗户.png"; sourceTree = "<group>"; };
-		589B0A392E49CE12000DBD10 /* 阳光蓝天下的花.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "阳光蓝天下的花.jpg"; sourceTree = "<group>"; };
-		589B0A3A2E49CE12000DBD10 /* 樱花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "樱花.png"; sourceTree = "<group>"; };
 		589B0A3B2E49CE12000DBD10 /* bird.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = bird.gif; sourceTree = "<group>"; };
 		58CDEE5C2E34907800ACE975 /* WYLogController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLogController.swift; sourceTree = "<group>"; };
 		58E712802E4B0CE90095E71C /* TestAudioController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestAudioController.swift; sourceTree = "<group>"; };
@@ -210,12 +210,22 @@
 			path = ../Pods;
 			sourceTree = "<group>";
 		};
-		583234142E68216600EFCAD9 /* 文本滚动 */ = {
+		58155C0A2E6A7C3200D957F3 /* Tabbar */ = {
+			isa = PBXGroup;
+			children = (
+				585B3A782DF819DC00E6E08F /* Main */,
+				585B3A712DF819DC00E6E08F /* center */,
+				585B3A7C2DF819DC00E6E08F /* right */,
+			);
+			path = Tabbar;
+			sourceTree = "<group>";
+		};
+		583234142E68216600EFCAD9 /* 文本轮播 */ = {
 			isa = PBXGroup;
 			children = (
 				583234152E68219E00EFCAD9 /* WYTestScrollTextController.swift */,
 			);
-			path = "文本滚动";
+			path = "文本轮播";
 			sourceTree = "<group>";
 		};
 		583234172E68380100EFCAD9 /* 分页控制器 */ = {
@@ -356,12 +366,12 @@
 			path = "直播、点播播放器";
 			sourceTree = "<group>";
 		};
-		585B3A6D2DF819DC00E6E08F /* Banner */ = {
+		585B3A6D2DF819DC00E6E08F /* Banner轮播 */ = {
 			isa = PBXGroup;
 			children = (
 				585B3A6C2DF819DC00E6E08F /* WYTestBannerController.swift */,
 			);
-			path = Banner;
+			path = "Banner轮播";
 			sourceTree = "<group>";
 		};
 		585B3A6F2DF819DC00E6E08F /* ButtonEdgeInsets */ = {
@@ -397,12 +407,12 @@
 			path = "IM即时通讯";
 			sourceTree = "<group>";
 		};
-		585B3A782DF819DC00E6E08F /* left */ = {
+		585B3A782DF819DC00E6E08F /* Main */ = {
 			isa = PBXGroup;
 			children = (
-				585B3A772DF819DC00E6E08F /* WYLeftController.swift */,
+				585B3A772DF819DC00E6E08F /* WYMainController.swift */,
 			);
-			path = left;
+			path = Main;
 			sourceTree = "<group>";
 		};
 		585B3A7A2DF819DC00E6E08F /* 富文本 */ = {
@@ -448,8 +458,9 @@
 		585B3A832DF819DC00E6E08F /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				58155C0A2E6A7C3200D957F3 /* Tabbar */,
 				583234172E68380100EFCAD9 /* 分页控制器 */,
-				583234142E68216600EFCAD9 /* 文本滚动 */,
+				583234142E68216600EFCAD9 /* 文本轮播 */,
 				5882EAEF2E518A4900638FD3 /* 设备振动 */,
 				58E7127F2E4B0CC30095E71C /* 音频录制与播放 */,
 				58CDEE592E34900D00ACE975 /* 日志输出与保存 */,
@@ -467,14 +478,11 @@
 				585B3A672DF819DC00E6E08F /* 语音识别 */,
 				585B3A692DF819DC00E6E08F /* 约束view添加动画 */,
 				585B3A6B2DF819DC00E6E08F /* 直播、点播播放器 */,
-				585B3A6D2DF819DC00E6E08F /* Banner */,
+				585B3A6D2DF819DC00E6E08F /* Banner轮播 */,
 				585B3A6F2DF819DC00E6E08F /* ButtonEdgeInsets */,
-				585B3A712DF819DC00E6E08F /* center */,
 				585B3A732DF819DC00E6E08F /* Gif */,
 				585B3A762DF819DC00E6E08F /* IM即时通讯 */,
-				585B3A782DF819DC00E6E08F /* left */,
 				585B3A7A2DF819DC00E6E08F /* 富文本 */,
-				585B3A7C2DF819DC00E6E08F /* right */,
 				585B3A7E2DF819DC00E6E08F /* tableView.grouped */,
 				585B3A802DF819DC00E6E08F /* tableView.plain */,
 				585B3A822DF819DC00E6E08F /* WKWebView */,
@@ -505,25 +513,25 @@
 		585B3A942DF819DC00E6E08F /* Resource */ = {
 			isa = PBXGroup;
 			children = (
-				589B0A282E49CE12000DBD10 /* 冰啤.webp */,
-				589B0A292E49CE12000DBD10 /* 彩色花.jpg */,
-				589B0A2A2E49CE12000DBD10 /* 窗边的插画.png */,
-				589B0A2B2E49CE12000DBD10 /* 帆船.png */,
-				589B0A2C2E49CE12000DBD10 /* 粉色花.webp */,
-				589B0A2D2E49CE12000DBD10 /* 风景.webp */,
-				589B0A2E2E49CE12000DBD10 /* 红色爱心.jpg */,
-				589B0A2F2E49CE12000DBD10 /* 红色花.jpg */,
-				589B0A302E49CE12000DBD10 /* 蓝天下的红色花.png */,
-				589B0A312E49CE12000DBD10 /* 蓝天下的花.png */,
-				589B0A322E49CE12000DBD10 /* 秋天的树.png */,
-				589B0A332E49CE12000DBD10 /* 沙滩.jpg */,
-				589B0A342E49CE12000DBD10 /* 沙滩上的花.png */,
-				589B0A352E49CE12000DBD10 /* 沙滩上的石头.png */,
-				589B0A362E49CE12000DBD10 /* 石头上的花.png */,
-				589B0A372E49CE12000DBD10 /* 夕阳下的花.png */,
-				589B0A382E49CE12000DBD10 /* 阳光和窗户.png */,
-				589B0A392E49CE12000DBD10 /* 阳光蓝天下的花.jpg */,
-				589B0A3A2E49CE12000DBD10 /* 樱花.png */,
+				58155BE32E6A7ABA00D957F3 /* 彩色花.png */,
+				58155BE42E6A7ABA00D957F3 /* 窗花.png */,
+				58155BE52E6A7ABA00D957F3 /* 帆船.png */,
+				58155BE62E6A7ABA00D957F3 /* 红色爱心.png */,
+				58155BE72E6A7ABA00D957F3 /* 红色花.png */,
+				58155BE82E6A7ABA00D957F3 /* 蓝色小屋.png */,
+				58155BE92E6A7ABA00D957F3 /* 蓝天下的红色花.png */,
+				58155BEA2E6A7ABA00D957F3 /* 蓝天下的花.png */,
+				58155BEB2E6A7ABA00D957F3 /* 啤酒.png */,
+				58155BEC2E6A7ABA00D957F3 /* 墙上的花.png */,
+				58155BED2E6A7ABA00D957F3 /* 秋天的树.png */,
+				58155BEE2E6A7ABA00D957F3 /* 沙滩.png */,
+				58155BEF2E6A7ABA00D957F3 /* 沙滩上的花.png */,
+				58155BF02E6A7ABA00D957F3 /* 沙滩上的石头.png */,
+				58155BF12E6A7ABA00D957F3 /* 石头上的花.png */,
+				58155BF22E6A7ABA00D957F3 /* 夕阳下的花.png */,
+				58155BF32E6A7ABA00D957F3 /* 阳光和窗户.png */,
+				58155BF42E6A7ABA00D957F3 /* 阳光蓝天下的花.png */,
+				58155BF52E6A7ABA00D957F3 /* 樱花.png */,
 				589B0A3B2E49CE12000DBD10 /* bird.gif */,
 				585B3A8C2DF819DC00E6E08F /* [666].gif */,
 				585B3A8D2DF819DC00E6E08F /* 1650855755919.mp4 */,
@@ -673,25 +681,25 @@
 				585B3AAA2DF819DC00E6E08F /* mpeg4_local.mp4 in Resources */,
 				585B3AAB2DF819DC00E6E08F /* [爱心].png in Resources */,
 				589B0A3C2E49CE12000DBD10 /* bird.gif in Resources */,
-				589B0A3D2E49CE12000DBD10 /* 彩色花.jpg in Resources */,
-				589B0A3E2E49CE12000DBD10 /* 夕阳下的花.png in Resources */,
-				589B0A3F2E49CE12000DBD10 /* 粉色花.webp in Resources */,
-				589B0A402E49CE12000DBD10 /* 阳光蓝天下的花.jpg in Resources */,
-				589B0A412E49CE12000DBD10 /* 红色爱心.jpg in Resources */,
-				589B0A422E49CE12000DBD10 /* 帆船.png in Resources */,
-				589B0A432E49CE12000DBD10 /* 樱花.png in Resources */,
-				589B0A442E49CE12000DBD10 /* 秋天的树.png in Resources */,
-				589B0A452E49CE12000DBD10 /* 沙滩上的花.png in Resources */,
-				589B0A462E49CE12000DBD10 /* 窗边的插画.png in Resources */,
-				589B0A472E49CE12000DBD10 /* 沙滩.jpg in Resources */,
-				589B0A482E49CE12000DBD10 /* 石头上的花.png in Resources */,
-				589B0A492E49CE12000DBD10 /* 风景.webp in Resources */,
-				589B0A4A2E49CE12000DBD10 /* 蓝天下的花.png in Resources */,
-				589B0A4B2E49CE12000DBD10 /* 阳光和窗户.png in Resources */,
-				589B0A4C2E49CE12000DBD10 /* 红色花.jpg in Resources */,
-				589B0A4D2E49CE12000DBD10 /* 冰啤.webp in Resources */,
-				589B0A4E2E49CE12000DBD10 /* 沙滩上的石头.png in Resources */,
-				589B0A4F2E49CE12000DBD10 /* 蓝天下的红色花.png in Resources */,
+				58155BF62E6A7ABA00D957F3 /* 沙滩上的花.png in Resources */,
+				58155BF72E6A7ABA00D957F3 /* 沙滩上的石头.png in Resources */,
+				58155BF82E6A7ABA00D957F3 /* 啤酒.png in Resources */,
+				58155BF92E6A7ABA00D957F3 /* 红色花.png in Resources */,
+				58155BFA2E6A7ABA00D957F3 /* 彩色花.png in Resources */,
+				58155BFB2E6A7ABA00D957F3 /* 帆船.png in Resources */,
+				58155BFC2E6A7ABA00D957F3 /* 红色爱心.png in Resources */,
+				58155BFD2E6A7ABA00D957F3 /* 沙滩.png in Resources */,
+				58155BFE2E6A7ABA00D957F3 /* 蓝色小屋.png in Resources */,
+				58155BFF2E6A7ABA00D957F3 /* 阳光蓝天下的花.png in Resources */,
+				58155C002E6A7ABA00D957F3 /* 蓝天下的花.png in Resources */,
+				58155C012E6A7ABA00D957F3 /* 窗花.png in Resources */,
+				58155C022E6A7ABA00D957F3 /* 蓝天下的红色花.png in Resources */,
+				58155C032E6A7ABA00D957F3 /* 墙上的花.png in Resources */,
+				58155C042E6A7ABA00D957F3 /* 石头上的花.png in Resources */,
+				58155C052E6A7ABA00D957F3 /* 夕阳下的花.png in Resources */,
+				58155C062E6A7ABA00D957F3 /* 樱花.png in Resources */,
+				58155C072E6A7ABA00D957F3 /* 阳光和窗户.png in Resources */,
+				58155C082E6A7ABA00D957F3 /* 秋天的树.png in Resources */,
 				585B3AAC2DF819DC00E6E08F /* [唇].png in Resources */,
 				585B3AAD2DF819DC00E6E08F /* [喝彩].png in Resources */,
 				585B3AAE2DF819DC00E6E08F /* Assets.xcassets in Resources */,
@@ -877,7 +885,7 @@
 				585B3AC92DF819DC00E6E08F /* WYParseGifController.swift in Sources */,
 				585B3ACA2DF819DC00E6E08F /* WYTestChatController.swift in Sources */,
 				585B3ACB2DF819DC00E6E08F /* WYTestChatDataSource.swift in Sources */,
-				585B3ACC2DF819DC00E6E08F /* WYLeftController.swift in Sources */,
+				585B3ACC2DF819DC00E6E08F /* WYMainController.swift in Sources */,
 				583234192E68382700EFCAD9 /* WYTestPagingViewController.swift in Sources */,
 				585B3ACD2DF819DC00E6E08F /* WYTestRichTextController.swift in Sources */,
 				5882EAF12E518A5D00638FD3 /* WYTestVibrateController.swift in Sources */,

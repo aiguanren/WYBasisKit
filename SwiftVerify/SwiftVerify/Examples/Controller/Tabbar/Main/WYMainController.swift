@@ -1,5 +1,5 @@
 //
-//  WYLeftController.swift
+//  WYMainController.swift
 //  WYBasisKit
 //
 //  Created by 官人 on 2020/12/3.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class WYLeftController: UIViewController {
+class WYMainController: UIViewController {
 
     // 由于字典是无序的，所以每次显示的排序位置都可能会不一样
     let cellObjs: [String: String] = [
@@ -16,7 +16,7 @@ class WYLeftController: UIViewController {
         "约束view添加动画": "WYTestAnimationController",
         "边框、圆角、阴影、渐变": "WYTestVisualController",
         "ButtonEdgeInsets": "WYTestButtonEdgeInsetsController",
-        "Banner": "WYTestBannerController",
+        "Banner轮播": "WYTestBannerController",
         "富文本": "WYTestRichTextController",
         "无限层折叠TableView": "WYMultilevelTableViewController",
         "tableView.plain": "WYTableViewPlainController",
@@ -37,7 +37,7 @@ class WYLeftController: UIViewController {
         "日志输出与保存": "WYLogController",
         "音频录制与播放": "TestAudioController",
         "设备振动": "WYTestVibrateController",
-        "ScrollText": "WYTestScrollTextController",
+        "文本轮播": "WYTestScrollTextController",
         "分页控制器": "WYTestPagingViewController"
     ]
 
@@ -109,7 +109,7 @@ class WYLeftController: UIViewController {
 
 }
 
-extension WYLeftController: UITableViewDelegate, UITableViewDataSource {
+extension WYMainController: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 
@@ -137,7 +137,7 @@ extension WYLeftController: UITableViewDelegate, UITableViewDataSource {
     }
 }
 
-extension WYLeftController: AppEventDelegate {
+extension WYMainController: AppEventDelegate {
     func didShowBannerView(data: String) {
         WYLogManager.output("data = \(data), controller: \(type(of: self))")
     }

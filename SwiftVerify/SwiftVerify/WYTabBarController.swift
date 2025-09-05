@@ -20,7 +20,7 @@ class WYTabBarController: UITabBarController {
     
     func layoutTabBar() {
         
-        let leftController = WYLeftController()
+        let leftController = WYMainController()
         leftController.view.backgroundColor = .wy_dynamic(.white, .black)
         
         layoutTabbrItem(controller: leftController, title: "左", defaultImage: UIImage(named: "tabbar_left_default")!, selectedImage: UIImage(named: "tabbar_left_selected")!)
