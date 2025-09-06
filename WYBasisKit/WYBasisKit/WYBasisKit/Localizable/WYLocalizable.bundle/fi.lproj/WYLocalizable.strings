@@ -6,132 +6,108 @@
   Copyright © 2020 官人. All rights reserved.
 */
 
-"WYLocalizable_01" = "Selvä";
+"知道了" = "Selvä";
 
-"WYLocalizable_02" = "Salasana";
+"密码" = "Salasana";
 
-"WYLocalizable_03" = "Peruuta";
+"取消" = "Peruuta";
 
-"WYLocalizable_04" = "Poista";
+"删除" = "Poista";
 
-"WYLocalizable_05" = "Biometrisiä tietoja ei ole saatavilla";
+"生物识别不可用" = "Biometrisiä tietoja ei ole saatavilla";
 
-"WYLocalizable_06" = "Biometriset tiedot on lukittu, lukitse näyttö, avaa laitteen lukitus ja avaa tämä sivu uudelleen";
+"生物识别已被锁定，锁屏并成功解锁设备后重新打开本页面即可重新开启" = "Biometriset tiedot on lukittu, lukitse näyttö, avaa laitteen lukitus ja avaa tämä sivu uudelleen";
 
-"WYLocalizable_07" = "Järjestelmä keskeytti tämän tunnistamisen";
+"系统中断了本次识别" = "Järjestelmä keskeytti tämän tunnistamisen";
 
-"WYLocalizable_08" = "Aseta lukituksen avaussalasana ennen biometristen tietojen käyttöönottoa";
+"开启生物识别前请设置解锁密码" = "Aseta lukituksen avaussalasana ennen biometristen tietojen käyttöönottoa";
 
-"WYLocalizable_09" = "Ota käyttöön/aseta biometriset tiedot laitteen asetuksista";
+"请在设备设置中开启/设置生物识别功能" = "Ota käyttöön/aseta biometriset tiedot laitteen asetuksista";
 
-"WYLocalizable_10" = "Anna salasana vahvistaaksesi biometriset tiedot";
+"请输入密码验证生物识别" = "Anna salasana vahvistaaksesi biometriset tiedot";
 
-"WYLocalizable_11" = "Ei vielä uutisia";
+"暂无消息" = "Ei vielä uutisia";
 
-"WYLocalizable_12" = "Poista valtuutus";
+"去授权" = "Poista valtuutus";
 
-"WYLocalizable_13" = "Sovelluksella ei ole oikeutta käyttää valokuva-albumia, siirry nyt valtuuttamaan?";
+"App没有访问相册的权限，现在去授权?" = "Sovelluksella ei ole oikeutta käyttää valokuva-albumia, siirry nyt valtuuttamaan?";
 
-"WYLocalizable_14" = "Sovelluksella ei ole oikeutta käyttää kameraa, siirry nyt valtuuttamaan?";
+"App没有访问相机的权限，现在去授权?" = "Sovelluksella ei ole oikeutta käyttää kameraa, siirry nyt valtuuttamaan?";
 
-"WYLocalizable_15" = "Sovelluksella ei ole oikeutta käyttää mikrofonia, siirry nyt valtuuttamaan?";
+"App没有访问麦克风的权限，现在去授权?" = "Sovelluksella ei ole oikeutta käyttää mikrofonia, siirry nyt valtuuttamaan?";
 
-"WYLocalizable_16" = "Sovelluksella ei ole oikeutta käyttää sijaintia, siirry nyt valtuuttamaan?";
+"App没有访问位置的权限，现在去授权?" = "Sovelluksella ei ole oikeutta käyttää sijaintia, siirry nyt valtuuttamaan?";
 
-"WYLocalizable_17" = "Sovelluksella ei ole oikeutta käyttää osoitekirjaa, siirry nyt valtuuttamaan?";
+"App没有访问通讯录的权限，现在去授权?" = "Sovelluksella ei ole oikeutta käyttää osoitekirjaa, siirry nyt valtuuttamaan?";
 
-"WYLocalizable_18" = "Jatka yhteyden muodostamista";
+"继续连接" = "Jatka yhteyden muodostamista";
 
-"WYLocalizable_19" = "Peruuta yhteys";
+"取消连接" = "Peruuta yhteys";
 
-"WYLocalizable_20" = "Tietopyyntö epäonnistui";
+"数据请求失败" = "Tietopyyntö epäonnistui";
 
-"WYLocalizable_21" = "Tilakoodi epänormaali";
+"状态码异常" = "Tilakoodi epänormaali";
 
-"WYLocalizable_22" = "Tuntematon verkko, saattaa olla tietoturvariskejä, jatkatko?";
+"未知的网络，可能存在安全隐患，是否继续？" = "Tuntematon verkko, saattaa olla tietoturvariskejä, jatkatko?";
 
-"WYLocalizable_23" = "Siirry asetuksiin";
+"去设置" = "Siirry asetuksiin";
 
-"WYLocalizable_24" = "Turvallinen verkkoyhteys peruutettu";
+"已取消不安全网络连接" = "Turvallinen verkkoyhteys peruutettu";
 
-"WYLocalizable_25" = "Ei verkkoyhteyttä, tarkista verkkoasetukset";
+"无网络连接，请检查您的网络设置" = "Ei verkkoyhteyttä, tarkista verkkoasetukset";
 
-"WYLocalizable_26" = "Käytät Wi-Fiä";
+"您正在使用Wifi联网" = "Käytät Wi-Fiä";
 
-"WYLocalizable_27" = "Olet yhteydessä Internetiin matkapuhelinverkon avulla";
+"您正在使用蜂窝移动网络联网" = "Olet yhteydessä Internetiin matkapuhelinverkon avulla";
 
-"WYLocalizable_28" = "Verkko ei ole käytettävissä, varmista, että verkkoympäristösi tai verkkoyhteyden käyttöoikeudet on asetettu oikein";
+"不可用的网络，请确认您的网络环境或网络连接权限已正确设置" = "Verkko ei ole käytettävissä, varmista, että verkkoympäristösi tai verkkoyhteyden käyttöoikeudet on asetettu oikein";
 
-"WYLocalizable_29" = "Vastaustietojen koodin vahvistus epäonnistui";
+"响应数据Code校验失败" = "Vastaustietojen koodin vahvistus epäonnistui";
 
-"WYLocalizable_30" = "Juuri nyt";
+"刚刚" = "Juuri nyt";
 
-"WYLocalizable_31" = "%@ minuuttia sitten";
+"X分钟前" = "%@ minuuttia sitten";
 
-"WYLocalizable_32" = "%@ tuntia sitten";
+"X小时前" = "%@ tuntia sitten";
 
-"WYLocalizable_33" = "%@ päivää sitten";
+"X天前" = "%@ päivää sitten";
 
-"WYLocalizable_34" = "%@ kuukausi sitten";
+"X月前" = "%@ kuukausi sitten";
 
-"WYLocalizable_35" = "%@ vuotta sitten";
+"X年前" = "%@ vuotta sitten";
 
-"WYLocalizable_36" = "Ei SIM-korttia";
+"无手机卡" = "Ei SIM-korttia";
 
-"WYLocalizable_37" = "Kauris";
+"App没有访问语音识别的权限，现在去授权?" = "Sovelluksella ei ole lupaa käyttää puheentunnistusta, siirry nyt valtuuttamaan?";
 
-"WYLocalizable_38" = "Vesimies";
+"今天" = "Tänään";
 
-"WYLocalizable_39" = "Kalat";
+"昨天" = "Eilen";
 
-"WYLocalizable_40" = "Oinas";
+"前天" = "Toissapäivänä";
 
-"WYLocalizable_41" = "Härkä";
+"星期日" = "Sunnuntai";
 
-"WYLocalizable_42" = "Kaksoset";
+"星期一" = "Maanantai";
 
-"WYLocalizable_43" = "Syöpä";
+"星期二" = "Tiistai";
 
-"WYLocalizable_44" = "Leo";
+"星期三" = "Keskiviikko";
 
-"WYLocalizable_45" = "Neitsyt";
+"星期四" = "Torstai";
 
-"WYLocalizable_46" = "Vaaka";
+"星期五" = "Perjantai";
 
-"WYLocalizable_47" = "Skorpioni";
+"星期六" = "Lauantai";
 
-"WYLocalizable_48" = "Jousimies";
+"年" = "Vuosi";
 
-"WYLocalizable_49" = "Sovelluksella ei ole lupaa käyttää puheentunnistusta, siirry nyt valtuuttamaan?";
+"月" = "Kuukausi";
 
-"WYLocalizable_50" = "Tänään";
+"日" = "Päivä";
 
-"WYLocalizable_51" = "Eilen";
+"时" = "Tunti";
 
-"WYLocalizable_52" = "Toissapäivänä";
+"分" = "Minuutit";
 
-"WYLocalizable_53" = "Sunnuntai";
-
-"WYLocalizable_54" = "Maanantai";
-
-"WYLocalizable_55" = "Tiistai";
-
-"WYLocalizable_56" = "Keskiviikko";
-
-"WYLocalizable_57" = "Torstai";
-
-"WYLocalizable_58" = "Perjantai";
-
-"WYLocalizable_59" = "Lauantai";
-
-"WYLocalizable_60" = "Vuosi";
-
-"WYLocalizable_61" = "Kuukausi";
-
-"WYLocalizable_62" = "Päivä";
-
-"WYLocalizable_63" = "Tunti";
-
-"WYLocalizable_64" = "Minuutit";
-
-"WYLocalizable_65" = "sekuntia";
+"秒" = "sekuntia";

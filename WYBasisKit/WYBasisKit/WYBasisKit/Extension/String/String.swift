@@ -93,6 +93,55 @@ import CryptoKit
     case withinSameYear
 }
 
+/// 黄道十二宫(星座)
+@frozen public enum WYZodiacSign: Int, CaseIterable {
+    /// 未知
+    case unknown = 0
+    /// 摩羯座
+    case capricorn
+    /// 水瓶座
+    case aquarius
+    /// 双鱼座
+    case pisces
+    /// 白羊座
+    case aries
+    /// 金牛座
+    case taurus
+    /// 双子座
+    case gemini
+    /// 巨蟹座
+    case cancer
+    /// 狮子座
+    case leo
+    /// 处女座
+    case virgo
+    /// 天秤座
+    case libra
+    /// 天蝎座
+    case scorpio
+    /// 射手座
+    case sagittarius
+    
+    /// 星座日期范围
+    var dateRange: String {
+        switch self {
+        case .unknown:      return ""
+        case .capricorn:    return "12.22-1.19"
+        case .aquarius:     return "1.20-2.18"
+        case .pisces:       return "2.19-3.20"
+        case .aries:        return "3.21-4.19"
+        case .taurus:       return "4.20-5.20"
+        case .gemini:       return "5.21-6.21"
+        case .cancer:       return "6.22-7.22"
+        case .leo:          return "7.23-8.22"
+        case .virgo:        return "8.23-9.22"
+        case .libra:        return "9.23-10.23"
+        case .scorpio:      return "10.24-11.22"
+        case .sagittarius:  return "11.23-12.21"
+        }
+    }
+}
+
 public extension Optional where Wrapped == String {
     /// 获取非空安全值
     var wy_safe: String {
@@ -676,34 +725,34 @@ public extension String {
         // 秒转分钟
         let second = timeDifference / 60
         if (second <= 0) {
-            return WYLocalized("WYLocalizable_30", table: WYBasisKitConfig.kitLocalizableTable)
+            return WYLocalized("刚刚", table: WYBasisKitConfig.kitLocalizableTable)
         }
         if second < 60 {
-            return String(format: WYLocalized("WYLocalizable_31", table: WYBasisKitConfig.kitLocalizableTable), "\(second)")
+            return String(format: WYLocalized("X分钟前", table: WYBasisKitConfig.kitLocalizableTable), "\(second)")
         }
         
         // 秒转小时
         let hours = timeDifference / 3600
         if hours < 24 {
-            return String(format: WYLocalized("WYLocalizable_32", table: WYBasisKitConfig.kitLocalizableTable), "\(hours)")
+            return String(format: WYLocalized("X小时前", table: WYBasisKitConfig.kitLocalizableTable), "\(hours)")
         }
         
         // 秒转天数
         let days = timeDifference / 3600 / 24
         if days < 30 {
-            return String(format: WYLocalized("WYLocalizable_33", table: WYBasisKitConfig.kitLocalizableTable), "\(days)")
+            return String(format: WYLocalized("X天前", table: WYBasisKitConfig.kitLocalizableTable), "\(days)")
         }
         
         // 秒转月
         let months = timeDifference / 3600 / 24 / 30
         if months < 12 {
-            return String(format: WYLocalized("WYLocalizable_34", table: WYBasisKitConfig.kitLocalizableTable), "\(months)")
+            return String(format: WYLocalized("X月前", table: WYBasisKitConfig.kitLocalizableTable), "\(months)")
         }
         
         // 秒转年
         let years = timeDifference / 3600 / 24 / 30 / 12
         if years < 3 {
-            return String(format: WYLocalized("WYLocalizable_35", table: WYBasisKitConfig.kitLocalizableTable), "\(years)")
+            return String(format: WYLocalized("X年前", table: WYBasisKitConfig.kitLocalizableTable), "\(years)")
         }
         return wy_timestampConvertDate(dateFormat)
     }
@@ -741,10 +790,10 @@ public extension String {
     }
     
     /// 根据时间戳获取星座
-    static func wy_constellation(from timestamp: String) -> String {
+    static func wy_zodiacSign(from timestamp: String) -> WYZodiacSign {
         
         // 默认返回值
-        let defaultValue: String = ""
+        let defaultValue: WYZodiacSign = .unknown
         
         // 统一时间戳为秒
         let timeInterval: TimeInterval
@@ -763,45 +812,34 @@ public extension String {
             return defaultValue
         }
         
-        let oneDay:Double = 86400
-        let constellationDics = [
-            WYLocalized("WYLocalizable_37", table: WYBasisKitConfig.kitLocalizableTable): "12.22-1.19",
-                                 
-            WYLocalized("WYLocalizable_38", table: WYBasisKitConfig.kitLocalizableTable): "1.20-2.18",
-                                 
-            WYLocalized("WYLocalizable_39", table: WYBasisKitConfig.kitLocalizableTable): "2.19-3.20",
-                                 
-            WYLocalized("WYLocalizable_40", table: WYBasisKitConfig.kitLocalizableTable): "3.21-4.19",
-                                 
-            WYLocalized("WYLocalizable_41", table: WYBasisKitConfig.kitLocalizableTable): "4.20-5.20",
-                                 
-            WYLocalized("WYLocalizable_42", table: WYBasisKitConfig.kitLocalizableTable): "5.21-6.21",
-                                 
-            WYLocalized("WYLocalizable_43", table: WYBasisKitConfig.kitLocalizableTable): "6.22-7.22",
-                                 
-            WYLocalized("WYLocalizable_44", table: WYBasisKitConfig.kitLocalizableTable): "7.23-8.22",
-                                 
-            WYLocalized("WYLocalizable_45", table: WYBasisKitConfig.kitLocalizableTable): "8.23-9.22",
-                                 
-            WYLocalized("WYLocalizable_46", table: WYBasisKitConfig.kitLocalizableTable): "9.23-10.23",
-                                 
-            WYLocalized("WYLocalizable_47", table: WYBasisKitConfig.kitLocalizableTable): "10.24-11.22",
-                                 
-            WYLocalized("WYLocalizable_48", table: WYBasisKitConfig.kitLocalizableTable): "11.23-12.21"]
+        // 转换成 Date
+        let date = Date(timeIntervalSince1970: timeInterval)
+        let calendar = Calendar.current
+        let month = calendar.component(.month, from: date)
+        let day = calendar.component(.day, from: date)
         
-        let currConstellation = constellationDics.filter {
-            let timeRange = constellationDivision(timestamp: timestamp, range: $1)
-            let startTime = timeRange.0
-            let endTime = timeRange.1 + oneDay
-            
-            return timeInterval > startTime && timeInterval < endTime
+        // 根据月日判断星座
+        switch (month, day) {
+        case (12, 22...31), (1, 1...19): return .capricorn
+        case (1, 20...31), (2, 1...18): return .aquarius
+        case (2, 19...29), (3, 1...20): return .pisces
+        case (3, 21...31), (4, 1...19): return .aries
+        case (4, 20...30), (5, 1...20): return .taurus
+        case (5, 21...31), (6, 1...21): return .gemini
+        case (6, 22...30), (7, 1...22): return .cancer
+        case (7, 23...31), (8, 1...22): return .leo
+        case (8, 23...31), (9, 1...22): return .virgo
+        case (9, 23...30), (10, 1...23): return .libra
+        case (10, 24...31), (11, 1...22): return .scorpio
+        case (11, 23...30), (12, 1...21): return .sagittarius
+        default: return defaultValue
         }
-        return currConstellation.first?.key ?? defaultValue
     }
 }
 
 private extension String {
     
+    /// 获取格式化后的时间格式
     func sharedTimeFormat(dateFormat: WYTimeFormat) -> String {
         
         switch dateFormat {
@@ -820,57 +858,5 @@ private extension String {
         case .custom(format: let format):
             return format
         }
-    }
-    
-    /// 获取星座开始、结束时间
-    static func constellationDivision(timestamp: String, range: String) -> (TimeInterval, TimeInterval) {
-        
-        /// 获取当前年份
-        func getCurrYear(date:Date) -> String {
-            
-            let dm = DateFormatter()
-            dm.dateFormat = "yyyy."
-            let currYear = dm.string(from: date)
-            return currYear
-        }
-        
-        /// 日期转换当前时间戳
-        func toTimeInterval(dateStr: String) -> TimeInterval? {
-            
-            let dm = DateFormatter()
-            dm.dateFormat = "yyyy.MM.dd"
-            
-            let date = dm.date(from: dateStr)
-            let interval = date?.timeIntervalSince1970
-            
-            return interval
-        }
-        
-        let timeStrArr = range.components(separatedBy: "-")
-        
-        let timeInterval: TimeInterval
-        if let t = Double(timestamp) {
-            switch timestamp.count {
-            case 0...10:       // 秒
-                timeInterval = t
-            case 13:           // 毫秒
-                timeInterval = t / 1000
-            case 16:           // 微秒
-                timeInterval = t / 1_000_000
-            default:
-                timeInterval = t  // 避免崩溃，直接按秒处理
-            }
-        } else {
-            timeInterval = 0
-        }
-        
-        let dateYear = getCurrYear(date: Date(timeIntervalSince1970: timeInterval))
-        let startTimeStr = dateYear + timeStrArr.first!
-        let endTimeStr = dateYear + timeStrArr.last!
-        
-        let startTime = toTimeInterval(dateStr: startTimeStr)!
-        let endTime = toTimeInterval(dateStr: endTimeStr)!
-        
-        return (startTime, endTime)
     }
 }

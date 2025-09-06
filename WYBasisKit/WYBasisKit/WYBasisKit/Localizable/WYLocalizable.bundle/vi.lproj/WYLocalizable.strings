@@ -6,132 +6,108 @@
   Copyright © 2020 官人. All rights reserved.
 */
 
-"WYLocalizable_01" = "Hiểu rồi";
+"知道了" = "Hiểu rồi";
 
-"WYLocalizable_02" = "Mật khẩu";
+"密码" = "Mật khẩu";
 
-"WYLocalizable_03" = "Hủy";
+"取消" = "Hủy";
 
-"WYLocalizable_04" = "Xóa";
+"删除" = "Xóa";
 
-"WYLocalizable_05" = "Không có thông tin sinh trắc học";
+"生物识别不可用" = "Không có thông tin sinh trắc học";
 
-"WYLocalizable_06" = "Đã khóa sinh trắc học, khóa màn hình và mở khóa thiết bị thành công và mở lại trang này để mở lại";
+"生物识别已被锁定，锁屏并成功解锁设备后重新打开本页面即可重新开启" = "Đã khóa sinh trắc học, khóa màn hình và mở khóa thiết bị thành công và mở lại trang này để mở lại";
 
-"WYLocalizable_07" = "Hệ thống đã làm gián đoạn nhận dạng này";
+"系统中断了本次识别" = "Hệ thống đã làm gián đoạn nhận dạng này";
 
-"WYLocalizable_08" = "Vui lòng đặt mật khẩu mở khóa trước khi bật sinh trắc học";
+"开启生物识别前请设置解锁密码" = "Vui lòng đặt mật khẩu mở khóa trước khi bật sinh trắc học";
 
-"WYLocalizable_09" = "Vui lòng bật/đặt sinh trắc học trong cài đặt thiết bị";
+"请在设备设置中开启/设置生物识别功能" = "Vui lòng bật/đặt sinh trắc học trong cài đặt thiết bị";
 
-"WYLocalizable_10" = "Vui lòng nhập mật khẩu để xác minh sinh trắc học";
+"请输入密码验证生物识别" = "Vui lòng nhập mật khẩu để xác minh sinh trắc học";
 
-"WYLocalizable_11" = "Chưa có tin mới";
+"暂无消息" = "Chưa có tin mới";
 
-"WYLocalizable_12" = "Hủy cấp quyền";
+"去授权" = "Hủy cấp quyền";
 
-"WYLocalizable_13" = "Ứng dụng không có quyền truy cập album ảnh, giờ phải cấp quyền?";
+"App没有访问相册的权限，现在去授权?" = "Ứng dụng không có quyền truy cập album ảnh, giờ phải cấp quyền?";
 
-"WYLocalizable_14" = "Ứng dụng không có quyền truy cập vào máy ảnh, giờ phải cấp quyền?";
+"App没有访问相机的权限，现在去授权?" = "Ứng dụng không có quyền truy cập vào máy ảnh, giờ phải cấp quyền?";
 
-"WYLocalizable_15" = "Ứng dụng không có quyền truy cập micrô, bây giờ chuyển sang cấp quyền?";
+"App没有访问麦克风的权限，现在去授权?" = "Ứng dụng không có quyền truy cập micrô, bây giờ chuyển sang cấp quyền?";
 
-"WYLocalizable_16" = "Ứng dụng không có quyền truy cập vị trí, giờ phải cấp quyền?";
+"App没有访问位置的权限，现在去授权?" = "Ứng dụng không có quyền truy cập vị trí, giờ phải cấp quyền?";
 
-"WYLocalizable_17" = "Ứng dụng không có quyền truy cập sổ địa chỉ, giờ phải cấp quyền?";
+"App没有访问通讯录的权限，现在去授权?" = "Ứng dụng không có quyền truy cập sổ địa chỉ, giờ phải cấp quyền?";
 
-"WYLocalizable_18" = "Tiếp tục kết nối";
+"继续连接" = "Tiếp tục kết nối";
 
-"WYLocalizable_19" = "Hủy kết nối";
+"取消连接" = "Hủy kết nối";
 
-"WYLocalizable_20" = "Yêu cầu dữ liệu không thành công";
+"数据请求失败" = "Yêu cầu dữ liệu không thành công";
 
-"WYLocalizable_21" = "Mã trạng thái bất thường";
+"状态码异常" = "Mã trạng thái bất thường";
 
-"WYLocalizable_22" = "Mạng không xác định, có thể có rủi ro bảo mật, tiếp tục?";
+"未知的网络，可能存在安全隐患，是否继续？" = "Mạng không xác định, có thể có rủi ro bảo mật, tiếp tục?";
 
-"WYLocalizable_23" = "Vào Cài đặt";
+"去设置" = "Vào Cài đặt";
 
-"WYLocalizable_24" = "Đã hủy kết nối mạng không an toàn";
+"已取消不安全网络连接" = "Đã hủy kết nối mạng không an toàn";
 
-"WYLocalizable_25" = "Không có kết nối mạng, vui lòng kiểm tra cài đặt mạng của bạn";
+"无网络连接，请检查您的网络设置" = "Không có kết nối mạng, vui lòng kiểm tra cài đặt mạng của bạn";
 
-"WYLocalizable_26" = "Bạn đang sử dụng Wifi";
+"您正在使用Wifi联网" = "Bạn đang sử dụng Wifi";
 
-"WYLocalizable_27" = "Bạn đã kết nối Internet bằng mạng di động";
+"您正在使用蜂窝移动网络联网" = "Bạn đã kết nối Internet bằng mạng di động";
 
-"WYLocalizable_28" = "Mạng không khả dụng, vui lòng xác nhận môi trường mạng hoặc quyền kết nối mạng của bạn đã được đặt chính xác";
+"不可用的网络，请确认您的网络环境或网络连接权限已正确设置" = "Mạng không khả dụng, vui lòng xác nhận môi trường mạng hoặc quyền kết nối mạng của bạn đã được đặt chính xác";
 
-"WYLocalizable_29" = "Xác minh mã dữ liệu phản hồi không thành công";
+"响应数据Code校验失败" = "Xác minh mã dữ liệu phản hồi không thành công";
 
-"WYLocalizable_30" = "Ngay bây giờ";
+"刚刚" = "Ngay bây giờ";
 
-"WYLocalizable_31" = "%@ phút trước";
+"X分钟前" = "%@ phút trước";
 
-"WYLocalizable_32" = "%@ giờ trước";
+"X小时前" = "%@ giờ trước";
 
-"WYLocalizable_33" = "%@ ngày trước";
+"X天前" = "%@ ngày trước";
 
-"WYLocalizable_34" = "%@ tháng trước";
+"X月前" = "%@ tháng trước";
 
-"WYLocalizable_35" = "%@ năm trước";
+"X年前" = "%@ năm trước";
 
-"WYLocalizable_36" = "Không có thẻ SIM";
+"无手机卡" = "Không có thẻ SIM";
 
-"WYLocalizable_37" = "Ma Kết";
+"App没有访问语音识别的权限，现在去授权?" = "Ứng dụng không có quyền truy cập nhận dạng giọng nói, bây giờ chuyển sang cấp quyền?";
 
-"WYLocalizable_38" = "Bảo Bình";
+"今天" = "Hôm nay";
 
-"WYLocalizable_39" = "Song Ngư";
+"昨天" = "Hôm qua";
 
-"WYLocalizable_40" = "Bạch Dương";
+"前天" = "Hôm kia";
 
-"WYLocalizable_41" = "Kim Ngưu";
+"星期日" = "Chủ Nhật";
 
-"WYLocalizable_42" = "Song Tử";
+"星期一" = "Thứ Hai";
 
-"WYLocalizable_43" = "Ung thư";
+"星期二" = "Thứ Ba";
 
-"WYLocalizable_44" = "Leo";
+"星期三" = "Thứ Tư";
 
-"WYLocalizable_45" = "Xử Nữ";
+"星期四" = "Thứ Năm";
 
-"WYLocalizable_46" = "Thiên Bình";
+"星期五" = "Thứ Sáu";
 
-"WYLocalizable_47" = "Scorpio";
+"星期六" = "Thứ Bảy";
 
-"WYLocalizable_48" = "Nhân Mã";
+"年" = "Năm";
 
-"WYLocalizable_49" = "Ứng dụng không có quyền truy cập nhận dạng giọng nói, bây giờ chuyển sang cấp quyền?";
+"月" = "Tháng";
 
-"WYLocalizable_50" = "Hôm nay";
+"日" = "Ngày";
 
-"WYLocalizable_51" = "Hôm qua";
+"时" = "Giờ";
 
-"WYLocalizable_52" = "Hôm kia";
+"分" = "Phút";
 
-"WYLocalizable_53" = "Chủ Nhật";
-
-"WYLocalizable_54" = "Thứ Hai";
-
-"WYLocalizable_55" = "Thứ Ba";
-
-"WYLocalizable_56" = "Thứ Tư";
-
-"WYLocalizable_57" = "Thứ Năm";
-
-"WYLocalizable_58" = "Thứ Sáu";
-
-"WYLocalizable_59" = "Thứ Bảy";
-
-"WYLocalizable_60" = "Năm";
-
-"WYLocalizable_61" = "Tháng";
-
-"WYLocalizable_62" = "Ngày";
-
-"WYLocalizable_63" = "Giờ";
-
-"WYLocalizable_64" = "Phút";
-
-"WYLocalizable_65" = "giây";
+"秒" = "giây";

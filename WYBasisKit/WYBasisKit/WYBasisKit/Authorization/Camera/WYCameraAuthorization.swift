@@ -31,7 +31,7 @@ public func wy_authorizeCameraAccess(showAlert: Bool = true, handler: @escaping 
                         return
                     }else {
                         /// App无权访问相机 用户已明确拒绝
-                        wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("WYLocalizable_14", table: WYBasisKitConfig.kitLocalizableTable))
+                        wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("App没有访问相机的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
                         handler(false)
                         return
                     }
@@ -44,7 +44,7 @@ public func wy_authorizeCameraAccess(showAlert: Bool = true, handler: @escaping 
             return
         default:
             /// App无权访问相机 用户已明确拒绝
-            wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("WYLocalizable_14", table: WYBasisKitConfig.kitLocalizableTable))
+            wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("App没有访问相机的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
             handler(false)
             return
         }
@@ -59,11 +59,11 @@ public func wy_authorizeCameraAccess(showAlert: Bool = true, handler: @escaping 
     func wy_showAuthorizeAlert(show: Bool, message: String) {
         
         if show {
-            UIAlertController.wy_show(message: message, actions: [WYLocalized("WYLocalizable_03", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("WYLocalizable_12", table: WYBasisKitConfig.kitLocalizableTable)]) { (actionStr, _) in
+            UIAlertController.wy_show(message: message, actions: [WYLocalized("取消", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable)]) { (actionStr, _) in
                 
                 DispatchQueue.main.async {
                     
-                    if actionStr == WYLocalized("WYLocalizable_12", table: WYBasisKitConfig.kitLocalizableTable) {
+                    if actionStr == WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable) {
                         
                         let settingUrl = URL(string: UIApplication.openSettingsURLString)
                         if let url = settingUrl, UIApplication.shared.canOpenURL(url) {

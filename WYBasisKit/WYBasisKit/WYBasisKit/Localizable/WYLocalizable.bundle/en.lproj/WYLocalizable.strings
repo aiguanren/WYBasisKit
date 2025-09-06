@@ -6,132 +6,108 @@
   Copyright © 2020 官人. All rights reserved.
 */
 
-"WYLocalizable_01" = "Got it";
+"知道了" = "Got it";
 
-"WYLocalizable_02" = "Password";
+"密码" = "Password";
 
-"WYLocalizable_03" = "Cancel";
+"取消" = "Cancel";
 
-"WYLocalizable_04" = "Delete";
+"删除" = "Delete";
 
-"WYLocalizable_05" = "Biometrics not available";
+"生物识别不可用" = "Biometrics not available";
 
-"WYLocalizable_06" = "Biometrics has been locked, lock the screen and successfully unlock the device and reopen this page to reopen";
+"生物识别已被锁定，锁屏并成功解锁设备后重新打开本页面即可重新开启" = "Biometrics has been locked, lock the screen and successfully unlock the device and reopen this page to reopen";
 
-"WYLocalizable_07" = "The system interrupted this identification";
+"系统中断了本次识别" = "The system interrupted this identification";
 
-"WYLocalizable_08" = "Please set an unlock password before turning on biometrics";
+"开启生物识别前请设置解锁密码" = "Please set an unlock password before turning on biometrics";
 
-"WYLocalizable_09" = "Please enable/set biometrics in device settings";
+"请在设备设置中开启/设置生物识别功能" = "Please enable/set biometrics in device settings";
 
-"WYLocalizable_10" = "Please enter password to verify biometrics";
+"请输入密码验证生物识别" = "Please enter password to verify biometrics";
 
-"WYLocalizable_11" = "No news yet";
+"暂无消息" = "No news yet";
 
-"WYLocalizable_12" = "Deauthorize";
+"去授权" = "Deauthorize";
 
-"WYLocalizable_13" = "App does not have permission to access the photo album, now go to authorize?";
+"App没有访问相册的权限，现在去授权?" = "App does not have permission to access the photo album, now go to authorize?";
 
-"WYLocalizable_14" = "App does not have permission to access the camera, now go to authorize?";
+"App没有访问相机的权限，现在去授权?" = "App does not have permission to access the camera, now go to authorize?";
 
-"WYLocalizable_15" = "App does not have permission to access the microphone, now go to authorize?";
+"App没有访问麦克风的权限，现在去授权?" = "App does not have permission to access the microphone, now go to authorize?";
 
-"WYLocalizable_16" = "App does not have permission to access location, now go to authorize?";
+"App没有访问位置的权限，现在去授权?" = "App does not have permission to access location, now go to authorize?";
 
-"WYLocalizable_17" = "App does not have permission to access the address book, now go to authorize?";
+"App没有访问通讯录的权限，现在去授权?" = "App does not have permission to access the address book, now go to authorize?";
 
-"WYLocalizable_18" = "Continue to connect";
+"继续连接" = "Continue to connect";
 
-"WYLocalizable_19" = "Cancel Connection";
+"取消连接" = "Cancel Connection";
 
-"WYLocalizable_20" = "Data request failed";
+"数据请求失败" = "Data request failed";
 
-"WYLocalizable_21" = "Status Code Abnormal";
+"状态码异常" = "Status Code Abnormal";
 
-"WYLocalizable_22" = "Unknown network, there may be security risks, continue?";
+"未知的网络，可能存在安全隐患，是否继续？" = "Unknown network, there may be security risks, continue?";
 
-"WYLocalizable_23" = "Go to Settings";
+"去设置" = "Go to Settings";
 
-"WYLocalizable_24" = "Unsafe network connection canceled";
+"已取消不安全网络连接" = "Unsafe network connection canceled";
 
-"WYLocalizable_25" = "No network connection, please check your network settings";
+"无网络连接，请检查您的网络设置" = "No network connection, please check your network settings";
 
-"WYLocalizable_26" = "You are using Wifi";
+"您正在使用Wifi联网" = "You are using Wifi";
 
-"WYLocalizable_27" = "You are connected to the Internet using a cellular network";
+"您正在使用蜂窝移动网络联网" = "You are connected to the Internet using a cellular network";
 
-"WYLocalizable_28" = "Unavailable network, please confirm your network environment or network connection permissions have been set correctly";
+"不可用的网络，请确认您的网络环境或网络连接权限已正确设置" = "Unavailable network, please confirm your network environment or network connection permissions have been set correctly";
 
-"WYLocalizable_29" = "Response data Code verification failed";
+"响应数据Code校验失败" = "Response data Code verification failed";
 
-"WYLocalizable_30" = "Just now";
+"刚刚" = "Just now";
 
-"WYLocalizable_31" = "%@ minutes ago";
+"X分钟前" = "%@ minutes ago";
 
-"WYLocalizable_32" = "%@ hours ago";
+"X小时前" = "%@ hours ago";
 
-"WYLocalizable_33" = "%@ days ago";
+"X天前" = "%@ days ago";
 
-"WYLocalizable_34" = "%@ month ago";
+"X月前" = "%@ month ago";
 
-"WYLocalizable_35" = "%@ years ago";
+"X年前" = "%@ years ago";
 
-"WYLocalizable_36" = "No SIM card";
+"无手机卡" = "No SIM card";
 
-"WYLocalizable_37" = "Capricornus";
+"App没有访问语音识别的权限，现在去授权?" = "App does not have permission to access speech recognition, now go to authorize?";
 
-"WYLocalizable_38" = "Aquarius";
+"今天" = "Today";
 
-"WYLocalizable_39" = "Pisces";
+"昨天" = "Yesterday";
 
-"WYLocalizable_40" = "Aries";
+"前天" = "The day before yesterday";
 
-"WYLocalizable_41" = "Taurus";
+"星期日" = "Sunday";
 
-"WYLocalizable_42" = "Gemini";
+"星期一" = "Monday";
 
-"WYLocalizable_43" = "Cancer";
+"星期二" = "Tuesday";
 
-"WYLocalizable_44" = "Leo";
+"星期三" = "Wednesday";
 
-"WYLocalizable_45" = "Virgo";
+"星期四" = "Thursday";
 
-"WYLocalizable_46" = "Libra";
+"星期五" = "Friday";
 
-"WYLocalizable_47" = "Scorpio";
+"星期六" = "Saturday";
 
-"WYLocalizable_48" = "Sagittarius";
+"年" = "Year";
 
-"WYLocalizable_49" = "App does not have permission to access speech recognition, now go to authorize?";
+"月" = "Month";
 
-"WYLocalizable_50" = "Today";
+"日" = "Day";
 
-"WYLocalizable_51" = "Yesterday";
+"时" = "Hour";
 
-"WYLocalizable_52" = "The day before yesterday";
+"分" = "Minutes";
 
-"WYLocalizable_53" = "Sunday";
-
-"WYLocalizable_54" = "Monday";
-
-"WYLocalizable_55" = "Tuesday";
-
-"WYLocalizable_56" = "Wednesday";
-
-"WYLocalizable_57" = "Thursday";
-
-"WYLocalizable_58" = "Friday";
-
-"WYLocalizable_59" = "Saturday";
-
-"WYLocalizable_60" = "Year";
-
-"WYLocalizable_61" = "Month";
-
-"WYLocalizable_62" = "Day";
-
-"WYLocalizable_63" = "Hour";
-
-"WYLocalizable_64" = "Minutes";
-
-"WYLocalizable_65" = "seconds";
+"秒" = "seconds";

@@ -6,132 +6,108 @@
   Copyright © 2020 官人. All rights reserved.
 */
 
-"WYLocalizable_01" = "Értem";
+"知道了" = "Értem";
 
-"WYLocalizable_02" = "Jelszó";
+"密码" = "Jelszó";
 
-"WYLocalizable_03" = "Mégse";
+"取消" = "Mégse";
 
-"WYLocalizable_04" = "Törlés";
+"删除" = "Törlés";
 
-"WYLocalizable_05" = "A biometrikus adatok nem állnak rendelkezésre";
+"生物识别不可用" = "A biometrikus adatok nem állnak rendelkezésre";
 
-"WYLocalizable_06" = "A biometria zárolva lett, zárja le a képernyőt, és sikeresen oldja fel az eszközt, és nyissa meg újra ezt az oldalt az újranyitáshoz";
+"生物识别已被锁定，锁屏并成功解锁设备后重新打开本页面即可重新开启" = "A biometria zárolva lett, zárja le a képernyőt, és sikeresen oldja fel az eszközt, és nyissa meg újra ezt az oldalt az újranyitáshoz";
 
-"WYLocalizable_07" = "A rendszer megszakította ezt az azonosítást";
+"系统中断了本次识别" = "A rendszer megszakította ezt az azonosítást";
 
-"WYLocalizable_08" = "Kérjük, állítson be egy feloldó jelszót a biometrikus adatok bekapcsolása előtt";
+"开启生物识别前请设置解锁密码" = "Kérjük, állítson be egy feloldó jelszót a biometrikus adatok bekapcsolása előtt";
 
-"WYLocalizable_09" = "Kérjük, engedélyezze/állítsa be a biometrikus adatokat az eszközbeállításokban";
+"请在设备设置中开启/设置生物识别功能" = "Kérjük, engedélyezze/állítsa be a biometrikus adatokat az eszközbeállításokban";
 
-"WYLocalizable_10" = "Kérjük, adja meg a jelszót a biometrikus adatok ellenőrzéséhez";
+"请输入密码验证生物识别" = "Kérjük, adja meg a jelszót a biometrikus adatok ellenőrzéséhez";
 
-"WYLocalizable_11" = "Még nincs hír";
+"暂无消息" = "Még nincs hír";
 
-"WYLocalizable_12" = "Jogosultság visszavonása";
+"去授权" = "Jogosultság visszavonása";
 
-"WYLocalizable_13" = "Az alkalmazásnak nincs engedélye a fotóalbum elérésére, most menjen az engedélyezéshez?";
+"App没有访问相册的权限，现在去授权?" = "Az alkalmazásnak nincs engedélye a fotóalbum elérésére, most menjen az engedélyezéshez?";
 
-"WYLocalizable_14" = "Az alkalmazásnak nincs engedélye a kamera elérésére, most menjen az engedélyezéshez?";
+"App没有访问相机的权限，现在去授权?" = "Az alkalmazásnak nincs engedélye a kamera elérésére, most menjen az engedélyezéshez?";
 
-"WYLocalizable_15" = "Az alkalmazásnak nincs engedélye a mikrofonhoz való hozzáférésre, most menjen az engedélyezéshez?";
+"App没有访问麦克风的权限，现在去授权?" = "Az alkalmazásnak nincs engedélye a mikrofonhoz való hozzáférésre, most menjen az engedélyezéshez?";
 
-"WYLocalizable_16" = "Az alkalmazásnak nincs engedélye a hely elérésére, most menjen az engedélyezéshez?";
+"App没有访问位置的权限，现在去授权?" = "Az alkalmazásnak nincs engedélye a hely elérésére, most menjen az engedélyezéshez?";
 
-"WYLocalizable_17" = "Az alkalmazásnak nincs engedélye a címjegyzék elérésére, most menjen az engedélyezéshez?";
+"App没有访问通讯录的权限，现在去授权?" = "Az alkalmazásnak nincs engedélye a címjegyzék elérésére, most menjen az engedélyezéshez?";
 
-"WYLocalizable_18" = "A csatlakozás folytatása";
+"继续连接" = "A csatlakozás folytatása";
 
-"WYLocalizable_19" = "Kapcsolat megszakítása";
+"取消连接" = "Kapcsolat megszakítása";
 
-"WYLocalizable_20" = "Az adatkérés sikertelen";
+"数据请求失败" = "Az adatkérés sikertelen";
 
-"WYLocalizable_21" = "Az állapotkód rendellenes";
+"状态码异常" = "Az állapotkód rendellenes";
 
-"WYLocalizable_22" = "Ismeretlen hálózat, biztonsági kockázatok lehetnek, folytatja?";
+"未知的网络，可能存在安全隐患，是否继续？" = "Ismeretlen hálózat, biztonsági kockázatok lehetnek, folytatja?";
 
-"WYLocalizable_23" = "Ugrás a Beállításokhoz";
+"去设置" = "Ugrás a Beállításokhoz";
 
-"WYLocalizable_24" = "Nem biztonságos hálózati kapcsolat megszakítva";
+"已取消不安全网络连接" = "Nem biztonságos hálózati kapcsolat megszakítva";
 
-"WYLocalizable_25" = "Nincs hálózati kapcsolat, ellenőrizze a hálózati beállításokat";
+"无网络连接，请检查您的网络设置" = "Nincs hálózati kapcsolat, ellenőrizze a hálózati beállításokat";
 
-"WYLocalizable_26" = "Ön Wi-Fi-t használ";
+"您正在使用Wifi联网" = "Ön Wi-Fi-t használ";
 
-"WYLocalizable_27" = "Mobilhálózaton keresztül csatlakozik az internethez";
+"您正在使用蜂窝移动网络联网" = "Mobilhálózaton keresztül csatlakozik az internethez";
 
-"WYLocalizable_28" = "Nem elérhető hálózat, kérjük, ellenőrizze, hogy a hálózati környezet vagy a hálózati csatlakozás engedélyei megfelelően lettek beállítva";
+"不可用的网络，请确认您的网络环境或网络连接权限已正确设置" = "Nem elérhető hálózat, kérjük, ellenőrizze, hogy a hálózati környezet vagy a hálózati csatlakozás engedélyei megfelelően lettek beállítva";
 
-"WYLocalizable_29" = "A válaszadatok kódellenőrzése sikertelen";
+"响应数据Code校验失败" = "A válaszadatok kódellenőrzése sikertelen";
 
-"WYLocalizable_30" = "Csak most";
+"刚刚" = "Csak most";
 
-"WYLocalizable_31" = "%@ perce";
+"X分钟前" = "%@ perce";
 
-"WYLocalizable_32" = "%@ órája";
+"X小时前" = "%@ órája";
 
-"WYLocalizable_33" = "%@ napja";
+"X天前" = "%@ napja";
 
-"WYLocalizable_34" = "%@ hónapja";
+"X月前" = "%@ hónapja";
 
-"WYLocalizable_35" = "%@ évvel ezelőtt";
+"X年前" = "%@ évvel ezelőtt";
 
-"WYLocalizable_36" = "Nincs SIM-kártya";
+"无手机卡" = "Nincs SIM-kártya";
 
-"WYLocalizable_37" = "Bak";
+"App没有访问语音识别的权限，现在去授权?" = "Az alkalmazásnak nincs engedélye a beszédfelismerés elérésére, most menjen az engedélyezéshez?";
 
-"WYLocalizable_38" = "Vízöntő";
+"今天" = "Ma";
 
-"WYLocalizable_39" = "Halak";
+"昨天" = "Tegnap";
 
-"WYLocalizable_40" = "Kos";
+"前天" = "Tegnapelőtt";
 
-"WYLocalizable_41" = "Bika";
+"星期日" = "Vasárnap";
 
-"WYLocalizable_42" = "Ikrek";
+"星期一" = "Hétfő";
 
-"WYLocalizable_43" = "Rák";
+"星期二" = "Kedd";
 
-"WYLocalizable_44" = "Oroszlán";
+"星期三" = "Szerda";
 
-"WYLocalizable_45" = "Szűz";
+"星期四" = "Csütörtök";
 
-"WYLocalizable_46" = "Mérleg";
+"星期五" = "Péntek";
 
-"WYLocalizable_47" = "Skorpió";
+"星期六" = "Szombat";
 
-"WYLocalizable_48" = "Nyilas";
+"年" = "Év";
 
-"WYLocalizable_49" = "Az alkalmazásnak nincs engedélye a beszédfelismerés elérésére, most menjen az engedélyezéshez?";
+"月" = "Hónap";
 
-"WYLocalizable_50" = "Ma";
+"日" = "Nap";
 
-"WYLocalizable_51" = "Tegnap";
+"时" = "Óra";
 
-"WYLocalizable_52" = "Tegnapelőtt";
+"分" = "Percek";
 
-"WYLocalizable_53" = "Vasárnap";
-
-"WYLocalizable_54" = "Hétfő";
-
-"WYLocalizable_55" = "Kedd";
-
-"WYLocalizable_56" = "Szerda";
-
-"WYLocalizable_57" = "Csütörtök";
-
-"WYLocalizable_58" = "Péntek";
-
-"WYLocalizable_59" = "Szombat";
-
-"WYLocalizable_60" = "Év";
-
-"WYLocalizable_61" = "Hónap";
-
-"WYLocalizable_62" = "Nap";
-
-"WYLocalizable_63" = "Óra";
-
-"WYLocalizable_64" = "Percek";
-
-"WYLocalizable_65" = "Másodpercek";
+"秒" = "Másodpercek";

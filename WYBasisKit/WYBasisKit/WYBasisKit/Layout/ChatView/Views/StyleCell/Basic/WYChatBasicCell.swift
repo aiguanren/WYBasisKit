@@ -385,34 +385,34 @@ public extension WYChatBasicCell {
             return messageTimestamp.wy_timestampConvertDate(.HM, config.showAmPmSymbol)
             
         case .yesterday:
-            return (WYLocalized("WYLocalizable_51", table: WYBasisKitConfig.kitLocalizableTable) + " " + messageTimestamp.wy_timestampConvertDate(.HM, config.showAmPmSymbol))
+            return (WYLocalized("昨天", table: WYBasisKitConfig.kitLocalizableTable) + " " + messageTimestamp.wy_timestampConvertDate(.HM, config.showAmPmSymbol))
             
         case .yesterdayBefore, .withinWeek:
             
             let whatDay: [String] = [
                 messageTimestamp.wy_timestampConvertDate(.YMDHM, config.showAmPmSymbol),
-                WYLocalized("WYLocalizable_53", table: WYBasisKitConfig.kitLocalizableTable),
-                WYLocalized("WYLocalizable_54", table: WYBasisKitConfig.kitLocalizableTable),
-                WYLocalized("WYLocalizable_55", table: WYBasisKitConfig.kitLocalizableTable),
-                WYLocalized("WYLocalizable_56", table: WYBasisKitConfig.kitLocalizableTable),
-                WYLocalized("WYLocalizable_57", table: WYBasisKitConfig.kitLocalizableTable),
-                WYLocalized("WYLocalizable_58", table: WYBasisKitConfig.kitLocalizableTable),
-                WYLocalized("WYLocalizable_59", table: WYBasisKitConfig.kitLocalizableTable)]
+                WYLocalized("星期日", table: WYBasisKitConfig.kitLocalizableTable),
+                WYLocalized("星期一", table: WYBasisKitConfig.kitLocalizableTable),
+                WYLocalized("星期二", table: WYBasisKitConfig.kitLocalizableTable),
+                WYLocalized("星期三", table: WYBasisKitConfig.kitLocalizableTable),
+                WYLocalized("星期四", table: WYBasisKitConfig.kitLocalizableTable),
+                WYLocalized("星期五", table: WYBasisKitConfig.kitLocalizableTable),
+                WYLocalized("星期六", table: WYBasisKitConfig.kitLocalizableTable)]
             
             return whatDay[messageTimestamp.wy_whatDay.rawValue] + (messageTimestamp.wy_whatDay == .unknown ? "" : (" " + messageTimestamp.wy_timestampConvertDate(.HM, config.showAmPmSymbol)))
             
         case .withinSameMonth, .withinSameYear:
             
-            let mm: String = WYLocalized("WYLocalizable_61", table: WYBasisKitConfig.kitLocalizableTable)
-            let dd: String = WYLocalized("WYLocalizable_62", table: WYBasisKitConfig.kitLocalizableTable)
+            let mm: String = WYLocalized("月", table: WYBasisKitConfig.kitLocalizableTable)
+            let dd: String = WYLocalized("日", table: WYBasisKitConfig.kitLocalizableTable)
             
             return messageTimestamp.wy_timestampConvertDate(.custom(format: "MM\(mm)dd\(dd) HH:mm"), config.showAmPmSymbol)
             
         default:
             
-            let yyyy: String = WYLocalized("WYLocalizable_60", table: WYBasisKitConfig.kitLocalizableTable)
-            let mm: String = WYLocalized("WYLocalizable_61", table: WYBasisKitConfig.kitLocalizableTable)
-            let dd: String = WYLocalized("WYLocalizable_62", table: WYBasisKitConfig.kitLocalizableTable)
+            let yyyy: String = WYLocalized("年", table: WYBasisKitConfig.kitLocalizableTable)
+            let mm: String = WYLocalized("月", table: WYBasisKitConfig.kitLocalizableTable)
+            let dd: String = WYLocalized("日", table: WYBasisKitConfig.kitLocalizableTable)
             
             return messageTimestamp.wy_timestampConvertDate(.custom(format: "yyyy\(yyyy)MM\(mm)dd\(dd) HH:mm"), config.showAmPmSymbol)
         }

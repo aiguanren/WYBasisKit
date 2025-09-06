@@ -532,7 +532,7 @@ extension WYNetworkManager {
                         
                         showDebugModeLog(target: target, response: response)
                         
-                        handlerFailure(error: WYError(code: String(statusCode), describe: WYLocalized("WYLocalizable_21", table: WYBasisKitConfig.kitLocalizableTable)), isStatusCodeError: true, debugModeLog: config.debugModeLog, handler: handler)
+                        handlerFailure(error: WYError(code: String(statusCode), describe: WYLocalized("状态码异常", table: WYBasisKitConfig.kitLocalizableTable)), isStatusCodeError: true, debugModeLog: config.debugModeLog, handler: handler)
                         
                     }else {
                         
@@ -591,7 +591,7 @@ extension WYNetworkManager {
                                     
                                     showDebugModeLog(target: target, response: response)
                                     
-                                    handlerFailure(error: WYError(code: responseData.code, describe: (responseData.message.isEmpty ? WYLocalized("WYLocalizable_29", table: WYBasisKitConfig.kitLocalizableTable) : responseData.message)), debugModeLog: config.debugModeLog, handler: handler)
+                                    handlerFailure(error: WYError(code: responseData.code, describe: (responseData.message.isEmpty ? WYLocalized("响应数据Code校验失败", table: WYBasisKitConfig.kitLocalizableTable) : responseData.message)), debugModeLog: config.debugModeLog, handler: handler)
                                 }
                                 
                             } catch  {
@@ -679,14 +679,14 @@ extension WYNetworkManager {
                             
                             DispatchQueue.main.async {
                                 
-                                if (actionStr == WYLocalized("WYLocalizable_18", table: WYBasisKitConfig.kitLocalizableTable)) {
+                                if (actionStr == WYLocalized("继续连接", table: WYBasisKitConfig.kitLocalizableTable)) {
                                     
                                     if (handler != nil) {
                                         
                                         handler!((.userContinueConnect, ""))
                                     }
                                     
-                                }else if ((actionStr == WYLocalized("WYLocalizable_19", table: WYBasisKitConfig.kitLocalizableTable)) || (actionStr == WYLocalized("WYLocalizable_01", table: WYBasisKitConfig.kitLocalizableTable))) {
+                                }else if ((actionStr == WYLocalized("取消连接", table: WYBasisKitConfig.kitLocalizableTable)) || (actionStr == WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable))) {
                                     
                                     if (handler != nil) {
                                         
@@ -733,32 +733,32 @@ extension WYNetworkManager {
         let manager = NetworkReachabilityManager()
         manager?.startListening(onQueue: .main, onUpdatePerforming: { (status) in
             
-            var message = WYLocalized("WYLocalizable_22", table: WYBasisKitConfig.kitLocalizableTable)
+            var message = WYLocalized("未知的网络，可能存在安全隐患，是否继续？", table: WYBasisKitConfig.kitLocalizableTable)
             var networkStatus = NetworkStatus.unknown
-            var actions = openSeting ? [WYLocalized("WYLocalizable_23", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized(WYLocalized("WYLocalizable_18", table: WYBasisKitConfig.kitLocalizableTable)), WYLocalized("WYLocalizable_19", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("WYLocalizable_18", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("WYLocalizable_19", table: WYBasisKitConfig.kitLocalizableTable)]
+            var actions = openSeting ? [WYLocalized("去设置", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized(WYLocalized("继续连接", table: WYBasisKitConfig.kitLocalizableTable)), WYLocalized("取消连接", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("继续连接", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("取消连接", table: WYBasisKitConfig.kitLocalizableTable)]
             switch status {
                 
             case .unknown:
-                message = WYLocalized("WYLocalizable_22", table: WYBasisKitConfig.kitLocalizableTable)
+                message = WYLocalized("未知的网络，可能存在安全隐患，是否继续？", table: WYBasisKitConfig.kitLocalizableTable)
                 networkStatus = .unknown
-                actions = openSeting ? [WYLocalized("WYLocalizable_23", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("WYLocalizable_18", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("WYLocalizable_19", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("WYLocalizable_18", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("WYLocalizable_19", table: WYBasisKitConfig.kitLocalizableTable)]
+                actions = openSeting ? [WYLocalized("去设置", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("继续连接", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("取消连接", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("继续连接", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("取消连接", table: WYBasisKitConfig.kitLocalizableTable)]
                 break
             case .notReachable:
-                message = WYLocalized("WYLocalizable_28", table: WYBasisKitConfig.kitLocalizableTable)
+                message = WYLocalized("不可用的网络，请确认您的网络环境或网络连接权限已正确设置", table: WYBasisKitConfig.kitLocalizableTable)
                 networkStatus = .notReachable
-                actions = openSeting ? [WYLocalized("WYLocalizable_23", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("WYLocalizable_01", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("WYLocalizable_01", table: WYBasisKitConfig.kitLocalizableTable)]
+                actions = openSeting ? [WYLocalized("去设置", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)]
                 break
             case .reachable:
                 if manager!.isReachableOnCellular {
                     
-                    message = WYLocalized("WYLocalizable_27", table: WYBasisKitConfig.kitLocalizableTable)
+                    message = WYLocalized("您正在使用蜂窝移动网络联网", table: WYBasisKitConfig.kitLocalizableTable)
                     networkStatus = .reachableCellular
-                    actions = openSeting ? [WYLocalized("WYLocalizable_23", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("WYLocalizable_01", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("WYLocalizable_01", table: WYBasisKitConfig.kitLocalizableTable)]
+                    actions = openSeting ? [WYLocalized("去设置", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)]
                 }else {
                     
-                    message = WYLocalized("WYLocalizable_26", table: WYBasisKitConfig.kitLocalizableTable)
+                    message = WYLocalized("您正在使用Wifi联网", table: WYBasisKitConfig.kitLocalizableTable)
                     networkStatus = .reachableWifi
-                    actions = openSeting ? [WYLocalized("WYLocalizable_23", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("WYLocalizable_01", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("WYLocalizable_01", table: WYBasisKitConfig.kitLocalizableTable)]
+                    actions = openSeting ? [WYLocalized("去设置", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)]
                 }
                 break
             }
@@ -790,7 +790,7 @@ extension WYNetworkManager {
                     actionHandler!(actionStr, status)
                 }
                 
-                if actionStr == WYLocalized("WYLocalizable_23", table: WYBasisKitConfig.kitLocalizableTable) {
+                if actionStr == WYLocalized("去设置", table: WYBasisKitConfig.kitLocalizableTable) {
                     
                     networkSecurityInfo = (NetworkStatus.userNotSelectedConnect, "")
                     
@@ -798,13 +798,13 @@ extension WYNetworkManager {
                     if let url = settingUrl, UIApplication.shared.canOpenURL(url) {
                         UIApplication.shared.open(settingUrl!, options: [:], completionHandler: nil)
                     }
-                }else if ((actionStr == WYLocalized("WYLocalizable_18", table: WYBasisKitConfig.kitLocalizableTable)) && (status == .unknown)) {
+                }else if ((actionStr == WYLocalized("继续连接", table: WYBasisKitConfig.kitLocalizableTable)) && (status == .unknown)) {
                     
                     networkSecurityInfo = (NetworkStatus.userContinueConnect, "")
                     
-                }else if (((actionStr == WYLocalized("WYLocalizable_19", table: WYBasisKitConfig.kitLocalizableTable)) && (status == .unknown)) || ((actionStr == WYLocalized("WYLocalizable_01", table: WYBasisKitConfig.kitLocalizableTable)) && (status == .notReachable))) {
+                }else if (((actionStr == WYLocalized("取消连接", table: WYBasisKitConfig.kitLocalizableTable)) && (status == .unknown)) || ((actionStr == WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)) && (status == .notReachable))) {
                     
-                    let errorStr = (actionStr == WYLocalized("WYLocalizable_19", table: WYBasisKitConfig.kitLocalizableTable)) ? WYLocalized("WYLocalizable_24", table: WYBasisKitConfig.kitLocalizableTable) : WYLocalized("WYLocalizable_25", table: WYBasisKitConfig.kitLocalizableTable)
+                    let errorStr = (actionStr == WYLocalized("取消连接", table: WYBasisKitConfig.kitLocalizableTable)) ? WYLocalized("已取消不安全网络连接", table: WYBasisKitConfig.kitLocalizableTable) : WYLocalized("无网络连接，请检查您的网络设置", table: WYBasisKitConfig.kitLocalizableTable)
                     networkSecurityInfo = (NetworkStatus.userCancelConnect, errorStr)
                     
                     cancelAllRequest()

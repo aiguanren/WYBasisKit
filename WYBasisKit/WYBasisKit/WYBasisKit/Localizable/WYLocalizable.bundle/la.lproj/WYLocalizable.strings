@@ -6,132 +6,108 @@
   Copyright © 2020 官人. All rights reserved.
 */
 
-"WYLocalizable_01" = "Got it";
+"知道了" = "Got it";
 
-"WYLocalizable_02" = "Password";
+"密码" = "Password";
 
-"WYLocalizable_03" = "Cancel";
+"取消" = "Cancel";
 
-"WYLocalizable_04" = "Delere";
+"删除" = "Delere";
 
-"WYLocalizable_05" = "Biometrica not available";
+"生物识别不可用" = "Biometrica not available";
 
-"WYLocalizable_06" = "Biometrica clausa est, scrinium claude et artificium feliciter reserare ac hanc paginam recludere";
+"生物识别已被锁定，锁屏并成功解锁设备后重新打开本页面即可重新开启" = "Biometrica clausa est, scrinium claude et artificium feliciter reserare ac hanc paginam recludere";
 
-"WYLocalizable_07" = "ratio hanc identificationem interrupit";
+"系统中断了本次识别" = "ratio hanc identificationem interrupit";
 
-"WYLocalizable_08" = "Tesseram unlock pone ante quam verterem in biometricis";
+"开启生物识别前请设置解锁密码" = "Tesseram unlock pone ante quam verterem in biometricis";
 
-"WYLocalizable_09" = "Quaeso enable/pone biometrica in fabrica occasus";
+"请在设备设置中开启/设置生物识别功能" = "Quaeso enable/pone biometrica in fabrica occasus";
 
-"WYLocalizable_10" = "Placere password ut quin biometrica";
+"请输入密码验证生物识别" = "Placere password ut quin biometrica";
 
-"WYLocalizable_11" = "No news yet";
+"暂无消息" = "No news yet";
 
-"WYLocalizable_12" = "Deauthorize";
+"去授权" = "Deauthorize";
 
-"WYLocalizable_13" = "App non licentiam adeundi phoenicis album, nunc auctorizandi?";
+"App没有访问相册的权限，现在去授权?" = "App non licentiam adeundi phoenicis album, nunc auctorizandi?";
 
-"WYLocalizable_14" = "App non licentiam accedere ad cameram, nunc ad patres auctores fiant?";
+"App没有访问相机的权限，现在去授权?" = "App non licentiam accedere ad cameram, nunc ad patres auctores fiant?";
 
-"WYLocalizable_15" = "App non licentiam accedere tortor ligula, nunc auctorizare";
+"App没有访问麦克风的权限，现在去授权?" = "App non licentiam accedere tortor ligula, nunc auctorizare";
 
-"WYLocalizable_16" = "App non licentiam aditus locus, nunc auctorizare";
+"App没有访问位置的权限，现在去授权?" = "App non licentiam aditus locus, nunc auctorizare";
 
-"WYLocalizable_17" = "App non permittitur accedere ad librum electronicum, nunc auctorizare?";
+"App没有访问通讯录的权限，现在去授权?" = "App non permittitur accedere ad librum electronicum, nunc auctorizare?";
 
-"WYLocalizable_18" = "Perge coniungere";
+"继续连接" = "Perge coniungere";
 
-"WYLocalizable_19" = "Cancel Connection";
+"取消连接" = "Cancel Connection";
 
-"WYLocalizable_20" = "Data petitio defecit";
+"数据请求失败" = "Data petitio defecit";
 
-"WYLocalizable_21" = "Status Codicis abnormes";
+"状态码异常" = "Status Codicis abnormes";
 
-"WYLocalizable_22" = "Retis incognita, periculum securitatis esse potest, pergere?";
+"未知的网络，可能存在安全隐患，是否继续？" = "Retis incognita, periculum securitatis esse potest, pergere?";
 
-"WYLocalizable_23" = "Perge ad Occasus";
+"去设置" = "Perge ad Occasus";
 
-"WYLocalizable_24" = "Intutus nexus retis cancellatus";
+"已取消不安全网络连接" = "Intutus nexus retis cancellatus";
 
-"WYLocalizable_25" = "Nullum retis nexum, quaeso retis occasus reprehendo";
+"无网络连接，请检查您的网络设置" = "Nullum retis nexum, quaeso retis occasus reprehendo";
 
-"WYLocalizable_26" = "Wifi uteris";
+"您正在使用Wifi联网" = "Wifi uteris";
 
-"WYLocalizable_27" = "Connexa sunt cum Internet utens retiacula cellulosa";
+"您正在使用蜂窝移动网络联网" = "Connexa sunt cum Internet utens retiacula cellulosa";
 
-"WYLocalizable_28" = "Retis Unavailable, quaeso confirmas permissiones retis vel nexus retis recte positas";
+"不可用的网络，请确认您的网络环境或网络连接权限已正确设置" = "Retis Unavailable, quaeso confirmas permissiones retis vel nexus retis recte positas";
 
-"WYLocalizable_29" = "Responsio data Codicis verificationem defecit";
+"响应数据Code校验失败" = "Responsio data Codicis verificationem defecit";
 
-"WYLocalizable_30" = "Modo";
+"刚刚" = "Modo";
 
-"WYLocalizable_31" = "%@ minutes ago";
+"X分钟前" = "%@ minutes ago";
 
-"WYLocalizable_32" = "%@ hours ago";
+"X小时前" = "%@ hours ago";
 
-"WYLocalizable_33" = "%@ dies ago";
+"X天前" = "%@ dies ago";
 
-"WYLocalizable_34" = "%@ month ago";
+"X月前" = "%@ month ago";
 
-"WYLocalizable_35" = "%@ abhinc";
+"X年前" = "%@ abhinc";
 
-"WYLocalizable_36" = "No SIM Card";
+"无手机卡" = "No SIM Card";
 
-"WYLocalizable_37" = "Capricornus";
+"App没有访问语音识别的权限，现在去授权?" = "App non licentiam aditum ad recognitionem sermonis, nunc ad auctorizandum?";
 
-"WYLocalizable_38" = "Aquarius";
+"今天" = "Hodie";
 
-"WYLocalizable_39" = "Pisces";
+"昨天" = "Heri";
 
-"WYLocalizable_40" = "Aries";
+"前天" = "Pridie heri";
 
-"WYLocalizable_41" = "Taurus";
+"星期日" = "Dominica";
 
-"WYLocalizable_42" = "Gemini";
+"星期一" = "Lunae";
 
-"WYLocalizable_43" = "Cancer";
+"星期二" = "Martis";
 
-"WYLocalizable_44" = "Leo";
+"星期三" = "Mercurii";
 
-"WYLocalizable_45" = "Virgo";
+"星期四" = "Jovis";
 
-"WYLocalizable_46" = "Libra";
+"星期五" = "Veneris";
 
-"WYLocalizable_47" = "Scorpio";
+"星期六" = "Sabbato";
 
-"WYLocalizable_48" = "Sagittarius";
+"年" = "Annus";
 
-"WYLocalizable_49" = "App non licentiam aditum ad recognitionem sermonis, nunc ad auctorizandum?";
-
-"WYLocalizable_50" = "Hodie";
-
-"WYLocalizable_51" = "Heri";
-
-"WYLocalizable_52" = "Pridie heri";
-
-"WYLocalizable_53" = "Dominica";
-
-"WYLocalizable_54" = "Lunae";
-
-"WYLocalizable_55" = "Martis";
-
-"WYLocalizable_56" = "Mercurii";
-
-"WYLocalizable_57" = "Jovis";
-
-"WYLocalizable_58" = "Veneris";
-
-"WYLocalizable_59" = "Sabbato";
-
-"WYLocalizable_60" = "Annus";
-
-"WYLocalizable_61" = "mensis";
+"月" = "mensis";
 
 "Dies" = "Dies";
 
-"WYLocalizable_63" = "Hora";
+"时" = "Hora";
 
-"WYLocalizable_64" = "Minutes";
+"分" = "Minutes";
 
-"WYLocalizable_65" = "secunda";
+"秒" = "secunda";

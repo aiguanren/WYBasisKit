@@ -6,132 +6,108 @@
   Copyright © 2020 官人. All rights reserved.
 */
 
-"WYLocalizable_01" = "Faham";
+"知道了" = "Faham";
 
-"WYLocalizable_02" = "Kata Laluan";
+"密码" = "Kata Laluan";
 
-"WYLocalizable_03" = "Batal";
+"取消" = "Batal";
 
-"WYLocalizable_04" = "Padam";
+"删除" = "Padam";
 
-"WYLocalizable_05" = "Biometrik tidak tersedia";
+"生物识别不可用" = "Biometrik tidak tersedia";
 
-"WYLocalizable_06" = "Biometrik telah dikunci, kunci skrin dan berjaya membuka kunci peranti dan membuka semula halaman ini untuk membuka semula";
+"生物识别已被锁定，锁屏并成功解锁设备后重新打开本页面即可重新开启" = "Biometrik telah dikunci, kunci skrin dan berjaya membuka kunci peranti dan membuka semula halaman ini untuk membuka semula";
 
-"WYLocalizable_07" = "Sistem telah mengganggu pengenalan ini";
+"系统中断了本次识别" = "Sistem telah mengganggu pengenalan ini";
 
-"WYLocalizable_08" = "Sila tetapkan kata laluan buka kunci sebelum menghidupkan biometrik";
+"开启生物识别前请设置解锁密码" = "Sila tetapkan kata laluan buka kunci sebelum menghidupkan biometrik";
 
-"WYLocalizable_09" = "Sila dayakan/tetapkan biometrik dalam tetapan peranti";
+"请在设备设置中开启/设置生物识别功能" = "Sila dayakan/tetapkan biometrik dalam tetapan peranti";
 
-"WYLocalizable_10" = "Sila masukkan kata laluan untuk mengesahkan biometrik";
+"请输入密码验证生物识别" = "Sila masukkan kata laluan untuk mengesahkan biometrik";
 
-"WYLocalizable_11" = "Tiada berita lagi";
+"暂无消息" = "Tiada berita lagi";
 
-"WYLocalizable_12" = "Nyahkebenaran";
+"去授权" = "Nyahkebenaran";
 
-"WYLocalizable_13" = "Apl tidak mempunyai kebenaran untuk mengakses album foto, sekarang pergi ke kebenaran?";
+"App没有访问相册的权限，现在去授权?" = "Apl tidak mempunyai kebenaran untuk mengakses album foto, sekarang pergi ke kebenaran?";
 
-"WYLocalizable_14" = "Apl tidak mempunyai kebenaran untuk mengakses kamera, sekarang pergi ke kebenaran?";
+"App没有访问相机的权限，现在去授权?" = "Apl tidak mempunyai kebenaran untuk mengakses kamera, sekarang pergi ke kebenaran?";
 
-"WYLocalizable_15" = "Apl tidak mempunyai kebenaran untuk mengakses mikrofon, sekarang pergi ke kebenaran?";
+"App没有访问麦克风的权限，现在去授权?" = "Apl tidak mempunyai kebenaran untuk mengakses mikrofon, sekarang pergi ke kebenaran?";
 
-"WYLocalizable_16" = "Apl tidak mempunyai kebenaran untuk mengakses lokasi, sekarang pergi ke kebenaran?";
+"App没有访问位置的权限，现在去授权?" = "Apl tidak mempunyai kebenaran untuk mengakses lokasi, sekarang pergi ke kebenaran?";
 
-"WYLocalizable_17" = "Apl tidak mempunyai kebenaran untuk mengakses buku alamat, sekarang pergi ke kebenaran?";
+"App没有访问通讯录的权限，现在去授权?" = "Apl tidak mempunyai kebenaran untuk mengakses buku alamat, sekarang pergi ke kebenaran?";
 
-"WYLocalizable_18" = "Teruskan menyambung";
+"继续连接" = "Teruskan menyambung";
 
-"WYLocalizable_19" = "Batalkan Sambungan";
+"取消连接" = "Batalkan Sambungan";
 
-"WYLocalizable_20" = "Permintaan data gagal";
+"数据请求失败" = "Permintaan data gagal";
 
-"WYLocalizable_21" = "Kod Status Tidak Normal";
+"状态码异常" = "Kod Status Tidak Normal";
 
-"WYLocalizable_22" = "Rangkaian tidak diketahui, mungkin terdapat risiko keselamatan, teruskan?";
+"未知的网络，可能存在安全隐患，是否继续？" = "Rangkaian tidak diketahui, mungkin terdapat risiko keselamatan, teruskan?";
 
-"WYLocalizable_23" = "Pergi ke Tetapan";
+"去设置" = "Pergi ke Tetapan";
 
-"WYLocalizable_24" = "Sambungan rangkaian tidak selamat dibatalkan";
+"已取消不安全网络连接" = "Sambungan rangkaian tidak selamat dibatalkan";
 
-"WYLocalizable_25" = "Tiada sambungan rangkaian, sila semak tetapan rangkaian anda";
+"无网络连接，请检查您的网络设置" = "Tiada sambungan rangkaian, sila semak tetapan rangkaian anda";
 
-"WYLocalizable_26" = "Anda menggunakan Wifi";
+"您正在使用Wifi联网" = "Anda menggunakan Wifi";
 
-"WYLocalizable_27" = "Anda disambungkan ke Internet menggunakan rangkaian selular";
+"您正在使用蜂窝移动网络联网" = "Anda disambungkan ke Internet menggunakan rangkaian selular";
 
-"WYLocalizable_28" = "Rangkaian tidak tersedia, sila sahkan persekitaran rangkaian anda atau kebenaran sambungan rangkaian telah ditetapkan dengan betul";
+"不可用的网络，请确认您的网络环境或网络连接权限已正确设置" = "Rangkaian tidak tersedia, sila sahkan persekitaran rangkaian anda atau kebenaran sambungan rangkaian telah ditetapkan dengan betul";
 
-"WYLocalizable_29" = "Pengesahan kod data tindak balas gagal";
+"响应数据Code校验失败" = "Pengesahan kod data tindak balas gagal";
 
-"WYLocalizable_30" = "Tadi";
+"刚刚" = "Tadi";
 
-"WYLocalizable_31" = "%@ minit lalu";
+"X分钟前" = "%@ minit lalu";
 
-"WYLocalizable_32" = "%@ jam yang lalu";
+"X小时前" = "%@ jam yang lalu";
 
-"WYLocalizable_33" = "%@ days ago";
+"X天前" = "%@ days ago";
 
-"WYLocalizable_34" = "%@ month ago";
+"X月前" = "%@ month ago";
 
-"WYLocalizable_35" = "%@ tahun lalu";
+"X年前" = "%@ tahun lalu";
 
-"WYLocalizable_36" = "Tiada Kad SIM";
+"无手机卡" = "Tiada Kad SIM";
 
-"WYLocalizable_37" = "Capricornus";
+"App没有访问语音识别的权限，现在去授权?" = "Apl tidak mempunyai kebenaran untuk mengakses pengecaman pertuturan, sekarang pergi ke kebenaran?";
 
-"WYLocalizable_38" = "Aquarius";
+"今天" = "Hari ini";
 
-"WYLocalizable_39" = "Pisces";
+"昨天" = "Semalam";
 
-"WYLocalizable_40" = "Aries";
+"前天" = "Sehari sebelum semalam";
 
-"WYLocalizable_41" = "Taurus";
+"星期日" = "Ahad";
 
-"WYLocalizable_42" = "Gemini";
+"星期一" = "Isnin";
 
-"WYLocalizable_43" = "Kanser";
+"星期二" = "Selasa";
 
-"WYLocalizable_44" = "Leo";
+"星期三" = "Rabu";
 
-"WYLocalizable_45" = "Virgo";
+"星期四" = "Khamis";
 
-"WYLocalizable_46" = "Libra";
+"星期五" = "Jumaat";
 
-"WYLocalizable_47" = "Scorpio";
+"星期六" = "Sabtu";
 
-"WYLocalizable_48" = "Sagittarius";
+"年" = "Tahun";
 
-"WYLocalizable_49" = "Apl tidak mempunyai kebenaran untuk mengakses pengecaman pertuturan, sekarang pergi ke kebenaran?";
+"月" = "Bulan";
 
-"WYLocalizable_50" = "Hari ini";
+"日" = "Hari";
 
-"WYLocalizable_51" = "Semalam";
+"时" = "Jam";
 
-"WYLocalizable_52" = "Sehari sebelum semalam";
+"分" = "Minit";
 
-"WYLocalizable_53" = "Ahad";
-
-"WYLocalizable_54" = "Isnin";
-
-"WYLocalizable_55" = "Selasa";
-
-"WYLocalizable_56" = "Rabu";
-
-"WYLocalizable_57" = "Khamis";
-
-"WYLocalizable_58" = "Jumaat";
-
-"WYLocalizable_59" = "Sabtu";
-
-"WYLocalizable_60" = "Tahun";
-
-"WYLocalizable_61" = "Bulan";
-
-"WYLocalizable_62" = "Hari";
-
-"WYLocalizable_63" = "Jam";
-
-"WYLocalizable_64" = "Minit";
-
-"WYLocalizable_65" = "saat";
+"秒" = "saat";

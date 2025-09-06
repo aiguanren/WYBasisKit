@@ -26,22 +26,22 @@ public func wy_authorizeSpeechRecognition(showAlert: Bool = true, handler: @esca
                 return
             case .denied:
                 // 拒绝授权
-                wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("WYLocalizable_49", table: WYBasisKitConfig.kitLocalizableTable))
+                wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("App没有访问语音识别的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
                 handler(false)
                 return
             case .restricted:
                 // 保密，也就是不授权
-                wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("WYLocalizable_49", table: WYBasisKitConfig.kitLocalizableTable))
+                wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("App没有访问语音识别的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
                 handler(false)
                 return
             case .notDetermined:
                 // 用户尚未决定是否授权
-                wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("WYLocalizable_49", table: WYBasisKitConfig.kitLocalizableTable))
+                wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("App没有访问语音识别的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
                 handler(false)
                 return
             @unknown default:
                 // 其他可能情况
-                wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("WYLocalizable_49", table: WYBasisKitConfig.kitLocalizableTable))
+                wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("App没有访问语音识别的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
                 handler(false)
                 return
             }
@@ -51,11 +51,11 @@ public func wy_authorizeSpeechRecognition(showAlert: Bool = true, handler: @esca
         func wy_showAuthorizeAlert(show: Bool, message: String) {
             
             if show {
-                UIAlertController.wy_show(message: message, actions: [WYLocalized("WYLocalizable_03", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("WYLocalizable_12", table: WYBasisKitConfig.kitLocalizableTable)]) { (actionStr, _) in
+                UIAlertController.wy_show(message: message, actions: [WYLocalized("取消", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable)]) { (actionStr, _) in
                     
                     DispatchQueue.main.async {
                         
-                        if actionStr == WYLocalized("WYLocalizable_12", table: WYBasisKitConfig.kitLocalizableTable) {
+                        if actionStr == WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable) {
                             
                             let settingUrl = URL(string: UIApplication.openSettingsURLString)
                             if let url = settingUrl, UIApplication.shared.canOpenURL(url) {

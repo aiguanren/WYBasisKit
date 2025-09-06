@@ -96,7 +96,14 @@
 //    NSString *cwdv3dwr3 = [@"你好" wy_phoneticTransformWithTone:NO interval:NO];
 //    NSLog(@"cwdv3r3 = %@, cwdv3dwr3 = %@",cwdv3r3, cwdv3dwr3);
 //    
-//    NSLog(@"1 = %@, 2 = %@, 3 = %@", [NSString wy_constellationFrom:@"1757063069"], [NSString wy_constellationFrom:@"1757063069260"], [NSString wy_constellationFrom:@"1757063069259821"]);
+//    NSLog(@"1 = %ld, 2 = %ld, 3 = %ld", [NSString wy_zodiacSignFrom:@"1757063069"], [NSString wy_zodiacSignFrom:@"1757063069260"], (long)[NSString wy_zodiacSignFrom:@"1757063069259821"]);
+    
+//    NSString *str1 = @"";
+//    NSString *str2 = @"123";
+//    NSString *str3 = nil;
+//    NSLog(@"str1 = %d\nstr2 = %d\nstr3 = %d",[NSString wy_isEmpty:str1], [NSString wy_isEmpty:str2],[NSString wy_isEmpty:str3]);
+//    NSLog(@"str1 = %@\nstr2 = %@\nstr3 = %@",[NSString wy_safe:str1], [NSString wy_safe:str2],[NSString wy_safe:str3]);
+//    NSLog(@"nstr3 = %@",str3);
 }
 
 

@@ -1,5 +1,5 @@
 //
-//  NSString.swift
+//  StringObjC.swift
 //  WYBasisKit
 //
 //  Created by guanren on 2025/9/5.
@@ -91,11 +91,65 @@ import Foundation
     case withinSameYear
 }
 
+/// 黄道十二宫(星座)
+@objc @frozen public enum WYZodiacSignObjC: Int, CaseIterable {
+    /// 未知
+    case unknown = 0
+    /// 摩羯座
+    case capricorn
+    /// 水瓶座
+    case aquarius
+    /// 双鱼座
+    case pisces
+    /// 白羊座
+    case aries
+    /// 金牛座
+    case taurus
+    /// 双子座
+    case gemini
+    /// 巨蟹座
+    case cancer
+    /// 狮子座
+    case leo
+    /// 处女座
+    case virgo
+    /// 天秤座
+    case libra
+    /// 天蝎座
+    case scorpio
+    /// 射手座
+    case sagittarius
+    
+    /// 星座日期范围(OC只能查看)
+    var dateRange: String {
+        switch self {
+        case .unknown:      return ""
+        case .capricorn:    return "12.22-1.19"
+        case .aquarius:     return "1.20-2.18"
+        case .pisces:       return "2.19-3.20"
+        case .aries:        return "3.21-4.19"
+        case .taurus:       return "4.20-5.20"
+        case .gemini:       return "5.21-6.21"
+        case .cancer:       return "6.22-7.22"
+        case .leo:          return "7.23-8.22"
+        case .virgo:        return "8.23-9.22"
+        case .libra:        return "9.23-10.23"
+        case .scorpio:      return "10.24-11.22"
+        case .sagittarius:  return "11.23-12.21"
+        }
+    }
+}
+
 @objc public extension NSString {
     
     /// 获取非空安全值
     @objc static func wy_safe(_ optionalString: String?) -> String {
         return optionalString.wy_safe
+    }
+    
+    /// 字符串是否为空
+    @objc static func wy_isEmpty(_ optionalString: String?) -> Bool {
+        return NSString.wy_safe(optionalString).isEmpty
     }
     
     /**
@@ -291,8 +345,8 @@ import Foundation
     }
     
     /// 根据时间戳获取星座
-    @objc static func wy_constellation(from timestamp: String) -> String {
-        return String.wy_constellation(from: timestamp)
+    @objc static func wy_zodiacSign(from timestamp: String) -> WYZodiacSignObjC {
+        return WYZodiacSignObjC(rawValue: String.wy_zodiacSign(from: timestamp).rawValue) ?? .unknown
     }
 }
 

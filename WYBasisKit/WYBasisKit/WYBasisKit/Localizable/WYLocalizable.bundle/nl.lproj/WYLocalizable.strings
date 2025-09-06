@@ -6,132 +6,108 @@
   Copyright © 2020 官人. All rights reserved.
 */
 
-"WYLocalizable_01" = "Begrepen";
+"知道了" = "Begrepen";
 
-"WYLocalizable_02" = "Wachtwoord";
+"密码" = "Wachtwoord";
 
-"WYLocalizable_03" = "Annuleren";
+"取消" = "Annuleren";
 
-"WYLocalizable_04" = "Verwijderen";
+"删除" = "Verwijderen";
 
-"WYLocalizable_05" = "Biometrie niet beschikbaar";
+"生物识别不可用" = "Biometrie niet beschikbaar";
 
-"WYLocalizable_06" = "Biometrie is vergrendeld, vergrendel het scherm en ontgrendel het apparaat en open deze pagina opnieuw om opnieuw te openen";
+"生物识别已被锁定，锁屏并成功解锁设备后重新打开本页面即可重新开启" = "Biometrie is vergrendeld, vergrendel het scherm en ontgrendel het apparaat en open deze pagina opnieuw om opnieuw te openen";
 
-"WYLocalizable_07" = "Het systeem heeft deze identificatie onderbroken";
+"系统中断了本次识别" = "Het systeem heeft deze identificatie onderbroken";
 
-"WYLocalizable_08" = "Stel een ontgrendelingswachtwoord in voordat u biometrie inschakelt";
+"开启生物识别前请设置解锁密码" = "Stel een ontgrendelingswachtwoord in voordat u biometrie inschakelt";
 
-"WYLocalizable_09" = "Schakel biometrische gegevens in/in in apparaatinstellingen";
+"请在设备设置中开启/设置生物识别功能" = "Schakel biometrische gegevens in/in in apparaatinstellingen";
 
-"WYLocalizable_10" = "Voer het wachtwoord in om biometrie te verifiëren";
+"请输入密码验证生物识别" = "Voer het wachtwoord in om biometrie te verifiëren";
 
-"WYLocalizable_11" = "Nog geen nieuws";
+"暂无消息" = "Nog geen nieuws";
 
-"WYLocalizable_12" = "Machtiging intrekken";
+"去授权" = "Machtiging intrekken";
 
-"WYLocalizable_13" = "App heeft geen toestemming voor toegang tot het fotoalbum. Ga nu naar autoriseren?";
+"App没有访问相册的权限，现在去授权?" = "App heeft geen toestemming voor toegang tot het fotoalbum. Ga nu naar autoriseren?";
 
-"WYLocalizable_14" = "App heeft geen toestemming voor toegang tot de camera. Ga nu naar autoriseren?";
+"App没有访问相机的权限，现在去授权?" = "App heeft geen toestemming voor toegang tot de camera. Ga nu naar autoriseren?";
 
-"WYLocalizable_15" = "App heeft geen toestemming voor toegang tot de microfoon. Ga nu naar autoriseren?";
+"App没有访问麦克风的权限，现在去授权?" = "App heeft geen toestemming voor toegang tot de microfoon. Ga nu naar autoriseren?";
 
-"WYLocalizable_16" = "App heeft geen toestemming voor toegang tot locatie. Ga nu naar autoriseren?";
+"App没有访问位置的权限，现在去授权?" = "App heeft geen toestemming voor toegang tot locatie. Ga nu naar autoriseren?";
 
-"WYLocalizable_17" = "App heeft geen toestemming voor toegang tot het adresboek. Ga nu naar autoriseren?";
+"App没有访问通讯录的权限，现在去授权?" = "App heeft geen toestemming voor toegang tot het adresboek. Ga nu naar autoriseren?";
 
-"WYLocalizable_18" = "Doorgaan met verbinden";
+"继续连接" = "Doorgaan met verbinden";
 
-"WYLocalizable_19" = "Verbinding annuleren";
+"取消连接" = "Verbinding annuleren";
 
-"WYLocalizable_20" = "Gegevensverzoek mislukt";
+"数据请求失败" = "Gegevensverzoek mislukt";
 
-"WYLocalizable_21" = "Statuscode abnormaal";
+"状态码异常" = "Statuscode abnormaal";
 
-"WYLocalizable_22" = "Onbekend netwerk, er kunnen beveiligingsrisico's zijn, doorgaan?";
+"未知的网络，可能存在安全隐患，是否继续？" = "Onbekend netwerk, er kunnen beveiligingsrisico's zijn, doorgaan?";
 
-"WYLocalizable_23" = "Ga naar Instellingen";
+"去设置" = "Ga naar Instellingen";
 
-"WYLocalizable_24" = "Onveilige netwerkverbinding geannuleerd";
+"已取消不安全网络连接" = "Onveilige netwerkverbinding geannuleerd";
 
-"WYLocalizable_25" = "Geen netwerkverbinding, controleer uw netwerkinstellingen";
+"无网络连接，请检查您的网络设置" = "Geen netwerkverbinding, controleer uw netwerkinstellingen";
 
-"WYLocalizable_26" = "U gebruikt wifi";
+"您正在使用Wifi联网" = "U gebruikt wifi";
 
-"WYLocalizable_27" = "U bent verbonden met internet via een mobiel netwerk";
+"您正在使用蜂窝移动网络联网" = "U bent verbonden met internet via een mobiel netwerk";
 
-"WYLocalizable_28" = "Netwerk niet beschikbaar. Controleer of uw netwerkomgeving of machtigingen voor netwerkverbinding correct zijn ingesteld";
+"不可用的网络，请确认您的网络环境或网络连接权限已正确设置" = "Netwerk niet beschikbaar. Controleer of uw netwerkomgeving of machtigingen voor netwerkverbinding correct zijn ingesteld";
 
-"WYLocalizable_29" = "Verificatie van de code van de responsgegevens is mislukt";
+"响应数据Code校验失败" = "Verificatie van de code van de responsgegevens is mislukt";
 
-"WYLocalizable_30" = "Zojuist";
+"刚刚" = "Zojuist";
 
-"WYLocalizable_31" = "%@ minuten geleden";
+"X分钟前" = "%@ minuten geleden";
 
-"WYLocalizable_32" = "%@ uur geleden";
+"X小时前" = "%@ uur geleden";
 
-"WYLocalizable_33" = "%@ dagen geleden";
+"X天前" = "%@ dagen geleden";
 
-"WYLocalizable_34" = "%@ maand geleden";
+"X月前" = "%@ maand geleden";
 
-"WYLocalizable_35" = "%@ jaar geleden";
+"X年前" = "%@ jaar geleden";
 
-"WYLocalizable_36" = "Geen simkaart";
+"无手机卡" = "Geen simkaart";
 
-"WYLocalizable_37" = "Steenbok";
+"App没有访问语音识别的权限，现在去授权?" = "App heeft geen toestemming voor toegang tot spraakherkenning. Ga nu naar autoriseren?";
 
-"WYLocalizable_38" = "Waterman";
+"今天" = "Vandaag";
 
-"WYLocalizable_39" = "Vissen";
+"昨天" = "Gisteren";
 
-"WYLocalizable_40" = "Ram";
+"前天" = "Eergisteren";
 
-"WYLocalizable_41" = "Stier";
+"星期日" = "Zondag";
 
-"WYLocalizable_42" = "Tweelingen";
+"星期一" = "Maandag";
 
-"WYLocalizable_43" = "Kanker";
+"星期二" = "Dinsdag";
 
-"WYLocalizable_44" = "Leeuw";
+"星期三" = "woensdag";
 
-"WYLocalizable_45" = "Maagd";
+"星期四" = "donderdag";
 
-"WYLocalizable_46" = "Weegschaal";
+"星期五" = "Vrijdag";
 
-"WYLocalizable_47" = "Schorpioen";
+"星期六" = "Zaterdag";
 
-"WYLocalizable_48" = "Boogschutter";
+"年" = "Jaar";
 
-"WYLocalizable_49" = "App heeft geen toestemming voor toegang tot spraakherkenning. Ga nu naar autoriseren?";
+"月" = "Maand";
 
-"WYLocalizable_50" = "Vandaag";
+"日" = "Dag";
 
-"WYLocalizable_51" = "Gisteren";
+"时" = "Uur";
 
-"WYLocalizable_52" = "Eergisteren";
+"分" = "Minuten";
 
-"WYLocalizable_53" = "Zondag";
-
-"WYLocalizable_54" = "Maandag";
-
-"WYLocalizable_55" = "Dinsdag";
-
-"WYLocalizable_56" = "woensdag";
-
-"WYLocalizable_57" = "donderdag";
-
-"WYLocalizable_58" = "Vrijdag";
-
-"WYLocalizable_59" = "Zaterdag";
-
-"WYLocalizable_60" = "Jaar";
-
-"WYLocalizable_61" = "Maand";
-
-"WYLocalizable_62" = "Dag";
-
-"WYLocalizable_63" = "Uur";
-
-"WYLocalizable_64" = "Minuten";
-
-"WYLocalizable_65" = "seconden";
+"秒" = "seconden";

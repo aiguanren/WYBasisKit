@@ -6,132 +6,108 @@
   Copyright © 2020 官人. All rights reserved.
 */
 
-"WYLocalizable_01" = "Entendido";
+"知道了" = "Entendido";
 
-"WYLocalizable_02" = "Contraseña";
+"密码" = "Contraseña";
 
-"WYLocalizable_03" = "Cancelar";
+"取消" = "Cancelar";
 
-"WYLocalizable_04" = "Eliminar";
+"删除" = "Eliminar";
 
-"WYLocalizable_05" = "Biometría no disponible";
+"生物识别不可用" = "Biometría no disponible";
 
-"WYLocalizable_06" = "La biometría se ha bloqueado, bloquee la pantalla y desbloquee correctamente el dispositivo y vuelva a abrir esta página para volver a abrir";
+"生物识别已被锁定，锁屏并成功解锁设备后重新打开本页面即可重新开启" = "La biometría se ha bloqueado, bloquee la pantalla y desbloquee correctamente el dispositivo y vuelva a abrir esta página para volver a abrir";
 
-"WYLocalizable_07" = "El sistema interrumpió esta identificación";
+"系统中断了本次识别" = "El sistema interrumpió esta identificación";
 
-"WYLocalizable_08" = "Establezca una contraseña de desbloqueo antes de activar la biometría";
+"开启生物识别前请设置解锁密码" = "Establezca una contraseña de desbloqueo antes de activar la biometría";
 
-"WYLocalizable_09" = "Habilite/establezca la biometría en la configuración del dispositivo";
+"请在设备设置中开启/设置生物识别功能" = "Habilite/establezca la biometría en la configuración del dispositivo";
 
-"WYLocalizable_10" = "Introduzca la contraseña para verificar los datos biométricos";
+"请输入密码验证生物识别" = "Introduzca la contraseña para verificar los datos biométricos";
 
-"WYLocalizable_11" = "Todavía no hay noticias";
+"暂无消息" = "Todavía no hay noticias";
 
-"WYLocalizable_12" = "Desautorizar";
+"去授权" = "Desautorizar";
 
-"WYLocalizable_13" = "La aplicación no tiene permiso para acceder al álbum de fotos, ¿va a autorizar ahora?";
+"App没有访问相册的权限，现在去授权?" = "La aplicación no tiene permiso para acceder al álbum de fotos, ¿va a autorizar ahora?";
 
-"WYLocalizable_14" = "La aplicación no tiene permiso para acceder a la cámara. ¿Ahora ve a autorizar?";
+"App没有访问相机的权限，现在去授权?" = "La aplicación no tiene permiso para acceder a la cámara. ¿Ahora ve a autorizar?";
 
-"WYLocalizable_15" = "La aplicación no tiene permiso para acceder al micrófono. ¿Ahora ve a autorizar?";
+"App没有访问麦克风的权限，现在去授权?" = "La aplicación no tiene permiso para acceder al micrófono. ¿Ahora ve a autorizar?";
 
-"WYLocalizable_16" = "La aplicación no tiene permiso para acceder a la ubicación. ¿Desea autorizar ahora?";
+"App没有访问位置的权限，现在去授权?" = "La aplicación no tiene permiso para acceder a la ubicación. ¿Desea autorizar ahora?";
 
-"WYLocalizable_17" = "La aplicación no tiene permiso para acceder a la libreta de direcciones. ¿Desea autorizar ahora?";
+"App没有访问通讯录的权限，现在去授权?" = "La aplicación no tiene permiso para acceder a la libreta de direcciones. ¿Desea autorizar ahora?";
 
-"WYLocalizable_18" = "Continuar para conectarse";
+"继续连接" = "Continuar para conectarse";
 
-"WYLocalizable_19" = "Cancelar conexión";
+"取消连接" = "Cancelar conexión";
 
-"WYLocalizable_20" = "Error en la solicitud de datos";
+"数据请求失败" = "Error en la solicitud de datos";
 
-"WYLocalizable_21" = "Código de estado anómalo";
+"状态码异常" = "Código de estado anómalo";
 
-"WYLocalizable_22" = "Red desconocida, puede haber riesgos de seguridad, ¿continuar?";
+"未知的网络，可能存在安全隐患，是否继续？" = "Red desconocida, puede haber riesgos de seguridad, ¿continuar?";
 
-"WYLocalizable_23" = "Ir a Configuración";
+"去设置" = "Ir a Configuración";
 
-"WYLocalizable_24" = "Conexión de red no segura cancelada";
+"已取消不安全网络连接" = "Conexión de red no segura cancelada";
 
-"WYLocalizable_25" = "Sin conexión de red, verifique la configuración de su red";
+"无网络连接，请检查您的网络设置" = "Sin conexión de red, verifique la configuración de su red";
 
-"WYLocalizable_26" = "Está utilizando Wi-Fi";
+"您正在使用Wifi联网" = "Está utilizando Wi-Fi";
 
-"WYLocalizable_27" = "Está conectado a Internet mediante una red móvil";
+"您正在使用蜂窝移动网络联网" = "Está conectado a Internet mediante una red móvil";
 
-"WYLocalizable_28" = "Red no disponible. Confirme que su entorno de red o los permisos de conexión de red se han configurado correctamente";
+"不可用的网络，请确认您的网络环境或网络连接权限已正确设置" = "Red no disponible. Confirme que su entorno de red o los permisos de conexión de red se han configurado correctamente";
 
-"WYLocalizable_29" = "Error en la verificación del código de datos de respuesta";
+"响应数据Code校验失败" = "Error en la verificación del código de datos de respuesta";
 
-"WYLocalizable_30" = "Justo ahora";
+"刚刚" = "Justo ahora";
 
-"WYLocalizable_31" = "Hace %@ minutos";
+"X分钟前" = "Hace %@ minutos";
 
-"WYLocalizable_32" = "Hace %@ horas";
+"X小时前" = "Hace %@ horas";
 
-"WYLocalizable_33" = "Hace %@ días";
+"X天前" = "Hace %@ días";
 
-"WYLocalizable_34" = "Hace %@ mes";
+"X月前" = "Hace %@ mes";
 
-"WYLocalizable_35" = "Hace %@ años";
+"X年前" = "Hace %@ años";
 
-"WYLocalizable_36" = "Sin tarjeta SIM";
+"无手机卡" = "Sin tarjeta SIM";
 
-"WYLocalizable_37" = "Capricornio";
+"App没有访问语音识别的权限，现在去授权?" = "La aplicación no tiene permiso para acceder al reconocimiento de voz, ¿va a autorizar ahora?";
 
-"WYLocalizable_38" = "Acuario";
+"今天" = "Hoy";
 
-"WYLocalizable_39" = "Piscis";
+"昨天" = "Ayer";
 
-"WYLocalizable_40" = "Aries";
+"前天" = "Anteayer";
 
-"WYLocalizable_41" = "Tauro";
+"星期日" = "Domingo";
 
-"WYLocalizable_42" = "Géminis";
+"星期一" = "Lunes";
 
-"WYLocalizable_43" = "Cáncer";
+"星期二" = "Martes";
 
-"WYLocalizable_44" = "León";
+"星期三" = "Miércoles";
 
-"WYLocalizable_45" = "Virgo";
+"星期四" = "Jueves";
 
-"WYLocalizable_46" = "Libra";
+"星期五" = "Viernes";
 
-"WYLocalizable_47" = "Escorpio";
+"星期六" = "Sábado";
 
-"WYLocalizable_48" = "Sagitario";
+"年" = "Año";
 
-"WYLocalizable_49" = "La aplicación no tiene permiso para acceder al reconocimiento de voz, ¿va a autorizar ahora?";
+"月" = "Mes";
 
-"WYLocalizable_50" = "Hoy";
+"日" = "Día";
 
-"WYLocalizable_51" = "Ayer";
+"时" = "Hora";
 
-"WYLocalizable_52" = "Anteayer";
+"分" = "Minutos";
 
-"WYLocalizable_53" = "Domingo";
-
-"WYLocalizable_54" = "Lunes";
-
-"WYLocalizable_55" = "Martes";
-
-"WYLocalizable_56" = "Miércoles";
-
-"WYLocalizable_57" = "Jueves";
-
-"WYLocalizable_58" = "Viernes";
-
-"WYLocalizable_59" = "Sábado";
-
-"WYLocalizable_60" = "Año";
-
-"WYLocalizable_61" = "Mes";
-
-"WYLocalizable_62" = "Día";
-
-"WYLocalizable_63" = "Hora";
-
-"WYLocalizable_64" = "Minutos";
-
-"WYLocalizable_65" = "Segundos";
+"秒" = "Segundos";

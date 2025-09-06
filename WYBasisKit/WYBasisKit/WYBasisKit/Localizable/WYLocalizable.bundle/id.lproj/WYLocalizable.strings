@@ -6,132 +6,108 @@
   Copyright © 2020 官人. All rights reserved.
 */
 
-"WYLocalizable_01" = "Mengerti";
+"知道了" = "Mengerti";
 
-"WYLocalizable_02" = "Kata Sandi";
+"密码" = "Kata Sandi";
 
-"WYLocalizable_03" = "Batalkan";
+"取消" = "Batalkan";
 
-"WYLocalizable_04" = "Hapus";
+"删除" = "Hapus";
 
-"WYLocalizable_05" = "Biometrik tidak tersedia";
+"生物识别不可用" = "Biometrik tidak tersedia";
 
-"WYLocalizable_06" = "Biometrik telah dikunci, kunci layar dan berhasil membuka kunci perangkat dan buka kembali halaman ini untuk membuka kembali";
+"生物识别已被锁定，锁屏并成功解锁设备后重新打开本页面即可重新开启" = "Biometrik telah dikunci, kunci layar dan berhasil membuka kunci perangkat dan buka kembali halaman ini untuk membuka kembali";
 
-"WYLocalizable_07" = "Sistem menghentikan identifikasi ini";
+"系统中断了本次识别" = "Sistem menghentikan identifikasi ini";
 
-"WYLocalizable_08" = "Atur kata sandi buka kunci sebelum menyalakan biometrik";
+"开启生物识别前请设置解锁密码" = "Atur kata sandi buka kunci sebelum menyalakan biometrik";
 
-"WYLocalizable_09" = "Harap aktifkan/setel biometrik di pengaturan perangkat";
+"请在设备设置中开启/设置生物识别功能" = "Harap aktifkan/setel biometrik di pengaturan perangkat";
 
-"WYLocalizable_10" = "Masukkan kata sandi untuk memverifikasi biometrik";
+"请输入密码验证生物识别" = "Masukkan kata sandi untuk memverifikasi biometrik";
 
-"WYLocalizable_11" = "Belum ada berita";
+"暂无消息" = "Belum ada berita";
 
-"WYLocalizable_12" = "Batalkan otorisasi";
+"去授权" = "Batalkan otorisasi";
 
-"WYLocalizable_13" = "Aplikasi tidak memiliki izin untuk mengakses album foto, sekarang izinkan?";
+"App没有访问相册的权限，现在去授权?" = "Aplikasi tidak memiliki izin untuk mengakses album foto, sekarang izinkan?";
 
-"WYLocalizable_14" = "Aplikasi tidak memiliki izin untuk mengakses kamera, sekarang buka otorisasi?";
+"App没有访问相机的权限，现在去授权?" = "Aplikasi tidak memiliki izin untuk mengakses kamera, sekarang buka otorisasi?";
 
-"WYLocalizable_15" = "Aplikasi tidak memiliki izin untuk mengakses mikrofon, sekarang buka otorisasi?";
+"App没有访问麦克风的权限，现在去授权?" = "Aplikasi tidak memiliki izin untuk mengakses mikrofon, sekarang buka otorisasi?";
 
-"WYLocalizable_16" = "Aplikasi tidak memiliki izin untuk mengakses lokasi, sekarang buka otorisasi?";
+"App没有访问位置的权限，现在去授权?" = "Aplikasi tidak memiliki izin untuk mengakses lokasi, sekarang buka otorisasi?";
 
-"WYLocalizable_17" = "Aplikasi tidak memiliki izin untuk mengakses buku alamat, sekarang buka otorisasi?";
+"App没有访问通讯录的权限，现在去授权?" = "Aplikasi tidak memiliki izin untuk mengakses buku alamat, sekarang buka otorisasi?";
 
-"WYLocalizable_18" = "Lanjutkan menghubungkan";
+"继续连接" = "Lanjutkan menghubungkan";
 
-"WYLocalizable_19" = "Batalkan Koneksi";
+"取消连接" = "Batalkan Koneksi";
 
-"WYLocalizable_20" = "Permintaan data gagal";
+"数据请求失败" = "Permintaan data gagal";
 
-"WYLocalizable_21" = "Kode Status Tidak Normal";
+"状态码异常" = "Kode Status Tidak Normal";
 
-"WYLocalizable_22" = "Jaringan tidak diketahui, mungkin ada risiko keamanan, lanjutkan?";
+"未知的网络，可能存在安全隐患，是否继续？" = "Jaringan tidak diketahui, mungkin ada risiko keamanan, lanjutkan?";
 
-"WYLocalizable_23" = "Pergi ke Pengaturan";
+"去设置" = "Pergi ke Pengaturan";
 
-"WYLocalizable_24" = "Koneksi jaringan yang tidak aman dibatalkan";
+"已取消不安全网络连接" = "Koneksi jaringan yang tidak aman dibatalkan";
 
-"WYLocalizable_25" = "Tidak ada koneksi jaringan, harap periksa pengaturan jaringan Anda";
+"无网络连接，请检查您的网络设置" = "Tidak ada koneksi jaringan, harap periksa pengaturan jaringan Anda";
 
-"WYLocalizable_26" = "Anda menggunakan Wi-Fi";
+"您正在使用Wifi联网" = "Anda menggunakan Wi-Fi";
 
-"WYLocalizable_27" = "Anda tersambung ke Internet menggunakan jaringan seluler";
+"您正在使用蜂窝移动网络联网" = "Anda tersambung ke Internet menggunakan jaringan seluler";
 
-"WYLocalizable_28" = "Jaringan tidak tersedia, konfirmasi lingkungan jaringan atau izin koneksi jaringan Anda telah disetel dengan benar";
+"不可用的网络，请确认您的网络环境或网络连接权限已正确设置" = "Jaringan tidak tersedia, konfirmasi lingkungan jaringan atau izin koneksi jaringan Anda telah disetel dengan benar";
 
-"WYLocalizable_29" = "Verifikasi kode data respons gagal";
+"响应数据Code校验失败" = "Verifikasi kode data respons gagal";
 
-"WYLocalizable_30" = "Baru saja";
+"刚刚" = "Baru saja";
 
-"WYLocalizable_31" = "%@ menit yang lalu";
+"X分钟前" = "%@ menit yang lalu";
 
-"WYLocalizable_32" = "%@ jam lalu";
+"X小时前" = "%@ jam lalu";
 
-"WYLocalizable_33" = "%@ hari lalu";
+"X天前" = "%@ hari lalu";
 
-"WYLocalizable_34" = "%@ bulan yang lalu";
+"X月前" = "%@ bulan yang lalu";
 
-"WYLocalizable_35" = "%@ tahun yang lalu";
+"X年前" = "%@ tahun yang lalu";
 
-"WYLocalizable_36" = "Tidak ada kartu SIM";
+"无手机卡" = "Tidak ada kartu SIM";
 
-"WYLocalizable_37" = "Capricornus";
+"App没有访问语音识别的权限，现在去授权?" = "Aplikasi tidak memiliki izin untuk mengakses pengenalan ucapan, sekarang pergi ke otorisasi?";
 
-"WYLocalizable_38" = "Aquarius";
+"今天" = "Hari Ini";
 
-"WYLocalizable_39" = "Pisces";
+"昨天" = "Kemarin";
 
-"WYLocalizable_40" = "Aries";
+"前天" = "Sehari sebelum kemarin";
 
-"WYLocalizable_41" = "Taurus";
+"星期日" = "Minggu";
 
-"WYLocalizable_42" = "Gemini";
+"星期一" = "Senin";
 
-"WYLocalizable_43" = "Kanker";
+"星期二" = "Selasa";
 
-"WYLocalizable_44" = "Leo";
+"星期三" = "Rabu";
 
-"WYLocalizable_45" = "Virgo";
+"星期四" = "Kamis";
 
-"WYLocalizable_46" = "Libra";
+"星期五" = "Jumat";
 
-"WYLocalizable_47" = "Scorpio";
+"星期六" = "Sabtu";
 
-"WYLocalizable_48" = "Sagitarius";
+"年" = "Tahun";
 
-"WYLocalizable_49" = "Aplikasi tidak memiliki izin untuk mengakses pengenalan ucapan, sekarang pergi ke otorisasi?";
+"月" = "Bulan";
 
-"WYLocalizable_50" = "Hari Ini";
+"日" = "Hari";
 
-"WYLocalizable_51" = "Kemarin";
+"时" = "Jam";
 
-"WYLocalizable_52" = "Sehari sebelum kemarin";
+"分" = "Menit";
 
-"WYLocalizable_53" = "Minggu";
-
-"WYLocalizable_54" = "Senin";
-
-"WYLocalizable_55" = "Selasa";
-
-"WYLocalizable_56" = "Rabu";
-
-"WYLocalizable_57" = "Kamis";
-
-"WYLocalizable_58" = "Jumat";
-
-"WYLocalizable_59" = "Sabtu";
-
-"WYLocalizable_60" = "Tahun";
-
-"WYLocalizable_61" = "Bulan";
-
-"WYLocalizable_62" = "Hari";
-
-"WYLocalizable_63" = "Jam";
-
-"WYLocalizable_64" = "Menit";
-
-"WYLocalizable_65" = "detik";
+"秒" = "detik";

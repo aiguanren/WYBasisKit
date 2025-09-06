@@ -6,132 +6,108 @@
   Copyright © 2020 官人. All rights reserved.
 */
 
-"WYLocalizable_01" = "Entendi";
+"知道了" = "Entendi";
 
-"WYLocalizable_02" = "Senha";
+"密码" = "Senha";
 
-"WYLocalizable_03" = "Cancelar";
+"取消" = "Cancelar";
 
-"WYLocalizable_04" = "Excluir";
+"删除" = "Excluir";
 
-"WYLocalizable_05" = "Biometria não disponível";
+"生物识别不可用" = "Biometria não disponível";
 
-"WYLocalizable_06" = "A biometria foi bloqueada, bloqueie a tela e desbloqueie o dispositivo com sucesso e reabra esta página para reabrir";
+"生物识别已被锁定，锁屏并成功解锁设备后重新打开本页面即可重新开启" = "A biometria foi bloqueada, bloqueie a tela e desbloqueie o dispositivo com sucesso e reabra esta página para reabrir";
 
-"WYLocalizable_07" = "O sistema interrompeu esta identificação";
+"系统中断了本次识别" = "O sistema interrompeu esta identificação";
 
-"WYLocalizable_08" = "Defina uma senha de desbloqueio antes de ativar a biometria";
+"开启生物识别前请设置解锁密码" = "Defina uma senha de desbloqueio antes de ativar a biometria";
 
-"WYLocalizable_09" = "Ative/defina a biometria nas configurações do dispositivo";
+"请在设备设置中开启/设置生物识别功能" = "Ative/defina a biometria nas configurações do dispositivo";
 
-"WYLocalizable_10" = "Insira a senha para verificar a biometria";
+"请输入密码验证生物识别" = "Insira a senha para verificar a biometria";
 
-"WYLocalizable_11" = "Ainda não há notícias";
+"暂无消息" = "Ainda não há notícias";
 
-"WYLocalizable_12" = "Desautorizar";
+"去授权" = "Desautorizar";
 
-"WYLocalizable_13" = "O aplicativo não tem permissão para acessar o álbum de fotos, agora vá para autorizar?";
+"App没有访问相册的权限，现在去授权?" = "O aplicativo não tem permissão para acessar o álbum de fotos, agora vá para autorizar?";
 
-"WYLocalizable_14" = "O aplicativo não tem permissão para acessar a câmera, agora vá para autorizar?";
+"App没有访问相机的权限，现在去授权?" = "O aplicativo não tem permissão para acessar a câmera, agora vá para autorizar?";
 
-"WYLocalizable_15" = "O aplicativo não tem permissão para acessar o microfone, agora vá para autorizar?";
+"App没有访问麦克风的权限，现在去授权?" = "O aplicativo não tem permissão para acessar o microfone, agora vá para autorizar?";
 
-"WYLocalizable_16" = "O aplicativo não tem permissão para acessar a localização, agora vá para autorizar?";
+"App没有访问位置的权限，现在去授权?" = "O aplicativo não tem permissão para acessar a localização, agora vá para autorizar?";
 
-"WYLocalizable_17" = "O aplicativo não tem permissão para acessar o catálogo de endereços, agora vá para autorizar?";
+"App没有访问通讯录的权限，现在去授权?" = "O aplicativo não tem permissão para acessar o catálogo de endereços, agora vá para autorizar?";
 
-"WYLocalizable_18" = "Continuar a conectar";
+"继续连接" = "Continuar a conectar";
 
-"WYLocalizable_19" = "Cancelar conexão";
+"取消连接" = "Cancelar conexão";
 
-"WYLocalizable_20" = "Falha na solicitação de dados";
+"数据请求失败" = "Falha na solicitação de dados";
 
-"WYLocalizable_21" = "Código de status anormal";
+"状态码异常" = "Código de status anormal";
 
-"WYLocalizable_22" = "Rede desconhecida, pode haver riscos de segurança, continuar?";
+"未知的网络，可能存在安全隐患，是否继续？" = "Rede desconhecida, pode haver riscos de segurança, continuar?";
 
-"WYLocalizable_23" = "Ir para Configurações";
+"去设置" = "Ir para Configurações";
 
-"WYLocalizable_24" = "Conexão de rede insegura cancelada";
+"已取消不安全网络连接" = "Conexão de rede insegura cancelada";
 
-"WYLocalizable_25" = "Sem conexão de rede, verifique suas configurações de rede";
+"无网络连接，请检查您的网络设置" = "Sem conexão de rede, verifique suas configurações de rede";
 
-"WYLocalizable_26" = "Você está usando Wi-Fi";
+"您正在使用Wifi联网" = "Você está usando Wi-Fi";
 
-"WYLocalizable_27" = "Você está conectado à Internet usando uma rede celular";
+"您正在使用蜂窝移动网络联网" = "Você está conectado à Internet usando uma rede celular";
 
-"WYLocalizable_28" = "Rede indisponível, confirme se o ambiente de rede ou as permissões de conexão de rede foram definidas corretamente";
+"不可用的网络，请确认您的网络环境或网络连接权限已正确设置" = "Rede indisponível, confirme se o ambiente de rede ou as permissões de conexão de rede foram definidas corretamente";
 
-"WYLocalizable_29" = "Falha na verificação do código dos dados de resposta";
+"响应数据Code校验失败" = "Falha na verificação do código dos dados de resposta";
 
-"WYLocalizable_30" = "Agora";
+"刚刚" = "Agora";
 
-"WYLocalizable_31" = "%@ minutos atrás";
+"X分钟前" = "%@ minutos atrás";
 
-"WYLocalizable_32" = "%@ horas atrás";
+"X小时前" = "%@ horas atrás";
 
-"WYLocalizable_33" = "%@ dias atrás";
+"X天前" = "%@ dias atrás";
 
-"WYLocalizable_34" = "%@ mês atrás";
+"X月前" = "%@ mês atrás";
 
-"WYLocalizable_35" = "%@ anos atrás";
+"X年前" = "%@ anos atrás";
 
-"WYLocalizable_36" = "Sem cartão SIM";
+"无手机卡" = "Sem cartão SIM";
 
-"WYLocalizable_37" = "Capricórnio";
+"App没有访问语音识别的权限，现在去授权?" = "O aplicativo não tem permissão para acessar o reconhecimento de fala, agora vá para autorizar?";
 
-"WYLocalizable_38" = "Aquário";
+"今天" = "Hoje";
 
-"WYLocalizable_39" = "Peixes";
+"昨天" = "Ontem";
 
-"WYLocalizable_40" = "Áries";
+"前天" = "Anteontem";
 
-"WYLocalizable_41" = "Touro";
+"星期日" = "Domingo";
 
-"WYLocalizable_42" = "Gêmeos";
+"星期一" = "Segunda-feira";
 
-"WYLocalizable_43" = "Câncer";
+"星期二" = "Terça-feira";
 
-"WYLocalizable_44" = "Leão";
+"星期三" = "Quarta-feira";
 
-"WYLocalizable_45" = "Virgem";
+"星期四" = "Quinta-feira";
 
-"WYLocalizable_46" = "Libra";
+"星期五" = "Sexta-feira";
 
-"WYLocalizable_47" = "Escorpião";
+"星期六" = "Sábado";
 
-"WYLocalizable_48" = "Sagitário";
+"年" = "Ano";
 
-"WYLocalizable_49" = "O aplicativo não tem permissão para acessar o reconhecimento de fala, agora vá para autorizar?";
+"月" = "Mês";
 
-"WYLocalizable_50" = "Hoje";
+"日" = "Dia";
 
-"WYLocalizable_51" = "Ontem";
+"时" = "Hora";
 
-"WYLocalizable_52" = "Anteontem";
+"分" = "Minutos";
 
-"WYLocalizable_53" = "Domingo";
-
-"WYLocalizable_54" = "Segunda-feira";
-
-"WYLocalizable_55" = "Terça-feira";
-
-"WYLocalizable_56" = "Quarta-feira";
-
-"WYLocalizable_57" = "Quinta-feira";
-
-"WYLocalizable_58" = "Sexta-feira";
-
-"WYLocalizable_59" = "Sábado";
-
-"WYLocalizable_60" = "Ano";
-
-"WYLocalizable_61" = "Mês";
-
-"WYLocalizable_62" = "Dia";
-
-"WYLocalizable_63" = "Hora";
-
-"WYLocalizable_64" = "Minutos";
-
-"WYLocalizable_65" = "segundos";
+"秒" = "segundos";

@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		58155C0C2E6A802A00D957F3 /* NSString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58155C0B2E6A802A00D957F3 /* NSString.swift */; };
+		58155C0C2E6A802A00D957F3 /* StringObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58155C0B2E6A802A00D957F3 /* StringObjC.swift */; };
 		585B39A22DF8125400E6E08F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B39622DF8125400E6E08F /* AppDelegate.swift */; };
 		585B39A32DF8125400E6E08F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B396A2DF8125400E6E08F /* ViewController.swift */; };
 		585B39AC2DF8125400E6E08F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 585B39632DF8125400E6E08F /* Assets.xcassets */; };
@@ -116,6 +116,7 @@
 		58B5A0192E5D5752008F9C38 /* UIImageObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B5A0182E5D5752008F9C38 /* UIImageObjC.swift */; };
 		58BE5F032E5E94210046AD5D /* Swift↔ObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BE5F022E5E94210046AD5D /* Swift↔ObjC.swift */; };
 		58CDEE582E34780D00ACE975 /* WYLogManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CDEE572E34780D00ACE975 /* WYLogManager.swift */; };
+		58DF46D62E6BCE97003FB3E9 /* Foundation+JSONLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DF46D52E6BCE97003FB3E9 /* Foundation+JSONLog.m */; };
 		58E7127E2E4B03C20095E71C /* WYAudioKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E7127D2E4B03C20095E71C /* WYAudioKit.swift */; };
 		58F3786D2E2224A9007F7C55 /* UIFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3786C2E2224A9007F7C55 /* UIFont.swift */; };
 		58F378702E2239D5007F7C55 /* FloatingPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3786F2E2239D5007F7C55 /* FloatingPoint.swift */; };
@@ -126,7 +127,7 @@
 
 /* Begin PBXFileReference section */
 		53C1C8E1255F64288E08B8AC /* Pods-WYBasisKit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.release.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.release.xcconfig"; sourceTree = "<group>"; };
-		58155C0B2E6A802A00D957F3 /* NSString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSString.swift; sourceTree = "<group>"; };
+		58155C0B2E6A802A00D957F3 /* StringObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringObjC.swift; sourceTree = "<group>"; };
 		585B35642DF8086C00E6E08F /* WYBasisKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WYBasisKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		585B39622DF8125400E6E08F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		585B39632DF8125400E6E08F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -237,6 +238,7 @@
 		58B5A0182E5D5752008F9C38 /* UIImageObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageObjC.swift; sourceTree = "<group>"; };
 		58BE5F022E5E94210046AD5D /* Swift↔ObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Swift↔ObjC.swift"; sourceTree = "<group>"; };
 		58CDEE572E34780D00ACE975 /* WYLogManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLogManager.swift; sourceTree = "<group>"; };
+		58DF46D52E6BCE97003FB3E9 /* Foundation+JSONLog.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Foundation+JSONLog.m"; sourceTree = "<group>"; };
 		58E7127D2E4B03C20095E71C /* WYAudioKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAudioKit.swift; sourceTree = "<group>"; };
 		58F3786C2E2224A9007F7C55 /* UIFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIFont.swift; sourceTree = "<group>"; };
 		58F3786F2E2239D5007F7C55 /* FloatingPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPoint.swift; sourceTree = "<group>"; };
@@ -458,7 +460,7 @@
 			isa = PBXGroup;
 			children = (
 				58678E122DFA627C0035673E /* String.swift */,
-				58155C0B2E6A802A00D957F3 /* NSString.swift */,
+				58155C0B2E6A802A00D957F3 /* StringObjC.swift */,
 			);
 			path = String;
 			sourceTree = "<group>";
@@ -1002,6 +1004,7 @@
 			isa = PBXGroup;
 			children = (
 				58CDEE572E34780D00ACE975 /* WYLogManager.swift */,
+				58DF46D52E6BCE97003FB3E9 /* Foundation+JSONLog.m */,
 			);
 			path = LogManager;
 			sourceTree = "<group>";
@@ -1093,6 +1096,7 @@
 				TargetAttributes = {
 					585B35632DF8086C00E6E08F = {
 						CreatedOnToolsVersion = 16.3;
+						LastSwiftMigration = 1630;
 					};
 				};
 			};
@@ -1229,6 +1233,7 @@
 				58678EAB2DFA627C0035673E /* WYChatModel.swift in Sources */,
 				58678EAC2DFA627C0035673E /* WYChatBasicCell.swift in Sources */,
 				58678EAD2DFA627C0035673E /* WYAudioManager.swift in Sources */,
+				58DF46D62E6BCE97003FB3E9 /* Foundation+JSONLog.m in Sources */,
 				58678EAE2DFA627C0035673E /* WYChatRecordsCell.swift in Sources */,
 				58678EB02DFA627C0035673E /* AttributedString.swift in Sources */,
 				58678EB12DFA627C0035673E /* UIApplication.swift in Sources */,
@@ -1282,7 +1287,7 @@
 				58678ED72DFA627C0035673E /* WYCodable.swift in Sources */,
 				58B5A0022E5D55F7008F9C38 /* WYPhotoAlbumsAuthorizationObjC.swift in Sources */,
 				58678ED82DFA627C0035673E /* WYChatViewDelegateHandler.swift in Sources */,
-				58155C0C2E6A802A00D957F3 /* NSString.swift in Sources */,
+				58155C0C2E6A802A00D957F3 /* StringObjC.swift in Sources */,
 				58678ED92DFA627C0035673E /* WYChatPhotoCell.swift in Sources */,
 				58678EDA2DFA627C0035673E /* WYChatVoiceCell.swift in Sources */,
 				58678EDB2DFA627C0035673E /* WYChatMusicCell.swift in Sources */,
@@ -1320,6 +1325,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = AAZ295K3HU;
@@ -1340,6 +1346,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.aiguanren.WYBasisKit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1351,6 +1358,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = AAZ295K3HU;

@@ -6,132 +6,108 @@
   Copyright © 2020 官人. All rights reserved.
 */
 
-"WYLocalizable_01" = "Förstår";
+"知道了" = "Förstår";
 
-"WYLocalizable_02" = "Lösenord";
+"密码" = "Lösenord";
 
-"WYLocalizable_03" = "Avbryt";
+"取消" = "Avbryt";
 
-"WYLocalizable_04" = "Ta bort";
+"删除" = "Ta bort";
 
-"WYLocalizable_05" = "Biometri inte tillgänglig";
+"生物识别不可用" = "Biometri inte tillgänglig";
 
-"WYLocalizable_06" = "Biometri har låsts, lås skärmen och lås upp enheten och öppna den här sidan igen för att öppna igen";
+"生物识别已被锁定，锁屏并成功解锁设备后重新打开本页面即可重新开启" = "Biometri har låsts, lås skärmen och lås upp enheten och öppna den här sidan igen för att öppna igen";
 
-"WYLocalizable_07" = "Systemet avbröt denna identifiering";
+"系统中断了本次识别" = "Systemet avbröt denna identifiering";
 
-"WYLocalizable_08" = "Ange ett upplåsningslösenord innan du aktiverar biometri";
+"开启生物识别前请设置解锁密码" = "Ange ett upplåsningslösenord innan du aktiverar biometri";
 
-"WYLocalizable_09" = "Aktivera/ställ in biometri i enhetsinställningar";
+"请在设备设置中开启/设置生物识别功能" = "Aktivera/ställ in biometri i enhetsinställningar";
 
-"WYLocalizable_10" = "Ange lösenord för att verifiera biometri";
+"请输入密码验证生物识别" = "Ange lösenord för att verifiera biometri";
 
-"WYLocalizable_11" = "Inga nyheter ännu";
+"暂无消息" = "Inga nyheter ännu";
 
-"WYLocalizable_12" = "Auktorisera";
+"去授权" = "Auktorisera";
 
-"WYLocalizable_13" = "Appen har inte behörighet att komma åt fotoalbumet, gå nu för att auktorisera?";
+"App没有访问相册的权限，现在去授权?" = "Appen har inte behörighet att komma åt fotoalbumet, gå nu för att auktorisera?";
 
-"WYLocalizable_14" = "Appen har inte behörighet att komma åt kameran, gå nu för att auktorisera?";
+"App没有访问相机的权限，现在去授权?" = "Appen har inte behörighet att komma åt kameran, gå nu för att auktorisera?";
 
-"WYLocalizable_15" = "Appen har inte behörighet att komma åt mikrofonen, gå nu för att auktorisera?";
+"App没有访问麦克风的权限，现在去授权?" = "Appen har inte behörighet att komma åt mikrofonen, gå nu för att auktorisera?";
 
-"WYLocalizable_16" = "Appen har inte behörighet att komma åt plats, gå nu till auktorisering?";
+"App没有访问位置的权限，现在去授权?" = "Appen har inte behörighet att komma åt plats, gå nu till auktorisering?";
 
-"WYLocalizable_17" = "Appen har inte behörighet att komma åt adressboken, gå nu för att auktorisera?";
+"App没有访问通讯录的权限，现在去授权?" = "Appen har inte behörighet att komma åt adressboken, gå nu för att auktorisera?";
 
-"WYLocalizable_18" = "Fortsätt att ansluta";
+"继续连接" = "Fortsätt att ansluta";
 
-"WYLocalizable_19" = "Avbryt anslutning";
+"取消连接" = "Avbryt anslutning";
 
-"WYLocalizable_20" = "Databegäran misslyckades";
+"数据请求失败" = "Databegäran misslyckades";
 
-"WYLocalizable_21" = "Onormal statuskod";
+"状态码异常" = "Onormal statuskod";
 
-"WYLocalizable_22" = "Okänt nätverk, det kan finnas säkerhetsrisker, fortsätt?";
+"未知的网络，可能存在安全隐患，是否继续？" = "Okänt nätverk, det kan finnas säkerhetsrisker, fortsätt?";
 
-"WYLocalizable_23" = "Gå till Inställningar";
+"去设置" = "Gå till Inställningar";
 
-"WYLocalizable_24" = "Osäker nätverksanslutning avbröts";
+"已取消不安全网络连接" = "Osäker nätverksanslutning avbröts";
 
-"WYLocalizable_25" = "Ingen nätverksanslutning, kontrollera dina nätverksinställningar";
+"无网络连接，请检查您的网络设置" = "Ingen nätverksanslutning, kontrollera dina nätverksinställningar";
 
-"WYLocalizable_26" = "Du använder Wifi";
+"您正在使用Wifi联网" = "Du använder Wifi";
 
-"WYLocalizable_27" = "Du är ansluten till Internet via ett mobilnätverk";
+"您正在使用蜂窝移动网络联网" = "Du är ansluten till Internet via ett mobilnätverk";
 
-"WYLocalizable_28" = "Ej tillgängligt nätverk, bekräfta att din nätverksmiljö eller nätverksanslutningsbehörigheter har ställts in korrekt";
+"不可用的网络，请确认您的网络环境或网络连接权限已正确设置" = "Ej tillgängligt nätverk, bekräfta att din nätverksmiljö eller nätverksanslutningsbehörigheter har ställts in korrekt";
 
-"WYLocalizable_29" = "Verifiering av svarsdatakod misslyckades";
+"响应数据Code校验失败" = "Verifiering av svarsdatakod misslyckades";
 
-"WYLocalizable_30" = "Just nu";
+"刚刚" = "Just nu";
 
-"WYLocalizable_31" = "%@ minuter sedan";
+"X分钟前" = "%@ minuter sedan";
 
-"WYLocalizable_32" = "%@ timmar sedan";
+"X小时前" = "%@ timmar sedan";
 
-"WYLocalizable_33" = "%@ dagar sedan";
+"X天前" = "%@ dagar sedan";
 
-"WYLocalizable_34" = "%@ month sedan";
+"X月前" = "%@ month sedan";
 
-"WYLocalizable_35" = "%@ år sedan";
+"X年前" = "%@ år sedan";
 
-"WYLocalizable_36" = "Inget SIM-kort";
+"无手机卡" = "Inget SIM-kort";
 
-"WYLocalizable_37" = "Stenbocken";
+"App没有访问语音识别的权限，现在去授权?" = "Appen har inte behörighet att komma åt taligenkänning, gå nu för att auktorisera?";
 
-"WYLocalizable_38" = "Vattumannen";
+"今天" = "Idag";
 
-"WYLocalizable_39" = "Fiskarna";
+"昨天" = "Igår";
 
-"WYLocalizable_40" = "Vädur";
+"前天" = "I förrgår";
 
-"WYLocalizable_41" = "Oxen";
+"星期日" = "Söndag";
 
-"WYLocalizable_42" = "Tvillingarna";
+"星期一" = "Måndag";
 
-"WYLocalizable_43" = "Cancer";
+"星期二" = "Tisdag";
 
-"WYLocalizable_44" = "Leo";
+"星期三" = "Onsdag";
 
-"WYLocalizable_45" = "Jungfrun";
+"星期四" = "Torsdag";
 
-"WYLocalizable_46" = "Vågen";
+"星期五" = "Fredag";
 
-"WYLocalizable_47" = "Skorpion";
+"星期六" = "Lördag";
 
-"WYLocalizable_48" = "Skytten";
+"年" = "År";
 
-"WYLocalizable_49" = "Appen har inte behörighet att komma åt taligenkänning, gå nu för att auktorisera?";
+"月" = "Månad";
 
-"WYLocalizable_50" = "Idag";
+"日" = "Dag";
 
-"WYLocalizable_51" = "Igår";
+"时" = "Timme";
 
-"WYLocalizable_52" = "I förrgår";
+"分" = "Minuter";
 
-"WYLocalizable_53" = "Söndag";
-
-"WYLocalizable_54" = "Måndag";
-
-"WYLocalizable_55" = "Tisdag";
-
-"WYLocalizable_56" = "Onsdag";
-
-"WYLocalizable_57" = "Torsdag";
-
-"WYLocalizable_58" = "Fredag";
-
-"WYLocalizable_59" = "Lördag";
-
-"WYLocalizable_60" = "År";
-
-"WYLocalizable_61" = "Månad";
-
-"WYLocalizable_62" = "Dag";
-
-"WYLocalizable_63" = "Timme";
-
-"WYLocalizable_64" = "Minuter";
-
-"WYLocalizable_65" = "sekunder";
+"秒" = "sekunder";

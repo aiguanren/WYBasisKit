@@ -6,132 +6,108 @@
   Copyright © 2020 官人. All rights reserved.
 */
 
-"WYLocalizable_01" = "Rozumiem";
+"知道了" = "Rozumiem";
 
-"WYLocalizable_02" = "Hasło";
+"密码" = "Hasło";
 
-"WYLocalizable_03" = "Anuluj";
+"取消" = "Anuluj";
 
-"WYLocalizable_04" = "Usuń";
+"删除" = "Usuń";
 
-"WYLocalizable_05" = "Dane biometryczne niedostępne";
+"生物识别不可用" = "Dane biometryczne niedostępne";
 
-"WYLocalizable_06" = "Biometria została zablokowana, zablokuj ekran i pomyślnie odblokuj urządzenie i ponownie otwórz tę stronę, aby ponownie ją otworzyć";
+"生物识别已被锁定，锁屏并成功解锁设备后重新打开本页面即可重新开启" = "Biometria została zablokowana, zablokuj ekran i pomyślnie odblokuj urządzenie i ponownie otwórz tę stronę, aby ponownie ją otworzyć";
 
-"WYLocalizable_07" = "System przerwał tę identyfikację";
+"系统中断了本次识别" = "System przerwał tę identyfikację";
 
-"WYLocalizable_08" = "Proszę ustawić hasło odblokowujące przed włączeniem biometrii";
+"开启生物识别前请设置解锁密码" = "Proszę ustawić hasło odblokowujące przed włączeniem biometrii";
 
-"WYLocalizable_09" = "Włącz/ustaw dane biometryczne w ustawieniach urządzenia";
+"请在设备设置中开启/设置生物识别功能" = "Włącz/ustaw dane biometryczne w ustawieniach urządzenia";
 
-"WYLocalizable_10" = "Wprowadź hasło, aby zweryfikować dane biometryczne";
+"请输入密码验证生物识别" = "Wprowadź hasło, aby zweryfikować dane biometryczne";
 
-"WYLocalizable_11" = "Nie ma jeszcze żadnych wiadomości";
+"暂无消息" = "Nie ma jeszcze żadnych wiadomości";
 
-"WYLocalizable_12" = "Wycofaj autoryzację";
+"去授权" = "Wycofaj autoryzację";
 
-"WYLocalizable_13" = "Aplikacja nie ma uprawnień dostępu do albumu ze zdjęciami, czy teraz przejść do autoryzacji?";
+"App没有访问相册的权限，现在去授权?" = "Aplikacja nie ma uprawnień dostępu do albumu ze zdjęciami, czy teraz przejść do autoryzacji?";
 
-"WYLocalizable_14" = "Aplikacja nie ma uprawnień dostępu do kamery, czy teraz przejść do autoryzacji?";
+"App没有访问相机的权限，现在去授权?" = "Aplikacja nie ma uprawnień dostępu do kamery, czy teraz przejść do autoryzacji?";
 
-"WYLocalizable_15" = "Aplikacja nie ma uprawnień dostępu do mikrofonu, czy teraz przejść do autoryzacji?";
+"App没有访问麦克风的权限，现在去授权?" = "Aplikacja nie ma uprawnień dostępu do mikrofonu, czy teraz przejść do autoryzacji?";
 
-"WYLocalizable_16" = "Aplikacja nie ma uprawnień dostępu do lokalizacji, czy teraz przejść do autoryzacji?";
+"App没有访问位置的权限，现在去授权?" = "Aplikacja nie ma uprawnień dostępu do lokalizacji, czy teraz przejść do autoryzacji?";
 
-"WYLocalizable_17" = "Aplikacja nie ma uprawnień dostępu do książki adresowej, czy teraz przejść do autoryzacji?";
+"App没有访问通讯录的权限，现在去授权?" = "Aplikacja nie ma uprawnień dostępu do książki adresowej, czy teraz przejść do autoryzacji?";
 
-"WYLocalizable_18" = "Kontynuuj łączenie";
+"继续连接" = "Kontynuuj łączenie";
 
-"WYLocalizable_19" = "Anuluj połączenie";
+"取消连接" = "Anuluj połączenie";
 
-"WYLocalizable_20" = "Żądanie danych nie powiodło się";
+"数据请求失败" = "Żądanie danych nie powiodło się";
 
-"WYLocalizable_21" = "Nieprawidłowy kod stanu";
+"状态码异常" = "Nieprawidłowy kod stanu";
 
-"WYLocalizable_22" = "Nieznana sieć, mogą występować zagrożenia bezpieczeństwa, kontynuować?";
+"未知的网络，可能存在安全隐患，是否继续？" = "Nieznana sieć, mogą występować zagrożenia bezpieczeństwa, kontynuować?";
 
-"WYLocalizable_23" = "Przejdź do ustawień";
+"去设置" = "Przejdź do ustawień";
 
-"WYLocalizable_24" = "Niebezpieczne połączenie sieciowe zostało anulowane";
+"已取消不安全网络连接" = "Niebezpieczne połączenie sieciowe zostało anulowane";
 
-"WYLocalizable_25" = "Brak połączenia sieciowego, sprawdź ustawienia sieciowe";
+"无网络连接，请检查您的网络设置" = "Brak połączenia sieciowego, sprawdź ustawienia sieciowe";
 
-"WYLocalizable_26" = "Używasz Wi-Fi";
+"您正在使用Wifi联网" = "Używasz Wi-Fi";
 
-"WYLocalizable_27" = "Masz połączenie z Internetem przez sieć komórkową";
+"您正在使用蜂窝移动网络联网" = "Masz połączenie z Internetem przez sieć komórkową";
 
-"WYLocalizable_28" = "Sieć niedostępna, potwierdź, że środowisko sieciowe lub uprawnienia połączenia sieciowego zostały ustawione poprawnie";
+"不可用的网络，请确认您的网络环境或网络连接权限已正确设置" = "Sieć niedostępna, potwierdź, że środowisko sieciowe lub uprawnienia połączenia sieciowego zostały ustawione poprawnie";
 
-"WYLocalizable_29" = "Weryfikacja kodu danych odpowiedzi nie powiodła się";
+"响应数据Code校验失败" = "Weryfikacja kodu danych odpowiedzi nie powiodła się";
 
-"WYLocalizable_30" = "Właśnie teraz";
+"刚刚" = "Właśnie teraz";
 
-"WYLocalizable_31" = "%@ minut temu";
+"X分钟前" = "%@ minut temu";
 
-"WYLocalizable_32" = "%@ godzin temu";
+"X小时前" = "%@ godzin temu";
 
-"WYLocalizable_33" = "%@ dni temu";
+"X天前" = "%@ dni temu";
 
-"WYLocalizable_34" = "%@ miesiąc temu";
+"X月前" = "%@ miesiąc temu";
 
-"WYLocalizable_35" = "%@ lat temu";
+"X年前" = "%@ lat temu";
 
-"WYLocalizable_36" = "Brak karty SIM";
+"无手机卡" = "Brak karty SIM";
 
-"WYLocalizable_37" = "Koziorożec";
+"App没有访问语音识别的权限，现在去授权?" = "Aplikacja nie ma uprawnień dostępu do rozpoznawania mowy, czy teraz przejść do autoryzacji?";
 
-"WYLocalizable_38" = "Wodnik";
+"今天" = "Dzisiaj";
 
-"WYLocalizable_39" = "Ryby";
+"昨天" = "Wczoraj";
 
-"WYLocalizable_40" = "Baran";
+"前天" = "Przedwczoraj";
 
-"WYLocalizable_41" = "Byk";
+"星期日" = "Niedziela";
 
-"WYLocalizable_42" = "Bliźnięta";
+"星期一" = "Poniedziałek";
 
-"WYLocalizable_43" = "Rak";
+"星期二" = "Wtorek";
 
-"WYLocalizable_44" = "Lew";
+"星期三" = "Środa";
 
-"WYLocalizable_45" = "Panna";
+"星期四" = "Czwartek";
 
-"WYLocalizable_46" = "Waga";
+"星期五" = "Piątek";
 
-"WYLocalizable_47" = "Skorpion";
+"星期六" = "Sobota";
 
-"WYLocalizable_48" = "Strzelec";
+"年" = "Rok";
 
-"WYLocalizable_49" = "Aplikacja nie ma uprawnień dostępu do rozpoznawania mowy, czy teraz przejść do autoryzacji?";
+"月" = "Miesiąc";
 
-"WYLocalizable_50" = "Dzisiaj";
+"日" = "Dzień";
 
-"WYLocalizable_51" = "Wczoraj";
+"时" = "Godzina";
 
-"WYLocalizable_52" = "Przedwczoraj";
+"分" = "Minuty";
 
-"WYLocalizable_53" = "Niedziela";
-
-"WYLocalizable_54" = "Poniedziałek";
-
-"WYLocalizable_55" = "Wtorek";
-
-"WYLocalizable_56" = "Środa";
-
-"WYLocalizable_57" = "Czwartek";
-
-"WYLocalizable_58" = "Piątek";
-
-"WYLocalizable_59" = "Sobota";
-
-"WYLocalizable_60" = "Rok";
-
-"WYLocalizable_61" = "Miesiąc";
-
-"WYLocalizable_62" = "Dzień";
-
-"WYLocalizable_63" = "Godzina";
-
-"WYLocalizable_64" = "Minuty";
-
-"WYLocalizable_65" = "sekundy";
+"秒" = "sekundy";
