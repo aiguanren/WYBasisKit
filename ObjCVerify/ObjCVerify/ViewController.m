@@ -104,6 +104,10 @@
 //    NSLog(@"str1 = %d\nstr2 = %d\nstr3 = %d",[NSString wy_isEmpty:str1], [NSString wy_isEmpty:str2],[NSString wy_isEmpty:str3]);
 //    NSLog(@"str1 = %@\nstr2 = %@\nstr3 = %@",[NSString wy_safe:str1], [NSString wy_safe:str2],[NSString wy_safe:str3]);
 //    NSLog(@"nstr3 = %@",str3);
+    
+    NSLog(@"随机数 = %ld", [IntObjC wy_randomWithMinimum:10 maximum:20]);
+    
+    NSLog(@"随机浮点数 = %.2f", [DoubleObjC wy_randomWithMinimum:1 maximum:6]);
 }
 
 

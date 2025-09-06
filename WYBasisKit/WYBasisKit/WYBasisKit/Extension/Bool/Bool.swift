@@ -125,4 +125,11 @@ public extension Bool {
         }
         return false
     }
+    
+    /**
+     *  获取一个随机布尔值
+     */
+    static func wy_randoml() -> Bool {
+        return Bool.random()
+    }
 }

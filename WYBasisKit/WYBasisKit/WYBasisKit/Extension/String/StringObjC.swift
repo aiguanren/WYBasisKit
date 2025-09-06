@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 /// 获取时间戳的模式
 @objc @frozen public enum WYTimestampModeObjC: Int {
@@ -179,9 +180,9 @@ import Foundation
         return (self as String).wy_convertTo(Int.self)
     }
     
-    /// String转Decimal
+    /// String转NSDecimalNumber
     @objc func wy_decimalValue() -> NSDecimalNumber {
-        let string = (self as String).isEmpty ? "0" : (self as String)
+        let string: String = (self as String).isEmpty ? "0" : (self as String)
         return NSDecimalNumber(string: string)
     }
     

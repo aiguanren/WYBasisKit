@@ -117,6 +117,10 @@
 		58BE5F032E5E94210046AD5D /* Swift↔ObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BE5F022E5E94210046AD5D /* Swift↔ObjC.swift */; };
 		58CDEE582E34780D00ACE975 /* WYLogManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CDEE572E34780D00ACE975 /* WYLogManager.swift */; };
 		58DF46D62E6BCE97003FB3E9 /* Foundation+JSONLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DF46D52E6BCE97003FB3E9 /* Foundation+JSONLog.m */; };
+		58DF46D82E6BF2B5003FB3E9 /* IntObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF46D72E6BF2B5003FB3E9 /* IntObjC.swift */; };
+		58DF46DA2E6C00E7003FB3E9 /* CGFloatObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF46D92E6C00E7003FB3E9 /* CGFloatObjC.swift */; };
+		58DF46DC2E6C0AB3003FB3E9 /* DoubleObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF46DB2E6C0AB3003FB3E9 /* DoubleObjC.swift */; };
+		58DF46DE2E6C0D5E003FB3E9 /* BoolObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF46DD2E6C0D5E003FB3E9 /* BoolObjC.swift */; };
 		58E7127E2E4B03C20095E71C /* WYAudioKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E7127D2E4B03C20095E71C /* WYAudioKit.swift */; };
 		58F3786D2E2224A9007F7C55 /* UIFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3786C2E2224A9007F7C55 /* UIFont.swift */; };
 		58F378702E2239D5007F7C55 /* FloatingPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3786F2E2239D5007F7C55 /* FloatingPoint.swift */; };
@@ -239,6 +243,10 @@
 		58BE5F022E5E94210046AD5D /* Swift↔ObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Swift↔ObjC.swift"; sourceTree = "<group>"; };
 		58CDEE572E34780D00ACE975 /* WYLogManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLogManager.swift; sourceTree = "<group>"; };
 		58DF46D52E6BCE97003FB3E9 /* Foundation+JSONLog.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Foundation+JSONLog.m"; sourceTree = "<group>"; };
+		58DF46D72E6BF2B5003FB3E9 /* IntObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntObjC.swift; sourceTree = "<group>"; };
+		58DF46D92E6C00E7003FB3E9 /* CGFloatObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGFloatObjC.swift; sourceTree = "<group>"; };
+		58DF46DB2E6C0AB3003FB3E9 /* DoubleObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoubleObjC.swift; sourceTree = "<group>"; };
+		58DF46DD2E6C0D5E003FB3E9 /* BoolObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoolObjC.swift; sourceTree = "<group>"; };
 		58E7127D2E4B03C20095E71C /* WYAudioKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAudioKit.swift; sourceTree = "<group>"; };
 		58F3786C2E2224A9007F7C55 /* UIFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIFont.swift; sourceTree = "<group>"; };
 		58F3786F2E2239D5007F7C55 /* FloatingPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPoint.swift; sourceTree = "<group>"; };
@@ -396,6 +404,7 @@
 			isa = PBXGroup;
 			children = (
 				58678E002DFA627C0035673E /* Bool.swift */,
+				58DF46DD2E6C0D5E003FB3E9 /* BoolObjC.swift */,
 			);
 			path = Bool;
 			sourceTree = "<group>";
@@ -412,6 +421,7 @@
 			isa = PBXGroup;
 			children = (
 				58678E042DFA627C0035673E /* CGFloat.swift */,
+				58DF46D92E6C00E7003FB3E9 /* CGFloatObjC.swift */,
 			);
 			path = CGFloat;
 			sourceTree = "<group>";
@@ -428,6 +438,7 @@
 			isa = PBXGroup;
 			children = (
 				58678E082DFA627C0035673E /* Double.swift */,
+				58DF46DB2E6C0AB3003FB3E9 /* DoubleObjC.swift */,
 			);
 			path = Double;
 			sourceTree = "<group>";
@@ -1037,6 +1048,7 @@
 			isa = PBXGroup;
 			children = (
 				58F378722E2240C3007F7C55 /* Int.swift */,
+				58DF46D72E6BF2B5003FB3E9 /* IntObjC.swift */,
 			);
 			path = Int;
 			sourceTree = "<group>";
@@ -1212,6 +1224,7 @@
 				58678E9C2DFA627C0035673E /* WKWebView.swift in Sources */,
 				58678E9D2DFA627C0035673E /* WYScrollText.swift in Sources */,
 				58678E9E2DFA627C0035673E /* WYChatView.swift in Sources */,
+				58DF46D82E6BF2B5003FB3E9 /* IntObjC.swift in Sources */,
 				58678E9F2DFA627C0035673E /* WYChatViewEventHandler.swift in Sources */,
 				58678EA02DFA627C0035673E /* Double.swift in Sources */,
 				58678EA12DFA627C0035673E /* WYChatVideoCell.swift in Sources */,
@@ -1242,6 +1255,7 @@
 				58678EB62DFA627C0035673E /* WYLocalizableManager.swift in Sources */,
 				58678EB72DFA627C0035673E /* WYNetworkServer.swift in Sources */,
 				58B5A0042E5D5600008F9C38 /* WYSpeechRecognitionAuthorizationObjC.swift in Sources */,
+				58DF46DA2E6C00E7003FB3E9 /* CGFloatObjC.swift in Sources */,
 				58678EB82DFA627C0035673E /* Bool.swift in Sources */,
 				58682F7C2E0E440E0057CC53 /* WYEventHandler.swift in Sources */,
 				58B59FFC2E5D55DB008F9C38 /* WYCameraAuthorizationObjC.swift in Sources */,
@@ -1253,6 +1267,7 @@
 				58678EBE2DFA627C0035673E /* WYBasisKitConfig.swift in Sources */,
 				58678EC02DFA627C0035673E /* UITableView.swift in Sources */,
 				58678EC12DFA627C0035673E /* WYCameraAuthorization.swift in Sources */,
+				58DF46DE2E6C0D5E003FB3E9 /* BoolObjC.swift in Sources */,
 				58678EC22DFA627C0035673E /* WYNetworkManager.swift in Sources */,
 				58678EC32DFA627C0035673E /* String.swift in Sources */,
 				58B5A0192E5D5752008F9C38 /* UIImageObjC.swift in Sources */,
@@ -1263,6 +1278,7 @@
 				58678EC72DFA627C0035673E /* WYChatWebpageCell.swift in Sources */,
 				58678EC82DFA627C0035673E /* WYActivity.swift in Sources */,
 				58678EC92DFA627C0035673E /* UITextField.swift in Sources */,
+				58DF46DC2E6C0AB3003FB3E9 /* DoubleObjC.swift in Sources */,
 				58678ECA2DFA627C0035673E /* UILabel.swift in Sources */,
 				58678ECB2DFA627C0035673E /* WYSoundWavesView.swift in Sources */,
 				58678ECC2DFA627C0035673E /* WYChatTakePatCell.swift in Sources */,

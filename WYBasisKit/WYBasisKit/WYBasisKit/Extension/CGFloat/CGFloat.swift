@@ -50,10 +50,8 @@ public extension CGFloat {
      *
      *  @param maximum   最大可以是多少
      *
-     *  @param precision 精度(默认保留2位小数)
-     *
      */
-    static func wy_randomFloat(minimum: CGFloat = 0.01, maximum: CGFloat = 99999.99, precision: Int = 2) -> CGFloat {
+    static func wy_random(minimum: CGFloat = 0.01, maximum: CGFloat = 99999.99) -> CGFloat {
         
         guard minimum < maximum else {
             return maximum
@@ -61,8 +59,6 @@ public extension CGFloat {
         
         let randomValue = CGFloat.random(in: minimum...maximum)
         
-        // 保留 precision 位小数
-        let multiplier = pow(10, CGFloat(precision))
-        return (randomValue * multiplier).rounded() / multiplier
+        return randomValue
     }
 }

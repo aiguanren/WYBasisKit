@@ -42,4 +42,21 @@ public extension Double {
         
         return self as! T
     }
+    
+    /**
+     *  获取一个随机浮点数
+     *
+     *  @param minimum   最小值，默认 0.01
+     *
+     *  @param maximum   最大值，默认 99999.99
+     *
+     */
+    static func wy_random(minimum: Double = 0.01, maximum: Double = 99999.99) -> Double {
+        
+        guard minimum < maximum else {
+            return maximum
+        }
+        
+        return Double.random(in: minimum...maximum)
+    }
 }
