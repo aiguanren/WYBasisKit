@@ -258,16 +258,6 @@ import Foundation
     @objc public static func showScrollInfo(_ content: AnyObject, option: WYScrollInfoOptionsObjC? = nil) {
         internal_showScrollInfo(content, option: option)
     }
-    private static func internal_showScrollInfo(_ content: AnyObject, option: WYScrollInfoOptionsObjC? = nil) {
-        
-        let infoOption = option ?? WYScrollInfoOptionsObjC()
-        
-        let numberOffset: CGFloat? = (infoOption.offset != nil) ? CGFloat(infoOption.offset!.doubleValue) : nil
-        
-        let scrollInfoConfig: WYScrollInfoConfig = WYScrollInfoConfig(backgroundColor: infoOption.config.backgroundColor, movingSpeed: infoOption.config.movingSpeed, textColor: infoOption.config.textColor, textFont: infoOption.config.textFont)
-        
-        WYActivity.showScrollInfo(content, in: infoOption.contentView, offset: numberOffset, config: scrollInfoConfig)
-    }
     
     /**
      *  显示一个信息提示窗口
@@ -287,18 +277,6 @@ import Foundation
     }
     @objc public static func showInfo(_ content: AnyObject, option: WYMessageInfoOptionsObjC? = nil) {
         internal_showInfo(content, option: option)
-    }
-    private static func internal_showInfo(_ content: AnyObject, option: WYMessageInfoOptionsObjC? = nil) {
-        
-        let infoOption = option ?? WYMessageInfoOptionsObjC()
-        
-        let numberOffset: CGFloat? = (infoOption.offset != nil) ? CGFloat(infoOption.offset!.doubleValue) : nil
-        
-        let activityPosition: WYActivityPosition = WYActivityPosition(rawValue: (infoOption.position ?? .middle).rawValue) ?? .middle
-        
-        let messageInfoConfig: WYMessageInfoConfig = WYMessageInfoConfig(backgroundColor: infoOption.config.backgroundColor, textColor: infoOption.config.textColor, textFont: infoOption.config.textFont)
-        
-        WYActivity.showInfo(content, in: infoOption.contentView, position: activityPosition, offset: numberOffset, config: messageInfoConfig)
     }
     
     /**
@@ -329,6 +307,86 @@ import Foundation
     @objc public static func showLoading(_ content: AnyObject, in contentView: UIView, option: WYLoadingInfoOptionsObjC? = nil) {
         internal_showLoading(content, in: contentView, option: option)
     }
+    
+    /**
+     *  移除Loading窗口
+     *  @param animate             true时0.5秒后才会移除(有个动画), false时无动画，立刻移除，
+     */
+    @objc public static func dismissLoading(in contentView: UIView) {
+        internal_dismissLoading(in: contentView)
+    }
+    @objc public static func dismissLoading(in contentView: UIView, animate: Bool = true) {
+        internal_dismissLoading(in: contentView, animate: animate)
+    }
+}
+
+private extension WYActivityObjC {
+    
+    /**
+     *  显示一个滚动信息提示窗口
+     *
+     *  @param content            要显示的文本内容，支持 String 与 AttributedString
+     *
+     *  @param contentView        加载活动控件的父视图，内部会按照 传入的View、控制器的View 的顺序去设置显示
+     *
+     *  @param offset             信息提示窗口相对于contentView的偏移量
+     *
+     *  @param config             信息提示窗口配置选项
+     *
+     */
+    private static func internal_showScrollInfo(_ content: AnyObject, option: WYScrollInfoOptionsObjC? = nil) {
+        
+        let infoOption = option ?? WYScrollInfoOptionsObjC()
+        
+        let numberOffset: CGFloat? = (infoOption.offset != nil) ? CGFloat(infoOption.offset!.doubleValue) : nil
+        
+        let scrollInfoConfig: WYScrollInfoConfig = WYScrollInfoConfig(backgroundColor: infoOption.config.backgroundColor, movingSpeed: infoOption.config.movingSpeed, textColor: infoOption.config.textColor, textFont: infoOption.config.textFont)
+        
+        WYActivity.showScrollInfo(content, in: infoOption.contentView, offset: numberOffset, config: scrollInfoConfig)
+    }
+    
+    /**
+     *  显示一个信息提示窗口
+     *
+     *  @param content            要显示的文本内容，支持 String 与 AttributedString
+     *
+     *  @param contentView        加载信息提示窗口的父视图，内部会按照 传入的View、控制器的View 的顺序去设置显示
+     *
+     *  @param position           信息提示窗口的显示位置，支持 top、middle、bottom
+     *
+     *  @param offset             信息提示窗口相对于contentView的偏移量(仅 position == top 时有效)
+     *
+     *  @param config             信息提示窗口配置选项
+     */
+    private static func internal_showInfo(_ content: AnyObject, option: WYMessageInfoOptionsObjC? = nil) {
+        
+        let infoOption = option ?? WYMessageInfoOptionsObjC()
+        
+        let numberOffset: CGFloat? = (infoOption.offset != nil) ? CGFloat(infoOption.offset!.doubleValue) : nil
+        
+        let activityPosition: WYActivityPosition = WYActivityPosition(rawValue: (infoOption.position ?? .middle).rawValue) ?? .middle
+        
+        let messageInfoConfig: WYMessageInfoConfig = WYMessageInfoConfig(backgroundColor: infoOption.config.backgroundColor, textColor: infoOption.config.textColor, textFont: infoOption.config.textFont)
+        
+        WYActivity.showInfo(content, in: infoOption.contentView, position: activityPosition, offset: numberOffset, config: messageInfoConfig)
+    }
+    
+    /**
+     *  显示一个Loading提示窗口
+     *
+     *  @param content            要显示的文本内容，支持 String 与 AttributedString
+     *
+     *  @param contentView        加载活动控件的父视图
+     *
+     *  @param userInteraction    窗口显示期间是否允许用户对界面进行交互，默认允许
+     *
+     *  @param animation          动画类型，默认系统小菊花
+     *
+     *  @param delay              是否需要延时显示，设置后会延时 delay(秒) 后再显示Loading窗口
+     *
+     *  @param config             信息提示窗口配置选项
+     *
+     */
     private static func internal_showLoading(_ content: AnyObject? = nil, in contentView: UIView, option: WYLoadingInfoOptionsObjC? = nil) {
         
         let infoOption = option ?? WYLoadingInfoOptionsObjC()
@@ -346,12 +404,6 @@ import Foundation
      *  移除Loading窗口
      *  @param animate             true时0.5秒后才会移除(有个动画), false时无动画，立刻移除，
      */
-    @objc public static func dismissLoading(in contentView: UIView) {
-        internal_dismissLoading(in: contentView)
-    }
-    @objc public static func dismissLoading(in contentView: UIView, animate: Bool = true) {
-        internal_dismissLoading(in: contentView, animate: animate)
-    }
     private static func internal_dismissLoading(in contentView: UIView, animate: Bool = true) {
         WYActivity.dismissLoading(in: contentView, animate: animate)
     }
