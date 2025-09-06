@@ -24,7 +24,7 @@ import Foundation
 @objcMembers public class WYBiometricAuthorizationObjC: NSObject {
     
     /// 获取设备支持的生物识别类型
-    @objc public static func checkBiometricObjc() -> WYBiometricModeObjC {
+    @objc public static func checkBiometric() -> WYBiometricModeObjC {
         return WYBiometricModeObjC(rawValue: wy_checkBiometric().rawValue) ?? .none
     }
 
@@ -41,7 +41,7 @@ import Foundation
      *             - isSuccess: 认证是否成功
      *             - error: 认证失败时的错误描述信息，认证成功时为空
      */
-    @objc public static func verifyBiometricsObjc(localizedFallbackTitle: String = "", localizedReason: String, handler: @escaping (_ isBackupHandler: Bool, _ isSuccess: Bool, _ error: String) -> Void) {
+    @objc public static func verifyBiometrics(localizedFallbackTitle: String = "", localizedReason: String, handler: @escaping (_ isBackupHandler: Bool, _ isSuccess: Bool, _ error: String) -> Void) {
         wy_verifyBiometrics(localizedFallbackTitle: localizedFallbackTitle, localizedReason: localizedReason, handler: handler)
     }
 }
