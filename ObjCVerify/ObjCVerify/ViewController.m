@@ -105,9 +105,14 @@
 //    NSLog(@"str1 = %@\nstr2 = %@\nstr3 = %@",[NSString wy_safe:str1], [NSString wy_safe:str2],[NSString wy_safe:str3]);
 //    NSLog(@"nstr3 = %@",str3);
     
-    NSLog(@"随机数 = %ld", [IntObjC wy_randomWithMinimum:10 maximum:20]);
+//    NSLog(@"随机数 = %ld", [IntObjC wy_randomWithMinimum:10 maximum:20]);
+//    
+//    NSLog(@"随机浮点数 = %.2f", [DoubleObjC wy_randomWithMinimum:1 maximum:6]);
     
-    NSLog(@"随机浮点数 = %.2f", [DoubleObjC wy_randomWithMinimum:1 maximum:6]);
+//    NSLog(@"1 = %f, 2 = %f",[FloatingPointObjC wy_degreesToRadianWithFloatFegrees:360], [FloatingPointObjC wy_radianToDegreesWithFloatRadian:M_PI_2]);
+    
+//    NSDecimalNumber *csdw = [[NSDecimalNumber alloc] initWithDouble:100];
+//    [csdw wy_stringValue];
 }
 
 

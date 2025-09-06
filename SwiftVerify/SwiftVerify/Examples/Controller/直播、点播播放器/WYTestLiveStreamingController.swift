@@ -277,7 +277,7 @@ class WYTestLiveStreamingController: UIViewController {
         fullScreenButton.addTarget(self, action: #selector(toggleFullScreen), for: .touchUpInside)
         
         // 横竖屏切换按钮
-        let orientation = UIDevice.current.wy_currentInterfaceOrientation
+        let orientation = UIDevice.wy_currentInterfaceOrientation
         buttonConfig(orientationButton, (orientation == .portrait) ? "横屏" : "竖屏", .systemGreen)
         orientationButton.addTarget(self, action: #selector(toggleOrientation), for: .touchUpInside)
         
@@ -921,15 +921,15 @@ class WYTestLiveStreamingController: UIViewController {
     // 横竖屏切换
     @objc func toggleOrientation() {
         // 这里只实现按钮状态切换，具体横竖屏实现由您完成
-        let orientation = UIDevice.current.wy_currentInterfaceOrientation
+        let orientation = UIDevice.wy_currentInterfaceOrientation
         if orientation == .portrait {
             orientationButton.backgroundColor = .systemOrange
             orientationButton.setTitle("竖屏", for: .normal)
-            UIDevice.current.wy_setInterfaceOrientation = .landscapeLeft
+            UIDevice.wy_setInterfaceOrientation = .landscapeLeft
         } else {
             orientationButton.backgroundColor = .systemGreen
             orientationButton.setTitle("横屏", for: .normal)
-            UIDevice.current.wy_setInterfaceOrientation = .portrait
+            UIDevice.wy_setInterfaceOrientation = .portrait
         }
     }
     
@@ -961,7 +961,7 @@ class WYTestLiveStreamingController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        UIDevice.current.wy_setInterfaceOrientation = .portrait
+        UIDevice.wy_setInterfaceOrientation = .portrait
     }
     
     deinit {

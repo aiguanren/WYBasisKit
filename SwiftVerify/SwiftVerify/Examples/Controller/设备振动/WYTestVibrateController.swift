@@ -103,9 +103,9 @@ class WYTestVibrateController: UIViewController {
         view.endEditing(true)
         
         if repeatCount <= 1 {
-            UIDevice.current.wy_vibrate(style)
+            UIDevice.wy_vibrate(style)
         } else {
-            UIDevice.current.wy_vibrate(style, repeatCount: repeatCount, interval: interval)
+            UIDevice.wy_vibrate(style, repeatCount: repeatCount, interval: interval)
         }
     }
     

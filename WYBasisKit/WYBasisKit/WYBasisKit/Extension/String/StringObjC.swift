@@ -175,7 +175,7 @@ import UIKit
         return (self as String).wy_convertTo(Double.self)
     }
     
-    /// String转Int
+    /// String转NSInteger
     @objc func wy_intValue() -> Int {
         return (self as String).wy_convertTo(Int.self)
     }

@@ -12,9 +12,9 @@ import CoreTelephony
 import AudioToolbox
 
 /// 设备振动模式
-@frozen public enum WYVibrationStyle {
+@frozen public enum WYVibrationStyle: Int {
     /// 系统震动（强烈）
-    case system
+    case system = 0
     /// 轻
     case light
     /// 中
@@ -37,20 +37,16 @@ public extension UIDevice {
     
     /// 状态栏高度
     static var wy_statusBarHeight: CGFloat {
-        get {
-            return UIApplication.shared.wy_keyWindow
-                .windowScene?
-                .statusBarManager?
-                .statusBarFrame
-                .height ?? 0.0
-        }
+        return UIApplication.shared.wy_keyWindow
+            .windowScene?
+            .statusBarManager?
+            .statusBarFrame
+            .height ?? 0.0
     }
     
     /// 导航栏安全区域高度
     static var wy_navBarSafetyZone: CGFloat {
-        get {
-            return UIApplication.shared.wy_keyWindow.safeAreaInsets.top
-        }
+        return UIApplication.shared.wy_keyWindow.safeAreaInsets.top
     }
     
     /// 导航栏高度
@@ -66,9 +62,7 @@ public extension UIDevice {
     
     /// tabBar安全区域高度
     static var wy_tabbarSafetyZone: CGFloat {
-        get {
-            return UIApplication.shared.wy_keyWindow.safeAreaInsets.bottom
-        }
+        return UIApplication.shared.wy_keyWindow.safeAreaInsets.bottom
     }
     
     /// tabBar高度(含安全区域高度)
@@ -121,32 +115,32 @@ public extension UIDevice {
     }
     
     /// 设备型号
-    var wy_deviceName: String {
-        return name
+    static var wy_deviceName: String {
+        return current.name
     }
     
     /// 系统名称
-    var wy_systemName: String {
-        return systemName
+    static var wy_systemName: String {
+        return current.systemName
     }
     
     /// 系统版本号
-    var wy_systemVersion: String {
-        return systemVersion
+    static var wy_systemVersion: String {
+        return current.systemVersion
     }
     
     /// 是否是iPhone系列
-    var wy_iPhoneSeries: Bool {
-        return userInterfaceIdiom == .phone
+    static var wy_iPhoneSeries: Bool {
+        return current.userInterfaceIdiom == .phone
     }
     
     /// 是否是iPad系列
-    var wy_iPadSeries: Bool {
-        return userInterfaceIdiom == .pad
+    static var wy_iPadSeries: Bool {
+        return current.userInterfaceIdiom == .pad
     }
     
     /// 是否是模拟器
-    var wy_simulatorSeries: Bool {
+    static var wy_simulatorSeries: Bool {
 #if targetEnvironment(simulator)
         return true
 #else
@@ -155,7 +149,7 @@ public extension UIDevice {
     }
     
     ///获取CPU核心数
-    var wy_numberOfCpuCores: Int {
+    static var wy_numberOfCPUCores: Int {
         var ncpu: UInt = UInt(0)
         var len: size_t = MemoryLayout.size(ofValue: ncpu)
         sysctlbyname("hw.ncpu", &ncpu, &len, nil, 0)
@@ -163,7 +157,7 @@ public extension UIDevice {
     }
     
     ///获取CPU类型
-    var wy_cpuType: String {
+    static var wy_cpuType: String {
         
         let HOST_BASIC_INFO_COUNT = MemoryLayout<host_basic_info>.stride/MemoryLayout<integer_t>.stride
         var size = mach_msg_type_number_t(HOST_BASIC_INFO_COUNT)
@@ -212,18 +206,17 @@ public extension UIDevice {
     }
     
     /// UUID (注意：UUID并不是唯一不变的)
-    var wy_uuid: String {
-        return identifierForVendor?.uuidString ?? ""
+    static var wy_uuid: String {
+        return current.identifierForVendor?.uuidString ?? ""
     }
     
-    
     /// 是否是全屏手机
-    var wy_isFullScreen: Bool {
+    static var wy_isFullScreen: Bool {
         return UIApplication.shared.wy_keyWindow.safeAreaInsets.bottom > 0
     }
     
     /// 是否是传入的分辨率
-    func wy_resolutionRatio(horizontal: CGFloat, vertical: CGFloat) -> Bool {
+    static func wy_resolutionRatio(horizontal: CGFloat, vertical: CGFloat) -> Bool {
         if let modeSize = UIScreen.main.currentMode?.size {
             return CGSize(width: horizontal, height: vertical).equalTo(modeSize) && !wy_iPadSeries
         }
@@ -231,19 +224,19 @@ public extension UIDevice {
     }
     
     /// 是否是竖屏模式
-    var wy_verticalScreen: Bool {
+    static var wy_verticalScreen: Bool {
         let orientation: UIInterfaceOrientation = UIApplication.shared.wy_keyWindow.windowScene?.interfaceOrientation ?? .unknown
         return orientation == .portrait || orientation == .portraitUpsideDown
     }
     
     /// 是否是横屏模式
-    var wy_horizontalScreen: Bool {
+    static var wy_horizontalScreen: Bool {
         let orientation: UIInterfaceOrientation = UIApplication.shared.wy_keyWindow.windowScene?.interfaceOrientation ?? .unknown
         return orientation == .landscapeLeft || orientation == .landscapeRight
     }
     
     /// 获取运营商IP地址
-    var wy_carrierIP: String {
+    static var wy_carrierIP: String {
         
         var addresses = [String]()
         var ifaddr : UnsafeMutablePointer<ifaddrs>? = nil
@@ -270,7 +263,7 @@ public extension UIDevice {
     }
     
     /// 获取 Wifi IP地址
-    var wy_wifiIP: String {
+    static var wy_wifiIP: String {
         
         var address: String?
         var ifaddr: UnsafeMutablePointer<ifaddrs>? = nil
@@ -303,14 +296,14 @@ public extension UIDevice {
     }
     
     /// 当前电池健康度
-    var wy_batteryLevel: CGFloat {
+    static var wy_batteryLevel: CGFloat {
         UIDevice.current.isBatteryMonitoringEnabled = true
         let level = UIDevice.current.batteryLevel
         return CGFloat(level >= 0 ? (level * 100) : -1)
     }
     
     /// 磁盘总大小
-    var wy_totalDiskSize: String {
+    static var wy_totalDiskSize: String {
         
         guard let systemAttributes = try? FileManager.default.attributesOfFileSystem(forPath: NSHomeDirectory() as String),
               let totalDiskSpaceInBytes = (systemAttributes[FileAttributeKey.systemSize] as? NSNumber)?.int64Value else { return "0" }
@@ -319,7 +312,7 @@ public extension UIDevice {
     }
     
     /// 磁盘可用大小
-    var wy_availableDiskSize: String {
+    static var wy_availableDiskSize: String {
         
         var freeDiskSpaceInBytes: Int64 = 0
         if let space = try? URL(fileURLWithPath: NSHomeDirectory() as String).resourceValues(forKeys: [URLResourceKey.volumeAvailableCapacityForImportantUsageKey]).volumeAvailableCapacityForImportantUsage {
@@ -329,7 +322,7 @@ public extension UIDevice {
     }
     
     /// 磁盘已使用大小
-    var wy_usedDiskSize: String {
+    static var wy_usedDiskSize: String {
         
         guard let systemAttributes = try? FileManager.default.attributesOfFileSystem(forPath: NSHomeDirectory() as String),
               let totalDiskSpaceInBytes = (systemAttributes[FileAttributeKey.systemSize] as? NSNumber)?.int64Value else { return "0" }
@@ -343,7 +336,7 @@ public extension UIDevice {
     }
     
     /// 旋转屏幕，设置界面方向，支持重力感应切换(默认竖屏)
-    var wy_setInterfaceOrientation: UIInterfaceOrientationMask {
+    static var wy_setInterfaceOrientation: UIInterfaceOrientationMask {
         
         set(newValue) {
             
@@ -381,7 +374,7 @@ public extension UIDevice {
     }
     
     /// 获取当前设备屏幕方向(只会出现 portrait、landscapeLeft、landscapeRight、portraitUpsideDown 四种情况)
-    private(set) var wy_currentInterfaceOrientation: UIInterfaceOrientationMask {
+    static private(set) var wy_currentInterfaceOrientation: UIInterfaceOrientationMask {
         set(newValue) {
             
             objc_setAssociatedObject(self, &WYAssociatedKeys.privateCurrentInterfaceOrientation, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -396,7 +389,7 @@ public extension UIDevice {
      *  设备震动一次
      *  @param style   震动风格
      */
-    func wy_vibrate(_ style: WYVibrationStyle) {
+    static func wy_vibrate(_ style: WYVibrationStyle) {
         switch style {
         case .system:
             // 系统震动 (需要导入 AudioToolbox)
@@ -426,7 +419,7 @@ public extension UIDevice {
      *  @param repeatCount   重复次数
      *  @param interval      间隔（秒）
      */
-    func wy_vibrate(_ style: WYVibrationStyle, repeatCount: Int, interval: TimeInterval) {
+    static func wy_vibrate(_ style: WYVibrationStyle, repeatCount: Int, interval: TimeInterval) {
         guard repeatCount > 0 else { return }
         
         for i in 0..<repeatCount {
@@ -440,7 +433,7 @@ public extension UIDevice {
 private extension UIDevice {
     
     // 旋转屏幕到指定方向
-    private func wy_rotateScreenTo(_ orientation: UIInterfaceOrientation) {
+    static private func wy_rotateScreenTo(_ orientation: UIInterfaceOrientation) {
         if #available(iOS 16.0, *) {
             if let windowScene: UIWindowScene = UIApplication.shared.wy_keyWindow.windowScene {
                 UIViewController.wy_currentController()?.setNeedsUpdateOfSupportedInterfaceOrientations()
@@ -456,7 +449,7 @@ private extension UIDevice {
         }
     }
     
-    func rotateScreenOrientationDynamically(_ orientation: UIInterfaceOrientationMask) {
+    static func rotateScreenOrientationDynamically(_ orientation: UIInterfaceOrientationMask) {
         
         if motionManager == nil {
             motionManager = CMMotionManager()
@@ -464,9 +457,9 @@ private extension UIDevice {
         }
         if motionManager!.isAccelerometerAvailable {
             
-            motionManager!.startAccelerometerUpdates(to: OperationQueue.current!) { [weak self] (accelerometerData, error) in
+            motionManager!.startAccelerometerUpdates(to: OperationQueue.current!) { (accelerometerData, error) in
                 if error != nil {
-                    self?.stopMotionManager()
+                    stopMotionManager()
                     WYLogManager.output("启用加速传感器出错：\(error!.localizedDescription)")
                 }else {
                     
@@ -484,26 +477,26 @@ private extension UIDevice {
                                 return
                             }
                             
-                            self?.wy_currentInterfaceOrientation = .portraitUpsideDown
-                            UIDevice.current.wy_rotateScreenTo(.portraitUpsideDown)
+                            wy_currentInterfaceOrientation = .portraitUpsideDown
+                            UIDevice.wy_rotateScreenTo(.portraitUpsideDown)
                             
                         } else {
                             
-                            self?.wy_currentInterfaceOrientation = .portrait
-                            UIDevice.current.wy_rotateScreenTo(.portrait)
+                            wy_currentInterfaceOrientation = .portrait
+                            UIDevice.wy_rotateScreenTo(.portrait)
                         }
                         
                     }else {
                         
                         if x >= 0 {
                             
-                            self?.wy_currentInterfaceOrientation = .landscapeLeft
-                            UIDevice.current.wy_rotateScreenTo(.landscapeLeft)
+                            wy_currentInterfaceOrientation = .landscapeLeft
+                            UIDevice.wy_rotateScreenTo(.landscapeLeft)
                             
                         } else{
                             
-                            self?.wy_currentInterfaceOrientation = .landscapeRight
-                            UIDevice.current.wy_rotateScreenTo(.landscapeRight)
+                            wy_currentInterfaceOrientation = .landscapeRight
+                            UIDevice.wy_rotateScreenTo(.landscapeRight)
                         }
                     }
                 }
@@ -513,7 +506,7 @@ private extension UIDevice {
         }
     }
     
-    func stopMotionManager() {
+    static func stopMotionManager() {
         
         guard motionManager != nil else {
             return
@@ -525,7 +518,7 @@ private extension UIDevice {
         motionManager = nil
     }
     
-    var motionManager: CMMotionManager? {
+    static var motionManager: CMMotionManager? {
         
         set(newValue) {
             

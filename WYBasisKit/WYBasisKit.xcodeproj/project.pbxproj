@@ -121,6 +121,11 @@
 		58DF46DA2E6C00E7003FB3E9 /* CGFloatObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF46D92E6C00E7003FB3E9 /* CGFloatObjC.swift */; };
 		58DF46DC2E6C0AB3003FB3E9 /* DoubleObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF46DB2E6C0AB3003FB3E9 /* DoubleObjC.swift */; };
 		58DF46DE2E6C0D5E003FB3E9 /* BoolObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF46DD2E6C0D5E003FB3E9 /* BoolObjC.swift */; };
+		58DF46E02E6C1223003FB3E9 /* FloatingPointObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF46DF2E6C1223003FB3E9 /* FloatingPointObjC.swift */; };
+		58DF46E22E6C19FD003FB3E9 /* DecimalObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF46E12E6C19FD003FB3E9 /* DecimalObjC.swift */; };
+		58DF46E42E6C1B74003FB3E9 /* UIFontObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF46E32E6C1B74003FB3E9 /* UIFontObjC.swift */; };
+		58DF46E62E6C2F53003FB3E9 /* CALayerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF46E52E6C2F53003FB3E9 /* CALayerObjC.swift */; };
+		58DF46E82E6C2FD2003FB3E9 /* UIDeviceObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF46E72E6C2FD2003FB3E9 /* UIDeviceObjC.swift */; };
 		58E7127E2E4B03C20095E71C /* WYAudioKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E7127D2E4B03C20095E71C /* WYAudioKit.swift */; };
 		58F3786D2E2224A9007F7C55 /* UIFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3786C2E2224A9007F7C55 /* UIFont.swift */; };
 		58F378702E2239D5007F7C55 /* FloatingPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3786F2E2239D5007F7C55 /* FloatingPoint.swift */; };
@@ -247,6 +252,11 @@
 		58DF46D92E6C00E7003FB3E9 /* CGFloatObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGFloatObjC.swift; sourceTree = "<group>"; };
 		58DF46DB2E6C0AB3003FB3E9 /* DoubleObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoubleObjC.swift; sourceTree = "<group>"; };
 		58DF46DD2E6C0D5E003FB3E9 /* BoolObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoolObjC.swift; sourceTree = "<group>"; };
+		58DF46DF2E6C1223003FB3E9 /* FloatingPointObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPointObjC.swift; sourceTree = "<group>"; };
+		58DF46E12E6C19FD003FB3E9 /* DecimalObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecimalObjC.swift; sourceTree = "<group>"; };
+		58DF46E32E6C1B74003FB3E9 /* UIFontObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIFontObjC.swift; sourceTree = "<group>"; };
+		58DF46E52E6C2F53003FB3E9 /* CALayerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CALayerObjC.swift; sourceTree = "<group>"; };
+		58DF46E72E6C2FD2003FB3E9 /* UIDeviceObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIDeviceObjC.swift; sourceTree = "<group>"; };
 		58E7127D2E4B03C20095E71C /* WYAudioKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAudioKit.swift; sourceTree = "<group>"; };
 		58F3786C2E2224A9007F7C55 /* UIFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIFont.swift; sourceTree = "<group>"; };
 		58F3786F2E2239D5007F7C55 /* FloatingPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPoint.swift; sourceTree = "<group>"; };
@@ -413,6 +423,7 @@
 			isa = PBXGroup;
 			children = (
 				58678E022DFA627C0035673E /* CALayer.swift */,
+				58DF46E52E6C2F53003FB3E9 /* CALayerObjC.swift */,
 			);
 			path = CALayer;
 			sourceTree = "<group>";
@@ -430,6 +441,7 @@
 			isa = PBXGroup;
 			children = (
 				58678E062DFA627C0035673E /* Decimal.swift */,
+				58DF46E12E6C19FD003FB3E9 /* DecimalObjC.swift */,
 			);
 			path = Decimal;
 			sourceTree = "<group>";
@@ -528,6 +540,7 @@
 			isa = PBXGroup;
 			children = (
 				58678E202DFA627C0035673E /* UIDevice.swift */,
+				58DF46E72E6C2FD2003FB3E9 /* UIDeviceObjC.swift */,
 			);
 			path = UIDevice;
 			sourceTree = "<group>";
@@ -1032,6 +1045,7 @@
 			isa = PBXGroup;
 			children = (
 				58F3786C2E2224A9007F7C55 /* UIFont.swift */,
+				58DF46E32E6C1B74003FB3E9 /* UIFontObjC.swift */,
 			);
 			path = UIFont;
 			sourceTree = "<group>";
@@ -1040,6 +1054,7 @@
 			isa = PBXGroup;
 			children = (
 				58F3786F2E2239D5007F7C55 /* FloatingPoint.swift */,
+				58DF46DF2E6C1223003FB3E9 /* FloatingPointObjC.swift */,
 			);
 			path = FloatingPoint;
 			sourceTree = "<group>";
@@ -1208,7 +1223,9 @@
 				58678E8D2DFA627C0035673E /* WYMicrophoneAuthorization.swift in Sources */,
 				58678E8F2DFA627C0035673E /* WYChatBusinessCardCell.swift in Sources */,
 				58678E902DFA627C0035673E /* UIDevice.swift in Sources */,
+				58DF46E82E6C2FD2003FB3E9 /* UIDeviceObjC.swift in Sources */,
 				58678E912DFA627C0035673E /* WYChatLuckyMoneyCell.swift in Sources */,
+				58DF46E02E6C1223003FB3E9 /* FloatingPointObjC.swift in Sources */,
 				58678E922DFA627C0035673E /* WYBiometricAuthorization.swift in Sources */,
 				58678E932DFA627C0035673E /* UIView.swift in Sources */,
 				58678E942DFA627C0035673E /* NumberFormatter.swift in Sources */,
@@ -1247,6 +1264,7 @@
 				58678EAC2DFA627C0035673E /* WYChatBasicCell.swift in Sources */,
 				58678EAD2DFA627C0035673E /* WYAudioManager.swift in Sources */,
 				58DF46D62E6BCE97003FB3E9 /* Foundation+JSONLog.m in Sources */,
+				58DF46E22E6C19FD003FB3E9 /* DecimalObjC.swift in Sources */,
 				58678EAE2DFA627C0035673E /* WYChatRecordsCell.swift in Sources */,
 				58678EB02DFA627C0035673E /* AttributedString.swift in Sources */,
 				58678EB12DFA627C0035673E /* UIApplication.swift in Sources */,
@@ -1261,6 +1279,7 @@
 				58B59FFC2E5D55DB008F9C38 /* WYCameraAuthorizationObjC.swift in Sources */,
 				58678EBA2DFA627C0035673E /* UINavigationController.swift in Sources */,
 				58B59FFE2E5D55E5008F9C38 /* WYContactsAuthorizationObjC.swift in Sources */,
+				58DF46E42E6C1B74003FB3E9 /* UIFontObjC.swift in Sources */,
 				58678EBB2DFA627C0035673E /* Decimal.swift in Sources */,
 				58678EBC2DFA627C0035673E /* WYChatConfig.swift in Sources */,
 				58678EBD2DFA627C0035673E /* UIButton.swift in Sources */,
@@ -1296,6 +1315,7 @@
 				5895ADAD2E237D42001849B2 /* NSNumber.swift in Sources */,
 				58678ED12DFA627C0035673E /* UIColor.swift in Sources */,
 				58678ED22DFA627C0035673E /* WYPagingView.swift in Sources */,
+				58DF46E62E6C2F53003FB3E9 /* CALayerObjC.swift in Sources */,
 				58678ED32DFA627C0035673E /* UIViewController.swift in Sources */,
 				58BE5F032E5E94210046AD5D /* Swift↔ObjC.swift in Sources */,
 				58678ED42DFA627C0035673E /* WYChatWithdrawnCell.swift in Sources */,

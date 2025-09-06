@@ -27,7 +27,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     /// 屏幕旋转需要支持的方向
     func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
-        return UIDevice.current.wy_currentInterfaceOrientation
+        return UIDevice.wy_currentInterfaceOrientation
     }
 }
 

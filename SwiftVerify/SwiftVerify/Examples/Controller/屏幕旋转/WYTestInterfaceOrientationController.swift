@@ -59,25 +59,25 @@ class WYTestInterfaceOrientationController: UIViewController {
                     
                     switch actionStr {
                     case "竖向":
-                        UIDevice.current.wy_setInterfaceOrientation = .portrait
+                        UIDevice.wy_setInterfaceOrientation = .portrait
 
                     case "横向-左":
-                        UIDevice.current.wy_setInterfaceOrientation = .landscapeLeft
+                        UIDevice.wy_setInterfaceOrientation = .landscapeLeft
 
                     case "横向-右":
-                        UIDevice.current.wy_setInterfaceOrientation = .landscapeRight
+                        UIDevice.wy_setInterfaceOrientation = .landscapeRight
                         
                     case "竖向-颠倒":
-                        UIDevice.current.wy_setInterfaceOrientation = .portraitUpsideDown
+                        UIDevice.wy_setInterfaceOrientation = .portraitUpsideDown
                         
                     case "横向":
-                        UIDevice.current.wy_setInterfaceOrientation = .landscape
+                        UIDevice.wy_setInterfaceOrientation = .landscape
                         
                     case "竖向 / 横向":
-                        UIDevice.current.wy_setInterfaceOrientation = .allButUpsideDown
+                        UIDevice.wy_setInterfaceOrientation = .allButUpsideDown
                      
                     case "竖向 / 横向 /  竖向-颠倒":
-                        UIDevice.current.wy_setInterfaceOrientation = .all
+                        UIDevice.wy_setInterfaceOrientation = .all
                         
                     default:
                         break
@@ -90,12 +90,12 @@ class WYTestInterfaceOrientationController: UIViewController {
     }
     
     @objc func outputScreenOrientationInfo() {
-        if (UIDevice.current.wy_verticalScreen) {
+        if (UIDevice.wy_verticalScreen) {
             WYLogManager
                 .output("当前是竖屏模式")
         }
         
-        if (UIDevice.current.wy_horizontalScreen) {
+        if (UIDevice.wy_horizontalScreen) {
             WYLogManager
                 .output("当前是横屏模式")
         }
@@ -104,7 +104,7 @@ class WYTestInterfaceOrientationController: UIViewController {
     func sharedInterfaceOrientationString() -> String {
         
         var string: String = ""
-        switch UIDevice.current.wy_setInterfaceOrientation {
+        switch UIDevice.wy_setInterfaceOrientation {
         case .portrait:
             string = "竖向\n\(sharedScreenResolution())"
         case .landscapeLeft:
@@ -138,7 +138,7 @@ class WYTestInterfaceOrientationController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        UIDevice.current.wy_setInterfaceOrientation = .portrait
+        UIDevice.wy_setInterfaceOrientation = .portrait
     }
 
     /*
