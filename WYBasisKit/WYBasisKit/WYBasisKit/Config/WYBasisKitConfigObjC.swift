@@ -100,27 +100,27 @@ import Foundation
 @objcMembers public class WYProjectInfoObjC: NSObject {
     
     /// 获取项目名称
-    @objc public static func projectName() -> String {
+    @objc public static var projectName: String {
         return WYProjectInfo.projectName
     }
     
     /// 获取AppStore名称
-    @objc public static func appStoreName() -> String {
+    @objc public static var appStoreName: String {
         return WYProjectInfo.appStoreName
     }
     
     /// 获取BundleID
-    @objc public static func appIdentifier() -> String {
+    @objc public static var appIdentifier: String {
         return WYProjectInfo.appIdentifier
     }
     
     /// 获取AppStore版本号
-    @objc public static func appStoreVersion() -> String {
+    @objc public static var appStoreVersion: String {
         return WYProjectInfo.appStoreVersion
     }
     
     /// 获取构建版本号
-    @objc public static func appBuildVersion() -> String {
+    @objc public static var appBuildVersion: String {
         return WYProjectInfo.appBuildVersion
     }
 }
