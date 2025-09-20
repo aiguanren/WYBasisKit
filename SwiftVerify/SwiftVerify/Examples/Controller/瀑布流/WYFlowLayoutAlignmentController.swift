@@ -208,6 +208,11 @@ extension WYFlowLayoutAlignmentController: UICollectionViewDelegate, UICollectio
 
         return cell
     }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        WYLogManager.output("是否为用户在滑动: \(scrollView.wy_isUserSliding)")
+        WYLogManager.output("当前滑动方向: \(scrollView.wy_slidingDirection)")
+    }
 }
 
 class WidthAndHeightEqualCell: UICollectionViewCell {
