@@ -113,6 +113,11 @@
     
 //    NSDecimalNumber *csdw = [[NSDecimalNumber alloc] initWithDouble:100];
 //    [csdw wy_stringValue];
+    
+//    NSDictionary *dic = @{@"haah": @"123"};
+//    NSLog(@"%@",[dic wy_valueForKey:@"haah"]);
+//    NSLog(@"%@",[dic wy_valueForKey:@"xqws"]);
+//    NSLog(@"%@",[dic wy_valueForKey:@"cewv" default:@"dwf"]);
 }
 
 
