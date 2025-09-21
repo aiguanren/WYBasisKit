@@ -28,8 +28,8 @@ class WYTestRichTextController: UIViewController {
         let attribute = NSMutableAttributedString(string: str)
         
         attribute.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 20), range: NSMakeRange(0, str.count))
-        attribute.wy_colorsOfRanges(colorsOfRanges: [[UIColor.blue: "勇猛刚强"], [UIColor.orange: "仁爱温良者戒于无断"], [UIColor.purple: "安舒"], [UIColor.magenta: "必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"]])
-        attribute.wy_lineSpacing(lineSpacing: 15, subString: attribute.string)
+        attribute.wy_colorsOfRanges([[UIColor.blue: "勇猛刚强"], [UIColor.orange: "仁爱温良者戒于无断"], [UIColor.purple: "安舒"], [UIColor.magenta: "必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"]])
+        attribute.wy_lineSpacing(15, subString: attribute.string)
         
         label.attributedText = attribute
         label.wy_clickEffectColor = .green
@@ -60,7 +60,7 @@ class WYTestRichTextController: UIViewController {
         emojiLabel.backgroundColor = .white
         emojiLabel.textColor = .black
         let emojiLabelAttributed = NSMutableAttributedString.wy_convertEmojiAttributed(emojiString: "Hello，这是一个测试表情匹配的UILabel，现在开始匹配，喝彩[喝彩] 唇[唇]  爱心[爱心] 三个表情，看见了吗，他可以用在即时通讯等需要表情匹配的地方，嘻嘻，哈哈", textColor: emojiLabel.textColor, textFont: emojiLabel.font, emojiTable: ["[喝彩]","[唇]","[爱心]"])
-        emojiLabelAttributed.wy_lineSpacing(lineSpacing: 5)
+        emojiLabelAttributed.wy_lineSpacing(5)
         emojiLabel.attributedText = emojiLabelAttributed
         scrollView.addSubview(emojiLabel)
         emojiLabel.snp.makeConstraints { (make) in
@@ -126,9 +126,9 @@ class WYTestRichTextController: UIViewController {
             .init(image: image_font_50, size: CGSize(width: 20, height: 20), position: .after(text: string_font_50), alignment: .bottom),
             .init(image: image_font_50, size: CGSize(width: 10, height: 10), position: .index(string_font_50Index + 2), alignment: .custom(offset: -30))
         ]
-        attributed.wy_fontsOfRanges(fontsOfRanges: [[UIFont.systemFont(ofSize: 30): string_font_30], [UIFont.systemFont(ofSize: 40): string_font_40], [UIFont.systemFont(ofSize: 50): string_font_50]])
+        attributed.wy_fontsOfRanges([[UIFont.systemFont(ofSize: 30): string_font_30], [UIFont.systemFont(ofSize: 40): string_font_40], [UIFont.systemFont(ofSize: 50): string_font_50]])
         attributed.wy_insertImage(options)
-        attributed.wy_lineSpacing(lineSpacing: 10)
+        attributed.wy_lineSpacing(10)
         attachmentView.attributedText = attributed
         scrollView.addSubview(attachmentView)
         attachmentView.snp.makeConstraints { make in
@@ -158,10 +158,10 @@ class WYTestRichTextController: UIViewController {
         WYLogManager.output("spacing10 = \(spacing10), spacing15 = \(spacing15), spacing30 = \(spacing30), spacing20 = \(spacing20)")
         
         let spacingAttributed = NSMutableAttributedString(string: spacing10 + "\n" + spacing15 + "\n" + spacing30 + "\n" + spacing20)
-        spacingAttributed.wy_lineSpacing(lineSpacing: 10, beforeString: spacing10, afterString: spacing15, alignment: .left)
-        spacingAttributed.wy_lineSpacing(lineSpacing: 15, beforeString: spacing15, afterString: spacing30, alignment: .right)
-        spacingAttributed.wy_lineSpacing(lineSpacing: 30, beforeString: spacing30, afterString: spacing20, alignment: .left)
-        spacingAttributed.wy_lineSpacing(lineSpacing: 50, subString: spacing20)
+        spacingAttributed.wy_lineSpacing(10, beforeString: spacing10, afterString: spacing15, alignment: .left)
+        spacingAttributed.wy_lineSpacing(15, beforeString: spacing15, afterString: spacing30, alignment: .right)
+        spacingAttributed.wy_lineSpacing(30, beforeString: spacing30, afterString: spacing20, alignment: .left)
+        spacingAttributed.wy_lineSpacing(50, subString: spacing20)
         spacingView.attributedText = spacingAttributed
         
         let sizeWidth: CGFloat = UIDevice.wy_screenWidth - 30

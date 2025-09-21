@@ -118,6 +118,10 @@
 //    NSLog(@"%@",[dic wy_valueForKey:@"haah"]);
 //    NSLog(@"%@",[dic wy_valueForKey:@"xqws"]);
 //    NSLog(@"%@",[dic wy_valueForKey:@"cewv" default:@"dwf"]);
+//    
+//    NSMutableAttributedString *zxc = nil;
+//    WYImageAttachmentOptionObjC *cevde = [[WYImageAttachmentOptionObjC alloc] initWithImage:[UIImage imageNamed:@""] size:CGSizeZero position:PositionObjCAfter positionValue:@(10) alignment:AlignmentObjCTop alignmentOffset:10 spacingBefore:10 spacingAfter:10];
+//    [zxc wy_insertImageObjC:@[cevde]];
 }
 
 

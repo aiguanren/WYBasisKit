@@ -22,12 +22,12 @@ import UIKit
 @objcMembers public class WYSourceBundleObjC: NSObject {
     
     /// 从哪个bundle文件内查找，如果bundleName对应的bundle不存在，则直接在本地路径下查找
-    public let bundleName: String
+    @objc public let bundleName: String
     
     /// bundleName.bundle下面的子文件夹路径，如果子文件夹有多层，就用/隔开(如果要获取资源是放在bundle文件下面的子文件夹中，则需要传入该路径，例如ImageSource.bundle下面有个叫apple的子文件夹，则subdirectory应该传入 apple)
-    public let subdirectory: String
+    @objc public let subdirectory: String
     
-    public init(bundleName: String = "", subdirectory: String = "") {
+    @objc public init(bundleName: String = "", subdirectory: String = "") {
         self.bundleName = bundleName
         self.subdirectory = subdirectory
     }

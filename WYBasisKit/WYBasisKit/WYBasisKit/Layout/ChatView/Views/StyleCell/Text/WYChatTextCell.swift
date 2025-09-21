@@ -152,7 +152,7 @@ public class WYChatTextCell: WYChatBasicCell {
     public func sharedEmojiAttributed(string: String) -> NSAttributedString {
         let attributed: NSMutableAttributedString = NSMutableAttributedString.wy_convertEmojiAttributed(emojiString: string, textColor: chatTextConfig.textColor, textFont: chatTextConfig.textFont, emojiTable: emojiViewConfig.emojiSource, sourceBundle: emojiViewConfig.emojiBundle, pattern: inputBarConfig.emojiPattern)
         
-        attributed.wy_lineSpacing(lineSpacing: chatTextConfig.textLineSpacing, alignment: .left)
+        attributed.wy_lineSpacing(chatTextConfig.textLineSpacing, alignment: .left)
         
         return attributed
     }

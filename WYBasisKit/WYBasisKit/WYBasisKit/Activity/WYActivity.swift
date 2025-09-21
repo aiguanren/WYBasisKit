@@ -730,10 +730,10 @@ private extension WYActivity {
         if content is String {
             
             attributed = NSMutableAttributedString(string: content as? String ?? "")
-            attributed?.wy_colorsOfRanges(colorsOfRanges: [[textColor: attributed?.string as Any]])
-            attributed?.wy_fontsOfRanges(fontsOfRanges: [[textFont: attributed?.string as Any]])
-            attributed?.wy_wordsSpacing(wordsSpacing: 1)
-            attributed?.wy_lineSpacing(lineSpacing: UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels), subString: attributed?.string, alignment: alignment)
+            attributed?.wy_colorsOfRanges([[textColor: attributed?.string as Any]])
+            attributed?.wy_fontsOfRanges([[textFont: attributed?.string as Any]])
+            attributed?.wy_wordsSpacing(1)
+            attributed?.wy_lineSpacing(UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels), subString: attributed?.string, alignment: alignment)
         }else {
             attributed = NSMutableAttributedString(attributedString: content as? NSAttributedString ?? NSAttributedString())
         }

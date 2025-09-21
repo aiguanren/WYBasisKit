@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		58155C0C2E6A802A00D957F3 /* StringObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58155C0B2E6A802A00D957F3 /* StringObjC.swift */; };
+		581A97262E80097F00274BA2 /* AttributedStringObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581A97252E80097F00274BA2 /* AttributedStringObjC.swift */; };
 		585B39A22DF8125400E6E08F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B39622DF8125400E6E08F /* AppDelegate.swift */; };
 		585B39A32DF8125400E6E08F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B396A2DF8125400E6E08F /* ViewController.swift */; };
 		585B39AC2DF8125400E6E08F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 585B39632DF8125400E6E08F /* Assets.xcassets */; };
@@ -143,6 +144,7 @@
 /* Begin PBXFileReference section */
 		53C1C8E1255F64288E08B8AC /* Pods-WYBasisKit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.release.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.release.xcconfig"; sourceTree = "<group>"; };
 		58155C0B2E6A802A00D957F3 /* StringObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringObjC.swift; sourceTree = "<group>"; };
+		581A97252E80097F00274BA2 /* AttributedStringObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttributedStringObjC.swift; sourceTree = "<group>"; };
 		585B35642DF8086C00E6E08F /* WYBasisKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WYBasisKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		585B39622DF8125400E6E08F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		585B39632DF8125400E6E08F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -471,6 +473,7 @@
 			isa = PBXGroup;
 			children = (
 				58678E0C2DFA627C0035673E /* AttributedString.swift */,
+				581A97252E80097F00274BA2 /* AttributedStringObjC.swift */,
 			);
 			path = AttributedString;
 			sourceTree = "<group>";
@@ -625,14 +628,14 @@
 		58678E322DFA627C0035673E /* Extension */ = {
 			isa = PBXGroup;
 			children = (
-				589606AD2E7E6062001DD8FE /* Dictionary */,
-				589606AC2E7E6057001DD8FE /* Array */,
-				589606A92E7E5A04001DD8FE /* UIScrollView */,
-				58678E132DFA627C0035673E /* String */,
 				58F378712E2240B9007F7C55 /* Int */,
-				58678E052DFA627C0035673E /* CGFloat */,
-				58678E092DFA627C0035673E /* Double */,
 				58678E012DFA627C0035673E /* Bool */,
+				58678E132DFA627C0035673E /* String */,
+				58678E092DFA627C0035673E /* Double */,
+				58678E052DFA627C0035673E /* CGFloat */,
+				589606AC2E7E6057001DD8FE /* Array */,
+				589606AD2E7E6062001DD8FE /* Dictionary */,
+				589606A92E7E5A04001DD8FE /* UIScrollView */,
 				5895ADAB2E237D16001849B2 /* NSNumber */,
 				58F3786E2E2239A7007F7C55 /* FloatingPoint */,
 				58F3786B2E22244B007F7C55 /* UIFont */,
@@ -1275,6 +1278,7 @@
 				58678E952DFA627C0035673E /* WYRecordAnimationView.swift in Sources */,
 				58678E972DFA627C0035673E /* WYMoreViewCell.swift in Sources */,
 				58CDEE582E34780D00ACE975 /* WYLogManager.swift in Sources */,
+				581A97262E80097F00274BA2 /* AttributedStringObjC.swift in Sources */,
 				58B59FF82E5D5515008F9C38 /* WYActivityObjC.swift in Sources */,
 				58678E982DFA627C0035673E /* WYSpeechRecognitionAuthorization.swift in Sources */,
 				58678E992DFA627C0035673E /* WYStorage.swift in Sources */,

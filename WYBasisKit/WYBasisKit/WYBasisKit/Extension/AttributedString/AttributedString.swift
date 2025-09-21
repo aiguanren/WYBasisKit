@@ -17,7 +17,7 @@ public extension NSMutableAttributedString {
      *  或：NSArray *colorsOfRanges = @[@{color:str},@{color:str}]
      */
     @discardableResult
-    func wy_colorsOfRanges(colorsOfRanges: Array<Dictionary<UIColor, Any>>) -> NSMutableAttributedString {
+    func wy_colorsOfRanges(_ colorsOfRanges: Array<Dictionary<UIColor, Any>>) -> NSMutableAttributedString {
         for dic in colorsOfRanges {
             if let color = dic.keys.first,
                let rangeValue = dic.values.first {
@@ -33,7 +33,7 @@ public extension NSMutableAttributedString {
      *  或：NSArray *fontsOfRanges = @[@{font:str},@{font:str}]
      */
     @discardableResult
-    func wy_fontsOfRanges(fontsOfRanges: Array<Dictionary<UIFont, Any>>) -> NSMutableAttributedString {
+    func wy_fontsOfRanges(_ fontsOfRanges: Array<Dictionary<UIFont, Any>>) -> NSMutableAttributedString {
         for dic in fontsOfRanges {
             if let font = dic.keys.first,
                let rangeValue = dic.values.first {
@@ -44,7 +44,7 @@ public extension NSMutableAttributedString {
     }
     
     /**
-     *  修改字符字体(整个富文本统一设置字体)
+     *  修改富文本字体(整个富文本统一设置字体)
      */
     @discardableResult
     func wy_setFont(_ font: UIFont) -> NSMutableAttributedString {
@@ -54,7 +54,7 @@ public extension NSMutableAttributedString {
     
     /// 设置行间距
     @discardableResult
-    func wy_lineSpacing(lineSpacing: CGFloat, subString: String? = nil, alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
+    func wy_lineSpacing(_ lineSpacing: CGFloat, subString: String? = nil, alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
         
         let targetRange: NSRange
         
@@ -101,7 +101,7 @@ public extension NSMutableAttributedString {
     
     /// 设置不同段落间的行间距
     @discardableResult
-    func wy_lineSpacing(lineSpacing: CGFloat,
+    func wy_lineSpacing(_ lineSpacing: CGFloat,
                         beforeString: String,
                         afterString: String,
                         alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
@@ -148,7 +148,7 @@ public extension NSMutableAttributedString {
     
     /// 设置字间距
     @discardableResult
-    func wy_wordsSpacing(wordsSpacing: CGFloat, string: String? = nil) -> NSMutableAttributedString {
+    func wy_wordsSpacing(_ wordsSpacing: CGFloat, string: String? = nil) -> NSMutableAttributedString {
         
         let targetRange: NSRange
         if let substring = string,

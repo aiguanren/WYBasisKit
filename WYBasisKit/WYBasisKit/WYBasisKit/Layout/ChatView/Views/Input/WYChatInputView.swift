@@ -555,7 +555,7 @@ public class WYChatInputView: UIImageView {
     // 根据传入的表情字符串生成富文本，例如字符串 "哈哈[哈哈]" 会生成 "哈哈😄"
     public func sharedEmojiAttributed(string: String) -> NSAttributedString {
         let attributed: NSMutableAttributedString = NSMutableAttributedString.wy_convertEmojiAttributed(emojiString: string, textColor: inputBarConfig.textColor, textFont: inputBarConfig.textFont, emojiTable: emojiViewConfig.emojiSource, sourceBundle: emojiViewConfig.emojiBundle, pattern: inputBarConfig.emojiPattern)
-        attributed.wy_lineSpacing(lineSpacing: inputBarConfig.textLineSpacing, alignment: .left)
+        attributed.wy_lineSpacing(inputBarConfig.textLineSpacing, alignment: .left)
         
         return attributed
     }
@@ -563,7 +563,7 @@ public class WYChatInputView: UIImageView {
     // 将表情富文本生成对应的富文本字符串，例如表情富文本 "哈哈😄" 会生成 "哈哈[哈哈]"
     public func sharedEmojiAttributedText(attributed: NSAttributedString) -> NSAttributedString {
         let attributed: NSMutableAttributedString = NSMutableAttributedString(attributedString: attributed).wy_convertEmojiAttributedString(textColor: inputBarConfig.textColor, textFont: inputBarConfig.textFont)
-        attributed.wy_lineSpacing(lineSpacing: inputBarConfig.textLineSpacing, alignment: .left)
+        attributed.wy_lineSpacing(inputBarConfig.textLineSpacing, alignment: .left)
         return attributed
     }
     

@@ -103,8 +103,8 @@ extension WYFlowLayoutAlignmentController: UICollectionViewDelegate, UICollectio
                 let lineSpacing: CGFloat = 5
                 
                 let attributedString: NSMutableAttributedString = NSMutableAttributedString(string: testString)
-                attributedString.wy_lineSpacing(lineSpacing: lineSpacing)
-                attributedString.wy_fontsOfRanges(fontsOfRanges: [[testFont: testString]])
+                attributedString.wy_lineSpacing(lineSpacing)
+                attributedString.wy_fontsOfRanges([[testFont: testString]])
                 
                 let stringWidth: CGFloat = attributedString.wy_calculateWidth(controlHeight: testFont.lineHeight)
                 
