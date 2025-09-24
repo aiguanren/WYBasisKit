@@ -7,7 +7,8 @@
 
 import Foundation
 
-@objc public enum WYCodableErrorObjC: Int, Error {
+@objc(WYCodableError)
+public enum WYCodableErrorObjC: Int, Error {
     /// 未知错误
     case unknown
     /// 类型不匹配
@@ -18,12 +19,11 @@ import Foundation
     case dataFormatError
 }
 
+@objc(WYCodable)
 @objcMembers public class WYCodableObjC: NSObject {
     
     /// WYCodable的实例对象（内部使用）
     private let codable: WYCodable = WYCodable()
-    
-    // MARK: - 键值解码策略设置
     
     /// 设置键值解码策略(使用默认的键值策略，不进行任何转换)
     public func useDefaultKeys() {
@@ -48,8 +48,6 @@ import Foundation
             return WYCodingKey(stringValue: result, intValue: nil)
         }
     }
-    
-    // MARK: - 解码方法
     
     /// 将String、Dictionary、Array、Data类型数据解析成传入的Model类型
     @objc public func decode(_ obj: AnyObject, modelClass: AnyClass) throws -> AnyObject {
@@ -99,8 +97,6 @@ import Foundation
         }
     }
     
-    // MARK: - 编码方法
-    
     /// 将传入的model转换成指定类型(convertType限String、Dictionary、Array、Data)
     @objc public func encode(_ model: AnyObject, convertType: AnyClass) throws -> AnyObject {
         guard let codableModel = model as? Codable else {
@@ -123,8 +119,6 @@ import Foundation
         
         throw WYCodableErrorObjC.typeMismatch
     }
-    
-    // MARK: - 类型转换方法
     
     /// String转Dictionary
     @objc public static func stringToDictionary(_ string: String) throws -> NSDictionary {
@@ -197,9 +191,9 @@ import Foundation
         let data = try swiftDictionary.wy_convertToData()
         return data as Data
     }
-    
-    // MARK: - 私有方法
-    
+}
+
+private extension WYCodableObjC {
     /// 解码数组的辅助方法
     private func decodeArray(from data: Data, elementType: Codable.Type) throws -> [Any] {
         // 使用 JSONSerialization 先解析为 [Any]

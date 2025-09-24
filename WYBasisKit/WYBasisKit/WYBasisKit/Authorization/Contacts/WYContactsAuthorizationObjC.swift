@@ -9,10 +9,12 @@
 import UIKit
 import Contacts
 
+@objc(WYContactsAuthorization)
 @objcMembers public class WYContactsAuthorizationObjC: NSObject {
     
     /// 检查通讯录权限并获取通讯录
-    @objc public static func authorizeAddressBookAccess(showAlert: Bool = true, keysToFetch: [String]?, handler: @escaping (_ authorized: Bool, _ userInfo: [CNContact]?) -> Void) {
+    @objc(authorizeAddressBookAccess:keysToFetch:handler:)
+    public static func authorizeAddressBookAccess(showAlert: Bool = true, keysToFetch: [String]?, handler: @escaping (_ authorized: Bool, _ userInfo: [CNContact]?) -> Void) {
         
         let keysToFetchs: [String] = (keysToFetch?.isEmpty ?? true) ? [CNContactFamilyNameKey, CNContactGivenNameKey, CNContactOrganizationNameKey, CNContactPhoneNumbersKey, CNContactNicknameKey] : keysToFetch!
         

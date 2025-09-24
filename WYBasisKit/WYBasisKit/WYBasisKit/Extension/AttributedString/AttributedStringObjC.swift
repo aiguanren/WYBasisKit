@@ -16,7 +16,8 @@ import UIKit
      *  或：NSArray *colorsOfRanges = @[@{color:str},@{color:str}]
      */
     @discardableResult
-    @objc func wy_colorsOfRangesObjC(_ colorsOfRanges: Array<Dictionary<UIColor, Any>>) -> NSMutableAttributedString {
+    @objc(wy_colorsOfRanges:)
+    func wy_colorsOfRangesObjC(_ colorsOfRanges: Array<Dictionary<UIColor, Any>>) -> NSMutableAttributedString {
         return wy_colorsOfRanges(colorsOfRanges)
     }
     
@@ -26,7 +27,8 @@ import UIKit
      *  或：NSArray *fontsOfRanges = @[@{font:str},@{font:str}]
      */
     @discardableResult
-    @objc func wy_fontsOfRangesObjC(_ fontsOfRanges: Array<Dictionary<UIFont, Any>>) -> NSMutableAttributedString {
+    @objc(wy_fontsOfRanges:)
+    func wy_fontsOfRangesObjC(_ fontsOfRanges: Array<Dictionary<UIFont, Any>>) -> NSMutableAttributedString {
         return wy_fontsOfRanges(fontsOfRanges)
     }
     
@@ -34,19 +36,22 @@ import UIKit
      *  修改富文本字体(整个富文本统一设置字体)
      */
     @discardableResult
-    @objc func wy_setFontObjC(_ font: UIFont) -> NSMutableAttributedString {
+    @objc(wy_setFont:)
+    func wy_setFontObjC(_ font: UIFont) -> NSMutableAttributedString {
         return wy_setFont(font)
     }
     
     /// 设置行间距
     @discardableResult
-    @objc func wy_lineSpacingObjC(_ lineSpacing: CGFloat, subString: String? = nil, alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
+    @objc(wy_lineSpacing:subString:alignment:)
+    func wy_lineSpacingObjC(_ lineSpacing: CGFloat, subString: String? = nil, alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
         return wy_lineSpacing(lineSpacing, subString: subString, alignment: alignment)
     }
     
     /// 设置不同段落间的行间距
     @discardableResult
-    @objc func wy_lineSpacingObjC(_ lineSpacing: CGFloat,
+    @objc(wy_lineSpacing:beforeString:afterString:alignment:)
+    func wy_lineSpacingObjC(_ lineSpacing: CGFloat,
                                   beforeString: String,
                                   afterString: String,
                                   alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
@@ -55,19 +60,20 @@ import UIKit
     
     /// 设置字间距
     @discardableResult
-    @objc func wy_wordsSpacingObjC(_ wordsSpacing: CGFloat, string: String? = nil) -> NSMutableAttributedString {
+    @objc(wy_wordsSpacing:string:)
+    func wy_wordsSpacingObjC(_ wordsSpacing: CGFloat, string: String? = nil) -> NSMutableAttributedString {
         return wy_wordsSpacing(wordsSpacing, string: string)
     }
     
     /// 文本添加下划线
     @discardableResult
-    @objc func wy_underlineObjC(color: UIColor, string: String? = nil) -> NSMutableAttributedString {
+    @objc func wy_underline(_ color: UIColor, string: String? = nil) -> NSMutableAttributedString {
         return wy_underline(color: color, string: string)
     }
     
     /// 文本添加删除线
     @discardableResult
-    @objc func wy_strikethroughObjC(color: UIColor, string: String? = nil) -> NSMutableAttributedString {
+    @objc func wy_strikethrough(_ color: UIColor, string: String? = nil) -> NSMutableAttributedString {
         return wy_strikethrough(color: color, string: string)
     }
     
@@ -79,7 +85,7 @@ import UIKit
      *  @param tailIndent  尾部右边距
      */
     @discardableResult
-    @objc func wy_innerMarginObjC(string: String? = nil,
+    @objc func wy_innerMargin(with string: String?,
                                   firstLineHeadIndent: CGFloat = 0,
                                   headIndent: CGFloat = 0,
                                   tailIndent: CGFloat = 0,
@@ -99,7 +105,8 @@ import UIKit
      3. spacingBefore / spacingAfter 可用于设置插入图片前后的间距；
      */
     @discardableResult
-    @objc func wy_insertImageObjC(_ attachments: [WYImageAttachmentOptionObjC]) -> NSMutableAttributedString {
+    @objc(wy_insertImage:)
+    func wy_insertImageObjC(_ attachments: [WYImageAttachmentOptionObjC]) -> NSMutableAttributedString {
         
         let swiftAttachments: [WYImageAttachmentOption] = attachments.map { objCOption in
             return WYImageAttachmentOption(
@@ -143,8 +150,8 @@ import UIKit
      *  @param bundle        从哪个bundle文件内查找图片资源，如果为空，则直接在本地路径下查找
      *  @param pattern       正则匹配规则, 默认匹配1到3位, 如 [哈] [哈哈] [哈哈哈] 这种
      */
-    @objc static func wy_convertEmojiAttributedObjC(emojiString: String, textColor: UIColor, textFont: UIFont, emojiTable: [String], sourceBundle: WYSourceBundleObjC? = nil, pattern: String = "\\[.{1,3}\\]") -> NSMutableAttributedString {
-        return wy_convertEmojiAttributed(emojiString: emojiString, textColor: textColor, textFont: textFont, emojiTable: emojiTable, sourceBundle: WYSourceBundle(bundleName: sourceBundle?.bundleName ?? "", subdirectory: sourceBundle?.subdirectory ?? ""), pattern: pattern)
+    @objc static func wy_convertEmojiAttributed(_ emojiString: String, textColor: UIColor, textFont: UIFont, emojiTable: [String], sourceBundle: WYSourceBundleObjC? = nil, pattern: String?) -> NSMutableAttributedString {
+        return wy_convertEmojiAttributed(emojiString: emojiString, textColor: textColor, textFont: textFont, emojiTable: emojiTable, sourceBundle: WYSourceBundle(bundleName: sourceBundle?.bundleName ?? "", subdirectory: sourceBundle?.subdirectory ?? ""), pattern: pattern ?? "\\[.{1,3}\\]")
     }
     
     /**
@@ -153,7 +160,7 @@ import UIKit
      *  @param textFont      富文本的字体
      *  @param replace       未知图片(表情)的标识替换符，默认：[未知]
      */
-    @objc func wy_convertEmojiAttributedStringObjC(textColor: UIColor, textFont: UIFont, replace: String = "[未知]") -> NSMutableAttributedString {
+    @objc func wy_convertEmojiAttributedString(_ textColor: UIColor, textFont: UIFont, replace: String = "[未知]") -> NSMutableAttributedString {
         return wy_convertEmojiAttributedString(textColor: textColor, textFont: textFont, replace: replace)
     }
 }
@@ -161,37 +168,40 @@ import UIKit
 @objc public extension NSAttributedString {
     
     /// 获取某段文字的frame
-    @objc func wy_calculateFrameObjC(range: NSRange, controlSize: CGSize, numberOfLines: Int = 0, lineBreakMode: NSLineBreakMode = .byWordWrapping) -> CGRect {
+    @objc(wy_calculateFrameWithRange:controlSize:numberOfLines:lineBreakMode:)
+    func wy_calculateFrame(_ range: NSRange, controlSize: CGSize, numberOfLines: Int = 0, lineBreakMode: NSLineBreakMode = .byWordWrapping) -> CGRect {
         return wy_calculateFrame(range: range, controlSize: controlSize, numberOfLines: numberOfLines, lineBreakMode: lineBreakMode)
     }
     
     /// 获取某段文字的frame
-    @objc func wy_calculateFrameObjC(subString: String, controlSize: CGSize, numberOfLines: Int = 0, lineBreakMode: NSLineBreakMode = .byWordWrapping) -> CGRect {
+    @objc(wy_calculateFrameWithSubString:controlSize:numberOfLines:lineBreakMode:)
+    func wy_calculateFrameObjC(subString: String, controlSize: CGSize, numberOfLines: Int = 0, lineBreakMode: NSLineBreakMode = .byWordWrapping) -> CGRect {
         return wy_calculateFrame(subString: subString, controlSize: controlSize, numberOfLines: numberOfLines, lineBreakMode: lineBreakMode)
     }
     
     /// 计算富文本宽度
-    @objc func wy_calculateWidthObjC(controlHeight: CGFloat) -> CGFloat {
-        return wy_calculateSizeObjC(controlSize: CGSize(width: .greatestFiniteMagnitude, height: controlHeight)).width
+    @objc func wy_calculateWidth(_ controlHeight: CGFloat) -> CGFloat {
+        return wy_calculateSize(controlSize: CGSize(width: .greatestFiniteMagnitude, height: controlHeight)).width
     }
     
     /// 计算富文本高度
-    @objc func wy_calculateHeightObjC(controlWidth: CGFloat) -> CGFloat {
-        return wy_calculateSizeObjC(controlSize: CGSize(width: controlWidth, height: .greatestFiniteMagnitude)).height
+    @objc func wy_calculateHeight(_ controlWidth: CGFloat) -> CGFloat {
+        return wy_calculateSize(controlSize: CGSize(width: controlWidth, height: .greatestFiniteMagnitude)).height
     }
     
     /// 计算富文本宽高
-    @objc func wy_calculateSizeObjC(controlSize: CGSize) -> CGSize {
+    @objc(wy_calculateSize:)
+    func wy_calculateSize(_ controlSize: CGSize) -> CGSize {
         return wy_calculateSize(controlSize: controlSize)
     }
     
     /// 获取每行显示的字符串(为了计算准确，尽量将使用到的属性如字间距、缩进、换行模式、字体等设置到调用本方法的attributedString对象中来, 没有用到的直接忽略)
-    @objc func wy_stringPerLineObjC(controlWidth: CGFloat) -> [String] {
+    @objc func wy_stringPerLine(_ controlWidth: CGFloat) -> [String] {
         return wy_stringPerLine(controlWidth: controlWidth)
     }
     
     /// 判断字符串显示完毕需要几行(为了计算准确，尽量将使用到的属性如字间距、缩进、换行模式、字体等设置到调用本方法的attributedString对象中来, 没有用到的直接忽略)
-    @objc func wy_numberOfRowsObjC(controlWidth: CGFloat) -> Int {
+    @objc func wy_numberOfRows(_ controlWidth: CGFloat) -> Int {
         return wy_numberOfRows(controlWidth: controlWidth)
     }
 }
@@ -202,6 +212,7 @@ import UIKit
 }
 
 /// 富文本图片插入配置
+@objc(WYImageAttachmentOption)
 @objcMembers public class WYImageAttachmentOptionObjC: NSObject {
     
     /// 图片插入位置类型

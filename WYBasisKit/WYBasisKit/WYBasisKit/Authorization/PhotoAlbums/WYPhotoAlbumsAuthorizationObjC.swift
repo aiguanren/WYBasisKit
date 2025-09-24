@@ -8,10 +8,12 @@
 
 import UIKit
 
+@objc(WYPhotoAlbumsAuthorization)
 @objcMembers public class WYPhotoAlbumsAuthorizationObjC: NSObject {
     
     /// 检查相册权限
-    @objc public static func authorizeAlbumAccess(showAlert: Bool = true, handler: @escaping (_ authorized: Bool, _ limited: Bool) -> Void) {
+    @objc(authorizeAlbumAccess:handler:)
+    public static func authorizeAlbumAccess(showAlert: Bool = true, handler: @escaping (_ authorized: Bool, _ limited: Bool) -> Void) {
         wy_authorizeAlbumAccess(showAlert: showAlert, handler: handler)
     }
 }

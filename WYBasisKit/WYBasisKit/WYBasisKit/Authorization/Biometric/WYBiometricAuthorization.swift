@@ -60,7 +60,7 @@ public func wy_checkBiometric() -> WYBiometricMode {
 }
 
 /// 生物识别认证
-public func wy_verifyBiometrics(localizedFallbackTitle: String = "", localizedReason: String, handler: @escaping (_ isBackupHandler: Bool, _ isSuccess: Bool, _ error: String) -> Void?) {
+public func wy_verifyBiometrics(_ localizedFallbackTitle: String = "", localizedReason: String, handler: @escaping (_ isBackupHandler: Bool, _ isSuccess: Bool, _ error: String) -> Void?) {
     
     if wy_checkBiometric() == .faceID {
         

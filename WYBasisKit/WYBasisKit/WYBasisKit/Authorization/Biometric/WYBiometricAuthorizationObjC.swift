@@ -9,7 +9,8 @@
 import Foundation
 
 /// 生物识别模式
-@objc public enum WYBiometricModeObjC: Int {
+@objc(WYBiometricMode)
+public enum WYBiometricModeObjC: Int {
     
     /// 未知或者不支持
     case none = 0
@@ -21,6 +22,7 @@ import Foundation
     case faceID
 }
 
+@objc(WYBiometricAuthorization)
 @objcMembers public class WYBiometricAuthorizationObjC: NSObject {
     
     /// 获取设备支持的生物识别类型
@@ -41,7 +43,8 @@ import Foundation
      *             - isSuccess: 认证是否成功
      *             - error: 认证失败时的错误描述信息，认证成功时为空
      */
-    @objc public static func verifyBiometrics(localizedFallbackTitle: String = "", localizedReason: String, handler: @escaping (_ isBackupHandler: Bool, _ isSuccess: Bool, _ error: String) -> Void) {
-        wy_verifyBiometrics(localizedFallbackTitle: localizedFallbackTitle, localizedReason: localizedReason, handler: handler)
+    @objc(verifyBiometrics:localizedReason:handler:)
+    public static func verifyBiometrics(_ localizedFallbackTitle: String = "", localizedReason: String, handler: @escaping (_ isBackupHandler: Bool, _ isSuccess: Bool, _ error: String) -> Void) {
+        wy_verifyBiometrics(localizedFallbackTitle, localizedReason: localizedReason, handler: handler)
     }
 }

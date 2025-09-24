@@ -9,7 +9,8 @@ import UIKit
 import QuartzCore
 
 /// 虚线方向
-@objc @frozen public enum WYDashDirectionObjC: Int {
+@objc(WYDashDirection)
+@frozen public enum WYDashDirectionObjC: Int {
     
     /// 从上到下
     case topToBottom = 0
@@ -27,7 +28,8 @@ import QuartzCore
     * @param length       每段虚线长度
     * @param spacing      每段虚线间隔
     */
-    @objc static func wy_drawDashLineObjC(direction: WYDashDirectionObjC, bounds: CGRect, color: UIColor, length: Double = Double(UIDevice.wy_screenWidthObjC(10, pixels: WYBasisKitConfigObjC.defaultScreenPixels)), spacing: Double = Double(UIDevice.wy_screenWidthObjC(5, pixels: WYBasisKitConfigObjC.defaultScreenPixels))) -> CALayer {
+    @objc(wy_drawDashLine:bounds:color:length:spacing:)
+    static func wy_drawDashLine(direction: WYDashDirectionObjC, bounds: CGRect, color: UIColor, length: Double = Double(UIDevice.wy_screenWidthObjC(10, pixels: WYBasisKitConfigObjC.defaultScreenPixels)), spacing: Double = Double(UIDevice.wy_screenWidthObjC(5, pixels: WYBasisKitConfigObjC.defaultScreenPixels))) -> CALayer {
 
         return CALayer.wy_drawDashLine(direction: WYDashDirection(rawValue: direction.rawValue) ?? .leftToRight, bounds: bounds, color: color, length: length, spacing: spacing)
     }

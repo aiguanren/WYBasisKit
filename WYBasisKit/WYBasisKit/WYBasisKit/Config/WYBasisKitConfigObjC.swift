@@ -9,6 +9,7 @@
 import Foundation
 
 /// 屏幕分辨率
+@objc(WYScreenPixels)
 @objcMembers public class WYScreenPixelsObjC: NSObject {
     
     /// 屏幕宽
@@ -24,6 +25,7 @@ import Foundation
 }
 
 /// 最大最小分辨比率
+@objc(WYRatio)
 @objcMembers public class WYRatioObjC: NSObject {
     
     /// 最小比率
@@ -38,6 +40,7 @@ import Foundation
     }
 }
 
+@objc(WYBasisKitConfig)
 @objcMembers public class WYBasisKitConfigObjC: NSObject {
     
     /// 设置默认屏幕分辨率(建议根据设计图的分辨率设置)
@@ -97,6 +100,7 @@ import Foundation
     }
 }
 
+@objc(WYProjectInfo)
 @objcMembers public class WYProjectInfoObjC: NSObject {
     
     /// 获取项目名称

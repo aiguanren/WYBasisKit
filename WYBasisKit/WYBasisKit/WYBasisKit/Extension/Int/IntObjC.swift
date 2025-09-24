@@ -38,7 +38,7 @@ import Foundation
      *  @param maximum   最大可以是多少
      *
      */
-    @objc public static func wy_random(minimum: Int = 1, maximum: Int = 99999) -> Int {
+    public static func wy_random(minimum: Int = 1, maximum: Int = 99999) -> Int {
         return Int.wy_random(minimum: minimum, maximum: maximum)
     }
 }

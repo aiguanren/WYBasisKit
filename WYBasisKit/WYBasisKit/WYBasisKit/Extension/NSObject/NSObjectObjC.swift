@@ -16,7 +16,7 @@ import Foundation
      *
      *  @return 获取到的继承自superClass的子类
      */
-    @objc static func sharedSubClassObjC(superClass: AnyClass) -> [String] {
+    @objc static func sharedSubClass(_ superClass: AnyClass) -> [String] {
         return sharedSubClass(superClass: superClass)
     }
     
@@ -27,12 +27,12 @@ import Foundation
      *
      *  @return 获取到的className类中的所有方法
      */
-    @objc static func sharedClassMethodObjC(className: String) -> [String] {
+    @objc static func sharedClassMethod(_ className: String) -> [String] {
         return sharedClassMethod(className: className)
     }
     
     /// 获取对象或者类的所有属性和对应的类型(struct类型也适用本方法)
-    @objc static func wy_sharedPropertysObjC(object: Any? = nil, className: String = "") -> [String: Any] {
+    @objc static func wy_sharedPropertys(_ object: Any? = nil, className: String = "") -> [String: Any] {
         return wy_sharedPropertys(object: object, className: className)
     }
 }

@@ -10,10 +10,12 @@ import UIKit
 @objc public extension UIFont {
     
     /// 字号比率转换
-    @objc static func wy_fontSize(with ratioValue: CGFloat) -> CGFloat {
-        return wy_fontSize(with: ratioValue, pixels: WYBasisKitConfigObjC.defaultScreenPixels)
+    @objc(wy_fontSize:)
+    static func wy_fontSize(_ ratioValue: CGFloat) -> CGFloat {
+        return wy_fontSize(ratioValue, pixels: WYBasisKitConfigObjC.defaultScreenPixels)
     }
-    @objc static func wy_fontSize(with ratioValue: CGFloat, pixels: WYScreenPixelsObjC = WYBasisKitConfigObjC.defaultScreenPixels) -> CGFloat {
+    @objc(wy_fontSize:pixels:)
+    static func wy_fontSize(_ ratioValue: CGFloat, pixels: WYScreenPixelsObjC = WYBasisKitConfigObjC.defaultScreenPixels) -> CGFloat {
         return UIFont.wy_fontSize(ratioValue, WYScreenPixels(width: pixels.width, height: pixels.height))
     }
 }

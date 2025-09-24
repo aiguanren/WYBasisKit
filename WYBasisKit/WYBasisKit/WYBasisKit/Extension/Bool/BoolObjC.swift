@@ -40,17 +40,20 @@ import Foundation
     }
     
     /// 判断是否是指定位字母与数字的组合
-    @objc public static func wy_isLettersAndNumbers(string: String, min: Int, max: Int) -> Bool {
+    @objc(wy_isLettersAndNumbers:min:max:)
+    public static func wy_isLettersAndNumbers(string: String, min: Int, max: Int) -> Bool {
         return Bool.wy_isLettersAndNumbers(string: string, min: min, max: max)
     }
     
     /// 判断单个字符是否是Emoji
-    @objc public static func wy_isSingleEmoji(string: String) -> Bool {
+    @objc(wy_isSingleEmoji:)
+    public static func wy_isSingleEmoji(string: String) -> Bool {
         return Bool.wy_isSingleEmoji(string: string)
     }
     
     /// 判断字符串是否包含Emoji
-    @objc public static func wy_containsEmoji(string: String) -> Bool {
+    @objc(wy_containsEmoji:)
+    public static func wy_containsEmoji(string: String) -> Bool {
         return Bool.wy_containsEmoji(string: string)
     }
     

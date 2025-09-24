@@ -10,7 +10,8 @@ import UIKit
 import Foundation
 
 /// 信息提示窗口的显示位置
-@objc public enum WYActivityPositionObjC: Int {
+@objc(WYActivityPosition)
+public enum WYActivityPositionObjC: Int {
     
     /// 相对于父控件的中部
     case middle = 0
@@ -23,7 +24,8 @@ import Foundation
 }
 
 /// Loading提示窗动画类型
-@objc public enum WYActivityAnimationObjC: Int {
+@objc(WYActivityAnimation)
+public enum WYActivityAnimationObjC: Int {
     
     /// 默认，系统小菊花
     case indicator = 0
@@ -33,6 +35,7 @@ import Foundation
 }
 
 /// 滚动信息提示窗口默认配置项
+@objc(WYScrollInfoConfig)
 @objcMembers public class WYScrollInfoConfigObjC: NSObject {
     
     /// 设置滚动信息提示窗口的默认背景色
@@ -72,6 +75,7 @@ import Foundation
 }
 
 /// 信息提示窗口默认配置项
+@objc(WYMessageInfoConfig)
 @objcMembers public class WYMessageInfoConfigObjC: NSObject {
     
     /// 设置信息提示窗口的默认背景色
@@ -103,6 +107,7 @@ import Foundation
 }
 
 /// Loading提示窗口配置项
+@objc(WYLoadingConfig)
 @objcMembers public class WYLoadingConfigObjC: NSObject {
     
     /// 设置Loading提示窗口的默认背景色
@@ -178,6 +183,7 @@ import Foundation
     }
 }
 
+@objc(WYActivityConfig)
 @objcMembers public class WYActivityConfigObjC: NSObject {
     
     /// 滚动信息提示窗口默认配置
@@ -193,6 +199,7 @@ import Foundation
     @objc public static let concise: WYLoadingConfigObjC = WYLoadingConfigObjC(backgroundColor: .clear)
 }
 
+@objc(WYScrollInfoOptions)
 @objcMembers public class WYScrollInfoOptionsObjC: NSObject {
     
     /// 加载活动控件的父视图，内部会按照 传入的View、控制器的View 的顺序去设置显示
@@ -205,6 +212,7 @@ import Foundation
     public var config: WYScrollInfoConfigObjC = WYActivityConfigObjC.scroll
 }
 
+@objc(WYMessageInfoOptions)
 @objcMembers public class WYMessageInfoOptionsObjC: NSObject {
     
     /// 加载信息提示窗口的父视图，内部会按照 传入的View、控制器的View 的顺序去设置显示
@@ -220,6 +228,7 @@ import Foundation
     public var config: WYMessageInfoConfigObjC = WYActivityConfigObjC.info
 }
 
+@objc(WYLoadingInfoOptions)
 @objcMembers public class WYLoadingInfoOptionsObjC: NSObject {
     
     /// 窗口显示期间是否允许用户对界面进行交互，默认允许
@@ -238,6 +247,7 @@ import Foundation
     public var config: WYLoadingConfigObjC = WYActivityConfigObjC.default
 }
 
+@objc(WYActivity)
 @objcMembers public class WYActivityObjC: NSObject {
     
     /**
@@ -295,13 +305,15 @@ import Foundation
      *  @param config             信息提示窗口配置选项
      *
      */
-    @objc public static func showLoading(in contentView: UIView) {
+    @objc(showLoading:)
+    public static func showLoading(in contentView: UIView) {
         internal_showLoading(in: contentView)
     }
     @objc public static func showLoading(_ content: AnyObject, in contentView: UIView) {
         internal_showLoading(content, in: contentView)
     }
-    @objc public static func showLoading(in contentView: UIView, option: WYLoadingInfoOptionsObjC? = nil) {
+    @objc(showLoading:option:)
+    public static func showLoading(in contentView: UIView, option: WYLoadingInfoOptionsObjC? = nil) {
         internal_showLoading(in: contentView, option: option)
     }
     @objc public static func showLoading(_ content: AnyObject, in contentView: UIView, option: WYLoadingInfoOptionsObjC? = nil) {
@@ -312,10 +324,12 @@ import Foundation
      *  移除Loading窗口
      *  @param animate             true时0.5秒后才会移除(有个动画), false时无动画，立刻移除，
      */
-    @objc public static func dismissLoading(in contentView: UIView) {
+    @objc(dismissLoading:)
+    public static func dismissLoading(in contentView: UIView) {
         internal_dismissLoading(in: contentView)
     }
-    @objc public static func dismissLoading(in contentView: UIView, animate: Bool = true) {
+    @objc(dismissLoading:animate:)
+    public static func dismissLoading(in contentView: UIView, animate: Bool = true) {
         internal_dismissLoading(in: contentView, animate: animate)
     }
 }

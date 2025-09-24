@@ -10,7 +10,8 @@ import Foundation
 import UIKit
 
 /// 动图格式类型
-@objc public enum WYAnimatedImageStyleObjC: Int {
+@objc(WYAnimatedImageStyle)
+@frozen public enum WYAnimatedImageStyleObjC: Int {
     
     /// 普通 GIF 图片
     case GIF = 0
@@ -19,6 +20,7 @@ import UIKit
     case APNG
 }
 
+@objc(WYSourceBundle)
 @objcMembers public class WYSourceBundleObjC: NSObject {
     
     /// 从哪个bundle文件内查找，如果bundleName对应的bundle不存在，则直接在本地路径下查找
@@ -38,15 +40,17 @@ import UIKit
     /**
      * 根据传入的高度获取图片的等比宽度
      */
-    @objc func wy_widthObjC(forHeight height: CGFloat) -> CGFloat {
-        return wy_width(forHeight: height)
+    @objc(wy_widthFromHeight:)
+    func wy_widthObjC(forHeight height: CGFloat) -> CGFloat {
+        return wy_width(fromHeight: height)
     }
     
     /**
      * 根据传入的宽度获取图片的等比高度
      */
-    @objc func wy_heightObjC(forWidth width: CGFloat) -> CGFloat {
-        return wy_height(forWidth: width)
+    @objc(wy_heightFromWidth:)
+    func wy_heightObjC(forWidth width: CGFloat) -> CGFloat {
+        return wy_height(fromWidth: width)
     }
     
     /**
@@ -61,17 +65,18 @@ import UIKit
      *    case right // 顺时针旋转90°
      *    case rightMirrored // 顺针旋转90°后镜像翻转
      */
-    @objc func wy_flipsObjC(_ orientation: UIImage.Orientation) -> UIImage {
+    @objc func wy_flips(with orientation: UIImage.Orientation) -> UIImage {
         return wy_flips(orientation)
     }
     
     /// 截取指定View快照
-    @objc static func wy_screenshotObjC(_ view: UIView) -> UIImage {
+    @objc static func wy_screenshot(with view: UIView) -> UIImage {
         return wy_screenshot(view)
     }
     
     /// 根据颜色创建图片
-    @objc static func wy_createImageObjC(from color: UIColor, size: CGSize = CGSize(width: 1, height: 1)) -> UIImage {
+    @objc(wy_createImageFromColor:size:)
+    static func wy_createImageObjC(from color: UIColor, size: CGSize = CGSize(width: 1, height: 1)) -> UIImage {
         return wy_createImage(from: color, size: size)
     }
     
@@ -442,6 +447,7 @@ import UIKit
 }
 
 /// Gif图片解析结果
+@objc(WYGifInfo)
 @objcMembers public class WYGifInfoObjC: NSObject {
     
     /// 解析后得到的图片数组

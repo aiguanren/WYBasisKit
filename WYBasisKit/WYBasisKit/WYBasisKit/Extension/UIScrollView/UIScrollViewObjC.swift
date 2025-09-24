@@ -8,7 +8,8 @@
 import UIKit
 
 /// ScrollView滑动方向
-@objc @frozen public enum WYSlidingDirectionObjC: Int {
+@objc(WYSlidingDirection)
+@frozen public enum WYSlidingDirectionObjC: Int {
     
     /// 未知方向
     case unknown = 0
@@ -26,14 +27,16 @@ import UIKit
     case right
 }
 
-public extension UIScrollView {
+@objc public extension UIScrollView {
     
     /// 是否为用户手指触发的滑动
-    @objc var wy_isUserSlidingObjC: Bool {
+    @objc(wy_isUserSliding)
+    var wy_isUserSlidingObjC: Bool {
         return wy_isUserSliding
     }
     
     /// 当前滑动方向
+    @objc(wy_slidingDirection)
     var wy_slidingDirectionObjC: WYSlidingDirectionObjC {
         return WYSlidingDirectionObjC(rawValue: wy_slidingDirection.rawValue) ?? .unknown
     }

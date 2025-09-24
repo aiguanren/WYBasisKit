@@ -9,7 +9,8 @@ import Foundation
 import UIKit
 
 /// 获取时间戳的模式
-@objc @frozen public enum WYTimestampModeObjC: Int {
+@objc(WYTimestampMode)
+@frozen public enum WYTimestampModeObjC: Int {
     
     /// 秒
     case second = 0
@@ -22,7 +23,8 @@ import UIKit
 }
 
 /// 时间格式化模式
-@objc @frozen public enum WYTimeFormatObjC: Int {
+@objc(WYTimeFormat)
+@frozen public enum WYTimeFormatObjC: Int {
     
     /// 时:分
     case HM = 0
@@ -41,7 +43,8 @@ import UIKit
 }
 
 /// 星期几
-@objc @frozen public enum WYWhatDayObjC: Int {
+@objc(WYWhatDay)
+@frozen public enum WYWhatDayObjC: Int {
     
     /// 未知
     case unknown = 0
@@ -68,7 +71,8 @@ import UIKit
     case saturday
 }
 
-@objc @frozen public enum WYTimeDistanceObjC: Int {
+@objc(WYTimeDistance)
+@frozen public enum WYTimeDistanceObjC: Int {
     
     /// 未知
     case unknown = 0
@@ -93,7 +97,8 @@ import UIKit
 }
 
 /// 黄道十二宫(星座)
-@objc @frozen public enum WYZodiacSignObjC: Int, CaseIterable {
+@objc(WYZodiacSign)
+@frozen public enum WYZodiacSignObjC: Int, CaseIterable {
     /// 未知
     case unknown = 0
     /// 摩羯座
@@ -245,8 +250,11 @@ import UIKit
     }
     
     /// Encode
-    @objc func wy_encoded(escape: String = "?!@#$^&%*+,:;='\"`<>()[]{}/\\| ") -> String {
-        return (self as String).wy_encoded(escape: escape)
+    @objc func wy_encoded() -> String {
+        return wy_encoded(escape: nil)
+    }
+    @objc func wy_encoded(escape: String?) -> String {
+        return (self as String).wy_encoded(escape: escape ?? "?!@#$^&%*+,:;='\"`<>()[]{}/\\| ")
     }
     
     /// Decode
@@ -346,12 +354,12 @@ import UIKit
     }
     
     /// 根据时间戳获取星座
-    @objc static func wy_zodiacSign(from timestamp: String) -> WYZodiacSignObjC {
+    @objc static func wy_zodiacSign(with timestamp: String) -> WYZodiacSignObjC {
         return WYZodiacSignObjC(rawValue: String.wy_zodiacSign(from: timestamp).rawValue) ?? .unknown
     }
 }
 
-extension NSString {
+private extension NSString {
     
     /// 转换WYTimeFormatObjC为WYTimeFormat
     func wy_convertObjCTimeFormatToSwift(_ timeFormat: WYTimeFormatObjC, _ customFormat: String?) -> WYTimeFormat {
