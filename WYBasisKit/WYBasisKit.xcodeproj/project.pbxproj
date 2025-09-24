@@ -10,6 +10,7 @@
 		58155C0C2E6A802A00D957F3 /* StringObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58155C0B2E6A802A00D957F3 /* StringObjC.swift */; };
 		581A97262E80097F00274BA2 /* AttributedStringObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581A97252E80097F00274BA2 /* AttributedStringObjC.swift */; };
 		5856C3152E83A050005533F5 /* NumberFormatterObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5856C3142E83A050005533F5 /* NumberFormatterObjC.swift */; };
+		5856C3172E83A13F005533F5 /* NSObjectObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5856C3162E83A13F005533F5 /* NSObjectObjC.swift */; };
 		585B39A22DF8125400E6E08F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B39622DF8125400E6E08F /* AppDelegate.swift */; };
 		585B39A32DF8125400E6E08F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B396A2DF8125400E6E08F /* ViewController.swift */; };
 		585B39AC2DF8125400E6E08F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 585B39632DF8125400E6E08F /* Assets.xcassets */; };
@@ -148,6 +149,7 @@
 		58155C0B2E6A802A00D957F3 /* StringObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringObjC.swift; sourceTree = "<group>"; };
 		581A97252E80097F00274BA2 /* AttributedStringObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttributedStringObjC.swift; sourceTree = "<group>"; };
 		5856C3142E83A050005533F5 /* NumberFormatterObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberFormatterObjC.swift; sourceTree = "<group>"; };
+		5856C3162E83A13F005533F5 /* NSObjectObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSObjectObjC.swift; sourceTree = "<group>"; };
 		585B35642DF8086C00E6E08F /* WYBasisKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WYBasisKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		585B39622DF8125400E6E08F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		585B39632DF8125400E6E08F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -495,6 +497,7 @@
 			isa = PBXGroup;
 			children = (
 				58678E102DFA627C0035673E /* NSObject.swift */,
+				5856C3162E83A13F005533F5 /* NSObjectObjC.swift */,
 			);
 			path = NSObject;
 			sourceTree = "<group>";
@@ -1390,6 +1393,7 @@
 				58678EDF2DFA627C0035673E /* WYNetworkConfig.swift in Sources */,
 				58678EE02DFA627C0035673E /* UIImage.swift in Sources */,
 				589606B72E7E60B6001DD8FE /* UIScrollViewObjC.swift in Sources */,
+				5856C3172E83A13F005533F5 /* NSObjectObjC.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
