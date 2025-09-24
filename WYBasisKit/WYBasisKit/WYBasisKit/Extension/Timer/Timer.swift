@@ -64,16 +64,16 @@ public extension Timer {
     }
     
     /// 取消所有计时器
-    static func wy_cancel() {
+    static func wy_cancelAll() {
         for alias in wy_timerContainer.keys {
             wy_cancel(alias)
         }
     }
     
     /// 取消某一组计时器
-    static func wy_cancel(_ alias: [String]) {
-        for index in 0..<alias.count {
-            wy_cancel(alias[index])
+    static func wy_cancel(_ aliass: [String]) {
+        for index in 0..<aliass.count {
+            wy_cancel(aliass[index])
         }
     }
     

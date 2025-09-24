@@ -11,6 +11,7 @@
 		581A97262E80097F00274BA2 /* AttributedStringObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581A97252E80097F00274BA2 /* AttributedStringObjC.swift */; };
 		5856C3152E83A050005533F5 /* NumberFormatterObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5856C3142E83A050005533F5 /* NumberFormatterObjC.swift */; };
 		5856C3172E83A13F005533F5 /* NSObjectObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5856C3162E83A13F005533F5 /* NSObjectObjC.swift */; };
+		5856C3192E83A1EA005533F5 /* TimerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5856C3182E83A1EA005533F5 /* TimerObjC.swift */; };
 		585B39A22DF8125400E6E08F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B39622DF8125400E6E08F /* AppDelegate.swift */; };
 		585B39A32DF8125400E6E08F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B396A2DF8125400E6E08F /* ViewController.swift */; };
 		585B39AC2DF8125400E6E08F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 585B39632DF8125400E6E08F /* Assets.xcassets */; };
@@ -150,6 +151,7 @@
 		581A97252E80097F00274BA2 /* AttributedStringObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttributedStringObjC.swift; sourceTree = "<group>"; };
 		5856C3142E83A050005533F5 /* NumberFormatterObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberFormatterObjC.swift; sourceTree = "<group>"; };
 		5856C3162E83A13F005533F5 /* NSObjectObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSObjectObjC.swift; sourceTree = "<group>"; };
+		5856C3182E83A1EA005533F5 /* TimerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimerObjC.swift; sourceTree = "<group>"; };
 		585B35642DF8086C00E6E08F /* WYBasisKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WYBasisKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		585B39622DF8125400E6E08F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		585B39632DF8125400E6E08F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -515,6 +517,7 @@
 			isa = PBXGroup;
 			children = (
 				58678E142DFA627C0035673E /* Timer.swift */,
+				5856C3182E83A1EA005533F5 /* TimerObjC.swift */,
 			);
 			path = Timer;
 			sourceTree = "<group>";
@@ -1311,6 +1314,7 @@
 				58678EA52DFA627C0035673E /* WYEmojiHeaderView.swift in Sources */,
 				58678EA62DFA627C0035673E /* WYEmojiViewCell.swift in Sources */,
 				58F3786D2E2224A9007F7C55 /* UIFont.swift in Sources */,
+				5856C3192E83A1EA005533F5 /* TimerObjC.swift in Sources */,
 				58678EA72DFA627C0035673E /* WYChatInputView.swift in Sources */,
 				58678EA82DFA627C0035673E /* UIAlertController.swift in Sources */,
 				58678EA92DFA627C0035673E /* WYEmojiPreviewView.swift in Sources */,
