@@ -123,6 +123,10 @@
 //    
 //    WYImageAttachmentOption *cevde = [[WYImageAttachmentOption alloc] initWithImage:[UIImage imageNamed:@""] size:CGSizeZero position:PositionObjCAfter positionValue:@(10) alignment:AlignmentObjCTop alignmentOffset:10 spacingBefore:10 spacingAfter:10];
 //    [zxc wy_insertImage:@[cevde]];
+    
+//    UIImage *image = nil;
+//    [image wy_cuttingRoundWithBorderWidth:0 borderColor:0];
+//    [image wy_drawingCornerRadius:6 borderWidth:0 borderColor:0 corners:UIRectCornerTopLeft];
 }
 
 

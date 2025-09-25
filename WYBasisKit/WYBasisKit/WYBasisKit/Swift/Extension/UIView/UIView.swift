@@ -9,7 +9,7 @@
 import UIKit
 
 /// 渐变方向
-@frozen public enum WYGradientDirection: UInt {
+@frozen public enum WYGradientDirection: Int {
     
     /// 从上到下
     case topToBottom = 0
@@ -662,7 +662,7 @@ public extension UIView {
             objc_setAssociatedObject(self, &WYAssociatedKeys.privateGradientDirection, newValue.rawValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return WYGradientDirection.init(rawValue: objc_getAssociatedObject(self, &WYAssociatedKeys.privateGradientDirection) as? UInt ?? WYGradientDirection.leftToRight.rawValue) ?? .leftToRight
+            return WYGradientDirection.init(rawValue: objc_getAssociatedObject(self, &WYAssociatedKeys.privateGradientDirection) as? Int ?? WYGradientDirection.leftToRight.rawValue) ?? .leftToRight
         }
     }
     

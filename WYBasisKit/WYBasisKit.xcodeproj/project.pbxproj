@@ -142,6 +142,7 @@
 		58C68E2C2E84E436005FD054 /* WYSoundWavesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68D332E84E436005FD054 /* WYSoundWavesView.swift */; };
 		58C68E2D2E84E436005FD054 /* WYActivityObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68C392E84E436005FD054 /* WYActivityObjC.swift */; };
 		58C68E302E84E900005FD054 /* WYBasisKitObjCImports.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68E2F2E84E900005FD054 /* WYBasisKitObjCImports.swift */; };
+		58C68E322E850EFC005FD054 /* UIViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68E312E850EFC005FD054 /* UIViewObjC.swift */; };
 		AAC46AD02E07E28F0068B0DF /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = AAC46ACF2E07E28F0068B0DF /* libc++.tbd */; };
 		ED4EB416B83B179C621C40F0 /* Pods_WYBasisKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEB6297DCF484666E8FC6223 /* Pods_WYBasisKit.framework */; };
 /* End PBXBuildFile section */
@@ -331,6 +332,7 @@
 		58C68D802E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68D812E84E436005FD054 /* WYStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYStorage.swift; sourceTree = "<group>"; };
 		58C68E2F2E84E900005FD054 /* WYBasisKitObjCImports.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYBasisKitObjCImports.swift; sourceTree = "<group>"; };
+		58C68E312E850EFC005FD054 /* UIViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewObjC.swift; sourceTree = "<group>"; };
 		8B8A3708E351CE0BB9E30715 /* Pods-WYBasisKit.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.debug.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.debug.xcconfig"; sourceTree = "<group>"; };
 		AAC46ACF2E07E28F0068B0DF /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		FEB6297DCF484666E8FC6223 /* Pods_WYBasisKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WYBasisKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -724,6 +726,7 @@
 		58C68C862E84E436005FD054 /* UIView */ = {
 			isa = PBXGroup;
 			children = (
+				58C68E312E850EFC005FD054 /* UIViewObjC.swift */,
 			);
 			path = UIView;
 			sourceTree = "<group>";
@@ -2073,6 +2076,7 @@
 				58C68DE32E84E436005FD054 /* CGFloatObjC.swift in Sources */,
 				58C68DE42E84E436005FD054 /* WYNetworkManager.swift in Sources */,
 				58C68DE52E84E436005FD054 /* WYLogManager.swift in Sources */,
+				58C68E322E850EFC005FD054 /* UIViewObjC.swift in Sources */,
 				58C68DE62E84E436005FD054 /* WYScrollText.swift in Sources */,
 				58C68DE72E84E436005FD054 /* WYCameraAuthorizationObjC.swift in Sources */,
 				58C68DE82E84E436005FD054 /* WYChatVideoCell.swift in Sources */,

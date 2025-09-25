@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 /// 动图格式类型
-@frozen public enum WYAnimatedImageStyle {
+@frozen public enum WYAnimatedImageStyle: Int {
     
     /// 普通 GIF 图片
     case GIF
@@ -292,7 +292,7 @@ public extension UIImage {
     }
     
     /** 图片上绘制文字 */
-    func wy_addText(text: String, font: UIFont, color: UIColor, titlePoint: CGPoint, lineSpacing: CGFloat = 0, wordsSpacing: CGFloat = 0) -> UIImage {
+    func wy_addText(text: String, font: UIFont, color: UIColor, rect: CGRect, lineSpacing: CGFloat = 0, wordsSpacing: CGFloat = 0) -> UIImage {
         
         let size = self.size
         
@@ -316,23 +316,8 @@ public extension UIImage {
             .kern: wordsSpacing
         ]
         
-        // 计算文字绘制大小
-        let stringRect = text.boundingRect(
-            with: size,
-            options: [.usesLineFragmentOrigin, .usesFontLeading, .truncatesLastVisibleLine],
-            attributes: attributes,
-            context: nil
-        )
-        
-        let textRect = CGRect(
-            x: titlePoint.x,
-            y: titlePoint.y,
-            width: ceil(stringRect.width),
-            height: ceil(stringRect.height)
-        )
-        
         // 绘制文字
-        text.draw(in: textRect, withAttributes: attributes)
+        text.draw(in: rect, withAttributes: attributes)
         
         // 获取绘制后的图片
         return UIGraphicsGetImageFromCurrentImageContext() ?? self
@@ -409,7 +394,6 @@ public extension UIImage {
      *
      *  @return Gif       图片解析结果
      */
-    
     static func wy_animatedParse(_ style: WYAnimatedImageStyle = .GIF, name imageName: String, inBundle bundle: WYSourceBundle? = nil) -> WYGifInfo? {
         
         guard imageName.isEmpty == false else {
