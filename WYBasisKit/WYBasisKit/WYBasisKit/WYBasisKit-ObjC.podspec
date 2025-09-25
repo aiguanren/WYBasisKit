@@ -50,8 +50,8 @@ Pod::Spec.new do |kit|
 
   # Pod工程设置
   kit.pod_target_xcconfig = {
-    "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) WYBasisKitSwift_SUPPORTS_IMPORT=1",  # 用于 Objective-C 的 #if 判断
-    "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) WYBasisKitSwift_SUPPORTS_IMPORT", # 用于 Swift 的 #if 判断（注意不带 =1，就是直接使用宏名即可）
+    "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) WYBasisKitObjC_INSTALLED=1",  # 用于 Objective-C 的 #if 判断
+    "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) WYBasisKitObjC_INSTALLED", # 用于 Swift 的 #if 判断（注意不带 =1，就是直接使用宏名即可）
   }
 
   # 排除匹配某个文件夹下面的所有文件和文件夹，如排除匹配aaa文件夹下面的所有文件和文件夹

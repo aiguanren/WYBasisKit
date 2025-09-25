@@ -5,6 +5,6 @@
 //  Created by guanren on 2025/9/25.
 //
 
-#if WYBasisKitSwift_SUPPORTS_IMPORT
+#if WYBasisKitObjC_INSTALLED
 @_exported import WYBasisKitSwift
 #endif
