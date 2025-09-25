@@ -8,7 +8,7 @@
 import Foundation
 
 @objc(WYCodableError)
-public enum WYCodableErrorObjC: Int, Error {
+@frozen public enum WYCodableErrorObjC: Int, Error {
     /// 未知错误
     case unknown
     /// 类型不匹配

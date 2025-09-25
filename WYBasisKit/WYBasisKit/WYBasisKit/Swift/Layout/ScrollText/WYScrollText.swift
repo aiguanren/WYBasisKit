@@ -14,7 +14,7 @@ import UIKit
 }
 
 /// ScrollText滚动方向
-public enum WYScrollTextDirection: Int {
+@frozen public enum WYScrollTextDirection: Int {
     
     /// 上下
     case upAndDown = 0

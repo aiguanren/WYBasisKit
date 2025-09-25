@@ -554,7 +554,7 @@ public class WYTextAttachment: NSTextAttachment {
 public struct WYImageAttachmentOption {
     
     /// 图片插入位置
-    public enum Position {
+    @frozen public enum Position {
         /// 插入到文本前面
         case before(text: String)
         /// 插入到文本后面
@@ -564,7 +564,7 @@ public struct WYImageAttachmentOption {
     }
     
     /// 图片对齐方式
-    public enum Alignment {
+    @frozen public enum Alignment {
         /// 与文本居中对齐
         case center
         /// 与文本顶部对齐

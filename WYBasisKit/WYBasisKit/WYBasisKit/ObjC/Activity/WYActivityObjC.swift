@@ -11,7 +11,7 @@ import Foundation
 
 /// 信息提示窗口的显示位置
 @objc(WYActivityPosition)
-public enum WYActivityPositionObjC: Int {
+@frozen public enum WYActivityPositionObjC: Int {
     
     /// 相对于父控件的中部
     case middle = 0
@@ -25,7 +25,7 @@ public enum WYActivityPositionObjC: Int {
 
 /// Loading提示窗动画类型
 @objc(WYActivityAnimation)
-public enum WYActivityAnimationObjC: Int {
+@frozen public enum WYActivityAnimationObjC: Int {
     
     /// 默认，系统小菊花
     case indicator = 0

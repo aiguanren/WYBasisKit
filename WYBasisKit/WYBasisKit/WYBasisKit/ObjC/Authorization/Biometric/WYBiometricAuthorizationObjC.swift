@@ -10,7 +10,7 @@ import Foundation
 
 /// 生物识别模式
 @objc(WYBiometricMode)
-public enum WYBiometricModeObjC: Int {
+@frozen public enum WYBiometricModeObjC: Int {
     
     /// 未知或者不支持
     case none = 0

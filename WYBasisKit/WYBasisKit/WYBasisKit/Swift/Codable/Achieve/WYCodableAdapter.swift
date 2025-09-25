@@ -8,7 +8,7 @@
 import Foundation
 
 /// 类型转换错误类型
-public enum WYCodableError: Error {
+@frozen public enum WYCodableError: Error {
     /// Model解码错误
     case modelDecodableError
     /// String转Dictionary错误

@@ -216,7 +216,7 @@ import UIKit
 @objcMembers public class WYImageAttachmentOptionObjC: NSObject {
     
     /// 图片插入位置类型
-    @objc public enum PositionObjC: Int {
+    @objc @frozen public enum PositionObjC: Int {
         /// 插入到文本前面
         case before
         /// 插入到文本后面
@@ -226,7 +226,7 @@ import UIKit
     }
     
     /// 图片对齐方式类型
-    @objc public enum AlignmentObjC: Int {
+    @objc @frozen public enum AlignmentObjC: Int {
         /// 与文本居中对齐
         case center
         /// 与文本顶部对齐
