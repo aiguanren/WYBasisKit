@@ -143,6 +143,7 @@
 		58C68E2D2E84E436005FD054 /* WYActivityObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68C392E84E436005FD054 /* WYActivityObjC.swift */; };
 		58C68E302E84E900005FD054 /* WYBasisKitObjCImports.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68E2F2E84E900005FD054 /* WYBasisKitObjCImports.swift */; };
 		58C68E322E850EFC005FD054 /* UIViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68E312E850EFC005FD054 /* UIViewObjC.swift */; };
+		58C68E342E8537A5005FD054 /* UIAlertControllerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68E332E8537A5005FD054 /* UIAlertControllerObjC.swift */; };
 		AAC46AD02E07E28F0068B0DF /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = AAC46ACF2E07E28F0068B0DF /* libc++.tbd */; };
 		ED4EB416B83B179C621C40F0 /* Pods_WYBasisKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEB6297DCF484666E8FC6223 /* Pods_WYBasisKit.framework */; };
 /* End PBXBuildFile section */
@@ -333,6 +334,7 @@
 		58C68D812E84E436005FD054 /* WYStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYStorage.swift; sourceTree = "<group>"; };
 		58C68E2F2E84E900005FD054 /* WYBasisKitObjCImports.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYBasisKitObjCImports.swift; sourceTree = "<group>"; };
 		58C68E312E850EFC005FD054 /* UIViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewObjC.swift; sourceTree = "<group>"; };
+		58C68E332E8537A5005FD054 /* UIAlertControllerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIAlertControllerObjC.swift; sourceTree = "<group>"; };
 		8B8A3708E351CE0BB9E30715 /* Pods-WYBasisKit.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.debug.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.debug.xcconfig"; sourceTree = "<group>"; };
 		AAC46ACF2E07E28F0068B0DF /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		FEB6297DCF484666E8FC6223 /* Pods_WYBasisKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WYBasisKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -631,6 +633,7 @@
 		58C68C752E84E436005FD054 /* UIAlertController */ = {
 			isa = PBXGroup;
 			children = (
+				58C68E332E8537A5005FD054 /* UIAlertControllerObjC.swift */,
 			);
 			path = UIAlertController;
 			sourceTree = "<group>";
@@ -2041,6 +2044,7 @@
 				58C68DC12E84E436005FD054 /* NSObject.swift in Sources */,
 				58C68DC22E84E436005FD054 /* WYChatTextCell.swift in Sources */,
 				58C68DC32E84E436005FD054 /* AttributedStringObjC.swift in Sources */,
+				58C68E342E8537A5005FD054 /* UIAlertControllerObjC.swift in Sources */,
 				58C68DC42E84E436005FD054 /* WYAudioManager.swift in Sources */,
 				58C68DC52E84E436005FD054 /* BoolObjC.swift in Sources */,
 				58C68DC62E84E436005FD054 /* WYChatConfig.swift in Sources */,
