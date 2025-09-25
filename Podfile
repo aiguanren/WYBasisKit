@@ -77,6 +77,9 @@ target 'SwiftVerify' do
   # 照片选择库
   #pod 'ZLPhotoBrowser'
   
+  # UIScrollView刷新header和footer
+  #pod 'MJRefresh'
+  
   # 根据Xcode版本号指定三方库的版本号
   if xcode_version_less_than_or_equal_to(14, 2)
     # 网络请求
@@ -99,6 +102,15 @@ target 'ObjCVerify' do
   
   # 照片选择库
   #pod 'ZLPhotoBrowser'
+  
+  # UIScrollView刷新header和footer
+  #pod 'MJRefresh'
+  
+  # 约束
+  pod 'Masonry'
+  
+  # 图片下载/缓存
+  pod 'SDWebImage'
   
   # 根据Xcode版本号指定三方库的版本号
   if xcode_version_less_than_or_equal_to(14, 2)

@@ -6,6 +6,7 @@
 //
 
 #import "ViewController.h"
+#import <Masonry/Masonry.h>
 #import <WYBasisKitObjC-Swift.h>
 
 @interface ViewController ()
@@ -127,7 +128,40 @@
 //    UIImage *image = nil;
 //    [image wy_cuttingRoundWithBorderWidth:0 borderColor:0];
 //    [image wy_drawingCornerRadius:6 borderWidth:0 borderColor:0 corners:UIRectCornerTopLeft];
+    
+//    UIView *test = [[UIView alloc] init];
+//    test.backgroundColor = [UIColor magentaColor];
+//    [self.view addSubview:test];
+//    [test wy_makeVisual:^(UIView * make) {
+//        make.wy_gradualColors(@[[UIColor yellowColor], [UIColor purpleColor]]);
+//        make.wy_gradientDirection(WYGradientDirectionLeftToRight);
+//        make.wy_borderWidth(5);
+//        make.wy_borderColor([UIColor blackColor]);
+//        make.wy_rectCorner(UIRectCornerTopRight);
+//        make.wy_cornerRadius(20);
+//        make.wy_shadowRadius(20);
+//        make.wy_shadowColor([UIColor greenColor]);
+//        make.wy_shadowOffset(CGSizeZero);
+//        make.wy_shadowOpacity(0.5);
+//    }];
+//    test.wy_rectCorner(UIRectCornerAllCorners);
+//    test.wy_cornerRadius(10);
+//    test.wy_borderColor([UIColor blackColor]);
+//    test.wy_borderWidth(5);
+//    test.wy_gradualColors(@[[UIColor orangeColor], [UIColor redColor]]);
+//    test.wy_gradientDirection(WYGradientDirectionLeftToRight);
+//    test.wy_showVisual();
+//    [test mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.left.right.equalTo(self.view);
+//        make.top.equalTo(self.view).mas_offset(UIDevice.wy_navViewHeight);
+//        make.bottom.equalTo(self.view).mas_offset(-UIDevice.wy_tabbarSafetyZone);
+//    }];
+//    
+//    [self performSelector:@selector(clearVisual:) withObject:test afterDelay:5];
 }
 
+- (void)clearVisual:(UIView *)visualView {
+    visualView.wy_clearVisual();
+}
 
 @end

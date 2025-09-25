@@ -15,7 +15,7 @@ import FSPlayer
 /// 播放器状态回调
 @objc @frozen public enum WYMediaPlayerState: Int {
     /// 未知状态
-    case unknown
+    case unknown = 0
     /// 第一帧渲染完成
     case rendered
     /// 可以播放了

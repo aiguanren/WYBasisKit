@@ -218,7 +218,7 @@ import UIKit
     /// 图片插入位置类型
     @objc @frozen public enum PositionObjC: Int {
         /// 插入到文本前面
-        case before
+        case before = 0
         /// 插入到文本后面
         case after
         /// 根据文本下标插入到指定为止
@@ -228,7 +228,7 @@ import UIKit
     /// 图片对齐方式类型
     @objc @frozen public enum AlignmentObjC: Int {
         /// 与文本居中对齐
-        case center
+        case center = 0
         /// 与文本顶部对齐
         case top
         /// 与文本底部对齐

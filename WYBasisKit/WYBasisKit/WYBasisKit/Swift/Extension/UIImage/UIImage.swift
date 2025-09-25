@@ -13,7 +13,7 @@ import UIKit
 @frozen public enum WYAnimatedImageStyle: Int {
     
     /// 普通 GIF 图片
-    case GIF
+    case GIF = 0
     
     /// APNG 图片
     case APNG

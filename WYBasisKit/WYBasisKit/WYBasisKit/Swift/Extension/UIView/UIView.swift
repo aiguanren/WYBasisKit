@@ -11,14 +11,14 @@ import UIKit
 /// 渐变方向
 @frozen public enum WYGradientDirection: Int {
     
-    /// 从上到下
-    case topToBottom = 0
     /// 从左到右
-    case leftToRight = 1
+    case leftToRight = 0
+    /// 从上到下
+    case topToBottom
     /// 左上到右下
-    case leftToLowRight = 2
+    case leftToLowRight
     /// 右上到左下
-    case rightToLowLeft = 3
+    case rightToLowLeft
 }
 
 public extension UIView {
@@ -172,7 +172,7 @@ public extension UIView {
         removeFromSuperview()
     }
     
-    /// 防止View在短时间内快速重复点击
+    /// 防止View在短时间内快速重复点击(duration：间隔时间)
     func wy_temporarilyDisable(for duration: TimeInterval) {
         self.isUserInteractionEnabled = false
         DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
@@ -216,8 +216,8 @@ public extension UIView {
         return wy_showVisual()
     }
     
-    @discardableResult
     /// 圆角的位置， 默认4角圆角
+    @discardableResult
     func wy_rectCorner(_ corner: UIRectCorner) -> UIView {
         privateRectCorner = corner
         return self

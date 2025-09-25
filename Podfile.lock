@@ -42,10 +42,14 @@ PODS:
   - IQTextView (1.0.5):
     - IQKeyboardToolbar/Placeholderable
   - Kingfisher (8.5.0)
+  - Masonry (1.1.0)
   - Moya (15.0.0):
     - Moya/Core (= 15.0.0)
   - Moya/Core (15.0.0):
     - Alamofire (~> 5.0)
+  - SDWebImage (5.21.1):
+    - SDWebImage/Core (= 5.21.1)
+  - SDWebImage/Core (5.21.1)
   - SnapKit (5.7.1)
   - WYBasisKit-ObjC (2.0.0):
     - WYBasisKit-ObjC/Activity (= 2.0.0)
@@ -201,7 +205,9 @@ PODS:
 DEPENDENCIES:
   - IQKeyboardManagerSwift
   - Kingfisher
+  - Masonry
   - Moya
+  - SDWebImage
   - SnapKit
   - WYBasisKit-ObjC (from `WYBasisKit/WYBasisKit/WYBasisKit`)
   - WYBasisKit-Swift (from `WYBasisKit/WYBasisKit/WYBasisKit`)
@@ -219,7 +225,9 @@ SPEC REPOS:
     - IQTextInputViewNotification
     - IQTextView
     - Kingfisher
+    - Masonry
     - Moya
+    - SDWebImage
     - SnapKit
 
 EXTERNAL SOURCES:
@@ -240,11 +248,13 @@ SPEC CHECKSUMS:
   IQTextInputViewNotification: f5e954d8881fd9808b744e49e024cc0d4bcfe572
   IQTextView: ae13b4922f22e6f027f62c557d9f4f236b19d5c7
   Kingfisher: ff0d31a1f07bdff6a1ebb3ba08b8e6e567b6500c
+  Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
   Moya: 138f0573e53411fb3dc17016add0b748dfbd78ee
+  SDWebImage: f29024626962457f3470184232766516dee8dfea
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
   WYBasisKit-ObjC: bdc0702288a76f7d6ebcafd43260bdc89d5a16ca
   WYBasisKit-Swift: c3b0ce0b80bef0668ecb9edf8a74f0907665ad57
 
-PODFILE CHECKSUM: 2e1f845857892a85edde21886f475ebf7d23201d
+PODFILE CHECKSUM: 091e6956ffc0700a1053506f76237e35533dfa23
 
 COCOAPODS: 1.16.2

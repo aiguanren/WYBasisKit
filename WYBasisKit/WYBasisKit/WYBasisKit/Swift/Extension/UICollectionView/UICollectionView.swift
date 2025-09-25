@@ -179,13 +179,13 @@ public extension UICollectionView {
     case `default` = 0
     
     /// 左对齐
-    case left = 1
+    case left
     
     /// 居中对齐
-    case center = 2
+    case center
     
     /// 右对齐
-    case right = 3
+    case right
 }
 
 @objc public protocol WYCollectionViewFlowLayoutDelegate {

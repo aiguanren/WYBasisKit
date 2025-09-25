@@ -72,7 +72,7 @@ import CryptoKit
 @frozen public enum WYTimeDistance: Int {
     
     /// 未知
-    case unknown
+    case unknown = 0
     
     /// 今天
     case today
