@@ -15,7 +15,8 @@ source 'https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git'
 require_relative 'Scripts/PodFileConfig/Podfile'
 
 # 执行本地验证或者pod命令的时候需要把podspec里面kit_path设置为 ""(空) 才能正确加载代码、资源等文件，然后等pod install/update执行失败或者成功后再还原kit_path
-modify_kit_path_in_podspec("./WYBasisKit/WYBasisKit/WYBasisKit/WYBasisKit.podspec", "", false)
+modify_kit_path_in_podspec("./WYBasisKit/WYBasisKit/WYBasisKit/WYBasisKit-Swift.podspec", "", false)
+modify_kit_path_in_podspec("./WYBasisKit/WYBasisKit/WYBasisKit/WYBasisKit-ObjC.podspec", "", false)
 
 # 内部之所以要用if else区分，主要是体现出如何判断执行失败和成功
 at_exit do
@@ -68,7 +69,7 @@ end
 
 target 'SwiftVerify' do
   project 'SwiftVerify/SwiftVerify.xcodeproj' # 多个项目时需要指定target对应的xcodeproj文件
-  pod 'WYBasisKit', :path => KITPATH
+  pod 'WYBasisKit-Swift', :path => KITPATH
   
   # 图片裁剪库
   #pod 'Mantis'
@@ -90,7 +91,8 @@ end
 
 target 'ObjCVerify' do
   project 'ObjCVerify/ObjCVerify.xcodeproj' # 多个项目时需要指定target对应的xcodeproj文件
-  pod 'WYBasisKit', :path => KITPATH
+  pod 'WYBasisKit-Swift', :path => KITPATH
+  pod 'WYBasisKit-ObjC', :path => KITPATH
   
   # 图片裁剪库
   #pod 'Mantis'

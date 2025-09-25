@@ -2,14 +2,59 @@ import re
 import subprocess
 import sys
 import os
+import glob
 
 CONFIG = {
     'kit_path_local': '',  # 本地验证时要把 kit_path 设置为空字符串 ""，验证完毕后再还原成原本的值
-    'podspec_relative_path': '../../WYBasisKit/WYBasisKit/WYBasisKit/WYBasisKit.podspec',  # podspec 文件相对脚本的路径
+    'podspec_relative_path': '../../WYBasisKit/WYBasisKit/WYBasisKit',  # podspec 文件所在目录
     'local_validation_params': ['--verbose', '--allow-warnings', '--skip-import-validation', '--no-clean'],  # 本地验证额外参数
     'remote_validation_params': ['--verbose', '--allow-warnings', '--skip-import-validation', '--no-clean'],  # 远程验证额外参数
     'publish_validation_params': ['--allow-warnings', '--skip-import-validation'],  # 发布时的参数
 }
+
+def find_podspec_files(directory_path):
+    """
+    在指定目录下查找所有的 .podspec 文件
+    返回 podspec 文件的绝对路径列表
+    """
+    if not os.path.exists(directory_path):
+        return []
+    
+    # 使用 glob 查找所有 .podspec 文件
+    pattern = os.path.join(directory_path, "*.podspec")
+    podspec_files = glob.glob(pattern)
+    
+    return podspec_files
+
+def select_podspec_file(podspec_files):
+    """
+    让用户从找到的 podspec 文件列表中选择一个
+    返回选择的 podspec 文件路径
+    """
+    if not podspec_files:
+        print_red("未找到任何 .podspec 文件")
+        sys.exit(1)
+    
+    print_green(f"\n找到 {len(podspec_files)} 个 .podspec 文件：")
+    
+    # 显示文件列表供用户选择
+    options = []
+    for idx, file_path in enumerate(podspec_files, 1):
+        file_name = os.path.basename(file_path)
+        options.append(file_name)
+        print_orange(f"{idx}: {file_name}")
+    
+    while True:
+        try:
+            choice = int(input("\n请选择要操作的 podspec 文件（输入数字）："))
+            if 1 <= choice <= len(podspec_files):
+                selected_file = podspec_files[choice - 1]
+                print_green(f"已选择：{os.path.basename(selected_file)}")
+                return selected_file
+            else:
+                print_red(f"请输入 1 到 {len(podspec_files)} 之间的数字")
+        except ValueError:
+            print_red("输入无效，请输入数字")
 
 def replace_kit_path(podspec_path, new_value):
     """
@@ -100,15 +145,23 @@ def print_orange(text):
     print(f"\033[38;5;208m{text}\033[0m")
 
 def main():
-    # 计算 podspec 绝对路径
+    # 计算 podspec 目录绝对路径
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    podspec_path = os.path.normpath(os.path.join(script_dir, CONFIG['podspec_relative_path']))
+    podspec_dir = os.path.normpath(os.path.join(script_dir, CONFIG['podspec_relative_path']))
 
-    if not os.path.exists(podspec_path):
-        print_red(f"指定的 podspec 文件不存在: {podspec_path}")
+    if not os.path.exists(podspec_dir):
+        print_red(f"指定的 podspec 目录不存在: {podspec_dir}")
         sys.exit(1)
 
-    print_green(f"使用的 podspec 文件：{podspec_path}")
+    print_green(f"搜索 podspec 文件的目录：{podspec_dir}")
+
+    # 查找所有 podspec 文件
+    podspec_files = find_podspec_files(podspec_dir)
+    
+    # 让用户选择要操作的 podspec 文件
+    podspec_path = select_podspec_file(podspec_files)
+    
+    print_green(f"选择的 podspec 文件：{podspec_path}")
 
     # 选择操作模式
     modes = ["本地验证 (pod lib lint)", "远程验证 (pod spec lint)", "发布到 CocoaPods (pod trunk push)"]
@@ -130,8 +183,8 @@ def main():
             selected_subspec = options[subspec_choice - 1]
             print_green(f"选择的 subspec：{selected_subspec}")
             if subspec_choice != 1:
-                podspec_basename = os.path.basename(CONFIG['podspec_relative_path'])
-                podspec_name_without_ext = os.path.splitext(podspec_basename)[0]  # WYBasisKit
+                podspec_basename = os.path.basename(podspec_path)
+                podspec_name_without_ext = os.path.splitext(podspec_basename)[0]  # 如 WYBasisKit
                 subspec_arg = f"--subspec={podspec_name_without_ext}/{subspecs[subspec_choice - 2]}"
         else:
             print_red("未检测到任何 subspec，默认验证全部")
