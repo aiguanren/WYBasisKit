@@ -14,7 +14,7 @@ class WYTableViewPlainController: UIViewController {
 
         let tableview = UITableView.wy_shared(style: .plain, separatorStyle: .singleLine, delegate: self, dataSource: self, superView: view)
         tableview.wy_register(UITableViewCell.self, .cell)
-        tableview.wy_register([WYTestTableViewHeaderView.self, WYTestTableViewFooterView.self], [.headerFooterView, .headerFooterView])
+        tableview.wy_registers([WYTestTableViewHeaderView.self, WYTestTableViewFooterView.self], .headerFooterView)
         tableview.snp.makeConstraints { (make) in
             make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight)
             make.left.right.bottom.equalToSuperview()

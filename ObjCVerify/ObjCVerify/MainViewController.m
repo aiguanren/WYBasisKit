@@ -7,7 +7,6 @@
 
 #import "MainViewController.h"
 #import <Masonry/Masonry.h>
-#import <WYBasisKitSwift/WYBasisKitSwift-Swift.h>
 #import <WYBasisKitObjC-Swift.h>
 
 @interface MainViewController ()
@@ -161,6 +160,12 @@
 //    [self performSelector:@selector(clearVisual:) withObject:test afterDelay:5];
     
 //    [self performSelector:@selector(test) withObject:nil afterDelay:2];
+    
+    
+    UICollectionView *cw = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:[[WYCollectionViewFlowLayout alloc] init]];
+    UITableView *cd = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+    [cw wy_register:[UICollectionViewCell class] style:WYCollectionViewRegisterStyleCell];
+    [cd wy_register:[UITableViewCell class] style:WYTableViewRegisterStyleCell];
 }
 
 - (void)clearVisual:(UIView *)visualView {

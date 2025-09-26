@@ -63,9 +63,9 @@ import QuartzCore
 }
 
 /// 音频存储目录类型
-@frozen public enum WYAudioStorageDirectory {
+@frozen public enum WYAudioStorageDirectory: Int {
     /// 临时目录（系统可能自动清理）
-    case temporary
+    case temporary = 0
     /// 文档目录（用户数据，iTunes备份）
     case documents
     /// 缓存目录（系统可能清理）

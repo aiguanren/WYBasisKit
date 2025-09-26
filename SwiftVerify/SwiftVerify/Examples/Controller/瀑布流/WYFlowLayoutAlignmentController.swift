@@ -20,7 +20,9 @@ class WYFlowLayoutAlignmentController: UIViewController {
         flowLayout.delegate = self
         flowLayout.scrollDirection = .horizontal
         let collectionView = UICollectionView.wy_shared(flowLayout: flowLayout, delegate: self, dataSource: self, superView: view)
-        collectionView.wy_register([WidthAndHeightEqualCell.self, CollectionReusableHeaderView.self, CollectionReusableFooterView.self], [.cell, .headerView, .footerView])
+        collectionView.wy_register(WidthAndHeightEqualCell.self, .cell)
+        collectionView.wy_register(CollectionReusableHeaderView.self, .headerView)
+        collectionView.wy_register(CollectionReusableFooterView.self, .footerView)
         collectionView.isPagingEnabled = isPagingEnabled
         collectionView.snp.makeConstraints { make in
             make.left.right.equalToSuperview()
@@ -32,7 +34,9 @@ class WYFlowLayoutAlignmentController: UIViewController {
 
     lazy var vertical: UICollectionView = {
         let collectionView = UICollectionView.wy_shared(flowLayout: WYCollectionViewFlowLayout(delegate: self), delegate: self, dataSource: self, superView: view)
-        collectionView.wy_register([WidthAndHeightEqualCell.self, CollectionReusableHeaderView.self, CollectionReusableFooterView.self], [.cell, .headerView, .footerView])
+        collectionView.wy_register(WidthAndHeightEqualCell.self, .cell)
+        collectionView.wy_register(CollectionReusableHeaderView.self, .headerView)
+        collectionView.wy_register(CollectionReusableFooterView.self, .footerView)
         collectionView.isPagingEnabled = isPagingEnabled
         collectionView.snp.makeConstraints { make in
             make.left.right.bottom.equalToSuperview()

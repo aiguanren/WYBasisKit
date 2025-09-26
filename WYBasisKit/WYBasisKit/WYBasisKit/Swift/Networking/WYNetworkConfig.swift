@@ -10,10 +10,10 @@ import Foundation
 import Alamofire
 
 /// 网络请求验证方式
-@frozen public enum WYNetworkRequestStyle {
+@frozen public enum WYNetworkRequestStyle: Int {
     
     /// HTTP和CAHTTPS(无需额外配置  CAHTTPS：即向正规CA机构购买的HTTPS服务)
-    case httpOrCAHttps
+    case httpOrCAHttps = 0
     /// HTTPS单向验证，客户端验证服务器(自建证书，需要将一个服务端的cer文件放进工程目录，并调用WYNetworkConfig.httpsConfig对应方法配置cer文件名)
     case httpsSingle
     /// HTTPS双向验证，客户端和服务端双向验证(自建证书，需要将一个服务端的cer文件与一个带密码的客户端p12文件放进工程目录，并调用WYNetworkConfig.httpsConfig对应方法配置cer、P12文件名与P12文件密码)
@@ -24,10 +24,10 @@ import Alamofire
 public struct WYHttpsConfig {
     
     /// HTTPS自建证书验证策略
-    @frozen public enum WYHttpsVerifyStrategy {
+    @frozen public enum WYHttpsVerifyStrategy: Int {
         
         /// 证书验证模式，客户端会将服务器返回的证书和本地保存的证书中的 所有内容 全部进行校验，如果正确，才继续执行
-        case pinnedCertificates
+        case pinnedCertificates = 0
         
         /// 公钥验证模式，客户端会将服务器返回的证书和本地保存的证书中的 公钥 部分 进行校验，如果正确，才继续执行
         case publicKeys

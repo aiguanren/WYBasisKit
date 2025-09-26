@@ -10,10 +10,10 @@ import UIKit
 import CryptoKit
 
 /// 获取时间戳的模式
-@frozen public enum WYTimestampMode {
+@frozen public enum WYTimestampMode: Int {
     
     /// 秒
-    case second
+    case second = 0
     
     /// 毫秒
     case millisecond

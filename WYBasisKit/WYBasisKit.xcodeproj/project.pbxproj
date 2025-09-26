@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		583E04EC2E8635CA004F1034 /* WYButtonObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04EB2E8635CA004F1034 /* WYButtonObjC.swift */; };
+		583E04EE2E8644DD004F1034 /* WYCollectionViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04ED2E8644DD004F1034 /* WYCollectionViewObjC.swift */; };
+		583E04F02E867100004F1034 /* WYTableViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04EF2E867100004F1034 /* WYTableViewObjC.swift */; };
 		585B39A22DF8125400E6E08F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B39622DF8125400E6E08F /* AppDelegate.swift */; };
 		585B39A32DF8125400E6E08F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B396A2DF8125400E6E08F /* ViewController.swift */; };
 		585B39AC2DF8125400E6E08F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 585B39632DF8125400E6E08F /* Assets.xcassets */; };
@@ -153,6 +155,8 @@
 /* Begin PBXFileReference section */
 		53C1C8E1255F64288E08B8AC /* Pods-WYBasisKit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.release.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.release.xcconfig"; sourceTree = "<group>"; };
 		583E04EB2E8635CA004F1034 /* WYButtonObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYButtonObjC.swift; sourceTree = "<group>"; };
+		583E04ED2E8644DD004F1034 /* WYCollectionViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCollectionViewObjC.swift; sourceTree = "<group>"; };
+		583E04EF2E867100004F1034 /* WYTableViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTableViewObjC.swift; sourceTree = "<group>"; };
 		585B35642DF8086C00E6E08F /* WYBasisKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WYBasisKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		585B39622DF8125400E6E08F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		585B39632DF8125400E6E08F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -661,6 +665,7 @@
 		58C68C782E84E436005FD054 /* UICollectionView */ = {
 			isa = PBXGroup;
 			children = (
+				583E04ED2E8644DD004F1034 /* WYCollectionViewObjC.swift */,
 			);
 			path = UICollectionView;
 			sourceTree = "<group>";
@@ -721,6 +726,7 @@
 		58C68C842E84E436005FD054 /* UITableView */ = {
 			isa = PBXGroup;
 			children = (
+				583E04EF2E867100004F1034 /* WYTableViewObjC.swift */,
 			);
 			path = UITableView;
 			sourceTree = "<group>";
@@ -2081,6 +2087,7 @@
 				58C68DDE2E84E436005FD054 /* WYDictionaryObjC.swift in Sources */,
 				58C68DDF2E84E436005FD054 /* WYPhotoAlbumsAuthorizationObjC.swift in Sources */,
 				58C68DE02E84E436005FD054 /* WYImage.swift in Sources */,
+				583E04EE2E8644DD004F1034 /* WYCollectionViewObjC.swift in Sources */,
 				58C68DE12E84E436005FD054 /* WYMoveupTipsView.swift in Sources */,
 				58C68DE22E84E436005FD054 /* WYMicrophoneAuthorizationObjC.swift in Sources */,
 				58C68DE32E84E436005FD054 /* WYFloatObjC.swift in Sources */,
@@ -2104,6 +2111,7 @@
 				58C68DF32E84E436005FD054 /* WYMediaPlayer.swift in Sources */,
 				58C68DF42E84E436005FD054 /* WYCollectionView.swift in Sources */,
 				58C68DF52E84E436005FD054 /* WYScrollView.swift in Sources */,
+				583E04F02E867100004F1034 /* WYTableViewObjC.swift in Sources */,
 				58C68DF62E84E436005FD054 /* WYCodableUnkeyedContainer.swift in Sources */,
 				583E04EC2E8635CA004F1034 /* WYButtonObjC.swift in Sources */,
 				58C68DF72E84E436005FD054 /* WYDecodingStorage.swift in Sources */,

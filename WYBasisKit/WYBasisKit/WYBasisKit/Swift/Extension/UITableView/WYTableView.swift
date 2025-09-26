@@ -9,10 +9,10 @@
 import UIKit
 
 /// UITableView注册类型
-@frozen public enum WYTableViewRegisterStyle {
+@frozen public enum WYTableViewRegisterStyle: Int {
     
     /// 注册Cell
-    case cell
+    case cell = 0
     /// 注册HeaderFooterView
     case headerFooterView
 }
@@ -100,9 +100,9 @@ public extension UITableView {
     }
     
     /// 批量注册UITableView的Cell或HeaderFooterView
-    func wy_register(_ contentClasss: [AnyClass], _ styles: [WYTableViewRegisterStyle]) {
+    func wy_registers(_ contentClasss: [AnyClass], _ style: WYTableViewRegisterStyle) {
         for index in 0..<contentClasss.count {
-            wy_register(contentClasss[index], styles[index])
+            wy_register(contentClasss[index], style)
         }
     }
     

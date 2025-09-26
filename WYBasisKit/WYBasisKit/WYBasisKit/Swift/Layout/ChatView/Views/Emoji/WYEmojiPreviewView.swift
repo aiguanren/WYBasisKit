@@ -39,10 +39,10 @@ public struct WYEmojiPreviewConfig {
     public init() {}
 }
 
-@frozen public enum WYEmojiPreviewStyle {
+@frozen public enum WYEmojiPreviewStyle: Int {
     
     /// 默认静态图展示(png、jpg、jpeg等格式的静态图)
-    case `default`
+    case `default` = 0
     /// gif格式图片展示
     case gif
     /// apng格式图片展示(为了防止文件名冲突，apng格式图片需要自行拼接为：apng_[666].png样式格式)

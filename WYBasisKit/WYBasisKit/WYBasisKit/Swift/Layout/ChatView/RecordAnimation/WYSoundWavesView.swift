@@ -7,10 +7,10 @@
 
 import UIKit
 
-@frozen public enum WYSoundWavesStatus {
+@frozen public enum WYSoundWavesStatus: Int {
     
     /// 声播正常录制状态
-    case recording
+    case recording = 0
     
     /// 语音转文字状态
     case transfer

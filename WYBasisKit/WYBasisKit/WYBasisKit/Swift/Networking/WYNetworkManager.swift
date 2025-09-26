@@ -10,10 +10,10 @@ import Moya
 import Alamofire
 
 /// 网络请求任务类型
-@frozen public enum WYTaskMethod {
+@frozen public enum WYTaskMethod: Int {
     
     /// 数据任务
-    case parameters
+    case parameters = 0
     /// Data数据任务(对应Postman的raw)
     case data
     /// 上传任务
@@ -23,10 +23,10 @@ import Alamofire
 }
 
 /// 上传类型
-@frozen public enum WYFileType {
+@frozen public enum WYFileType: Int {
     
     /// 上传图片
-    case image
+    case image = 0
     /// 上传音频
     case audio
     /// 上传视频
@@ -36,8 +36,10 @@ import Alamofire
 }
 
 /// 需要映射的Key
-@frozen public enum WYMappingKey {
-    case message, code, data
+@frozen public enum WYMappingKey: Int {
+    case message = 0
+    case code
+    case data
 }
 
 /// 网络请求解析对象

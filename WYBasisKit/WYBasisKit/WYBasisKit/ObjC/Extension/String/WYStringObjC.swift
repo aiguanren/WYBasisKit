@@ -274,7 +274,8 @@ import UIKit
     
     /// 获取设备时间戳
     @objc static func wy_sharedDeviceTimestamp(_ mode: WYTimestampModeObjC = .second) -> String {
-        return String.wy_sharedDeviceTimestamp([WYTimestampMode.second, WYTimestampMode.millisecond, WYTimestampMode.microseconds][mode.rawValue])
+        
+        return String.wy_sharedDeviceTimestamp(WYTimestampMode(rawValue: mode.rawValue) ?? .second)
     }
     
     /// 秒 转 时分秒（00:00:00）格式

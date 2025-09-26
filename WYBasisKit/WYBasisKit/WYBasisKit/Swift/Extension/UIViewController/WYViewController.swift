@@ -8,11 +8,11 @@
 
 import UIKit
 
-/// viewController显示模式
-@frozen public enum WYDisplaMode {
+/// ViewController显示模式
+@frozen public enum WYDisplaMode: Int {
     
     /// push模式
-    case push
+    case push = 0
     
     /// present模式
     case present

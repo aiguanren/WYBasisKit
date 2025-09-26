@@ -12,8 +12,8 @@ import SnapKit
 /// 自定义聊天UITableViewCell
 public var customChatRegisterClasss: [AnyClass] = []
 
-@frozen public enum WYChatTouchStyle {
-    case done
+@frozen public enum WYChatTouchStyle: Int {
+    case done = 0
     case more
     case emoji
 }
