@@ -118,7 +118,12 @@ import UIKit
         wy_removeFromSuperview()
     }
     
-    /// 防止View在短时间内快速重复点击(duration：间隔时间)
+    /**
+     *  防止View在短时间内快速重复点击(写在点击事件中才会生效)
+     *
+     *  @param duration   间隔时间
+     *
+     */
     @objc(wy_temporarilyDisableForDuration:)
     func wy_temporarilyDisable(duration: TimeInterval) {
         wy_temporarilyDisable(for: duration)

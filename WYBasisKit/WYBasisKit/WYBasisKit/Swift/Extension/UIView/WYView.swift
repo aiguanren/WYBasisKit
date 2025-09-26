@@ -172,11 +172,16 @@ public extension UIView {
         removeFromSuperview()
     }
     
-    /// 防止View在短时间内快速重复点击(duration：间隔时间)
+    /**
+     *  防止View在短时间内快速重复点击(写在点击事件中才会生效)
+     *
+     *  @param duration   间隔时间
+     *
+     */
     func wy_temporarilyDisable(for duration: TimeInterval) {
         self.isUserInteractionEnabled = false
-        DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
-            self.isUserInteractionEnabled = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + duration) { [weak self] in
+            self?.isUserInteractionEnabled = true
         }
     }
     

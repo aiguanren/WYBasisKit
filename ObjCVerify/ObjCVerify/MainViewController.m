@@ -160,7 +160,7 @@
 //    
 //    [self performSelector:@selector(clearVisual:) withObject:test afterDelay:5];
     
-    [self performSelector:@selector(test) withObject:nil afterDelay:2];
+//    [self performSelector:@selector(test) withObject:nil afterDelay:2];
 }
 
 - (void)clearVisual:(UIView *)visualView {
@@ -174,6 +174,10 @@
 //    [UIAlertController wy_showStyle:UIAlertControllerStyleActionSheet title:@"测试标题" message:@"测试消息" duration:0 actionSheetNeedCancel:YES textFieldPlaceholders:@[@"占位文本1", @"占位文本2"] actions:@[@"按钮1", @"按钮2"] handler:^(NSString * _Nonnull action, NSArray<NSString *> * _Nonnull inputTexts) {
 //        NSLog(@"action = %@, inputTexts = %@",action, inputTexts);
 //    }];
+}
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [[UIApplication sharedApplication] wy_switchAppDisplayBrightness:UIUserInterfaceStyleDark];
 }
 
 @end

@@ -9,6 +9,8 @@
 import UIKit
 
 class WYTestAnimationController: UIViewController {
+    
+    var testButton: UIButton = UIButton(type: .custom)
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -19,23 +21,20 @@ class WYTestAnimationController: UIViewController {
         button.setTitle("让约束支持动画", for: .normal)
         button.titleLabel?.numberOfLines = 0
         button.wy_backgroundColor(.orange, forState: .normal)
+        button.addTarget(self, action: #selector(clickButton(sender:)), for: .touchUpInside)
         view.addSubview(button)
         button.snp.makeConstraints { (make) in
             make.centerX.equalToSuperview()
             make.top.equalToSuperview().offset(100)
             make.size.equalTo(CGSize(width: 100, height: 100))
         }
-        button.wy_addHandler(interval: 2, target: self, action: #selector(clickButton(sender:)))
         
-        let testButton = UIButton(type: .custom)
         testButton.backgroundColor = .wy_random
         view.addSubview(testButton)
+        testButton.addTarget(self, action: #selector(clickTestButton(sender:)), for: .touchUpInside)
         testButton.snp.makeConstraints { make in
             make.centerX.bottom.equalToSuperview()
             make.size.equalTo(button)
-        }
-        testButton.wy_addHandler(interval: 1) { _ in
-            WYLogManager.output("点击了按钮")
         }
     }
     
@@ -55,6 +54,15 @@ class WYTestAnimationController: UIViewController {
                 make.top.equalToSuperview().offset(100)
             }
         }
+    }
+    
+    @objc func clickTestButton(sender: UIButton) {
+        testButton.wy_temporarilyDisable(for: 10)
+        WYLogManager.output("clickTestButton")
+    }
+    
+    deinit {
+        WYLogManager.output("WYTestAnimationController deinit")
     }
 
     /*

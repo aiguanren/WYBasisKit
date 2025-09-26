@@ -9,10 +9,10 @@
 import UIKit
 
 /// UIButton图片控件和文本控件显示位置
-@frozen public enum WYButtonPosition {
+@frozen public enum WYButtonPosition: Int {
     
     /** 图片在左，文字在右，默认 */
-    case imageLeftTitleRight
+    case imageLeftTitleRight = 0
     /** 图片在右，文字在左 */
     case imageRightTitleLeft
     /** 图片在上，文字在下 */
@@ -185,25 +185,6 @@ public extension UIButton {
     /** 设置按钮下对齐 */
     func wy_bottomAlignment() {
         contentVerticalAlignment = .bottom
-    }
-    
-    /**
-     *  添加点击事件(interval > 0 时，可以在 interval 间隔时间内防止重复点击)
-     *  interval 下次可点击的间隔时间
-     */
-    func wy_addHandler(interval: TimeInterval = 1, selector: @escaping IntervalSelector) {
-        addTarget(self, action: #selector(buttonDelayHandler(_:)) , for: .touchUpInside)
-        selectorInterval = interval
-        intervalSelector = selector
-    }
-    
-    /**
-     *  添加点击事件(interval > 0 时，可以在 interval 间隔时间内防止重复点击, 建议不要大于2秒，会影响内存释放)
-     *  interval 下次可点击的间隔时间
-     */
-    func wy_addHandler(interval: TimeInterval = 1, target: Any, action: Selector) {
-        addTarget(target, action: action, for: .touchUpInside)
-        wy_addHandler(interval: interval) { _ in }
     }
     
     /**
