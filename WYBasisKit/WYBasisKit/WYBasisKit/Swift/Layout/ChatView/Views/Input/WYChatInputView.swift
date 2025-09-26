@@ -18,7 +18,7 @@ public struct WYInputBarConfig {
     public var animateDuration: TimeInterval = 0.25
     
     /// inputBar背景图
-    public var backgroundImage: UIImage = UIImage.wy_createImage(from: .wy_hex("#f6f6f6"))
+    public var backgroundImage: UIImage = UIImage.wy_createImage(from: .wy_hex(string: "#f6f6f6"))
     
     /// 是否需要保存上次退出时输入框中的文本
     public var canSaveLastInputText: Bool = true

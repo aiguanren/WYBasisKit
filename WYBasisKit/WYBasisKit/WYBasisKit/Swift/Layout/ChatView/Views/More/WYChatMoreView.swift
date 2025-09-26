@@ -15,7 +15,7 @@ public struct WYMoreViewConfig {
     public var animateDuration: TimeInterval = 0.25
     
     /// 自定义More控件背景色
-    public var backgroundColor: UIColor = .wy_hex("#f6f6f6")
+    public var backgroundColor: UIColor = .wy_hex(string: "#f6f6f6")
     
     /// 自定义More控件滚动方向
     public var scrollDirection: UICollectionView.ScrollDirection = .horizontal
@@ -54,7 +54,7 @@ public struct WYMoreViewConfig {
     public var textViewFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(13))
     
     /// 自定义More控件内文本控件的色值
-    public var textColor: UIColor = .wy_hex("#1B1B1B")
+    public var textColor: UIColor = .wy_hex(string: "#1B1B1B")
     
     /// 自定义More控件内文本控件顶部距离图片控件底部的间距
     public var textTopOffset: CGFloat = UIDevice.wy_screenWidth(10)

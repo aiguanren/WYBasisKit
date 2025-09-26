@@ -16,7 +16,7 @@ public extension UIColor {
     }
     
     /// hexColor convert UIColor
-    static func wy_hex(_ hexColor: String, _ alpha: CGFloat = 1.0) -> UIColor {
+    static func wy_hex(string hexColor: String, _ alpha: CGFloat = 1.0) -> UIColor {
         // 去掉空格并转换为大写
         var colorStr = hexColor.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
         
@@ -42,7 +42,7 @@ public extension UIColor {
     }
     
     /// hexColor convert UIColor
-    static func wy_hex(_ hexColor: UInt, _ alpha: CGFloat = 1.0) -> UIColor {
+    static func wy_hex(value hexColor: UInt, _ alpha: CGFloat = 1.0) -> UIColor {
         return UIColor(
             red: CGFloat((hexColor & 0xFF0000) >> 16) / 255.0,
             green: CGFloat((hexColor & 0x00FF00) >> 8) / 255.0,

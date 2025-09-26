@@ -129,8 +129,8 @@ public class WYChatView: UIView {
         super.init(frame: .zero)
         
         self.userInfo = userInfo
-        backgroundColor = .wy_hex("#ECECEC")
-        self.tableView.backgroundColor = .wy_hex("#ECECEC")
+        backgroundColor = .wy_hex(string: "#ECECEC")
+        self.tableView.backgroundColor = .wy_hex(string: "#ECECEC")
         self.emojiView?.backgroundColor = .clear
         self.moreView?.backgroundColor = .clear
         

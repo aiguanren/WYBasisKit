@@ -52,9 +52,9 @@ public struct WYRecordAnimationConfig {
     /// 声波线颜色
     public var colorOfSoundWavesOnRecording: (recording: UIColor,
                                               cancel: UIColor,
-                                              transfer: UIColor) = (recording: .wy_hex("282828").withAlphaComponent(0.6),
-                                                                    cancel: .wy_hex("282828").withAlphaComponent(0.6),
-                                                                    transfer: .wy_hex("282828").withAlphaComponent(0.6))
+                                              transfer: UIColor) = (recording: .wy_hex(string: "282828").withAlphaComponent(0.6),
+                                                                    cancel: .wy_hex(string: "282828").withAlphaComponent(0.6),
+                                                                    transfer: .wy_hex(string: "282828").withAlphaComponent(0.6))
     
     /// 录音时声波动画背景图
     public var backgroundImageForRecording: UIImage = WYRecordAnimationConfig.soundWavesDefaultImage()

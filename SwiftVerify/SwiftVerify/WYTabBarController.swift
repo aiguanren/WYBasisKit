@@ -60,7 +60,7 @@ class WYTabBarController: UITabBarController {
     func layoutNavigationBar(nav: UINavigationController) {
         
         var globalAppearance = WYNavigationBarAppearance()
-        globalAppearance.backgroundColor = .wy_dynamic(.wy_hex("#2AACFF"), .wy_hex("#2A7DFF"))
+        globalAppearance.backgroundColor = .wy_dynamic(.wy_hex(string: "#2AACFF"), .wy_hex(string: "#2A7DFF"))
         globalAppearance.titleColor = .wy_dynamic(.black, .white)
         globalAppearance.titleFont = .boldSystemFont(ofSize: 18)
         globalAppearance.returnButtonImage = UIImage.wy_find("back")
