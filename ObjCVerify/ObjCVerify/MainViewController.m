@@ -162,10 +162,16 @@
 //    [self performSelector:@selector(test) withObject:nil afterDelay:2];
     
     
-    UICollectionView *cw = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:[[WYCollectionViewFlowLayout alloc] init]];
-    UITableView *cd = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
-    [cw wy_register:[UICollectionViewCell class] style:WYCollectionViewRegisterStyleCell];
-    [cd wy_register:[UITableViewCell class] style:WYTableViewRegisterStyleCell];
+//    UICollectionView *cw = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:[[WYCollectionViewFlowLayout alloc] init]];
+//    UITableView *cd = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+//    [cw wy_register:[UICollectionViewCell class] style:WYCollectionViewRegisterStyleCell];
+//    [cd wy_register:[UITableViewCell class] style:WYTableViewRegisterStyleCell];
+    
+    UILabel *label = nil;
+//    [label wy_addRichTexts:@[@"1"] handler:^(NSString * _Nonnull text, NSRange range, NSInteger index) {
+//            
+//    }];
+//    [label wy_addRichTexts:@[@""] delegate:self];
 }
 
 - (void)clearVisual:(UIView *)visualView {
