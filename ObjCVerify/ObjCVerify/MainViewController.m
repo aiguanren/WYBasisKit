@@ -5,15 +5,16 @@
 //  Created by guanren on 2025/8/18.
 //
 
-#import "ViewController.h"
+#import "MainViewController.h"
 #import <Masonry/Masonry.h>
+#import <WYBasisKitSwift/WYBasisKitSwift-Swift.h>
 #import <WYBasisKitObjC-Swift.h>
 
-@interface ViewController ()
+@interface MainViewController ()
 
 @end
 
-@implementation ViewController
+@implementation MainViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -167,6 +168,8 @@
 }
 
 - (void)test {
+    
+    //[[UIApplication sharedApplication] wy_switchAppDisplayBrightness:UIUserInterfaceStyleDark];
     
 //    [UIAlertController wy_showStyle:UIAlertControllerStyleActionSheet title:@"测试标题" message:@"测试消息" duration:0 actionSheetNeedCancel:YES textFieldPlaceholders:@[@"占位文本1", @"占位文本2"] actions:@[@"按钮1", @"按钮2"] handler:^(NSString * _Nonnull action, NSArray<NSString *> * _Nonnull inputTexts) {
 //        NSLog(@"action = %@, inputTexts = %@",action, inputTexts);

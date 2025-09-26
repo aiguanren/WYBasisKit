@@ -107,7 +107,6 @@ import UIKit
     @discardableResult
     @objc(wy_insertImage:)
     func wy_insertImageObjC(_ attachments: [WYImageAttachmentOptionObjC]) -> NSMutableAttributedString {
-        
         let swiftAttachments: [WYImageAttachmentOption] = attachments.map { objCOption in
             return WYImageAttachmentOption(
                 image: objCOption.image,
@@ -216,7 +215,8 @@ import UIKit
 @objcMembers public class WYImageAttachmentOptionObjC: NSObject {
     
     /// 图片插入位置类型
-    @objc @frozen public enum PositionObjC: Int {
+    @objc(WYImageAttachmentPosition)
+    @frozen public enum WYImageAttachmentPositionObjC: Int {
         /// 插入到文本前面
         case before = 0
         /// 插入到文本后面
@@ -226,7 +226,8 @@ import UIKit
     }
     
     /// 图片对齐方式类型
-    @objc @frozen public enum AlignmentObjC: Int {
+    @objc(WYImageAttachmentAlignment)
+    @frozen public enum WYImageAttachmentAlignmentObjC: Int {
         /// 与文本居中对齐
         case center = 0
         /// 与文本顶部对齐
@@ -244,13 +245,13 @@ import UIKit
     @objc public let size: CGSize
     
     /// 图片插入位置类型
-    @objc public let position: PositionObjC
+    @objc public let position: WYImageAttachmentPositionObjC
     
     /// 插入位置的参数（before/after 时传 NSString，index 时传 NSNumber）
     @objc public let positionValue: Any?
     
     /// 图片对齐方式类型
-    @objc public let alignment: AlignmentObjC
+    @objc public let alignment: WYImageAttachmentAlignmentObjC
     
     /// 自定义对齐偏移量（仅在 alignmentType = .custom 时生效，负向上，正向下）
     @objc public let alignmentOffset: CGFloat
@@ -263,9 +264,9 @@ import UIKit
     
     @objc public init(image: UIImage,
                       size: CGSize,
-                      position: PositionObjC,
+                      position: WYImageAttachmentPositionObjC,
                       positionValue: Any? = nil,
-                      alignment: AlignmentObjC = .center,
+                      alignment: WYImageAttachmentAlignmentObjC = .center,
                       alignmentOffset: CGFloat = 0,
                       spacingBefore: CGFloat = 0,
                       spacingAfter: CGFloat = 0) {

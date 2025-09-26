@@ -554,7 +554,7 @@ public class WYTextAttachment: NSTextAttachment {
 public struct WYImageAttachmentOption {
     
     /// 图片插入位置
-    @frozen public enum Position {
+    @frozen public enum WYImageAttachmentPosition {
         /// 插入到文本前面
         case before(text: String)
         /// 插入到文本后面
@@ -564,7 +564,7 @@ public struct WYImageAttachmentOption {
     }
     
     /// 图片对齐方式
-    @frozen public enum Alignment {
+    @frozen public enum WYImageAttachmentAlignment {
         /// 与文本居中对齐
         case center
         /// 与文本顶部对齐
@@ -582,10 +582,10 @@ public struct WYImageAttachmentOption {
     public let size: CGSize
     
     /// 图片插入位置
-    public let position: Position
+    public let position: WYImageAttachmentPosition
     
     /// 图片对齐方式
-    public let alignment: Alignment
+    public let alignment: WYImageAttachmentAlignment
     
     /// 图片与前面文本的间距（单位：pt）
     public let spacingBefore: CGFloat
@@ -595,8 +595,8 @@ public struct WYImageAttachmentOption {
     
     public init(image: UIImage,
                 size: CGSize,
-                position: Position,
-                alignment: Alignment = .center,
+                position: WYImageAttachmentPosition,
+                alignment: WYImageAttachmentAlignment = .center,
                 spacingBefore: CGFloat = 0,
                 spacingAfter: CGFloat = 0) {
         self.image = image

@@ -70,6 +70,7 @@ end
 target 'SwiftVerify' do
   project 'SwiftVerify/SwiftVerify.xcodeproj' # 多个项目时需要指定target对应的xcodeproj文件
   pod 'WYBasisKit-Swift', :path => KITPATH
+  pod 'WYBasisKit-ObjC', :path => KITPATH
   
   # 图片裁剪库
   #pod 'Mantis'

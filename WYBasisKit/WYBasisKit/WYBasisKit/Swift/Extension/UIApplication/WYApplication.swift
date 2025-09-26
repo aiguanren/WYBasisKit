@@ -25,7 +25,7 @@ extension UIApplication: @retroactive UIApplicationDelegate {
     
     /// 切换为深色或浅色模式
     public func wy_switchAppDisplayBrightness(style: UIUserInterfaceStyle) {
-        delegate?.window??.rootViewController?.overrideUserInterfaceStyle = style
+        wy_keyWindow.rootViewController?.overrideUserInterfaceStyle = style
     }
     
     /// 全局关闭暗夜模式
