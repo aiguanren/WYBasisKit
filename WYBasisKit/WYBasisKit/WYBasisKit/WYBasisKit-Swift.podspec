@@ -40,10 +40,13 @@ Pod::Spec.new do |kit|
   # 手动指定模块名
   kit.module_name  = "WYBasisKitSwift" 
   
-  #指定默认模块，不指定则表示全部模块
+  # 指定默认模块，不指定则表示全部模块
   # kit.default_subspecs = [
+  #   "Config",
+  #   "LogManager",
   #   "Extension",
-  #   "OtherSubSpec"
+  #   "Storage",
+  #   "EventHandler"
   # ]
 
   # 主工程设置
