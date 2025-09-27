@@ -7,9 +7,10 @@
 
 #import "MainViewController.h"
 #import <Masonry/Masonry.h>
+#import <WebKit/WKWebView.h>
 #import <WYBasisKitObjC-Swift.h>
 
-@interface MainViewController ()
+@interface MainViewController ()<WYWebViewNavigationDelegateProxy>
 
 @end
 
@@ -167,11 +168,31 @@
 //    [cw wy_register:[UICollectionViewCell class] style:WYCollectionViewRegisterStyleCell];
 //    [cd wy_register:[UITableViewCell class] style:WYTableViewRegisterStyleCell];
     
-    UILabel *label = nil;
+//    UILabel *label = nil;
 //    [label wy_addRichTexts:@[@"1"] handler:^(NSString * _Nonnull text, NSRange range, NSInteger index) {
 //            
 //    }];
 //    [label wy_addRichTexts:@[@""] delegate:self];
+    
+    WKWebView *webView = [[WKWebView alloc] init];
+    [self.view addSubview:webView];
+    [webView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.view).mas_offset(UIDevice.wy_navViewHeight + 2);
+        make.width.equalTo(self.view);
+        make.bottom.equalTo(self.view).mas_offset(-UIDevice.wy_tabbarSafetyZone);
+    }];
+    // 启用加载进度条
+    [webView enableProgressView];
+    
+    // 设置代理派发器
+    webView.navigationProxy = self;
+
+    // 加载网页
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.apple.com/cn"]]];
+    
+    [self wy_deleteViewControllerWithClassName:@"" complete:^{
+            
+    }];
 }
 
 - (void)clearVisual:(UIView *)visualView {
@@ -189,6 +210,61 @@
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     [[UIApplication sharedApplication] wy_switchAppDisplayBrightness:UIUserInterfaceStyleDark];
+}
+
+- (void)webPageNavigationTitleChanged:(NSString *)title isRepeat:(BOOL)isRepeat {
+    NSLog(@"webPageNavigationTitleChanged  title = %@, isRepeat = %@",title, isRepeat ? @"yes" : @"no");
+}
+
+- (void)webPageWillChanged:(NSString *)urlString {
+    NSLog(@"webPageWillChanged  urlString = %@",urlString);
+}
+
+- (void)didStartProvisionalNavigation:(NSString *)urlString {
+    NSLog(@"didStartProvisionalNavigation  urlString = %@",urlString);
+}
+
+- (void)webPageLoadProgress:(CGFloat)progress {
+    NSLog(@"webPageLoadProgress  progress = %f",progress);
+}
+
+- (void)didFailProvisionalNavigation:(NSString *)urlString withError:(NSError *)error {
+    NSLog(@"didFailProvisionalNavigation  urlString = %@, error = %@",urlString, [error localizedDescription]);
+}
+
+- (void)didCommitNavigation:(NSString *)urlString {
+    NSLog(@"didCommitNavigation  urlString = %@",urlString);
+}
+
+- (void)didFinishNavigation:(NSString *)urlString {
+    NSLog(@"didFinishNavigation  urlString = %@",urlString);
+}
+
+- (void)didFailNavigation:(NSString *)urlString withError:(NSError *)error {
+    NSLog(@"didFailNavigation  urlString = %@, error = %@",urlString, [error localizedDescription]);
+}
+
+- (void)didReceiveServerRedirectForProvisionalNavigation:(NSString *)urlString {
+    NSLog(@"didReceiveServerRedirectForProvisionalNavigation  urlString = %@",urlString);
+}
+
+- (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction preferences:(WKWebpagePreferences *)preferences decisionHandler:(void (^)(WKNavigationActionPolicy, WKWebpagePreferences * _Nonnull))decisionHandler {
+    NSLog(@"decidePolicyForNavigationAction  navigationAction = %@, preferences = %@",navigationAction, preferences);
+    decisionHandler(WKNavigationActionPolicyAllow, preferences);
+}
+
+- (void)decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler {
+    NSLog(@"decidePolicyForNavigationResponse  navigationResponse = %@",navigationResponse);;
+    decisionHandler(WKNavigationResponsePolicyAllow);
+}
+
+- (void)webViewWebContentProcessDidTerminate {
+    NSLog(@"webViewWebContentProcessDidTerminate");
+}
+
+- (void)didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(enum NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler {
+    NSLog(@"didReceiveAuthenticationChallenge  challenge = %@", challenge);
+    completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
 }
 
 @end

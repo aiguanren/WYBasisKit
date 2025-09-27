@@ -74,6 +74,8 @@ class WYTestPagingViewController: UIViewController {
             action: #selector(showSettings)
         )
         navigationItem.rightBarButtonItem = settingsButton
+        
+        self.wy_navBarBackgroundColor = .orange
     }
     
     /// 初始化默认的分页视图

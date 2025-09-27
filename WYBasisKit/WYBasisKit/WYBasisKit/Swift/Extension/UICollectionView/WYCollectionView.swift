@@ -224,7 +224,7 @@ public class WYCollectionViewFlowLayout: UICollectionViewFlowLayout {
         super.init()
     }
     
-    public init(delegate: WYCollectionViewFlowLayoutDelegate) {
+    public init(delegate: WYCollectionViewFlowLayoutDelegate?) {
         self.delegate = delegate
         super.init()
     }

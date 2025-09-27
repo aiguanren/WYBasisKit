@@ -1,10 +1,16 @@
+//
+//  WKWebView.swift
+//  WYBasisKit
+//
+//  Created by guanren on 2025/9/26.
+//
+
 import WebKit
 
-/// WKWebView 导航代理协议（WKWebViewNavigationDelegateProxy），用于将 WebView 的导航事件分发给业务层或 Objective-C 中间层使用
-@objc public protocol WKWebViewNavigationDelegateProxy: AnyObject {
+@objc public protocol WYWebViewNavigationDelegateProxy {
     
     /// 导航栏标题发生变化 isRepeat:当前标题相比上一次是否是重复的
-    @objc optional func webPageNavigationTitleChanged(_ title: String, _ isRepeat: Bool)
+    @objc optional func webPageNavigationTitleChanged(_ title: String, isRepeat: Bool)
 
     /// 页面将要跳转
     @objc optional func webPageWillChanged(_ urlString: String)
@@ -48,37 +54,37 @@ import WebKit
 }
 
 /// WKWebView 进度条扩展
-@objc public extension WKWebView {
+public extension WKWebView {
 
     /// 进度条颜色（默认 lightGray）
-    @objc var progressTintColor: UIColor {
-        get { progressObserver?.progressView.progressTintColor ?? UIColor.lightGray }
+    var progressTintColor: UIColor {
+        get { return progressObserver?.progressView.progressTintColor ?? UIColor.lightGray }
         set { progressObserver?.progressView.progressTintColor = newValue }
     }
 
     /// 进度条背景颜色（默认透明）
-    @objc var trackTintColor: UIColor {
-        get { progressObserver?.progressView.trackTintColor ?? .clear }
+    var trackTintColor: UIColor {
+        get { return progressObserver?.progressView.trackTintColor ?? .clear }
         set { progressObserver?.progressView.trackTintColor = newValue }
     }
 
     /// 进度条高度（默认 2）
-    @objc var progressHeight: CGFloat {
-        get { progressObserver?.height ?? 2 }
+    var progressHeight: CGFloat {
+        get { return progressObserver?.height ?? 2 }
         set { progressObserver?.updateHeight(newValue) }
     }
 
     /// 启用进度条监听
-    @objc func enableProgressView() {
+    func enableProgressView() {
         guard progressObserver == nil else { return }
         let observer = WebViewProgressObserver(webView: self)
         progressObserver = observer
     }
     
     /// 事件监听代理
-    @objc var navigationProxy: WKWebViewNavigationDelegateProxy? {
+    var navigationProxy: WYWebViewNavigationDelegateProxy? {
         get {
-            objc_getAssociatedObject(self, &WYAssociatedKeys.navigationProxyKey) as? WKWebViewNavigationDelegateProxy
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.navigationProxyKey) as? WYWebViewNavigationDelegateProxy
         }
         set {
             objc_setAssociatedObject(self, &WYAssociatedKeys.navigationProxyKey, newValue, .OBJC_ASSOCIATION_ASSIGN)
@@ -182,11 +188,11 @@ private class WebViewProgressObserver: NSObject {
     }
 }
 
-// WKWebView 代理派发器（WKWebViewDelegator），实现 WKNavigationDelegate，并分发事件给自定义代理 WKWebViewNavigationDelegateProxy
+// WKWebView 代理派发器（WKWebViewDelegator），实现 WKNavigationDelegate，并分发事件给自定义代理 WYWebViewNavigationDelegateProxy
 public class WKWebViewDelegator: NSObject, WKNavigationDelegate {
     
-    /// 实际处理回调的代理对象（可以为 Objective-C 或 Swift 实现）
-    public weak var proxy: WKWebViewNavigationDelegateProxy?
+    /// 实际处理回调的代理对象
+    public weak var proxy: WYWebViewNavigationDelegateProxy?
     
     /// 用于监听 WebView 的 title 变化
     private var titleObservation: NSKeyValueObservation?
@@ -195,7 +201,7 @@ public class WKWebViewDelegator: NSObject, WKNavigationDelegate {
     private var lastTitle: String?
 
     /// 初始化代理派发器
-    public init(proxy: WKWebViewNavigationDelegateProxy?) {
+    public init(proxy: WYWebViewNavigationDelegateProxy?) {
         self.proxy = proxy
     }
     
@@ -216,7 +222,7 @@ public class WKWebViewDelegator: NSObject, WKNavigationDelegate {
             self.lastTitle = newTitle
             
             // 回调代理，即使 title 为 nil 也回调
-            self.proxy?.webPageNavigationTitleChanged?((newTitle ?? ""), isRepeat)
+            self.proxy?.webPageNavigationTitleChanged?(newTitle ?? "", isRepeat: isRepeat)
         }
     }
 

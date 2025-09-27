@@ -108,22 +108,17 @@ import UIKit
  *
  *  isPagingEnabled为true时(不支持headerView与footerView)，务必保证每个cell的宽与每个cell的高均相同，否则布局会错乱
  */
-@objc(WYCollectionViewFlowLayout)
-@objcMembers public class WYCollectionViewFlowLayoutObjC: UICollectionViewFlowLayout {
+@objc public extension WYCollectionViewFlowLayout {
     
     /** delegate */
-    @objc public weak var delegate: WYCollectionViewFlowLayoutDelegate?
-    
-    @objc public override init() {
-        super.init()
+    @objc(delegate)
+    weak var delegateObjC: WYCollectionViewFlowLayoutDelegate? {
+        set(newValue) { delegate = newValue }
+        get { return delegate }
     }
     
-    @objc public init(delegate: WYCollectionViewFlowLayoutDelegate) {
-        self.delegate = delegate
-        super.init()
-    }
-    
-    @objc required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    @objc(initWithDelegate:)
+    convenience init(with delegate: WYCollectionViewFlowLayoutDelegate) {
+        self.init(delegate: delegate)
     }
 }

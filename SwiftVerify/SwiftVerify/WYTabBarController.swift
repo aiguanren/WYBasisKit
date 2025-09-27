@@ -59,15 +59,19 @@ class WYTabBarController: UITabBarController {
     
     func layoutNavigationBar(nav: UINavigationController) {
         
-        var globalAppearance = WYNavigationBarAppearance()
-        globalAppearance.backgroundColor = .wy_dynamic(.wy_hex(string: "#2AACFF"), .wy_hex(string: "#2A7DFF"))
-        globalAppearance.titleColor = .wy_dynamic(.black, .white)
-        globalAppearance.titleFont = .boldSystemFont(ofSize: 18)
-        globalAppearance.returnButtonImage = UIImage.wy_find("back")
-        globalAppearance.returnButtonColor = .wy_dynamic(.black, .white)
-        globalAppearance.returnButtonTitle = ""
-        WYNavigationBarConfig.setGlobalAppearance(globalAppearance)
-        WYNavigationBarConfig.globalShadowLineHidden = true
+        UINavigationController.wy_navBarBackgroundColor = .wy_dynamic(.wy_hex(string: "#2AACFF"), .wy_hex(string: "#2A7DFF"))
+        
+        UINavigationController.wy_navBarTitleColor = .wy_dynamic(.black, .white)
+        
+        UINavigationController.wy_navBarTitleFont = .boldSystemFont(ofSize: 18)
+        
+        UINavigationController.wy_navBarReturnButtonImage = UIImage.wy_find("back");
+        
+        UINavigationController.wy_navBarReturnButtonColor = .wy_dynamic(.black, .white)
+        
+        UINavigationController.wy_navBarReturnButtonTitle = ""
+        
+        UINavigationController.wy_navBarShadowLineHidden = true
     }
     
     

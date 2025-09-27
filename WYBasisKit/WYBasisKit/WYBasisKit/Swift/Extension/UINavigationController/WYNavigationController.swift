@@ -8,132 +8,6 @@
 
 import UIKit
 
-/// 导航栏配置项
-public struct WYNavigationBarAppearance {
-    
-    /// 背景色 (优先级: 背景图 > 背景色)
-    public var backgroundColor: UIColor? = .white
-    
-    /// 背景图 (优先级: 背景图 > 背景色)
-    public var backgroundImage: UIImage?
-    
-    /// 标题字体
-    public var titleFont: UIFont = .systemFont(ofSize: 16)
-    
-    /// 标题颜色
-    public var titleColor: UIColor = .black
-    
-    /// 返回按钮图片
-    public var returnButtonImage: UIImage?
-    
-    /// 返回按钮颜色
-    public var returnButtonColor: UIColor = .systemBlue
-    
-    /// 返回按钮文本
-    public var returnButtonTitle: String = ""
-    
-    /// 是否隐藏底部阴影线
-    public var shadowLineHidden: Bool = false
-    
-    /// 阴影线颜色 (当 shadowHidden = false 时生效)
-    public var shadowLineColor: UIColor? = UIColor(white: 0.9, alpha: 1.0)
-    
-    public init() {}
-}
-
-/// 用于全局导航栏配置的类
-public class WYNavigationBarConfig {
-    
-    /// 全局(默认)导航栏样式
-    public static var defaultAppearance = WYNavigationBarAppearance()
-    
-    /// 全局设置导航栏样式
-    public static func setGlobalAppearance(_ appearance: WYNavigationBarAppearance) {
-        defaultAppearance = appearance
-    }
-    
-    /// 全局隐藏底部阴影线
-    public static var globalShadowLineHidden: Bool {
-        get { defaultAppearance.shadowLineHidden }
-        set { defaultAppearance.shadowLineHidden = newValue }
-    }
-}
-
-/// 控制器级别设置
-public extension UIViewController {
-    
-    /// 当前控制器导航栏样式
-    var wy_navBarAppearance: WYNavigationBarAppearance {
-        get {
-            // 如果当前控制器有自定义样式，则返回自定义样式
-            if let custom = objc_getAssociatedObject(self, &WYAssociatedKeys.customAppearanceKey) as? WYNavigationBarAppearance {
-                return custom
-            }
-            
-            // 否则返回全局默认配置
-            return WYNavigationBarConfig.defaultAppearance
-        }
-        set {
-            // 存储自定义样式
-            objc_setAssociatedObject(self, &WYAssociatedKeys.customAppearanceKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-            // 立即更新导航栏
-            updateNavigationBarAppearance()
-        }
-    }
-    
-    /// 更新导航栏样式
-    func updateNavigationBarAppearance() {
-        navigationController?.updateNavigationBarAppearance(for: self)
-    }
-    
-    // MARK: - 便捷设置方法
-    
-    /// 设置导航栏背景色
-    func wy_setNavBarBackgroundColor(_ color: UIColor?) {
-        var appearance = wy_navBarAppearance
-        appearance.backgroundColor = color
-        wy_navBarAppearance = appearance
-    }
-    
-    /// 设置导航栏背景图
-    func wy_setNavBarBackgroundImage(_ image: UIImage?) {
-        var appearance = wy_navBarAppearance
-        appearance.backgroundImage = image
-        wy_navBarAppearance = appearance
-    }
-    
-    /// 设置导航栏标题样式
-    func wy_setNavBarTitle(font: UIFont, color: UIColor) {
-        var appearance = wy_navBarAppearance
-        appearance.titleFont = font
-        appearance.titleColor = color
-        wy_navBarAppearance = appearance
-    }
-    
-    /// 设置返回按钮样式
-    func wy_setReturnButton(image: UIImage? = nil, color: UIColor? = nil, title: String? = nil) {
-        var appearance = wy_navBarAppearance
-        if let image = image { appearance.returnButtonImage = image }
-        if let color = color { appearance.returnButtonColor = color }
-        if let title = title { appearance.returnButtonTitle = title }
-        wy_navBarAppearance = appearance
-    }
-    
-    /// 设置阴影线
-    func wy_setNavBarShadowLine(hidden: Bool, color: UIColor? = nil) {
-        var appearance = wy_navBarAppearance
-        appearance.shadowLineHidden = hidden
-        if let color = color { appearance.shadowLineColor = color }
-        wy_navBarAppearance = appearance
-    }
-    
-    /// 关联对象键
-    private struct WYAssociatedKeys {
-        static var customAppearanceKey: UInt8 = 0
-    }
-}
-
-/// 导航栏按钮创建
 public extension UINavigationController {
     
     /// 获取一个纯文本UIBarButtonItem
@@ -162,86 +36,217 @@ public extension UINavigationController {
     }
 }
 
-/// 导航控制器实现( 内部)
 public extension UINavigationController {
     
-    /// 更新指定控制器的导航栏样式
-    fileprivate func updateNavigationBarAppearance(for viewController: UIViewController) {
-        let appearance = viewController.wy_navBarAppearance
-        
-        // 创建外观配置
-        let navBarAppearance = UINavigationBarAppearance()
-        navBarAppearance.configureWithOpaqueBackground()
-        
-        // 设置背景
-        if let backgroundImage = appearance.backgroundImage {
-            navBarAppearance.backgroundImage = backgroundImage
-        } else if let backgroundColor = appearance.backgroundColor {
-            navBarAppearance.backgroundColor = backgroundColor
-        }
-        
-        // 设置标题
-        navBarAppearance.titleTextAttributes = [
-            .font: appearance.titleFont,
-            .foregroundColor: appearance.titleColor
-        ]
-        
-        // 设置阴影
-        if appearance.shadowLineHidden {
-            navBarAppearance.shadowColor = .clear
-            navBarAppearance.shadowImage = UIImage()
-        } else {
-            navBarAppearance.shadowColor = appearance.shadowLineColor
-            navBarAppearance.shadowImage = nil
-        }
-        
-        // 设置返回按钮
-        let backButtonAppearance = UIBarButtonItemAppearance(style: .plain)
-        backButtonAppearance.normal.titleTextAttributes = [
-            .foregroundColor: appearance.returnButtonColor
-        ]
-        navBarAppearance.backButtonAppearance = backButtonAppearance
-        
-        // 应用配置
-        navigationBar.standardAppearance = navBarAppearance
-        navigationBar.scrollEdgeAppearance = navBarAppearance
-        navigationBar.compactAppearance = navBarAppearance
-        
-        // 单独设置返回按钮
-        navigationBar.tintColor = appearance.returnButtonColor
-        if let backImage = appearance.returnButtonImage {
-            navigationBar.backIndicatorImage = backImage
-            navigationBar.backIndicatorTransitionMaskImage = backImage
-        }
-        
-        // 设置返回按钮文本
-        viewController.navigationItem.backBarButtonItem = UIBarButtonItem(
-            title: appearance.returnButtonTitle,
-            style: .plain,
-            target: nil,
-            action: nil
-        )
-    }
+    // MARK: - 导航栏(全局)配置属性
     
-    /// 获取导航栏底部分隔线View
-    func wy_sharedBottomLine(findView: UIView? = wy_currentController()?.navigationController?.navigationBar) -> UIImageView? {
-        if let view = findView {
-            if view.isKind(of: UIImageView.self) && view.bounds.size.height <= 1.0 {
-                return view as? UIImageView
-            }
-            
-            for subView in view.subviews {
-                let imageView = wy_sharedBottomLine(findView: subView)
-                if imageView != nil {
-                    return imageView
-                }
-            }
-        }
-        return nil
+    /// 导航栏背景色 (优先级: 背景图 > 背景色)
+    static var wy_navBarBackgroundColor: UIColor? = .white
+    
+    /// 导航栏背景图 (优先级: 背景图 > 背景色)
+    static var wy_navBarBackgroundImage: UIImage?
+    
+    /// 导航栏标题字体
+    static var wy_navBarTitleFont: UIFont = .systemFont(ofSize: 16)
+    
+    /// 导航栏标题颜色
+    static var wy_navBarTitleColor: UIColor = .black
+    
+    /// 导航栏返回按钮图片
+    static var wy_navBarReturnButtonImage: UIImage?
+    
+    /// 导航栏返回按钮颜色
+    static var wy_navBarReturnButtonColor: UIColor = .systemBlue
+    
+    /// 导航栏返回按钮文本
+    static var wy_navBarReturnButtonTitle: String = ""
+    
+    /// 导航栏是否隐藏底部阴影线
+    static var wy_navBarShadowLineHidden: Bool = false
+    
+    /// 导航栏阴影线颜色 (当 shadowHidden = false 时生效)
+    static var wy_navBarShadowLineColor: UIColor? = UIColor(white: 0.9, alpha: 1.0)
+    
+    // MARK: - 便捷(全局)配置方法
+    
+    /// 设置全局导航栏样式
+    static func wy_setGlobalNavigationBar(
+        backgroundColor: UIColor? = nil,
+        backgroundImage: UIImage? = nil,
+        titleFont: UIFont? = nil,
+        titleColor: UIColor? = nil,
+        returnButtonImage: UIImage? = nil,
+        returnButtonColor: UIColor? = nil,
+        returnButtonTitle: String? = nil,
+        shadowLineHidden: Bool? = nil,
+        shadowLineColor: UIColor? = nil
+    ) {
+        if let backgroundColor = backgroundColor { wy_navBarBackgroundColor = backgroundColor }
+        if let backgroundImage = backgroundImage { wy_navBarBackgroundImage = backgroundImage }
+        if let titleFont = titleFont { wy_navBarTitleFont = titleFont }
+        if let titleColor = titleColor { wy_navBarTitleColor = titleColor }
+        if let returnButtonImage = returnButtonImage { wy_navBarReturnButtonImage = returnButtonImage }
+        if let returnButtonColor = returnButtonColor { wy_navBarReturnButtonColor = returnButtonColor }
+        if let returnButtonTitle = returnButtonTitle { wy_navBarReturnButtonTitle = returnButtonTitle }
+        if let shadowLineHidden = shadowLineHidden { wy_navBarShadowLineHidden = shadowLineHidden }
+        if let shadowLineColor = shadowLineColor { wy_navBarShadowLineColor = shadowLineColor }
     }
 }
 
-/// 返回按钮拦截处理(内部)
+public extension UIViewController {
+    
+    // MARK: - 控制器级别属性（有自定义值使用自定义值，否则使用全局值）
+    
+    /// 导航栏背景色
+    var wy_navBarBackgroundColor: UIColor? {
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.customBackgroundColorKey) as? UIColor ?? UINavigationController.wy_navBarBackgroundColor
+        }
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.customBackgroundColorKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            updateNavigationBarAppearance()
+        }
+    }
+    
+    /// 导航栏背景图
+    var wy_navBarBackgroundImage: UIImage? {
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.customBackgroundImageKey) as? UIImage ?? UINavigationController.wy_navBarBackgroundImage
+        }
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.customBackgroundImageKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            updateNavigationBarAppearance()
+        }
+    }
+    
+    /// 导航栏标题字体
+    var wy_navBarTitleFont: UIFont {
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.customTitleFontKey) as? UIFont ?? UINavigationController.wy_navBarTitleFont
+        }
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.customTitleFontKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            updateNavigationBarAppearance()
+        }
+    }
+    
+    /// 导航栏标题颜色
+    var wy_navBarTitleColor: UIColor {
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.customTitleColorKey) as? UIColor ?? UINavigationController.wy_navBarTitleColor
+        }
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.customTitleColorKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            updateNavigationBarAppearance()
+        }
+    }
+    
+    /// 导航栏返回按钮图片
+    var wy_navBarReturnButtonImage: UIImage? {
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.customReturnButtonImageKey) as? UIImage ?? UINavigationController.wy_navBarReturnButtonImage
+        }
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.customReturnButtonImageKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            updateNavigationBarAppearance()
+        }
+    }
+    
+    /// 导航栏返回按钮颜色
+    var wy_navBarReturnButtonColor: UIColor {
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.customReturnButtonColorKey) as? UIColor ?? UINavigationController.wy_navBarReturnButtonColor
+        }
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.customReturnButtonColorKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            updateNavigationBarAppearance()
+        }
+    }
+    
+    /// 导航栏返回按钮文本
+    var wy_navBarReturnButtonTitle: String {
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.customReturnButtonTitleKey) as? String ?? UINavigationController.wy_navBarReturnButtonTitle
+        }
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.customReturnButtonTitleKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            updateNavigationBarAppearance()
+        }
+    }
+    
+    /// 导航栏是否隐藏底部阴影线
+    var wy_navBarShadowLineHidden: Bool {
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.customShadowLineHiddenKey) as? Bool ?? UINavigationController.wy_navBarShadowLineHidden
+        }
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.customShadowLineHiddenKey, newValue, .OBJC_ASSOCIATION_ASSIGN)
+            updateNavigationBarAppearance()
+        }
+    }
+    
+    /// 导航栏阴影线颜色
+    var wy_navBarShadowLineColor: UIColor? {
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.customShadowLineColorKey) as? UIColor ?? UINavigationController.wy_navBarShadowLineColor
+        }
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.customShadowLineColorKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            updateNavigationBarAppearance()
+        }
+    }
+    
+    /// 更新导航栏样式
+    func updateNavigationBarAppearance() {
+        navigationController?.updateNavigationBarAppearance(for: self)
+    }
+    
+    // MARK: - 便捷设置方法
+    
+    /// 设置导航栏背景色
+    func wy_setNavBarBackgroundColor(_ color: UIColor?) {
+        wy_navBarBackgroundColor = color
+    }
+    
+    /// 设置导航栏背景图
+    func wy_setNavBarBackgroundImage(_ image: UIImage?) {
+        wy_navBarBackgroundImage = image
+    }
+    
+    /// 设置导航栏标题样式
+    func wy_setNavBarTitle(font: UIFont, color: UIColor) {
+        wy_navBarTitleFont = font
+        wy_navBarTitleColor = color
+    }
+    
+    /// 设置返回按钮样式
+    func wy_setReturnButton(image: UIImage? = nil, color: UIColor? = nil, title: String? = nil) {
+        if let image = image { wy_navBarReturnButtonImage = image }
+        if let color = color { wy_navBarReturnButtonColor = color }
+        if let title = title { wy_navBarReturnButtonTitle = title }
+    }
+    
+    /// 设置阴影线
+    func wy_setNavBarShadowLine(hidden: Bool, color: UIColor? = nil) {
+        wy_navBarShadowLineHidden = hidden
+        if let color = color { wy_navBarShadowLineColor = color }
+    }
+    
+    private struct WYAssociatedKeys {
+        static var customBackgroundColorKey: UInt8 = 0
+        static var customBackgroundImageKey: UInt8 = 0
+        static var customTitleFontKey: UInt8 = 0
+        static var customTitleColorKey: UInt8 = 0
+        static var customReturnButtonImageKey: UInt8 = 0
+        static var customReturnButtonColorKey: UInt8 = 0
+        static var customReturnButtonTitleKey: UInt8 = 0
+        static var customShadowLineHiddenKey: UInt8 = 0
+        static var customShadowLineColorKey: UInt8 = 0
+    }
+}
+
+// MARK: - 返回按钮拦截处理(内部)
+
 extension UINavigationController: @retroactive UIBarPositioningDelegate {}
 extension UINavigationController: @retroactive UINavigationBarDelegate, @retroactive UIGestureRecognizerDelegate {
     
@@ -303,7 +308,8 @@ extension UINavigationController: @retroactive UINavigationBarDelegate, @retroac
     }
 }
 
-/// 导航控制器代理(内部)
+// MARK: - 导航控制器代理(内部)
+
 extension UINavigationController: @retroactive UINavigationControllerDelegate {
     override open func viewDidLoad() {
         super.viewDidLoad()
@@ -314,5 +320,84 @@ extension UINavigationController: @retroactive UINavigationControllerDelegate {
                                     willShow viewController: UIViewController,
                                     animated: Bool) {
         updateNavigationBarAppearance(for: viewController)
+    }
+}
+
+// MARK: - 导航控制器实现(内部)
+
+public extension UINavigationController {
+    
+    /// 更新指定控制器的导航栏样式
+    fileprivate func updateNavigationBarAppearance(for viewController: UIViewController) {
+        
+        // 创建外观配置
+        let navBarAppearance = UINavigationBarAppearance()
+        navBarAppearance.configureWithOpaqueBackground()
+        
+        // 设置背景
+        if let backgroundImage = viewController.wy_navBarBackgroundImage {
+            navBarAppearance.backgroundImage = backgroundImage
+        } else if let backgroundColor = viewController.wy_navBarBackgroundColor {
+            navBarAppearance.backgroundColor = backgroundColor
+        }
+        
+        // 设置标题
+        navBarAppearance.titleTextAttributes = [
+            .font: viewController.wy_navBarTitleFont,
+            .foregroundColor: viewController.wy_navBarTitleColor
+        ]
+        
+        // 设置阴影
+        if viewController.wy_navBarShadowLineHidden {
+            navBarAppearance.shadowColor = .clear
+            navBarAppearance.shadowImage = UIImage()
+        } else {
+            navBarAppearance.shadowColor = viewController.wy_navBarShadowLineColor
+            navBarAppearance.shadowImage = nil
+        }
+        
+        // 设置返回按钮
+        let backButtonAppearance = UIBarButtonItemAppearance(style: .plain)
+        backButtonAppearance.normal.titleTextAttributes = [
+            .foregroundColor: viewController.wy_navBarReturnButtonColor
+        ]
+        navBarAppearance.backButtonAppearance = backButtonAppearance
+        
+        // 应用配置
+        navigationBar.standardAppearance = navBarAppearance
+        navigationBar.scrollEdgeAppearance = navBarAppearance
+        navigationBar.compactAppearance = navBarAppearance
+        
+        // 单独设置返回按钮
+        navigationBar.tintColor = viewController.wy_navBarReturnButtonColor
+        if let backImage = viewController.wy_navBarReturnButtonImage {
+            navigationBar.backIndicatorImage = backImage
+            navigationBar.backIndicatorTransitionMaskImage = backImage
+        }
+        
+        // 设置返回按钮文本
+        viewController.navigationItem.backBarButtonItem = UIBarButtonItem(
+            title: viewController.wy_navBarReturnButtonTitle,
+            style: .plain,
+            target: nil,
+            action: nil
+        )
+    }
+    
+    /// 获取导航栏底部分隔线View
+    func wy_sharedBottomLine(findView: UIView? = wy_currentController()?.navigationController?.navigationBar) -> UIImageView? {
+        if let view = findView {
+            if view.isKind(of: UIImageView.self) && view.bounds.size.height <= 1.0 {
+                return view as? UIImageView
+            }
+            
+            for subView in view.subviews {
+                let imageView = wy_sharedBottomLine(findView: subView)
+                if imageView != nil {
+                    return imageView
+                }
+            }
+        }
+        return nil
     }
 }

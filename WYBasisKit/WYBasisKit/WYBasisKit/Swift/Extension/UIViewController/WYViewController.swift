@@ -24,6 +24,8 @@ import UIKit
 }
 
 extension UIViewController: ViewControllerHandlerProtocol {
+    
+    /// 拦截返回按钮的点击和侧滑返回事件
     open func wy_navigationBarWillReturn() -> Bool {
         return true
     }
@@ -46,12 +48,6 @@ public extension UIViewController {
             method_exchangeImplementations(originalMethod!, swizzledMethod!)
         }
     }
-    
-    @objc private func wy_present(_ vc:UIViewController, animated: Bool, completion:(()->())?) {
-        vc.modalPresentationStyle = .fullScreen
-        wy_present(vc, animated: animated, completion: completion)
-    }
-    
     
     /// 获取当前正在显示的控制器
     static func wy_currentController(windowController: UIViewController? = (UIApplication.shared.delegate?.window)??.rootViewController) -> UIViewController? {
@@ -206,9 +202,12 @@ public extension UIViewController {
         }
     }
     
+    @objc private func wy_present(_ vc:UIViewController, animated: Bool, completion:(()->())?) {
+        vc.modalPresentationStyle = .fullScreen
+        wy_present(vc, animated: animated, completion: completion)
+    }
+    
     private struct WYAssociatedKeys {
         static var wy_parameters: UInt8 = 0
     }
 }
-
-

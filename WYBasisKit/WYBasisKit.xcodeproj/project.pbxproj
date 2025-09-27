@@ -12,6 +12,10 @@
 		583E04F02E867100004F1034 /* WYTableViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04EF2E867100004F1034 /* WYTableViewObjC.swift */; };
 		583E04F22E868138004F1034 /* WYColorObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04F12E868138004F1034 /* WYColorObjC.swift */; };
 		583E04F42E8684F3004F1034 /* WYLabelObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04F32E8684F3004F1034 /* WYLabelObjC.swift */; };
+		583E04F62E868708004F1034 /* WYNavigationControllerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04F52E868708004F1034 /* WYNavigationControllerObjC.swift */; };
+		583E04F82E869051004F1034 /* WYTextFieldObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04F72E869051004F1034 /* WYTextFieldObjC.swift */; };
+		583E04FA2E8690D1004F1034 /* WYWebViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04F92E8690D1004F1034 /* WYWebViewObjC.swift */; };
+		583E04FC2E879984004F1034 /* WYViewControllerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04FB2E879984004F1034 /* WYViewControllerObjC.swift */; };
 		585B39A22DF8125400E6E08F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B39622DF8125400E6E08F /* AppDelegate.swift */; };
 		585B39A32DF8125400E6E08F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B396A2DF8125400E6E08F /* ViewController.swift */; };
 		585B39AC2DF8125400E6E08F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 585B39632DF8125400E6E08F /* Assets.xcassets */; };
@@ -161,6 +165,10 @@
 		583E04EF2E867100004F1034 /* WYTableViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTableViewObjC.swift; sourceTree = "<group>"; };
 		583E04F12E868138004F1034 /* WYColorObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYColorObjC.swift; sourceTree = "<group>"; };
 		583E04F32E8684F3004F1034 /* WYLabelObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLabelObjC.swift; sourceTree = "<group>"; };
+		583E04F52E868708004F1034 /* WYNavigationControllerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNavigationControllerObjC.swift; sourceTree = "<group>"; };
+		583E04F72E869051004F1034 /* WYTextFieldObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTextFieldObjC.swift; sourceTree = "<group>"; };
+		583E04F92E8690D1004F1034 /* WYWebViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYWebViewObjC.swift; sourceTree = "<group>"; };
+		583E04FB2E879984004F1034 /* WYViewControllerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYViewControllerObjC.swift; sourceTree = "<group>"; };
 		585B35642DF8086C00E6E08F /* WYBasisKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WYBasisKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		585B39622DF8125400E6E08F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		585B39632DF8125400E6E08F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -717,6 +725,7 @@
 		58C68C812E84E436005FD054 /* UINavigationController */ = {
 			isa = PBXGroup;
 			children = (
+				583E04F52E868708004F1034 /* WYNavigationControllerObjC.swift */,
 			);
 			path = UINavigationController;
 			sourceTree = "<group>";
@@ -740,6 +749,7 @@
 		58C68C852E84E436005FD054 /* UITextField */ = {
 			isa = PBXGroup;
 			children = (
+				583E04F72E869051004F1034 /* WYTextFieldObjC.swift */,
 			);
 			path = UITextField;
 			sourceTree = "<group>";
@@ -755,6 +765,7 @@
 		58C68C872E84E436005FD054 /* UIViewController */ = {
 			isa = PBXGroup;
 			children = (
+				583E04FB2E879984004F1034 /* WYViewControllerObjC.swift */,
 			);
 			path = UIViewController;
 			sourceTree = "<group>";
@@ -762,6 +773,7 @@
 		58C68C882E84E436005FD054 /* WKWebView */ = {
 			isa = PBXGroup;
 			children = (
+				583E04F92E8690D1004F1034 /* WYWebViewObjC.swift */,
 			);
 			path = WKWebView;
 			sourceTree = "<group>";
@@ -2149,6 +2161,7 @@
 				58C68E102E84E436005FD054 /* WYString.swift in Sources */,
 				58C68E112E84E436005FD054 /* WYRecordAnimationView.swift in Sources */,
 				58C68E122E84E436005FD054 /* WYNetworkConfig.swift in Sources */,
+				583E04F62E868708004F1034 /* WYNavigationControllerObjC.swift in Sources */,
 				58C68E132E84E436005FD054 /* WYChatMusicCell.swift in Sources */,
 				58C68E142E84E436005FD054 /* WYImageObjC.swift in Sources */,
 				58C68E152E84E436005FD054 /* WYChatBusinessCardCell.swift in Sources */,
@@ -2159,6 +2172,7 @@
 				58C68E1A2E84E436005FD054 /* WYDecoder.swift in Sources */,
 				58C68E1B2E84E436005FD054 /* WYCodable.swift in Sources */,
 				58C68E1C2E84E436005FD054 /* WYChatModel.swift in Sources */,
+				583E04FC2E879984004F1034 /* WYViewControllerObjC.swift in Sources */,
 				58C68E1D2E84E436005FD054 /* WYColor.swift in Sources */,
 				58C68E1E2E84E436005FD054 /* WYSpeechRecognitionAuthorization.swift in Sources */,
 				58C68E1F2E84E436005FD054 /* WYChatPhotoCell.swift in Sources */,
@@ -2171,6 +2185,7 @@
 				58C68E262E84E436005FD054 /* WYCodableAdapter.swift in Sources */,
 				58C68E272E84E436005FD054 /* WYDoubleObjC.swift in Sources */,
 				58C68E282E84E436005FD054 /* WYBiometricAuthorization.swift in Sources */,
+				583E04FA2E8690D1004F1034 /* WYWebViewObjC.swift in Sources */,
 				58C68E292E84E436005FD054 /* WYDictionary.swift in Sources */,
 				58C68E2A2E84E436005FD054 /* WYChatWithdrawnCell.swift in Sources */,
 				58C68E2B2E84E436005FD054 /* WYChatVoiceCell.swift in Sources */,
@@ -2182,6 +2197,7 @@
 				588D00812E5FEB570034A1CF /* AutoLayout.swift in Sources */,
 				58BE5F032E5E94210046AD5D /* Swift↔ObjC.swift in Sources */,
 				586FFBB32E8230A700499506 /* Other.swift in Sources */,
+				583E04F82E869051004F1034 /* WYTextFieldObjC.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

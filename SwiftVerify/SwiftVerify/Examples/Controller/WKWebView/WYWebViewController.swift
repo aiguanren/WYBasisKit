@@ -49,7 +49,7 @@ class WYWebViewController: UIViewController {
 
 }
 
-extension WYWebViewController: WKWebViewNavigationDelegateProxy {
+extension WYWebViewController: WYWebViewNavigationDelegateProxy {
     
     /// 重置导航栏标题
     func webPageNavigationTitleChanged(_ title: String, _ isRepeat: Bool) {
