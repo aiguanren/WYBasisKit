@@ -43,6 +43,8 @@
 		58B4703E2E8D11C700D04BCA /* WYMainController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B4703D2E8D11C700D04BCA /* WYMainController.m */; };
 		58B470412E8D11D400D04BCA /* WYCenterController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B470402E8D11D400D04BCA /* WYCenterController.m */; };
 		58B470442E8D11E200D04BCA /* WYRightController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B470432E8D11E200D04BCA /* WYRightController.m */; };
+		58B4704B2E8D32D200D04BCA /* WYLeftControllerHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B4704A2E8D32D200D04BCA /* WYLeftControllerHeaderView.m */; };
+		58B470502E8D37B000D04BCA /* AppEventDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B4704F2E8D37B000D04BCA /* AppEventDelegate.m */; };
 		58B59FEF2E5D5315008F9C38 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B59FE22E5D5315008F9C38 /* AppDelegate.m */; };
 		58B59FF02E5D5315008F9C38 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B59FE72E5D5315008F9C38 /* main.m */; };
 		58B59FF22E5D5315008F9C38 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B59FED2E5D5315008F9C38 /* ViewController.m */; };
@@ -95,6 +97,10 @@
 		58B470402E8D11D400D04BCA /* WYCenterController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYCenterController.m; sourceTree = "<group>"; };
 		58B470422E8D11E200D04BCA /* WYRightController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYRightController.h; sourceTree = "<group>"; };
 		58B470432E8D11E200D04BCA /* WYRightController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYRightController.m; sourceTree = "<group>"; };
+		58B470492E8D32D200D04BCA /* WYLeftControllerHeaderView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYLeftControllerHeaderView.h; sourceTree = "<group>"; };
+		58B4704A2E8D32D200D04BCA /* WYLeftControllerHeaderView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYLeftControllerHeaderView.m; sourceTree = "<group>"; };
+		58B4704E2E8D37B000D04BCA /* AppEventDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppEventDelegate.h; sourceTree = "<group>"; };
+		58B4704F2E8D37B000D04BCA /* AppEventDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppEventDelegate.m; sourceTree = "<group>"; };
 		58B59FC42E5D530F008F9C38 /* ObjCVerify.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ObjCVerify.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		58B59FE12E5D5315008F9C38 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		58B59FE22E5D5315008F9C38 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -168,7 +174,9 @@
 		58B470342E8D113800D04BCA /* Examples */ = {
 			isa = PBXGroup;
 			children = (
-				58B470352E8D114C00D04BCA /* Tabbar */,
+				58B470482E8D329600D04BCA /* Controller */,
+				58B470472E8D328800D04BCA /* View */,
+				58B4704D2E8D374F00D04BCA /* Event */,
 			);
 			path = Examples;
 			sourceTree = "<group>";
@@ -208,6 +216,32 @@
 				58B470432E8D11E200D04BCA /* WYRightController.m */,
 			);
 			path = Right;
+			sourceTree = "<group>";
+		};
+		58B470472E8D328800D04BCA /* View */ = {
+			isa = PBXGroup;
+			children = (
+				58B470492E8D32D200D04BCA /* WYLeftControllerHeaderView.h */,
+				58B4704A2E8D32D200D04BCA /* WYLeftControllerHeaderView.m */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		58B470482E8D329600D04BCA /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				58B470352E8D114C00D04BCA /* Tabbar */,
+			);
+			path = Controller;
+			sourceTree = "<group>";
+		};
+		58B4704D2E8D374F00D04BCA /* Event */ = {
+			isa = PBXGroup;
+			children = (
+				58B4704E2E8D37B000D04BCA /* AppEventDelegate.h */,
+				58B4704F2E8D37B000D04BCA /* AppEventDelegate.m */,
+			);
+			path = Event;
 			sourceTree = "<group>";
 		};
 		58B59FBB2E5D530F008F9C38 = {
@@ -435,6 +469,8 @@
 			files = (
 				58B59FEF2E5D5315008F9C38 /* AppDelegate.m in Sources */,
 				58B4703E2E8D11C700D04BCA /* WYMainController.m in Sources */,
+				58B4704B2E8D32D200D04BCA /* WYLeftControllerHeaderView.m in Sources */,
+				58B470502E8D37B000D04BCA /* AppEventDelegate.m in Sources */,
 				58B59FF02E5D5315008F9C38 /* main.m in Sources */,
 				58B59FF22E5D5315008F9C38 /* ViewController.m in Sources */,
 				58B470442E8D11E200D04BCA /* WYRightController.m in Sources */,

@@ -415,8 +415,8 @@
 		58678E8C2DFA627C0035673E /* WYBasisKit */ = {
 			isa = PBXGroup;
 			children = (
-				58C68CBA2E84E436005FD054 /* ObjC */,
 				58C68D832E84E436005FD054 /* Swift */,
+				58C68CBA2E84E436005FD054 /* ObjC */,
 			);
 			path = WYBasisKit;
 			sourceTree = "<group>";

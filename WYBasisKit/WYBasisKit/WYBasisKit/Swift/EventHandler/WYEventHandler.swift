@@ -174,20 +174,20 @@ public final class WYEventHandler {
 public class KitEventHandler {
     
     /// 绑定的目标对象
-    weak var target: AnyObject?
+    public weak var target: AnyObject?
     
     /// 事件回调闭包
-    let handler: (Any?) -> Void
+    public let handler: (Any?) -> Void
     
     /// 是否为永久监听器（target为nil表示永久）
-    let isPermanent: Bool
+    public let isPermanent: Bool
     
     /// 当前监听器是否有效
-    var isValid: Bool {
+    public var isValid: Bool {
         return isPermanent || target != nil
     }
     
-    init(target: AnyObject?, handler: @escaping (Any?) -> Void) {
+    public init(target: AnyObject?, handler: @escaping (Any?) -> Void) {
         self.target = target
         self.handler = handler
         self.isPermanent = (target == nil)
