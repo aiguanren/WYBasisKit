@@ -151,7 +151,7 @@ import UIKit
      */
     @objc static func wy_convertEmojiAttributed(_ emojiString: String, textColor: UIColor, textFont: UIFont, emojiTable: [String], sourceBundle: WYSourceBundleObjC? = nil, pattern: String?) -> NSMutableAttributedString {
         
-        return wy_convertEmojiAttributed(emojiString: emojiString, textColor: textColor, textFont: textFont, emojiTable: emojiTable, sourceBundle: sourceBundle?.wy_convertSwiftBundle(), pattern: pattern ?? "\\[.{1,3}\\]")
+        return wy_convertEmojiAttributed(emojiString: emojiString, textColor: textColor, textFont: textFont, emojiTable: emojiTable, sourceBundle: sourceBundle?.wy_convertSwift(), pattern: pattern ?? "\\[.{1,3}\\]")
     }
     
     /**
