@@ -138,30 +138,6 @@ public final class WYEventHandler {
         objc_setAssociatedObject(target, &WYAssociatedKeys.deallocWatcherKey, watcher, .OBJC_ASSOCIATION_RETAIN)
     }
     
-    /// 事件处理器
-    public class KitEventHandler {
-        
-        /// 绑定的目标对象
-        weak var target: AnyObject?
-        
-        /// 事件回调闭包
-        let handler: (Any?) -> Void
-        
-        /// 是否为永久监听器（target为nil表示永久）
-        let isPermanent: Bool
-        
-        /// 当前监听器是否有效
-        var isValid: Bool {
-            return isPermanent || target != nil
-        }
-        
-        init(target: AnyObject?, handler: @escaping (Any?) -> Void) {
-            self.target = target
-            self.handler = handler
-            self.isPermanent = (target == nil)
-        }
-    }
-    
     /// 对象释放时执行回调（用于自动解绑）
     private class KitDeallocWatcher {
         let callback: () -> Void
@@ -194,4 +170,26 @@ public final class WYEventHandler {
     private init() {}
 }
 
-
+/// 事件处理器
+public class KitEventHandler {
+    
+    /// 绑定的目标对象
+    weak var target: AnyObject?
+    
+    /// 事件回调闭包
+    let handler: (Any?) -> Void
+    
+    /// 是否为永久监听器（target为nil表示永久）
+    let isPermanent: Bool
+    
+    /// 当前监听器是否有效
+    var isValid: Bool {
+        return isPermanent || target != nil
+    }
+    
+    init(target: AnyObject?, handler: @escaping (Any?) -> Void) {
+        self.target = target
+        self.handler = handler
+        self.isPermanent = (target == nil)
+    }
+}
