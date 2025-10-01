@@ -34,7 +34,7 @@ import UIKit
         self.subdirectory = subdirectory
     }
     
-    public func wy_convertSwift() -> WYSourceBundle? {
+    public func wy_convertToSwift() -> WYSourceBundle? {
         return (self == nil) ? nil : WYSourceBundle(bundleName: self.bundleName, subdirectory: self.subdirectory)
     }
 }
@@ -184,7 +184,7 @@ import UIKit
     }
     @objc(wy_find:bundle:)
     static func wy_findObjC(_ imageName: String, bundle: WYSourceBundleObjC? = nil) -> UIImage {
-        return wy_find(imageName, inBundle: bundle?.wy_convertSwift())
+        return wy_find(imageName, inBundle: bundle?.wy_convertToSwift())
     }
     
     /**
@@ -201,7 +201,7 @@ import UIKit
     @objc(wy_animatedParse:imageName:bundle:)
     static func wy_animatedParse(_ style: WYAnimatedImageStyleObjC = .GIF, imageName: String, bundle: WYSourceBundleObjC? = nil) -> WYGifInfoObjC? {
         
-        guard let gifInfo: WYGifInfo = wy_animatedParse(WYAnimatedImageStyle(rawValue: style.rawValue) ?? .GIF, name: imageName, inBundle: bundle?.wy_convertSwift()) else {
+        guard let gifInfo: WYGifInfo = wy_animatedParse(WYAnimatedImageStyle(rawValue: style.rawValue) ?? .GIF, name: imageName, inBundle: bundle?.wy_convertToSwift()) else {
             return nil
         }
         return WYGifInfoObjC(animationImages: gifInfo.animationImages, animationDuration: gifInfo.animationDuration, animatedImage: gifInfo.animatedImage)
