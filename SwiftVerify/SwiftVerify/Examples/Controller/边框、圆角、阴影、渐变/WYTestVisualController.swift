@@ -66,6 +66,7 @@ class WYTestVisualController: UIViewController {
         button.addTarget(self, action: #selector(updateButtonConstraints(button:)), for: .touchUpInside)
         button.titleLabel?.numberOfLines = 0
         button.setTitle("约束控件", for: .normal)
+        button.wy_addBorder(edges: [.top, .right], color: .magenta, thickness: 20)
         view.addSubview(button)
         button.wy_makeVisual { make in
             make.wy_gradualColors([.yellow, .purple])
@@ -121,6 +122,14 @@ class WYTestVisualController: UIViewController {
         button.wy_shadowOffset(.zero)
         button.wy_shadowOpacity(0.5)
         button.wy_showVisual()
+        
+        button.wy_addBorder(edges: [.bottom, .left], color: .magenta, thickness: 25)
+        
+        perform(#selector(removeBorder(sender:)), with: button, afterDelay: 5)
+    }
+    
+    @objc func removeBorder(sender: UIButton) {
+        sender.wy_removeBorder(edges: [.top, .right], thickness: 20)
     }
     
     func createLineView() -> UIView {

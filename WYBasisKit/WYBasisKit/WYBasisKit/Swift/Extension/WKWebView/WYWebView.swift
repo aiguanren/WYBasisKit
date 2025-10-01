@@ -6,50 +6,51 @@
 //
 
 import WebKit
+import Foundation
 
 @objc public protocol WYWebViewNavigationDelegateProxy {
     
     /// 导航栏标题发生变化 isRepeat:当前标题相比上一次是否是重复的
-    @objc optional func webPageNavigationTitleChanged(_ title: String, isRepeat: Bool)
+    @objc optional func wy_webPageNavigationTitleChanged(_ title: String, isRepeat: Bool)
 
     /// 页面将要跳转
-    @objc optional func webPageWillChanged(_ urlString: String)
+    @objc optional func wy_webPageWillChanged(_ urlString: String)
 
     /// 页面开始加载时调用
-    @objc optional func didStartProvisionalNavigation(_ urlString: String)
+    @objc optional func wy_didStartProvisionalNavigation(_ urlString: String)
     
     /// 页面加载进度回调
-    @objc optional func webPageLoadProgress(_ progress: CGFloat)
+    @objc optional func wy_webPageLoadProgress(_ progress: CGFloat)
 
     /// 页面加载失败时调用（首次请求）
-    @objc optional func didFailProvisionalNavigation(_ urlString: String, withError error: Error)
+    @objc optional func wy_didFailProvisionalNavigation(_ urlString: String, withError error: Error)
 
     /// 当内容开始返回时调用
-    @objc optional func didCommitNavigation(_ urlString: String)
+    @objc optional func wy_didCommitNavigation(_ urlString: String)
 
     /// 页面加载完成之后调用
-    @objc optional func didFinishNavigation(_ urlString: String)
+    @objc optional func wy_didFinishNavigation(_ urlString: String)
 
     /// 提交发生错误时调用（通常指加载后期失败）
-    @objc optional func didFailNavigation(_ urlString: String, withError error: Error)
+    @objc optional func wy_didFailNavigation(_ urlString: String, withError error: Error)
 
     /// 接收到服务器跳转请求（服务重定向时之后调用）
-    @objc optional func didReceiveServerRedirectForProvisionalNavigation(_ urlString: String)
+    @objc optional func wy_didReceiveServerRedirectForProvisionalNavigation(_ urlString: String)
 
-    /// 根据 WebView 对于即将跳转的 HTTP 请求信息决定是否跳转
-    @objc optional func decidePolicyForNavigationAction(_ navigationAction: WKNavigationAction,
+    /// 根据 WebView 对于即将跳转的 HTTP 请求信息决定是否跳转(Objective-C如需监听此代理需要确认import方式为：#import <WYBasisKitObjC.h>，其他import方式会报错，因为WKWebpagePreferences是Swift中的类型，Objective-C原生并不支持)
+    @objc optional func wy_decidePolicyForNavigationAction(_ navigationAction: WKNavigationAction,
                                          preferences: WKWebpagePreferences,
                                          decisionHandler: @escaping (WKNavigationActionPolicy, WKWebpagePreferences) -> Void)
 
-    /// 根据客户端收到的服务器响应头决定是否跳转
-    @objc optional func decidePolicyForNavigationResponse(_ navigationResponse: WKNavigationResponse,
+    /// 根据客户端收到的服务器响应头决定是否跳转(Objective-C如需监听此代理需要确认import方式为：#import <WYBasisKitObjC.h>，其他import方式会报错，因为WKNavigationResponse是Swift中的类型，Objective-C原生并不支持)
+    @objc optional func wy_decidePolicyForNavigationResponse(_ navigationResponse: WKNavigationResponse,
                                            decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void)
 
     /// Web 内容进程被系统终止时调用
-    @objc optional func webViewWebContentProcessDidTerminate()
+    @objc optional func wy_webViewWebContentProcessDidTerminate()
 
     /// 收到身份认证时调用
-    @objc optional func didReceiveAuthenticationChallenge(_ challenge: URLAuthenticationChallenge,
+    @objc optional func wy_didReceiveAuthenticationChallenge(_ challenge: URLAuthenticationChallenge,
                                            completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void)
 }
 
@@ -57,32 +58,32 @@ import WebKit
 public extension WKWebView {
 
     /// 进度条颜色（默认 lightGray）
-    var progressTintColor: UIColor {
-        get { return progressObserver?.progressView.progressTintColor ?? UIColor.lightGray }
-        set { progressObserver?.progressView.progressTintColor = newValue }
+    var wy_progressTintColor: UIColor {
+        get { return wy_progressObserver?.progressView.progressTintColor ?? UIColor.lightGray }
+        set { wy_progressObserver?.progressView.progressTintColor = newValue }
     }
 
     /// 进度条背景颜色（默认透明）
-    var trackTintColor: UIColor {
-        get { return progressObserver?.progressView.trackTintColor ?? .clear }
-        set { progressObserver?.progressView.trackTintColor = newValue }
+    var wy_trackTintColor: UIColor {
+        get { return wy_progressObserver?.progressView.trackTintColor ?? .clear }
+        set { wy_progressObserver?.progressView.trackTintColor = newValue }
     }
 
     /// 进度条高度（默认 2）
-    var progressHeight: CGFloat {
-        get { return progressObserver?.height ?? 2 }
-        set { progressObserver?.updateHeight(newValue) }
+    var wy_progressHeight: CGFloat {
+        get { return wy_progressObserver?.height ?? 2 }
+        set { wy_progressObserver?.updateHeight(newValue) }
     }
 
     /// 启用进度条监听
-    func enableProgressView() {
-        guard progressObserver == nil else { return }
+    func wy_enableProgressView() {
+        guard wy_progressObserver == nil else { return }
         let observer = WebViewProgressObserver(webView: self)
-        progressObserver = observer
+        wy_progressObserver = observer
     }
     
     /// 事件监听代理
-    var navigationProxy: WYWebViewNavigationDelegateProxy? {
+    var wy_navigationProxy: WYWebViewNavigationDelegateProxy? {
         get {
             return objc_getAssociatedObject(self, &WYAssociatedKeys.navigationProxyKey) as? WYWebViewNavigationDelegateProxy
         }
@@ -119,7 +120,7 @@ private class WebViewProgressObserver: NSObject {
 
     /// 进度条高度（读取自 webView）
     var height: CGFloat {
-        webView?.progressHeight ?? 2.0
+        webView?.wy_progressHeight ?? 2.0
     }
 
     /// 初始化并添加 KVO 监听
@@ -146,8 +147,8 @@ private class WebViewProgressObserver: NSObject {
 
         progressView.translatesAutoresizingMaskIntoConstraints = false
         progressView.progress = 0
-        progressView.trackTintColor = webView.trackTintColor
-        progressView.progressTintColor = webView.progressTintColor
+        progressView.trackTintColor = webView.wy_trackTintColor
+        progressView.progressTintColor = webView.wy_progressTintColor
 
         webView.addSubview(progressView)
 
@@ -178,7 +179,7 @@ private class WebViewProgressObserver: NSObject {
         progressView.setProgress(progress, animated: true)
         
         // 触发两种回调方式
-        (webView.navigationDelegate as? WKWebViewDelegator)?.proxy?.webPageLoadProgress?(CGFloat(progress))
+        (webView.navigationDelegate as? WKWebViewDelegator)?.proxy?.wy_webPageLoadProgress?(CGFloat(progress))
 
         if progress >= 1.0 {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -222,38 +223,38 @@ public class WKWebViewDelegator: NSObject, WKNavigationDelegate {
             self.lastTitle = newTitle
             
             // 回调代理，即使 title 为 nil 也回调
-            self.proxy?.webPageNavigationTitleChanged?(newTitle ?? "", isRepeat: isRepeat)
+            self.proxy?.wy_webPageNavigationTitleChanged?(newTitle ?? "", isRepeat: isRepeat)
         }
     }
 
     /// 页面开始加载时调用（即开始请求）
     public func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-        proxy?.didStartProvisionalNavigation?(webView.url?.absoluteString ?? "")
+        proxy?.wy_didStartProvisionalNavigation?(webView.url?.absoluteString ?? "")
     }
 
     /// 当内容开始返回时调用（已收到响应数据，但还未渲染完成）
     public func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
-        proxy?.didCommitNavigation?(webView.url?.absoluteString ?? "")
+        proxy?.wy_didCommitNavigation?(webView.url?.absoluteString ?? "")
     }
 
     /// 页面加载完成时调用（已渲染完成）
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        proxy?.didFinishNavigation?(webView.url?.absoluteString ?? "")
+        proxy?.wy_didFinishNavigation?(webView.url?.absoluteString ?? "")
     }
 
     /// 页面加载过程中发生错误（一般指加载过程中出现中断）
     public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        proxy?.didFailNavigation?(webView.url?.absoluteString ?? "", withError: error)
+        proxy?.wy_didFailNavigation?(webView.url?.absoluteString ?? "", withError: error)
     }
 
     /// 页面加载失败（首次请求失败，例如 DNS 解析失败等）
     public func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        proxy?.didFailProvisionalNavigation?(webView.url?.absoluteString ?? "", withError: error )
+        proxy?.wy_didFailProvisionalNavigation?(webView.url?.absoluteString ?? "", withError: error )
     }
 
     /// 接收到服务器的重定向（HTTP 3xx 跳转）
     public func webView(_ webView: WKWebView, didReceiveServerRedirectForProvisionalNavigation navigation: WKNavigation!) {
-        proxy?.didReceiveServerRedirectForProvisionalNavigation?(webView.url?.absoluteString ?? "")
+        proxy?.wy_didReceiveServerRedirectForProvisionalNavigation?(webView.url?.absoluteString ?? "")
     }
 
     /// 决定是否允许加载请求（可用于拦截 URL）
@@ -264,7 +265,7 @@ public class WKWebViewDelegator: NSObject, WKNavigationDelegate {
         
         // 取出请求的 URL 字符串（如果有）
         if let urlString = navigationAction.request.url?.absoluteString {
-            proxy?.webPageWillChanged?(urlString)
+            proxy?.wy_webPageWillChanged?(urlString)
         }
         
         var isCalled = false
@@ -274,7 +275,7 @@ public class WKWebViewDelegator: NSObject, WKNavigationDelegate {
             decisionHandler(policy, prefs)
         }
         
-        if let handler = proxy?.decidePolicyForNavigationAction {
+        if let handler = proxy?.wy_decidePolicyForNavigationAction {
             handler(navigationAction, preferences, safeHandler)
         } else {
             // 若未实现，必须调用 fallback
@@ -303,7 +304,7 @@ public class WKWebViewDelegator: NSObject, WKNavigationDelegate {
             decisionHandler(policy)
         }
         
-        if let handler = proxy?.decidePolicyForNavigationResponse {
+        if let handler = proxy?.wy_decidePolicyForNavigationResponse {
             handler(navigationResponse, safeHandler)
         } else {
             // 若未实现，默认允许
@@ -323,7 +324,7 @@ public class WKWebViewDelegator: NSObject, WKNavigationDelegate {
 
     /// Web 内容进程被终止（系统资源紧张时会杀掉 web 内容进程）
     public func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
-        proxy?.webViewWebContentProcessDidTerminate?()
+        proxy?.wy_webViewWebContentProcessDidTerminate?()
     }
 
     /// 收到身份验证请求（如 HTTPS 认证）
@@ -340,7 +341,7 @@ public class WKWebViewDelegator: NSObject, WKNavigationDelegate {
             completionHandler(disposition, credential)
         }
         
-        if let handler = proxy?.didReceiveAuthenticationChallenge {
+        if let handler = proxy?.wy_didReceiveAuthenticationChallenge {
             handler(challenge, safeHandler)
         } else {
             safeHandler(.performDefaultHandling, nil)
@@ -367,7 +368,7 @@ public class WKWebViewDelegator: NSObject, WKNavigationDelegate {
 public extension WKWebView {
     
     /// 使用关联对象绑定进度监听器对象
-    private var progressObserver: WebViewProgressObserver? {
+    private var wy_progressObserver: WebViewProgressObserver? {
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.progressObserverKey) as? WebViewProgressObserver }
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.progressObserverKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
     }

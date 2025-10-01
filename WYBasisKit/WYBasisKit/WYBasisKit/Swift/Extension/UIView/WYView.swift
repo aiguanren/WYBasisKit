@@ -214,6 +214,64 @@ public extension UIView {
 
 public extension UIView {
     
+    /**
+     *  指定位置添加边框(仅适合无圆角的UIView添加)
+     *
+     *  @param edges     要添加的边框的位置
+     *
+     *  @param color     要添加的边框的颜色
+     *
+     *  @param thickness 要添加的边框的宽度或高度
+     *
+     */
+    func wy_addBorder(edges: UIRectEdge,
+                      color: UIColor,
+                      thickness: CGFloat) {
+        
+        if edges.contains(.top) {
+            addBorder(edge: .top, color: color, thickness: thickness)
+        }
+        if edges.contains(.bottom) {
+            addBorder(edge: .bottom, color: color, thickness: thickness)
+        }
+        if edges.contains(.left) {
+            addBorder(edge: .left, color: color, thickness: thickness)
+        }
+        if edges.contains(.right) {
+            addBorder(edge: .right, color: color, thickness: thickness)
+        }
+        
+        DispatchQueue.main.async {
+            self.updateAllBorderFrames()
+        }
+    }
+    
+    /**
+     *  移除指定位置边框
+     *
+     *  @param edges     要移除的边框的位置
+     *
+     *  @param thickness 要移除的边框的宽度或高度
+     *
+     */
+    func wy_removeBorder(edges: UIRectEdge, thickness: CGFloat? = nil) {
+        if let sublayers = layer.sublayers {
+            layer.sublayers = sublayers.filter { sublayer in
+                guard let info = sublayer.borderInfo else { return true }
+                if edges.contains(info.edge) {
+                    if let thickness = thickness {
+                        return info.thickness != thickness
+                    }
+                    return false
+                }
+                return true
+            }
+        }
+    }
+}
+
+public extension UIView {
+    
     /// 使用链式编程设置圆角、边框、阴影、渐变(调用方式类似SnapKit， 也可直接.语法调用，点语法时需要自己在最后一个设置后面调用wy_showVisual后设置才会生效)
     @discardableResult
     func wy_makeVisual(_ visualView: (_ make: UIView) -> Void) -> UIView {
@@ -377,9 +435,14 @@ public extension UIView {
         
         return self
     }
+}
+
+// MARK: - 内部实现
+private extension UIView {
     
-    private func wy_addShadow() {
-        
+    // MARK: - 链式编程实现部分
+    
+    func wy_addShadow() {
         DispatchQueue.main.async {
             var shadowView = self
             
@@ -420,7 +483,7 @@ public extension UIView {
     }
     
     /// 添加圆角和边框
-    private func wy_addBorderAndRadius() {
+    func wy_addBorderAndRadius() {
         DispatchQueue.main.async {
             
             // 移除旧边框图层
@@ -475,7 +538,7 @@ public extension UIView {
     }
     
     /// 添加渐变色
-    private func wy_addGradual() {
+    func wy_addGradual() {
         DispatchQueue.main.async {
             // 渐变色数组个数必须大于1才能满足渐变要求
             guard (self.privateGradualColors?.count ?? 0) > 1 else {
@@ -523,7 +586,7 @@ public extension UIView {
     }
     
     /// 移除上次添加的layer
-    private func wy_removeLayer(_ layerKey: String) {
+    func wy_removeLayer(_ layerKey: String) {
         
         let layersToRemove = self.layer.sublayers?.filter {
             $0.name == layerKey
@@ -535,7 +598,7 @@ public extension UIView {
         }
     }
     
-    private func wy_sharedBounds() -> CGRect {
+    func wy_sharedBounds() -> CGRect {
         
         // 获取在自动布局前的视图大小
         if privateViewBounds.equalTo(.zero) == false {
@@ -552,7 +615,7 @@ public extension UIView {
         }
     }
     
-    private func wy_sharedBezierPath() -> UIBezierPath {
+    func wy_sharedBezierPath() -> UIBezierPath {
         if privateBezierPath != nil {
             return privateBezierPath!
             
@@ -581,7 +644,7 @@ public extension UIView {
         }
     }
     
-    private var privateRectCorner: UIRectCorner {
+    var privateRectCorner: UIRectCorner {
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.privateRectCorner, newValue.rawValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
@@ -590,7 +653,7 @@ public extension UIView {
         }
     }
     
-    private var privateConrnerRadius: CGFloat {
+    var privateConrnerRadius: CGFloat {
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.privateConrnerRadius, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
@@ -599,7 +662,7 @@ public extension UIView {
         }
     }
     
-    private var privateBorderColor: UIColor {
+    var privateBorderColor: UIColor {
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.privateBorderColor, newValue, .OBJC_ASSOCIATION_COPY_NONATOMIC)
         }
@@ -608,7 +671,7 @@ public extension UIView {
         }
     }
     
-    private var privateBorderWidth: CGFloat {
+    var privateBorderWidth: CGFloat {
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.privateBorderWidth, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
@@ -617,7 +680,7 @@ public extension UIView {
         }
     }
     
-    private var privateAdjustBorderWidth: CGFloat {
+    var privateAdjustBorderWidth: CGFloat {
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.privateAdjustBorderWidth, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
@@ -626,7 +689,7 @@ public extension UIView {
         }
     }
     
-    private var privateShadowColor: UIColor {
+    var privateShadowColor: UIColor {
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.privateShadowColor, newValue, .OBJC_ASSOCIATION_COPY_NONATOMIC)
         }
@@ -635,7 +698,7 @@ public extension UIView {
         }
     }
     
-    private var privateShadowOffset: CGSize {
+    var privateShadowOffset: CGSize {
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.privateShadowOffset, NSCoder.string(for: newValue), .OBJC_ASSOCIATION_COPY_NONATOMIC)
         }
@@ -644,7 +707,7 @@ public extension UIView {
         }
     }
     
-    private var privateShadowRadius: CGFloat {
+    var privateShadowRadius: CGFloat {
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.privateShadowRadius, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
@@ -653,7 +716,7 @@ public extension UIView {
         }
     }
     
-    private var privateShadowOpacity: CGFloat {
+    var privateShadowOpacity: CGFloat {
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.privateShadowOpacity, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
@@ -662,7 +725,7 @@ public extension UIView {
         }
     }
     
-    private var privateGradientDirection: WYGradientDirection {
+    var privateGradientDirection: WYGradientDirection {
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.privateGradientDirection, newValue.rawValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
@@ -671,7 +734,7 @@ public extension UIView {
         }
     }
     
-    private var privateGradualColors: [UIColor]? {
+    var privateGradualColors: [UIColor]? {
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.privateGradualColors, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
@@ -680,7 +743,7 @@ public extension UIView {
         }
     }
     
-    private var privateViewBounds: CGRect {
+    var privateViewBounds: CGRect {
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.privateViewBounds, NSCoder.string(for: newValue), .OBJC_ASSOCIATION_COPY_NONATOMIC)
         }
@@ -689,7 +752,7 @@ public extension UIView {
         }
     }
     
-    private var privateBezierPath: UIBezierPath? {
+    var privateBezierPath: UIBezierPath? {
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.privateBezierPath, newValue, .OBJC_ASSOCIATION_COPY_NONATOMIC)
         }
@@ -698,7 +761,7 @@ public extension UIView {
         }
     }
     
-    private var shadowBackgroundView: UIView? {
+    var shadowBackgroundView: UIView? {
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.shadowBackgroundView, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
@@ -707,7 +770,7 @@ public extension UIView {
         }
     }
     
-    private struct WYAssociatedKeys {
+    struct WYAssociatedKeys {
         static var privateRectCorner: UInt8 = 0
         static var privateConrnerRadius: UInt8 = 0
         static var privateBorderColor: UInt8 = 0
@@ -724,5 +787,87 @@ public extension UIView {
         static var shadowBackgroundView: UInt8 = 0
         static var boardLayer = "\(UnsafeRawPointer(bitPattern: "boardLayer".hashValue)!)"
         static let gradientLayer = "\(UnsafeRawPointer(bitPattern: "gradientLayer".hashValue)!)"
+    }
+    
+    // MARK: - 添加指定位置边框实现部分
+    
+    /// MARK: - 内部数据结构
+    struct WYBorderInfo {
+        let edge: UIRectEdge
+        let thickness: CGFloat
+    }
+    
+    private func addBorder(edge: UIRectEdge,
+                           color: UIColor,
+                           thickness: CGFloat) {
+        // 避免重复添加
+        if let _ = layer.sublayers?.first(where: {
+            $0.borderInfo?.edge == edge &&
+            $0.borderInfo?.thickness == thickness
+        }) {
+            return
+        }
+        
+        let border = CALayer()
+        border.backgroundColor = color.cgColor
+        border.borderInfo = WYBorderInfo(edge: edge, thickness: thickness)
+        layer.addSublayer(border)
+    }
+    
+    private func updateAllBorderFrames() {
+        layer.sublayers?.forEach { sublayer in
+            if let info = sublayer.borderInfo {
+                updateBorderFrame(sublayer, edge: info.edge, thickness: info.thickness)
+            }
+        }
+    }
+    
+    private func updateBorderFrame(_ border: CALayer,
+                                   edge: UIRectEdge,
+                                   thickness: CGFloat) {
+        
+        // 强制布局以确保获取最新尺寸
+        self.superview?.layoutIfNeeded()
+        
+        // 如果还没有布局完成则跳过，等下一次 layoutSubviews 再更新
+        guard bounds.width > 0, bounds.height > 0 else { return }
+        
+        switch edge {
+        case .top:
+            border.frame = CGRect(x: 0, y: 0,
+                                  width: bounds.width, height: thickness)
+        case .bottom:
+            border.frame = CGRect(x: 0, y: bounds.height - thickness,
+                                  width: bounds.width, height: thickness)
+        case .left:
+            border.frame = CGRect(x: 0, y: 0,
+                                  width: thickness, height: bounds.height)
+        case .right:
+            border.frame = CGRect(x: bounds.width - thickness, y: 0,
+                                  width: thickness, height: bounds.height)
+        default:
+            break
+        }
+    }
+}
+
+private extension CALayer {
+    struct WYBorderAssociatedKeys {
+        static var wy_borderInfoKey: UInt8 = 0
+    }
+    
+    var borderInfo: UIView.WYBorderInfo? {
+        get {
+            return objc_getAssociatedObject(
+                self, &WYBorderAssociatedKeys.wy_borderInfoKey
+            ) as? UIView.WYBorderInfo
+        }
+        set {
+            objc_setAssociatedObject(
+                self, &WYBorderAssociatedKeys.wy_borderInfoKey,
+                newValue,
+                .OBJC_ASSOCIATION_RETAIN_NONATOMIC
+            )
+        }
     }
 }

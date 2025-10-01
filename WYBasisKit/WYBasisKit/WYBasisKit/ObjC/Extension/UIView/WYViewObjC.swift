@@ -144,6 +144,44 @@ import UIKit
     }
 }
 
+@objc public extension UIView {
+    
+    /**
+     *  指定位置添加边框(仅适合无圆角的UIView添加)
+     *
+     *  @param edges     要添加的边框的位置
+     *
+     *  @param color     要添加的边框的颜色
+     *
+     *  @param thickness 要添加的边框的宽度或高度
+     *
+     */
+    @objc(wy_addBorder:color:thickness:)
+    func wy_addBorderObjC(edges: UIRectEdge,
+                          color: UIColor,
+                      thickness: CGFloat) {
+        
+        wy_addBorder(edges: edges, color: color, thickness: thickness)
+    }
+    
+    /**
+     *  移除指定位置边框
+     *
+     *  @param edges     要移除的边框的位置
+     *
+     *  @param thickness 要移除的边框的宽度或高度
+     *
+     */
+    @objc(wy_removeBorder:)
+    func wy_removeBorderObjC(edges: UIRectEdge) {
+        wy_removeBorder(edges: edges)
+    }
+    @objc(wy_removeBorder:thickness:)
+    func wy_removeBorderObjC(edges: UIRectEdge, thickness: CGFloat) {
+        wy_removeBorder(edges: edges, thickness: thickness)
+    }
+}
+
 public extension UIView {
     
     /// 使用链式编程设置圆角、边框、阴影、渐变(调用方式类似SnapKit， 也可直接.语法调用，点语法时需要自己在最后一个设置后面调用wy_showVisual后设置才会生效)

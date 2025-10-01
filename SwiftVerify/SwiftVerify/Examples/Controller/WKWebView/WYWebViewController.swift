@@ -24,10 +24,10 @@ class WYWebViewController: UIViewController {
             make.bottom.equalToSuperview().offset(-UIDevice.wy_tabbarSafetyZone)
         }
         // 启用加载进度条
-        webView.enableProgressView()
+        webView.wy_enableProgressView()
         
         // 设置代理派发器
-        webView.navigationProxy = self
+        webView.wy_navigationProxy = self
 
         // 加载网页
         webView.load(URLRequest(url: URL(string: "https://www.apple.com/cn")!))
@@ -52,69 +52,69 @@ class WYWebViewController: UIViewController {
 extension WYWebViewController: WYWebViewNavigationDelegateProxy {
     
     /// 重置导航栏标题
-    func webPageNavigationTitleChanged(_ title: String, _ isRepeat: Bool) {
+    func wy_webPageNavigationTitleChanged(_ title: String, isRepeat: Bool) {
         WYLogManager.output("webPageNavigationTitleChanged：\(title)， isRepeat：\(isRepeat)")
     }
 
     /// 页面将要跳转
-    func webPageWillChanged(_ urlString: String) {
+    func wy_webPageWillChanged(_ urlString: String) {
         WYLogManager.output("webPageWillChanged：\(urlString)")
     }
 
     /// 页面开始加载时调用
-    func didStartProvisionalNavigation(_ urlString: String) {
+    func wy_didStartProvisionalNavigation(_ urlString: String) {
         WYLogManager.output("didStartProvisionalNavigation：\(urlString)")
     }
     
     /// 页面加载进度回调
-    func webPageLoadProgress(_ progress: CGFloat) {
+    func wy_webPageLoadProgress(_ progress: CGFloat) {
         WYLogManager.output("webPageLoadProgress：\(progress)")
     }
 
     /// 页面加载失败时调用（首次请求）
-    func didFailProvisionalNavigation(_ urlString: String, withError error: Error) {
+    func wy_didFailProvisionalNavigation(_ urlString: String, withError error: Error) {
         WYLogManager.output("didFailProvisionalNavigation：\(urlString)， error：\(error)")
     }
 
     /// 当内容开始返回时调用
-    func didCommitNavigation(_ urlString: String) {
+    func wy_didCommitNavigation(_ urlString: String) {
         WYLogManager.output("didCommitNavigation：\(urlString)")
     }
 
     /// 页面加载完成之后调用
-    func didFinishNavigation(_ urlString: String) {
+    func wy_didFinishNavigation(_ urlString: String) {
         WYLogManager.output("didFinishNavigation：\(urlString)")
     }
 
     /// 提交发生错误时调用（通常指加载后期失败）
-    func didFailNavigation(_ urlString: String, withError error: Error) {
+    func wy_didFailNavigation(_ urlString: String, withError error: Error) {
         WYLogManager.output("didFailNavigation：\(urlString)，error：\(error)")
     }
 
     /// 接收到服务器跳转请求（服务重定向时之后调用）
-    func didReceiveServerRedirectForProvisionalNavigation(_ urlString: String) {
+    func wy_didReceiveServerRedirectForProvisionalNavigation(_ urlString: String) {
         WYLogManager.output("didReceiveServerRedirectForProvisionalNavigation：\(urlString)")
     }
 
     /// 根据 WebView 对于即将跳转的 HTTP 请求信息决定是否跳转
-    func decidePolicyForNavigationAction(_ navigationAction: WKNavigationAction, preferences: WKWebpagePreferences, decisionHandler: @escaping (WKNavigationActionPolicy, WKWebpagePreferences) -> Void) {
+    func wy_decidePolicyForNavigationAction(_ navigationAction: WKNavigationAction, preferences: WKWebpagePreferences, decisionHandler: @escaping (WKNavigationActionPolicy, WKWebpagePreferences) -> Void) {
         WYLogManager.output("decidePolicyForNavigationAction：\(navigationAction)，preferences：\(preferences)")
         decisionHandler(.allow, preferences)
     }
 
     /// 根据客户端收到的服务器响应头决定是否跳转
-    func decidePolicyForNavigationResponse(_ navigationResponse: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
+    func wy_decidePolicyForNavigationResponse(_ navigationResponse: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
         WYLogManager.output("decidePolicyForNavigationResponse：\(navigationResponse)")
         decisionHandler(.allow)
     }
 
     /// Web 内容进程被系统终止时调用
-    func webViewWebContentProcessDidTerminate() {
+    func wy_webViewWebContentProcessDidTerminate() {
         WYLogManager.output("webViewWebContentProcessDidTerminate")
     }
 
     /// 收到身份认证时调用
-    func didReceiveAuthenticationChallenge(_ challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+    func wy_didReceiveAuthenticationChallenge(_ challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         WYLogManager.output("didReceiveAuthenticationChallenge：\(challenge)")
         completionHandler(.performDefaultHandling, nil)
     }

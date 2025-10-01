@@ -8,7 +8,7 @@
 #import "MainViewController.h"
 #import <Masonry/Masonry.h>
 #import <WebKit/WKWebView.h>
-#import <WYBasisKitObjC-Swift.h>
+#import <WYBasisKitObjC.h>
 
 @interface MainViewController ()<WYWebViewNavigationDelegateProxy>
 
@@ -182,17 +182,22 @@
         make.bottom.equalTo(self.view).mas_offset(-UIDevice.wy_tabbarSafetyZone);
     }];
     // 启用加载进度条
-    [webView enableProgressView];
+    [webView wy_enableProgressView];
     
     // 设置代理派发器
-    webView.navigationProxy = self;
+    webView.wy_navigationProxy = self;
 
     // 加载网页
     [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.apple.com/cn"]]];
     
-    [self wy_deleteViewControllerWithClassName:@"" complete:^{
-            
-    }];
+//    WYLogManager.output(@"测试3");
+//    WYLogManager.outputWithMode(@"测试4", WYLogOutputModeDebugConsoleOnly);
+//    [WYLogManager output:@"测试5" outputMode:WYLogOutputModeDebugConsoleOnly file:@(__FILE__) function:@(__FUNCTION__) line:__LINE__];
+    
+    NSLog(@"测试1");
+    WYLog(@"测试2");
+    WYLogWithMode(@"测试3", WYLogOutputModeDebugConsoleOnly);
+    [WYLogManager showPreview];
 }
 
 - (void)clearVisual:(UIView *)visualView {
@@ -212,57 +217,57 @@
     [[UIApplication sharedApplication] wy_switchAppDisplayBrightness:UIUserInterfaceStyleDark];
 }
 
-- (void)webPageNavigationTitleChanged:(NSString *)title isRepeat:(BOOL)isRepeat {
+- (void)wy_webPageNavigationTitleChanged:(NSString *)title isRepeat:(BOOL)isRepeat {
     NSLog(@"webPageNavigationTitleChanged  title = %@, isRepeat = %@",title, isRepeat ? @"yes" : @"no");
 }
 
-- (void)webPageWillChanged:(NSString *)urlString {
+- (void)wy_webPageWillChanged:(NSString *)urlString {
     NSLog(@"webPageWillChanged  urlString = %@",urlString);
 }
 
-- (void)didStartProvisionalNavigation:(NSString *)urlString {
+- (void)wy_didStartProvisionalNavigation:(NSString *)urlString {
     NSLog(@"didStartProvisionalNavigation  urlString = %@",urlString);
 }
 
-- (void)webPageLoadProgress:(CGFloat)progress {
+- (void)wy_webPageLoadProgress:(CGFloat)progress {
     NSLog(@"webPageLoadProgress  progress = %f",progress);
 }
 
-- (void)didFailProvisionalNavigation:(NSString *)urlString withError:(NSError *)error {
+- (void)wy_didFailProvisionalNavigation:(NSString *)urlString withError:(NSError *)error {
     NSLog(@"didFailProvisionalNavigation  urlString = %@, error = %@",urlString, [error localizedDescription]);
 }
 
-- (void)didCommitNavigation:(NSString *)urlString {
+- (void)wy_didCommitNavigation:(NSString *)urlString {
     NSLog(@"didCommitNavigation  urlString = %@",urlString);
 }
 
-- (void)didFinishNavigation:(NSString *)urlString {
+- (void)wy_didFinishNavigation:(NSString *)urlString {
     NSLog(@"didFinishNavigation  urlString = %@",urlString);
 }
 
-- (void)didFailNavigation:(NSString *)urlString withError:(NSError *)error {
+- (void)wy_didFailNavigation:(NSString *)urlString withError:(NSError *)error {
     NSLog(@"didFailNavigation  urlString = %@, error = %@",urlString, [error localizedDescription]);
 }
 
-- (void)didReceiveServerRedirectForProvisionalNavigation:(NSString *)urlString {
+- (void)wy_didReceiveServerRedirectForProvisionalNavigation:(NSString *)urlString {
     NSLog(@"didReceiveServerRedirectForProvisionalNavigation  urlString = %@",urlString);
 }
 
-- (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction preferences:(WKWebpagePreferences *)preferences decisionHandler:(void (^)(WKNavigationActionPolicy, WKWebpagePreferences * _Nonnull))decisionHandler {
+- (void)wy_decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction preferences:(WKWebpagePreferences *)preferences decisionHandler:(void (^)(WKNavigationActionPolicy, WKWebpagePreferences * _Nonnull))decisionHandler {
     NSLog(@"decidePolicyForNavigationAction  navigationAction = %@, preferences = %@",navigationAction, preferences);
     decisionHandler(WKNavigationActionPolicyAllow, preferences);
 }
 
-- (void)decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler {
+- (void)wy_decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler {
     NSLog(@"decidePolicyForNavigationResponse  navigationResponse = %@",navigationResponse);;
     decisionHandler(WKNavigationResponsePolicyAllow);
 }
 
-- (void)webViewWebContentProcessDidTerminate {
+- (void)wy_webViewWebContentProcessDidTerminate {
     NSLog(@"webViewWebContentProcessDidTerminate");
 }
 
-- (void)didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(enum NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler {
+- (void)wy_didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(enum NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler {
     NSLog(@"didReceiveAuthenticationChallenge  challenge = %@", challenge);
     completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
 }
