@@ -10,18 +10,30 @@ import UIKit
 @objc public extension UIColor {
     
     /// RGB(A) convert UIColor
+    @objc(wy_rgbWithRed:green:blue:)
+    static func wy_rgbObjC(_ red: CGFloat, _ green: CGFloat, _ blue: CGFloat) -> UIColor {
+        return wy_rgb(red, green, blue)
+    }
     @objc(wy_rgbWithRed:green:blue:aplha:)
     static func wy_rgbObjC(_ red: CGFloat, _ green: CGFloat, _ blue: CGFloat, _ aplha: CGFloat = 1.0) -> UIColor {
         return wy_rgb(red, green, blue, aplha)
     }
     
     /// hexColor convert UIColor
+    @objc(wy_hexString:)
+    static func wy_hexObjC(string hexColor: String) -> UIColor {
+        return wy_hex(string: hexColor)
+    }
     @objc(wy_hexString:alpha:)
     static func wy_hexObjC(string hexColor: String, _ alpha: CGFloat = 1.0) -> UIColor {
         return wy_hex(string: hexColor, alpha)
     }
     
     /// hexColor convert UIColor
+    @objc(wy_hexValue:)
+    static func wy_hexObjC(value hexColor: UInt) -> UIColor {
+        return wy_hex(value: hexColor)
+    }
     @objc(wy_hexValue:alpha:)
     static func wy_hexObjC(value hexColor: UInt, _ alpha: CGFloat = 1.0) -> UIColor {
         return wy_hex(value: hexColor, alpha)

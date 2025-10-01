@@ -33,6 +33,10 @@ import UIKit
         self.bundleName = bundleName
         self.subdirectory = subdirectory
     }
+    
+    public func wy_convertSwiftBundle() -> WYSourceBundle? {
+        return (self == nil) ? nil : WYSourceBundle(bundleName: self.bundleName, subdirectory: self.subdirectory)
+    }
 }
 
 @objc public extension UIImage {
@@ -174,12 +178,13 @@ import UIKit
      *  @param bundle                从哪个bundle文件内查找，如果为空，则直接在本地路径下查找
      *
      */
-    @objc static func wy_find(_ imageName: String) -> UIImage {
-        return wy_find(imageName, bundle: nil)
+    @objc(wy_find:)
+    static func wy_findObjC(_ imageName: String) -> UIImage {
+        return wy_find(imageName)
     }
-    @objc static func wy_find(_ imageName: String, bundle: WYSourceBundleObjC? = nil) -> UIImage {
-        
-        return wy_find(imageName, inBundle: WYSourceBundle(bundleName: bundle?.bundleName ?? "", subdirectory: bundle?.subdirectory ?? ""))
+    @objc(wy_find:bundle:)
+    static func wy_findObjC(_ imageName: String, bundle: WYSourceBundleObjC? = nil) -> UIImage {
+        return wy_find(imageName, inBundle: bundle?.wy_convertSwiftBundle())
     }
     
     /**
@@ -196,7 +201,7 @@ import UIKit
     @objc(wy_animatedParse:imageName:bundle:)
     static func wy_animatedParse(_ style: WYAnimatedImageStyleObjC = .GIF, imageName: String, bundle: WYSourceBundleObjC? = nil) -> WYGifInfoObjC? {
         
-        guard let gifInfo: WYGifInfo = wy_animatedParse(WYAnimatedImageStyle(rawValue: style.rawValue) ?? .GIF, name: imageName, inBundle: WYSourceBundle(bundleName: bundle?.bundleName ?? "", subdirectory: bundle?.subdirectory ?? "")) else {
+        guard let gifInfo: WYGifInfo = wy_animatedParse(WYAnimatedImageStyle(rawValue: style.rawValue) ?? .GIF, name: imageName, inBundle: bundle?.wy_convertSwiftBundle()) else {
             return nil
         }
         return WYGifInfoObjC(animationImages: gifInfo.animationImages, animationDuration: gifInfo.animationDuration, animatedImage: gifInfo.animatedImage)

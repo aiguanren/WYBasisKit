@@ -150,7 +150,8 @@ import UIKit
      *  @param pattern       正则匹配规则, 默认匹配1到3位, 如 [哈] [哈哈] [哈哈哈] 这种
      */
     @objc static func wy_convertEmojiAttributed(_ emojiString: String, textColor: UIColor, textFont: UIFont, emojiTable: [String], sourceBundle: WYSourceBundleObjC? = nil, pattern: String?) -> NSMutableAttributedString {
-        return wy_convertEmojiAttributed(emojiString: emojiString, textColor: textColor, textFont: textFont, emojiTable: emojiTable, sourceBundle: WYSourceBundle(bundleName: sourceBundle?.bundleName ?? "", subdirectory: sourceBundle?.subdirectory ?? ""), pattern: pattern ?? "\\[.{1,3}\\]")
+        
+        return wy_convertEmojiAttributed(emojiString: emojiString, textColor: textColor, textFont: textFont, emojiTable: emojiTable, sourceBundle: sourceBundle?.wy_convertSwiftBundle(), pattern: pattern ?? "\\[.{1,3}\\]")
     }
     
     /**

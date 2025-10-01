@@ -40,17 +40,9 @@ class WYTabBarController: UITabBarController {
         layoutNavigationBar(nav: nav)
         
         nav.tabBarItem.title = title
-        nav.tabBarItem.image = defaultImage.withRenderingMode(.alwaysOriginal)
-        nav.tabBarItem.selectedImage = selectedImage.withRenderingMode(.alwaysOriginal)
+        nav.tabBarItem.image = defaultImage
+        nav.tabBarItem.selectedImage = selectedImage
         self.addChild(nav)
-        
-        let appearance = tabBar.standardAppearance.copy()
-        
-        //appearance.stackedLayoutAppearance.normal.titleTextAttributes = [NSAttributedString.Key.font: UIFont.ly_tabbar_title_font, NSAttributedString.Key.foregroundColor: UIColor.ly_tabbar_title_defaultColor]
-        
-        //appearance.stackedLayoutAppearance.selected.titleTextAttributes = [NSAttributedString.Key.font: UIFont.ly_tabbar_title_font, NSAttributedString.Key.foregroundColor: UIColor.ly_tabbar_title_highlightColor]
-        
-        tabBar.standardAppearance = appearance
         
         let clearView = UIView(frame: CGRect(x: 0, y: 0, width: UIDevice.wy_screenWidth, height: UIDevice.wy_tabBarHeight))
         clearView.backgroundColor = .wy_dynamic(.white, .black)

@@ -13,6 +13,8 @@ class WYCenterController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.backgroundColor = .white
+        
         let testView = UIView()
         testView.backgroundColor = .purple
         testView.frame = CGRect(x: 20, y: 200, width: UIDevice.wy_screenWidth-40, height: 300)
