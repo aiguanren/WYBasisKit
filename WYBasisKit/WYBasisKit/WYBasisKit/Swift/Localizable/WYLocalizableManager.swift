@@ -9,10 +9,10 @@
 import UIKit
 
 /// 国际化语言版本(目前只国际化了简体中文、繁体中文、英语、法语、德语、俄语等29种语言，其他的可以调用WYLanguage.other属性来查看并设置需要加载的自定义本地化语言读取表)
-@frozen public enum WYLanguage: RawRepresentable {
+@frozen public enum WYLanguage: Int {
     
     /// 简体中文(zh-Hans)
-    case zh_Hans
+    case zh_Hans = 0
     
     /// 繁体中文(zh-Hant)
     case zh_Hant
@@ -98,77 +98,11 @@ import UIKit
     /// 高棉语(柬埔寨)(km)
     case khmer
     
-    /// 其他语言(具体查看other.rawValue)
+    /// 其他语言(具体查看other.stringValue)
     case other
     
-    public typealias RawValue = String
-    
-    public init?(rawValue: String) {
-        switch rawValue {
-        case "zh-Hans":
-            self = .zh_Hans
-        case "zh-Hant":
-            self = .zh_Hant
-        case "en":
-            self = .english
-        case "fr":
-            self = .french
-        case "de":
-            self = .german
-        case "it":
-            self = .italian
-        case "sv":
-            self = .swedish
-        case "nl":
-            self = .dutch
-        case "da":
-            self = .danish
-        case "el":
-            self = .greek
-        case "tr":
-            self = .turkish
-        case "la":
-            self = .latin
-        case "pl":
-            self = .polish
-        case "fi":
-            self = .finnish
-        case "hu":
-            self = .hungarian
-        case "nb":
-            self = .norwegian
-        case "uk":
-            self = .ukrainian
-        case "ru":
-            self = .russian
-        case "es":
-            self = .spanish
-        case "pt-PT":
-            self = .portuguese
-        case "ja":
-            self = .japanese
-        case "ko":
-            self = .korean
-        case "th":
-            self = .thai
-        case "mn":
-            self = .mongolian
-        case "ms":
-            self = .malay
-        case "id":
-            self = .indonesian
-        case "vi":
-            self = .vietnamese
-        case "hi":
-            self = .hindi
-        case "km":
-            self = .khmer
-        default:
-            self = .other
-        }
-    }
-    
-    public var rawValue: String {
+    /// 获取对应的rawValue
+    public var stringValue: String {
         switch self {
         case .zh_Hans:
             return "zh-Hans"
@@ -401,6 +335,14 @@ public struct WYLocalizableManager {
         reloadStoryboard(name: name, identifier: identifier, handler: handler)
     }
     
+    /**
+     *  根据传入的Key读取对应的本地语言
+     *
+     *  @param key  本地语言对应的Key
+     *
+     *  @param table  国际化语言读取表(如果有Bundle，则要求Bundle名与表名一致，否则会读取失败)
+     *
+     */
     public static func localized(key: String, table: String = WYBasisKitConfig.localizableTable) -> String {
         
         guard table.isEmpty == false else {
@@ -454,10 +396,10 @@ public struct WYLocalizableManager {
         
         guard let resourcePath = bundlePath else {
             /// 如果没有找到存放国际化资源的Bundle文件，就直接从本地加载国际化文件
-            return Bundle(path: (Bundle(for: WYLocalizableClass.self).path(forResource: language.rawValue, ofType: "lproj") ?? Bundle.main.path(forResource: language.rawValue, ofType: "lproj")) ?? "")
+            return Bundle(path: (Bundle(for: WYLocalizableClass.self).path(forResource: language.stringValue, ofType: "lproj") ?? Bundle.main.path(forResource: language.stringValue, ofType: "lproj")) ?? "")
         }
         /// 从找到的存放国际化资源的Bundle文件中加载国际化资源
-        return Bundle(path: Bundle(path: resourcePath)?.path(forResource: language.rawValue, ofType: "lproj") ?? "")
+        return Bundle(path: Bundle(path: resourcePath)?.path(forResource: language.stringValue, ofType: "lproj") ?? "")
     }
 }
 

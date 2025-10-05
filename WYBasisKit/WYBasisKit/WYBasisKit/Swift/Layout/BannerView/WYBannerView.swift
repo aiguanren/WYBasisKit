@@ -579,11 +579,11 @@ extension WYBannerView {
     }
     
     private static func getPlaceholderImage() -> UIImage {
-        guard let imageSource = UIImage(named: "wy_placeholder_" + WYLocalizableManager.currentLanguage().rawValue) ?? UIImage(named: "wy_placeholder_" + WYLanguage.english.rawValue) else {
+        guard let imageSource = UIImage(named: "wy_placeholder_" + WYLocalizableManager.currentLanguage().stringValue) ?? UIImage(named: "wy_placeholder_" + WYLanguage.english.stringValue) else {
             
             let resourcePath = ((Bundle(for: WYBannerView.self).path(forResource: "WYBannerView", ofType: "bundle")) ?? (Bundle.main.path(forResource: "WYBannerView", ofType: "bundle"))) ?? ""
             
-            return (UIImage(named: "wy_placeholder_" + WYLocalizableManager.currentLanguage().rawValue, in: Bundle(path: resourcePath), compatibleWith: nil) ?? UIImage(named: "wy_placeholder_" + WYLanguage.english.rawValue, in: Bundle(path: resourcePath), compatibleWith: nil))!
+            return (UIImage(named: "wy_placeholder_" + WYLocalizableManager.currentLanguage().stringValue, in: Bundle(path: resourcePath), compatibleWith: nil) ?? UIImage(named: "wy_placeholder_" + WYLanguage.english.stringValue, in: Bundle(path: resourcePath), compatibleWith: nil))!
         }
         return imageSource
     }

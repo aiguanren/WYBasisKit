@@ -44,3 +44,7 @@
 #if __has_include("WYLogManagerMacro.h")
 #import "WYLogManagerMacro.h"
 #endif
+
+#if __has_include("WYLocalizableManagerMacro.h")
+#import "WYLocalizableManagerMacro.h"
+#endif
