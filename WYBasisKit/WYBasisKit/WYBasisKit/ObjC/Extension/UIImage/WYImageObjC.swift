@@ -35,7 +35,7 @@ import UIKit
     }
     
     public func wy_convertToSwift() -> WYSourceBundle? {
-        return (self == nil) ? nil : WYSourceBundle(bundleName: self.bundleName, subdirectory: self.subdirectory)
+        return WYSourceBundle(bundleName: self.bundleName, subdirectory: self.subdirectory)
     }
 }
 
