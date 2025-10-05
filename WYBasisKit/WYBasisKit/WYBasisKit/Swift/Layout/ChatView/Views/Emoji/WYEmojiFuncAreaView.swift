@@ -82,10 +82,10 @@ public struct WYEmojiFuncAreaConfig {
     public var sendViewFont: UIFont = .boldSystemFont(ofSize: UIDevice.wy_screenWidth(16.5))
     
     /// 删除按钮不可点击时文本颜色
-    public var deleteViewTextColorWithUnenable: UIColor = .wy_hex(string: "#E5E5E5")
+    public var deleteViewTextColorWithUnenable: UIColor = .wy_hex("#E5E5E5")
     
     /// 发送按钮不可点击时文本颜色
-    public var sendViewTextColorWithUnenable: UIColor = .wy_hex(string: "#E5E5E5")
+    public var sendViewTextColorWithUnenable: UIColor = .wy_hex("#E5E5E5")
     
     /// 删除按钮可点击时文本颜色
     public var deleteViewTextColorWithEnable: UIColor = .blue

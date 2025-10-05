@@ -16,7 +16,7 @@ class WYTestChatController: UIViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        view.backgroundColor = .wy_hex(string: "#f6f6f6")
+        view.backgroundColor = .wy_hex("#f6f6f6")
         
         emojiViewConfig.funcAreaConfig.deleteViewText = ""
         

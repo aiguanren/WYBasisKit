@@ -51,7 +51,7 @@ class WYTabBarController: UITabBarController {
     
     func layoutNavigationBar(nav: UINavigationController) {
         
-        UINavigationController.wy_navBarBackgroundColor = .wy_dynamic(.wy_hex(string: "#2AACFF"), .wy_hex(string: "#2A7DFF"))
+        UINavigationController.wy_navBarBackgroundColor = .wy_dynamic(.wy_hex("#2AACFF"), .wy_hex("#2A7DFF"))
         
         UINavigationController.wy_navBarTitleColor = .wy_dynamic(.black, .white)
         

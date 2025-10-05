@@ -18,7 +18,7 @@ public struct WYEmojiViewConfig {
     public var animateDuration: TimeInterval = 0.25
 
     /// 自定义Emoji控件背景色
-    public var backgroundColor: UIColor = .wy_hex(string: "#f6f6f6")
+    public var backgroundColor: UIColor = .wy_hex("#f6f6f6")
 
     /// 自定义Emoji控件的高度
     public var contentHeight: CGFloat = UIDevice.wy_screenWidth(350)
@@ -51,10 +51,10 @@ public struct WYEmojiViewConfig {
     public var headerTextFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(15))
 
     /// 自定义Emoji控件Header文本字体颜色
-    public var headerTextColor: UIColor = .wy_hex(string: "#1B1B1B")
+    public var headerTextColor: UIColor = .wy_hex("#1B1B1B")
 
     /// 自定义Emoji控件HeaderView背景色
-    public var headerBackgroundColor: UIColor = .wy_hex(string: "#f6f6f6")
+    public var headerBackgroundColor: UIColor = .wy_hex("#f6f6f6")
 
     /// 自定义Emoji控件HeaderView高度
     public var headerHeight: CGFloat = UIDevice.wy_screenWidth(30)

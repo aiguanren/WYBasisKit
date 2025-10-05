@@ -56,7 +56,7 @@
 
 - (void)layoutNavigationBar:(UINavigationController *)nav {
     
-    UINavigationController.wy_navBarBackgroundColor = [UIColor wy_dynamicWithLight:[UIColor wy_hexString:@"#2AACFF"] dark:[UIColor wy_hexString:@"#2A7DFF"]];
+    UINavigationController.wy_navBarBackgroundColor = [UIColor wy_dynamicWithLight:[UIColor wy_hex:@"#2AACFF"] dark:[UIColor wy_hex:@"#2A7DFF"]];
     
     UINavigationController.wy_navBarTitleColor = [UIColor wy_dynamicWithLight:[UIColor blackColor] dark:[UIColor whiteColor]];
     

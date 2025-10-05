@@ -10,48 +10,51 @@ import UIKit
 
 public extension UIColor {
     
-    /// RGB(A) convert UIColor
+    /// RGB(A) 转换为 UIColor
     static func wy_rgb(_ red: CGFloat, _ green: CGFloat, _ blue: CGFloat, _ aplha: CGFloat = 1.0) -> UIColor {
-        return UIColor.init(red: red/255.0, green: green/255.0, blue: blue/255.0, alpha: aplha)
+        return UIColor(red: red/255.0, green: green/255.0, blue: blue/255.0, alpha: aplha)
     }
     
-    /// hexColor convert UIColor
-    static func wy_hex(string hexColor: String, _ alpha: CGFloat = 1.0) -> UIColor {
-        // 去掉空格并转换为大写
-        var colorStr = hexColor.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+    /// 十六进制字符串或整数转换为UIColor(支持字符串类型或整数类型)
+    static func wy_hex(_ value: Any, _ alpha: CGFloat = 1.0) -> UIColor {
         
-        // 处理前缀
-        if colorStr.hasPrefix("0X") { colorStr.removeFirst(2) }
-        if colorStr.hasPrefix("#")  { colorStr.removeFirst(1) }
+        if let hexColor = value as? String {
+            
+            // 去掉空格并转换为大写
+            var colorStr = hexColor.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+            
+            // 处理前缀
+            if colorStr.hasPrefix("0X") { colorStr.removeFirst(2) }
+            if colorStr.hasPrefix("#")  { colorStr.removeFirst(1) }
+            
+            // 必须是 6 位有效字符
+            guard colorStr.count == 6 else { return UIColor.clear }
+            
+            // 分割 R/G/B
+            let rStr = String(colorStr.prefix(2))
+            let gStr = String(colorStr.dropFirst(2).prefix(2))
+            let bStr = String(colorStr.dropFirst(4).prefix(2))
+            
+            // 扫描十六进制数
+            var r: UInt64 = 0, g: UInt64 = 0, b: UInt64 = 0
+            Scanner(string: rStr).scanHexInt64(&r)
+            Scanner(string: gStr).scanHexInt64(&g)
+            Scanner(string: bStr).scanHexInt64(&b)
+            
+            return UIColor(red: CGFloat(r)/255.0, green: CGFloat(g)/255.0, blue: CGFloat(b)/255.0, alpha: alpha)
+            
+        } else if let hexColor = value as? UInt {
+            return UIColor(
+                red: CGFloat((hexColor & 0xFF0000) >> 16) / 255.0,
+                green: CGFloat((hexColor & 0x00FF00) >> 8) / 255.0,
+                blue: CGFloat(hexColor & 0x0000FF) / 255.0,
+                alpha: CGFloat(alpha))
+        }
         
-        // 必须是 6 位有效字符
-        guard colorStr.count == 6 else { return UIColor.clear }
-        
-        // 分割 R/G/B
-        let rStr = String(colorStr.prefix(2))
-        let gStr = String(colorStr.dropFirst(2).prefix(2))
-        let bStr = String(colorStr.dropFirst(4).prefix(2))
-        
-        // 扫描十六进制数
-        var r: UInt64 = 0, g: UInt64 = 0, b: UInt64 = 0
-        Scanner(string: rStr).scanHexInt64(&r)
-        Scanner(string: gStr).scanHexInt64(&g)
-        Scanner(string: bStr).scanHexInt64(&b)
-        
-        return UIColor(red: CGFloat(r)/255.0, green: CGFloat(g)/255.0, blue: CGFloat(b)/255.0, alpha: alpha)
+        return .clear
     }
     
-    /// hexColor convert UIColor
-    static func wy_hex(value hexColor: UInt, _ alpha: CGFloat = 1.0) -> UIColor {
-        return UIColor(
-            red: CGFloat((hexColor & 0xFF0000) >> 16) / 255.0,
-            green: CGFloat((hexColor & 0x00FF00) >> 8) / 255.0,
-            blue: CGFloat(hexColor & 0x0000FF) / 255.0,
-            alpha: CGFloat(alpha)
-        )
-    }
-    
-    /// randomColor
+    /// 随机颜色
     static var wy_random: UIColor {
         return UIColor(
             red: CGFloat.random(in: 0...1),

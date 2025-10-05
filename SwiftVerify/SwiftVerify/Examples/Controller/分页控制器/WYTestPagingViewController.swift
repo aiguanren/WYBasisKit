@@ -218,10 +218,10 @@ struct PagingSettingsModel {
     var barBgColor: UIColor = .white
     var itemDefaultBgColor: UIColor = .white
     var itemSelectedBgColor: UIColor = .white
-    var titleDefaultColor: UIColor = .wy_hex(string: "#7B809E")
-    var titleSelectedColor: UIColor = .wy_hex(string: "#2D3952")
-    var dividingStripColor: UIColor = .wy_hex(string: "#F2F2F2")
-    var scrollLineColor: UIColor = .wy_hex(string: "#2D3952")
+    var titleDefaultColor: UIColor = .wy_hex("#7B809E")
+    var titleSelectedColor: UIColor = .wy_hex("#2D3952")
+    var dividingStripColor: UIColor = .wy_hex("#F2F2F2")
+    var scrollLineColor: UIColor = .wy_hex("#2D3952")
     
     // 图片
     var dividingStripImage: UIImage? = nil
@@ -332,10 +332,10 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         "紫色": .purple,
         "灰色": .gray,
         "浅灰色": .lightGray,
-        "默认标题色": .wy_hex(string: "#7B809E"),
-        "选中标题色": .wy_hex(string: "#2D3952"),
-        "分隔带色": .wy_hex(string: "#F2F2F2"),
-        "滑动线色": .wy_hex(string: "#2D3952")
+        "默认标题色": .wy_hex("#7B809E"),
+        "选中标题色": .wy_hex("#2D3952"),
+        "分隔带色": .wy_hex("#F2F2F2"),
+        "滑动线色": .wy_hex("#2D3952")
     ]
     
     init(settings: PagingSettingsModel) {

@@ -82,19 +82,19 @@ public class WYPagingView: UIView {
     public var bar_item_cornerRadius: CGFloat = 0.0
 
     /// 分页栏标题默认颜色 默认<#7B809E>
-    public var bar_title_defaultColor: UIColor = .wy_hex(string: "#7B809E")
+    public var bar_title_defaultColor: UIColor = .wy_hex("#7B809E")
 
     /// 分页栏标题选中颜色 默认<#2D3952>
-    public var bar_title_selectedColor: UIColor = .wy_hex(string: "#2D3952")
+    public var bar_title_selectedColor: UIColor = .wy_hex("#2D3952")
 
     /// 分页栏底部分隔带背景色 默认<#F2F2F2>
-    public var bar_dividingStripColor: UIColor = .wy_hex(string: "#F2F2F2")
+    public var bar_dividingStripColor: UIColor = .wy_hex("#F2F2F2")
     
     /// 分页栏底部分隔带背景图 默认为空
     public var bar_dividingStripImage: UIImage? = nil
 
     /// 滑动线条背景色 默认<#2D3952>
-    public var bar_scrollLineColor: UIColor = .wy_hex(string: "#2D3952")
+    public var bar_scrollLineColor: UIColor = .wy_hex("#2D3952")
     
     /// 滑动线条背景图 默认为空
     public var bar_scrollLineImage: UIImage? = nil
