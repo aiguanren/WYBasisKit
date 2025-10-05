@@ -457,7 +457,7 @@ class TestAudioController: UIViewController {
     }
     
     @objc private func qualityChanged() {
-        let quality: WYAudioQuality
+        let quality: AVAudioQuality
         switch qualitySegmentedControl.selectedSegmentIndex {
         case 0: quality = .low
         case 1: quality = .medium
@@ -609,7 +609,7 @@ class TestAudioController: UIViewController {
     }
     
     @objc private func releaseResources() {
-        audioKit.release()
+        audioKit.releaseAll()
         logInfo("已释放所有音频资源")
     }
     
@@ -652,7 +652,7 @@ class TestAudioController: UIViewController {
     }
     
     deinit {
-        audioKit.release()
+        audioKit.releaseAll()
     }
 }
 
@@ -742,16 +742,16 @@ extension TestAudioController: UIPickerViewDataSource, UIPickerViewDelegate {
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         let format = supportedFormats[row]
-        return "\(format.rawValue.uppercased()) (\(formatDescription(for: format)))"
+        return "\(format.stringValue.uppercased()) (\(formatDescription(for: format)))"
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         if pickerView == formatPicker {
             selectedFormat = supportedFormats[row]
-            logInfo("已选择录音格式: \(selectedFormat.rawValue.uppercased())")
+            logInfo("已选择录音格式: \(selectedFormat.stringValue.uppercased())")
         } else {
             targetFormat = supportedFormats[row]
-            logInfo("已选择目标格式: \(targetFormat.rawValue.uppercased())")
+            logInfo("已选择目标格式: \(targetFormat.stringValue.uppercased())")
         }
     }
     

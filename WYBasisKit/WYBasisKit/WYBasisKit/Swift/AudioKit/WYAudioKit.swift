@@ -32,32 +32,33 @@ import QuartzCore
  - 录制给安卓播放：aac / mp3（兼容性较好）
  - 安卓录制给 iOS 播放：mp3 / aac（无需额外解码）
  */
-@frozen public enum WYAudioFormat: String {
-    case aac = "aac"
-    case wav = "wav"
-    case caf = "caf"
-    case m4a = "m4a"
-    case aiff = "aiff"
-    case mp3 = "mp3"
-    case flac = "flac"
-    case au = "au"
-    case amr = "amr"
-    case ac3 = "ac3"
-    case eac3 = "eac3"
-}
-
-/// 音频质量等级
-@frozen public enum WYAudioQuality {
-    case low
-    case medium
-    case high
+@frozen public enum WYAudioFormat: Int {
+    case aac = 0
+    case wav
+    case caf
+    case m4a
+    case aiff
+    case mp3
+    case flac
+    case au
+    case amr
+    case ac3
+    case eac3
     
-    /// 转换为 AVAudioQuality
-    var avQuality: AVAudioQuality {
+    /// 获取文件扩展名
+    public var stringValue: String {
         switch self {
-        case .low: return .low
-        case .medium: return .medium
-        case .high: return .high
+        case .aac: return "aac"
+        case .wav: return "wav"
+        case .caf: return "caf"
+        case .m4a: return "m4a"
+        case .aiff: return "aiff"
+        case .mp3: return "mp3"
+        case .flac: return "flac"
+        case .au: return "au"
+        case .amr: return "amr"
+        case .ac3: return "ac3"
+        case .eac3: return "eac3"
         }
     }
 }
@@ -122,7 +123,7 @@ import QuartzCore
 }
 
 /// 音频工具类代理协议
-@objc public protocol WYAudioKitDelegate: AnyObject {
+@objc public protocol WYAudioKitDelegate {
     
     /// 录音开始回调
     @objc optional func audioRecorderDidStart()
@@ -220,18 +221,6 @@ public final class WYAudioKit: NSObject {
     
     /// 音频播放器
     public var audioPlayer: AVAudioPlayer?
-    
-    /// 录音进度发布者（Combine）: 0~1 表示比例，>1 表示当前时间（秒）
-    public let recordingProgressPublisher = PassthroughSubject<Double, Never>()
-    
-    /// 播放进度发布者（Combine）
-    public let playbackProgressPublisher = PassthroughSubject<Double, Never>()
-    
-    /// 网络音频下载进度发布者（Combine）
-    public let remoteDownloadProgressPublisher = PassthroughSubject<Double, Never>()
-    
-    /// 格式转换进度发布者（Combine）
-    public let conversionProgressPublisher = PassthroughSubject<Double, Never>()
     
     /// 初始化音频工具(唯一初始化方法)
     public override init() {
@@ -451,8 +440,8 @@ public final class WYAudioKit: NSObject {
      
      - Parameter quality: 音频质量等级
      */
-    public func setAudioQuality(_ quality: WYAudioQuality) {
-        customRecordSettings[AVEncoderAudioQualityKey] = quality.avQuality.rawValue
+    public func setAudioQuality(_ quality: AVAudioQuality) {
+        customRecordSettings[AVEncoderAudioQualityKey] = quality.rawValue
     }
     
     /**
@@ -812,7 +801,7 @@ public final class WYAudioKit: NSObject {
     }
     
     /// 释放所有资源(需要外部调用)
-    public func release() {
+    public func releaseAll() {
         // 停止所有音频活动
         stopAllAudioActivities()
         
@@ -842,6 +831,18 @@ public final class WYAudioKit: NSObject {
     }
     
     // MARK: - 以下为私有属性和方法
+    
+    /// 录音进度发布者（Combine）: 0~1 表示比例，>1 表示当前时间（秒）
+    private let recordingProgressPublisher = PassthroughSubject<Double, Never>()
+    
+    /// 播放进度发布者（Combine）
+    private let playbackProgressPublisher = PassthroughSubject<Double, Never>()
+    
+    /// 网络音频下载进度发布者（Combine）
+    private let remoteDownloadProgressPublisher = PassthroughSubject<Double, Never>()
+    
+    /// 格式转换进度发布者（Combine）
+    private let conversionProgressPublisher = PassthroughSubject<Double, Never>()
     
     /// 音频会话
     private let recordingSession: AVAudioSession = .sharedInstance()
@@ -1069,8 +1070,12 @@ public final class WYAudioKit: NSObject {
     private func generateFileURL(fileName: String?, format: WYAudioFormat) -> URL {
         // 文件名格式：使用UUID确保唯一性
         let name = fileName ?? "recording_\(UUID().uuidString)"
+        
+        // 获取录音目录
         let directory = getDirectoryURL(for: recordingsDirectory, subdirectory: recordingsSubdirectory)
-        return directory.appendingPathComponent(name).appendingPathExtension(format.rawValue)
+        
+        // 使用 format.value 获取文件扩展名
+        return directory.appendingPathComponent(name).appendingPathExtension(format.stringValue)
     }
     
     /**
@@ -1367,7 +1372,7 @@ public final class WYAudioKit: NSObject {
             )
             
             // 过滤音频文件（扩展名）
-            let audioExtensions = WYAudioFormat.allCases.map { $0.rawValue }
+            let audioExtensions = WYAudioFormat.allCases.map { $0.stringValue }
             let audioFiles = files.filter { audioExtensions.contains($0.pathExtension.lowercased()) }
             
             // 按创建日期排序（从新到旧）

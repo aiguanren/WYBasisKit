@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		583C41B42E9220E9007379FC /* WYStorageObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583C41B32E9220E9007379FC /* WYStorageObjC.swift */; };
+		583C41B62E922D9E007379FC /* WYAudioKitObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583C41B52E922D9E007379FC /* WYAudioKitObjC.swift */; };
 		583E04EC2E8635CA004F1034 /* WYButtonObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04EB2E8635CA004F1034 /* WYButtonObjC.swift */; };
 		583E04EE2E8644DD004F1034 /* WYCollectionViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04ED2E8644DD004F1034 /* WYCollectionViewObjC.swift */; };
 		583E04F02E867100004F1034 /* WYTableViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04EF2E867100004F1034 /* WYTableViewObjC.swift */; };
@@ -163,6 +164,7 @@
 /* Begin PBXFileReference section */
 		53C1C8E1255F64288E08B8AC /* Pods-WYBasisKit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.release.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.release.xcconfig"; sourceTree = "<group>"; };
 		583C41B32E9220E9007379FC /* WYStorageObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYStorageObjC.swift; sourceTree = "<group>"; };
+		583C41B52E922D9E007379FC /* WYAudioKitObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAudioKitObjC.swift; sourceTree = "<group>"; };
 		583E04EB2E8635CA004F1034 /* WYButtonObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYButtonObjC.swift; sourceTree = "<group>"; };
 		583E04ED2E8644DD004F1034 /* WYCollectionViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCollectionViewObjC.swift; sourceTree = "<group>"; };
 		583E04EF2E867100004F1034 /* WYTableViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTableViewObjC.swift; sourceTree = "<group>"; };
@@ -446,6 +448,7 @@
 			isa = PBXGroup;
 			children = (
 				58C68C3B2E84E436005FD054 /* PrivacyInfo.xcprivacy */,
+				583C41B52E922D9E007379FC /* WYAudioKitObjC.swift */,
 			);
 			path = AudioKit;
 			sourceTree = "<group>";
@@ -2197,6 +2200,7 @@
 				58C68E272E84E436005FD054 /* WYDoubleObjC.swift in Sources */,
 				58B46FEA2E8C080700D04BCA /* WYLogManagerObjC.swift in Sources */,
 				58C68E282E84E436005FD054 /* WYBiometricAuthorization.swift in Sources */,
+				583C41B62E922D9E007379FC /* WYAudioKitObjC.swift in Sources */,
 				583E04FA2E8690D1004F1034 /* WYWebViewObjC.swift in Sources */,
 				58C68E292E84E436005FD054 /* WYDictionary.swift in Sources */,
 				58C68E2A2E84E436005FD054 /* WYChatWithdrawnCell.swift in Sources */,
