@@ -39,24 +39,24 @@ import UIKit
 @objcMembers public class WYStorageDataObjC: NSObject, Codable {
     
     /// 存储的数据
-    @objc public var userData: Data?
+    public var userData: Data?
     
     /// 存储有效时长(秒)
-    @objc public var durable: TimeInterval
+    public var durable: TimeInterval
     
     /// 存入时间戳
-    @objc public var storageDate: TimeInterval
+    public var storageDate: TimeInterval
     
     /// 是否超时过期
-    @objc public var isInvalid: Bool
+    public var isInvalid: Bool
     
     /// 缓存路径
-    @objc public var path: URL?
+    public var path: URL?
     
     /// 报错提示
-    @objc public var error: String?
+    public var error: String?
     
-    @objc public init(userData: Data? = nil, durable: TimeInterval = 0, storageDate: TimeInterval = 0, isInvalid: Bool = false, path: URL? = nil, error: String? = nil) {
+    public init(userData: Data? = nil, durable: TimeInterval = 0, storageDate: TimeInterval = 0, isInvalid: Bool = false, path: URL? = nil, error: String? = nil) {
         self.userData = userData
         self.durable = durable
         self.storageDate = storageDate
@@ -151,17 +151,17 @@ import UIKit
      *  @param path         要获取沙盒文件资源大小的路径，为空表示获取沙盒内所有 文件/文件夹的大小
      *
      */
-    @objc public static func sandboxSize(forPath path: String = "") -> CGFloat {
+    public static func sandboxSize(forPath path: String = "") -> CGFloat {
         return WYStorage.sandboxSize(forPath: path)
     }
     
     /// 计算沙盒内单个文件的大小
-    @objc public static func sandboxFileSize(forPath path: String) -> CGFloat {
+    public static func sandboxFileSize(forPath path: String) -> CGFloat {
         return WYStorage.sandboxFileSize(forPath: path)
     }
     
     /// 创建一个指定目录/文件夹
-    @objc public static func createDirectory(directory: FileManager.SearchPathDirectory, subDirectory: String) -> URL {
+    public static func createDirectory(directory: FileManager.SearchPathDirectory, subDirectory: String) -> URL {
         return WYStorage.createDirectory(directory: directory, subDirectory: subDirectory)
     }
     
@@ -175,7 +175,7 @@ import UIKit
      *  @param complte      完成后回调，error 为空表示成功，否则为失败
      *
      */
-    @objc public static func clearMemory(forPath path: String, asset: String = "", completion:((_ error: String?) -> Void)? = .none) {
+    public static func clearMemory(forPath path: String, asset: String = "", completion:((_ error: String?) -> Void)? = .none) {
         return WYStorage.clearMemory(forPath: path, asset: asset, completion: completion)
     }
 }

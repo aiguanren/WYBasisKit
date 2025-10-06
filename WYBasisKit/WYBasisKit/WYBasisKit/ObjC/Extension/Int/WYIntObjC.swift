@@ -10,22 +10,22 @@ import Foundation
 @objcMembers public class IntObjC: NSObject {
     
     /// NSInteger转String
-    @objc public static func wy_stringValue(_ value: Int) -> String {
+    public static func wy_stringValue(_ value: Int) -> String {
         return value.wy_convertTo(String.self)
     }
     
     /// NSInteger转CGFloat
-    @objc public static func wy_floatValue(_ value: Int) -> CGFloat {
+    public static func wy_floatValue(_ value: Int) -> CGFloat {
         return value.wy_convertTo(CGFloat.self)
     }
     
     /// NSInteger转Double
-    @objc public static func wy_doubleValue(_ value: Int) -> Double {
+    public static func wy_doubleValue(_ value: Int) -> Double {
         return value.wy_convertTo(Double.self)
     }
     
     /// NSInteger转NSDecimalNumber
-    @objc public static func wy_decimalValue(_ value: Int) -> NSDecimalNumber {
+    public static func wy_decimalValue(_ value: Int) -> NSDecimalNumber {
         let string: String = wy_stringValue(value)
         return NSDecimalNumber(string: string)
     }

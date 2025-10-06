@@ -207,8 +207,8 @@ import UIKit
 }
 
 @objcMembers public class WYTextAttachmentObjC: NSTextAttachment {
-    @objc public var imageName: String = ""
-    @objc public var imageRange: NSRange = NSMakeRange(0, 0)
+    public var imageName: String = ""
+    public var imageRange: NSRange = NSMakeRange(0, 0)
 }
 
 /// 富文本图片插入配置
@@ -240,30 +240,30 @@ import UIKit
     }
     
     /// 要插入的图片
-    @objc public let image: UIImage
+    public let image: UIImage
     
     /// 图片尺寸
-    @objc public let size: CGSize
+    public let size: CGSize
     
     /// 图片插入位置类型
-    @objc public let position: WYImageAttachmentPositionObjC
+    public let position: WYImageAttachmentPositionObjC
     
     /// 插入位置的参数（before/after 时传 NSString，index 时传 NSNumber）
-    @objc public let positionValue: Any?
+    public let positionValue: Any?
     
     /// 图片对齐方式类型
-    @objc public let alignment: WYImageAttachmentAlignmentObjC
+    public let alignment: WYImageAttachmentAlignmentObjC
     
     /// 自定义对齐偏移量（仅在 alignmentType = .custom 时生效，负向上，正向下）
-    @objc public let alignmentOffset: CGFloat
+    public let alignmentOffset: CGFloat
     
     /// 图片与前面文本的间距（单位：pt）
-    @objc public let spacingBefore: CGFloat
+    public let spacingBefore: CGFloat
     
     /// 图片与后面文本的间距（单位：pt）
-    @objc public let spacingAfter: CGFloat
+    public let spacingAfter: CGFloat
     
-    @objc public init(image: UIImage,
+    public init(image: UIImage,
                       size: CGSize,
                       position: WYImageAttachmentPositionObjC,
                       positionValue: Any? = nil,

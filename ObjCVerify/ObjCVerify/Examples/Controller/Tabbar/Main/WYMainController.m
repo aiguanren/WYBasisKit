@@ -80,7 +80,7 @@
             @"语音识别": @"WYSpeechRecognitionController",
             @"泛型": @"WYGenericTypeController",
             @"离线方法调用": @"WYOffLineMethodController",
-            @"WKWebView进度条": @"WYWebViewController",
+            @"WKWebView进度条": @"WYTestWebViewController",
             @"归档/解归档": @"WYArchivedController",
             @"日志输出与保存": @"WYLogController",
             @"音频录制与播放": @"TestAudioController",

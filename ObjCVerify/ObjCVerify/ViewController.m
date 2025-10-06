@@ -7,7 +7,6 @@
 
 #import "ViewController.h"
 #import <Masonry/Masonry.h>
-#import <WebKit/WKWebView.h>
 #import <WYBasisKitObjC.h>
 
 @interface ViewController ()<WYWebViewNavigationDelegateProxy>
@@ -174,22 +173,6 @@
 //    }];
 //    [label wy_addRichTexts:@[@""] delegate:self];
     
-    WKWebView *webView = [[WKWebView alloc] init];
-    [self.view addSubview:webView];
-    [webView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.view).mas_offset(UIDevice.wy_navViewHeight + 2);
-        make.width.equalTo(self.view);
-        make.bottom.equalTo(self.view).mas_offset(-UIDevice.wy_tabbarSafetyZone);
-    }];
-    // 启用加载进度条
-    [webView wy_enableProgressView];
-    
-    // 设置代理派发器
-    webView.wy_navigationProxy = self;
-
-    // 加载网页
-    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://www.apple.com/cn"]]];
-    
 //    WYLogManager.output(@"测试3");
 //    WYLogManager.outputWithMode(@"测试4", WYLogOutputModeDebugConsoleOnly);
 //    [WYLogManager output:@"测试5" outputMode:WYLogOutputModeDebugConsoleOnly file:@(__FILE__) function:@(__FUNCTION__) line:__LINE__];
@@ -215,61 +198,6 @@
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     [[UIApplication sharedApplication] wy_switchAppDisplayBrightness:UIUserInterfaceStyleDark];
-}
-
-- (void)wy_webPageNavigationTitleChanged:(NSString *)title isRepeat:(BOOL)isRepeat {
-    NSLog(@"webPageNavigationTitleChanged  title = %@, isRepeat = %@",title, isRepeat ? @"yes" : @"no");
-}
-
-- (void)wy_webPageWillChanged:(NSString *)urlString {
-    NSLog(@"webPageWillChanged  urlString = %@",urlString);
-}
-
-- (void)wy_didStartProvisionalNavigation:(NSString *)urlString {
-    NSLog(@"didStartProvisionalNavigation  urlString = %@",urlString);
-}
-
-- (void)wy_webPageLoadProgress:(CGFloat)progress {
-    NSLog(@"webPageLoadProgress  progress = %f",progress);
-}
-
-- (void)wy_didFailProvisionalNavigation:(NSString *)urlString withError:(NSError *)error {
-    NSLog(@"didFailProvisionalNavigation  urlString = %@, error = %@",urlString, [error localizedDescription]);
-}
-
-- (void)wy_didCommitNavigation:(NSString *)urlString {
-    NSLog(@"didCommitNavigation  urlString = %@",urlString);
-}
-
-- (void)wy_didFinishNavigation:(NSString *)urlString {
-    NSLog(@"didFinishNavigation  urlString = %@",urlString);
-}
-
-- (void)wy_didFailNavigation:(NSString *)urlString withError:(NSError *)error {
-    NSLog(@"didFailNavigation  urlString = %@, error = %@",urlString, [error localizedDescription]);
-}
-
-- (void)wy_didReceiveServerRedirectForProvisionalNavigation:(NSString *)urlString {
-    NSLog(@"didReceiveServerRedirectForProvisionalNavigation  urlString = %@",urlString);
-}
-
-- (void)wy_decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction preferences:(WKWebpagePreferences *)preferences decisionHandler:(void (^)(WKNavigationActionPolicy, WKWebpagePreferences * _Nonnull))decisionHandler {
-    NSLog(@"decidePolicyForNavigationAction  navigationAction = %@, preferences = %@",navigationAction, preferences);
-    decisionHandler(WKNavigationActionPolicyAllow, preferences);
-}
-
-- (void)wy_decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler {
-    NSLog(@"decidePolicyForNavigationResponse  navigationResponse = %@",navigationResponse);;
-    decisionHandler(WKNavigationResponsePolicyAllow);
-}
-
-- (void)wy_webViewWebContentProcessDidTerminate {
-    NSLog(@"webViewWebContentProcessDidTerminate");
-}
-
-- (void)wy_didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(enum NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler {
-    NSLog(@"didReceiveAuthenticationChallenge  challenge = %@", challenge);
-    completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
 }
 
 @end

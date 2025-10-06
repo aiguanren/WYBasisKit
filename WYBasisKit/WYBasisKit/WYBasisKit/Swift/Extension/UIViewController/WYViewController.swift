@@ -117,7 +117,7 @@ public extension UIViewController {
     /// 返回到指定的视图控制器
     func wy_backToViewController(className: String, animated: Bool = true) {
         
-        let controller = WYProjectInfo.projectName + "." + className
+        let controller = wy_sharedControllerName(className: className)
         guard let controllerClass = NSClassFromString(controller) as? UIViewController.Type else {
             
             return
@@ -163,7 +163,7 @@ public extension UIViewController {
     /// 根据字符串获得对应控制器
     func wy_controller(from className: String) -> UIViewController? {
         
-        let controller = WYProjectInfo.projectName + "." + className
+        let controller = wy_sharedControllerName(className: className)
         
         guard let controllerClass = NSClassFromString(controller) as? UIViewController.Type else {
 
@@ -205,6 +205,10 @@ public extension UIViewController {
     @objc private func wy_present(_ vc:UIViewController, animated: Bool, completion:(()->())?) {
         vc.modalPresentationStyle = .fullScreen
         wy_present(vc, animated: animated, completion: completion)
+    }
+    
+    private func wy_sharedControllerName(className: String) -> String {
+        return WYProjectInfo.isSwiftProject ? (WYProjectInfo.projectName + "." + className) : className
     }
     
     private struct WYAssociatedKeys {

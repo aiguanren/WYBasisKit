@@ -106,13 +106,13 @@ import UIKit
 @objcMembers public class WYLocalizableManagerObjC: NSObject {
     
     /// 当前正在使用的语言
-    @objc public static func currentLanguage() -> WYLanguageObjC {
+    public static func currentLanguage() -> WYLanguageObjC {
         let language: WYLanguage = WYLocalizableManager.currentLanguage()
         return WYLanguageObjC(rawValue: language.rawValue) ?? .zh_Hans
     }
     
     /// 获取当前系统语言
-    @objc public static func currentSystemLanguage() -> String {
+    public static func currentSystemLanguage() -> String {
         return WYLocalizableManager.currentSystemLanguage()
     }
     
@@ -128,7 +128,7 @@ import UIKit
      *  @param identifier  Storyboard文件的Identifier
      *
      */
-    @objc public static func switchLanguage(language: WYLanguageObjC, reload: Bool = true, name: String? = nil, identifier: String? = nil, handler:(() -> Void)? = nil) {
+    public static func switchLanguage(language: WYLanguageObjC, reload: Bool = true, name: String? = nil, identifier: String? = nil, handler:(() -> Void)? = nil) {
         
         let switchLanguage: WYLanguage = WYLanguage(rawValue: language.rawValue) ?? .zh_Hans
         
@@ -145,7 +145,7 @@ import UIKit
      *  @param key  本地语言对应的Key
      *
      */
-    @objc public static func localized(key: String) -> String {
+    public static func localized(key: String) -> String {
         return WYLocalizableManager.localized(key: key, table: WYBasisKitConfig.localizableTable)
     }
     
@@ -157,7 +157,7 @@ import UIKit
      *  @param table  国际化语言读取表(如果有Bundle，则要求Bundle名与表名一致，否则会读取失败)
      *
      */
-    @objc public static func localized(key: String, table: String = WYBasisKitConfig.localizableTable) -> String {
+    public static func localized(key: String, table: String = WYBasisKitConfig.localizableTable) -> String {
         return WYLocalizableManager.localized(key: key, table: table)
     }
 }

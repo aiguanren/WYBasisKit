@@ -12,7 +12,7 @@ import Foundation
 @objcMembers public final class WYEventHandlerObjC: NSObject {
     
     /// 当前所有事件及其监听器数组（只读属性，外部可用于调试或状态查询）
-    @objc public static var eventHandlers: [String: [KitEventHandlerObjC]] {
+    public static var eventHandlers: [String: [KitEventHandlerObjC]] {
         let convertedHandlers: [String: [KitEventHandlerObjC]] = WYEventHandler.shared.eventHandlers.mapValues {
             $0.map { KitEventHandlerObjC.wy_convertFrom(eventHandler: $0) }
         }
@@ -25,7 +25,7 @@ import Foundation
      *  @param target    可选的绑定对象，监听对象释放后将自动移除对应监听器
      *  @param handler   事件回调闭包（参数为触发事件时传入的数据）
      */
-    @objc public static func register(event: String, target: AnyObject? = nil, handler: @escaping (Any?) -> Void) {
+    public static func register(event: String, target: AnyObject? = nil, handler: @escaping (Any?) -> Void) {
         WYEventHandler.shared.register(event: event, target: target, handler: handler)
     }
     
@@ -34,7 +34,7 @@ import Foundation
      *  @param event     事件标识符（建议使用常量或枚举）
      *  @param data      可选数据，将传入监听器的回调中
      */
-    @objc public static func response(event: String, data: Any? = nil) {
+    public static func response(event: String, data: Any? = nil) {
         WYEventHandler.shared.response(event: event, data: data)
     }
     
@@ -58,7 +58,7 @@ import Foundation
      *  @param event   事件标识符，可为 nil（表示所有事件）
      *  @param target  目标对象，可为 nil（表示所有对象）
      */
-    @objc public static func remove(event: String? = nil, target: AnyObject? = nil) {
+    public static func remove(event: String? = nil, target: AnyObject? = nil) {
         WYEventHandler.shared.remove(event: event, target: target)
     }
     
@@ -66,12 +66,12 @@ import Foundation
      *  移除target对象相关的所有监听事件
      *  @param target 要移除的监听事件的target对象
      */
-    @objc public static func remove(target: AnyObject) {
+    public static func remove(target: AnyObject) {
         WYEventHandler.shared.remove(target: target)
     }
     
     /// 移除所有监听对象及所有事件监听
-    @objc public static func removeAll() {
+    public static func removeAll() {
         WYEventHandler.shared.removeAll()
     }
 }
@@ -81,20 +81,20 @@ import Foundation
 @objcMembers public class KitEventHandlerObjC: NSObject {
     
     /// 绑定的目标对象
-    @objc public weak var target: AnyObject?
+    public weak var target: AnyObject?
     
     /// 事件回调闭包
-    @objc public let handler: (Any?) -> Void
+    public let handler: (Any?) -> Void
     
     /// 是否为永久监听器（target为nil表示永久）
-    @objc public let isPermanent: Bool
+    public let isPermanent: Bool
     
     /// 当前监听器是否有效
-    @objc public var isValid: Bool {
+    public var isValid: Bool {
         return isPermanent || target != nil
     }
     
-    @objc public init(target: AnyObject?, handler: @escaping (Any?) -> Void) {
+    public init(target: AnyObject?, handler: @escaping (Any?) -> Void) {
         self.target = target
         self.handler = handler
         self.isPermanent = (target == nil)

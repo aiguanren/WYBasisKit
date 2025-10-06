@@ -44,7 +44,7 @@ import Foundation
 @objcMembers public class WYBasisKitConfigObjC: NSObject {
     
     /// 设置默认屏幕分辨率(建议根据设计图的分辨率设置)
-    @objc public static var defaultScreenPixels: WYScreenPixelsObjC {
+    public static var defaultScreenPixels: WYScreenPixelsObjC {
         get {
             let pixels = WYBasisKitConfig.defaultScreenPixels
             return WYScreenPixelsObjC(width: pixels.width, height: pixels.height)
@@ -55,7 +55,7 @@ import Foundation
     }
     
     /// 设置字号适配的最大最小比率数
-    @objc public static var fontRatio: WYRatioObjC {
+    public static var fontRatio: WYRatioObjC {
         get {
             let ratio = WYBasisKitConfig.fontRatio
             return WYRatioObjC(min: ratio.min, max: ratio.max)
@@ -66,7 +66,7 @@ import Foundation
     }
     
     /// 设置屏幕分辨率宽度比最大最小比率数
-    @objc public static var screenWidthRatio: WYRatioObjC {
+    public static var screenWidthRatio: WYRatioObjC {
         get {
             let ratio = WYBasisKitConfig.screenWidthRatio
             return WYRatioObjC(min: ratio.min, max: ratio.max)
@@ -77,7 +77,7 @@ import Foundation
     }
     
     /// 设置屏幕分辨率高度比最大最小比率数
-    @objc public static var screenHeightRatio: WYRatioObjC {
+    public static var screenHeightRatio: WYRatioObjC {
         get {
             let ratio = WYBasisKitConfig.screenHeightRatio
             return WYRatioObjC(min: ratio.min, max: ratio.max)
@@ -88,13 +88,13 @@ import Foundation
     }
     
     /// 设置国际化语言读取表(如果有Bundle，则要求Bundle名与表名一致，否则会读取失败)
-    @objc public static var localizableTable: String {
+    public static var localizableTable: String {
         get { return WYBasisKitConfig.localizableTable }
         set { WYBasisKitConfig.localizableTable = newValue }
     }
     
     /// 设置WYBasisKit内部国际化语言读取表，设置后需自己将WYLocalizable表中的国际化文本写入自定义的表中(如果有Bundle，则要求Bundle名与表名一致，否则会读取失败)，默认使用自带的表：WYLocalizable
-    @objc public static var kitLocalizableTable: String {
+    public static var kitLocalizableTable: String {
         get { return WYBasisKitConfig.kitLocalizableTable }
         set { WYBasisKitConfig.kitLocalizableTable = newValue }
     }
@@ -104,27 +104,32 @@ import Foundation
 @objcMembers public class WYProjectInfoObjC: NSObject {
     
     /// 获取项目名称
-    @objc public static var projectName: String {
+    public static var projectName: String {
         return WYProjectInfo.projectName
     }
     
     /// 获取AppStore名称
-    @objc public static var appStoreName: String {
+    public static var appStoreName: String {
         return WYProjectInfo.appStoreName
     }
     
     /// 获取BundleID
-    @objc public static var appIdentifier: String {
+    public static var appIdentifier: String {
         return WYProjectInfo.appIdentifier
     }
     
     /// 获取AppStore版本号
-    @objc public static var appStoreVersion: String {
+    public static var appStoreVersion: String {
         return WYProjectInfo.appStoreVersion
     }
     
-    /// 获取构建版本号
-    @objc public static var appBuildVersion: String {
+    /// 获取Build版本号
+    public static var appBuildVersion: String {
         return WYProjectInfo.appBuildVersion
+    }
+    
+    /// 判断Xcode工程是Swift还是Objective-C(true为Swift，否则为Objective-C)
+    public static var isSwiftProject: Bool {
+        return WYProjectInfo.isSwiftProject
     }
 }

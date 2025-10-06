@@ -49,7 +49,7 @@ import Foundation
 @objcMembers public class WYLogManagerObjC: NSObject {
     
     /// 日志文件路径（可根据路径获取并导出显示或者上传）
-    @objc public static var logFilePath: String {
+    public static var logFilePath: String {
         return WYLogManager.logFilePath
     }
     
@@ -59,13 +59,13 @@ import Foundation
      *   - messages: 要输出的日志内容
      *   - outputMode: 日志输出模式
      */
-    @objc public static var output: @convention(block) (Any) -> Void {
+    public static var output: @convention(block) (Any) -> Void {
         return { messages in
             WYLogManager.output(messages)
         }
     }
     
-    @objc public static var outputWithMode: @convention(block) (Any, WYLogOutputModeObjC) -> Void {
+    public static var outputWithMode: @convention(block) (Any, WYLogOutputModeObjC) -> Void {
         return { messages, outputMode in
             WYLogManager.output(messages, outputMode: WYLogOutputMode(rawValue: outputMode.rawValue) ?? .debugConsoleOnly)
         }
@@ -80,7 +80,7 @@ import Foundation
      *   - function: 函数名(自动捕获)
      *   - line: 代码行号(自动捕获)
      */
-    @objc public static func output(_ messages: Any, outputMode: WYLogOutputModeObjC = .debugConsoleOnly, file: String = #file, function: String = #function, line: Int = #line) {
+    public static func output(_ messages: Any, outputMode: WYLogOutputModeObjC = .debugConsoleOnly, file: String = #file, function: String = #function, line: Int = #line) {
         WYLogManager.output(messages, outputMode: WYLogOutputMode(rawValue: outputMode.rawValue) ?? .debugConsoleOnly, file: file, function: function, line: line)
     }
     
@@ -88,7 +88,7 @@ import Foundation
      * 清除日志文件
      * - 注意：该操作不可恢复，仅清除当前 logFilePath 下的日志文件
      */
-    @objc public static func clearLogFile() {
+    public static func clearLogFile() {
         WYLogManager.clearLogFile()
     }
     
@@ -97,15 +97,15 @@ import Foundation
      * - Parameters:
      *   - contentView: 预览按钮的父控件，如果不传则为当前正在显示的Window
      */
-    @objc public static func showPreview() {
+    public static func showPreview() {
         showPreview(UIApplication.shared.wy_keyWindow)
     }
-    @objc public static func showPreview(_ contentView: UIView = UIApplication.shared.wy_keyWindow) {
+    public static func showPreview(_ contentView: UIView = UIApplication.shared.wy_keyWindow) {
         WYLogManager.showPreview(contentView)
     }
     
     /// 移除预览组件
-    @objc public static func removePreview() {
+    public static func removePreview() {
         WYLogManager.removePreview()
     }
 }

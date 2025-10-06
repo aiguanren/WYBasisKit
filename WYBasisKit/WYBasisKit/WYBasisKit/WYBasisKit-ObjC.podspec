@@ -53,8 +53,8 @@ Pod::Spec.new do |kit|
 
   # Pod工程设置
   # kit.pod_target_xcconfig = {
-  #   "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) WYBasisKitObjC_INSTALLED=1",  # 用于 Objective-C 的 #if 判断
-  #   "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) WYBasisKitObjC_INSTALLED", # 用于 Swift 的 #if 判断（注意不带 =1，就是直接使用宏名即可）
+  #   "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) WYBasisKit_Supports_ObjC=1",  # 用于 Objective-C 的 #if 判断
+  #   "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) WYBasisKit_Supports_ObjC", # 用于 Swift 的 #if 判断（注意不带 =1，就是直接使用宏名即可）
   # }
 
   kit.source_files = [

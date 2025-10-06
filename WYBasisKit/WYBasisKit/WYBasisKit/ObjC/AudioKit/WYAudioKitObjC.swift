@@ -67,90 +67,87 @@ import AVFoundation
  - 录音参数配置（格式、质量、时长限制）
  - 音频格式转换（支持多种格式互转）
  */
-@objcMembers public final class WYAudioKitObjC: NSObject {
+@objc public extension WYAudioKit {
     
     /// 代理对象
-    @objc public weak var delegate: WYAudioKitDelegate? {
-        get { return audioKit?.delegate }
-        set { audioKit?.delegate = newValue }
+    @objc(delegate)
+    weak var delegateObjC: WYAudioKitDelegate? {
+        get { return delegate }
+        set { delegate = newValue }
     }
     
     /// 音频录音器
-    @objc public var audioRecorder: AVAudioRecorder? {
-        get { return audioKit?.audioRecorder }
-        set { audioKit?.audioRecorder = newValue }
+    @objc(audioRecorder)
+    var audioRecorderObjC: AVAudioRecorder? {
+        get { return audioRecorder }
+        set { audioRecorder = newValue }
     }
     
     /// 音频播放器
-    @objc public var audioPlayer: AVAudioPlayer? {
-        get { return audioKit?.audioPlayer }
-        set { audioKit?.audioPlayer = newValue }
-    }
-    
-    /// 内部实现类
-    private var audioKit: WYAudioKit? = nil
-    
-    /// 初始化音频工具(唯一初始化方法)
-    @objc public override init() {
-        super.init()
-        if (audioKit == nil) {
-            audioKit = WYAudioKit()
-        }
+    @objc(audioPlayer)
+    var audioPlayerObjC: AVAudioPlayer? {
+        get { return audioPlayer }
+        set { audioPlayer = newValue }
     }
     
     // MARK: - 公开状态属性
     
     /// 是否正在录音（包括暂停状态）
-    @objc public var isRecording: Bool {
-        return audioKit?.isRecording ?? false
+    @objc(isRecording)
+    var isRecordingObjC: Bool {
+        return isRecording
     }
     
     /// 是否正在播放（包括暂停状态）
-    @objc public var isPlaying: Bool {
-        return audioKit?.isPlaying ?? false
+    @objc(isPlaying)
+    var isPlayingObjC: Bool {
+        return isPlaying
     }
     
     /// 录音是否暂停
-    @objc public var isRecordingPaused: Bool {
-        return audioKit?.isRecordingPaused ?? false
+    @objc(isRecordingPaused)
+    var isRecordingPausedObjC: Bool {
+        return isRecordingPaused
     }
     
     /// 播放是否暂停
-    @objc public var isPlaybackPaused: Bool {
-        return audioKit?.isPlaybackPaused ?? false
+    @objc(isPlaybackPaused)
+    var isPlaybackPausedObjC: Bool {
+        return isPlaybackPaused
     }
     
     /// 当前录音文件URL
-    @objc public var currentRecordFileURL: URL? {
-        return audioKit?.currentRecordFileURL
+    @objc(currentRecordFileURL)
+    var currentRecordFileURLObjC: URL? {
+        return currentRecordFileURL
     }
     
     /// 录音文件存储目录类型（默认临时目录）
-    @objc public var recordingsDirectory: WYAudioStorageDirectoryObjC = .temporary {
-        didSet {
-            audioKit?.recordingsDirectory = WYAudioStorageDirectory(rawValue: recordingsDirectory.rawValue) ?? .temporary
-        }
+    @objc(recordingsDirectory)
+    var recordingsDirectoryObjC: WYAudioStorageDirectoryObjC {
+        get { return WYAudioStorageDirectoryObjC(rawValue: recordingsDirectory.rawValue) ?? .temporary }
+        set { recordingsDirectory = WYAudioStorageDirectory(rawValue: newValue.rawValue) ?? .temporary }
     }
     
     /// 下载文件存储目录类型（默认临时目录）
-    @objc public var downloadsDirectory: WYAudioStorageDirectoryObjC = .temporary {
-        didSet {
-            audioKit?.downloadsDirectory = WYAudioStorageDirectory(rawValue: downloadsDirectory.rawValue) ?? .temporary
-        }
+    @objc(downloadsDirectory)
+    var downloadsDirectoryObjC: WYAudioStorageDirectoryObjC {
+        get { return WYAudioStorageDirectoryObjC(rawValue: downloadsDirectory.rawValue) ?? .temporary }
+        set { downloadsDirectory = WYAudioStorageDirectory(rawValue: newValue.rawValue) ?? .temporary }
     }
     
     /// 录音文件子目录名称（可选）
-    @objc public var recordingsSubdirectory: String? = "Recordings" {
-        didSet {
-            audioKit?.recordingsSubdirectory = recordingsSubdirectory
-        }
+    @objc(recordingsSubdirectory)
+    var recordingsSubdirectoryObjC: String? {
+        get { return recordingsSubdirectory }
+        set {recordingsSubdirectory = newValue}
     }
     
     /// 下载文件子目录名称（可选）
-    @objc public var downloadsSubdirectory: String? = "Downloads" {
-        didSet {
-            audioKit?.downloadsSubdirectory = downloadsSubdirectory
-        }
+    @objc(downloadsSubdirectory)
+    var downloadsSubdirectoryObjC: String? {
+        get { return downloadsSubdirectory }
+        set {downloadsSubdirectory = newValue}
     }
     
     /**
@@ -159,8 +156,9 @@ import AVFoundation
      - Parameter completion: 权限请求结果回调
      - granted: true 表示已授权，false 表示未授权
      */
-    @objc public func requestRecordPermission(completion: @escaping (Bool) -> Void) {
-        audioKit?.requestRecordPermission(completion: completion)
+    @objc(requestRecordPermission:)
+    func requestRecordPermissionObjC(completion: @escaping (Bool) -> Void) {
+        requestRecordPermission(completion: completion)
     }
     
     /**
@@ -172,26 +170,27 @@ import AVFoundation
      
      - Throws: 可能抛出权限错误或初始化错误
      */
-    @objc public func startRecording(fileName: String? = nil, format: WYAudioFormatObjC = .aac) throws {
-        guard let audioKit = audioKit else {
-            throw NSError(domain: "WYAudioKitObjC", code: WYAudioError.sessionConfigurationFailed.rawValue, userInfo: [NSLocalizedDescriptionKey: "WYAudioKit is not available"])
-        }
-        try audioKit.startRecording(fileName: fileName, format: WYAudioFormat(rawValue: format.rawValue) ?? .aac)
+    @objc(startRecordingWithFileName:format:error:)
+    func startRecordingObjC(fileName: String? = nil, format: WYAudioFormatObjC = .aac) throws {
+        try startRecording(fileName: fileName, format: WYAudioFormat(rawValue: format.rawValue) ?? .aac)
     }
     
     /// 停止录音
-    @objc public func stopRecording() {
-        audioKit?.stopRecording()
+    @objc(stopRecording)
+    func stopRecordingObjC() {
+        stopRecording()
     }
     
     /// 暂停录音
-    @objc public func pauseRecording() {
-        audioKit?.pauseRecording()
+    @objc(pauseRecording)
+    func pauseRecordingObjC() {
+        pauseRecording()
     }
     
     /// 恢复录音
-    @objc public func resumeRecording() {
-        audioKit?.resumeRecording()
+    @objc(resumeRecording)
+    func resumeRecordingObjC() {
+        resumeRecording()
     }
     
     /**
@@ -205,8 +204,9 @@ import AVFoundation
      - AVEncoderAudioQualityKey: 编码质量
      - AVEncoderBitRateKey: 比特率
      */
-    @objc public func setRecordSettings(_ settings: [String: Any]) {
-        audioKit?.setRecordSettings(settings)
+    @objc(setRecordSettings:)
+    func setRecordSettingsObjC(_ settings: [String: Any]) {
+        setRecordSettings(settings)
     }
     
     /**
@@ -214,8 +214,9 @@ import AVFoundation
      
      - Parameter quality: 音频质量等级
      */
-    @objc public func setAudioQuality(_ quality: AVAudioQuality) {
-        audioKit?.setAudioQuality(quality)
+    @objc(setAudioQuality:)
+    func setAudioQualityObjC(_ quality: AVAudioQuality) {
+        setAudioQuality(quality)
     }
     
     /**
@@ -225,8 +226,9 @@ import AVFoundation
      - min: 最小录音时长（秒），0表示无限制（默认）
      - max: 最大录音时长（秒），0表示无限制（默认）
      */
-    @objc public func setRecordingDurations(min: TimeInterval = 0, max: TimeInterval = 0) {
-        audioKit?.setRecordingDurations(min: min, max: max)
+    @objc(setRecordingDurationsMin:max:)
+    func setRecordingDurationsObjC(min: TimeInterval = 0, max: TimeInterval = 0) {
+        setRecordingDurations(min: min, max: max)
     }
     
     /**
@@ -236,8 +238,9 @@ import AVFoundation
      
      - Throws: 文件操作可能抛出错误
      */
-    @objc public func saveRecording(to destinationURL: URL) throws {
-        try audioKit?.saveRecording(to: destinationURL)
+    @objc(saveRecordingToDestinationURL:error:)
+    func saveRecordingObjC(to destinationURL: URL) throws {
+        try saveRecording(to: destinationURL)
     }
     
     /**
@@ -245,8 +248,9 @@ import AVFoundation
      
      - Throws: 文件操作可能抛出错误
      */
-    @objc public func deleteRecording() throws {
-        try audioKit?.deleteRecording()
+    @objc(deleteRecordingWithError:)
+    func deleteRecordingObjC() throws {
+        try deleteRecording()
     }
     
     /**
@@ -258,8 +262,9 @@ import AVFoundation
      
      - Throws: 播放初始化可能抛出错误
      */
-    @objc public func playAudio(at url: URL) throws {
-        try audioKit?.playAudio(at: url)
+    @objc(playAudioWithUrl:error:)
+    func playAudioObjC(at url: URL) throws {
+        try playAudio(at: url)
     }
     
     /**
@@ -267,8 +272,9 @@ import AVFoundation
      
      - Throws: 文件未找到错误
      */
-    @objc public func playRecordedFile() throws {
-        try audioKit?.playRecordedFile()
+    @objc(playRecordedFileWithError:)
+    func playRecordedFileObjC() throws {
+        try playRecordedFile()
     }
     
     /**
@@ -280,8 +286,9 @@ import AVFoundation
      - remoteURL: 远程音频文件的URL
      - completion: 下载完成后的回调，返回下载结果
      */
-    @objc public func playRemoteAudio(from remoteURL: URL, completion: @escaping (URL?, Error?) -> Void) {
-        audioKit?.playRemoteAudio(from: remoteURL) { result in
+    @objc(playRemoteAudioFromRemoteURL:completion:)
+    func playRemoteAudioObjC(from remoteURL: URL, completion: @escaping (URL?, Error?) -> Void) {
+        playRemoteAudio(from: remoteURL) { result in
             switch result {
             case .success(let url):
                 completion(url, nil)
@@ -298,8 +305,9 @@ import AVFoundation
      - remoteURL: 远程音频文件的URL
      - completion: 下载完成后的回调，返回本地文件路径或错误
      */
-    @objc public func downloadRemoteAudio(from remoteURL: URL, completion: @escaping (URL?, Error?) -> Void) {
-        audioKit?.downloadRemoteAudio(from: remoteURL) { result in
+    @objc(downloadRemoteAudioFromRemoteURL:completion:)
+    func downloadRemoteAudioObjC(from remoteURL: URL, completion: @escaping (URL?, Error?) -> Void) {
+        downloadRemoteAudio(from: remoteURL) { result in
             switch result {
             case .success(let url):
                 completion(url, nil)
@@ -310,23 +318,27 @@ import AVFoundation
     }
     
     /// 取消当前下载任务
-    @objc public func cancelDownload() {
-        audioKit?.cancelDownload()
+    @objc(cancelDownload)
+    func cancelDownloadObjC() {
+        cancelDownload()
     }
     
     /// 暂停播放
-    @objc public func pausePlayback() {
-        audioKit?.pausePlayback()
+    @objc(pausePlayback)
+    func pausePlaybackObjC() {
+        pausePlayback()
     }
     
     /// 恢复播放
-    @objc public func resumePlayback() {
-        audioKit?.resumePlayback()
+    @objc(resumePlayback)
+    func resumePlaybackObjC() {
+        resumePlayback()
     }
     
     /// 停止播放
-    @objc public func stopPlayback() {
-        audioKit?.stopPlayback()
+    @objc(stopPlayback)
+    func stopPlaybackObjC() {
+        stopPlayback()
     }
     
     /**
@@ -334,8 +346,9 @@ import AVFoundation
      
      - Parameter time: 目标时间（秒）
      */
-    @objc public func seekPlayback(to time: TimeInterval) {
-        audioKit?.seekPlayback(to: time)
+    @objc(seekPlaybackTo:)
+    func seekPlaybackObjC(to time: TimeInterval) {
+        seekPlayback(to: time)
     }
     
     /**
@@ -348,9 +361,10 @@ import AVFoundation
      - targetFormat: 目标格式
      - completion: 转换完成后的回调
      */
-    @objc public func convertAudioFile(sourceURL: URL, targetFormat: WYAudioFormatObjC, completion: @escaping (URL?, Error?) -> Void) {
+    @objc(convertAudioFileWithSourceURL:targetFormat:completion:)
+    func convertAudioFileObjC(sourceURL: URL, targetFormat: WYAudioFormatObjC, completion: @escaping (URL?, Error?) -> Void) {
         let swiftFormat = WYAudioFormat(rawValue: targetFormat.rawValue) ?? .aac
-        audioKit?.convertAudioFile(sourceURL: sourceURL, targetFormat: swiftFormat) { result in
+        convertAudioFile(sourceURL: sourceURL, targetFormat: swiftFormat) { result in
             switch result {
             case .success(let url):
                 completion(url, nil)
@@ -367,8 +381,9 @@ import AVFoundation
      
      - Returns: 录音文件URL数组（按创建日期倒序排序）
      */
-    @objc public func getAllRecordings() -> [URL] {
-        return audioKit?.getAllRecordings() ?? []
+    @objc(getAllRecordings)
+    func getAllRecordingsObjC() -> [URL] {
+        return getAllRecordings()
     }
     
     /**
@@ -376,8 +391,9 @@ import AVFoundation
      
      - Returns: 下载文件URL数组（按创建日期倒序排序）
      */
-    @objc public func getAllDownloads() -> [URL] {
-        return audioKit?.getAllDownloads() ?? []
+    @objc(getAllDownloads)
+    func getAllDownloadsObjC() -> [URL] {
+        return getAllDownloads()
     }
     
     /**
@@ -386,8 +402,9 @@ import AVFoundation
      - Parameter url: 要删除的文件URL
      - Throws: 文件操作可能抛出错误
      */
-    @objc public func deleteRecording(at url: URL) throws {
-        try audioKit?.deleteRecording(at: url)
+    @objc(deleteRecordingAtUrl:error:)
+    func deleteRecordingObjC(at url: URL) throws {
+        try deleteRecording(at: url)
     }
     
     /**
@@ -395,8 +412,9 @@ import AVFoundation
      
      - Throws: 文件操作可能抛出错误
      */
-    @objc public func deleteAllRecordings() throws {
-        try audioKit?.deleteAllRecordings()
+    @objc(deleteAllRecordingsWithError:)
+    func deleteAllRecordingsObjC() throws {
+        try deleteAllRecordings()
     }
     
     /**
@@ -405,8 +423,9 @@ import AVFoundation
      - Parameter url: 要删除的文件URL
      - Throws: 文件操作可能抛出错误
      */
-    @objc public func deleteDownload(at url: URL) throws {
-        try audioKit?.deleteDownload(at: url)
+    @objc(deleteDownloadAtUrl:error:)
+    func deleteDownloadObjC(at url: URL) throws {
+        try deleteDownload(at: url)
     }
     
     /**
@@ -414,13 +433,14 @@ import AVFoundation
      
      - Throws: 文件操作可能抛出错误
      */
-    @objc public func deleteAllDownloads() throws {
-        try audioKit?.deleteAllDownloads()
+    @objc(deleteAllDownloadsWithError:)
+    func deleteAllDownloadsObjC() throws {
+        try deleteAllDownloads()
     }
     
     /// 释放所有资源(需要外部调用)
-    @objc public func releaseAll() {
-        audioKit?.releaseAll()
-        audioKit = nil
+    @objc(releaseAll)
+    func releaseAllObjC() {
+        releaseAll()
     }
 }

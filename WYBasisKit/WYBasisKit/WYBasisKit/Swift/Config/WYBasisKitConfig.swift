@@ -66,16 +66,38 @@ public struct WYProjectInfo {
     
     /// 项目名字
     public static let projectName: String = Bundle.main.infoDictionary!["CFBundleName"] as? String ?? ""
-
+    
     /// 项目APP名
     public static let appStoreName: String = Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ?? ""
-
+    
     /// BundleID
     public static let appIdentifier: String = Bundle.main.infoDictionary?["CFBundleIdentifier"] as? String ?? ""
-
+    
     /// 应用 AppStore 版本号
     public static let appStoreVersion: String = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
-
+    
     /// 应用Build版本号
     public static let appBuildVersion: String = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+    
+    /// 判断Xcode工程是Swift还是Objective-C(true为Swift，否则为Objective-C)
+    public static var isSwiftProject: Bool {
+        
+        // 检查是否有 main.m 文件（OC项目有main.m，Swift项目没有）
+        if Bundle.main.path(forResource: "main", ofType: "m") != nil {
+            return false
+        }
+        
+        // 检查 AppDelegate 类名特征（OC项目AppDelegate不包含模块名，Swift包含模块名）
+        if let appDelegate = UIApplication.shared.delegate {
+            let className = NSStringFromClass(type(of: appDelegate))
+            if className.contains(".") {
+                return true
+            } else {
+                return false
+            }
+        }
+
+        // 如果前两个方法都无法确定，默认认为是Swift项目， 因为现代项目更倾向于使用Swift
+        return true
+    }
 }

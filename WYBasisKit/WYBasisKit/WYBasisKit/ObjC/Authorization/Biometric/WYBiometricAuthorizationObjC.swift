@@ -26,7 +26,7 @@ import Foundation
 @objcMembers public class WYBiometricAuthorizationObjC: NSObject {
     
     /// 获取设备支持的生物识别类型
-    @objc public static func checkBiometric() -> WYBiometricModeObjC {
+    public static func checkBiometric() -> WYBiometricModeObjC {
         return WYBiometricModeObjC(rawValue: wy_checkBiometric().rawValue) ?? .none
     }
 

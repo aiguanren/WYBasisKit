@@ -24,12 +24,12 @@ import UIKit
 @objcMembers public class WYSourceBundleObjC: NSObject {
     
     /// 从哪个bundle文件内查找，如果bundleName对应的bundle不存在，则直接在本地路径下查找
-    @objc public let bundleName: String
+    public let bundleName: String
     
     /// bundleName.bundle下面的子文件夹路径，如果子文件夹有多层，就用/隔开(如果要获取资源是放在bundle文件下面的子文件夹中，则需要传入该路径，例如ImageSource.bundle下面有个叫apple的子文件夹，则subdirectory应该传入 apple)
-    @objc public let subdirectory: String
+    public let subdirectory: String
     
-    @objc public init(bundleName: String = "", subdirectory: String = "") {
+    public init(bundleName: String = "", subdirectory: String = "") {
         self.bundleName = bundleName
         self.subdirectory = subdirectory
     }
@@ -213,15 +213,15 @@ import UIKit
 @objcMembers public class WYGifInfoObjC: NSObject {
     
     /// 解析后得到的图片数组
-    @objc public var animationImages: [UIImage]? = nil
+    public var animationImages: [UIImage]? = nil
     
     /// 轮询时长
-    @objc public var animationDuration: CGFloat = 0.0
+    public var animationDuration: CGFloat = 0.0
     
     /// 可以直接显示的动图
-    @objc public var animatedImage: UIImage? = nil
+    public var animatedImage: UIImage? = nil
     
-    @objc public init(animationImages: [UIImage]? = nil, animationDuration: CGFloat, animatedImage: UIImage? = nil) {
+    public init(animationImages: [UIImage]? = nil, animationDuration: CGFloat, animatedImage: UIImage? = nil) {
         self.animationImages = animationImages
         self.animationDuration = animationDuration
         self.animatedImage = animatedImage

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		584EAF0E2E939052003A21B8 /* WYTestWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF0D2E939052003A21B8 /* WYTestWebViewController.m */; };
 		58B46FF22E8D0F6100D04BCA /* WYTabBarController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B46FF12E8D0F6100D04BCA /* WYTabBarController.m */; };
 		58B470142E8D112B00D04BCA /* 秋天的树.png in Resources */ = {isa = PBXBuildFile; fileRef = 58B470052E8D112B00D04BCA /* 秋天的树.png */; };
 		58B470152E8D112B00D04BCA /* 蓝天下的花.png in Resources */ = {isa = PBXBuildFile; fileRef = 58B470022E8D112B00D04BCA /* 蓝天下的花.png */; };
@@ -57,6 +58,8 @@
 /* Begin PBXFileReference section */
 		00E93EF8A69093A840C991C9 /* Pods-ObjCVerify.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ObjCVerify.debug.xcconfig"; path = "Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify.debug.xcconfig"; sourceTree = "<group>"; };
 		287657987D557763A49D167F /* Pods-ObjCVerify.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ObjCVerify.release.xcconfig"; path = "Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify.release.xcconfig"; sourceTree = "<group>"; };
+		584EAF0C2E939052003A21B8 /* WYTestWebViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestWebViewController.h; sourceTree = "<group>"; };
+		584EAF0D2E939052003A21B8 /* WYTestWebViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestWebViewController.m; sourceTree = "<group>"; };
 		58B46FF02E8D0F6100D04BCA /* WYTabBarController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTabBarController.h; sourceTree = "<group>"; };
 		58B46FF12E8D0F6100D04BCA /* WYTabBarController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTabBarController.m; sourceTree = "<group>"; };
 		58B46FF32E8D112B00D04BCA /* [爱心].png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "[爱心].png"; sourceTree = "<group>"; };
@@ -134,6 +137,15 @@
 			);
 			name = Pods;
 			path = ../Pods;
+			sourceTree = "<group>";
+		};
+		584EAF0B2E939036003A21B8 /* WKWebView */ = {
+			isa = PBXGroup;
+			children = (
+				584EAF0C2E939052003A21B8 /* WYTestWebViewController.h */,
+				584EAF0D2E939052003A21B8 /* WYTestWebViewController.m */,
+			);
+			path = WKWebView;
 			sourceTree = "<group>";
 		};
 		58B470132E8D112B00D04BCA /* Resource */ = {
@@ -230,6 +242,7 @@
 		58B470482E8D329600D04BCA /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				584EAF0B2E939036003A21B8 /* WKWebView */,
 				58B470352E8D114C00D04BCA /* Tabbar */,
 			);
 			path = Controller;
@@ -468,6 +481,7 @@
 				58B470442E8D11E200D04BCA /* WYRightController.m in Sources */,
 				58B470412E8D11D400D04BCA /* WYCenterController.m in Sources */,
 				58B46FF22E8D0F6100D04BCA /* WYTabBarController.m in Sources */,
+				584EAF0E2E939052003A21B8 /* WYTestWebViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
