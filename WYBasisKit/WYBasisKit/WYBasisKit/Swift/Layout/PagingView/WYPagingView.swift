@@ -31,7 +31,7 @@ public class WYPagingView: UIView {
     public var bar_Height: CGFloat = UIDevice.wy_screenWidth(45, WYBasisKitConfig.defaultScreenPixels)
     
     /// 图片和文字显示模式
-    public var buttonPosition: WYButtonPosition = .imageTopTitleBottom
+    public var buttonPosition: WYButtonPosition = .imageLeftTitleRight
 
     /// 分页栏左起始点距离(第一个标题栏距离屏幕边界的距离) 默认0
     public var bar_originlLeftOffset: CGFloat = 0
@@ -147,20 +147,20 @@ public class WYPagingView: UIView {
     /**
      *调用后开始布局
      *
-     * @param controllerAry 控制器数组
-     * @param titleAry 标题数组
-     * @param defaultImageAry 未选中状态图片数组(可不传)
-     * @param selectedImageAry 选中状态图片数组(可不传)
+     * @param controllers 控制器数组
+     * @param titles 标题数组
+     * @param defaultImages 未选中状态图片数组(可不传)
+     * @param selectedImages 选中状态图片数组(可不传)
      * @param superViewController 父控制器
      */
-    public func layout(controllerAry: [UIViewController], titleAry: [String] = [], defaultImageAry: [UIImage] = [], selectedImageAry: [UIImage] = [], superViewController: UIViewController) {
+    public func layout(controllers: [UIViewController], titles: [String] = [], defaultImages: [UIImage] = [], selectedImages: [UIImage] = [], superViewController: UIViewController) {
         
         DispatchQueue.main.async {
             
-            self.controllers = controllerAry
-            self.titles = titleAry
-            self.defaultImages = defaultImageAry
-            self.selectedImages = selectedImageAry
+            self.controllers = controllers
+            self.titles = titles
+            self.defaultImages = defaultImages
+            self.selectedImages = selectedImages
             self.superController = superViewController
             
             self.layoutMethod()

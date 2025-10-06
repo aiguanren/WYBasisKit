@@ -22,6 +22,7 @@
 		584EAF082E92979A003A21B8 /* WYMediaPlayerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF072E92979A003A21B8 /* WYMediaPlayerObjC.swift */; };
 		584EAF0A2E92A7A0003A21B8 /* WYBannerViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF092E92A7A0003A21B8 /* WYBannerViewObjC.swift */; };
 		584EAF102E93C116003A21B8 /* WYScrollTextObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF0F2E93C116003A21B8 /* WYScrollTextObjC.swift */; };
+		584EAF122E93C54C003A21B8 /* WYPagingViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF112E93C54C003A21B8 /* WYPagingViewObjC.swift */; };
 		585B39A22DF8125400E6E08F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B39622DF8125400E6E08F /* AppDelegate.swift */; };
 		585B39A32DF8125400E6E08F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B396A2DF8125400E6E08F /* ViewController.swift */; };
 		585B39AC2DF8125400E6E08F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 585B39632DF8125400E6E08F /* Assets.xcassets */; };
@@ -183,6 +184,7 @@
 		584EAF072E92979A003A21B8 /* WYMediaPlayerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaPlayerObjC.swift; sourceTree = "<group>"; };
 		584EAF092E92A7A0003A21B8 /* WYBannerViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYBannerViewObjC.swift; sourceTree = "<group>"; };
 		584EAF0F2E93C116003A21B8 /* WYScrollTextObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYScrollTextObjC.swift; sourceTree = "<group>"; };
+		584EAF112E93C54C003A21B8 /* WYPagingViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPagingViewObjC.swift; sourceTree = "<group>"; };
 		585B35642DF8086C00E6E08F /* WYBasisKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WYBasisKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		585B39622DF8125400E6E08F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		585B39632DF8125400E6E08F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -1073,6 +1075,7 @@
 			isa = PBXGroup;
 			children = (
 				58C68CAB2E84E436005FD054 /* PrivacyInfo.xcprivacy */,
+				584EAF112E93C54C003A21B8 /* WYPagingViewObjC.swift */,
 			);
 			path = PagingView;
 			sourceTree = "<group>";
@@ -2121,6 +2124,7 @@
 				58C68DD22E84E436005FD054 /* WYCodingKeysConverter.swift in Sources */,
 				58C68DD32E84E436005FD054 /* WYDevice.swift in Sources */,
 				58C68DD42E84E436005FD054 /* WYChatViewDelegateHandler.swift in Sources */,
+				584EAF122E93C54C003A21B8 /* WYPagingViewObjC.swift in Sources */,
 				58C68DD52E84E436005FD054 /* WYFont.swift in Sources */,
 				58C68DD62E84E436005FD054 /* WYView.swift in Sources */,
 				58C68DD72E84E436005FD054 /* WYChatEmojiView.swift in Sources */,
