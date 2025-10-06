@@ -177,7 +177,7 @@ class WYTestScrollTextController: UIViewController {
         scrollText.delegate = self
         
         // 设置点击回调
-        scrollText.didClickHandler { index in
+        scrollText.didClick { index in
             print("Block回调: 点击了第 \(index) 项")
         }
     }

@@ -29,7 +29,7 @@ public class WYScrollText: UIView {
     public weak var delegate: WYScrollTextDelegate?
     
     /// 点击事件(也可以通过实现代理监听)
-    public func didClickHandler(handler:((_ index: Int) -> Void)? = .none) {
+    public func didClick(handler:((_ index: Int) -> Void)? = .none) {
         actionHandler = handler
     }
     
@@ -70,7 +70,7 @@ public class WYScrollText: UIView {
         }
     }
     
-    private var _textArray: [String]!
+    /// 设置标签文本
     public var textArray: [String]! {
         set {
             _textArray = NSMutableArray(array: newValue) as? [String]
@@ -85,7 +85,6 @@ public class WYScrollText: UIView {
                 self.startTimer()
             }
         }
-        
         get {
             return _textArray
         }
@@ -128,6 +127,8 @@ public class WYScrollText: UIView {
         super.init(coder: coder)
         setupUI()
     }
+    
+    private var _textArray: [String]!
     
     private func setupUI() {
         // 设置collectionView的约束

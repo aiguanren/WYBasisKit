@@ -21,6 +21,7 @@
 		584EAF012E92791B003A21B8 /* WYLocalizableManagerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF002E92791B003A21B8 /* WYLocalizableManagerObjC.swift */; };
 		584EAF082E92979A003A21B8 /* WYMediaPlayerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF072E92979A003A21B8 /* WYMediaPlayerObjC.swift */; };
 		584EAF0A2E92A7A0003A21B8 /* WYBannerViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF092E92A7A0003A21B8 /* WYBannerViewObjC.swift */; };
+		584EAF102E93C116003A21B8 /* WYScrollTextObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF0F2E93C116003A21B8 /* WYScrollTextObjC.swift */; };
 		585B39A22DF8125400E6E08F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B39622DF8125400E6E08F /* AppDelegate.swift */; };
 		585B39A32DF8125400E6E08F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B396A2DF8125400E6E08F /* ViewController.swift */; };
 		585B39AC2DF8125400E6E08F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 585B39632DF8125400E6E08F /* Assets.xcassets */; };
@@ -181,6 +182,7 @@
 		584EAF022E928182003A21B8 /* WYLocalizableManagerMacro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYLocalizableManagerMacro.h; sourceTree = "<group>"; };
 		584EAF072E92979A003A21B8 /* WYMediaPlayerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaPlayerObjC.swift; sourceTree = "<group>"; };
 		584EAF092E92A7A0003A21B8 /* WYBannerViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYBannerViewObjC.swift; sourceTree = "<group>"; };
+		584EAF0F2E93C116003A21B8 /* WYScrollTextObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYScrollTextObjC.swift; sourceTree = "<group>"; };
 		585B35642DF8086C00E6E08F /* WYBasisKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WYBasisKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		585B39622DF8125400E6E08F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		585B39632DF8125400E6E08F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -1079,6 +1081,7 @@
 			isa = PBXGroup;
 			children = (
 				58C68CAD2E84E436005FD054 /* PrivacyInfo.xcprivacy */,
+				584EAF0F2E93C116003A21B8 /* WYScrollTextObjC.swift */,
 			);
 			path = ScrollText;
 			sourceTree = "<group>";
@@ -2225,6 +2228,7 @@
 				585B39A22DF8125400E6E08F /* AppDelegate.swift in Sources */,
 				585B39A32DF8125400E6E08F /* ViewController.swift in Sources */,
 				588D00812E5FEB570034A1CF /* AutoLayout.swift in Sources */,
+				584EAF102E93C116003A21B8 /* WYScrollTextObjC.swift in Sources */,
 				58BE5F032E5E94210046AD5D /* Swift↔ObjC.swift in Sources */,
 				586FFBB32E8230A700499506 /* Other.swift in Sources */,
 				583E04F82E869051004F1034 /* WYTextFieldObjC.swift in Sources */,
