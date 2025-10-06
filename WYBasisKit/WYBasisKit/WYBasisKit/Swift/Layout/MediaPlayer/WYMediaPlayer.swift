@@ -107,7 +107,7 @@ public class WYMediaPlayer: UIImageView {
             failReplayNumber = 0
         }
         
-        release()
+        releaseAll()
         createPlayer(with: playUrl)
         
         // 先隐藏渲染view，因为无法设置其背景色(始终为黑色)等信息，等第一帧渲染完成后再设为false，这样就可以自定义背景色、背景图等信息了
@@ -131,13 +131,13 @@ public class WYMediaPlayer: UIImageView {
     }
     
     /// 快进/快退
-    public func playbackTime(_ playbackTime: TimeInterval) {
-        ijkPlayer?.currentPlaybackTime = playbackTime
+    public func playbackTime(_ time: TimeInterval) {
+        ijkPlayer?.currentPlaybackTime = time
     }
     
     /// 倍速播放
-    public func playbackRate(_ playbackRate: CGFloat) {
-        ijkPlayer?.playbackRate = Float(playbackRate)
+    public func playbackRate(_ rate: CGFloat) {
+        ijkPlayer?.playbackRate = Float(rate)
     }
     
     /// 挂载并激活字幕(本地/网络)
@@ -166,9 +166,9 @@ public class WYMediaPlayer: UIImageView {
     }
     
     /// 播放画面显示模式
-    public func scalingStyle(_ scalingStyle: FSScalingMode) {
+    public func scalingStyle(_ style: FSScalingMode) {
         ijkPlayer?.scalingMode = scalingStyle
-        self.scalingStyle = scalingStyle
+        self.scalingStyle = style
     }
     
     /// 逐帧播放
@@ -187,13 +187,13 @@ public class WYMediaPlayer: UIImageView {
     }
     
     /// 设定音频延迟(单位：s)
-    public func audioExtraDelay(_ audioExtraDelay: CGFloat) {
-        ijkPlayer?.currentAudioExtraDelay = Float(audioExtraDelay)
+    public func audioExtraDelay(_ delay: CGFloat) {
+        ijkPlayer?.currentAudioExtraDelay = Float(delay)
     }
     
     /// 设定字幕延迟(单位：s)
-    public func subtitleExtraDelay(_ subtitleExtraDelay: CGFloat) {
-        ijkPlayer?.currentSubtitleExtraDelay = Float(subtitleExtraDelay)
+    public func subtitleExtraDelay(_ delay: CGFloat) {
+        ijkPlayer?.currentSubtitleExtraDelay = Float(delay)
     }
     
     /// 获取预加载时长(单位：s)
@@ -217,29 +217,29 @@ public class WYMediaPlayer: UIImageView {
     }
     
     /// 调整字幕样式(支持设置字体，字体颜色，边框颜色，背景颜色等)
-    public func subtitlePreference(_ subtitlePreference: FSSubtitlePreference) {
-        ijkPlayer?.subtitlePreference = subtitlePreference
+    public func subtitlePreference(_ preference: FSSubtitlePreference) {
+        ijkPlayer?.subtitlePreference = preference
     }
     
     /// 旋转画面
-    public func rotatePreference(_ rotatePreference: FSRotatePreference) {
-        ijkPlayer?.view.rotatePreference = rotatePreference
+    public func rotatePreference(_ preference: FSRotatePreference) {
+        ijkPlayer?.view.rotatePreference = preference
         if ijkPlayer?.isPlaying() ?? false {
             ijkPlayer?.view.setNeedsRefreshCurrentPic()
         }
     }
     
     /// 修改画面色彩
-    public func colorPreference(_ colorPreference: FSColorConvertPreference) {
-        ijkPlayer?.view.colorPreference = colorPreference
+    public func colorPreference(_ preference: FSColorConvertPreference) {
+        ijkPlayer?.view.colorPreference = preference
         if ijkPlayer?.isPlaying() ?? false {
             ijkPlayer?.view.setNeedsRefreshCurrentPic()
         }
     }
     
     /// 设置画面比例
-    public func darPreference(_ darPreference: FSDARPreference) {
-        ijkPlayer?.view.darPreference = darPreference
+    public func darPreference(_ preference: FSDARPreference) {
+        ijkPlayer?.view.darPreference = preference
         if ijkPlayer?.isPlaying() ?? false {
             ijkPlayer?.view.setNeedsRefreshCurrentPic()
         }
@@ -259,11 +259,11 @@ public class WYMediaPlayer: UIImageView {
             image = player.thumbnailImageAtCurrentTime()
         }
         options = nil
-        release()
+        releaseAll()
     }
     
     /// 释放播放器组件
-    public func release() {
+    public func releaseAll() {
         
         guard let player = ijkPlayer else {
             return
@@ -353,7 +353,7 @@ public class WYMediaPlayer: UIImageView {
                     failReplayNumber += 1
                     play(with: mediaUrl)
                 }else {
-                    release()
+                    releaseAll()
                 }
             case .userExited:
                 callback(with: .userExited)
@@ -424,7 +424,7 @@ public class WYMediaPlayer: UIImageView {
     }
     
     deinit {
-        release()
+        releaseAll()
     }
     
     /*

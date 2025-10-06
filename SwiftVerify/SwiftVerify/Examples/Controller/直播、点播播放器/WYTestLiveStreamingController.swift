@@ -966,7 +966,7 @@ class WYTestLiveStreamingController: UIViewController {
     
     deinit {
         updateTimer?.invalidate()
-        player.release()
+        player.releaseAll()
         WYLogManager.output("WYTestLiveStreamingController release")
     }
 }

@@ -99,7 +99,7 @@ public class WYEmojiPreviewView: UIImageView {
     @discardableResult
     public static func show(emoji: String, according: UIView, handler: @escaping ((_ imageName: String, _ imageView: UIImageView) -> Void)) ->WYEmojiPreviewView?  {
         
-        release()
+        releaseAll()
         
         guard emojiViewConfig.previewConfig.show == true else {
             return nil
@@ -134,11 +134,11 @@ public class WYEmojiPreviewView: UIImageView {
         UIView.animate(withDuration: 0.25) {
             previewView?.alpha = 0.0
         }completion: { _ in
-            release()
+            releaseAll()
         }
     }
     
-    private static func release() {
+    private static func releaseAll() {
         previewView?.wy_removeAllSubviews()
         previewView?.removeFromSuperview()
         previewView = nil
