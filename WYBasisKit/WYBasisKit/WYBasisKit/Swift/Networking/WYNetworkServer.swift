@@ -205,6 +205,8 @@ struct WYProviderConfig<target: TargetType> {
                                 policies[domains[index]] = trustEvaluator
                             }
                             serverTrustManager = ServerTrustManager(allHostsMustBeEvaluated: config.httpsConfig.allHostsMustBeEvaluated, evaluators: policies)
+                            
+                            WYNetworkConfig.httpsConfig.trustManager = serverTrustManager
                         }
                     } catch {
                         WYNetworkManager.wy_networkPrint("\(config.httpsConfig.serverCer).cer 这个证书转换为 CFData类型 失败")

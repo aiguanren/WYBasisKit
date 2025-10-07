@@ -10,7 +10,7 @@ import UIKit
 public protocol SDKResponseProtocol {}
 @objcMembers public class SDKResponse: Codable, SDKResponseProtocol {
 
-    public var errorCode: String = ""
+    @objc public var errorCode: String = ""
     
-    public var errorMessage: String = ""
+    @objc public var errorMessage: String = ""
 }

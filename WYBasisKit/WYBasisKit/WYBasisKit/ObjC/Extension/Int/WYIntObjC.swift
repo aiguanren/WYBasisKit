@@ -10,22 +10,22 @@ import Foundation
 @objcMembers public class IntObjC: NSObject {
     
     /// NSInteger转String
-    public static func wy_stringValue(_ value: Int) -> String {
+    @objc public static func wy_stringValue(_ value: Int) -> String {
         return value.wy_convertTo(String.self)
     }
     
     /// NSInteger转CGFloat
-    public static func wy_floatValue(_ value: Int) -> CGFloat {
+    @objc public static func wy_floatValue(_ value: Int) -> CGFloat {
         return value.wy_convertTo(CGFloat.self)
     }
     
     /// NSInteger转Double
-    public static func wy_doubleValue(_ value: Int) -> Double {
+    @objc public static func wy_doubleValue(_ value: Int) -> Double {
         return value.wy_convertTo(Double.self)
     }
     
     /// NSInteger转NSDecimalNumber
-    public static func wy_decimalValue(_ value: Int) -> NSDecimalNumber {
+    @objc public static func wy_decimalValue(_ value: Int) -> NSDecimalNumber {
         let string: String = wy_stringValue(value)
         return NSDecimalNumber(string: string)
     }
@@ -38,7 +38,7 @@ import Foundation
      *  @param maximum   最大可以是多少
      *
      */
-    public static func wy_random(minimum: Int = 1, maximum: Int = 99999) -> Int {
+    @objc public static func wy_random(minimum: Int = 1, maximum: Int = 99999) -> Int {
         return Int.wy_random(minimum: minimum, maximum: maximum)
     }
 }

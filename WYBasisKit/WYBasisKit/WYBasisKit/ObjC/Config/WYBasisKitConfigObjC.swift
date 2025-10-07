@@ -13,12 +13,12 @@ import Foundation
 @objcMembers public class WYScreenPixelsObjC: NSObject {
     
     /// 屏幕宽
-    public var width: Double = 0
+    @objc public var width: Double = 0
     
     /// 屏幕高
-    public var height: Double = 0
+    @objc public var height: Double = 0
     
-    public init(width: Double, height: Double) {
+    @objc public init(width: Double, height: Double) {
         self.width = width
         self.height = height
     }
@@ -29,12 +29,12 @@ import Foundation
 @objcMembers public class WYRatioObjC: NSObject {
     
     /// 最小比率
-    public var min: Double = 0
+    @objc public var min: Double = 0
     
     /// 最大比率
-    public var max: Double = 0
+    @objc public var max: Double = 0
     
-    public init(min: Double, max: Double) {
+    @objc public init(min: Double, max: Double) {
         self.min = min
         self.max = max
     }
@@ -44,7 +44,7 @@ import Foundation
 @objcMembers public class WYBasisKitConfigObjC: NSObject {
     
     /// 设置默认屏幕分辨率(建议根据设计图的分辨率设置)
-    public static var defaultScreenPixels: WYScreenPixelsObjC {
+    @objc public static var defaultScreenPixels: WYScreenPixelsObjC {
         get {
             let pixels = WYBasisKitConfig.defaultScreenPixels
             return WYScreenPixelsObjC(width: pixels.width, height: pixels.height)
@@ -55,7 +55,7 @@ import Foundation
     }
     
     /// 设置字号适配的最大最小比率数
-    public static var fontRatio: WYRatioObjC {
+    @objc public static var fontRatio: WYRatioObjC {
         get {
             let ratio = WYBasisKitConfig.fontRatio
             return WYRatioObjC(min: ratio.min, max: ratio.max)
@@ -66,7 +66,7 @@ import Foundation
     }
     
     /// 设置屏幕分辨率宽度比最大最小比率数
-    public static var screenWidthRatio: WYRatioObjC {
+    @objc public static var screenWidthRatio: WYRatioObjC {
         get {
             let ratio = WYBasisKitConfig.screenWidthRatio
             return WYRatioObjC(min: ratio.min, max: ratio.max)
@@ -77,7 +77,7 @@ import Foundation
     }
     
     /// 设置屏幕分辨率高度比最大最小比率数
-    public static var screenHeightRatio: WYRatioObjC {
+    @objc public static var screenHeightRatio: WYRatioObjC {
         get {
             let ratio = WYBasisKitConfig.screenHeightRatio
             return WYRatioObjC(min: ratio.min, max: ratio.max)
@@ -88,13 +88,13 @@ import Foundation
     }
     
     /// 设置国际化语言读取表(如果有Bundle，则要求Bundle名与表名一致，否则会读取失败)
-    public static var localizableTable: String {
+    @objc public static var localizableTable: String {
         get { return WYBasisKitConfig.localizableTable }
         set { WYBasisKitConfig.localizableTable = newValue }
     }
     
     /// 设置WYBasisKit内部国际化语言读取表，设置后需自己将WYLocalizable表中的国际化文本写入自定义的表中(如果有Bundle，则要求Bundle名与表名一致，否则会读取失败)，默认使用自带的表：WYLocalizable
-    public static var kitLocalizableTable: String {
+    @objc public static var kitLocalizableTable: String {
         get { return WYBasisKitConfig.kitLocalizableTable }
         set { WYBasisKitConfig.kitLocalizableTable = newValue }
     }
@@ -104,32 +104,32 @@ import Foundation
 @objcMembers public class WYProjectInfoObjC: NSObject {
     
     /// 获取项目名称
-    public static var projectName: String {
+    @objc public static var projectName: String {
         return WYProjectInfo.projectName
     }
     
     /// 获取AppStore名称
-    public static var appStoreName: String {
+    @objc public static var appStoreName: String {
         return WYProjectInfo.appStoreName
     }
     
     /// 获取BundleID
-    public static var appIdentifier: String {
+    @objc public static var appIdentifier: String {
         return WYProjectInfo.appIdentifier
     }
     
     /// 获取AppStore版本号
-    public static var appStoreVersion: String {
+    @objc public static var appStoreVersion: String {
         return WYProjectInfo.appStoreVersion
     }
     
     /// 获取Build版本号
-    public static var appBuildVersion: String {
+    @objc public static var appBuildVersion: String {
         return WYProjectInfo.appBuildVersion
     }
     
     /// 判断Xcode工程是Swift还是Objective-C(true为Swift，否则为Objective-C)
-    public static var isSwiftProject: Bool {
+    @objc public static var isSwiftProject: Bool {
         return WYProjectInfo.isSwiftProject
     }
 }

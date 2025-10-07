@@ -102,10 +102,10 @@ class WYTestPagingViewController: UIViewController {
         
         // 布局分页视图
         newPagingView.layout(
-            controllerAry: testControllers,
-            titleAry: testTitles,
-            defaultImageAry: testDefaultImages,
-            selectedImageAry: testSelectedImages,
+            controllers: testControllers,
+            titles: testTitles,
+            defaultImages: testDefaultImages,
+            selectedImages: testSelectedImages,
             superViewController: self
         )
         

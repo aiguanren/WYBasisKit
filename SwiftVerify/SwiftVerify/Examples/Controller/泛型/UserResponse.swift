@@ -7,6 +7,4 @@
 
 import UIKit
 
-@objcMembers public class UserResponse: SDKResponse {
-
-}
+@objcMembers public class UserResponse: SDKResponse { }

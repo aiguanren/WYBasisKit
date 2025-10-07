@@ -10,32 +10,32 @@ import Foundation
 @objcMembers public class BoolObjC: NSObject {
     
     /// 判断是否是纯数字
-    public static func wy_isPureDigital(_ string: String) -> Bool {
+    @objc public static func wy_isPureDigital(_ string: String) -> Bool {
         return Bool.wy_isPureDigital(string)
     }
     
     /// 判断是否是纯字母
-    public static func wy_isPureLetters(_ string: String) -> Bool {
+    @objc public static func wy_isPureLetters(_ string: String) -> Bool {
         return Bool.wy_isPureLetters(string)
     }
     
     /// 判断是否是纯汉字
-    public static func wy_isChineseCharacters(_ string: String) -> Bool {
+    @objc public static func wy_isChineseCharacters(_ string: String) -> Bool {
         return Bool.wy_isChineseCharacters(string)
     }
     
     /// 判断是否包含字母
-    public static func wy_isContainLetters(_ string: String) -> Bool {
+    @objc public static func wy_isContainLetters(_ string: String) -> Bool {
         return Bool.wy_isContainLetters(string)
     }
     
     /// 判断仅字母或数字
-    public static func wy_isLettersOrNumbers(_ string: String) -> Bool {
+    @objc public static func wy_isLettersOrNumbers(_ string: String) -> Bool {
         return Bool.wy_isLettersOrNumbers(string)
     }
     
     /// 判断仅中文、字母或数字
-    public static func wy_isChineseOrLettersOrNumbers(_ string: String) -> Bool {
+    @objc public static func wy_isChineseOrLettersOrNumbers(_ string: String) -> Bool {
         return Bool.wy_isChineseOrLettersOrNumbers(string)
     }
     
@@ -60,7 +60,7 @@ import Foundation
     /**
      *  获取一个随机布尔值
      */
-    public static func wy_randoml() -> Bool {
+    @objc public static func wy_randoml() -> Bool {
         return Bool.wy_randoml()
     }
 }

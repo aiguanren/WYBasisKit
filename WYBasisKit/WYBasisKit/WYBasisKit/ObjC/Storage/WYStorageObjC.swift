@@ -39,24 +39,24 @@ import UIKit
 @objcMembers public class WYStorageDataObjC: NSObject, Codable {
     
     /// 存储的数据
-    public var userData: Data?
+    @objc public var userData: Data?
     
     /// 存储有效时长(秒)
-    public var durable: TimeInterval
+    @objc public var durable: TimeInterval
     
     /// 存入时间戳
-    public var storageDate: TimeInterval
+    @objc public var storageDate: TimeInterval
     
     /// 是否超时过期
-    public var isInvalid: Bool
+    @objc public var isInvalid: Bool
     
     /// 缓存路径
-    public var path: URL?
+    @objc public var path: URL?
     
     /// 报错提示
-    public var error: String?
+    @objc public var error: String?
     
-    public init(userData: Data? = nil, durable: TimeInterval = 0, storageDate: TimeInterval = 0, isInvalid: Bool = false, path: URL? = nil, error: String? = nil) {
+    @objc public init(userData: Data? = nil, durable: TimeInterval = 0, storageDate: TimeInterval = 0, isInvalid: Bool = false, path: URL? = nil, error: String? = nil) {
         self.userData = userData
         self.durable = durable
         self.storageDate = storageDate
@@ -65,7 +65,7 @@ import UIKit
         self.error = error
     }
     
-    // 转换WYStorageData为WYStorageDataObjC
+    // 转换WYStorageData为WYStorageDataObjC(内部使用)
     static func wy_swiftConvertToObjC(storageData: WYStorageData) -> WYStorageDataObjC {
         return WYStorageDataObjC(userData: storageData.userData, durable: storageData.durable ?? 0, storageDate: storageData.storageDate ?? 0, isInvalid: storageData.isInvalid ?? false, path: storageData.path, error: storageData.error)
     }
@@ -112,7 +112,7 @@ import UIKit
     
     /// 根据传入的Key将数据缓存到本地
     @discardableResult
-    public static func storage(forKey key: String, data: Data, durable: WYStorageDurableObjC = .unlimited, interval: TimeInterval, path: URL? = nil) -> WYStorageDataObjC {
+    @objc public static func storage(forKey key: String, data: Data, durable: WYStorageDurableObjC = .unlimited, interval: TimeInterval, path: URL? = nil) -> WYStorageDataObjC {
         
         // 保证默认路径只在 path 为空时生成
         let realPath = path ?? createDirectory(directory: .cachesDirectory, subDirectory: "WYBasisKit/Memory")
@@ -135,7 +135,7 @@ import UIKit
     }
     
     /// 根据Key获取对应的缓存数据
-    public static func takeOut(forKey key: String, path: String? = nil) -> WYStorageDataObjC {
+    @objc public static func takeOut(forKey key: String, path: String? = nil) -> WYStorageDataObjC {
         
         // 保证默认路径只在 path 为空时生成
         let realPath = path ?? createDirectory(directory: .cachesDirectory, subDirectory: "WYBasisKit/Memory").path
@@ -151,17 +151,17 @@ import UIKit
      *  @param path         要获取沙盒文件资源大小的路径，为空表示获取沙盒内所有 文件/文件夹的大小
      *
      */
-    public static func sandboxSize(forPath path: String = "") -> CGFloat {
+    @objc public static func sandboxSize(forPath path: String = "") -> CGFloat {
         return WYStorage.sandboxSize(forPath: path)
     }
     
     /// 计算沙盒内单个文件的大小
-    public static func sandboxFileSize(forPath path: String) -> CGFloat {
+    @objc public static func sandboxFileSize(forPath path: String) -> CGFloat {
         return WYStorage.sandboxFileSize(forPath: path)
     }
     
     /// 创建一个指定目录/文件夹
-    public static func createDirectory(directory: FileManager.SearchPathDirectory, subDirectory: String) -> URL {
+    @objc public static func createDirectory(directory: FileManager.SearchPathDirectory, subDirectory: String) -> URL {
         return WYStorage.createDirectory(directory: directory, subDirectory: subDirectory)
     }
     
@@ -175,7 +175,7 @@ import UIKit
      *  @param complte      完成后回调，error 为空表示成功，否则为失败
      *
      */
-    public static func clearMemory(forPath path: String, asset: String = "", completion:((_ error: String?) -> Void)? = .none) {
+    @objc public static func clearMemory(forPath path: String, asset: String = "", completion:((_ error: String?) -> Void)? = .none) {
         return WYStorage.clearMemory(forPath: path, asset: asset, completion: completion)
     }
 }

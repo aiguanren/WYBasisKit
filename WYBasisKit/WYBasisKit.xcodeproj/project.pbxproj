@@ -23,6 +23,9 @@
 		584EAF0A2E92A7A0003A21B8 /* WYBannerViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF092E92A7A0003A21B8 /* WYBannerViewObjC.swift */; };
 		584EAF102E93C116003A21B8 /* WYScrollTextObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF0F2E93C116003A21B8 /* WYScrollTextObjC.swift */; };
 		584EAF122E93C54C003A21B8 /* WYPagingViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF112E93C54C003A21B8 /* WYPagingViewObjC.swift */; };
+		584EAF142E94ACB4003A21B8 /* WYNetworkConfigObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF132E94ACB4003A21B8 /* WYNetworkConfigObjC.swift */; };
+		584EAF162E94ACC3003A21B8 /* WYNetworkManagerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF152E94ACC3003A21B8 /* WYNetworkManagerObjC.swift */; };
+		584EAF182E94ACD4003A21B8 /* WYNetworkServerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF172E94ACD4003A21B8 /* WYNetworkServerObjC.swift */; };
 		585B39A22DF8125400E6E08F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B39622DF8125400E6E08F /* AppDelegate.swift */; };
 		585B39A32DF8125400E6E08F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B396A2DF8125400E6E08F /* ViewController.swift */; };
 		585B39AC2DF8125400E6E08F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 585B39632DF8125400E6E08F /* Assets.xcassets */; };
@@ -185,6 +188,9 @@
 		584EAF092E92A7A0003A21B8 /* WYBannerViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYBannerViewObjC.swift; sourceTree = "<group>"; };
 		584EAF0F2E93C116003A21B8 /* WYScrollTextObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYScrollTextObjC.swift; sourceTree = "<group>"; };
 		584EAF112E93C54C003A21B8 /* WYPagingViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPagingViewObjC.swift; sourceTree = "<group>"; };
+		584EAF132E94ACB4003A21B8 /* WYNetworkConfigObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkConfigObjC.swift; sourceTree = "<group>"; };
+		584EAF152E94ACC3003A21B8 /* WYNetworkManagerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkManagerObjC.swift; sourceTree = "<group>"; };
+		584EAF172E94ACD4003A21B8 /* WYNetworkServerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkServerObjC.swift; sourceTree = "<group>"; };
 		585B35642DF8086C00E6E08F /* WYBasisKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WYBasisKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		585B39622DF8125400E6E08F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		585B39632DF8125400E6E08F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -1127,6 +1133,9 @@
 			isa = PBXGroup;
 			children = (
 				58C68CB62E84E436005FD054 /* PrivacyInfo.xcprivacy */,
+				584EAF132E94ACB4003A21B8 /* WYNetworkConfigObjC.swift */,
+				584EAF152E94ACC3003A21B8 /* WYNetworkManagerObjC.swift */,
+				584EAF172E94ACD4003A21B8 /* WYNetworkServerObjC.swift */,
 			);
 			path = Networking;
 			sourceTree = "<group>";
@@ -2117,6 +2126,7 @@
 				58C68DCB2E84E436005FD054 /* WYFontObjC.swift in Sources */,
 				58C68DCC2E84E436005FD054 /* WYNumberFormatterObjC.swift in Sources */,
 				58C68DCD2E84E436005FD054 /* WYTextField.swift in Sources */,
+				584EAF142E94ACB4003A21B8 /* WYNetworkConfigObjC.swift in Sources */,
 				58C68DCE2E84E436005FD054 /* WYTimerObjC.swift in Sources */,
 				58C68DCF2E84E436005FD054 /* WYNavigationController.swift in Sources */,
 				58C68DD02E84E436005FD054 /* Foundation+JSONLog.m in Sources */,
@@ -2135,8 +2145,10 @@
 				58C68DDB2E84E436005FD054 /* WYIntObjC.swift in Sources */,
 				58C68DDC2E84E436005FD054 /* WYChatLocationCell.swift in Sources */,
 				58C68DDD2E84E436005FD054 /* WYArrayObjC.swift in Sources */,
+				584EAF182E94ACD4003A21B8 /* WYNetworkServerObjC.swift in Sources */,
 				58C68DDE2E84E436005FD054 /* WYDictionaryObjC.swift in Sources */,
 				58C68DDF2E84E436005FD054 /* WYPhotoAlbumsAuthorizationObjC.swift in Sources */,
+				584EAF162E94ACC3003A21B8 /* WYNetworkManagerObjC.swift in Sources */,
 				58C68DE02E84E436005FD054 /* WYImage.swift in Sources */,
 				583E04EE2E8644DD004F1034 /* WYCollectionViewObjC.swift in Sources */,
 				58C68DE12E84E436005FD054 /* WYMoveupTipsView.swift in Sources */,

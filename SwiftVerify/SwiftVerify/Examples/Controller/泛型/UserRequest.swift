@@ -7,5 +7,4 @@
 
 import UIKit
 
-@objcMembers public class UserRequest: SDKRequest {
-}
+@objcMembers public class UserRequest: SDKRequest { }

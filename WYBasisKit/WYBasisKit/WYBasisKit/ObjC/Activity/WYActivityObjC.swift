@@ -39,34 +39,34 @@ import Foundation
 @objcMembers public class WYScrollInfoConfigObjC: NSObject {
     
     /// 设置滚动信息提示窗口的默认背景色
-    public static var backgroundColor: UIColor {
+    @objc public static var backgroundColor: UIColor {
         get { return WYScrollInfoConfig.backgroundColor }
         set { WYScrollInfoConfig.backgroundColor = newValue }
     }
-    public var backgroundColor: UIColor
+    @objc public var backgroundColor: UIColor
     
     /// 设置滚动信息提示窗口的移动速度
-    public static var movingSpeed: CGFloat {
+    @objc public static var movingSpeed: CGFloat {
         get { return WYScrollInfoConfig.movingSpeed }
         set { WYScrollInfoConfig.movingSpeed = newValue }
     }
-    public var movingSpeed: CGFloat
+    @objc public var movingSpeed: CGFloat
     
     /// 设置滚动信息提示窗口文本控件的默认颜色
-    public static var textColor: UIColor {
+    @objc public static var textColor: UIColor {
         get { return WYScrollInfoConfig.textColor }
         set { WYScrollInfoConfig.textColor = newValue }
     }
-    public var textColor: UIColor
+    @objc public var textColor: UIColor
     
     /// 设置滚动信息提示窗口文本控件的默认字体、字号
-    public static var textFont: UIFont {
+    @objc public static var textFont: UIFont {
         get { return WYScrollInfoConfig.textFont }
         set { WYScrollInfoConfig.textFont = newValue }
     }
-    public var textFont: UIFont
+    @objc public var textFont: UIFont
     
-    public init(backgroundColor: UIColor = backgroundColor, movingSpeed: CGFloat = movingSpeed, textColor: UIColor = textColor, textFont: UIFont = textFont) {
+    @objc public init(backgroundColor: UIColor = backgroundColor, movingSpeed: CGFloat = movingSpeed, textColor: UIColor = textColor, textFont: UIFont = textFont) {
         self.backgroundColor = backgroundColor
         self.movingSpeed = movingSpeed
         self.textColor = textColor
@@ -79,27 +79,27 @@ import Foundation
 @objcMembers public class WYMessageInfoConfigObjC: NSObject {
     
     /// 设置信息提示窗口的默认背景色
-    public static var backgroundColor: UIColor {
+    @objc public static var backgroundColor: UIColor {
         get { return WYMessageInfoConfig.backgroundColor }
         set { WYMessageInfoConfig.backgroundColor = newValue }
     }
-    public var backgroundColor: UIColor
+    @objc public var backgroundColor: UIColor
     
     /// 设置信息提示窗口文本控件的默认颜色
-    public static var textColor: UIColor {
+    @objc public static var textColor: UIColor {
         get { return WYMessageInfoConfig.textColor }
         set { WYMessageInfoConfig.textColor = newValue }
     }
-    public var textColor: UIColor
+    @objc public var textColor: UIColor
     
     /// 设置信息提示窗口文本控件的默认字体、字号
-    public static var textFont: UIFont {
+    @objc public static var textFont: UIFont {
         get { return WYMessageInfoConfig.textFont }
         set { WYMessageInfoConfig.textFont = newValue }
     }
-    public var textFont: UIFont
+    @objc public var textFont: UIFont
     
-    public init(backgroundColor: UIColor = backgroundColor, textColor: UIColor = textColor, textFont: UIFont = textFont) {
+    @objc public init(backgroundColor: UIColor = backgroundColor, textColor: UIColor = textColor, textFont: UIFont = textFont) {
         self.backgroundColor = backgroundColor
         self.textColor = textColor
         self.textFont = textFont
@@ -111,56 +111,56 @@ import Foundation
 @objcMembers public class WYLoadingConfigObjC: NSObject {
     
     /// 设置Loading提示窗口的默认背景色
-    public static var backgroundColor: UIColor {
+    @objc public static var backgroundColor: UIColor {
         get { return WYLoadingConfig.backgroundColor }
         set { WYLoadingConfig.backgroundColor = newValue }
     }
-    public var backgroundColor: UIColor
+    @objc public var backgroundColor: UIColor
     
     /// 设置Loading提示窗口文本控件的默认颜色
-    public static var textColor: UIColor {
+    @objc public static var textColor: UIColor {
         get { return WYLoadingConfig.textColor }
         set { WYLoadingConfig.textColor = newValue }
     }
-    public var textColor: UIColor
+    @objc public var textColor: UIColor
     
     /// 设置Loading提示窗口文本控件的默认字体、字号
-    public static var textFont: UIFont {
+    @objc public static var textFont: UIFont {
         get { return WYLoadingConfig.textFont }
         set { WYLoadingConfig.textFont = newValue }
     }
-    public var textFont: UIFont
+    @objc public var textFont: UIFont
     
     /// 设置Loading提示窗口 indicator 的颜色
-    public static var indicatorColor: UIColor {
+    @objc public static var indicatorColor: UIColor {
         get { return WYLoadingConfig.indicatorColor }
         set { WYLoadingConfig.indicatorColor = newValue }
     }
-    public var indicatorColor: UIColor
+    @objc public var indicatorColor: UIColor
     
     /// 设置Loading提示窗口文本最多可显示几行
-    public static var numberOfLines: Int {
+    @objc public static var numberOfLines: Int {
         get { return WYLoadingConfig.numberOfLines }
         set { WYLoadingConfig.numberOfLines = newValue }
     }
-    public var numberOfLines: Int
+    @objc public var numberOfLines: Int
     
     /// 设置Loading提示窗口文本距离窗口底部的间距
-    public static var textBottomOffset: CGFloat {
+    @objc public static var textBottomOffset: CGFloat {
         get { return WYLoadingConfig.textBottomOffset }
         set { WYLoadingConfig.textBottomOffset = newValue }
     }
-    public var textBottomOffset: CGFloat
+    @objc public var textBottomOffset: CGFloat
     
     /// 设置Loading提示窗口动画控件的Size
-    public static var animationSize: CGSize {
+    @objc public static var animationSize: CGSize {
         get { return WYLoadingConfig.animationSize }
         set { WYLoadingConfig.animationSize = newValue }
     }
-    public var animationSize: CGSize
+    @objc public var animationSize: CGSize
     
     /// 设置Loading提示窗口动图信息
-    public static var gifInfo: WYGifInfoObjC {
+    @objc public static var gifInfo: WYGifInfoObjC {
         get {
             let info = WYLoadingConfig.gifInfo
             return WYGifInfoObjC(animationImages: info.animationImages, animationDuration: info.animationDuration, animatedImage: info.animatedImage)
@@ -169,9 +169,9 @@ import Foundation
             WYLoadingConfig.gifInfo = WYGifInfo(animationImages: newValue.animationImages, animationDuration: newValue.animationDuration, animatedImage: newValue.animatedImage)
         }
     }
-    public var gifInfo: WYGifInfoObjC
+    @objc public var gifInfo: WYGifInfoObjC
     
-    public init(backgroundColor: UIColor = backgroundColor, textColor: UIColor = textColor, textFont: UIFont = textFont, indicatorColor: UIColor = indicatorColor, numberOfLines: Int = numberOfLines, textBottomOffset: CGFloat = textBottomOffset, animationSize: CGSize = animationSize, gifInfo: WYGifInfoObjC = gifInfo) {
+    @objc public init(backgroundColor: UIColor = backgroundColor, textColor: UIColor = textColor, textFont: UIFont = textFont, indicatorColor: UIColor = indicatorColor, numberOfLines: Int = numberOfLines, textBottomOffset: CGFloat = textBottomOffset, animationSize: CGSize = animationSize, gifInfo: WYGifInfoObjC = gifInfo) {
         self.backgroundColor = backgroundColor
         self.textColor = textColor
         self.textFont = textFont
@@ -187,64 +187,64 @@ import Foundation
 @objcMembers public class WYActivityConfigObjC: NSObject {
     
     /// 滚动信息提示窗口默认配置
-    public static let scroll: WYScrollInfoConfigObjC = WYScrollInfoConfigObjC()
+    @objc public static let scroll: WYScrollInfoConfigObjC = WYScrollInfoConfigObjC()
     
     /// 信息提示窗口默认配置
-    public static let info: WYMessageInfoConfigObjC = WYMessageInfoConfigObjC()
+    @objc public static let info: WYMessageInfoConfigObjC = WYMessageInfoConfigObjC()
     
     /// 默认Loading提示窗口配置
-    public static let `default`: WYLoadingConfigObjC = WYLoadingConfigObjC()
+    @objc public static let `default`: WYLoadingConfigObjC = WYLoadingConfigObjC()
     
     /// 透明Loading提示窗口配置(适用于没有显示文本的自定义Gif Loading提示窗)
-    public static let concise: WYLoadingConfigObjC = WYLoadingConfigObjC(backgroundColor: .clear)
+    @objc public static let concise: WYLoadingConfigObjC = WYLoadingConfigObjC(backgroundColor: .clear)
 }
 
 @objc(WYScrollInfoOptions)
 @objcMembers public class WYScrollInfoOptionsObjC: NSObject {
     
     /// 加载活动控件的父视图，内部会按照 传入的View、控制器的View 的顺序去设置显示
-    public var contentView: UIView?
+    @objc public var contentView: UIView?
     
     /// 信息提示窗口相对于contentView的偏移量
-    public var offset: NSNumber?
+    @objc public var offset: NSNumber?
     
     /// 信息提示窗口配置选项
-    public var config: WYScrollInfoConfigObjC = WYActivityConfigObjC.scroll
+    @objc public var config: WYScrollInfoConfigObjC = WYActivityConfigObjC.scroll
 }
 
 @objc(WYMessageInfoOptions)
 @objcMembers public class WYMessageInfoOptionsObjC: NSObject {
     
     /// 加载信息提示窗口的父视图，内部会按照 传入的View、控制器的View 的顺序去设置显示
-    public var contentView: UIView?
+    @objc public var contentView: UIView?
     
     /// 信息提示窗口的显示位置
-    public var position: WYActivityPositionObjC? = .middle
+    @objc public var position: WYActivityPositionObjC = .middle
     
     /// 信息提示窗口相对于contentView的偏移量(仅 position == top 时有效)
-    public var offset: NSNumber?
+    @objc public var offset: NSNumber?
     
     /// 信息提示窗口配置选项
-    public var config: WYMessageInfoConfigObjC = WYActivityConfigObjC.info
+    @objc public var config: WYMessageInfoConfigObjC = WYActivityConfigObjC.info
 }
 
 @objc(WYLoadingInfoOptions)
 @objcMembers public class WYLoadingInfoOptionsObjC: NSObject {
     
     /// 窗口显示期间是否允许用户对界面进行交互，默认允许
-    public var userInteraction: Bool = true
+    @objc public var userInteraction: Bool = true
     
     /// 动画类型，默认系统小菊花
-    public var animation: WYActivityAnimationObjC = .indicator
+    @objc public var animation: WYActivityAnimationObjC = .indicator
     
     /// 是否需要延时显示，设置后会延时 delay(秒) 后再显示Loading窗口
-    public var delay: TimeInterval = 0
+    @objc public var delay: TimeInterval = 0
     
     /// 信息提示窗口相对于 contentView 的偏移量
-    public var offset: NSNumber?
+    @objc public var offset: NSNumber?
     
     /// 信息提示窗口配置选项
-    public var config: WYLoadingConfigObjC = WYActivityConfigObjC.default
+    @objc public var config: WYLoadingConfigObjC = WYActivityConfigObjC.default
 }
 
 @objc(WYActivity)
@@ -262,10 +262,10 @@ import Foundation
      *  @param config             信息提示窗口配置选项
      *
      */
-    public static func showScrollInfo(_ content: AnyObject) {
+    @objc public static func showScrollInfo(_ content: AnyObject) {
         internal_showScrollInfo(content)
     }
-    public static func showScrollInfo(_ content: AnyObject, option: WYScrollInfoOptionsObjC? = nil) {
+    @objc public static func showScrollInfo(_ content: AnyObject, option: WYScrollInfoOptionsObjC? = nil) {
         internal_showScrollInfo(content, option: option)
     }
     
@@ -282,10 +282,10 @@ import Foundation
      *
      *  @param config             信息提示窗口配置选项
      */
-    public static func showInfo(_ content: AnyObject) {
+    @objc public static func showInfo(_ content: AnyObject) {
         internal_showInfo(content)
     }
-    public static func showInfo(_ content: AnyObject, option: WYMessageInfoOptionsObjC? = nil) {
+    @objc public static func showInfo(_ content: AnyObject, option: WYMessageInfoOptionsObjC? = nil) {
         internal_showInfo(content, option: option)
     }
     
@@ -309,14 +309,14 @@ import Foundation
     public static func showLoading(in contentView: UIView) {
         internal_showLoading(in: contentView)
     }
-    public static func showLoading(_ content: AnyObject, in contentView: UIView) {
+    @objc public static func showLoading(_ content: AnyObject, in contentView: UIView) {
         internal_showLoading(content, in: contentView)
     }
     @objc(showLoading:option:)
     public static func showLoading(in contentView: UIView, option: WYLoadingInfoOptionsObjC? = nil) {
         internal_showLoading(in: contentView, option: option)
     }
-    public static func showLoading(_ content: AnyObject, in contentView: UIView, option: WYLoadingInfoOptionsObjC? = nil) {
+    @objc public static func showLoading(_ content: AnyObject, in contentView: UIView, option: WYLoadingInfoOptionsObjC? = nil) {
         internal_showLoading(content, in: contentView, option: option)
     }
     

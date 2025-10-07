@@ -26,17 +26,17 @@ import Foundation
     private let codable: WYCodable = WYCodable()
     
     /// 设置键值解码策略(使用默认的键值策略，不进行任何转换)
-    public func useDefaultKeys() {
+    @objc public func useDefaultKeys() {
         codable.mappingKeys = .useDefaultKeys
     }
     
     /// 设置键值解码策略(将蛇形命名法转换为驼峰命名法（例如：first_name -> firstName）)
-    public func convertFromSnakeCase() {
+    @objc public func convertFromSnakeCase() {
         codable.mappingKeys = .convertFromSnakeCase
     }
     
     /// 设置键值解码策略(使用自定义的键名转换策略)
-    public func customKeyMapping(_ handler: @escaping ([String]) -> String) {
+    @objc public func customKeyMapping(_ handler: @escaping ([String]) -> String) {
         codable.mappingKeys = .custom { codingKeys in
             // 将 [CodingKey] 转换为 [String]
             let keyStrings = codingKeys.map { $0.stringValue }
@@ -50,7 +50,7 @@ import Foundation
     }
     
     /// 将String、Dictionary、Array、Data类型数据解析成传入的Model类型
-    public func decode(_ obj: AnyObject, modelClass: AnyClass) throws -> AnyObject {
+    @objc public func decode(_ obj: AnyObject, modelClass: AnyClass) throws -> AnyObject {
         guard let codableType = modelClass as? NSObject.Type,
               let _ = codableType.init() as? Codable else {
             throw WYCodableErrorObjC.protocolMismatch
@@ -98,7 +98,7 @@ import Foundation
     }
     
     /// 将传入的model转换成指定类型(convertType限String、Dictionary、Array、Data)
-    public func encode(_ model: AnyObject, convertType: AnyClass) throws -> AnyObject {
+    @objc public func encode(_ model: AnyObject, convertType: AnyClass) throws -> AnyObject {
         guard let codableModel = model as? Codable else {
             throw WYCodableErrorObjC.protocolMismatch
         }
@@ -121,43 +121,43 @@ import Foundation
     }
     
     /// String转Dictionary
-    public static func stringToDictionary(_ string: String) throws -> NSDictionary {
+    @objc public static func stringToDictionary(_ string: String) throws -> NSDictionary {
         let dictionary = try string.wy_convertToDictionary()
         return dictionary as NSDictionary
     }
     
     /// String转Array
-    public static func stringToArray(_ string: String) throws -> NSArray {
+    @objc public static func stringToArray(_ string: String) throws -> NSArray {
         let array = try string.wy_convertToArray()
         return array as NSArray
     }
     
     /// String转Data
-    public static func stringToData(_ string: String) throws -> Data {
+    @objc public static func stringToData(_ string: String) throws -> Data {
         let data = try string.wy_convertToData()
         return data as Data
     }
     
     /// Data转String
-    public static func dataToString(_ data: Data) throws -> String {
+    @objc public static func dataToString(_ data: Data) throws -> String {
         let string = try data.wy_convertToString()
         return string as String
     }
     
     /// Data转Dictionary
-    public static func dataToDictionary(_ data: Data) throws -> NSDictionary {
+    @objc public static func dataToDictionary(_ data: Data) throws -> NSDictionary {
         let dictionary = try data.wy_convertToDictionary()
         return dictionary as NSDictionary
     }
     
     /// Data转Array
-    public static func dataToArray(_ data: Data) throws -> NSArray {
+    @objc public static func dataToArray(_ data: Data) throws -> NSArray {
         let array = try data.wy_convertToArray()
         return array as NSArray
     }
     
     /// Array转String
-    public static func arrayToString(_ array: NSArray) throws -> String {
+    @objc public static func arrayToString(_ array: NSArray) throws -> String {
         guard let swiftArray = array as? [Any] else {
             throw WYCodableErrorObjC.typeMismatch
         }
@@ -166,7 +166,7 @@ import Foundation
     }
     
     /// Array转Data
-    public static func arrayToData(_ array: NSArray) throws -> Data {
+    @objc public static func arrayToData(_ array: NSArray) throws -> Data {
         guard let swiftArray = array as? [Any] else {
             throw WYCodableErrorObjC.typeMismatch
         }
@@ -175,7 +175,7 @@ import Foundation
     }
     
     /// Dictionary转String
-    public static func dictionaryToString(_ dictionary: NSDictionary) throws -> String {
+    @objc public static func dictionaryToString(_ dictionary: NSDictionary) throws -> String {
         guard let swiftDictionary = dictionary as? [String: Any] else {
             throw WYCodableErrorObjC.typeMismatch
         }
@@ -184,7 +184,7 @@ import Foundation
     }
     
     /// Dictionary转Data
-    public static func dictionaryToData(_ dictionary: NSDictionary) throws -> Data {
+    @objc public static func dictionaryToData(_ dictionary: NSDictionary) throws -> Data {
         guard let swiftDictionary = dictionary as? [String: Any] else {
             throw WYCodableErrorObjC.typeMismatch
         }

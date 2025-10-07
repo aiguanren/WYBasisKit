@@ -9,5 +9,5 @@ import UIKit
 
 public protocol SDKRequestProtocol {}
 @objcMembers public class SDKRequest: Codable, SDKRequestProtocol {
-    public var eventId: String = ""
+    @objc public var eventId: String = ""
 }

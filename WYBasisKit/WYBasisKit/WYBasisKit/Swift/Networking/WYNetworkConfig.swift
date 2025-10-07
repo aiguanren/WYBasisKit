@@ -20,23 +20,23 @@ import Alamofire
     case httpsBothway
 }
 
+/// HTTPS自建证书验证策略
+@frozen public enum WYHttpsVerifyStrategy: Int {
+    
+    /// 证书验证模式，客户端会将服务器返回的证书和本地保存的证书中的 所有内容 全部进行校验，如果正确，才继续执行
+    case pinnedCertificates = 0
+    
+    /// 公钥验证模式，客户端会将服务器返回的证书和本地保存的证书中的 公钥 部分 进行校验，如果正确，才继续执行
+    case publicKeys
+    
+    /// 不进行任何验证,无条件信任证书(不建议使用此选项，如果确实要使用此选项的，最好自己实现验证策略)
+    case directTrust
+}
+
 /// HTTPS自建证书相关配置
 public struct WYHttpsConfig {
     
-    /// HTTPS自建证书验证策略
-    @frozen public enum WYHttpsVerifyStrategy: Int {
-        
-        /// 证书验证模式，客户端会将服务器返回的证书和本地保存的证书中的 所有内容 全部进行校验，如果正确，才继续执行
-        case pinnedCertificates = 0
-        
-        /// 公钥验证模式，客户端会将服务器返回的证书和本地保存的证书中的 公钥 部分 进行校验，如果正确，才继续执行
-        case publicKeys
-        
-        /// 不进行任何验证,无条件信任证书(不建议使用此选项，如果确实要使用此选项的，最好自己实现验证策略)
-        case directTrust
-    }
-    
-    /// 自定义验证策略
+    /// 自定义验证策略(内部使用)
     public static var trustManager: ServerTrustManager? = nil
     public var trustManager: ServerTrustManager? = trustManager
     
