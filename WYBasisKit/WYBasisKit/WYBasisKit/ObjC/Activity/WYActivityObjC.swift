@@ -378,7 +378,7 @@ private extension WYActivityObjC {
         
         let numberOffset: CGFloat? = (infoOption.offset != nil) ? CGFloat(infoOption.offset!.doubleValue) : nil
         
-        let activityPosition: WYActivityPosition = WYActivityPosition(rawValue: (infoOption.position ?? .middle).rawValue) ?? .middle
+        let activityPosition: WYActivityPosition = WYActivityPosition(rawValue: (infoOption.position).rawValue) ?? .middle
         
         let messageInfoConfig: WYMessageInfoConfig = WYMessageInfoConfig(backgroundColor: infoOption.config.backgroundColor, textColor: infoOption.config.textColor, textFont: infoOption.config.textFont)
         

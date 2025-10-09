@@ -56,6 +56,7 @@ public struct WYResponse: Codable {
     }
 }
 
+/// 回调信息
 @frozen public enum WYHandler {
     
     /// 进度回调
@@ -68,6 +69,7 @@ public struct WYResponse: Codable {
     case error(_ error: WYError)
 }
 
+/// 进度信息
 public struct WYProgress {
     
     /// 完成的进度比 0 - 1
@@ -90,6 +92,7 @@ public struct WYProgress {
     }
 }
 
+/// 成功后的数据信息
 public struct WYSuccess {
     
     /// 源数据
@@ -112,6 +115,7 @@ public struct WYSuccess {
     }
 }
 
+/// 失败后的数据信息
 public struct WYError {
     
     /// 错误码
@@ -126,6 +130,7 @@ public struct WYError {
     }
 }
 
+/// 下载数据信息
 public struct WYDownloadModel: Codable {
     
     /// 资源路径
@@ -148,6 +153,7 @@ public struct WYDownloadModel: Codable {
     }
 }
 
+/// 文件数据信息
 public struct WYFileModel {
     
     /**
