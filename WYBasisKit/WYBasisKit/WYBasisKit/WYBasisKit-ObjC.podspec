@@ -133,7 +133,7 @@ Pod::Spec.new do |kit|
     networking.resource_bundles = {"WYBasisKitObjCNetworking" => [
       "#{kit_path}ObjC/Networking/PrivacyInfo.xcprivacy"
     ]}
-    networking.frameworks = "Foundation", "UIKit"
+    networking.frameworks = "Foundation", "UIKit", "Network"
     networking.dependency "WYBasisKit-Swift/Networking"
   end
   

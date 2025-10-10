@@ -7,6 +7,7 @@
 //
 
 import Moya
+import Network
 import Alamofire
 
 /// 网络请求任务类型
@@ -239,74 +240,177 @@ public struct WYFileModel {
 }
 
 /**
- *  利用 Alamofire 进行网络活动监听
- *  iOS12开始 也可以通过系统 NWPathMonitor 实现监听，参考：https://www.cnblogs.com/breezemist/p/13602730.html
+ *  利用 NWPathMonitor 进行网络活动监听（健壮版）
  */
 public struct WYNetworkStatus {
     
     /**
      *  当前是否连接到网络
      */
-    public static let isReachable: Bool = NetworkReachabilityManager.default?.isReachable ?? false
+    public static var isReachable: Bool {
+        return currentPath?.status == .satisfied
+    }
     
     /**
      *  当前网络是否是蜂窝网络(移动数据流量)
      */
-    public static let isReachableOnCellular: Bool = NetworkReachabilityManager.default?.isReachableOnCellular ?? false
-    
-    /**
-     *  当前网络是否是WIFI网络
-     */
-    public static let isReachableOnEthernetOrWiFi: Bool = NetworkReachabilityManager.default?.isReachableOnEthernetOrWiFi ?? false
-    
-    /**
-     *  当前网络状态
-     */
-    public static let currentNetworkStatus: NetworkReachabilityManager.NetworkReachabilityStatus = NetworkReachabilityManager.default?.status ?? .notReachable
-    
-    /**
-     *  实时监听网络状态(不需要监听时需要手动调用 stopListening 方法结束监听状态)
-     *  alias 监听器对象别名，可根据别名获取到监听器对象
-     */
-    public static func listening(_ alias: String, handler: @escaping (_ status: NetworkReachabilityManager.NetworkReachabilityStatus) -> Void?) {
-        
-        stopListening(alias)
-        if let reachabilityManager = NetworkReachabilityManager() {
-            listeningObjects[alias] = reachabilityManager
-            reachabilityManager.startListening(onUpdatePerforming: { status in
-                handler(status)
-            })
-        }else {
-            WYNetworkManager.wy_networkPrint("创建别名为 \(alias) 的网络监听器失败")
-        }
+    public static var isReachableOnCellular: Bool {
+        return currentPath?.usesInterfaceType(.cellular) ?? false
     }
     
     /**
-     *  结束实时监听网络状态
-     *  alias 监听器别名，根据别名找到指定的监听器对象，停止实时监听
-     *  total 是否需要所有监听器对象都停止监听
+     *  当前网络是否是 WiFi 网络
      */
-    public static func stopListening(_ alias: String, total: Bool = false) {
-        guard total == true else {
-            if listeningObjects.keys.contains(alias) {
-                listeningObjects[alias]?.stopListening()
-                listeningObjects.removeValue(forKey: alias)
-                listeningObjects[alias] = nil
-            }
+    public static var isReachableOnWiFi: Bool {
+        return currentPath?.usesInterfaceType(.wifi) ?? false
+    }
+    
+    /**
+     *  当前网络是否是有线网络(例如通过网线或适配器)
+     */
+    public static var isReachableOnEthernet: Bool {
+        return currentPath?.usesInterfaceType(.wiredEthernet) ?? false
+    }
+    
+    /**
+     *  当前网络是否通过 VPN 连接
+     *
+     *  ⚠️ iOS 与 macOS 兼容判断：
+     *    - macOS 可直接使用 NWInterface.InterfaceType.vpn
+     *    - iOS 需通过接口名前缀 utun / ppp / ipsec 来判断
+     */
+    public static var isReachableOnVPN: Bool {
+        guard let path = currentPath else { return false }
+        
+#if os(macOS)
+        return path.availableInterfaces.contains { $0.type == .vpn }
+#else
+        let vpnPrefixes = ["utun", "ppp", "ipsec"]
+        if path.availableInterfaces.contains(where: { iface in
+            vpnPrefixes.contains { iface.name.lowercased().hasPrefix($0) }
+        }) {
+            return true
+        }
+        // 如果接口列表没有 VPN，但网络是昂贵连接且需要连接，也可推测 VPN
+        if path.isExpensive && path.status == .requiresConnection {
+            return true
+        }
+        return false
+#endif
+    }
+    
+    /**
+     *  当前网络是否为本地回环接口 (Loopback)
+     */
+    public static var isLoopback: Bool {
+        return currentPath?.usesInterfaceType(.loopback) ?? false
+    }
+    
+    /**
+     *  当前网络是否属于未知/其他类型
+     */
+    public static var isOtherNetwork: Bool {
+        return currentPath?.usesInterfaceType(.other) ?? false
+    }
+    
+    /**
+     *  当前网络是否支持 IPv4
+     */
+    public static var supportsIPv4: Bool {
+        return currentPath?.supportsIPv4 ?? false
+    }
+    
+    /**
+     *  当前网络是否支持 IPv6
+     */
+    public static var supportsIPv6: Bool {
+        return currentPath?.supportsIPv6 ?? false
+    }
+    
+    /**
+     *  当前网络状态（同 listening 回调中的 path.status）
+     */
+    public static var currentNetworkStatus: NWPath.Status {
+        return currentPath?.status ?? .unsatisfied
+    }
+    
+    /**
+     *  当前网络是否被系统标记为“昂贵连接”(Expensive)
+     */
+    public static var isExpensive: Bool {
+        return currentPath?.isExpensive ?? false
+    }
+    
+    /**
+     *  当前网络是否需要额外连接步骤
+     */
+    public static var requiresConnection: Bool {
+        return currentPath?.status == .requiresConnection
+    }
+    
+    /**
+     *  实时监听网络状态
+     *  alias 监听器对象别名，可根据别名获取到监听器对象
+     *  handler 回调 path，可选 NWPath（第一次可能为 nil）
+     */
+    public static func listening(_ alias: String,
+                                 handler: @escaping (_ nwpath: NWPath) -> Void) {
+        
+        // 如果该 alias 已存在且有 path，则直接返回
+        if let monitor = listeningObjects[alias], let path = currentPaths[alias] {
+            handler(path)
             return
         }
         
-        for alias: String in listeningObjects.keys {
-            listeningObjects[alias]?.stopListening()
-            listeningObjects.removeValue(forKey: alias)
-            listeningObjects[alias] = nil
+        // 先取消旧监听器
+        stopListening(alias)
+        
+        let monitor = NWPathMonitor()
+        let queue = DispatchQueue.global(qos: .background)
+        
+        listeningObjects[alias] = monitor
+        
+        monitor.pathUpdateHandler = { path in
+            // 保存每个 alias 的最新 path
+            currentPaths[alias] = path
+            currentPath = path // 保持全局 currentPath 为最近回调
+            
+            DispatchQueue.main.async {
+                handler(path)
+            }
         }
+        
+        monitor.start(queue: queue)
     }
     
     /**
-     *  网络监听器容器
+     *  停止实时监听网络状态
+     *  alias 监听器别名
+     *  total 是否停止所有监听器
      */
-    public private(set) static var listeningObjects: [String: NetworkReachabilityManager] = [:]
+    public static func stopListening(_ alias: String, total: Bool = false) {
+        if total {
+            listeningObjects.values.forEach { $0.cancel() }
+            listeningObjects.removeAll()
+            currentPaths.removeAll()
+            return
+        }
+        
+        if let monitor = listeningObjects[alias] {
+            monitor.cancel()
+            listeningObjects.removeValue(forKey: alias)
+            currentPaths.removeValue(forKey: alias)
+        }
+    }
+    
+    /// 网络监听器容器
+    public private(set) static var listeningObjects: [String: NWPathMonitor] = [:]
+    
+    /// 每个 alias 对应的最新 NWPath
+    public private(set) static var currentPaths: [String: NWPath] = [:]
+    
+    /// 全局最近一次回调 path
+    private static var currentPath: NWPath?
 }
 
 public struct WYNetworkManager {
@@ -565,15 +669,15 @@ extension WYNetworkManager {
                                     if let mapperMessage: String = config.mapper[WYMappingKey.message] {
                                         mappingKeys[[mapperMessage]] = "message"
                                     }
-
+                                    
                                     if let mapperCode: String = config.mapper[WYMappingKey.code] {
                                         mappingKeys[[mapperCode]] = "code"
                                     }
-
+                                    
                                     if let mapperData: String = config.mapper[WYMappingKey.data] {
                                         mappingKeys[[mapperData]] = "data"
                                     }
-
+                                    
                                     if mappingKeys.isEmpty == false {
                                         codable.mappingKeys = .mapper(mappingKeys)
                                     }
@@ -738,36 +842,36 @@ extension WYNetworkManager {
     
     private static func networkStatus(showStatusAlert: Bool, openSeting: Bool, statusHandler:((_ status: NetworkStatus) -> Void)? = nil, actionHandler:((_ action: String, _ status: NetworkStatus) -> Void)? = nil) {
         
-        let manager = NetworkReachabilityManager()
-        manager?.startListening(onQueue: .main, onUpdatePerforming: { (status) in
+        WYNetworkStatus.listening("WYNetworkManager") { nwpath in
             
             var message = WYLocalized("未知的网络，可能存在安全隐患，是否继续？", table: WYBasisKitConfig.kitLocalizableTable)
             var networkStatus = NetworkStatus.unknown
             var actions = openSeting ? [WYLocalized("去设置", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized(WYLocalized("继续连接", table: WYBasisKitConfig.kitLocalizableTable)), WYLocalized("取消连接", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("继续连接", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("取消连接", table: WYBasisKitConfig.kitLocalizableTable)]
-            switch status {
-                
-            case .unknown:
+            switch nwpath.status {
+            case .requiresConnection:
                 message = WYLocalized("未知的网络，可能存在安全隐患，是否继续？", table: WYBasisKitConfig.kitLocalizableTable)
                 networkStatus = .unknown
                 actions = openSeting ? [WYLocalized("去设置", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("继续连接", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("取消连接", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("继续连接", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("取消连接", table: WYBasisKitConfig.kitLocalizableTable)]
                 break
-            case .notReachable:
+            case .unsatisfied:
                 message = WYLocalized("不可用的网络，请确认您的网络环境或网络连接权限已正确设置", table: WYBasisKitConfig.kitLocalizableTable)
                 networkStatus = .notReachable
                 actions = openSeting ? [WYLocalized("去设置", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)]
                 break
-            case .reachable:
-                if manager!.isReachableOnCellular {
-                    
-                    message = WYLocalized("您正在使用蜂窝移动网络联网", table: WYBasisKitConfig.kitLocalizableTable)
-                    networkStatus = .reachableCellular
-                    actions = openSeting ? [WYLocalized("去设置", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)]
-                }else {
-                    
+            case .satisfied:
+                
+                if nwpath.usesInterfaceType(.wifi) {
                     message = WYLocalized("您正在使用Wifi联网", table: WYBasisKitConfig.kitLocalizableTable)
                     networkStatus = .reachableWifi
                     actions = openSeting ? [WYLocalized("去设置", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)]
                 }
+                
+                if nwpath.usesInterfaceType(.cellular) {
+                    message = WYLocalized("您正在使用蜂窝移动网络联网", table: WYBasisKitConfig.kitLocalizableTable)
+                    networkStatus = .reachableCellular
+                    actions = openSeting ? [WYLocalized("去设置", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)]
+                }
+                
                 break
             }
             
@@ -777,8 +881,7 @@ extension WYNetworkManager {
             }
             
             showNetworkStatusAlert(showStatusAlert: showStatusAlert, status: networkStatus, message: message, actions: actions, actionHandler: actionHandler)
-            manager?.stopListening()
-        })
+        }
     }
     
     private static func showNetworkStatusAlert(showStatusAlert: Bool, status: NetworkStatus, message: String, actions: [String], actionHandler: ((_ action: String, _ status: NetworkStatus) -> Void)? = nil) {
@@ -826,13 +929,13 @@ extension WYNetworkManager {
     
     /// DEBUG打印日志
     public static func wy_networkPrint(_ messages: Any..., file: String = #file, function: String = #function, line: Int = #line) {
-        #if DEBUG
+#if DEBUG
         let timeFormatter = DateFormatter()
         timeFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
         let time = timeFormatter.string(from: Date())
         let message = messages.compactMap { "\($0)" }.joined(separator: " ")
         let fileName = URL(fileURLWithPath: file).lastPathComponent
         print("\n\(time) ——> \(fileName) ——> \(function) ——> line:\(line)\n\n \(message)\n\n\n")
-        #endif
+#endif
     }
 }

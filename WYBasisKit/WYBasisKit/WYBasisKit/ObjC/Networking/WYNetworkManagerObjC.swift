@@ -68,21 +68,22 @@
 //}
 //
 ///// 成功后的数据信息
-//public struct WYSuccess {
+//@objc(WYSuccess)
+//@objcMembers public class WYSuccessObjC: NSObject {
 //    
 //    /// 源数据
-//    public var origin: String = ""
+//    @objc public var origin: String = ""
 //    
 //    /// 解包后的数据
-//    public var parse: String = ""
+//    @objc public var parse: String = ""
 //    
 //    /// 缓存数据
-//    public var storage: WYStorageData? = nil
+//    @objc public var storage: WYStorageDataObjC? = nil
 //    
 //    /// 是否是缓存数据
-//    public var isCache: Bool = false
+//    @objc public var isCache: Bool = false
 //    
-//    public init(origin: String = "", parse: String = "", storage: WYStorageData? = nil, isCache: Bool = false) {
+//    @objc public init(origin: String = "", parse: String = "", storage: WYStorageDataObjC? = nil, isCache: Bool = false) {
 //        self.origin = origin
 //        self.parse = parse
 //        self.storage = storage
@@ -91,36 +92,38 @@
 //}
 //
 ///// 失败后的数据信息
-//public struct WYError {
+//@objc(WYError)
+//@objcMembers public class WYErrorObjC: NSObject {
 //    
 //    /// 错误码
-//    public var code: String = ""
+//    @objc public var code: String = ""
 //    
 //    /// 详细错误描述
-//    public var describe: String = ""
+//    @objc public var describe: String = ""
 //    
-//    public init(code: String = "", describe: String = "") {
+//    @objc public init(code: String = "", describe: String = "") {
 //        self.code = code
 //        self.describe = describe
 //    }
 //}
 //
 ///// 下载数据信息
-//public struct WYDownloadModel: Codable {
+//@objc(WYDownloadModel)
+//@objcMembers public class WYDownloadModelObjC: NSObject, Codable {
 //    
 //    /// 资源路径
-//    public var assetPath: String = ""
+//    @objc public var assetPath: String = ""
 //    
 //    /// 磁盘路径
-//    public var diskPath: String = ""
+//    @objc public var diskPath: String = ""
 //    
 //    /// 资源名
-//    public var assetName: String = ""
+//    @objc public var assetName: String = ""
 //    
 //    /// 资源格式
-//    public var mimeType: String = ""
+//    @objc public var mimeType: String = ""
 //    
-//    public init(assetPath: String = "", diskPath: String = "", assetName: String = "", mimeType: String = "") {
+//    @objc public init(assetPath: String = "", diskPath: String = "", assetName: String = "", mimeType: String = "") {
 //        self.assetPath = assetPath
 //        self.diskPath = diskPath
 //        self.assetName = assetName
@@ -129,19 +132,20 @@
 //}
 //
 ///// 文件数据信息
-//public struct WYFileModel {
+//@objc(WYFileModel)
+//@objcMembers public class WYFileModelObjC: NSObject {
 //    
 //    /**
 //     *  上传的文件的上传后缀(选传项，例如，JPEG图像的MIME类型是image/jpeg，具体参考http://www.iana.org/assignments/media-types/.)
 //     *  可根据具体的上传文件类型自由设置，默认上传图片时设置为image/jpeg，上传音频时设置为audio/aac，上传视频时设置为video/mp4，上传url时设置为application/octet-stream
 //     */
 //    private var _mimeType: String = ""
-//    public var mimeType: String {
+//    @objc public var mimeType: String {
 //        
 //        set {
 //            _mimeType = newValue
 //        }
-//        mutating get {
+//        get {
 //            
 //            if _mimeType.isEmpty == true {
 //                
@@ -161,14 +165,14 @@
 //    }
 //    
 //    /// 上传的文件的名字(选传项)
-//    public var fileName: String = ""
+//    @objc public var fileName: String = ""
 //    
 //    /// 上传的文件的文件夹名字(选传项)
-//    public var folderName: String = "file"
+//    @objc public var folderName: String = "file"
 //    
 //    ///上传图片压缩比例(选传项，0~1.0区间，1.0代表无损，默认无损)
 //    private var _compressionQuality: CGFloat = 1.0
-//    public var compressionQuality: CGFloat {
+//    @objc public var compressionQuality: CGFloat {
 //        
 //        set {
 //            _compressionQuality = ((newValue > 1.0) || (newValue <= 0.0)) ? 1.0 : newValue
@@ -179,10 +183,10 @@
 //    }
 //    
 //    /// 上传文件的类型(选传项，默认image)
-//    public var fileType: WYFileType = .image
+//    @objc public var fileType: WYFileTypeObjC = .image
 //    
 //    /// 上传的图片
-//    public var image: UIImage? {
+//    @objc public var image: UIImage? {
 //        
 //        willSet {
 //            
@@ -196,12 +200,12 @@
 //    }
 //    
 //    /// 上传的二进制文件
-//    public var data: Data?
+//    @objc public var data: Data?
 //    
 //    /// 上传的资源URL路径
-//    public var fileUrl: String = ""
+//    @objc public var fileUrl: String = ""
 //    
-//    public init(mimeType: String = "", fileName: String = "", folderName: String = "file", compressionQuality: CGFloat = 1.0, fileType: WYFileType = .image, image: UIImage? = nil, data: Data? = nil, fileUrl: String = "") {
+//    @objc public init(mimeType: String = "", fileName: String = "", folderName: String = "file", compressionQuality: CGFloat = 1.0, fileType: WYFileTypeObjC = .image, image: UIImage? = nil, data: Data? = nil, fileUrl: String = "") {
 //        self._mimeType = mimeType
 //        self.fileName = fileName
 //        self.folderName = folderName
@@ -217,33 +221,34 @@
 // *  利用 Alamofire 进行网络活动监听
 // *  iOS12开始 也可以通过系统 NWPathMonitor 实现监听，参考：https://www.cnblogs.com/breezemist/p/13602730.html
 // */
-//public struct WYNetworkStatus {
+//@objc(WYNetworkStatus)
+//@objcMembers public class WYNetworkStatusObjC: NSObject {
 //    
 //    /**
 //     *  当前是否连接到网络
 //     */
-//    public static let isReachable: Bool = NetworkReachabilityManager.default?.isReachable ?? false
+//    @objc public static let isReachable: Bool = NetworkReachabilityManager.default?.isReachable ?? false
 //    
 //    /**
 //     *  当前网络是否是蜂窝网络(移动数据流量)
 //     */
-//    public static let isReachableOnCellular: Bool = NetworkReachabilityManager.default?.isReachableOnCellular ?? false
+//    @objc public static let isReachableOnCellular: Bool = NetworkReachabilityManager.default?.isReachableOnCellular ?? false
 //    
 //    /**
 //     *  当前网络是否是WIFI网络
 //     */
-//    public static let isReachableOnEthernetOrWiFi: Bool = NetworkReachabilityManager.default?.isReachableOnEthernetOrWiFi ?? false
+//    @objc public static let isReachableOnEthernetOrWiFi: Bool = NetworkReachabilityManager.default?.isReachableOnEthernetOrWiFi ?? false
 //    
 //    /**
 //     *  当前网络状态
 //     */
-//    public static let currentNetworkStatus: NetworkReachabilityManager.NetworkReachabilityStatus = NetworkReachabilityManager.default?.status ?? .notReachable
+//    @objc public static let currentNetworkStatus: NetworkReachabilityManager.NetworkReachabilityStatus = NetworkReachabilityManager.default?.status ?? .notReachable
 //    
 //    /**
 //     *  实时监听网络状态(不需要监听时需要手动调用 stopListening 方法结束监听状态)
 //     *  alias 监听器对象别名，可根据别名获取到监听器对象
 //     */
-//    public static func listening(_ alias: String, handler: @escaping (_ status: NetworkReachabilityManager.NetworkReachabilityStatus) -> Void?) {
+//    @objc public static func listening(_ alias: String, handler: @escaping (_ status: NetworkReachabilityManager.NetworkReachabilityStatus) -> Void?) {
 //        
 //        stopListening(alias)
 //        if let reachabilityManager = NetworkReachabilityManager() {
@@ -261,7 +266,7 @@
 //     *  alias 监听器别名，根据别名找到指定的监听器对象，停止实时监听
 //     *  total 是否需要所有监听器对象都停止监听
 //     */
-//    public static func stopListening(_ alias: String, total: Bool = false) {
+//    @objc public static func stopListening(_ alias: String, total: Bool = false) {
 //        guard total == true else {
 //            if listeningObjects.keys.contains(alias) {
 //                listeningObjects[alias]?.stopListening()
@@ -281,7 +286,7 @@
 //    /**
 //     *  网络监听器容器
 //     */
-//    public private(set) static var listeningObjects: [String: NetworkReachabilityManager] = [:]
+//    @objc public private(set) static var listeningObjects: [String: NetworkReachabilityManager] = [:]
 //}
 //
 //public struct WYNetworkManager {
