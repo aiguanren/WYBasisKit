@@ -66,7 +66,7 @@ import UIKit
     }
     
     // 转换WYStorageData为WYStorageDataObjC(内部使用)
-    static func wy_swiftConvertToObjC(storageData: WYStorageData) -> WYStorageDataObjC {
+    static func objc(from storageData: WYStorageData) -> WYStorageDataObjC {
         return WYStorageDataObjC(userData: storageData.userData, durable: storageData.durable ?? 0, storageDate: storageData.storageDate ?? 0, isInvalid: storageData.isInvalid ?? false, path: storageData.path, error: storageData.error)
     }
 }
@@ -131,7 +131,7 @@ import UIKit
         
         let storageData: WYStorageData = WYStorage.storage(forKey: key, data: data, durable: swiftDurable, path: realPath)
         
-        return WYStorageDataObjC.wy_swiftConvertToObjC(storageData: storageData)
+        return WYStorageDataObjC.objc(from: storageData)
     }
     
     /// 根据Key获取对应的缓存数据
@@ -142,7 +142,7 @@ import UIKit
         
         let storageData: WYStorageData = WYStorage.takeOut(forKey: key, path: realPath)
         
-        return WYStorageDataObjC.wy_swiftConvertToObjC(storageData: storageData)
+        return WYStorageDataObjC.objc(from: storageData)
     }
     
     /**

@@ -37,7 +37,7 @@ class WYTestRequestController: UIViewController {
 
         WYActivity.showLoading("加载中", in: view, delay: delay)
 
-        WYNetworkManager.request(method: .get, path: "one", config: config) {[weak self] result in
+        WYNetworkManager.request(method: .get, path: "one", config: config) { [weak self] result in
 
             guard self != nil else {return}
 
