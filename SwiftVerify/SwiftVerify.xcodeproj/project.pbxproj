@@ -214,8 +214,8 @@
 			isa = PBXGroup;
 			children = (
 				585B3A782DF819DC00E6E08F /* Main */,
-				585B3A712DF819DC00E6E08F /* center */,
-				585B3A7C2DF819DC00E6E08F /* right */,
+				585B3A712DF819DC00E6E08F /* Center */,
+				585B3A7C2DF819DC00E6E08F /* Right */,
 			);
 			path = Tabbar;
 			sourceTree = "<group>";
@@ -382,12 +382,12 @@
 			path = ButtonEdgeInsets;
 			sourceTree = "<group>";
 		};
-		585B3A712DF819DC00E6E08F /* center */ = {
+		585B3A712DF819DC00E6E08F /* Center */ = {
 			isa = PBXGroup;
 			children = (
 				585B3A702DF819DC00E6E08F /* WYCenterController.swift */,
 			);
-			path = center;
+			path = Center;
 			sourceTree = "<group>";
 		};
 		585B3A732DF819DC00E6E08F /* Gif */ = {
@@ -423,12 +423,12 @@
 			path = "富文本";
 			sourceTree = "<group>";
 		};
-		585B3A7C2DF819DC00E6E08F /* right */ = {
+		585B3A7C2DF819DC00E6E08F /* Right */ = {
 			isa = PBXGroup;
 			children = (
 				585B3A7B2DF819DC00E6E08F /* WYRightController.swift */,
 			);
-			path = right;
+			path = Right;
 			sourceTree = "<group>";
 		};
 		585B3A7E2DF819DC00E6E08F /* tableView.grouped */ = {

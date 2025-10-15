@@ -470,8 +470,8 @@ import Alamofire
     }
     
     /// 当前网络是否是有线网络(例如通过网线或适配器)
-    @objc public static var isReachableOnEthernet: Bool {
-        return WYNetworkStatus.isReachableOnEthernet
+    @objc public static var isReachableOnWiredEthernet: Bool {
+        return WYNetworkStatus.isReachableOnWiredEthernet
     }
     
     /// 当前网络是否通过 VPN 连接
@@ -494,9 +494,9 @@ import Alamofire
         return WYNetworkStatus.requiresConnection
     }
     
-    /// 当前网络是否为未知类型(无法识别的网络接口)
-    @objc public static var isUnknownNetwork: Bool {
-        return WYNetworkStatus.isUnknownNetwork
+    /// 当前网络是否为其他网络(未知类型，无法识别的网络接口，虚拟网络设备、未知硬件通道、Apple 特定测试接口等)
+    @objc public static var isReachableOnOther: Bool {
+        return WYNetworkStatus.isReachableOnOther
     }
     
     /// 当前网络是否支持 IPv4
@@ -539,19 +539,19 @@ import Alamofire
      *    - queue: 回调队列，默认为主队列
      *    - handler: 回调 path
      *    回调参数 state 映射 NWPath.Status：
-     *      0 = NWPath.Status.unsatisfied (无法连接)
-     *      1 = NWPath.Status.requiresConnection (需要额外步骤才能连接)
-     *      2 = NWPath.Status.satisfied (已连接)
+     *      0 = NWPath.Status.satisfied (已连接)
+     *      1 = NWPath.Status.unsatisfied (无法连接)
+     *      2 = NWPath.Status.requiresConnection (需要额外步骤才能连接)
      */
     @objc public static func listening(_ alias: String,
-                                 queue: DispatchQueue = .main,
+                                 queue: DispatchQueue? = .main,
                                  handler: @escaping (_ state: Int) -> Void) {
-        WYNetworkStatus.listening(alias, queue: queue) { nwpath in
+        WYNetworkStatus.listening(alias, queue: queue ?? .main) { nwpath in
             let state: Int
             switch nwpath.status {
-            case .unsatisfied: state = 0
-            case .requiresConnection: state = 1
-            case .satisfied: state = 2
+            case .satisfied: state = 0
+            case .unsatisfied: state = 1
+            case .requiresConnection: state = 2
             @unknown default: state = -1
             }
             handler(state)

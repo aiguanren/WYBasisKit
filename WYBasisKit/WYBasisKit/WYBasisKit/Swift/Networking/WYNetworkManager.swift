@@ -263,7 +263,7 @@ public struct WYNetworkStatus {
     }
     
     /// 当前网络是否是有线网络(例如通过网线或适配器)
-    public static var isReachableOnEthernet: Bool {
+    public static var isReachableOnWiredEthernet: Bool {
         return currentPath.usesInterfaceType(.wiredEthernet)
     }
     
@@ -297,8 +297,8 @@ public struct WYNetworkStatus {
         return currentPath.status == .requiresConnection
     }
     
-    /// 当前网络是否为未知类型(无法识别的网络接口)
-    public static var isUnknownNetwork: Bool {
+    /// 当前网络是否为其他网络(未知类型，无法识别的网络接口，虚拟网络设备、未知硬件通道、Apple 特定测试接口等)
+    public static var isReachableOnOther: Bool {
         return currentPath.usesInterfaceType(.other)
     }
     
