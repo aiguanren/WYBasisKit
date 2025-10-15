@@ -94,6 +94,10 @@
     completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
 }
 
+- (void)dealloc {
+    WYLogManager.output(@"WYWebViewController release");
+}
+
 /*
 #pragma mark - Navigation
 

@@ -139,6 +139,13 @@
 			path = ../Pods;
 			sourceTree = "<group>";
 		};
+		5827320E2E9F8CAB00DAD1AA /* 暗夜、白昼模式 */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "暗夜、白昼模式";
+			sourceTree = "<group>";
+		};
 		584EAF0B2E939036003A21B8 /* WKWebView */ = {
 			isa = PBXGroup;
 			children = (
@@ -242,6 +249,7 @@
 		58B470482E8D329600D04BCA /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				5827320E2E9F8CAB00DAD1AA /* 暗夜、白昼模式 */,
 				584EAF0B2E939036003A21B8 /* WKWebView */,
 				58B470352E8D114C00D04BCA /* Tabbar */,
 			);
@@ -417,9 +425,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -456,9 +468,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
