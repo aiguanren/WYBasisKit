@@ -43,6 +43,10 @@ class WYTestDarkNightModeController: UIViewController {
                     let tabbarController = AppDelegate.shared().window?.rootViewController! as! WYTabBarController
                     let navController = tabbarController.selectedViewController as! UINavigationController
                     navController.topViewController!.wy_showViewController(className: "WYTestDarkNightModeController", animated: false)
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        UIViewController.wy_currentController()?.navigationItem.title = "重启后的新Controller"
+                    }
                 })
             }
             UIApplication.shared.wy_switchAppDisplayBrightness(style: .dark)
@@ -56,6 +60,9 @@ class WYTestDarkNightModeController: UIViewController {
                     let tabbarController = AppDelegate.shared().window?.rootViewController! as! WYTabBarController
                     let navController = tabbarController.selectedViewController as! UINavigationController
                     navController.topViewController!.wy_showViewController(className: "WYTestDarkNightModeController", animated: false)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        UIViewController.wy_currentController()?.navigationItem.title = "重启后的新Controller"
+                    }
                 })
             }
             UIApplication.shared.wy_switchAppDisplayBrightness(style: .light)

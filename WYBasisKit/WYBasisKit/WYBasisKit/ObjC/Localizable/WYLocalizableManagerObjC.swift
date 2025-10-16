@@ -136,7 +136,7 @@ import UIKit
         
         let storyboardIdentifier: String = identifier ?? "rootViewController"
         
-        WYLocalizableManager.switchLanguage(language: switchLanguage, reload: reload, name: storyboardName, identifier: storyboardIdentifier)
+        WYLocalizableManager.switchLanguage(language: switchLanguage, reload: reload, name: storyboardName, identifier: storyboardIdentifier, handler: handler)
     }
     
     /**

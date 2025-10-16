@@ -205,7 +205,8 @@ public struct WYLocalizableManager {
             preferredLanguage = currentSystemLanguage
             
         }else {
-            preferredLanguage = (UserDefaults.standard.value(forKey: WYBasisKitLanguage) as? String) ?? currentSystemLanguage
+            let userSettingLanguage: String? = UserDefaults.standard.value(forKey: WYBasisKitLanguage) as? String
+            preferredLanguage = userSettingLanguage ?? currentSystemLanguage
         }
         switch preferredLanguage {
         case "zh-Hans":
@@ -277,7 +278,7 @@ public struct WYLocalizableManager {
         // 获取用户设置的语言列表
         let appleLanguages = UserDefaults.standard.array(forKey: WYBasisKitLanguage) as? [String] ?? []
         let countryCode = Locale.current.regionCode ?? ""
-        
+
         guard var appleLanguage = appleLanguages.first else {
             return Locale.current.languageCode ?? "en"
         }
@@ -307,7 +308,7 @@ public struct WYLocalizableManager {
      */
     public static func switchLanguage(language: WYLanguage, reload: Bool = true, name: String = "Main", identifier: String = "rootViewController", handler:(() -> Void)? = nil) {
         
-        guard language.rawValue != currentLanguage().rawValue else {
+        guard language.stringValue != currentLanguage().stringValue else {
             return
         }
         
@@ -323,7 +324,7 @@ public struct WYLocalizableManager {
         }
         kitBundle = KitLanguageBundle
         
-        UserDefaults.standard.setValue([language.rawValue], forKey: WYBasisKitLanguage)
+        UserDefaults.standard.setValue([language.stringValue], forKey: WYBasisKitLanguage)
         UserDefaults.standard.synchronize()
         
         guard reload == true else {

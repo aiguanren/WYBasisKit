@@ -27,6 +27,11 @@ import UIKit
     }
 
     /// 获取当前正在显示的控制器
+    @objc(wy_currentController)
+    static func wy_currentController() -> UIViewController? {
+        return wy_currentControllerObjC(windowController: nil)
+    }
+    
     @objc(wy_currentControllerFromWindowController:)
     static func wy_currentControllerObjC(windowController: UIViewController? = (UIApplication.shared.delegate?.window)??.rootViewController) -> UIViewController? {
         
