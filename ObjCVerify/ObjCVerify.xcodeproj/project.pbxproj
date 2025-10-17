@@ -53,6 +53,7 @@
 		58B59FF32E5D5315008F9C38 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58B59FE32E5D5315008F9C38 /* Assets.xcassets */; };
 		58B59FF52E5D5315008F9C38 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 58B59FE62E5D5315008F9C38 /* LaunchScreen.storyboard */; };
 		58B59FF62E5D5315008F9C38 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 58B59FE92E5D5315008F9C38 /* Main.storyboard */; };
+		58DA4EAD2EA23E6F003EAA2D /* WYTestVibrateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DA4EAC2EA23E6F003EAA2D /* WYTestVibrateController.m */; };
 		B51FB1DAFE1A4DDDD4992B52 /* Pods_ObjCVerify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D221636A5EAC813DEE477B6E /* Pods_ObjCVerify.framework */; };
 /* End PBXBuildFile section */
 
@@ -173,6 +174,8 @@
 		58B59FE82E5D5315008F9C38 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		58B59FEC2E5D5315008F9C38 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		58B59FED2E5D5315008F9C38 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		58DA4EAB2EA23E6F003EAA2D /* WYTestVibrateController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestVibrateController.h; sourceTree = "<group>"; };
+		58DA4EAC2EA23E6F003EAA2D /* WYTestVibrateController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestVibrateController.m; sourceTree = "<group>"; };
 		D221636A5EAC813DEE477B6E /* Pods_ObjCVerify.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ObjCVerify.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -310,6 +313,7 @@
 		58B470482E8D329600D04BCA /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				58DA4EAA2EA23E41003EAA2D /* 设备振动 */,
 				5827320E2E9F8CAB00DAD1AA /* 暗夜、白昼模式 */,
 				584EAF0B2E939036003A21B8 /* WKWebView */,
 				58B470352E8D114C00D04BCA /* Tabbar */,
@@ -366,6 +370,15 @@
 				58B46FF12E8D0F6100D04BCA /* WYTabBarController.m */,
 			);
 			path = ObjCVerify;
+			sourceTree = "<group>";
+		};
+		58DA4EAA2EA23E41003EAA2D /* 设备振动 */ = {
+			isa = PBXGroup;
+			children = (
+				58DA4EAB2EA23E6F003EAA2D /* WYTestVibrateController.h */,
+				58DA4EAC2EA23E6F003EAA2D /* WYTestVibrateController.m */,
+			);
+			path = "设备振动";
 			sourceTree = "<group>";
 		};
 		9B1FAA5163C0754EF01A1929 /* Frameworks */ = {
@@ -586,6 +599,7 @@
 				58B59FF22E5D5315008F9C38 /* ViewController.m in Sources */,
 				58B470442E8D11E200D04BCA /* WYRightController.m in Sources */,
 				58B470412E8D11D400D04BCA /* WYCenterController.m in Sources */,
+				58DA4EAD2EA23E6F003EAA2D /* WYTestVibrateController.m in Sources */,
 				58B46FF22E8D0F6100D04BCA /* WYTabBarController.m in Sources */,
 				584EAF0E2E939052003A21B8 /* WYTestWebViewController.m in Sources */,
 			);
