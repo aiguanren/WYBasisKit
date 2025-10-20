@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		580ED5652EA5DA56006012E7 /* SDKRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5642EA5DA56006012E7 /* SDKRequest.m */; };
+		580ED5682EA5DA9C006012E7 /* SDKRequestContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5672EA5DA9C006012E7 /* SDKRequestContext.m */; };
+		580ED56B2EA5DAE5006012E7 /* SDKResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 580ED56A2EA5DAE5006012E7 /* SDKResponse.m */; };
+		580ED56E2EA5DB0E006012E7 /* UserRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 580ED56D2EA5DB0E006012E7 /* UserRequest.m */; };
+		580ED5712EA5DB37006012E7 /* UserResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5702EA5DB37006012E7 /* UserResponse.m */; };
+		580ED5742EA5DB55006012E7 /* WYGenericTypeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5732EA5DB55006012E7 /* WYGenericTypeController.m */; };
 		582732112E9F8CDF00DAD1AA /* WYTestDarkNightModeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 582732102E9F8CDF00DAD1AA /* WYTestDarkNightModeController.m */; };
 		584EAF0E2E939052003A21B8 /* WYTestWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF0D2E939052003A21B8 /* WYTestWebViewController.m */; };
 		58B46FF22E8D0F6100D04BCA /* WYTabBarController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B46FF12E8D0F6100D04BCA /* WYTabBarController.m */; };
@@ -61,6 +67,18 @@
 /* Begin PBXFileReference section */
 		00E93EF8A69093A840C991C9 /* Pods-ObjCVerify.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ObjCVerify.debug.xcconfig"; path = "Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify.debug.xcconfig"; sourceTree = "<group>"; };
 		287657987D557763A49D167F /* Pods-ObjCVerify.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ObjCVerify.release.xcconfig"; path = "Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify.release.xcconfig"; sourceTree = "<group>"; };
+		580ED5632EA5DA56006012E7 /* SDKRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDKRequest.h; sourceTree = "<group>"; };
+		580ED5642EA5DA56006012E7 /* SDKRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDKRequest.m; sourceTree = "<group>"; };
+		580ED5662EA5DA9C006012E7 /* SDKRequestContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDKRequestContext.h; sourceTree = "<group>"; };
+		580ED5672EA5DA9C006012E7 /* SDKRequestContext.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDKRequestContext.m; sourceTree = "<group>"; };
+		580ED5692EA5DAE5006012E7 /* SDKResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDKResponse.h; sourceTree = "<group>"; };
+		580ED56A2EA5DAE5006012E7 /* SDKResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDKResponse.m; sourceTree = "<group>"; };
+		580ED56C2EA5DB0E006012E7 /* UserRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UserRequest.h; sourceTree = "<group>"; };
+		580ED56D2EA5DB0E006012E7 /* UserRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UserRequest.m; sourceTree = "<group>"; };
+		580ED56F2EA5DB37006012E7 /* UserResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UserResponse.h; sourceTree = "<group>"; };
+		580ED5702EA5DB37006012E7 /* UserResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UserResponse.m; sourceTree = "<group>"; };
+		580ED5722EA5DB55006012E7 /* WYGenericTypeController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYGenericTypeController.h; sourceTree = "<group>"; };
+		580ED5732EA5DB55006012E7 /* WYGenericTypeController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYGenericTypeController.m; sourceTree = "<group>"; };
 		5827320F2E9F8CDF00DAD1AA /* WYTestDarkNightModeController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestDarkNightModeController.h; sourceTree = "<group>"; };
 		582732102E9F8CDF00DAD1AA /* WYTestDarkNightModeController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestDarkNightModeController.m; sourceTree = "<group>"; };
 		582732462E9FA3ED00DAD1AA /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
@@ -204,6 +222,25 @@
 			path = ../Pods;
 			sourceTree = "<group>";
 		};
+		580ED5622EA5DA3D006012E7 /* 泛型 */ = {
+			isa = PBXGroup;
+			children = (
+				580ED5632EA5DA56006012E7 /* SDKRequest.h */,
+				580ED5642EA5DA56006012E7 /* SDKRequest.m */,
+				580ED56C2EA5DB0E006012E7 /* UserRequest.h */,
+				580ED56D2EA5DB0E006012E7 /* UserRequest.m */,
+				580ED5692EA5DAE5006012E7 /* SDKResponse.h */,
+				580ED56A2EA5DAE5006012E7 /* SDKResponse.m */,
+				580ED56F2EA5DB37006012E7 /* UserResponse.h */,
+				580ED5702EA5DB37006012E7 /* UserResponse.m */,
+				580ED5662EA5DA9C006012E7 /* SDKRequestContext.h */,
+				580ED5672EA5DA9C006012E7 /* SDKRequestContext.m */,
+				580ED5722EA5DB55006012E7 /* WYGenericTypeController.h */,
+				580ED5732EA5DB55006012E7 /* WYGenericTypeController.m */,
+			);
+			path = "泛型";
+			sourceTree = "<group>";
+		};
 		5827320E2E9F8CAB00DAD1AA /* 暗夜、白昼模式 */ = {
 			isa = PBXGroup;
 			children = (
@@ -316,6 +353,7 @@
 		58B470482E8D329600D04BCA /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				580ED5622EA5DA3D006012E7 /* 泛型 */,
 				58DA4EAE2EA24270003EAA2D /* ButtonEdgeInsets */,
 				58DA4EAA2EA23E41003EAA2D /* 设备振动 */,
 				5827320E2E9F8CAB00DAD1AA /* 暗夜、白昼模式 */,
@@ -609,12 +647,18 @@
 				58B4704B2E8D32D200D04BCA /* WYLeftControllerHeaderView.m in Sources */,
 				58B470502E8D37B000D04BCA /* AppEventDelegate.m in Sources */,
 				58B59FF02E5D5315008F9C38 /* main.m in Sources */,
+				580ED5652EA5DA56006012E7 /* SDKRequest.m in Sources */,
 				58B59FF22E5D5315008F9C38 /* ViewController.m in Sources */,
 				58B470442E8D11E200D04BCA /* WYRightController.m in Sources */,
+				580ED56E2EA5DB0E006012E7 /* UserRequest.m in Sources */,
+				580ED56B2EA5DAE5006012E7 /* SDKResponse.m in Sources */,
+				580ED5712EA5DB37006012E7 /* UserResponse.m in Sources */,
 				58B470412E8D11D400D04BCA /* WYCenterController.m in Sources */,
+				580ED5742EA5DB55006012E7 /* WYGenericTypeController.m in Sources */,
 				58DA4EAD2EA23E6F003EAA2D /* WYTestVibrateController.m in Sources */,
 				58DA4EB12EA2427D003EAA2D /* WYTestButtonEdgeInsetsController.m in Sources */,
 				58B46FF22E8D0F6100D04BCA /* WYTabBarController.m in Sources */,
+				580ED5682EA5DA9C006012E7 /* SDKRequestContext.m in Sources */,
 				584EAF0E2E939052003A21B8 /* WYTestWebViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

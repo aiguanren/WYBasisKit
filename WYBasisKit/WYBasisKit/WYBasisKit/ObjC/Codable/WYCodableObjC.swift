@@ -1,5 +1,5 @@
 //
-//  WYCodableObjc.swift
+//  WYCodableObjC.swift
 //  WYBasisKit
 //
 //  Created by 官人 on 2024/1/22.
@@ -23,21 +23,21 @@ import Foundation
 @objcMembers public class WYCodableObjC: NSObject {
     
     /// WYCodable的实例对象（内部使用）
-    private let codable: WYCodable = WYCodable()
+    private let instance: WYCodable = WYCodable()
     
     /// 设置键值解码策略(使用默认的键值策略，不进行任何转换)
     @objc public func useDefaultKeys() {
-        codable.mappingKeys = .useDefaultKeys
+        instance.mappingKeys = .useDefaultKeys
     }
     
     /// 设置键值解码策略(将蛇形命名法转换为驼峰命名法（例如：first_name -> firstName）)
     @objc public func convertFromSnakeCase() {
-        codable.mappingKeys = .convertFromSnakeCase
+        instance.mappingKeys = .convertFromSnakeCase
     }
     
     /// 设置键值解码策略(使用自定义的键名转换策略)
     @objc public func customKeyMapping(_ handler: @escaping ([String]) -> String) {
-        codable.mappingKeys = .custom { codingKeys in
+        instance.mappingKeys = .custom { codingKeys in
             // 将 [CodingKey] 转换为 [String]
             let keyStrings = codingKeys.map { $0.stringValue }
             
@@ -89,7 +89,7 @@ import Foundation
                 throw WYCodableErrorObjC.protocolMismatch
             }
             
-            let result = try codable.decode(modelType, from: validData)
+            let result = try instance.decode(modelType, from: validData)
             guard let objectResult = result as? NSObject else {
                 throw WYCodableErrorObjC.typeMismatch
             }
@@ -104,16 +104,16 @@ import Foundation
         }
         
         if convertType == NSString.self {
-            let result = try codable.encode(String.self, from: codableModel)
+            let result = try instance.encode(String.self, from: codableModel)
             return result as NSString
         } else if convertType == NSDictionary.self {
-            let result = try codable.encode([String: Any].self, from: codableModel)
+            let result = try instance.encode([String: Any].self, from: codableModel)
             return result as NSDictionary
         } else if convertType == NSArray.self {
-            let result = try codable.encode([Any].self, from: codableModel)
+            let result = try instance.encode([Any].self, from: codableModel)
             return result as NSArray
         } else if convertType == NSData.self {
-            let result = try codable.encode(Data.self, from: codableModel)
+            let result = try instance.encode(Data.self, from: codableModel)
             return result as NSData
         }
         
@@ -208,7 +208,7 @@ private extension WYCodableObjC {
             let elementData = try JSONSerialization.data(withJSONObject: jsonElement)
             
             // 解码单个元素
-            let element = try codable.decode(elementType, from: elementData)
+            let element = try instance.decode(elementType, from: elementData)
             resultArray.append(element)
         }
         
