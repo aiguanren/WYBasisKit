@@ -16,9 +16,7 @@
     if (!request) return;
     
     NSError *error = nil;
-    
-    WYCodable *codable = [[WYCodable alloc] init];
-    NSString *data = [codable encode:response
+    NSString *data = [WYCodable encode:response
                                      convertType:NSString.class
                                            error:&error];
     

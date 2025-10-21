@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		580ED5882EA7261F006012E7 /* WYCodableBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5872EA7261F006012E7 /* WYCodableBridge.swift */; };
+		580ED58A2EA72632006012E7 /* WYCodableConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5892EA72632006012E7 /* WYCodableConfig.swift */; };
+		580ED58C2EA7263F006012E7 /* WYCodableValueTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580ED58B2EA7263F006012E7 /* WYCodableValueTransformer.swift */; };
+		580ED58E2EA72649006012E7 /* WYCodableProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580ED58D2EA72649006012E7 /* WYCodableProtocol.swift */; };
 		583C41B42E9220E9007379FC /* WYStorageObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583C41B32E9220E9007379FC /* WYStorageObjC.swift */; };
 		583C41B62E922D9E007379FC /* WYAudioKitObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583C41B52E922D9E007379FC /* WYAudioKitObjC.swift */; };
 		583E04EC2E8635CA004F1034 /* WYButtonObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04EB2E8635CA004F1034 /* WYButtonObjC.swift */; };
@@ -170,6 +174,10 @@
 
 /* Begin PBXFileReference section */
 		53C1C8E1255F64288E08B8AC /* Pods-WYBasisKit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.release.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.release.xcconfig"; sourceTree = "<group>"; };
+		580ED5872EA7261F006012E7 /* WYCodableBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableBridge.swift; sourceTree = "<group>"; };
+		580ED5892EA72632006012E7 /* WYCodableConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableConfig.swift; sourceTree = "<group>"; };
+		580ED58B2EA7263F006012E7 /* WYCodableValueTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableValueTransformer.swift; sourceTree = "<group>"; };
+		580ED58D2EA72649006012E7 /* WYCodableProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableProtocol.swift; sourceTree = "<group>"; };
 		583C41B32E9220E9007379FC /* WYStorageObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYStorageObjC.swift; sourceTree = "<group>"; };
 		583C41B52E922D9E007379FC /* WYAudioKitObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAudioKitObjC.swift; sourceTree = "<group>"; };
 		583E04EB2E8635CA004F1034 /* WYButtonObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYButtonObjC.swift; sourceTree = "<group>"; };
@@ -398,6 +406,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		580ED5862EA72606006012E7 /* Achieve */ = {
+			isa = PBXGroup;
+			children = (
+				580ED58D2EA72649006012E7 /* WYCodableProtocol.swift */,
+				580ED5892EA72632006012E7 /* WYCodableConfig.swift */,
+				580ED58B2EA7263F006012E7 /* WYCodableValueTransformer.swift */,
+				580ED5872EA7261F006012E7 /* WYCodableBridge.swift */,
+			);
+			path = Achieve;
+			sourceTree = "<group>";
+		};
 		585B355B2DF8086C00E6E08F = {
 			isa = PBXGroup;
 			children = (
@@ -541,6 +560,7 @@
 			children = (
 				58C68C512E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68C522E84E436005FD054 /* WYCodableObjC.swift */,
+				580ED5862EA72606006012E7 /* Achieve */,
 			);
 			path = Codable;
 			sourceTree = "<group>";
@@ -2110,7 +2130,9 @@
 				58C68DC02E84E436005FD054 /* WYInt.swift in Sources */,
 				58C68DC12E84E436005FD054 /* WYObject.swift in Sources */,
 				58C68DC22E84E436005FD054 /* WYChatTextCell.swift in Sources */,
+				580ED58C2EA7263F006012E7 /* WYCodableValueTransformer.swift in Sources */,
 				584EAF082E92979A003A21B8 /* WYMediaPlayerObjC.swift in Sources */,
+				580ED5882EA7261F006012E7 /* WYCodableBridge.swift in Sources */,
 				58C68DC32E84E436005FD054 /* WYAttributedStringObjC.swift in Sources */,
 				58C68E342E8537A5005FD054 /* WYAlertControllerObjC.swift in Sources */,
 				58C68DC42E84E436005FD054 /* WYAudioManager.swift in Sources */,
@@ -2164,6 +2186,7 @@
 				58B470462E8D2CCD00D04BCA /* WYEventHandlerObjC.swift in Sources */,
 				58C68E362E853D71005FD054 /* WYApplicationObjC.swift in Sources */,
 				58C68DEE2E84E436005FD054 /* WYObjectObjC.swift in Sources */,
+				580ED58E2EA72649006012E7 /* WYCodableProtocol.swift in Sources */,
 				58C68DEF2E84E436005FD054 /* WYAlertController.swift in Sources */,
 				58C68DF02E84E436005FD054 /* WYChatCallCell.swift in Sources */,
 				58C68DF12E84E436005FD054 /* WYLabel.swift in Sources */,
@@ -2229,6 +2252,7 @@
 				58C68E272E84E436005FD054 /* WYDoubleObjC.swift in Sources */,
 				58B46FEA2E8C080700D04BCA /* WYLogManagerObjC.swift in Sources */,
 				58C68E282E84E436005FD054 /* WYBiometricAuthorization.swift in Sources */,
+				580ED58A2EA72632006012E7 /* WYCodableConfig.swift in Sources */,
 				583C41B62E922D9E007379FC /* WYAudioKitObjC.swift in Sources */,
 				583E04FA2E8690D1004F1034 /* WYWebViewObjC.swift in Sources */,
 				58C68E292E84E436005FD054 /* WYDictionary.swift in Sources */,

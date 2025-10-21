@@ -6,13 +6,14 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <WYBasisKitObjC/WYBasisKitObjC.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol SDKRequestProtocol <NSObject>
 @end
 
-@interface SDKRequest : NSObject <SDKRequestProtocol>
+@interface SDKRequest : NSObject <SDKRequestProtocol, WYCodableProtocol>
 
 @property (nonatomic, copy) NSString *eventId;
 

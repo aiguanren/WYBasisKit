@@ -296,7 +296,7 @@ private class WYBothwayVerifyDeleagte: SessionDelegate, @unchecked Sendable {
             
             guard secError == errSecSuccess else {
                 if secError == errSecAuthFailed {
-                    print("\(clientP12).p12 证书密码错误")
+                    WYNetworkManager.wy_networkPrint("\(clientP12).p12 证书密码错误")
                 }
                 fatalError("尝试导入证书时出错，错误代码：\(secError)")
             }

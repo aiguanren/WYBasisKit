@@ -34,7 +34,9 @@
     UserResponse *response = [[UserResponse alloc] init];
     response.errorCode = @"100";
     response.errorMessage = @"测试消息";
-    [UserResponse wy_registerArchivedClass];
+    response.haha = @"😄";
+    response.index = 10;
+    response.isBool = YES;
     
     [context setResponse:response];
 }

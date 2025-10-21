@@ -9,11 +9,9 @@ import Foundation
 
 @objc(WYCodableError)
 @frozen public enum WYCodableErrorObjC: Int, Error {
-    /// 未知错误
-    case unknown
     /// 类型不匹配
     case typeMismatch
-    /// Model必须符合Codable协议
+    /// Model必须符合WYCodableProtocol协议
     case protocolMismatch
     /// 数据格式错误
     case dataFormatError
@@ -22,99 +20,109 @@ import Foundation
 @objc(WYCodable)
 @objcMembers public class WYCodableObjC: NSObject {
     
-    /// WYCodable的实例对象（内部使用）
-    private let instance: WYCodable = WYCodable()
-    
-    /// 设置键值解码策略(使用默认的键值策略，不进行任何转换)
-    @objc public func useDefaultKeys() {
-        instance.mappingKeys = .useDefaultKeys
-    }
-    
-    /// 设置键值解码策略(将蛇形命名法转换为驼峰命名法（例如：first_name -> firstName）)
-    @objc public func convertFromSnakeCase() {
-        instance.mappingKeys = .convertFromSnakeCase
-    }
-    
-    /// 设置键值解码策略(使用自定义的键名转换策略)
-    @objc public func customKeyMapping(_ handler: @escaping ([String]) -> String) {
-        instance.mappingKeys = .custom { codingKeys in
-            // 将 [CodingKey] 转换为 [String]
-            let keyStrings = codingKeys.map { $0.stringValue }
-            
-            // 调用 handler
-            let result = handler(keyStrings)
-            
-            // 将结果转换为 CodingKey
-            return WYCodingKey(stringValue: result, intValue: nil)
+    /// 检查类是否支持 WYCodableProtocol
+    @objc public static func isClassSupportWYCodableProtocol(_ modelClass: AnyClass) -> Bool {
+        // 检查类是否实现了 WYCodableProtocol 协议
+        var currentClass: AnyClass? = modelClass
+        while let cls = currentClass {
+            // 获取类遵循的所有协议
+            var count: UInt32 = 0
+            let protocolList = class_copyProtocolList(cls, &count)
+            if let protocolList = protocolList {
+                for i in 0..<Int(count) {
+                    let protocolName = NSStringFromProtocol(protocolList[i])
+                    if protocolName.contains("WYCodableProtocol") {
+                        free(UnsafeMutableRawPointer(protocolList))
+                        return true
+                    }
+                }
+                free(UnsafeMutableRawPointer(protocolList))
+            }
+            currentClass = class_getSuperclass(cls)
         }
+        return false
     }
     
     /// 将String、Dictionary、Array、Data类型数据解析成传入的Model类型
-    @objc public func decode(_ obj: AnyObject, modelClass: AnyClass) throws -> AnyObject {
-        guard let codableType = modelClass as? NSObject.Type,
-              let _ = codableType.init() as? Codable else {
-            throw WYCodableErrorObjC.protocolMismatch
+    @objc public static func decode(_ obj: AnyObject, modelClass: AnyClass) throws -> AnyObject {
+        
+        let className = NSStringFromClass(modelClass)
+        
+        // 检查是否支持 WYCodableProtocol
+        let supportsProtocol = WYCodableObjC.isClassSupportWYCodableProtocol(modelClass)
+        
+        if WYCodableConfig.debugMode {
+            wy_codablePrint("WYCodable - Class \(className) supports WYCodableProtocol: \(supportsProtocol)")
         }
         
-        // 转换为Data
-        var data: Data?
-        
-        if let string = obj as? String {
-            data = try? string.wy_convertToData()
-        } else if let dictionary = obj as? [String: Any] {
-            data = try? JSONSerialization.data(withJSONObject: dictionary)
-        } else if let array = obj as? [Any] {
-            data = try? JSONSerialization.data(withJSONObject: array)
-        } else if let nsData = obj as? Data {
-            data = nsData
-        }
-        
-        guard let validData = data else {
-            throw WYCodableErrorObjC.typeMismatch
-        }
-        
-        // 判断是数组还是单个对象
-        if obj is [Any] {
-            // 数组处理
-            guard let elementType = modelClass as? Codable.Type else {
-                throw WYCodableErrorObjC.protocolMismatch
+        // 处理字符串输入
+        if let jsonString = obj as? String {
+            guard let data = jsonString.data(using: .utf8),
+                  let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []) else {
+                throw WYCodableErrorObjC.dataFormatError
             }
-            
-            // 使用运行时方法创建具体类型的数组
-            let resultArray = try decodeArray(from: validData, elementType: elementType)
-            return resultArray as AnyObject
-        } else {
-            // 单个对象处理
-            guard let modelType = modelClass as? Codable.Type else {
-                throw WYCodableErrorObjC.protocolMismatch
-            }
-            
-            let result = try instance.decode(modelType, from: validData)
-            guard let objectResult = result as? NSObject else {
-                throw WYCodableErrorObjC.typeMismatch
-            }
-            return objectResult
+            return try decodeJSONObject(jsonObject, toClass: modelClass, supportsProtocol: supportsProtocol)
         }
+        
+        // 处理Data输入
+        if let data = obj as? Data {
+            guard let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []) else {
+                throw WYCodableErrorObjC.dataFormatError
+            }
+            return try decodeJSONObject(jsonObject, toClass: modelClass, supportsProtocol: supportsProtocol)
+        }
+        
+        // 处理字典/数组输入
+        return try decodeJSONObject(obj, toClass: modelClass, supportsProtocol: supportsProtocol)
     }
     
     /// 将传入的model转换成指定类型(convertType限String、Dictionary、Array、Data)
-    @objc public func encode(_ model: AnyObject, convertType: AnyClass) throws -> AnyObject {
-        guard let codableModel = model as? Codable else {
+    @objc public static func encode(_ model: AnyObject, convertType: AnyClass) throws -> AnyObject {
+        
+        
+        guard let object = model as? NSObject else {
+            throw WYCodableErrorObjC.typeMismatch
+        }
+        
+        // 检查是否支持 WYCodableProtocol
+        let supportsProtocol = (object is WYCodableProtocol)
+        
+        if WYCodableConfig.debugMode {
+            let className = NSStringFromClass(type(of: object))
+            wy_codablePrint("WYCodable - Object \(className) supports WYCodableProtocol: \(supportsProtocol)")
+        }
+        
+        // 只支持桥接方式
+        if !supportsProtocol {
             throw WYCodableErrorObjC.protocolMismatch
         }
         
+        // 使用桥接方式编码
+        let jsonDict = WYCodableBridge.jsonFromObject(object)
+        
         if convertType == NSString.self {
-            let result = try instance.encode(String.self, from: codableModel)
-            return result as NSString
-        } else if convertType == NSDictionary.self {
-            let result = try instance.encode([String: Any].self, from: codableModel)
-            return result as NSDictionary
-        } else if convertType == NSArray.self {
-            let result = try instance.encode([Any].self, from: codableModel)
-            return result as NSArray
-        } else if convertType == NSData.self {
-            let result = try instance.encode(Data.self, from: codableModel)
-            return result as NSData
+            // 转换为JSON字符串
+            guard JSONSerialization.isValidJSONObject(jsonDict),
+                  let data = try? JSONSerialization.data(withJSONObject: jsonDict, options: []),
+                  let jsonString = String(data: data, encoding: .utf8) else {
+                throw WYCodableErrorObjC.dataFormatError
+            }
+            return jsonString as NSString
+        }
+        else if convertType == NSDictionary.self {
+            return jsonDict as NSDictionary
+        }
+        else if convertType == NSArray.self {
+            // 如果是数组，返回包含单个字典的数组
+            return [jsonDict] as NSArray
+        }
+        else if convertType == NSData.self {
+            // 转换为Data
+            guard JSONSerialization.isValidJSONObject(jsonDict),
+                  let data = try? JSONSerialization.data(withJSONObject: jsonDict, options: []) else {
+                throw WYCodableErrorObjC.dataFormatError
+            }
+            return data as NSData
         }
         
         throw WYCodableErrorObjC.typeMismatch
@@ -193,25 +201,64 @@ import Foundation
     }
 }
 
+// MARK: - 桥接扩展（保持向后兼容）
+@objc public extension WYCodableObjC {
+    
+    /// 使用桥接方式将JSON转换为对象（适用于非Codable的NSObject子类）
+    @objc func bridgeDecode(_ json: [String: Any], toObject object: NSObject) -> Bool {
+        return WYCodableBridge.updateObject(object, with: json)
+    }
+    
+    /// 使用桥接方式创建对象
+    @objc func bridgeCreateObject(from json: [String: Any], className: String) -> NSObject? {
+        return WYCodableBridge.createObject(from: json, className: className)
+    }
+    
+    /// 使用桥接方式将对象转换为JSON
+    @objc func bridgeEncode(_ object: NSObject) -> [String: Any] {
+        return WYCodableBridge.jsonFromObject(object)
+    }
+    
+    /// 设置键值解码策略(使用默认的键值策略，不进行任何转换)
+    @objc func useDefaultKeys() {
+        // 桥接方案不需要这个配置，保持空实现以保持API兼容性
+    }
+    
+    /// 设置键值解码策略(将蛇形命名法转换为驼峰命名法（例如：first_name -> firstName）)
+    @objc func convertFromSnakeCase() {
+        // 桥接方案不需要这个配置，保持空实现以保持API兼容性
+    }
+    
+    /// 设置键值解码策略(使用自定义的键名转换策略)
+    @objc func customKeyMapping(_ handler: @escaping ([String]) -> String) {
+        // 桥接方案不需要这个配置，保持空实现以保持API兼容性
+    }
+}
+
 private extension WYCodableObjC {
-    /// 解码数组的辅助方法
-    private func decodeArray(from data: Data, elementType: Codable.Type) throws -> [Any] {
-        // 使用 JSONSerialization 先解析为 [Any]
-        guard let jsonArray = try? JSONSerialization.jsonObject(with: data) as? [Any] else {
+    
+    static func decodeJSONObject(_ jsonObject: Any, toClass modelClass: AnyClass, supportsProtocol: Bool) throws -> AnyObject {
+        let className = NSStringFromClass(modelClass)
+        
+        // 只支持桥接方式
+        if !supportsProtocol {
+            throw WYCodableErrorObjC.protocolMismatch
+        }
+        
+        if let jsonArray = jsonObject as? [[String: Any]] {
+            // 数组处理
+            let resultArray = jsonArray.compactMap { jsonDict in
+                return WYCodableBridge.createObject(from: jsonDict, className: className)
+            }
+            return resultArray as AnyObject
+        } else if let jsonDict = jsonObject as? [String: Any] {
+            // 单个对象处理
+            guard let result = WYCodableBridge.createObject(from: jsonDict, className: className) else {
+                throw WYCodableErrorObjC.typeMismatch
+            }
+            return result
+        } else {
             throw WYCodableErrorObjC.dataFormatError
         }
-        
-        var resultArray: [Any] = []
-        
-        for jsonElement in jsonArray {
-            // 将每个元素转换为 Data
-            let elementData = try JSONSerialization.data(withJSONObject: jsonElement)
-            
-            // 解码单个元素
-            let element = try instance.decode(elementType, from: elementData)
-            resultArray.append(element)
-        }
-        
-        return resultArray
     }
 }

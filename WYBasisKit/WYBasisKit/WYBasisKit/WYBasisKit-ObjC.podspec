@@ -123,7 +123,6 @@ Pod::Spec.new do |kit|
       "#{kit_path}ObjC/Codable/PrivacyInfo.xcprivacy"
     ]}
     codable.frameworks = "Foundation", "UIKit"
-    codable.dependency "WYBasisKit-Swift/Codable"
   end
   
   kit.subspec "Networking" do |networking|

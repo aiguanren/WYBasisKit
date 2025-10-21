@@ -66,7 +66,7 @@ import ObjectiveC.runtime
             let data = try NSKeyedArchiver.archivedData(withRootObject: self, requiringSecureCoding: true)
             return data
         } catch {
-            print("WYArchived archive error: \(error.localizedDescription)")
+            WYLogManager.output("WYArchived archive error: \(error.localizedDescription)")
             return nil
         }
     }
@@ -107,7 +107,7 @@ import ObjectiveC.runtime
             let object = try NSKeyedUnarchiver.unarchivedObject(ofClasses: allowedClasses, from: data)
             return object as AnyObject?
         } catch {
-            print("WYArchived unarchive error: \(error.localizedDescription)")
+            WYLogManager.output("WYArchived unarchive error: \(error.localizedDescription)")
             return nil
         }
     }

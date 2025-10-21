@@ -6,10 +6,11 @@
 //
 
 #import "SDKRequest.h"
+#import <WYBasisKitObjC/WYBasisKitObjC.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface UserRequest : SDKRequest
+@interface UserRequest : SDKRequest<WYCodableProtocol>
 
 @end
 
