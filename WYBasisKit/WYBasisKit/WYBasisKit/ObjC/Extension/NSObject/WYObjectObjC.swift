@@ -42,7 +42,7 @@ import ObjectiveC.runtime
 @objc public extension NSObject {
     
     /// 注册自定义Model类以支持归档/解归档
-    @objc public class func wy_registerArchivedClass() {
+    @objc class func wy_registerArchivedClass() {
         let className = NSStringFromClass(self)
         wy_archive_registeredClasses.insert(className)
         
@@ -51,7 +51,7 @@ import ObjectiveC.runtime
     }
     
     /// 将对象安全归档为 NSData（内部使用 NSSecureCoding）
-    @objc public func wy_archivedData() -> Data? {
+    @objc func wy_archivedData() -> Data? {
         do {
             // 确保当前类支持 NSSecureCoding
             let currentClass = type(of: self)
@@ -72,7 +72,7 @@ import ObjectiveC.runtime
     }
     
     /// 从 NSData 安全解档为对象（失败返回 nil）
-    @objc public class func wy_unarchiveFromData(_ data: Data?) -> AnyObject? {
+    @objc class func wy_unarchiveFromData(_ data: Data?) -> AnyObject? {
         guard let data = data, data.count > 0 else {
             return nil
         }
@@ -163,7 +163,7 @@ import ObjectiveC.runtime
                 guard let object = obj as? NSObject else { return }
                 
                 // 跳过 NSObject 和 NSProxy
-                if type(of: object) == NSObject.self || object is NSProxy {
+                if type(of: object) == NSObject.self || NSStringFromClass(type(of: object)) == "NSProxy" {
                     return
                 }
                 
@@ -180,20 +180,16 @@ import ObjectiveC.runtime
                             }
                             
                             let key = String(cString: property_getName(property))
-                            do {
-                                if let value = object.value(forKey: key) {
-                                    // 递归确保嵌套对象支持 NSSecureCoding
-                                    if let nestedObject = value as? NSObject {
-                                        let nestedClass = type(of: nestedObject)
-                                        let nestedClassName = NSStringFromClass(nestedClass)
-                                        if wy_archive_registeredClasses.contains(nestedClassName) {
-                                            NSObject.injectSecureCodingSupportForClass(nestedClass)
-                                        }
+                            if let value = object.value(forKey: key) {
+                                // 递归确保嵌套对象支持 NSSecureCoding
+                                if let nestedObject = value as? NSObject {
+                                    let nestedClass = type(of: nestedObject)
+                                    let nestedClassName = NSStringFromClass(nestedClass)
+                                    if wy_archive_registeredClasses.contains(nestedClassName) {
+                                        NSObject.injectSecureCodingSupportForClass(nestedClass)
                                     }
-                                    coder.encode(value, forKey: key)
                                 }
-                            } catch {
-                                print("WYArchived encode error for key \(key): \(error.localizedDescription)")
+                                coder.encode(value, forKey: key)
                             }
                         }
                         free(properties)
@@ -228,12 +224,8 @@ import ObjectiveC.runtime
                             let setterSel = NSSelectorFromString(setterName)
                             
                             if object.responds(to: setterSel) {
-                                do {
-                                    if let value = coder.decodeObject(forKey: key) {
-                                        object.setValue(value, forKey: key)
-                                    }
-                                } catch {
-                                    print("WYArchived decode error for key \(key): \(error.localizedDescription)")
+                                if let value = coder.decodeObject(forKey: key) {
+                                    object.setValue(value, forKey: key)
                                 }
                             }
                         }
@@ -269,7 +261,7 @@ import ObjectiveC.runtime
             let encodeBlock: @convention(block) (AnyObject, NSCoder) -> Void = { obj, coder in
                 guard let object = obj as? NSObject else { return }
                 
-                if type(of: object) == NSObject.self || object is NSProxy {
+                if type(of: object) == NSObject.self || NSStringFromClass(type(of: object)) == "NSProxy" {
                     return
                 }
                 

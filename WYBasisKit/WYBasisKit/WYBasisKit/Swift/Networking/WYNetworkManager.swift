@@ -418,7 +418,6 @@ public struct WYNetworkStatus {
             currentPaths.removeValue(forKey: alias)
         } else {
             // 停止所有监听器
-            let allAliases = Array(listeningObjects.keys)
             listeningObjects.values.forEach { $0.cancel() }
             
             // 延迟清理所有闭包引用
@@ -627,10 +626,10 @@ public struct WYNetworkStatus {
         
         // 比较关键属性是否发生变化
         return oldPath.status != newPath.status ||
-               oldPath.isExpensive != newPath.isExpensive ||
-               oldPath.supportsIPv4 != newPath.supportsIPv4 ||
-               oldPath.supportsIPv6 != newPath.supportsIPv6 ||
-               oldPath.availableInterfaces.count != newPath.availableInterfaces.count
+        oldPath.isExpensive != newPath.isExpensive ||
+        oldPath.supportsIPv4 != newPath.supportsIPv4 ||
+        oldPath.supportsIPv6 != newPath.supportsIPv6 ||
+        oldPath.availableInterfaces.count != newPath.availableInterfaces.count
     }
     
     /// 保存监听器
@@ -1119,8 +1118,8 @@ extension WYNetworkManager {
                     networkStatus = .reachableCellular
                     actions = openSeting ? [WYLocalized("去设置", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)]
                 }
-                
                 break
+            @unknown default: break
             }
             
             if (statusHandler != nil) {
