@@ -82,7 +82,11 @@ import Foundation
         let keyMapping = WYCodableProtocolHelper.getObjectKeyMapping(for: object)
         let containerMapping = WYCodableProtocolHelper.getObjectClassMapping(for: object)
         
-        // 修复：明确指定字典类型
+        if (WYCodableConfig.debugMode) {
+            wy_codablePrint("keyMapping = \(keyMapping), containerMapping = \(containerMapping)")
+        }
+        
+        // 明确指定字典类型
         let reverseMapping: [String: String] = Dictionary(uniqueKeysWithValues: keyMapping.map { ($1, $0) })
         
         let properties = getAllProperties(of: object)
@@ -107,14 +111,8 @@ import Foundation
                                        property: property,
                                        propertyName: propertyName,
                                        object: object) {
-                do {
-                    try object.setValue(value, forKey: propertyName)
-                } catch {
-                    if WYCodableConfig.debugMode {
-                        wy_codablePrint("WYCodable - Failed to set value for key: \(propertyName), error: \(error)")
-                    }
-                    success = false
-                }
+                
+                object.setValue(value, forKey: propertyName)
             } else {
                 if WYCodableConfig.debugMode {
                     wy_codablePrint("WYCodable - Failed to decode value for key: \(propertyName)")
@@ -190,6 +188,10 @@ import Foundation
         
         // 获取容器映射配置
         let containerMapping = WYCodableProtocolHelper.getObjectClassMapping(for: object)
+        
+        if WYCodableConfig.debugMode {
+            wy_codablePrint("targetType = \(targetType), genericType = \(String(describing: genericType)), containerMapping = \(containerMapping)")
+        }
         
         // 处理容器类型
         if let elementType = getElementType(for: propertyName, property: property, object: object) {
@@ -283,41 +285,7 @@ import Foundation
     
     /// 判断是否应该跳过该属性
     private static func shouldSkipProperty(_ propertyName: String) -> Bool {
-        
-        let skipProperties: Set<String> = [
-            // MARK: - NSObject 核心属性
-            "hash",                   // 对象的哈希值
-            "superclass",             // 父类信息
-            "description",            // 对象描述
-            "debugDescription",       // 调试描述
-            
-            // MARK: - KVC/KVO 相关
-            "accessInstanceVariablesDirectly", // 是否直接访问实例变量
-            "observationInfo",                 // KVO 观察信息
-            
-            // MARK: - 消息转发相关
-            "methodSignatureForSelector",      // 方法签名
-            "forwardInvocation",               // 消息转发
-            
-            // MARK: - 内存管理相关 (MRC/ARC)
-            "retainCount",            // 引用计数 (MRC)
-            "retain",                 // 保留对象 (MRC)
-            "release",                // 释放对象 (MRC)
-            "autorelease",            // 自动释放 (MRC)
-            
-            // MARK: - 运行时相关
-            "zone",                   // 内存区域 (已废弃)
-            "isProxy",                // 是否为代理对象
-            
-            // MARK: - 归档/序列化相关
-            "classForKeyedArchiver",           // 归档类
-            "replacementObjectForKeyedArchiver", // 归档替换对象
-            "classForCoder",                   // 编码类
-            "replacementObjectForCoder",       // 编码替换对象
-            "secureCodingProtocol"             // 安全编码协议
-        ]
-        
-        return skipProperties.contains(propertyName) || propertyName.hasPrefix("_")
+        return WYCodableConfig.skipProperties.contains(propertyName) || propertyName.hasPrefix("_")
     }
 }
 

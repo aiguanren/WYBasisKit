@@ -45,9 +45,17 @@ import Foundation
         if let double = value as? Double { return NSNumber(value: double) }
         if let bool = value as? Bool { return NSNumber(value: bool) }
         if let string = value as? String {
-            let scanner = Scanner(string: string)
-            if scanner.scanDouble(nil) && scanner.isAtEnd {
-                return NSNumber(value: Double(string) ?? 0)
+            if let doubleValue = Double(string) {
+                return NSNumber(value: doubleValue)
+            }
+            
+            // 额外处理布尔字符串
+            let lowercased = string.lowercased()
+            if ["true", "yes", "1"].contains(lowercased) {
+                return NSNumber(value: true)
+            }
+            if ["false", "no", "0"].contains(lowercased) {
+                return NSNumber(value: false)
             }
         }
         return nil
