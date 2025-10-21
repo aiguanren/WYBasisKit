@@ -25,11 +25,8 @@
     if (error == nil) {
         WYLog(@"eventId = %@, responseJson = %@", request.eventId, data);
     }else {
-        [WYLogManager output:[NSString stringWithFormat:@"encode error: %@", [error localizedDescription]]
-                  outputMode:WYLogOutputModeDebugConsoleOnly
-                        file:@(__FILE__)
-                    function:@(__FUNCTION__)
-                        line:__LINE__];
+        WYCodableError codableError = error.code;
+        WYLog(@"encode error: %ld", codableError);
     }
 }
 

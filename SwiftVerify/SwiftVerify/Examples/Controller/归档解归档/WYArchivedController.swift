@@ -52,8 +52,25 @@ class WYArchivedController: UIViewController {
         let codable: WYCodable = WYCodable()
         do {
             let data = try codable.encode(Data.self, from: user)
+            UserDefaults.standard.setValue(data, forKey: "UserModelKey")
+            UserDefaults.standard.synchronize()
             let back = try codable.decode(User.self, from: data)
             WYLogManager.output(back)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                if let saveData: Data = UserDefaults.standard.object(forKey: "UserModelKey") as? Data {
+                    do {
+                        let backData = try codable.decode(User.self, from: saveData)
+                        WYLogManager.output(backData)
+                    } catch  {
+                        print("归档或解档失败：", error.localizedDescription)
+                    }
+                    
+                }else {
+                    print("从UserDefaults获取data失败")
+                }
+            }
+           
         } catch {
             print("归档或解档失败：", error)
         }

@@ -13,6 +13,7 @@
 		580ED56E2EA5DB0E006012E7 /* UserRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 580ED56D2EA5DB0E006012E7 /* UserRequest.m */; };
 		580ED5712EA5DB37006012E7 /* UserResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5702EA5DB37006012E7 /* UserResponse.m */; };
 		580ED5742EA5DB55006012E7 /* WYGenericTypeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5732EA5DB55006012E7 /* WYGenericTypeController.m */; };
+		580ED5822EA62AE9006012E7 /* WYArchivedController.m in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5812EA62AE9006012E7 /* WYArchivedController.m */; };
 		582732112E9F8CDF00DAD1AA /* WYTestDarkNightModeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 582732102E9F8CDF00DAD1AA /* WYTestDarkNightModeController.m */; };
 		584EAF0E2E939052003A21B8 /* WYTestWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF0D2E939052003A21B8 /* WYTestWebViewController.m */; };
 		58B46FF22E8D0F6100D04BCA /* WYTabBarController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B46FF12E8D0F6100D04BCA /* WYTabBarController.m */; };
@@ -79,6 +80,8 @@
 		580ED5702EA5DB37006012E7 /* UserResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UserResponse.m; sourceTree = "<group>"; };
 		580ED5722EA5DB55006012E7 /* WYGenericTypeController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYGenericTypeController.h; sourceTree = "<group>"; };
 		580ED5732EA5DB55006012E7 /* WYGenericTypeController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYGenericTypeController.m; sourceTree = "<group>"; };
+		580ED5802EA62AE9006012E7 /* WYArchivedController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYArchivedController.h; sourceTree = "<group>"; };
+		580ED5812EA62AE9006012E7 /* WYArchivedController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYArchivedController.m; sourceTree = "<group>"; };
 		5827320F2E9F8CDF00DAD1AA /* WYTestDarkNightModeController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestDarkNightModeController.h; sourceTree = "<group>"; };
 		582732102E9F8CDF00DAD1AA /* WYTestDarkNightModeController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestDarkNightModeController.m; sourceTree = "<group>"; };
 		582732462E9FA3ED00DAD1AA /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
@@ -241,6 +244,15 @@
 			path = "泛型";
 			sourceTree = "<group>";
 		};
+		580ED57F2EA62ADE006012E7 /* 归档解归档 */ = {
+			isa = PBXGroup;
+			children = (
+				580ED5802EA62AE9006012E7 /* WYArchivedController.h */,
+				580ED5812EA62AE9006012E7 /* WYArchivedController.m */,
+			);
+			path = "归档解归档";
+			sourceTree = "<group>";
+		};
 		5827320E2E9F8CAB00DAD1AA /* 暗夜、白昼模式 */ = {
 			isa = PBXGroup;
 			children = (
@@ -353,6 +365,7 @@
 		58B470482E8D329600D04BCA /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				580ED57F2EA62ADE006012E7 /* 归档解归档 */,
 				580ED5622EA5DA3D006012E7 /* 泛型 */,
 				58DA4EAE2EA24270003EAA2D /* ButtonEdgeInsets */,
 				58DA4EAA2EA23E41003EAA2D /* 设备振动 */,
@@ -578,13 +591,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -621,13 +630,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -644,6 +649,7 @@
 				58B59FEF2E5D5315008F9C38 /* AppDelegate.m in Sources */,
 				582732112E9F8CDF00DAD1AA /* WYTestDarkNightModeController.m in Sources */,
 				58B4703E2E8D11C700D04BCA /* WYMainController.m in Sources */,
+				580ED5822EA62AE9006012E7 /* WYArchivedController.m in Sources */,
 				58B4704B2E8D32D200D04BCA /* WYLeftControllerHeaderView.m in Sources */,
 				58B470502E8D37B000D04BCA /* AppEventDelegate.m in Sources */,
 				58B59FF02E5D5315008F9C38 /* main.m in Sources */,
