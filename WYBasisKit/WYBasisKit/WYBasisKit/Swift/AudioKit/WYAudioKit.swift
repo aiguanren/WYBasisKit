@@ -334,7 +334,7 @@ public final class WYAudioKit: NSObject {
         try resetAudioSession()
         
         // 配置录音会话
-        try recordingSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth])
+        try recordingSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetoothHFP])
         try recordingSession.setActive(true, options: .notifyOthersOnDeactivation)
         
         // 创建文件路径

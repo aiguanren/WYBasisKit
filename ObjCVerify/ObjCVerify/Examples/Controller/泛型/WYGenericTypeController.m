@@ -38,6 +38,14 @@
     response.index = 10;
     response.isBool = YES;
     
+    SubUserResponse *subUser = [[SubUserResponse alloc] init];
+    subUser.iconName = @"测试iconName";
+    response.subUser = subUser;
+    
+    SubUserResponse *subResponse = [[SubUserResponse alloc] init];
+    subResponse.iconName = @"TestIconName";
+    response.subResponses = @[subResponse];
+    
     [context setResponse:response];
 }
 

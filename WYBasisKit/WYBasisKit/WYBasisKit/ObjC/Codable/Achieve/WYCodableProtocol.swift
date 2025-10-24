@@ -13,9 +13,6 @@ import Foundation
     /// 指定属性名映射，解决关键字段冲突，如：@{@"objectProperty": @"json_key"}
     @objc optional static func wy_objectKeyMapping() -> [String: String]
     
-    /// 指定元素(对象)类型映射：@{@"object": @"objectClassName"}
-    @objc optional static func wy_objectClassMapping() -> [String: String]
-    
     /// Key映射开始回调
     @objc optional func wy_willStartMappingKey()
     
@@ -32,12 +29,6 @@ internal class WYCodableProtocolHelper {
     static func getObjectKeyMapping(for object: NSObject) -> [String: String] {
         guard let codable = object as? WYCodableProtocol else { return [:] }
         return (type(of: codable).wy_objectKeyMapping?() ?? [:])
-    }
-    
-    /// 安全调用 wy_objectClassMapping
-    static func getObjectClassMapping(for object: NSObject) -> [String: String] {
-        guard let codable = object as? WYCodableProtocol else { return [:] }
-        return (type(of: codable).wy_objectClassMapping?() ?? [:])
     }
     
     /// 安全调用 wy_willStartMapping

@@ -10,6 +10,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface SubUserResponse : NSObject<WYCodableProtocol>
+
+@property (nonatomic, copy) NSString *iconName;
+
+@end
+
 @interface UserResponse : SDKResponse<WYCodableProtocol>
 
 @property (nonatomic, copy) NSString *haha;
@@ -17,6 +23,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) NSInteger index;
 
 @property (nonatomic, assign) BOOL isBool;
+
+@property (nonatomic, strong) SubUserResponse *subUser;
+
+@property (nonatomic, strong) NSArray <SubUserResponse *>*subResponses;
 
 @end
 

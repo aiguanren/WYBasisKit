@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import Contacts
+@preconcurrency import Contacts
 
 /// 通讯录权限KEY
 public let contactsKey: String = "NSContactsUsageDescription"
@@ -91,7 +91,7 @@ public func wy_authorizeAddressBookAccess(showAlert: Bool = true, keysToFetch: [
                         
                         let settingUrl = URL(string: UIApplication.openSettingsURLString)
                         if let url = settingUrl, UIApplication.shared.canOpenURL(url) {
-                            UIApplication.shared.open(settingUrl!, options: [:], completionHandler: nil)
+                            UIApplication.shared.open(url, options: [:], completionHandler: nil)
                         }
                     }
                 }

@@ -7,6 +7,10 @@
 
 #import "UserResponse.h"
 
+@implementation SubUserResponse
+
+@end
+
 @implementation UserResponse
 
 @end

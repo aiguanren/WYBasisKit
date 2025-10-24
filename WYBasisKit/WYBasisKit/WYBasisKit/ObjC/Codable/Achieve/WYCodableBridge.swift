@@ -24,7 +24,6 @@ import Foundation
         
         var result: [String: Any] = [:]
         let keyMapping = WYCodableProtocolHelper.getObjectKeyMapping(for: object)
-        let containerMapping = WYCodableProtocolHelper.getObjectClassMapping(for: object)
         
         let properties = getAllProperties(of: object)
         
@@ -50,7 +49,7 @@ import Foundation
                 wy_codablePrint("WYCodable - Processing property: \(propertyName) -> \(jsonKey), value: \(value)")
             }
             
-            if let transformed = encodeValue(value, propertyName: propertyName, containerMapping: containerMapping) {
+            if let transformed = encodeValue(value, propertyName: propertyName) {
                 result[jsonKey] = transformed
             }
         }
@@ -80,10 +79,9 @@ import Foundation
         defer { WYCodableProtocolHelper.callDidFinishMapping(for: object) }
         
         let keyMapping = WYCodableProtocolHelper.getObjectKeyMapping(for: object)
-        let containerMapping = WYCodableProtocolHelper.getObjectClassMapping(for: object)
         
         if (WYCodableConfig.debugMode) {
-            wy_codablePrint("keyMapping = \(keyMapping), containerMapping = \(containerMapping)")
+            wy_codablePrint("WYCodable - Key mapping: \(keyMapping)")
         }
         
         // 明确指定字典类型
@@ -146,7 +144,21 @@ import Foundation
         var properties: [WYCodableProperty] = []
         var cls: AnyClass? = type(of: object)
         
-        while let currentClass = cls, currentClass != NSObject.self {
+        // 使用 Set 来跟踪已经处理过的属性名，避免重复
+        var processedPropertyNames = Set<String>()
+        
+        while let currentClass = cls {
+            let className = NSStringFromClass(currentClass)
+            
+            // 如果是系统框架的类，跳过（只处理用户自定义类）
+            if className.hasPrefix("NS") ||
+                className.hasPrefix("UI") ||
+                className.hasPrefix("WK") ||
+                className.hasPrefix("CA") ||
+                className.hasPrefix("_") {
+                break
+            }
+            
             var count: UInt32 = 0
             if let propList = class_copyPropertyList(currentClass, &count) {
                 for i in 0..<Int(count) {
@@ -154,13 +166,25 @@ import Foundation
                     let name = String(cString: property_getName(property))
                     let attributes = property_getAttributes(property).map { String(cString: $0) } ?? ""
                     
-                    if !name.hasPrefix("_") {
+                    // 只添加非私有属性且未处理过的属性
+                    if !name.hasPrefix("_") && !processedPropertyNames.contains(name) {
                         properties.append(WYCodableProperty(name: name, attributes: attributes))
+                        processedPropertyNames.insert(name)
                     }
                 }
                 free(propList)
             }
+            
+            // 如果到达 NSObject，停止遍历
+            if currentClass == NSObject.self {
+                break
+            }
             cls = class_getSuperclass(currentClass)
+        }
+        
+        if WYCodableConfig.debugMode {
+            let propertyNames = properties.map { $0.name }
+            wy_codablePrint("WYCodable - Found properties for \(type(of: object)): \(propertyNames)")
         }
         
         return properties
@@ -170,7 +194,7 @@ import Foundation
         return object.value(forKey: property.name)
     }
     
-    private static func encodeValue(_ value: Any, propertyName: String, containerMapping: [String: String]) -> Any? {
+    private static func encodeValue(_ value: Any, propertyName: String) -> Any? {
         return WYCodableValueTransformer.encodeValue(value)
     }
     
@@ -179,6 +203,12 @@ import Foundation
                                     propertyName: String,
                                     object: NSObject) -> Any? {
         
+        if WYCodableConfig.debugMode {
+            wy_codablePrint("WYCodable - Decoding property: \(propertyName)")
+            wy_codablePrint("WYCodable - Property attributes: \(property.attributes)")
+            wy_codablePrint("WYCodable - Value type: \(type(of: value)), value: \(value)")
+        }
+        
         // 优先使用自定义转换
         if let customValue = WYCodableProtocolHelper.callConvertValue(for: object, value: value, key: propertyName) {
             return customValue
@@ -186,16 +216,46 @@ import Foundation
         
         let (targetType, genericType) = getPropertyType(from: property.attributes)
         
-        // 获取容器映射配置
-        let containerMapping = WYCodableProtocolHelper.getObjectClassMapping(for: object)
-        
         if WYCodableConfig.debugMode {
-            wy_codablePrint("targetType = \(targetType), genericType = \(String(describing: genericType)), containerMapping = \(containerMapping)")
+            wy_codablePrint("WYCodable - Property \(propertyName) targetType: \(targetType), genericType: \(genericType ?? "nil")")
         }
         
-        // 处理容器类型
-        if let elementType = getElementType(for: propertyName, property: property, object: object) {
-            return decodeContainerValue(value, elementType: elementType)
+        // 处理嵌套对象（字典 -> 对象）
+        if let dictValue = value as? [String: Any] {
+            // 如果没有配置，尝试使用属性类型
+            if targetType != "NSDictionary" && targetType != "NSMutableDictionary" {
+                return createObject(from: dictValue, className: targetType)
+            }
+        }
+        
+        // 处理对象数组（数组 -> 对象数组）
+        if let arrayValue = value as? [Any] {
+            if WYCodableConfig.debugMode {
+                wy_codablePrint("WYCodable - Processing array for property: \(propertyName), array count: \(arrayValue.count)")
+            }
+            
+            // 1. 优先使用泛型类型
+            if let elementType = genericType {
+                if WYCodableConfig.debugMode {
+                    wy_codablePrint("WYCodable - Creating objects for array with elementType: \(elementType)")
+                }
+                return decodeObjectArray(arrayValue, elementType: elementType)
+            }
+            // 2. 自动推断：根据属性名和数组内容推断元素类型
+            else if let inferredType = autoInferArrayElementType(propertyName: propertyName,
+                                                                 array: arrayValue,
+                                                                 object: object) {
+                if WYCodableConfig.debugMode {
+                    wy_codablePrint("WYCodable - Auto-inferred element type: \(inferredType) for property: \(propertyName)")
+                }
+                return decodeObjectArray(arrayValue, elementType: inferredType)
+            } else {
+                if WYCodableConfig.debugMode {
+                    wy_codablePrint("WYCodable - No element type found for array property: \(propertyName), returning raw array")
+                }
+                // 无法推断类型，返回原始数组
+                return arrayValue
+            }
         }
         
         // 基础类型转换
@@ -203,51 +263,166 @@ import Foundation
             return transformed
         }
         
-        // 嵌套对象处理
-        if let dictValue = value as? [String: Any],
-           let nestedObject = createObject(from: dictValue, className: targetType) {
-            return nestedObject
+        return nil
+    }
+    
+    /// 自动推断数组元素类型
+    private static func autoInferArrayElementType(propertyName: String, array: [Any], object: NSObject) -> String? {
+        
+        // 方法1：根据属性名推断（复数 -> 单数）
+        if let inferredFromName = inferElementTypeFromPropertyName(propertyName) {
+            return inferredFromName
+        }
+        
+        // 方法2：根据数组内容推断（如果数组元素都是字典，且有共同结构）
+        if let inferredFromContent = inferElementTypeFromArrayContent(array) {
+            return inferredFromContent
+        }
+        
+        // 方法3：检查是否有对应的单数属性存在
+        if let inferredFromSingular = inferElementTypeFromSingularProperty(propertyName, object: object) {
+            return inferredFromSingular
         }
         
         return nil
     }
     
-    /// 获取元素类型（统一处理容器类型识别）
-    private static func getElementType(for propertyName: String, property: WYCodableProperty, object: NSObject) -> String? {
-        // 1. 优先使用 wy_containerMapping 配置
-        let containerMapping = WYCodableProtocolHelper.getObjectClassMapping(for: object)
-        if let elementType = containerMapping[propertyName] {
-            return elementType
+    /// 根据属性名推断元素类型
+    private static func inferElementTypeFromPropertyName(_ propertyName: String) -> String? {
+        var possibleClassNames: [String] = []
+        
+        // subResponses -> SubUserResponse 的特殊处理
+        if propertyName == "subResponses" {
+            possibleClassNames.append("SubUserResponse")
+            possibleClassNames.append("SubResponse")
+            possibleClassNames.append("UserResponse")
         }
         
-        // 2. 如果没有配置，尝试使用泛型信息
-        let (_, genericType) = getPropertyType(from: property.attributes)
-        return genericType
+        // 通用规则
+        if propertyName.hasSuffix("s") {
+            let singular = String(propertyName.dropLast())
+            possibleClassNames.append(singular)
+            
+            // 驼峰命名
+            let camelCaseSingular = singular.prefix(1).uppercased() + singular.dropFirst()
+            possibleClassNames.append(camelCaseSingular)
+            
+            // 特殊复数形式
+            if propertyName.hasSuffix("ies") {
+                let base = String(propertyName.dropLast(3)) + "y"
+                possibleClassNames.append(base)
+                possibleClassNames.append(base.prefix(1).uppercased() + base.dropFirst())
+            }
+        }
+        
+        // 常见后缀规则
+        if propertyName.hasSuffix("List") {
+            let baseName = String(propertyName.dropLast(4))
+            possibleClassNames.append(baseName)
+            possibleClassNames.append(baseName.prefix(1).uppercased() + baseName.dropFirst())
+        }
+        
+        if propertyName.hasSuffix("Array") {
+            let baseName = String(propertyName.dropLast(5))
+            possibleClassNames.append(baseName)
+            possibleClassNames.append(baseName.prefix(1).uppercased() + baseName.dropFirst())
+        }
+        
+        // 检查这些可能的类名是否存在
+        for className in possibleClassNames {
+            if NSClassFromString(className) != nil {
+                return className
+            }
+        }
+        
+        return nil
     }
     
-    /// 解码容器值（简化参数）
-    private static func decodeContainerValue(_ value: Any, elementType: String) -> Any? {
-        if let array = value as? [Any] {
-            let result: [Any] = array.compactMap { element in
-                if let dict = element as? [String: Any],
-                   let obj = createObject(from: dict, className: elementType) {
-                    return obj
-                }
-                return WYCodableValueTransformer.transformValue(element, toClass: elementType)
-            }
-            return result
+    /// 根据数组内容推断元素类型
+    private static func inferElementTypeFromArrayContent(_ array: [Any]) -> String? {
+        guard !array.isEmpty else { return nil }
+        
+        // 如果数组元素都是字典，检查是否有共同的键
+        let dictionaries = array.compactMap { $0 as? [String: Any] }
+        guard dictionaries.count == array.count else { return nil }
+        
+        let allKeys = Set(dictionaries.flatMap { $0.keys })
+        
+        // 基于常见字段的模式匹配
+        if allKeys.contains("iconName") {
+            // 包含 iconName 的可能是 SubUserResponse
+            return "SubUserResponse"
         }
-        return value
+        
+        // 可以添加更多模式匹配规则
+        if allKeys.contains("errorCode") && allKeys.contains("errorMessage") {
+            return "UserResponse"
+        }
+        
+        // 基于字段组合的推断
+        if allKeys.contains("userId") && allKeys.contains("userName") {
+            return "User"
+        }
+        
+        if allKeys.contains("productId") && allKeys.contains("productName") {
+            return "Product"
+        }
+        
+        return nil
+    }
+    
+    /// 根据单数属性推断数组元素类型
+    private static func inferElementTypeFromSingularProperty(_ propertyName: String, object: NSObject) -> String? {
+        // 如果属性名是复数形式，检查是否有对应的单数属性
+        if propertyName.hasSuffix("s") {
+            let singularProperty = String(propertyName.dropLast())
+            
+            // 检查对象是否有这个单数属性
+            let properties = getAllProperties(of: object)
+            if properties.contains(where: { $0.name == singularProperty }) {
+                // 获取单数属性的类型
+                if let singularProperty = properties.first(where: { $0.name == singularProperty }) {
+                    let (singularType, _) = getPropertyType(from: singularProperty.attributes)
+                    if singularType != "NSObject" && !singularType.hasPrefix("NS") {
+                        return singularType
+                    }
+                }
+            }
+        }
+        
+        return nil
+    }
+    
+    /// 解码对象数组
+    private static func decodeObjectArray(_ array: [Any], elementType: String) -> [Any]? {
+        var result: [Any] = []
+        
+        for element in array {
+            if let dict = element as? [String: Any],
+               let obj = createObject(from: dict, className: elementType) {
+                result.append(obj)
+            } else {
+                // 如果不是字典，尝试基础类型转换
+                if let transformed = WYCodableValueTransformer.transformValue(element, toClass: elementType) {
+                    result.append(transformed)
+                }
+            }
+        }
+        
+        // 关键修复：确保返回 NSArray 类型，因为 Objective-C 属性期望 NSArray
+        return result.isEmpty ? nil : (result as NSArray) as? [Any]
     }
     
     private static func getPropertyType(from attributes: String) -> (String, String?) {
+        if WYCodableConfig.debugMode {
+            wy_codablePrint("WYCodable - Parsing property attributes: \(attributes)")
+        }
+        
         let pattern = "T@\"([^\"]+)\""
         guard let regex = try? NSRegularExpression(pattern: pattern),
               let match = regex.firstMatch(in: attributes, range: NSRange(location: 0, length: attributes.count)),
               match.numberOfRanges > 1 else {
-            
-            // 处理基础类型...
-            return ("NSObject", nil)  // 这里也要保持一致
+            return ("NSObject", nil)
         }
         
         let fullType = (attributes as NSString).substring(with: match.range(at: 1))
@@ -257,30 +432,45 @@ import Foundation
             return (genericMatch.containerType, genericMatch.elementType)
         }
         
+        // 对于 NSArray 类型，尝试从属性名推断元素类型
+        if fullType == "NSArray" || fullType == "NSMutableArray" {
+            return (fullType, nil) // 元素类型将在使用时推断
+        }
+        
         return (fullType, nil)
     }
     
     /// 解析泛型类型，如：NSArray<User> -> (containerType: "NSArray", elementType: "User")
     private static func parseGenericType(from typeString: String) -> (containerType: String, elementType: String?)? {
-        // 匹配 NSArray<User> 或 NSArray<User *> 格式
-        let pattern = "^(NSArray|NSMutableArray|NSDictionary|NSMutableDictionary)(?:<([^<>*]+)(?:\\s*\\*)?>)?$"
+        if WYCodableConfig.debugMode {
+            wy_codablePrint("WYCodable - Parsing generic type: \(typeString)")
+        }
+        
+        // 匹配 NSArray<User> 或 NSArray<User *> 或 __NSArrayM<User *> 等格式
+        let pattern = "^(NSArray|NSMutableArray|__NSArrayI|__NSArrayM|NSDictionary|NSMutableDictionary)(?:<([^<>*]+)(?:\\s*\\*)?>)?$"
         
         guard let regex = try? NSRegularExpression(pattern: pattern),
               let match = regex.firstMatch(in: typeString, range: NSRange(location: 0, length: typeString.count)),
               match.numberOfRanges >= 2 else {
+            if WYCodableConfig.debugMode {
+                wy_codablePrint("WYCodable - No generic match for: \(typeString)")
+            }
             return nil
         }
         
         let containerType = (typeString as NSString).substring(with: match.range(at: 1))
         
         // 如果有泛型参数
+        var elementType: String? = nil
         if match.numberOfRanges >= 3 && match.range(at: 2).location != NSNotFound {
-            let elementType = (typeString as NSString).substring(with: match.range(at: 2))
-            return (containerType, elementType)
+            elementType = (typeString as NSString).substring(with: match.range(at: 2))
         }
         
-        // 明确指定返回类型为 (String, String?)
-        return (containerType, nil)
+        if WYCodableConfig.debugMode {
+            wy_codablePrint("WYCodable - Parsed generic - container: \(containerType), element: \(elementType ?? "nil")")
+        }
+        
+        return (containerType, elementType)
     }
     
     /// 判断是否应该跳过该属性
