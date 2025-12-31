@@ -22,9 +22,6 @@ import Foundation
     case faceID
 }
 
-#if compiler(>=6)
-@MainActor
-#endif
 @objc(WYBiometricAuthorization)
 @objcMembers public class WYBiometricAuthorizationObjC: NSObject {
     

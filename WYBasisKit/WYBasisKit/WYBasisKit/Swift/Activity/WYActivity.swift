@@ -33,9 +33,6 @@ import Foundation
 }
 
 /// 滚动信息提示窗口默认配置项
-#if compiler(>=6)
-@MainActor
-#endif
 public struct WYScrollInfoConfig {
     
     /// 设置滚动信息提示窗口的默认背景色
@@ -63,9 +60,6 @@ public struct WYScrollInfoConfig {
 }
 
 /// 信息提示窗口默认配置项
-#if compiler(>=6)
-@MainActor
-#endif
 public struct WYMessageInfoConfig {
     
     /// 设置信息提示窗口的默认背景色
@@ -88,9 +82,6 @@ public struct WYMessageInfoConfig {
 }
 
 /// Loading提示窗口配置项
-#if compiler(>=6)
-@MainActor
-#endif
 public struct WYLoadingConfig {
     
     /// 设置Loading提示窗口的默认背景色
@@ -147,9 +138,7 @@ public struct WYLoadingConfig {
     }
 }
 
-#if compiler(>=6)
-@MainActor
-#endif
+
 public struct WYActivityConfig {
     
     /// 滚动信息提示窗口默认配置
@@ -165,9 +154,6 @@ public struct WYActivityConfig {
     public static let concise: WYLoadingConfig = WYLoadingConfig(backgroundColor: .clear)
 }
 
-#if compiler(>=6)
-@MainActor
-#endif
 public struct WYActivity {
     
     /**
@@ -415,15 +401,8 @@ private class WYActivityInfoView: UIView {
             } completion: { _ in
                 
                 self.activityTimer = Timer.scheduledTimer(withTimeInterval: self.sharedTimeInterval(config: config), repeats: false, block: { [weak self] _ in
-                    #if compiler(>=6)
-                    Task { @MainActor in
-                        self?.dismissActivity(direction: .up, isHandleSwipe: false)
-                        self?.superview?.wy_infoView = nil
-                    }
-                    #else
                     self?.dismissActivity(direction: .up, isHandleSwipe: false)
                     self?.superview?.wy_infoView = nil
-                    #endif
                 })
             }
             break
@@ -456,16 +435,8 @@ private class WYActivityInfoView: UIView {
             } completion: { _ in
                 
                 self.activityTimer = Timer.scheduledTimer(withTimeInterval: self.sharedTimeInterval(config: config), repeats: false, block: { [weak self] _ in
-                    #if compiler(>=6)
-                    Task { @MainActor in
-                        self?.dismissActivity(direction: .right, isHandleSwipe: false)
-                        self?.superview?.wy_infoView = nil
-                    }
-                    #else
                     self?.dismissActivity(direction: .right, isHandleSwipe: false)
                     self?.superview?.wy_infoView = nil
-                    #endif
-                    
                 })
             }
             break
@@ -851,9 +822,6 @@ private extension UIView {
         }
     }
     
-    #if compiler(>=6)
-    @MainActor
-    #endif
     private struct WYAssociatedKeys {
         static var private_wy_scrollInfoView: UInt8 = 0
         static var private_wy_infoView: UInt8 = 0

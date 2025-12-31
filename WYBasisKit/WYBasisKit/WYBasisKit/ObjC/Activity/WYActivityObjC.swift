@@ -35,9 +35,6 @@ import Foundation
 }
 
 /// 滚动信息提示窗口默认配置项
-#if compiler(>=6)
-@MainActor
-#endif
 @objc(WYScrollInfoConfig)
 @objcMembers public class WYScrollInfoConfigObjC: NSObject {
     
@@ -78,9 +75,6 @@ import Foundation
 }
 
 /// 信息提示窗口默认配置项
-#if compiler(>=6)
-@MainActor
-#endif
 @objc(WYMessageInfoConfig)
 @objcMembers public class WYMessageInfoConfigObjC: NSObject {
     
@@ -113,9 +107,6 @@ import Foundation
 }
 
 /// Loading提示窗口配置项
-#if compiler(>=6)
-@MainActor
-#endif
 @objc(WYLoadingConfig)
 @objcMembers public class WYLoadingConfigObjC: NSObject {
     
@@ -256,9 +247,6 @@ import Foundation
     @objc public var config: WYLoadingConfigObjC = WYActivityConfigObjC.default
 }
 
-#if compiler(>=6)
-@MainActor
-#endif
 @objc(WYActivity)
 @objcMembers public class WYActivityObjC: NSObject {
     
@@ -346,9 +334,6 @@ import Foundation
     }
 }
 
-#if compiler(>=6)
-@MainActor
-#endif
 private extension WYActivityObjC {
     
     /**

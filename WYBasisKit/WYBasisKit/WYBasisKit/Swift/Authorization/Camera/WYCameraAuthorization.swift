@@ -13,9 +13,6 @@ import AVFoundation
 public let cameraKey: String = "NSCameraUsageDescription"
 
 /// 检查相机权限
-#if compiler(>=6)
-@MainActor
-#endif
 public func wy_authorizeCameraAccess(showAlert: Bool = true, handler: @escaping (_ authorized: Bool) -> Void?) {
     
     if let _ = Bundle.main.infoDictionary?[cameraKey] as? String {
@@ -39,17 +36,10 @@ public func wy_authorizeCameraAccess(showAlert: Bool = true, handler: @escaping 
                     }
                 }
                 
-                #if compiler(>=6)
-                Task { @MainActor in
-                    handleResult()
-                    return
-                }
-                #else
                 DispatchQueue.main.async {
                     handleResult()
                     return
                 }
-                #endif
             }
             
         case .authorized:
@@ -70,9 +60,6 @@ public func wy_authorizeCameraAccess(showAlert: Bool = true, handler: @escaping 
     }
     
     // 弹出授权弹窗
-    #if compiler(>=6)
-    @MainActor
-    #endif
     func wy_showAuthorizeAlert(show: Bool, message: String) {
         
         guard show else { return }
@@ -85,33 +72,14 @@ public func wy_authorizeCameraAccess(showAlert: Bool = true, handler: @escaping 
         
         let handleResult = { (actionStr: String?) in
             guard actionStr == WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable) else { return }
-            #if compiler(>=6)
-            Task { @MainActor in
-                if let url = URL(string: UIApplication.openSettingsURLString),
-                   UIApplication.shared.canOpenURL(url) {
-                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
-                }
-            }
-            #else
             DispatchQueue.main.async {
                 if let url = URL(string: UIApplication.openSettingsURLString),
                    UIApplication.shared.canOpenURL(url) {
                     UIApplication.shared.open(url, options: [:], completionHandler: nil)
                 }
             }
-            #endif
         }
         
-        #if compiler(>=6)
-        Task { @MainActor in
-            UIAlertController.wy_show(
-                message: message,
-                actions: actions
-            ) { actionStr, _ in
-                handleResult(actionStr)
-            }
-        }
-        #else
         DispatchQueue.main.async {
             UIAlertController.wy_show(
                 message: message,
@@ -120,6 +88,5 @@ public func wy_authorizeCameraAccess(showAlert: Bool = true, handler: @escaping 
                 handleResult(actionStr)
             }
         }
-        #endif
     }
 }

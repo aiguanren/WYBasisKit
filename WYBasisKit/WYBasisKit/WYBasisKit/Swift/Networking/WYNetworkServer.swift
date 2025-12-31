@@ -6,9 +6,6 @@
 //  Copyright © 2020 官人. All rights reserved.
 //
 
-#if compiler(>=6)
-@preconcurrency
-#endif
 import Moya
 import Alamofire
 
@@ -41,9 +38,6 @@ struct WYRequest : Sendable{
     }
 }
 
-#if compiler(>=6)
-@MainActor
-#endif
 let WYTargetProvider = MoyaProvider<WYTarget>.config()
 
 struct WYTarget: TargetType, Sendable {
@@ -137,18 +131,12 @@ extension MoyaProvider {
         }
     }
     
-    #if compiler(>=6)
-    @MainActor
-    #endif
     static func config(requestClosure: @escaping Moya.MoyaProvider<WYTarget>.RequestClosure = WYProviderConfig<WYTarget>.requestClosure,
                        session: Moya.Session = WYProviderConfig<WYTarget>.session()) -> MoyaProvider {
         return MoyaProvider(requestClosure: requestClosure, session: session)
     }
 }
 
-#if compiler(>=6)
-@MainActor
-#endif
 struct WYProviderConfig<target: TargetType> {
     
     static func requestClosure(endpoint: Endpoint, done: @escaping MoyaProvider<WYTarget>.RequestResultClosure) {
@@ -308,13 +296,7 @@ private class WYBothwayVerifyDeleagte: SessionDelegate, @unchecked Sendable {
             
             guard secError == errSecSuccess else {
                 if secError == errSecAuthFailed {
-                    #if compiler(>=6)
-                    DispatchQueue.main.async {
-                        WYNetworkManager.wy_networkPrint("\(clientP12).p12 证书密码错误")
-                    }
-                    #else
                     WYNetworkManager.wy_networkPrint("\(clientP12).p12 证书密码错误")
-                    #endif
                 }
                 fatalError("尝试导入证书时出错，错误代码：\(secError)")
             }

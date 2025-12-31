@@ -660,9 +660,6 @@ public struct WYNetworkStatus {
     }
 }
 
-#if compiler(>=6)
-@MainActor
-#endif
 public struct WYNetworkManager {
     
     /**
@@ -791,9 +788,6 @@ public struct WYNetworkManager {
     }
 }
 
-#if compiler(>=6)
-@MainActor
-#endif
 extension WYNetworkManager {
     
     /// 网络连接模式与用户操作选项
