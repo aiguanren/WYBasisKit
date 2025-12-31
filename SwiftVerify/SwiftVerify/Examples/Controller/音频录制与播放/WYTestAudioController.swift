@@ -1,5 +1,5 @@
 //
-//  TestAudioController.swift
+//  WYTestAudioController.swift
 //  WYBasiskitVerify
 //
 //  Created by guanren on 2025/8/12.
@@ -9,7 +9,7 @@ import UIKit
 import AVFoundation
 
 /// 测试音频控制器，用于演示WYAudioKit的功能
-class TestAudioController: UIViewController {
+class WYTestAudioController: UIViewController {
     
     /// 音频工具实例
     private let audioKit: WYAudioKit = WYAudioKit()
@@ -657,7 +657,7 @@ class TestAudioController: UIViewController {
 }
 
 // MARK: - WYAudioKitDelegate
-extension TestAudioController: WYAudioKitDelegate {
+extension WYTestAudioController: WYAudioKitDelegate {
     
     func audioRecorderDidStart() {
         logInfo("开始录制 \(selectedFormat.rawValue) 格式音频")
@@ -731,7 +731,7 @@ extension TestAudioController: WYAudioKitDelegate {
 }
 
 // MARK: - UIPickerViewDataSource & UIPickerViewDelegate
-extension TestAudioController: UIPickerViewDataSource, UIPickerViewDelegate {
+extension WYTestAudioController: UIPickerViewDataSource, UIPickerViewDelegate {
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
     }

@@ -38,7 +38,8 @@ class WYMainController: UIViewController {
         "音频录制与播放": "TestAudioController",
         "设备振动": "WYTestVibrateController",
         "文本轮播": "WYTestScrollTextController",
-        "分页控制器": "WYTestPagingViewController"
+        "分页控制器": "WYTestPagingViewController",
+        "TableViewCell侧滑": "WYTestSideslipCellController"
     ]
     
     lazy var tableView: UITableView = {

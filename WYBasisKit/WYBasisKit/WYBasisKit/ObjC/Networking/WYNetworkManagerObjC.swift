@@ -578,6 +578,9 @@ import Alamofire
     }
 }
 
+#if compiler(>=6)
+@MainActor
+#endif
 @objc(WYNetworkManager)
 @objcMembers public class WYNetworkManagerObjC: NSObject {
     

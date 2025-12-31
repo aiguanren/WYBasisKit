@@ -6,10 +6,13 @@
 //  Copyright © 2020 官人. All rights reserved.
 //
 
+#if compiler(>=6)
+@preconcurrency
+#endif
 import Moya
 import Alamofire
 
-struct WYRequest {
+struct WYRequest : Sendable{
     
     /// 请求方式
     var method: HTTPMethod
@@ -38,9 +41,12 @@ struct WYRequest {
     }
 }
 
+#if compiler(>=6)
+@MainActor
+#endif
 let WYTargetProvider = MoyaProvider<WYTarget>.config()
 
-struct WYTarget: TargetType {
+struct WYTarget: TargetType, Sendable {
     
     init(request: WYRequest) {
         self.request = request
@@ -131,12 +137,18 @@ extension MoyaProvider {
         }
     }
     
+    #if compiler(>=6)
+    @MainActor
+    #endif
     static func config(requestClosure: @escaping Moya.MoyaProvider<WYTarget>.RequestClosure = WYProviderConfig<WYTarget>.requestClosure,
                        session: Moya.Session = WYProviderConfig<WYTarget>.session()) -> MoyaProvider {
         return MoyaProvider(requestClosure: requestClosure, session: session)
     }
 }
 
+#if compiler(>=6)
+@MainActor
+#endif
 struct WYProviderConfig<target: TargetType> {
     
     static func requestClosure(endpoint: Endpoint, done: @escaping MoyaProvider<WYTarget>.RequestResultClosure) {
@@ -265,7 +277,7 @@ private class WYBothwayVerifyDeleagte: SessionDelegate, @unchecked Sendable {
                 completionHandler(.performDefaultHandling, nil)
                 return
             }
-            
+
             let p12Contents = PKCS12(pkcs12Data: p12Data, password: config.httpsConfig.clientP12Password, clientP12: config.httpsConfig.clientP12)
             guard let identity = p12Contents.identity else {
                 completionHandler(.performDefaultHandling, nil)
@@ -296,7 +308,13 @@ private class WYBothwayVerifyDeleagte: SessionDelegate, @unchecked Sendable {
             
             guard secError == errSecSuccess else {
                 if secError == errSecAuthFailed {
+                    #if compiler(>=6)
+                    DispatchQueue.main.async {
+                        WYNetworkManager.wy_networkPrint("\(clientP12).p12 证书密码错误")
+                    }
+                    #else
                     WYNetworkManager.wy_networkPrint("\(clientP12).p12 证书密码错误")
+                    #endif
                 }
                 fatalError("尝试导入证书时出错，错误代码：\(secError)")
             }

@@ -11,6 +11,8 @@
 		580ED58A2EA72632006012E7 /* WYCodableConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5892EA72632006012E7 /* WYCodableConfig.swift */; };
 		580ED58C2EA7263F006012E7 /* WYCodableValueTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580ED58B2EA7263F006012E7 /* WYCodableValueTransformer.swift */; };
 		580ED58E2EA72649006012E7 /* WYCodableProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580ED58D2EA72649006012E7 /* WYCodableProtocol.swift */; };
+		5814080A2EC831A50099D41B /* WYTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581408092EC831A50099D41B /* WYTableViewCell.swift */; };
+		5814080F2EC881AB0099D41B /* WYTableViewCellObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5814080E2EC881AB0099D41B /* WYTableViewCellObjC.swift */; };
 		583C41B42E9220E9007379FC /* WYStorageObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583C41B32E9220E9007379FC /* WYStorageObjC.swift */; };
 		583C41B62E922D9E007379FC /* WYAudioKitObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583C41B52E922D9E007379FC /* WYAudioKitObjC.swift */; };
 		583E04EC2E8635CA004F1034 /* WYButtonObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04EB2E8635CA004F1034 /* WYButtonObjC.swift */; };
@@ -29,6 +31,8 @@
 		584EAF122E93C54C003A21B8 /* WYPagingViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF112E93C54C003A21B8 /* WYPagingViewObjC.swift */; };
 		584EAF142E94ACB4003A21B8 /* WYNetworkConfigObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF132E94ACB4003A21B8 /* WYNetworkConfigObjC.swift */; };
 		584EAF162E94ACC3003A21B8 /* WYNetworkManagerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF152E94ACC3003A21B8 /* WYNetworkManagerObjC.swift */; };
+		585800E62EC9756100027B75 /* UICollectionViewFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585800E52EC9756100027B75 /* UICollectionViewFlowLayout.swift */; };
+		585800E82EC975E300027B75 /* UICollectionViewFlowLayoutObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585800E72EC975E300027B75 /* UICollectionViewFlowLayoutObjC.swift */; };
 		585B39A22DF8125400E6E08F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B39622DF8125400E6E08F /* AppDelegate.swift */; };
 		585B39A32DF8125400E6E08F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B396A2DF8125400E6E08F /* ViewController.swift */; };
 		585B39AC2DF8125400E6E08F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 585B39632DF8125400E6E08F /* Assets.xcassets */; };
@@ -178,6 +182,8 @@
 		580ED5892EA72632006012E7 /* WYCodableConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableConfig.swift; sourceTree = "<group>"; };
 		580ED58B2EA7263F006012E7 /* WYCodableValueTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableValueTransformer.swift; sourceTree = "<group>"; };
 		580ED58D2EA72649006012E7 /* WYCodableProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableProtocol.swift; sourceTree = "<group>"; };
+		581408092EC831A50099D41B /* WYTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTableViewCell.swift; sourceTree = "<group>"; };
+		5814080E2EC881AB0099D41B /* WYTableViewCellObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTableViewCellObjC.swift; sourceTree = "<group>"; };
 		583C41B32E9220E9007379FC /* WYStorageObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYStorageObjC.swift; sourceTree = "<group>"; };
 		583C41B52E922D9E007379FC /* WYAudioKitObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAudioKitObjC.swift; sourceTree = "<group>"; };
 		583E04EB2E8635CA004F1034 /* WYButtonObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYButtonObjC.swift; sourceTree = "<group>"; };
@@ -197,6 +203,8 @@
 		584EAF112E93C54C003A21B8 /* WYPagingViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPagingViewObjC.swift; sourceTree = "<group>"; };
 		584EAF132E94ACB4003A21B8 /* WYNetworkConfigObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkConfigObjC.swift; sourceTree = "<group>"; };
 		584EAF152E94ACC3003A21B8 /* WYNetworkManagerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkManagerObjC.swift; sourceTree = "<group>"; };
+		585800E52EC9756100027B75 /* UICollectionViewFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UICollectionViewFlowLayout.swift; sourceTree = "<group>"; };
+		585800E72EC975E300027B75 /* UICollectionViewFlowLayoutObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UICollectionViewFlowLayoutObjC.swift; sourceTree = "<group>"; };
 		585B35642DF8086C00E6E08F /* WYBasisKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WYBasisKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		585B39622DF8125400E6E08F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		585B39632DF8125400E6E08F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -723,6 +731,7 @@
 			isa = PBXGroup;
 			children = (
 				583E04ED2E8644DD004F1034 /* WYCollectionViewObjC.swift */,
+				585800E72EC975E300027B75 /* UICollectionViewFlowLayoutObjC.swift */,
 			);
 			path = UICollectionView;
 			sourceTree = "<group>";
@@ -787,6 +796,7 @@
 			isa = PBXGroup;
 			children = (
 				583E04EF2E867100004F1034 /* WYTableViewObjC.swift */,
+				5814080E2EC881AB0099D41B /* WYTableViewCellObjC.swift */,
 			);
 			path = UITableView;
 			sourceTree = "<group>";
@@ -1463,6 +1473,7 @@
 			isa = PBXGroup;
 			children = (
 				58C68D0B2E84E436005FD054 /* WYCollectionView.swift */,
+				585800E52EC9756100027B75 /* UICollectionViewFlowLayout.swift */,
 			);
 			path = UICollectionView;
 			sourceTree = "<group>";
@@ -1527,6 +1538,7 @@
 			isa = PBXGroup;
 			children = (
 				58C68D1B2E84E436005FD054 /* WYTableView.swift */,
+				581408092EC831A50099D41B /* WYTableViewCell.swift */,
 			);
 			path = UITableView;
 			sourceTree = "<group>";
@@ -1597,7 +1609,6 @@
 				58C68D202E84E436005FD054 /* UIView */,
 				58C68D222E84E436005FD054 /* UIViewController */,
 				58C68D242E84E436005FD054 /* WKWebView */,
-				58C68D252E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -1944,6 +1955,7 @@
 		58C68D832E84E436005FD054 /* Swift */ = {
 			isa = PBXGroup;
 			children = (
+				58C68D252E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68CBE2E84E436005FD054 /* Activity */,
 				58C68CC12E84E436005FD054 /* AudioKit */,
 				58C68CD52E84E436005FD054 /* Authorization */,
@@ -2144,6 +2156,7 @@
 				58C68DCA2E84E436005FD054 /* WYViewController.swift in Sources */,
 				58C68DCB2E84E436005FD054 /* WYFontObjC.swift in Sources */,
 				58C68DCC2E84E436005FD054 /* WYNumberFormatterObjC.swift in Sources */,
+				585800E82EC975E300027B75 /* UICollectionViewFlowLayoutObjC.swift in Sources */,
 				58C68DCD2E84E436005FD054 /* WYTextField.swift in Sources */,
 				584EAF142E94ACB4003A21B8 /* WYNetworkConfigObjC.swift in Sources */,
 				58C68DCE2E84E436005FD054 /* WYTimerObjC.swift in Sources */,
@@ -2195,13 +2208,16 @@
 				58C68DF42E84E436005FD054 /* WYCollectionView.swift in Sources */,
 				58C68DF52E84E436005FD054 /* WYScrollView.swift in Sources */,
 				583E04F02E867100004F1034 /* WYTableViewObjC.swift in Sources */,
+				5814080F2EC881AB0099D41B /* WYTableViewCellObjC.swift in Sources */,
 				58C68DF62E84E436005FD054 /* WYCodableUnkeyedContainer.swift in Sources */,
 				583E04EC2E8635CA004F1034 /* WYButtonObjC.swift in Sources */,
+				585800E62EC9756100027B75 /* UICollectionViewFlowLayout.swift in Sources */,
 				58C68DF72E84E436005FD054 /* WYDecodingStorage.swift in Sources */,
 				58C68DF82E84E436005FD054 /* WYCameraAuthorization.swift in Sources */,
 				58C68DF92E84E436005FD054 /* WYChatWebpageCell.swift in Sources */,
 				58C68DFA2E84E436005FD054 /* WYEmojiViewCell.swift in Sources */,
 				58C68DFB2E84E436005FD054 /* WYApplication.swift in Sources */,
+				5814080A2EC831A50099D41B /* WYTableViewCell.swift in Sources */,
 				58C68DFC2E84E436005FD054 /* WYButton.swift in Sources */,
 				58C68DFD2E84E436005FD054 /* WYNumberFormatter.swift in Sources */,
 				58C68DFE2E84E436005FD054 /* WYEmojiFuncAreaView.swift in Sources */,
@@ -2421,6 +2437,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
 			};
 			name = Debug;
 		};
@@ -2477,6 +2494,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_STRICT_CONCURRENCY = complete;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

@@ -269,9 +269,9 @@ public struct WYNetworkStatus {
     
     /// 当前网络是否通过 VPN 连接
     public static var isReachableOnVPN: Bool {
-#if os(macOS)
+        #if os(macOS)
         return currentPath.usesInterfaceType(.vpn)
-#else
+        #else
         let vpnPrefixes = ["utun", "ppp", "ipsec"]
         if currentPath.availableInterfaces.contains(where: { iface in
             vpnPrefixes.contains { iface.name.lowercased().hasPrefix($0) }
@@ -279,7 +279,7 @@ public struct WYNetworkStatus {
             return true
         }
         return false
-#endif
+        #endif
     }
     
     /// 当前网络是否为本地回环接口(通常用于本机内部通信，如 127.0.0.1)
@@ -660,6 +660,9 @@ public struct WYNetworkStatus {
     }
 }
 
+#if compiler(>=6)
+@MainActor
+#endif
 public struct WYNetworkManager {
     
     /**
@@ -788,6 +791,9 @@ public struct WYNetworkManager {
     }
 }
 
+#if compiler(>=6)
+@MainActor
+#endif
 extension WYNetworkManager {
     
     /// 网络连接模式与用户操作选项
@@ -1176,13 +1182,13 @@ extension WYNetworkManager {
     
     /// DEBUG打印日志
     public static func wy_networkPrint(_ messages: Any..., file: String = #file, function: String = #function, line: Int = #line) {
-#if DEBUG
+        #if DEBUG
         let timeFormatter = DateFormatter()
         timeFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
         let time = timeFormatter.string(from: Date())
         let message = messages.compactMap { "\($0)" }.joined(separator: " ")
         let fileName = URL(fileURLWithPath: file).lastPathComponent
         print("\n\(time) ——> \(fileName) ——> \(function) ——> line:\(line)\n\n \(message)\n\n\n")
-#endif
+        #endif
     }
 }

@@ -26,6 +26,9 @@ public let faceIDKey: String = "NSFaceIDUsageDescription"
 }
 
 /// 获取设备支持的生物识别类型
+#if compiler(>=6)
+@MainActor
+#endif
 public func wy_checkBiometric() -> WYBiometricMode {
     
     var biometric = WYBiometricMode.none
@@ -36,30 +39,21 @@ public func wy_checkBiometric() -> WYBiometricMode {
     if authContent.canEvaluatePolicy(
         .deviceOwnerAuthenticationWithBiometrics,
         error: &error) {
-        // iPhoneX出厂最低系统版本号：iOS11.0.0
-        if #available(iOS 11.0, *) {
-            if authContent.biometryType == .faceID {
-                biometric = .faceID
-            }else if authContent.biometryType == .touchID {
-                biometric = .touchID
-            }else {
-                biometric = .none
-            }
-        } else {
-            guard let laError = error as? LAError else {
-                
-                biometric = .none
-                return biometric
-            }
-            if laError.code != .touchIDNotAvailable {
-                biometric = .touchID
-            }
+        if authContent.biometryType == .faceID {
+            biometric = .faceID
+        }else if authContent.biometryType == .touchID {
+            biometric = .touchID
+        }else {
+            biometric = .none
         }
     }
     return biometric
 }
 
 /// 生物识别认证
+#if compiler(>=6)
+@MainActor
+#endif
 public func wy_verifyBiometrics(_ localizedFallbackTitle: String = "", localizedReason: String, handler: @escaping (_ isBackupHandler: Bool, _ isSuccess: Bool, _ error: String) -> Void?) {
     
     if wy_checkBiometric() == .faceID {
@@ -108,16 +102,28 @@ public func wy_verifyBiometrics(_ localizedFallbackTitle: String = "", localized
                     if let _ = authContent.evaluatedPolicyDomainState {
                         
                         // 如果不放在主线程回调可能会有5-6s的延迟
+                        #if compiler(>=6)
+                        Task { @MainActor in
+                            handler(false, true, "")
+                        }
+                        #else
                         DispatchQueue.main.async {
                             handler(false, true, "")
                         }
+                        #endif
                         
                     }else {
                         
-                        DispatchQueue.main.async {
-                            // 设备密码输入正确
+                        // 设备密码输入正确
+                        #if compiler(>=6)
+                        Task { @MainActor in
                             handler(false, true, "")
                         }
+                        #else
+                        DispatchQueue.main.async {
+                            handler(false, true, "")
+                        }
+                        #endif
                     }
                     
                 }else {
@@ -125,79 +131,129 @@ public func wy_verifyBiometrics(_ localizedFallbackTitle: String = "", localized
                     guard let laError = error as? LAError else {
                         
                         // 生物识别不可用
-                        DispatchQueue.main.async {
-                            
+                        #if compiler(>=6)
+                        Task { @MainActor in
                             handler(false, false, WYLocalized("生物识别不可用", table: WYBasisKitConfig.kitLocalizableTable))
                         }
+                        #else
+                        DispatchQueue.main.async {
+                            handler(false, false, WYLocalized("生物识别不可用", table: WYBasisKitConfig.kitLocalizableTable))
+                        }
+                        #endif
                         return
                     }
                     
                     switch laError.code {
                     case .authenticationFailed:
                         
-                        DispatchQueue.main.async {
-                            
+                        #if compiler(>=6)
+                        Task { @MainActor in
                             wy_unlockLocalAuth { (_success) in
-                                
-                                DispatchQueue.main.async {
-                                    
+                                Task { @MainActor in
                                     if _success == true {
-                                        
                                         handler(false, true, "")
                                     }else {
-                                        
+                                        handler(false, false, WYLocalized("生物识别已被锁定，锁屏并成功解锁设备后重新打开本页面即可重新开启", table: WYBasisKitConfig.kitLocalizableTable))
+                                    }
+                                }
+                            }
+                        }
+                        #else
+                        DispatchQueue.main.async {
+                            wy_unlockLocalAuth { (_success) in
+                                DispatchQueue.main.async {
+                                    if _success == true {
+                                        handler(false, true, "")
+                                    }else {
                                         // 生物识别已被锁定，锁屏并成功解锁iPhone后可重新打开本页面开启
                                         handler(false, false, WYLocalized("生物识别已被锁定，锁屏并成功解锁设备后重新打开本页面即可重新开启", table: WYBasisKitConfig.kitLocalizableTable))
                                     }
                                 }
                             }
                         }
+                        #endif
                     case .userCancel:
-                        DispatchQueue.main.async {
-                            
-                            // 用户点击取消按钮
+                        // 用户点击取消按钮
+                        #if compiler(>=6)
+                        Task { @MainActor in
                             handler(false, false, "")
                         }
-                    case .userFallback:
+                        #else
                         DispatchQueue.main.async {
-                            // 用户点击了输入密码按钮，在这里处理点击事件"
+                            handler(false, false, "")
+                        }
+                        #endif
+                    case .userFallback:
+                        // 用户点击了输入密码按钮，在这里处理点击事件"
+                        #if compiler(>=6)
+                        Task { @MainActor in
                             handler(true, false, "")
                         }
+                        #else
+                        DispatchQueue.main.async {
+                            handler(true, false, "")
+                        }
+                        #endif
                     case .systemCancel:
                         
                         // 系统取消
-                        DispatchQueue.main.async {
-                            
+                        #if compiler(>=6)
+                        Task { @MainActor in
                             handler(false, false, WYLocalized("系统中断了本次识别", table: WYBasisKitConfig.kitLocalizableTable))
                         }
+                        #else
+                        DispatchQueue.main.async {
+                            handler(false, false, WYLocalized("系统中断了本次识别", table: WYBasisKitConfig.kitLocalizableTable))
+                        }
+                        #endif
                     case .passcodeNotSet:
                         
                         // 用户未设置解锁密码
-                        DispatchQueue.main.async {
-                            
+                        #if compiler(>=6)
+                        Task { @MainActor in
                             handler(false, false, WYLocalized("开启生物识别前请设置解锁密码", table: WYBasisKitConfig.kitLocalizableTable))
                         }
+                        #else
+                        DispatchQueue.main.async {
+                            handler(false, false, WYLocalized("开启生物识别前请设置解锁密码", table: WYBasisKitConfig.kitLocalizableTable))
+                        }
+                        #endif
                     case .touchIDNotAvailable:
                         
                         // 生物识别不可用
-                        DispatchQueue.main.async {
-                            
+                        #if compiler(>=6)
+                        Task { @MainActor in
                             handler(false, false, WYLocalized("生物识别不可用", table: WYBasisKitConfig.kitLocalizableTable))
                         }
+                        #else
+                        DispatchQueue.main.async {
+                            handler(false, false, WYLocalized("生物识别不可用", table: WYBasisKitConfig.kitLocalizableTable))
+                        }
+                        #endif
                     case .touchIDNotEnrolled:
                         
                         // 未设置生物识别
-                        DispatchQueue.main.async {
-                            
+                        #if compiler(>=6)
+                        Task { @MainActor in
                             handler(false, false, WYLocalized("请在设备设置中开启/设置生物识别功能", table: WYBasisKitConfig.kitLocalizableTable))
                         }
+                        #else
+                        DispatchQueue.main.async {
+                            handler(false, false, WYLocalized("请在设备设置中开启/设置生物识别功能", table: WYBasisKitConfig.kitLocalizableTable))
+                        }
+                        #endif
                     case .touchIDLockout:
                         
                         // 生物识别已被锁定，锁屏并成功解锁iPhone后可重新打开本页面开启
-                        DispatchQueue.main.async {
-                            
+                        #if compiler(>=6)
+                        Task { @MainActor in
                             handler(false, false, WYLocalized("生物识别已被锁定，锁屏并成功解锁设备后重新打开本页面即可重新开启", table: WYBasisKitConfig.kitLocalizableTable))
                         }
+                        #else
+                        DispatchQueue.main.async {
+                            handler(false, false, WYLocalized("生物识别已被锁定，锁屏并成功解锁设备后重新打开本页面即可重新开启", table: WYBasisKitConfig.kitLocalizableTable))
+                        }
+                        #endif
                     default:break
                     }
                 }
@@ -206,10 +262,15 @@ public func wy_verifyBiometrics(_ localizedFallbackTitle: String = "", localized
         }else {
             
             // 生物识别已被锁定，锁屏并成功解锁iPhone后可重新打开本页面开启
-            DispatchQueue.main.async {
-                
+            #if compiler(>=6)
+            Task { @MainActor in
                 handler(false, false, WYLocalized("生物识别已被锁定，锁屏并成功解锁设备后重新打开本页面即可重新开启", table: WYBasisKitConfig.kitLocalizableTable))
             }
+            #else
+            DispatchQueue.main.async {
+                handler(false, false, WYLocalized("生物识别已被锁定，锁屏并成功解锁设备后重新打开本页面即可重新开启", table: WYBasisKitConfig.kitLocalizableTable))
+            }
+            #endif
         }
     }
     
@@ -222,12 +283,22 @@ public func wy_verifyBiometrics(_ localizedFallbackTitle: String = "", localized
             
             // 输入密码开启生物识别
             passwordContent.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: WYLocalized("请输入密码验证生物识别", table: WYBasisKitConfig.kitLocalizableTable)) { (success, err) in
+                #if compiler(>=6)
+                Task { @MainActor in
+                    if success {
+                        handler!(true)
+                    }else{
+                        handler!(false)
+                    }
+                }
+                #else
                 if success {
                     handler!(true)
                 }else{
                     handler!(false)
                 }
+                #endif
             }
             
-    }else {}}
+        }else {}}
 }

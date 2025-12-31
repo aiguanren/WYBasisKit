@@ -8,6 +8,9 @@
 
 import Foundation
 
+#if compiler(>=6)
+@MainActor
+#endif
 @objc(WYCameraAuthorization)
 @objcMembers public class WYCameraAuthorizationObjC: NSObject {
     

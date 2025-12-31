@@ -128,7 +128,7 @@ extension WYChatView: WYChatInputViewDelegate, WYChatInputViewEventsHandler {
         content.text = text
          
         /// 引用消息
-        let reference: WYChatMeesageContentModel? = nil
+        //let reference: WYChatMeesageContentModel? = nil
         
         let message: WYChatMessageModel = WYChatMessageModel()
         message.readers = readers

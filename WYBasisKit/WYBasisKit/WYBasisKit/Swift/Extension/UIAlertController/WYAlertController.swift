@@ -9,6 +9,9 @@
 import Foundation
 import UIKit
 
+#if compiler(>=6)
+@MainActor
+#endif
 public extension UIAlertController {
     
     /**
@@ -32,8 +35,8 @@ public extension UIAlertController {
                         actions: [Any] = [],
                         handler:((_ action: String, _ inputTexts: [String]) -> Void)? = nil) {
         
-        DispatchQueue.main.async {
-            
+        // 公共处理逻辑
+        let handleResult = {
             let alertTitle: String = wy_sharedGenericString(object: title)
             
             let alertMessage: String = wy_sharedGenericString(object: message)
@@ -82,8 +85,18 @@ public extension UIAlertController {
                 }
             }
         }
+        
+        #if compiler(>=6)
+        Task { @MainActor in
+            handleResult()
+        }
+        #else
+        DispatchQueue.main.async {
+            handleResult()
+        }
+        #endif
     }
-
+    
     @discardableResult
     private static func wy_internalShow(style: UIAlertController.Style = .alert, title: String = "", message: String = "", duration: TimeInterval = 0.0, actionSheetNeedCancel: Bool = true, textFieldPlaceholders: [String] = [], actions: [String] = [], handler:((_ actionStr: String, _ textFieldTexts: [String]) -> Void)? = nil) -> UIAlertController? {
         
@@ -120,7 +133,7 @@ public extension UIAlertController {
             DispatchQueue.main.asyncAfter(deadline: .now()+duration) {
                 
                 if (handler != nil) {
-
+                    
                     handler!("", [])
                 }
                 alertController.wy_alertWindow?.rootViewController?.dismiss(animated: true, completion: nil)
@@ -135,7 +148,7 @@ public extension UIAlertController {
         let action: UIAlertAction = UIAlertAction(title: actionStr, style: actionStyle) { (alertAction) in
             
             if (handler != nil) {
-
+                
                 let texts: NSMutableArray = []
                 if !textFieldPlaceholders.isEmpty {
                     
@@ -173,7 +186,7 @@ public extension UIAlertController {
         guard let obj = object else {
             return ""
         }
-
+        
         if obj is String {
             return obj as! String
         }

@@ -49,6 +49,19 @@ Pod::Spec.new do |kit|
   #   "EventHandler"
   # ]
 
+  # 安装时执行配置脚本(如需Push到Cocoapods远程，不可使用此方法，会因为安全原因被Cocoapods拒绝)
+  # kit.prepare_command = <<-CMD
+  #   bash #{kit_path}WYBasisKit.sh
+  #   python3 #{kit_path}WYBasisKit.py
+  # CMD
+
+  # 编译时执行配置脚本(该脚本仅针对当前pod库target编译时生效，主工程target编译后不会执行)
+  # kit.script_phase = {
+  #   :name => "WYBasisKit",
+  #   :script => "python3 #{kit_path}WYBasisKit.py",
+  #   :execution_position => :before_compile
+  # }
+
   # 主工程设置
   # kit.user_target_xcconfig = {
   #   "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64" # 跟多常见设置可以参照kit.pod_target_xcconfig
@@ -66,7 +79,14 @@ Pod::Spec.new do |kit|
   # 排除匹配某个文件夹下面的所有文件和文件夹，如排除匹配aaa文件夹下面的所有文件和文件夹
   # kit.exclude_files = [
   #   "#{kit_path}aaa/**/*"
-  # ]  
+  # ] 
+
+  # 放置Assets.xcassets到pods中方便图片资源加载(与.Bundle互补)
+  # kit.resource_bundles = {
+  #   'WYBasisKitSwift' => [
+  #             'Assets/Assets.xcassets',
+  #             ]
+  # } 
 
   kit.subspec "Config" do |config|
     config.source_files = [
