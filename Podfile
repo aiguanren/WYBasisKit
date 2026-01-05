@@ -1,8 +1,8 @@
 platform :ios, '13.0'
-inhibit_all_warnings!
 use_frameworks!
 #use_frameworks! :linkage => :static
 use_modular_headers!
+inhibit_all_warnings!
 install! 'cocoapods', warn_for_unused_master_specs_repo: false
 
 # 使用Cocoapods清华源
