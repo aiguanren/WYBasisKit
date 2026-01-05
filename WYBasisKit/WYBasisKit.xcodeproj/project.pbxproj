@@ -172,7 +172,7 @@
 		58C68E322E850EFC005FD054 /* WYViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68E312E850EFC005FD054 /* WYViewObjC.swift */; };
 		58C68E342E8537A5005FD054 /* WYAlertControllerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68E332E8537A5005FD054 /* WYAlertControllerObjC.swift */; };
 		58C68E362E853D71005FD054 /* WYApplicationObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68E352E853D71005FD054 /* WYApplicationObjC.swift */; };
-		58C952F22F051E800032E3F6 /* WYColorSwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C952F02F051E800032E3F6 /* WYColorSwiftUI.swift */; };
+		58C952F22F051E800032E3F6 /* WYColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C952F02F051E800032E3F6 /* WYColor.swift */; };
 		AAC46AD02E07E28F0068B0DF /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = AAC46ACF2E07E28F0068B0DF /* libc++.tbd */; };
 		ED4EB416B83B179C621C40F0 /* Pods_WYBasisKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEB6297DCF484666E8FC6223 /* Pods_WYBasisKit.framework */; };
 /* End PBXBuildFile section */
@@ -394,7 +394,7 @@
 		58C68E312E850EFC005FD054 /* WYViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYViewObjC.swift; sourceTree = "<group>"; };
 		58C68E332E8537A5005FD054 /* WYAlertControllerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAlertControllerObjC.swift; sourceTree = "<group>"; };
 		58C68E352E853D71005FD054 /* WYApplicationObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYApplicationObjC.swift; sourceTree = "<group>"; };
-		58C952F02F051E800032E3F6 /* WYColorSwiftUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYColorSwiftUI.swift; sourceTree = "<group>"; };
+		58C952F02F051E800032E3F6 /* WYColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYColor.swift; sourceTree = "<group>"; };
 		58E054912E88DEE200DF1F74 /* WYBasisKitObjC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYBasisKitObjC.h; sourceTree = "<group>"; };
 		8B8A3708E351CE0BB9E30715 /* Pods-WYBasisKit.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.debug.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.debug.xcconfig"; sourceTree = "<group>"; };
 		AAC46ACF2E07E28F0068B0DF /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
@@ -1994,17 +1994,17 @@
 		58C952EF2F051E440032E3F6 /* Extension */ = {
 			isa = PBXGroup;
 			children = (
-				58C952F12F051E800032E3F6 /* UIColor */,
+				58C952F12F051E800032E3F6 /* Color */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
 		};
-		58C952F12F051E800032E3F6 /* UIColor */ = {
+		58C952F12F051E800032E3F6 /* Color */ = {
 			isa = PBXGroup;
 			children = (
-				58C952F02F051E800032E3F6 /* WYColorSwiftUI.swift */,
+				58C952F02F051E800032E3F6 /* WYColor.swift */,
 			);
-			path = UIColor;
+			path = Color;
 			sourceTree = "<group>";
 		};
 		74BEC470B6E92D82AAD2D137 /* Frameworks */ = {
@@ -2288,7 +2288,7 @@
 				58C68E212E84E436005FD054 /* WYBannerView.swift in Sources */,
 				58C68E222E84E436005FD054 /* WYCodableObjC.swift in Sources */,
 				58C68E232E84E436005FD054 /* WYTimer.swift in Sources */,
-				58C952F22F051E800032E3F6 /* WYColorSwiftUI.swift in Sources */,
+				58C952F22F051E800032E3F6 /* WYColor.swift in Sources */,
 				58C68E242E84E436005FD054 /* WYStringObjC.swift in Sources */,
 				584EAF012E92791B003A21B8 /* WYLocalizableManagerObjC.swift in Sources */,
 				58C68E252E84E436005FD054 /* WYActivity.swift in Sources */,
