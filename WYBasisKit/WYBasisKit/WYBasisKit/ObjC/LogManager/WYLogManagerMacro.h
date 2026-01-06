@@ -8,6 +8,10 @@
 #ifndef WYLogManagerMacro_h
 #define WYLogManagerMacro_h
 
+#if __has_include("WYBasisKitSwift-Swift.h")
+#import "WYBasisKitSwift-Swift.h"
+#endif
+
 /// 覆盖系统发能发输出日志（仅输出到控制台）
 #define NSLog(format, ...) \
     [WYLogManager output:[NSString stringWithFormat:(format), ##__VA_ARGS__] \

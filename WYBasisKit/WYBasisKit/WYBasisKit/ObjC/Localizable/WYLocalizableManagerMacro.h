@@ -8,6 +8,10 @@
 #ifndef WYLocalizableManagerMacro_h
 #define WYLocalizableManagerMacro_h
 
+#if __has_include("WYBasisKitSwift-Swift.h")
+#import "WYBasisKitSwift-Swift.h"
+#endif
+
 /**
  *  根据传入的Key读取对应的本地语言
  *
