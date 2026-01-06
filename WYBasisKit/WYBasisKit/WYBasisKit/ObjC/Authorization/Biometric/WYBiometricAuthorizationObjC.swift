@@ -7,6 +7,9 @@
 //
 
 import Foundation
+#if WYBasisKit_Supports_ObjC
+import WYBasisKitSwift
+#endif
 
 /// 生物识别模式
 @objc(WYBiometricMode)

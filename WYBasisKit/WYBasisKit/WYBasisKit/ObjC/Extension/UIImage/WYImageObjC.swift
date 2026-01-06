@@ -8,6 +8,9 @@
 
 import Foundation
 import UIKit
+#if WYBasisKit_Supports_ObjC
+import WYBasisKitSwift
+#endif
 
 /// 动图格式类型
 @objc(WYAnimatedImageStyle)

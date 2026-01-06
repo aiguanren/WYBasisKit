@@ -7,6 +7,9 @@
 
 import Foundation
 import ObjectiveC.runtime
+#if WYBasisKit_Supports_ObjC
+import WYBasisKitSwift
+#endif
 
 @objc public extension NSObject {
     

@@ -6,6 +6,9 @@
 //
 
 import UIKit
+#if WYBasisKit_Supports_ObjC
+import WYBasisKitSwift
+#endif
 
 #if WYBasisKit_Supports_MediaPlayer_FS
 

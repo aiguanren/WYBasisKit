@@ -7,6 +7,9 @@
 
 import WebKit
 import Foundation
+#if WYBasisKit_Supports_ObjC
+import WYBasisKitSwift
+#endif
 
 /// WKWebView 进度条扩展
 @objc public extension WKWebView {

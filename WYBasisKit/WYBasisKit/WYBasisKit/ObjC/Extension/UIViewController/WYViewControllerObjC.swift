@@ -6,6 +6,9 @@
 //
 
 import UIKit
+#if WYBasisKit_Supports_ObjC
+import WYBasisKitSwift
+#endif
 
 /// ViewController显示模式
 @objc(WYDisplaMode)

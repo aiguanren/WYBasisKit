@@ -7,6 +7,9 @@
 //  
 
 import Foundation
+#if WYBasisKit_Supports_ObjC
+import WYBasisKitSwift
+#endif
 
 /// 屏幕分辨率
 @objc(WYScreenPixels)

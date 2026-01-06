@@ -6,6 +6,9 @@
 //
 
 import UIKit
+#if WYBasisKit_Supports_ObjC
+import WYBasisKitSwift
+#endif
 
 /// ScrollView滑动方向
 @objc(WYSlidingDirection)

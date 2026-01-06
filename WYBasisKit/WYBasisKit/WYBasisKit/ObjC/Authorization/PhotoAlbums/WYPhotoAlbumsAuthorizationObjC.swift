@@ -7,6 +7,9 @@
 //
 
 import UIKit
+#if WYBasisKit_Supports_ObjC
+import WYBasisKitSwift
+#endif
 
 #if compiler(>=6)
 @MainActor

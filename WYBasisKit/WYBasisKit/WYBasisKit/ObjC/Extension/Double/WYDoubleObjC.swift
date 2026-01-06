@@ -6,6 +6,9 @@
 //
 
 import Foundation
+#if WYBasisKit_Supports_ObjC
+import WYBasisKitSwift
+#endif
 
 @objcMembers public class DoubleObjC: NSObject {
     

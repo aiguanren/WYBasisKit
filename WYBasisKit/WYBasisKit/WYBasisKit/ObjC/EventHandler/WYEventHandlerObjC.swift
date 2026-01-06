@@ -6,6 +6,9 @@
 //
 
 import Foundation
+#if WYBasisKit_Supports_ObjC
+import WYBasisKitSwift
+#endif
 
 /// 跨页面/多对象的事件监听工具，无需手动解绑(对象释放后自动解绑)，支持代理和闭包，可用于回调、通知、事件分发等场景
 @objc(WYEventHandler)

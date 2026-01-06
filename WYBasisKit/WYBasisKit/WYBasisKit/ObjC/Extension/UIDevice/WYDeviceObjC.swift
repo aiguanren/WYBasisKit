@@ -6,6 +6,9 @@
 //
 
 import UIKit
+#if WYBasisKit_Supports_ObjC
+import WYBasisKitSwift
+#endif
 
 /// 设备振动模式
 @objc(WYVibrationStyle)

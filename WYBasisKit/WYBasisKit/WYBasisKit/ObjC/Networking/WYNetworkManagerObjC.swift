@@ -8,6 +8,9 @@
 import Network
 import Foundation
 import Alamofire
+#if WYBasisKit_Supports_ObjC
+import WYBasisKitSwift
+#endif
 
 /// 网络请求类型(对应Alamofire中HTTPMethod)
 @objc @frozen public enum WYHTTPMethod: Int {

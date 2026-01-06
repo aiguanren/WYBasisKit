@@ -7,6 +7,9 @@
 
 import Foundation
 import Alamofire
+#if WYBasisKit_Supports_ObjC
+import WYBasisKitSwift
+#endif
 
 /// 网络请求验证方式
 @objc(WYNetworkRequestStyle)

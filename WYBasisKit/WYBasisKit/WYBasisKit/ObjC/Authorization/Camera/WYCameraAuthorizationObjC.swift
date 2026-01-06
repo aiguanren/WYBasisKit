@@ -7,6 +7,9 @@
 //
 
 import Foundation
+#if WYBasisKit_Supports_ObjC
+import WYBasisKitSwift
+#endif
 
 @objc(WYCameraAuthorization)
 @objcMembers public class WYCameraAuthorizationObjC: NSObject {

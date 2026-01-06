@@ -6,6 +6,9 @@
 //
 
 import UIKit
+#if WYBasisKit_Supports_ObjC
+import WYBasisKitSwift
+#endif
 
 /// UIButton图片控件和文本控件显示位置
 @objc(WYButtonPosition)

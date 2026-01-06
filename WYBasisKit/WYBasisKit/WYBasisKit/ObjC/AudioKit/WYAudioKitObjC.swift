@@ -7,6 +7,9 @@
 
 import Foundation
 import AVFoundation
+#if WYBasisKit_Supports_ObjC
+import WYBasisKitSwift
+#endif
 
 /**
  音频文件格式说明：

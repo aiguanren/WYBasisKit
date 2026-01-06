@@ -7,6 +7,9 @@
 //
 
 import UIKit
+#if WYBasisKit_Supports_ObjC
+import WYBasisKitSwift
+#endif
 
 @objc(WYSpeechRecognitionAuthorization)
 @objcMembers public class WYSpeechRecognitionAuthorizationObjC: NSObject {

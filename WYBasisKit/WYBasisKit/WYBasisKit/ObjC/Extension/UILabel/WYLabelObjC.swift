@@ -7,6 +7,9 @@
 
 import UIKit
 import Foundation
+#if WYBasisKit_Supports_ObjC
+import WYBasisKitSwift
+#endif
 
 @objc public extension UILabel {
     

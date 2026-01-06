@@ -6,6 +6,9 @@
 //
 
 import UIKit
+#if WYBasisKit_Supports_ObjC
+import WYBasisKitSwift
+#endif
 
 /// UITableViewCell侧滑方向
 @objc(WYTableViewSideslipDirection)

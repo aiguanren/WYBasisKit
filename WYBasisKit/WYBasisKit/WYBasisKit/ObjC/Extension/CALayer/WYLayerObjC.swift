@@ -7,6 +7,9 @@
 
 import UIKit
 import QuartzCore
+#if WYBasisKit_Supports_ObjC
+import WYBasisKitSwift
+#endif
 
 /// 虚线方向
 @objc(WYDashDirection)

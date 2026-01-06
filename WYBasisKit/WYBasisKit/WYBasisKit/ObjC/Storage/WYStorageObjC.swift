@@ -7,6 +7,9 @@
 
 import Foundation
 import UIKit
+#if WYBasisKit_Supports_ObjC
+import WYBasisKitSwift
+#endif
 
 /// 数据缓存时长(有效期)
 @objc(WYStorageDurable)

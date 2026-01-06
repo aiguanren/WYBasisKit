@@ -8,6 +8,9 @@
 
 import UIKit
 import Foundation
+#if WYBasisKit_Supports_ObjC
+import WYBasisKitSwift
+#endif
 
 /// 信息提示窗口的显示位置
 @objc(WYActivityPosition)
