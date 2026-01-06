@@ -13,6 +13,9 @@ import UIKit
 public let contactsKey: String = "NSContactsUsageDescription"
 
 /// 检查通讯录权限并获取通讯录
+#if compiler(>=6)
+@MainActor
+#endif
 public func wy_authorizeAddressBookAccess(showAlert: Bool = true, keysToFetch: [String] = [CNContactFamilyNameKey, CNContactGivenNameKey, CNContactOrganizationNameKey, CNContactPhoneNumbersKey, CNContactNicknameKey], handler: @escaping (_ authorized: Bool, _ userInfo: [CNContact]?) -> Void?) {
     
     if let _ = Bundle.main.infoDictionary?[contactsKey] as? String {
@@ -80,19 +83,24 @@ public func wy_authorizeAddressBookAccess(showAlert: Bool = true, keysToFetch: [
     }
     
     // 弹出授权弹窗
+    #if compiler(>=6)
+    @MainActor
+    #endif
     func wy_showAuthorizeAlert(show: Bool, message: String) {
         
-        if show {
-            UIAlertController.wy_show(message: message, actions: [WYLocalized("取消", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable)]) { (actionStr, _) in
+        guard show else {
+            return
+        }
+        
+        UIAlertController.wy_show(message: message, actions: [WYLocalized("取消", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable)]) { (actionStr, _) in
+            
+            DispatchQueue.main.async {
                 
-                DispatchQueue.main.async {
+                if actionStr == WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable) {
                     
-                    if actionStr == WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable) {
-                        
-                        let settingUrl = URL(string: UIApplication.openSettingsURLString)
-                        if let url = settingUrl, UIApplication.shared.canOpenURL(url) {
-                            UIApplication.shared.open(url, options: [:], completionHandler: nil)
-                        }
+                    let settingUrl = URL(string: UIApplication.openSettingsURLString)
+                    if let url = settingUrl, UIApplication.shared.canOpenURL(url) {
+                        UIApplication.shared.open(url, options: [:], completionHandler: nil)
                     }
                 }
             }

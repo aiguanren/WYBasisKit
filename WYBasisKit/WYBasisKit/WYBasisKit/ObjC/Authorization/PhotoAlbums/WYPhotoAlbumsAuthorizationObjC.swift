@@ -8,6 +8,9 @@
 
 import UIKit
 
+#if compiler(>=6)
+@MainActor
+#endif
 @objc(WYPhotoAlbumsAuthorization)
 @objcMembers public class WYPhotoAlbumsAuthorizationObjC: NSObject {
     

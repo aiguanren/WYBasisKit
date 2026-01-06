@@ -13,6 +13,9 @@ import Photos
 public let photoLibraryKey: String = "NSPhotoLibraryUsageDescription"
 
 /// 检查相册权限
+#if compiler(>=6)
+@MainActor
+#endif
 public func wy_authorizeAlbumAccess(showAlert: Bool = true, handler: @escaping (_ authorized: Bool, _ limited: Bool) -> Void?) {
     
     if let _ = Bundle.main.infoDictionary?[photoLibraryKey] as? String {
@@ -73,19 +76,24 @@ public func wy_authorizeAlbumAccess(showAlert: Bool = true, handler: @escaping (
     }
     
     // 弹出授权弹窗
+    #if compiler(>=6)
+    @MainActor
+    #endif
     func wy_showAuthorizeAlert(show: Bool, message: String) {
         
-        if show {
-            UIAlertController.wy_show(message: message, actions: [WYLocalized("取消", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable)]) { (actionStr, _) in
+        guard show else {
+            return
+        }
+        
+        UIAlertController.wy_show(message: message, actions: [WYLocalized("取消", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable)]) { (actionStr, _) in
+            
+            DispatchQueue.main.async {
                 
-                DispatchQueue.main.async {
+                if actionStr == WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable) {
                     
-                    if actionStr == WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable) {
-                        
-                        let settingUrl = URL(string: UIApplication.openSettingsURLString)
-                        if let url = settingUrl, UIApplication.shared.canOpenURL(url) {
-                            UIApplication.shared.open(settingUrl!, options: [:], completionHandler: nil)
-                        }
+                    let settingUrl = URL(string: UIApplication.openSettingsURLString)
+                    if let url = settingUrl, UIApplication.shared.canOpenURL(url) {
+                        UIApplication.shared.open(settingUrl!, options: [:], completionHandler: nil)
                     }
                 }
             }

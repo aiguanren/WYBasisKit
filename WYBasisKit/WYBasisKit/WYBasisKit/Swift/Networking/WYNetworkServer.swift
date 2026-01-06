@@ -9,7 +9,7 @@
 import Moya
 import Alamofire
 
-struct WYRequest : Sendable{
+struct WYRequest {
     
     /// 请求方式
     var method: HTTPMethod
@@ -40,7 +40,7 @@ struct WYRequest : Sendable{
 
 let WYTargetProvider = MoyaProvider<WYTarget>.config()
 
-struct WYTarget: TargetType, Sendable {
+struct WYTarget: TargetType {
     
     init(request: WYRequest) {
         self.request = request

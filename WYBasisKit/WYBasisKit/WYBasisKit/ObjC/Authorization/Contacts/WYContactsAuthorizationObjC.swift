@@ -9,6 +9,9 @@
 import UIKit
 import Contacts
 
+#if compiler(>=6)
+@MainActor
+#endif
 @objc(WYContactsAuthorization)
 @objcMembers public class WYContactsAuthorizationObjC: NSObject {
     

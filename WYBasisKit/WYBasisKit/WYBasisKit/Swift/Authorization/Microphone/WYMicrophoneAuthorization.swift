@@ -13,6 +13,9 @@ import Photos
 public let microphoneKey: String = "NSMicrophoneUsageDescription"
 
 /// 检查麦克风权限
+#if compiler(>=6)
+@MainActor
+#endif
 public func wy_authorizeMicrophoneAccess(showAlert: Bool = true, handler: @escaping (_ authorized: Bool) -> Void?) {
     
     if let _ = Bundle.main.infoDictionary?[microphoneKey] as? String {
@@ -54,19 +57,24 @@ public func wy_authorizeMicrophoneAccess(showAlert: Bool = true, handler: @escap
     }
     
     // 弹出授权弹窗
+    #if compiler(>=6)
+    @MainActor
+    #endif
     func wy_showAuthorizeAlert(show: Bool, message: String) {
         
-        if show {
-            UIAlertController.wy_show(message: message, actions: [WYLocalized("取消", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable)]) { (actionStr, _) in
+        guard show else {
+            return
+        }
+        
+        UIAlertController.wy_show(message: message, actions: [WYLocalized("取消", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable)]) { (actionStr, _) in
+            
+            DispatchQueue.main.async {
                 
-                DispatchQueue.main.async {
+                if actionStr == WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable) {
                     
-                    if actionStr == WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable) {
-                        
-                        let settingUrl = URL(string: UIApplication.openSettingsURLString)
-                        if let url = settingUrl, UIApplication.shared.canOpenURL(url) {
-                            UIApplication.shared.open(settingUrl!, options: [:], completionHandler: nil)
-                        }
+                    let settingUrl = URL(string: UIApplication.openSettingsURLString)
+                    if let url = settingUrl, UIApplication.shared.canOpenURL(url) {
+                        UIApplication.shared.open(settingUrl!, options: [:], completionHandler: nil)
                     }
                 }
             }
