@@ -142,6 +142,7 @@
 		5827327D2E9FA6D200DAD1AA /* km */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = km; path = km.lproj/Main.strings; sourceTree = "<group>"; };
 		584EAF0C2E939052003A21B8 /* WYTestWebViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestWebViewController.h; sourceTree = "<group>"; };
 		584EAF0D2E939052003A21B8 /* WYTestWebViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestWebViewController.m; sourceTree = "<group>"; };
+		58AE5D612F0CA1020025C492 /* libswiftCompatibilitySpan.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libswiftCompatibilitySpan.tbd; path = usr/lib/swift/libswiftCompatibilitySpan.tbd; sourceTree = SDKROOT; };
 		58B46FF02E8D0F6100D04BCA /* WYTabBarController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTabBarController.h; sourceTree = "<group>"; };
 		58B46FF12E8D0F6100D04BCA /* WYTabBarController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTabBarController.m; sourceTree = "<group>"; };
 		58B46FF32E8D112B00D04BCA /* [爱心].png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "[爱心].png"; sourceTree = "<group>"; };
@@ -448,6 +449,7 @@
 		9B1FAA5163C0754EF01A1929 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				58AE5D612F0CA1020025C492 /* libswiftCompatibilitySpan.tbd */,
 				D221636A5EAC813DEE477B6E /* Pods_ObjCVerify.framework */,
 			);
 			name = Frameworks;
@@ -779,6 +781,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_VERSION = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -815,6 +818,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_VERSION = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

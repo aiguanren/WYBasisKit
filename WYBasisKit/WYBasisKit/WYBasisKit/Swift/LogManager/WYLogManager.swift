@@ -273,7 +273,6 @@ final class WYLogCell: UITableViewCell {
         
         copyButton.setTitle("复制", for: .normal)
         copyButton.titleLabel?.font = .systemFont(ofSize: 13, weight: .medium)
-        copyButton.contentEdgeInsets = UIEdgeInsets(top: 4, left: 10, bottom: 4, right: 10)
         copyButton.translatesAutoresizingMaskIntoConstraints = false
         copyButton.layer.cornerRadius = 5
         copyButton.layer.borderWidth = 1
@@ -344,7 +343,16 @@ final class WYLogPreviewViewController: UIViewController {
         let searchBar = UISearchBar()
         searchBar.delegate = self
         searchBar.placeholder = "搜索日志关键字"
-        navigationItem.titleView = searchBar
+        searchBar.searchBarStyle = .minimal
+        let container = UIView()
+        let width = UIScreen.main.bounds.width - 120
+        let height: CGFloat = 36
+        container.frame = CGRect(x: 0, y: 0, width: width, height: height)
+        searchBar.frame = container.bounds
+        searchBar.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        container.addSubview(searchBar)
+        navigationItem.titleView = container
+        navigationItem.largeTitleDisplayMode = .never
         
         tableView.register(WYLogCell.self, forCellReuseIdentifier: "WYLogCell")
         tableView.dataSource = self
