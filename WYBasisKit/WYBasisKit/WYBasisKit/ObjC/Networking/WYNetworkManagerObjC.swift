@@ -8,7 +8,7 @@
 import Network
 import Foundation
 import Alamofire
-#if WYBasisKit_Supports_ObjC
+#if canImport(WYBasisKitSwift)
 import WYBasisKitSwift
 #endif
 

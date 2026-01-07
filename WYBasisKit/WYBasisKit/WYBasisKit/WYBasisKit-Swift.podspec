@@ -31,9 +31,10 @@ Pod::Spec.new do |kit|
   kit.resource_bundles = {"WYBasisKitSwift" => [
     "#{kit_path}PrivacyInfo.xcprivacy"
   ]}
-  kit.swift_versions = "5.0"
+  kit.swift_versions = ["5"]
+  #kit.swift_version = "5.0"
   kit.requires_arc = true
-  kit.static_framework = true
+  #kit.static_framework = true # 开启后OC工程编译会报错找不到swift相关版本链接库
   # 这里需要忽略前面的lib和后面的tbd，例如libz.tbd直接写为z即可，如果是.a则需要写全，如："xxx.a"
   # kit.libraries = "z", "xxx.a"  # 这里的.a是指系统的
   # kit.vendored_libraries = "xxx.a"  # 这里的.a是指第三方或者自己自定义的

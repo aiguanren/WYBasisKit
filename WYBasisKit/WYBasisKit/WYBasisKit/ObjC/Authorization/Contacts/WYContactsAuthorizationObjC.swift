@@ -8,7 +8,7 @@
 
 import UIKit
 import Contacts
-#if WYBasisKit_Supports_ObjC
+#if canImport(WYBasisKitSwift)
 import WYBasisKitSwift
 #endif
 

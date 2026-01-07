@@ -679,7 +679,6 @@
 				585B35402DF8081800E6E08F /* Frameworks */,
 				585B35412DF8081800E6E08F /* Resources */,
 				7A623E1F3422EA687315B2FE /* [CP] Embed Pods Frameworks */,
-				6C3645E542F860EF4BEE989D /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -798,80 +797,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		6C3645E542F860EF4BEE989D /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SwiftVerify/Pods-SwiftVerify-resources.sh",
-				"${PODS_CONFIGURATION_BUILD_DIR}/IJKPlayerKit/IJKPlayerKit.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-Swift-76b711b7/WYBasisKitSwift.bundle",
-				"${PODS_ROOT}/../WYBasisKit/WYBasisKit/WYBasisKit/Swift/Localizable/WYLocalizable.bundle",
-				"${PODS_ROOT}/../WYBasisKit/WYBasisKit/WYBasisKit/Swift/Activity/WYActivity.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-Swift-76b711b7/WYBasisKitSwiftActivity.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-Swift-76b711b7/WYBasisKitSwiftAudioKit.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-Swift-76b711b7/WYBasisKitSwiftAuthorization.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-Swift-76b711b7/WYBasisKitSwiftAuthorizationBiometric.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-Swift-76b711b7/WYBasisKitSwiftAuthorizationCamera.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-Swift-76b711b7/WYBasisKitSwiftAuthorizationContacts.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-Swift-76b711b7/WYBasisKitSwiftAuthorizationMicrophone.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-Swift-76b711b7/WYBasisKitSwiftAuthorizationPhotoAlbums.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-Swift-76b711b7/WYBasisKitSwiftAuthorizationSpeechRecognition.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-Swift-76b711b7/WYBasisKitSwiftCodable.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-Swift-76b711b7/WYBasisKitSwiftConfig.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-Swift-76b711b7/WYBasisKitSwiftEventHandler.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-Swift-76b711b7/WYBasisKitSwiftExtension.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-Swift-76b711b7/WYBasisKitSwiftLayout.bundle",
-				"${PODS_ROOT}/../WYBasisKit/WYBasisKit/WYBasisKit/Swift/Layout/BannerView/WYBannerView.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-Swift-76b711b7/WYBasisKitSwiftLayoutBannerView.bundle",
-				"${PODS_ROOT}/../WYBasisKit/WYBasisKit/WYBasisKit/Swift/Layout/ChatView/WYChatView.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-Swift-76b711b7/WYBasisKitSwiftLayoutChatView.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-Swift-76b711b7/WYBasisKitSwiftMediaPlayerFS.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-Swift-76b711b7/WYBasisKitSwiftLayoutPagingView.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-Swift-76b711b7/WYBasisKitSwiftLayoutScrollText.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-Swift-76b711b7/WYBasisKitSwiftLocalizable.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-Swift-76b711b7/WYBasisKitSwiftLogManager.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-Swift-76b711b7/WYBasisKitSwiftNetworking.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-Swift-76b711b7/WYBasisKitSwiftStorage.bundle",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/IJKPlayerKit.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwift.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYLocalizable.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYActivity.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftActivity.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftAudioKit.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftAuthorization.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftAuthorizationBiometric.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftAuthorizationCamera.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftAuthorizationContacts.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftAuthorizationMicrophone.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftAuthorizationPhotoAlbums.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftAuthorizationSpeechRecognition.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftCodable.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftConfig.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftEventHandler.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftExtension.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayout.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBannerView.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayoutBannerView.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYChatView.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayoutChatView.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftMediaPlayerFS.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayoutPagingView.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayoutScrollText.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLocalizable.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLogManager.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftNetworking.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftStorage.bundle",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SwiftVerify/Pods-SwiftVerify-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		7A623E1F3422EA687315B2FE /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -891,7 +816,7 @@
 				"${BUILT_PRODUCTS_DIR}/IQKeyboardToolbarManager/IQKeyboardToolbarManager.framework",
 				"${BUILT_PRODUCTS_DIR}/IQTextInputViewNotification/IQTextInputViewNotification.framework",
 				"${BUILT_PRODUCTS_DIR}/IQTextView/IQTextView.framework",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/IJKPlayerKit/FSPlayer.framework/FSPlayer",
+				"${BUILT_PRODUCTS_DIR}/WYBasisKit-Swift-659cd336/WYBasisKitSwift.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -907,7 +832,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQKeyboardToolbarManager.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQTextInputViewNotification.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQTextView.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FSPlayer.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WYBasisKitSwift.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;

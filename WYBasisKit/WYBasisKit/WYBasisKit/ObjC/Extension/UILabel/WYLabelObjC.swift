@@ -7,7 +7,7 @@
 
 import UIKit
 import Foundation
-#if WYBasisKit_Supports_ObjC
+#if canImport(WYBasisKitSwift)
 import WYBasisKitSwift
 #endif
 

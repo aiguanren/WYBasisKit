@@ -7,7 +7,7 @@
 
 import Foundation
 import AVFoundation
-#if WYBasisKit_Supports_ObjC
+#if canImport(WYBasisKitSwift)
 import WYBasisKitSwift
 #endif
 
