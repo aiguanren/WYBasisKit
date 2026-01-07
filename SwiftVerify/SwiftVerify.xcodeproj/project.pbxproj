@@ -679,6 +679,7 @@
 				585B35402DF8081800E6E08F /* Frameworks */,
 				585B35412DF8081800E6E08F /* Resources */,
 				7A623E1F3422EA687315B2FE /* [CP] Embed Pods Frameworks */,
+				2E60BFC3EA05D53F6FCA53DE /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -797,6 +798,24 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		2E60BFC3EA05D53F6FCA53DE /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SwiftVerify/Pods-SwiftVerify-resources.sh",
+				"${PODS_CONFIGURATION_BUILD_DIR}/IJKPlayerKit/IJKPlayerKit.bundle",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/IJKPlayerKit.bundle",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SwiftVerify/Pods-SwiftVerify-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		7A623E1F3422EA687315B2FE /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -816,7 +835,8 @@
 				"${BUILT_PRODUCTS_DIR}/IQKeyboardToolbarManager/IQKeyboardToolbarManager.framework",
 				"${BUILT_PRODUCTS_DIR}/IQTextInputViewNotification/IQTextInputViewNotification.framework",
 				"${BUILT_PRODUCTS_DIR}/IQTextView/IQTextView.framework",
-				"${BUILT_PRODUCTS_DIR}/WYBasisKit-Swift-659cd336/WYBasisKitSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/WYBasisKit-Swift-76b711b7/WYBasisKitSwift.framework",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/IJKPlayerKit/FSPlayer.framework/FSPlayer",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -833,6 +853,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQTextInputViewNotification.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQTextView.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WYBasisKitSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FSPlayer.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;

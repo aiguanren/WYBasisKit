@@ -1,5 +1,6 @@
 PODS:
   - Alamofire (5.11.0)
+  - IJKPlayerKit (1.0.3)
   - IQKeyboardCore (1.0.8)
   - IQKeyboardManagerSwift (8.0.1):
     - IQKeyboardManagerSwift/Appearance (= 8.0.1)
@@ -98,7 +99,8 @@ PODS:
     - WYBasisKit-ObjC/Localizable
     - WYBasisKit-ObjC/LogManager
     - WYBasisKit-Swift/Authorization/SpeechRecognition
-  - WYBasisKit-ObjC/Codable (2.0.0)
+  - WYBasisKit-ObjC/Codable (2.0.0):
+    - WYBasisKit-Swift/Codable
   - WYBasisKit-ObjC/Config (2.0.0):
     - WYBasisKit-Swift/Config
   - WYBasisKit-ObjC/EventHandler (2.0.0):
@@ -111,6 +113,7 @@ PODS:
   - WYBasisKit-ObjC/Layout (2.0.0):
     - WYBasisKit-ObjC/Layout/BannerView (= 2.0.0)
     - WYBasisKit-ObjC/Layout/ChatView (= 2.0.0)
+    - WYBasisKit-ObjC/Layout/MediaPlayer (= 2.0.0)
     - WYBasisKit-ObjC/Layout/PagingView (= 2.0.0)
     - WYBasisKit-ObjC/Layout/ScrollText (= 2.0.0)
   - WYBasisKit-ObjC/Layout/BannerView (2.0.0):
@@ -124,6 +127,8 @@ PODS:
     - WYBasisKit-ObjC/LogManager
     - WYBasisKit-ObjC/Storage
     - WYBasisKit-Swift/Layout/ChatView
+  - WYBasisKit-ObjC/Layout/MediaPlayer (2.0.0):
+    - WYBasisKit-Swift/Layout/MediaPlayer
   - WYBasisKit-ObjC/Layout/PagingView (2.0.0):
     - WYBasisKit-ObjC/LogManager
     - WYBasisKit-Swift/Layout/PagingView
@@ -195,6 +200,7 @@ PODS:
   - WYBasisKit-Swift/Layout (2.0.0):
     - WYBasisKit-Swift/Layout/BannerView (= 2.0.0)
     - WYBasisKit-Swift/Layout/ChatView (= 2.0.0)
+    - WYBasisKit-Swift/Layout/MediaPlayer (= 2.0.0)
     - WYBasisKit-Swift/Layout/PagingView (= 2.0.0)
     - WYBasisKit-Swift/Layout/ScrollText (= 2.0.0)
   - WYBasisKit-Swift/Layout/BannerView (2.0.0):
@@ -208,6 +214,8 @@ PODS:
     - WYBasisKit-Swift/Localizable
     - WYBasisKit-Swift/LogManager
     - WYBasisKit-Swift/Storage
+  - WYBasisKit-Swift/Layout/MediaPlayer (2.0.0):
+    - IJKPlayerKit
   - WYBasisKit-Swift/Layout/PagingView (2.0.0):
     - WYBasisKit-Swift/LogManager
   - WYBasisKit-Swift/Layout/ScrollText (2.0.0):
@@ -234,8 +242,9 @@ DEPENDENCIES:
   - WYBasisKit-Swift (from `WYBasisKit/WYBasisKit/WYBasisKit`)
 
 SPEC REPOS:
-  https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git:
+  https://github.com/CocoaPods/Specs.git:
     - Alamofire
+    - IJKPlayerKit
     - IQKeyboardCore
     - IQKeyboardManagerSwift
     - IQKeyboardNotification
@@ -258,6 +267,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Alamofire: bd5e7b23a1a750975288482c1831d71e74415f86
+  IJKPlayerKit: 53fda46d5fd4a62a05a031b0a2961c2fa786eaf6
   IQKeyboardCore: 8652977ec919cf5351aa2977fedd1a6546476fbc
   IQKeyboardManagerSwift: 835fc9c6e4732398113406d84900ad2e8f141218
   IQKeyboardNotification: eb4910401f5a0e68f97e71c62f8a0c5b7e9d535c
@@ -271,9 +281,9 @@ SPEC CHECKSUMS:
   Moya: 138f0573e53411fb3dc17016add0b748dfbd78ee
   SDWebImage: e9c98383c7572d713c1a0d7dd2783b10599b9838
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
-  WYBasisKit-ObjC: 90b74e6e883a74a1720f897c5e5c90f6c5c95efb
-  WYBasisKit-Swift: 6740e6fb091e6089328ce8b00b82abeb9bc69722
+  WYBasisKit-ObjC: 6992223ee3c8f07a56dfce1f8660e10250514ddb
+  WYBasisKit-Swift: 965803fb78ce7230838b7a477b682e366f41b29c
 
-PODFILE CHECKSUM: c2e361e0869674d1b63a7bb770cbc8aae78055ea
+PODFILE CHECKSUM: 108a338656deea9ce956d7f189aaadc5b3aed8ba
 
 COCOAPODS: 1.16.2

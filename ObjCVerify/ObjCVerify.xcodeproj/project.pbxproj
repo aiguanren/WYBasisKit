@@ -467,6 +467,7 @@
 				58B59FC12E5D530F008F9C38 /* Frameworks */,
 				58B59FC22E5D530F008F9C38 /* Resources */,
 				B305F3C4ED74A5BF6DE19A05 /* [CP] Embed Pods Frameworks */,
+				EFC244E333B24E1CF0EE0ACF /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -622,6 +623,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		EFC244E333B24E1CF0EE0ACF /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */

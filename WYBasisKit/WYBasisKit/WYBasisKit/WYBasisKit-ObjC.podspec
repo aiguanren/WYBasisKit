@@ -128,6 +128,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}ObjC/Codable/PrivacyInfo.xcprivacy"
     ]}
     codable.frameworks = "Foundation", "UIKit"
+    codable.dependency "WYBasisKit-Swift/Codable"
   end
   
   kit.subspec "Networking" do |networking|
@@ -146,7 +147,14 @@ Pod::Spec.new do |kit|
   
   kit.subspec "Activity" do |activity|
     activity.source_files = [
-      "#{kit_path}ObjC/Activity/**/*.{swift,h,m}"
+      "#{kit_path}ObjC/Activity/**/*.{swift,h,m}",
+      "#{kit_path}ObjC/Extension/UIView/**/*.{swift,h,m}",
+      "#{kit_path}ObjC/Extension/UIViewController/**/*.{swift,h,m}",
+      "#{kit_path}ObjC/Extension/AttributedString/**/*.{swift,h,m}",
+      "#{kit_path}ObjC/Extension/String/**/*.{swift,h,m}",
+      "#{kit_path}ObjC/Extension/UIImage/**/*.{swift,h,m}",
+      "#{kit_path}ObjC/Extension/UIDevice/**/*.{swift,h,m}",
+      "#{kit_path}ObjC/Config/**/*.{swift}"
     ]
     activity.resource_bundles = {"WYBasisKitObjCActivity" => [
       "#{kit_path}ObjC/Activity/PrivacyInfo.xcprivacy"
@@ -338,10 +346,6 @@ Pod::Spec.new do |kit|
       mediaPlayer.resource_bundles = {"WYBasisKitObjCMediaPlayerFS" => [
       "#{kit_path}ObjC/Layout/MediaPlayer/PrivacyInfo.xcprivacy"
       ]}
-      mediaPlayer.pod_target_xcconfig = {
-        "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) WYBasisKit_Supports_MediaPlayer_FS=1",  # 用于 Objective-C 的 #if 判断
-        "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) WYBasisKit_Supports_MediaPlayer_FS", # 用于 Swift 的 #if 判断（注意不带 =1，就是直接使用宏名即可）
-      }
       mediaPlayer.dependency "WYBasisKit-Swift/Layout/MediaPlayer"
     end
   end

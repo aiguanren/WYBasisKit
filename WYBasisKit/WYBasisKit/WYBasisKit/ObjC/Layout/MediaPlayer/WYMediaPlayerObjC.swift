@@ -6,13 +6,11 @@
 //
 
 import UIKit
-#if canImport(WYBasisKitSwift)
-import WYBasisKitSwift
-#endif
 
-#if WYBasisKit_Supports_MediaPlayer_FS
+#if canImport(WYBasisKitSwift) && canImport(FSPlayer)
 
 import FSPlayer
+import WYBasisKitSwift
 
 @objc public extension WYMediaPlayer {
     

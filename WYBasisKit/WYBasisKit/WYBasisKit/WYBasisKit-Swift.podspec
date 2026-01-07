@@ -390,10 +390,6 @@ Pod::Spec.new do |kit|
       mediaPlayer.resource_bundles = {"WYBasisKitSwiftMediaPlayerFS" => [
       "#{kit_path}Swift/Layout/MediaPlayer/PrivacyInfo.xcprivacy"
       ]}
-      mediaPlayer.pod_target_xcconfig = {
-        "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) WYBasisKit_Supports_MediaPlayer_FS=1",  # 用于 Objective-C 的 #if 判断
-        "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) WYBasisKit_Supports_MediaPlayer_FS", # 用于 Swift 的 #if 判断（注意不带 =1，就是直接使用宏名即可）
-      }
       mediaPlayer.dependency "IJKPlayerKit"
     end
   end

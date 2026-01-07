@@ -8,7 +8,7 @@
 
 import UIKit
 
-#if WYBasisKit_Supports_MediaPlayer_FS
+#if canImport(FSPlayer)
 
 import FSPlayer
 
@@ -290,28 +290,72 @@ public class WYMediaPlayer: UIImageView {
         
         if options == nil {
             options = FSOptions.byDefault()
-            options?.setPlayerOptionIntValue(1, forKey: "videotoolbox")
-            options?.setPlayerOptionIntValue(Int64(29.97), forKey: "r")
-            options?.setPlayerOptionIntValue(512, forKey: "vol")
-            options?.setPlayerOptionIntValue(48, forKey: "skip_loop_filter")
-            options?.setPlayerOptionIntValue(1024 * 5, forKey: "probesize")
+            
+            // 直播时可以设置成无限读包
+            options?.setPlayerOptionIntValue(1, forKey: "infbuf")
+            
+            // 缓冲队列空是否需要加载一些数据后才能播放，0即为有数据就播放
             options?.setPlayerOptionIntValue(1, forKey: "packet-buffering")
-            options?.setPlayerOptionIntValue(1, forKey: "reconnect")
-            options?.setPlayerOptionIntValue(looping, forKey: "loop")
+            
+            // 视频帧处理不过来的时候丢弃一些帧达到同步的效果
             options?.setPlayerOptionIntValue(1, forKey: "framedrop")
-            options?.setPlayerOptionIntValue(30, forKey: "max-fps")
-            options?.setPlayerOptionIntValue(0, forKey: "http-detect-range-support")
-            options?.setPlayerOptionIntValue(25, forKey: "min-frames")
-            options?.setPlayerOptionIntValue(1, forKey: "start-on-prepared")
-            options?.setPlayerOptionIntValue(8, forKey: "skip_frame")
-            options?.setFormatOptionIntValue(1, forKey: "dns_cache_clear")
+            
+            // 视频帧缓存数量上限
             options?.setPlayerOptionIntValue(6, forKey: "video-pictq-size")
+            
+            // 停止预加载的最小（未解码的）帧数
+            options?.setPlayerOptionIntValue(25, forKey: "min-frames")
+            
+            // 循环播放的次数，为0表示无限次循环(点播流有效)
+            options?.setPlayerOptionIntValue(looping, forKey: "loop")
+            
+            // 设置 mgeg-ts 视频 seek 时过滤非关键帧，能够解决花屏问题
+            options?.setFormatOptionIntValue(1, forKey: "seek_flag_keyframe")
+            
+            // 设置探测数据上限，默认是 5000000，但是一些超高码率的视频会探测失败，或者探测信息不全
+            options?.setPlayerOptionIntValue(1024 * 5, forKey: "probesize")
+            
+            // 开启 cvpixelbufferpool提升性能
             options?.setPlayerOptionIntValue(0, forKey: "enable-cvpixelbufferpool")
+            
+            // 使用硬件加速解码视频帧，降低 CPU 消耗
             options?.setPlayerOptionIntValue(1, forKey: "videotoolbox_hwaccel")
+            
+            // 开启精准 seek，避免进度回退
             options?.setPlayerOptionIntValue(1, forKey: "enable-accurate-seek")
+            
+            // 精准 seek 超时时长，单位ms
             options?.setPlayerOptionIntValue(1500, forKey: "accurate-seek-timeout")
             
-            options?.setFormatOptionIntValue(1, forKey: "seek_flag_keyframe")
+            // 启用 VideoToolbox 硬件解码（iOS/macOS）
+            options?.setPlayerOptionIntValue(1, forKey: "videotoolbox")
+            
+            // 设置视频帧率，29.97对应NTSC制式标准帧率
+            options?.setPlayerOptionIntValue(Int64(29.97), forKey: "r")
+            
+            // 设置音频音量，512为默认值（512 = 100%）
+            options?.setPlayerOptionIntValue(512, forKey: "vol")
+            
+            // 设置环路滤波器跳过级别，48表示跳过所有非参考帧的环路滤波
+            options?.setPlayerOptionIntValue(48, forKey: "skip_loop_filter")
+            
+            // 网络断开时自动重连
+            options?.setPlayerOptionIntValue(1, forKey: "reconnect")
+            
+            // 设置最大帧率限制，防止帧率过高消耗资源
+            options?.setPlayerOptionIntValue(30, forKey: "max-fps")
+            
+            // 禁用HTTP range检测，适用于不支持range请求的服务器
+            options?.setPlayerOptionIntValue(0, forKey: "http-detect-range-support")
+            
+            // 准备完成后自动开始播放
+            options?.setPlayerOptionIntValue(1, forKey: "start-on-prepared")
+            
+            // 设置跳帧类型，8表示跳过非参考帧（B帧）
+            options?.setPlayerOptionIntValue(8, forKey: "skip_frame")
+            
+            // 每次播放前清除DNS缓存，解决DNS变更问题
+            options?.setFormatOptionIntValue(1, forKey: "dns_cache_clear")
         }
         ijkPlayer = FSPlayer(contentURL: playUrl, with: options)
         ijkPlayer?.shouldAutoplay = shouldAutoplay

@@ -6,10 +6,10 @@ inhibit_all_warnings!
 install! 'cocoapods', warn_for_unused_master_specs_repo: false
 
 # 使用Cocoapods清华源
-source 'https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git'
+#source 'https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git'
 
 # 使用Cocoapods官方源
-#source 'https://github.com/CocoaPods/Specs.git'
+source 'https://github.com/CocoaPods/Specs.git'
 
 # 加载脚本管理器
 require_relative 'Scripts/PodFileConfig/Podfile'
@@ -90,6 +90,7 @@ target 'SwiftVerify' do
   else
     pod 'IQKeyboardManagerSwift'
   end
+  
 end
 
 target 'ObjCVerify' do
