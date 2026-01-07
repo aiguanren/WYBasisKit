@@ -382,7 +382,7 @@ public extension UIView {
         self.layoutIfNeeded()
         
         // 抗锯齿边缘
-        layer.rasterizationScale = UIScreen.main.scale
+        layer.rasterizationScale = UIApplication.shared.wy_keyWindow.screen.scale
         
         // 添加边框、圆角
         wy_addBorderAndRadius()

@@ -71,7 +71,7 @@ public extension UIImage {
     static func wy_screenshot(_ view: UIView) -> UIImage {
         
         // 设置屏幕倍率可以保证截图的质量
-        let scale: CGFloat = UIScreen.main.scale
+        let scale: CGFloat = UIApplication.shared.wy_keyWindow.screen.scale
         
         UIGraphicsBeginImageContextWithOptions(view.frame.size, true, scale)
         
@@ -215,7 +215,7 @@ public extension UIImage {
      */
     func wy_mosaic(image: UIImage) -> UIImage {
         
-        UIGraphicsBeginImageContextWithOptions(self.size, false, UIScreen.main.scale)
+        UIGraphicsBeginImageContextWithOptions(self.size, false, UIApplication.shared.wy_keyWindow.screen.scale)
         self.draw(in: CGRect(x: 0, y: 0, width: size.width, height: size.height))
         image.draw(in: CGRect(x: (size.width - image.size.width) / 2, y: (size.height - image.size.height) / 2, width: image.size.width, height: image.size.height))
         

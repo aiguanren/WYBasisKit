@@ -72,12 +72,12 @@ public extension UIDevice {
     
     /// 屏幕宽
     static var wy_screenWidth: CGFloat {
-        return UIScreen.main.bounds.size.width
+        return UIApplication.shared.wy_keyWindow.bounds.size.width
     }
     
     /// 屏幕高
     static var wy_screenHeight: CGFloat {
-        return UIScreen.main.bounds.size.height
+        return UIApplication.shared.wy_keyWindow.bounds.size.height
     }
     
     /// 屏幕宽度比率
@@ -217,7 +217,7 @@ public extension UIDevice {
     
     /// 是否是传入的分辨率
     static func wy_resolutionRatio(horizontal: CGFloat, vertical: CGFloat) -> Bool {
-        if let modeSize = UIScreen.main.currentMode?.size {
+        if let modeSize = UIApplication.shared.wy_keyWindow.screen.currentMode?.size {
             return CGSize(width: horizontal, height: vertical).equalTo(modeSize) && !wy_iPadSeries
         }
         return false
@@ -225,14 +225,28 @@ public extension UIDevice {
     
     /// 是否是竖屏模式
     static var wy_verticalScreen: Bool {
-        let orientation: UIInterfaceOrientation = UIApplication.shared.wy_keyWindow.windowScene?.interfaceOrientation ?? .unknown
-        return orientation == .portrait || orientation == .portraitUpsideDown
+        
+        let window = UIApplication.shared.wy_keyWindow
+        var interfaceOrientation: UIInterfaceOrientation? = nil
+        if #available(iOS 26.0, *) {
+            interfaceOrientation = window.windowScene?.effectiveGeometry.interfaceOrientation
+        } else {
+            interfaceOrientation = window.windowScene?.interfaceOrientation ?? .unknown
+        }
+        return interfaceOrientation == .portrait || interfaceOrientation == .portraitUpsideDown
     }
     
     /// 是否是横屏模式
     static var wy_horizontalScreen: Bool {
-        let orientation: UIInterfaceOrientation = UIApplication.shared.wy_keyWindow.windowScene?.interfaceOrientation ?? .unknown
-        return orientation == .landscapeLeft || orientation == .landscapeRight
+        
+        let window = UIApplication.shared.wy_keyWindow
+        var interfaceOrientation: UIInterfaceOrientation? = nil
+        if #available(iOS 26.0, *) {
+            interfaceOrientation = window.windowScene?.effectiveGeometry.interfaceOrientation
+        } else {
+            interfaceOrientation = window.windowScene?.interfaceOrientation ?? .unknown
+        }
+        return interfaceOrientation == .landscapeLeft || interfaceOrientation == .landscapeRight
     }
     
     /// 获取运营商IP地址

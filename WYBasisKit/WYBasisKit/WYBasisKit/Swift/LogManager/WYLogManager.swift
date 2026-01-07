@@ -345,7 +345,7 @@ final class WYLogPreviewViewController: UIViewController {
         searchBar.placeholder = "搜索日志关键字"
         searchBar.searchBarStyle = .minimal
         let container = UIView()
-        let width = UIScreen.main.bounds.width - 120
+        let width = UIApplication.shared.wy_keyWindow.screen.bounds.width - 120
         let height: CGFloat = 36
         container.frame = CGRect(x: 0, y: 0, width: width, height: height)
         searchBar.frame = container.bounds

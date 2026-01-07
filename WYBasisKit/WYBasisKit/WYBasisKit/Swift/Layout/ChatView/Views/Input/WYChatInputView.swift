@@ -711,15 +711,35 @@ public class WYChatInputView: UIImageView {
 
 extension WYChatInputView: UITextViewDelegate {
     
+    @available(iOS, introduced: 10.0, deprecated: 17.0, message: "Use textView(_:primaryActionForTextItem:defaultAction:) instead")
     public func textView(_ textView: UITextView, shouldInteractWith textAttachment: NSTextAttachment, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
-
-        if textView.isFirstResponder == false {
-            textView.becomeFirstResponder()
-        }
-        let start: UITextPosition = textView.position(from: textView.beginningOfDocument, offset: characterRange.location)!
-        let end: UITextPosition = textView.position(from: start, offset: 0)!
-        textView.selectedTextRange = textView.textRange(from: start, to: end)
+        handleTextAttachmentSelection(in: textView, range: characterRange)
         return true
+    }
+    
+    @available(iOS 17.0, *)
+    public func textView(_ textView: UITextView, primaryActionFor textItem: UITextItem, defaultAction: UIAction) -> UIAction? {
+        // 使用 switch 语句处理不同的 content 类型
+        switch textItem.content {
+        case .textAttachment(_):
+            
+            // 处理文本附件
+            handleTextAttachmentSelection(in: textView, range: textItem.range)
+            
+            return defaultAction
+            
+        case .tag(_):
+            // 处理标签
+            return defaultAction
+            
+        case .link(_):
+            // 处理链接
+            return defaultAction
+            
+        @unknown default:
+            // 处理未来可能新增的类型
+            return defaultAction
+        }
     }
     
     public func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
@@ -763,6 +783,27 @@ extension WYChatInputView: UITextViewDelegate {
         }
         
         return true
+    }
+    
+    // 公共处理逻辑
+    private func handleTextAttachmentSelection(in textView: UITextView, range: NSRange) {
+        
+        if textView.isFirstResponder == false {
+            textView.becomeFirstResponder()
+        }
+
+        // 安全地获取位置
+        guard let start = textView.position(from: textView.beginningOfDocument, offset: range.location) else {
+            // 如果无法获取起始位置，直接返回
+            return
+        }
+        
+        guard let end = textView.position(from: start, offset: 0) else {
+            // 如果无法获取结束位置，直接返回
+            return
+        }
+        
+        textView.selectedTextRange = textView.textRange(from: start, to: end)
     }
 }
 

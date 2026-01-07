@@ -10,7 +10,19 @@ import UIKit
 
 extension UIApplication: @retroactive UIApplicationDelegate {
     
-    /// 获取当前当前正在显示的window
+    /// 获取当前当前正在显示的 keyWindow 的 windowScene
+    public var wy_keyWindowScene: UIWindowScene {
+        
+        // 尝试从 keyWindow 获取
+        if let windowScene = wy_keyWindow.windowScene {
+            return windowScene
+        }
+        
+        // 都没有找到，抛出fatalError
+        fatalError("❌ 错误：没有找到可用的 UIWindowScene，请确保应用已正确初始化并显示了窗口。")
+    }
+    
+    /// 获取当前当前正在显示的 keyWindow
     public var wy_keyWindow: UIWindow {
         // 尝试找到前台 active scene 的 keyWindow
         if let window = UIApplication.shared.connectedScenes
@@ -37,8 +49,8 @@ extension UIApplication: @retroactive UIApplicationDelegate {
             return window
         }
         
-        // 都没有就创建一个 window
-        return UIWindow(frame: UIScreen.main.bounds)
+        // 都没有找到，抛出fatalError
+        fatalError("❌ 错误：没有找到可用的 UIWindow，请确保应用已正确初始化并显示了窗口。")
     }
     
     /// 切换为深色或浅色模式

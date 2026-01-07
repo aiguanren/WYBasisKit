@@ -93,11 +93,13 @@ class WYTestInterfaceOrientationController: UIViewController {
         if (UIDevice.wy_verticalScreen) {
             WYLogManager
                 .output("当前是竖屏模式")
+            WYLogManager.output("screenWidth = \(UIDevice.wy_screenWidth)")
         }
         
         if (UIDevice.wy_horizontalScreen) {
             WYLogManager
                 .output("当前是横屏模式")
+            WYLogManager.output("screenWidth = \(UIDevice.wy_screenWidth)")
         }
     }
     

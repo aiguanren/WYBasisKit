@@ -104,19 +104,28 @@ public func wy_verifyBiometrics(_ localizedFallbackTitle: String = "", localized
                 
                 if success {
                     
-                    // evaluatedPolicyDomainState 只有生物验证成功才会有值
-                    if let _ = authContent.evaluatedPolicyDomainState {
+                    if #available(iOS 18.0, *) {
                         
-                        // 如果不放在主线程回调可能会有5-6s的延迟
+                        // 直接返回成功即可，如果不放在主线程回调可能会有5-6s的延迟
                         DispatchQueue.main.async {
                             handler(false, true, "")
                         }
                         
                     }else {
-                        
-                        DispatchQueue.main.async {
-                            // 设备密码输入正确
-                            handler(false, true, "")
+                        // evaluatedPolicyDomainState 只有生物验证成功才会有值
+                        if let _ = authContent.evaluatedPolicyDomainState {
+                            
+                            // 如果不放在主线程回调可能会有5-6s的延迟
+                            DispatchQueue.main.async {
+                                handler(false, true, "")
+                            }
+                            
+                        }else {
+                            
+                            DispatchQueue.main.async {
+                                // 设备密码输入正确
+                                handler(false, true, "")
+                            }
                         }
                     }
                     

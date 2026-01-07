@@ -277,10 +277,20 @@ public struct WYLocalizableManager {
         
         // 获取用户设置的语言列表
         let appleLanguages = UserDefaults.standard.array(forKey: WYBasisKitLanguage) as? [String] ?? []
-        let countryCode = Locale.current.regionCode ?? ""
+        
+        let countryCode: String
+        if #available(iOS 16, *) {
+            countryCode = Locale.current.region?.identifier ?? ""
+        } else {
+            countryCode = Locale.current.regionCode ?? ""
+        }
 
         guard var appleLanguage = appleLanguages.first else {
-            return Locale.current.languageCode ?? "en"
+            if #available(iOS 16, *) {
+                return Locale.current.language.languageCode?.identifier ?? "en"
+            } else {
+                return Locale.current.languageCode ?? "en"
+            }
         }
         
         // 去掉语言中的国家码

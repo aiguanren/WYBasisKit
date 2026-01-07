@@ -290,9 +290,17 @@ public final class WYAudioKit: NSObject {
      - granted: true 表示已授权，false 表示未授权
      */
     public func requestRecordPermission(completion: @escaping (Bool) -> Void) {
-        recordingSession.requestRecordPermission { granted in
-            DispatchQueue.main.async {
-                completion(granted)
+        if #available(iOS 17.0, *) {
+            AVAudioApplication.requestRecordPermission { granted in
+                DispatchQueue.main.async {
+                    completion(granted)
+                }
+            }
+        } else {
+            recordingSession.requestRecordPermission { granted in
+                DispatchQueue.main.async {
+                    completion(granted)
+                }
             }
         }
     }
@@ -318,8 +326,14 @@ public final class WYAudioKit: NSObject {
         }
         
         // 确保有录音权限
-        guard recordingSession.recordPermission == .granted else {
-            throw makeError(.permissionDenied)
+        if #available(iOS 17.0, *) {
+            guard AVAudioApplication.shared.recordPermission == .granted else {
+                throw makeError(.permissionDenied)
+            }
+        } else {
+            guard recordingSession.recordPermission == .granted else {
+                throw makeError(.permissionDenied)
+            }
         }
         
         // 检查格式支持性
@@ -845,7 +859,7 @@ public final class WYAudioKit: NSObject {
     private let conversionProgressPublisher = PassthroughSubject<Double, Never>()
     
     /// 音频会话
-    private let recordingSession: AVAudioSession = .sharedInstance()
+    private let recordingSession: AVAudioSession = AVAudioSession.sharedInstance()
     
     /// 显示链接 - 用于优化进度更新
     private var displayLink: CADisplayLink?
@@ -1177,7 +1191,12 @@ public final class WYAudioKit: NSObject {
      */
     private func convertUsingExportSession(sourceURL: URL, outputURL: URL, targetFormat: WYAudioFormat, completion: @escaping (Result<URL, Error>) -> Void) {
         // 创建导出会话
-        let asset = AVAsset(url: sourceURL)
+        let asset: AVAsset
+        if #available(iOS 18.0, *) {
+            asset = AVURLAsset(url: sourceURL)
+        } else {
+            asset = AVAsset(url: sourceURL)
+        }
         
         // 根据目标格式选择导出预设
         let presetName: String
@@ -1221,31 +1240,57 @@ public final class WYAudioKit: NSObject {
             exportSession.audioTimePitchAlgorithm = .varispeed
         }
         
-        // 启动转换
-        exportSession.exportAsynchronously { [weak self] in
-            DispatchQueue.main.async {
-                guard let self = self else { return }
-                
-                // 停止转换进度计时器
-                self.conversionProgressTimer?.invalidate()
-                self.conversionProgressTimer = nil
-                
-                switch exportSession.status {
-                case .completed:
+        if #available(iOS 18.0, *) {
+            Task { @MainActor in
+                do {
+                    // 启动转换进度监控
+                    self.startConversionProgressMonitoring(for: exportSession)
+                    
+                    // 使用新的异步导出方法
+                    try await exportSession.export(to: outputURL, as: outputFileType)
+                    
+                    // 停止转换进度计时器
+                    self.conversionProgressTimer?.invalidate()
+                    self.conversionProgressTimer = nil
+                    
+                    // 转换成功
                     completion(.success(outputURL))
                     self.delegate?.conversionDidComplete?(url: outputURL)
-                case .failed:
-                    completion(.failure(exportSession.error ?? self.makeError(.conversionFailed)))
-                case .cancelled:
-                    completion(.failure(self.makeError(.conversionCancelled)))
-                default:
-                    completion(.failure(self.makeError(.conversionFailed)))
+                    
+                } catch {
+                    // 停止转换进度计时器
+                    self.conversionProgressTimer?.invalidate()
+                    self.conversionProgressTimer = nil
+                    
+                    completion(.failure(error))
                 }
             }
+        } else {
+            exportSession.exportAsynchronously { [weak self] in
+                DispatchQueue.main.async {
+                    guard let self = self else { return }
+                    
+                    // 停止转换进度计时器
+                    self.conversionProgressTimer?.invalidate()
+                    self.conversionProgressTimer = nil
+                    
+                    switch exportSession.status {
+                    case .completed:
+                        completion(.success(outputURL))
+                        self.delegate?.conversionDidComplete?(url: outputURL)
+                    case .failed:
+                        completion(.failure(exportSession.error ?? self.makeError(.conversionFailed)))
+                    case .cancelled:
+                        completion(.failure(self.makeError(.conversionCancelled)))
+                    default:
+                        completion(.failure(self.makeError(.conversionFailed)))
+                    }
+                }
+            }
+            
+            // 启动转换进度监控
+            startConversionProgressMonitoring(for: exportSession)
         }
-        
-        // 启动转换进度监控
-        startConversionProgressMonitoring(for: exportSession)
     }
     
     /**
@@ -1258,26 +1303,57 @@ public final class WYAudioKit: NSObject {
         conversionProgressTimer?.invalidate()
         conversionProgressTimer = nil
         
-        // 创建新的计时器，使用弱引用捕获 session
-        conversionProgressTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self, weak session] _ in
-            // 检查 session 是否已被释放
-            guard let self = self, let session = session else {
-                // 清理计时器
-                self?.conversionProgressTimer?.invalidate()
-                self?.conversionProgressTimer = nil
-                return
+        if #available(iOS 18.0, *) {
+            Task { [weak self] in
+                guard let self = self else { return }
+                
+                // 监听状态变化
+                let states = session.states(updateInterval: 0.1)
+                
+                for await state in states {
+                    await MainActor.run {
+                        switch state {
+                        case .exporting(let progress):
+                            // 更新转换进度 (0.0 - 1.0)
+                            let progressValue = progress.fractionCompleted
+                            self.conversionProgressPublisher.send(Double(progressValue))
+                            self.delegate?.conversionProgressUpdated?(progress: Double(progressValue))
+                            
+                        case .waiting:
+                            // 等待状态
+                            self.conversionProgressPublisher.send(0.0)
+                            self.delegate?.conversionProgressUpdated?(progress: 0.0)
+                            
+                        case .pending:
+                            // 准备状态
+                            self.conversionProgressPublisher.send(0.0)
+                            self.delegate?.conversionProgressUpdated?(progress: 0.0)
+                            
+                        @unknown default:
+                            break
+                        }
+                    }
+                }
             }
-            
-            let progress = session.progress
-            
-            // 更新转换进度
-            self.conversionProgressPublisher.send(Double(progress))
-            self.delegate?.conversionProgressUpdated?(progress: Double(progress))
-            
-            // 如果转换完成，停止计时器
-            if progress >= 1.0 || session.status != .exporting {
-                self.conversionProgressTimer?.invalidate()
-                self.conversionProgressTimer = nil
+        } else {
+            conversionProgressTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self, weak session] _ in
+                guard let self = self, let session = session else {
+                    self?.conversionProgressTimer?.invalidate()
+                    self?.conversionProgressTimer = nil
+                    return
+                }
+                
+                let progress = session.progress
+                
+                // 更新转换进度
+                self.conversionProgressPublisher.send(Double(progress))
+                self.delegate?.conversionProgressUpdated?(progress: Double(progress))
+                
+                // 如果转换完成，停止计时器
+                if progress >= 1.0 || session.status != .exporting {
+                    self.conversionProgressTimer?.invalidate()
+                    self.conversionProgressTimer = nil
+                }
             }
         }
     }

@@ -231,9 +231,12 @@ public extension UIAlertController {
             var showWindow: UIWindow? = objc_getAssociatedObject(self, &WYAssociatedKeys.wy_alertWindow) as? UIWindow
             
             if showWindow == nil {
-                
-                showWindow = UIWindow(frame: UIScreen.main.bounds)
-                showWindow!.rootViewController = UIViewController()
+                if #available(iOS 26.0, *) {
+                    return UIWindow(windowScene: UIApplication.shared.wy_keyWindowScene)
+                }else {
+                    showWindow = UIWindow(frame: UIScreen.main.bounds)
+                }
+                showWindow?.rootViewController = UIViewController()
                 objc_setAssociatedObject(self, &WYAssociatedKeys.wy_alertWindow, showWindow, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
             }
             showWindow?.makeKeyAndVisible()
