@@ -25,9 +25,8 @@ class WYTestDarkNightModeController: UIViewController {
         view.addSubview(button)
         button.addTarget(self, action: #selector(clickButton(sender:)), for: .touchUpInside)
         button.snp.makeConstraints { (make) in
-
             make.centerX.equalToSuperview()
-            make.top.equalToSuperview().offset(100)
+            make.top.equalToSuperview().offset(200)
             make.size.equalTo(CGSize(width: 100, height: 100))
         }
     }

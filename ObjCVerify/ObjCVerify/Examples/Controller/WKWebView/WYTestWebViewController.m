@@ -25,7 +25,7 @@
     WKWebView *webView = [[WKWebView alloc] init];
     [self.view addSubview:webView];
     [webView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.view).mas_offset(UIDevice.wy_navViewHeight + 2);
+        make.top.equalTo(self.view).mas_offset(UIDevice.wy_navViewHeight);
         make.width.equalTo(self.view);
         make.bottom.equalTo(self.view).mas_offset(-UIDevice.wy_tabbarSafetyZone);
     }];

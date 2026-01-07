@@ -151,9 +151,8 @@ private class WebViewProgressObserver: NSObject {
         progressView.progressTintColor = webView.wy_progressTintColor
 
         webView.addSubview(progressView)
-
         NSLayoutConstraint.activate([
-            progressView.topAnchor.constraint(equalTo: webView.topAnchor),
+            progressView.topAnchor.constraint(equalTo: webView.safeAreaLayoutGuide.topAnchor),
             progressView.leadingAnchor.constraint(equalTo: webView.leadingAnchor),
             progressView.trailingAnchor.constraint(equalTo: webView.trailingAnchor),
             progressView.heightAnchor.constraint(equalToConstant: height)

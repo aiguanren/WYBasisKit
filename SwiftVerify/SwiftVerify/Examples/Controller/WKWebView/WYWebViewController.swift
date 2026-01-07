@@ -19,7 +19,7 @@ class WYWebViewController: UIViewController {
         let webView = WKWebView()
         view.addSubview(webView)
         webView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight + 2)
+            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight)
             make.width.equalToSuperview()
             make.bottom.equalToSuperview().offset(-UIDevice.wy_tabbarSafetyZone)
         }

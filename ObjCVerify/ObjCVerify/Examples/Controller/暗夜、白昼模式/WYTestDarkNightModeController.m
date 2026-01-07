@@ -32,7 +32,7 @@
     [button addTarget:self action:@selector(clickButton:) forControlEvents:UIControlEventTouchUpInside];
     [button mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.equalTo(self.view);
-        make.top.equalTo(self.view).offset(100);
+        make.top.equalTo(self.view).offset(200);
         make.size.mas_equalTo(CGSizeMake(100, 100));
     }];
 }
