@@ -449,13 +449,9 @@ private extension UIDevice {
     // 旋转屏幕到指定方向
     static private func wy_rotateScreenTo(_ orientation: UIInterfaceOrientation) {
         if #available(iOS 16.0, *) {
-            if let windowScene: UIWindowScene = UIApplication.shared.wy_keyWindow.windowScene {
-                UIViewController.wy_currentController()?.setNeedsUpdateOfSupportedInterfaceOrientations()
-                windowScene.requestGeometryUpdate(UIWindowScene.GeometryPreferences.iOS(interfaceOrientations: self.wy_currentInterfaceOrientation)) { error in
-                    WYLogManager.output("旋转屏幕方向出错啦： \(error.localizedDescription)")
-                }
-            }else {
-                WYLogManager.output("旋转屏幕方向出错啦")
+            UIViewController.wy_currentController()?.setNeedsUpdateOfSupportedInterfaceOrientations()
+            UIApplication.shared.wy_keyWindowScene.requestGeometryUpdate(UIWindowScene.GeometryPreferences.iOS(interfaceOrientations: self.wy_currentInterfaceOrientation)) { error in
+                WYLogManager.output("旋转屏幕方向出错啦： \(error.localizedDescription)")
             }
         }else {
             UIDevice.current.setValue(orientation.rawValue, forKey: "orientation")
