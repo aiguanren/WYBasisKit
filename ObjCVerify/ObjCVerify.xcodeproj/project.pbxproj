@@ -62,6 +62,9 @@
 		58B59FF62E5D5315008F9C38 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 58B59FE92E5D5315008F9C38 /* Main.storyboard */; };
 		58DA4EAD2EA23E6F003EAA2D /* WYTestVibrateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DA4EAC2EA23E6F003EAA2D /* WYTestVibrateController.m */; };
 		58DA4EB12EA2427D003EAA2D /* WYTestButtonEdgeInsetsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DA4EB02EA2427D003EAA2D /* WYTestButtonEdgeInsetsController.m */; };
+		58DEA9BD2F0F580200664E13 /* WYTestAnimationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DEA9BC2F0F580200664E13 /* WYTestAnimationController.m */; };
+		58DEA9C12F0F5A9E00664E13 /* WYTestVisualController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DEA9C02F0F5A9E00664E13 /* WYTestVisualController.m */; };
+		58DEA9C52F0F5E2400664E13 /* WYTestBannerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DEA9C42F0F5E2400664E13 /* WYTestBannerController.m */; };
 		ECC390919651E39B53C48672 /* Pods_ObjCVerify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A235FB04509B2363C98C9226 /* Pods_ObjCVerify.framework */; };
 /* End PBXBuildFile section */
 
@@ -201,6 +204,12 @@
 		58DA4EAC2EA23E6F003EAA2D /* WYTestVibrateController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestVibrateController.m; sourceTree = "<group>"; };
 		58DA4EAF2EA2427D003EAA2D /* WYTestButtonEdgeInsetsController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestButtonEdgeInsetsController.h; sourceTree = "<group>"; };
 		58DA4EB02EA2427D003EAA2D /* WYTestButtonEdgeInsetsController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestButtonEdgeInsetsController.m; sourceTree = "<group>"; };
+		58DEA9BB2F0F580200664E13 /* WYTestAnimationController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestAnimationController.h; sourceTree = "<group>"; };
+		58DEA9BC2F0F580200664E13 /* WYTestAnimationController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestAnimationController.m; sourceTree = "<group>"; };
+		58DEA9BF2F0F5A9E00664E13 /* WYTestVisualController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestVisualController.h; sourceTree = "<group>"; };
+		58DEA9C02F0F5A9E00664E13 /* WYTestVisualController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestVisualController.m; sourceTree = "<group>"; };
+		58DEA9C32F0F5E2400664E13 /* WYTestBannerController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestBannerController.h; sourceTree = "<group>"; };
+		58DEA9C42F0F5E2400664E13 /* WYTestBannerController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestBannerController.m; sourceTree = "<group>"; };
 		A235FB04509B2363C98C9226 /* Pods_ObjCVerify.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ObjCVerify.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -366,6 +375,9 @@
 		58B470482E8D329600D04BCA /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				58DEA9C22F0F5E1100664E13 /* Banner轮播 */,
+				58DEA9BE2F0F5A8C00664E13 /* 边框、圆角、阴影、渐变 */,
+				58DEA9BA2F0F57E900664E13 /* 约束view添加动画 */,
 				58B470352E8D114C00D04BCA /* Tabbar */,
 				580ED57F2EA62ADE006012E7 /* 归档解归档 */,
 				580ED5622EA5DA3D006012E7 /* 泛型 */,
@@ -444,6 +456,33 @@
 				58DA4EB02EA2427D003EAA2D /* WYTestButtonEdgeInsetsController.m */,
 			);
 			path = ButtonEdgeInsets;
+			sourceTree = "<group>";
+		};
+		58DEA9BA2F0F57E900664E13 /* 约束view添加动画 */ = {
+			isa = PBXGroup;
+			children = (
+				58DEA9BB2F0F580200664E13 /* WYTestAnimationController.h */,
+				58DEA9BC2F0F580200664E13 /* WYTestAnimationController.m */,
+			);
+			path = "约束view添加动画";
+			sourceTree = "<group>";
+		};
+		58DEA9BE2F0F5A8C00664E13 /* 边框、圆角、阴影、渐变 */ = {
+			isa = PBXGroup;
+			children = (
+				58DEA9BF2F0F5A9E00664E13 /* WYTestVisualController.h */,
+				58DEA9C02F0F5A9E00664E13 /* WYTestVisualController.m */,
+			);
+			path = "边框、圆角、阴影、渐变";
+			sourceTree = "<group>";
+		};
+		58DEA9C22F0F5E1100664E13 /* Banner轮播 */ = {
+			isa = PBXGroup;
+			children = (
+				58DEA9C32F0F5E2400664E13 /* WYTestBannerController.h */,
+				58DEA9C42F0F5E2400664E13 /* WYTestBannerController.m */,
+			);
+			path = "Banner轮播";
 			sourceTree = "<group>";
 		};
 		9B1FAA5163C0754EF01A1929 /* Frameworks */ = {
@@ -658,6 +697,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				58B59FEF2E5D5315008F9C38 /* AppDelegate.m in Sources */,
+				58DEA9BD2F0F580200664E13 /* WYTestAnimationController.m in Sources */,
 				582732112E9F8CDF00DAD1AA /* WYTestDarkNightModeController.m in Sources */,
 				58B4703E2E8D11C700D04BCA /* WYMainController.m in Sources */,
 				580ED5822EA62AE9006012E7 /* WYArchivedController.m in Sources */,
@@ -665,7 +705,9 @@
 				58B470502E8D37B000D04BCA /* AppEventDelegate.m in Sources */,
 				58B59FF02E5D5315008F9C38 /* main.m in Sources */,
 				580ED5652EA5DA56006012E7 /* SDKRequest.m in Sources */,
+				58DEA9C12F0F5A9E00664E13 /* WYTestVisualController.m in Sources */,
 				58B59FF22E5D5315008F9C38 /* ViewController.m in Sources */,
+				58DEA9C52F0F5E2400664E13 /* WYTestBannerController.m in Sources */,
 				58B470442E8D11E200D04BCA /* WYRightController.m in Sources */,
 				580ED56E2EA5DB0E006012E7 /* UserRequest.m in Sources */,
 				580ED56B2EA5DAE5006012E7 /* SDKResponse.m in Sources */,
@@ -770,7 +812,7 @@
 				DEVELOPMENT_TEAM = AAZ295K3HU;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ObjCVerify/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = WYBasisKit;
+				INFOPLIST_KEY_CFBundleDisplayName = "WYBasisKit(ObjC)";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSCameraUsageDescription = "WYBasisKit申请使用相机权限，用于拍摄相关的测试";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "WYBasisKit申请使用位置权限，用于定位相关的测试";
@@ -809,7 +851,7 @@
 				DEVELOPMENT_TEAM = AAZ295K3HU;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ObjCVerify/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = WYBasisKit;
+				INFOPLIST_KEY_CFBundleDisplayName = "WYBasisKit(ObjC)";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSCameraUsageDescription = "WYBasisKit申请使用相机权限，用于拍摄相关的测试";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "WYBasisKit申请使用位置权限，用于定位相关的测试";

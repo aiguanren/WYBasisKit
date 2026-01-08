@@ -11,10 +11,10 @@ import UIKit
 @objc public protocol WYBannerViewDelegate {
     
     /// 监控banner点击事件
-    @objc optional func didClick(_ bannerView: WYBannerView, _ index: Int)
+    @objc optional func didClick(_ bannerView: WYBannerView, index: Int)
     
     /// 监控banner的轮播事件
-    @objc optional func didScroll(_ bannerView: WYBannerView, _ offset: CGFloat, _ index: Int)
+    @objc optional func didScroll(_ bannerView: WYBannerView, offset: CGFloat, index: Int)
 }
 
 public class WYBannerView: UIView {
@@ -709,7 +709,7 @@ extension WYBannerView {
     /// 点击了Banner控件
     @objc func didClickBanner() {
         if let delegate = delegate {
-            delegate.didClick?(self, currentIndex)
+            delegate.didClick?(self, index: currentIndex)
         }
         
         if let handler = clickHandler {
@@ -944,7 +944,7 @@ extension WYBannerView: UIScrollViewDelegate {
         scrollDirection = offsetX > wy_width ? .left : (offsetX < wy_width ? .right : .none)
         
         if let delegate = delegate {
-            delegate.didScroll?(self, offsetX - wy_width, currentIndex)
+            delegate.didScroll?(self, offset: offsetX - wy_width, index: currentIndex)
         }
         
         if let handler = scrollHandler {

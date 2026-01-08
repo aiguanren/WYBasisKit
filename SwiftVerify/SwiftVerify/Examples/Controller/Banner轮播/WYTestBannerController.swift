@@ -58,11 +58,11 @@ class WYTestBannerController: UIViewController {
         }
         
         bannerView.didClick { index in
-           //wy_print("Block监听，点击了第 \(index+1) 张图片")
+            WYLogManager.output("Block监听，点击了第 \(index+1) 张图片")
         }
         
         bannerView.didScroll { offset, index in
-            //wy_print("Block监听，滑动Banner到第 \(index+1) 张图片了， offset = \(offset)")
+            WYLogManager.output("Block监听，滑动Banner到第 \(index+1) 张图片了， offset = \(offset)")
         }
         
         WYEventHandler.shared.response(event: AppEvent.didShowBannerView, data: "didShowBannerView")
@@ -83,11 +83,11 @@ class WYTestBannerController: UIViewController {
 
 extension WYTestBannerController: WYBannerViewDelegate {
     
-    func didClick(_ bannerView: WYBannerView, _ index: Int) {
-        //wy_print("代理监听，点击了第 \(index+1) 张图片")
+    func didClick(_ bannerView: WYBannerView, index: Int) {
+        WYLogManager.output("代理监听，点击了第 \(index+1) 张图片")
     }
     
-    func didScroll(_ bannerView: WYBannerView, _ offset: CGFloat, _ index: Int) {
-        //wy_print("代理监听，滑动Banner到第 \(index+1) 张图片了， offset = \(offset)")
+    func didScroll(_ bannerView: WYBannerView, offset: CGFloat, index: Int) {
+        WYLogManager.output("代理监听，滑动Banner到第 \(index+1) 张图片了， offset = \(offset)")
     }
 }

@@ -12,7 +12,7 @@
 #import "WYBasisKitSwift-Swift.h"
 #endif
 
-/// 覆盖系统发能发输出日志（仅输出到控制台）
+/// 覆盖系统输出日志（仅输出到控制台）
 #define NSLog(format, ...) \
     [WYLogManager output:[NSString stringWithFormat:(format), ##__VA_ARGS__] \
               outputMode:WYLogOutputModeDebugConsoleOnly \
