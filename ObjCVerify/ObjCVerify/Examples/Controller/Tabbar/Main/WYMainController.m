@@ -11,9 +11,126 @@
 #import "AppEventDelegate.h"
 #import "WYLeftControllerHeaderView.h"
 
-@interface WYMainController ()<UITableViewDelegate, UITableViewDataSource, AppEventDelegate>
+@interface ListItem : NSObject
 
-@property (nonatomic, strong) NSDictionary<NSString *, NSString *> *cellObjs;
+@property (nonatomic, copy) NSString *title;
+@property (nonatomic, copy) NSString *controller;
+
+- (instancetype)initWithTitle:(NSString *)title
+                    controller:(NSString *)controller;
+
++ (NSArray<ListItem *> *)cellItems;
+
+@end
+
+@implementation ListItem
+
+- (instancetype)initWithTitle:(NSString *)title
+                    controller:(NSString *)controller {
+    self = [super init];
+    if (self) {
+        _title = [title copy];
+        _controller = [controller copy];
+    }
+    return self;
+}
+
++ (NSArray<ListItem *> *)cellItems {
+    static NSArray<ListItem *> *items = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        items = @[
+            [[ListItem alloc] initWithTitle:@"暗夜、白昼模式"
+                                 controller:@"WYTestDarkNightModeController"],
+            
+            [[ListItem alloc] initWithTitle:@"约束view添加动画"
+                                 controller:@"WYTestAnimationController"],
+            
+            [[ListItem alloc] initWithTitle:@"边框、圆角、阴影、渐变"
+                                 controller:@"WYTestVisualController"],
+            
+            [[ListItem alloc] initWithTitle:@"ButtonEdgeInsets"
+                                 controller:@"WYTestButtonEdgeInsetsController"],
+            
+            [[ListItem alloc] initWithTitle:@"Banner轮播"
+                                 controller:@"WYTestBannerController"],
+            
+            [[ListItem alloc] initWithTitle:@"富文本"
+                                 controller:@"WYTestRichTextController"],
+            
+            [[ListItem alloc] initWithTitle:@"无限层折叠TableView"
+                                 controller:@"WYMultilevelTableViewController"],
+            
+            [[ListItem alloc] initWithTitle:@"tableView.plain"
+                                 controller:@"WYTableViewPlainController"],
+            
+            [[ListItem alloc] initWithTitle:@"tableView.grouped"
+                                 controller:@"WYTableViewGroupedController"],
+            
+            [[ListItem alloc] initWithTitle:@"下载与缓存"
+                                 controller:@"WYTestDownloadController"],
+            
+            [[ListItem alloc] initWithTitle:@"网络请求"
+                                 controller:@"WYTestRequestController"],
+            
+            [[ListItem alloc] initWithTitle:@"屏幕旋转"
+                                 controller:@"WYTestInterfaceOrientationController"],
+            
+            [[ListItem alloc] initWithTitle:@"二维码"
+                                 controller:@"WYQRCodeController"],
+            
+            [[ListItem alloc] initWithTitle:@"Gif加载"
+                                 controller:@"WYParseGifController"],
+            
+            [[ListItem alloc] initWithTitle:@"瀑布流"
+                                 controller:@"WYFlowLayoutAlignmentController"],
+            
+            [[ListItem alloc] initWithTitle:@"直播、点播播放器"
+                                 controller:@"WYTestLiveStreamingController"],
+            
+            [[ListItem alloc] initWithTitle:@"IM即时通讯(开发中)"
+                                 controller:@"WYTestChatController"],
+            
+            [[ListItem alloc] initWithTitle:@"语音识别"
+                                 controller:@"WYSpeechRecognitionController"],
+            
+            [[ListItem alloc] initWithTitle:@"泛型"
+                                 controller:@"WYGenericTypeController"],
+            
+            [[ListItem alloc] initWithTitle:@"离线方法调用"
+                                 controller:@"WYOffLineMethodController"],
+            
+            [[ListItem alloc] initWithTitle:@"WKWebView进度条"
+                                 controller:@"WYWebViewController"],
+            
+            [[ListItem alloc] initWithTitle:@"归档/解归档"
+                                 controller:@"WYArchivedController"],
+            
+            [[ListItem alloc] initWithTitle:@"日志输出与保存"
+                                 controller:@"WYLogController"],
+            
+            [[ListItem alloc] initWithTitle:@"音频录制与播放"
+                                 controller:@"TestAudioController"],
+            
+            [[ListItem alloc] initWithTitle:@"设备振动"
+                                 controller:@"WYTestVibrateController"],
+            
+            [[ListItem alloc] initWithTitle:@"文本轮播"
+                                 controller:@"WYTestScrollTextController"],
+            
+            [[ListItem alloc] initWithTitle:@"分页控制器"
+                                 controller:@"WYTestPagingViewController"],
+            
+            [[ListItem alloc] initWithTitle:@"TableViewCell侧滑"
+                                 controller:@"WYTestSideslipCellController"]
+        ];
+    });
+    return items;
+}
+
+@end
+
+@interface WYMainController ()<UITableViewDelegate, UITableViewDataSource, AppEventDelegate>
 
 @property (nonatomic, strong) UITableView *tableView;
 
@@ -114,43 +231,8 @@
     }];
 }
 
-- (NSDictionary<NSString *,NSString *> *)cellObjs {
-    if (_cellObjs == nil) {
-        _cellObjs = @{
-            @"暗夜、白昼模式": @"WYTestDarkNightModeController",
-            @"约束view添加动画": @"WYTestAnimationController",
-            @"边框、圆角、阴影、渐变": @"WYTestVisualController",
-            @"ButtonEdgeInsets": @"WYTestButtonEdgeInsetsController",
-            @"Banner轮播": @"WYTestBannerController",
-            @"富文本": @"WYTestRichTextController",
-            @"无限层折叠TableView": @"WYMultilevelTableViewController",
-            @"tableView.plain": @"WYTableViewPlainController",
-            @"tableView.grouped": @"WYTableViewGroupedController",
-            @"下载与缓存": @"WYTestDownloadController",
-            @"网络请求": @"WYTestRequestController",
-            @"屏幕旋转": @"WYTestInterfaceOrientationController",
-            @"二维码": @"WYQRCodeController",
-            @"Gif加载": @"WYParseGifController",
-            @"瀑布流": @"WYFlowLayoutAlignmentController",
-            @"直播、点播播放器": @"WYTestLiveStreamingController",
-            @"IM即时通讯(开发中)": @"WYTestChatController",
-            @"语音识别": @"WYSpeechRecognitionController",
-            @"泛型": @"WYGenericTypeController",
-            @"离线方法调用": @"WYOffLineMethodController",
-            @"WKWebView进度条": @"WYTestWebViewController",
-            @"归档/解归档": @"WYArchivedController",
-            @"日志输出与保存": @"WYLogController",
-            @"音频录制与播放": @"TestAudioController",
-            @"设备振动": @"WYTestVibrateController",
-            @"文本轮播": @"WYTestScrollTextController",
-            @"分页控制器": @"WYTestPagingViewController"
-        };
-    }
-    return _cellObjs;
-}
-
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.cellObjs.allKeys.count;
+    return ListItem.cellItems.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -158,7 +240,7 @@
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"UITableViewCell" forIndexPath:indexPath];
     
     // 获取所有键并设置文本
-    cell.textLabel.text = _cellObjs.allKeys[indexPath.row];
+    cell.textLabel.text = ListItem.cellItems[indexPath.row].title;
     cell.textLabel.textColor = [UIColor wy_dynamicWithLight:[UIColor blackColor] dark:[UIColor whiteColor]];
     // cell.textLabel.adjustsFontSizeToFitWidth = YES;
     cell.textLabel.font = [UIFont systemFontOfSize:[UIDevice wy_screenWidth:15]];
@@ -170,11 +252,11 @@
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
-    NSString *className = _cellObjs.allValues[indexPath.row];
+    NSString *className = ListItem.cellItems[indexPath.row].controller;
     
     UIViewController *nextController = [self wy_showViewControllerWithClassName:className parameters:nil displaMode:WYDisplaModePush animated:YES];
     
-    nextController.navigationItem.title = _cellObjs.allKeys[indexPath.row];
+    nextController.navigationItem.title = ListItem.cellItems[indexPath.row].title;
 }
 
 - (UITableView *)tableView {

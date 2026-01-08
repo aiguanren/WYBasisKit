@@ -10,36 +10,95 @@ import UIKit
 
 class WYMainController: UIViewController {
     
-    // 由于字典是无序的，所以每次显示的排序位置都可能会不一样
-    let cellObjs: [String: String] = [
-        "暗夜、白昼模式": "WYTestDarkNightModeController",
-        "约束view添加动画": "WYTestAnimationController",
-        "边框、圆角、阴影、渐变": "WYTestVisualController",
-        "ButtonEdgeInsets": "WYTestButtonEdgeInsetsController",
-        "Banner轮播": "WYTestBannerController",
-        "富文本": "WYTestRichTextController",
-        "无限层折叠TableView": "WYMultilevelTableViewController",
-        "tableView.plain": "WYTableViewPlainController",
-        "tableView.grouped": "WYTableViewGroupedController",
-        "下载与缓存": "WYTestDownloadController",
-        "网络请求": "WYTestRequestController",
-        "屏幕旋转": "WYTestInterfaceOrientationController",
-        "二维码": "WYQRCodeController",
-        "Gif加载": "WYParseGifController",
-        "瀑布流": "WYFlowLayoutAlignmentController",
-        "直播、点播播放器": "WYTestLiveStreamingController",
-        "IM即时通讯(开发中)": "WYTestChatController",
-        "语音识别": "WYSpeechRecognitionController",
-        "泛型": "WYGenericTypeController",
-        "离线方法调用": "WYOffLineMethodController",
-        "WKWebView进度条": "WYWebViewController",
-        "归档/解归档": "WYArchivedController",
-        "日志输出与保存": "WYLogController",
-        "音频录制与播放": "TestAudioController",
-        "设备振动": "WYTestVibrateController",
-        "文本轮播": "WYTestScrollTextController",
-        "分页控制器": "WYTestPagingViewController",
-        "TableViewCell侧滑": "WYTestSideslipCellController"
+    struct ListItem {
+        let title: String
+        let controller: String
+    }
+    
+    let cellItems: [ListItem] = [
+        ListItem(title: "暗夜、白昼模式",
+                 controller: "WYTestDarkNightModeController"),
+        
+        ListItem(title: "约束view添加动画",
+                 controller: "WYTestAnimationController"),
+        
+        ListItem(title: "边框、圆角、阴影、渐变",
+                 controller: "WYTestVisualController"),
+        
+        ListItem(title: "ButtonEdgeInsets",
+                 controller: "WYTestButtonEdgeInsetsController"),
+        
+        ListItem(title: "Banner轮播",
+                 controller: "WYTestBannerController"),
+        
+        ListItem(title: "富文本",
+                 controller: "WYTestRichTextController"),
+        
+        ListItem(title: "无限层折叠TableView",
+                 controller: "WYMultilevelTableViewController"),
+        
+        ListItem(title: "tableView.plain",
+                 controller: "WYTableViewPlainController"),
+        
+        ListItem(title: "tableView.grouped",
+                 controller: "WYTableViewGroupedController"),
+        
+        ListItem(title: "下载与缓存",
+                 controller: "WYTestDownloadController"),
+        
+        ListItem(title: "网络请求",
+                 controller: "WYTestRequestController"),
+        
+        ListItem(title: "屏幕旋转",
+                 controller: "WYTestInterfaceOrientationController"),
+        
+        ListItem(title: "二维码",
+                 controller: "WYQRCodeController"),
+        
+        ListItem(title: "Gif加载",
+                 controller: "WYParseGifController"),
+        
+        ListItem(title: "瀑布流",
+                 controller: "WYFlowLayoutAlignmentController"),
+        
+        ListItem(title: "直播、点播播放器",
+                 controller: "WYTestLiveStreamingController"),
+        
+        ListItem(title: "IM即时通讯(开发中)",
+                 controller: "WYTestChatController"),
+        
+        ListItem(title: "语音识别",
+                 controller: "WYSpeechRecognitionController"),
+        
+        ListItem(title: "泛型",
+                 controller: "WYGenericTypeController"),
+        
+        ListItem(title: "离线方法调用",
+                 controller: "WYOffLineMethodController"),
+        
+        ListItem(title: "WKWebView进度条",
+                 controller: "WYWebViewController"),
+        
+        ListItem(title: "归档/解归档",
+                 controller: "WYArchivedController"),
+        
+        ListItem(title: "日志输出与保存",
+                 controller: "WYLogController"),
+        
+        ListItem(title: "音频录制与播放",
+                 controller: "TestAudioController"),
+        
+        ListItem(title: "设备振动",
+                 controller: "WYTestVibrateController"),
+        
+        ListItem(title: "文本轮播",
+                 controller: "WYTestScrollTextController"),
+        
+        ListItem(title: "分页控制器",
+                 controller: "WYTestPagingViewController"),
+        
+        ListItem(title: "TableViewCell侧滑",
+                 controller: "WYTestSideslipCellController")
     ]
     
     lazy var tableView: UITableView = {
@@ -177,7 +236,7 @@ extension WYMainController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return cellObjs.count
+        return cellItems.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -185,7 +244,7 @@ extension WYMainController: UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "UITableViewCell", for: indexPath)
         
         
-        cell.textLabel?.text = Array(cellObjs.keys)[indexPath.row]
+        cell.textLabel?.text = cellItems[indexPath.row].title
         cell.textLabel?.textColor = UIColor.wy_dynamic(.black, .white)
         //cell.textLabel?.adjustsFontSizeToFitWidth = true
         cell.textLabel?.font = .systemFont(ofSize: UIDevice.wy_screenWidth(15))
@@ -195,9 +254,9 @@ extension WYMainController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let className: String = Array(cellObjs.values)[indexPath.row]
+        let className: String = cellItems[indexPath.row].controller
         let nextController = wy_showViewController(className: className)
-        nextController?.navigationItem.title = Array(cellObjs.keys)[indexPath.row]
+        nextController?.navigationItem.title = cellItems[indexPath.row].title
     }
 }
 

@@ -88,7 +88,7 @@
 		589B0A3C2E49CE12000DBD10 /* bird.gif in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A3B2E49CE12000DBD10 /* bird.gif */; };
 		58CDEE5D2E34907800ACE975 /* WYLogController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CDEE5C2E34907800ACE975 /* WYLogController.swift */; };
 		58E712812E4B0CE90095E71C /* WYTestAudioController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E712802E4B0CE90095E71C /* WYTestAudioController.swift */; };
-		9964A95003E532968F604219 /* Pods_SwiftVerify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B9AF69CF29055B1125EF34F /* Pods_SwiftVerify.framework */; };
+		84EE766C2E1181D7E147705D /* Pods_SwiftVerify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D62E6505DE49C40968A38E0D /* Pods_SwiftVerify.framework */; };
 		AAA708702E1C11060040F2ED /* WYArchivedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA7086F2E1C11060040F2ED /* WYArchivedController.swift */; };
 /* End PBXBuildFile section */
 
@@ -97,7 +97,6 @@
 		0953BDDD566655048899DC64 /* Pods-SwiftVerify.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftVerify.debug.xcconfig"; path = "Target Support Files/Pods-SwiftVerify/Pods-SwiftVerify.debug.xcconfig"; sourceTree = "<group>"; };
 		2DB9925AC3DD1E2ABC6B0159 /* Pods-WYBasisKitVerify.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKitVerify.release.xcconfig"; path = "Target Support Files/Pods-WYBasisKitVerify/Pods-WYBasisKitVerify.release.xcconfig"; sourceTree = "<group>"; };
 		36C6640364725F7848269A13 /* Pods-WYBasisKitVerify.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKitVerify.debug.xcconfig"; path = "Target Support Files/Pods-WYBasisKitVerify/Pods-WYBasisKitVerify.debug.xcconfig"; sourceTree = "<group>"; };
-		3B9AF69CF29055B1125EF34F /* Pods_SwiftVerify.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwiftVerify.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5814080C2EC83F1B0099D41B /* WYTestSideslipCellController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestSideslipCellController.swift; sourceTree = "<group>"; };
 		58155BE32E6A7ABA00D957F3 /* 彩色花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "彩色花.png"; sourceTree = "<group>"; };
 		58155BE42E6A7ABA00D957F3 /* 窗花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "窗花.png"; sourceTree = "<group>"; };
@@ -237,6 +236,7 @@
 		58CDEE5C2E34907800ACE975 /* WYLogController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLogController.swift; sourceTree = "<group>"; };
 		58E712802E4B0CE90095E71C /* WYTestAudioController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestAudioController.swift; sourceTree = "<group>"; };
 		AAA7086F2E1C11060040F2ED /* WYArchivedController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYArchivedController.swift; sourceTree = "<group>"; };
+		D62E6505DE49C40968A38E0D /* Pods_SwiftVerify.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwiftVerify.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -244,7 +244,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9964A95003E532968F604219 /* Pods_SwiftVerify.framework in Frameworks */,
+				84EE766C2E1181D7E147705D /* Pods_SwiftVerify.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -654,7 +654,7 @@
 		59C921CD84EA9D39B92C17B9 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				3B9AF69CF29055B1125EF34F /* Pods_SwiftVerify.framework */,
+				D62E6505DE49C40968A38E0D /* Pods_SwiftVerify.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

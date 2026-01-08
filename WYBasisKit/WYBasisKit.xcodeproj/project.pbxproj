@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		02317E95937A422D4510B1BE /* Pods_WYBasisKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B0A12B6CD08A1EADB40EC1C /* Pods_WYBasisKit.framework */; };
 		580ED5882EA7261F006012E7 /* WYCodableBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5872EA7261F006012E7 /* WYCodableBridge.swift */; };
 		580ED58A2EA72632006012E7 /* WYCodableConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5892EA72632006012E7 /* WYCodableConfig.swift */; };
 		580ED58C2EA7263F006012E7 /* WYCodableValueTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580ED58B2EA7263F006012E7 /* WYCodableValueTransformer.swift */; };
@@ -174,7 +175,6 @@
 		58C68E362E853D71005FD054 /* WYApplicationObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68E352E853D71005FD054 /* WYApplicationObjC.swift */; };
 		58C952F22F051E800032E3F6 /* WYColorSwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C952F02F051E800032E3F6 /* WYColorSwiftUI.swift */; };
 		AAC46AD02E07E28F0068B0DF /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = AAC46ACF2E07E28F0068B0DF /* libc++.tbd */; };
-		ED4EB416B83B179C621C40F0 /* Pods_WYBasisKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEB6297DCF484666E8FC6223 /* Pods_WYBasisKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -396,9 +396,9 @@
 		58C68E352E853D71005FD054 /* WYApplicationObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYApplicationObjC.swift; sourceTree = "<group>"; };
 		58C952F02F051E800032E3F6 /* WYColorSwiftUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYColorSwiftUI.swift; sourceTree = "<group>"; };
 		58E054912E88DEE200DF1F74 /* WYBasisKitObjC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYBasisKitObjC.h; sourceTree = "<group>"; };
+		5B0A12B6CD08A1EADB40EC1C /* Pods_WYBasisKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WYBasisKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B8A3708E351CE0BB9E30715 /* Pods-WYBasisKit.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.debug.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.debug.xcconfig"; sourceTree = "<group>"; };
 		AAC46ACF2E07E28F0068B0DF /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
-		FEB6297DCF484666E8FC6223 /* Pods_WYBasisKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WYBasisKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -409,7 +409,7 @@
 				587CDF922E09153B00929E1D /* libbz2.tbd in Frameworks */,
 				587CDF902E09151500929E1D /* libz.tbd in Frameworks */,
 				AAC46AD02E07E28F0068B0DF /* libc++.tbd in Frameworks */,
-				ED4EB416B83B179C621C40F0 /* Pods_WYBasisKit.framework in Frameworks */,
+				02317E95937A422D4510B1BE /* Pods_WYBasisKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2013,7 +2013,7 @@
 				587CDF912E09153B00929E1D /* libbz2.tbd */,
 				587CDF8F2E09151500929E1D /* libz.tbd */,
 				AAC46ACF2E07E28F0068B0DF /* libc++.tbd */,
-				FEB6297DCF484666E8FC6223 /* Pods_WYBasisKit.framework */,
+				5B0A12B6CD08A1EADB40EC1C /* Pods_WYBasisKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -2039,7 +2039,7 @@
 				585B35602DF8086C00E6E08F /* Sources */,
 				585B35612DF8086C00E6E08F /* Frameworks */,
 				585B35622DF8086C00E6E08F /* Resources */,
-				9F307DD2794A7C0D1FCC4A06 /* [CP] Embed Pods Frameworks */,
+				4A18717A4F9FB28701A439C6 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -2124,7 +2124,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		9F307DD2794A7C0D1FCC4A06 /* [CP] Embed Pods Frameworks */ = {
+		4A18717A4F9FB28701A439C6 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (

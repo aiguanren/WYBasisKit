@@ -62,7 +62,7 @@
 		58B59FF62E5D5315008F9C38 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 58B59FE92E5D5315008F9C38 /* Main.storyboard */; };
 		58DA4EAD2EA23E6F003EAA2D /* WYTestVibrateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DA4EAC2EA23E6F003EAA2D /* WYTestVibrateController.m */; };
 		58DA4EB12EA2427D003EAA2D /* WYTestButtonEdgeInsetsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DA4EB02EA2427D003EAA2D /* WYTestButtonEdgeInsetsController.m */; };
-		B51FB1DAFE1A4DDDD4992B52 /* Pods_ObjCVerify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D221636A5EAC813DEE477B6E /* Pods_ObjCVerify.framework */; };
+		ECC390919651E39B53C48672 /* Pods_ObjCVerify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A235FB04509B2363C98C9226 /* Pods_ObjCVerify.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -201,7 +201,7 @@
 		58DA4EAC2EA23E6F003EAA2D /* WYTestVibrateController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestVibrateController.m; sourceTree = "<group>"; };
 		58DA4EAF2EA2427D003EAA2D /* WYTestButtonEdgeInsetsController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestButtonEdgeInsetsController.h; sourceTree = "<group>"; };
 		58DA4EB02EA2427D003EAA2D /* WYTestButtonEdgeInsetsController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestButtonEdgeInsetsController.m; sourceTree = "<group>"; };
-		D221636A5EAC813DEE477B6E /* Pods_ObjCVerify.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ObjCVerify.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A235FB04509B2363C98C9226 /* Pods_ObjCVerify.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ObjCVerify.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -209,7 +209,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B51FB1DAFE1A4DDDD4992B52 /* Pods_ObjCVerify.framework in Frameworks */,
+				ECC390919651E39B53C48672 /* Pods_ObjCVerify.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -366,13 +366,13 @@
 		58B470482E8D329600D04BCA /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				58B470352E8D114C00D04BCA /* Tabbar */,
 				580ED57F2EA62ADE006012E7 /* 归档解归档 */,
 				580ED5622EA5DA3D006012E7 /* 泛型 */,
 				58DA4EAE2EA24270003EAA2D /* ButtonEdgeInsets */,
 				58DA4EAA2EA23E41003EAA2D /* 设备振动 */,
 				5827320E2E9F8CAB00DAD1AA /* 暗夜、白昼模式 */,
 				584EAF0B2E939036003A21B8 /* WKWebView */,
-				58B470352E8D114C00D04BCA /* Tabbar */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -450,7 +450,7 @@
 			isa = PBXGroup;
 			children = (
 				58AE5D612F0CA1020025C492 /* libswiftCompatibilitySpan.tbd */,
-				D221636A5EAC813DEE477B6E /* Pods_ObjCVerify.framework */,
+				A235FB04509B2363C98C9226 /* Pods_ObjCVerify.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -616,9 +616,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -633,9 +637,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
