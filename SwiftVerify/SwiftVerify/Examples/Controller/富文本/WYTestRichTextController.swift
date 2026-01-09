@@ -28,7 +28,11 @@ class WYTestRichTextController: UIViewController {
         let attribute = NSMutableAttributedString(string: str)
         
         attribute.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 20), range: NSMakeRange(0, str.count))
-        attribute.wy_colorsOfRanges([[UIColor.blue: "勇猛刚强"], [UIColor.orange: "仁爱温良者戒于无断"], [UIColor.purple: "安舒"], [UIColor.magenta: "必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"]])
+        
+        attribute.wy_colorsOfRanges([UIColor.blue: "勇猛刚强",
+                                     UIColor.orange: "仁爱温良者戒于无断",
+                                     UIColor.purple: "安舒",
+                                     UIColor.magenta: "必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"])
         attribute.wy_lineSpacing(15, subString: attribute.string)
         
         label.attributedText = attribute
@@ -51,7 +55,7 @@ class WYTestRichTextController: UIViewController {
         label.snp.makeConstraints { (make) in
             make.centerX.equalToSuperview()
             make.width.equalTo(UIDevice.wy_screenWidth - 30)
-            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight + 20)
+            make.top.equalToSuperview().offset(20)
         }
         
         let emojiLabel = UILabel()
@@ -90,17 +94,9 @@ class WYTestRichTextController: UIViewController {
             make.top.equalTo(emojiLabel.snp.bottom).offset(50)
         }
         
-        WYLogManager.output("每行显示的分别是 \(String(describing: label.attributedText?.wy_stringPerLine(controlWidth: UIDevice.wy_screenWidth))), 一共 \(String(describing: label.attributedText?.wy_numberOfRows(controlWidth: UIDevice.wy_screenWidth))) 行")
-        
         label.layoutIfNeeded()
-        let subFrameRange = attribute.wy_calculateFrame(range: NSMakeRange(attribute.string.count - 7, 6), controlSize: label.frame.size)
         
-        let subFrameString = attribute.wy_calculateFrame(subString: "敢比周而望进", controlSize: label.frame.size)
-        WYLogManager.output("subFrameRange = \(subFrameRange), subFrameString = \(subFrameString), labelFrame = \(label.frame)")
-        
-        let frameView = UIView(frame: CGRect(x: subFrameRange.origin.x, y: subFrameRange.origin.y, width: subFrameRange.size.width, height: subFrameRange.size.height))
-        frameView.backgroundColor = .red.withAlphaComponent(0.2)
-        label.addSubview(frameView)
+        WYLogManager.output("每行显示的分别是 \(String(describing: label.attributedText?.wy_stringPerLine(controlWidth: label.wy_width))), 一共 \(String(describing: label.attributedText?.wy_numberOfRows(controlWidth: label.wy_width))) 行")
         
         let attachmentView: UILabel = UILabel()
         attachmentView.font = UIFont.systemFont(ofSize: 15)
@@ -126,7 +122,9 @@ class WYTestRichTextController: UIViewController {
             .init(image: image_font_50, size: CGSize(width: 20, height: 20), position: .after(text: string_font_50), alignment: .bottom),
             .init(image: image_font_50, size: CGSize(width: 10, height: 10), position: .index(string_font_50Index + 2), alignment: .custom(offset: -30))
         ]
-        attributed.wy_fontsOfRanges([[UIFont.systemFont(ofSize: 30): string_font_30], [UIFont.systemFont(ofSize: 40): string_font_40], [UIFont.systemFont(ofSize: 50): string_font_50]])
+        attributed.wy_fontsOfRanges([UIFont.systemFont(ofSize: 30): string_font_30,
+                                     UIFont.systemFont(ofSize: 40): string_font_40,
+                                     UIFont.systemFont(ofSize: 50): string_font_50])
         attributed.wy_insertImage(options)
         attributed.wy_lineSpacing(10)
         attachmentView.attributedText = attributed

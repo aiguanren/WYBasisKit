@@ -14,25 +14,73 @@ import WYBasisKitSwift
 @objc public extension NSMutableAttributedString {
     
     /**
-     *  需要修改的字符颜色数组及量程，由字典组成  key = 颜色   value = 量程或需要修改的字符串
-     *  例：NSArray *colorsOfRanges = @[@{color:@[@"0",@"1"]},@{color:@[@"1",@"2"]}]
-     *  或：NSArray *colorsOfRanges = @[@{color:str},@{color:str}]
+     设置富文本中指定范围或字符串的颜色
+     
+     - Parameter colorRanges: 颜色与范围对应的字典序列，每个字典包含一个字体键和对应的范围值
+     
+     - Note: 范围参数支持三种格式：
+     1. 字符串格式：自动查找字符串中首次出现的该子串并应用颜色
+     2. 范围数组：@{@"起始位置字符串", @"长度字符串"} 如 @{@"0", @"5"}
+     3. 字符串格式与范围数组组合
+     
+     使用示例：
+     // 通过字符串匹配设置颜色
+     [attributedString wy_colorsOfRanges:@{
+          UIColor.redColor: @"需要标红的文本",
+          UIColor.blueColor: @"蓝色文本"
+     }];
+     
+     // 通过范围设置颜色
+     [attributedString wy_colorsOfRanges:@{
+           @{UIColor.redColor: @[@"0", @"5"]}, // 从第0个字符开始，长度为5
+           @{UIColor.blueColor: @[@"10", @"3"]}, // 从第10个字符开始，长度为3
+     }];
+     
+     // 通过组合设置颜色
+     [attributedString wy_colorsOfRanges:@{
+          @{UIColor.redColor: @"需要标红的文本"},
+          @{UIColor.blueColor: @[@"10", @"3"]}, // 从第10个字符开始，长度为3
+     }];
      */
     @discardableResult
     @objc(wy_colorsOfRanges:)
-    func wy_colorsOfRangesObjC(_ colorsOfRanges: Array<Dictionary<UIColor, Any>>) -> NSMutableAttributedString {
-        return wy_colorsOfRanges(colorsOfRanges)
+    func wy_colorsOfRangesObjC(_ colorRanges: Dictionary<UIColor, Any>) -> NSMutableAttributedString {
+        return wy_colorsOfRanges(colorRanges)
     }
     
     /**
-     *  需要修改的字符字体数组及量程，由字典组成  key = 颜色   value = 量程或需要修改的字符串
-     *  例：NSArray *fontsOfRanges = @[@{font:@[@"0",@"1"]},@{font:@[@"1",@"2"]}]
-     *  或：NSArray *fontsOfRanges = @[@{font:str},@{font:str}]
+     设置富文本中指定范围或字符串的字体
+     
+     - Parameter fontRanges: 字体与范围对应的字典序列，每个字典包含一个字体键和对应的范围值
+     
+     - Note: 范围参数支持三种格式：
+     1. 字符串格式：自动查找字符串中首次出现的该子串并应用字体
+     2. 范围数组：@{@"起始位置字符串", @"长度字符串"} 如 @{@"0", @"5"}
+     3. 字符串格式与范围数组组合
+     
+     使用示例：
+     // 通过字符串匹配设置字体
+     attributedString.wy_fontsOfRanges:@{
+         [UIFont.boldSystemFont(ofSize: 16): "加粗文本"],
+         [UIFont.italicSystemFont(ofSize: 14): "斜体文本"]
+     }];
+     
+     // 通过范围设置字体
+     attributedString.wy_fontsOfRanges:@{
+         [UIFont.systemFont(ofSize: 18): ["0", "5"]],
+         [UIFont.systemFont(ofSize: 12): ["10", "3"]
+     }];
+     
+     // 通过组合设置字体
+     attributedString.wy_fontsOfRanges:@{
+         [UIFont.boldSystemFont(ofSize: 16): "加粗文本"],
+         [UIFont.systemFont(ofSize: 12): ["10", "3"] // 从第10个字符开始，长度为3
+     }];
      */
     @discardableResult
     @objc(wy_fontsOfRanges:)
-    func wy_fontsOfRangesObjC(_ fontsOfRanges: Array<Dictionary<UIFont, Any>>) -> NSMutableAttributedString {
-        return wy_fontsOfRanges(fontsOfRanges)
+    func wy_fontsOfRangesObjC(_ fontRanges: Dictionary<UIFont, Any>) -> NSMutableAttributedString {
+        return wy_fontsOfRanges(fontRanges)
     }
     
     /**
@@ -88,7 +136,7 @@ import WYBasisKitSwift
      *  @param tailIndent  尾部右边距
      */
     @discardableResult
-    @objc func wy_innerMargin(with string: String?,
+    @objc func wy_innerMarginWith(string: String?,
                                   firstLineHeadIndent: CGFloat = 0,
                                   headIndent: CGFloat = 0,
                                   tailIndent: CGFloat = 0,
@@ -108,7 +156,7 @@ import WYBasisKitSwift
      3. spacingBefore / spacingAfter 可用于设置插入图片前后的间距；
      */
     @discardableResult
-    @objc(wy_insertImage:)
+    @objc(wy_insertImageWithAttachments:)
     func wy_insertImageObjC(_ attachments: [WYImageAttachmentOptionObjC]) -> NSMutableAttributedString {
         let swiftAttachments: [WYImageAttachmentOption] = attachments.map { objCOption in
             return WYImageAttachmentOption(
@@ -170,41 +218,28 @@ import WYBasisKitSwift
 
 @objc public extension NSAttributedString {
     
-    /// 获取某段文字的frame
-    @objc(wy_calculateFrameWithRange:controlSize:numberOfLines:lineBreakMode:)
-    func wy_calculateFrame(_ range: NSRange, controlSize: CGSize, numberOfLines: Int = 0, lineBreakMode: NSLineBreakMode = .byWordWrapping) -> CGRect {
-        return wy_calculateFrame(range: range, controlSize: controlSize, numberOfLines: numberOfLines, lineBreakMode: lineBreakMode)
-    }
-    
-    /// 获取某段文字的frame
-    @objc(wy_calculateFrameWithSubString:controlSize:numberOfLines:lineBreakMode:)
-    func wy_calculateFrameObjC(subString: String, controlSize: CGSize, numberOfLines: Int = 0, lineBreakMode: NSLineBreakMode = .byWordWrapping) -> CGRect {
-        return wy_calculateFrame(subString: subString, controlSize: controlSize, numberOfLines: numberOfLines, lineBreakMode: lineBreakMode)
-    }
-    
     /// 计算富文本宽度
-    @objc func wy_calculateWidth(_ controlHeight: CGFloat) -> CGFloat {
+    @objc func wy_calculateWidthWith(controlHeight: CGFloat) -> CGFloat {
         return wy_calculateSize(controlSize: CGSize(width: .greatestFiniteMagnitude, height: controlHeight)).width
     }
     
     /// 计算富文本高度
-    @objc func wy_calculateHeight(_ controlWidth: CGFloat) -> CGFloat {
+    @objc func wy_calculateHeightWith(controlWidth: CGFloat) -> CGFloat {
         return wy_calculateSize(controlSize: CGSize(width: controlWidth, height: .greatestFiniteMagnitude)).height
     }
     
     /// 计算富文本宽高
-    @objc(wy_calculateSize:)
-    func wy_calculateSize(_ controlSize: CGSize) -> CGSize {
+    @objc func wy_calculateSizeWith(controlSize: CGSize) -> CGSize {
         return wy_calculateSize(controlSize: controlSize)
     }
     
     /// 获取每行显示的字符串(为了计算准确，尽量将使用到的属性如字间距、缩进、换行模式、字体等设置到调用本方法的attributedString对象中来, 没有用到的直接忽略)
-    @objc func wy_stringPerLine(_ controlWidth: CGFloat) -> [String] {
+    @objc func wy_stringPerLineWith(controlWidth: CGFloat) -> [String] {
         return wy_stringPerLine(controlWidth: controlWidth)
     }
     
     /// 判断字符串显示完毕需要几行(为了计算准确，尽量将使用到的属性如字间距、缩进、换行模式、字体等设置到调用本方法的attributedString对象中来, 没有用到的直接忽略)
-    @objc func wy_numberOfRows(_ controlWidth: CGFloat) -> Int {
+    @objc func wy_numberOfRowsWith(controlWidth: CGFloat) -> Int {
         return wy_numberOfRows(controlWidth: controlWidth)
     }
 }

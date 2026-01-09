@@ -65,6 +65,7 @@
 		58DEA9BD2F0F580200664E13 /* WYTestAnimationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DEA9BC2F0F580200664E13 /* WYTestAnimationController.m */; };
 		58DEA9C12F0F5A9E00664E13 /* WYTestVisualController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DEA9C02F0F5A9E00664E13 /* WYTestVisualController.m */; };
 		58DEA9C52F0F5E2400664E13 /* WYTestBannerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DEA9C42F0F5E2400664E13 /* WYTestBannerController.m */; };
+		58DEA9C92F0F7CB600664E13 /* WYTestRichTextController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DEA9C82F0F7CB600664E13 /* WYTestRichTextController.m */; };
 		ECC390919651E39B53C48672 /* Pods_ObjCVerify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A235FB04509B2363C98C9226 /* Pods_ObjCVerify.framework */; };
 /* End PBXBuildFile section */
 
@@ -210,6 +211,8 @@
 		58DEA9C02F0F5A9E00664E13 /* WYTestVisualController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestVisualController.m; sourceTree = "<group>"; };
 		58DEA9C32F0F5E2400664E13 /* WYTestBannerController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestBannerController.h; sourceTree = "<group>"; };
 		58DEA9C42F0F5E2400664E13 /* WYTestBannerController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestBannerController.m; sourceTree = "<group>"; };
+		58DEA9C72F0F7CB600664E13 /* WYTestRichTextController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestRichTextController.h; sourceTree = "<group>"; };
+		58DEA9C82F0F7CB600664E13 /* WYTestRichTextController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestRichTextController.m; sourceTree = "<group>"; };
 		A235FB04509B2363C98C9226 /* Pods_ObjCVerify.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ObjCVerify.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -375,6 +378,7 @@
 		58B470482E8D329600D04BCA /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				58DEA9C62F0F7CA900664E13 /* 富文本 */,
 				58DEA9C22F0F5E1100664E13 /* Banner轮播 */,
 				58DEA9BE2F0F5A8C00664E13 /* 边框、圆角、阴影、渐变 */,
 				58DEA9BA2F0F57E900664E13 /* 约束view添加动画 */,
@@ -483,6 +487,15 @@
 				58DEA9C42F0F5E2400664E13 /* WYTestBannerController.m */,
 			);
 			path = "Banner轮播";
+			sourceTree = "<group>";
+		};
+		58DEA9C62F0F7CA900664E13 /* 富文本 */ = {
+			isa = PBXGroup;
+			children = (
+				58DEA9C72F0F7CB600664E13 /* WYTestRichTextController.h */,
+				58DEA9C82F0F7CB600664E13 /* WYTestRichTextController.m */,
+			);
+			path = "富文本";
 			sourceTree = "<group>";
 		};
 		9B1FAA5163C0754EF01A1929 /* Frameworks */ = {
@@ -708,6 +721,7 @@
 				58DEA9C12F0F5A9E00664E13 /* WYTestVisualController.m in Sources */,
 				58B59FF22E5D5315008F9C38 /* ViewController.m in Sources */,
 				58DEA9C52F0F5E2400664E13 /* WYTestBannerController.m in Sources */,
+				58DEA9C92F0F7CB600664E13 /* WYTestRichTextController.m in Sources */,
 				58B470442E8D11E200D04BCA /* WYRightController.m in Sources */,
 				580ED56E2EA5DB0E006012E7 /* UserRequest.m in Sources */,
 				580ED56B2EA5DAE5006012E7 /* SDKResponse.m in Sources */,

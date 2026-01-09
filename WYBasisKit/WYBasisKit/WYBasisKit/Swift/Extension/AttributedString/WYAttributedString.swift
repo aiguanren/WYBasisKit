@@ -12,33 +12,92 @@ import UIKit
 public extension NSMutableAttributedString {
     
     /**
-     *  需要修改的字符颜色数组及量程，由字典组成  key = 颜色   value = 量程或需要修改的字符串
-     *  例：NSArray *colorsOfRanges = @[@{color:@[@"0",@"1"]},@{color:@[@"1",@"2"]}]
-     *  或：NSArray *colorsOfRanges = @[@{color:str},@{color:str}]
+     设置富文本中指定范围或字符串的颜色
+     
+     - Parameter colorRanges: 颜色与范围对应的字典序列，每个字典包含一个颜色键和对应的范围值
+     
+     - Note: 范围参数支持三种格式：
+     1. 字符串格式：自动查找字符串中首次出现的该子串并应用颜色
+     2. 范围数组：["起始位置字符串", "长度字符串"] 如 ["0", "5"]
+     3. 字符串格式与范围数组组合
+     
+     使用示例：
+     // 通过字符串匹配设置颜色
+     attributedString.wy_colorsOfRanges(
+         [
+             .red: "需要标红的文本",
+             .blue: "蓝色文本"
+         ]
+     )
+     
+     // 通过范围设置颜色
+     attributedString.wy_colorsOfRanges(
+         [
+             .red: ["0", "5"],  // 从第0个字符开始，长度为5
+             .blue: ["10", "3"]  // 从第10个字符开始，长度为3
+         ]
+     )
+     
+     // 通过组合设置颜色
+     attributedString.wy_colorsOfRanges(
+         [
+             .red: "需要标红的文本",
+             .blue: ["10", "3"]  // 从第10个字符开始，长度为3
+         ]
+     )
      */
     @discardableResult
-    func wy_colorsOfRanges(_ colorsOfRanges: Array<Dictionary<UIColor, Any>>) -> NSMutableAttributedString {
-        for dic in colorsOfRanges {
-            if let color = dic.keys.first,
-               let rangeValue = dic.values.first {
-                wy_applyFontsOrColorsAttributes(key: NSAttributedString.Key.foregroundColor, value: color, rangeValue: rangeValue)
-            }
+    func wy_colorsOfRanges(_ colorRanges: Dictionary<UIColor, Any>) -> NSMutableAttributedString {
+        for (color, rangeValue) in colorRanges {
+            wy_applyFontsOrColorsAttributes(
+                key: NSAttributedString.Key.foregroundColor,
+                value: color,
+                rangeValue: rangeValue
+            )
         }
         return self
     }
     
     /**
-     *  需要修改的字符字体数组及量程，由字典组成  key = 颜色   value = 量程或需要修改的字符串
-     *  例：NSArray *fontsOfRanges = @[@{font:@[@"0",@"1"]},@{font:@[@"1",@"2"]}]
-     *  或：NSArray *fontsOfRanges = @[@{font:str},@{font:str}]
+     设置富文本中指定范围或字符串的字体
+     
+     - Parameter fontRanges: 字体与范围对应的字典序列，每个字典包含一个字体键和对应的范围值
+     
+     - Note: 范围参数支持三种格式：
+     1. 字符串格式：自动查找字符串中首次出现的该子串并应用字体
+     2. 范围数组：["起始位置字符串", "长度字符串"] 如 ["0", "5"]
+     3. 字符串格式与范围数组组合
+     
+     使用示例：
+     // 通过字符串匹配设置字体
+     attributedString.wy_fontsOfRanges(
+         [
+             UIFont.boldSystemFont(ofSize: 16): "加粗文本", UIFont.italicSystemFont(ofSize: 14): "斜体文本"
+         ]
+     )
+     
+     // 通过范围设置字体
+     attributedString.wy_fontsOfRanges(
+         [
+             UIFont.systemFont(ofSize: 18): ["0", "5"], UIFont.systemFont(ofSize: 12): ["10", "3"]
+         ]
+     )
+     
+     // 通过组合设置字体
+     attributedString.wy_fontsOfRanges(
+         [
+             UIFont.boldSystemFont(ofSize: 16): "加粗文本", UIFont.systemFont(ofSize: 12): ["10", "3"] // 从第10个字符开始，长度为3
+         ]
+     )
      */
     @discardableResult
-    func wy_fontsOfRanges(_ fontsOfRanges: Array<Dictionary<UIFont, Any>>) -> NSMutableAttributedString {
-        for dic in fontsOfRanges {
-            if let font = dic.keys.first,
-               let rangeValue = dic.values.first {
-                wy_applyFontsOrColorsAttributes(key: NSAttributedString.Key.font, value: font, rangeValue: rangeValue)
-            }
+    func wy_fontsOfRanges(_ fontRanges: Dictionary<UIFont, Any>) -> NSMutableAttributedString {
+        for (font, rangeValue) in fontRanges {
+            wy_applyFontsOrColorsAttributes(
+                key: .font,
+                value: font,
+                rangeValue: rangeValue
+            )
         }
         return self
     }
@@ -439,58 +498,6 @@ public extension NSMutableAttributedString {
 }
 
 public extension NSAttributedString {
-    
-    /// 获取某段文字的frame
-    func wy_calculateFrame(range: NSRange, controlSize: CGSize, numberOfLines: Int = 0, lineBreakMode: NSLineBreakMode = .byWordWrapping) -> CGRect {
-        
-        let textStorage: NSTextStorage = NSTextStorage(attributedString: self)
-        let layoutManager: NSLayoutManager = NSLayoutManager()
-        textStorage.addLayoutManager(layoutManager)
-        let textContainer: NSTextContainer = NSTextContainer(size: controlSize)
-        textContainer.lineFragmentPadding = 0
-        textContainer.lineBreakMode = lineBreakMode
-        textContainer.maximumNumberOfLines = numberOfLines
-        layoutManager.addTextContainer(textContainer)
-        
-        var glyphRange: NSRange = NSRange()
-        layoutManager.characterRange(forGlyphRange: range, actualGlyphRange: &glyphRange)
-        
-        // 返回 boundingRect
-        let boundingRect: CGRect = layoutManager.boundingRect(forGlyphRange: glyphRange, in: textContainer)
-        return CGRect(x: ceil(boundingRect.origin.x), y: ceil(boundingRect.origin.y), width: ceil(boundingRect.size.width), height: ceil(boundingRect.size.height))
-    }
-    
-    /// 获取某段文字的frame
-    func wy_calculateFrame(subString: String, controlSize: CGSize, numberOfLines: Int = 0, lineBreakMode: NSLineBreakMode = .byWordWrapping) -> CGRect {
-        
-        guard !subString.isEmpty else {
-            return .zero
-        }
-        
-        // 查找子串的 range
-        guard let range = string.range(of: subString) else {
-            return .zero
-        }
-        let nsRange = NSRange(range, in: string)
-        
-        // 准备文本排版相关对象
-        let textStorage = NSTextStorage(attributedString: self)
-        let layoutManager = NSLayoutManager()
-        textStorage.addLayoutManager(layoutManager)
-        
-        let textContainer = NSTextContainer(size: controlSize)
-        textContainer.lineFragmentPadding = 0
-        textContainer.lineBreakMode = lineBreakMode
-        textContainer.maximumNumberOfLines = numberOfLines
-        layoutManager.addTextContainer(textContainer)
-        
-        // 获取 glyphRange
-        let glyphRange = layoutManager.glyphRange(forCharacterRange: nsRange, actualCharacterRange: nil)
-        
-        // 返回 boundingRect
-        let boundingRect: CGRect = layoutManager.boundingRect(forGlyphRange: glyphRange, in: textContainer)
-        return CGRect(x: ceil(boundingRect.origin.x), y: ceil(boundingRect.origin.y), width: ceil(boundingRect.size.width), height: ceil(boundingRect.size.height))
-    }
     
     /// 计算富文本宽度
     func wy_calculateWidth(controlHeight: CGFloat) -> CGFloat {
