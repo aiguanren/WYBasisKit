@@ -67,6 +67,7 @@
 		58DEA9C52F0F5E2400664E13 /* WYTestBannerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DEA9C42F0F5E2400664E13 /* WYTestBannerController.m */; };
 		58DEA9C92F0F7CB600664E13 /* WYTestRichTextController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DEA9C82F0F7CB600664E13 /* WYTestRichTextController.m */; };
 		58DEA9CD2F10F5F300664E13 /* WYMultilevelTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DEA9CC2F10F5F300664E13 /* WYMultilevelTableViewController.m */; };
+		58DEA9D12F1105EB00664E13 /* WYTableViewPlainController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DEA9D02F1105EB00664E13 /* WYTableViewPlainController.m */; };
 		ECC390919651E39B53C48672 /* Pods_ObjCVerify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A235FB04509B2363C98C9226 /* Pods_ObjCVerify.framework */; };
 /* End PBXBuildFile section */
 
@@ -216,6 +217,8 @@
 		58DEA9C82F0F7CB600664E13 /* WYTestRichTextController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestRichTextController.m; sourceTree = "<group>"; };
 		58DEA9CB2F10F5F300664E13 /* WYMultilevelTableViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYMultilevelTableViewController.h; sourceTree = "<group>"; };
 		58DEA9CC2F10F5F300664E13 /* WYMultilevelTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYMultilevelTableViewController.m; sourceTree = "<group>"; };
+		58DEA9CF2F1105EB00664E13 /* WYTableViewPlainController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTableViewPlainController.h; sourceTree = "<group>"; };
+		58DEA9D02F1105EB00664E13 /* WYTableViewPlainController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTableViewPlainController.m; sourceTree = "<group>"; };
 		A235FB04509B2363C98C9226 /* Pods_ObjCVerify.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ObjCVerify.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -381,6 +384,7 @@
 		58B470482E8D329600D04BCA /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				58DEA9CE2F1105CC00664E13 /* tableView.plain */,
 				58DEA9CA2F10F5D900664E13 /* 无限层折叠TableView */,
 				58DEA9C62F0F7CA900664E13 /* 富文本 */,
 				58DEA9C22F0F5E1100664E13 /* Banner轮播 */,
@@ -509,6 +513,15 @@
 				58DEA9CC2F10F5F300664E13 /* WYMultilevelTableViewController.m */,
 			);
 			path = "无限层折叠TableView";
+			sourceTree = "<group>";
+		};
+		58DEA9CE2F1105CC00664E13 /* tableView.plain */ = {
+			isa = PBXGroup;
+			children = (
+				58DEA9CF2F1105EB00664E13 /* WYTableViewPlainController.h */,
+				58DEA9D02F1105EB00664E13 /* WYTableViewPlainController.m */,
+			);
+			path = tableView.plain;
 			sourceTree = "<group>";
 		};
 		9B1FAA5163C0754EF01A1929 /* Frameworks */ = {
@@ -744,6 +757,7 @@
 				58DA4EAD2EA23E6F003EAA2D /* WYTestVibrateController.m in Sources */,
 				58DEA9CD2F10F5F300664E13 /* WYMultilevelTableViewController.m in Sources */,
 				58DA4EB12EA2427D003EAA2D /* WYTestButtonEdgeInsetsController.m in Sources */,
+				58DEA9D12F1105EB00664E13 /* WYTableViewPlainController.m in Sources */,
 				58B46FF22E8D0F6100D04BCA /* WYTabBarController.m in Sources */,
 				580ED5682EA5DA9C006012E7 /* SDKRequestContext.m in Sources */,
 				584EAF0E2E939052003A21B8 /* WYTestWebViewController.m in Sources */,
