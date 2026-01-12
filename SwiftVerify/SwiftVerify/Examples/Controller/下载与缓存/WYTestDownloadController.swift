@@ -47,13 +47,13 @@ class WYTestDownloadController: UIViewController {
     
     func downloadImage(_ kingfisher: Bool, downloadImageView: UIImageView, localImageView: UIImageView) {
         
+        let imageUrl: String = "https://pic1.zhimg.com/v2-fc20b20ea15bfd6190ddeabf5ed2b5ba_1440w.jpg"
+        
         if kingfisher == true {
             
             let cache = try! ImageCache(name: "hahaxiazai", cacheDirectoryURL: WYStorage.createDirectory(directory: .cachesDirectory, subDirectory: "WYBasisKit/Download"))
             
-            let url: String = "https://www.apple.com.cn/v/iphone-13-pro/b/images/overview/camera/macro/macro_photography__dphcvz878gia_large_2x.jpg"
-            
-            localImageView.kf.setImage(with: URL(string: url), placeholder: UIImage.wy_createImage(from: .wy_random), options: [.targetCache(cache)]) { [weak self] result in
+            localImageView.kf.setImage(with: URL(string: imageUrl), placeholder: UIImage.wy_createImage(from: .wy_random), options: [.targetCache(cache)]) { [weak self] result in
                 
                 guard let self = self else { return }
                 
@@ -62,7 +62,7 @@ class WYTestDownloadController: UIViewController {
                 switch result {
                 case .success(let source):
                     downloadImageView.image = source.image.wy_blur(20)
-                    WYLogManager.output("cacheKey = \(source.originalSource.cacheKey), \nmd5 = \(url.wy_sha256()), \n缓存路径 = \(cache.diskStorage.cacheFileURL(forKey: source.source.cacheKey))")
+                    WYLogManager.output("cacheKey = \(source.originalSource.cacheKey), \nmd5 = \(imageUrl.wy_sha256()), \n缓存路径 = \(cache.diskStorage.cacheFileURL(forKey: source.source.cacheKey))")
                     break
                 case .failure(let error):
                     WYLogManager.output("\(error)")
@@ -73,7 +73,7 @@ class WYTestDownloadController: UIViewController {
             
         }else {
             
-            WYNetworkManager.download(path: "https://pic1.zhimg.com/v2-fc20b20ea15bfd6190ddeabf5ed2b5ba_1440w.jpg", assetName: "AAAAA") { result in
+            WYNetworkManager.download(path: imageUrl, assetName: "AAAAA") { result in
                 
                 switch result {
                     
@@ -118,9 +118,9 @@ class WYTestDownloadController: UIViewController {
 //                    WYNetworkManager.clearDiskCache(path: WYNetworkConfig.default.downloadSavePath.path, asset: asset) { error in
 //
 //                        if error != nil {
-//                            wy_print("error = \(error!)")
+//                            WYLogManager.output("error = \(error!)")
 //                        }else {
-//                            wy_print("下载缓存全部移除成功")
+//                            WYLogManager.output("下载缓存全部移除成功")
 //                        }
 //                    }
                     

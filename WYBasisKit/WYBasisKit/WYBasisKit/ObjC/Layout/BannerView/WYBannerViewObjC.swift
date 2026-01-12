@@ -45,6 +45,10 @@ import WYBasisKitSwift
      *
      *  @param images    轮播图片数组(支持UIImage、URL、String)
      */
+    @objc(reloadImages:)
+    func reloadObjC(images: [Any] = []) {
+        reloadObjC(images: images, describes: nil)
+    }
     @objc(reloadImages:describes:)
     func reloadObjC(images: [Any] = [], describes: [String]? = nil) {
         reload(images: images, describes: describes ?? [])

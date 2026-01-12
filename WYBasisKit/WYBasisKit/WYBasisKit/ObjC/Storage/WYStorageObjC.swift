@@ -115,6 +115,10 @@ import WYBasisKitSwift
     
     /// 根据传入的Key将数据缓存到本地
     @discardableResult
+    @objc public static func storage(forKey key: String, data: Data, durable: WYStorageDurableObjC = .unlimited, interval: TimeInterval) -> WYStorageDataObjC {
+        return storage(forKey: key, data: data, durable: durable, interval: interval, path: nil)
+    }
+    @discardableResult
     @objc public static func storage(forKey key: String, data: Data, durable: WYStorageDurableObjC = .unlimited, interval: TimeInterval, path: URL? = nil) -> WYStorageDataObjC {
         
         // 保证默认路径只在 path 为空时生成
@@ -138,6 +142,9 @@ import WYBasisKitSwift
     }
     
     /// 根据Key获取对应的缓存数据
+    @objc public static func takeOut(forKey key: String) -> WYStorageDataObjC {
+        return takeOut(forKey: key, path: nil)
+    }
     @objc public static func takeOut(forKey key: String, path: String? = nil) -> WYStorageDataObjC {
         
         // 保证默认路径只在 path 为空时生成

@@ -394,12 +394,12 @@
 			path = "无限层折叠TableView";
 			sourceTree = "<group>";
 		};
-		585B3A642DF819DC00E6E08F /* 下载 */ = {
+		585B3A642DF819DC00E6E08F /* 下载与缓存 */ = {
 			isa = PBXGroup;
 			children = (
 				585B3A632DF819DC00E6E08F /* WYTestDownloadController.swift */,
 			);
-			path = "下载";
+			path = "下载与缓存";
 			sourceTree = "<group>";
 		};
 		585B3A672DF819DC00E6E08F /* 语音识别 */ = {
@@ -536,7 +536,7 @@
 				585B3A5E2DF819DC00E6E08F /* 瀑布流 */,
 				585B3A602DF819DC00E6E08F /* 网络请求 */,
 				585B3A622DF819DC00E6E08F /* 无限层折叠TableView */,
-				585B3A642DF819DC00E6E08F /* 下载 */,
+				585B3A642DF819DC00E6E08F /* 下载与缓存 */,
 				585B3A672DF819DC00E6E08F /* 语音识别 */,
 				585B3A692DF819DC00E6E08F /* 约束view添加动画 */,
 				585B3A6B2DF819DC00E6E08F /* 直播、点播播放器 */,

@@ -85,6 +85,10 @@ import WYBasisKitSwift
     }
     
     /// 根据颜色创建图片
+    @objc(wy_createImageFromColor:)
+    static func wy_createImageObjC(from color: UIColor) -> UIImage {
+        return wy_createImageObjC(from: color, size: CGSize(width: 1, height: 1))
+    }
     @objc(wy_createImageFromColor:size:)
     static func wy_createImageObjC(from color: UIColor, size: CGSize = CGSize(width: 1, height: 1)) -> UIImage {
         return wy_createImage(from: color, size: size)
@@ -184,7 +188,7 @@ import WYBasisKitSwift
      */
     @objc(wy_find:)
     static func wy_findObjC(_ imageName: String) -> UIImage {
-        return wy_find(imageName)
+        return wy_findObjC(imageName, bundle: nil)
     }
     @objc(wy_find:bundle:)
     static func wy_findObjC(_ imageName: String, bundle: WYSourceBundleObjC? = nil) -> UIImage {

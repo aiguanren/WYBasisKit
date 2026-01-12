@@ -731,12 +731,12 @@ public struct WYNetworkManager {
      *  @param failure      失败回调
      *
      */
-    public static func download(path: String = "", parameter: [String : Any] = [:], assetName: String = "", config: WYNetworkConfig = .default, handler:((_ result: WYHandler) -> Void)? = .none) {
+    public static func download(path: String = "", parameter: [String : Any]? = nil, assetName: String? = nil, config: WYNetworkConfig = .default, handler:((_ result: WYHandler) -> Void)? = .none) {
         
         var taskConfig = config
         taskConfig.taskMethod = .download
         
-        request(method: .get, path: path, data: nil, config: taskConfig, parameter: parameter, files: [], assetName: assetName, handler: handler)
+        request(method: .get, path: path, data: nil, config: taskConfig, parameter: parameter ?? [:], files: [], assetName: assetName ?? "", handler: handler)
     }
     
     /**

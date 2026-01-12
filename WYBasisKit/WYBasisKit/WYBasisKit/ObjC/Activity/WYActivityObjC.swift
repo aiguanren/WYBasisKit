@@ -308,14 +308,14 @@ import WYBasisKitSwift
      *  @param config             信息提示窗口配置选项
      *
      */
-    @objc(showLoading:)
+    @objc(showLoadingIn:)
     public static func showLoading(in contentView: UIView) {
         internal_showLoading(in: contentView)
     }
     @objc public static func showLoading(_ content: AnyObject, in contentView: UIView) {
         internal_showLoading(content, in: contentView)
     }
-    @objc(showLoading:option:)
+    @objc(showLoadingIn:option:)
     public static func showLoading(in contentView: UIView, option: WYLoadingInfoOptionsObjC? = nil) {
         internal_showLoading(in: contentView, option: option)
     }
@@ -327,12 +327,12 @@ import WYBasisKitSwift
      *  移除Loading窗口
      *  @param animate             true时0.5秒后才会移除(有个动画), false时无动画，立刻移除，
      */
-    @objc(dismissLoading:)
-    public static func dismissLoading(in contentView: UIView) {
+    @objc(dismissLoadingIn:)
+    public static func dismissLoadingIn(in contentView: UIView) {
         internal_dismissLoading(in: contentView)
     }
-    @objc(dismissLoading:animate:)
-    public static func dismissLoading(in contentView: UIView, animate: Bool = true) {
+    @objc(dismissLoadingIn:animate:)
+    public static func dismissLoadingIn(in contentView: UIView, animate: Bool = true) {
         internal_dismissLoading(in: contentView, animate: animate)
     }
 }

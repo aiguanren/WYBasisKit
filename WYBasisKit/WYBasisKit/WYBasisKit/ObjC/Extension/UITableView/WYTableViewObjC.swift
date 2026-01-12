@@ -42,6 +42,16 @@ import WYBasisKitSwift
      */
     
     /// 创建一个UITableView
+    @objc(wy_sharedWithStyle:separatorStyle:delegate:dataSource:backgroundColor:superView:)
+    static func wy_sharedObjC(style: UITableView.Style = .plain,
+                              separatorStyle: UITableViewCell.SeparatorStyle = .none,
+                              delegate: UITableViewDelegate,
+                              dataSource: UITableViewDataSource,
+                              backgroundColor: UIColor = .white,
+                              superView: UIView? = nil) -> UITableView {
+        
+        return wy_sharedObjC(frame: .zero, style: style, headerHeight: UITableView.automaticDimension, footerHeight: UITableView.automaticDimension, rowHeight: UITableView.automaticDimension, separatorStyle: separatorStyle, delegate: delegate, dataSource: dataSource, backgroundColor: backgroundColor, superView: superView)
+    }
     @objc(wy_sharedWithFrame:style:headerHeight:footerHeight:rowHeight:separatorStyle:delegate:dataSource:backgroundColor:superView:)
     static func wy_sharedObjC(frame: CGRect = .zero,
                          style: UITableView.Style = .plain,

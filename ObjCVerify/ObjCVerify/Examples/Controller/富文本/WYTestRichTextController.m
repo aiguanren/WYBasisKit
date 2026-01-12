@@ -34,7 +34,7 @@
     
     [attribute addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:20] range:NSMakeRange(0, str.length)];
     [attribute wy_colorsOfRanges:@{[UIColor blueColor]: @"勇猛刚强", [UIColor orangeColor]: @"仁爱温良者戒于无断", [UIColor purpleColor]: @"安舒", [UIColor magentaColor]: @"必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"}];
-    [attribute wy_lineSpacing:15 subString:attribute.string alignment:NSTextAlignmentLeft];
+    [attribute wy_lineSpacing:15];
     
     label.attributedText = attribute;
     label.wy_clickEffectColor = [UIColor greenColor];
@@ -68,7 +68,7 @@
     emojiLabel.backgroundColor = [UIColor whiteColor];
     emojiLabel.textColor = [UIColor blackColor];
     NSMutableAttributedString *emojiLabelAttributed = [NSMutableAttributedString wy_convertEmojiAttributed:@"Hello，这是一个测试表情匹配的UILabel，现在开始匹配，喝彩[喝彩] 唇[唇]  爱心[爱心] 三个表情，看见了吗，他可以用在即时通讯等需要表情匹配的地方，嘻嘻，哈哈" textColor:emojiLabel.textColor textFont:emojiLabel.font emojiTable:@[@"[喝彩]", @"[唇]", @"[爱心]"] sourceBundle:nil pattern:nil];
-    [emojiLabelAttributed wy_lineSpacing:5 subString:nil alignment:NSTextAlignmentLeft];
+    [emojiLabelAttributed wy_lineSpacing:5];
     emojiLabel.attributedText = emojiLabelAttributed;
     [scrollView addSubview:emojiLabel];
     [emojiLabel mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -134,7 +134,7 @@
     ];
     [attributed wy_fontsOfRanges:@{[UIFont systemFontOfSize:30]: string_font_30, [UIFont systemFontOfSize:40]: string_font_40, [UIFont systemFontOfSize:50]: string_font_50}];
     [attributed wy_insertImageWithAttachments:options];
-    [attributed wy_lineSpacing:10 subString:nil alignment:NSTextAlignmentLeft];
+    [attributed wy_lineSpacing:10];
     attachmentView.attributedText = attributed;
     [scrollView addSubview:attachmentView];
     [attachmentView mas_makeConstraints:^(MASConstraintMaker *make) {

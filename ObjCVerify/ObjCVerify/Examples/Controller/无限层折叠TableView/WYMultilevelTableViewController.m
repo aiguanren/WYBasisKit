@@ -74,7 +74,7 @@
 - (UITableView *)tableView {
     if (!_tableView) {
         
-        _tableView = [UITableView wy_sharedWithFrame:CGRectZero style:UITableViewStylePlain headerHeight:UITableViewAutomaticDimension footerHeight:UITableViewAutomaticDimension rowHeight:UITableViewAutomaticDimension separatorStyle:UITableViewCellSeparatorStyleSingleLine delegate:self dataSource:self backgroundColor:[UIColor whiteColor] superView:self.view];
+        _tableView = [UITableView wy_sharedWithStyle:UITableViewStylePlain separatorStyle: UITableViewCellSeparatorStyleSingleLine delegate:self dataSource:self backgroundColor:[UIColor whiteColor] superView:self.view];
         
         [_tableView wy_register:[UITableViewCell class] style:WYTableViewRegisterStyleCell];
         

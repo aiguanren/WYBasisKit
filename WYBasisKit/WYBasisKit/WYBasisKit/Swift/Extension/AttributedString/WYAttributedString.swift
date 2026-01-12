@@ -264,6 +264,7 @@ public extension NSMutableAttributedString {
      *  @param firstLineHeadIndent  首行左边距
      *  @param headIndent  第二行及以后的左边距(换行符\n除外)
      *  @param tailIndent  尾部右边距
+     *  @param alignment  对齐方式
      */
     @discardableResult
     func wy_innerMargin(string: String? = nil,

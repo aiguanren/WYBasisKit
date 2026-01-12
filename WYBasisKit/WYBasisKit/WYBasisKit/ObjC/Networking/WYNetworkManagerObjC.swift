@@ -294,7 +294,7 @@ import WYBasisKitSwift
 
 /// 下载数据信息
 @objc(WYDownloadModel)
-@objcMembers public class WYDownloadModelObjC: NSObject, Codable {
+@objcMembers public class WYDownloadModelObjC: NSObject, Codable, WYCodableProtocol {
     
     /// 资源路径
     @objc public var assetPath: String = ""
@@ -308,7 +308,8 @@ import WYBasisKitSwift
     /// 资源格式
     @objc public var mimeType: String = ""
     
-    @objc public init(assetPath: String = "", diskPath: String = "", assetName: String = "", mimeType: String = "") {
+    @objc public override init() {}
+    @objc public init(assetPath: String, diskPath: String, assetName: String, mimeType: String) {
         self.assetPath = assetPath
         self.diskPath = diskPath
         self.assetName = assetName
@@ -604,7 +605,7 @@ import WYBasisKitSwift
      *  @param failure      失败回调
      *
      */
-    @objc public static func request(method: WYHTTPMethod = .post, path: String = "", data: Data? = nil, parameter: [String : Any] = [:], config: WYNetworkConfigObjC? = .default, handler:((_ result: WYHandlerObjC) -> Void)? = .none) {
+    @objc public static func request(method: WYHTTPMethod = .post, path: String = "", data: Data? = nil, parameter: [String : Any] = [:], config: WYNetworkConfigObjC? = .defaultConfig, handler:((_ result: WYHandlerObjC) -> Void)? = .none) {
         
         let swiftConfig: WYNetworkConfig = (config == nil) ? .default : config!.convertToSwift()
         
@@ -633,7 +634,7 @@ import WYBasisKitSwift
      *  @param failure      失败回调
      *
      */
-    @objc public static func upload(path: String = "", parameter: [String : Any] = [:], files: [WYFileModelObjC], config: WYNetworkConfigObjC? = .default, progress:((_ progress: Double) -> Void)? = .none, handler:((_ result: WYHandlerObjC) -> Void)? = .none) {
+    @objc public static func upload(path: String = "", parameter: [String : Any] = [:], files: [WYFileModelObjC], config: WYNetworkConfigObjC? = .defaultConfig, progress:((_ progress: Double) -> Void)? = .none, handler:((_ result: WYHandlerObjC) -> Void)? = .none) {
         
         let swiftConfig: WYNetworkConfig = (config == nil) ? .default : config!.convertToSwift()
         
@@ -669,7 +670,7 @@ import WYBasisKitSwift
      *  @param failure      失败回调
      *
      */
-    @objc public static func download(path: String = "", parameter: [String : Any] = [:], assetName: String = "", config: WYNetworkConfigObjC? = .default, handler:((_ result: WYHandlerObjC) -> Void)? = .none) {
+    @objc public static func download(path: String = "", parameter: [String : Any]? = nil, assetName: String? = nil, config: WYNetworkConfigObjC? = .defaultConfig, handler:((_ result: WYHandlerObjC) -> Void)? = .none) {
         
         let swiftConfig: WYNetworkConfig = (config == nil) ? .default : config!.convertToSwift()
         

@@ -448,7 +448,7 @@ import WYBasisKitSwift
     @objc public var debugModeLog: Bool = debugModeLog
     
     /// 获取一个默认config
-    @objc public static let `default`: WYNetworkConfigObjC = WYNetworkConfigObjC()
+    @objc public static let `defaultConfig`: WYNetworkConfigObjC = WYNetworkConfigObjC()
     
     /// 内部使用，帮助httpsConfig属性的get方法获取返回值，避免每次初始化WYHttpsConfigObjC
     internal static var internalHttpsConfig: WYHttpsConfigObjC = WYHttpsConfigObjC()

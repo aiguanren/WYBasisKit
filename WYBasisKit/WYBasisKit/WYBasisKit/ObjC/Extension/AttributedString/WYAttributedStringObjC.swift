@@ -94,6 +94,10 @@ import WYBasisKitSwift
     
     /// 设置行间距
     @discardableResult
+    @objc(wy_lineSpacing:)
+    func wy_lineSpacingObjC(_ lineSpacing: CGFloat) -> NSMutableAttributedString {
+        return wy_lineSpacingObjC(lineSpacing, subString: nil, alignment: .left)
+    }
     @objc(wy_lineSpacing:subString:alignment:)
     func wy_lineSpacingObjC(_ lineSpacing: CGFloat, subString: String? = nil, alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
         return wy_lineSpacing(lineSpacing, subString: subString, alignment: alignment)
@@ -111,6 +115,10 @@ import WYBasisKitSwift
     
     /// 设置字间距
     @discardableResult
+    @objc(wy_wordsSpacing:)
+    func wy_wordsSpacingObjC(_ wordsSpacing: CGFloat) -> NSMutableAttributedString {
+        return wy_wordsSpacingObjC(wordsSpacing, string: nil)
+    }
     @objc(wy_wordsSpacing:string:)
     func wy_wordsSpacingObjC(_ wordsSpacing: CGFloat, string: String? = nil) -> NSMutableAttributedString {
         return wy_wordsSpacing(wordsSpacing, string: string)
@@ -118,12 +126,18 @@ import WYBasisKitSwift
     
     /// 文本添加下划线
     @discardableResult
+    @objc func wy_underline(_ color: UIColor) -> NSMutableAttributedString {
+        return wy_underline(color, string: nil)
+    }
     @objc func wy_underline(_ color: UIColor, string: String? = nil) -> NSMutableAttributedString {
         return wy_underline(color: color, string: string)
     }
     
     /// 文本添加删除线
     @discardableResult
+    @objc func wy_strikethrough(_ color: UIColor) -> NSMutableAttributedString {
+        return wy_strikethrough(color, string: nil)
+    }
     @objc func wy_strikethrough(_ color: UIColor, string: String? = nil) -> NSMutableAttributedString {
         return wy_strikethrough(color: color, string: string)
     }
@@ -134,6 +148,7 @@ import WYBasisKitSwift
      *  @param firstLineHeadIndent  首行左边距
      *  @param headIndent  第二行及以后的左边距(换行符\n除外)
      *  @param tailIndent  尾部右边距
+     *  @param alignment  对齐方式
      */
     @discardableResult
     @objc func wy_innerMarginWith(string: String?,
@@ -200,6 +215,10 @@ import WYBasisKitSwift
      *  @param bundle        从哪个bundle文件内查找图片资源，如果为空，则直接在本地路径下查找
      *  @param pattern       正则匹配规则, 默认匹配1到3位, 如 [哈] [哈哈] [哈哈哈] 这种
      */
+    @objc static func wy_convertEmojiAttributed(_ emojiString: String, textColor: UIColor, textFont: UIFont, emojiTable: [String]) -> NSMutableAttributedString {
+        
+        return wy_convertEmojiAttributed(emojiString, textColor: textColor, textFont: textFont, emojiTable: emojiTable, sourceBundle: nil, pattern: nil)
+    }
     @objc static func wy_convertEmojiAttributed(_ emojiString: String, textColor: UIColor, textFont: UIFont, emojiTable: [String], sourceBundle: WYSourceBundleObjC? = nil, pattern: String?) -> NSMutableAttributedString {
         
         return wy_convertEmojiAttributed(emojiString: emojiString, textColor: textColor, textFont: textFont, emojiTable: emojiTable, sourceBundle: sourceBundle?.wy_convertToSwift(), pattern: pattern ?? "\\[.{1,3}\\]")
