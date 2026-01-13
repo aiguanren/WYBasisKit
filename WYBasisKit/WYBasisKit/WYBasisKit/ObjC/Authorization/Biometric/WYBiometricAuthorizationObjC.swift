@@ -46,7 +46,7 @@ import WYBasisKitSwift
      *             - isSuccess: 认证是否成功
      *             - error: 认证失败时的错误描述信息，认证成功时为空
      */
-    @objc(verifyBiometrics:localizedReason:handler:)
+    @objc(verifyBiometrics:localizedReason:completionHandler:)
     public static func verifyBiometrics(_ localizedFallbackTitle: String = "", localizedReason: String, handler: @escaping (_ isBackupHandler: Bool, _ isSuccess: Bool, _ error: String) -> Void) {
         wy_verifyBiometrics(localizedFallbackTitle, localizedReason: localizedReason, handler: handler)
     }

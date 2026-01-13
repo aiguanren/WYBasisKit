@@ -18,7 +18,7 @@ import WYBasisKitSwift
 @objcMembers public class WYMicrophoneAuthorizationObjC: NSObject {
     
     /// 检查麦克风权限
-    @objc(authorizeMicrophoneAccess:handler:)
+    @objc(authorizeMicrophoneAccessWithShowAlert:completionHandler:)
     public static func authorizeMicrophoneAccess(showAlert: Bool = true, handler: @escaping (_ authorized: Bool) -> Void) {
         wy_authorizeMicrophoneAccess(showAlert: showAlert, handler: handler)
     }

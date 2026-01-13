@@ -68,6 +68,8 @@
 		58BFB88F2F14E6A20094DDB5 /* WYParseGifController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58BFB88E2F14E6A20094DDB5 /* WYParseGifController.m */; };
 		58BFB8A12F14E99B0094DDB5 /* WYFlowLayoutAlignmentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58BFB8A02F14E99B0094DDB5 /* WYFlowLayoutAlignmentController.m */; };
 		58BFB8A52F14EE350094DDB5 /* WYTestLiveStreamingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58BFB8A42F14EE350094DDB5 /* WYTestLiveStreamingController.m */; };
+		58BFB8A92F1634040094DDB5 /* WYSpeechRecognitionController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58BFB8A82F1634040094DDB5 /* WYSpeechRecognitionController.m */; };
+		58BFB8AB2F16346F0094DDB5 /* WYSpeechRecognitionController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 58BFB8AA2F16346F0094DDB5 /* WYSpeechRecognitionController.xib */; };
 		58DA4EAD2EA23E6F003EAA2D /* WYTestVibrateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DA4EAC2EA23E6F003EAA2D /* WYTestVibrateController.m */; };
 		58DA4EB12EA2427D003EAA2D /* WYTestButtonEdgeInsetsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DA4EB02EA2427D003EAA2D /* WYTestButtonEdgeInsetsController.m */; };
 		58DEA9BD2F0F580200664E13 /* WYTestAnimationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DEA9BC2F0F580200664E13 /* WYTestAnimationController.m */; };
@@ -227,6 +229,9 @@
 		58BFB8A02F14E99B0094DDB5 /* WYFlowLayoutAlignmentController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYFlowLayoutAlignmentController.m; sourceTree = "<group>"; };
 		58BFB8A32F14EE350094DDB5 /* WYTestLiveStreamingController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestLiveStreamingController.h; sourceTree = "<group>"; };
 		58BFB8A42F14EE350094DDB5 /* WYTestLiveStreamingController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestLiveStreamingController.m; sourceTree = "<group>"; };
+		58BFB8A72F1634040094DDB5 /* WYSpeechRecognitionController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYSpeechRecognitionController.h; sourceTree = "<group>"; };
+		58BFB8A82F1634040094DDB5 /* WYSpeechRecognitionController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYSpeechRecognitionController.m; sourceTree = "<group>"; };
+		58BFB8AA2F16346F0094DDB5 /* WYSpeechRecognitionController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WYSpeechRecognitionController.xib; sourceTree = "<group>"; };
 		58DA4EAB2EA23E6F003EAA2D /* WYTestVibrateController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestVibrateController.h; sourceTree = "<group>"; };
 		58DA4EAC2EA23E6F003EAA2D /* WYTestVibrateController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestVibrateController.m; sourceTree = "<group>"; };
 		58DA4EAF2EA2427D003EAA2D /* WYTestButtonEdgeInsetsController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestButtonEdgeInsetsController.h; sourceTree = "<group>"; };
@@ -408,6 +413,7 @@
 		58B470482E8D329600D04BCA /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				58BFB8A62F1633AB0094DDB5 /* 语音识别 */,
 				58BFB8A22F14EE0B0094DDB5 /* 直播、点播播放器 */,
 				58BFB8902F14E82F0094DDB5 /* 瀑布流 */,
 				58BFB88C2F14E6780094DDB5 /* Gif加载 */,
@@ -554,6 +560,16 @@
 				58BFB8A42F14EE350094DDB5 /* WYTestLiveStreamingController.m */,
 			);
 			path = "直播、点播播放器";
+			sourceTree = "<group>";
+		};
+		58BFB8A62F1633AB0094DDB5 /* 语音识别 */ = {
+			isa = PBXGroup;
+			children = (
+				58BFB8A72F1634040094DDB5 /* WYSpeechRecognitionController.h */,
+				58BFB8A82F1634040094DDB5 /* WYSpeechRecognitionController.m */,
+				58BFB8AA2F16346F0094DDB5 /* WYSpeechRecognitionController.xib */,
+			);
+			path = "语音识别";
 			sourceTree = "<group>";
 		};
 		58DA4EAA2EA23E41003EAA2D /* 设备振动 */ = {
@@ -736,6 +752,7 @@
 				58B4701A2E8D112B00D04BCA /* 啤酒.png in Resources */,
 				58B4701B2E8D112B00D04BCA /* apng_[666].png in Resources */,
 				58B4701C2E8D112B00D04BCA /* 樱花.png in Resources */,
+				58BFB8AB2F16346F0094DDB5 /* WYSpeechRecognitionController.xib in Resources */,
 				58B4701D2E8D112B00D04BCA /* 窗花.png in Resources */,
 				58B4701E2E8D112B00D04BCA /* 阳光和窗户.png in Resources */,
 				58B4701F2E8D112B00D04BCA /* 沙滩.png in Resources */,
@@ -860,6 +877,7 @@
 				580ED56B2EA5DAE5006012E7 /* SDKResponse.m in Sources */,
 				58BFB87F2F1494000094DDB5 /* WYTestDownloadController.m in Sources */,
 				580ED5712EA5DB37006012E7 /* UserResponse.m in Sources */,
+				58BFB8A92F1634040094DDB5 /* WYSpeechRecognitionController.m in Sources */,
 				58B470412E8D11D400D04BCA /* WYCenterController.m in Sources */,
 				580ED5742EA5DB55006012E7 /* WYGenericTypeController.m in Sources */,
 				58BFB88F2F14E6A20094DDB5 /* WYParseGifController.m in Sources */,
