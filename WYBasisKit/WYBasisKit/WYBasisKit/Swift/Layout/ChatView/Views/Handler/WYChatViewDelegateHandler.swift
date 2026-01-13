@@ -39,7 +39,8 @@ import UIKit
     @objc optional func canManagerKeyboardSendEvents(_ text: String) -> Bool
     
     /// 是否需要内部处理Emoji控件内 cell 的点击事件
-    @objc optional func canManagerEmojiViewClickEvents(_ emojiView: WYChatEmojiView, _ indexPath: IndexPath) -> Bool
+    @objc(canManagerEmojiViewClickEvents:indexPath:)
+    optional func canManagerEmojiViewClickEvents(_ emojiView: WYChatEmojiView, _ indexPath: IndexPath) -> Bool
     
     /// 是否需要内部处理 表情预览控件(仅限WYEmojiPreviewStyle == other时才会回调) 的长按事件
     @objc optional func canManagerEmojiLongPressEvents(_ gestureRecognizer: UILongPressGestureRecognizer, emoji: String, imageView: UIImageView) -> Bool
@@ -51,10 +52,12 @@ import UIKit
     @objc optional func canManagerEmojiSendViewClickEvents(_ sendView: UIButton) -> Bool
     
     /// 是否需要内部处理More控件内 cell 的点击事件
-    @objc optional func canManagerMoreViewClickEvents(_ moreView: WYChatMoreView, _ itemIndex: Int) -> Bool
+    @objc(canManagerMoreViewClickEvents:itemIndex:)
+    optional func canManagerMoreViewClickEvents(_ moreView: WYChatMoreView, _ itemIndex: Int) -> Bool
     
     /// 是否需要内部处理tableView代理 cellForRowAt 方法
-    @objc optional func canManagerCellForRowEvents(_ chatView: WYChatView, _ tableView: UITableView, _ indexPath: IndexPath) -> UITableViewCell?
+    @objc(canManagerCellForRowEventsWithChatView:tableView:indexPath:)
+    optional func canManagerCellForRowEvents(_ chatView: WYChatView, _ tableView: UITableView, _ indexPath: IndexPath) -> UITableViewCell?
 }
 
 @objc public protocol WYChatViewDelegate {
@@ -99,5 +102,6 @@ import UIKit
     @objc optional func emojiItemLongPress(_ gestureRecognizer: UILongPressGestureRecognizer, emoji: String, imageView: UIImageView)
     
     /// 点击了More控件内某个item
-    @objc optional func didClickMoreView(_ moreView: WYChatMoreView, _ itemIndex: Int)
+    @objc(didClickMoreView:itemIndex:)
+    optional func didClickMoreView(_ moreView: WYChatMoreView, _ itemIndex: Int)
 }

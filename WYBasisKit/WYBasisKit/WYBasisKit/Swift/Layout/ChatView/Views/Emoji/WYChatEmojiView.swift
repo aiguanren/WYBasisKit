@@ -90,22 +90,26 @@ public struct WYEmojiViewConfig {
 @objc public protocol WYChatEmojiViewEventsHandler {
     
     /// 是否需要内部处理 Emoji 点击事件
-    @objc optional func canManagerEmojiViewClickEvents(_ emojiView: WYChatEmojiView, _ indexPath: IndexPath) -> Bool
+    @objc(canManagerEmojiViewClickEventsWithEmojiView:indexPath:)
+    optional func canManagerEmojiViewClickEvents(_ emojiView: WYChatEmojiView, _ indexPath: IndexPath) -> Bool
     
     /// 是否需要内部处理 表情预览控件(仅限WYEmojiPreviewStyle == other时才会回调) 的长按事件
     @objc optional func canManagerEmojiLongPressEvents(_ gestureRecognizer: UILongPressGestureRecognizer, emoji: String, imageView: UIImageView) -> Bool
     
     /// 是否需要内部处理 删除按钮 点击事件
-    @objc optional func canManagerEmojiDeleteViewClickEvents(_ deleteView: UIButton) -> Bool
+    @objc(canManagerEmojiDeleteViewClickEventsWithDeleteView:)
+    optional func canManagerEmojiDeleteViewClickEvents(_ deleteView: UIButton) -> Bool
     
     /// 是否需要内部处理 发送按钮 点击事件
-    @objc optional func canManagerEmojiSendViewClickEvents(_ sendView: UIButton) -> Bool
+    @objc(canManagerEmojiSendViewClickEventsWithSendView:)
+    optional func canManagerEmojiSendViewClickEvents(_ sendView: UIButton) -> Bool
 }
 
 @objc public protocol WYChatEmojiViewDelegate {
     
     /// 监控Emoji点击事件
-    @objc optional func didClick(_ emojiView: WYChatEmojiView, _ indexPath: IndexPath)
+    @objc(didClickEmojiView:indexPath:)
+    optional func didClick(_ emojiView: WYChatEmojiView, _ indexPath: IndexPath)
     
     /// 长按了表情预览控件(仅限WYEmojiPreviewStyle == other时才会回调)
     @objc optional func emojiItemLongPress(_ gestureRecognizer: UILongPressGestureRecognizer, emoji: String, imageView: UIImageView)

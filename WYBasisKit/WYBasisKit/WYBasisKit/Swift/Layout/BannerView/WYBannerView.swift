@@ -11,10 +11,12 @@ import UIKit
 @objc public protocol WYBannerViewDelegate {
     
     /// 监控banner点击事件
-    @objc optional func didClick(_ bannerView: WYBannerView, index: Int)
+    @objc(didClickBannerView:index:)
+    optional func didClick(_ bannerView: WYBannerView, index: Int)
     
     /// 监控banner的轮播事件
-    @objc optional func didScroll(_ bannerView: WYBannerView, offset: CGFloat, index: Int)
+    @objc(didScrollBannerView:offset:index:)
+    optional func didScroll(_ bannerView: WYBannerView, offset: CGFloat, index: Int)
 }
 
 public class WYBannerView: UIView {

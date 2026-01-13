@@ -10,7 +10,8 @@ import UIKit
 
 @objc public protocol WYPagingViewDelegate {
     
-    @objc optional func itemDidScroll(pagingIndex: Int)
+    @objc(itemDidScrollAtIndex:)
+    optional func itemDidScroll(_ pagingIndex: Int)
 }
     
 public class WYPagingView: UIView {
@@ -250,7 +251,7 @@ extension WYPagingView {
             actionHandler!(currentButtonItem.tag-buttonItemTagBegin)
         }
         
-        delegate?.itemDidScroll?(pagingIndex: currentButtonItem.tag-buttonItemTagBegin)
+        delegate?.itemDidScroll?(currentButtonItem.tag-buttonItemTagBegin)
     }
     
     fileprivate func updateButtonItemProperty(currentItem: WYPagingItem) {

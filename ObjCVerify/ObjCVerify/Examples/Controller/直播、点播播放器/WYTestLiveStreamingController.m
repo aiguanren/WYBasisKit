@@ -1056,7 +1056,7 @@
 
 // MARK: - 播放器代理
 
-- (void)mediaPlayerDidChangeState:(WYMediaPlayer *)player state:(enum WYMediaPlayerState)state {
+- (void)mediaPlayerDidChangeStateWithPlayer:(WYMediaPlayer *)player state:(enum WYMediaPlayerState)state {
     switch (state) {
         case WYMediaPlayerStateUnknown:
             WYLog(@"未知状态");
@@ -1121,7 +1121,7 @@
     }
 }
 
-- (void)mediaPlayerDidChangeSubtitleStream:(WYMediaPlayer *)player mediaMeta:(NSDictionary *)mediaMeta {
+- (void)mediaPlayerDidChangeSubtitleStreamWithPlayer:(WYMediaPlayer *)player mediaMeta:(NSDictionary *)mediaMeta {
     self.streamLabel.text = [NSString stringWithFormat:@"流信息: %@", mediaMeta];
 }
 

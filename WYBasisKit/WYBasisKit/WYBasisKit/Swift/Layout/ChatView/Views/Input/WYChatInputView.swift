@@ -223,7 +223,8 @@ public let WYChatSourceBundle: WYSourceBundle = WYSourceBundle(bundleName: "WYCh
     @objc optional func canManagerMoreViewEvents(_ moreView: UIButton) -> Bool
     
     /// 是否需要内部处理 textView 的代理事件
-    @objc optional func canManagerTextViewDelegateEvents(_ textView: WYChatInputTextView, _ placeholderView: UILabel) -> Bool
+    @objc(canManagerTextViewDelegateEvents:placeholderView:)
+    optional func canManagerTextViewDelegateEvents(_ textView: WYChatInputTextView, _ placeholderView: UILabel) -> Bool
 }
 
 /// 监听各控件点击事件

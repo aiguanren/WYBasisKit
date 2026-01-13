@@ -76,11 +76,11 @@
 
 #pragma mark - WYBannerViewDelegate
 
-- (void)didClick:(WYBannerView *)bannerView index:(NSInteger)index {
+- (void)didClickBannerView:(WYBannerView *)bannerView index:(NSInteger)index {
     WYLog(@"代理监听，点击了第 %ld 张图片",index+1);
 }
 
-- (void)didScroll:(WYBannerView *)bannerView offset:(CGFloat)offset index:(NSInteger)index {
+- (void)didScrollBannerView:(WYBannerView *)bannerView offset:(CGFloat)offset index:(NSInteger)index {
     WYLog(@"代理监听，滑动Banner到第 %ld 张图片了， offset = %f", index + 1, offset);
 }
 

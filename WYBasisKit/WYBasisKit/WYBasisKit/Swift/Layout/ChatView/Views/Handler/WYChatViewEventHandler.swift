@@ -222,7 +222,7 @@ extension WYChatView: WYChatEmojiViewDelegate, WYChatEmojiViewEventsHandler {
 
 extension WYChatView: WYChatMoreViewDelegate, WYMoreViewEventsHandler {
     
-    public func didClickMoreViewAt(_ itemIndex: Int) {
+    public func didClickMoreViewAtIndex(_ itemIndex: Int) {
         guard let moreView = moreView else { return }
         delegate?.didClickMoreView?(moreView, itemIndex)
     }
