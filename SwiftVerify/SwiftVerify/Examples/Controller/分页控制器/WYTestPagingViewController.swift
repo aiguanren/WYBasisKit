@@ -182,7 +182,8 @@ class WYTestPagingViewController: UIViewController {
 
 // MARK: - WYPagingViewDelegate
 extension WYTestPagingViewController: WYPagingViewDelegate {
-    func itemDidScroll(_ pagingIndex: Int) {
+    
+    func itemDidScroll(pagingIndex: Int) {
         print("分页滚动到第 \(pagingIndex) 页 - 通过代理回调")
     }
 }

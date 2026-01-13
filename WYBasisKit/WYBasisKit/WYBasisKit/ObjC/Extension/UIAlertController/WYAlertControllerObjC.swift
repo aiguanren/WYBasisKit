@@ -25,15 +25,23 @@ import WYBasisKitSwift
      *  @param actions 按钮标题数组，支持 String 或 NSAttributedString
      *  @param handler 点击按钮回调，返回点击的按钮标题以及文本输入框内容数组
      */
+    @objc(wy_showStyle:title:message:actions:handler:)
+    static func wy_showObjC(style: UIAlertController.Style = .alert,
+                            title: Any? = nil,
+                            message: Any? = nil,
+                            actions: [Any]? = nil,
+                            handler:((_ action: String, _ inputTexts: [String]) -> Void)? = nil) {
+        wy_showObjC(style: style, title: title, message: message, duration: 0.0, actionSheetNeedCancel: true, textFieldPlaceholders: nil, actions: actions, handler: handler)
+    }
     @objc(wy_showStyle:title:message:duration:actionSheetNeedCancel:textFieldPlaceholders:actions:handler:)
     static func wy_showObjC(style: UIAlertController.Style = .alert,
                             title: Any? = nil,
                             message: Any? = nil,
                             duration: TimeInterval = 0.0,
                             actionSheetNeedCancel: Bool = true,
-                            textFieldPlaceholders: [Any] = [],
-                            actions: [Any] = [],
+                            textFieldPlaceholders: [Any]? = nil,
+                            actions: [Any]? = nil,
                             handler:((_ action: String, _ inputTexts: [String]) -> Void)? = nil) {
-        wy_show(style: style, title: title, message: message, duration: duration, actionSheetNeedCancel: actionSheetNeedCancel, textFieldPlaceholders: textFieldPlaceholders, actions: actions, handler: handler)
+        wy_show(style: style, title: title, message: message, duration: duration, actionSheetNeedCancel: actionSheetNeedCancel, textFieldPlaceholders: textFieldPlaceholders ?? [], actions: actions ?? [], handler: handler)
     }
 }

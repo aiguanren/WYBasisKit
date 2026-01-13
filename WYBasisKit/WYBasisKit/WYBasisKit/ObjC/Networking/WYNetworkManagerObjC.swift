@@ -605,6 +605,9 @@ import WYBasisKitSwift
      *  @param failure      失败回调
      *
      */
+    @objc public static func request(method: WYHTTPMethod = .post, path: String = "", parameter: [String : Any]? = nil, config: WYNetworkConfigObjC? = .defaultConfig, handler:((_ result: WYHandlerObjC) -> Void)? = .none) {
+        request(method: method, path: path, data: nil, parameter: parameter ?? [:], config: config, handler: handler)
+    }
     @objc public static func request(method: WYHTTPMethod = .post, path: String = "", data: Data? = nil, parameter: [String : Any] = [:], config: WYNetworkConfigObjC? = .defaultConfig, handler:((_ result: WYHandlerObjC) -> Void)? = .none) {
         
         let swiftConfig: WYNetworkConfig = (config == nil) ? .default : config!.convertToSwift()

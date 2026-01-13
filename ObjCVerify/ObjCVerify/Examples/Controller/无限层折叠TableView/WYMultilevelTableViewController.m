@@ -92,7 +92,7 @@
     
     NSMutableArray<NSIndexPath *> *reloadRows = [NSMutableArray array];
     NSInteger insertLocation = indexPath.row + 1;
-    NSInteger subLevel = [IntObjC wy_randomWithMinimum:1 maximum:5];
+    NSInteger subLevel = [WYIntObjC wy_randomWithMinimum:1 maximum:5];
     model.subLevel = subLevel;
     for (NSInteger index = 0; index < subLevel; index++) {
         

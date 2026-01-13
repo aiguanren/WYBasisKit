@@ -80,15 +80,15 @@ extension WYFlowLayoutAlignmentController: UICollectionViewDelegate, UICollectio
 //        return 169
     }
     
-    func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+    func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: IndexPath) -> CGSize {
         
         if collectionView == vertical {
-            if wy_collectionView(collectionView, layout: collectionViewLayout, flowLayoutAlignmentForSectionAt: indexPath.section) == .default {
+            if wy_collectionView(collectionView, layout: collectionViewLayout, flowLayoutAlignmentForSection: indexPath.section) == .default {
                 if collectionView.isPagingEnabled == true {
                     return CGSize(width: 35, height: 35)
                 }else {
                     // 因为设置header悬浮后，collectionView滑动时内部会不断进行刷新，所以这里不能写随机size，否则会出现刷新抖动情况
-                    if wy_collectionView(collectionView, layout: collectionViewLayout, hoverForHeaderForSectionAt: indexPath.section) == true {
+                    if wy_collectionView(collectionView, layout: collectionViewLayout, hoverForHeaderForSection: indexPath.section) == true {
                         return CGSize(width: 35, height: indexPath.row + 10)
                     }else {
                         return CGSize(width: 35, height: Int.wy_random(minimum: 35, maximum: 135))
@@ -112,7 +112,7 @@ extension WYFlowLayoutAlignmentController: UICollectionViewDelegate, UICollectio
                 
                 let stringWidth: CGFloat = attributedString.wy_calculateWidth(controlHeight: testFont.lineHeight)
                 
-                let sectionInsets: UIEdgeInsets = wy_collectionView(collectionView, layout: collectionViewLayout, insetForSectionAt: indexPath.section)
+                let sectionInsets: UIEdgeInsets = wy_collectionView(collectionView, layout: collectionViewLayout, insetForSection: indexPath.section)
                 
                 let maxWidth: CGFloat = collectionView.frame.size.width - sectionInsets.left - sectionInsets.right
                 
@@ -120,7 +120,7 @@ extension WYFlowLayoutAlignmentController: UICollectionViewDelegate, UICollectio
                 
                 var testHeight: CGFloat = 35
                 if stringWidth > maxWidth {
-                    let layoutLine: CGFloat = CGFloat(wy_collectionView(collectionView, layout: collectionViewLayout, itemNumberOfLinesForSectionAt: indexPath.section))
+                    let layoutLine: CGFloat = CGFloat(wy_collectionView(collectionView, layout: collectionViewLayout, itemNumberOfLinesForSection: indexPath.section))
                     let textLine: CGFloat = CGFloat(attributedString.wy_numberOfRows(controlWidth: maxWidth))
                     
                     if layoutLine == 0 {
@@ -141,43 +141,43 @@ extension WYFlowLayoutAlignmentController: UICollectionViewDelegate, UICollectio
         }
     }
     
-    func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, numberOfLinesIn section: Int) -> Int {
+    func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, numberOfLinesInSection section: Int) -> Int {
         return 5
     }
     
-    func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, numberOfColumnsIn section: Int) -> Int {
+    func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, numberOfColumnsInSection section: Int) -> Int {
         return 8
     }
     
-    func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+    func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSection section: Int) -> CGFloat {
         return 10
     }
     
-    func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+    func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSection section: Int) -> CGFloat {
         return 10
     }
     
-    func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, itemNumberOfLinesForSectionAt section: Int) -> Int {
+    func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, itemNumberOfLinesForSection section: Int) -> Int {
         return 3
     }
     
-    func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+    func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSection section: Int) -> UIEdgeInsets {
         
         return UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
         
         //return UIEdgeInsets(top: 15 + CGFloat((section * 5)), left: 15 + CGFloat((section * 5)), bottom: 15 + CGFloat((section * 5)), right: 15 + CGFloat((section * 5)))
     }
     
-    func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, flowLayoutAlignmentForSectionAt section: Int) -> WYFlowLayoutAlignment {
+    func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, flowLayoutAlignmentForSection section: Int) -> WYFlowLayoutAlignment {
         return .default
     }
     
-    func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, horizontalScrollItemArrangementDirectionForSectionAt section: Int) -> Bool {
+    func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, horizontalScrollItemArrangementDirectionForSection section: Int) -> Bool {
         return true
     }
     
-    func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, hoverForHeaderForSectionAt section: Int) -> Bool {
-        if wy_collectionView(collectionView, layout: collectionViewLayout, flowLayoutAlignmentForSectionAt: section) != .default {
+    func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, hoverForHeaderForSection section: Int) -> Bool {
+        if wy_collectionView(collectionView, layout: collectionViewLayout, flowLayoutAlignmentForSection: section) != .default {
             return false
         }
         return true

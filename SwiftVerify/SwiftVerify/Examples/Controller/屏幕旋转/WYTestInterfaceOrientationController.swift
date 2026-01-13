@@ -25,12 +25,12 @@ class WYTestInterfaceOrientationController: UIViewController {
          
          *  1.在AppDelegate中重写屏幕旋转代理方法，即：
          func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
-             return UIDevice.current.wy_currentInterfaceOrientation
+             return UIDevice.wy_currentInterfaceOrientation
          }
          
-         *  2.在需要旋转操作的时候，动态设置 UIDevice.current.wy_setInterfaceOrientation 属性为需要支持的旋转方向
+         *  2.在需要旋转操作的时候，动态设置 UIDevice.wy_setInterfaceOrientation 属性为需要支持的旋转方向
          
-         *  3.在旋转结束时，恢复 UIDevice.current.wy_interfaceOrientation 属性为默认方向(看具体需求，也可以不用恢复为默认方向)
+         *  3.在旋转结束时，恢复 UIDevice.wy_interfaceOrientation 属性为默认方向(看具体需求，也可以不用恢复为默认方向)
          */
         
         label.textColor = .wy_dynamic(.black, .white)

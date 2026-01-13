@@ -87,6 +87,10 @@ import WYBasisKitSwift
      * @param background 视屏背景图(支持UIImage、URL、String)
      * @param placeholder 视屏背景图占位图
      */
+    @objc(playWithUrl:)
+    public func playObjC(with url: String) {
+        playObjC(with: url, placeholder: nil)
+    }
     @objc(playWithUrl:placeholder:)
     public func playObjC(with url: String, placeholder: UIImage? = nil) {
         play(with: url, placeholder: placeholder)
@@ -118,18 +122,21 @@ import WYBasisKitSwift
     
     /// 挂载并激活字幕(本地/网络)
     @objc(loadThenActiveSubtitleWithUrl:)
+    @discardableResult
     public func loadThenActiveSubtitleObjC(_ url: URL) -> Bool {
         return loadThenActiveSubtitle(url)
     }
     
     /// 仅挂载不激活字幕(本地/网络)
     @objc(loadSubtitleOnlyWithUrl:)
+    @discardableResult
     public func loadSubtitleOnlyObjC(_ url: URL) -> Bool {
         return loadSubtitleOnly(url)
     }
     
     /// 批量挂载不激活字幕(本地/网络)
     @objc(loadSubtitleOnlyWithUrls:)
+    @discardableResult
     public func loadSubtitleOnlyObjC(_ urls: [URL]) -> Bool {
         return loadSubtitleOnly(urls)
     }

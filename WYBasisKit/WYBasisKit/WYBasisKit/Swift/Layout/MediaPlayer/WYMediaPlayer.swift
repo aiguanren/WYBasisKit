@@ -47,10 +47,10 @@ import FSPlayer
 @objc public protocol WYMediaPlayerDelegate {
     
     /// 播放器状态回调
-    @objc optional func mediaPlayerDidChangeState(_ player: WYMediaPlayer, _ state: WYMediaPlayerState)
+    @objc optional func mediaPlayerDidChangeState(player: WYMediaPlayer, state: WYMediaPlayerState)
     
     /// 音视频字幕流信息
-    @objc optional func mediaPlayerDidChangeSubtitleStream(_ player: WYMediaPlayer, _ mediaMeta: [AnyHashable: Any])
+    @objc optional func mediaPlayerDidChangeSubtitleStream(player: WYMediaPlayer, mediaMeta: [AnyHashable: Any])
 }
 
 public class WYMediaPlayer: UIImageView {
@@ -141,16 +141,19 @@ public class WYMediaPlayer: UIImageView {
     }
     
     /// 挂载并激活字幕(本地/网络)
+    @discardableResult
     public func loadThenActiveSubtitle(_ url: URL) -> Bool {
         return ijkPlayer?.loadThenActiveSubtitle(url) ?? false
     }
     
     /// 仅挂载不激活字幕(本地/网络)
+    @discardableResult
     public func loadSubtitleOnly(_ url: URL) -> Bool {
         return ijkPlayer?.loadSubtitleOnly(url) ?? false
     }
     
     /// 批量挂载不激活字幕(本地/网络)
+    @discardableResult
     public func loadSubtitleOnly(_ urls: [URL]) -> Bool {
         return ijkPlayer?.loadSubtitlesOnly(urls) ?? false
     }
@@ -277,9 +280,18 @@ public class WYMediaPlayer: UIImageView {
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name.FSPlayerIsPreparedToPlay, object: ijkPlayer)
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name.FSPlayerSelectedStreamDidChange, object: ijkPlayer)
         
+        // 安全地移除视图
+        if let playerView = self.ijkPlayer?.view, playerView.superview != nil {
+            playerView.removeFromSuperview()
+        }
+        
+        // 关闭播放器
         ijkPlayer?.shutdown()
-        ijkPlayer?.view.removeFromSuperview()
+        
+        // 最后才置为 nil
         ijkPlayer = nil
+        state = .unknown
+        mediaUrl = ""
     }
     
     /// 当前已重试失败次数
@@ -451,12 +463,12 @@ public class WYMediaPlayer: UIImageView {
     
     @objc private func ijkPlayerSubtitleStreamPrepared(notification: Notification) {
         guard let player = ijkPlayer else { return }
-        delegate?.mediaPlayerDidChangeSubtitleStream?(self, player.monitor.mediaMeta)
+        delegate?.mediaPlayerDidChangeSubtitleStream?(player: self, mediaMeta: player.monitor.mediaMeta)
     }
     
     @objc private func ijkPlayerSubtitleStreamDidChange(notification: Notification) {
         guard let player = ijkPlayer else { return }
-        delegate?.mediaPlayerDidChangeSubtitleStream?(self, player.monitor.mediaMeta)
+        delegate?.mediaPlayerDidChangeSubtitleStream?(player: self, mediaMeta: player.monitor.mediaMeta)
     }
     
     private func callback(with currentState: WYMediaPlayerState) {
@@ -464,7 +476,7 @@ public class WYMediaPlayer: UIImageView {
             return
         }
         state = currentState
-        delegate?.mediaPlayerDidChangeState?(self, state)
+        delegate?.mediaPlayerDidChangeState?(player: self, state: state)
     }
     
     deinit {

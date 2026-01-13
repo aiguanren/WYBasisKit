@@ -451,12 +451,12 @@
 			path = Center;
 			sourceTree = "<group>";
 		};
-		585B3A732DF819DC00E6E08F /* Gif */ = {
+		585B3A732DF819DC00E6E08F /* Gif加载 */ = {
 			isa = PBXGroup;
 			children = (
 				585B3A722DF819DC00E6E08F /* WYParseGifController.swift */,
 			);
-			path = Gif;
+			path = "Gif加载";
 			sourceTree = "<group>";
 		};
 		585B3A762DF819DC00E6E08F /* IM即时通讯 */ = {
@@ -542,7 +542,7 @@
 				585B3A6B2DF819DC00E6E08F /* 直播、点播播放器 */,
 				585B3A6D2DF819DC00E6E08F /* Banner轮播 */,
 				585B3A6F2DF819DC00E6E08F /* ButtonEdgeInsets */,
-				585B3A732DF819DC00E6E08F /* Gif */,
+				585B3A732DF819DC00E6E08F /* Gif加载 */,
 				585B3A762DF819DC00E6E08F /* IM即时通讯 */,
 				585B3A7A2DF819DC00E6E08F /* 富文本 */,
 				585B3A7E2DF819DC00E6E08F /* tableView.grouped */,

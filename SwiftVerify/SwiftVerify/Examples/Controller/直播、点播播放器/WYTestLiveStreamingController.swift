@@ -695,7 +695,7 @@ class WYTestLiveStreamingController: UIViewController {
         
         alert.addAction(UIAlertAction(title: "加载并激活字幕", style: .default) { _ in
             if let url = self.subtitleList.randomElement() {
-                _ = self.player.loadThenActiveSubtitle(url)
+                self.player.loadThenActiveSubtitle(url)
                 self.showAlert(title: "字幕加载", message: "已加载并激活字幕")
             }
         })
@@ -974,7 +974,7 @@ class WYTestLiveStreamingController: UIViewController {
 // MARK: - 播放器代理
 extension WYTestLiveStreamingController: WYMediaPlayerDelegate {
     
-    func mediaPlayerDidChangeState(_ player: WYMediaPlayer, _ state: WYMediaPlayerState) {
+    func mediaPlayerDidChangeState(player: WYMediaPlayer, state: WYMediaPlayerState) {
         switch state {
         case .unknown:
             WYLogManager.output("未知状态")
@@ -1024,7 +1024,7 @@ extension WYTestLiveStreamingController: WYMediaPlayerDelegate {
         }
     }
     
-    func mediaPlayerDidChangeSubtitleStream(_ player: WYMediaPlayer, _ mediaMeta: [AnyHashable : Any]) {
+    func mediaPlayerDidChangeSubtitleStream(player: WYMediaPlayer, mediaMeta: [AnyHashable : Any]) {
         streamLabel.text = "流信息: \(mediaMeta)"
     }
 }

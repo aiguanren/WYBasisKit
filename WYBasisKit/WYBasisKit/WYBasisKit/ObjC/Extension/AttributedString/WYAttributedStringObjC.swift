@@ -98,6 +98,7 @@ import WYBasisKitSwift
     func wy_lineSpacingObjC(_ lineSpacing: CGFloat) -> NSMutableAttributedString {
         return wy_lineSpacingObjC(lineSpacing, subString: nil, alignment: .left)
     }
+    @discardableResult
     @objc(wy_lineSpacing:subString:alignment:)
     func wy_lineSpacingObjC(_ lineSpacing: CGFloat, subString: String? = nil, alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
         return wy_lineSpacing(lineSpacing, subString: subString, alignment: alignment)

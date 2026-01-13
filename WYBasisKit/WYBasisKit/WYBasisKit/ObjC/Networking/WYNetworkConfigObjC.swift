@@ -255,6 +255,11 @@ import WYBasisKitSwift
     /// 内部使用，帮助storageDurable属性的get方法获取返回值，避免每次初始化WYStorageDurableModel
     internal static var internalStorageDurable: WYStorageDurableModel = WYStorageDurableModel(storageDurable: .unlimited)
     
+    @objc public init(cacheKey: String = cacheKey) {
+        self.cacheKey = cacheKey
+        self.cachePath = WYNetworkRequestCacheObjC.cachePath
+        self.storageDurable = WYNetworkRequestCacheObjC.storageDurable
+    }
     @objc public init(cacheKey: String = cacheKey, cachePath: URL = cachePath, storageDurable: WYStorageDurableModel = storageDurable) {
         self.cacheKey = cacheKey
         self.cachePath = cachePath

@@ -206,6 +206,10 @@ import WYBasisKitSwift
      *
      *  @return Gif       图片解析结果
      */
+    @objc(wy_animatedParse:imageName:)
+    static func wy_animatedParse(_ style: WYAnimatedImageStyleObjC = .GIF, imageName: String) -> WYGifInfoObjC? {
+        return wy_animatedParse(style, imageName: imageName, bundle: nil)
+    }
     @objc(wy_animatedParse:imageName:bundle:)
     static func wy_animatedParse(_ style: WYAnimatedImageStyleObjC = .GIF, imageName: String, bundle: WYSourceBundleObjC? = nil) -> WYGifInfoObjC? {
         

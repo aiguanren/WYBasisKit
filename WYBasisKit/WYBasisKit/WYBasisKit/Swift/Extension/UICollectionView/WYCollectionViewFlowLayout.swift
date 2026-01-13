@@ -26,7 +26,7 @@ import UIKit
 @objc public protocol WYCollectionViewFlowLayoutDelegate {
     
     /** item.size */
-    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize
+    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: IndexPath) -> CGSize
     
     /** header.size */
     @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize
@@ -35,34 +35,34 @@ import UIKit
     @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForFooterInSection section: Int) -> CGSize
     
     /** number of lines(scrollDirection == .horizontal时需设置) */
-    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, numberOfLinesIn section: Int) -> Int
+    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, numberOfLinesInSection section: Int) -> Int
     
     /** number of columns(scrollDirection == .vertical时需设置) */
-    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, numberOfColumnsIn section: Int) -> Int
+    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, numberOfColumnsInSection section: Int) -> Int
     
     /** inset for section */
-    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets
+    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSection section: Int) -> UIEdgeInsets
     
     /** item.leftRightSpacing */
-    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat
+    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSection section: Int) -> CGFloat
     
     /** item.upDownSpacing */
-    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat
+    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSection section: Int) -> CGFloat
     
     /** 分区header与上个分区footer之间的间距(仅UICollectionView滚动方向为竖向时生效) */
     @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, spacingBetweenHeaderAndLastPartitionFooter section: Int) -> CGFloat
     
     /** 分区item对齐方式(默认左对齐，如果调用此方法并且返回值不是`default`，则需要保证该分区每个cell的高度相同，且该分区不支持设置isPagingEnabled) */
-    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, flowLayoutAlignmentForSectionAt section: Int) -> WYFlowLayoutAlignment
+    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, flowLayoutAlignmentForSection section: Int) -> WYFlowLayoutAlignment
     
     /** 当控件所需宽度超过 分区最大的显示宽度时，最多能显示几行, 默认0(无限换行) */
-    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, itemNumberOfLinesForSectionAt section: Int) -> Int
+    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, itemNumberOfLinesForSection section: Int) -> Int
     
     /** 水平滚动时，分区的item排列方式是否需要调整为水平排列(系统默认为竖向排列) */
-    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, horizontalScrollItemArrangementDirectionForSectionAt section: Int) -> Bool
+    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, horizontalScrollItemArrangementDirectionForSection section: Int) -> Bool
     
     /** 分区header是否需要悬停 */
-    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, hoverForHeaderForSectionAt section: Int) -> Bool
+    @objc optional func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, hoverForHeaderForSection section: Int) -> Bool
 }
 
 /**
@@ -659,7 +659,7 @@ extension WYCollectionViewFlowLayout {
     
     private func sizeForItemAt(_ indexPath: IndexPath) -> CGSize {
         guard let collectionView = collectionView else { return itemSize }
-        return delegate?.wy_collectionView?(collectionView, layout: self, sizeForItemAt: indexPath) ?? itemSize
+        return delegate?.wy_collectionView?(collectionView, layout: self, sizeForItemAtIndexPath: indexPath) ?? itemSize
     }
     
     private func referenceSizeForHeaderIn(_ section: Int) -> CGSize {
@@ -676,27 +676,27 @@ extension WYCollectionViewFlowLayout {
     
     private func numberOfLinesIn(_ section: Int) -> Int {
         guard let collectionView = collectionView else { return 1 }
-        return delegate?.wy_collectionView?(collectionView, layout: self, numberOfLinesIn: section) ?? 1
+        return delegate?.wy_collectionView?(collectionView, layout: self, numberOfLinesInSection: section) ?? 1
     }
     
     private func numberOfColumnsIn(_ section: Int) -> Int {
         guard let collectionView = collectionView else { return 1 }
-        return delegate?.wy_collectionView?(collectionView, layout: self, numberOfColumnsIn: section) ?? 1
+        return delegate?.wy_collectionView?(collectionView, layout: self, numberOfColumnsInSection: section) ?? 1
     }
     
     private func insetForSectionAt(_ section: Int) -> UIEdgeInsets {
         guard let collectionView = collectionView else { return sectionInset }
-        return delegate?.wy_collectionView?(collectionView, layout: self, insetForSectionAt: section) ?? sectionInset
+        return delegate?.wy_collectionView?(collectionView, layout: self, insetForSection: section) ?? sectionInset
     }
     
     private func minimumInteritemSpacingForSectionAt(_ section: Int) -> CGFloat {
         guard let collectionView = collectionView else { return minimumInteritemSpacing }
-        return delegate?.wy_collectionView?(collectionView, layout: self, minimumInteritemSpacingForSectionAt: section) ?? minimumInteritemSpacing
+        return delegate?.wy_collectionView?(collectionView, layout: self, minimumInteritemSpacingForSection: section) ?? minimumInteritemSpacing
     }
     
     private func minimumLineSpacingForSectionAt(_ section: Int) -> CGFloat {
         guard let collectionView = collectionView else { return minimumLineSpacing }
-        return delegate?.wy_collectionView?(collectionView, layout: self, minimumLineSpacingForSectionAt: section) ?? minimumLineSpacing
+        return delegate?.wy_collectionView?(collectionView, layout: self, minimumLineSpacingForSection: section) ?? minimumLineSpacing
     }
     
     private func spacingBetweenHeaderAndLastPartitionFooter(_ section: Int) -> CGFloat {
@@ -706,22 +706,22 @@ extension WYCollectionViewFlowLayout {
     
     private func flowLayoutAlignmentIn(_ section: Int) -> WYFlowLayoutAlignment {
         guard let collectionView = collectionView else { return .center }
-        return delegate?.wy_collectionView?(collectionView, layout: self, flowLayoutAlignmentForSectionAt: section) ?? .default
+        return delegate?.wy_collectionView?(collectionView, layout: self, flowLayoutAlignmentForSection: section) ?? .default
     }
     
     private func itemNumberOfLines(_ section: Int) -> Int {
         guard let collectionView = collectionView else { return 0 }
-        return delegate?.wy_collectionView?(collectionView, layout: self, itemNumberOfLinesForSectionAt: section) ?? 0
+        return delegate?.wy_collectionView?(collectionView, layout: self, itemNumberOfLinesForSection: section) ?? 0
     }
     
     private func horizontalScrollItemArrangementDirectionIn(_ section: Int) -> Bool {
         guard let collectionView = collectionView else { return false }
-        return delegate?.wy_collectionView?(collectionView, layout: self, horizontalScrollItemArrangementDirectionForSectionAt: section) ?? false
+        return delegate?.wy_collectionView?(collectionView, layout: self, horizontalScrollItemArrangementDirectionForSection: section) ?? false
     }
     
     private func hoverForHeaderIn(_ section: Int) -> Bool {
         guard let collectionView = collectionView else { return false }
-        return delegate?.wy_collectionView?(collectionView, layout: self, hoverForHeaderForSectionAt: section) ?? false
+        return delegate?.wy_collectionView?(collectionView, layout: self, hoverForHeaderForSection: section) ?? false
     }
     
     /** 存放所有cell的布局属性 */

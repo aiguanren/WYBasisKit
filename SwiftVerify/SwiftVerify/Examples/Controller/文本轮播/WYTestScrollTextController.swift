@@ -251,7 +251,7 @@ class WYTestScrollTextController: UIViewController {
 extension WYTestScrollTextController: WYScrollTextDelegate {
     
     /// 项点击事件代理方法
-    func itemDidClick(_ itemIndex: Int) {
+    func itemDidClick(itemIndex: Int) {
         print("代理方法: 点击了第 \(itemIndex) 项")
     }
 }

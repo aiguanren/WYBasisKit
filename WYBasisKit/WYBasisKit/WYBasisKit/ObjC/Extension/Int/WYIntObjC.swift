@@ -10,7 +10,7 @@ import Foundation
 import WYBasisKitSwift
 #endif
 
-@objcMembers public class IntObjC: NSObject {
+@objcMembers public class WYIntObjC: NSObject {
     
     /// NSInteger转String
     @objc public static func wy_stringValue(_ value: Int) -> String {
