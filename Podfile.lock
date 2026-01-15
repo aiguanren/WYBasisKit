@@ -230,6 +230,9 @@ PODS:
     - WYBasisKit-Swift/Localizable
     - WYBasisKit-Swift/Storage
   - WYBasisKit-Swift/Storage (2.0.0)
+  - WYBasisKit-SwiftUI (2.0.0):
+    - WYBasisKit-SwiftUI/Extension (= 2.0.0)
+  - WYBasisKit-SwiftUI/Extension (2.0.0)
 
 DEPENDENCIES:
   - IQKeyboardManagerSwift
@@ -240,6 +243,7 @@ DEPENDENCIES:
   - SnapKit
   - WYBasisKit-ObjC (from `WYBasisKit/WYBasisKit/WYBasisKit`)
   - WYBasisKit-Swift (from `WYBasisKit/WYBasisKit/WYBasisKit`)
+  - WYBasisKit-SwiftUI (from `WYBasisKit/WYBasisKit/WYBasisKit`)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
@@ -264,6 +268,8 @@ EXTERNAL SOURCES:
     :path: WYBasisKit/WYBasisKit/WYBasisKit
   WYBasisKit-Swift:
     :path: WYBasisKit/WYBasisKit/WYBasisKit
+  WYBasisKit-SwiftUI:
+    :path: WYBasisKit/WYBasisKit/WYBasisKit
 
 SPEC CHECKSUMS:
   Alamofire: bd5e7b23a1a750975288482c1831d71e74415f86
@@ -283,7 +289,8 @@ SPEC CHECKSUMS:
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
   WYBasisKit-ObjC: 6992223ee3c8f07a56dfce1f8660e10250514ddb
   WYBasisKit-Swift: 965803fb78ce7230838b7a477b682e366f41b29c
+  WYBasisKit-SwiftUI: 8c4ab00e2de13fc95898e78f0f02b88e283d41c0
 
-PODFILE CHECKSUM: 4cfdfaa21583cf91428ba6235469095c761f16c3
+PODFILE CHECKSUM: 9fede7b861e2580bd1429a3f3d8a2c0c47738774
 
 COCOAPODS: 1.16.2
