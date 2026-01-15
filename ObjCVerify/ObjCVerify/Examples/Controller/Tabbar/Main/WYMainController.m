@@ -100,7 +100,7 @@
             [[ListItem alloc] initWithTitle:@"离线方法调用"
                                  controller:@"WYOffLineMethodController"],
             
-            [[ListItem alloc] initWithTitle:@"WKWebView进度条"
+            [[ListItem alloc] initWithTitle:@"WKWebView"
                                  controller:@"WYWebViewController"],
             
             [[ListItem alloc] initWithTitle:@"归档/解归档"
@@ -110,7 +110,7 @@
                                  controller:@"WYLogController"],
             
             [[ListItem alloc] initWithTitle:@"音频录制与播放"
-                                 controller:@"TestAudioController"],
+                                 controller:@"WYTestAudioController"],
             
             [[ListItem alloc] initWithTitle:@"设备振动"
                                  controller:@"WYTestVibrateController"],

@@ -653,6 +653,7 @@ class WYTestAudioController: UIViewController {
     
     deinit {
         audioKit.releaseAll()
+        WYLogManager.output("WYTestAudioController release")
     }
 }
 

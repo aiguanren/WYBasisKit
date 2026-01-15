@@ -1,5 +1,5 @@
 //
-//  WYTestWebViewController.h
+//  WYWebViewController.h
 //  ObjCVerify
 //
 //  Created by guanren on 2025/10/6.
@@ -9,7 +9,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface WYTestWebViewController : UIViewController
+@interface WYWebViewController : UIViewController
 
 @end
 

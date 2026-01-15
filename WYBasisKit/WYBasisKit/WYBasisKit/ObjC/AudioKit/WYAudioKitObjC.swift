@@ -173,6 +173,10 @@ import WYBasisKitSwift
      
      - Throws: 可能抛出权限错误或初始化错误
      */
+    @objc(startRecordingWithFormat:error:)
+    func startRecordingObjC(format: WYAudioFormatObjC = .aac) throws {
+        try startRecordingObjC(fileName: nil, format: format)
+    }
     @objc(startRecordingWithFileName:format:error:)
     func startRecordingObjC(fileName: String? = nil, format: WYAudioFormatObjC = .aac) throws {
         try startRecording(fileName: fileName, format: WYAudioFormat(rawValue: format.rawValue) ?? .aac)

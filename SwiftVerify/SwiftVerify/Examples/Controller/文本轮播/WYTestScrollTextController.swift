@@ -235,6 +235,9 @@ class WYTestScrollTextController: UIViewController {
         print("背景颜色已\(sender.isOn ? "更改" : "恢复")")
     }
     
+    deinit {
+        WYLogManager.output("WYTestScrollTextController release")
+    }
     
     /*
      // MARK: - Navigation

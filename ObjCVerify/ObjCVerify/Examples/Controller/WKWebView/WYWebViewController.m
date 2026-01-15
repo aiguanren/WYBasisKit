@@ -1,20 +1,20 @@
 //
-//  WYTestWebViewController.m
+//  WYWebViewController.m
 //  ObjCVerify
 //
 //  Created by guanren on 2025/10/6.
 //
 
-#import "WYTestWebViewController.h"
+#import "WYWebViewController.h"
 #import <Masonry/Masonry.h>
 #import <WebKit/WKWebView.h>
 #import <WYBasisKitObjC.h>
 
-@interface WYTestWebViewController ()<WYWebViewNavigationDelegateProxy>
+@interface WYWebViewController ()<WYWebViewNavigationDelegateProxy>
 
 @end
 
-@implementation WYTestWebViewController
+@implementation WYWebViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];

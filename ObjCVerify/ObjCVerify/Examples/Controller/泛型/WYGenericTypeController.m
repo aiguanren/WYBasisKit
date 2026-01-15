@@ -49,9 +49,9 @@
     [context setResponse:response];
 }
 
-- (void)testMothodWithData:(NSString *)data {
+- (void)testMothodWithData:(NSString *)data data2:(NSInteger)data2 {
     
-    WYLog(@"离线方法调用,data = %@", data);
+    WYLog(@"离线方法调用,data = %@, data2 = %ld", data, data2);
 }
 
 /*

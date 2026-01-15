@@ -76,7 +76,7 @@ class WYMainController: UIViewController {
         ListItem(title: "离线方法调用",
                  controller: "WYOffLineMethodController"),
         
-        ListItem(title: "WKWebView进度条",
+        ListItem(title: "WKWebView",
                  controller: "WYWebViewController"),
         
         ListItem(title: "归档/解归档",
@@ -86,7 +86,7 @@ class WYMainController: UIViewController {
                  controller: "WYLogController"),
         
         ListItem(title: "音频录制与播放",
-                 controller: "TestAudioController"),
+                 controller: "WYTestAudioController"),
         
         ListItem(title: "设备振动",
                  controller: "WYTestVibrateController"),

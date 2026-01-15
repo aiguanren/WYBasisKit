@@ -38,10 +38,18 @@ public class WYScrollText: UIView {
     public var placeholder: String = WYLocalized("暂无消息", table: WYBasisKitConfig.kitLocalizableTable)
     
     /// 文本颜色
-    public var textColor: UIColor = .black
+    public var textColor: UIColor = .black {
+        didSet {
+            reloadKeepingOffset()
+        }
+    }
     
     /// 文本字体
-    public var textFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(12, WYBasisKitConfig.defaultScreenPixels))
+    public var textFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(12, WYBasisKitConfig.defaultScreenPixels)) {
+        didSet {
+            reloadKeepingOffset()
+        }
+    }
     
     /// 轮播方向(默认:upAndDown)
     public var scrollDirection: WYScrollTextDirection = .upAndDown
@@ -68,6 +76,7 @@ public class WYScrollText: UIView {
     public var contentColor: UIColor = .clear {
         didSet {
             collectionView.backgroundColor = contentColor
+            reloadKeepingOffset()
         }
     }
     
@@ -208,6 +217,13 @@ public class WYScrollText: UIView {
                 self.collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .centeredVertically, animated: false)
             }
         }
+    }
+    
+    private func reloadKeepingOffset() {
+        let offset = collectionView.contentOffset
+        collectionView.reloadData()
+        collectionView.layoutIfNeeded()
+        collectionView.contentOffset = offset
     }
     
     deinit {

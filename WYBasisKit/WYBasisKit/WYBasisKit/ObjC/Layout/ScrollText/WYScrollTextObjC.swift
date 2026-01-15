@@ -31,7 +31,7 @@ import WYBasisKitSwift
     }
     
     /// 点击事件(也可以通过实现代理监听)
-    @objc(didClickWithHandler:)
+    @objc(didClick:)
     func didClickObjC(handler:((_ index: Int) -> Void)? = .none) {
         didClick(handler: handler)
     }
