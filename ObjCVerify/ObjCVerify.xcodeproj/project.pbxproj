@@ -74,6 +74,8 @@
 		58BFB8B42F16411A0094DDB5 /* WYLogController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58BFB8B32F16411A0094DDB5 /* WYLogController.m */; };
 		58BFB8B82F16441A0094DDB5 /* WYTestAudioController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58BFB8B72F16441A0094DDB5 /* WYTestAudioController.m */; };
 		58BFB8BC2F1649A20094DDB5 /* WYTestScrollTextController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58BFB8BB2F1649A20094DDB5 /* WYTestScrollTextController.m */; };
+		58BFB8C02F18BB6F0094DDB5 /* WYTestPagingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58BFB8BF2F18BB6F0094DDB5 /* WYTestPagingViewController.m */; };
+		58BFB8C42F18C3010094DDB5 /* WYTestSideslipCellController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58BFB8C32F18C3010094DDB5 /* WYTestSideslipCellController.m */; };
 		58DA4EAD2EA23E6F003EAA2D /* WYTestVibrateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DA4EAC2EA23E6F003EAA2D /* WYTestVibrateController.m */; };
 		58DA4EB12EA2427D003EAA2D /* WYTestButtonEdgeInsetsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DA4EB02EA2427D003EAA2D /* WYTestButtonEdgeInsetsController.m */; };
 		58DEA9BD2F0F580200664E13 /* WYTestAnimationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DEA9BC2F0F580200664E13 /* WYTestAnimationController.m */; };
@@ -244,6 +246,10 @@
 		58BFB8B72F16441A0094DDB5 /* WYTestAudioController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestAudioController.m; sourceTree = "<group>"; };
 		58BFB8BA2F1649A20094DDB5 /* WYTestScrollTextController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestScrollTextController.h; sourceTree = "<group>"; };
 		58BFB8BB2F1649A20094DDB5 /* WYTestScrollTextController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestScrollTextController.m; sourceTree = "<group>"; };
+		58BFB8BE2F18BB6F0094DDB5 /* WYTestPagingViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestPagingViewController.h; sourceTree = "<group>"; };
+		58BFB8BF2F18BB6F0094DDB5 /* WYTestPagingViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestPagingViewController.m; sourceTree = "<group>"; };
+		58BFB8C22F18C3010094DDB5 /* WYTestSideslipCellController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestSideslipCellController.h; sourceTree = "<group>"; };
+		58BFB8C32F18C3010094DDB5 /* WYTestSideslipCellController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestSideslipCellController.m; sourceTree = "<group>"; };
 		58DA4EAB2EA23E6F003EAA2D /* WYTestVibrateController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestVibrateController.h; sourceTree = "<group>"; };
 		58DA4EAC2EA23E6F003EAA2D /* WYTestVibrateController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestVibrateController.m; sourceTree = "<group>"; };
 		58DA4EAF2EA2427D003EAA2D /* WYTestButtonEdgeInsetsController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestButtonEdgeInsetsController.h; sourceTree = "<group>"; };
@@ -425,31 +431,33 @@
 		58B470482E8D329600D04BCA /* Controller */ = {
 			isa = PBXGroup;
 			children = (
-				58BFB8B92F16495F0094DDB5 /* 文本轮播 */,
-				58BFB8B52F16439C0094DDB5 /* 音频录制与播放 */,
-				58BFB8B12F1640B40094DDB5 /* 日志输出与保存 */,
-				58BFB8AC2F163ABB0094DDB5 /* 离线方法调用 */,
-				58BFB8A62F1633AB0094DDB5 /* 语音识别 */,
-				58BFB8A22F14EE0B0094DDB5 /* 直播、点播播放器 */,
-				58BFB8902F14E82F0094DDB5 /* 瀑布流 */,
-				58BFB88C2F14E6780094DDB5 /* Gif加载 */,
+				5827320E2E9F8CAB00DAD1AA /* 暗夜、白昼模式 */,
+				58DEA9BE2F0F5A8C00664E13 /* 边框、圆角、阴影、渐变 */,
 				58BFB8882F14E59D0094DDB5 /* 二维码 */,
+				580ED5622EA5DA3D006012E7 /* 泛型 */,
+				58BFB8BD2F18B83A0094DDB5 /* 分页控制器 */,
+				58DEA9C62F0F7CA900664E13 /* 富文本 */,
+				580ED57F2EA62ADE006012E7 /* 归档解归档 */,
+				58BFB8AC2F163ABB0094DDB5 /* 离线方法调用 */,
 				58BFB8842F14DFBC0094DDB5 /* 屏幕旋转 */,
+				58BFB8902F14E82F0094DDB5 /* 瀑布流 */,
+				58BFB8B12F1640B40094DDB5 /* 日志输出与保存 */,
+				58DA4EAA2EA23E41003EAA2D /* 设备振动 */,
 				58BFB8802F14D9730094DDB5 /* 网络请求 */,
+				58BFB8B92F16495F0094DDB5 /* 文本轮播 */,
+				58DEA9CA2F10F5D900664E13 /* 无限层折叠TableView */,
 				58BFB87C2F1493E60094DDB5 /* 下载与缓存 */,
+				58BFB8B52F16439C0094DDB5 /* 音频录制与播放 */,
+				58BFB8A62F1633AB0094DDB5 /* 语音识别 */,
+				58DEA9BA2F0F57E900664E13 /* 约束view添加动画 */,
+				58BFB8A22F14EE0B0094DDB5 /* 直播、点播播放器 */,
+				58DEA9C22F0F5E1100664E13 /* Banner轮播 */,
+				58DA4EAE2EA24270003EAA2D /* ButtonEdgeInsets */,
+				58BFB88C2F14E6780094DDB5 /* Gif加载 */,
+				58B470352E8D114C00D04BCA /* Tabbar */,
 				58BFB8782F1487DD0094DDB5 /* tableView.grouped */,
 				58DEA9CE2F1105CC00664E13 /* tableView.plain */,
-				58DEA9CA2F10F5D900664E13 /* 无限层折叠TableView */,
-				58DEA9C62F0F7CA900664E13 /* 富文本 */,
-				58DEA9C22F0F5E1100664E13 /* Banner轮播 */,
-				58DEA9BE2F0F5A8C00664E13 /* 边框、圆角、阴影、渐变 */,
-				58DEA9BA2F0F57E900664E13 /* 约束view添加动画 */,
-				58B470352E8D114C00D04BCA /* Tabbar */,
-				580ED57F2EA62ADE006012E7 /* 归档解归档 */,
-				580ED5622EA5DA3D006012E7 /* 泛型 */,
-				58DA4EAE2EA24270003EAA2D /* ButtonEdgeInsets */,
-				58DA4EAA2EA23E41003EAA2D /* 设备振动 */,
-				5827320E2E9F8CAB00DAD1AA /* 暗夜、白昼模式 */,
+				58BFB8C12F18C2EF0094DDB5 /* TableViewCell侧滑 */,
 				584EAF0B2E939036003A21B8 /* WKWebView */,
 			);
 			path = Controller;
@@ -622,6 +630,24 @@
 				58BFB8BB2F1649A20094DDB5 /* WYTestScrollTextController.m */,
 			);
 			path = "文本轮播";
+			sourceTree = "<group>";
+		};
+		58BFB8BD2F18B83A0094DDB5 /* 分页控制器 */ = {
+			isa = PBXGroup;
+			children = (
+				58BFB8BE2F18BB6F0094DDB5 /* WYTestPagingViewController.h */,
+				58BFB8BF2F18BB6F0094DDB5 /* WYTestPagingViewController.m */,
+			);
+			path = "分页控制器";
+			sourceTree = "<group>";
+		};
+		58BFB8C12F18C2EF0094DDB5 /* TableViewCell侧滑 */ = {
+			isa = PBXGroup;
+			children = (
+				58BFB8C22F18C3010094DDB5 /* WYTestSideslipCellController.h */,
+				58BFB8C32F18C3010094DDB5 /* WYTestSideslipCellController.m */,
+			);
+			path = "TableViewCell侧滑";
 			sourceTree = "<group>";
 		};
 		58DA4EAA2EA23E41003EAA2D /* 设备振动 */ = {
@@ -912,6 +938,7 @@
 				58BFB87B2F1488920094DDB5 /* WYTableViewGroupedController.m in Sources */,
 				58DEA9BD2F0F580200664E13 /* WYTestAnimationController.m in Sources */,
 				582732112E9F8CDF00DAD1AA /* WYTestDarkNightModeController.m in Sources */,
+				58BFB8C02F18BB6F0094DDB5 /* WYTestPagingViewController.m in Sources */,
 				58B4703E2E8D11C700D04BCA /* WYMainController.m in Sources */,
 				580ED5822EA62AE9006012E7 /* WYArchivedController.m in Sources */,
 				58B4704B2E8D32D200D04BCA /* WYLeftControllerHeaderView.m in Sources */,
@@ -935,6 +962,7 @@
 				58BFB8A92F1634040094DDB5 /* WYSpeechRecognitionController.m in Sources */,
 				58B470412E8D11D400D04BCA /* WYCenterController.m in Sources */,
 				580ED5742EA5DB55006012E7 /* WYGenericTypeController.m in Sources */,
+				58BFB8C42F18C3010094DDB5 /* WYTestSideslipCellController.m in Sources */,
 				58BFB88F2F14E6A20094DDB5 /* WYParseGifController.m in Sources */,
 				58DA4EAD2EA23E6F003EAA2D /* WYTestVibrateController.m in Sources */,
 				58BFB8AF2F163ACB0094DDB5 /* WYOffLineMethodController.m in Sources */,

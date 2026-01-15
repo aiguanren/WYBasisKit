@@ -24,7 +24,7 @@ import WYBasisKitSwift
      *
      * @param handler 点击或滚动事件的block
      */
-    @objc(itemDidScrollHandler:)
+    @objc(itemDidScroll:)
     func itemDidScrollObjC(handler: @escaping ((_ pagingIndex: Int) -> Void)) {
         itemDidScroll(handler: handler)
     }
@@ -61,7 +61,9 @@ import WYBasisKitSwift
     @objc(bar_itemTopOffset)
     var bar_itemTopOffsetObjC: CGFloat {
         get { return bar_itemTopOffset ?? 0 }
-        set { bar_itemTopOffset = newValue }
+        set {
+            bar_itemTopOffset = newValue > 0 ? newValue : nil
+        }
     }
     
     /// 显示整体宽度小于一屏，且设置了bar_Width != 0，是否需要居中显示，默认 居中 (居中后，将会动态调整bar_originlLeftOffset和bar_originlRightOffset的距离)

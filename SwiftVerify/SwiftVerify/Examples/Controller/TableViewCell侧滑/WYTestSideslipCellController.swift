@@ -111,6 +111,10 @@ class WYTestSideslipCellController: UIViewController {
         }
     }
     
+    deinit {
+        WYLogManager.output("WYTestSideslipCellController release")
+    }
+    
     /*
      // MARK: - Navigation
      

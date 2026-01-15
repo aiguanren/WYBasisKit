@@ -152,6 +152,13 @@ import WYBasisKitSwift
      *  @param alignment  对齐方式
      */
     @discardableResult
+    @objc func wy_innerMarginWith(firstLineHeadIndent: CGFloat = 0,
+                                  headIndent: CGFloat = 0,
+                                  tailIndent: CGFloat = 0,
+                                  alignment: NSTextAlignment = .justified) -> NSMutableAttributedString {
+        return wy_innerMarginWith(string: nil, firstLineHeadIndent: firstLineHeadIndent, headIndent: headIndent, tailIndent: tailIndent, alignment: alignment)
+    }
+    @discardableResult
     @objc func wy_innerMarginWith(string: String?,
                                   firstLineHeadIndent: CGFloat = 0,
                                   headIndent: CGFloat = 0,

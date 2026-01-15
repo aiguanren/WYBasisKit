@@ -23,7 +23,7 @@ class WYTestPagingViewController: UIViewController {
         let colors: [UIColor] = [.red, .green, .blue, .yellow, .purple, .orange, .cyan, .magenta]
         return colors.prefix(5).map { color in
             let vc = UIViewController()
-            vc.view.backgroundColor = .white
+            vc.view.backgroundColor = color
             vc.view.layer.borderWidth = 2
             vc.view.layer.borderColor = UIColor.black.cgColor
             return vc

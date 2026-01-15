@@ -84,7 +84,7 @@
     marginLabel.textColor = [UIColor orangeColor];
     
     NSMutableAttributedString *attrText = [[NSMutableAttributedString alloc] initWithString:marginLabel.text];
-    [attrText wy_innerMarginWithString:nil firstLineHeadIndent:10 headIndent:0 tailIndent:-10 alignment:NSTextAlignmentLeft];
+    [attrText wy_innerMarginWithFirstLineHeadIndent:10 headIndent:0 tailIndent:-10 alignment:NSTextAlignmentLeft];
     
     marginLabel.numberOfLines = 0;
     marginLabel.attributedText = attrText;

@@ -236,7 +236,7 @@ import WYBasisKitSwift
     }
     
     /// 设置侧滑事件回调
-    @objc(wy_sideslipEventHandler:)
+    @objc(wy_sideslipEvent:)
     func wy_sideslipEventHandlerObjC(_ handler: (@convention(block) (WYSideslipEventHandlerObjC, WYTableViewSideslipDirectionObjC) -> Void)? = nil) {
         
         if let handler = handler {
@@ -338,7 +338,11 @@ import WYBasisKitSwift
      * 关闭当前打开的侧滑cell（如果需要）
      * @param cell 需要排除的cell（不关闭此cell）
      */
-    @objc(wy_closeCurrentOpenedSideslipCellIfNeededExceptCell:)
+    @objc(wy_closeCurrentOpenedSideslipCellIfNeeded)
+    func wy_closeCurrentOpenedSideslipCellIfNeededObjC() {
+        wy_closeCurrentOpenedSideslipCellIfNeededObjC(except: nil)
+    }
+    @objc(wy_closeCurrentOpenedSideslipCellIfNeededWithExceptCell:)
     func wy_closeCurrentOpenedSideslipCellIfNeededObjC(except cell: UITableViewCell? = nil) {
         wy_closeCurrentOpenedSideslipCellIfNeeded(except: cell)
     }
