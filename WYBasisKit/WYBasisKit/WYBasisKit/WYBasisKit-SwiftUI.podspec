@@ -21,12 +21,7 @@ Pod::Spec.new do |kit|
   kit.homepage     = "https://github.com/aiguanren/WYBasisKit"
   kit.license      = { :type => "MIT", :file => "#{kit_path}License.md" }
   kit.author             = { "官人" => "aiguanren@icloud.com" }
-  kit.platforms = {
-    :ios => "13.0",
-    :osx => "10.15",
-    :tvos => "13.0",
-    :watchos => "6.0"
-  }
+  kit.ios.deployment_target = "13.0"
   kit.source       = { :git => "https://github.com/aiguanren/WYBasisKit.git", :tag => "#{kit.version}" }
   #kit.source       = { :svn => "http://192.168.xxx.xxx:xxxx/xxx/xxx/WYBasiskit"}
   #kit.source       = { :http => "http://192.168.xxx.xxx:xxxx/xxx/xxx/WYBasiskit.zip" }
