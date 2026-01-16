@@ -57,7 +57,7 @@ import WYBasisKitSwift
         set { bar_originlRightOffset = newValue }
     }
     
-    /// item距离分页栏顶部的偏移量(需要设置bar_item_height后才会生效)， 默认nil
+    /// item距离分页栏顶部的偏移量(需要设置bar_item_height后才会生效)， 默认0(默认0时会强制转为nil传给swift)，如需传入0则传入0.01等具体值
     @objc(bar_itemTopOffset)
     var bar_itemTopOffsetObjC: CGFloat {
         get { return bar_itemTopOffset ?? 0 }
