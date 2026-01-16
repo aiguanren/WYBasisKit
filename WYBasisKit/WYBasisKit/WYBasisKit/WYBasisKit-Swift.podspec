@@ -148,7 +148,8 @@ Pod::Spec.new do |kit|
   kit.subspec "Networking" do |networking|
     networking.source_files = [
       "#{kit_path}Swift/Networking/**/*.{swift,h,m}",
-      "#{kit_path}Swift/Extension/UIAlertController/**/*.{swift,h,m}"
+      "#{kit_path}Swift/Extension/UIAlertController/**/*.{swift,h,m}",
+      "#{kit_path}Swift/Extension/UIApplication/**/*.{swift,h,m}"
     ]
     networking.resources = [localizable_bundle]
     networking.resource_bundles = {"WYBasisKitSwiftNetworking" => [
