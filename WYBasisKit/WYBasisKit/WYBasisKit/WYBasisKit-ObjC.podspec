@@ -1,5 +1,5 @@
 # 定义podspec执行路径(远程验证时路径是从WYBasisKit开始的，所以远程验证时需要填入podspec文件的路径：WYBasisKit/WYBasisKit/WYBasisKit/)
-kit_path = "WYBasisKit/WYBasisKit/WYBasisKit/"
+kit_path = ""
 
 Pod::Spec.new do |kit|
   kit.name         = "WYBasisKit-ObjC"
@@ -300,7 +300,8 @@ Pod::Spec.new do |kit|
     
     layout.subspec "PagingView" do |pagingView|
       pagingView.source_files = [
-        "#{kit_path}ObjC/Layout/PagingView/**/*.{swift,h,m}"
+        "#{kit_path}ObjC/Layout/PagingView/**/*.{swift,h,m}",
+        "#{kit_path}ObjC/Extension/UIButton/**/*.{swift,h,m}"
       ]
       pagingView.resource_bundles = {"WYBasisKitObjCLayoutPagingView" => [
         "#{kit_path}ObjC/Layout/PagingView/PrivacyInfo.xcprivacy"
@@ -323,21 +324,17 @@ Pod::Spec.new do |kit|
       bannerView.dependency "WYBasisKit-ObjC/LogManager"
     end
     
-    layout.subspec "ChatView" do |chatView|
-      chatView.source_files = [
-        "#{kit_path}ObjC/Layout/ChatView/**/*.{swift,h,m}"
-      ]
-      chatView.resource_bundles = {"WYBasisKitObjCLayoutChatView" => [
-         "#{kit_path}ObjC/Layout/ChatView/PrivacyInfo.xcprivacy"
-      ]}
-      chatView.frameworks = "Foundation", "UIKit"
-      chatView.dependency "WYBasisKit-swift/Layout/ChatView"
-      chatView.dependency "WYBasisKit-ObjC/Extension"
-      chatView.dependency "WYBasisKit-ObjC/Localizable"
-      chatView.dependency "WYBasisKit-ObjC/Authorization/Microphone"
-      chatView.dependency "WYBasisKit-ObjC/Storage"
-      chatView.dependency "WYBasisKit-ObjC/LogManager"
-    end
+    # layout.subspec "ChatView" do |chatView|
+    #   chatView.source_files = [
+    #     "#{kit_path}ObjC/Layout/ChatView/**/*.{swift,h,m}"
+    #   ]
+    #   chatView.resource_bundles = {"WYBasisKitObjCLayoutChatView" => [
+    #      "#{kit_path}ObjC/Layout/ChatView/PrivacyInfo.xcprivacy"
+    #   ]}
+    #   chatView.frameworks = "Foundation", "UIKit"
+    #   chatView.dependency "WYBasisKit-swift/Layout/ChatView"
+    #   chatView.dependency "WYBasisKit-ObjC/Extension"
+    # end
 
     layout.subspec "MediaPlayer" do |mediaPlayer|
       mediaPlayer.source_files = [
