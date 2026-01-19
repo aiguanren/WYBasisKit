@@ -80,7 +80,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}ObjC/Config/PrivacyInfo.xcprivacy"
     ]}
     config.frameworks = "Foundation", "UIKit"
-    config.dependency "WYBasisKit-Swift/Config"
+    config.dependency "WYBasisKit-swift/Config"
   end
 
   kit.subspec "LogManager" do |logManager|
@@ -91,7 +91,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}ObjC/LogManager/PrivacyInfo.xcprivacy"
     ]}
     logManager.frameworks = "Foundation", "UIKit"
-    logManager.dependency "WYBasisKit-Swift/LogManager"
+    logManager.dependency "WYBasisKit-swift/LogManager"
   end
   
   kit.subspec "Localizable" do |localizable|
@@ -102,7 +102,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}ObjC/Localizable/PrivacyInfo.xcprivacy"
     ]}
     localizable.frameworks = "Foundation", "UIKit"
-    localizable.dependency "WYBasisKit-Swift/Localizable"
+    localizable.dependency "WYBasisKit-swift/Localizable"
     localizable.dependency "WYBasisKit-ObjC/Config"
   end
   
@@ -114,7 +114,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}ObjC/Extension/PrivacyInfo.xcprivacy"
     ]}
     extension.frameworks = "Foundation", "UIKit"
-    extension.dependency "WYBasisKit-Swift/Extension"
+    extension.dependency "WYBasisKit-swift/Extension"
     extension.dependency "WYBasisKit-ObjC/Localizable"
     extension.dependency "WYBasisKit-ObjC/Config"
     extension.dependency "WYBasisKit-ObjC/LogManager"
@@ -128,7 +128,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}ObjC/Codable/PrivacyInfo.xcprivacy"
     ]}
     codable.frameworks = "Foundation", "UIKit"
-    codable.dependency "WYBasisKit-Swift/Codable"
+    codable.dependency "WYBasisKit-swift/Codable"
   end
   
   kit.subspec "Networking" do |networking|
@@ -139,7 +139,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}ObjC/Networking/PrivacyInfo.xcprivacy"
     ]}
     networking.frameworks = "Foundation", "UIKit", "Network"
-    networking.dependency "WYBasisKit-Swift/Networking"
+    networking.dependency "WYBasisKit-swift/Networking"
     networking.dependency "WYBasisKit-ObjC/Localizable"
     networking.dependency "WYBasisKit-ObjC/Storage"
     networking.dependency "WYBasisKit-ObjC/Codable"
@@ -160,7 +160,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}ObjC/Activity/PrivacyInfo.xcprivacy"
     ]}
     activity.frameworks = "Foundation", "UIKit"
-    activity.dependency "WYBasisKit-Swift/Activity"
+    activity.dependency "WYBasisKit-swift/Activity"
     activity.dependency "WYBasisKit-ObjC/Localizable"
     activity.dependency "WYBasisKit-ObjC/LogManager"
   end
@@ -173,7 +173,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}ObjC/Storage/PrivacyInfo.xcprivacy"
     ]}
     storage.frameworks = "Foundation", "UIKit"
-    storage.dependency "WYBasisKit-Swift/Storage"
+    storage.dependency "WYBasisKit-swift/Storage"
   end
 
   kit.subspec "EventHandler" do |eventHandler|
@@ -184,7 +184,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}ObjC/EventHandler/PrivacyInfo.xcprivacy"
     ]}
     eventHandler.frameworks = "Foundation", "UIKit"
-    eventHandler.dependency "WYBasisKit-Swift/EventHandler"
+    eventHandler.dependency "WYBasisKit-swift/EventHandler"
   end
 
   kit.subspec "AudioKit" do |audioKit|
@@ -195,7 +195,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}ObjC/AudioKit/PrivacyInfo.xcprivacy"
     ]}
     audioKit.frameworks = "Foundation", "UIKit"
-    audioKit.dependency "WYBasisKit-Swift/AudioKit"
+    audioKit.dependency "WYBasisKit-swift/AudioKit"
   end
   
   kit.subspec "Authorization" do |authorization|
@@ -210,7 +210,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}ObjC/Authorization/Camera/PrivacyInfo.xcprivacy"
       ]}
       camera.frameworks = "Foundation", "UIKit"
-      camera.dependency "WYBasisKit-Swift/Authorization/Camera"
+      camera.dependency "WYBasisKit-swift/Authorization/Camera"
       camera.dependency "WYBasisKit-ObjC/Localizable"
       camera.dependency "WYBasisKit-ObjC/LogManager"
     end
@@ -223,7 +223,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}ObjC/Authorization/Biometric/PrivacyInfo.xcprivacy"
       ]}
       biometric.frameworks = "Foundation", "UIKit"
-      biometric.dependency "WYBasisKit-Swift/Authorization/Biometric"
+      biometric.dependency "WYBasisKit-swift/Authorization/Biometric"
       biometric.dependency "WYBasisKit-ObjC/Localizable"
       biometric.dependency "WYBasisKit-ObjC/LogManager"
     end
@@ -236,7 +236,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}ObjC/Authorization/Contacts/PrivacyInfo.xcprivacy"
       ]}
       contacts.frameworks = "Contacts", "UIKit"
-      contacts.dependency "WYBasisKit-Swift/Authorization/Contacts"
+      contacts.dependency "WYBasisKit-swift/Authorization/Contacts"
       contacts.dependency "WYBasisKit-ObjC/Localizable"
       contacts.dependency "WYBasisKit-ObjC/LogManager"
     end
@@ -249,7 +249,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}ObjC/Authorization/PhotoAlbums/PrivacyInfo.xcprivacy"
       ]}
       photoAlbums.frameworks = "Foundation", "UIKit"
-      photoAlbums.dependency "WYBasisKit-Swift/Authorization/PhotoAlbums"
+      photoAlbums.dependency "WYBasisKit-swift/Authorization/PhotoAlbums"
       photoAlbums.dependency "WYBasisKit-ObjC/Localizable"
       photoAlbums.dependency "WYBasisKit-ObjC/LogManager"
     end
@@ -262,7 +262,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}ObjC/Authorization/Microphone/PrivacyInfo.xcprivacy"
       ]}
       microphone.frameworks = "Foundation", "UIKit"
-      microphone.dependency "WYBasisKit-Swift/Authorization/Microphone"
+      microphone.dependency "WYBasisKit-swift/Authorization/Microphone"
       microphone.dependency "WYBasisKit-ObjC/Localizable"
       microphone.dependency "WYBasisKit-ObjC/LogManager"
     end
@@ -275,7 +275,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}ObjC/Authorization/SpeechRecognition/PrivacyInfo.xcprivacy"
       ]}
       speechRecognition.frameworks = "Foundation", "UIKit"
-      speechRecognition.dependency "WYBasisKit-Swift/Authorization/SpeechRecognition"
+      speechRecognition.dependency "WYBasisKit-swift/Authorization/SpeechRecognition"
       speechRecognition.dependency "WYBasisKit-ObjC/Localizable"
       speechRecognition.dependency "WYBasisKit-ObjC/LogManager"
     end
@@ -293,7 +293,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}ObjC/Layout/ScrollText/PrivacyInfo.xcprivacy"
       ]}
       scrollText.frameworks = "Foundation", "UIKit"
-      scrollText.dependency "WYBasisKit-Swift/Layout/ScrollText"
+      scrollText.dependency "WYBasisKit-swift/Layout/ScrollText"
       scrollText.dependency "WYBasisKit-ObjC/Localizable"
       scrollText.dependency "WYBasisKit-ObjC/LogManager"
     end
@@ -306,7 +306,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}ObjC/Layout/PagingView/PrivacyInfo.xcprivacy"
       ]}
       pagingView.frameworks = "Foundation", "UIKit"
-      pagingView.dependency "WYBasisKit-Swift/Layout/PagingView"
+      pagingView.dependency "WYBasisKit-swift/Layout/PagingView"
       pagingView.dependency "WYBasisKit-ObjC/LogManager"
     end
     
@@ -318,7 +318,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}ObjC/Layout/BannerView/PrivacyInfo.xcprivacy"
       ]}
       bannerView.frameworks = "Foundation", "UIKit"
-      bannerView.dependency "WYBasisKit-Swift/Layout/BannerView"
+      bannerView.dependency "WYBasisKit-swift/Layout/BannerView"
       bannerView.dependency "WYBasisKit-ObjC/Localizable"
       bannerView.dependency "WYBasisKit-ObjC/LogManager"
     end
@@ -331,7 +331,7 @@ Pod::Spec.new do |kit|
          "#{kit_path}ObjC/Layout/ChatView/PrivacyInfo.xcprivacy"
       ]}
       chatView.frameworks = "Foundation", "UIKit"
-      chatView.dependency "WYBasisKit-Swift/Layout/ChatView"
+      chatView.dependency "WYBasisKit-swift/Layout/ChatView"
       chatView.dependency "WYBasisKit-ObjC/Extension"
       chatView.dependency "WYBasisKit-ObjC/Localizable"
       chatView.dependency "WYBasisKit-ObjC/Authorization/Microphone"
@@ -346,7 +346,7 @@ Pod::Spec.new do |kit|
       mediaPlayer.resource_bundles = {"WYBasisKitObjCMediaPlayerFS" => [
       "#{kit_path}ObjC/Layout/MediaPlayer/PrivacyInfo.xcprivacy"
       ]}
-      mediaPlayer.dependency "WYBasisKit-Swift/Layout/MediaPlayer"
+      mediaPlayer.dependency "WYBasisKit-swift/Layout/MediaPlayer"
     end
   end
 end
