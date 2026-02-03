@@ -195,16 +195,25 @@ import WYBasisKitSwift
     }
     
     /// 返回一个计算好的字符串的宽度
+    @objc func wy_calculateWidth(controlHeight: CGFloat, controlFont: UIFont) -> CGFloat {
+        return wy_calculateWidth(controlHeight: controlHeight, controlFont: controlFont, lineSpacing: 0, wordsSpacing: 0)
+    }
     @objc func wy_calculateWidth(controlHeight: CGFloat, controlFont: UIFont, lineSpacing: CGFloat = 0, wordsSpacing: CGFloat = 0) -> CGFloat {
         return (self as String).wy_calculateWidth(controlHeight: controlHeight, controlFont: controlFont, lineSpacing: lineSpacing, wordsSpacing: wordsSpacing)
     }
     
     /// 返回一个计算好的字符串的高度
+    @objc func wy_calculateHeight(controlWidth: CGFloat, controlFont: UIFont) -> CGFloat {
+        return wy_calculateHeight(controlWidth: controlWidth, controlFont: controlFont, lineSpacing: 0, wordsSpacing: 0)
+    }
     @objc func wy_calculateHeight(controlWidth: CGFloat, controlFont: UIFont, lineSpacing: CGFloat = 0, wordsSpacing: CGFloat = 0) -> CGFloat {
         return (self as String).wy_calculateHeight(controlWidth: controlWidth, controlFont: controlFont, lineSpacing: lineSpacing, wordsSpacing: wordsSpacing)
     }
     
     /// 返回一个计算好的字符串的size
+    @objc func wy_calculategSize(controlSize: CGSize, controlFont: UIFont) -> CGSize {
+        return wy_calculategSize(controlSize: controlSize, controlFont: controlFont, lineSpacing: 0, wordsSpacing: 0)
+    }
     @objc func wy_calculategSize(controlSize: CGSize, controlFont: UIFont, lineSpacing: CGFloat = 0, wordsSpacing: CGFloat = 0) -> CGSize {
         return (self as String).wy_calculategSize(controlSize: controlSize, controlFont: controlFont, lineSpacing: lineSpacing, wordsSpacing: wordsSpacing)
     }

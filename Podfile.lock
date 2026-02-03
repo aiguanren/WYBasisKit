@@ -57,16 +57,19 @@ PODS:
     - WYBasisKit-ObjC/Config (= 2.1.0)
     - WYBasisKit-ObjC/EventHandler (= 2.1.0)
     - WYBasisKit-ObjC/Extension (= 2.1.0)
+    - WYBasisKit-ObjC/Imports (= 2.1.0)
     - WYBasisKit-ObjC/Layout (= 2.1.0)
     - WYBasisKit-ObjC/Localizable (= 2.1.0)
     - WYBasisKit-ObjC/LogManager (= 2.1.0)
     - WYBasisKit-ObjC/Networking (= 2.1.0)
     - WYBasisKit-ObjC/Storage (= 2.1.0)
   - WYBasisKit-ObjC/Activity (2.1.0):
+    - WYBasisKit-ObjC/Imports
     - WYBasisKit-ObjC/Localizable
     - WYBasisKit-ObjC/LogManager
     - WYBasisKit-swift/Activity
   - WYBasisKit-ObjC/AudioKit (2.1.0):
+    - WYBasisKit-ObjC/Imports
     - WYBasisKit-swift/AudioKit
   - WYBasisKit-ObjC/Authorization (2.1.0):
     - WYBasisKit-ObjC/Authorization/Biometric (= 2.1.0)
@@ -76,77 +79,88 @@ PODS:
     - WYBasisKit-ObjC/Authorization/PhotoAlbums (= 2.1.0)
     - WYBasisKit-ObjC/Authorization/SpeechRecognition (= 2.1.0)
   - WYBasisKit-ObjC/Authorization/Biometric (2.1.0):
+    - WYBasisKit-ObjC/Imports
     - WYBasisKit-ObjC/Localizable
     - WYBasisKit-ObjC/LogManager
     - WYBasisKit-swift/Authorization/Biometric
   - WYBasisKit-ObjC/Authorization/Camera (2.1.0):
+    - WYBasisKit-ObjC/Imports
     - WYBasisKit-ObjC/Localizable
     - WYBasisKit-ObjC/LogManager
     - WYBasisKit-swift/Authorization/Camera
   - WYBasisKit-ObjC/Authorization/Contacts (2.1.0):
+    - WYBasisKit-ObjC/Imports
     - WYBasisKit-ObjC/Localizable
     - WYBasisKit-ObjC/LogManager
     - WYBasisKit-swift/Authorization/Contacts
   - WYBasisKit-ObjC/Authorization/Microphone (2.1.0):
+    - WYBasisKit-ObjC/Imports
     - WYBasisKit-ObjC/Localizable
     - WYBasisKit-ObjC/LogManager
     - WYBasisKit-swift/Authorization/Microphone
   - WYBasisKit-ObjC/Authorization/PhotoAlbums (2.1.0):
+    - WYBasisKit-ObjC/Imports
     - WYBasisKit-ObjC/Localizable
     - WYBasisKit-ObjC/LogManager
     - WYBasisKit-swift/Authorization/PhotoAlbums
   - WYBasisKit-ObjC/Authorization/SpeechRecognition (2.1.0):
+    - WYBasisKit-ObjC/Imports
     - WYBasisKit-ObjC/Localizable
     - WYBasisKit-ObjC/LogManager
     - WYBasisKit-swift/Authorization/SpeechRecognition
   - WYBasisKit-ObjC/Codable (2.1.0):
+    - WYBasisKit-ObjC/Imports
     - WYBasisKit-swift/Codable
   - WYBasisKit-ObjC/Config (2.1.0):
+    - WYBasisKit-ObjC/Imports
     - WYBasisKit-swift/Config
   - WYBasisKit-ObjC/EventHandler (2.1.0):
+    - WYBasisKit-ObjC/Imports
     - WYBasisKit-swift/EventHandler
   - WYBasisKit-ObjC/Extension (2.1.0):
     - WYBasisKit-ObjC/Config
+    - WYBasisKit-ObjC/Imports
     - WYBasisKit-ObjC/Localizable
     - WYBasisKit-ObjC/LogManager
     - WYBasisKit-swift/Extension
+  - WYBasisKit-ObjC/Imports (2.1.0)
   - WYBasisKit-ObjC/Layout (2.1.0):
     - WYBasisKit-ObjC/Layout/BannerView (= 2.1.0)
-    - WYBasisKit-ObjC/Layout/ChatView (= 2.1.0)
     - WYBasisKit-ObjC/Layout/MediaPlayer (= 2.1.0)
     - WYBasisKit-ObjC/Layout/PagingView (= 2.1.0)
     - WYBasisKit-ObjC/Layout/ScrollText (= 2.1.0)
   - WYBasisKit-ObjC/Layout/BannerView (2.1.0):
+    - WYBasisKit-ObjC/Imports
     - WYBasisKit-ObjC/Localizable
     - WYBasisKit-ObjC/LogManager
     - WYBasisKit-swift/Layout/BannerView
-  - WYBasisKit-ObjC/Layout/ChatView (2.1.0):
-    - WYBasisKit-ObjC/Authorization/Microphone
-    - WYBasisKit-ObjC/Extension
-    - WYBasisKit-ObjC/Localizable
-    - WYBasisKit-ObjC/LogManager
-    - WYBasisKit-ObjC/Storage
-    - WYBasisKit-swift/Layout/ChatView
   - WYBasisKit-ObjC/Layout/MediaPlayer (2.1.0):
+    - WYBasisKit-ObjC/Imports
     - WYBasisKit-swift/Layout/MediaPlayer
   - WYBasisKit-ObjC/Layout/PagingView (2.1.0):
+    - WYBasisKit-ObjC/Imports
     - WYBasisKit-ObjC/LogManager
     - WYBasisKit-swift/Layout/PagingView
   - WYBasisKit-ObjC/Layout/ScrollText (2.1.0):
+    - WYBasisKit-ObjC/Imports
     - WYBasisKit-ObjC/Localizable
     - WYBasisKit-ObjC/LogManager
     - WYBasisKit-swift/Layout/ScrollText
   - WYBasisKit-ObjC/Localizable (2.1.0):
     - WYBasisKit-ObjC/Config
+    - WYBasisKit-ObjC/Imports
     - WYBasisKit-swift/Localizable
   - WYBasisKit-ObjC/LogManager (2.1.0):
+    - WYBasisKit-ObjC/Imports
     - WYBasisKit-swift/LogManager
   - WYBasisKit-ObjC/Networking (2.1.0):
     - WYBasisKit-ObjC/Codable
+    - WYBasisKit-ObjC/Imports
     - WYBasisKit-ObjC/Localizable
     - WYBasisKit-ObjC/Storage
     - WYBasisKit-swift/Networking
   - WYBasisKit-ObjC/Storage (2.1.0):
+    - WYBasisKit-ObjC/Imports
     - WYBasisKit-swift/Storage
   - WYBasisKit-swift (2.1.0):
     - WYBasisKit-swift/Activity (= 2.1.0)
@@ -287,7 +301,7 @@ SPEC CHECKSUMS:
   Moya: 138f0573e53411fb3dc17016add0b748dfbd78ee
   SDWebImage: e9c98383c7572d713c1a0d7dd2783b10599b9838
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
-  WYBasisKit-ObjC: a55dc6343b6d807b6183f7259c4e6cc4ac8593e6
+  WYBasisKit-ObjC: 9e37f4e3e88b6b4060d0ac5d3388594eb83552ce
   WYBasisKit-swift: c0b8e352ffbbb79682681b7406fe38203987472e
   WYBasisKit-SwiftUI: a36f28e62682f37dd735ee4c1c6a5e240396f57d
 

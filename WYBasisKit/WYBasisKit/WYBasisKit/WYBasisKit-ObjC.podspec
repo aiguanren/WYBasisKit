@@ -3,7 +3,7 @@ kit_path = "WYBasisKit/WYBasisKit/WYBasisKit/"
 
 Pod::Spec.new do |kit|
   kit.name         = "WYBasisKit-ObjC"
-  kit.version      = "2.1.0"
+  kit.version      = "2.1.1"
   kit.summary      = "WYBasisKit 不仅可以帮助开发者快速构建一个工程，还有基于常用网络框架和系统API而封装的各种实用方法、扩展，开发者只需简单的调用API就可以快速实现相应功能， 大幅提高开发效率。"
   kit.description  = <<-DESC
     Localizable: 国际化解决方案
@@ -57,20 +57,24 @@ Pod::Spec.new do |kit|
   #   "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) WYBasisKit_Supports_ObjC=1",  # 用于 Objective-C 的 #if 判断
   #   "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) WYBasisKit_Supports_ObjC", # 用于 Swift 的 #if 判断（注意不带 =1，就是直接使用宏名即可）    
   # }
-  
-  kit.source_files = [
-    "#{kit_path}ObjC/Imports/**/*.{swift,h,m}"
-  ]
-
-  # 添加公共头文件
-  kit.public_header_files = [
-    "#{kit_path}ObjC/Imports/**/*.{swift,h,m}"
-  ]
 
   # 排除匹配某个文件夹下面的所有文件和文件夹，如排除匹配aaa文件夹下面的所有文件和文件夹
   # kit.exclude_files = [
   #   "#{kit_path}aaa/**/*"
   # ]  
+
+  kit.subspec "Imports" do |imports|
+    imports.source_files = [
+      "#{kit_path}ObjC/Imports/**/*.{swift,h,m}"
+    ]
+    imports.public_header_files = [
+      "#{kit_path}ObjC/Imports/**/*.{h,m}"
+    ]
+    imports.resource_bundles = {"WYBasisKitObjCImports" => [
+      "#{kit_path}ObjC/Imports/PrivacyInfo.xcprivacy"
+    ]}
+    imports.frameworks = "Foundation", "UIKit"
+  end
 
   kit.subspec "Config" do |config|
     config.source_files = [
@@ -81,6 +85,7 @@ Pod::Spec.new do |kit|
     ]}
     config.frameworks = "Foundation", "UIKit"
     config.dependency "WYBasisKit-swift/Config"
+    config.dependency "WYBasisKit-ObjC/Imports"
   end
 
   kit.subspec "LogManager" do |logManager|
@@ -92,6 +97,7 @@ Pod::Spec.new do |kit|
     ]}
     logManager.frameworks = "Foundation", "UIKit"
     logManager.dependency "WYBasisKit-swift/LogManager"
+    logManager.dependency "WYBasisKit-ObjC/Imports"
   end
   
   kit.subspec "Localizable" do |localizable|
@@ -104,6 +110,7 @@ Pod::Spec.new do |kit|
     localizable.frameworks = "Foundation", "UIKit"
     localizable.dependency "WYBasisKit-swift/Localizable"
     localizable.dependency "WYBasisKit-ObjC/Config"
+    localizable.dependency "WYBasisKit-ObjC/Imports"
   end
   
   kit.subspec "Extension" do |extension|
@@ -118,6 +125,7 @@ Pod::Spec.new do |kit|
     extension.dependency "WYBasisKit-ObjC/Localizable"
     extension.dependency "WYBasisKit-ObjC/Config"
     extension.dependency "WYBasisKit-ObjC/LogManager"
+    extension.dependency "WYBasisKit-ObjC/Imports"
   end
   
   kit.subspec "Codable" do |codable|
@@ -129,6 +137,7 @@ Pod::Spec.new do |kit|
     ]}
     codable.frameworks = "Foundation", "UIKit"
     codable.dependency "WYBasisKit-swift/Codable"
+    codable.dependency "WYBasisKit-ObjC/Imports"
   end
   
   kit.subspec "Networking" do |networking|
@@ -143,6 +152,7 @@ Pod::Spec.new do |kit|
     networking.dependency "WYBasisKit-ObjC/Localizable"
     networking.dependency "WYBasisKit-ObjC/Storage"
     networking.dependency "WYBasisKit-ObjC/Codable"
+    networking.dependency "WYBasisKit-ObjC/Imports"
   end
   
   kit.subspec "Activity" do |activity|
@@ -163,6 +173,7 @@ Pod::Spec.new do |kit|
     activity.dependency "WYBasisKit-swift/Activity"
     activity.dependency "WYBasisKit-ObjC/Localizable"
     activity.dependency "WYBasisKit-ObjC/LogManager"
+    activity.dependency "WYBasisKit-ObjC/Imports"
   end
   
   kit.subspec "Storage" do |storage|
@@ -174,6 +185,7 @@ Pod::Spec.new do |kit|
     ]}
     storage.frameworks = "Foundation", "UIKit"
     storage.dependency "WYBasisKit-swift/Storage"
+    storage.dependency "WYBasisKit-ObjC/Imports"
   end
 
   kit.subspec "EventHandler" do |eventHandler|
@@ -185,6 +197,7 @@ Pod::Spec.new do |kit|
     ]}
     eventHandler.frameworks = "Foundation", "UIKit"
     eventHandler.dependency "WYBasisKit-swift/EventHandler"
+    eventHandler.dependency "WYBasisKit-ObjC/Imports"
   end
 
   kit.subspec "AudioKit" do |audioKit|
@@ -196,6 +209,7 @@ Pod::Spec.new do |kit|
     ]}
     audioKit.frameworks = "Foundation", "UIKit"
     audioKit.dependency "WYBasisKit-swift/AudioKit"
+    audioKit.dependency "WYBasisKit-ObjC/Imports"
   end
   
   kit.subspec "Authorization" do |authorization|
@@ -213,6 +227,7 @@ Pod::Spec.new do |kit|
       camera.dependency "WYBasisKit-swift/Authorization/Camera"
       camera.dependency "WYBasisKit-ObjC/Localizable"
       camera.dependency "WYBasisKit-ObjC/LogManager"
+      camera.dependency "WYBasisKit-ObjC/Imports"
     end
     
     authorization.subspec "Biometric" do |biometric|
@@ -226,6 +241,7 @@ Pod::Spec.new do |kit|
       biometric.dependency "WYBasisKit-swift/Authorization/Biometric"
       biometric.dependency "WYBasisKit-ObjC/Localizable"
       biometric.dependency "WYBasisKit-ObjC/LogManager"
+      biometric.dependency "WYBasisKit-ObjC/Imports"
     end
     
     authorization.subspec "Contacts" do |contacts|
@@ -239,6 +255,7 @@ Pod::Spec.new do |kit|
       contacts.dependency "WYBasisKit-swift/Authorization/Contacts"
       contacts.dependency "WYBasisKit-ObjC/Localizable"
       contacts.dependency "WYBasisKit-ObjC/LogManager"
+      contacts.dependency "WYBasisKit-ObjC/Imports"
     end
     
     authorization.subspec "PhotoAlbums" do |photoAlbums|
@@ -252,6 +269,7 @@ Pod::Spec.new do |kit|
       photoAlbums.dependency "WYBasisKit-swift/Authorization/PhotoAlbums"
       photoAlbums.dependency "WYBasisKit-ObjC/Localizable"
       photoAlbums.dependency "WYBasisKit-ObjC/LogManager"
+      photoAlbums.dependency "WYBasisKit-ObjC/Imports"
     end
     
     authorization.subspec "Microphone" do |microphone|
@@ -265,6 +283,7 @@ Pod::Spec.new do |kit|
       microphone.dependency "WYBasisKit-swift/Authorization/Microphone"
       microphone.dependency "WYBasisKit-ObjC/Localizable"
       microphone.dependency "WYBasisKit-ObjC/LogManager"
+      microphone.dependency "WYBasisKit-ObjC/Imports"
     end
     
     authorization.subspec "SpeechRecognition" do |speechRecognition|
@@ -278,6 +297,7 @@ Pod::Spec.new do |kit|
       speechRecognition.dependency "WYBasisKit-swift/Authorization/SpeechRecognition"
       speechRecognition.dependency "WYBasisKit-ObjC/Localizable"
       speechRecognition.dependency "WYBasisKit-ObjC/LogManager"
+      speechRecognition.dependency "WYBasisKit-ObjC/Imports"
     end
   end
   
@@ -296,6 +316,7 @@ Pod::Spec.new do |kit|
       scrollText.dependency "WYBasisKit-swift/Layout/ScrollText"
       scrollText.dependency "WYBasisKit-ObjC/Localizable"
       scrollText.dependency "WYBasisKit-ObjC/LogManager"
+      scrollText.dependency "WYBasisKit-ObjC/Imports"
     end
     
     layout.subspec "PagingView" do |pagingView|
@@ -309,6 +330,7 @@ Pod::Spec.new do |kit|
       pagingView.frameworks = "Foundation", "UIKit"
       pagingView.dependency "WYBasisKit-swift/Layout/PagingView"
       pagingView.dependency "WYBasisKit-ObjC/LogManager"
+      pagingView.dependency "WYBasisKit-ObjC/Imports"
     end
     
     layout.subspec "BannerView" do |bannerView|
@@ -322,6 +344,7 @@ Pod::Spec.new do |kit|
       bannerView.dependency "WYBasisKit-swift/Layout/BannerView"
       bannerView.dependency "WYBasisKit-ObjC/Localizable"
       bannerView.dependency "WYBasisKit-ObjC/LogManager"
+      bannerView.dependency "WYBasisKit-ObjC/Imports"
     end
     
     # layout.subspec "ChatView" do |chatView|
@@ -334,6 +357,7 @@ Pod::Spec.new do |kit|
     #   chatView.frameworks = "Foundation", "UIKit"
     #   chatView.dependency "WYBasisKit-swift/Layout/ChatView"
     #   chatView.dependency "WYBasisKit-ObjC/Extension"
+    #   chatView.dependency "WYBasisKit-ObjC/Imports"
     # end
 
     layout.subspec "MediaPlayer" do |mediaPlayer|
@@ -344,6 +368,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}ObjC/Layout/MediaPlayer/PrivacyInfo.xcprivacy"
       ]}
       mediaPlayer.dependency "WYBasisKit-swift/Layout/MediaPlayer"
+      mediaPlayer.dependency "WYBasisKit-ObjC/Imports"
     end
   end
 end
