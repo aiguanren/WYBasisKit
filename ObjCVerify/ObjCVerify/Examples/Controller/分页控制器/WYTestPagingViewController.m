@@ -837,7 +837,7 @@
 /// 将设置应用到分页视图
 - (void)applySettingsTo:(WYPagingView *)pagingView {
     // 基本属性设置
-    pagingView.bar_Height = self.settings.barHeight;
+    pagingView.bar_height = self.settings.barHeight;
     pagingView.buttonPosition = self.settings.buttonPosition;
     pagingView.bar_originlLeftOffset = self.settings.originlLeftOffset;
     pagingView.bar_originlRightOffset = self.settings.originlRightOffset;

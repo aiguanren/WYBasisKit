@@ -30,10 +30,10 @@ import WYBasisKitSwift
     }
 
     /// 分页栏的高度 默认45
-    @objc(bar_Height)
-    var bar_HeightObjC: CGFloat {
-        get { return bar_Height }
-        set { bar_Height = newValue }
+    @objc(bar_height)
+    var bar_heightObjC: CGFloat {
+        get { return bar_height }
+        set { bar_height = newValue }
     }
     
     /// 图片和文字显示模式
@@ -57,7 +57,7 @@ import WYBasisKitSwift
         set { bar_originlRightOffset = newValue }
     }
     
-    /// item距离分页栏顶部的偏移量(需要设置bar_item_height后才会生效)， 默认0(默认0时会强制转为nil传给swift)，如需传入0则传入0.01等具体值
+    /// item距离分页栏顶部的偏移量，默认0.01(等于0时会强制转为nil传给swift)，如需传入0则传入0.01等具体值
     @objc(bar_itemTopOffset)
     var bar_itemTopOffsetObjC: CGFloat {
         get { return bar_itemTopOffset ?? 0 }
@@ -122,7 +122,7 @@ import WYBasisKitSwift
         set { bar_item_width = newValue }
     }
     
-    /// 分页栏Item高度 默认bar_Height-bar_dividingStripHeight(若传入则整体使用传入高度)
+    /// 分页栏Item高度(若传入则整体使用传入高度，否则内部会默认修改为bar_height-bar_dividingStripHeight)
     @objc(bar_item_height)
     var bar_item_heightObjC: CGFloat {
         get { return bar_item_height }
@@ -199,14 +199,14 @@ import WYBasisKitSwift
         set { bar_scrollLineImage = newValue }
     }
 
-    /// 滑动线条宽度 默认25像素
+    /// 滑动线条宽度 默认0(如传入的数值大于0，则使用传入的宽度，否则宽度会按照分页栏Item宽度来显示)
     @objc(bar_scrollLineWidth)
     var bar_scrollLineWidthObjC: CGFloat {
         get { return bar_scrollLineWidth }
         set { bar_scrollLineWidth = newValue }
     }
 
-    /// 滑动线条距离分页栏底部的距离 默认5像素
+    /// 滑动线条距离分页栏底部的距离 默认0
     @objc(bar_scrollLineBottomOffset)
     var bar_scrollLineBottomOffsetObjC: CGFloat {
         get { return bar_scrollLineBottomOffset }
@@ -307,6 +307,10 @@ import WYBasisKitSwift
      * @param selectedImages 选中状态图片数组(可不传)
      * @param superViewController 父控制器
      */
+    @objc(layoutWithControllers:titles:superViewController:)
+    func layoutObjC(controllers: [UIViewController], titles: [String]?, superViewController: UIViewController) {
+        layoutObjC(controllers: controllers, titles: titles, defaultImages: nil, selectedImages: nil, superViewController: superViewController)
+    }
     @objc(layoutWithControllers:titles:defaultImages:selectedImages:superViewController:)
     func layoutObjC(controllers: [UIViewController], titles: [String]?, defaultImages: [UIImage]?, selectedImages: [UIImage]?, superViewController: UIViewController) {
         layout(controllers: controllers, titles: titles ?? [], defaultImages: defaultImages ?? [], selectedImages: selectedImages ?? [], superViewController: superViewController)

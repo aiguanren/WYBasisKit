@@ -29,7 +29,7 @@ public class WYPagingView: UIView {
     }
 
     /// 分页栏的高度 默认45
-    public var bar_Height: CGFloat = UIDevice.wy_screenWidth(45, WYBasisKitConfig.defaultScreenPixels)
+    public var bar_height: CGFloat = UIDevice.wy_screenWidth(45, WYBasisKitConfig.defaultScreenPixels)
     
     /// 图片和文字显示模式
     public var buttonPosition: WYButtonPosition = .imageLeftTitleRight
@@ -40,8 +40,8 @@ public class WYPagingView: UIView {
     /// 分页栏右起始点距离(最后一个标题栏距离屏幕边界的距离) 默认0
     public var bar_originlRightOffset: CGFloat = 0
     
-    /// item距离分页栏顶部的偏移量(需要设置bar_item_height后才会生效)， 默认nil
-    public var bar_itemTopOffset: CGFloat?
+    /// item距离分页栏顶部的偏移量，默认0.01(默认0时会强制转为nil传给swift)，如需传入0则传入0.01等具体值
+    public var bar_itemTopOffset: CGFloat? = 0.01
     
     /// 显示整体宽度小于一屏，且设置了bar_Width != 0，是否需要居中显示，默认 居中 (居中后，将会动态调整bar_originlLeftOffset和bar_originlRightOffset的距离)
     public var bar_adjustOffset: Bool = true
@@ -67,10 +67,10 @@ public class WYPagingView: UIView {
     /// 分页栏Item宽度 默认对应每页标题文本宽度(若传入则整体使用传入宽度)
     public var bar_item_width: CGFloat = 0
     
-    /// 分页栏Item高度 默认bar_Height-bar_dividingStripHeight(若传入则整体使用传入高度)
+    /// 分页栏Item高度 默认bar_height-bar_dividingStripHeight(若传入则整体使用传入高度)
     public var bar_item_height: CGFloat = 0
     
-    /// 分页栏Item在约束size的基础上追加传入的size大小，默认.zero(高度等于bar_Height)
+    /// 分页栏Item在约束size的基础上追加传入的size大小，默认.zero(高度等于bar_height)
     public var bar_item_appendSize: CGSize = .zero
 
     /// 分页栏item默认背景色 默认白色
@@ -100,11 +100,11 @@ public class WYPagingView: UIView {
     /// 滑动线条背景图 默认为空
     public var bar_scrollLineImage: UIImage? = nil
 
-    /// 滑动线条宽度 默认25像素
-    public var bar_scrollLineWidth: CGFloat = UIDevice.wy_screenWidth(25, WYBasisKitConfig.defaultScreenPixels)
+    /// 滑动线条宽度 默认0(如传入的数值大于0，则使用传入的宽度，否则宽度会按照分页栏Item宽度来显示)
+    public var bar_scrollLineWidth: CGFloat = 0
 
-    /// 滑动线条距离分页栏底部的距离 默认5像素
-    public var bar_scrollLineBottomOffset: CGFloat = UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels)
+    /// 滑动线条距离分页栏底部的距离 默认0
+    public var bar_scrollLineBottomOffset: CGFloat = 0
 
     /// 分隔带高度 默认2像素
     public var bar_dividingStripHeight: CGFloat = UIDevice.wy_screenWidth(2, WYBasisKitConfig.defaultScreenPixels)
@@ -164,6 +164,10 @@ public class WYPagingView: UIView {
             self.selectedImages = selectedImages
             self.superController = superViewController
             
+            if (self.bar_item_height <= 0) {
+                self.bar_item_height = self.bar_height - self.bar_dividingStripHeight
+            }
+            
             self.layoutMethod()
         }
     }
@@ -171,6 +175,7 @@ public class WYPagingView: UIView {
     private var currentButtonItem: WYPagingItem!
     private var actionHandler: ((_ index: Int) -> Void)?
     private var barScrollLineLeftConstraint: NSLayoutConstraint?
+    private var barScrollLineWidthConstraint: NSLayoutConstraint?
     
     public init() {
         super.init(frame: .zero)
@@ -240,7 +245,15 @@ extension WYPagingView {
         }
         
         UIView.animate(withDuration: 0.2) {
-            self.barScrollLineLeftConstraint?.constant = self.currentButtonItem.center.x - (self.barScrollLine.frame.size.width * 0.5)
+            
+            let bar_scrollLineWidth: CGFloat = self.bar_scrollLineWidth > 0 ? self.bar_scrollLineWidth : self.currentButtonItem.wy_width
+            
+            self.barScrollLineLeftConstraint?.constant = self.currentButtonItem.center.x - (bar_scrollLineWidth * 0.5)
+            
+            self.barScrollLineWidthConstraint?.constant = bar_scrollLineWidth
+            
+            self.barScrollLine.wy_rectCorner(.allCorners).wy_cornerRadius(bar_scrollLineWidth / 2).wy_showVisual()
+            
             self.barScrollLine.superview?.layoutIfNeeded()
         }
         
@@ -378,21 +391,6 @@ extension WYPagingView {
 
                 controllerScrollView.superview?.layoutIfNeeded()
                 controllerScrollView.contentOffset = CGPoint(x: self.frame.size.width * CGFloat(bar_selectedIndex), y: 0)
-
-                /// 底部分隔带
-                let dividingView = UIImageView()
-                dividingView.translatesAutoresizingMaskIntoConstraints = false
-                dividingView.backgroundColor = bar_dividingStripColor
-                if let dividingStripImage: UIImage = bar_dividingStripImage {
-                    dividingView.image = dividingStripImage
-                }
-                addSubview(dividingView)
-                
-                // 设置分隔带约束
-                dividingView.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
-                dividingView.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
-                dividingView.heightAnchor.constraint(equalToConstant: bar_dividingStripHeight).isActive = true
-                dividingView.bottomAnchor.constraint(equalTo: barScrollView.bottomAnchor).isActive = true
             }
         }
         DispatchQueue.main.async(execute: {
@@ -440,7 +438,7 @@ extension WYPagingView {
                 // 设置控制器视图约束
                 controllerView!.topAnchor.constraint(equalTo: scrollView!.topAnchor).isActive = true
                 controllerView!.bottomAnchor.constraint(equalTo: scrollView!.bottomAnchor).isActive = true
-                controllerView!.heightAnchor.constraint(equalTo: self.heightAnchor, constant: -bar_Height).isActive = true
+                controllerView!.heightAnchor.constraint(equalTo: self.heightAnchor, constant: -bar_height).isActive = true
                 controllerView!.widthAnchor.constraint(equalTo: self.widthAnchor).isActive = true
                 
                 if lastView == nil {
@@ -481,11 +479,26 @@ extension WYPagingView {
             barScroll!.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
             barScroll!.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
             barScroll!.widthAnchor.constraint(equalTo: self.widthAnchor).isActive = true
-            barScroll!.heightAnchor.constraint(equalToConstant: bar_Height).isActive = true
+            barScroll!.heightAnchor.constraint(equalToConstant: bar_height).isActive = true
+            
+            /// 底部分隔带
+            let dividingView = UIImageView()
+            dividingView.translatesAutoresizingMaskIntoConstraints = false
+            dividingView.backgroundColor = bar_dividingStripColor
+            if let dividingStripImage: UIImage = bar_dividingStripImage {
+                dividingView.image = dividingStripImage
+            }
+            barScroll!.addSubview(dividingView)
+            
+            // 设置分隔带约束
+            dividingView.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
+            dividingView.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
+            dividingView.heightAnchor.constraint(equalToConstant: bar_dividingStripHeight).isActive = true
+            dividingView.topAnchor.constraint(equalTo: barScroll!.bottomAnchor, constant: bar_height - bar_dividingStripHeight).isActive = true
             
             objc_setAssociatedObject(self, &WYAssociatedKeys.barScrollView, barScroll, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
-        barScroll!.contentSize = CGSize(width: barScroll!.contentSize.width, height: bar_Height)
+        barScroll!.contentSize = CGSize(width: barScroll!.contentSize.width, height: bar_height)
         
         return barScroll!
     }
@@ -507,11 +520,10 @@ extension WYPagingView {
             // 设置滑动线条约束
             barScrollLineLeftConstraint = scrollLine!.leadingAnchor.constraint(equalTo: barScrollView.leadingAnchor)
             barScrollLineLeftConstraint!.isActive = true
-            scrollLine!.widthAnchor.constraint(equalToConstant: bar_scrollLineWidth).isActive = true
+            barScrollLineWidthConstraint = scrollLine!.widthAnchor.constraint(equalToConstant: bar_scrollLineWidth)
+            barScrollLineWidthConstraint!.isActive = true
             scrollLine!.heightAnchor.constraint(equalToConstant: bar_scrollLineHeight).isActive = true
-            scrollLine!.topAnchor.constraint(equalTo: barScrollView.topAnchor, constant: bar_Height - bar_scrollLineBottomOffset - bar_scrollLineHeight).isActive = true
-            
-            scrollLine?.wy_rectCorner(.allCorners).wy_cornerRadius(bar_scrollLineHeight / 2).wy_showVisual()
+            scrollLine!.topAnchor.constraint(equalTo: barScrollView.topAnchor, constant: bar_height - bar_scrollLineBottomOffset - bar_scrollLineHeight).isActive = true
             
             objc_setAssociatedObject(self, &WYAssociatedKeys.barScrollLine, scrollLine!, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }

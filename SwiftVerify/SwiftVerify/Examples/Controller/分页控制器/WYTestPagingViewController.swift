@@ -123,7 +123,7 @@ class WYTestPagingViewController: UIViewController {
     /// 将设置应用到分页视图
     private func applySettings(to pagingView: WYPagingView) {
         // 基本属性设置
-        pagingView.bar_Height = settings.barHeight
+        pagingView.bar_height = settings.barHeight
         pagingView.buttonPosition = settings.buttonPosition
         pagingView.bar_originlLeftOffset = settings.originlLeftOffset
         pagingView.bar_originlRightOffset = settings.originlRightOffset
