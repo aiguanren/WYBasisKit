@@ -19,7 +19,8 @@ import CoreText
      *  @param range   点击的字符串range
      *  @param index   点击的字符在数组中的index
      */
-    @objc optional func wy_didClick(richText: String, range: NSRange, index: Int)
+    @objc(wy_didClickRichText:range:index:)
+    optional func wy_didClick(richText: String, range: NSRange, index: Int)
 }
 
 public extension UILabel {
@@ -44,6 +45,16 @@ public extension UILabel {
         }
         get {
             return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_clickEffectColor) as? UIColor ?? .clear
+        }
+    }
+    
+    /// 是否需要模仿按钮的TouchUpInside效果，默认true
+    var wy_isTouchUpInside: Bool {
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_isTouchUpInside, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_isTouchUpInside) as? Bool ?? true
         }
     }
     
@@ -90,14 +101,25 @@ extension UILabel {
         wy_isClickEffect = wy_enableClickEffect
         let touch = touches.first
         let point: CGPoint = touch?.location(in: self) ?? .zero
+        
+        // 记录触摸开始信息
+        wy_touchBeginPoint = point
+        wy_touchBeginTime = Date().timeIntervalSince1970
+        
         wy_richTextFrame(touchPoint: point) {[weak self] (string, range, index) in
             
-            if self?.wy_clickBlock != nil {
-                self?.wy_clickBlock!(string, range, index)
-            }
+            // 保存当前触摸的富文本信息
+            self?.wy_currentTouchModel = (string, range, index)
             
-            if (self?.wy_richTextDelegate != nil) {
-                self?.wy_richTextDelegate?.wy_didClick?(richText: string, range: range, index: index)
+            // isTouchUpInside为false时立即响应点击事件
+            if self?.wy_isTouchUpInside == false {
+                if self?.wy_clickBlock != nil {
+                    self?.wy_clickBlock!(string, range, index)
+                }
+                
+                if (self?.wy_richTextDelegate != nil) {
+                    self?.wy_richTextDelegate?.wy_didClick?(richText: string, range: range, index: index)
+                }
             }
             
             if self?.wy_isClickEffect == true {
@@ -109,6 +131,45 @@ extension UILabel {
     
     open override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         
+        // TouchUpInside 模式处理
+        if wy_isTouchUpInside == true, let model = wy_currentTouchModel {
+            
+            if let touch = touches.first {
+                let endPoint: CGPoint = touch.location(in: self)
+                
+                // 检查是否还在同一个富文本区域内
+                var isSameRichText = false
+                wy_richTextFrame(touchPoint: endPoint) { (string, range, index) in
+                    if string == model.string && range == model.range && index == model.index {
+                        isSameRichText = true
+                    }
+                }
+                
+                // 检查移动距离是否在允许范围内
+                let moveDistance = wy_calculateDistance(from: wy_touchBeginPoint, to: endPoint)
+                let isMoveDistanceValid = moveDistance <= wy_maxTouchMoveDistance
+                
+                // 检查触摸时长是否合理（防止长按触发）
+                let currentTime = Date().timeIntervalSince1970
+                let touchDuration = currentTime - (wy_touchBeginTime ?? currentTime)
+                let isTouchDurationValid = touchDuration < 0.5 // 500ms 内
+                
+                // 只有满足所有条件才触发
+                if isSameRichText && isMoveDistanceValid && isTouchDurationValid {
+                    if wy_clickBlock != nil {
+                        wy_clickBlock!(model.string, model.range, model.index)
+                    }
+                    
+                    if (wy_richTextDelegate != nil) {
+                        wy_richTextDelegate?.wy_didClick?(richText: model.string, range: model.range, index: model.index)
+                    }
+                }
+            }
+            
+            // 重置触摸状态
+            wy_resetTouchState()
+        }
+        
         if wy_isClickEffect == true {
             performSelector(onMainThread: #selector(wy_clickEffect(_:)), with: nil, waitUntilDone: false)
         }
@@ -116,8 +177,38 @@ extension UILabel {
     
     open override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         
+        // TouchUpInside 模式下，取消触摸重置状态
+        if wy_isTouchUpInside == true {
+            wy_resetTouchState()
+        }
+        
         if wy_isClickEffect == true {
             performSelector(onMainThread: #selector(wy_clickEffect(_:)), with: nil, waitUntilDone: false)
+        }
+    }
+    
+    open override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        // TouchUpInside 模式下，如果触摸移出富文本区域，清除点击效果
+        if wy_isTouchUpInside == true, let touch = touches.first, wy_currentTouchModel != nil {
+            let point: CGPoint = touch.location(in: self)
+            var isStillInRichText = false
+            
+            wy_richTextFrame(touchPoint: point) { [weak self] (string, range, index) in
+                if let currentModel = self?.wy_currentTouchModel,
+                   string == currentModel.string && range == currentModel.range && index == currentModel.index {
+                    isStillInRichText = true
+                }
+            }
+            
+            // 如果移出了富文本区域，清除点击效果并重置状态
+            if !isStillInRichText {
+                if wy_isClickEffect == true {
+                    performSelector(onMainThread: #selector(wy_clickEffect(_:)), with: nil, waitUntilDone: false)
+                }
+                // 重置触摸状态，防止 touchesEnded 时误触发
+                wy_currentTouchModel = nil
+            }
         }
     }
     
@@ -136,88 +227,104 @@ extension UILabel {
     @discardableResult
     private func wy_richTextFrame(touchPoint: CGPoint, handler:((_ string: String, _ range: NSRange, _ index: Int) -> Void)? = nil) -> Bool {
         
-        let framesetter = CTFramesetterCreateWithAttributedString(attributedText!)
+        guard let attributedText = attributedText else { return false }
+        
+        let framesetter = CTFramesetterCreateWithAttributedString(attributedText)
         
         var path = CGMutablePath()
-        
         path.addRect(bounds, transform: CGAffineTransform.identity)
         
         var frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(0, 0), path, nil)
         
         let range = CTFrameGetVisibleStringRange(frame)
         
-        if attributedText!.length > range.length {
-            
-            var m_font: UIFont = font
-            let u_font = attributedText?.attribute(NSAttributedString.Key.font, at: 0, effectiveRange: nil)
-            if u_font != nil {
-                m_font = u_font as! UIFont
+        // 处理文本超出一行的情况
+        if attributedText.length > range.length {
+            var m_font: UIFont = font ?? UIFont.systemFont(ofSize: 17)
+            let u_font = attributedText.attribute(NSAttributedString.Key.font, at: 0, effectiveRange: nil)
+            if let fontValue = u_font as? UIFont {
+                m_font = fontValue
             }
-
+            
             var lineSpace: CGFloat = 0.0
-            let paragraphStyleObj = attributedText?.attribute(NSAttributedString.Key.paragraphStyle, at: 0, effectiveRange: nil) as? NSParagraphStyle
-            if paragraphStyleObj != nil {
-                lineSpace = (paragraphStyleObj?.value(forKey: "_lineSpacing") as? CGFloat) ?? 0
+            if let paragraphStyle = attributedText.attribute(NSAttributedString.Key.paragraphStyle, at: 0, effectiveRange: nil) as? NSParagraphStyle {
+                lineSpace = paragraphStyle.lineSpacing
             }
             
             path = CGMutablePath()
-            path.addRect(CGRect(x: 0, y: 0, width: bounds.size.width, height: bounds.size.height + m_font.lineHeight - lineSpace), transform: CGAffineTransform.identity)
+            let height = bounds.size.height + m_font.lineHeight - lineSpace
+            path.addRect(CGRect(x: 0, y: 0, width: bounds.size.width, height: height), transform: CGAffineTransform.identity)
             frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(0, 0), path, nil)
         }
         
         let lines = CTFrameGetLines(frame)
-        let count = CFArrayGetCount(lines)
-        guard count > 0 else {
-            return false
-        }
+        let lineCount = CFArrayGetCount(lines)
+        guard lineCount > 0 else { return false }
         
-        var origins = [CGPoint](repeating: CGPoint.zero, count: count)
-        
+        var origins = [CGPoint](repeating: .zero, count: lineCount)
         CTFrameGetLineOrigins(frame, CFRangeMake(0, 0), &origins)
         
-        let transform = CGAffineTransform(translationX: 0, y: self.bounds.size.height).scaledBy(x: 1.0, y: -1.0);
-        let verticalOffset = 0.0
-        for i : CFIndex in 0..<count {
-            
+        let transform = CGAffineTransform(translationX: 0, y: bounds.size.height).scaledBy(x: 1.0, y: -1.0)
+        
+        for i in 0..<lineCount {
             let linePoint = origins[i]
             let line = CFArrayGetValueAtIndex(lines, i)
-            let lineRef = unsafeBitCast(line,to: CTLine.self)
-            let flippedRect: CGRect = wy_sharedBounds(line: lineRef, point: linePoint)
+            let lineRef = unsafeBitCast(line, to: CTLine.self)
+            let flippedRect = wy_sharedBounds(line: lineRef, point: linePoint)
             var rect = flippedRect.applying(transform)
             rect = rect.insetBy(dx: 0, dy: 0)
-            rect = rect.offsetBy(dx: 0, dy: CGFloat(verticalOffset))
-            let style = attributedText?.attribute(NSAttributedString.Key.paragraphStyle, at: 0, effectiveRange: nil)
-            var lineSpace : CGFloat = 0.0
-            if (style != nil) {
-                lineSpace = (style as! NSParagraphStyle).lineSpacing
-            }else {
-                lineSpace = 0.0
-            }
-            let lineOutSpace = (CGFloat(bounds.size.height) - CGFloat(lineSpace) * CGFloat(count - 1) - CGFloat(rect.size.height) * CGFloat(count)) / 2
             
-            rect.origin.y = lineOutSpace + rect.size.height * CGFloat(i) + lineSpace * CGFloat(i)
+            // 根据文本对齐方式调整 rect 的 x 位置
+            let lineWidth = CGFloat(CTLineGetTypographicBounds(lineRef, nil, nil, nil))
+            
+            switch textAlignment {
+            case .center:
+                // 居中对齐：计算偏移量并调整 rect
+                let xOffset = (bounds.width - lineWidth) / 2.0
+                rect.origin.x += xOffset
+            case .right:
+                // 右对齐
+                let xOffset = bounds.width - lineWidth
+                rect.origin.x += xOffset
+            case .left, .natural, .justified:
+                // 左对齐和其他情况保持原样
+                break
+            @unknown default:
+                break
+            }
+            
+            // 垂直方向调整
+            let style = attributedText.attribute(NSAttributedString.Key.paragraphStyle, at: 0, effectiveRange: nil) as? NSParagraphStyle
+            let lineSpace: CGFloat = style?.lineSpacing ?? 0.0
+            
+            let totalLineHeight = CGFloat(lineCount) * rect.size.height + CGFloat(lineCount - 1) * lineSpace
+            let verticalOffset = (bounds.size.height - totalLineHeight) / 2.0
+            
+            // 垂直居中调整（如果文本垂直居中）
+            if numberOfLines != 1 {
+                rect.origin.y = verticalOffset + (rect.size.height + lineSpace) * CGFloat(i)
+            }
             
             if rect.contains(touchPoint) {
+                // 计算点击位置的字符索引
+                let relativePoint = CGPoint(
+                    x: touchPoint.x - rect.minX,
+                    y: touchPoint.y - rect.minY
+                )
                 
-                let relativePoint = CGPoint(x: touchPoint.x - rect.minX, y: touchPoint.y - rect.minY)
                 var index = CTLineGetStringIndexForPosition(lineRef, relativePoint)
                 var offset: CGFloat = 0.0
                 CTLineGetOffsetForStringIndex(lineRef, index, &offset)
+                
                 if offset > relativePoint.x {
                     index = index - 1
                 }
-                let link_count = wy_attributeStrings.count
-                for j in 0 ..< link_count {
-                    
-                    let model = wy_attributeStrings[j]
-                    
-                    let link_range = model.wy_range
-
-                    if NSLocationInRange(index, link_range) {
-                        
-                        if handler != nil {
-                            handler!(model.wy_richText, model.wy_range, j)
-                        }
+                
+                // 检查点击位置是否在可点击的富文本范围内
+                for (j, model) in wy_attributeStrings.enumerated() {
+                    let linkRange = model.wy_range
+                    if NSLocationInRange(index, linkRange) {
+                        handler?(model.wy_richText, model.wy_range, j)
                         return true
                     }
                 }
@@ -227,7 +334,6 @@ extension UILabel {
     }
     
     private func wy_sharedBounds(line: CTLine, point: CGPoint) -> CGRect {
-        
         var ascent: CGFloat = 0.0
         var descent: CGFloat = 0.0
         var leading: CGFloat = 0.0
@@ -235,7 +341,7 @@ extension UILabel {
         let width = CTLineGetTypographicBounds(line, &ascent, &descent, &leading)
         let height = ascent + abs(descent) + leading
         
-        return CGRect(x: point.x, y: point.y , width: CGFloat(width), height: height)
+        return CGRect(x: point.x, y: point.y, width: CGFloat(width), height: height)
     }
     
     @objc private func wy_clickEffect(_ status: Bool) {
@@ -297,6 +403,55 @@ extension UILabel {
             string = string + " "
         }
         return string
+    }
+    
+    private var wy_currentTouchModel: (string: String, range: NSRange, index: Int)? {
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_currentTouchModel, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_currentTouchModel) as? (String, NSRange, Int)
+        }
+    }
+    
+    private var wy_touchBeginPoint: CGPoint? {
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_touchBeginPoint, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_touchBeginPoint) as? CGPoint
+        }
+    }
+    
+    private var wy_touchBeginTime: TimeInterval? {
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_touchBeginTime, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_touchBeginTime) as? TimeInterval
+        }
+    }
+    
+    private var wy_maxTouchMoveDistance: CGFloat {
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_maxTouchMoveDistance, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_maxTouchMoveDistance) as? CGFloat ?? 10.0
+        }
+    }
+    
+    private func wy_resetTouchState() {
+        wy_currentTouchModel = nil
+        wy_touchBeginPoint = nil
+        wy_touchBeginTime = nil
+    }
+    
+    private func wy_calculateDistance(from point1: CGPoint?, to point2: CGPoint) -> CGFloat {
+        guard let point1 = point1 else { return .greatestFiniteMagnitude }
+        let dx = point2.x - point1.x
+        let dy = point2.y - point1.y
+        return sqrt(dx * dx + dy * dy)
     }
     
     private var wy_clickBlock: ((_ richText: String, _ range: NSRange, _ index : Int) -> Void)? {
@@ -370,6 +525,11 @@ extension UILabel {
         static var wy_effectDic: UInt8 = 0
         static var wy_clickBlock: UInt8 = 0
         static var wy_transformForCoreText: UInt8 = 0
+        static var wy_currentTouchModel: UInt8 = 0
+        static var wy_isTouchUpInside: UInt8 = 0
+        static var wy_touchBeginPoint: UInt8 = 0
+        static var wy_touchBeginTime: UInt8 = 0
+        static var wy_maxTouchMoveDistance: UInt8 = 0
     }
 }
 

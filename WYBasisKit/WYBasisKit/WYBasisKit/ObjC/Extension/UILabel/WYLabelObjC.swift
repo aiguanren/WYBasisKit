@@ -27,6 +27,13 @@ import WYBasisKitSwift
         get { return wy_clickEffectColor }
     }
     
+    /// 是否需要模仿按钮的TouchUpInside效果，默认true
+    @objc(wy_isTouchUpInside)
+    var wy_isTouchUpInsideObjC: Bool {
+        set(newValue) { wy_isTouchUpInside = newValue }
+        get { return wy_isTouchUpInside }
+    }
+    
     /**
      *  给文本添加Block点击事件回调
      *

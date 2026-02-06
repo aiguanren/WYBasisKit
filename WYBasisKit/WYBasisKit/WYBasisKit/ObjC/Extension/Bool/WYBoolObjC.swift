@@ -10,7 +10,7 @@ import Foundation
 import WYBasisKitSwift
 #endif
 
-@objcMembers public class BoolObjC: NSObject {
+@objcMembers public class WYBool: NSObject {
     
     /// 判断是否是纯数字
     @objc public static func wy_isPureDigital(_ string: String) -> Bool {

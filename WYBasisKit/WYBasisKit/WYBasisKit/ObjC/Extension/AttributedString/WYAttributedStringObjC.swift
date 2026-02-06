@@ -135,6 +135,7 @@ import WYBasisKitSwift
     @objc func wy_underline(_ color: UIColor) -> NSMutableAttributedString {
         return wy_underline(color, string: nil)
     }
+    @discardableResult
     @objc func wy_underline(_ color: UIColor, string: String? = nil) -> NSMutableAttributedString {
         return wy_underline(color: color, string: string)
     }
@@ -144,6 +145,7 @@ import WYBasisKitSwift
     @objc func wy_strikethrough(_ color: UIColor) -> NSMutableAttributedString {
         return wy_strikethrough(color, string: nil)
     }
+    @discardableResult
     @objc func wy_strikethrough(_ color: UIColor, string: String? = nil) -> NSMutableAttributedString {
         return wy_strikethrough(color: color, string: string)
     }

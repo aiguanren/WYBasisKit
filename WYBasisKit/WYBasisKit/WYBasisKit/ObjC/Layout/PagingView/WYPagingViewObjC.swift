@@ -129,7 +129,7 @@ import WYBasisKitSwift
         set { bar_item_height = newValue }
     }
     
-    /// 分页栏Item在约束size的基础上追加传入的size大小，默认.zero(高度等于bar_Height)
+    /// 分页栏Item在约束size的基础上追加传入的size大小，默认.zero(高度等于bar_height)
     @objc(bar_item_appendSize)
     var bar_item_appendSizeObjC: CGSize {
         get { return bar_item_appendSize }

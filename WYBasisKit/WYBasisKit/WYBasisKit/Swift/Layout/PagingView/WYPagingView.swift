@@ -158,6 +158,10 @@ public class WYPagingView: UIView {
         
         DispatchQueue.main.async {
             
+            guard controllers.isEmpty == false else {
+                fatalError("❌ 错误：传入的controllers为空")
+            }
+            
             self.controllers = controllers
             self.titles = titles
             self.defaultImages = defaultImages
