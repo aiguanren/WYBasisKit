@@ -10,7 +10,7 @@ import Foundation
 import WYBasisKitSwift
 #endif
 
-@objcMembers public class DoubleObjC: NSObject {
+@objcMembers public class WYDouble: NSObject {
     
     /// Double转String
     @objc public static func wy_stringValue(_ value: Double) -> String {

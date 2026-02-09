@@ -10,7 +10,7 @@ import Foundation
 import WYBasisKitSwift
 #endif
 
-@objcMembers public class FloatingPointObjC: NSObject {
+@objcMembers public class WYFloatingPoint: NSObject {
     
     /// 角度转弧度
     @objc public static func wy_degreesToRadian(floatFegrees: CGFloat) -> CGFloat {
