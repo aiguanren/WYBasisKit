@@ -28,10 +28,10 @@ import WYBasisKitSwift
     }
     
     /// 是否需要模仿按钮的TouchUpInside效果，默认true
-    @objc(wy_isTouchUpInside)
-    var wy_isTouchUpInsideObjC: Bool {
-        set(newValue) { wy_isTouchUpInside = newValue }
-        get { return wy_isTouchUpInside }
+    @objc(wy_needTouchUpInside)
+    var wy_needTouchUpInsideObjC: Bool {
+        set(newValue) { wy_needTouchUpInside = newValue }
+        get { return wy_needTouchUpInside }
     }
     
     /**

@@ -49,12 +49,12 @@ public extension UILabel {
     }
     
     /// 是否需要模仿按钮的TouchUpInside效果，默认true
-    var wy_isTouchUpInside: Bool {
+    var wy_needTouchUpInside: Bool {
         set {
-            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_isTouchUpInside, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_needTouchUpInside, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_isTouchUpInside) as? Bool ?? true
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_needTouchUpInside) as? Bool ?? true
         }
     }
     
@@ -112,7 +112,7 @@ extension UILabel {
             self?.wy_currentTouchModel = (string, range, index)
             
             // isTouchUpInside为false时立即响应点击事件
-            if self?.wy_isTouchUpInside == false {
+            if self?.wy_needTouchUpInside == false {
                 if self?.wy_clickBlock != nil {
                     self?.wy_clickBlock!(string, range, index)
                 }
@@ -132,7 +132,7 @@ extension UILabel {
     open override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         
         // TouchUpInside 模式处理
-        if wy_isTouchUpInside == true, let model = wy_currentTouchModel {
+        if wy_needTouchUpInside == true, let model = wy_currentTouchModel {
             
             if let touch = touches.first {
                 let endPoint: CGPoint = touch.location(in: self)
@@ -178,7 +178,7 @@ extension UILabel {
     open override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         
         // TouchUpInside 模式下，取消触摸重置状态
-        if wy_isTouchUpInside == true {
+        if wy_needTouchUpInside == true {
             wy_resetTouchState()
         }
         
@@ -190,7 +190,7 @@ extension UILabel {
     open override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         
         // TouchUpInside 模式下，如果触摸移出富文本区域，清除点击效果
-        if wy_isTouchUpInside == true, let touch = touches.first, wy_currentTouchModel != nil {
+        if wy_needTouchUpInside == true, let touch = touches.first, wy_currentTouchModel != nil {
             let point: CGPoint = touch.location(in: self)
             var isStillInRichText = false
             
@@ -526,7 +526,7 @@ extension UILabel {
         static var wy_clickBlock: UInt8 = 0
         static var wy_transformForCoreText: UInt8 = 0
         static var wy_currentTouchModel: UInt8 = 0
-        static var wy_isTouchUpInside: UInt8 = 0
+        static var wy_needTouchUpInside: UInt8 = 0
         static var wy_touchBeginPoint: UInt8 = 0
         static var wy_touchBeginTime: UInt8 = 0
         static var wy_maxTouchMoveDistance: UInt8 = 0
