@@ -88,7 +88,7 @@ public extension UITableViewCell {
         guard wy_numberOfSectionsInTableView > 0 else { return false }
         return wy_sectionIndexInTableView == (wy_numberOfSectionsInTableView - 1)
     }
-        
+    
     /// 当前 Cell 对应的 Item(Row) 在 Section 中的 Index
     var wy_itemIndexInSection: Int {
         return wy_currentIndexPath?.row ?? 0
@@ -547,16 +547,6 @@ private extension UITableViewCell {
         }
     }
     
-    /// 长拉最大进度值
-    var wy_longPullMaxProgress: CGFloat {
-        get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.longPullMaxProgress) as? CGFloat ?? 0
-        }
-        set {
-            objc_setAssociatedObject(self, &WYAssociatedKeys.longPullMaxProgress, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-        }
-    }
-    
     /// 获取侧滑控件对应的宽度
     func wy_getSideslipViewWidth(direction: WYTableViewSideslipDirection = .right) -> CGFloat {
         return (direction == .right) ? wy_rightSideslipWidth : wy_leftSideslipWidth
@@ -587,7 +577,6 @@ private extension UITableViewCell {
         wy_currentSideslipDirection = .right
         wy_longPullTriggered = false
         wy_longPullConfirmed = false
-        wy_longPullMaxProgress = 0
         
         // 重置侧滑视图到原始宽度
         wy_updateSideslipViewLayout()
@@ -656,7 +645,6 @@ private extension UITableViewCell {
             wy_contentViewStartX = contentView.frame.origin.x
             wy_longPullTriggered = false
             wy_longPullConfirmed = false
-            wy_longPullMaxProgress = 0
             
             // 开始拖动时关闭其他已打开的 cell
             let tableView = wy_parentTableView
@@ -697,9 +685,6 @@ private extension UITableViewCell {
             // 动态调整侧滑视图的宽度（长拉效果）
             if wy_enableLongPullAction {
                 let progress = wy_calculateLongPullProgress(currentX: newX)
-                
-                // 更新最大进度值
-                wy_longPullMaxProgress = max(wy_longPullMaxProgress, progress)
                 
                 // 动态调整侧滑视图宽度
                 let currentWidth = wy_currentSideslipWidth
@@ -786,7 +771,7 @@ private extension UITableViewCell {
                 if abs(velocity.x) > velocityThreshold {
                     // 快速滑动时根据速度方向决定
                     shouldOpen = (velocity.x > 0 && wy_currentSideslipDirection == .left) ||
-                                (velocity.x < 0 && wy_currentSideslipDirection == .right)
+                                 (velocity.x < 0 && wy_currentSideslipDirection == .right)
                 } else {
                     // 慢速滑动时根据位置决定，使用绝对值计算进度
                     let progress = abs(currentX) / currentWidth
@@ -839,7 +824,6 @@ private extension UITableViewCell {
         wy_currentSideslipDirection = .right
         wy_longPullTriggered = false
         wy_longPullConfirmed = false
-        wy_longPullMaxProgress = 0
         
         // 重置侧滑视图到原始宽度
         wy_updateSideslipViewLayout()
@@ -924,7 +908,6 @@ private extension UITableViewCell {
         static var longPullTriggered: UInt8 = 0
         static var gesturePriority: UInt8 = 0
         static var longPullConfirmed: UInt8 = 0
-        static var longPullMaxProgress: UInt8 = 0
         static var sideslipEventHandler: UInt8 = 0
     }
 }

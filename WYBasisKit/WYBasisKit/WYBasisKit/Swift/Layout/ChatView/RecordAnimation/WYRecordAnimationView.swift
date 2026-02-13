@@ -237,7 +237,7 @@ public class WYRecordAnimationView: UIView {
             canSoundMetersCount = recordAnimationConfig.severalSoundWaves.transfer
             break
         }
-        if soundMeters.count <  canSoundMetersCount {
+        if soundMeters.count < canSoundMetersCount {
             soundMeters.append(item)
         }else {
             for index: Int in 0 ..< soundMeters.count {

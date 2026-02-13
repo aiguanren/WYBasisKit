@@ -93,8 +93,6 @@ import WYBasisKitSwift
         set { audioPlayer = newValue }
     }
     
-    // MARK: - 公开状态属性
-    
     /// 是否正在录音（包括暂停状态）
     @objc(isRecording)
     var isRecordingObjC: Bool {
@@ -381,8 +379,6 @@ import WYBasisKitSwift
         }
     }
     
-    // MARK: - 文件管理方法
-    
     /**
      获取所有录音文件
      
@@ -445,7 +441,7 @@ import WYBasisKitSwift
         try deleteAllDownloads()
     }
     
-    /// 释放所有资源(需要外部调用)
+    /// 释放所有资源(外部最好主动调用)
     @objc(releaseAll)
     func releaseAllObjC() {
         releaseAll()
