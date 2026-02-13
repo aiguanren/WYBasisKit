@@ -83,11 +83,11 @@ class WYTestBannerController: UIViewController {
 
 extension WYTestBannerController: WYBannerViewDelegate {
     
-    func didClick(_ bannerView: WYBannerView, index: Int) {
+    func wy_bannerViewDidClick(_ bannerView: WYBannerView, index: Int) {
         WYLogManager.output("代理监听，点击了第 \(index+1) 张图片")
     }
     
-    func didScroll(_ bannerView: WYBannerView, offset: CGFloat, index: Int) {
+    func wy_bannerViewDidScroll(_ bannerView: WYBannerView, offset: CGFloat, index: Int) {
         WYLogManager.output("代理监听，滑动Banner到第 \(index+1) 张图片了， offset = \(offset)")
     }
 }

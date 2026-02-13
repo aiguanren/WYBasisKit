@@ -47,12 +47,12 @@ import FSPlayer
 @objc public protocol WYMediaPlayerDelegate {
     
     /// 播放器状态回调
-    @objc(mediaPlayerDidChangeStateWithPlayer:state:)
-    optional func mediaPlayerDidChangeState(_ player: WYMediaPlayer, state: WYMediaPlayerState)
+    @objc(wy_mediaPlayerStateDidChanged:state:)
+    optional func wy_mediaPlayerStateDidChanged(_ player: WYMediaPlayer, state: WYMediaPlayerState)
     
     /// 音视频字幕流信息
-    @objc(mediaPlayerDidChangeSubtitleStreamWithPlayer:mediaMeta:)
-    optional func mediaPlayerDidChangeSubtitleStream(_ player: WYMediaPlayer, mediaMeta: [AnyHashable: Any])
+    @objc(wy_mediaPlayerSubtitleStreamDidChanged:mediaMeta:)
+    optional func wy_mediaPlayerSubtitleStreamDidChanged(_ player: WYMediaPlayer, mediaMeta: [AnyHashable: Any])
 }
 
 public class WYMediaPlayer: UIImageView {
@@ -465,12 +465,12 @@ public class WYMediaPlayer: UIImageView {
     
     @objc private func ijkPlayerSubtitleStreamPrepared(notification: Notification) {
         guard let player = ijkPlayer else { return }
-        delegate?.mediaPlayerDidChangeSubtitleStream?(self, mediaMeta: player.monitor.mediaMeta)
+        delegate?.wy_mediaPlayerSubtitleStreamDidChanged?(self, mediaMeta: player.monitor.mediaMeta)
     }
     
     @objc private func ijkPlayerSubtitleStreamDidChange(notification: Notification) {
         guard let player = ijkPlayer else { return }
-        delegate?.mediaPlayerDidChangeSubtitleStream?(self, mediaMeta: player.monitor.mediaMeta)
+        delegate?.wy_mediaPlayerSubtitleStreamDidChanged?(self, mediaMeta: player.monitor.mediaMeta)
     }
     
     private func callback(with currentState: WYMediaPlayerState) {
@@ -478,7 +478,7 @@ public class WYMediaPlayer: UIImageView {
             return
         }
         state = currentState
-        delegate?.mediaPlayerDidChangeState?(self, state: state)
+        delegate?.wy_mediaPlayerStateDidChanged?(self, state: state)
     }
     
     deinit {

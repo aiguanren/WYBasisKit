@@ -6,8 +6,8 @@
 //  Copyright © 2020 官人. All rights reserved.
 //
 
-import Foundation
 import UIKit
+import Foundation
 
 /// 动图格式类型
 @frozen public enum WYAnimatedImageStyle: Int {
@@ -65,6 +65,250 @@ public extension UIImage {
      */
     func wy_flips(_ orientation: UIImage.Orientation) -> UIImage {
         return UIImage(cgImage: cgImage!, scale: scale, orientation:orientation)
+    }
+    
+    /**
+     图片合成(拼接) ，支持重叠控制、缩放、透明度、混合模式等多种效果
+     - standardImage: 基准图片
+     - stitchingImage: 要拼接的图片，将叠加在基准图片上
+     - stitchingCenterPoint: 拼接图片的中心点在基准图片坐标系中的位置
+     - overlapControl: 重叠控制参数，默认0（无重叠）
+         - 0: 精确对齐，无重叠无间隙
+         - 正值: 拼接图片向基准图片方向偏移，产生重叠效果
+         - 负值: 拼接图片远离基准图片，产生间隙效果
+     - alpha: 拼接图片的透明度，默认1.0（不透明）
+     - blendMode: 混合模式，默认.normal（正常叠加）
+     - backgroundColor: 合成图片的背景颜色，默认透明
+     - cornerRadius: 拼接图片的圆角半径，默认0（直角）
+     - rotationAngle: 拼接图片的旋转角度（弧度制），默认0（不旋转）
+     - flipHorizontal: 是否水平翻转拼接图片，默认false
+     - flipVertical: 是否垂直翻转拼接图片，默认false
+     - qualityScale: 输出图片的质量缩放因子，默认使用基准图片的scale
+     - scale: 拼接图片的缩放比例，默认1.0（原始大小）
+     - shadowColor: 阴影颜色，默认无阴影(透明)
+     - shadowBlur: 阴影模糊半径， 默认0
+     - shadowOffset: 阴影偏移，默认.zero
+     - strokeColor: 描边颜色，默认无描边(透明)
+     - strokeWidth: 描边宽度， 默认0
+     - maskImage: 蒙版图片（使用其 alpha 作为遮罩）， 默认nil
+          
+     - return: 拼接后的图片，失败返回nil
+     */
+    static func wy_combineImages(
+        standardImage: UIImage,
+        stitchingImage: UIImage,
+        stitchingCenterPoint: CGPoint,
+        overlapControl: CGFloat = 0,
+        alpha: CGFloat = 1.0,
+        blendMode: CGBlendMode = .normal,
+        backgroundColor: UIColor = .clear,
+        cornerRadius: CGFloat = 0,
+        rotationAngle: CGFloat = 0,
+        flipHorizontal: Bool = false,
+        flipVertical: Bool = false,
+        qualityScale: CGFloat? = nil,
+        scale: CGFloat = 1.0,
+        shadowColor: UIColor = .clear,
+        shadowBlur: CGFloat = 0,
+        shadowOffset: CGSize = .zero,
+        strokeColor: UIColor = .clear,
+        strokeWidth: CGFloat = 0,
+        maskImage: UIImage? = nil
+    ) -> UIImage? {
+        
+        // 参数合法性检查，防止出现无效尺寸或非法透明度
+        guard standardImage.size.width > 0 && standardImage.size.height > 0,
+              stitchingImage.size.width > 0 && stitchingImage.size.height > 0,
+              scale > 0,
+              cornerRadius >= 0,
+              alpha >= 0 && alpha <= 1 else {
+            return nil
+        }
+        
+        // 将旋转角度规范到 0~2π，避免数值过大导致精度问题
+        let normalizedRotationAngle = (rotationAngle.truncatingRemainder(dividingBy: 2 * .pi) + 2 * .pi).truncatingRemainder(dividingBy: 2 * .pi)
+        
+        // 基础尺寸数据
+        let standardSize = standardImage.size
+        let stitchingOriginalSize = stitchingImage.size
+        
+        // 拼接图缩放后尺寸（逻辑尺寸，未旋转）
+        let stitchingScaledSize = CGSize(
+            width: stitchingOriginalSize.width * scale,
+            height: stitchingOriginalSize.height * scale
+        )
+        
+        // 未旋转时的中心对齐矩形（overlapControl 目前只影响 y 轴）
+        let baseRect = CGRect(
+            x: stitchingCenterPoint.x - stitchingScaledSize.width / 2,
+            y: stitchingCenterPoint.y - stitchingScaledSize.height / 2 - overlapControl,
+            width: stitchingScaledSize.width,
+            height: stitchingScaledSize.height
+        )
+        
+        // 计算旋转后的轴对齐包围盒（AABB），决定画布扩展范围
+        let stitchingBounds: CGRect = {
+            guard normalizedRotationAngle != 0 else { return baseRect }
+            
+            let center = CGPoint(x: baseRect.midX, y: baseRect.midY)
+            let halfSize = stitchingScaledSize.applying(CGAffineTransform(scaleX: 0.5, y: 0.5))
+            
+            let cosA = cos(normalizedRotationAngle)
+            let sinA = sin(normalizedRotationAngle)
+            
+            // 四个角的偏移向量
+            let corners = [
+                CGPoint(x: -halfSize.width, y: -halfSize.height),
+                CGPoint(x:  halfSize.width, y: -halfSize.height),
+                CGPoint(x:  halfSize.width, y:  halfSize.height),
+                CGPoint(x: -halfSize.width, y:  halfSize.height)
+            ]
+            
+            let rotatedCorners = corners.map { corner in
+                CGPoint(
+                    x: corner.x * cosA - corner.y * sinA + center.x,
+                    y: corner.x * sinA + corner.y * cosA + center.y
+                )
+            }
+            
+            let xs = rotatedCorners.map { $0.x }
+            let ys = rotatedCorners.map { $0.y }
+            
+            return CGRect(
+                x: xs.min()!, y: ys.min()!,
+                width: xs.max()! - xs.min()!,
+                height: ys.max()! - ys.min()!
+            )
+        }()
+        
+        // 额外边距（阴影 + 描边）
+        let margin = max(shadowBlur * 1.5, strokeWidth * 2, 4)  // 更保守的 margin
+        
+        var canvasRect = CGRect(
+            x: min(0, stitchingBounds.minX) - margin,
+            y: min(0, stitchingBounds.minY) - margin,
+            width: max(standardSize.width, stitchingBounds.maxX) + margin * 2,
+            height: max(standardSize.height, stitchingBounds.maxY) + margin * 2
+        )
+        
+        guard canvasRect.width > 0 && canvasRect.height > 0 else { return nil }
+        
+        // ---------- 性能自适应 ----------
+        let isLowQualityMode = max(canvasRect.width, canvasRect.height) <= 600
+        let renderScale = qualityScale ?? standardImage.scale
+        let outputScale = isLowQualityMode ? 1.0 : renderScale
+        
+        let safeShadowBlur = isLowQualityMode ? min(shadowBlur, 10) : min(shadowBlur, 25)
+        // --------------------------------
+        
+        // 基准图在最终画布中的位置
+        let standardDrawRect = CGRect(
+            x: -canvasRect.minX,
+            y: -canvasRect.minY,
+            width: standardSize.width,
+            height: standardSize.height
+        )
+        
+        UIGraphicsBeginImageContextWithOptions(canvasRect.size, backgroundColor != .clear, outputScale)
+        defer { UIGraphicsEndImageContext() }
+        
+        guard let context = UIGraphicsGetCurrentContext() else { return nil }
+        
+        context.interpolationQuality = .high  // 建议用 high，除非追求极致速度
+        
+        // 背景
+        if backgroundColor != .clear {
+            backgroundColor.setFill()
+            context.fill(CGRect(origin: .zero, size: canvasRect.size))
+        }
+        
+        // 绘制基准图
+        standardImage.draw(in: standardDrawRect)
+        
+        // ---------- 拼接图部分 ----------
+        context.saveGState()
+        
+        // 移动到拼接图的绘制原点（考虑 canvas 偏移）
+        context.translateBy(x: -canvasRect.minX, y: -canvasRect.minY)
+        
+        // 拼接图中心在逻辑坐标系的位置
+        let drawCenter = CGPoint(x: stitchingCenterPoint.x, y: stitchingCenterPoint.y - overlapControl)
+        
+        // 应用变换：先移动到中心 → 旋转 → 翻转 → 缩放 → 移回
+        context.translateBy(x: drawCenter.x, y: drawCenter.y)
+        context.rotate(by: normalizedRotationAngle)
+        if flipHorizontal { context.scaleBy(x: -1, y: 1) }
+        if flipVertical   { context.scaleBy(x: 1, y: -1) }
+        context.scaleBy(x: scale, y: scale)
+        context.translateBy(x: -stitchingOriginalSize.width / 2, y: -stitchingOriginalSize.height / 2)
+        
+        let imageRect = CGRect(origin: .zero, size: stitchingOriginalSize)
+        
+        // 调整参数以匹配缩放坐标系（因为变换后坐标是原始尺寸的）
+        let scaledCornerRadius = cornerRadius / scale
+        let scaledStrokeWidth = strokeWidth / scale
+        let scaledShadowBlur = safeShadowBlur / scale
+        let scaledShadowOffset = CGSize(width: shadowOffset.width / scale, height: shadowOffset.height / scale)
+        
+        // 确定阴影路径（如果有蒙版，使用矩形路径；否则使用圆角路径）
+        let shadowPath: UIBezierPath
+        if maskImage != nil {
+            shadowPath = UIBezierPath(rect: imageRect)
+        } else if scaledCornerRadius > 0 {
+            shadowPath = UIBezierPath(roundedRect: imageRect, cornerRadius: scaledCornerRadius)
+        } else {
+            shadowPath = UIBezierPath(rect: imageRect)
+        }
+        
+        // 阴影（使用透明层来正确渲染阴影而不留下填充痕迹）
+        if shadowColor != .clear && scaledShadowBlur > 0 {
+            context.beginTransparencyLayer(auxiliaryInfo: nil)
+            
+            // 设置阴影
+            context.setShadow(offset: scaledShadowOffset, blur: scaledShadowBlur, color: shadowColor.cgColor)
+            
+            // 绘制填充以触发阴影（使用不透明颜色）
+            context.setFillColor(UIColor.black.cgColor)
+            shadowPath.fill()
+            
+            // 擦除填充，但保留阴影（使用 clear 混合模式）
+            context.setBlendMode(.clear)
+            shadowPath.fill()
+            context.setBlendMode(.normal)
+            
+            context.endTransparencyLayer()
+        }
+        
+        // 圆角或蒙版裁剪（必须在画主体前）
+        if let mask = maskImage?.cgImage {
+            context.clip(to: imageRect, mask: mask)
+        } else if scaledCornerRadius > 0 {
+            UIBezierPath(roundedRect: imageRect, cornerRadius: scaledCornerRadius).addClip()
+        }
+        
+        // 绘制主体图片
+        stitchingImage.draw(in: imageRect, blendMode: blendMode, alpha: alpha)
+        
+        // 描边（在 clip 之后画，描边会贴着裁剪边界）
+        if strokeColor != .clear && scaledStrokeWidth > 0 {
+            let inset = scaledStrokeWidth / 2
+            
+            let strokeRect = imageRect.insetBy(dx: inset, dy: inset)
+            let strokePath: UIBezierPath
+            if scaledCornerRadius > 0 {
+                strokePath = UIBezierPath(roundedRect: strokeRect, cornerRadius: max(0, scaledCornerRadius - inset))
+            } else {
+                strokePath = UIBezierPath(rect: strokeRect)
+            }
+            
+            strokePath.lineWidth = scaledStrokeWidth
+            strokeColor.setStroke()
+            strokePath.stroke()
+        }
+        
+        context.restoreGState()
+        
+        return UIGraphicsGetImageFromCurrentImageContext()
     }
     
     /// 截取指定View快照
@@ -438,13 +682,13 @@ public extension UIImage {
             guard let properties = CGImageSourceCopyPropertiesAtIndex(imageSource, i, nil) as? [CFString: Any] else {
                 continue
             }
-
+            
             var pngDic: [CFString: Any]? = nil
-
+            
             if let gifDic = properties[kCGImagePropertyGIFDictionary] as? [CFString: Any] {
                 pngDic = gifDic
             }
-
+            
             if pngDic == nil {
                 pngDic = properties[kCGImagePropertyPNGDictionary] as? [CFString: Any]
             }

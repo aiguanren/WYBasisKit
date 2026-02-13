@@ -9,16 +9,16 @@
 import UIKit
 
 @objc public protocol WYPagingViewDelegate {
-    
-    @objc(itemDidScrollAtIndex:)
-    optional func itemDidScroll(_ pagingIndex: Int)
+   
+    @objc(wy_pagingViewItemDidScroll:pagingIndex:)
+    optional func wy_pagingViewItemDidScroll(_ pagingView: WYPagingView, pagingIndex: Int)
 }
-    
+   
 public class WYPagingView: UIView {
-    
+   
     /// 点击或滚动事件代理(也可以通过传入block监听)
     public weak var delegate: WYPagingViewDelegate?
-    
+   
     /**
      * 点击或滚动事件(也可以通过实现代理监听)
      *
@@ -30,7 +30,7 @@ public class WYPagingView: UIView {
 
     /// 分页栏的高度 默认45
     public var bar_height: CGFloat = UIDevice.wy_screenWidth(45, WYBasisKitConfig.defaultScreenPixels)
-    
+   
     /// 图片和文字显示模式
     public var buttonPosition: WYButtonPosition = .imageLeftTitleRight
 
@@ -39,10 +39,10 @@ public class WYPagingView: UIView {
 
     /// 分页栏右起始点距离(最后一个标题栏距离屏幕边界的距离) 默认0
     public var bar_originlRightOffset: CGFloat = 0
-    
+   
     /// item距离分页栏顶部的偏移量，默认0.01(默认0时会强制转为nil传给swift)，如需传入0则传入0.01等具体值
     public var bar_itemTopOffset: CGFloat? = 0.01
-    
+   
     /// 显示整体宽度小于一屏，且设置了bar_Width != 0，是否需要居中显示，默认 居中 (居中后，将会动态调整bar_originlLeftOffset和bar_originlRightOffset的距离)
     public var bar_adjustOffset: Bool = true
 
@@ -51,25 +51,25 @@ public class WYPagingView: UIView {
 
     /// 内部按钮图片和文字的上下或左右间距 默认5
     public var barButton_dividingOffset: CGFloat = UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels)
-    
+   
     /// 分页控制器底部背景色(即分页控制器所在的scrollView的背景色) 默认白色
     public var bar_pagingContro_content_color: UIColor = .white
-    
+   
     /// 分页控制器背景色
     public var bar_pagingContro_bg_color: UIColor? = nil
-    
+   
     /// 分页控制器是否需要弹跳效果
     public var bar_pagingContro_bounce: Bool = true
-    
+   
     /// 分页栏默认背景色 默认白色
     public var bar_bg_defaultColor: UIColor = .white
-    
+   
     /// 分页栏Item宽度 默认对应每页标题文本宽度(若传入则整体使用传入宽度)
     public var bar_item_width: CGFloat = 0
-    
+   
     /// 分页栏Item高度 默认bar_height-bar_dividingStripHeight(若传入则整体使用传入高度)
     public var bar_item_height: CGFloat = 0
-    
+   
     /// 分页栏Item在约束size的基础上追加传入的size大小，默认.zero(高度等于bar_height)
     public var bar_item_appendSize: CGSize = .zero
 
@@ -78,7 +78,7 @@ public class WYPagingView: UIView {
 
     /// 分页栏item选中背景色 默认白色
     public var bar_item_bg_selectedColor: UIColor = .white
-    
+   
     /// 分页栏item圆角半径, 默认0
     public var bar_item_cornerRadius: CGFloat = 0.0
 
@@ -90,13 +90,13 @@ public class WYPagingView: UIView {
 
     /// 分页栏底部分隔带背景色 默认<#F2F2F2>
     public var bar_dividingStripColor: UIColor = .wy_hex("#F2F2F2")
-    
+   
     /// 分页栏底部分隔带背景图 默认为空
     public var bar_dividingStripImage: UIImage? = nil
 
     /// 滑动线条背景色 默认<#2D3952>
     public var bar_scrollLineColor: UIColor = .wy_hex("#2D3952")
-    
+   
     /// 滑动线条背景图 默认为空
     public var bar_scrollLineImage: UIImage? = nil
 
@@ -120,33 +120,36 @@ public class WYPagingView: UIView {
 
     /// 初始选中第几项  默认第一项
     public var bar_selectedIndex: Int = 0
-    
+   
     /// 控制器是否需要左右滑动(默认支持)
     public var canScrollController: Bool = true
-    
+   
     /// 分页栏是否需要左右滑动(默认支持)
     public var canScrollBar: Bool = true
-    
+   
+    /// 滑动线条是否需要支持跟随手指滑动(默认true)
+    public var bar_scrollLineFollowFinger: Bool = true
+   
     /// 传入的控制器数组
     public private(set) var controllers: [UIViewController] = []
-    
+   
     /// 传入的标题数组
     public private(set) var titles: [String] = []
-    
+   
     /// 传入的未选中的图片数组
     public private(set) var defaultImages: [UIImage] = []
-    
+   
     /// 传入的选中的图片数组
     public private(set) var selectedImages: [UIImage] = []
-    
+   
     /// 按钮栏所有按钮组件
     public private(set) var buttonItems: [WYPagingItem] = []
-    
+   
     /// 传入的父控制器
     public private(set) weak var superController: UIViewController?
-    
+   
     /**
-     *调用后开始布局
+     * 调用后开始布局
      *
      * @param controllers 控制器数组
      * @param titles 标题数组
@@ -155,36 +158,36 @@ public class WYPagingView: UIView {
      * @param superViewController 父控制器
      */
     public func layout(controllers: [UIViewController], titles: [String] = [], defaultImages: [UIImage] = [], selectedImages: [UIImage] = [], superViewController: UIViewController) {
-        
+       
         DispatchQueue.main.async {
-            
+           
             guard controllers.isEmpty == false else {
                 fatalError("❌ 错误：传入的controllers为空")
             }
-            
+           
             self.controllers = controllers
             self.titles = titles
             self.defaultImages = defaultImages
             self.selectedImages = selectedImages
             self.superController = superViewController
-            
+           
             if (self.bar_item_height <= 0) {
                 self.bar_item_height = self.bar_height - self.bar_dividingStripHeight
             }
-            
+           
             self.layoutMethod()
         }
     }
-    
+   
     private var currentButtonItem: WYPagingItem!
     private var actionHandler: ((_ index: Int) -> Void)?
     private var barScrollLineLeftConstraint: NSLayoutConstraint?
     private var barScrollLineWidthConstraint: NSLayoutConstraint?
-    
+   
     public init() {
         super.init(frame: .zero)
     }
-    
+   
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -196,110 +199,184 @@ public class WYPagingView: UIView {
         // Drawing code
     }
     */
-
 }
 
 extension WYPagingView: UIScrollViewDelegate {
-       
+   
     /// 监听滚动事件判断当前拖动到哪一个了
     public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        
-        if((scrollView == controllerScrollView) && (controllerScrollView.contentOffset.x >= 0)) {
+       
+        if (scrollView == controllerScrollView) && (controllerScrollView.contentOffset.x >= 0) {
 
-            let index: CGFloat = scrollView.contentOffset.x / self.frame.size.width
-            
-            let changeItem: WYPagingItem =  barScrollView.viewWithTag(buttonItemTagBegin + Int(index)) as! WYPagingItem
+            let index: Int = Int(scrollView.contentOffset.x / self.frame.size.width)
+           
+            let changeItem: WYPagingItem =  barScrollView.viewWithTag(buttonItemTagBegin + index) as! WYPagingItem
             //重新赋值标签属性
             updateButtonItemProperty(currentItem: changeItem)
+        }
+    }
+   
+    public func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+       
+        if (scrollView == controllerScrollView) && (controllerScrollView.contentOffset.x >= 0) {
+
+            let index: Int = Int(scrollView.contentOffset.x / self.frame.size.width)
+           
+            let changeItem: WYPagingItem =  barScrollView.viewWithTag(buttonItemTagBegin + index) as! WYPagingItem
+            //重新赋值标签属性
+            updateButtonItemProperty(currentItem: changeItem)
+        }
+    }
+   
+    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+       
+        // 内容区域滚动时才处理指示线跟随逻辑
+        if (scrollView == controllerScrollView) && (controllers.count > 1) && canScrollController {
+           
+            // 如果未开启跟随手指功能，则不实时更新指示线
+            guard bar_scrollLineFollowFinger else { return }
+           
+            let offsetX: CGFloat = scrollView.contentOffset.x
+            let width: CGFloat = self.frame.size.width
+            let progress: CGFloat = offsetX / width
+           
+            let currentIndex: Int = Int(floor(progress))
+            let fractional: CGFloat = progress - CGFloat(currentIndex)
+           
+            // 边界保护，避免索引越界
+            if (currentIndex < 0) || (currentIndex >= buttonItems.count - 1) { return }
+           
+            let currentButton: WYPagingItem = buttonItems[currentIndex]
+            let nextButton: WYPagingItem = buttonItems[currentIndex + 1]
+           
+            // 计算当前和下一页的指示线宽度（支持固定宽度或跟随item宽度）
+            let currentWidth: CGFloat = bar_scrollLineWidth > 0 ? bar_scrollLineWidth : currentButton.wy_width
+            let nextWidth: CGFloat = bar_scrollLineWidth > 0 ? bar_scrollLineWidth : nextButton.wy_width
+           
+            // 宽度插值计算
+            let deltaWidth: CGFloat = nextWidth - currentWidth
+            let targetWidth: CGFloat = currentWidth + deltaWidth * fractional
+           
+            // 计算指示线左侧位置（中心对齐方式）
+            let currentLeft: CGFloat = currentButton.center.x - (currentWidth / 2)
+            let nextLeft: CGFloat = nextButton.center.x - (nextWidth / 2)
+           
+            let deltaLeft: CGFloat = nextLeft - currentLeft
+            let targetLeft: CGFloat = currentLeft + deltaLeft * fractional
+           
+            // 实时更新约束
+            barScrollLineLeftConstraint?.constant = targetLeft
+            barScrollLineWidthConstraint?.constant = targetWidth
+           
+            // 更新圆角（如果指示线是圆角样式）
+            barScrollLine.wy_rectCorner(.allCorners).wy_cornerRadius(targetWidth / 2).wy_showVisual()
+           
+            barScrollLine.superview?.layoutIfNeeded()
+           
+            // 让标题栏跟随滚动，尽量保持选中项居中
+            let centerX: CGFloat = targetLeft + targetWidth / 2
+            var needScrollOffsetX: CGFloat = centerX - (barScrollView.bounds.size.width / 2)
+           
+            let maxAllowScrollOffsetX: CGFloat = barScrollView.contentSize.width - barScrollView.bounds.size.width
+           
+            if (needScrollOffsetX < 0) { needScrollOffsetX = 0 }
+           
+            if (needScrollOffsetX > maxAllowScrollOffsetX) { needScrollOffsetX = maxAllowScrollOffsetX }
+           
+            if (barScrollView.contentSize.width > self.frame.size.width) && canScrollBar {
+               
+                barScrollView.setContentOffset(CGPoint(x: needScrollOffsetX, y: 0), animated: false)
+            }
         }
     }
 }
 
 extension WYPagingView {
-    
+   
     @objc fileprivate func buttonItemClick(sender: WYPagingItem) {
-        
+       
         if(sender.tag != currentButtonItem.tag) {
-            
-            controllerScrollView.contentOffset = CGPoint(x: CGFloat(self.frame.size.width) * CGFloat((sender.tag - buttonItemTagBegin)), y: 0)
+           
+            // 点击切换页面，使用动画滚动
+            controllerScrollView.setContentOffset(CGPoint(x: CGFloat(self.frame.size.width) * CGFloat((sender.tag - buttonItemTagBegin)), y: 0), animated: true)
         }
         bar_selectedIndex = sender.tag - buttonItemTagBegin
-        
+       
         /// 重新赋值标签属性
         updateButtonItemProperty(currentItem: sender)
     }
-    
+   
     func scrollMethod() {
-        
+       
         barScrollLine.superview?.layoutIfNeeded()
-        
-        /// 计算应该滚动多少
+       
+        /// 计算应该滚动多少（让当前选中项尽量居中）
         var needScrollOffsetX: CGFloat = currentButtonItem.center.x - (barScrollView.bounds.size.width * 0.5)
-        
+       
         /// 最大允许滚动的距离
         let maxAllowScrollOffsetX: CGFloat = barScrollView.contentSize.width - barScrollView.bounds.size.width
-        
+       
         if (needScrollOffsetX < 0) { needScrollOffsetX = 0 }
-        
+       
         if (needScrollOffsetX > maxAllowScrollOffsetX) { needScrollOffsetX = maxAllowScrollOffsetX }
-        
+       
         if (barScrollView.contentSize.width > self.frame.size.width) {
-            
+           
             barScrollView.setContentOffset(CGPoint(x: needScrollOffsetX, y: 0), animated: true)
         }
-        
+       
         UIView.animate(withDuration: 0.2) {
-            
+           
             let bar_scrollLineWidth: CGFloat = self.bar_scrollLineWidth > 0 ? self.bar_scrollLineWidth : self.currentButtonItem.wy_width
-            
+           
             self.barScrollLineLeftConstraint?.constant = self.currentButtonItem.center.x - (bar_scrollLineWidth * 0.5)
-            
+           
             self.barScrollLineWidthConstraint?.constant = bar_scrollLineWidth
-            
+           
             self.barScrollLine.wy_rectCorner(.allCorners).wy_cornerRadius(bar_scrollLineWidth / 2).wy_showVisual()
-            
+           
             self.barScrollLine.superview?.layoutIfNeeded()
         }
-        
+       
         bar_selectedIndex = currentButtonItem.tag-buttonItemTagBegin
-        
+       
         if actionHandler != nil {
-            
+           
             actionHandler!(currentButtonItem.tag-buttonItemTagBegin)
         }
-        
-        delegate?.itemDidScroll?(currentButtonItem.tag-buttonItemTagBegin)
+       
+        delegate?.wy_pagingViewItemDidScroll?(self, pagingIndex: currentButtonItem.tag-buttonItemTagBegin)
     }
-    
+   
     fileprivate func updateButtonItemProperty(currentItem: WYPagingItem) {
-        
+       
         if(currentItem.tag != currentButtonItem.tag) {
-            
+           
             currentButtonItem.isSelected = false
             currentButtonItem.contentView.isSelected = false
-            
+           
             currentButtonItem.backgroundColor = bar_item_bg_defaultColor
-            
+           
             updateButtonContentMode(sender: currentButtonItem.contentView)
-            
+           
             /// 将当前选中的item赋值
             currentItem.isSelected = true
             currentItem.contentView.isSelected = true
             currentButtonItem = currentItem
-            
+           
             currentButtonItem.backgroundColor = bar_item_bg_selectedColor
 
             updateButtonContentMode(sender: currentButtonItem.contentView)
-            
+           
             /// 调用最终的方法
             scrollMethod()
         }
     }
-    
+   
     func updateButtonContentMode(sender: UIButton) {
-        
+       
         if(((defaultImages.count == controllers.count) || (selectedImages.count == controllers.count)) && (titles.count == controllers.count)) {
-            
+           
             sender.wy_adjust(position: buttonPosition, spacing: barButton_dividingOffset)
             sender.superview?.wy_rectCorner(.allCorners).wy_cornerRadius(bar_item_cornerRadius).wy_showVisual()
         }
@@ -307,29 +384,29 @@ extension WYPagingView {
 }
 
 extension WYPagingView {
-    
+   
     private func layoutMethod() {
-        
+       
         layoutIfNeeded()
-        
+       
         if ((bar_adjustOffset == true) && (bar_item_width > 0) && (bar_item_width * CGFloat(controllers.count) <= UIDevice.wy_screenWidth)) {
-            
+           
             bar_originlLeftOffset = (self.frame.size.width - (bar_item_width * CGFloat(controllers.count)) - bar_dividingOffset) / 2
-            
+           
             bar_originlRightOffset = bar_originlLeftOffset
         }
-        
+       
         var lastView: UIView? = nil
         for index in 0..<controllers.count {
-            
+           
             let buttonItem = WYPagingItem(appendSize: bar_item_appendSize)
             buttonItem.translatesAutoresizingMaskIntoConstraints = false
-            
+           
             if (titles.isEmpty == false) {
                 buttonItem.setContentAttributed(title: titles[index], titleColor: bar_title_defaultColor, font: bar_title_defaultFont, isSelected: false)
                 buttonItem.setContentAttributed(title: titles[index], titleColor: bar_title_selectedColor, font: bar_title_selectedFont, isSelected: true)
             }
-            
+           
             if ((defaultImages.isEmpty == false) || (selectedImages.isEmpty == false)) {
                 if (defaultImages.isEmpty == false) {
                     buttonItem.contentView.setImage(defaultImages[index], for: .normal)
@@ -344,52 +421,52 @@ extension WYPagingView {
             buttonItem.backgroundColor = (index == bar_selectedIndex) ? bar_item_bg_selectedColor : bar_item_bg_defaultColor
             buttonItem.tag = buttonItemTagBegin+index
             buttonItem.addTarget(self, action: #selector(buttonItemClick(sender:)), for: .touchUpInside)
-            
+           
             if(index == bar_selectedIndex) {
-                
+               
                 buttonItem.isSelected = true
                 buttonItem.contentView.isSelected = true
                 currentButtonItem = buttonItem
             }
             barScrollView.insertSubview(buttonItem, at: 0)
-            
+           
             // 设置约束
             if bar_itemTopOffset == nil {
                 buttonItem.centerYAnchor.constraint(equalTo: barScrollView.centerYAnchor).isActive = true
             } else {
                 buttonItem.topAnchor.constraint(equalTo: barScrollView.topAnchor, constant: bar_itemTopOffset!).isActive = true
             }
-            
+           
             if lastView == nil {
                 buttonItem.leadingAnchor.constraint(equalTo: barScrollView.leadingAnchor, constant: bar_originlLeftOffset).isActive = true
             } else {
                 buttonItem.leadingAnchor.constraint(equalTo: lastView!.trailingAnchor, constant: bar_dividingOffset).isActive = true
             }
-            
+           
             if bar_item_width > 0 {
                 buttonItem.widthAnchor.constraint(equalToConstant: bar_item_width).isActive = true
             }
-            
+           
             if bar_item_height > 0 {
                 buttonItem.heightAnchor.constraint(equalToConstant: bar_item_height).isActive = true
             } else if bar_item_appendSize.equalTo(.zero) {
                 buttonItem.topAnchor.constraint(equalTo: barScrollView.topAnchor).isActive = true
                 buttonItem.bottomAnchor.constraint(equalTo: barScrollView.bottomAnchor, constant: -bar_dividingStripHeight).isActive = true
             }
-            
+           
             if index == (controllers.count-1) {
                 buttonItem.trailingAnchor.constraint(equalTo: barScrollView.trailingAnchor, constant: -bar_originlRightOffset).isActive = true
             }
-            
+           
             if (bar_item_cornerRadius > 0) {
-                
+               
                 buttonItem.wy_rectCorner(.allCorners).wy_cornerRadius(bar_item_cornerRadius).wy_showVisual()
             }
-            
+           
             buttonItems.append(buttonItem)
-            
+           
             lastView = buttonItem
-            
+           
             /// 设置scrollView的ContentSize让其滚动
             if(index == (controllers.count-1)) {
 
@@ -401,13 +478,13 @@ extension WYPagingView {
             self.scrollMethod()
         })
     }
-    
+   
     var controllerScrollView: UIScrollView {
-        
+       
         var scrollView: UIScrollView? = objc_getAssociatedObject(self, &WYAssociatedKeys.controllerScrollView) as? UIScrollView
-        
+       
         if scrollView == nil {
-            
+           
             scrollView = UIScrollView()
             scrollView!.translatesAutoresizingMaskIntoConstraints = false
             scrollView!.delegate = self
@@ -418,58 +495,58 @@ extension WYPagingView {
             scrollView!.backgroundColor = bar_pagingContro_content_color
             scrollView!.bounces = bar_pagingContro_bounce
             addSubview(scrollView!)
-            
+           
             // 设置控制器滚动视图约束
             scrollView!.topAnchor.constraint(equalTo: barScrollView.bottomAnchor).isActive = true
             scrollView!.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
             scrollView!.bottomAnchor.constraint(equalTo: self.bottomAnchor).isActive = true
             scrollView!.widthAnchor.constraint(equalTo: self.widthAnchor).isActive = true
-            
+           
             UIScrollView.appearance().contentInsetAdjustmentBehavior = .never
-            
+           
             var lastView: UIView? = nil
             for index in 0..<controllers.count {
-                
+               
                 superController?.addChild(controllers[index])
-                
+               
                 let controllerView = controllers[index].view
                 controllerView?.translatesAutoresizingMaskIntoConstraints = false
                 if let controller_bg_color: UIColor = bar_pagingContro_bg_color {
                     controllerView?.backgroundColor = controller_bg_color
                 }
                 scrollView!.addSubview(controllerView!)
-                
+               
                 // 设置控制器视图约束
                 controllerView!.topAnchor.constraint(equalTo: scrollView!.topAnchor).isActive = true
                 controllerView!.bottomAnchor.constraint(equalTo: scrollView!.bottomAnchor).isActive = true
                 controllerView!.heightAnchor.constraint(equalTo: self.heightAnchor, constant: -bar_height).isActive = true
                 controllerView!.widthAnchor.constraint(equalTo: self.widthAnchor).isActive = true
-                
+               
                 if lastView == nil {
                     controllerView!.leadingAnchor.constraint(equalTo: scrollView!.leadingAnchor).isActive = true
                 } else {
                     controllerView!.leadingAnchor.constraint(equalTo: lastView!.trailingAnchor).isActive = true
                 }
-                
+               
                 if index == (controllers.count - 1) {
                     controllerView!.trailingAnchor.constraint(equalTo: scrollView!.trailingAnchor).isActive = true
                 }
-                
+               
                 lastView = controllerView!
             }
-            
+           
             objc_setAssociatedObject(self, &WYAssociatedKeys.controllerScrollView, scrollView, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
-        
+       
         return scrollView!
     }
-    
+   
     var barScrollView: UIScrollView {
-        
+       
         var barScroll: UIScrollView? = objc_getAssociatedObject(self, &WYAssociatedKeys.barScrollView) as? UIScrollView
-        
+       
         if barScroll == nil {
-            
+           
             barScroll = UIScrollView()
             barScroll!.translatesAutoresizingMaskIntoConstraints = false
             barScroll!.showsHorizontalScrollIndicator = false
@@ -478,13 +555,13 @@ extension WYPagingView {
             barScroll!.bounces = bar_pagingContro_bounce
             barScroll!.isScrollEnabled = canScrollBar
             addSubview(barScroll!)
-            
+           
             // 设置分页栏滚动视图约束
             barScroll!.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
             barScroll!.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
             barScroll!.widthAnchor.constraint(equalTo: self.widthAnchor).isActive = true
             barScroll!.heightAnchor.constraint(equalToConstant: bar_height).isActive = true
-            
+           
             /// 底部分隔带
             let dividingView = UIImageView()
             dividingView.translatesAutoresizingMaskIntoConstraints = false
@@ -493,26 +570,26 @@ extension WYPagingView {
                 dividingView.image = dividingStripImage
             }
             barScroll!.addSubview(dividingView)
-            
+           
             // 设置分隔带约束
             dividingView.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
             dividingView.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
             dividingView.heightAnchor.constraint(equalToConstant: bar_dividingStripHeight).isActive = true
             dividingView.topAnchor.constraint(equalTo: barScroll!.bottomAnchor, constant: bar_height - bar_dividingStripHeight).isActive = true
-            
+           
             objc_setAssociatedObject(self, &WYAssociatedKeys.barScrollView, barScroll, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         barScroll!.contentSize = CGSize(width: barScroll!.contentSize.width, height: bar_height)
-        
+       
         return barScroll!
     }
-    
+   
     var barScrollLine: UIImageView {
-        
+       
         var scrollLine: UIImageView? = objc_getAssociatedObject(self, &WYAssociatedKeys.barScrollLine) as? UIImageView
-        
+       
         if scrollLine == nil {
-            
+           
             scrollLine = UIImageView()
             scrollLine!.translatesAutoresizingMaskIntoConstraints = false
             scrollLine!.backgroundColor = (controllers.count > 1) ? bar_scrollLineColor : .clear
@@ -520,7 +597,7 @@ extension WYPagingView {
             if let scrollLineImage: UIImage = bar_scrollLineImage {
                 scrollLine?.image = scrollLineImage
             }
-            
+           
             // 设置滑动线条约束
             barScrollLineLeftConstraint = scrollLine!.leadingAnchor.constraint(equalTo: barScrollView.leadingAnchor)
             barScrollLineLeftConstraint!.isActive = true
@@ -528,51 +605,51 @@ extension WYPagingView {
             barScrollLineWidthConstraint!.isActive = true
             scrollLine!.heightAnchor.constraint(equalToConstant: bar_scrollLineHeight).isActive = true
             scrollLine!.topAnchor.constraint(equalTo: barScrollView.topAnchor, constant: bar_height - bar_scrollLineBottomOffset - bar_scrollLineHeight).isActive = true
-            
+           
             objc_setAssociatedObject(self, &WYAssociatedKeys.barScrollLine, scrollLine!, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         return scrollLine!
     }
-    
+   
     var buttonItemTagBegin: Int {
         return 1000
     }
-    
+   
     private struct WYAssociatedKeys {
-        
+       
         static var barScrollView: UInt8 = 0
-        
+       
         static var controllerScrollView: UInt8 = 0
-        
+       
         static var barScrollLine: UInt8 = 0
     }
 }
 
 public class WYPagingItem: UIButton {
-    
+   
     public let contentView: UIButton = UIButton(type: .custom)
-    
+   
     public init(appendSize: CGSize) {
-        
+       
         super.init(frame: .zero)
         contentView.translatesAutoresizingMaskIntoConstraints = false
         contentView.isUserInteractionEnabled = false
         contentView.titleLabel?.textAlignment = .center
         addSubview(contentView)
-        
+       
         // 设置内容视图约束
         contentView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: appendSize.width / 2).isActive = true
         contentView.topAnchor.constraint(equalTo: self.topAnchor, constant: appendSize.height / 2).isActive = true
         contentView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -(appendSize.width / 2)).isActive = true
         contentView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -(appendSize.height / 2)).isActive = true
     }
-    
+   
     /// 设置按钮富文本
     func setContentAttributed(title: String? = nil, titleColor: UIColor, font: UIFont, isSelected: Bool) {
-        
+       
         // 当前按钮文字
         let showTitle: String = (title == nil) ? (contentView.currentTitle ?? "") : (title ?? "")
-        
+       
         // 生成属性字符串
         let attributedString = NSAttributedString(
             string: showTitle,
@@ -584,7 +661,7 @@ public class WYPagingItem: UIButton {
         // 设置到当前状态
         contentView.setAttributedTitle(attributedString, for: isSelected ? .selected : .normal)
     }
-    
+   
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

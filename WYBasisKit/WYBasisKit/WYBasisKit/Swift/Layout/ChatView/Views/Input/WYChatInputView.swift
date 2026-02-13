@@ -462,9 +462,11 @@ public class WYChatInputView: UIImageView {
                 let point: CGPoint = sender.location(in: self.recordView)
                 switch sender.state {
                 case .began:
+                    self.isHidden = true
                     self.recordView.start()
                     break
                 case .changed:
+                    self.isHidden = true
                     if (point.x < (self.recordView.bounds.size.width / 2)) && (point.y < (self.recordView.bounds.size.height - recordAnimationConfig.areaHeight)) {
                         self.recordView.switchStatus(.cancel)
                     }else {
@@ -472,6 +474,7 @@ public class WYChatInputView: UIImageView {
                     }
                     break
                 default:
+                    self.isHidden = false
                     self.recordView.stop()
                     break
                 }

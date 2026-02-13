@@ -974,7 +974,8 @@ class WYTestLiveStreamingController: UIViewController {
 // MARK: - 播放器代理
 extension WYTestLiveStreamingController: WYMediaPlayerDelegate {
     
-    func mediaPlayerDidChangeState(_ player: WYMediaPlayer, state: WYMediaPlayerState) {
+    func wy_mediaPlayerStateDidChanged(_ player: WYMediaPlayer, state: WYMediaPlayerState) {
+        
         switch state {
         case .unknown:
             WYLogManager.output("未知状态")
@@ -1024,7 +1025,7 @@ extension WYTestLiveStreamingController: WYMediaPlayerDelegate {
         }
     }
     
-    func mediaPlayerDidChangeSubtitleStream(_ player: WYMediaPlayer, mediaMeta: [AnyHashable : Any]) {
+    func wy_mediaPlayerSubtitleStreamDidChanged(_ player: WYMediaPlayer, mediaMeta: [AnyHashable : Any]) {
         streamLabel.text = "流信息: \(mediaMeta)"
     }
 }

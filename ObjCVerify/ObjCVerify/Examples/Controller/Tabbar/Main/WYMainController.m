@@ -88,9 +88,6 @@
             [[ListItem alloc] initWithTitle:@"直播、点播播放器"
                                  controller:@"WYTestLiveStreamingController"],
             
-            [[ListItem alloc] initWithTitle:@"IM即时通讯(开发中)"
-                                 controller:@"WYTestChatController"],
-            
             [[ListItem alloc] initWithTitle:@"语音识别"
                                  controller:@"WYSpeechRecognitionController"],
             
@@ -122,7 +119,13 @@
                                  controller:@"WYTestPagingViewController"],
             
             [[ListItem alloc] initWithTitle:@"TableViewCell侧滑"
-                                 controller:@"WYTestSideslipCellController"]
+                                 controller:@"WYTestSideslipCellController"],
+            
+            [[ListItem alloc] initWithTitle:@"图片拼接"
+                                 controller:@"WYTestCombineImagesController"],
+            
+            [[ListItem alloc] initWithTitle:@"IM即时通讯(开发中)"
+                                 controller:@"WYTestChatController"]
         ];
     });
     return items;

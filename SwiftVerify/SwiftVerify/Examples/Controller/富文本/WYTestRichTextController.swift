@@ -257,8 +257,7 @@ class WYTestRichTextController: UIViewController {
 
 extension WYTestRichTextController: WYRichTextDelegate {
     
-    func wy_didClick(richText: String, range: NSRange, index: Int) {
-        
+    func wy_richTextDidClick(_ richText: String, range: NSRange, index: Int) {
         //wy_print("string = \(richText), range = \(range), index = \(index)")
         //WYActivity.showInfo("string = \(richText), range = \(range), index = \(index)", in: self.view, position: .middle)
         if (richText == "必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。") {

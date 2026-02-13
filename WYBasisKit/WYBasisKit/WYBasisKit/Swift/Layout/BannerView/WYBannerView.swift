@@ -11,12 +11,12 @@ import UIKit
 @objc public protocol WYBannerViewDelegate {
     
     /// 监控banner点击事件
-    @objc(didClickBannerView:index:)
-    optional func didClick(_ bannerView: WYBannerView, index: Int)
+    @objc(wy_bannerViewDidClick:index:)
+    optional func wy_bannerViewDidClick(_ bannerView: WYBannerView, index: Int)
     
     /// 监控banner的轮播事件
-    @objc(didScrollBannerView:offset:index:)
-    optional func didScroll(_ bannerView: WYBannerView, offset: CGFloat, index: Int)
+    @objc(wy_bannerViewDidScroll:offset:index:)
+    optional func wy_bannerViewDidScroll(_ bannerView: WYBannerView, offset: CGFloat, index: Int)
 }
 
 public class WYBannerView: UIView {
@@ -337,7 +337,7 @@ extension WYBannerView {
                 scrollview.contentOffset = CGPoint(x: wy_width, y: 0)
                 addSubview(scrollview)
                 
-                UIScrollView.appearance().contentInsetAdjustmentBehavior = .never
+                scrollview.contentInsetAdjustmentBehavior = .never
                 
                 currentIndex = 0
                 nextIndex = 0
@@ -711,7 +711,7 @@ extension WYBannerView {
     /// 点击了Banner控件
     @objc func didClickBanner() {
         if let delegate = delegate {
-            delegate.didClick?(self, index: currentIndex)
+            delegate.wy_bannerViewDidClick?(self, index: currentIndex)
         }
         
         if let handler = clickHandler {
@@ -946,7 +946,7 @@ extension WYBannerView: UIScrollViewDelegate {
         scrollDirection = offsetX > wy_width ? .left : (offsetX < wy_width ? .right : .none)
         
         if let delegate = delegate {
-            delegate.didScroll?(self, offset: offsetX - wy_width, index: currentIndex)
+            delegate.wy_bannerViewDidScroll?(self, offset: offsetX - wy_width, index: currentIndex)
         }
         
         if let handler = scrollHandler {

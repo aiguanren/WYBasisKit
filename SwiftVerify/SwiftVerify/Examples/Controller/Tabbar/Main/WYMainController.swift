@@ -64,9 +64,6 @@ class WYMainController: UIViewController {
         ListItem(title: "直播、点播播放器",
                  controller: "WYTestLiveStreamingController"),
         
-        ListItem(title: "IM即时通讯(开发中)",
-                 controller: "WYTestChatController"),
-        
         ListItem(title: "语音识别",
                  controller: "WYSpeechRecognitionController"),
         
@@ -98,7 +95,13 @@ class WYMainController: UIViewController {
                  controller: "WYTestPagingViewController"),
         
         ListItem(title: "TableViewCell侧滑",
-                 controller: "WYTestSideslipCellController")
+                 controller: "WYTestSideslipCellController"),
+        
+        ListItem(title: "图片拼接",
+                 controller: "WYTestCombineImagesController"),
+        
+        ListItem(title: "IM即时通讯(开发中)",
+                 controller: "WYTestChatController")
     ]
     
     lazy var tableView: UITableView = {

@@ -86,6 +86,7 @@
 		585B3AD92DF819DC00E6E08F /* WYTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3AA02DF819DC00E6E08F /* WYTabBarController.swift */; };
 		5882EAF12E518A5D00638FD3 /* WYTestVibrateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5882EAF02E518A5D00638FD3 /* WYTestVibrateController.swift */; };
 		589B0A3C2E49CE12000DBD10 /* bird.gif in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A3B2E49CE12000DBD10 /* bird.gif */; };
+		58C3596A2F3C6159000E6EF0 /* WYTestCombineImagesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C359692F3C6159000E6EF0 /* WYTestCombineImagesController.swift */; };
 		58CDEE5D2E34907800ACE975 /* WYLogController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CDEE5C2E34907800ACE975 /* WYLogController.swift */; };
 		58E712812E4B0CE90095E71C /* WYTestAudioController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E712802E4B0CE90095E71C /* WYTestAudioController.swift */; };
 		84EE766C2E1181D7E147705D /* Pods_SwiftVerify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D62E6505DE49C40968A38E0D /* Pods_SwiftVerify.framework */; };
@@ -233,6 +234,7 @@
 		5874BC892DF9179300703A4B /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Main.strings"; sourceTree = "<group>"; };
 		5882EAF02E518A5D00638FD3 /* WYTestVibrateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestVibrateController.swift; sourceTree = "<group>"; };
 		589B0A3B2E49CE12000DBD10 /* bird.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = bird.gif; sourceTree = "<group>"; };
+		58C359692F3C6159000E6EF0 /* WYTestCombineImagesController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestCombineImagesController.swift; sourceTree = "<group>"; };
 		58CDEE5C2E34907800ACE975 /* WYLogController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLogController.swift; sourceTree = "<group>"; };
 		58E712802E4B0CE90095E71C /* WYTestAudioController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestAudioController.swift; sourceTree = "<group>"; };
 		AAA7086F2E1C11060040F2ED /* WYArchivedController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYArchivedController.swift; sourceTree = "<group>"; };
@@ -519,6 +521,7 @@
 		585B3A832DF819DC00E6E08F /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				58C359612F3C607A000E6EF0 /* 图片拼接 */,
 				585B3A4B2DF819DC00E6E08F /* 暗夜、白昼模式 */,
 				585B3A4D2DF819DC00E6E08F /* 边框、圆角、阴影、渐变 */,
 				585B3A4F2DF819DC00E6E08F /* 二维码 */,
@@ -633,6 +636,14 @@
 				5882EAF02E518A5D00638FD3 /* WYTestVibrateController.swift */,
 			);
 			path = "设备振动";
+			sourceTree = "<group>";
+		};
+		58C359612F3C607A000E6EF0 /* 图片拼接 */ = {
+			isa = PBXGroup;
+			children = (
+				58C359692F3C6159000E6EF0 /* WYTestCombineImagesController.swift */,
+			);
+			path = "图片拼接";
 			sourceTree = "<group>";
 		};
 		58CDEE592E34900D00ACE975 /* 日志输出与保存 */ = {
@@ -908,6 +919,7 @@
 				585B3ABF2DF819DC00E6E08F /* WYFlowLayoutAlignmentController.swift in Sources */,
 				585B3AC02DF819DC00E6E08F /* WYTestRequestController.swift in Sources */,
 				585B3AC12DF819DC00E6E08F /* WYMultilevelTableViewController.swift in Sources */,
+				58C3596A2F3C6159000E6EF0 /* WYTestCombineImagesController.swift in Sources */,
 				585B3AC22DF819DC00E6E08F /* WYTestDownloadController.swift in Sources */,
 				58E712812E4B0CE90095E71C /* WYTestAudioController.swift in Sources */,
 				585B3AC32DF819DC00E6E08F /* WYSpeechRecognitionController.swift in Sources */,

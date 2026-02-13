@@ -262,6 +262,13 @@ import WYBasisKitSwift
         set { canScrollBar = newValue }
     }
     
+    /// 滑动线条是否需要支持跟随手指滑动(默认true)
+    @objc(bar_scrollLineFollowFinger)
+    var bar_scrollLineFollowFingerObjC: Bool{
+        get { return bar_scrollLineFollowFinger }
+        set { bar_scrollLineFollowFinger = newValue }
+    }
+    
     /// 传入的控制器数组
     @objc(controllers)
     var controllersObjC: [UIViewController] {

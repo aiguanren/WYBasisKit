@@ -141,7 +141,7 @@
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
 //    return 80;
-    return [WYIntObjC wy_randomWithMinimum:1 maximum:129];
+    return [WYInt wy_randomWithMinimum:1 maximum:129];
 //    return 9;
 //    return 169;
 }
@@ -174,7 +174,7 @@
                 if (hover) {
                     return CGSizeMake(35, indexPath.row + 10);
                 } else {
-                    return CGSizeMake(35, [WYIntObjC wy_randomWithMinimum:35 maximum:135]);
+                    return CGSizeMake(35, [WYInt wy_randomWithMinimum:35 maximum:135]);
                 }
             }
         } else {
@@ -213,7 +213,7 @@
         if (collectionView.pagingEnabled) {
             return CGSizeMake(35, 35);
         }
-        return CGSizeMake([WYIntObjC wy_randomWithMinimum:35 maximum:135], 35);
+        return CGSizeMake([WYInt wy_randomWithMinimum:35 maximum:135], 35);
     }
 }
 

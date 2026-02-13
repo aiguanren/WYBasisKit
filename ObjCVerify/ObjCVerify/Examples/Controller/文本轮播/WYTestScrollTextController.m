@@ -248,7 +248,7 @@
 
 // MARK: - WYScrollTextDelegate
 
-- (void)itemDidClickAtIndex:(NSInteger)itemIndex {
+- (void)wy_scrollTextItemDidClick:(WYScrollText *)scrollText itemIndex:(NSInteger)itemIndex {
     NSLog(@"代理方法: 点击了第 %ld 项", (long)itemIndex);
 }
 

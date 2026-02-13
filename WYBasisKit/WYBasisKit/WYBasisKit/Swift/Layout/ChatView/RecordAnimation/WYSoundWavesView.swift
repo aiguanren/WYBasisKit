@@ -37,8 +37,8 @@ public class WYSoundWavesView: UIImageView {
     public func refreshSoundWaves(meters: [CGFloat] = [], status: WYSoundWavesStatus) {
         switch status {
         case .recording:
-            image = recordAnimationConfig.backgroundImageForRecording
-            tintColor = recordAnimationConfig.backgroundColorForRecording
+            image = recordAnimationConfig.backgroundImageForMoveup.recording
+            tintColor = recordAnimationConfig.backgroundColorForMoveup.recording
             animationView.snp.updateConstraints { make in
                 make.center.equalToSuperview()
                 make.width.equalTo(((recordAnimationConfig.soundWavesWidth + recordAnimationConfig.soundWavesSpace) * CGFloat(recordAnimationConfig.severalSoundWaves.recording)) - recordAnimationConfig.soundWavesSpace)

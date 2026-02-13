@@ -10,8 +10,8 @@ import UIKit
 
 @objc public protocol WYScrollTextDelegate {
     
-    @objc(itemDidClickAtIndex:)
-    optional func itemDidClick(_ itemIndex: Int)
+    @objc(wy_scrollTextItemDidClick:itemIndex:)
+    optional func wy_scrollTextItemDidClick(_ scrollText: WYScrollText, itemIndex: Int)
 }
 
 /// ScrollText滚动方向
@@ -261,7 +261,7 @@ extension WYScrollText: UICollectionViewDelegate, UICollectionViewDataSource, UI
         if let actionHandler = actionHandler {
             actionHandler((textIndex == textArray.count-1) ? 0 : textIndex)
         }
-        delegate?.itemDidClick?((textIndex == textArray.count-1) ? 0 : textIndex)
+        delegate?.wy_scrollTextItemDidClick?(self, itemIndex: (textIndex == textArray.count-1) ? 0 : textIndex)
     }
 }
 

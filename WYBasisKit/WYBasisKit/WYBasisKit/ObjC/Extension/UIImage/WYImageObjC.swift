@@ -43,6 +43,103 @@ import WYBasisKitSwift
     }
 }
 
+/// 图片拼接(组合)配置
+@objcMembers public class WYCombineImagesConfig: NSObject {
+    
+    /**
+     *  重叠控制参数，默认0（无重叠）
+     *    - 0: 精确对齐，无重叠无间隙
+     *    - 正值: 拼接图片向基准图片方向偏移，产生重叠效果
+     *    - 负值: 拼接图片远离基准图片，产生间隙效果
+     */
+    @objc public var overlapControl: CGFloat = 0
+    
+    /// 拼接图片的透明度，默认1.0（不透明）
+    @objc public var alpha: CGFloat = 1.0
+    
+    /// 混合模式，默认.normal（正常叠加）
+    @objc public var blendMode: CGBlendMode = .normal
+    
+    /// 合成图片的背景颜色，默认透明
+    @objc public var backgroundColor: UIColor = .clear
+    
+    /// 拼接图片的圆角半径，默认0（直角）
+    @objc public var cornerRadius: CGFloat = 0
+    
+    /// 拼接图片的旋转角度（弧度制），默认0（不旋转）
+    @objc public var rotationAngle: CGFloat = 0
+    
+    /// 是否水平翻转拼接图片，默认false
+    @objc public var flipHorizontal: Bool = false
+    
+    /// 是否垂直翻转拼接图片，默认false
+    @objc public var flipVertical: Bool = false
+    
+    /// 输出图片的质量缩放因子，默认使用基准图片的scale， 默认 0(等于0时会强制转为nil传给swift)，如需传入0则传入0.01等具体值
+    @objc public var qualityScale: CGFloat = 0
+    
+    /// 拼接图片的缩放比例，默认1.0（原始大小）
+    @objc public var scale: CGFloat = 1.0
+    
+    /// 阴影颜色，默认无阴影(透明)
+    @objc public var shadowColor: UIColor = .clear
+    
+    /// 阴影模糊半径， 默认0
+    @objc public var shadowBlur: CGFloat = 0
+         
+    /// 阴影偏移，默认.zero
+    @objc public var shadowOffset: CGSize = .zero
+    
+    /// 描边颜色，默认无描边(透明)
+    @objc public var strokeColor: UIColor = .clear
+    
+    /// 描边宽度， 默认0
+    @objc public var strokeWidth: CGFloat = 0
+    
+    /// 蒙版图片（使用其 alpha 作为遮罩）， 默认nil
+    @objc public var maskImage: UIImage? = nil
+    
+    /// 获取默认配置项
+    @objc public static func sharedDefaultConfig() -> WYCombineImagesConfig {
+        return WYCombineImagesConfig()
+    }
+    
+    /// 初始化方法
+    @objc public init(overlapControl: CGFloat = 0,
+                      alpha: CGFloat = 1.0,
+                      blendMode: CGBlendMode = .normal,
+                      backgroundColor: UIColor = .clear,
+                      cornerRadius: CGFloat = 0,
+                      rotationAngle: CGFloat = 0,
+                      flipHorizontal: Bool = false,
+                      flipVertical: Bool = false,
+                      qualityScale: CGFloat = 0,
+                      scale: CGFloat = 1.0,
+                      shadowColor: UIColor = .clear,
+                      shadowBlur: CGFloat = 0,
+                      shadowOffset: CGSize = .zero,
+                      strokeColor: UIColor = .clear,
+                      strokeWidth: CGFloat = 0,
+                      maskImage: UIImage? = nil) {
+        self.overlapControl = overlapControl
+        self.alpha = alpha
+        self.blendMode = blendMode
+        self.backgroundColor = backgroundColor
+        self.cornerRadius = cornerRadius
+        self.rotationAngle = rotationAngle
+        self.flipHorizontal = flipHorizontal
+        self.flipVertical = flipVertical
+        self.qualityScale = qualityScale
+        self.scale = scale
+        self.shadowColor = shadowColor
+        self.shadowBlur = shadowBlur
+        self.shadowOffset = shadowOffset
+        self.strokeColor = strokeColor
+        self.strokeWidth = strokeWidth
+        self.maskImage = maskImage
+    }
+}
+
 @objc public extension UIImage {
     
     /**
@@ -76,6 +173,42 @@ import WYBasisKitSwift
     @objc(wy_flips:)
     func wy_flips(with orientation: UIImage.Orientation) -> UIImage {
         return wy_flips(orientation)
+    }
+    
+    /**
+     图片合成(拼接) ，支持重叠控制、缩放、透明度、混合模式等多种效果
+     - standardImage: 基准图片
+     - stitchingImage: 要拼接的图片，将叠加在基准图片上
+     - stitchingCenterPoint: 拼接图片的中心点在基准图片坐标系中的位置
+     - config: 图片拼接(组合)配置选项
+     - return: 拼接后的图片，失败返回nil
+     */
+    @objc(wy_combineImagesWithStandardImage:stitchingImage:stitchingCenterPoint:config:)
+    static func wy_combineImagesObjC(standardImage: UIImage,
+                                     stitchingImage: UIImage,
+                                     stitchingCenterPoint: CGPoint,
+                                     config: WYCombineImagesConfig? = nil) -> UIImage? {
+        let combineConfig: WYCombineImagesConfig = (config == nil) ? WYCombineImagesConfig.sharedDefaultConfig() : config!
+        
+        return wy_combineImages(standardImage: standardImage,
+                                stitchingImage: stitchingImage,
+                                stitchingCenterPoint: stitchingCenterPoint,
+                                overlapControl: combineConfig.overlapControl,
+                                alpha: combineConfig.alpha,
+                                blendMode: combineConfig.blendMode,
+                                backgroundColor: combineConfig.backgroundColor,
+                                cornerRadius: combineConfig.cornerRadius,
+                                rotationAngle: combineConfig.rotationAngle,
+                                flipHorizontal: combineConfig.flipHorizontal,
+                                flipVertical: combineConfig.flipVertical,
+                                qualityScale: (combineConfig.qualityScale == 0) ? nil : combineConfig.qualityScale,
+                                scale: combineConfig.scale,
+                                shadowColor: combineConfig.shadowColor,
+                                shadowBlur: combineConfig.shadowBlur,
+                                shadowOffset: combineConfig.shadowOffset,
+                                strokeColor: combineConfig.strokeColor,
+                                strokeWidth: combineConfig.strokeWidth,
+                                maskImage: combineConfig.maskImage)
     }
     
     /// 截取指定View快照

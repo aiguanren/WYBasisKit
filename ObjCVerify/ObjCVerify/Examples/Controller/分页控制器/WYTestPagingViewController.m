@@ -890,7 +890,7 @@
 
 #pragma mark - WYPagingViewDelegate
 
-- (void)itemDidScroll:(NSInteger)pagingIndex {
+- (void)wy_pagingViewItemDidScroll:(WYPagingView *)pagingView pagingIndex:(NSInteger)pagingIndex {
     NSLog(@"分页滚动到第 %ld 页 - 通过代理回调", (long)pagingIndex);
 }
 

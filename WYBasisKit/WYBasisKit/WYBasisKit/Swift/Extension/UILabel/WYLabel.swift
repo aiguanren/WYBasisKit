@@ -19,8 +19,8 @@ import CoreText
      *  @param range   点击的字符串range
      *  @param index   点击的字符在数组中的index
      */
-    @objc(wy_didClickRichText:range:index:)
-    optional func wy_didClick(richText: String, range: NSRange, index: Int)
+    @objc(wy_richTextDidClick:range:index:)
+    optional func wy_richTextDidClick(_ richText: String, range: NSRange, index: Int)
 }
 
 public extension UILabel {
@@ -118,7 +118,7 @@ extension UILabel {
                 }
                 
                 if (self?.wy_richTextDelegate != nil) {
-                    self?.wy_richTextDelegate?.wy_didClick?(richText: string, range: range, index: index)
+                    self?.wy_richTextDelegate?.wy_richTextDidClick?(string, range: range, index: index)
                 }
             }
             
@@ -161,7 +161,7 @@ extension UILabel {
                     }
                     
                     if (wy_richTextDelegate != nil) {
-                        wy_richTextDelegate?.wy_didClick?(richText: model.string, range: model.range, index: model.index)
+                        wy_richTextDelegate?.wy_richTextDidClick?(model.string, range: model.range, index: model.index)
                     }
                 }
             }

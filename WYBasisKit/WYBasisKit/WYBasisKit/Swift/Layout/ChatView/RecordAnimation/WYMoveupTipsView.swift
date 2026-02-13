@@ -2,10 +2,19 @@
 //  WYMoveupTipsView.swift
 //  WYBasisKit
 //
-//  Created by Miraitowa on 2023/8/31.
+//  Created by 官人 on 2023/8/31.
 //
 
 import UIKit
+
+@frozen public enum WYMoveupTipsState: Int {
+    
+    /// 准备取消状态
+    case cancel = 0
+    
+    /// 语音转文字状态
+    case transfer
+}
 
 public class WYMoveupTipsView: UIView {
     
@@ -15,8 +24,7 @@ public class WYMoveupTipsView: UIView {
     /// 移动按钮
     public var moveuplView: UIButton = UIButton(type: .custom)
     
-    /// isDefault为true时表示左侧取消控件，否则为右侧文字转语音(或其他)控件
-    public init(isDefault: Bool) {
+    public init(tipsState: WYMoveupTipsState) {
         super.init(frame: .zero)
         
         tipsView.backgroundColor = .clear
@@ -31,15 +39,17 @@ public class WYMoveupTipsView: UIView {
 
         addSubview(moveuplView)
         moveuplView.backgroundColor = .clear
+        moveuplView.titleLabel?.numberOfLines = 0
+        moveuplView.titleLabel?.textAlignment = .center
         
-        moveuplView.setBackgroundImage(isDefault ? recordAnimationConfig.cancelRecordViewImage.onExternal : recordAnimationConfig.transferViewImage.onExternal, for: .normal)
-        moveuplView.setBackgroundImage(isDefault ? recordAnimationConfig.cancelRecordViewImage.onInterior : recordAnimationConfig.transferViewImage.onInterior, for: .selected)
+        moveuplView.setBackgroundImage((tipsState == .cancel) ? recordAnimationConfig.cancelRecordViewImage.onExternal : recordAnimationConfig.transferViewImage.onExternal, for: .normal)
+        moveuplView.setBackgroundImage((tipsState == .cancel) ? recordAnimationConfig.cancelRecordViewImage.onInterior : recordAnimationConfig.transferViewImage.onInterior, for: .selected)
         
-        moveuplView.setTitle(isDefault ? recordAnimationConfig.cancelRecordViewText.onInterior : recordAnimationConfig.transferViewText.onInterior, for: .normal)
-        moveuplView.setTitle(isDefault ? recordAnimationConfig.cancelRecordViewText.onInterior : recordAnimationConfig.transferViewText.onInterior, for: .selected)
+        moveuplView.setTitle((tipsState == .cancel) ? recordAnimationConfig.cancelRecordViewText.onInterior : recordAnimationConfig.transferViewText.onInterior, for: .normal)
+        moveuplView.setTitle((tipsState == .cancel) ? recordAnimationConfig.cancelRecordViewText.onInterior : recordAnimationConfig.transferViewText.onInterior, for: .selected)
         
-        moveuplView.setTitleColor(isDefault ? recordAnimationConfig.cancelRecordViewTextInfoForExternal.color : recordAnimationConfig.transferViewTextInfoForExternal.color, for: .normal)
-        moveuplView.setTitleColor(isDefault ? recordAnimationConfig.cancelRecordViewTextInfoForInterior.color : recordAnimationConfig.transferViewTextInfoForInterior.color, for: .selected)
+        moveuplView.setTitleColor((tipsState == .cancel) ? recordAnimationConfig.cancelRecordViewTextInfoForExternal.color : recordAnimationConfig.transferViewTextInfoForExternal.color, for: .normal)
+        moveuplView.setTitleColor((tipsState == .cancel) ? recordAnimationConfig.cancelRecordViewTextInfoForInterior.color : recordAnimationConfig.transferViewTextInfoForInterior.color, for: .selected)
         
         moveuplView.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
@@ -54,7 +64,7 @@ public class WYMoveupTipsView: UIView {
         
         moveuplView.isSelected = isTouched
         
-        moveuplView.transform = CGAffineTransform(rotationAngle: isDefault ? recordAnimationConfig.moveupViewDeviationAngle : -recordAnimationConfig.moveupViewDeviationAngle)
+        moveuplView.transform = CGAffineTransform(rotationAngle: isDefault ? -recordAnimationConfig.moveupViewDeviationAngle : recordAnimationConfig.moveupViewDeviationAngle)
         
         if moveuplView.isSelected == true {
             

@@ -15,7 +15,7 @@ public struct WYRecordAnimationConfig {
     /// 声波线宽度
     public var soundWavesWidth: CGFloat = UIDevice.wy_screenWidth(3)
     
-    /// 声波线最大高度
+    /// 声波线高度
     public var soundWavesHeight: (recording: CGFloat,
                                   cancel: CGFloat,
                                   transfer: CGFloat) = (
@@ -23,19 +23,19 @@ public struct WYRecordAnimationConfig {
                                     cancel: UIDevice.wy_screenWidth(30),
                                     transfer: UIDevice.wy_screenWidth(30))
     
-    /// 声波控件最大宽度
+    /// 声波控件宽度
     public var soundWavesViewWidth: (recording: CGFloat,
                                   cancel: CGFloat,
                                   transfer: CGFloat) = (
-                                    recording: UIDevice.wy_screenWidth(280),
+                                    recording: UIDevice.wy_screenWidth(220),
                                     cancel: UIDevice.wy_screenWidth(130),
                                     transfer: UIDevice.wy_screenWidth(525))
     
-    /// 声波控件最大高度
+    /// 声波控件高度
     public var soundWavesViewHeight: (recording: CGFloat,
                                   cancel: CGFloat,
                                   transfer: CGFloat) = (
-                                    recording: UIDevice.wy_screenWidth(130),
+                                    recording: UIDevice.wy_screenWidth(100),
                                     cancel: UIDevice.wy_screenWidth(90),
                                     transfer: UIDevice.wy_screenWidth(170))
     
@@ -56,35 +56,29 @@ public struct WYRecordAnimationConfig {
                                                                     cancel: .wy_hex("282828").withAlphaComponent(0.6),
                                                                     transfer: .wy_hex("282828").withAlphaComponent(0.6))
     
-    /// 录音时声波动画背景图
-    public var backgroundImageForRecording: UIImage = WYRecordAnimationConfig.soundWavesDefaultImage()
+    /// 录音、取消录音与转文字时声波动画背景图
+    public var backgroundImageForMoveup: (recording: UIImage,
+                                          cancel: UIImage,
+                                          transfer: UIImage) = (recording: soundWavesDefaultImage(), cancel: soundWavesDefaultImage(), transfer: soundWavesDefaultImage())
     
-    /// 取消录音或者转文字时声波动画背景图
-    public var backgroundImageForMoveup: (cancel: UIImage,
-                                          transfer: UIImage) = (
-                                            cancel: WYRecordAnimationConfig.soundWavesDefaultImage(),
-                                            transfer: WYRecordAnimationConfig.soundWavesDefaultImage(UIEdgeInsets(top: UIDevice.wy_screenWidth(10), left: UIDevice.wy_screenWidth(10), bottom: UIDevice.wy_screenWidth(20), right: UIDevice.wy_screenWidth(100))))
-    
-    /// 录音时声波动画背景色
-    public var backgroundColorForRecording: UIColor = .wy_rgb(169, 233, 121)
-    
-    /// 取消录音或者转文字时声波动画背景色
-    public var backgroundColorForMoveup: (cancel: UIColor,
-                                          transfer: UIColor) = (
-                                            cancel: .wy_rgb(231, 94, 88),
-                                            transfer: .wy_rgb(169, 233, 121))
+    /// 录音、取消录音与转文字时声波动画背景色
+    public var backgroundColorForMoveup: (recording: UIColor,
+                                          cancel: UIColor,
+                                          transfer: UIColor) = (recording: .wy_hex("#94EB68"),
+                                            cancel: .wy_hex("#94EB68"),
+                                            transfer: .wy_hex("#94EB68"))
     
     /// 取消按钮背景图
     public var cancelRecordViewImage: (onInterior: UIImage, onExternal: UIImage) = (onInterior: .wy_createImage(from: .wy_rgb(236, 236, 236), size: CGSize(width: UIDevice.wy_screenWidth(100), height: UIDevice.wy_screenWidth(100))).wy_cuttingRound(), onExternal: .wy_createImage(from: .wy_rgb(57, 57, 57), size: CGSize(width: UIDevice.wy_screenWidth(80), height: UIDevice.wy_screenWidth(80))).wy_cuttingRound())
     
     /// 取消按钮内部文本和提示文本
-    public var cancelRecordViewText: (onInterior: String, tips: String) = (onInterior: "×", tips: "松开 取消")
+    public var cancelRecordViewText: (onInterior: String, tips: String) = (onInterior: "取消", tips: "松手 取消")
     
     /// 转文字按钮内部文本和提示文本
-    public var transferViewText: (onInterior: String, tips: String) = (onInterior: "文", tips: "转文字")
+    public var transferViewText: (onInterior: String, tips: String) = (onInterior: "滑到这里\n转文字", tips: "松手 编辑文字")
     
     /// 录音按钮提示文本
-    public var recordViewTips: String = "松开 发送"
+    public var recordViewTips: (onInterior: String, onExternal: String) = (onInterior: "松开 发送", onExternal: "语音")
     
     /// 转文字按钮背景图
     public var transferViewImage: (onInterior: UIImage, onExternal: UIImage) = (onInterior: .wy_createImage(from: .wy_rgb(236, 236, 236), size: CGSize(width: UIDevice.wy_screenWidth(100), height: UIDevice.wy_screenWidth(100))).wy_cuttingRound(), onExternal: .wy_createImage(from: .wy_rgb(57, 57, 57), size: CGSize(width: UIDevice.wy_screenWidth(80), height: UIDevice.wy_screenWidth(80))).wy_cuttingRound())
@@ -96,19 +90,19 @@ public struct WYRecordAnimationConfig {
     public var recordViewTipsInfo: (font: UIFont, color: UIColor) = (font: .systemFont(ofSize: UIFont.wy_fontSize(15)), color: .wy_rgb(163, 163, 163))
     
     /// 取消录音按钮内部字体、色值
-    public var cancelRecordViewTextInfoForInterior: (font: UIFont, color: UIColor) = (font: .systemFont(ofSize: UIFont.wy_fontSize(30)), color: .wy_rgb(20, 20, 20))
+    public var cancelRecordViewTextInfoForInterior: (font: UIFont, color: UIColor) = (font: .systemFont(ofSize: UIFont.wy_fontSize(15)), color: .wy_rgb(20, 20, 20))
     
     /// 取消录音按钮外部字体、色值
-    public var cancelRecordViewTextInfoForExternal: (font: UIFont, color: UIColor) = (font: .systemFont(ofSize: UIFont.wy_fontSize(30)), color: .wy_rgb(156, 156, 156))
+    public var cancelRecordViewTextInfoForExternal: (font: UIFont, color: UIColor) = (font: .systemFont(ofSize: UIFont.wy_fontSize(15)), color: .wy_rgb(156, 156, 156))
     
     /// 转文字按钮内部字体、色值
-    public var transferViewTextInfoForInterior: (font: UIFont, color: UIColor) = (font: .systemFont(ofSize: UIFont.wy_fontSize(30)), color: .wy_rgb(20, 20, 20))
+    public var transferViewTextInfoForInterior: (font: UIFont, color: UIColor) = (font: .systemFont(ofSize: UIFont.wy_fontSize(15)), color: .wy_rgb(20, 20, 20))
     
     /// 转文字按钮外部字体、色值
-    public var transferViewTextInfoForExternal: (font: UIFont, color: UIColor) = (font: .systemFont(ofSize: UIFont.wy_fontSize(30)), color: .wy_rgb(156, 156, 156))
+    public var transferViewTextInfoForExternal: (font: UIFont, color: UIColor) = (font: .systemFont(ofSize: UIFont.wy_fontSize(15)), color: .wy_rgb(156, 156, 156))
     
     /// 取消录音按钮和转文字按钮的偏转角度
-    public var moveupViewDeviationAngle: CGFloat = UIFont.wy_fontSize(28)
+    public var moveupViewDeviationAngle: CGFloat = M_PI * 0.12
     
     /// 录音按钮背景色
     public var recordViewColor:(onInterior: UIColor, onExternal: UIColor) = (onInterior: .wy_rgb(57, 57, 57), onExternal: .white)
@@ -116,7 +110,7 @@ public struct WYRecordAnimationConfig {
     /// 录音按钮阴影色值
     public var recordViewShadowColor:(onInterior: UIColor, onExternal: UIColor) = (onInterior: .wy_rgb(57, 57, 57), onExternal: .wy_rgb(57, 57, 57))
     
-    /// 录音按钮图标及图标、size
+    /// 录音按钮图标及Size
     public var recordViewImageInfo: (icon: UIImage, size: CGSize) = (icon: UIImage.wy_find("WYChatViewSoundWavesRecord", inBundle: WYChatSourceBundle).withRenderingMode(.alwaysTemplate), size: CGSize(width: UIDevice.wy_screenWidth(27.2), height: UIDevice.wy_screenWidth(55)))
     
     /// 录音按钮图标色值
@@ -163,12 +157,12 @@ public struct WYRecordAnimationConfig {
     
     /// 最多可以录制多少秒(最长录音时间)
     public var maxRecordTime: TimeInterval = 60
+}
+
+/// 获取录音默认背景图
+private func soundWavesDefaultImage(_ capInsets: UIEdgeInsets = UIEdgeInsets(top: UIDevice.wy_screenWidth(10), left: UIDevice.wy_screenWidth(10), bottom: UIDevice.wy_screenWidth(20), right: UIDevice.wy_screenWidth(10))) -> UIImage {
     
-    /// 获取录音默认背景图
-    private static func soundWavesDefaultImage(_ capInsets: UIEdgeInsets = UIEdgeInsets(top: UIDevice.wy_screenWidth(10), left: UIDevice.wy_screenWidth(10), bottom: UIDevice.wy_screenWidth(20), right: UIDevice.wy_screenWidth(10))) -> UIImage {
-        
-        return UIImage.wy_find("WYChatViewDecibel", inBundle: WYChatSourceBundle).withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: capInsets, resizingMode: .stretch)
-    }
+    return UIImage.wy_find("WYChatViewDecibel", inBundle: WYChatSourceBundle).withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: capInsets, resizingMode: .stretch)
 }
 
 /// 聊天录音计时器Key
@@ -217,13 +211,14 @@ public class WYRecordAnimationView: UIView {
     public func record() {
         audioRecorder?.record()
         Timer.wy_start(recordManagerTimerKey, Int.max, updateFequency) { [weak self] remainingTime in
-            DispatchQueue.main.async {
-                self?.audioRecorder?.updateMeters()
-                self?.recordTime += (self?.updateFequency ?? 0)
-                self?.addSoundMeter(item: CGFloat(self?.audioRecorder?.averagePower(forChannel: 0) ?? 0))
-                if (self?.recordTime ?? 0) >= recordAnimationConfig.maxRecordTime {
-                    self?.endRecordVoice()
-                }
+            
+            guard let self = self else { return }
+            
+            self.audioRecorder?.updateMeters()
+            self.recordTime += (self.updateFequency ?? 0)
+            self.addSoundMeter(item: CGFloat(self.audioRecorder?.averagePower(forChannel: 0) ?? 0))
+            if (self.recordTime ?? 0) >= recordAnimationConfig.maxRecordTime {
+                self.endRecordVoice()
             }
         }
     }
@@ -269,9 +264,12 @@ public class WYRecordAnimationView: UIView {
                        usingSpringWithDamping: 0.9,
                        initialSpringVelocity: 1.0,
                        options: .curveEaseIn) { [weak self] in
-            self?.alpha = 1.0
-            self?.bottomView.alpha = 1.0
-            self?.bottomView.snp.updateConstraints({ make in
+            
+            guard let self = self else { return }
+            
+            self.alpha = 1.0
+            self.bottomView.alpha = 1.0
+            self.bottomView.snp.updateConstraints({ make in
                 make.bottom.equalToSuperview().offset(0)
             })
         }
@@ -291,8 +289,12 @@ public class WYRecordAnimationView: UIView {
                        usingSpringWithDamping: 1,
                        initialSpringVelocity: 1,
                        options: .curveEaseOut) { [weak self] in
-            self?.alpha = 0.0
-            self?.bottomView.alpha = 0.0
+            
+            guard let self = self else { return }
+            
+            self.alpha = 0.0
+            self.bottomView.alpha = 0.0
+            
         }completion: { [weak self] _ in
             
             guard let self = self else { return }
@@ -376,7 +378,8 @@ public class WYRecordAnimationView: UIView {
             if subview == soundWavesView {
                 
                 soundWavesView.snp.updateConstraints { make in
-                    make.size.equalTo(CGSize(width: recordAnimationConfig.soundWavesViewWidth.recording, height: recordAnimationConfig.soundWavesViewHeight.recording))
+                    make.width.equalTo(recordAnimationConfig.soundWavesViewWidth.recording)
+                    make.height.equalTo(recordAnimationConfig.soundWavesViewHeight.recording)
                 }
                 soundWavesView.refreshSoundWaves(status: .recording)
             }
@@ -397,7 +400,8 @@ public class WYRecordAnimationView: UIView {
             if subview == soundWavesView {
                 
                 soundWavesView.snp.updateConstraints { make in
-                    make.size.equalTo(CGSize(width: recordAnimationConfig.soundWavesViewWidth.cancel, height: recordAnimationConfig.soundWavesViewHeight.cancel))
+                    make.width.equalTo(recordAnimationConfig.soundWavesViewWidth.cancel)
+                    make.height.equalTo(recordAnimationConfig.soundWavesViewHeight.cancel)
                 }
                 soundWavesView.refreshSoundWaves(status: .cancel)
             }
@@ -417,7 +421,8 @@ public class WYRecordAnimationView: UIView {
             
             if subview == soundWavesView {
                 soundWavesView.snp.updateConstraints { make in
-                    make.size.equalTo(CGSize(width: recordAnimationConfig.soundWavesViewWidth.transfer, height: recordAnimationConfig.soundWavesViewHeight.transfer))
+                    make.width.equalTo(recordAnimationConfig.soundWavesViewWidth.transfer)
+                    make.height.equalTo(recordAnimationConfig.soundWavesViewHeight.transfer)
                 }
                 soundWavesView.refreshSoundWaves(status: .transfer)
             }
@@ -469,14 +474,15 @@ public class WYRecordAnimationView: UIView {
         addSubview(soundWavesView)
         soundWavesView.snp.makeConstraints { make in
             make.center.equalTo(CGPoint(x: frame.size.width / 2, y: frame.size.height - recordAnimationConfig.areaHeight - recordAnimationConfig.moveupButtonBottomOffset - recordAnimationConfig.moveupButtonTopOffset - (recordAnimationConfig.soundWavesViewHeight.recording / 2)))
-            make.size.equalTo(CGSize(width: recordAnimationConfig.soundWavesViewWidth.recording, height: recordAnimationConfig.soundWavesViewHeight.recording))
+            make.width.equalTo(recordAnimationConfig.soundWavesViewWidth.recording)
+            make.height.equalTo(recordAnimationConfig.soundWavesViewHeight.recording)
         }
         return soundWavesView
     }()
     
     public lazy var leftView: WYMoveupTipsView = {
         
-        let leftView: WYMoveupTipsView = WYMoveupTipsView(isDefault: true)
+        let leftView: WYMoveupTipsView = WYMoveupTipsView(tipsState: .cancel)
         addSubview(leftView)
         leftView.snp.makeConstraints { make in
             make.centerX.equalToSuperview().offset(-recordAnimationConfig.moveupButtonCenterOffsetX)

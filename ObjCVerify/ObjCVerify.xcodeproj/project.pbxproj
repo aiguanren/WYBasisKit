@@ -76,6 +76,7 @@
 		58BFB8BC2F1649A20094DDB5 /* WYTestScrollTextController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58BFB8BB2F1649A20094DDB5 /* WYTestScrollTextController.m */; };
 		58BFB8C02F18BB6F0094DDB5 /* WYTestPagingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58BFB8BF2F18BB6F0094DDB5 /* WYTestPagingViewController.m */; };
 		58BFB8C42F18C3010094DDB5 /* WYTestSideslipCellController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58BFB8C32F18C3010094DDB5 /* WYTestSideslipCellController.m */; };
+		58C359682F3C614D000E6EF0 /* WYTestCombineImagesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58C359672F3C614D000E6EF0 /* WYTestCombineImagesController.m */; };
 		58DA4EAD2EA23E6F003EAA2D /* WYTestVibrateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DA4EAC2EA23E6F003EAA2D /* WYTestVibrateController.m */; };
 		58DA4EB12EA2427D003EAA2D /* WYTestButtonEdgeInsetsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DA4EB02EA2427D003EAA2D /* WYTestButtonEdgeInsetsController.m */; };
 		58DEA9BD2F0F580200664E13 /* WYTestAnimationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DEA9BC2F0F580200664E13 /* WYTestAnimationController.m */; };
@@ -250,6 +251,8 @@
 		58BFB8BF2F18BB6F0094DDB5 /* WYTestPagingViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestPagingViewController.m; sourceTree = "<group>"; };
 		58BFB8C22F18C3010094DDB5 /* WYTestSideslipCellController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestSideslipCellController.h; sourceTree = "<group>"; };
 		58BFB8C32F18C3010094DDB5 /* WYTestSideslipCellController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestSideslipCellController.m; sourceTree = "<group>"; };
+		58C359662F3C614D000E6EF0 /* WYTestCombineImagesController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestCombineImagesController.h; sourceTree = "<group>"; };
+		58C359672F3C614D000E6EF0 /* WYTestCombineImagesController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestCombineImagesController.m; sourceTree = "<group>"; };
 		58DA4EAB2EA23E6F003EAA2D /* WYTestVibrateController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestVibrateController.h; sourceTree = "<group>"; };
 		58DA4EAC2EA23E6F003EAA2D /* WYTestVibrateController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestVibrateController.m; sourceTree = "<group>"; };
 		58DA4EAF2EA2427D003EAA2D /* WYTestButtonEdgeInsetsController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestButtonEdgeInsetsController.h; sourceTree = "<group>"; };
@@ -431,6 +434,7 @@
 		58B470482E8D329600D04BCA /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				58C359622F3C60F3000E6EF0 /* 图片拼接 */,
 				5827320E2E9F8CAB00DAD1AA /* 暗夜、白昼模式 */,
 				58DEA9BE2F0F5A8C00664E13 /* 边框、圆角、阴影、渐变 */,
 				58BFB8882F14E59D0094DDB5 /* 二维码 */,
@@ -648,6 +652,15 @@
 				58BFB8C32F18C3010094DDB5 /* WYTestSideslipCellController.m */,
 			);
 			path = "TableViewCell侧滑";
+			sourceTree = "<group>";
+		};
+		58C359622F3C60F3000E6EF0 /* 图片拼接 */ = {
+			isa = PBXGroup;
+			children = (
+				58C359662F3C614D000E6EF0 /* WYTestCombineImagesController.h */,
+				58C359672F3C614D000E6EF0 /* WYTestCombineImagesController.m */,
+			);
+			path = "图片拼接";
 			sourceTree = "<group>";
 		};
 		58DA4EAA2EA23E41003EAA2D /* 设备振动 */ = {
@@ -893,9 +906,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -910,9 +927,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -965,6 +986,7 @@
 				58DEA9D12F1105EB00664E13 /* WYTableViewPlainController.m in Sources */,
 				58B46FF22E8D0F6100D04BCA /* WYTabBarController.m in Sources */,
 				580ED5682EA5DA9C006012E7 /* SDKRequestContext.m in Sources */,
+				58C359682F3C614D000E6EF0 /* WYTestCombineImagesController.m in Sources */,
 				58BFB8832F14D9950094DDB5 /* WYTestRequestController.m in Sources */,
 				584EAF0E2E939052003A21B8 /* WYWebViewController.m in Sources */,
 			);

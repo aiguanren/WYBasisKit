@@ -252,7 +252,7 @@
 
 #pragma mark - WYRichTextDelegate
 
-- (void)wy_didClickRichText:(NSString *)richText range:(NSRange)range index:(NSInteger)index {
+- (void)wy_richTextDidClick:(NSString *)richText range:(NSRange)range index:(NSInteger)index {
     
     //WYLog(@"string = %@, range = %@, index = %ld", richText, NSStringFromRange(range), (long)index);
     //[WYActivity showInfo:[NSString stringWithFormat:@"string = %@, range = %@, index = %ld", richText, NSStringFromRange(range), (long)index] inView:self.view position:WYActivityPositionMiddle];
