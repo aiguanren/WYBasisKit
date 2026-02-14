@@ -846,7 +846,7 @@
 				"${BUILT_PRODUCTS_DIR}/IQKeyboardToolbarManager/IQKeyboardToolbarManager.framework",
 				"${BUILT_PRODUCTS_DIR}/IQTextInputViewNotification/IQTextInputViewNotification.framework",
 				"${BUILT_PRODUCTS_DIR}/IQTextView/IQTextView.framework",
-				"${BUILT_PRODUCTS_DIR}/WYBasisKit-swift-76b711b7/WYBasisKitSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/WYBasisKit-swift-a75a1fb3/WYBasisKitSwift.framework",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/IJKPlayerKit/FSPlayer.framework/FSPlayer",
 			);
 			name = "[CP] Embed Pods Frameworks";
