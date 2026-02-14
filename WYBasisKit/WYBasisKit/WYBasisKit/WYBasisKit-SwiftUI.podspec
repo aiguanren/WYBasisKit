@@ -26,7 +26,7 @@ Pod::Spec.new do |kit|
   #kit.source       = { :svn => "http://192.168.xxx.xxx:xxxx/xxx/xxx/WYBasiskit"}
   #kit.source       = { :http => "http://192.168.xxx.xxx:xxxx/xxx/xxx/WYBasiskit.zip" }
   kit.resource_bundles = {"WYBasisKitSwiftUI" => [
-    "#{kit_path}PrivacyInfo.xcprivacy"
+    "#{kit_path}SwiftUI/PrivacyInfo.xcprivacy"
   ]}
   kit.swift_versions = ["5"]
   #kit.swift_version = "5.0"

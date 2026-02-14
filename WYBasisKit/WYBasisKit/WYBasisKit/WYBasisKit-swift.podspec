@@ -6,7 +6,7 @@ localizable_bundle = "#{kit_path}Swift/Localizable/WYLocalizable.bundle"
 
 Pod::Spec.new do |kit|
   kit.name         = "WYBasisKit-swift"
-  kit.version      = "2.1.3"
+  kit.version      = "2.2.0"
   kit.summary      = "WYBasisKit 不仅可以帮助开发者快速构建一个工程，还有基于常用网络框架和系统API而封装的各种实用方法、扩展，开发者只需简单的调用API就可以快速实现相应功能， 大幅提高开发效率。"
   kit.description  = <<-DESC
     Localizable: 国际化解决方案
@@ -29,7 +29,7 @@ Pod::Spec.new do |kit|
   #kit.source       = { :svn => "http://192.168.xxx.xxx:xxxx/xxx/xxx/WYBasiskit"}
   #kit.source       = { :http => "http://192.168.xxx.xxx:xxxx/xxx/xxx/WYBasiskit.zip" }
   kit.resource_bundles = {"WYBasisKitSwift" => [
-    "#{kit_path}PrivacyInfo.xcprivacy"
+    "#{kit_path}Swift/PrivacyInfo.xcprivacy"
   ]}
   kit.swift_versions = ["5"]
   #kit.swift_version = "5.0"
@@ -213,6 +213,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}Swift/AudioKit/PrivacyInfo.xcprivacy"
     ]}
     audioKit.frameworks = "Foundation", "AVFoundation", "Combine", "QuartzCore"
+    audioKit.dependency "WYBasisKit-swift/Authorization/Microphone"
   end
   
   kit.subspec "Authorization" do |authorization|
@@ -300,6 +301,20 @@ Pod::Spec.new do |kit|
       speechRecognition.frameworks = "Speech", "UIKit"
       speechRecognition.dependency "WYBasisKit-swift/Localizable"
       speechRecognition.dependency "WYBasisKit-swift/LogManager"
+    end
+
+    authorization.subspec "Location" do |location|
+      location.source_files = [
+        "#{kit_path}Swift/Authorization/Location/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIAlertController/**/*.{swift,h,m}"
+      ]
+      location.resources = [localizable_bundle]
+      location.resource_bundles = {"WYBasisKitSwiftAuthorizationLocation" => [
+        "#{kit_path}Swift/Authorization/Location/PrivacyInfo.xcprivacy"
+      ]}
+      location.frameworks = "UIKit", "Foundation", "CoreLocation"
+      location.dependency "WYBasisKit-swift/Localizable"
+      location.dependency "WYBasisKit-swift/LogManager"
     end
   end
   
