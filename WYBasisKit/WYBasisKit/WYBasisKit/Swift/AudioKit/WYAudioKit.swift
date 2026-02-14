@@ -11,27 +11,27 @@ import Combine
 import QuartzCore
 
 /**
- 音频文件格式说明：
- 
-  可直接录制（iOS 原生支持）：
-   - aac ：高效压缩，体积小，音质好；适合音乐、播客、配音；跨平台兼容性好
-   - wav ：无损 PCM，音质最佳，文件较大；适合高音质场景
-   - caf ：Apple 容器，支持多种编码，适合长音频无大小限制
-   - m4a ：基于 MPEG-4 容器，常封装 AAC/ALAC，Apple 生态常用
-   - aiff：无损 PCM，Apple 早期格式，音质好，体积较大
- 
-  仅播放支持（无法直接录制）：
-   - mp3 ：通用有损编码，兼容性极高，适合跨平台分发
-   - flac：无损压缩，音质好，安卓友好，iOS 需转码播放
-   - au  ：早期 UNIX 音频格式，现较少使用
-   - amr ：人声优化编码，适合通话录音，音质一般
-   - ac3 ：杜比数字音频，多声道环绕声，电影电视常用
-   - eac3：杜比数字增强版，支持更高码率和更多声道
- 
-  跨平台推荐：
-   - 录制给安卓播放：aac / mp3（兼容性较好）
-   - 安卓录制给 iOS 播放：mp3 / aac（无需额外解码）
- */
+音频文件格式说明：
+
+ 可直接录制（iOS 原生支持）：
+  - aac ：高效压缩，体积小，音质好；适合音乐、播客、配音；跨平台兼容性好
+  - wav ：无损 PCM，音质最佳，文件较大；适合高音质场景
+  - caf ：Apple 容器，支持多种编码，适合长音频无大小限制
+  - m4a ：基于 MPEG-4 容器，常封装 AAC/ALAC，Apple 生态常用
+  - aiff：无损 PCM，Apple 早期格式，音质好，体积较大
+
+ 仅播放支持（无法直接录制）：
+  - mp3 ：通用有损编码，兼容性极高，适合跨平台分发
+  - flac：无损压缩，音质好，安卓友好，iOS 需转码播放
+  - au  ：早期 UNIX 音频格式，现较少使用
+  - amr ：人声优化编码，适合通话录音，音质一般
+  - ac3 ：杜比数字音频，多声道环绕声，电影电视常用
+  - eac3：杜比数字增强版，支持更高码率和更多声道
+
+ 跨平台推荐：
+  - 录制给安卓播放：aac / mp3（兼容性较好）
+  - 安卓录制给 iOS 播放：mp3 / aac（无需额外解码）
+*/
 @frozen public enum WYAudioFormat: Int {
     case aac = 0
     case wav
@@ -109,11 +109,14 @@ import QuartzCore
 
 /// 音频工具类代理协议
 @objc public protocol WYAudioKitDelegate {
+    
     /// 录音开始回调
-    @objc optional func audioRecorderDidStart()
+    @objc(wy_audioRecorderDidStart:)
+    optional func wy_audioRecorderDidStart(audioKit: WYAudioKit)
     
     /// 录音停止回调
-    @objc optional func audioRecorderDidStop()
+    @objc(wy_audioRecorderDidStop:)
+    optional func wy_audioRecorderDidStop(audioKit: WYAudioKit)
     
     /**
      录音时间更新
@@ -121,25 +124,31 @@ import QuartzCore
      - currentTime: 当前录音时间（秒）
      - duration: 总录音时长限制（秒）
      */
-    @objc optional func audioRecorderTimeUpdated(currentTime: TimeInterval, duration: TimeInterval)
+    @objc(wy_audioRecorderTimeUpdated:currentTime:duration:)
+    optional func wy_audioRecorderTimeUpdated(audioKit: WYAudioKit, currentTime: TimeInterval, duration: TimeInterval)
     
     /**
      录音出现错误
      - Parameter error: 错误信息
      */
-    @objc optional func audioRecorderDidFail(error: WYAudioError)
+    @objc(wy_audioRecorderDidFail:error:)
+    optional func wy_audioRecorderDidFail(audioKit: WYAudioKit, error: WYAudioError)
     
     /// 播放开始回调
-    @objc optional func audioPlayerDidStart()
+    @objc(wy_audioPlayerDidStart:)
+    optional func wy_audioPlayerDidStart(audioKit: WYAudioKit)
     
     /// 播放暂停回调
-    @objc optional func audioPlayerDidPause()
+    @objc(wy_audioPlayerDidPause:)
+    optional func wy_audioPlayerDidPause(audioKit: WYAudioKit)
     
     /// 播放恢复回调
-    @objc optional func audioPlayerDidResume()
+    @objc(wy_audioPlayerDidResume:)
+    optional func wy_audioPlayerDidResume(audioKit: WYAudioKit)
     
     /// 播放停止回调
-    @objc optional func audioPlayerDidStop()
+    @objc(wy_audioPlayerDidStop:)
+    optional func wy_audioPlayerDidStop(audioKit: WYAudioKit)
     
     /**
      播放进度更新
@@ -148,65 +157,73 @@ import QuartzCore
      - duration: 音频总时长（秒）
      - progress: 播放进度百分比（0.0 - 1.0）
      */
-    @objc optional func audioPlayerTimeUpdated(currentTime: TimeInterval, duration: TimeInterval, progress: Double)
+    @objc(wy_audioPlayerTimeUpdated:currentTime:duration:progress:)
+    optional func wy_audioPlayerTimeUpdated(audioKit: WYAudioKit, currentTime: TimeInterval, duration: TimeInterval, progress: Double)
     
     /// 播放完成回调
-    @objc optional func audioPlayerDidFinishPlaying()
+    @objc(wy_audioPlayerDidFinishPlaying:)
+    optional func wy_audioPlayerDidFinishPlaying(audioKit: WYAudioKit)
     
     /**
      播放出现错误
      
      - Parameter error: 错误信息
      */
-    @objc optional func audioPlayerDidFail(error: WYAudioError)
+    @objc(wy_audioPlayerDidFail:error:)
+    optional func wy_audioPlayerDidFail(audioKit: WYAudioKit, error: WYAudioError)
     
     /**
      网络音频下载进度更新
      
      - Parameter progress: 下载进度百分比（0.0 - 1.0）
      */
-    @objc optional func remoteAudioDownloadProgressUpdated(progress: Double)
+    @objc(wy_remoteAudioDownloadProgressUpdated:progress:)
+    optional func wy_remoteAudioDownloadProgressUpdated(audioKit: WYAudioKit, progress: Double)
     
     /**
      格式转换进度更新
      
      - Parameter progress: 转换进度百分比（0.0 - 1.0）
      */
-    @objc optional func conversionProgressUpdated(progress: Double)
+    @objc(wy_conversionProgressUpdated:progress:)
+    optional func wy_conversionProgressUpdated(audioKit: WYAudioKit, progress: Double)
     
     /**
      格式转换完成
      
      - Parameter url: 转换后的文件URL
      */
-    @objc optional func conversionDidComplete(url: URL)
+    @objc(wy_conversionDidComplete:url:)
+    optional func wy_conversionDidComplete(audioKit: WYAudioKit, url: URL)
     
     /**
      音频会话配置失败
      
      - Parameter error: 错误信息
      */
-    @objc optional func audioSessionConfigurationFailed(error: Error)
+    @objc(wy_audioSessionConfigurationFailed:url:)
+    optional func wy_audioSessionConfigurationFailed(audioKit: WYAudioKit, error: Error)
     
     /**
      录音声波数据更新
      
      - Parameter peakPower: 当前峰值功率（dB），范围 -160 到 0
      */
-    @objc optional func audioRecorderDidUpdateMetering(peakPower: Float)
+    @objc(wy_audioRecorderDidUpdateMetering:peakPower:)
+    optional func wy_audioRecorderDidUpdateMetering(audioKit: WYAudioKit, peakPower: Float)
 }
 
 /**
- 音频工具类 - 提供录音、播放、文件管理和格式转换功能
- 
- 主要功能：
- - 录音控制（开始、暂停、恢复、停止）
- - 播放控制（播放、暂停、恢复、停止、进度跳转）
- - 文件管理（获取录音文件、保存、删除）
- - 网络音频播放（支持下载和播放远程音频）
- - 录音参数配置（格式、质量、时长限制）
- - 音频格式转换（支持多种格式互转）
- */
+  音频工具类 - 提供录音、播放、文件管理和格式转换功能
+
+  主要功能：
+   - 录音控制（开始、暂停、恢复、停止）
+   - 播放控制（播放、暂停、恢复、停止、进度跳转）
+   - 文件管理（获取录音文件、保存、删除）
+   - 网络音频播放（支持下载和播放远程音频）
+   - 录音参数配置（格式、质量、时长限制）
+   - 音频格式转换（支持多种格式互转）
+*/
 public final class WYAudioKit: NSObject {
     
     /// 代理对象
@@ -278,21 +295,11 @@ public final class WYAudioKit: NSObject {
      请求录音权限
      
      - Parameter completion: 权限请求结果回调
-     - granted: true 表示已授权，false 表示未授权
+            granted: true 表示已授权，false 表示未授权
      */
     public func requestRecordPermission(completion: @escaping (Bool) -> Void) {
-        if #available(iOS 17.0, *) {
-            AVAudioApplication.requestRecordPermission { granted in
-                DispatchQueue.main.async {
-                    completion(granted)
-                }
-            }
-        } else {
-            recordingSession.requestRecordPermission { granted in
-                DispatchQueue.main.async {
-                    completion(granted)
-                }
-            }
+        wy_authorizeMicrophoneAccess(showAlert: true) { authorized in
+            completion(authorized)
         }
     }
     
@@ -317,15 +324,18 @@ public final class WYAudioKit: NSObject {
             throw makeError(.playbackError)
         }
         
-        // 确保有录音权限
-        if #available(iOS 17.0, *) {
-            guard AVAudioApplication.shared.recordPermission == .granted else {
-                throw makeError(.permissionDenied)
-            }
-        } else {
-            guard recordingSession.recordPermission == .granted else {
-                throw makeError(.permissionDenied)
-            }
+        // 确保有录音权限（这里用同步检查 + 异步授权方式）
+        var hasPermission = false
+        let semaphore = DispatchSemaphore(value: 0)
+        
+        requestRecordPermission { granted in
+            hasPermission = granted
+            semaphore.signal()
+        }
+        _ = semaphore.wait(timeout: .now() + 15)  // 防止死锁，设置超时
+        
+        guard hasPermission else {
+            throw makeError(.permissionDenied)
         }
         
         // 检查格式支持性
@@ -340,7 +350,7 @@ public final class WYAudioKit: NSObject {
         try resetAudioSession()
         
         // 配置录音会话
-        try recordingSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth])
+        try recordingSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, AVAudioSession.CategoryOptions.allowBluetoothHFP])
         try recordingSession.setActive(true, options: .notifyOthersOnDeactivation)
         
         // 创建文件路径
@@ -367,7 +377,7 @@ public final class WYAudioKit: NSObject {
             
             isRecordingPaused = false
             startRecordingProgressUpdates()
-            delegate?.audioRecorderDidStart?()
+            delegate?.wy_audioRecorderDidStart?(audioKit: self)
             
         } catch {
             let nsError = error as NSError
@@ -389,9 +399,9 @@ public final class WYAudioKit: NSObject {
         // 检查最小录音时长
         if minRecordingDuration > 0 && currentDuration < minRecordingDuration {
             try? deleteRecording()
-            delegate?.audioRecorderDidFail?(error: .minDurationNotReached)
+            delegate?.wy_audioRecorderDidFail?(audioKit: self ,error: .minDurationNotReached)
         } else {
-            delegate?.audioRecorderDidStop?()
+            delegate?.wy_audioRecorderDidStop?(audioKit: self)
         }
         
         // 重置录音状态
@@ -410,7 +420,7 @@ public final class WYAudioKit: NSObject {
         recorder.pause()
         isRecordingPaused = true
         stopRecordingProgressUpdates()
-        delegate?.audioRecorderDidStop?()
+        delegate?.wy_audioRecorderDidStop?(audioKit: self)
     }
     
     /// 恢复录音
@@ -422,7 +432,7 @@ public final class WYAudioKit: NSObject {
         recorder.record()
         isRecordingPaused = false
         startRecordingProgressUpdates()
-        delegate?.audioRecorderDidStart?()
+        delegate?.wy_audioRecorderDidStart?(audioKit: self)
     }
     
     /**
@@ -431,11 +441,11 @@ public final class WYAudioKit: NSObject {
      - Parameter settings: 录音参数字典
      
      常用键值:
-     - AVFormatIDKey: 音频格式
-     - AVSampleRateKey: 采样率
-     - AVNumberOfChannelsKey: 通道数
-     - AVEncoderAudioQualityKey: 编码质量
-     - AVEncoderBitRateKey: 比特率
+       - AVFormatIDKey: 音频格式
+       - AVSampleRateKey: 采样率
+       - AVNumberOfChannelsKey: 通道数
+       - AVEncoderAudioQualityKey: 编码质量
+       - AVEncoderBitRateKey: 比特率
      */
     public func setRecordSettings(_ settings: [String: Any]) {
         settings.forEach { key, value in
@@ -554,7 +564,7 @@ public final class WYAudioKit: NSObject {
             
             isPlaybackPaused = false
             startPlaybackProgressUpdates()
-            delegate?.audioPlayerDidStart?()
+            delegate?.wy_audioPlayerDidStart?(audioKit: self)
             
         } catch {
             let nsError = error as NSError
@@ -593,7 +603,7 @@ public final class WYAudioKit: NSObject {
         player.pause()
         isPlaybackPaused = true
         stopPlaybackProgressUpdates()
-        delegate?.audioPlayerDidPause?()
+        delegate?.wy_audioPlayerDidPause?(audioKit: self)
     }
     
     /// 恢复播放
@@ -605,7 +615,7 @@ public final class WYAudioKit: NSObject {
         player.play()
         isPlaybackPaused = false
         startPlaybackProgressUpdates()
-        delegate?.audioPlayerDidResume?()
+        delegate?.wy_audioPlayerDidResume?(audioKit: self)
     }
     
     /// 停止播放
@@ -613,7 +623,7 @@ public final class WYAudioKit: NSObject {
         guard isPlaying else { return }
         
         audioPlayer?.stop()
-        delegate?.audioPlayerDidStop?()
+        delegate?.wy_audioPlayerDidStop?(audioKit: self)
         
         resetPlayback()
         resetAudioSessionAsync()
@@ -629,8 +639,7 @@ public final class WYAudioKit: NSObject {
         audioPlayer.currentTime = min(max(time, 0), audioPlayer.duration)
         
         let progress = audioPlayer.duration > 0 ? audioPlayer.currentTime / audioPlayer.duration : 0
-        delegate?.audioPlayerTimeUpdated?(
-            currentTime: audioPlayer.currentTime,
+        delegate?.wy_audioPlayerTimeUpdated?(audioKit: self, currentTime: audioPlayer.currentTime,
             duration: audioPlayer.duration,
             progress: progress
         )
@@ -701,7 +710,10 @@ public final class WYAudioKit: NSObject {
         downloadDelegate = DownloadDelegate(audioKit: self)
         downloadDelegate?.progressHandler = { [weak self] progress in
             DispatchQueue.main.async {
-                self?.delegate?.remoteAudioDownloadProgressUpdated?(progress: progress)
+                
+                guard self != nil else { return }
+                
+                self?.delegate?.wy_remoteAudioDownloadProgressUpdated?(audioKit: self! ,progress: progress)
             }
         }
         
@@ -899,7 +911,7 @@ public final class WYAudioKit: NSObject {
                 try self.recordingSession.setActive(false, options: .notifyOthersOnDeactivation)
                 try self.recordingSession.setCategory(.ambient, mode: .default)
             } catch {
-                self.delegate?.audioSessionConfigurationFailed?(error: error)
+                self.delegate?.wy_audioSessionConfigurationFailed?(audioKit: self ,error: error)
             }
         }
     }
@@ -1011,20 +1023,20 @@ public final class WYAudioKit: NSObject {
         lastProgressUpdateTime = currentTime
         
         if let recorder = audioRecorder, recorder.isRecording {
-            delegate?.audioRecorderTimeUpdated?(
-                currentTime: recorder.currentTime,
+            delegate?.wy_audioRecorderTimeUpdated?(
+                audioKit: self ,currentTime: recorder.currentTime,
                 duration: maxRecordingDuration
             )
             
             recorder.updateMeters()
             let peakPower = recorder.peakPower(forChannel: 0)
-            delegate?.audioRecorderDidUpdateMetering?(peakPower: peakPower)
+            delegate?.wy_audioRecorderDidUpdateMetering?(audioKit: self ,peakPower: peakPower)
         }
         
         if let player = audioPlayer, player.isPlaying {
             let progress = player.duration > 0 ? player.currentTime / player.duration : 0
-            delegate?.audioPlayerTimeUpdated?(
-                currentTime: player.currentTime,
+            delegate?.wy_audioPlayerTimeUpdated?(
+                audioKit: self ,currentTime: player.currentTime,
                 duration: player.duration,
                 progress: progress
             )
@@ -1116,7 +1128,7 @@ public final class WYAudioKit: NSObject {
             try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
             return true
         } catch {
-            delegate?.audioRecorderDidFail?(error: .directoryCreationFailed)
+            delegate?.wy_audioRecorderDidFail?(audioKit: self ,error: .directoryCreationFailed)
             return false
         }
     }
@@ -1258,7 +1270,7 @@ public final class WYAudioKit: NSObject {
                 switch exportSession.status {
                 case .completed:
                     completion(.success(outputURL))
-                    self.delegate?.conversionDidComplete?(url: outputURL)
+                    self.delegate?.wy_conversionDidComplete?(audioKit: self ,url: outputURL)
                 case .failed:
                     completion(.failure(exportSession.error ?? self.makeError(.conversionFailed)))
                 case .cancelled:
@@ -1287,7 +1299,7 @@ public final class WYAudioKit: NSObject {
             }
             
             let progress = session.progress
-            self.delegate?.conversionProgressUpdated?(progress: Double(progress))
+            self.delegate?.wy_conversionProgressUpdated?(audioKit: self ,progress: Double(progress))
             
             if progress >= 1.0 || session.status != .exporting {
                 self.conversionProgressTimer?.invalidate()
@@ -1314,24 +1326,24 @@ extension WYAudioKit: AVAudioRecorderDelegate {
         if flag {
             if minRecordingDuration > 0 && duration < minRecordingDuration {
                 try? deleteRecording()
-                delegate?.audioRecorderDidFail?(error: .minDurationNotReached)
+                delegate?.wy_audioRecorderDidFail?(audioKit: self ,error: .minDurationNotReached)
                 return
             }
             
             if maxRecordingDuration > 0 && duration >= maxRecordingDuration {
-                delegate?.audioRecorderDidFail?(error: .maxDurationReached)
+                delegate?.wy_audioRecorderDidFail?(audioKit: self ,error: .maxDurationReached)
             } else {
-                delegate?.audioRecorderDidStop?()
+                delegate?.wy_audioRecorderDidStop?(audioKit: self)
             }
         } else {
-            delegate?.audioRecorderDidFail?(error: .fileSaveFailed)
+            delegate?.wy_audioRecorderDidFail?(audioKit: self ,error: .fileSaveFailed)
         }
         
         resetAudioSessionAsync()
     }
     
     public func audioRecorderEncodeErrorDidOccur(_ recorder: AVAudioRecorder, error: Error?) {
-        delegate?.audioRecorderDidFail?(error: .fileSaveFailed)
+        delegate?.wy_audioRecorderDidFail?(audioKit: self ,error: .fileSaveFailed)
     }
 }
 
@@ -1339,16 +1351,16 @@ extension WYAudioKit: AVAudioRecorderDelegate {
 extension WYAudioKit: AVAudioPlayerDelegate {
     public func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
         if flag {
-            delegate?.audioPlayerDidFinishPlaying?()
+            delegate?.wy_audioPlayerDidFinishPlaying?(audioKit: self)
         } else {
-            delegate?.audioPlayerDidFail?(error: .playbackError)
+            delegate?.wy_audioPlayerDidFail?(audioKit: self ,error: .playbackError)
         }
         resetPlayback()
         resetAudioSessionAsync()
     }
     
     public func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
-        delegate?.audioPlayerDidFail?(error: .playbackError)
+        delegate?.wy_audioPlayerDidFail?(audioKit: self ,error: .playbackError)
         resetPlayback()
         resetAudioSessionAsync()
     }

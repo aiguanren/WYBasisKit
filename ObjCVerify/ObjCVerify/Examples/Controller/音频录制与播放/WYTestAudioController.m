@@ -802,72 +802,62 @@
 }
 
 // MARK: - WYAudioKitDelegate
-- (void)audioRecorderDidStart {
-    [self logInfo:[NSString stringWithFormat:@"开始录制 %@ 格式音频", [[self stringValueForFormat:self.selectedFormat] uppercaseString]]];
+
+- (void)wy_audioPlayerDidStart:(WYAudioKit *)audioKit {
+    [self logInfo:[NSString stringWithFormat:@"开始录制/播放 %@ 格式音频", [[self stringValueForFormat:self.selectedFormat] uppercaseString]]];
 }
 
-- (void)audioRecorderDidPause {
-    [self logInfo:@"录音已暂停"];
+- (void)wy_audioPlayerDidResume:(WYAudioKit *)audioKit {
+    [self logInfo:@"录音/播放已恢复"];
 }
 
-- (void)audioRecorderDidResume {
-    [self logInfo:@"录音已恢复"];
+- (void)wy_audioPlayerDidStop:(WYAudioKit *)audioKit {
+    [self logInfo:@"录音/播放停止"];
 }
 
-- (void)audioRecorderDidStop {
-    [self logInfo:@"录音停止"];
-}
-
-- (void)audioRecorderTimeUpdatedWithCurrentTime:(NSTimeInterval)currentTime duration:(NSTimeInterval)duration {
+- (void)wy_audioRecorderTimeUpdated:(WYAudioKit *)audioKit currentTime:(NSTimeInterval)currentTime duration:(NSTimeInterval)duration {
     self.recordProgressLabel.text = [NSString stringWithFormat:@"录音进度: %.1f秒/%.1f秒 (%.1f%%)", currentTime, duration, (currentTime/duration)*100];
 }
 
-- (void)audioRecorderDidFailWithError:(WYAudioError)error {
+- (void)wy_audioRecorderDidFail:(WYAudioKit *)audioKit error:(enum WYAudioError)error {
     [self logInfo:[NSString stringWithFormat:@"录音错误: %@", [self errorDescriptionForError:error]]];
 }
 
-- (void)audioPlayerDidStart {
-    [self logInfo:@"播放开始"];
-}
-
-- (void)audioPlayerDidPause {
+- (void)wy_audioPlayerDidPause:(WYAudioKit *)audioKit {
     [self logInfo:@"播放暂停"];
 }
 
-- (void)audioPlayerDidResume {
-    [self logInfo:@"播放恢复"];
-}
-
-- (void)audioPlayerDidStop {
-    [self logInfo:@"播放停止"];
-}
-
-- (void)audioPlayerTimeUpdatedWithCurrentTime:(NSTimeInterval)currentTime duration:(NSTimeInterval)duration progress:(double)progress {
+- (void)wy_audioPlayerTimeUpdated:(WYAudioKit *)audioKit currentTime:(NSTimeInterval)currentTime duration:(NSTimeInterval)duration progress:(double)progress {
+    
     self.playProgressLabel.text = [NSString stringWithFormat:@"播放进度: %.1f秒/%.1f秒 (%.1f%%)", currentTime, duration, progress*100];
 }
 
-- (void)audioPlayerDidFinishPlaying {
+- (void)wy_audioPlayerDidFinishPlaying:(WYAudioKit *)audioKit {
     [self logInfo:@"播放完成"];
 }
 
-- (void)audioPlayerDidFailWithError:(WYAudioError)error {
+- (void)wy_audioPlayerDidFail:(WYAudioKit *)audioKit error:(enum WYAudioError)error {
     [self logInfo:[NSString stringWithFormat:@"播放失败: %@", [self errorDescriptionForError:error]]];
 }
 
-- (void)remoteAudioDownloadProgressUpdatedWithProgress:(double)progress {
+- (void)wy_remoteAudioDownloadProgressUpdated:(WYAudioKit *)audioKit progress:(double)progress {
     self.downloadProgressLabel.text = [NSString stringWithFormat:@"下载进度: %.1f%%", progress*100];
 }
 
-- (void)conversionProgressUpdatedWithProgress:(double)progress {
+- (void)wy_conversionProgressUpdated:(WYAudioKit *)audioKit progress:(double)progress {
     self.conversionProgressLabel.text = [NSString stringWithFormat:@"转换进度: %.1f%%", progress*100];
 }
 
-- (void)conversionDidCompleteWithURL:(NSURL *)url {
+- (void)wy_conversionDidComplete:(WYAudioKit *)audioKit url:(NSURL *)url {
     [self logInfo:[NSString stringWithFormat:@"格式转换完成: %@", url.lastPathComponent]];
 }
 
-- (void)audioSessionConfigurationFailedWithError:(NSError *)error {
+- (void)wy_audioSessionConfigurationFailed:(WYAudioKit *)audioKit url:(NSError *)error {
     [self logInfo:[NSString stringWithFormat:@"音频会话配置失败: %@", error.localizedDescription]];
+}
+
+- (void)wy_audioRecorderDidUpdateMetering:(WYAudioKit *)audioKit peakPower:(float)peakPower {
+    [self logInfo:[NSString stringWithFormat:@"音频会话声波信息: %f", peakPower]];
 }
 
 - (void)dealloc {

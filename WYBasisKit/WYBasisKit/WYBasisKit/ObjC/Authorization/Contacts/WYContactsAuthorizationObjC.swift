@@ -12,9 +12,6 @@ import Contacts
 import WYBasisKitSwift
 #endif
 
-#if compiler(>=6)
-@MainActor
-#endif
 @objc(WYContactsAuthorization)
 @objcMembers public class WYContactsAuthorizationObjC: NSObject {
     

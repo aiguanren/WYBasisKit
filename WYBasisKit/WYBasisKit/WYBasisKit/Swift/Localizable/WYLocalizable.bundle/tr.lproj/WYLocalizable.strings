@@ -111,3 +111,7 @@
 "分" = "Dakika";
 
 "秒" = "Saniye";
+
+"定位权限被限制" = "Konum izni kısıtlandı"
+
+"App没有访问定位的权限，现在去授权?" = "Uygulamanın konumunuza erişim izni yok. Şimdi izin vermek ister misiniz?"

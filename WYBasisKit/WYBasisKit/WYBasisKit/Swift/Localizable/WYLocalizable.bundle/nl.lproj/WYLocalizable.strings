@@ -111,3 +111,7 @@
 "分" = "Minuten";
 
 "秒" = "seconden";
+
+"定位权限被限制" = "Locatietoestemming is beperkt"
+
+"App没有访问定位的权限，现在去授权?" = "App heeft geen toestemming om je locatie te gebruiken. Wil je nu toestemming geven?"

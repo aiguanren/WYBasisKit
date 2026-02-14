@@ -83,7 +83,7 @@ public extension WKWebView {
     }
     
     /// 事件监听代理
-    var wy_navigationProxy: WYWebViewNavigationDelegateProxy? {
+    weak var wy_navigationProxy: WYWebViewNavigationDelegateProxy? {
         get {
             return objc_getAssociatedObject(self, &WYAssociatedKeys.navigationProxyKey) as? WYWebViewNavigationDelegateProxy
         }

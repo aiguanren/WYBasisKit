@@ -111,3 +111,7 @@
 "分" = "Minit";
 
 "秒" = "saat";
+
+"定位权限被限制" = "Kebenaran lokasi dihadkan"
+
+"App没有访问定位的权限，现在去授权?" = "Apl tidak mempunyai kebenaran untuk mengakses lokasi anda. Mahu berikan kebenaran sekarang?"

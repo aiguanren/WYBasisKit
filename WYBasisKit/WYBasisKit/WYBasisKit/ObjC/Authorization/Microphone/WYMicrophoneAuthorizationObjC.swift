@@ -11,9 +11,6 @@ import UIKit
 import WYBasisKitSwift
 #endif
 
-#if compiler(>=6)
-@MainActor
-#endif
 @objc(WYMicrophoneAuthorization)
 @objcMembers public class WYMicrophoneAuthorizationObjC: NSObject {
     

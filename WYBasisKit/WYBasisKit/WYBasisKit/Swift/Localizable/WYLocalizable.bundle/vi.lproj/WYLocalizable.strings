@@ -111,3 +111,7 @@
 "分" = "Phút";
 
 "秒" = "giây";
+
+"定位权限被限制" = "Quyền truy cập vị trí bị hạn chế"
+
+"App没有访问定位的权限，现在去授权?" = "Ứng dụng không có quyền truy cập vị trí của bạn. Bạn có muốn cấp quyền ngay bây giờ không?"

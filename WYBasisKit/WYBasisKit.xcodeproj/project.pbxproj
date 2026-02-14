@@ -46,6 +46,8 @@
 		58B46FEA2E8C080700D04BCA /* WYLogManagerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B46FE92E8C080700D04BCA /* WYLogManagerObjC.swift */; };
 		58B470462E8D2CCD00D04BCA /* WYEventHandlerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B470452E8D2CCD00D04BCA /* WYEventHandlerObjC.swift */; };
 		58BE5F032E5E94210046AD5D /* Swift↔ObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BE5F022E5E94210046AD5D /* Swift↔ObjC.swift */; };
+		58C3596F2F3F2D37000E6EF0 /* WYLocationAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3596E2F3F2D36000E6EF0 /* WYLocationAuthorization.swift */; };
+		58C359722F401F9F000E6EF0 /* WYLocationAuthorizationObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C359712F401F9F000E6EF0 /* WYLocationAuthorizationObjC.swift */; };
 		58C68D942E84E436005FD054 /* WYLocalizable.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 58C68D752E84E436005FD054 /* WYLocalizable.bundle */; };
 		58C68DA42E84E436005FD054 /* WYBannerView.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 58C68D282E84E436005FD054 /* WYBannerView.bundle */; };
 		58C68DAC2E84E436005FD054 /* WYChatView.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 58C68D672E84E436005FD054 /* WYChatView.bundle */; };
@@ -221,6 +223,8 @@
 		58B46FE92E8C080700D04BCA /* WYLogManagerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLogManagerObjC.swift; sourceTree = "<group>"; };
 		58B470452E8D2CCD00D04BCA /* WYEventHandlerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYEventHandlerObjC.swift; sourceTree = "<group>"; };
 		58BE5F022E5E94210046AD5D /* Swift↔ObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Swift↔ObjC.swift"; sourceTree = "<group>"; };
+		58C3596E2F3F2D36000E6EF0 /* WYLocationAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLocationAuthorization.swift; sourceTree = "<group>"; };
+		58C359712F401F9F000E6EF0 /* WYLocationAuthorizationObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLocationAuthorizationObjC.swift; sourceTree = "<group>"; };
 		58C68C382E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68C392E84E436005FD054 /* WYActivityObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYActivityObjC.swift; sourceTree = "<group>"; };
 		58C68C3B2E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -480,6 +484,22 @@
 			path = Remarks;
 			sourceTree = "<group>";
 		};
+		58C3596D2F3F1E7B000E6EF0 /* Location */ = {
+			isa = PBXGroup;
+			children = (
+				58C3596E2F3F2D36000E6EF0 /* WYLocationAuthorization.swift */,
+			);
+			path = Location;
+			sourceTree = "<group>";
+		};
+		58C359702F401F83000E6EF0 /* Location */ = {
+			isa = PBXGroup;
+			children = (
+				58C359712F401F9F000E6EF0 /* WYLocationAuthorizationObjC.swift */,
+			);
+			path = Location;
+			sourceTree = "<group>";
+		};
 		58C68C3A2E84E436005FD054 /* Activity */ = {
 			isa = PBXGroup;
 			children = (
@@ -555,6 +575,7 @@
 		58C68C502E84E436005FD054 /* Authorization */ = {
 			isa = PBXGroup;
 			children = (
+				58C359702F401F83000E6EF0 /* Location */,
 				58C68C3F2E84E436005FD054 /* Biometric */,
 				58C68C422E84E436005FD054 /* Camera */,
 				58C68C452E84E436005FD054 /* Contacts */,
@@ -1275,6 +1296,7 @@
 		58C68CD52E84E436005FD054 /* Authorization */ = {
 			isa = PBXGroup;
 			children = (
+				58C3596D2F3F1E7B000E6EF0 /* Location */,
 				58C68CC42E84E436005FD054 /* Biometric */,
 				58C68CC72E84E436005FD054 /* Camera */,
 				58C68CCA2E84E436005FD054 /* Contacts */,
@@ -2292,11 +2314,13 @@
 				58C68E242E84E436005FD054 /* WYStringObjC.swift in Sources */,
 				584EAF012E92791B003A21B8 /* WYLocalizableManagerObjC.swift in Sources */,
 				58C68E252E84E436005FD054 /* WYActivity.swift in Sources */,
+				58C359722F401F9F000E6EF0 /* WYLocationAuthorizationObjC.swift in Sources */,
 				58C68E262E84E436005FD054 /* WYCodableAdapter.swift in Sources */,
 				58C68E272E84E436005FD054 /* WYDoubleObjC.swift in Sources */,
 				58B46FEA2E8C080700D04BCA /* WYLogManagerObjC.swift in Sources */,
 				58C68E282E84E436005FD054 /* WYBiometricAuthorization.swift in Sources */,
 				580ED58A2EA72632006012E7 /* WYCodableConfig.swift in Sources */,
+				58C3596F2F3F2D37000E6EF0 /* WYLocationAuthorization.swift in Sources */,
 				583C41B62E922D9E007379FC /* WYAudioKitObjC.swift in Sources */,
 				583E04FA2E8690D1004F1034 /* WYWebViewObjC.swift in Sources */,
 				58C68E292E84E436005FD054 /* WYDictionary.swift in Sources */,

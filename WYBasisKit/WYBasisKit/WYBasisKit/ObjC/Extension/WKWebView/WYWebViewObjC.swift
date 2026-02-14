@@ -43,7 +43,7 @@ import WYBasisKitSwift
     
     /// 事件监听代理
     @objc(wy_navigationProxy)
-    var wy_navigationProxyObjC: WYWebViewNavigationDelegateProxy? {
+    weak var wy_navigationProxyObjC: WYWebViewNavigationDelegateProxy? {
         get { return wy_navigationProxy }
         set { wy_navigationProxy = newValue }
     }

@@ -13,9 +13,6 @@ import UIKit
 public let contactsKey: String = "NSContactsUsageDescription"
 
 /// 检查通讯录权限并获取通讯录
-#if compiler(>=6)
-@MainActor
-#endif
 public func wy_authorizeAddressBookAccess(showAlert: Bool = true, keysToFetch: [String] = [CNContactFamilyNameKey, CNContactGivenNameKey, CNContactOrganizationNameKey, CNContactPhoneNumbersKey, CNContactNicknameKey], handler: @escaping (_ authorized: Bool, _ userInfo: [CNContact]?) -> Void?) {
     
     if let _ = Bundle.main.infoDictionary?[contactsKey] as? String {
@@ -43,9 +40,11 @@ public func wy_authorizeAddressBookAccess(showAlert: Bool = true, keysToFetch: [
             return
         default:
             /// App无权访问通讯录 用户已明确拒绝
-            wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("App没有访问通讯录的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
-            handler(false, nil)
-            return
+            Task { @MainActor in
+                wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("App没有访问通讯录的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
+                handler(false, nil)
+                return
+            }
         }
         
     }else {
@@ -83,18 +82,14 @@ public func wy_authorizeAddressBookAccess(showAlert: Bool = true, keysToFetch: [
     }
     
     // 弹出授权弹窗
-    #if compiler(>=6)
-    @MainActor
-    #endif
     func wy_showAuthorizeAlert(show: Bool, message: String) {
         
         guard show else {
             return
         }
         
-        UIAlertController.wy_show(message: message, actions: [WYLocalized("取消", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable)]) { (actionStr, _) in
-            
-            DispatchQueue.main.async {
+        Task { @MainActor in
+            UIAlertController.wy_show(message: message, actions: [WYLocalized("取消", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable)]) { (actionStr, _) in
                 
                 if actionStr == WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable) {
                     

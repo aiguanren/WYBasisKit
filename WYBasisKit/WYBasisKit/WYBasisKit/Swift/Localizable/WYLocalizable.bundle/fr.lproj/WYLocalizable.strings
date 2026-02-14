@@ -111,3 +111,7 @@
 "分" = "Minutes";
 
 "秒" = "Secondes";
+
+"定位权限被限制" = "Autorisation de localisation restreinte"
+
+"App没有访问定位的权限，现在去授权?" = "L'application n'a pas l'autorisation d'accéder à votre localisation. Voulez-vous l'autoriser maintenant ?"

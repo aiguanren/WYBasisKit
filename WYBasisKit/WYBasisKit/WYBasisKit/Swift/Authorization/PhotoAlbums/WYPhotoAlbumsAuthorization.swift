@@ -13,9 +13,6 @@ import Photos
 public let photoLibraryKey: String = "NSPhotoLibraryUsageDescription"
 
 /// 检查相册权限
-#if compiler(>=6)
-@MainActor
-#endif
 public func wy_authorizeAlbumAccess(showAlert: Bool = true, handler: @escaping (_ authorized: Bool, _ limited: Bool) -> Void?) {
     
     if let _ = Bundle.main.infoDictionary?[photoLibraryKey] as? String {
@@ -53,8 +50,10 @@ public func wy_authorizeAlbumAccess(showAlert: Bool = true, handler: @escaping (
                         handler(true, false)
                     }else {
                         /// App无权访问照片库 用户已明确拒绝
-                        wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("App没有访问相册的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
-                        handler(false, false)
+                        Task { @MainActor in
+                            wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("App没有访问相册的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
+                            handler(false, false)
+                        }
                     }
                 }
                 
@@ -66,8 +65,10 @@ public func wy_authorizeAlbumAccess(showAlert: Bool = true, handler: @escaping (
                 handler(true, true)
             default:
                 /// App无权访问相册 用户已明确拒绝
-                wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("App没有访问相册的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
-                handler(false, false)
+                Task { @MainActor in
+                    wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("App没有访问相册的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
+                    handler(false, false)
+                }
             }
             
         }else {
@@ -76,19 +77,14 @@ public func wy_authorizeAlbumAccess(showAlert: Bool = true, handler: @escaping (
     }
     
     // 弹出授权弹窗
-    #if compiler(>=6)
-    @MainActor
-    #endif
-    func wy_showAuthorizeAlert(show: Bool, message: String) {
+    @Sendable func wy_showAuthorizeAlert(show: Bool, message: String) {
         
         guard show else {
             return
         }
         
-        UIAlertController.wy_show(message: message, actions: [WYLocalized("取消", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable)]) { (actionStr, _) in
-            
-            DispatchQueue.main.async {
-                
+        Task { @MainActor in
+            UIAlertController.wy_show(message: message, actions: [WYLocalized("取消", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable)]) { (actionStr, _) in
                 if actionStr == WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable) {
                     
                     let settingUrl = URL(string: UIApplication.openSettingsURLString)

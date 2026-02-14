@@ -660,74 +660,70 @@ class WYTestAudioController: UIViewController {
 // MARK: - WYAudioKitDelegate
 extension WYTestAudioController: WYAudioKitDelegate {
     
-    func audioRecorderDidStart() {
-        logInfo("开始录制 \(selectedFormat.rawValue) 格式音频")
+    func wy_audioRecorderDidStart(audioKit: WYAudioKit) {
+        logInfo("开始录制/播放 \(selectedFormat.rawValue) 格式音频")
     }
     
-    func audioRecorderDidPause() {
-        logInfo("录音已暂停")
+    func wy_audioPlayerDidResume(audioKit: WYAudioKit) {
+        logInfo("录音/播放已恢复")
     }
     
-    func audioRecorderDidResume() {
-        logInfo("录音已恢复")
-    }
-    
-    func audioRecorderDidStop() {
+    func wy_audioPlayerDidStop(audioKit: WYAudioKit) {
         logInfo("录音停止")
     }
     
-    func audioRecorderTimeUpdated(currentTime: TimeInterval, duration: TimeInterval) {
+    func wy_audioRecorderTimeUpdated(audioKit: WYAudioKit, currentTime: TimeInterval, duration: TimeInterval) {
         recordProgressLabel.text = String(format: "录音进度: %.1f秒/%.1f秒 (%.1f%%)",
                                           currentTime, duration, (currentTime/duration)*100)
     }
     
-    func audioRecorderDidFail(error: WYAudioError) {
+    func wy_audioPlayerDidFail(audioKit: WYAudioKit, error: WYAudioError) {
         logInfo("录音错误: \(errorDescription(for: error))")
     }
     
-    func audioPlayerDidStart() {
+    func wy_audioPlayerDidStart(audioKit: WYAudioKit) {
         logInfo("播放开始")
     }
     
-    func audioPlayerDidPause() {
+    func wy_audioPlayerDidPause(audioKit: WYAudioKit) {
         logInfo("播放暂停")
     }
     
-    func audioPlayerDidResume() {
-        logInfo("播放恢复")
-    }
-    
-    func audioPlayerDidStop() {
+    func wy_audioRecorderDidStop(audioKit: WYAudioKit) {
         logInfo("播放停止")
     }
     
-    func audioPlayerTimeUpdated(currentTime: TimeInterval, duration: TimeInterval, progress: Double) {
+    func wy_audioPlayerTimeUpdated(audioKit: WYAudioKit, currentTime: TimeInterval, duration: TimeInterval, progress: Double) {
         playProgressLabel.text = String(format: "播放进度: %.1f秒/%.1f秒 (%.1f%%)",
                                         currentTime, duration, progress*100)
     }
     
-    func audioPlayerDidFinishPlaying() {
+    func wy_audioPlayerDidFinishPlaying(audioKit: WYAudioKit) {
         logInfo("播放完成")
     }
     
-    func audioPlayerDidFail(error: WYAudioError) {
+    func wy_audioRecorderDidFail(audioKit: WYAudioKit, error: WYAudioError) {
         logInfo("播放失败: \(errorDescription(for: error))")
     }
     
-    func remoteAudioDownloadProgressUpdated(progress: Double) {
+    func wy_remoteAudioDownloadProgressUpdated(audioKit: WYAudioKit, progress: Double) {
         downloadProgressLabel.text = String(format: "下载进度: %.1f%%", progress*100)
     }
     
-    func conversionProgressUpdated(progress: Double) {
+    func wy_conversionProgressUpdated(audioKit: WYAudioKit, progress: Double) {
         conversionProgressLabel.text = String(format: "转换进度: %.1f%%", progress*100)
     }
     
-    func conversionDidComplete(url: URL) {
+    func wy_conversionDidComplete(audioKit: WYAudioKit, url: URL) {
         logInfo("格式转换完成: \(url.lastPathComponent)")
     }
     
-    func audioSessionConfigurationFailed(error: any Error) {
+    func wy_audioSessionConfigurationFailed(audioKit: WYAudioKit, error: any Error) {
         logInfo("音频会话配置失败: \(error.localizedDescription)")
+    }
+    
+    func wy_audioRecorderDidUpdateMetering(audioKit: WYAudioKit, peakPower: Float) {
+        logInfo("音频会话声波信息: \(peakPower)")
     }
 }
 

@@ -111,3 +111,7 @@
 "分" = "Minuutit";
 
 "秒" = "sekuntia";
+
+"定位权限被限制" = "Sijaintilupa on rajoitettu"
+
+"App没有访问定位的权限，现在去授权?" = "Sovelluksella ei ole lupaa käyttää sijaintiasi. Haluatko antaa luvan nyt?"

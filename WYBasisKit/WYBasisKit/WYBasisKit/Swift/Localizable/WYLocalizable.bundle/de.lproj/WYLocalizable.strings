@@ -99,3 +99,7 @@
 "星期五" = "Freitag";
 
 "星期六" = "Samstag";
+
+"定位权限被限制" = "Zugriffsrecht auf Standort eingeschränkt"
+
+"App没有访问定位的权限，现在去授权?" = "App hat keine Berechtigung auf den Standort zuzugreifen. Möchtest du die Berechtigung jetzt erteilen?"

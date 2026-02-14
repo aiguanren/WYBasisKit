@@ -111,3 +111,7 @@
 "分" = "Percek";
 
 "秒" = "Másodpercek";
+
+"定位权限被限制" = "A helymeghatározási engedély korlátozva van"
+
+"App没有访问定位的权限，现在去授权?" = "Az alkalmazás nem rendelkezik engedéllyel a helyzeted eléréséhez. Szeretnéd most megadni az engedélyt?"

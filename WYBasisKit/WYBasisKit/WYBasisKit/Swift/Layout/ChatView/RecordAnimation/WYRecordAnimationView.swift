@@ -102,7 +102,7 @@ public struct WYRecordAnimationConfig {
     public var transferViewTextInfoForExternal: (font: UIFont, color: UIColor) = (font: .systemFont(ofSize: UIFont.wy_fontSize(15)), color: .wy_rgb(156, 156, 156))
     
     /// 取消录音按钮和转文字按钮的偏转角度
-    public var moveupViewDeviationAngle: CGFloat = M_PI * 0.12
+    public var moveupViewDeviationAngle: CGFloat = Double.pi * 0.12
     
     /// 录音按钮背景色
     public var recordViewColor:(onInterior: UIColor, onExternal: UIColor) = (onInterior: .wy_rgb(57, 57, 57), onExternal: .white)
@@ -215,9 +215,9 @@ public class WYRecordAnimationView: UIView {
             guard let self = self else { return }
             
             self.audioRecorder?.updateMeters()
-            self.recordTime += (self.updateFequency ?? 0)
+            self.recordTime += (self.updateFequency)
             self.addSoundMeter(item: CGFloat(self.audioRecorder?.averagePower(forChannel: 0) ?? 0))
-            if (self.recordTime ?? 0) >= recordAnimationConfig.maxRecordTime {
+            if (self.recordTime) >= recordAnimationConfig.maxRecordTime {
                 self.endRecordVoice()
             }
         }

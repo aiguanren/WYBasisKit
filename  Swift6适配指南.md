@@ -54,6 +54,10 @@ swift
 swift
 
 ```
+推荐用#if compiler(>=6)
+     @MainActor
+     #endif
+
 #if swift(>=6.0)
 // Swift 6 专属代码
 @MainActor
