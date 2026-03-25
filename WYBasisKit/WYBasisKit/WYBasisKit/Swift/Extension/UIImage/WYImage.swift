@@ -418,6 +418,7 @@ public extension UIImage {
         
         let format = UIGraphicsImageRendererFormat.preferred()
         format.scale = self.scale
+        
         let renderer = UIGraphicsImageRenderer(size: self.size, format: format)
         
         return renderer.image { context in
