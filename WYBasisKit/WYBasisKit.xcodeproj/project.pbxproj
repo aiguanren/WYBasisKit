@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		02317E95937A422D4510B1BE /* Pods_WYBasisKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B0A12B6CD08A1EADB40EC1C /* Pods_WYBasisKit.framework */; };
+		5802B28E2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5802B28D2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift */; };
 		580ED5882EA7261F006012E7 /* WYCodableBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5872EA7261F006012E7 /* WYCodableBridge.swift */; };
 		580ED58A2EA72632006012E7 /* WYCodableConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5892EA72632006012E7 /* WYCodableConfig.swift */; };
 		580ED58C2EA7263F006012E7 /* WYCodableValueTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580ED58B2EA7263F006012E7 /* WYCodableValueTransformer.swift */; };
@@ -25,6 +26,12 @@
 		583E04F82E869051004F1034 /* WYTextFieldObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04F72E869051004F1034 /* WYTextFieldObjC.swift */; };
 		583E04FA2E8690D1004F1034 /* WYWebViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04F92E8690D1004F1034 /* WYWebViewObjC.swift */; };
 		583E04FC2E879984004F1034 /* WYViewControllerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04FB2E879984004F1034 /* WYViewControllerObjC.swift */; };
+		584D74FE2F712BFD006C05E7 /* WYAudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D74FD2F712BFD006C05E7 /* WYAudioRecorder.swift */; };
+		584D75002F712C1B006C05E7 /* WYAudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D74FF2F712C1B006C05E7 /* WYAudioPlayer.swift */; };
+		584D75022F712C32006C05E7 /* WYAudioDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D75012F712C32006C05E7 /* WYAudioDownloader.swift */; };
+		584D75042F712C4C006C05E7 /* WYAudioConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D75032F712C4C006C05E7 /* WYAudioConverter.swift */; };
+		584D75062F712C63006C05E7 /* WYAudioFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D75052F712C63006C05E7 /* WYAudioFileManager.swift */; };
+		584D75082F713834006C05E7 /* WYAudioKitInternal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D75072F713834006C05E7 /* WYAudioKitInternal.swift */; };
 		584EAF012E92791B003A21B8 /* WYLocalizableManagerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF002E92791B003A21B8 /* WYLocalizableManagerObjC.swift */; };
 		584EAF082E92979A003A21B8 /* WYMediaPlayerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF072E92979A003A21B8 /* WYMediaPlayerObjC.swift */; };
 		584EAF0A2E92A7A0003A21B8 /* WYBannerViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF092E92A7A0003A21B8 /* WYBannerViewObjC.swift */; };
@@ -180,6 +187,7 @@
 
 /* Begin PBXFileReference section */
 		53C1C8E1255F64288E08B8AC /* Pods-WYBasisKit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.release.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.release.xcconfig"; sourceTree = "<group>"; };
+		5802B28D2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYRecordAnimationConfig.swift; sourceTree = "<group>"; };
 		580ED5872EA7261F006012E7 /* WYCodableBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableBridge.swift; sourceTree = "<group>"; };
 		580ED5892EA72632006012E7 /* WYCodableConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableConfig.swift; sourceTree = "<group>"; };
 		580ED58B2EA7263F006012E7 /* WYCodableValueTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableValueTransformer.swift; sourceTree = "<group>"; };
@@ -197,6 +205,12 @@
 		583E04F72E869051004F1034 /* WYTextFieldObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTextFieldObjC.swift; sourceTree = "<group>"; };
 		583E04F92E8690D1004F1034 /* WYWebViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYWebViewObjC.swift; sourceTree = "<group>"; };
 		583E04FB2E879984004F1034 /* WYViewControllerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYViewControllerObjC.swift; sourceTree = "<group>"; };
+		584D74FD2F712BFD006C05E7 /* WYAudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAudioRecorder.swift; sourceTree = "<group>"; };
+		584D74FF2F712C1B006C05E7 /* WYAudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAudioPlayer.swift; sourceTree = "<group>"; };
+		584D75012F712C32006C05E7 /* WYAudioDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAudioDownloader.swift; sourceTree = "<group>"; };
+		584D75032F712C4C006C05E7 /* WYAudioConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAudioConverter.swift; sourceTree = "<group>"; };
+		584D75052F712C63006C05E7 /* WYAudioFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAudioFileManager.swift; sourceTree = "<group>"; };
+		584D75072F713834006C05E7 /* WYAudioKitInternal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAudioKitInternal.swift; sourceTree = "<group>"; };
 		584EAF002E92791B003A21B8 /* WYLocalizableManagerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLocalizableManagerObjC.swift; sourceTree = "<group>"; };
 		584EAF022E928182003A21B8 /* WYLocalizableManagerMacro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYLocalizableManagerMacro.h; sourceTree = "<group>"; };
 		584EAF072E92979A003A21B8 /* WYMediaPlayerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaPlayerObjC.swift; sourceTree = "<group>"; };
@@ -419,6 +433,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		580E03D52F67A08C0004BD28 /* Achieve */ = {
+			isa = PBXGroup;
+			children = (
+				584D74FD2F712BFD006C05E7 /* WYAudioRecorder.swift */,
+				584D74FF2F712C1B006C05E7 /* WYAudioPlayer.swift */,
+				584D75012F712C32006C05E7 /* WYAudioDownloader.swift */,
+				584D75032F712C4C006C05E7 /* WYAudioConverter.swift */,
+				584D75052F712C63006C05E7 /* WYAudioFileManager.swift */,
+				584D75072F713834006C05E7 /* WYAudioKitInternal.swift */,
+			);
+			path = Achieve;
+			sourceTree = "<group>";
+		};
 		580ED5862EA72606006012E7 /* Achieve */ = {
 			isa = PBXGroup;
 			children = (
@@ -1234,6 +1261,7 @@
 			children = (
 				58C68CBF2E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68CC02E84E436005FD054 /* WYAudioKit.swift */,
+				580E03D52F67A08C0004BD28 /* Achieve */,
 			);
 			path = AudioKit;
 			sourceTree = "<group>";
@@ -1666,6 +1694,7 @@
 		58C68D342E84E436005FD054 /* RecordAnimation */ = {
 			isa = PBXGroup;
 			children = (
+				5802B28D2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift */,
 				58C68D312E84E436005FD054 /* WYMoveupTipsView.swift */,
 				58C68D322E84E436005FD054 /* WYRecordAnimationView.swift */,
 				58C68D332E84E436005FD054 /* WYSoundWavesView.swift */,
@@ -2174,11 +2203,13 @@
 				58C68DB92E84E436005FD054 /* WYChatTransferCell.swift in Sources */,
 				58C68DBA2E84E436005FD054 /* WYAttributedString.swift in Sources */,
 				58C68DBB2E84E436005FD054 /* WYPhotoAlbumsAuthorization.swift in Sources */,
+				584D75002F712C1B006C05E7 /* WYAudioPlayer.swift in Sources */,
 				58C68DBC2E84E436005FD054 /* WYPagingView.swift in Sources */,
 				58C68DBD2E84E436005FD054 /* WYCodingKeyedDecodingContainer.swift in Sources */,
 				58C68DBE2E84E436005FD054 /* WYBiometricAuthorizationObjC.swift in Sources */,
 				584EAF0A2E92A7A0003A21B8 /* WYBannerViewObjC.swift in Sources */,
 				58C68DBF2E84E436005FD054 /* WYEmojiHeaderView.swift in Sources */,
+				584D75042F712C4C006C05E7 /* WYAudioConverter.swift in Sources */,
 				58C68DC02E84E436005FD054 /* WYInt.swift in Sources */,
 				58C68DC12E84E436005FD054 /* WYObject.swift in Sources */,
 				58C68DC22E84E436005FD054 /* WYChatTextCell.swift in Sources */,
@@ -2192,6 +2223,7 @@
 				58C68DC72E84E436005FD054 /* WYBool.swift in Sources */,
 				58C68DC82E84E436005FD054 /* WYChatBasicCell.swift in Sources */,
 				58C68DC92E84E436005FD054 /* WYChatTakePatCell.swift in Sources */,
+				584D75082F713834006C05E7 /* WYAudioKitInternal.swift in Sources */,
 				58C68DCA2E84E436005FD054 /* WYViewController.swift in Sources */,
 				58C68DCB2E84E436005FD054 /* WYFontObjC.swift in Sources */,
 				58C68DCC2E84E436005FD054 /* WYNumberFormatterObjC.swift in Sources */,
@@ -2260,6 +2292,7 @@
 				58C68DFC2E84E436005FD054 /* WYButton.swift in Sources */,
 				58C68DFD2E84E436005FD054 /* WYNumberFormatter.swift in Sources */,
 				58C68DFE2E84E436005FD054 /* WYEmojiFuncAreaView.swift in Sources */,
+				5802B28E2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift in Sources */,
 				58C68DFF2E84E436005FD054 /* WYChatInputView.swift in Sources */,
 				58C68E002E84E436005FD054 /* WYArray.swift in Sources */,
 				58C68E012E84E436005FD054 /* WYContactsAuthorization.swift in Sources */,
@@ -2271,6 +2304,7 @@
 				58C68E072E84E436005FD054 /* WYLayerObjC.swift in Sources */,
 				58C68E082E84E436005FD054 /* WYMoreViewCell.swift in Sources */,
 				58C68E092E84E436005FD054 /* WYSpeechRecognitionAuthorizationObjC.swift in Sources */,
+				584D74FE2F712BFD006C05E7 /* WYAudioRecorder.swift in Sources */,
 				58C68E0A2E84E436005FD054 /* WYAudioKit.swift in Sources */,
 				58C68E0B2E84E436005FD054 /* WYFloatingPointObjC.swift in Sources */,
 				58C68E0C2E84E436005FD054 /* WYScrollViewObjC.swift in Sources */,
@@ -2280,6 +2314,7 @@
 				58C68E102E84E436005FD054 /* WYString.swift in Sources */,
 				58C68E112E84E436005FD054 /* WYRecordAnimationView.swift in Sources */,
 				58C68E122E84E436005FD054 /* WYNetworkConfig.swift in Sources */,
+				584D75022F712C32006C05E7 /* WYAudioDownloader.swift in Sources */,
 				583E04F62E868708004F1034 /* WYNavigationControllerObjC.swift in Sources */,
 				58C68E132E84E436005FD054 /* WYChatMusicCell.swift in Sources */,
 				58C68E142E84E436005FD054 /* WYImageObjC.swift in Sources */,
@@ -2323,6 +2358,7 @@
 				585B39A32DF8125400E6E08F /* ViewController.swift in Sources */,
 				588D00812E5FEB570034A1CF /* AutoLayout.swift in Sources */,
 				584EAF102E93C116003A21B8 /* WYScrollTextObjC.swift in Sources */,
+				584D75062F712C63006C05E7 /* WYAudioFileManager.swift in Sources */,
 				58BE5F032E5E94210046AD5D /* Swift↔ObjC.swift in Sources */,
 				586FFBB32E8230A700499506 /* Other.swift in Sources */,
 				583E04F82E869051004F1034 /* WYTextFieldObjC.swift in Sources */,

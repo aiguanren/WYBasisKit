@@ -60,17 +60,17 @@ public class WYMoveupTipsView: UIView {
     }
     
     /// 刷新取消录音或者转文字按钮状态
-    public func refresh(isDefault: Bool, isTouched: Bool) {
+    public func refresh(tipsState: WYMoveupTipsState, isTouched: Bool) {
         
         moveuplView.isSelected = isTouched
         
-        moveuplView.transform = CGAffineTransform(rotationAngle: isDefault ? -recordAnimationConfig.moveupViewDeviationAngle : recordAnimationConfig.moveupViewDeviationAngle)
+        moveuplView.transform = CGAffineTransform(rotationAngle: (tipsState == .cancel) ? -recordAnimationConfig.moveupViewDeviationAngle : recordAnimationConfig.moveupViewDeviationAngle)
         
         if moveuplView.isSelected == true {
             
-            tipsView.text = isDefault ? recordAnimationConfig.cancelRecordViewText.tips : recordAnimationConfig.transferViewText.tips
+            tipsView.text = (tipsState == .cancel) ? recordAnimationConfig.cancelRecordViewText.tips : recordAnimationConfig.transferViewText.tips
             
-            moveuplView.titleLabel?.font = isDefault ? recordAnimationConfig.cancelRecordViewTextInfoForExternal.font : recordAnimationConfig.transferViewTextInfoForExternal.font
+            moveuplView.titleLabel?.font = (tipsState == .cancel) ? recordAnimationConfig.cancelRecordViewTextInfoForExternal.font : recordAnimationConfig.transferViewTextInfoForExternal.font
             
             moveuplView.snp.updateConstraints { make in
                 make.width.height.equalTo(recordAnimationConfig.moveupButtonDiameter.onInterior)
@@ -80,7 +80,7 @@ public class WYMoveupTipsView: UIView {
             
             tipsView.text = ""
             
-            moveuplView.titleLabel?.font = isDefault ? recordAnimationConfig.cancelRecordViewTextInfoForInterior.font : recordAnimationConfig.transferViewTextInfoForInterior.font
+            moveuplView.titleLabel?.font = (tipsState == .cancel) ? recordAnimationConfig.cancelRecordViewTextInfoForInterior.font : recordAnimationConfig.transferViewTextInfoForInterior.font
             
             moveuplView.snp.updateConstraints { make in
                 make.width.height.equalTo(recordAnimationConfig.moveupButtonDiameter.onExternal)

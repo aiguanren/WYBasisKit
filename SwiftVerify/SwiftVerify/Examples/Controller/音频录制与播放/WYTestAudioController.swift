@@ -111,13 +111,16 @@ class WYTestAudioController: UIViewController {
     
     private func setupAudioKit() {
         audioKit.delegate = self
-        audioKit.setRecordingDurations(min: minRecordingDuration, max: maxRecordingDuration)
+        audioKit.minimumRecordDuration = minRecordingDuration
+        audioKit.maximumRecordDuration = maxRecordingDuration
         
-        // 请求录音权限
-        audioKit.requestRecordPermission { [weak self] granted in
-            DispatchQueue.main.async {
-                let status = granted ? "已授权" : "未授权"
-                self?.logInfo("录音权限: \(status)")
+        /// 检查是否拥有麦克风权限
+        wy_authorizeMicrophoneAccess(showSettingsAlert: true) { [weak self] authorized in
+            guard let self = self else { return }
+            Task { @MainActor [weak self] in
+                guard let self = self else { return }
+                let status = authorized ? "已授权" : "未授权"
+                self.logInfo("录音权限: \(status)")
             }
         }
     }
@@ -375,6 +378,8 @@ class WYTestAudioController: UIViewController {
             // 滚动到底部
             let bottom = NSMakeRange(self.infoTextView.text.count - 1, 1)
             self.infoTextView.scrollRangeToVisible(bottom)
+            
+            print("log = \(self.infoTextView.text + log)")
         }
     }
     
@@ -402,22 +407,14 @@ class WYTestAudioController: UIViewController {
     // MARK: - 播放控制
     @objc private func playLocalAudio() {
         if let testFileURL = Bundle.main.url(forResource: "世间美好与你环环相扣", withExtension: "mp3") {
-            do {
-                try audioKit.playAudio(at: testFileURL)
-            } catch {
-                handleError(error)
-            }
+            audioKit.playPlayback(url: testFileURL)
         } else {
             logInfo("测试音频文件未找到")
         }
     }
     
     @objc private func playRecordedFile() {
-        do {
-            try audioKit.playRecordedFile()
-        } catch {
-            handleError(error)
-        }
+        audioKit.playPlayback()
     }
     
     @objc private func pausePlayback() {
@@ -439,20 +436,20 @@ class WYTestAudioController: UIViewController {
         }
         
         let seekTime = Double(seekSlider.value) * player.duration
-        audioKit.seekPlayback(to: seekTime)
+        audioKit.seekPlayback(time: seekTime)
         logInfo("跳转到: \(String(format: "%.1f", seekTime))秒")
     }
     
     // MARK: - 设置控制
     @objc private func minDurationChanged() {
         minRecordingDuration = TimeInterval(minDurationSlider.value)
-        audioKit.setRecordingDurations(min: minRecordingDuration, max: maxRecordingDuration)
+        audioKit.minimumRecordDuration = minRecordingDuration;
         logInfo("设置最小录音时长: \(minRecordingDuration)秒")
     }
     
     @objc private func maxDurationChanged() {
         maxRecordingDuration = TimeInterval(maxDurationSlider.value)
-        audioKit.setRecordingDurations(min: minRecordingDuration, max: maxRecordingDuration)
+        audioKit.maximumRecordDuration = maxRecordingDuration;
         logInfo("设置最大录音时长: \(maxRecordingDuration)秒")
     }
     
@@ -464,7 +461,7 @@ class WYTestAudioController: UIViewController {
         default: quality = .high
         }
         
-        audioKit.setAudioQuality(quality)
+        audioKit.recordQuality = quality
         logInfo("设置音频质量: \(qualitySegmentedControl.titleForSegment(at: qualitySegmentedControl.selectedSegmentIndex) ?? "")")
     }
     
@@ -487,13 +484,11 @@ class WYTestAudioController: UIViewController {
             return
         }
         
-        audioKit.playRemoteAudio(from: url) { [weak self] result in
-            switch result {
-            case .success(let url):
-                self?.logInfo("网络音频播放成功,存储地址：\(url.lastPathComponent)")
-            case .failure(let error):
-                self?.handleError(error)
-            }
+        audioKit.playRemoteAudio(remoteUrl: url) { [weak self] downloadInfo in
+            self?.logInfo("网络音频播放成功,存储地址：\(downloadInfo.local.lastPathComponent)")
+        } failed: { [weak self]  error in
+            guard let error = error else { return  }
+            self?.handleError(error)
         }
     }
     
@@ -546,33 +541,21 @@ class WYTestAudioController: UIViewController {
         let fileName = "saved_audio_\(Date().timeIntervalSince1970).\(selectedFormat.rawValue)"
         let destinationURL = docDir.appendingPathComponent(fileName)
         
-        do {
-            try audioKit.saveRecording(to: destinationURL)
-            logInfo("文件已保存到: \(destinationURL.lastPathComponent)")
-            refreshFileList()
-        } catch {
-            handleError(error)
-        }
+        audioKit.saveRecording(destinationUrl: destinationURL)
+        logInfo("文件已保存到: \(destinationURL.lastPathComponent)")
+        refreshFileList()
     }
     
     @objc private func deleteRecording() {
-        do {
-            try audioKit.deleteRecording()
-            logInfo("录音文件已删除")
-            refreshFileList()
-        } catch {
-            handleError(error)
-        }
+        audioKit.deleteRecordingFile(localUrl: audioKit.currentRecordFileURL)
+        logInfo("录音文件已删除")
+        refreshFileList()
     }
     
     @objc private func deleteAllRecordings() {
-        do {
-            try audioKit.deleteAllRecordings()
-            logInfo("所有录音文件已删除")
-            refreshFileList()
-        } catch {
-            handleError(error)
-        }
+        audioKit.deleteRecordingFile()
+        logInfo("所有录音文件已删除")
+        refreshFileList()
     }
     
     // MARK: - 格式转换
@@ -584,14 +567,14 @@ class WYTestAudioController: UIViewController {
         
         logInfo("开始转换格式: \(sourceURL.lastPathComponent) -> \(targetFormat.rawValue)")
         
-        audioKit.convertAudioFile(sourceURL: sourceURL, targetFormat: targetFormat) { [weak self] result in
-            switch result {
-            case .success(let newURL):
-                self?.logInfo("格式转换成功: \(newURL.lastPathComponent)")
+        audioKit.convertAudioFormat(sourceUrls: [sourceURL], target: targetFormat) { [weak self] results in
+            for result in results {
+                self?.logInfo("格式转换成功: \(result.lastPathComponent)")
                 self?.refreshFileList()
-            case .failure(let error):
-                self?.handleError(error)
             }
+        } failed: { [weak self] error in
+            guard let error = error else { return  }
+            self?.handleError(error)
         }
     }
     
@@ -603,8 +586,7 @@ class WYTestAudioController: UIViewController {
             AVNumberOfChannelsKey: 2,
             AVEncoderBitRateKey: 64000
         ]
-        
-        audioKit.setRecordSettings(customSettings)
+        audioKit.recordSettings = customSettings
         logInfo("设置自定义录音参数: 采样率22.05kHz, 比特率64kbps, 双声道")
     }
     
@@ -625,21 +607,31 @@ class WYTestAudioController: UIViewController {
     
     private func errorDescription(for error: WYAudioError) -> String {
         switch error {
-        case .permissionDenied: return "录音权限被拒绝"
+        case .startRecordingFailed: return "开始录音失败"
+        case .noAudioRecordedTasks: return "没有正在录制的音频任务"
+        case .noAudioPauseTasks: return "没有需要暂停的音频任务"
+        case .noAudioResumeRecordTasks: return "没有需要恢复录制的音频任务"
+        case .deleteAudioFileFailed: return "删除音频(录音)文件失败"
+        case .notDetermined: return "未申请录音权限(权限未确定)"
+        case .permissionDenied: return "permissionDenied"
         case .fileNotFound: return "音频文件未找到"
-        case .recordingInProgress: return "录音正在进行中"
-        case .playbackError: return "播放错误"
         case .fileSaveFailed: return "录音文件保存失败"
+        case .recordingInProgress: return "录音正在进行中"
         case .minDurationNotReached: return "录音时长未达到最小值"
-        case .maxDurationReached: return "录音达到最大时长"
+        case .maxDurationReached: return "录音时长已达到最大值"
+        case .isPlayingAudio: return "正在播放音频文件"
+        case .playbackError: return "播放错误"
+        case .noPlayedAudio: return "没有正在播放的音频"
+        case .noAudioToPause: return "没有可以暂停播放的音频"
+        case .noAudioResumePlayTasks: return "没有可以恢复播放的音频任务"
+        case .noAudioStopPlayTasks: return "没有可以停止播放的音频任务"
         case .downloadFailed: return "音频下载失败"
         case .invalidRemoteURL: return "无效的远程URL"
         case .conversionFailed: return "格式转换失败"
         case .conversionCancelled: return "格式转换已取消"
         case .formatNotSupported: return "不支持的录制格式"
-        case .outOfMemory: return "内存不足"
         case .sessionConfigurationFailed: return "音频会话配置失败"
-        case .directoryCreationFailed: return "文件目录创建失败"
+        case .directoryCreationFailed: return "目录创建失败"
         }
     }
     
@@ -648,6 +640,16 @@ class WYTestAudioController: UIViewController {
         case .temporary: return "临时目录"
         case .documents: return "文档目录"
         case .caches: return "缓存目录"
+        }
+    }
+    
+    private func playerPlayStateDescription(for state: WYAudioPlayState) -> String {
+        switch state {
+        case .start: return "开始播放"
+        case .pause: return "暂停播放"
+        case .resume: return "恢复播放"
+        case .stop: return "停止播放"
+        case .finish: return "完成播放"
         }
     }
     
@@ -660,70 +662,129 @@ class WYTestAudioController: UIViewController {
 // MARK: - WYAudioKitDelegate
 extension WYTestAudioController: WYAudioKitDelegate {
     
-    func wy_audioRecorderDidStart(audioKit: WYAudioKit) {
-        logInfo("开始录制/播放 \(selectedFormat.rawValue) 格式音频")
+    /**
+     录音开始
+     - Parameters:
+     - audioKit: 音频工具实例
+     - isResume: 是否是恢复录音
+     */
+    func wy_audioRecorderDidStart(audioKit: WYAudioKit, isResume: Bool) {
+        logInfo("开始录制 \(selectedFormat.rawValue) 格式音频, \(isResume ? "是" : "不是")恢复录音")
     }
     
-    func wy_audioPlayerDidResume(audioKit: WYAudioKit) {
-        logInfo("录音/播放已恢复")
+    /**
+     录音停止
+     - Parameters:
+     - audioKit: 音频工具实例
+     - isPause: 是否是暂停录音
+     */
+    func wy_audioRecorderDidStop(audioKit: WYAudioKit, isPause: Bool) {
+        logInfo("录音停止, \(isPause ? "是" : "不是")暂停录音")
     }
     
-    func wy_audioPlayerDidStop(audioKit: WYAudioKit) {
-        logInfo("录音停止")
-    }
-    
+    /**
+     录音时间更新
+     - Parameters:
+     - audioKit: 音频工具实例
+     - currentTime: 当前录音时间（秒）
+     - duration: 总录音时长限制（秒）
+     */
     func wy_audioRecorderTimeUpdated(audioKit: WYAudioKit, currentTime: TimeInterval, duration: TimeInterval) {
         recordProgressLabel.text = String(format: "录音进度: %.1f秒/%.1f秒 (%.1f%%)",
                                           currentTime, duration, (currentTime/duration)*100)
     }
     
-    func wy_audioPlayerDidFail(audioKit: WYAudioKit, error: WYAudioError) {
-        logInfo("录音错误: \(errorDescription(for: error))")
+    /**
+     录音声波数据更新
+     - Parameters:
+     - audioKit: 音频工具实例
+     - peakPower: 当前峰值功率（dB），范围 -160.0 到 0.0（0.0 表示最响，-160.0 表示最安静）；适合用于实时响应敏感的声波动画，但可能导致动画跳动剧烈
+     - averagePower: 当前平均功率（dB），范围 -160.0 到 0.0；比 peakPower 更平滑，适合微信式语音录制页面的声波动画
+     */
+    func wy_audioRecorderDidUpdateMetering(audioKit: WYAudioKit, peakPower: Float, averagePower: Float) {
+        logInfo("录音声波数据更新，peakPower: \(peakPower)， averagePower: \(averagePower)")
     }
     
-    func wy_audioPlayerDidStart(audioKit: WYAudioKit) {
-        logInfo("播放开始")
+    /**
+     播放状态发生改变
+     - Parameters:
+     - audioKit: 音频工具实例
+     - state: 播放状态
+     */
+    func wy_audioPlayerStateDidChanged(audioKit: WYAudioKit, state: WYAudioPlayState) {
+        logInfo("播放状态发生改变: \(playerPlayStateDescription(for: state))")
     }
     
-    func wy_audioPlayerDidPause(audioKit: WYAudioKit) {
-        logInfo("播放暂停")
-    }
-    
-    func wy_audioRecorderDidStop(audioKit: WYAudioKit) {
-        logInfo("播放停止")
-    }
-    
-    func wy_audioPlayerTimeUpdated(audioKit: WYAudioKit, currentTime: TimeInterval, duration: TimeInterval, progress: Double) {
+    /**
+     播放进度更新
+     - Parameters:
+     - audioKit: 音频工具实例
+     - localUrl: 正在播放的本地音频文件的URL
+     - currentTime: 当前播放位置（秒）
+     - duration: 音频总时长（秒）
+     - progress: 播放进度百分比（0.0 - 1.0）
+     */
+    func wy_audioPlayerTimeUpdated(audioKit: WYAudioKit, localUrl: URL, currentTime: TimeInterval, duration: TimeInterval, progress: Double) {
         playProgressLabel.text = String(format: "播放进度: %.1f秒/%.1f秒 (%.1f%%)",
                                         currentTime, duration, progress*100)
     }
     
-    func wy_audioPlayerDidFinishPlaying(audioKit: WYAudioKit) {
-        logInfo("播放完成")
+    /**
+     网络音频下载进度更新
+     - Parameters:
+     - audioKit: 音频工具实例
+     - remoteUrls: 下载中的URL进度信息(如果数量为1则表示单条音频进度更新，否则为多条并发进度)
+     - progress: 下载进度百分比（0.0 - 1.0）
+     */
+    func wy_remoteAudioDownloadProgressUpdated(audioKit: WYAudioKit, remoteUrls: [URL], progress: Double) {
+        downloadProgressLabel.text = String(format: "下载进度: %.1f%%, remoteUrls：\(remoteUrls)", progress*100)
     }
     
-    func wy_audioRecorderDidFail(audioKit: WYAudioKit, error: WYAudioError) {
-        logInfo("播放失败: \(errorDescription(for: error))")
+    /**
+     网络音频下载成功
+     - Parameters:
+     - audioKit: 音频工具实例
+     - fileInfos: 下载成功的文件信息数组(单条或多条)
+     */
+    func wy_remoteAudioDownloadSuccess(audioKit: WYAudioKit, fileInfos: [WYAudioDownloadInfo]) {
+        for info in fileInfos {
+            logInfo("网络音频下载成功: \(info.local)")
+        }
     }
     
-    func wy_remoteAudioDownloadProgressUpdated(audioKit: WYAudioKit, progress: Double) {
-        downloadProgressLabel.text = String(format: "下载进度: %.1f%%", progress*100)
+    /**
+     格式转换进度更新
+     - Parameters:
+     - audioKit: 音频工具实例
+     - localUrls: 正在转换的本地URL数组
+     - progress: 转换进度百分比（0.0 - 1.0）
+     */
+    func wy_formatConversionProgressUpdated(audioKit: WYAudioKit, localUrls: [URL], progress: Double) {
+        conversionProgressLabel.text = String(format: "转换进度: %.1f%%, localUrls：\(localUrls)", progress*100)
     }
     
-    func wy_conversionProgressUpdated(audioKit: WYAudioKit, progress: Double) {
-        conversionProgressLabel.text = String(format: "转换进度: %.1f%%", progress*100)
+    /**
+     格式转换完成
+     - Parameters:
+     - audioKit: 音频工具实例
+     - outputUrls: 转换成功后的输出文件URL数组
+     */
+    func wy_formatConversionDidCompleted(audioKit: WYAudioKit, outputUrls: [URL]) {
+        for outputUrl in outputUrls {
+            logInfo("格式转换完成: \(outputUrl.lastPathComponent)")
+        }
     }
     
-    func wy_conversionDidComplete(audioKit: WYAudioKit, url: URL) {
-        logInfo("格式转换完成: \(url.lastPathComponent)")
-    }
-    
-    func wy_audioSessionConfigurationFailed(audioKit: WYAudioKit, error: any Error) {
-        logInfo("音频会话配置失败: \(error.localizedDescription)")
-    }
-    
-    func wy_audioRecorderDidUpdateMetering(audioKit: WYAudioKit, peakPower: Float) {
-        logInfo("音频会话声波信息: \(peakPower)")
+    /**
+     音频任务执行失败
+     - Parameters:
+     - audioKit: 音频工具实例
+     - url: 出错的任务相关URL（可能是本地或远程）
+     - error: 错误枚举值
+     - description: 可选的详细错误描述
+     */
+    func wy_audioTaskDidFailed(audioKit: WYAudioKit, url: URL, error: WYAudioError, description: String?) {
+        logInfo("音频任务执行失败,错误码：\(errorDescription(for: error)), description:\(description.wy_safe)")
     }
 }
 
@@ -739,16 +800,16 @@ extension WYTestAudioController: UIPickerViewDataSource, UIPickerViewDelegate {
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         let format = supportedFormats[row]
-        return "\(format.stringValue.uppercased()) (\(formatDescription(for: format)))"
+        return "\(format.extensionName.uppercased()) (\(formatDescription(for: format)))"
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         if pickerView == formatPicker {
             selectedFormat = supportedFormats[row]
-            logInfo("已选择录音格式: \(selectedFormat.stringValue.uppercased())")
+            logInfo("已选择录音格式: \(selectedFormat.extensionName.uppercased())")
         } else {
             targetFormat = supportedFormats[row]
-            logInfo("已选择目标格式: \(targetFormat.stringValue.uppercased())")
+            logInfo("已选择目标格式: \(targetFormat.extensionName.uppercased())")
         }
     }
     

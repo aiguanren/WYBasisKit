@@ -110,6 +110,11 @@ public class WYSoundAnimationView: UIView {
         var colorOfSoundWaves: UIColor = recordAnimationConfig.colorOfSoundWavesOnRecording.recording
         
         switch soundWavesStatus {
+        case.recording:
+            silent = (-recordAnimationConfig.soundWavesHeight.recording)
+            highVoice = recordAnimationConfig.soundWavesHeight.recording
+            colorOfSoundWaves = recordAnimationConfig.colorOfSoundWavesOnRecording.recording
+            break
         case .transfer:
             silent = (-recordAnimationConfig.soundWavesHeight.transfer)
             highVoice = recordAnimationConfig.soundWavesHeight.transfer
@@ -119,8 +124,6 @@ public class WYSoundAnimationView: UIView {
             silent = (-recordAnimationConfig.soundWavesHeight.cancel)
             highVoice = recordAnimationConfig.soundWavesHeight.cancel
             colorOfSoundWaves = recordAnimationConfig.colorOfSoundWavesOnRecording.cancel
-            break
-        default:
             break
         }
         
