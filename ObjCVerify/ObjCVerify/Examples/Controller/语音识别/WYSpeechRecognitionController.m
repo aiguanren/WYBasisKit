@@ -140,7 +140,7 @@
     self.audioToTexts = [NSMutableArray array];
     
     // 要求用户授予您的应用许可来执行语音识别。
-    [WYSpeechRecognitionAuthorization authorizeSpeechRecognitionWithShowAlert:YES completionHandler:^(BOOL authorized) {
+    [WYSpeechRecognitionAuthorization authorizeSpeechRecognitionWithShowSettingsAlert:YES completionHandler:^(BOOL authorized) {
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             self.textView.userInteractionEnabled = NO;
             self.voiceView.enabled = authorized;

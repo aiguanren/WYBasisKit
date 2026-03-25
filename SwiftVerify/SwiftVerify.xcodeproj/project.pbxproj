@@ -12,7 +12,6 @@
 		58155BF72E6A7ABA00D957F3 /* 沙滩上的石头.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BF02E6A7ABA00D957F3 /* 沙滩上的石头.png */; };
 		58155BF82E6A7ABA00D957F3 /* 啤酒.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BEB2E6A7ABA00D957F3 /* 啤酒.png */; };
 		58155BF92E6A7ABA00D957F3 /* 红色花.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BE72E6A7ABA00D957F3 /* 红色花.png */; };
-		58155BFA2E6A7ABA00D957F3 /* 彩色花.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BE32E6A7ABA00D957F3 /* 彩色花.png */; };
 		58155BFB2E6A7ABA00D957F3 /* 帆船.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BE52E6A7ABA00D957F3 /* 帆船.png */; };
 		58155BFC2E6A7ABA00D957F3 /* 红色爱心.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BE62E6A7ABA00D957F3 /* 红色爱心.png */; };
 		58155BFD2E6A7ABA00D957F3 /* 沙滩.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BEE2E6A7ABA00D957F3 /* 沙滩.png */; };
@@ -30,6 +29,9 @@
 		581955332E4DB9B800469F1A /* 世间美好与你环环相扣.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 581955322E4DB9B800469F1A /* 世间美好与你环环相扣.mp3 */; };
 		583234162E68219E00EFCAD9 /* WYTestScrollTextController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583234152E68219E00EFCAD9 /* WYTestScrollTextController.swift */; };
 		583234192E68382700EFCAD9 /* WYTestPagingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583234182E68382700EFCAD9 /* WYTestPagingViewController.swift */; };
+		584D750E2F723683006C05E7 /* WYTestImageRenderingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D750C2F723683006C05E7 /* WYTestImageRenderingController.swift */; };
+		584D750F2F723683006C05E7 /* WYTestImageRenderingController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 584D750D2F723683006C05E7 /* WYTestImageRenderingController.xib */; };
+		584D751B2F7281E3006C05E7 /* 彩色花.webp in Resources */ = {isa = PBXBuildFile; fileRef = 584D751A2F7281E3006C05E7 /* 彩色花.webp */; };
 		585B3AA22DF819DC00E6E08F /* WYSpeechRecognitionController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 585B3A662DF819DC00E6E08F /* WYSpeechRecognitionController.xib */; };
 		585B3AA32DF819DC00E6E08F /* [666].gif in Resources */ = {isa = PBXBuildFile; fileRef = 585B3A8C2DF819DC00E6E08F /* [666].gif */; };
 		585B3AA42DF819DC00E6E08F /* 1650855755919.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 585B3A8D2DF819DC00E6E08F /* 1650855755919.mp4 */; };
@@ -99,7 +101,6 @@
 		2DB9925AC3DD1E2ABC6B0159 /* Pods-WYBasisKitVerify.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKitVerify.release.xcconfig"; path = "Target Support Files/Pods-WYBasisKitVerify/Pods-WYBasisKitVerify.release.xcconfig"; sourceTree = "<group>"; };
 		36C6640364725F7848269A13 /* Pods-WYBasisKitVerify.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKitVerify.debug.xcconfig"; path = "Target Support Files/Pods-WYBasisKitVerify/Pods-WYBasisKitVerify.debug.xcconfig"; sourceTree = "<group>"; };
 		5814080C2EC83F1B0099D41B /* WYTestSideslipCellController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestSideslipCellController.swift; sourceTree = "<group>"; };
-		58155BE32E6A7ABA00D957F3 /* 彩色花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "彩色花.png"; sourceTree = "<group>"; };
 		58155BE42E6A7ABA00D957F3 /* 窗花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "窗花.png"; sourceTree = "<group>"; };
 		58155BE52E6A7ABA00D957F3 /* 帆船.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "帆船.png"; sourceTree = "<group>"; };
 		58155BE62E6A7ABA00D957F3 /* 红色爱心.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "红色爱心.png"; sourceTree = "<group>"; };
@@ -172,6 +173,9 @@
 		582732452E9FA3D200DAD1AA /* km */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = km; path = km.lproj/Main.strings; sourceTree = "<group>"; };
 		583234152E68219E00EFCAD9 /* WYTestScrollTextController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestScrollTextController.swift; sourceTree = "<group>"; };
 		583234182E68382700EFCAD9 /* WYTestPagingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestPagingViewController.swift; sourceTree = "<group>"; };
+		584D750C2F723683006C05E7 /* WYTestImageRenderingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestImageRenderingController.swift; sourceTree = "<group>"; };
+		584D750D2F723683006C05E7 /* WYTestImageRenderingController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WYTestImageRenderingController.xib; sourceTree = "<group>"; };
+		584D751A2F7281E3006C05E7 /* 彩色花.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = "彩色花.webp"; sourceTree = "<group>"; };
 		585B35432DF8081800E6E08F /* SwiftVerify.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftVerify.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		585B3A4A2DF819DC00E6E08F /* WYTestDarkNightModeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestDarkNightModeController.swift; sourceTree = "<group>"; };
 		585B3A4C2DF819DC00E6E08F /* WYTestVisualController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestVisualController.swift; sourceTree = "<group>"; };
@@ -297,6 +301,15 @@
 				583234182E68382700EFCAD9 /* WYTestPagingViewController.swift */,
 			);
 			path = "分页控制器";
+			sourceTree = "<group>";
+		};
+		584D75092F723605006C05E7 /* 图片渲染 */ = {
+			isa = PBXGroup;
+			children = (
+				584D750C2F723683006C05E7 /* WYTestImageRenderingController.swift */,
+				584D750D2F723683006C05E7 /* WYTestImageRenderingController.xib */,
+			);
+			path = "图片渲染";
 			sourceTree = "<group>";
 		};
 		585B353A2DF8081800E6E08F = {
@@ -521,6 +534,7 @@
 		585B3A832DF819DC00E6E08F /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				584D75092F723605006C05E7 /* 图片渲染 */,
 				58C359612F3C607A000E6EF0 /* 图片拼接 */,
 				585B3A4B2DF819DC00E6E08F /* 暗夜、白昼模式 */,
 				585B3A4D2DF819DC00E6E08F /* 边框、圆角、阴影、渐变 */,
@@ -578,7 +592,7 @@
 		585B3A942DF819DC00E6E08F /* Resource */ = {
 			isa = PBXGroup;
 			children = (
-				58155BE32E6A7ABA00D957F3 /* 彩色花.png */,
+				584D751A2F7281E3006C05E7 /* 彩色花.webp */,
 				58155BE42E6A7ABA00D957F3 /* 窗花.png */,
 				58155BE52E6A7ABA00D957F3 /* 帆船.png */,
 				58155BE62E6A7ABA00D957F3 /* 红色爱心.png */,
@@ -769,6 +783,7 @@
 			files = (
 				585B3AA22DF819DC00E6E08F /* WYSpeechRecognitionController.xib in Resources */,
 				585B3AA32DF819DC00E6E08F /* [666].gif in Resources */,
+				584D751B2F7281E3006C05E7 /* 彩色花.webp in Resources */,
 				585B3AA42DF819DC00E6E08F /* 1650855755919.mp4 in Resources */,
 				585B3AA52DF819DC00E6E08F /* 动图1.gif in Resources */,
 				585B3AA62DF819DC00E6E08F /* 动图2.gif in Resources */,
@@ -781,9 +796,9 @@
 				589B0A3C2E49CE12000DBD10 /* bird.gif in Resources */,
 				58155BF62E6A7ABA00D957F3 /* 沙滩上的花.png in Resources */,
 				58155BF72E6A7ABA00D957F3 /* 沙滩上的石头.png in Resources */,
+				584D750F2F723683006C05E7 /* WYTestImageRenderingController.xib in Resources */,
 				58155BF82E6A7ABA00D957F3 /* 啤酒.png in Resources */,
 				58155BF92E6A7ABA00D957F3 /* 红色花.png in Resources */,
-				58155BFA2E6A7ABA00D957F3 /* 彩色花.png in Resources */,
 				58155BFB2E6A7ABA00D957F3 /* 帆船.png in Resources */,
 				58155BFC2E6A7ABA00D957F3 /* 红色爱心.png in Resources */,
 				58155BFD2E6A7ABA00D957F3 /* 沙滩.png in Resources */,
@@ -846,7 +861,9 @@
 				"${BUILT_PRODUCTS_DIR}/IQKeyboardToolbarManager/IQKeyboardToolbarManager.framework",
 				"${BUILT_PRODUCTS_DIR}/IQTextInputViewNotification/IQTextInputViewNotification.framework",
 				"${BUILT_PRODUCTS_DIR}/IQTextView/IQTextView.framework",
+				"${BUILT_PRODUCTS_DIR}/KingfisherWebP/KingfisherWebP.framework",
 				"${BUILT_PRODUCTS_DIR}/WYBasisKit-swift-a75a1fb3/WYBasisKitSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/libwebp/libwebp.framework",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/IJKPlayerKit/FSPlayer.framework/FSPlayer",
 			);
 			name = "[CP] Embed Pods Frameworks";
@@ -863,7 +880,9 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQKeyboardToolbarManager.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQTextInputViewNotification.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IQTextView.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KingfisherWebP.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WYBasisKitSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/libwebp.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FSPlayer.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -936,6 +955,7 @@
 				585B3ACD2DF819DC00E6E08F /* WYTestRichTextController.swift in Sources */,
 				5882EAF12E518A5D00638FD3 /* WYTestVibrateController.swift in Sources */,
 				585B3ACE2DF819DC00E6E08F /* WYRightController.swift in Sources */,
+				584D750E2F723683006C05E7 /* WYTestImageRenderingController.swift in Sources */,
 				585B3ACF2DF819DC00E6E08F /* WYTableViewGroupedController.swift in Sources */,
 				585B3AD02DF819DC00E6E08F /* WYTableViewPlainController.swift in Sources */,
 				585B3AD12DF819DC00E6E08F /* WYWebViewController.swift in Sources */,

@@ -118,7 +118,7 @@ public class WYPagingView: UIView {
     /// 分页栏标题选中字号 默认15号；
     public var bar_title_selectedFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(15, WYBasisKitConfig.defaultScreenPixels))
 
-    /// 初始选中第几项  默认第一项
+    /// 当前选中的页面的Index，初始化时也可以用来设置默认选中第几个页面
     public var bar_selectedIndex: Int = 0
    
     /// 控制器是否需要左右滑动(默认支持)

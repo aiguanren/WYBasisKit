@@ -66,7 +66,6 @@
 		58C68DC12E84E436005FD054 /* WYObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68CFD2E84E436005FD054 /* WYObject.swift */; };
 		58C68DC22E84E436005FD054 /* WYChatTextCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68D582E84E436005FD054 /* WYChatTextCell.swift */; };
 		58C68DC32E84E436005FD054 /* WYAttributedStringObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68C5B2E84E436005FD054 /* WYAttributedStringObjC.swift */; };
-		58C68DC42E84E436005FD054 /* WYAudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68D2B2E84E436005FD054 /* WYAudioManager.swift */; };
 		58C68DC52E84E436005FD054 /* WYBoolObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68C5D2E84E436005FD054 /* WYBoolObjC.swift */; };
 		58C68DC62E84E436005FD054 /* WYChatConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68D2D2E84E436005FD054 /* WYChatConfig.swift */; };
 		58C68DC72E84E436005FD054 /* WYBool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68CEB2E84E436005FD054 /* WYBool.swift */; };
@@ -219,6 +218,7 @@
 		587CDF8F2E09151500929E1D /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		587CDF912E09153B00929E1D /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
 		588D00802E5FEB570034A1CF /* AutoLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoLayout.swift; sourceTree = "<group>"; };
+		58AE92112F4E9EA20048CB25 /* WYMacroDefinition.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYMacroDefinition.h; sourceTree = "<group>"; };
 		58B46FE82E8C080700D04BCA /* WYLogManagerMacro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYLogManagerMacro.h; sourceTree = "<group>"; };
 		58B46FE92E8C080700D04BCA /* WYLogManagerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLogManagerObjC.swift; sourceTree = "<group>"; };
 		58B470452E8D2CCD00D04BCA /* WYEventHandlerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYEventHandlerObjC.swift; sourceTree = "<group>"; };
@@ -342,7 +342,6 @@
 		58C68D272E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68D282E84E436005FD054 /* WYBannerView.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = WYBannerView.bundle; sourceTree = "<group>"; };
 		58C68D292E84E436005FD054 /* WYBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYBannerView.swift; sourceTree = "<group>"; };
-		58C68D2B2E84E436005FD054 /* WYAudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAudioManager.swift; sourceTree = "<group>"; };
 		58C68D2D2E84E436005FD054 /* WYChatConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYChatConfig.swift; sourceTree = "<group>"; };
 		58C68D2F2E84E436005FD054 /* WYChatModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYChatModel.swift; sourceTree = "<group>"; };
 		58C68D312E84E436005FD054 /* WYMoveupTipsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMoveupTipsView.swift; sourceTree = "<group>"; };
@@ -1648,14 +1647,6 @@
 			path = BannerView;
 			sourceTree = "<group>";
 		};
-		58C68D2C2E84E436005FD054 /* AudioManager */ = {
-			isa = PBXGroup;
-			children = (
-				58C68D2B2E84E436005FD054 /* WYAudioManager.swift */,
-			);
-			path = AudioManager;
-			sourceTree = "<group>";
-		};
 		58C68D2E2E84E436005FD054 /* Config */ = {
 			isa = PBXGroup;
 			children = (
@@ -1887,7 +1878,6 @@
 		58C68D682E84E436005FD054 /* ChatView */ = {
 			isa = PBXGroup;
 			children = (
-				58C68D2C2E84E436005FD054 /* AudioManager */,
 				58C68D2E2E84E436005FD054 /* Config */,
 				58C68D302E84E436005FD054 /* Models */,
 				58C68D342E84E436005FD054 /* RecordAnimation */,
@@ -2001,6 +1991,7 @@
 			isa = PBXGroup;
 			children = (
 				58E054912E88DEE200DF1F74 /* WYBasisKitObjC.h */,
+				58AE92112F4E9EA20048CB25 /* WYMacroDefinition.h */,
 			);
 			path = Imports;
 			sourceTree = "<group>";
@@ -2196,7 +2187,6 @@
 				580ED5882EA7261F006012E7 /* WYCodableBridge.swift in Sources */,
 				58C68DC32E84E436005FD054 /* WYAttributedStringObjC.swift in Sources */,
 				58C68E342E8537A5005FD054 /* WYAlertControllerObjC.swift in Sources */,
-				58C68DC42E84E436005FD054 /* WYAudioManager.swift in Sources */,
 				58C68DC52E84E436005FD054 /* WYBoolObjC.swift in Sources */,
 				58C68DC62E84E436005FD054 /* WYChatConfig.swift in Sources */,
 				58C68DC72E84E436005FD054 /* WYBool.swift in Sources */,

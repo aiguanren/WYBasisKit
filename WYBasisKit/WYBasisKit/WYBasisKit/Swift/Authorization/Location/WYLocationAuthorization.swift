@@ -74,10 +74,10 @@ public final class WYLocationAuthorization: NSObject {
     
     /**
      * 请求定位权限
-     * @param showAlert: 未授权时是否弹出跳转设置弹窗
+     * @param showSettingsAlert: 未授权时是否弹出跳转设置弹窗
      * @param completion: 权限请求完成后的单次回调
      */
-    public func wy_authorizeLocationAccess(showAlert: Bool = true, completion: ((Bool, Bool) -> Void)? = nil) {
+    public func wy_authorizeLocationAccess(showSettingsAlert: Bool = true, completion: ((Bool, Bool) -> Void)? = nil) {
         // 检查 Info.plist 配置
         guard Bundle.main.infoDictionary?[locationWhenInUseKey] as? String != nil else {
             WYLogManager.output("请先在Info.plist中添加key：\(locationWhenInUseKey)")
@@ -105,9 +105,9 @@ public final class WYLocationAuthorization: NSObject {
         delegate?.wy_locationAuthorizationDidChange?(authorized: isAuthorized, fullAccuracy: fullAccuracy, status: authStatus)
         
         if authStatus == .notDetermined && !isRequestingPermission {
-            requestPermission(showAlert: showAlert)
+            requestPermission()
         } else if !isAuthorized {
-            showLocationAuthorizeAlert(show: showAlert)
+            showLocationAuthorizeAlert(show: showSettingsAlert)
         }
     }
     
@@ -116,7 +116,7 @@ public final class WYLocationAuthorization: NSObject {
         desiredAccuracy: CLLocationAccuracy = kCLLocationAccuracyBest,
         distanceFilter: CLLocationDistance = kCLDistanceFilterNone,
         allowsBackground: Bool = false,
-        showAlert: Bool = true
+        showSettingsAlert: Bool = true
     ) {
         setupLocationManagerIfNeeded()
         
@@ -130,7 +130,7 @@ public final class WYLocationAuthorization: NSObject {
                 allowsBackground: allowsBackground
             )
         } else {
-            wy_authorizeLocationAccess(showAlert: showAlert) { [weak self] authorized, _ in
+            wy_authorizeLocationAccess(showSettingsAlert: showSettingsAlert) { [weak self] authorized, _ in
                 guard let self else { return }
                 if authorized {
                     self.configureAndStartUpdating(
@@ -140,7 +140,7 @@ public final class WYLocationAuthorization: NSObject {
                     )
                 } else {
                     
-                    showLocationAuthorizeAlert(show: showAlert)
+                    showLocationAuthorizeAlert(show: showSettingsAlert)
                     
                     let error = NSError(domain: "WYLocationAuthorization", code: -1, userInfo: [NSLocalizedDescriptionKey: WYLocalized("定位权限被限制", table: WYBasisKitConfig.kitLocalizableTable)])
                     
@@ -156,7 +156,7 @@ public final class WYLocationAuthorization: NSObject {
     }
     
     /// 开始显著位置变化监听
-    public func startMonitoringSignificantLocationChanges(showAlert: Bool = true) {
+    public func startMonitoringSignificantLocationChanges(showSettingsAlert: Bool = true) {
         setupLocationManagerIfNeeded()
         
         let status = currentAuthorizationStatus()
@@ -169,7 +169,7 @@ public final class WYLocationAuthorization: NSObject {
                 locationManager?.requestAlwaysAuthorization()
             }
         } else {
-            wy_authorizeLocationAccess(showAlert: showAlert) { [weak self] authorized, _ in
+            wy_authorizeLocationAccess(showSettingsAlert: showSettingsAlert) { [weak self] authorized, _ in
                 guard let self, authorized else { return }
                 self.startMonitoringSignificantLocationChanges()
             }
@@ -182,7 +182,7 @@ public final class WYLocationAuthorization: NSObject {
     }
     
     /// 开始监控指定区域
-    public func startMonitoring(_ region: CLRegion, showAlert: Bool = true) {
+    public func startMonitoring(_ region: CLRegion, showSettingsAlert: Bool = true) {
         setupLocationManagerIfNeeded()
         
         let status = currentAuthorizationStatus()
@@ -195,7 +195,7 @@ public final class WYLocationAuthorization: NSObject {
                 locationManager?.requestAlwaysAuthorization()
             }
         } else {
-            wy_authorizeLocationAccess(showAlert: showAlert) { [weak self] authorized, _ in
+            wy_authorizeLocationAccess(showSettingsAlert: showSettingsAlert) { [weak self] authorized, _ in
                 guard let self, authorized else { return }
                 self.startMonitoring(region)
             }
@@ -208,7 +208,7 @@ public final class WYLocationAuthorization: NSObject {
     }
     
     /// 开始方向更新
-    public func startUpdatingHeading(desiredAccuracy: CLLocationDirectionAccuracy = kCLLocationAccuracyBest, showAlert: Bool = true) {
+    public func startUpdatingHeading(desiredAccuracy: CLLocationDirectionAccuracy = kCLLocationAccuracyBest, showSettingsAlert: Bool = true) {
         setupLocationManagerIfNeeded()
         
         let status = currentAuthorizationStatus()
@@ -218,7 +218,7 @@ public final class WYLocationAuthorization: NSObject {
             locationManager?.headingFilter = desiredAccuracy
             locationManager?.startUpdatingHeading()
         } else {
-            wy_authorizeLocationAccess(showAlert: showAlert) { [weak self] authorized, _ in
+            wy_authorizeLocationAccess(showSettingsAlert: showSettingsAlert) { [weak self] authorized, _ in
                 guard let self, authorized else { return }
                 self.startUpdatingHeading(desiredAccuracy: desiredAccuracy)
             }
@@ -326,7 +326,7 @@ private extension WYLocationAuthorization {
         return true
     }
     
-    func requestPermission(showAlert: Bool) {
+    func requestPermission() {
         guard !isRequestingPermission else { return }
         isRequestingPermission = true
         

@@ -18,6 +18,7 @@ class WYTestButtonEdgeInsetsController: UIViewController {
         let button: UIButton = UIButton(type: .custom)
         button.wy_nTitle = "wy_adjust"
         button.wy_nImage = UIImage.wy_find("tabbar_right_selected")
+        button.wy_titleFont = .boldSystemFont(ofSize: 30)
         button.wy_makeVisual { make in
             make.wy_cornerRadius(5)
             make.wy_borderWidth(1)
@@ -31,15 +32,18 @@ class WYTestButtonEdgeInsetsController: UIViewController {
             make.height.equalTo(200)
             make.centerY.equalToSuperview()
         }
-        button.wy_adjust(position: .imageRightTitleLeft, spacing: 5)
+        button.imageView?.backgroundColor = .wy_random
+        button.titleLabel?.backgroundColor = .wy_random
+        button.wy_adjust(position: .imageTopTitleBottom, spacing: 5)
         
         let itemButton: UIButton = UIButton(type: .custom)
         itemButton.backgroundColor = .wy_random
         itemButton.titleLabel?.textAlignment = .center
         itemButton.imageView?.backgroundColor = .wy_random
         itemButton.titleLabel?.backgroundColor = .wy_random
-        itemButton.wy_titleRect = CGRect(x: 10, y: 10, width: 80, height: 30)
-        itemButton.wy_imageRect = CGRect(x: 100, y: 10, width: 80, height: 80)
+        itemButton.wy_titleFont = .boldSystemFont(ofSize: 30)
+        itemButton.wy_titleRect = CGRect(x: 10, y: 10, width: 100, height: 30)
+        itemButton.wy_imageRect = CGRect(x: 120, y: 10, width: 80, height: 80)
         itemButton.wy_nTitle = "frame"
         itemButton.wy_nImage = UIImage.wy_find("tabbar_right_selected")
         itemButton.wy_makeVisual { make in

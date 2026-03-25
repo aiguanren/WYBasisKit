@@ -184,7 +184,7 @@ public extension UIImage {
         // 额外边距（阴影 + 描边）
         let margin = max(shadowBlur * 1.5, strokeWidth * 2, 4)  // 更保守的 margin
         
-        var canvasRect = CGRect(
+        let canvasRect = CGRect(
             x: min(0, stitchingBounds.minX) - margin,
             y: min(0, stitchingBounds.minY) - margin,
             width: max(standardSize.width, stitchingBounds.maxX) + margin * 2,
@@ -384,6 +384,156 @@ public extension UIImage {
         UIGraphicsEndImageContext()
         
         return image!
+    }
+    
+    /// 判断图片是否有 Alpha 通道
+    func wy_hasAlphaChannel() -> Bool {
+        
+        guard let cgImage = self.cgImage else { return false }
+        
+        let alphaInfo = cgImage.alphaInfo
+        
+        return alphaInfo == .first ||
+        alphaInfo == .last ||
+        alphaInfo == .premultipliedFirst ||
+        alphaInfo == .premultipliedLast
+    }
+    
+    /**
+     渲染图片至指定颜色（同步）
+     ⚠️ 注意：
+     - 该方法为同步执行，会在当前线程完成图像渲染，不建议在主线程高频调用，可能导致卡顿或掉帧，适用于调用次数较少的场景，例如：
+       - 非滚动场景（如页面初始化、静态展示）
+       - 单次或少量图片处理（如按钮状态图、占位图生成）
+       - 若在列表滚动、频繁刷新或大量图片处理等场景中使用，建议改用异步方法
+     - Parameter color: 需要渲染的目标颜色
+     - Returns: 渲染后的新图片
+     */
+    func wy_rendering(color: UIColor) -> UIImage {
+        
+        // 空图直接返回自身，避免创建无效渲染
+        guard self.size.width > 0 && self.size.height > 0 else {
+            return self
+        }
+        
+        let format = UIGraphicsImageRendererFormat.preferred()
+        format.scale = self.scale
+        let renderer = UIGraphicsImageRenderer(size: self.size, format: format)
+        
+        return renderer.image { context in
+            let rect = CGRect(origin: .zero, size: self.size)
+            
+            // 绘制原始图片（保留明暗细节）
+            self.draw(in: rect)
+            
+            // 使用 .color 混合模式叠加颜色（保留亮度）
+            color.setFill()
+            context.fill(rect, blendMode: .color)
+            
+            // 保留原始 alpha 通道
+            self.draw(in: rect, blendMode: .destinationIn, alpha: 1.0)
+        }
+    }
+    
+    /**
+     渲染图片至指定颜色（异步）
+     
+     在后台线程执行图片着色处理，避免阻塞主线程，适用于高频或性能敏感场景。
+     内部会自动切换至主线程回调处理结果，确保可直接用于 UI 更新。
+
+     适用场景：
+       - 列表滚动（如 UITableView / UICollectionView）
+       - 网络图片加载后的二次处理（如统一着色）
+       - 图片频繁刷新或批量处理
+       - 对性能要求较高的界面（避免掉帧、卡顿）
+
+     ⚠️ 缓存建议（推荐结合 Kingfisher 使用）：
+     - 可将“渲染后的图片”进行缓存，避免重复处理
+     - 推荐缓存 key：url + color（或其他唯一标识）
+       例如：let cacheKey = "\(url)_\(color.hashValue)"
+     - 使用方式建议：
+       1. 先根据 key 查询缓存（命中则直接使用）
+       2. 未命中时再进行渲染
+       3. 渲染完成后写入缓存
+
+     ⚠️ 防止 cell 错图（建议处理）：
+     - 异步回调存在“返回顺序不确定”的问题，在 cell 复用场景下可能导致错图
+     - 必须在调用方做“任务标识校验”，只允许最后一次请求生效
+
+     示例（Kingfisher）：
+
+     let cacheKey = "\(url)_\(color.hashValue)"
+     let cache = KingfisherManager.shared.cache
+
+     let taskId = UUID().uuidString
+     imageView.accessibilityIdentifier = taskId
+
+     let sourceImage = image
+
+     // 查询缓存
+     cache.retrieveImage(forKey: cacheKey) { result in
+         
+         // 执行渲染操作
+         func render() {
+             sourceImage.wy_rendering(color: color) { [weak imageView] tintedImage in
+                 guard let imageView = imageView else { return }
+                 
+                 // 校验任务
+                 guard imageView.accessibilityIdentifier == taskId else { return }
+                 
+                 // 写入缓存并更新显示图片
+                 cache.store(tintedImage, forKey: cacheKey)
+                 imageView.image = tintedImage
+             }
+         }
+         
+         switch result {
+         case .success(let value):
+             
+             // 命中缓存 + 校验任务
+             if let image = value.image, imageView.accessibilityIdentifier == taskId {
+                 imageView.image = image
+             } else {
+                 render()
+             }
+             
+         case .failure:
+             // 未命中 or 查询失败
+             render()
+         }
+     }
+
+     - Parameter color: 需要渲染的目标颜色
+     - Parameter completion: 渲染完成回调（主线程，返回处理后的图片）
+     */
+    func wy_rendering(color: UIColor, completion: @escaping @MainActor (_ tintedImage: UIImage) -> Void) {
+        
+        if #available(iOS 15.0, *) {
+            
+            // 在后台线程执行渲染，避免阻塞主线程滑动
+            Task.detached(priority: .userInitiated) {
+                
+                // 复用同步方法
+                let tintedImage = self.wy_rendering(color: color)
+                
+                // 回到主线程
+                await completion(tintedImage)
+            }
+            
+        } else {
+            
+            // 在后台线程执行渲染，避免阻塞主线程滑动
+            DispatchQueue.global(qos: .userInitiated).async {
+                
+                // 复用同步方法
+                let tintedImage = self.wy_rendering(color: color)
+                
+                // 回调到主线程更新 UI
+                DispatchQueue.main.async {
+                    completion(tintedImage)
+                }
+            }
+        }
     }
     
     /**

@@ -42,9 +42,9 @@ public extension WYLocationAuthorization {
      * @param showAlert: 未授权时是否弹出跳转设置弹窗
      * @param completion: 权限请求完成后的单次回调
      */
-    @objc(wy_authorizeLocationAccess:completion:)
-    func wy_authorizeLocationAccessObjC(showAlert: Bool = true, completion: ((Bool, Bool) -> Void)? = nil) {
-        wy_authorizeLocationAccess(showAlert: showAlert, completion: completion)
+    @objc(wy_authorizeLocationAccessWithShowSettingsAlert:completion:)
+    func wy_authorizeLocationAccessObjC(showSettingsAlert: Bool = true, completion: ((Bool, Bool) -> Void)? = nil) {
+        wy_authorizeLocationAccess(showSettingsAlert: showSettingsAlert, completion: completion)
     }
     
     /// 开始更新位置
@@ -53,9 +53,9 @@ public extension WYLocationAuthorization {
         desiredAccuracy: CLLocationAccuracy = kCLLocationAccuracyBest,
         distanceFilter: CLLocationDistance = kCLDistanceFilterNone,
         allowsBackground: Bool = false,
-        showAlert: Bool = true
+        showSettingsAlert: Bool = true
     ) {
-        startUpdatingLocation(desiredAccuracy: desiredAccuracy, distanceFilter: distanceFilter, allowsBackground: allowsBackground, showAlert: showAlert)
+        startUpdatingLocation(desiredAccuracy: desiredAccuracy, distanceFilter: distanceFilter, allowsBackground: allowsBackground, showSettingsAlert: showSettingsAlert)
     }
     
     /// 停止位置更新
@@ -65,9 +65,9 @@ public extension WYLocationAuthorization {
     }
     
     /// 开始显著位置变化监听
-    @objc(startMonitoringSignificantLocationChanges:)
-    func startMonitoringSignificantLocationChangesObjC(showAlert: Bool = true) {
-        startMonitoringSignificantLocationChanges(showAlert: showAlert)
+    @objc(startMonitoringSignificantLocationChangesWithShowSettingsAlert:)
+    func startMonitoringSignificantLocationChangesObjC(showSettingsAlert: Bool = true) {
+        startMonitoringSignificantLocationChanges(showSettingsAlert: showSettingsAlert)
     }
     
     /// 停止显著位置变化监听
@@ -77,9 +77,9 @@ public extension WYLocationAuthorization {
     }
     
     /// 开始监控指定区域
-    @objc(startMonitoring:showAlert:)
-    func startMonitoring(region: CLRegion, showAlert: Bool = true) {
-        startMonitoring(region, showAlert: showAlert)
+    @objc(startMonitoring:showSettingsAlert:)
+    func startMonitoring(region: CLRegion, showSettingsAlert: Bool = true) {
+        startMonitoring(region, showSettingsAlert: showSettingsAlert)
     }
     
     /// 停止监控指定区域
@@ -89,9 +89,9 @@ public extension WYLocationAuthorization {
     }
     
     /// 开始方向更新
-    @objc(startUpdatingHeading:showAlert:)
-    func startUpdatingHeadingObjC(desiredAccuracy: CLLocationDirectionAccuracy = kCLLocationAccuracyBest, showAlert: Bool = true) {
-        startUpdatingHeading(desiredAccuracy: desiredAccuracy, showAlert: showAlert)
+    @objc(startUpdatingHeading:showSettingsAlert:)
+    func startUpdatingHeadingObjC(desiredAccuracy: CLLocationDirectionAccuracy = kCLLocationAccuracyBest, showSettingsAlert: Bool = true) {
+        startUpdatingHeading(desiredAccuracy: desiredAccuracy, showSettingsAlert: showSettingsAlert)
     }
     
     /// 停止方向更新

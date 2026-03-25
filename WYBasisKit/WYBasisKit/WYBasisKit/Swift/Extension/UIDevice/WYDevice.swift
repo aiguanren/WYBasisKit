@@ -249,6 +249,16 @@ public extension UIDevice {
         return interfaceOrientation == .landscapeLeft || interfaceOrientation == .landscapeRight
     }
     
+    /// 设置屏幕亮度
+    static var wy_screenBrightness: CGFloat {
+        get {
+            return UIScreen.main.brightness
+        }
+        set {
+            UIScreen.main.brightness = max(0.0, min(1.0, newValue))
+        }
+    }
+    
     /// 获取运营商IP地址
     static var wy_carrierIP: String {
         

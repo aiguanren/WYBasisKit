@@ -13,20 +13,20 @@ import Photos
 public let photoLibraryKey: String = "NSPhotoLibraryUsageDescription"
 
 /// 检查相册权限
-public func wy_authorizeAlbumAccess(showAlert: Bool = true, handler: @escaping (_ authorized: Bool, _ limited: Bool) -> Void?) {
+public func wy_authorizeAlbumAccess(showSettingsAlert: Bool = true, handler: @escaping (_ authorized: Bool, _ limited: Bool) -> Void?) {
     
     if let _ = Bundle.main.infoDictionary?[photoLibraryKey] as? String {
         if #available(iOS 14, *) {
             let requiredAccessLevel: PHAccessLevel = .readWrite
             PHPhotoLibrary.requestAuthorization(for: requiredAccessLevel) { (authStatus) in
                 DispatchQueue.main.async {
-                    wy_checkAlbumAccess(showAlert: showAlert, authStatus: authStatus, handler: handler)
+                    wy_checkAlbumAccess(showSettingsAlert: showSettingsAlert, authStatus: authStatus, handler: handler)
                     return
                 }
             }
             
         }else {
-            wy_checkAlbumAccess(showAlert: showAlert, authStatus: PHPhotoLibrary.authorizationStatus(), handler: handler)
+            wy_checkAlbumAccess(showSettingsAlert: showSettingsAlert, authStatus: PHPhotoLibrary.authorizationStatus(), handler: handler)
             return
         }
     }else {
@@ -36,7 +36,7 @@ public func wy_authorizeAlbumAccess(showAlert: Bool = true, handler: @escaping (
     }
     
     // 检查相册权限
-    func wy_checkAlbumAccess(showAlert: Bool, authStatus: PHAuthorizationStatus, handler: @escaping (_ authorized: Bool, _ limited: Bool) -> Void?) {
+    func wy_checkAlbumAccess(showSettingsAlert: Bool, authStatus: PHAuthorizationStatus, handler: @escaping (_ authorized: Bool, _ limited: Bool) -> Void?) {
         
         if let _ = Bundle.main.infoDictionary?[photoLibraryKey] as? String {
             
@@ -51,7 +51,7 @@ public func wy_authorizeAlbumAccess(showAlert: Bool = true, handler: @escaping (
                     }else {
                         /// App无权访问照片库 用户已明确拒绝
                         Task { @MainActor in
-                            wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("App没有访问相册的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
+                            wy_showAuthorizeAlert(show: showSettingsAlert, message: WYLocalized("App没有访问相册的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
                             handler(false, false)
                         }
                     }
@@ -66,7 +66,7 @@ public func wy_authorizeAlbumAccess(showAlert: Bool = true, handler: @escaping (
             default:
                 /// App无权访问相册 用户已明确拒绝
                 Task { @MainActor in
-                    wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("App没有访问相册的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
+                    wy_showAuthorizeAlert(show: showSettingsAlert, message: WYLocalized("App没有访问相册的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
                     handler(false, false)
                 }
             }

@@ -298,7 +298,7 @@ public final class WYAudioKit: NSObject {
             granted: true 表示已授权，false 表示未授权
      */
     public func requestRecordPermission(completion: @escaping (Bool) -> Void) {
-        wy_authorizeMicrophoneAccess(showAlert: true) { authorized in
+        wy_authorizeMicrophoneAccess(showSettingsAlert: true) { authorized in
             completion(authorized)
         }
     }

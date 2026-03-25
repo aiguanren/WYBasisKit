@@ -201,71 +201,98 @@ public extension UIButton {
             if self.imageView?.image == nil || self.currentImage == nil || self.currentTitle?.isEmpty == true || self.titleLabel?.text?.isEmpty == true {
                 return
             }
-            self.superview?.layoutIfNeeded()
             
-            if #available(iOS 15.0, *) {
-                
-                var configuration: UIButton.Configuration = self.configuration ?? .plain()
-                
-                switch position {
-                    
-                case .imageRightTitleLeft:
-                    configuration.imagePlacement = .trailing
-                    break
-                    
-                case .imageLeftTitleRight:
-                    configuration.imagePlacement = .leading
-                    break
-                    
-                case .imageTopTitleBottom:
-                    configuration.imagePlacement = .top
-                    break
-                    
-                case .imageBottomTitleTop:
-                    configuration.imagePlacement = .bottom
-                    break
-                }
-                configuration.imagePadding = spacing
-                self.configuration = configuration
-                self.setNeedsUpdateConfiguration()
-                
-            }else {
-                
-                let imageWidth: CGFloat = (self.imageView?.frame.size.width) ?? 0
-                let imageHeight: CGFloat = (self.imageView?.frame.size.height) ?? 0
-                let labelWidth: CGFloat = CGFloat(self.titleLabel?.intrinsicContentSize.width ?? 0)
-                let labelHeight: CGFloat = CGFloat(self.titleLabel?.intrinsicContentSize.height ?? 0)
-                
-                switch position {
-
-                case .imageRightTitleLeft:
-                    
-                    self.imageEdgeInsets = UIEdgeInsets(top:0, left:labelWidth+spacing/2.0, bottom: 0, right: -labelWidth-spacing/2.0)
-                    self.titleEdgeInsets =  UIEdgeInsets(top:0, left:-imageWidth-spacing/2.0, bottom: 0, right:imageWidth+spacing/2.0)
-                    break
-                    
-                case .imageLeftTitleRight:
-                    
-                    self.titleEdgeInsets = UIEdgeInsets(top:0, left:spacing/2.0, bottom: 0, right: -spacing/2.0)
-                    self.imageEdgeInsets = UIEdgeInsets(top:0, left:-spacing/2.0, bottom: 0, right:spacing/2.0)
-                    break
-                    
-                case .imageTopTitleBottom:
-                    
-                    self.imageEdgeInsets = UIEdgeInsets(top: -labelHeight - spacing/2.0, left: 0, bottom: 0, right:  -labelWidth)
-                    self.titleEdgeInsets =  UIEdgeInsets(top:0, left: -imageWidth, bottom: -imageHeight-spacing/2.0, right: 0)
-                    break
-                    
-                case .imageBottomTitleTop:
-                    
-                    self.imageEdgeInsets = UIEdgeInsets(top:0, left:0, bottom: -labelHeight-spacing/2.0, right: -labelWidth)
-                    self.titleEdgeInsets =  UIEdgeInsets(top:-imageHeight-spacing/2.0, left:-imageWidth, bottom: 0, right: 0)
-                    break
-                }
+            let imageSize = self.imageView?.intrinsicContentSize ?? .zero
+            let titleSize = self.titleLabel?.intrinsicContentSize ?? .zero
+            let spacing = spacing
+            
+            let totalWidth: CGFloat
+            let totalHeight: CGFloat
+            
+            switch position {
+            case .imageLeftTitleRight, .imageRightTitleLeft:
+                totalWidth = imageSize.width + spacing + titleSize.width
+                totalHeight = max(imageSize.height, titleSize.height)
+            case .imageTopTitleBottom, .imageBottomTitleTop:
+                totalWidth = max(imageSize.width, titleSize.width)
+                totalHeight = imageSize.height + spacing + titleSize.height
             }
-            // 强制刷新布局
-            self.superview?.setNeedsLayout()
-            self.superview?.layoutIfNeeded()
+            
+            let contentX = (self.bounds.width - totalWidth) / 2.0
+            let contentY = (self.bounds.height - totalHeight) / 2.0
+            
+            var imageFrame = CGRect.zero
+            var titleFrame = CGRect.zero
+            
+            switch position {
+                
+            case .imageLeftTitleRight:
+                
+                imageFrame = CGRect(
+                    x: contentX,
+                    y: contentY + (totalHeight - imageSize.height) / 2.0,
+                    width: imageSize.width,
+                    height: imageSize.height
+                )
+                
+                titleFrame = CGRect(
+                    x: imageFrame.maxX + spacing,
+                    y: contentY + (totalHeight - titleSize.height) / 2.0,
+                    width: titleSize.width,
+                    height: titleSize.height
+                )
+                
+            case .imageRightTitleLeft:
+                
+                titleFrame = CGRect(
+                    x: contentX,
+                    y: contentY + (totalHeight - titleSize.height) / 2.0,
+                    width: titleSize.width,
+                    height: titleSize.height
+                )
+                
+                imageFrame = CGRect(
+                    x: titleFrame.maxX + spacing,
+                    y: contentY + (totalHeight - imageSize.height) / 2.0,
+                    width: imageSize.width,
+                    height: imageSize.height
+                )
+                
+            case .imageTopTitleBottom:
+                
+                imageFrame = CGRect(
+                    x: contentX + (totalWidth - imageSize.width) / 2.0,
+                    y: contentY,
+                    width: imageSize.width,
+                    height: imageSize.height
+                )
+                
+                titleFrame = CGRect(
+                    x: contentX + (totalWidth - titleSize.width) / 2.0,
+                    y: imageFrame.maxY + spacing,
+                    width: titleSize.width,
+                    height: titleSize.height
+                )
+                
+            case .imageBottomTitleTop:
+                
+                titleFrame = CGRect(
+                    x: contentX + (totalWidth - titleSize.width) / 2.0,
+                    y: contentY,
+                    width: titleSize.width,
+                    height: titleSize.height
+                )
+                
+                imageFrame = CGRect(
+                    x: contentX + (totalWidth - imageSize.width) / 2.0,
+                    y: titleFrame.maxY + spacing,
+                    width: imageSize.width,
+                    height: imageSize.height
+                )
+            }
+            
+            self.wy_imageRect = imageFrame
+            self.wy_titleRect = titleFrame
         }
     }
 }
@@ -312,27 +339,27 @@ private extension UIButton {
         let cls = UIButton.self
         let original = #selector(UIButton.layoutSubviews)
         let swizzled = #selector(UIButton._custom_layoutSubviews)
-
+        
         if let originalMethod = class_getInstanceMethod(cls, original),
            let swizzledMethod = class_getInstanceMethod(cls, swizzled) {
             method_exchangeImplementations(originalMethod, swizzledMethod)
         }
     }()
-
+    
     // 替换 layoutSubviews
     @objc private func _custom_layoutSubviews() {
         self._custom_layoutSubviews() // 调用原始 layoutSubviews
-
+        
         // 强制 layout 前先 sizeToFit 避免 size 0
         self.titleLabel?.sizeToFit()
         self.imageView?.sizeToFit()
-
+        
         if let imageView = self.imageView {
             if let frame = self.wy_imageRect {
                 imageView.frame = frame
             }
         }
-
+        
         if let titleLabel = self.titleLabel {
             if let frame = self.wy_titleRect {
                 titleLabel.frame = frame
@@ -352,3 +379,4 @@ private extension UIButton {
         static var wy_titleRect: UInt8 = 0
     }
 }
+

@@ -14,8 +14,8 @@ import WYBasisKitSwift
 @objc(WYSpeechRecognitionAuthorization)
 @objcMembers public class WYSpeechRecognitionAuthorizationObjC: NSObject {
     /// 检查语音识别权限
-    @objc(authorizeSpeechRecognitionWithShowAlert:completionHandler:)
-    public static func authorizeSpeechRecognition(showAlert: Bool = true, handler: @escaping (_ authorized: Bool) -> Void) {
-        wy_authorizeSpeechRecognition(showAlert: showAlert, handler: handler)
+    @objc(authorizeSpeechRecognitionWithShowSettingsAlert:completionHandler:)
+    public static func authorizeSpeechRecognition(showSettingsAlert: Bool = true, handler: @escaping (_ authorized: Bool) -> Void) {
+        wy_authorizeSpeechRecognition(showSettingsAlert: showSettingsAlert, handler: handler)
     }
 }

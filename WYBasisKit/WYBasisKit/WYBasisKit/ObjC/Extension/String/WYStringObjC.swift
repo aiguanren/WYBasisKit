@@ -301,6 +301,9 @@ import WYBasisKitSwift
      *  showAmPmSymbol 是否显示上午下午，为true时为12小时制，否则为24小时制
      *  customFormat 仅dateFormat为custom时才需要传(如"yyyy-MM-dd HH:mm:ss")，其余传nil就行
      */
+    @objc func wy_timestampConvertDate(_ dateFormat: WYTimeFormatObjC, showAmPmSymbol: Bool = false) -> String {
+        return (self as String).wy_timestampConvertDate(wy_convertObjCTimeFormatToSwift(dateFormat, nil), showAmPmSymbol)
+    }
     @objc func wy_timestampConvertDate(_ dateFormat: WYTimeFormatObjC, showAmPmSymbol: Bool = false, customFormat: String?) -> String {
         return (self as String).wy_timestampConvertDate(wy_convertObjCTimeFormatToSwift(dateFormat, customFormat), showAmPmSymbol)
     }
@@ -310,6 +313,9 @@ import WYBasisKitSwift
      *  dateFormat 要转换的格式
      *  customFormat 仅dateFormat为custom时才需要传(如"yyyy-MM-dd HH:mm:ss")，其余传nil就行
      */
+    @objc func wy_dateStrConvertTimestamp(_ dateFormat: WYTimeFormatObjC) -> String {
+        return (self as String).wy_dateStrConvertTimestamp(wy_convertObjCTimeFormatToSwift(dateFormat, nil))
+    }
     @objc func wy_dateStrConvertTimestamp(_ dateFormat: WYTimeFormatObjC, customFormat: String?) -> String {
         return (self as String).wy_dateStrConvertTimestamp(wy_convertObjCTimeFormatToSwift(dateFormat, customFormat))
     }

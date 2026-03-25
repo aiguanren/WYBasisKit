@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import Kingfisher
+import KingfisherWebP
 @_exported import WYBasisKitSwift
 
 protocol AppEventDelegate: AnyObject {
@@ -30,6 +32,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UserDefaults.standard.setValue(false, forKey: "_UIConstraintBasedLayoutLogUnsatisfiable")
         
         WYBasisKitConfig.defaultScreenPixels = WYScreenPixels(width: 375, height: 812)
+        
+        // 全局设置KingfisherManager支持显示webp格式图片
+        KingfisherManager.shared.defaultOptions += [
+            .processor(WebPProcessor.default),
+            .cacheSerializer(WebPSerializer.default)
+        ]
         
         return true
     }

@@ -13,7 +13,7 @@ import Speech
 public let speechRecognitionKey: String = "NSSpeechRecognitionUsageDescription"
 
 /// 检查语音识别权限
-public func wy_authorizeSpeechRecognition(showAlert: Bool = true, handler: @escaping (_ authorized: Bool) -> Void?) {
+public func wy_authorizeSpeechRecognition(showSettingsAlert: Bool = true, handler: @escaping (_ authorized: Bool) -> Void?) {
     
     if let _ = Bundle.main.infoDictionary?[speechRecognitionKey] as? String {
         
@@ -26,22 +26,22 @@ public func wy_authorizeSpeechRecognition(showAlert: Bool = true, handler: @esca
                 return
             case .denied:
                 // 拒绝授权
-                wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("App没有访问语音识别的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
+                wy_showAuthorizeAlert(show: showSettingsAlert, message: WYLocalized("App没有访问语音识别的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
                 handler(false)
                 return
             case .restricted:
                 // 保密，也就是不授权
-                wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("App没有访问语音识别的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
+                wy_showAuthorizeAlert(show: showSettingsAlert, message: WYLocalized("App没有访问语音识别的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
                 handler(false)
                 return
             case .notDetermined:
                 // 用户尚未决定是否授权
-                wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("App没有访问语音识别的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
+                wy_showAuthorizeAlert(show: showSettingsAlert, message: WYLocalized("App没有访问语音识别的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
                 handler(false)
                 return
             @unknown default:
                 // 其他可能情况
-                wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("App没有访问语音识别的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
+                wy_showAuthorizeAlert(show: showSettingsAlert, message: WYLocalized("App没有访问语音识别的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
                 handler(false)
                 return
             }

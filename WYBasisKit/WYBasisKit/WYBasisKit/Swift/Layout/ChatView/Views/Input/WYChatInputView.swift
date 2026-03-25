@@ -452,7 +452,7 @@ public class WYChatInputView: UIImageView {
         }
         
         /// 检查是否拥有麦克风权限
-        wy_authorizeMicrophoneAccess(showAlert: true) { [weak self] authorized in
+        wy_authorizeMicrophoneAccess(showSettingsAlert: true) { [weak self] authorized in
             
             guard let self = self else { return }
             guard authorized == true else { return }

@@ -200,6 +200,17 @@ import WYBasisKitSwift
         return UIDevice.wy_horizontalScreen
     }
     
+    /// 设置屏幕亮度
+    @objc(wy_screenBrightness)
+    static var wy_screenBrightnessObjC: CGFloat {
+        get {
+            return UIDevice.wy_screenBrightness
+        }
+        set {
+            UIDevice.wy_screenBrightness = newValue
+        }
+    }
+    
     /// 获取运营商IP地址
     @objc(wy_carrierIP)
     static var wy_carrierIPObjC: String {

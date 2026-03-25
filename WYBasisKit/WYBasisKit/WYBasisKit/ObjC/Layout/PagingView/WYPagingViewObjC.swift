@@ -241,7 +241,7 @@ import WYBasisKitSwift
         set { bar_title_selectedFont = newValue }
     }
 
-    /// 初始选中第几项  默认第一项
+    /// 当前选中的页面的Index，初始化时也可以用来设置默认选中第几个页面
     @objc(bar_selectedIndex)
     var bar_selectedIndexObjC: Int {
         get { return bar_selectedIndex }

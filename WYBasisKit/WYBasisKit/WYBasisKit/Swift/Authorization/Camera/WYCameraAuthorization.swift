@@ -13,7 +13,7 @@ import AVFoundation
 public let cameraKey: String = "NSCameraUsageDescription"
 
 /// 检查相机权限
-public func wy_authorizeCameraAccess(showAlert: Bool = true, handler: @escaping (_ authorized: Bool) -> Void?) {
+public func wy_authorizeCameraAccess(showSettingsAlert: Bool = true, handler: @escaping (_ authorized: Bool) -> Void?) {
     
     guard let _ = Bundle.main.infoDictionary?[cameraKey] as? String else {
         WYLogManager.output("请先在Info.plist中添加key：\(cameraKey)")
@@ -33,14 +33,14 @@ public func wy_authorizeCameraAccess(showAlert: Bool = true, handler: @escaping 
                 if granted {
                     handler(true)
                 } else {
-                    wy_showCameraAuthorizeAlert(show: showAlert)
+                    wy_showCameraAuthorizeAlert(show: showSettingsAlert)
                     handler(false)
                 }
             }
         }
         
     default:  // .denied / .restricted
-        wy_showCameraAuthorizeAlert(show: showAlert)
+        wy_showCameraAuthorizeAlert(show: showSettingsAlert)
         handler(false)
     }
     

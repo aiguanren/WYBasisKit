@@ -13,7 +13,7 @@ import AVFoundation
 public let microphoneKey: String = "NSMicrophoneUsageDescription"
 
 /// 检查麦克风权限
-public func wy_authorizeMicrophoneAccess(showAlert: Bool = true, handler: @escaping (_ authorized: Bool) -> Void?) {
+public func wy_authorizeMicrophoneAccess(showSettingsAlert: Bool = true, handler: @escaping (_ authorized: Bool) -> Void?) {
     
     guard let _ = Bundle.main.infoDictionary?[microphoneKey] as? String else {
         WYLogManager.output("请先在Info.plist中添加key：\(microphoneKey)")
@@ -35,14 +35,14 @@ public func wy_authorizeMicrophoneAccess(showAlert: Bool = true, handler: @escap
                     if granted {
                         handler(true)
                     } else {
-                        wy_showMicrophoneAuthorizeAlert(show: showAlert)
+                        wy_showMicrophoneAuthorizeAlert(show: showSettingsAlert)
                         handler(false)
                     }
                 }
             }
             
         default:  // .denied
-            wy_showMicrophoneAuthorizeAlert(show: showAlert)
+            wy_showMicrophoneAuthorizeAlert(show: showSettingsAlert)
             handler(false)
         }
         
@@ -60,14 +60,14 @@ public func wy_authorizeMicrophoneAccess(showAlert: Bool = true, handler: @escap
                     if granted {
                         handler(true)
                     } else {
-                        wy_showMicrophoneAuthorizeAlert(show: showAlert)
+                        wy_showMicrophoneAuthorizeAlert(show: showSettingsAlert)
                         handler(false)
                     }
                 }
             }
             
         default:
-            wy_showMicrophoneAuthorizeAlert(show: showAlert)
+            wy_showMicrophoneAuthorizeAlert(show: showSettingsAlert)
             handler(false)
         }
     }

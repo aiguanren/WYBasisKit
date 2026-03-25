@@ -124,6 +124,8 @@
             [[ListItem alloc] initWithTitle:@"图片拼接"
                                  controller:@"WYTestCombineImagesController"],
             
+            [[ListItem alloc] initWithTitle:@"图片渲染" controller:@"WYTestImageRenderingController"],
+            
             [[ListItem alloc] initWithTitle:@"IM即时通讯(开发中)"
                                  controller:@"WYTestChatController"]
         ];

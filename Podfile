@@ -92,6 +92,9 @@ target 'SwiftVerify' do
     pod 'IQKeyboardManagerSwift'
   end
   
+  # Kingfisher扩展库，支持显示webp格式图片
+  pod 'KingfisherWebP'
+  
 end
 
 target 'ObjCVerify' do
@@ -112,6 +115,9 @@ target 'ObjCVerify' do
   
   # 图片下载/缓存
   pod 'SDWebImage'
+  
+  # SDWebImage扩展库，支持显示webp格式图片
+  pod 'SDWebImageWebPCoder'
   
   # 根据Xcode版本号指定三方库的版本号
   if xcode_version_less_than_or_equal_to(14, 2)

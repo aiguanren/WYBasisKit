@@ -13,7 +13,7 @@ import UIKit
 public let contactsKey: String = "NSContactsUsageDescription"
 
 /// 检查通讯录权限并获取通讯录
-public func wy_authorizeAddressBookAccess(showAlert: Bool = true, keysToFetch: [String] = [CNContactFamilyNameKey, CNContactGivenNameKey, CNContactOrganizationNameKey, CNContactPhoneNumbersKey, CNContactNicknameKey], handler: @escaping (_ authorized: Bool, _ userInfo: [CNContact]?) -> Void?) {
+public func wy_authorizeAddressBookAccess(showSettingsAlert: Bool = true, keysToFetch: [String] = [CNContactFamilyNameKey, CNContactGivenNameKey, CNContactOrganizationNameKey, CNContactPhoneNumbersKey, CNContactNicknameKey], handler: @escaping (_ authorized: Bool, _ userInfo: [CNContact]?) -> Void?) {
     
     if let _ = Bundle.main.infoDictionary?[contactsKey] as? String {
         
@@ -28,7 +28,7 @@ public func wy_authorizeAddressBookAccess(showAlert: Bool = true, keysToFetch: [
                         return
                     }else {
                         /// App无权访问通讯录 用户已明确拒绝
-                        wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("App没有访问通讯录的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
+                        wy_showAuthorizeAlert(show: showSettingsAlert, message: WYLocalized("App没有访问通讯录的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
                         handler(false, nil)
                         return
                     }
@@ -41,7 +41,7 @@ public func wy_authorizeAddressBookAccess(showAlert: Bool = true, keysToFetch: [
         default:
             /// App无权访问通讯录 用户已明确拒绝
             Task { @MainActor in
-                wy_showAuthorizeAlert(show: showAlert, message: WYLocalized("App没有访问通讯录的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
+                wy_showAuthorizeAlert(show: showSettingsAlert, message: WYLocalized("App没有访问通讯录的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
                 handler(false, nil)
                 return
             }

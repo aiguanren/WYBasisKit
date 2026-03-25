@@ -233,6 +233,103 @@ import WYBasisKitSwift
         return wy_gradient(from: colors, direction: WYGradientDirection(rawValue: direction.rawValue) ?? .topToBottom, size: size)
     }
     
+    /// 判断图片是否有 Alpha 通道
+    @objc(wy_hasAlphaChannel)
+    func wy_hasAlphaChannelObjC() -> Bool {
+        return wy_hasAlphaChannel()
+    }
+    
+    /**
+     渲染图片至指定颜色（同步）
+     ⚠️ 注意：
+     - 该方法为同步执行，会在当前线程完成图像渲染，不建议在主线程高频调用，可能导致卡顿或掉帧，适用于调用次数较少的场景，例如：
+       - 非滚动场景（如页面初始化、静态展示）
+       - 单次或少量图片处理（如按钮状态图、占位图生成）
+       - 若在列表滚动、频繁刷新或大量图片处理等场景中使用，建议改用异步方法
+     - Parameter color: 需要渲染的目标颜色
+     - Returns: 渲染后的新图片
+     */
+    @objc(wy_renderingColor:)
+    func wy_renderingObjC(color: UIColor) -> UIImage {
+        return wy_rendering(color: color)
+    }
+    
+    /**
+     渲染图片至指定颜色（异步）
+     
+     在后台线程执行图片着色处理，避免阻塞主线程，适用于高频或性能敏感场景。
+     内部会自动切换至主线程回调处理结果，确保可直接用于 UI 更新。
+
+     适用场景：
+       - 列表滚动（如 UITableView / UICollectionView）
+       - 网络图片加载后的二次处理（如统一着色）
+       - 图片频繁刷新或批量处理
+       - 对性能要求较高的界面（避免掉帧、卡顿）
+
+     ⚠️ 缓存建议（推荐结合 SDWebImage 使用）：
+     - 可将“渲染后的图片”进行缓存，避免重复处理
+     - 推荐缓存 key：url + color（或其他唯一标识）
+       例如：NSString *cacheKey = [NSString stringWithFormat:@"%@_%@", url, @(color.hash)];
+     - 使用方式建议：
+       1. 先根据 key 查询缓存（命中则直接使用）
+       2. 未命中时再进行渲染
+       3. 渲染完成后写入缓存
+
+     ⚠️ 防止 cell 错图（建议处理）：
+     - 异步回调存在“返回顺序不确定”的问题，在 cell 复用场景下可能导致错图
+     - 必须在调用方做“任务标识校验”，只允许最后一次请求生效
+
+     示例（SDWebImage）：
+
+     NSString *cacheKey = [NSString stringWithFormat:@"%@_%@", url, @(color.hash)];
+     SDImageCache *cache = [SDImageCache sharedImageCache];
+
+     NSString *taskId = [[NSUUID UUID] UUIDString];
+     imageView.accessibilityIdentifier = taskId;
+
+     UIImage *sourceImage = image;
+
+     // 查询缓存
+     [cache queryImageForKey:cacheKey
+                     options:SDImageCacheQueryMemoryDataSync | SDImageCacheQueryDiskDataSync
+                     context:nil
+                   cacheType:SDImageCacheTypeAll
+                  completion:^(UIImage * _Nullable cacheImage,
+                               NSData * _Nullable data,
+                               SDImageCacheType cacheType) {
+
+         // 执行渲染操作
+         void (^render)(void) = ^{
+             [sourceImage wy_renderingObjCWithColor:color completion:^(UIImage * _Nonnull tintedImage) {
+
+                 // 校验任务
+                 if (![imageView.accessibilityIdentifier isEqualToString:taskId]) {
+                     return;
+                 }
+
+                 // 写入缓存并更新显示图片
+                 [cache storeImage:tintedImage forKey:cacheKey completion:nil];
+                 imageView.image = tintedImage;
+             }];
+         };
+
+         if (cacheImage && [imageView.accessibilityIdentifier isEqualToString:taskId]) {
+             // 命中缓存 + 校验任务
+             imageView.image = cacheImage;
+         } else {
+             // 未命中 or 查询失败
+             render();
+         }
+     }];
+
+     - Parameter color: 需要渲染的目标颜色
+     - Parameter completion: 渲染完成回调（主线程，返回处理后的图片）
+     */
+    @objc(wy_renderingColor:completion:)
+    func wy_renderingObjC(color: UIColor, completion: @escaping @MainActor (_ tintedImage: UIImage) -> Void) {
+        wy_rendering(color: color, completion: completion)
+    }
+    
     /**
      *  生成一个二维码图片
      *

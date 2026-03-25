@@ -7,6 +7,8 @@
 
 #import "AppDelegate.h"
 #import <WYBasisKitObjC-Swift.h>
+#import <SDWebImage/SDImageCodersManager.h>
+#import <SDWebImageWebPCoder/SDImageWebPCoder.h>
 
 @interface AppDelegate ()
 
@@ -21,6 +23,9 @@
     [[NSUserDefaults standardUserDefaults] setValue:@(NO) forKey:@"_UIConstraintBasedLayoutLogUnsatisfiable"];
     
     WYBasisKitConfig.defaultScreenPixels = [[WYScreenPixels alloc] initWithWidth:375 height:812];
+    
+    // 全局设置SDWebImage支持显示webp格式图片
+    [[SDImageCodersManager sharedManager] addCoder:[SDImageWebPCoder sharedCoder]];
     
     return YES;
 }
