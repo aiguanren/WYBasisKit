@@ -30,7 +30,8 @@ internal final class WYAudioFileManager: NSObject {
     private func baseURL(for dir: WYAudioStorageDirectory) -> URL {
         switch dir {
         case .temporary: return FileManager.default.temporaryDirectory
-        case .documents: return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        case .documents:
+            return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         case .caches: return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
         }
     }
@@ -49,8 +50,14 @@ internal final class WYAudioFileManager: NSObject {
     }
     
     func getAllRecordingsFiles() -> [URL] {
-        let urls = (try? FileManager.default.contentsOfDirectory(at: recordingsDirectoryURL, includingPropertiesForKeys: [.creationDateKey])) ?? []
-        return urls.sorted { ($0.creationDate ?? Date()) > ($1.creationDate ?? Date()) }
+        let urls = (try? FileManager.default.contentsOfDirectory(at: recordingsDirectoryURL,
+                                                                 includingPropertiesForKeys: [.creationDateKey])) ?? []
+        
+        return urls.sorted { (url1: URL, url2: URL) -> Bool in
+            let date1 = (try? url1.resourceValues(forKeys: [.creationDateKey]).creationDate) ?? Date()
+            let date2 = (try? url2.resourceValues(forKeys: [.creationDateKey]).creationDate) ?? Date()
+            return date1 > date2
+        }
     }
     
     func deleteRecordingFile(_ localUrl: URL?) {

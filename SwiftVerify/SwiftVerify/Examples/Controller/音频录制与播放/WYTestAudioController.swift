@@ -430,14 +430,14 @@ class WYTestAudioController: UIViewController {
     }
     
     @objc private func seekPlayback() {
-        guard let player = audioKit.audioPlayer else {
-            logInfo("没有正在播放的音频")
-            return
-        }
+//        guard let player = audioKit.audioPlayer else {
+//            logInfo("没有正在播放的音频")
+//            return
+//        }
         
-        let seekTime = Double(seekSlider.value) * player.duration
-        audioKit.seekPlayback(time: seekTime)
-        logInfo("跳转到: \(String(format: "%.1f", seekTime))秒")
+//        let seekTime = Double(seekSlider.value) * player.duration
+//        audioKit.seekPlayback(time: seekTime)
+//        logInfo("跳转到: \(String(format: "%.1f", seekTime))秒")
     }
     
     // MARK: - 设置控制

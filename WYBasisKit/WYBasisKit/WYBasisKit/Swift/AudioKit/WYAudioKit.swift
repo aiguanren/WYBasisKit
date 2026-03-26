@@ -302,23 +302,18 @@ public class WYAudioDownloadInfo: NSObject {
  - 网络音频处理：并发多文件下载、精准进度回调、暂停/恢复/取消、边下边播（流式播放）
  - 文件管理：录音/下载文件自动目录管理、列表获取（按时间排序）、保存、删除、音频时长读取
  - 录音高级特性：基于 AVAudioEngine 实现，更精确的实时声波采集（支持单通道 dB 值 + 多通道 0~1 归一化波形）
- - 播放高级特性：基于 AVPlayer 优化，支持流式播放、CADisplayLink 平滑进度更新
+ - 播放高级特性：基于 AVPlayer，支持流式播放
  - 格式转换：支持多文件并发转换（aac/m4a/caf/wav/aiff 等），可中断
- - 其他优化：线程安全、无 retain cycle、DispatchSourceTimer 定时、微信风格波形算法、资源自动释放
  
  使用建议：
  - 初始化后可直接使用公开属性与方法
- - 强烈推荐设置 delegate 接收实时回调（录音波形、播放进度、下载状态等）
+ - 推荐设置 delegate 接收实时回调（录音波形、播放进度、下载状态等）
  - 不再使用时主动调用 releaseAll() 释放资源，避免内存泄漏
- - 兼容 iOS 13+，新特性使用 #if available 区分，便于未来维护
  */
 public final class WYAudioKit: NSObject {
     
     /// 代理对象，用于回调录音、播放、下载、转换等事件
     public weak var delegate: WYAudioKitDelegate?
-    
-    /// 当前使用的音频播放器实例
-    public private(set) var audioPlayer: AVPlayer?
     
     /// 是否正在录音
     public var isRecording: Bool { recorder.isRecording }
@@ -326,10 +321,10 @@ public final class WYAudioKit: NSObject {
     /// 是否正在播放
     public var isPlaying: Bool { player.isPlaying }
     
-    /// 录音是否处于暂停状态（内部手动维护）
+    /// 录音是否处于暂停状态
     public private(set) var isRecordingPaused: Bool = false
     
-    /// 播放是否处于暂停状态（内部手动维护）
+    /// 播放是否处于暂停状态
     public private(set) var isPlaybackPaused: Bool = false
     
     /// 录音最小有效时长（秒），低于此值停止时会自动删除文件，0 表示无限制
@@ -337,6 +332,9 @@ public final class WYAudioKit: NSObject {
     
     /// 录音最大允许时长（秒），到达后自动停止录音，0 表示无限制
     public var maximumRecordDuration: TimeInterval = 0
+    
+    /// 设置音频播放速率 0.5x ~ 2.0x
+    public var playbackRate: Float = 1.0
     
     /**
      设置音频质量等级（影响比特率、采样率等，默认中等）
@@ -364,53 +362,140 @@ public final class WYAudioKit: NSObject {
     ]
     
     /// 当前正在录制的音频文件本地URL（录音开始后设置，停止后保留直到下次录音）
-    public private(set) var currentRecordFileURL: URL?
+    public internal(set) var currentRecordFileURL: URL?
     
     /// 录音文件存储的目录类型（修改后会自动创建目录）
     public var recordingsDirectory: WYAudioStorageDirectory = .temporary {
         didSet {
-            ensureDirectoryExists(recordingsDirectory, subdirectory: recordingsSubdirectory)
+            let fm = fileManager
+            fm.recordingsDirectory = recordingsDirectory
+            fm.ensureDirectoryExists()
         }
     }
     
     /// 下载文件存储的目录类型（修改后会自动创建目录）
     public var downloadsDirectory: WYAudioStorageDirectory = .temporary {
         didSet {
-            ensureDirectoryExists(downloadsDirectory, subdirectory: downloadsSubdirectory)
+            let fm = fileManager
+            fm.downloadsDirectory = downloadsDirectory
+            fm.ensureDirectoryExists()
         }
     }
     
     /// 录音文件存放的子目录名称（nil 表示直接放在根目录）
     public var recordingsSubdirectory: String? = "Recordings" {
         didSet {
-            ensureDirectoryExists(recordingsDirectory, subdirectory: recordingsSubdirectory)
+            let fm = fileManager
+            fm.recordingsSubdirectory = recordingsSubdirectory
+            fm.ensureDirectoryExists()
         }
     }
     
     /// 下载文件存放的子目录名称（nil 表示直接放在根目录）
     public var downloadsSubdirectory: String? = "Downloads" {
         didSet {
-            ensureDirectoryExists(downloadsDirectory, subdirectory: downloadsSubdirectory)
+            let fm = fileManager
+            fm.downloadsSubdirectory = downloadsSubdirectory
+            fm.ensureDirectoryExists()
         }
     }
     
-    /// 播放速率 0.5x ~ 2.0x
-    public var playbackRate: Float = 1.0
+    // MARK: - 内部管理器（懒加载）
+    
+    private var _recorder: WYAudioRecorder?
+    private var _player: WYAudioPlayer?
+    private var _downloader: WYAudioDownloader?
+    private var _converter: WYAudioConverter?
+    private var _fileManager: WYAudioFileManager?
+    
+    internal var recorder: WYAudioRecorder {
+        if let recorder = _recorder {
+            return recorder
+        }
+        let newRecorder = WYAudioRecorder()
+        newRecorder.kit = self
+        _recorder = newRecorder
+        return newRecorder
+    }
+    
+    internal var player: WYAudioPlayer {
+        if let player = _player {
+            return player
+        }
+        let newPlayer = WYAudioPlayer()
+        newPlayer.kit = self
+        _player = newPlayer
+        return newPlayer
+    }
+    
+    internal var downloader: WYAudioDownloader {
+        if let downloader = _downloader {
+            return downloader
+        }
+        let newDownloader = WYAudioDownloader()
+        newDownloader.kit = self
+        _downloader = newDownloader
+        return newDownloader
+    }
+    
+    internal var converter: WYAudioConverter {
+        if let converter = _converter {
+            return converter
+        }
+        let newConverter = WYAudioConverter()
+        newConverter.kit = self
+        _converter = newConverter
+        return newConverter
+    }
+    
+    internal var fileManager: WYAudioFileManager {
+        if let fileManager = _fileManager {
+            return fileManager
+        }
+        let newFileManager = WYAudioFileManager()
+        newFileManager.kit = self
+        _fileManager = newFileManager
+        return newFileManager
+    }
+    
+    // MARK: - 内部关联属性（解决 audioPlayer 和 recordingWaveform 报错）
+    
+    /// 当前使用的音频播放器实例（优化为AVPlayer，支持倍速+流式播放）
+    internal var audioPlayer: AVPlayer? {
+        get {
+            objc_getAssociatedObject(self, &WYAssociatedKeys.wy_audioPlayer) as? AVPlayer
+        }
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_audioPlayer, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+    }
+    
+    /// 实时录音波形数组（值0.0~1.0，WeChat风格）
+    internal var recordingWaveform: [Float] {
+        get {
+            objc_getAssociatedObject(self, &WYAssociatedKeys.wy_recordingWaveform) as? [Float] ?? []
+        }
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_recordingWaveform, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+    }
+    
+    // MARK: - Associated Keys
+    
+    private struct WYAssociatedKeys {
+        static var wy_audioPlayer: UInt8 = 0
+        static var wy_recordingWaveform: UInt8 = 0
+    }
     
     /// 唯一初始化方法
     public override init() {
-        self.recorder = WYAudioRecorder()
-        self.player = WYAudioPlayer()
-        self.downloader = WYAudioDownloader()
-        self.converter = WYAudioConverter()
-        self.fileManager = WYAudioFileManager()
         super.init()
-        
-        recorder.kit = self
-        player.kit = self
-        downloader.kit = self
-        converter.kit = self
-        fileManager.kit = self
+        // 提前初始化内部管理器，确保目录等资源提前准备
+        _ = self.recorder
+        _ = self.player
+        _ = self.downloader
+        _ = self.converter
+        _ = self.fileManager
     }
     
     /**
@@ -592,14 +677,14 @@ public final class WYAudioKit: NSObject {
         converter.stopAudioFormatConvert(localUrls)
     }
     
-    /// 新增强大功能：流式播放网络音频（边下载边播放，支持倍速）
+    /// 流式播放网络音频（边下载边播放，支持倍速）
     public func playStreamingRemoteAudio(remoteUrl: URL, rate: Float = 1.0,
                                          success: @escaping (URL) -> Void,
                                          failed: @escaping (Error?) -> Void) {
         player.playStreamingRemoteAudio(remoteUrl: remoteUrl, rate: rate, success: success, failed: failed)
     }
     
-    /// 新增强大功能：获取音频时长（本地/远程均支持）
+    /// 获取音频时长（本地/远程均支持）
     public func getAudioDuration(for url: URL) -> TimeInterval {
         fileManager.getAudioDuration(for: url)
     }
@@ -611,6 +696,13 @@ public final class WYAudioKit: NSObject {
         downloader.releaseResources()
         converter.releaseResources()
         fileManager.releaseResources()
+        
+        // 清空内部引用
+        _recorder = nil
+        _player = nil
+        _downloader = nil
+        _converter = nil
+        _fileManager = nil
     }
     
     deinit {
