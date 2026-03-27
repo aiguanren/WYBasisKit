@@ -6,7 +6,7 @@ localizable_bundle = "#{kit_path}Swift/Localizable/WYLocalizable.bundle"
 
 Pod::Spec.new do |kit|
   kit.name         = "WYBasisKit-swift"
-  kit.version      = "2.2.0"
+  kit.version      = "26.3.0"
   kit.summary      = "WYBasisKit 不仅可以帮助开发者快速构建一个工程，还有基于常用网络框架和系统API而封装的各种实用方法、扩展，开发者只需简单的调用API就可以快速实现相应功能， 大幅提高开发效率。"
   kit.description  = <<-DESC
     Localizable: 国际化解决方案
@@ -406,7 +406,7 @@ Pod::Spec.new do |kit|
       mediaPlayer.resource_bundles = {"WYBasisKitSwiftMediaPlayerFS" => [
       "#{kit_path}Swift/Layout/MediaPlayer/PrivacyInfo.xcprivacy"
       ]}
-      mediaPlayer.dependency "IJKPlayerKit"
+      mediaPlayer.dependency "IJKPlayerKit", "1.0.4"
     end
   end
 end

@@ -152,7 +152,7 @@ extension UILabel {
                 // 检查触摸时长是否合理（防止长按触发）
                 let currentTime = Date().timeIntervalSince1970
                 let touchDuration = currentTime - (wy_touchBeginTime ?? currentTime)
-                let isTouchDurationValid = touchDuration < 0.5 // 500ms 内
+                let isTouchDurationValid = touchDuration < 0.6 // 600ms 内
                 
                 // 只有满足所有条件才触发
                 if isSameRichText && isMoveDistanceValid && isTouchDurationValid {
@@ -272,7 +272,7 @@ extension UILabel {
             let lineRef = unsafeBitCast(line, to: CTLine.self)
             let flippedRect = wy_sharedBounds(line: lineRef, point: linePoint)
             var rect = flippedRect.applying(transform)
-            rect = rect.insetBy(dx: 0, dy: 0)
+            rect = rect.insetBy(dx: -5, dy: -6) // 扩大点击热区：左右各扩展5pt，上下各扩展6pt，提高点击命中率（横向控制避免相邻文本串点，纵向适当放宽提升手感）
             
             // 根据文本对齐方式调整 rect 的 x 位置
             let lineWidth = CGFloat(CTLineGetTypographicBounds(lineRef, nil, nil, nil))
@@ -437,7 +437,7 @@ extension UILabel {
             objc_setAssociatedObject(self, &WYAssociatedKeys.wy_maxTouchMoveDistance, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_maxTouchMoveDistance) as? CGFloat ?? 10.0
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_maxTouchMoveDistance) as? CGFloat ?? 15.0
         }
     }
     
