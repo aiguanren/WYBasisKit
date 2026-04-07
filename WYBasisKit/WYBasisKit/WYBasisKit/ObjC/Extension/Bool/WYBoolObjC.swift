@@ -68,7 +68,7 @@ import WYBasisKitSwift
     /**
      *  获取一个随机布尔值
      */
-    @objc public static func wy_randoml() -> Bool {
-        return Bool.wy_randoml()
+    @objc public static func wy_random() -> Bool {
+        return Bool.wy_random()
     }
 }
