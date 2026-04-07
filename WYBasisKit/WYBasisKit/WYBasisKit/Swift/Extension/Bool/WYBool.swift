@@ -17,7 +17,7 @@ public extension Optional where Wrapped == Bool {
 
 public extension Bool {
     
-    /// 判断是否为整数或小数(小数点不能位于首尾)
+    /// 判断是否为整数或小数
     static func wy_isValidIntegerOrDecimal(_ string: String) -> Bool {
         guard string.isEmpty == false else {
             return false
