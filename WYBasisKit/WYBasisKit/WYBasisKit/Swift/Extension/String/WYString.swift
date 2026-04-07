@@ -757,9 +757,14 @@ public extension String {
         return wy_timestampConvertDate(dateFormat)
     }
     
-    /// 从字符串中提取数字
+    /// 从字符串中提取整数或者小数
     var wy_extractNumbers: [String] {
-        return self.components(separatedBy: CharacterSet.decimalDigits.inverted).compactMap({$0.count > 0 ? $0 : nil})
+        let pattern = "\\d+(?:\\.\\d+)?"
+        let regex = try? NSRegularExpression(pattern: pattern)
+        let results = regex?.matches(in: self, range: NSRange(self.startIndex..., in: self)) ?? []
+        return results.compactMap {
+            Range($0.range, in: self).map { String(self[$0]) }
+        }
     }
     
     /**

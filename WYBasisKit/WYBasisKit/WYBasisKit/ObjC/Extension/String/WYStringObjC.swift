@@ -358,7 +358,7 @@ import WYBasisKitSwift
         return (self as String).wy_dateDifferenceWithNowTimer(wy_convertObjCTimeFormatToSwift(dateFormat, customFormat))
     }
     
-    /// 从字符串中提取数字
+    /// 从字符串中提取整数或者小数
     @objc var wy_extractNumbers: [String] {
         return (self as String).wy_extractNumbers
     }
