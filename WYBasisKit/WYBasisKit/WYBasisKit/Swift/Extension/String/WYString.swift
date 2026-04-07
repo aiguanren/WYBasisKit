@@ -398,7 +398,7 @@ public extension String {
         }
     }
     
-    /// 字符串去除特殊字符(特属字符编码)
+    /// 字符串去除特殊字符(特殊字符编码)
     func wy_specialCharactersEncoding(_ characterSet: CharacterSet = .urlQueryAllowed) -> String {
         return self.addingPercentEncoding(withAllowedCharacters: characterSet) ?? ""
     }

@@ -243,7 +243,7 @@ import WYBasisKitSwift
         return (self as String).wy_replace(appointSymbol: appointSymbol, replacement: replacement, useRegex: useRegex)
     }
     
-    /// 字符串去除特殊字符(特属字符编码)
+    /// 字符串去除特殊字符(特殊字符编码)
     @objc func wy_specialCharactersEncoding(_ characterSet: CharacterSet = .urlQueryAllowed) -> String {
         return (self as String).wy_specialCharactersEncoding(characterSet)
     }
