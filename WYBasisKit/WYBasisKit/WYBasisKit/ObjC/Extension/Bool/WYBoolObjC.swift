@@ -12,6 +12,11 @@ import WYBasisKitSwift
 
 @objcMembers public class WYBool: NSObject {
     
+    /// 判断是否为整数或小数
+    @objc public static func wy_isValidIntegerOrDecimal(_ string: String) -> Bool {
+        return Bool.wy_isValidIntegerOrDecimal(string)
+    }
+    
     /// 判断是否是纯数字
     @objc public static func wy_isPureDigital(_ string: String) -> Bool {
         return Bool.wy_isPureDigital(string)
