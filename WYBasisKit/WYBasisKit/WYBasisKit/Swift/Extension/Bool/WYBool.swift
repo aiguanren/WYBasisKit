@@ -17,6 +17,16 @@ public extension Optional where Wrapped == Bool {
 
 public extension Bool {
     
+    /// 判断是否为整数或小数
+    static func wy_isValidIntegerOrDecimal(_ string: String) -> Bool {
+        guard string.isEmpty == false else {
+            return false
+        }
+        let regex = "^[0-9]+(\\.[0-9]+)?$"
+        let predicate = NSPredicate(format: "SELF MATCHES %@", regex)
+        return predicate.evaluate(with: string)
+    }
+    
     /// 判断是否是纯数字
     static func wy_isPureDigital(_ string: String) -> Bool {
         guard string.isEmpty == false else {
