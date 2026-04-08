@@ -757,11 +757,32 @@ public extension String {
         return wy_timestampConvertDate(dateFormat)
     }
     
-    /// 从字符串中提取整数或者小数
-    var wy_extractNumbers: [String] {
-        let pattern = "\\d+(?:\\.\\d+)?"
+    /**
+     从字符串中提取数字（支持可选前缀、千分位、小数）
+
+     - Parameter prefixs: 可选前缀（如 ["+", "-", "¥", "$"]，最多1个且在最前）
+
+     - 示例：
+       输入："价格 ¥1,234.56，优惠 $999，再加 +100，折扣 0.5"
+       输出：["¥1,234.56", "$999", "+100", "0.5"]
+
+       输入："数量 123 和 45.67"
+       输出：["123", "45.67"]
+
+     - Returns: 提取到的数字字符串数组
+     */
+    func wy_extractNumbers(prefixs: [String] = []) -> [String] {
+        let prefixPattern = prefixs.isEmpty
+            ? ""
+            : "(?:\(prefixs.map { NSRegularExpression.escapedPattern(for: $0) }.joined(separator: "|")))?"
+        
+        let numberPattern = "(?:[0-9]{1,3}(?:,[0-9]{3})*|[0-9]+)(?:\\.[0-9]+)?"
+        
+        let pattern = "\(prefixPattern)\(numberPattern)"
+        
         let regex = try? NSRegularExpression(pattern: pattern)
         let results = regex?.matches(in: self, range: NSRange(self.startIndex..., in: self)) ?? []
+        
         return results.compactMap {
             Range($0.range, in: self).map { String(self[$0]) }
         }
