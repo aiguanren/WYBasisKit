@@ -17,9 +17,27 @@ public extension Optional where Wrapped == Bool {
 
 public extension Bool {
     
-    /// 判断是否为整数或小数
-    static func wy_isValidIntegerOrDecimal(_ string: String) -> Bool {
-        let regex = "^[0-9]+(\\.[0-9]+)?$"
+    /**
+     判断字符串是否为整数或小数（支持可选前缀、千分位）
+
+     - Parameters:
+       - string: 待校验字符串
+       - prefixs: 可选前缀（如 ["+", "-", "¥", "$"]，最多1个且在最前）
+
+     - 示例：
+       ✅ 123 / 123.45 / 1,234 / 1,234.56 / +123 / -123.45 / ¥1,234 / $1,234.56等
+       ❎ 1,23,456 / 1,234,56 / ++123 / abc123 / 123. / 1,234. / 1,234.5.6等
+     
+     - Returns: 是否合法
+     */
+    static func wy_isValidIntegerOrDecimal(_ string: String, prefixs: [String] = []) -> Bool {
+        let prefixPattern = prefixs.isEmpty
+            ? ""
+            : "(?:\(prefixs.map { NSRegularExpression.escapedPattern(for: $0) }.joined(separator: "|")))?"
+        
+        let numberPattern = "([0-9]{1,3}(,[0-9]{3})*|[0-9]+)(\\.[0-9]+)?"
+        
+        let regex = "^\(prefixPattern)\(numberPattern)$"
         return wy_matchesRegex(string, regex: regex)
     }
     

@@ -358,9 +358,25 @@ import WYBasisKitSwift
         return (self as String).wy_dateDifferenceWithNowTimer(wy_convertObjCTimeFormatToSwift(dateFormat, customFormat))
     }
     
-    /// 从字符串中提取数字
-    @objc var wy_extractNumbers: [String] {
-        return (self as String).wy_extractNumbers
+    /**
+     从字符串中提取数字（支持可选前缀、千分位、小数）
+
+     - Parameter prefixs: 可选前缀（如 ["+", "-", "¥", "$"]，最多1个且在最前）
+
+     - 示例：
+       输入："价格 ¥1,234.56，优惠 $999，再加 +100，折扣 0.5"
+       输出：["¥1,234.56", "$999", "+100", "0.5"]
+
+       输入："数量 123 和 45.67"
+       输出：["123", "45.67"]
+
+     - Returns: 提取到的数字字符串数组
+     */
+    func wy_extractNumbers() -> [String] {
+        return wy_extractNumbers(prefixs: [])
+    }
+    func wy_extractNumbers(prefixs: [String] = []) -> [String] {
+        return (self as String).wy_extractNumbers(prefixs: prefixs)
     }
     
     /**
