@@ -81,6 +81,20 @@ Pod::Spec.new do |kit|
       "#{kit_path}ObjC/Imports/PrivacyInfo.xcprivacy"
     ]}
     imports.frameworks = "Foundation", "UIKit"
+    imports.dependency "WYBasisKit-ObjC/MacroDefinition", kit_swift_version
+  end
+
+  kit.subspec "MacroDefinition" do |macroDefinition|
+    macroDefinition.source_files = [
+      "#{kit_path}ObjC/MacroDefinition/**/*.{swift,h,m}"
+    ]
+    macroDefinition.public_header_files = [
+      "#{kit_path}ObjC/MacroDefinition/**/*.{h,m}"
+    ]
+    macroDefinition.resource_bundles = {"WYBasisKitObjCMacroDefinition" => [
+      "#{kit_path}ObjC/MacroDefinition/PrivacyInfo.xcprivacy"
+    ]}
+    macroDefinition.frameworks = "Foundation", "UIKit"
   end
 
   kit.subspec "Config" do |config|
