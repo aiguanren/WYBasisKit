@@ -32,6 +32,7 @@
  *       wy_weakify(self);
  *       [xxx completion:^{
  *           wy_strongify(self);
+ *           if (!self) return;
  *           // 直接使用 self，如：self.param = nil
  *       }];
  *
