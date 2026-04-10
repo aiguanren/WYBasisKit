@@ -1,35 +1,13 @@
 //
-//  WYMacroDefinition.h
+//  WYSingletonMacro.h
 //  WYBasisKit
 //
 //  Created by guanren on 16/9/4.
 //  Copyright © 2016年 guanren. All rights reserved.
 //
 
-#ifndef WYMacroDefinition_h
-#define WYMacroDefinition_h
-
-#pragma mark - Weak / Strong Self (用于 Block 避免循环引用)
-
-/**
- * weakify和strongify 推荐用法：
- *   wy_weakify(self);
- *   [xxx completion:^{
- *       wy_strongify(self);
- *       // 直接使用 self ...
- *       self.param = nil
- *   }];
- */
-
-/// weakSelf
-#define wy_weakify(var) \
-    __weak __auto_type var##_weak_ = (var)
- 
-/// strongSelf
-#define wy_strongify(var)   \
-    __strong __auto_type var = var##_weak_; \
-    if (!var) return;
-
+#ifndef WYSingletonMacro_h
+#define WYSingletonMacro_h
 
 #pragma mark - 单例宏
 
@@ -90,4 +68,4 @@ static id _shared##className = nil; \
     return _shared##className; \
 }
 
-#endif /* WYMacroDefinition_h */
+#endif /* WYSingletonMacro_h */

@@ -79,6 +79,7 @@ PODS:
     - WYBasisKit-ObjC/Layout (= 26.3.0)
     - WYBasisKit-ObjC/Localizable (= 26.3.0)
     - WYBasisKit-ObjC/LogManager (= 26.3.0)
+    - WYBasisKit-ObjC/MacroDefinition (= 26.3.0)
     - WYBasisKit-ObjC/Networking (= 26.3.0)
     - WYBasisKit-ObjC/Storage (= 26.3.0)
   - WYBasisKit-ObjC/Activity (26.3.0):
@@ -129,7 +130,8 @@ PODS:
     - WYBasisKit-ObjC/Config (= 26.3.0)
     - WYBasisKit-ObjC/Imports (= 26.3.0)
     - WYBasisKit-swift/Extension (= 26.3.0)
-  - WYBasisKit-ObjC/Imports (26.3.0)
+  - WYBasisKit-ObjC/Imports (26.3.0):
+    - WYBasisKit-ObjC/MacroDefinition (= 26.3.0)
   - WYBasisKit-ObjC/Layout (26.3.0):
     - WYBasisKit-ObjC/Layout/BannerView (= 26.3.0)
     - WYBasisKit-ObjC/Layout/MediaPlayer (= 26.3.0)
@@ -154,6 +156,7 @@ PODS:
   - WYBasisKit-ObjC/LogManager (26.3.0):
     - WYBasisKit-ObjC/Imports (= 26.3.0)
     - WYBasisKit-swift/LogManager (= 26.3.0)
+  - WYBasisKit-ObjC/MacroDefinition (26.3.0)
   - WYBasisKit-ObjC/Networking (26.3.0):
     - WYBasisKit-ObjC/Codable (= 26.3.0)
     - WYBasisKit-ObjC/Imports (= 26.3.0)
@@ -314,7 +317,7 @@ SPEC CHECKSUMS:
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
   SDWebImageWebPCoder: 0e06e365080397465cc73a7a9b472d8a3bd0f377
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
-  WYBasisKit-ObjC: 663ff474024e0030d0a8d4ed8ab1c7ae85645f05
+  WYBasisKit-ObjC: ec20bf48aa36cdbfac546c7de736dfb42512f600
   WYBasisKit-swift: 661fab5e53c4b48acfe875dc76fd1b8b9787e6f4
   WYBasisKit-SwiftUI: 72b8d96f2fcc05cc40e8bdc3428e8e31121a6a62
 

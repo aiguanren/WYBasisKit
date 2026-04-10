@@ -162,31 +162,6 @@ public extension UIButton {
         }
     }
     
-    /** 设置按钮左对齐 */
-    func wy_leftAlignment() {
-        contentHorizontalAlignment = .left
-    }
-    
-    /** 设置按钮中心对齐 */
-    func wy_centerAlignment() {
-        contentHorizontalAlignment = .center
-    }
-    
-    /** 设置按钮右对齐 */
-    func wy_rightAlignment() {
-        contentHorizontalAlignment = .right
-    }
-    
-    /** 设置按钮上对齐 */
-    func wy_topAlignment() {
-        contentVerticalAlignment = .top
-    }
-    
-    /** 设置按钮下对齐 */
-    func wy_bottomAlignment() {
-        contentVerticalAlignment = .bottom
-    }
-    
     /**
      *  利用configuration或EdgeInsets自由设置UIButton的titleLabel和imageView的显示位置
      *  注意：这个方法需要在设置图片和文字之后才可以调用，且button的大小要大于 图片大小+文字大小+spacing
@@ -196,6 +171,8 @@ public extension UIButton {
     func wy_adjust(position: WYButtonPosition, spacing: CGFloat = 0) {
         
         DispatchQueue.main.async {
+            
+            guard self.bounds.size != .zero else { return }
             
             // wy_layouEdgeInsets方法 需要在设置图片、文字与约束或者frame之后才可以调用，且button的size最好大于 图片大小+文字大小+spacing
             if self.imageView?.image == nil || self.currentImage == nil || self.currentTitle?.isEmpty == true || self.titleLabel?.text?.isEmpty == true {
@@ -218,8 +195,34 @@ public extension UIButton {
                 totalHeight = imageSize.height + spacing + titleSize.height
             }
             
-            let contentX = (self.bounds.width - totalWidth) / 2.0
-            let contentY = (self.bounds.height - totalHeight) / 2.0
+            // 可用内容区域（考虑 contentEdgeInsets）
+            let contentRect = self.bounds.inset(by: self.contentEdgeInsets)
+            
+            // MARK: - 计算起始 X
+            let contentX: CGFloat
+            switch self.contentHorizontalAlignment {
+            case .left, .leading:
+                contentX = contentRect.minX
+            case .right, .trailing:
+                contentX = contentRect.maxX - totalWidth
+            case .fill:
+                contentX = contentRect.minX
+            default: // center
+                contentX = contentRect.minX + (contentRect.width - totalWidth) / 2.0
+            }
+            
+            // MARK: - 计算起始 Y
+            let contentY: CGFloat
+            switch self.contentVerticalAlignment {
+            case .top:
+                contentY = contentRect.minY
+            case .bottom:
+                contentY = contentRect.maxY - totalHeight
+            case .fill:
+                contentY = contentRect.minY
+            default: // center
+                contentY = contentRect.minY + (contentRect.height - totalHeight) / 2.0
+            }
             
             var imageFrame = CGRect.zero
             var titleFrame = CGRect.zero
@@ -379,4 +382,3 @@ private extension UIButton {
         static var wy_titleRect: UInt8 = 0
     }
 }
-

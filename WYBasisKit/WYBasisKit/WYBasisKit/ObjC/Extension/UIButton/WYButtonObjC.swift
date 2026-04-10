@@ -117,36 +117,6 @@ import WYBasisKitSwift
         get { return wy_imageRect ?? .zero }
     }
     
-    /** 设置按钮左对齐 */
-    @objc(wy_leftAlignment)
-    func wy_leftAlignmentObjC() {
-        wy_leftAlignment()
-    }
-    
-    /** 设置按钮中心对齐 */
-    @objc(wy_centerAlignment)
-    func wy_centerAlignmentObjC() {
-        wy_centerAlignment()
-    }
-    
-    /** 设置按钮右对齐 */
-    @objc(wy_rightAlignment)
-    func wy_rightAlignmentObjC() {
-        wy_rightAlignment()
-    }
-    
-    /** 设置按钮上对齐 */
-    @objc(wy_topAlignment)
-    func wy_topAlignmentObjC() {
-        wy_topAlignment()
-    }
-    
-    /** 设置按钮下对齐 */
-    @objc(wy_bottomAlignment)
-    func wy_bottomAlignmentObjC() {
-        wy_bottomAlignment()
-    }
-    
     /**
      *  利用configuration或EdgeInsets自由设置UIButton的titleLabel和imageView的显示位置
      *  注意：这个方法需要在设置图片和文字之后才可以调用，且button的大小要大于 图片大小+文字大小+spacing
