@@ -41,6 +41,7 @@ public extension UICollectionView {
         collectionview.delegate = delegate
         collectionview.dataSource = dataSource
         collectionview.backgroundColor = backgroundColor
+        collectionview.contentInsetAdjustmentBehavior = .never
         superView?.addSubview(collectionview)
         
         return collectionview
@@ -83,6 +84,7 @@ public extension UICollectionView {
         collectionview.delegate = delegate
         collectionview.dataSource = dataSource
         collectionview.backgroundColor = backgroundColor
+        collectionview.contentInsetAdjustmentBehavior = .never
         superView?.addSubview(collectionview)
         
         return collectionview
