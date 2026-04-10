@@ -175,7 +175,6 @@
 		58C68E342E8537A5005FD054 /* WYAlertControllerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68E332E8537A5005FD054 /* WYAlertControllerObjC.swift */; };
 		58C68E362E853D71005FD054 /* WYApplicationObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68E352E853D71005FD054 /* WYApplicationObjC.swift */; };
 		58C952F22F051E800032E3F6 /* WYColorSwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C952F02F051E800032E3F6 /* WYColorSwiftUI.swift */; };
-		58EE23732F874D910031D8BF /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 58EE23722F874D910031D8BF /* PrivacyInfo.xcprivacy */; };
 		58EE23752F874DAE0031D8BF /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 58EE23742F874DAE0031D8BF /* PrivacyInfo.xcprivacy */; };
 		AAC46AD02E07E28F0068B0DF /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = AAC46ACF2E07E28F0068B0DF /* libc++.tbd */; };
 /* End PBXBuildFile section */
@@ -2125,7 +2124,6 @@
 				58C68DAE2E84E436005FD054 /* WYActivity.bundle in Resources */,
 				585B39AC2DF8125400E6E08F /* Assets.xcassets in Resources */,
 				585B39AE2DF8125400E6E08F /* LaunchScreen.storyboard in Resources */,
-				58EE23732F874D910031D8BF /* PrivacyInfo.xcprivacy in Resources */,
 				585B39AF2DF8125400E6E08F /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
