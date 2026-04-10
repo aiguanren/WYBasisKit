@@ -63,6 +63,7 @@ public extension UITableView {
         tableview.rowHeight = rowHeight
         tableview.tableHeaderView = UIView()
         tableview.tableFooterView = UIView()
+        tableview.contentInsetAdjustmentBehavior = .never
         if #available(iOS 15.0, *) {
             tableview.sectionHeaderTopPadding = 0
         }
