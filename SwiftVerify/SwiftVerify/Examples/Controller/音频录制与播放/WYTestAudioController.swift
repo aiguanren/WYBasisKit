@@ -8,78 +8,98 @@
 import UIKit
 import AVFoundation
 
-// MARK: - 声波视图
 class WYVoiceWaveView: UIView {
-    private var displayLink: CADisplayLink?
-    private var power: Float = 0.0
-    private var barLayers: [CALayer] = []
     private let barCount = 20
     private let barWidth: CGFloat = 3
     private let barSpacing: CGFloat = 2
+    private var barHeights: [CGFloat] = []   // 每个条形的当前高度
+    private var targetHeights: [CGFloat] = [] // 每个条形的目标高度
+    private var displayLink: CADisplayLink?
+    private let smoothing: CGFloat = 0.6   // 平滑系数，值越小过渡越慢（0~1）
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupBars()
+        startDisplayLink()
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         setupBars()
+        startDisplayLink()
     }
     
     private func setupBars() {
-        for _ in 0..<barCount {
-            let layer = CALayer()
-            layer.backgroundColor = UIColor.systemBlue.cgColor
-            layer.cornerRadius = 1
-            barLayers.append(layer)
-            self.layer.addSublayer(layer)
+        // 初始化数组
+        barHeights = Array(repeating: 0, count: barCount)
+        targetHeights = Array(repeating: 0, count: barCount)
+    }
+    
+    /// 更新音量能量值（由外部调用，传入归一化值 0~1）
+    func updatePower(_ normalizedPower: Float) {
+        wy_print("normalizedPower = \(normalizedPower)")
+        let power = CGFloat(max(0, min(1, normalizedPower)))
+        let maxHeight = bounds.height > 0 ? bounds.height : 60
+        // 计算每个条形的目标高度（应用正弦因子，使中间高两边低）
+        for i in 0..<barCount {
+            let factor = sin(CGFloat(i) / CGFloat(barCount) * .pi)
+            let target = maxHeight * power * factor
+            targetHeights[i] = max(1, target)   // 最小高度1像素
         }
     }
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    private func startDisplayLink() {
+        displayLink = CADisplayLink(target: self, selector: #selector(updateHeights))
+        displayLink?.add(to: .main, forMode: .common)
+    }
+    
+    @objc private func updateHeights() {
+        var needsRedraw = false
+        for i in 0..<barCount {
+            let diff = targetHeights[i] - barHeights[i]
+            // 如果音量突然降低超过 8 像素，直接跳变，不进行平滑
+            if diff < -8 {
+                barHeights[i] = targetHeights[i]
+                needsRedraw = true
+            } else if abs(diff) > 0.1 {
+                barHeights[i] += diff * smoothing
+                needsRedraw = true
+            } else {
+                barHeights[i] = targetHeights[i]
+            }
+        }
+        if needsRedraw {
+            setNeedsDisplay()
+        }
+    }
+    
+    override func draw(_ rect: CGRect) {
+        guard let context = UIGraphicsGetCurrentContext() else { return }
+        let maxHeight = bounds.height
         let totalWidth = CGFloat(barCount) * barWidth + CGFloat(barCount - 1) * barSpacing
         var x = (bounds.width - totalWidth) / 2
-        for layer in barLayers {
-            layer.frame = CGRect(x: x, y: bounds.height, width: barWidth, height: 0)
+        context.setFillColor(UIColor.systemBlue.cgColor)
+        
+        for i in 0..<barCount {
+            let height = barHeights[i]
+            let y = maxHeight - height
+            let barRect = CGRect(x: x, y: y, width: barWidth, height: height)
+            context.fill(barRect)
             x += barWidth + barSpacing
         }
     }
     
-    func updatePower(_ normalizedPower: Float) {
-        power = max(0, min(1, normalizedPower))
-        if bounds.height == 0 {
-            self.setNeedsLayout()
-            self.layoutIfNeeded()
-        }
-        let maxHeight = bounds.height
-        for (index, layer) in barLayers.enumerated() {
-            let factor = sin(CGFloat(index) / CGFloat(barCount) * .pi)
-            let height = maxHeight * CGFloat(power) * factor
-            let y = maxHeight - height
-            layer.frame = CGRect(x: layer.frame.origin.x, y: y, width: barWidth, height: height)
-        }
-    }
+    // 兼容原有接口（如果不需要额外操作可留空）
+    func startAnimating() { }
+    func stopAnimating() { }
     
-    func startAnimating() {
-        stopAnimating()
-        displayLink = CADisplayLink(target: self, selector: #selector(animate))
-        displayLink?.add(to: .main, forMode: .common)
-    }
-    
-    func stopAnimating() {
+    deinit {
         displayLink?.invalidate()
         displayLink = nil
-        for layer in barLayers {
-            layer.frame = CGRect(x: layer.frame.origin.x, y: bounds.height, width: barWidth, height: 0)
-        }
     }
-    
-    @objc private func animate() { }
 }
 
-// MARK: - 下载任务卡片视图
+// MARK: - 下载任务卡片视图（保持不变）
 class DownloadTaskCardView: UIView {
     let urlTextField = UITextField()
     let progressLabel = UILabel()
@@ -224,9 +244,14 @@ class WYTestAudioController: UIViewController {
     private let customSettingsButton = UIButton(type: .system)
     private let releaseButton = UIButton(type: .system)
     
-    /// 支持的音频格式
+    /// 支持的录音格式（所有格式）
     private let supportedFormats: [WYAudioFormat] = [
         .aac, .wav, .caf, .m4a, .aiff, .mp3, .flac, .au, .amr, .ac3, .eac3
+    ]
+    
+    /// 支持的转换格式（仅限 AVAssetExportSession 支持的格式）
+    private let supportedConvertFormats: [WYAudioFormat] = [
+        .aac, .m4a, .caf, .wav, .aiff
     ]
     
     /// 当前选中的格式
@@ -335,8 +360,11 @@ class WYTestAudioController: UIViewController {
     
     @objc private func pauseTask(_ sender: UIButton) {
         guard let card = findCard(from: sender), let url = card.url else { return }
-        audioKit.pauseDownload([url])
-        logInfo("暂停下载: \(url)")
+        audioKit.pauseDownload([url]) { url in
+            self.logInfo("暂停成功: \(url)")
+        } failed: { url, error in
+            self.logInfo("暂停失败: \(url), 错误: \(error?.localizedDescription ?? "未知")")
+        }
     }
     
     @objc private func resumeTask(_ sender: UIButton) {
@@ -358,8 +386,8 @@ class WYTestAudioController: UIViewController {
         if let url = card.url {
             audioKit.cancelDownload([url])
         }
-        card.removeFromSuperview()
         taskCards.remove(at: index)
+        card.removeFromSuperview()
         for (i, card) in taskCards.enumerated() {
             if let prevCard = i > 0 ? taskCards[i-1] : nil {
                 card.topAnchor.constraint(equalTo: prevCard.bottomAnchor, constant: 12).isActive = true
@@ -714,7 +742,7 @@ class WYTestAudioController: UIViewController {
             self.infoTextView.text = self.infoTextView.text + log
             let bottom = NSMakeRange(self.infoTextView.text.count - 1, 1)
             self.infoTextView.scrollRangeToVisible(bottom)
-            print("log = \(self.infoTextView.text + log)")
+            WYLogManager.output("log = \(log)")
         }
     }
     
@@ -728,32 +756,60 @@ class WYTestAudioController: UIViewController {
     }
     
     @objc private func pauseRecording() {
-        audioKit.pauseRecording()
+        do {
+            try audioKit.pauseRecording()
+        } catch {
+            handleError(error)
+        }
     }
     
     @objc private func resumeRecording() {
-        audioKit.resumeRecording()
+        do {
+            try audioKit.resumeRecording()
+        } catch {
+            handleError(error)
+        }
     }
     
     @objc private func stopRecording() {
-        audioKit.stopRecording()
+        do {
+            try audioKit.stopRecording()
+        } catch {
+            handleError(error)
+        }
     }
     
     // MARK: - 播放控制
     @objc private func playLocalAudio() {
         if let testFileURL = Bundle.main.url(forResource: "世间美好与你环环相扣", withExtension: "mp3") {
-            audioKit.playPlayback(url: testFileURL)
+            audioKit.playPlayback(url: testFileURL,
+                                  success: { playURL in
+                self.logInfo("本地音频播放成功: \(playURL.lastPathComponent)")
+            },
+                                  failed: { playURL, error, description in
+                self.logInfo("本地音频播放失败: \(error?.localizedDescription ?? "未知错误")")
+            })
         } else {
             logInfo("测试音频文件未找到")
         }
     }
     
     @objc private func playRecordedFile() {
-        audioKit.playPlayback()
+        audioKit.playPlayback(url: nil,
+                              success: { playURL in
+            self.logInfo("录音文件播放成功: \(playURL.lastPathComponent)")
+        },
+                              failed: { playURL, error, description in
+            self.logInfo("录音文件播放失败: \(error?.localizedDescription ?? "未知错误")")
+        })
     }
     
     @objc private func pausePlayback() {
-        audioKit.pausePlayback()
+        do {
+            try audioKit.pausePlayback()
+        } catch {
+            handleError(error)
+        }
     }
     
     @objc private func stopPlayback() {
@@ -761,7 +817,11 @@ class WYTestAudioController: UIViewController {
     }
     
     @objc private func resumePlayback() {
-        audioKit.resumePlayback()
+        do {
+            try audioKit.resumePlayback()
+        } catch {
+            handleError(error)
+        }
     }
     
     @objc private func seekPlayback() {
@@ -825,8 +885,8 @@ class WYTestAudioController: UIViewController {
         audioKit.playRemoteAudio(remoteUrl: url) { [weak self] downloadInfo in
             self?.logInfo("网络音频播放成功,存储地址：\(downloadInfo.local.lastPathComponent)")
         } failed: { [weak self] error in
-            if error != nil {
-                self?.handleError(error!)
+            if let error = error {
+                self?.handleError(error)
             }
         }
     }
@@ -869,21 +929,33 @@ class WYTestAudioController: UIViewController {
         let docDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let fileName = "saved_audio_\(Date().timeIntervalSince1970).\(selectedFormat.rawValue)"
         let destinationURL = docDir.appendingPathComponent(fileName)
-        audioKit.saveRecording(destinationUrl: destinationURL)
-        logInfo("文件已保存到: \(destinationURL.lastPathComponent)")
-        refreshFileList()
+        do {
+            try audioKit.saveRecording(destinationUrl: destinationURL)
+            logInfo("文件已保存到: \(destinationURL.lastPathComponent)")
+            refreshFileList()
+        } catch {
+            handleError(error)
+        }
     }
     
     @objc private func deleteRecording() {
-        audioKit.deleteRecordingFile(localUrl: audioKit.currentRecordFileURL)
-        logInfo("录音文件已删除")
-        refreshFileList()
+        do {
+            try audioKit.deleteRecordingFile(localUrl: audioKit.currentRecordFileURL)
+            logInfo("录音文件已删除")
+            refreshFileList()
+        } catch {
+            handleError(error)
+        }
     }
     
     @objc private func deleteAllRecordings() {
-        audioKit.deleteRecordingFile()
-        logInfo("所有录音文件已删除")
-        refreshFileList()
+        do {
+            try audioKit.deleteRecordingFile()
+            logInfo("所有录音文件已删除")
+            refreshFileList()
+        } catch {
+            handleError(error)
+        }
     }
     
     @objc private func deleteAllDownloads() {
@@ -912,10 +984,19 @@ class WYTestAudioController: UIViewController {
                 self?.refreshFileList()
             }
         } failed: { [weak self] error in
-            if error != nil {
-                self?.handleError(error!)
+            if let error = error {
+                self?.handleError(error)
             }
         }
+    }
+    
+    @objc private func stopConvert() {
+        guard let sourceURL = audioKit.currentRecordFileURL else {
+            logInfo("没有正在转换的任务")
+            return
+        }
+        audioKit.stopAudioFormatConvert([sourceURL])
+        logInfo("已停止格式转换")
     }
     
     // MARK: - 其他功能
@@ -954,6 +1035,7 @@ class WYTestAudioController: UIViewController {
         case .notDetermined: return "未申请录音权限(权限未确定)"
         case .permissionDenied: return "录音权限被拒绝"
         case .fileNotFound: return "音频文件未找到"
+        case .noAudiofilesToPlay: return "没有可以播放的音频文件"
         case .fileSaveFailed: return "录音文件保存失败"
         case .recordingInProgress: return "录音正在进行中"
         case .minDurationNotReached: return "录音时长未达到最小值"
@@ -971,6 +1053,7 @@ class WYTestAudioController: UIViewController {
         case .formatNotSupported: return "不支持的录制格式"
         case .sessionConfigurationFailed: return "音频会话配置失败"
         case .directoryCreationFailed: return "目录创建失败"
+        default: return "未知错误"
         }
     }
     
@@ -1017,14 +1100,12 @@ extension WYTestAudioController: WYAudioKitDelegate {
     }
     
     func wy_audioRecorderDidUpdateMeterings(audioKit: WYAudioKit, peakPowers: [Float], averagePowers: [Float]) {
-        let avg = averagePowers.reduce(0, +) / Float(averagePowers.count)
-        var normalized = avg
-        if normalized < 0.5 {
-            normalized = normalized * 1.6
-        } else {
-            normalized = 0.8 + (normalized - 0.5) * 0.4
-        }
-        normalized = max(0, min(1, normalized))
+        // 使用峰值功率，响应更快
+        let raw = peakPowers.first ?? 0
+        // 放大 80 倍，并限制最大值 1（可根据需要调整倍数）
+        var normalized = min(1.0, raw * 80.0)
+        // 可选：如果想保留 sqrt 让低音量更明显，可去掉注释，但会略微降低灵敏度
+        // normalized = sqrt(normalized)
         DispatchQueue.main.async {
             self.voiceWaveView.updatePower(normalized)
         }
@@ -1081,8 +1162,8 @@ extension WYTestAudioController: WYAudioKitDelegate {
         refreshFileList()
     }
     
-    func wy_audioTaskDidFailed(audioKit: WYAudioKit, url: URL, error: WYAudioError, description: String?) {
-        logInfo("任务失败: \(errorDescription(for: error)), 描述: \(description ?? "无"), URL: \(url)")
+    func wy_audioTaskDidFailed(audioKit: WYAudioKit, url: URL?, error: WYAudioError, description: String?) {
+        logInfo("任务失败: \(errorDescription(for: error)), 描述: \(description ?? "无"), URL: \(url, default: "空")")
         for card in taskCards {
             if let taskUrl = card.url, taskUrl == url {
                 DispatchQueue.main.async {
@@ -1098,21 +1179,31 @@ extension WYTestAudioController: WYAudioKitDelegate {
 extension WYTestAudioController: UIPickerViewDataSource, UIPickerViewDelegate {
     func numberOfComponents(in pickerView: UIPickerView) -> Int { return 1 }
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return supportedFormats.count
-    }
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        let format = supportedFormats[row]
-        return "\(format.extensionName.uppercased()) (\(formatDescription(for: format)))"
-    }
-    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         if pickerView == formatPicker {
-            selectedFormat = supportedFormats[row]
-            logInfo("已选择录音格式: \(selectedFormat.extensionName.uppercased())")
+            return supportedFormats.count
         } else {
-            targetFormat = supportedFormats[row]
-            logInfo("已选择目标格式: \(targetFormat.extensionName.uppercased())")
+            return supportedConvertFormats.count
         }
     }
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        let format = pickerView == formatPicker ? supportedFormats[row] : supportedConvertFormats[row]
+        return "\(format.extensionName.uppercased()) (\(formatDescription(for: format)))"
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        if pickerView == formatPicker {
+            let newFormat = supportedFormats[row]
+            if selectedFormat != newFormat {
+                selectedFormat = newFormat
+            }
+        } else {
+            let newFormat = supportedConvertFormats[row]
+            if targetFormat != newFormat {
+                targetFormat = newFormat
+            }
+        }
+    }
+    
     private func formatDescription(for format: WYAudioFormat) -> String {
         switch format {
         case .aac: return "高效压缩"

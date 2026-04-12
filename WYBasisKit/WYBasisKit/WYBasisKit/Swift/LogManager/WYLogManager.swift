@@ -45,6 +45,19 @@ import QuickLook
     case onlySaveToFile
 }
 
+/**
+ * 日志打印
+ * - Parameters:
+ *   - messages: 要输出的日志内容
+ *   - outputMode: 日志输出模式
+ *   - file: 文件名(自动捕获)
+ *   - function: 函数名(自动捕获)
+ *   - line: 代码行号(自动捕获)
+ */
+public func wy_print(_ messages: Any..., outputMode: WYLogOutputMode = .debugConsoleOnly, file: String = #file, function: String = #function, line: Int = #line) {
+    WYLogManager.output(messages, outputMode: outputMode, file: file, function: function, line: line)
+}
+
 public struct WYLogManager {
     
     /// 写文件使用串行队列，避免并发冲突
@@ -67,7 +80,7 @@ public struct WYLogManager {
     }
     
     /**
-     * 日志
+     * 日志打印
      * - Parameters:
      *   - messages: 要输出的日志内容
      *   - outputMode: 日志输出模式

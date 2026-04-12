@@ -57,7 +57,7 @@ import AVFoundation
      - description: 可选的详细错误描述
      */
     @objc(wy_audioTaskDidFailed:url:error:description:)
-    optional func wy_audioTaskDidFailed(audioKit: WYAudioKit, url: URL, error: WYAudioError, description: String?)
+    optional func wy_audioTaskDidFailed(audioKit: WYAudioKit, url: URL?, error: WYAudioError, description: String?)
 }
 
 public class WYRecordAnimationView: UIView {
@@ -453,7 +453,8 @@ extension WYRecordAnimationView: WYAudioKitDelegate {
      */
     public func wy_audioRecorderDidStop(audioKit: WYAudioKit, isPause: Bool) {
         delegate?.wy_audioRecorderDidStop?(audioKit: audioKit, isPause: isPause)
-        audioKit.saveRecording(destinationUrl: recordAnimationConfig.chatAudioUrl)
+        try? audioKit.saveRecording(destinationUrl: recordAnimationConfig.chatAudioUrl)
+        
         endRecordVoice()
     }
     
@@ -488,7 +489,7 @@ extension WYRecordAnimationView: WYAudioKitDelegate {
      - error: 错误枚举值
      - description: 可选的详细错误描述
      */
-    public func wy_audioTaskDidFailed(audioKit: WYAudioKit, url: URL, error: WYAudioError, description: String?) {
+    public func wy_audioTaskDidFailed(audioKit: WYAudioKit, url: URL?, error: WYAudioError, description: String?) {
         delegate?.wy_audioTaskDidFailed?(audioKit: audioKit, url: url, error: error, description: description)
     }
 }

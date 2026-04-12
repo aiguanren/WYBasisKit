@@ -769,7 +769,7 @@ extension WYChatInputView: WYRecordEventsHandler {
      - error: 错误枚举值
      - description: 可选的详细错误描述
      */
-    public func wy_audioTaskDidFailed(audioKit: WYAudioKit, url: URL, error: WYAudioError, description: String?) {
+    public func wy_audioTaskDidFailed(audioKit: WYAudioKit, url: URL?, error: WYAudioError, description: String?) {
         
     }
 }
