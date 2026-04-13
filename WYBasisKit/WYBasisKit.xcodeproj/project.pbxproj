@@ -1167,6 +1167,7 @@
 			isa = PBXGroup;
 			children = (
 				58C68CB12E84E436005FD054 /* PrivacyInfo.xcprivacy */,
+				58EE23702F874CEB0031D8BF /* WYLocalizableManagerMacro.h */,
 				584EAF002E92791B003A21B8 /* WYLocalizableManagerObjC.swift */,
 			);
 			path = Localizable;
@@ -1175,6 +1176,7 @@
 		58C68CB52E84E436005FD054 /* LogManager */ = {
 			isa = PBXGroup;
 			children = (
+				58EE23712F874CEB0031D8BF /* WYLogManagerMacro.h */,
 				58B46FE92E8C080700D04BCA /* WYLogManagerObjC.swift */,
 				58C68CB32E84E436005FD054 /* Foundation+JSONLog.m */,
 				58C68CB42E84E436005FD054 /* PrivacyInfo.xcprivacy */,
@@ -2027,8 +2029,6 @@
 			isa = PBXGroup;
 			children = (
 				58EE23742F874DAE0031D8BF /* PrivacyInfo.xcprivacy */,
-				58EE23702F874CEB0031D8BF /* WYLocalizableManagerMacro.h */,
-				58EE23712F874CEB0031D8BF /* WYLogManagerMacro.h */,
 				58EE236F2F874AB70031D8BF /* WYSingletonMacro.h */,
 				58EE236E2F874AB70031D8BF /* WYWeakStrongMacros.h */,
 			);
