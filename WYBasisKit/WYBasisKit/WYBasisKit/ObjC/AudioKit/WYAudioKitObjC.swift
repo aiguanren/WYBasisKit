@@ -103,50 +103,50 @@ public class WYAudioDownloadInfoObjC: NSObject {
     
     /// 代理对象，用于回调录音、播放、下载、转换等事件
     @objc(delegate)
-    public weak var delegateObjC: WYAudioKitDelegate? {
+    weak var delegateObjC: WYAudioKitDelegate? {
         get { return delegate }
         set { delegate = newValue }
     }
     
     /// 是否正在录音
     @objc(isRecording)
-    public var isRecordingObjC: Bool {
+    var isRecordingObjC: Bool {
         return isRecording
     }
     
     /// 是否正在播放
     @objc(isPlaying)
-    public var isPlayingObjC: Bool {
+    var isPlayingObjC: Bool {
         return isPlaying
     }
     
     /// 录音是否处于暂停状态
     @objc(isRecordingPaused)
-    public var isRecordingPausedObjC: Bool {
+    var isRecordingPausedObjC: Bool {
         return isRecordingPaused
     }
     
     /// 播放是否处于暂停状态
     @objc(isPlaybackPaused)
-    public var isPlaybackPausedObjC: Bool {
+    var isPlaybackPausedObjC: Bool {
         return isPlaybackPaused
     }
     
     /// 录音最小有效时长（秒），低于此值停止时会自动删除文件，0 表示无限制
     @objc(minimumRecordDuration)
-    public var minimumRecordDurationObjC: TimeInterval {
+    var minimumRecordDurationObjC: TimeInterval {
         return minimumRecordDuration
     }
     
     /// 录音最大允许时长（秒），到达后自动停止录音，0 表示无限制
     @objc(maximumRecordDuration)
-    public var maximumRecordDurationObjC: TimeInterval {
+    var maximumRecordDurationObjC: TimeInterval {
         return maximumRecordDuration
     }
     
     /// 设置音频播放速率 0.5x ~ 2.0x
     @objc(playbackRate)
-    public var playbackRateObjC: Float {
+    var playbackRateObjC: Float {
         get { return playbackRate }
         set { playbackRate = newValue }
     }
@@ -156,7 +156,7 @@ public class WYAudioDownloadInfoObjC: NSObject {
      - Parameter quality: AVAudioQuality 枚举值，会影响默认比特率和采样质量
      */
     @objc(recordQuality)
-    public var recordQualityObjC: AVAudioQuality {
+    var recordQualityObjC: AVAudioQuality {
         get { return recordQuality }
         set { recordQuality = newValue }
     }
@@ -172,41 +172,41 @@ public class WYAudioDownloadInfoObjC: NSObject {
      - AVEncoderBitRateKey: 比特率
      */
     @objc(recordSettings)
-    public var recordSettingsObjC: [String: Any] {
+    var recordSettingsObjC: [String: Any] {
         get { return recordSettings }
         set { recordSettings = newValue }
     }
     
     /// 当前正在录制的音频文件本地URL（录音开始后设置，停止后保留直到下次录音）
     @objc(currentRecordFileURL)
-    public var currentRecordFileURLObjC: URL? {
+    var currentRecordFileURLObjC: URL? {
         return currentRecordFileURL
     }
     
     /// 录音文件存储的目录类型（修改后会自动创建目录）
     @objc(recordingsDirectory)
-    public var recordingsDirectoryObjC: WYAudioStorageDirectoryObjC {
+    var recordingsDirectoryObjC: WYAudioStorageDirectoryObjC {
         get { return WYAudioStorageDirectoryObjC(rawValue: recordingsDirectory.rawValue) ?? .temporary }
         set { recordingsDirectory = WYAudioStorageDirectory(rawValue: newValue.rawValue) ?? .temporary }
     }
     
     /// 下载文件存储的目录类型（修改后会自动创建目录）
     @objc(downloadsDirectory)
-    public var downloadsDirectoryObjC: WYAudioStorageDirectoryObjC {
+    var downloadsDirectoryObjC: WYAudioStorageDirectoryObjC {
         get { return WYAudioStorageDirectoryObjC(rawValue: downloadsDirectory.rawValue) ?? .temporary }
         set { downloadsDirectory = WYAudioStorageDirectory(rawValue: newValue.rawValue) ?? .temporary }
     }
     
     /// 录音文件存放的子目录名称（nil 表示直接放在根目录）
     @objc(recordingsSubdirectory)
-    public var recordingsSubdirectoryObjC: String? {
+    var recordingsSubdirectoryObjC: String? {
         get { return recordingsSubdirectory }
         set { recordingsSubdirectory = newValue }
     }
     
     /// 下载文件存放的子目录名称（nil 表示直接放在根目录）
     @objc(downloadsSubdirectory)
-    public var downloadsSubdirectoryObjC: String? {
+    var downloadsSubdirectoryObjC: String? {
         get { return downloadsSubdirectory }
         set { downloadsSubdirectory = newValue }
     }
@@ -221,25 +221,25 @@ public class WYAudioDownloadInfoObjC: NSObject {
      - Throws: WYAudioError（权限、格式、正在录音等异常）
      */
     @objc(startRecordingWithFileName:format:error:)
-    public func startRecordingObjC(fileName: String? = nil, format: WYAudioFormatObjC = .aac) throws {
+    func startRecordingObjC(fileName: String? = nil, format: WYAudioFormatObjC = .aac) throws {
         try startRecording(fileName: fileName, format: WYAudioFormat(rawValue: format.rawValue) ?? .aac)
     }
     
     /// 暂停当前录音
     @objc(pauseRecordingWithError:)
-    public func pauseRecordingObjC() throws {
+    func pauseRecordingObjC() throws {
         try pauseRecording()
     }
     
     /// 恢复已暂停的录音
     @objc(resumeRecordingWithError:)
-    public func resumeRecordingObjC() throws {
+    func resumeRecordingObjC() throws {
         try resumeRecording()
     }
     
     /// 停止录音（会检查最小时长，不满足设置则会自动删除文件）
     @objc(stopRecordingWithError:)
-    public func stopRecordingObjC() throws {
+    func stopRecordingObjC() throws {
         try stopRecording()
     }
     
@@ -253,7 +253,7 @@ public class WYAudioDownloadInfoObjC: NSObject {
        - failed: 播放失败回调，返回错误相关信息
      */
     @objc(playPlaybackWithUrl:success:failed:)
-    public func playPlaybackObjC(url: URL? = nil,
+    func playPlaybackObjC(url: URL? = nil,
                              success: @escaping (_ playURL: URL) -> Void,
                              failed: @escaping (_ playURL: URL?, _ error: Error?, _ description: String?) -> Void) {
         playPlayback(url: url, success: success, failed: failed)
@@ -261,19 +261,19 @@ public class WYAudioDownloadInfoObjC: NSObject {
     
     /// 暂停当前播放
     @objc(pausePlaybackWithError:)
-    public func pausePlaybackObjC() throws {
+    func pausePlaybackObjC() throws {
         try pausePlayback()
     }
     
     /// 恢复已暂停的播放
     @objc(resumePlaybackWithError:)
-    public func resumePlaybackObjC() throws {
+    func resumePlaybackObjC() throws {
         try resumePlayback()
     }
     
     /// 停止当前播放并重置状态
     @objc(stopPlayback)
-    public func stopPlaybackObjC() {
+    func stopPlaybackObjC() {
         stopPlayback()
     }
     
@@ -282,7 +282,7 @@ public class WYAudioDownloadInfoObjC: NSObject {
      - Parameter time: 目标播放时间（秒），会自动限制在有效范围内
      */
     @objc(seekPlaybackWithTime:)
-    public func seekPlaybackObjC(time: TimeInterval) {
+    func seekPlaybackObjC(time: TimeInterval) {
         seekPlayback(time: time)
     }
     
@@ -294,7 +294,7 @@ public class WYAudioDownloadInfoObjC: NSObject {
        - failed: 下载或播放失败回调
      */
     @objc(playRemoteAudioWithRemoteUrl:success:failed:)
-    public func playRemoteAudioObjC(remoteUrl: URL,
+    func playRemoteAudioObjC(remoteUrl: URL,
                                 success: @escaping (WYAudioDownloadInfoObjC) -> Void,
                                 failed: @escaping (Error?) -> Void) {
         
@@ -319,7 +319,7 @@ public class WYAudioDownloadInfoObjC: NSObject {
        - failed: 下载失败回调
      */
     @objc(downloadRemoteAudioWithRemoteUrls:success:failed:)
-    public func downloadRemoteAudioObjC(remoteUrls: [URL],
+    func downloadRemoteAudioObjC(remoteUrls: [URL],
                                     success: @escaping ([WYAudioDownloadInfoObjC]) -> Void,
                                     failed: @escaping (Error?) -> Void) {
         downloadRemoteAudio(remoteUrls: remoteUrls) { infos in
@@ -342,7 +342,7 @@ public class WYAudioDownloadInfoObjC: NSObject {
      - Parameter failed: 每个任务暂停失败时的回调，返回该任务的 URL 和错误
      */
     @objc(pauseDownloadWithRemoteUrls:success:failed:)
-    public func pauseDownloadObjC(_ remoteUrls: [URL]?,
+    func pauseDownloadObjC(_ remoteUrls: [URL]?,
                               success: @escaping (URL) -> Void,
                               failed: @escaping (URL, Error?) -> Void) {
         pauseDownload(remoteUrls, success: success, failed: failed)
@@ -353,7 +353,7 @@ public class WYAudioDownloadInfoObjC: NSObject {
      - Parameter remoteUrls: 要恢复的 URL 数组，nil 表示恢复所有
      */
     @objc(resumeDownloadWithRemoteUrls:)
-    public func resumeDownloadObjC(_ remoteUrls: [URL]?) {
+    func resumeDownloadObjC(_ remoteUrls: [URL]?) {
         resumeDownload(remoteUrls)
     }
     
@@ -362,7 +362,7 @@ public class WYAudioDownloadInfoObjC: NSObject {
      - Parameter remoteUrls: 要取消的 URL 数组，nil 表示取消所有
      */
     @objc(cancelDownloadWithRemoteUrls:)
-    public func cancelDownloadObjC(_ remoteUrls: [URL]?) {
+    func cancelDownloadObjC(_ remoteUrls: [URL]?) {
         cancelDownload(remoteUrls)
     }
     
@@ -373,7 +373,7 @@ public class WYAudioDownloadInfoObjC: NSObject {
      - Parameter destinationUrl: 目标保存路径
      */
     @objc(saveRecordingWithDestinationUrl:error:)
-    public func saveRecordingObjC(destinationUrl: URL) throws {
+    func saveRecordingObjC(destinationUrl: URL) throws {
         try saveRecording(destinationUrl: destinationUrl)
     }
     
@@ -382,7 +382,7 @@ public class WYAudioDownloadInfoObjC: NSObject {
      - Returns: 文件 URL 数组
      */
     @objc(getAllRecordingsFiles)
-    public func getAllRecordingsFilesObjC() -> [URL] {
+    func getAllRecordingsFilesObjC() -> [URL] {
         return getAllRecordingsFiles()
     }
     
@@ -391,7 +391,7 @@ public class WYAudioDownloadInfoObjC: NSObject {
      - Parameter localUrl: 要删除的具体文件 URL，nil 表示删除所有录音文件
      */
     @objc(deleteRecordingFileWithLocalUrl:error:)
-    public func deleteRecordingFileObjC(localUrl: URL? = nil) throws {
+    func deleteRecordingFileObjC(localUrl: URL? = nil) throws {
         try deleteRecordingFile(localUrl: localUrl)
     }
     
@@ -400,7 +400,7 @@ public class WYAudioDownloadInfoObjC: NSObject {
      - Returns: 下载信息数组（remote 通过持久化映射获取，若无则为占位符）
      */
     @objc(getAllDownloads)
-    public func getAllDownloadsObjC() -> [WYAudioDownloadInfoObjC] {
+    func getAllDownloadsObjC() -> [WYAudioDownloadInfoObjC] {
         return getAllDownloads().map { WYAudioDownloadInfoObjC(remote: $0.remote, local: $0.local) }
     }
     
@@ -409,7 +409,7 @@ public class WYAudioDownloadInfoObjC: NSObject {
      - Parameter info: 要删除的下载信息，nil 表示删除所有下载文件
      */
     @objc(deleteDownloadFileWithInfo:)
-    public func deleteDownloadFileObjC(info: WYAudioDownloadInfo?) {
+    func deleteDownloadFileObjC(info: WYAudioDownloadInfo?) {
         if let info = info {
             deleteDownloadFile(info: WYAudioDownloadInfo(remote: info.remote, local: info.local))
         }else {
@@ -438,7 +438,7 @@ public class WYAudioDownloadInfoObjC: NSObject {
        - failed: 转换失败回调
      */
     @objc(convertAudioFormatWithSourceUrls:target:success:failed:)
-    public func convertAudioFormatObjC(sourceUrls: [URL],
+    func convertAudioFormatObjC(sourceUrls: [URL],
                                    target: WYAudioFormatObjC,
                                    success: @escaping ([URL]) -> Void,
                                    failed: @escaping (Error?) -> Void) {
@@ -450,7 +450,7 @@ public class WYAudioDownloadInfoObjC: NSObject {
      - Parameter localUrls: 要停止的源文件 URL 数组，nil 表示停止所有正在进行的转换
      */
     @objc(stopAudioFormatConvertWithLocalUrls:)
-    public func stopAudioFormatConvertObjC(_ localUrls: [URL]?) {
+    func stopAudioFormatConvertObjC(_ localUrls: [URL]?) {
         stopAudioFormatConvert(localUrls)
     }
     
@@ -465,7 +465,7 @@ public class WYAudioDownloadInfoObjC: NSObject {
        - failed: 播放失败回调
      */
     @objc(playStreamingRemoteAudioWithRemoteUrl:rate:success:failed:)
-    public func playStreamingRemoteAudioObjC(remoteUrl: URL, rate: Float = 1.0,
+    func playStreamingRemoteAudioObjC(remoteUrl: URL, rate: Float = 1.0,
                                          success: @escaping (URL) -> Void,
                                          failed: @escaping (Error?) -> Void) {
         playStreamingRemoteAudio(remoteUrl: remoteUrl, rate: rate, success: success, failed: failed)
@@ -477,13 +477,13 @@ public class WYAudioDownloadInfoObjC: NSObject {
      - Returns: 音频时长（秒），远程 URL 同步调用返回 0，建议异步获取
      */
     @objc(getAudioDurationForUrl:)
-    public func getAudioDurationObjC(for url: URL) -> TimeInterval {
+    func getAudioDurationObjC(for url: URL) -> TimeInterval {
         getAudioDuration(for: url)
     }
     
     /// 释放所有资源（建议在不再使用时主动调用，避免内存泄漏）
     @objc(releaseAll)
-    public func releaseAllObjC() {
+    func releaseAllObjC() {
         releaseAll()
     }
 }
