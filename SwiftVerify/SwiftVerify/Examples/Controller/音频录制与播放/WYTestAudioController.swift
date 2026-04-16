@@ -37,7 +37,6 @@ class WYVoiceWaveView: UIView {
     
     /// 更新音量能量值（由外部调用，传入归一化值 0~1）
     func updatePower(_ normalizedPower: Float) {
-        wy_print("normalizedPower = \(normalizedPower)")
         let power = CGFloat(max(0, min(1, normalizedPower)))
         let maxHeight = bounds.height > 0 ? bounds.height : 60
         // 计算每个条形的目标高度（应用正弦因子，使中间高两边低）
@@ -1039,7 +1038,6 @@ class WYTestAudioController: UIViewController {
         case .fileSaveFailed: return "录音文件保存失败"
         case .recordingInProgress: return "录音正在进行中"
         case .minDurationNotReached: return "录音时长未达到最小值"
-        case .maxDurationReached: return "录音时长已达到最大值"
         case .isPlayingAudio: return "正在播放音频文件"
         case .playbackError: return "播放错误"
         case .noPlayedAudio: return "没有正在播放的音频"
@@ -1088,8 +1086,8 @@ extension WYTestAudioController: WYAudioKitDelegate {
         voiceWaveView.startAnimating()
     }
     
-    func wy_audioRecorderDidStop(audioKit: WYAudioKit, isPause: Bool) {
-        logInfo("录音停止, \(isPause ? "是" : "不是")暂停录音")
+    func wy_audioRecorderDidStop(audioKit: WYAudioKit, isPause: Bool, isTimeout: Bool) {
+        logInfo("录音停止, \(isPause ? "是" : "不是")暂停录音, \(isTimeout ? "是": "不是")超时(达到最大录音时长)停止")
         voiceWaveView.stopAnimating()
     }
     
@@ -1103,7 +1101,7 @@ extension WYTestAudioController: WYAudioKitDelegate {
         // 使用峰值功率，响应更快
         let raw = peakPowers.first ?? 0
         // 放大 80 倍，并限制最大值 1（可根据需要调整倍数）
-        var normalized = min(1.0, raw * 80.0)
+        let normalized = min(1.0, raw * 80.0)
         // 可选：如果想保留 sqrt 让低音量更明显，可去掉注释，但会略微降低灵敏度
         // normalized = sqrt(normalized)
         DispatchQueue.main.async {
