@@ -425,13 +425,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		580E03D52F67A08C0004BD28 /* Achieve */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Achieve;
-			sourceTree = "<group>";
-		};
 		580ED5862EA72606006012E7 /* Achieve */ = {
 			isa = PBXGroup;
 			children = (
@@ -1248,7 +1241,6 @@
 			children = (
 				58C68CBF2E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68CC02E84E436005FD054 /* WYAudioKit.swift */,
-				580E03D52F67A08C0004BD28 /* Achieve */,
 			);
 			path = AudioKit;
 			sourceTree = "<group>";
