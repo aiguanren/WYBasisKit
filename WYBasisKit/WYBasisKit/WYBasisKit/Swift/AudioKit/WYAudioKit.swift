@@ -100,6 +100,20 @@ import QuartzCore
     case caches
 }
 
+/// 音频播放状态
+@objc @frozen public enum WYAudioPlayState: Int {
+    /// 开始播放
+    case start = 0
+    /// 暂停播放
+    case pause
+    /// 恢复播放
+    case resume
+    /// 停止播放
+    case stop
+    /// 完成播放
+    case finish
+}
+
 /// 音频相关错误类型
 @objc @frozen public enum WYAudioError: Int, Error {
     /// 开始录音失败
@@ -150,20 +164,6 @@ import QuartzCore
     case sessionConfigurationFailed
     /// 目录创建失败
     case directoryCreationFailed
-}
-
-/// 音频播放状态
-@objc @frozen public enum WYAudioPlayState: Int {
-    /// 开始播放
-    case start = 0
-    /// 暂停播放
-    case pause
-    /// 恢复播放
-    case resume
-    /// 停止播放
-    case stop
-    /// 完成播放
-    case finish
 }
 
 /// 网络下载(音频)文件的远程和本地URL信息
@@ -1311,6 +1311,10 @@ public final class WYAudioKit: NSObject {
         convertProgresses.removeAll()
     }
     
+    deinit {
+        releaseAll()
+    }
+    
     /************************ 以下为内部实现  ************************/
     
     // MARK: - 私有属性
@@ -1727,10 +1731,6 @@ public final class WYAudioKit: NSObject {
         var task: URLSessionDownloadTask?
         /// 暂停时保存的恢复数据
         var resumeData: Data?
-    }
-    
-    deinit {
-        releaseAll()
     }
     
     /************************ 以上为内部实现  ************************/
