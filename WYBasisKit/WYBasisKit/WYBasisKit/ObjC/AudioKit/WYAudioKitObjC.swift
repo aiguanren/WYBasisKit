@@ -299,13 +299,9 @@ public class WYAudioDownloadInfoObjC: NSObject {
                                 failed: @escaping (Error?) -> Void) {
         
         playRemoteAudio(remoteUrl: remoteUrl) { info in
-            if (success != nil) {
-                success(WYAudioDownloadInfoObjC(remote: info.remote, local: info.local))
-            }
+            success(WYAudioDownloadInfoObjC(remote: info.remote, local: info.local))
         } failed: { error in
-            if (failed != nil) {
-                failed(error)
-            }
+            failed(error)
         }
     }
     
@@ -323,15 +319,9 @@ public class WYAudioDownloadInfoObjC: NSObject {
                                     success: @escaping ([WYAudioDownloadInfoObjC]) -> Void,
                                     failed: @escaping (Error?) -> Void) {
         downloadRemoteAudio(remoteUrls: remoteUrls) { infos in
-            
-            if (success != nil) {
-                success(infos.map { WYAudioDownloadInfoObjC(remote: $0.remote, local: $0.local) })
-            }
-            
+            success(infos.map { WYAudioDownloadInfoObjC(remote: $0.remote, local: $0.local) })
         } failed: { error in
-            if (failed != nil) {
-                failed(error)
-            }
+            failed(error)
         }
     }
     

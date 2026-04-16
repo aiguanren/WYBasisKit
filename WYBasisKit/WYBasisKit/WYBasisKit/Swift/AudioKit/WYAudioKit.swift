@@ -743,7 +743,7 @@ public final class WYAudioKit: NSObject {
         startDisplayLinkIfNeeded()
         
         let batchID = UUID()
-        var batch = WYDownloadBatch(remoteUrls: remoteUrls,
+        let batch = WYDownloadBatch(remoteUrls: remoteUrls,
                                     success: success,
                                     failed: failed,
                                     pendingUrls: Set(remoteUrls))
@@ -845,7 +845,7 @@ public final class WYAudioKit: NSObject {
         for originalURL in urls {
             guard var info = pausedTaskInfo[originalURL],
                   let resumeData = info.resumeData,
-                  let batchID = pausedBatchID[originalURL] else {
+                  let _ = pausedBatchID[originalURL] else {
                 // [WYAudioKit] 无法恢复 \(originalURL)：缺少恢复数据或任务信息"
                 wy_handleErrorEvents(url: originalURL, error: .downloadFailed)
                 continue
@@ -1079,7 +1079,7 @@ public final class WYAudioKit: NSObject {
         }
         
         let batchID = UUID()
-        var batch = WYConvertBatch(sourceUrls: sourceUrls,
+        let batch = WYConvertBatch(sourceUrls: sourceUrls,
                                    success: success,
                                    failed: failed,
                                    pendingUrls: Set(sourceUrls))
@@ -1604,7 +1604,7 @@ public final class WYAudioKit: NSObject {
             convertProgresses[url] = progress
         }
         // 按批次计算平均进度并回调
-        for (batchID, batch) in convertGroups {
+        for (_, batch) in convertGroups {
             let urls = batch.sourceUrls
             guard !urls.isEmpty else { continue }
             var total: Float = 0
@@ -1625,7 +1625,7 @@ public final class WYAudioKit: NSObject {
         do {
             let session = AVAudioSession.sharedInstance()
             if #available(iOS 13.0, *) {
-                try session.setCategory(.playAndRecord, mode: .default, options: [.allowBluetooth, .defaultToSpeaker, .allowAirPlay])
+                try session.setCategory(.playAndRecord, mode: .default, options: [AVAudioSession.CategoryOptions.allowBluetoothHFP, .defaultToSpeaker, .allowAirPlay])
             } else {
                 try session.setCategory(.playAndRecord, mode: .default, options: [.allowBluetooth, .defaultToSpeaker])
             }
@@ -1929,7 +1929,7 @@ extension WYAudioKit: URLSessionTaskDelegate {
     public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         if let error = error,
            let originalURL = tasksInfo.first(where: { $0.value.task === task })?.key,
-           var info = tasksInfo[originalURL],
+           let info = tasksInfo[originalURL],
            var batch = downloadGroups[info.batchID] {
             batch.pendingUrls.remove(originalURL)
             if !batch.hasFailed {
