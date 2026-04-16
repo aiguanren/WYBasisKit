@@ -7,7 +7,6 @@
 
 import Foundation
 import AVFoundation
-import QuartzCore
 
 /**
  音频文件格式说明：
