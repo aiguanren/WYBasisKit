@@ -465,14 +465,30 @@ public final class WYAudioKit: NSObject {
             throw WYAudioError.recordingInProgress
         }
         
-        let permission = AVAudioSession.sharedInstance().recordPermission
-        if permission == .denied {
-            wy_handleErrorEvents(error: .permissionDenied)
-            throw WYAudioError.permissionDenied
-        }
-        if permission == .undetermined {
-            wy_handleErrorEvents(error: .notDetermined)
-            throw WYAudioError.notDetermined
+        if #available(iOS 17.0, *) {
+            switch AVAudioApplication.shared.recordPermission {
+            case .denied:
+                wy_handleErrorEvents(error: .permissionDenied)
+                throw WYAudioError.permissionDenied
+            case .undetermined:
+                wy_handleErrorEvents(error: .notDetermined)
+                throw WYAudioError.notDetermined
+            case .granted:
+                // 权限已授予，继续执行录音
+                break
+            @unknown default:
+                break
+            }
+        }else {
+            let permission = AVAudioSession.sharedInstance().recordPermission
+            if permission == .denied {
+                wy_handleErrorEvents(error: .permissionDenied)
+                throw WYAudioError.permissionDenied
+            }
+            if permission == .undetermined {
+                wy_handleErrorEvents(error: .notDetermined)
+                throw WYAudioError.notDetermined
+            }
         }
         
         let finalFileName: String
@@ -1065,12 +1081,14 @@ public final class WYAudioKit: NSObject {
                                    target: WYAudioFormat,
                                    success: @escaping ([URL]) -> Void,
                                    failed: @escaping (Error?) -> Void) {
+        // 检查源文件数组是否为空
         guard !sourceUrls.isEmpty else {
             wy_handleErrorEvents(error: .noFilesRequireConversion)
             failed(WYAudioError.noFilesRequireConversion)
             return
         }
         
+        // 检查目标格式是否支持
         let supportedTargets: [WYAudioFormat] = [.aac, .m4a, .caf, .wav, .aiff]
         guard supportedTargets.contains(target) else {
             wy_handleErrorEvents(error: .formatNotSupported)
@@ -1078,6 +1096,7 @@ public final class WYAudioKit: NSObject {
             return
         }
         
+        // 生成批次 ID，用于管理多个文件的转换
         let batchID = UUID()
         let batch = WYConvertBatch(sourceUrls: sourceUrls,
                                    success: success,
@@ -1085,6 +1104,7 @@ public final class WYAudioKit: NSObject {
                                    pendingUrls: Set(sourceUrls))
         convertGroups[batchID] = batch
         
+        // 创建转换输出目录（位于录音目录下的 Converted 文件夹）
         let convertDir = recordingDirectoryURL.appendingPathComponent("Converted", isDirectory: true)
         let fm = FileManager.default
         if !fm.fileExists(atPath: convertDir.path) {
@@ -1104,83 +1124,162 @@ public final class WYAudioKit: NSObject {
             presetName = AVAssetExportPresetMediumQuality
         }
         
-        for sourceURL in sourceUrls {
-            let baseName = sourceURL.deletingPathExtension().lastPathComponent
-            let outputFileName = "\(baseName)_\(target.extensionName).\(target.extensionName)"
-            let outputURL = convertDir.appendingPathComponent(outputFileName)
-            
-            if fm.fileExists(atPath: outputURL.path) {
-                try? fm.removeItem(at: outputURL)
+        if #available(iOS 18.0, *) {
+            for sourceURL in sourceUrls {
+                // 每个文件独立 Task，避免阻塞主线程
+                Task {
+                    let baseName = sourceURL.deletingPathExtension().lastPathComponent
+                    let outputFileName = "\(baseName)_\(target.extensionName).\(target.extensionName)"
+                    let outputURL = convertDir.appendingPathComponent(outputFileName)
+                    
+                    // 如果输出文件已存在，先删除
+                    if fm.fileExists(atPath: outputURL.path) {
+                        try? fm.removeItem(at: outputURL)
+                    }
+                    
+                    // 创建 AVURLAsset
+                    let asset = AVURLAsset(url: sourceURL)
+                    guard let exportSession = AVAssetExportSession(asset: asset, presetName: presetName) else {
+                        await MainActor.run {
+                            self.handleConvertError(batchID: batchID, sourceURL: sourceURL, error: WYAudioError.conversionFailed)
+                        }
+                        return
+                    }
+                    
+                    // 验证输出文件类型是否被支持
+                    let outputFileType = target.avFileType
+                    guard exportSession.supportedFileTypes.contains(outputFileType) else {
+                        await MainActor.run {
+                            self.handleConvertError(batchID: batchID, sourceURL: sourceURL, error: WYAudioError.conversionFailed)
+                        }
+                        return
+                    }
+                    
+                    do {
+                        try await exportSession.export(to: outputURL, as: outputFileType)
+                        
+                        // 导出成功，在主线程更新状态
+                        await MainActor.run {
+                            // 标记该文件转换完成
+                            self.convertProgresses[sourceURL] = 1.0
+                            self.convertSessions.removeValue(forKey: sourceURL)
+                            
+                            // 计算并通知整体进度（仅最终 100% 回调）
+                            if let batch = self.convertGroups[batchID] {
+                                let total = batch.sourceUrls.count
+                                let completed = batch.sourceUrls.filter { url in
+                                    url == sourceURL || self.convertProgresses[url] == 1.0
+                                }.count
+                                let progress = Double(completed) / Double(total)
+                                self.delegate?.wy_formatConversionProgressUpdated?(audioKit: self,
+                                                                                   localUrls: batch.sourceUrls,
+                                                                                   progress: progress)
+                            }
+                            
+                            // 更新批次信息
+                            if var batch = self.convertGroups[batchID] {
+                                batch.pendingUrls.remove(sourceURL)
+                                batch.outputUrls.append(outputURL)
+                                self.convertGroups[batchID] = batch
+                                
+                                // 如果所有文件都已完成，调用成功回调
+                                if batch.pendingUrls.isEmpty {
+                                    batch.success(batch.outputUrls)
+                                    self.convertGroups.removeValue(forKey: batchID)
+                                }
+                            }
+                        }
+                    } catch {
+                        // 导出失败，处理错误
+                        await MainActor.run {
+                            self.handleConvertError(batchID: batchID, sourceURL: sourceURL, error: error)
+                        }
+                    }
+                }
             }
-            
-            let asset = AVAsset(url: sourceURL)
-            guard let exportSession = AVAssetExportSession(asset: asset, presetName: presetName) else {
-                handleConvertError(batchID: batchID, sourceURL: sourceURL, error: WYAudioError.conversionFailed)
-                continue
-            }
-            
-            // 设置输出文件类型，并验证有效性
-            let outputFileType = target.avFileType
-            if exportSession.supportedFileTypes.contains(outputFileType) {
-                exportSession.outputFileType = outputFileType
-            } else {
-                // 如果不支持，尝试使用通用类型 .m4a
-                if exportSession.supportedFileTypes.contains(.m4a) {
-                    exportSession.outputFileType = .m4a
-                } else {
+        } else {
+            for sourceURL in sourceUrls {
+                let baseName = sourceURL.deletingPathExtension().lastPathComponent
+                let outputFileName = "\(baseName)_\(target.extensionName).\(target.extensionName)"
+                let outputURL = convertDir.appendingPathComponent(outputFileName)
+                
+                if fm.fileExists(atPath: outputURL.path) {
+                    try? fm.removeItem(at: outputURL)
+                }
+                
+                let asset: AVAsset = AVAsset(url: sourceURL)
+                
+                guard let exportSession = AVAssetExportSession(asset: asset, presetName: presetName) else {
                     handleConvertError(batchID: batchID, sourceURL: sourceURL, error: WYAudioError.conversionFailed)
                     continue
                 }
-            }
-            
-            exportSession.outputURL = outputURL
-            exportSession.shouldOptimizeForNetworkUse = false
-            
-            convertSessions[sourceURL] = exportSession
-            convertProgresses[sourceURL] = 0.0
-            
-            // 定期更新进度（通过 displayLink 轮询）,为了确保进度实时，我们也可以主动在 exportSession 的 progress 变化时回调，但 displayLink 已足够
-            
-            exportSession.exportAsynchronously { [weak self] in
-                guard let self = self else { return }
-                DispatchQueue.main.async {
-                    switch exportSession.status {
-                    case .completed:
-                        // 转换成功，更新进度为1.0并移除会话
-                        self.convertProgresses[sourceURL] = 1.0
-                        self.convertSessions.removeValue(forKey: sourceURL)
-                        // 主动回调一次100%进度
-                        if let batch = self.convertGroups[batchID] {
-                            let total = batch.sourceUrls.count
-                            let completed = batch.sourceUrls.filter { url in
-                                url == sourceURL || self.convertProgresses[url] == 1.0
-                            }.count
-                            let progress = Double(completed) / Double(total)
-                            self.delegate?.wy_formatConversionProgressUpdated?(audioKit: self,
-                                                                               localUrls: batch.sourceUrls,
-                                                                               progress: progress)
-                        }
-                        
-                        if var batch = self.convertGroups[batchID] {
-                            batch.pendingUrls.remove(sourceURL)
-                            batch.outputUrls.append(outputURL)
-                            self.convertGroups[batchID] = batch
-                            
-                            if batch.pendingUrls.isEmpty {
-                                batch.success(batch.outputUrls)
-                                self.convertGroups.removeValue(forKey: batchID)
-                            }
-                        }
-                    case .failed, .cancelled:
-                        let error = exportSession.error ?? WYAudioError.conversionFailed
-                        self.handleConvertError(batchID: batchID, sourceURL: sourceURL, error: error)
-                    default:
-                        break
+                
+                // 设置输出文件类型，并验证有效性
+                let outputFileType = target.avFileType
+                if exportSession.supportedFileTypes.contains(outputFileType) {
+                    exportSession.outputFileType = outputFileType
+                } else {
+                    // 如果不支持，尝试使用通用类型 .m4a
+                    if exportSession.supportedFileTypes.contains(.m4a) {
+                        exportSession.outputFileType = .m4a
+                    } else {
+                        handleConvertError(batchID: batchID, sourceURL: sourceURL, error: WYAudioError.conversionFailed)
+                        continue
                     }
-                    self.startDisplayLinkIfNeeded()
+                }
+                
+                exportSession.outputURL = outputURL
+                exportSession.shouldOptimizeForNetworkUse = false
+                
+                // 保存转换会话，用于后续进度查询和取消操作
+                convertSessions[sourceURL] = exportSession
+                convertProgresses[sourceURL] = 0.0
+                
+                // 异步导出
+                exportSession.exportAsynchronously { [weak self] in
+                    guard let self = self else { return }
+                    DispatchQueue.main.async {
+                        switch exportSession.status {
+                        case .completed:
+                            // 转换成功
+                            self.convertProgresses[sourceURL] = 1.0
+                            self.convertSessions.removeValue(forKey: sourceURL)
+                            
+                            // 计算整体进度并回调
+                            if let batch = self.convertGroups[batchID] {
+                                let total = batch.sourceUrls.count
+                                let completed = batch.sourceUrls.filter { url in
+                                    url == sourceURL || self.convertProgresses[url] == 1.0
+                                }.count
+                                let progress = Double(completed) / Double(total)
+                                self.delegate?.wy_formatConversionProgressUpdated?(audioKit: self,
+                                                                                   localUrls: batch.sourceUrls,
+                                                                                   progress: progress)
+                            }
+                            
+                            // 更新批次状态
+                            if var batch = self.convertGroups[batchID] {
+                                batch.pendingUrls.remove(sourceURL)
+                                batch.outputUrls.append(outputURL)
+                                self.convertGroups[batchID] = batch
+                                
+                                if batch.pendingUrls.isEmpty {
+                                    batch.success(batch.outputUrls)
+                                    self.convertGroups.removeValue(forKey: batchID)
+                                }
+                            }
+                        case .failed, .cancelled:
+                            let error = exportSession.error ?? WYAudioError.conversionFailed
+                            self.handleConvertError(batchID: batchID, sourceURL: sourceURL, error: error)
+                        default:
+                            break
+                        }
+                        self.startDisplayLinkIfNeeded()
+                    }
                 }
             }
         }
+        // 启动 DisplayLink 以更新进度
         startDisplayLinkIfNeeded()
     }
     
@@ -1263,16 +1362,40 @@ public final class WYAudioKit: NSObject {
     /**
      获取音频时长（本地/远程均支持）
      - Parameter url: 音频文件 URL（本地或远程）
-     - Returns: 音频时长（秒），远程 URL 同步调用返回 0，建议异步获取
+     - completion: 时长获取完成回调，参数为音频时长（秒），保证在主线程执行
      */
-    public func getAudioDuration(for url: URL) -> TimeInterval {
-        if url.isFileURL {
-            let asset = AVAsset(url: url)
-            let duration = asset.duration.seconds
-            return duration.isFinite ? duration : 0
+    public func getAudioDuration(with url: URL, completion: @escaping @MainActor (TimeInterval) -> Void) {
+        guard url.isFileURL else {
+            // 远程 URL 同步获取不支持，直接回调 0
+            Task { @MainActor in
+                completion(0)
+            }
+            return
+        }
+        
+        if #available(iOS 16.0, *) {
+            Task {
+                let asset = AVURLAsset(url: url)
+                let duration: TimeInterval
+                do {
+                    let loadedDuration = try await asset.load(.duration)
+                    duration = loadedDuration.seconds
+                } catch {
+                    duration = 0
+                }
+                await MainActor.run {
+                    completion(duration)
+                }
+            }
         } else {
-            // 获取远程音频时长需要异步，同步调用返回0
-            return 0
+            DispatchQueue.global().async {
+                let asset = AVAsset(url: url)
+                let duration = asset.duration.seconds
+                let validDuration = duration.isFinite ? duration : 0
+                DispatchQueue.main.async {
+                    completion(validDuration)
+                }
+            }
         }
     }
     

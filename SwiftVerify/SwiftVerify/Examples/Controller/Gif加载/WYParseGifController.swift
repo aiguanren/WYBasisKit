@@ -16,7 +16,7 @@ class WYParseGifController: UIViewController {
         // Do any additional setup after loading the view.
         view.backgroundColor = .white
         
-        let widthHeight: CGFloat = (UIScreen.main.bounds.self.width - 40) / 3
+        let widthHeight: CGFloat = (UIApplication.shared.wy_keyWindowScene.screen.bounds.self.width - 40) / 3
         let contentMode: UIView.ContentMode = .scaleAspectFit
         
         let oneGifView = UIImageView()

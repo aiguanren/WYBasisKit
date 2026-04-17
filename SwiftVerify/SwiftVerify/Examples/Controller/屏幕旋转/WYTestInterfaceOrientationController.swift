@@ -129,7 +129,7 @@ class WYTestInterfaceOrientationController: UIViewController {
     
     func sharedScreenResolution() -> String {
         
-        let screen = UIScreen.main
+        let screen = UIApplication.shared.wy_keyWindowScene.screen
         let scale = screen.scale
         let bounds = screen.bounds
         let width = bounds.width * scale

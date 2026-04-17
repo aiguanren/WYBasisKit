@@ -464,11 +464,11 @@ public class WYAudioDownloadInfoObjC: NSObject {
     /**
      获取音频时长（本地/远程均支持）
      - Parameter url: 音频文件 URL（本地或远程）
-     - Returns: 音频时长（秒），远程 URL 同步调用返回 0，建议异步获取
+     - completion: 时长获取完成回调，参数为音频时长（秒），保证在主线程执行
      */
-    @objc(getAudioDurationForUrl:)
-    func getAudioDurationObjC(for url: URL) -> TimeInterval {
-        getAudioDuration(for: url)
+    @objc(getAudioDurationWithUrl:completion:)
+    func getAudioDurationObjC(with url: URL, completion: @escaping @MainActor (TimeInterval) -> Void) {
+        getAudioDuration(with: url, completion: completion)
     }
     
     /// 释放所有资源（建议在不再使用时主动调用，避免内存泄漏）
