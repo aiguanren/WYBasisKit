@@ -719,59 +719,7 @@ public class WYChatInputView: UIImageView {
 
 extension WYChatInputView: WYRecordEventsHandler {
     
-    /**
-     录音开始
-     - Parameters:
-     - audioKit: 音频工具实例
-     - isResume: 是否是恢复录音
-     */
-    public func wy_audioRecorderDidStart(audioKit: WYAudioKit, isResume: Bool) {
-        
-    }
     
-    /**
-     录音停止
-     - Parameters:
-     - audioKit: 音频工具实例
-     - isPause: 是否是暂停录音
-     */
-    public func wy_audioRecorderDidStop(audioKit: WYAudioKit, isPause: Bool) {
-        
-    }
-    
-    /**
-     录音时间更新
-     - Parameters:
-     - audioKit: 音频工具实例
-     - currentTime: 当前录音时间（秒）
-     - duration: 总录音时长限制（秒）
-     */
-    public func wy_audioRecorderTimeUpdated(audioKit: WYAudioKit, currentTime: TimeInterval, duration: TimeInterval) {
-        
-    }
-    
-    /**
-     录音声波数据更新
-     - Parameters:
-     - audioKit: 音频工具实例
-     - peakPower: 当前峰值功率（dB），范围 -160.0 到 0.0（0.0 表示最响，-160.0 表示最安静）；适合用于实时响应敏感的声波动画，但可能导致动画跳动剧烈
-     - averagePower: 当前平均功率（dB），范围 -160.0 到 0.0；比 peakPower 更平滑，适合微信式语音录制页面的声波动画
-     */
-    public func wy_audioRecorderDidUpdateMetering(audioKit: WYAudioKit, peakPower: Float, averagePower: Float) {
-        
-    }
-    
-    /**
-     音频任务执行失败
-     - Parameters:
-     - audioKit: 音频工具实例
-     - url: 出错的任务相关URL（可能是本地或远程）
-     - error: 错误枚举值
-     - description: 可选的详细错误描述
-     */
-    public func wy_audioTaskDidFailed(audioKit: WYAudioKit, url: URL?, error: WYAudioError, description: String?) {
-        
-    }
 }
 
 extension WYChatInputView: UITextViewDelegate {

@@ -171,6 +171,7 @@ import QuartzCore
     
     /// 远程URL
     @objc public let remote: URL
+    
     /// 本地URL
     @objc public let local: URL
     

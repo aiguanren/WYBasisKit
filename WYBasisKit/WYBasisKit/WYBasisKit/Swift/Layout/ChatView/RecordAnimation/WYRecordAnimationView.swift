@@ -24,9 +24,10 @@ import AVFoundation
      - Parameters:
      - audioKit: 音频工具实例
      - isPause: 是否是暂停录音
+     - isTimeout: 是否是超时(达到最大录音时长)停止
      */
-    @objc(wy_audioRecorderDidStop:isPause:)
-    optional func wy_audioRecorderDidStop(audioKit: WYAudioKit, isPause: Bool)
+    @objc(wy_audioRecorderDidStop:isPause:isTimeout:)
+    optional func wy_audioRecorderDidStop(audioKit: WYAudioKit, isPause: Bool, isTimeout: Bool)
     
     /**
      录音时间更新
@@ -39,11 +40,11 @@ import AVFoundation
     optional func wy_audioRecorderTimeUpdated(audioKit: WYAudioKit, currentTime: TimeInterval, duration: TimeInterval)
     
     /**
-     录音声波数据更新
+     录音声波数据更新（单通道）
      - Parameters:
-     - audioKit: 音频工具实例
-     - peakPower: 当前峰值功率（dB），范围 -160.0 到 0.0（0.0 表示最响，-160.0 表示最安静）；适合用于实时响应敏感的声波动画，但可能导致动画跳动剧烈
-     - averagePower: 当前平均功率（dB），范围 -160.0 到 0.0；比 peakPower 更平滑，适合微信式语音录制页面的声波动画
+       - audioKit: 音频工具实例
+       - peakPower: 当前峰值功率（dB），范围 -160.0 到 0.0（0.0 表示最响，-160.0 表示最安静）；适合用于实时响应敏感的声波动画，但可能导致动画跳动剧烈
+       - averagePower: 当前平均功率（dB），范围 -160.0 到 0.0；比 peakPower 更平滑，适合语音录制页面的声波动画
      */
     @objc(wy_audioRecorderDidUpdateMetering:peakPower:averagePower:)
     optional func wy_audioRecorderDidUpdateMetering(audioKit: WYAudioKit, peakPower: Float, averagePower: Float)
@@ -52,9 +53,9 @@ import AVFoundation
      音频任务执行失败
      - Parameters:
      - audioKit: 音频工具实例
-     - url: 出错的任务相关URL（可能是本地或远程）
+     - url: 出错的任务相关URL（可选，可能是本地或远程）
      - error: 错误枚举值
-     - description: 可选的详细错误描述
+     - description: 详细错误描述(可选)
      */
     @objc(wy_audioTaskDidFailed:url:error:description:)
     optional func wy_audioTaskDidFailed(audioKit: WYAudioKit, url: URL?, error: WYAudioError, description: String?)
@@ -424,13 +425,13 @@ public class WYRecordAnimationView: UIView {
     }
     
     /*
-    // Only override draw() if you perform custom drawing.
-    // An empty implementation adversely affects performance during animation.
-    override func draw(_ rect: CGRect) {
-        // Drawing code
-    }
-    */
-
+     // Only override draw() if you perform custom drawing.
+     // An empty implementation adversely affects performance during animation.
+     override func draw(_ rect: CGRect) {
+     // Drawing code
+     }
+     */
+    
 }
 
 extension WYRecordAnimationView: WYAudioKitDelegate {
@@ -450,9 +451,12 @@ extension WYRecordAnimationView: WYAudioKitDelegate {
      - Parameters:
      - audioKit: 音频工具实例
      - isPause: 是否是暂停录音
+     - isTimeout: 是否是超时(达到最大录音时长)停止
      */
-    public func wy_audioRecorderDidStop(audioKit: WYAudioKit, isPause: Bool) {
-        delegate?.wy_audioRecorderDidStop?(audioKit: audioKit, isPause: isPause)
+    public func wy_audioRecorderDidStop(audioKit: WYAudioKit, isPause: Bool, isTimeout: Bool) {
+        
+        delegate?.wy_audioRecorderDidStop?(audioKit: audioKit, isPause: isPause, isTimeout: isTimeout)
+        
         try? audioKit.saveRecording(destinationUrl: recordAnimationConfig.chatAudioUrl)
         
         endRecordVoice()
@@ -469,13 +473,6 @@ extension WYRecordAnimationView: WYAudioKitDelegate {
         delegate?.wy_audioRecorderTimeUpdated?(audioKit: audioKit, currentTime: currentTime, duration: duration)
     }
     
-    /**
-     录音声波数据更新
-     - Parameters:
-     - audioKit: 音频工具实例
-     - peakPower: 当前峰值功率（dB），范围 -160.0 到 0.0（0.0 表示最响，-160.0 表示最安静）；适合用于实时响应敏感的声波动画，但可能导致动画跳动剧烈
-     - averagePower: 当前平均功率（dB），范围 -160.0 到 0.0；比 peakPower 更平滑，适合微信式语音录制页面的声波动画
-     */
     public func wy_audioRecorderDidUpdateMetering(audioKit: WYAudioKit, peakPower: Float, averagePower: Float) {
         delegate?.wy_audioRecorderDidUpdateMetering?(audioKit: audioKit, peakPower: peakPower, averagePower: averagePower)
         addSoundMeter(item: CGFloat(peakPower))
@@ -485,9 +482,9 @@ extension WYRecordAnimationView: WYAudioKitDelegate {
      音频任务执行失败
      - Parameters:
      - audioKit: 音频工具实例
-     - url: 出错的任务相关URL（可能是本地或远程）
+     - url: 出错的任务相关URL（可选，可能是本地或远程）
      - error: 错误枚举值
-     - description: 可选的详细错误描述
+     - description: 详细错误描述(可选)
      */
     public func wy_audioTaskDidFailed(audioKit: WYAudioKit, url: URL?, error: WYAudioError, description: String?) {
         delegate?.wy_audioTaskDidFailed?(audioKit: audioKit, url: url, error: error, description: description)
