@@ -195,8 +195,8 @@ public extension UIButton {
                 totalHeight = imageSize.height + spacing + titleSize.height
             }
             
-            // 可用内容区域（考虑 contentEdgeInsets）
-            let contentRect = self.bounds.inset(by: self.contentEdgeInsets)
+            // 可用内容区域
+            let contentRect = self.bounds
             
             // MARK: - 计算起始 X
             let contentX: CGFloat

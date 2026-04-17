@@ -252,10 +252,10 @@ public extension UIDevice {
     /// 设置屏幕亮度
     static var wy_screenBrightness: CGFloat {
         get {
-            return UIScreen.main.brightness
+            return UIApplication.shared.wy_keyWindowScene.screen.brightness
         }
         set {
-            UIScreen.main.brightness = max(0.0, min(1.0, newValue))
+            UIApplication.shared.wy_keyWindowScene.screen.brightness = max(0.0, min(1.0, newValue))
         }
     }
     

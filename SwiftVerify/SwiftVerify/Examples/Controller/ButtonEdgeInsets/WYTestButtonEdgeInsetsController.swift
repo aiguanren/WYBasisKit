@@ -30,10 +30,11 @@ class WYTestButtonEdgeInsetsController: UIViewController {
             make.left.equalToSuperview().offset(10)
             make.right.equalToSuperview().offset(-10)
             make.height.equalTo(200)
-            make.centerY.equalToSuperview()
+            make.centerY.equalToSuperview().offset(-100)
         }
         button.imageView?.backgroundColor = .wy_random
         button.titleLabel?.backgroundColor = .wy_random
+        button.contentHorizontalAlignment = .right
         button.wy_adjust(position: .imageTopTitleBottom, spacing: 5)
         
         let itemButton: UIButton = UIButton(type: .custom)
@@ -57,7 +58,31 @@ class WYTestButtonEdgeInsetsController: UIViewController {
             make.left.equalToSuperview().offset(10)
             make.right.equalToSuperview().offset(-10)
             make.height.equalTo(200)
-            make.centerY.equalTo(button.snp.bottom).offset(100)
+            make.centerY.equalTo(button.snp.bottom).offset(150)
+        }
+        
+        if #available(iOS 15.0, *) {
+            
+            var config = UIButton.Configuration.plain()
+            config.title = "config按钮"
+            config.image = UIImage.wy_find("tabbar_right_selected")
+            config.imagePlacement = .top
+            config.imagePadding = 5
+            config.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30)
+            
+            let configButton = UIButton(configuration: config)
+            configButton.backgroundColor = .wy_random
+            
+            configButton.titleLabel?.backgroundColor = .wy_random
+            configButton.imageView?.backgroundColor = .wy_random
+            configButton.contentHorizontalAlignment = .left
+            
+            view.addSubview(configButton)
+            configButton.snp.makeConstraints { make in
+                make.left.equalToSuperview().offset(10)
+                make.centerY.equalTo(itemButton.snp.bottom).offset(100)
+            }
+            configButton.wy_adjust(position: .imageTopTitleBottom, spacing: 10)
         }
     }
 
