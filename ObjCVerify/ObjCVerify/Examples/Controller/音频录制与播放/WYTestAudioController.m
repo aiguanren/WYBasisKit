@@ -408,6 +408,7 @@
     
     [self.taskCards addObject:card];
     [self updateContainerHeight];
+    [self refreshLayoutAfterTaskChange];
 }
 
 - (void)updateContainerHeight {
@@ -746,6 +747,7 @@
 }
 
 - (void)refreshLayoutAfterTaskChange {
+    [self.downloadTasksContainer layoutIfNeeded];
     // 动态计算所有控件位置（基于下载任务容器底部）
     CGFloat containerBottom = CGRectGetMaxY(self.downloadTasksContainer.frame);
     CGFloat yOffset = containerBottom + 20;
@@ -1334,7 +1336,7 @@
     });
 }
 
-- (void)wy_audioPlayerStateDidChanged:(WYAudioKit *)audioKit state:(WYAudioPlayState)state {
+- (void)wy_audioPlayerStateDidChanged:(WYAudioKit *)audioKit state:(enum WYAudioPlayState)state {
     NSString *stateStr;
     switch (state) {
         case WYAudioPlayStateStart: stateStr = @"开始播放"; break;
@@ -1393,7 +1395,7 @@
     [self refreshFileList];
 }
 
-- (void)wy_audioTaskDidFailed:(WYAudioKit *)audioKit url:(NSURL *)url error:(WYAudioError)error description:(NSString *)description {
+- (void)wy_audioTaskDidFailed:(WYAudioKit *)audioKit url:(NSURL *)url error:(enum WYAudioError)error description:(NSString *)description {
     [self logInfo:[NSString stringWithFormat:@"任务失败: %@, 描述: %@, URL: %@", [self errorDescriptionForError:error], description ?: @"无", url ?: @"空"]];
     for (DownloadTaskCardView *card in self.taskCards) {
         if (card.url && [card.url isEqual:url]) {
