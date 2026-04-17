@@ -29,12 +29,13 @@
         make.wy_borderColor([UIColor wy_random]);
     }];
     button.wy_title_nColor = [UIColor redColor];
+    button.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
     [self.view addSubview:button];
     [button mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.view).offset(10);
         make.right.equalTo(self.view).offset(-10);
         make.height.equalTo(@200);
-        make.centerY.equalTo(self.view);
+        make.centerY.equalTo(self.view).mas_offset(-150);
     }];
     [button wy_adjustPosition:WYButtonPositionImageRightTitleLeft spacing:5];
     
@@ -56,6 +57,35 @@
         make.height.equalTo(@200);
         make.centerY.equalTo(button.mas_bottom).offset(100);
     }];
+    
+    if (@available(iOS 15.0, *)) {
+        
+        UIButtonConfiguration *config = [UIButtonConfiguration plainButtonConfiguration];
+        
+        config.title = @"config按钮";
+        config.image = [UIImage wy_find:@"tabbar_right_selected"];
+        config.imagePlacement = NSDirectionalRectEdgeTop;        // 图片在上，文字在下
+        config.imagePadding = 5;
+        config.contentInsets = NSDirectionalEdgeInsetsMake(20, 30, 20, 30);
+        
+        UIButton *configButton = [UIButton buttonWithConfiguration:config primaryAction:nil];
+        
+        configButton.backgroundColor = [UIColor wy_random];
+        
+        configButton.titleLabel.backgroundColor = [UIColor wy_random];
+        configButton.imageView.backgroundColor = [UIColor wy_random];
+        
+        configButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+        
+        [self.view addSubview:configButton];
+        
+        [configButton mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.view).offset(10);
+            make.centerY.equalTo(itemButton.mas_bottom).offset(100);
+        }];
+        
+        [configButton wy_adjustPosition:WYButtonPositionImageTopTitleBottom spacing:10];
+    }
 }
 
 /*
