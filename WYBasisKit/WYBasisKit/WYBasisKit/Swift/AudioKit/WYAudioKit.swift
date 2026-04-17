@@ -167,15 +167,15 @@ import QuartzCore
 }
 
 /// 网络下载(音频)文件的远程和本地URL信息
-public class WYAudioDownloadInfo: NSObject {
+@objcMembers public class WYAudioDownloadInfo: NSObject {
     
     /// 远程URL
-    public let remote: URL
+    @objc public let remote: URL
     /// 本地URL
-    public let local: URL
+    @objc public let local: URL
     
     /// 唯一初始化方法
-    public init(remote: URL, local: URL) {
+    @objc public init(remote: URL, local: URL) {
         self.remote = remote
         self.local = local
     }

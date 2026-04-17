@@ -65,22 +65,6 @@ import AVFoundation
     case caches
 }
 
-/// 网络下载(音频)文件的远程和本地URL信息
-@objc(WYAudioDownloadInfo)
-public class WYAudioDownloadInfoObjC: NSObject {
-    
-    /// 远程URL
-    @objc public let remote: URL
-    /// 本地URL
-    @objc public let local: URL
-    
-    /// 唯一初始化方法
-    @objc public init(remote: URL, local: URL) {
-        self.remote = remote
-        self.local = local
-    }
-}
-
 /**
  音频工具类 - 提供高性能、功能完备的录音、播放、下载、转换与文件管理能力
  
@@ -135,13 +119,15 @@ public class WYAudioDownloadInfoObjC: NSObject {
     /// 录音最小有效时长（秒），低于此值停止时会自动删除文件，0 表示无限制
     @objc(minimumRecordDuration)
     var minimumRecordDurationObjC: TimeInterval {
-        return minimumRecordDuration
+        get { return minimumRecordDuration }
+        set { minimumRecordDuration = newValue }
     }
     
     /// 录音最大允许时长（秒），到达后自动停止录音，0 表示无限制
     @objc(maximumRecordDuration)
     var maximumRecordDurationObjC: TimeInterval {
-        return maximumRecordDuration
+        get { return maximumRecordDuration }
+        set { maximumRecordDuration = newValue }
     }
     
     /// 设置音频播放速率 0.5x ~ 2.0x
@@ -295,14 +281,9 @@ public class WYAudioDownloadInfoObjC: NSObject {
      */
     @objc(playRemoteAudioWithRemoteUrl:success:failed:)
     func playRemoteAudioObjC(remoteUrl: URL,
-                                success: @escaping (WYAudioDownloadInfoObjC) -> Void,
+                                success: @escaping (WYAudioDownloadInfo) -> Void,
                                 failed: @escaping (Error?) -> Void) {
-        
-        playRemoteAudio(remoteUrl: remoteUrl) { info in
-            success(WYAudioDownloadInfoObjC(remote: info.remote, local: info.local))
-        } failed: { error in
-            failed(error)
-        }
+        playRemoteAudio(remoteUrl: remoteUrl, success: success, failed: failed)
     }
     
     // MARK: - 下载管理
@@ -316,13 +297,9 @@ public class WYAudioDownloadInfoObjC: NSObject {
      */
     @objc(downloadRemoteAudioWithRemoteUrls:success:failed:)
     func downloadRemoteAudioObjC(remoteUrls: [URL],
-                                    success: @escaping ([WYAudioDownloadInfoObjC]) -> Void,
+                                    success: @escaping ([WYAudioDownloadInfo]) -> Void,
                                     failed: @escaping (Error?) -> Void) {
-        downloadRemoteAudio(remoteUrls: remoteUrls) { infos in
-            success(infos.map { WYAudioDownloadInfoObjC(remote: $0.remote, local: $0.local) })
-        } failed: { error in
-            failed(error)
-        }
+        downloadRemoteAudio(remoteUrls: remoteUrls, success: success, failed: failed)
     }
     
     /**
@@ -390,8 +367,8 @@ public class WYAudioDownloadInfoObjC: NSObject {
      - Returns: 下载信息数组（remote 通过持久化映射获取，若无则为占位符）
      */
     @objc(getAllDownloads)
-    func getAllDownloadsObjC() -> [WYAudioDownloadInfoObjC] {
-        return getAllDownloads().map { WYAudioDownloadInfoObjC(remote: $0.remote, local: $0.local) }
+    func getAllDownloadsObjC() -> [WYAudioDownloadInfo] {
+        return getAllDownloads()
     }
     
     /**
@@ -400,11 +377,7 @@ public class WYAudioDownloadInfoObjC: NSObject {
      */
     @objc(deleteDownloadFileWithInfo:)
     func deleteDownloadFileObjC(info: WYAudioDownloadInfo?) {
-        if let info = info {
-            deleteDownloadFile(info: WYAudioDownloadInfo(remote: info.remote, local: info.local))
-        }else {
-            deleteDownloadFile(info: nil)
-        }
+        deleteDownloadFile(info: info)
     }
     
     // MARK: - 格式转换
