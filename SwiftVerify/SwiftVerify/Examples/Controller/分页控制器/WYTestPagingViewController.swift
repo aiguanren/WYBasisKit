@@ -376,7 +376,7 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         
         let saveButton = UIBarButtonItem(
             title: "保存",
-            style: UIBarButtonItem.Style.prominent,
+            style: .done,
             target: self,
             action: #selector(saveSettings)
         )

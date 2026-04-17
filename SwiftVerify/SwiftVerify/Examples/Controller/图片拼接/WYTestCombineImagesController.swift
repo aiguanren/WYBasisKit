@@ -61,7 +61,7 @@ class WYTestCombineImagesController: UIViewController {
         // 设置导航栏
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             title: "合成",
-            style: UIBarButtonItem.Style.prominent,
+            style: .done,
             target: self,
             action: #selector(combineImages)
         )
