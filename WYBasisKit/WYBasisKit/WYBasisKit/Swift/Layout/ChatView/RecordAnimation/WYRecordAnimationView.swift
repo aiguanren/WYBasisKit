@@ -40,14 +40,14 @@ import AVFoundation
     optional func wy_audioRecorderTimeUpdated(audioKit: WYAudioKit, currentTime: TimeInterval, duration: TimeInterval)
     
     /**
-     录音声波数据更新（单通道）
+     录音声波数据更新（多通道，归一化 0.0 ~ 1.0）
      - Parameters:
        - audioKit: 音频工具实例
-       - peakPower: 当前峰值功率（dB），范围 -160.0 到 0.0（0.0 表示最响，-160.0 表示最安静）；适合用于实时响应敏感的声波动画，但可能导致动画跳动剧烈
-       - averagePower: 当前平均功率（dB），范围 -160.0 到 0.0；比 peakPower 更平滑，适合语音录制页面的声波动画
+       - peakPowers: 当前各通道的归一化峰值幅度数组（0.0 ~ 1.0，0.0 最安静，1.0 最响）；适合直接用于声波动画、音量条等 UI 显示
+       - averagePowers: 当前各通道的归一化平均幅度数组（0.0 ~ 1.0）；更平滑，推荐用于语音录制波形动画
      */
-    @objc(wy_audioRecorderDidUpdateMetering:peakPower:averagePower:)
-    optional func wy_audioRecorderDidUpdateMetering(audioKit: WYAudioKit, peakPower: Float, averagePower: Float)
+    @objc(wy_audioRecorderDidUpdateMeterings:peakPowers:averagePowers:)
+    optional func wy_audioRecorderDidUpdateMeterings(audioKit: WYAudioKit, peakPowers: [Float], averagePowers: [Float])
     
     /**
      音频任务执行失败
@@ -66,9 +66,6 @@ public class WYRecordAnimationView: UIView {
     /// 代理
     public weak var delegate: WYRecordEventsHandler? = nil
     
-    /// 声音数据
-    public var soundMeters: [CGFloat] = []
-    
     /// 创建录音器
     public lazy var audioKit: WYAudioKit? = {
         
@@ -85,9 +82,10 @@ public class WYRecordAnimationView: UIView {
         // 设置通道,这里采用单声道
         setingDictionary[AVNumberOfChannelsKey] = 1
         // 每个采样点位数,分为8、16、24、32
-        setingDictionary[AVLinearPCMBitDepthKey] = 8
+        setingDictionary[AVLinearPCMBitDepthKey] = 16
         // 是否使用浮点数采样
-        setingDictionary[AVLinearPCMIsFloatKey] = true
+        setingDictionary[AVLinearPCMIsFloatKey] = false
+        setingDictionary[AVEncoderAudioQualityKey] = AVAudioQuality.high.rawValue
         
         kit.recordSettings = setingDictionary
         
@@ -102,34 +100,6 @@ public class WYRecordAnimationView: UIView {
         backgroundColor = recordAnimationConfig.fillColor.onExternal
         self.alpha = alpha
         self.delegate = delegate
-    }
-    
-    public func addSoundMeter(item: CGFloat) {
-        var canSoundMetersCount: Int = 0
-        
-        switch soundWavesStatus {
-        case .recording:
-            canSoundMetersCount = recordAnimationConfig.severalSoundWaves.recording
-            break
-        case .cancel:
-            canSoundMetersCount = recordAnimationConfig.severalSoundWaves.cancel
-            break
-        case .transfer:
-            canSoundMetersCount = recordAnimationConfig.severalSoundWaves.transfer
-            break
-        }
-        if soundMeters.count < canSoundMetersCount {
-            soundMeters.append(item)
-        }else {
-            for index: Int in 0 ..< soundMeters.count {
-                if index < (canSoundMetersCount - 1) {
-                    soundMeters[index] = soundMeters[index + 1]
-                }
-            }
-            // 插入新数据
-            soundMeters[canSoundMetersCount - 1] = item
-            soundWavesView.animationView.refreshSoundWaves(meters: soundMeters, status: soundWavesStatus)
-        }
     }
     
     /// 开始录音动画
@@ -152,8 +122,6 @@ public class WYRecordAnimationView: UIView {
         guard audioKit != nil else {
             return
         }
-        
-        soundMeters.removeAll()
         
         try? audioKit?.startRecording()
     }
@@ -421,7 +389,6 @@ public class WYRecordAnimationView: UIView {
     
     deinit {
         endRecordVoice()
-        soundMeters.removeAll()
     }
     
     /*
@@ -473,9 +440,18 @@ extension WYRecordAnimationView: WYAudioKitDelegate {
         delegate?.wy_audioRecorderTimeUpdated?(audioKit: audioKit, currentTime: currentTime, duration: duration)
     }
     
-    public func wy_audioRecorderDidUpdateMetering(audioKit: WYAudioKit, peakPower: Float, averagePower: Float) {
-        delegate?.wy_audioRecorderDidUpdateMetering?(audioKit: audioKit, peakPower: peakPower, averagePower: averagePower)
-        addSoundMeter(item: CGFloat(peakPower))
+    /**
+     录音声波数据更新（多通道，归一化 0.0 ~ 1.0）
+     - Parameters:
+       - audioKit: 音频工具实例
+       - peakPowers: 当前各通道的归一化峰值幅度数组（0.0 ~ 1.0，0.0 最安静，1.0 最响）；适合直接用于声波动画、音量条等 UI 显示
+       - averagePowers: 当前各通道的归一化平均幅度数组（0.0 ~ 1.0）；更平滑，推荐用于语音录制波形动画
+     */
+    public func wy_audioRecorderDidUpdateMeterings(audioKit: WYAudioKit, peakPowers: [Float], averagePowers: [Float]) {
+        
+        delegate?.wy_audioRecorderDidUpdateMeterings?(audioKit: audioKit, peakPowers: peakPowers, averagePowers: averagePowers)
+        
+        soundWavesView.animationView.updateMeters(averagePowers: averagePowers, status: soundWavesStatus)
     }
     
     /**

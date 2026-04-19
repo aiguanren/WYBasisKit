@@ -11,15 +11,15 @@ import Foundation
 public struct WYRecordAnimationConfig {
     
     /// 声波线宽度
-    public var soundWavesWidth: CGFloat = UIDevice.wy_screenWidth(3)
+    public var soundWavesWidth: CGFloat = UIDevice.wy_screenWidth(2.6)
     
     /// 声波线高度
     public var soundWavesHeight: (recording: CGFloat,
                                   cancel: CGFloat,
                                   transfer: CGFloat) = (
-                                    recording: UIDevice.wy_screenWidth(40),
-                                    cancel: UIDevice.wy_screenWidth(30),
-                                    transfer: UIDevice.wy_screenWidth(30))
+                                    recording: UIDevice.wy_screenWidth(48),
+                                    cancel: UIDevice.wy_screenWidth(38),
+                                    transfer: UIDevice.wy_screenWidth(48))
     
     /// 声波控件宽度
     public var soundWavesViewWidth: (recording: CGFloat,
@@ -38,14 +38,14 @@ public struct WYRecordAnimationConfig {
                                     transfer: UIDevice.wy_screenWidth(170))
     
     /// 声波线之间的间距
-    public var soundWavesSpace: CGFloat = UIDevice.wy_screenWidth(3)
+    public var soundWavesSpace: CGFloat = UIDevice.wy_screenWidth(2.5)
     
     /// 声波显示条数
     public var severalSoundWaves: (recording: Int,
                                    cancel: Int,
-                                   transfer: Int) = (recording: 25,
-                                                           cancel: 10,
-                                                           transfer: 10)
+                                   transfer: Int) = (recording: 26,
+                                                           cancel: 16,
+                                                           transfer: 16)
     
     /// 声波线颜色
     public var colorOfSoundWavesOnRecording: (recording: UIColor,
