@@ -51,7 +51,6 @@ public extension UIDevice {
     
     /// 导航栏高度
     static var wy_navBarHeight: CGFloat {
-        // 使用系统默认导航栏获取标准高度
         return UINavigationBar().intrinsicContentSize.height
     }
     
