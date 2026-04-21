@@ -25,10 +25,10 @@ import WYBasisKitSwift
      
      - Returns: 是否合法
      */
-    static func wy_isValidIntegerOrDecimal(_ string: String) -> Bool {
+    @objc public static func wy_isValidIntegerOrDecimal(_ string: String) -> Bool {
         return wy_isValidIntegerOrDecimal(string, prefixs: [])
     }
-    static func wy_isValidIntegerOrDecimal(_ string: String, prefixs: [String] = []) -> Bool {
+    @objc public static func wy_isValidIntegerOrDecimal(_ string: String, prefixs: [String] = []) -> Bool {
         return Bool.wy_isValidIntegerOrDecimal(string, prefixs: prefixs)
     }
     
