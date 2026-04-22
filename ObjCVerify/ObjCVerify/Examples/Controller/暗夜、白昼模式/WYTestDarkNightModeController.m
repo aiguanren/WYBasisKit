@@ -8,7 +8,7 @@
 #import "WYTestDarkNightModeController.h"
 #import "WYTabBarController.h"
 #import <Masonry/Masonry.h>
-#import <WYBasisKitObjC.h>
+#import <WYBasisKitObjC/WYBasisKitObjC.h>
 #import "AppDelegate.h"
 
 @interface WYTestDarkNightModeController ()

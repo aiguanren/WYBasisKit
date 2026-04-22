@@ -1,18 +1,27 @@
-platform :ios, '13.0'
-use_frameworks!
-#use_frameworks! :linkage => :static
-use_modular_headers!
+# iOS兼容版本
+platform :ios, "13.0"
+
+# 动态框架(等同于：use_frameworks!)，可被多个扩展（Extension）共享，减少主二进制体积，但会略微增加启动时间，且可能影响 category 加载
+#use_frameworks! :linkage => :dynamic
+
+# 静态框架，能优化 App 启动速度，避免 +load 方法丢失、分类找不到等问题，代码直接链接进主二进制，无额外动态库加载开销
+use_frameworks! :linkage => :static
+
+# 为所有Pod启用模块化头文件支持，以生成模块映射文件（.modulemap），让Swift代码可以无缝导入OC库，这是解决"Include of non-modular header"等编译错误的万能钥匙
+#use_modular_headers!
+
+# 警告抑制
 inhibit_all_warnings!
-install! 'cocoapods', warn_for_unused_master_specs_repo: false
+install! "cocoapods", warn_for_unused_master_specs_repo: false
 
 # 使用Cocoapods清华源
-#source 'https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git'
+#source "https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git"
 
 # 使用Cocoapods官方源
-source 'https://github.com/CocoaPods/Specs.git'
+source "https://github.com/CocoaPods/Specs.git"
 
 # 加载脚本管理器
-require_relative 'Scripts/PodFileConfig/Podfile'
+require_relative "Scripts/PodFileConfig/Podfile"
 
 # 执行本地验证或者pod命令的时候需要把podspec里面kit_path设置为 ""(空) 才能正确加载代码、资源等文件，然后等pod install/update执行失败或者成功后再还原kit_path
 modify_kit_path_in_podspec("./WYBasisKit/WYBasisKit/WYBasisKit/WYBasisKit-swift.podspec", "", false)
@@ -40,101 +49,101 @@ end
 configure_settings_option(SETTING_OPTIONS[:all_projects])   # 设置所有项目(默认)
 
 # 设置Pods项目版本(仅限从Podfile解析部署版本失败时有效)
-#configure_pods_deployment_target('13.0')
+#configure_pods_deployment_target("13.0")
 
 # 多个项目时需要指定target对应的xcworkspace文件
-workspace 'WYBasisKit.xcworkspace'
+workspace "WYBasisKit.xcworkspace"
 
-KITPATH = 'WYBasisKit/WYBasisKit/WYBasisKit'
+KITPATH = "WYBasisKit/WYBasisKit/WYBasisKit"
 
-target 'WYBasisKit' do
+target "WYBasisKit" do
   
   # 多个项目时需要指定target对应的xcodeproj文件
-  project 'WYBasisKit/WYBasisKit.xcodeproj'
+  project "WYBasisKit/WYBasisKit.xcodeproj"
   
   # 约束
-  pod 'SnapKit'
+  pod "SnapKit"
   
   # 图片下载/缓存
-  pod 'Kingfisher'
+  pod "Kingfisher"
   
   # 网络请求
-  pod 'Moya'
+  pod "Moya"
 
   # 根据Xcode版本号指定三方库的版本号
   if xcode_version_less_than_or_equal_to(14, 2)
     # 网络请求
-    pod 'Alamofire', '5.9.1'
+    pod "Alamofire", "5.9.1"
   end
 end
 
-target 'SwiftVerify' do
-  project 'SwiftVerify/SwiftVerify.xcodeproj' # 多个项目时需要指定target对应的xcodeproj文件
-  pod 'WYBasisKit-swift', :path => KITPATH
+target "SwiftVerify" do
+  project "SwiftVerify/SwiftVerify.xcodeproj" # 多个项目时需要指定target对应的xcodeproj文件
+  pod "WYBasisKit-swift", :path => KITPATH
   
   # 图片裁剪库
-  #pod 'Mantis'
+  #pod "Mantis"
   
   # 照片选择库
-  #pod 'ZLPhotoBrowser'
+  #pod "ZLPhotoBrowser"
   
   # UIScrollView刷新header和footer
-  #pod 'MJRefresh'
+  #pod "MJRefresh"
   
   # 根据Xcode版本号指定三方库的版本号
   if xcode_version_less_than_or_equal_to(14, 2)
     # 网络请求
-    pod 'Alamofire', '5.9.1'
+    pod "Alamofire", "5.9.1"
     
     # 管理键盘弹出时的界面适配
-    pod 'IQKeyboardManagerSwift', '7.0.0'
+    pod "IQKeyboardManagerSwift", "7.0.0"
   else
-    pod 'IQKeyboardManagerSwift'
+    pod "IQKeyboardManagerSwift"
   end
   
   # Kingfisher扩展库，支持显示webp格式图片
-  pod 'KingfisherWebP'
+  pod "KingfisherWebP"
   
 end
 
-target 'ObjCVerify' do
-  project 'ObjCVerify/ObjCVerify.xcodeproj' # 多个项目时需要指定target对应的xcodeproj文件
-  pod 'WYBasisKit-ObjC', :path => KITPATH
+target "ObjCVerify" do
+  project "ObjCVerify/ObjCVerify.xcodeproj" # 多个项目时需要指定target对应的xcodeproj文件
+  pod "WYBasisKit-ObjC", :path => KITPATH
   
   # 图片裁剪库
-  #pod 'Mantis'
+  #pod "Mantis"
   
   # 照片选择库
-  #pod 'ZLPhotoBrowser'
+  #pod "ZLPhotoBrowser"
   
   # UIScrollView刷新header和footer
-  #pod 'MJRefresh'
+  #pod "MJRefresh"
   
   # 约束
-  pod 'Masonry'
+  pod "Masonry"
   
   # 图片下载/缓存
-  pod 'SDWebImage'
+  pod "SDWebImage"
   
   # SDWebImage扩展库，支持显示webp格式图片
-  pod 'SDWebImageWebPCoder'
+  pod "SDWebImageWebPCoder"
   
   # 根据Xcode版本号指定三方库的版本号
   if xcode_version_less_than_or_equal_to(14, 2)
     # 网络请求
-    pod 'Alamofire', '5.9.1'
+    pod "Alamofire", "5.9.1"
     
     # 管理键盘弹出时的界面适配
-    pod 'IQKeyboardManagerSwift', '7.0.0'
+    pod "IQKeyboardManagerSwift", "7.0.0"
   else
-    pod 'IQKeyboardManagerSwift'
+    pod "IQKeyboardManagerSwift"
   end
   
 end
 
-target 'SwiftUIVerify' do
-  project 'SwiftUIVerify/SwiftUIVerify.xcodeproj' # 多个项目时需要指定target对应的xcodeproj文件
-  pod 'WYBasisKit-SwiftUI', :path => KITPATH
+target "SwiftUIVerify" do
+  project "SwiftUIVerify/SwiftUIVerify.xcodeproj" # 多个项目时需要指定target对应的xcodeproj文件
+  pod "WYBasisKit-SwiftUI", :path => KITPATH
 end
 
 # 准备执行pod命令(执行pod命令前的处理)

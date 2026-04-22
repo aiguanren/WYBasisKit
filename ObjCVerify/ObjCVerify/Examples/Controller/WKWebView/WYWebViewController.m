@@ -6,9 +6,9 @@
 //
 
 #import "WYWebViewController.h"
+#import <WYBasisKitObjC/WYBasisKitObjC.h>
 #import <Masonry/Masonry.h>
-#import <WebKit/WKWebView.h>
-#import <WYBasisKitObjC.h>
+#import <WebKit/WebKit.h> // (Objective-C如需监听wy_decidePolicyForNavigationAction和wy_decidePolicyForNavigationResponse代理需要 #import <WebKit/WebKit.h>，如果仅 #import <WebKit/WKWebView.h> 会编译报错)
 
 @interface WYWebViewController ()<WYWebViewNavigationDelegateProxy>
 

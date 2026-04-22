@@ -7,7 +7,7 @@
 
 #import "WYTestImageRenderingController.h"
 #import <SDWebImage/SDWebImage.h>
-#import <WYBasisKitObjC.h>
+#import <WYBasisKitObjC/WYBasisKitObjC.h>
 
 @interface WYTestImageRenderingController ()
 
