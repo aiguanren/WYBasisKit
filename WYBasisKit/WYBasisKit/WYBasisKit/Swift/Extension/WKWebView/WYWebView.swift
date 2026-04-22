@@ -37,12 +37,12 @@ import Foundation
     /// 接收到服务器跳转请求（服务重定向时之后调用）
     @objc optional func wy_didReceiveServerRedirectForProvisionalNavigation(_ urlString: String)
 
-    /// 根据 WebView 对于即将跳转的 HTTP 请求信息决定是否跳转(Objective-C如需监听此代理需要确认import方式为：#import <WYBasisKitObjC.h>，其他import方式会报错，因为WKWebpagePreferences是Swift中的类型，Objective-C原生并不支持)
+    /// 根据 WebView 对于即将跳转的 HTTP 请求信息决定是否跳转(Objective-C如需监听此代理需要 #import <WebKit/WebKit.h>，如果仅 #import <WebKit/WKWebView.h> 会编译报错)
     @objc optional func wy_decidePolicyForNavigationAction(_ navigationAction: WKNavigationAction,
                                          preferences: WKWebpagePreferences,
                                          decisionHandler: @escaping (WKNavigationActionPolicy, WKWebpagePreferences) -> Void)
 
-    /// 根据客户端收到的服务器响应头决定是否跳转(Objective-C如需监听此代理需要确认import方式为：#import <WYBasisKitObjC.h>，其他import方式会报错，因为WKNavigationResponse是Swift中的类型，Objective-C原生并不支持)
+    /// 根据客户端收到的服务器响应头决定是否跳转(Objective-C如需监听此代理需要 #import <WebKit/WebKit.h>，如果仅 #import <WebKit/WKWebView.h> 会编译报错)
     @objc optional func wy_decidePolicyForNavigationResponse(_ navigationResponse: WKNavigationResponse,
                                            decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void)
 

@@ -6,8 +6,9 @@
 //
 
 #import "WYTestCombineImagesController.h"
-#import <WYBasisKitObjC.h>
+#import <WYBasisKitObjC/WYBasisKitObjC.h>
 #import <Masonry/Masonry.h>
+#import <objc/runtime.h>
 
 @interface WYTestCombineImagesController () <UIColorPickerViewControllerDelegate>
 
