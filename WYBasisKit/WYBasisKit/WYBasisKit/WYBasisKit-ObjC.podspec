@@ -38,7 +38,10 @@ Pod::Spec.new do |kit|
   kit.swift_versions = ["5"]
   #kit.swift_version = "5.0"
   kit.requires_arc = true
-  #kit.static_framework = true # 开启后OC工程编译会报错找不到swift相关版本链接库
+
+  # 设置框架类型，若设为 true（静态框架），能优化 App 启动速度，避免 +load 方法丢失、分类找不到等问题，代码直接链接进主二进制，无额外动态库加载开销; 若设为 false（动态框架），则可被多个扩展（Extension）共享，减少主二进制体积，但会略微增加启动时间，且可能影响 category 加载; 作为Cocoapods库，我们不建议在这里写死为True或False，而是建议让用户在 Podfile 中通过 use_frameworks! :linkage => :static/:dynamic 自行控制链接方式，因为不同项目对包体积、启动速度、扩展共享的需求不同，由 App 层面统一控制更灵活，避免库作者强制选择带来的局限性。
+  #kit.static_framework = true 
+  
   # 这里需要忽略前面的lib和后面的tbd，例如libz.tbd直接写为z即可，如果是.a则需要写全，如："xxx.a"
   # kit.libraries = "z", "xxx.a"  # 这里的.a是指系统的
   # kit.vendored_libraries = "xxx.a"  # 这里的.a是指第三方或者自己自定义的
