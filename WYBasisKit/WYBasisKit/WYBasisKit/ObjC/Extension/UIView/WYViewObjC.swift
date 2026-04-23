@@ -134,9 +134,9 @@ import WYBasisKitSwift
     
     /// 添加手势点击事件
     @discardableResult
-    @objc(wy_addGestureWithTarget:action:)
-    func wy_addGestureObjC(target: Any?, action: Selector?) -> UITapGestureRecognizer {
-        return wy_addGesture(target: target, action: action)
+    @objc(wy_addTapGestureForTarget:action:)
+    func wy_addTapGestureObjC(target: Any?, action: Selector?) -> UITapGestureRecognizer {
+        return wy_addTapGesture(target: target, action: action)
     }
     
     /// 添加收起键盘的手势
