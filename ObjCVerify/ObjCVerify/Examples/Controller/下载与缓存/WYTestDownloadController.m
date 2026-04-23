@@ -25,7 +25,7 @@
     if (memoryData.userData != nil) {
         localImage = [UIImage imageWithData:memoryData.userData];
     } else {
-        WYLog(@"%@", memoryData.error);
+        wy_print(@"%@", memoryData.error);
     }
     
     UIImageView *localImageView = [[UIImageView alloc] init];
@@ -73,9 +73,9 @@
                 NSString *cacheKey = [[SDWebImageManager sharedManager] cacheKeyForURL:imageURL];
                 // 缓存路径
                 NSString *cachePath = [cache cachePathForKey:cacheKey];
-                WYLog(@"cacheKey = %@, \nmd5 = %@, \n缓存路径 = %@", cacheKey, [imageUrl wy_sha256WithUppercase:NO], cachePath);
+                wy_print(@"cacheKey = %@, \nmd5 = %@, \n缓存路径 = %@", cacheKey, [imageUrl wy_sha256WithUppercase:NO], cachePath);
             } else if (error) {
-                WYLog(@"%@", error);
+                wy_print(@"%@", error);
                 [WYActivity dismissLoadingIn:self.view];
             }
         }];
@@ -85,7 +85,7 @@
             
             if (result.progress) {
                 
-                WYLog(@"%f", result.progress.progress);
+                wy_print(@"%f", result.progress.progress);
                 
             }else if (result.success) {
                 
@@ -95,11 +95,11 @@
                 
                 WYDownloadModel *assetObj = [WYCodable decode:result.success.origin modelClass:WYDownloadModel.class error:&codableError];
                 if (codableError != nil) {
-                    WYLog(@"解码失败: %@", codableError);
+                    wy_print(@"解码失败: %@", codableError);
                     return;
                 }
                 
-                WYLog(@"assetObj = %@", assetObj);
+                wy_print(@"assetObj = %@", assetObj);
                 
                 NSString *imagePath = assetObj.assetPath ?: @"";
                 UIImage *image = [UIImage imageWithContentsOfFile:imagePath];
@@ -110,31 +110,31 @@
                 
                 WYStorageData *memoryData = [WYStorage storageForKey:@"AAAAA" data:UIImageJPEGRepresentation(image, 1.0) durable:WYStorageDurableMinute interval:2];
                 if (memoryData.error == nil) {
-                    WYLog(@"缓存成功 = %@", memoryData);
+                    wy_print(@"缓存成功 = %@", memoryData);
                     localImageView.image = [UIImage imageWithData:memoryData.userData];
                 } else {
-                    WYLog(@"缓存失败 = %@", memoryData.error ?: @"");
+                    wy_print(@"缓存失败 = %@", memoryData.error ?: @"");
                 }
                 
                 [WYNetworkManager clearDiskCacheWithPath:diskCachePath asset:asset completion:^(NSString * _Nullable error) {
                     if (error != nil) {
-                        WYLog(@"error = %@", error);
+                        wy_print(@"error = %@", error);
                     } else {
-                        WYLog(@"移除成功");
+                        wy_print(@"移除成功");
                     }
                 }];
                 
 //                [WYNetworkManager clearDiskCacheWithPath:WYNetworkConfig.defaultConfig.downloadSavePath.path asset:asset completion:^(NSString * _Nullable error) {
 //                    if (error != nil) {
-//                        WYLog(@"error = %@", error);
+//                        wy_print(@"error = %@", error);
 //                    } else {
-//                        WYLog(@"下载缓存全部移除成功");
+//                        wy_print(@"下载缓存全部移除成功");
 //                    }
 //                }];
                 
             }else if (result.error) {
                 
-                WYLog(@"%@", result.error);
+                wy_print(@"%@", result.error);
                 [WYActivity dismissLoadingIn:self.view];
             }
         }];
@@ -142,7 +142,7 @@
 }
 
 - (void)dealloc {
-    WYLog(@"WYTestDownloadController released");
+    wy_print(@"WYTestDownloadController released");
 }
 
 /*

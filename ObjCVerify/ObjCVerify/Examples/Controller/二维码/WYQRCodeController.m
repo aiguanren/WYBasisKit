@@ -25,7 +25,7 @@
     NSError *error = nil;
     NSData *qrData = [NSJSONSerialization dataWithJSONObject:jsonDict options:NSJSONWritingPrettyPrinted error:&error];
     if (error) {
-        WYLog(@"JSON序列化失败: %@", error);
+        wy_print(@"JSON序列化失败: %@", error);
         return;
     }
     //NSData *qrData = [@"WYBasisKit" dataUsingEncoding:NSUTF8StringEncoding];
@@ -40,12 +40,12 @@
     // 获取二维码信息(必须要真机环境才能获取到相关信息)
     NSArray *infoArr = [imageView.image wy_recognitionQRCode];
     if (infoArr) {
-        WYLog(@"二维码信息 = %@", infoArr);
+        wy_print(@"二维码信息 = %@", infoArr);
     }
 }
 
 - (void)dealloc {
-    WYLog(@"WYQRCodeController release");
+    wy_print(@"WYQRCodeController release");
 }
 
 /*

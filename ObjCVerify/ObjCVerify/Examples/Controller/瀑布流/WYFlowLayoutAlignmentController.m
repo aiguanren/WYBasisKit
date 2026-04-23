@@ -279,8 +279,8 @@
 #pragma mark - UIScrollViewDelegate
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    WYLog(@"是否为用户在滑动: %@", scrollView.wy_isUserSliding ? @"YES" : @"NO");
-    WYLog(@"当前滑动方向: %ld", scrollView.wy_slidingDirection);
+    wy_print(@"是否为用户在滑动: %@", scrollView.wy_isUserSliding ? @"YES" : @"NO");
+    wy_print(@"当前滑动方向: %ld", scrollView.wy_slidingDirection);
 }
 
 /*

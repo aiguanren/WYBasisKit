@@ -151,11 +151,11 @@
     self.tableView.backgroundColor = [UIColor wy_dynamicWithLight:[UIColor whiteColor] dark:[UIColor blackColor]];
     
     [WYEventHandler registerWithEvent:AppEventButtonDidMove target:self handler:^(id _Nullable data) {
-        WYLog(@"data = %@, controller = %@",data, NSStringFromClass([self class]));
+        wy_print(@"data = %@, controller = %@",data, NSStringFromClass([self class]));
     }];
     
     [WYEventHandler registerWithEvent:AppEventButtonDidReturn target:self handler:^(id _Nullable data) {
-        WYLog(@"data = %@, controller = %@",data, NSStringFromClass([self class]));
+        wy_print(@"data = %@, controller = %@",data, NSStringFromClass([self class]));
     }];
     
     __weak typeof(self) weakSelf = self;
@@ -280,7 +280,7 @@
 }
 
 - (void)didShowBannerViewWithData:(NSString *)data {
-    WYLog(@"data = %@, controller = %@",data, NSStringFromClass([self class]));
+    wy_print(@"data = %@, controller = %@",data, NSStringFromClass([self class]));
 }
 
 /*

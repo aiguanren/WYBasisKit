@@ -22,28 +22,28 @@
                                            error:&error];
     
     if (error == nil) {
-        WYLog(@"eventId = %@, responseJson = %@", request.eventId, data);
+        wy_print(@"eventId = %@, responseJson = %@", request.eventId, data);
         
         NSError *newError = nil;
         UserResponse *newResponse = [WYCodable decode:data modelClass:UserResponse.class error:&newError];
         if (newError == nil) {
-            WYLog(@"newResponse = %@",newResponse);
+            wy_print(@"newResponse = %@",newResponse);
             SubUserResponse *subUser = newResponse.subUser;
             NSArray *subResponses = newResponse.subResponses;
             SubUserResponse *firstResponse = subResponses.firstObject;
-            WYLog(@"subUser.iconName = %@, firstResponse.iconName = %@",subUser.iconName, firstResponse.iconName);
+            wy_print(@"subUser.iconName = %@, firstResponse.iconName = %@",subUser.iconName, firstResponse.iconName);
             NSString *stringData = [WYCodable encode:newResponse
                                          convertType:NSString.class
                                                error:nil];
-            WYLog(@"stringData = %@",stringData);
+            wy_print(@"stringData = %@",stringData);
             
         }else {
-            WYLog(@"newError = %@",newError);
+            wy_print(@"newError = %@",newError);
         }
         
     }else {
         WYCodableError codableError = error.code;
-        WYLog(@"encode error: %ld", codableError);
+        wy_print(@"encode error: %ld", codableError);
     }
 }
 

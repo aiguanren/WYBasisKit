@@ -29,7 +29,7 @@
 }
 
 - (void)userMoudleSuccessMethodWithContext:(SDKRequestContext<UserRequest *, UserResponse *> *)context {
-    WYLog(@"context.request?.eventId = %@",context.request.eventId ?: @"");
+    wy_print(@"context.request?.eventId = %@",context.request.eventId ?: @"");
     
     UserResponse *response = [[UserResponse alloc] init];
     response.errorCode = @"100";
@@ -51,7 +51,7 @@
 
 - (void)testMothodWithData:(NSString *)data data2:(NSInteger)data2 {
     
-    WYLog(@"离线方法调用,data = %@, data2 = %ld", data, data2);
+    wy_print(@"离线方法调用,data = %@, data2 = %ld", data, data2);
 }
 
 /*

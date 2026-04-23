@@ -21,11 +21,11 @@
     self.view.backgroundColor = [UIColor whiteColor];
     
     [WYEventHandler registerWithEvent:AppEventButtonDidMove target:self handler:^(id _Nullable data) {
-        WYLog(@"data = %@, controller = %@",data, NSStringFromClass([self class]));
+        wy_print(@"data = %@, controller = %@",data, NSStringFromClass([self class]));
     }];
     
     [WYEventHandler registerWithEvent:AppEventButtonDidReturn target:self handler:^(id _Nullable data) {
-        WYLog(@"data = %@, controller = %@",data, NSStringFromClass([self class]));
+        wy_print(@"data = %@, controller = %@",data, NSStringFromClass([self class]));
     }];
     
     __weak typeof(self) weakSelf = self;
@@ -36,7 +36,7 @@
 }
 
 - (void)didShowBannerViewWithData:(NSString *)data {
-    WYLog(@"data = %@, controller = %@",data, NSStringFromClass([self class]));
+    wy_print(@"data = %@, controller = %@",data, NSStringFromClass([self class]));
 }
 
 /*

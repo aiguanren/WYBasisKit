@@ -8,7 +8,9 @@
 #ifndef WYLocalizableManagerMacro_h
 #define WYLocalizableManagerMacro_h
 
-#if __has_include("WYBasisKitSwift-Swift.h")
+#if __has_include(<WYBasisKitSwift-Swift.h>)
+#import <WYBasisKitSwift-Swift.h>
+#elif __has_include("WYBasisKitSwift-Swift.h")
 #import "WYBasisKitSwift-Swift.h"
 #endif
 

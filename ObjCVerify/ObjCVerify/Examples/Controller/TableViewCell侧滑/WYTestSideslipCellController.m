@@ -93,7 +93,7 @@
     [self.tableView wy_resetAllVisibleCellsSideslipState];
     [self.tableView reloadData];
     
-    WYLog(@"长拉功能: %@", self.enableLongPull ? @"开启" : @"关闭");
+    wy_print(@"长拉功能: %@", self.enableLongPull ? @"开启" : @"关闭");
 }
 
 - (void)switchGesturePriority {
@@ -116,7 +116,7 @@
     [self.tableView wy_resetAllVisibleCellsSideslipState];
     [self.tableView reloadData];
     
-    WYLog(@"手势优先级: %@", [self gesturePriorityTitle]);
+    wy_print(@"手势优先级: %@", [self gesturePriorityTitle]);
 }
 
 - (NSString *)gesturePriorityTitle {
@@ -170,7 +170,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
-    WYLog(@"点击了第%ld个cell", (long)(indexPath.row + 1));
+    wy_print(@"点击了第%ld个cell", (long)(indexPath.row + 1));
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
@@ -220,7 +220,7 @@
     [self setupCustomSideslipViewForCell:cell at:indexPath];
     
     [cell wy_sideslipEvent:^(enum WYSideslipEventHandler event, enum WYTableViewSideslipDirection direction) {
-        WYLog(@"event = %ld, direction = %ld", (long)event, (long)direction);
+        wy_print(@"event = %ld, direction = %ld", (long)event, (long)direction);
     }];
     
     return direction;
@@ -245,7 +245,7 @@
                 NSIndexPath *currentIndexPath = [strongSelf.tableView indexPathForCell:strongCell];
                 if (currentIndexPath) {
                     NSString *directionText = direction == WYTableViewSideslipDirectionLeft ? @"左侧" : @"右侧";
-                    WYLog(@"第%ld行%@长拉进度: %.2f", (long)(currentIndexPath.row + 1), directionText, progress);
+                    wy_print(@"第%ld行%@长拉进度: %.2f", (long)(currentIndexPath.row + 1), directionText, progress);
                 }
             }
         } completion:^(WYTableViewSideslipDirection direction) {
@@ -256,12 +256,12 @@
             // 通过tableView获取cell的当前indexPath（最可靠的方式）
             NSIndexPath *currentIndexPath = [strongSelf.tableView indexPathForCell:strongCell];
             if (!currentIndexPath) {
-                WYLog(@"❌ 无法获取cell的当前索引");
+                wy_print(@"❌ 无法获取cell的当前索引");
                 return;
             }
             
             NSString *directionText = direction == WYTableViewSideslipDirectionLeft ? @"左侧" : @"右侧";
-            WYLog(@"🎉 第%ld行%@长拉完成，执行对应事件！", (long)(currentIndexPath.row + 1), directionText);
+            wy_print(@"🎉 第%ld行%@长拉完成，执行对应事件！", (long)(currentIndexPath.row + 1), directionText);
             
             // 长拉完成后删除对应cell
             [strongSelf deleteCellAtIndexPath:currentIndexPath direction:direction];
@@ -316,7 +316,7 @@
     BOOL isLeftButton = (buttonTag % 100) == 1;
     
     NSString *buttonType = isLeftButton ? @"左侧" : @"右侧";
-    WYLog(@"点击了原始第 %ld 行的%@滑动区域按钮", (long)(originalRowIndex + 1), buttonType);
+    wy_print(@"点击了原始第 %ld 行的%@滑动区域按钮", (long)(originalRowIndex + 1), buttonType);
     
     // 通过按钮的superview找到对应的cell
     UITableViewCell *cell = [self findCellForButton:sender];
@@ -327,7 +327,7 @@
             WYTableViewSideslipDirection direction = isLeftButton ? WYTableViewSideslipDirectionLeft : WYTableViewSideslipDirectionRight;
             [self deleteCellAtIndexPath:currentIndexPath direction:direction];
         } else {
-            WYLog(@"❌ 无法找到按钮对应的cell当前索引");
+            wy_print(@"❌ 无法找到按钮对应的cell当前索引");
         }
     }
 }
@@ -346,14 +346,14 @@
 
 - (void)deleteCellAtIndexPath:(NSIndexPath *)indexPath direction:(WYTableViewSideslipDirection)direction {
     if (indexPath.row >= self.dataSource.count) {
-        WYLog(@"❌ 索引越界: %ld，数据源数量: %ld", (long)indexPath.row, (long)self.dataSource.count);
+        wy_print(@"❌ 索引越界: %ld，数据源数量: %ld", (long)indexPath.row, (long)self.dataSource.count);
         return;
     }
     
     NSString *cellText = self.dataSource[indexPath.row];
     NSString *directionText = direction == WYTableViewSideslipDirectionLeft ? @"左侧" : @"右侧";
     
-    WYLog(@"🗑️ 删除第%ld行 (%@): %@", (long)(indexPath.row + 1), directionText, cellText);
+    wy_print(@"🗑️ 删除第%ld行 (%@): %@", (long)(indexPath.row + 1), directionText, cellText);
     
     // 先关闭侧滑
     UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
@@ -366,16 +366,16 @@
         [self.dataSource removeObjectAtIndex:indexPath.row];
         [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
     } completion:^(BOOL finished) {
-        WYLog(@"✅ 删除完成，剩余%ld个cell", (long)self.dataSource.count);
+        wy_print(@"✅ 删除完成，剩余%ld个cell", (long)self.dataSource.count);
     }];
 }
 
 - (void)didClickCellButton {
-    WYLog(@"didClickCellButton");
+    wy_print(@"didClickCellButton");
 }
 
 - (void)dealloc {
-    WYLog(@"WYTestSideslipCellController release");
+    wy_print(@"WYTestSideslipCellController release");
 }
 
 /*

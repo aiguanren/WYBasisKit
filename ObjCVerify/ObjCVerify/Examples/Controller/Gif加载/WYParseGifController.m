@@ -136,7 +136,7 @@
 }
 
 - (void)dealloc {
-    WYLog(@"release");
+    wy_print(@"release");
 }
 
 /*

@@ -144,7 +144,7 @@
 }
 
 - (void)dealloc {
-    WYLog(@"WYTestVisualController release");
+    wy_print(@"WYTestVisualController release");
 }
 
 /*

@@ -8,12 +8,14 @@
 #ifndef WYLogManagerMacro_h
 #define WYLogManagerMacro_h
 
-#if __has_include("WYBasisKitSwift-Swift.h")
+#if __has_include(<WYBasisKitSwift-Swift.h>)
+#import <WYBasisKitSwift-Swift.h>
+#elif __has_include("WYBasisKitSwift-Swift.h")
 #import "WYBasisKitSwift-Swift.h"
 #endif
 
 /// 输出日志（仅输出到控制台）
-#define WYLog(format, ...) \
+#define wy_print(format, ...) \
     [WYLogManager output:[NSString stringWithFormat:(format), ##__VA_ARGS__] \
               outputMode:WYLogOutputModeDebugConsoleOnly \
                     file:@(__FILE__) \
@@ -21,7 +23,7 @@
                     line:__LINE__]
 
 /// 输出日志（自定义日志模式）
-#define WYLogWithMode(format, mode, ...) \
+#define wy_printWithMode(format, mode, ...) \
     [WYLogManager output:[NSString stringWithFormat:(format), ##__VA_ARGS__] \
               outputMode:(mode) \
                     file:@(__FILE__) \
