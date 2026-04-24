@@ -9,44 +9,24 @@
 
 #if __has_include(<WYBasisKitSwift/WYBasisKitSwift-Swift.h>)
 #import <WYBasisKitSwift/WYBasisKitSwift-Swift.h>
-#elif __has_include("WYBasisKitSwift/WYBasisKitSwift-Swift.h")
-#import "WYBasisKitSwift/WYBasisKitSwift-Swift.h"
-#elif __has_include(<WYBasisKitSwift-Swift.h>)
-#import <WYBasisKitSwift-Swift.h>
-#elif __has_include("WYBasisKitSwift-Swift.h")
-#import "WYBasisKitSwift-Swift.h"
 #endif
 
 #if __has_include(<WYBasisKitObjC/WYBasisKitObjC-Swift.h>)
 #import <WYBasisKitObjC/WYBasisKitObjC-Swift.h>
-#elif __has_include("WYBasisKitObjC/WYBasisKitObjC-Swift.h")
-#import "WYBasisKitObjC/WYBasisKitObjC-Swift.h"
-#elif __has_include(<WYBasisKitObjC-Swift.h>)
-#import <WYBasisKitObjC-Swift.h>
-#elif __has_include("WYBasisKitObjC-Swift.h")
-#import "WYBasisKitObjC-Swift.h"
 #endif
 
-#if __has_include(<WYSingletonMacro.h>)
-#import <WYSingletonMacro.h>
-#elif __has_include("WYSingletonMacro.h")
-#import "WYSingletonMacro.h"
+#if __has_include(<WYBasisKitObjC/WYSingletonMacro.h>)
+#import <WYBasisKitObjC/WYSingletonMacro.h>
 #endif
 
-#if __has_include(<WYLogManagerMacro.h>)
-#import <WYLogManagerMacro.h>
-#elif __has_include("WYLogManagerMacro.h")
-#import "WYLogManagerMacro.h"
+#if __has_include(<WYBasisKitObjC/WYLogManagerMacro.h>)
+#import <WYBasisKitObjC/WYLogManagerMacro.h>
 #endif
 
-#if __has_include(<WYWeakStrongMacros.h>)
-#import <WYWeakStrongMacros.h>
-#elif __has_include("WYWeakStrongMacros.h")
-#import "WYWeakStrongMacros.h"
+#if __has_include(<WYBasisKitObjC/WYWeakStrongMacros.h>)
+#import <WYBasisKitObjC/WYWeakStrongMacros.h>
 #endif
 
-#if __has_include(<WYLocalizableManagerMacro.h>)
-#import <WYLocalizableManagerMacro.h>
-#elif __has_include("WYLocalizableManagerMacro.h")
-#import "WYLocalizableManagerMacro.h"
+#if __has_include(<WYBasisKitObjC/WYLocalizableManagerMacro.h>)
+#import <WYBasisKitObjC/WYLocalizableManagerMacro.h>
 #endif
