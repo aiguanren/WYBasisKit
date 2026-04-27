@@ -332,3 +332,26 @@ import WYBasisKitSwift
     */
 
 }
+
+/// PagingView按钮栏Item
+@objc public extension WYPagingItem {
+    
+    /// 按钮标签View
+    @objc(contentView)
+    var contentViewObjC: UIButton {
+        get { return contentView }
+        set { contentView = newValue }
+    }
+    
+    /// 唯一初始化方法
+    @objc(initWithAppendSize:)
+    convenience init(with appendSize: CGSize) {
+        self.init(appendSize: appendSize)
+    }
+    
+    /// 设置按钮富文本
+    @objc(setContentAttributedWithTitle:titleColor:font:isSelected:)
+    func setContentAttributedObjC(title: String? = nil, titleColor: UIColor, font: UIFont, isSelected: Bool) {
+        setContentAttributed(title: title, titleColor: titleColor, font: font, isSelected: isSelected)
+    }
+}

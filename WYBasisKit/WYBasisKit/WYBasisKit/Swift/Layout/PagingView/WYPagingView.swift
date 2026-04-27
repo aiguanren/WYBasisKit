@@ -631,10 +631,13 @@ extension WYPagingView {
     }
 }
 
+/// PagingView按钮栏Item
 public class WYPagingItem: UIButton {
    
-    public let contentView: UIButton = UIButton(type: .custom)
+    /// 按钮标签View
+    public var contentView: UIButton = UIButton(type: .custom)
    
+    /// 唯一初始化方法
     public init(appendSize: CGSize) {
        
         super.init(frame: .zero)
@@ -651,7 +654,7 @@ public class WYPagingItem: UIButton {
     }
    
     /// 设置按钮富文本
-    func setContentAttributed(title: String? = nil, titleColor: UIColor, font: UIFont, isSelected: Bool) {
+    public func setContentAttributed(title: String? = nil, titleColor: UIColor, font: UIFont, isSelected: Bool) {
        
         // 当前按钮文字
         let showTitle: String = (title == nil) ? (contentView.currentTitle ?? "") : (title ?? "")
