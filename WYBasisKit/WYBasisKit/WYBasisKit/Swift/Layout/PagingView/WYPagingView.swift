@@ -10,8 +10,13 @@ import UIKit
 
 @objc public protocol WYPagingViewDelegate {
    
+    /// Controller页面(Item切换回调)
     @objc(wy_pagingViewItemDidScroll:pagingIndex:)
     optional func wy_pagingViewItemDidScroll(_ pagingView: WYPagingView, pagingIndex: Int)
+    
+    /// PagingView页面布局完成
+    @objc(wy_pagingViewLayoutDidCompleted:)
+    optional func wy_pagingViewLayoutDidCompleted(_ pagingView: WYPagingView)
 }
    
 public class WYPagingView: UIView {
@@ -476,6 +481,7 @@ extension WYPagingView {
         }
         DispatchQueue.main.async(execute: {
             self.scrollMethod()
+            self.delegate?.wy_pagingViewLayoutDidCompleted?(self)
         })
     }
    
