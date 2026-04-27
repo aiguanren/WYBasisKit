@@ -15,14 +15,23 @@ class WYOffLineMethodController: UIViewController {
 
         // Do any additional setup after loading the view.
         
-        let className: String = String(describing: WYGenericTypeController.self)
+        let className = String(describing: WYGenericTypeController.self)
         let namespace = Bundle.main.infoDictionary!["CFBundleExecutable"] as! String
         let fullClassName = namespace + "." + className
+
         if let classType = NSClassFromString(fullClassName) as? UIViewController.Type {
-            let moudleClass = classType.init()
-            let method: String = "testMothodWithData:"
-            if moudleClass.responds(to: NSSelectorFromString(method)) {
-                _ = moudleClass.perform(NSSelectorFromString(method), with: "context")
+            let obj = classType.init()
+            
+            let selector = NSSelectorFromString("testMothodWithData:data2:")
+            
+            if obj.responds(to: selector) {
+                
+                typealias Func = @convention(c) (AnyObject, Selector, NSString, Int) -> Unmanaged<AnyObject>?
+                
+                let imp = obj.method(for: selector)
+                let function = unsafeBitCast(imp, to: Func.self)
+                
+                _ = function(obj, selector, "context", 99999)
             }
         }
     }
