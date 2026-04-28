@@ -188,6 +188,9 @@ public class WYPagingView: UIView {
     private var actionHandler: ((_ index: Int) -> Void)?
     private var barScrollLineLeftConstraint: NSLayoutConstraint?
     private var barScrollLineWidthConstraint: NSLayoutConstraint?
+    
+    // 标记是否为点击触发的滚动（用于避免点击动画与scrollViewDidScroll跟随动画冲突）
+    private var isClickScrolling = false
    
     public init() {
         super.init(frame: .zero)
@@ -224,6 +227,8 @@ extension WYPagingView: UIScrollViewDelegate {
     public func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
        
         if (scrollView == controllerScrollView) && (controllerScrollView.contentOffset.x >= 0) {
+            
+            isClickScrolling = false
 
             let index: Int = Int(scrollView.contentOffset.x / self.frame.size.width)
            
@@ -234,6 +239,8 @@ extension WYPagingView: UIScrollViewDelegate {
     }
    
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        
+        if isClickScrolling { return }
        
         // 内容区域滚动时才处理指示线跟随逻辑
         if (scrollView == controllerScrollView) && (controllers.count > 1) && canScrollController {
@@ -301,6 +308,8 @@ extension WYPagingView {
     @objc fileprivate func buttonItemClick(sender: WYPagingItem) {
        
         if(sender.tag != currentButtonItem.tag) {
+            
+            isClickScrolling = true
            
             // 点击切换页面，使用动画滚动
             controllerScrollView.setContentOffset(CGPoint(x: CGFloat(self.frame.size.width) * CGFloat((sender.tag - buttonItemTagBegin)), y: 0), animated: true)
