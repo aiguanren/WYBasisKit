@@ -172,16 +172,31 @@ import UIKit
 private let WYBasisKitLanguage = "AppleLanguages"
 private let WYBasisKit_preferred_language = "preferredLocalizations"
 
+/// 国际化资源定位信息
+public struct WYLocalizableSource {
+    
+    /// 指定 Bundle.class，效果如：Bundle(for: targetClass)
+    public let targetClass: AnyClass?
+    
+    /// 从哪个bundle文件内查找，如果bundleName对应的bundle不存在，则直接在本地路径下查找
+    public let bundleName: String
+    
+    /// 唯一初始化方法
+    public init(targetClass: AnyClass? = nil, bundleName: String = "") {
+        self.targetClass = targetClass
+        self.bundleName = bundleName
+    }
+}
+
 /**
  *  根据传入的Key读取对应的本地语言
  *
  *  @param key  本地语言对应的Key
- *
  *  @param table  国际化语言读取表(如果有Bundle，则要求Bundle名与表名一致，否则会读取失败)
- *
+ *  @param source 国际化资源定位信息
  */
-public func WYLocalized(_ key: String, table: String = WYBasisKitConfig.localizableTable) -> String {
-    return WYLocalizableManager.localized(key: key, table: table)
+public func WYLocalized(_ key: String, table: String = WYBasisKitConfig.localizableTable, source: WYLocalizableSource? = nil) -> String {
+    return WYLocalizableManager.localized(key: key, table: table, source: source)
 }
 
 public struct WYLocalizableManager {
@@ -352,34 +367,34 @@ public struct WYLocalizableManager {
      *  @param key  本地语言对应的Key
      *
      *  @param table  国际化语言读取表(如果有Bundle，则要求Bundle名与表名一致，否则会读取失败)
-     *
+     *  @param source 国际化资源定位信息
      */
-    public static func localized(key: String, table: String = WYBasisKitConfig.localizableTable) -> String {
+    public static func localized(key: String, table: String = WYBasisKitConfig.localizableTable, source: WYLocalizableSource? = nil) -> String {
         
         guard table.isEmpty == false else {
             return key
         }
         
-        if table == WYBasisKitConfig.localizableTable {
-            
+        // 如果未提供 source，且 table 是默认表，使用缓存的 bundle
+        if source == nil && table == WYBasisKitConfig.localizableTable {
             guard bundle != nil else {
-                return WYLocalized(key)
+                return key
             }
             return bundle!.localizedString(forKey: key, value: nil, table: table)
         }
         
-        if table == WYBasisKitConfig.kitLocalizableTable {
-            
+        if source == nil && table == WYBasisKitConfig.kitLocalizableTable {
             guard kitBundle != nil else {
-                return WYLocalized(key)
+                return key
             }
             return kitBundle!.localizedString(forKey: key, value: nil, table: table)
         }
         
-        guard let otherBundle = localizableBundle(table: table) else {
-            return WYLocalized(key)
+        // 根据 source 动态获取 Bundle
+        guard let languageBundle = localizableBundle(from: currentLanguage(), table: table, source: source) else {
+            return key
         }
-        return otherBundle.localizedString(forKey: key, value: nil, table: table)
+        return languageBundle.localizedString(forKey: key, value: nil, table: table)
     }
     
     /// 点击切换语言后调用该方法切换本地语言
@@ -401,16 +416,41 @@ public struct WYLocalizableManager {
     }
     
     /// 获取存放国际化资源的Bundle
-    private static func localizableBundle(from language: WYLanguage = currentLanguage(), table: String) -> Bundle? {
+    private static func localizableBundle(from language: WYLanguage = currentLanguage(), table: String, source: WYLocalizableSource? = nil) -> Bundle? {
         
-        let bundlePath = (Bundle(for: WYLocalizableClass.self).path(forResource: table, ofType: "bundle")) ?? (Bundle.main.path(forResource: table, ofType: "bundle"))
+        // 确定 Bundle
+        let containerBundles: [Bundle] = {
+            if let targetClass = source?.targetClass {
+                return [Bundle(for: targetClass), Bundle.main]
+            } else {
+                return [Bundle(for: WYLocalizableClass.self), Bundle.main]
+            }
+        }()
         
-        guard let resourcePath = bundlePath else {
-            /// 如果没有找到存放国际化资源的Bundle文件，就直接从本地加载国际化文件
-            return Bundle(path: (Bundle(for: WYLocalizableClass.self).path(forResource: language.stringValue, ofType: "lproj") ?? Bundle.main.path(forResource: language.stringValue, ofType: "lproj")) ?? "")
+        // 确定要查找的 bundle 名称（优先使用 source 指定的，否则使用 table）
+        let bundleName = source?.bundleName ?? table
+        
+        // 遍历容器，查找 .bundle 文件
+        for container in containerBundles {
+            if let bundlePath = container.path(forResource: bundleName, ofType: "bundle"),
+               let resourceBundle = Bundle(path: bundlePath) {
+                // 在 .bundle 内查找对应语言的 lproj 目录
+                if let lprojPath = resourceBundle.path(forResource: language.stringValue, ofType: "lproj"),
+                   let lprojBundle = Bundle(path: lprojPath) {
+                    return lprojBundle
+                }
+            }
         }
-        /// 从找到的存放国际化资源的Bundle文件中加载国际化资源
-        return Bundle(path: Bundle(path: resourcePath)?.path(forResource: language.stringValue, ofType: "lproj") ?? "")
+        
+        // 没有找到 .bundle，则直接从容器 Bundle 中查找 lproj 目录
+        for container in containerBundles {
+            if let lprojPath = container.path(forResource: language.stringValue, ofType: "lproj"),
+               let lprojBundle = Bundle(path: lprojPath) {
+                return lprojBundle
+            }
+        }
+        
+        return nil
     }
 }
 

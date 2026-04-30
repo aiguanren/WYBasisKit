@@ -21,13 +21,18 @@ import Foundation
 
 public struct WYSourceBundle {
     
+    /// 指定 Bundle.class，效果如：Bundle(for: targetClass)
+    public let targetClass: AnyClass?
+    
     /// 从哪个bundle文件内查找，如果bundleName对应的bundle不存在，则直接在本地路径下查找
     public let bundleName: String
     
     /// bundleName.bundle下面的子文件夹路径，如果子文件夹有多层，就用/隔开(如果要获取资源是放在bundle文件下面的子文件夹中，则需要传入该路径，例如ImageSource.bundle下面有个叫apple的子文件夹，则subdirectory应该传入 apple)
     public let subdirectory: String
     
-    public init(bundleName: String = "", subdirectory: String = "") {
+    /// 唯一初始化方法
+    public init(targetClass: AnyClass? = nil, bundleName: String = "", subdirectory: String = "") {
+        self.targetClass = targetClass
         self.bundleName = bundleName
         self.subdirectory = subdirectory
     }
@@ -73,9 +78,9 @@ public extension UIImage {
      - stitchingImage: 要拼接的图片，将叠加在基准图片上
      - stitchingCenterPoint: 拼接图片的中心点在基准图片坐标系中的位置
      - overlapControl: 重叠控制参数，默认0（无重叠）
-         - 0: 精确对齐，无重叠无间隙
-         - 正值: 拼接图片向基准图片方向偏移，产生重叠效果
-         - 负值: 拼接图片远离基准图片，产生间隙效果
+     - 0: 精确对齐，无重叠无间隙
+     - 正值: 拼接图片向基准图片方向偏移，产生重叠效果
+     - 负值: 拼接图片远离基准图片，产生间隙效果
      - alpha: 拼接图片的透明度，默认1.0（不透明）
      - blendMode: 混合模式，默认.normal（正常叠加）
      - backgroundColor: 合成图片的背景颜色，默认透明
@@ -91,7 +96,7 @@ public extension UIImage {
      - strokeColor: 描边颜色，默认无描边(透明)
      - strokeWidth: 描边宽度， 默认0
      - maskImage: 蒙版图片（使用其 alpha 作为遮罩）， 默认nil
-          
+     
      - return: 拼接后的图片，失败返回nil
      */
     static func wy_combineImages(
@@ -403,9 +408,9 @@ public extension UIImage {
      渲染图片至指定颜色（同步）
      ⚠️ 注意：
      - 该方法为同步执行，会在当前线程完成图像渲染，不建议在主线程高频调用，可能导致卡顿或掉帧，适用于调用次数较少的场景，例如：
-       - 非滚动场景（如页面初始化、静态展示）
-       - 单次或少量图片处理（如按钮状态图、占位图生成）
-       - 若在列表滚动、频繁刷新或大量图片处理等场景中使用，建议改用异步方法
+     - 非滚动场景（如页面初始化、静态展示）
+     - 单次或少量图片处理（如按钮状态图、占位图生成）
+     - 若在列表滚动、频繁刷新或大量图片处理等场景中使用，建议改用异步方法
      - Parameter color: 需要渲染的目标颜色
      - Returns: 渲染后的新图片
      */
@@ -441,69 +446,69 @@ public extension UIImage {
      
      在后台线程执行图片着色处理，避免阻塞主线程，适用于高频或性能敏感场景。
      内部会自动切换至主线程回调处理结果，确保可直接用于 UI 更新。
-
+     
      适用场景：
-       - 列表滚动（如 UITableView / UICollectionView）
-       - 网络图片加载后的二次处理（如统一着色）
-       - 图片频繁刷新或批量处理
-       - 对性能要求较高的界面（避免掉帧、卡顿）
-
+     - 列表滚动（如 UITableView / UICollectionView）
+     - 网络图片加载后的二次处理（如统一着色）
+     - 图片频繁刷新或批量处理
+     - 对性能要求较高的界面（避免掉帧、卡顿）
+     
      ⚠️ 缓存建议（推荐结合 Kingfisher 使用）：
      - 可将“渲染后的图片”进行缓存，避免重复处理
      - 推荐缓存 key：url + color（或其他唯一标识）
-       例如：let cacheKey = "\(url)_\(color.hashValue)"
+     例如：let cacheKey = "\(url)_\(color.hashValue)"
      - 使用方式建议：
-       1. 先根据 key 查询缓存（命中则直接使用）
-       2. 未命中时再进行渲染
-       3. 渲染完成后写入缓存
-
+     1. 先根据 key 查询缓存（命中则直接使用）
+     2. 未命中时再进行渲染
+     3. 渲染完成后写入缓存
+     
      ⚠️ 防止 cell 错图（建议处理）：
      - 异步回调存在“返回顺序不确定”的问题，在 cell 复用场景下可能导致错图
      - 必须在调用方做“任务标识校验”，只允许最后一次请求生效
-
+     
      示例（Kingfisher）：
-
+     
      let cacheKey = "\(url)_\(color.hashValue)"
      let cache = KingfisherManager.shared.cache
-
+     
      let taskId = UUID().uuidString
      imageView.accessibilityIdentifier = taskId
-
+     
      let sourceImage = image
-
+     
      // 查询缓存
      cache.retrieveImage(forKey: cacheKey) { result in
-         
-         // 执行渲染操作
-         func render() {
-             sourceImage.wy_rendering(color: color) { [weak imageView] tintedImage in
-                 guard let imageView = imageView else { return }
-                 
-                 // 校验任务
-                 guard imageView.accessibilityIdentifier == taskId else { return }
-                 
-                 // 写入缓存并更新显示图片
-                 cache.store(tintedImage, forKey: cacheKey)
-                 imageView.image = tintedImage
-             }
-         }
-         
-         switch result {
-         case .success(let value):
-             
-             // 命中缓存 + 校验任务
-             if let image = value.image, imageView.accessibilityIdentifier == taskId {
-                 imageView.image = image
-             } else {
-                 render()
-             }
-             
-         case .failure:
-             // 未命中 or 查询失败
-             render()
-         }
+     
+     // 执行渲染操作
+     func render() {
+     sourceImage.wy_rendering(color: color) { [weak imageView] tintedImage in
+     guard let imageView = imageView else { return }
+     
+     // 校验任务
+     guard imageView.accessibilityIdentifier == taskId else { return }
+     
+     // 写入缓存并更新显示图片
+     cache.store(tintedImage, forKey: cacheKey)
+     imageView.image = tintedImage
      }
-
+     }
+     
+     switch result {
+     case .success(let value):
+     
+     // 命中缓存 + 校验任务
+     if let image = value.image, imageView.accessibilityIdentifier == taskId {
+     imageView.image = image
+     } else {
+     render()
+     }
+     
+     case .failure:
+     // 未命中 or 查询失败
+     render()
+     }
+     }
+     
      - Parameter color: 需要渲染的目标颜色
      - Parameter completion: 渲染完成回调（主线程，返回处理后的图片）
      */
@@ -738,44 +743,61 @@ public extension UIImage {
             return wy_createImage(from: randomColor)
         }
         
-        if imageName.isEmpty {
-            
-            WYLogManager.output("没有找到相关图片，因为传入的 imageName 为空， 已默认创建一张随机颜色图片供您使用")
+        guard !imageName.isEmpty else {
+            WYLogManager.output("imageName 为空，已返回随机颜色图片")
             return randomImage()
         }
         
-        if let imageBundle: WYSourceBundle = bundle {
-            
-            var subdirectoryPath = imageBundle.subdirectory
-            if  (imageBundle.subdirectory.isEmpty == false) && (imageBundle.subdirectory.hasPrefix("/") == false) {
-                subdirectoryPath = "/" + imageBundle.subdirectory
+        let searchBundles: [Bundle] = {
+            if let config = bundle, let targetClass = config.targetClass {
+                return [Bundle(for: targetClass), Bundle.main]
+            } else {
+                return [Bundle(for: WYLocalizableClass.self), Bundle.main]
             }
+        }()
+        
+        // 指定了 bundleName → 从 xxx.bundle 中加载
+        if let config = bundle, !config.bundleName.isEmpty {
             
-            let resourcePath = (((Bundle(for: WYLocalizableClass.self).path(forResource: imageBundle.bundleName, ofType: "bundle")) ?? (Bundle.main.path(forResource: imageBundle.bundleName, ofType: "bundle"))) ?? "").appending(subdirectoryPath)
+            let subDir = {
+                let dir = config.subdirectory.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+                return dir.isEmpty ? "" : dir + "/"
+            }()
             
-            guard let contentImage = UIImage(named: imageName, in: Bundle(path: resourcePath), compatibleWith: nil) else {
-                
-                WYLogManager.output("在 \(imageBundle.bundleName).bundle/\(imageBundle.subdirectory) 中没有找到 \(imageName) 这张图片，已默认创建一张随机颜色图片供您使用")
-                
-                return randomImage()
-            }
-            return contentImage
-        }else {
+            let fullImageName = subDir + imageName
             
-            guard let image = UIImage(named: imageName) else {
-                
-                let resourcePath = ((Bundle(for: WYLocalizableClass.self).path(forResource: imageName, ofType: nil)) ?? (Bundle.main.path(forResource: imageName, ofType: nil))) ?? ""
-                
-                guard let contentImage = UIImage(named: imageName, in: Bundle(path: resourcePath), compatibleWith: nil) else {
-                    
-                    WYLogManager.output("在项目路径或Assets下面，没有找到 \(imageName) 这张图片，已默认创建一张随机颜色图片供您使用")
-                    
-                    return randomImage()
+            for searchBundle in searchBundles {
+                guard let bundlePath = searchBundle.path(forResource: config.bundleName, ofType: "bundle"),
+                      let resourceBundle = Bundle(path: bundlePath) else {
+                    continue
                 }
-                return contentImage
+                
+                // 当用户指定了 subdirectory 时，只尝试带路径的名称，优先使用 UIImage(named:)
+                if let image = UIImage(named: fullImageName, in: resourceBundle, compatibleWith: nil) {
+                    return image
+                }
+                
+                // 使用文件路径查找（对子目录散图支持最可靠）
+                if let filePath = resourceBundle.path(forResource: fullImageName, ofType: nil),
+                   let image = UIImage(contentsOfFile: filePath) {
+                    return image
+                }
             }
-            return image
+            
+            let pathDesc = subDir.isEmpty ? "" : "/\(config.subdirectory)"
+            WYLogManager.output("在 \(config.bundleName).bundle\(pathDesc) 中没有找到图片 \(imageName)，已返回随机颜色图片")
+            return randomImage()
         }
+        
+        // 未指定 bundleName → 正常从 .xcassets 或根目录加载
+        for searchBundle in searchBundles {
+            if let image = UIImage(named: imageName, in: searchBundle, compatibleWith: nil) {
+                return image
+            }
+        }
+        
+        WYLogManager.output("未找到图片 \(imageName)（已尝试 SDK 与 Main Bundle），已返回随机颜色图片")
+        return randomImage()
     }
     
     /**
