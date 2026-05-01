@@ -92,7 +92,18 @@ import WYBasisKitSwift
         return wy_setFont(font)
     }
     
-    /// 设置行间距
+    /**
+     *  设置行间距
+     *
+     *  - Parameters:
+     *    - lineSpacing: 行间距值（单位：pt）
+     *    - subString:  需要设置行间距的子字符串，传 `nil` 则对整个富文本生效
+     *    - alignment:  段落对齐方式，默认为 `.left`
+     *
+     *  - Returns: 当前 `NSMutableAttributedString` 对象，支持链式调用
+     *
+     *  - Note: 如果 `subString` 不为 `nil` 但在文本中未找到，则不会进行任何修改。
+     */
     @discardableResult
     @objc(wy_lineSpacing:)
     func wy_lineSpacingObjC(_ lineSpacing: CGFloat) -> NSMutableAttributedString {
@@ -109,7 +120,22 @@ import WYBasisKitSwift
         return wy_lineSpacing(lineSpacing, subString: subString, alignment: alignment)
     }
     
-    /// 设置不同段落间的行间距
+    /**
+     *  设置两个指定字符串之间的段落间距
+     *
+     *  该方法会在 `beforeString` 所在段落的末尾增加 `lineSpacing` 间距，
+     *  从而影响其与 `afterString` 所在段落之间的距离。
+     *
+     *  - Parameters:
+     *    - lineSpacing:   段落间距值（单位：pt），需大于 0
+     *    - beforeString:  起始字符串，其所在段落的底部将会增加间距
+     *    - afterString:   结束字符串，必须位于 `beforeString` 之后
+     *    - alignment:     段落对齐方式，默认为 `.left`
+     *
+     *  - Returns: 当前 `NSMutableAttributedString` 对象，支持链式调用
+     *
+     *  - Note: 若 `beforeString` 或 `afterString` 未找到，或间距 ≤ 0，则不进行任何修改。
+     */
     @discardableResult
     @objc(wy_lineSpacing:beforeString:afterString:alignment:)
     func wy_lineSpacingObjC(_ lineSpacing: CGFloat,
@@ -119,7 +145,17 @@ import WYBasisKitSwift
         return wy_lineSpacing(lineSpacing, beforeString: beforeString, afterString: afterString, alignment: alignment)
     }
     
-    /// 设置字间距
+    /**
+     *  设置字间距（字符间距）
+     *
+     *  - Parameters:
+     *    - wordsSpacing: 字间距值（单位：pt）
+     *    - string:       需要设置字间距的子字符串，传 `nil` 则对整个富文本生效
+     *
+     *  - Returns: 当前 `NSMutableAttributedString` 对象，支持链式调用
+     *
+     *  - Note: 如果 `string` 不为 `nil` 但在文本中未找到，则不会进行任何修改。
+     */
     @discardableResult
     @objc(wy_wordsSpacing:)
     func wy_wordsSpacingObjC(_ wordsSpacing: CGFloat) -> NSMutableAttributedString {
@@ -154,7 +190,17 @@ import WYBasisKitSwift
         return wy_innerMargin(string: string, firstLineHeadIndent: firstLineHeadIndent, headIndent: headIndent, tailIndent: tailIndent, alignment: alignment)
     }
     
-    /// 文本上下偏移(正数向上，负数向下)
+    /**
+     *  调整文本基线偏移（实现文字上下移动）
+     *
+     *  - Parameters:
+     *    - offset: 偏移量（单位：pt），**正值向上移动，负值向下移动**
+     *    - string: 需要调整的子字符串，传 `nil` 则对整个富文本生效
+     *
+     *  - Returns: 当前 `NSMutableAttributedString` 对象，支持链式调用
+     *
+     *  - Note: 如果 `string` 不为 `nil` 但在文本中未找到，则不会进行任何修改。
+     */
     @discardableResult
     @objc func wy_baselineOffsetY(_ offset: CGFloat) -> NSMutableAttributedString {
         return wy_baseline(offset: offset)
@@ -164,7 +210,18 @@ import WYBasisKitSwift
         return wy_baseline(offset: offset, string: string)
     }
     
-    /// 文本添加下划线
+    /**
+     *  为文本添加下划线
+     *
+     *  - Parameters:
+     *    - color:  下划线的颜色
+     *    - string: 需要添加下划线的子字符串，传 `nil` 则对整个富文本生效
+     *
+     *  - Returns: 当前 `NSMutableAttributedString` 对象，支持链式调用
+     *
+     *  - Note: 如果 `string` 不为 `nil` 但在文本中未找到，则不会进行任何修改。
+     *          下划线样式为单线（`.single`）。
+     */
     @discardableResult
     @objc func wy_underline(_ color: UIColor) -> NSMutableAttributedString {
         return wy_underline(color, string: nil)
@@ -174,7 +231,18 @@ import WYBasisKitSwift
         return wy_underline(color: color, string: string)
     }
     
-    /// 文本添加删除线
+    /**
+     *  为文本添加删除线
+     *
+     *  - Parameters:
+     *    - color:  删除线的颜色
+     *    - string: 需要添加删除线的子字符串，传 `nil` 则对整个富文本生效
+     *
+     *  - Returns: 当前 `NSMutableAttributedString` 对象，支持链式调用
+     *
+     *  - Note: 如果 `string` 不为 `nil` 但在文本中未找到，则不会进行任何修改。
+     *          删除线样式为单线（`.single`）。
+     */
     @discardableResult
     @objc func wy_strikethrough(_ color: UIColor) -> NSMutableAttributedString {
         return wy_strikethrough(color, string: nil)
