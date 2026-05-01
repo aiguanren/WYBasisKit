@@ -130,6 +130,30 @@ import WYBasisKitSwift
         return wy_wordsSpacing(wordsSpacing, string: string)
     }
     
+    /**
+     *  文本添加内边距
+     *  @param string  要添加内边距的字符串，不传则代码所有字符串
+     *  @param firstLineHeadIndent  首行左边距
+     *  @param headIndent  第二行及以后的左边距(换行符\n除外)
+     *  @param tailIndent  尾部右边距
+     *  @param alignment  对齐方式
+     */
+    @discardableResult
+    @objc func wy_innerMarginWith(firstLineHeadIndent: CGFloat = 0,
+                                  headIndent: CGFloat = 0,
+                                  tailIndent: CGFloat = 0,
+                                  alignment: NSTextAlignment = .justified) -> NSMutableAttributedString {
+        return wy_innerMarginWith(string: nil, firstLineHeadIndent: firstLineHeadIndent, headIndent: headIndent, tailIndent: tailIndent, alignment: alignment)
+    }
+    @discardableResult
+    @objc func wy_innerMarginWith(string: String?,
+                                  firstLineHeadIndent: CGFloat = 0,
+                                  headIndent: CGFloat = 0,
+                                  tailIndent: CGFloat = 0,
+                                  alignment: NSTextAlignment = .justified) -> NSMutableAttributedString {
+        return wy_innerMargin(string: string, firstLineHeadIndent: firstLineHeadIndent, headIndent: headIndent, tailIndent: tailIndent, alignment: alignment)
+    }
+    
     /// 文本上下偏移(正数向上，负数向下)
     @discardableResult
     @objc func wy_baselineOffsetY(_ offset: CGFloat) -> NSMutableAttributedString {
@@ -158,30 +182,6 @@ import WYBasisKitSwift
     @discardableResult
     @objc func wy_strikethrough(_ color: UIColor, string: String? = nil) -> NSMutableAttributedString {
         return wy_strikethrough(color: color, string: string)
-    }
-    
-    /**
-     *  文本添加内边距
-     *  @param string  要添加内边距的字符串，不传则代码所有字符串
-     *  @param firstLineHeadIndent  首行左边距
-     *  @param headIndent  第二行及以后的左边距(换行符\n除外)
-     *  @param tailIndent  尾部右边距
-     *  @param alignment  对齐方式
-     */
-    @discardableResult
-    @objc func wy_innerMarginWith(firstLineHeadIndent: CGFloat = 0,
-                                  headIndent: CGFloat = 0,
-                                  tailIndent: CGFloat = 0,
-                                  alignment: NSTextAlignment = .justified) -> NSMutableAttributedString {
-        return wy_innerMarginWith(string: nil, firstLineHeadIndent: firstLineHeadIndent, headIndent: headIndent, tailIndent: tailIndent, alignment: alignment)
-    }
-    @discardableResult
-    @objc func wy_innerMarginWith(string: String?,
-                                  firstLineHeadIndent: CGFloat = 0,
-                                  headIndent: CGFloat = 0,
-                                  tailIndent: CGFloat = 0,
-                                  alignment: NSTextAlignment = .justified) -> NSMutableAttributedString {
-        return wy_innerMargin(string: string, firstLineHeadIndent: firstLineHeadIndent, headIndent: headIndent, tailIndent: tailIndent, alignment: alignment)
     }
     
     /**

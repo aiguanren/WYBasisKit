@@ -222,50 +222,6 @@ public extension NSMutableAttributedString {
         return self
     }
     
-    /// 文本上下偏移(正数向上，负数向下)
-    @discardableResult
-    func wy_baseline(offset: CGFloat, string: String? = nil) -> NSMutableAttributedString {
-        
-        let targetRange = wy_range(for: string)
-        
-        guard targetRange.location != NSNotFound, targetRange.length > 0 else { return self }
-        
-        addAttribute(.baselineOffset, value: offset, range: targetRange)
-        return self
-    }
-    
-    /// 文本添加下划线
-    @discardableResult
-    func wy_underline(color: UIColor, string: String? = nil) -> NSMutableAttributedString {
-        
-        let targetRange = wy_range(for: string)
-        
-        guard targetRange.location != NSNotFound, targetRange.length > 0 else { return self }
-        
-        addAttribute(.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: targetRange)
-        addAttribute(.underlineColor, value: color, range: targetRange)
-        
-        return self
-    }
-    
-    /// 文本添加删除线
-    @discardableResult
-    func wy_strikethrough(color: UIColor, string: String? = nil) -> NSMutableAttributedString {
-        
-        let targetRange: NSRange
-        if let substring = string,
-           let range = self.string.range(of: substring) {
-            targetRange = NSRange(range, in: self.string)
-        } else {
-            targetRange = NSRange(location: 0, length: self.length)
-        }
-        
-        addAttribute(.strikethroughStyle, value: NSUnderlineStyle.single.rawValue, range: targetRange)
-        addAttribute(.strikethroughColor, value: color, range: targetRange)
-        
-        return self
-    }
-    
     /**
      *  文本添加内边距
      *  @param string  要添加内边距的字符串，不传则代码所有字符串
@@ -308,6 +264,50 @@ public extension NSMutableAttributedString {
         
         // 应用更新到目标范围
         self.addAttribute(.paragraphStyle, value: paragraphStyle, range: targetRange)
+        
+        return self
+    }
+    
+    /// 文本上下偏移(正数向上，负数向下)
+    @discardableResult
+    func wy_baseline(offset: CGFloat, string: String? = nil) -> NSMutableAttributedString {
+        
+        let targetRange = wy_range(for: string)
+        
+        guard targetRange.location != NSNotFound, targetRange.length > 0 else { return self }
+        
+        addAttribute(.baselineOffset, value: offset, range: targetRange)
+        return self
+    }
+    
+    /// 文本添加下划线
+    @discardableResult
+    func wy_underline(color: UIColor, string: String? = nil) -> NSMutableAttributedString {
+        
+        let targetRange = wy_range(for: string)
+        
+        guard targetRange.location != NSNotFound, targetRange.length > 0 else { return self }
+        
+        addAttribute(.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: targetRange)
+        addAttribute(.underlineColor, value: color, range: targetRange)
+        
+        return self
+    }
+    
+    /// 文本添加删除线
+    @discardableResult
+    func wy_strikethrough(color: UIColor, string: String? = nil) -> NSMutableAttributedString {
+        
+        let targetRange: NSRange
+        if let substring = string,
+           let range = self.string.range(of: substring) {
+            targetRange = NSRange(range, in: self.string)
+        } else {
+            targetRange = NSRange(location: 0, length: self.length)
+        }
+        
+        addAttribute(.strikethroughStyle, value: NSUnderlineStyle.single.rawValue, range: targetRange)
+        addAttribute(.strikethroughColor, value: color, range: targetRange)
         
         return self
     }
