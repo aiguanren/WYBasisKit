@@ -188,7 +188,7 @@ public extension NSMutableAttributedString {
         }
         
         // 获取 beforeString 所在段落范围
-        if let paragraphRange = paragraphRange(containing: beforeRange, value: fullText) {
+        if let paragraphRange = wy_paragraphRange(containing: beforeRange, value: fullText) {
             
             // 创建并配置段落样式
             let paragraphStyle = NSMutableParagraphStyle()
@@ -222,17 +222,25 @@ public extension NSMutableAttributedString {
         return self
     }
     
+    /// 文本上下偏移(正数向上，负数向下)
+    @discardableResult
+    func wy_baseline(offset: CGFloat, string: String? = nil) -> NSMutableAttributedString {
+        
+        let targetRange = wy_range(for: string)
+        
+        guard targetRange.location != NSNotFound, targetRange.length > 0 else { return self }
+        
+        addAttribute(.baselineOffset, value: offset, range: targetRange)
+        return self
+    }
+    
     /// 文本添加下划线
     @discardableResult
     func wy_underline(color: UIColor, string: String? = nil) -> NSMutableAttributedString {
         
-        let targetRange: NSRange
-        if let substring = string,
-           let range = self.string.range(of: substring) {
-            targetRange = NSRange(range, in: self.string)
-        } else {
-            targetRange = NSRange(location: 0, length: self.length)
-        }
+        let targetRange = wy_range(for: string)
+        
+        guard targetRange.location != NSNotFound, targetRange.length > 0 else { return self }
         
         addAttribute(.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: targetRange)
         addAttribute(.underlineColor, value: color, range: targetRange)
@@ -616,12 +624,32 @@ private extension NSMutableAttributedString {
     }
     
     /// 获取包含指定范围的段落范围
-    func paragraphRange(containing range: Range<String.Index>, value: String) -> Range<String.Index>? {
+    func wy_paragraphRange(containing range: Range<String.Index>, value: String) -> Range<String.Index>? {
         guard !value.isEmpty else { return nil }
         
         let paragraphStart = value[..<range.lowerBound].lastIndex(of: "\n") ?? value.startIndex
         let paragraphEnd = value[range.upperBound...].firstIndex(of: "\n") ?? value.endIndex
         return paragraphStart..<paragraphEnd
+    }
+    
+    /**
+     * 根据可选子字符串计算需要应用属性的范围
+     * - Parameter string: 要查找的子字符串，如果为 nil 则返回整个富文本的范围
+     * - Returns: 对应的 NSRange，如果子字符串未找到则返回无效范围 `(NSNotFound, 0)`
+     */
+    func wy_range(for string: String?) -> NSRange {
+        // 如果没有指定子字符串，则对整个富文本生效
+        guard let targetStr = string else {
+            return NSRange(location: 0, length: self.length)
+        }
+        
+        // 尝试在字符串中查找子串的位置
+        if let range = self.string.range(of: targetStr) {
+            return NSRange(range, in: self.string)
+        }
+        
+        // 未找到子串，返回无效范围（后续会进行有效性检查）
+        return NSRange(location: NSNotFound, length: 0)
     }
 }
 

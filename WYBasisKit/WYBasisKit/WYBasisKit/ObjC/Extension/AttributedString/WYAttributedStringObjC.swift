@@ -130,6 +130,16 @@ import WYBasisKitSwift
         return wy_wordsSpacing(wordsSpacing, string: string)
     }
     
+    /// 文本上下偏移(正数向上，负数向下)
+    @discardableResult
+    @objc func wy_baselineOffsetY(_ offset: CGFloat) -> NSMutableAttributedString {
+        return wy_baseline(offset: offset)
+    }
+    @discardableResult
+    @objc func wy_baselineOffsetY(_ offset: CGFloat, string: String? = nil) -> NSMutableAttributedString {
+        return wy_baseline(offset: offset, string: string)
+    }
+    
     /// 文本添加下划线
     @discardableResult
     @objc func wy_underline(_ color: UIColor) -> NSMutableAttributedString {
