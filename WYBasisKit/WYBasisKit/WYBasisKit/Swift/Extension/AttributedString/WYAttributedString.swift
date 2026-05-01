@@ -312,7 +312,7 @@ public extension NSMutableAttributedString {
      
      使用说明：
      1. position 支持插入到指定文本前/后或指定字符下标处；
-     2. alignment 支持图片在字体行内的垂直对齐方式；
+     2. offsetY 图片相对于文本的偏移量(正值向上，负值向下)
      3. spacingBefore / spacingAfter 可用于设置插入图片前后的间距；
      */
     @discardableResult
@@ -352,21 +352,7 @@ public extension NSMutableAttributedString {
             
             // 获取当前索引处的字体
             let lineFont = self.attribute(.font, at: max(0, min(insertIndex, self.length - 1)), effectiveRange: nil) as? UIFont ?? UIFont.systemFont(ofSize: 15)
-            
-            // 计算图片(Y)偏移量（文字对齐用）
-            let yOffset: CGFloat
-            switch option.alignment {
-            case .center:
-                yOffset = lineFont.ascender - (option.size.height * 0.5)
-            case .top:
-                yOffset = lineFont.ascender - option.size.height
-            case .bottom:
-                yOffset = lineFont.descender
-            case .custom(let offset):
-                yOffset = -offset
-            }
-            
-            attachment.bounds = CGRect(x: 0, y: yOffset, width: option.size.width, height: option.size.height)
+            attachment.bounds = CGRect(x: 0, y: option.offsetY, width: option.size.width, height: option.size.height)
             let imageAttr = NSAttributedString(attachment: attachment)
             
             // 构建前后间距（使用透明附件）
@@ -567,20 +553,8 @@ public struct WYImageAttachmentOption {
         case before(text: String)
         /// 插入到文本后面
         case after(text: String)
-        /// 根据文本下标插入到指定为止
+        /// 根据文本下标插入到指定位置
         case index(Int)
-    }
-    
-    /// 图片对齐方式
-    @frozen public enum WYImageAttachmentAlignment {
-        /// 与文本居中对齐
-        case center
-        /// 与文本顶部对齐
-        case top
-        /// 与文本底部对齐
-        case bottom
-        /// 相对文本底部(Y轴)自定义偏移量对齐(负向上，正向下)
-        case custom(offset: CGFloat)
     }
     
     /// 要插入的图片
@@ -592,8 +566,8 @@ public struct WYImageAttachmentOption {
     /// 图片插入位置
     public let position: WYImageAttachmentPosition
     
-    /// 图片对齐方式
-    public let alignment: WYImageAttachmentAlignment
+    /// 图片相对于文本的偏移量(正值向上，负值向下)
+    public let offsetY: CGFloat
     
     /// 图片与前面文本的间距（单位：pt）
     public let spacingBefore: CGFloat
@@ -604,13 +578,13 @@ public struct WYImageAttachmentOption {
     public init(image: UIImage,
                 size: CGSize,
                 position: WYImageAttachmentPosition,
-                alignment: WYImageAttachmentAlignment = .center,
+                offsetY: CGFloat = 0,
                 spacingBefore: CGFloat = 0,
                 spacingAfter: CGFloat = 0) {
         self.image = image
         self.size = size
         self.position = position
-        self.alignment = alignment
+        self.offsetY = offsetY
         self.spacingBefore = spacingBefore
         self.spacingAfter = spacingAfter
     }
@@ -650,3 +624,4 @@ private extension NSMutableAttributedString {
         return paragraphStart..<paragraphEnd
     }
 }
+

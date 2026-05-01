@@ -182,7 +182,7 @@ import WYBasisKitSwift
      
      使用说明：
      1. position 支持插入到指定文本前/后或指定字符下标处；
-     2. alignment 支持图片在字体行内的垂直对齐方式；
+     2. offsetY 图片相对于文本的偏移量(正值向上，负值向下)
      3. spacingBefore / spacingAfter 可用于设置插入图片前后的间距；
      */
     @discardableResult
@@ -202,18 +202,7 @@ import WYBasisKitSwift
                         return .index((objCOption.positionValue as? NSNumber)?.intValue ?? 0)
                     }
                 }(),
-                alignment: {
-                    switch objCOption.alignment {
-                    case .center:
-                        return .center
-                    case .top:
-                        return .top
-                    case .bottom:
-                        return .bottom
-                    case .custom:
-                        return .custom(offset: objCOption.alignmentOffset)
-                    }
-                }(),
+                offsetY: objCOption.offsetY,
                 spacingBefore: objCOption.spacingBefore,
                 spacingAfter: objCOption.spacingAfter
             )
@@ -294,21 +283,8 @@ import WYBasisKitSwift
         case before = 0
         /// 插入到文本后面
         case after
-        /// 根据文本下标插入到指定为止
+        /// 根据文本下标插入到指定位置
         case index
-    }
-    
-    /// 图片对齐方式类型
-    @objc(WYImageAttachmentAlignment)
-    @frozen public enum WYImageAttachmentAlignmentObjC: Int {
-        /// 与文本居中对齐
-        case center = 0
-        /// 与文本顶部对齐
-        case top
-        /// 与文本底部对齐
-        case bottom
-        /// 相对文本底部(Y轴)自定义偏移量对齐(负向上，正向下)
-        case custom
     }
     
     /// 要插入的图片
@@ -323,11 +299,8 @@ import WYBasisKitSwift
     /// 插入位置的参数（before/after 时传 NSString，index 时传 NSNumber）
     @objc public let positionValue: Any?
     
-    /// 图片对齐方式类型
-    @objc public let alignment: WYImageAttachmentAlignmentObjC
-    
-    /// 自定义对齐偏移量（仅在 alignmentType = .custom 时生效，负向上，正向下）
-    @objc public let alignmentOffset: CGFloat
+    /// 图片相对于文本的偏移量(正值向上，负值向下)
+    public let offsetY: CGFloat
     
     /// 图片与前面文本的间距（单位：pt）
     @objc public let spacingBefore: CGFloat
@@ -339,16 +312,14 @@ import WYBasisKitSwift
                       size: CGSize,
                       position: WYImageAttachmentPositionObjC,
                       positionValue: Any? = nil,
-                      alignment: WYImageAttachmentAlignmentObjC = .center,
-                      alignmentOffset: CGFloat = 0,
+                      offsetY: CGFloat = 0,
                       spacingBefore: CGFloat = 0,
                       spacingAfter: CGFloat = 0) {
         self.image = image
         self.size = size
         self.position = position
         self.positionValue = positionValue
-        self.alignment = alignment
-        self.alignmentOffset = alignmentOffset
+        self.offsetY = offsetY
         self.spacingBefore = spacingBefore
         self.spacingAfter = spacingAfter
     }
