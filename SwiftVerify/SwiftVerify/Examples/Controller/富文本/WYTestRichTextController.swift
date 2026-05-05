@@ -80,17 +80,17 @@ class WYTestRichTextController: UIViewController {
         marginLabel.textColor = .orange
         
         let attrText = NSMutableAttributedString(string: marginLabel.text!)
-        attrText.wy_innerMargin(firstLineHeadIndent: 10, tailIndent: -10)
+        attrText.wy_innerMargin(firstLineHeadIndent: 10, tailIndent: -20, alignment: .left)
         
         marginLabel.numberOfLines = 0
         marginLabel.attributedText = attrText
         scrollView.addSubview(marginLabel)
         
-        marginLabel.sizeToFit()
+        let marginLabelWidth: CGFloat = marginLabel.text?.wy_calculateWidth(controlHeight: marginLabel.font.lineHeight, controlFont: marginLabel.font) ?? 0
+        
         marginLabel.snp.makeConstraints { (make) in
-            
             make.centerX.equalToSuperview()
-            make.width.equalTo(marginLabel.wy_width + 10)
+            make.width.equalTo(marginLabelWidth + 30)
             make.top.equalTo(emojiLabel.snp.bottom).offset(50)
         }
         

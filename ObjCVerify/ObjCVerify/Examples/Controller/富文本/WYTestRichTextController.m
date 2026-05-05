@@ -84,16 +84,16 @@
     marginLabel.textColor = [UIColor orangeColor];
     
     NSMutableAttributedString *attrText = [[NSMutableAttributedString alloc] initWithString:marginLabel.text];
-    [attrText wy_innerMarginWithFirstLineHeadIndent:10 headIndent:0 tailIndent:-10 alignment:NSTextAlignmentLeft];
+    [attrText wy_innerMarginWithFirstLineHeadIndent:10 headIndent:0 tailIndent:-20 alignment:NSTextAlignmentLeft];
     
     marginLabel.numberOfLines = 0;
     marginLabel.attributedText = attrText;
     [scrollView addSubview:marginLabel];
     
-    [marginLabel sizeToFit];
+    CGFloat marginLabelWidth = [marginLabel.text wy_calculateWidthWithControlHeight:marginLabel.font.lineHeight controlFont:marginLabel.font];
     [marginLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.equalTo(scrollView);
-        make.width.equalTo(@(marginLabel.wy_width + 10));
+        make.width.mas_equalTo(marginLabelWidth + 30);
         make.top.equalTo(emojiLabel.mas_bottom).offset(50);
     }];
     

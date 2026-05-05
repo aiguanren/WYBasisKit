@@ -1,5 +1,5 @@
 PODS:
-  - Alamofire (5.11.1)
+  - Alamofire (5.11.2)
   - IJKPlayerKit (1.0.4)
   - IQKeyboardCore (1.0.8)
   - IQKeyboardManagerSwift (8.0.1):
@@ -39,7 +39,7 @@ PODS:
     - IQKeyboardCore
   - IQTextView (1.0.5):
     - IQKeyboardToolbar/Placeholderable
-  - Kingfisher (8.8.0)
+  - Kingfisher (8.8.1)
   - KingfisherWebP (1.7.3):
     - Kingfisher (~> 8.0)
     - libwebp (>= 1.1.0)
@@ -299,7 +299,7 @@ EXTERNAL SOURCES:
     :path: WYBasisKit/WYBasisKit/WYBasisKit
 
 SPEC CHECKSUMS:
-  Alamofire: eec6cd8f73b242b59e34153a606a909eb9864b14
+  Alamofire: 400275dd1c6d87d95a041861d2a59da4b520a203
   IJKPlayerKit: 5f9e75aa19f2a049a234b51d0cc0f07a777c3981
   IQKeyboardCore: 8652977ec919cf5351aa2977fedd1a6546476fbc
   IQKeyboardManagerSwift: 835fc9c6e4732398113406d84900ad2e8f141218
@@ -309,7 +309,7 @@ SPEC CHECKSUMS:
   IQKeyboardToolbarManager: d449479b5843d4a3fb902d03bf62d6ca031ac20e
   IQTextInputViewNotification: 3b9fb27a16e7ee8958cc9092cfb07a1a9e1fd559
   IQTextView: ae13b4922f22e6f027f62c557d9f4f236b19d5c7
-  Kingfisher: beeaf65ed57dfa710d416aea4093277e8a9b1968
+  Kingfisher: b6c16059112dd6bdadf3d7ae01472ea1ef01a6b8
   KingfisherWebP: 064869d5f1201396ec121dcc4c9cfbdba6ecb900
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
   Masonry: 678fab65091a9290e40e2832a55e7ab731aad201

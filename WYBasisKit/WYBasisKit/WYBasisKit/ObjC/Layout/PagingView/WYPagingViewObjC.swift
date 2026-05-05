@@ -25,8 +25,18 @@ import WYBasisKitSwift
      * @param handler 点击或滚动事件的block
      */
     @objc(itemDidScroll:)
-    func itemDidScrollObjC(handler: @escaping ((_ pagingIndex: Int) -> Void)) {
+    func itemDidScrollObjC(handler: @escaping ((_ pagingView: WYPagingView, _ pagingIndex: Int, _ isFirstDisplayed: Bool) -> Void)) {
         itemDidScroll(handler: handler)
+    }
+    
+    /**
+     * PagingView页面布局完成(也可以通过实现代理监听)
+     *
+     * @param handler 点击或滚动事件的block
+     */
+    @objc(itemDidLayout:)
+    func itemDidLayoutObjC(handler: @escaping ((_ pagingView: WYPagingView) -> Void)) {
+        itemDidLayout(handler: handler)
     }
 
     /// 分页栏的高度 默认45
@@ -57,7 +67,7 @@ import WYBasisKitSwift
         set { bar_originlRightOffset = newValue }
     }
     
-    /// item距离分页栏顶部的偏移量，默认0.01(等于0时会强制转为nil传给swift)，如需传入0则传入0.01等具体值
+    /// item距离分页栏顶部的偏移量，默认0(等于0时会强制转为nil传给swift)，如需传入0则传入0.01等具体值
     @objc(bar_itemTopOffset)
     var bar_itemTopOffsetObjC: CGFloat {
         get { return bar_itemTopOffset ?? 0 }
@@ -129,11 +139,18 @@ import WYBasisKitSwift
         set { bar_item_height = newValue }
     }
     
-    /// 分页栏Item在约束size的基础上追加传入的size大小，默认.zero(高度等于bar_height)
-    @objc(bar_item_appendSize)
-    var bar_item_appendSizeObjC: CGSize {
-        get { return bar_item_appendSize }
-        set { bar_item_appendSize = newValue }
+    /// 分页栏Item按钮内边距，默认.zero(如果bar_item_width和bar_item_height没传入的话，内部会智能调整)
+    @objc(bar_item_insideMargins)
+    var bar_item_insideMarginsObjC: UIEdgeInsets {
+        get { return bar_item_insideMargins }
+        set { bar_item_insideMargins = newValue }
+    }
+    
+    /// 分页栏Item按钮内部imageView大小Size，默认.zero(图片本身Size)，仅图文混排时生效，只有图片时可通过bar_item_insideMargins来控制其Size
+    @objc(bar_item_imageViewSize)
+    var bar_item_imageViewSizeObjC: CGSize {
+        get { return bar_item_imageViewSize }
+        set { bar_item_imageViewSize = newValue }
     }
 
     /// 分页栏item默认背景色 默认白色
@@ -336,22 +353,112 @@ import WYBasisKitSwift
 /// PagingView按钮栏Item
 @objc public extension WYPagingItem {
     
-    /// 按钮标签View
-    @objc(contentView)
-    var contentViewObjC: UIButton {
-        get { return contentView }
-        set { contentView = newValue }
+    /// 标题View
+    @objc(textView)
+    var textViewObjC: UILabel? {
+        get { return textView }
+        set { textView = newValue }
     }
     
-    /// 唯一初始化方法
-    @objc(initWithAppendSize:)
-    convenience init(with appendSize: CGSize) {
-        self.init(appendSize: appendSize)
+    /// 图片View
+    @objc(iconView)
+    var iconViewObjC: UIImageView? {
+        get { return iconView }
+        set { iconView = newValue }
+    }
+    
+    /// 内边距
+    @objc(insideMargins)
+    var insideMarginsObjC: UIEdgeInsets {
+        return insideMargins
+    }
+    
+    /// Normal状态文本
+    @objc(normalText)
+    var normalTextObjC: String? {
+        return normalText
+    }
+    
+    /// Selected状态文本
+    @objc(selectedText)
+    var selectedTextObjC: String? {
+        return selectedText
+    }
+    
+    /// Normal状态图片
+    @objc(normalImage)
+    var normalImageObjC: UIImage? {
+        return normalImage
+    }
+    
+    /// Selected状态图片
+    @objc(selectedImage)
+    var selectedImageObjC: UIImage? {
+        return selectedImage
+    }
+    
+    /// Normal状态文本颜色
+    @objc(normalTextColor)
+    var normalTextColorObjC: UIColor? {
+        return normalTextColor
+    }
+    
+    /// Selected状态文本颜色
+    @objc(selectedTextColor)
+    var selectedTextColorObjC: UIColor? {
+        return selectedTextColor
+    }
+    
+    /// Normal状态文本字体
+    @objc(normalTextFont)
+    var normalTextFontObjC: UIFont? {
+        return normalTextFont
+    }
+    
+    /// Selected状态文本字体
+    @objc(selectedTextFont)
+    var selectedTextFontObjC: UIFont? {
+        return selectedTextFont
+    }
+    
+    /**
+     *  唯一初始化方法
+     *  @param insideMargins          按钮内边距
+     *  @param normalImage            按钮Normal状态图片
+     *  @param selectedImage          按钮Selected状态图片
+     *  @param imageViewSize          按钮图片ViewSize
+     *  @param normalText             按钮Normal状态文本
+     *  @param selectedText           按钮Selected状态文本
+     *  @param normalTextColor        按钮Normal状态文本颜色
+     *  @param selectedTextColor      按钮Selected状态文本颜色
+     *  @param normalTextFont         按钮Normal状态文本字体字号
+     *  @param selectedTextFont       按钮Selected状态文本字体字号
+     *  @param buttonPosition         图片和文字显示模式
+     *  @param dividingOffset         按钮内部图片和文字的上下或左右间距
+     *  @param itemWidth              外部指定的Item固定宽度（0表示自适应）
+     *  @param itemHeight             外部指定的Item固定高度（0表示自适应）
+     */
+    @objc(initWithInsideMargins:normalImage:selectedImage:imageViewSize:normalText:selectedText:normalTextColor:selectedTextColor:normalTextFont:selectedTextFont:buttonPosition:dividingOffset:itemWidth:itemHeight:)
+    convenience init(insideMargins: UIEdgeInsets,
+                     normalImage: UIImage?,
+                     selectedImage: UIImage?,
+                     imageViewSize: CGSize,
+                     normalText: String?,
+                     selectedText: String?,
+                     normalTextColor: UIColor,
+                     selectedTextColor: UIColor,
+                     normalTextFont: UIFont,
+                     selectedTextFont: UIFont,
+                     buttonPosition: WYButtonPositionObjC,
+                     dividingOffset: CGFloat,
+                     itemWidth: CGFloat = 0,
+                     itemHeight: CGFloat = 0) {
+        self.init(insideMargins: insideMargins, normalImage: normalImage, selectedImage: selectedImage, imageViewSize: imageViewSize, normalText: normalText, selectedText: selectedText, normalTextColor: normalTextColor, selectedTextColor: selectedTextColor, normalTextFont: normalTextFont, selectedTextFont: selectedTextFont, buttonPosition: (WYButtonPosition(rawValue: buttonPosition.rawValue) ?? .imageLeftTitleRight), dividingOffset: dividingOffset, itemWidth: itemWidth, itemHeight: itemHeight)
     }
     
     /// 设置按钮富文本
-    @objc(setContentAttributedWithTitle:titleColor:font:isSelected:)
-    func setContentAttributedObjC(title: String? = nil, titleColor: UIColor, font: UIFont, isSelected: Bool) {
-        setContentAttributed(title: title, titleColor: titleColor, font: font, isSelected: isSelected)
+    @objc(setIsSelected:)
+    func setIsSelectedObjC(_ isSelected: Bool) {
+        setIsSelected(isSelected)
     }
 }
