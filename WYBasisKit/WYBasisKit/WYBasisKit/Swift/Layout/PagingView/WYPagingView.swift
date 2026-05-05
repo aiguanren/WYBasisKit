@@ -875,8 +875,8 @@ public class WYPagingItem: UIButton {
         ])
         
         // ==================== 图文混排 ====================
-        if let normalImage = normalImage, let selectedImage = selectedImage,
-           let normalText = normalText, let selectedText = selectedText {
+        if let normalImage = normalImage, let _ = selectedImage,
+           let normalText = normalText, let _ = selectedText {
             
             let icon = UIImageView(image: normalImage)
             icon.translatesAutoresizingMaskIntoConstraints = false
@@ -952,7 +952,7 @@ public class WYPagingItem: UIButton {
             }
         }
         // ==================== 仅图片 ====================
-        else if let normalImage = normalImage, let selectedImage = selectedImage {
+        else if let normalImage = normalImage, let _ = selectedImage {
             let icon = UIImageView(image: normalImage)
             icon.translatesAutoresizingMaskIntoConstraints = false
             icon.contentMode = .scaleAspectFit
@@ -967,7 +967,7 @@ public class WYPagingItem: UIButton {
             ])
         }
         // ==================== 仅文本 ====================
-        else if let normalText = normalText, let selectedText = selectedText {
+        else if let normalText = normalText, let _ = selectedText {
             let label = UILabel()
             label.translatesAutoresizingMaskIntoConstraints = false
             label.text = normalText
