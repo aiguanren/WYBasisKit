@@ -46,7 +46,7 @@
         if (handler.success) {
             WYSuccess *success = handler.success;
             
-            WYLog(@"%@缓存数据\n%@", (success.isCache ? @"是" : @"不是"), (config.originObject ? success.origin : success.parse));
+            wy_print(@"%@缓存数据\n%@", (success.isCache ? @"是" : @"不是"), (config.originObject ? success.origin : success.parse));
             
             textView.text = (config.originObject ? success.origin : success.parse);
             
@@ -55,13 +55,13 @@
             }
             
             if (success.storage != nil) {
-                WYLog(@"缓存路径：%@", success.storage.path.path ?: @"");
+                wy_print(@"缓存路径：%@", success.storage.path.path ?: @"");
             }
             
         } else if (handler.error) {
             
             WYError *error = handler.error;
-            WYLog(@"%@", error);
+            wy_print(@"%@", error);
             [WYActivity dismissLoadingIn:self.view];
             [WYActivity showInfo:error.describe];
             

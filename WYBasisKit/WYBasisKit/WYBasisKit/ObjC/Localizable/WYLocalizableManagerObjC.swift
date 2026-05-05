@@ -105,6 +105,44 @@ import WYBasisKitSwift
     case other
 }
 
+/// 国际化资源定位信息
+@objc(WYLocalizableSource)
+@objcMembers public class WYLocalizableSourceObjC: NSObject {
+    
+    /// 指定 Bundle.class，效果如：Bundle(for: targetClass)
+    @objc public let targetClass: AnyClass?
+    
+    /// 从哪个bundle文件内查找，如果bundleName对应的bundle不存在，则直接在本地路径下查找
+    @objc public let bundleName: String
+    
+    /// 唯一初始化方法(实例)
+    @objc public init(targetClass: AnyClass? = nil, bundleName: String = "") {
+        self.targetClass = targetClass
+        self.bundleName = bundleName
+        super.init()
+    }
+    
+    /// 通用初始化方法(静态)
+    @objc public static func bundleFor(targetClass: AnyClass? = nil) -> WYLocalizableSourceObjC {
+        return WYLocalizableSourceObjC(targetClass: targetClass, bundleName: "")
+    }
+    
+    /// 通用初始化方法(静态)
+    @objc public static func bundleFor(name bundleName: String = "") -> WYLocalizableSourceObjC {
+        return WYLocalizableSourceObjC(targetClass: nil, bundleName: bundleName)
+    }
+    
+    /// 通用初始化方法(静态)
+    @objc public static func bundleFor(targetClass: AnyClass? = nil, name bundleName: String = "") -> WYLocalizableSourceObjC {
+        return WYLocalizableSourceObjC(targetClass: targetClass, bundleName: bundleName)
+    }
+    
+    /// 转换WYLocalizableSourceObjC为WYLocalizableSource(内部使用)
+    public func toSwiftSource() -> WYLocalizableSource {
+        return WYLocalizableSource(targetClass: targetClass, bundleName: bundleName)
+    }
+}
+
 @objc(WYLocalizableManager)
 @objcMembers public class WYLocalizableManagerObjC: NSObject {
     
@@ -146,7 +184,6 @@ import WYBasisKitSwift
      *  根据传入的Key读取对应的本地语言
      *
      *  @param key  本地语言对应的Key
-     *
      */
     @objc public static func localized(key: String) -> String {
         return WYLocalizableManager.localized(key: key, table: WYBasisKitConfig.localizableTable)
@@ -156,11 +193,20 @@ import WYBasisKitSwift
      *  根据传入的Key读取对应的本地语言
      *
      *  @param key  本地语言对应的Key
-     *
      *  @param table  国际化语言读取表(如果有Bundle，则要求Bundle名与表名一致，否则会读取失败)
-     *
      */
     @objc public static func localized(key: String, table: String = WYBasisKitConfig.localizableTable) -> String {
         return WYLocalizableManager.localized(key: key, table: table)
+    }
+    
+    /**
+     *  根据传入的Key读取对应的本地语言
+     *
+     *  @param key  本地语言对应的Key
+     *  @param table  国际化语言读取表
+     *  @param source  资源定位信息
+     */
+    @objc public static func localized(key: String, table: String, source: WYLocalizableSourceObjC) -> String {
+        return WYLocalizableManager.localized(key: key, table: table, source: source.toSwiftSource())
     }
 }

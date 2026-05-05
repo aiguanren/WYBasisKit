@@ -7,18 +7,21 @@
 
 import UIKit
 
+// MARK: - 显示模式枚举
+enum DisplayMode: String, CaseIterable {
+    case textOnly = "仅文本"
+    case imageOnly = "仅图片"
+    case both = "图片+文本"
+}
+
+// MARK: - 主测试控制器
 class WYTestPagingViewController: UIViewController {
     
-    /// 分页视图
     private var pagingView: WYPagingView?
-    
-    /// 设置按钮
     private var settingsButton: UIBarButtonItem!
-    
-    /// 设置数据模型
     private var settings = PagingSettingsModel()
     
-    /// 测试用的子控制器数组
+    /// 测试用的子控制器数组（固定5个）
     private let testControllers: [UIViewController] = {
         let colors: [UIColor] = [.red, .green, .blue, .yellow, .purple, .orange, .cyan, .magenta]
         return colors.prefix(5).map { color in
@@ -33,27 +36,24 @@ class WYTestPagingViewController: UIViewController {
     /// 测试用的标题数组
     private let testTitles = ["首页", "消息", "发现", "我的", "设置"]
     
-    /// 测试用的图片数组（使用系统图标代替）
-    private let testDefaultImages: [UIImage] = {
-        return [
-            UIImage(systemName: "house")!,
-            UIImage(systemName: "message")!,
-            UIImage(systemName: "magnifyingglass")!,
-            UIImage(systemName: "person")!,
-            UIImage(systemName: "gearshape")!
-        ]
-    }()
+    /// 测试用的未选中图片数组
+    private let testDefaultImages: [UIImage] = [
+        UIImage(systemName: "house")!,
+        UIImage(systemName: "message")!,
+        UIImage(systemName: "magnifyingglass")!,
+        UIImage(systemName: "person")!,
+        UIImage(systemName: "gearshape")!
+    ]
     
-    private let testSelectedImages: [UIImage] = {
-        return [
-            UIImage(systemName: "house.fill")!,
-            UIImage(systemName: "message.fill")!,
-            UIImage(systemName: "magnifyingglass.circle.fill")!,
-            UIImage(systemName: "person.fill")!,
-            UIImage(systemName: "gearshape.fill")!
-        ]
-    }()
-
+    /// 测试用的选中图片数组
+    private let testSelectedImages: [UIImage] = [
+        UIImage(systemName: "house.fill")!,
+        UIImage(systemName: "message.fill")!,
+        UIImage(systemName: "magnifyingglass.circle.fill")!,
+        UIImage(systemName: "person.fill")!,
+        UIImage(systemName: "gearshape.fill")!
+    ]
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -61,12 +61,10 @@ class WYTestPagingViewController: UIViewController {
         setupInitialPagingView()
     }
     
-    /// 设置导航栏
     private func setupNavigationBar() {
         title = "WYPagingView 测试"
         view.backgroundColor = .white
         
-        // 添加设置按钮
         settingsButton = UIBarButtonItem(
             title: "设置",
             style: .plain,
@@ -78,17 +76,13 @@ class WYTestPagingViewController: UIViewController {
         self.wy_navBarBackgroundColor = .orange
     }
     
-    /// 初始化默认的分页视图
     private func setupInitialPagingView() {
-        // 移除旧的视图
         pagingView?.removeFromSuperview()
         pagingView = nil
         
-        // 创建新的分页视图
         let newPagingView = WYPagingView()
         view.addSubview(newPagingView)
         
-        // 设置约束
         newPagingView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             newPagingView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -97,32 +91,35 @@ class WYTestPagingViewController: UIViewController {
             newPagingView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
         
-        // 应用当前设置
         applySettings(to: newPagingView)
         
-        // 布局分页视图
+        // 根据显示模式决定传入的参数
+        let (titles, defaultImages, selectedImages) = resolveDisplayModeParameters()
         newPagingView.layout(
             controllers: testControllers,
-            titles: testTitles,
-            defaultImages: testDefaultImages,
-            selectedImages: testSelectedImages,
+            titles: titles,
+            defaultImages: defaultImages,
+            selectedImages: selectedImages,
             superViewController: self
         )
         
         pagingView = newPagingView
     }
     
-    /// 显示设置界面
-    @objc private func showSettings() {
-        let settingsVC = PagingSettingsViewController(settings: settings)
-        settingsVC.delegate = self
-        let navController = UINavigationController(rootViewController: settingsVC)
-        present(navController, animated: true)
+    /// 根据显示模式返回对应的 titles 和 images 数组
+    private func resolveDisplayModeParameters() -> ([String], [UIImage], [UIImage]) {
+        switch settings.displayMode {
+        case .textOnly:
+            return (testTitles, [], [])
+        case .imageOnly:
+            return ([], testDefaultImages, testSelectedImages)
+        case .both:
+            return (testTitles, testDefaultImages, testSelectedImages)
+        }
     }
     
-    /// 将设置应用到分页视图
     private func applySettings(to pagingView: WYPagingView) {
-        // 基本属性设置
+        // 基本属性
         pagingView.bar_height = settings.barHeight
         pagingView.buttonPosition = settings.buttonPosition
         pagingView.bar_originlLeftOffset = settings.originlLeftOffset
@@ -143,19 +140,23 @@ class WYTestPagingViewController: UIViewController {
         pagingView.bar_dividingStripColor = settings.dividingStripColor
         pagingView.bar_scrollLineColor = settings.scrollLineColor
         
-        // 图片设置
+        // 图片资源
         pagingView.bar_dividingStripImage = settings.dividingStripImage
         pagingView.bar_scrollLineImage = settings.scrollLineImage
         
         // 尺寸设置
         pagingView.bar_item_width = settings.itemWidth
         pagingView.bar_item_height = settings.itemHeight
-        pagingView.bar_item_appendSize = settings.itemAppendSize
         pagingView.bar_item_cornerRadius = settings.itemCornerRadius
         pagingView.bar_scrollLineWidth = settings.scrollLineWidth
         pagingView.bar_scrollLineBottomOffset = settings.scrollLineBottomOffset
         pagingView.bar_dividingStripHeight = settings.dividingStripHeight
         pagingView.bar_scrollLineHeight = settings.scrollLineHeight
+        
+        // 新增属性
+        pagingView.bar_scrollLineFollowFinger = settings.scrollLineFollowFinger
+        pagingView.bar_item_insideMargins = settings.itemInsideMargins
+        pagingView.bar_item_imageViewSize = settings.itemImageViewSize
         
         // 字体设置
         pagingView.bar_title_defaultFont = settings.titleDefaultFont
@@ -167,12 +168,21 @@ class WYTestPagingViewController: UIViewController {
         pagingView.canScrollBar = settings.canScrollBar
         pagingView.bar_pagingContro_bounce = settings.pagingBounce
         
-        // 设置代理和回调
+        // 代理和闭包
         pagingView.delegate = self
-        pagingView.itemDidScroll { [weak self] index in
-            guard self != nil else { return }
-            print("分页滚动到第 \(index) 页 - 通过闭包回调")
+        pagingView.itemDidScroll { pagingView, pagingIndex, isFirstDisplayed in
+            print("分页滚动到第 \(pagingIndex) 页 - 通过闭包回调")
         }
+        pagingView.itemDidLayout { pagingView in
+            print("分页视图布局完成 - 闭包回调")
+        }
+    }
+    
+    @objc private func showSettings() {
+        let settingsVC = PagingSettingsViewController(settings: settings)
+        settingsVC.delegate = self
+        let navController = UINavigationController(rootViewController: settingsVC)
+        present(navController, animated: true)
     }
     
     deinit {
@@ -182,9 +192,12 @@ class WYTestPagingViewController: UIViewController {
 
 // MARK: - WYPagingViewDelegate
 extension WYTestPagingViewController: WYPagingViewDelegate {
+    func wy_pagingViewItemDidScroll(_ pagingView: WYPagingView, pagingIndex: Int, isFirstDisplayed: Bool) {
+        print("分页滚动到第 \(pagingIndex) 页 - 通过代理回调, \(isFirstDisplayed ? "是" : "不是")第一次显示该页面")
+    }
     
-    func wy_pagingViewItemDidScroll(_ pagingView: WYPagingView, pagingIndex: Int) {
-        print("分页滚动到第 \(pagingIndex) 页 - 通过代理回调")
+    func wy_pagingViewLayoutDidCompleted(_ pagingView: WYPagingView) {
+        print("分页视图布局完成 - 代理回调")
     }
 }
 
@@ -203,6 +216,9 @@ extension WYTestPagingViewController: PagingSettingsDelegate {
 
 // MARK: - 设置数据模型
 struct PagingSettingsModel {
+    // 显示模式
+    var displayMode: DisplayMode = .both
+    
     // 基本属性
     var barHeight: CGFloat = 65
     var buttonPosition: WYButtonPosition = .imageTopTitleBottom
@@ -224,19 +240,23 @@ struct PagingSettingsModel {
     var dividingStripColor: UIColor = .wy_hex("#F2F2F2")
     var scrollLineColor: UIColor = .wy_hex("#2D3952")
     
-    // 图片
+    // 图片资源
     var dividingStripImage: UIImage? = nil
     var scrollLineImage: UIImage? = nil
     
     // 尺寸
     var itemWidth: CGFloat = 0
     var itemHeight: CGFloat = 0
-    var itemAppendSize: CGSize = .zero
     var itemCornerRadius: CGFloat = 0
     var scrollLineWidth: CGFloat = 25
     var scrollLineBottomOffset: CGFloat = 5
     var dividingStripHeight: CGFloat = 2
     var scrollLineHeight: CGFloat = 2
+    
+    // 新增属性
+    var scrollLineFollowFinger: Bool = true
+    var itemInsideMargins: UIEdgeInsets = .zero
+    var itemImageViewSize: CGSize = .zero
     
     // 字体
     var titleDefaultFont: UIFont = UIFont.systemFont(ofSize: 15)
@@ -263,16 +283,20 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
     
     private let tableView = UITableView(frame: .zero, style: .grouped)
     
-    // 所有设置项
     private let sections = [
+        "显示模式",
         "基本属性",
         "颜色设置",
         "尺寸设置",
+        "高级属性",
         "字体设置",
         "其他设置"
     ]
     
-    private let items = [
+    private let items: [[(String, String)]] = [
+        // 显示模式
+        [("显示模式", "displayMode")],
+        
         // 基本属性
         [
             ("分页栏高度", "barHeight"),
@@ -284,6 +308,7 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
             ("分栏间距", "dividingOffset"),
             ("按钮内间距", "buttonDividingOffset")
         ],
+        
         // 颜色设置
         [
             ("页面内容颜色", "pagingContentColor"),
@@ -296,22 +321,31 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
             ("分隔带颜色", "dividingStripColor"),
             ("滑动线颜色", "scrollLineColor")
         ],
+        
         // 尺寸设置
         [
             ("Item宽度", "itemWidth"),
             ("Item高度", "itemHeight"),
-            ("Item追加尺寸", "itemAppendSize"),
             ("Item圆角", "itemCornerRadius"),
             ("滑动线宽度", "scrollLineWidth"),
             ("滑动线底部偏移", "scrollLineBottomOffset"),
             ("分隔带高度", "dividingStripHeight"),
             ("滑动线高度", "scrollLineHeight")
         ],
+        
+        // 高级属性
+        [
+            ("滑动线跟随手指", "scrollLineFollowFinger"),
+            ("按钮内边距", "itemInsideMargins"),
+            ("图片尺寸", "itemImageViewSize")
+        ],
+        
         // 字体设置
         [
             ("默认字体大小", "titleDefaultFont"),
             ("选中字体大小", "titleSelectedFont")
         ],
+        
         // 其他设置
         [
             ("初始选中项", "selectedIndex"),
@@ -323,20 +357,11 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
     
     // 颜色选项
     private let colorOptions: [String: UIColor] = [
-        "白色": .white,
-        "黑色": .black,
-        "红色": .red,
-        "绿色": .green,
-        "蓝色": .blue,
-        "黄色": .yellow,
-        "橙色": .orange,
-        "紫色": .purple,
-        "灰色": .gray,
-        "浅灰色": .lightGray,
-        "默认标题色": .wy_hex("#7B809E"),
-        "选中标题色": .wy_hex("#2D3952"),
-        "分隔带色": .wy_hex("#F2F2F2"),
-        "滑动线色": .wy_hex("#2D3952")
+        "白色": .white, "黑色": .black, "红色": .red, "绿色": .green,
+        "蓝色": .blue, "黄色": .yellow, "橙色": .orange, "紫色": .purple,
+        "灰色": .gray, "浅灰色": .lightGray,
+        "默认标题色": .wy_hex("#7B809E"), "选中标题色": .wy_hex("#2D3952"),
+        "分隔带色": .wy_hex("#F2F2F2"), "滑动线色": .wy_hex("#2D3952")
     ]
     
     init(settings: PagingSettingsModel) {
@@ -356,7 +381,6 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
     
     private func setupUI() {
         view.backgroundColor = .white
-        
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
@@ -373,27 +397,11 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
     
     private func setupNavigationBar() {
         title = "WYPagingView 设置"
-        
-        let saveButton = UIBarButtonItem(
-            title: "保存",
-            style: .done,
-            target: self,
-            action: #selector(saveSettings)
-        )
-        
-        let cancelButton = UIBarButtonItem(
-            title: "取消",
-            style: .plain,
-            target: self,
-            action: #selector(cancelSettings)
-        )
-        
-        navigationItem.leftBarButtonItem = cancelButton
-        navigationItem.rightBarButtonItem = saveButton
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "取消", style: .plain, target: self, action: #selector(cancelSettings))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "保存", style: .done, target: self, action: #selector(saveSettings))
     }
     
     // MARK: - UITableViewDataSource
-    
     func numberOfSections(in tableView: UITableView) -> Int {
         return sections.count
     }
@@ -409,41 +417,17 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .value1, reuseIdentifier: "cell")
         let item = items[indexPath.section][indexPath.row]
-        
         cell.textLabel?.text = item.0
-        cell.detailTextLabel?.text = getValueDescription(for: item.1)
+        cell.detailTextLabel?.text = valueDescription(for: item.1)
         cell.accessoryType = .disclosureIndicator
         
-        // 为颜色设置项添加颜色预览
+        // 颜色预览
         if item.1.contains("Color") {
             let colorView = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
             colorView.layer.cornerRadius = 4
             colorView.layer.borderWidth = 1
             colorView.layer.borderColor = UIColor.lightGray.cgColor
-            
-            switch item.1 {
-            case "pagingContentColor":
-                colorView.backgroundColor = settings.pagingContentColor
-            case "pagingBgColor":
-                colorView.backgroundColor = settings.pagingBgColor
-            case "barBgColor":
-                colorView.backgroundColor = settings.barBgColor
-            case "itemDefaultBgColor":
-                colorView.backgroundColor = settings.itemDefaultBgColor
-            case "itemSelectedBgColor":
-                colorView.backgroundColor = settings.itemSelectedBgColor
-            case "titleDefaultColor":
-                colorView.backgroundColor = settings.titleDefaultColor
-            case "titleSelectedColor":
-                colorView.backgroundColor = settings.titleSelectedColor
-            case "dividingStripColor":
-                colorView.backgroundColor = settings.dividingStripColor
-            case "scrollLineColor":
-                colorView.backgroundColor = settings.scrollLineColor
-            default:
-                break
-            }
-            
+            colorView.backgroundColor = colorValue(for: item.1)
             cell.accessoryView = colorView
         } else {
             cell.accessoryView = nil
@@ -452,19 +436,11 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         return cell
     }
     
-    // MARK: - UITableViewDelegate
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        
-        let item = items[indexPath.section][indexPath.row]
-        showDetailSetting(for: item.1)
-    }
-    
-    private func getValueDescription(for key: String) -> String {
+    // MARK: - 辅助方法
+    private func valueDescription(for key: String) -> String {
         switch key {
-        case "barHeight":
-            return "\(settings.barHeight)"
+        case "displayMode": return settings.displayMode.rawValue
+        case "barHeight": return "\(settings.barHeight)"
         case "buttonPosition":
             switch settings.buttonPosition {
             case .imageLeftTitleRight: return "图片左文字右"
@@ -472,287 +448,318 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
             case .imageTopTitleBottom: return "图片上文字下"
             case .imageBottomTitleTop: return "图片下文字上"
             }
-        case "originlLeftOffset":
-            return "\(settings.originlLeftOffset)"
-        case "originlRightOffset":
-            return "\(settings.originlRightOffset)"
-        case "itemTopOffset":
-            return settings.itemTopOffset?.description ?? "0"
-        case "adjustOffset":
-            return settings.adjustOffset ? "是" : "否"
-        case "dividingOffset":
-            return "\(settings.dividingOffset)"
-        case "buttonDividingOffset":
-            return "\(settings.buttonDividingOffset)"
-        case "pagingContentColor":
-            return "已设置"
-        case "pagingBgColor":
-            return settings.pagingBgColor != nil ? "已设置" : "nil"
-        case "barBgColor":
-            return "已设置"
-        case "itemDefaultBgColor":
-            return "已设置"
-        case "itemSelectedBgColor":
-            return "已设置"
-        case "titleDefaultColor":
-            return "已设置"
-        case "titleSelectedColor":
-            return "已设置"
-        case "dividingStripColor":
-            return "已设置"
-        case "scrollLineColor":
-            return "已设置"
-        case "itemWidth":
-            return "\(settings.itemWidth)"
-        case "itemHeight":
-            return "\(settings.itemHeight)"
-        case "itemAppendSize":
-            return "\(settings.itemAppendSize.width), \(settings.itemAppendSize.height)"
-        case "itemCornerRadius":
-            return "\(settings.itemCornerRadius)"
-        case "scrollLineWidth":
-            return "\(settings.scrollLineWidth)"
-        case "scrollLineBottomOffset":
-            return "\(settings.scrollLineBottomOffset)"
-        case "dividingStripHeight":
-            return "\(settings.dividingStripHeight)"
-        case "scrollLineHeight":
-            return "\(settings.scrollLineHeight)"
-        case "titleDefaultFont":
-            return "\(Int(settings.titleDefaultFont.pointSize))"
-        case "titleSelectedFont":
-            return "\(Int(settings.titleSelectedFont.pointSize))"
-        case "selectedIndex":
-            return "\(settings.selectedIndex)"
-        case "canScrollController":
-            return settings.canScrollController ? "是" : "否"
-        case "canScrollBar":
-            return settings.canScrollBar ? "是" : "否"
-        case "pagingBounce":
-            return settings.pagingBounce ? "是" : "否"
-        default:
-            return ""
+        case "originlLeftOffset": return "\(settings.originlLeftOffset)"
+        case "originlRightOffset": return "\(settings.originlRightOffset)"
+        case "itemTopOffset": return settings.itemTopOffset?.description ?? "nil"
+        case "adjustOffset": return settings.adjustOffset ? "是" : "否"
+        case "dividingOffset": return "\(settings.dividingOffset)"
+        case "buttonDividingOffset": return "\(settings.buttonDividingOffset)"
+        case "pagingContentColor", "pagingBgColor", "barBgColor", "itemDefaultBgColor",
+             "itemSelectedBgColor", "titleDefaultColor", "titleSelectedColor",
+             "dividingStripColor", "scrollLineColor": return "已设置"
+        case "itemWidth": return "\(settings.itemWidth)"
+        case "itemHeight": return "\(settings.itemHeight)"
+        case "itemCornerRadius": return "\(settings.itemCornerRadius)"
+        case "scrollLineWidth": return "\(settings.scrollLineWidth)"
+        case "scrollLineBottomOffset": return "\(settings.scrollLineBottomOffset)"
+        case "dividingStripHeight": return "\(settings.dividingStripHeight)"
+        case "scrollLineHeight": return "\(settings.scrollLineHeight)"
+        case "scrollLineFollowFinger": return settings.scrollLineFollowFinger ? "是" : "否"
+        case "itemInsideMargins": return "T:\(settings.itemInsideMargins.top) L:\(settings.itemInsideMargins.left) B:\(settings.itemInsideMargins.bottom) R:\(settings.itemInsideMargins.right)"
+        case "itemImageViewSize": return "W:\(settings.itemImageViewSize.width) H:\(settings.itemImageViewSize.height)"
+        case "titleDefaultFont": return "\(Int(settings.titleDefaultFont.pointSize))"
+        case "titleSelectedFont": return "\(Int(settings.titleSelectedFont.pointSize))"
+        case "selectedIndex": return "\(settings.selectedIndex)"
+        case "canScrollController": return settings.canScrollController ? "是" : "否"
+        case "canScrollBar": return settings.canScrollBar ? "是" : "否"
+        case "pagingBounce": return settings.pagingBounce ? "是" : "否"
+        default: return ""
         }
     }
     
-    private func showDetailSetting(for key: String) {
-        let alert = UIAlertController(title: "设置 \(key)", message: nil, preferredStyle: .alert)
-        
+    private func colorValue(for key: String) -> UIColor {
         switch key {
-        case "barHeight", "originlLeftOffset", "originlRightOffset", "dividingOffset",
-             "buttonDividingOffset", "itemWidth", "itemHeight", "itemCornerRadius",
-             "scrollLineWidth", "scrollLineBottomOffset", "dividingStripHeight",
-             "scrollLineHeight":
-            
-            alert.addTextField { textField in
-                textField.keyboardType = .decimalPad
-                textField.placeholder = "请输入数值"
-                let currentValue: CGFloat
-                switch key {
-                case "barHeight": currentValue = self.settings.barHeight
-                case "originlLeftOffset": currentValue = self.settings.originlLeftOffset
-                case "originlRightOffset": currentValue = self.settings.originlRightOffset
-                case "dividingOffset": currentValue = self.settings.dividingOffset
-                case "buttonDividingOffset": currentValue = self.settings.buttonDividingOffset
-                case "itemWidth": currentValue = self.settings.itemWidth
-                case "itemHeight": currentValue = self.settings.itemHeight
-                case "itemCornerRadius": currentValue = self.settings.itemCornerRadius
-                case "scrollLineWidth": currentValue = self.settings.scrollLineWidth
-                case "scrollLineBottomOffset": currentValue = self.settings.scrollLineBottomOffset
-                case "dividingStripHeight": currentValue = self.settings.dividingStripHeight
-                case "scrollLineHeight": currentValue = self.settings.scrollLineHeight
-                default: currentValue = 0
-                }
-                textField.text = "\(currentValue)"
-            }
-            
-            alert.addAction(UIAlertAction(title: "确定", style: .default) { _ in
-                if let text = alert.textFields?.first?.text, let value = Double(text) {
-                    let cgValue = CGFloat(value)
-                    switch key {
-                    case "barHeight": self.settings.barHeight = cgValue
-                    case "originlLeftOffset": self.settings.originlLeftOffset = cgValue
-                    case "originlRightOffset": self.settings.originlRightOffset = cgValue
-                    case "dividingOffset": self.settings.dividingOffset = cgValue
-                    case "buttonDividingOffset": self.settings.buttonDividingOffset = cgValue
-                    case "itemWidth": self.settings.itemWidth = cgValue
-                    case "itemHeight": self.settings.itemHeight = cgValue
-                    case "itemCornerRadius": self.settings.itemCornerRadius = cgValue
-                    case "scrollLineWidth": self.settings.scrollLineWidth = cgValue
-                    case "scrollLineBottomOffset": self.settings.scrollLineBottomOffset = cgValue
-                    case "dividingStripHeight": self.settings.dividingStripHeight = cgValue
-                    case "scrollLineHeight": self.settings.scrollLineHeight = cgValue
-                    default: break
-                    }
+        case "pagingContentColor": return settings.pagingContentColor
+        case "pagingBgColor": return settings.pagingBgColor ?? .clear
+        case "barBgColor": return settings.barBgColor
+        case "itemDefaultBgColor": return settings.itemDefaultBgColor
+        case "itemSelectedBgColor": return settings.itemSelectedBgColor
+        case "titleDefaultColor": return settings.titleDefaultColor
+        case "titleSelectedColor": return settings.titleSelectedColor
+        case "dividingStripColor": return settings.dividingStripColor
+        case "scrollLineColor": return settings.scrollLineColor
+        default: return .clear
+        }
+    }
+    
+    // MARK: - UITableViewDelegate
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        let key = items[indexPath.section][indexPath.row].1
+        showEditor(for: key)
+    }
+    
+    private func showEditor(for key: String) {
+        switch key {
+        case "displayMode":
+            let alert = UIAlertController(title: "选择显示模式", message: nil, preferredStyle: .actionSheet)
+            for mode in DisplayMode.allCases {
+                alert.addAction(UIAlertAction(title: mode.rawValue, style: .default) { _ in
+                    self.settings.displayMode = mode
                     self.tableView.reloadData()
-                }
-            })
-            
-        case "titleDefaultFont", "titleSelectedFont":
-            alert.addTextField { textField in
-                textField.keyboardType = .numberPad
-                textField.placeholder = "请输入字体大小"
-                let currentSize: CGFloat
-                if key == "titleDefaultFont" {
-                    currentSize = self.settings.titleDefaultFont.pointSize
-                } else {
-                    currentSize = self.settings.titleSelectedFont.pointSize
-                }
-                textField.text = "\(Int(currentSize))"
+                })
             }
+            alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+            presentAsPopover(alert, for: key)
             
-            alert.addAction(UIAlertAction(title: "确定", style: .default) { _ in
-                if let text = alert.textFields?.first?.text, let size = Int(text) {
-                    let fontSize = CGFloat(size)
-                    if key == "titleDefaultFont" {
-                        self.settings.titleDefaultFont = UIFont.systemFont(ofSize: fontSize)
-                    } else {
-                        self.settings.titleSelectedFont = UIFont.boldSystemFont(ofSize: fontSize)
-                    }
+        case "buttonPosition":
+            let alert = UIAlertController(title: "按钮位置", message: nil, preferredStyle: .actionSheet)
+            let positions: [WYButtonPosition] = [.imageLeftTitleRight, .imageRightTitleLeft, .imageTopTitleBottom, .imageBottomTitleTop]
+            let names = ["图片左文字右", "图片右文字左", "图片上文字下", "图片下文字上"]
+            for (idx, name) in names.enumerated() {
+                alert.addAction(UIAlertAction(title: name, style: .default) { _ in
+                    self.settings.buttonPosition = positions[idx]
                     self.tableView.reloadData()
-                }
-            })
-            
-        case "selectedIndex":
-            alert.addTextField { textField in
-                textField.keyboardType = .numberPad
-                textField.placeholder = "请输入选中索引 (0-4)"
-                textField.text = "\(self.settings.selectedIndex)"
+                })
             }
-            
-            alert.addAction(UIAlertAction(title: "确定", style: .default) { _ in
-                if let text = alert.textFields?.first?.text, let index = Int(text) {
-                    self.settings.selectedIndex = max(0, min(index, 4))
-                    self.tableView.reloadData()
-                }
-            })
+            alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+            presentAsPopover(alert, for: key)
             
         case "itemTopOffset":
-            alert.addTextField { textField in
-                textField.keyboardType = .decimalPad
-                textField.placeholder = "请输入数值或留空"
-                if let value = self.settings.itemTopOffset {
-                    textField.text = "\(value)"
-                }
-            }
+            showOptionalNumberEditor(for: key)
             
-            alert.addAction(UIAlertAction(title: "确定", style: .default) { _ in
-                if let text = alert.textFields?.first?.text, !text.isEmpty {
-                    if let value = Double(text) {
-                        self.settings.itemTopOffset = CGFloat(value)
-                    }
-                } else {
-                    self.settings.itemTopOffset = nil
-                }
+        case "itemInsideMargins":
+            showEdgeInsetsEditor()
+            
+        case "itemImageViewSize":
+            showSizeEditor()
+            
+        case "scrollLineFollowFinger":
+            let alert = UIAlertController(title: "滑动线跟随手指", message: "当前：\(settings.scrollLineFollowFinger ? "开启" : "关闭")", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "切换", style: .default) { _ in
+                self.settings.scrollLineFollowFinger.toggle()
                 self.tableView.reloadData()
             })
+            alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+            present(alert, animated: true)
             
         case "adjustOffset", "canScrollController", "canScrollBar", "pagingBounce":
-            let currentValue: Bool
-            switch key {
-            case "adjustOffset": currentValue = self.settings.adjustOffset
-            case "canScrollController": currentValue = self.settings.canScrollController
-            case "canScrollBar": currentValue = self.settings.canScrollBar
-            case "pagingBounce": currentValue = self.settings.pagingBounce
-            default: currentValue = false
+            showBoolEditor(for: key)
+            
+        case "titleDefaultFont", "titleSelectedFont":
+            showFontEditor(for: key)
+            
+        case "selectedIndex":
+            showIndexEditor()
+            
+        default:
+            if key.contains("Color") {
+                showColorEditor(for: key)
+            } else if ["barHeight", "originlLeftOffset", "originlRightOffset", "dividingOffset",
+                       "buttonDividingOffset", "itemWidth", "itemHeight", "itemCornerRadius",
+                       "scrollLineWidth", "scrollLineBottomOffset", "dividingStripHeight",
+                       "scrollLineHeight"].contains(key) {
+                showNumberEditor(for: key)
+            } else {
+                let alert = UIAlertController(title: "提示", message: "该设置项暂不支持编辑", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "确定", style: .default))
+                present(alert, animated: true)
             }
-            
-            alert.message = currentValue ? "当前状态: 开启" : "当前状态: 关闭"
-            
-            alert.addAction(UIAlertAction(title: "切换", style: .default) { _ in
+        }
+    }
+    
+    // MARK: - 各种编辑器
+    private func showNumberEditor(for key: String) {
+        let alert = UIAlertController(title: "输入数值", message: nil, preferredStyle: .alert)
+        alert.addTextField { tf in
+            tf.keyboardType = .decimalPad
+            let current: CGFloat
+            switch key {
+            case "barHeight": current = self.settings.barHeight
+            case "originlLeftOffset": current = self.settings.originlLeftOffset
+            case "originlRightOffset": current = self.settings.originlRightOffset
+            case "dividingOffset": current = self.settings.dividingOffset
+            case "buttonDividingOffset": current = self.settings.buttonDividingOffset
+            case "itemWidth": current = self.settings.itemWidth
+            case "itemHeight": current = self.settings.itemHeight
+            case "itemCornerRadius": current = self.settings.itemCornerRadius
+            case "scrollLineWidth": current = self.settings.scrollLineWidth
+            case "scrollLineBottomOffset": current = self.settings.scrollLineBottomOffset
+            case "dividingStripHeight": current = self.settings.dividingStripHeight
+            case "scrollLineHeight": current = self.settings.scrollLineHeight
+            default: current = 0
+            }
+            tf.text = "\(current)"
+        }
+        alert.addAction(UIAlertAction(title: "确定", style: .default) { _ in
+            if let text = alert.textFields?.first?.text, let val = Double(text) {
+                let cgVal = CGFloat(val)
                 switch key {
-                case "adjustOffset": self.settings.adjustOffset = !currentValue
-                case "canScrollController": self.settings.canScrollController = !currentValue
-                case "canScrollBar": self.settings.canScrollBar = !currentValue
-                case "pagingBounce": self.settings.pagingBounce = !currentValue
+                case "barHeight": self.settings.barHeight = cgVal
+                case "originlLeftOffset": self.settings.originlLeftOffset = cgVal
+                case "originlRightOffset": self.settings.originlRightOffset = cgVal
+                case "dividingOffset": self.settings.dividingOffset = cgVal
+                case "buttonDividingOffset": self.settings.buttonDividingOffset = cgVal
+                case "itemWidth": self.settings.itemWidth = cgVal
+                case "itemHeight": self.settings.itemHeight = cgVal
+                case "itemCornerRadius": self.settings.itemCornerRadius = cgVal
+                case "scrollLineWidth": self.settings.scrollLineWidth = cgVal
+                case "scrollLineBottomOffset": self.settings.scrollLineBottomOffset = cgVal
+                case "dividingStripHeight": self.settings.dividingStripHeight = cgVal
+                case "scrollLineHeight": self.settings.scrollLineHeight = cgVal
                 default: break
                 }
                 self.tableView.reloadData()
-            })
-            
-        case "buttonPosition":
-            let positions: [WYButtonPosition] = [.imageLeftTitleRight, .imageRightTitleLeft, .imageTopTitleBottom, .imageBottomTitleTop]
-            let positionNames = ["图片左文字右", "图片右文字左", "图片上文字下", "图片下文字上"]
-            
-            for (index, name) in positionNames.enumerated() {
-                alert.addAction(UIAlertAction(title: name, style: .default) { _ in
-                    self.settings.buttonPosition = positions[index]
-                    self.tableView.reloadData()
-                })
             }
-            
-        case "itemAppendSize":
-            alert.addTextField { textField in
-                textField.placeholder = "宽度,高度 (如: 10,20)"
-                textField.text = "\(self.settings.itemAppendSize.width),\(self.settings.itemAppendSize.height)"
+        })
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+        present(alert, animated: true)
+    }
+    
+    private func showOptionalNumberEditor(for key: String) {
+        let alert = UIAlertController(title: "输入数值（留空则为nil）", message: nil, preferredStyle: .alert)
+        alert.addTextField { tf in
+            tf.keyboardType = .decimalPad
+            let current: CGFloat?
+            if key == "itemTopOffset" {
+                current = self.settings.itemTopOffset
+                if let c = current { tf.text = "\(c)" }
             }
-            
-            alert.addAction(UIAlertAction(title: "确定", style: .default) { _ in
-                if let text = alert.textFields?.first?.text {
-                    let components = text.split(separator: ",").map { String($0) }
-                    if components.count == 2,
-                       let width = Double(components[0]),
-                       let height = Double(components[1]) {
-                        self.settings.itemAppendSize = CGSize(width: width, height: height)
-                        self.tableView.reloadData()
-                    }
-                }
-            })
-            
-        // 颜色设置项
-        case "pagingContentColor", "pagingBgColor", "barBgColor", "itemDefaultBgColor",
-             "itemSelectedBgColor", "titleDefaultColor", "titleSelectedColor",
-             "dividingStripColor", "scrollLineColor":
-            
-            let colorAlert = UIAlertController(title: "选择 \(key) 颜色", message: nil, preferredStyle: .actionSheet)
-            
-            for (name, color) in colorOptions {
-                colorAlert.addAction(UIAlertAction(title: name, style: .default) { _ in
-                    self.setColor(color, for: key)
-                    self.tableView.reloadData()
-                })
-            }
-            
-            // 添加自定义颜色选项
-            colorAlert.addAction(UIAlertAction(title: "自定义颜色", style: .default) { _ in
-                self.showCustomColorPicker(for: key)
-            })
-            
-            colorAlert.addAction(UIAlertAction(title: "取消", style: .cancel))
-            // 适配 iPad
-            if let popoverController = colorAlert.popoverPresentationController {
-                // 找到包含当前key的section和row
-                var foundIndexPath: IndexPath?
-                for section in 0..<items.count {
-                    for row in 0..<items[section].count {
-                        if items[section][row].1 == key {
-                            foundIndexPath = IndexPath(row: row, section: section)
-                            break
-                        }
-                    }
-                    if foundIndexPath != nil {
-                        break
-                    }
-                }
-                
-                if let indexPath = foundIndexPath,
-                   let cell = tableView.cellForRow(at: indexPath) {
-                    popoverController.sourceView = cell
-                    popoverController.sourceRect = cell.bounds
-                }
-            }
-            
-            present(colorAlert, animated: true)
-            
-        default:
-            alert.message = "该设置项暂不支持编辑"
-            alert.addAction(UIAlertAction(title: "确定", style: .default))
         }
-        
-        if !key.contains("Color") {
-            alert.addAction(UIAlertAction(title: "取消", style: .cancel))
-            present(alert, animated: true)
+        alert.addAction(UIAlertAction(title: "确定", style: .default) { _ in
+            if let text = alert.textFields?.first?.text, !text.isEmpty, let val = Double(text) {
+                if key == "itemTopOffset" { self.settings.itemTopOffset = CGFloat(val) }
+            } else {
+                if key == "itemTopOffset" { self.settings.itemTopOffset = nil }
+            }
+            self.tableView.reloadData()
+        })
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+        present(alert, animated: true)
+    }
+    
+    private func showBoolEditor(for key: String) {
+        let current: Bool
+        switch key {
+        case "adjustOffset": current = settings.adjustOffset
+        case "canScrollController": current = settings.canScrollController
+        case "canScrollBar": current = settings.canScrollBar
+        case "pagingBounce": current = settings.pagingBounce
+        default: return
         }
+        let alert = UIAlertController(title: "切换状态", message: "当前：\(current ? "开启" : "关闭")", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "切换", style: .default) { _ in
+            switch key {
+            case "adjustOffset": self.settings.adjustOffset.toggle()
+            case "canScrollController": self.settings.canScrollController.toggle()
+            case "canScrollBar": self.settings.canScrollBar.toggle()
+            case "pagingBounce": self.settings.pagingBounce.toggle()
+            default: break
+            }
+            self.tableView.reloadData()
+        })
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+        present(alert, animated: true)
+    }
+    
+    private func showFontEditor(for key: String) {
+        let alert = UIAlertController(title: "输入字体大小", message: nil, preferredStyle: .alert)
+        alert.addTextField { tf in
+            tf.keyboardType = .numberPad
+            let size = (key == "titleDefaultFont") ? self.settings.titleDefaultFont.pointSize : self.settings.titleSelectedFont.pointSize
+            tf.text = "\(Int(size))"
+        }
+        alert.addAction(UIAlertAction(title: "确定", style: .default) { _ in
+            if let text = alert.textFields?.first?.text, let size = Int(text) {
+                let font = UIFont.systemFont(ofSize: CGFloat(size))
+                if key == "titleDefaultFont" {
+                    self.settings.titleDefaultFont = font
+                } else {
+                    self.settings.titleSelectedFont = UIFont.boldSystemFont(ofSize: CGFloat(size))
+                }
+                self.tableView.reloadData()
+            }
+        })
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+        present(alert, animated: true)
+    }
+    
+    private func showIndexEditor() {
+        let alert = UIAlertController(title: "初始选中项", message: "范围 0-4", preferredStyle: .alert)
+        alert.addTextField { tf in
+            tf.keyboardType = .numberPad
+            tf.text = "\(self.settings.selectedIndex)"
+        }
+        alert.addAction(UIAlertAction(title: "确定", style: .default) { _ in
+            if let text = alert.textFields?.first?.text, let idx = Int(text) {
+                self.settings.selectedIndex = max(0, min(idx, 4))
+                self.tableView.reloadData()
+            }
+        })
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+        present(alert, animated: true)
+    }
+    
+    private func showEdgeInsetsEditor() {
+        let alert = UIAlertController(title: "按钮内边距 (top, left, bottom, right)", message: "当前: \(settings.itemInsideMargins)", preferredStyle: .alert)
+        alert.addTextField { $0.placeholder = "top"; $0.text = "\(self.settings.itemInsideMargins.top)" }
+        alert.addTextField { $0.placeholder = "left"; $0.text = "\(self.settings.itemInsideMargins.left)" }
+        alert.addTextField { $0.placeholder = "bottom"; $0.text = "\(self.settings.itemInsideMargins.bottom)" }
+        alert.addTextField { $0.placeholder = "right"; $0.text = "\(self.settings.itemInsideMargins.right)" }
+        alert.addAction(UIAlertAction(title: "确定", style: .default) { _ in
+            let t = Double(alert.textFields?[0].text ?? "0") ?? 0
+            let l = Double(alert.textFields?[1].text ?? "0") ?? 0
+            let b = Double(alert.textFields?[2].text ?? "0") ?? 0
+            let r = Double(alert.textFields?[3].text ?? "0") ?? 0
+            self.settings.itemInsideMargins = UIEdgeInsets(top: CGFloat(t), left: CGFloat(l), bottom: CGFloat(b), right: CGFloat(r))
+            self.tableView.reloadData()
+        })
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+        present(alert, animated: true)
+    }
+    
+    private func showSizeEditor() {
+        let alert = UIAlertController(title: "图片尺寸 (width, height)", message: nil, preferredStyle: .alert)
+        alert.addTextField { $0.placeholder = "width"; $0.text = "\(self.settings.itemImageViewSize.width)" }
+        alert.addTextField { $0.placeholder = "height"; $0.text = "\(self.settings.itemImageViewSize.height)" }
+        alert.addAction(UIAlertAction(title: "确定", style: .default) { _ in
+            let w = Double(alert.textFields?[0].text ?? "0") ?? 0
+            let h = Double(alert.textFields?[1].text ?? "0") ?? 0
+            self.settings.itemImageViewSize = CGSize(width: CGFloat(w), height: CGFloat(h))
+            self.tableView.reloadData()
+        })
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+        present(alert, animated: true)
+    }
+    
+    private func showColorEditor(for key: String) {
+        let alert = UIAlertController(title: "选择颜色", message: nil, preferredStyle: .actionSheet)
+        for (name, color) in colorOptions {
+            alert.addAction(UIAlertAction(title: name, style: .default) { _ in
+                self.setColor(color, for: key)
+                self.tableView.reloadData()
+            })
+        }
+        alert.addAction(UIAlertAction(title: "自定义RGB", style: .default) { _ in self.showCustomColorPicker(for: key) })
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+        presentAsPopover(alert, for: key)
+    }
+    
+    private func showCustomColorPicker(for key: String) {
+        let alert = UIAlertController(title: "自定义颜色", message: "输入 RGB (0-255)", preferredStyle: .alert)
+        alert.addTextField { $0.placeholder = "Red"; $0.keyboardType = .numberPad }
+        alert.addTextField { $0.placeholder = "Green"; $0.keyboardType = .numberPad }
+        alert.addTextField { $0.placeholder = "Blue"; $0.keyboardType = .numberPad }
+        alert.addAction(UIAlertAction(title: "确定", style: .default) { _ in
+            let r = Int(alert.textFields?[0].text ?? "0") ?? 0
+            let g = Int(alert.textFields?[1].text ?? "0") ?? 0
+            let b = Int(alert.textFields?[2].text ?? "0") ?? 0
+            let color = UIColor(red: CGFloat(r)/255, green: CGFloat(g)/255, blue: CGFloat(b)/255, alpha: 1)
+            self.setColor(color, for: key)
+            self.tableView.reloadData()
+        })
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+        present(alert, animated: true)
     }
     
     private func setColor(_ color: UIColor, for key: String) {
@@ -770,40 +777,19 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         }
     }
     
-    private func showCustomColorPicker(for key: String) {
-        let alert = UIAlertController(title: "自定义颜色 - \(key)", message: "请输入RGB值 (0-255)", preferredStyle: .alert)
-        
-        alert.addTextField { textField in
-            textField.placeholder = "红色 (0-255)"
-            textField.keyboardType = .numberPad
-        }
-        
-        alert.addTextField { textField in
-            textField.placeholder = "绿色 (0-255)"
-            textField.keyboardType = .numberPad
-        }
-        
-        alert.addTextField { textField in
-            textField.placeholder = "蓝色 (0-255)"
-            textField.keyboardType = .numberPad
-        }
-        
-        alert.addAction(UIAlertAction(title: "确定", style: .default) { _ in
-            if let redText = alert.textFields?[0].text,
-               let greenText = alert.textFields?[1].text,
-               let blueText = alert.textFields?[2].text,
-               let red = Int(redText), let green = Int(greenText), let blue = Int(blueText) {
-                
-                let color = UIColor(red: CGFloat(red)/255.0,
-                                  green: CGFloat(green)/255.0,
-                                  blue: CGFloat(blue)/255.0,
-                                  alpha: 1.0)
-                self.setColor(color, for: key)
-                self.tableView.reloadData()
+    private func presentAsPopover(_ alert: UIAlertController, for key: String) {
+        if let popover = alert.popoverPresentationController {
+            // 找到对应 key 所在的 cell
+            for section in 0..<items.count {
+                for row in 0..<items[section].count {
+                    if items[section][row].1 == key, let cell = tableView.cellForRow(at: IndexPath(row: row, section: section)) {
+                        popover.sourceView = cell
+                        popover.sourceRect = cell.bounds
+                        break
+                    }
+                }
             }
-        })
-        
-        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+        }
         present(alert, animated: true)
     }
     

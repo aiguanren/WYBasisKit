@@ -26,20 +26,50 @@ import WYBasisKitSwift
 @objc(WYSourceBundle)
 @objcMembers public class WYSourceBundleObjC: NSObject {
     
+    /// 指定 Bundle.class，效果如：Bundle(for: targetClass)
+    @objc public let targetClass: AnyClass?
+    
     /// 从哪个bundle文件内查找，如果bundleName对应的bundle不存在，则直接在本地路径下查找
     @objc public let bundleName: String
     
     /// bundleName.bundle下面的子文件夹路径，如果子文件夹有多层，就用/隔开(如果要获取资源是放在bundle文件下面的子文件夹中，则需要传入该路径，例如ImageSource.bundle下面有个叫apple的子文件夹，则subdirectory应该传入 apple)
     @objc public let subdirectory: String
     
-    @objc public init(bundleName: String = "", subdirectory: String = "") {
+    /// 通用初始化方法(实例)
+    @objc public init(targetClass: AnyClass? = nil, bundleName: String = "", subdirectory: String = "") {
+        self.targetClass = targetClass
         self.bundleName = bundleName
         self.subdirectory = subdirectory
     }
     
+    /// 通用初始化方法(静态)
+    @objc public static func bundleFor(targetClass: AnyClass? = nil, name bundleName: String = "", subdirectory: String = "") -> WYSourceBundleObjC {
+        return WYSourceBundleObjC(targetClass: targetClass, bundleName: bundleName, subdirectory: subdirectory)
+    }
+    
+    /// 通用初始化方法(静态)
+    @objc public static func bundleFor(targetClass: AnyClass? = nil) -> WYSourceBundleObjC {
+        return WYSourceBundleObjC(targetClass: targetClass, bundleName: "", subdirectory: "")
+    }
+    
+    /// 通用初始化方法(静态)
+    @objc public static func bundleFor(name bundleName: String = "") -> WYSourceBundleObjC {
+        return WYSourceBundleObjC(targetClass: nil, bundleName: bundleName, subdirectory: "")
+    }
+    
+    /// 通用初始化方法(静态)
+    @objc public static func bundleFor(targetClass: AnyClass? = nil, name bundleName: String = "") -> WYSourceBundleObjC {
+        return WYSourceBundleObjC(targetClass: targetClass, bundleName: bundleName, subdirectory: "")
+    }
+    
+    /// 通用初始化方法(静态)
+    @objc public static func bundleFor(name bundleName: String = "", subdirectory: String = "") -> WYSourceBundleObjC {
+        return WYSourceBundleObjC(targetClass: nil, bundleName: bundleName, subdirectory: subdirectory)
+    }
+    
     // 转换WYSourceBundleObjC为WYSourceBundle(内部使用)
     public func wy_convertToSwift() -> WYSourceBundle? {
-        return WYSourceBundle(bundleName: self.bundleName, subdirectory: self.subdirectory)
+        return WYSourceBundle(targetClass: targetClass, bundleName: self.bundleName, subdirectory: self.subdirectory)
     }
 }
 

@@ -67,11 +67,11 @@
 
 - (void)clickTestButton:(UIButton *)sender {
     [self.testButton wy_temporarilyDisableForDuration:10];
-    WYLog(@"clickTestButton");
+    wy_print(@"clickTestButton");
 }
 
 - (void)dealloc {
-    WYLog(@"WYTestAnimationController deinit");
+    wy_print(@"WYTestAnimationController deinit");
 }
 
 /*

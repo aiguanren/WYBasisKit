@@ -120,7 +120,7 @@
     }];
     
     // 输出一下语音识别器支持的区域，就是上边初始化SFSpeechRecognizer 时 locale 所需要的 identifier
-    WYLog(@"%@", [SFSpeechRecognizer supportedLocales]);
+    wy_print(@"%@", [SFSpeechRecognizer supportedLocales]);
     
     self.voiceView.enabled = NO;
     
@@ -163,25 +163,25 @@
         // category 设置为 record,录音
         [audioSession setCategory:AVAudioSessionCategoryRecord error:&error];
         if (error) {
-            WYLog(@"audioSession setCategory error: %@", error);
+            wy_print(@"audioSession setCategory error: %@", error);
             error = nil;
         }
         
         // mode 设置为 measurement
         [audioSession setMode:AVAudioSessionModeMeasurement error:&error];
         if (error) {
-            WYLog(@"audioSession setMode error: %@", error);
+            wy_print(@"audioSession setMode error: %@", error);
             error = nil;
         }
         
         // 开启 audioSession
         [audioSession setActive:YES withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:&error];
         if (error) {
-            WYLog(@"audioSession setActive error: %@", error);
+            wy_print(@"audioSession setActive error: %@", error);
             error = nil;
         }
     } @catch (NSException *exception) {
-        WYLog(@"audioSession properties weren't set because of an error.");
+        wy_print(@"audioSession properties weren't set because of an error.");
     }
     
     // 初始化RecognitionRequest，在后边我们会用它将录音数据转发给苹果服务器
@@ -190,12 +190,12 @@
     // 检查 iPhone 是否有有效的录音设备
     AVAudioInputNode *inputNode = self.audioEngine.inputNode;
     if (!inputNode) {
-        WYLog(@"Audio engine has no input node");
+        wy_print(@"Audio engine has no input node");
         return;
     }
     
     if (!self.recognitionRequest) {
-        WYLog(@"Unable to create an SFSpeechAudioBufferRecognitionRequest object");
+        wy_print(@"Unable to create an SFSpeechAudioBufferRecognitionRequest object");
         return;
     }
     
@@ -256,10 +256,10 @@
         // 开始录音
         [self.audioEngine startAndReturnError:&error];
         if (error) {
-            WYLog(@"audioEngine couldn't start because of an error: %@", error);
+            wy_print(@"audioEngine couldn't start because of an error: %@", error);
         }
     } @catch (NSException *exception) {
-        WYLog(@"audioEngine couldn't start because of an error.");
+        wy_print(@"audioEngine couldn't start because of an error.");
     }
     
     self.textView.text = @"请讲话...";
@@ -290,7 +290,7 @@
 
 // Called when the task first detects speech in the source audio
 - (void)speechRecognitionDidDetectSpeech:(SFSpeechRecognitionTask *)task {
-    WYLog(@"Called when the task first detects speech in the source audio");
+    wy_print(@"Called when the task first detects speech in the source audio");
 }
 
 // Called for all recognitions, including non-final hypothesis
@@ -316,12 +316,12 @@
 
 // Called when the task is no longer accepting new audio but may be finishing final processing
 - (void)speechRecognitionTaskFinishedReadingAudio:(SFSpeechRecognitionTask *)task {
-    WYLog(@"Called when the task is no longer accepting new audio but may be finishing final processing");
+    wy_print(@"Called when the task is no longer accepting new audio but may be finishing final processing");
 }
 
 // Called when the task has been cancelled, either by client app, the user, or the system
 - (void)speechRecognitionTaskWasCancelled:(SFSpeechRecognitionTask *)task {
-    WYLog(@"Called when the task has been cancelled, either by client app, the user, or the system");
+    wy_print(@"Called when the task has been cancelled, either by client app, the user, or the system");
 }
 
 // Called when recognition of all requested utterances is finished.

@@ -34,6 +34,10 @@ class WYGenericTypeController: UIViewController {
     @objc func testMothod(data: String) {
         WYLogManager.output("离线方法调用,data = \(data)")
     }
+    
+    @objc func testMothod(data: String, data2: Int) {
+        WYLogManager.output("离线方法调用, data = \(data), data2 = \(data2)")
+    }
 
     /*
     // MARK: - Navigation

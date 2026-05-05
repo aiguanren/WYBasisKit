@@ -93,13 +93,13 @@
 
 - (void)outputScreenOrientationInfo {
     if ([UIDevice wy_verticalScreen]) {
-        WYLog(@"当前是竖屏模式");
-        WYLog(@"screenWidth = %f", UIDevice.wy_screenWidth);
+        wy_print(@"当前是竖屏模式");
+        wy_print(@"screenWidth = %f", UIDevice.wy_screenWidth);
     }
     
     if ([UIDevice wy_horizontalScreen]) {
-        WYLog(@"当前是横屏模式");
-        WYLog(@"screenWidth = %f", UIDevice.wy_screenWidth);
+        wy_print(@"当前是横屏模式");
+        wy_print(@"screenWidth = %f", UIDevice.wy_screenWidth);
     }
 }
 

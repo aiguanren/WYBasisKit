@@ -39,7 +39,7 @@
     label.attributedText = attribute;
     label.wy_clickEffectColor = [UIColor greenColor];
     [label wy_addRichTexts:@[@"勇猛刚强", @"仁爱温良者戒于无断", @"安舒", @"必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"] handler:^(NSString * _Nonnull string, NSRange range, NSInteger index) {
-        //WYLog(@"string = %@, range = %@, index = %ld", string, NSStringFromRange(range), (long)index);
+        //wy_print(@"string = %@, range = %@, index = %ld", string, NSStringFromRange(range), (long)index);
         
         if ([string isEqualToString:@"勇猛刚强"]) {
             
@@ -84,16 +84,16 @@
     marginLabel.textColor = [UIColor orangeColor];
     
     NSMutableAttributedString *attrText = [[NSMutableAttributedString alloc] initWithString:marginLabel.text];
-    [attrText wy_innerMarginWithFirstLineHeadIndent:10 headIndent:0 tailIndent:-10 alignment:NSTextAlignmentLeft];
+    [attrText wy_innerMarginWithFirstLineHeadIndent:10 headIndent:0 tailIndent:-20 alignment:NSTextAlignmentLeft];
     
     marginLabel.numberOfLines = 0;
     marginLabel.attributedText = attrText;
     [scrollView addSubview:marginLabel];
     
-    [marginLabel sizeToFit];
+    CGFloat marginLabelWidth = [marginLabel.text wy_calculateWidthWithControlHeight:marginLabel.font.lineHeight controlFont:marginLabel.font];
     [marginLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.equalTo(scrollView);
-        make.width.equalTo(@(marginLabel.wy_width + 10));
+        make.width.mas_equalTo(marginLabelWidth + 30);
         make.top.equalTo(emojiLabel.mas_bottom).offset(50);
     }];
     
@@ -101,7 +101,7 @@
     
     NSArray *lines = [label.attributedText wy_stringPerLineWithControlWidth:label.wy_width];
     NSInteger numberOfRows = [label.attributedText wy_numberOfRowsWithControlWidth:label.wy_width];
-    WYLog(@"每行显示的分别是 %@, 一共 %ld 行", lines, (long)numberOfRows);
+    wy_print(@"每行显示的分别是 %@, 一共 %ld 行", lines, (long)numberOfRows);
     
     UILabel *attachmentView = [[UILabel alloc] init];
     attachmentView.font = [UIFont systemFontOfSize:15];
@@ -122,15 +122,17 @@
         string_font_50Index = 0; // 未找到的情况，可根据需求调整
     }
     NSArray<WYImageAttachmentOption *> *options = @[
-        [[WYImageAttachmentOption alloc] initWithImage:image_font_30 size:CGSizeMake(20, 20) position:WYImageAttachmentPositionBefore positionValue:string_font_30 alignment:WYImageAttachmentAlignmentTop alignmentOffset:0 spacingBefore:0 spacingAfter:20],
         
-        [[WYImageAttachmentOption alloc] initWithImage:image_font_30 size:CGSizeMake(10, 10) position:WYImageAttachmentPositionIndex positionValue:@1 alignment:WYImageAttachmentAlignmentTop alignmentOffset:0 spacingBefore:0 spacingAfter:20],
+        [[WYImageAttachmentOption alloc] initWithImage:image_font_30 size:CGSizeMake(10, 10) position:WYImageAttachmentPositionIndex positionValue:@1 offsetY:5 spacingBefore:0 spacingAfter:20],
         
-        [[WYImageAttachmentOption alloc] initWithImage:image_font_40 size:CGSizeMake(20, 20) position:WYImageAttachmentPositionAfter positionValue:string_font_40 alignment:WYImageAttachmentAlignmentCenter alignmentOffset:0 spacingBefore:10 spacingAfter:0],
+        [[WYImageAttachmentOption alloc] initWithImage:image_font_30 size:CGSizeMake(20, 20) position:WYImageAttachmentPositionBefore positionValue:string_font_30 offsetY:9 spacingBefore:0 spacingAfter:20],
         
-        [[WYImageAttachmentOption alloc] initWithImage:image_font_50 size:CGSizeMake(20, 20) position:WYImageAttachmentPositionAfter positionValue:string_font_50 alignment:WYImageAttachmentAlignmentBottom alignmentOffset:0 spacingBefore:0 spacingAfter:0],
         
-        [[WYImageAttachmentOption alloc] initWithImage:image_font_50 size:CGSizeMake(10, 10) position:WYImageAttachmentPositionIndex positionValue:@(string_font_50Index + 2) alignment:WYImageAttachmentAlignmentCustom alignmentOffset:-30 spacingBefore:0 spacingAfter:0]
+        [[WYImageAttachmentOption alloc] initWithImage:image_font_40 size:CGSizeMake(20, 20) position:WYImageAttachmentPositionAfter positionValue:string_font_40 offsetY:2.5 spacingBefore:10 spacingAfter:0],
+        
+        [[WYImageAttachmentOption alloc] initWithImage:image_font_50 size:CGSizeMake(10, 10) position:WYImageAttachmentPositionIndex positionValue:@(string_font_50Index + 2) offsetY:30 spacingBefore:0 spacingAfter:0],
+        
+        [[WYImageAttachmentOption alloc] initWithImage:image_font_50 size:CGSizeMake(20, 20) position:WYImageAttachmentPositionAfter positionValue:string_font_50 offsetY:-5 spacingBefore:0 spacingAfter:0]
     ];
     [attributed wy_fontsOfRanges:@{[UIFont systemFontOfSize:30]: string_font_30, [UIFont systemFontOfSize:40]: string_font_40, [UIFont systemFontOfSize:50]: string_font_50}];
     [attributed wy_insertImageWithAttachments:options];
@@ -158,7 +160,7 @@
     NSString *spacing30 = [NSString wy_randomWithMinimux:25 maximum:60];
     NSString *spacing20 = [NSString wy_randomWithMinimux:80 maximum:100];
     
-    WYLog(@"spacing10 = %@, spacing15 = %@, spacing30 = %@, spacing20 = %@", spacing10, spacing15, spacing30, spacing20);
+    wy_print(@"spacing10 = %@, spacing15 = %@, spacing30 = %@, spacing20 = %@", spacing10, spacing15, spacing30, spacing20);
     
     NSMutableAttributedString *spacingAttributed = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@\n%@\n%@\n%@", spacing10, spacing15, spacing30, spacing20]];
     [spacingAttributed wy_lineSpacing:10 beforeString:spacing10 afterString:spacing15 alignment:NSTextAlignmentLeft];
@@ -254,7 +256,7 @@
 
 - (void)wy_richTextDidClick:(NSString *)richText range:(NSRange)range index:(NSInteger)index {
     
-    //WYLog(@"string = %@, range = %@, index = %ld", richText, NSStringFromRange(range), (long)index);
+    //wy_print(@"string = %@, range = %@, index = %ld", richText, NSStringFromRange(range), (long)index);
     //[WYActivity showInfo:[NSString stringWithFormat:@"string = %@, range = %@, index = %ld", richText, NSStringFromRange(range), (long)index] inView:self.view position:WYActivityPositionMiddle];
     if ([richText isEqualToString:@"必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"]) {
         [WYActivity showScrollInfo:@"必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"];
@@ -262,7 +264,7 @@
 }
 
 - (void)dealloc {
-    WYLog(@"deinit");
+    wy_print(@"deinit");
 }
 
 

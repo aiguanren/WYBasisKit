@@ -29,7 +29,7 @@
         self.bannerView.backgroundColor = [UIColor wy_random];
         self.bannerView.automaticCarousel = NO;
         self.bannerView.imageContentMode = UIViewContentModeScaleAspectFit;
-        WYLog(@"字节描述(KB或MB等)：%@，%ld字节", self.bannerView.cacheSizeString, (long)self.bannerView.cacheSize);
+        wy_print(@"字节描述(KB或MB等)：%@，%ld字节", self.bannerView.cacheSizeString, (long)self.bannerView.cacheSize);
         [self.contentView addSubview:self.bannerView];
         [self.bannerView mas_makeConstraints:^(MASConstraintMaker *make) {
             make.size.equalTo([NSValue valueWithCGSize:CGSizeMake(300, 600)]);
@@ -41,7 +41,7 @@
 
 - (void)reloadWithImages:(NSArray<NSString *> *)images {
     
-    WYLog(@"第一张图片信息：%@", [self.bannerView cacheImageFromUrlString:[images firstObject]]);
+    wy_print(@"第一张图片信息：%@", [self.bannerView cacheImageFromUrlString:[images firstObject]]);
     [self.bannerView reloadImages:images];
 }
 
@@ -122,7 +122,7 @@
 }
 
 - (void)dealloc {
-    WYLog(@"deinit");
+    wy_print(@"deinit");
 }
 
 /*

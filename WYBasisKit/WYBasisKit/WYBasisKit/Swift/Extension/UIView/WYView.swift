@@ -187,7 +187,7 @@ public extension UIView {
     
     /// 添加手势点击事件
     @discardableResult
-    func wy_addGesture(target: Any?, action: Selector?) -> UITapGestureRecognizer {
+    func wy_addTapGesture(target: Any?, action: Selector?) -> UITapGestureRecognizer {
         let gestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: target, action: action)
         isUserInteractionEnabled = true
         addGestureRecognizer(gestureRecognizer)

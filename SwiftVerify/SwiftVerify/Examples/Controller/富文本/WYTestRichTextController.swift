@@ -80,17 +80,17 @@ class WYTestRichTextController: UIViewController {
         marginLabel.textColor = .orange
         
         let attrText = NSMutableAttributedString(string: marginLabel.text!)
-        attrText.wy_innerMargin(firstLineHeadIndent: 10, tailIndent: -10)
+        attrText.wy_innerMargin(firstLineHeadIndent: 10, tailIndent: -20, alignment: .left)
         
         marginLabel.numberOfLines = 0
         marginLabel.attributedText = attrText
         scrollView.addSubview(marginLabel)
         
-        marginLabel.sizeToFit()
+        let marginLabelWidth: CGFloat = marginLabel.text?.wy_calculateWidth(controlHeight: marginLabel.font.lineHeight, controlFont: marginLabel.font) ?? 0
+        
         marginLabel.snp.makeConstraints { (make) in
-            
             make.centerX.equalToSuperview()
-            make.width.equalTo(marginLabel.wy_width + 10)
+            make.width.equalTo(marginLabelWidth + 30)
             make.top.equalTo(emojiLabel.snp.bottom).offset(50)
         }
         
@@ -115,12 +115,13 @@ class WYTestRichTextController: UIViewController {
         } else {
             string_font_50Index = 0 // 未找到的情况，可根据需求调整
         }
+        
         let options: [WYImageAttachmentOption] = [
-            .init(image: image_font_30, size: CGSize(width: 20, height: 20), position: .before(text: string_font_30), alignment: .top, spacingAfter:20),
-            .init(image: image_font_30, size: CGSize(width: 10, height: 10), position: .index(1), alignment: .top, spacingAfter:20),
-            .init(image: image_font_40, size: CGSize(width: 20, height: 20), position: .after(text: string_font_40), alignment: .center, spacingBefore: 10),
-            .init(image: image_font_50, size: CGSize(width: 20, height: 20), position: .after(text: string_font_50), alignment: .bottom),
-            .init(image: image_font_50, size: CGSize(width: 10, height: 10), position: .index(string_font_50Index + 2), alignment: .custom(offset: -30))
+            .init(image: image_font_30, size: CGSize(width: 10, height: 10), position: .index(1), offsetY: 5, spacingAfter:20),
+            .init(image: image_font_30, size: CGSize(width: 20, height: 20), position: .before(text: string_font_30), offsetY: 9, spacingAfter:20),
+            .init(image: image_font_40, size: CGSize(width: 20, height: 20), position: .after(text: string_font_40), offsetY: 2.5, spacingBefore: 10),
+            .init(image: image_font_50, size: CGSize(width: 10, height: 10), position: .index(string_font_50Index + 2), offsetY: 30),
+            .init(image: image_font_50, size: CGSize(width: 20, height: 20), position: .after(text: string_font_50), offsetY: -5)
         ]
         attributed.wy_fontsOfRanges([UIFont.systemFont(ofSize: 30): string_font_30,
                                      UIFont.systemFont(ofSize: 40): string_font_40,

@@ -1051,7 +1051,7 @@
 - (void)dealloc {
     [self.updateTimer invalidate];
     [self.player releaseAll];
-    WYLog(@"WYTestLiveStreamingController release");
+    wy_print(@"WYTestLiveStreamingController release");
 }
 
 // MARK: - 播放器代理
@@ -1060,46 +1060,46 @@
     
     switch (state) {
         case WYMediaPlayerStateUnknown:
-            WYLog(@"未知状态");
+            wy_print(@"未知状态");
             break;
         case WYMediaPlayerStateRendered:
-            WYLog(@"第一帧渲染完成");
+            wy_print(@"第一帧渲染完成");
             [WYActivity dismissLoadingIn:self.view animate:NO];
             break;
         case WYMediaPlayerStateReady:
-            WYLog(@"可以播放了");
+            wy_print(@"可以播放了");
             break;
         case WYMediaPlayerStatePlaying:
-            WYLog(@"正在播放：%@", player.mediaUrl);
+            wy_print(@"正在播放：%@", player.mediaUrl);
             [WYActivity dismissLoadingIn:self.view animate:NO];
             break;
         case WYMediaPlayerStateBuffering:
-            WYLog(@"缓冲中");
+            wy_print(@"缓冲中");
             [WYActivity showLoadingIn:self.view option:[self sharedLoadingInfoOptions]];
             break;
         case WYMediaPlayerStatePlayable:
-            WYLog(@"缓冲结束");
+            wy_print(@"缓冲结束");
             [WYActivity dismissLoadingIn:self.view animate:NO];
             break;
         case WYMediaPlayerStatePaused:
-            WYLog(@"播放暂停");
+            wy_print(@"播放暂停");
             [WYActivity dismissLoadingIn:self.view animate:NO];
             break;
         case WYMediaPlayerStateInterrupted:
-            WYLog(@"播放被中断");
+            wy_print(@"播放被中断");
             [WYActivity dismissLoadingIn:self.view animate:NO];
             break;
         case WYMediaPlayerStateSeekingForward:
-            WYLog(@"快进");
+            wy_print(@"快进");
             [WYActivity showLoadingIn:self.view option:[self sharedLoadingInfoOptions]];
             break;
             
         case WYMediaPlayerStateSeekingBackward:
-            WYLog(@"快退");
+            wy_print(@"快退");
             [WYActivity showLoadingIn:self.view option:[self sharedLoadingInfoOptions]];
             break;
         case WYMediaPlayerStateEnded:
-            WYLog(@"播放完毕");
+            wy_print(@"播放完毕");
             [WYActivity dismissLoadingIn:self.view animate:NO];
             if (self.isControlPanelVisible) {
                 [self toggleControlPanel];
@@ -1108,15 +1108,15 @@
             [self playCurrentMedia];
             break;
         case WYMediaPlayerStateUserExited:
-            WYLog(@"用户中断播放");
+            wy_print(@"用户中断播放");
             [WYActivity dismissLoadingIn:self.view animate:NO];
             break;
         case WYMediaPlayerStateError:
-            WYLog(@"播放出现异常");
+            wy_print(@"播放出现异常");
             [WYActivity dismissLoadingIn:self.view animate:NO];
             break;
         case WYMediaPlayerStatePlayUrlEmpty:
-            WYLog(@"播放为空");
+            wy_print(@"播放为空");
             [WYActivity dismissLoadingIn:self.view animate:NO];
             break;
     }

@@ -92,7 +92,18 @@ import WYBasisKitSwift
         return wy_setFont(font)
     }
     
-    /// 设置行间距
+    /**
+     *  设置行间距
+     *
+     *  - Parameters:
+     *    - lineSpacing: 行间距值（单位：pt）
+     *    - subString:  需要设置行间距的子字符串，传 `nil` 则对整个富文本生效
+     *    - alignment:  段落对齐方式，默认为 `.left`
+     *
+     *  - Returns: 当前 `NSMutableAttributedString` 对象，支持链式调用
+     *
+     *  - Note: 如果 `subString` 不为 `nil` 但在文本中未找到，则不会进行任何修改。
+     */
     @discardableResult
     @objc(wy_lineSpacing:)
     func wy_lineSpacingObjC(_ lineSpacing: CGFloat) -> NSMutableAttributedString {
@@ -109,7 +120,22 @@ import WYBasisKitSwift
         return wy_lineSpacing(lineSpacing, subString: subString, alignment: alignment)
     }
     
-    /// 设置不同段落间的行间距
+    /**
+     *  设置两个指定字符串之间的段落间距
+     *
+     *  该方法会在 `beforeString` 所在段落的末尾增加 `lineSpacing` 间距，
+     *  从而影响其与 `afterString` 所在段落之间的距离。
+     *
+     *  - Parameters:
+     *    - lineSpacing:   段落间距值（单位：pt），需大于 0
+     *    - beforeString:  起始字符串，其所在段落的底部将会增加间距
+     *    - afterString:   结束字符串，必须位于 `beforeString` 之后
+     *    - alignment:     段落对齐方式，默认为 `.left`
+     *
+     *  - Returns: 当前 `NSMutableAttributedString` 对象，支持链式调用
+     *
+     *  - Note: 若 `beforeString` 或 `afterString` 未找到，或间距 ≤ 0，则不进行任何修改。
+     */
     @discardableResult
     @objc(wy_lineSpacing:beforeString:afterString:alignment:)
     func wy_lineSpacingObjC(_ lineSpacing: CGFloat,
@@ -119,7 +145,17 @@ import WYBasisKitSwift
         return wy_lineSpacing(lineSpacing, beforeString: beforeString, afterString: afterString, alignment: alignment)
     }
     
-    /// 设置字间距
+    /**
+     *  设置字间距（字符间距）
+     *
+     *  - Parameters:
+     *    - wordsSpacing: 字间距值（单位：pt）
+     *    - string:       需要设置字间距的子字符串，传 `nil` 则对整个富文本生效
+     *
+     *  - Returns: 当前 `NSMutableAttributedString` 对象，支持链式调用
+     *
+     *  - Note: 如果 `string` 不为 `nil` 但在文本中未找到，则不会进行任何修改。
+     */
     @discardableResult
     @objc(wy_wordsSpacing:)
     func wy_wordsSpacingObjC(_ wordsSpacing: CGFloat) -> NSMutableAttributedString {
@@ -128,26 +164,6 @@ import WYBasisKitSwift
     @objc(wy_wordsSpacing:string:)
     func wy_wordsSpacingObjC(_ wordsSpacing: CGFloat, string: String? = nil) -> NSMutableAttributedString {
         return wy_wordsSpacing(wordsSpacing, string: string)
-    }
-    
-    /// 文本添加下划线
-    @discardableResult
-    @objc func wy_underline(_ color: UIColor) -> NSMutableAttributedString {
-        return wy_underline(color, string: nil)
-    }
-    @discardableResult
-    @objc func wy_underline(_ color: UIColor, string: String? = nil) -> NSMutableAttributedString {
-        return wy_underline(color: color, string: string)
-    }
-    
-    /// 文本添加删除线
-    @discardableResult
-    @objc func wy_strikethrough(_ color: UIColor) -> NSMutableAttributedString {
-        return wy_strikethrough(color, string: nil)
-    }
-    @discardableResult
-    @objc func wy_strikethrough(_ color: UIColor, string: String? = nil) -> NSMutableAttributedString {
-        return wy_strikethrough(color: color, string: string)
     }
     
     /**
@@ -175,6 +191,68 @@ import WYBasisKitSwift
     }
     
     /**
+     *  调整文本基线偏移（实现文字上下移动）
+     *
+     *  - Parameters:
+     *    - offset: 偏移量（单位：pt），**正值向上移动，负值向下移动**
+     *    - string: 需要调整的子字符串，传 `nil` 则对整个富文本生效
+     *
+     *  - Returns: 当前 `NSMutableAttributedString` 对象，支持链式调用
+     *
+     *  - Note: 如果 `string` 不为 `nil` 但在文本中未找到，则不会进行任何修改。
+     */
+    @discardableResult
+    @objc func wy_baselineOffsetY(_ offset: CGFloat) -> NSMutableAttributedString {
+        return wy_baseline(offset: offset)
+    }
+    @discardableResult
+    @objc func wy_baselineOffsetY(_ offset: CGFloat, string: String? = nil) -> NSMutableAttributedString {
+        return wy_baseline(offset: offset, string: string)
+    }
+    
+    /**
+     *  为文本添加下划线
+     *
+     *  - Parameters:
+     *    - color:  下划线的颜色
+     *    - string: 需要添加下划线的子字符串，传 `nil` 则对整个富文本生效
+     *
+     *  - Returns: 当前 `NSMutableAttributedString` 对象，支持链式调用
+     *
+     *  - Note: 如果 `string` 不为 `nil` 但在文本中未找到，则不会进行任何修改。
+     *          下划线样式为单线（`.single`）。
+     */
+    @discardableResult
+    @objc func wy_underline(_ color: UIColor) -> NSMutableAttributedString {
+        return wy_underline(color, string: nil)
+    }
+    @discardableResult
+    @objc func wy_underline(_ color: UIColor, string: String? = nil) -> NSMutableAttributedString {
+        return wy_underline(color: color, string: string)
+    }
+    
+    /**
+     *  为文本添加删除线
+     *
+     *  - Parameters:
+     *    - color:  删除线的颜色
+     *    - string: 需要添加删除线的子字符串，传 `nil` 则对整个富文本生效
+     *
+     *  - Returns: 当前 `NSMutableAttributedString` 对象，支持链式调用
+     *
+     *  - Note: 如果 `string` 不为 `nil` 但在文本中未找到，则不会进行任何修改。
+     *          删除线样式为单线（`.single`）。
+     */
+    @discardableResult
+    @objc func wy_strikethrough(_ color: UIColor) -> NSMutableAttributedString {
+        return wy_strikethrough(color, string: nil)
+    }
+    @discardableResult
+    @objc func wy_strikethrough(_ color: UIColor, string: String? = nil) -> NSMutableAttributedString {
+        return wy_strikethrough(color: color, string: string)
+    }
+    
+    /**
      向富文本中插入图片（支持图文混排，自动处理位置和对齐方式）
      
      - Parameter attachments: 富文本图片插入配置数组，每个元素定义了图片、位置、尺寸、对齐方式和间距
@@ -182,7 +260,7 @@ import WYBasisKitSwift
      
      使用说明：
      1. position 支持插入到指定文本前/后或指定字符下标处；
-     2. alignment 支持图片在字体行内的垂直对齐方式；
+     2. offsetY 图片相对于文本的偏移量(正值向上，负值向下)
      3. spacingBefore / spacingAfter 可用于设置插入图片前后的间距；
      */
     @discardableResult
@@ -202,18 +280,7 @@ import WYBasisKitSwift
                         return .index((objCOption.positionValue as? NSNumber)?.intValue ?? 0)
                     }
                 }(),
-                alignment: {
-                    switch objCOption.alignment {
-                    case .center:
-                        return .center
-                    case .top:
-                        return .top
-                    case .bottom:
-                        return .bottom
-                    case .custom:
-                        return .custom(offset: objCOption.alignmentOffset)
-                    }
-                }(),
+                offsetY: objCOption.offsetY,
                 spacingBefore: objCOption.spacingBefore,
                 spacingAfter: objCOption.spacingAfter
             )
@@ -294,21 +361,8 @@ import WYBasisKitSwift
         case before = 0
         /// 插入到文本后面
         case after
-        /// 根据文本下标插入到指定为止
+        /// 根据文本下标插入到指定位置
         case index
-    }
-    
-    /// 图片对齐方式类型
-    @objc(WYImageAttachmentAlignment)
-    @frozen public enum WYImageAttachmentAlignmentObjC: Int {
-        /// 与文本居中对齐
-        case center = 0
-        /// 与文本顶部对齐
-        case top
-        /// 与文本底部对齐
-        case bottom
-        /// 相对文本底部(Y轴)自定义偏移量对齐(负向上，正向下)
-        case custom
     }
     
     /// 要插入的图片
@@ -323,11 +377,8 @@ import WYBasisKitSwift
     /// 插入位置的参数（before/after 时传 NSString，index 时传 NSNumber）
     @objc public let positionValue: Any?
     
-    /// 图片对齐方式类型
-    @objc public let alignment: WYImageAttachmentAlignmentObjC
-    
-    /// 自定义对齐偏移量（仅在 alignmentType = .custom 时生效，负向上，正向下）
-    @objc public let alignmentOffset: CGFloat
+    /// 图片相对于文本的偏移量(正值向上，负值向下)
+    public let offsetY: CGFloat
     
     /// 图片与前面文本的间距（单位：pt）
     @objc public let spacingBefore: CGFloat
@@ -339,16 +390,14 @@ import WYBasisKitSwift
                       size: CGSize,
                       position: WYImageAttachmentPositionObjC,
                       positionValue: Any? = nil,
-                      alignment: WYImageAttachmentAlignmentObjC = .center,
-                      alignmentOffset: CGFloat = 0,
+                      offsetY: CGFloat = 0,
                       spacingBefore: CGFloat = 0,
                       spacingAfter: CGFloat = 0) {
         self.image = image
         self.size = size
         self.position = position
         self.positionValue = positionValue
-        self.alignment = alignment
-        self.alignmentOffset = alignmentOffset
+        self.offsetY = offsetY
         self.spacingBefore = spacingBefore
         self.spacingAfter = spacingAfter
     }

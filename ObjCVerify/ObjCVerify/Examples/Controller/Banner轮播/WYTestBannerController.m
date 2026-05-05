@@ -64,11 +64,11 @@
     }];
     
     [bannerView didClick:^(NSInteger index) {
-        WYLog(@"Block监听，点击了第 %ld 张图片", index+1);
+        wy_print(@"Block监听，点击了第 %ld 张图片", index+1);
     }];
     
     [bannerView didScroll:^(CGFloat offset, NSInteger index) {
-        WYLog(@"Block监听，滑动Banner到第 %ld 张图片了， offset = %f", index+1, offset);
+        wy_print(@"Block监听，滑动Banner到第 %ld 张图片了， offset = %f", index+1, offset);
     }];
     
     [WYEventHandler responseWithEvent:AppEventDidShowBannerView data:@"didShowBannerView"];
@@ -77,11 +77,11 @@
 #pragma mark - WYBannerViewDelegate
 
 - (void)wy_bannerViewDidClick:(WYBannerView *)bannerView index:(NSInteger)index {
-    WYLog(@"代理监听，点击了第 %ld 张图片",index+1);
+    wy_print(@"代理监听，点击了第 %ld 张图片",index+1);
 }
 
 - (void)wy_bannerViewDidScroll:(WYBannerView *)bannerView offset:(CGFloat)offset index:(NSInteger)index {
-    WYLog(@"代理监听，滑动Banner到第 %ld 张图片了， offset = %f", index + 1, offset);
+    wy_print(@"代理监听，滑动Banner到第 %ld 张图片了， offset = %f", index + 1, offset);
 }
 
 /*

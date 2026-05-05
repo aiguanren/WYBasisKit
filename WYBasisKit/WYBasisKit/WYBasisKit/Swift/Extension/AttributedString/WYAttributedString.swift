@@ -111,38 +111,28 @@ public extension NSMutableAttributedString {
         return self
     }
     
-    /// 设置行间距
+    /**
+     *  设置行间距
+     *
+     *  - Parameters:
+     *    - lineSpacing: 行间距值（单位：pt）
+     *    - subString:  需要设置行间距的子字符串，传 `nil` 则对整个富文本生效
+     *    - alignment:  段落对齐方式，默认为 `.left`
+     *
+     *  - Returns: 当前 `NSMutableAttributedString` 对象，支持链式调用
+     *
+     *  - Note: 如果 `subString` 不为 `nil` 但在文本中未找到，则不会进行任何修改。
+     */
     @discardableResult
     func wy_lineSpacing(_ lineSpacing: CGFloat, subString: String? = nil, alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
         
-        let targetRange: NSRange
-        
         // 确定目标范围（整个文本或指定子串）
-        if let substring = subString,
-           let range = self.string.range(of: substring) {
-            targetRange = NSRange(range, in: self.string)
-        } else {
-            targetRange = NSRange(location: 0, length: self.length)
-        }
+        let targetRange = wy_range(for: subString)
         
-        guard targetRange.location < self.length else {
-            return self
-        }
+        guard targetRange.location != NSNotFound, targetRange.length > 0 else { return self }
         
         // 获取或创建段落样式
-        let paragraphStyle: NSMutableParagraphStyle
-        
-        // 安全地获取并复制现有段落样式
-        if let existingStyle = self.attribute(
-            .paragraphStyle,
-            at: targetRange.location,
-            effectiveRange: nil
-        ) as? NSParagraphStyle,
-           let mutableStyle = existingStyle.mutableCopy() as? NSMutableParagraphStyle {
-            paragraphStyle = mutableStyle
-        } else {
-            paragraphStyle = NSMutableParagraphStyle()
-        }
+        let paragraphStyle = wy_paragraphStyle(at: targetRange)
         
         // 设置新属性
         paragraphStyle.lineSpacing = lineSpacing
@@ -158,7 +148,22 @@ public extension NSMutableAttributedString {
         return self
     }
     
-    /// 设置不同段落间的行间距
+    /**
+     *  设置两个指定字符串之间的段落间距
+     *
+     *  该方法会在 `beforeString` 所在段落的末尾增加 `lineSpacing` 间距，
+     *  从而影响其与 `afterString` 所在段落之间的距离。
+     *
+     *  - Parameters:
+     *    - lineSpacing:   段落间距值（单位：pt），需大于 0
+     *    - beforeString:  起始字符串，其所在段落的底部将会增加间距
+     *    - afterString:   结束字符串，必须位于 `beforeString` 之后
+     *    - alignment:     段落对齐方式，默认为 `.left`
+     *
+     *  - Returns: 当前 `NSMutableAttributedString` 对象，支持链式调用
+     *
+     *  - Note: 若 `beforeString` 或 `afterString` 未找到，或间距 ≤ 0，则不进行任何修改。
+     */
     @discardableResult
     func wy_lineSpacing(_ lineSpacing: CGFloat,
                         beforeString: String,
@@ -188,10 +193,13 @@ public extension NSMutableAttributedString {
         }
         
         // 获取 beforeString 所在段落范围
-        if let paragraphRange = paragraphRange(containing: beforeRange, value: fullText) {
+        if let paragraphRange = wy_paragraphRange(containing: beforeRange, value: fullText) {
             
-            // 创建并配置段落样式
-            let paragraphStyle = NSMutableParagraphStyle()
+            // 创建或获取段落样式
+            let range = NSRange(paragraphRange, in: fullText)
+            let paragraphStyle = wy_paragraphStyle(at: range)
+            
+            // 配置段落样式
             paragraphStyle.paragraphSpacing = lineSpacing
             paragraphStyle.alignment = alignment
             
@@ -199,61 +207,32 @@ public extension NSMutableAttributedString {
             self.addAttribute(
                 .paragraphStyle,
                 value: paragraphStyle,
-                range: NSRange(paragraphRange, in: fullText)
+                range: range
             )
         }
+        
         return self
     }
     
-    /// 设置字间距
+    /**
+     *  设置字间距（字符间距）
+     *
+     *  - Parameters:
+     *    - wordsSpacing: 字间距值（单位：pt）
+     *    - string:       需要设置字间距的子字符串，传 `nil` 则对整个富文本生效
+     *
+     *  - Returns: 当前 `NSMutableAttributedString` 对象，支持链式调用
+     *
+     *  - Note: 如果 `string` 不为 `nil` 但在文本中未找到，则不会进行任何修改。
+     */
     @discardableResult
     func wy_wordsSpacing(_ wordsSpacing: CGFloat, string: String? = nil) -> NSMutableAttributedString {
         
-        let targetRange: NSRange
-        if let substring = string,
-           let range = self.string.range(of: substring) {
-            targetRange = NSRange(range, in: self.string)
-        } else {
-            targetRange = NSRange(location: 0, length: self.length)
-        }
+        let targetRange = wy_range(for: string)
+        
+        guard targetRange.location != NSNotFound, targetRange.length > 0 else { return self }
         
         addAttribute(.kern, value: wordsSpacing, range: targetRange)
-        
-        return self
-    }
-    
-    /// 文本添加下划线
-    @discardableResult
-    func wy_underline(color: UIColor, string: String? = nil) -> NSMutableAttributedString {
-        
-        let targetRange: NSRange
-        if let substring = string,
-           let range = self.string.range(of: substring) {
-            targetRange = NSRange(range, in: self.string)
-        } else {
-            targetRange = NSRange(location: 0, length: self.length)
-        }
-        
-        addAttribute(.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: targetRange)
-        addAttribute(.underlineColor, value: color, range: targetRange)
-        
-        return self
-    }
-    
-    /// 文本添加删除线
-    @discardableResult
-    func wy_strikethrough(color: UIColor, string: String? = nil) -> NSMutableAttributedString {
-        
-        let targetRange: NSRange
-        if let substring = string,
-           let range = self.string.range(of: substring) {
-            targetRange = NSRange(range, in: self.string)
-        } else {
-            targetRange = NSRange(location: 0, length: self.length)
-        }
-        
-        addAttribute(.strikethroughStyle, value: NSUnderlineStyle.single.rawValue, range: targetRange)
-        addAttribute(.strikethroughColor, value: color, range: targetRange)
         
         return self
     }
@@ -273,24 +252,11 @@ public extension NSMutableAttributedString {
                         tailIndent: CGFloat = 0,
                         alignment: NSTextAlignment = .justified) -> NSMutableAttributedString {
         
-        let targetRange: NSRange
-        if let substring = string,
-           let range = self.string.range(of: substring) {
-            targetRange = NSRange(range, in: self.string)
-        } else {
-            targetRange = NSRange(location: 0, length: self.length)
-        }
+        let targetRange = wy_range(for: string)
+        guard targetRange.location != NSNotFound, targetRange.length > 0 else { return self }
         
         // 获取或创建段落样式
-        let paragraphStyle: NSMutableParagraphStyle
-        if let existingStyle = self.attribute(.paragraphStyle,
-                                              at: targetRange.location,
-                                              effectiveRange: nil) as? NSParagraphStyle,
-           let mutableStyle = existingStyle.mutableCopy() as? NSMutableParagraphStyle {
-            paragraphStyle = mutableStyle
-        } else {
-            paragraphStyle = NSMutableParagraphStyle()
-        }
+        let paragraphStyle = wy_paragraphStyle(at: targetRange)
         
         // 设置内边距属性
         paragraphStyle.alignment = alignment
@@ -305,6 +271,77 @@ public extension NSMutableAttributedString {
     }
     
     /**
+     *  调整文本基线偏移（实现文字上下移动）
+     *
+     *  - Parameters:
+     *    - offset: 偏移量（单位：pt），**正值向上移动，负值向下移动**
+     *    - string: 需要调整的子字符串，传 `nil` 则对整个富文本生效
+     *
+     *  - Returns: 当前 `NSMutableAttributedString` 对象，支持链式调用
+     *
+     *  - Note: 如果 `string` 不为 `nil` 但在文本中未找到，则不会进行任何修改。
+     */
+    @discardableResult
+    func wy_baseline(offset: CGFloat, string: String? = nil) -> NSMutableAttributedString {
+        
+        let targetRange = wy_range(for: string)
+        
+        guard targetRange.location != NSNotFound, targetRange.length > 0 else { return self }
+        
+        addAttribute(.baselineOffset, value: offset, range: targetRange)
+        return self
+    }
+    
+    /**
+     *  为文本添加下划线
+     *
+     *  - Parameters:
+     *    - color:  下划线的颜色
+     *    - string: 需要添加下划线的子字符串，传 `nil` 则对整个富文本生效
+     *
+     *  - Returns: 当前 `NSMutableAttributedString` 对象，支持链式调用
+     *
+     *  - Note: 如果 `string` 不为 `nil` 但在文本中未找到，则不会进行任何修改。
+     *          下划线样式为单线（`.single`）。
+     */
+    @discardableResult
+    func wy_underline(color: UIColor, string: String? = nil) -> NSMutableAttributedString {
+        
+        let targetRange = wy_range(for: string)
+        
+        guard targetRange.location != NSNotFound, targetRange.length > 0 else { return self }
+        
+        addAttribute(.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: targetRange)
+        addAttribute(.underlineColor, value: color, range: targetRange)
+        
+        return self
+    }
+    
+    /**
+     *  为文本添加删除线
+     *
+     *  - Parameters:
+     *    - color:  删除线的颜色
+     *    - string: 需要添加删除线的子字符串，传 `nil` 则对整个富文本生效
+     *
+     *  - Returns: 当前 `NSMutableAttributedString` 对象，支持链式调用
+     *
+     *  - Note: 如果 `string` 不为 `nil` 但在文本中未找到，则不会进行任何修改。
+     *          删除线样式为单线（`.single`）。
+     */
+    @discardableResult
+    func wy_strikethrough(color: UIColor, string: String? = nil) -> NSMutableAttributedString {
+        
+        let targetRange = wy_range(for: string)
+        guard targetRange.location != NSNotFound, targetRange.length > 0 else { return self }
+        
+        addAttribute(.strikethroughStyle, value: NSUnderlineStyle.single.rawValue, range: targetRange)
+        addAttribute(.strikethroughColor, value: color, range: targetRange)
+        
+        return self
+    }
+    
+    /**
      向富文本中插入图片（支持图文混排，自动处理位置和对齐方式）
      
      - Parameter attachments: 富文本图片插入配置数组，每个元素定义了图片、位置、尺寸、对齐方式和间距
@@ -312,7 +349,7 @@ public extension NSMutableAttributedString {
      
      使用说明：
      1. position 支持插入到指定文本前/后或指定字符下标处；
-     2. alignment 支持图片在字体行内的垂直对齐方式；
+     2. offsetY 图片相对于文本的偏移量(正值向上，负值向下)
      3. spacingBefore / spacingAfter 可用于设置插入图片前后的间距；
      */
     @discardableResult
@@ -350,23 +387,7 @@ public extension NSMutableAttributedString {
             let attachment = NSTextAttachment()
             attachment.image = option.image
             
-            // 获取当前索引处的字体
-            let lineFont = self.attribute(.font, at: max(0, min(insertIndex, self.length - 1)), effectiveRange: nil) as? UIFont ?? UIFont.systemFont(ofSize: 15)
-            
-            // 计算图片(Y)偏移量（文字对齐用）
-            let yOffset: CGFloat
-            switch option.alignment {
-            case .center:
-                yOffset = lineFont.ascender - (option.size.height * 0.5)
-            case .top:
-                yOffset = lineFont.ascender - option.size.height
-            case .bottom:
-                yOffset = lineFont.descender
-            case .custom(let offset):
-                yOffset = -offset
-            }
-            
-            attachment.bounds = CGRect(x: 0, y: yOffset, width: option.size.width, height: option.size.height)
+            attachment.bounds = CGRect(x: 0, y: option.offsetY, width: option.size.width, height: option.size.height)
             let imageAttr = NSAttributedString(attachment: attachment)
             
             // 构建前后间距（使用透明附件）
@@ -567,20 +588,8 @@ public struct WYImageAttachmentOption {
         case before(text: String)
         /// 插入到文本后面
         case after(text: String)
-        /// 根据文本下标插入到指定为止
+        /// 根据文本下标插入到指定位置
         case index(Int)
-    }
-    
-    /// 图片对齐方式
-    @frozen public enum WYImageAttachmentAlignment {
-        /// 与文本居中对齐
-        case center
-        /// 与文本顶部对齐
-        case top
-        /// 与文本底部对齐
-        case bottom
-        /// 相对文本底部(Y轴)自定义偏移量对齐(负向上，正向下)
-        case custom(offset: CGFloat)
     }
     
     /// 要插入的图片
@@ -592,8 +601,8 @@ public struct WYImageAttachmentOption {
     /// 图片插入位置
     public let position: WYImageAttachmentPosition
     
-    /// 图片对齐方式
-    public let alignment: WYImageAttachmentAlignment
+    /// 图片相对于文本的偏移量(正值向上，负值向下)
+    public let offsetY: CGFloat
     
     /// 图片与前面文本的间距（单位：pt）
     public let spacingBefore: CGFloat
@@ -604,13 +613,13 @@ public struct WYImageAttachmentOption {
     public init(image: UIImage,
                 size: CGSize,
                 position: WYImageAttachmentPosition,
-                alignment: WYImageAttachmentAlignment = .center,
+                offsetY: CGFloat = 0,
                 spacingBefore: CGFloat = 0,
                 spacingAfter: CGFloat = 0) {
         self.image = image
         self.size = size
         self.position = position
-        self.alignment = alignment
+        self.offsetY = offsetY
         self.spacingBefore = spacingBefore
         self.spacingAfter = spacingAfter
     }
@@ -642,11 +651,49 @@ private extension NSMutableAttributedString {
     }
     
     /// 获取包含指定范围的段落范围
-    func paragraphRange(containing range: Range<String.Index>, value: String) -> Range<String.Index>? {
+    func wy_paragraphRange(containing range: Range<String.Index>, value: String) -> Range<String.Index>? {
         guard !value.isEmpty else { return nil }
         
         let paragraphStart = value[..<range.lowerBound].lastIndex(of: "\n") ?? value.startIndex
         let paragraphEnd = value[range.upperBound...].firstIndex(of: "\n") ?? value.endIndex
         return paragraphStart..<paragraphEnd
+    }
+    
+    /**
+     * 根据可选子字符串计算需要应用属性的范围
+     * - Parameter string: 要查找的子字符串，如果为 nil 则返回整个富文本的范围
+     * - Returns: 对应的 NSRange，如果子字符串未找到则返回无效范围 `(NSNotFound, 0)`
+     */
+    func wy_range(for string: String?) -> NSRange {
+        // 如果没有指定子字符串，则对整个富文本生效
+        guard let targetStr = string else {
+            return NSRange(location: 0, length: self.length)
+        }
+        
+        // 尝试在字符串中查找子串的位置
+        if let range = self.string.range(of: targetStr) {
+            return NSRange(range, in: self.string)
+        }
+        
+        // 未找到子串，返回无效范围（后续需要进行有效性检查）
+        return NSRange(location: NSNotFound, length: 0)
+    }
+    
+    /**
+     * 创建或者获取指定富文本范围内的可变段落样式
+     *
+     * 该方法会尝试获取指定 range 处的现有段落样式，如果存在则返回其可变副本；
+     * 如果不存在，则返回一个新的 `NSMutableParagraphStyle` 实例。
+     *
+     * - Parameter range: 需要获取段落样式的富文本范围（通常用目标 range 的起始位置即可）
+     * - Returns: 可变的段落样式对象，调用方可以修改其属性，然后自行通过 `addAttribute` 应用到指定范围
+     *
+     */
+    func wy_paragraphStyle(at range: NSRange) -> NSMutableParagraphStyle {
+        if let existingStyle = self.attribute(.paragraphStyle, at: range.location, effectiveRange: nil) as? NSParagraphStyle,
+           let mutableStyle = existingStyle.mutableCopy() as? NSMutableParagraphStyle {
+            return mutableStyle
+        }
+        return NSMutableParagraphStyle()
     }
 }
