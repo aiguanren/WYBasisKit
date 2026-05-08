@@ -316,7 +316,7 @@ public extension String {
     
     /// 返回一个计算好的字符串的宽度
     func wy_calculateWidth(controlHeight: CGFloat, controlFont: UIFont, lineSpacing: CGFloat = 0, wordsSpacing: CGFloat = 0) -> CGFloat {
-
+        
         let sharedControlHeight = (controlHeight == 0) ? controlFont.lineHeight : controlHeight
         
         return wy_calculategSize(controlSize: CGSize(width: .greatestFiniteMagnitude, height: sharedControlHeight), controlFont: controlFont, lineSpacing: lineSpacing, wordsSpacing: wordsSpacing).width
@@ -334,7 +334,7 @@ public extension String {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = lineSpacing
         let attributes = [NSAttributedString.Key.font: controlFont, NSAttributedString.Key.paragraphStyle: paragraphStyle, NSAttributedString.Key.kern: NSNumber(value: Double(wordsSpacing))]
-    
+        
         let attributeText: NSAttributedString = NSAttributedString(string: self, attributes: attributes)
         
         return attributeText.wy_calculateSize(controlSize: controlSize)
@@ -344,6 +344,109 @@ public extension String {
     func wy_contains(_ find: String, ignoreCase: Bool = false) -> Bool {
         let options: String.CompareOptions = ignoreCase ? .caseInsensitive : []
         return self.range(of: find, options: options) != nil
+    }
+    
+    /**
+     *  提取字符串中的链接(默认支持 http://、https://、ftp://、mailto:、tel: 等，www.协议请通过canNoProtocol参数设置)
+     *  @param canNoProtocol  是否需要额外支持提取没有协议前缀(www.)的链接
+     *  @return 提取到的链接字符串数组，顺序按链接在原始字符串中首次出现的位置排列；若 content 为空或无效，返回空数组。
+     */
+    func wy_extractLinks(canNoProtocol: Bool = true) -> [String] {
+        
+        // 空值保护
+        guard !self.isEmpty else {
+            return []
+        }
+        
+        // 检测 URL（标准协议链接）
+        guard let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) else {
+            return []
+        }
+        
+        // 统一结果容器（用于排序）
+        struct LinkItem {
+            let text: String
+            let range: NSRange
+        }
+        
+        var results: [LinkItem] = []
+        
+        // 记录标准链接的 range，用于后续去重（避免 www. 形式被重复提取）
+        var standardRanges: [NSRange] = []
+        
+        // 尾部标点裁剪
+        let trailingSet = CharacterSet(charactersIn: ".,!?;:)]}，。！？；：）】》、")
+        
+        func trimTrailing(_ text: String) -> String {
+            var endIndex = text.endIndex
+            while endIndex > text.startIndex {
+                let prevIndex = text.index(before: endIndex)
+                if !trailingSet.contains(text[prevIndex].unicodeScalars.first!) {
+                    break
+                }
+                endIndex = prevIndex
+            }
+            return String(text[..<endIndex])
+        }
+        
+        // 使用 utf16 计数（NSDataDetector 推荐方式）
+        let fullNSRange = NSRange(location: 0, length: self.utf16.count)
+        
+        // 遍历所有匹配的标准协议链接
+        detector.enumerateMatches(in: self, options: [], range: fullNSRange) { result, _, _ in
+            guard let result = result, result.resultType == .link else { return }
+            
+            // 推荐写法：把 NSRange 转回 Swift Range 再取 substring
+            if let swiftRange = Range(result.range, in: self) {
+                var linkText = String(self[swiftRange])
+                linkText = trimTrailing(linkText)
+                
+                results.append(LinkItem(text: linkText, range: result.range))
+                standardRanges.append(result.range)
+            }
+        }
+        
+        // 如果需要提取无协议链接（以 www. 开头）
+        if canNoProtocol {
+            let pattern = "\\bwww\\.[a-zA-Z0-9][a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;=%]*"
+            if let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) {
+                let matches = regex.matches(in: self, options: [], range: fullNSRange)
+                
+                for match in matches {
+                    
+                    // 去重：检查该 www. 链接是否已经包含在某个标准链接中
+                    var alreadyIncluded = false
+                    for stdRange in standardRanges {
+                        let matchStart = match.range.location
+                        let matchEnd = NSMaxRange(match.range)
+                        let stdEnd = NSMaxRange(stdRange)
+                        
+                        if matchStart >= stdRange.location && matchEnd <= stdEnd {
+                            alreadyIncluded = true
+                            break
+                        }
+                    }
+                    
+                    if !alreadyIncluded {
+                        if let swiftRange = Range(match.range, in: self) {
+                            var wwwLink = String(self[swiftRange])
+                            wwwLink = trimTrailing(wwwLink)
+                            
+                            // 简单校验，避免提取到过短或明显无效的 www.
+                            if wwwLink.count > 5 {
+                                results.append(LinkItem(text: wwwLink, range: match.range))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // 统一按 range 排序（保证顺序正确）
+        results.sort { $0.range.location < $1.range.location }
+        
+        // 最终生成 links
+        return results.map { $0.text }
     }
     
     /// 字符串截取(从第几位截取到第几位)
@@ -759,22 +862,22 @@ public extension String {
     
     /**
      从字符串中提取数字（支持可选前缀、千分位、小数）
-
+     
      - Parameter prefixs: 可选前缀（如 ["+", "-", "¥", "$"]，最多1个且在最前）
-
+     
      - 示例：
-       输入："价格 ¥1,234.56，优惠 $999，再加 +100，折扣 0.5"
-       输出：["¥1,234.56", "$999", "+100", "0.5"]
-
-       输入："数量 123 和 45.67"
-       输出：["123", "45.67"]
-
+     输入："价格 ¥1,234.56，优惠 $999，再加 +100，折扣 0.5"
+     输出：["¥1,234.56", "$999", "+100", "0.5"]
+     
+     输入："数量 123 和 45.67"
+     输出：["123", "45.67"]
+     
      - Returns: 提取到的数字字符串数组
      */
     func wy_extractNumbers(prefixs: [String] = []) -> [String] {
         let prefixPattern = prefixs.isEmpty
-            ? ""
-            : "(?:\(prefixs.map { NSRegularExpression.escapedPattern(for: $0) }.joined(separator: "|")))?"
+        ? ""
+        : "(?:\(prefixs.map { NSRegularExpression.escapedPattern(for: $0) }.joined(separator: "|")))?"
         
         let numberPattern = "(?:[0-9]{1,3}(?:,[0-9]{3})*|[0-9]+)(?:\\.[0-9]+)?"
         

@@ -33,24 +33,22 @@
     NSMutableAttributedString *attribute = [[NSMutableAttributedString alloc] initWithString:str];
     
     [attribute addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:20] range:NSMakeRange(0, str.length)];
-    [attribute wy_colorsOfRanges:@{[UIColor blueColor]: @"勇猛刚强", [UIColor orangeColor]: @"仁爱温良者戒于无断", [UIColor purpleColor]: @"安舒", [UIColor magentaColor]: @"必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"}];
+    [attribute wy_setColorForRanges:@{[UIColor blueColor]: @"勇猛刚强", [UIColor orangeColor]: @"仁爱温良者戒于无断", [UIColor purpleColor]: @"安舒", [UIColor magentaColor]: @"必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"}];
+    [attribute wy_setColorForRanges:@{[UIColor wy_random]: @[@"足", @"太", @"暴"]}];
+    [attribute wy_setFontForRanges:@{[UIFont boldSystemFontOfSize:26]: @[@[@"2", @"2"], @[@"8", @"5"]]}];
     [attribute wy_lineSpacing:15];
+    [attribute wy_underline:[UIColor magentaColor] rangeValue:@[@"勇猛刚强", @"仁爱温良者戒于无断", @"安舒", @"必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"]]; // 同步下划线设置
     
     label.attributedText = attribute;
     label.wy_clickEffectColor = [UIColor greenColor];
     [label wy_addRichTexts:@[@"勇猛刚强", @"仁爱温良者戒于无断", @"安舒", @"必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"] handler:^(NSString * _Nonnull string, NSRange range, NSInteger index) {
-        //wy_print(@"string = %@, range = %@, index = %ld", string, NSStringFromRange(range), (long)index);
-        
         if ([string isEqualToString:@"勇猛刚强"]) {
-            
             [WYActivity showInfo:[NSString stringWithFormat:@"string = %@ range = %@ index = %ld", string, NSStringFromRange(range), (long)index] option: [self activityInfoWithPosition:WYActivityPositionMiddle]];
         }
         if ([string isEqualToString:@"仁爱温良者戒于无断"]) {
-            
             [WYActivity showInfo:[NSString stringWithFormat:@"string = %@ range = %@ index = %ld", string, NSStringFromRange(range), (long)index] option:[self activityInfoWithPosition:WYActivityPositionTop]];
         }
         if ([string isEqualToString:@"安舒"]) {
-            
             [WYActivity showInfo:[NSString stringWithFormat:@"string = %@ range = %@ index = %ld", string, NSStringFromRange(range), (long)index] option:[self activityInfoWithPosition:WYActivityPositionBottom]];
         }
     }];
@@ -119,22 +117,16 @@
     if (range.location != NSNotFound) {
         string_font_50Index = range.location - 1;
     } else {
-        string_font_50Index = 0; // 未找到的情况，可根据需求调整
+        string_font_50Index = 0;
     }
     NSArray<WYImageAttachmentOption *> *options = @[
-        
         [[WYImageAttachmentOption alloc] initWithImage:image_font_30 size:CGSizeMake(10, 10) position:WYImageAttachmentPositionIndex positionValue:@1 offsetY:5 spacingBefore:0 spacingAfter:20],
-        
         [[WYImageAttachmentOption alloc] initWithImage:image_font_30 size:CGSizeMake(20, 20) position:WYImageAttachmentPositionBefore positionValue:string_font_30 offsetY:9 spacingBefore:0 spacingAfter:20],
-        
-        
         [[WYImageAttachmentOption alloc] initWithImage:image_font_40 size:CGSizeMake(20, 20) position:WYImageAttachmentPositionAfter positionValue:string_font_40 offsetY:2.5 spacingBefore:10 spacingAfter:0],
-        
         [[WYImageAttachmentOption alloc] initWithImage:image_font_50 size:CGSizeMake(10, 10) position:WYImageAttachmentPositionIndex positionValue:@(string_font_50Index + 2) offsetY:30 spacingBefore:0 spacingAfter:0],
-        
         [[WYImageAttachmentOption alloc] initWithImage:image_font_50 size:CGSizeMake(20, 20) position:WYImageAttachmentPositionAfter positionValue:string_font_50 offsetY:-5 spacingBefore:0 spacingAfter:0]
     ];
-    [attributed wy_fontsOfRanges:@{[UIFont systemFontOfSize:30]: string_font_30, [UIFont systemFontOfSize:40]: string_font_40, [UIFont systemFontOfSize:50]: string_font_50}];
+    [attributed wy_setFontForRanges:@{[UIFont systemFontOfSize:30]: string_font_30, [UIFont systemFontOfSize:40]: string_font_40, [UIFont systemFontOfSize:50]: string_font_50}];
     [attributed wy_insertImageWithAttachments:options];
     [attributed wy_lineSpacing:10];
     attachmentView.attributedText = attributed;
@@ -166,7 +158,7 @@
     [spacingAttributed wy_lineSpacing:10 beforeString:spacing10 afterString:spacing15 alignment:NSTextAlignmentLeft];
     [spacingAttributed wy_lineSpacing:15 beforeString:spacing15 afterString:spacing30 alignment:NSTextAlignmentRight];
     [spacingAttributed wy_lineSpacing:30 beforeString:spacing30 afterString:spacing20 alignment:NSTextAlignmentLeft];
-    [spacingAttributed wy_lineSpacing:50 subString:spacing20 alignment:NSTextAlignmentLeft];
+    [spacingAttributed wy_lineSpacing:50 rangeValue:spacing20 alignment:NSTextAlignmentLeft];
     spacingView.attributedText = spacingAttributed;
     
     CGFloat sizeWidth = [UIDevice wy_screenWidth] - 30;
@@ -199,7 +191,6 @@
         make.centerX.equalTo(scrollView);
         make.top.equalTo(widthView.mas_bottom).offset([UIDevice wy_screenWidth:50]);
         make.width.equalTo(@(sizeWidth));
-        make.bottom.equalTo(scrollView).offset(-50);
     }];
     
     CGFloat textHeight = [heightView.text wy_calculateHeightWithControlWidth:sizeWidth controlFont:heightView.font lineSpacing:0 wordsSpacing:0];
@@ -243,6 +234,92 @@
         make.height.equalTo(@(attributedHeight));
         make.width.equalTo(@2);
     }];
+    
+    // ====================== 新增测试用例（同步 Swift） ======================
+    // 用于专门测试：垂直居中、numberOfLines=0、不同 textAlignment 组合
+    __block UIView *lastView = heightView;
+    
+    // 1. 多行 + 垂直居中（固定高度）
+    UILabel *centerLabel = [[UILabel alloc] init];
+    centerLabel.numberOfLines = 0;
+    centerLabel.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1.0];
+    NSString *centerText = @"垂直居中测试\n第二行内容\n第三行包含可点击 LinkCenter";
+    NSMutableAttributedString *centerAttr = [[NSMutableAttributedString alloc] initWithString:centerText];
+    NSMutableParagraphStyle *centerStyle = [[NSMutableParagraphStyle alloc] init];
+    centerStyle.lineSpacing = 8;
+    [centerAttr addAttribute:NSParagraphStyleAttributeName value:centerStyle range:NSMakeRange(0, centerAttr.length)];
+    [centerAttr wy_setFontForRanges:@{[UIFont systemFontOfSize:19]: centerText}];
+    [centerAttr wy_setColorForRanges:@{[UIColor redColor]: @"LinkCenter"}];
+    centerLabel.attributedText = centerAttr;
+    centerLabel.wy_clickEffectColor = [UIColor purpleColor];
+    [centerLabel wy_addRichTexts:@[@"LinkCenter"] delegate:self];
+    [scrollView addSubview:centerLabel];
+    [centerLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(lastView.mas_bottom).offset(40);
+        make.centerX.equalTo(scrollView);
+        make.width.equalTo(@([UIDevice wy_screenWidth] - 40));
+        make.height.equalTo(@160);
+    }];
+    lastView = centerLabel;
+    
+    // 2. numberOfLines = 0 + 自动换行 + 多链接
+    UILabel *autoLabel = [[UILabel alloc] init];
+    autoLabel.numberOfLines = 0;
+    autoLabel.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1.0];
+    NSString *autoText = @"这是一段自动换行测试文本 numberOfLines=0。点击测试链接：https://www.example.com 和 www.baidu.com 以及最后一个链接 https://github.com";
+    NSMutableAttributedString *autoAttr = [[NSMutableAttributedString alloc] initWithString:autoText];
+    [autoAttr wy_setFontForRanges:@{[UIFont systemFontOfSize:18]: autoText}];
+    [autoAttr wy_setColorForRanges:@{[UIColor systemBlueColor]: @[@"https://www.example.com", @"www.baidu.com", @"https://github.com"]}];
+    autoLabel.attributedText = autoAttr;
+    autoLabel.wy_clickEffectColor = [UIColor orangeColor];
+    [autoLabel wy_addRichTexts:@[@"https://www.example.com", @"www.baidu.com", @"https://github.com"] delegate:self];
+    [scrollView addSubview:autoLabel];
+    [autoLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(lastView.mas_bottom).offset(40);
+        make.centerX.equalTo(scrollView);
+        make.width.equalTo(@([UIDevice wy_screenWidth] - 40));
+    }];
+    lastView = autoLabel;
+    
+    // 3. 不同 textAlignment + 垂直居中 组合测试
+    NSArray<NSDictionary *> *alignments = @[
+        @{@"title": @"左对齐 + 垂直居中", @"alignment": @(NSTextAlignmentLeft)},
+        @{@"title": @"居中对齐 + 垂直居中", @"alignment": @(NSTextAlignmentCenter)},
+        @{@"title": @"右对齐 + 垂直居中", @"alignment": @(NSTextAlignmentRight)}
+    ];
+    for (NSDictionary *alignInfo in alignments) {
+        NSString *title = alignInfo[@"title"];
+        NSTextAlignment alignment = [alignInfo[@"alignment"] integerValue];
+        UILabel *alignLabel = [[UILabel alloc] init];
+        alignLabel.numberOfLines = 0;
+        alignLabel.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1.0];
+        NSString *alignText = [NSString stringWithFormat:@"%@\n第二行测试文字\n第三行可点击 ClickMe", title];
+        NSMutableAttributedString *alignAttr = [[NSMutableAttributedString alloc] initWithString:alignText];
+        NSMutableParagraphStyle *paraStyle = [[NSMutableParagraphStyle alloc] init];
+        paraStyle.alignment = alignment;
+        paraStyle.lineSpacing = 10;
+        [alignAttr addAttribute:NSParagraphStyleAttributeName value:paraStyle range:NSMakeRange(0, alignAttr.length)];
+        [alignAttr wy_setFontForRanges:@{[UIFont systemFontOfSize:18]: alignText}];
+        [alignAttr wy_setColorForRanges:@{[UIColor systemPinkColor]: @"ClickMe"}];
+        alignLabel.attributedText = alignAttr;
+        alignLabel.textAlignment = alignment;
+        alignLabel.wy_clickEffectColor = [UIColor blueColor];
+        [alignLabel wy_addRichTexts:@[@"ClickMe"] delegate:self];
+        [scrollView addSubview:alignLabel];
+        [alignLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.equalTo(lastView.mas_bottom).offset(40);
+            make.centerX.equalTo(scrollView);
+            make.width.equalTo(@([UIDevice wy_screenWidth] - 40));
+            make.height.equalTo(@140);
+        }];
+        lastView = alignLabel;
+    }
+    
+    // 设置 scrollView 的底部约束，确保所有内容可滚动
+    [lastView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.bottom.equalTo(scrollView).offset(-50);
+    }];
+    // ======================================================
 }
 
 - (WYMessageInfoOptions *)activityInfoWithPosition:(WYActivityPosition)position {
@@ -266,7 +343,6 @@
 - (void)dealloc {
     wy_print(@"deinit");
 }
-
 
 /*
  #pragma mark - Navigation

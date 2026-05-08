@@ -14,73 +14,41 @@ import WYBasisKitSwift
 @objc public extension NSMutableAttributedString {
     
     /**
-     设置富文本中指定范围或字符串的颜色
+     设置富文本中指定范围的颜色。
      
-     - Parameter colorRanges: 颜色与范围对应的字典序列，每个字典包含一个字体键和对应的范围值
+     - Parameter colorRanges: 字典，键为颜色，值为范围定义。
      
-     - Note: 范围参数支持三种格式：
-     1. 字符串格式：自动查找字符串中首次出现的该子串并应用颜色
-     2. 范围数组：@{@"起始位置字符串", @"长度字符串"} 如 @{@"0", @"5"}
-     3. 字符串格式与范围数组组合
+     范围支持以下格式：
+     - `String`：匹配该子串的所有出现。
+     - `[String]`：若数组长度为2且可转为整数，视为单个区间 `[起始, 长度]`；否则视为多个子串，每个子串的所有出现均匹配。
+     - `[Int]`：两个整数，视为单个区间 `[起始, 长度]`。
+     - `[[String]]` 或 `[[Int]]`：多个区间，如 `[["0","5"], ["10","3"]]` 或 `[[0,5], [10,3]]`。
+     - `[NSRange]`：多个 `NSRange` 值。
      
-     使用示例：
-     // 通过字符串匹配设置颜色
-     [attributedString wy_colorsOfRanges:@{
-          UIColor.redColor: @"需要标红的文本",
-          UIColor.blueColor: @"蓝色文本"
-     }];
-     
-     // 通过范围设置颜色
-     [attributedString wy_colorsOfRanges:@{
-           @{UIColor.redColor: @[@"0", @"5"]}, // 从第0个字符开始，长度为5
-           @{UIColor.blueColor: @[@"10", @"3"]}, // 从第10个字符开始，长度为3
-     }];
-     
-     // 通过组合设置颜色
-     [attributedString wy_colorsOfRanges:@{
-          @{UIColor.redColor: @"需要标红的文本"},
-          @{UIColor.blueColor: @[@"10", @"3"]}, // 从第10个字符开始，长度为3
-     }];
+     - Returns: 当前对象，支持链式调用。
      */
     @discardableResult
-    @objc(wy_colorsOfRanges:)
-    func wy_colorsOfRangesObjC(_ colorRanges: Dictionary<UIColor, Any>) -> NSMutableAttributedString {
-        return wy_colorsOfRanges(colorRanges)
+    @objc func wy_setColorForRanges(_ colorRanges: [UIColor : Any]) -> NSMutableAttributedString {
+        return wy_setColor(colorRanges)
     }
     
     /**
-     设置富文本中指定范围或字符串的字体
+     设置富文本中指定范围的字体。
      
-     - Parameter fontRanges: 字体与范围对应的字典序列，每个字典包含一个字体键和对应的范围值
+     - Parameter fontRanges: 字典，键为字体，值为范围定义。
      
-     - Note: 范围参数支持三种格式：
-     1. 字符串格式：自动查找字符串中首次出现的该子串并应用字体
-     2. 范围数组：@{@"起始位置字符串", @"长度字符串"} 如 @{@"0", @"5"}
-     3. 字符串格式与范围数组组合
+     范围支持以下格式：
+     - `String`：匹配该子串的所有出现。
+     - `[String]`：若数组长度为2且可转为整数，视为单个区间 `[起始, 长度]`；否则视为多个子串，每个子串的所有出现均匹配。
+     - `[Int]`：两个整数，视为单个区间 `[起始, 长度]`。
+     - `[[String]]` 或 `[[Int]]`：多个区间，如 `[["0","5"], ["10","3"]]` 或 `[[0,5], [10,3]]`。
+     - `[NSRange]`：多个 `NSRange` 值。
      
-     使用示例：
-     // 通过字符串匹配设置字体
-     attributedString.wy_fontsOfRanges:@{
-         [UIFont.boldSystemFont(ofSize: 16): "加粗文本"],
-         [UIFont.italicSystemFont(ofSize: 14): "斜体文本"]
-     }];
-     
-     // 通过范围设置字体
-     attributedString.wy_fontsOfRanges:@{
-         [UIFont.systemFont(ofSize: 18): ["0", "5"]],
-         [UIFont.systemFont(ofSize: 12): ["10", "3"]
-     }];
-     
-     // 通过组合设置字体
-     attributedString.wy_fontsOfRanges:@{
-         [UIFont.boldSystemFont(ofSize: 16): "加粗文本"],
-         [UIFont.systemFont(ofSize: 12): ["10", "3"] // 从第10个字符开始，长度为3
-     }];
+     - Returns: 当前对象，支持链式调用。
      */
     @discardableResult
-    @objc(wy_fontsOfRanges:)
-    func wy_fontsOfRangesObjC(_ fontRanges: Dictionary<UIFont, Any>) -> NSMutableAttributedString {
-        return wy_fontsOfRanges(fontRanges)
+    @objc func wy_setFontForRanges(_ fontRanges: [UIFont : Any]) -> NSMutableAttributedString {
+        return wy_setFont(fontRanges)
     }
     
     /**
@@ -93,31 +61,36 @@ import WYBasisKitSwift
     }
     
     /**
-     *  设置行间距
+     *  设置行间距，支持多种范围定义
      *
      *  - Parameters:
      *    - lineSpacing: 行间距值（单位：pt）
-     *    - subString:  需要设置行间距的子字符串，传 `nil` 则对整个富文本生效
+     *    - rangeValue:  范围定义，传 `nil` 则对整个富文本生效。支持以下格式：
+     *        - `String`：匹配该子串的所有出现。
+     *        - `[String]`：若数组长度为2且可转为整数，视为单个区间 `[起始, 长度]`；否则视为多个子串，每个子串的所有出现均匹配。
+     *        - `[Int]`：两个整数，视为单个区间 `[起始, 长度]`。
+     *        - `[[String]]` 或 `[[Int]]`：多个区间，如 `[["0","5"], ["10","3"]]` 或 `[[0,5], [10,3]]`。
+     *        - `[NSRange]`：多个 `NSRange` 值。
      *    - alignment:  段落对齐方式，默认为 `.left`
      *
      *  - Returns: 当前 `NSMutableAttributedString` 对象，支持链式调用
-     *
-     *  - Note: 如果 `subString` 不为 `nil` 但在文本中未找到，则不会进行任何修改。
      */
+    @discardableResult
+    @objc(wy_lineSpacing:rangeValue:alignment:)
+    func wy_lineSpacingObjC(_ lineSpacing: CGFloat, rangeValue: Any?, alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
+        return wy_lineSpacing(lineSpacing, rangeValue: rangeValue, alignment: alignment)
+    }
+    
+    // 简便方法（不带范围，整个文本生效）
     @discardableResult
     @objc(wy_lineSpacing:)
     func wy_lineSpacingObjC(_ lineSpacing: CGFloat) -> NSMutableAttributedString {
-        return wy_lineSpacingObjC(lineSpacing, subString: nil, alignment: .left)
+        return wy_lineSpacing(lineSpacing, rangeValue: nil, alignment: .left)
     }
     @discardableResult
     @objc(wy_alignment:)
     func wy_alignmentObjC(_ alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
-        return wy_lineSpacingObjC(0, subString: nil, alignment: alignment)
-    }
-    @discardableResult
-    @objc(wy_lineSpacing:subString:alignment:)
-    func wy_lineSpacingObjC(_ lineSpacing: CGFloat, subString: String? = nil, alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
-        return wy_lineSpacing(lineSpacing, subString: subString, alignment: alignment)
+        return wy_lineSpacing(0, rangeValue: nil, alignment: alignment)
     }
     
     /**
@@ -139,117 +112,151 @@ import WYBasisKitSwift
     @discardableResult
     @objc(wy_lineSpacing:beforeString:afterString:alignment:)
     func wy_lineSpacingObjC(_ lineSpacing: CGFloat,
-                                  beforeString: String,
-                                  afterString: String,
-                                  alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
+                            beforeString: String,
+                            afterString: String,
+                            alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
         return wy_lineSpacing(lineSpacing, beforeString: beforeString, afterString: afterString, alignment: alignment)
     }
     
     /**
-     *  设置字间距（字符间距）
+     *  设置字间距（字符间距），支持多种范围定义
      *
      *  - Parameters:
      *    - wordsSpacing: 字间距值（单位：pt）
-     *    - string:       需要设置字间距的子字符串，传 `nil` 则对整个富文本生效
+     *    - rangeValue:   范围定义，传 `nil` 则对整个富文本生效。支持以下格式：
+     *        - `String`：匹配该子串的所有出现。
+     *        - `[String]`：若数组长度为2且可转为整数，视为单个区间 `[起始, 长度]`；否则视为多个子串，每个子串的所有出现均匹配。
+     *        - `[Int]`：两个整数，视为单个区间 `[起始, 长度]`。
+     *        - `[[String]]` 或 `[[Int]]`：多个区间，如 `[["0","5"], ["10","3"]]` 或 `[[0,5], [10,3]]`。
+     *        - `[NSRange]`：多个 `NSRange` 值。
      *
      *  - Returns: 当前 `NSMutableAttributedString` 对象，支持链式调用
-     *
-     *  - Note: 如果 `string` 不为 `nil` 但在文本中未找到，则不会进行任何修改。
      */
+    @discardableResult
+    @objc(wy_wordsSpacing:rangeValue:)
+    func wy_wordsSpacingObjC(_ wordsSpacing: CGFloat, rangeValue: Any?) -> NSMutableAttributedString {
+        return wy_wordsSpacing(wordsSpacing, rangeValue: rangeValue)
+    }
+    
+    // 简便方法
     @discardableResult
     @objc(wy_wordsSpacing:)
     func wy_wordsSpacingObjC(_ wordsSpacing: CGFloat) -> NSMutableAttributedString {
-        return wy_wordsSpacingObjC(wordsSpacing, string: nil)
-    }
-    @objc(wy_wordsSpacing:string:)
-    func wy_wordsSpacingObjC(_ wordsSpacing: CGFloat, string: String? = nil) -> NSMutableAttributedString {
-        return wy_wordsSpacing(wordsSpacing, string: string)
+        return wy_wordsSpacing(wordsSpacing, rangeValue: nil)
     }
     
     /**
-     *  文本添加内边距
-     *  @param string  要添加内边距的字符串，不传则代码所有字符串
-     *  @param firstLineHeadIndent  首行左边距
-     *  @param headIndent  第二行及以后的左边距(换行符\n除外)
-     *  @param tailIndent  尾部右边距
-     *  @param alignment  对齐方式
+     *  文本添加内边距，支持多种范围定义
+     *
+     *  - Parameters:
+     *    - rangeValue:  范围定义，传 `nil` 则对整个富文本生效。支持以下格式：
+     *        - `String`：匹配该子串的所有出现。
+     *        - `[String]`：若数组长度为2且可转为整数，视为单个区间 `[起始, 长度]`；否则视为多个子串，每个子串的所有出现均匹配。
+     *        - `[Int]`：两个整数，视为单个区间 `[起始, 长度]`。
+     *        - `[[String]]` 或 `[[Int]]`：多个区间，如 `[["0","5"], ["10","3"]]` 或 `[[0,5], [10,3]]`。
+     *        - `[NSRange]`：多个 `NSRange` 值。
+     *    - firstLineHeadIndent:  首行左边距
+     *    - headIndent:  第二行及以后的左边距(换行符\n除外)
+     *    - tailIndent:  尾部右边距
+     *    - alignment:  对齐方式
      */
+    @discardableResult
+    @objc(wy_innerMarginWithRangeValue:firstLineHeadIndent:headIndent:tailIndent:alignment:)
+    func wy_innerMarginObjC(rangeValue: Any?,
+                            firstLineHeadIndent: CGFloat = 0,
+                            headIndent: CGFloat = 0,
+                            tailIndent: CGFloat = 0,
+                            alignment: NSTextAlignment = .justified) -> NSMutableAttributedString {
+        return wy_innerMargin(rangeValue: rangeValue, firstLineHeadIndent: firstLineHeadIndent, headIndent: headIndent, tailIndent: tailIndent, alignment: alignment)
+    }
+    
+    // 简便方法（整个文本生效）
     @discardableResult
     @objc func wy_innerMarginWith(firstLineHeadIndent: CGFloat = 0,
                                   headIndent: CGFloat = 0,
                                   tailIndent: CGFloat = 0,
                                   alignment: NSTextAlignment = .justified) -> NSMutableAttributedString {
-        return wy_innerMarginWith(string: nil, firstLineHeadIndent: firstLineHeadIndent, headIndent: headIndent, tailIndent: tailIndent, alignment: alignment)
-    }
-    @discardableResult
-    @objc func wy_innerMarginWith(string: String?,
-                                  firstLineHeadIndent: CGFloat = 0,
-                                  headIndent: CGFloat = 0,
-                                  tailIndent: CGFloat = 0,
-                                  alignment: NSTextAlignment = .justified) -> NSMutableAttributedString {
-        return wy_innerMargin(string: string, firstLineHeadIndent: firstLineHeadIndent, headIndent: headIndent, tailIndent: tailIndent, alignment: alignment)
+        return wy_innerMargin(rangeValue: nil, firstLineHeadIndent: firstLineHeadIndent, headIndent: headIndent, tailIndent: tailIndent, alignment: alignment)
     }
     
     /**
-     *  调整文本基线偏移（实现文字上下移动）
+     *  调整文本基线偏移（实现文字上下移动），支持多种范围定义
      *
      *  - Parameters:
      *    - offset: 偏移量（单位：pt），**正值向上移动，负值向下移动**
-     *    - string: 需要调整的子字符串，传 `nil` 则对整个富文本生效
+     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效。支持以下格式：
+     *        - `String`：匹配该子串的所有出现。
+     *        - `[String]`：若数组长度为2且可转为整数，视为单个区间 `[起始, 长度]`；否则视为多个子串，每个子串的所有出现均匹配。
+     *        - `[Int]`：两个整数，视为单个区间 `[起始, 长度]`。
+     *        - `[[String]]` 或 `[[Int]]`：多个区间，如 `[["0","5"], ["10","3"]]` 或 `[[0,5], [10,3]]`。
+     *        - `[NSRange]`：多个 `NSRange` 值。
      *
      *  - Returns: 当前 `NSMutableAttributedString` 对象，支持链式调用
-     *
-     *  - Note: 如果 `string` 不为 `nil` 但在文本中未找到，则不会进行任何修改。
      */
     @discardableResult
-    @objc func wy_baselineOffsetY(_ offset: CGFloat) -> NSMutableAttributedString {
-        return wy_baseline(offset: offset)
+    @objc(wy_baselineOffsetY:rangeValue:)
+    func wy_baselineObjC(offset: CGFloat, rangeValue: Any?) -> NSMutableAttributedString {
+        return wy_baseline(offset: offset, rangeValue: rangeValue)
     }
+    
+    // 简便方法
     @discardableResult
-    @objc func wy_baselineOffsetY(_ offset: CGFloat, string: String? = nil) -> NSMutableAttributedString {
-        return wy_baseline(offset: offset, string: string)
+    @objc func wy_baselineOffsetY(_ offset: CGFloat) -> NSMutableAttributedString {
+        return wy_baseline(offset: offset, rangeValue: nil)
     }
     
     /**
-     *  为文本添加下划线
+     *  为文本添加下划线，支持多种范围定义
      *
      *  - Parameters:
      *    - color:  下划线的颜色
-     *    - string: 需要添加下划线的子字符串，传 `nil` 则对整个富文本生效
+     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效。支持以下格式：
+     *        - `String`：匹配该子串的所有出现。
+     *        - `[String]`：若数组长度为2且可转为整数，视为单个区间 `[起始, 长度]`；否则视为多个子串，每个子串的所有出现均匹配。
+     *        - `[Int]`：两个整数，视为单个区间 `[起始, 长度]`。
+     *        - `[[String]]` 或 `[[Int]]`：多个区间，如 `[["0","5"], ["10","3"]]` 或 `[[0,5], [10,3]]`。
+     *        - `[NSRange]`：多个 `NSRange` 值。
      *
      *  - Returns: 当前 `NSMutableAttributedString` 对象，支持链式调用
-     *
-     *  - Note: 如果 `string` 不为 `nil` 但在文本中未找到，则不会进行任何修改。
-     *          下划线样式为单线（`.single`）。
+     *  - Note: 下划线样式为单线（`.single`）。
      */
     @discardableResult
-    @objc func wy_underline(_ color: UIColor) -> NSMutableAttributedString {
-        return wy_underline(color, string: nil)
+    @objc(wy_underline:rangeValue:)
+    func wy_underlineObjC(color: UIColor, rangeValue: Any?) -> NSMutableAttributedString {
+        return wy_underline(color: color, rangeValue: rangeValue)
     }
+    
+    // 简便方法
     @discardableResult
-    @objc func wy_underline(_ color: UIColor, string: String? = nil) -> NSMutableAttributedString {
-        return wy_underline(color: color, string: string)
+    @objc func wy_underline(_ color: UIColor) -> NSMutableAttributedString {
+        return wy_underline(color: color, rangeValue: nil)
     }
     
     /**
-     *  为文本添加删除线
+     *  为文本添加删除线，支持多种范围定义
      *
      *  - Parameters:
      *    - color:  删除线的颜色
-     *    - string: 需要添加删除线的子字符串，传 `nil` 则对整个富文本生效
+     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效。支持以下格式：
+     *        - `String`：匹配该子串的所有出现。
+     *        - `[String]`：若数组长度为2且可转为整数，视为单个区间 `[起始, 长度]`；否则视为多个子串，每个子串的所有出现均匹配。
+     *        - `[Int]`：两个整数，视为单个区间 `[起始, 长度]`。
+     *        - `[[String]]` 或 `[[Int]]`：多个区间，如 `[["0","5"], ["10","3"]]` 或 `[[0,5], [10,3]]`。
+     *        - `[NSRange]`：多个 `NSRange` 值。
      *
      *  - Returns: 当前 `NSMutableAttributedString` 对象，支持链式调用
-     *
-     *  - Note: 如果 `string` 不为 `nil` 但在文本中未找到，则不会进行任何修改。
-     *          删除线样式为单线（`.single`）。
+     *  - Note: 删除线样式为单线（`.single`）。
      */
     @discardableResult
-    @objc func wy_strikethrough(_ color: UIColor) -> NSMutableAttributedString {
-        return wy_strikethrough(color, string: nil)
+    @objc(wy_strikethrough:rangeValue:)
+    func wy_strikethroughObjC(color: UIColor, rangeValue: Any?) -> NSMutableAttributedString {
+        return wy_strikethrough(color: color, rangeValue: rangeValue)
     }
+    
+    // 简便方法
     @discardableResult
-    @objc func wy_strikethrough(_ color: UIColor, string: String? = nil) -> NSMutableAttributedString {
-        return wy_strikethrough(color: color, string: string)
+    @objc func wy_strikethrough(_ color: UIColor) -> NSMutableAttributedString {
+        return wy_strikethrough(color: color, rangeValue: nil)
     }
     
     /**
@@ -289,6 +296,23 @@ import WYBasisKitSwift
     }
     
     /**
+     *  解析范围定义，返回所有需要应用属性的 NSRange 数组
+     *
+     *  - Parameter rangeValue: 范围定义，支持以下格式：
+     *        - `String`：匹配该子串的所有出现。
+     *        - `[String]`：若数组长度为2且可转为整数，视为单个区间 `[起始, 长度]`；否则视为多个子串，每个子串的所有出现均匹配。
+     *        - `[Int]`：两个整数，视为单个区间 `[起始, 长度]`。
+     *        - `[[String]]` 或 `[[Int]]`：多个区间，如 `[["0","5"], ["10","3"]]` 或 `[[0,5], [10,3]]`。
+     *        - `[NSRange]`：多个 `NSRange` 值。
+     *  - Returns: 对应的 NSRange 数组（已进行边界有效性检查）
+     */
+    @objc(wy_parseRangesWithValue:)
+    func wy_parseRangesObjC(_ rangeValue: Any) -> [NSValue] {
+        let ranges = wy_parseRanges(from: rangeValue)
+        return ranges.map { NSValue(range: $0) }
+    }
+    
+    /**
      *  根据传入的表情字符串生成富文本，例如字符串 "哈哈[哈哈]" 会生成 "哈哈😄"
      *  @param emojiString   待转换的表情字符串
      *  @param textColor     富文本的字体颜色
@@ -298,11 +322,9 @@ import WYBasisKitSwift
      *  @param pattern       正则匹配规则, 默认匹配1到3位, 如 [哈] [哈哈] [哈哈哈] 这种
      */
     @objc static func wy_convertEmojiAttributed(_ emojiString: String, textColor: UIColor, textFont: UIFont, emojiTable: [String]) -> NSMutableAttributedString {
-        
         return wy_convertEmojiAttributed(emojiString, textColor: textColor, textFont: textFont, emojiTable: emojiTable, sourceBundle: nil, pattern: nil)
     }
     @objc static func wy_convertEmojiAttributed(_ emojiString: String, textColor: UIColor, textFont: UIFont, emojiTable: [String], sourceBundle: WYSourceBundleObjC? = nil, pattern: String?) -> NSMutableAttributedString {
-        
         return wy_convertEmojiAttributed(emojiString: emojiString, textColor: textColor, textFont: textFont, emojiTable: emojiTable, sourceBundle: sourceBundle?.wy_convertToSwift(), pattern: pattern ?? "\\[.{1,3}\\]")
     }
     

@@ -223,6 +223,16 @@ import WYBasisKitSwift
         return (self as String).wy_contains(find, ignoreCase: ignoreCase)
     }
     
+    /**
+     *  提取字符串中的链接(默认支持 http://、https://、ftp://、mailto:、tel: 等，www.协议请通过canNoProtocol参数设置)
+     *  @param canNoProtocol  是否需要额外支持提取没有协议前缀(www.)的链接
+     *  @return 提取到的链接字符串数组，顺序按链接在原始字符串中首次出现的位置排列；若 content 为空或无效，返回空数组。
+     */
+    @objc(wy_extractLinksWithCanNoProtocol:)
+    func wy_extractLinksObjC(canNoProtocol: Bool = true) -> [String] {
+        return (self as String).wy_extractLinks(canNoProtocol: canNoProtocol)
+    }
+    
     /// 字符串截取(从第几位截取到第几位)
     @objc func wy_substring(from: Int, to: Int) -> String {
         return (self as String).wy_substring(from: from, to: to)
