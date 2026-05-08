@@ -259,36 +259,38 @@ extension UILabel {
             let line = CFArrayGetValueAtIndex(lines, i)
             let lineRef = unsafeBitCast(line, to: CTLine.self)
             let flippedRect = wy_sharedBounds(line: lineRef, point: linePoint)
-            var rect = flippedRect.applying(transform)
+            var originalRect = flippedRect.applying(transform)   // 原始矩形（未扩大）
             
             let lineWidth = CGFloat(CTLineGetTypographicBounds(lineRef, nil, nil, nil))
             switch textAlignment {
             case .center:
-                rect.origin.x += (bounds.width - lineWidth) / 2.0
+                originalRect.origin.x += (bounds.width - lineWidth) / 2.0
             case .right:
-                rect.origin.x += bounds.width - lineWidth
+                originalRect.origin.x += bounds.width - lineWidth
             default: break
             }
+            originalRect.origin.y = currentY
             
-            rect.origin.y = currentY
             let lineSpacing = wy_lineSpacing(from: attributedText)
-            let lineHeight = rect.size.height
+            let lineHeight = originalRect.size.height
             currentY += lineHeight + (i < lineCount - 1 ? lineSpacing : 0)
             
-            // ✅ 修正：正数向外扩，负数向内缩（与 contentInset 一致）
+            // 热区扩大（仅用于命中判断）
             let insets = wy_touchEdgeInsets
+            var hitRect = originalRect
             if insets != .zero {
-                let newX = rect.minX - insets.left
-                let newY = rect.minY - insets.top
-                let newWidth = rect.width + insets.left + insets.right
-                let newHeight = rect.height + insets.top + insets.bottom
-                rect = CGRect(x: newX, y: newY, width: newWidth, height: newHeight)
+                let newX = hitRect.minX - insets.left
+                let newY = hitRect.minY - insets.top
+                let newWidth = hitRect.width + insets.left + insets.right
+                let newHeight = hitRect.height + insets.top + insets.bottom
+                hitRect = CGRect(x: newX, y: newY, width: newWidth, height: newHeight)
             }
             
-            if rect.contains(touchPoint) {
+            if hitRect.contains(touchPoint) {
+                // 使用原始矩形计算相对坐标
                 let relativePoint = CGPoint(
-                    x: touchPoint.x - rect.minX,
-                    y: touchPoint.y - rect.minY
+                    x: touchPoint.x - originalRect.minX,
+                    y: touchPoint.y - originalRect.minY
                 )
                 var index = CTLineGetStringIndexForPosition(lineRef, relativePoint)
                 var offset: CGFloat = 0.0
