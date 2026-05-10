@@ -716,7 +716,7 @@ private extension WYActivity {
         guard let controller: UIViewController = UIViewController.wy_currentController() else {
             return offset ?? 0
         }
-        if (window == controller.view) && (controller.navigationController != nil) {
+        if (window == controller.view) && (controller.navigationController?.navigationBar.isHidden == false) {
             return UIDevice.wy_navViewHeight
         }else {
             return UIDevice.wy_statusBarHeight

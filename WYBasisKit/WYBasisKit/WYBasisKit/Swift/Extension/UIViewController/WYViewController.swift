@@ -50,7 +50,7 @@ public extension UIViewController {
     }
     
     /// 获取当前正在显示的控制器
-    static func wy_currentController(windowController: UIViewController? = (UIApplication.shared.delegate?.window)??.rootViewController) -> UIViewController? {
+    static func wy_currentController(windowController: UIViewController? = UIApplication.shared.wy_keyWindow.rootViewController) -> UIViewController? {
         
         if let navigationController = windowController as? UINavigationController {
             return wy_currentController(windowController: navigationController.visibleViewController)

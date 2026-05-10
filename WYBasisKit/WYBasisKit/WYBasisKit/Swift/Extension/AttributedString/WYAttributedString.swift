@@ -728,7 +728,11 @@ public struct WYImageAttachmentOption {
 private extension NSMutableAttributedString {
     
     /**
-     *  内部通用方法：根据 rangeValue 类型(字符串或区间数组)批量设置属性
+     内部通用方法：根据 rangeValue 批量设置属性（如字体、颜色）。
+     - Parameters:
+     - key: 属性键，如 `.font`
+     - value: 属性值，如 UIFont
+     - rangeValue: 范围，支持 `wy_parseRanges` 定义的所有格式（子串匹配、区间数组等）
      */
     func wy_applyFontsOrColorsAttributes(key: NSAttributedString.Key, value: Any, rangeValue: Any) {
         
@@ -738,7 +742,13 @@ private extension NSMutableAttributedString {
         }
     }
     
-    /// 获取包含指定范围的段落范围
+    /**
+     获取包含指定字符位置的完整段落范围（基于原始字符串，以 `\n` 为界）。
+     - Parameters:
+     - range: 字符索引范围
+     - value: 原始字符串
+     - Returns: 段落边界范围，若字符串为空则返回 nil
+     */
     func wy_paragraphRange(containing range: Range<String.Index>, value: String) -> Range<String.Index>? {
         guard !value.isEmpty else { return nil }
         

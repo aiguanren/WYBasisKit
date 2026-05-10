@@ -17,7 +17,6 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
     
     self.view.backgroundColor = [UIColor whiteColor];
     
@@ -27,32 +26,53 @@
         make.edges.equalTo(self.view);
     }];
     
+    // -------------------------------------------------------------------------
+    // 第一个 Label：点击 + 长按测试，不同字符串独立
+    // -------------------------------------------------------------------------
     UILabel *label = [[UILabel alloc] init];
     NSString *str = @"治性之道，必审己之所有余而强其所不足，盖聪明疏通者戒于太察，寡闻少见者戒于壅蔽，勇猛刚强者戒于太暴，仁爱温良者戒于无断，湛静安舒者戒于后时，广心浩大者戒于遗忘。必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。";
     label.numberOfLines = 0;
     NSMutableAttributedString *attribute = [[NSMutableAttributedString alloc] initWithString:str];
-    
     [attribute addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:20] range:NSMakeRange(0, str.length)];
-    [attribute wy_setColorForRanges:@{[UIColor blueColor]: @"勇猛刚强", [UIColor orangeColor]: @"仁爱温良者戒于无断", [UIColor purpleColor]: @"安舒", [UIColor magentaColor]: @"必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"}];
+    
+    [attribute wy_setColorForRanges:@{
+        [UIColor blueColor]: @"勇猛刚强",
+        [UIColor orangeColor]: @"仁爱温良者戒于无断",
+        [UIColor purpleColor]: @"安舒",
+        [UIColor magentaColor]: @"必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"
+    }];
     [attribute wy_setColorForRanges:@{[UIColor wy_random]: @[@"足", @"太", @"暴"]}];
     [attribute wy_setFontForRanges:@{[UIFont boldSystemFontOfSize:26]: @[@[@"2", @"2"], @[@"8", @"5"]]}];
     [attribute wy_lineSpacing:15];
-    [attribute wy_underline:[UIColor magentaColor] rangeValue:@[@"勇猛刚强", @"仁爱温良者戒于无断", @"安舒", @"必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"]]; // 同步下划线设置
+    [attribute wy_underline:[UIColor magentaColor] rangeValue:@[@"勇猛刚强", @"仁爱温良者戒于无断", @"安舒", @"必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"]];
     
     label.attributedText = attribute;
-    label.wy_clickEffectColor = [UIColor greenColor];
-    [label wy_addRichTexts:@[@"勇猛刚强", @"仁爱温良者戒于无断", @"安舒", @"必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"] handler:^(NSString * _Nonnull string, NSRange range, NSInteger index) {
-        if ([string isEqualToString:@"勇猛刚强"]) {
-            [WYActivity showInfo:[NSString stringWithFormat:@"string = %@ range = %@ index = %ld", string, NSStringFromRange(range), (long)index] option: [self activityInfoWithPosition:WYActivityPositionMiddle]];
-        }
-        if ([string isEqualToString:@"仁爱温良者戒于无断"]) {
-            [WYActivity showInfo:[NSString stringWithFormat:@"string = %@ range = %@ index = %ld", string, NSStringFromRange(range), (long)index] option:[self activityInfoWithPosition:WYActivityPositionTop]];
-        }
-        if ([string isEqualToString:@"安舒"]) {
-            [WYActivity showInfo:[NSString stringWithFormat:@"string = %@ range = %@ index = %ld", string, NSStringFromRange(range), (long)index] option:[self activityInfoWithPosition:WYActivityPositionBottom]];
+    label.wy_maxTouchMoveDistance = 50;
+    label.wy_enableLongPress = YES;
+    label.wy_longPressMinimumDuration = 1;
+    
+    // 点击专用字符串数组
+    NSArray *tapStrings = @[@"勇猛刚强", @"仁爱温良者戒于无断", @"安舒", @"必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"];
+    // 长按专用字符串数组（与点击不同）
+    NSArray *longPressStrings = @[@"所有余而强其所不足，盖聪明疏通者戒于太察，寡闻少见者戒于壅蔽",
+                                  @"广心浩大者戒于遗忘",
+                                  @"必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"];
+    
+    [label wy_addRichTextTapWithStrings:tapStrings handler:^(UILabel *label, NSString *richText, NSRange range, NSInteger index) {
+        if ([richText isEqualToString:@"勇猛刚强"]) {
+            [WYActivity showInfo:[NSString stringWithFormat:@"string = %@ range = %@ index = %ld", richText, NSStringFromRange(range), (long)index] option:[self activityInfoWithPosition:WYActivityPositionMiddle]];
+        } else if ([richText isEqualToString:@"仁爱温良者戒于无断"]) {
+            [WYActivity showInfo:[NSString stringWithFormat:@"string = %@ range = %@ index = %ld", richText, NSStringFromRange(range), (long)index] option:[self activityInfoWithPosition:WYActivityPositionTop]];
+        } else if ([richText isEqualToString:@"安舒"]) {
+            [WYActivity showInfo:[NSString stringWithFormat:@"string = %@ range = %@ index = %ld", richText, NSStringFromRange(range), (long)index] option:[self activityInfoWithPosition:WYActivityPositionBottom]];
         }
     }];
-    [label wy_addRichTexts:@[@"勇猛刚强", @"仁爱温良者戒于无断", @"安舒", @"必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"] delegate:self];
+    
+    // 同时添加点击 Delegate（同一字符串也可以触发 delegate）
+    [label wy_addRichTextTapWithStrings:tapStrings delegate:self];
+    // 添加长按 Delegate（使用不同的字符串数组）
+    [label wy_addRichTextLongPressWithStrings:longPressStrings delegate:self];
+    
     [scrollView addSubview:label];
     [label mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.equalTo(scrollView);
@@ -60,6 +80,9 @@
         make.top.equalTo(scrollView).offset(20);
     }];
     
+    // -------------------------------------------------------------------------
+    // 表情 Label（原有测试）
+    // -------------------------------------------------------------------------
     UILabel *emojiLabel = [[UILabel alloc] init];
     emojiLabel.font = [UIFont systemFontOfSize:18];
     emojiLabel.numberOfLines = 0;
@@ -75,19 +98,19 @@
         make.width.equalTo(@([UIDevice wy_screenWidth] - 30));
     }];
     
+    // -------------------------------------------------------------------------
+    // 内边距 Label（原有）
+    // -------------------------------------------------------------------------
     UILabel *marginLabel = [[UILabel alloc] init];
     marginLabel.text = @"测试内边距";
     marginLabel.font = [UIFont systemFontOfSize:18];
     marginLabel.backgroundColor = [UIColor purpleColor];
     marginLabel.textColor = [UIColor orangeColor];
-    
     NSMutableAttributedString *attrText = [[NSMutableAttributedString alloc] initWithString:marginLabel.text];
     [attrText wy_innerMarginWithFirstLineHeadIndent:10 headIndent:0 tailIndent:-20 alignment:NSTextAlignmentLeft];
-    
     marginLabel.numberOfLines = 0;
     marginLabel.attributedText = attrText;
     [scrollView addSubview:marginLabel];
-    
     CGFloat marginLabelWidth = [marginLabel.text wy_calculateWidthWithControlHeight:marginLabel.font.lineHeight controlFont:marginLabel.font];
     [marginLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.equalTo(scrollView);
@@ -96,11 +119,13 @@
     }];
     
     [label layoutIfNeeded];
-    
     NSArray *lines = [label.attributedText wy_stringPerLineWithControlWidth:label.wy_width];
     NSInteger numberOfRows = [label.attributedText wy_numberOfRowsWithControlWidth:label.wy_width];
     wy_print(@"每行显示的分别是 %@, 一共 %ld 行", lines, (long)numberOfRows);
     
+    // -------------------------------------------------------------------------
+    // 图文混排 Label（原有）
+    // -------------------------------------------------------------------------
     UILabel *attachmentView = [[UILabel alloc] init];
     attachmentView.font = [UIFont systemFontOfSize:15];
     attachmentView.numberOfLines = 0;
@@ -113,11 +138,9 @@
     NSMutableAttributedString *attributed = [[NSMutableAttributedString alloc] initWithString:[[NSString wy_randomWithMinimux:10 maximum:20] stringByAppendingFormat:@"\n%@\n%@\n%@\n%@", string_font_30, string_font_40, string_font_50, [NSString wy_randomWithMinimux:10 maximum:20]]];
     
     NSInteger string_font_50Index = 0;
-    NSRange range = [attributed.string rangeOfString:string_font_50];
-    if (range.location != NSNotFound) {
-        string_font_50Index = range.location - 1;
-    } else {
-        string_font_50Index = 0;
+    NSRange range50 = [attributed.string rangeOfString:string_font_50];
+    if (range50.location != NSNotFound) {
+        string_font_50Index = range50.location - 1;
     }
     NSArray<WYImageAttachmentOption *> *options = @[
         [[WYImageAttachmentOption alloc] initWithImage:image_font_30 size:CGSizeMake(10, 10) position:WYImageAttachmentPositionIndex positionValue:@1 offsetY:5 spacingBefore:0 spacingAfter:20],
@@ -137,6 +160,9 @@
         make.top.equalTo(marginLabel.mas_bottom).offset(50);
     }];
     
+    // -------------------------------------------------------------------------
+    // 行间距测试（原有）
+    // -------------------------------------------------------------------------
     UILabel *spacingView = [[UILabel alloc] init];
     spacingView.textColor = [UIColor wy_random];
     spacingView.numberOfLines = 0;
@@ -146,14 +172,11 @@
         make.centerX.equalTo(scrollView);
         make.top.equalTo(attachmentView.mas_bottom).offset(50);
     }];
-    
     NSString *spacing10 = [NSString wy_randomWithMinimux:50 maximum:100];
     NSString *spacing15 = [NSString wy_randomWithMinimux:30 maximum:80];
     NSString *spacing30 = [NSString wy_randomWithMinimux:25 maximum:60];
     NSString *spacing20 = [NSString wy_randomWithMinimux:80 maximum:100];
-    
     wy_print(@"spacing10 = %@, spacing15 = %@, spacing30 = %@, spacing20 = %@", spacing10, spacing15, spacing30, spacing20);
-    
     NSMutableAttributedString *spacingAttributed = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@\n%@\n%@\n%@", spacing10, spacing15, spacing30, spacing20]];
     [spacingAttributed wy_lineSpacing:10 beforeString:spacing10 afterString:spacing15 alignment:NSTextAlignmentLeft];
     [spacingAttributed wy_lineSpacing:15 beforeString:spacing15 afterString:spacing30 alignment:NSTextAlignmentRight];
@@ -161,9 +184,11 @@
     [spacingAttributed wy_lineSpacing:50 rangeValue:spacing20 alignment:NSTextAlignmentLeft];
     spacingView.attributedText = spacingAttributed;
     
+    // -------------------------------------------------------------------------
+    // 宽度 / 高度计算对比（原有）
+    // -------------------------------------------------------------------------
     CGFloat sizeWidth = [UIDevice wy_screenWidth] - 30;
     CGFloat sizeHeight = 30;
-    
     UILabel *widthView = [[UILabel alloc] init];
     widthView.backgroundColor = [UIColor wy_random];
     widthView.font = [UIFont boldSystemFontOfSize:15];
@@ -174,9 +199,7 @@
         make.top.equalTo(spacingView.mas_bottom).offset([UIDevice wy_screenWidth:50]);
         make.height.equalTo(@(sizeHeight));
     }];
-    
     CGFloat textWidth = [widthView.text wy_calculateWidthWithControlHeight:sizeHeight controlFont:widthView.font lineSpacing:0 wordsSpacing:0];
-    
     NSMutableAttributedString *widthAttributed = [[NSMutableAttributedString alloc] initWithString:widthView.text];
     [widthAttributed wy_setFont:widthView.font];
     CGFloat attributedWidth = [widthAttributed wy_calculateWidthWithControlHeight:sizeHeight];
@@ -192,9 +215,7 @@
         make.top.equalTo(widthView.mas_bottom).offset([UIDevice wy_screenWidth:50]);
         make.width.equalTo(@(sizeWidth));
     }];
-    
     CGFloat textHeight = [heightView.text wy_calculateHeightWithControlWidth:sizeWidth controlFont:heightView.font lineSpacing:0 wordsSpacing:0];
-    
     NSMutableAttributedString *heightAttributed = [[NSMutableAttributedString alloc] initWithString:heightView.text];
     [heightAttributed wy_setFont:heightView.font];
     CGFloat attributedHeight = [heightAttributed wy_calculateHeightWithControlWidth:sizeWidth];
@@ -207,7 +228,6 @@
         make.height.equalTo(@2);
         make.width.equalTo(@(textWidth));
     }];
-    
     UIView *attributedWidthLine = [[UIView alloc] init];
     attributedWidthLine.backgroundColor = [UIColor orangeColor];
     [scrollView addSubview:attributedWidthLine];
@@ -216,7 +236,6 @@
         make.height.equalTo(@2);
         make.width.equalTo(@(attributedWidth));
     }];
-    
     UIView *textHeightLine = [[UIView alloc] init];
     textHeightLine.backgroundColor = [UIColor redColor];
     [scrollView addSubview:textHeightLine];
@@ -225,7 +244,6 @@
         make.height.equalTo(@(textHeight));
         make.width.equalTo(@2);
     }];
-    
     UIView *attributedHeightLine = [[UIView alloc] init];
     attributedHeightLine.backgroundColor = [UIColor redColor];
     [scrollView addSubview:attributedHeightLine];
@@ -235,24 +253,32 @@
         make.width.equalTo(@2);
     }];
     
-    // ====================== 新增测试用例（同步 Swift） ======================
-    // 用于专门测试：垂直居中、numberOfLines=0、不同 textAlignment 组合
+    // -------------------------------------------------------------------------
+    // 新增测试：垂直居中、numberOfLines=0、不同对齐方式
+    // -------------------------------------------------------------------------
     __block UIView *lastView = heightView;
     
     // 1. 多行 + 垂直居中（固定高度）
     UILabel *centerLabel = [[UILabel alloc] init];
     centerLabel.numberOfLines = 0;
     centerLabel.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1.0];
-    NSString *centerText = @"垂直居中测试\n第二行内容\n第三行包含可点击 LinkCenter";
+    NSString *centerText = @"垂直 居中 测试长按\n第二行 可点击 内容\n第三行包含可点击 LinkCenter";
     NSMutableAttributedString *centerAttr = [[NSMutableAttributedString alloc] initWithString:centerText];
     NSMutableParagraphStyle *centerStyle = [[NSMutableParagraphStyle alloc] init];
     centerStyle.lineSpacing = 8;
+    centerStyle.alignment = NSTextAlignmentCenter;
     [centerAttr addAttribute:NSParagraphStyleAttributeName value:centerStyle range:NSMakeRange(0, centerAttr.length)];
     [centerAttr wy_setFontForRanges:@{[UIFont systemFontOfSize:19]: centerText}];
-    [centerAttr wy_setColorForRanges:@{[UIColor redColor]: @"LinkCenter"}];
+    [centerAttr wy_setColorForRanges:@{[UIColor redColor]: @[@"居中", @"可点击", @"LinkCenter"]}];
+    [centerAttr wy_underline:[UIColor wy_random] rangeValue:@[@"长按", @"行", @"LinkCenter"]];
     centerLabel.attributedText = centerAttr;
-    centerLabel.wy_clickEffectColor = [UIColor purpleColor];
-    [centerLabel wy_addRichTexts:@[@"LinkCenter"] delegate:self];
+    centerLabel.wy_longPressEffectColor = [UIColor greenColor];
+    centerLabel.wy_enableLongPress = YES;
+    centerLabel.wy_longPressMinimumDuration = 1;
+    [centerLabel wy_addRichTextTapWithStrings:@[@"居中", @"可点击", @"LinkCenter", @"第", @"行"] delegate:self];
+    [centerLabel wy_addRichTextLongPressWithStrings:@[@"长按", @"行", @"LinkCenter", @"第"] handler:^(UILabel *label, NSString *richText, NSRange range, NSInteger index) {
+        [WYActivity showInfo:[NSString stringWithFormat:@"string = %@ range = %@ index = %ld", richText, NSStringFromRange(range), (long)index] option:[self activityInfoWithPosition:WYActivityPositionBottom]];
+    }];
     [scrollView addSubview:centerLabel];
     [centerLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(lastView.mas_bottom).offset(40);
@@ -272,7 +298,7 @@
     [autoAttr wy_setColorForRanges:@{[UIColor systemBlueColor]: @[@"https://www.example.com", @"www.baidu.com", @"https://github.com"]}];
     autoLabel.attributedText = autoAttr;
     autoLabel.wy_clickEffectColor = [UIColor orangeColor];
-    [autoLabel wy_addRichTexts:@[@"https://www.example.com", @"www.baidu.com", @"https://github.com"] delegate:self];
+    [autoLabel wy_addRichTextTapWithStrings:@[@"https://www.example.com", @"www.baidu.com", @"https://github.com"] delegate:self];
     [scrollView addSubview:autoLabel];
     [autoLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(lastView.mas_bottom).offset(40);
@@ -301,10 +327,12 @@
         [alignAttr addAttribute:NSParagraphStyleAttributeName value:paraStyle range:NSMakeRange(0, alignAttr.length)];
         [alignAttr wy_setFontForRanges:@{[UIFont systemFontOfSize:18]: alignText}];
         [alignAttr wy_setColorForRanges:@{[UIColor systemPinkColor]: @"ClickMe"}];
+        [alignAttr wy_underline:[UIColor wy_random] rangeValue:@[@"对齐", @"测试", @"ClickMe"]];
         alignLabel.attributedText = alignAttr;
-        alignLabel.textAlignment = alignment;
-        alignLabel.wy_clickEffectColor = [UIColor blueColor];
-        [alignLabel wy_addRichTexts:@[@"ClickMe"] delegate:self];
+        alignLabel.wy_enableLongPress = YES;
+        alignLabel.wy_longPressMinimumDuration = 5;
+        [alignLabel wy_addRichTextLongPressWithStrings:@[@"对齐", @"测试", @"ClickMe"] delegate:self];
+        [alignLabel wy_addRichTextTapWithStrings:@[@"ClickMe"] delegate:self];
         [scrollView addSubview:alignLabel];
         [alignLabel mas_makeConstraints:^(MASConstraintMaker *make) {
             make.top.equalTo(lastView.mas_bottom).offset(40);
@@ -315,11 +343,10 @@
         lastView = alignLabel;
     }
     
-    // 设置 scrollView 的底部约束，确保所有内容可滚动
+    // 设置 scrollView 底部约束，确保滚动到底部
     [lastView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.bottom.equalTo(scrollView).offset(-50);
     }];
-    // ======================================================
 }
 
 - (WYMessageInfoOptions *)activityInfoWithPosition:(WYActivityPosition)position {
@@ -331,27 +358,21 @@
 
 #pragma mark - WYRichTextDelegate
 
-- (void)wy_richTextDidClick:(NSString *)richText range:(NSRange)range index:(NSInteger)index {
-    
-    //wy_print(@"string = %@, range = %@, index = %ld", richText, NSStringFromRange(range), (long)index);
-    //[WYActivity showInfo:[NSString stringWithFormat:@"string = %@, range = %@, index = %ld", richText, NSStringFromRange(range), (long)index] inView:self.view position:WYActivityPositionMiddle];
+- (void)wy_richTextDidClick:(UILabel *)label richText:(NSString *)richText range:(NSRange)range index:(NSInteger)index {
+    // 处理点击回调（Delegate 方式）
     if ([richText isEqualToString:@"必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"]) {
         [WYActivity showScrollInfo:@"必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"];
+    } else {
+        [WYActivity showInfo:[NSString stringWithFormat:@"点击: %@", richText] option:[self activityInfoWithPosition:WYActivityPositionMiddle]];
     }
 }
 
-- (void)dealloc {
-    wy_print(@"deinit");
+- (void)wy_richTextDidLongPress:(UILabel *)label richText:(NSString *)richText range:(NSRange)range index:(NSInteger)index {
+    [WYActivity showInfo:[NSString stringWithFormat:@"长按: %@", richText] option:[self activityInfoWithPosition:WYActivityPositionMiddle]];
 }
 
-/*
- #pragma mark - Navigation
- 
- // In a storyboard-based application, you will often want to do a little preparation before navigation
- - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
- // Get the new view controller using [segue destinationViewController].
- // Pass the selected object to the new view controller.
- }
- */
+- (void)dealloc {
+    wy_print(@"dealloc");
+}
 
 @end
