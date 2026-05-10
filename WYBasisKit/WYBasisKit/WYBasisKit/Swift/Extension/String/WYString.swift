@@ -347,11 +347,10 @@ public extension String {
     }
     
     /**
-     *  提取字符串中的链接(默认支持 http://、https://、ftp://、mailto:、tel: 等，www.协议请通过canNoProtocol参数设置)
-     *  @param canNoProtocol  是否需要额外支持提取没有协议前缀(www.)的链接
+     *  提取字符串中的链接(默认支持 http://、https://、www.、ftp://、mailto:、tel: 等)
      *  @return 提取到的链接字符串数组，顺序按链接在原始字符串中首次出现的位置排列；若 content 为空或无效，返回空数组。
      */
-    func wy_extractLinks(canNoProtocol: Bool = true) -> [String] {
+    func wy_extractLinks() -> [String] {
         
         // 空值保护
         guard !self.isEmpty else {
@@ -403,42 +402,6 @@ public extension String {
                 
                 results.append(LinkItem(text: linkText, range: result.range))
                 standardRanges.append(result.range)
-            }
-        }
-        
-        // 如果需要提取无协议链接（以 www. 开头）
-        if canNoProtocol {
-            let pattern = "\\bwww\\.[a-zA-Z0-9][a-zA-Z0-9-._~:/?#\\[\\]@!$&'()*+,;=%]*"
-            if let regex = try? NSRegularExpression(pattern: pattern, options: [.caseInsensitive]) {
-                let matches = regex.matches(in: self, options: [], range: fullNSRange)
-                
-                for match in matches {
-                    
-                    // 去重：检查该 www. 链接是否已经包含在某个标准链接中
-                    var alreadyIncluded = false
-                    for stdRange in standardRanges {
-                        let matchStart = match.range.location
-                        let matchEnd = NSMaxRange(match.range)
-                        let stdEnd = NSMaxRange(stdRange)
-                        
-                        if matchStart >= stdRange.location && matchEnd <= stdEnd {
-                            alreadyIncluded = true
-                            break
-                        }
-                    }
-                    
-                    if !alreadyIncluded {
-                        if let swiftRange = Range(match.range, in: self) {
-                            var wwwLink = String(self[swiftRange])
-                            wwwLink = trimTrailing(wwwLink)
-                            
-                            // 简单校验，避免提取到过短或明显无效的 www.
-                            if wwwLink.count > 5 {
-                                results.append(LinkItem(text: wwwLink, range: match.range))
-                            }
-                        }
-                    }
-                }
             }
         }
         
