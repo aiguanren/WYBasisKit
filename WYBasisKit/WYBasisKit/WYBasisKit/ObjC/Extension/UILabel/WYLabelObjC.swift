@@ -92,7 +92,7 @@ import WYBasisKitSwift
      * @param strings 需要添加点击事件的字符串数组
      * @param handler 点击事件回调闭包，参数依次为：label 自身、点击的字符串、range、在数组中的索引
      */
-    @objc(wy_addRichTextTapWithStrings:handler:)
+    @objc(wy_addRichTextTapStrings:handler:)
     func wy_addRichTextTapObjC(strings: [String], handler:((_ label: UILabel, _ richText: String, _ range: NSRange, _ index: Int) -> Void)? = nil) {
         wy_addRichTextTapHandler(strings: strings, handler: handler)
     }
@@ -105,7 +105,7 @@ import WYBasisKitSwift
      *
      * 注意：必须先设置 wy_enableLongPress = true 并保证 wy_longPressMinimumDuration 合理。
      */
-    @objc(wy_addRichTextLongPressWithStrings:handler:)
+    @objc(wy_addRichTextLongPressStrings:handler:)
     func wy_addRichTextLongPressObjC(strings: [String], handler:((_ label: UILabel, _ richText: String, _ range: NSRange, _ index: Int) -> Void)? = nil) {
         wy_addRichTextLongPressHandler(strings: strings, handler: handler)
     }
@@ -116,7 +116,7 @@ import WYBasisKitSwift
      * @param strings  需要添加点击事件的字符串数组
      * @param delegate 富文本代理（需实现 WYRichTextDelegate 协议）
      */
-    @objc(wy_addRichTextTapWithStrings:delegate:)
+    @objc(wy_addRichTextTapStrings:delegate:)
     func wy_addRichTextTapObjC(strings: [String], delegate: WYRichTextDelegate) {
         wy_addRichTextTapDelegate(strings: strings, delegate: delegate)
     }
@@ -127,7 +127,7 @@ import WYBasisKitSwift
      * @param strings  需要添加长按事件的字符串数组
      * @param delegate 富文本代理（需实现 WYRichTextDelegate 协议）
      */
-    @objc(wy_addRichTextLongPressWithStrings:delegate:)
+    @objc(wy_addRichTextLongPressStrings:delegate:)
     func wy_addRichTextLongPressObjC(strings: [String], delegate: WYRichTextDelegate) {
         wy_addRichTextLongPressDelegate(strings: strings, delegate: delegate)
     }
