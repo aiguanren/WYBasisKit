@@ -64,6 +64,33 @@ public extension NSMutableAttributedString {
     }
     
     /**
+     设置富文本中指定范围的背景色
+     
+     - Parameter color:       背景色
+     - Parameter rangeValue:  范围定义，传 `nil` 则对整个富文本生效。支持以下格式：
+     - `String`：匹配该子串的所有出现。
+     - `[String]`：若数组长度为2且可转为整数，视为单个区间 `[起始, 长度]`；否则视为多个子串，每个子串的所有出现均匹配。
+     - `[Int]`：两个整数，视为单个区间 `[起始, 长度]`。
+     - `[[String]]` 或 `[[Int]]`：多个区间，如 `[["0","5"], ["10","3"]]` 或 `[[0,5], [10,3]]`。
+     - `[NSRange]`：多个 `NSRange` 值。
+     
+     - Returns: 当前对象，支持链式调用
+     */
+    @discardableResult
+    func wy_setBackgroundColor(_ color: UIColor, rangeValue: Any? = nil) -> NSMutableAttributedString {
+        let ranges: [NSRange]
+        if let value = rangeValue {
+            ranges = wy_parseRanges(from: value)
+        } else {
+            ranges = [NSRange(location: 0, length: self.length)]
+        }
+        for targetRange in ranges {
+            addAttribute(.backgroundColor, value: color, range: targetRange)
+        }
+        return self
+    }
+    
+    /**
      *  修改富文本字体(整个富文本统一设置字体)
      */
     @discardableResult
@@ -518,104 +545,87 @@ public extension NSMutableAttributedString {
      */
     func wy_parseRanges(from rangeValue: Any) -> [NSRange] {
         let fullString = self.string
-        var resultRanges: [NSRange] = []
+        let fullLength = fullString.utf16.count
         
-        // 单个字符串：查找所有出现
-        if let singleString = rangeValue as? String {
-            guard !singleString.isEmpty else { return [] }
-            var searchStart = fullString.startIndex
-            while let range = fullString.range(of: singleString, range: searchStart..<fullString.endIndex) {
-                let nsRange = NSRange(range, in: fullString)
-                resultRanges.append(nsRange)
-                searchStart = range.upperBound
-                if searchStart >= fullString.endIndex { break }
-            }
-            return resultRanges
-        }
-        
-        // 字符串数组
-        if let stringArray = rangeValue as? [String] {
-            // 两个元素且可转整数 -> 单个区间
-            if stringArray.count == 2,
-               let location = Int(stringArray[0]),
-               let length = Int(stringArray[1]),
-               location >= 0, length >= 0 {
-                let nsRange = NSRange(location: location, length: length)
-                if nsRange.location + nsRange.length <= self.length {
-                    return [nsRange]
+        // 递归解析函数
+        func parse(_ value: Any) -> [NSRange] {
+            // 1. 单个字符串 → 查找所有出现
+            if let singleString = value as? String {
+                guard !singleString.isEmpty else { return [] }
+                var ranges: [NSRange] = []
+                var searchStart = fullString.startIndex
+                while let range = fullString.range(of: singleString, range: searchStart..<fullString.endIndex) {
+                    let nsRange = NSRange(range, in: fullString)
+                    ranges.append(nsRange)
+                    searchStart = range.upperBound
+                    if searchStart >= fullString.endIndex { break }
                 }
-                return []
-            } else {
-                // 多个子串，每个查找所有出现
-                for subStr in stringArray {
-                    guard !subStr.isEmpty else { continue }
-                    var searchStart = fullString.startIndex
-                    while let range = fullString.range(of: subStr, range: searchStart..<fullString.endIndex) {
-                        let nsRange = NSRange(range, in: fullString)
-                        resultRanges.append(nsRange)
-                        searchStart = range.upperBound
-                        if searchStart >= fullString.endIndex { break }
+                return ranges
+            }
+            
+            // 2. 两个整数的数组 → 区间
+            if let ints = value as? [Int], ints.count == 2 {
+                let location = ints[0]
+                let length = ints[1]
+                guard location >= 0, length >= 0, location + length <= fullLength else { return [] }
+                return [NSRange(location: location, length: length)]
+            }
+            
+            // 3. 字符串数组
+            if let strings = value as? [String] {
+                // 长度为2且都可转为整数 → 区间
+                if strings.count == 2,
+                   let location = Int(strings[0]),
+                   let length = Int(strings[1]),
+                   location >= 0, length >= 0,
+                   location + length <= fullLength {
+                    return [NSRange(location: location, length: length)]
+                } else {
+                    // 否则每个字符串作为子串匹配
+                    var ranges: [NSRange] = []
+                    for sub in strings {
+                        ranges.append(contentsOf: parse(sub))
                     }
+                    return ranges
                 }
-                return resultRanges
             }
-        }
-        
-        // 整数数组：两个整数视为区间
-        if let intArray = rangeValue as? [Int], intArray.count == 2 {
-            let location = intArray[0]
-            let length = intArray[1]
-            guard location >= 0, length >= 0 else { return [] }
-            let nsRange = NSRange(location: location, length: length)
-            if nsRange.location + nsRange.length <= self.length {
+            
+            // 4. NSRange 数组
+            if let nsRanges = value as? [NSRange] {
+                return nsRanges.filter {
+                    $0.location >= 0 && $0.length >= 0 && $0.location + $0.length <= fullLength
+                }
+            }
+            
+            // 5. 通用数组（混合类型） → 递归解析每个元素
+            if let array = value as? [Any] {
+                return array.flatMap { parse($0) }
+            }
+            
+            // 6. 单个 NSRange 对象
+            if let nsRange = value as? NSRange {
+                guard nsRange.location >= 0, nsRange.length >= 0, nsRange.location + nsRange.length <= fullLength else { return [] }
                 return [nsRange]
             }
+            
+            // 无法识别
+            assertionFailure("Unsupported rangeValue type: \(type(of: value))")
             return []
         }
         
-        // 字符串数组的数组：[[String]]
-        if let stringRanges = rangeValue as? [[String]] {
-            for rangePair in stringRanges {
-                guard rangePair.count == 2,
-                      let location = Int(rangePair[0]),
-                      let length = Int(rangePair[1]),
-                      location >= 0, length >= 0 else { continue }
-                let nsRange = NSRange(location: location, length: length)
-                if nsRange.location + nsRange.length <= self.length {
-                    resultRanges.append(nsRange)
-                }
-            }
-            return resultRanges
-        }
+        let allRanges = parse(rangeValue)
         
-        // 整数数组的数组：[[Int]]
-        if let intRanges = rangeValue as? [[Int]] {
-            for rangePair in intRanges {
-                guard rangePair.count == 2,
-                      let location = rangePair.first,
-                      let length = rangePair.last,
-                      location >= 0, length >= 0 else { continue }
-                let nsRange = NSRange(location: location, length: length)
-                if nsRange.location + nsRange.length <= self.length {
-                    resultRanges.append(nsRange)
-                }
+        // 内联去重（基于 location 和 length）
+        var uniqueRanges: [NSRange] = []
+        var seen = Set<String>()
+        for range in allRanges {
+            let key = "\(range.location),\(range.length)"
+            if !seen.contains(key) {
+                seen.insert(key)
+                uniqueRanges.append(range)
             }
-            return resultRanges
         }
-        
-        // [NSRange]
-        if let nsRanges = rangeValue as? [NSRange] {
-            for nsRange in nsRanges {
-                if nsRange.location + nsRange.length <= self.length {
-                    resultRanges.append(nsRange)
-                }
-            }
-            return resultRanges
-        }
-        
-        // 无法识别
-        assertionFailure("Unsupported rangeValue type: \(type(of: rangeValue))")
-        return []
+        return uniqueRanges
     }
 }
 

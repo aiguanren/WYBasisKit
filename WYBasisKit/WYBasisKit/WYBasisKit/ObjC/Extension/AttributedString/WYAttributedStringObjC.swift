@@ -52,6 +52,25 @@ import WYBasisKitSwift
     }
     
     /**
+     设置富文本中指定范围的背景色
+     
+     - Parameter color:       背景色
+     - Parameter rangeValue:  范围定义，传 `nil` 则对整个富文本生效。支持以下格式：
+     - `String`：匹配该子串的所有出现。
+     - `[String]`：若数组长度为2且可转为整数，视为单个区间 `[起始, 长度]`；否则视为多个子串，每个子串的所有出现均匹配。
+     - `[Int]`：两个整数，视为单个区间 `[起始, 长度]`。
+     - `[[String]]` 或 `[[Int]]`：多个区间，如 `[["0","5"], ["10","3"]]` 或 `[[0,5], [10,3]]`。
+     - `[NSRange]`：多个 `NSRange` 值。
+     
+     - Returns: 当前对象，支持链式调用
+     */
+    @discardableResult
+    @objc(wy_setBackgroundColor:rangeValue:)
+    func wy_setBackgroundColorObjC(_ color: UIColor, rangeValue: Any? = nil) -> NSMutableAttributedString {
+        wy_setBackgroundColor(color, rangeValue: rangeValue)
+    }
+    
+    /**
      *  修改富文本字体(整个富文本统一设置字体)
      */
     @discardableResult
