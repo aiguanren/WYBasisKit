@@ -93,18 +93,26 @@ class WYTestRichTextController: UIViewController {
             make.height.equalTo(160)
         }
         
+        guard var notoSansFont = UIFont(name: "NotoSans-Regular", size: 14) else {
+            wy_print("没有获取到notoSansFont字体")
+            return
+        }
+        
+        notoSansFont = UIFont.systemFont(ofSize: 14)
+        
         // numberOfLines = 0 + 自动换行 + 多链接
         let autoLabel = UILabel()
-        autoLabel.numberOfLines = 0
+        autoLabel.numberOfLines = 6
         autoLabel.backgroundColor = UIColor(white: 0.95, alpha: 1.0)
-        let autoText = "这是一段自动换行测试文本 numberOfLines=0。点击测试链接：https://www.example.com 和 www.baidu.com 以及最后一个链接 https://github.com"
+        let autoText = "欢迎访问我们的官网：https://www.example.com 或 http://example.org，也可以试试 www.example.net。更多详情请查看 https://sub.domain.com/path?key=value#section。非链接内容：这是一段普通文本，没有超链接功能。另外，可点击的还有 http://192.168.1.1 和 https://test.com?query=1。注意：www.example.cn 也是有效的。末尾无链接。"
         let autoAttr = NSMutableAttributedString(string: autoText)
-        autoAttr.wy_setFont([UIFont.systemFont(ofSize: 18): autoText])
-        autoAttr.wy_setColor([UIColor.systemBlue: ["https://www.example.com", "www.baidu.com", "https://github.com"]])
+        let links: [String] = autoText.wy_extractLinks()
+        autoAttr.wy_setFont([notoSansFont: autoText])
+        autoAttr.wy_setColor([UIColor.systemBlue: links])
         autoAttr.wy_lineSpacing(0, alignment: .left)
         autoLabel.attributedText = autoAttr
         autoLabel.wy_clickEffectColor = .orange
-        autoLabel.wy_addRichTextTapDelegate(strings: ["https://www.example.com", "www.baidu.com", "https://github.com"], delegate: self)
+        autoLabel.wy_addRichTextTapDelegate(strings: links, delegate: self)
         scrollView.addSubview(autoLabel)
         autoLabel.snp.makeConstraints { make in
             make.top.equalTo(centerLabel.snp.bottom).offset(40)
