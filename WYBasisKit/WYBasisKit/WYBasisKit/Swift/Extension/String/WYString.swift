@@ -292,7 +292,7 @@ public extension String {
         
         /// 判断是否是纯数字
         func securityCheck(_ string: String) -> String {
-            return string.isEmpty ? "0" : self
+            return string.isEmpty ? "0" : string
         }
         
         if type == CGFloat.self {
@@ -370,9 +370,6 @@ public extension String {
         
         var results: [LinkItem] = []
         
-        // 记录标准链接的 range，用于后续去重（避免 www. 形式被重复提取）
-        var standardRanges: [NSRange] = []
-        
         // 尾部标点裁剪
         let trailingSet = CharacterSet(charactersIn: ".,!?;:)]}，。！？；：）】》、")
         
@@ -401,7 +398,6 @@ public extension String {
                 linkText = trimTrailing(linkText)
                 
                 results.append(LinkItem(text: linkText, range: result.range))
-                standardRanges.append(result.range)
             }
         }
         
@@ -426,7 +422,7 @@ public extension String {
         let startIndex = self.index(self.startIndex, offsetBy: from)
         let endIndex = self.index(self.startIndex, offsetBy: to)
         
-        return String(self[startIndex...endIndex])
+        return String(self[startIndex..<endIndex])
     }
     
     /// 字符串截取(从第几位往后截取几位)
@@ -443,7 +439,7 @@ public extension String {
         let startIndex = self.index(self.startIndex, offsetBy: from)
         let endIndex = self.index(self.startIndex, offsetBy: from + after)
         
-        return String(self[startIndex...endIndex])
+        return String(self[startIndex..<endIndex])
     }
     
     /**
@@ -455,7 +451,10 @@ public extension String {
     func wy_replace(appointSymbol: String ,replacement: String, useRegex: Bool = false) -> String {
         
         if (useRegex == true) {
-            let regex = try! NSRegularExpression(pattern: "[\(appointSymbol)]", options: [])
+            
+            let escaped = NSRegularExpression.escapedPattern(for: appointSymbol)
+            let regex = try! NSRegularExpression(pattern: "[\(escaped)]")
+            
             return regex.stringByReplacingMatches(in: self, options: [],
                                                   range: NSMakeRange(0, self.count),
                                                   withTemplate: replacement)
@@ -471,9 +470,17 @@ public extension String {
     
     /// 字符串去除Emoji表情(replacement:表情用什么来替换)
     func wy_replaceEmoji(_ replacement: String = "") -> String {
-        return self.unicodeScalars
-            .filter { !$0.properties.isEmojiPresentation}
-            .reduce(replacement) { $0 + String($1) }
+        return self.unicodeScalars.map { scalar -> String in
+            
+            // 判断是否 emoji（覆盖大部分情况）
+            if scalar.properties.isEmoji &&
+                (scalar.value > 0x238C || scalar.properties.isEmojiPresentation) {
+                return replacement
+            }
+            
+            return String(scalar)
+            
+        }.joined()
     }
     
     /// 将 NSRange 转换为 Swift String.Index 范围（安全转换，避免越界，比如UITextView.selectedRange 是 NSRange，它的单位是 UTF-16 的位置。 而 Swift 的 String 是基于 Unicode 标量 来索引的，一些字符（尤其是 emoji）占 2 个或更多 UTF-16 单元。如果直接用 NSRange.location/length 来切 String，Swift 会按照字符来计算索引，这就可能导致越界或者切到半个 emoji，从而引起闪退，就像你有一个尺子，一个是厘米刻度（Swift String 的索引），一个是毫米刻度（NSRange 的 UTF16 单元），直接按毫米数去量厘米会出问题。正确的方法是先把毫米换算成厘米，再去量）
@@ -508,8 +515,8 @@ public extension String {
     }
     
     /// Encode
-    func wy_encoded(escape: String = "?!@#$^&%*+,:;='\"`<>()[]{}/\\| ") -> String {
-        let characterSet = CharacterSet(charactersIn: escape).inverted
+    func wy_encoded(shouldNotEncode: String = "?!@#$^&%*+,:;='\"`<>()[]{}/\\| ") -> String {
+        let characterSet = CharacterSet(charactersIn: shouldNotEncode).inverted
         return self.addingPercentEncoding(withAllowedCharacters: characterSet) ?? self
     }
     
@@ -517,7 +524,7 @@ public extension String {
     var wy_decoded: String {
         
         // 去掉所有 "+" 符号
-        let cleaned = self.replacingOccurrences(of: "+", with: "")
+        let cleaned = self.replacingOccurrences(of: "+", with: " ")
         // 进行 URL 解码，如果失败返回原字符串
         return cleaned.removingPercentEncoding ?? self
     }
@@ -533,14 +540,11 @@ public extension String {
     /// base64解码
     var wy_base64Decoded: String {
         
-        guard let data = data(using: .utf8) else {
+        guard let decodedData = Data(base64Encoded: self) else {
             return self
         }
         
-        if let decodedData = Data(base64Encoded: data, options: Data.Base64DecodingOptions(rawValue: 0)) {
-            return String(data: decodedData, encoding: .utf8) ?? self
-        }
-        return self
+        return String(data: decodedData, encoding: .utf8) ?? self
     }
     
     /// 获取设备时间戳
@@ -709,12 +713,12 @@ public extension String {
         let timeDifference = Int(currentTime - computingTime)
         
         // 秒转分钟
-        let second = timeDifference / 60
-        if (second <= 0) {
+        let minutes = timeDifference / 60
+        if (minutes <= 0) {
             return WYLocalized("刚刚", table: WYBasisKitConfig.kitLocalizableTable)
         }
-        if second < 60 {
-            return String(format: WYLocalized("X分钟前", table: WYBasisKitConfig.kitLocalizableTable), "\(second)")
+        if minutes < 60 {
+            return String(format: WYLocalized("X分钟前", table: WYBasisKitConfig.kitLocalizableTable), "\(minutes)")
         }
         
         // 秒转小时
@@ -838,19 +842,30 @@ public extension String {
 private extension String {
     
     /**
-     将时间戳字符串（秒、毫秒或微秒）归一化为秒级时间间隔。
-     
-     - Parameter timestamp: 时间戳字符串，支持10位（秒）、13位（毫秒）、16位（微秒）。
-     - Returns: 归一化后的秒级 TimeInterval，若转换失败或位数不支持则返回 nil。
+     *  将时间戳字符串归一化为秒级时间间隔
+     *
+     *  @param timestamp 时间戳字符串，支持秒、毫秒、微秒 （支持包含小数的时间戳）
+     *  @return 归一化后的秒级 TimeInterval，若转换失败则返回 nil
+     *
+     *  判断逻辑：通过数值大小自动识别精度
+     *  - 绝对值 > 1_000_000_000_000 → 微秒级
+     *  - 绝对值 > 1_000_000_000 → 毫秒级
+     *  - 其他 → 秒级
      */
     static func wy_normalizedTimestamp(_ timestamp: String) -> TimeInterval? {
+        
         guard let t = Double(timestamp) else { return nil }
-        switch timestamp.count {
-        case 0...10: return t
-        case 13: return t / 1000
-        case 16: return t / 1_000_000
-        default: return nil
+        
+        // 微秒级（绝对值 > 1万亿）
+        if abs(t) > 1_000_000_000_000 {
+            return t / 1_000_000
         }
+        // 毫秒级（绝对值 > 10亿）
+        if abs(t) > 1_000_000_000 {
+            return t / 1000
+        }
+        // 秒级（包括小数）
+        return t
     }
     
     /// 获取格式化后的时间格式
