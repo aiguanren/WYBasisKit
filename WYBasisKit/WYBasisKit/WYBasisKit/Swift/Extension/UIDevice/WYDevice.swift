@@ -54,9 +54,9 @@ public extension UIDevice {
         return UINavigationBar().intrinsicContentSize.height
     }
     
-    /// 导航视图高度（状态栏+导航栏）
+    /// 导航视图高度（导航栏安全区域+导航栏）
     static var wy_navViewHeight: CGFloat {
-        return wy_statusBarHeight + wy_navBarHeight
+        return wy_navBarSafetyZone + wy_navBarHeight
     }
     
     /// tabBar安全区域高度

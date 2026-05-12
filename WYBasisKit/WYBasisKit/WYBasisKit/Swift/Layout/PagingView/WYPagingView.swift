@@ -193,11 +193,18 @@ public class WYPagingView: UIView {
                 fatalError("❌ 错误：传入的controllers为空")
             }
             
-            self.buttonItems.forEach { $0.removeFromSuperview() }
-            self.buttonItems.removeAll()
-            self.controllers.forEach {
-                $0.view.removeFromSuperview()
-                $0.removeFromParent()
+            if !self.buttonItems.isEmpty {
+                self.buttonItems.forEach { $0.removeFromSuperview() }
+                self.buttonItems.removeAll()
+            }
+            
+            if !self.controllers.isEmpty {
+                self.controllers.forEach {
+                    $0.view.removeFromSuperview()
+                    $0.removeFromParent()
+                }
+                self.controllerScrollView.removeFromSuperview()
+                objc_setAssociatedObject(self, &WYAssociatedKeys.controllerScrollView, nil, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
             }
             
             self.controllers = controllers
@@ -1035,3 +1042,4 @@ private extension UIViewController {
         static var wy_pageControllerIsLastDisplayed: UInt8 = 0
     }
 }
+

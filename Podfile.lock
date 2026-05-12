@@ -67,191 +67,182 @@ PODS:
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.17)
   - SnapKit (5.7.1)
-  - WYBasisKit-ObjC (26.4.0):
-    - WYBasisKit-ObjC/Activity (= 26.4.0)
-    - WYBasisKit-ObjC/AudioKit (= 26.4.0)
-    - WYBasisKit-ObjC/Authorization (= 26.4.0)
-    - WYBasisKit-ObjC/Codable (= 26.4.0)
-    - WYBasisKit-ObjC/Config (= 26.4.0)
-    - WYBasisKit-ObjC/EventHandler (= 26.4.0)
-    - WYBasisKit-ObjC/Extension (= 26.4.0)
-    - WYBasisKit-ObjC/Imports (= 26.4.0)
-    - WYBasisKit-ObjC/Layout (= 26.4.0)
-    - WYBasisKit-ObjC/Localizable (= 26.4.0)
-    - WYBasisKit-ObjC/LogManager (= 26.4.0)
-    - WYBasisKit-ObjC/MacroDefinition (= 26.4.0)
-    - WYBasisKit-ObjC/Networking (= 26.4.0)
-    - WYBasisKit-ObjC/Storage (= 26.4.0)
-  - WYBasisKit-ObjC/Activity (26.4.0):
-    - WYBasisKit-ObjC/Imports (= 26.4.0)
-    - WYBasisKit-swift/Activity (= 26.4.0)
-  - WYBasisKit-ObjC/AudioKit (26.4.0):
-    - WYBasisKit-ObjC/Imports (= 26.4.0)
-    - WYBasisKit-swift/AudioKit (= 26.4.0)
-  - WYBasisKit-ObjC/Authorization (26.4.0):
-    - WYBasisKit-ObjC/Authorization/Biometric (= 26.4.0)
-    - WYBasisKit-ObjC/Authorization/Camera (= 26.4.0)
-    - WYBasisKit-ObjC/Authorization/Contacts (= 26.4.0)
-    - WYBasisKit-ObjC/Authorization/Location (= 26.4.0)
-    - WYBasisKit-ObjC/Authorization/Microphone (= 26.4.0)
-    - WYBasisKit-ObjC/Authorization/PhotoAlbums (= 26.4.0)
-    - WYBasisKit-ObjC/Authorization/SpeechRecognition (= 26.4.0)
-  - WYBasisKit-ObjC/Authorization/Biometric (26.4.0):
-    - WYBasisKit-ObjC/Imports (= 26.4.0)
-    - WYBasisKit-swift/Authorization/Biometric (= 26.4.0)
-  - WYBasisKit-ObjC/Authorization/Camera (26.4.0):
-    - WYBasisKit-ObjC/Imports (= 26.4.0)
-    - WYBasisKit-swift/Authorization/Camera (= 26.4.0)
-  - WYBasisKit-ObjC/Authorization/Contacts (26.4.0):
-    - WYBasisKit-ObjC/Imports (= 26.4.0)
-    - WYBasisKit-swift/Authorization/Contacts (= 26.4.0)
-  - WYBasisKit-ObjC/Authorization/Location (26.4.0):
-    - WYBasisKit-ObjC/Imports (= 26.4.0)
-    - WYBasisKit-swift/Authorization/Location (= 26.4.0)
-  - WYBasisKit-ObjC/Authorization/Microphone (26.4.0):
-    - WYBasisKit-ObjC/Imports (= 26.4.0)
-    - WYBasisKit-swift/Authorization/Microphone (= 26.4.0)
-  - WYBasisKit-ObjC/Authorization/PhotoAlbums (26.4.0):
-    - WYBasisKit-ObjC/Imports (= 26.4.0)
-    - WYBasisKit-swift/Authorization/PhotoAlbums (= 26.4.0)
-  - WYBasisKit-ObjC/Authorization/SpeechRecognition (26.4.0):
-    - WYBasisKit-ObjC/Imports (= 26.4.0)
-    - WYBasisKit-swift/Authorization/SpeechRecognition (= 26.4.0)
-  - WYBasisKit-ObjC/Codable (26.4.0):
-    - WYBasisKit-ObjC/Imports (= 26.4.0)
-    - WYBasisKit-swift/Codable (= 26.4.0)
-  - WYBasisKit-ObjC/Config (26.4.0):
-    - WYBasisKit-ObjC/Imports (= 26.4.0)
-    - WYBasisKit-swift/Config (= 26.4.0)
-  - WYBasisKit-ObjC/EventHandler (26.4.0):
-    - WYBasisKit-ObjC/Imports (= 26.4.0)
-    - WYBasisKit-swift/EventHandler (= 26.4.0)
-  - WYBasisKit-ObjC/Extension (26.4.0):
-    - WYBasisKit-ObjC/Config (= 26.4.0)
-    - WYBasisKit-ObjC/Imports (= 26.4.0)
-    - WYBasisKit-swift/Extension (= 26.4.0)
-  - WYBasisKit-ObjC/Imports (26.4.0):
-    - WYBasisKit-ObjC/MacroDefinition (= 26.4.0)
-  - WYBasisKit-ObjC/Layout (26.4.0):
-    - WYBasisKit-ObjC/Layout/BannerView (= 26.4.0)
-    - WYBasisKit-ObjC/Layout/MediaPlayer (= 26.4.0)
-    - WYBasisKit-ObjC/Layout/PagingView (= 26.4.0)
-    - WYBasisKit-ObjC/Layout/ScrollText (= 26.4.0)
-  - WYBasisKit-ObjC/Layout/BannerView (26.4.0):
-    - WYBasisKit-ObjC/Imports (= 26.4.0)
-    - WYBasisKit-swift/Layout/BannerView (= 26.4.0)
-  - WYBasisKit-ObjC/Layout/MediaPlayer (26.4.0):
-    - WYBasisKit-ObjC/Imports (= 26.4.0)
-    - WYBasisKit-swift/Layout/MediaPlayer (= 26.4.0)
-  - WYBasisKit-ObjC/Layout/PagingView (26.4.0):
-    - WYBasisKit-ObjC/Imports (= 26.4.0)
-    - WYBasisKit-swift/Layout/PagingView (= 26.4.0)
-  - WYBasisKit-ObjC/Layout/ScrollText (26.4.0):
-    - WYBasisKit-ObjC/Imports (= 26.4.0)
-    - WYBasisKit-swift/Layout/ScrollText (= 26.4.0)
-  - WYBasisKit-ObjC/Localizable (26.4.0):
-    - WYBasisKit-ObjC/Config (= 26.4.0)
-    - WYBasisKit-ObjC/Imports (= 26.4.0)
-    - WYBasisKit-swift/Localizable (= 26.4.0)
-  - WYBasisKit-ObjC/LogManager (26.4.0):
-    - WYBasisKit-ObjC/Imports (= 26.4.0)
-    - WYBasisKit-swift/LogManager (= 26.4.0)
-  - WYBasisKit-ObjC/MacroDefinition (26.4.0)
-  - WYBasisKit-ObjC/Networking (26.4.0):
-    - WYBasisKit-ObjC/Codable (= 26.4.0)
-    - WYBasisKit-ObjC/Imports (= 26.4.0)
-    - WYBasisKit-ObjC/Storage (= 26.4.0)
-    - WYBasisKit-swift/Networking (= 26.4.0)
-  - WYBasisKit-ObjC/Storage (26.4.0):
-    - WYBasisKit-ObjC/Imports (= 26.4.0)
-    - WYBasisKit-swift/Storage (= 26.4.0)
-  - WYBasisKit-swift (26.4.0):
-    - WYBasisKit-swift/Activity (= 26.4.0)
-    - WYBasisKit-swift/AudioKit (= 26.4.0)
-    - WYBasisKit-swift/Authorization (= 26.4.0)
-    - WYBasisKit-swift/Codable (= 26.4.0)
-    - WYBasisKit-swift/Config (= 26.4.0)
-    - WYBasisKit-swift/EventHandler (= 26.4.0)
-    - WYBasisKit-swift/Extension (= 26.4.0)
-    - WYBasisKit-swift/Layout (= 26.4.0)
-    - WYBasisKit-swift/Localizable (= 26.4.0)
-    - WYBasisKit-swift/LogManager (= 26.4.0)
-    - WYBasisKit-swift/Networking (= 26.4.0)
-    - WYBasisKit-swift/Storage (= 26.4.0)
-  - WYBasisKit-swift/Activity (26.4.0):
+  - WYBasisKit-ObjC (26.5.0):
+    - WYBasisKit-ObjC/Activity (= 26.5.0)
+    - WYBasisKit-ObjC/AudioKit (= 26.5.0)
+    - WYBasisKit-ObjC/Authorization (= 26.5.0)
+    - WYBasisKit-ObjC/Codable (= 26.5.0)
+    - WYBasisKit-ObjC/Config (= 26.5.0)
+    - WYBasisKit-ObjC/EventHandler (= 26.5.0)
+    - WYBasisKit-ObjC/Extension (= 26.5.0)
+    - WYBasisKit-ObjC/Imports (= 26.5.0)
+    - WYBasisKit-ObjC/Layout (= 26.5.0)
+    - WYBasisKit-ObjC/Localizable (= 26.5.0)
+    - WYBasisKit-ObjC/LogManager (= 26.5.0)
+    - WYBasisKit-ObjC/MacroDefinition (= 26.5.0)
+    - WYBasisKit-ObjC/Networking (= 26.5.0)
+    - WYBasisKit-ObjC/Storage (= 26.5.0)
+  - WYBasisKit-ObjC/Activity (26.5.0):
+    - WYBasisKit-ObjC/Imports (= 26.5.0)
+    - WYBasisKit-swift/Activity (= 26.5.0)
+  - WYBasisKit-ObjC/AudioKit (26.5.0):
+    - WYBasisKit-ObjC/Imports (= 26.5.0)
+    - WYBasisKit-swift/AudioKit (= 26.5.0)
+  - WYBasisKit-ObjC/Authorization (26.5.0):
+    - WYBasisKit-ObjC/Authorization/Biometric (= 26.5.0)
+    - WYBasisKit-ObjC/Authorization/Camera (= 26.5.0)
+    - WYBasisKit-ObjC/Authorization/Contacts (= 26.5.0)
+    - WYBasisKit-ObjC/Authorization/Location (= 26.5.0)
+    - WYBasisKit-ObjC/Authorization/Microphone (= 26.5.0)
+    - WYBasisKit-ObjC/Authorization/PhotoAlbums (= 26.5.0)
+    - WYBasisKit-ObjC/Authorization/SpeechRecognition (= 26.5.0)
+  - WYBasisKit-ObjC/Authorization/Biometric (26.5.0):
+    - WYBasisKit-ObjC/Imports (= 26.5.0)
+    - WYBasisKit-swift/Authorization/Biometric (= 26.5.0)
+  - WYBasisKit-ObjC/Authorization/Camera (26.5.0):
+    - WYBasisKit-ObjC/Imports (= 26.5.0)
+    - WYBasisKit-swift/Authorization/Camera (= 26.5.0)
+  - WYBasisKit-ObjC/Authorization/Contacts (26.5.0):
+    - WYBasisKit-ObjC/Imports (= 26.5.0)
+    - WYBasisKit-swift/Authorization/Contacts (= 26.5.0)
+  - WYBasisKit-ObjC/Authorization/Location (26.5.0):
+    - WYBasisKit-ObjC/Imports (= 26.5.0)
+    - WYBasisKit-swift/Authorization/Location (= 26.5.0)
+  - WYBasisKit-ObjC/Authorization/Microphone (26.5.0):
+    - WYBasisKit-ObjC/Imports (= 26.5.0)
+    - WYBasisKit-swift/Authorization/Microphone (= 26.5.0)
+  - WYBasisKit-ObjC/Authorization/PhotoAlbums (26.5.0):
+    - WYBasisKit-ObjC/Imports (= 26.5.0)
+    - WYBasisKit-swift/Authorization/PhotoAlbums (= 26.5.0)
+  - WYBasisKit-ObjC/Authorization/SpeechRecognition (26.5.0):
+    - WYBasisKit-ObjC/Imports (= 26.5.0)
+    - WYBasisKit-swift/Authorization/SpeechRecognition (= 26.5.0)
+  - WYBasisKit-ObjC/Codable (26.5.0):
+    - WYBasisKit-ObjC/Imports (= 26.5.0)
+    - WYBasisKit-swift/Codable (= 26.5.0)
+  - WYBasisKit-ObjC/Config (26.5.0):
+    - WYBasisKit-ObjC/Imports (= 26.5.0)
+    - WYBasisKit-swift/Config (= 26.5.0)
+  - WYBasisKit-ObjC/EventHandler (26.5.0):
+    - WYBasisKit-ObjC/Imports (= 26.5.0)
+    - WYBasisKit-swift/EventHandler (= 26.5.0)
+  - WYBasisKit-ObjC/Extension (26.5.0):
+    - WYBasisKit-ObjC/Config (= 26.5.0)
+    - WYBasisKit-ObjC/Imports (= 26.5.0)
+    - WYBasisKit-swift/Extension (= 26.5.0)
+  - WYBasisKit-ObjC/Imports (26.5.0):
+    - WYBasisKit-ObjC/MacroDefinition (= 26.5.0)
+  - WYBasisKit-ObjC/Layout (26.5.0):
+    - WYBasisKit-ObjC/Layout/BannerView (= 26.5.0)
+    - WYBasisKit-ObjC/Layout/MediaPlayer (= 26.5.0)
+    - WYBasisKit-ObjC/Layout/PagingView (= 26.5.0)
+    - WYBasisKit-ObjC/Layout/ScrollText (= 26.5.0)
+  - WYBasisKit-ObjC/Layout/BannerView (26.5.0):
+    - WYBasisKit-ObjC/Imports (= 26.5.0)
+    - WYBasisKit-swift/Layout/BannerView (= 26.5.0)
+  - WYBasisKit-ObjC/Layout/MediaPlayer (26.5.0):
+    - WYBasisKit-ObjC/Imports (= 26.5.0)
+    - WYBasisKit-swift/Layout/MediaPlayer (= 26.5.0)
+  - WYBasisKit-ObjC/Layout/PagingView (26.5.0):
+    - WYBasisKit-ObjC/Imports (= 26.5.0)
+    - WYBasisKit-swift/Layout/PagingView (= 26.5.0)
+  - WYBasisKit-ObjC/Layout/ScrollText (26.5.0):
+    - WYBasisKit-ObjC/Imports (= 26.5.0)
+    - WYBasisKit-swift/Layout/ScrollText (= 26.5.0)
+  - WYBasisKit-ObjC/Localizable (26.5.0):
+    - WYBasisKit-ObjC/Config (= 26.5.0)
+    - WYBasisKit-ObjC/Imports (= 26.5.0)
+    - WYBasisKit-swift/Localizable (= 26.5.0)
+  - WYBasisKit-ObjC/LogManager (26.5.0):
+    - WYBasisKit-ObjC/Imports (= 26.5.0)
+    - WYBasisKit-swift/LogManager (= 26.5.0)
+  - WYBasisKit-ObjC/MacroDefinition (26.5.0)
+  - WYBasisKit-ObjC/Networking (26.5.0):
+    - WYBasisKit-ObjC/Codable (= 26.5.0)
+    - WYBasisKit-ObjC/Imports (= 26.5.0)
+    - WYBasisKit-ObjC/Storage (= 26.5.0)
+    - WYBasisKit-swift/Networking (= 26.5.0)
+  - WYBasisKit-ObjC/Storage (26.5.0):
+    - WYBasisKit-ObjC/Imports (= 26.5.0)
+    - WYBasisKit-swift/Storage (= 26.5.0)
+  - WYBasisKit-swift (26.5.0):
+    - WYBasisKit-swift/Activity (= 26.5.0)
+    - WYBasisKit-swift/AudioKit (= 26.5.0)
+    - WYBasisKit-swift/Authorization (= 26.5.0)
+    - WYBasisKit-swift/Codable (= 26.5.0)
+    - WYBasisKit-swift/Config (= 26.5.0)
+    - WYBasisKit-swift/EventHandler (= 26.5.0)
+    - WYBasisKit-swift/Extension (= 26.5.0)
+    - WYBasisKit-swift/Layout (= 26.5.0)
+    - WYBasisKit-swift/Localizable (= 26.5.0)
+    - WYBasisKit-swift/LogManager (= 26.5.0)
+    - WYBasisKit-swift/Networking (= 26.5.0)
+    - WYBasisKit-swift/Storage (= 26.5.0)
+  - WYBasisKit-swift/Activity (26.5.0):
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/AudioKit (26.4.0):
+  - WYBasisKit-swift/AudioKit (26.5.0):
     - WYBasisKit-swift/Authorization/Microphone
-  - WYBasisKit-swift/Authorization (26.4.0):
-    - WYBasisKit-swift/Authorization/Biometric (= 26.4.0)
-    - WYBasisKit-swift/Authorization/Camera (= 26.4.0)
-    - WYBasisKit-swift/Authorization/Contacts (= 26.4.0)
-    - WYBasisKit-swift/Authorization/Location (= 26.4.0)
-    - WYBasisKit-swift/Authorization/Microphone (= 26.4.0)
-    - WYBasisKit-swift/Authorization/PhotoAlbums (= 26.4.0)
-    - WYBasisKit-swift/Authorization/SpeechRecognition (= 26.4.0)
-  - WYBasisKit-swift/Authorization/Biometric (26.4.0):
+  - WYBasisKit-swift/Authorization (26.5.0):
+    - WYBasisKit-swift/Authorization/Biometric (= 26.5.0)
+    - WYBasisKit-swift/Authorization/Camera (= 26.5.0)
+    - WYBasisKit-swift/Authorization/Contacts (= 26.5.0)
+    - WYBasisKit-swift/Authorization/Location (= 26.5.0)
+    - WYBasisKit-swift/Authorization/Microphone (= 26.5.0)
+    - WYBasisKit-swift/Authorization/PhotoAlbums (= 26.5.0)
+    - WYBasisKit-swift/Authorization/SpeechRecognition (= 26.5.0)
+  - WYBasisKit-swift/Authorization/Biometric (26.5.0):
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Authorization/Camera (26.4.0):
+  - WYBasisKit-swift/Authorization/Camera (26.5.0):
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Authorization/Contacts (26.4.0):
+  - WYBasisKit-swift/Authorization/Contacts (26.5.0):
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Authorization/Location (26.4.0):
+  - WYBasisKit-swift/Authorization/Location (26.5.0):
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Authorization/Microphone (26.4.0):
+  - WYBasisKit-swift/Authorization/Microphone (26.5.0):
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Authorization/PhotoAlbums (26.4.0):
+  - WYBasisKit-swift/Authorization/PhotoAlbums (26.5.0):
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Authorization/SpeechRecognition (26.4.0):
+  - WYBasisKit-swift/Authorization/SpeechRecognition (26.5.0):
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Codable (26.4.0)
-  - WYBasisKit-swift/Config (26.4.0)
-  - WYBasisKit-swift/EventHandler (26.4.0)
-  - WYBasisKit-swift/Extension (26.4.0):
+  - WYBasisKit-swift/Codable (26.5.0)
+  - WYBasisKit-swift/Config (26.5.0)
+  - WYBasisKit-swift/EventHandler (26.5.0)
+  - WYBasisKit-swift/Extension (26.5.0):
     - WYBasisKit-swift/Config
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Layout (26.4.0):
-    - WYBasisKit-swift/Layout/BannerView (= 26.4.0)
-    - WYBasisKit-swift/Layout/ChatView (= 26.4.0)
-    - WYBasisKit-swift/Layout/MediaPlayer (= 26.4.0)
-    - WYBasisKit-swift/Layout/PagingView (= 26.4.0)
-    - WYBasisKit-swift/Layout/ScrollText (= 26.4.0)
-  - WYBasisKit-swift/Layout/BannerView (26.4.0):
+  - WYBasisKit-swift/Layout (26.5.0):
+    - WYBasisKit-swift/Layout/BannerView (= 26.5.0)
+    - WYBasisKit-swift/Layout/MediaPlayer (= 26.5.0)
+    - WYBasisKit-swift/Layout/PagingView (= 26.5.0)
+    - WYBasisKit-swift/Layout/ScrollText (= 26.5.0)
+  - WYBasisKit-swift/Layout/BannerView (26.5.0):
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Layout/ChatView (26.4.0):
-    - Kingfisher
-    - SnapKit
-    - WYBasisKit-swift/Authorization/Microphone
-    - WYBasisKit-swift/Extension
-    - WYBasisKit-swift/Localizable
-    - WYBasisKit-swift/LogManager
-    - WYBasisKit-swift/Storage
-  - WYBasisKit-swift/Layout/MediaPlayer (26.4.0):
+  - WYBasisKit-swift/Layout/MediaPlayer (26.5.0):
     - IJKPlayerKit (= 1.0.4)
-  - WYBasisKit-swift/Layout/PagingView (26.4.0):
+  - WYBasisKit-swift/Layout/PagingView (26.5.0):
     - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Layout/ScrollText (26.4.0):
+  - WYBasisKit-swift/Layout/ScrollText (26.5.0):
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Localizable (26.4.0):
+  - WYBasisKit-swift/Localizable (26.5.0):
     - WYBasisKit-swift/Config
-  - WYBasisKit-swift/LogManager (26.4.0)
-  - WYBasisKit-swift/Networking (26.4.0):
+  - WYBasisKit-swift/LogManager (26.5.0)
+  - WYBasisKit-swift/Networking (26.5.0):
     - Moya
     - WYBasisKit-swift/Codable
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/Storage
-  - WYBasisKit-swift/Storage (26.4.0)
+  - WYBasisKit-swift/Storage (26.5.0)
   - WYBasisKit-SwiftUI (26.3.0):
     - WYBasisKit-SwiftUI/Extension (= 26.3.0)
   - WYBasisKit-SwiftUI/Extension (26.3.0)
@@ -317,10 +308,10 @@ SPEC CHECKSUMS:
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
   SDWebImageWebPCoder: 0e06e365080397465cc73a7a9b472d8a3bd0f377
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
-  WYBasisKit-ObjC: 62f4dcd9a1c8ff688022746796bdb8309894774a
-  WYBasisKit-swift: ce18cf03a54d9226ac025c9e2d6f4e6c35fe2997
+  WYBasisKit-ObjC: 1b240b6eb44165cd47102c8e45f8824064fb3744
+  WYBasisKit-swift: cb569197e485d71817454beeb13472049980ed8b
   WYBasisKit-SwiftUI: 72b8d96f2fcc05cc40e8bdc3428e8e31121a6a62
 
-PODFILE CHECKSUM: 88446b836dd961c66ee066847c11807fc993760c
+PODFILE CHECKSUM: 8867d370f0dd601a7c1cd37083576f0a3cc93bd2
 
 COCOAPODS: 1.16.2

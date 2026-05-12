@@ -169,8 +169,8 @@ import WYBasisKitSwift
      *  @param max   最多需要多少个字符
      *
      */
-    @objc static func wy_random(minimux: Int = 1, maximum: Int = 100) -> String {
-        return String.wy_random(minimux: minimux, maximum: maximum)
+    @objc static func wy_random(minimum: Int = 1, maximum: Int = 100) -> String {
+        return String.wy_random(minimum: minimum, maximum: maximum)
     }
     
     /// String转CGFloat
@@ -221,6 +221,15 @@ import WYBasisKitSwift
     /// 判断字符串是否包含某个字符串(ignoreCase:是否忽略大小写)
     @objc func wy_contains(_ find: String, ignoreCase: Bool = false) -> Bool {
         return (self as String).wy_contains(find, ignoreCase: ignoreCase)
+    }
+    
+    /**
+     *  提取字符串中的链接(默认支持 http://、https://、www.、ftp://、mailto:、tel: 等)
+     *  @return 提取到的链接字符串数组，顺序按链接在原始字符串中首次出现的位置排列；若 content 为空或无效，返回空数组。
+     */
+    @objc(wy_extractLinks)
+    func wy_extractLinksObjC() -> [String] {
+        return (self as String).wy_extractLinks()
     }
     
     /// 字符串截取(从第几位截取到第几位)
@@ -327,8 +336,8 @@ import WYBasisKitSwift
     }
     
     /// 获取当前月的总天数
-    @objc static func wy_curentMonthDays() -> String {
-        return String.wy_curentMonthDays()
+    @objc static func wy_currentMonthDays() -> String {
+        return String.wy_currentMonthDays()
     }
     
     /// 时间戳转星期几

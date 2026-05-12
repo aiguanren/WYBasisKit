@@ -100,7 +100,7 @@ extension WYFlowLayoutAlignmentController: UICollectionViewDelegate, UICollectio
                     return CGSize(width: 35, height: 35)
                 }
                 
-                let testString: String = String.wy_random(minimux: 1, maximum: 20)
+                let testString: String = String.wy_random(minimum: 1, maximum: 20)
                 
                 let testFont: UIFont = .systemFont(ofSize: 15)
                 
@@ -108,7 +108,7 @@ extension WYFlowLayoutAlignmentController: UICollectionViewDelegate, UICollectio
                 
                 let attributedString: NSMutableAttributedString = NSMutableAttributedString(string: testString)
                 attributedString.wy_lineSpacing(lineSpacing)
-                attributedString.wy_fontsOfRanges([testFont: testString])
+                attributedString.wy_setFont([testFont: testString])
                 
                 let stringWidth: CGFloat = attributedString.wy_calculateWidth(controlHeight: testFont.lineHeight)
                 

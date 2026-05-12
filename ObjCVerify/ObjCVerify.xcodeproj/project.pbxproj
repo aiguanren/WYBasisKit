@@ -15,6 +15,7 @@
 		580ED5742EA5DB55006012E7 /* WYGenericTypeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5732EA5DB55006012E7 /* WYGenericTypeController.m */; };
 		580ED5822EA62AE9006012E7 /* WYArchivedController.m in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5812EA62AE9006012E7 /* WYArchivedController.m */; };
 		582732112E9F8CDF00DAD1AA /* WYTestDarkNightModeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 582732102E9F8CDF00DAD1AA /* WYTestDarkNightModeController.m */; };
+		582917432FB0C3FD0006F98D /* NotoSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 582917422FB0C3FD0006F98D /* NotoSans-Regular.ttf */; };
 		584D75142F7236E5006C05E7 /* WYTestImageRenderingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 584D75122F7236E5006C05E7 /* WYTestImageRenderingController.m */; };
 		584D75152F7236E5006C05E7 /* WYTestImageRenderingController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 584D75132F7236E5006C05E7 /* WYTestImageRenderingController.xib */; };
 		584D751D2F72822D006C05E7 /* 彩色花.webp in Resources */ = {isa = PBXBuildFile; fileRef = 584D751C2F72822D006C05E7 /* 彩色花.webp */; };
@@ -165,6 +166,7 @@
 		5827327B2E9FA6BB00DAD1AA /* mn */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = mn; path = mn.lproj/Main.strings; sourceTree = "<group>"; };
 		5827327C2E9FA6D200DAD1AA /* km */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = km; path = km.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		5827327D2E9FA6D200DAD1AA /* km */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = km; path = km.lproj/Main.strings; sourceTree = "<group>"; };
+		582917422FB0C3FD0006F98D /* NotoSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NotoSans-Regular.ttf"; sourceTree = "<group>"; };
 		584D75112F7236E5006C05E7 /* WYTestImageRenderingController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestImageRenderingController.h; sourceTree = "<group>"; };
 		584D75122F7236E5006C05E7 /* WYTestImageRenderingController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestImageRenderingController.m; sourceTree = "<group>"; };
 		584D75132F7236E5006C05E7 /* WYTestImageRenderingController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WYTestImageRenderingController.xib; sourceTree = "<group>"; };
@@ -519,6 +521,7 @@
 				58B46FF42E8D112B00D04BCA /* [唇].png */,
 				58B46FF52E8D112B00D04BCA /* [喝彩].png */,
 				58B46FF62E8D112B00D04BCA /* 世间美好与你环环相扣.mp3 */,
+				582917422FB0C3FD0006F98D /* NotoSans-Regular.ttf */,
 				58B59FE12E5D5315008F9C38 /* AppDelegate.h */,
 				58B59FE22E5D5315008F9C38 /* AppDelegate.m */,
 				58B59FE32E5D5315008F9C38 /* Assets.xcassets */,
@@ -850,6 +853,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				582917432FB0C3FD0006F98D /* NotoSans-Regular.ttf in Resources */,
 				58B470142E8D112B00D04BCA /* 秋天的树.png in Resources */,
 				58B470152E8D112B00D04BCA /* 蓝天下的花.png in Resources */,
 				58B470162E8D112B00D04BCA /* 石头上的花.png in Resources */,

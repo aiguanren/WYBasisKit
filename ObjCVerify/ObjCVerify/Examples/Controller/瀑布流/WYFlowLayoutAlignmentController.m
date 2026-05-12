@@ -182,13 +182,13 @@
                 return CGSizeMake(35, 35);
             }
             
-            NSString *testString = [NSString wy_randomWithMinimux:1 maximum:20];
+            NSString *testString = [NSString wy_randomWithMinimum:1 maximum:20];
             UIFont *testFont = [UIFont systemFontOfSize:15];
             CGFloat lineSpacing = 5;
             
             NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:testString];
             [attributedString wy_lineSpacing:lineSpacing];
-            [attributedString wy_fontsOfRanges:@{testFont: testString}];
+            [attributedString wy_setFontForRanges:@{testFont: testString}];
             
             CGFloat stringWidth = [attributedString wy_calculateWidthWithControlHeight:testFont.lineHeight];
             UIEdgeInsets sectionInsets = [self wy_collectionView:collectionView layout:collectionViewLayout insetForSection:indexPath.section];
