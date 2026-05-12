@@ -182,7 +182,7 @@
                 return CGSizeMake(35, 35);
             }
             
-            NSString *testString = [NSString wy_randomWithMinimux:1 maximum:20];
+            NSString *testString = [NSString wy_randomWithMinimum:1 maximum:20];
             UIFont *testFont = [UIFont systemFontOfSize:15];
             CGFloat lineSpacing = 5;
             

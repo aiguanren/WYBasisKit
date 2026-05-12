@@ -162,9 +162,9 @@ public extension String {
      *  @param max   最多需要多少个字符
      *
      */
-    static func wy_random(minimux: Int = 1, maximum: Int = 100) -> String {
+    static func wy_random(minimum: Int = 1, maximum: Int = 100) -> String {
         
-        guard maximum >= minimux else { return "" }
+        guard maximum >= minimum else { return "" }
         
         let phrases = [
             "嗨",
@@ -184,7 +184,7 @@ public extension String {
         ]
         
         // 随机字符长度
-        let targetLength = Int.random(in: minimux...maximum)
+        let targetLength = Int.random(in: minimum...maximum)
         
         guard targetLength >= 1 else { return "" }
         
@@ -319,17 +319,17 @@ public extension String {
         
         let sharedControlHeight = (controlHeight == 0) ? controlFont.lineHeight : controlHeight
         
-        return wy_calculategSize(controlSize: CGSize(width: .greatestFiniteMagnitude, height: sharedControlHeight), controlFont: controlFont, lineSpacing: lineSpacing, wordsSpacing: wordsSpacing).width
+        return wy_calculateSize(controlSize: CGSize(width: .greatestFiniteMagnitude, height: sharedControlHeight), controlFont: controlFont, lineSpacing: lineSpacing, wordsSpacing: wordsSpacing).width
     }
     
     /// 返回一个计算好的字符串的高度
     func wy_calculateHeight(controlWidth: CGFloat, controlFont: UIFont, lineSpacing: CGFloat = 0, wordsSpacing: CGFloat = 0) -> CGFloat {
         
-        return wy_calculategSize(controlSize: CGSize(width: controlWidth, height: .greatestFiniteMagnitude), controlFont: controlFont, lineSpacing: lineSpacing, wordsSpacing: wordsSpacing).height
+        return wy_calculateSize(controlSize: CGSize(width: controlWidth, height: .greatestFiniteMagnitude), controlFont: controlFont, lineSpacing: lineSpacing, wordsSpacing: wordsSpacing).height
     }
     
     /// 返回一个计算好的字符串的size
-    func wy_calculategSize(controlSize: CGSize, controlFont: UIFont, lineSpacing: CGFloat = 0, wordsSpacing: CGFloat = 0) -> CGSize {
+    func wy_calculateSize(controlSize: CGSize, controlFont: UIFont, lineSpacing: CGFloat = 0, wordsSpacing: CGFloat = 0) -> CGSize {
         
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = lineSpacing
@@ -593,14 +593,7 @@ public extension String {
         guard !self.isEmpty else { return "" }
         
         // 转为秒级时间戳
-        let timestamp: Double
-        if self.count <= 10, let t = Double(self) {
-            timestamp = t
-        } else if let t = Double(self) {
-            timestamp = t / 1000
-        } else {
-            return ""
-        }
+        guard let timestamp = String.wy_normalizedTimestamp(self) else { return "" }
         
         let date = Date(timeIntervalSince1970: timestamp)
         
@@ -633,9 +626,9 @@ public extension String {
         format.timeStyle = .short
         format.dateFormat = sharedTimeFormat(dateFormat: dateFormat)
         
-        let date = format.date(from: self)
+        guard let date = format.date(from: self) else { return "" }
         
-        return String(date!.timeIntervalSince1970)
+        return String(date.timeIntervalSince1970)
     }
     
     /// 获取当前的 年、月、日
@@ -646,7 +639,7 @@ public extension String {
     }
     
     /// 获取当前月的总天数
-    static func wy_curentMonthDays() -> String {
+    static func wy_currentMonthDays() -> String {
         let calendar = Calendar.current
         let range = calendar.range(of: Calendar.Component.day, in: Calendar.Component.month, for: Date())
         return "\(range!.count)"
@@ -654,24 +647,9 @@ public extension String {
     
     /// 时间戳转星期几
     var wy_whatDay: WYWhatDay {
-        // 支持 10位（秒）、13位（毫秒）、16位（微秒）时间戳
-        guard [10, 13, 16].contains(self.count),
-              let timestamp = Double(self) else {
-            return .unknown
-        }
         
         // 转换为秒级时间戳
-        let timeInterval: Double
-        switch self.count {
-        case 10:
-            timeInterval = timestamp // 秒
-        case 13:
-            timeInterval = timestamp / 1000.0 // 毫秒
-        case 16:
-            timeInterval = timestamp / 1_000_000.0 // 微秒
-        default:
-            return .unknown
-        }
+        guard let timeInterval = String.wy_normalizedTimestamp(self) else { return .unknown }
         
         let date = Date(timeIntervalSince1970: timeInterval)
         
@@ -691,71 +669,28 @@ public extension String {
      */
     static func wy_timeIntervalCycle(_ messageTimestamp: String, _ clientTimestamp: String = wy_sharedDeviceTimestamp()) -> WYTimeDistance {
         
-        // 判断输入是否合法
-        func normalize(_ ts: String) -> Double? {
-            guard let t = Double(ts) else { return nil }
-            switch ts.count {
-            case 0...10: // 秒级（<=10位都算秒）
-                return t
-            case 13: // 毫秒
-                return t / 1000
-            case 16: // 微秒
-                return t / 1_000_000
-            default:
-                return nil
-            }
-        }
-        
-        guard let messageInterval = normalize(messageTimestamp),
-              let clientInterval = normalize(clientTimestamp) else {
+        guard let msg = wy_normalizedTimestamp(messageTimestamp),
+              let client = wy_normalizedTimestamp(clientTimestamp) else {
             return .unknown
         }
-        
-        // 选择参考时间（取消息时间或客户端时间）
-        let referenceDate = (messageInterval <= 0 || messageInterval >= clientInterval)
-        ? Date(timeIntervalSince1970: clientInterval)
-        : Date(timeIntervalSince1970: messageInterval)
-        
-        let calendar = Calendar(identifier: .iso8601)
-        let componentsSet: Set<Calendar.Component> = [.year, .month, .day]
-        
-        func dateComponents(daysAgo: Int) -> DateComponents {
-            let date = Calendar.current.date(byAdding: .day, value: -daysAgo, to: referenceDate) ?? referenceDate
-            return calendar.dateComponents(componentsSet, from: date)
+        let calendar = Calendar.current
+        let msgDate = Date(timeIntervalSince1970: msg)
+        let clientDate = Date(timeIntervalSince1970: client)
+        let days = calendar.dateComponents([.day], from: msgDate, to: clientDate).day ?? 0
+        switch days {
+        case 0: return .today
+        case 1: return .yesterday
+        case 2: return .yesterdayBefore
+        case 3...6: return .withinWeek
+        default:
+            if calendar.isDate(msgDate, equalTo: clientDate, toGranularity: .month) {
+                return .withinSameMonth
+            } else if calendar.isDate(msgDate, equalTo: clientDate, toGranularity: .year) {
+                return .withinSameYear
+            } else {
+                return .unknown
+            }
         }
-        
-        let today = dateComponents(daysAgo: 0)
-        let aDayAgo = dateComponents(daysAgo: 1)
-        let twoDaysAgo = dateComponents(daysAgo: 2)
-        let threeDaysAgo = dateComponents(daysAgo: 3)
-        let fourDaysAgo = dateComponents(daysAgo: 4)
-        let fiveDaysAgo = dateComponents(daysAgo: 5)
-        let sixDaysAgo = dateComponents(daysAgo: 6)
-        
-        let clientComponents = calendar.dateComponents(componentsSet, from: Date(timeIntervalSince1970: clientInterval))
-        
-        func isSameDay(_ comp1: DateComponents, _ comp2: DateComponents) -> Bool {
-            return comp1.year == comp2.year && comp1.month == comp2.month && comp1.day == comp2.day
-        }
-        
-        if isSameDay(clientComponents, today) { return .today }
-        if isSameDay(clientComponents, aDayAgo) { return .yesterday }
-        if isSameDay(clientComponents, twoDaysAgo) { return .yesterdayBefore }
-        
-        if isSameDay(clientComponents, threeDaysAgo) || isSameDay(clientComponents, fourDaysAgo)
-            || isSameDay(clientComponents, fiveDaysAgo) || isSameDay(clientComponents, sixDaysAgo) {
-            return .withinWeek
-        }
-        
-        if clientComponents.year == twoDaysAgo.year && clientComponents.month == twoDaysAgo.month {
-            return .withinSameMonth
-        }
-        
-        if clientComponents.year == twoDaysAgo.year {
-            return .withinSameYear
-        }
-        
-        return .unknown
     }
     
     /**
@@ -768,22 +703,7 @@ public extension String {
         let currentTime = Date().timeIntervalSince1970
         
         // 转换传入的时间戳为秒级
-        var computingTime: Double = 0
-        if let timestamp = Double(self) {
-            switch self.count {
-            case 0...10: // 秒级（<=10位都算秒）
-                computingTime = timestamp
-            case 13: // 毫秒级
-                computingTime = timestamp / 1000
-            case 16: // 微秒级
-                computingTime = timestamp / 1_000_000
-            default:
-                return "" // 非法长度
-            }
-        } else {
-            return ""
-        }
-        
+        guard let computingTime = String.wy_normalizedTimestamp(self) else { return "" }
         
         // 距离当前的时间差（秒）
         let timeDifference = Int(currentTime - computingTime)
@@ -888,21 +808,7 @@ public extension String {
         let defaultValue: WYZodiacSign = .unknown
         
         // 统一时间戳为秒
-        let timeInterval: TimeInterval
-        if let t = Double(timestamp) {
-            switch timestamp.count {
-            case 0...10: // 秒
-                timeInterval = t
-            case 13: // 毫秒
-                timeInterval = t / 1000
-            case 16: // 微秒
-                timeInterval = t / 1_000_000
-            default:
-                return defaultValue
-            }
-        } else {
-            return defaultValue
-        }
+        guard let timeInterval = wy_normalizedTimestamp(timestamp) else { return defaultValue }
         
         // 转换成 Date
         let date = Date(timeIntervalSince1970: timeInterval)
@@ -930,6 +836,22 @@ public extension String {
 }
 
 private extension String {
+    
+    /**
+     将时间戳字符串（秒、毫秒或微秒）归一化为秒级时间间隔。
+     
+     - Parameter timestamp: 时间戳字符串，支持10位（秒）、13位（毫秒）、16位（微秒）。
+     - Returns: 归一化后的秒级 TimeInterval，若转换失败或位数不支持则返回 nil。
+     */
+    static func wy_normalizedTimestamp(_ timestamp: String) -> TimeInterval? {
+        guard let t = Double(timestamp) else { return nil }
+        switch timestamp.count {
+        case 0...10: return t
+        case 13: return t / 1000
+        case 16: return t / 1_000_000
+        default: return nil
+        }
+    }
     
     /// 获取格式化后的时间格式
     func sharedTimeFormat(dateFormat: WYTimeFormat) -> String {

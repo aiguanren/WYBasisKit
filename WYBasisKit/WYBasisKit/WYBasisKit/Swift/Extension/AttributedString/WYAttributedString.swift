@@ -13,7 +13,7 @@ public extension NSMutableAttributedString {
     
     /**
      设置富文本中指定范围的颜色。
-     - Parameter colorRanges: 字典，键为颜色，值为范围定义。(支持格式详见 `wy_parseRanges(from:)` 方法注释)。
+     - Parameter colorRanges: 字典，Key为颜色，Value为范围定义(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
      - Returns: 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
@@ -30,7 +30,7 @@ public extension NSMutableAttributedString {
     
     /**
      设置富文本中指定范围的字体。
-     - Parameter fontRanges: 字典，键为字体，值为范围定义。(支持格式详见 `wy_parseRanges(from:)` 方法注释)。
+     - Parameter fontRanges: 字典，Key为字体，Value为范围定义(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
      - Returns: 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
@@ -48,7 +48,7 @@ public extension NSMutableAttributedString {
     /**
      设置富文本中指定范围的背景色
      - Parameter color:       背景色
-     - Parameter rangeValue:  范围定义，传 `nil` 则对整个富文本生效。(支持格式详见 `wy_parseRanges(from:)` 方法注释)。
+     - Parameter rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
      - Returns: 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
@@ -95,7 +95,7 @@ public extension NSMutableAttributedString {
 
      *  - Parameters:
      *    - lineSpacing: 行间距值（单位：pt）
-     *    - rangeValue:  范围定义，传 `nil` 则对整个富文本生效。(支持格式详见 `wy_parseRanges(from:)` 方法注释)。
+     *    - rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
      *    - alignment:  段落对齐方式，默认为 `.left`
      *
      *  - Returns: 当前 `NSMutableAttributedString` 对象
@@ -186,7 +186,7 @@ public extension NSMutableAttributedString {
      *
      *  - Parameters:
      *    - wordsSpacing: 字间距值（单位：pt）
-     *    - rangeValue:   范围定义，传 `nil` 则对整个富文本生效。(支持格式详见 `wy_parseRanges(from:)` 方法注释)。
+     *    - rangeValue:   范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
      *
      *  - Returns: 当前 `NSMutableAttributedString` 对象
      */
@@ -208,7 +208,7 @@ public extension NSMutableAttributedString {
      *  文本添加内边距，支持多种范围定义
      *
      *  - Parameters:
-     *    - rangeValue:  范围定义，传 `nil` 则对整个富文本生效。(支持格式详见 `wy_parseRanges(from:)` 方法注释)。
+     *    - rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
      *    - firstLineHeadIndent:  首行左边距
      *    - headIndent:  第二行及以后的左边距(换行符\n除外)
      *    - tailIndent:  尾部右边距
@@ -245,7 +245,7 @@ public extension NSMutableAttributedString {
      *
      *  - Parameters:
      *    - offset: 偏移量（单位：pt），**正值向上移动，负值向下移动**
-     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效。(支持格式详见 `wy_parseRanges(from:)` 方法注释)。
+     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
      *
      *  - Returns: 当前 `NSMutableAttributedString` 对象
      */
@@ -269,7 +269,7 @@ public extension NSMutableAttributedString {
      *
      *  - Parameters:
      *    - color:  下划线的颜色
-     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效。(支持格式详见 `wy_parseRanges(from:)` 方法注释)。
+     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
      *
      *  - Returns: 当前 `NSMutableAttributedString` 对象
      */
@@ -294,7 +294,7 @@ public extension NSMutableAttributedString {
      *
      *  - Parameters:
      *    - color:  删除线的颜色
-     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效。(支持格式详见 `wy_parseRanges(from:)` 方法注释)。
+     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
      *
      *  - Returns: 当前 `NSMutableAttributedString` 对象
      */
@@ -494,22 +494,18 @@ public extension NSMutableAttributedString {
         let textAttributes = [NSAttributedString.Key.font: textFont, NSAttributedString.Key.foregroundColor: textColor]
         return NSMutableAttributedString(string: mutableString.copy() as! String, attributes: textAttributes)
     }
-    
+
     /**
-     将任意类型/嵌套结构解析为有效的 `NSRange` 数组。
+     解析范围值，返回有效的 `NSRange` 数组。
      
-     - Parameter rangeValue: 支持以下类型，并支持任意深度嵌套与混合组合（如数组里可再包含数组、字符串、区间等）：
-     - `String`：查找子串的所有出现。
-     - `[String]`：长度为2且均为整数时视为单区间 `[起始, 长度]`，否则每个字符串作为子串查找。
-     - `[Int, Int]`：两个整数视为单区间 `[起始, 长度]`。
-     - `[NSRange]`：直接使用。
-     - 其他数组（如 `[[String]]`、`[NSRange]`、`[Int, Int]`）：递归解析每个元素，将所有结果合并。
+     支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）。
+     
      - Returns: 经过边界有效性检查并去重后的 `[NSRange]` 数组。
      */
     func wy_parseRanges(from rangeValue: Any) -> [NSRange] {
         let fullString = self.string
         let fullLength = fullString.utf16.count
-        
+
         // 递归解析函数
         func parse(_ value: Any) -> [NSRange] {
             // 1. 单个字符串 → 查找所有出现
@@ -525,60 +521,42 @@ public extension NSMutableAttributedString {
                 }
                 return ranges
             }
-            
-            // 2. 两个整数的数组 → 区间
-            if let ints = value as? [Int], ints.count == 2 {
-                let location = ints[0]
-                let length = ints[1]
-                guard location >= 0, length >= 0, location + length <= fullLength else { return [] }
-                return [NSRange(location: location, length: length)]
-            }
-            
-            // 3. 字符串数组
+
+            // 2. 字符串数组：每个字符串作为子串查找
             if let strings = value as? [String] {
-                // 长度为2且都可转为整数 → 区间
-                if strings.count == 2,
-                   let location = Int(strings[0]),
-                   let length = Int(strings[1]),
-                   location >= 0, length >= 0,
-                   location + length <= fullLength {
-                    return [NSRange(location: location, length: length)]
-                } else {
-                    // 否则每个字符串作为子串匹配
-                    var ranges: [NSRange] = []
-                    for sub in strings {
-                        ranges.append(contentsOf: parse(sub))
-                    }
-                    return ranges
+                var ranges: [NSRange] = []
+                for sub in strings {
+                    ranges.append(contentsOf: parse(sub))
                 }
+                return ranges
             }
             
+            // 3. 单个 NSRange 对象
+            if let nsRange = value as? NSRange {
+                guard nsRange.location >= 0, nsRange.length >= 0, nsRange.location + nsRange.length <= fullLength else { return [] }
+                return [nsRange]
+            }
+
             // 4. NSRange 数组
             if let nsRanges = value as? [NSRange] {
                 return nsRanges.filter {
                     $0.location >= 0 && $0.length >= 0 && $0.location + $0.length <= fullLength
                 }
             }
-            
-            // 5. 通用数组（混合类型） → 递归解析每个元素
+
+            // 5. 通用数组（混合类型`[String, NSRange]`） → 递归解析每个元素
             if let array = value as? [Any] {
                 return array.flatMap { parse($0) }
             }
-            
-            // 6. 单个 NSRange 对象
-            if let nsRange = value as? NSRange {
-                guard nsRange.location >= 0, nsRange.length >= 0, nsRange.location + nsRange.length <= fullLength else { return [] }
-                return [nsRange]
-            }
-            
+
             // 无法识别
             assertionFailure("Unsupported rangeValue type: \(type(of: value))")
             return []
         }
-        
+
         let allRanges = parse(rangeValue)
-        
-        // 内联去重（基于 location 和 length）
+
+        // 去重（基于 location 和 length）
         var uniqueRanges: [NSRange] = []
         var seen = Set<String>()
         for range in allRanges {

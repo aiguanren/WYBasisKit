@@ -15,7 +15,7 @@ import WYBasisKitSwift
     
     /**
      设置富文本中指定范围的颜色。
-     - Parameter colorRanges: 字典，键为颜色，值为范围定义。(支持格式详见 `wy_parseRanges(from:)` 方法注释)。
+     - Parameter colorRanges: 字典，Key为颜色，Value为范围定义(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
      - Returns: 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
@@ -25,7 +25,7 @@ import WYBasisKitSwift
     
     /**
      设置富文本中指定范围的字体。
-     - Parameter fontRanges: 字典，键为字体，值为范围定义。(支持格式详见 `wy_parseRanges(from:)` 方法注释)。
+     - Parameter fontRanges: 字典，Key为字体，Value为范围定义(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
      - Returns: 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
@@ -36,7 +36,7 @@ import WYBasisKitSwift
     /**
      设置富文本中指定范围的背景色
      - Parameter color:       背景色
-     - Parameter rangeValue:  范围定义，传 `nil` 则对整个富文本生效。(支持格式详见 `wy_parseRanges(from:)` 方法注释)。
+     - Parameter rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
      - Returns: 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
@@ -70,7 +70,7 @@ import WYBasisKitSwift
 
      *  - Parameters:
      *    - lineSpacing: 行间距值（单位：pt）
-     *    - rangeValue:  范围定义，传 `nil` 则对整个富文本生效。(支持格式详见 `wy_parseRanges(from:)` 方法注释)。
+     *    - rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
      *    - alignment:  段落对齐方式，默认为 `.left`
      *
      *  - Returns: 当前 `NSMutableAttributedString` 对象
@@ -119,7 +119,7 @@ import WYBasisKitSwift
      *
      *  - Parameters:
      *    - wordsSpacing: 字间距值（单位：pt）
-     *    - rangeValue:   范围定义，传 `nil` 则对整个富文本生效。(支持格式详见 `wy_parseRanges(from:)` 方法注释)。
+     *    - rangeValue:   范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
      *
      *  - Returns: 当前 `NSMutableAttributedString` 对象
      */
@@ -138,7 +138,7 @@ import WYBasisKitSwift
      *  文本添加内边距，支持多种范围定义
      *
      *  - Parameters:
-     *    - rangeValue:  范围定义，传 `nil` 则对整个富文本生效。(支持格式详见 `wy_parseRanges(from:)` 方法注释)。
+     *    - rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
      *    - firstLineHeadIndent:  首行左边距
      *    - headIndent:  第二行及以后的左边距(换行符\n除外)
      *    - tailIndent:  尾部右边距
@@ -168,7 +168,7 @@ import WYBasisKitSwift
      *
      *  - Parameters:
      *    - offset: 偏移量（单位：pt），**正值向上移动，负值向下移动**
-     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效。(支持格式详见 `wy_parseRanges(from:)` 方法注释)。
+     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
      *
      *  - Returns: 当前 `NSMutableAttributedString` 对象
      */
@@ -187,7 +187,7 @@ import WYBasisKitSwift
      *
      *  - Parameters:
      *    - color:  下划线的颜色
-     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效。(支持格式详见 `wy_parseRanges(from:)` 方法注释)。
+     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
      *
      *  - Returns: 当前 `NSMutableAttributedString` 对象
      */
@@ -206,7 +206,7 @@ import WYBasisKitSwift
      *
      *  - Parameters:
      *    - color:  删除线的颜色
-     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效。(支持格式详见 `wy_parseRanges(from:)` 方法注释)。
+     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
      *
      *  - Returns: 当前 `NSMutableAttributedString` 对象
      */
@@ -287,14 +287,10 @@ import WYBasisKitSwift
     }
     
     /**
-     将任意类型/嵌套结构解析为有效的 `NSRange` 数组。
+     解析范围值，返回有效的 `NSRange` 数组。
      
-     - Parameter rangeValue: 支持以下类型，并支持任意深度嵌套与混合组合（如数组里可再包含数组、字符串、区间等）：
-     - `String`：查找子串的所有出现。
-     - `[String]`：长度为2且均为整数时视为单区间 `[起始, 长度]`，否则每个字符串作为子串查找。
-     - `[Int, Int]`：两个整数视为单区间 `[起始, 长度]`。
-     - `[NSRange]`：直接使用。
-     - 其他数组（如 `[[String]]`、`[NSRange]`、`[Int, Int]`）：递归解析每个元素，将所有结果合并。
+     支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）。
+     
      - Returns: 经过边界有效性检查并去重后的 `[NSRange]` 数组。
      */
     @objc(wy_parseRangesWithValue:)

@@ -100,7 +100,7 @@ extension WYFlowLayoutAlignmentController: UICollectionViewDelegate, UICollectio
                     return CGSize(width: 35, height: 35)
                 }
                 
-                let testString: String = String.wy_random(minimux: 1, maximum: 20)
+                let testString: String = String.wy_random(minimum: 1, maximum: 20)
                 
                 let testFont: UIFont = .systemFont(ofSize: 15)
                 
