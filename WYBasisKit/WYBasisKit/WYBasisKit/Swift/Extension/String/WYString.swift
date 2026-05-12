@@ -853,18 +853,24 @@ private extension String {
      *  - 其他 → 秒级
      */
     static func wy_normalizedTimestamp(_ timestamp: String) -> TimeInterval? {
-        
         guard let t = Double(timestamp) else { return nil }
         
-        // 微秒级（绝对值 > 1万亿）
-        if abs(t) > 1_000_000_000_000 {
+        let absT = abs(t)
+        
+        // 微秒级时间戳通常大于1万亿（10^12），例如：1700000000000000
+        // 归一化：微秒 / 1_000_000 = 秒
+        if absT > 1_000_000_000_000 {
             return t / 1_000_000
         }
-        // 毫秒级（绝对值 > 10亿）
-        if abs(t) > 1_000_000_000 {
+        
+        // 毫秒级时间戳通常大于10亿（10^9），例如：1700000000000
+        // 归一化：毫秒 / 1000 = 秒
+        if absT > 1_000_000_000 {
             return t / 1000
         }
-        // 秒级（包括小数）
+        
+        // 秒级时间戳通常小于10亿，例如：1700000000
+        // 可直接返回，支持小数（如 1700000000.123）
         return t
     }
     
