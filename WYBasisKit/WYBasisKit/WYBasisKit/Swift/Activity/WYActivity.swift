@@ -410,7 +410,7 @@ private class WYActivityInfoView: UIView {
             
             contentLabel.textAlignment = .center
             
-            let contentSize = WYActivity.sharedLayoutSize(contentView: contentView, contentLabel: contentLabel, minimux: UIDevice.wy_screenWidth(80, WYBasisKitConfig.defaultScreenPixels), maxWidth: (contentView.frame.size.width - UIDevice.wy_screenWidth(120, WYBasisKitConfig.defaultScreenPixels)), defaultFont: config.textFont)
+            let contentSize = WYActivity.sharedLayoutSize(contentView: contentView, contentLabel: contentLabel, minimum: UIDevice.wy_screenWidth(80, WYBasisKitConfig.defaultScreenPixels), maxWidth: (contentView.frame.size.width - UIDevice.wy_screenWidth(120, WYBasisKitConfig.defaultScreenPixels)), defaultFont: config.textFont)
             
             contentLabel.frame = CGRect(x: UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels), y: UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels), width: contentSize.width, height: contentSize.height)
             contentLabel.sizeToFit()
@@ -589,7 +589,7 @@ private class WYActivityLoadingView: UIView {
                 
                 textlabel.sizeToFit()
                 
-                let textMinimux: CGFloat = frame.size.width
+                let textMinimum: CGFloat = frame.size.width
                 var textMaximum: CGFloat = 0
                 if config.numberOfLines > 0 {
                     
@@ -601,11 +601,11 @@ private class WYActivityLoadingView: UIView {
                 }else {
                     textMaximum = (contentView.frame.size.width - UIDevice.wy_screenWidth(120, WYBasisKitConfig.defaultScreenPixels))
                 }
-                textlabel.wy_width = WYActivity.sharedLayoutSize(contentView: contentView, contentLabel: textlabel, minimux: textMinimux, maxWidth: textMaximum, defaultFont: config.textFont).width
+                textlabel.wy_width = WYActivity.sharedLayoutSize(contentView: contentView, contentLabel: textlabel, minimum: textMinimum, maxWidth: textMaximum, defaultFont: config.textFont).width
                 
                 textlabel.sizeToFit()
                 
-                let controWidth = textlabel.frame.size.width < textMinimux ? textMinimux : textlabel.frame.size.width
+                let controWidth = textlabel.frame.size.width < textMinimum ? textMinimum : textlabel.frame.size.width
                 
                 var controSize = CGSize(width: controWidth + (UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels) * 2), height: frame.size.height + textlabel.frame.size.height)
                 
@@ -741,17 +741,17 @@ private extension WYActivity {
     }
     
     /// 计算文本控件最合适的宽度
-    static func sharedLayoutSize(contentView: UIView, contentLabel: UILabel, minimux: CGFloat, maxWidth: CGFloat, defaultFont: UIFont) -> CGSize {
+    static func sharedLayoutSize(contentView: UIView, contentLabel: UILabel, minimum: CGFloat, maxWidth: CGFloat, defaultFont: UIFont) -> CGSize {
         
         let textHeight = contentLabel.frame.size.height
         let textWidth = contentLabel.frame.size.width
         
-        var contentWidth = minimux;
+        var contentWidth = minimum;
         
-        if textWidth > minimux {
+        if textWidth > minimum {
             for line in 1..<(contentLabel.attributedText?.string.count ?? 0) {
                 
-                var maximum = minimux + (textHeight * CGFloat(line))
+                var maximum = minimum + (textHeight * CGFloat(line))
                 
                 if maximum > maxWidth {
                     maximum = maxWidth

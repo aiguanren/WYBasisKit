@@ -221,7 +221,7 @@
     UIImage *image_font_30 = [UIImage wy_find:@"嘴唇"];
     UIImage *image_font_40 = [UIImage wy_find:@"爱心"];
     UIImage *image_font_50 = [UIImage wy_find:@"喝彩"];
-    NSMutableAttributedString *attributed = [[NSMutableAttributedString alloc] initWithString:[[NSString wy_randomWithMinimux:10 maximum:20] stringByAppendingFormat:@"\n%@\n%@\n%@\n%@", string_font_30, string_font_40, string_font_50, [NSString wy_randomWithMinimux:10 maximum:20]]];
+    NSMutableAttributedString *attributed = [[NSMutableAttributedString alloc] initWithString:[[NSString wy_randomWithMinimum:10 maximum:20] stringByAppendingFormat:@"\n%@\n%@\n%@\n%@", string_font_30, string_font_40, string_font_50, [NSString wy_randomWithMinimum:10 maximum:20]]];
     
     NSInteger string_font_50Index = 0;
     NSRange range50 = [attributed.string rangeOfString:string_font_50];
@@ -255,10 +255,10 @@
         make.centerX.equalTo(scrollView);
         make.top.equalTo(attachmentView.mas_bottom).offset(50);
     }];
-    NSString *spacing10 = [NSString wy_randomWithMinimux:50 maximum:100];
-    NSString *spacing15 = [NSString wy_randomWithMinimux:30 maximum:80];
-    NSString *spacing30 = [NSString wy_randomWithMinimux:25 maximum:60];
-    NSString *spacing20 = [NSString wy_randomWithMinimux:80 maximum:100];
+    NSString *spacing10 = [NSString wy_randomWithMinimum:50 maximum:100];
+    NSString *spacing15 = [NSString wy_randomWithMinimum:30 maximum:80];
+    NSString *spacing30 = [NSString wy_randomWithMinimum:25 maximum:60];
+    NSString *spacing20 = [NSString wy_randomWithMinimum:80 maximum:100];
     wy_print(@"spacing10 = %@, spacing15 = %@, spacing30 = %@, spacing20 = %@", spacing10, spacing15, spacing30, spacing20);
     NSMutableAttributedString *spacingAttributed = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@\n%@\n%@\n%@", spacing10, spacing15, spacing30, spacing20]];
     [spacingAttributed wy_lineSpacing:10 beforeString:spacing10 afterString:spacing15 alignment:NSTextAlignmentLeft];
@@ -272,7 +272,7 @@
     UILabel *widthView = [[UILabel alloc] init];
     widthView.backgroundColor = [UIColor wy_random];
     widthView.font = [UIFont boldSystemFontOfSize:15];
-    widthView.text = [NSString wy_randomWithMinimux:5 maximum:20];
+    widthView.text = [NSString wy_randomWithMinimum:5 maximum:20];
     [scrollView addSubview:widthView];
     [widthView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.equalTo(scrollView);
@@ -288,7 +288,7 @@
     heightView.backgroundColor = [UIColor wy_random];
     heightView.numberOfLines = 0;
     heightView.font = [UIFont boldSystemFontOfSize:15];
-    heightView.text = [NSString wy_randomWithMinimux:150 maximum:300];
+    heightView.text = [NSString wy_randomWithMinimum:150 maximum:300];
     [scrollView addSubview:heightView];
     [heightView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.equalTo(scrollView);

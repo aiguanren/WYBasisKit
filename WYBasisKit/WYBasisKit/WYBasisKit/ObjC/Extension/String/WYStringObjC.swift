@@ -169,8 +169,8 @@ import WYBasisKitSwift
      *  @param max   最多需要多少个字符
      *
      */
-    @objc static func wy_random(minimux: Int = 1, maximum: Int = 100) -> String {
-        return String.wy_random(minimux: minimux, maximum: maximum)
+    @objc static func wy_random(minimum: Int = 1, maximum: Int = 100) -> String {
+        return String.wy_random(minimum: minimum, maximum: maximum)
     }
     
     /// String转CGFloat
@@ -336,8 +336,8 @@ import WYBasisKitSwift
     }
     
     /// 获取当前月的总天数
-    @objc static func wy_curentMonthDays() -> String {
-        return String.wy_curentMonthDays()
+    @objc static func wy_currentMonthDays() -> String {
+        return String.wy_currentMonthDays()
     }
     
     /// 时间戳转星期几

@@ -202,7 +202,7 @@ class WYTestRichTextController: UIViewController {
         let image_font_30: UIImage = UIImage.wy_find("嘴唇")
         let image_font_40: UIImage = UIImage.wy_find("爱心")
         let image_font_50: UIImage = UIImage.wy_find("喝彩")
-        let attributed: NSMutableAttributedString = NSMutableAttributedString(string: String.wy_random(minimux:10, maximum: 20) + "\n" + string_font_30  + "\n" + string_font_40  + "\n" + string_font_50  + "\n" + String.wy_random(minimux:10, maximum: 20))
+        let attributed: NSMutableAttributedString = NSMutableAttributedString(string: String.wy_random(minimum:10, maximum: 20) + "\n" + string_font_30  + "\n" + string_font_40  + "\n" + string_font_50  + "\n" + String.wy_random(minimum:10, maximum: 20))
         
         var string_font_50Index: Int = 0
         if let range = attributed.string.range(of: string_font_50) {
@@ -241,13 +241,13 @@ class WYTestRichTextController: UIViewController {
             make.top.equalTo(attachmentView.snp.bottom).offset(50)
         }
         
-        let spacing10: String = String.wy_random(minimux: 50, maximum: 100)
+        let spacing10: String = String.wy_random(minimum: 50, maximum: 100)
         
-        let spacing15: String = String.wy_random(minimux: 30, maximum: 80)
+        let spacing15: String = String.wy_random(minimum: 30, maximum: 80)
         
-        let spacing30: String = String.wy_random(minimux: 25, maximum: 60)
+        let spacing30: String = String.wy_random(minimum: 25, maximum: 60)
         
-        let spacing20: String = String.wy_random(minimux: 80, maximum: 100)
+        let spacing20: String = String.wy_random(minimum: 80, maximum: 100)
         
         WYLogManager.output("spacing10 = \(spacing10), spacing15 = \(spacing15), spacing30 = \(spacing30), spacing20 = \(spacing20)")
         
@@ -264,7 +264,7 @@ class WYTestRichTextController: UIViewController {
         let widthView: UILabel = UILabel()
         widthView.backgroundColor = .wy_random
         widthView.font = UIFont.boldSystemFont(ofSize: 15)
-        widthView.text = String.wy_random(minimux: 5, maximum: 20)
+        widthView.text = String.wy_random(minimum: 5, maximum: 20)
         scrollView.addSubview(widthView)
         widthView.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
@@ -282,7 +282,7 @@ class WYTestRichTextController: UIViewController {
         heightView.backgroundColor = .wy_random
         heightView.numberOfLines = 0
         heightView.font = UIFont.boldSystemFont(ofSize: 15)
-        heightView.text = String.wy_random(minimux: 150, maximum: 300)
+        heightView.text = String.wy_random(minimum: 150, maximum: 300)
         scrollView.addSubview(heightView)
         heightView.snp.makeConstraints { make in
             make.centerX.equalToSuperview()

@@ -29,7 +29,7 @@ class WYLogController: UIViewController {
         
         WYLogManager.output("状态栏高度 = \(UIDevice.wy_statusBarHeight)\n导航栏安全区域高度 = \(UIDevice.wy_navBarSafetyZone)\n导航栏高度 = \(UIDevice.wy_navBarHeight)\n导航视图高度（状态栏+导航栏） = \(UIDevice.wy_navViewHeight)\ntabBar安全区域高度 = \(UIDevice.wy_tabbarSafetyZone)\ntabBar高度(含安全区域高度) = \(UIDevice.wy_tabBarHeight)\n是否是全屏手机 = \(UIDevice.wy_isFullScreen)", outputMode: .alwaysConsoleAndFile)
         
-        WYLogManager.output(String.wy_random(minimux: 20, maximum: 100), outputMode: .debugConsoleAndFile)
+        WYLogManager.output(String.wy_random(minimum: 20, maximum: 100), outputMode: .debugConsoleAndFile)
         
         WYLogManager.showPreview()
     }

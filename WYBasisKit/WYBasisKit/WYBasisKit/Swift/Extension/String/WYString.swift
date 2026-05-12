@@ -162,9 +162,9 @@ public extension String {
      *  @param max   最多需要多少个字符
      *
      */
-    static func wy_random(minimux: Int = 1, maximum: Int = 100) -> String {
+    static func wy_random(minimum: Int = 1, maximum: Int = 100) -> String {
         
-        guard maximum >= minimux else { return "" }
+        guard maximum >= minimum else { return "" }
         
         let phrases = [
             "嗨",
@@ -184,7 +184,7 @@ public extension String {
         ]
         
         // 随机字符长度
-        let targetLength = Int.random(in: minimux...maximum)
+        let targetLength = Int.random(in: minimum...maximum)
         
         guard targetLength >= 1 else { return "" }
         
@@ -292,7 +292,7 @@ public extension String {
         
         /// 判断是否是纯数字
         func securityCheck(_ string: String) -> String {
-            return string.isEmpty ? "0" : self
+            return string.isEmpty ? "0" : string
         }
         
         if type == CGFloat.self {
@@ -319,17 +319,17 @@ public extension String {
         
         let sharedControlHeight = (controlHeight == 0) ? controlFont.lineHeight : controlHeight
         
-        return wy_calculategSize(controlSize: CGSize(width: .greatestFiniteMagnitude, height: sharedControlHeight), controlFont: controlFont, lineSpacing: lineSpacing, wordsSpacing: wordsSpacing).width
+        return wy_calculateSize(controlSize: CGSize(width: .greatestFiniteMagnitude, height: sharedControlHeight), controlFont: controlFont, lineSpacing: lineSpacing, wordsSpacing: wordsSpacing).width
     }
     
     /// 返回一个计算好的字符串的高度
     func wy_calculateHeight(controlWidth: CGFloat, controlFont: UIFont, lineSpacing: CGFloat = 0, wordsSpacing: CGFloat = 0) -> CGFloat {
         
-        return wy_calculategSize(controlSize: CGSize(width: controlWidth, height: .greatestFiniteMagnitude), controlFont: controlFont, lineSpacing: lineSpacing, wordsSpacing: wordsSpacing).height
+        return wy_calculateSize(controlSize: CGSize(width: controlWidth, height: .greatestFiniteMagnitude), controlFont: controlFont, lineSpacing: lineSpacing, wordsSpacing: wordsSpacing).height
     }
     
     /// 返回一个计算好的字符串的size
-    func wy_calculategSize(controlSize: CGSize, controlFont: UIFont, lineSpacing: CGFloat = 0, wordsSpacing: CGFloat = 0) -> CGSize {
+    func wy_calculateSize(controlSize: CGSize, controlFont: UIFont, lineSpacing: CGFloat = 0, wordsSpacing: CGFloat = 0) -> CGSize {
         
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = lineSpacing
@@ -370,9 +370,6 @@ public extension String {
         
         var results: [LinkItem] = []
         
-        // 记录标准链接的 range，用于后续去重（避免 www. 形式被重复提取）
-        var standardRanges: [NSRange] = []
-        
         // 尾部标点裁剪
         let trailingSet = CharacterSet(charactersIn: ".,!?;:)]}，。！？；：）】》、")
         
@@ -401,7 +398,6 @@ public extension String {
                 linkText = trimTrailing(linkText)
                 
                 results.append(LinkItem(text: linkText, range: result.range))
-                standardRanges.append(result.range)
             }
         }
         
@@ -426,7 +422,7 @@ public extension String {
         let startIndex = self.index(self.startIndex, offsetBy: from)
         let endIndex = self.index(self.startIndex, offsetBy: to)
         
-        return String(self[startIndex...endIndex])
+        return String(self[startIndex..<endIndex])
     }
     
     /// 字符串截取(从第几位往后截取几位)
@@ -443,7 +439,7 @@ public extension String {
         let startIndex = self.index(self.startIndex, offsetBy: from)
         let endIndex = self.index(self.startIndex, offsetBy: from + after)
         
-        return String(self[startIndex...endIndex])
+        return String(self[startIndex..<endIndex])
     }
     
     /**
@@ -455,7 +451,10 @@ public extension String {
     func wy_replace(appointSymbol: String ,replacement: String, useRegex: Bool = false) -> String {
         
         if (useRegex == true) {
-            let regex = try! NSRegularExpression(pattern: "[\(appointSymbol)]", options: [])
+            
+            let escaped = NSRegularExpression.escapedPattern(for: appointSymbol)
+            let regex = try! NSRegularExpression(pattern: "[\(escaped)]")
+            
             return regex.stringByReplacingMatches(in: self, options: [],
                                                   range: NSMakeRange(0, self.count),
                                                   withTemplate: replacement)
@@ -471,9 +470,17 @@ public extension String {
     
     /// 字符串去除Emoji表情(replacement:表情用什么来替换)
     func wy_replaceEmoji(_ replacement: String = "") -> String {
-        return self.unicodeScalars
-            .filter { !$0.properties.isEmojiPresentation}
-            .reduce(replacement) { $0 + String($1) }
+        return self.unicodeScalars.map { scalar -> String in
+            
+            // 判断是否 emoji（覆盖大部分情况）
+            if scalar.properties.isEmoji &&
+                (scalar.value > 0x238C || scalar.properties.isEmojiPresentation) {
+                return replacement
+            }
+            
+            return String(scalar)
+            
+        }.joined()
     }
     
     /// 将 NSRange 转换为 Swift String.Index 范围（安全转换，避免越界，比如UITextView.selectedRange 是 NSRange，它的单位是 UTF-16 的位置。 而 Swift 的 String 是基于 Unicode 标量 来索引的，一些字符（尤其是 emoji）占 2 个或更多 UTF-16 单元。如果直接用 NSRange.location/length 来切 String，Swift 会按照字符来计算索引，这就可能导致越界或者切到半个 emoji，从而引起闪退，就像你有一个尺子，一个是厘米刻度（Swift String 的索引），一个是毫米刻度（NSRange 的 UTF16 单元），直接按毫米数去量厘米会出问题。正确的方法是先把毫米换算成厘米，再去量）
@@ -508,8 +515,8 @@ public extension String {
     }
     
     /// Encode
-    func wy_encoded(escape: String = "?!@#$^&%*+,:;='\"`<>()[]{}/\\| ") -> String {
-        let characterSet = CharacterSet(charactersIn: escape).inverted
+    func wy_encoded(shouldNotEncode: String = "?!@#$^&%*+,:;='\"`<>()[]{}/\\| ") -> String {
+        let characterSet = CharacterSet(charactersIn: shouldNotEncode).inverted
         return self.addingPercentEncoding(withAllowedCharacters: characterSet) ?? self
     }
     
@@ -517,7 +524,7 @@ public extension String {
     var wy_decoded: String {
         
         // 去掉所有 "+" 符号
-        let cleaned = self.replacingOccurrences(of: "+", with: "")
+        let cleaned = self.replacingOccurrences(of: "+", with: " ")
         // 进行 URL 解码，如果失败返回原字符串
         return cleaned.removingPercentEncoding ?? self
     }
@@ -533,14 +540,11 @@ public extension String {
     /// base64解码
     var wy_base64Decoded: String {
         
-        guard let data = data(using: .utf8) else {
+        guard let decodedData = Data(base64Encoded: self) else {
             return self
         }
         
-        if let decodedData = Data(base64Encoded: data, options: Data.Base64DecodingOptions(rawValue: 0)) {
-            return String(data: decodedData, encoding: .utf8) ?? self
-        }
-        return self
+        return String(data: decodedData, encoding: .utf8) ?? self
     }
     
     /// 获取设备时间戳
@@ -593,14 +597,7 @@ public extension String {
         guard !self.isEmpty else { return "" }
         
         // 转为秒级时间戳
-        let timestamp: Double
-        if self.count <= 10, let t = Double(self) {
-            timestamp = t
-        } else if let t = Double(self) {
-            timestamp = t / 1000
-        } else {
-            return ""
-        }
+        guard let timestamp = String.wy_normalizedTimestamp(self) else { return "" }
         
         let date = Date(timeIntervalSince1970: timestamp)
         
@@ -633,9 +630,9 @@ public extension String {
         format.timeStyle = .short
         format.dateFormat = sharedTimeFormat(dateFormat: dateFormat)
         
-        let date = format.date(from: self)
+        guard let date = format.date(from: self) else { return "" }
         
-        return String(date!.timeIntervalSince1970)
+        return String(date.timeIntervalSince1970)
     }
     
     /// 获取当前的 年、月、日
@@ -646,7 +643,7 @@ public extension String {
     }
     
     /// 获取当前月的总天数
-    static func wy_curentMonthDays() -> String {
+    static func wy_currentMonthDays() -> String {
         let calendar = Calendar.current
         let range = calendar.range(of: Calendar.Component.day, in: Calendar.Component.month, for: Date())
         return "\(range!.count)"
@@ -654,24 +651,9 @@ public extension String {
     
     /// 时间戳转星期几
     var wy_whatDay: WYWhatDay {
-        // 支持 10位（秒）、13位（毫秒）、16位（微秒）时间戳
-        guard [10, 13, 16].contains(self.count),
-              let timestamp = Double(self) else {
-            return .unknown
-        }
         
         // 转换为秒级时间戳
-        let timeInterval: Double
-        switch self.count {
-        case 10:
-            timeInterval = timestamp // 秒
-        case 13:
-            timeInterval = timestamp / 1000.0 // 毫秒
-        case 16:
-            timeInterval = timestamp / 1_000_000.0 // 微秒
-        default:
-            return .unknown
-        }
+        guard let timeInterval = String.wy_normalizedTimestamp(self) else { return .unknown }
         
         let date = Date(timeIntervalSince1970: timeInterval)
         
@@ -691,71 +673,28 @@ public extension String {
      */
     static func wy_timeIntervalCycle(_ messageTimestamp: String, _ clientTimestamp: String = wy_sharedDeviceTimestamp()) -> WYTimeDistance {
         
-        // 判断输入是否合法
-        func normalize(_ ts: String) -> Double? {
-            guard let t = Double(ts) else { return nil }
-            switch ts.count {
-            case 0...10: // 秒级（<=10位都算秒）
-                return t
-            case 13: // 毫秒
-                return t / 1000
-            case 16: // 微秒
-                return t / 1_000_000
-            default:
-                return nil
-            }
-        }
-        
-        guard let messageInterval = normalize(messageTimestamp),
-              let clientInterval = normalize(clientTimestamp) else {
+        guard let msg = wy_normalizedTimestamp(messageTimestamp),
+              let client = wy_normalizedTimestamp(clientTimestamp) else {
             return .unknown
         }
-        
-        // 选择参考时间（取消息时间或客户端时间）
-        let referenceDate = (messageInterval <= 0 || messageInterval >= clientInterval)
-        ? Date(timeIntervalSince1970: clientInterval)
-        : Date(timeIntervalSince1970: messageInterval)
-        
-        let calendar = Calendar(identifier: .iso8601)
-        let componentsSet: Set<Calendar.Component> = [.year, .month, .day]
-        
-        func dateComponents(daysAgo: Int) -> DateComponents {
-            let date = Calendar.current.date(byAdding: .day, value: -daysAgo, to: referenceDate) ?? referenceDate
-            return calendar.dateComponents(componentsSet, from: date)
+        let calendar = Calendar.current
+        let msgDate = Date(timeIntervalSince1970: msg)
+        let clientDate = Date(timeIntervalSince1970: client)
+        let days = calendar.dateComponents([.day], from: msgDate, to: clientDate).day ?? 0
+        switch days {
+        case 0: return .today
+        case 1: return .yesterday
+        case 2: return .yesterdayBefore
+        case 3...6: return .withinWeek
+        default:
+            if calendar.isDate(msgDate, equalTo: clientDate, toGranularity: .month) {
+                return .withinSameMonth
+            } else if calendar.isDate(msgDate, equalTo: clientDate, toGranularity: .year) {
+                return .withinSameYear
+            } else {
+                return .unknown
+            }
         }
-        
-        let today = dateComponents(daysAgo: 0)
-        let aDayAgo = dateComponents(daysAgo: 1)
-        let twoDaysAgo = dateComponents(daysAgo: 2)
-        let threeDaysAgo = dateComponents(daysAgo: 3)
-        let fourDaysAgo = dateComponents(daysAgo: 4)
-        let fiveDaysAgo = dateComponents(daysAgo: 5)
-        let sixDaysAgo = dateComponents(daysAgo: 6)
-        
-        let clientComponents = calendar.dateComponents(componentsSet, from: Date(timeIntervalSince1970: clientInterval))
-        
-        func isSameDay(_ comp1: DateComponents, _ comp2: DateComponents) -> Bool {
-            return comp1.year == comp2.year && comp1.month == comp2.month && comp1.day == comp2.day
-        }
-        
-        if isSameDay(clientComponents, today) { return .today }
-        if isSameDay(clientComponents, aDayAgo) { return .yesterday }
-        if isSameDay(clientComponents, twoDaysAgo) { return .yesterdayBefore }
-        
-        if isSameDay(clientComponents, threeDaysAgo) || isSameDay(clientComponents, fourDaysAgo)
-            || isSameDay(clientComponents, fiveDaysAgo) || isSameDay(clientComponents, sixDaysAgo) {
-            return .withinWeek
-        }
-        
-        if clientComponents.year == twoDaysAgo.year && clientComponents.month == twoDaysAgo.month {
-            return .withinSameMonth
-        }
-        
-        if clientComponents.year == twoDaysAgo.year {
-            return .withinSameYear
-        }
-        
-        return .unknown
     }
     
     /**
@@ -768,33 +707,18 @@ public extension String {
         let currentTime = Date().timeIntervalSince1970
         
         // 转换传入的时间戳为秒级
-        var computingTime: Double = 0
-        if let timestamp = Double(self) {
-            switch self.count {
-            case 0...10: // 秒级（<=10位都算秒）
-                computingTime = timestamp
-            case 13: // 毫秒级
-                computingTime = timestamp / 1000
-            case 16: // 微秒级
-                computingTime = timestamp / 1_000_000
-            default:
-                return "" // 非法长度
-            }
-        } else {
-            return ""
-        }
-        
+        guard let computingTime = String.wy_normalizedTimestamp(self) else { return "" }
         
         // 距离当前的时间差（秒）
         let timeDifference = Int(currentTime - computingTime)
         
         // 秒转分钟
-        let second = timeDifference / 60
-        if (second <= 0) {
+        let minutes = timeDifference / 60
+        if (minutes <= 0) {
             return WYLocalized("刚刚", table: WYBasisKitConfig.kitLocalizableTable)
         }
-        if second < 60 {
-            return String(format: WYLocalized("X分钟前", table: WYBasisKitConfig.kitLocalizableTable), "\(second)")
+        if minutes < 60 {
+            return String(format: WYLocalized("X分钟前", table: WYBasisKitConfig.kitLocalizableTable), "\(minutes)")
         }
         
         // 秒转小时
@@ -888,21 +812,7 @@ public extension String {
         let defaultValue: WYZodiacSign = .unknown
         
         // 统一时间戳为秒
-        let timeInterval: TimeInterval
-        if let t = Double(timestamp) {
-            switch timestamp.count {
-            case 0...10: // 秒
-                timeInterval = t
-            case 13: // 毫秒
-                timeInterval = t / 1000
-            case 16: // 微秒
-                timeInterval = t / 1_000_000
-            default:
-                return defaultValue
-            }
-        } else {
-            return defaultValue
-        }
+        guard let timeInterval = wy_normalizedTimestamp(timestamp) else { return defaultValue }
         
         // 转换成 Date
         let date = Date(timeIntervalSince1970: timeInterval)
@@ -930,6 +840,33 @@ public extension String {
 }
 
 private extension String {
+    
+    /**
+     *  将时间戳字符串归一化为秒级时间间隔
+     *
+     *  @param timestamp 时间戳字符串，支持秒、毫秒、微秒 （支持包含小数的时间戳）
+     *  @return 归一化后的秒级 TimeInterval，若转换失败则返回 nil
+     *
+     *  判断逻辑：通过数值大小自动识别精度
+     *  - 绝对值 > 1_000_000_000_000 → 微秒级
+     *  - 绝对值 > 1_000_000_000 → 毫秒级
+     *  - 其他 → 秒级
+     */
+    static func wy_normalizedTimestamp(_ timestamp: String) -> TimeInterval? {
+        
+        guard let t = Double(timestamp) else { return nil }
+        
+        // 微秒级（绝对值 > 1万亿）
+        if abs(t) > 1_000_000_000_000 {
+            return t / 1_000_000
+        }
+        // 毫秒级（绝对值 > 10亿）
+        if abs(t) > 1_000_000_000 {
+            return t / 1000
+        }
+        // 秒级（包括小数）
+        return t
+    }
     
     /// 获取格式化后的时间格式
     func sharedTimeFormat(dateFormat: WYTimeFormat) -> String {

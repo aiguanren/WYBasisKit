@@ -41,7 +41,7 @@
                   UIDevice.wy_tabBarHeight,
                   UIDevice.wy_isFullScreen);
     
-    wy_printWithMode([NSString wy_randomWithMinimux:20 maximum:100], WYLogOutputModeDebugConsoleAndFile);
+    wy_printWithMode([NSString wy_randomWithMinimum:20 maximum:100], WYLogOutputModeDebugConsoleAndFile);
     
     [WYLogManager showPreview];
 }
