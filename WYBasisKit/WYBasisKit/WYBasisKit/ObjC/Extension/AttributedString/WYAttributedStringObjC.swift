@@ -15,7 +15,7 @@ import WYBasisKitSwift
     
     /**
      设置富文本中指定范围的颜色。
-     - Parameter colorRanges: 字典，Key为颜色，Value为范围定义(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
+     - Parameter colorRanges: 字典，Key为颜色，Value为范围定义(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
      - Returns: 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
@@ -25,7 +25,7 @@ import WYBasisKitSwift
     
     /**
      设置富文本中指定范围的字体。
-     - Parameter fontRanges: 字典，Key为字体，Value为范围定义(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
+     - Parameter fontRanges: 字典，Key为字体，Value为范围定义(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
      - Returns: 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
@@ -36,7 +36,7 @@ import WYBasisKitSwift
     /**
      设置富文本中指定范围的背景色
      - Parameter color:       背景色
-     - Parameter rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
+     - Parameter rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
      - Returns: 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
@@ -70,7 +70,7 @@ import WYBasisKitSwift
 
      *  - Parameters:
      *    - lineSpacing: 行间距值（单位：pt）
-     *    - rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
+     *    - rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
      *    - alignment:  段落对齐方式，默认为 `.left`
      *
      *  - Returns: 当前 `NSMutableAttributedString` 对象
@@ -119,7 +119,7 @@ import WYBasisKitSwift
      *
      *  - Parameters:
      *    - wordsSpacing: 字间距值（单位：pt）
-     *    - rangeValue:   范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
+     *    - rangeValue:   范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
      *
      *  - Returns: 当前 `NSMutableAttributedString` 对象
      */
@@ -138,7 +138,7 @@ import WYBasisKitSwift
      *  文本添加内边距，支持多种范围定义
      *
      *  - Parameters:
-     *    - rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
+     *    - rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
      *    - firstLineHeadIndent:  首行左边距
      *    - headIndent:  第二行及以后的左边距(换行符\n除外)
      *    - tailIndent:  尾部右边距
@@ -168,7 +168,7 @@ import WYBasisKitSwift
      *
      *  - Parameters:
      *    - offset: 偏移量（单位：pt），**正值向上移动，负值向下移动**
-     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
+     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
      *
      *  - Returns: 当前 `NSMutableAttributedString` 对象
      */
@@ -187,7 +187,7 @@ import WYBasisKitSwift
      *
      *  - Parameters:
      *    - color:  下划线的颜色
-     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
+     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
      *
      *  - Returns: 当前 `NSMutableAttributedString` 对象
      */
@@ -206,7 +206,7 @@ import WYBasisKitSwift
      *
      *  - Parameters:
      *    - color:  删除线的颜色
-     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
+     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
      *
      *  - Returns: 当前 `NSMutableAttributedString` 对象
      */
@@ -287,11 +287,11 @@ import WYBasisKitSwift
     }
     
     /**
-     解析范围值，返回有效的 `NSRange` 数组。
+     解析范围值，返回有效的 `NSRange(NSValue包装)` 数组。
      
-     支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）。
+     支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）。
      
-     - Returns: 经过边界有效性检查并去重后的 `[NSRange]` 数组。
+     - Returns: 经过边界有效性检查并去重后的 `[NSRange(NSValue包装)]` 数组。
      */
     @objc(wy_parseRangesWithValue:)
     func wy_parseRangesObjC(_ rangeValue: Any) -> [NSValue] {
