@@ -94,7 +94,7 @@ public extension NSMutableAttributedString {
     
     /**
      *  设置行间距，支持多种范围定义
-
+     
      *  - Parameters:
      *    - lineSpacing: 行间距值（单位：pt）
      *    - rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
@@ -512,7 +512,7 @@ public extension NSMutableAttributedString {
         let textAttributes = [NSAttributedString.Key.font: textFont, NSAttributedString.Key.foregroundColor: textColor]
         return NSMutableAttributedString(string: mutableString.copy() as! String, attributes: textAttributes)
     }
-
+    
     /**
      解析范围值，返回有效的 `NSRange` 数组。
      
@@ -526,7 +526,7 @@ public extension NSMutableAttributedString {
         let fullLength = fullString.utf16.count
         
         guard fullLength > 0 else { return [] }
-
+        
         // 递归解析函数
         func parse(_ value: Any) -> [NSRange] {
             // 1. 单个字符串 → 查找所有出现
@@ -542,7 +542,7 @@ public extension NSMutableAttributedString {
                 }
                 return ranges
             }
-
+            
             // 2. 字符串数组：每个字符串作为子串查找
             if let strings = value as? [String] {
                 var ranges: [NSRange] = []
@@ -557,26 +557,26 @@ public extension NSMutableAttributedString {
                 guard nsRange.location >= 0, nsRange.length >= 0, nsRange.location + nsRange.length <= fullLength else { return [] }
                 return [nsRange]
             }
-
+            
             // 4. NSRange 数组
             if let nsRanges = value as? [NSRange] {
                 return nsRanges.filter {
                     $0.location >= 0 && $0.length >= 0 && $0.location + $0.length <= fullLength
                 }
             }
-
+            
             // 5. 通用数组（混合类型`[String, NSRange]`） → 递归解析每个元素
             if let array = value as? [Any] {
                 return array.flatMap { parse($0) }
             }
-
+            
             // 无法识别
             assertionFailure("Unsupported rangeValue type: \(type(of: value))")
             return []
         }
-
+        
         let allRanges = parse(rangeValue)
-
+        
         // 去重（基于 location 和 length）
         var uniqueRanges: [NSRange] = []
         var seen = Set<String>()
@@ -609,6 +609,156 @@ public extension NSAttributedString {
         let attributedSize = boundingRect(with: controlSize, options: [.truncatesLastVisibleLine, .usesLineFragmentOrigin, .usesFontLeading], context: nil)
         
         return CGSize(width: ceil(attributedSize.width), height: ceil(attributedSize.height))
+    }
+    
+    /**
+     *  获取指定`string`的frame(为保证计算准确，请尽可能将用到的属性如`numberOfLines`,`alignment`,`lineSpacing`,`wordsSpacing`、`font`、`lineBreakMode`,`内边距`,`基线偏移`等通过富文本设置详细/完整)
+     *
+     *  - Parameters:
+     *    - rangeValue: 范围定义(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
+     *    - controlSize: 文本控件的宽度和高度(`controlSize.width` 和 `controlSize.height`至少要保证传入一个)
+     *
+     *  - Note:
+     *    1. 当 `controlSize.width` 或 `controlSize.height` 传 `0` 时，会自动将其设置为 `CGFloat.greatestFiniteMagnitude`（无限大，`CGFloat.greatestFiniteMagnitude` 是 Swift 中的写法，对应 OC 中的 `CGFLOAT_MAX`），
+     *       此时该方向在布局时不会受到尺寸限制，但仍会受到 `numberOfLines` 和 `lineBreakMode` 等富文本属性的影响。
+     *       例如：
+     *         - `controlSize = CGSize(width: 200, height: 0)` → 高度无限，但若设置了 `numberOfLines = 2`，则仍会按2行截断
+     *         - `controlSize = CGSize(width: 0, height: 50)` → 宽度无限，文本不会换行，但高度限制50pt仍会生效
+     *    2. 如果 `controlSize.height` 或 `controlSize.width` 有具体限定值（即传入了大于 `0` 的具体数值），则必须传入准确的值，以确保计算结果的正确性。若因尺寸限制导致目标文本被截断，则只会返回可见部分的矩形区域。
+     *
+     *  - Returns: 文本矩形区域信息
+     */
+    func wy_calculateFrame(rangeValue: Any, controlSize: CGSize) -> WYTextBoundingInfos {
+        
+        // 处理宽度或高度为 0 的情况，自动设置为无限大
+        var finalControlSize = controlSize
+        if finalControlSize.width == 0 {
+            finalControlSize.width = .greatestFiniteMagnitude
+        }
+        if finalControlSize.height == 0 {
+            finalControlSize.height = .greatestFiniteMagnitude
+        }
+        
+        // 空字符串处理
+        guard !string.isEmpty else {
+            let valueStyle: WYTextBoundingInfos.WYTextBoundingInfoValueStyle
+            switch rangeValue {
+            case is String:
+                valueStyle = .string
+            case is NSRange:
+                valueStyle = .range
+            case is [String]:
+                valueStyle = .stringArray
+            case is [NSRange]:
+                valueStyle = .rangeArray
+            default:
+                valueStyle = .stringAndRange
+            }
+            return WYTextBoundingInfos(valueStyle: valueStyle, boundingRect: nil, boundingRects: nil)
+        }
+        
+        // 创建 TextKit 组件
+        let textStorage = NSTextStorage(attributedString: self)
+        let layoutManager = NSLayoutManager()
+        textStorage.addLayoutManager(layoutManager)
+        
+        let textContainer = NSTextContainer(size: finalControlSize)
+        textContainer.lineFragmentPadding = 0
+        textContainer.maximumNumberOfLines = 0  // 行数限制由富文本属性中的 paragraphStyle.lineBreakMode 决定
+        layoutManager.addTextContainer(textContainer)
+        
+        // 强制布局
+        layoutManager.ensureLayout(for: textContainer)
+        
+        // 解析范围
+        let mutableAttr = NSMutableAttributedString(attributedString: self)
+        let ranges = mutableAttr.wy_parseRanges(from: rangeValue)
+        
+        // 去重并排序
+        let uniqueRanges = ranges.sorted { $0.location < $1.location }
+        
+        // 判断输入类型
+        let valueStyle: WYTextBoundingInfos.WYTextBoundingInfoValueStyle
+        let isCollectionInput: Bool
+        switch rangeValue {
+        case is String:
+            valueStyle = .string
+            isCollectionInput = false
+        case is NSRange:
+            valueStyle = .range
+            isCollectionInput = false
+        case is [String]:
+            valueStyle = .stringArray
+            isCollectionInput = true
+        case is [NSRange]:
+            valueStyle = .rangeArray
+            isCollectionInput = true
+        default:
+            valueStyle = .stringAndRange
+            isCollectionInput = true
+        }
+        
+        // 获取单个范围的所有矩形（处理换行）
+        func getBoundingRects(for range: NSRange) -> [WYTextBoundingRects] {
+            guard range.length > 0 else { return [] }
+            
+            var boundingRects: [WYTextBoundingRects] = []
+            
+            // 获取字符范围对应的 glyph 范围
+            let glyphRange = layoutManager.glyphRange(forCharacterRange: range, actualCharacterRange: nil)
+            
+            // 枚举每一行片段
+            layoutManager.enumerateLineFragments(forGlyphRange: glyphRange) { lineRect, usedRect, textContainer, glyphRangeForLine, stop in
+                // 计算当前行与目标范围重叠的部分
+                let intersectionGlyphRange = NSIntersectionRange(glyphRange, glyphRangeForLine)
+                if intersectionGlyphRange.length > 0 {
+                    let boundingRect = layoutManager.boundingRect(forGlyphRange: intersectionGlyphRange,
+                                                                  in: textContainer)
+                    // 获取当前行对应的字符串片段和 range
+                    let charRange = layoutManager.characterRange(forGlyphRange: intersectionGlyphRange,
+                                                                 actualGlyphRange: nil)
+                    let lineString = (self.string as NSString).substring(with: charRange)
+                    
+                    let rectInfo = WYTextBoundingRects(rect: boundingRect,
+                                                       string: lineString,
+                                                       range: charRange)
+                    boundingRects.append(rectInfo)
+                }
+            }
+            
+            return boundingRects
+        }
+        
+        if isCollectionInput {
+            // 集合输入：每个范围对应一个矩形数组（每个数组内可能包含多个矩形，因为换行）
+            var allBoundingRects: [[WYTextBoundingRects]] = []
+            
+            for range in uniqueRanges {
+                let rects = getBoundingRects(for: range)
+                if !rects.isEmpty {
+                    allBoundingRects.append(rects)
+                } else {
+                    // 空范围（可能被截断或不存在）
+                    allBoundingRects.append([])
+                }
+            }
+            
+            return WYTextBoundingInfos(valueStyle: valueStyle,
+                                       boundingRect: nil,
+                                       boundingRects: allBoundingRects)
+        } else {
+            // 单个输入：返回该范围对应的所有矩形（可能有多个，因为换行）
+            var allBoundingRects: [WYTextBoundingRects] = []
+            
+            for range in uniqueRanges {
+                let rects = getBoundingRects(for: range)
+                allBoundingRects.append(contentsOf: rects)
+            }
+            
+            return WYTextBoundingInfos(valueStyle: valueStyle,
+                                       boundingRect: allBoundingRects.isEmpty ? nil : allBoundingRects,
+                                       boundingRects: nil)
+        }
     }
     
     /// 获取每行显示的字符串(为了计算准确，尽量将使用到的属性如字间距、缩进、换行模式、字体等设置到调用本方法的attributedString对象中来, 没有用到的直接忽略)
@@ -694,6 +844,59 @@ public struct WYImageAttachmentOption {
         self.offsetY = offsetY
         self.spacingBefore = spacingBefore
         self.spacingAfter = spacingAfter
+    }
+}
+
+/// 文本矩形区域信息
+public struct WYTextBoundingRects {
+    
+    /// 矩形区域
+    public let rect: CGRect
+    
+    /// 矩形对应的字符串
+    public let string: String
+    
+    /// 矩形对应的字符串范围
+    public let range: NSRange
+    
+    /// 初始化方法
+    public init(rect: CGRect, string: String, range: NSRange) {
+        self.rect = rect
+        self.string = string
+        self.range = range
+    }
+}
+
+public struct WYTextBoundingInfos {
+    
+    /// 返回值类型(枚举)
+    @frozen public enum WYTextBoundingInfoValueStyle: Int {
+        /// 单个文本 String
+        case string = 0
+        /// 单个区间 NSRange
+        case range
+        /// 文本数组 [String]
+        case stringArray
+        /// 区间数组 [NSRange]
+        case rangeArray
+        /// 文本与区间组合数组 [String, NSRange]
+        case stringAndRange
+    }
+    
+    /// 返回值具体类型
+    public let valueStyle: WYTextBoundingInfoValueStyle
+    
+    /// String或NSRange对应的BoundingRects(因为单个文本可能也会存在换行显示，所以这里用数组来返回)
+    public let boundingRect: [WYTextBoundingRects]?
+    
+    /// [String]或[NSRange]或[String,NSRange]对应的BoundingRects(因为单个文本可能也会存在换行显示，所以这里用数组来组合返回)
+    public let boundingRects: [[WYTextBoundingRects]]?
+    
+    /// 初始化方法
+    public init(valueStyle: WYTextBoundingInfoValueStyle, boundingRect: [WYTextBoundingRects]?, boundingRects: [[WYTextBoundingRects]]?) {
+        self.valueStyle = valueStyle
+        self.boundingRect = boundingRect
+        self.boundingRects = boundingRects
     }
 }
 
