@@ -82,6 +82,8 @@ public extension NSMutableAttributedString {
     @discardableResult
     func wy_setLineBreakMode(_ lineBreakMode: NSLineBreakMode = .byTruncatingTail) -> NSMutableAttributedString {
         
+        guard self.length > 0 else { return self }
+        
         let fullRange = NSRange(location: 0, length: self.length)
         let paragraphStyle = wy_paragraphStyle(at: fullRange)
         paragraphStyle.lineBreakMode = lineBreakMode
@@ -102,6 +104,9 @@ public extension NSMutableAttributedString {
      */
     @discardableResult
     func wy_lineSpacing(_ lineSpacing: CGFloat, rangeValue: Any? = nil, alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
+        
+        guard self.length > 0 else { return self }
+        
         let ranges: [NSRange]
         if let value = rangeValue {
             ranges = wy_parseRanges(from: value)
@@ -136,6 +141,8 @@ public extension NSMutableAttributedString {
                         beforeString: String,
                         afterString: String,
                         alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
+        
+        guard self.length > 0 else { return self }
         
         guard lineSpacing > 0,
               !beforeString.isEmpty,
@@ -192,6 +199,9 @@ public extension NSMutableAttributedString {
      */
     @discardableResult
     func wy_wordsSpacing(_ wordsSpacing: CGFloat, rangeValue: Any? = nil) -> NSMutableAttributedString {
+        
+        guard self.length > 0 else { return self }
+        
         let ranges: [NSRange]
         if let value = rangeValue {
             ranges = wy_parseRanges(from: value)
@@ -223,6 +233,8 @@ public extension NSMutableAttributedString {
                         tailIndent: CGFloat = 0,
                         alignment: NSTextAlignment = .justified) -> NSMutableAttributedString {
         
+        guard self.length > 0 else { return self }
+        
         let ranges: [NSRange]
         if let value = rangeValue {
             ranges = wy_parseRanges(from: value)
@@ -252,6 +264,8 @@ public extension NSMutableAttributedString {
     @discardableResult
     func wy_baseline(offset: CGFloat, rangeValue: Any? = nil) -> NSMutableAttributedString {
         
+        guard self.length > 0 else { return self }
+        
         let ranges: [NSRange]
         if let value = rangeValue {
             ranges = wy_parseRanges(from: value)
@@ -275,6 +289,8 @@ public extension NSMutableAttributedString {
      */
     @discardableResult
     func wy_underline(color: UIColor, rangeValue: Any? = nil) -> NSMutableAttributedString {
+        
+        guard self.length > 0 else { return self }
         
         let ranges: [NSRange]
         if let value = rangeValue {
@@ -300,6 +316,8 @@ public extension NSMutableAttributedString {
      */
     @discardableResult
     func wy_strikethrough(color: UIColor, rangeValue: Any? = nil) -> NSMutableAttributedString {
+        
+        guard self.length > 0 else { return self }
         
         let ranges: [NSRange]
         if let value = rangeValue {
@@ -503,8 +521,11 @@ public extension NSMutableAttributedString {
      - Returns: 经过边界有效性检查并去重后的 `[NSRange]` 数组。
      */
     func wy_parseRanges(from rangeValue: Any) -> [NSRange] {
+        
         let fullString = self.string
         let fullLength = fullString.utf16.count
+        
+        guard fullLength > 0 else { return [] }
 
         // 递归解析函数
         func parse(_ value: Any) -> [NSRange] {
@@ -719,6 +740,14 @@ private extension NSMutableAttributedString {
      *
      */
     func wy_paragraphStyle(at range: NSRange) -> NSMutableParagraphStyle {
+        
+        // 空字符串或越界时直接返回新实例
+        guard self.length > 0,
+              range.location >= 0,
+              range.location < self.length else {
+            return NSMutableParagraphStyle()
+        }
+        
         if let existingStyle = self.attribute(.paragraphStyle, at: range.location, effectiveRange: nil) as? NSParagraphStyle,
            let mutableStyle = existingStyle.mutableCopy() as? NSMutableParagraphStyle {
             return mutableStyle
