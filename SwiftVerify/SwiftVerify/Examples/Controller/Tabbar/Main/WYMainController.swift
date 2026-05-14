@@ -34,6 +34,8 @@ class WYMainController: UIViewController {
         ListItem(title: "富文本",
                  controller: "WYTestRichTextController"),
         
+        ListItem(title: "富文本点击与Frame", controller: "WYTestRichClickAndFrameController"),
+        
         ListItem(title: "无限层折叠TableView",
                  controller: "WYMultilevelTableViewController"),
         
