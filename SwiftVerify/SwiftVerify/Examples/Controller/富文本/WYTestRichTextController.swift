@@ -83,7 +83,6 @@ class WYTestRichTextController: UIViewController {
         }
         
         label.layoutIfNeeded()
-        WYLogManager.output("每行显示的分别是 \(String(describing: label.attributedText?.wy_stringPerLine(controlSize: label.frame.size, includeTruncation: true))), 一共 \(String(describing: label.attributedText?.wy_numberOfRows(controlWidth: label.wy_width))) 行")
         
         let attachmentView: UILabel = UILabel()
         attachmentView.font = UIFont.systemFont(ofSize: 15)

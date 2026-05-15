@@ -316,16 +316,6 @@ import WYBasisKitSwift
     @objc func wy_calculateSizeWith(controlSize: CGSize) -> CGSize {
         return wy_calculateSize(controlSize: controlSize)
     }
-    
-    /// 获取每行显示的字符串(为了计算准确，尽量将使用到的属性如字间距、缩进、换行模式、字体等设置到调用本方法的attributedString对象中来, 没有用到的直接忽略)
-    @objc func wy_stringPerLineWith(controlWidth: CGFloat) -> [String] {
-        return wy_stringPerLine(controlWidth: controlWidth)
-    }
-    
-    /// 判断字符串显示完毕需要几行(为了计算准确，尽量将使用到的属性如字间距、缩进、换行模式、字体等设置到调用本方法的attributedString对象中来, 没有用到的直接忽略)
-    @objc func wy_numberOfRowsWith(controlWidth: CGFloat) -> Int {
-        return wy_numberOfRows(controlWidth: controlWidth)
-    }
 }
 
 @objcMembers public class WYTextAttachmentObjC: NSTextAttachment {

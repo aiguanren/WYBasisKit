@@ -611,7 +611,8 @@ public class WYChatInputView: UIImageView {
     
     func updateTextViewOffset() {
         if textView.attributedText.string.utf16.count > 0 {
-            if textView.attributedText.wy_numberOfRows(controlWidth: textView.wy_width) <= 1 {
+            
+            if textView.wy_height <= (textView.font?.lineHeight ?? 0) * 1.25 {
                 textView.contentOffset = CGPoint(x: 0, y: 0)
             }else {
                 textView.contentOffset = CGPoint(x: 0, y: textView.contentSize.height - textView.wy_height)

@@ -198,7 +198,9 @@
             CGFloat testHeight = 35;
             if (stringWidth > maxWidth) {
                 NSInteger layoutLine = [self wy_collectionView:collectionView layout:collectionViewLayout itemNumberOfLinesForSection:indexPath.section];
-                NSInteger textLine = [attributedString wy_numberOfRowsWithControlWidth:maxWidth];
+                
+                CGFloat contentHeight = [attributedString wy_calculateHeightWithControlWidth:maxWidth];
+                CGFloat textLine = contentHeight / testFont.lineHeight;
                 
                 if (layoutLine == 0) {
                     testHeight = textLine * (testFont.lineHeight + lineSpacing) - lineSpacing;

@@ -218,9 +218,6 @@
     
     // 打印行信息
     [label layoutIfNeeded];
-    NSArray *lines = [label.attributedText wy_stringPerLineWithControlSize:label.frame.size numberOfLines:0 includeTruncation:YES];
-    NSInteger numberOfRows = [label.attributedText wy_numberOfRowsWithControlWidth:label.wy_width];
-    wy_print(@"每行显示的分别是 %@, 一共 %ld 行", lines, (long)numberOfRows);
 }
 
 - (void)dealloc {

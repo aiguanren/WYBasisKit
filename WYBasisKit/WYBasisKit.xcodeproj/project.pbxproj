@@ -21,7 +21,6 @@
 		583E04EE2E8644DD004F1034 /* WYCollectionViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04ED2E8644DD004F1034 /* WYCollectionViewObjC.swift */; };
 		583E04F02E867100004F1034 /* WYTableViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04EF2E867100004F1034 /* WYTableViewObjC.swift */; };
 		583E04F22E868138004F1034 /* WYColorObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04F12E868138004F1034 /* WYColorObjC.swift */; };
-		583E04F42E8684F3004F1034 /* WYLabelObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04F32E8684F3004F1034 /* WYLabelObjC.swift */; };
 		583E04F62E868708004F1034 /* WYNavigationControllerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04F52E868708004F1034 /* WYNavigationControllerObjC.swift */; };
 		583E04F82E869051004F1034 /* WYTextFieldObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04F72E869051004F1034 /* WYTextFieldObjC.swift */; };
 		583E04FA2E8690D1004F1034 /* WYWebViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04F92E8690D1004F1034 /* WYWebViewObjC.swift */; };
@@ -111,7 +110,6 @@
 		58C68DEE2E84E436005FD054 /* WYObjectObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68C6D2E84E436005FD054 /* WYObjectObjC.swift */; };
 		58C68DEF2E84E436005FD054 /* WYAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68D052E84E436005FD054 /* WYAlertController.swift */; };
 		58C68DF02E84E436005FD054 /* WYChatCallCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68D482E84E436005FD054 /* WYChatCallCell.swift */; };
-		58C68DF12E84E436005FD054 /* WYLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68D152E84E436005FD054 /* WYLabel.swift */; };
 		58C68DF22E84E436005FD054 /* WYEmojiPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68D382E84E436005FD054 /* WYEmojiPreviewView.swift */; };
 		58C68DF32E84E436005FD054 /* WYMediaPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68D6A2E84E436005FD054 /* WYMediaPlayer.swift */; };
 		58C68DF42E84E436005FD054 /* WYCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68D0B2E84E436005FD054 /* WYCollectionView.swift */; };
@@ -195,7 +193,6 @@
 		583E04ED2E8644DD004F1034 /* WYCollectionViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCollectionViewObjC.swift; sourceTree = "<group>"; };
 		583E04EF2E867100004F1034 /* WYTableViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTableViewObjC.swift; sourceTree = "<group>"; };
 		583E04F12E868138004F1034 /* WYColorObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYColorObjC.swift; sourceTree = "<group>"; };
-		583E04F32E8684F3004F1034 /* WYLabelObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLabelObjC.swift; sourceTree = "<group>"; };
 		583E04F52E868708004F1034 /* WYNavigationControllerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNavigationControllerObjC.swift; sourceTree = "<group>"; };
 		583E04F72E869051004F1034 /* WYTextFieldObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTextFieldObjC.swift; sourceTree = "<group>"; };
 		583E04F92E8690D1004F1034 /* WYWebViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYWebViewObjC.swift; sourceTree = "<group>"; };
@@ -330,7 +327,6 @@
 		58C68D0F2E84E436005FD054 /* WYDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYDevice.swift; sourceTree = "<group>"; };
 		58C68D112E84E436005FD054 /* WYFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYFont.swift; sourceTree = "<group>"; };
 		58C68D132E84E436005FD054 /* WYImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYImage.swift; sourceTree = "<group>"; };
-		58C68D152E84E436005FD054 /* WYLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLabel.swift; sourceTree = "<group>"; };
 		58C68D172E84E436005FD054 /* WYNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNavigationController.swift; sourceTree = "<group>"; };
 		58C68D192E84E436005FD054 /* WYScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYScrollView.swift; sourceTree = "<group>"; };
 		58C68D1B2E84E436005FD054 /* WYTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTableView.swift; sourceTree = "<group>"; };
@@ -797,14 +793,6 @@
 			path = UIImage;
 			sourceTree = "<group>";
 		};
-		58C68C802E84E436005FD054 /* UILabel */ = {
-			isa = PBXGroup;
-			children = (
-				583E04F32E8684F3004F1034 /* WYLabelObjC.swift */,
-			);
-			path = UILabel;
-			sourceTree = "<group>";
-		};
 		58C68C812E84E436005FD054 /* UINavigationController */ = {
 			isa = PBXGroup;
 			children = (
@@ -887,7 +875,6 @@
 				58C68C7B2E84E436005FD054 /* UIDevice */,
 				58C68C7D2E84E436005FD054 /* UIFont */,
 				58C68C7F2E84E436005FD054 /* UIImage */,
-				58C68C802E84E436005FD054 /* UILabel */,
 				58C68C812E84E436005FD054 /* UINavigationController */,
 				58C68C832E84E436005FD054 /* UIScrollView */,
 				58C68C842E84E436005FD054 /* UITableView */,
@@ -1541,14 +1528,6 @@
 			path = UIImage;
 			sourceTree = "<group>";
 		};
-		58C68D162E84E436005FD054 /* UILabel */ = {
-			isa = PBXGroup;
-			children = (
-				58C68D152E84E436005FD054 /* WYLabel.swift */,
-			);
-			path = UILabel;
-			sourceTree = "<group>";
-		};
 		58C68D182E84E436005FD054 /* UINavigationController */ = {
 			isa = PBXGroup;
 			children = (
@@ -1632,7 +1611,6 @@
 				58C68D102E84E436005FD054 /* UIDevice */,
 				58C68D122E84E436005FD054 /* UIFont */,
 				58C68D142E84E436005FD054 /* UIImage */,
-				58C68D162E84E436005FD054 /* UILabel */,
 				58C68D182E84E436005FD054 /* UINavigationController */,
 				58C68D1A2E84E436005FD054 /* UIScrollView */,
 				58C68D1C2E84E436005FD054 /* UITableView */,
@@ -2258,7 +2236,6 @@
 				580ED58E2EA72649006012E7 /* WYCodableProtocol.swift in Sources */,
 				58C68DEF2E84E436005FD054 /* WYAlertController.swift in Sources */,
 				58C68DF02E84E436005FD054 /* WYChatCallCell.swift in Sources */,
-				58C68DF12E84E436005FD054 /* WYLabel.swift in Sources */,
 				58C68DF22E84E436005FD054 /* WYEmojiPreviewView.swift in Sources */,
 				58C68DF32E84E436005FD054 /* WYMediaPlayer.swift in Sources */,
 				58C68DF42E84E436005FD054 /* WYCollectionView.swift in Sources */,
@@ -2334,7 +2311,6 @@
 				58C68E292E84E436005FD054 /* WYDictionary.swift in Sources */,
 				58C68E2A2E84E436005FD054 /* WYChatWithdrawnCell.swift in Sources */,
 				58C68E2B2E84E436005FD054 /* WYChatVoiceCell.swift in Sources */,
-				583E04F42E8684F3004F1034 /* WYLabelObjC.swift in Sources */,
 				58C68E2C2E84E436005FD054 /* WYSoundWavesView.swift in Sources */,
 				58C68E2D2E84E436005FD054 /* WYActivityObjC.swift in Sources */,
 				585B39A22DF8125400E6E08F /* AppDelegate.swift in Sources */,

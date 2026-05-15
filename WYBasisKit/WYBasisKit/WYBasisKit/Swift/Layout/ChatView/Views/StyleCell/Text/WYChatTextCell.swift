@@ -102,15 +102,18 @@ public class WYChatTextCell: WYChatBasicCell {
         bubblesView.image = (message.isSender(userID) ? config.sendorBubbleImage : config.receiveBubbleImage)
         
         textView.attributedText = sharedEmojiAttributed(string: message.content.text ?? "")
-        let numberOfRows: Int = textView.attributedText.wy_numberOfRows(controlWidth: sharedTextMaxWidth())
+        
+        // textView显示行数是否大于1
+        let areMultipleRows: Bool = textView.wy_height > (textView.font?.lineHeight ?? 0) * 1.25
+        
         if message.isSender(userID) {
-            if numberOfRows > 1 {
+            if areMultipleRows {
                 textView.textContainerInset = chatTextConfig.textEdgeInsets.sendor
             }else {
                 textView.textContainerInset = UIEdgeInsets(top: (config.basic.avatarSize.height - config.textFont.lineHeight) / 2, left: chatTextConfig.textEdgeInsets.sendor.left, bottom: (config.basic.avatarSize.height - config.textFont.lineHeight) / 2, right: chatTextConfig.textEdgeInsets.sendor.right)
             }
         }else {
-            if numberOfRows > 1 {
+            if areMultipleRows {
                 textView.textContainerInset = chatTextConfig.textEdgeInsets.receive
             }else {
                 textView.textContainerInset = UIEdgeInsets(top: (config.basic.avatarSize.height - config.textFont.lineHeight) / 2, left: chatTextConfig.textEdgeInsets.receive.left, bottom: (config.basic.avatarSize.height - config.textFont.lineHeight) / 2, right: chatTextConfig.textEdgeInsets.receive.right)

@@ -757,12 +757,13 @@ private extension WYActivity {
                     maximum = maxWidth
                 }
                 
-                let numberOfLines = textNumberOfLines(controlWidth: maximum, contentLabel: contentLabel, defaultFont: defaultFont)
-                
                 if maximum > maxWidth {
                     contentWidth = maxWidth
                     break
                 }else {
+                    
+                    let numberOfLines = textNumberOfLines(controlWidth: maximum, contentLabel: contentLabel, defaultFont: defaultFont)
+                    
                     if numberOfLines <= (line + 1) {
                         contentWidth = maximum
                         break
@@ -781,7 +782,12 @@ private extension WYActivity {
         guard contentLabel.attributedText?.string.isEmpty == false else {
             return 0
         }
-        let numberOfLines: Int = contentLabel.attributedText?.wy_numberOfRows(controlWidth: (controlWidth > 0 ? controlWidth : contentLabel.frame.size.width)) ?? 1
+        
+        let contentWidth: CGFloat = controlWidth > 0 ? controlWidth : contentLabel.frame.size.width
+        
+        let contentHeight: CGFloat = contentLabel.attributedText?.wy_calculateHeight(controlWidth: contentWidth) ?? 0
+        
+        let numberOfLines: Int = Int(contentHeight / defaultFont.lineHeight)
         
         return numberOfLines
     }
