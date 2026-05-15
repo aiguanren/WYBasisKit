@@ -25,7 +25,7 @@ class WYTestAnimationController: UIViewController {
         view.addSubview(button)
         button.snp.makeConstraints { (make) in
             make.centerX.equalToSuperview()
-            make.top.equalToSuperview().offset(100)
+            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight + 20)
             make.size.equalTo(CGSize(width: 100, height: 100))
         }
         
@@ -33,7 +33,8 @@ class WYTestAnimationController: UIViewController {
         view.addSubview(testButton)
         testButton.addTarget(self, action: #selector(clickTestButton(sender:)), for: .touchUpInside)
         testButton.snp.makeConstraints { make in
-            make.centerX.bottom.equalToSuperview()
+            make.centerX.equalToSuperview()
+            make.bottom.equalToSuperview().offset(-20)
             make.size.equalTo(button)
         }
     }
@@ -51,7 +52,7 @@ class WYTestAnimationController: UIViewController {
         }completion: { _ in
             WYEventHandler.shared.response(event: AppEvent.buttonDidReturn, data: "按钮开始归位")
             sender.snp.updateConstraints { (make) in
-                make.top.equalToSuperview().offset(100)
+                make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight + 20)
             }
         }
     }

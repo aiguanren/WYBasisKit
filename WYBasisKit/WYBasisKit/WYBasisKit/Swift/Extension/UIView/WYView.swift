@@ -454,7 +454,8 @@ private extension UIView {
             // 同时存在阴影和圆角
             if (((self.privateShadowOpacity > 0) && (self.privateConrnerRadius > 0)) || (self.privateBezierPath != nil)) {
                 
-                if self.superview == nil { WYLogManager.output("添加阴影和圆角时，请先将view加到父视图上") }
+                if self.superview == nil { //WYLogManager.output("添加阴影和圆角时，请先将view加到父视图上")
+                }
                 
                 shadowView = UIView(frame: self.frame)
                 shadowView.translatesAutoresizingMaskIntoConstraints = false
