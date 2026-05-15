@@ -31,7 +31,7 @@
     
     [button mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.equalTo(self.view);
-        make.top.equalTo(self.view).offset(100);
+        make.top.equalTo(self.view).offset(UIDevice.wy_navViewHeight + 20);
         make.size.mas_equalTo(CGSizeMake(100, 100));
     }];
     
@@ -42,7 +42,7 @@
     
     [self.testButton mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.equalTo(self.view);
-        make.bottom.equalTo(self.view);
+        make.bottom.equalTo(self.view).mas_offset(-20);
         make.size.equalTo(button);
     }];
 }
@@ -60,7 +60,7 @@
     } completion:^(BOOL finished) {
         [WYEventHandler responseWithEvent:AppEventButtonDidReturn data:@"按钮开始归位"];
         [sender mas_updateConstraints:^(MASConstraintMaker *make) {
-            make.top.equalTo(sender.superview).offset(100);
+            make.top.equalTo(sender.superview).offset(UIDevice.wy_navViewHeight + 20);
         }];
     }];
 }
