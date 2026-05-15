@@ -666,7 +666,7 @@ public struct WYImageAttachmentOption {
 private extension NSMutableAttributedString {
     
     /**
-     内部通用方法：根据 rangeValue 批量设置属性（如字体、颜色）。
+     根据 rangeValue 批量设置属性（如字体、颜色）。
      - Parameters:
      - key: 属性键，如 `.font`
      - value: 属性值，如 UIFont
