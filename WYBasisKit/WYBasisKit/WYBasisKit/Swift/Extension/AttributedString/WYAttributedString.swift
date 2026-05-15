@@ -94,7 +94,7 @@ public extension NSMutableAttributedString {
     
     /**
      *  设置行间距，支持多种范围定义
-
+     
      *  - Parameters:
      *    - lineSpacing: 行间距值（单位：pt）
      *    - rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
@@ -512,7 +512,7 @@ public extension NSMutableAttributedString {
         let textAttributes = [NSAttributedString.Key.font: textFont, NSAttributedString.Key.foregroundColor: textColor]
         return NSMutableAttributedString(string: mutableString.copy() as! String, attributes: textAttributes)
     }
-
+    
     /**
      解析范围值，返回有效的 `NSRange` 数组。
      
@@ -526,7 +526,7 @@ public extension NSMutableAttributedString {
         let fullLength = fullString.utf16.count
         
         guard fullLength > 0 else { return [] }
-
+        
         // 递归解析函数
         func parse(_ value: Any) -> [NSRange] {
             // 1. 单个字符串 → 查找所有出现
@@ -542,7 +542,7 @@ public extension NSMutableAttributedString {
                 }
                 return ranges
             }
-
+            
             // 2. 字符串数组：每个字符串作为子串查找
             if let strings = value as? [String] {
                 var ranges: [NSRange] = []
@@ -557,26 +557,26 @@ public extension NSMutableAttributedString {
                 guard nsRange.location >= 0, nsRange.length >= 0, nsRange.location + nsRange.length <= fullLength else { return [] }
                 return [nsRange]
             }
-
+            
             // 4. NSRange 数组
             if let nsRanges = value as? [NSRange] {
                 return nsRanges.filter {
                     $0.location >= 0 && $0.length >= 0 && $0.location + $0.length <= fullLength
                 }
             }
-
+            
             // 5. 通用数组（混合类型`[String, NSRange]`） → 递归解析每个元素
             if let array = value as? [Any] {
                 return array.flatMap { parse($0) }
             }
-
+            
             // 无法识别
             assertionFailure("Unsupported rangeValue type: \(type(of: value))")
             return []
         }
-
+        
         let allRanges = parse(rangeValue)
-
+        
         // 去重（基于 location 和 length）
         var uniqueRanges: [NSRange] = []
         var seen = Set<String>()
@@ -609,40 +609,6 @@ public extension NSAttributedString {
         let attributedSize = boundingRect(with: controlSize, options: [.truncatesLastVisibleLine, .usesLineFragmentOrigin, .usesFontLeading], context: nil)
         
         return CGSize(width: ceil(attributedSize.width), height: ceil(attributedSize.height))
-    }
-    
-    /// 获取每行显示的字符串(为了计算准确，尽量将使用到的属性如字间距、缩进、换行模式、字体等设置到调用本方法的attributedString对象中来, 没有用到的直接忽略)
-    func wy_stringPerLine(controlWidth: CGFloat) -> [String] {
-        
-        if (self.string.utf16.count <= 0) {
-            return []
-        }
-        
-        let frameSetter: CTFramesetter = CTFramesetterCreateWithAttributedString(self)
-        
-        let path: CGMutablePath = CGMutablePath()
-        
-        path.addRect(CGRect(x: 0, y: 0, width: controlWidth, height: CGFloat.greatestFiniteMagnitude))
-        
-        let frame: CTFrame = CTFramesetterCreateFrame(frameSetter, CFRangeMake(0, 0), path, nil)
-        
-        var strings = [String]()
-        
-        if let lines = CTFrameGetLines(frame) as? [CTLine] {
-            lines.forEach({
-                let linerange = CTLineGetStringRange($0)
-                let range = NSMakeRange(linerange.location, linerange.length)
-                let subAttributed = NSMutableAttributedString(attributedString: attributedSubstring(from: range))
-                let string = subAttributed.wy_convertEmojiAttributedString(textColor: .white, textFont: .systemFont(ofSize: 10)).string
-                strings.append(string)
-            })
-        }
-        return strings
-    }
-    
-    /// 判断字符串显示完毕需要几行(为了计算准确，尽量将使用到的属性如字间距、缩进、换行模式、字体等设置到调用本方法的attributedString对象中来, 没有用到的直接忽略)
-    func wy_numberOfRows(controlWidth: CGFloat) -> Int {
-        return wy_stringPerLine(controlWidth: controlWidth).count
     }
 }
 

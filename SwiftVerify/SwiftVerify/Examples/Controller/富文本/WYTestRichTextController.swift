@@ -33,116 +33,17 @@ class WYTestRichTextController: UIViewController {
                                UIColor.orange: "仁爱温良者戒于无断",
                                UIColor.purple: "安舒",
                                UIColor.magenta: "必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"])
-        attribute.wy_setColor([UIColor.wy_random: ["足", "太", "暴"]])
-        attribute.wy_setFont([UIFont.boldSystemFont(ofSize: 26): [["2", "2"], ["8", "5"]]])
+        attribute.wy_setColor([UIColor.wy_random: ["太", "暴"]])
+        attribute.wy_setFont([UIFont.boldSystemFont(ofSize: 26): [NSMakeRange(2, 2), NSMakeRange(20, 6)]])
         attribute.wy_lineSpacing(15, rangeValue: attribute.string)
-        
-        let richTexts: [String] = ["勇猛刚强", "仁爱温良者戒于无断", "安舒", "必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"]
-        let longRichTexts: [String] = ["所有余而强其所不足，盖聪明疏通者戒于太察，寡闻少见者戒于壅蔽", "广心浩大者戒于遗忘", "必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"]
-        attribute.wy_underline(color: .magenta, rangeValue: longRichTexts)
-        label.wy_maxTouchMoveDistance = 50
-        label.wy_enableLongPress = true
-        label.wy_longPressMinimumDuration = 1
-        label.wy_addRichTextLongPressDelegate(strings: longRichTexts, delegate: self)
-        label.wy_addRichTextTapHandler(strings: richTexts) { [weak self] label, richText, range, index in
-            //wy_print("string = \(string), range = \(range), index = \(index)")
-            
-            if richText == "勇猛刚强" {
-                WYActivity.showInfo("string = \(richText) range = \(range) index = \(index)", in: self?.view, position: .middle)
-            }
-            if richText == "仁爱温良者戒于无断" {
-                WYActivity.showInfo("string = \(richText) range = \(range) index = \(index)", in: self?.view, position: .top)
-            }
-            if richText == "安舒" {
-                WYActivity.showInfo("string = \(richText) range = \(range) index = \(index)", in: self?.view, position: .bottom)
-            }
-        }
-        
-        label.wy_addRichTextTapDelegate(strings: ["勇猛刚强", "仁爱温良者戒于无断", "安舒", "必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"], delegate: self)
+        attribute.wy_wordsSpacing(20, rangeValue: ["必审己之所有余而强其所不足", NSMakeRange(20, 6)])
+        attribute.wy_underline(color: .magenta, rangeValue: "勇猛刚强")
         label.attributedText = attribute
         scrollView.addSubview(label)
         label.snp.makeConstraints { (make) in
             make.centerX.equalToSuperview()
             make.width.equalTo(UIDevice.wy_screenWidth - 30)
             make.top.equalToSuperview().offset(20)
-        }
-        
-        // 多行 + 垂直居中（固定高度）
-        let centerLabel = UILabel()
-        centerLabel.numberOfLines = 0
-        centerLabel.backgroundColor = UIColor(white: 0.95, alpha: 1.0)
-        let centerText = "垂直 居中 测试长按\n第二行 可点击 内容\n第三行包含可点击 LinkCenter"
-        let centerAttr = NSMutableAttributedString(string: centerText)
-        centerAttr.wy_lineSpacing(8, alignment: .center)
-        centerAttr.wy_setFont([UIFont.systemFont(ofSize: 19): centerText])
-        centerAttr.wy_setColor([UIColor.red: ["居中", "可点击", "LinkCenter"]])
-        centerAttr.wy_underline(color: UIColor.wy_random, rangeValue: ["长按","行", "LinkCenter"])
-        centerLabel.attributedText = centerAttr
-        centerLabel.wy_addRichTextTapDelegate(strings: ["居中", "可点击", "LinkCenter", "第", "行"], delegate: self)
-        centerLabel.wy_longPressEffectColor = .green
-        centerLabel.wy_enableLongPress = true
-        centerLabel.wy_longPressMinimumDuration = 1
-        centerLabel.wy_addRichTextLongPressHandler(strings: ["长按","行", "LinkCenter", "第"]) { [weak self] label, richText, range, index in
-            WYActivity.showInfo("string = \(richText) range = \(range) index = \(index)", in: self?.view, position: .bottom)
-        }
-        scrollView.addSubview(centerLabel)
-        centerLabel.snp.makeConstraints { make in
-            make.top.equalTo(label.snp.bottom).offset(40)
-            make.centerX.equalToSuperview()
-            make.width.equalTo(UIDevice.wy_screenWidth - 40)
-            make.height.equalTo(160)
-        }
-        
-        // numberOfLines = 0 + 自动换行 + 多链接
-        let autoLabel = UILabel()
-        autoLabel.numberOfLines = 0
-        autoLabel.backgroundColor = UIColor(white: 0.95, alpha: 1.0)
-        let autoText = "这是一段自动换行测试文本 numberOfLines=0。点击测试链接：https://www.example.com 和 www.baidu.com 以及最后一个链接 https://github.com"
-        let autoAttr = NSMutableAttributedString(string: autoText)
-        autoAttr.wy_setFont([UIFont.systemFont(ofSize: 18): autoText])
-        autoAttr.wy_setColor([UIColor.systemBlue: ["https://www.example.com", "www.baidu.com", "https://github.com"]])
-        autoAttr.wy_lineSpacing(0, alignment: .left)
-        autoLabel.attributedText = autoAttr
-        autoLabel.wy_clickEffectColor = .orange
-        autoLabel.wy_addRichTextTapDelegate(strings: ["https://www.example.com", "www.baidu.com", "https://github.com"], delegate: self)
-        scrollView.addSubview(autoLabel)
-        autoLabel.snp.makeConstraints { make in
-            make.top.equalTo(centerLabel.snp.bottom).offset(40)
-            make.centerX.equalToSuperview()
-            make.width.equalTo(UIDevice.wy_screenWidth - 40)
-        }
-        
-        // 3. 不同 textAlignment + 垂直居中 组合测试
-        let alignments: [(String, NSTextAlignment)] = [
-            ("左对齐 + 垂直居中", .left),
-            ("居中对齐 + 垂直居中", .center),
-            ("右对齐 + 垂直居中", .right)
-        ]
-        
-        var lastView: UIView = autoLabel
-        for (title, alignment) in alignments {
-            let alignLabel = UILabel()
-            alignLabel.numberOfLines = 0
-            alignLabel.backgroundColor = UIColor(white: 0.95, alpha: 1.0)
-            let alignText = "\(title)\n第二行测试文字\n第三行可点击 ClickMe"
-            let alignAttr = NSMutableAttributedString(string: alignText)
-            alignAttr.wy_lineSpacing(10, alignment: alignment)
-            alignAttr.wy_setFont([UIFont.systemFont(ofSize: 18): alignText])
-            alignAttr.wy_setColor([UIColor.systemPink: "ClickMe"])
-            alignAttr.wy_underline(color: UIColor.wy_random, rangeValue: ["对齐","测试", "ClickMe"])
-            alignLabel.attributedText = alignAttr
-            alignLabel.wy_addRichTextLongPressDelegate(strings: ["对齐","测试", "ClickMe"], delegate: self)
-            alignLabel.wy_addRichTextTapDelegate(strings: ["ClickMe"], delegate: self)
-            alignLabel.wy_enableLongPress = true
-            alignLabel.wy_longPressMinimumDuration = 5
-            scrollView.addSubview(alignLabel)
-            alignLabel.snp.makeConstraints { make in
-                make.top.equalTo(lastView.snp.bottom).offset(40)
-                make.centerX.equalToSuperview()
-                make.width.equalTo(UIDevice.wy_screenWidth - 40)
-                make.height.equalTo(140)
-            }
-            lastView = alignLabel
         }
         
         let emojiLabel = UILabel()
@@ -155,7 +56,7 @@ class WYTestRichTextController: UIViewController {
         emojiLabel.attributedText = emojiLabelAttributed
         scrollView.addSubview(emojiLabel)
         emojiLabel.snp.makeConstraints { (make) in
-            make.top.equalTo(lastView.snp.bottom).offset(50)
+            make.top.equalTo(label.snp.bottom).offset(50)
             make.centerX.equalToSuperview()
             make.width.equalTo(UIDevice.wy_screenWidth - 30)
         }
@@ -182,8 +83,6 @@ class WYTestRichTextController: UIViewController {
         }
         
         label.layoutIfNeeded()
-        
-        WYLogManager.output("每行显示的分别是 \(String(describing: label.attributedText?.wy_stringPerLine(controlWidth: label.wy_width))), 一共 \(String(describing: label.attributedText?.wy_numberOfRows(controlWidth: label.wy_width))) 行")
         
         let attachmentView: UILabel = UILabel()
         attachmentView.font = UIFont.systemFont(ofSize: 15)
@@ -240,8 +139,6 @@ class WYTestRichTextController: UIViewController {
         let spacing30: String = String.wy_random(minimum: 25, maximum: 60)
         
         let spacing20: String = String.wy_random(minimum: 80, maximum: 100)
-        
-        WYLogManager.output("spacing10 = \(spacing10), spacing15 = \(spacing15), spacing30 = \(spacing30), spacing20 = \(spacing20)")
         
         let spacingAttributed = NSMutableAttributedString(string: spacing10 + "\n" + spacing15 + "\n" + spacing30 + "\n" + spacing20)
         spacingAttributed.wy_lineSpacing(10, beforeString: spacing10, afterString: spacing15, alignment: .left)
@@ -328,22 +225,5 @@ class WYTestRichTextController: UIViewController {
     
     deinit {
         WYLogManager.output("deinit")
-    }
-}
-
-extension WYTestRichTextController: WYRichTextDelegate {
-    
-    func wy_richTextDidClick(_ label: UILabel, richText: String, range: NSRange, index: Int) {
-        //wy_print("string = \(richText), range = \(range), index = \(index)")
-        //WYActivity.showInfo("string = \(richText), range = \(range), index = \(index)", in: self.view, position: .middle)
-        if (richText == "必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。") {
-            WYActivity.showScrollInfo("必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。")
-        } else {
-            WYActivity.showInfo("点击: \(richText)", in: self.view, position: .middle)
-        }
-    }
-    
-    func wy_richTextDidLongPress(_ label: UILabel, richText: String, range: NSRange, index: Int) {
-        WYActivity.showInfo("长按: \(richText)", in: self.view, position: .middle)
     }
 }

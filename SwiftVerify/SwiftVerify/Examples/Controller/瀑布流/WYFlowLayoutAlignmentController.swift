@@ -121,7 +121,10 @@ extension WYFlowLayoutAlignmentController: UICollectionViewDelegate, UICollectio
                 var testHeight: CGFloat = 35
                 if stringWidth > maxWidth {
                     let layoutLine: CGFloat = CGFloat(wy_collectionView(collectionView, layout: collectionViewLayout, itemNumberOfLinesForSection: indexPath.section))
-                    let textLine: CGFloat = CGFloat(attributedString.wy_numberOfRows(controlWidth: maxWidth))
+                    
+                    let contentHeight: CGFloat = attributedString.wy_calculateHeight(controlWidth: maxWidth)
+                    
+                    let textLine: CGFloat = contentHeight / testFont.lineHeight
                     
                     if layoutLine == 0 {
                         testHeight = textLine * (testFont.lineHeight + lineSpacing) - lineSpacing

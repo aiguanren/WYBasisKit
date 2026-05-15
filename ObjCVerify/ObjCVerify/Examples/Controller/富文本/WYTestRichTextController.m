@@ -9,7 +9,7 @@
 #import <Masonry/Masonry.h>
 #import <WYBasisKitObjC/WYBasisKitObjC.h>
 
-@interface WYTestRichTextController ()<WYRichTextDelegate>
+@interface WYTestRichTextController ()
 
 @end
 
@@ -26,6 +26,7 @@
         make.edges.equalTo(self.view);
     }];
     
+    // 1. 第一个 Label：长文本，测试各种富文本样式
     UILabel *label = [[UILabel alloc] init];
     NSString *str = @"治性之道，必审己之所有余而强其所不足，盖聪明疏通者戒于太察，寡闻少见者戒于壅蔽，勇猛刚强者戒于太暴，仁爱温良者戒于无断，湛静安舒者戒于后时，广心浩大者戒于遗忘。必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。";
     label.numberOfLines = 0;
@@ -38,46 +39,12 @@
         [UIColor purpleColor]: @"安舒",
         [UIColor magentaColor]: @"必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"
     }];
-    [attribute wy_setColorForRanges:@{[UIColor wy_random]: @[@"足", @"太", @"暴"]}];
-    [attribute wy_setFontForRanges:@{[UIFont boldSystemFontOfSize:26]: @[@[@"2", @"2"], @[@"8", @"5"]]}];
+    [attribute wy_setColorForRanges:@{[UIColor wy_random]: @[@"太", @"暴"]}];
+    [attribute wy_setFontForRanges:@{[UIFont boldSystemFontOfSize:26]: @[[NSValue valueWithRange:NSMakeRange(2,2)], [NSValue valueWithRange:NSMakeRange(20,6)]]}];
     [attribute wy_lineSpacing:15 rangeValue:attribute.string alignment:NSTextAlignmentLeft];
-    [attribute wy_underline:[UIColor magentaColor] rangeValue:@[
-        @"所有余而强其所不足，盖聪明疏通者戒于太察，寡闻少见者戒于壅蔽",
-        @"广心浩大者戒于遗忘",
-        @"必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"
-    ]];
-    
+    [attribute wy_wordsSpacing:20 rangeValue:@[@"必审己之所有余而强其所不足", [NSValue valueWithRange:NSMakeRange(20,6)]]];
+    [attribute wy_underline:[UIColor magentaColor] rangeValue:@"勇猛刚强"];
     label.attributedText = attribute;
-    label.wy_maxTouchMoveDistance = 50;
-    label.wy_enableLongPress = YES;
-    label.wy_longPressMinimumDuration = 1;
-    
-    // 点击专用字符串数组
-    NSArray *tapStrings = @[@"勇猛刚强", @"仁爱温良者戒于无断", @"安舒", @"必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"];
-    // 长按专用字符串数组（与点击不同）
-    NSArray *longPressStrings = @[
-        @"所有余而强其所不足，盖聪明疏通者戒于太察，寡闻少见者戒于壅蔽",
-        @"广心浩大者戒于遗忘",
-        @"必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"
-    ];
-    
-    // 添加点击回调（handler + delegate）
-    wy_weakify(self);
-    [label wy_addRichTextTapStrings:tapStrings handler:^(UILabel *label, NSString *richText, NSRange range, NSInteger index) {
-        wy_strongify(self);
-        if (!self) return;
-        if ([richText isEqualToString:@"勇猛刚强"]) {
-            [WYActivity showInfo:[NSString stringWithFormat:@"string = %@ range = %@ index = %ld", richText, NSStringFromRange(range), (long)index] option:[self activityInfoWithPosition:WYActivityPositionMiddle]];
-        } else if ([richText isEqualToString:@"仁爱温良者戒于无断"]) {
-            [WYActivity showInfo:[NSString stringWithFormat:@"string = %@ range = %@ index = %ld", richText, NSStringFromRange(range), (long)index] option:[self activityInfoWithPosition:WYActivityPositionTop]];
-        } else if ([richText isEqualToString:@"安舒"]) {
-            [WYActivity showInfo:[NSString stringWithFormat:@"string = %@ range = %@ index = %ld", richText, NSStringFromRange(range), (long)index] option:[self activityInfoWithPosition:WYActivityPositionBottom]];
-        }
-    }];
-    [label wy_addRichTextTapStrings:tapStrings delegate:self];
-    // 添加长按 delegate
-    [label wy_addRichTextLongPressStrings:longPressStrings delegate:self];
-    
     [scrollView addSubview:label];
     [label mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.equalTo(scrollView);
@@ -85,95 +52,7 @@
         make.top.equalTo(scrollView).offset(20);
     }];
     
-    UILabel *centerLabel = [[UILabel alloc] init];
-    centerLabel.numberOfLines = 0;
-    centerLabel.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1.0];
-    NSString *centerText = @"垂直 居中 测试长按\n第二行 可点击 内容\n第三行包含可点击 LinkCenter";
-    NSMutableAttributedString *centerAttr = [[NSMutableAttributedString alloc] initWithString:centerText];
-    NSMutableParagraphStyle *centerStyle = [[NSMutableParagraphStyle alloc] init];
-    centerStyle.lineSpacing = 8;
-    centerStyle.alignment = NSTextAlignmentCenter;
-    [centerAttr addAttribute:NSParagraphStyleAttributeName value:centerStyle range:NSMakeRange(0, centerAttr.length)];
-    [centerAttr wy_setFontForRanges:@{[UIFont systemFontOfSize:19]: centerText}];
-    [centerAttr wy_setColorForRanges:@{[UIColor redColor]: @[@"居中", @"可点击", @"LinkCenter"]}];
-    [centerAttr wy_underline:[UIColor wy_random] rangeValue:@[@"长按", @"行", @"LinkCenter"]];
-    centerLabel.attributedText = centerAttr;
-    centerLabel.wy_longPressEffectColor = [UIColor greenColor];
-    centerLabel.wy_enableLongPress = YES;
-    centerLabel.wy_longPressMinimumDuration = 1;
-    // 点击代理
-    [centerLabel wy_addRichTextTapStrings:@[@"居中", @"可点击", @"LinkCenter", @"第", @"行"] delegate:self];
-    // 长按处理
-    [centerLabel wy_addRichTextLongPressStrings:@[@"长按", @"行", @"LinkCenter", @"第"] handler:^(UILabel *label, NSString *richText, NSRange range, NSInteger index) {
-        wy_strongify(self);
-        if (!self) return;
-        [WYActivity showInfo:[NSString stringWithFormat:@"string = %@ range = %@ index = %ld", richText, NSStringFromRange(range), (long)index] option:[self activityInfoWithPosition:WYActivityPositionBottom]];
-    }];
-    [scrollView addSubview:centerLabel];
-    [centerLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(label.mas_bottom).offset(40);
-        make.centerX.equalTo(scrollView);
-        make.width.equalTo(@([UIDevice wy_screenWidth] - 40));
-        make.height.equalTo(@160);
-    }];
-    
-    UILabel *autoLabel = [[UILabel alloc] init];
-    autoLabel.numberOfLines = 0;
-    autoLabel.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1.0];
-    NSString *autoText = @"这是一段自动换行测试文本 numberOfLines=0。点击测试链接：https://www.example.com 和 www.baidu.com 以及最后一个链接 https://github.com";
-    NSMutableAttributedString *autoAttr = [[NSMutableAttributedString alloc] initWithString:autoText];
-    [autoAttr wy_setFontForRanges:@{[UIFont systemFontOfSize:18]: autoText}];
-    [autoAttr wy_setColorForRanges:@{[UIColor systemBlueColor]: @[@"https://www.example.com", @"www.baidu.com", @"https://github.com"]}];
-    NSMutableParagraphStyle *autoStyle = [[NSMutableParagraphStyle alloc] init];
-    autoStyle.lineSpacing = 0;
-    autoStyle.alignment = NSTextAlignmentLeft;
-    [autoAttr addAttribute:NSParagraphStyleAttributeName value:autoStyle range:NSMakeRange(0, autoAttr.length)];
-    autoLabel.attributedText = autoAttr;
-    autoLabel.wy_clickEffectColor = [UIColor orangeColor];
-    [autoLabel wy_addRichTextTapStrings:@[@"https://www.example.com", @"www.baidu.com", @"https://github.com"] delegate:self];
-    [scrollView addSubview:autoLabel];
-    [autoLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(centerLabel.mas_bottom).offset(40);
-        make.centerX.equalTo(scrollView);
-        make.width.equalTo(@([UIDevice wy_screenWidth] - 40));
-    }];
-    
-    NSArray<NSDictionary *> *alignments = @[
-        @{@"title": @"左对齐 + 垂直居中", @"alignment": @(NSTextAlignmentLeft)},
-        @{@"title": @"居中对齐 + 垂直居中", @"alignment": @(NSTextAlignmentCenter)},
-        @{@"title": @"右对齐 + 垂直居中", @"alignment": @(NSTextAlignmentRight)}
-    ];
-    __block UIView *lastAlignmentLabel = autoLabel;
-    for (NSDictionary *alignInfo in alignments) {
-        NSString *title = alignInfo[@"title"];
-        NSTextAlignment alignment = [alignInfo[@"alignment"] integerValue];
-        UILabel *alignLabel = [[UILabel alloc] init];
-        alignLabel.numberOfLines = 0;
-        alignLabel.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1.0];
-        NSString *alignText = [NSString stringWithFormat:@"%@\n第二行测试文字\n第三行可点击 ClickMe", title];
-        NSMutableAttributedString *alignAttr = [[NSMutableAttributedString alloc] initWithString:alignText];
-        NSMutableParagraphStyle *paraStyle = [[NSMutableParagraphStyle alloc] init];
-        paraStyle.alignment = alignment;
-        paraStyle.lineSpacing = 10;
-        [alignAttr addAttribute:NSParagraphStyleAttributeName value:paraStyle range:NSMakeRange(0, alignAttr.length)];
-        [alignAttr wy_setFontForRanges:@{[UIFont systemFontOfSize:18]: alignText}];
-        [alignAttr wy_setColorForRanges:@{[UIColor systemPinkColor]: @"ClickMe"}];
-        [alignAttr wy_underline:[UIColor wy_random] rangeValue:@[@"对齐", @"测试", @"ClickMe"]];
-        alignLabel.attributedText = alignAttr;
-        alignLabel.wy_enableLongPress = YES;
-        alignLabel.wy_longPressMinimumDuration = 5;
-        [alignLabel wy_addRichTextLongPressStrings:@[@"对齐", @"测试", @"ClickMe"] delegate:self];
-        [alignLabel wy_addRichTextTapStrings:@[@"ClickMe"] delegate:self];
-        [scrollView addSubview:alignLabel];
-        [alignLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.top.equalTo(lastAlignmentLabel.mas_bottom).offset(40);
-            make.centerX.equalTo(scrollView);
-            make.width.equalTo(@([UIDevice wy_screenWidth] - 40));
-            make.height.equalTo(@140);
-        }];
-        lastAlignmentLabel = alignLabel;
-    }
-    
+    // 2. 第二个 Label：测试表情匹配
     UILabel *emojiLabel = [[UILabel alloc] init];
     emojiLabel.font = [UIFont systemFontOfSize:18];
     emojiLabel.numberOfLines = 0;
@@ -184,11 +63,12 @@
     emojiLabel.attributedText = emojiLabelAttributed;
     [scrollView addSubview:emojiLabel];
     [emojiLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(lastAlignmentLabel.mas_bottom).offset(50);
+        make.top.equalTo(label.mas_bottom).offset(50);
         make.centerX.equalTo(scrollView);
         make.width.equalTo(@([UIDevice wy_screenWidth] - 30));
     }];
     
+    // 3. 第三个 Label：测试内边距
     UILabel *marginLabel = [[UILabel alloc] init];
     marginLabel.text = @"测试内边距";
     marginLabel.font = [UIFont systemFontOfSize:18];
@@ -206,12 +86,7 @@
         make.top.equalTo(emojiLabel.mas_bottom).offset(50);
     }];
     
-    // 打印行信息（与 Swift 位置一致）
-    [label layoutIfNeeded];
-    NSArray *lines = [label.attributedText wy_stringPerLineWithControlWidth:label.wy_width];
-    NSInteger numberOfRows = [label.attributedText wy_numberOfRowsWithControlWidth:label.wy_width];
-    wy_print(@"每行显示的分别是 %@, 一共 %ld 行", lines, (long)numberOfRows);
-    
+    // 4. 第四个 Label：测试图片附件
     UILabel *attachmentView = [[UILabel alloc] init];
     attachmentView.font = [UIFont systemFontOfSize:15];
     attachmentView.numberOfLines = 0;
@@ -246,6 +121,7 @@
         make.top.equalTo(marginLabel.mas_bottom).offset(50);
     }];
     
+    // 5. 第五个 Label：测试不同范围的行间距
     UILabel *spacingView = [[UILabel alloc] init];
     spacingView.textColor = [UIColor wy_random];
     spacingView.numberOfLines = 0;
@@ -259,7 +135,6 @@
     NSString *spacing15 = [NSString wy_randomWithMinimum:30 maximum:80];
     NSString *spacing30 = [NSString wy_randomWithMinimum:25 maximum:60];
     NSString *spacing20 = [NSString wy_randomWithMinimum:80 maximum:100];
-    wy_print(@"spacing10 = %@, spacing15 = %@, spacing30 = %@, spacing20 = %@", spacing10, spacing15, spacing30, spacing20);
     NSMutableAttributedString *spacingAttributed = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@\n%@\n%@\n%@", spacing10, spacing15, spacing30, spacing20]];
     [spacingAttributed wy_lineSpacing:10 beforeString:spacing10 afterString:spacing15 alignment:NSTextAlignmentLeft];
     [spacingAttributed wy_lineSpacing:15 beforeString:spacing15 afterString:spacing30 alignment:NSTextAlignmentRight];
@@ -267,6 +142,7 @@
     [spacingAttributed wy_lineSpacing:50 rangeValue:spacing20 alignment:NSTextAlignmentLeft];
     spacingView.attributedText = spacingAttributed;
     
+    // 6. 第六个 Label：测试宽度计算
     CGFloat sizeWidth = [UIDevice wy_screenWidth] - 30;
     CGFloat sizeHeight = 30;
     UILabel *widthView = [[UILabel alloc] init];
@@ -284,6 +160,7 @@
     [widthAttributed wy_setFont:widthView.font];
     CGFloat attributedWidth = [widthAttributed wy_calculateWidthWithControlHeight:sizeHeight];
     
+    // 7. 第七个 Label：测试高度计算
     UILabel *heightView = [[UILabel alloc] init];
     heightView.backgroundColor = [UIColor wy_random];
     heightView.numberOfLines = 0;
@@ -338,27 +215,9 @@
     [heightView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.bottom.equalTo(scrollView).offset(-50);
     }];
-}
-
-- (WYMessageInfoOptions *)activityInfoWithPosition:(WYActivityPosition)position {
-    WYMessageInfoOptions *option = [[WYMessageInfoOptions alloc] init];
-    option.position = position;
-    option.contentView = self.view;
-    return option;
-}
-
-#pragma mark - WYRichTextDelegate
-
-- (void)wy_richTextDidClick:(UILabel *)label richText:(NSString *)richText range:(NSRange)range index:(NSInteger)index {
-    if ([richText isEqualToString:@"必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"]) {
-        [WYActivity showScrollInfo:@"必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"];
-    } else {
-        [WYActivity showInfo:[NSString stringWithFormat:@"点击: %@", richText] option:[self activityInfoWithPosition:WYActivityPositionMiddle]];
-    }
-}
-
-- (void)wy_richTextDidLongPress:(UILabel *)label richText:(NSString *)richText range:(NSRange)range index:(NSInteger)index {
-    [WYActivity showInfo:[NSString stringWithFormat:@"长按: %@", richText] option:[self activityInfoWithPosition:WYActivityPositionMiddle]];
+    
+    // 打印行信息
+    [label layoutIfNeeded];
 }
 
 - (void)dealloc {
