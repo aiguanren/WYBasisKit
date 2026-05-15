@@ -382,25 +382,25 @@ Pod::Spec.new do |kit|
       bannerView.dependency "WYBasisKit-swift/LogManager"
     end
     
-    layout.subspec "ChatView" do |chatView|
-      chatView.source_files = [
-        "#{kit_path}Swift/Layout/ChatView/**/*.{swift,h,m}",
-      ]
-      chatView.resources = [
-        "#{kit_path}Swift/Layout/ChatView/WYChatView.bundle"
-      ]
-      chatView.resource_bundles = {"WYBasisKitSwiftLayoutChatView" => [
-         "#{kit_path}Swift/Layout/ChatView/PrivacyInfo.xcprivacy"
-      ]}
-      chatView.frameworks = "Foundation", "UIKit"
-      chatView.dependency "WYBasisKit-swift/Extension"
-      chatView.dependency "WYBasisKit-swift/Localizable"
-      chatView.dependency "WYBasisKit-swift/Authorization/Microphone"
-      chatView.dependency "WYBasisKit-swift/Storage"
-      chatView.dependency "WYBasisKit-swift/LogManager"
-      chatView.dependency "SnapKit"
-      chatView.dependency "Kingfisher"
-    end
+    # layout.subspec "ChatView" do |chatView|
+    #   chatView.source_files = [
+    #     "#{kit_path}Swift/Layout/ChatView/**/*.{swift,h,m}",
+    #   ]
+    #   chatView.resources = [
+    #     "#{kit_path}Swift/Layout/ChatView/WYChatView.bundle"
+    #   ]
+    #   chatView.resource_bundles = {"WYBasisKitSwiftLayoutChatView" => [
+    #      "#{kit_path}Swift/Layout/ChatView/PrivacyInfo.xcprivacy"
+    #   ]}
+    #   chatView.frameworks = "Foundation", "UIKit"
+    #   chatView.dependency "WYBasisKit-swift/Extension"
+    #   chatView.dependency "WYBasisKit-swift/Localizable"
+    #   chatView.dependency "WYBasisKit-swift/Authorization/Microphone"
+    #   chatView.dependency "WYBasisKit-swift/Storage"
+    #   chatView.dependency "WYBasisKit-swift/LogManager"
+    #   chatView.dependency "SnapKit"
+    #   chatView.dependency "Kingfisher"
+    # end
 
     layout.subspec "MediaPlayer" do |mediaPlayer|
       mediaPlayer.source_files = [

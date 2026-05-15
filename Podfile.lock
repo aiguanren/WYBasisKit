@@ -221,21 +221,12 @@ PODS:
     - WYBasisKit-swift/LogManager
   - WYBasisKit-swift/Layout (26.5.0):
     - WYBasisKit-swift/Layout/BannerView (= 26.5.0)
-    - WYBasisKit-swift/Layout/ChatView (= 26.5.0)
     - WYBasisKit-swift/Layout/MediaPlayer (= 26.5.0)
     - WYBasisKit-swift/Layout/PagingView (= 26.5.0)
     - WYBasisKit-swift/Layout/ScrollText (= 26.5.0)
   - WYBasisKit-swift/Layout/BannerView (26.5.0):
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-  - WYBasisKit-swift/Layout/ChatView (26.5.0):
-    - Kingfisher
-    - SnapKit
-    - WYBasisKit-swift/Authorization/Microphone
-    - WYBasisKit-swift/Extension
-    - WYBasisKit-swift/Localizable
-    - WYBasisKit-swift/LogManager
-    - WYBasisKit-swift/Storage
   - WYBasisKit-swift/Layout/MediaPlayer (26.5.0):
     - IJKPlayerKit (= 1.0.4)
   - WYBasisKit-swift/Layout/PagingView (26.5.0):
@@ -318,7 +309,7 @@ SPEC CHECKSUMS:
   SDWebImageWebPCoder: 0e06e365080397465cc73a7a9b472d8a3bd0f377
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
   WYBasisKit-ObjC: 1b240b6eb44165cd47102c8e45f8824064fb3744
-  WYBasisKit-swift: 6f477fe6dbc88742b743c646b09b3da3a42b549d
+  WYBasisKit-swift: cb569197e485d71817454beeb13472049980ed8b
   WYBasisKit-SwiftUI: 72b8d96f2fcc05cc40e8bdc3428e8e31121a6a62
 
 PODFILE CHECKSUM: 8867d370f0dd601a7c1cd37083576f0a3cc93bd2
