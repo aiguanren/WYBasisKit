@@ -94,7 +94,7 @@ import CryptoKit
 }
 
 /// 黄道十二宫(星座)
-@frozen public enum WYZodiacSign: Int, CaseIterable {
+@frozen public enum WYConstellation: Int, CaseIterable {
     /// 未知
     case unknown = 0
     /// 摩羯座
@@ -597,7 +597,7 @@ public extension String {
         guard !self.isEmpty else { return "" }
         
         // 转为秒级时间戳
-        guard let timestamp = String.wy_normalizedTimestamp(self) else { return "" }
+        guard let timestamp = wy_normalizedTimestamp() else { return "" }
         
         let date = Date(timeIntervalSince1970: timestamp)
         
@@ -653,7 +653,7 @@ public extension String {
     var wy_whatDay: WYWhatDay {
         
         // 转换为秒级时间戳
-        guard let timeInterval = String.wy_normalizedTimestamp(self) else { return .unknown }
+        guard let timeInterval = wy_normalizedTimestamp() else { return .unknown }
         
         let date = Date(timeIntervalSince1970: timeInterval)
         
@@ -673,8 +673,8 @@ public extension String {
      */
     static func wy_timeIntervalCycle(_ messageTimestamp: String, _ clientTimestamp: String = wy_sharedDeviceTimestamp()) -> WYTimeDistance {
         
-        guard let msg = wy_normalizedTimestamp(messageTimestamp),
-              let client = wy_normalizedTimestamp(clientTimestamp) else {
+        guard let msg = messageTimestamp.wy_normalizedTimestamp(),
+              let client = clientTimestamp.wy_normalizedTimestamp() else {
             return .unknown
         }
         let calendar = Calendar.current
@@ -707,7 +707,7 @@ public extension String {
         let currentTime = Date().timeIntervalSince1970
         
         // 转换传入的时间戳为秒级
-        guard let computingTime = String.wy_normalizedTimestamp(self) else { return "" }
+        guard let computingTime = wy_normalizedTimestamp() else { return "" }
         
         // 距离当前的时间差（秒）
         let timeDifference = Int(currentTime - computingTime)
@@ -805,14 +805,99 @@ public extension String {
         return phonetic
     }
     
-    /// 根据时间戳获取星座
-    static func wy_zodiacSign(from timestamp: String) -> WYZodiacSign {
+    /**
+     解析范围值，返回有效的 `NSRange` 数组。
+     
+     支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）。
+     
+     - Returns: 经过边界有效性检查并去重后的 `[NSRange]` 数组。
+     */
+    func wy_parseRanges(from rangeValue: Any) -> [NSRange] {
+        
+        let fullString = self
+        let fullLength = fullString.utf16.count
+        
+        guard fullLength > 0 else { return [] }
+        
+        // 递归解析函数
+        func parse(_ value: Any) -> [NSRange] {
+            // 单个字符串 → 查找所有出现
+            if let singleString = value as? String {
+                guard !singleString.isEmpty else { return [] }
+                var ranges: [NSRange] = []
+                var searchStart = fullString.startIndex
+                while let range = fullString.range(of: singleString, range: searchStart..<fullString.endIndex) {
+                    let nsRange = NSRange(range, in: fullString)
+                    if nsRange.location + nsRange.length <= fullLength && nsRange.length > 0 {
+                        ranges.append(nsRange)
+                    }
+                    searchStart = range.upperBound
+                    if searchStart >= fullString.endIndex { break }
+                }
+                return ranges
+            }
+            
+            // 字符串数组：每个字符串作为子串查找
+            if let strings = value as? [String] {
+                var ranges: [NSRange] = []
+                for sub in strings {
+                    ranges.append(contentsOf: parse(sub))
+                }
+                return ranges
+            }
+            
+            // 单个 NSRange 对象
+            if let nsRange = value as? NSRange {
+                guard nsRange.location >= 0,
+                      nsRange.length > 0,
+                      nsRange.location + nsRange.length <= fullLength else {
+                    return []
+                }
+                return [nsRange]
+            }
+            
+            // NSRange 数组
+            if let nsRanges = value as? [NSRange] {
+                return nsRanges.filter {
+                    $0.location >= 0 && $0.length > 0 && $0.location + $0.length <= fullLength
+                }
+            }
+            
+            // 通用数组（混合类型`[String, NSRange]`） → 递归解析每个元素
+            if let array = value as? [Any] {
+                return array.flatMap { parse($0) }
+            }
+            
+            // 无法识别
+            assertionFailure("Unsupported rangeValue type: \(type(of: value))")
+            return []
+        }
+        
+        let allRanges = parse(rangeValue)
+        
+        // 去重（基于 location 和 length）
+        var uniqueRanges: [NSRange] = []
+        var seen = Set<String>()
+        for range in allRanges {
+            let key = "\(range.location),\(range.length)"
+            if !seen.contains(key) {
+                seen.insert(key)
+                uniqueRanges.append(range)
+            }
+        }
+        
+        // 按 location 排序，让范围更稳定
+        return uniqueRanges.sorted { $0.location < $1.location }
+    }
+
+    /// 时间戳(转)获取星座
+    static func wy_convertToConstellation(_ timestamp: String) -> WYConstellation {
         
         // 默认返回值
-        let defaultValue: WYZodiacSign = .unknown
+        let defaultValue: WYConstellation = .unknown
         
         // 统一时间戳为秒
-        guard let timeInterval = wy_normalizedTimestamp(timestamp) else { return defaultValue }
+        guard let timeInterval = timestamp.wy_normalizedTimestamp() else { return defaultValue }
         
         // 转换成 Date
         let date = Date(timeIntervalSince1970: timeInterval)
@@ -852,7 +937,10 @@ private extension String {
      *  - 绝对值 > 1_000_000_000 → 毫秒级
      *  - 其他 → 秒级
      */
-    static func wy_normalizedTimestamp(_ timestamp: String) -> TimeInterval? {
+    func wy_normalizedTimestamp() -> TimeInterval? {
+        
+        let timestamp: String = self
+        
         guard let t = Double(timestamp) else { return nil }
         
         let absT = abs(t)

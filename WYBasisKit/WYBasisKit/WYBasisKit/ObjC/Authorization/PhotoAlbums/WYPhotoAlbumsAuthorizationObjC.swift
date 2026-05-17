@@ -16,7 +16,7 @@ import WYBasisKitSwift
     
     /// 检查相册权限
     @objc(authorizeAlbumAccessWithShowSettingsAlert:completionHandler:)
-    public static func authorizeAlbumAccess(showSettingsAlert: Bool = true, handler: @escaping (_ authorized: Bool, _ limited: Bool) -> Void) {
+    public static func authorizeAlbumAccess(showSettingsAlert: Bool = true, handler: @escaping @MainActor (_ authorized: Bool, _ limited: Bool) -> Void) {
         wy_authorizeAlbumAccess(showSettingsAlert: showSettingsAlert, handler: handler)
     }
 }

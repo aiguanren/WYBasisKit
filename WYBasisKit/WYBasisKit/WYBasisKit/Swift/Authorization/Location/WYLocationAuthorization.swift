@@ -77,37 +77,39 @@ public final class WYLocationAuthorization: NSObject {
      * @param showSettingsAlert: 未授权时是否弹出跳转设置弹窗
      * @param completion: 权限请求完成后的单次回调
      */
-    public func wy_authorizeLocationAccess(showSettingsAlert: Bool = true, completion: ((Bool, Bool) -> Void)? = nil) {
-        // 检查 Info.plist 配置
-        guard Bundle.main.infoDictionary?[locationWhenInUseKey] as? String != nil else {
-            WYLogManager.output("请先在Info.plist中添加key：\(locationWhenInUseKey)")
-            completion?(false, false)
-            delegate?.wy_locationAuthorizationDidChange?(authorized: false, fullAccuracy: false, status: .notDetermined)
-            return
-        }
-        
-        if authorizationStyle == .always {
-            guard Bundle.main.infoDictionary?[locationAlwaysKey] as? String != nil else {
-                WYLogManager.output("请先在Info.plist中添加key：\(locationAlwaysKey)")
+    public func wy_authorizeLocationAccess(showSettingsAlert: Bool = true, completion: (@MainActor (Bool, Bool) -> Void)? = nil) {
+        Task { @MainActor in
+            // 检查 Info.plist 配置
+            guard Bundle.main.infoDictionary?[locationWhenInUseKey] as? String != nil else {
+                WYLogManager.output("请先在Info.plist中添加key：\(locationWhenInUseKey)")
                 completion?(false, false)
                 delegate?.wy_locationAuthorizationDidChange?(authorized: false, fullAccuracy: false, status: .notDetermined)
                 return
             }
-        }
-        
-        setupLocationManagerIfNeeded()
-        
-        let authStatus = currentAuthorizationStatus()
-        let isAuthorized = authStatus == .authorizedAlways || authStatus == .authorizedWhenInUse
-        let fullAccuracy = currentFullAccuracy()
-        
-        completion?(isAuthorized, fullAccuracy)
-        delegate?.wy_locationAuthorizationDidChange?(authorized: isAuthorized, fullAccuracy: fullAccuracy, status: authStatus)
-        
-        if authStatus == .notDetermined && !isRequestingPermission {
-            requestPermission()
-        } else if !isAuthorized {
-            showLocationAuthorizeAlert(show: showSettingsAlert)
+            
+            if authorizationStyle == .always {
+                guard Bundle.main.infoDictionary?[locationAlwaysKey] as? String != nil else {
+                    WYLogManager.output("请先在Info.plist中添加key：\(locationAlwaysKey)")
+                    completion?(false, false)
+                    delegate?.wy_locationAuthorizationDidChange?(authorized: false, fullAccuracy: false, status: .notDetermined)
+                    return
+                }
+            }
+            
+            setupLocationManagerIfNeeded()
+            
+            let authStatus = currentAuthorizationStatus()
+            let isAuthorized = authStatus == .authorizedAlways || authStatus == .authorizedWhenInUse
+            let fullAccuracy = currentFullAccuracy()
+            
+            completion?(isAuthorized, fullAccuracy)
+            delegate?.wy_locationAuthorizationDidChange?(authorized: isAuthorized, fullAccuracy: fullAccuracy, status: authStatus)
+            
+            if authStatus == .notDetermined && !isRequestingPermission {
+                requestPermission()
+            } else if !isAuthorized {
+                showLocationAuthorizeAlert(show: showSettingsAlert)
+            }
         }
     }
     

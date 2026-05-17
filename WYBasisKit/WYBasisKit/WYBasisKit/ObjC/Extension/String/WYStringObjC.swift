@@ -101,7 +101,7 @@ import WYBasisKitSwift
 
 /// 黄道十二宫(星座)
 @objc(WYZodiacSign)
-@frozen public enum WYZodiacSignObjC: Int, CaseIterable {
+@frozen public enum WYConstellationObjC: Int, CaseIterable {
     /// 未知
     case unknown = 0
     /// 摩羯座
@@ -397,9 +397,23 @@ import WYBasisKitSwift
         return (self as String).wy_phoneticTransform(tone: tone, interval: interval)
     }
     
+    /**
+     解析范围值，返回有效的 `NSRange(NSValue包装)` 数组。
+     
+     支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）。
+     
+     - Returns: 经过边界有效性检查并去重后的 `[NSRange(NSValue包装)]` 数组。
+     */
+    @objc(wy_parseRangesWithValue:)
+    func wy_parseRangesObjC(_ rangeValue: Any) -> [NSValue] {
+        let ranges = (self as String).wy_parseRanges(from: rangeValue)
+        return ranges.map { NSValue(range: $0) }
+    }
+    
     /// 根据时间戳获取星座
-    @objc static func wy_zodiacSign(with timestamp: String) -> WYZodiacSignObjC {
-        return WYZodiacSignObjC(rawValue: String.wy_zodiacSign(from: timestamp).rawValue) ?? .unknown
+    @objc(wy_convertToConstellation:)
+    static func wy_convertToConstellationObjC(_ timestamp: String) -> WYConstellationObjC {
+        return WYConstellationObjC(rawValue: String.wy_convertToConstellation(timestamp).rawValue) ?? .unknown
     }
 }
 

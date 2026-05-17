@@ -944,7 +944,7 @@ private extension UIScrollView {
     /// 交换touchesBegan方法实现
     static let wy_swizzleTouchesBegan: Void = {
         let originalSelector = #selector(touchesBegan(_:with:))
-        let swizzledSelector = #selector(wy_touchesBegan(_:with:))
+        let swizzledSelector = #selector(wy_tableViewTouchesBegan(_:with:))
         
         guard let originalMethod = class_getInstanceMethod(UIScrollView.self, originalSelector),
               let swizzledMethod = class_getInstanceMethod(UIScrollView.self, swizzledSelector) else { return }
@@ -957,12 +957,12 @@ private extension UIScrollView {
      * @param touches 触摸集合
      * @param event 事件对象
      */
-    @objc func wy_touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+    @objc func wy_tableViewTouchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         // 确保在触摸开始时关闭已侧滑的cell
         if let tableView = self as? UITableView {
             tableView.wy_closeCurrentOpenedSideslipCellIfNeeded()
         }
-        self.wy_touchesBegan(touches, with: event)
+        self.wy_tableViewTouchesBegan(touches, with: event)
     }
 }
 
@@ -993,7 +993,7 @@ private extension UITableView {
     /// 交换hitTest方法实现
     private static let swizzleHitTest: Void = {
         let originalSelector = #selector(hitTest(_:with:))
-        let swizzledSelector = #selector(wy_hitTest(_:with:))
+        let swizzledSelector = #selector(wy_tableViewHitTest(_:with:))
         
         guard let originalMethod = class_getInstanceMethod(UITableView.self, originalSelector),
               let swizzledMethod = class_getInstanceMethod(UITableView.self, swizzledSelector) else { return }
@@ -1007,7 +1007,7 @@ private extension UITableView {
      * @param event 事件对象
      * @return 响应的视图
      */
-    @objc private func wy_hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+    @objc private func wy_tableViewHitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
         // 如果当前有打开的侧滑 cell
         if let cell = wy_currentOpenedSideslipCell, cell.wy_isSideslipOpened {
             
@@ -1041,7 +1041,7 @@ private extension UITableView {
         }
         
         // 走原始 hitTest 行为
-        return self.wy_hitTest(point, with: event)
+        return self.wy_tableViewHitTest(point, with: event)
     }
     
     /// 关联对象键值

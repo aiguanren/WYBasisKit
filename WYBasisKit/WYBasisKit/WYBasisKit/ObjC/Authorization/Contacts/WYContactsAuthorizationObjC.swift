@@ -17,7 +17,7 @@ import WYBasisKitSwift
     
     /// 检查通讯录权限并获取通讯录
     @objc(authorizeAddressBookAccessWithShowSettingsAlert:keysToFetch:completionHandler:)
-    public static func authorizeAddressBookAccess(showSettingsAlert: Bool = true, keysToFetch: [String]?, handler: @escaping (_ authorized: Bool, _ userInfo: [CNContact]?) -> Void) {
+    public static func authorizeAddressBookAccess(showSettingsAlert: Bool = true, keysToFetch: [String]?, handler: @escaping @MainActor (_ authorized: Bool, _ userInfo: [CNContact]?) -> Void) {
         
         let keysToFetchs: [String] = (keysToFetch?.isEmpty ?? true) ? [CNContactFamilyNameKey, CNContactGivenNameKey, CNContactOrganizationNameKey, CNContactPhoneNumbersKey, CNContactNicknameKey] : keysToFetch!
         

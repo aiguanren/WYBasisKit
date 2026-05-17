@@ -13,66 +13,71 @@ import AVFoundation
 public let microphoneKey: String = "NSMicrophoneUsageDescription"
 
 /// 检查麦克风权限
-public func wy_authorizeMicrophoneAccess(showSettingsAlert: Bool = true, handler: @escaping (_ authorized: Bool) -> Void?) {
+public func wy_authorizeMicrophoneAccess(showSettingsAlert: Bool = true, handler: @escaping @MainActor (_ authorized: Bool) -> Void?) {
     
-    guard let _ = Bundle.main.infoDictionary?[microphoneKey] as? String else {
-        WYLogManager.output("请先在Info.plist中添加key：\(microphoneKey)")
-        handler(false)
-        return
-    }
-    
-    if #available(iOS 17.0, *) {
-        // iOS 17+ 推荐使用 AVAudioApplication
-        let permission = AVAudioApplication.shared.recordPermission
-        
-        switch permission {
-        case .granted:
-            handler(true)
-            
-        case .undetermined:
-            AVAudioApplication.requestRecordPermission { granted in
-                DispatchQueue.main.async {
-                    if granted {
-                        handler(true)
-                    } else {
-                        wy_showMicrophoneAuthorizeAlert(show: showSettingsAlert)
-                        handler(false)
-                    }
-                }
-            }
-            
-        default:  // .denied
-            wy_showMicrophoneAuthorizeAlert(show: showSettingsAlert)
+    Task { @MainActor in
+        guard let _ = Bundle.main.infoDictionary?[microphoneKey] as? String else {
+            WYLogManager.output("请先在Info.plist中添加key：\(microphoneKey)")
             handler(false)
+            return
         }
         
-    } else {
-        // iOS 16 及以下使用 AVCaptureDevice
-        let authStatus = AVCaptureDevice.authorizationStatus(for: .audio)
-        
-        switch authStatus {
-        case .authorized:
-            handler(true)
+        if #available(iOS 17.0, *) {
+            // iOS 17+ 使用 AVAudioApplication
+            let permission = AVAudioApplication.shared.recordPermission
             
-        case .notDetermined:
-            AVCaptureDevice.requestAccess(for: .audio) { granted in
-                DispatchQueue.main.async {
-                    if granted {
-                        handler(true)
-                    } else {
-                        wy_showMicrophoneAuthorizeAlert(show: showSettingsAlert)
-                        handler(false)
+            switch permission {
+            case .granted:
+                handler(true)
+                
+            case .undetermined:
+                AVAudioApplication.requestRecordPermission { granted in
+                    Task { @MainActor in
+                        if granted {
+                            handler(true)
+                        } else {
+                            wy_showMicrophoneAuthorizeAlert(show: showSettingsAlert)
+                            handler(false)
+                        }
                     }
                 }
+                
+            default:  // .denied
+                wy_showMicrophoneAuthorizeAlert(show: showSettingsAlert)
+                handler(false)
             }
             
-        default:
-            wy_showMicrophoneAuthorizeAlert(show: showSettingsAlert)
-            handler(false)
+        } else {
+            // iOS 16 及以下使用 AVCaptureDevice
+            let authStatus = AVCaptureDevice.authorizationStatus(for: .audio)
+            
+            switch authStatus {
+            case .authorized:
+                handler(true)
+                
+            case .notDetermined:
+                AVCaptureDevice.requestAccess(for: .audio) { granted in
+                    Task { @MainActor in
+                        if granted {
+                            handler(true)
+                        } else {
+                            wy_showMicrophoneAuthorizeAlert(show: showSettingsAlert)
+                            handler(false)
+                        }
+                    }
+                }
+                
+            default:
+                wy_showMicrophoneAuthorizeAlert(show: showSettingsAlert)
+                handler(false)
+            }
         }
     }
     
     // 弹出麦克风授权提示
+#if compiler(>=6)
+    @Sendable
+#endif
     func wy_showMicrophoneAuthorizeAlert(show: Bool) {
         guard show else { return }
         
@@ -83,9 +88,11 @@ public func wy_authorizeMicrophoneAccess(showSettingsAlert: Bool = true, handler
         Task { @MainActor in
             UIAlertController.wy_show(message: message, actions: [cancel, settings]) { actionStr, _ in
                 guard actionStr == settings else { return }
-                if let url = URL(string: UIApplication.openSettingsURLString),
-                   UIApplication.shared.canOpenURL(url) {
-                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                Task { @MainActor in
+                    if let url = URL(string: UIApplication.openSettingsURLString),
+                       UIApplication.shared.canOpenURL(url) {
+                        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                    }
                 }
             }
         }
