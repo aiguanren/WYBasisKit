@@ -944,7 +944,7 @@ private extension UIScrollView {
     /// 交换touchesBegan方法实现
     static let wy_swizzleTouchesBegan: Void = {
         let originalSelector = #selector(touchesBegan(_:with:))
-        let swizzledSelector = #selector(wy_tableViewTouchesBegan(_:with:))
+        let swizzledSelector = #selector(wy_touchesBegan(_:with:))
         
         guard let originalMethod = class_getInstanceMethod(UIScrollView.self, originalSelector),
               let swizzledMethod = class_getInstanceMethod(UIScrollView.self, swizzledSelector) else { return }
@@ -957,12 +957,12 @@ private extension UIScrollView {
      * @param touches 触摸集合
      * @param event 事件对象
      */
-    @objc func wy_tableViewTouchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+    @objc func wy_touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         // 确保在触摸开始时关闭已侧滑的cell
         if let tableView = self as? UITableView {
             tableView.wy_closeCurrentOpenedSideslipCellIfNeeded()
         }
-        self.wy_tableViewTouchesBegan(touches, with: event)
+        self.wy_touchesBegan(touches, with: event)
     }
 }
 
