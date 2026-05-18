@@ -993,7 +993,7 @@ private extension UITableView {
     /// 交换hitTest方法实现
     private static let swizzleHitTest: Void = {
         let originalSelector = #selector(hitTest(_:with:))
-        let swizzledSelector = #selector(wy_tableViewHitTest(_:with:))
+        let swizzledSelector = #selector(wy_hitTest(_:with:))
         
         guard let originalMethod = class_getInstanceMethod(UITableView.self, originalSelector),
               let swizzledMethod = class_getInstanceMethod(UITableView.self, swizzledSelector) else { return }
@@ -1007,7 +1007,7 @@ private extension UITableView {
      * @param event 事件对象
      * @return 响应的视图
      */
-    @objc private func wy_tableViewHitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+    @objc private func wy_hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
         // 如果当前有打开的侧滑 cell
         if let cell = wy_currentOpenedSideslipCell, cell.wy_isSideslipOpened {
             
@@ -1041,7 +1041,7 @@ private extension UITableView {
         }
         
         // 走原始 hitTest 行为
-        return self.wy_tableViewHitTest(point, with: event)
+        return self.wy_hitTest(point, with: event)
     }
     
     /// 关联对象键值
@@ -1182,3 +1182,4 @@ extension UITableViewCell {
         return true
     }
 }
+
