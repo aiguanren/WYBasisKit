@@ -15,9 +15,6 @@ class WYTestTextViewController: UIViewController {
     /// 长按效果颜色（长按时背景色）
     var wy_longPressEffectColor: UIColor?
     
-    /// 是否启用长按回调，默认 false
-    var wy_enableLongPress: Bool = false
-    
     /// 长按手势触发的最小时长（秒），默认 0.5 秒
     var wy_longPressMinimumDuration: TimeInterval = 0.5
     
@@ -43,12 +40,9 @@ class WYTestTextViewController: UIViewController {
         
         let longPressEffectColorView: UIButton = createButton(title: "长按效果颜色", selecror: #selector(selectedLongPressEffectColor), superView: contentView, leftView: clickEffectColorView, topView: nil)
         
-        let enableLongPress: UIButton = createButton(title: "启用长按回调", selecror: #selector(enableLongPress(sender:)), superView: contentView, leftView: longPressEffectColorView, topView: nil, isRight: true)
-        enableLongPress.setTitle("关闭长按回调", for: .selected)
+        let longPressMinimumDurationView: UIButton = createButton(title: "长按手势触发\n的最小时长", selecror: #selector(longPressMinimumDuration), superView: contentView, leftView: longPressEffectColorView, topView: nil, isRight: true)
         
-        let longPressMinimumDurationView: UIButton = createButton(title: "长按手势触发\n的最小时长", selecror: #selector(longPressMinimumDuration), superView: contentView, leftView: nil, topView: clickEffectColorView)
-        
-        let eventPenetration: UIButton = createButton(title: "非链接区域\n(开启)事件穿透", selecror: #selector(eventPenetration(sender:)), superView: contentView, leftView: longPressMinimumDurationView, topView: clickEffectColorView, isLast: true)
+        let eventPenetration: UIButton = createButton(title: "非链接区域\n(开启)事件穿透", selecror: #selector(eventPenetration(sender:)), superView: contentView, leftView: nil, topView: longPressMinimumDurationView, isLast: true)
         eventPenetration.setTitle("非链接区域\n(关闭)事件穿透", for: .selected)
         
         tableView = UITableView.wy_shared(delegate: self, dataSource: self, superView: view)
@@ -125,12 +119,6 @@ class WYTestTextViewController: UIViewController {
         }
     }
     
-    @objc func enableLongPress(sender: UIButton) {
-        sender.isSelected = !sender.isSelected
-        wy_enableLongPress = sender.isSelected
-        tableView?.reloadData()
-    }
-    
     @objc func longPressMinimumDuration() {
         UIAlertController.wy_show(style: .alert,title: "长按手势触发的最小时长(秒)", textFieldPlaceholders: ["当前\(wy_longPressMinimumDuration)秒"], actions: ["确定", "取消"]) { [weak self] action, inputTexts in
             
@@ -175,7 +163,7 @@ extension WYTestTextViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell: WYTestTextViewCell = tableView.dequeueReusableCell(withIdentifier: "WYTestTextViewCell", for: indexPath) as! WYTestTextViewCell
-        cell.reload(clickEffectColor: wy_clickEffectColor, longPressEffectColor: wy_longPressEffectColor, enableLongPress: wy_enableLongPress, longPressMinimumDuration: wy_longPressMinimumDuration, eventPenetration: wy_eventPenetration)
+        cell.reload(clickEffectColor: wy_clickEffectColor, longPressEffectColor: wy_longPressEffectColor, longPressMinimumDuration: wy_longPressMinimumDuration, eventPenetration: wy_eventPenetration)
         return cell
     }
     

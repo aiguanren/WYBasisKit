@@ -93,7 +93,12 @@ public extension UITextView {
     }
     
     var wy_longPressMinimumDuration: TimeInterval {
-        set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_longPressMinimumDuration, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_longPressMinimumDuration, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            if let gesture = wy_longPressGesture {
+                gesture.minimumPressDuration = newValue
+            }
+        }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_longPressMinimumDuration) as? TimeInterval ?? 0.5 }
     }
     
