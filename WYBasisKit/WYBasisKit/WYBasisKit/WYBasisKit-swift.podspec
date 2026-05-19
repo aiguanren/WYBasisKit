@@ -126,7 +126,8 @@ Pod::Spec.new do |kit|
   
   kit.subspec "Extension" do |extension|
     extension.source_files = [
-      "#{kit_path}Swift/Extension/**/*.{swift,h,m}"
+      "#{kit_path}Swift/Extension/**/*.{swift,h,m}",
+      "#{kit_path}Swift/MethodExchange/**/*.{swift}"
     ]
     extension.resources = [localizable_bundle]
     extension.resource_bundles = {"WYBasisKitSwiftExtension" => [

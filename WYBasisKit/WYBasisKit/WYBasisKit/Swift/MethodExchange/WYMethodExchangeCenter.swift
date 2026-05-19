@@ -31,11 +31,11 @@ public func wy_removeHooks(for anyClass: AnyClass, selector: Selector? = nil) {
 
 /**
  present(_:animated:completion:) 方法交换（UIViewController 及其子类）
-
+ 
  - Parameters:
    - viewControllerClass: 目标视图控制器类（如 UIViewController.self）
-   - before: 方法执行前回调，可获取被 present 的控制器、动画标记、完成闭包
-   - after: 方法执行后回调（无返回值，仅通知）
+   - before: 方法执行前回调。参数依次为：当前控制器、被 present 的控制器、是否动画、完成闭包。无返回值。
+   - after: 方法执行后回调。参数同上，无返回值（仅通知）。
  */
 public func wy_exchangeControllerPresent(
     for viewControllerClass: UIViewController.Type,
@@ -75,11 +75,22 @@ public func wy_exchangeControllerPresent(
     WYHooksLock.unlock()
 
     let newBlock: @convention(block) (UIViewController, UIViewController, Bool, (() -> Void)?) -> Void = { receiver, viewControllerToPresent, animated, completion in
-        let classKey = "wy_\(String(describing: type(of: receiver)))_\(NSStringFromSelector(selector))"
-        WYHooksLock.lock()
-        let hooks = (WYHooksMap[classKey] as? Hooks) ?? Hooks()
-        WYHooksLock.unlock()
-
+        // 沿继承链向上查找 hooks
+        var currentClass: AnyClass? = type(of: receiver)
+        var foundHooks: Hooks? = nil
+        while let cls = currentClass, cls != NSObject.self {
+            let classKey = "wy_\(String(describing: cls))_\(NSStringFromSelector(selector))"
+            WYHooksLock.lock()
+            let hooks = (WYHooksMap[classKey] as? Hooks)
+            WYHooksLock.unlock()
+            if hooks != nil {
+                foundHooks = hooks
+                break
+            }
+            currentClass = class_getSuperclass(cls)
+        }
+        
+        let hooks = foundHooks ?? Hooks()
         let args = (viewControllerToPresent, animated, completion)
         for before in hooks.before {
             before(receiver, selector, args)
@@ -97,11 +108,11 @@ public func wy_exchangeControllerPresent(
 
 /**
  hitTest(_:with:) 方法交换
-
+ 
  - Parameters:
    - viewClass: 目标视图类（如 UIView.self）
-   - before: 方法执行前回调，可获取 point 和 event
-   - after: 方法执行后回调，可获取原始返回值并返回新值
+   - before: 方法执行前回调。参数依次为：当前视图、点击位置、事件。无返回值。
+   - after: 方法执行后回调。参数依次为：当前视图、点击位置、事件、原始返回值（UIView?）。可返回一个新的 UIView? 来替换原始返回值。
  */
 public func wy_exchangeHitTest(
     for viewClass: UIView.Type,
@@ -140,11 +151,22 @@ public func wy_exchangeHitTest(
     WYHooksLock.unlock()
 
     let newBlock: @convention(block) (UIView, CGPoint, UIEvent?) -> UIView? = { receiver, point, event in
-        let classKey = "wy_\(String(describing: type(of: receiver)))_\(NSStringFromSelector(selector))"
-        WYHooksLock.lock()
-        let hooks = (WYHooksMap[classKey] as? Hooks) ?? Hooks()
-        WYHooksLock.unlock()
-
+        // 沿继承链向上查找 hooks
+        var currentClass: AnyClass? = type(of: receiver)
+        var foundHooks: Hooks? = nil
+        while let cls = currentClass, cls != NSObject.self {
+            let classKey = "wy_\(String(describing: cls))_\(NSStringFromSelector(selector))"
+            WYHooksLock.lock()
+            let hooks = (WYHooksMap[classKey] as? Hooks)
+            WYHooksLock.unlock()
+            if hooks != nil {
+                foundHooks = hooks
+                break
+            }
+            currentClass = class_getSuperclass(cls)
+        }
+        
+        let hooks = foundHooks ?? Hooks()
         let args = (point, event)
         for before in hooks.before {
             before(receiver, selector, args)
@@ -164,11 +186,11 @@ public func wy_exchangeHitTest(
 
 /**
  layoutSubviews() 方法交换
-
+ 
  - Parameters:
    - viewClass: 目标视图类（如 UIView.self）
-   - before: 方法执行前回调
-   - after: 方法执行后回调（无返回值，仅通知）
+   - before: 方法执行前回调。参数为当前视图。无返回值。
+   - after: 方法执行后回调。参数为当前视图。无返回值（仅通知）。
  */
 public func wy_exchangeLayoutSubviews(
     for viewClass: UIView.Type,
@@ -208,11 +230,22 @@ public func wy_exchangeLayoutSubviews(
     WYHooksLock.unlock()
 
     let newBlock: @convention(block) (UIView) -> Void = { receiver in
-        let classKey = "wy_\(String(describing: type(of: receiver)))_\(NSStringFromSelector(selector))"
-        WYHooksLock.lock()
-        let hooks = (WYHooksMap[classKey] as? Hooks) ?? Hooks()
-        WYHooksLock.unlock()
-
+        // 沿继承链向上查找 hooks
+        var currentClass: AnyClass? = type(of: receiver)
+        var foundHooks: Hooks? = nil
+        while let cls = currentClass, cls != NSObject.self {
+            let classKey = "wy_\(String(describing: cls))_\(NSStringFromSelector(selector))"
+            WYHooksLock.lock()
+            let hooks = (WYHooksMap[classKey] as? Hooks)
+            WYHooksLock.unlock()
+            if hooks != nil {
+                foundHooks = hooks
+                break
+            }
+            currentClass = class_getSuperclass(cls)
+        }
+        
+        let hooks = foundHooks ?? Hooks()
         for before in hooks.before {
             before(receiver, selector, ())
         }
@@ -229,11 +262,11 @@ public func wy_exchangeLayoutSubviews(
 
 /**
  sizeThatFits(_:) 方法交换
-
+ 
  - Parameters:
    - viewClass: 目标视图类（如 UIView.self）
-   - before: 方法执行前回调，可获取 size 参数
-   - after: 方法执行后回调，可获取原始返回值并返回新值
+   - before: 方法执行前回调。参数依次为：当前视图、建议的尺寸。无返回值。
+   - after: 方法执行后回调。参数依次为：当前视图、建议的尺寸、原始返回值（CGSize）。可返回一个新的 CGSize 来替换原始返回值。
  */
 public func wy_exchangeSizeThatFits(
     for viewClass: UIView.Type,
@@ -272,11 +305,22 @@ public func wy_exchangeSizeThatFits(
     WYHooksLock.unlock()
 
     let newBlock: @convention(block) (UIView, CGSize) -> CGSize = { receiver, size in
-        let classKey = "wy_\(String(describing: type(of: receiver)))_\(NSStringFromSelector(selector))"
-        WYHooksLock.lock()
-        let hooks = (WYHooksMap[classKey] as? Hooks) ?? Hooks()
-        WYHooksLock.unlock()
-
+        // 沿继承链向上查找 hooks
+        var currentClass: AnyClass? = type(of: receiver)
+        var foundHooks: Hooks? = nil
+        while let cls = currentClass, cls != NSObject.self {
+            let classKey = "wy_\(String(describing: cls))_\(NSStringFromSelector(selector))"
+            WYHooksLock.lock()
+            let hooks = (WYHooksMap[classKey] as? Hooks)
+            WYHooksLock.unlock()
+            if hooks != nil {
+                foundHooks = hooks
+                break
+            }
+            currentClass = class_getSuperclass(cls)
+        }
+        
+        let hooks = foundHooks ?? Hooks()
         for before in hooks.before {
             before(receiver, selector, size)
         }
@@ -295,11 +339,11 @@ public func wy_exchangeSizeThatFits(
 
 /**
  touchesBegan(_:with:) 方法交换
-
+ 
  - Parameters:
    - responderClass: 目标响应者类（如 UIView.self）
-   - before: 方法执行前回调，可获取 touches 和 event
-   - after: 方法执行后回调（无返回值，仅通知）
+   - before: 方法执行前回调。参数依次为：当前响应者、触摸集合、事件。无返回值。
+   - after: 方法执行后回调。参数同上。无返回值（仅通知）。
  */
 public func wy_exchangeTouchesBegan(
     for responderClass: UIResponder.Type,
@@ -339,11 +383,22 @@ public func wy_exchangeTouchesBegan(
     WYHooksLock.unlock()
 
     let newBlock: @convention(block) (UIResponder, Set<UITouch>, UIEvent?) -> Void = { receiver, touches, event in
-        let classKey = "wy_\(String(describing: type(of: receiver)))_\(NSStringFromSelector(selector))"
-        WYHooksLock.lock()
-        let hooks = (WYHooksMap[classKey] as? Hooks) ?? Hooks()
-        WYHooksLock.unlock()
-
+        // 沿继承链向上查找 hooks
+        var currentClass: AnyClass? = type(of: receiver)
+        var foundHooks: Hooks? = nil
+        while let cls = currentClass, cls != NSObject.self {
+            let classKey = "wy_\(String(describing: cls))_\(NSStringFromSelector(selector))"
+            WYHooksLock.lock()
+            let hooks = (WYHooksMap[classKey] as? Hooks)
+            WYHooksLock.unlock()
+            if hooks != nil {
+                foundHooks = hooks
+                break
+            }
+            currentClass = class_getSuperclass(cls)
+        }
+        
+        let hooks = foundHooks ?? Hooks()
         let args = (touches, event)
         for before in hooks.before {
             before(receiver, selector, args)
@@ -361,11 +416,11 @@ public func wy_exchangeTouchesBegan(
 
 /**
  touchesCancelled(_:with:) 方法交换
-
+ 
  - Parameters:
    - responderClass: 目标响应者类（如 UIView.self）
-   - before: 方法执行前回调，可获取 touches 和 event
-   - after: 方法执行后回调（无返回值，仅通知）
+   - before: 方法执行前回调。参数依次为：当前响应者、触摸集合、事件。无返回值。
+   - after: 方法执行后回调。参数同上。无返回值（仅通知）。
  */
 public func wy_exchangeTouchesCancelled(
     for responderClass: UIResponder.Type,
@@ -405,11 +460,22 @@ public func wy_exchangeTouchesCancelled(
     WYHooksLock.unlock()
 
     let newBlock: @convention(block) (UIResponder, Set<UITouch>, UIEvent?) -> Void = { receiver, touches, event in
-        let classKey = "wy_\(String(describing: type(of: receiver)))_\(NSStringFromSelector(selector))"
-        WYHooksLock.lock()
-        let hooks = (WYHooksMap[classKey] as? Hooks) ?? Hooks()
-        WYHooksLock.unlock()
-
+        // 沿继承链向上查找 hooks
+        var currentClass: AnyClass? = type(of: receiver)
+        var foundHooks: Hooks? = nil
+        while let cls = currentClass, cls != NSObject.self {
+            let classKey = "wy_\(String(describing: cls))_\(NSStringFromSelector(selector))"
+            WYHooksLock.lock()
+            let hooks = (WYHooksMap[classKey] as? Hooks)
+            WYHooksLock.unlock()
+            if hooks != nil {
+                foundHooks = hooks
+                break
+            }
+            currentClass = class_getSuperclass(cls)
+        }
+        
+        let hooks = foundHooks ?? Hooks()
         let args = (touches, event)
         for before in hooks.before {
             before(receiver, selector, args)
@@ -427,11 +493,11 @@ public func wy_exchangeTouchesCancelled(
 
 /**
  touchesEnded(_:with:) 方法交换
-
+ 
  - Parameters:
    - responderClass: 目标响应者类（如 UIView.self）
-   - before: 方法执行前回调，可获取 touches 和 event
-   - after: 方法执行后回调（无返回值，仅通知）
+   - before: 方法执行前回调。参数依次为：当前响应者、触摸集合、事件。无返回值。
+   - after: 方法执行后回调。参数同上。无返回值（仅通知）。
  */
 public func wy_exchangeTouchesEnded(
     for responderClass: UIResponder.Type,
@@ -471,11 +537,22 @@ public func wy_exchangeTouchesEnded(
     WYHooksLock.unlock()
 
     let newBlock: @convention(block) (UIResponder, Set<UITouch>, UIEvent?) -> Void = { receiver, touches, event in
-        let classKey = "wy_\(String(describing: type(of: receiver)))_\(NSStringFromSelector(selector))"
-        WYHooksLock.lock()
-        let hooks = (WYHooksMap[classKey] as? Hooks) ?? Hooks()
-        WYHooksLock.unlock()
-
+        // 沿继承链向上查找 hooks
+        var currentClass: AnyClass? = type(of: receiver)
+        var foundHooks: Hooks? = nil
+        while let cls = currentClass, cls != NSObject.self {
+            let classKey = "wy_\(String(describing: cls))_\(NSStringFromSelector(selector))"
+            WYHooksLock.lock()
+            let hooks = (WYHooksMap[classKey] as? Hooks)
+            WYHooksLock.unlock()
+            if hooks != nil {
+                foundHooks = hooks
+                break
+            }
+            currentClass = class_getSuperclass(cls)
+        }
+        
+        let hooks = foundHooks ?? Hooks()
         let args = (touches, event)
         for before in hooks.before {
             before(receiver, selector, args)
@@ -493,11 +570,11 @@ public func wy_exchangeTouchesEnded(
 
 /**
  drawText(in:) 方法交换（UILabel 及其子类）
-
+ 
  - Parameters:
    - labelClass: 目标Label类（如 UILabel.self）
-   - before: 方法执行前回调，可获取绘制区域 rect
-   - after: 方法执行后回调（无返回值，仅通知）
+   - before: 方法执行前回调。参数依次为：当前标签、绘制区域矩形。无返回值。
+   - after: 方法执行后回调。参数同上。无返回值（仅通知）。
  */
 public func wy_exchangeDrawText(
     for labelClass: UILabel.Type,
@@ -537,11 +614,22 @@ public func wy_exchangeDrawText(
     WYHooksLock.unlock()
 
     let newBlock: @convention(block) (UILabel, CGRect) -> Void = { receiver, rect in
-        let classKey = "wy_\(String(describing: type(of: receiver)))_\(NSStringFromSelector(selector))"
-        WYHooksLock.lock()
-        let hooks = (WYHooksMap[classKey] as? Hooks) ?? Hooks()
-        WYHooksLock.unlock()
-
+        // 沿继承链向上查找 hooks
+        var currentClass: AnyClass? = type(of: receiver)
+        var foundHooks: Hooks? = nil
+        while let cls = currentClass, cls != NSObject.self {
+            let classKey = "wy_\(String(describing: cls))_\(NSStringFromSelector(selector))"
+            WYHooksLock.lock()
+            let hooks = (WYHooksMap[classKey] as? Hooks)
+            WYHooksLock.unlock()
+            if hooks != nil {
+                foundHooks = hooks
+                break
+            }
+            currentClass = class_getSuperclass(cls)
+        }
+        
+        let hooks = foundHooks ?? Hooks()
         for before in hooks.before {
             before(receiver, selector, rect)
         }
@@ -558,11 +646,11 @@ public func wy_exchangeDrawText(
 
 /**
  intrinsicContentSize 属性 getter 方法交换（UIView 及其子类）
-
+ 
  - Parameters:
    - viewClass: 目标视图类（如 UIView.self）
-   - before: 方法执行前回调（无参数）
-   - after: 方法执行后回调，可获取原始返回值并返回新 CGSize
+   - before: 方法执行前回调。参数为当前视图。无返回值。
+   - after: 方法执行后回调。参数依次为：当前视图、原始返回值（CGSize）。可返回一个新的 CGSize 来替换原始返回值。
  */
 public func wy_exchangeIntrinsicContentSize(
     for viewClass: UIView.Type,
@@ -601,11 +689,22 @@ public func wy_exchangeIntrinsicContentSize(
     WYHooksLock.unlock()
 
     let newBlock: @convention(block) (UIView) -> CGSize = { receiver in
-        let classKey = "wy_\(String(describing: type(of: receiver)))_\(NSStringFromSelector(selector))"
-        WYHooksLock.lock()
-        let hooks = (WYHooksMap[classKey] as? Hooks) ?? Hooks()
-        WYHooksLock.unlock()
-
+        // 沿继承链向上查找 hooks
+        var currentClass: AnyClass? = type(of: receiver)
+        var foundHooks: Hooks? = nil
+        while let cls = currentClass, cls != NSObject.self {
+            let classKey = "wy_\(String(describing: cls))_\(NSStringFromSelector(selector))"
+            WYHooksLock.lock()
+            let hooks = (WYHooksMap[classKey] as? Hooks)
+            WYHooksLock.unlock()
+            if hooks != nil {
+                foundHooks = hooks
+                break
+            }
+            currentClass = class_getSuperclass(cls)
+        }
+        
+        let hooks = foundHooks ?? Hooks()
         for before in hooks.before {
             before(receiver, selector, ())
         }
