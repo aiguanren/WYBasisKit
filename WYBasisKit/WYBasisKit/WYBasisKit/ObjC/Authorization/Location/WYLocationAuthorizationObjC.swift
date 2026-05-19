@@ -43,7 +43,7 @@ public extension WYLocationAuthorization {
      * @param completion: 权限请求完成后的单次回调
      */
     @objc(wy_authorizeLocationAccessWithShowSettingsAlert:completion:)
-    func wy_authorizeLocationAccessObjC(showSettingsAlert: Bool = true, completion: ((Bool, Bool) -> Void)? = nil) {
+    func wy_authorizeLocationAccessObjC(showSettingsAlert: Bool = true, completion: (@MainActor(Bool, Bool) -> Void)? = nil) {
         wy_authorizeLocationAccess(showSettingsAlert: showSettingsAlert, completion: completion)
     }
     

@@ -30,9 +30,8 @@ public extension UIAlertController {
                         actionSheetNeedCancel: Bool = true,
                         textFieldPlaceholders: [Any] = [],
                         actions: [Any] = [],
-                        handler:((_ action: String, _ inputTexts: [String]) -> Void)? = nil) {
+                        handler:(@MainActor (_ action: String, _ inputTexts: [String]) -> Void)? = nil) {
         
-        // 已经标记 @MainActor，这里不再需要 DispatchQueue.main.async
         let alertTitle: String = wy_sharedGenericString(object: title)
         
         let alertMessage: String = wy_sharedGenericString(object: message)
@@ -88,16 +87,19 @@ public extension UIAlertController {
             }
         }
     }
+}
+
+extension UIAlertController {
     
     @discardableResult
-    private static func wy_internalShow(style: UIAlertController.Style = .alert,
+    static func wy_internalShow(style: UIAlertController.Style = .alert,
                                         title: String = "",
                                         message: String = "",
                                         duration: TimeInterval = 0.0,
                                         actionSheetNeedCancel: Bool = true,
                                         textFieldPlaceholders: [String] = [],
                                         actions: [String] = [],
-                                        handler:((_ actionStr: String, _ textFieldTexts: [String]) -> Void)? = nil) -> UIAlertController? {
+                                        handler:(@MainActor(_ actionStr: String, _ textFieldTexts: [String]) -> Void)? = nil) -> UIAlertController? {
         
         if title.isEmpty && message.isEmpty && textFieldPlaceholders.isEmpty && actions.isEmpty {
             return nil
@@ -151,11 +153,11 @@ public extension UIAlertController {
         return alertController
     }
     
-    private func wy_addAlertAction(actionStr: String,
+    func wy_addAlertAction(actionStr: String,
                                    actionStyle: UIAlertAction.Style,
                                    alertController: UIAlertController,
                                    textFieldPlaceholders: [String] = [],
-                                   handler:((_ actionStr: String, _ textFieldTexts: [String]) -> Void)? = nil) {
+                                   handler:(@MainActor(_ actionStr: String, _ textFieldTexts: [String]) -> Void)? = nil) {
         
         let action: UIAlertAction = UIAlertAction(title: actionStr, style: actionStyle) { (alertAction) in
             
@@ -176,7 +178,7 @@ public extension UIAlertController {
         alertController.addAction(action)
     }
     
-    private func wy_sharedActionStyle(actionStr: String!, alertStyle: UIAlertController.Style!) -> UIAlertAction.Style {
+    func wy_sharedActionStyle(actionStr: String!, alertStyle: UIAlertController.Style!) -> UIAlertAction.Style {
         
         var actionStyle: UIAlertAction.Style! = UIAlertAction.Style.default
         switch actionStr {
@@ -188,12 +190,12 @@ public extension UIAlertController {
         return actionStyle
     }
     
-    private func wy_sharedSecureTextEntry(placeholder: String!) -> Bool {
+    func wy_sharedSecureTextEntry(placeholder: String!) -> Bool {
         
         return placeholder.range(of: WYLocalized("密码", table: WYBasisKitConfig.kitLocalizableTable), options: .caseInsensitive) != nil
     }
     
-    private static func wy_sharedGenericString<T>(object: T?) -> String {
+    static func wy_sharedGenericString<T>(object: T?) -> String {
         
         guard let obj = object else {
             return ""
@@ -209,7 +211,7 @@ public extension UIAlertController {
         }
     }
     
-    private static func checkPropertySecurity(property: String, object: AnyObject?, className: String) -> Bool {
+    static func checkPropertySecurity(property: String, object: AnyObject?, className: String) -> Bool {
         
         var properties: [String: Any] = [:]
         
@@ -246,18 +248,18 @@ public extension UIAlertController {
         return properties.keys.contains(property)
     }
     
-    private struct WYAssociatedKeys {
+    struct WYAssociatedKeys {
         static var wy_alertWindow: UInt8 = 0
     }
     
-    private var wy_alertWindow: UIWindow? {
+    var wy_alertWindow: UIWindow? {
         
         get {
             var showWindow: UIWindow? = objc_getAssociatedObject(self, &WYAssociatedKeys.wy_alertWindow) as? UIWindow
             
             if showWindow == nil {
                 if #available(iOS 26.0, *) {
-                    return UIWindow(windowScene: UIApplication.shared.wy_keyWindowScene)
+                    showWindow = UIWindow(windowScene: UIApplication.shared.wy_keyWindowScene)
                 } else {
                     showWindow = UIWindow(frame: UIScreen.main.bounds)
                 }
@@ -270,7 +272,7 @@ public extension UIAlertController {
         }
     }
     
-    private func wy_sharedAppDelegate() -> UIApplicationDelegate {
+    func wy_sharedAppDelegate() -> UIApplicationDelegate {
         return UIApplication.shared.delegate!
     }
 }

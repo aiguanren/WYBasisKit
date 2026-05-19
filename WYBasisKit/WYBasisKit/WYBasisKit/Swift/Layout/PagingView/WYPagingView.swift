@@ -101,19 +101,28 @@ public class WYPagingView: UIView {
     /// 分页栏Item按钮内部imageView大小Size，默认.zero(图片本身Size)，仅图文混排时生效，只有图片时可通过bar_item_insideMargins来控制其Size
     public var bar_item_imageViewSize: CGSize = .zero
     
-    /// 分页栏item默认背景色 默认白色
-    public var bar_item_bg_defaultColor: UIColor = .white
-    
-    /// 分页栏item选中背景色 默认白色
-    public var bar_item_bg_selectedColor: UIColor = .white
-    
     /// 分页栏item圆角半径, 默认0
-    public var bar_item_cornerRadius: CGFloat = 0.0
+    public var bar_item_cornerRadius: CGFloat = 0
     
-    /// 分页栏标题默认颜色 默认<#7B809E>
+    /// 分页栏item边框宽度, 默认0
+    public var bar_item_borderWidth: CGFloat = 0
+    
+    /// 分页栏item Normal状态 边框颜色
+    public var bar_item_normalBorderColor: UIColor?
+    
+    /// 分页栏item Selected状态 边框颜色
+    public var bar_item_selectedBorderColor: UIColor?
+    
+    /// 分页栏item Normal状态 背景色 默认透明
+    public var bar_item_bg_defaultColor: UIColor = .clear
+    
+    /// 分页栏item Selected状态 背景色 默认透明
+    public var bar_item_bg_selectedColor: UIColor = .clear
+    
+    /// 分页栏标题 Normal状态 颜色 默认<#7B809E>
     public var bar_title_defaultColor: UIColor = .wy_hex("#7B809E")
     
-    /// 分页栏标题选中颜色 默认<#2D3952>
+    /// 分页栏标题 Selected状态 颜色 默认<#2D3952>
     public var bar_title_selectedColor: UIColor = .wy_hex("#2D3952")
     
     /// 分页栏底部分隔带背景色 默认<#F2F2F2>
@@ -140,10 +149,10 @@ public class WYPagingView: UIView {
     /// 滑动线条高度 默认2像素
     public var bar_scrollLineHeight: CGFloat = UIDevice.wy_screenWidth(2, WYBasisKitConfig.defaultScreenPixels)
     
-    /// 分页栏标题默认字号 默认15号；
+    /// 分页栏标题 Normal状态 字号 默认15号；
     public var bar_title_defaultFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(15, WYBasisKitConfig.defaultScreenPixels))
     
-    /// 分页栏标题选中字号 默认15号；
+    /// 分页栏标题 Selected状态 字号 默认15号；
     public var bar_title_selectedFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(15, WYBasisKitConfig.defaultScreenPixels))
     
     /// 当前选中的页面的Index，初始化时也可以用来设置默认选中第几个页面
@@ -398,27 +407,13 @@ extension WYPagingView {
             
             currentButtonItem.setIsSelected(false)
             
-            currentButtonItem.backgroundColor = bar_item_bg_defaultColor
-            
-            updateButtonContentMode(sender: currentButtonItem)
-            
             /// 将当前选中的item赋值
             currentButtonItem = currentItem
+            
             currentButtonItem.setIsSelected(true)
-            
-            currentButtonItem.backgroundColor = bar_item_bg_selectedColor
-            
-            updateButtonContentMode(sender: currentButtonItem)
             
             /// 调用最终的方法
             scrollMethod()
-        }
-    }
-    
-    func updateButtonContentMode(sender: UIButton) {
-        
-        if(((defaultImages.count == controllers.count) || (selectedImages.count == controllers.count)) && (titles.count == controllers.count)) {
-            sender.superview?.wy_rectCorner(.allCorners).wy_cornerRadius(bar_item_cornerRadius).wy_showVisual()
         }
     }
 }
@@ -461,7 +456,13 @@ extension WYPagingView {
                                           buttonPosition: buttonPosition,
                                           dividingOffset: barButton_dividingOffset,
                                           itemWidth: bar_item_width,
-                                          itemHeight: finalItemHeight)
+                                          itemHeight: finalItemHeight,
+                                          borderWidth: bar_item_borderWidth,
+                                          cornerRadius: bar_item_cornerRadius,
+                                          normalBorderColor: bar_item_normalBorderColor,
+                                          selectedBorderColor: bar_item_selectedBorderColor,
+                                          normalBackgroundColor: bar_item_bg_defaultColor,
+                                          selectedBackgroundColor: bar_item_bg_selectedColor,)
             buttonItem.translatesAutoresizingMaskIntoConstraints = false
             buttonItem.contentHorizontalAlignment = .center
             buttonItem.tag = buttonItemTagBegin+index
@@ -471,8 +472,6 @@ extension WYPagingView {
                 buttonItem.setIsSelected(true)
                 currentButtonItem = buttonItem
             }
-            
-            updateButtonContentMode(sender: buttonItem)
             
             barScrollView.insertSubview(buttonItem, at: 0)
             
@@ -494,10 +493,6 @@ extension WYPagingView {
             
             if index == (controllers.count-1) {
                 buttonItem.trailingAnchor.constraint(equalTo: barScrollView.trailingAnchor, constant: -bar_originlRightOffset).isActive = true
-            }
-            
-            if (bar_item_cornerRadius > 0) {
-                buttonItem.wy_rectCorner(.allCorners).wy_cornerRadius(bar_item_cornerRadius).wy_showVisual()
             }
             
             buttonItems.append(buttonItem)
@@ -776,22 +771,46 @@ public class WYPagingItem: UIButton {
     /// Selected状态文本字体
     public private(set) var selectedTextFont: UIFont?
     
+    /// 边框宽度
+    public private(set) var borderWidth: CGFloat = 0
+    
+    /// 圆角半径
+    public private(set) var cornerRadius: CGFloat = 0
+    
+    /// Normal状态边框颜色
+    public private(set) var normalBorderColor: UIColor?
+    
+    /// Selected状态边框颜色
+    public private(set) var selectedBorderColor: UIColor?
+    
+    /// Normal状态背景色
+    public private(set) var normalBackgroundColor: UIColor = .clear
+    
+    /// Selected状态背景色
+    public private(set) var selectedBackgroundColor: UIColor = .clear
+    
     /**
      *  唯一初始化方法
-     *  @param insideMargins          按钮内边距
-     *  @param normalImage            按钮Normal状态图片
-     *  @param selectedImage          按钮Selected状态图片
-     *  @param imageViewSize          按钮图片ViewSize
-     *  @param normalText             按钮Normal状态文本
-     *  @param selectedText           按钮Selected状态文本
-     *  @param normalTextColor        按钮Normal状态文本颜色
-     *  @param selectedTextColor      按钮Selected状态文本颜色
-     *  @param normalTextFont         按钮Normal状态文本字体字号
-     *  @param selectedTextFont       按钮Selected状态文本字体字号
-     *  @param buttonPosition         图片和文字显示模式
-     *  @param dividingOffset         按钮内部图片和文字的上下或左右间距
-     *  @param itemWidth              外部指定的Item固定宽度（0表示自适应）
-     *  @param itemHeight             外部指定的Item固定高度（0表示自适应）
+     *  @param insideMargins           按钮内边距
+     *  @param normalImage             按钮Normal状态图片
+     *  @param selectedImage           按钮Selected状态图片
+     *  @param imageViewSize           按钮图片ViewSize
+     *  @param normalText              按钮Normal状态文本
+     *  @param selectedText            按钮Selected状态文本
+     *  @param normalTextColor         按钮Normal状态文本颜色
+     *  @param selectedTextColor       按钮Selected状态文本颜色
+     *  @param normalTextFont          按钮Normal状态文本字体字号
+     *  @param selectedTextFont        按钮Selected状态文本字体字号
+     *  @param buttonPosition          图片和文字显示模式
+     *  @param dividingOffset          按钮内部图片和文字的上下或左右间距
+     *  @param itemWidth               外部指定的Item固定宽度（0表示自适应）
+     *  @param itemHeight              外部指定的Item固定高度（0表示自适应）
+     *  @param borderWidth             边框宽度
+     *  @param cornerRadius            圆角半径
+     *  @param normalBorderColor       Normal状态边框颜色
+     *  @param selectedBorderColor     Selected状态边框颜色
+     *  @param normalBackgroundColor   Normal状态背景色
+     *  @param selectedBackgroundColor Selected状态背景色
      */
     public init(insideMargins: UIEdgeInsets,
                 normalImage: UIImage?,
@@ -806,7 +825,13 @@ public class WYPagingItem: UIButton {
                 buttonPosition: WYButtonPosition,
                 dividingOffset: CGFloat,
                 itemWidth: CGFloat = 0,
-                itemHeight: CGFloat = 0) {
+                itemHeight: CGFloat = 0,
+                borderWidth: CGFloat = 0,
+                cornerRadius: CGFloat = 0,
+                normalBorderColor: UIColor?,
+                selectedBorderColor: UIColor?,
+                normalBackgroundColor: UIColor,
+                selectedBackgroundColor: UIColor) {
         
         super.init(frame: .zero)
         self.translatesAutoresizingMaskIntoConstraints = false
@@ -821,6 +846,20 @@ public class WYPagingItem: UIButton {
         self.selectedTextColor = selectedTextColor
         self.normalTextFont = normalTextFont
         self.selectedTextFont = selectedTextFont
+        self.borderWidth = borderWidth
+        self.cornerRadius = cornerRadius
+        self.normalBorderColor = normalBorderColor
+        self.selectedBorderColor = selectedBorderColor
+        self.normalBackgroundColor = normalBackgroundColor
+        self.selectedBackgroundColor = selectedBackgroundColor
+        
+        // 设置默认边框圆角
+        if let borderColor = normalBorderColor, cornerRadius > 0, borderWidth > 0 {
+            self.wy_rectCorner(.allCorners).wy_cornerRadius(cornerRadius).wy_borderWidth(borderWidth).wy_borderColor(borderColor).wy_showVisual()
+        }
+        
+        // 设置默认背景色
+        self.backgroundColor = normalBackgroundColor
         
         // ==================== 智能计算 insideMargins ====================
         var finalMargins = insideMargins
@@ -1018,6 +1057,18 @@ public class WYPagingItem: UIButton {
             textView.textColor = isSelected ? selectedTextColor : normalTextColor
             textView.font = isSelected ? selectedTextFont : normalTextFont
         }
+        
+        // 设置边框圆角
+        if cornerRadius > 0, borderWidth > 0, let borderColor = isSelected ? selectedBorderColor : normalBorderColor {
+            self.wy_rectCorner(.allCorners)
+                .wy_cornerRadius(cornerRadius)
+                .wy_borderWidth(borderWidth)
+                .wy_borderColor(borderColor)
+                .wy_showVisual()
+        }
+        
+        // 切换背景色
+        backgroundColor = isSelected ? selectedBackgroundColor : normalBackgroundColor
     }
     
     public required init?(coder: NSCoder) {
@@ -1042,4 +1093,3 @@ private extension UIViewController {
         static var wy_pageControllerIsLastDisplayed: UInt8 = 0
     }
 }
-

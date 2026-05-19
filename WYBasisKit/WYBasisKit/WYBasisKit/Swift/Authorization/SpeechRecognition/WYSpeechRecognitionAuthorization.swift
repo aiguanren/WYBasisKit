@@ -13,48 +13,56 @@ import Speech
 public let speechRecognitionKey: String = "NSSpeechRecognitionUsageDescription"
 
 /// 检查语音识别权限
-public func wy_authorizeSpeechRecognition(showSettingsAlert: Bool = true, handler: @escaping (_ authorized: Bool) -> Void?) {
+public func wy_authorizeSpeechRecognition(showSettingsAlert: Bool = true, handler: @escaping @MainActor (_ authorized: Bool) -> Void?) {
     
-    if let _ = Bundle.main.infoDictionary?[speechRecognitionKey] as? String {
-        
-        SFSpeechRecognizer.requestAuthorization { (status) in
-            // 识别器的授权状态
-            switch status {
-            case .authorized:
-                // 已授权
-                handler(true)
-                return
-            case .denied:
-                // 拒绝授权
-                wy_showAuthorizeAlert(show: showSettingsAlert, message: WYLocalized("App没有访问语音识别的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
-                handler(false)
-                return
-            case .restricted:
-                // 保密，也就是不授权
-                wy_showAuthorizeAlert(show: showSettingsAlert, message: WYLocalized("App没有访问语音识别的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
-                handler(false)
-                return
-            case .notDetermined:
-                // 用户尚未决定是否授权
-                wy_showAuthorizeAlert(show: showSettingsAlert, message: WYLocalized("App没有访问语音识别的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
-                handler(false)
-                return
-            @unknown default:
-                // 其他可能情况
-                wy_showAuthorizeAlert(show: showSettingsAlert, message: WYLocalized("App没有访问语音识别的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
-                handler(false)
-                return
+    Task { @MainActor in
+        if let _ = Bundle.main.infoDictionary?[speechRecognitionKey] as? String {
+            SFSpeechRecognizer.requestAuthorization { (status) in
+                Task { @MainActor in
+                    // 识别器的授权状态
+                    switch status {
+                    case .authorized:
+                        // 已授权
+                        handler(true)
+                        return
+                    case .denied:
+                        // 拒绝授权
+                        wy_showAuthorizeAlert(show: showSettingsAlert, message: WYLocalized("App没有访问语音识别的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
+                        handler(false)
+                        return
+                    case .restricted:
+                        // 保密，也就是不授权
+                        wy_showAuthorizeAlert(show: showSettingsAlert, message: WYLocalized("App没有访问语音识别的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
+                        handler(false)
+                        return
+                    case .notDetermined:
+                        // 用户尚未决定是否授权
+                        wy_showAuthorizeAlert(show: showSettingsAlert, message: WYLocalized("App没有访问语音识别的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
+                        handler(false)
+                        return
+                    @unknown default:
+                        // 其他可能情况
+                        wy_showAuthorizeAlert(show: showSettingsAlert, message: WYLocalized("App没有访问语音识别的权限，现在去授权?", table: WYBasisKitConfig.kitLocalizableTable))
+                        handler(false)
+                        return
+                    }
+                }
             }
-        }
-        
-        // 弹出授权弹窗
-        func wy_showAuthorizeAlert(show: Bool, message: String) {
             
+        }else {
+            WYLogManager.output("请先在Info.plist中添加key：\(speechRecognitionKey)")
+            handler(false)
+        }
+    }
+    
+    // 弹出授权弹窗
+    func wy_showAuthorizeAlert(show: Bool, message: String) {
+        
+        Task { @MainActor in
             if show {
                 UIAlertController.wy_show(message: message, actions: [WYLocalized("取消", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable)]) { (actionStr, _) in
                     
-                    DispatchQueue.main.async {
-                        
+                    Task { @MainActor in
                         if actionStr == WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable) {
                             
                             let settingUrl = URL(string: UIApplication.openSettingsURLString)
@@ -66,9 +74,5 @@ public func wy_authorizeSpeechRecognition(showSettingsAlert: Bool = true, handle
                 }
             }
         }
-        
-    }else {
-        WYLogManager.output("请先在Info.plist中添加key：\(speechRecognitionKey)")
-        handler(false)
     }
 }
