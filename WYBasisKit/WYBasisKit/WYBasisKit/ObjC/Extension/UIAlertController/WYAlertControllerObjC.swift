@@ -30,7 +30,7 @@ import WYBasisKitSwift
                             title: Any? = nil,
                             message: Any? = nil,
                             actions: [Any]? = nil,
-                            handler:((_ action: String, _ inputTexts: [String]) -> Void)? = nil) {
+                            handler:(@MainActor(_ action: String, _ inputTexts: [String]) -> Void)? = nil) {
         wy_showObjC(style: style, title: title, message: message, duration: 0.0, actionSheetNeedCancel: true, textFieldPlaceholders: nil, actions: actions, handler: handler)
     }
     @objc(wy_showStyle:title:message:duration:actionSheetNeedCancel:textFieldPlaceholders:actions:handler:)
@@ -41,7 +41,7 @@ import WYBasisKitSwift
                             actionSheetNeedCancel: Bool = true,
                             textFieldPlaceholders: [Any]? = nil,
                             actions: [Any]? = nil,
-                            handler:((_ action: String, _ inputTexts: [String]) -> Void)? = nil) {
+                            handler:(@MainActor(_ action: String, _ inputTexts: [String]) -> Void)? = nil) {
         wy_show(style: style, title: title, message: message, duration: duration, actionSheetNeedCancel: actionSheetNeedCancel, textFieldPlaceholders: textFieldPlaceholders ?? [], actions: actions ?? [], handler: handler)
     }
 }

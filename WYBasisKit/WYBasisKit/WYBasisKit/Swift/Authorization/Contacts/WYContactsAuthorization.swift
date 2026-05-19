@@ -13,7 +13,7 @@ import UIKit
 public let contactsKey: String = "NSContactsUsageDescription"
 
 /// 检查通讯录权限并获取通讯录
-public func wy_authorizeAddressBookAccess(showSettingsAlert: Bool = true, keysToFetch: [String] = [CNContactFamilyNameKey, CNContactGivenNameKey, CNContactOrganizationNameKey, CNContactPhoneNumbersKey, CNContactNicknameKey], handler: @escaping (_ authorized: Bool, _ userInfo: [CNContact]?) -> Void?) {
+public func wy_authorizeAddressBookAccess(showSettingsAlert: Bool = true, keysToFetch: [String] = [CNContactFamilyNameKey, CNContactGivenNameKey, CNContactOrganizationNameKey, CNContactPhoneNumbersKey, CNContactNicknameKey], handler: @escaping @MainActor (_ authorized: Bool, _ userInfo: [CNContact]?) -> Void?) {
     
     if let _ = Bundle.main.infoDictionary?[contactsKey] as? String {
         
@@ -22,7 +22,7 @@ public func wy_authorizeAddressBookAccess(showSettingsAlert: Bool = true, keysTo
         switch authStatus {
         case .notDetermined:
             contactStore.requestAccess(for: .contacts) { granted, error in
-                DispatchQueue.main.async {
+                Task { @MainActor in
                     if granted {
                         wy_openContact(contactStore: contactStore, keysToFetch: keysToFetch, handler: handler)
                         return
@@ -32,7 +32,7 @@ public func wy_authorizeAddressBookAccess(showSettingsAlert: Bool = true, keysTo
                         handler(false, nil)
                         return
                     }
-                 }
+                }
             }
         case .authorized:
             /// 可以访问
@@ -48,40 +48,52 @@ public func wy_authorizeAddressBookAccess(showSettingsAlert: Bool = true, keysTo
         }
         
     }else {
-        WYLogManager.output("请先在Info.plist中添加key：\(contactsKey)")
-        handler(false, nil)
+        Task { @MainActor in
+            WYLogManager.output("请先在Info.plist中添加key：\(contactsKey)")
+            handler(false, nil)
+        }
         return
     }
     
     // 获取通讯录
-    func wy_openContact(contactStore: CNContactStore, keysToFetch: [String], handler: @escaping (_ authorized: Bool, _ userInfo: [CNContact]?) -> Void?) {
+    #if compiler(>=6)
+    @Sendable
+    #endif
+    func wy_openContact(contactStore: CNContactStore, keysToFetch: [String], handler: @escaping @MainActor (_ authorized: Bool, _ userInfo: [CNContact]?) -> Void?) {
         
         if let _ = Bundle.main.infoDictionary?[contactsKey] as? String {
             
             contactStore.requestAccess(for: .contacts) {(granted, error) in
-                if (granted) && (error == nil) {
-                    
-                    let request = CNContactFetchRequest(keysToFetch: keysToFetch as [CNKeyDescriptor])
-                    do {
-                        var contacts: [CNContact] = []
-                        // 需要传入一个CNContactFetchRequest
-                        try contactStore.enumerateContacts(with: request, usingBlock: {(contact : CNContact, stop : UnsafeMutablePointer) -> Void in
-                            contacts.append(contact)
-                        })
-                        handler(true, contacts)
-                    } catch {
+                Task { @MainActor in
+                    if (granted) && (error == nil) {
+                        
+                        let request = CNContactFetchRequest(keysToFetch: keysToFetch as [CNKeyDescriptor])
+                        do {
+                            var contacts: [CNContact] = []
+                            // 需要传入一个CNContactFetchRequest
+                            try contactStore.enumerateContacts(with: request, usingBlock: {(contact : CNContact, stop : UnsafeMutablePointer) -> Void in
+                                contacts.append(contact)
+                            })
+                            handler(true, contacts)
+                        } catch {
+                            handler(true, nil)
+                        }
+                    } else {
                         handler(true, nil)
                     }
-                } else {
-                    handler(true, nil)
                 }
             }
         }else {
-            handler(false, nil)
+            Task { @MainActor in
+                handler(false, nil)
+            }
         }
     }
     
     // 弹出授权弹窗
+    #if compiler(>=6)
+    @Sendable
+    #endif
     func wy_showAuthorizeAlert(show: Bool, message: String) {
         
         guard show else {
@@ -91,11 +103,13 @@ public func wy_authorizeAddressBookAccess(showSettingsAlert: Bool = true, keysTo
         Task { @MainActor in
             UIAlertController.wy_show(message: message, actions: [WYLocalized("取消", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable)]) { (actionStr, _) in
                 
-                if actionStr == WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable) {
-                    
-                    let settingUrl = URL(string: UIApplication.openSettingsURLString)
-                    if let url = settingUrl, UIApplication.shared.canOpenURL(url) {
-                        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                Task { @MainActor in
+                    if actionStr == WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable) {
+                        
+                        let settingUrl = URL(string: UIApplication.openSettingsURLString)
+                        if let url = settingUrl, UIApplication.shared.canOpenURL(url) {
+                            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                        }
                     }
                 }
             }

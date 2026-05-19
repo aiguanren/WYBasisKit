@@ -34,6 +34,9 @@ class WYMainController: UIViewController {
         ListItem(title: "富文本",
                  controller: "WYTestRichTextController"),
         
+        ListItem(title: "字符串子串点击",
+                 controller: "WYTestTextViewController"),
+        
         ListItem(title: "无限层折叠TableView",
                  controller: "WYMultilevelTableViewController"),
         

@@ -285,19 +285,6 @@ import WYBasisKitSwift
     @objc func wy_convertEmojiAttributedString(_ textColor: UIColor, textFont: UIFont, replace: String = "[未知]") -> NSMutableAttributedString {
         return wy_convertEmojiAttributedString(textColor: textColor, textFont: textFont, replace: replace)
     }
-    
-    /**
-     解析范围值，返回有效的 `NSRange(NSValue包装)` 数组。
-     
-     支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）。
-     
-     - Returns: 经过边界有效性检查并去重后的 `[NSRange(NSValue包装)]` 数组。
-     */
-    @objc(wy_parseRangesWithValue:)
-    func wy_parseRangesObjC(_ rangeValue: Any) -> [NSValue] {
-        let ranges = wy_parseRanges(from: rangeValue)
-        return ranges.map { NSValue(range: $0) }
-    }
 }
 
 @objc public extension NSAttributedString {

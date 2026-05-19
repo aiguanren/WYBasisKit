@@ -16,7 +16,7 @@ import WYBasisKitSwift
     
     /// 检查相机权限
     @objc(authorizeCameraAccessWithShowSettingsAlert:completionHandler:)
-    public static func authorizeCameraAccess(showSettingsAlert: Bool = true, handler: @escaping (_ authorized: Bool) -> Void) {
+    public static func authorizeCameraAccess(showSettingsAlert: Bool = true, handler: @escaping @MainActor (_ authorized: Bool) -> Void) {
         wy_authorizeCameraAccess(showSettingsAlert: showSettingsAlert, handler: handler)
     }
 }
