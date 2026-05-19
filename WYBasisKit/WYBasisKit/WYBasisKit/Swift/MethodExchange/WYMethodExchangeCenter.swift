@@ -30,6 +30,72 @@ public func wy_removeHooks(for anyClass: AnyClass, selector: Selector? = nil) {
 }
 
 /**
+ present(_:animated:completion:) 方法交换（UIViewController 及其子类）
+
+ - Parameters:
+   - viewControllerClass: 目标视图控制器类（如 UIViewController.self）
+   - before: 方法执行前回调，可获取被 present 的控制器、动画标记、完成闭包
+   - after: 方法执行后回调（无返回值，仅通知）
+ */
+public func wy_exchangeControllerPresent(
+    for viewControllerClass: UIViewController.Type,
+    before: ((UIViewController, UIViewController, Bool, (() -> Void)?) -> Void)? = nil,
+    after: ((UIViewController, UIViewController, Bool, (() -> Void)?) -> Void)? = nil
+) {
+    let selector = #selector(UIViewController.present(_:animated:completion:))
+    let key = "wy_\(String(describing: viewControllerClass))_\(NSStringFromSelector(selector))"
+    typealias Args = (UIViewController, Bool, (() -> Void)?)
+    typealias Return = Void
+    typealias Hooks = WYMethodHooks<Args, Return>
+
+    guard let originalMethod = class_getInstanceMethod(viewControllerClass, selector) else {
+        assertionFailure("方法不存在: \(NSStringFromSelector(selector))")
+        return
+    }
+    let originalIMP = method_getImplementation(originalMethod)
+    typealias OriginalFunc = @convention(c) (UIViewController, Selector, UIViewController, Bool, (() -> Void)?) -> Void
+    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
+
+    WYHooksLock.lock()
+    var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
+    if let before = before {
+        hooks.before.append { anyVC, _, args in
+            guard let vc = anyVC as? UIViewController else { return }
+            before(vc, args.0, args.1, args.2)
+        }
+    }
+    if let after = after {
+        hooks.after.append { anyVC, _, args, _ in
+            guard let vc = anyVC as? UIViewController else { return }
+            after(vc, args.0, args.1, args.2)
+            return
+        }
+    }
+    WYHooksMap[key] = hooks
+    WYHooksLock.unlock()
+
+    let newBlock: @convention(block) (UIViewController, UIViewController, Bool, (() -> Void)?) -> Void = { receiver, viewControllerToPresent, animated, completion in
+        let classKey = "wy_\(String(describing: type(of: receiver)))_\(NSStringFromSelector(selector))"
+        WYHooksLock.lock()
+        let hooks = (WYHooksMap[classKey] as? Hooks) ?? Hooks()
+        WYHooksLock.unlock()
+
+        let args = (viewControllerToPresent, animated, completion)
+        for before in hooks.before {
+            before(receiver, selector, args)
+        }
+
+        originalBlock(receiver, selector, viewControllerToPresent, animated, completion)
+
+        for after in hooks.after {
+            _ = after(receiver, selector, args, ())
+        }
+    }
+
+    wy_swizzleMethod(for: viewControllerClass, selector: selector, newImpBlock: newBlock)
+}
+
+/**
  hitTest(_:with:) 方法交换
 
  - Parameters:
@@ -102,7 +168,7 @@ public func wy_exchangeHitTest(
  - Parameters:
    - viewClass: 目标视图类（如 UIView.self）
    - before: 方法执行前回调
-   - after: 方法执行后回调
+   - after: 方法执行后回调（无返回值，仅通知）
  */
 public func wy_exchangeLayoutSubviews(
     for viewClass: UIView.Type,
