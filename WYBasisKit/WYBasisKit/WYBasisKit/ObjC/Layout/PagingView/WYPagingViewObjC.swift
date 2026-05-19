@@ -152,20 +152,6 @@ import WYBasisKitSwift
         get { return bar_item_imageViewSize }
         set { bar_item_imageViewSize = newValue }
     }
-
-    /// 分页栏item默认背景色 默认白色
-    @objc(bar_item_bg_defaultColor)
-    var bar_item_bg_defaultColorObjC: UIColor {
-        get { return bar_item_bg_defaultColor }
-        set { bar_item_bg_defaultColor = newValue }
-    }
-
-    /// 分页栏item选中背景色 默认白色
-    @objc(bar_item_bg_selectedColor)
-    var bar_item_bg_selectedColorObjC: UIColor {
-        get { return bar_item_bg_selectedColor }
-        set { bar_item_bg_selectedColor = newValue }
-    }
     
     /// 分页栏item圆角半径, 默认0
     @objc(bar_item_cornerRadius)
@@ -173,15 +159,50 @@ import WYBasisKitSwift
         get { return bar_item_cornerRadius }
         set { bar_item_cornerRadius = newValue }
     }
+    
+    /// 分页栏item边框宽度, 默认0
+    @objc(bar_item_borderWidth)
+    var bar_item_borderWidthObjC: CGFloat {
+        get { return bar_item_borderWidth }
+        set { bar_item_borderWidth = newValue }
+    }
+    
+    /// 分页栏item Normal状态 边框颜色
+    @objc(bar_item_normalBorderColor)
+    var bar_item_normalBorderColorObjC: UIColor? {
+        get { return bar_item_normalBorderColor }
+        set { bar_item_normalBorderColor = newValue }
+    }
+    
+    /// 分页栏item Selected状态 边框颜色
+    @objc(bar_item_selectedBorderColor)
+    var bar_item_selectedBorderColorObjC: UIColor? {
+        get { return bar_item_selectedBorderColor }
+        set { bar_item_selectedBorderColor = newValue }
+    }
+    
+    /// 分页栏item Normal状态 背景色 默认白色
+    @objc(bar_item_bg_defaultColor)
+    var bar_item_bg_defaultColorObjC: UIColor {
+        get { return bar_item_bg_defaultColor }
+        set { bar_item_bg_defaultColor = newValue }
+    }
 
-    /// 分页栏标题默认颜色 默认<#7B809E>
+    /// 分页栏item Selected状态 背景色 默认白色
+    @objc(bar_item_bg_selectedColor)
+    var bar_item_bg_selectedColorObjC: UIColor {
+        get { return bar_item_bg_selectedColor }
+        set { bar_item_bg_selectedColor = newValue }
+    }
+
+    /// 分页栏标题 Normal状态 颜色 默认<#7B809E>
     @objc(bar_title_defaultColor)
     var bar_title_defaultColorObjC: UIColor {
         get { return bar_title_defaultColor }
         set { bar_title_defaultColor = newValue }
     }
 
-    /// 分页栏标题选中颜色 默认<#2D3952>
+    /// 分页栏标题 Selected状态 颜色 默认<#2D3952>
     @objc(bar_title_selectedColor)
     var bar_title_selectedColorObjC: UIColor {
         get { return bar_title_selectedColor }
@@ -244,14 +265,14 @@ import WYBasisKitSwift
         set { bar_scrollLineHeight = newValue }
     }
 
-    /// 分页栏标题默认字号 默认15号；
+    /// 分页栏标题 Normal状态 字号 默认15号；
     @objc(bar_title_defaultFont)
     var bar_title_defaultFontObjC: UIFont {
         get { return bar_title_defaultFont }
         set { bar_title_defaultFont = newValue }
     }
 
-    /// 分页栏标题选中字号 默认15号；
+    /// 分页栏标题 Selected状态 字号 默认15号；
     @objc(bar_title_selectedFont)
     var bar_title_selectedFontObjC: UIFont {
         get { return bar_title_selectedFont }
@@ -421,24 +442,66 @@ import WYBasisKitSwift
         return selectedTextFont
     }
     
+    /// 边框宽度
+    @objc(borderWidth)
+    var borderWidthObjC: CGFloat {
+        return borderWidth
+    }
+    
+    /// 圆角半径
+    @objc(cornerRadius)
+    var cornerRadiusObjC: CGFloat {
+        return cornerRadius
+    }
+    
+    /// Normal状态边框颜色
+    @objc(normalBorderColor)
+    var normalBorderColorObjC: UIColor? {
+        return normalBorderColor
+    }
+    
+    /// Selected状态边框颜色
+    @objc(selectedBorderColor)
+    var selectedBorderColorObjC: UIColor? {
+        return selectedBorderColor
+    }
+    
+    /// Normal状态背景色
+    @objc(normalBackgroundColor)
+    var normalBackgroundColorObjC: UIColor {
+        return normalBackgroundColor
+    }
+    
+    /// Selected状态背景色
+    @objc(selectedBackgroundColor)
+    var selectedBackgroundColorObjC: UIColor {
+        return selectedBackgroundColor
+    }
+    
     /**
      *  唯一初始化方法
-     *  @param insideMargins          按钮内边距
-     *  @param normalImage            按钮Normal状态图片
-     *  @param selectedImage          按钮Selected状态图片
-     *  @param imageViewSize          按钮图片ViewSize
-     *  @param normalText             按钮Normal状态文本
-     *  @param selectedText           按钮Selected状态文本
-     *  @param normalTextColor        按钮Normal状态文本颜色
-     *  @param selectedTextColor      按钮Selected状态文本颜色
-     *  @param normalTextFont         按钮Normal状态文本字体字号
-     *  @param selectedTextFont       按钮Selected状态文本字体字号
-     *  @param buttonPosition         图片和文字显示模式
-     *  @param dividingOffset         按钮内部图片和文字的上下或左右间距
-     *  @param itemWidth              外部指定的Item固定宽度（0表示自适应）
-     *  @param itemHeight             外部指定的Item固定高度（0表示自适应）
+     *  @param insideMargins           按钮内边距
+     *  @param normalImage             按钮Normal状态图片
+     *  @param selectedImage           按钮Selected状态图片
+     *  @param imageViewSize           按钮图片ViewSize
+     *  @param normalText              按钮Normal状态文本
+     *  @param selectedText            按钮Selected状态文本
+     *  @param normalTextColor         按钮Normal状态文本颜色
+     *  @param selectedTextColor       按钮Selected状态文本颜色
+     *  @param normalTextFont          按钮Normal状态文本字体字号
+     *  @param selectedTextFont        按钮Selected状态文本字体字号
+     *  @param buttonPosition          图片和文字显示模式
+     *  @param dividingOffset          按钮内部图片和文字的上下或左右间距
+     *  @param itemWidth               外部指定的Item固定宽度（0表示自适应）
+     *  @param itemHeight              外部指定的Item固定高度（0表示自适应）
+     *  @param borderWidth             边框宽度
+     *  @param cornerRadius            圆角半径
+     *  @param normalBorderColor       Normal状态边框颜色
+     *  @param selectedBorderColor     Selected状态边框颜色
+     *  @param normalBackgroundColor   Normal状态背景色
+     *  @param selectedBackgroundColor Selected状态背景色
      */
-    @objc(initWithInsideMargins:normalImage:selectedImage:imageViewSize:normalText:selectedText:normalTextColor:selectedTextColor:normalTextFont:selectedTextFont:buttonPosition:dividingOffset:itemWidth:itemHeight:)
+    @objc(initWithInsideMargins:normalImage:selectedImage:imageViewSize:normalText:selectedText:normalTextColor:selectedTextColor:normalTextFont:selectedTextFont:buttonPosition:dividingOffset:itemWidth:itemHeight:borderWidth:cornerRadius:normalBorderColor:selectedBorderColor:normalBackgroundColor:selectedBackgroundColor:)
     convenience init(insideMargins: UIEdgeInsets,
                      normalImage: UIImage?,
                      selectedImage: UIImage?,
@@ -452,8 +515,14 @@ import WYBasisKitSwift
                      buttonPosition: WYButtonPositionObjC,
                      dividingOffset: CGFloat,
                      itemWidth: CGFloat = 0,
-                     itemHeight: CGFloat = 0) {
-        self.init(insideMargins: insideMargins, normalImage: normalImage, selectedImage: selectedImage, imageViewSize: imageViewSize, normalText: normalText, selectedText: selectedText, normalTextColor: normalTextColor, selectedTextColor: selectedTextColor, normalTextFont: normalTextFont, selectedTextFont: selectedTextFont, buttonPosition: (WYButtonPosition(rawValue: buttonPosition.rawValue) ?? .imageLeftTitleRight), dividingOffset: dividingOffset, itemWidth: itemWidth, itemHeight: itemHeight)
+                     itemHeight: CGFloat = 0,
+                     borderWidth: CGFloat = 0,
+                     cornerRadius: CGFloat = 0,
+                     normalBorderColor: UIColor?,
+                     selectedBorderColor: UIColor?,
+                     normalBackgroundColor: UIColor,
+                     selectedBackgroundColor: UIColor) {
+        self.init(insideMargins: insideMargins, normalImage: normalImage, selectedImage: selectedImage, imageViewSize: imageViewSize, normalText: normalText, selectedText: selectedText, normalTextColor: normalTextColor, selectedTextColor: selectedTextColor, normalTextFont: normalTextFont, selectedTextFont: selectedTextFont, buttonPosition: (WYButtonPosition(rawValue: buttonPosition.rawValue) ?? .imageLeftTitleRight), dividingOffset: dividingOffset, itemWidth: itemWidth, itemHeight: itemHeight, borderWidth: borderWidth, cornerRadius: cornerRadius, normalBorderColor: normalBorderColor, selectedBorderColor: selectedBorderColor, normalBackgroundColor: normalBackgroundColor, selectedBackgroundColor: selectedBackgroundColor)
     }
     
     /// 设置按钮富文本
