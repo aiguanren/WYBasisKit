@@ -339,36 +339,29 @@ private extension UIButton {
     
     // 方法交换
     private static let swizzleLayoutSubviewsOnce: Void = {
-        let cls = UIButton.self
-        let original = #selector(UIButton.layoutSubviews)
-        let swizzled = #selector(UIButton._custom_layoutSubviews)
         
-        if let originalMethod = class_getInstanceMethod(cls, original),
-           let swizzledMethod = class_getInstanceMethod(cls, swizzled) {
-            method_exchangeImplementations(originalMethod, swizzledMethod)
-        }
+        wy_exchangeLayoutSubviews(for: UIButton.self, after: { anyView in
+            
+            guard let button = anyView as? UIButton else { return }
+            
+            // 强制 layout 前先 sizeToFit 避免 size 0
+            button.titleLabel?.sizeToFit()
+            button.imageView?.sizeToFit()
+            
+            if let imageView = button.imageView {
+                if let frame = button.wy_imageRect {
+                    imageView.frame = frame
+                }
+            }
+            
+            if let titleLabel = button.titleLabel {
+                if let frame = button.wy_titleRect {
+                    titleLabel.frame = frame
+                }
+            }
+        })
     }()
     
-    // 替换 layoutSubviews
-    @objc private func _custom_layoutSubviews() {
-        self._custom_layoutSubviews() // 调用原始 layoutSubviews
-        
-        // 强制 layout 前先 sizeToFit 避免 size 0
-        self.titleLabel?.sizeToFit()
-        self.imageView?.sizeToFit()
-        
-        if let imageView = self.imageView {
-            if let frame = self.wy_imageRect {
-                imageView.frame = frame
-            }
-        }
-        
-        if let titleLabel = self.titleLabel {
-            if let frame = self.wy_titleRect {
-                titleLabel.frame = frame
-            }
-        }
-    }
     /***** 利用运行时自由设置UIButton的titleLabel和imageView的显示位置 *****/
     
     struct WYAssociatedKeys {
