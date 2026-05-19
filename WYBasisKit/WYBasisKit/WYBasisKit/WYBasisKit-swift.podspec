@@ -398,6 +398,7 @@ Pod::Spec.new do |kit|
       chatView.dependency "WYBasisKit-swift/Authorization/Microphone"
       chatView.dependency "WYBasisKit-swift/Storage"
       chatView.dependency "WYBasisKit-swift/LogManager"
+      chatView.dependency "WYBasisKit-swift/AudioKit"
       chatView.dependency "SnapKit"
       chatView.dependency "Kingfisher"
     end
