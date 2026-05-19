@@ -25,6 +25,7 @@
 		583E04F82E869051004F1034 /* WYTextFieldObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04F72E869051004F1034 /* WYTextFieldObjC.swift */; };
 		583E04FA2E8690D1004F1034 /* WYWebViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04F92E8690D1004F1034 /* WYWebViewObjC.swift */; };
 		583E04FC2E879984004F1034 /* WYViewControllerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04FB2E879984004F1034 /* WYViewControllerObjC.swift */; };
+		584D59E32FBC353300A862F7 /* WYMethodExchangeCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D59E22FBC353300A862F7 /* WYMethodExchangeCenter.swift */; };
 		584EAF012E92791B003A21B8 /* WYLocalizableManagerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF002E92791B003A21B8 /* WYLocalizableManagerObjC.swift */; };
 		584EAF082E92979A003A21B8 /* WYMediaPlayerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF072E92979A003A21B8 /* WYMediaPlayerObjC.swift */; };
 		584EAF0A2E92A7A0003A21B8 /* WYBannerViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF092E92A7A0003A21B8 /* WYBannerViewObjC.swift */; };
@@ -198,6 +199,7 @@
 		583E04F72E869051004F1034 /* WYTextFieldObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTextFieldObjC.swift; sourceTree = "<group>"; };
 		583E04F92E8690D1004F1034 /* WYWebViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYWebViewObjC.swift; sourceTree = "<group>"; };
 		583E04FB2E879984004F1034 /* WYViewControllerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYViewControllerObjC.swift; sourceTree = "<group>"; };
+		584D59E22FBC353300A862F7 /* WYMethodExchangeCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMethodExchangeCenter.swift; sourceTree = "<group>"; };
 		584EAF002E92791B003A21B8 /* WYLocalizableManagerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLocalizableManagerObjC.swift; sourceTree = "<group>"; };
 		584EAF072E92979A003A21B8 /* WYMediaPlayerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaPlayerObjC.swift; sourceTree = "<group>"; };
 		584EAF092E92A7A0003A21B8 /* WYBannerViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYBannerViewObjC.swift; sourceTree = "<group>"; };
@@ -432,6 +434,14 @@
 				580ED5872EA7261F006012E7 /* WYCodableBridge.swift */,
 			);
 			path = Achieve;
+			sourceTree = "<group>";
+		};
+		584D59E12FBC351A00A862F7 /* MethodExchange */ = {
+			isa = PBXGroup;
+			children = (
+				584D59E22FBC353300A862F7 /* WYMethodExchangeCenter.swift */,
+			);
+			path = MethodExchange;
 			sourceTree = "<group>";
 		};
 		585B355B2DF8086C00E6E08F = {
@@ -1960,6 +1970,7 @@
 			isa = PBXGroup;
 			children = (
 				58C68D252E84E436005FD054 /* PrivacyInfo.xcprivacy */,
+				584D59E12FBC351A00A862F7 /* MethodExchange */,
 				58C68CBE2E84E436005FD054 /* Activity */,
 				58C68CC12E84E436005FD054 /* AudioKit */,
 				58C68CD52E84E436005FD054 /* Authorization */,
@@ -2304,6 +2315,7 @@
 				58C68E1E2E84E436005FD054 /* WYSpeechRecognitionAuthorization.swift in Sources */,
 				58C68E1F2E84E436005FD054 /* WYChatPhotoCell.swift in Sources */,
 				58C68E202E84E436005FD054 /* WYStorage.swift in Sources */,
+				584D59E32FBC353300A862F7 /* WYMethodExchangeCenter.swift in Sources */,
 				58C68E212E84E436005FD054 /* WYBannerView.swift in Sources */,
 				58C68E222E84E436005FD054 /* WYCodableObjC.swift in Sources */,
 				58C68E232E84E436005FD054 /* WYTimer.swift in Sources */,
