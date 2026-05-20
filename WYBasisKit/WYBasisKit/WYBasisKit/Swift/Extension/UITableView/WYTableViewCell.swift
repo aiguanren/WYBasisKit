@@ -916,22 +916,12 @@ private extension UITableViewCell {
     
     /// 交换layoutSubviews方法实现
     static let wy_swizzleLayoutSubviews: Void = {
-        let originalSelector = #selector(layoutSubviews)
-        let swizzledSelector = #selector(wy_layoutSubviews)
-        
-        guard let originalMethod = class_getInstanceMethod(UITableViewCell.self, originalSelector),
-              let swizzledMethod = class_getInstanceMethod(UITableViewCell.self, swizzledSelector) else { return }
-        
-        method_exchangeImplementations(originalMethod, swizzledMethod)
+        wy_exchangeLayoutSubviews(for: UITableViewCell.self, before: { currentView in
+            guard let tableViewCell = currentView as? UITableViewCell else { return }
+            // 更新侧滑布局
+            tableViewCell.wy_updateLayoutAndMaintainSideslip()
+        })
     }()
-    
-    @objc func wy_layoutSubviews() {
-        // 调用原始实现
-        self.wy_layoutSubviews()
-        
-        // 更新侧滑布局
-        wy_updateLayoutAndMaintainSideslip()
-    }
     
     /// 启用侧滑功能特性
     static func wy_enableSideslipFeature() {
@@ -943,27 +933,13 @@ private extension UIScrollView {
     
     /// 交换touchesBegan方法实现
     static let wy_swizzleTouchesBegan: Void = {
-        let originalSelector = #selector(touchesBegan(_:with:))
-        let swizzledSelector = #selector(wy_touchesBegan(_:with:))
-        
-        guard let originalMethod = class_getInstanceMethod(UIScrollView.self, originalSelector),
-              let swizzledMethod = class_getInstanceMethod(UIScrollView.self, swizzledSelector) else { return }
-        
-        method_exchangeImplementations(originalMethod, swizzledMethod)
+        wy_exchangeTouchesBegan(for: UIScrollView.self, before: { responder, touches, event in
+            // 确保在触摸开始时关闭已侧滑的cell
+            if let tableView = responder as? UITableView {
+                tableView.wy_closeCurrentOpenedSideslipCellIfNeeded()
+            }
+        })
     }()
-    
-    /**
-     * 处理触摸开始事件
-     * @param touches 触摸集合
-     * @param event 事件对象
-     */
-    @objc func wy_touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        // 确保在触摸开始时关闭已侧滑的cell
-        if let tableView = self as? UITableView {
-            tableView.wy_closeCurrentOpenedSideslipCellIfNeeded()
-        }
-        self.wy_touchesBegan(touches, with: event)
-    }
 }
 
 private extension UITableView {
@@ -992,57 +968,44 @@ private extension UITableView {
     
     /// 交换hitTest方法实现
     private static let swizzleHitTest: Void = {
-        let originalSelector = #selector(hitTest(_:with:))
-        let swizzledSelector = #selector(wy_hitTest(_:with:))
-        
-        guard let originalMethod = class_getInstanceMethod(UITableView.self, originalSelector),
-              let swizzledMethod = class_getInstanceMethod(UITableView.self, swizzledSelector) else { return }
-        
-        method_exchangeImplementations(originalMethod, swizzledMethod)
+        wy_exchangeHitTest(for: UITableView.self, intercept: { currentView, point, event in
+            guard let tableView = currentView as? UITableView else { return .proceed}
+            
+            // 如果当前有打开的侧滑 cell
+            if let cell = tableView.wy_currentOpenedSideslipCell, cell.wy_isSideslipOpened {
+                
+                // 检查左侧滑视图
+                let pointInLeftView = tableView.convert(point, to: cell.wy_leftSideslipContainer)
+                if cell.wy_leftSideslipContainer.bounds.contains(pointInLeftView) {
+                    // 让侧滑视图自己处理 hitTest
+                    let hitView = cell.wy_leftSideslipContainer.hitTest(pointInLeftView, with: event)
+                    if hitView != nil {
+                        return .result(hitView)
+                    }
+                }
+                
+                // 检查右侧滑视图
+                let pointInRightView = tableView.convert(point, to: cell.wy_rightSideslipContainer)
+                if cell.wy_rightSideslipContainer.bounds.contains(pointInRightView) {
+                    // 让侧滑视图自己处理 hitTest
+                    let hitView = cell.wy_rightSideslipContainer.hitTest(pointInRightView, with: event)
+                    if hitView != nil {
+                        return .result(hitView)
+                    }
+                }
+                
+                // 点击在别处，关闭侧滑
+                cell.wy_closeSideslip(animated: true)
+            }
+            
+            // 如果侧滑区域还未关闭或者关闭动画还未执行完毕，此时点击事件落在在非侧滑区域，就return一个nil出去，避免侧滑期间，点击cell后响应cell上控件的点击事件
+            if tableView.wy_sideslipViewDidDismiss == false {
+                return .result(nil)
+            }
+            
+            return .proceed
+        })
     }()
-    
-    /**
-     * 处理hitTest事件
-     * @param point 触摸点
-     * @param event 事件对象
-     * @return 响应的视图
-     */
-    @objc private func wy_hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-        // 如果当前有打开的侧滑 cell
-        if let cell = wy_currentOpenedSideslipCell, cell.wy_isSideslipOpened {
-            
-            // 检查左侧滑视图
-            let pointInLeftView = convert(point, to: cell.wy_leftSideslipContainer)
-            if cell.wy_leftSideslipContainer.bounds.contains(pointInLeftView) {
-                // 让侧滑视图自己处理 hitTest
-                let hitView = cell.wy_leftSideslipContainer.hitTest(pointInLeftView, with: event)
-                if hitView != nil {
-                    return hitView
-                }
-            }
-            
-            // 检查右侧滑视图
-            let pointInRightView = convert(point, to: cell.wy_rightSideslipContainer)
-            if cell.wy_rightSideslipContainer.bounds.contains(pointInRightView) {
-                // 让侧滑视图自己处理 hitTest
-                let hitView = cell.wy_rightSideslipContainer.hitTest(pointInRightView, with: event)
-                if hitView != nil {
-                    return hitView
-                }
-            }
-            
-            // 点击在别处，关闭侧滑
-            cell.wy_closeSideslip(animated: true)
-        }
-        
-        // 如果侧滑区域还未关闭或者关闭动画还未执行完毕，此时点击事件落在在非侧滑区域，就return一个nil出去，避免侧滑期间，点击cell后响应cell上控件的点击事件
-        if wy_sideslipViewDidDismiss == false {
-            return nil
-        }
-        
-        // 走原始 hitTest 行为
-        return self.wy_hitTest(point, with: event)
-    }
     
     /// 关联对象键值
     struct WYAssociatedKeys {
@@ -1182,4 +1145,3 @@ extension UITableViewCell {
         return true
     }
 }
-

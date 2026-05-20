@@ -340,9 +340,9 @@ private extension UIButton {
     // 方法交换
     private static let swizzleLayoutSubviewsOnce: Void = {
         
-        wy_exchangeLayoutSubviews(for: UIButton.self, after: { anyView in
+        wy_exchangeLayoutSubviews(for: UIButton.self, after: { currentView in
             
-            guard let button = anyView as? UIButton else { return }
+            guard let button = currentView as? UIButton else { return }
             
             // 强制 layout 前先 sizeToFit 避免 size 0
             button.titleLabel?.sizeToFit()
