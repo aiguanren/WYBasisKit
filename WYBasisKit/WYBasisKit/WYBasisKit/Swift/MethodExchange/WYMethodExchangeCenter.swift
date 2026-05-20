@@ -89,21 +89,7 @@ public func wy_exchangeControllerPresent(
     WYHooksLock.unlock()
 
     let newBlock: @convention(block) (UIViewController, UIViewController, Bool, (() -> Void)?) -> Void = { receiver, viewControllerToPresent, animated, completion in
-        var currentClass: AnyClass? = type(of: receiver)
-        var foundHooks: Hooks? = nil
-        while let cls = currentClass, cls != NSObject.self {
-            let classKey = "wy_\(String(describing: cls))_\(NSStringFromSelector(selector))"
-            WYHooksLock.lock()
-            let hooks = (WYHooksMap[classKey] as? Hooks)
-            WYHooksLock.unlock()
-            if hooks != nil {
-                foundHooks = hooks
-                break
-            }
-            currentClass = class_getSuperclass(cls)
-        }
-        
-        let hooks = foundHooks ?? Hooks()
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
         let args = (viewControllerToPresent, animated, completion)
         for before in hooks.before {
             before(receiver, selector, args)
@@ -171,21 +157,8 @@ public func wy_exchangeHitTest(
     WYHooksLock.unlock()
 
     let newBlock: @convention(block) (UIView, CGPoint, UIEvent?) -> UIView? = { receiver, point, event in
-        var currentClass: AnyClass? = type(of: receiver)
-        var foundIntercept: ((UIView, CGPoint, UIEvent?) -> WYInterceptDecision)? = nil
-        while let cls = currentClass, cls != NSObject.self {
-            let key = "wy_intercept_\(String(describing: cls))_\(NSStringFromSelector(selector))"
-            WYHooksLock.lock()
-            let intercept = WYHitTestInterceptMap[key]
-            WYHooksLock.unlock()
-            if intercept != nil {
-                foundIntercept = intercept
-                break
-            }
-            currentClass = class_getSuperclass(cls)
-        }
-
-        if let intercept = foundIntercept {
+        // 1. 查找 intercept 决策
+        if let intercept = wy_findHitTestIntercept(for: receiver, selector: selector) {
             switch intercept(receiver, point, event) {
             case .result(let view):
                 return view
@@ -194,21 +167,8 @@ public func wy_exchangeHitTest(
             }
         }
 
-        currentClass = type(of: receiver)
-        var foundHooks: Hooks? = nil
-        while let cls = currentClass, cls != NSObject.self {
-            let classKey = "wy_\(String(describing: cls))_\(NSStringFromSelector(selector))"
-            WYHooksLock.lock()
-            let hooks = (WYHooksMap[classKey] as? Hooks)
-            WYHooksLock.unlock()
-            if hooks != nil {
-                foundHooks = hooks
-                break
-            }
-            currentClass = class_getSuperclass(cls)
-        }
-        
-        let hooks = foundHooks ?? Hooks()
+        // 2. 查找 before/after 钩子
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
         let args = (point, event)
 
         for before in hooks.before {
@@ -273,21 +233,7 @@ public func wy_exchangeLayoutSubviews(
     WYHooksLock.unlock()
 
     let newBlock: @convention(block) (UIView) -> Void = { receiver in
-        var currentClass: AnyClass? = type(of: receiver)
-        var foundHooks: Hooks? = nil
-        while let cls = currentClass, cls != NSObject.self {
-            let classKey = "wy_\(String(describing: cls))_\(NSStringFromSelector(selector))"
-            WYHooksLock.lock()
-            let hooks = (WYHooksMap[classKey] as? Hooks)
-            WYHooksLock.unlock()
-            if hooks != nil {
-                foundHooks = hooks
-                break
-            }
-            currentClass = class_getSuperclass(cls)
-        }
-        
-        let hooks = foundHooks ?? Hooks()
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
         for before in hooks.before {
             before(receiver, selector, ())
         }
@@ -347,21 +293,7 @@ public func wy_exchangeSizeThatFits(
     WYHooksLock.unlock()
 
     let newBlock: @convention(block) (UIView, CGSize) -> CGSize = { receiver, size in
-        var currentClass: AnyClass? = type(of: receiver)
-        var foundHooks: Hooks? = nil
-        while let cls = currentClass, cls != NSObject.self {
-            let classKey = "wy_\(String(describing: cls))_\(NSStringFromSelector(selector))"
-            WYHooksLock.lock()
-            let hooks = (WYHooksMap[classKey] as? Hooks)
-            WYHooksLock.unlock()
-            if hooks != nil {
-                foundHooks = hooks
-                break
-            }
-            currentClass = class_getSuperclass(cls)
-        }
-        
-        let hooks = foundHooks ?? Hooks()
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
         for before in hooks.before {
             before(receiver, selector, size)
         }
@@ -424,21 +356,7 @@ public func wy_exchangeTouchesBegan(
     WYHooksLock.unlock()
 
     let newBlock: @convention(block) (UIResponder, Set<UITouch>, UIEvent?) -> Void = { receiver, touches, event in
-        var currentClass: AnyClass? = type(of: receiver)
-        var foundHooks: Hooks? = nil
-        while let cls = currentClass, cls != NSObject.self {
-            let classKey = "wy_\(String(describing: cls))_\(NSStringFromSelector(selector))"
-            WYHooksLock.lock()
-            let hooks = (WYHooksMap[classKey] as? Hooks)
-            WYHooksLock.unlock()
-            if hooks != nil {
-                foundHooks = hooks
-                break
-            }
-            currentClass = class_getSuperclass(cls)
-        }
-        
-        let hooks = foundHooks ?? Hooks()
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
         let args = (touches, event)
         for before in hooks.before {
             before(receiver, selector, args)
@@ -500,21 +418,7 @@ public func wy_exchangeTouchesCancelled(
     WYHooksLock.unlock()
 
     let newBlock: @convention(block) (UIResponder, Set<UITouch>, UIEvent?) -> Void = { receiver, touches, event in
-        var currentClass: AnyClass? = type(of: receiver)
-        var foundHooks: Hooks? = nil
-        while let cls = currentClass, cls != NSObject.self {
-            let classKey = "wy_\(String(describing: cls))_\(NSStringFromSelector(selector))"
-            WYHooksLock.lock()
-            let hooks = (WYHooksMap[classKey] as? Hooks)
-            WYHooksLock.unlock()
-            if hooks != nil {
-                foundHooks = hooks
-                break
-            }
-            currentClass = class_getSuperclass(cls)
-        }
-        
-        let hooks = foundHooks ?? Hooks()
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
         let args = (touches, event)
         for before in hooks.before {
             before(receiver, selector, args)
@@ -576,21 +480,7 @@ public func wy_exchangeTouchesEnded(
     WYHooksLock.unlock()
 
     let newBlock: @convention(block) (UIResponder, Set<UITouch>, UIEvent?) -> Void = { receiver, touches, event in
-        var currentClass: AnyClass? = type(of: receiver)
-        var foundHooks: Hooks? = nil
-        while let cls = currentClass, cls != NSObject.self {
-            let classKey = "wy_\(String(describing: cls))_\(NSStringFromSelector(selector))"
-            WYHooksLock.lock()
-            let hooks = (WYHooksMap[classKey] as? Hooks)
-            WYHooksLock.unlock()
-            if hooks != nil {
-                foundHooks = hooks
-                break
-            }
-            currentClass = class_getSuperclass(cls)
-        }
-        
-        let hooks = foundHooks ?? Hooks()
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
         let args = (touches, event)
         for before in hooks.before {
             before(receiver, selector, args)
@@ -652,21 +542,7 @@ public func wy_exchangeDrawText(
     WYHooksLock.unlock()
 
     let newBlock: @convention(block) (UILabel, CGRect) -> Void = { receiver, rect in
-        var currentClass: AnyClass? = type(of: receiver)
-        var foundHooks: Hooks? = nil
-        while let cls = currentClass, cls != NSObject.self {
-            let classKey = "wy_\(String(describing: cls))_\(NSStringFromSelector(selector))"
-            WYHooksLock.lock()
-            let hooks = (WYHooksMap[classKey] as? Hooks)
-            WYHooksLock.unlock()
-            if hooks != nil {
-                foundHooks = hooks
-                break
-            }
-            currentClass = class_getSuperclass(cls)
-        }
-        
-        let hooks = foundHooks ?? Hooks()
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
         for before in hooks.before {
             before(receiver, selector, rect)
         }
@@ -726,21 +602,7 @@ public func wy_exchangeIntrinsicContentSize(
     WYHooksLock.unlock()
 
     let newBlock: @convention(block) (UIView) -> CGSize = { receiver in
-        var currentClass: AnyClass? = type(of: receiver)
-        var foundHooks: Hooks? = nil
-        while let cls = currentClass, cls != NSObject.self {
-            let classKey = "wy_\(String(describing: cls))_\(NSStringFromSelector(selector))"
-            WYHooksLock.lock()
-            let hooks = (WYHooksMap[classKey] as? Hooks)
-            WYHooksLock.unlock()
-            if hooks != nil {
-                foundHooks = hooks
-                break
-            }
-            currentClass = class_getSuperclass(cls)
-        }
-        
-        let hooks = foundHooks ?? Hooks()
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
         for before in hooks.before {
             before(receiver, selector, ())
         }
@@ -758,11 +620,11 @@ public func wy_exchangeIntrinsicContentSize(
 }
 
 /// 单个方法的钩子集合（泛型，每个类每个方法独立）
-struct WYMethodHooks<Args, Return> {
+public struct WYMethodHooks<Args, Return> {
     /// 方法执行前的回调数组（观察型，无返回值）
-    var before: [(Any, Selector, Args) -> Void] = []
+    public var before: [(Any, Selector, Args) -> Void] = []
     /// 方法执行后的回调数组，可修改返回值
-    var after: [(Any, Selector, Args, Return) -> Return] = []
+    public var after: [(Any, Selector, Args, Return) -> Return] = []
 }
 
 /// 全局钩子存储容器（存储 before/after，值类型为 Any）
@@ -775,13 +637,59 @@ private let WYHooksLock = NSLock()
 private var WYHitTestInterceptMap: [String: (UIView, CGPoint, UIEvent?) -> WYInterceptDecision] = [:]
 
 /**
+ 沿继承链查找指定选择器的钩子集合
+
+ - Parameters:
+   - receiver: 当前对象
+   - selector: 方法选择器
+ - Returns: 找到的第一个非空钩子集合，若未找到则返回空集合
+ */
+private func wy_findHooks<Args, Return>(for receiver: AnyObject, selector: Selector) -> WYMethodHooks<Args, Return> {
+    var currentClass: AnyClass? = type(of: receiver)
+    while let cls = currentClass, cls != NSObject.self {
+        let key = "wy_\(String(describing: cls))_\(NSStringFromSelector(selector))"
+        WYHooksLock.lock()
+        let hooks = WYHooksMap[key] as? WYMethodHooks<Args, Return>
+        WYHooksLock.unlock()
+        if let hooks = hooks {
+            return hooks
+        }
+        currentClass = class_getSuperclass(cls)
+    }
+    return WYMethodHooks()
+}
+
+/**
+ 沿继承链查找 hitTest 的 intercept 闭包
+
+ - Parameters:
+   - receiver: 当前视图
+   - selector: hitTest 方法选择器
+ - Returns: 找到的第一个 intercept 闭包，若未找到则返回 nil
+ */
+private func wy_findHitTestIntercept(for receiver: UIView, selector: Selector) -> ((UIView, CGPoint, UIEvent?) -> WYInterceptDecision)? {
+    var currentClass: AnyClass? = type(of: receiver)
+    while let cls = currentClass, cls != NSObject.self {
+        let key = "wy_intercept_\(String(describing: cls))_\(NSStringFromSelector(selector))"
+        WYHooksLock.lock()
+        let intercept = WYHitTestInterceptMap[key]
+        WYHooksLock.unlock()
+        if let intercept = intercept {
+            return intercept
+        }
+        currentClass = class_getSuperclass(cls)
+    }
+    return nil
+}
+
+/**
  对指定类的指定方法进行 IMP 替换（仅一次）
  - Parameters:
    - anyClass: 目标类
    - selector: 方法选择器
    - newImpBlock: 新的 Block IMP，类型为 @convention(block)
  */
-func wy_swizzleMethod(
+private func wy_swizzleMethod(
     for anyClass: AnyClass,
     selector: Selector,
     newImpBlock: Any
