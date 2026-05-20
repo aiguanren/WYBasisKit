@@ -19,11 +19,11 @@ import UIKit
 }
 
 /// 拦截返回按钮的点击和侧滑返回事件
-@objc public protocol ViewControllerHandlerProtocol {
+@objc public protocol WYViewControllerHandlerProtocol {
     @objc optional func wy_navigationBarWillReturn() -> Bool
 }
 
-extension UIViewController: ViewControllerHandlerProtocol {
+extension UIViewController: WYViewControllerHandlerProtocol {
     
     /// 拦截返回按钮的点击和侧滑返回事件
     open func wy_navigationBarWillReturn() -> Bool {
@@ -106,39 +106,6 @@ public extension UIViewController {
         return wy_showViewController(className: className, parameters: parameters, displaMode: displaMode, animated: animated)
     }
     
-    /// 返回到指定的视图控制器
-    func wy_backToViewController(className: String, animated: Bool = true) {
-        
-        let controller = wy_sharedControllerName(className: className)
-        guard let controllerClass = NSClassFromString(controller) as? UIViewController.Type else {
-            
-            return
-        }
-        
-        if wy_viewControllerDisplaMode() == .push {
-            
-            guard self.navigationController?.viewControllers.isEmpty == true else { return }
-            
-            let showController: UIViewController? = self.navigationController!.viewControllers.first(where: { $0.isKind(of: controllerClass.self) })
-            
-            guard showController != nil else { return }
-            
-            self.navigationController?.popToViewController(showController!, animated: animated)
-            
-        }else {
-            
-            var presentingController = self.presentingViewController
-            
-            guard presentingController != nil else { return }
-            
-            while !(presentingController!.isKind(of: controllerClass.self)) {
-                
-                presentingController = presentingController?.presentingViewController
-            }
-            presentingController?.dismiss(animated: animated)
-        }
-    }
-    
     /// 跳转到指定的视图控制器(通用)
     func wy_showViewController(controller: UIViewController, parameters: AnyObject? = nil, displaMode: WYDisplaMode = .push, animated: Bool = true) {
         
@@ -183,6 +150,77 @@ public extension UIViewController {
         return displaMode;
     }
     
+    /**
+     返回到指定的视图控制器
+     - Parameters:
+       - className: 要返回到哪个控制器，如果为nil，则表示返回到上一个控制器
+       - returnValue: 要带给回退页面的返回值，默认nil
+       - animated: 是否以动画的方式返回，默认True
+     */
+    func wy_backToViewController(className: String? = nil, returnValue: Any? = nil, animated: Bool = true) {
+        
+        // 确定目标控制器
+        let targetController: UIViewController?
+        
+        if let className = className {
+            // 有指定类名
+            let fullClassName = wy_sharedControllerName(className: className)
+            guard let controllerClass = NSClassFromString(fullClassName) as? UIViewController.Type else {
+                WYLogManager.output("找不到 \(className) 这个控制器")
+                return
+            }
+            
+            if wy_viewControllerDisplaMode() == .push {
+                guard let nav = self.navigationController, !nav.viewControllers.isEmpty else { return }
+                targetController = nav.viewControllers.first(where: { $0.isKind(of: controllerClass.self) })
+            } else {
+                // present 模式下，从当前控制器向上遍历寻找指定类型的控制器
+                var presenter = self.presentingViewController
+                while presenter != nil && !(presenter!.isKind(of: controllerClass.self)) {
+                    presenter = presenter?.presentingViewController
+                }
+                targetController = presenter
+            }
+        } else {
+            // className 为 nil：返回到上一个控制器
+            if wy_viewControllerDisplaMode() == .push {
+                guard let nav = self.navigationController,
+                      let index = nav.viewControllers.firstIndex(of: self),
+                      index > 0 else { return }
+                targetController = nav.viewControllers[index - 1]
+            } else {
+                // present 模式，上一个控制器就是 presentingViewController
+                targetController = self.presentingViewController
+            }
+        }
+        
+        guard let target = targetController else { return }
+        
+        // 将返回值传递给目标控制器
+        target.wy_returnValue = returnValue
+        
+        // 执行返回操作
+        if wy_viewControllerDisplaMode() == .push,
+           let nav = self.navigationController,
+           nav.viewControllers.contains(self) {
+            // push 模式：pop 到目标控制器
+            nav.popToViewController(target, animated: animated)
+        } else {
+            // present 模式：dismiss 到目标控制器（注意：如果目标不是直接 presenting，需要多层 dismiss）
+            if target == self.presentingViewController {
+                // 上一层，直接 dismiss
+                self.dismiss(animated: animated)
+            } else {
+                // 多层 present，需要找到从目标控制器到当前控制器的 presenting 链的最底层
+                var top = self
+                while let presenter = top.presentingViewController, presenter != target {
+                    top = presenter
+                }
+                top.dismiss(animated: animated)
+            }
+        }
+    }
+    
     /// 控制器附加参数
     var wy_parameters: AnyObject? {
         
@@ -194,12 +232,23 @@ public extension UIViewController {
         }
     }
     
+    /// 控制器触发返回操作时回调给指定页面的返回值
+    var wy_returnValue: Any? {
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_returnValue)
+        }
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_returnValue, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+    }
+    
     private func wy_sharedControllerName(className: String) -> String {
         return WYProjectInfo.isSwiftProject ? (WYProjectInfo.projectName + "." + className) : className
     }
     
     private struct WYAssociatedKeys {
         static var wy_parameters: UInt8 = 0
+        static var wy_returnValue: UInt8 = 0
     }
 }
 

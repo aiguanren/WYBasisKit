@@ -143,6 +143,11 @@
 
 @implementation WYMainController
 
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    wy_print(@"returnValue = %@",self.wy_returnValue);
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.

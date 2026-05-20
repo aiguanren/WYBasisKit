@@ -122,6 +122,11 @@ class WYMainController: UIViewController {
         return tableview
     }()
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        wy_print("returnValue = \(String(describing: wy_returnValue))")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         

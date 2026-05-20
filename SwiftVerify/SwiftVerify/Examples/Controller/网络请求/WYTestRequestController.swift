@@ -10,6 +10,8 @@ import UIKit
 import os_object
 
 class WYTestRequestController: UIViewController {
+    
+    let textView = UITextView()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -17,7 +19,6 @@ class WYTestRequestController: UIViewController {
         // Do any additional setup after loading the view.
         view.backgroundColor = .white
         
-        let textView = UITextView()
         textView.frame = CGRect(x: 0, y: UIDevice.wy_navViewHeight, width: UIDevice.wy_screenWidth, height: UIDevice.wy_screenHeight - UIDevice.wy_navViewHeight)
         textView.isEditable = false
         textView.textColor = .black
@@ -47,7 +48,7 @@ class WYTestRequestController: UIViewController {
 
                 WYLogManager.output((success.isCache ? "是" : "不是") + "缓存数据" + "\n" + "\((config.originObject ? success.origin : success.parse))")
 
-                textView.text = (config.originObject ? success.origin : success.parse)
+                self?.textView.text = (config.originObject ? success.origin : success.parse)
 
                 if success.isCache == false {
                     WYActivity.dismissLoading(in: self!.view)
@@ -68,6 +69,11 @@ class WYTestRequestController: UIViewController {
                 break
             }
         }
+    }
+    
+    override func wy_navigationBarWillReturn() -> Bool {
+        wy_backToViewController(returnValue: textView.text)
+        return false
     }
 
     /*

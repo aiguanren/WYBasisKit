@@ -10,6 +10,8 @@
 
 @interface WYTestRequestController ()
 
+@property (nonatomic, strong) UITextView *textView;
+
 @end
 
 @implementation WYTestRequestController
@@ -18,11 +20,11 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
-    UITextView *textView = [[UITextView alloc] init];
-    textView.frame = CGRectMake(0, [UIDevice wy_navViewHeight], [UIDevice wy_screenWidth], [UIDevice wy_screenHeight] - [UIDevice wy_navViewHeight]);
-    textView.editable = NO;
-    textView.textColor = [UIColor blackColor];
-    [self.view addSubview:textView];
+    _textView = [[UITextView alloc] init];
+    _textView.frame = CGRectMake(0, [UIDevice wy_navViewHeight], [UIDevice wy_screenWidth], [UIDevice wy_screenHeight] - [UIDevice wy_navViewHeight]);
+    _textView.editable = NO;
+    _textView.textColor = [UIColor blackColor];
+    [self.view addSubview:_textView];
     
     NSString *cacheKey = @"testCache";
     WYNetworkConfig *config = [WYNetworkConfig defaultConfig];
@@ -41,14 +43,18 @@
     option.delay = delay;
     [WYActivity showLoading:@"加载中" in:self.view option:option];
     
+    wy_weakify(self);
     [WYNetworkManager requestWithMethod:WYHTTPMethodGet path:@"one" parameter:nil config:config handler:^(WYHandler * _Nonnull handler) {
+        
+        wy_strongify(self);
+        if (!self) return;
         
         if (handler.success) {
             WYSuccess *success = handler.success;
             
             wy_print(@"%@缓存数据\n%@", (success.isCache ? @"是" : @"不是"), (config.originObject ? success.origin : success.parse));
             
-            textView.text = (config.originObject ? success.origin : success.parse);
+            self.textView.text = (config.originObject ? success.origin : success.parse);
             
             if (!success.isCache) {
                 [WYActivity dismissLoadingIn:self.view];
@@ -60,6 +66,9 @@
             
         } else if (handler.error) {
             
+            wy_strongify(self);
+            if (!self) return;
+            
             WYError *error = handler.error;
             wy_print(@"%@", error);
             [WYActivity dismissLoadingIn:self.view];
@@ -69,6 +78,11 @@
             NSLog(@"网络请求进度：%f",handler.progress.progress);
         }
     }];
+}
+
+- (BOOL)wy_navigationBarWillReturn {
+    [self wy_backToLastViewControllerWithReturnValue:_textView.text animated:YES];
+    return NO;
 }
 
 /*
