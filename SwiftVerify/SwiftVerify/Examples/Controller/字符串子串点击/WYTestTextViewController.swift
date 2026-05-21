@@ -21,6 +21,9 @@ class WYTestTextViewController: UIViewController {
     /// 非链接区域事件穿透，默认false，第一响应者为UITextView，为true时将穿透至父View
     var wy_eventPenetration: Bool = false
     
+    /// 字符文本的字体
+    var useCustomFont: Bool = false
+    
     var tableView: UITableView? = nil
 
     override func viewDidLoad() {
@@ -42,8 +45,11 @@ class WYTestTextViewController: UIViewController {
         
         let longPressMinimumDurationView: UIButton = createButton(title: "长按手势触发\n的最小时长", selecror: #selector(longPressMinimumDuration), superView: contentView, leftView: longPressEffectColorView, topView: nil, isRight: true)
         
-        let eventPenetration: UIButton = createButton(title: "非链接区域\n(开启)事件穿透", selecror: #selector(eventPenetration(sender:)), superView: contentView, leftView: nil, topView: longPressMinimumDurationView, isLast: true)
-        eventPenetration.setTitle("非链接区域\n(关闭)事件穿透", for: .selected)
+        let eventPenetrationView: UIButton = createButton(title: "非链接区域\n(开启)事件穿透", selecror: #selector(eventPenetration(sender:)), superView: contentView, leftView: nil, topView: longPressMinimumDurationView)
+        eventPenetrationView.setTitle("非链接区域\n(关闭)事件穿透", for: .selected)
+        
+        let useCustomFontView: UIButton = createButton(title: "不使用自定义字体", selecror: #selector(useCustomFont(sender:)), superView: contentView, leftView: eventPenetrationView, topView: longPressMinimumDurationView, isLast: true)
+        useCustomFontView.setTitle("使用自定义字体", for: .selected)
         
         tableView = UITableView.wy_shared(delegate: self, dataSource: self, superView: view)
         tableView?.wy_register(WYTestTextViewCell.self, .cell)
@@ -139,6 +145,12 @@ class WYTestTextViewController: UIViewController {
         tableView?.reloadData()
     }
     
+    @objc func useCustomFont(sender: UIButton) {
+        sender.isSelected = !sender.isSelected
+        useCustomFont = sender.isSelected
+        tableView?.reloadData()
+    }
+    
     deinit {
         wy_print("WYTestTextViewController release")
     }
@@ -163,7 +175,7 @@ extension WYTestTextViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell: WYTestTextViewCell = tableView.dequeueReusableCell(withIdentifier: "WYTestTextViewCell", for: indexPath) as! WYTestTextViewCell
-        cell.reload(clickEffectColor: wy_clickEffectColor, longPressEffectColor: wy_longPressEffectColor, longPressMinimumDuration: wy_longPressMinimumDuration, eventPenetration: wy_eventPenetration)
+        cell.reload(clickEffectColor: wy_clickEffectColor, longPressEffectColor: wy_longPressEffectColor, longPressMinimumDuration: wy_longPressMinimumDuration, eventPenetration: wy_eventPenetration, useCustomFont: useCustomFont)
         return cell
     }
     
