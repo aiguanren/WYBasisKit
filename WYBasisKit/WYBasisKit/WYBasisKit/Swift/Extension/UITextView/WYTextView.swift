@@ -575,7 +575,7 @@ private extension UITextView {
     }
     
     /// 判断当前触摸点是否应该让事件穿透（即忽略自身，传递给父视图）。
-    fileprivate func shouldPenetrateHitTest(at point: CGPoint) -> Bool {
+    func shouldPenetrateHitTest(at point: CGPoint) -> Bool {
     
         guard wy_eventPenetration else { return false }
         

@@ -58,6 +58,9 @@
             [[ListItem alloc] initWithTitle:@"富文本"
                                  controller:@"WYTestRichTextController"],
             
+            [[ListItem alloc] initWithTitle:@"字符串子串点击"
+                                 controller:@"WYTestTextViewController"],
+            
             [[ListItem alloc] initWithTitle:@"无限层折叠TableView"
                                  controller:@"WYMultilevelTableViewController"],
             

@@ -26,6 +26,7 @@
 		583E04FA2E8690D1004F1034 /* WYWebViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04F92E8690D1004F1034 /* WYWebViewObjC.swift */; };
 		583E04FC2E879984004F1034 /* WYViewControllerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04FB2E879984004F1034 /* WYViewControllerObjC.swift */; };
 		584D59E32FBC353300A862F7 /* WYMethodExchangeCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D59E22FBC353300A862F7 /* WYMethodExchangeCenter.swift */; };
+		584D59E62FBEEE8400A862F7 /* WYTextViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D59E52FBEEE8400A862F7 /* WYTextViewObjC.swift */; };
 		584EAF012E92791B003A21B8 /* WYLocalizableManagerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF002E92791B003A21B8 /* WYLocalizableManagerObjC.swift */; };
 		584EAF082E92979A003A21B8 /* WYMediaPlayerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF072E92979A003A21B8 /* WYMediaPlayerObjC.swift */; };
 		584EAF0A2E92A7A0003A21B8 /* WYBannerViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF092E92A7A0003A21B8 /* WYBannerViewObjC.swift */; };
@@ -200,6 +201,7 @@
 		583E04F92E8690D1004F1034 /* WYWebViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYWebViewObjC.swift; sourceTree = "<group>"; };
 		583E04FB2E879984004F1034 /* WYViewControllerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYViewControllerObjC.swift; sourceTree = "<group>"; };
 		584D59E22FBC353300A862F7 /* WYMethodExchangeCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMethodExchangeCenter.swift; sourceTree = "<group>"; };
+		584D59E52FBEEE8400A862F7 /* WYTextViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTextViewObjC.swift; sourceTree = "<group>"; };
 		584EAF002E92791B003A21B8 /* WYLocalizableManagerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLocalizableManagerObjC.swift; sourceTree = "<group>"; };
 		584EAF072E92979A003A21B8 /* WYMediaPlayerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaPlayerObjC.swift; sourceTree = "<group>"; };
 		584EAF092E92A7A0003A21B8 /* WYBannerViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYBannerViewObjC.swift; sourceTree = "<group>"; };
@@ -442,6 +444,14 @@
 				584D59E22FBC353300A862F7 /* WYMethodExchangeCenter.swift */,
 			);
 			path = MethodExchange;
+			sourceTree = "<group>";
+		};
+		584D59E42FBEEE5000A862F7 /* UITextView */ = {
+			isa = PBXGroup;
+			children = (
+				584D59E52FBEEE8400A862F7 /* WYTextViewObjC.swift */,
+			);
+			path = UITextView;
 			sourceTree = "<group>";
 		};
 		585B355B2DF8086C00E6E08F = {
@@ -877,6 +887,7 @@
 				58C68C6C2E84E436005FD054 /* Int */,
 				58C68C6E2E84E436005FD054 /* NSObject */,
 				58C68C702E84E436005FD054 /* NumberFormatter */,
+				58C68C892E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68C722E84E436005FD054 /* String */,
 				58C68C742E84E436005FD054 /* Timer */,
 				58C68C752E84E436005FD054 /* UIAlertController */,
@@ -891,10 +902,10 @@
 				58C68C832E84E436005FD054 /* UIScrollView */,
 				58C68C842E84E436005FD054 /* UITableView */,
 				58C68C852E84E436005FD054 /* UITextField */,
+				584D59E42FBEEE5000A862F7 /* UITextView */,
 				58C68C862E84E436005FD054 /* UIView */,
 				58C68C872E84E436005FD054 /* UIViewController */,
 				58C68C882E84E436005FD054 /* WKWebView */,
-				58C68C892E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -1600,7 +1611,6 @@
 		58C68D262E84E436005FD054 /* Extension */ = {
 			isa = PBXGroup;
 			children = (
-				58EE7B092FB84A49009AA0CC /* UITextView */,
 				58C68CE82E84E436005FD054 /* Array */,
 				58C68CEA2E84E436005FD054 /* AttributedString */,
 				58C68CEC2E84E436005FD054 /* Bool */,
@@ -1628,6 +1638,7 @@
 				58C68D1A2E84E436005FD054 /* UIScrollView */,
 				58C68D1C2E84E436005FD054 /* UITableView */,
 				58C68D1E2E84E436005FD054 /* UITextField */,
+				58EE7B092FB84A49009AA0CC /* UITextView */,
 				58C68D202E84E436005FD054 /* UIView */,
 				58C68D222E84E436005FD054 /* UIViewController */,
 				58C68D242E84E436005FD054 /* WKWebView */,
@@ -2278,6 +2289,7 @@
 				58C68DFE2E84E436005FD054 /* WYEmojiFuncAreaView.swift in Sources */,
 				5802B28E2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift in Sources */,
 				58C68DFF2E84E436005FD054 /* WYChatInputView.swift in Sources */,
+				584D59E62FBEEE8400A862F7 /* WYTextViewObjC.swift in Sources */,
 				58C68E002E84E436005FD054 /* WYArray.swift in Sources */,
 				58C68E012E84E436005FD054 /* WYContactsAuthorization.swift in Sources */,
 				58C68E022E84E436005FD054 /* WYWebView.swift in Sources */,

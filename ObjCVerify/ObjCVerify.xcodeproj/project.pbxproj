@@ -16,6 +16,8 @@
 		580ED5822EA62AE9006012E7 /* WYArchivedController.m in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5812EA62AE9006012E7 /* WYArchivedController.m */; };
 		582732112E9F8CDF00DAD1AA /* WYTestDarkNightModeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 582732102E9F8CDF00DAD1AA /* WYTestDarkNightModeController.m */; };
 		582917432FB0C3FD0006F98D /* NotoSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 582917422FB0C3FD0006F98D /* NotoSans-Regular.ttf */; };
+		584D59EA2FBEF27F00A862F7 /* WYTestTextViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 584D59E92FBEF27F00A862F7 /* WYTestTextViewController.m */; };
+		584D59ED2FBEF2C100A862F7 /* WYTestTextViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 584D59EC2FBEF2C100A862F7 /* WYTestTextViewCell.m */; };
 		584D75142F7236E5006C05E7 /* WYTestImageRenderingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 584D75122F7236E5006C05E7 /* WYTestImageRenderingController.m */; };
 		584D75152F7236E5006C05E7 /* WYTestImageRenderingController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 584D75132F7236E5006C05E7 /* WYTestImageRenderingController.xib */; };
 		584D751D2F72822D006C05E7 /* 彩色花.webp in Resources */ = {isa = PBXBuildFile; fileRef = 584D751C2F72822D006C05E7 /* 彩色花.webp */; };
@@ -167,6 +169,10 @@
 		5827327C2E9FA6D200DAD1AA /* km */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = km; path = km.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		5827327D2E9FA6D200DAD1AA /* km */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = km; path = km.lproj/Main.strings; sourceTree = "<group>"; };
 		582917422FB0C3FD0006F98D /* NotoSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NotoSans-Regular.ttf"; sourceTree = "<group>"; };
+		584D59E82FBEF27F00A862F7 /* WYTestTextViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestTextViewController.h; sourceTree = "<group>"; };
+		584D59E92FBEF27F00A862F7 /* WYTestTextViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestTextViewController.m; sourceTree = "<group>"; };
+		584D59EB2FBEF2C100A862F7 /* WYTestTextViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestTextViewCell.h; sourceTree = "<group>"; };
+		584D59EC2FBEF2C100A862F7 /* WYTestTextViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestTextViewCell.m; sourceTree = "<group>"; };
 		584D75112F7236E5006C05E7 /* WYTestImageRenderingController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestImageRenderingController.h; sourceTree = "<group>"; };
 		584D75122F7236E5006C05E7 /* WYTestImageRenderingController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestImageRenderingController.m; sourceTree = "<group>"; };
 		584D75132F7236E5006C05E7 /* WYTestImageRenderingController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WYTestImageRenderingController.xib; sourceTree = "<group>"; };
@@ -338,6 +344,15 @@
 			path = "暗夜、白昼模式";
 			sourceTree = "<group>";
 		};
+		584D59E72FBEF25B00A862F7 /* 字符串子串点击 */ = {
+			isa = PBXGroup;
+			children = (
+				584D59E82FBEF27F00A862F7 /* WYTestTextViewController.h */,
+				584D59E92FBEF27F00A862F7 /* WYTestTextViewController.m */,
+			);
+			path = "字符串子串点击";
+			sourceTree = "<group>";
+		};
 		584D75102F7236D4006C05E7 /* 图片渲染 */ = {
 			isa = PBXGroup;
 			children = (
@@ -444,6 +459,8 @@
 			children = (
 				58B470492E8D32D200D04BCA /* WYLeftControllerHeaderView.h */,
 				58B4704A2E8D32D200D04BCA /* WYLeftControllerHeaderView.m */,
+				584D59EB2FBEF2C100A862F7 /* WYTestTextViewCell.h */,
+				584D59EC2FBEF2C100A862F7 /* WYTestTextViewCell.m */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -451,6 +468,7 @@
 		58B470482E8D329600D04BCA /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				584D59E72FBEF25B00A862F7 /* 字符串子串点击 */,
 				584D75102F7236D4006C05E7 /* 图片渲染 */,
 				58C359622F3C60F3000E6EF0 /* 图片拼接 */,
 				5827320E2E9F8CAB00DAD1AA /* 暗夜、白昼模式 */,
@@ -927,9 +945,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -944,9 +966,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -980,11 +1006,13 @@
 				58BFB8B42F16411A0094DDB5 /* WYLogController.m in Sources */,
 				58BFB8A52F14EE350094DDB5 /* WYTestLiveStreamingController.m in Sources */,
 				58DEA9C92F0F7CB600664E13 /* WYTestRichTextController.m in Sources */,
+				584D59ED2FBEF2C100A862F7 /* WYTestTextViewCell.m in Sources */,
 				58B470442E8D11E200D04BCA /* WYRightController.m in Sources */,
 				580ED56E2EA5DB0E006012E7 /* UserRequest.m in Sources */,
 				580ED56B2EA5DAE5006012E7 /* SDKResponse.m in Sources */,
 				58BFB87F2F1494000094DDB5 /* WYTestDownloadController.m in Sources */,
 				58BFB8BC2F1649A20094DDB5 /* WYTestScrollTextController.m in Sources */,
+				584D59EA2FBEF27F00A862F7 /* WYTestTextViewController.m in Sources */,
 				580ED5712EA5DB37006012E7 /* UserResponse.m in Sources */,
 				58BFB8A92F1634040094DDB5 /* WYSpeechRecognitionController.m in Sources */,
 				58B470412E8D11D400D04BCA /* WYCenterController.m in Sources */,
