@@ -61,16 +61,22 @@ public extension UITextView {
     var wy_longPressMinimumDuration: TimeInterval {
         set {
             objc_setAssociatedObject(self, &WYAssociatedKeys.wy_longPressMinimumDuration, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-            if let gesture = wy_longPressGesture {
-                gesture.minimumPressDuration = newValue
-            }
         }
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_longPressMinimumDuration) as? TimeInterval ?? 0.5 }
     }
     
-    /// 非链接区域事件是否需要穿透UITextView，默认False(为False时点击指定字符串之外区域，事件按照UITextVeiw默认响应链响应，为True时，将跳过UITextVeiw，直接响应事件到UITextVeiw的父View)
+    /// 非链接区域的点击事件是否需要穿透UITextView，默认False(为False时点击指定字符串之外区域，事件按照UITextVeiw默认响应链响应，为True时，将跳过UITextVeiw，直接响应事件到UITextVeiw的父View)
     var wy_eventPenetration: Bool {
-        set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_eventPenetration, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_eventPenetration, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            self.setNeedsLayout()
+            // 确保 hitTest 方法交换已执行
+            self.enableHitTestPenetrationIfNeeded()
+            // 主动触发一次 hitTest 调用，使方法交换立即在系统中注册，保证第一次点击就能使用新逻辑
+            if newValue {
+                _ = self.hitTest(CGPoint(x: -100, y: -100), with: nil)
+            }
+        }
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_eventPenetration) as? Bool ?? false }
     }
     
@@ -85,7 +91,7 @@ public extension UITextView {
         let registration = WYTextTouchRegistration(rangeValue: rangeValue, type: .tap, handler: handler, delegate: nil)
         addRegistration(registration)
         reloadTouchActions()
-        setupTapGestureIfNeeded()
+        configureForTouchEvents()
         startObservingTextChanges()
         enableHitTestPenetrationIfNeeded()
     }
@@ -100,7 +106,7 @@ public extension UITextView {
         let registration = WYTextTouchRegistration(rangeValue: rangeValue, type: .longPress, handler: handler, delegate: nil)
         addRegistration(registration)
         reloadTouchActions()
-        setupLongPressGestureIfNeeded()
+        configureForTouchEvents()
         startObservingTextChanges()
         enableHitTestPenetrationIfNeeded()
     }
@@ -116,7 +122,7 @@ public extension UITextView {
         let registration = WYTextTouchRegistration(rangeValue: rangeValue, type: .tap, handler: nil, delegate: delegate)
         addRegistration(registration)
         reloadTouchActions()
-        setupTapGestureIfNeeded()
+        configureForTouchEvents()
         startObservingTextChanges()
         enableHitTestPenetrationIfNeeded()
     }
@@ -132,7 +138,7 @@ public extension UITextView {
         let registration = WYTextTouchRegistration(rangeValue: rangeValue, type: .longPress, handler: nil, delegate: delegate)
         addRegistration(registration)
         reloadTouchActions()
-        setupLongPressGestureIfNeeded()
+        configureForTouchEvents()
         startObservingTextChanges()
         enableHitTestPenetrationIfNeeded()
     }
@@ -206,6 +212,8 @@ private extension UITextView {
         static var wy_longPressEffectColor: UInt8 = 0
         /// 长按最小持续时间关联键
         static var wy_longPressMinimumDuration: UInt8 = 0
+        /// 长按允许移动距离关联键
+        static var wy_longPressAllowableMovement: UInt8 = 0
         /// 是否启用链接点击关联键
         static var wy_enableLinkHitTest: UInt8 = 0
         /// 链接点击回调关联键
@@ -214,10 +222,6 @@ private extension UITextView {
         static var wy_tapActions: UInt8 = 0
         /// 所有长按动作列表关联键
         static var wy_longPressActions: UInt8 = 0
-        /// 点击手势关联键
-        static var wy_tapGesture: UInt8 = 0
-        /// 长按手势关联键
-        static var wy_longPressGesture: UInt8 = 0
         /// 点击原始注册信息列表关联键
         static var wy_tapRegistrations: UInt8 = 0
         /// 长按原始注册信息列表关联键
@@ -230,18 +234,28 @@ private extension UITextView {
         static var wy_eventPenetration: UInt8 = 0
         /// 当前高亮的文本区间关联键
         static var wy_highlightedRange: UInt8 = 0
-        /// 长按是否已触发标记关联键
-        static var wy_isLongPressTriggered: UInt8 = 0
-        /// 是否正在处理点击标记关联键
-        static var wy_isTapHandling: UInt8 = 0
-        /// 最后一次点击处理的时间戳关联键
-        static var wy_lastTapHandledTime: UInt8 = 0
+        /// 触摸开始时记录的点
+        static var wy_touchStartPoint: UInt8 = 0
+        /// 触摸开始时匹配到的所有点击动作（数组）
+        static var wy_touchStartTapActions: UInt8 = 0
+        /// 长按计时器
+        static var wy_longPressTimer: UInt8 = 0
+        /// 长按是否已触发
+        static var wy_longPressTriggered: UInt8 = 0
+        /// 触摸开始时匹配到的长按动作（用于计时器）
+        static var wy_touchStartLongAction: UInt8 = 0
     }
     
     /// 是否启用对链接（.link）的点击响应。若开启，则点击链接时会调用 `wy_linkTapHandler`。
     var wy_enableLinkHitTest: Bool {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_enableLinkHitTest, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_enableLinkHitTest) as? Bool ?? false }
+    }
+    
+    /// 长按时允许手指移动的最大距离（点），超过则取消长按识别，默认10像素
+    var wy_longPressAllowableMovement: CGFloat {
+        set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_longPressAllowableMovement, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+        get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_longPressAllowableMovement) as? CGFloat ?? 10 }
     }
     
     /// 链接点击时的回调闭包，接收被点击的 URL。
@@ -274,51 +288,49 @@ private extension UITextView {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_longPressRegistrations, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
     }
     
-    /// 添加的点击手势识别器。
-    var wy_tapGesture: UITapGestureRecognizer? {
-        get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_tapGesture) as? UITapGestureRecognizer }
-        set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_tapGesture, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
-    }
-    
-    /// 添加的长按手势识别器。
-    var wy_longPressGesture: UILongPressGestureRecognizer? {
-        get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_longPressGesture) as? UILongPressGestureRecognizer }
-        set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_longPressGesture, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
-    }
-    
     /// 当前正在高亮显示的文本区间，用于按下时背景色。
     var wy_highlightedRange: NSRange? {
         get { (objc_getAssociatedObject(self, &WYAssociatedKeys.wy_highlightedRange) as? NSValue)?.rangeValue }
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_highlightedRange, newValue.map { NSValue(range: $0) }, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
     }
     
-    /// 长按手势是否已经触发的标记，用于避免点击和长按冲突。
-    var wy_isLongPressTriggered: Bool {
-        get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_isLongPressTriggered) as? Bool ?? false }
-        set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_isLongPressTriggered, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+    /// 触摸开始时的点（用于移动距离判断）
+    var wy_touchStartPoint: CGPoint {
+        get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_touchStartPoint) as? CGPoint ?? .zero }
+        set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_touchStartPoint, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
     }
     
-    /// 是否正在处理点击事件的标记，用于防止短时间内重复触发。
-    var wy_isTapHandling: Bool {
-        get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_isTapHandling) as? Bool ?? false }
-        set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_isTapHandling, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+    /// 触摸开始时匹配到的所有点击动作（用于点击回调）
+    var wy_touchStartTapActions: [WYTextTouchAction] {
+        get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_touchStartTapActions) as? [WYTextTouchAction] ?? [] }
+        set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_touchStartTapActions, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
     }
     
-    /// 上一次成功处理点击事件的时间戳，用于防抖。
-    var wy_lastTapHandledTime: TimeInterval {
-        get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_lastTapHandledTime) as? TimeInterval ?? 0 }
-        set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_lastTapHandledTime, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+    /// 长按计时器
+    var wy_longPressTimer: DispatchWorkItem? {
+        get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_longPressTimer) as? DispatchWorkItem }
+        set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_longPressTimer, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+    }
+    
+    /// 长按是否已触发
+    var wy_longPressTriggered: Bool {
+        get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_longPressTriggered) as? Bool ?? false }
+        set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_longPressTriggered, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+    }
+    
+    /// 触摸开始时匹配到的长按动作（用于计时器触发）
+    var wy_touchStartLongAction: WYTextTouchAction? {
+        get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_touchStartLongAction) as? WYTextTouchAction }
+        set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_touchStartLongAction, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
     }
     
     /// KVO 观察者类，用于监听 text / attributedText 变化。
     class WYTextObserver: NSObject {
-        /// 被观察的 UITextView 实例（弱引用）
         weak var textView: UITextView?
         init(textView: UITextView) {
             self.textView = textView
             super.init()
         }
-        /// 当监听的属性发生变化时，触发重新解析动作列表
         override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
             guard let textView = textView else { return }
             if keyPath == "text" || keyPath == "attributedText" {
@@ -327,10 +339,21 @@ private extension UITextView {
         }
     }
     
-    /// 文本内容观察者对象。
     var wy_textObserver: WYTextObserver? {
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_textObserver) as? WYTextObserver }
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_textObserver, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+    }
+    
+    /// 为触摸事件配置 TextView：禁用编辑和选择，避免系统干扰
+    func configureForTouchEvents() {
+        if isSelectable {
+            isSelectable = false
+        }
+        if isEditable {
+            isEditable = false
+        }
+        // 禁用视图延迟触摸，使 touchesBegan 能够立即触发，避免系统手势门禁导致的延迟
+        self.delaysContentTouches = false
     }
     
     /// 将注册信息添加到对应的注册列表（点击/长按），避免重复添加。
@@ -406,82 +429,11 @@ private extension UITextView {
     /// 交换 hitTest 方法，注入穿透判断逻辑。
     func swizzleHitTestMethod() {
         wy_exchangeHitTest(for: UITextView.self, after: { view, point, event, originalResult in
-            if let textView = originalResult as? UITextView, textView.shouldPenetrateHitTest(at: point) {
+            if let textView = view as? UITextView, textView.shouldPenetrateHitTest(at: point) {
                 return nil
             }
             return originalResult
         })
-    }
-    
-    /// 添加点击手势
-    func setupTapGestureIfNeeded() {
-        guard wy_tapGesture == nil else { return }
-        isSelectable = false
-        isEditable = false
-        let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
-        tap.cancelsTouchesInView = false
-        addGestureRecognizer(tap)
-        wy_tapGesture = tap
-    }
-    
-    /// 添加长按手势
-    func setupLongPressGestureIfNeeded() {
-        guard !wy_longPressActions.isEmpty, wy_longPressGesture == nil else { return }
-        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
-        longPress.minimumPressDuration = wy_longPressMinimumDuration
-        longPress.cancelsTouchesInView = false
-        addGestureRecognizer(longPress)
-        wy_longPressGesture = longPress
-    }
-    
-    /// 处理点击手势
-    @objc func handleTap(_ gesture: UITapGestureRecognizer) {
-        guard gesture.state == .ended else { return }
-        
-        let now = Date().timeIntervalSince1970
-        if wy_isTapHandling || (now - wy_lastTapHandledTime < 0.2) { return }
-        
-        wy_isTapHandling = true
-        wy_lastTapHandledTime = now
-        
-        defer {
-            // 无论是否命中，都尝试清理高亮
-            self.clearHighlightIfNeeded()
-            self.wy_isTapHandling = false
-        }
-        
-        if wy_isLongPressTriggered {
-            wy_isLongPressTriggered = false
-            return
-        }
-        
-        let point = gesture.location(in: self)
-        let actions = allActionsForPoint(point, actions: wy_tapActions)
-        
-        if !actions.isEmpty {
-            for action in actions {
-                let text = (self.attributedText?.string as? NSString ?? self.text as NSString?)?.substring(with: action.range) ?? ""
-                if let handler = action.handler {
-                    handler(self, text, action.range, action.index)
-                }
-                if let delegate = action.delegate {
-                    delegate.wy_textViewTextDidClick?(self, text: text, range: action.range, index: action.index)
-                }
-            }
-            return
-        }
-        
-        if wy_enableLinkHitTest, let url = linkURLAtPoint(point) {
-            wy_linkTapHandler?(url)
-            return
-        }
-        
-        if wy_eventPenetration {
-            gesture.isEnabled = false
-            DispatchQueue.main.async {
-                gesture.isEnabled = true
-            }
-        }
     }
     
     /// 清理当前高亮区间（若有）。
@@ -489,31 +441,6 @@ private extension UITextView {
         if let range = wy_highlightedRange {
             removeHighlight(for: range)
             wy_highlightedRange = nil
-        }
-    }
-    
-    /// 处理长按手势
-    @objc func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
-        
-        switch gesture.state {
-        case .began:
-            guard !wy_longPressActions.isEmpty, gesture.state == .began else { return }
-            wy_isLongPressTriggered = true
-            let point = gesture.location(in: self)
-            let actions = allActionsForPoint(point, actions: wy_longPressActions)
-            for action in actions {
-                let text = (self.attributedText?.string as? NSString ?? self.text as NSString?)?.substring(with: action.range) ?? ""
-                if let handler = action.handler {
-                    handler(self, text, action.range, action.index)
-                }
-                if let delegate = action.delegate {
-                    delegate.wy_textViewTextDidLongPress?(self, text: text, range: action.range, index: action.index)
-                }
-            }
-        default:
-            // 兜底清理（防止 touchesEnded 没来得及执行的情况）
-            clearHighlightIfNeeded()
-            wy_isLongPressTriggered = false
         }
     }
     
@@ -576,7 +503,6 @@ private extension UITextView {
     
     /// 判断当前触摸点是否应该让事件穿透（即忽略自身，传递给父视图）。
     func shouldPenetrateHitTest(at point: CGPoint) -> Bool {
-    
         guard wy_eventPenetration else { return false }
         
         // 穿透前尝试清理高亮
@@ -595,35 +521,127 @@ private extension UITextView {
         return true
     }
     
-    /// 一次性交换触摸开始、结束、取消以及 hitTest 方法，用于实现高亮和穿透。
+    // 长按计时器管理
+    func startLongPressTimer(for action: WYTextTouchAction, at point: CGPoint) {
+        wy_longPressTimer?.cancel()
+        let work = DispatchWorkItem { [weak self] in
+            guard let self = self, !self.wy_longPressTriggered else { return }
+            self.wy_longPressTriggered = true
+            // 长按时应用长按高亮（可不同颜色），并清除之前的点击高亮
+            self.clearHighlightIfNeeded()
+            self.applyHighlight(for: action.range, isLongPress: true)
+            self.wy_highlightedRange = action.range
+            // 执行长按回调（可能多个动作，但通常只有一个，因为长按通常不会重复注册同一区间，但为了安全，遍历所有匹配的长按动作）
+            let point = self.wy_touchStartPoint
+            let longActions = self.allActionsForPoint(point, actions: self.wy_longPressActions)
+            for longAction in longActions {
+                let text = (self.attributedText?.string as? NSString ?? self.text as NSString?)?.substring(with: longAction.range) ?? ""
+                if let handler = longAction.handler {
+                    handler(self, text, longAction.range, longAction.index)
+                }
+                if let delegate = longAction.delegate {
+                    delegate.wy_textViewTextDidLongPress?(self, text: text, range: longAction.range, index: longAction.index)
+                }
+            }
+        }
+        wy_longPressTimer = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + wy_longPressMinimumDuration, execute: work)
+    }
+    
+    /// 交换触摸方法（touchesBegan/Moved/Ended/Cancelled）
     static let wy_swizzleTouchMethods: Void = {
-        // 交换 touchesBegan，在触摸开始时根据触摸点高亮对应的区间
-        wy_exchangeTouchesBegan(for: UITextView.self, after: { responder, touches, event in
+        // 交换 touchesBegan：记录起点，应用高亮，启动长按计时器
+        wy_exchangeTouchesBegan(for: UITextView.self, before: { responder, touches, event in
             guard let textView = responder as? UITextView,
-                  let point = touches.first?.location(in: textView) else { return }
+                  let touch = touches.first else { return }
+            let point = touch.location(in: textView)
+            textView.wy_touchStartPoint = point
             
+            // 查找点击动作（可能多个）
             let tapActions = textView.allActionsForPoint(point, actions: textView.wy_tapActions)
-            let longActions = textView.allActionsForPoint(point, actions: textView.wy_longPressActions)
+            textView.wy_touchStartTapActions = tapActions
+            if !tapActions.isEmpty {
+                // 应用点击高亮（取第一个动作的区间，多个动作区间可能不同？通常它们应该指向同一区间，这里取第一个）
+                if let firstTap = tapActions.first {
+                    textView.applyHighlight(for: firstTap.range, isLongPress: false)
+                    textView.wy_highlightedRange = firstTap.range
+                }
+            } else {
+                // 如果没有点击动作，但有长按动作，则为了即时高亮，应用点击高亮（使用长按动作的区间）
+                let longActions = textView.allActionsForPoint(point, actions: textView.wy_longPressActions)
+                if let firstLong = longActions.first {
+                    textView.applyHighlight(for: firstLong.range, isLongPress: false)
+                    textView.wy_highlightedRange = firstLong.range
+                }
+            }
             
-            if let action = tapActions.first ?? longActions.first {
-                let isLongPressStyle = !longActions.isEmpty
-                textView.applyHighlight(for: action.range, isLongPress: isLongPressStyle)
-                textView.wy_highlightedRange = action.range
+            // 查找长按动作，启动长按计时器（取第一个）
+            let longActions = textView.allActionsForPoint(point, actions: textView.wy_longPressActions)
+            if let longAction = longActions.first {
+                textView.wy_touchStartLongAction = longAction
+                textView.startLongPressTimer(for: longAction, at: point)
             }
         })
         
-        // 交换 touchesEnded，触摸结束时清除高亮并重置长按标志
-        wy_exchangeTouchesEnded(for: UITextView.self, after: { responder, touches, event in
-            guard let textView = responder as? UITextView else { return }
-            textView.clearHighlightIfNeeded()
-            textView.wy_isLongPressTriggered = false
+        // 交换 touchesMoved：检测移动是否超出允许范围，若超出则取消长按并清除高亮
+        wy_exchangeTouchesMoved(for: UITextView.self, before: { responder, touches, event in
+            guard let textView = responder as? UITextView,
+                  let touch = touches.first else { return }
+            let point = touch.location(in: textView)
+            let startPoint = textView.wy_touchStartPoint
+            let dx = point.x - startPoint.x
+            let dy = point.y - startPoint.y
+            let distance = sqrt(dx*dx + dy*dy)
+            if distance > textView.wy_longPressAllowableMovement {
+                // 移动超出允许范围，取消长按并清除高亮
+                textView.wy_longPressTimer?.cancel()
+                textView.wy_longPressTimer = nil
+                textView.clearHighlightIfNeeded()
+                textView.wy_touchStartTapActions = []
+                textView.wy_touchStartLongAction = nil
+            }
         })
         
-        // 交换 touchesCancelled，触摸取消时清除高亮并重置长按标志
-        wy_exchangeTouchesCancelled(for: UITextView.self, after: { responder, touches, event in
+        // 交换 touchesEnded：取消计时器，若长按未触发则执行点击回调，最后清除高亮
+        wy_exchangeTouchesEnded(for: UITextView.self, before: { responder, touches, event in
             guard let textView = responder as? UITextView else { return }
+            // 取消长按计时器
+            textView.wy_longPressTimer?.cancel()
+            textView.wy_longPressTimer = nil
+            
+            let triggered = textView.wy_longPressTriggered
+            textView.wy_longPressTriggered = false
+            
+            if !triggered {
+                let tapActions = textView.wy_touchStartTapActions
+                if !tapActions.isEmpty {
+                    for tapAction in tapActions {
+                        let text = (textView.attributedText?.string as? NSString ?? textView.text as NSString?)?.substring(with: tapAction.range) ?? ""
+                        if let handler = tapAction.handler {
+                            handler(textView, text, tapAction.range, tapAction.index)
+                        }
+                        if let delegate = tapAction.delegate {
+                            delegate.wy_textViewTextDidClick?(textView, text: text, range: tapAction.range, index: tapAction.index)
+                        }
+                    }
+                }
+            }
+            
+            // 清除高亮
             textView.clearHighlightIfNeeded()
-            textView.wy_isLongPressTriggered = false
+            textView.wy_touchStartTapActions = []
+            textView.wy_touchStartLongAction = nil
+        })
+        
+        // 交换 touchesCancelled：取消计时器，清除高亮
+        wy_exchangeTouchesCancelled(for: UITextView.self, before: { responder, touches, event in
+            guard let textView = responder as? UITextView else { return }
+            textView.wy_longPressTimer?.cancel()
+            textView.wy_longPressTimer = nil
+            textView.wy_longPressTriggered = false
+            textView.clearHighlightIfNeeded()
+            textView.wy_touchStartTapActions = []
+            textView.wy_touchStartLongAction = nil
         })
     }()
 }

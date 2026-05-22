@@ -22,7 +22,7 @@ public enum WYInterceptDecision {
  - anyClass: 目标类。
  - selector: 方法选择器。若传入 `nil`，则移除该类的所有钩子（所有方法）；若指定 `selector`，则只移除该方法的钩子。
  */
-public func wy_removeHooks(for anyClass: AnyClass, selector: Selector? = nil) {
+public func wy_removeMethodExchangeHooks(for anyClass: AnyClass, selector: Selector? = nil) {
     let className = NSStringFromClass(anyClass)
     let prefix = "wy_\(className)_"
     let shouldPopPrefix = "wy_shouldPop_\(className)_"
@@ -65,6 +65,17 @@ public func wy_removeHooks(for anyClass: AnyClass, selector: Selector? = nil) {
             WYHitTestCacheMap[key] = nil
         }
     }
+    WYHooksLock.unlock()
+}
+
+/// 移除所有类、所有方法的钩子（包括 before、after、intercept、shouldPop 及缓存等）
+public func wy_removeAllMethodExchangeHooks() {
+    WYHooksLock.lock()
+    WYHooksMap.removeAll()
+    WYHitTestInterceptMap.removeAll()
+    WYShouldPopMap.removeAll()
+    WYHooksCacheMap.removeAll()
+    WYHitTestCacheMap.removeAll()
     WYHooksLock.unlock()
 }
 
