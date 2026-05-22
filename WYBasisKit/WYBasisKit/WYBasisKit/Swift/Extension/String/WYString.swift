@@ -162,7 +162,7 @@ public extension String {
      *  @param max   最多需要多少个字符
      *
      */
-    static func wy_random(minimum: Int = 1, maximum: Int = 100) -> String {
+    static func wy_random(minimum: Int, maximum: Int) -> String {
         
         guard maximum >= minimum else { return "" }
         

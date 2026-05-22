@@ -169,7 +169,7 @@ import WYBasisKitSwift
      *  @param max   最多需要多少个字符
      *
      */
-    @objc static func wy_random(minimum: Int = 1, maximum: Int = 100) -> String {
+    @objc static func wy_random(minimum: Int, maximum: Int) -> String {
         return String.wy_random(minimum: minimum, maximum: maximum)
     }
     
