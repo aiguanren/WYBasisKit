@@ -57,10 +57,12 @@ public extension UITextView {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_longPressEffectColor, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
     }
     
-    /// 长按手势触发的最小时长（秒），默认 0.5 秒
+    /// 长按触发的最小时长（秒），默认(最小) 0.5 秒
     var wy_longPressMinimumDuration: TimeInterval {
         set {
-            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_longPressMinimumDuration, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            let minValue = 0.5
+            let finalValue = max(minValue, newValue)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_longPressMinimumDuration, finalValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_longPressMinimumDuration) as? TimeInterval ?? 0.5 }
     }
