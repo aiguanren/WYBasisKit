@@ -129,7 +129,7 @@
 
 #pragma mark - WYTextViewTouchDelegate（代理回调）
 
-- (void)wy_textViewTextDidClick:(UITextView *)textView text:(NSString *)text range:(NSRange)range index:(NSInteger)index {
+- (void)wy_textViewTextDidClick:(UITextView *)textView clickText:(NSString *)text range:(NSRange)range index:(NSInteger)index {
     wy_print(@"自定义代理，点击\ntext:%@,index:%ld,range:%@", text, (long)index, NSStringFromRange(range));
 }
 

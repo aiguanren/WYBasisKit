@@ -168,72 +168,6 @@ public func wy_exchangePopViewController(
 }
 
 /**
- 交换 `UIViewController` 及其子类的 `viewWillAppear(_:)` 方法。
- 
- - Parameters:
- - viewControllerClass: 目标视图控制器类（如 `UIViewController.self`）。
- - before: 方法执行前回调。参数依次为：当前控制器、是否动画。无返回值。
- - after: 方法执行后回调。参数依次为：当前控制器、是否动画。无返回值（仅通知）。
- */
-public func wy_exchangeViewWillAppear(
-    for viewControllerClass: UIViewController.Type,
-    before: ((_ currentController: UIViewController, _ animated: Bool) -> Void)? = nil,
-    after: ((_ currentController: UIViewController, _ animated: Bool) -> Void)? = nil
-) {
-    let selector = #selector(UIViewController.viewWillAppear(_:))
-    let className = NSStringFromClass(viewControllerClass)
-    let key = "wy_\(className)_\(NSStringFromSelector(selector))"
-    typealias Args = Bool
-    typealias Return = Void
-    typealias Hooks = WYMethodHooks<Args, Return>
-    
-    guard let originalMethod = class_getInstanceMethod(viewControllerClass, selector) else {
-        #if DEBUG
-        assertionFailure("方法不存在: \(NSStringFromSelector(selector))")
-        #else
-        wy_print("WYMethodExchangeCenter: 方法不存在 \(NSStringFromSelector(selector))", outputMode: .alwaysConsoleOnly)
-        #endif
-        return
-    }
-    let originalIMP = method_getImplementation(originalMethod)
-    typealias OriginalFunc = @convention(c) (UIViewController, Selector, Bool) -> Void
-    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
-    
-    WYHooksLock.lock()
-    var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
-    if let before = before {
-        hooks.before.append { anyVC, _, animated in
-            guard let vc = anyVC as? UIViewController else { return }
-            before(vc, animated)
-        }
-    }
-    if let after = after {
-        hooks.after.append { anyVC, _, animated, _ in
-            guard let vc = anyVC as? UIViewController else { return }
-            after(vc, animated)
-            return
-        }
-    }
-    WYHooksMap[key] = hooks
-    WYHooksLock.unlock()
-    
-    let newBlock: @convention(block) (UIViewController, Bool) -> Void = { receiver, animated in
-        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
-        for before in hooks.before {
-            before(receiver, selector, animated)
-        }
-        
-        originalBlock(receiver, selector, animated)
-        
-        for after in hooks.after {
-            _ = after(receiver, selector, animated, ())
-        }
-    }
-    
-    wy_swizzleMethod(for: viewControllerClass, selector: selector, newImpBlock: newBlock)
-}
-
-/**
  交换 `UIViewController` 及其子类的 `present(_:animated:completion:)` 方法。
  
  - Parameters:
@@ -301,12 +235,808 @@ public func wy_exchangeControllerPresent(
 }
 
 /**
+ 交换 `UIViewController` 及其子类的 `viewDidLoad()` 方法。
+ 
+ - Parameters:
+   - viewControllerClass: 目标视图控制器类（如 `UIViewController.self`）。
+   - before: 方法执行前回调。参数为当前控制器。无返回值。
+   - after: 方法执行后回调。参数为当前控制器。无返回值（仅通知）。
+ */
+public func wy_exchangeViewDidLoad(
+    for viewControllerClass: UIViewController.Type,
+    before: ((_ currentController: UIViewController) -> Void)? = nil,
+    after: ((_ currentController: UIViewController) -> Void)? = nil
+) {
+    let selector = #selector(UIViewController.viewDidLoad)
+    let className = NSStringFromClass(viewControllerClass)
+    let key = "wy_\(className)_\(NSStringFromSelector(selector))"
+    typealias Args = Void
+    typealias Return = Void
+    typealias Hooks = WYMethodHooks<Args, Return>
+    
+    guard let originalMethod = class_getInstanceMethod(viewControllerClass, selector) else {
+        #if DEBUG
+        assertionFailure("方法不存在: \(NSStringFromSelector(selector))")
+        #else
+        wy_print("WYMethodExchangeCenter: 方法不存在 \(NSStringFromSelector(selector))", outputMode: .alwaysConsoleOnly)
+        #endif
+        return
+    }
+    let originalIMP = method_getImplementation(originalMethod)
+    typealias OriginalFunc = @convention(c) (UIViewController, Selector) -> Void
+    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
+    
+    WYHooksLock.lock()
+    var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
+    if let before = before {
+        hooks.before.append { anyVC, _, _ in
+            guard let vc = anyVC as? UIViewController else { return }
+            before(vc)
+        }
+    }
+    if let after = after {
+        hooks.after.append { anyVC, _, _, _ in
+            guard let vc = anyVC as? UIViewController else { return }
+            after(vc)
+            return
+        }
+    }
+    WYHooksMap[key] = hooks
+    WYHooksLock.unlock()
+    
+    let newBlock: @convention(block) (UIViewController) -> Void = { receiver in
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        for before in hooks.before {
+            before(receiver, selector, ())
+        }
+        
+        originalBlock(receiver, selector)
+        
+        for after in hooks.after {
+            _ = after(receiver, selector, (), ())
+        }
+    }
+    
+    wy_swizzleMethod(for: viewControllerClass, selector: selector, newImpBlock: newBlock)
+}
+
+/**
+ 交换 `UIViewController` 及其子类的 `viewWillAppear(_:)` 方法。
+ 
+ - Parameters:
+ - viewControllerClass: 目标视图控制器类（如 `UIViewController.self`）。
+ - before: 方法执行前回调。参数依次为：当前控制器、是否动画。无返回值。
+ - after: 方法执行后回调。参数依次为：当前控制器、是否动画。无返回值（仅通知）。
+ */
+public func wy_exchangeViewWillAppear(
+    for viewControllerClass: UIViewController.Type,
+    before: ((_ currentController: UIViewController, _ animated: Bool) -> Void)? = nil,
+    after: ((_ currentController: UIViewController, _ animated: Bool) -> Void)? = nil
+) {
+    let selector = #selector(UIViewController.viewWillAppear(_:))
+    let className = NSStringFromClass(viewControllerClass)
+    let key = "wy_\(className)_\(NSStringFromSelector(selector))"
+    typealias Args = Bool
+    typealias Return = Void
+    typealias Hooks = WYMethodHooks<Args, Return>
+    
+    guard let originalMethod = class_getInstanceMethod(viewControllerClass, selector) else {
+        #if DEBUG
+        assertionFailure("方法不存在: \(NSStringFromSelector(selector))")
+        #else
+        wy_print("WYMethodExchangeCenter: 方法不存在 \(NSStringFromSelector(selector))", outputMode: .alwaysConsoleOnly)
+        #endif
+        return
+    }
+    let originalIMP = method_getImplementation(originalMethod)
+    typealias OriginalFunc = @convention(c) (UIViewController, Selector, Bool) -> Void
+    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
+    
+    WYHooksLock.lock()
+    var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
+    if let before = before {
+        hooks.before.append { anyVC, _, animated in
+            guard let vc = anyVC as? UIViewController else { return }
+            before(vc, animated)
+        }
+    }
+    if let after = after {
+        hooks.after.append { anyVC, _, animated, _ in
+            guard let vc = anyVC as? UIViewController else { return }
+            after(vc, animated)
+            return
+        }
+    }
+    WYHooksMap[key] = hooks
+    WYHooksLock.unlock()
+    
+    let newBlock: @convention(block) (UIViewController, Bool) -> Void = { receiver, animated in
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        for before in hooks.before {
+            before(receiver, selector, animated)
+        }
+        
+        originalBlock(receiver, selector, animated)
+        
+        for after in hooks.after {
+            _ = after(receiver, selector, animated, ())
+        }
+    }
+    
+    wy_swizzleMethod(for: viewControllerClass, selector: selector, newImpBlock: newBlock)
+}
+
+/**
+ 交换 `UIViewController` 及其子类的 `viewDidAppear(_:)` 方法。
+ 
+ - Parameters:
+   - viewControllerClass: 目标视图控制器类（如 `UIViewController.self`）。
+   - before: 方法执行前回调。参数依次为：当前控制器、是否动画。无返回值。
+   - after: 方法执行后回调。参数依次为：当前控制器、是否动画。无返回值（仅通知）。
+ */
+public func wy_exchangeViewDidAppear(
+    for viewControllerClass: UIViewController.Type,
+    before: ((_ currentController: UIViewController, _ animated: Bool) -> Void)? = nil,
+    after: ((_ currentController: UIViewController, _ animated: Bool) -> Void)? = nil
+) {
+    let selector = #selector(UIViewController.viewDidAppear(_:))
+    let className = NSStringFromClass(viewControllerClass)
+    let key = "wy_\(className)_\(NSStringFromSelector(selector))"
+    typealias Args = Bool
+    typealias Return = Void
+    typealias Hooks = WYMethodHooks<Args, Return>
+    
+    guard let originalMethod = class_getInstanceMethod(viewControllerClass, selector) else {
+        #if DEBUG
+        assertionFailure("方法不存在: \(NSStringFromSelector(selector))")
+        #else
+        wy_print("WYMethodExchangeCenter: 方法不存在 \(NSStringFromSelector(selector))", outputMode: .alwaysConsoleOnly)
+        #endif
+        return
+    }
+    let originalIMP = method_getImplementation(originalMethod)
+    typealias OriginalFunc = @convention(c) (UIViewController, Selector, Bool) -> Void
+    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
+    
+    WYHooksLock.lock()
+    var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
+    if let before = before {
+        hooks.before.append { anyVC, _, animated in
+            guard let vc = anyVC as? UIViewController else { return }
+            before(vc, animated)
+        }
+    }
+    if let after = after {
+        hooks.after.append { anyVC, _, animated, _ in
+            guard let vc = anyVC as? UIViewController else { return }
+            after(vc, animated)
+            return
+        }
+    }
+    WYHooksMap[key] = hooks
+    WYHooksLock.unlock()
+    
+    let newBlock: @convention(block) (UIViewController, Bool) -> Void = { receiver, animated in
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        for before in hooks.before {
+            before(receiver, selector, animated)
+        }
+        
+        originalBlock(receiver, selector, animated)
+        
+        for after in hooks.after {
+            _ = after(receiver, selector, animated, ())
+        }
+    }
+    
+    wy_swizzleMethod(for: viewControllerClass, selector: selector, newImpBlock: newBlock)
+}
+
+/**
+ 交换 `UIViewController` 及其子类的 `viewWillDisappear(_:)` 方法。
+ 
+ - Parameters:
+   - viewControllerClass: 目标视图控制器类（如 `UIViewController.self`）。
+   - before: 方法执行前回调。参数依次为：当前控制器、是否动画。无返回值。
+   - after: 方法执行后回调。参数依次为：当前控制器、是否动画。无返回值（仅通知）。
+ */
+public func wy_exchangeViewWillDisappear(
+    for viewControllerClass: UIViewController.Type,
+    before: ((_ currentController: UIViewController, _ animated: Bool) -> Void)? = nil,
+    after: ((_ currentController: UIViewController, _ animated: Bool) -> Void)? = nil
+) {
+    let selector = #selector(UIViewController.viewWillDisappear(_:))
+    let className = NSStringFromClass(viewControllerClass)
+    let key = "wy_\(className)_\(NSStringFromSelector(selector))"
+    typealias Args = Bool
+    typealias Return = Void
+    typealias Hooks = WYMethodHooks<Args, Return>
+    
+    guard let originalMethod = class_getInstanceMethod(viewControllerClass, selector) else {
+        #if DEBUG
+        assertionFailure("方法不存在: \(NSStringFromSelector(selector))")
+        #else
+        wy_print("WYMethodExchangeCenter: 方法不存在 \(NSStringFromSelector(selector))", outputMode: .alwaysConsoleOnly)
+        #endif
+        return
+    }
+    let originalIMP = method_getImplementation(originalMethod)
+    typealias OriginalFunc = @convention(c) (UIViewController, Selector, Bool) -> Void
+    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
+    
+    WYHooksLock.lock()
+    var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
+    if let before = before {
+        hooks.before.append { anyVC, _, animated in
+            guard let vc = anyVC as? UIViewController else { return }
+            before(vc, animated)
+        }
+    }
+    if let after = after {
+        hooks.after.append { anyVC, _, animated, _ in
+            guard let vc = anyVC as? UIViewController else { return }
+            after(vc, animated)
+            return
+        }
+    }
+    WYHooksMap[key] = hooks
+    WYHooksLock.unlock()
+    
+    let newBlock: @convention(block) (UIViewController, Bool) -> Void = { receiver, animated in
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        for before in hooks.before {
+            before(receiver, selector, animated)
+        }
+        
+        originalBlock(receiver, selector, animated)
+        
+        for after in hooks.after {
+            _ = after(receiver, selector, animated, ())
+        }
+    }
+    
+    wy_swizzleMethod(for: viewControllerClass, selector: selector, newImpBlock: newBlock)
+}
+
+/**
+ 交换 `UIViewController` 及其子类的 `viewDidDisappear(_:)` 方法。
+ 
+ - Parameters:
+   - viewControllerClass: 目标视图控制器类（如 `UIViewController.self`）。
+   - before: 方法执行前回调。参数依次为：当前控制器、是否动画。无返回值。
+   - after: 方法执行后回调。参数依次为：当前控制器、是否动画。无返回值（仅通知）。
+ */
+public func wy_exchangeViewDidDisappear(
+    for viewControllerClass: UIViewController.Type,
+    before: ((_ currentController: UIViewController, _ animated: Bool) -> Void)? = nil,
+    after: ((_ currentController: UIViewController, _ animated: Bool) -> Void)? = nil
+) {
+    let selector = #selector(UIViewController.viewDidDisappear(_:))
+    let className = NSStringFromClass(viewControllerClass)
+    let key = "wy_\(className)_\(NSStringFromSelector(selector))"
+    typealias Args = Bool
+    typealias Return = Void
+    typealias Hooks = WYMethodHooks<Args, Return>
+    
+    guard let originalMethod = class_getInstanceMethod(viewControllerClass, selector) else {
+        #if DEBUG
+        assertionFailure("方法不存在: \(NSStringFromSelector(selector))")
+        #else
+        wy_print("WYMethodExchangeCenter: 方法不存在 \(NSStringFromSelector(selector))", outputMode: .alwaysConsoleOnly)
+        #endif
+        return
+    }
+    let originalIMP = method_getImplementation(originalMethod)
+    typealias OriginalFunc = @convention(c) (UIViewController, Selector, Bool) -> Void
+    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
+    
+    WYHooksLock.lock()
+    var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
+    if let before = before {
+        hooks.before.append { anyVC, _, animated in
+            guard let vc = anyVC as? UIViewController else { return }
+            before(vc, animated)
+        }
+    }
+    if let after = after {
+        hooks.after.append { anyVC, _, animated, _ in
+            guard let vc = anyVC as? UIViewController else { return }
+            after(vc, animated)
+            return
+        }
+    }
+    WYHooksMap[key] = hooks
+    WYHooksLock.unlock()
+    
+    let newBlock: @convention(block) (UIViewController, Bool) -> Void = { receiver, animated in
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        for before in hooks.before {
+            before(receiver, selector, animated)
+        }
+        
+        originalBlock(receiver, selector, animated)
+        
+        for after in hooks.after {
+            _ = after(receiver, selector, animated, ())
+        }
+    }
+    
+    wy_swizzleMethod(for: viewControllerClass, selector: selector, newImpBlock: newBlock)
+}
+
+/**
+ 交换遵循 `UIScrollViewDelegate` 的对象的 `scrollViewDidScroll(_:)` 方法。
+ 
+ 注意：该方法通常由 `UIViewController` 或 `UIView` 实现，因此交换时需要传入具体的类（如 `MyViewController.self`）。
+ 
+ - Parameters:
+   - delegateClass: 目标代理类（如 `MyViewController.self`）。
+   - before: 方法执行前回调。参数依次为：代理对象、滚动视图。无返回值。
+   - after: 方法执行后回调。参数依次为：代理对象、滚动视图。无返回值（仅通知）。
+ */
+public func wy_exchangeScrollViewDidScroll(
+    for delegateClass: NSObject.Type,
+    before: ((_ delegate: NSObject, _ scrollView: UIScrollView) -> Void)? = nil,
+    after: ((_ delegate: NSObject, _ scrollView: UIScrollView) -> Void)? = nil
+) {
+    let selector = #selector(UIScrollViewDelegate.scrollViewDidScroll(_:))
+    let className = NSStringFromClass(delegateClass)
+    let key = "wy_\(className)_\(NSStringFromSelector(selector))"
+    typealias Args = UIScrollView
+    typealias Return = Void
+    typealias Hooks = WYMethodHooks<Args, Return>
+    
+    guard let originalMethod = class_getInstanceMethod(delegateClass, selector) else {
+        #if DEBUG
+        assertionFailure("方法不存在: \(NSStringFromSelector(selector))")
+        #else
+        wy_print("WYMethodExchangeCenter: 方法不存在 \(NSStringFromSelector(selector))", outputMode: .alwaysConsoleOnly)
+        #endif
+        return
+    }
+    let originalIMP = method_getImplementation(originalMethod)
+    typealias OriginalFunc = @convention(c) (NSObject, Selector, UIScrollView) -> Void
+    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
+    
+    WYHooksLock.lock()
+    var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
+    if let before = before {
+        hooks.before.append { anyObj, _, scrollView in
+            guard let obj = anyObj as? NSObject else { return }
+            before(obj, scrollView)
+        }
+    }
+    if let after = after {
+        hooks.after.append { anyObj, _, scrollView, _ in
+            guard let obj = anyObj as? NSObject else { return }
+            after(obj, scrollView)
+            return
+        }
+    }
+    WYHooksMap[key] = hooks
+    WYHooksLock.unlock()
+    
+    let newBlock: @convention(block) (NSObject, UIScrollView) -> Void = { receiver, scrollView in
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        for before in hooks.before {
+            before(receiver, selector, scrollView)
+        }
+        
+        originalBlock(receiver, selector, scrollView)
+        
+        for after in hooks.after {
+            _ = after(receiver, selector, scrollView, ())
+        }
+    }
+    
+    wy_swizzleMethod(for: delegateClass, selector: selector, newImpBlock: newBlock)
+}
+
+/**
+ 交换遵循 `UIScrollViewDelegate` 的对象的 `scrollViewWillBeginDragging(_:)` 方法。
+ 
+ - Parameters:
+   - delegateClass: 目标代理类。
+   - before: 方法执行前回调。参数依次为：代理对象、滚动视图。无返回值。
+   - after: 方法执行后回调。参数依次为：代理对象、滚动视图。无返回值（仅通知）。
+ */
+public func wy_exchangeScrollViewWillBeginDragging(
+    for delegateClass: NSObject.Type,
+    before: ((_ delegate: NSObject, _ scrollView: UIScrollView) -> Void)? = nil,
+    after: ((_ delegate: NSObject, _ scrollView: UIScrollView) -> Void)? = nil
+) {
+    let selector = #selector(UIScrollViewDelegate.scrollViewWillBeginDragging(_:))
+    let className = NSStringFromClass(delegateClass)
+    let key = "wy_\(className)_\(NSStringFromSelector(selector))"
+    typealias Args = UIScrollView
+    typealias Return = Void
+    typealias Hooks = WYMethodHooks<Args, Return>
+    
+    guard let originalMethod = class_getInstanceMethod(delegateClass, selector) else {
+        #if DEBUG
+        assertionFailure("方法不存在: \(NSStringFromSelector(selector))")
+        #else
+        wy_print("WYMethodExchangeCenter: 方法不存在 \(NSStringFromSelector(selector))", outputMode: .alwaysConsoleOnly)
+        #endif
+        return
+    }
+    let originalIMP = method_getImplementation(originalMethod)
+    typealias OriginalFunc = @convention(c) (NSObject, Selector, UIScrollView) -> Void
+    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
+    
+    WYHooksLock.lock()
+    var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
+    if let before = before {
+        hooks.before.append { anyObj, _, scrollView in
+            guard let obj = anyObj as? NSObject else { return }
+            before(obj, scrollView)
+        }
+    }
+    if let after = after {
+        hooks.after.append { anyObj, _, scrollView, _ in
+            guard let obj = anyObj as? NSObject else { return }
+            after(obj, scrollView)
+            return
+        }
+    }
+    WYHooksMap[key] = hooks
+    WYHooksLock.unlock()
+    
+    let newBlock: @convention(block) (NSObject, UIScrollView) -> Void = { receiver, scrollView in
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        for before in hooks.before {
+            before(receiver, selector, scrollView)
+        }
+        
+        originalBlock(receiver, selector, scrollView)
+        
+        for after in hooks.after {
+            _ = after(receiver, selector, scrollView, ())
+        }
+    }
+    
+    wy_swizzleMethod(for: delegateClass, selector: selector, newImpBlock: newBlock)
+}
+
+/**
+ 交换遵循 `UIScrollViewDelegate` 的对象的 `scrollViewWillEndDragging(_:withVelocity:targetContentOffset:)` 方法。
+ 
+ - Parameters:
+   - delegateClass: 目标代理类。
+   - before: 方法执行前回调。参数依次为：代理对象、滚动视图、速度、目标偏移指针。无返回值。
+   - after: 方法执行后回调。参数依次为：代理对象、滚动视图、速度、目标偏移指针。无返回值（仅通知）。
+ */
+public func wy_exchangeScrollViewWillEndDragging(
+    for delegateClass: NSObject.Type,
+    before: ((_ delegate: NSObject, _ scrollView: UIScrollView, _ velocity: CGPoint, _ targetContentOffset: UnsafeMutablePointer<CGPoint>) -> Void)? = nil,
+    after: ((_ delegate: NSObject, _ scrollView: UIScrollView, _ velocity: CGPoint, _ targetContentOffset: UnsafeMutablePointer<CGPoint>) -> Void)? = nil
+) {
+    let selector = #selector(UIScrollViewDelegate.scrollViewWillEndDragging(_:withVelocity:targetContentOffset:))
+    let className = NSStringFromClass(delegateClass)
+    let key = "wy_\(className)_\(NSStringFromSelector(selector))"
+    typealias Args = (UIScrollView, CGPoint, UnsafeMutablePointer<CGPoint>)
+    typealias Return = Void
+    typealias Hooks = WYMethodHooks<Args, Return>
+    
+    guard let originalMethod = class_getInstanceMethod(delegateClass, selector) else {
+        #if DEBUG
+        assertionFailure("方法不存在: \(NSStringFromSelector(selector))")
+        #else
+        wy_print("WYMethodExchangeCenter: 方法不存在 \(NSStringFromSelector(selector))", outputMode: .alwaysConsoleOnly)
+        #endif
+        return
+    }
+    let originalIMP = method_getImplementation(originalMethod)
+    typealias OriginalFunc = @convention(c) (NSObject, Selector, UIScrollView, CGPoint, UnsafeMutablePointer<CGPoint>) -> Void
+    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
+    
+    WYHooksLock.lock()
+    var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
+    if let before = before {
+        hooks.before.append { anyObj, _, args in
+            guard let obj = anyObj as? NSObject else { return }
+            before(obj, args.0, args.1, args.2)
+        }
+    }
+    if let after = after {
+        hooks.after.append { anyObj, _, args, _ in
+            guard let obj = anyObj as? NSObject else { return }
+            after(obj, args.0, args.1, args.2)
+            return
+        }
+    }
+    WYHooksMap[key] = hooks
+    WYHooksLock.unlock()
+    
+    let newBlock: @convention(block) (NSObject, UIScrollView, CGPoint, UnsafeMutablePointer<CGPoint>) -> Void = { receiver, scrollView, velocity, targetContentOffset in
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        let args = (scrollView, velocity, targetContentOffset)
+        for before in hooks.before {
+            before(receiver, selector, args)
+        }
+        
+        originalBlock(receiver, selector, scrollView, velocity, targetContentOffset)
+        
+        for after in hooks.after {
+            _ = after(receiver, selector, args, ())
+        }
+    }
+    
+    wy_swizzleMethod(for: delegateClass, selector: selector, newImpBlock: newBlock)
+}
+
+/**
+ 交换遵循 `UIScrollViewDelegate` 的对象的 `scrollViewDidEndDragging(_:willDecelerate:)` 方法。
+ 
+ - Parameters:
+   - delegateClass: 目标代理类。
+   - before: 方法执行前回调。参数依次为：代理对象、滚动视图、是否减速。无返回值。
+   - after: 方法执行后回调。参数依次为：代理对象、滚动视图、是否减速。无返回值（仅通知）。
+ */
+public func wy_exchangeScrollViewDidEndDragging(
+    for delegateClass: NSObject.Type,
+    before: ((_ delegate: NSObject, _ scrollView: UIScrollView, _ willDecelerate: Bool) -> Void)? = nil,
+    after: ((_ delegate: NSObject, _ scrollView: UIScrollView, _ willDecelerate: Bool) -> Void)? = nil
+) {
+    let selector = #selector(UIScrollViewDelegate.scrollViewDidEndDragging(_:willDecelerate:))
+    let className = NSStringFromClass(delegateClass)
+    let key = "wy_\(className)_\(NSStringFromSelector(selector))"
+    typealias Args = (UIScrollView, Bool)
+    typealias Return = Void
+    typealias Hooks = WYMethodHooks<Args, Return>
+    
+    guard let originalMethod = class_getInstanceMethod(delegateClass, selector) else {
+        #if DEBUG
+        assertionFailure("方法不存在: \(NSStringFromSelector(selector))")
+        #else
+        wy_print("WYMethodExchangeCenter: 方法不存在 \(NSStringFromSelector(selector))", outputMode: .alwaysConsoleOnly)
+        #endif
+        return
+    }
+    let originalIMP = method_getImplementation(originalMethod)
+    typealias OriginalFunc = @convention(c) (NSObject, Selector, UIScrollView, Bool) -> Void
+    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
+    
+    WYHooksLock.lock()
+    var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
+    if let before = before {
+        hooks.before.append { anyObj, _, args in
+            guard let obj = anyObj as? NSObject else { return }
+            before(obj, args.0, args.1)
+        }
+    }
+    if let after = after {
+        hooks.after.append { anyObj, _, args, _ in
+            guard let obj = anyObj as? NSObject else { return }
+            after(obj, args.0, args.1)
+            return
+        }
+    }
+    WYHooksMap[key] = hooks
+    WYHooksLock.unlock()
+    
+    let newBlock: @convention(block) (NSObject, UIScrollView, Bool) -> Void = { receiver, scrollView, willDecelerate in
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        let args = (scrollView, willDecelerate)
+        for before in hooks.before {
+            before(receiver, selector, args)
+        }
+        
+        originalBlock(receiver, selector, scrollView, willDecelerate)
+        
+        for after in hooks.after {
+            _ = after(receiver, selector, args, ())
+        }
+    }
+    
+    wy_swizzleMethod(for: delegateClass, selector: selector, newImpBlock: newBlock)
+}
+
+/**
+ 交换遵循 `UIScrollViewDelegate` 的对象的 `scrollViewWillBeginDecelerating(_:)` 方法。
+ 
+ - Parameters:
+   - delegateClass: 目标代理类。
+   - before: 方法执行前回调。参数依次为：代理对象、滚动视图。无返回值。
+   - after: 方法执行后回调。参数依次为：代理对象、滚动视图。无返回值（仅通知）。
+ */
+public func wy_exchangeScrollViewWillBeginDecelerating(
+    for delegateClass: NSObject.Type,
+    before: ((_ delegate: NSObject, _ scrollView: UIScrollView) -> Void)? = nil,
+    after: ((_ delegate: NSObject, _ scrollView: UIScrollView) -> Void)? = nil
+) {
+    let selector = #selector(UIScrollViewDelegate.scrollViewWillBeginDecelerating(_:))
+    let className = NSStringFromClass(delegateClass)
+    let key = "wy_\(className)_\(NSStringFromSelector(selector))"
+    typealias Args = UIScrollView
+    typealias Return = Void
+    typealias Hooks = WYMethodHooks<Args, Return>
+    
+    guard let originalMethod = class_getInstanceMethod(delegateClass, selector) else {
+        #if DEBUG
+        assertionFailure("方法不存在: \(NSStringFromSelector(selector))")
+        #else
+        wy_print("WYMethodExchangeCenter: 方法不存在 \(NSStringFromSelector(selector))", outputMode: .alwaysConsoleOnly)
+        #endif
+        return
+    }
+    let originalIMP = method_getImplementation(originalMethod)
+    typealias OriginalFunc = @convention(c) (NSObject, Selector, UIScrollView) -> Void
+    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
+    
+    WYHooksLock.lock()
+    var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
+    if let before = before {
+        hooks.before.append { anyObj, _, scrollView in
+            guard let obj = anyObj as? NSObject else { return }
+            before(obj, scrollView)
+        }
+    }
+    if let after = after {
+        hooks.after.append { anyObj, _, scrollView, _ in
+            guard let obj = anyObj as? NSObject else { return }
+            after(obj, scrollView)
+            return
+        }
+    }
+    WYHooksMap[key] = hooks
+    WYHooksLock.unlock()
+    
+    let newBlock: @convention(block) (NSObject, UIScrollView) -> Void = { receiver, scrollView in
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        for before in hooks.before {
+            before(receiver, selector, scrollView)
+        }
+        
+        originalBlock(receiver, selector, scrollView)
+        
+        for after in hooks.after {
+            _ = after(receiver, selector, scrollView, ())
+        }
+    }
+    
+    wy_swizzleMethod(for: delegateClass, selector: selector, newImpBlock: newBlock)
+}
+
+/**
+ 交换遵循 `UIScrollViewDelegate` 的对象的 `scrollViewDidEndDecelerating(_:)` 方法。
+ 
+ - Parameters:
+   - delegateClass: 目标代理类。
+   - before: 方法执行前回调。参数依次为：代理对象、滚动视图。无返回值。
+   - after: 方法执行后回调。参数依次为：代理对象、滚动视图。无返回值（仅通知）。
+ */
+public func wy_exchangeScrollViewDidEndDecelerating(
+    for delegateClass: NSObject.Type,
+    before: ((_ delegate: NSObject, _ scrollView: UIScrollView) -> Void)? = nil,
+    after: ((_ delegate: NSObject, _ scrollView: UIScrollView) -> Void)? = nil
+) {
+    let selector = #selector(UIScrollViewDelegate.scrollViewDidEndDecelerating(_:))
+    let className = NSStringFromClass(delegateClass)
+    let key = "wy_\(className)_\(NSStringFromSelector(selector))"
+    typealias Args = UIScrollView
+    typealias Return = Void
+    typealias Hooks = WYMethodHooks<Args, Return>
+    
+    guard let originalMethod = class_getInstanceMethod(delegateClass, selector) else {
+        #if DEBUG
+        assertionFailure("方法不存在: \(NSStringFromSelector(selector))")
+        #else
+        wy_print("WYMethodExchangeCenter: 方法不存在 \(NSStringFromSelector(selector))", outputMode: .alwaysConsoleOnly)
+        #endif
+        return
+    }
+    let originalIMP = method_getImplementation(originalMethod)
+    typealias OriginalFunc = @convention(c) (NSObject, Selector, UIScrollView) -> Void
+    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
+    
+    WYHooksLock.lock()
+    var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
+    if let before = before {
+        hooks.before.append { anyObj, _, scrollView in
+            guard let obj = anyObj as? NSObject else { return }
+            before(obj, scrollView)
+        }
+    }
+    if let after = after {
+        hooks.after.append { anyObj, _, scrollView, _ in
+            guard let obj = anyObj as? NSObject else { return }
+            after(obj, scrollView)
+            return
+        }
+    }
+    WYHooksMap[key] = hooks
+    WYHooksLock.unlock()
+    
+    let newBlock: @convention(block) (NSObject, UIScrollView) -> Void = { receiver, scrollView in
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        for before in hooks.before {
+            before(receiver, selector, scrollView)
+        }
+        
+        originalBlock(receiver, selector, scrollView)
+        
+        for after in hooks.after {
+            _ = after(receiver, selector, scrollView, ())
+        }
+    }
+    
+    wy_swizzleMethod(for: delegateClass, selector: selector, newImpBlock: newBlock)
+}
+
+/**
+ 交换遵循 `UIScrollViewDelegate` 的对象的 `scrollViewDidZoom(_:)` 方法。
+ 
+ - Parameters:
+   - delegateClass: 目标代理类（如 `MyViewController.self`）。
+   - before: 方法执行前回调。参数依次为：代理对象、滚动视图。无返回值。
+   - after: 方法执行后回调。参数依次为：代理对象、滚动视图。无返回值（仅通知）。
+ */
+public func wy_exchangeScrollViewDidZoom(
+    for delegateClass: NSObject.Type,
+    before: ((_ delegate: NSObject, _ scrollView: UIScrollView) -> Void)? = nil,
+    after: ((_ delegate: NSObject, _ scrollView: UIScrollView) -> Void)? = nil
+) {
+    let selector = #selector(UIScrollViewDelegate.scrollViewDidZoom(_:))
+    let className = NSStringFromClass(delegateClass)
+    let key = "wy_\(className)_\(NSStringFromSelector(selector))"
+    typealias Args = UIScrollView
+    typealias Return = Void
+    typealias Hooks = WYMethodHooks<Args, Return>
+    
+    guard let originalMethod = class_getInstanceMethod(delegateClass, selector) else {
+        #if DEBUG
+        assertionFailure("方法不存在: \(NSStringFromSelector(selector))")
+        #else
+        wy_print("WYMethodExchangeCenter: 方法不存在 \(NSStringFromSelector(selector))", outputMode: .alwaysConsoleOnly)
+        #endif
+        return
+    }
+    let originalIMP = method_getImplementation(originalMethod)
+    typealias OriginalFunc = @convention(c) (NSObject, Selector, UIScrollView) -> Void
+    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
+    
+    WYHooksLock.lock()
+    var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
+    if let before = before {
+        hooks.before.append { anyObj, _, scrollView in
+            guard let obj = anyObj as? NSObject else { return }
+            before(obj, scrollView)
+        }
+    }
+    if let after = after {
+        hooks.after.append { anyObj, _, scrollView, _ in
+            guard let obj = anyObj as? NSObject else { return }
+            after(obj, scrollView)
+            return
+        }
+    }
+    WYHooksMap[key] = hooks
+    WYHooksLock.unlock()
+    
+    let newBlock: @convention(block) (NSObject, UIScrollView) -> Void = { receiver, scrollView in
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        for before in hooks.before {
+            before(receiver, selector, scrollView)
+        }
+        
+        originalBlock(receiver, selector, scrollView)
+        
+        for after in hooks.after {
+            _ = after(receiver, selector, scrollView, ())
+        }
+    }
+    
+    wy_swizzleMethod(for: delegateClass, selector: selector, newImpBlock: newBlock)
+}
+
+/**
  交换 `NSObject` 及其子类的 `observeValue(forKeyPath:of:change:context:)` 方法。
  
  - Parameters:
  - observerClass: 目标观察者类（如 `NSObject.self`）。
  - before: 方法执行前回调。参数依次为：观察者、键路径、被观察对象、变化字典、上下文指针。无返回值。
- - after: 方法执行后回调。参数依次同上。无返回值（仅通知）。
+ - after: 方法执行后回调。参数依次为：观察者、键路径、被观察对象、变化字典、上下文指针。无返回值（仅通知）。
  */
 public func wy_exchangeKVOObserve(
     for observerClass: NSObject.Type,
@@ -521,73 +1251,6 @@ public func wy_exchangeLayoutSubviews(
 }
 
 /**
- 交换 `UIView` 及其子类的 `sizeThatFits(_:)` 方法。
- 
- - Parameters:
- - viewClass: 目标视图类（如 `UIView.self`）。
- - before: 方法执行前回调。参数依次为：当前视图、建议的尺寸。无返回值。
- - after: 方法执行后回调。参数依次为：当前视图、建议的尺寸、原始返回值（`CGSize`）。可返回一个新的 `CGSize` 来替换原始返回值。
- */
-public func wy_exchangeSizeThatFits(
-    for viewClass: UIView.Type,
-    before: ((_ currentView: UIView, _ size: CGSize) -> Void)? = nil,
-    after: ((_ currentView: UIView, _ size: CGSize, _ originalResult: CGSize) -> CGSize)? = nil
-) {
-    let selector = #selector(UIView.sizeThatFits(_:))
-    let className = NSStringFromClass(viewClass)
-    let key = "wy_\(className)_\(NSStringFromSelector(selector))"
-    typealias Args = CGSize
-    typealias Return = CGSize
-    typealias Hooks = WYMethodHooks<Args, Return>
-    
-    guard let originalMethod = class_getInstanceMethod(viewClass, selector) else {
-        #if DEBUG
-        assertionFailure("方法不存在: \(NSStringFromSelector(selector))")
-        #else
-        wy_print("WYMethodExchangeCenter: 方法不存在 \(NSStringFromSelector(selector))", outputMode: .alwaysConsoleOnly)
-        #endif
-        return
-    }
-    let originalIMP = method_getImplementation(originalMethod)
-    typealias OriginalFunc = @convention(c) (UIView, Selector, CGSize) -> CGSize
-    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
-    
-    WYHooksLock.lock()
-    var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
-    if let before = before {
-        hooks.before.append { anyView, _, size in
-            guard let view = anyView as? UIView else { return }
-            before(view, size)
-        }
-    }
-    if let after = after {
-        hooks.after.append { anyView, _, size, original in
-            guard let view = anyView as? UIView else { return original }
-            return after(view, size, original)
-        }
-    }
-    WYHooksMap[key] = hooks
-    WYHooksLock.unlock()
-    
-    let newBlock: @convention(block) (UIView, CGSize) -> CGSize = { receiver, size in
-        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
-        for before in hooks.before {
-            before(receiver, selector, size)
-        }
-        
-        let originalResult = originalBlock(receiver, selector, size)
-        
-        var result = originalResult
-        for after in hooks.after {
-            result = after(receiver, selector, size, result)
-        }
-        return result
-    }
-    
-    wy_swizzleMethod(for: viewClass, selector: selector, newImpBlock: newBlock)
-}
-
-/**
  交换 `UIResponder` 及其子类的 `touchesBegan(_:with:)` 方法。
  
  - Parameters:
@@ -601,6 +1264,73 @@ public func wy_exchangeTouchesBegan(
     after: ((_ responder: UIResponder, _ touches: Set<UITouch>, _ event: UIEvent?) -> Void)? = nil
 ) {
     let selector = #selector(UIResponder.touchesBegan(_:with:))
+    let className = NSStringFromClass(responderClass)
+    let key = "wy_\(className)_\(NSStringFromSelector(selector))"
+    typealias Args = (Set<UITouch>, UIEvent?)
+    typealias Return = Void
+    typealias Hooks = WYMethodHooks<Args, Return>
+    
+    guard let originalMethod = class_getInstanceMethod(responderClass, selector) else {
+        #if DEBUG
+        assertionFailure("方法不存在: \(NSStringFromSelector(selector))")
+        #else
+        wy_print("WYMethodExchangeCenter: 方法不存在 \(NSStringFromSelector(selector))", outputMode: .alwaysConsoleOnly)
+        #endif
+        return
+    }
+    let originalIMP = method_getImplementation(originalMethod)
+    typealias OriginalFunc = @convention(c) (UIResponder, Selector, Set<UITouch>, UIEvent?) -> Void
+    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
+    
+    WYHooksLock.lock()
+    var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
+    if let before = before {
+        hooks.before.append { anyResponder, _, args in
+            guard let responder = anyResponder as? UIResponder else { return }
+            before(responder, args.0, args.1)
+        }
+    }
+    if let after = after {
+        hooks.after.append { anyResponder, _, args, _ in
+            guard let responder = anyResponder as? UIResponder else { return }
+            after(responder, args.0, args.1)
+            return
+        }
+    }
+    WYHooksMap[key] = hooks
+    WYHooksLock.unlock()
+    
+    let newBlock: @convention(block) (UIResponder, Set<UITouch>, UIEvent?) -> Void = { receiver, touches, event in
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        let args = (touches, event)
+        for before in hooks.before {
+            before(receiver, selector, args)
+        }
+        
+        originalBlock(receiver, selector, touches, event)
+        
+        for after in hooks.after {
+            _ = after(receiver, selector, args, ())
+        }
+    }
+    
+    wy_swizzleMethod(for: responderClass, selector: selector, newImpBlock: newBlock)
+}
+
+/**
+ 交换 `UIResponder` 及其子类的 `touchesMoved(_:with:)` 方法。
+ 
+ - Parameters:
+   - responderClass: 目标响应者类（如 `UIView.self` 或 `UIViewController.self`）。
+   - before: 方法执行前回调。参数依次为：当前响应者、触摸集合、事件。无返回值。
+   - after: 方法执行后回调。参数依次为：当前响应者、触摸集合、事件。无返回值（仅通知）。
+ */
+public func wy_exchangeTouchesMoved(
+    for responderClass: UIResponder.Type,
+    before: ((_ responder: UIResponder, _ touches: Set<UITouch>, _ event: UIEvent?) -> Void)? = nil,
+    after: ((_ responder: UIResponder, _ touches: Set<UITouch>, _ event: UIEvent?) -> Void)? = nil
+) {
+    let selector = #selector(UIResponder.touchesMoved(_:with:))
     let className = NSStringFromClass(responderClass)
     let key = "wy_\(className)_\(NSStringFromSelector(selector))"
     typealias Args = (Set<UITouch>, UIEvent?)
@@ -789,6 +1519,139 @@ public func wy_exchangeTouchesEnded(
 }
 
 /**
+ 交换 `UIView` 及其子类的 `draw(_:)` 方法（即 `drawRect:`）。
+ 
+ - Parameters:
+   - viewClass: 目标视图类（如 `UIView.self`）。
+   - before: 方法执行前回调。参数依次为：当前视图、绘制区域矩形。无返回值。
+   - after: 方法执行后回调。参数依次为：当前视图、绘制区域矩形。无返回值（仅通知）。
+ */
+public func wy_exchangeDrawRect(
+    for viewClass: UIView.Type,
+    before: ((_ currentView: UIView, _ rect: CGRect) -> Void)? = nil,
+    after: ((_ currentView: UIView, _ rect: CGRect) -> Void)? = nil
+) {
+    let selector = #selector(UIView.draw(_:))
+    let className = NSStringFromClass(viewClass)
+    let key = "wy_\(className)_\(NSStringFromSelector(selector))"
+    typealias Args = CGRect
+    typealias Return = Void
+    typealias Hooks = WYMethodHooks<Args, Return>
+    
+    guard let originalMethod = class_getInstanceMethod(viewClass, selector) else {
+        #if DEBUG
+        assertionFailure("方法不存在: \(NSStringFromSelector(selector))")
+        #else
+        wy_print("WYMethodExchangeCenter: 方法不存在 \(NSStringFromSelector(selector))", outputMode: .alwaysConsoleOnly)
+        #endif
+        return
+    }
+    let originalIMP = method_getImplementation(originalMethod)
+    typealias OriginalFunc = @convention(c) (UIView, Selector, CGRect) -> Void
+    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
+    
+    WYHooksLock.lock()
+    var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
+    if let before = before {
+        hooks.before.append { anyView, _, rect in
+            guard let view = anyView as? UIView else { return }
+            before(view, rect)
+        }
+    }
+    if let after = after {
+        hooks.after.append { anyView, _, rect, _ in
+            guard let view = anyView as? UIView else { return }
+            after(view, rect)
+            return
+        }
+    }
+    WYHooksMap[key] = hooks
+    WYHooksLock.unlock()
+    
+    let newBlock: @convention(block) (UIView, CGRect) -> Void = { receiver, rect in
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        for before in hooks.before {
+            before(receiver, selector, rect)
+        }
+        
+        originalBlock(receiver, selector, rect)
+        
+        for after in hooks.after {
+            _ = after(receiver, selector, rect, ())
+        }
+    }
+    
+    wy_swizzleMethod(for: viewClass, selector: selector, newImpBlock: newBlock)
+}
+
+/**
+ 交换 `UIView` 及其子类的 `sizeThatFits(_:)` 方法。
+ 
+ - Parameters:
+ - viewClass: 目标视图类（如 `UIView.self`）。
+ - before: 方法执行前回调。参数依次为：当前视图、建议的尺寸。无返回值。
+ - after: 方法执行后回调。参数依次为：当前视图、建议的尺寸、原始返回值（`CGSize`）。可返回一个新的 `CGSize` 来替换原始返回值。
+ */
+public func wy_exchangeSizeThatFits(
+    for viewClass: UIView.Type,
+    before: ((_ currentView: UIView, _ size: CGSize) -> Void)? = nil,
+    after: ((_ currentView: UIView, _ size: CGSize, _ originalResult: CGSize) -> CGSize)? = nil
+) {
+    let selector = #selector(UIView.sizeThatFits(_:))
+    let className = NSStringFromClass(viewClass)
+    let key = "wy_\(className)_\(NSStringFromSelector(selector))"
+    typealias Args = CGSize
+    typealias Return = CGSize
+    typealias Hooks = WYMethodHooks<Args, Return>
+    
+    guard let originalMethod = class_getInstanceMethod(viewClass, selector) else {
+        #if DEBUG
+        assertionFailure("方法不存在: \(NSStringFromSelector(selector))")
+        #else
+        wy_print("WYMethodExchangeCenter: 方法不存在 \(NSStringFromSelector(selector))", outputMode: .alwaysConsoleOnly)
+        #endif
+        return
+    }
+    let originalIMP = method_getImplementation(originalMethod)
+    typealias OriginalFunc = @convention(c) (UIView, Selector, CGSize) -> CGSize
+    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
+    
+    WYHooksLock.lock()
+    var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
+    if let before = before {
+        hooks.before.append { anyView, _, size in
+            guard let view = anyView as? UIView else { return }
+            before(view, size)
+        }
+    }
+    if let after = after {
+        hooks.after.append { anyView, _, size, original in
+            guard let view = anyView as? UIView else { return original }
+            return after(view, size, original)
+        }
+    }
+    WYHooksMap[key] = hooks
+    WYHooksLock.unlock()
+    
+    let newBlock: @convention(block) (UIView, CGSize) -> CGSize = { receiver, size in
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        for before in hooks.before {
+            before(receiver, selector, size)
+        }
+        
+        let originalResult = originalBlock(receiver, selector, size)
+        
+        var result = originalResult
+        for after in hooks.after {
+            result = after(receiver, selector, size, result)
+        }
+        return result
+    }
+    
+    wy_swizzleMethod(for: viewClass, selector: selector, newImpBlock: newBlock)
+}
+
+/**
  交换 `UILabel` 及其子类的 `drawText(in:)` 方法。
  
  - Parameters:
@@ -919,6 +1782,475 @@ public func wy_exchangeIntrinsicContentSize(
     }
     
     wy_swizzleMethod(for: viewClass, selector: selector, newImpBlock: newBlock)
+}
+
+/**
+ 交换 `UICollectionViewLayout` 及其子类的 `prepare()` 方法。
+ 
+ - Parameters:
+   - layoutClass: 目标布局类（如 `UICollectionViewFlowLayout.self`）。
+   - before: 方法执行前回调。参数为当前布局对象。无返回值。
+   - after: 方法执行后回调。参数为当前布局对象。无返回值（仅通知）。
+ */
+public func wy_exchangeLayoutPrepare(
+    for layoutClass: UICollectionViewLayout.Type,
+    before: ((_ layout: UICollectionViewLayout) -> Void)? = nil,
+    after: ((_ layout: UICollectionViewLayout) -> Void)? = nil
+) {
+    let selector = NSSelectorFromString("prepare")
+    let className = NSStringFromClass(layoutClass)
+    let key = "wy_\(className)_\(NSStringFromSelector(selector))"
+    typealias Args = Void
+    typealias Return = Void
+    typealias Hooks = WYMethodHooks<Args, Return>
+    
+    guard let originalMethod = class_getInstanceMethod(layoutClass, selector) else {
+        #if DEBUG
+        assertionFailure("方法不存在: \(NSStringFromSelector(selector))")
+        #else
+        wy_print("WYMethodExchangeCenter: 方法不存在 \(NSStringFromSelector(selector))", outputMode: .alwaysConsoleOnly)
+        #endif
+        return
+    }
+    let originalIMP = method_getImplementation(originalMethod)
+    typealias OriginalFunc = @convention(c) (UICollectionViewLayout, Selector) -> Void
+    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
+    
+    WYHooksLock.lock()
+    var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
+    if let before = before {
+        hooks.before.append { anyLayout, _, _ in
+            guard let layout = anyLayout as? UICollectionViewLayout else { return }
+            before(layout)
+        }
+    }
+    if let after = after {
+        hooks.after.append { anyLayout, _, _, _ in
+            guard let layout = anyLayout as? UICollectionViewLayout else { return }
+            after(layout)
+            return
+        }
+    }
+    WYHooksMap[key] = hooks
+    WYHooksLock.unlock()
+    
+    let newBlock: @convention(block) (UICollectionViewLayout) -> Void = { receiver in
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        for before in hooks.before {
+            before(receiver, selector, ())
+        }
+        
+        originalBlock(receiver, selector)
+        
+        for after in hooks.after {
+            _ = after(receiver, selector, (), ())
+        }
+    }
+    
+    wy_swizzleMethod(for: layoutClass, selector: selector, newImpBlock: newBlock)
+}
+
+/**
+ 交换 `UICollectionViewLayout` 及其子类的 `layoutAttributesForElements(in:)` 方法。
+ 
+ - Parameters:
+   - layoutClass: 目标布局类。
+   - before: 方法执行前回调。参数依次为：布局对象、矩形区域。无返回值。
+   - after: 方法执行后回调。参数依次为：布局对象、矩形区域、原始返回值（`[UICollectionViewLayoutAttributes]?`）。可返回一个新的数组来替换原始返回值。
+ */
+public func wy_exchangeLayoutAttributesForElements(
+    for layoutClass: UICollectionViewLayout.Type,
+    before: ((_ layout: UICollectionViewLayout, _ rect: CGRect) -> Void)? = nil,
+    after: ((_ layout: UICollectionViewLayout, _ rect: CGRect, _ originalResult: [UICollectionViewLayoutAttributes]?) -> [UICollectionViewLayoutAttributes]?)? = nil
+) {
+    let selector = #selector(UICollectionViewLayout.layoutAttributesForElements(in:))
+    let className = NSStringFromClass(layoutClass)
+    let key = "wy_\(className)_\(NSStringFromSelector(selector))"
+    typealias Args = CGRect
+    typealias Return = [UICollectionViewLayoutAttributes]?
+    typealias Hooks = WYMethodHooks<Args, Return>
+    
+    guard let originalMethod = class_getInstanceMethod(layoutClass, selector) else {
+        #if DEBUG
+        assertionFailure("方法不存在: \(NSStringFromSelector(selector))")
+        #else
+        wy_print("WYMethodExchangeCenter: 方法不存在 \(NSStringFromSelector(selector))", outputMode: .alwaysConsoleOnly)
+        #endif
+        return
+    }
+    let originalIMP = method_getImplementation(originalMethod)
+    typealias OriginalFunc = @convention(c) (UICollectionViewLayout, Selector, CGRect) -> [UICollectionViewLayoutAttributes]?
+    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
+    
+    WYHooksLock.lock()
+    var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
+    if let before = before {
+        hooks.before.append { anyLayout, _, rect in
+            guard let layout = anyLayout as? UICollectionViewLayout else { return }
+            before(layout, rect)
+        }
+    }
+    if let after = after {
+        hooks.after.append { anyLayout, _, rect, original in
+            guard let layout = anyLayout as? UICollectionViewLayout else { return original }
+            return after(layout, rect, original)
+        }
+    }
+    WYHooksMap[key] = hooks
+    WYHooksLock.unlock()
+    
+    let newBlock: @convention(block) (UICollectionViewLayout, CGRect) -> [UICollectionViewLayoutAttributes]? = { receiver, rect in
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        for before in hooks.before {
+            before(receiver, selector, rect)
+        }
+        
+        let originalResult = originalBlock(receiver, selector, rect)
+        
+        var result = originalResult
+        for after in hooks.after {
+            result = after(receiver, selector, rect, result)
+        }
+        return result
+    }
+    
+    wy_swizzleMethod(for: layoutClass, selector: selector, newImpBlock: newBlock)
+}
+
+/**
+ 交换 `UICollectionViewLayout` 及其子类的 `layoutAttributesForItem(at:)` 方法。
+ 
+ - Parameters:
+   - layoutClass: 目标布局类。
+   - before: 方法执行前回调。参数依次为：布局对象、索引路径。无返回值。
+   - after: 方法执行后回调。参数依次为：布局对象、索引路径、原始返回值（`UICollectionViewLayoutAttributes?`）。可返回一个新的属性对象来替换原始返回值。
+ */
+public func wy_exchangeLayoutAttributesForItem(
+    for layoutClass: UICollectionViewLayout.Type,
+    before: ((_ layout: UICollectionViewLayout, _ indexPath: IndexPath) -> Void)? = nil,
+    after: ((_ layout: UICollectionViewLayout, _ indexPath: IndexPath, _ originalResult: UICollectionViewLayoutAttributes?) -> UICollectionViewLayoutAttributes?)? = nil
+) {
+    let selector = #selector(UICollectionViewLayout.layoutAttributesForItem(at:))
+    let className = NSStringFromClass(layoutClass)
+    let key = "wy_\(className)_\(NSStringFromSelector(selector))"
+    typealias Args = IndexPath
+    typealias Return = UICollectionViewLayoutAttributes?
+    typealias Hooks = WYMethodHooks<Args, Return>
+    
+    guard let originalMethod = class_getInstanceMethod(layoutClass, selector) else {
+        #if DEBUG
+        assertionFailure("方法不存在: \(NSStringFromSelector(selector))")
+        #else
+        wy_print("WYMethodExchangeCenter: 方法不存在 \(NSStringFromSelector(selector))", outputMode: .alwaysConsoleOnly)
+        #endif
+        return
+    }
+    let originalIMP = method_getImplementation(originalMethod)
+    typealias OriginalFunc = @convention(c) (UICollectionViewLayout, Selector, IndexPath) -> UICollectionViewLayoutAttributes?
+    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
+    
+    WYHooksLock.lock()
+    var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
+    if let before = before {
+        hooks.before.append { anyLayout, _, indexPath in
+            guard let layout = anyLayout as? UICollectionViewLayout else { return }
+            before(layout, indexPath)
+        }
+    }
+    if let after = after {
+        hooks.after.append { anyLayout, _, indexPath, original in
+            guard let layout = anyLayout as? UICollectionViewLayout else { return original }
+            return after(layout, indexPath, original)
+        }
+    }
+    WYHooksMap[key] = hooks
+    WYHooksLock.unlock()
+    
+    let newBlock: @convention(block) (UICollectionViewLayout, IndexPath) -> UICollectionViewLayoutAttributes? = { receiver, indexPath in
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        for before in hooks.before {
+            before(receiver, selector, indexPath)
+        }
+        
+        let originalResult = originalBlock(receiver, selector, indexPath)
+        
+        var result = originalResult
+        for after in hooks.after {
+            result = after(receiver, selector, indexPath, result)
+        }
+        return result
+    }
+    
+    wy_swizzleMethod(for: layoutClass, selector: selector, newImpBlock: newBlock)
+}
+
+/**
+ 交换 `UICollectionViewLayout` 及其子类的 `layoutAttributesForSupplementaryView(ofKind:at:)` 方法。
+ 
+ - Parameters:
+   - layoutClass: 目标布局类。
+   - before: 方法执行前回调。参数依次为：布局对象、元素类型、索引路径。无返回值。
+   - after: 方法执行后回调。参数依次为：布局对象、元素类型、索引路径、原始返回值（`UICollectionViewLayoutAttributes?`）。可返回一个新的属性对象来替换原始返回值。
+ */
+public func wy_exchangeLayoutAttributesForSupplementaryView(
+    for layoutClass: UICollectionViewLayout.Type,
+    before: ((_ layout: UICollectionViewLayout, _ elementKind: String, _ indexPath: IndexPath) -> Void)? = nil,
+    after: ((_ layout: UICollectionViewLayout, _ elementKind: String, _ indexPath: IndexPath, _ originalResult: UICollectionViewLayoutAttributes?) -> UICollectionViewLayoutAttributes?)? = nil
+) {
+    let selector = #selector(UICollectionViewLayout.layoutAttributesForSupplementaryView(ofKind:at:))
+    let className = NSStringFromClass(layoutClass)
+    let key = "wy_\(className)_\(NSStringFromSelector(selector))"
+    typealias Args = (String, IndexPath)
+    typealias Return = UICollectionViewLayoutAttributes?
+    typealias Hooks = WYMethodHooks<Args, Return>
+    
+    guard let originalMethod = class_getInstanceMethod(layoutClass, selector) else {
+        #if DEBUG
+        assertionFailure("方法不存在: \(NSStringFromSelector(selector))")
+        #else
+        wy_print("WYMethodExchangeCenter: 方法不存在 \(NSStringFromSelector(selector))", outputMode: .alwaysConsoleOnly)
+        #endif
+        return
+    }
+    let originalIMP = method_getImplementation(originalMethod)
+    typealias OriginalFunc = @convention(c) (UICollectionViewLayout, Selector, String, IndexPath) -> UICollectionViewLayoutAttributes?
+    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
+    
+    WYHooksLock.lock()
+    var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
+    if let before = before {
+        hooks.before.append { anyLayout, _, args in
+            guard let layout = anyLayout as? UICollectionViewLayout else { return }
+            before(layout, args.0, args.1)
+        }
+    }
+    if let after = after {
+        hooks.after.append { anyLayout, _, args, original in
+            guard let layout = anyLayout as? UICollectionViewLayout else { return original }
+            return after(layout, args.0, args.1, original)
+        }
+    }
+    WYHooksMap[key] = hooks
+    WYHooksLock.unlock()
+    
+    let newBlock: @convention(block) (UICollectionViewLayout, String, IndexPath) -> UICollectionViewLayoutAttributes? = { receiver, elementKind, indexPath in
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        let args = (elementKind, indexPath)
+        for before in hooks.before {
+            before(receiver, selector, args)
+        }
+        
+        let originalResult = originalBlock(receiver, selector, elementKind, indexPath)
+        
+        var result = originalResult
+        for after in hooks.after {
+            result = after(receiver, selector, args, result)
+        }
+        return result
+    }
+    
+    wy_swizzleMethod(for: layoutClass, selector: selector, newImpBlock: newBlock)
+}
+
+/**
+ 交换 `UICollectionViewLayout` 及其子类的 `collectionViewContentSize` 属性的 getter 方法。
+ 
+ - Parameters:
+   - layoutClass: 目标布局类。
+   - before: 方法执行前回调。参数为当前布局对象。无返回值。
+   - after: 方法执行后回调。参数依次为：布局对象、原始返回值（`CGSize`）。可返回一个新的 `CGSize` 来替换原始返回值。
+ */
+public func wy_exchangeCollectionViewContentSize(
+    for layoutClass: UICollectionViewLayout.Type,
+    before: ((_ layout: UICollectionViewLayout) -> Void)? = nil,
+    after: ((_ layout: UICollectionViewLayout, _ originalResult: CGSize) -> CGSize)? = nil
+) {
+    let selector = #selector(getter: UICollectionViewLayout.collectionViewContentSize)
+    let className = NSStringFromClass(layoutClass)
+    let key = "wy_\(className)_\(NSStringFromSelector(selector))"
+    typealias Args = Void
+    typealias Return = CGSize
+    typealias Hooks = WYMethodHooks<Args, Return>
+    
+    guard let originalMethod = class_getInstanceMethod(layoutClass, selector) else {
+        #if DEBUG
+        assertionFailure("方法不存在: \(NSStringFromSelector(selector))")
+        #else
+        wy_print("WYMethodExchangeCenter: 方法不存在 \(NSStringFromSelector(selector))", outputMode: .alwaysConsoleOnly)
+        #endif
+        return
+    }
+    let originalIMP = method_getImplementation(originalMethod)
+    typealias OriginalFunc = @convention(c) (UICollectionViewLayout, Selector) -> CGSize
+    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
+    
+    WYHooksLock.lock()
+    var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
+    if let before = before {
+        hooks.before.append { anyLayout, _, _ in
+            guard let layout = anyLayout as? UICollectionViewLayout else { return }
+            before(layout)
+        }
+    }
+    if let after = after {
+        hooks.after.append { anyLayout, _, _, original in
+            guard let layout = anyLayout as? UICollectionViewLayout else { return original }
+            return after(layout, original)
+        }
+    }
+    WYHooksMap[key] = hooks
+    WYHooksLock.unlock()
+    
+    let newBlock: @convention(block) (UICollectionViewLayout) -> CGSize = { receiver in
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        for before in hooks.before {
+            before(receiver, selector, ())
+        }
+        
+        let originalResult = originalBlock(receiver, selector)
+        
+        var result = originalResult
+        for after in hooks.after {
+            result = after(receiver, selector, (), result)
+        }
+        return result
+    }
+    
+    wy_swizzleMethod(for: layoutClass, selector: selector, newImpBlock: newBlock)
+}
+
+/**
+ 交换 `UICollectionViewLayout` 及其子类的 `shouldInvalidateLayout(forBoundsChange:)` 方法。
+ 
+ - Parameters:
+   - layoutClass: 目标布局类。
+   - before: 方法执行前回调。参数依次为：布局对象、新边界。无返回值。
+   - after: 方法执行后回调。参数依次为：布局对象、新边界、原始返回值（`Bool`）。可返回一个新的 `Bool` 来替换原始返回值。
+ */
+public func wy_exchangeShouldInvalidateLayout(
+    for layoutClass: UICollectionViewLayout.Type,
+    before: ((_ layout: UICollectionViewLayout, _ newBounds: CGRect) -> Void)? = nil,
+    after: ((_ layout: UICollectionViewLayout, _ newBounds: CGRect, _ originalResult: Bool) -> Bool)? = nil
+) {
+    let selector = #selector(UICollectionViewLayout.shouldInvalidateLayout(forBoundsChange:))
+    let className = NSStringFromClass(layoutClass)
+    let key = "wy_\(className)_\(NSStringFromSelector(selector))"
+    typealias Args = CGRect
+    typealias Return = Bool
+    typealias Hooks = WYMethodHooks<Args, Return>
+    
+    guard let originalMethod = class_getInstanceMethod(layoutClass, selector) else {
+        #if DEBUG
+        assertionFailure("方法不存在: \(NSStringFromSelector(selector))")
+        #else
+        wy_print("WYMethodExchangeCenter: 方法不存在 \(NSStringFromSelector(selector))", outputMode: .alwaysConsoleOnly)
+        #endif
+        return
+    }
+    let originalIMP = method_getImplementation(originalMethod)
+    typealias OriginalFunc = @convention(c) (UICollectionViewLayout, Selector, CGRect) -> Bool
+    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
+    
+    WYHooksLock.lock()
+    var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
+    if let before = before {
+        hooks.before.append { anyLayout, _, newBounds in
+            guard let layout = anyLayout as? UICollectionViewLayout else { return }
+            before(layout, newBounds)
+        }
+    }
+    if let after = after {
+        hooks.after.append { anyLayout, _, newBounds, original in
+            guard let layout = anyLayout as? UICollectionViewLayout else { return original }
+            return after(layout, newBounds, original)
+        }
+    }
+    WYHooksMap[key] = hooks
+    WYHooksLock.unlock()
+    
+    let newBlock: @convention(block) (UICollectionViewLayout, CGRect) -> Bool = { receiver, newBounds in
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        for before in hooks.before {
+            before(receiver, selector, newBounds)
+        }
+        
+        let originalResult = originalBlock(receiver, selector, newBounds)
+        
+        var result = originalResult
+        for after in hooks.after {
+            result = after(receiver, selector, newBounds, result)
+        }
+        return result
+    }
+    
+    wy_swizzleMethod(for: layoutClass, selector: selector, newImpBlock: newBlock)
+}
+
+/**
+ 交换遵循 `UIGestureRecognizerDelegate` 的对象的 `gestureRecognizerShouldBegin(_:)` 方法。
+ 
+ - Parameters:
+   - delegateClass: 目标代理类（如 `MyViewController.self`）。
+   - before: 方法执行前回调。参数依次为：代理对象、手势识别器。无返回值。
+   - after: 方法执行后回调。参数依次为：代理对象、手势识别器、原始返回值（`Bool`）。可返回一个新的 `Bool` 来替换原始返回值。
+ */
+public func wy_exchangeGestureRecognizerShouldBegin(
+    for delegateClass: NSObject.Type,
+    before: ((_ delegate: NSObject, _ gestureRecognizer: UIGestureRecognizer) -> Void)? = nil,
+    after: ((_ delegate: NSObject, _ gestureRecognizer: UIGestureRecognizer, _ originalResult: Bool) -> Bool)? = nil
+) {
+    let selector = #selector(UIGestureRecognizerDelegate.gestureRecognizerShouldBegin(_:))
+    let className = NSStringFromClass(delegateClass)
+    let key = "wy_\(className)_\(NSStringFromSelector(selector))"
+    typealias Args = UIGestureRecognizer
+    typealias Return = Bool
+    typealias Hooks = WYMethodHooks<Args, Return>
+    
+    guard let originalMethod = class_getInstanceMethod(delegateClass, selector) else {
+        #if DEBUG
+        assertionFailure("方法不存在: \(NSStringFromSelector(selector))")
+        #else
+        wy_print("WYMethodExchangeCenter: 方法不存在 \(NSStringFromSelector(selector))", outputMode: .alwaysConsoleOnly)
+        #endif
+        return
+    }
+    let originalIMP = method_getImplementation(originalMethod)
+    typealias OriginalFunc = @convention(c) (NSObject, Selector, UIGestureRecognizer) -> Bool
+    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
+    
+    WYHooksLock.lock()
+    var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
+    if let before = before {
+        hooks.before.append { anyObj, _, gesture in
+            guard let obj = anyObj as? NSObject else { return }
+            before(obj, gesture)
+        }
+    }
+    if let after = after {
+        hooks.after.append { anyObj, _, gesture, original in
+            guard let obj = anyObj as? NSObject else { return original }
+            return after(obj, gesture, original)
+        }
+    }
+    WYHooksMap[key] = hooks
+    WYHooksLock.unlock()
+    
+    let newBlock: @convention(block) (NSObject, UIGestureRecognizer) -> Bool = { receiver, gestureRecognizer in
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        for before in hooks.before {
+            before(receiver, selector, gestureRecognizer)
+        }
+        
+        let originalResult = originalBlock(receiver, selector, gestureRecognizer)
+        
+        var result = originalResult
+        for after in hooks.after {
+            result = after(receiver, selector, gestureRecognizer, result)
+        }
+        return result
+    }
+    
+    wy_swizzleMethod(for: delegateClass, selector: selector, newImpBlock: newBlock)
 }
 
 /// 单个方法的钩子集合（泛型，每个类每个方法独立）
