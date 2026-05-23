@@ -1,5 +1,5 @@
 //
-//  WYTestButtonEdgeInsetsController.swift
+//  WYTestEdgeInsetsController.swift
 //  WYBasisKitTest
 //
 //  Created by 官人 on 2023/4/21.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class WYTestButtonEdgeInsetsController: UIViewController {
+class WYTestEdgeInsetsController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()

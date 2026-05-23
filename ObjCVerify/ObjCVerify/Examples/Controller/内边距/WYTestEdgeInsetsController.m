@@ -1,19 +1,19 @@
 //
-//  WYTestButtonEdgeInsetsController.m
+//  WYTestEdgeInsetsController.m
 //  ObjCVerify
 //
 //  Created by guanren on 2025/10/17.
 //
 
-#import "WYTestButtonEdgeInsetsController.h"
+#import "WYTestEdgeInsetsController.h"
 #import <WYBasisKitObjC/WYBasisKitObjC.h>
 #import <Masonry/Masonry.h>
 
-@interface WYTestButtonEdgeInsetsController ()
+@interface WYTestEdgeInsetsController ()
 
 @end
 
-@implementation WYTestButtonEdgeInsetsController
+@implementation WYTestEdgeInsetsController
 
 - (void)viewDidLoad {
     [super viewDidLoad];

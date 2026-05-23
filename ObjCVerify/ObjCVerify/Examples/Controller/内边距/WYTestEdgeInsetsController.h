@@ -1,5 +1,5 @@
 //
-//  WYTestButtonEdgeInsetsController.h
+//  WYTestEdgeInsetsController.h
 //  ObjCVerify
 //
 //  Created by guanren on 2025/10/17.
@@ -9,7 +9,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface WYTestButtonEdgeInsetsController : UIViewController
+@interface WYTestEdgeInsetsController : UIViewController
 
 @end
 

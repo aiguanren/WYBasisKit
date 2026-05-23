@@ -69,7 +69,7 @@
 		585B3AC42DF819DC00E6E08F /* WYTestAnimationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A682DF819DC00E6E08F /* WYTestAnimationController.swift */; };
 		585B3AC52DF819DC00E6E08F /* WYTestLiveStreamingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A6A2DF819DC00E6E08F /* WYTestLiveStreamingController.swift */; };
 		585B3AC62DF819DC00E6E08F /* WYTestBannerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A6C2DF819DC00E6E08F /* WYTestBannerController.swift */; };
-		585B3AC72DF819DC00E6E08F /* WYTestButtonEdgeInsetsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A6E2DF819DC00E6E08F /* WYTestButtonEdgeInsetsController.swift */; };
+		585B3AC72DF819DC00E6E08F /* WYTestEdgeInsetsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A6E2DF819DC00E6E08F /* WYTestEdgeInsetsController.swift */; };
 		585B3AC82DF819DC00E6E08F /* WYCenterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A702DF819DC00E6E08F /* WYCenterController.swift */; };
 		585B3AC92DF819DC00E6E08F /* WYParseGifController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A722DF819DC00E6E08F /* WYParseGifController.swift */; };
 		585B3ACA2DF819DC00E6E08F /* WYTestChatController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A742DF819DC00E6E08F /* WYTestChatController.swift */; };
@@ -203,7 +203,7 @@
 		585B3A682DF819DC00E6E08F /* WYTestAnimationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestAnimationController.swift; sourceTree = "<group>"; };
 		585B3A6A2DF819DC00E6E08F /* WYTestLiveStreamingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestLiveStreamingController.swift; sourceTree = "<group>"; };
 		585B3A6C2DF819DC00E6E08F /* WYTestBannerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestBannerController.swift; sourceTree = "<group>"; };
-		585B3A6E2DF819DC00E6E08F /* WYTestButtonEdgeInsetsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestButtonEdgeInsetsController.swift; sourceTree = "<group>"; };
+		585B3A6E2DF819DC00E6E08F /* WYTestEdgeInsetsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestEdgeInsetsController.swift; sourceTree = "<group>"; };
 		585B3A702DF819DC00E6E08F /* WYCenterController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCenterController.swift; sourceTree = "<group>"; };
 		585B3A722DF819DC00E6E08F /* WYParseGifController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYParseGifController.swift; sourceTree = "<group>"; };
 		585B3A742DF819DC00E6E08F /* WYTestChatController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestChatController.swift; sourceTree = "<group>"; };
@@ -456,12 +456,12 @@
 			path = "Banner轮播";
 			sourceTree = "<group>";
 		};
-		585B3A6F2DF819DC00E6E08F /* ButtonEdgeInsets */ = {
+		585B3A6F2DF819DC00E6E08F /* 内边距 */ = {
 			isa = PBXGroup;
 			children = (
-				585B3A6E2DF819DC00E6E08F /* WYTestButtonEdgeInsetsController.swift */,
+				585B3A6E2DF819DC00E6E08F /* WYTestEdgeInsetsController.swift */,
 			);
-			path = ButtonEdgeInsets;
+			path = "内边距";
 			sourceTree = "<group>";
 		};
 		585B3A712DF819DC00E6E08F /* Center */ = {
@@ -564,7 +564,7 @@
 				585B3A692DF819DC00E6E08F /* 约束view添加动画 */,
 				585B3A6B2DF819DC00E6E08F /* 直播、点播播放器 */,
 				585B3A6D2DF819DC00E6E08F /* Banner轮播 */,
-				585B3A6F2DF819DC00E6E08F /* ButtonEdgeInsets */,
+				585B3A6F2DF819DC00E6E08F /* 内边距 */,
 				585B3A732DF819DC00E6E08F /* Gif加载 */,
 				585B3A762DF819DC00E6E08F /* IM即时通讯 */,
 				58155C0A2E6A7C3200D957F3 /* Tabbar */,
@@ -1015,7 +1015,7 @@
 				585B3AC42DF819DC00E6E08F /* WYTestAnimationController.swift in Sources */,
 				585B3AC52DF819DC00E6E08F /* WYTestLiveStreamingController.swift in Sources */,
 				585B3AC62DF819DC00E6E08F /* WYTestBannerController.swift in Sources */,
-				585B3AC72DF819DC00E6E08F /* WYTestButtonEdgeInsetsController.swift in Sources */,
+				585B3AC72DF819DC00E6E08F /* WYTestEdgeInsetsController.swift in Sources */,
 				585B3AC82DF819DC00E6E08F /* WYCenterController.swift in Sources */,
 				585B3AC92DF819DC00E6E08F /* WYParseGifController.swift in Sources */,
 				585B3ACA2DF819DC00E6E08F /* WYTestChatController.swift in Sources */,

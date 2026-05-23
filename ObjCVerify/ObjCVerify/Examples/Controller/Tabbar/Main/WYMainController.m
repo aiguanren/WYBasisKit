@@ -49,8 +49,8 @@
             [[ListItem alloc] initWithTitle:@"边框、圆角、阴影、渐变"
                                  controller:@"WYTestVisualController"],
             
-            [[ListItem alloc] initWithTitle:@"ButtonEdgeInsets"
-                                 controller:@"WYTestButtonEdgeInsetsController"],
+            [[ListItem alloc] initWithTitle:@"内边距"
+                                 controller:@"WYTestEdgeInsetsController"],
             
             [[ListItem alloc] initWithTitle:@"Banner轮播"
                                  controller:@"WYTestBannerController"],

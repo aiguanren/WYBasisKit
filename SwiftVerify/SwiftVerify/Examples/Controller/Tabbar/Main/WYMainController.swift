@@ -25,8 +25,8 @@ class WYMainController: UIViewController {
         ListItem(title: "边框、圆角、阴影、渐变",
                  controller: "WYTestVisualController"),
         
-        ListItem(title: "ButtonEdgeInsets",
-                 controller: "WYTestButtonEdgeInsetsController"),
+        ListItem(title: "内边距",
+                 controller: "WYTestEdgeInsetsController"),
         
         ListItem(title: "Banner轮播",
                  controller: "WYTestBannerController"),
