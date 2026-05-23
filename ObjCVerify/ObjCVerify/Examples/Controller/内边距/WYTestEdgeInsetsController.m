@@ -20,6 +20,20 @@
     // Do any additional setup after loading the view.
     self.view.backgroundColor = [UIColor whiteColor];
     
+    UILabel *label = [[UILabel alloc] init];
+    label.text = [NSString wy_randomWithMinimum:5 maximum:26];
+    label.font = [UIFont boldSystemFontOfSize:15];
+    label.numberOfLines = 0;
+    label.backgroundColor = [UIColor wy_random];
+    label.wy_contentInsets = UIEdgeInsetsMake(10, 10, 20, 30);
+    label.textColor = [UIColor wy_random];
+    [self.view addSubview:label];
+    [label mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.equalTo(self.view);
+        make.width.mas_lessThanOrEqualTo(UIDevice.wy_screenWidth - 50);
+        make.top.equalTo(self.view).mas_offset(UIDevice.wy_navViewHeight + 20);
+    }];
+    
     UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
     button.wy_nTitle = @"wy_adjust";
     button.wy_nImage = [UIImage wy_find:@"tabbar_right_selected"];
@@ -34,8 +48,8 @@
     [button mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.view).offset(10);
         make.right.equalTo(self.view).offset(-10);
-        make.height.equalTo(@200);
-        make.centerY.equalTo(self.view).mas_offset(-150);
+        make.height.equalTo(@100);
+        make.top.equalTo(label.mas_bottom).mas_offset(20);
     }];
     [button wy_adjustPosition:WYButtonPositionImageRightTitleLeft spacing:5];
     
@@ -54,7 +68,7 @@
     [itemButton mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.view).offset(10);
         make.right.equalTo(self.view).offset(-10);
-        make.height.equalTo(@200);
+        make.height.equalTo(@100);
         make.centerY.equalTo(button.mas_bottom).offset(100);
     }];
     

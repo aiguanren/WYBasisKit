@@ -7,12 +7,20 @@
 
 import UIKit
 
-/// 拦截决策
-public enum WYInterceptDecision {
+/// HitTest 拦截决策
+public enum WYHitTestDecision {
     /// 继续执行原始交换方法
     case proceed
     /// 直接返回指定的值（可以是 nil），不再调用原始方法
     case result(UIView?)
+}
+
+/// DrawRect 拦截决策
+public enum WYDrawRectDecision {
+    /// 继续使用原始矩形
+    case proceed
+    /// 替换为指定矩形
+    case replace(CGRect)
 }
 
 /**
@@ -26,35 +34,65 @@ public func wy_removeMethodExchangeHooks(for anyClass: AnyClass, selector: Selec
     let className = NSStringFromClass(anyClass)
     let prefix = "wy_\(className)_"
     let shouldPopPrefix = "wy_shouldPop_\(className)_"
+    let drawRectInterceptPrefix = "wy_intercept_drawRect_\(className)_"
+    let drawRectCachePrefix = "wy_drawRect_\(className)_"
+    
     WYHooksLock.lock()
     if let selector = selector {
         let selName = NSStringFromSelector(selector)
         let key = prefix + selName
         WYHooksMap[key] = nil
         
-        let interceptKey = "wy_intercept_\(className)_\(selName)"
-        WYHitTestInterceptMap[interceptKey] = nil
+        let hitTestInterceptKey = "wy_intercept_\(className)_\(selName)"
+        WYHitTestInterceptMap[hitTestInterceptKey] = nil
         
         let shouldPopKey = shouldPopPrefix + selName
         WYShouldPopMap[shouldPopKey] = nil
         
-        // 清除缓存
+        // 清除 drawRect intercept 和缓存
+        let drawRectInterceptKey = drawRectInterceptPrefix + selName
+        WYDrawRectInterceptMap[drawRectInterceptKey] = nil
+        let drawRectCacheKey = drawRectCachePrefix + selName
+        WYDrawRectCacheMap[drawRectCacheKey] = nil
+        
+        // 清除通用缓存
         let cacheKey = "\(className)_\(selName)"
         WYHooksCacheMap[cacheKey] = nil
         WYHitTestCacheMap[cacheKey] = nil
+        
+        // 清除关联对象标记并从集合中移除
+        let swizzleKey = "wy_\(className)_\(selName)_swizzled"
+        objc_setAssociatedObject(anyClass, swizzleKey, nil, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        WYExchangedMethodsLock.lock()
+        WYExchangedMethodsSet.remove(swizzleKey)
+        WYExchangedMethodsLock.unlock()
+        
     } else {
         let keysToRemove = WYHooksMap.keys.filter { $0.hasPrefix(prefix) }
         for key in keysToRemove {
             WYHooksMap[key] = nil
         }
-        let interceptKeysToRemove = WYHitTestInterceptMap.keys.filter { $0.hasPrefix("wy_intercept_\(className)_") }
-        for key in interceptKeysToRemove {
+        
+        let hitTestInterceptKeysToRemove = WYHitTestInterceptMap.keys.filter { $0.hasPrefix("wy_intercept_\(className)_") }
+        for key in hitTestInterceptKeysToRemove {
             WYHitTestInterceptMap[key] = nil
         }
+        
         let shouldPopKeysToRemove = WYShouldPopMap.keys.filter { $0.hasPrefix(shouldPopPrefix) }
         for key in shouldPopKeysToRemove {
             WYShouldPopMap[key] = nil
         }
+        
+        // 清除 drawRect intercept 和缓存
+        let drawRectInterceptKeysToRemove = WYDrawRectInterceptMap.keys.filter { $0.hasPrefix(drawRectInterceptPrefix) }
+        for key in drawRectInterceptKeysToRemove {
+            WYDrawRectInterceptMap[key] = nil
+        }
+        let drawRectCacheKeysToRemove = WYDrawRectCacheMap.keys.filter { $0.hasPrefix(drawRectCachePrefix) }
+        for key in drawRectCacheKeysToRemove {
+            WYDrawRectCacheMap[key] = nil
+        }
+        
         // 清除该类所有方法缓存
         let cacheKeysToRemove = WYHooksCacheMap.keys.filter { $0.hasPrefix(className + "_") }
         for key in cacheKeysToRemove {
@@ -63,6 +101,20 @@ public func wy_removeMethodExchangeHooks(for anyClass: AnyClass, selector: Selec
         let hitTestCacheKeysToRemove = WYHitTestCacheMap.keys.filter { $0.hasPrefix(className + "_") }
         for key in hitTestCacheKeysToRemove {
             WYHitTestCacheMap[key] = nil
+        }
+        
+        // 清除该类所有方法的关联对象标记并移除集合记录,需要从 WYHooksMap 的 keys 中获取已交换的方法名（因为存储的 key 格式为 "wy_\(className)_\(selName)"）
+        let allMethodKeys = WYHooksMap.keys.filter { $0.hasPrefix(prefix) }
+        for methodKey in allMethodKeys {
+            // 提取 selName：去掉前缀 "wy_\(className)_"
+            if let selName = methodKey.split(separator: "_", maxSplits: 2, omittingEmptySubsequences: false).last {
+                let selNameStr = String(selName)
+                let swizzleKey = "wy_\(className)_\(selNameStr)_swizzled"
+                objc_setAssociatedObject(anyClass, swizzleKey, nil, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+                WYExchangedMethodsLock.lock()
+                WYExchangedMethodsSet.remove(swizzleKey)
+                WYExchangedMethodsLock.unlock()
+            }
         }
     }
     WYHooksLock.unlock()
@@ -73,10 +125,32 @@ public func wy_removeAllMethodExchangeHooks() {
     WYHooksLock.lock()
     WYHooksMap.removeAll()
     WYHitTestInterceptMap.removeAll()
+    WYDrawRectInterceptMap.removeAll()
     WYShouldPopMap.removeAll()
     WYHooksCacheMap.removeAll()
     WYHitTestCacheMap.removeAll()
+    WYDrawRectCacheMap.removeAll()
     WYHooksLock.unlock()
+    
+    // 清除所有已记录的关联对象标记，并清空集合
+    WYExchangedMethodsLock.lock()
+    let allSwizzleKeys = WYExchangedMethodsSet
+    WYExchangedMethodsSet.removeAll()
+    WYExchangedMethodsLock.unlock()
+    
+    // 遍历 WYExchangedMethodsSet 中的每个 swizzleKey，解析出类并清除标记
+    for swizzleKey in allSwizzleKeys {
+        // swizzleKey 格式： "wy_<className>_<selName>_swizzled"
+        // 提取 className
+        let parts = swizzleKey.split(separator: "_", maxSplits: 2, omittingEmptySubsequences: false)
+        if parts.count >= 2 {
+            let className = String(parts[1])
+            // 通过类名字符串获取类对象
+            if let targetClass = NSClassFromString(className) {
+                objc_setAssociatedObject(targetClass, swizzleKey, nil, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            }
+        }
+    }
 }
 
 /**
@@ -1119,7 +1193,7 @@ public func wy_exchangeKVOObserve(
  */
 public func wy_exchangeHitTest(
     for viewClass: UIView.Type,
-    intercept: ((_ currentView: UIView, _ point: CGPoint, _ event: UIEvent?) -> WYInterceptDecision)? = nil,
+    intercept: ((_ currentView: UIView, _ point: CGPoint, _ event: UIEvent?) -> WYHitTestDecision)? = nil,
     before: ((_ currentView: UIView, _ point: CGPoint, _ event: UIEvent?) -> Void)? = nil,
     after: ((_ currentView: UIView, _ point: CGPoint, _ event: UIEvent?, _ originalResult: UIView?) -> UIView?)? = nil
 ) {
@@ -1666,12 +1740,14 @@ public func wy_exchangeSizeThatFits(
  交换 `UILabel` 及其子类的 `drawText(in:)` 方法。
  
  - Parameters:
- - labelClass: 目标 Label 类（如 `UILabel.self`）。
- - before: 方法执行前回调。参数依次为：当前标签、绘制区域矩形。无返回值。
- - after: 方法执行后回调。参数依次为：当前标签、绘制区域矩形。无返回值（仅通知）。
+   - labelClass: 目标 Label 类（如 `UILabel.self`）。
+   - intercept: 拦截决策闭包。返回 `.proceed` 则使用原始矩形；返回 `.replace(rect)` 则使用新矩形进行绘制。参数依次为：当前标签、原始矩形。
+   - before: 方法执行前观察闭包（仅在原始方法执行前调用）。参数依次为：当前标签、最终使用的矩形。无返回值。
+   - after: 方法执行后回调。参数依次为：当前标签、最终使用的矩形。无返回值（仅通知）。
  */
 public func wy_exchangeDrawText(
     for labelClass: UILabel.Type,
+    intercept: ((_ currentLabel: UILabel, _ originalRect: CGRect) -> WYDrawRectDecision)? = nil,
     before: ((_ currentLabel: UILabel, _ rect: CGRect) -> Void)? = nil,
     after: ((_ currentLabel: UILabel, _ rect: CGRect) -> Void)? = nil
 ) {
@@ -1694,6 +1770,7 @@ public func wy_exchangeDrawText(
     typealias OriginalFunc = @convention(c) (UILabel, Selector, CGRect) -> Void
     let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
     
+    // 存储 before/after
     WYHooksLock.lock()
     var hooks = (WYHooksMap[key] as? Hooks) ?? Hooks()
     if let before = before {
@@ -1712,16 +1789,35 @@ public func wy_exchangeDrawText(
     WYHooksMap[key] = hooks
     WYHooksLock.unlock()
     
+    // 存储 intercept 闭包
+    let interceptKey = "wy_intercept_drawRect_\(className)_\(NSStringFromSelector(selector))"
+    WYHooksLock.lock()
+    WYDrawRectInterceptMap[interceptKey] = intercept
+    WYHooksLock.unlock()
+    
     let newBlock: @convention(block) (UILabel, CGRect) -> Void = { receiver, rect in
-        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
-        for before in hooks.before {
-            before(receiver, selector, rect)
+        // 查找 intercept 决策（使用缓存）
+        var finalRect = rect
+        if let decision = wy_findDrawRectIntercept(for: receiver, selector: selector) {
+            switch decision(receiver, rect) {
+            case .replace(let newRect):
+                finalRect = newRect
+            case .proceed:
+                break
+            }
         }
         
-        originalBlock(receiver, selector, rect)
+        // 查找 before/after 钩子（使用缓存）
+        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        for before in hooks.before {
+            before(receiver, selector, finalRect)
+        }
+        
+        // 调用原始方法（使用最终矩形）
+        originalBlock(receiver, selector, finalRect)
         
         for after in hooks.after {
-            _ = after(receiver, selector, rect, ())
+            _ = after(receiver, selector, finalRect, ())
         }
     }
     
@@ -1741,7 +1837,12 @@ public func wy_exchangeIntrinsicContentSize(
     before: ((_ currentView: UIView) -> Void)? = nil,
     after: ((_ currentView: UIView, _ originalResult: CGSize) -> CGSize)? = nil
 ) {
+    
     let selector = #selector(getter: UIView.intrinsicContentSize)
+    
+    // 容错处理，清除可能存在的异常标记
+    wy_checkAndCleanSwizzleMark(for: viewClass, selector: selector)
+    
     let className = NSStringFromClass(viewClass)
     let key = "wy_\(className)_\(NSStringFromSelector(selector))"
     typealias Args = Void
@@ -1793,6 +1894,9 @@ public func wy_exchangeIntrinsicContentSize(
     }
     
     wy_swizzleMethod(for: viewClass, selector: selector, newImpBlock: newBlock)
+    
+    // 记录当前方法的 swizzleKey 已被调用，供容错函数检查
+    wy_remarkSwizzleKeyCalled(for: viewClass, selector: selector)
 }
 
 /**
@@ -2281,14 +2385,26 @@ private var WYHooksMap: [String: Any] = [:]
 /// 保护钩子容器的线程锁
 private let WYHooksLock = NSLock()
 
-/// 独立存储 hitTest 的 intercept 闭包（返回 WYInterceptDecision）
-private var WYHitTestInterceptMap: [String: (UIView, CGPoint, UIEvent?) -> WYInterceptDecision] = [:]
-
 /// 缓存 wy_findHooks 的结果（key: "className_selector"）
 private var WYHooksCacheMap: [String: Any] = [:]
 
+/// 独立存储 hitTest 的 intercept 闭包（返回 WYHitTestDecision）
+private var WYHitTestInterceptMap: [String: (UIView, CGPoint, UIEvent?) -> WYHitTestDecision] = [:]
+
 /// 缓存 wy_findHitTestIntercept 的结果（key: "className_selector"）
-private var WYHitTestCacheMap: [String: (UIView, CGPoint, UIEvent?) -> WYInterceptDecision] = [:]
+private var WYHitTestCacheMap: [String: (UIView, CGPoint, UIEvent?) -> WYHitTestDecision] = [:]
+
+/// 独立存储 drawRect 的 intercept 闭包（返回 WYDrawRectDecision）
+private var WYDrawRectInterceptMap: [String: (UILabel, CGRect) -> WYDrawRectDecision] = [:]
+
+/// 缓存 wy_findDrawRectIntercept 的结果（key: "className_selector"）
+private var WYDrawRectCacheMap: [String: (UILabel, CGRect) -> WYDrawRectDecision] = [:]
+
+/// 记录哪些交换函数的 swizzleKey 已经被执行过（用于容错处理）
+private var WYExchangedMethodsSet: Set<String> = []
+
+/// 保护 WYExchangedMethodsSet 的线程锁
+private let WYExchangedMethodsLock = NSLock()
 
 /**
  沿继承链查找指定选择器的钩子集合
@@ -2325,14 +2441,7 @@ private func wy_findHooks<Args, Return>(for receiver: AnyObject, selector: Selec
         }
         currentClass = class_getSuperclass(cls)
     }
-    let empty = WYMethodHooks<Args, Return>()
-    // 缓存空结果，避免重复查找
-    let className = NSStringFromClass(type(of: receiver))
-    let cacheKey = "\(className)_\(selName)"
-    WYHooksLock.lock()
-    WYHooksCacheMap[cacheKey] = empty
-    WYHooksLock.unlock()
-    return empty
+    return WYMethodHooks<Args, Return>()
 }
 
 /**
@@ -2343,7 +2452,7 @@ private func wy_findHooks<Args, Return>(for receiver: AnyObject, selector: Selec
  - selector: hitTest 方法选择器
  - Returns: 找到的第一个 intercept 闭包，若未找到则返回 nil
  */
-private func wy_findHitTestIntercept(for receiver: UIView, selector: Selector) -> ((UIView, CGPoint, UIEvent?) -> WYInterceptDecision)? {
+private func wy_findHitTestIntercept(for receiver: UIView, selector: Selector) -> ((UIView, CGPoint, UIEvent?) -> WYHitTestDecision)? {
     let selName = NSStringFromSelector(selector)
     var currentClass: AnyClass? = type(of: receiver)
     while let cls = currentClass, cls != NSObject.self {
@@ -2363,6 +2472,42 @@ private func wy_findHitTestIntercept(for receiver: UIView, selector: Selector) -
         if let intercept = intercept {
             WYHooksLock.lock()
             WYHitTestCacheMap[cacheKey] = intercept
+            WYHooksLock.unlock()
+            return intercept
+        }
+        currentClass = class_getSuperclass(cls)
+    }
+    return nil
+}
+
+/**
+ 沿继承链查找 drawRect 的 intercept 闭包
+ 
+ - Parameters:
+ - receiver: 当前视图
+ - selector: drawRect 方法选择器
+ - Returns: 找到的第一个 intercept 闭包，若未找到则返回 nil
+ */
+private func wy_findDrawRectIntercept(for receiver: UILabel, selector: Selector) -> ((UILabel, CGRect) -> WYDrawRectDecision)? {
+    let selName = NSStringFromSelector(selector)
+    var currentClass: AnyClass? = type(of: receiver)
+    while let cls = currentClass, cls != NSObject.self {
+        let className = NSStringFromClass(cls)
+        let cacheKey = "wy_drawRect_\(className)_\(selName)"
+        WYHooksLock.lock()
+        if let cached = WYDrawRectCacheMap[cacheKey] {
+            WYHooksLock.unlock()
+            return cached
+        }
+        WYHooksLock.unlock()
+        
+        let key = "wy_intercept_drawRect_\(className)_\(selName)"
+        WYHooksLock.lock()
+        let intercept = WYDrawRectInterceptMap[key]
+        WYHooksLock.unlock()
+        if let intercept = intercept {
+            WYHooksLock.lock()
+            WYDrawRectCacheMap[cacheKey] = intercept
             WYHooksLock.unlock()
             return intercept
         }
@@ -2401,4 +2546,44 @@ private func wy_swizzleMethod(
     
     let newIMP = imp_implementationWithBlock(newImpBlock)
     method_setImplementation(originalMethod, newIMP)
+}
+
+/**
+ 检查并清理异常的方法交换标记
+ 
+ 在调用某个交换函数时，如果该函数从未被执行过，
+ 但对应的关联对象 `swizzleKey` 已经存在（说明被意外提前设置），则强制清除该标记，
+ 以便后续的 `wy_swizzleMethod` 能够正常执行 IMP 替换。
+ 
+ - Parameters:
+   - targetClass: 目标类
+   - selector: 方法选择器
+ 
+ - Note: 此函数内部使用 `WYExchangedMethodsSet` 记录已经执行过交换的方法，
+         并通过 `WYExchangedMethodsLock` 保证线程安全。
+ */
+private func wy_checkAndCleanSwizzleMark(for targetClass: AnyClass, selector: Selector) {
+    
+    let className = NSStringFromClass(targetClass)
+    let selName = NSStringFromSelector(selector)
+    let swizzleKey = "wy_\(className)_\(selName)_swizzled"
+    
+    // 判断当前方法是否已经被调用过
+    WYExchangedMethodsLock.lock()
+    let alreadyCalled = WYExchangedMethodsSet.contains(swizzleKey)
+    WYExchangedMethodsLock.unlock()
+    
+    // 如果未被调用过，但关联对象标记意外存在则清除
+    if !alreadyCalled, objc_getAssociatedObject(targetClass, swizzleKey) != nil {
+        objc_setAssociatedObject(targetClass, swizzleKey, nil, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+    }
+}
+
+/// 记录当前方法的 swizzleKey 已被调用，供容错函数检查
+private func wy_remarkSwizzleKeyCalled(for targetClass: AnyClass, selector: Selector) {
+    let className = NSStringFromClass(targetClass)
+    let swizzleKey = "wy_\(className)_\(NSStringFromSelector(selector))_swizzled"
+    WYExchangedMethodsLock.lock()
+    WYExchangedMethodsSet.insert(swizzleKey)
+    WYExchangedMethodsLock.unlock()
 }

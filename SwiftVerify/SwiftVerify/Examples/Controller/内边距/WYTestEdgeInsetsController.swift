@@ -14,6 +14,20 @@ class WYTestEdgeInsetsController: UIViewController {
 
         // Do any additional setup after loading the view.
         view.backgroundColor = .white
+        
+        let label: UILabel = UILabel()
+        label.text = String.wy_random(minimum: 5, maximum: 26)
+        label.font = .boldSystemFont(ofSize: 15)
+        label.numberOfLines = 0
+        label.backgroundColor = .wy_random
+        label.wy_contentInsets = UIEdgeInsets(top: 10, left: 10, bottom: 20, right: 30)
+        label.textColor = .wy_random
+        view.addSubview(label)
+        label.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.width.lessThanOrEqualTo(UIDevice.wy_screenWidth - 50)
+            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight + 20)
+        }
 
         let button: UIButton = UIButton(type: .custom)
         button.wy_nTitle = "wy_adjust"
@@ -29,8 +43,8 @@ class WYTestEdgeInsetsController: UIViewController {
         button.snp.makeConstraints { make in
             make.left.equalToSuperview().offset(10)
             make.right.equalToSuperview().offset(-10)
-            make.height.equalTo(200)
-            make.centerY.equalToSuperview().offset(-100)
+            make.height.equalTo(100)
+            make.top.equalTo(label.snp.bottom).offset(20)
         }
         button.imageView?.backgroundColor = .wy_random
         button.titleLabel?.backgroundColor = .wy_random
@@ -57,7 +71,7 @@ class WYTestEdgeInsetsController: UIViewController {
         itemButton.snp.makeConstraints { make in
             make.left.equalToSuperview().offset(10)
             make.right.equalToSuperview().offset(-10)
-            make.height.equalTo(200)
+            make.height.equalTo(100)
             make.centerY.equalTo(button.snp.bottom).offset(150)
         }
         

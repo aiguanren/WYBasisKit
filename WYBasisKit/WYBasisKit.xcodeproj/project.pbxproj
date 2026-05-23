@@ -15,6 +15,8 @@
 		580ED58E2EA72649006012E7 /* WYCodableProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580ED58D2EA72649006012E7 /* WYCodableProtocol.swift */; };
 		5814080A2EC831A50099D41B /* WYTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581408092EC831A50099D41B /* WYTableViewCell.swift */; };
 		5814080F2EC881AB0099D41B /* WYTableViewCellObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5814080E2EC881AB0099D41B /* WYTableViewCellObjC.swift */; };
+		583A41762FC17F660035319F /* WYLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583A41752FC17F660035319F /* WYLabel.swift */; };
+		583A41792FC17FC20035319F /* WYLabelObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583A41782FC17FC20035319F /* WYLabelObjC.swift */; };
 		583C41B42E9220E9007379FC /* WYStorageObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583C41B32E9220E9007379FC /* WYStorageObjC.swift */; };
 		583C41B62E922D9E007379FC /* WYAudioKitObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583C41B52E922D9E007379FC /* WYAudioKitObjC.swift */; };
 		583E04EC2E8635CA004F1034 /* WYButtonObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04EB2E8635CA004F1034 /* WYButtonObjC.swift */; };
@@ -190,6 +192,8 @@
 		580ED58D2EA72649006012E7 /* WYCodableProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableProtocol.swift; sourceTree = "<group>"; };
 		581408092EC831A50099D41B /* WYTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTableViewCell.swift; sourceTree = "<group>"; };
 		5814080E2EC881AB0099D41B /* WYTableViewCellObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTableViewCellObjC.swift; sourceTree = "<group>"; };
+		583A41752FC17F660035319F /* WYLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLabel.swift; sourceTree = "<group>"; };
+		583A41782FC17FC20035319F /* WYLabelObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLabelObjC.swift; sourceTree = "<group>"; };
 		583C41B32E9220E9007379FC /* WYStorageObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYStorageObjC.swift; sourceTree = "<group>"; };
 		583C41B52E922D9E007379FC /* WYAudioKitObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAudioKitObjC.swift; sourceTree = "<group>"; };
 		583E04EB2E8635CA004F1034 /* WYButtonObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYButtonObjC.swift; sourceTree = "<group>"; };
@@ -436,6 +440,22 @@
 				580ED5872EA7261F006012E7 /* WYCodableBridge.swift */,
 			);
 			path = Achieve;
+			sourceTree = "<group>";
+		};
+		583A41742FC17F480035319F /* UILabel */ = {
+			isa = PBXGroup;
+			children = (
+				583A41752FC17F660035319F /* WYLabel.swift */,
+			);
+			path = UILabel;
+			sourceTree = "<group>";
+		};
+		583A41772FC17F8E0035319F /* UILabel */ = {
+			isa = PBXGroup;
+			children = (
+				583A41782FC17FC20035319F /* WYLabelObjC.swift */,
+			);
+			path = UILabel;
 			sourceTree = "<group>";
 		};
 		584D59E12FBC351A00A862F7 /* MethodExchange */ = {
@@ -875,6 +895,7 @@
 		58C68C8A2E84E436005FD054 /* Extension */ = {
 			isa = PBXGroup;
 			children = (
+				583A41772FC17F8E0035319F /* UILabel */,
 				58C68C5A2E84E436005FD054 /* Array */,
 				58C68C5C2E84E436005FD054 /* AttributedString */,
 				58C68C5E2E84E436005FD054 /* Bool */,
@@ -1611,6 +1632,7 @@
 		58C68D262E84E436005FD054 /* Extension */ = {
 			isa = PBXGroup;
 			children = (
+				583A41742FC17F480035319F /* UILabel */,
 				58C68CE82E84E436005FD054 /* Array */,
 				58C68CEA2E84E436005FD054 /* AttributedString */,
 				58C68CEC2E84E436005FD054 /* Bool */,
@@ -2233,6 +2255,7 @@
 				58C68DD22E84E436005FD054 /* WYCodingKeysConverter.swift in Sources */,
 				58C68DD32E84E436005FD054 /* WYDevice.swift in Sources */,
 				58C68DD42E84E436005FD054 /* WYChatViewDelegateHandler.swift in Sources */,
+				583A41762FC17F660035319F /* WYLabel.swift in Sources */,
 				584EAF122E93C54C003A21B8 /* WYPagingViewObjC.swift in Sources */,
 				58C68DD52E84E436005FD054 /* WYFont.swift in Sources */,
 				58C68DD62E84E436005FD054 /* WYView.swift in Sources */,
@@ -2241,6 +2264,7 @@
 				583E04F22E868138004F1034 /* WYColorObjC.swift in Sources */,
 				58C68DD92E84E436005FD054 /* WYTableView.swift in Sources */,
 				58C68DDA2E84E436005FD054 /* WYChatMoreView.swift in Sources */,
+				583A41792FC17FC20035319F /* WYLabelObjC.swift in Sources */,
 				58C68DDB2E84E436005FD054 /* WYIntObjC.swift in Sources */,
 				58C68DDC2E84E436005FD054 /* WYChatLocationCell.swift in Sources */,
 				58C68DDD2E84E436005FD054 /* WYArrayObjC.swift in Sources */,
