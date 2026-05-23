@@ -10,19 +10,19 @@ import UIKit
 class WYTestTextViewController: UIViewController {
     
     /// 点击效果颜色（按下时的背景色）
-    var wy_clickEffectColor: UIColor?
-    
-    /// 长按效果颜色（长按时背景色）
-    var wy_longPressEffectColor: UIColor?
+    var clickEffectColor: UIColor?
     
     /// 长按手势触发的最小时长（秒），默认 0.5 秒
-    var wy_longPressMinimumDuration: TimeInterval = 0.5
+    var longPressMinimumDuration: TimeInterval = 0.5
     
     /// 非链接区域事件穿透，默认false，第一响应者为UITextView，为true时将穿透至父View
-    var wy_eventPenetration: Bool = false
+    var eventPenetration: Bool = false
     
     /// 字符文本的字体
     var useCustomFont: Bool = false
+    
+    /// 随机文本
+    var randomText: Bool = false
     
     var tableView: UITableView? = nil
 
@@ -41,15 +41,16 @@ class WYTestTextViewController: UIViewController {
         
         let clickEffectColorView: UIButton = createButton(title: "点击效果颜色", selecror: #selector(selectedClickEffectColor), superView: contentView, leftView: nil, topView: nil)
         
-        let longPressEffectColorView: UIButton = createButton(title: "长按效果颜色", selecror: #selector(selectedLongPressEffectColor), superView: contentView, leftView: clickEffectColorView, topView: nil)
+        let longPressMinimumDurationView: UIButton = createButton(title: "长按手势触发\n的最小时长", selecror: #selector(longPressMinimumDuration(sender:)), superView: contentView, leftView: clickEffectColorView, topView: nil)
         
-        let longPressMinimumDurationView: UIButton = createButton(title: "长按手势触发\n的最小时长", selecror: #selector(longPressMinimumDuration), superView: contentView, leftView: longPressEffectColorView, topView: nil, isRight: true)
+        let eventPenetrationView: UIButton = createButton(title: "(已关闭)非链接\n区域事件穿透", selecror: #selector(eventPenetration(sender:)), superView: contentView, leftView: longPressMinimumDurationView, topView: nil, isRight: true)
+        eventPenetrationView.setTitle("(已开启)非链接\n区域事件穿透", for: .selected)
         
-        let eventPenetrationView: UIButton = createButton(title: "非链接区域\n(开启)事件穿透", selecror: #selector(eventPenetration(sender:)), superView: contentView, leftView: nil, topView: longPressMinimumDurationView)
-        eventPenetrationView.setTitle("非链接区域\n(关闭)事件穿透", for: .selected)
+        let useCustomFontView: UIButton = createButton(title: "未使用自定义字体", selecror: #selector(useCustomFont(sender:)), superView: contentView, leftView: nil, topView: longPressMinimumDurationView)
+        useCustomFontView.setTitle("已使用自定义字体", for: .selected)
         
-        let useCustomFontView: UIButton = createButton(title: "不使用自定义字体", selecror: #selector(useCustomFont(sender:)), superView: contentView, leftView: eventPenetrationView, topView: longPressMinimumDurationView, isLast: true)
-        useCustomFontView.setTitle("使用自定义字体", for: .selected)
+        let randomTextView: UIButton = createButton(title: "未使用随机文本", selecror: #selector(useRandomText(sender:)), superView: contentView, leftView: useCustomFontView, topView: longPressMinimumDurationView, isLast: true)
+        randomTextView.setTitle("已使用随机文本", for: .selected)
         
         tableView = UITableView.wy_shared(delegate: self, dataSource: self, superView: view)
         tableView?.wy_register(WYTestTextViewCell.self, .cell)
@@ -101,39 +102,25 @@ class WYTestTextViewController: UIViewController {
         UIAlertController.wy_show(style: .alert,title: "点击效果颜色", message: "按下时的背景色", actions: ["透明", "随机", "跟随文本"]) { [weak self] action, inputTexts in
             guard let self = self else { return }
             if action == "透明" {
-                wy_clickEffectColor = .clear
+                clickEffectColor = .clear
             }else if action == "随机" {
-                wy_clickEffectColor = .wy_random
+                clickEffectColor = .wy_random
             }else {
-                wy_clickEffectColor = nil
+                clickEffectColor = nil
             }
             tableView?.reloadData()
         }
     }
     
-    @objc func selectedLongPressEffectColor() {
-        UIAlertController.wy_show(style: .alert,title: "长按效果颜色", message: "长按时背景色", actions: ["透明", "随机", "跟随文本"]) { [weak self] action, inputTexts in
-            guard let self = self else { return }
-            if action == "透明" {
-                wy_longPressEffectColor = .clear
-            }else if action == "随机" {
-                wy_longPressEffectColor = .wy_random
-            }else {
-                wy_longPressEffectColor = nil
-            }
-            tableView?.reloadData()
-        }
-    }
-    
-    @objc func longPressMinimumDuration() {
-        UIAlertController.wy_show(style: .alert,title: "长按手势触发的最小时长(秒)", textFieldPlaceholders: ["当前\(wy_longPressMinimumDuration)秒"], actions: ["确定", "取消"]) { [weak self] action, inputTexts in
+    @objc func longPressMinimumDuration(sender: UIButton) {
+        UIAlertController.wy_show(style: .alert,title: "长按手势触发的最小时长(秒)", textFieldPlaceholders: ["当前\(longPressMinimumDuration)秒"], actions: ["确定", "取消"]) { [weak self] action, inputTexts in
             
             guard let self = self else { return }
             
             guard action == "确定" else { return }
             
             if let inputText: String = inputTexts.first {
-                wy_longPressMinimumDuration = TimeInterval(inputText) ?? 0.5
+                longPressMinimumDuration = max(TimeInterval(inputText) ?? 0.5, 0.5)
             }
             tableView?.reloadData()
         }
@@ -141,13 +128,19 @@ class WYTestTextViewController: UIViewController {
     
     @objc func eventPenetration(sender: UIButton) {
         sender.isSelected = !sender.isSelected
-        wy_eventPenetration = sender.isSelected
+        eventPenetration = sender.isSelected
         tableView?.reloadData()
     }
     
     @objc func useCustomFont(sender: UIButton) {
         sender.isSelected = !sender.isSelected
         useCustomFont = sender.isSelected
+        tableView?.reloadData()
+    }
+    
+    @objc func useRandomText(sender: UIButton) {
+        sender.isSelected = !sender.isSelected
+        randomText = sender.isSelected
         tableView?.reloadData()
     }
     
@@ -175,7 +168,10 @@ extension WYTestTextViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell: WYTestTextViewCell = tableView.dequeueReusableCell(withIdentifier: "WYTestTextViewCell", for: indexPath) as! WYTestTextViewCell
-        cell.reload(clickEffectColor: wy_clickEffectColor, longPressEffectColor: wy_longPressEffectColor, longPressMinimumDuration: wy_longPressMinimumDuration, eventPenetration: wy_eventPenetration, useCustomFont: useCustomFont)
+        cell.reload(clickEffectColor: clickEffectColor, longPressMinimumDuration: longPressMinimumDuration,
+                    eventPenetration: eventPenetration,
+                    useCustomFont: useCustomFont,
+                    randomText: randomText)
         return cell
     }
     

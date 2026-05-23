@@ -10,7 +10,7 @@ import UIKit
 @objc public extension UITextView {
     
     /**
-     * 点击效果颜色（按下时的背景色）
+     * 点击或长按效果颜色（按下时的背景色）
      *
      * - 若用户未主动设置，则自动使用被点击富文本的文字颜色 + 0.25 透明度。
      * - 若用户主动设置（包括设置为 `.clear`），则使用该颜色（不再动态取色）。
@@ -19,18 +19,6 @@ import UIKit
     var wy_clickEffectColorObjC: UIColor? {
         get { return wy_clickEffectColor }
         set { wy_clickEffectColor = newValue }
-    }
-    
-    /**
-     * 长按效果颜色（长按时背景色）
-     *
-     * - 若用户未主动设置，则自动使用被长按富文本的文字颜色 + 0.25 透明度。
-     * - 若用户主动设置（包括设置为 `.clear`），则使用该颜色（不再动态取色）。
-     */
-    @objc(wy_longPressEffectColor)
-    var wy_longPressEffectColorObjC: UIColor? {
-        get { return wy_longPressEffectColor }
-        set { wy_longPressEffectColor = newValue }
     }
     
     /// 长按手势触发的最小时长（秒），默认 0.5 秒
@@ -45,6 +33,12 @@ import UIKit
     var wy_eventPenetrationObjC: Bool {
         set { wy_eventPenetration = newValue }
         get { return wy_eventPenetration }
+    }
+    
+    /// 开启点击响应配置
+    @objc(wy_enableClickConfig)
+    func wy_enableClickConfigObjC() {
+        wy_enableClickConfig()
     }
     
     /**

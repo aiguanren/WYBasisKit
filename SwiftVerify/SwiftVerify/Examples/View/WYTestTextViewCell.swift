@@ -18,13 +18,8 @@ class WYTestTextViewCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
         linkView = UITextView()
-        linkView?.isEditable = false // 不可编辑
-        linkView?.isSelectable = true // 必须为 YES 才能响应链接
-        linkView?.dataDetectorTypes = UIDataDetectorTypes() // 关闭系统检测，手动控制样式
-        linkView?.textContainer.lineFragmentPadding = 0 // 去除左右边距
-        linkView?.isScrollEnabled = false
-        linkView?.textContainer.lineBreakMode = .byTruncatingTail; // 文本截断方式
         linkView?.textContainer.maximumNumberOfLines = 0 // 限制最多显示6行
+        linkView?.wy_enableClickConfig()
         contentView.addSubview(linkView!)
         linkView?.snp.makeConstraints { make in
             make.centerX.top.equalToSuperview()
@@ -32,12 +27,7 @@ class WYTestTextViewCell: UITableViewCell {
         }
         
         textView = UITextView()
-        textView?.isEditable = false // 不可编辑
-        textView?.isSelectable = true // 必须为 YES 才能响应链接
-        textView?.dataDetectorTypes = UIDataDetectorTypes() // 关闭系统检测，手动控制样式
-        textView?.textContainer.lineFragmentPadding = 0 // 去除左右边距
-        textView?.isScrollEnabled = false
-        textView?.textContainer.maximumNumberOfLines = 0 // 限制最多显示8行
+        textView?.wy_enableClickConfig()
         textView?.textContainer.lineBreakMode = .byTruncatingTail; // 文本截断方式
         contentView.addSubview(textView!)
         textView?.snp.makeConstraints { make in
@@ -48,16 +38,20 @@ class WYTestTextViewCell: UITableViewCell {
         }
     }
     
-    func reload(clickEffectColor: UIColor?, longPressEffectColor: UIColor?, longPressMinimumDuration: TimeInterval, eventPenetration: Bool, useCustomFont: Bool) {
+    func reload(clickEffectColor: UIColor?, longPressMinimumDuration: TimeInterval, eventPenetration: Bool, useCustomFont: Bool, randomText: Bool) {
         
-        let text: String = String.wy_random(minimum: 200, maximum: 300)
+        var text: String = ""
+        if randomText {
+            text = String.wy_random(minimum: 280, maximum: 390)
+        }else {
+            text = "早知混成这样，不如找个对象，少妇一直是我的理想，她已有车有房，不用我去闯荡，吃着软饭是真的很香。关关雎鸠，在河之洲。窈窕淑女，君子好逑。参差荇菜，左右流之。窈窕淑女，寤寐求之。求之不得，寤寐思服。悠哉悠哉，辗转反侧。参差荇菜，左右采之。窈窕淑女，琴瑟友之。参差荇菜，左右芼之。窈窕淑女，钟鼓乐之。漫步海边，脚下的沙砾带着白日阳光的余温，细腻而柔软。海浪层层叠叠地涌来，热情地亲吻沙滩，又恋恋不舍地退去，发出悦耳声响。海风肆意穿梭，咸湿气息钻进鼻腔，带来大海独有的韵味。抬眼望去，落日熔金，余晖将海面染成橙红，粼粼波光像是无数碎钻在闪烁。我沉醉其中，心也被这梦幻海景悄然填满。"
+        }
         let block_tap: Any = ["左右", "韵味", "窈窕淑女", "参差荇菜"]
         let block_longPress: Any = ["左右", "沙滩", "海浪", "参差荇菜"]
         let delegate_tap: Any = ["钟鼓乐之", "韵味", "理想", "参差荇菜"]
         let delegate_longPress: Any = ["粼粼波光", "沙滩", "关关雎鸠", "参差荇菜"]
         
         linkView?.wy_clickEffectColor = clickEffectColor
-        linkView?.wy_longPressEffectColor = longPressEffectColor
         linkView?.wy_longPressMinimumDuration = longPressMinimumDuration
         linkView?.wy_eventPenetration = eventPenetration
         let attributedText: NSMutableAttributedString = NSMutableAttributedString(string: text)

@@ -65,12 +65,15 @@
 #pragma mark - 刷新数据
 
 - (void)reloadWithClickEffectColor:(UIColor *)clickEffectColor
-              longPressEffectColor:(UIColor *)longPressEffectColor
           longPressMinimumDuration:(NSTimeInterval)longPressMinimumDuration
-                  eventPenetration:(BOOL)eventPenetration
-                     useCustomFont:(BOOL)useCustomFont {
+                  eventPenetration:(BOOL)eventPenetration useCustomFont:(BOOL)useCustomFont randomText:(BOOL)randomText {
     
-    NSString *text = [NSString wy_randomWithMinimum:200 maximum:300];
+    NSString *text = @"";
+    if (randomText == YES) {
+        text = [NSString wy_randomWithMinimum:280 maximum:390];
+    }else {
+        text = @"早知混成这样，不如找个对象，少妇一直是我的理想，她已有车有房，不用我去闯荡，吃着软饭是真的很香。关关雎鸠，在河之洲。窈窕淑女，君子好逑。参差荇菜，左右流之。窈窕淑女，寤寐求之。求之不得，寤寐思服。悠哉悠哉，辗转反侧。参差荇菜，左右采之。窈窕淑女，琴瑟友之。参差荇菜，左右芼之。窈窕淑女，钟鼓乐之。漫步海边，脚下的沙砾带着白日阳光的余温，细腻而柔软。海浪层层叠叠地涌来，热情地亲吻沙滩，又恋恋不舍地退去，发出悦耳声响。海风肆意穿梭，咸湿气息钻进鼻腔，带来大海独有的韵味。抬眼望去，落日熔金，余晖将海面染成橙红，粼粼波光像是无数碎钻在闪烁。我沉醉其中，心也被这梦幻海景悄然填满。";
+    }
     
     // 需要添加事件的字符串数组
     NSArray *block_tap = @[@"左右", @"韵味", @"窈窕淑女", @"参差荇菜"];
@@ -80,7 +83,6 @@
     
     // 设置 linkView 的基础属性
     self.linkView.wy_clickEffectColor = clickEffectColor;
-    self.linkView.wy_longPressEffectColor = longPressEffectColor;
     self.linkView.wy_longPressMinimumDuration = longPressMinimumDuration;
     self.linkView.wy_eventPenetration = eventPenetration;
     
