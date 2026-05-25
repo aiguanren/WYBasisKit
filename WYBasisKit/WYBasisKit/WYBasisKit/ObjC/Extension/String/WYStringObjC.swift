@@ -211,11 +211,11 @@ import WYBasisKitSwift
     }
     
     /// 返回一个计算好的字符串的size
-    @objc func wy_calculategSize(controlSize: CGSize, controlFont: UIFont) -> CGSize {
-        return wy_calculategSize(controlSize: controlSize, controlFont: controlFont, lineSpacing: 0, wordsSpacing: 0)
+    @objc func wy_calculateSize(controlSize: CGSize, controlFont: UIFont) -> CGSize {
+        return wy_calculateSize(controlSize: controlSize, controlFont: controlFont, lineSpacing: 0, wordsSpacing: 0)
     }
-    @objc func wy_calculategSize(controlSize: CGSize, controlFont: UIFont, lineSpacing: CGFloat = 0, wordsSpacing: CGFloat = 0) -> CGSize {
-        return (self as String).wy_calculategSize(controlSize: controlSize, controlFont: controlFont, lineSpacing: lineSpacing, wordsSpacing: wordsSpacing)
+    @objc func wy_calculateSize(controlSize: CGSize, controlFont: UIFont, lineSpacing: CGFloat = 0, wordsSpacing: CGFloat = 0) -> CGSize {
+        return (self as String).wy_calculateSize(controlSize: controlSize, controlFont: controlFont, lineSpacing: lineSpacing, wordsSpacing: wordsSpacing)
     }
     
     /// 判断字符串是否包含某个字符串(ignoreCase:是否忽略大小写)
