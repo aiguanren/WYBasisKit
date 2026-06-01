@@ -152,13 +152,15 @@ import WYBasisKitSwift
 @objc public extension NSString {
     
     /// 获取非空安全值
-    @objc static func wy_safe(_ optionalString: String?) -> String {
+    @objc(wy_safe:)
+    static func wy_safeObjC(_ optionalString: String?) -> String {
         return optionalString.wy_safe
     }
     
     /// 字符串是否为空
-    @objc static func wy_isEmpty(_ optionalString: String?) -> Bool {
-        return NSString.wy_safe(optionalString).isEmpty
+    @objc(wy_isEmpty:)
+    static func wy_isEmptyObjC(_ optionalString: String?) -> Bool {
+        return NSString.wy_safeObjC(optionalString).isEmpty
     }
     
     /**
@@ -169,58 +171,58 @@ import WYBasisKitSwift
      *  @param max   最多需要多少个字符
      *
      */
-    @objc static func wy_random(minimum: Int, maximum: Int) -> String {
+    @objc(wy_randomWithMinimum:maximum:)
+    static func wy_randomObjC(minimum: Int, maximum: Int) -> String {
         return String.wy_random(minimum: minimum, maximum: maximum)
     }
     
     /// String转CGFloat
-    @objc func wy_floatValue() -> CGFloat {
+    @objc(wy_floatValue)
+    func wy_floatValueObjC() -> CGFloat {
         return (self as String).wy_convertTo(CGFloat.self)
     }
     
     /// String转Double
-    @objc func wy_doubleValue() -> Double {
+    @objc(wy_doubleValue)
+    func wy_doubleValueObjC() -> Double {
         return (self as String).wy_convertTo(Double.self)
     }
     
     /// String转NSInteger
-    @objc func wy_intValue() -> Int {
+    @objc(wy_intValue)
+    func wy_intValueObjC() -> Int {
         return (self as String).wy_convertTo(Int.self)
     }
     
     /// String转NSDecimalNumber
-    @objc func wy_decimalValue() -> NSDecimalNumber {
+    @objc(wy_decimalValue)
+    func wy_decimalValueObjC() -> NSDecimalNumber {
         let string: String = (self as String).isEmpty ? "0" : (self as String)
         return NSDecimalNumber(string: string)
     }
     
     /// 返回一个计算好的字符串的宽度
-    @objc func wy_calculateWidth(controlHeight: CGFloat, controlFont: UIFont) -> CGFloat {
-        return wy_calculateWidth(controlHeight: controlHeight, controlFont: controlFont, lineSpacing: 0, wordsSpacing: 0)
-    }
-    @objc func wy_calculateWidth(controlHeight: CGFloat, controlFont: UIFont, lineSpacing: CGFloat = 0, wordsSpacing: CGFloat = 0) -> CGFloat {
-        return (self as String).wy_calculateWidth(controlHeight: controlHeight, controlFont: controlFont, lineSpacing: lineSpacing, wordsSpacing: wordsSpacing)
+    @objc(wy_calculateWidthWithControlHeight:controlFont:lineSpacing:)
+    func wy_calculateWidthObjC(controlHeight: CGFloat, controlFont: UIFont, lineSpacing: CGFloat = 0) -> CGFloat {
+        return (self as String).wy_calculateWidth(controlHeight: controlHeight, controlFont: controlFont, lineSpacing: lineSpacing)
     }
     
     /// 返回一个计算好的字符串的高度
-    @objc func wy_calculateHeight(controlWidth: CGFloat, controlFont: UIFont) -> CGFloat {
-        return wy_calculateHeight(controlWidth: controlWidth, controlFont: controlFont, lineSpacing: 0, wordsSpacing: 0)
-    }
-    @objc func wy_calculateHeight(controlWidth: CGFloat, controlFont: UIFont, lineSpacing: CGFloat = 0, wordsSpacing: CGFloat = 0) -> CGFloat {
-        return (self as String).wy_calculateHeight(controlWidth: controlWidth, controlFont: controlFont, lineSpacing: lineSpacing, wordsSpacing: wordsSpacing)
+    @objc(wy_calculateHeightWithControlWidth:controlFont:lineSpacing:)
+    func wy_calculateHeightObjC(controlWidth: CGFloat, controlFont: UIFont, lineSpacing: CGFloat = 0) -> CGFloat {
+        return (self as String).wy_calculateHeight(controlWidth: controlWidth, controlFont: controlFont, lineSpacing: lineSpacing)
     }
     
     /// 返回一个计算好的字符串的size
-    @objc func wy_calculateSize(controlSize: CGSize, controlFont: UIFont) -> CGSize {
-        return wy_calculateSize(controlSize: controlSize, controlFont: controlFont, lineSpacing: 0, wordsSpacing: 0)
-    }
-    @objc func wy_calculateSize(controlSize: CGSize, controlFont: UIFont, lineSpacing: CGFloat = 0, wordsSpacing: CGFloat = 0) -> CGSize {
-        return (self as String).wy_calculateSize(controlSize: controlSize, controlFont: controlFont, lineSpacing: lineSpacing, wordsSpacing: wordsSpacing)
+    @objc(wy_calculateSizeWithControlSize:controlFont:lineSpacing:)
+    func wy_calculateSizeObjC(controlSize: CGSize, controlFont: UIFont, lineSpacing: CGFloat = 0) -> CGSize {
+        return (self as String).wy_calculateSize(controlSize: controlSize, controlFont: controlFont, lineSpacing: lineSpacing)
     }
     
     /// 判断字符串是否包含某个字符串(ignoreCase:是否忽略大小写)
-    @objc func wy_contains(_ find: String, ignoreCase: Bool = false) -> Bool {
-        return (self as String).wy_contains(find, ignoreCase: ignoreCase)
+    @objc(wy_containsSubString:ignoreCase:)
+    func wy_containsObjC(_ subString: String, ignoreCase: Bool = false) -> Bool {
+        return (self as String).wy_contains(subString, ignoreCase: ignoreCase)
     }
     
     /**
@@ -233,12 +235,14 @@ import WYBasisKitSwift
     }
     
     /// 字符串截取(从第几位截取到第几位)
-    @objc func wy_substring(from: Int, to: Int) -> String {
+    @objc(wy_substringFrom:to:)
+    func wy_substringObjC(from: Int, to: Int) -> String {
         return (self as String).wy_substring(from: from, to: to)
     }
     
     /// 字符串截取(从第几位往后截取几位)
-    @objc func wy_substring(from: Int, after: Int) -> String {
+    @objc(wy_substringFrom:after:)
+    func wy_substringObjC(from: Int, after: Int) -> String {
         return (self as String).wy_substring(from: from, after: after)
     }
     
@@ -248,17 +252,20 @@ import WYBasisKitSwift
      *  @param replacement: 替换成什么字符
      *  @param useRegex: 过滤方式，true正则表达式过滤, false为系统方式过滤
      */
-    @objc func wy_replace(appointSymbol: String ,replacement: String, useRegex: Bool = false) -> String {
+    @objc(wy_replaceWithAppointSymbol:replacement:useRegex:)
+    func wy_replaceObjC(appointSymbol: String ,replacement: String, useRegex: Bool = false) -> String {
         return (self as String).wy_replace(appointSymbol: appointSymbol, replacement: replacement, useRegex: useRegex)
     }
     
     /// 字符串去除特殊字符(特殊字符编码)
-    @objc func wy_specialCharactersEncoding(_ characterSet: CharacterSet = .urlQueryAllowed) -> String {
-        return (self as String).wy_specialCharactersEncoding(characterSet)
+    @objc(wy_specialCharactersEncodingWithCharacterSet:)
+    func wy_specialCharactersEncodingObjC(_ characterSet: CharacterSet? = .urlQueryAllowed) -> String {
+        return (self as String).wy_specialCharactersEncoding(characterSet ?? .urlQueryAllowed)
     }
     
     /// 字符串去除Emoji表情(replacement:表情用什么来替换)
-    @objc func wy_replaceEmoji(_ replacement: String = "") -> String {
+    @objc(wy_replaceEmoji:)
+    func wy_replaceEmojiObjC(_ replacement: String = "") -> String {
         return (self as String).wy_replaceEmoji(replacement)
     }
     
@@ -266,42 +273,63 @@ import WYBasisKitSwift
      *  SHA256加密
      *  @param uppercase: 是否需要大写，默认false
      */
-    @objc func wy_sha256(uppercase: Bool = false) -> String {
+    @objc(wy_sha256WithUppercase:)
+    func wy_sha256ObjC(uppercase: Bool = false) -> String {
         return (self as String).wy_sha256(uppercase: uppercase)
     }
     
-    /// Encode
-    @objc func wy_encoded() -> String {
-        return wy_encoded(escape: nil)
+    /**
+     字符串Encode
+
+     - Parameter shouldNotEncode: 一个字符串，用于指定 **不进行编码** 的字符集合。
+       默认值为 `"?!@#$^&%*+,:;='\"`<>()[]{}/\\| "`，即该字符串中的所有字符将原样保留，其余字符会被编码。
+     - Returns: 编码后的字符串。如果编码失败（例如字符串本身无法转换为 UTF-8），则返回原字符串。
+     */
+    @objc(wy_encoded)
+    func wy_encodedObjC() -> String {
+        return wy_encodedObjC(shouldNotEncode: nil)
     }
-    @objc func wy_encoded(escape: String?) -> String {
-        return (self as String).wy_encoded(escape: escape ?? "?!@#$^&%*+,:;='\"`<>()[]{}/\\| ")
+    @objc(wy_encodedWithShouldNotEncode:)
+    func wy_encodedObjC(shouldNotEncode: String?) -> String {
+        return (self as String).wy_encoded(shouldNotEncode: shouldNotEncode ?? "?!@#$^&%*+,:;='\"`<>()[]{}/\\| ")
     }
     
     /// Decode
-    @objc var wy_decoded: String {
+    @objc(wy_decoded)
+    var wy_decodedObjC: String {
         return (self as String).wy_decoded
     }
     
     /// base64编码
-    @objc var wy_base64Encoded: String {
+    @objc(wy_base64Encoded)
+    var wy_base64EncodedObjC: String {
         return (self as String).wy_base64Encoded
     }
     
     /// base64解码
-    @objc var wy_base64Decoded: String {
+    @objc(wy_base64Decoded)
+    var wy_base64DecodedObjC: String {
         return (self as String).wy_base64Decoded
     }
     
     /// 获取设备时间戳
-    @objc static func wy_sharedDeviceTimestamp(_ mode: WYTimestampModeObjC = .second) -> String {
-        
+    @objc(wy_sharedDeviceTimestamp:)
+    static func wy_sharedDeviceTimestampObjC(_ mode: WYTimestampModeObjC = .second) -> String {
         return String.wy_sharedDeviceTimestamp(WYTimestampMode(rawValue: mode.rawValue) ?? .second)
     }
     
-    /// 秒 转 时分秒（00:00:00）格式
-    @objc func wy_secondConvertDate(check: Bool = true) -> String {
-        return (self as String).wy_secondConvertDate(check: check)
+    /**
+     将秒数转换为时间格式字符串（`HH:MM:SS` 或 `MM:SS`）。
+
+     - Parameter omitHoursIfZero: 是否检查小时部分。
+       - 当 `omitHoursIfZero == true` 且小时数为 `0` 时，返回 `MM:SS` 格式（不包含小时部分）。
+       - 当 `omitHoursIfZero == false` 或小时数大于 `0` 时，始终返回 `HH:MM:SS` 格式。
+       - 默认值为 `true`。
+     - Returns: 格式化后的时间字符串。
+     */
+    @objc(wy_formatDurationWithOmitHoursIfZero:)
+    func wy_formatDurationObjC(omitHoursIfZero: Bool = true) -> String {
+        return (self as String).wy_formatDuration(omitHoursIfZero: omitHoursIfZero)
     }
     
     /**
@@ -310,10 +338,12 @@ import WYBasisKitSwift
      *  showAmPmSymbol 是否显示上午下午，为true时为12小时制，否则为24小时制
      *  customFormat 仅dateFormat为custom时才需要传(如"yyyy-MM-dd HH:mm:ss")，其余传nil就行
      */
-    @objc func wy_timestampConvertDate(_ dateFormat: WYTimeFormatObjC, showAmPmSymbol: Bool = false) -> String {
-        return (self as String).wy_timestampConvertDate(wy_convertObjCTimeFormatToSwift(dateFormat, nil), showAmPmSymbol)
+    @objc(wy_timestampConvertDate:showAmPmSymbol:)
+    func wy_timestampConvertDateObjC(_ dateFormat: WYTimeFormatObjC, showAmPmSymbol: Bool = false) -> String {
+        return wy_timestampConvertDateObjC(dateFormat, showAmPmSymbol: showAmPmSymbol, customFormat: nil)
     }
-    @objc func wy_timestampConvertDate(_ dateFormat: WYTimeFormatObjC, showAmPmSymbol: Bool = false, customFormat: String?) -> String {
+    @objc(wy_timestampConvertDate:showAmPmSymbol:customFormat:)
+    func wy_timestampConvertDateObjC(_ dateFormat: WYTimeFormatObjC, showAmPmSymbol: Bool = false, customFormat: String?) -> String {
         return (self as String).wy_timestampConvertDate(wy_convertObjCTimeFormatToSwift(dateFormat, customFormat), showAmPmSymbol)
     }
     
@@ -322,26 +352,31 @@ import WYBasisKitSwift
      *  dateFormat 要转换的格式
      *  customFormat 仅dateFormat为custom时才需要传(如"yyyy-MM-dd HH:mm:ss")，其余传nil就行
      */
-    @objc func wy_dateStrConvertTimestamp(_ dateFormat: WYTimeFormatObjC) -> String {
-        return (self as String).wy_dateStrConvertTimestamp(wy_convertObjCTimeFormatToSwift(dateFormat, nil))
+    @objc(wy_dateStrConvertTimestamp:)
+    func wy_dateStrConvertTimestampObjC(_ dateFormat: WYTimeFormatObjC) -> String {
+        return wy_dateStrConvertTimestampObjC(dateFormat, customFormat: nil)
     }
-    @objc func wy_dateStrConvertTimestamp(_ dateFormat: WYTimeFormatObjC, customFormat: String?) -> String {
+    @objc(wy_dateStrConvertTimestamp:customFormat:)
+    func wy_dateStrConvertTimestampObjC(_ dateFormat: WYTimeFormatObjC, customFormat: String?) -> String {
         return (self as String).wy_dateStrConvertTimestamp(wy_convertObjCTimeFormatToSwift(dateFormat, customFormat))
     }
     
     /// 获取当前的 年、月、日
-    @objc static func wy_currentYearMonthDay() -> Dictionary<String, String> {
+    @objc(wy_currentYearMonthDay)
+    static func wy_currentYearMonthDayObjC() -> Dictionary<String, String> {
         let ymd: (year: String, month: String, day: String) = String.wy_currentYearMonthDay()
         return ["year": ymd.year, "month": ymd.month, "day": ymd.day]
     }
     
     /// 获取当前月的总天数
-    @objc static func wy_currentMonthDays() -> String {
+    @objc(wy_currentMonthDays)
+    static func wy_currentMonthDaysObjC() -> String {
         return String.wy_currentMonthDays()
     }
     
     /// 时间戳转星期几
-    @objc var wy_whatDay: WYWhatDayObjC {
+    @objc(wy_whatDay)
+    var wy_whatDayObjC: WYWhatDayObjC {
         let whatDay: WYWhatDay = (self as String).wy_whatDay
         return WYWhatDayObjC(rawValue: whatDay.rawValue) ?? .unknown
     }
@@ -351,9 +386,10 @@ import WYBasisKitSwift
      *  messageTimestamp  消息对应的时间戳
      *  clientTimestamp 客户端时间戳(当前的网络时间戳或者设备本地的时间戳)
      */
-    @objc static func wy_timeIntervalCycle(_ messageTimestamp: String, clientTimestamp: String = wy_sharedDeviceTimestamp()) -> WYTimeDistanceObjC {
+    @objc(wy_timeIntervalCycleWithTimestamp:clientTimestamp:)
+    static func wy_timeIntervalCycleObjC(_ timestamp: String, clientTimestamp: String = String.wy_sharedDeviceTimestamp()) -> WYTimeDistanceObjC {
         
-        let timeDistance: WYTimeDistance = String.wy_timeIntervalCycle(messageTimestamp, clientTimestamp)
+        let timeDistance: WYTimeDistance = String.wy_timeIntervalCycle(timestamp, clientTimestamp)
         
         return WYTimeDistanceObjC(rawValue: timeDistance.rawValue) ?? .unknown
     }
@@ -363,7 +399,12 @@ import WYBasisKitSwift
      *  dateFormat 要转换的格式
      *  customFormat 仅dateFormat为custom时才需要传(如"yyyy-MM-dd HH:mm:ss")，其余传nil就行
      */
-    @objc func wy_dateDifferenceWithNowTimer(_ dateFormat: WYTimeFormatObjC, customFormat: String?) -> String {
+    @objc(wy_dateDifferenceWithNowTimer:)
+    func wy_dateDifferenceWithNowTimerObjC(_ dateFormat: WYTimeFormatObjC) -> String {
+        return wy_dateDifferenceWithNowTimerObjC(dateFormat, customFormat: nil)
+    }
+    @objc(wy_dateDifferenceWithNowTimer:customFormat:)
+    func wy_dateDifferenceWithNowTimerObjC(_ dateFormat: WYTimeFormatObjC, customFormat: String?) -> String {
         return (self as String).wy_dateDifferenceWithNowTimer(wy_convertObjCTimeFormatToSwift(dateFormat, customFormat))
     }
     
@@ -381,10 +422,12 @@ import WYBasisKitSwift
 
      - Returns: 提取到的数字字符串数组
      */
-    func wy_extractNumbers() -> [String] {
-        return wy_extractNumbers(prefixs: [])
+    @objc(wy_extractNumbers)
+    func wy_extractNumbersObjC() -> [String] {
+        return wy_extractNumbersObjC(prefixs: [])
     }
-    func wy_extractNumbers(prefixs: [String] = []) -> [String] {
+    @objc(wy_extractNumbersWithPrefixs:)
+    func wy_extractNumbersObjC(prefixs: [String] = []) -> [String] {
         return (self as String).wy_extractNumbers(prefixs: prefixs)
     }
     
@@ -393,7 +436,8 @@ import WYBasisKitSwift
      *  @param tone: 是否需要保留音调
      *  @param interval: 拼音之间是否需要用空格间隔开
      */
-    @objc func wy_phoneticTransform(tone: Bool = false, interval: Bool = false) -> String {
+    @objc(wy_phoneticTransformWithTone:interval:)
+    func wy_phoneticTransformObjC(tone: Bool = false, interval: Bool = false) -> String {
         return (self as String).wy_phoneticTransform(tone: tone, interval: interval)
     }
     

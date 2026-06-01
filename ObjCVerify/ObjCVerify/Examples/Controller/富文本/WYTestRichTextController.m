@@ -79,7 +79,7 @@
     marginLabel.numberOfLines = 0;
     marginLabel.attributedText = attrText;
     [scrollView addSubview:marginLabel];
-    CGFloat marginLabelWidth = [marginLabel.text wy_calculateWidthWithControlHeight:marginLabel.font.lineHeight controlFont:marginLabel.font lineSpacing:0 wordsSpacing:0];
+    CGFloat marginLabelWidth = [marginLabel.text wy_calculateWidthWithControlHeight:marginLabel.font.lineHeight controlFont:marginLabel.font lineSpacing:0];
     [marginLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.equalTo(scrollView);
         make.width.mas_equalTo(marginLabelWidth + 30);
@@ -155,7 +155,7 @@
         make.top.equalTo(spacingView.mas_bottom).offset([UIDevice wy_screenWidth:50]);
         make.height.equalTo(@(sizeHeight));
     }];
-    CGFloat textWidth = [widthView.text wy_calculateWidthWithControlHeight:sizeHeight controlFont:widthView.font lineSpacing:0 wordsSpacing:0];
+    CGFloat textWidth = [widthView.text wy_calculateWidthWithControlHeight:sizeHeight controlFont:widthView.font lineSpacing:0];
     NSMutableAttributedString *widthAttributed = [[NSMutableAttributedString alloc] initWithString:widthView.text];
     [widthAttributed wy_setFont:widthView.font];
     CGFloat attributedWidth = [widthAttributed wy_calculateWidthWithControlHeight:sizeHeight];
@@ -172,7 +172,7 @@
         make.top.equalTo(widthView.mas_bottom).offset([UIDevice wy_screenWidth:50]);
         make.width.equalTo(@(sizeWidth));
     }];
-    CGFloat textHeight = [heightView.text wy_calculateHeightWithControlWidth:sizeWidth controlFont:heightView.font lineSpacing:0 wordsSpacing:0];
+    CGFloat textHeight = [heightView.text wy_calculateHeightWithControlWidth:sizeWidth controlFont:heightView.font lineSpacing:0];
     NSMutableAttributedString *heightAttributed = [[NSMutableAttributedString alloc] initWithString:heightView.text];
     [heightAttributed wy_setFont:heightView.font];
     CGFloat attributedHeight = [heightAttributed wy_calculateHeightWithControlWidth:sizeWidth];

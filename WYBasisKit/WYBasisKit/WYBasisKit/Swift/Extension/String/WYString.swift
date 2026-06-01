@@ -315,25 +315,25 @@ public extension String {
     }
     
     /// 返回一个计算好的字符串的宽度
-    func wy_calculateWidth(controlHeight: CGFloat, controlFont: UIFont, lineSpacing: CGFloat = 0, wordsSpacing: CGFloat = 0) -> CGFloat {
+    func wy_calculateWidth(controlHeight: CGFloat, controlFont: UIFont, lineSpacing: CGFloat = 0) -> CGFloat {
         
         let sharedControlHeight = (controlHeight == 0) ? controlFont.lineHeight : controlHeight
         
-        return wy_calculateSize(controlSize: CGSize(width: .greatestFiniteMagnitude, height: sharedControlHeight), controlFont: controlFont, lineSpacing: lineSpacing, wordsSpacing: wordsSpacing).width
+        return wy_calculateSize(controlSize: CGSize(width: .greatestFiniteMagnitude, height: sharedControlHeight), controlFont: controlFont, lineSpacing: lineSpacing).width
     }
     
     /// 返回一个计算好的字符串的高度
-    func wy_calculateHeight(controlWidth: CGFloat, controlFont: UIFont, lineSpacing: CGFloat = 0, wordsSpacing: CGFloat = 0) -> CGFloat {
+    func wy_calculateHeight(controlWidth: CGFloat, controlFont: UIFont, lineSpacing: CGFloat = 0) -> CGFloat {
         
-        return wy_calculateSize(controlSize: CGSize(width: controlWidth, height: .greatestFiniteMagnitude), controlFont: controlFont, lineSpacing: lineSpacing, wordsSpacing: wordsSpacing).height
+        return wy_calculateSize(controlSize: CGSize(width: controlWidth, height: .greatestFiniteMagnitude), controlFont: controlFont, lineSpacing: lineSpacing).height
     }
     
     /// 返回一个计算好的字符串的size
-    func wy_calculateSize(controlSize: CGSize, controlFont: UIFont, lineSpacing: CGFloat = 0, wordsSpacing: CGFloat = 0) -> CGSize {
+    func wy_calculateSize(controlSize: CGSize, controlFont: UIFont, lineSpacing: CGFloat = 0) -> CGSize {
         
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = lineSpacing
-        let attributes = [NSAttributedString.Key.font: controlFont, NSAttributedString.Key.paragraphStyle: paragraphStyle, NSAttributedString.Key.kern: NSNumber(value: Double(wordsSpacing))]
+        let attributes = [NSAttributedString.Key.font: controlFont, NSAttributedString.Key.paragraphStyle: paragraphStyle]
         
         let attributeText: NSAttributedString = NSAttributedString(string: self, attributes: attributes)
         
@@ -341,9 +341,9 @@ public extension String {
     }
     
     /// 判断字符串是否包含某个字符串(ignoreCase:是否忽略大小写)
-    func wy_contains(_ find: String, ignoreCase: Bool = false) -> Bool {
+    func wy_contains(_ subString: String, ignoreCase: Bool = false) -> Bool {
         let options: String.CompareOptions = ignoreCase ? .caseInsensitive : []
-        return self.range(of: find, options: options) != nil
+        return self.range(of: subString, options: options) != nil
     }
     
     /**
@@ -514,7 +514,13 @@ public extension String {
         return uppercase ? hashString.uppercased() : hashString
     }
     
-    /// Encode
+    /**
+     字符串Encode
+
+     - Parameter shouldNotEncode: 一个字符串，用于指定 **不进行编码** 的字符集合。
+       默认值为 `"?!@#$^&%*+,:;='\"`<>()[]{}/\\| "`，即该字符串中的所有字符将原样保留，其余字符会被编码。
+     - Returns: 编码后的字符串。如果编码失败（例如字符串本身无法转换为 UTF-8），则返回原字符串。
+     */
     func wy_encoded(shouldNotEncode: String = "?!@#$^&%*+,:;='\"`<>()[]{}/\\| ") -> String {
         let characterSet = CharacterSet(charactersIn: shouldNotEncode).inverted
         return self.addingPercentEncoding(withAllowedCharacters: characterSet) ?? self
@@ -561,8 +567,16 @@ public extension String {
         }
     }
     
-    /// 秒 转 时分秒（00:00:00）格式
-    func wy_secondConvertDate(check: Bool = true) -> String {
+    /**
+     将秒数转换为时间格式字符串（`HH:MM:SS` 或 `MM:SS`）。
+
+     - Parameter omitHoursIfZero: 是否检查小时部分。
+       - 当 `omitHoursIfZero == true` 且小时数为 `0` 时，返回 `MM:SS` 格式（不包含小时部分）。
+       - 当 `omitHoursIfZero == false` 或小时数大于 `0` 时，始终返回 `HH:MM:SS` 格式。
+       - 默认值为 `true`。
+     - Returns: 格式化后的时间字符串。
+     */
+    func wy_formatDuration(omitHoursIfZero: Bool = true) -> String {
         let totalSeconds: Int = self.wy_convertTo(Int.self)
         var hours = 0
         var minutes = 0
@@ -580,7 +594,7 @@ public extension String {
         seconds = totalSeconds % 3600 % 60
         secondsText = seconds > 9 ? "\(seconds)" : "0\(seconds)"
         
-        if ((check == true) && (hours <= 0)) {
+        if ((omitHoursIfZero == true) && (hours <= 0)) {
             return "\(minutesText):\(secondsText)"
         }else {
             return "\(hoursText):\(minutesText):\(secondsText)"
@@ -671,9 +685,9 @@ public extension String {
      *  messageTimestamp  消息对应的时间戳
      *  clientTimestamp 客户端时间戳(当前的网络时间戳或者设备本地的时间戳)
      */
-    static func wy_timeIntervalCycle(_ messageTimestamp: String, _ clientTimestamp: String = wy_sharedDeviceTimestamp()) -> WYTimeDistance {
+    static func wy_timeIntervalCycle(_ timestamp: String, _ clientTimestamp: String = wy_sharedDeviceTimestamp()) -> WYTimeDistance {
         
-        guard let msg = messageTimestamp.wy_normalizedTimestamp(),
+        guard let msg = timestamp.wy_normalizedTimestamp(),
               let client = clientTimestamp.wy_normalizedTimestamp() else {
             return .unknown
         }
