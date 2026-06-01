@@ -233,7 +233,7 @@ public extension UIViewController {
     }
     
     static let wy_swizzleViewWillAppearOnce: Void = {
-        wy_exchangeViewWillAppear(for: UIViewController.self, after: { currentController, animated in
+        wy_swizzlerViewWillAppear(for: UIViewController.self, after: { currentController, animated in
             // 在页面显示前更新导航栏样式
             if let navController = currentController.navigationController {
                 navController.updateNavigationBarAppearance(for: currentController)
@@ -270,18 +270,23 @@ public extension UINavigationController {
     
     // 返回按钮拦截处理
     private static let wy_swizzlePopOnce: Void = {
-        wy_exchangePopViewController(for: UINavigationController.self, shouldPop: { currentNavigationController, animated in
-            
+        
+        wy_swizzlerPopViewController(for: UINavigationController.self, intercept: { currentNavigationController, animated in
             // 获取当前正在显示的控制器
             guard let topVC = currentNavigationController.topViewController else {
-                return true
+                return .proceed
             }
             
             // 调用拦截协议
             if topVC.responds(to: #selector(WYViewControllerHandlerProtocol.wy_navigationBarWillReturn)) {
-                return topVC.wy_navigationBarWillReturn()
+                let allowed = topVC.wy_navigationBarWillReturn()
+                if !allowed {
+                    // 不允许返回，拦截：直接返回 nil，不再执行原始 pop
+                    return .result(nil)
+                }
             }
-            return true
+            // 允许返回，继续执行原始 pop
+            return .proceed
         })
     }()
     

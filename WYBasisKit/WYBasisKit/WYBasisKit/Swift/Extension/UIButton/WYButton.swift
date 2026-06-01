@@ -340,7 +340,7 @@ private extension UIButton {
     // 方法交换
     private static let swizzleLayoutSubviewsOnce: Void = {
         
-        wy_exchangeLayoutSubviews(for: UIButton.self, after: { currentView in
+        wy_swizzlerLayoutSubviews(for: UIButton.self, after: { currentView in
             
             guard let button = currentView as? UIButton else { return }
             

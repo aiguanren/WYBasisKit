@@ -416,7 +416,7 @@ private extension UITextView {
     
     /// 交换 hitTest 方法，注入穿透判断逻辑。
     func swizzleHitTestMethod() {
-        wy_exchangeHitTest(for: UITextView.self, after: { view, point, event, originalResult in
+        wy_swizzlerHitTest(for: UITextView.self, after: { view, point, event, originalResult in
             if let textView = view as? UITextView, textView.shouldPenetrateHitTest(at: point) {
                 return nil
             }
@@ -525,7 +525,7 @@ private extension UITextView {
     /// 交换触摸方法（touchesBegan/Moved/Ended/Cancelled）
     static let wy_swizzleTouchMethods: Void = {
         // 交换 touchesBegan：记录起点，应用高亮，启动长按计时器
-        wy_exchangeTouchesBegan(for: UITextView.self, before: { responder, touches, event in
+        wy_swizzlerTouchesBegan(for: UITextView.self, before: { responder, touches, event in
             guard let textView = responder as? UITextView,
                   let touch = touches.first else { return }
             let point = touch.location(in: textView)
@@ -557,7 +557,7 @@ private extension UITextView {
         })
         
         // 交换 touchesMoved：检测移动是否超出允许范围，若超出则取消长按并清除高亮，同时清空待执行的点击动作
-        wy_exchangeTouchesMoved(for: UITextView.self, before: { responder, touches, event in
+        wy_swizzlerTouchesMoved(for: UITextView.self, before: { responder, touches, event in
             guard let textView = responder as? UITextView,
                   let touch = touches.first else { return }
             let point = touch.location(in: textView)
@@ -575,7 +575,7 @@ private extension UITextView {
         })
         
         // 交换 touchesEnded：取消计时器，若长按未触发则执行点击回调，最后清除高亮
-        wy_exchangeTouchesEnded(for: UITextView.self, before: { responder, touches, event in
+        wy_swizzlerTouchesEnded(for: UITextView.self, before: { responder, touches, event in
             guard let textView = responder as? UITextView else { return }
             // 取消长按计时器
             textView.wy_longPressTimer?.cancel()
@@ -605,7 +605,7 @@ private extension UITextView {
         })
         
         // 交换 touchesCancelled：取消计时器，清除高亮，清空点击动作
-        wy_exchangeTouchesCancelled(for: UITextView.self, before: { responder, touches, event in
+        wy_swizzlerTouchesCancelled(for: UITextView.self, before: { responder, touches, event in
             guard let textView = responder as? UITextView else { return }
             textView.wy_longPressTimer?.cancel()
             textView.wy_longPressTimer = nil

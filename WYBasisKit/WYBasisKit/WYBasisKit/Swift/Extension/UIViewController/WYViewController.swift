@@ -35,7 +35,7 @@ public extension UIViewController {
     
     /// 全局设置 UIViewController present 跳转模式为全屏
     static func wy_globalPresentationFullScreen() {
-        wy_exchangeControllerPresent(for: UIViewController.self, before: { currentController, presentController, animated, completion in
+        wy_swizzlerControllerPresent(for: UIViewController.self, before: { currentController, presentController, animated, completion in
             // 在 present 执行前强制设置为全屏
             presentController.modalPresentationStyle = .fullScreen
         })

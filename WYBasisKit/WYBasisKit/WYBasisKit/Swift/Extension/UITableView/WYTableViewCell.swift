@@ -916,7 +916,7 @@ private extension UITableViewCell {
     
     /// 交换layoutSubviews方法实现
     static let wy_swizzleLayoutSubviews: Void = {
-        wy_exchangeLayoutSubviews(for: UITableViewCell.self, before: { currentView in
+        wy_swizzlerLayoutSubviews(for: UITableViewCell.self, before: { currentView in
             guard let tableViewCell = currentView as? UITableViewCell else { return }
             // 更新侧滑布局
             tableViewCell.wy_updateLayoutAndMaintainSideslip()
@@ -933,7 +933,7 @@ private extension UIScrollView {
     
     /// 交换touchesBegan方法实现
     static let wy_swizzleTouchesBegan: Void = {
-        wy_exchangeTouchesBegan(for: UIScrollView.self, before: { responder, touches, event in
+        wy_swizzlerTouchesBegan(for: UIScrollView.self, before: { responder, touches, event in
             // 确保在触摸开始时关闭已侧滑的cell
             if let tableView = responder as? UITableView {
                 tableView.wy_closeCurrentOpenedSideslipCellIfNeeded()
@@ -968,7 +968,7 @@ private extension UITableView {
     
     /// 交换hitTest方法实现
     private static let swizzleHitTest: Void = {
-        wy_exchangeHitTest(for: UITableView.self, intercept: { currentView, point, event in
+        wy_swizzlerHitTest(for: UITableView.self, intercept: { currentView, point, event in
             guard let tableView = currentView as? UITableView else { return .proceed}
             
             // 如果当前有打开的侧滑 cell
