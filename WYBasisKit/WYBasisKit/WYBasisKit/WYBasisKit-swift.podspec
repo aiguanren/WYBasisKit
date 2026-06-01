@@ -175,7 +175,8 @@ Pod::Spec.new do |kit|
       "#{kit_path}Swift/Extension/String/**/*.{swift,h,m}",
       "#{kit_path}Swift/Extension/UIImage/**/*.{swift,h,m}",
       "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",
-      "#{kit_path}Swift/Config/**/*.{swift}"
+      "#{kit_path}Swift/Config/**/*.{swift}",
+      "#{kit_path}Swift/MethodExchange/**/*.{swift}"
     ]
     activity.resources = [
       localizable_bundle,
@@ -332,7 +333,8 @@ Pod::Spec.new do |kit|
         "#{kit_path}Swift/Extension/UIFont/**/*.{swift,h,m}",
         "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",
         "#{kit_path}Swift/Extension/UIViewController/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Config/**/*.{swift}"
+        "#{kit_path}Swift/Config/**/*.{swift}",
+        "#{kit_path}Swift/MethodExchange/**/*.{swift}"
       ]
       scrollText.resources = [localizable_bundle]
       scrollText.resource_bundles = {"WYBasisKitSwiftLayoutScrollText" => [
@@ -353,7 +355,8 @@ Pod::Spec.new do |kit|
         "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",
         "#{kit_path}Swift/Extension/UIFont/**/*.{swift,h,m}",
         "#{kit_path}Swift/Extension/UIViewController/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Config/**/*.{swift,h,m}"
+        "#{kit_path}Swift/Config/**/*.{swift,h,m}",
+        "#{kit_path}Swift/MethodExchange/**/*.{swift}"
       ]
       pagingView.resource_bundles = {"WYBasisKitSwiftLayoutPagingView" => [
         "#{kit_path}Swift/Layout/PagingView/PrivacyInfo.xcprivacy"
@@ -369,7 +372,8 @@ Pod::Spec.new do |kit|
         "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",
         "#{kit_path}Swift/Extension/UIViewController/**/*.{swift,h,m}",
         "#{kit_path}Swift/Extension/UIApplication/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Config/**/*.{swift,h,m}"
+        "#{kit_path}Swift/Config/**/*.{swift,h,m}",
+        "#{kit_path}Swift/MethodExchange/**/*.{swift}"
       ]
       bannerView.resources = [
         localizable_bundle,
