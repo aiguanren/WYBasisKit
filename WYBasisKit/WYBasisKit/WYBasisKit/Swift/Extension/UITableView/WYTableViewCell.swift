@@ -771,7 +771,7 @@ private extension UITableViewCell {
                 if abs(velocity.x) > velocityThreshold {
                     // 快速滑动时根据速度方向决定
                     shouldOpen = (velocity.x > 0 && wy_currentSideslipDirection == .left) ||
-                                 (velocity.x < 0 && wy_currentSideslipDirection == .right)
+                    (velocity.x < 0 && wy_currentSideslipDirection == .right)
                 } else {
                     // 慢速滑动时根据位置决定，使用绝对值计算进度
                     let progress = abs(currentX) / currentWidth
@@ -914,6 +914,79 @@ private extension UITableViewCell {
 
 private extension UITableViewCell {
     
+    /// 启用侧滑功能特性
+    static func wy_enableSideslipFeature() {
+        _ = wy_swizzleLayoutSubviews
+        _ = wy_swizzleGestureRecognizerShouldBegin
+    }
+    
+    /**
+     * 交换gestureRecognizerShouldBegin方法实现
+     * 手势识别器是否应该开始识别
+     * @param gestureRecognizer 手势识别器
+     * @return 是否应该开始识别
+     */
+    static let wy_swizzleGestureRecognizerShouldBegin: Void = {
+        wy_swizzlerGestureRecognizerShouldBegin(for: UITableViewCell.self, intercept: { delegate, gestureRecognizer in
+            
+            guard let cell = delegate as? UITableViewCell else {
+                return .proceed
+            }
+            if gestureRecognizer == cell.wy_panGesture {
+                let translation = cell.wy_panGesture.translation(in: cell)
+                
+                // 检查是否是水平滑动
+                let isHorizontal = abs(translation.x) > abs(translation.y)
+                if !isHorizontal {
+                    return .result(false)
+                }
+                
+                // 根据手势优先级处理导航栏返回手势冲突
+                let location = cell.wy_panGesture.location(in: cell)
+                let isFromLeftEdge = location.x < 30
+                
+                switch cell.wy_gesturePriority {
+                case .sideslipFirst:
+                    // 侧滑优先：总是允许侧滑手势
+                    break
+                    
+                case .navigationBackFirst:
+                    // 导航栏返回优先：从左侧边缘开始时禁用侧滑
+                    if isFromLeftEdge {
+                        return .result(false)
+                    }
+                    
+                case .autoSelection:
+                    // 自动检测：根据cell支持的滑动方向和触摸位置智能判断
+                    if isFromLeftEdge {
+                        // 从左侧边缘开始
+                        if cell.wy_sideslipDirection == .right {
+                            // 如果cell只支持右侧滑，从左侧开始的手势应该交给导航栏
+                            return .result(false)
+                        }
+                        // 检查是否有导航控制器且不是根视图控制器
+                        if let navController = cell.wy_parentTableView?.wy_parentViewController?.navigationController,
+                           navController.viewControllers.count > 1,
+                           navController.interactivePopGestureRecognizer?.isEnabled == true {
+                            // 如果有导航控制器且可以返回，优先交给导航栏返回手势
+                            return .result(false)
+                        }
+                    }
+                }
+                
+                // 根据滑动方向检查是否允许
+                if translation.x > 0 {
+                    // 向右滑动：只有在支持左侧滑或两侧滑时才允许（显示左侧控件）
+                    return .result(cell.wy_sideslipDirection == .left || cell.wy_sideslipDirection == .both)
+                } else {
+                    // 向左滑动：只有在支持右侧滑或两侧滑时才允许（显示右侧控件）
+                    return .result(cell.wy_sideslipDirection == .right || cell.wy_sideslipDirection == .both)
+                }
+            }
+            return .result(true)
+        })
+    }()
+    
     /// 交换layoutSubviews方法实现
     static let wy_swizzleLayoutSubviews: Void = {
         wy_swizzlerLayoutSubviews(for: UITableViewCell.self, before: { currentView in
@@ -922,11 +995,6 @@ private extension UITableViewCell {
             tableViewCell.wy_updateLayoutAndMaintainSideslip()
         })
     }()
-    
-    /// 启用侧滑功能特性
-    static func wy_enableSideslipFeature() {
-        _ = wy_swizzleLayoutSubviews
-    }
 }
 
 private extension UIScrollView {
@@ -1082,66 +1150,6 @@ extension UITableViewCell {
             }
         }
         
-        return true
-    }
-    
-    /**
-     * 手势识别器是否应该开始识别
-     * @param gestureRecognizer 手势识别器
-     * @return 是否应该开始识别
-     */
-    @objc public override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        if gestureRecognizer == wy_panGesture {
-            let translation = wy_panGesture.translation(in: self)
-            
-            // 检查是否是水平滑动
-            let isHorizontal = abs(translation.x) > abs(translation.y)
-            if !isHorizontal {
-                return false
-            }
-            
-            // 根据手势优先级处理导航栏返回手势冲突
-            let location = wy_panGesture.location(in: self)
-            let isFromLeftEdge = location.x < 30
-            
-            switch wy_gesturePriority {
-            case .sideslipFirst:
-                // 侧滑优先：总是允许侧滑手势
-                break
-                
-            case .navigationBackFirst:
-                // 导航栏返回优先：从左侧边缘开始时禁用侧滑
-                if isFromLeftEdge {
-                    return false
-                }
-                
-            case .autoSelection:
-                // 自动检测：根据cell支持的滑动方向和触摸位置智能判断
-                if isFromLeftEdge {
-                    // 从左侧边缘开始
-                    if wy_sideslipDirection == .right {
-                        // 如果cell只支持右侧滑，从左侧开始的手势应该交给导航栏
-                        return false
-                    }
-                    // 检查是否有导航控制器且不是根视图控制器
-                    if let navController = wy_parentTableView?.wy_parentViewController?.navigationController,
-                       navController.viewControllers.count > 1,
-                       navController.interactivePopGestureRecognizer?.isEnabled == true {
-                        // 如果有导航控制器且可以返回，优先交给导航栏返回手势
-                        return false
-                    }
-                }
-            }
-            
-            // 根据滑动方向检查是否允许
-            if translation.x > 0 {
-                // 向右滑动：只有在支持左侧滑或两侧滑时才允许（显示左侧控件）
-                return wy_sideslipDirection == .left || wy_sideslipDirection == .both
-            } else {
-                // 向左滑动：只有在支持右侧滑或两侧滑时才允许（显示右侧控件）
-                return wy_sideslipDirection == .right || wy_sideslipDirection == .both
-            }
-        }
         return true
     }
 }
