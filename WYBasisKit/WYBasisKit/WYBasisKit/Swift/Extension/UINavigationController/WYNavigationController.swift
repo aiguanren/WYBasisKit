@@ -258,7 +258,6 @@ public extension UIViewController {
 extension UINavigationController: @retroactive UINavigationControllerDelegate {
     override open func viewDidLoad() {
         super.viewDidLoad()
-        delegate = self
         _ = UINavigationController.wy_swizzlePopOnce
         _ = UIViewController.wy_swizzleViewWillAppearOnce
     }
