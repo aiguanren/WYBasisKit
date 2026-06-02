@@ -58,13 +58,6 @@ public extension UITextView {
     var wy_eventPenetration: Bool {
         set {
             objc_setAssociatedObject(self, &WYAssociatedKeys.wy_eventPenetration, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-            self.setNeedsLayout()
-            // 确保 hitTest 方法交换已执行
-            self.enableHitTestPenetrationIfNeeded()
-            // 主动触发一次 hitTest 调用，使方法交换立即在系统中注册，保证第一次点击就能使用新逻辑
-            if newValue {
-                _ = self.hitTest(CGPoint(x: -100, y: -100), with: nil)
-            }
         }
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_eventPenetration) as? Bool ?? false }
     }
@@ -79,8 +72,6 @@ public extension UITextView {
         dataDetectorTypes = UIDataDetectorTypes()
         // 去除左右边距
         textContainer.lineFragmentPadding = 0
-        // 不可滚动
-        isScrollEnabled = false
         // 文本截断方式
         textContainer.lineBreakMode = .byTruncatingTail;
     }
@@ -98,7 +89,7 @@ public extension UITextView {
         reloadTouchActions()
         configureForTouchEvents()
         startObservingTextChanges()
-        enableHitTestPenetrationIfNeeded()
+        enableSwizzleMethods()
     }
     
     /**
@@ -113,7 +104,7 @@ public extension UITextView {
         reloadTouchActions()
         configureForTouchEvents()
         startObservingTextChanges()
-        enableHitTestPenetrationIfNeeded()
+        enableSwizzleMethods()
     }
     
     /**
@@ -129,7 +120,7 @@ public extension UITextView {
         reloadTouchActions()
         configureForTouchEvents()
         startObservingTextChanges()
-        enableHitTestPenetrationIfNeeded()
+        enableSwizzleMethods()
     }
     
     /**
@@ -145,7 +136,7 @@ public extension UITextView {
         reloadTouchActions()
         configureForTouchEvents()
         startObservingTextChanges()
-        enableHitTestPenetrationIfNeeded()
+        enableSwizzleMethods()
     }
 }
 
@@ -227,8 +218,6 @@ private extension UITextView {
         static var wy_longPressRegistrations: UInt8 = 0
         /// 文本内容观察者关联键
         static var wy_textObserver: UInt8 = 0
-        /// 是否已交换hitTest方法关联键
-        static var wy_hasSwizzledHitTest: UInt8 = 0
         /// 事件穿透开关关联键
         static var wy_eventPenetration: UInt8 = 0
         /// 当前高亮的文本区间关联键
@@ -342,6 +331,14 @@ private extension UITextView {
         }
         // 禁用视图自身的延迟触摸（不影响父视图）
         self.delaysContentTouches = false
+        
+        Task { @MainActor in
+            self.setNeedsLayout()
+            // 确保方法交换已执行
+            self.enableSwizzleMethods()
+            // 主动触发一次 hitTest 调用，使方法交换立即在系统中注册，保证第一次点击就能使用
+            _ = self.hitTest(CGPoint(x: -100, y: -100), with: nil)
+        }
     }
     
     /// 将注册信息添加到对应的注册列表（点击/长按），避免重复添加。
@@ -405,23 +402,10 @@ private extension UITextView {
         wy_textObserver = observer
     }
     
-    /// 如果尚未交换 hitTest 方法，则进行交换，以便实现事件穿透功能。
-    func enableHitTestPenetrationIfNeeded() {
+    /// 如果尚未实现方法交换，则进行交换
+    func enableSwizzleMethods() {
         _ = Self.wy_swizzleTouchMethods
-        if objc_getAssociatedObject(self, &WYAssociatedKeys.wy_hasSwizzledHitTest) == nil {
-            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_hasSwizzledHitTest, true, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-            swizzleHitTestMethod()
-        }
-    }
-    
-    /// 交换 hitTest 方法，注入穿透判断逻辑。
-    func swizzleHitTestMethod() {
-        wy_swizzlerHitTest(for: UITextView.self, after: { view, point, event, originalResult in
-            if let textView = view as? UITextView, textView.shouldPenetrateHitTest(at: point) {
-                return nil
-            }
-            return originalResult
-        })
+        _ = Self.wy_swizzleHitTestMethod
     }
     
     /// 清理当前高亮区间（若有）。
@@ -481,7 +465,6 @@ private extension UITextView {
     
     /// 判断当前触摸点是否应该让事件穿透（即忽略自身，传递给父视图）。
     func shouldPenetrateHitTest(at point: CGPoint) -> Bool {
-        guard wy_eventPenetration else { return false }
         
         // 穿透前尝试清理高亮
         clearHighlightIfNeeded()
@@ -492,7 +475,7 @@ private extension UITextView {
             return false
         }
         
-        return true
+        return wy_eventPenetration
     }
     
     /// 长按计时器管理
@@ -510,9 +493,12 @@ private extension UITextView {
             let longActions = self.allActionsForPoint(point, actions: self.wy_longPressActions)
             for longAction in longActions {
                 let text = (self.attributedText?.string as? NSString ?? self.text as NSString?)?.substring(with: longAction.range) ?? ""
+                
+                // 长按Block回调
                 if let handler = longAction.handler {
                     handler(self, text, longAction.range, longAction.index)
                 }
+                // 长按Delegate回调
                 if let delegate = longAction.delegate {
                     delegate.wy_textViewTextDidLongPress?(self, text: text, range: longAction.range, index: longAction.index)
                 }
@@ -521,6 +507,16 @@ private extension UITextView {
         wy_longPressTimer = work
         DispatchQueue.main.asyncAfter(deadline: .now() + wy_longPressMinimumDuration, execute: work)
     }
+    
+    /// 交换 hitTest 方法，注入穿透判断逻辑
+    static let wy_swizzleHitTestMethod: Void = {
+        wy_swizzlerHitTest(for: UITextView.self, after: { view, point, event, originalResult in
+            if let textView = view as? UITextView, textView.shouldPenetrateHitTest(at: point) {
+                return nil
+            }
+            return originalResult
+        })
+    }()
     
     /// 交换触摸方法（touchesBegan/Moved/Ended/Cancelled）
     static let wy_swizzleTouchMethods: Void = {
@@ -589,9 +585,12 @@ private extension UITextView {
                 if !tapActions.isEmpty {
                     for tapAction in tapActions {
                         let text = (textView.attributedText?.string as? NSString ?? textView.text as NSString?)?.substring(with: tapAction.range) ?? ""
+                        
+                        // 点击Block回调
                         if let handler = tapAction.handler {
                             handler(textView, text, tapAction.range, tapAction.index)
                         }
+                        // 执行Delegate回调
                         if let delegate = tapAction.delegate {
                             delegate.wy_textViewTextDidClick?(textView, text: text, range: tapAction.range, index: tapAction.index)
                         }
