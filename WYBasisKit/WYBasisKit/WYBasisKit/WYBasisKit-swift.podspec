@@ -101,6 +101,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}Swift/MethodSwizzler/PrivacyInfo.xcprivacy"
     ]}
     methodSwizzler.frameworks = "Foundation", "UIKit"
+    methodSwizzler.dependency "WYBasisKit-swift/LogManager"
   end
 
   kit.subspec "Config" do |config|
