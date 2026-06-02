@@ -1,5 +1,5 @@
 # 定义podspec执行路径(远程验证时路径是从WYBasisKit开始的，所以远程验证时需要填入podspec文件的路径：WYBasisKit/WYBasisKit/WYBasisKit/)
-kit_path = "WYBasisKit/WYBasisKit/WYBasisKit/"
+kit_path = ""
 
 # 国际化资源需要的Bundle
 localizable_bundle = "#{kit_path}Swift/Localizable/WYLocalizable.bundle"
@@ -19,6 +19,7 @@ Pod::Spec.new do |kit|
     Authorization: 各种权限请求与判断
     LogManager: 日志打印，日志导出等日志管理相关
     AudioKit: 音频录制与播放
+    MethodSwizzler: 内部使用，第三方请勿调用
   DESC
   
   kit.homepage     = "https://github.com/aiguanren/WYBasisKit"
@@ -92,6 +93,16 @@ Pod::Spec.new do |kit|
   #             ]
   # } 
 
+  kit.subspec "MethodSwizzler" do |methodSwizzler|
+    methodSwizzler.source_files = [
+      "#{kit_path}Swift/MethodSwizzler/**/*.{swift,h,m}"
+    ]
+    methodSwizzler.resource_bundles = {"WYBasisKitSwiftMethodSwizzler" => [
+      "#{kit_path}Swift/MethodSwizzler/PrivacyInfo.xcprivacy"
+    ]}
+    methodSwizzler.frameworks = "Foundation", "UIKit"
+  end
+
   kit.subspec "Config" do |config|
     config.source_files = [
       "#{kit_path}Swift/Config/**/*.{swift,h,m}"
@@ -126,8 +137,7 @@ Pod::Spec.new do |kit|
   
   kit.subspec "Extension" do |extension|
     extension.source_files = [
-      "#{kit_path}Swift/Extension/**/*.{swift,h,m}",
-      "#{kit_path}Swift/MethodExchange/**/*.{swift}"
+      "#{kit_path}Swift/Extension/**/*.{swift,h,m}"
     ]
     extension.resources = [localizable_bundle]
     extension.resource_bundles = {"WYBasisKitSwiftExtension" => [
@@ -137,6 +147,7 @@ Pod::Spec.new do |kit|
     extension.dependency "WYBasisKit-swift/Localizable"
     extension.dependency "WYBasisKit-swift/Config"
     extension.dependency "WYBasisKit-swift/LogManager"
+    extension.dependency "WYBasisKit-swift/MethodSwizzler"
   end
   
   kit.subspec "Codable" do |codable|
@@ -175,8 +186,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}Swift/Extension/String/**/*.{swift,h,m}",
       "#{kit_path}Swift/Extension/UIImage/**/*.{swift,h,m}",
       "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",
-      "#{kit_path}Swift/Config/**/*.{swift}",
-      "#{kit_path}Swift/MethodExchange/**/*.{swift}"
+      "#{kit_path}Swift/Config/**/*.{swift}"
     ]
     activity.resources = [
       localizable_bundle,
@@ -188,6 +198,7 @@ Pod::Spec.new do |kit|
     activity.frameworks = "Foundation", "UIKit"
     activity.dependency "WYBasisKit-swift/Localizable"
     activity.dependency "WYBasisKit-swift/LogManager"
+    activity.dependency "WYBasisKit-swift/MethodSwizzler"
   end
   
   kit.subspec "Storage" do |storage|
@@ -333,8 +344,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}Swift/Extension/UIFont/**/*.{swift,h,m}",
         "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",
         "#{kit_path}Swift/Extension/UIViewController/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Config/**/*.{swift}",
-        "#{kit_path}Swift/MethodExchange/**/*.{swift}"
+        "#{kit_path}Swift/Config/**/*.{swift}"
       ]
       scrollText.resources = [localizable_bundle]
       scrollText.resource_bundles = {"WYBasisKitSwiftLayoutScrollText" => [
@@ -343,6 +353,7 @@ Pod::Spec.new do |kit|
       scrollText.frameworks = "Foundation", "UIKit"
       scrollText.dependency "WYBasisKit-swift/Localizable"
       scrollText.dependency "WYBasisKit-swift/LogManager"
+      scrollText.dependency "WYBasisKit-swift/MethodSwizzler"
     end
     
     layout.subspec "PagingView" do |pagingView|
@@ -355,14 +366,14 @@ Pod::Spec.new do |kit|
         "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",
         "#{kit_path}Swift/Extension/UIFont/**/*.{swift,h,m}",
         "#{kit_path}Swift/Extension/UIViewController/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Config/**/*.{swift,h,m}",
-        "#{kit_path}Swift/MethodExchange/**/*.{swift}"
+        "#{kit_path}Swift/Config/**/*.{swift,h,m}"
       ]
       pagingView.resource_bundles = {"WYBasisKitSwiftLayoutPagingView" => [
         "#{kit_path}Swift/Layout/PagingView/PrivacyInfo.xcprivacy"
       ]}
       pagingView.frameworks = "Foundation", "UIKit"
       pagingView.dependency "WYBasisKit-swift/LogManager"
+      pagingView.dependency "WYBasisKit-swift/MethodSwizzler"
     end
     
     layout.subspec "BannerView" do |bannerView|
@@ -372,8 +383,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",
         "#{kit_path}Swift/Extension/UIViewController/**/*.{swift,h,m}",
         "#{kit_path}Swift/Extension/UIApplication/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Config/**/*.{swift,h,m}",
-        "#{kit_path}Swift/MethodExchange/**/*.{swift}"
+        "#{kit_path}Swift/Config/**/*.{swift,h,m}"
       ]
       bannerView.resources = [
         localizable_bundle,
@@ -385,6 +395,7 @@ Pod::Spec.new do |kit|
       bannerView.frameworks = "Foundation", "UIKit"
       bannerView.dependency "WYBasisKit-swift/Localizable"
       bannerView.dependency "WYBasisKit-swift/LogManager"
+      bannerView.dependency "WYBasisKit-swift/MethodSwizzler"
     end
     
     layout.subspec "ChatView" do |chatView|

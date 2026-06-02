@@ -872,7 +872,7 @@
 			path = TextRect;
 			sourceTree = "<group>";
 		};
-		584D59E12FBC351A00A862F7 /* MethodExchange */ = {
+		584D59E12FBC351A00A862F7 /* MethodSwizzler */ = {
 			isa = PBXGroup;
 			children = (
 				58328C332FC9317100C0F556 /* General */,
@@ -886,7 +886,7 @@
 				58328C472FC9338500C0F556 /* UIView */,
 				58328C352FC9324700C0F556 /* UIViewController */,
 			);
-			path = MethodExchange;
+			path = MethodSwizzler;
 			sourceTree = "<group>";
 		};
 		584D59E42FBEEE5000A862F7 /* UITextView */ = {
@@ -2433,7 +2433,7 @@
 				58C68D732E84E436005FD054 /* Layout */,
 				58C68D772E84E436005FD054 /* Localizable */,
 				58C68D7A2E84E436005FD054 /* LogManager */,
-				584D59E12FBC351A00A862F7 /* MethodExchange */,
+				584D59E12FBC351A00A862F7 /* MethodSwizzler */,
 				58C68D7F2E84E436005FD054 /* Networking */,
 				58C68D252E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68D822E84E436005FD054 /* Storage */,
