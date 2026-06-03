@@ -888,6 +888,7 @@
 				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-a75a1fb3/WYBasisKitSwiftLayoutScrollText.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-a75a1fb3/WYBasisKitSwiftLocalizable.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-a75a1fb3/WYBasisKitSwiftLogManager.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-a75a1fb3/WYBasisKitSwiftMethodSwizzler.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-a75a1fb3/WYBasisKitSwiftNetworking.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-a75a1fb3/WYBasisKitSwiftStorage.bundle",
 			);
@@ -932,6 +933,7 @@
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayoutScrollText.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLocalizable.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLogManager.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftMethodSwizzler.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftNetworking.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftStorage.bundle",
 			);

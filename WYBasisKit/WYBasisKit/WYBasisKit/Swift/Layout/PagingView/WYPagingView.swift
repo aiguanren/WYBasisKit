@@ -196,24 +196,17 @@ public class WYPagingView: UIView {
      */
     public func layout(controllers: [UIViewController], titles: [String] = [], defaultImages: [UIImage] = [], selectedImages: [UIImage] = [], superViewController: UIViewController) {
         
+        if !self.buttonItems.isEmpty || !self.controllers.isEmpty {
+            // 移除所有子控件
+            removeAllSubviewsAndReset()
+        }
+        
         DispatchQueue.main.async {
+            
+            self.isUserInteractionEnabled = true
             
             guard controllers.isEmpty == false else {
                 fatalError("❌ 错误：传入的controllers为空")
-            }
-            
-            if !self.buttonItems.isEmpty {
-                self.buttonItems.forEach { $0.removeFromSuperview() }
-                self.buttonItems.removeAll()
-            }
-            
-            if !self.controllers.isEmpty {
-                self.controllers.forEach {
-                    $0.view.removeFromSuperview()
-                    $0.removeFromParent()
-                }
-                self.controllerScrollView.removeFromSuperview()
-                objc_setAssociatedObject(self, &WYAssociatedKeys.controllerScrollView, nil, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
             }
             
             self.controllers = controllers
@@ -225,7 +218,7 @@ public class WYPagingView: UIView {
             if (self.bar_item_height <= 0) {
                 self.bar_item_height = self.bar_height - self.bar_dividingStripHeight
             }
-            
+
             self.layoutMethod()
         }
     }
@@ -513,6 +506,31 @@ extension WYPagingView {
             }
             self.delegate?.wy_pagingViewLayoutDidCompleted?(self)
         })
+    }
+    
+    private func removeAllSubviewsAndReset() {
+        
+        self.bar_selectedIndex = 0
+        
+        self.buttonItems.forEach { $0.removeFromSuperview() }
+        self.buttonItems.removeAll()
+        
+        self.controllers.forEach {
+            $0.view.removeFromSuperview()
+            $0.removeFromParent()
+        }
+        self.controllerScrollView.removeFromSuperview()
+        
+        // 移除所有子视图（包括按钮栏、内容滚动视图、指示线等）
+        self.subviews.forEach { $0.removeFromSuperview() }
+        
+        // 清空关联对象中的视图引用，强制下次访问懒加载属性时重新创建
+        objc_setAssociatedObject(self, &WYAssociatedKeys.barScrollView, nil, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        objc_setAssociatedObject(self, &WYAssociatedKeys.controllerScrollView, nil, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        objc_setAssociatedObject(self, &WYAssociatedKeys.barScrollLine, nil, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        
+        // 重置当前选中的按钮引用
+        objc_setAssociatedObject(self, &WYAssociatedKeys.currentButtonItem, nil, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
     }
     
     var controllerScrollView: UIScrollView {

@@ -176,11 +176,13 @@ PODS:
     - WYBasisKit-swift/Layout (= 26.6.0)
     - WYBasisKit-swift/Localizable (= 26.6.0)
     - WYBasisKit-swift/LogManager (= 26.6.0)
+    - WYBasisKit-swift/MethodSwizzler (= 26.6.0)
     - WYBasisKit-swift/Networking (= 26.6.0)
     - WYBasisKit-swift/Storage (= 26.6.0)
   - WYBasisKit-swift/Activity (26.6.0):
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
+    - WYBasisKit-swift/MethodSwizzler
   - WYBasisKit-swift/AudioKit (26.6.0):
     - WYBasisKit-swift/Authorization/Microphone
   - WYBasisKit-swift/Authorization (26.6.0):
@@ -219,6 +221,7 @@ PODS:
     - WYBasisKit-swift/Config
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
+    - WYBasisKit-swift/MethodSwizzler
   - WYBasisKit-swift/Layout (26.6.0):
     - WYBasisKit-swift/Layout/BannerView (= 26.6.0)
     - WYBasisKit-swift/Layout/ChatView (= 26.6.0)
@@ -228,6 +231,7 @@ PODS:
   - WYBasisKit-swift/Layout/BannerView (26.6.0):
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
+    - WYBasisKit-swift/MethodSwizzler
   - WYBasisKit-swift/Layout/ChatView (26.6.0):
     - Kingfisher
     - SnapKit
@@ -241,12 +245,16 @@ PODS:
     - IJKPlayerKit (= 1.0.4)
   - WYBasisKit-swift/Layout/PagingView (26.6.0):
     - WYBasisKit-swift/LogManager
+    - WYBasisKit-swift/MethodSwizzler
   - WYBasisKit-swift/Layout/ScrollText (26.6.0):
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
+    - WYBasisKit-swift/MethodSwizzler
   - WYBasisKit-swift/Localizable (26.6.0):
     - WYBasisKit-swift/Config
   - WYBasisKit-swift/LogManager (26.6.0)
+  - WYBasisKit-swift/MethodSwizzler (26.6.0):
+    - WYBasisKit-swift/LogManager
   - WYBasisKit-swift/Networking (26.6.0):
     - Moya
     - WYBasisKit-swift/Codable
@@ -319,7 +327,7 @@ SPEC CHECKSUMS:
   SDWebImageWebPCoder: 0e06e365080397465cc73a7a9b472d8a3bd0f377
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
   WYBasisKit-ObjC: de31c31d5fc7733ea94ad51af9937ad086747799
-  WYBasisKit-swift: 3357de8d95df3cb45065f3f79f592f9333f9bc72
+  WYBasisKit-swift: 47659f245d60985fe05f8d988512d83f3aa79050
   WYBasisKit-SwiftUI: 72b8d96f2fcc05cc40e8bdc3428e8e31121a6a62
 
 PODFILE CHECKSUM: 8867d370f0dd601a7c1cd37083576f0a3cc93bd2

@@ -377,9 +377,6 @@ public extension UIView {
     @discardableResult
     func wy_showVisual() -> UIView {
         
-        // 方法交换，使frame发生变化后可以自动修改
-        _ = Self.swizzleLayoutSubviewsOnce
-        
         // 强制更新布局以确保获取最新尺寸
         self.superview?.layoutIfNeeded()
         self.layoutIfNeeded()
@@ -444,12 +441,6 @@ public extension UIView {
 private extension UIView {
     
     // MARK: - 链式编程实现部分
-    
-    static func swizzleLayoutSubviewsOnce() {
-        wy_swizzlerLayoutSubviews(for: UIView.self, after: { currentView in
-            currentView.wy_showVisual()
-        })
-    }
     
     func wy_addShadow() {
         DispatchQueue.main.async {
