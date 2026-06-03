@@ -64,10 +64,6 @@ public extension UITextView {
     
     /// 开启点击响应配置
     func wy_enableClickConfig() {
-        // 不可编辑
-        isEditable = false
-        // 必须为 YES 才能响应链接
-        isSelectable = true
         // 关闭系统检测，手动控制样式
         dataDetectorTypes = UIDataDetectorTypes()
         // 去除左右边距
@@ -323,12 +319,12 @@ private extension UITextView {
     
     /// 为触摸事件配置 TextView：禁用编辑和选择，避免系统干扰
     func configureForTouchEvents() {
-        if isSelectable {
-            isSelectable = false
-        }
-        if isEditable {
-            isEditable = false
-        }
+        // 不可编辑
+        isEditable = false
+        
+        // 必须为 False 才能响应链接
+        isSelectable = false
+        
         // 禁用视图自身的延迟触摸（不影响父视图）
         self.delaysContentTouches = false
         
