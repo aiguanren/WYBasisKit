@@ -80,12 +80,14 @@ public extension UITextView {
      *
      */
     func wy_addTextTapHandler(rangeValue: Any, handler:((_ textView: UITextView, _ text: String, _ range: NSRange, _ index: Int) -> Void)? = nil) {
-        let registration = WYTextTouchRegistration(rangeValue: rangeValue, type: .tap, handler: handler, delegate: nil)
-        addRegistration(registration)
-        reloadTouchActions()
-        configureForTouchEvents()
-        startObservingTextChanges()
-        enableSwizzleMethods()
+        Task { @MainActor in
+            let registration = WYTextTouchRegistration(rangeValue: rangeValue, type: .tap, handler: handler, delegate: nil)
+            addRegistration(registration)
+            reloadTouchActions()
+            configureForTouchEvents()
+            startObservingTextChanges()
+            enableSwizzleMethods()
+        }
     }
     
     /**
@@ -95,12 +97,14 @@ public extension UITextView {
      * @param handler 长按事件回调闭包
      */
     func wy_addTextLongPressHandler(rangeValue: Any, handler:((_ textView: UITextView, _ text: String, _ range: NSRange, _ index: Int) -> Void)? = nil) {
-        let registration = WYTextTouchRegistration(rangeValue: rangeValue, type: .longPress, handler: handler, delegate: nil)
-        addRegistration(registration)
-        reloadTouchActions()
-        configureForTouchEvents()
-        startObservingTextChanges()
-        enableSwizzleMethods()
+        Task { @MainActor in
+            let registration = WYTextTouchRegistration(rangeValue: rangeValue, type: .longPress, handler: handler, delegate: nil)
+            addRegistration(registration)
+            reloadTouchActions()
+            configureForTouchEvents()
+            startObservingTextChanges()
+            enableSwizzleMethods()
+        }
     }
     
     /**
@@ -111,12 +115,14 @@ public extension UITextView {
      *
      */
     func wy_addTextTapDelegate(rangeValue: Any, delegate: WYTextViewTouchDelegate) {
-        let registration = WYTextTouchRegistration(rangeValue: rangeValue, type: .tap, handler: nil, delegate: delegate)
-        addRegistration(registration)
-        reloadTouchActions()
-        configureForTouchEvents()
-        startObservingTextChanges()
-        enableSwizzleMethods()
+        Task { @MainActor in
+            let registration = WYTextTouchRegistration(rangeValue: rangeValue, type: .tap, handler: nil, delegate: delegate)
+            addRegistration(registration)
+            reloadTouchActions()
+            configureForTouchEvents()
+            startObservingTextChanges()
+            enableSwizzleMethods()
+        }
     }
     
     /**
@@ -127,12 +133,14 @@ public extension UITextView {
      *
      */
     func wy_addTextLongPressDelegate(rangeValue: Any, delegate: WYTextViewTouchDelegate) {
-        let registration = WYTextTouchRegistration(rangeValue: rangeValue, type: .longPress, handler: nil, delegate: delegate)
-        addRegistration(registration)
-        reloadTouchActions()
-        configureForTouchEvents()
-        startObservingTextChanges()
-        enableSwizzleMethods()
+        Task { @MainActor in
+            let registration = WYTextTouchRegistration(rangeValue: rangeValue, type: .longPress, handler: nil, delegate: delegate)
+            addRegistration(registration)
+            reloadTouchActions()
+            configureForTouchEvents()
+            startObservingTextChanges()
+            enableSwizzleMethods()
+        }
     }
 }
 
@@ -157,6 +165,8 @@ private class WYTextTouchAction {
     let handler: ((UITextView, String, NSRange, Int) -> Void)?
     /// 代理回调
     weak var delegate: WYTextViewTouchDelegate?
+    /// 缓存该 range 在 UITextView 中的矩形，用于快速命中检测
+    var rects: [CGRect] = []
     
     init(range: NSRange,
          type: WYActionType,
@@ -322,7 +332,7 @@ private extension UITextView {
         // 不可编辑
         isEditable = false
         
-        // 必须为 False 才能响应链接
+        // 必须为 False 才能响应链接（保持 false 避免系统手势干扰，且不影响矩形获取）
         isSelectable = false
         
         // 禁用视图自身的延迟触摸（不影响父视图）
@@ -387,6 +397,35 @@ private extension UITextView {
             }
         }
         wy_longPressActions = newLongPressActions
+        
+        // 重新计算所有 action 的矩形区域，用于快速命中检测
+        Task { @MainActor in
+            updateActionRects()
+        }
+    }
+    
+    /// 更新所有点击和长按动作的矩形缓存
+    func updateActionRects() {
+        for action in wy_tapActions {
+            action.rects = rectsForRange(action.range)
+        }
+        for action in wy_longPressActions {
+            action.rects = rectsForRange(action.range)
+        }
+    }
+    
+    /// 获取指定 NSRange 在 UITextView 中的所有矩形区域（支持跨行）
+    func rectsForRange(_ range: NSRange) -> [CGRect] {
+        guard let textRange = textRange(from: range) else { return [] }
+        // selectionRects(for:) 返回的 rect 是相对于 UITextView 的坐标系统（已包含 textContainerInset）
+        return self.selectionRects(for: textRange).map { $0.rect }
+    }
+    
+    /// 将 NSRange 转换为 UITextRange
+    func textRange(from nsRange: NSRange) -> UITextRange? {
+        guard let start = position(from: beginningOfDocument, offset: nsRange.location),
+              let end = position(from: start, offset: nsRange.length) else { return nil }
+        return textRange(from: start, to: end)
     }
     
     /// 开始 KVO 监听 text 和 attributedText 的变化，以便文本更新时重新解析区间。
@@ -412,29 +451,11 @@ private extension UITextView {
         }
     }
     
-    /// 获取给定屏幕点所匹配的所有动作（点击或长按）。
+    /// 获取给定屏幕点所匹配的所有动作（点击或长按）—— 基于矩形缓存
     func allActionsForPoint(_ point: CGPoint, actions: [WYTextTouchAction]) -> [WYTextTouchAction] {
-        guard let characterIndex = characterIndexAtPoint(point) else { return [] }
-        return actions.filter { NSLocationInRange(characterIndex, $0.range) }
-    }
-    
-    /// 根据触摸点计算对应的字符索引（基于布局管理器和文本容器）。
-    func characterIndexAtPoint(_ point: CGPoint) -> Int? {
-        let layoutManager = self.layoutManager
-        let textContainer = self.textContainer
-        let textContainerInsets = self.textContainerInset
-        let locationInTextView = CGPoint(x: point.x - textContainerInsets.left,
-                                         y: point.y - textContainerInsets.top)
-        
-        let characterIndex = layoutManager.characterIndex(for: locationInTextView,
-                                                          in: textContainer,
-                                                          fractionOfDistanceBetweenInsertionPoints: nil)
-        
-        let totalLength = attributedText?.length ?? 0
-        if characterIndex < totalLength && characterIndex >= 0 {
-            return characterIndex
+        return actions.filter { action in
+            action.rects.contains { $0.contains(point) }
         }
-        return nil
     }
     
     /// 为指定区间应用高亮效果（按下或长按时的背景色）。

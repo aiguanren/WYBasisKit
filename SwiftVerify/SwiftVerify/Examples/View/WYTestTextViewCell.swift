@@ -20,6 +20,7 @@ class WYTestTextViewCell: UITableViewCell {
         linkView = UITextView()
         linkView?.textContainer.maximumNumberOfLines = 0 // 限制最多显示6行
         linkView?.wy_enableClickConfig()
+        linkView?.isScrollEnabled = false
         contentView.addSubview(linkView!)
         linkView?.snp.makeConstraints { make in
             make.centerX.top.equalToSuperview()
@@ -29,6 +30,7 @@ class WYTestTextViewCell: UITableViewCell {
         textView = UITextView()
         textView?.wy_enableClickConfig()
         textView?.textContainer.lineBreakMode = .byTruncatingTail; // 文本截断方式
+        textView?.isScrollEnabled = false
         contentView.addSubview(textView!)
         textView?.snp.makeConstraints { make in
             make.top.equalTo(linkView!.snp.bottom).offset(20)
