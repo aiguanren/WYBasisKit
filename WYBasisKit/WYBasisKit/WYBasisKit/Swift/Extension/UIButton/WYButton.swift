@@ -334,11 +334,11 @@ private extension UIButton {
     
     /***** 利用运行时自由设置UIButton的titleLabel和imageView的显示位置 *****/
     static func swizzleLayoutSubviews() {
-        _ = self.swizzleLayoutSubviewsOnce
+        _ = self.wy_swizzleLayoutSubviewsOnce
     }
     
     // 方法交换
-    private static let swizzleLayoutSubviewsOnce: Void = {
+    private static let wy_swizzleLayoutSubviewsOnce: Void = {
         
         wy_swizzlerLayoutSubviews(for: UIButton.self, after: { currentView in
             

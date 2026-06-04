@@ -290,6 +290,14 @@ public extension UIView {
         }
     }
     
+    /// 当frame/bounds发生变化时动态调整边框、阴影、圆角、渐变等设置
+    @objc(wy_dynamicUpdate)
+    var wy_dynamicUpdateObjC: @convention(block) () -> UIView {
+        return {
+            return self.wy_dynamicUpdate()
+        }
+    }
+    
     /// 显示(更新)边框、阴影、圆角、渐变
     @objc(wy_showVisual)
     var wy_showVisualObjC: @convention(block) () -> UIView {
