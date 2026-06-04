@@ -373,13 +373,6 @@ public extension UIView {
         return self
     }
     
-    /// 当frame/bounds发生变化时动态调整边框、阴影、圆角、渐变等设置
-    @discardableResult
-    func wy_dynamicUpdate() -> UIView {
-        _ = UIView.wy_swizzleLayoutSubviewsOnce
-        return self
-    }
-    
     /// 显示(更新)边框、阴影、圆角、渐变
     @discardableResult
     func wy_showVisual() -> UIView {
@@ -448,13 +441,6 @@ public extension UIView {
 private extension UIView {
     
     // MARK: - 链式编程实现部分
-    
-    // 方法交换,实现根据frame动态调整边框、阴影、圆角等设置
-    static let wy_swizzleLayoutSubviewsOnce: Void = {
-        wy_swizzlerLayoutSubviews(for: UIView.self, after: { currentView in
-            currentView.wy_showVisual()
-        })
-    }()
     
     func wy_addShadow() {
         DispatchQueue.main.async {
