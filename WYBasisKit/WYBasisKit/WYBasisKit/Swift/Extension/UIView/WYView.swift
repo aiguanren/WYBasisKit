@@ -241,7 +241,7 @@ public extension UIView {
             addBorder(edge: .right, color: color, thickness: thickness)
         }
         
-        DispatchQueue.main.async {
+        Task { @MainActor in
             self.updateAllBorderFrames()
         }
     }
@@ -443,7 +443,7 @@ private extension UIView {
     // MARK: - 链式编程实现部分
     
     func wy_addShadow() {
-        DispatchQueue.main.async {
+        Task { @MainActor in
             var shadowView = self
             
             if self.shadowBackgroundView != nil {
@@ -485,7 +485,7 @@ private extension UIView {
     
     /// 添加圆角和边框
     func wy_addBorderAndRadius() {
-        DispatchQueue.main.async {
+        Task { @MainActor in
             
             // 移除旧边框图层
             self.wy_removeLayer(WYAssociatedKeys.boardLayer)
@@ -540,7 +540,7 @@ private extension UIView {
     
     /// 添加渐变色
     func wy_addGradual() {
-        DispatchQueue.main.async {
+        Task { @MainActor in
             // 渐变色数组个数必须大于1才能满足渐变要求
             guard (self.privateGradualColors?.count ?? 0) > 1 else {
                 // 渐变色数组个数必须大于1才能满足渐变要求

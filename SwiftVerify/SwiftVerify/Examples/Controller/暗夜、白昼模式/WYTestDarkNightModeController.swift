@@ -37,7 +37,7 @@ class WYTestDarkNightModeController: UIViewController {
 
             WYLocalizableManager.switchLanguage(language: .english) {
 
-                DispatchQueue.main.async(execute: {
+                Task { @MainActor in
 
                     let tabbarController = AppDelegate.shared().window?.rootViewController! as! WYTabBarController
                     let navController = tabbarController.selectedViewController as! UINavigationController
@@ -46,7 +46,7 @@ class WYTestDarkNightModeController: UIViewController {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         UIViewController.wy_currentController()?.navigationItem.title = "重启后的新Controller"
                     }
-                })
+                }
             }
             UIApplication.shared.wy_switchAppDisplayBrightness(style: .dark)
 
@@ -54,7 +54,7 @@ class WYTestDarkNightModeController: UIViewController {
 
             WYLocalizableManager.switchLanguage(language: .zh_Hans) {
 
-                DispatchQueue.main.async(execute: {
+                Task { @MainActor in
 
                     let tabbarController = AppDelegate.shared().window?.rootViewController! as! WYTabBarController
                     let navController = tabbarController.selectedViewController as! UINavigationController
@@ -62,7 +62,7 @@ class WYTestDarkNightModeController: UIViewController {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         UIViewController.wy_currentController()?.navigationItem.title = "重启后的新Controller"
                     }
-                })
+                }
             }
             UIApplication.shared.wy_switchAppDisplayBrightness(style: .light)
         }

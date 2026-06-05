@@ -53,7 +53,7 @@ class WYTestInterfaceOrientationController: UIViewController {
         
         UIAlertController.wy_show(style: .alert, message: "设置屏幕方向", actions: ["竖向", "横向-左", "横向-右", "竖向-颠倒", "横向", "竖向 / 横向", "竖向 / 横向 /  竖向-颠倒"]) {[weak self] actionStr, textFieldTexts in
             
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 
                 if actionStr != self?.label.text {
                     

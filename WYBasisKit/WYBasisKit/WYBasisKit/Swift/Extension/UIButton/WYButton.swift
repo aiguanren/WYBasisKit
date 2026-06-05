@@ -170,7 +170,7 @@ public extension UIButton {
      */
     func wy_adjust(position: WYButtonPosition, spacing: CGFloat = 0) {
         
-        DispatchQueue.main.async {
+        Task { @MainActor in
             
             guard self.bounds.size != .zero else { return }
             
@@ -326,7 +326,7 @@ private extension UIButton {
         intervalSelector?(button)
         isUserInteractionEnabled = false
         DispatchQueue.main.asyncAfter(deadline: .now() + selectorInterval) { [weak self] in
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 self?.isUserInteractionEnabled = true
             }
         }

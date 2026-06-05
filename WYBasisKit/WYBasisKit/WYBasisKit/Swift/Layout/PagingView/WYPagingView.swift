@@ -201,7 +201,7 @@ public class WYPagingView: UIView {
             removeAllSubviewsAndReset()
         }
         
-        DispatchQueue.main.async {
+        Task { @MainActor in
             
             self.isUserInteractionEnabled = true
             
@@ -499,13 +499,13 @@ extension WYPagingView {
                 controllerScrollView.contentOffset = CGPoint(x: self.frame.size.width * CGFloat(bar_selectedIndex), y: 0)
             }
         }
-        DispatchQueue.main.async(execute: {
+        Task { @MainActor in
             self.scrollMethod()
             if let itemDidLayoutHandler = self.itemDidLayoutHandler {
                 itemDidLayoutHandler(self)
             }
             self.delegate?.wy_pagingViewLayoutDidCompleted?(self)
-        })
+        }
     }
     
     private func removeAllSubviewsAndReset() {

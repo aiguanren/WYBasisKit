@@ -90,7 +90,7 @@ public class WYScrollText: UIView {
             
             _textArray.append(_textArray.first ?? "")
             
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 self.collectionView.reloadData()
                 self.startTimer()
             }

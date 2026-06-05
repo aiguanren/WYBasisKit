@@ -699,7 +699,7 @@ class WYTestCombineImagesController: UIViewController {
                 maskImage: self.maskImage
             )
             
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 if let result = result {
                     self.resultImageView.image = result
                     print("图片合成成功，尺寸: \(result.size)")

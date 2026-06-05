@@ -1239,7 +1239,7 @@ public final class WYAudioKit: NSObject {
                 // 异步导出
                 exportSession.exportAsynchronously { [weak self] in
                     guard let self = self else { return }
-                    DispatchQueue.main.async {
+                    Task { @MainActor in
                         switch exportSession.status {
                         case .completed:
                             // 转换成功
@@ -1393,7 +1393,7 @@ public final class WYAudioKit: NSObject {
                 let asset = AVAsset(url: url)
                 let duration = asset.duration.seconds
                 let validDuration = duration.isFinite ? duration : 0
-                DispatchQueue.main.async {
+                Task { @MainActor in
                     completion(validDuration)
                 }
             }
