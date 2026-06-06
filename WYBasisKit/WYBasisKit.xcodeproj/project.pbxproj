@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		02317E95937A422D4510B1BE /* Pods_WYBasisKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B0A12B6CD08A1EADB40EC1C /* Pods_WYBasisKit.framework */; };
 		5802B28E2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5802B28D2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift */; };
+		5806BD102FD3D25400FEA501 /* WYTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5806BD0F2FD3D25400FEA501 /* WYTask.swift */; };
 		580ED5882EA7261F006012E7 /* WYCodableBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5872EA7261F006012E7 /* WYCodableBridge.swift */; };
 		580ED58A2EA72632006012E7 /* WYCodableConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5892EA72632006012E7 /* WYCodableConfig.swift */; };
 		580ED58C2EA7263F006012E7 /* WYCodableValueTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580ED58B2EA7263F006012E7 /* WYCodableValueTransformer.swift */; };
@@ -217,6 +218,7 @@
 /* Begin PBXFileReference section */
 		53C1C8E1255F64288E08B8AC /* Pods-WYBasisKit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.release.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.release.xcconfig"; sourceTree = "<group>"; };
 		5802B28D2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYRecordAnimationConfig.swift; sourceTree = "<group>"; };
+		5806BD0F2FD3D25400FEA501 /* WYTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTask.swift; sourceTree = "<group>"; };
 		580ED5872EA7261F006012E7 /* WYCodableBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableBridge.swift; sourceTree = "<group>"; };
 		580ED5892EA72632006012E7 /* WYCodableConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableConfig.swift; sourceTree = "<group>"; };
 		580ED58B2EA7263F006012E7 /* WYCodableValueTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableValueTransformer.swift; sourceTree = "<group>"; };
@@ -493,6 +495,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5806BD0E2FD3D23700FEA501 /* Task */ = {
+			isa = PBXGroup;
+			children = (
+				5806BD0F2FD3D25400FEA501 /* WYTask.swift */,
+			);
+			path = Task;
+			sourceTree = "<group>";
+		};
 		580ED5862EA72606006012E7 /* Achieve */ = {
 			isa = PBXGroup;
 			children = (
@@ -2054,6 +2064,7 @@
 		58C68D262E84E436005FD054 /* Extension */ = {
 			isa = PBXGroup;
 			children = (
+				5806BD0E2FD3D23700FEA501 /* Task */,
 				58C68CE82E84E436005FD054 /* Array */,
 				58C68CEA2E84E436005FD054 /* AttributedString */,
 				58C68CEC2E84E436005FD054 /* Bool */,
@@ -2725,6 +2736,7 @@
 				580ED58E2EA72649006012E7 /* WYCodableProtocol.swift in Sources */,
 				58328C622FC936D100C0F556 /* WYPresentSwizzler.swift in Sources */,
 				58C68DEF2E84E436005FD054 /* WYAlertController.swift in Sources */,
+				5806BD102FD3D25400FEA501 /* WYTask.swift in Sources */,
 				58C68DF02E84E436005FD054 /* WYChatCallCell.swift in Sources */,
 				58C68DF22E84E436005FD054 /* WYEmojiPreviewView.swift in Sources */,
 				58C68DF32E84E436005FD054 /* WYMediaPlayer.swift in Sources */,

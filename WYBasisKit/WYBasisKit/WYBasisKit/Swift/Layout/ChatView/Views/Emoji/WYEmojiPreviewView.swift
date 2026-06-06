@@ -83,7 +83,7 @@ public class WYEmojiPreviewView: UIImageView {
         }
         
         let textView: UILabel = UILabel()
-        textView.text = WYLocalized(emoji.wy_substring(from: 1, to: emoji.count - 1))
+        textView.text = WYLocalized(emoji.wy_substring(from: 1, to: emoji.count - 1), table: WYBasisKitConfig.kitLocalizableTable)
         textView.textColor = emojiViewConfig.previewConfig.textColor
         textView.font = emojiViewConfig.previewConfig.textFont
         textView.textAlignment = .center

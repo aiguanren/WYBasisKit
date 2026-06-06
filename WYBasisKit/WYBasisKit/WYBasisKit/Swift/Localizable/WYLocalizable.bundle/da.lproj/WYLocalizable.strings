@@ -112,7 +112,8 @@
 
 "秒" = "sekunder";
 
+"定位权限被限制" = "Adgang til lokation er begrænset";
 
-"定位权限被限制" = "Adgang til lokation er begrænset"
+"App没有访问定位的权限，现在去授权?" = "App'en har ikke adgang til din lokation. Vil du give tilladelse nu?";
 
-"App没有访问定位的权限，现在去授权?" = "App'en har ikke adgang til din lokation. Vil du give tilladelse nu?"
+"任务执行超时" = "Tidsoverskridelse ved opgaveudførelse";
