@@ -287,8 +287,8 @@ private extension UITextView {
     }
     
     /// 长按计时器
-    var wy_longPressTimer: DispatchWorkItem? {
-        get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_longPressTimer) as? DispatchWorkItem }
+    var wy_longPressTimer: Task<Void, Never>? {
+        get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_longPressTimer) as? Task<Void, Never> }
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_longPressTimer, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
     }
     
@@ -497,32 +497,37 @@ private extension UITextView {
     
     /// 长按计时器管理
     func startLongPressTimer(for action: WYTextTouchAction, at point: CGPoint) {
+        
         wy_longPressTimer?.cancel()
-        let work = DispatchWorkItem { [weak self] in
-            guard let self = self, !self.wy_longPressTriggered else { return }
-            self.wy_longPressTriggered = true
-            // 长按时应用高亮
-            self.clearHighlightIfNeeded()
-            self.applyHighlight(for: action.range, isLongPress: true)
-            self.wy_highlightedRange = action.range
-            // 执行长按回调
-            let point = self.wy_touchStartPoint
-            let longActions = self.allActionsForPoint(point, actions: self.wy_longPressActions)
-            for longAction in longActions {
-                let text = (self.attributedText?.string as? NSString ?? self.text as NSString?)?.substring(with: longAction.range) ?? ""
-                
-                // 长按Block回调
-                if let handler = longAction.handler {
-                    handler(self, text, longAction.range, longAction.index)
-                }
-                // 长按Delegate回调
-                if let delegate = longAction.delegate {
-                    delegate.wy_textViewTextDidLongPress?(self, text: text, range: longAction.range, index: longAction.index)
+        
+        let duration = wy_longPressMinimumDuration
+        
+        let task = Task<Void, Never> { [weak self] in
+            _ = try? await Task.wy_delay(duration, cancelThrows: false) {
+                guard let self = self, !self.wy_longPressTriggered else { return }
+                self.wy_longPressTriggered = true
+                // 长按时应用高亮
+                self.clearHighlightIfNeeded()
+                self.applyHighlight(for: action.range, isLongPress: true)
+                self.wy_highlightedRange = action.range
+                // 执行长按回调
+                let point = self.wy_touchStartPoint
+                let longActions = self.allActionsForPoint(point, actions: self.wy_longPressActions)
+                for longAction in longActions {
+                    let text = (self.attributedText?.string as? NSString ?? self.text as NSString?)?.substring(with: longAction.range) ?? ""
+                    
+                    // 长按Block回调
+                    if let handler = longAction.handler {
+                        handler(self, text, longAction.range, longAction.index)
+                    }
+                    // 长按Delegate回调
+                    if let delegate = longAction.delegate {
+                        delegate.wy_textViewTextDidLongPress?(self, text: text, range: longAction.range, index: longAction.index)
+                    }
                 }
             }
         }
-        wy_longPressTimer = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + wy_longPressMinimumDuration, execute: work)
+        wy_longPressTimer = task
     }
     
     /// 交换 hitTest 方法，注入穿透判断逻辑

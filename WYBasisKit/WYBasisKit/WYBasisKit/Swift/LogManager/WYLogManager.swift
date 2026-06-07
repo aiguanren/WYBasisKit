@@ -485,8 +485,10 @@ extension WYLogPreviewViewController: UITableViewDataSource {
                 UIPasteboard.general.string = logText
                 let alert = UIAlertController(title: "复制成功", message: "日志已复制到剪贴板", preferredStyle: .alert)
                 self.present(alert, animated: true) {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                        alert.dismiss(animated: true)
+                    Task {
+                        try? await Task.wy_delay(1, cancelThrows: false, onMain: {
+                            alert.dismiss(animated: true)
+                        })
                     }
                 }
             }

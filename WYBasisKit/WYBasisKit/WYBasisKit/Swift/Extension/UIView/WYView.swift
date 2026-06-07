@@ -180,8 +180,10 @@ public extension UIView {
      */
     func wy_temporarilyDisable(for duration: TimeInterval) {
         self.isUserInteractionEnabled = false
-        DispatchQueue.main.asyncAfter(deadline: .now() + duration) { [weak self] in
-            self?.isUserInteractionEnabled = true
+        Task {
+            try? await Task.wy_delay(duration, cancelThrows: false, onMain: { [weak self] in
+                self?.isUserInteractionEnabled = true
+            })
         }
     }
     

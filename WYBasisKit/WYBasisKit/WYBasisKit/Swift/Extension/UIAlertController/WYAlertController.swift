@@ -141,13 +141,14 @@ extension UIAlertController {
         
         if duration > 0.0 {
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
-                
-                if (handler != nil) {
-                    handler!("", [])
-                }
-                alertController.wy_alertWindow?.rootViewController?.dismiss(animated: true, completion: nil)
-                alertController.wy_sharedAppDelegate().window?!.makeKeyAndVisible()
+            Task {
+                try? await Task.wy_delay(duration, cancelThrows: false, onMain: {
+                    if (handler != nil) {
+                        handler!("", [])
+                    }
+                    alertController.wy_alertWindow?.rootViewController?.dismiss(animated: true, completion: nil)
+                    alertController.wy_sharedAppDelegate().window?!.makeKeyAndVisible()
+                })
             }
         }
         return alertController

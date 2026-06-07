@@ -181,8 +181,10 @@ private class WebViewProgressObserver: NSObject {
         (webView.navigationDelegate as? WKWebViewDelegator)?.proxy?.wy_webPageLoadProgress?(CGFloat(progress))
 
         if progress >= 1.0 {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                self.progressView.setProgress(0, animated: false)
+            Task {
+                try? await Task.wy_delay(0.3, cancelThrows: false, onMain: {
+                    self.progressView.setProgress(0, animated: false)
+                })
             }
         }
     }
@@ -282,13 +284,15 @@ public class WKWebViewDelegator: NSObject, WKNavigationDelegate {
         }
         
         // 用户未调用decisionHandler回调，使用默认策略
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            if !isCalled {
-                safeHandler(.allow, preferences)
-#if DEBUG
-                assertionFailure("⚠️ 用户未调用decisionHandler回调，使用默认策略")
-#endif
-            }
+        Task {
+            try? await Task.wy_delay(1.0, cancelThrows: false, onMain: {
+                if !isCalled {
+                    safeHandler(.allow, preferences)
+                    #if DEBUG
+                    assertionFailure("⚠️ 用户未调用decisionHandler回调，使用默认策略")
+                    #endif
+                }
+            })
         }
     }
 
@@ -311,13 +315,15 @@ public class WKWebViewDelegator: NSObject, WKNavigationDelegate {
         }
         
         // 用户未调用decisionHandler回调，使用默认策略
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            if !isCalled {
-                safeHandler(.allow)
-#if DEBUG
-                assertionFailure("⚠️ 用户未调用decisionHandler回调，使用默认策略")
-#endif
-            }
+        Task {
+            try? await Task.wy_delay(1.0, cancelThrows: false, onMain: {
+                if !isCalled {
+                    safeHandler(.allow)
+                    #if DEBUG
+                    assertionFailure("⚠️ 用户未调用decisionHandler回调，使用默认策略")
+                    #endif
+                }
+            })
         }
     }
 
@@ -347,13 +353,15 @@ public class WKWebViewDelegator: NSObject, WKNavigationDelegate {
         }
         
         // 用户未调用completionHandler回调，使用默认策略
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            if !isCalled {
-                safeHandler(.performDefaultHandling, nil)
-#if DEBUG
-                assertionFailure("⚠️ 用户未调用completionHandler回调，使用默认策略")
-#endif
-            }
+        Task {
+            try? await Task.wy_delay(1.0, cancelThrows: false, onMain: {
+                if !isCalled {
+                    safeHandler(.performDefaultHandling, nil)
+                    #if DEBUG
+                    assertionFailure("⚠️ 用户未调用completionHandler回调，使用默认策略")
+                    #endif
+                }
+            })
         }
     }
     

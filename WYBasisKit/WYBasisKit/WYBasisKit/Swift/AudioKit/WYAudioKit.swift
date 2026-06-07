@@ -718,20 +718,22 @@ public final class WYAudioKit: NSObject {
                 return
             }
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                guard let self = self else { return }
-                if FileManager.default.fileExists(atPath: first.local.path) {
-                    // 尝试播放，播放成功时回调 success，播放失败时回调 failed
-                    self.playPlayback(url: first.local,
-                                      success: { _ in
-                        success(first)
-                    },
-                                      failed: { _, error, _ in
-                        failed(error)
-                    })
-                } else {
-                    failed(WYAudioError.fileNotFound)
-                }
+            Task {
+                try? await Task.wy_delay(0.2, cancelThrows: false, onMain: {
+                    guard let self = self else { return }
+                    if FileManager.default.fileExists(atPath: first.local.path) {
+                        // 尝试播放，播放成功时回调 success，播放失败时回调 failed
+                        self.playPlayback(url: first.local,
+                                          success: { _ in
+                            success(first)
+                        },
+                                          failed: { _, error, _ in
+                            failed(error)
+                        })
+                    } else {
+                        failed(WYAudioError.fileNotFound)
+                    }
+                })
             }
         } failed: { error in
             failed(error)
@@ -1362,12 +1364,14 @@ public final class WYAudioKit: NSObject {
         
         addPlaybackEndObserver()
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-            guard let self = self, let player = self.audioPlayer else { return }
-            if player.currentItem?.status == .readyToPlay {
-                player.play()
-                self.startDisplayLinkIfNeeded()
-            }
+        Task {
+            try? await Task.wy_delay(0.2, cancelThrows: false, onMain: { [weak self] in
+                guard let self = self, let player = self.audioPlayer else { return }
+                if player.currentItem?.status == .readyToPlay {
+                    player.play()
+                    self.startDisplayLinkIfNeeded()
+                }
+            })
         }
     }
     

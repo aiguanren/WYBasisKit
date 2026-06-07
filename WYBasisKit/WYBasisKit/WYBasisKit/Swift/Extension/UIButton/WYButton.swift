@@ -325,10 +325,10 @@ private extension UIButton {
     @objc private func buttonDelayHandler(_ button: UIButton) {
         intervalSelector?(button)
         isUserInteractionEnabled = false
-        DispatchQueue.main.asyncAfter(deadline: .now() + selectorInterval) { [weak self] in
-            Task { @MainActor in
+        Task {
+            try? await Task.wy_delay(selectorInterval, cancelThrows: false, onMain: { [weak self] in
                 self?.isUserInteractionEnabled = true
-            }
+            })
         }
     }
     

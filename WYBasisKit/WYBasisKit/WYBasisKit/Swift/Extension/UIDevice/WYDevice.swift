@@ -446,8 +446,10 @@ public extension UIDevice {
         guard repeatCount > 0 else { return }
         
         for i in 0..<repeatCount {
-            DispatchQueue.main.asyncAfter(deadline: .now() + interval * Double(i)) {
-                self.wy_vibrate(style)
+            Task {
+                try? await Task.wy_delay(interval * Double(i), cancelThrows: false, onMain: {
+                    self.wy_vibrate(style)
+                })
             }
         }
     }

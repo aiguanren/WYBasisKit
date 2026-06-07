@@ -633,8 +633,11 @@ private class WYActivityLoadingView: UIView {
                 }
             }
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
-            self?.showAnimate()
+        
+        Task { [weak self] in
+            try? await Task.wy_delay(delay, cancelThrows: false) {
+                self?.showAnimate()
+            }
         }
     }
     
