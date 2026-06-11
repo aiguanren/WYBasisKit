@@ -90,7 +90,7 @@
     NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:text];
     
     // 设置行间距 5
-    [attributedText wy_lineSpacing:5];
+    [attributedText wy_lineSpacing:5 rangeValue:nil alignment:NSTextAlignmentLeft];
     
     [attributedText wy_underline:[UIColor blueColor] rangeValue:block_tap];
     [attributedText wy_underline:[UIColor purpleColor] rangeValue:block_longPress];

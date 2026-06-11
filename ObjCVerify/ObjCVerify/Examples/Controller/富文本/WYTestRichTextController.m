@@ -59,7 +59,7 @@
     emojiLabel.backgroundColor = [UIColor whiteColor];
     emojiLabel.textColor = [UIColor blackColor];
     NSMutableAttributedString *emojiLabelAttributed = [NSMutableAttributedString wy_convertEmojiAttributed:@"Hello，这是一个测试表情匹配的UILabel，现在开始匹配，喝彩[喝彩] 唇[唇]  爱心[爱心] 三个表情，看见了吗，他可以用在即时通讯等需要表情匹配的地方，嘻嘻，哈哈" textColor:emojiLabel.textColor textFont:emojiLabel.font emojiTable:@[@"[喝彩]", @"[唇]", @"[爱心]"] sourceBundle:nil pattern:nil];
-    [emojiLabelAttributed wy_lineSpacing:5];
+    [emojiLabelAttributed wy_lineSpacing:5 rangeValue:nil alignment:NSTextAlignmentLeft];
     emojiLabel.attributedText = emojiLabelAttributed;
     [scrollView addSubview:emojiLabel];
     [emojiLabel mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -75,7 +75,7 @@
     marginLabel.backgroundColor = [UIColor purpleColor];
     marginLabel.textColor = [UIColor orangeColor];
     NSMutableAttributedString *attrText = [[NSMutableAttributedString alloc] initWithString:marginLabel.text];
-    [attrText wy_innerMarginWithFirstLineHeadIndent:10 headIndent:0 tailIndent:-20 alignment:NSTextAlignmentLeft];
+    [attribute wy_paragraphIndentsWithRangeValue:nil firstLineHeadIndent:10 headIndent:0 tailIndent:-20 alignment:NSTextAlignmentLeft];
     marginLabel.numberOfLines = 0;
     marginLabel.attributedText = attrText;
     [scrollView addSubview:marginLabel];
@@ -112,7 +112,7 @@
     ];
     [attributed wy_setFontForRanges:@{[UIFont systemFontOfSize:30]: string_font_30, [UIFont systemFontOfSize:40]: string_font_40, [UIFont systemFontOfSize:50]: string_font_50}];
     [attributed wy_insertImageWithAttachments:options];
-    [attributed wy_lineSpacing:10];
+    [attributed wy_lineSpacing:10 rangeValue:nil alignment:NSTextAlignmentLeft];
     attachmentView.attributedText = attributed;
     [scrollView addSubview:attachmentView];
     [attachmentView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -136,9 +136,9 @@
     NSString *spacing30 = [NSString wy_randomWithMinimum:25 maximum:60];
     NSString *spacing20 = [NSString wy_randomWithMinimum:80 maximum:100];
     NSMutableAttributedString *spacingAttributed = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@\n%@\n%@\n%@", spacing10, spacing15, spacing30, spacing20]];
-    [spacingAttributed wy_lineSpacing:10 beforeString:spacing10 afterString:spacing15 alignment:NSTextAlignmentLeft];
-    [spacingAttributed wy_lineSpacing:15 beforeString:spacing15 afterString:spacing30 alignment:NSTextAlignmentRight];
-    [spacingAttributed wy_lineSpacing:30 beforeString:spacing30 afterString:spacing20 alignment:NSTextAlignmentLeft];
+    [spacingAttributed wy_paragraphSpace:10 beforeString:spacing10 afterString:spacing15 alignment:NSTextAlignmentLeft];
+    [spacingAttributed wy_paragraphSpace:15 beforeString:spacing15 afterString:spacing30 alignment:NSTextAlignmentRight];
+    [spacingAttributed wy_paragraphSpace:30 beforeString:spacing30 afterString:spacing20 alignment:NSTextAlignmentLeft];
     [spacingAttributed wy_lineSpacing:50 rangeValue:spacing20 alignment:NSTextAlignmentLeft];
     spacingView.attributedText = spacingAttributed;
     
