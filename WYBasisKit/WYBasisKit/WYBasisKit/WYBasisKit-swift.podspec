@@ -95,13 +95,15 @@ Pod::Spec.new do |kit|
 
   kit.subspec "MethodSwizzler" do |methodSwizzler|
     methodSwizzler.source_files = [
-      "#{kit_path}Swift/MethodSwizzler/**/*.{swift,h,m}"
+      "#{kit_path}Swift/MethodSwizzler/**/*.{swift,h,m}",
+      "#{kit_path}Swift/Extension/Task/**/*.{swift,h,m}"
     ]
     methodSwizzler.resource_bundles = {"WYBasisKitSwiftMethodSwizzler" => [
       "#{kit_path}Swift/MethodSwizzler/PrivacyInfo.xcprivacy"
     ]}
     methodSwizzler.frameworks = "Foundation", "UIKit"
     methodSwizzler.dependency "WYBasisKit-swift/LogManager"
+    methodSwizzler.dependency "WYBasisKit-swift/Localizable"
   end
 
   kit.subspec "Config" do |config|
@@ -117,12 +119,14 @@ Pod::Spec.new do |kit|
   kit.subspec "LogManager" do |logManager|
     logManager.source_files = [
       "#{kit_path}Swift/LogManager/**/*.{swift,h,m}",
-      "#{kit_path}Swift/Extension/UIApplication/**/*.{swift,h,m}"
+      "#{kit_path}Swift/Extension/UIApplication/**/*.{swift,h,m}",
+      "#{kit_path}Swift/Extension/Task/**/*.{swift,h,m}"
     ]
     logManager.resource_bundles = {"WYBasisKitSwiftLogManager" => [
       "#{kit_path}Swift/LogManager/PrivacyInfo.xcprivacy"
     ]}
     logManager.frameworks = "Foundation", "UIKit"
+    logManager.dependency "WYBasisKit-swift/Localizable"
   end
   
   kit.subspec "Localizable" do |localizable|
@@ -165,7 +169,8 @@ Pod::Spec.new do |kit|
     networking.source_files = [
       "#{kit_path}Swift/Networking/**/*.{swift,h,m}",
       "#{kit_path}Swift/Extension/UIAlertController/**/*.{swift,h,m}",
-      "#{kit_path}Swift/Extension/UIApplication/**/*.{swift,h,m}"
+      "#{kit_path}Swift/Extension/UIApplication/**/*.{swift,h,m}",
+      "#{kit_path}Swift/Extension/Task/**/*.{swift,h,m}"
     ]
     networking.resources = [localizable_bundle]
     networking.resource_bundles = {"WYBasisKitSwiftNetworking" => [
