@@ -62,6 +62,17 @@ public extension UITextView {
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_eventPenetration) as? Bool ?? false }
     }
     
+    /// 是否禁用 `UITextView` 的 `intrinsicContentSize`，在没有文本内容时，`intrinsicContentSize.height`仍然会返回一个默认的最小高度，禁用后，如果无文本显示，高度将变为0，更接近UILabel
+    var wy_disableIntrinsicContentSize: Bool {
+        get {
+            objc_getAssociatedObject(self, &WYAssociatedKeys.wy_disableIntrinsicContentSize) as? Bool ?? false
+        }
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.wy_disableIntrinsicContentSize, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            _ = UITextView.wy_swizzleIntrinsicSize
+        }
+    }
+    
     /// 开启点击响应配置
     func wy_enableClickConfig() {
         // 关闭系统检测，手动控制样式
@@ -236,6 +247,8 @@ private extension UITextView {
         static var wy_longPressTimer: UInt8 = 0
         /// 长按是否已触发
         static var wy_longPressTriggered: UInt8 = 0
+        /// 是否禁用 `UITextView` 的 `intrinsicContentSize`
+        static var wy_disableIntrinsicContentSize: UInt8 = 0
     }
     
     /// 长按时允许手指移动的最大距离（点），超过则取消长按识别，默认10像素
@@ -287,8 +300,8 @@ private extension UITextView {
     }
     
     /// 长按计时器
-    var wy_longPressTimer: Task<Void, Never>? {
-        get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_longPressTimer) as? Task<Void, Never> }
+    var wy_longPressTimer: DispatchWorkItem? {
+        get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_longPressTimer) as? DispatchWorkItem }
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_longPressTimer, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
     }
     
@@ -437,6 +450,30 @@ private extension UITextView {
         wy_textObserver = observer
     }
     
+    /// 方法交换决定是否禁用 `UITextView` 的 `intrinsicContentSize`
+    static let wy_swizzleIntrinsicSize: Void = {
+        
+        wy_swizzlerIntrinsicContentSize(for: UITextView.self, after: { currentView, originalResult in
+            
+            guard let textView = currentView as? UITextView else { return originalResult}
+            
+            // 未开启开关 → 完全走系统逻辑
+            guard textView.wy_disableIntrinsicContentSize else {
+                return originalResult
+            }
+            
+            // 获取系统原始 intrinsic
+            var targetSize = originalResult
+            
+            // 判断是否真的有内容
+            if (textView.attributedText.length <= 0) && (textView.text.count <= 0) {
+                targetSize.height = 0
+            }
+            
+            return targetSize
+        })
+    }()
+    
     /// 如果尚未实现方法交换，则进行交换
     func enableSwizzleMethods() {
         _ = Self.wy_swizzleTouchMethods
@@ -497,37 +534,32 @@ private extension UITextView {
     
     /// 长按计时器管理
     func startLongPressTimer(for action: WYTextTouchAction, at point: CGPoint) {
-        
         wy_longPressTimer?.cancel()
-        
-        let duration = wy_longPressMinimumDuration
-        
-        let task = Task<Void, Never> { [weak self] in
-            _ = try? await Task.wy_delay(duration, cancelThrows: false) {
-                guard let self = self, !self.wy_longPressTriggered else { return }
-                self.wy_longPressTriggered = true
-                // 长按时应用高亮
-                self.clearHighlightIfNeeded()
-                self.applyHighlight(for: action.range, isLongPress: true)
-                self.wy_highlightedRange = action.range
-                // 执行长按回调
-                let point = self.wy_touchStartPoint
-                let longActions = self.allActionsForPoint(point, actions: self.wy_longPressActions)
-                for longAction in longActions {
-                    let text = (self.attributedText?.string as? NSString ?? self.text as NSString?)?.substring(with: longAction.range) ?? ""
-                    
-                    // 长按Block回调
-                    if let handler = longAction.handler {
-                        handler(self, text, longAction.range, longAction.index)
-                    }
-                    // 长按Delegate回调
-                    if let delegate = longAction.delegate {
-                        delegate.wy_textViewTextDidLongPress?(self, text: text, range: longAction.range, index: longAction.index)
-                    }
+        let work = DispatchWorkItem { [weak self] in
+            guard let self = self, !self.wy_longPressTriggered else { return }
+            self.wy_longPressTriggered = true
+            // 长按时应用高亮
+            self.clearHighlightIfNeeded()
+            self.applyHighlight(for: action.range, isLongPress: true)
+            self.wy_highlightedRange = action.range
+            // 执行长按回调
+            let point = self.wy_touchStartPoint
+            let longActions = self.allActionsForPoint(point, actions: self.wy_longPressActions)
+            for longAction in longActions {
+                let text = (self.attributedText?.string as? NSString ?? self.text as NSString?)?.substring(with: longAction.range) ?? ""
+                
+                // 长按Block回调
+                if let handler = longAction.handler {
+                    handler(self, text, longAction.range, longAction.index)
+                }
+                // 长按Delegate回调
+                if let delegate = longAction.delegate {
+                    delegate.wy_textViewTextDidLongPress?(self, text: text, range: longAction.range, index: longAction.index)
                 }
             }
         }
-        wy_longPressTimer = task
+        wy_longPressTimer = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + wy_longPressMinimumDuration, execute: work)
     }
     
     /// 交换 hitTest 方法，注入穿透判断逻辑

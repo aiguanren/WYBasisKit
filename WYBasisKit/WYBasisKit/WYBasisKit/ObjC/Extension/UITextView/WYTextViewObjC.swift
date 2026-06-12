@@ -28,11 +28,18 @@ import UIKit
         get { return wy_longPressMinimumDuration }
     }
     
-    /// 非链接区域事件是否需要穿透UITextView，默认False(为False时点击指定字符串之外区域，事件按照UITextVeiw默认响应链响应，为True时，将跳过UITextVeiw，直接响应事件到UITextVeiw的父View)
+    /// 非链接区域的点击事件是否需要穿透UITextView，默认False(为False时点击指定字符串之外区域，事件按照UITextVeiw默认响应链响应，为True时，将跳过UITextVeiw，直接响应事件到UITextVeiw的父View)
     @objc(wy_eventPenetration)
     var wy_eventPenetrationObjC: Bool {
         set { wy_eventPenetration = newValue }
         get { return wy_eventPenetration }
+    }
+    
+    /// 是否禁用 `UITextView` 的 `intrinsicContentSize`，在没有文本内容时，`intrinsicContentSize.height`仍然会返回一个默认的最小高度，禁用后，如果无文本显示，高度将变为0，更接近UILabel
+    @objc(wy_disableIntrinsicContentSize)
+    var wy_disableIntrinsicContentSizeObjC: Bool {
+        set { wy_disableIntrinsicContentSize = newValue }
+        get { return wy_disableIntrinsicContentSize }
     }
     
     /// 开启点击响应配置
