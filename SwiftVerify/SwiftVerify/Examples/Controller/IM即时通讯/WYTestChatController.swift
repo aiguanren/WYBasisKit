@@ -119,22 +119,24 @@ extension WYTestChatController: WYChatViewDelegate {
     func keyboardSendMessage(_ message: WYChatMessageModel) {
         //wy_print("发送文本消息：\(message)，时间戳 = \(message.timestamp)")
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-            guard let self = self else { return }
-            
-            message.sendState = .success
-            message.readers = "1"
-            
-            let replyMessage: WYChatMessageModel = WYChatMessageModel()
-            replyMessage.timestamp = String.wy_sharedDeviceTimestamp()
-            replyMessage.lastMessageTimestamp = replyMessage.sharedLastMessageTimestamp(self.chatView.dataSource)
-            replyMessage.clientTimestamp = String.wy_sharedDeviceTimestamp()
-            replyMessage.sendor = self.sharedUaerInfo(id: "88888", name: "大官人", avatar: "https://img1.baidu.com/it/u=3709586903,1286591012&fm=253&fmt=auto&app=138&f=JPEG")
-            replyMessage.content.text = ["这是自动模拟的回复消息😄😄😄😄😄😄", "回复消息", "这是自动模拟的多行回复消息😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄"][Int.wy_random(minimum: 0, maximum: 2)]
-            replyMessage.index = message.index + 1
-            replyMessage.sendState = .success
-            replyMessage.readers = "1"
-            self.chatView.dataSource.append(replyMessage)
+        Task {
+            try? await Task.wy_delay(1, cancelThrows: false) { [weak self] in
+                guard let self = self else { return }
+                
+                message.sendState = .success
+                message.readers = "1"
+                
+                let replyMessage: WYChatMessageModel = WYChatMessageModel()
+                replyMessage.timestamp = String.wy_sharedDeviceTimestamp()
+                replyMessage.lastMessageTimestamp = replyMessage.sharedLastMessageTimestamp(self.chatView.dataSource)
+                replyMessage.clientTimestamp = String.wy_sharedDeviceTimestamp()
+                replyMessage.sendor = self.sharedUaerInfo(id: "88888", name: "大官人", avatar: "https://img1.baidu.com/it/u=3709586903,1286591012&fm=253&fmt=auto&app=138&f=JPEG")
+                replyMessage.content.text = ["这是自动模拟的回复消息😄😄😄😄😄😄", "回复消息", "这是自动模拟的多行回复消息😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄"][Int.wy_random(minimum: 0, maximum: 2)]
+                replyMessage.index = message.index + 1
+                replyMessage.sendState = .success
+                replyMessage.readers = "1"
+                self.chatView.dataSource.append(replyMessage)
+            }
         }
     }
     

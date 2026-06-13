@@ -154,7 +154,7 @@ public class WYChatView: UIView {
     
     /// tableView滚动到底部
     public func scrollToLastMessage(_ animated: Bool = false) {
-        DispatchQueue.main.async { [weak self] in
+        Task { @MainActor [weak self] in
             guard let self = self else { return }
             if self.dataSource.isEmpty == false {
                 self.tableView.scrollToRow(at: IndexPath(row: self.dataSource.count - 1, section: 0), at: .bottom, animated: animated)

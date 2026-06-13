@@ -535,7 +535,7 @@ public extension UIImage {
                 let tintedImage = self.wy_rendering(color: color)
                 
                 // 回调到主线程更新 UI
-                DispatchQueue.main.async {
+                Task { @MainActor in
                     completion(tintedImage)
                 }
             }

@@ -313,7 +313,7 @@ public extension WYChatMoreView {
         pageControlSetting.defaultColor = defaultColor
         pageControlSetting.currentColor = currentColor
         
-        DispatchQueue.main.async {
+        Task { @MainActor in
             self.updatePageControlStyle()
         }
     }
@@ -330,7 +330,7 @@ public extension WYChatMoreView {
         pageControlSetting.currentImage = currentImage
         pageControlSetting.defaultImage = defaultImage
         
-        DispatchQueue.main.async {
+        Task { @MainActor in
             self.updatePageControlStyle()
         }
     }

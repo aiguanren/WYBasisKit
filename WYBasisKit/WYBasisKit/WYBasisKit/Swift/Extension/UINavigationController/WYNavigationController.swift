@@ -232,6 +232,15 @@ public extension UIViewController {
         if let color = color { wy_navBarShadowLineColor = color }
     }
     
+    static let wy_swizzleViewWillAppearOnce: Void = {
+        wy_swizzlerViewWillAppear(for: UIViewController.self, after: { currentController, animated in
+            // 在页面显示前更新导航栏样式
+            if let navController = currentController.navigationController {
+                navController.updateNavigationBarAppearance(for: currentController)
+            }
+        })
+    }()
+    
     private struct WYAssociatedKeys {
         static var customBackgroundColorKey: UInt8 = 0
         static var customBackgroundImageKey: UInt8 = 0
@@ -245,87 +254,40 @@ public extension UIViewController {
     }
 }
 
-// MARK: - 返回按钮拦截处理(内部)
-
-extension UINavigationController: @retroactive UIBarPositioningDelegate {}
-extension UINavigationController: @retroactive UINavigationBarDelegate, @retroactive UIGestureRecognizerDelegate {
-    
-    public func navigationBar(_ navigationBar: UINavigationBar, didPush item: UINavigationItem) {
-        // 保存原始的交互式pop手势代理
-        objc_setAssociatedObject(self, &WYAssociatedKeys.barReturnButtonDelegate,
-                                 self.interactivePopGestureRecognizer?.delegate,
-                                 .OBJC_ASSOCIATION_ASSIGN)
-        self.interactivePopGestureRecognizer?.delegate = self
-    }
-    
-    public func navigationBar(_ navigationBar: UINavigationBar, shouldPop item: UINavigationItem) -> Bool {
-        if self.viewControllers.count < (navigationBar.items?.count)! {
-            return true
-        }
-        
-        var shouldPop = true
-        let vc: UIViewController = topViewController!
-        
-        if vc.responds(to: #selector(wy_navigationBarWillReturn)) {
-            shouldPop = vc.wy_navigationBarWillReturn()
-        }
-        
-        if shouldPop {
-            DispatchQueue.main.async {
-                self.popViewController(animated: true)
-            }
-        } else {
-            // 取消 pop 后，复原返回按钮的状态
-            for subview in navigationBar.subviews {
-                if 0.0 < subview.alpha && subview.alpha < 1.0 {
-                    UIView.animate(withDuration: 0.25) {
-                        subview.alpha = 1.0
-                    }
-                }
-            }
-        }
-        return false
-    }
-    
-    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        if gestureRecognizer == self.interactivePopGestureRecognizer {
-            let vc: UIViewController = topViewController!
-            
-            if vc.responds(to: #selector(wy_navigationBarWillReturn)) {
-                return vc.wy_navigationBarWillReturn()
-            }
-            
-            if let originDelegate = objc_getAssociatedObject(self, &WYAssociatedKeys.barReturnButtonDelegate) as? UIGestureRecognizerDelegate {
-                return originDelegate.gestureRecognizerShouldBegin?(gestureRecognizer) ?? true
-            }
-        }
-        
-        return true
-    }
-    
-    private struct WYAssociatedKeys {
-        static var barReturnButtonDelegate: UInt8 = 0
-    }
-}
-
-// MARK: - 导航控制器代理(内部)
 
 extension UINavigationController: @retroactive UINavigationControllerDelegate {
     override open func viewDidLoad() {
         super.viewDidLoad()
-        delegate = self
-    }
-    
-    public func navigationController(_ navigationController: UINavigationController,
-                                    willShow viewController: UIViewController,
-                                    animated: Bool) {
-        updateNavigationBarAppearance(for: viewController)
+        _ = UINavigationController.wy_swizzlePopOnce
+        _ = UIViewController.wy_swizzleViewWillAppearOnce
     }
 }
 
 // MARK: - 导航控制器实现(内部)
 
 public extension UINavigationController {
+    
+    // 返回按钮拦截处理
+    private static let wy_swizzlePopOnce: Void = {
+        
+        wy_swizzlerPopViewController(for: UINavigationController.self, intercept: { currentNavigationController, animated in
+            // 获取当前正在显示的控制器
+            guard let topVC = currentNavigationController.topViewController else {
+                return .proceed
+            }
+            
+            // 调用拦截协议
+            if topVC.responds(to: #selector(WYViewControllerHandlerProtocol.wy_navigationBarWillReturn)) {
+                let allowed = topVC.wy_navigationBarWillReturn()
+                if !allowed {
+                    // 不允许返回，拦截：直接返回 nil，不再执行原始 pop
+                    return .result(nil)
+                }
+            }
+            // 允许返回，继续执行原始 pop
+            return .proceed
+        })
+    }()
     
     /// 更新指定控制器的导航栏样式
     fileprivate func updateNavigationBarAppearance(for viewController: UIViewController) {

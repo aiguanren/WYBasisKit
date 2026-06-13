@@ -380,7 +380,7 @@ private extension WYLocationAuthorization {
             ]
         ) { actionStr, _ in
             guard actionStr == WYLocalized("去授权", table: WYBasisKitConfig.kitLocalizableTable) else { return }
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 if let url = URL(string: UIApplication.openSettingsURLString),
                    UIApplication.shared.canOpenURL(url) {
                     UIApplication.shared.open(url, options: [:], completionHandler: nil)

@@ -10,7 +10,7 @@ kit_path = "WYBasisKit/WYBasisKit/WYBasisKit/"
 
 Pod::Spec.new do |kit|
   kit.name         = "WYBasisKit-ObjC"
-  kit.version      = "26.5.1"
+  kit.version      = "26.6.2"
   kit.summary      = "WYBasisKit 不仅可以帮助开发者快速构建一个工程，还有基于常用网络框架和系统API而封装的各种实用方法、扩展，开发者只需简单的调用API就可以快速实现相应功能， 大幅提高开发效率。"
   kit.description  = <<-DESC
     Localizable: 国际化解决方案
@@ -35,7 +35,7 @@ Pod::Spec.new do |kit|
   kit.resource_bundles = {"WYBasisKitObjC" => [
     "#{kit_path}ObjC/PrivacyInfo.xcprivacy"
   ]}
-  kit.swift_versions = ["5"]
+  kit.swift_versions = ["5.0"]
   #kit.swift_version = "5.0"
   kit.requires_arc = true
 

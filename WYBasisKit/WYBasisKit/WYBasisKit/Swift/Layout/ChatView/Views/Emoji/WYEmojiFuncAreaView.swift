@@ -203,7 +203,7 @@ public class WYEmojiFuncAreaView: UIView {
             longPressTimer = DispatchSource.makeTimerSource()
             longPressTimer?.schedule(deadline: .now(), repeating: 0.25)
             longPressTimer?.setEventHandler(handler: {
-                DispatchQueue.main.async {
+                Task { @MainActor in
                     self.clickDeleteView()
                 }
             })

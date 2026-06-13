@@ -90,7 +90,7 @@ public class WYScrollText: UIView {
             
             _textArray.append(_textArray.first ?? "")
             
-            DispatchQueue.main.async {
+            Task { @MainActor in
                 self.collectionView.reloadData()
                 self.startTimer()
             }
@@ -212,9 +212,10 @@ public class WYScrollText: UIView {
         
         if textIndex >= (textArray.count - 1) {
             textIndex = 0
-            // 使用DispatchQueue而不是perform，更安全
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .centeredVertically, animated: false)
+            Task {
+                try? await Task.wy_delay(0.5, cancelThrows: false, onMain: {
+                    self.collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .centeredVertically, animated: false)
+                })
             }
         }
     }

@@ -68,7 +68,7 @@ class WYTestRichTextController: UIViewController {
         marginLabel.textColor = .orange
         
         let attrText = NSMutableAttributedString(string: marginLabel.text!)
-        attrText.wy_innerMargin(firstLineHeadIndent: 10, tailIndent: -20, alignment: .left)
+        attrText.wy_paragraphIndents(firstLineHeadIndent: 10, tailIndent: -20, alignment: .left)
         
         marginLabel.numberOfLines = 0
         marginLabel.attributedText = attrText
@@ -141,9 +141,9 @@ class WYTestRichTextController: UIViewController {
         let spacing20: String = String.wy_random(minimum: 80, maximum: 100)
         
         let spacingAttributed = NSMutableAttributedString(string: spacing10 + "\n" + spacing15 + "\n" + spacing30 + "\n" + spacing20)
-        spacingAttributed.wy_lineSpacing(10, beforeString: spacing10, afterString: spacing15, alignment: .left)
-        spacingAttributed.wy_lineSpacing(15, beforeString: spacing15, afterString: spacing30, alignment: .right)
-        spacingAttributed.wy_lineSpacing(30, beforeString: spacing30, afterString: spacing20, alignment: .left)
+        spacingAttributed.wy_paragraphSpace(10, beforeString: spacing10, afterString: spacing15, alignment: .left)
+        spacingAttributed.wy_paragraphSpace(15, beforeString: spacing15, afterString: spacing30, alignment: .right)
+        spacingAttributed.wy_paragraphSpace(30, beforeString: spacing30, afterString: spacing20, alignment: .left)
         spacingAttributed.wy_lineSpacing(50, rangeValue: spacing20)
         spacingView.attributedText = spacingAttributed
         

@@ -1,5 +1,5 @@
 //
-//  WYTestButtonEdgeInsetsController.swift
+//  WYTestEdgeInsetsController.swift
 //  WYBasisKitTest
 //
 //  Created by 官人 on 2023/4/21.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class WYTestButtonEdgeInsetsController: UIViewController {
+class WYTestEdgeInsetsController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,8 +29,8 @@ class WYTestButtonEdgeInsetsController: UIViewController {
         button.snp.makeConstraints { make in
             make.left.equalToSuperview().offset(10)
             make.right.equalToSuperview().offset(-10)
-            make.height.equalTo(200)
-            make.centerY.equalToSuperview().offset(-100)
+            make.height.equalTo(100)
+            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight + 20)
         }
         button.imageView?.backgroundColor = .wy_random
         button.titleLabel?.backgroundColor = .wy_random
@@ -57,7 +57,7 @@ class WYTestButtonEdgeInsetsController: UIViewController {
         itemButton.snp.makeConstraints { make in
             make.left.equalToSuperview().offset(10)
             make.right.equalToSuperview().offset(-10)
-            make.height.equalTo(200)
+            make.height.equalTo(100)
             make.centerY.equalTo(button.snp.bottom).offset(150)
         }
         

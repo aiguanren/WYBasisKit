@@ -9,6 +9,14 @@
 import Foundation
 import UIKit
 
+/// 间距插入位置
+@frozen public enum WYSpacingPosition: Int {
+    /// 在范围之前插入间距
+    case before = 0
+    /// 在范围之后插入间距
+    case after
+}
+
 public extension NSMutableAttributedString {
     
     /**
@@ -125,26 +133,30 @@ public extension NSMutableAttributedString {
     /**
      *  设置两个指定字符串之间的段落间距
      *
-     *  该方法会在 `beforeString` 所在段落的末尾增加 `lineSpacing` 间距，
+     *  该方法会在 `beforeString` 所在段落的末尾增加 `paragraphSpace` 间距，
      *  从而影响其与 `afterString` 所在段落之间的距离。
      *
+     *  如原始文本: 这是第一段，包含 beforeString。\n(换行)
+     *            这是第二段，包含 afterString。
+     *  调用后第一段底部和第二段头部之间会增加 paragraphSpace 的空白间距
+     *
      *  - Parameters:
-     *    - lineSpacing:   段落间距值（单位：pt），需大于 0
-     *    - beforeString:  起始字符串，其所在段落的底部将会增加间距
-     *    - afterString:   结束字符串，必须位于 `beforeString` 之后
-     *    - alignment:     段落对齐方式，默认为 `.left`
+     *    - paragraphSpace:   段落间距值（单位：pt），需大于 0
+     *    - beforeString:     起始字符串，其所在段落的底部将会增加间距
+     *    - afterString:      结束字符串，必须位于 `beforeString` 之后
+     *    - alignment:        段落对齐方式，默认为 `.left`
      *
      *  - Returns: 当前 `NSMutableAttributedString` 对象，
      */
     @discardableResult
-    func wy_lineSpacing(_ lineSpacing: CGFloat,
-                        beforeString: String,
-                        afterString: String,
-                        alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
+    func wy_paragraphSpace(_ paragraphSpace: CGFloat,
+                           beforeString: String,
+                           afterString: String,
+                           alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
         
         guard self.length > 0 else { return self }
         
-        guard lineSpacing > 0,
+        guard paragraphSpace > 0,
               !beforeString.isEmpty,
               !afterString.isEmpty,
               self.length > 0 else {
@@ -174,7 +186,7 @@ public extension NSMutableAttributedString {
             let paragraphStyle = wy_paragraphStyle(at: range)
             
             // 配置段落样式
-            paragraphStyle.paragraphSpacing = lineSpacing
+            paragraphStyle.paragraphSpacing = paragraphSpace
             paragraphStyle.alignment = alignment
             
             // 应用段落样式
@@ -215,7 +227,67 @@ public extension NSMutableAttributedString {
     }
     
     /**
-     *  文本添加内边距，支持多种范围定义
+     在指定范围 前/后 插入水平间距
+     
+     - Parameters:
+     - spacing:     要插入的间距值（单位：pt），需大于 0
+     - position:    插入位置，`.before`（范围之前）或 `.after`（范围之后）
+     - rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
+     
+     - Returns: 当前 `NSMutableAttributedString` 对象
+     */
+    @discardableResult
+    func wy_insertSpacing(_ spacing: CGFloat,
+                          position: WYSpacingPosition,
+                          rangeValue: Any? = nil) -> NSMutableAttributedString {
+        
+        guard spacing > 0, self.length > 0 else { return self }
+        
+        // 解析范围
+        let ranges: [NSRange]
+        if let value = rangeValue {
+            ranges = self.string.wy_parseRanges(from: value)
+        } else {
+            ranges = [NSRange(location: 0, length: self.length)]
+        }
+        
+        guard !ranges.isEmpty else { return self }
+        
+        // 构建间距附件
+        let attachment = NSTextAttachment()
+        attachment.bounds = CGRect(x: 0, y: 0, width: spacing, height: 0)
+        let spacingAttr = NSAttributedString(attachment: attachment)
+        
+        // 收集需要插入的位置（降序排序，避免偏移）
+        var insertPositions: [Int] = []
+        for range in ranges {
+            // 确保 range 有效
+            guard range.location >= 0,
+                  range.location + range.length <= self.length else {
+                continue
+            }
+            let insertIndex: Int
+            switch position {
+            case .before:
+                insertIndex = range.location
+            case .after:
+                insertIndex = range.location + range.length
+            }
+            insertPositions.append(insertIndex)
+        }
+        
+        // 去重并降序排序
+        let sortedPositions = Set(insertPositions).sorted(by: >)
+        
+        for pos in sortedPositions {
+            self.insert(spacingAttr, at: pos)
+        }
+        
+        return self
+    }
+    
+    /**
+     *  文本添加段落缩进
      *
      *  - Parameters:
      *    - rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
@@ -227,11 +299,11 @@ public extension NSMutableAttributedString {
      *  - Returns: 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
-    func wy_innerMargin(rangeValue: Any? = nil,
-                        firstLineHeadIndent: CGFloat = 0,
-                        headIndent: CGFloat = 0,
-                        tailIndent: CGFloat = 0,
-                        alignment: NSTextAlignment = .justified) -> NSMutableAttributedString {
+    func wy_paragraphIndents(rangeValue: Any? = nil,
+                             firstLineHeadIndent: CGFloat = 0,
+                             headIndent: CGFloat = 0,
+                             tailIndent: CGFloat = 0,
+                             alignment: NSTextAlignment = .justified) -> NSMutableAttributedString {
         
         guard self.length > 0 else { return self }
         

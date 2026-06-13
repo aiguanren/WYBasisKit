@@ -407,7 +407,7 @@ extension WYChatEmojiView: WYEmojiViewCellDelegate {
         
         if gestureRecognizer.state == .began {
             WYEmojiPreviewView.show(emoji: emoji, according: according) { [weak self] imageName, imageView in
-                DispatchQueue.main.async {
+                Task { @MainActor in
                     self?.delegate?.emojiItemLongPress?(gestureRecognizer, emoji: emoji, imageView: according)
                 }
             }

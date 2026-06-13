@@ -9,12 +9,46 @@
 /* Begin PBXBuildFile section */
 		02317E95937A422D4510B1BE /* Pods_WYBasisKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B0A12B6CD08A1EADB40EC1C /* Pods_WYBasisKit.framework */; };
 		5802B28E2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5802B28D2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift */; };
+		5806BD102FD3D25400FEA501 /* WYTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5806BD0F2FD3D25400FEA501 /* WYTask.swift */; };
 		580ED5882EA7261F006012E7 /* WYCodableBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5872EA7261F006012E7 /* WYCodableBridge.swift */; };
 		580ED58A2EA72632006012E7 /* WYCodableConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5892EA72632006012E7 /* WYCodableConfig.swift */; };
 		580ED58C2EA7263F006012E7 /* WYCodableValueTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580ED58B2EA7263F006012E7 /* WYCodableValueTransformer.swift */; };
 		580ED58E2EA72649006012E7 /* WYCodableProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580ED58D2EA72649006012E7 /* WYCodableProtocol.swift */; };
 		5814080A2EC831A50099D41B /* WYTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581408092EC831A50099D41B /* WYTableViewCell.swift */; };
 		5814080F2EC881AB0099D41B /* WYTableViewCellObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5814080E2EC881AB0099D41B /* WYTableViewCellObjC.swift */; };
+		58328C602FC9364600C0F556 /* WYPopViewControllerSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C5F2FC9364600C0F556 /* WYPopViewControllerSwizzler.swift */; };
+		58328C622FC936D100C0F556 /* WYPresentSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C612FC936D100C0F556 /* WYPresentSwizzler.swift */; };
+		58328C642FC9371800C0F556 /* WYViewDidLoadSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C632FC9371800C0F556 /* WYViewDidLoadSwizzler.swift */; };
+		58328C662FC9374900C0F556 /* WYViewWillAppearSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C652FC9374900C0F556 /* WYViewWillAppearSwizzler.swift */; };
+		58328C682FC9378F00C0F556 /* WYViewDidAppearSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C672FC9378F00C0F556 /* WYViewDidAppearSwizzler.swift */; };
+		58328C6A2FC937BC00C0F556 /* WYViewWillDisappearSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C692FC937BC00C0F556 /* WYViewWillDisappearSwizzler.swift */; };
+		58328C6C2FC9383A00C0F556 /* WYViewDidDisappearSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C6B2FC9383A00C0F556 /* WYViewDidDisappearSwizzler.swift */; };
+		58328C6E2FC938D600C0F556 /* WYScrollViewDidScrollSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C6D2FC938D600C0F556 /* WYScrollViewDidScrollSwizzler.swift */; };
+		58328C702FC9391800C0F556 /* WYScrollViewWillBeginDraggingSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C6F2FC9391800C0F556 /* WYScrollViewWillBeginDraggingSwizzler.swift */; };
+		58328C722FC9398100C0F556 /* WYScrollViewWillEndDraggingSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C712FC9398100C0F556 /* WYScrollViewWillEndDraggingSwizzler.swift */; };
+		58328C742FC939B100C0F556 /* WYScrollViewDidEndDraggingSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C732FC939B100C0F556 /* WYScrollViewDidEndDraggingSwizzler.swift */; };
+		58328C762FC939EE00C0F556 /* WYScrollViewWillBeginDeceleratingSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C752FC939EE00C0F556 /* WYScrollViewWillBeginDeceleratingSwizzler.swift */; };
+		58328C782FC93A1700C0F556 /* WYScrollViewDidEndDeceleratingSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C772FC93A1700C0F556 /* WYScrollViewDidEndDeceleratingSwizzler.swift */; };
+		58328C7A2FC93A4100C0F556 /* WYScrollViewDidZoomSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C792FC93A4100C0F556 /* WYScrollViewDidZoomSwizzler.swift */; };
+		58328C7C2FC93A7C00C0F556 /* WYObserveValueSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C7B2FC93A7C00C0F556 /* WYObserveValueSwizzler.swift */; };
+		58328C7E2FC93AAA00C0F556 /* WYHitTestSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C7D2FC93AAA00C0F556 /* WYHitTestSwizzler.swift */; };
+		58328C802FC93ACE00C0F556 /* WYLayoutSubviewsSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C7F2FC93ACE00C0F556 /* WYLayoutSubviewsSwizzler.swift */; };
+		58328C822FC93B1200C0F556 /* WYTouchesBeganSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C812FC93B1200C0F556 /* WYTouchesBeganSwizzler.swift */; };
+		58328C842FC93B3400C0F556 /* WYTouchesMovedSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C832FC93B3400C0F556 /* WYTouchesMovedSwizzler.swift */; };
+		58328C862FC93B5700C0F556 /* WYTouchesCancelledSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C852FC93B5700C0F556 /* WYTouchesCancelledSwizzler.swift */; };
+		58328C882FC93B7A00C0F556 /* WYTouchesEndedSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C872FC93B7A00C0F556 /* WYTouchesEndedSwizzler.swift */; };
+		58328C8A2FC93BA400C0F556 /* WYDrawRectSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C892FC93BA400C0F556 /* WYDrawRectSwizzler.swift */; };
+		58328C8C2FC93BCA00C0F556 /* WYSizeThatFitsSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C8B2FC93BCA00C0F556 /* WYSizeThatFitsSwizzler.swift */; };
+		58328C8E2FC93C0600C0F556 /* WYDrawTextSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C8D2FC93C0600C0F556 /* WYDrawTextSwizzler.swift */; };
+		58328C902FC93C2D00C0F556 /* WYIntrinsicContentSizeSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C8F2FC93C2D00C0F556 /* WYIntrinsicContentSizeSwizzler.swift */; };
+		58328C922FC93C7C00C0F556 /* WYPrepareSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C912FC93C7C00C0F556 /* WYPrepareSwizzler.swift */; };
+		58328C942FC93CA900C0F556 /* WYLayoutAttributesForElementsSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C932FC93CA900C0F556 /* WYLayoutAttributesForElementsSwizzler.swift */; };
+		58328C962FC93CD000C0F556 /* WYLayoutAttributesForItemSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C952FC93CD000C0F556 /* WYLayoutAttributesForItemSwizzler.swift */; };
+		58328C982FC93CF700C0F556 /* WYLayoutAttributesForSupplementaryViewSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C972FC93CF700C0F556 /* WYLayoutAttributesForSupplementaryViewSwizzler.swift */; };
+		58328C9A2FC93D2200C0F556 /* WYCollectionViewContentSizeSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C992FC93D2200C0F556 /* WYCollectionViewContentSizeSwizzler.swift */; };
+		58328C9C2FC93D4C00C0F556 /* WYShouldInvalidateLayoutSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C9B2FC93D4C00C0F556 /* WYShouldInvalidateLayoutSwizzler.swift */; };
+		58328C9E2FC93D8000C0F556 /* WYGestureRecognizerShouldBeginSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C9D2FC93D8000C0F556 /* WYGestureRecognizerShouldBeginSwizzler.swift */; };
+		58328CA12FC9919200C0F556 /* WYTextRectSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328CA02FC9919200C0F556 /* WYTextRectSwizzler.swift */; };
 		583C41B42E9220E9007379FC /* WYStorageObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583C41B32E9220E9007379FC /* WYStorageObjC.swift */; };
 		583C41B62E922D9E007379FC /* WYAudioKitObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583C41B52E922D9E007379FC /* WYAudioKitObjC.swift */; };
 		583E04EC2E8635CA004F1034 /* WYButtonObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04EB2E8635CA004F1034 /* WYButtonObjC.swift */; };
@@ -25,6 +59,8 @@
 		583E04F82E869051004F1034 /* WYTextFieldObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04F72E869051004F1034 /* WYTextFieldObjC.swift */; };
 		583E04FA2E8690D1004F1034 /* WYWebViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04F92E8690D1004F1034 /* WYWebViewObjC.swift */; };
 		583E04FC2E879984004F1034 /* WYViewControllerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04FB2E879984004F1034 /* WYViewControllerObjC.swift */; };
+		584D59E32FBC353300A862F7 /* WYMethodSwizzlerCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D59E22FBC353300A862F7 /* WYMethodSwizzlerCenter.swift */; };
+		584D59E62FBEEE8400A862F7 /* WYTextViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D59E52FBEEE8400A862F7 /* WYTextViewObjC.swift */; };
 		584EAF012E92791B003A21B8 /* WYLocalizableManagerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF002E92791B003A21B8 /* WYLocalizableManagerObjC.swift */; };
 		584EAF082E92979A003A21B8 /* WYMediaPlayerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF072E92979A003A21B8 /* WYMediaPlayerObjC.swift */; };
 		584EAF0A2E92A7A0003A21B8 /* WYBannerViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF092E92A7A0003A21B8 /* WYBannerViewObjC.swift */; };
@@ -175,18 +211,53 @@
 		58C68E362E853D71005FD054 /* WYApplicationObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68E352E853D71005FD054 /* WYApplicationObjC.swift */; };
 		58C952F22F051E800032E3F6 /* WYColorSwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C952F02F051E800032E3F6 /* WYColorSwiftUI.swift */; };
 		58EE23752F874DAE0031D8BF /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 58EE23742F874DAE0031D8BF /* PrivacyInfo.xcprivacy */; };
+		58EE7B0B2FB84A65009AA0CC /* WYTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EE7B0A2FB84A65009AA0CC /* WYTextView.swift */; };
 		AAC46AD02E07E28F0068B0DF /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = AAC46ACF2E07E28F0068B0DF /* libc++.tbd */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		53C1C8E1255F64288E08B8AC /* Pods-WYBasisKit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.release.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.release.xcconfig"; sourceTree = "<group>"; };
 		5802B28D2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYRecordAnimationConfig.swift; sourceTree = "<group>"; };
+		5806BD0F2FD3D25400FEA501 /* WYTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTask.swift; sourceTree = "<group>"; };
 		580ED5872EA7261F006012E7 /* WYCodableBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableBridge.swift; sourceTree = "<group>"; };
 		580ED5892EA72632006012E7 /* WYCodableConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableConfig.swift; sourceTree = "<group>"; };
 		580ED58B2EA7263F006012E7 /* WYCodableValueTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableValueTransformer.swift; sourceTree = "<group>"; };
 		580ED58D2EA72649006012E7 /* WYCodableProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableProtocol.swift; sourceTree = "<group>"; };
 		581408092EC831A50099D41B /* WYTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTableViewCell.swift; sourceTree = "<group>"; };
 		5814080E2EC881AB0099D41B /* WYTableViewCellObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTableViewCellObjC.swift; sourceTree = "<group>"; };
+		58328C5F2FC9364600C0F556 /* WYPopViewControllerSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPopViewControllerSwizzler.swift; sourceTree = "<group>"; };
+		58328C612FC936D100C0F556 /* WYPresentSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPresentSwizzler.swift; sourceTree = "<group>"; };
+		58328C632FC9371800C0F556 /* WYViewDidLoadSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYViewDidLoadSwizzler.swift; sourceTree = "<group>"; };
+		58328C652FC9374900C0F556 /* WYViewWillAppearSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYViewWillAppearSwizzler.swift; sourceTree = "<group>"; };
+		58328C672FC9378F00C0F556 /* WYViewDidAppearSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYViewDidAppearSwizzler.swift; sourceTree = "<group>"; };
+		58328C692FC937BC00C0F556 /* WYViewWillDisappearSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYViewWillDisappearSwizzler.swift; sourceTree = "<group>"; };
+		58328C6B2FC9383A00C0F556 /* WYViewDidDisappearSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYViewDidDisappearSwizzler.swift; sourceTree = "<group>"; };
+		58328C6D2FC938D600C0F556 /* WYScrollViewDidScrollSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYScrollViewDidScrollSwizzler.swift; sourceTree = "<group>"; };
+		58328C6F2FC9391800C0F556 /* WYScrollViewWillBeginDraggingSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYScrollViewWillBeginDraggingSwizzler.swift; sourceTree = "<group>"; };
+		58328C712FC9398100C0F556 /* WYScrollViewWillEndDraggingSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYScrollViewWillEndDraggingSwizzler.swift; sourceTree = "<group>"; };
+		58328C732FC939B100C0F556 /* WYScrollViewDidEndDraggingSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYScrollViewDidEndDraggingSwizzler.swift; sourceTree = "<group>"; };
+		58328C752FC939EE00C0F556 /* WYScrollViewWillBeginDeceleratingSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYScrollViewWillBeginDeceleratingSwizzler.swift; sourceTree = "<group>"; };
+		58328C772FC93A1700C0F556 /* WYScrollViewDidEndDeceleratingSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYScrollViewDidEndDeceleratingSwizzler.swift; sourceTree = "<group>"; };
+		58328C792FC93A4100C0F556 /* WYScrollViewDidZoomSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYScrollViewDidZoomSwizzler.swift; sourceTree = "<group>"; };
+		58328C7B2FC93A7C00C0F556 /* WYObserveValueSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYObserveValueSwizzler.swift; sourceTree = "<group>"; };
+		58328C7D2FC93AAA00C0F556 /* WYHitTestSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYHitTestSwizzler.swift; sourceTree = "<group>"; };
+		58328C7F2FC93ACE00C0F556 /* WYLayoutSubviewsSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLayoutSubviewsSwizzler.swift; sourceTree = "<group>"; };
+		58328C812FC93B1200C0F556 /* WYTouchesBeganSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTouchesBeganSwizzler.swift; sourceTree = "<group>"; };
+		58328C832FC93B3400C0F556 /* WYTouchesMovedSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTouchesMovedSwizzler.swift; sourceTree = "<group>"; };
+		58328C852FC93B5700C0F556 /* WYTouchesCancelledSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTouchesCancelledSwizzler.swift; sourceTree = "<group>"; };
+		58328C872FC93B7A00C0F556 /* WYTouchesEndedSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTouchesEndedSwizzler.swift; sourceTree = "<group>"; };
+		58328C892FC93BA400C0F556 /* WYDrawRectSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYDrawRectSwizzler.swift; sourceTree = "<group>"; };
+		58328C8B2FC93BCA00C0F556 /* WYSizeThatFitsSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYSizeThatFitsSwizzler.swift; sourceTree = "<group>"; };
+		58328C8D2FC93C0600C0F556 /* WYDrawTextSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYDrawTextSwizzler.swift; sourceTree = "<group>"; };
+		58328C8F2FC93C2D00C0F556 /* WYIntrinsicContentSizeSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYIntrinsicContentSizeSwizzler.swift; sourceTree = "<group>"; };
+		58328C912FC93C7C00C0F556 /* WYPrepareSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPrepareSwizzler.swift; sourceTree = "<group>"; };
+		58328C932FC93CA900C0F556 /* WYLayoutAttributesForElementsSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLayoutAttributesForElementsSwizzler.swift; sourceTree = "<group>"; };
+		58328C952FC93CD000C0F556 /* WYLayoutAttributesForItemSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLayoutAttributesForItemSwizzler.swift; sourceTree = "<group>"; };
+		58328C972FC93CF700C0F556 /* WYLayoutAttributesForSupplementaryViewSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLayoutAttributesForSupplementaryViewSwizzler.swift; sourceTree = "<group>"; };
+		58328C992FC93D2200C0F556 /* WYCollectionViewContentSizeSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCollectionViewContentSizeSwizzler.swift; sourceTree = "<group>"; };
+		58328C9B2FC93D4C00C0F556 /* WYShouldInvalidateLayoutSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYShouldInvalidateLayoutSwizzler.swift; sourceTree = "<group>"; };
+		58328C9D2FC93D8000C0F556 /* WYGestureRecognizerShouldBeginSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYGestureRecognizerShouldBeginSwizzler.swift; sourceTree = "<group>"; };
+		58328CA02FC9919200C0F556 /* WYTextRectSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTextRectSwizzler.swift; sourceTree = "<group>"; };
 		583C41B32E9220E9007379FC /* WYStorageObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYStorageObjC.swift; sourceTree = "<group>"; };
 		583C41B52E922D9E007379FC /* WYAudioKitObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAudioKitObjC.swift; sourceTree = "<group>"; };
 		583E04EB2E8635CA004F1034 /* WYButtonObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYButtonObjC.swift; sourceTree = "<group>"; };
@@ -197,6 +268,8 @@
 		583E04F72E869051004F1034 /* WYTextFieldObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTextFieldObjC.swift; sourceTree = "<group>"; };
 		583E04F92E8690D1004F1034 /* WYWebViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYWebViewObjC.swift; sourceTree = "<group>"; };
 		583E04FB2E879984004F1034 /* WYViewControllerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYViewControllerObjC.swift; sourceTree = "<group>"; };
+		584D59E22FBC353300A862F7 /* WYMethodSwizzlerCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMethodSwizzlerCenter.swift; sourceTree = "<group>"; };
+		584D59E52FBEEE8400A862F7 /* WYTextViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTextViewObjC.swift; sourceTree = "<group>"; };
 		584EAF002E92791B003A21B8 /* WYLocalizableManagerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLocalizableManagerObjC.swift; sourceTree = "<group>"; };
 		584EAF072E92979A003A21B8 /* WYMediaPlayerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaPlayerObjC.swift; sourceTree = "<group>"; };
 		584EAF092E92A7A0003A21B8 /* WYBannerViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYBannerViewObjC.swift; sourceTree = "<group>"; };
@@ -401,6 +474,7 @@
 		58EE23712F874CEB0031D8BF /* WYLogManagerMacro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYLogManagerMacro.h; sourceTree = "<group>"; };
 		58EE23722F874D910031D8BF /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58EE23742F874DAE0031D8BF /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		58EE7B0A2FB84A65009AA0CC /* WYTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTextView.swift; sourceTree = "<group>"; };
 		5B0A12B6CD08A1EADB40EC1C /* Pods_WYBasisKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WYBasisKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B8A3708E351CE0BB9E30715 /* Pods-WYBasisKit.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.debug.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.debug.xcconfig"; sourceTree = "<group>"; };
 		AAC46ACF2E07E28F0068B0DF /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
@@ -421,6 +495,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5806BD0E2FD3D23700FEA501 /* Task */ = {
+			isa = PBXGroup;
+			children = (
+				5806BD0F2FD3D25400FEA501 /* WYTask.swift */,
+			);
+			path = Task;
+			sourceTree = "<group>";
+		};
 		580ED5862EA72606006012E7 /* Achieve */ = {
 			isa = PBXGroup;
 			children = (
@@ -430,6 +512,399 @@
 				580ED5872EA7261F006012E7 /* WYCodableBridge.swift */,
 			);
 			path = Achieve;
+			sourceTree = "<group>";
+		};
+		58328C332FC9317100C0F556 /* General */ = {
+			isa = PBXGroup;
+			children = (
+				584D59E22FBC353300A862F7 /* WYMethodSwizzlerCenter.swift */,
+			);
+			path = General;
+			sourceTree = "<group>";
+		};
+		58328C342FC931E800C0F556 /* UINavigationController */ = {
+			isa = PBXGroup;
+			children = (
+				58328C362FC9327500C0F556 /* PopViewController */,
+			);
+			path = UINavigationController;
+			sourceTree = "<group>";
+		};
+		58328C352FC9324700C0F556 /* UIViewController */ = {
+			isa = PBXGroup;
+			children = (
+				58328C372FC9329000C0F556 /* Present */,
+				58328C3A2FC932BF00C0F556 /* ViewDidAppear */,
+				58328C3C2FC932D500C0F556 /* ViewDidDisappear */,
+				58328C382FC9329D00C0F556 /* ViewDidLoad */,
+				58328C392FC932B300C0F556 /* ViewWillAppear */,
+				58328C3B2FC932C900C0F556 /* ViewWillDisappear */,
+			);
+			path = UIViewController;
+			sourceTree = "<group>";
+		};
+		58328C362FC9327500C0F556 /* PopViewController */ = {
+			isa = PBXGroup;
+			children = (
+				58328C5F2FC9364600C0F556 /* WYPopViewControllerSwizzler.swift */,
+			);
+			path = PopViewController;
+			sourceTree = "<group>";
+		};
+		58328C372FC9329000C0F556 /* Present */ = {
+			isa = PBXGroup;
+			children = (
+				58328C612FC936D100C0F556 /* WYPresentSwizzler.swift */,
+			);
+			path = Present;
+			sourceTree = "<group>";
+		};
+		58328C382FC9329D00C0F556 /* ViewDidLoad */ = {
+			isa = PBXGroup;
+			children = (
+				58328C632FC9371800C0F556 /* WYViewDidLoadSwizzler.swift */,
+			);
+			path = ViewDidLoad;
+			sourceTree = "<group>";
+		};
+		58328C392FC932B300C0F556 /* ViewWillAppear */ = {
+			isa = PBXGroup;
+			children = (
+				58328C652FC9374900C0F556 /* WYViewWillAppearSwizzler.swift */,
+			);
+			path = ViewWillAppear;
+			sourceTree = "<group>";
+		};
+		58328C3A2FC932BF00C0F556 /* ViewDidAppear */ = {
+			isa = PBXGroup;
+			children = (
+				58328C672FC9378F00C0F556 /* WYViewDidAppearSwizzler.swift */,
+			);
+			path = ViewDidAppear;
+			sourceTree = "<group>";
+		};
+		58328C3B2FC932C900C0F556 /* ViewWillDisappear */ = {
+			isa = PBXGroup;
+			children = (
+				58328C692FC937BC00C0F556 /* WYViewWillDisappearSwizzler.swift */,
+			);
+			path = ViewWillDisappear;
+			sourceTree = "<group>";
+		};
+		58328C3C2FC932D500C0F556 /* ViewDidDisappear */ = {
+			isa = PBXGroup;
+			children = (
+				58328C6B2FC9383A00C0F556 /* WYViewDidDisappearSwizzler.swift */,
+			);
+			path = ViewDidDisappear;
+			sourceTree = "<group>";
+		};
+		58328C3D2FC932E900C0F556 /* UIScrollViewDelegate */ = {
+			isa = PBXGroup;
+			children = (
+				58328C432FC9334500C0F556 /* ScrollViewDidEndDecelerating */,
+				58328C412FC9332A00C0F556 /* ScrollViewDidEndDragging */,
+				58328C3E2FC932FD00C0F556 /* ScrollViewDidScroll */,
+				58328C442FC9335000C0F556 /* ScrollViewDidZoom */,
+				58328C422FC9333600C0F556 /* ScrollViewWillBeginDecelerating */,
+				58328C3F2FC9330700C0F556 /* ScrollViewWillBeginDragging */,
+				58328C402FC9331B00C0F556 /* ScrollViewWillEndDragging */,
+			);
+			path = UIScrollViewDelegate;
+			sourceTree = "<group>";
+		};
+		58328C3E2FC932FD00C0F556 /* ScrollViewDidScroll */ = {
+			isa = PBXGroup;
+			children = (
+				58328C6D2FC938D600C0F556 /* WYScrollViewDidScrollSwizzler.swift */,
+			);
+			path = ScrollViewDidScroll;
+			sourceTree = "<group>";
+		};
+		58328C3F2FC9330700C0F556 /* ScrollViewWillBeginDragging */ = {
+			isa = PBXGroup;
+			children = (
+				58328C6F2FC9391800C0F556 /* WYScrollViewWillBeginDraggingSwizzler.swift */,
+			);
+			path = ScrollViewWillBeginDragging;
+			sourceTree = "<group>";
+		};
+		58328C402FC9331B00C0F556 /* ScrollViewWillEndDragging */ = {
+			isa = PBXGroup;
+			children = (
+				58328C712FC9398100C0F556 /* WYScrollViewWillEndDraggingSwizzler.swift */,
+			);
+			path = ScrollViewWillEndDragging;
+			sourceTree = "<group>";
+		};
+		58328C412FC9332A00C0F556 /* ScrollViewDidEndDragging */ = {
+			isa = PBXGroup;
+			children = (
+				58328C732FC939B100C0F556 /* WYScrollViewDidEndDraggingSwizzler.swift */,
+			);
+			path = ScrollViewDidEndDragging;
+			sourceTree = "<group>";
+		};
+		58328C422FC9333600C0F556 /* ScrollViewWillBeginDecelerating */ = {
+			isa = PBXGroup;
+			children = (
+				58328C752FC939EE00C0F556 /* WYScrollViewWillBeginDeceleratingSwizzler.swift */,
+			);
+			path = ScrollViewWillBeginDecelerating;
+			sourceTree = "<group>";
+		};
+		58328C432FC9334500C0F556 /* ScrollViewDidEndDecelerating */ = {
+			isa = PBXGroup;
+			children = (
+				58328C772FC93A1700C0F556 /* WYScrollViewDidEndDeceleratingSwizzler.swift */,
+			);
+			path = ScrollViewDidEndDecelerating;
+			sourceTree = "<group>";
+		};
+		58328C442FC9335000C0F556 /* ScrollViewDidZoom */ = {
+			isa = PBXGroup;
+			children = (
+				58328C792FC93A4100C0F556 /* WYScrollViewDidZoomSwizzler.swift */,
+			);
+			path = ScrollViewDidZoom;
+			sourceTree = "<group>";
+		};
+		58328C452FC9336A00C0F556 /* KVO */ = {
+			isa = PBXGroup;
+			children = (
+				58328C462FC9337700C0F556 /* ObserveValue */,
+			);
+			path = KVO;
+			sourceTree = "<group>";
+		};
+		58328C462FC9337700C0F556 /* ObserveValue */ = {
+			isa = PBXGroup;
+			children = (
+				58328C7B2FC93A7C00C0F556 /* WYObserveValueSwizzler.swift */,
+			);
+			path = ObserveValue;
+			sourceTree = "<group>";
+		};
+		58328C472FC9338500C0F556 /* UIView */ = {
+			isa = PBXGroup;
+			children = (
+				58328C4F2FC9340100C0F556 /* DrawRect */,
+				58328C482FC9338F00C0F556 /* HitTest */,
+				58328C532FC9343B00C0F556 /* IntrinsicContentSize */,
+				58328C492FC9339D00C0F556 /* LayoutSubviews */,
+				58328C502FC9341900C0F556 /* SizeThatFits */,
+			);
+			path = UIView;
+			sourceTree = "<group>";
+		};
+		58328C482FC9338F00C0F556 /* HitTest */ = {
+			isa = PBXGroup;
+			children = (
+				58328C7D2FC93AAA00C0F556 /* WYHitTestSwizzler.swift */,
+			);
+			path = HitTest;
+			sourceTree = "<group>";
+		};
+		58328C492FC9339D00C0F556 /* LayoutSubviews */ = {
+			isa = PBXGroup;
+			children = (
+				58328C7F2FC93ACE00C0F556 /* WYLayoutSubviewsSwizzler.swift */,
+			);
+			path = LayoutSubviews;
+			sourceTree = "<group>";
+		};
+		58328C4A2FC933B100C0F556 /* TouchesBegan */ = {
+			isa = PBXGroup;
+			children = (
+				58328C812FC93B1200C0F556 /* WYTouchesBeganSwizzler.swift */,
+			);
+			path = TouchesBegan;
+			sourceTree = "<group>";
+		};
+		58328C4B2FC933C200C0F556 /* UIResponder */ = {
+			isa = PBXGroup;
+			children = (
+				58328C4A2FC933B100C0F556 /* TouchesBegan */,
+				58328C4D2FC933DE00C0F556 /* TouchesCancelled */,
+				58328C4E2FC933EF00C0F556 /* TouchesEnded */,
+				58328C4C2FC933D100C0F556 /* TouchesMoved */,
+			);
+			path = UIResponder;
+			sourceTree = "<group>";
+		};
+		58328C4C2FC933D100C0F556 /* TouchesMoved */ = {
+			isa = PBXGroup;
+			children = (
+				58328C832FC93B3400C0F556 /* WYTouchesMovedSwizzler.swift */,
+			);
+			path = TouchesMoved;
+			sourceTree = "<group>";
+		};
+		58328C4D2FC933DE00C0F556 /* TouchesCancelled */ = {
+			isa = PBXGroup;
+			children = (
+				58328C852FC93B5700C0F556 /* WYTouchesCancelledSwizzler.swift */,
+			);
+			path = TouchesCancelled;
+			sourceTree = "<group>";
+		};
+		58328C4E2FC933EF00C0F556 /* TouchesEnded */ = {
+			isa = PBXGroup;
+			children = (
+				58328C872FC93B7A00C0F556 /* WYTouchesEndedSwizzler.swift */,
+			);
+			path = TouchesEnded;
+			sourceTree = "<group>";
+		};
+		58328C4F2FC9340100C0F556 /* DrawRect */ = {
+			isa = PBXGroup;
+			children = (
+				58328C892FC93BA400C0F556 /* WYDrawRectSwizzler.swift */,
+			);
+			path = DrawRect;
+			sourceTree = "<group>";
+		};
+		58328C502FC9341900C0F556 /* SizeThatFits */ = {
+			isa = PBXGroup;
+			children = (
+				58328C8B2FC93BCA00C0F556 /* WYSizeThatFitsSwizzler.swift */,
+			);
+			path = SizeThatFits;
+			sourceTree = "<group>";
+		};
+		58328C512FC9342700C0F556 /* UILabel */ = {
+			isa = PBXGroup;
+			children = (
+				58328C522FC9342C00C0F556 /* DrawText */,
+				58328C9F2FC9917300C0F556 /* TextRect */,
+			);
+			path = UILabel;
+			sourceTree = "<group>";
+		};
+		58328C522FC9342C00C0F556 /* DrawText */ = {
+			isa = PBXGroup;
+			children = (
+				58328C8D2FC93C0600C0F556 /* WYDrawTextSwizzler.swift */,
+			);
+			path = DrawText;
+			sourceTree = "<group>";
+		};
+		58328C532FC9343B00C0F556 /* IntrinsicContentSize */ = {
+			isa = PBXGroup;
+			children = (
+				58328C8F2FC93C2D00C0F556 /* WYIntrinsicContentSizeSwizzler.swift */,
+			);
+			path = IntrinsicContentSize;
+			sourceTree = "<group>";
+		};
+		58328C542FC9344900C0F556 /* UICollectionViewLayout */ = {
+			isa = PBXGroup;
+			children = (
+				58328C592FC9348200C0F556 /* CollectionViewContentSize */,
+				58328C562FC9345A00C0F556 /* LayoutAttributesForElements */,
+				58328C572FC9346500C0F556 /* LayoutAttributesForItem */,
+				58328C582FC9347500C0F556 /* LayoutAttributesForSupplementaryView */,
+				58328C552FC9344E00C0F556 /* Prepare */,
+				58328C5A2FC9348B00C0F556 /* ShouldInvalidateLayout */,
+			);
+			path = UICollectionViewLayout;
+			sourceTree = "<group>";
+		};
+		58328C552FC9344E00C0F556 /* Prepare */ = {
+			isa = PBXGroup;
+			children = (
+				58328C912FC93C7C00C0F556 /* WYPrepareSwizzler.swift */,
+			);
+			path = Prepare;
+			sourceTree = "<group>";
+		};
+		58328C562FC9345A00C0F556 /* LayoutAttributesForElements */ = {
+			isa = PBXGroup;
+			children = (
+				58328C932FC93CA900C0F556 /* WYLayoutAttributesForElementsSwizzler.swift */,
+			);
+			path = LayoutAttributesForElements;
+			sourceTree = "<group>";
+		};
+		58328C572FC9346500C0F556 /* LayoutAttributesForItem */ = {
+			isa = PBXGroup;
+			children = (
+				58328C952FC93CD000C0F556 /* WYLayoutAttributesForItemSwizzler.swift */,
+			);
+			path = LayoutAttributesForItem;
+			sourceTree = "<group>";
+		};
+		58328C582FC9347500C0F556 /* LayoutAttributesForSupplementaryView */ = {
+			isa = PBXGroup;
+			children = (
+				58328C972FC93CF700C0F556 /* WYLayoutAttributesForSupplementaryViewSwizzler.swift */,
+			);
+			path = LayoutAttributesForSupplementaryView;
+			sourceTree = "<group>";
+		};
+		58328C592FC9348200C0F556 /* CollectionViewContentSize */ = {
+			isa = PBXGroup;
+			children = (
+				58328C992FC93D2200C0F556 /* WYCollectionViewContentSizeSwizzler.swift */,
+			);
+			path = CollectionViewContentSize;
+			sourceTree = "<group>";
+		};
+		58328C5A2FC9348B00C0F556 /* ShouldInvalidateLayout */ = {
+			isa = PBXGroup;
+			children = (
+				58328C9B2FC93D4C00C0F556 /* WYShouldInvalidateLayoutSwizzler.swift */,
+			);
+			path = ShouldInvalidateLayout;
+			sourceTree = "<group>";
+		};
+		58328C5B2FC9349A00C0F556 /* UIGestureRecognizerDelegate */ = {
+			isa = PBXGroup;
+			children = (
+				58328C5C2FC9349F00C0F556 /* GestureRecognizerShouldBegin */,
+			);
+			path = UIGestureRecognizerDelegate;
+			sourceTree = "<group>";
+		};
+		58328C5C2FC9349F00C0F556 /* GestureRecognizerShouldBegin */ = {
+			isa = PBXGroup;
+			children = (
+				58328C9D2FC93D8000C0F556 /* WYGestureRecognizerShouldBeginSwizzler.swift */,
+			);
+			path = GestureRecognizerShouldBegin;
+			sourceTree = "<group>";
+		};
+		58328C9F2FC9917300C0F556 /* TextRect */ = {
+			isa = PBXGroup;
+			children = (
+				58328CA02FC9919200C0F556 /* WYTextRectSwizzler.swift */,
+			);
+			path = TextRect;
+			sourceTree = "<group>";
+		};
+		584D59E12FBC351A00A862F7 /* MethodSwizzler */ = {
+			isa = PBXGroup;
+			children = (
+				58328C332FC9317100C0F556 /* General */,
+				58328C452FC9336A00C0F556 /* KVO */,
+				58328C542FC9344900C0F556 /* UICollectionViewLayout */,
+				58328C5B2FC9349A00C0F556 /* UIGestureRecognizerDelegate */,
+				58328C512FC9342700C0F556 /* UILabel */,
+				58328C342FC931E800C0F556 /* UINavigationController */,
+				58328C4B2FC933C200C0F556 /* UIResponder */,
+				58328C3D2FC932E900C0F556 /* UIScrollViewDelegate */,
+				58328C472FC9338500C0F556 /* UIView */,
+				58328C352FC9324700C0F556 /* UIViewController */,
+			);
+			path = MethodSwizzler;
+			sourceTree = "<group>";
+		};
+		584D59E42FBEEE5000A862F7 /* UITextView */ = {
+			isa = PBXGroup;
+			children = (
+				584D59E52FBEEE8400A862F7 /* WYTextViewObjC.swift */,
+			);
+			path = UITextView;
 			sourceTree = "<group>";
 		};
 		585B355B2DF8086C00E6E08F = {
@@ -865,6 +1340,7 @@
 				58C68C6C2E84E436005FD054 /* Int */,
 				58C68C6E2E84E436005FD054 /* NSObject */,
 				58C68C702E84E436005FD054 /* NumberFormatter */,
+				58C68C892E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68C722E84E436005FD054 /* String */,
 				58C68C742E84E436005FD054 /* Timer */,
 				58C68C752E84E436005FD054 /* UIAlertController */,
@@ -879,10 +1355,10 @@
 				58C68C832E84E436005FD054 /* UIScrollView */,
 				58C68C842E84E436005FD054 /* UITableView */,
 				58C68C852E84E436005FD054 /* UITextField */,
+				584D59E42FBEEE5000A862F7 /* UITextView */,
 				58C68C862E84E436005FD054 /* UIView */,
 				58C68C872E84E436005FD054 /* UIViewController */,
 				58C68C882E84E436005FD054 /* WKWebView */,
-				58C68C892E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -1588,6 +2064,7 @@
 		58C68D262E84E436005FD054 /* Extension */ = {
 			isa = PBXGroup;
 			children = (
+				5806BD0E2FD3D23700FEA501 /* Task */,
 				58C68CE82E84E436005FD054 /* Array */,
 				58C68CEA2E84E436005FD054 /* AttributedString */,
 				58C68CEC2E84E436005FD054 /* Bool */,
@@ -1615,6 +2092,7 @@
 				58C68D1A2E84E436005FD054 /* UIScrollView */,
 				58C68D1C2E84E436005FD054 /* UITableView */,
 				58C68D1E2E84E436005FD054 /* UITextField */,
+				58EE7B092FB84A49009AA0CC /* UITextView */,
 				58C68D202E84E436005FD054 /* UIView */,
 				58C68D222E84E436005FD054 /* UIViewController */,
 				58C68D242E84E436005FD054 /* WKWebView */,
@@ -1956,7 +2434,6 @@
 		58C68D832E84E436005FD054 /* Swift */ = {
 			isa = PBXGroup;
 			children = (
-				58C68D252E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68CBE2E84E436005FD054 /* Activity */,
 				58C68CC12E84E436005FD054 /* AudioKit */,
 				58C68CD52E84E436005FD054 /* Authorization */,
@@ -1967,7 +2444,9 @@
 				58C68D732E84E436005FD054 /* Layout */,
 				58C68D772E84E436005FD054 /* Localizable */,
 				58C68D7A2E84E436005FD054 /* LogManager */,
+				584D59E12FBC351A00A862F7 /* MethodSwizzler */,
 				58C68D7F2E84E436005FD054 /* Networking */,
+				58C68D252E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68D822E84E436005FD054 /* Storage */,
 			);
 			path = Swift;
@@ -2014,6 +2493,14 @@
 				58EE236E2F874AB70031D8BF /* WYWeakStrongMacros.h */,
 			);
 			path = MacroDefinition;
+			sourceTree = "<group>";
+		};
+		58EE7B092FB84A49009AA0CC /* UITextView */ = {
+			isa = PBXGroup;
+			children = (
+				58EE7B0A2FB84A65009AA0CC /* WYTextView.swift */,
+			);
+			path = UITextView;
 			sourceTree = "<group>";
 		};
 		74BEC470B6E92D82AAD2D137 /* Frameworks */ = {
@@ -2178,18 +2665,23 @@
 				58C68DC12E84E436005FD054 /* WYObject.swift in Sources */,
 				58C68DC22E84E436005FD054 /* WYChatTextCell.swift in Sources */,
 				580ED58C2EA7263F006012E7 /* WYCodableValueTransformer.swift in Sources */,
+				58328C6A2FC937BC00C0F556 /* WYViewWillDisappearSwizzler.swift in Sources */,
 				584EAF082E92979A003A21B8 /* WYMediaPlayerObjC.swift in Sources */,
 				580ED5882EA7261F006012E7 /* WYCodableBridge.swift in Sources */,
+				58328C762FC939EE00C0F556 /* WYScrollViewWillBeginDeceleratingSwizzler.swift in Sources */,
 				58C68DC32E84E436005FD054 /* WYAttributedStringObjC.swift in Sources */,
 				58C68E342E8537A5005FD054 /* WYAlertControllerObjC.swift in Sources */,
 				58C68DC52E84E436005FD054 /* WYBoolObjC.swift in Sources */,
 				58C68DC62E84E436005FD054 /* WYChatConfig.swift in Sources */,
 				58C68DC72E84E436005FD054 /* WYBool.swift in Sources */,
 				58C68DC82E84E436005FD054 /* WYChatBasicCell.swift in Sources */,
+				58328C682FC9378F00C0F556 /* WYViewDidAppearSwizzler.swift in Sources */,
 				58C68DC92E84E436005FD054 /* WYChatTakePatCell.swift in Sources */,
 				58C68DCA2E84E436005FD054 /* WYViewController.swift in Sources */,
 				58C68DCB2E84E436005FD054 /* WYFontObjC.swift in Sources */,
+				58328C782FC93A1700C0F556 /* WYScrollViewDidEndDeceleratingSwizzler.swift in Sources */,
 				58C68DCC2E84E436005FD054 /* WYNumberFormatterObjC.swift in Sources */,
+				58328C882FC93B7A00C0F556 /* WYTouchesEndedSwizzler.swift in Sources */,
 				585800E82EC975E300027B75 /* WYCollectionViewFlowLayoutObjC.swift in Sources */,
 				58C68DCD2E84E436005FD054 /* WYTextField.swift in Sources */,
 				584EAF142E94ACB4003A21B8 /* WYNetworkConfigObjC.swift in Sources */,
@@ -2205,6 +2697,8 @@
 				58C68DD62E84E436005FD054 /* WYView.swift in Sources */,
 				58C68DD72E84E436005FD054 /* WYChatEmojiView.swift in Sources */,
 				58C68DD82E84E436005FD054 /* WYLocalizableManager.swift in Sources */,
+				58328C662FC9374900C0F556 /* WYViewWillAppearSwizzler.swift in Sources */,
+				58328C6E2FC938D600C0F556 /* WYScrollViewDidScrollSwizzler.swift in Sources */,
 				583E04F22E868138004F1034 /* WYColorObjC.swift in Sources */,
 				58C68DD92E84E436005FD054 /* WYTableView.swift in Sources */,
 				58C68DDA2E84E436005FD054 /* WYChatMoreView.swift in Sources */,
@@ -2212,13 +2706,17 @@
 				58C68DDC2E84E436005FD054 /* WYChatLocationCell.swift in Sources */,
 				58C68DDD2E84E436005FD054 /* WYArrayObjC.swift in Sources */,
 				58C68DDE2E84E436005FD054 /* WYDictionaryObjC.swift in Sources */,
+				58328C7E2FC93AAA00C0F556 /* WYHitTestSwizzler.swift in Sources */,
+				58328C9A2FC93D2200C0F556 /* WYCollectionViewContentSizeSwizzler.swift in Sources */,
 				58C68DDF2E84E436005FD054 /* WYPhotoAlbumsAuthorizationObjC.swift in Sources */,
 				584EAF162E94ACC3003A21B8 /* WYNetworkManagerObjC.swift in Sources */,
 				58C68DE02E84E436005FD054 /* WYImage.swift in Sources */,
+				58328C8C2FC93BCA00C0F556 /* WYSizeThatFitsSwizzler.swift in Sources */,
 				583E04EE2E8644DD004F1034 /* WYCollectionViewObjC.swift in Sources */,
 				58C68DE12E84E436005FD054 /* WYMoveupTipsView.swift in Sources */,
 				58C68DE22E84E436005FD054 /* WYMicrophoneAuthorizationObjC.swift in Sources */,
 				58C68DE32E84E436005FD054 /* WYFloatObjC.swift in Sources */,
+				58328C9E2FC93D8000C0F556 /* WYGestureRecognizerShouldBeginSwizzler.swift in Sources */,
 				58C68DE42E84E436005FD054 /* WYNetworkManager.swift in Sources */,
 				58C68DE52E84E436005FD054 /* WYLogManager.swift in Sources */,
 				58C68E322E850EFC005FD054 /* WYViewObjC.swift in Sources */,
@@ -2228,13 +2726,17 @@
 				58C68DE92E84E436005FD054 /* WYDouble.swift in Sources */,
 				58C68DEA2E84E436005FD054 /* WYBasisKitConfig.swift in Sources */,
 				58C68DEB2E84E436005FD054 /* WYEventHandler.swift in Sources */,
+				58328C842FC93B3400C0F556 /* WYTouchesMovedSwizzler.swift in Sources */,
 				58C68DEC2E84E436005FD054 /* WYMicrophoneAuthorization.swift in Sources */,
 				58C68DED2E84E436005FD054 /* WYChatFileCell.swift in Sources */,
 				58B470462E8D2CCD00D04BCA /* WYEventHandlerObjC.swift in Sources */,
 				58C68E362E853D71005FD054 /* WYApplicationObjC.swift in Sources */,
 				58C68DEE2E84E436005FD054 /* WYObjectObjC.swift in Sources */,
+				58328C8A2FC93BA400C0F556 /* WYDrawRectSwizzler.swift in Sources */,
 				580ED58E2EA72649006012E7 /* WYCodableProtocol.swift in Sources */,
+				58328C622FC936D100C0F556 /* WYPresentSwizzler.swift in Sources */,
 				58C68DEF2E84E436005FD054 /* WYAlertController.swift in Sources */,
+				5806BD102FD3D25400FEA501 /* WYTask.swift in Sources */,
 				58C68DF02E84E436005FD054 /* WYChatCallCell.swift in Sources */,
 				58C68DF22E84E436005FD054 /* WYEmojiPreviewView.swift in Sources */,
 				58C68DF32E84E436005FD054 /* WYMediaPlayer.swift in Sources */,
@@ -2242,6 +2744,7 @@
 				58C68DF52E84E436005FD054 /* WYScrollView.swift in Sources */,
 				583E04F02E867100004F1034 /* WYTableViewObjC.swift in Sources */,
 				5814080F2EC881AB0099D41B /* WYTableViewCellObjC.swift in Sources */,
+				58328C862FC93B5700C0F556 /* WYTouchesCancelledSwizzler.swift in Sources */,
 				58C68DF62E84E436005FD054 /* WYCodableUnkeyedContainer.swift in Sources */,
 				583E04EC2E8635CA004F1034 /* WYButtonObjC.swift in Sources */,
 				585800E62EC9756100027B75 /* WYCollectionViewFlowLayout.swift in Sources */,
@@ -2249,6 +2752,7 @@
 				58C68DF82E84E436005FD054 /* WYCameraAuthorization.swift in Sources */,
 				58C68DF92E84E436005FD054 /* WYChatWebpageCell.swift in Sources */,
 				58C68DFA2E84E436005FD054 /* WYEmojiViewCell.swift in Sources */,
+				58328C7C2FC93A7C00C0F556 /* WYObserveValueSwizzler.swift in Sources */,
 				58C68DFB2E84E436005FD054 /* WYApplication.swift in Sources */,
 				5814080A2EC831A50099D41B /* WYTableViewCell.swift in Sources */,
 				58C68DFC2E84E436005FD054 /* WYButton.swift in Sources */,
@@ -2256,20 +2760,26 @@
 				58C68DFE2E84E436005FD054 /* WYEmojiFuncAreaView.swift in Sources */,
 				5802B28E2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift in Sources */,
 				58C68DFF2E84E436005FD054 /* WYChatInputView.swift in Sources */,
+				584D59E62FBEEE8400A862F7 /* WYTextViewObjC.swift in Sources */,
 				58C68E002E84E436005FD054 /* WYArray.swift in Sources */,
 				58C68E012E84E436005FD054 /* WYContactsAuthorization.swift in Sources */,
+				58328CA12FC9919200C0F556 /* WYTextRectSwizzler.swift in Sources */,
 				58C68E022E84E436005FD054 /* WYWebView.swift in Sources */,
 				58C68E032E84E436005FD054 /* WYLayer.swift in Sources */,
 				58C68E042E84E436005FD054 /* WYChatLuckyMoneyCell.swift in Sources */,
 				58C68E052E84E436005FD054 /* WYCodableDefaultValue.swift in Sources */,
 				58C68E062E84E436005FD054 /* WYChatViewEventHandler.swift in Sources */,
+				58328C902FC93C2D00C0F556 /* WYIntrinsicContentSizeSwizzler.swift in Sources */,
 				58C68E072E84E436005FD054 /* WYLayerObjC.swift in Sources */,
+				58EE7B0B2FB84A65009AA0CC /* WYTextView.swift in Sources */,
 				58C68E082E84E436005FD054 /* WYMoreViewCell.swift in Sources */,
 				58C68E092E84E436005FD054 /* WYSpeechRecognitionAuthorizationObjC.swift in Sources */,
+				58328C942FC93CA900C0F556 /* WYLayoutAttributesForElementsSwizzler.swift in Sources */,
 				58C68E0A2E84E436005FD054 /* WYAudioKit.swift in Sources */,
 				58C68E0B2E84E436005FD054 /* WYFloatingPointObjC.swift in Sources */,
 				58C68E0C2E84E436005FD054 /* WYScrollViewObjC.swift in Sources */,
 				58C68E0D2E84E436005FD054 /* WYDeviceObjC.swift in Sources */,
+				58328C9C2FC93D4C00C0F556 /* WYShouldInvalidateLayoutSwizzler.swift in Sources */,
 				58C68E0E2E84E436005FD054 /* WYFloatingPoint.swift in Sources */,
 				58C68E0F2E84E436005FD054 /* WYChatRecordsCell.swift in Sources */,
 				58C68E102E84E436005FD054 /* WYString.swift in Sources */,
@@ -2279,8 +2789,10 @@
 				58C68E132E84E436005FD054 /* WYChatMusicCell.swift in Sources */,
 				58C68E142E84E436005FD054 /* WYImageObjC.swift in Sources */,
 				58C68E152E84E436005FD054 /* WYChatBusinessCardCell.swift in Sources */,
+				58328C922FC93C7C00C0F556 /* WYPrepareSwizzler.swift in Sources */,
 				583C41B42E9220E9007379FC /* WYStorageObjC.swift in Sources */,
 				58C68E162E84E436005FD054 /* WYNumber.swift in Sources */,
+				58328C6C2FC9383A00C0F556 /* WYViewDidDisappearSwizzler.swift in Sources */,
 				58C68E172E84E436005FD054 /* WYContactsAuthorizationObjC.swift in Sources */,
 				58C68E182E84E436005FD054 /* WYDecimal.swift in Sources */,
 				58C68E192E84E436005FD054 /* WYChatView.swift in Sources */,
@@ -2290,8 +2802,10 @@
 				583E04FC2E879984004F1034 /* WYViewControllerObjC.swift in Sources */,
 				58C68E1D2E84E436005FD054 /* WYColor.swift in Sources */,
 				58C68E1E2E84E436005FD054 /* WYSpeechRecognitionAuthorization.swift in Sources */,
+				58328C962FC93CD000C0F556 /* WYLayoutAttributesForItemSwizzler.swift in Sources */,
 				58C68E1F2E84E436005FD054 /* WYChatPhotoCell.swift in Sources */,
 				58C68E202E84E436005FD054 /* WYStorage.swift in Sources */,
+				584D59E32FBC353300A862F7 /* WYMethodSwizzlerCenter.swift in Sources */,
 				58C68E212E84E436005FD054 /* WYBannerView.swift in Sources */,
 				58C68E222E84E436005FD054 /* WYCodableObjC.swift in Sources */,
 				58C68E232E84E436005FD054 /* WYTimer.swift in Sources */,
@@ -2301,6 +2815,7 @@
 				58C68E252E84E436005FD054 /* WYActivity.swift in Sources */,
 				58C359722F401F9F000E6EF0 /* WYLocationAuthorizationObjC.swift in Sources */,
 				58C68E262E84E436005FD054 /* WYCodableAdapter.swift in Sources */,
+				58328C802FC93ACE00C0F556 /* WYLayoutSubviewsSwizzler.swift in Sources */,
 				58C68E272E84E436005FD054 /* WYDoubleObjC.swift in Sources */,
 				58B46FEA2E8C080700D04BCA /* WYLogManagerObjC.swift in Sources */,
 				58C68E282E84E436005FD054 /* WYBiometricAuthorization.swift in Sources */,
@@ -2310,15 +2825,24 @@
 				583E04FA2E8690D1004F1034 /* WYWebViewObjC.swift in Sources */,
 				58C68E292E84E436005FD054 /* WYDictionary.swift in Sources */,
 				58C68E2A2E84E436005FD054 /* WYChatWithdrawnCell.swift in Sources */,
+				58328C8E2FC93C0600C0F556 /* WYDrawTextSwizzler.swift in Sources */,
 				58C68E2B2E84E436005FD054 /* WYChatVoiceCell.swift in Sources */,
+				58328C982FC93CF700C0F556 /* WYLayoutAttributesForSupplementaryViewSwizzler.swift in Sources */,
+				58328C742FC939B100C0F556 /* WYScrollViewDidEndDraggingSwizzler.swift in Sources */,
+				58328C7A2FC93A4100C0F556 /* WYScrollViewDidZoomSwizzler.swift in Sources */,
+				58328C702FC9391800C0F556 /* WYScrollViewWillBeginDraggingSwizzler.swift in Sources */,
 				58C68E2C2E84E436005FD054 /* WYSoundWavesView.swift in Sources */,
+				58328C602FC9364600C0F556 /* WYPopViewControllerSwizzler.swift in Sources */,
 				58C68E2D2E84E436005FD054 /* WYActivityObjC.swift in Sources */,
 				585B39A22DF8125400E6E08F /* AppDelegate.swift in Sources */,
 				585B39A32DF8125400E6E08F /* ViewController.swift in Sources */,
 				588D00812E5FEB570034A1CF /* AutoLayout.swift in Sources */,
+				58328C822FC93B1200C0F556 /* WYTouchesBeganSwizzler.swift in Sources */,
+				58328C722FC9398100C0F556 /* WYScrollViewWillEndDraggingSwizzler.swift in Sources */,
 				584EAF102E93C116003A21B8 /* WYScrollTextObjC.swift in Sources */,
 				58BE5F032E5E94210046AD5D /* Swift↔ObjC.swift in Sources */,
 				586FFBB32E8230A700499506 /* Other.swift in Sources */,
+				58328C642FC9371800C0F556 /* WYViewDidLoadSwizzler.swift in Sources */,
 				583E04F82E869051004F1034 /* WYTextFieldObjC.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2355,6 +2879,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = AAZ295K3HU;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WYBasisKit/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = WYBasisKit;
@@ -2389,6 +2914,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = AAZ295K3HU;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WYBasisKit/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = WYBasisKit;
@@ -2450,6 +2976,7 @@
 				DEVELOPMENT_TEAM = 48Q2YZZG66;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -2515,6 +3042,7 @@
 				DEVELOPMENT_TEAM = 48Q2YZZG66;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;

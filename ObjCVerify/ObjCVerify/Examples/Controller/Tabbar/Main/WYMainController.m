@@ -49,14 +49,17 @@
             [[ListItem alloc] initWithTitle:@"边框、圆角、阴影、渐变"
                                  controller:@"WYTestVisualController"],
             
-            [[ListItem alloc] initWithTitle:@"ButtonEdgeInsets"
-                                 controller:@"WYTestButtonEdgeInsetsController"],
+            [[ListItem alloc] initWithTitle:@"内边距"
+                                 controller:@"WYTestEdgeInsetsController"],
             
             [[ListItem alloc] initWithTitle:@"Banner轮播"
                                  controller:@"WYTestBannerController"],
             
             [[ListItem alloc] initWithTitle:@"富文本"
                                  controller:@"WYTestRichTextController"],
+            
+            [[ListItem alloc] initWithTitle:@"字符串子串点击"
+                                 controller:@"WYTestTextViewController"],
             
             [[ListItem alloc] initWithTitle:@"无限层折叠TableView"
                                  controller:@"WYMultilevelTableViewController"],
@@ -142,6 +145,11 @@
 @end
 
 @implementation WYMainController
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    wy_print(@"returnValue = %@",self.wy_returnValue);
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];

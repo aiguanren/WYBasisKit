@@ -1,19 +1,19 @@
 //
-//  WYTestButtonEdgeInsetsController.m
+//  WYTestEdgeInsetsController.m
 //  ObjCVerify
 //
 //  Created by guanren on 2025/10/17.
 //
 
-#import "WYTestButtonEdgeInsetsController.h"
+#import "WYTestEdgeInsetsController.h"
 #import <WYBasisKitObjC/WYBasisKitObjC.h>
 #import <Masonry/Masonry.h>
 
-@interface WYTestButtonEdgeInsetsController ()
+@interface WYTestEdgeInsetsController ()
 
 @end
 
-@implementation WYTestButtonEdgeInsetsController
+@implementation WYTestEdgeInsetsController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -34,8 +34,8 @@
     [button mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.view).offset(10);
         make.right.equalTo(self.view).offset(-10);
-        make.height.equalTo(@200);
-        make.centerY.equalTo(self.view).mas_offset(-150);
+        make.height.equalTo(@100);
+        make.top.equalTo(self.view).mas_offset(UIDevice.wy_navViewHeight + 20);
     }];
     [button wy_adjustPosition:WYButtonPositionImageRightTitleLeft spacing:5];
     
@@ -54,7 +54,7 @@
     [itemButton mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.view).offset(10);
         make.right.equalTo(self.view).offset(-10);
-        make.height.equalTo(@200);
+        make.height.equalTo(@100);
         make.centerY.equalTo(button.mas_bottom).offset(100);
     }];
     

@@ -11,6 +11,15 @@ import UIKit
 import WYBasisKitSwift
 #endif
 
+/// 间距插入位置
+@objc(WYSpacingPosition)
+@frozen public enum WYSpacingPositionObjC: Int {
+    /// 在范围之前插入间距
+    case before = 0
+    /// 在范围之后插入间距
+    case after
+}
+
 @objc public extension NSMutableAttributedString {
     
     /**
@@ -42,7 +51,7 @@ import WYBasisKitSwift
     @discardableResult
     @objc(wy_setBackgroundColor:rangeValue:)
     func wy_setBackgroundColorObjC(_ color: UIColor, rangeValue: Any? = nil) -> NSMutableAttributedString {
-        wy_setBackgroundColor(color, rangeValue: rangeValue)
+        return wy_setBackgroundColor(color, rangeValue: rangeValue)
     }
     
     /**
@@ -80,38 +89,32 @@ import WYBasisKitSwift
     func wy_lineSpacingObjC(_ lineSpacing: CGFloat, rangeValue: Any?, alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
         return wy_lineSpacing(lineSpacing, rangeValue: rangeValue, alignment: alignment)
     }
-    @discardableResult
-    @objc(wy_lineSpacing:)
-    func wy_lineSpacingObjC(_ lineSpacing: CGFloat) -> NSMutableAttributedString {
-        return wy_lineSpacing(lineSpacing, rangeValue: nil, alignment: .left)
-    }
-    @discardableResult
-    @objc(wy_alignment:)
-    func wy_alignmentObjC(_ alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
-        return wy_lineSpacing(0, rangeValue: nil, alignment: alignment)
-    }
     
     /**
      *  设置两个指定字符串之间的段落间距
      *
-     *  该方法会在 `beforeString` 所在段落的末尾增加 `lineSpacing` 间距，
+     *  该方法会在 `beforeString` 所在段落的末尾增加 `paragraphSpace` 间距，
      *  从而影响其与 `afterString` 所在段落之间的距离。
      *
+     *  如原始文本: 这是第一段，包含 beforeString。\n(换行)
+     *            这是第二段，包含 afterString。
+     *  调用后第一段底部和第二段头部之间会增加 paragraphSpace 的空白间距
+     *
      *  - Parameters:
-     *    - lineSpacing:   段落间距值（单位：pt），需大于 0
-     *    - beforeString:  起始字符串，其所在段落的底部将会增加间距
-     *    - afterString:   结束字符串，必须位于 `beforeString` 之后
-     *    - alignment:     段落对齐方式，默认为 `.left`
+     *    - paragraphSpace:   段落间距值（单位：pt），需大于 0
+     *    - beforeString:     起始字符串，其所在段落的底部将会增加间距
+     *    - afterString:      结束字符串，必须位于 `beforeString` 之后
+     *    - alignment:        段落对齐方式，默认为 `.left`
      *
      *  - Returns: 当前 `NSMutableAttributedString` 对象，
      */
     @discardableResult
-    @objc(wy_lineSpacing:beforeString:afterString:alignment:)
-    func wy_lineSpacingObjC(_ lineSpacing: CGFloat,
-                            beforeString: String,
-                            afterString: String,
-                            alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
-        return wy_lineSpacing(lineSpacing, beforeString: beforeString, afterString: afterString, alignment: alignment)
+    @objc(wy_paragraphSpace:beforeString:afterString:alignment:)
+    func wy_paragraphSpaceObjC(_ paragraphSpace: CGFloat,
+                               beforeString: String,
+                               afterString: String,
+                               alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
+        return wy_paragraphSpace(paragraphSpace, beforeString: beforeString, afterString: afterString, alignment: alignment)
     }
     
     /**
@@ -135,10 +138,29 @@ import WYBasisKitSwift
     }
     
     /**
-     *  文本添加内边距，支持多种范围定义
+     在指定范围 前/后 插入水平间距
+     
+     - Parameters:
+     - spacing:     要插入的间距值（单位：pt），需大于 0
+     - position:    插入位置，`.before`（范围之前）或 `.after`（范围之后）
+     - rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
+     
+     - Returns: 当前 `NSMutableAttributedString` 对象
+     */
+    @discardableResult
+    @objc(wy_insertSpacing:position:rangeValue:)
+    func wy_insertSpacingObjC(_ spacing: CGFloat,
+                              position: WYSpacingPositionObjC,
+                              rangeValue: Any? = nil) -> NSMutableAttributedString {
+        
+        return wy_insertSpacing(spacing, position: WYSpacingPosition(rawValue: position.rawValue) ?? .before, rangeValue: rangeValue)
+    }
+    
+    /**
+     *  文本添加段落缩进
      *
      *  - Parameters:
-     *    - rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
+     *    - rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
      *    - firstLineHeadIndent:  首行左边距
      *    - headIndent:  第二行及以后的左边距(换行符\n除外)
      *    - tailIndent:  尾部右边距
@@ -147,20 +169,13 @@ import WYBasisKitSwift
      *  - Returns: 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
-    @objc(wy_innerMarginWithRangeValue:firstLineHeadIndent:headIndent:tailIndent:alignment:)
-    func wy_innerMarginObjC(rangeValue: Any?,
-                            firstLineHeadIndent: CGFloat = 0,
-                            headIndent: CGFloat = 0,
-                            tailIndent: CGFloat = 0,
-                            alignment: NSTextAlignment = .justified) -> NSMutableAttributedString {
-        return wy_innerMargin(rangeValue: rangeValue, firstLineHeadIndent: firstLineHeadIndent, headIndent: headIndent, tailIndent: tailIndent, alignment: alignment)
-    }
-    @discardableResult
-    @objc func wy_innerMarginWith(firstLineHeadIndent: CGFloat = 0,
-                                  headIndent: CGFloat = 0,
-                                  tailIndent: CGFloat = 0,
-                                  alignment: NSTextAlignment = .justified) -> NSMutableAttributedString {
-        return wy_innerMargin(rangeValue: nil, firstLineHeadIndent: firstLineHeadIndent, headIndent: headIndent, tailIndent: tailIndent, alignment: alignment)
+    @objc(wy_paragraphIndentsWithRangeValue:firstLineHeadIndent:headIndent:tailIndent:alignment:)
+    func wy_paragraphIndentsObjC(rangeValue: Any?,
+                                 firstLineHeadIndent: CGFloat = 0,
+                                 headIndent: CGFloat = 0,
+                                 tailIndent: CGFloat = 0,
+                                 alignment: NSTextAlignment = .justified) -> NSMutableAttributedString {
+        return wy_paragraphIndents(rangeValue: rangeValue, firstLineHeadIndent: firstLineHeadIndent, headIndent: headIndent, tailIndent: tailIndent, alignment: alignment)
     }
     
     /**

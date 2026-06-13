@@ -112,6 +112,8 @@
 
 "秒" = "sekunder";
 
-"定位权限被限制" = "Platstillstånd är begränsat"
+"定位权限被限制" = "Platstillstånd är begränsat";
 
-"App没有访问定位的权限，现在去授权?" = "Appen har inte behörighet att komma åt din plats. Vill du ge behörighet nu?"
+"App没有访问定位的权限，现在去授权?" = "Appen har inte behörighet att komma åt din plats. Vill du ge behörighet nu?";
+
+"任务执行超时" = "Tidsgräns för uppgiftskörning överskriden";

@@ -112,6 +112,8 @@
 
 "秒" = "sekundy";
 
-"定位权限被限制" = "Uprawnienia do lokalizacji są ograniczone"
+"定位权限被限制" = "Uprawnienia do lokalizacji są ograniczone";
 
-"App没有访问定位的权限，现在去授权?" = "Aplikacja nie ma uprawnień do dostępu do Twojej lokalizacji. Czy chcesz je teraz przyznać?"
+"App没有访问定位的权限，现在去授权?" = "Aplikacja nie ma uprawnień do dostępu do Twojej lokalizacji. Czy chcesz je teraz przyznać?";
+
+"任务执行超时" = "Przekroczenie czasu wykonania zadania";

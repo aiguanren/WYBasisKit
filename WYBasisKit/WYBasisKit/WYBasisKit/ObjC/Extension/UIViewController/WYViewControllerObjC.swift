@@ -71,12 +71,6 @@ import WYBasisKitSwift
         wy_showOnlyViewController(className: className, parameters: parameters, displaMode: WYDisplaMode(rawValue: displaMode.rawValue) ?? .push, animated: animated)
     }
     
-    /// 返回到指定的视图控制器
-    @objc(wy_backToViewControllerWithClassName:animated:)
-    func wy_backToViewControllerObjC(className: String, animated: Bool = true) {
-        wy_backToViewController(className: className, animated: animated)
-    }
-    
     /// 跳转到指定的视图控制器(通用)
     @objc(wy_showViewController:parameters:displaMode:animated:)
     func wy_showViewControllerObjC(controller: UIViewController, parameters: AnyObject? = nil, displaMode: WYDisplaModeObjC = .push, animated: Bool = true) {
@@ -95,10 +89,33 @@ import WYBasisKitSwift
         return WYDisplaModeObjC(rawValue: wy_viewControllerDisplaMode().rawValue) ?? .push
     }
     
+    /**
+     返回到指定的视图控制器
+     - Parameters:
+       - className: 要返回到哪个控制器，如果为nil，则表示返回到上一个控制器
+       - returnValue: 要带给回退页面的返回值，默认nil
+       - animated: 是否以动画的方式返回，默认True
+     */
+    @objc(wy_backToViewControllerWithClassName:returnValue:animated:)
+    func wy_backToViewControllerObjC(className: String? = nil, returnValue: Any? = nil, animated: Bool = true) {
+        wy_backToViewController(className: className, returnValue: returnValue, animated: animated)
+    }
+    @objc(wy_backToLastViewControllerWithReturnValue:animated:)
+    func wy_backToLastViewControllerObjC(returnValue: Any? = nil, animated: Bool = true) {
+        wy_backToViewController(className: nil, returnValue: returnValue, animated: animated)
+    }
+    
     /// 控制器附加参数
     @objc(wy_parameters)
     var wy_parametersObjC: AnyObject? {
         set(newValue) { wy_parameters = newValue }
         get { return wy_parameters }
+    }
+    
+    /// 控制器触发返回操作时回调给指定页面的返回值
+    @objc(wy_returnValue)
+    var wy_returnValueObjC: Any? {
+        set(newValue) { wy_returnValue = newValue }
+        get { return wy_returnValue }
     }
 }

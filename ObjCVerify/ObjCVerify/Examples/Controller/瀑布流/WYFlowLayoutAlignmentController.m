@@ -187,7 +187,7 @@
             CGFloat lineSpacing = 5;
             
             NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:testString];
-            [attributedString wy_lineSpacing:lineSpacing];
+            [attributedString wy_lineSpacing:lineSpacing rangeValue:attributedString.string alignment:NSTextAlignmentLeft];
             [attributedString wy_setFontForRanges:@{testFont: testString}];
             
             CGFloat stringWidth = [attributedString wy_calculateWidthWithControlHeight:testFont.lineHeight];

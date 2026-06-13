@@ -6,7 +6,7 @@ localizable_bundle = "#{kit_path}Swift/Localizable/WYLocalizable.bundle"
 
 Pod::Spec.new do |kit|
   kit.name         = "WYBasisKit-swift"
-  kit.version      = "26.5.1"
+  kit.version      = "26.6.2"
   kit.summary      = "WYBasisKit 不仅可以帮助开发者快速构建一个工程，还有基于常用网络框架和系统API而封装的各种实用方法、扩展，开发者只需简单的调用API就可以快速实现相应功能， 大幅提高开发效率。"
   kit.description  = <<-DESC
     Localizable: 国际化解决方案
@@ -19,6 +19,7 @@ Pod::Spec.new do |kit|
     Authorization: 各种权限请求与判断
     LogManager: 日志打印，日志导出等日志管理相关
     AudioKit: 音频录制与播放
+    MethodSwizzler: 内部使用，第三方请勿调用
   DESC
   
   kit.homepage     = "https://github.com/aiguanren/WYBasisKit"
@@ -31,7 +32,7 @@ Pod::Spec.new do |kit|
   kit.resource_bundles = {"WYBasisKitSwift" => [
     "#{kit_path}Swift/PrivacyInfo.xcprivacy"
   ]}
-  kit.swift_versions = ["5"]
+  kit.swift_versions = ["5.0"]
   #kit.swift_version = "5.0"
   kit.requires_arc = true
   
@@ -92,6 +93,19 @@ Pod::Spec.new do |kit|
   #             ]
   # } 
 
+  kit.subspec "MethodSwizzler" do |methodSwizzler|
+    methodSwizzler.source_files = [
+      "#{kit_path}Swift/MethodSwizzler/**/*.{swift,h,m}",
+      "#{kit_path}Swift/Extension/Task/**/*.{swift,h,m}"
+    ]
+    methodSwizzler.resource_bundles = {"WYBasisKitSwiftMethodSwizzler" => [
+      "#{kit_path}Swift/MethodSwizzler/PrivacyInfo.xcprivacy"
+    ]}
+    methodSwizzler.frameworks = "Foundation", "UIKit"
+    methodSwizzler.dependency "WYBasisKit-swift/LogManager"
+    methodSwizzler.dependency "WYBasisKit-swift/Localizable"
+  end
+
   kit.subspec "Config" do |config|
     config.source_files = [
       "#{kit_path}Swift/Config/**/*.{swift,h,m}"
@@ -105,12 +119,14 @@ Pod::Spec.new do |kit|
   kit.subspec "LogManager" do |logManager|
     logManager.source_files = [
       "#{kit_path}Swift/LogManager/**/*.{swift,h,m}",
-      "#{kit_path}Swift/Extension/UIApplication/**/*.{swift,h,m}"
+      "#{kit_path}Swift/Extension/UIApplication/**/*.{swift,h,m}",
+      "#{kit_path}Swift/Extension/Task/**/*.{swift,h,m}"
     ]
     logManager.resource_bundles = {"WYBasisKitSwiftLogManager" => [
       "#{kit_path}Swift/LogManager/PrivacyInfo.xcprivacy"
     ]}
     logManager.frameworks = "Foundation", "UIKit"
+    logManager.dependency "WYBasisKit-swift/Localizable"
   end
   
   kit.subspec "Localizable" do |localizable|
@@ -136,6 +152,7 @@ Pod::Spec.new do |kit|
     extension.dependency "WYBasisKit-swift/Localizable"
     extension.dependency "WYBasisKit-swift/Config"
     extension.dependency "WYBasisKit-swift/LogManager"
+    extension.dependency "WYBasisKit-swift/MethodSwizzler"
   end
   
   kit.subspec "Codable" do |codable|
@@ -152,7 +169,8 @@ Pod::Spec.new do |kit|
     networking.source_files = [
       "#{kit_path}Swift/Networking/**/*.{swift,h,m}",
       "#{kit_path}Swift/Extension/UIAlertController/**/*.{swift,h,m}",
-      "#{kit_path}Swift/Extension/UIApplication/**/*.{swift,h,m}"
+      "#{kit_path}Swift/Extension/UIApplication/**/*.{swift,h,m}",
+      "#{kit_path}Swift/Extension/Task/**/*.{swift,h,m}"
     ]
     networking.resources = [localizable_bundle]
     networking.resource_bundles = {"WYBasisKitSwiftNetworking" => [
@@ -186,6 +204,7 @@ Pod::Spec.new do |kit|
     activity.frameworks = "Foundation", "UIKit"
     activity.dependency "WYBasisKit-swift/Localizable"
     activity.dependency "WYBasisKit-swift/LogManager"
+    activity.dependency "WYBasisKit-swift/MethodSwizzler"
   end
   
   kit.subspec "Storage" do |storage|
@@ -340,6 +359,7 @@ Pod::Spec.new do |kit|
       scrollText.frameworks = "Foundation", "UIKit"
       scrollText.dependency "WYBasisKit-swift/Localizable"
       scrollText.dependency "WYBasisKit-swift/LogManager"
+      scrollText.dependency "WYBasisKit-swift/MethodSwizzler"
     end
     
     layout.subspec "PagingView" do |pagingView|
@@ -359,6 +379,7 @@ Pod::Spec.new do |kit|
       ]}
       pagingView.frameworks = "Foundation", "UIKit"
       pagingView.dependency "WYBasisKit-swift/LogManager"
+      pagingView.dependency "WYBasisKit-swift/MethodSwizzler"
     end
     
     layout.subspec "BannerView" do |bannerView|
@@ -380,6 +401,7 @@ Pod::Spec.new do |kit|
       bannerView.frameworks = "Foundation", "UIKit"
       bannerView.dependency "WYBasisKit-swift/Localizable"
       bannerView.dependency "WYBasisKit-swift/LogManager"
+      bannerView.dependency "WYBasisKit-swift/MethodSwizzler"
     end
     
     layout.subspec "ChatView" do |chatView|

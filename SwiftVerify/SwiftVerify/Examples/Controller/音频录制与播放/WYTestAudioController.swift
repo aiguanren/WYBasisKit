@@ -734,7 +734,7 @@ class WYTestAudioController: UIViewController {
     
     // MARK: - 状态更新
     private func logInfo(_ message: String) {
-        DispatchQueue.main.async { [weak self] in
+        Task { @MainActor [weak self] in
             guard let self = self else { return }
             let timestamp = DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .medium)
             let log = "\(timestamp): \(message)\n"
@@ -1102,7 +1102,7 @@ extension WYTestAudioController: WYAudioKitDelegate {
         let normalized = min(1.0, raw * 80.0)
         // 可选：如果想保留 sqrt 让低音量更明显，可去掉注释，但会略微降低灵敏度
         // normalized = sqrt(normalized)
-        DispatchQueue.main.async {
+        Task { @MainActor in
             self.voiceWaveView.updatePower(normalized)
         }
     }
@@ -1124,7 +1124,7 @@ extension WYTestAudioController: WYAudioKitDelegate {
         downloadProgressLabel.text = String(format: "下载进度: %.1f%%, remoteUrls：\(remoteUrls)", progress*100)
         for card in taskCards {
             if let url = card.url, remoteUrls.contains(url) {
-                DispatchQueue.main.async {
+                Task { @MainActor in
                     card.progressBar.progress = Float(progress)
                     card.progressLabel.text = String(format: "进度: %.1f%%", progress * 100)
                 }
@@ -1137,7 +1137,7 @@ extension WYTestAudioController: WYAudioKitDelegate {
             logInfo("下载成功: \(info.local)")
             for card in taskCards {
                 if let url = card.url, url == info.remote {
-                    DispatchQueue.main.async {
+                    Task { @MainActor in
                         card.progressBar.progress = 1.0
                         card.progressLabel.text = "进度: 100%"
                     }
@@ -1162,7 +1162,7 @@ extension WYTestAudioController: WYAudioKitDelegate {
         logInfo("任务失败: \(errorDescription(for: error)), 描述: \(description ?? "无"), URL: \(url, default: "空")")
         for card in taskCards {
             if let taskUrl = card.url, taskUrl == url {
-                DispatchQueue.main.async {
+                Task { @MainActor in
                     card.progressBar.progress = 0
                     card.progressLabel.text = "进度: 0%"
                 }

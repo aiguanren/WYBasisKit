@@ -25,13 +25,15 @@ class WYCenterController: UIViewController {
         testView2.frame = CGRect(x: 10, y: 100, width: UIDevice.wy_screenWidth-60, height: 200)
         testView.addSubview(testView2)
         
-        testView.layer.addSublayer(CALayer.wy_drawDashLine(direction: WYDashDirection.leftToRight, bounds: CGRect(x: UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels), y: 100, width: UIDevice.wy_screenWidth(315, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(2.5, WYBasisKitConfig.defaultScreenPixels)), color: .orange))
+        testView.layer.addSublayer(CALayer.wy_drawDashLine(direction: WYDashDirection.leftToRight, bounds: CGRect(x: UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels), y: 100, width: UIDevice.wy_screenWidth-80, height: UIDevice.wy_screenWidth(2.5, WYBasisKitConfig.defaultScreenPixels)), color: .orange))
         
-        testView.layer.addSublayer(CALayer.wy_drawDashLine(direction: WYDashDirection.topToBottom, bounds: CGRect(x: UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels), y: 100, width: UIDevice.wy_screenWidth(2.5, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(190, WYBasisKitConfig.defaultScreenPixels)), color: .black))
+        testView.layer.addSublayer(CALayer.wy_drawDashLine(direction: WYDashDirection.topToBottom, bounds: CGRect(x: UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels), y: 20, width: UIDevice.wy_screenWidth(2.5, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(190, WYBasisKitConfig.defaultScreenPixels)), color: .black))
         
         view.layer.addSublayer(CALayer.wy_drawDashLine(direction: WYDashDirection.leftToRight, bounds: CGRect(x: 20, y: 200, width: UIDevice.wy_screenWidth-40, height: 2.5), color: .orange))
         
-        view.layer.addSublayer(CALayer.wy_drawDashLine(direction: WYDashDirection.topToBottom, bounds: CGRect(x: 10, y: 100, width: 2.5, height: UIDevice.wy_screenWidth-60), color: .black))
+        view.layer.addSublayer(CALayer.wy_drawDashLine(direction: WYDashDirection.topToBottom, bounds: CGRect(x: 20, y: 200, width: 2.5, height: 300), color: .black, length: 30, spacing: 20))
+        
+        view.layer.addSublayer(CALayer.wy_drawDashLine(direction: WYDashDirection.leftToRight, bounds: CGRect(x: 20, y: UIDevice.wy_navViewHeight + 20, width: UIDevice.wy_screenWidth - 40, height: 5), color: .red, length: 5, isRound: true, spacing: 10))
         
         let image: UIImage = UIImage(named: "WYBasisKit_60*60")!.wy_cuttingRound()
         let imageView: UIImageView = UIImageView(image: image)

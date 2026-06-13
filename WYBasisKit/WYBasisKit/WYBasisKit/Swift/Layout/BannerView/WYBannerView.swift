@@ -838,7 +838,7 @@ extension WYBannerView {
                 }
 
                 guard let data = data, error == nil, let image = UIImage(data: data) else {
-                    DispatchQueue.main.async {
+                    Task { @MainActor in
                         // 下载失败显示占位图
                         if let visibleImageView = self.currentView {
                             visibleImageView.image = self.placeholderImage
@@ -856,7 +856,7 @@ extension WYBannerView {
                 try? data.write(to: pathURL)
 
                 // 回到主线程更新 UI
-                DispatchQueue.main.async {
+                Task { @MainActor in
                     // 通过 index 查找当前显示的 imageView，避免第一次空白
                     if let visibleImageView = self.currentView {
                         visibleImageView.image = image

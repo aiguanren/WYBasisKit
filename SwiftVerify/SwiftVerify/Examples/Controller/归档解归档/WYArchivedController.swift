@@ -35,10 +35,10 @@ class User: NSObject, Codable {
 }
 
 class WYArchivedController: UIViewController {
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         // Do any additional setup after loading the view.
         
         let user = User(
@@ -57,34 +57,35 @@ class WYArchivedController: UIViewController {
             let back = try codable.decode(User.self, from: data)
             WYLogManager.output(back)
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                if let saveData: Data = UserDefaults.standard.object(forKey: "UserModelKey") as? Data {
-                    do {
-                        let backData = try codable.decode(User.self, from: saveData)
-                        WYLogManager.output(backData)
-                    } catch  {
-                        print("归档或解档失败：", error.localizedDescription)
+            Task {
+                try? await Task.wy_delay(2, cancelThrows: false) {
+                    if let saveData: Data = UserDefaults.standard.object(forKey: "UserModelKey") as? Data {
+                        do {
+                            let backData = try codable.decode(User.self, from: saveData)
+                            WYLogManager.output(backData)
+                        } catch {
+                            print("归档或解档失败：", error.localizedDescription)
+                        }
+                    } else {
+                        print("从UserDefaults获取data失败")
                     }
-                    
-                }else {
-                    print("从UserDefaults获取data失败")
                 }
             }
-           
+            
         } catch {
             print("归档或解档失败：", error)
         }
     }
     
-
+    
     /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
+     // MARK: - Navigation
+     
+     // In a storyboard-based application, you will often want to do a little preparation before navigation
+     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+     // Get the new view controller using segue.destination.
+     // Pass the selected object to the new view controller.
+     }
+     */
+    
 }

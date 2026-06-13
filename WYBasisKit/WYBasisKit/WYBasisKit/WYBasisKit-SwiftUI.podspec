@@ -28,7 +28,7 @@ Pod::Spec.new do |kit|
   kit.resource_bundles = {"WYBasisKitSwiftUI" => [
     "#{kit_path}SwiftUI/PrivacyInfo.xcprivacy"
   ]}
-  kit.swift_versions = ["5"]
+  kit.swift_versions = ["5.0"]
   #kit.swift_version = "5.0"
   kit.requires_arc = true
   

@@ -170,7 +170,7 @@ public extension UIButton {
      */
     func wy_adjust(position: WYButtonPosition, spacing: CGFloat = 0) {
         
-        DispatchQueue.main.async {
+        Task { @MainActor in
             
             guard self.bounds.size != .zero else { return }
             
@@ -325,50 +325,43 @@ private extension UIButton {
     @objc private func buttonDelayHandler(_ button: UIButton) {
         intervalSelector?(button)
         isUserInteractionEnabled = false
-        DispatchQueue.main.asyncAfter(deadline: .now() + selectorInterval) { [weak self] in
-            DispatchQueue.main.async {
+        Task {
+            try? await Task.wy_delay(selectorInterval, cancelThrows: false, onMain: { [weak self] in
                 self?.isUserInteractionEnabled = true
-            }
+            })
         }
     }
     
     /***** 利用运行时自由设置UIButton的titleLabel和imageView的显示位置 *****/
     static func swizzleLayoutSubviews() {
-        _ = self.swizzleLayoutSubviewsOnce
+        _ = self.wy_swizzleLayoutSubviewsOnce
     }
     
     // 方法交换
-    private static let swizzleLayoutSubviewsOnce: Void = {
-        let cls = UIButton.self
-        let original = #selector(UIButton.layoutSubviews)
-        let swizzled = #selector(UIButton._custom_layoutSubviews)
+    private static let wy_swizzleLayoutSubviewsOnce: Void = {
         
-        if let originalMethod = class_getInstanceMethod(cls, original),
-           let swizzledMethod = class_getInstanceMethod(cls, swizzled) {
-            method_exchangeImplementations(originalMethod, swizzledMethod)
-        }
+        wy_swizzlerLayoutSubviews(for: UIButton.self, after: { currentView in
+            
+            guard let button = currentView as? UIButton else { return }
+            
+            // 强制 layout 前先 sizeToFit 避免 size 0
+            button.titleLabel?.sizeToFit()
+            button.imageView?.sizeToFit()
+            
+            if let imageView = button.imageView {
+                if let frame = button.wy_imageRect {
+                    imageView.frame = frame
+                }
+            }
+            
+            if let titleLabel = button.titleLabel {
+                if let frame = button.wy_titleRect {
+                    titleLabel.frame = frame
+                }
+            }
+        })
     }()
     
-    // 替换 layoutSubviews
-    @objc private func _custom_layoutSubviews() {
-        self._custom_layoutSubviews() // 调用原始 layoutSubviews
-        
-        // 强制 layout 前先 sizeToFit 避免 size 0
-        self.titleLabel?.sizeToFit()
-        self.imageView?.sizeToFit()
-        
-        if let imageView = self.imageView {
-            if let frame = self.wy_imageRect {
-                imageView.frame = frame
-            }
-        }
-        
-        if let titleLabel = self.titleLabel {
-            if let frame = self.wy_titleRect {
-                titleLabel.frame = frame
-            }
-        }
-    }
     /***** 利用运行时自由设置UIButton的titleLabel和imageView的显示位置 *****/
     
     struct WYAssociatedKeys {

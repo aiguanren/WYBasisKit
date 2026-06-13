@@ -718,20 +718,22 @@ public final class WYAudioKit: NSObject {
                 return
             }
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                guard let self = self else { return }
-                if FileManager.default.fileExists(atPath: first.local.path) {
-                    // 尝试播放，播放成功时回调 success，播放失败时回调 failed
-                    self.playPlayback(url: first.local,
-                                      success: { _ in
-                        success(first)
-                    },
-                                      failed: { _, error, _ in
-                        failed(error)
-                    })
-                } else {
-                    failed(WYAudioError.fileNotFound)
-                }
+            Task {
+                try? await Task.wy_delay(0.2, cancelThrows: false, onMain: {
+                    guard let self = self else { return }
+                    if FileManager.default.fileExists(atPath: first.local.path) {
+                        // 尝试播放，播放成功时回调 success，播放失败时回调 failed
+                        self.playPlayback(url: first.local,
+                                          success: { _ in
+                            success(first)
+                        },
+                                          failed: { _, error, _ in
+                            failed(error)
+                        })
+                    } else {
+                        failed(WYAudioError.fileNotFound)
+                    }
+                })
             }
         } failed: { error in
             failed(error)
@@ -1236,21 +1238,30 @@ public final class WYAudioKit: NSObject {
                 convertSessions[sourceURL] = exportSession
                 convertProgresses[sourceURL] = 0.0
                 
-                // 异步导出
-                exportSession.exportAsynchronously { [weak self] in
+                // 异步导出，提前捕获必要信息，使用 weak exportSession
+                let capturedOutputURL = outputURL
+                let capturedBatchID = batchID
+                let capturedSourceURL = sourceURL
+                
+                exportSession.exportAsynchronously { [weak self, weak exportSession] in
                     guard let self = self else { return }
-                    DispatchQueue.main.async {
-                        switch exportSession.status {
+                    // 在闭包内部先提取 exportSession 的状态和错误（值类型）
+                    let status = exportSession?.status ?? .failed
+                    let error = exportSession?.error
+                    let finalOutputURL = exportSession?.outputURL ?? capturedOutputURL
+                    
+                    Task { @MainActor in
+                        switch status {
                         case .completed:
                             // 转换成功
-                            self.convertProgresses[sourceURL] = 1.0
-                            self.convertSessions.removeValue(forKey: sourceURL)
+                            self.convertProgresses[capturedSourceURL] = 1.0
+                            self.convertSessions.removeValue(forKey: capturedSourceURL)
                             
                             // 计算整体进度并回调
-                            if let batch = self.convertGroups[batchID] {
+                            if let batch = self.convertGroups[capturedBatchID] {
                                 let total = batch.sourceUrls.count
                                 let completed = batch.sourceUrls.filter { url in
-                                    url == sourceURL || self.convertProgresses[url] == 1.0
+                                    url == capturedSourceURL || self.convertProgresses[url] == 1.0
                                 }.count
                                 let progress = Double(completed) / Double(total)
                                 self.delegate?.wy_formatConversionProgressUpdated?(audioKit: self,
@@ -1259,19 +1270,21 @@ public final class WYAudioKit: NSObject {
                             }
                             
                             // 更新批次状态
-                            if var batch = self.convertGroups[batchID] {
-                                batch.pendingUrls.remove(sourceURL)
-                                batch.outputUrls.append(outputURL)
-                                self.convertGroups[batchID] = batch
+                            if var batch = self.convertGroups[capturedBatchID] {
+                                batch.pendingUrls.remove(capturedSourceURL)
+                                batch.outputUrls.append(finalOutputURL)
+                                self.convertGroups[capturedBatchID] = batch
                                 
                                 if batch.pendingUrls.isEmpty {
                                     batch.success(batch.outputUrls)
-                                    self.convertGroups.removeValue(forKey: batchID)
+                                    self.convertGroups.removeValue(forKey: capturedBatchID)
                                 }
                             }
+                            
                         case .failed, .cancelled:
-                            let error = exportSession.error ?? WYAudioError.conversionFailed
-                            self.handleConvertError(batchID: batchID, sourceURL: sourceURL, error: error)
+                            let convertError = error ?? WYAudioError.conversionFailed
+                            self.handleConvertError(batchID: capturedBatchID, sourceURL: capturedSourceURL, error: convertError)
+                            
                         default:
                             break
                         }
@@ -1351,12 +1364,14 @@ public final class WYAudioKit: NSObject {
         
         addPlaybackEndObserver()
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-            guard let self = self, let player = self.audioPlayer else { return }
-            if player.currentItem?.status == .readyToPlay {
-                player.play()
-                self.startDisplayLinkIfNeeded()
-            }
+        Task {
+            try? await Task.wy_delay(0.2, cancelThrows: false, onMain: { [weak self] in
+                guard let self = self, let player = self.audioPlayer else { return }
+                if player.currentItem?.status == .readyToPlay {
+                    player.play()
+                    self.startDisplayLinkIfNeeded()
+                }
+            })
         }
     }
     
@@ -1393,7 +1408,7 @@ public final class WYAudioKit: NSObject {
                 let asset = AVAsset(url: url)
                 let duration = asset.duration.seconds
                 let validDuration = duration.isFinite ? duration : 0
-                DispatchQueue.main.async {
+                Task { @MainActor in
                     completion(validDuration)
                 }
             }

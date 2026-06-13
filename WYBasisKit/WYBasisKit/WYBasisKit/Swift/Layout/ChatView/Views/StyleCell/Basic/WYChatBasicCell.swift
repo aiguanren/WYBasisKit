@@ -294,13 +294,16 @@ public extension WYChatBasicCell {
             loadingView.stopAnimating()
             break
         case .sending, .notSent:
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-                guard let self = self else { return }
-                
-                self.loadingView.animationDuration = self.config.messageSendingGif.animationDuration.wy_convertTo(Double.self)
-                self.loadingView.animationImages = self.config.messageSendingGif.animationImages
-                self.loadingView.animationRepeatCount = 0
-                self.loadingView.startAnimating()
+            
+            Task {
+                try? await Task.wy_delay(0.5, cancelThrows: false, onMain: { [weak self] in
+                    guard let self = self else { return }
+                    
+                    self.loadingView.animationDuration = self.config.messageSendingGif.animationDuration.wy_convertTo(Double.self)
+                    self.loadingView.animationImages = self.config.messageSendingGif.animationImages
+                    self.loadingView.animationRepeatCount = 0
+                    self.loadingView.startAnimating()
+                })
             }
             break
         case .failed:
