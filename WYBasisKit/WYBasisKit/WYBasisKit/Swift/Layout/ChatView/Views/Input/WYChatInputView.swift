@@ -84,7 +84,7 @@ public struct WYInputBarConfig {
     public var textPlaceholderOffset: CGPoint = CGPoint(x: UIDevice.wy_screenWidth(16), y: UIDevice.wy_screenWidth(12.5))
     
     /// 输入框内文本偏移量
-    public var inputTextEdgeInsets: UIEdgeInsets = UIEdgeInsets(top: UIDevice.wy_screenWidth(13), left: UIDevice.wy_screenWidth(10), bottom: UIDevice.wy_screenWidth(5), right: UIDevice.wy_screenWidth(5))
+    public var inputTextEdgeInsets: UIEdgeInsets = UIEdgeInsets(top: UIDevice.wy_screenWidth(13), left: UIDevice.wy_screenWidth(10), bottom: UIDevice.wy_screenWidth(13), right: UIDevice.wy_screenWidth(5))
     
     /// 输入字符长度限制
     public var inputTextLength: Int = Int.max
@@ -598,8 +598,6 @@ public class WYChatInputView: UIImageView {
                                       textView.contentSize.height,
                                       inputBarConfig.inputViewHeight]
             .max() ?? 0
-        
-        wy_print("textHeight = \(textHeight)\ntextView.contentSize.height = \(textView.contentSize.height)\ninputBarConfig.inputViewHeight = \(inputBarConfig.inputViewHeight)\ncontentHeight = \(contentHeight)")
         
         if (textVoiceView.isSelected == true) {
             contentHeight = inputBarConfig.inputViewHeight
