@@ -357,7 +357,12 @@ public class WYChatInputView: UIImageView {
             textView.attributedText = sharedEmojiAttributed(string: UserDefaults.standard.value(forKey: canSaveLastInputTextKey) as? String ?? "")
             if textView.attributedText.string.utf16.count > 0 {
                 updateSpecialSendState(hasText: true)
-                textView.becomeFirstResponder()
+                Task {
+                    // 需延时调用 becomeFirstResponder()，否则键盘弹出初期 trait 未稳定，会出现暗色 → 浅色的瞬间渲染切换（闪烁问题）
+                    try? await Task.wy_delay(0.5) {
+                        self.textView.becomeFirstResponder()
+                    }
+                }
             }
         }
         
