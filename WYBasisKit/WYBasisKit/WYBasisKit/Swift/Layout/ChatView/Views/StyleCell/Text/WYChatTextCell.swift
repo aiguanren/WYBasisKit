@@ -103,8 +103,11 @@ public class WYChatTextCell: WYChatBasicCell {
         
         textView.attributedText = sharedEmojiAttributed(string: message.content.text ?? "")
         
+        // textView文本宽度
+        let textWidth: CGFloat = textView.attributedText.wy_calculateWidth(controlHeight: textView.font?.lineHeight ?? 0)
+        
         // textView显示行数是否大于1
-        let areMultipleRows: Bool = textView.wy_height > (textView.font?.lineHeight ?? 0) * 1.25
+        let areMultipleRows: Bool = textWidth > sharedTextMaxWidth()
         
         if message.isSender(userID) {
             if areMultipleRows {
