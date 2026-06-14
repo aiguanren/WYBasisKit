@@ -594,24 +594,23 @@ public class WYChatInputView: UIImageView {
             textHeight = textView.attributedText.wy_calculateHeight(controlWidth: UIDevice.wy_screenWidth - inputBarConfig.inputViewEdgeInsets.left - inputBarConfig.inputViewEdgeInsets.right - inputBarConfig.inputTextEdgeInsets.left - inputBarConfig.inputTextEdgeInsets.right - UIDevice.wy_screenWidth(10)) + inputBarConfig.inputTextEdgeInsets.top + inputBarConfig.inputTextEdgeInsets.bottom
         }
         
-        var contentHeight: CGFloat = [textHeight,textView.contentSize.height,inputBarConfig.inputViewHeight].max()!
-
+        var contentHeight: CGFloat = [textHeight,
+                                      textView.contentSize.height,
+                                      inputBarConfig.inputViewHeight]
+            .max() ?? 0
+        
+        wy_print("textHeight = \(textHeight)\ntextView.contentSize.height = \(textView.contentSize.height)\ninputBarConfig.inputViewHeight = \(inputBarConfig.inputViewHeight)\ncontentHeight = \(contentHeight)")
         
         if (textVoiceView.isSelected == true) {
             contentHeight = inputBarConfig.inputViewHeight
         }
         
-        UIView.animate(withDuration: 0.25) {[weak self] in
-            guard let self = self else {return}
-            self.textVoiceContentView.snp.updateConstraints { make in
-                make.height.equalTo(contentHeight > inputBarConfig.textViewMaxHeight ? inputBarConfig.textViewMaxHeight : contentHeight)
-            }
-            self.textVoiceContentView.superview?.layoutIfNeeded()
-        }completion: {[weak self] _ in
-            guard let self = self else {return}
-            self.textView.contentSize = CGSize(width: self.textView.contentSize.width, height: contentHeight)
-            self.updateTextViewOffset()
+        textVoiceContentView.snp.updateConstraints { make in
+            make.height.equalTo(contentHeight > inputBarConfig.textViewMaxHeight ? inputBarConfig.textViewMaxHeight : contentHeight)
         }
+        
+        textView.contentSize = CGSize(width: self.textView.contentSize.width, height: contentHeight)
+        updateTextViewOffset()
     }
     
     func updateTextViewOffset() {
