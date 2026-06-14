@@ -120,7 +120,7 @@ public struct WYInputBarConfig {
     public var textLineSpacing: CGFloat = UIDevice.wy_screenWidth(5)
 
     /// 输入框的最高高度
-    public var textViewMaxHeight: CGFloat = CGFLOAT_MAX
+    public var textViewMaxHeight: CGFloat = .greatestFiniteMagnitude
     
     /// 输入框、语音框的圆角半径
     public var textViewCornerRadius: CGFloat = UIDevice.wy_screenWidth(8)
