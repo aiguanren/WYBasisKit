@@ -148,7 +148,9 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    wy_print(@"returnValue = %@",self.wy_returnValue);
+    if (self.wy_returnValue != nil) {
+        wy_print(@"returnValue = %@",self.wy_returnValue);
+    }
 }
 
 - (void)viewDidLoad {

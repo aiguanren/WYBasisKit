@@ -124,7 +124,9 @@ class WYMainController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        wy_print("returnValue = \(String(describing: wy_returnValue))")
+        if (wy_returnValue != nil) {
+            wy_print("returnValue = \(String(describing: wy_returnValue))")
+        }
     }
     
     override func viewDidLoad() {

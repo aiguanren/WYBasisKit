@@ -612,7 +612,7 @@ private extension UIView {
             }
             
             if bounds.equalTo(.zero) {
-                WYLogManager.output("设置圆角、边框、阴影、渐变时需要view拥有frame或约束")
+                //WYLogManager.output("设置圆角、边框、阴影、渐变时需要view拥有frame或约束")
             }
             return bounds
         }
