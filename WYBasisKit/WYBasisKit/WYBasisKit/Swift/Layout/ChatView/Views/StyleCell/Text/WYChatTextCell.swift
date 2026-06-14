@@ -107,7 +107,7 @@ public class WYChatTextCell: WYChatBasicCell {
         let textWidth: CGFloat = textView.attributedText.wy_calculateWidth(controlHeight: textView.font?.lineHeight ?? 0)
         
         // textView显示行数是否大于1
-        let areMultipleRows: Bool = textWidth > sharedTextMaxWidth()
+        let areMultipleRows: Bool = (textWidth > sharedTextMaxWidth() + 1)
         
         if message.isSender(userID) {
             if areMultipleRows {

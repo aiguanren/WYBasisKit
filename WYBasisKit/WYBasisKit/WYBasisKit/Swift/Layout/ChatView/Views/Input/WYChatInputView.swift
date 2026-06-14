@@ -617,10 +617,16 @@ public class WYChatInputView: UIImageView {
     func updateTextViewOffset() {
         if textView.attributedText.string.utf16.count > 0 {
             
-            if textView.wy_height <= (textView.font?.lineHeight ?? 0) * 1.25 {
-                textView.contentOffset = CGPoint(x: 0, y: 0)
-            }else {
+            // textView文本宽度
+            let textWidth: CGFloat = textView.attributedText.wy_calculateWidth(controlHeight: textView.font?.lineHeight ?? 0)
+            
+            // textView显示行数是否大于1
+            let areMultipleRows: Bool = (textWidth > textView.wy_width + 1)
+            
+            if areMultipleRows {
                 textView.contentOffset = CGPoint(x: 0, y: textView.contentSize.height - textView.wy_height)
+            }else {
+                textView.contentOffset = CGPoint(x: 0, y: 0)
             }
         }
     }
