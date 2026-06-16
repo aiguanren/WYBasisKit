@@ -42,9 +42,9 @@ import AVFoundation
     /**
      录音声波数据更新（多通道，归一化 0.0 ~ 1.0）
      - Parameters:
-       - audioKit: 音频工具实例
-       - peakPowers: 当前各通道的归一化峰值幅度数组（0.0 ~ 1.0，0.0 最安静，1.0 最响）；适合直接用于声波动画、音量条等 UI 显示
-       - averagePowers: 当前各通道的归一化平均幅度数组（0.0 ~ 1.0）；更平滑，推荐用于语音录制波形动画
+     - audioKit: 音频工具实例
+     - peakPowers: 当前各通道的归一化峰值幅度数组（0.0 ~ 1.0，0.0 最安静，1.0 最响）；适合直接用于声波动画、音量条等 UI 显示
+     - averagePowers: 当前各通道的归一化平均幅度数组（0.0 ~ 1.0）；更平滑，推荐用于语音录制波形动画
      */
     @objc(wy_audioRecorderDidUpdateMeterings:peakPowers:averagePowers:)
     optional func wy_audioRecorderDidUpdateMeterings(audioKit: WYAudioKit, peakPowers: [Float], averagePowers: [Float])
@@ -441,17 +441,70 @@ extension WYRecordAnimationView: WYAudioKitDelegate {
     }
     
     /**
-     录音声波数据更新（多通道，归一化 0.0 ~ 1.0）
+     录音声波数据更新（单通道）
      - Parameters:
-       - audioKit: 音频工具实例
-       - peakPowers: 当前各通道的归一化峰值幅度数组（0.0 ~ 1.0，0.0 最安静，1.0 最响）；适合直接用于声波动画、音量条等 UI 显示
-       - averagePowers: 当前各通道的归一化平均幅度数组（0.0 ~ 1.0）；更平滑，推荐用于语音录制波形动画
+     - audioKit: 音频工具实例
+     - peakPower: 当前峰值功率（dB），范围 -160.0 到 0.0（0.0 表示最响，-160.0 表示最安静）；适合用于实时响应敏感的声波动画，但可能导致动画跳动剧烈
+     - averagePower: 当前平均功率（dB），范围 -160.0 到 0.0；比 peakPower 更平滑，适合语音录制页面的声波动画
      */
-    public func wy_audioRecorderDidUpdateMeterings(audioKit: WYAudioKit, peakPowers: [Float], averagePowers: [Float]) {
+    public func wy_audioRecorderDidUpdateMetering(audioKit: WYAudioKit, peakPower: Float, averagePower: Float) {
         
-        delegate?.wy_audioRecorderDidUpdateMeterings?(audioKit: audioKit, peakPowers: peakPowers, averagePowers: averagePowers)
+        //delegate?.wy_audioRecorderDidUpdateMeterings?(audioKit: audioKit, peakPowers: peakPowers, averagePowers: averagePowers)
         
-        soundWavesView.animationView.updateMeters(averagePowers: averagePowers, status: soundWavesStatus)
+        func normalize(_ power: Float) -> CGFloat {
+            let minDb: Float = -60
+            if power < minDb { return 0 }
+            return CGFloat((power - minDb) / -minDb)
+        }
+        
+        let peak = normalize(peakPower)
+        let avg  = normalize(averagePower)
+        
+        // ===== ⭐️ 核心修改（只看 avg！） =====
+        
+        var p = avg
+        
+        // 1️⃣ 去掉环境底噪（非常关键）
+        let noiseGate: CGFloat = 0.25
+        p = max(0, p - noiseGate)
+        
+        // 2️⃣ 拉伸动态范围（让它“炸开”）
+        p = p * 2.2
+        
+        // 3️⃣ 非线性增强（中间炸开）
+        p = pow(p, 1.3)
+        
+        // 4️⃣ 限制范围
+        p = min(1.0, p)
+        
+        // 5️⃣ 静音时微动（防止死线）
+        if p < 0.02 {
+            p = CGFloat.random(in: 0.0...0.015)
+        }
+        
+        // ===== ⭐️ 构造“中间强，两边弱”的数组 =====
+
+        let count = 15
+        var powers: [Float] = []
+
+        for i in 0..<count {
+            let distance = abs(CGFloat(i) - CGFloat(count - 1) / 2.0)
+            let maxDistance = CGFloat(count) / 2.0
+            
+            // 越靠中间越强
+            let weight = 1.0 - (distance / maxDistance)
+            
+            // 平滑一点（关键）
+            let shaped = pow(weight, 1.5)
+            
+            powers.append(Float(p * shaped))
+        }
+
+        // ===== 传给动画 =====
+        soundWavesView.animationView.updateMeters(
+            averagePowers: powers,
+            status: soundWavesStatus
+        )
     }
     
     /**

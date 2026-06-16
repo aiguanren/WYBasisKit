@@ -75,25 +75,35 @@ public class WYSoundWavesView: UIImageView {
 public class WYSoundAnimationView: UIView {
     
     private struct Config {
-        static let minBarHeight: CGFloat = 4.2
-        static let maxBarHeightRatio: CGFloat = 0.93
+        static let minBarHeight: CGFloat = 3.0
+        static let maxBarHeightRatio: CGFloat = 0.72
         static let cornerRadius: CGFloat = 1.0
         
         static let colorRecording: UIColor = .white
         static let colorCancel: UIColor = UIColor(red: 1.0, green: 0.23, blue: 0.21, alpha: 1.0)
-        static let colorTransfer: UIColor = .white.withAlphaComponent(0.9)
+        static let colorTransfer: UIColor = UIColor.white.withAlphaComponent(0.9)
+        
+        static let barWidth: CGFloat = 2.0
+        static let barSpacing: CGFloat = 2.0
+        static let barCount: Int = 30
     }
     
     private var targetRatios: [CGFloat] = []
     private var currentRatios: [CGFloat] = []
     private var currentStatus: WYSoundWavesStatus = .recording
     private var displayLink: CADisplayLink?
-    private var silenceDecay: CGFloat = 1.0
+    
+    private var lastPower: CGFloat = 0
+    private var fakePeak: CGFloat = 0
+    private var smoothedPower: CGFloat = 0
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .clear
-        currentRatios = Array(repeating: 0.12, count: 30)
+        
+        currentRatios = Array(repeating: 0.12, count: Config.barCount)
+        targetRatios = currentRatios
+        
         startDisplayLink()
     }
     
@@ -113,89 +123,115 @@ public class WYSoundAnimationView: UIView {
     
     @objc private func tick() {
         var needsDraw = false
+        
         for i in 0..<currentRatios.count {
-            let target = targetRatios.count > i ? targetRatios[i] : 0.12
+            let target = targetRatios[i]
             let diff = target - currentRatios[i]
-            let speed = diff > 0 ? 0.60 : 0.17 * silenceDecay
-            if abs(diff) > 0.004 {
-                currentRatios[i] += diff * speed
+            
+            let speed: CGFloat = abs(diff) > 0.1 ? 0.25 : 0.12
+            currentRatios[i] += diff * speed
+            
+            if abs(diff) > 0.002 {
                 needsDraw = true
             }
         }
-        if needsDraw { setNeedsDisplay() }
+        
+        if needsDraw {
+            setNeedsDisplay()
+        }
     }
     
     public func updateMeters(averagePowers: [Float], status: WYSoundWavesStatus) {
+        
         currentStatus = status
         
-        let barCount = max(27, recordAnimationConfig.severalSoundWaves.recording)
-        var rawValues = averagePowers.prefix(barCount).map { CGFloat($0) }
-        while rawValues.count < barCount {
-            rawValues.append(rawValues.last ?? 0.06)
-        }
+        let barCount = Config.barCount
         
-        targetRatios = rawValues.enumerated().map { index, value in
-            let center = CGFloat(barCount - 1) / 2.0
-            let dist = abs(CGFloat(index) - center) / (center + 0.3)
+        // ===== 1️⃣ 输入 =====
+        let avg = averagePowers.reduce(0, +) / Float(max(1, averagePowers.count))
+        var power = CGFloat(avg)
+        
+        // ===== 2️⃣ 降噪（降低门槛！！）=====
+        let noiseGate: CGFloat = 0.12   // ❗原来太高了
+        power = max(0, power - noiseGate)
+        
+        // ===== 3️⃣ 放大（让说话明显）=====
+        power = power * 4.0             // ❗关键：必须大
+        power = min(1.0, power)
+        
+        // ===== 4️⃣ 平滑 =====
+        smoothedPower = smoothedPower * 0.6 + power * 0.4
+        
+        let center = CGFloat(barCount - 1) / 2.0
+        
+        let time = CACurrentMediaTime()
+
+        targetRatios = (0..<barCount).map { i in
             
-            let amplified = pow(value, 0.46) * 2.75
+            let dist = abs(CGFloat(i) - center) / center
+            var value: CGFloat
             
-            var ratio: CGFloat
-            
-            if value < 0.14 && status == .recording {
-                // ==================== 静音模式：干净的中间扩散 ====================
-                let breath = sin(CACurrentMediaTime() * 5.8 + CGFloat(index) * 0.7) * 0.065 + 0.14
-                ratio = breath * (1.0 - dist * 0.85)   // 只在中间明显，向两边快速衰减
-            } else {
-                // ==================== 有声音模式：多段独立波峰 ====================
-                let wave1 = sin(CGFloat(index) * 0.9) * 0.4 + 0.85      // 主波峰
-                let wave2 = sin(CGFloat(index) * 1.65) * 0.25 + 0.65    // 次要叠加波
-                ratio = amplified * (wave1 * 0.75 + wave2 * 0.25)
+            if smoothedPower < 0.02 {
+                // ===== ✅ 静音：流动水波 =====
+                let wave = sin(CGFloat(i) * 0.5 + time * 2.5)
+                value = 0.11 + wave * 0.025
                 
-                // 中间增强
-                let centerBoost = pow(max(0.0, 1.0 - dist * 0.55), 2.25)
-                ratio *= centerBoost * 1.78
+            } else {
+                // ===== ✅ 有声：连续波形 =====
+                
+                let base = smoothedPower * 0.8
+                
+                let wave = sin(CGFloat(i) * 0.4 + time * 6.0)
+                
+                let centerBoost = 1.0 + (1 - dist) * 0.8
+                
+                value = base * centerBoost + wave * 0.12 * smoothedPower
             }
             
-            return max(0.10, min(1.0, ratio))
+            return max(0.08, min(1.0, value))
         }
         
-        let avg = targetRatios.reduce(0, +) / CGFloat(targetRatios.count)
-        silenceDecay = avg < 0.22 ? 0.58 : 1.0
-        
         if status == .cancel {
-            targetRatios = targetRatios.map { $0 * 0.55 }
+            targetRatios = targetRatios.map { $0 * 0.5 }
         }
     }
     
     public override func draw(_ rect: CGRect) {
-        guard rect.height > 20, !currentRatios.isEmpty else { return }
+        guard rect.height > 10 else { return }
+        guard !currentRatios.isEmpty else { return }
         
-        let context = UIGraphicsGetCurrentContext()!
+        guard let context = UIGraphicsGetCurrentContext() else { return }
+        
         let barColor: UIColor = {
             switch currentStatus {
             case .recording: return Config.colorRecording
-            case .cancel:    return Config.colorCancel
-            case .transfer:  return Config.colorTransfer
+            case .cancel: return Config.colorCancel
+            case .transfer: return Config.colorTransfer
             }
         }()
+        
         context.setFillColor(barColor.cgColor)
         
-        let maxH = rect.height * Config.maxBarHeightRatio
-        let w = recordAnimationConfig.soundWavesWidth
-        let s = recordAnimationConfig.soundWavesSpace
-        let totalW = CGFloat(currentRatios.count) * w + CGFloat(currentRatios.count - 1) * s
-        let startX = (rect.width - totalW) / 2.0
+        let maxHeight = rect.height * Config.maxBarHeightRatio
+        
+        let totalWidth =
+            CGFloat(Config.barCount) * Config.barWidth +
+            CGFloat(Config.barCount - 1) * Config.barSpacing
+        
+        let startX = (rect.width - totalWidth) / 2.0
         
         for (i, ratio) in currentRatios.enumerated() {
-            let h = Config.minBarHeight + ratio * (maxH - Config.minBarHeight)
-            let x = startX + CGFloat(i) * (w + s)
-            let y = (rect.height - h) / 2.0
+            let height = Config.minBarHeight + ratio * (maxHeight - Config.minBarHeight)
             
-            let barRect = CGRect(x: x, y: y, width: w, height: h)
-            let path = UIBezierPath(roundedRect: barRect, cornerRadius: Config.cornerRadius)
+            let x = startX + CGFloat(i) * (Config.barWidth + Config.barSpacing)
+            let y = (rect.height - height) / 2.0
+            
+            let rect = CGRect(x: x, y: y, width: Config.barWidth, height: height)
+            let path = UIBezierPath(roundedRect: rect, cornerRadius: Config.cornerRadius)
+            
             context.addPath(path.cgPath)
         }
+        
         context.fillPath()
     }
 }

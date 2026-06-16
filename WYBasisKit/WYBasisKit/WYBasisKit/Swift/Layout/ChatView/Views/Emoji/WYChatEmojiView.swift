@@ -38,8 +38,8 @@ public struct WYEmojiViewConfig {
     /// 最近使用表情是否需要点击发送后就立即更新
     public var instantUpdatesRecently: Bool = false
 
-    /// 自定义Emoji控件最近使用的表情显示几个(表情默认显示8列，这里就默认设置8个)
-    public var recentlyCount: Int = 8
+    /// 自定义Emoji控件最近使用的表情显示几个(表情默认显示7列，这里就默认设置7个)
+    public var recentlyCount: Int = 7
 
     /// 自定义Emoji控件最近使用表情Header文本(设置后会显示一个Header, 仅限scrollDirection == .vertical时生效)
     public var recentlyHeaderText: String = "最近使用"
@@ -63,10 +63,10 @@ public struct WYEmojiViewConfig {
     public var headerTextOffset: CGPoint = CGPoint(x: UIDevice.wy_screenWidth(15), y: (UIDevice.wy_screenWidth(30) - UIFont.systemFont(ofSize: UIDevice.wy_screenWidth(15)).lineHeight) / 2)
 
     /// 自定义Emoji控件每行显示几个表情
-    public var minimumLineCount: Int = 8
+    public var minimumLineCount: Int = 7
 
     /// 自定义Emoji控件单元格的Size
-    public var itemSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(30), height: UIDevice.wy_screenWidth(30))
+    public var itemSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(32), height: UIDevice.wy_screenWidth(32))
 
     /// 自定义Emoji控件全部表情的sectionInset
     public var sectionInset: UIEdgeInsets = UIEdgeInsets(top: 0, left: UIDevice.wy_screenWidth(15), bottom: UIDevice.wy_screenWidth(20), right: UIDevice.wy_screenWidth(15))
