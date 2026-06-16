@@ -40,14 +40,14 @@ import AVFoundation
     optional func wy_audioRecorderTimeUpdated(audioKit: WYAudioKit, currentTime: TimeInterval, duration: TimeInterval)
     
     /**
-     录音声波数据更新（多通道，归一化 0.0 ~ 1.0）
+     录音声波数据更新（单通道）
      - Parameters:
-     - audioKit: 音频工具实例
-     - peakPowers: 当前各通道的归一化峰值幅度数组（0.0 ~ 1.0，0.0 最安静，1.0 最响）；适合直接用于声波动画、音量条等 UI 显示
-     - averagePowers: 当前各通道的归一化平均幅度数组（0.0 ~ 1.0）；更平滑，推荐用于语音录制波形动画
+       - audioKit: 音频工具实例
+       - peakPower: 当前峰值功率（dB），范围 -160.0 到 0.0（0.0 表示最响，-160.0 表示最安静）；适合用于实时响应敏感的声波动画，但可能导致动画跳动剧烈
+       - averagePower: 当前平均功率（dB），范围 -160.0 到 0.0；比 peakPower 更平滑，适合语音录制页面的声波动画
      */
-    @objc(wy_audioRecorderDidUpdateMeterings:peakPowers:averagePowers:)
-    optional func wy_audioRecorderDidUpdateMeterings(audioKit: WYAudioKit, peakPowers: [Float], averagePowers: [Float])
+    @objc(wy_audioRecorderDidUpdateMetering:peakPower:averagePower:)
+    optional func wy_audioRecorderDidUpdateMetering(audioKit: WYAudioKit, peakPower: Float, averagePower: Float)
     
     /**
      音频任务执行失败
@@ -449,53 +449,61 @@ extension WYRecordAnimationView: WYAudioKitDelegate {
      */
     public func wy_audioRecorderDidUpdateMetering(audioKit: WYAudioKit, peakPower: Float, averagePower: Float) {
         
-        //delegate?.wy_audioRecorderDidUpdateMeterings?(audioKit: audioKit, peakPowers: peakPowers, averagePowers: averagePowers)
+        // 回调给外部
+        delegate?.wy_audioRecorderDidUpdateMetering?(audioKit: audioKit, peakPower: peakPower, averagePower: averagePower)
         
+        // 将 dB（-60 ~ 0）映射到 0 ~ 1，越接近 1 表示声音越大
         func normalize(_ power: Float) -> CGFloat {
-            let minDb: Float = -60
-            if power < minDb { return 0 }
+            let minDb: Float = -60 // 可调：越小 → 越“灵敏”（能感知更小声音）
+            if power < minDb { return 0 } // 小于阈值直接当静音
             return CGFloat((power - minDb) / -minDb)
         }
         
+        // 使用 average（比 peak 更稳定）
         let avg = normalize(averagePower)
         
+        // 当前“原始能量”
         var p = avg
         
-        // ===== ✅ 1️⃣ 降噪（更低一点，更灵敏）=====
+        // 降噪（Noise Gate），调大：更不敏感（小声音不动），调小：更灵敏（环境声音也会动）
         let noiseGate: CGFloat = 0.18
         p = max(0, p - noiseGate)
         
-        // ===== ✅ 2️⃣ 温和放大（关键！！）=====
-        p = p * 1.6   // ❗从 2.2 → 1.6
+        // 线性放大，调大：整体波动更明显（更“炸”），调小：整体更克制（更像微信）
+        p = p * 1.6
         
-        // ===== ✅ 3️⃣ 非线性（更柔和）=====
-        p = pow(p, 1.1)  // ❗从 1.3 → 1.1
+        // 非线性增强（曲线变换），>1：压制小声音，保留大声音（更稳），<1：放大小声音（更灵敏），建议范围：1.05 ~ 1.3
+        p = pow(p, 1.1)
         
-        // ===== ✅ 4️⃣ 限制最大值（防炸）=====
-        p = min(0.75, p)   // ❗关键！！加上限
-        
-        // ===== ✅ 5️⃣ 静音微动（更自然）=====
+        // 最大值限制（防止炸），调大：峰值更高（容易炸），调小：更平稳（推荐 0.55 ~ 0.75）
+        p = min(0.75, p)
+
+        // 静音微动（避免完全静止），让静音时有“微弱呼吸感”，调大：静音也会明显动（不推荐），调小：更接近完全静止
         if p < 0.015 {
             p = CGFloat.random(in: 0.0...0.01)
         }
         
-        // ===== ⭐️ 构造分布（稍微收敛）=====
-        
-        let count = 15
+        // 构造“中间强，两边弱”的分布
+        let count = 15 // 柱子数量（越多越细腻）
         var powers: [Float] = []
         
         for i in 0..<count {
+            
+            // 距离中心的距离
             let distance = abs(CGFloat(i) - CGFloat(count - 1) / 2.0)
             let maxDistance = CGFloat(count) / 2.0
             
+            // 中心权重（中间 = 1，两边 = 0）
             let weight = 1.0 - (distance / maxDistance)
             
-            // ❗这里也要收敛一点
-            let shaped = pow(weight, 1.8)   // 原来1.5 → 更集中
+            // 形状函数，越大：越“尖”（更集中在中间），越小：越“平”（更像一整条），推荐：1.5 ~ 2.2
+            let shaped = pow(weight, 1.8)
             
+            // 最终每一条 bar 的强度
             powers.append(Float(p * shaped))
         }
         
+        // 传给动画层
         soundWavesView.animationView.updateMeters(
             averagePowers: powers,
             status: soundWavesStatus
