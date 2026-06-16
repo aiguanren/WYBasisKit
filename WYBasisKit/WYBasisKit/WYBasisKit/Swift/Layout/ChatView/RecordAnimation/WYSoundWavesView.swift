@@ -243,9 +243,35 @@ private class Bar {
     // MARK: - 静音（水波流动）
     private func updateIdle(time: CFTimeInterval) {
         
-        let wave = sin(CGFloat(index) * 0.5 + CGFloat(time) * 2.2)
+        let speed: CGFloat = 2.2          // ⭐️ 速度
+        let frequency: CGFloat = 0.5      // ⭐️ 波密度
+        let amplitude: CGFloat = 5.0      // ⭐️ 振幅
+        let baseHeight: CGFloat = 7.5     // ⭐️ 基础高度
         
-        currentHeight = 8 + wave * 3
+        let x = CGFloat(index)
+        let center = CGFloat(36) / 2.0    // barCount = 37
+        
+        let phase = CGFloat(time) * speed
+        
+        let distance = x - center
+        
+        let wave: CGFloat
+        
+        if distance < 0 {
+            // ✅ 左边：向左流（相位 +）
+            wave = sin(x * frequency + phase)
+        } else {
+            // ✅ 右边：向右流（相位 -）
+            wave = sin(x * frequency - phase)
+        }
+        
+        // ⭐️ 半波整流（变成“团块”）
+        let positive = max(0, wave)
+        
+        // ⭐️ 收紧成水滴感
+        let shaped = pow(positive, 2.2)
+        
+        currentHeight = baseHeight + shaped * amplitude
     }
     
     // MARK: - 有声（微信核心）
