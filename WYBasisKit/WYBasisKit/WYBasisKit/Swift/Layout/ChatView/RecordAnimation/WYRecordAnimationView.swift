@@ -457,50 +457,45 @@ extension WYRecordAnimationView: WYAudioKitDelegate {
             return CGFloat((power - minDb) / -minDb)
         }
         
-        let peak = normalize(peakPower)
-        let avg  = normalize(averagePower)
-        
-        // ===== ⭐️ 核心修改（只看 avg！） =====
+        let avg = normalize(averagePower)
         
         var p = avg
         
-        // 1️⃣ 去掉环境底噪（非常关键）
-        let noiseGate: CGFloat = 0.25
+        // ===== ✅ 1️⃣ 降噪（更低一点，更灵敏）=====
+        let noiseGate: CGFloat = 0.18
         p = max(0, p - noiseGate)
         
-        // 2️⃣ 拉伸动态范围（让它“炸开”）
-        p = p * 2.2
+        // ===== ✅ 2️⃣ 温和放大（关键！！）=====
+        p = p * 1.6   // ❗从 2.2 → 1.6
         
-        // 3️⃣ 非线性增强（中间炸开）
-        p = pow(p, 1.3)
+        // ===== ✅ 3️⃣ 非线性（更柔和）=====
+        p = pow(p, 1.1)  // ❗从 1.3 → 1.1
         
-        // 4️⃣ 限制范围
-        p = min(1.0, p)
+        // ===== ✅ 4️⃣ 限制最大值（防炸）=====
+        p = min(0.75, p)   // ❗关键！！加上限
         
-        // 5️⃣ 静音时微动（防止死线）
-        if p < 0.02 {
-            p = CGFloat.random(in: 0.0...0.015)
+        // ===== ✅ 5️⃣ 静音微动（更自然）=====
+        if p < 0.015 {
+            p = CGFloat.random(in: 0.0...0.01)
         }
         
-        // ===== ⭐️ 构造“中间强，两边弱”的数组 =====
-
+        // ===== ⭐️ 构造分布（稍微收敛）=====
+        
         let count = 15
         var powers: [Float] = []
-
+        
         for i in 0..<count {
             let distance = abs(CGFloat(i) - CGFloat(count - 1) / 2.0)
             let maxDistance = CGFloat(count) / 2.0
             
-            // 越靠中间越强
             let weight = 1.0 - (distance / maxDistance)
             
-            // 平滑一点（关键）
-            let shaped = pow(weight, 1.5)
+            // ❗这里也要收敛一点
+            let shaped = pow(weight, 1.8)   // 原来1.5 → 更集中
             
             powers.append(Float(p * shaped))
         }
-
-        // ===== 传给动画 =====
+        
         soundWavesView.animationView.updateMeters(
             averagePowers: powers,
             status: soundWavesStatus
