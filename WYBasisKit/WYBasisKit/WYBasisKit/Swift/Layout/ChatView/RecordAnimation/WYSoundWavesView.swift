@@ -7,18 +7,6 @@
 
 import UIKit
 
-@frozen public enum WYSoundWavesStatus: Int {
-    
-    /// 声播正常录制状态
-    case recording = 0
-    
-    /// 语音转文字状态
-    case transfer
-    
-    /// 准备取消状态
-    case cancel
-}
-
 /// 声波动画参数配置
 public struct WYSoundWaveConfig {
     
@@ -72,60 +60,7 @@ public struct WYSoundWaveConfig {
     }
 }
 
-public class WYSoundWavesView: UIImageView {
-    
-    public lazy var animationView: WYSoundAnimationView = {
-        let animationView: WYSoundAnimationView = WYSoundAnimationView()
-        addSubview(animationView)
-        return animationView
-    }()
-    
-    public init(_ status: WYSoundWavesStatus = .recording) {
-        super.init(frame: .zero)
-        backgroundColor = .clear
-        isUserInteractionEnabled = true
-        refreshSoundWaves(status: status)
-    }
-    
-    public func refreshSoundWaves(averagePowers: [Float] = [], status: WYSoundWavesStatus) {
-        switch status {
-        case .recording:
-            image = recordAnimationConfig.backgroundImageForMoveup.recording
-            tintColor = recordAnimationConfig.backgroundColorForMoveup.recording
-            animationView.snp.updateConstraints { make in
-                make.center.equalToSuperview()
-                make.width.equalTo(((recordAnimationConfig.soundWavesWidth + recordAnimationConfig.soundWavesSpace) * CGFloat(recordAnimationConfig.severalSoundWaves.recording)) - recordAnimationConfig.soundWavesSpace)
-                make.height.equalTo(recordAnimationConfig.soundWavesHeight.recording)
-            }
-            break
-        case .transfer:
-            image = recordAnimationConfig.backgroundImageForMoveup.transfer
-            tintColor = recordAnimationConfig.backgroundColorForMoveup.transfer
-            animationView.snp.updateConstraints { make in
-                make.center.equalToSuperview()
-                make.width.equalTo(((recordAnimationConfig.soundWavesWidth + recordAnimationConfig.soundWavesSpace) * CGFloat(recordAnimationConfig.severalSoundWaves.transfer)) - recordAnimationConfig.soundWavesSpace)
-                make.height.equalTo(recordAnimationConfig.soundWavesHeight.transfer)
-            }
-            break
-        case .cancel:
-            image = recordAnimationConfig.backgroundImageForMoveup.cancel
-            tintColor = recordAnimationConfig.backgroundColorForMoveup.cancel
-            animationView.snp.updateConstraints { make in
-                make.center.equalToSuperview()
-                make.width.equalTo(((recordAnimationConfig.soundWavesWidth + recordAnimationConfig.soundWavesSpace) * CGFloat(recordAnimationConfig.severalSoundWaves.cancel)) - recordAnimationConfig.soundWavesSpace)
-                make.height.equalTo(recordAnimationConfig.soundWavesHeight.cancel)
-            }
-            break
-        }
-        animationView.updateMeters(averagePowers: averagePowers, status: status)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-}
-
-public class WYSoundAnimationView: UIView {
+public class WYSoundWavesView: UIView {
     
     /// 柱子数量（越多越细腻，但性能略降），建议：25 ~ 45
     private let barCount = 37
@@ -149,8 +84,8 @@ public class WYSoundAnimationView: UIView {
     /// 当前状态（外部不直接控制，由音量驱动）
     public var state: State = .idle
     
-    /// 当前业务状态（录音 / 取消 / 转换）
-    private var currentStatus: WYSoundWavesStatus = .recording
+    /// 当前声波线颜色
+    private var wavesColor: UIColor = .white
     
     /// 所有柱子（动画最小单位）
     private var bars: [WYAudioBarUnit] = []
@@ -160,150 +95,6 @@ public class WYSoundAnimationView: UIView {
     
     /// 屏幕刷新驱动（60FPS）
     private var displayLink: CADisplayLink!
-    
-    public override init(frame: CGRect) {
-        super.init(frame: frame)
-        setup()
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setup()
-    }
-    
-    deinit {
-        /// 释放刷新器（防止内存泄漏）
-        displayLink.invalidate()
-    }
-    
-    private func setup() {
-        
-        /// 透明背景（避免遮挡）
-        backgroundColor = .clear
-        
-        /// 创建所有柱子
-        for i in 0..<barCount {
-            bars.append(WYAudioBarUnit(index: i))
-        }
-        
-        /// 创建屏幕刷新驱动（类似游戏循环）
-        displayLink = CADisplayLink(target: self, selector: #selector(tick))
-        
-        /// 加入主线程（UI必须在主线程）
-        displayLink.add(to: .main, forMode: .common)
-    }
-    
-    /// 声波数据更新
-    public func updateMeters(averagePowers: [Float], status: WYSoundWavesStatus) {
-        
-        /// 更新业务状态（影响颜色）
-        currentStatus = status
-        
-        /// 求平均音量,避免空数组崩溃
-        let avg = averagePowers.reduce(0, +) / Float(max(1, averagePowers.count))
-        
-        /// 转 CGFloat（外部已归一化）
-        var power = CGFloat(avg)
-        
-        /// 降噪(去掉底噪),建议范围：0.05 ~ 0.15
-        power = max(0, power - 0.1)
-        
-        /// 放大（灵敏度核心）,控制整体“跳动幅度”,建议范围：2.5 ~ 5
-        power = min(1.0, power * 4.0)
-        
-        /// 平滑（防抖动）,当前值占60%，新值占40%,越大 → 越稳定但延迟高,建议：0.5 ~ 0.8
-        currentPower = currentPower * 0.6 + power * 0.4
-        
-        /// 状态切换（核心）,小于阈值 → 静音,建议范围：0.02 ~ 0.05
-        if currentPower < 0.03 {
-            state = .idle
-        } else {
-            state = .dance
-        }
-    }
-    
-    /// 动画驱动（每帧执行）
-    @objc private func tick() {
-        
-        /// 当前时间（用于动画计算）
-        let now = CACurrentMediaTime()
-        
-        /// 更新每一根柱子
-        for bar in bars {
-            bar.update(
-                time: now,
-                state: state,
-                power: currentPower
-            )
-        }
-        
-        /// 标记重绘（触发 draw）
-        setNeedsDisplay()
-    }
-    
-    /// 绘制
-    public override func draw(_ rect: CGRect) {
-        guard let ctx = UIGraphicsGetCurrentContext() else { return }
-        
-        /// 设置颜色（根据状态）
-        let color: UIColor = {
-            switch currentStatus {
-            case .recording:
-                return .white
-            case .cancel:
-                return UIColor.red
-            case .transfer:
-                return UIColor.white.withAlphaComponent(0.8)
-            }
-        }()
-        
-        ctx.setFillColor(color.cgColor)
-        
-        // 计算布局,水平中心
-        let centerX = rect.midX
-        // 计算布局,垂直中心
-        let centerY = rect.midY
-        
-        // 总宽度 = 所有柱子 + 间距
-        let totalWidth =
-        CGFloat(barCount) * barWidth +
-        CGFloat(barCount - 1) * barSpacing
-        
-        // 起点X（保证居中）
-        let startX = centerX - totalWidth / 2
-        
-        // 绘制每一根柱子
-        for (i, bar) in bars.enumerated() {
-            
-            // 当前柱子X位置
-            let x = startX + CGFloat(i) * (barWidth + barSpacing)
-            
-            // 当前高度（来自动画计算）
-            let height = bar.currentHeight
-            
-            // Y居中（上下对称）
-            let y = centerY - height / 2
-            
-            // 柱子矩形
-            let rect = CGRect(
-                x: x,
-                y: y,
-                width: barWidth,
-                height: height
-            )
-            
-            // 圆角（做成“胶囊形”）
-            let path = UIBezierPath(
-                roundedRect: rect,
-                cornerRadius: barWidth / 2
-            )
-            
-            ctx.addPath(path.cgPath)
-        }
-        
-        // 一次性填充（性能更好）
-        ctx.fillPath()
-    }
     
     /**
      
@@ -396,6 +187,138 @@ public class WYSoundAnimationView: UIView {
         // 返回所有柱子的强度数组（用于 UI 渲染）
         return powers
     }
+    
+    /// 声波数据更新
+    public func updateMeters(averagePowers: [Float], wavesColor: UIColor) {
+        
+        /// 更新业务状态（影响颜色）
+        self.wavesColor = wavesColor
+        
+        /// 求平均音量,避免空数组崩溃
+        let avg = averagePowers.reduce(0, +) / Float(max(1, averagePowers.count))
+        
+        /// 转 CGFloat（外部已归一化）
+        var power = CGFloat(avg)
+        
+        /// 降噪(去掉底噪),建议范围：0.05 ~ 0.15
+        power = max(0, power - 0.1)
+        
+        /// 放大（灵敏度核心）,控制整体“跳动幅度”,建议范围：2.5 ~ 5
+        power = min(1.0, power * 4.0)
+        
+        /// 平滑（防抖动）,当前值占60%，新值占40%,越大 → 越稳定但延迟高,建议：0.5 ~ 0.8
+        currentPower = currentPower * 0.6 + power * 0.4
+        
+        /// 状态切换（核心）,小于阈值 → 静音,建议范围：0.02 ~ 0.05
+        if currentPower < 0.03 {
+            state = .idle
+        } else {
+            state = .dance
+        }
+    }
+    
+    private func setup() {
+        
+        /// 透明背景（避免遮挡）
+        backgroundColor = .clear
+        
+        /// 创建所有柱子
+        for i in 0..<barCount {
+            bars.append(WYAudioBarUnit(index: i))
+        }
+        
+        /// 创建屏幕刷新驱动（类似游戏循环）
+        displayLink = CADisplayLink(target: self, selector: #selector(tick))
+        
+        /// 加入主线程（UI必须在主线程）
+        displayLink.add(to: .main, forMode: .common)
+    }
+    
+    /// 动画驱动（每帧执行）
+    @objc private func tick() {
+        
+        /// 当前时间（用于动画计算）
+        let now = CACurrentMediaTime()
+        
+        /// 更新每一根柱子
+        for bar in bars {
+            bar.update(
+                time: now,
+                state: state,
+                power: currentPower
+            )
+        }
+        
+        /// 标记重绘（触发 draw）
+        setNeedsDisplay()
+    }
+    
+    /// 绘制
+    public override func draw(_ rect: CGRect) {
+        guard let ctx = UIGraphicsGetCurrentContext() else { return }
+        
+        ctx.setFillColor(wavesColor.cgColor)
+        
+        // 计算布局,水平中心
+        let centerX = rect.midX
+        // 计算布局,垂直中心
+        let centerY = rect.midY
+        
+        // 总宽度 = 所有柱子 + 间距
+        let totalWidth =
+        CGFloat(barCount) * barWidth +
+        CGFloat(barCount - 1) * barSpacing
+        
+        // 起点X（保证居中）
+        let startX = centerX - totalWidth / 2
+        
+        // 绘制每一根柱子
+        for (i, bar) in bars.enumerated() {
+            
+            // 当前柱子X位置
+            let x = startX + CGFloat(i) * (barWidth + barSpacing)
+            
+            // 当前高度（来自动画计算）
+            let height = bar.currentHeight
+            
+            // Y居中（上下对称）
+            let y = centerY - height / 2
+            
+            // 柱子矩形
+            let rect = CGRect(
+                x: x,
+                y: y,
+                width: barWidth,
+                height: height
+            )
+            
+            // 圆角（做成“胶囊形”）
+            let path = UIBezierPath(
+                roundedRect: rect,
+                cornerRadius: barWidth / 2
+            )
+            
+            ctx.addPath(path.cgPath)
+        }
+        
+        // 一次性填充（性能更好）
+        ctx.fillPath()
+    }
+    
+    public override init(frame: CGRect) {
+        super.init(frame: frame)
+        setup()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setup()
+    }
+    
+    deinit {
+        /// 释放刷新器（防止内存泄漏）
+        displayLink.invalidate()
+    }
 }
 
 private class WYAudioBarUnit {
@@ -418,9 +341,9 @@ private class WYAudioBarUnit {
     
     /// 主更新入口（每一帧都会调用）
     func update(
-        time: CFTimeInterval,                     // 当前时间（系统时间戳）
-        state: WYSoundAnimationView.State,        // 当前状态（静音 / 有声）
-        power: CGFloat                            // 当前音量（0~1）
+        time: CFTimeInterval,           // 当前时间（系统时间戳）
+        state: WYSoundWavesView.State,  // 当前状态（静音 / 有声）
+        power: CGFloat                  // 当前音量（0~1）
     ) {
         switch state {
             

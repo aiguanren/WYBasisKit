@@ -93,7 +93,7 @@ public class WYRecordAnimationView: UIView {
     }()
     
     /// 当前录音状态
-    public var soundWavesStatus: WYSoundWavesStatus = .recording
+    public var soundAnimationStatus: WYSoundAnimationStatus = .recording
     
     public init(alpha: CGFloat = 1.0, delegate: WYRecordEventsHandler? = nil) {
         super.init(frame: .zero)
@@ -150,17 +150,17 @@ public class WYRecordAnimationView: UIView {
             self.refresh(subview: self.leftView, status: .recording)
             self.refresh(subview: self.rightView, status: .recording)
             self.refresh(subview: self.bottomView, status: .recording)
-            self.refresh(subview: self.soundWavesView, status: .recording)
+            self.refresh(subview: self.soundAnimationView, status: .recording)
         }
     }
     
     /// 录音功能区切换操作
-    public func switchStatus(_ status: WYSoundWavesStatus) {
+    public func switchStatus(_ status: WYSoundAnimationStatus) {
         
-        guard soundWavesStatus != status else {
+        guard soundAnimationStatus != status else {
             return
         }
-        soundWavesStatus = status
+        soundAnimationStatus = status
         
         UIView.animate(withDuration: 0.18,
                        delay: 0,
@@ -199,20 +199,20 @@ public class WYRecordAnimationView: UIView {
             
             switch status {
             case .recording:
-                self.refresh(subview: self.soundWavesView, status: .recording)
+                self.refresh(subview: self.soundAnimationView, status: .recording)
                 break
             case .cancel:
-                self.refresh(subview: self.soundWavesView, status: .cancel)
+                self.refresh(subview: self.soundAnimationView, status: .cancel)
                 break
             case .transfer:
-                self.refresh(subview: self.soundWavesView, status: .transfer)
+                self.refresh(subview: self.soundAnimationView, status: .transfer)
                 break
             }
         }
     }
     
     /// 刷新子控件视图
-    public func refresh(subview: UIView, status: WYSoundWavesStatus) {
+    public func refresh(subview: UIView, status: WYSoundAnimationStatus) {
         
         switch status {
         case .recording:
@@ -232,13 +232,13 @@ public class WYRecordAnimationView: UIView {
                 }
             }
             
-            if subview == soundWavesView {
+            if subview == soundAnimationView {
                 
-                soundWavesView.snp.updateConstraints { make in
+                soundAnimationView.snp.updateConstraints { make in
                     make.width.equalTo(recordAnimationConfig.soundWavesViewWidth.recording)
                     make.height.equalTo(recordAnimationConfig.soundWavesViewHeight.recording)
                 }
-                soundWavesView.refreshSoundWaves(status: .recording)
+                soundAnimationView.refreshSoundWaves(status: .recording)
             }
             
             if subview == bottomView {
@@ -262,13 +262,13 @@ public class WYRecordAnimationView: UIView {
                 rightView.refresh(tipsState: .transfer, isTouched: false)
             }
             
-            if subview == soundWavesView {
+            if subview == soundAnimationView {
                 
-                soundWavesView.snp.updateConstraints { make in
+                soundAnimationView.snp.updateConstraints { make in
                     make.width.equalTo(recordAnimationConfig.soundWavesViewWidth.cancel)
                     make.height.equalTo(recordAnimationConfig.soundWavesViewHeight.cancel)
                 }
-                soundWavesView.refreshSoundWaves(status: .cancel)
+                soundAnimationView.refreshSoundWaves(status: .cancel)
             }
             
             if subview == bottomView {
@@ -292,12 +292,12 @@ public class WYRecordAnimationView: UIView {
                 rightView.refresh(tipsState: .transfer, isTouched: true)
             }
             
-            if subview == soundWavesView {
-                soundWavesView.snp.updateConstraints { make in
+            if subview == soundAnimationView {
+                soundAnimationView.snp.updateConstraints { make in
                     make.width.equalTo(recordAnimationConfig.soundWavesViewWidth.transfer)
                     make.height.equalTo(recordAnimationConfig.soundWavesViewHeight.transfer)
                 }
-                soundWavesView.refreshSoundWaves(status: .transfer)
+                soundAnimationView.refreshSoundWaves(status: .transfer)
             }
             
             if subview == bottomView {
@@ -350,15 +350,15 @@ public class WYRecordAnimationView: UIView {
         return bottomView
     }()
     
-    public lazy var soundWavesView: WYSoundWavesView = {
-        let soundWavesView: WYSoundWavesView = WYSoundWavesView(.recording)
-        addSubview(soundWavesView)
-        soundWavesView.snp.makeConstraints { make in
+    public lazy var soundAnimationView: WYSoundAnimationView = {
+        let soundAnimationView: WYSoundAnimationView = WYSoundAnimationView(.recording)
+        addSubview(soundAnimationView)
+        soundAnimationView.snp.makeConstraints { make in
             make.center.equalTo(CGPoint(x: frame.size.width / 2, y: frame.size.height - recordAnimationConfig.areaHeight - recordAnimationConfig.moveupButtonOffset.bottom - recordAnimationConfig.moveupButtonOffset.top - (recordAnimationConfig.soundWavesViewHeight.recording / 2)))
             make.width.equalTo(recordAnimationConfig.soundWavesViewWidth.recording)
             make.height.equalTo(recordAnimationConfig.soundWavesViewHeight.recording)
         }
-        return soundWavesView
+        return soundAnimationView
     }()
     
     public lazy var leftView: WYMoveupTipsView = {
@@ -453,12 +453,12 @@ extension WYRecordAnimationView: WYAudioKitDelegate {
         delegate?.wy_audioRecorderDidUpdateMetering?(audioKit: audioKit, peakPower: peakPower, averagePower: averagePower)
         
         // 生成声波柱强度数组（0~1）
-        let powers: [Float] = WYSoundAnimationView.makeWaveformLevels(peakPower: peakPower, averagePower: averagePower)
+        let powers: [Float] = WYSoundWavesView.makeWaveformLevels(peakPower: peakPower, averagePower: averagePower)
         
         // 传给动画层
-        soundWavesView.animationView.updateMeters(
+        soundAnimationView.soundWavesView.updateMeters(
             averagePowers: powers,
-            status: soundWavesStatus
+            wavesColor: soundAnimationView.soundWavesColor(for: soundAnimationStatus)
         )
     }
     

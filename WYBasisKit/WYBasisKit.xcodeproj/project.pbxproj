@@ -79,6 +79,7 @@
 		587CDF902E09151500929E1D /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 587CDF8F2E09151500929E1D /* libz.tbd */; };
 		587CDF922E09153B00929E1D /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 587CDF912E09153B00929E1D /* libbz2.tbd */; };
 		588D00812E5FEB570034A1CF /* AutoLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588D00802E5FEB570034A1CF /* AutoLayout.swift */; };
+		58B415B92FE2486700C4D1AA /* WYSoundAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B415B82FE2486700C4D1AA /* WYSoundAnimationView.swift */; };
 		58B46FEA2E8C080700D04BCA /* WYLogManagerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B46FE92E8C080700D04BCA /* WYLogManagerObjC.swift */; };
 		58B470462E8D2CCD00D04BCA /* WYEventHandlerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B470452E8D2CCD00D04BCA /* WYEventHandlerObjC.swift */; };
 		58BE5F032E5E94210046AD5D /* Swift↔ObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BE5F022E5E94210046AD5D /* Swift↔ObjC.swift */; };
@@ -290,6 +291,7 @@
 		587CDF8F2E09151500929E1D /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		587CDF912E09153B00929E1D /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
 		588D00802E5FEB570034A1CF /* AutoLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoLayout.swift; sourceTree = "<group>"; };
+		58B415B82FE2486700C4D1AA /* WYSoundAnimationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYSoundAnimationView.swift; sourceTree = "<group>"; };
 		58B46FE92E8C080700D04BCA /* WYLogManagerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLogManagerObjC.swift; sourceTree = "<group>"; };
 		58B470452E8D2CCD00D04BCA /* WYEventHandlerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYEventHandlerObjC.swift; sourceTree = "<group>"; };
 		58BE5F022E5E94210046AD5D /* Swift↔ObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Swift↔ObjC.swift"; sourceTree = "<group>"; };
@@ -2129,9 +2131,10 @@
 		58C68D342E84E436005FD054 /* RecordAnimation */ = {
 			isa = PBXGroup;
 			children = (
-				5802B28D2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift */,
 				58C68D312E84E436005FD054 /* WYMoveupTipsView.swift */,
+				5802B28D2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift */,
 				58C68D322E84E436005FD054 /* WYRecordAnimationView.swift */,
+				58B415B82FE2486700C4D1AA /* WYSoundAnimationView.swift */,
 				58C68D332E84E436005FD054 /* WYSoundWavesView.swift */,
 			);
 			path = RecordAnimation;
@@ -2658,6 +2661,7 @@
 				58C68DBB2E84E436005FD054 /* WYPhotoAlbumsAuthorization.swift in Sources */,
 				58C68DBC2E84E436005FD054 /* WYPagingView.swift in Sources */,
 				58C68DBD2E84E436005FD054 /* WYCodingKeyedDecodingContainer.swift in Sources */,
+				58B415B92FE2486700C4D1AA /* WYSoundAnimationView.swift in Sources */,
 				58C68DBE2E84E436005FD054 /* WYBiometricAuthorizationObjC.swift in Sources */,
 				584EAF0A2E92A7A0003A21B8 /* WYBannerViewObjC.swift in Sources */,
 				58C68DBF2E84E436005FD054 /* WYEmojiHeaderView.swift in Sources */,
