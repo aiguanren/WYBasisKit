@@ -452,56 +452,8 @@ extension WYRecordAnimationView: WYAudioKitDelegate {
         // 回调给外部
         delegate?.wy_audioRecorderDidUpdateMetering?(audioKit: audioKit, peakPower: peakPower, averagePower: averagePower)
         
-        // 将 dB（-60 ~ 0）映射到 0 ~ 1，越接近 1 表示声音越大
-        func normalize(_ power: Float) -> CGFloat {
-            let minDb: Float = -60 // 可调：越小 → 越“灵敏”（能感知更小声音）
-            if power < minDb { return 0 } // 小于阈值直接当静音
-            return CGFloat((power - minDb) / -minDb)
-        }
-        
-        // 使用 average（比 peak 更稳定）
-        let avg = normalize(averagePower)
-        
-        // 当前“原始能量”
-        var p = avg
-        
-        // 降噪（Noise Gate），调大：更不敏感（小声音不动），调小：更灵敏（环境声音也会动）
-        let noiseGate: CGFloat = 0.18
-        p = max(0, p - noiseGate)
-        
-        // 线性放大，调大：整体波动更明显（更“炸”），调小：整体更克制（更像微信）
-        p = p * 1.6
-        
-        // 非线性增强（曲线变换），>1：压制小声音，保留大声音（更稳），<1：放大小声音（更灵敏），建议范围：1.05 ~ 1.3
-        p = pow(p, 1.1)
-        
-        // 最大值限制（防止炸），调大：峰值更高（容易炸），调小：更平稳（推荐 0.55 ~ 0.75）
-        p = min(0.75, p)
-
-        // 静音微动（避免完全静止），让静音时有“微弱呼吸感”，调大：静音也会明显动（不推荐），调小：更接近完全静止
-        if p < 0.015 {
-            p = CGFloat.random(in: 0.0...0.01)
-        }
-        
-        // 构造“中间强，两边弱”的分布
-        let count = 15 // 柱子数量（越多越细腻）
-        var powers: [Float] = []
-        
-        for i in 0..<count {
-            
-            // 距离中心的距离
-            let distance = abs(CGFloat(i) - CGFloat(count - 1) / 2.0)
-            let maxDistance = CGFloat(count) / 2.0
-            
-            // 中心权重（中间 = 1，两边 = 0）
-            let weight = 1.0 - (distance / maxDistance)
-            
-            // 形状函数，越大：越“尖”（更集中在中间），越小：越“平”（更像一整条），推荐：1.5 ~ 2.2
-            let shaped = pow(weight, 1.8)
-            
-            // 最终每一条 bar 的强度
-            powers.append(Float(p * shaped))
-        }
+        // 生成声波柱强度数组（0~1）
+        let powers: [Float] = WYSoundAnimationView.makeWaveformLevels(peakPower: peakPower, averagePower: averagePower)
         
         // 传给动画层
         soundWavesView.animationView.updateMeters(

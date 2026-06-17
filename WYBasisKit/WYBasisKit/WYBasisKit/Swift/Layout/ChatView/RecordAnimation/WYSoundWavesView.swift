@@ -19,6 +19,59 @@ import UIKit
     case cancel
 }
 
+/// 声波动画参数配置
+public struct WYSoundWaveConfig {
+    
+    /// dB 下限（默认 -60），越小 → 越“灵敏”（能感知更小声音），建议：-80 ~ -40
+    public var minDb: Float = -60
+    
+    /// 降噪阈值（默认 0.18）,越大越不灵敏（小声音不动），越小越灵敏（环境声也会触发），建议：0.12 ~ 0.30
+    public var noiseGate: CGFloat = 0.18
+    
+    /// 放大倍数（默认 1.6）,越大动画越“炸”，越小越克制，建议：1.2 ~ 2.2
+    public var gain: CGFloat = 1.6
+    
+    /// 非线性指数（曲线变换），>1：压制小声音，保留大声音（更稳），<1：放大小声音（更灵敏），建议：1.05 ~ 1.3
+    public var powerExponent: CGFloat = 1.1
+    
+    /// 最大振幅限制（默认 0.75），防止高度过高导致“炸裂”，建议：0.55 ~ 0.85
+    public var limit: CGFloat = 0.75
+    
+    /// 柱子数量（默认 15），越多越细腻，越少越粗犷，建议：11 ~ 31
+    public var numberOfColumns: Int = 15
+    
+    /// 空间分布形状（默认 1.8），越大越尖（中间高），越小越平（整体更均匀），建议：1.4 ~ 2.4
+    public var shapePower: CGFloat = 1.8
+    
+    /// 静音判定阈值（默认 0.015），当整体能量低于该值时，认为进入“静音状态”，开始触发微动逻辑，值越大越容易进入静音（更频繁触发微动，越小越接近完全静止（只有极小声音才会触发），建议：0.01 ~ 0.03
+    public var idleThreshold: CGFloat = 0.015
+    
+    /// 静音微动幅度（默认 0.01），控制静音状态下随机波动的最大值（“呼吸感”的强弱），值越大静音时波动越明显（更“活跃”，但可能显得假），越小越接近静止（更克制，轻微流动），建议：0.002 ~ 0.015
+    public var idleAmplitude: CGFloat = 0.01
+    
+    /// 唯一初始化方法
+    public init(minDb: Float = -60,
+                noiseGate: CGFloat = 0.18,
+                gain: CGFloat = 1.6,
+                powerExponent: CGFloat = 1.1,
+                limit: CGFloat = 0.75,
+                numberOfColumns: Int = 15,
+                shapePower: CGFloat = 1.8,
+                idleThreshold: CGFloat = 0.015,
+                idleAmplitude: CGFloat = 0.01) {
+        
+        self.minDb = minDb
+        self.noiseGate = noiseGate
+        self.gain = gain
+        self.powerExponent = powerExponent
+        self.limit = limit
+        self.numberOfColumns = numberOfColumns
+        self.shapePower = shapePower
+        self.idleThreshold = idleThreshold
+        self.idleAmplitude = idleAmplitude
+    }
+}
+
 public class WYSoundWavesView: UIImageView {
     
     public lazy var animationView: WYSoundAnimationView = {
@@ -74,14 +127,8 @@ public class WYSoundWavesView: UIImageView {
 
 public class WYSoundAnimationView: UIView {
     
-    /// 柱子数量（越多越细腻，但性能略降），建议范围：25 ~ 45（微信≈35+）
+    /// 柱子数量（越多越细腻，但性能略降），建议：25 ~ 45
     private let barCount = 37
-    
-    /// 最小高度（所有柱子的“地板高度”），建议范围：4 ~ 8（越小越“贴地”）
-    private let minHeight: CGFloat = 6
-    
-    /// 最大高度（限制爆炸高度），建议范围：30 ~ 60
-    private let maxHeight: CGFloat = 40
     
     /// 每根柱子的宽度，建议范围：1.5 ~ 3
     private let barWidth: CGFloat = 2.0
@@ -89,11 +136,8 @@ public class WYSoundAnimationView: UIView {
     /// 柱子之间间距，建议范围：1 ~ 3
     private let barSpacing: CGFloat = 2.0
     
-    /// 有声动画周期（影响“跳动节奏”），建议范围：0.2 ~ 0.35
-    private let danceDuration: CFTimeInterval = 0.25
-    
     /// 动画状态
-    public enum WYSoundAnimationState {
+    public enum State {
         /// 静音（水波流动）
         case idle
         /// 有声（跳动）
@@ -103,7 +147,7 @@ public class WYSoundAnimationView: UIView {
     }
     
     /// 当前状态（外部不直接控制，由音量驱动）
-    public var state: WYSoundAnimationState = .idle
+    public var state: State = .idle
     
     /// 当前业务状态（录音 / 取消 / 转换）
     private var currentStatus: WYSoundWavesStatus = .recording
@@ -166,10 +210,10 @@ public class WYSoundAnimationView: UIView {
         
         /// 放大（灵敏度核心）,控制整体“跳动幅度”,建议范围：2.5 ~ 5
         power = min(1.0, power * 4.0)
-
+        
         /// 平滑（防抖动）,当前值占60%，新值占40%,越大 → 越稳定但延迟高,建议：0.5 ~ 0.8
         currentPower = currentPower * 0.6 + power * 0.4
-
+        
         /// 状态切换（核心）,小于阈值 → 静音,建议范围：0.02 ~ 0.05
         if currentPower < 0.03 {
             state = .idle
@@ -260,6 +304,98 @@ public class WYSoundAnimationView: UIView {
         // 一次性填充（性能更好）
         ctx.fillPath()
     }
+    
+    /**
+     
+     生成声波柱强度数组（0~1）
+     
+     - Description：将音频 dB（peak / average）转换为 UI 可用数据（含降噪 / 放大 / 限幅 / 分布）
+     
+     整体处理流程： 1. dB → 线性归一化（0~1）
+                 2. 降噪（过滤环境小声音）
+                 3. 放大（增强视觉效果）
+                 4. 非线性调整（优化手感）
+                 5. 限幅（防止爆炸）
+                 6. 静音微动（避免完全静止）
+                 7. 构造“中间强，两边弱”的空间分布
+     
+     - Parameters:
+       - peakPower: 峰值 dB（-160~0），响应快但抖动大（一般不直接用）
+       - averagePower: 平均 dB（-160~0），更稳定（推荐）
+       - config: 声波配置（控制灵敏度 / 强度 / 形状等）
+     
+     - Returns: 每个柱子的强度（0~1）
+     */
+    public static func makeWaveformLevels(peakPower: Float,
+                                          averagePower: Float,
+                                          config: WYSoundWaveConfig = WYSoundWaveConfig()) -> [Float] {
+        
+        // 将 dB（-60 ~ 0）映射到 0 ~ 1，越接近 1 表示声音越大(将音频分贝值（负数）转换成 UI 可用的线性强度（0~1）)
+        func normalize(_ power: Float) -> CGFloat {
+            
+            // 如果低于最小阈值，直接认为是“静音”
+            if power < config.minDb { return 0 }
+            
+            // 将 [minDb ~ 0] 线性映射到 [0 ~ 1]（低于 minDb 直接视为 0，且越接近 0（声音越大））
+            return CGFloat((power - config.minDb) / -config.minDb)
+        }
+        
+        // 使用 average（更稳定），peak 虽然灵敏，但会抖；average 更适合做 UI 动画
+        let avg = normalize(averagePower)
+        
+        // 当前能量值(原始能量)
+        var p = avg
+        
+        // 降噪（Noise Gate），过滤掉小声音（环境噪音），config.noiseGate 越大越不敏感（小声音不动），越小越灵敏（环境声音也会动）
+        p = max(0, p - config.noiseGate)
+        
+        // 线性放大（Gain），config.gain越大整体波动越明显（更“炸”），越小整体越克制
+        p = p * config.gain
+        
+        /**
+         * 非线性增强（曲线变换），调整“小声音 vs 大声音”的比例关系
+         * >1：压制小声音，保留大声音，让动画更稳
+         * <1：放大小声音（更灵敏），让动画更灵敏
+         */
+        p = pow(p, config.powerExponent)
+        
+        // 最大值限制（防止炸），config.limit越大峰值越高（容易炸），越小越平稳（更克制）
+        p = min(config.limit, p)
+                
+        // 静音微动，静音时给一点随机值，使其有“微弱呼吸感”，越大：静音也会明显动（不推荐），越小：更接近完全静止
+        if p < config.idleThreshold {
+            let idle = CGFloat.random(in: 0.0...config.idleAmplitude)
+            p = max(p, idle)
+        }
+        
+        // 柱子最小保护数量
+        let count = max(1, config.numberOfColumns)
+        
+        // 构造“中间强，两边弱”的分布(将一个“整体能量 p”分配到多个柱子上)
+        var powers: [Float] = []
+        powers.reserveCapacity(count)
+        
+        for i in 0..<count {
+            
+            // 当前柱子到“中心点”的距离，中心柱 distance = 0，两边逐渐变大
+            let distance = abs(CGFloat(i) - CGFloat(count - 1) / 2.0)
+
+            // 最大距离（用于归一化）
+            let maxDistance = CGFloat(count) / 2.0
+            
+            // 中心权重，中间为1，两边逐渐衰减到0
+            let weight = 1.0 - (distance / maxDistance)
+            
+            // 形状函数(控制“中间聚集程度”)，config.shapePower越大：越“尖”（更集中在中间），越小：越“平”（更像一整条线）
+            let shaped = pow(weight, config.shapePower)
+            
+            // 最终每一条 bar 的强度(每个柱子的高度来源) = 总能量 * 空间权重
+            powers.append(Float(p * shaped))
+        }
+        
+        // 返回所有柱子的强度数组（用于 UI 渲染）
+        return powers
+    }
 }
 
 private class WYAudioBarUnit {
@@ -283,7 +419,7 @@ private class WYAudioBarUnit {
     /// 主更新入口（每一帧都会调用）
     func update(
         time: CFTimeInterval,                     // 当前时间（系统时间戳）
-        state: WYSoundAnimationView.WYSoundAnimationState,        // 当前状态（静音 / 有声）
+        state: WYSoundAnimationView.State,        // 当前状态（静音 / 有声）
         power: CGFloat                            // 当前音量（0~1）
     ) {
         switch state {
