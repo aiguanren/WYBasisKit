@@ -34,7 +34,7 @@ public class WYSoundAnimationView: UIImageView {
         refreshSoundWaves(status: status)
     }
     
-    public func refreshSoundWaves(averagePowers: [Float] = [], status: WYSoundAnimationStatus) {
+    public func refreshSoundWaves(status: WYSoundAnimationStatus) {
         
         switch status {
         case .recording:
@@ -66,11 +66,12 @@ public class WYSoundAnimationView: UIImageView {
             break
         }
         
-        soundWavesView.updateMeters(averagePowers: averagePowers, wavesColor: soundWavesColor(for: status))
+        // 更新声波柱子配置
+        soundWavesConfigUpdate(status: status, config: &soundWavesView.config)
     }
     
-    /// 根据录制状态获取对应声波线的颜色
-    public func soundWavesColor(for status: WYSoundAnimationStatus) -> UIColor {
+    /// 根据录制状态获取对应声波配置
+    public func soundWavesConfigUpdate(status: WYSoundAnimationStatus, config: inout WYSoundWaveConfig) {
         
         let soundWavesColor: UIColor
         switch status {
@@ -84,7 +85,8 @@ public class WYSoundAnimationView: UIImageView {
             soundWavesColor = recordAnimationConfig.colorOfSoundWavesOnRecording.cancel
             break
         }
-        return soundWavesColor
+        
+        config.wavesColor = soundWavesColor
     }
     
     required init?(coder: NSCoder) {
