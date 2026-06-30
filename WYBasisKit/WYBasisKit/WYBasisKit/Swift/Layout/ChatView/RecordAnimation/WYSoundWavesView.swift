@@ -15,8 +15,8 @@ public struct WYSoundWaveConfig {
     /// dB 下限（默认 -60），越小 → 越“灵敏”（能感知更小声音），建议：-80 ~ -40
     public var minDb: Float = -60
     
-    /// 降噪阈值（默认 0.50），越大越不灵敏（小声音不动），越小越灵敏（环境声也会触发），建议：0.15 ~ 0.60
-    public var noiseGate: CGFloat = 0.50
+    /// 降噪阈值（默认 0.35），越大越不灵敏（小声音不动），越小越灵敏（环境声也会触发），建议：0.15 ~ 0.60
+    public var noiseGate: CGFloat = 0.45
     
     /// 放大倍数（默认 2.0），越大动画越“炸”，越小越克制，建议：1.8 ~ 3.5
     public var gain: CGFloat = 2.0
@@ -156,11 +156,12 @@ public class WYSoundWavesView: UIView {
      
      - Description：将音频 dB（peak / average）转换为 UI 可用的整体能量值（含降噪 / 放大 / 限幅）
      
-     整体处理流程： 1. dB → 线性归一化（0~1）
-                 2. 降噪（过滤环境小声音）
-                 3. 放大（增强视觉效果）
-                 4. 非线性调整（优化手感）
-                 5. 限幅（防止爆炸）
+     整体处理流程：
+        1. dB → 线性归一化（0~1）
+        2. 降噪（过滤环境小声音）
+        3. 放大（增强视觉效果）
+        4. 非线性调整（优化手感）
+        5. 限幅（防止爆炸）
      
      - Parameters:
        - peakPower: 峰值 dB（-160~0），响应快但抖动大（一般不直接用）
@@ -175,7 +176,7 @@ public class WYSoundWavesView: UIView {
         
         // 将 dB（minDb ~ 0）映射到 0 ~ 1，越接近 1 表示声音越大（将音频分贝值（负数）转换成 UI 可用的线性强度（0~1））
         func normalize(_ power: Float) -> CGFloat {
-            // 如果低于最小阈值，直接认为是“静音”
+            // 如果低于最小阈值，直接认为是"静音"
             if power < config.minDb { return 0 }
             // 将 [minDb ~ 0] 线性映射到 [0 ~ 1]（低于 minDb 直接视为 0，且越接近 0（声音越大））
             return CGFloat((power - config.minDb) / -config.minDb)
@@ -190,11 +191,11 @@ public class WYSoundWavesView: UIView {
         // 降噪（Noise Gate），过滤掉小声音（环境噪音），config.noiseGate 越大越不敏感（小声音不动），越小越灵敏（环境声音也会动）
         p = max(0, p - config.noiseGate)
         
-        // 线性放大（Gain），config.gain越大整体波动越明显（更“炸”），越小整体越克制
+        // 线性放大（Gain），config.gain越大整体波动越明显（更"炸"），越小整体越克制
         p = p * config.gain
         
         /**
-         * 非线性增强（曲线变换），调整“小声音 vs 大声音”的比例关系
+         * 非线性增强（曲线变换），调整"小声音 vs 大声音"的比例关系
          * >1：压制小声音，保留大声音，让动画更稳
          * <1：放大小声音（更灵敏），让动画更灵敏
          */
@@ -242,17 +243,17 @@ public class WYSoundWavesView: UIView {
         setNeedsDisplay()
     }
     
+    // 初始化视图
     private func setup() {
         backgroundColor = .clear
         
         reloadBars()
         
-        // 创建屏幕刷新驱动
         displayLink = CADisplayLink(target: self, selector: #selector(tick))
         displayLink.preferredFramesPerSecond = config.preferredFramesPerSecond
         displayLink.add(to: .main, forMode: .common)
         
-        // 前后台通知，避免 App 切后台时 displayLink 仍在运行
+        // 注册前后台通知，避免 App 切后台时 displayLink 仍在运行（节省 CPU 资源）
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(appWillResignActive),
@@ -277,7 +278,7 @@ public class WYSoundWavesView: UIView {
         displayLink?.isPaused = false
     }
     
-    /// 控制 displayLink 生命周期（View 被移除时暂停）
+    /// 控制 displayLink 生命周期（View 被移除时暂停，避免 CPU 空转）
     override public func didMoveToWindow() {
         super.didMoveToWindow()
         displayLink.isPaused = (window == nil)
@@ -286,6 +287,7 @@ public class WYSoundWavesView: UIView {
     /// 动画驱动（每帧执行）
     @objc private func tick() {
         let now = CACurrentMediaTime()
+        // 更新每一根声波柱子的高度
         for bar in bars {
             bar.update(
                 time: now,
@@ -293,6 +295,7 @@ public class WYSoundWavesView: UIView {
                 power: currentPower
             )
         }
+        // 标记重绘，触发 draw 方法
         setNeedsDisplay()
     }
     
@@ -315,6 +318,7 @@ public class WYSoundWavesView: UIView {
             let y = centerY - height / 2
             
             let rect = CGRect(x: x, y: y, width: config.barWidth, height: height)
+            // 使用 CGPath 直接创建圆角矩形，避免 UIBezierPath 的中间转换开销
             let path = CGPath(
                 roundedRect: rect,
                 cornerWidth: config.barWidth / 2,
@@ -324,6 +328,7 @@ public class WYSoundWavesView: UIView {
             ctx.addPath(path)
         }
         
+        // 一次性填充所有柱子（批量绘制，性能更好）
         ctx.fillPath()
     }
     
@@ -338,7 +343,9 @@ public class WYSoundWavesView: UIView {
     }
     
     deinit {
+        // 移除通知监听，避免野指针
         NotificationCenter.default.removeObserver(self)
+        // 释放刷新器，防止内存泄漏
         displayLink.invalidate()
     }
 }
@@ -368,9 +375,15 @@ private class WYAudioBarUnit {
     
     /**
      初始化声波柱子单元
+     
      - Parameters:
        - index: 柱子的索引位置（从左到右从 0 开始计数），用于计算波形相位和空间分布
        - config: 声波动画配置，控制柱子的高度、动画参数等
+     
+     初始化时会缓存以下内容：
+       - 当前柱子的初始高度（使用 config.minBarHeight）
+       - idle 状态下的中心点位置，用于水波扩散效果
+       - 基于 index 生成的固定扰动相位，保证每根柱子的扰动不同且随时间平滑变化
      */
     init(index: Int, config: WYSoundWaveConfig) {
         self.index = index
@@ -386,7 +399,7 @@ private class WYAudioBarUnit {
         self.noisePhase = CGFloat(index) * config.idleNoisePhaseSpacing * 2.0 * .pi
     }
     
-    /// 将高度限制在 [minBarHeight, maxBarHeight] 范围内
+    /// 将高度限制在 [minBarHeight, maxBarHeight] 范围内（防止柱子过高或过低）
     func clampHeight(_ height: CGFloat) -> CGFloat {
         return min(max(height, config.minBarHeight), config.maxBarHeight)
     }
@@ -394,7 +407,7 @@ private class WYAudioBarUnit {
     /// 主更新入口（每一帧都会调用）
     func update(
         time: CFTimeInterval,           // 当前时间（系统时间戳）
-        state: WYSoundWavesView.State,  // 当前状态（静音 / 有声）
+        state: WYSoundWavesView.State,  // 当前状态（静音 / 有声 / 停止）
         power: CGFloat                  // 当前音量（0~1），所有声波柱子共用
     ) {
         switch state {
@@ -407,7 +420,16 @@ private class WYAudioBarUnit {
         }
     }
     
-    /// 静音（水波：从中间向两边扩散）
+    /**
+     静音状态：水波从中间向两边扩散流动
+     
+     实现原理：
+        1. 基于柱子索引计算当前柱子到中心的距离
+        2. 根据距离决定波形相位（左边向左流动，右边向右流动）
+        3. 叠加随机扰动，让水波更自然
+        4. 经过 smoothstep + 非线性压缩，让波形更柔和
+        5. 最终高度 = idleBaseHeight + 波形值 × idleAmplitude
+     */
     func updateIdle(time: CFTimeInterval) {
         let x = CGFloat(index)
         let phase = CGFloat(time) * config.idleSpeed
@@ -416,6 +438,7 @@ private class WYAudioBarUnit {
         // 平滑扰动（使用 sin 产生连续变化，避免每帧随机闪烁）
         let noise = sin(CGFloat(time) * config.idleNoiseFrequency + noisePhase) * config.idleNoiseMagnitude
         
+        // 根据柱子位置决定波形方向（左边向左流动，右边向右流动）
         let baseWave: CGFloat
         if distance < 0 {
             // 左边：向左流动（相位 +）
@@ -438,9 +461,17 @@ private class WYAudioBarUnit {
         currentHeight = clampHeight(rawHeight)
     }
     
-    /// 有声（离散触发 + 二次曲线动画，保留错落感）
+    /**
+     有声状态：离散触发 + 二次曲线动画，保留错落感
+     
+     实现原理：
+        1. 每根柱子独立触发（错峰触发），避免所有柱子同时跳动
+        2. 目标高度由当前音量 × danceBaseMultiplier 决定
+        3. 用二次曲线插值模拟"弹起"效果
+        4. 动画结束后回到最低高度
+     */
     func updateDance(time: CFTimeInterval, power: CGFloat) {
-        // 每根声波柱子“错峰触发”
+        // 每根声波柱子"错峰触发"
         if time > startTime + config.danceDuration {
             // 下一次触发时间（加入随机延迟 → 更自然），实际随机延迟上限限制为 danceDuration * 0.5，确保至少有一半周期用于动画
             let maxDelay = min(config.danceRandomDelay, config.danceDuration * 0.5)
@@ -457,7 +488,7 @@ private class WYAudioBarUnit {
         let t = CGFloat((time - startTime) / config.danceDuration)
         
         if t >= 0 && t <= 1 {
-            // 二次函数插值（模拟“弹起”）
+            // 二次函数插值（模拟"弹起"）：用二次曲线让柱子先快后慢地弹起
             let value = config.danceCurveA * t * t + config.danceCurveB * t
             let rawHeight = value * targetHeight
             currentHeight = clampHeight(rawHeight)
