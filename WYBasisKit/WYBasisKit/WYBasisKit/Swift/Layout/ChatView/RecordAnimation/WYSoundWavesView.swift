@@ -29,8 +29,8 @@ public struct WYSoundWaveConfig {
     
     /**************** 状态切换参数（带滞回）****************/
     
-    /// 进入 dance 状态的高阈值（默认 0.02），当能量高于此值时切换到 dance 状态，建议范围：0.015 ~ 0.04
-    public var highThreshold: CGFloat = 0.02
+    /// 进入 dance 状态的高阈值（默认 0.05），当能量高于此值时切换到 dance 状态，建议范围：0.015 ~ 0.08
+    public var highThreshold: CGFloat = 0.05
     
     /// 回到 idle 状态的低阈值（默认 0.012），当能量低于此值时切换到 idle 状态，建议范围：0.008 ~ 0.02
     public var lowThreshold: CGFloat = 0.012
@@ -43,11 +43,11 @@ public struct WYSoundWaveConfig {
     
     /**************** Idle 状态参数（静音时的水波纹流动）****************/
     
-    /// Idle 波动速度（默认 2.2），越大波动越快，建议范围：1.5 ~ 3.0
-    public var idleSpeed: CGFloat = 2.2
+    /// Idle 波动速度（默认 6.0），越大波动越快，建议范围：2.0 ~ 15.0
+    public var idleSpeed: CGFloat = 6.0
     
-    /// Idle 波密度（默认 0.5），越大波越密，建议范围：0.3 ~ 0.8
-    public var idleFrequency: CGFloat = 0.5
+    /// Idle 波密度（默认 0.3），越大波越密（脉冲越窄），建议范围：0.2 ~ 1.5
+    public var idleFrequency: CGFloat = 0.3
     
     /// Idle 状态下声波柱子波动的基线高度（默认 6.0），与 idleAmplitude 配合使用，实际高度 = idleBaseHeight + 波形值(0~1) * idleAmplitude，例如 idleBaseHeight=6、idleAmplitude=10 时，柱子高度在 6~16 之间波动
     public var idleBaseHeight: CGFloat = 6.0
@@ -58,7 +58,7 @@ public struct WYSoundWaveConfig {
     /// Idle 非线性压缩指数（默认 2.2），值越大波形越尖锐，建议范围：1.5 ~ 3.0
     public var idleShapingExponent: CGFloat = 2.2
     
-    /// Idle 随机扰动幅度（默认 0.08），在正弦波上叠加平滑扰动，让水波更自然，去机械感，建议范围：0.03 ~ 0.15
+    /// Idle 随机扰动幅度（默认 0.08），在正弦波上叠加平滑扰动，让水波更自然，去机械感，建议范围：0.0 ~ 0.15
     public var idleNoiseMagnitude: CGFloat = 0.08
     
     /// Idle 扰动频率（默认 0.5），独立于主波形频率，控制扰动变化的快慢，建议范围：0.2 ~ 1.0
@@ -86,20 +86,20 @@ public struct WYSoundWaveConfig {
     
     /**************** 柱子布局参数 ****************/
     
-    /// 声波柱子数量（默认 35），越多越细腻，越少越粗犷，建议：10 ~ 40
-    public var numberOfColumns: Int = 35
+    /// 声波柱子数量（默认 28），越多越细腻，越少越粗犷，建议：10 ~ 40
+    public var numberOfColumns: Int = 28
     
     /// 每根声波柱子的宽度（默认 2.0），建议范围：1.5 ~ 3.0
     public var barWidth: CGFloat = 2.0
     
-    /// 声波柱子之间间距（默认 2.0），建议范围：1.0 ~ 3.0
-    public var barSpacing: CGFloat = 2.0
+    /// 声波柱子之间间距（默认 1.0），建议范围：1.0 ~ 3.0
+    public var barSpacing: CGFloat = 1.0
     
     /// 声波柱子全局最低高度（默认 6.0），所有状态下声波柱子均不得低于此值，包括 stop/idle/dance 状态
     public var minBarHeight: CGFloat = 6.0
     
-    /// 声波柱子全局最高高度（默认 35.0），所有状态下声波柱子均不得高于此值，用于防止动画过度炸裂（建议根据视图实际高度调整，一般不超过视图高度的 1/2）
-    public var maxBarHeight: CGFloat = 35.0
+    /// 声波柱子全局最高高度（默认 20.0），所有状态下声波柱子均不得高于此值，用于防止动画过度炸裂（建议根据视图实际高度调整，一般不超过视图高度的 1/2）
+    public var maxBarHeight: CGFloat = 20.0
     
     /// 声波柱子颜色
     public var wavesColor: UIColor = .white
@@ -227,6 +227,10 @@ public class WYSoundWavesView: UIView {
             // 从 dance 切换到 idle 需要低于低阈值（离开门槛更低，不易卡在边缘）
             if currentPower < config.lowThreshold {
                 state = .idle
+                // 进入 idle 时，重置所有柱子的脉冲起始时间，使脉冲从中心重新开始扩散
+                for bar in bars {
+                    bar.resetIdleStartTime()
+                }
             }
         case .stop:
             break
@@ -373,6 +377,9 @@ private class WYAudioBarUnit {
     /// 用于 idle 平滑扰动的固定相位（基于 index 生成，保证每根声波柱子扰动不同且随时间平滑变化）
     let noisePhase: CGFloat
     
+    /// 进入 idle 状态时的时间戳（用于重置脉冲相位，使每次进入 idle 都从中心重新开始扩散）
+    var idleStartTime: CFTimeInterval = 0
+    
     /**
      初始化声波柱子单元
      
@@ -397,11 +404,19 @@ private class WYAudioBarUnit {
         
         // 使用 index 生成 0~2π 之间的固定相位（黄金分割比例使分布最均匀）
         self.noisePhase = CGFloat(index) * config.idleNoisePhaseSpacing * 2.0 * .pi
+        
+        // 初始化 idle 起始时间
+        self.idleStartTime = CACurrentMediaTime()
     }
     
     /// 将高度限制在 [minBarHeight, maxBarHeight] 范围内（防止柱子过高或过低）
     func clampHeight(_ height: CGFloat) -> CGFloat {
         return min(max(height, config.minBarHeight), config.maxBarHeight)
+    }
+    
+    /// 重置 idle 脉冲起始时间（使脉冲从中心重新开始扩散）
+    func resetIdleStartTime() {
+        idleStartTime = CACurrentMediaTime()
     }
     
     /// 主更新入口（每一帧都会调用）
@@ -421,42 +436,47 @@ private class WYAudioBarUnit {
     }
     
     /**
-     静音状态：水波从中间向两边扩散流动
+     静音状态：水波从中间向两边扩散流动（脉冲波）
      
      实现原理：
-        1. 基于柱子索引计算当前柱子到中心的距离
-        2. 根据距离决定波形相位（左边向左流动，右边向右流动）
-        3. 叠加随机扰动，让水波更自然
-        4. 经过 smoothstep + 非线性压缩，让波形更柔和
-        5. 最终高度 = idleBaseHeight + 波形值 × idleAmplitude
+        1. 每个脉冲从中心（index = cachedCenter）开始，以 idleSpeed 速度向两侧移动
+        2. 脉冲宽度由 idleFrequency 控制，值越大脉冲越窄，波出现频率越高
+        3. 每根柱子的高度由当前波前位置和柱子距离决定，形成先升后降的单峰
+        4. 扰动仅在脉冲活跃时叠加，且随脉冲幅度变化，避免静默时跳动
+        5. 最终高度 = idleBaseHeight + 脉冲幅值 * idleAmplitude，并限制在 [minBarHeight, maxBarHeight]
      */
     func updateIdle(time: CFTimeInterval) {
-        let x = CGFloat(index)
-        let phase = CGFloat(time) * config.idleSpeed
-        let distance = x - cachedCenter
-        
-        // 平滑扰动（使用 sin 产生连续变化，避免每帧随机闪烁）
-        let noise = sin(CGFloat(time) * config.idleNoiseFrequency + noisePhase) * config.idleNoiseMagnitude
-        
-        // 根据柱子位置决定波形方向（左边向左流动，右边向右流动）
-        let baseWave: CGFloat
-        if distance < 0 {
-            // 左边：向左流动（相位 +）
-            baseWave = sin(x * config.idleFrequency + phase)
-        } else {
-            // 右边：向右流动（相位 -）
-            baseWave = sin(x * config.idleFrequency - phase)
+        let maxDist = cachedCenter
+        guard maxDist > 0 else {
+            // 只有一根柱子时，固定为基准高度（可添加微小波动）
+            let rawHeight = config.idleBaseHeight + config.idleAmplitude * 0.3
+            currentHeight = clampHeight(rawHeight)
+            return
         }
         
-        // 加扰动后归一化到 0~1 范围，并确保不超出边界
-        let rawWave = (baseWave + noise + 1.0) / 2.0
-        let clampedWave = max(0, min(1, rawWave))
+        // 使用相对时间，保证每次进入 idle 都从中心开始
+        let relativeTime = time - idleStartTime
+        let pulseWidth = maxDist / (1 + config.idleFrequency * 2)
+        let totalPeriod = maxDist + pulseWidth   // 一个完整周期（波前从中心到完全消失）
+        let front = fmod(relativeTime * config.idleSpeed, totalPeriod) // 当前波前位置
         
-        // smoothstep：让过渡更柔和，去掉"数学波"的硬感
-        let smooth = clampedWave * clampedWave * (3 - 2 * clampedWave)
-        let shaped = pow(smooth, config.idleShapingExponent)
+        let dist = abs(CGFloat(index) - cachedCenter)
+        let x = front - dist   // 柱子相对于波前的位置（波前在中心时为0）
         
-        // 最终高度 = 基准高度 + 波动振幅，然后限制在 [minBarHeight, maxBarHeight] 范围内
+        var shaped: CGFloat = 0
+        if x >= 0 && x <= pulseWidth {
+            // 正弦半波作为脉冲形状，平滑升起再降下
+            shaped = sin((x / pulseWidth) * .pi)
+            // 只在脉冲活跃时叠加扰动，且扰动幅度随脉冲幅度变化，避免静默时跳动
+            let noise = sin(relativeTime * config.idleNoiseFrequency + noisePhase) * config.idleNoiseMagnitude * shaped
+            shaped += noise
+            // 非线性压缩，调整脉冲形状（>1 使峰更尖锐，<1 更平缓）
+            shaped = pow(shaped, config.idleShapingExponent)
+            // 限幅，确保不超出 [0,1]
+            shaped = max(0, min(1, shaped))
+        }
+        // 若 shaped 为 0，则柱子完全静止在 idleBaseHeight，无任何扰动
+        
         let rawHeight = config.idleBaseHeight + shaped * config.idleAmplitude
         currentHeight = clampHeight(rawHeight)
     }
