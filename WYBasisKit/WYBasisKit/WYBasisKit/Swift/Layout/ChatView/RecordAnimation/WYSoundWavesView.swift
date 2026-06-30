@@ -10,7 +10,7 @@ import UIKit
 /// 声波动画参数配置
 public struct WYSoundWaveConfig {
     
-    /********** 音频处理参数（影响 dB → 能量转换）**********/
+    /**************** 音频处理参数（影响 dB → 能量转换）****************/
     
     /// dB 下限（默认 -60），越小 → 越“灵敏”（能感知更小声音），建议：-80 ~ -40
     public var minDb: Float = -60
@@ -27,7 +27,7 @@ public struct WYSoundWaveConfig {
     /// 最大振幅限制（默认 0.80），防止高度过高导致“炸裂”，建议：0.65 ~ 0.90
     public var limit: CGFloat = 0.80
     
-    /********** 状态切换参数（带滞回）**********/
+    /**************** 状态切换参数（带滞回）****************/
     
     /// 进入 dance 状态的高阈值（默认 0.02），当能量高于此值时切换到 dance 状态，建议范围：0.015 ~ 0.04
     public var highThreshold: CGFloat = 0.02
@@ -41,7 +41,7 @@ public struct WYSoundWaveConfig {
     /// 屏幕刷新帧率（默认 36），人眼几乎无感知，省电约 40%，建议范围：24 ~ 60
     public var preferredFramesPerSecond: Int = 36
     
-    /********** Idle 状态参数（静音时的水波纹流动）**********/
+    /**************** Idle 状态参数（静音时的水波纹流动）****************/
     
     /// Idle 波动速度（默认 2.2），越大波动越快，建议范围：1.5 ~ 3.0
     public var idleSpeed: CGFloat = 2.2
@@ -49,7 +49,10 @@ public struct WYSoundWaveConfig {
     /// Idle 波密度（默认 0.5），越大波越密，建议范围：0.3 ~ 0.8
     public var idleFrequency: CGFloat = 0.5
     
-    /// Idle 振幅（默认 10.0），波动高度，建议范围：6.0 ~ 16.0（配合 (wave+1)/2 波形使用，值越高波动越明显，越低波动越弱，控制静音时的“呼吸感”强度）
+    /// Idle 状态下声波柱子波动的基线高度（默认 6.0），与 idleAmplitude 配合使用，实际高度 = idleBaseHeight + 波形值(0~1) * idleAmplitude，例如 idleBaseHeight=6、idleAmplitude=10 时，柱子高度在 6~16 之间波动
+    public var idleBaseHeight: CGFloat = 6.0
+    
+    /// Idle 状态下声波柱子波动的幅度（默认 10.0），与 idleBaseHeight 配合使用，实际高度 = idleBaseHeight + 波形值(0~1) * idleAmplitude，例如 idleBaseHeight=6、idleAmplitude=10 时，柱子高度在 6~16 之间波动，值越大波动越明显，控制静音时的“呼吸感”强度
     public var idleAmplitude: CGFloat = 10.0
     
     /// Idle 非线性压缩指数（默认 2.2），值越大波形越尖锐，建议范围：1.5 ~ 3.0
@@ -64,7 +67,7 @@ public struct WYSoundWaveConfig {
     /// Idle 扰动相位间距（默认 0.618），控制相邻声波柱子扰动相位的间隔（黄金分割比例使分布最均匀），建议范围：0.3 ~ 0.8
     public var idleNoisePhaseSpacing: CGFloat = 0.618
     
-    /********** Dance 状态参数（有声时的跳动）**********/
+    /**************** Dance 状态参数（有声时的跳动）****************/
     
     /// Dance 动画周期（默认 0.25），每次跳动时长（秒），建议范围：0.18 ~ 0.35
     public var danceDuration: TimeInterval = 0.25
@@ -81,7 +84,7 @@ public struct WYSoundWaveConfig {
     /// Dance 插值曲线系数 b（默认 3.8），控制弹起曲线的缓落程度，建议范围：3.0 ~ 4.5
     public var danceCurveB: CGFloat = 3.8
     
-    /********** 柱子布局参数 **********/
+    /**************** 柱子布局参数 ****************/
     
     /// 声波柱子数量（默认 35），越多越细腻，越少越粗犷，建议：10 ~ 40
     public var numberOfColumns: Int = 35
@@ -97,9 +100,6 @@ public struct WYSoundWaveConfig {
     
     /// 声波柱子全局最高高度（默认 35.0），所有状态下声波柱子均不得高于此值，用于防止动画过度炸裂（建议根据视图实际高度调整，一般不超过视图高度的 1/2）
     public var maxBarHeight: CGFloat = 35.0
-    
-    /// Idle 状态下声波柱子的基准高度（默认 6.0），仅 idle 状态使用，实际高度 = idleBaseHeight + 波动振幅，可与 minBarHeight 不同以实现静音时的“呼吸感”
-    public var idleBaseHeight: CGFloat = 6.0
     
     /// 声波柱子颜色
     public var wavesColor: UIColor = .white
