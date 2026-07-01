@@ -43,7 +43,7 @@ public class WYSoundAnimationView: UIImageView {
             soundWavesView.snp.updateConstraints { make in
                 make.center.equalToSuperview()
                 make.width.equalTo(((recordAnimationConfig.soundWavesWidth + recordAnimationConfig.soundWavesSpace) * CGFloat(recordAnimationConfig.severalSoundWaves.recording)) - recordAnimationConfig.soundWavesSpace)
-                make.height.equalTo(recordAnimationConfig.soundWavesHeight.recording)
+                make.height.equalTo(recordAnimationConfig.soundWavesMaxHeight.recording)
             }
             break
         case .transfer:
@@ -52,7 +52,7 @@ public class WYSoundAnimationView: UIImageView {
             soundWavesView.snp.updateConstraints { make in
                 make.center.equalToSuperview()
                 make.width.equalTo(((recordAnimationConfig.soundWavesWidth + recordAnimationConfig.soundWavesSpace) * CGFloat(recordAnimationConfig.severalSoundWaves.transfer)) - recordAnimationConfig.soundWavesSpace)
-                make.height.equalTo(recordAnimationConfig.soundWavesHeight.transfer)
+                make.height.equalTo(recordAnimationConfig.soundWavesMaxHeight.transfer)
             }
             break
         case .cancel:
@@ -61,7 +61,7 @@ public class WYSoundAnimationView: UIImageView {
             soundWavesView.snp.updateConstraints { make in
                 make.center.equalToSuperview()
                 make.width.equalTo(((recordAnimationConfig.soundWavesWidth + recordAnimationConfig.soundWavesSpace) * CGFloat(recordAnimationConfig.severalSoundWaves.cancel)) - recordAnimationConfig.soundWavesSpace)
-                make.height.equalTo(recordAnimationConfig.soundWavesHeight.cancel)
+                make.height.equalTo(recordAnimationConfig.soundWavesMaxHeight.cancel)
             }
             break
         }
@@ -73,20 +73,40 @@ public class WYSoundAnimationView: UIImageView {
     /// 根据录制状态获取对应声波配置
     public func soundWavesConfigUpdate(status: WYSoundAnimationStatus, config: inout WYSoundWaveConfig) {
         
+        let soundWavesWidth = recordAnimationConfig.soundWavesWidth
+        let soundWavesSpace = recordAnimationConfig.soundWavesSpace
+        
         let soundWavesColor: UIColor
+        let soundWavesMaxHeight: CGFloat
+        let soundWavesMinHeight: CGFloat
+        let severalSoundWaves: Int
         switch status {
         case .recording:
             soundWavesColor = recordAnimationConfig.colorOfSoundWavesOnRecording.recording
+            soundWavesMaxHeight = recordAnimationConfig.soundWavesMaxHeight.recording
+            soundWavesMinHeight = recordAnimationConfig.soundWavesMinHeight.recording
+            severalSoundWaves = recordAnimationConfig.severalSoundWaves.recording
             break
         case .transfer:
             soundWavesColor = recordAnimationConfig.colorOfSoundWavesOnRecording.transfer
+            soundWavesMaxHeight = recordAnimationConfig.soundWavesMaxHeight.transfer
+            soundWavesMinHeight = recordAnimationConfig.soundWavesMinHeight.transfer
+            severalSoundWaves = recordAnimationConfig.severalSoundWaves.transfer
             break
         case .cancel:
             soundWavesColor = recordAnimationConfig.colorOfSoundWavesOnRecording.cancel
+            soundWavesMaxHeight = recordAnimationConfig.soundWavesMaxHeight.cancel
+            soundWavesMinHeight = recordAnimationConfig.soundWavesMinHeight.cancel
+            severalSoundWaves = recordAnimationConfig.severalSoundWaves.cancel
             break
         }
         
         config.wavesColor = soundWavesColor
+        config.barWidth = soundWavesWidth
+        config.barSpacing = soundWavesSpace
+        config.maxBarHeight = soundWavesMaxHeight
+        config.minBarHeight = soundWavesMinHeight
+        config.numberOfColumns = severalSoundWaves
     }
     
     required init?(coder: NSCoder) {

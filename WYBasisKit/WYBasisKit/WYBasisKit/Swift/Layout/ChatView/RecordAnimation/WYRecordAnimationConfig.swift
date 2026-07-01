@@ -10,17 +10,6 @@ import Foundation
 
 public struct WYRecordAnimationConfig {
     
-    /// 声波线宽度
-    public var soundWavesWidth: CGFloat = UIDevice.wy_screenWidth(2.6)
-    
-    /// 声波线高度
-    public var soundWavesHeight: (recording: CGFloat,
-                                  cancel: CGFloat,
-                                  transfer: CGFloat) = (
-                                    recording: UIDevice.wy_screenWidth(48),
-                                    cancel: UIDevice.wy_screenWidth(38),
-                                    transfer: UIDevice.wy_screenWidth(48))
-    
     /// 声波控件宽度
     public var soundWavesViewWidth: (recording: CGFloat,
                                   cancel: CGFloat,
@@ -37,15 +26,34 @@ public struct WYRecordAnimationConfig {
                                     cancel: UIDevice.wy_screenWidth(90),
                                     transfer: UIDevice.wy_screenWidth(170))
     
+    /// 声波线宽度
+    public var soundWavesWidth: CGFloat = UIDevice.wy_screenWidth(2)
+    
+    /// 声波线最大高度
+    public var soundWavesMaxHeight: (recording: CGFloat,
+                                  cancel: CGFloat,
+                                  transfer: CGFloat) = (
+                                    recording: UIDevice.wy_screenWidth(24),
+                                    cancel: UIDevice.wy_screenWidth(16),
+                                    transfer: UIDevice.wy_screenWidth(16))
+    
+    /// 声波线最小高度
+    public var soundWavesMinHeight: (recording: CGFloat,
+                                  cancel: CGFloat,
+                                  transfer: CGFloat) = (
+                                    recording: UIDevice.wy_screenWidth(8),
+                                    cancel: UIDevice.wy_screenWidth(5),
+                                    transfer: UIDevice.wy_screenWidth(5))
+    
     /// 声波线之间的间距
-    public var soundWavesSpace: CGFloat = UIDevice.wy_screenWidth(2.5)
+    public var soundWavesSpace: CGFloat = UIDevice.wy_screenWidth(1)
     
     /// 声波显示条数
     public var severalSoundWaves: (recording: Int,
                                    cancel: Int,
-                                   transfer: Int) = (recording: 26,
-                                                           cancel: 16,
-                                                           transfer: 16)
+                                   transfer: Int) = (recording: 25,
+                                                           cancel: 11,
+                                                           transfer: 11)
     
     /// 声波线颜色
     public var colorOfSoundWavesOnRecording: (recording: UIColor,

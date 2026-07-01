@@ -86,8 +86,8 @@ public struct WYSoundWaveConfig {
     
     /**************** 柱子布局参数 ****************/
     
-    /// 声波柱子数量（默认 28），越多越细腻，越少越粗犷，建议：10 ~ 40
-    public var numberOfColumns: Int = 28
+    /// 声波柱子数量（默认 25），越多越细腻，越少越粗犷，建议：10 ~ 40
+    public var numberOfColumns: Int = 25
     
     /// 每根声波柱子的宽度（默认 2.0），建议范围：1.5 ~ 3.0
     public var barWidth: CGFloat = 2.0
