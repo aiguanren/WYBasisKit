@@ -16,7 +16,7 @@ public struct WYRecordAnimationConfig {
                                   transfer: CGFloat) = (
                                     recording: UIDevice.wy_screenWidth(220),
                                     cancel: UIDevice.wy_screenWidth(130),
-                                    transfer: UIDevice.wy_screenWidth(525))
+                                    transfer: UIDevice.wy_screenWidth - 50)
     
     /// 声波控件高度
     public var soundWavesViewHeight: (recording: CGFloat,
@@ -24,7 +24,7 @@ public struct WYRecordAnimationConfig {
                                   transfer: CGFloat) = (
                                     recording: UIDevice.wy_screenWidth(100),
                                     cancel: UIDevice.wy_screenWidth(90),
-                                    transfer: UIDevice.wy_screenWidth(170))
+                                    transfer: UIDevice.wy_screenWidth(125))
     
     /// 声波线宽度
     public var soundWavesWidth: CGFloat = UIDevice.wy_screenWidth(2)
@@ -70,9 +70,9 @@ public struct WYRecordAnimationConfig {
     /// 录音、取消录音与转文字时声波动画背景色
     public var backgroundColorForMoveup: (recording: UIColor,
                                           cancel: UIColor,
-                                          transfer: UIColor) = (recording: .wy_hex("#94EB68"),
-                                            cancel: .wy_rgb(230, 94, 88),
-                                            transfer: .wy_hex("#94EB68"))
+                                          transfer: UIColor) = (recording: .wy_hex("#95EC69"),
+                                                                cancel: .wy_hex("#FA5151"),
+                                            transfer: .wy_hex("#95EC69"))
     
     /// 取消按钮背景图
     public var cancelRecordViewImage: (onInterior: UIImage, onExternal: UIImage) = (onInterior: .wy_createImage(from: .wy_rgb(236, 236, 236), size: CGSize(width: UIDevice.wy_screenWidth(100), height: UIDevice.wy_screenWidth(100))).wy_cuttingRound(), onExternal: .wy_createImage(from: .wy_rgb(57, 57, 57), size: CGSize(width: UIDevice.wy_screenWidth(80), height: UIDevice.wy_screenWidth(80))).wy_cuttingRound())
