@@ -344,6 +344,23 @@ Pod::Spec.new do |kit|
     layout.resource_bundles = {"WYBasisKitSwiftLayout" => [
       "#{kit_path}Swift/Layout/PrivacyInfo.xcprivacy"
     ]}
+    layout.subspec "AirBubble" do |airBubble|
+      airBubble.source_files = [
+        "#{kit_path}Swift/Layout/AirBubbleView/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIApplication/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIViewController/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Config/**/*.{swift}"
+      ]
+      airBubble.resource_bundles = {"WYBasisKitSwiftLayoutAirBubbleView" => [
+        "#{kit_path}Swift/Layout/AirBubbleView/PrivacyInfo.xcprivacy"
+      ]}
+      airBubble.frameworks = "Foundation", "UIKit"
+      airBubble.dependency "WYBasisKit-swift/Localizable"
+      airBubble.dependency "WYBasisKit-swift/LogManager"
+      airBubble.dependency "WYBasisKit-swift/MethodSwizzler"
+    end
+
     layout.subspec "ScrollText" do |scrollText|
       scrollText.source_files = [
         "#{kit_path}Swift/Layout/ScrollText/**/*.{swift,h,m}",
