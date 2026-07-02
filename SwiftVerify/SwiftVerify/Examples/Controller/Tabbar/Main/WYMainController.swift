@@ -105,6 +105,8 @@ class WYMainController: UIViewController {
         
         ListItem(title: "图片渲染", controller: "WYTestImageRenderingController"),
         
+        ListItem(title: "气泡图", controller: "WYTestAirBubbleController"),
+        
         ListItem(title: "IM即时通讯(开发中)",
                  controller: "WYTestChatController")
     ]

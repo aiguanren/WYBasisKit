@@ -129,6 +129,8 @@
             
             [[ListItem alloc] initWithTitle:@"图片渲染" controller:@"WYTestImageRenderingController"],
             
+            [[ListItem alloc] initWithTitle:@"气泡图" controller:@"WYTestAirBubbleController"],
+            
             [[ListItem alloc] initWithTitle:@"IM即时通讯(开发中)"
                                  controller:@"WYTestChatController"]
         ];

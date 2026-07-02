@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		580BB8B32FF655F100C1B986 /* WYTestAirBubbleController.m in Sources */ = {isa = PBXBuildFile; fileRef = 580BB8B22FF655F100C1B986 /* WYTestAirBubbleController.m */; };
 		580ED5652EA5DA56006012E7 /* SDKRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5642EA5DA56006012E7 /* SDKRequest.m */; };
 		580ED5682EA5DA9C006012E7 /* SDKRequestContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5672EA5DA9C006012E7 /* SDKRequestContext.m */; };
 		580ED56B2EA5DAE5006012E7 /* SDKResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 580ED56A2EA5DAE5006012E7 /* SDKResponse.m */; };
@@ -96,6 +97,8 @@
 /* Begin PBXFileReference section */
 		00E93EF8A69093A840C991C9 /* Pods-ObjCVerify.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ObjCVerify.debug.xcconfig"; path = "Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify.debug.xcconfig"; sourceTree = "<group>"; };
 		287657987D557763A49D167F /* Pods-ObjCVerify.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ObjCVerify.release.xcconfig"; path = "Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify.release.xcconfig"; sourceTree = "<group>"; };
+		580BB8B12FF655F100C1B986 /* WYTestAirBubbleController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestAirBubbleController.h; sourceTree = "<group>"; };
+		580BB8B22FF655F100C1B986 /* WYTestAirBubbleController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestAirBubbleController.m; sourceTree = "<group>"; };
 		580ED5632EA5DA56006012E7 /* SDKRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDKRequest.h; sourceTree = "<group>"; };
 		580ED5642EA5DA56006012E7 /* SDKRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SDKRequest.m; sourceTree = "<group>"; };
 		580ED5662EA5DA9C006012E7 /* SDKRequestContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SDKRequestContext.h; sourceTree = "<group>"; };
@@ -307,6 +310,15 @@
 			path = ../Pods;
 			sourceTree = "<group>";
 		};
+		580BB8B02FF655DC00C1B986 /* 气泡图 */ = {
+			isa = PBXGroup;
+			children = (
+				580BB8B12FF655F100C1B986 /* WYTestAirBubbleController.h */,
+				580BB8B22FF655F100C1B986 /* WYTestAirBubbleController.m */,
+			);
+			path = "气泡图";
+			sourceTree = "<group>";
+		};
 		580ED5622EA5DA3D006012E7 /* 泛型 */ = {
 			isa = PBXGroup;
 			children = (
@@ -468,6 +480,7 @@
 		58B470482E8D329600D04BCA /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				580BB8B02FF655DC00C1B986 /* 气泡图 */,
 				584D59E72FBEF25B00A862F7 /* 字符串子串点击 */,
 				584D75102F7236D4006C05E7 /* 图片渲染 */,
 				58C359622F3C60F3000E6EF0 /* 图片拼接 */,
@@ -945,9 +958,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -962,9 +979,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1012,6 +1033,7 @@
 				58BFB8C42F18C3010094DDB5 /* WYTestSideslipCellController.m in Sources */,
 				58BFB88F2F14E6A20094DDB5 /* WYParseGifController.m in Sources */,
 				58DA4EAD2EA23E6F003EAA2D /* WYTestVibrateController.m in Sources */,
+				580BB8B32FF655F100C1B986 /* WYTestAirBubbleController.m in Sources */,
 				58BFB8AF2F163ACB0094DDB5 /* WYOffLineMethodController.m in Sources */,
 				58DEA9CD2F10F5F300664E13 /* WYMultilevelTableViewController.m in Sources */,
 				58BFB8A12F14E99B0094DDB5 /* WYFlowLayoutAlignmentController.m in Sources */,
