@@ -71,7 +71,7 @@ public struct WYRecordAnimationConfig {
     public var backgroundColorForMoveup: (recording: UIColor,
                                           cancel: UIColor,
                                           transfer: UIColor) = (recording: .wy_hex("#94EB68"),
-                                            cancel: .wy_hex("#94EB68"),
+                                            cancel: .wy_rgb(230, 94, 88),
                                             transfer: .wy_hex("#94EB68"))
     
     /// 取消按钮背景图
@@ -81,7 +81,7 @@ public struct WYRecordAnimationConfig {
     public var cancelRecordViewText: (onInterior: String, tips: String) = (onInterior: "取消", tips: "松手 取消")
     
     /// 转文字按钮内部文本和提示文本
-    public var transferViewText: (onInterior: String, tips: String) = (onInterior: "滑到这里\n转文字", tips: "松手 编辑文字")
+    public var transferViewText: (onInterior: String, tips: String) = (onInterior: "滑到这里\n转文字", tips: "编辑文字")
     
     /// 录音按钮提示文本
     public var recordViewTips: (onInterior: String, onExternal: String) = (onInterior: "松开 发送", onExternal: "语音")

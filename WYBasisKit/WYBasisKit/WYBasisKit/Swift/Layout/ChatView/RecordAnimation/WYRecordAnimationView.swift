@@ -170,23 +170,9 @@ public class WYRecordAnimationView: UIView {
             
             guard let self = self else { return }
             
-            switch status {
-            case .recording:
-                self.refresh(subview: self.leftView, status: .recording)
-                self.refresh(subview: self.rightView, status: .recording)
-                self.refresh(subview: self.bottomView, status: .recording)
-                break
-            case .cancel:
-                self.refresh(subview: self.leftView, status: .cancel)
-                self.refresh(subview: self.rightView, status: .cancel)
-                self.refresh(subview: self.bottomView, status: .cancel)
-                break
-            case .transfer:
-                self.refresh(subview: self.leftView, status: .transfer)
-                self.refresh(subview: self.rightView, status: .transfer)
-                self.refresh(subview: self.bottomView, status: .transfer)
-                break
-            }
+            self.refresh(subview: self.leftView, status: status)
+            self.refresh(subview: self.rightView, status: status)
+            self.refresh(subview: self.bottomView, status: status)
         }
         
         UIView.animate(withDuration: 0.36,
@@ -197,17 +183,7 @@ public class WYRecordAnimationView: UIView {
             
             guard let self = self else { return }
             
-            switch status {
-            case .recording:
-                self.refresh(subview: self.soundAnimationView, status: .recording)
-                break
-            case .cancel:
-                self.refresh(subview: self.soundAnimationView, status: .cancel)
-                break
-            case .transfer:
-                self.refresh(subview: self.soundAnimationView, status: .transfer)
-                break
-            }
+            self.refresh(subview: self.soundAnimationView, status: status)
         }
     }
     
