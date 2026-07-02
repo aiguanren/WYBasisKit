@@ -344,7 +344,7 @@ Pod::Spec.new do |kit|
     layout.resource_bundles = {"WYBasisKitSwiftLayout" => [
       "#{kit_path}Swift/Layout/PrivacyInfo.xcprivacy"
     ]}
-    layout.subspec "AirBubble" do |airBubble|
+    layout.subspec "AirBubbleView" do |airBubble|
       airBubble.source_files = [
         "#{kit_path}Swift/Layout/AirBubbleView/**/*.{swift,h,m}",
         "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",

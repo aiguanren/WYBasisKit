@@ -324,7 +324,7 @@ Pod::Spec.new do |kit|
     layout.resource_bundles = {"WYBasisKitObjCLayout" => [
       "#{kit_path}ObjC/Layout/PrivacyInfo.xcprivacy"
     ]}
-    layout.subspec "AirBubble" do |airBubble|
+    layout.subspec "AirBubbleView" do |airBubble|
       airBubble.source_files = [
         "#{kit_path}ObjC/Layout/AirBubbleView/**/*.{swift,h,m}"
       ]
@@ -332,7 +332,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}Swift/Layout/AirBubbleView/PrivacyInfo.xcprivacy"
       ]}
       airBubble.frameworks = "Foundation", "UIKit"
-      airBubble.dependency "WYBasisKit-swift/Layout/AirBubble", kit_swift_version
+      airBubble.dependency "WYBasisKit-swift/Layout/AirBubbleView", kit_swift_version
     end
 
     layout.subspec "ScrollText" do |scrollText|
