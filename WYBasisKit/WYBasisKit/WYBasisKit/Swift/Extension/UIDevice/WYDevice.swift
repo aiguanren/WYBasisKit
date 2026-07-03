@@ -51,7 +51,7 @@ public extension UIDevice {
     
     /// 导航栏高度
     static var wy_navBarHeight: CGFloat {
-        return UINavigationBar().intrinsicContentSize.height
+        return navigationBar.intrinsicContentSize.height
     }
     
     /// 导航视图高度（导航栏安全区域+导航栏）
@@ -549,6 +549,10 @@ private extension UIDevice {
             return objc_getAssociatedObject(self, &WYAssociatedKeys.privateMotionManager) as? CMMotionManager
         }
     }
+    
+    static let navigationBar: UINavigationBar = {
+        return UINavigationBar()
+    }()
     
     struct WYAssociatedKeys {
         
