@@ -68,6 +68,26 @@ import WYBasisKitSwift
         }
     }
     
+    /// 导航控制器是否开启了液态玻璃效果
+    @objc public static var navigationBarIsLiquidGlass: Bool {
+        get {
+            return WYBasisKitConfig.navigationBarIsLiquidGlass
+        }
+        set {
+            WYBasisKitConfig.navigationBarIsLiquidGlass = newValue
+        }
+    }
+    
+    /// UITabbar是否开启了液态玻璃效果
+    @objc public static var tabBarIsLiquidGlass: Bool {
+        get {
+            return WYBasisKitConfig.tabBarIsLiquidGlass
+        }
+        set {
+            WYBasisKitConfig.tabBarIsLiquidGlass = newValue
+        }
+    }
+    
     /// 设置屏幕分辨率宽度比最大最小比率数
     @objc public static var screenWidthRatio: WYRatioObjC {
         get {

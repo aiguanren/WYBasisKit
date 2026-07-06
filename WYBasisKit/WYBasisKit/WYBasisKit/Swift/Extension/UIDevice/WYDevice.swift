@@ -49,9 +49,17 @@ public extension UIDevice {
         return UIApplication.shared.wy_keyWindow.safeAreaInsets.top
     }
     
-    /// 导航栏高度
+    /**
+     导航栏高度
+     - Note: iOS 26 引入“液态玻璃”（Liquid Glass）设计后，其高度由系统动态计算。
+             iOS26以前是44像素
+     */
     static var wy_navBarHeight: CGFloat {
-        return navigationBar.intrinsicContentSize.height
+        if WYBasisKitConfig.navigationBarIsLiquidGlass == false, #available(iOS 26.0, *) {
+            return 44.0
+        } else {
+            return privateNavigationBar.intrinsicContentSize.height
+        }
     }
     
     /// 导航视图高度（导航栏安全区域+导航栏）
@@ -64,9 +72,17 @@ public extension UIDevice {
         return UIApplication.shared.wy_keyWindow.safeAreaInsets.bottom
     }
     
-    /// tabBar高度(含安全区域高度)
+    /**
+     tabBar高度(含安全区域高度)
+     - Note: iOS 26 引入“液态玻璃”（Liquid Glass）设计后，系统会根据设备
+             和上下文动态调整 TabBar 的高度，iOS26以前默认是49像素
+     */
     static var wy_tabBarHeight: CGFloat {
-        return UITabBar().sizeThatFits(.zero).height + wy_tabbarSafetyZone
+        if WYBasisKitConfig.tabBarIsLiquidGlass == false, #available(iOS 26.0, *) {
+            return 49 + wy_tabbarSafetyZone
+        }else {
+            return privateTabBar.sizeThatFits(.zero).height + wy_tabbarSafetyZone
+        }
     }
     
     /// 屏幕宽
@@ -550,9 +566,9 @@ private extension UIDevice {
         }
     }
     
-    static let navigationBar: UINavigationBar = {
-        return UINavigationBar()
-    }()
+    static let privateNavigationBar: UINavigationBar = UINavigationBar()
+    
+    static let privateTabBar: UITabBar = UITabBar()
     
     struct WYAssociatedKeys {
         

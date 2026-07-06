@@ -32,6 +32,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UserDefaults.standard.setValue(false, forKey: "_UIConstraintBasedLayoutLogUnsatisfiable")
         
         WYBasisKitConfig.defaultScreenPixels = WYScreenPixels(width: 375, height: 812)
+        WYBasisKitConfig.navigationBarIsLiquidGlass = true
+        WYBasisKitConfig.tabBarIsLiquidGlass = true
         
         // 全局设置KingfisherManager支持显示webp格式图片
         KingfisherManager.shared.defaultOptions += [

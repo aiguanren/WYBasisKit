@@ -47,7 +47,11 @@ import WYBasisKitSwift
         return UIDevice.wy_navBarSafetyZone
     }
     
-    /// 导航栏高度
+    /**
+     导航栏高度
+     - Note: iOS 26 引入“液态玻璃”（Liquid Glass）设计后，其高度由系统动态计算。
+             iOS26以前是44像素
+     */
     @objc(wy_navBarHeight)
     static var wy_navBarHeightObjC: CGFloat {
         return UIDevice.wy_navBarHeight
@@ -65,7 +69,11 @@ import WYBasisKitSwift
         return UIDevice.wy_tabbarSafetyZone
     }
     
-    /// tabBar高度(含安全区域高度)
+    /**
+     tabBar高度(含安全区域高度)
+     - Note: iOS 26 引入“液态玻璃”（Liquid Glass）设计后，系统会根据设备
+             和上下文动态调整 TabBar 的高度，iOS26以前默认是49像素
+     */
     @objc(wy_tabBarHeight)
     static var wy_tabBarHeightObjC: CGFloat {
         return UIDevice.wy_tabBarHeight

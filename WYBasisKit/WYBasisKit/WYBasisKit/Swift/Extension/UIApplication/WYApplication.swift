@@ -55,12 +55,49 @@ extension UIApplication: @retroactive UIApplicationDelegate {
     
     /// 切换为深色或浅色模式
     public func wy_switchAppDisplayBrightness(style: UIUserInterfaceStyle) {
+        // 优先设置 keyWindow
         wy_keyWindow.rootViewController?.overrideUserInterfaceStyle = style
+        
+        // 多 Scene 支持：遍历所有活跃 Scene，统一设置
+        UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .forEach { scene in
+                scene.windows.forEach { window in
+                    window.rootViewController?.overrideUserInterfaceStyle = style
+                    
+                    // 同时设置 window 级别
+                    if window.overrideUserInterfaceStyle != style {
+                        window.overrideUserInterfaceStyle = style
+                    }
+                }
+            }
     }
     
     /// 全局关闭暗夜模式
-    public func wy_closeDarkModel() {
-        delegate?.window??.overrideUserInterfaceStyle = UIUserInterfaceStyle.light
+    public func wy_closeDarkMode() {
+        // 优先使用 keyWindow 的 rootViewController，更可靠
+        if let rootVC = wy_keyWindow.rootViewController {
+            rootVC.overrideUserInterfaceStyle = .light
+        } else {
+            delegate?.window??.overrideUserInterfaceStyle = .light
+        }
+        
+        // 多 Scene 支持：遍历所有 Scene 统一关闭暗夜模式
+        UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .forEach { scene in
+                scene.windows.forEach { window in
+                    // 设置 window 级别
+                    window.overrideUserInterfaceStyle = .light
+                    
+                    // 设置 rootViewController 级别
+                    window.rootViewController?.overrideUserInterfaceStyle = .light
+                    
+                    // 递归设置所有子控制器
+                    window.rootViewController?.children.forEach {
+                        $0.overrideUserInterfaceStyle = .light
+                    }
+                }
+            }
     }
 }
-
