@@ -49,6 +49,12 @@ public struct WYBasisKitConfig {
     /// 设置字号适配的最大最小比率数
     public static var fontRatio: WYRatio = WYRatio(min: 0.5, max: 1.5)
     
+    /// 导航控制器是否开启了液态玻璃效果
+    public static var navigationBarIsLiquidGlass: Bool = false
+    
+    /// UITabbar是否开启了液态玻璃效果
+    public static var tabBarIsLiquidGlass: Bool = false
+    
     /// 设置屏幕分辨率宽度比最大最小比率数
     public static var screenWidthRatio: WYRatio = WYRatio(min: 0.5, max: 1.5)
     

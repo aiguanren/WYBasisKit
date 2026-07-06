@@ -25,8 +25,8 @@ import WYBasisKitSwift
     }
     
     /// 全局关闭暗夜模式
-    @objc(wy_closeDarkModel)
-    public func wy_closeDarkModelObjC() {
-        wy_closeDarkModel()
+    @objc(wy_closeDarkMode)
+    public func wy_closeDarkModeObjC() {
+        wy_closeDarkMode()
     }
 }
