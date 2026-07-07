@@ -52,10 +52,9 @@ public class WYMoveupTipsView: UIView {
         moveuplView.setTitleColor((tipsState == .cancel) ? recordAnimationConfig.cancelRecordViewTextInfoForInterior.color : recordAnimationConfig.transferViewTextInfoForInterior.color, for: .selected)
         
         moveuplView.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
             make.centerY.equalTo(tipsView.snp.bottom).offset(recordAnimationConfig.moveupButtonCenterOffsetY.onExternal)
             make.width.height.equalTo(recordAnimationConfig.moveupButtonDiameter.onExternal)
-            make.bottom.equalToSuperview()
+            make.left.bottom.right.equalToSuperview()
         }
     }
     

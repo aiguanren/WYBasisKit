@@ -95,6 +95,7 @@ public class WYRecordAnimationView: UIView {
     /// 当前录音状态
     public var soundAnimationStatus: WYSoundAnimationStatus = .recording
     
+    /// 初始化方法
     public init(alpha: CGFloat = 1.0, delegate: WYRecordEventsHandler? = nil) {
         super.init(frame: .zero)
         backgroundColor = recordAnimationConfig.fillColor.onExternal
@@ -128,7 +129,6 @@ public class WYRecordAnimationView: UIView {
     
     /// 结束录音动画
     public func stop() {
-        endRecordVoice()
         UIView.animate(withDuration: 0.2,
                        delay: 0,
                        usingSpringWithDamping: 1,
@@ -155,7 +155,20 @@ public class WYRecordAnimationView: UIView {
     }
     
     /// 录音功能区切换操作
-    public func switchStatus(_ status: WYSoundAnimationStatus) {
+    public func switchStatus(_ touchPoint: CGPoint) {
+        
+        let status: WYSoundAnimationStatus
+        // 判断触摸点是否在 指定View 上面
+        if leftView.frame.contains(touchPoint) {
+            status = .cancel
+        } else if rightView.frame.contains(touchPoint) {
+            status = .transfer
+        } else if bottomView.frame.contains(touchPoint) {
+            status = .recording
+        } else {
+            // 不在任何指定视图上，不做任何处理
+            return
+        }
         
         guard soundAnimationStatus != status else {
             return
@@ -184,6 +197,13 @@ public class WYRecordAnimationView: UIView {
             guard let self = self else { return }
             
             self.refresh(subview: self.soundAnimationView, status: status)
+        }
+        
+        if recordAnimationConfig.vibrationFeedback {
+            // 录音会占用 AVAudioSession，系统默认会屏蔽非必要的触觉反馈，开启此选项可在录音期间保留 Haptic 和系统震动能力。
+            try? AVAudioSession.sharedInstance()
+                .setAllowHapticsAndSystemSoundsDuringRecording(true)
+            UIDevice.wy_vibrate(.light)
         }
     }
     
@@ -219,6 +239,9 @@ public class WYRecordAnimationView: UIView {
             
             if subview == bottomView {
                 bottomLayer.fillColor = recordAnimationConfig.fillColor.onInterior.cgColor
+                bottomTitleView.font = recordAnimationConfig.recordViewTipsInfoForInterior.font
+                bottomTitleView.textColor = recordAnimationConfig.recordViewTipsInfoForInterior.color
+                bottomTitleView.text = recordAnimationConfig.recordViewTips.onInterior
             }
             break
         case .cancel:
@@ -249,6 +272,9 @@ public class WYRecordAnimationView: UIView {
             
             if subview == bottomView {
                 bottomLayer.fillColor = recordAnimationConfig.fillColor.onExternal.cgColor
+                bottomTitleView.font = recordAnimationConfig.recordViewTipsInfoForExternal.font
+                bottomTitleView.textColor = recordAnimationConfig.recordViewTipsInfoForExternal.color
+                bottomTitleView.text = recordAnimationConfig.recordViewTips.onExternal
             }
             break
         case .transfer:
@@ -278,6 +304,9 @@ public class WYRecordAnimationView: UIView {
             
             if subview == bottomView {
                 bottomLayer.fillColor = recordAnimationConfig.fillColor.onExternal.cgColor
+                bottomTitleView.font = recordAnimationConfig.recordViewTipsInfoForExternal.font
+                bottomTitleView.textColor = recordAnimationConfig.recordViewTipsInfoForExternal.color
+                bottomTitleView.text = recordAnimationConfig.recordViewTips.onExternal
             }
             break
         }
@@ -310,6 +339,17 @@ public class WYRecordAnimationView: UIView {
         return bottomLayer
     }()
     
+    public lazy var bottomTitleView: UILabel = {
+        
+        let label: UILabel = UILabel()
+        label.textAlignment = .left
+        label.font = recordAnimationConfig.recordViewTipsInfoForInterior.font
+        label.textColor = recordAnimationConfig.recordViewTipsInfoForInterior.color
+        label.text = recordAnimationConfig.recordViewTips.onInterior
+        
+        return label
+    }()
+    
     public lazy var bottomView: UIView = {
         
         layoutIfNeeded()
@@ -323,6 +363,17 @@ public class WYRecordAnimationView: UIView {
             make.bottom.equalToSuperview().offset(recordAnimationConfig.areaHeight)
             make.height.equalTo(recordAnimationConfig.areaHeight)
         })
+        
+        bottomView.addSubview(bottomTitleView)
+        bottomTitleView.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalToSuperview().offset(recordAnimationConfig.recordTipViewTopOffset)
+        }
+        
+        // 必须主动调用下这两个View，否则在手指滑动到这两个控件上之前不会显示出来
+        leftView.refresh(tipsState: .cancel, isTouched: false)
+        rightView.refresh(tipsState: .transfer, isTouched: false)
+        
         return bottomView
     }()
     
@@ -401,8 +452,6 @@ extension WYRecordAnimationView: WYAudioKitDelegate {
         delegate?.wy_audioRecorderDidStop?(audioKit: audioKit, isPause: isPause, isTimeout: isTimeout)
         
         try? audioKit.saveRecording(destinationUrl: recordAnimationConfig.chatAudioUrl)
-        
-        endRecordVoice()
     }
     
     /**

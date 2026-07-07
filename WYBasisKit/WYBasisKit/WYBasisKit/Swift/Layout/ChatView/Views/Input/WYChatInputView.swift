@@ -455,7 +455,6 @@ public class WYChatInputView: UIImageView {
         guard ((eventsHandler?.canManagerVoiceRecordEvents?(sender) ?? true) && textVoiceView.isSelected == true) else {
             return
         }
-        
         /// 检查是否拥有麦克风权限
         wy_authorizeMicrophoneAccess(showSettingsAlert: true) { [weak self] authorized in
             
@@ -463,30 +462,21 @@ public class WYChatInputView: UIImageView {
             guard authorized == true else { return }
             
             // 用户已授权使用麦克风，开始录音操作
-            Task { @MainActor in
-                let point: CGPoint = sender.location(in: self.recordView)
-                switch sender.state {
-                case .began:
-                    self.isHidden = true
-                    self.recordView.start()
-                    break
-                case .changed:
-                    self.isHidden = true
-                    if (point.x < (self.recordView.bounds.size.width / 2)) && (point.y < (self.recordView.bounds.size.height - recordAnimationConfig.areaHeight)) {
-                        self.recordView.switchStatus(.cancel)
-                        
-                    }else if (point.x > (self.recordView.bounds.size.width / 2)) && (point.y < (self.recordView.bounds.size.height - recordAnimationConfig.areaHeight)) {
-                        self.recordView.switchStatus(.transfer)
-                        
-                    }else {
-                        self.recordView.switchStatus(.recording)
-                    }
-                    break
-                default:
-                    self.isHidden = false
-                    self.recordView.stop()
-                    break
-                }
+            let point: CGPoint = sender.location(in: self.recordView)
+            switch sender.state {
+            case .began:
+                self.isHidden = true
+                self.recordView.start()
+                break
+            case .changed:
+                self.isHidden = true
+                // 传入坐标点，在内部切换选中目标
+                self.recordView.switchStatus(point)
+                break
+            default:
+                self.isHidden = false
+                self.recordView.stop()
+                break
             }
         }
     }
