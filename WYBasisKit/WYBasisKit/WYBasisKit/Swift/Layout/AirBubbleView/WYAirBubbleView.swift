@@ -200,13 +200,14 @@ public class WYAirBubbleView: UIView {
     private func appendArrowFill(to path: UIBezierPath, rect: CGRect) {
         let (p1, tip, p2) = arrowPoints(rect: rect)
         path.move(to: p1)
+        
         if arrowTipRadius > 0 {
-            // 使用二次贝塞尔曲线实现圆角尖
-            path.addQuadCurve(to: p2, controlPoint: tip)
+            addRoundedArrow(path, from: p1, tip: tip, to: p2)
         } else {
             path.addLine(to: tip)
             path.addLine(to: p2)
         }
+        
         path.close()
     }
 
@@ -299,7 +300,7 @@ public class WYAirBubbleView: UIView {
                                tip: CGPoint,
                                to p2: CGPoint) {
         if arrowTipRadius > 0 {
-            path.addQuadCurve(to: p2, controlPoint: tip)
+            addRoundedArrow(path, from: p1, tip: tip, to: p2)
         } else {
             path.addLine(to: tip)
             path.addLine(to: p2)
@@ -363,5 +364,49 @@ public class WYAirBubbleView: UIView {
                 )
             }
         }
+    }
+    
+    /// 构建带“真实圆角”的箭头（核心算法）(原理：在尖点两侧截断，然后用圆弧连接)
+    private func addRoundedArrow(_ path: UIBezierPath,
+                                 from p1: CGPoint,
+                                 tip: CGPoint,
+                                 to p2: CGPoint) {
+        // 向量
+        let v1 = CGPoint(x: p1.x - tip.x, y: p1.y - tip.y)
+        let v2 = CGPoint(x: p2.x - tip.x, y: p2.y - tip.y)
+        
+        // 长度
+        let len1 = sqrt(v1.x * v1.x + v1.y * v1.y)
+        let len2 = sqrt(v2.x * v2.x + v2.y * v2.y)
+        
+        guard len1 > 0, len2 > 0 else {
+            path.addLine(to: tip)
+            path.addLine(to: p2)
+            return
+        }
+        
+        // 归一化
+        let n1 = CGPoint(x: v1.x / len1, y: v1.y / len1)
+        let n2 = CGPoint(x: v2.x / len2, y: v2.y / len2)
+        
+        // 限制最大半径
+        let maxRadius = min(len1, len2) * 0.9
+        let radius = min(arrowTipRadius, maxRadius)
+        
+        // 截断点
+        let t1 = CGPoint(x: tip.x + n1.x * radius,
+                         y: tip.y + n1.y * radius)
+        
+        let t2 = CGPoint(x: tip.x + n2.x * radius,
+                         y: tip.y + n2.y * radius)
+        
+        // 先到截断点1
+        path.addLine(to: t1)
+        
+        // 再画圆弧到截断点2（用二次曲线近似）
+        path.addQuadCurve(to: t2, controlPoint: tip)
+        
+        // 最后连到 p2
+        path.addLine(to: p2)
     }
 }
