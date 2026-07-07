@@ -392,7 +392,7 @@ class WYTestAirBubbleController: UIViewController {
         stack.addArrangedSubview(edgeRow.view)
 
         // 9. 尖端圆角
-        let tipRow = makeSliderRow(label: "尖端圆角", min: 0, max: 12, value: 0, action: #selector(tipRadiusChanged))
+        let tipRow = makeSliderRow(label: "尖端圆角", min: 0, max: 30, value: 0, action: #selector(tipRadiusChanged))
         tipRadiusSlider = tipRow.slider
         stack.addArrangedSubview(tipRow.view)
 

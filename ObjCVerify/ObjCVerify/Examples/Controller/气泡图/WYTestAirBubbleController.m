@@ -366,7 +366,7 @@
     [verticalStack addArrangedSubview:edgeRow[@"view"]];
 
     // 9. 尖端圆角
-    NSDictionary *tipRow = [self makeSliderRowWithLabel:@"尖端圆角" min:0 max:12 value:0 action:@selector(tipRadiusChanged:)];
+    NSDictionary *tipRow = [self makeSliderRowWithLabel:@"尖端圆角" min:0 max:30 value:0 action:@selector(tipRadiusChanged:)];
     self.tipRadiusSlider = tipRow[@"slider"];
     [verticalStack addArrangedSubview:tipRow[@"view"]];
 

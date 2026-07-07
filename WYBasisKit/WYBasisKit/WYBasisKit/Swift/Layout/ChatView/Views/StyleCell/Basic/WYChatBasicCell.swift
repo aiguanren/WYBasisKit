@@ -12,7 +12,7 @@ import SnapKit
 /// 通用聊天配置选项
 public struct WYBasicChatConfig {
     
-    /// 消息显示的最小时间跨度，默认300秒
+    /// 消息显示的最小时间跨度(单位秒)，默认300秒
     public var messageMinimumTimeSpan: Double = 300
     
     /// 消息发送失败后cell上显示的状态图标
