@@ -19,7 +19,7 @@ import UIKit
     case cancel
 }
 
-public class WYSoundAnimationView: UIImageView {
+public class WYSoundAnimationView: WYAirBubbleView {
     
     public lazy var soundWavesView: WYSoundWavesView = {
         let soundWavesView: WYSoundWavesView = WYSoundWavesView()
@@ -38,8 +38,13 @@ public class WYSoundAnimationView: UIImageView {
         
         switch status {
         case .recording:
-            image = recordAnimationConfig.backgroundImageForMoveup.recording
-            tintColor = recordAnimationConfig.backgroundColorForMoveup.recording
+            cornerRadius = recordAnimationConfig.cornerRadiusForMoveup.recording
+            fillColor = recordAnimationConfig.backgroundColorForMoveup.recording
+            borderColor = recordAnimationConfig.borderColorForMoveup.recording
+            borderWidth = recordAnimationConfig.borderWidthForMoveup.recording
+            arrowSize = recordAnimationConfig.arrowSizeForMoveup.recording
+            arrowTipRadius = recordAnimationConfig.arrowTipRadiusForMoveup.recording
+            
             soundWavesView.snp.updateConstraints { make in
                 make.center.equalToSuperview()
                 make.width.equalTo(((recordAnimationConfig.soundWavesWidth + recordAnimationConfig.soundWavesSpace) * CGFloat(recordAnimationConfig.severalSoundWaves.recording)) - recordAnimationConfig.soundWavesSpace)
@@ -47,8 +52,13 @@ public class WYSoundAnimationView: UIImageView {
             }
             break
         case .transfer:
-            image = recordAnimationConfig.backgroundImageForMoveup.transfer
-            tintColor = recordAnimationConfig.backgroundColorForMoveup.transfer
+            cornerRadius = recordAnimationConfig.cornerRadiusForMoveup.transfer
+            fillColor = recordAnimationConfig.backgroundColorForMoveup.transfer
+            borderColor = recordAnimationConfig.borderColorForMoveup.transfer
+            borderWidth = recordAnimationConfig.borderWidthForMoveup.transfer
+            arrowSize = recordAnimationConfig.arrowSizeForMoveup.transfer
+            arrowTipRadius = recordAnimationConfig.arrowTipRadiusForMoveup.transfer
+            
             soundWavesView.snp.updateConstraints { make in
                 make.center.equalToSuperview()
                 make.width.equalTo(((recordAnimationConfig.soundWavesWidth + recordAnimationConfig.soundWavesSpace) * CGFloat(recordAnimationConfig.severalSoundWaves.transfer)) - recordAnimationConfig.soundWavesSpace)
@@ -56,8 +66,13 @@ public class WYSoundAnimationView: UIImageView {
             }
             break
         case .cancel:
-            image = recordAnimationConfig.backgroundImageForMoveup.cancel
-            tintColor = recordAnimationConfig.backgroundColorForMoveup.cancel
+            cornerRadius = recordAnimationConfig.cornerRadiusForMoveup.cancel
+            fillColor = recordAnimationConfig.backgroundColorForMoveup.cancel
+            borderColor = recordAnimationConfig.borderColorForMoveup.cancel
+            borderWidth = recordAnimationConfig.borderWidthForMoveup.cancel
+            arrowSize = recordAnimationConfig.arrowSizeForMoveup.cancel
+            arrowTipRadius = recordAnimationConfig.arrowTipRadiusForMoveup.cancel
+            
             soundWavesView.snp.updateConstraints { make in
                 make.center.equalToSuperview()
                 make.width.equalTo(((recordAnimationConfig.soundWavesWidth + recordAnimationConfig.soundWavesSpace) * CGFloat(recordAnimationConfig.severalSoundWaves.cancel)) - recordAnimationConfig.soundWavesSpace)

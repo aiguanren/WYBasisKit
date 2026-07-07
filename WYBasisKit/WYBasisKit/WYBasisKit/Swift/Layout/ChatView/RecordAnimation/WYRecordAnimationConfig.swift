@@ -10,22 +10,6 @@ import Foundation
 
 public struct WYRecordAnimationConfig {
     
-    /// 声波控件宽度
-    public var soundWavesViewWidth: (recording: CGFloat,
-                                  cancel: CGFloat,
-                                  transfer: CGFloat) = (
-                                    recording: UIDevice.wy_screenWidth(220),
-                                    cancel: UIDevice.wy_screenWidth(130),
-                                    transfer: UIDevice.wy_screenWidth - 50)
-    
-    /// 声波控件高度
-    public var soundWavesViewHeight: (recording: CGFloat,
-                                  cancel: CGFloat,
-                                  transfer: CGFloat) = (
-                                    recording: UIDevice.wy_screenWidth(100),
-                                    cancel: UIDevice.wy_screenWidth(90),
-                                    transfer: UIDevice.wy_screenWidth(125))
-    
     /// 声波线宽度
     public var soundWavesWidth: CGFloat = UIDevice.wy_screenWidth(2)
     
@@ -62,17 +46,63 @@ public struct WYRecordAnimationConfig {
                                                                     cancel: .wy_hex("282828").withAlphaComponent(0.6),
                                                                     transfer: .wy_hex("282828").withAlphaComponent(0.6))
     
-    /// 录音、取消录音与转文字时声波动画背景图
-    public var backgroundImageForMoveup: (recording: UIImage,
-                                          cancel: UIImage,
-                                          transfer: UIImage) = (recording: soundWavesDefaultImage(), cancel: soundWavesDefaultImage(), transfer: soundWavesDefaultImage())
+    /// 录音、取消录音与转文字时气泡控件宽度
+    public var soundWavesViewWidth: (recording: CGFloat,
+                                  cancel: CGFloat,
+                                  transfer: CGFloat) = (
+                                    recording: UIDevice.wy_screenWidth(200),
+                                    cancel: UIDevice.wy_screenWidth(100),
+                                    transfer: UIDevice.wy_screenWidth - 50)
     
-    /// 录音、取消录音与转文字时声波动画背景色
+    /// 录音、取消录音与转文字时气泡控件高度
+    public var soundWavesViewHeight: (recording: CGFloat,
+                                  cancel: CGFloat,
+                                  transfer: CGFloat) = (
+                                    recording: UIDevice.wy_screenWidth(100),
+                                    cancel: UIDevice.wy_screenWidth(100),
+                                    transfer: UIDevice.wy_screenWidth(115))
+    
+    /// 录音、取消录音与转文字时声波动画气泡主体圆角半径
+    public var cornerRadiusForMoveup: (recording: CGFloat,
+                                          cancel: CGFloat,
+                                       transfer: CGFloat) = (recording: UIDevice.wy_screenWidth(12),
+                                                                cancel: UIDevice.wy_screenWidth(12),
+                                            transfer: UIDevice.wy_screenWidth(12))
+    
+    /// 录音、取消录音与转文字时声波动画气泡背景色
     public var backgroundColorForMoveup: (recording: UIColor,
                                           cancel: UIColor,
                                           transfer: UIColor) = (recording: .wy_hex("#95EC69"),
                                                                 cancel: .wy_hex("#FA5151"),
                                             transfer: .wy_hex("#95EC69"))
+    
+    /// 录音、取消录音与转文字时声波动画气泡边框的颜色
+    public var borderColorForMoveup: (recording: UIColor,
+                                          cancel: UIColor,
+                                          transfer: UIColor) = (recording: .wy_hex("#95EC69"),
+                                                                cancel: .wy_hex("#FA5151"),
+                                            transfer: .wy_hex("#95EC69"))
+    
+    /// 录音、取消录音与转文字时声波动画气泡边框宽度
+    public var borderWidthForMoveup: (recording: CGFloat,
+                                          cancel: CGFloat,
+                                       transfer: CGFloat) = (recording: 0,
+                                                                cancel: 0,
+                                            transfer: 0)
+    
+    /// 录音、取消录音与转文字时声波动画气泡三角箭头的尺寸（宽度，高度）(宽度是底边长度，高度是尖点到底边的垂直距离)
+    public var arrowSizeForMoveup: (recording: CGSize,
+                                          cancel: CGSize,
+                                       transfer: CGSize) = (recording: CGSize(width: UIDevice.wy_screenWidth(16, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels)),
+                                                                cancel: CGSize(width: UIDevice.wy_screenWidth(16, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels)),
+                                            transfer: CGSize(width: UIDevice.wy_screenWidth(16, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels)))
+    
+    /// 录音、取消录音与转文字时声波动画气泡三角箭头的圆角半径
+    public var arrowTipRadiusForMoveup: (recording: CGFloat,
+                                          cancel: CGFloat,
+                                         transfer: CGFloat) = (recording: UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels),
+                                                               cancel: UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels),
+                                                               transfer: UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels))
     
     /// 取消按钮背景图
     public var cancelRecordViewImage: (onInterior: UIImage, onExternal: UIImage) = (onInterior: .wy_createImage(from: .wy_rgb(236, 236, 236), size: CGSize(width: UIDevice.wy_screenWidth(100), height: UIDevice.wy_screenWidth(100))).wy_cuttingRound(), onExternal: .wy_createImage(from: .wy_rgb(57, 57, 57), size: CGSize(width: UIDevice.wy_screenWidth(80), height: UIDevice.wy_screenWidth(80))).wy_cuttingRound())
@@ -163,10 +193,4 @@ public struct WYRecordAnimationConfig {
     
     /// 录音文件保存地址
     public var chatAudioUrl: URL = WYStorage.createDirectory(directory: .documentDirectory, subDirectory: "WYChatAudio")
-}
-
-/// 获取录音默认背景图
-private func soundWavesDefaultImage(_ capInsets: UIEdgeInsets = UIEdgeInsets(top: UIDevice.wy_screenWidth(10), left: UIDevice.wy_screenWidth(10), bottom: UIDevice.wy_screenWidth(20), right: UIDevice.wy_screenWidth(10))) -> UIImage {
-    
-    return UIImage.wy_find("WYChatViewDecibel", inBundle: WYChatSourceBundle).withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: capInsets, resizingMode: .stretch)
 }
