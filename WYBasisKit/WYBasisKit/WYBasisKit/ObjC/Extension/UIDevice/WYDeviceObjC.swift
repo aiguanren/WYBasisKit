@@ -50,7 +50,7 @@ import WYBasisKitSwift
     /**
      导航栏高度
      - Note: iOS 26 引入“液态玻璃”（Liquid Glass）设计后，其高度由系统动态计算。
-             iOS26以前是44像素
+             iOS26以前默认是44像素
      */
     @objc(wy_navBarHeight)
     static var wy_navBarHeightObjC: CGFloat {

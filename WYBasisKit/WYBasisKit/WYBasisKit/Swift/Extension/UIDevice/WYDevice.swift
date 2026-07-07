@@ -52,14 +52,10 @@ public extension UIDevice {
     /**
      导航栏高度
      - Note: iOS 26 引入“液态玻璃”（Liquid Glass）设计后，其高度由系统动态计算。
-             iOS26以前是44像素
+             iOS26以前默认是44像素
      */
     static var wy_navBarHeight: CGFloat {
-        if WYBasisKitConfig.navigationBarIsLiquidGlass == false, #available(iOS 26.0, *) {
-            return 44.0
-        } else {
-            return privateNavigationBar.intrinsicContentSize.height
-        }
+        return privateNavigationBar.intrinsicContentSize.height
     }
     
     /// 导航视图高度（导航栏安全区域+导航栏）
@@ -78,11 +74,7 @@ public extension UIDevice {
              和上下文动态调整 TabBar 的高度，iOS26以前默认是49像素
      */
     static var wy_tabBarHeight: CGFloat {
-        if WYBasisKitConfig.tabBarIsLiquidGlass == false, #available(iOS 26.0, *) {
-            return 49 + wy_tabbarSafetyZone
-        }else {
-            return privateTabBar.sizeThatFits(.zero).height + wy_tabbarSafetyZone
-        }
+        return privateTabBar.sizeThatFits(.zero).height + wy_tabbarSafetyZone
     }
     
     /// 屏幕宽
