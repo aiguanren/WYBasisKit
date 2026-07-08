@@ -14,7 +14,12 @@ class WYSpeechRecognitionController: UIViewController {
     
     @IBOutlet weak var voiceView: UIButton!
     
-    // 在进行语音识别之前，你必须获得用户的相应授权，因为语音识别并不是在iOS设备本地进行识别，而是在苹果的伺服器上进行识别的。所有的语音数据都需要传给苹果的后台服务器进行处理。因此必须得到用户的授权。
+    /**
+     语音识别说明
+     1、有次数及时长限制（离线识别除外），具体为1000 次 / 小时 / 设备，每次最多持续识别1分钟
+     2、在进行语音识别之前，你必须获得用户的相应授权，因为语音识别并不是在iOS设备本地进行识别，而是在苹果的伺服器上进行识别的。所有的语音数据都需要传给苹果的后台服务器进行处理。因此必须得到用户的授权。
+     */
+    
     
     // 创建语音识别器，指定语音识别的语言环境 locale ,将来会转化为什么语言，这里是使用的当前区域，那肯定就是简体中文啦
     private let speechRecognizer = SFSpeechRecognizer(locale: Locale.autoupdatingCurrent)
