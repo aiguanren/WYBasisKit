@@ -149,7 +149,7 @@ public class WYPagingView: UIView {
     /// 滑动线条高度 默认2像素
     public var bar_scrollLineHeight: CGFloat = UIDevice.wy_screenWidth(2, WYBasisKitConfig.defaultScreenPixels)
     
-    /// 滑动线条圆角半径，默认0(不圆角)
+    /// 滑动线条圆角半径，默认0(无圆角)
     public var bar_scrollLineCornerRadius: CGFloat = 0
     
     /// 分页栏标题 Normal状态 字号 默认15号；
