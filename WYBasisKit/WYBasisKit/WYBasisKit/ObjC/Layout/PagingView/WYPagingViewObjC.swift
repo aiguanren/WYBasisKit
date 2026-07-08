@@ -264,6 +264,13 @@ import WYBasisKitSwift
         get { return bar_scrollLineHeight }
         set { bar_scrollLineHeight = newValue }
     }
+    
+    /// 滑动线条圆角半径，默认0(不圆角)
+    @objc(bar_scrollLineCornerRadius)
+    public var bar_scrollLineCornerRadiusObjC: CGFloat {
+        get { return bar_scrollLineCornerRadius }
+        set { bar_scrollLineCornerRadius = newValue }
+    }
 
     /// 分页栏标题 Normal状态 字号 默认15号；
     @objc(bar_title_defaultFont)
