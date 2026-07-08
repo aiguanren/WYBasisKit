@@ -10,6 +10,9 @@ import Foundation
 
 public struct WYRecordAnimationConfig {
     
+    /// 语音录制页面是否需要支持实时语音转文字(如需支持需自行实现相关代理，然后将识别后的文本传给WYSoundAnimationView)
+    public var supportSpeechRecognition: Bool = false
+    
     /// 声波线宽度
     public var soundWavesWidth: CGFloat = UIDevice.wy_screenWidth(2)
     
@@ -36,8 +39,8 @@ public struct WYRecordAnimationConfig {
     public var severalSoundWaves: (recording: Int,
                                    cancel: Int,
                                    transfer: Int) = (recording: 25,
-                                                           cancel: 15,
-                                                           transfer: 15)
+                                                           cancel: 19,
+                                                           transfer: 19)
     
     /// 声波线颜色
     public var colorOfSoundWavesOnRecording: (recording: UIColor,
@@ -58,9 +61,9 @@ public struct WYRecordAnimationConfig {
     public var soundWavesViewHeight: (recording: CGFloat,
                                   cancel: CGFloat,
                                   transfer: CGFloat) = (
-                                    recording: UIDevice.wy_screenWidth(100),
+                                    recording: UIDevice.wy_screenWidth(90),
                                     cancel: UIDevice.wy_screenWidth(90),
-                                    transfer: UIDevice.wy_screenWidth(100))
+                                    transfer: UIDevice.wy_screenWidth(90))
     
     /// 录音、取消录音与转文字时声波动画气泡主体圆角半径
     public var cornerRadiusForMoveup: (recording: CGFloat,
@@ -170,7 +173,7 @@ public struct WYRecordAnimationConfig {
     /// 取消录音或者语音转文字按钮中心点距离tip控件底部的间距
     public var moveupButtonCenterOffsetY: (onInterior: CGFloat, onExternal: CGFloat) = (onInterior: UIDevice.wy_screenWidth(55), onExternal: UIDevice.wy_screenWidth(45))
     
-    /// 取消录音按钮和转文字按钮中心点X值距离屏幕父控件左侧或者右侧的间距
+    /// 取消录音按钮和转文字按钮中心点X值距离屏幕父控件左侧或者右侧的间距(如果supportSpeechRecognition为false，则此属性无效，内部会强制水平居中)
     public var moveupButtonCenterOffsetX: CGFloat = UIDevice.wy_screenWidth(UIDevice.wy_screenWidth(100))
     
     /// 声波动画操作区切换时是否需要震动反馈

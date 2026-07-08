@@ -47,6 +47,8 @@ class WYTestChatController: UIViewController {
             make.left.right.equalToSuperview()
             make.bottom.equalToSuperview().offset(-UIDevice.wy_tabbarSafetyZone)
         }
+        
+        recordAnimationConfig.supportSpeechRecognition = true
     }
 
     /*

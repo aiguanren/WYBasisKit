@@ -44,6 +44,7 @@ public class WYSoundAnimationView: WYAirBubbleView {
             borderWidth = recordAnimationConfig.borderWidthForMoveup.recording
             arrowSize = recordAnimationConfig.arrowSizeForMoveup.recording
             arrowTipRadius = recordAnimationConfig.arrowTipRadiusForMoveup.recording
+            arrowOffset = 0
             
             soundWavesView.snp.updateConstraints { make in
                 make.center.equalToSuperview()
@@ -58,6 +59,7 @@ public class WYSoundAnimationView: WYAirBubbleView {
             borderWidth = recordAnimationConfig.borderWidthForMoveup.transfer
             arrowSize = recordAnimationConfig.arrowSizeForMoveup.transfer
             arrowTipRadius = recordAnimationConfig.arrowTipRadiusForMoveup.transfer
+            arrowOffset = (recordAnimationConfig.soundWavesViewWidth.transfer - recordAnimationConfig.moveupButtonDiameter.onInterior - arrowSize.width) / 2
             
             soundWavesView.snp.updateConstraints { make in
                 make.center.equalToSuperview()
@@ -72,6 +74,7 @@ public class WYSoundAnimationView: WYAirBubbleView {
             borderWidth = recordAnimationConfig.borderWidthForMoveup.cancel
             arrowSize = recordAnimationConfig.arrowSizeForMoveup.cancel
             arrowTipRadius = recordAnimationConfig.arrowTipRadiusForMoveup.cancel
+            arrowOffset = 0
             
             soundWavesView.snp.updateConstraints { make in
                 make.center.equalToSuperview()

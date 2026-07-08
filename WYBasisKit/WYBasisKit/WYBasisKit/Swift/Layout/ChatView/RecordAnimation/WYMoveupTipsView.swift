@@ -63,7 +63,9 @@ public class WYMoveupTipsView: UIView {
         
         moveuplView.isSelected = isTouched
         
-        moveuplView.transform = CGAffineTransform(rotationAngle: (tipsState == .cancel) ? -recordAnimationConfig.moveupViewDeviationAngle : recordAnimationConfig.moveupViewDeviationAngle)
+        if recordAnimationConfig.supportSpeechRecognition {
+            moveuplView.transform = CGAffineTransform(rotationAngle: (tipsState == .cancel) ? -recordAnimationConfig.moveupViewDeviationAngle : recordAnimationConfig.moveupViewDeviationAngle)
+        }
         
         if moveuplView.isSelected == true {
             
