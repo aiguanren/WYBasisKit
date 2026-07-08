@@ -149,6 +149,9 @@ public class WYPagingView: UIView {
     /// 滑动线条高度 默认2像素
     public var bar_scrollLineHeight: CGFloat = UIDevice.wy_screenWidth(2, WYBasisKitConfig.defaultScreenPixels)
     
+    /// 滑动线条圆角半径，默认0(无圆角)
+    public var bar_scrollLineCornerRadius: CGFloat = 0
+    
     /// 分页栏标题 Normal状态 字号 默认15号；
     public var bar_title_defaultFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(15, WYBasisKitConfig.defaultScreenPixels))
     
@@ -309,7 +312,9 @@ extension WYPagingView: UIScrollViewDelegate {
             barScrollLineWidthConstraint?.constant = targetWidth
             
             // 更新圆角（如果指示线是圆角样式）
-            barScrollLine.wy_rectCorner(.allCorners).wy_cornerRadius(targetWidth / 2).wy_showVisual()
+            if (bar_scrollLineCornerRadius > 0) {
+                barScrollLine.wy_rectCorner(.allCorners).wy_cornerRadius(bar_scrollLineCornerRadius / 2).wy_showVisual()
+            }
             
             barScrollLine.superview?.layoutIfNeeded()
             
@@ -374,7 +379,9 @@ extension WYPagingView {
             
             self.barScrollLineWidthConstraint?.constant = bar_scrollLineWidth
             
-            self.barScrollLine.wy_rectCorner(.allCorners).wy_cornerRadius(bar_scrollLineWidth / 2).wy_showVisual()
+            if (self.bar_scrollLineCornerRadius > 0) {
+                self.barScrollLine.wy_rectCorner(.allCorners).wy_cornerRadius(self.bar_scrollLineCornerRadius / 2).wy_showVisual()
+            }
             
             self.barScrollLine.superview?.layoutIfNeeded()
         }
