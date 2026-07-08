@@ -129,10 +129,8 @@ public class WYAirBubbleView: UIView {
         borderLayer.strokeColor = borderColor.cgColor
         borderLayer.lineWidth = borderWidth
         
-        // 确保边框变化时 path 一定存在
-        if borderWidth > 0 && borderLayer.path == nil {
-            updatePath()
-        }
+        // 边框宽度为0时隐藏（避免不必要渲染）
+        borderLayer.isHidden = borderWidth <= 0
     }
 
     /// 更新所有几何路径（气泡主体圆角矩形 + 箭头），并重新赋值给对应图层
@@ -142,30 +140,12 @@ public class WYAirBubbleView: UIView {
         // 计算除去箭头占位后的气泡主体矩形
         let rect = bubbleRect()
 
-        // 构建填充路径（包含箭头）
-        let fillPath = UIBezierPath(
-            roundedRect: rect,
-            byRoundingCorners: cornersPosition,
-            cornerRadii: CGSize(width: cornerRadius, height: cornerRadius)
-        )
+        // 构建统一填充路径（圆角 + 箭头）
+        let path = UIBezierPath()
+        buildBorderPath(path, rect: rect)
 
-        if showsArrow {
-            appendArrowFill(to: fillPath, rect: rect)
-        }
-
-        fillLayer.frame = bounds
-        fillLayer.path = fillPath.cgPath
-
-        // 构建边框路径（独立绘制，确保箭头边框与主体连贯）
-        guard borderWidth > 0 else {
-            borderLayer.path = nil
-            return
-        }
-
-        let borderPath = UIBezierPath()
-        buildBorderPath(borderPath, rect: rect)
-        borderLayer.frame = bounds
-        borderLayer.path = borderPath.cgPath
+        fillLayer.path = path.cgPath
+        borderLayer.path = path.cgPath
     }
 
     /**
@@ -218,78 +198,107 @@ public class WYAirBubbleView: UIView {
        - rect: 气泡主体矩形
      */
     private func buildBorderPath(_ path: UIBezierPath, rect: CGRect) {
-        let r = cornerRadius
+        
+        let maxRadius = min(rect.width, rect.height) / 2
+        let r = min(cornerRadius, maxRadius)
+        
         let minX = rect.minX
         let maxX = rect.maxX
         let minY = rect.minY
         let maxY = rect.maxY
 
-        // 从左上角圆角起点开始
-        path.move(to: CGPoint(x: minX + r, y: minY))
+        // 根据 cornersPosition 计算每个角的半径
+        let tl = cornersPosition.contains(.topLeft) ? r : 0
+        let tr = cornersPosition.contains(.topRight) ? r : 0
+        let bl = cornersPosition.contains(.bottomLeft) ? r : 0
+        let br = cornersPosition.contains(.bottomRight) ? r : 0
+
+        // 从左上角开始
+        path.move(to: CGPoint(x: minX + tl, y: minY))
 
         // ----- 上边（TOP）-----
         if showsArrow && arrowDirection == .top {
             let (p1, tip, p2) = arrowPoints(rect: rect)
             path.addLine(to: p1)
             addArrowBorder(path, from: p1, tip: tip, to: p2)
-            path.addLine(to: CGPoint(x: maxX - r, y: minY))
+            path.addLine(to: CGPoint(x: maxX - tr, y: minY))
         } else {
-            path.addLine(to: CGPoint(x: maxX - r, y: minY))
+            path.addLine(to: CGPoint(x: maxX - tr, y: minY))
         }
-        // 右上角圆弧
-        path.addArc(withCenter: CGPoint(x: maxX - r, y: minY + r),
-                    radius: r,
-                    startAngle: -.pi/2,
-                    endAngle: 0,
-                    clockwise: true)
+
+        // 右上角
+        if tr > 0 {
+            path.addArc(
+                withCenter: CGPoint(x: maxX - tr, y: minY + tr),
+                radius: tr,
+                startAngle: -.pi/2,
+                endAngle: 0,
+                clockwise: true
+            )
+        }
 
         // ----- 右边（RIGHT）-----
         if showsArrow && arrowDirection == .right {
             let (p1, tip, p2) = arrowPoints(rect: rect)
             path.addLine(to: p1)
             addArrowBorder(path, from: p1, tip: tip, to: p2)
-            path.addLine(to: CGPoint(x: maxX, y: maxY - r))
+            path.addLine(to: CGPoint(x: maxX, y: maxY - br))
         } else {
-            path.addLine(to: CGPoint(x: maxX, y: maxY - r))
+            path.addLine(to: CGPoint(x: maxX, y: maxY - br))
         }
-        // 右下角圆弧
-        path.addArc(withCenter: CGPoint(x: maxX - r, y: maxY - r),
-                    radius: r,
-                    startAngle: 0,
-                    endAngle: .pi/2,
-                    clockwise: true)
+
+        // 右下角
+        if br > 0 {
+            path.addArc(
+                withCenter: CGPoint(x: maxX - br, y: maxY - br),
+                radius: br,
+                startAngle: 0,
+                endAngle: .pi/2,
+                clockwise: true
+            )
+        }
 
         // ----- 下边（BOTTOM）-----
         if showsArrow && arrowDirection == .bottom {
             let (p1, tip, p2) = arrowPoints(rect: rect)
             path.addLine(to: p2)
             addArrowBorder(path, from: p2, tip: tip, to: p1)
-            path.addLine(to: CGPoint(x: minX + r, y: maxY))
+            path.addLine(to: CGPoint(x: minX + bl, y: maxY))
         } else {
-            path.addLine(to: CGPoint(x: minX + r, y: maxY))
+            path.addLine(to: CGPoint(x: minX + bl, y: maxY))
         }
-        // 左下角圆弧
-        path.addArc(withCenter: CGPoint(x: minX + r, y: maxY - r),
-                    radius: r,
-                    startAngle: .pi/2,
-                    endAngle: .pi,
-                    clockwise: true)
+
+        // 左下角
+        if bl > 0 {
+            path.addArc(
+                withCenter: CGPoint(x: minX + bl, y: maxY - bl),
+                radius: bl,
+                startAngle: .pi/2,
+                endAngle: .pi,
+                clockwise: true
+            )
+        }
 
         // ----- 左边（LEFT）-----
         if showsArrow && arrowDirection == .left {
             let (p1, tip, p2) = arrowPoints(rect: rect)
             path.addLine(to: p2)
             addArrowBorder(path, from: p2, tip: tip, to: p1)
-            path.addLine(to: CGPoint(x: minX, y: minY + r))
+            path.addLine(to: CGPoint(x: minX, y: minY + tl))
         } else {
-            path.addLine(to: CGPoint(x: minX, y: minY + r))
+            path.addLine(to: CGPoint(x: minX, y: minY + tl))
         }
-        // 左上角圆弧（回到起点）
-        path.addArc(withCenter: CGPoint(x: minX + r, y: minY + r),
-                    radius: r,
-                    startAngle: .pi,
-                    endAngle: -.pi/2,
-                    clockwise: true)
+
+        // 左上角
+        if tl > 0 {
+            path.addArc(
+                withCenter: CGPoint(x: minX + tl, y: minY + tl),
+                radius: tl,
+                startAngle: .pi,
+                endAngle: -.pi/2,
+                clockwise: true
+            )
+        }
 
         path.close()
     }
