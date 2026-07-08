@@ -267,7 +267,7 @@ import WYBasisKitSwift
     
     /// 滑动线条圆角半径，默认0(不圆角)
     @objc(bar_scrollLineCornerRadius)
-    public var bar_scrollLineCornerRadiusObjC: CGFloat {
+    var bar_scrollLineCornerRadiusObjC: CGFloat {
         get { return bar_scrollLineCornerRadius }
         set { bar_scrollLineCornerRadius = newValue }
     }
