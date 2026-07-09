@@ -493,7 +493,6 @@ private extension UIView {
             self.wy_removeLayer(WYAssociatedKeys.boardLayer)
             self.layer.mask = nil;
             
-            
             // 圆角或阴影或自定义曲线
             if ((self.privateConrnerRadius > 0) || (self.privateShadowOpacity > 0) || (self.privateBezierPath != nil)) {
                 
