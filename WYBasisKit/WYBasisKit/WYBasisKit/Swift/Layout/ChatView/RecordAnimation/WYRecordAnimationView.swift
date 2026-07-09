@@ -178,10 +178,13 @@ public class WYRecordAnimationView: UIView {
         UIView.animate(withDuration: 0.25) { [weak self] in
             guard let self = self else { return }
             
-            self.refresh(subview: self.leftView, status: status)
-            self.refresh(subview: self.rightView, status: status)
-            self.refresh(subview: self.bottomView, status: status)
-            self.refresh(subview: self.soundAnimationView, status: status)
+            refresh(subview: leftView, status: status)
+            refresh(subview: rightView, status: status)
+            refresh(subview: bottomView, status: status)
+            refresh(subview: soundAnimationView, status: status)
+            
+            // 保障动画正常执行
+            layoutIfNeeded()
         }
         
         if recordAnimationConfig.vibrationFeedback {
@@ -214,9 +217,8 @@ public class WYRecordAnimationView: UIView {
             }
             
             if subview == soundAnimationView {
-                
                 soundAnimationView.snp.updateConstraints { make in
-                    make.centerX.equalTo(frame.size.width / 2)
+                    make.centerX.equalToSuperview().offset(0)
                     make.width.equalTo(recordAnimationConfig.soundWavesViewWidth.recording)
                     make.height.equalTo(recordAnimationConfig.soundWavesViewHeight.recording)
                 }
@@ -248,9 +250,8 @@ public class WYRecordAnimationView: UIView {
             }
             
             if subview == soundAnimationView {
-                
                 soundAnimationView.snp.updateConstraints { make in
-                    make.centerX.equalTo((frame.size.width / 2) - recordAnimationConfig.moveupButtonCenterOffsetX - (recordAnimationConfig.moveupButtonDiameter.onInterior / 2) + (recordAnimationConfig.soundWavesViewWidth.cancel / 2))
+                    make.centerX.equalToSuperview().offset(-recordAnimationConfig.moveupButtonCenterOffsetX - (recordAnimationConfig.moveupButtonDiameter.onInterior / 2) + (recordAnimationConfig.soundWavesViewWidth.cancel / 2))
                     make.width.equalTo(recordAnimationConfig.soundWavesViewWidth.cancel)
                     make.height.equalTo(recordAnimationConfig.soundWavesViewHeight.cancel)
                 }
@@ -283,7 +284,7 @@ public class WYRecordAnimationView: UIView {
             
             if subview == soundAnimationView {
                 soundAnimationView.snp.updateConstraints { make in
-                    make.centerX.equalTo(frame.size.width / 2)
+                    make.centerX.equalToSuperview().offset(0)
                     make.width.equalTo(recordAnimationConfig.soundWavesViewWidth.transfer)
                     make.height.equalTo(recordAnimationConfig.soundWavesViewHeight.transfer)
                 }
@@ -298,8 +299,6 @@ public class WYRecordAnimationView: UIView {
             }
             break
         }
-        // 保障动画正常执行
-        //layoutIfNeeded()
     }
     
     public func endRecordVoice() {
@@ -371,8 +370,8 @@ public class WYRecordAnimationView: UIView {
         let soundAnimationView: WYSoundAnimationView = WYSoundAnimationView(.recording)
         addSubview(soundAnimationView)
         soundAnimationView.snp.makeConstraints { make in
-            make.centerX.equalTo(frame.size.width / 2)
-            make.centerY.equalTo(frame.size.height - recordAnimationConfig.areaHeight - recordAnimationConfig.moveupButtonOffset.bottom - recordAnimationConfig.moveupButtonOffset.top - (recordAnimationConfig.soundWavesViewHeight.recording / 2))
+            make.centerX.equalToSuperview().offset(0)
+            make.bottom.equalToSuperview().offset(-recordAnimationConfig.soundWavesViewBottomOffset)
             make.width.equalTo(recordAnimationConfig.soundWavesViewWidth.recording)
             make.height.equalTo(recordAnimationConfig.soundWavesViewHeight.recording)
         }

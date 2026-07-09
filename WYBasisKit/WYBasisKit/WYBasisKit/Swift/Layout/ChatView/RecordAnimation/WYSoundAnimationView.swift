@@ -31,6 +31,7 @@ public class WYSoundAnimationView: WYAirBubbleView {
         super.init(frame: .zero)
         backgroundColor = .clear
         isUserInteractionEnabled = true
+        enablePathAnimation = true
         refreshSoundWaves(status: status)
     }
     

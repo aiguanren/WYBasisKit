@@ -49,6 +49,9 @@ public struct WYRecordAnimationConfig {
                                                                     cancel: .wy_hex("282828").withAlphaComponent(0.6),
                                                                     transfer: .wy_hex("282828").withAlphaComponent(0.6))
     
+    /// 录音、取消录音与转文字时气泡控件距离屏幕底部间距
+    public var soundWavesViewBottomOffset: CGFloat = (UIDevice.wy_screenHeight - UIDevice.wy_navViewHeight - UIDevice.wy_screenWidth(50)) / 2
+    
     /// 录音、取消录音与转文字时气泡控件宽度
     public var soundWavesViewWidth: (recording: CGFloat,
                                   cancel: CGFloat,
