@@ -81,6 +81,18 @@ public class WYAirBubbleView: UIView {
     public var arrowTipRadius: CGFloat = 0 {
         didSet { updatePath() }
     }
+    
+    /**
+     是否启用气泡 path 动画
+     规则：
+     - 开启时：在视图尺寸（frame/bounds/约束）变化过程中，path
+       会做同步动画，保证气泡形变平滑
+     - 关闭时：path 直接更新，不执行动画（适用于列表滚动等性能敏感场景）
+     
+     - Note:
+       用于避免 CAShapeLayer 隐式动画在尺寸变化时出现的异常（如放大/回弹）
+     */
+    public var enablePathAnimation: Bool = false
 
     public convenience init() {
         self.init(frame: .zero)
@@ -101,6 +113,9 @@ public class WYAirBubbleView: UIView {
 
     /// 用于渲染边框的 CAShapeLayer（独立于填充层，以便分别控制颜色和线宽）
     private let borderLayer = CAShapeLayer()
+    
+    /// 记录当前View的Bounds，实现只在“尺寸变化时”才更新
+    private var lastBounds: CGRect = .zero
 
     /// 配置图层属性（背景透明、添加子图层、设置边框样式）
     private func setupLayer() {
@@ -119,6 +134,10 @@ public class WYAirBubbleView: UIView {
     /// 布局
     public override func layoutSubviews() {
         super.layoutSubviews()
+        
+        guard bounds != lastBounds else { return }
+        lastBounds = bounds
+        
         // 当视图尺寸变化时重新计算路径
         updatePath()
     }
@@ -143,9 +162,31 @@ public class WYAirBubbleView: UIView {
         // 构建统一填充路径（圆角 + 箭头）
         let path = UIBezierPath()
         buildBorderPath(path, rect: rect)
+        
+        let newPath = path.cgPath
+        
+        if enablePathAnimation {
+            
+            // 使用显式动画，避免隐式动画导致的尺寸异常（放大/回弹问题）
+            let animation = CABasicAnimation(keyPath: "path")
+            animation.fromValue = fillLayer.presentation()?.path ?? fillLayer.path
+            animation.toValue = newPath
+            animation.duration = CATransaction.animationDuration()
+            animation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+            
+            // 动画key
+            let animationKey = "AirBubbleAnimationKey"
+            
+            // 避免多次 layout 时动画叠加
+            fillLayer.removeAnimation(forKey: animationKey)
+            borderLayer.removeAnimation(forKey: animationKey)
+            
+            fillLayer.add(animation, forKey: animationKey)
+            borderLayer.add(animation, forKey: animationKey)
+        }
 
-        fillLayer.path = path.cgPath
-        borderLayer.path = path.cgPath
+        fillLayer.path = newPath
+        borderLayer.path = newPath
     }
 
     /**
