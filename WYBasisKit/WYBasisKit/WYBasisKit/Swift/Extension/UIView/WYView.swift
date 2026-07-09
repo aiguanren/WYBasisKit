@@ -291,7 +291,7 @@ public extension UIView {
     /// 圆角的半径 默认0.0
     @discardableResult
     func wy_cornerRadius(_ radius: CGFloat) -> UIView {
-        privateConrnerRadius = radius
+        privateCornerRadius = radius
         return self
     }
     
@@ -379,19 +379,22 @@ public extension UIView {
     @discardableResult
     func wy_showVisual() -> UIView {
         
-        // 强制更新布局以确保获取最新尺寸
-        self.superview?.layoutIfNeeded()
-        self.layoutIfNeeded()
-        
-        // 抗锯齿边缘
-        layer.rasterizationScale = UIApplication.shared.wy_keyWindow.screen.scale
-        
-        // 添加边框、圆角
-        wy_addBorderAndRadius()
-        // 添加渐变
-        wy_addGradual()
-        // 添加阴影
-        wy_addShadow()
+        Task { @MainActor in
+            
+            // 强制更新布局以确保获取最新尺寸
+            superview?.layoutIfNeeded()
+            layoutIfNeeded()
+            
+            // 抗锯齿边缘
+            layer.rasterizationScale = UIApplication.shared.wy_keyWindow.screen.scale
+            
+            // 添加边框、圆角
+            wy_addBorderAndRadius()
+            // 添加渐变
+            wy_addGradual()
+            // 添加阴影
+            wy_addShadow()
+        }
         
         return self
     }
@@ -411,29 +414,29 @@ public extension UIView {
         wy_removeLayer(WYAssociatedKeys.gradientLayer)
         
         // 恢复默认设置
-        privateRectCorner          = .allCorners
-        privateConrnerRadius       = 0.0
-        privateBorderColor         = .clear
-        privateBorderWidth         = 0.0
-        privateAdjustBorderWidth   = 0.0
-        privateShadowOpacity       = 0.0
-        privateShadowRadius        = 0.0
-        privateShadowOffset        = .zero
-        privateViewBounds          = .zero
-        privateShadowColor         = .clear
-        privateGradualColors       = nil
-        privateGradientDirection   = .leftToRight
-        shadowBackgroundView       = nil
+        privateRectCorner = .allCorners
+        privateCornerRadius = 0.0
+        privateBorderColor = .clear
+        privateBorderWidth = 0.0
+        privateAdjustBorderWidth = 0.0
+        privateShadowOpacity = 0.0
+        privateShadowRadius = 0.0
+        privateShadowOffset = .zero
+        privateViewBounds = .zero
+        privateShadowColor = .clear
+        privateGradualColors = nil
+        privateGradientDirection = .leftToRight
+        shadowBackgroundView = nil
         
-        layer.cornerRadius   = 0.0
-        layer.borderWidth    = 0.0
-        layer.borderColor    = UIColor.clear.cgColor
-        layer.shadowOpacity  = 0.0
-        layer.shadowPath     = nil
-        layer.shadowRadius   = 0.0
-        layer.shadowColor    = UIColor.clear.cgColor
-        layer.shadowOffset   = .zero
-        layer.mask           = nil
+        layer.cornerRadius = 0.0
+        layer.borderWidth = 0.0
+        layer.borderColor = UIColor.clear.cgColor
+        layer.shadowOpacity = 0.0
+        layer.shadowPath = nil
+        layer.shadowRadius = 0.0
+        layer.shadowColor = UIColor.clear.cgColor
+        layer.shadowOffset = .zero
+        layer.mask = nil
         
         return self
     }
@@ -445,146 +448,137 @@ private extension UIView {
     // MARK: - 链式编程实现部分
     
     func wy_addShadow() {
-        Task { @MainActor in
-            var shadowView = self
-            
-            if self.shadowBackgroundView != nil {
-                self.shadowBackgroundView?.removeFromSuperview()
-                self.shadowBackgroundView = nil
-            }
-            
-            // 同时存在阴影和圆角
-            if (((self.privateShadowOpacity > 0) && (self.privateConrnerRadius > 0)) || (self.privateBezierPath != nil)) {
-                
-                if self.superview == nil { //WYLogManager.output("添加阴影和圆角时，请先将view加到父视图上")
-                }
-                
-                shadowView = UIView(frame: self.frame)
-                shadowView.translatesAutoresizingMaskIntoConstraints = false
-                self.superview?.insertSubview(shadowView, belowSubview: self)
-                self.superview?.addConstraints([
-                    NSLayoutConstraint(item: shadowView, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1.0, constant: 0),
-                    NSLayoutConstraint(item: shadowView, attribute: NSLayoutConstraint.Attribute.left, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self, attribute: NSLayoutConstraint.Attribute.left, multiplier: 1.0, constant: 0),
-                    NSLayoutConstraint(item: shadowView, attribute: NSLayoutConstraint.Attribute.right, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self, attribute: NSLayoutConstraint.Attribute.right, multiplier: 1.0, constant: 0),
-                    NSLayoutConstraint(item: shadowView, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1.0, constant: 0)])
-                
-                self.shadowBackgroundView = shadowView
-            }
-            
-            // 圆角
-            if ((self.privateConrnerRadius > 0) || (self.privateBezierPath != nil)) {
-                let shadowPath: UIBezierPath = self.wy_sharedBezierPath()
-                shadowView.layer.shadowPath = shadowPath.cgPath
-            }
-            
-            // 阴影
-            shadowView.layer.shadowOpacity = Float(self.privateShadowOpacity)
-            shadowView.layer.shadowRadius  = self.privateShadowRadius
-            shadowView.layer.shadowOffset  = self.privateShadowOffset
-            shadowView.layer.shadowColor   = self.privateShadowColor.cgColor
+        var shadowView = self
+        
+        if self.shadowBackgroundView != nil {
+            self.shadowBackgroundView?.removeFromSuperview()
+            self.shadowBackgroundView = nil
         }
+        
+        // 同时存在阴影和圆角
+        if ((self.privateShadowOpacity > 0) && (self.privateCornerRadius > 0)) || (self.privateBezierPath != nil) {
+            
+            if self.superview == nil {
+                //WYLogManager.output("添加阴影和圆角时，请先将view加到父视图上")
+            }
+            
+            shadowView = UIView(frame: self.frame)
+            shadowView.translatesAutoresizingMaskIntoConstraints = false
+            self.superview?.insertSubview(shadowView, belowSubview: self)
+            self.superview?.addConstraints([
+                NSLayoutConstraint(item: shadowView, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1.0, constant: 0),
+                NSLayoutConstraint(item: shadowView, attribute: NSLayoutConstraint.Attribute.left, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self, attribute: NSLayoutConstraint.Attribute.left, multiplier: 1.0, constant: 0),
+                NSLayoutConstraint(item: shadowView, attribute: NSLayoutConstraint.Attribute.right, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self, attribute: NSLayoutConstraint.Attribute.right, multiplier: 1.0, constant: 0),
+                NSLayoutConstraint(item: shadowView, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1.0, constant: 0)])
+            
+            self.shadowBackgroundView = shadowView
+        }
+        
+        // 圆角
+        if (self.privateCornerRadius > 0) || (self.privateBezierPath != nil) {
+            let shadowPath: UIBezierPath = self.wy_sharedBezierPath()
+            shadowView.layer.shadowPath = shadowPath.cgPath
+        }
+        
+        // 阴影
+        shadowView.layer.shadowOpacity = Float(self.privateShadowOpacity)
+        shadowView.layer.shadowRadius = self.privateShadowRadius
+        shadowView.layer.shadowOffset = self.privateShadowOffset
+        shadowView.layer.shadowColor = self.privateShadowColor.cgColor
     }
     
     /// 添加圆角和边框
     func wy_addBorderAndRadius() {
-        Task { @MainActor in
+        
+        // 移除旧边框图层
+        self.wy_removeLayer(WYAssociatedKeys.boardLayer)
+        self.layer.mask = nil;
+        
+        // 圆角或阴影或自定义曲线
+        if ((self.privateCornerRadius > 0) || (self.privateShadowOpacity > 0) || (self.privateBezierPath != nil)) {
             
-            // 移除旧边框图层
-            self.wy_removeLayer(WYAssociatedKeys.boardLayer)
-            self.layer.mask = nil;
+            // 圆角
+            if ((self.privateCornerRadius > 0) || (self.privateBezierPath != nil)) {
+                
+                let bezierPath: UIBezierPath = self.wy_sharedBezierPath()
+                let maskLayer: CAShapeLayer = CAShapeLayer()
+                maskLayer.frame = self.wy_sharedBounds()
+                maskLayer.path = bezierPath.cgPath
+                self.layer.mask = maskLayer
+            }
             
-            // 圆角或阴影或自定义曲线
-            if ((self.privateConrnerRadius > 0) || (self.privateShadowOpacity > 0) || (self.privateBezierPath != nil)) {
+            // 边框
+            if (self.privateBorderWidth > 0) || (self.privateBezierPath != nil) {
                 
-                // 圆角
-                if ((self.privateConrnerRadius > 0) || (self.privateBezierPath != nil)) {
-                    
-                    let bezierPath: UIBezierPath = self.wy_sharedBezierPath()
-                    let maskLayer: CAShapeLayer = CAShapeLayer()
-                    maskLayer.frame = self.wy_sharedBounds()
-                    maskLayer.path = bezierPath.cgPath
-                    self.layer.mask = maskLayer
-                }
-                
-                // 边框
-                if ((self.privateBorderWidth > 0) || (self.privateBezierPath != nil)) {
-                    
-                    let bezierPath: UIBezierPath = self.wy_sharedBezierPath()
-                    let borderLayer = CAShapeLayer()
-                    borderLayer.name = WYAssociatedKeys.boardLayer
-                    borderLayer.frame = self.wy_sharedBounds()
-                    borderLayer.path = bezierPath.cgPath
-                    borderLayer.lineWidth = (self.privateConrnerRadius > 0) ? (self.privateBorderWidth * 2) : self.privateBorderWidth
-                    borderLayer.strokeColor = self.privateBorderColor.cgColor
-                    borderLayer.fillColor = UIColor.clear.cgColor
-                    borderLayer.lineCap = .square
-                    borderLayer.lineJoin = .miter
-                    self.layer.addSublayer(borderLayer)
-                }
-                
-            }else {
-                
-                // 只有边框
+                let bezierPath: UIBezierPath = self.wy_sharedBezierPath()
                 let borderLayer = CAShapeLayer()
                 borderLayer.name = WYAssociatedKeys.boardLayer
-                borderLayer.path = self.wy_sharedBezierPath().cgPath
-                borderLayer.fillColor = UIColor.clear.cgColor
-                borderLayer.strokeColor = self.privateBorderColor.cgColor
-                borderLayer.lineWidth = self.privateBorderWidth
                 borderLayer.frame = self.wy_sharedBounds()
+                borderLayer.path = bezierPath.cgPath
+                borderLayer.lineWidth = (self.privateCornerRadius > 0) ? (self.privateBorderWidth * 2) : self.privateBorderWidth
+                borderLayer.strokeColor = self.privateBorderColor.cgColor
+                borderLayer.fillColor = UIColor.clear.cgColor
                 borderLayer.lineCap = .square
                 borderLayer.lineJoin = .miter
                 self.layer.addSublayer(borderLayer)
             }
+            
+        } else {
+            
+            // 只有边框
+            let borderLayer = CAShapeLayer()
+            borderLayer.name = WYAssociatedKeys.boardLayer
+            borderLayer.path = self.wy_sharedBezierPath().cgPath
+            borderLayer.fillColor = UIColor.clear.cgColor
+            borderLayer.strokeColor = self.privateBorderColor.cgColor
+            borderLayer.lineWidth = self.privateBorderWidth
+            borderLayer.frame = self.wy_sharedBounds()
+            borderLayer.lineCap = .square
+            borderLayer.lineJoin = .miter
+            self.layer.addSublayer(borderLayer)
         }
     }
     
     /// 添加渐变色
     func wy_addGradual() {
-        Task { @MainActor in
-            // 渐变色数组个数必须大于1才能满足渐变要求
-            guard (self.privateGradualColors?.count ?? 0) > 1 else {
-                // 渐变色数组个数必须大于1才能满足渐变要求
-                return
-            }
-            
-            var CGColors: [CGColor] = NSMutableArray.init() as! [CGColor]
-            for color: UIColor in self.privateGradualColors! {
-                CGColors.append(color.cgColor)
-            }
-            
-            var startPoint: CGPoint!
-            var endPoint: CGPoint!
-            switch self.privateGradientDirection {
-            case .topToBottom:
-                startPoint = CGPoint(x: 0.0, y: 0.0)
-                endPoint = CGPoint(x: 0.0, y: 1.0)
-                break
-            case .leftToRight:
-                startPoint = CGPoint(x: 0.0, y: 0.0)
-                endPoint = CGPoint(x: 1.0, y: 0.0)
-                break
-            case .leftToLowRight:
-                startPoint = CGPoint(x: 0.0, y: 0.0)
-                endPoint = CGPoint(x: 1.0, y: 1.0)
-                break
-            case .rightToLowLeft:
-                startPoint = CGPoint(x: 1.0, y: 0.0)
-                endPoint = CGPoint(x: 0.0, y: 1.0)
-                break
-            }
-            
-            // 新增GradientLayer前先移除上次新增的GradientLayer
-            self.wy_removeLayer(WYAssociatedKeys.gradientLayer)
-            
-            let gradientLayer = CAGradientLayer()
-            gradientLayer.name = WYAssociatedKeys.gradientLayer
-            gradientLayer.frame = self.wy_sharedBounds()
-            gradientLayer.colors = CGColors
-            gradientLayer.startPoint = startPoint
-            gradientLayer.endPoint = endPoint
-            self.layer.insertSublayer(gradientLayer, at: 0)
+        
+        // 渐变色数组个数必须大于1才能满足渐变要求
+        guard (self.privateGradualColors?.count ?? 0) > 1 else {
+            return
         }
+        
+        var CGColors: [CGColor] = []
+        for color: UIColor in self.privateGradualColors! {
+            CGColors.append(color.cgColor)
+        }
+        
+        var startPoint: CGPoint!
+        var endPoint: CGPoint!
+        switch self.privateGradientDirection {
+        case .topToBottom:
+            startPoint = CGPoint(x: 0.0, y: 0.0)
+            endPoint = CGPoint(x: 0.0, y: 1.0)
+        case .leftToRight:
+            startPoint = CGPoint(x: 0.0, y: 0.0)
+            endPoint = CGPoint(x: 1.0, y: 0.0)
+        case .leftToLowRight:
+            startPoint = CGPoint(x: 0.0, y: 0.0)
+            endPoint = CGPoint(x: 1.0, y: 1.0)
+        case .rightToLowLeft:
+            startPoint = CGPoint(x: 1.0, y: 0.0)
+            endPoint = CGPoint(x: 0.0, y: 1.0)
+        }
+        
+        // 新增GradientLayer前先移除上次新增的GradientLayer
+        self.wy_removeLayer(WYAssociatedKeys.gradientLayer)
+        
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.name = WYAssociatedKeys.gradientLayer
+        gradientLayer.frame = self.wy_sharedBounds()
+        gradientLayer.colors = CGColors
+        gradientLayer.startPoint = startPoint
+        gradientLayer.endPoint = endPoint
+        self.layer.insertSublayer(gradientLayer, at: 0)
     }
     
     /// 移除上次添加的layer
@@ -605,7 +599,7 @@ private extension UIView {
         // 获取在自动布局前的视图大小
         if privateViewBounds.equalTo(.zero) == false {
             return privateViewBounds
-        }else {
+        } else {
             if (superview != nil) {
                 superview?.layoutIfNeeded()
             }
@@ -621,22 +615,27 @@ private extension UIView {
         if privateBezierPath != nil {
             return privateBezierPath!
             
-        }else {
+        } else {
             let bounds = wy_sharedBounds()
             
             // 内缩量为边框宽度的一半
             let borderInset = (privateBorderWidth / 2.0)
+            
             // 减去privateAdjustBorderWidth是因为要补全上次减去的边框宽度
             var adjustBorderWidth = privateAdjustBorderWidth
-            if (adjustBorderWidth == 0) && (privateConrnerRadius > 0) {
+            
+            if (adjustBorderWidth == 0) && (privateCornerRadius > 0) {
                 adjustBorderWidth = (privateBorderWidth / 2)
             }
-            if (adjustBorderWidth != 0) && (privateConrnerRadius == 0) {
+            if (adjustBorderWidth != 0) && (privateCornerRadius == 0) {
                 adjustBorderWidth = 0
             }
-            let adjustedRect = bounds.insetBy(dx: borderInset - adjustBorderWidth, dy: borderInset - adjustBorderWidth)
+            
+            let adjustedRect = bounds.insetBy(dx: borderInset - adjustBorderWidth,
+                                              dy: borderInset - adjustBorderWidth)
+            
             // 调整圆角半径防止负值
-            let adjustedRadius = max(0, privateConrnerRadius - borderInset)
+            let adjustedRadius = max(0, privateCornerRadius - borderInset)
             
             return UIBezierPath(
                 roundedRect: adjustedRect,
@@ -655,12 +654,12 @@ private extension UIView {
         }
     }
     
-    var privateConrnerRadius: CGFloat {
+    var privateCornerRadius: CGFloat {
         set(newValue) {
-            objc_setAssociatedObject(self, &WYAssociatedKeys.privateConrnerRadius, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.privateCornerRadius, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.privateConrnerRadius) as? CGFloat ?? 0.0
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.privateCornerRadius) as? CGFloat ?? 0.0
         }
     }
     
@@ -774,7 +773,7 @@ private extension UIView {
     
     struct WYAssociatedKeys {
         static var privateRectCorner: UInt8 = 0
-        static var privateConrnerRadius: UInt8 = 0
+        static var privateCornerRadius: UInt8 = 0
         static var privateBorderColor: UInt8 = 0
         static var privateBorderWidth: UInt8 = 0
         static var privateAdjustBorderWidth: UInt8 = 0
