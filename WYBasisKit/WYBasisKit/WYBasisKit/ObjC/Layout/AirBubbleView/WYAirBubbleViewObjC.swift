@@ -108,8 +108,35 @@ public enum WYArrowDirectionObjC: Int {
         get { return arrowTipRadius }
     }
     
+    /// 渐变色数组(为空则不显示)
+    @objc(gradientColors)
+    public var gradientColorsObjC: [UIColor] {
+        set { gradientColors = newValue }
+        get { return gradientColors }
+    }
+
+    /// 渐变色方向
+    @objc(gradientDirection)
+    public var gradientDirectionObjC: WYGradientDirectionObjC {
+        set { gradientDirection = WYGradientDirection(rawValue: newValue.rawValue) ?? .leftToRight }
+        get { return WYGradientDirectionObjC(rawValue: gradientDirection.rawValue) ?? .leftToRight }
+    }
+    
     /**
-     是否启用气泡 path 动画
+     当前气泡的路径（用于外部做 shadow / 命中检测 / 自定义 mask 等）
+     规则：
+     - Note:
+       仅在视图完成 layout（bounds > 0）后才有有效值
+       若在初始化或约束未生效前获取，可能为 nil
+       也可以在Task { @MainActor 里面获取使用
+     */
+    @objc(bubblePath)
+    public var bubblePathObjC: CGPath? {
+        get { return bubblePath }
+    }
+    
+    /**
+     是否启用气泡 path 动画(如果设置了渐变色(既：gradientColors 不为空)时可以不用开启也能支持path动画)
      规则：
      - 开启时：在视图尺寸（frame/bounds/约束）变化过程中，path
        会做同步动画，保证气泡形变平滑
