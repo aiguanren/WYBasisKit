@@ -347,8 +347,8 @@ Pod::Spec.new do |kit|
     layout.subspec "AirBubbleView" do |airBubble|
       airBubble.source_files = [
         "#{kit_path}Swift/Layout/AirBubbleView/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIView/**/*.{swift,h,m}",
         "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Extension/UIApplication/**/*.{swift,h,m}",
         "#{kit_path}Swift/Extension/UIViewController/**/*.{swift,h,m}",
         "#{kit_path}Swift/Config/**/*.{swift}"
       ]
