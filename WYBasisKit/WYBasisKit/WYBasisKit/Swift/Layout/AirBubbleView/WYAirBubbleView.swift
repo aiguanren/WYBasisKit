@@ -92,13 +92,22 @@ public class WYAirBubbleView: UIView {
     public var gradientColors: [UIColor] = [] {
         didSet {
             updateStyle()
+            
+            // 渐变配置变化后清缓存
+            cachedGradient = nil
+            lastGradientColors = []
+            
             setNeedsDisplay()
         }
     }
 
     /// 渐变色方向
     public var gradientDirection: WYGradientDirection = .leftToRight {
-        didSet { setNeedsDisplay() }
+        didSet {
+            // 方向变化后清缓存
+            cachedGradient = nil
+            setNeedsDisplay()
+        }
     }
 
     /**
@@ -151,6 +160,12 @@ public class WYAirBubbleView: UIView {
     
     /// 重用的 UIBezierPath 实例，避免频繁创建对象，提高性能
     private let reusablePath = UIBezierPath()
+    
+    /// 缓存的 CGGradient，避免重复创建（性能优化）
+    private var cachedGradient: CGGradient?
+
+    /// 上一次的渐变色配置（用于判断是否需要重新生成 gradient）
+    private var lastGradientColors: [CGColor] = []
 
     /// 配置图层属性（背景透明、添加子图层、设置边框样式）
     private func setupLayer() {
@@ -249,7 +264,9 @@ public class WYAirBubbleView: UIView {
         // 对外暴露路径（用于 shadow / hitTest / mask 等），同时确保对外暴露的 path 一定是最新
         bubblePath = newPath
         
-        setNeedsDisplay()
+        if !gradientColors.isEmpty {
+            setNeedsDisplay()
+        }
     }
 
     /**
@@ -580,31 +597,44 @@ public class WYAirBubbleView: UIView {
         }
         
         ctx.saveGState()
+        defer { ctx.restoreGState() }
         
         // 将当前绘制区域裁剪为气泡形状，使渐变只显示在路径内部
         ctx.addPath(path)
         ctx.clip()
         
-        // ===== 绘制渐变 =====
-        let colors = gradientColors.map { $0.cgColor } as CFArray
-        let space = CGColorSpaceCreateDeviceRGB()
+        // ===== 使用缓存的 gradient =====
         
-        guard let gradient = CGGradient(colorsSpace: space, colors: colors, locations: nil) else {
-            return
+        let cgColors = gradientColors.map { $0.cgColor }
+        
+        // 判断是否需要重新创建 gradient，用 === 是因为CGColor 是对象，而我们比较的是“是不是同一个实例”
+        let needRebuild =
+            cachedGradient == nil ||
+            lastGradientColors.count != cgColors.count ||
+            !zip(lastGradientColors, cgColors).allSatisfy { $0 === $1 }
+        
+        if needRebuild {
+            let space = CGColorSpaceCreateDeviceRGB()
+            
+            cachedGradient = CGGradient(
+                colorsSpace: space,
+                colors: cgColors as CFArray,
+                locations: nil
+            )
+            
+            lastGradientColors = cgColors
         }
         
-        // 根据 gradientDirection 计算起点和终点
+        guard let gradient = cachedGradient else { return }
+        
         let (start, end) = gradientPoints()
         
-        // 绘制线性渐变
         ctx.drawLinearGradient(
             gradient,
             start: start,
             end: end,
             options: []
         )
-        
-        ctx.restoreGState()
     }
     
     /**
