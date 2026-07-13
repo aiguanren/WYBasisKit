@@ -110,6 +110,9 @@ public struct WYRecordAnimationConfig {
                                                                cancel: UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels),
                                                                transfer: UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels))
     
+    /// 转文字时声波动画距离气泡右侧与底部偏移量(录音和取消录音固定居中显示)
+    public var soundWavesRightOffsetForAirBubble: CGPoint = CGPoint(x: UIDevice.wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels), y: UIDevice.wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels))
+    
     /// 取消按钮背景图
     public var cancelRecordViewImage: (onInterior: UIImage, onExternal: UIImage) = (onInterior: .wy_createImage(from: .wy_rgb(236, 236, 236), size: CGSize(width: UIDevice.wy_screenWidth(100), height: UIDevice.wy_screenWidth(100))).wy_cuttingRound(), onExternal: .wy_createImage(from: .wy_rgb(57, 57, 57), size: CGSize(width: UIDevice.wy_screenWidth(80), height: UIDevice.wy_screenWidth(80))).wy_cuttingRound())
     

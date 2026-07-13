@@ -44,13 +44,7 @@ public class WYAirBubbleView: UIView {
 
     /// 气泡边框的宽度，默认0（无边框）
     public var borderWidth: CGFloat = 0 {
-        didSet {
-            updateStyle()
-            // 只要“可能影响显示”，就刷新 path
-            if oldValue <= 0 || borderWidth <= 0 {
-                updatePath()
-            }
-        }
+        didSet { updateStyle() }
     }
 
     /// 是否显示三角箭头(默认显示)
@@ -88,40 +82,8 @@ public class WYAirBubbleView: UIView {
         didSet { updatePath() }
     }
     
-    /// 渐变色数组(为空则不显示)
-    public var gradientColors: [UIColor] = [] {
-        didSet {
-            updateStyle()
-            
-            // 渐变配置变化后清缓存
-            cachedGradient = nil
-            lastGradientColors = []
-            
-            setNeedsDisplay()
-        }
-    }
-
-    /// 渐变色方向
-    public var gradientDirection: WYGradientDirection = .leftToRight {
-        didSet {
-            // 方向变化后清缓存
-            cachedGradient = nil
-            setNeedsDisplay()
-        }
-    }
-
     /**
-     当前气泡的路径（用于外部做 shadow / 命中检测 / 自定义 mask 等）
-     规则：
-     - Note:
-       仅在视图完成 layout（bounds > 0）后才有有效值
-       若在初始化或约束未生效前获取，可能为 nil
-       也可以在Task { @MainActor 里面获取使用
-     */
-    public private(set) var bubblePath: CGPath?
-    
-    /**
-     是否启用气泡 path 动画(如果设置了渐变色(既：gradientColors 不为空)时可以不用开启也能支持path动画)
+     是否启用气泡 path 动画
      规则：
      - 开启时：在视图尺寸（frame/bounds/约束）变化过程中，path
        会做同步动画，保证气泡形变平滑
@@ -132,40 +94,28 @@ public class WYAirBubbleView: UIView {
      */
     public var enablePathAnimation: Bool = false
 
-    /// 便捷初始化方法
     public convenience init() {
         self.init(frame: .zero)
     }
     
-    /// 指定初始化方法，通过 frame 创建视图
     public override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayer()
     }
 
-    /// 从故事板或 XIB 加载时所需的初始化方法
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         setupLayer()
     }
     
-    /// 用于渲染填充颜色的 CAShapeLayer（包括普通颜色和渐变色的背景层）
+    /// 用于渲染填充颜色的 CAShapeLayer
     private let fillLayer = CAShapeLayer()
 
     /// 用于渲染边框的 CAShapeLayer（独立于填充层，以便分别控制颜色和线宽）
     private let borderLayer = CAShapeLayer()
     
-    /// 记录当前View的Bounds，用于在 layoutSubviews 中判断尺寸是否真正发生变化，避免重复更新路径
+    /// 记录当前View的Bounds，实现只在“尺寸变化时”才更新
     private var lastBounds: CGRect = .zero
-    
-    /// 重用的 UIBezierPath 实例，避免频繁创建对象，提高性能
-    private let reusablePath = UIBezierPath()
-    
-    /// 缓存的 CGGradient，避免重复创建（性能优化）
-    private var cachedGradient: CGGradient?
-
-    /// 上一次的渐变色配置（用于判断是否需要重新生成 gradient）
-    private var lastGradientColors: [CGColor] = []
 
     /// 配置图层属性（背景透明、添加子图层、设置边框样式）
     private func setupLayer() {
@@ -181,11 +131,10 @@ public class WYAirBubbleView: UIView {
         updateStyle()
     }
 
-    /// 布局子视图时调用，检测 bounds 变化并更新路径
+    /// 布局
     public override func layoutSubviews() {
         super.layoutSubviews()
         
-        // 只有 bounds 真正改变时才重算路径，避免不必要的性能开销
         guard bounds != lastBounds else { return }
         lastBounds = bounds
         
@@ -195,15 +144,7 @@ public class WYAirBubbleView: UIView {
 
     /// 更新填充色和边框样式（不涉及路径几何）
     private func updateStyle() {
-        
-        if gradientColors.isEmpty {
-            // 无渐变时使用普通填充色
-            fillLayer.fillColor = fillColor.cgColor
-        } else {
-            // 有渐变时，填充层颜色置为透明，由 draw(_:) 绘制渐变
-            fillLayer.fillColor = UIColor.clear.cgColor
-        }
-        
+        fillLayer.fillColor = fillColor.cgColor
         borderLayer.strokeColor = borderColor.cgColor
         borderLayer.lineWidth = borderWidth
         
@@ -213,27 +154,19 @@ public class WYAirBubbleView: UIView {
 
     /// 更新所有几何路径（气泡主体圆角矩形 + 箭头），并重新赋值给对应图层
     private func updatePath() {
-        // 尺寸不足时清空路径，避免绘制异常
-        guard bounds.width > 0,
-              bounds.height > 0,
-              bounds.width > arrowSize.width,
-              bounds.height > arrowSize.height else {
-            fillLayer.path = nil
-            borderLayer.path = nil
-            bubblePath = nil
-            return
-        }
+        guard bounds.width > 0, bounds.height > 0 else { return }
 
         // 计算除去箭头占位后的气泡主体矩形
         let rect = bubbleRect()
 
         // 构建统一填充路径（圆角 + 箭头）
-        reusablePath.removeAllPoints()
-        buildBorderPath(reusablePath, rect: rect)
+        let path = UIBezierPath()
+        buildBorderPath(path, rect: rect)
         
-        let newPath = reusablePath.cgPath
+        let newPath = path.cgPath
         
         if enablePathAnimation {
+            
             // 使用显式动画，避免隐式动画导致的尺寸异常（放大/回弹问题）
             let animation = CABasicAnimation(keyPath: "path")
             animation.fromValue = fillLayer.presentation()?.path ?? fillLayer.path
@@ -241,7 +174,7 @@ public class WYAirBubbleView: UIView {
             animation.duration = CATransaction.animationDuration()
             animation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
             
-            // 动画key，用于区分不同动画
+            // 动画key
             let animationKey = "AirBubbleAnimationKey"
             
             // 避免多次 layout 时动画叠加
@@ -252,21 +185,8 @@ public class WYAirBubbleView: UIView {
             borderLayer.add(animation, forKey: animationKey)
         }
 
-        // 仅在路径发生变化时赋值，减少不必要的图层刷新
-        if fillLayer.path !== newPath {
-            fillLayer.path = newPath
-        }
-
-        // 只有在需要边框时才赋值（避免不必要渲染开销）
+        fillLayer.path = newPath
         borderLayer.path = newPath
-        borderLayer.isHidden = (borderWidth <= 0)
-        
-        // 对外暴露路径（用于 shadow / hitTest / mask 等），同时确保对外暴露的 path 一定是最新
-        bubblePath = newPath
-        
-        if !gradientColors.isEmpty {
-            setNeedsDisplay()
-        }
     }
 
     /**
@@ -277,7 +197,6 @@ public class WYAirBubbleView: UIView {
         var rect = bounds
         guard showsArrow else { return rect }
 
-        // 根据箭头方向，从对应边缩进箭头高度，使主体矩形避开箭头区域
         switch arrowDirection {
         case .top:
             rect.origin.y += arrowSize.height
@@ -291,6 +210,26 @@ public class WYAirBubbleView: UIView {
             rect.size.width -= arrowSize.height
         }
         return rect
+    }
+
+    /**
+     将箭头路径追加到填充路径中（闭合路径）
+     - Parameters:
+       - path: 已包含气泡主体的路径
+       - rect: 气泡主体矩形
+     */
+    private func appendArrowFill(to path: UIBezierPath, rect: CGRect) {
+        let (p1, tip, p2) = arrowPoints(rect: rect)
+        path.move(to: p1)
+        
+        if arrowTipRadius > 0 {
+            addRoundedArrow(path, from: p1, tip: tip, to: p2)
+        } else {
+            path.addLine(to: tip)
+            path.addLine(to: p2)
+        }
+        
+        path.close()
     }
 
     /**
@@ -328,7 +267,7 @@ public class WYAirBubbleView: UIView {
             path.addLine(to: CGPoint(x: maxX - tr, y: minY))
         }
 
-        // 右上角圆弧
+        // 右上角
         if tr > 0 {
             path.addArc(
                 withCenter: CGPoint(x: maxX - tr, y: minY + tr),
@@ -349,7 +288,7 @@ public class WYAirBubbleView: UIView {
             path.addLine(to: CGPoint(x: maxX, y: maxY - br))
         }
 
-        // 右下角圆弧
+        // 右下角
         if br > 0 {
             path.addArc(
                 withCenter: CGPoint(x: maxX - br, y: maxY - br),
@@ -370,7 +309,7 @@ public class WYAirBubbleView: UIView {
             path.addLine(to: CGPoint(x: minX + bl, y: maxY))
         }
 
-        // 左下角圆弧
+        // 左下角
         if bl > 0 {
             path.addArc(
                 withCenter: CGPoint(x: minX + bl, y: maxY - bl),
@@ -391,7 +330,7 @@ public class WYAirBubbleView: UIView {
             path.addLine(to: CGPoint(x: minX, y: minY + tl))
         }
 
-        // 左上角圆弧
+        // 左上角
         if tl > 0 {
             path.addArc(
                 withCenter: CGPoint(x: minX + tl, y: minY + tl),
@@ -411,10 +350,8 @@ public class WYAirBubbleView: UIView {
                                tip: CGPoint,
                                to p2: CGPoint) {
         if arrowTipRadius > 0 {
-            // 若设置了尖角圆角，则调用专门的方法绘制带圆角的箭头
             addRoundedArrow(path, from: p1, tip: tip, to: p2)
         } else {
-            // 否则直接折线连接
             path.addLine(to: tip)
             path.addLine(to: p2)
         }
@@ -424,59 +361,22 @@ public class WYAirBubbleView: UIView {
      根据当前箭头方向和偏移量，计算箭头的三个关键点（左底点，尖点，右底点）
      - Parameter rect: 气泡主体矩形（不含箭头占位）
      - Returns: 元组 (p1, tip, p2)
-     
-     安全规则：
-     1. 箭头必须避开圆角区域（cornerRadius）
-     2. 箭头必须遵守 arrowEdgePadding
-     3. 在尺寸不足时自动降级（居中）
-     4. 对 safeInset 做 clamp，避免超出可用空间
-     5. 对 arrowOffset 做 clamp，防止越界
      */
     private func arrowPoints(rect: CGRect) -> (CGPoint, CGPoint, CGPoint) {
-        
-        let arrowW = min(arrowSize.width, rect.width)
-        let arrowH = min(arrowSize.height, rect.height)
+        let arrowW = arrowSize.width
+        let arrowH = arrowSize.height
 
         switch arrowDirection {
-            
         case .top, .bottom:
-            
-            // 期望的安全边距（圆角 & 外部设置）
-            let desiredInset = max(cornerRadius, arrowEdgePadding)
-            
-            // 最大允许 inset（避免超过可用空间）
-            let maxInset = max(0, (rect.width - arrowW) / 2)
-            
-            // clamp 后的安全 inset
-            let safeInset = min(desiredInset, maxInset)
-            
-            let minCenter = rect.minX + safeInset + arrowW / 2
-            let maxCenter = rect.maxX - safeInset - arrowW / 2
-            
-            // 极端情况兜底（宽度不足，直接居中）
-            guard minCenter < maxCenter else {
-                let centerX = rect.midX
-                if arrowDirection == .top {
-                    return (
-                        CGPoint(x: centerX - arrowW / 2, y: rect.minY),
-                        CGPoint(x: centerX, y: rect.minY - arrowH),
-                        CGPoint(x: centerX + arrowW / 2, y: rect.minY)
-                    )
-                } else {
-                    return (
-                        CGPoint(x: centerX - arrowW / 2, y: rect.maxY),
-                        CGPoint(x: centerX, y: rect.maxY + arrowH),
-                        CGPoint(x: centerX + arrowW / 2, y: rect.maxY)
-                    )
-                }
-            }
-            
-            // 原始中心点（带偏移）
+            // 水平方向箭头，需考虑圆角和安全边距，防止箭头盖过圆角
+            let safeInset = max(cornerRadius, arrowEdgePadding)
+            let minX = rect.minX + safeInset + arrowW / 2
+            let maxX = rect.maxX - safeInset - arrowW / 2
+
+            // 中心点偏移，并限制在安全范围内
             let rawCenterX = rect.midX + arrowOffset
-            
-            // clamp 到安全范围内
-            let centerX = min(max(rawCenterX, minCenter), maxCenter)
-            
+            let centerX = min(max(rawCenterX, minX), maxX)
+
             if arrowDirection == .top {
                 return (
                     CGPoint(x: centerX - arrowW / 2, y: rect.minY),
@@ -492,35 +392,14 @@ public class WYAirBubbleView: UIView {
             }
 
         case .left, .right:
-            
-            let desiredInset = max(cornerRadius, arrowEdgePadding)
-            let maxInset = max(0, (rect.height - arrowW) / 2)
-            let safeInset = min(desiredInset, maxInset)
-            
-            let minCenter = rect.minY + safeInset + arrowW / 2
-            let maxCenter = rect.maxY - safeInset - arrowW / 2
-            
-            // 极端情况兜底（高度不足，居中）
-            guard minCenter < maxCenter else {
-                let centerY = rect.midY
-                if arrowDirection == .left {
-                    return (
-                        CGPoint(x: rect.minX, y: centerY - arrowW / 2),
-                        CGPoint(x: rect.minX - arrowH, y: centerY),
-                        CGPoint(x: rect.minX, y: centerY + arrowW / 2)
-                    )
-                } else {
-                    return (
-                        CGPoint(x: rect.maxX, y: centerY - arrowW / 2),
-                        CGPoint(x: rect.maxX + arrowH, y: centerY),
-                        CGPoint(x: rect.maxX, y: centerY + arrowW / 2)
-                    )
-                }
-            }
-            
+            // 垂直方向箭头
+            let safeInset = max(cornerRadius, arrowEdgePadding)
+            let minY = rect.minY + safeInset + arrowW / 2
+            let maxY = rect.maxY - safeInset - arrowW / 2
+
             let rawCenterY = rect.midY + arrowOffset
-            let centerY = min(max(rawCenterY, minCenter), maxCenter)
-            
+            let centerY = min(max(rawCenterY, minY), maxY)
+
             if arrowDirection == .left {
                 return (
                     CGPoint(x: rect.minX, y: centerY - arrowW / 2),
@@ -537,135 +416,47 @@ public class WYAirBubbleView: UIView {
         }
     }
     
-    /**
-     构建带“真实圆角”的箭头（核心算法）
-     原理：在尖点两侧截断，然后用二次贝塞尔曲线（或圆弧）连接截断点，形成平滑圆角
-     */
+    /// 构建带“真实圆角”的箭头（核心算法）(原理：在尖点两侧截断，然后用圆弧连接)
     private func addRoundedArrow(_ path: UIBezierPath,
                                  from p1: CGPoint,
                                  tip: CGPoint,
                                  to p2: CGPoint) {
-        // 计算从尖点到两个底点的向量
+        // 向量
         let v1 = CGPoint(x: p1.x - tip.x, y: p1.y - tip.y)
         let v2 = CGPoint(x: p2.x - tip.x, y: p2.y - tip.y)
         
-        // 计算向量长度
+        // 长度
         let len1 = sqrt(v1.x * v1.x + v1.y * v1.y)
         let len2 = sqrt(v2.x * v2.x + v2.y * v2.y)
         
-        // 若长度为0（点重合），直接连线避免崩溃
         guard len1 > 0, len2 > 0 else {
             path.addLine(to: tip)
             path.addLine(to: p2)
             return
         }
         
-        // 归一化方向向量
+        // 归一化
         let n1 = CGPoint(x: v1.x / len1, y: v1.y / len1)
         let n2 = CGPoint(x: v2.x / len2, y: v2.y / len2)
         
-        // 限制最大半径，不能超过边长的一半，以免截断点超过底点
+        // 限制最大半径
         let maxRadius = min(len1, len2) * 0.9
         let radius = min(arrowTipRadius, maxRadius)
         
-        // 计算截断点（从尖点沿两边方向偏移 radius）
+        // 截断点
         let t1 = CGPoint(x: tip.x + n1.x * radius,
                          y: tip.y + n1.y * radius)
+        
         let t2 = CGPoint(x: tip.x + n2.x * radius,
                          y: tip.y + n2.y * radius)
         
         // 先到截断点1
         path.addLine(to: t1)
         
-        // 用二次贝塞尔曲线从截断点1平滑过渡到截断点2，控制点为尖点本身
+        // 再画圆弧到截断点2（用二次曲线近似）
         path.addQuadCurve(to: t2, controlPoint: tip)
         
         // 最后连到 p2
         path.addLine(to: p2)
-    }
-    
-    /**
-     绘制气泡内容，支持渐变填充。当 `gradientColors` 非空时，在此方法中绘制渐变；
-     否则由 `fillLayer` 负责普通填充（纯色），此方法不执行任何绘制，以优化性能。
-     */
-    public override func draw(_ rect: CGRect) {
-        // 没有渐变，直接返回（完全避免 CPU 绘制）
-        guard !gradientColors.isEmpty,
-              let ctx = UIGraphicsGetCurrentContext(),
-              let path = bubblePath else {
-            return
-        }
-        
-        ctx.saveGState()
-        defer { ctx.restoreGState() }
-        
-        // 将当前绘制区域裁剪为气泡形状，使渐变只显示在路径内部
-        ctx.addPath(path)
-        ctx.clip()
-        
-        // ===== 使用缓存的 gradient =====
-        
-        let cgColors = gradientColors.map { $0.cgColor }
-        
-        // 判断是否需要重新创建 gradient，用 === 是因为CGColor 是对象，而我们比较的是“是不是同一个实例”
-        let needRebuild =
-            cachedGradient == nil ||
-            lastGradientColors.count != cgColors.count ||
-            !zip(lastGradientColors, cgColors).allSatisfy { $0 === $1 }
-        
-        if needRebuild {
-            let space = CGColorSpaceCreateDeviceRGB()
-            
-            cachedGradient = CGGradient(
-                colorsSpace: space,
-                colors: cgColors as CFArray,
-                locations: nil
-            )
-            
-            lastGradientColors = cgColors
-        }
-        
-        guard let gradient = cachedGradient else { return }
-        
-        let (start, end) = gradientPoints()
-        
-        ctx.drawLinearGradient(
-            gradient,
-            start: start,
-            end: end,
-            options: []
-        )
-    }
-    
-    /**
-     根据 `gradientDirection` 计算渐变绘制的起点和终点
-     - Returns: 一个元组 (startPoint, endPoint)，分别对应渐变的起始和结束位置
-     */
-    private func gradientPoints() -> (CGPoint, CGPoint) {
-        switch gradientDirection {
-        case .leftToRight:
-            return (
-                CGPoint(x: 0, y: bounds.midY),
-                CGPoint(x: bounds.maxX, y: bounds.midY)
-            )
-            
-        case .topToBottom:
-            return (
-                CGPoint(x: bounds.midX, y: 0),
-                CGPoint(x: bounds.midX, y: bounds.maxY)
-            )
-            
-        case .leftToLowRight:
-            return (
-                CGPoint(x: 0, y: 0),
-                CGPoint(x: bounds.maxX, y: bounds.maxY)
-            )
-            
-        case .rightToLowLeft:
-            return (
-                CGPoint(x: bounds.maxX, y: 0),
-                CGPoint(x: 0, y: bounds.maxY)
-            )
-        }
     }
 }

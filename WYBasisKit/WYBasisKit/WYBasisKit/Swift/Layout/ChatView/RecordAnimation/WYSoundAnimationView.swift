@@ -21,21 +21,25 @@ import UIKit
 
 public class WYSoundAnimationView: WYAirBubbleView {
     
+    /// 声波动画组件
     public lazy var soundWavesView: WYSoundWavesView = {
         let soundWavesView: WYSoundWavesView = WYSoundWavesView()
         addSubview(soundWavesView)
         return soundWavesView
     }()
     
+    /// 初始化方法
     public init(_ status: WYSoundAnimationStatus = .recording) {
         super.init(frame: .zero)
         backgroundColor = .clear
         isUserInteractionEnabled = true
-        enablePathAnimation = true
         refreshSoundWaves(status: status)
     }
     
     public func refreshSoundWaves(status: WYSoundAnimationStatus) {
+        
+        // 声波动画组件Size
+        let soundWavesSize: CGSize = soundWavesSize(for: status)
         
         switch status {
         case .recording:
@@ -48,9 +52,9 @@ public class WYSoundAnimationView: WYAirBubbleView {
             arrowOffset = 0
             
             soundWavesView.snp.updateConstraints { make in
-                make.center.equalToSuperview()
-                make.width.equalTo(((recordAnimationConfig.soundWavesWidth + recordAnimationConfig.soundWavesSpace) * CGFloat(recordAnimationConfig.severalSoundWaves.recording)) - recordAnimationConfig.soundWavesSpace)
-                make.height.equalTo(recordAnimationConfig.soundWavesMaxHeight.recording)
+                make.centerX.equalToSuperview().offset(0)
+                make.centerY.equalToSuperview().offset(0)
+                make.size.equalTo(soundWavesSize)
             }
             break
         case .transfer:
@@ -63,9 +67,9 @@ public class WYSoundAnimationView: WYAirBubbleView {
             arrowOffset = (recordAnimationConfig.soundWavesViewWidth.transfer - recordAnimationConfig.moveupButtonDiameter.onInterior - arrowSize.width) / 2
             
             soundWavesView.snp.updateConstraints { make in
-                make.center.equalToSuperview()
-                make.width.equalTo(((recordAnimationConfig.soundWavesWidth + recordAnimationConfig.soundWavesSpace) * CGFloat(recordAnimationConfig.severalSoundWaves.transfer)) - recordAnimationConfig.soundWavesSpace)
-                make.height.equalTo(recordAnimationConfig.soundWavesMaxHeight.transfer)
+                make.centerX.equalToSuperview().offset((recordAnimationConfig.soundWavesViewWidth.transfer / 2) - recordAnimationConfig.soundWavesRightOffsetForAirBubble.x - (soundWavesSize.width / 2))
+                make.centerY.equalToSuperview().offset((recordAnimationConfig.soundWavesViewHeight.transfer / 2) - recordAnimationConfig.soundWavesRightOffsetForAirBubble.y - (soundWavesSize.height / 2))
+                make.size.equalTo(soundWavesSize)
             }
             break
         case .cancel:
@@ -78,9 +82,9 @@ public class WYSoundAnimationView: WYAirBubbleView {
             arrowOffset = 0
             
             soundWavesView.snp.updateConstraints { make in
-                make.center.equalToSuperview()
-                make.width.equalTo(((recordAnimationConfig.soundWavesWidth + recordAnimationConfig.soundWavesSpace) * CGFloat(recordAnimationConfig.severalSoundWaves.cancel)) - recordAnimationConfig.soundWavesSpace)
-                make.height.equalTo(recordAnimationConfig.soundWavesMaxHeight.cancel)
+                make.centerX.equalToSuperview().offset(0)
+                make.centerY.equalToSuperview().offset(0)
+                make.size.equalTo(soundWavesSize)
             }
             break
         }
@@ -126,6 +130,30 @@ public class WYSoundAnimationView: WYAirBubbleView {
         config.maxBarHeight = soundWavesMaxHeight
         config.minBarHeight = soundWavesMinHeight
         config.numberOfColumns = severalSoundWaves
+    }
+    
+    /// 获取录音、取消录音、转文字时声波动画的Size
+    public func soundWavesSize(for status: WYSoundAnimationStatus) -> CGSize {
+        
+        let soundWavesWidth: CGFloat
+        let soundWavesHeight: CGFloat
+        
+        switch status {
+        case .recording:
+            soundWavesWidth = ((recordAnimationConfig.soundWavesWidth + recordAnimationConfig.soundWavesSpace) * CGFloat(recordAnimationConfig.severalSoundWaves.recording)) - recordAnimationConfig.soundWavesSpace
+            soundWavesHeight = recordAnimationConfig.soundWavesMaxHeight.recording
+            break
+        case .transfer:
+            soundWavesWidth = ((recordAnimationConfig.soundWavesWidth + recordAnimationConfig.soundWavesSpace) * CGFloat(recordAnimationConfig.severalSoundWaves.transfer)) - recordAnimationConfig.soundWavesSpace
+            soundWavesHeight = recordAnimationConfig.soundWavesMaxHeight.transfer
+            break
+        case .cancel:
+            soundWavesWidth = ((recordAnimationConfig.soundWavesWidth + recordAnimationConfig.soundWavesSpace) * CGFloat(recordAnimationConfig.severalSoundWaves.cancel)) - recordAnimationConfig.soundWavesSpace
+            soundWavesHeight = recordAnimationConfig.soundWavesMaxHeight.cancel
+            break
+        }
+        return CGSize(width: soundWavesWidth, height: soundWavesHeight)
+        
     }
     
     required init?(coder: NSCoder) {

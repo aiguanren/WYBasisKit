@@ -134,20 +134,4 @@ public enum WYArrowDirectionObjC: Int {
     public var bubblePathObjC: CGPath? {
         get { return bubblePath }
     }
-    
-    /**
-     是否启用气泡 path 动画(如果设置了渐变色(既：gradientColors 不为空)时可以不用开启也能支持path动画)
-     规则：
-     - 开启时：在视图尺寸（frame/bounds/约束）变化过程中，path
-       会做同步动画，保证气泡形变平滑
-     - 关闭时：path 直接更新，不执行动画（适用于列表滚动等性能敏感场景）
-     
-     - Note:
-       用于避免 CAShapeLayer 隐式动画在尺寸变化时出现的异常（如放大/回弹）
-     */
-    @objc(enablePathAnimation)
-    public var enablePathAnimationObjC: Bool {
-        set { enablePathAnimation = newValue }
-        get { return enablePathAnimation }
-    }
 }
