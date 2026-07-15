@@ -577,12 +577,7 @@ public class WYChatInputView: UIImageView {
     
     private func updateContentViewHeight() {
 
-        var textHeight: CGFloat = 0
-        if (inputBarConfig.showSpecialSendButton == true) {
-            textHeight = textView.attributedText.wy_calculateHeight(controlWidth: UIDevice.wy_screenWidth - inputBarConfig.inputViewEdgeInsets.left - inputBarConfig.specialSendButtonLeftOffset - inputBarConfig.specialSendButtonRightOffset - inputBarConfig.specialSendButtonSize.width - inputBarConfig.inputTextEdgeInsets.left - inputBarConfig.inputTextEdgeInsets.right - UIDevice.wy_screenWidth(10)) + inputBarConfig.inputTextEdgeInsets.top + inputBarConfig.inputTextEdgeInsets.bottom
-        }else {
-            textHeight = textView.attributedText.wy_calculateHeight(controlWidth: UIDevice.wy_screenWidth - inputBarConfig.inputViewEdgeInsets.left - inputBarConfig.inputViewEdgeInsets.right - inputBarConfig.inputTextEdgeInsets.left - inputBarConfig.inputTextEdgeInsets.right - UIDevice.wy_screenWidth(10)) + inputBarConfig.inputTextEdgeInsets.top + inputBarConfig.inputTextEdgeInsets.bottom
-        }
+        var textHeight: CGFloat = textView.attributedText.wy_calculateHeight(controlWidth: textViewInputWidth()) + inputBarConfig.inputTextEdgeInsets.top + inputBarConfig.inputTextEdgeInsets.bottom
         
         var contentHeight: CGFloat = [textHeight,
                                       textView.contentSize.height,
@@ -601,16 +596,18 @@ public class WYChatInputView: UIImageView {
         updateTextViewOffset()
     }
     
+    // 获取textView可输入的宽度
+    private func textViewInputWidth() -> CGFloat {
+        if (inputBarConfig.showSpecialSendButton == true) {
+            return ceil(UIDevice.wy_screenWidth - inputBarConfig.inputViewEdgeInsets.left - inputBarConfig.specialSendButtonLeftOffset - inputBarConfig.specialSendButtonRightOffset - inputBarConfig.specialSendButtonSize.width - inputBarConfig.inputTextEdgeInsets.left - inputBarConfig.inputTextEdgeInsets.right - UIDevice.wy_screenWidth(10))
+        }else {
+            return ceil(UIDevice.wy_screenWidth - inputBarConfig.inputViewEdgeInsets.left - inputBarConfig.inputViewEdgeInsets.right - inputBarConfig.inputTextEdgeInsets.left - inputBarConfig.inputTextEdgeInsets.right - UIDevice.wy_screenWidth(10))
+        }
+    }
+    
     func updateTextViewOffset() {
         if textView.attributedText.string.utf16.count > 0 {
-            
-            // textView文本宽度
-            let textWidth: CGFloat = textView.attributedText.wy_calculateWidth(controlHeight: textView.font?.lineHeight ?? 0)
-            
-            // textView显示行数是否大于1
-            let areMultipleRows: Bool = (textWidth > textView.wy_width + 1)
-            
-            if areMultipleRows {
+            if textRowGreaterThan(row: 1) {
                 textView.contentOffset = CGPoint(x: 0, y: textView.contentSize.height - textView.wy_height)
             }else {
                 textView.contentOffset = CGPoint(x: 0, y: 0)
@@ -634,6 +631,34 @@ public class WYChatInputView: UIImageView {
                 textView.attributedText = textView.attributedText.attributedSubstring(from: NSMakeRange(0, (inputBarConfig.inputTextLength)))
             }
         }
+    }
+    
+    /// 当前TextView文本显示的行数是否大于指定的行数
+    private func textRowGreaterThan(row target: Int, attributedText: NSAttributedString? = nil) -> Bool {
+        
+        // 如果0表示不限行数，直接返回false
+        guard target > 0 else {
+            return false
+        }
+        
+        // textView可输入文本的宽度
+        let textInputWidth: CGFloat = textViewInputWidth()
+        
+        let attributedString: NSAttributedString
+        if let attributed = attributedText {
+            attributedString = attributed
+        }else {
+            attributedString = textView.attributedText
+        }
+        
+        // textView文本高度
+        let textHeight: CGFloat = attributedString.wy_calculateHeight(controlWidth: textInputWidth)
+        
+        // 指定行数文本的高度
+        let targetHeight: CGFloat = ceil(((inputBarConfig.textFont.lineHeight + inputBarConfig.textLineSpacing) * CGFloat(target)) - inputBarConfig.textLineSpacing)
+        
+        // textView显示行数是否大于 target
+        return (textHeight > targetHeight)
     }
     
     public func processingTextViewDidChange(_ textView: UITextView, silence: Bool) {
@@ -766,6 +791,7 @@ extension WYChatInputView: UITextViewDelegate {
     
     public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         
+        // 点击换行
         if text == "\n" {
             
             if inputBarConfig.showSpecialSendButton == true {
@@ -788,9 +814,14 @@ extension WYChatInputView: UITextViewDelegate {
                 }
             }
         }
+        
         checkTextCount()
         
         if (textNum > inputBarConfig.inputTextLength) && (inputBarConfig.inputTextLength > 0) {
+            return false
+        }
+        
+        if textRowGreaterThan(row: inputBarConfig.inputTextMaximumNumberOfLines, attributedText: sharedEmojiAttributed(string: textContent)) {
             return false
         }
         
