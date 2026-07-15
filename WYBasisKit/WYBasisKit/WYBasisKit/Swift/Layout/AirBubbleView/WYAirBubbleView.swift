@@ -90,7 +90,10 @@ public class WYAirBubbleView: UIView {
     
     /// 渐变色数组(为空则不显示)
     public var gradientColors: [UIColor] = [] {
-        didSet { updateStyle() }
+        didSet {
+            updateStyle()
+            updatePath()
+        }
     }
     
     /// 渐变色方向
@@ -101,13 +104,41 @@ public class WYAirBubbleView: UIView {
         }
     }
     
+    /// 阴影颜色（为 nil 时不显示阴影）
+    public var shadowColor: UIColor? = nil {
+        didSet {
+            updateShadow()
+        }
+    }
+    
+    /// 阴影偏移度 默认CGSize.zero (width : 为正数时，向右偏移，为负数时，向左偏移，height : 为正数时，向下偏移，为负数时，向上偏移)
+    public var shadowOffset: CGSize = .zero {
+        didSet {
+            updateShadow()
+        }
+    }
+    
+    /// 阴影模糊半径 默认0.0，需要大于0才会有阴影扩散效果(阴影才可见)
+    public var shadowRadius: CGFloat = 0.0 {
+        didSet {
+            updateShadow()
+        }
+    }
+    
+    /// 阴影模糊度，默认0.5，取值范围0~1
+    public var shadowOpacity: CGFloat = 0.5 {
+        didSet {
+            updateShadow()
+        }
+    }
+    
     /**
-     当前气泡的路径（用于外部做 shadow / 命中检测 / 自定义 mask 等）
+     当前气泡的路径（用于外部做 hitTest命中检测 / 自定义 mask 等）
      规则：
      - Note:
      仅在视图完成 layout（bounds > 0）后才有有效值
      若在初始化或约束未生效前获取，可能为 nil
-     也可以在Task { @MainActor 里面获取使用
+     建议可以在Task { @MainActor 里面获取使用
      */
     public private(set) var bubblePath: CGPath?
     
@@ -167,6 +198,7 @@ public class WYAirBubbleView: UIView {
         gradientLayer.endPoint = CGPoint(x: 1, y: 0.5)
         
         updateStyle()
+        updateShadow()
     }
     
     /// 布局子视图时调用，检测 bounds 变化并更新路径
@@ -178,7 +210,20 @@ public class WYAirBubbleView: UIView {
         lastBounds = bounds
         
         if !gradientColors.isEmpty {
-            gradientLayer.frame = bounds
+            
+            // 是否正在执行UIView.animate动画
+            let isInUIViewAnimation = UIView.inheritedAnimationDuration > 0
+            if isInUIViewAnimation {
+                gradientLayer.frame = bounds
+                maskLayer.frame = bounds
+            }else {
+                // 关闭隐式动画，否则有渐变的时候动画会不自然(如动画中圆角不显示)
+                CATransaction.begin()
+                CATransaction.setDisableActions(true)
+                gradientLayer.frame = bounds
+                maskLayer.frame = bounds
+                CATransaction.commit()
+            }
         }
         
         // 当视图尺寸变化时重新计算路径
@@ -202,6 +247,10 @@ public class WYAirBubbleView: UIView {
             
             gradientLayer.isHidden = false
             gradientLayer.colors = gradientColors.map { $0.cgColor }
+            // 保证尺寸永远正确
+            if gradientLayer.frame != bounds {
+                gradientLayer.frame = bounds
+            }
         }
         
         borderLayer.strokeColor = borderColor.cgColor
@@ -310,8 +359,13 @@ public class WYAirBubbleView: UIView {
         
         CATransaction.commit()
         
-        // 对外暴露路径（用于 shadow / hitTest / mask 等），同时确保对外暴露的 path 一定是最新
+        // 对外暴露路径（用于 hitTest / mask 等），同时确保对外暴露的 path 一定是最新
         bubblePath = newPath
+        
+        // 同步更新阴影路径（保证阴影和气泡完全一致）
+        if layer.shadowOpacity > 0 {
+            layer.shadowPath = newPath
+        }
     }
     
     /// 修改渐变色方向
@@ -333,6 +387,26 @@ public class WYAirBubbleView: UIView {
             gradientLayer.startPoint = CGPoint(x: 1, y: 0)
             gradientLayer.endPoint = CGPoint(x: 0, y: 1)
         }
+    }
+    
+    /// 更新阴影（只负责 layer 样式，不参与 path 计算）
+    private func updateShadow() {
+        
+        // 如果没有设置颜色 or opacity 为 0，则关闭阴影（提升性能）
+        guard let color = shadowColor, shadowOpacity > 0 else {
+            layer.shadowOpacity = 0
+            layer.shadowColor = nil
+            layer.shadowPath = nil
+            return
+        }
+        
+        layer.shadowColor = color.cgColor
+        layer.shadowOffset = shadowOffset
+        layer.shadowRadius = shadowRadius
+        layer.shadowOpacity = Float(min(max(shadowOpacity, 0), 1)) // clamp 0~1
+        
+        // 使用 shadowPath（性能提升非常大）
+        layer.shadowPath = bubblePath
     }
     
     /**
@@ -447,13 +521,13 @@ public class WYAirBubbleView: UIView {
         // ----- 下边（BOTTOM）-----
         if showsArrow && arrowDirection == .bottom, let (p1, tip, p2) = arrow {
             
-            // ⚠️ 必须从 p2 开始（和旧版本一致）
+            // 必须从 p2 开始
             path.addLine(to: p2)
             
             addArrowPath(path,
-                         from: p2,   // ⚠️ 反向
+                         from: p2,   // 反向
                          tip: tip,
-                         to: p1,     // ⚠️ 反向
+                         to: p1,     // 反向
                          includeBase: includeArrowBaseEdge)
             
             path.addLine(to: CGPoint(x: minX + bl, y: maxY))
@@ -475,13 +549,13 @@ public class WYAirBubbleView: UIView {
         // ----- 左边（LEFT）-----
         if showsArrow && arrowDirection == .left, let (p1, tip, p2) = arrow {
             
-            // ⚠️ 必须从 p2 开始
+            // 必须从 p2 开始
             path.addLine(to: p2)
             
             addArrowPath(path,
-                         from: p2,   // ⚠️ 反向
+                         from: p2,   // 反向
                          tip: tip,
-                         to: p1,     // ⚠️ 反向
+                         to: p1,     // 反向
                          includeBase: includeArrowBaseEdge)
             
             path.addLine(to: CGPoint(x: minX, y: minY + tl))
