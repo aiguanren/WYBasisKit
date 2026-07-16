@@ -9,11 +9,21 @@ import UIKit
 
 class WYTestAirBubbleController: UIViewController {
 
-    // MARK: - 交互气泡
+    // MARK: - 交互气泡（悬浮于顶部）
+    private var bubbleContainer: UIView!
     private var interactiveBubble: WYAirBubbleView!
     private var bubbleDescriptionLabel: UILabel!
+    private var bubbleStatusLabel: UILabel!
     private var bubbleWidthConstraint: NSLayoutConstraint!
     private var bubbleHeightConstraint: NSLayoutConstraint!
+    private var bubbleCenterXConstraint: NSLayoutConstraint!
+    private var bubbleTopConstraint: NSLayoutConstraint!
+    private var containerHeightConstraint: NSLayoutConstraint!
+
+    // MARK: - 滚动容器
+    private var scrollView: UIScrollView!
+    private var contentView: UIView!
+    private var staticVerticalStack: UIStackView!
 
     // MARK: - 控件
     private var directionSegmented: UISegmentedControl!
@@ -29,12 +39,45 @@ class WYTestAirBubbleController: UIViewController {
     private var heightSlider: UISlider!
     private var edgePaddingSlider: UISlider!
 
-    // 边框颜色选择按钮组
+    // 边框颜色按钮组
     private var borderColorButtons: [UIButton] = []
     private var selectedBorderColorIndex = 0
 
-    // 存储滑块与其数值标签的映射
+    // 渐变相关
+    private var gradientSegmented: UISegmentedControl!
+    private var gradientDirectionSegmented: UISegmentedControl!
+
+    // 阴影相关
+    private var shadowEnableSwitch: UISwitch!
+    private var shadowColorButtons: [UIButton] = []
+    private var selectedShadowColorIndex = 0
+    private var shadowOffsetXSlider: UISlider!
+    private var shadowOffsetYSlider: UISlider!
+    private var shadowRadiusSlider: UISlider!
+    private var shadowOpacitySlider: UISlider!
+
+    // ===== 动画状态管理 =====
+    private var initialState: (x: CGFloat, y: CGFloat, width: CGFloat, height: CGFloat) = (0, 0, 160, 100)
+    private var finalState: (x: CGFloat, y: CGFloat, width: CGFloat, height: CGFloat) = (80, 0, 200, 100)
+    private var isAtInitial = true
+    private var hasAppliedInitialState = false
+
+    // ===== 动画控制滑块 =====
+    private var initialXSlider: UISlider!
+    private var initialYSlider: UISlider!
+    private var initialWidthSlider: UISlider!
+    private var initialHeightSlider: UISlider!
+    private var finalXSlider: UISlider!
+    private var finalYSlider: UISlider!
+    private var finalWidthSlider: UISlider!
+    private var finalHeightSlider: UISlider!
+    private var animationDurationSlider: UISlider!
+
+    // 存储滑块与数值标签的映射
     private var valueLabelMap: [UISlider: UILabel] = [:]
+
+    // 预估描述标签高度（用于边界计算）
+    private let estimatedDescriptionHeight: CGFloat = 80
 
     // MARK: - Lifecycle
 
@@ -45,13 +88,25 @@ class WYTestAirBubbleController: UIViewController {
         setupScrollView()
         setupStaticExamples()
         setupInteractiveBubble()
+        // 初始化状态变量（但暂不应用，等布局完成）
+        initialState.width = bubbleWidthConstraint.constant
+        initialState.height = bubbleHeightConstraint.constant
+        initialState.x = 0
+        initialState.y = 0
         setupControls()
+        // 注意：不在此处调用 applyState，因为容器尺寸未确定
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        // 仅在容器尺寸有效且尚未应用初始状态时，应用一次
+        if !hasAppliedInitialState && bubbleContainer.bounds.width > 0 && bubbleContainer.bounds.height > 0 {
+            applyState(initialState, animated: false, duration: 0)
+            hasAppliedInitialState = true
+        }
     }
 
     // MARK: - 滚动容器
-
-    private var scrollView: UIScrollView!
-    private var contentView: UIView!
 
     private func setupScrollView() {
         scrollView = UIScrollView()
@@ -59,7 +114,6 @@ class WYTestAirBubbleController: UIViewController {
         view.addSubview(scrollView)
 
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
@@ -78,13 +132,12 @@ class WYTestAirBubbleController: UIViewController {
         ])
     }
 
-    // MARK: - 静态示例（使用 StackView 管理，避免重叠）
+    // MARK: - 静态示例（使用 StackView 管理）
 
     private func setupStaticExamples() {
         typealias BubbleConfig = (WYAirBubbleView) -> Void
         typealias DescBuilder = (WYAirBubbleView) -> String
 
-        // 生成单个示例的水平 StackView（气泡 + 描述）
         func makeExampleStack(with config: BubbleConfig, descBuilder: @escaping DescBuilder) -> UIStackView {
             let bubble = WYAirBubbleView()
             bubble.translatesAutoresizingMaskIntoConstraints = false
@@ -115,7 +168,6 @@ class WYTestAirBubbleController: UIViewController {
             return stack
         }
 
-        // 辅助函数：生成描述文本（不再重复尖端圆角等默认项）
         func desc(for bubble: WYAirBubbleView, direction: WYArrowDirection, cornerDesc: String, extra: String = "") -> String {
             let dirStr: String
             switch direction {
@@ -154,11 +206,9 @@ class WYTestAirBubbleController: UIViewController {
         }
 
         let examples: [(BubbleConfig, DescBuilder)] = [
-            // 1. 默认底部箭头，蓝色
             ({ $0.fillColor = .systemBlue },
              { bubble in desc(for: bubble, direction: .bottom, cornerDesc: "全部") }),
 
-            // 2. 顶部箭头，红色填充，黑色边框
             ({
                 $0.arrowDirection = .top
                 $0.fillColor = .systemRed
@@ -167,23 +217,20 @@ class WYTestAirBubbleController: UIViewController {
              },
              { bubble in desc(for: bubble, direction: .top, cornerDesc: "全部", extra: "边框颜色: 黑色") }),
 
-            // 3. 左侧箭头，绿色填充
             ({
                 $0.arrowDirection = .left
                 $0.fillColor = .systemGreen
              },
              { bubble in desc(for: bubble, direction: .left, cornerDesc: "全部") }),
 
-            // 4. 右侧箭头，紫色填充，无圆角，箭头尖圆角（6）
             ({
                 $0.arrowDirection = .right
                 $0.fillColor = .systemPurple
                 $0.cornerRadius = 0
                 $0.arrowTipRadius = 6
              },
-             { bubble in desc(for: bubble, direction: .right, cornerDesc: "无", extra: "") }), // 尖端圆角已在默认描述中
+             { bubble in desc(for: bubble, direction: .right, cornerDesc: "无", extra: "") }),
 
-            // 5. 底部箭头，橙色，偏移+30，箭头放大
             ({
                 $0.arrowDirection = .bottom
                 $0.fillColor = .systemOrange
@@ -192,7 +239,6 @@ class WYTestAirBubbleController: UIViewController {
              },
              { bubble in desc(for: bubble, direction: .bottom, cornerDesc: "全部", extra: "偏移: +30, 箭头: 20x12") }),
 
-            // 6. 无箭头，粉色，仅左上/右下圆角
             ({
                 $0.showsArrow = false
                 $0.fillColor = .systemPink
@@ -208,7 +254,6 @@ class WYTestAirBubbleController: UIViewController {
                  """
              }),
 
-            // 7. 新增：底部箭头，棕色，边框蓝色，边距15，展示 arrowEdgePadding
             ({
                 $0.arrowDirection = .bottom
                 $0.fillColor = .systemBrown
@@ -220,50 +265,61 @@ class WYTestAirBubbleController: UIViewController {
              { bubble in desc(for: bubble, direction: .bottom, cornerDesc: "全部", extra: "边框颜色: 蓝色，边距: 15") })
         ]
 
-        // 垂直 StackView 管理所有示例
-        let verticalStack = UIStackView()
-        verticalStack.translatesAutoresizingMaskIntoConstraints = false
-        verticalStack.axis = .vertical
-        verticalStack.spacing = 20
-        verticalStack.alignment = .fill
-        contentView.addSubview(verticalStack)
+        staticVerticalStack = UIStackView()
+        staticVerticalStack.translatesAutoresizingMaskIntoConstraints = false
+        staticVerticalStack.axis = .vertical
+        staticVerticalStack.spacing = 20
+        staticVerticalStack.alignment = .fill
+        contentView.addSubview(staticVerticalStack)
 
         NSLayoutConstraint.activate([
-            verticalStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
-            verticalStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            verticalStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16)
+            staticVerticalStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
+            staticVerticalStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            staticVerticalStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16)
         ])
 
         for (config, descBuilder) in examples {
             let stack = makeExampleStack(with: config, descBuilder: descBuilder)
-            verticalStack.addArrangedSubview(stack)
-        }
-
-        if let last = verticalStack.arrangedSubviews.last {
-            last.accessibilityIdentifier = "lastStaticExample"
+            staticVerticalStack.addArrangedSubview(stack)
         }
     }
 
-    // MARK: - 交互气泡（动态调整属性）
+    // MARK: - 交互气泡（悬浮于顶部）
 
     private func setupInteractiveBubble() {
-        let container = UIView()
-        container.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(container)
+        bubbleContainer = UIView()
+        bubbleContainer.translatesAutoresizingMaskIntoConstraints = false
+        bubbleContainer.backgroundColor = .systemGray6 // 调试用，可注释
+        view.addSubview(bubbleContainer)
 
-        let lastStatic = contentView.viewWithAccessibilityIdentifier("lastStaticExample")
+        // 容器高度为屏幕高度的 2/5
+        containerHeightConstraint = bubbleContainer.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 2/5.0)
+        NSLayoutConstraint.activate([
+            bubbleContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
+            bubbleContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
+            bubbleContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
+            containerHeightConstraint
+        ])
 
         interactiveBubble = WYAirBubbleView()
         interactiveBubble.translatesAutoresizingMaskIntoConstraints = false
         interactiveBubble.fillColor = .systemTeal
         interactiveBubble.arrowDirection = .bottom
         interactiveBubble.showsArrow = true
-        container.addSubview(interactiveBubble)
+        bubbleContainer.addSubview(interactiveBubble)
 
-        bubbleWidthConstraint = interactiveBubble.widthAnchor.constraint(equalToConstant: 200)
-        bubbleHeightConstraint = interactiveBubble.heightAnchor.constraint(equalToConstant: 120)
-        bubbleWidthConstraint.isActive = true
-        bubbleHeightConstraint.isActive = true
+        // 初始尺寸 160x100
+        bubbleWidthConstraint = interactiveBubble.widthAnchor.constraint(equalToConstant: 160)
+        bubbleHeightConstraint = interactiveBubble.heightAnchor.constraint(equalToConstant: 100)
+        // 位置约束
+        bubbleCenterXConstraint = interactiveBubble.centerXAnchor.constraint(equalTo: bubbleContainer.centerXAnchor, constant: 0)
+        bubbleTopConstraint = interactiveBubble.topAnchor.constraint(equalTo: bubbleContainer.topAnchor, constant: 0)
+        NSLayoutConstraint.activate([
+            bubbleCenterXConstraint,
+            bubbleTopConstraint,
+            bubbleWidthConstraint,
+            bubbleHeightConstraint
+        ])
 
         bubbleDescriptionLabel = UILabel()
         bubbleDescriptionLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -272,48 +328,38 @@ class WYTestAirBubbleController: UIViewController {
         bubbleDescriptionLabel.textColor = .systemBlue
         bubbleDescriptionLabel.textAlignment = .center
         bubbleDescriptionLabel.numberOfLines = 0
-        container.addSubview(bubbleDescriptionLabel)
+        bubbleContainer.addSubview(bubbleDescriptionLabel)
 
-        let statusLabel = UILabel()
-        statusLabel.translatesAutoresizingMaskIntoConstraints = false
-        statusLabel.text = "拖动下方滑块查看实时变化"
-        statusLabel.font = .systemFont(ofSize: 11)
-        statusLabel.textColor = .gray
-        statusLabel.textAlignment = .center
-        statusLabel.numberOfLines = 0
-        statusLabel.tag = 999
-        container.addSubview(statusLabel)
+        bubbleStatusLabel = UILabel()
+        bubbleStatusLabel.translatesAutoresizingMaskIntoConstraints = false
+        bubbleStatusLabel.text = "拖动下方滑块查看实时变化"
+        bubbleStatusLabel.font = .systemFont(ofSize: 11)
+        bubbleStatusLabel.textColor = .gray
+        bubbleStatusLabel.textAlignment = .center
+        bubbleStatusLabel.numberOfLines = 0
+        bubbleContainer.addSubview(bubbleStatusLabel)
 
+        // 描述标签在气泡下方，状态标签在描述下方
         NSLayoutConstraint.activate([
-            interactiveBubble.centerXAnchor.constraint(equalTo: container.centerXAnchor),
-            interactiveBubble.topAnchor.constraint(equalTo: container.topAnchor),
-
             bubbleDescriptionLabel.topAnchor.constraint(equalTo: interactiveBubble.bottomAnchor, constant: 8),
-            bubbleDescriptionLabel.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 8),
-            bubbleDescriptionLabel.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -8),
+            bubbleDescriptionLabel.leadingAnchor.constraint(equalTo: bubbleContainer.leadingAnchor, constant: 8),
+            bubbleDescriptionLabel.trailingAnchor.constraint(equalTo: bubbleContainer.trailingAnchor, constant: -8),
 
-            statusLabel.topAnchor.constraint(equalTo: bubbleDescriptionLabel.bottomAnchor, constant: 2),
-            statusLabel.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 8),
-            statusLabel.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -8),
-            statusLabel.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+            bubbleStatusLabel.topAnchor.constraint(equalTo: bubbleDescriptionLabel.bottomAnchor, constant: 2),
+            bubbleStatusLabel.leadingAnchor.constraint(equalTo: bubbleContainer.leadingAnchor, constant: 8),
+            bubbleStatusLabel.trailingAnchor.constraint(equalTo: bubbleContainer.trailingAnchor, constant: -8),
+            bubbleStatusLabel.bottomAnchor.constraint(equalTo: bubbleContainer.bottomAnchor, constant: -4)
         ])
 
-        if let last = lastStatic {
+        // 滚动视图顶部约束到容器底部
+        if let scrollView = scrollView {
             NSLayoutConstraint.activate([
-                container.topAnchor.constraint(equalTo: last.bottomAnchor, constant: 30),
-                container.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-                container.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
-            ])
-        } else {
-            NSLayoutConstraint.activate([
-                container.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
-                container.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-                container.trailingAnchor.constraint(equalTo: contentView.trailingAnchor)
+                scrollView.topAnchor.constraint(equalTo: bubbleContainer.bottomAnchor, constant: 12)
             ])
         }
     }
 
-    // MARK: - 控制控件（全部水平布局：描述左侧，控件右侧）
+    // MARK: - 控制控件
 
     private func setupControls() {
         let stack = UIStackView()
@@ -324,13 +370,12 @@ class WYTestAirBubbleController: UIViewController {
         contentView.addSubview(stack)
 
         NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: interactiveBubble.superview!.bottomAnchor, constant: 20),
+            stack.topAnchor.constraint(equalTo: staticVerticalStack.bottomAnchor, constant: 30),
             stack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             stack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             stack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
         ])
 
-        // 辅助：创建水平控件行（描述固定宽度，控件填充剩余）
         func makeControlRow(label: String, control: UIView, labelWidth: CGFloat = 80) -> UIStackView {
             let row = UIStackView()
             row.axis = .horizontal
@@ -348,131 +393,203 @@ class WYTestAirBubbleController: UIViewController {
             return row
         }
 
-        // 1. 箭头方向
+        // ---- 原有控件 ----
         directionSegmented = UISegmentedControl(items: ["上", "下", "左", "右"])
         directionSegmented.selectedSegmentIndex = 1
         directionSegmented.addTarget(self, action: #selector(directionChanged), for: .valueChanged)
         stack.addArrangedSubview(makeControlRow(label: "箭头方向", control: directionSegmented))
 
-        // 2. 显示箭头
         showArrowSwitch = UISwitch()
         showArrowSwitch.isOn = true
         showArrowSwitch.addTarget(self, action: #selector(showArrowToggled), for: .valueChanged)
         stack.addArrangedSubview(makeControlRow(label: "显示箭头", control: showArrowSwitch))
 
-        // 3. 圆角半径
         let radiusRow = makeSliderRow(label: "圆角半径", min: 0, max: 30, value: 12, action: #selector(radiusChanged))
         radiusSlider = radiusRow.slider
         stack.addArrangedSubview(radiusRow.view)
 
-        // 4. 圆角位置
         cornersSegmented = UISegmentedControl(items: ["全部", "左上+右下", "右上+左下", "仅左上", "仅右下"])
         cornersSegmented.selectedSegmentIndex = 0
         cornersSegmented.addTarget(self, action: #selector(cornersChanged), for: .valueChanged)
         stack.addArrangedSubview(makeControlRow(label: "圆角位置", control: cornersSegmented))
 
-        // 5. 箭头宽度
         let widthRow = makeSliderRow(label: "箭头宽度", min: 6, max: 30, value: 12, action: #selector(arrowWidthChanged))
         arrowWidthSlider = widthRow.slider
         stack.addArrangedSubview(widthRow.view)
 
-        // 6. 箭头高度
         let heightRow = makeSliderRow(label: "箭头高度", min: 4, max: 20, value: 8, action: #selector(arrowHeightChanged))
         arrowHeightSlider = heightRow.slider
         stack.addArrangedSubview(heightRow.view)
 
-        // 7. 箭头偏移
         let offsetRow = makeSliderRow(label: "箭头偏移", min: -100, max: 100, value: 0, action: #selector(offsetChanged))
         offsetSlider = offsetRow.slider
         stack.addArrangedSubview(offsetRow.view)
 
-        // 8. 箭头边距
         let edgeRow = makeSliderRow(label: "箭头边距", min: 0, max: 30, value: 0, action: #selector(edgePaddingChanged))
         edgePaddingSlider = edgeRow.slider
         stack.addArrangedSubview(edgeRow.view)
 
-        // 9. 尖端圆角
         let tipRow = makeSliderRow(label: "尖端圆角", min: 0, max: 30, value: 0, action: #selector(tipRadiusChanged))
         tipRadiusSlider = tipRow.slider
         stack.addArrangedSubview(tipRow.view)
 
-        // 10. 边框宽度
         let borderRow = makeSliderRow(label: "边框宽度", min: 0, max: 5, value: 0, action: #selector(borderWidthChanged))
         borderWidthSlider = borderRow.slider
         stack.addArrangedSubview(borderRow.view)
 
-        // 11. 边框颜色（使用颜色按钮组）
-        let borderColorStack = UIStackView()
-        borderColorStack.axis = .horizontal
-        borderColorStack.spacing = 6
-        borderColorStack.alignment = .center
-
-        let borderColorLabel = UILabel()
-        borderColorLabel.text = "边框颜色"
-        borderColorLabel.font = .systemFont(ofSize: 14, weight: .medium)
-        borderColorLabel.setContentHuggingPriority(.required, for: .horizontal)
-        borderColorLabel.widthAnchor.constraint(equalToConstant: 80).isActive = true
-        borderColorStack.addArrangedSubview(borderColorLabel)
-
-        let colors: [(UIColor, String)] = [
-            (.clear, "清除"),
-            (.red, "红"),
-            (.green, "绿"),
-            (.blue, "蓝"),
-            (.black, "黑"),
-            (.orange, "橙")
-        ]
-
-        for (color, title) in colors {
-            let btn = UIButton(type: .system)
-            btn.setTitle(title, for: .normal)
-            btn.titleLabel?.font = .systemFont(ofSize: 12)
-            btn.backgroundColor = color == .clear ? .lightGray : color
-            btn.setTitleColor(color == .clear ? .darkGray : .white, for: .normal)
-            btn.layer.cornerRadius = 4
-            btn.clipsToBounds = true
-            btn.contentEdgeInsets = UIEdgeInsets(top: 4, left: 8, bottom: 4, right: 8)
-            btn.tag = borderColorButtons.count
-            btn.addTarget(self, action: #selector(borderColorButtonTapped(_:)), for: .touchUpInside)
-            borderColorButtons.append(btn)
-            borderColorStack.addArrangedSubview(btn)
-        }
-
-        // 默认选中“清除”
+        let borderColorStack = makeColorButtonRow(label: "边框颜色", colors: [(.clear, "清除"), (.red, "红"), (.green, "绿"), (.blue, "蓝"), (.black, "黑"), (.orange, "橙")],
+                                                  target: self, action: #selector(borderColorButtonTapped(_:)))
+        borderColorButtons = borderColorStack.buttons
+        selectedBorderColorIndex = 0
         borderColorButtons[0].layer.borderWidth = 2
         borderColorButtons[0].layer.borderColor = UIColor.gray.cgColor
-        selectedBorderColorIndex = 0
+        stack.addArrangedSubview(borderColorStack.view)
 
-        stack.addArrangedSubview(borderColorStack)
+        gradientSegmented = UISegmentedControl(items: ["无", "蓝→紫", "红→黄", "绿→青"])
+        gradientSegmented.selectedSegmentIndex = 0
+        gradientSegmented.addTarget(self, action: #selector(gradientChanged), for: .valueChanged)
+        stack.addArrangedSubview(makeControlRow(label: "渐变色", control: gradientSegmented))
 
-        // 12. 气泡宽度
-        let widthSizeRow = makeSliderRow(label: "气泡宽度", min: 100, max: 300, value: 200, action: #selector(widthChanged))
+        gradientDirectionSegmented = UISegmentedControl(items: ["左→右", "上→下", "左上→右下", "右上→左下"])
+        gradientDirectionSegmented.selectedSegmentIndex = 0
+        gradientDirectionSegmented.addTarget(self, action: #selector(gradientDirectionChanged), for: .valueChanged)
+        stack.addArrangedSubview(makeControlRow(label: "渐变方向", control: gradientDirectionSegmented))
+
+        shadowEnableSwitch = UISwitch()
+        shadowEnableSwitch.isOn = false
+        shadowEnableSwitch.addTarget(self, action: #selector(shadowEnableToggled), for: .valueChanged)
+        stack.addArrangedSubview(makeControlRow(label: "阴影启用", control: shadowEnableSwitch))
+
+        let shadowColorStack = makeColorButtonRow(label: "阴影颜色", colors: [(.black, "黑"), (.gray, "灰"), (.red, "红"), (.blue, "蓝")],
+                                                  target: self, action: #selector(shadowColorButtonTapped(_:)))
+        shadowColorButtons = shadowColorStack.buttons
+        selectedShadowColorIndex = 0
+        shadowColorButtons[0].layer.borderWidth = 2
+        shadowColorButtons[0].layer.borderColor = UIColor.gray.cgColor
+        stack.addArrangedSubview(shadowColorStack.view)
+
+        let offsetXRow = makeSliderRow(label: "阴影偏移X", min: -20, max: 20, value: 0, action: #selector(shadowOffsetXChanged))
+        shadowOffsetXSlider = offsetXRow.slider
+        stack.addArrangedSubview(offsetXRow.view)
+
+        let offsetYRow = makeSliderRow(label: "阴影偏移Y", min: -20, max: 20, value: 0, action: #selector(shadowOffsetYChanged))
+        shadowOffsetYSlider = offsetYRow.slider
+        stack.addArrangedSubview(offsetYRow.view)
+
+        let shadowRadiusRow = makeSliderRow(label: "阴影半径", min: 0, max: 20, value: 0, action: #selector(shadowRadiusChanged))
+        shadowRadiusSlider = shadowRadiusRow.slider
+        stack.addArrangedSubview(shadowRadiusRow.view)
+
+        let shadowOpacityRow = makeSliderRow(label: "阴影模糊度", min: 0, max: 1, value: 0.5, action: #selector(shadowOpacityChanged))
+        shadowOpacitySlider = shadowOpacityRow.slider
+        stack.addArrangedSubview(shadowOpacityRow.view)
+
+        // 气泡尺寸滑块（直接调整当前状态）
+        let widthSizeRow = makeSliderRow(label: "气泡宽度", min: 20, max: 300, value: 160, action: #selector(widthChanged))
         widthSlider = widthSizeRow.slider
         stack.addArrangedSubview(widthSizeRow.view)
 
-        // 13. 气泡高度
-        let heightSizeRow = makeSliderRow(label: "气泡高度", min: 60, max: 200, value: 120, action: #selector(heightChanged))
+        let heightSizeRow = makeSliderRow(label: "气泡高度", min: 20, max: 200, value: 100, action: #selector(heightChanged))
         heightSlider = heightSizeRow.slider
         stack.addArrangedSubview(heightSizeRow.view)
 
-        // 14. 填充颜色切换按钮
         let colorButton = UIButton(type: .system)
         colorButton.setTitle("随机填充颜色", for: .normal)
         colorButton.addTarget(self, action: #selector(colorButtonTapped), for: .touchUpInside)
         stack.addArrangedSubview(makeControlRow(label: "填充颜色", control: colorButton))
 
-        // 15. 重置按钮
-        let resetButton = UIButton(type: .system)
-        resetButton.setTitle("重置所有属性", for: .normal)
-        resetButton.titleLabel?.font = .systemFont(ofSize: 15, weight: .semibold)
-        resetButton.backgroundColor = .systemGray5
-        resetButton.layer.cornerRadius = 8
-        resetButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
-        resetButton.addTarget(self, action: #selector(resetButtonTapped), for: .touchUpInside)
-        stack.addArrangedSubview(resetButton)
+        // ===== 自定义动画控制面板 =====
+        let panelTitle = UILabel()
+        panelTitle.text = "--- 自定义动画控制 ---"
+        panelTitle.font = .systemFont(ofSize: 16, weight: .bold)
+        panelTitle.textAlignment = .center
+        stack.addArrangedSubview(panelTitle)
+
+        // 初始状态分组
+        let initialGroupLabel = UILabel()
+        initialGroupLabel.text = "初始状态"
+        initialGroupLabel.font = .systemFont(ofSize: 14, weight: .medium)
+        initialGroupLabel.textColor = .systemBlue
+        stack.addArrangedSubview(initialGroupLabel)
+
+        let initXRow = makeSliderRow(label: "X偏移", min: -150, max: 150, value: Float(initialState.x), action: #selector(initialXChanged))
+        initialXSlider = initXRow.slider
+        stack.addArrangedSubview(initXRow.view)
+
+        let initYRow = makeSliderRow(label: "Y偏移", min: -100, max: 100, value: Float(initialState.y), action: #selector(initialYChanged))
+        initialYSlider = initYRow.slider
+        stack.addArrangedSubview(initYRow.view)
+
+        let initWRow = makeSliderRow(label: "宽度", min: 20, max: 300, value: Float(initialState.width), action: #selector(initialWidthChanged))
+        initialWidthSlider = initWRow.slider
+        stack.addArrangedSubview(initWRow.view)
+
+        let initHRow = makeSliderRow(label: "高度", min: 20, max: 200, value: Float(initialState.height), action: #selector(initialHeightChanged))
+        initialHeightSlider = initHRow.slider
+        stack.addArrangedSubview(initHRow.view)
+
+        // 最终状态分组
+        let finalGroupLabel = UILabel()
+        finalGroupLabel.text = "最终状态"
+        finalGroupLabel.font = .systemFont(ofSize: 14, weight: .medium)
+        finalGroupLabel.textColor = .systemGreen
+        stack.addArrangedSubview(finalGroupLabel)
+
+        let finXRow = makeSliderRow(label: "X偏移", min: -150, max: 150, value: Float(finalState.x), action: #selector(finalXChanged))
+        finalXSlider = finXRow.slider
+        stack.addArrangedSubview(finXRow.view)
+
+        let finYRow = makeSliderRow(label: "Y偏移", min: -100, max: 100, value: Float(finalState.y), action: #selector(finalYChanged))
+        finalYSlider = finYRow.slider
+        stack.addArrangedSubview(finYRow.view)
+
+        let finWRow = makeSliderRow(label: "宽度", min: 20, max: 300, value: Float(finalState.width), action: #selector(finalWidthChanged))
+        finalWidthSlider = finWRow.slider
+        stack.addArrangedSubview(finWRow.view)
+
+        let finHRow = makeSliderRow(label: "高度", min: 20, max: 200, value: Float(finalState.height), action: #selector(finalHeightChanged))
+        finalHeightSlider = finHRow.slider
+        stack.addArrangedSubview(finHRow.view)
+
+        // 动画时长
+        let durationRow = makeSliderRow(label: "动画时长(s)", min: 0, max: 10, value: 1.0, action: #selector(animationDurationChanged))
+        animationDurationSlider = durationRow.slider
+        stack.addArrangedSubview(durationRow.view)
+
+        // 操作按钮
+        let actionStack = UIStackView()
+        actionStack.axis = .horizontal
+        actionStack.spacing = 12
+        actionStack.distribution = .fillEqually
+
+        let startBtn = UIButton(type: .system)
+        startBtn.setTitle("开始动画", for: .normal)
+        startBtn.addTarget(self, action: #selector(startAnimation), for: .touchUpInside)
+        startBtn.backgroundColor = .systemGray5
+        startBtn.layer.cornerRadius = 6
+        actionStack.addArrangedSubview(startBtn)
+
+        let resetBtn = UIButton(type: .system)
+        resetBtn.setTitle("重置到初始", for: .normal)
+        resetBtn.addTarget(self, action: #selector(resetToInitial), for: .touchUpInside)
+        resetBtn.backgroundColor = .systemGray5
+        resetBtn.layer.cornerRadius = 6
+        actionStack.addArrangedSubview(resetBtn)
+
+        stack.addArrangedSubview(actionStack)
+
+        // 重置所有属性
+        let resetAllButton = UIButton(type: .system)
+        resetAllButton.setTitle("重置所有属性", for: .normal)
+        resetAllButton.titleLabel?.font = .systemFont(ofSize: 15, weight: .semibold)
+        resetAllButton.backgroundColor = .systemGray5
+        resetAllButton.layer.cornerRadius = 8
+        resetAllButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
+        resetAllButton.addTarget(self, action: #selector(resetAllTapped), for: .touchUpInside)
+        stack.addArrangedSubview(resetAllButton)
     }
 
-    // MARK: - 辅助：滑块行（含数值标签）
+    // MARK: - 辅助：滑块行
 
     private func makeSliderRow(label: String, min: Float, max: Float, value: Float, action: Selector) -> (view: UIStackView, slider: UISlider) {
         let stack = UIStackView()
@@ -495,10 +612,10 @@ class WYTestAirBubbleController: UIViewController {
         stack.addArrangedSubview(slider)
 
         let valueLabel = UILabel()
-        valueLabel.text = "\(Int(value))"
+        valueLabel.text = String(format: "%.1f", value)
         valueLabel.font = .systemFont(ofSize: 12)
         valueLabel.setContentHuggingPriority(.required, for: .horizontal)
-        valueLabel.widthAnchor.constraint(equalToConstant: 30).isActive = true
+        valueLabel.widthAnchor.constraint(equalToConstant: 40).isActive = true
         stack.addArrangedSubview(valueLabel)
 
         valueLabelMap[slider] = valueLabel
@@ -508,10 +625,215 @@ class WYTestAirBubbleController: UIViewController {
 
     private func updateLabel(for slider: UISlider) {
         guard let label = valueLabelMap[slider] else { return }
-        label.text = "\(Int(slider.value))"
+        let value = slider.value
+        if slider == animationDurationSlider {
+            label.text = String(format: "%.1f", value)
+        } else {
+            label.text = "\(Int(value))"
+        }
     }
 
-    // MARK: - 控件响应
+    // MARK: - 辅助：颜色按钮行
+
+    private func makeColorButtonRow(label: String, colors: [(UIColor, String)], target: Any?, action: Selector) -> (view: UIStackView, buttons: [UIButton]) {
+        let stack = UIStackView()
+        stack.axis = .horizontal
+        stack.spacing = 6
+        stack.alignment = .center
+
+        let lbl = UILabel()
+        lbl.text = label
+        lbl.font = .systemFont(ofSize: 14, weight: .medium)
+        lbl.setContentHuggingPriority(.required, for: .horizontal)
+        lbl.widthAnchor.constraint(equalToConstant: 80).isActive = true
+        stack.addArrangedSubview(lbl)
+
+        var buttons: [UIButton] = []
+        for (color, title) in colors {
+            let btn = UIButton(type: .system)
+            btn.setTitle(title, for: .normal)
+            btn.titleLabel?.font = .systemFont(ofSize: 12)
+            btn.backgroundColor = color == .clear ? .lightGray : color
+            btn.setTitleColor(color == .clear ? .darkGray : .white, for: .normal)
+            btn.layer.cornerRadius = 4
+            btn.clipsToBounds = true
+            btn.contentEdgeInsets = UIEdgeInsets(top: 4, left: 8, bottom: 4, right: 8)
+            btn.tag = buttons.count
+            btn.addTarget(target, action: action, for: .touchUpInside)
+            buttons.append(btn)
+            stack.addArrangedSubview(btn)
+        }
+
+        return (stack, buttons)
+    }
+
+    // MARK: - 边界限制函数
+
+    /// 根据当前容器尺寸和气泡尺寸，将状态值限制在有效范围内，防止超出容器
+    private func clampState(_ state: (x: CGFloat, y: CGFloat, width: CGFloat, height: CGFloat)) -> (x: CGFloat, y: CGFloat, width: CGFloat, height: CGFloat) {
+        guard let container = bubbleContainer else { return state }
+        let containerWidth = container.bounds.width
+        let containerHeight = container.bounds.height
+
+        // 如果容器尺寸为0，则无法计算有效范围，直接返回原状态（避免裁剪错误）
+        guard containerWidth > 0 && containerHeight > 0 else {
+            return state
+        }
+
+        // 有效宽度：气泡宽度不能超过容器宽度减去边距（左右各10）
+        let margin: CGFloat = 10
+        let maxWidth = containerWidth - margin * 2
+        let clampedWidth = min(max(state.width, 20), maxWidth)
+
+        // 有效高度：气泡高度不能超过容器高度减去描述区域（预估）和边距
+        let maxHeight = containerHeight - estimatedDescriptionHeight - margin * 2
+        let clampedHeight = min(max(state.height, 20), maxHeight)
+
+        // 有效X偏移：确保气泡在水平方向不超出容器
+        let halfWidth = clampedWidth / 2
+        let minX = -containerWidth / 2 + halfWidth + margin
+        let maxX = containerWidth / 2 - halfWidth - margin
+        let clampedX = min(max(state.x, minX), maxX)
+
+        // 有效Y偏移：确保气泡顶部不超出容器顶部，底部不超出描述标签区域
+        let minY = margin
+        let maxY = containerHeight - clampedHeight - margin - estimatedDescriptionHeight
+        let clampedY = min(max(state.y, minY), maxY)
+
+        return (clampedX, clampedY, clampedWidth, clampedHeight)
+    }
+
+    // MARK: - 状态应用方法（使用约束，并应用边界限制）
+
+    private func applyState(_ state: (x: CGFloat, y: CGFloat, width: CGFloat, height: CGFloat),
+                            animated: Bool,
+                            duration: TimeInterval) {
+        // 先限制状态值
+        let clamped = clampState(state)
+
+        // 更新约束常量
+        bubbleCenterXConstraint.constant = clamped.x
+        bubbleTopConstraint.constant = clamped.y
+        bubbleWidthConstraint.constant = clamped.width
+        bubbleHeightConstraint.constant = clamped.height
+
+        let applyBlock = {
+            self.view.layoutIfNeeded()
+        }
+
+        if animated && duration > 0.01 {
+            UIView.animate(withDuration: duration, delay: 0, options: [.curveEaseInOut], animations: applyBlock)
+        } else {
+            UIView.performWithoutAnimation(applyBlock)
+        }
+    }
+
+    // MARK: - 滑块回调
+
+    @objc private func initialXChanged(_ sender: UISlider) {
+        initialState.x = CGFloat(sender.value)
+        updateLabel(for: sender)
+        if isAtInitial {
+            applyState(initialState, animated: false, duration: 0)
+        }
+    }
+
+    @objc private func initialYChanged(_ sender: UISlider) {
+        initialState.y = CGFloat(sender.value)
+        updateLabel(for: sender)
+        if isAtInitial {
+            applyState(initialState, animated: false, duration: 0)
+        }
+    }
+
+    @objc private func initialWidthChanged(_ sender: UISlider) {
+        initialState.width = CGFloat(sender.value)
+        updateLabel(for: sender)
+        if isAtInitial {
+            applyState(initialState, animated: false, duration: 0)
+        }
+    }
+
+    @objc private func initialHeightChanged(_ sender: UISlider) {
+        initialState.height = CGFloat(sender.value)
+        updateLabel(for: sender)
+        if isAtInitial {
+            applyState(initialState, animated: false, duration: 0)
+        }
+    }
+
+    @objc private func finalXChanged(_ sender: UISlider) {
+        finalState.x = CGFloat(sender.value)
+        updateLabel(for: sender)
+        if !isAtInitial {
+            applyState(finalState, animated: false, duration: 0)
+        }
+    }
+
+    @objc private func finalYChanged(_ sender: UISlider) {
+        finalState.y = CGFloat(sender.value)
+        updateLabel(for: sender)
+        if !isAtInitial {
+            applyState(finalState, animated: false, duration: 0)
+        }
+    }
+
+    @objc private func finalWidthChanged(_ sender: UISlider) {
+        finalState.width = CGFloat(sender.value)
+        updateLabel(for: sender)
+        if !isAtInitial {
+            applyState(finalState, animated: false, duration: 0)
+        }
+    }
+
+    @objc private func finalHeightChanged(_ sender: UISlider) {
+        finalState.height = CGFloat(sender.value)
+        updateLabel(for: sender)
+        if !isAtInitial {
+            applyState(finalState, animated: false, duration: 0)
+        }
+    }
+
+    @objc private func animationDurationChanged(_ sender: UISlider) {
+        updateLabel(for: sender)
+    }
+
+    // MARK: - 动画操作
+
+    @objc private func startAnimation() {
+        // 取消当前动画
+        interactiveBubble.layer.removeAllAnimations()
+        view.layer.removeAllAnimations()
+
+        let duration = TimeInterval(animationDurationSlider.value)
+
+        if isAtInitial {
+            applyState(finalState, animated: true, duration: duration)
+            isAtInitial = false
+        } else {
+            applyState(initialState, animated: true, duration: duration)
+            isAtInitial = true
+        }
+        updateStatusLabel()
+    }
+
+    @objc private func resetToInitial() {
+        interactiveBubble.layer.removeAllAnimations()
+        view.layer.removeAllAnimations()
+        applyState(initialState, animated: false, duration: 0)
+        isAtInitial = true
+        // 同步初始滑块
+        initialXSlider.value = Float(initialState.x)
+        initialYSlider.value = Float(initialState.y)
+        initialWidthSlider.value = Float(initialState.width)
+        initialHeightSlider.value = Float(initialState.height)
+        for slider in [initialXSlider, initialYSlider, initialWidthSlider, initialHeightSlider] {
+            updateLabel(for: slider!)
+        }
+        updateStatusLabel()
+    }
+
+    // MARK: - 原有控件响应
 
     @objc private func directionChanged(_ sender: UISegmentedControl) {
         let directions: [WYArrowDirection] = [.top, .bottom, .left, .right]
@@ -584,11 +906,7 @@ class WYTestAirBubbleController: UIViewController {
 
     @objc private func borderColorButtonTapped(_ sender: UIButton) {
         let index = sender.tag
-        // 取消之前选中样式
-        if selectedBorderColorIndex < borderColorButtons.count {
-            borderColorButtons[selectedBorderColorIndex].layer.borderWidth = 0
-        }
-        // 选中新按钮
+        borderColorButtons[selectedBorderColorIndex].layer.borderWidth = 0
         sender.layer.borderWidth = 2
         sender.layer.borderColor = UIColor.gray.cgColor
         selectedBorderColorIndex = index
@@ -598,14 +916,102 @@ class WYTestAirBubbleController: UIViewController {
         updateStatusLabel()
     }
 
+    @objc private func gradientChanged(_ sender: UISegmentedControl) {
+        switch sender.selectedSegmentIndex {
+        case 0:
+            interactiveBubble.gradientColors = []
+        case 1:
+            interactiveBubble.gradientColors = [.systemBlue, .systemPurple]
+        case 2:
+            interactiveBubble.gradientColors = [.systemRed, .systemYellow]
+        case 3:
+            interactiveBubble.gradientColors = [.systemGreen, .systemTeal]
+        default:
+            break
+        }
+        updateStatusLabel()
+    }
+
+    @objc private func gradientDirectionChanged(_ sender: UISegmentedControl) {
+        let directions: [WYGradientDirection] = [.leftToRight, .topToBottom, .leftToLowRight, .rightToLowLeft]
+        interactiveBubble.gradientDirection = directions[sender.selectedSegmentIndex]
+        updateStatusLabel()
+    }
+
+    @objc private func shadowEnableToggled(_ sender: UISwitch) {
+        if sender.isOn {
+            let colors: [UIColor] = [.black, .gray, .red, .blue]
+            interactiveBubble.shadowColor = colors[selectedShadowColorIndex]
+        } else {
+            interactiveBubble.shadowColor = nil
+        }
+        updateStatusLabel()
+    }
+
+    @objc private func shadowColorButtonTapped(_ sender: UIButton) {
+        let index = sender.tag
+        shadowColorButtons[selectedShadowColorIndex].layer.borderWidth = 0
+        sender.layer.borderWidth = 2
+        sender.layer.borderColor = UIColor.gray.cgColor
+        selectedShadowColorIndex = index
+
+        if shadowEnableSwitch.isOn {
+            let colors: [UIColor] = [.black, .gray, .red, .blue]
+            interactiveBubble.shadowColor = colors[index]
+        }
+        updateStatusLabel()
+    }
+
+    @objc private func shadowOffsetXChanged(_ sender: UISlider) {
+        let x = CGFloat(sender.value)
+        let y = interactiveBubble.shadowOffset.height
+        interactiveBubble.shadowOffset = CGSize(width: x, height: y)
+        updateLabel(for: sender)
+        updateStatusLabel()
+    }
+
+    @objc private func shadowOffsetYChanged(_ sender: UISlider) {
+        let x = interactiveBubble.shadowOffset.width
+        let y = CGFloat(sender.value)
+        interactiveBubble.shadowOffset = CGSize(width: x, height: y)
+        updateLabel(for: sender)
+        updateStatusLabel()
+    }
+
+    @objc private func shadowRadiusChanged(_ sender: UISlider) {
+        interactiveBubble.shadowRadius = CGFloat(sender.value)
+        updateLabel(for: sender)
+        updateStatusLabel()
+    }
+
+    @objc private func shadowOpacityChanged(_ sender: UISlider) {
+        interactiveBubble.shadowOpacity = CGFloat(sender.value)
+        updateLabel(for: sender)
+        updateStatusLabel()
+    }
+
     @objc private func widthChanged(_ sender: UISlider) {
-        bubbleWidthConstraint.constant = CGFloat(sender.value)
+        let newWidth = CGFloat(sender.value)
+        if isAtInitial {
+            initialState.width = newWidth
+            applyState(initialState, animated: false, duration: 0)
+        } else {
+            finalState.width = newWidth
+            applyState(finalState, animated: false, duration: 0)
+        }
         updateLabel(for: sender)
         updateStatusLabel()
     }
 
     @objc private func heightChanged(_ sender: UISlider) {
-        bubbleHeightConstraint.constant = CGFloat(sender.value)
+        let newHeight = CGFloat(sender.value)
+        if isAtInitial {
+            initialState.height = newHeight
+            applyState(initialState, animated: false, duration: 0)
+        } else {
+            finalState.height = newHeight
+            applyState(finalState, animated: false, duration: 0)
+        }
         updateLabel(for: sender)
         updateStatusLabel()
     }
@@ -616,8 +1022,13 @@ class WYTestAirBubbleController: UIViewController {
         updateStatusLabel()
     }
 
-    @objc private func resetButtonTapped() {
-        // 重置所有控件到默认值
+    // MARK: - 重置所有
+
+    @objc private func resetAllTapped() {
+        interactiveBubble.layer.removeAllAnimations()
+        view.layer.removeAllAnimations()
+
+        // 重置所有原有控件
         directionSegmented.selectedSegmentIndex = 1
         interactiveBubble.arrowDirection = .bottom
 
@@ -653,33 +1064,76 @@ class WYTestAirBubbleController: UIViewController {
         interactiveBubble.borderWidth = 0
         updateLabel(for: borderWidthSlider)
 
-        // 重置边框颜色为清除
-        if selectedBorderColorIndex < borderColorButtons.count {
-            borderColorButtons[selectedBorderColorIndex].layer.borderWidth = 0
-        }
+        borderColorButtons[selectedBorderColorIndex].layer.borderWidth = 0
         borderColorButtons[0].layer.borderWidth = 2
         borderColorButtons[0].layer.borderColor = UIColor.gray.cgColor
         selectedBorderColorIndex = 0
         interactiveBubble.borderColor = .clear
 
-        widthSlider.value = 200
-        heightSlider.value = 120
-        bubbleWidthConstraint.constant = 200
-        bubbleHeightConstraint.constant = 120
-        updateLabel(for: widthSlider)
-        updateLabel(for: heightSlider)
+        gradientSegmented.selectedSegmentIndex = 0
+        interactiveBubble.gradientColors = []
 
+        gradientDirectionSegmented.selectedSegmentIndex = 0
+        interactiveBubble.gradientDirection = .leftToRight
+
+        shadowEnableSwitch.isOn = false
+        interactiveBubble.shadowColor = nil
+
+        shadowColorButtons[selectedShadowColorIndex].layer.borderWidth = 0
+        shadowColorButtons[0].layer.borderWidth = 2
+        shadowColorButtons[0].layer.borderColor = UIColor.gray.cgColor
+        selectedShadowColorIndex = 0
+
+        shadowOffsetXSlider.value = 0
+        shadowOffsetYSlider.value = 0
+        interactiveBubble.shadowOffset = .zero
+        updateLabel(for: shadowOffsetXSlider)
+        updateLabel(for: shadowOffsetYSlider)
+
+        shadowRadiusSlider.value = 0
+        interactiveBubble.shadowRadius = 0
+        updateLabel(for: shadowRadiusSlider)
+
+        shadowOpacitySlider.value = 0.5
+        interactiveBubble.shadowOpacity = 0.5
+        updateLabel(for: shadowOpacitySlider)
+
+        // 重置动画状态
+        initialState = (0, 0, 160, 100)
+        finalState = (80, 0, 200, 100)
+        isAtInitial = true
+        hasAppliedInitialState = false  // 重置标志，以便在下次布局时重新应用（但后续会立即应用）
+
+        // 同步滑块
+        initialXSlider.value = 0
+        initialYSlider.value = 0
+        initialWidthSlider.value = 160
+        initialHeightSlider.value = 100
+        finalXSlider.value = 80
+        finalYSlider.value = 0
+        finalWidthSlider.value = 200
+        finalHeightSlider.value = 100
+        animationDurationSlider.value = 1.0
+        for slider in [initialXSlider, initialYSlider, initialWidthSlider, initialHeightSlider,
+                       finalXSlider, finalYSlider, finalWidthSlider, finalHeightSlider,
+                       animationDurationSlider] {
+            updateLabel(for: slider!)
+        }
+
+        // 应用初始状态（无动画）
+        applyState(initialState, animated: false, duration: 0)
+        hasAppliedInitialState = true
+
+        // 填充颜色
         interactiveBubble.fillColor = .systemTeal
 
+        view.layoutIfNeeded()
         updateStatusLabel()
     }
 
-    // MARK: - 状态更新（显示所有当前属性）
+    // MARK: - 状态更新
 
     private func updateStatusLabel() {
-        guard let container = interactiveBubble.superview,
-              let statusLabel = container.viewWithTag(999) as? UILabel else { return }
-
         let dirNames = ["上", "下", "左", "右"]
         let dir = dirNames[directionSegmented.selectedSegmentIndex]
         let cornerNames = ["全部", "左上+右下", "右上+左下", "仅左上", "仅右下"]
@@ -711,12 +1165,46 @@ class WYTestAirBubbleController: UIViewController {
             borderColorName = "自定义"
         }
 
-        statusLabel.text = """
+        let gradientDesc: String
+        switch gradientSegmented.selectedSegmentIndex {
+        case 0: gradientDesc = "无"
+        case 1: gradientDesc = "蓝→紫"
+        case 2: gradientDesc = "红→黄"
+        case 3: gradientDesc = "绿→青"
+        default: gradientDesc = "无"
+        }
+
+        let gradientDirDesc = ["左→右", "上→下", "左上→右下", "右上→左下"][gradientDirectionSegmented.selectedSegmentIndex]
+
+        let shadowEnabled = shadowEnableSwitch.isOn
+        let shadowColorName: String
+        if let color = interactiveBubble.shadowColor {
+            if color == .black { shadowColorName = "黑" }
+            else if color == .gray { shadowColorName = "灰" }
+            else if color == .red { shadowColorName = "红" }
+            else if color == .blue { shadowColorName = "蓝" }
+            else { shadowColorName = "自定义" }
+        } else {
+            shadowColorName = "关闭"
+        }
+        let offsetX = Int(interactiveBubble.shadowOffset.width)
+        let offsetY = Int(interactiveBubble.shadowOffset.height)
+        let radius = Int(interactiveBubble.shadowRadius)
+        let opacity = String(format: "%.1f", interactiveBubble.shadowOpacity)
+
+        let currentState = isAtInitial ? "初始" : "最终"
+        let tx = bubbleCenterXConstraint.constant
+        let ty = bubbleTopConstraint.constant
+        let duration = animationDurationSlider.value
+
+        bubbleStatusLabel.text = """
         方向: \(dir) | 箭头: \(showArrowSwitch.isOn ? "显示" : "隐藏")
         圆角: \(corner) 半径\(Int(interactiveBubble.cornerRadius))
         箭头尺寸: \(Int(size.width))x\(Int(size.height)) | 偏移: \(Int(offset)) | 边距: \(Int(edgePad))
         尖端圆角: \(Int(tipR)) | 边框: \(Int(borderW))pt (\(borderColorName))
-        气泡尺寸: \(w)x\(h)
+        气泡尺寸: \(w)x\(h) | 位置偏移(tx,ty): (\(Int(tx)),\(Int(ty)))
+        渐变: \(gradientDesc) (\(gradientDirDesc)) | 阴影: \(shadowEnabled ? "开启" : "关闭") 颜色\(shadowColorName) 偏移(\(offsetX),\(offsetY)) 半径\(radius) 模糊\(opacity)
+        状态: \(currentState) | 动画时长: \(String(format: "%.1f", duration))s
         """
     }
 }

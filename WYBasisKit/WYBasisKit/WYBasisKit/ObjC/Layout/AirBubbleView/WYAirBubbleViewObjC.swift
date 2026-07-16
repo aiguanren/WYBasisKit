@@ -47,7 +47,7 @@ public enum WYArrowDirectionObjC: Int {
         get { return fillColor }
     }
 
-    /// 气泡边框的颜色，默认透明（无边框）
+    /// 气泡边框的颜色，默认透明
     @objc(borderColor)
     public var borderColorObjC: UIColor {
         set { borderColor = newValue }
@@ -122,13 +122,41 @@ public enum WYArrowDirectionObjC: Int {
         get { return WYGradientDirectionObjC(rawValue: gradientDirection.rawValue) ?? .leftToRight }
     }
     
+    /// 阴影颜色（为 nil 时不显示阴影）
+    @objc(shadowColor)
+    public var shadowColorObjC: UIColor? {
+        set { shadowColor = newValue }
+        get { return shadowColor }
+    }
+    
+    /// 阴影偏移度 默认CGSize.zero (width : 为正数时，向右偏移，为负数时，向左偏移，height : 为正数时，向下偏移，为负数时，向上偏移)
+    @objc(shadowOffset)
+    public var shadowOffsetObjC: CGSize {
+        set { shadowOffset = newValue }
+        get { return shadowOffset }
+    }
+    
+    /// 阴影模糊半径 默认0.0，需要大于0才会有阴影扩散效果(阴影才可见)
+    @objc(shadowRadius)
+    public var shadowRadiusObjC: CGFloat {
+        set { shadowRadius = newValue }
+        get { return shadowRadius }
+    }
+    
+    /// 阴影模糊度，默认0.5，取值范围0~1
+    @objc(shadowOpacity)
+    public var shadowOpacityObjC: CGFloat {
+        set { shadowOpacity = newValue }
+        get { return shadowOpacity }
+    }
+    
     /**
-     当前气泡的路径（用于外部做 shadow / 命中检测 / 自定义 mask 等）
+     当前气泡的路径（用于外部做 hitTest命中检测 / 自定义 mask 等）
      规则：
      - Note:
-       仅在视图完成 layout（bounds > 0）后才有有效值
-       若在初始化或约束未生效前获取，可能为 nil
-       也可以在Task { @MainActor 里面获取使用
+     仅在视图完成 layout（bounds > 0）后才有有效值
+     若在初始化或约束未生效前获取，可能为 nil
+     建议可以在Task { @MainActor 里面获取使用
      */
     @objc(bubblePath)
     public var bubblePathObjC: CGPath? {

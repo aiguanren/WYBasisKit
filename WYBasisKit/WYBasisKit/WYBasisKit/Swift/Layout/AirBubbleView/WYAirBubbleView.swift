@@ -19,7 +19,7 @@ public enum WYArrowDirection: Int {
     case right
 }
 
-/// 自定义气泡视图，支持圆角、边框、带三角箭头，箭头可设置方向、尺寸、偏移和圆角等
+/// 气泡视图：支持圆角、边框、带三角箭头，箭头可设置方向、尺寸、偏移和圆角等
 public class WYAirBubbleView: UIView {
     
     /// 气泡主体的圆角半径
@@ -37,7 +37,7 @@ public class WYAirBubbleView: UIView {
         didSet { updateStyle() }
     }
     
-    /// 气泡边框的颜色，默认透明（无边框）
+    /// 气泡边框的颜色，默认透明
     public var borderColor: UIColor = .clear {
         didSet { updateStyle() }
     }
