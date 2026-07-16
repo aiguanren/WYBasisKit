@@ -180,27 +180,6 @@ public class WYAirBubbleView: UIView {
     /// 专用于边框的复用路径（避免重复创建）
     private let borderReusablePath = UIBezierPath()
     
-    /// 配置图层属性（背景透明、添加子图层、设置边框样式）
-    private func setupLayer() {
-        backgroundColor = .clear
-        
-        layer.addSublayer(gradientLayer)
-        layer.addSublayer(fillLayer)
-        layer.addSublayer(borderLayer)
-        
-        // 边框层无需填充（仅描边）
-        borderLayer.fillColor = nil
-        borderLayer.lineJoin = .round
-        borderLayer.lineCap = .round
-        
-        gradientLayer.isHidden = true
-        gradientLayer.startPoint = CGPoint(x: 0, y: 0.5)
-        gradientLayer.endPoint = CGPoint(x: 1, y: 0.5)
-        
-        updateStyle()
-        updateShadow()
-    }
-    
     /// 布局子视图时调用，检测 bounds 变化并更新路径
     public override func layoutSubviews() {
         super.layoutSubviews()
@@ -228,6 +207,27 @@ public class WYAirBubbleView: UIView {
         
         // 当视图尺寸变化时重新计算路径
         updatePath()
+    }
+    
+    /// 配置图层属性（背景透明、添加子图层、设置边框样式）
+    private func setupLayer() {
+        backgroundColor = .clear
+        
+        layer.addSublayer(gradientLayer)
+        layer.addSublayer(fillLayer)
+        layer.addSublayer(borderLayer)
+        
+        // 边框层无需填充（仅描边）
+        borderLayer.fillColor = nil
+        borderLayer.lineJoin = .round
+        borderLayer.lineCap = .round
+        
+        gradientLayer.isHidden = true
+        gradientLayer.startPoint = CGPoint(x: 0, y: 0.5)
+        gradientLayer.endPoint = CGPoint(x: 1, y: 0.5)
+        
+        updateStyle()
+        updateShadow()
     }
     
     /// 更新填充色和边框样式（不涉及路径几何）
