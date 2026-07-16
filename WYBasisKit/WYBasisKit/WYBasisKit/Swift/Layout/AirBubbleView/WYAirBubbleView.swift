@@ -219,7 +219,7 @@ public class WYAirBubbleView: UIView {
         
         // 边框层无需填充（仅描边）
         borderLayer.fillColor = nil
-        borderLayer.lineJoin = .round
+        borderLayer.lineJoin = .miter
         borderLayer.lineCap = .round
         
         gradientLayer.isHidden = true
