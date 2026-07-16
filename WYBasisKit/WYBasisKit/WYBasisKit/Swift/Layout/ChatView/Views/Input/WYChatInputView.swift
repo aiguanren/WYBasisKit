@@ -577,7 +577,7 @@ public class WYChatInputView: UIImageView {
     
     private func updateContentViewHeight() {
 
-        var textHeight: CGFloat = textView.attributedText.wy_calculateHeight(controlWidth: textViewInputWidth()) + inputBarConfig.inputTextEdgeInsets.top + inputBarConfig.inputTextEdgeInsets.bottom
+        let textHeight: CGFloat = textView.attributedText.wy_calculateHeight(controlWidth: textViewInputWidth()) + inputBarConfig.inputTextEdgeInsets.top + inputBarConfig.inputTextEdgeInsets.bottom
         
         var contentHeight: CGFloat = [textHeight,
                                       textView.contentSize.height,
