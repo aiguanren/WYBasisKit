@@ -213,12 +213,13 @@ public class WYAirBubbleView: UIView {
     private func setupLayer() {
         backgroundColor = .clear
         
+        layer.addSublayer(borderLayer)
         layer.addSublayer(gradientLayer)
         layer.addSublayer(fillLayer)
-        layer.addSublayer(borderLayer)
         
         // 边框层无需填充（仅描边）
         borderLayer.fillColor = nil
+        // 设置为miter才能保证尖角突出部分不被裁剪
         borderLayer.lineJoin = .miter
         borderLayer.lineCap = .round
         
@@ -254,7 +255,8 @@ public class WYAirBubbleView: UIView {
         }
         
         borderLayer.strokeColor = borderColor.cgColor
-        borderLayer.lineWidth = borderWidth
+        // stroke 是居中绘制边框（内外各一半），而fillLayer 会遮掉内侧一半，所以这里 *2 才能保证视觉宽度正确
+        borderLayer.lineWidth = borderWidth * 2
         
         // 边框宽度为0时隐藏（避免不必要渲染）
         borderLayer.isHidden = borderWidth <= 0
@@ -345,10 +347,10 @@ public class WYAirBubbleView: UIView {
         
         borderReusablePath.removeAllPoints()
         
-        // 边框路径：不包含箭头底边（避免内部边框）
+        // 边框路径
         buildBorderPath(borderReusablePath,
                         rect: rect,
-                        includeArrowBaseEdge: false)
+                        includeArrowBaseEdge: true)
         
         borderLayer.path = borderReusablePath.cgPath
         
