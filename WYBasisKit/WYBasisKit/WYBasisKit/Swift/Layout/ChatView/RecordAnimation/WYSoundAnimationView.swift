@@ -28,6 +28,13 @@ public class WYSoundAnimationView: WYAirBubbleView {
         return soundWavesView
     }()
     
+    /// 文本TextView
+    public lazy var textView: UITextView = {
+        let textView: UITextView = UITextView()
+        addSubview(textView)
+        return textView
+    }()
+    
     /// 初始化方法
     public init(_ status: WYSoundAnimationStatus = .recording) {
         super.init(frame: .zero)
