@@ -242,7 +242,7 @@ public extension UIView {
         }
     }
     
-    /// 阴影半径 默认0.0
+    /// 阴影模糊半径 默认0.0，需要大于0才会有阴影扩散效果(阴影才可见)
     @objc(wy_shadowRadius)
     var wy_shadowRadiusObjC: @convention(block) (CGFloat) -> UIView {
         return { redius in
