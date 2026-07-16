@@ -333,7 +333,7 @@ public extension UIView {
         return self
     }
     
-    /// 阴影半径 默认0.0
+    /// 阴影模糊半径 默认0.0，需要大于0才会有阴影扩散效果(阴影才可见)
     @discardableResult
     func wy_shadowRadius(_ redius: CGFloat) -> UIView {
         privateShadowRadius = redius
