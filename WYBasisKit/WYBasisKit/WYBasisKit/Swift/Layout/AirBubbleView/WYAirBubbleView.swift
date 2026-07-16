@@ -311,7 +311,7 @@ public class WYAirBubbleView: UIView {
             }
             
             animation.toValue = newPath
-            animation.duration = CATransaction.animationDuration()
+            animation.duration = UIView.inheritedAnimationDuration > 0 ? UIView.inheritedAnimationDuration : CATransaction.animationDuration()
             animation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
             
             // 动画key，用于区分不同动画
