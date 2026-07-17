@@ -324,15 +324,27 @@ Pod::Spec.new do |kit|
     layout.resource_bundles = {"WYBasisKitObjCLayout" => [
       "#{kit_path}ObjC/Layout/PrivacyInfo.xcprivacy"
     ]}
+
     layout.subspec "AirBubbleView" do |airBubble|
       airBubble.source_files = [
         "#{kit_path}ObjC/Layout/AirBubbleView/**/*.{swift,h,m}"
       ]
       airBubble.resource_bundles = {"WYBasisKitObjCLayoutAirBubbleView" => [
-        "#{kit_path}Swift/Layout/AirBubbleView/PrivacyInfo.xcprivacy"
+        "#{kit_path}ObjC/Layout/AirBubbleView/PrivacyInfo.xcprivacy"
       ]}
       airBubble.frameworks = "Foundation", "UIKit"
       airBubble.dependency "WYBasisKit-swift/Layout/AirBubbleView", kit_swift_version
+    end
+
+    layout.subspec "SoundWavesView" do |soundWavesView|
+      soundWavesView.source_files = [
+        "#{kit_path}ObjC/Layout/SoundWavesView/**/*.{swift,h,m}",
+      ]
+      soundWavesView.resource_bundles = {"WYBasisKitObjCLayoutSoundWavesView" => [
+        "#{kit_path}ObjC/Layout/SoundWavesView/PrivacyInfo.xcprivacy"
+      ]}
+      soundWavesView.frameworks = "Foundation", "UIKit"
+      soundWavesView.dependency "WYBasisKit-swift/Layout/SoundWavesView", kit_swift_version
     end
 
     layout.subspec "ScrollText" do |scrollText|

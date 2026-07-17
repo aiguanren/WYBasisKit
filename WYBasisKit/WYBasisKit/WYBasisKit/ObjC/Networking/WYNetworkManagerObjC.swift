@@ -180,7 +180,7 @@ import WYBasisKitSwift
         self.error = error
     }
     
-    /// 转换为objc类型
+    /// 转换为ObjC类型
     internal static func objc(from swiftHandler: WYHandler) -> WYHandlerObjC {
         switch swiftHandler {
         case .progress(let progress):
@@ -216,7 +216,7 @@ import WYBasisKitSwift
         self.info = info
     }
     
-    /// 转换为objc类型
+    /// 转换为ObjC类型
     internal static func objc(from swiftProgress: WYProgress) -> WYProgressObjC {
         return WYProgressObjC(
             progress: swiftProgress.progress,
@@ -250,7 +250,7 @@ import WYBasisKitSwift
         self.isCache = isCache
     }
     
-    /// 转换为objc类型
+    /// 转换为ObjC类型
     internal static func objc(from swiftSuccess: WYSuccess) -> WYSuccessObjC {
         let storageObjC: WYStorageDataObjC?
         if let swiftStorage = swiftSuccess.storage {
@@ -283,7 +283,7 @@ import WYBasisKitSwift
         self.describe = describe
     }
     
-    /// 转换为objc类型
+    /// 转换为ObjC类型
     internal static func objc(from swiftError: WYError) -> WYErrorObjC {
         return WYErrorObjC(
             code: swiftError.code,
@@ -316,7 +316,7 @@ import WYBasisKitSwift
         self.mimeType = mimeType
     }
     
-    /// 转换为objc类型
+    /// 转换为ObjC类型
     internal static func objc(from swiftDownloadModel: WYDownloadModel) -> WYDownloadModelObjC {
         return WYDownloadModelObjC(
             assetPath: swiftDownloadModel.assetPath,
@@ -412,7 +412,7 @@ import WYBasisKitSwift
         self.fileUrl = fileUrl
     }
     
-    /// 转换为objc类型
+    /// 转换为ObjC类型
     internal static func objc(from swiftFileModel: WYFileModel) -> WYFileModelObjC {
         
         let fileTypeObjC: WYFileTypeObjC = WYFileTypeObjC(rawValue: swiftFileModel.fileType.rawValue) ?? .image
@@ -429,7 +429,7 @@ import WYBasisKitSwift
         )
     }
     
-    /// 转换为swift类型
+    /// 转换为Swift类型
     internal func convertToSwift() -> WYFileModel {
         
         let fileTypeSwift: WYFileType = WYFileType(rawValue: fileType.rawValue) ?? .image

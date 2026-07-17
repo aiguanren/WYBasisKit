@@ -108,6 +108,16 @@ public struct WYSoundWaveConfig {
     public init() {}
 }
 
+/// 声波动画状态
+@frozen public enum WYSoundWavesState: Int {
+    /// 静音（水波流动）
+    case idle = 0
+    /// 有声（跳动）
+    case dance
+    /// 停止
+    case stop
+}
+
 public class WYSoundWavesView: UIView {
     
     /// 声波动画配置
@@ -128,30 +138,10 @@ public class WYSoundWavesView: UIView {
         }
     }
     
-    /// 动画状态
-    public enum State {
-        /// 静音（水波流动）
-        case idle
-        /// 有声（跳动）
-        case dance
-        /// 停止
-        case stop
-    }
-    
     /// 当前状态（外部不直接控制，由音量驱动）
-    public var state: State = .idle
-    
-    /// 所有声波柱子（动画最小单位）
-    private var bars: [WYAudioBarUnit] = []
-    
-    /// 当前音量（0~1），所有声波柱子共用此值（经过低通滤波平滑）
-    private var currentPower: CGFloat = 0
-    
-    /// 屏幕刷新驱动（60FPS）
-    private var displayLink: CADisplayLink!
+    public var state: WYSoundWavesState = .idle
     
     /**
-     
      生成声波柱能量值（0~1）
      
      - Description：将音频 dB（peak / average）转换为 UI 可用的整体能量值（含降噪 / 放大 / 限幅）
@@ -170,9 +160,8 @@ public class WYSoundWavesView: UIView {
      
      - Returns: 整体能量值（0~1），所有声波柱子共用此值
      */
-    public static func makeWaveformLevels(peakPower: Float,
-                                          averagePower: Float,
-                                          config: WYSoundWaveConfig = WYSoundWaveConfig()) -> Float {
+    public func makeWaveformLevels(peakPower: Float,
+                                   averagePower: Float) -> Float {
         
         // 将 dB（minDb ~ 0）映射到 0 ~ 1，越接近 1 表示声音越大（将音频分贝值（负数）转换成 UI 可用的线性强度（0~1））
         func normalize(_ power: Float) -> CGFloat {
@@ -237,8 +226,17 @@ public class WYSoundWavesView: UIView {
         }
     }
     
+    /// 所有声波柱子（动画最小单位）
+    private var bars: [WYAudioBarUnit] = []
+    
+    /// 当前音量（0~1），所有声波柱子共用此值（经过低通滤波平滑）
+    private var currentPower: CGFloat = 0
+    
+    /// 屏幕刷新驱动（60FPS）
+    private var displayLink: CADisplayLink!
+    
     /// 重新加载声波柱子（当列数、宽度、间距变化时调用）
-    public func reloadBars() {
+    private func reloadBars() {
         bars.removeAll()
         let count = max(1, config.numberOfColumns)
         for i in 0..<count {
@@ -422,7 +420,7 @@ private class WYAudioBarUnit {
     /// 主更新入口（每一帧都会调用）
     func update(
         time: CFTimeInterval,           // 当前时间（系统时间戳）
-        state: WYSoundWavesView.State,  // 当前状态（静音 / 有声 / 停止）
+        state: WYSoundWavesState,       // 当前状态（静音 / 有声 / 停止）
         power: CGFloat                  // 当前音量（0~1），所有声波柱子共用
     ) {
         switch state {

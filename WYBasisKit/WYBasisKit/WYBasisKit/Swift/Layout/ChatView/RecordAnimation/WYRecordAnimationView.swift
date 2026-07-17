@@ -472,11 +472,11 @@ extension WYRecordAnimationView: WYAudioKitDelegate {
         // 回调给外部
         delegate?.wy_audioRecorderDidUpdateMetering?(audioKit: audioKit, peakPower: peakPower, averagePower: averagePower)
         
-        // 生成声波能量值（0~1）
-        let power: Float = WYSoundWavesView.makeWaveformLevels(peakPower: peakPower, averagePower: averagePower)
-        
         // 更新声波柱子配置
         soundAnimationView.soundWavesConfigUpdate(status: soundAnimationStatus, config: &soundAnimationView.soundWavesView.config)
+        
+        // 生成声波能量值（0~1）
+        let power: Float = soundAnimationView.soundWavesView.makeWaveformLevels(peakPower: peakPower, averagePower: averagePower)
         
         // 传给动画层
         soundAnimationView.soundWavesView.updateMeters(power: power)

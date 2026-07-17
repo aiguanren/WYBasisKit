@@ -344,12 +344,14 @@ Pod::Spec.new do |kit|
     layout.resource_bundles = {"WYBasisKitSwiftLayout" => [
       "#{kit_path}Swift/Layout/PrivacyInfo.xcprivacy"
     ]}
+    
     layout.subspec "AirBubbleView" do |airBubble|
       airBubble.source_files = [
         "#{kit_path}Swift/Layout/AirBubbleView/**/*.{swift,h,m}",
         "#{kit_path}Swift/Extension/UIView/**/*.{swift,h,m}",
         "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",
         "#{kit_path}Swift/Extension/UIViewController/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIApplication/**/*.{swift,h,m}",
         "#{kit_path}Swift/Config/**/*.{swift}"
       ]
       airBubble.resource_bundles = {"WYBasisKitSwiftLayoutAirBubbleView" => [
@@ -359,6 +361,16 @@ Pod::Spec.new do |kit|
       airBubble.dependency "WYBasisKit-swift/Localizable"
       airBubble.dependency "WYBasisKit-swift/LogManager"
       airBubble.dependency "WYBasisKit-swift/MethodSwizzler"
+    end
+
+    layout.subspec "SoundWavesView" do |soundWavesView|
+      soundWavesView.source_files = [
+        "#{kit_path}Swift/Layout/SoundWavesView/**/*.{swift,h,m}",
+      ]
+      soundWavesView.resource_bundles = {"WYBasisKitSwiftLayoutSoundWavesView" => [
+        "#{kit_path}Swift/Layout/SoundWavesView/PrivacyInfo.xcprivacy"
+      ]}
+      soundWavesView.frameworks = "Foundation", "UIKit"
     end
 
     layout.subspec "ScrollText" do |scrollText|
@@ -439,6 +451,7 @@ Pod::Spec.new do |kit|
       chatView.dependency "WYBasisKit-swift/LogManager"
       chatView.dependency "WYBasisKit-swift/AudioKit"
       chatView.dependency "WYBasisKit-swift/Layout/AirBubbleView"
+      chatView.dependency "WYBasisKit-swift/Layout/SoundWavesView"
       chatView.dependency "SnapKit"
       chatView.dependency "Kingfisher"
     end

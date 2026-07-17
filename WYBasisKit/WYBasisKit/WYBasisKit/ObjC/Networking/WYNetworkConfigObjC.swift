@@ -121,7 +121,7 @@ import WYBasisKitSwift
         self.allHostsMustBeEvaluated = allHostsMustBeEvaluated
     }
     
-    /// 转换为swift类型
+    /// 转换为Swift类型
     internal func convertToSwift() -> WYHttpsConfig {
         return WYHttpsConfig(
             trustManager: trustManager,
@@ -136,7 +136,7 @@ import WYBasisKitSwift
         )
     }
     
-    /// 转换为objc类型
+    /// 转换为ObjC类型
     internal static func objc(from swiftConfig: WYHttpsConfig, objcConfig: WYHttpsConfigObjC? = nil) -> WYHttpsConfigObjC {
         let configValue: WYHttpsConfigObjC = objcConfig ?? WYHttpsConfigObjC()
         
@@ -169,7 +169,7 @@ import WYBasisKitSwift
         self.interval = interval
     }
     
-    /// 转换为swift类型
+    /// 转换为Swift类型
     internal func convertToSwift() -> WYStorageDurable {
         switch storageDurable {
         case .minute:
@@ -189,7 +189,7 @@ import WYBasisKitSwift
         }
     }
     
-    /// 转换为objc类型
+    /// 转换为ObjC类型
     internal static func objc(from swiftConfig: WYStorageDurable, objcConfig: WYStorageDurableModel? = nil) -> WYStorageDurableModel {
         
         let configValue: WYStorageDurableModel = objcConfig ?? WYStorageDurableModel(storageDurable: .day, interval: 1)
@@ -266,7 +266,7 @@ import WYBasisKitSwift
         self.storageDurable = storageDurable
     }
     
-    /// 转换为swift类型
+    /// 转换为Swift类型
     internal func convertToSwift() -> WYNetworkRequestCache {
         return WYNetworkRequestCache(
             cacheKey: cacheKey,
@@ -275,7 +275,7 @@ import WYBasisKitSwift
         )
     }
     
-    /// 转换为objc类型
+    /// 转换为ObjC类型
     internal static func objc(from swiftConfig: WYNetworkRequestCache, objcConfig: WYNetworkRequestCacheObjC? = nil) -> WYNetworkRequestCacheObjC {
         
         let configValue: WYNetworkRequestCacheObjC = objcConfig ?? WYNetworkRequestCacheObjC()
@@ -481,7 +481,7 @@ import WYBasisKitSwift
         self.debugModeLog = debugModeLog
     }
     
-    /// 转换为swift类型
+    /// 转换为Swift类型
     internal func convertToSwift() -> WYNetworkConfig {
         
         // 转换 HTTPS 配置
@@ -523,7 +523,7 @@ import WYBasisKitSwift
         )
     }
     
-    /// 转换为objc类型
+    /// 转换为ObjC类型
     internal static func objc(from swiftConfig: WYNetworkConfig, objcConfig: WYNetworkConfigObjC? = nil) -> WYNetworkConfigObjC {
         
         let configValue: WYNetworkConfigObjC = objcConfig ?? WYNetworkConfigObjC()
