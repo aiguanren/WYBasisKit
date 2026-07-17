@@ -99,6 +99,15 @@ public class WYAirBubbleView: UIView {
      */
     public var gradientColors: [UIColor] = [] {
         didSet {
+            // 渐变色数组小于两个，直接走 fillColor 流程
+            guard gradientColors.count > 1 else {
+                
+                if let color = gradientColors.first {
+                    fillColor = color
+                }
+                return
+            }
+            
             updateStyle()
             updatePath()
         }
@@ -107,6 +116,7 @@ public class WYAirBubbleView: UIView {
     /// 渐变色方向
     public var gradientDirection: WYGradientDirection = .leftToRight {
         didSet {
+            guard gradientColors.count > 1 else { return }
             updateGradientDirection()
             updatePath()
         }
@@ -198,7 +208,7 @@ public class WYAirBubbleView: UIView {
         guard bounds != lastBounds else { return }
         lastBounds = bounds
         
-        if !gradientColors.isEmpty {
+        if gradientColors.count > 1 {
             // 关闭隐式动画，否则有渐变的时候动画会不自然(如动画中圆角不显示)
             CATransaction.begin()
             CATransaction.setDisableActions(true)
@@ -241,7 +251,7 @@ public class WYAirBubbleView: UIView {
     /// 更新填充色和边框样式（不涉及路径几何）
     private func updateStyle() {
         
-        if gradientColors.isEmpty {
+        if gradientColors.count <= 1 {
             // 无渐变时使用普通填充色（最高性能路径）
             fillLayer.isHidden = false
             fillLayer.fillColor = fillColor.cgColor
@@ -303,14 +313,14 @@ public class WYAirBubbleView: UIView {
             bubblePath = nil
             
             // 同步清空渐变 mask
-            if !gradientColors.isEmpty {
+            if gradientColors.count > 1 {
                 maskLayer.path = nil
             }
             return
         }
         
-        // 保证 maskLayer 尺寸正确（避免极端情况下错位
-        if !gradientColors.isEmpty, maskLayer.frame != bounds {
+        // 保证 maskLayer 尺寸正确（避免极端情况下错位)
+        if gradientColors.count > 1, maskLayer.frame != bounds {
             maskLayer.frame = bounds
         }
         
@@ -328,7 +338,7 @@ public class WYAirBubbleView: UIView {
         let newPath = reusablePath.cgPath
         
         // 渐变图层布局
-        if (!gradientColors.isEmpty) && (gradientLayer.mask !== maskLayer) {
+        if (gradientColors.count > 1) && (gradientLayer.mask !== maskLayer) {
             gradientLayer.mask = maskLayer
         }
         
@@ -345,7 +355,7 @@ public class WYAirBubbleView: UIView {
             gradientLayer.removeAnimation(forKey: animationKey)
             
             // 添加动画（每个 layer 独立实例)
-            if gradientColors.isEmpty {
+            if gradientColors.count <= 1 {
                 fillLayer.add(makeGroup(for: fillLayer, newPath: newPath), forKey: animationKey)
             } else {
                 // 渐变模式只需要 maskLayer 动画
@@ -373,7 +383,7 @@ public class WYAirBubbleView: UIView {
         borderLayer.path = borderReusablePath.cgPath
         
         // 渐变模式下同步 mask path
-        if !gradientColors.isEmpty {
+        if gradientColors.count > 1 {
             maskLayer.path = newPath
         }
         
@@ -453,7 +463,7 @@ public class WYAirBubbleView: UIView {
         
         let group = CAAnimationGroup()
         
-        if gradientColors.isEmpty {
+        if gradientColors.count <= 1 {
             // 无渐变：只需要 path 动画
             group.animations = [pathAnimation]
         } else {

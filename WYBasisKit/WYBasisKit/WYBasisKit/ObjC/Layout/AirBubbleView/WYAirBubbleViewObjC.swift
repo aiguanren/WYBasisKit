@@ -108,7 +108,15 @@ public enum WYArrowDirectionObjC: Int {
         get { return arrowTipRadius }
     }
     
-    /// 渐变色数组(为空则不显示)
+    /**
+     渐变色数组（为空则不启用渐变）
+     
+     - Note:
+     当不为空时：
+       - 使用 CAGradientLayer + mask 渲染
+       - fillColor 将被忽略
+       - 渐变区域完全受气泡路径裁剪
+     */
     @objc(gradientColors)
     public var gradientColorsObjC: [UIColor] {
         set { gradientColors = newValue }
@@ -151,12 +159,14 @@ public enum WYArrowDirectionObjC: Int {
     }
     
     /**
-     当前气泡的路径（用于外部做 hitTest命中检测 / 自定义 mask 等）
-     规则：
+     当前气泡的路径（用于外部 hitTest / mask / 动画对齐等）
+     
      - Note:
-     仅在视图完成 layout（bounds > 0）后才有有效值
-     若在初始化或约束未生效前获取，可能为 nil
-     建议可以在Task { @MainActor 里面获取使用
+     仅在视图完成 layout（bounds > 0）后有效
+     在初始化或约束未生效前可能为 nil
+     
+     - Tip:
+     若需要获取稳定路径，建议在布局完成后（如 layoutSubviews / Task @MainActor）访问
      */
     @objc(bubblePath)
     public var bubblePathObjC: CGPath? {
