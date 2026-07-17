@@ -105,6 +105,10 @@ public class WYAirBubbleView: UIView {
                 if let color = gradientColors.first {
                     fillColor = color
                 }
+                
+                // 不管是否为空，都必须调用一次updateStyle，否则渐变色不会被清除
+                updateStyle()
+                
                 return
             }
             
