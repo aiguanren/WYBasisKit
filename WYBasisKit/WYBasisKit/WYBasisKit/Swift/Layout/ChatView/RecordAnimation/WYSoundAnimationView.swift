@@ -41,12 +41,6 @@ public class WYSoundAnimationView: WYAirBubbleView {
         backgroundColor = .clear
         isUserInteractionEnabled = true
         refreshSoundWaves(status: status)
-        gradientColors = [.orange, .red]
-        shadowColor = .purple
-        shadowRadius = 10
-        shadowOpacity = 1
-        borderColor = .black
-        borderWidth = 5
     }
     
     public func refreshSoundWaves(status: WYSoundAnimationStatus) {
@@ -58,8 +52,8 @@ public class WYSoundAnimationView: WYAirBubbleView {
         case .recording:
             cornerRadius = recordAnimationConfig.cornerRadiusForMoveup.recording
             fillColor = recordAnimationConfig.backgroundColorForMoveup.recording
-//            borderColor = recordAnimationConfig.borderColorForMoveup.recording
-//            borderWidth = recordAnimationConfig.borderWidthForMoveup.recording
+            borderColor = recordAnimationConfig.borderColorForMoveup.recording
+            borderWidth = recordAnimationConfig.borderWidthForMoveup.recording
             arrowSize = recordAnimationConfig.arrowSizeForMoveup.recording
             arrowTipRadius = recordAnimationConfig.arrowTipRadiusForMoveup.recording
             arrowOffset = 0
@@ -73,8 +67,8 @@ public class WYSoundAnimationView: WYAirBubbleView {
         case .transfer:
             cornerRadius = recordAnimationConfig.cornerRadiusForMoveup.transfer
             fillColor = recordAnimationConfig.backgroundColorForMoveup.transfer
-//            borderColor = recordAnimationConfig.borderColorForMoveup.transfer
-//            borderWidth = recordAnimationConfig.borderWidthForMoveup.transfer
+            borderColor = recordAnimationConfig.borderColorForMoveup.transfer
+            borderWidth = recordAnimationConfig.borderWidthForMoveup.transfer
             arrowSize = recordAnimationConfig.arrowSizeForMoveup.transfer
             arrowTipRadius = recordAnimationConfig.arrowTipRadiusForMoveup.transfer
             arrowOffset = (recordAnimationConfig.soundWavesViewWidth.transfer - recordAnimationConfig.moveupButtonDiameter.onInterior - arrowSize.width) / 2
@@ -88,8 +82,8 @@ public class WYSoundAnimationView: WYAirBubbleView {
         case .cancel:
             cornerRadius = recordAnimationConfig.cornerRadiusForMoveup.cancel
             fillColor = recordAnimationConfig.backgroundColorForMoveup.cancel
-//            borderColor = recordAnimationConfig.borderColorForMoveup.cancel
-//            borderWidth = recordAnimationConfig.borderWidthForMoveup.cancel
+            borderColor = recordAnimationConfig.borderColorForMoveup.cancel
+            borderWidth = recordAnimationConfig.borderWidthForMoveup.cancel
             arrowSize = recordAnimationConfig.arrowSizeForMoveup.cancel
             arrowTipRadius = recordAnimationConfig.arrowTipRadiusForMoveup.cancel
             arrowOffset = 0

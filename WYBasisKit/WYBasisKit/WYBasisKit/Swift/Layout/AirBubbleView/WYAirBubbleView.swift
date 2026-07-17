@@ -88,13 +88,15 @@ public class WYAirBubbleView: UIView {
         didSet { updatePath() }
     }
     
-    /// 渐变色数组（为空则不启用渐变）
-    ///
-    /// - Note:
-    /// 当不为空时：
-    /// - 使用 CAGradientLayer + mask 渲染
-    /// - fillColor 将被忽略
-    /// - 渐变区域完全受气泡路径裁剪
+    /**
+     渐变色数组（为空则不启用渐变）
+     
+     - Note:
+     当不为空时：
+       - 使用 CAGradientLayer + mask 渲染
+       - fillColor 将被忽略
+       - 渐变区域完全受气泡路径裁剪
+     */
     public var gradientColors: [UIColor] = [] {
         didSet {
             updateStyle()
@@ -140,11 +142,11 @@ public class WYAirBubbleView: UIView {
     
     /**
      当前气泡的路径（用于外部 hitTest / mask / 动画对齐等）
-
+     
      - Note:
      仅在视图完成 layout（bounds > 0）后有效
      在初始化或约束未生效前可能为 nil
-
+     
      - Tip:
      若需要获取稳定路径，建议在布局完成后（如 layoutSubviews / Task @MainActor）访问
      */
@@ -276,18 +278,20 @@ public class WYAirBubbleView: UIView {
         borderLayer.isHidden = borderWidth <= 0
     }
     
-    /// 更新气泡的完整路径（气泡主体圆角矩形 + 箭头）
-    ///
-    /// - Responsibilities:
-    /// - 构建填充路径（fillLayer / maskLayer）
-    /// - 构建边框路径（borderLayer）
-    /// - 在 UIView.animate 环境下添加平滑过渡动画
-    /// - 同步更新 shadowPath
-    /// - 更新对外暴露的 bubblePath
-    ///
-    /// - Note:
-    /// - 该方法是组件的核心渲染入口
-    /// - 会根据当前状态（渐变 / 普通填充）自动选择最优渲染路径
+    /**
+     更新气泡的完整路径（气泡主体圆角矩形 + 箭头）
+
+     - Responsibilities:
+     - 构建填充路径（fillLayer / maskLayer）
+     - 构建边框路径（borderLayer）
+     - 在 UIView.animate 环境下添加平滑过渡动画
+     - 同步更新 shadowPath
+     - 更新对外暴露的 bubblePath
+
+     - Note:
+     - 该方法是组件的核心渲染入口
+     - 会根据当前状态（渐变 / 普通填充）自动选择最优渲染路径
+     */
     private func updatePath() {
         // 尺寸不足时清空路径，避免绘制异常
         guard bounds.width > 0,
@@ -425,12 +429,14 @@ public class WYAirBubbleView: UIView {
         layer.shadowPath = bubblePath
     }
     
-    /// 构建动画组（每个 layer 必须使用独立实例）
-    ///
-    /// - Important:
-    /// CAAnimation 在 add 到 layer 时会被 copy，
-    /// 若多个 layer 复用同一个实例，可能导致 beginTime 不一致，
-    /// 从而产生动画不同步或闪烁问题
+    /**
+     构建动画组（每个 layer 必须使用独立实例）
+
+     - Important:
+     CAAnimation 在 add 到 layer 时会被 copy，
+     若多个 layer 复用同一个实例，可能导致 beginTime 不一致，
+     从而产生动画不同步或闪烁问题
+     */
     private func makeGroup(for layer: CALayer, newPath: CGPath) -> CAAnimationGroup {
         
         // path 动画
@@ -925,10 +931,12 @@ public class WYAirBubbleView: UIView {
         path.addLine(to: p2)
     }
     
-    /// 像素对齐（Pixel Align）
-    ///
-    /// - Purpose:
-    /// 将坐标对齐到设备像素网格，避免出现 0.5pt 导致的模糊或细线缝隙
+    /**
+     像素对齐（Pixel Align）
+     
+     - Purpose:
+     将坐标对齐到设备像素网格，避免出现 0.5pt 导致的模糊或细线缝隙
+     */
     private func pixelAlign(_ value: CGFloat) -> CGFloat {
         let scale = UIApplication.shared.wy_keyWindow.screen.scale
         return round(value * scale) / scale
