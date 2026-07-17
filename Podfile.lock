@@ -138,6 +138,7 @@ PODS:
     - WYBasisKit-ObjC/Layout/MediaPlayer (= 26.7.0)
     - WYBasisKit-ObjC/Layout/PagingView (= 26.7.0)
     - WYBasisKit-ObjC/Layout/ScrollText (= 26.7.0)
+    - WYBasisKit-ObjC/Layout/SoundWavesView (= 26.7.0)
   - WYBasisKit-ObjC/Layout/AirBubbleView (26.7.0):
     - WYBasisKit-swift/Layout/AirBubbleView (= 26.7.0)
   - WYBasisKit-ObjC/Layout/BannerView (26.7.0):
@@ -152,6 +153,8 @@ PODS:
   - WYBasisKit-ObjC/Layout/ScrollText (26.7.0):
     - WYBasisKit-ObjC/Imports (= 26.7.0)
     - WYBasisKit-swift/Layout/ScrollText (= 26.7.0)
+  - WYBasisKit-ObjC/Layout/SoundWavesView (26.7.0):
+    - WYBasisKit-swift/Layout/SoundWavesView (= 26.7.0)
   - WYBasisKit-ObjC/Localizable (26.7.0):
     - WYBasisKit-ObjC/Config (= 26.7.0)
     - WYBasisKit-ObjC/Imports (= 26.7.0)
@@ -238,6 +241,7 @@ PODS:
     - WYBasisKit-swift/LogManager
     - WYBasisKit-swift/MethodSwizzler
   - WYBasisKit-swift/Layout/BannerView (26.7.0):
+    - Kingfisher
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
     - WYBasisKit-swift/MethodSwizzler
@@ -340,8 +344,8 @@ SPEC CHECKSUMS:
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
   SDWebImageWebPCoder: 0e06e365080397465cc73a7a9b472d8a3bd0f377
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
-  WYBasisKit-ObjC: 5825dbdf3f198c7a06728d45907d77870c25249d
-  WYBasisKit-swift: 09611224e16fc1ff1bd087fa32ade459a3f10e61
+  WYBasisKit-ObjC: 18df4a0470dba4d0c6074cfe7b7ef952cd870bea
+  WYBasisKit-swift: b68cb770f5de8d7df9818421e8c396756cb604d5
   WYBasisKit-SwiftUI: 6ee148e94228e05b40b53db09fcc991ab24bbd6c
 
 PODFILE CHECKSUM: 8867d370f0dd601a7c1cd37083576f0a3cc93bd2

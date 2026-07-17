@@ -120,7 +120,7 @@ import WYBasisKitSwift
         set { pageControlHideForSingle = newValue }
     }
     
-    /// pageControl 是否允许用户交互
+    /// PageControl 是否允许用户交互
     @objc(pageControlIsUserInteractionEnabled)
     var pageControlIsUserInteractionEnabledObjC: Bool {
         get { return pageControlIsUserInteractionEnabled }
@@ -198,12 +198,6 @@ import WYBasisKitSwift
         stopTimer()
     }
     
-    /// 取消所有下载任务
-    @objc(cancelAllDownloads)
-    func cancelAllDownloadsObjC() {
-        cancelAllDownloads()
-    }
-    
     /// 切换下一张图片
     @objc(nextImage)
     func nextImageObjC() {
@@ -220,30 +214,6 @@ import WYBasisKitSwift
     @objc(switchImageToIndex:)
     func switchImageObjC(_ pageIndex: Int) {
         switchImage(pageIndex)
-    }
-    
-    /// 根据图片url获取缓存图片
-    @objc(cacheImageFromUrlString:)
-    func cacheImageObjC(_ urlString: String) -> UIImage? {
-        return cacheImage(urlString)
-    }
-    
-    /// 获取缓存大小的可读字符串，例如 "1.2 MB"
-    @objc(cacheSizeString)
-    func cacheSizeStringObjC() -> String {
-        return cacheSizeString()
-    }
-    
-    /// 获取缓存目录下所有文件的总大小（单位：字节）
-    @objc(cacheSize)
-    func cacheSizeObjC() -> UInt64 {
-        return cacheSize()
-    }
-    
-    /// 清空缓存目录
-    @objc(clearDiskCache)
-    func clearDiskCacheObjC() {
-        clearDiskCache()
     }
     
     /*

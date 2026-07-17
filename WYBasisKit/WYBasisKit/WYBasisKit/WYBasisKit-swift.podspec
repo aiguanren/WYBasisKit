@@ -416,9 +416,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}Swift/Layout/BannerView/**/*.{swift,h,m}",
         "#{kit_path}Swift/Extension/UIView/**/*.{swift,h,m}",
         "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Extension/UIViewController/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Extension/UIApplication/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Config/**/*.{swift,h,m}"
+        "#{kit_path}Swift/Extension/UIViewController/**/*.{swift,h,m}"
       ]
       bannerView.resources = [
         localizable_bundle,
@@ -431,6 +429,7 @@ Pod::Spec.new do |kit|
       bannerView.dependency "WYBasisKit-swift/Localizable"
       bannerView.dependency "WYBasisKit-swift/LogManager"
       bannerView.dependency "WYBasisKit-swift/MethodSwizzler"
+      bannerView.dependency "Kingfisher"
     end
     
     layout.subspec "ChatView" do |chatView|
