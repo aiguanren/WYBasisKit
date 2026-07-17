@@ -250,7 +250,7 @@ public extension UIView {
         }
     }
     
-    /// 阴影模糊度，默认0.5，取值范围0~1
+    /// 阴影透明度，默认0.5，取值范围0~1
     @objc(wy_shadowOpacity)
     var wy_shadowOpacityObjC: @convention(block) (CGFloat) -> UIView {
         return { opacity in

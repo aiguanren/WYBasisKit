@@ -88,7 +88,13 @@ public class WYAirBubbleView: UIView {
         didSet { updatePath() }
     }
     
-    /// 渐变色数组(为空则不显示)
+    /// 渐变色数组（为空则不启用渐变）
+    ///
+    /// - Note:
+    /// 当不为空时：
+    /// - 使用 CAGradientLayer + mask 渲染
+    /// - fillColor 将被忽略
+    /// - 渐变区域完全受气泡路径裁剪
     public var gradientColors: [UIColor] = [] {
         didSet {
             updateStyle()
@@ -125,7 +131,7 @@ public class WYAirBubbleView: UIView {
         }
     }
     
-    /// 阴影模糊度，默认0.5，取值范围0~1
+    /// 阴影透明度，默认0.5，取值范围0~1
     public var shadowOpacity: CGFloat = 0.5 {
         didSet {
             updateShadow()
@@ -133,12 +139,14 @@ public class WYAirBubbleView: UIView {
     }
     
     /**
-     当前气泡的路径（用于外部做 hitTest命中检测 / 自定义 mask 等）
-     规则：
+     当前气泡的路径（用于外部 hitTest / mask / 动画对齐等）
+
      - Note:
-     仅在视图完成 layout（bounds > 0）后才有有效值
-     若在初始化或约束未生效前获取，可能为 nil
-     建议可以在Task { @MainActor 里面获取使用
+     仅在视图完成 layout（bounds > 0）后有效
+     在初始化或约束未生效前可能为 nil
+
+     - Tip:
+     若需要获取稳定路径，建议在布局完成后（如 layoutSubviews / Task @MainActor）访问
      */
     public private(set) var bubblePath: CGPath?
     
@@ -189,20 +197,18 @@ public class WYAirBubbleView: UIView {
         lastBounds = bounds
         
         if !gradientColors.isEmpty {
-            
-            // 是否正在执行UIView.animate动画
-            let isInUIViewAnimation = UIView.inheritedAnimationDuration > 0
-            if isInUIViewAnimation {
-                gradientLayer.frame = bounds
-                maskLayer.frame = bounds
-            }else {
-                // 关闭隐式动画，否则有渐变的时候动画会不自然(如动画中圆角不显示)
-                CATransaction.begin()
-                CATransaction.setDisableActions(true)
-                gradientLayer.frame = bounds
-                maskLayer.frame = bounds
-                CATransaction.commit()
-            }
+            // 关闭隐式动画，否则有渐变的时候动画会不自然(如动画中圆角不显示)
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            gradientLayer.frame = bounds
+            maskLayer.frame = bounds
+            CATransaction.commit()
+        }else {
+            // 防止之前有残留 frame/动画
+            gradientLayer.removeAllAnimations()
+            maskLayer.removeAllAnimations()
+            // 避免旧 mask 残留
+            gradientLayer.mask = nil
         }
         
         // 当视图尺寸变化时重新计算路径
@@ -214,7 +220,6 @@ public class WYAirBubbleView: UIView {
         backgroundColor = .clear
         
         layer.addSublayer(borderLayer)
-        layer.addSublayer(gradientLayer)
         layer.addSublayer(fillLayer)
         
         // 边框层无需填充（仅描边）
@@ -239,13 +244,22 @@ public class WYAirBubbleView: UIView {
             fillLayer.isHidden = false
             fillLayer.fillColor = fillColor.cgColor
             
-            // 关闭渐变图层
-            gradientLayer.isHidden = true
+            // 移除 gradientLayer
+            if gradientLayer.superlayer != nil {
+                gradientLayer.removeFromSuperlayer()
+            }
+            // 清理 mask（避免残留引用）
             gradientLayer.mask = nil
+            maskLayer.removeAllAnimations()
+            maskLayer.path = nil
         } else {
             // 有渐变时，使用 CAGradientLayer + mask 渲染
             fillLayer.isHidden = true
             
+            // gradientLayer只在不存在时插入
+            if gradientLayer.superlayer == nil {
+                layer.insertSublayer(gradientLayer, above: borderLayer)
+            }
             gradientLayer.isHidden = false
             gradientLayer.colors = gradientColors.map { $0.cgColor }
             // 保证尺寸永远正确
@@ -262,7 +276,18 @@ public class WYAirBubbleView: UIView {
         borderLayer.isHidden = borderWidth <= 0
     }
     
-    /// 更新所有几何路径（气泡主体圆角矩形 + 箭头），并重新赋值给对应图层
+    /// 更新气泡的完整路径（气泡主体圆角矩形 + 箭头）
+    ///
+    /// - Responsibilities:
+    /// - 构建填充路径（fillLayer / maskLayer）
+    /// - 构建边框路径（borderLayer）
+    /// - 在 UIView.animate 环境下添加平滑过渡动画
+    /// - 同步更新 shadowPath
+    /// - 更新对外暴露的 bubblePath
+    ///
+    /// - Note:
+    /// - 该方法是组件的核心渲染入口
+    /// - 会根据当前状态（渐变 / 普通填充）自动选择最优渲染路径
     private func updatePath() {
         // 尺寸不足时清空路径，避免绘制异常
         guard bounds.width > 0,
@@ -280,6 +305,11 @@ public class WYAirBubbleView: UIView {
             return
         }
         
+        // 保证 maskLayer 尺寸正确（避免极端情况下错位
+        if !gradientColors.isEmpty, maskLayer.frame != bounds {
+            maskLayer.frame = bounds
+        }
+        
         // 计算除去箭头占位后的气泡主体矩形
         let rect = bubbleRect()
         
@@ -293,8 +323,8 @@ public class WYAirBubbleView: UIView {
         
         let newPath = reusablePath.cgPath
         
-        // ===== 渐变图层布局 =====
-        if !gradientColors.isEmpty {
+        // 渐变图层布局
+        if (!gradientColors.isEmpty) && (gradientLayer.mask !== maskLayer) {
             gradientLayer.mask = maskLayer
         }
         
@@ -302,44 +332,28 @@ public class WYAirBubbleView: UIView {
         let isInUIViewAnimation = UIView.inheritedAnimationDuration > 0
         
         if isInUIViewAnimation {
-            // 使用显式动画，避免隐式动画导致的尺寸异常（放大/回弹问题）
-            let animation = CABasicAnimation(keyPath: "path")
-            
-            // 根据当前模式选择 fromValue（纯色 vs 渐变）
-            if gradientColors.isEmpty {
-                animation.fromValue = fillLayer.presentation()?.path ?? fillLayer.path
-            } else {
-                animation.fromValue = maskLayer.presentation()?.path ?? maskLayer.path
-            }
-            
-            animation.toValue = newPath
-            animation.duration = UIView.inheritedAnimationDuration > 0 ? UIView.inheritedAnimationDuration : CATransaction.animationDuration()
-            animation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-            
-            // 动画key，用于区分不同动画
             let animationKey = "AirBubbleAnimationKey"
             
-            // 避免多次 layout 时动画叠加
+            // 清理旧动画（先移除
             borderLayer.removeAnimation(forKey: animationKey)
+            fillLayer.removeAnimation(forKey: animationKey)
+            maskLayer.removeAnimation(forKey: animationKey)
+            gradientLayer.removeAnimation(forKey: animationKey)
+            
+            // 添加动画（每个 layer 独立实例)
             if gradientColors.isEmpty {
-                fillLayer.removeAnimation(forKey: animationKey)
+                fillLayer.add(makeGroup(for: fillLayer, newPath: newPath), forKey: animationKey)
             } else {
-                maskLayer.removeAnimation(forKey: animationKey)
+                // 渐变模式只需要 maskLayer 动画
+                maskLayer.add(makeGroup(for: maskLayer, newPath: newPath), forKey: animationKey)
+                gradientLayer.add(makeGroup(for: gradientLayer, newPath: newPath), forKey: animationKey)
             }
             
-            if gradientColors.isEmpty {
-                // 纯色模式：fillLayer 动画
-                fillLayer.add(animation, forKey: animationKey)
-            } else {
-                // 渐变模式：maskLayer 动画
-                maskLayer.add(animation, forKey: animationKey)
-            }
-            
-            // 边框始终需要动画（保持同步）
-            borderLayer.add(animation, forKey: animationKey)
+            // 边框始终需要动画
+            borderLayer.add(makeGroup(for: borderLayer, newPath: newPath), forKey: animationKey)
         }
         
-        // 禁用隐式动画
+        // 禁用隐式动画（防止 layer 属性更新触发额外动画）
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         
@@ -361,11 +375,11 @@ public class WYAirBubbleView: UIView {
         
         CATransaction.commit()
         
-        // 对外暴露路径（用于 hitTest / mask 等），同时确保对外暴露的 path 一定是最新
+        // 对外暴露路径（用于 hitTest / mask 等）
         bubblePath = newPath
         
         // 同步更新阴影路径（保证阴影和气泡完全一致）
-        if layer.shadowOpacity > 0 {
+        if shadowColor != nil && shadowOpacity > 0 {
             layer.shadowPath = newPath
         }
     }
@@ -409,6 +423,56 @@ public class WYAirBubbleView: UIView {
         
         // 使用 shadowPath（性能提升非常大）
         layer.shadowPath = bubblePath
+    }
+    
+    /// 构建动画组（每个 layer 必须使用独立实例）
+    ///
+    /// - Important:
+    /// CAAnimation 在 add 到 layer 时会被 copy，
+    /// 若多个 layer 复用同一个实例，可能导致 beginTime 不一致，
+    /// 从而产生动画不同步或闪烁问题
+    private func makeGroup(for layer: CALayer, newPath: CGPath) -> CAAnimationGroup {
+        
+        // path 动画
+        let pathAnimation = CABasicAnimation(keyPath: "path")
+        
+        // 根据当前 layer 取各自的 fromValue（保证动画完全同步）
+        if let shape = layer as? CAShapeLayer {
+            pathAnimation.fromValue = shape.presentation()?.path ?? shape.path
+        } else {
+            pathAnimation.fromValue = nil
+        }
+        
+        pathAnimation.toValue = newPath
+        
+        let group = CAAnimationGroup()
+        
+        if gradientColors.isEmpty {
+            // 无渐变：只需要 path 动画
+            group.animations = [pathAnimation]
+        } else {
+            // bounds 动画（gradient 专用)
+            let boundsAnimation = CABasicAnimation(keyPath: "bounds")
+            boundsAnimation.fromValue = gradientLayer.presentation()?.bounds ?? gradientLayer.bounds
+            boundsAnimation.toValue = CGRect(origin: .zero, size: bounds.size)
+            
+            // position 动画
+            let posAnimation = CABasicAnimation(keyPath: "position")
+            posAnimation.fromValue = gradientLayer.presentation()?.position ?? gradientLayer.position
+            posAnimation.toValue = CGPoint(x: bounds.midX, y: bounds.midY)
+            
+            group.animations = [pathAnimation, boundsAnimation, posAnimation]
+        }
+        
+        group.duration = UIView.inheritedAnimationDuration
+        group.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        
+        // 保证时间轴稳定（避免偶发不同步）
+        group.beginTime = 0
+        group.isRemovedOnCompletion = true
+        group.fillMode = .removed
+        
+        return group
     }
     
     /**
@@ -472,7 +536,7 @@ public class WYAirBubbleView: UIView {
         // 从左上角开始
         path.move(to: CGPoint(x: minX + tl, y: minY))
         
-        // ----- 上边（TOP）-----
+        // 上边（TOP)
         if showsArrow && arrowDirection == .top, let (p1, tip, p2) = arrow {
             path.addLine(to: p1)
             addArrowPath(path,
@@ -496,7 +560,7 @@ public class WYAirBubbleView: UIView {
             )
         }
         
-        // ----- 右边（RIGHT）-----
+        // 右边（RIGHT）
         if showsArrow && arrowDirection == .right, let (p1, tip, p2) = arrow {
             path.addLine(to: p1)
             addArrowPath(path,
@@ -520,7 +584,7 @@ public class WYAirBubbleView: UIView {
             )
         }
         
-        // ----- 下边（BOTTOM）-----
+        // 下边（BOTTOM）
         if showsArrow && arrowDirection == .bottom, let (p1, tip, p2) = arrow {
             
             // 必须从 p2 开始
@@ -548,7 +612,7 @@ public class WYAirBubbleView: UIView {
             )
         }
         
-        // ----- 左边（LEFT）-----
+        // 左边（LEFT）
         if showsArrow && arrowDirection == .left, let (p1, tip, p2) = arrow {
             
             // 必须从 p2 开始
@@ -620,7 +684,7 @@ public class WYAirBubbleView: UIView {
     }
     
     /**
-     根据当前箭头方向和偏移量，计算箭头的三个关键点（左底点，尖点，右底点）
+     根据当前箭头方向和偏移量，计算箭头的三个关键点（底边左点 / 尖点 / 底边右点），用于路径拼接
      - Parameter rect: 气泡主体矩形（不含箭头占位）
      - Returns: 元组 (p1, tip, p2)
      
@@ -861,7 +925,10 @@ public class WYAirBubbleView: UIView {
         path.addLine(to: p2)
     }
     
-    /// 像素对齐，避免出现 0.5px 缝隙
+    /// 像素对齐（Pixel Align）
+    ///
+    /// - Purpose:
+    /// 将坐标对齐到设备像素网格，避免出现 0.5pt 导致的模糊或细线缝隙
     private func pixelAlign(_ value: CGFloat) -> CGFloat {
         let scale = UIApplication.shared.wy_keyWindow.screen.scale
         return round(value * scale) / scale

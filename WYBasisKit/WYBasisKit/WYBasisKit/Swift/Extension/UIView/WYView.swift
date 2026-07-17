@@ -340,7 +340,7 @@ public extension UIView {
         return self
     }
     
-    /// 阴影模糊度，默认0.5，取值范围0~1
+    /// 阴影透明度，默认0.5，取值范围0~1
     @discardableResult
     func wy_shadowOpacity(_ opacity: CGFloat) -> UIView {
         privateShadowOpacity = opacity

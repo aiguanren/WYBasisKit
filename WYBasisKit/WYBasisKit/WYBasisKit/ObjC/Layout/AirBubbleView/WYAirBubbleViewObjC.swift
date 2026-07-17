@@ -143,7 +143,7 @@ public enum WYArrowDirectionObjC: Int {
         get { return shadowRadius }
     }
     
-    /// 阴影模糊度，默认0.5，取值范围0~1
+    /// 阴影透明度，默认0.5，取值范围0~1
     @objc(shadowOpacity)
     public var shadowOpacityObjC: CGFloat {
         set { shadowOpacity = newValue }
