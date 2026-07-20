@@ -39,11 +39,11 @@ public enum WYLocationAuthorizationStyle: Int {
     @objc(wy_locationDidUpdateSignificant:)
     optional func wy_locationDidUpdateSignificant(location: CLLocation)
     
-    /// 进入监控区域
+    /// 进入监听区域
     @objc(wy_locationDidEnterRegion:)
     optional func wy_locationDidEnterRegion(region: CLRegion)
     
-    /// 离开监控区域
+    /// 离开监听区域
     @objc(wy_locationDidExitRegion:)
     optional func wy_locationDidExitRegion(region: CLRegion)
     
@@ -55,7 +55,7 @@ public enum WYLocationAuthorizationStyle: Int {
     @objc(wy_locationDidFail:)
     optional func wy_locationDidFail(error: Error)
     
-    /// 区域监控错误
+    /// 区域监听错误
     @objc(wy_locationMonitoringDidFail:error:)
     optional func wy_locationMonitoringDidFail(region: CLRegion?, error: Error)
 }
@@ -183,7 +183,7 @@ public final class WYLocationAuthorization: NSObject {
         locationManager?.stopMonitoringSignificantLocationChanges()
     }
     
-    /// 开始监控指定区域
+    /// 开始监听指定区域
     public func startMonitoring(_ region: CLRegion, showSettingsAlert: Bool = true) {
         setupLocationManagerIfNeeded()
         
@@ -204,7 +204,7 @@ public final class WYLocationAuthorization: NSObject {
         }
     }
     
-    /// 停止监控指定区域
+    /// 停止监听指定区域
     public func stopMonitoring(_ region: CLRegion) {
         locationManager?.stopMonitoring(for: region)
     }
@@ -240,7 +240,7 @@ public final class WYLocationAuthorization: NSObject {
         locationManager?.stopMonitoringSignificantLocationChanges()
         locationManager?.stopUpdatingHeading()
         
-        // 停止所有区域监控
+        // 停止所有区域监听
         if let regions = locationManager?.monitoredRegions {
             for region in regions {
                 locationManager?.stopMonitoring(for: region)

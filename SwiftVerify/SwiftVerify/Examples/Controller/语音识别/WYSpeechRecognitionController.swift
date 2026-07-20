@@ -33,7 +33,7 @@ class WYSpeechRecognitionController: UIViewController {
     // SFSpeechURLRecognitionRequest 在录制的音频文件中识别语音的请求。
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     
-    // 语音识别任务，可监控识别进度，通过他可以取消或终止当前的语音识别任务
+    // 语音识别任务，可监听识别进度，通过他可以取消或终止当前的语音识别任务
     private var recognitionTask: SFSpeechRecognitionTask?
     
     // 语音引擎，负责提供录音输入

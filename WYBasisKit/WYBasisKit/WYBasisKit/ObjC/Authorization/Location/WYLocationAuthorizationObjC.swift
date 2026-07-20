@@ -76,13 +76,13 @@ public extension WYLocationAuthorization {
         stopMonitoringSignificantLocationChanges()
     }
     
-    /// 开始监控指定区域
+    /// 开始监听指定区域
     @objc(startMonitoring:showSettingsAlert:)
     func startMonitoring(region: CLRegion, showSettingsAlert: Bool = true) {
         startMonitoring(region, showSettingsAlert: showSettingsAlert)
     }
     
-    /// 停止监控指定区域
+    /// 停止监听指定区域
     @objc(stopMonitoring:)
     func stopMonitoringObjC(region: CLRegion) {
         stopMonitoring(region)

@@ -107,7 +107,7 @@ public struct WYEmojiViewConfig {
 
 @objc public protocol WYChatEmojiViewDelegate {
     
-    /// 监控Emoji点击事件
+    /// 监听Emoji点击事件
     @objc(didClickEmojiView:indexPath:)
     optional func didClick(_ emojiView: WYChatEmojiView, _ indexPath: IndexPath)
     

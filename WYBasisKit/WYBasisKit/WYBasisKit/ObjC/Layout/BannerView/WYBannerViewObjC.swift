@@ -21,7 +21,7 @@ import WYBasisKitSwift
     }
     
     /**
-     * 监控banner点击事件(也可以通过实现代理监听)
+     * 监听banner点击事件(也可以通过实现代理监听)
      *
      * @param handler 点击事件的block
      */
@@ -31,7 +31,7 @@ import WYBasisKitSwift
     }
     
     /**
-     * 监控banner的轮播事件(也可以通过实现代理监听)
+     * 监听banner的轮播事件(也可以通过实现代理监听)
      *
      * @param handler 轮播事件的block
      */

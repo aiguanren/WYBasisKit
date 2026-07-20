@@ -139,7 +139,7 @@ public extension WYMoreViewConfig {
 
 @objc public protocol WYChatMoreViewDelegate {
     
-    /// 监控cell点击事件
+    /// 监听cell点击事件
     @objc optional func didClickMoreViewAtIndex(_ itemIndex: Int)
 }
 

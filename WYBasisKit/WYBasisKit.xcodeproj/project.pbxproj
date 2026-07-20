@@ -81,6 +81,7 @@
 		587CDF922E09153B00929E1D /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 587CDF912E09153B00929E1D /* libbz2.tbd */; };
 		588797BA3009DDE600FDDE9C /* WYSoundWavesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588797B93009DDE600FDDE9C /* WYSoundWavesView.swift */; };
 		588797BE3009F5D500FDDE9C /* WYSoundWavesViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588797BC3009F5D500FDDE9C /* WYSoundWavesViewObjC.swift */; };
+		588797C2300A2F5400FDDE9C /* WYContentScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588797C1300A2F5400FDDE9C /* WYContentScrollView.swift */; };
 		588D00812E5FEB570034A1CF /* AutoLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588D00802E5FEB570034A1CF /* AutoLayout.swift */; };
 		58B415B92FE2486700C4D1AA /* WYSoundAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B415B82FE2486700C4D1AA /* WYSoundAnimationView.swift */; };
 		58B46FEA2E8C080700D04BCA /* WYLogManagerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B46FE92E8C080700D04BCA /* WYLogManagerObjC.swift */; };
@@ -297,6 +298,7 @@
 		587CDF912E09153B00929E1D /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
 		588797B93009DDE600FDDE9C /* WYSoundWavesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYSoundWavesView.swift; sourceTree = "<group>"; };
 		588797BC3009F5D500FDDE9C /* WYSoundWavesViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYSoundWavesViewObjC.swift; sourceTree = "<group>"; };
+		588797C1300A2F5400FDDE9C /* WYContentScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYContentScrollView.swift; sourceTree = "<group>"; };
 		588D00802E5FEB570034A1CF /* AutoLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoLayout.swift; sourceTree = "<group>"; };
 		58B415B82FE2486700C4D1AA /* WYSoundAnimationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYSoundAnimationView.swift; sourceTree = "<group>"; };
 		58B46FE92E8C080700D04BCA /* WYLogManagerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLogManagerObjC.swift; sourceTree = "<group>"; };
@@ -989,6 +991,14 @@
 				588797BC3009F5D500FDDE9C /* WYSoundWavesViewObjC.swift */,
 			);
 			path = SoundWavesView;
+			sourceTree = "<group>";
+		};
+		588797C0300A2F0900FDDE9C /* ContentScrollView */ = {
+			isa = PBXGroup;
+			children = (
+				588797C1300A2F5400FDDE9C /* WYContentScrollView.swift */,
+			);
+			path = ContentScrollView;
 			sourceTree = "<group>";
 		};
 		588D007F2E5FEB3C0034A1CF /* Remarks */ = {
@@ -2425,6 +2435,7 @@
 		58C68D732E84E436005FD054 /* Layout */ = {
 			isa = PBXGroup;
 			children = (
+				588797C0300A2F0900FDDE9C /* ContentScrollView */,
 				588797B83009DD8F00FDDE9C /* SoundWavesView */,
 				580BB8A72FF63BDB00C1B986 /* AirBubbleView */,
 				58C68D2A2E84E436005FD054 /* BannerView */,
@@ -2706,6 +2717,7 @@
 				58B415B92FE2486700C4D1AA /* WYSoundAnimationView.swift in Sources */,
 				58C68DBE2E84E436005FD054 /* WYBiometricAuthorizationObjC.swift in Sources */,
 				584EAF0A2E92A7A0003A21B8 /* WYBannerViewObjC.swift in Sources */,
+				588797C2300A2F5400FDDE9C /* WYContentScrollView.swift in Sources */,
 				58C68DBF2E84E436005FD054 /* WYEmojiHeaderView.swift in Sources */,
 				58C68DC02E84E436005FD054 /* WYInt.swift in Sources */,
 				58C68DC12E84E436005FD054 /* WYObject.swift in Sources */,
