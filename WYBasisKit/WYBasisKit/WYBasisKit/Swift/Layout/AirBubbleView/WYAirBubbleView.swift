@@ -347,7 +347,7 @@ public class WYAirBubbleView: UIView {
         }
         
         // 是否正在执行UIView.animate动画
-        let isInUIViewAnimation = (UIView.inheritedAnimationDuration > 0) || (CATransaction.animationDuration() > 0)
+        let isInUIViewAnimation = UIView.inheritedAnimationDuration > 0
         
         if isInUIViewAnimation {
             let animationKey = "AirBubbleAnimationKey"
@@ -484,7 +484,7 @@ public class WYAirBubbleView: UIView {
             group.animations = [pathAnimation, boundsAnimation, posAnimation]
         }
         
-        group.duration = (UIView.inheritedAnimationDuration > 0) ? UIView.inheritedAnimationDuration : CATransaction.animationDuration()
+        group.duration = UIView.inheritedAnimationDuration
         group.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
         
         // 保证时间轴稳定（避免偶发不同步）
