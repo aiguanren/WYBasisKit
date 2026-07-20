@@ -451,7 +451,7 @@ public class WYAirBubbleView: UIView {
             gradientLayer.mask = maskLayer
         }
         
-        // 是否正在执行UIView.animate动画
+        // 是否正在执行UIView.animate动画（注意：这里不能用CATransaction.animationDuration()来判断，因为他有默认值0.25）
         let isInUIViewAnimation = UIView.inheritedAnimationDuration > 0
         
         if isInUIViewAnimation {
