@@ -347,7 +347,7 @@ public class WYAirBubbleView: UIView {
         }
         
         // 是否正在执行UIView.animate动画
-        let isInUIViewAnimation = UIView.inheritedAnimationDuration > 0
+        let isInUIViewAnimation = (UIView.inheritedAnimationDuration > 0) || (CATransaction.animationDuration() > 0)
         
         if isInUIViewAnimation {
             let animationKey = "AirBubbleAnimationKey"
@@ -484,7 +484,7 @@ public class WYAirBubbleView: UIView {
             group.animations = [pathAnimation, boundsAnimation, posAnimation]
         }
         
-        group.duration = UIView.inheritedAnimationDuration
+        group.duration = (UIView.inheritedAnimationDuration > 0) ? UIView.inheritedAnimationDuration : CATransaction.animationDuration()
         group.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
         
         // 保证时间轴稳定（避免偶发不同步）
@@ -722,7 +722,7 @@ public class WYAirBubbleView: UIView {
         let arrowH = pixelAlign(min(arrowSize.height, rect.height))
         
         // 让箭头与气泡主体轻微重叠，彻底消除抗锯齿缝隙
-        let overlap = 0.5 / UIApplication.shared.wy_keyWindow.screen.scale
+        let overlap: CGFloat = 0.5 / UIApplication.shared.wy_keyWindow.screen.scale
         
         switch arrowDirection {
             
