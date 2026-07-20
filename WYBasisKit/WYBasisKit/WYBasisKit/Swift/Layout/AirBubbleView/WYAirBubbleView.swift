@@ -212,6 +212,9 @@ public class WYAirBubbleView: UIView {
         guard bounds != lastBounds else { return }
         lastBounds = bounds
         
+        // 安全尺寸检查
+        checkMinimumSize()
+        
         if gradientColors.count > 1 {
             // 关闭隐式动画，否则有渐变的时候动画会不自然(如动画中圆角不显示)
             CATransaction.begin()
@@ -229,6 +232,108 @@ public class WYAirBubbleView: UIView {
         
         // 当视图尺寸变化时重新计算路径
         updatePath()
+    }
+    
+    /**
+     *  检查当前尺寸是否满足气泡绘制要求
+     *
+     *  设计原则:
+     *  - 不修改 UIView 尺寸
+     *  - 不破坏 AutoLayout
+     *  - Debug 提醒开发者
+     *  - Release 自动容错
+     */
+    private func checkMinimumSize() {
+        
+        let minimum = minimumRequiredSize()
+        
+        let invalidWidth = bounds.width < minimum.width
+        let invalidHeight = bounds.height < minimum.height
+        
+        guard invalidWidth || invalidHeight else {
+            return
+        }
+        
+        let message = """
+        ⚠️ WYAirBubbleView size too small
+        
+        currentSize:
+        \(bounds.size)
+        
+        minimumSize:
+        \(minimum)
+        
+        arrowDirection:
+        \(arrowDirection)
+        
+        cornerRadius:
+        \(cornerRadius)
+        
+        arrowSize:
+        \(arrowSize)
+        
+        """
+        
+        #if DEBUG
+        // 开发阶段提醒
+        assertionFailure(message)
+        #endif
+    }
+    
+    /**
+     *  计算当前配置下气泡允许的最小尺寸
+     *
+     *  目的:
+     *  1. 防止圆角 + 箭头导致几何冲突
+     *  2. 避免 resize 动画过程中出现尖角穿透、圆角异常
+     *
+     *  注意:
+     *  这里只计算理论安全尺寸，不改变 UIView 本身大小
+     */
+    private func minimumRequiredSize() -> CGSize {
+        
+        let radiusSize = cornerRadius * 2
+        
+        // 没有箭头时，只需要满足两个圆角
+        guard showsArrow else {
+            return CGSize(width: radiusSize, height: radiusSize)
+        }
+        
+        switch arrowDirection {
+        case .top, .bottom:
+            // 横向:两个圆角 + 箭头宽度 + 安全偏移
+            let width =
+            radiusSize
+            + arrowSize.width
+            + abs(arrowOffset)
+            + arrowEdgePadding
+            
+            // 纵向:两个圆角 + 箭头高度
+            let height =
+            radiusSize
+            + arrowSize.height
+            
+            return CGSize(
+                width: width,
+                height: height
+            )
+            
+        case .left, .right:
+            let height =
+            radiusSize
+            + arrowSize.width
+            + abs(arrowOffset)
+            + arrowEdgePadding
+            
+            let width =
+            radiusSize
+            + arrowSize.height
+            
+            return CGSize(
+                width: width,
+                height: height
+            )
+        }
     }
     
     /// 配置图层属性（背景透明、添加子图层、设置边框样式）
