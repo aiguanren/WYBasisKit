@@ -371,6 +371,17 @@ Pod::Spec.new do |kit|
       pagingView.dependency "WYBasisKit-swift/Layout/PagingView", kit_swift_version
       pagingView.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
     end
+
+    # layout.subspec "ContentScrollView" do |contentScrollView|
+    #   contentScrollView.source_files = [
+    #     "#{kit_path}ObjC/Layout/ContentScrollView/**/*.{swift,h,m}",
+    #   ]
+    #   contentScrollView.resource_bundles = {"WYBasisKitObjCLayoutContentScrollView" => [
+    #     "#{kit_path}ObjC/Layout/ContentScrollView/PrivacyInfo.xcprivacy"
+    #   ]}
+    #   contentScrollView.frameworks = "Foundation", "UIKit"
+    #   contentScrollView.dependency "WYBasisKit-swift/ContentScrollView"
+    # end
     
     layout.subspec "BannerView" do |bannerView|
       bannerView.source_files = [

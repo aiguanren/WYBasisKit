@@ -410,6 +410,22 @@ Pod::Spec.new do |kit|
       pagingView.dependency "WYBasisKit-swift/LogManager"
       pagingView.dependency "WYBasisKit-swift/MethodSwizzler"
     end
+
+    layout.subspec "ContentScrollView" do |contentScrollView|
+      contentScrollView.source_files = [
+        "#{kit_path}Swift/Layout/ContentScrollView/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIView/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIViewController/**/*.{swift,h,m}"
+      ]
+      contentScrollView.resource_bundles = {"WYBasisKitSwiftLayoutContentScrollView" => [
+        "#{kit_path}Swift/Layout/ContentScrollView/PrivacyInfo.xcprivacy"
+      ]}
+      contentScrollView.frameworks = "Foundation", "UIKit"
+      contentScrollView.dependency "WYBasisKit-swift/Localizable"
+      contentScrollView.dependency "WYBasisKit-swift/LogManager"
+      contentScrollView.dependency "WYBasisKit-swift/MethodSwizzler"
+    end
     
     layout.subspec "BannerView" do |bannerView|
       bannerView.source_files = [

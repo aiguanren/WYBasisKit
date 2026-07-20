@@ -28,6 +28,8 @@ class WYMainController: UIViewController {
         ListItem(title: "内边距",
                  controller: "WYTestEdgeInsetsController"),
         
+        ListItem(title: "无限切换", controller: "WYTestInfiniteSwitchController"),
+        
         ListItem(title: "Banner轮播",
                  controller: "WYTestBannerController"),
         
