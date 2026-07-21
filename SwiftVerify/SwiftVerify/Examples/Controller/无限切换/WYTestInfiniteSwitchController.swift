@@ -19,9 +19,9 @@ class WYTestInfiniteSwitchController: UIViewController {
         contentView.backgroundColor = .white
         contentView.contentDelegate = self
         contentView.scrollForSinglePage = true
-        contentView.unlimitedCarousel = false
         contentView.automaticCarousel = false
-        contentView.numberOfContent = 5
+        contentView.numberOfContent = Int.max
+        contentView.unlimitedCarousel = true
         contentView.currentContent.backgroundColor = .systemRed
         contentView.reserveContent.backgroundColor = .systemBlue
         view.addSubview(contentView)

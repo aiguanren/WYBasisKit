@@ -27,6 +27,16 @@ import UIKit
     optional func wy_contentScrollViewDidSwitch(_ contentScrollView: WYContentScrollView, currentIndex: Int)
 }
 
+/// 滑动方向
+public enum WYContentScrollDirection: Int {
+    /// 左右滑动
+    case leftOrRight = 0
+    /// 上下滑动
+    case topOrBottom
+    /// 上下左右滑动
+    case omnidirectional
+}
+
 public class WYContentScrollView: UIScrollView {
     
     /// 点击或滑动事件代理(也可以通过传入Block监听)
@@ -68,13 +78,34 @@ public class WYContentScrollView: UIScrollView {
         didSwitchHandler = handler
     }
     
-    /// 当前内容页视图数量（Int.max表示无限数量）
-    public var numberOfContent: Int = Int.max {
+    /**
+     *  当前内容页视图数量（Int.max表示无限数量）
+     *  当设置Int.max时，会强制设置automaticCarousel和unlimitedCarousel为false
+     */
+    public var numberOfContent: Int = Int.max
+    
+    /// 支持的滑动方向
+    public var contentScrollDirection: WYContentScrollDirection = .leftOrRight {
         willSet {
-            if (newValue == Int.max) {
-                unlimitedCarousel = false
-                automaticCarousel = false
-                stopTimer()
+            switch newValue {
+            case .leftOrRight:
+                contentSize = CGSize(width: 3*wy_width, height: wy_height)
+                if !alreadySwitchedPages {
+                    contentOffset = CGPoint(x: wy_width, y: 0)
+                }
+                break
+            case .topOrBottom:
+                contentSize = CGSize(width: wy_width, height: 3*wy_height)
+                if !alreadySwitchedPages {
+                    contentOffset = CGPoint(x: 0, y: wy_height)
+                }
+                break
+            case .omnidirectional:
+                contentSize = CGSize(width: 3*wy_width, height: 3*wy_height)
+                if !alreadySwitchedPages {
+                    contentOffset = CGPoint(x: wy_width, y: wy_height)
+                }
+                break
             }
         }
     }
@@ -107,30 +138,13 @@ public class WYContentScrollView: UIScrollView {
      *  是否需要无限轮播，默认开启
      *  当设置false时，会强制设置automaticCarousel为false
      */
-    public var unlimitedCarousel: Bool = true {
-        willSet {
-            if (newValue == false) {
-                stopTimer()
-                automaticCarousel = false
-            }
-        }
-    }
+    public var unlimitedCarousel: Bool = true
     
     /**
      *  是否需要自动轮播，默认开启
      *  当设置false时，会关闭定时器
-     *  当设置true时，unlimitedCarousel会强制设置为True
      */
-    public var automaticCarousel: Bool = true {
-        willSet {
-            if newValue == false {
-                stopTimer()
-            }else {
-                unlimitedCarousel = true
-                startTimer()
-            }
-        }
-    }
+    public var automaticCarousel: Bool = true
     
     /**
      *  开启定时器
@@ -142,6 +156,10 @@ public class WYContentScrollView: UIScrollView {
         if (timer != nil) {
             stopTimer()
         }
+        
+        // 检查(设置)轮播状态
+        checkCarouselStatus()
+        
         // 判断是否需要开启定时器
         if (((numberOfContent < 1)) || ((scrollForSinglePage == false) && (numberOfContent == 1)) || (unlimitedCarousel == false) || (automaticCarousel == false) || (numberOfContent == Int.max)) { return }
         
@@ -234,8 +252,6 @@ extension WYContentScrollView {
             showsHorizontalScrollIndicator = false
             showsVerticalScrollIndicator = false
             bounces = false
-            contentSize = CGSize(width: 3*wy_width, height: wy_height)
-            contentOffset = CGPoint(x: wy_width, y: 0)
             
             contentInsetAdjustmentBehavior = .never
             
@@ -252,12 +268,18 @@ extension WYContentScrollView {
             
             switchContent(currentContent, isDidSwitch: true)
             
-            if automaticCarousel == true {
-                automaticCarousel = true
-            }
-            
             let gestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(didClickContent))
             addGestureRecognizer(gestureRecognizer)
+        }
+    }
+    
+    /// 检查(设置)轮播状态
+    private func checkCarouselStatus() {
+        
+        if (numberOfContent == Int.max) || (unlimitedCarousel == false) {
+            if timer != nil { stopTimer() }
+            unlimitedCarousel = false
+            automaticCarousel = false
         }
     }
     
@@ -271,22 +293,26 @@ extension WYContentScrollView {
         }
     }
     
-    private enum WYContentScrollDirection {
+    private enum WYInternalContentScrollDirection {
         /// 未滑动
         case none
         /// 向左滑动
         case left
         /// 向右滑动
         case right
+        /// 向上滑动
+        case top
+        /// 向下滑动
+        case bottom
     }
     
     /// 滚动方向
-    private var scrollDirection: WYContentScrollDirection {
+    private var internalScrollDirection: WYInternalContentScrollDirection {
         set(newValue) {
-            objc_setAssociatedObject(self, &WYAssociatedKeys.scrollDirection, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            objc_setAssociatedObject(self, &WYAssociatedKeys.internalScrollDirection, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
             
             // 向右滚动
-            if newValue == .right {
+            if (newValue == .right) {
                 reserveContent.frame = CGRect(x: 0, y: 0, width: wy_width, height: wy_height)
                 reserveIndex = currentIndex - 1
                 if (reserveIndex < 0)  {
@@ -299,6 +325,17 @@ extension WYContentScrollView {
                 reserveIndex = (currentIndex + 1) % numberOfContent
             }
             
+            // 向上滚动
+            if (newValue == .top) {
+                
+            }
+            
+            // 向下滑动
+            if newValue == .bottom {
+                reserveContent.frame = CGRect(x: 0, y: 2 * wy_height, width: wy_width, height: wy_height)
+                reserveIndex = (currentIndex + 1) % numberOfContent
+            }
+            
             // 如果方向没变，reserveIndex 跟上一次配置的相同，则不重复加载
             guard reserveIndex != configuredReserveIndex else { return }
             
@@ -308,7 +345,7 @@ extension WYContentScrollView {
             switchContent(reserveContent, isDidSwitch: false)
         }
         get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.scrollDirection) as? WYContentScrollDirection ?? .none
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.internalScrollDirection) as? WYInternalContentScrollDirection ?? .none
         }
     }
     
@@ -355,14 +392,31 @@ extension WYContentScrollView {
         
         // 下一次方向改变时需要重新设置 reserveContent
         configuredReserveIndex = nil
+        
+        // 标记为已经切换过内容页面
+        alreadySwitchedPages = true
     }
     
     /// 判断是否可以滚动
     private func canScroll(_ offsetX: CGFloat) -> Bool {
-        if (unlimitedCarousel == false) && (((offsetX < wy_width) && (currentIndex == 0)) || ((offsetX > wy_width) && (currentIndex == (numberOfContent - 1)))) {
-            contentOffset = CGPoint(x: wy_width, y: 0)
-            return false
+        
+        // 检查(设置)轮播状态
+        checkCarouselStatus()
+        
+        // 当前停留页面是否是第一页
+        let isFirstPage = (currentIndex == 0) && (reserveIndex == 0)
+        
+        // 当前停留页面是否是最后一页
+        let isLastPage = (currentIndex == (numberOfContent - 1)) && (reserveIndex == (numberOfContent - 1))
+        
+        // 如果当前在第一页或者最后一页的时候，需要根据numberOfContent是否等于Int.max和unlimitedCarousel是否为true来判断是否可以切换页面
+        if isFirstPage || isLastPage {
+            if (unlimitedCarousel == false) || (numberOfContent == Int.max) {
+                contentOffset = CGPoint(x: wy_width, y: 0)
+                return false
+            }
         }
+        
         return true
     }
     
@@ -443,9 +497,19 @@ extension WYContentScrollView {
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.configuredReserveIndex) as? Int }
     }
     
+    /// 判断是否已经切换过内容页面
+    private var alreadySwitchedPages: Bool {
+        set(newValue) {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.alreadySwitchedPages, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.alreadySwitchedPages) as? Bool ?? false
+        }
+    }
+    
     private struct WYAssociatedKeys {
         static var timer: UInt8 = 0
-        static var scrollDirection: UInt8 = 0
+        static var internalScrollDirection: UInt8 = 0
         static var canRestartedTimer: UInt8 = 0
         static var willSwitchHandler: UInt8 = 0
         static var didSwitchHandler: UInt8 = 0
@@ -453,6 +517,7 @@ extension WYContentScrollView {
         static var scrollHandler: UInt8 = 0
         static var canSwitchedPage: UInt8 = 0
         static var configuredReserveIndex: UInt8 = 0
+        static var alreadySwitchedPages: UInt8 = 0
     }
 }
 
@@ -469,6 +534,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
     }
     
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        
         let offsetX = scrollView.contentOffset.x
         guard canScroll(offsetX) == true else {
             return
@@ -476,7 +542,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
         
         canSwitchedPage = (abs(offsetX - wy_width) >= wy_width)
         
-        scrollDirection = offsetX > wy_width ? .left : (offsetX < wy_width ? .right : .none)
+        internalScrollDirection = offsetX > wy_width ? .left : (offsetX < wy_width ? .right : .none)
         
         if let contentDelegate = contentDelegate {
             contentDelegate.wy_contentScrollViewDidScroll?(self, offset: offsetX - wy_width, index: currentIndex)
@@ -495,4 +561,3 @@ extension WYContentScrollView: UIScrollViewDelegate {
         pauseScroll()
     }
 }
-

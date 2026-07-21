@@ -294,10 +294,6 @@ extension WYBannerView {
                 
                 setData(with: imageSource.first, describe: describeSource.first, imageView: currentView, textView: describeView)
                 
-                if automaticCarousel == true {
-                    automaticCarousel = true
-                }
-                
                 let gestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(didClickBanner))
                 scrollview.addGestureRecognizer(gestureRecognizer)
                 
