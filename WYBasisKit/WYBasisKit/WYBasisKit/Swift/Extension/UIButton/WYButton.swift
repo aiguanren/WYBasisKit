@@ -300,16 +300,16 @@ public extension UIButton {
     }
 }
 
-public typealias IntervalSelector = ((UIButton)->Void)
+public typealias WYIntervalSelector = ((UIButton)->Void)
 private extension UIButton {
     
-    private var intervalSelector: IntervalSelector? {
+    private var intervalSelector: WYIntervalSelector? {
         
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.intervalSelector, newValue, .OBJC_ASSOCIATION_COPY_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.intervalSelector) as? IntervalSelector
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.intervalSelector) as? WYIntervalSelector
         }
     }
     
