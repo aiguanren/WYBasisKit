@@ -18,8 +18,8 @@ class WYTestInfiniteSwitchController: UIViewController {
     
     // 配置控件
     private let directionSeg = UISegmentedControl(items: ["左右", "上下", "全向"])
-    private let hCountSeg = UISegmentedControl(items: ["1", "2", "3", "5", "∞"])
-    private let vCountSeg = UISegmentedControl(items: ["1", "2", "3", "5", "∞"])
+    private let hCountSeg = UISegmentedControl(items: ["0", "1", "2", "3", "5", "∞"])
+    private let vCountSeg = UISegmentedControl(items: ["0", "1", "2", "3", "5", "∞"])
     private let unlimitedSwitch = UISwitch()
     private let autoSwitch = UISwitch()
     private let standingSlider = UISlider()
@@ -61,11 +61,11 @@ class WYTestInfiniteSwitchController: UIViewController {
         directionSeg.addTarget(self, action: #selector(directionChanged), for: .valueChanged)
         directionSeg.selectedSegmentIndex = 0
         
-        // 页数
+        // 页数（默认选 "3"，即索引3）
         hCountSeg.addTarget(self, action: #selector(countChanged), for: .valueChanged)
-        hCountSeg.selectedSegmentIndex = 2  // 默认3
+        hCountSeg.selectedSegmentIndex = 3  // "3"
         vCountSeg.addTarget(self, action: #selector(countChanged), for: .valueChanged)
-        vCountSeg.selectedSegmentIndex = 2
+        vCountSeg.selectedSegmentIndex = 3  // "3"
         
         // 开关
         unlimitedSwitch.addTarget(self, action: #selector(switchChanged), for: .valueChanged)
@@ -204,10 +204,12 @@ class WYTestInfiniteSwitchController: UIViewController {
     private func updateScrollViewConfiguration() {
         // 读取 UI 配置
         currentDirection = WYContentSlidingDirection(rawValue: directionSeg.selectedSegmentIndex) ?? .leftOrRight
+        
+        // ✅ 页数映射：索引0->0, 1->1, 2->2, 3->3, 4->5, 5->Int.max
         let hIndex = hCountSeg.selectedSegmentIndex
-        horizontalCount = [1, 2, 3, 5, Int.max][hIndex]
+        horizontalCount = [0, 1, 2, 3, 5, Int.max][hIndex]
         let vIndex = vCountSeg.selectedSegmentIndex
-        verticalCount = [1, 2, 3, 5, Int.max][vIndex]
+        verticalCount = [0, 1, 2, 3, 5, Int.max][vIndex]
         
         scrollView.contentSlidingDirection = currentDirection
         scrollView.numberOfHorizontalContent = horizontalCount
@@ -227,13 +229,15 @@ class WYTestInfiniteSwitchController: UIViewController {
         // 根据方向设置内容
         switch currentDirection {
         case .leftOrRight:
-            guard horizontalViews.count >= 2 else { return }
+            // 当水平页数为0时，不添加任何视图，直接返回
+            guard horizontalCount > 0, horizontalViews.count >= 2 else { return }
             scrollView.horizontalOrVerticalDisplay(currentView: horizontalViews[0], reserveView: horizontalViews[1])
         case .topOrBottom:
-            guard verticalViews.count >= 2 else { return }
+            guard verticalCount > 0, verticalViews.count >= 2 else { return }
             scrollView.horizontalOrVerticalDisplay(currentView: verticalViews[0], reserveView: verticalViews[1])
         case .omnidirectional:
-            guard horizontalViews.count >= 2 && verticalViews.count >= 2 else { return }
+            guard horizontalCount > 0, verticalCount > 0,
+                  horizontalViews.count >= 2, verticalViews.count >= 2 else { return }
             scrollView.omnidirectionalDisplay(
                 currentHorizontalView: horizontalViews[0],
                 reserveHorizontalView: horizontalViews[1],
@@ -258,7 +262,7 @@ class WYTestInfiniteSwitchController: UIViewController {
         let hCount = (horizontalCount == Int.max) ? 5 : horizontalCount // 展示最多5个
         for i in 0..<hCount {
             let view = UIView()
-            view.backgroundColor = UIColor(hue: CGFloat(i) / CGFloat(hCount), saturation: 0.8, brightness: 0.8, alpha: 1)
+            view.backgroundColor = UIColor(hue: CGFloat(i) / CGFloat(max(1, hCount)), saturation: 0.8, brightness: 0.8, alpha: 1)
             let label = UILabel()
             label.text = "H\(i)"
             label.textColor = .white
@@ -279,7 +283,7 @@ class WYTestInfiniteSwitchController: UIViewController {
         let vCount = (verticalCount == Int.max) ? 5 : verticalCount
         for i in 0..<vCount {
             let view = UIView()
-            view.backgroundColor = UIColor(hue: CGFloat(i) / CGFloat(vCount), saturation: 0.6, brightness: 0.9, alpha: 1)
+            view.backgroundColor = UIColor(hue: CGFloat(i) / CGFloat(max(1, vCount)), saturation: 0.6, brightness: 0.9, alpha: 1)
             let label = UILabel()
             label.text = "V\(i)"
             label.textColor = .white
