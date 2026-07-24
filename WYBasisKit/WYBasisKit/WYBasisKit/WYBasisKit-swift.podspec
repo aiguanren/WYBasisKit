@@ -416,7 +416,8 @@ Pod::Spec.new do |kit|
         "#{kit_path}Swift/Layout/ContentScrollView/**/*.{swift,h,m}",
         "#{kit_path}Swift/Extension/UIView/**/*.{swift,h,m}",
         "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Extension/UIViewController/**/*.{swift,h,m}"
+        "#{kit_path}Swift/Extension/UIViewController/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIScrollView/**/*.{swift,h,m}"
       ]
       contentScrollView.resource_bundles = {"WYBasisKitSwiftLayoutContentScrollView" => [
         "#{kit_path}Swift/Layout/ContentScrollView/PrivacyInfo.xcprivacy"
