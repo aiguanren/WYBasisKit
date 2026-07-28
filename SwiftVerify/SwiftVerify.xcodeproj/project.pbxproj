@@ -88,9 +88,9 @@
 		585B3AD72DF819DC00E6E08F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A982DF819DC00E6E08F /* AppDelegate.swift */; };
 		585B3AD82DF819DC00E6E08F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A9F2DF819DC00E6E08F /* ViewController.swift */; };
 		585B3AD92DF819DC00E6E08F /* WYTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3AA02DF819DC00E6E08F /* WYTabBarController.swift */; };
+		585E7C333017050B00C461A3 /* WYTestInfiniteSwitchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585E7C323017050B00C461A3 /* WYTestInfiniteSwitchController.swift */; };
 		5882EAF12E518A5D00638FD3 /* WYTestVibrateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5882EAF02E518A5D00638FD3 /* WYTestVibrateController.swift */; };
 		589B0A3C2E49CE12000DBD10 /* bird.gif in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A3B2E49CE12000DBD10 /* bird.gif */; };
-		58C0C115300DF9CC00425A85 /* WYTestInfiniteSwitchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C0C114300DF9CC00425A85 /* WYTestInfiniteSwitchController.swift */; };
 		58C3596A2F3C6159000E6EF0 /* WYTestCombineImagesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C359692F3C6159000E6EF0 /* WYTestCombineImagesController.swift */; };
 		58CDEE5D2E34907800ACE975 /* WYLogController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CDEE5C2E34907800ACE975 /* WYLogController.swift */; };
 		58E712812E4B0CE90095E71C /* WYTestAudioController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E712802E4B0CE90095E71C /* WYTestAudioController.swift */; };
@@ -241,11 +241,11 @@
 		585B3AA02DF819DC00E6E08F /* WYTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTabBarController.swift; sourceTree = "<group>"; };
 		585B3ADB2DF8201F00E6E08F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		585B3ADD2DF8202500E6E08F /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
+		585E7C323017050B00C461A3 /* WYTestInfiniteSwitchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestInfiniteSwitchController.swift; sourceTree = "<group>"; };
 		5874BC852DF9176700703A4B /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
 		5874BC892DF9179300703A4B /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Main.strings"; sourceTree = "<group>"; };
 		5882EAF02E518A5D00638FD3 /* WYTestVibrateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestVibrateController.swift; sourceTree = "<group>"; };
 		589B0A3B2E49CE12000DBD10 /* bird.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = bird.gif; sourceTree = "<group>"; };
-		58C0C114300DF9CC00425A85 /* WYTestInfiniteSwitchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestInfiniteSwitchController.swift; sourceTree = "<group>"; };
 		58C359692F3C6159000E6EF0 /* WYTestCombineImagesController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestCombineImagesController.swift; sourceTree = "<group>"; };
 		58CDEE5C2E34907800ACE975 /* WYLogController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLogController.swift; sourceTree = "<group>"; };
 		58E712802E4B0CE90095E71C /* WYTestAudioController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestAudioController.swift; sourceTree = "<group>"; };
@@ -678,7 +678,7 @@
 		58C0C113300DF98B00425A85 /* 无限切换 */ = {
 			isa = PBXGroup;
 			children = (
-				58C0C114300DF9CC00425A85 /* WYTestInfiniteSwitchController.swift */,
+				585E7C323017050B00C461A3 /* WYTestInfiniteSwitchController.swift */,
 			);
 			path = "无限切换";
 			sourceTree = "<group>";
@@ -1028,7 +1028,7 @@
 				583234162E68219E00EFCAD9 /* WYTestScrollTextController.swift in Sources */,
 				585B3AB72DF819DC00E6E08F /* SDKResponse.swift in Sources */,
 				585B3AB82DF819DC00E6E08F /* UserRequest.swift in Sources */,
-				58C0C115300DF9CC00425A85 /* WYTestInfiniteSwitchController.swift in Sources */,
+				585E7C333017050B00C461A3 /* WYTestInfiniteSwitchController.swift in Sources */,
 				585B3AB92DF819DC00E6E08F /* UserResponse.swift in Sources */,
 				585B3ABA2DF819DC00E6E08F /* WYGenericTypeController.swift in Sources */,
 				585B3ABB2DF819DC00E6E08F /* WYOffLineMethodController.swift in Sources */,

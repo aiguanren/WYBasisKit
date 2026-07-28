@@ -203,19 +203,25 @@ public class WYContentScrollView: UIScrollView {
      */
     public func horizontalOrVerticalDisplay(currentView: UIView,
                                             reserveView: UIView) {
-        switch contentSlidingDirection {
-        case .leftOrRight:
-            currentHorizontalView = currentView
-            reserveHorizontalView = reserveView
-            break
-        case .topOrBottom:
-            currentVerticalView = currentView
-            reserveVerticalView = reserveView
-            break
-        case .omnidirectional:
+        
+        guard contentSlidingDirection != .omnidirectional else {
             return
         }
-        internalInitializationSettings()
+        
+        contentViewInitializationCheck(currentView)
+        contentViewInitializationCheck(reserveView)
+        
+        if contentSlidingDirection == .leftOrRight {
+            currentHorizontalView = currentView
+            reserveHorizontalView = reserveView
+        }
+        
+        if contentSlidingDirection == .topOrBottom {
+            currentVerticalView = currentView
+            reserveVerticalView = reserveView
+        }
+        
+        internalSettingsContentView()
     }
     
     /**
@@ -239,13 +245,19 @@ public class WYContentScrollView: UIScrollView {
                                        reserveHorizontalView: UIView,
                                        currentVerticalView: UIView,
                                        reserveVerticalView: UIView) {
+        
+        contentViewInitializationCheck(currentHorizontalView)
+        contentViewInitializationCheck(reserveHorizontalView)
+        contentViewInitializationCheck(currentVerticalView)
+        contentViewInitializationCheck(reserveVerticalView)
+        
         if contentSlidingDirection == .omnidirectional {
             self.currentHorizontalView = currentHorizontalView
             self.reserveHorizontalView = reserveHorizontalView
             self.currentVerticalView = currentVerticalView
             self.reserveVerticalView = reserveVerticalView
             
-            internalInitializationSettings()
+            internalSettingsContentView()
         }
     }
     
@@ -307,10 +319,7 @@ public class WYContentScrollView: UIScrollView {
         canRestartedTimer = true
     }
     
-    /**
-     *  停止定时器
-     *  滚动视图将不再自动轮播
-     */
+    /// 停止定时器(不支持contentSlidingDirection == omnidirectional时调用)
     public func stopTimer() {
         timer?.invalidate()
         timer = nil
@@ -430,11 +439,13 @@ public class WYContentScrollView: UIScrollView {
     /// 指定初始化方法，通过 frame 创建视图
     public override init(frame: CGRect) {
         super.init(frame: frame)
+        internalInitializationSettings()
     }
     
     /// 从故事板或 XIB 加载时所需的初始化方法
     required init?(coder: NSCoder) {
         super.init(coder: coder)
+        internalInitializationSettings()
     }
     
     deinit {
@@ -479,8 +490,44 @@ extension WYContentScrollView {
         }
     }
     
+    /// 检查各ContentView的superView
+    private func contentViewInitializationCheck(_ contentView: UIView) {
+        
+        if contentView.superview != nil {
+            contentView.removeFromSuperview()
+        }
+        
+        if let currentHorizontalView = currentHorizontalView, let reserveHorizontalView = reserveHorizontalView {
+            self.currentHorizontalView?.wy_removeFromSuperview()
+            self.currentHorizontalView = nil
+            self.reserveHorizontalView?.wy_removeFromSuperview()
+            self.reserveHorizontalView = nil
+        }
+        
+        if let currentVerticalView = currentVerticalView, let reserveVerticalView = reserveVerticalView {
+            self.currentVerticalView?.wy_removeFromSuperview()
+            self.currentVerticalView = nil
+            self.reserveVerticalView?.wy_removeFromSuperview()
+            self.reserveVerticalView = nil
+        }
+    }
+    
     /// 内部初始化设置
     private func internalInitializationSettings() {
+        
+        super.delegate = self
+        
+        let gestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(didClickContent))
+        addGestureRecognizer(gestureRecognizer)
+        
+        isPagingEnabled = true
+        showsHorizontalScrollIndicator = false
+        showsVerticalScrollIndicator = false
+        contentInsetAdjustmentBehavior = .never
+    }
+    
+    /// 内部设置添加ContentView
+    private func internalSettingsContentView() {
         Task { @MainActor in
             if (contentSlidingDirection == .omnidirectional) {
                 if prioritySlidingDirection == .topOrBottom {
@@ -493,23 +540,6 @@ extension WYContentScrollView {
             }else {
                 addContentView(contentSlidingDirection)
             }
-            
-            // 设置自定义Tag，用来标记是否添加过手势事件
-            if (tag != 9898) {
-                
-                tag = 9898
-                
-                // 在这里设置 super.delegate = self，确保只执行一次
-                super.delegate = self
-                
-                let gestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(didClickContent))
-                addGestureRecognizer(gestureRecognizer)
-                
-                isPagingEnabled = true
-                showsHorizontalScrollIndicator = false
-                showsVerticalScrollIndicator = false
-                contentInsetAdjustmentBehavior = .never
-            }
         }
     }
     
@@ -517,6 +547,9 @@ extension WYContentScrollView {
         
         if direction == .leftOrRight {
             guard let currentHorizontalView = currentHorizontalView, let reserveHorizontalView = reserveHorizontalView else { return }
+            
+            currentHorizontalView.isUserInteractionEnabled = true
+            reserveHorizontalView.isUserInteractionEnabled = true
             
             if (contentSlidingDirection == .omnidirectional) {
                 
@@ -539,6 +572,9 @@ extension WYContentScrollView {
         
         if direction == .topOrBottom {
             guard let currentVerticalView = currentVerticalView, let reserveVerticalView = reserveVerticalView else { return }
+            
+            currentVerticalView.isUserInteractionEnabled = true
+            reserveVerticalView.isUserInteractionEnabled = true
             
             if (contentSlidingDirection == .omnidirectional) {
                 
@@ -581,10 +617,12 @@ extension WYContentScrollView {
         case .leftOrRight:
             isScrollEnabled = numberOfHorizontalContent > 1 ? horizontalSliderForMultiPage : horizontalSliderForSinglePage
             bounces = numberOfHorizontalContent > 1 ? false : horizontalSliderForSinglePage
+            internalSliderDirection = .left
             break
         case .topOrBottom:
             isScrollEnabled = numberOfVerticalContent > 1 ? verticalSliderForMultiPage : verticalSliderForSinglePage
             bounces = numberOfVerticalContent > 1 ? false : verticalSliderForSinglePage
+            internalSliderDirection = .up
             break
         case .omnidirectional:
             if (wy_slidingDirection == .left) || (wy_slidingDirection == .right) {
@@ -594,6 +632,11 @@ extension WYContentScrollView {
             if (wy_slidingDirection == .up) || (wy_slidingDirection == .down) {
                 isScrollEnabled = numberOfVerticalContent > 1 ? verticalSliderForMultiPage : verticalSliderForSinglePage
                 bounces = numberOfVerticalContent > 1 ? false : verticalSliderForSinglePage
+            }
+            if prioritySlidingDirection == .leftOrRight {
+                internalSliderDirection = .left
+            }else if prioritySlidingDirection == .topOrBottom {
+                internalSliderDirection = .up
             }
             break
         }
@@ -877,10 +920,10 @@ extension WYContentScrollView {
     /// 判断是否可以滚动
     private func canScroll() -> Bool {
         
-        guard internalSliderDirection != .unknown else { return false }
-        
         // 检查(设置)轮播状态
         checkCarouselStatus()
+        
+        guard internalSliderDirection != .unknown else { return false }
         
         if (internalSliderDirection == .left) || (internalSliderDirection == .right) {
             

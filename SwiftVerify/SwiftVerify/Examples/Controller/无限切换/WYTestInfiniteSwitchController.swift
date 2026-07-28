@@ -8,395 +8,655 @@
 import UIKit
 import SnapKit
 
-// MARK: - 测试控制器
 class WYTestInfiniteSwitchController: UIViewController {
-
-    // MARK: - UI Components
-    private let scrollView = WYContentScrollView()
-    private let logTextView = UITextView()
-    private let controlStack = UIStackView()
     
-    // 配置控件
-    private let directionSeg = UISegmentedControl(items: ["左右", "上下", "全向"])
-    private let hCountSeg = UISegmentedControl(items: ["0", "1", "2", "3", "5", "∞"])
-    private let vCountSeg = UISegmentedControl(items: ["0", "1", "2", "3", "5", "∞"])
-    private let unlimitedSwitch = UISwitch()
-    private let autoSwitch = UISwitch()
-    private let standingSlider = UISlider()
-    private let hSingleSwitch = UISwitch()
-    private let vSingleSwitch = UISwitch()
-    private let hMultiSwitch = UISwitch()
-    private let vMultiSwitch = UISwitch()
-    private let prioritySeg = UISegmentedControl(items: ["优先水平", "优先垂直"])
+    /// 无限滚动View
+    var contentScrollView: WYContentScrollView = WYContentScrollView()
     
-    // 手动操作
-    private let nextBtn = UIButton(type: .system)
-    private let lastBtn = UIButton(type: .system)
-    private let jumpBtn = UIButton(type: .system)
-    private let jumpTextField = UITextField()
+    /// 底部操作View
+    var operatioView: UIScrollView = UIScrollView()
     
-    // 缓存视图
-    private var horizontalViews: [UIView] = []
-    private var verticalViews: [UIView] = []
+    /**
+     *  水平方向内容页视图数量（Int.max表示无限数量）
+     *  当设置Int.max时，会强制设置automaticCarousel和unlimitedCarousel为false
+     */
+    var numberOfHorizontalContent: UISegmentedControl = UISegmentedControl(items: ["0", "1", "2", "3", "4", "5", "∞"])
     
-    // 当前状态
-    private var currentDirection: WYContentSlidingDirection = .leftOrRight
-    private var horizontalCount: Int = 3
-    private var verticalCount: Int = 3
+    /**
+     *  垂直方向内容页视图数量（Int.max表示无限数量）
+     *  当设置Int.max时，会强制设置automaticCarousel和unlimitedCarousel为false
+     */
+    var numberOfVerticalContent: UISegmentedControl = UISegmentedControl(items: ["0", "1", "2", "3", "4", "5", "∞"])
     
-    // MARK: - Lifecycle
+    /// 支持的滑动方向
+    var contentSlidingDirection: UISegmentedControl = UISegmentedControl(items: ["左右", "上下", "全向"])
+    
+    /// 当contentSlidingDirection == .omnidirectional时，优先支持哪个滑动方向，默认左右滑动(不支持设置为.omnidirectional)
+    var prioritySlidingDirection: UISegmentedControl = UISegmentedControl(items: ["左右", "上下", "全向"])
+    
+    /**
+     *  自动轮播时每一页停留时间，默认为3s，最少1s
+     *  当设置的值小于1s时，则为默认值
+     *  contentSlidingDirection == omnidirectional时不会生效，且会强制停止计时器
+     */
+    var standingTime: UISlider = UISlider()
+    var standingTimeValue: UILabel = UILabel()
+    
+    /// 水平方向只有一张图片时，是否需要支持滑动，默认false
+    var horizontalSliderForSinglePage: UISwitch = UISwitch()
+    
+    /// 垂直方向只有一张图片时，是否需要支持滑动，默认false
+    var verticalSliderForSinglePage: UISwitch = UISwitch()
+    
+    /// 水平方向有多个内容页面时，是否需要支持滑动(contentSlidingDirection == omnidirectional时固定为false)
+    var horizontalSliderForMultiPage: UISwitch = UISwitch()
+    
+    /// 垂直方向有多个内容页面时，是否需要支持滑动(contentSlidingDirection == omnidirectional时固定为false)
+    var verticalSliderForMultiPage: UISwitch = UISwitch()
+    
+    /**
+     *  是否需要无限轮播，除contentSlidingDirection == omnidirectional时固定为false外，其余默认开启
+     *  当设置false时，会强制设置automaticCarousel为false
+     */
+    var unlimitedCarousel: UISwitch = UISwitch()
+    
+    /**
+     *  是否需要自动轮播，除contentSlidingDirection == omnidirectional时固定为false外，其余默认开启
+     *  当设置false时，会关闭定时器
+     */
+    var automaticCarousel: UISwitch = UISwitch()
+    
+    /**
+     *  开启或者关闭定时器(不支持contentSlidingDirection == omnidirectional时调用)
+     */
+    var startOrStopTimer: UISwitch = UISwitch()
+    
+    /// 切换指定方向下一个内容页面(不支持直接传入direction为omnidirectional)
+    var nextContent: UIButton = UIButton(type: .custom)
+    var nextContentDirection: UISegmentedControl = UISegmentedControl(items: ["左右", "上下", "全向"])
+    
+    /// 切换指定方向上一个内容页面(不支持直接传入direction为omnidirectional)
+    var lastContent: UIButton = UIButton(type: .custom)
+    var lastContentDirection: UISegmentedControl = UISegmentedControl(items: ["左右", "上下", "全向"])
+    
+    /// 切换到指定方向指定下标处(不支持直接传入direction为omnidirectional)
+    var switchContent: UIButton = UIButton(type: .custom)
+    var switchContentDirection: UISegmentedControl = UISegmentedControl(items: ["左右", "上下", "全向"])
+    var switchContentPicker: UIPickerView = UIPickerView()
+    var switchContentIndex: Int = 0
+    
+    /// 当前水平方向内容页索引
+    var currentHorizontalIndex: UILabel = UILabel()
+    
+    /// 水平方向储备内容页索引
+    var reserveHorizontalIndex: UILabel = UILabel()
+    
+    /// 当前垂直方向内容页索引
+    var currentVerticalIndex: UILabel = UILabel()
+    
+    /// 垂直方向储备内容页索引
+    var reserveVerticalIndex: UILabel = UILabel()
+    
+    /// 水平方向Contents
+    var horizontalViews: [UIView] = []
+    
+    /// 垂直方向Contents
+    var verticalViews: [UIView] = []
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
-        
-        setupControls()
-        layoutViews()
-        setupScrollView()
-        updateScrollViewConfiguration()
+
+        // Do any additional setup after loading the view.
+        addSubView()
+        configSubView()
     }
     
-    // MARK: - Setup Controls
-    private func setupControls() {
-        // 方向
-        directionSeg.addTarget(self, action: #selector(directionChanged), for: .valueChanged)
-        directionSeg.selectedSegmentIndex = 0
+    func configSubView() {
         
-        // 页数（默认选 "3"，即索引3）
-        hCountSeg.addTarget(self, action: #selector(countChanged), for: .valueChanged)
-        hCountSeg.selectedSegmentIndex = 3  // "3"
-        vCountSeg.addTarget(self, action: #selector(countChanged), for: .valueChanged)
-        vCountSeg.selectedSegmentIndex = 3  // "3"
+        for _ in 0...1 {
+            let horizontal: UIImageView = UIImageView()
+            horizontal.backgroundColor = .wy_random
+            horizontalViews.append(horizontal)
+            
+            let vertical: WYMediaPlayer = WYMediaPlayer()
+            vertical.backgroundColor = .wy_random
+            verticalViews.append(vertical)
+        }
         
-        // 开关
-        unlimitedSwitch.addTarget(self, action: #selector(switchChanged), for: .valueChanged)
-        unlimitedSwitch.isOn = true
-        autoSwitch.addTarget(self, action: #selector(switchChanged), for: .valueChanged)
-        autoSwitch.isOn = true
-        hSingleSwitch.addTarget(self, action: #selector(switchChanged), for: .valueChanged)
-        hSingleSwitch.isOn = false
-        vSingleSwitch.addTarget(self, action: #selector(switchChanged), for: .valueChanged)
-        vSingleSwitch.isOn = false
-        hMultiSwitch.addTarget(self, action: #selector(switchChanged), for: .valueChanged)
-        hMultiSwitch.isOn = true
-        vMultiSwitch.addTarget(self, action: #selector(switchChanged), for: .valueChanged)
-        vMultiSwitch.isOn = true
+        contentScrollView.contentDelegate = self
         
-        // 停留时间
-        standingSlider.minimumValue = 1
-        standingSlider.maximumValue = 10
-        standingSlider.value = 3
-        standingSlider.addTarget(self, action: #selector(sliderChanged), for: .valueChanged)
+        operatioView.showsHorizontalScrollIndicator = false
+        operatioView.contentInsetAdjustmentBehavior = .never
         
-        // 优先级
-        prioritySeg.addTarget(self, action: #selector(priorityChanged), for: .valueChanged)
-        prioritySeg.selectedSegmentIndex = 0
+        numberOfHorizontalContent.selectedSegmentIndex = 6
+        numberOfVerticalContent.selectedSegmentIndex = 6
         
-        // 手动操作按钮
-        nextBtn.setTitle("下一页", for: .normal)
-        nextBtn.addTarget(self, action: #selector(nextTapped), for: .touchUpInside)
-        lastBtn.setTitle("上一页", for: .normal)
-        lastBtn.addTarget(self, action: #selector(lastTapped), for: .touchUpInside)
-        jumpBtn.setTitle("跳转", for: .normal)
-        jumpBtn.addTarget(self, action: #selector(jumpTapped), for: .touchUpInside)
-        jumpTextField.borderStyle = .roundedRect
-        jumpTextField.placeholder = "索引"
-        jumpTextField.keyboardType = .numberPad
+        contentSlidingDirection.selectedSegmentIndex = 0
+        segmentedControlChange(sender: contentSlidingDirection)
         
-        // 构建 controlStack
-        controlStack.axis = .vertical
-        controlStack.spacing = 8
-        controlStack.alignment = .fill
-        controlStack.distribution = .fill
+        prioritySlidingDirection.selectedSegmentIndex = 0
+        segmentedControlChange(sender: prioritySlidingDirection)
         
-        let rows = [
-            createRow(label: "方向", control: directionSeg),
-            createRow(label: "水平页数", control: hCountSeg),
-            createRow(label: "垂直页数", control: vCountSeg),
-            createRow(label: "无限轮播", control: unlimitedSwitch),
-            createRow(label: "自动轮播", control: autoSwitch),
-            createRow(label: "停留时间", control: standingSlider),
-            createRow(label: "水平单页滑动", control: hSingleSwitch),
-            createRow(label: "垂直单页滑动", control: vSingleSwitch),
-            createRow(label: "水平多页滑动", control: hMultiSwitch),
-            createRow(label: "垂直多页滑动", control: vMultiSwitch),
-            createRow(label: "全向优先级", control: prioritySeg),
-        ]
-        rows.forEach { controlStack.addArrangedSubview($0) }
+        reserveHorizontalIndex.text = "0"
+        reserveHorizontalIndex.text = "0"
+        currentVerticalIndex.text = "0"
+        reserveVerticalIndex.text = "0"
         
-        // 动作行
-        let actionRow = UIStackView()
-        actionRow.axis = .horizontal
-        actionRow.spacing = 10
-        actionRow.distribution = .fillEqually
-        actionRow.addArrangedSubview(nextBtn)
-        actionRow.addArrangedSubview(lastBtn)
-        actionRow.addArrangedSubview(jumpBtn)
-        actionRow.addArrangedSubview(jumpTextField)
-        controlStack.addArrangedSubview(actionRow)
+        for segmentedControl in [numberOfHorizontalContent, numberOfVerticalContent, contentSlidingDirection, prioritySlidingDirection, nextContentDirection, lastContentDirection, switchContentDirection] {
+            segmentedControl.addTarget(self, action: #selector(segmentedControlChange(sender:)), for: .valueChanged)
+        }
+        
+        standingTime.value = 3
+        standingTime.minimumValue = 0
+        standingTime.maximumValue = 5
+        standingTime.addTarget(self, action: #selector(standingTimeChanged(sender:)), for: .valueChanged)
+        
+        standingTimeValue.textColor = .black
+        standingTimeValue.text = "3.0"
+        
+        horizontalSliderForSinglePage.isOn = false
+        verticalSliderForSinglePage.isOn = false
+        horizontalSliderForMultiPage.isOn = true
+        verticalSliderForMultiPage.isOn = true
+        unlimitedCarousel.isOn = true
+        automaticCarousel.isOn = true
+        
+        for switchView in [horizontalSliderForSinglePage, verticalSliderForSinglePage,horizontalSliderForMultiPage,verticalSliderForMultiPage, unlimitedCarousel, automaticCarousel, startOrStopTimer] {
+            switchView.addTarget(self, action: #selector(switchSwitched(sender:)), for: .valueChanged)
+        }
+        
+        
+        for button in [nextContent, lastContent, switchContent] {
+            button.setTitleColor(.black, for: .normal)
+            button.addTarget(self, action: #selector(buttonClick(sender:)), for: .touchUpInside)
+        }
+        
+        switchContentPicker.delegate = self
+        switchContentPicker.dataSource = self
+        
+        currentHorizontalIndex.text = "\(contentScrollView.currentHorizontalIndex)"
+        reserveHorizontalIndex.text = "\(contentScrollView.reserveHorizontalIndex)"
+        currentVerticalIndex.text = "\(contentScrollView.currentVerticalIndex)"
+        reserveVerticalIndex.text = "\(contentScrollView.reserveVerticalIndex)"
     }
     
-    private func createRow(label: String, control: UIView) -> UIStackView {
-        let stack = UIStackView()
-        stack.axis = .horizontal
-        stack.spacing = 8
-        stack.alignment = .center
-        stack.distribution = .fill
-        
-        let labelView = UILabel()
-        labelView.text = label
-        labelView.font = UIFont.systemFont(ofSize: 14)
-        labelView.setContentHuggingPriority(.required, for: .horizontal)
-        labelView.setContentCompressionResistancePriority(.required, for: .horizontal)
-        stack.addArrangedSubview(labelView)
-        stack.addArrangedSubview(control)
-        return stack
+    @objc func segmentedControlChange(sender: UISegmentedControl) {
+        if sender == numberOfHorizontalContent {
+            contentScrollView.numberOfHorizontalContent = [0, 1, 2, 3, 4, 5, Int.max][sender.selectedSegmentIndex]
+        }else if sender == numberOfVerticalContent {
+            contentScrollView.numberOfVerticalContent = [0, 1, 2, 3, 4, 5, Int.max][sender.selectedSegmentIndex]
+        }else if sender == contentSlidingDirection {
+            contentScrollView.contentSlidingDirection = [.leftOrRight, .topOrBottom, .omnidirectional][sender.selectedSegmentIndex]
+            switch contentScrollView.contentSlidingDirection {
+            case .omnidirectional:
+                contentScrollView.omnidirectionalDisplay(currentHorizontalView: horizontalViews.first!, reserveHorizontalView: horizontalViews.last!, currentVerticalView: verticalViews.first!, reserveVerticalView: verticalViews.last!)
+                break
+            default:
+                contentScrollView.horizontalOrVerticalDisplay(currentView: horizontalViews.first!, reserveView: horizontalViews.last!)
+            }
+        }else if sender == prioritySlidingDirection {
+            contentScrollView.prioritySlidingDirection = [.leftOrRight, .topOrBottom, .omnidirectional][sender.selectedSegmentIndex]
+        }
     }
     
-    // MARK: - Layout
-    private func layoutViews() {
-        // 1. 内容滚动视图
-        scrollView.backgroundColor = .lightGray
-        scrollView.layer.borderWidth = 1
-        scrollView.layer.borderColor = UIColor.blue.cgColor
-        view.addSubview(scrollView)
-        scrollView.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(20)
+    @objc func buttonClick(sender: UIButton) {
+        if sender == nextContent {
+            contentScrollView.nextContent([.leftOrRight, .topOrBottom, .omnidirectional][nextContentDirection.selectedSegmentIndex])
+        }else if sender == lastContent {
+            contentScrollView.lastContent([.leftOrRight, .topOrBottom, .omnidirectional][lastContentDirection.selectedSegmentIndex])
+        }else if sender == switchContent {
+            contentScrollView.switchContent([.leftOrRight, .topOrBottom, .omnidirectional][switchContentDirection.selectedSegmentIndex], index: &switchContentIndex)
+        }
+    }
+    
+    @objc func standingTimeChanged(sender: UISlider) {
+        standingTime.value = floor(sender.value)
+        standingTimeValue.text = "\(standingTime.value)"
+        contentScrollView.standingTime = TimeInterval(standingTime.value)
+    }
+    
+    @objc func switchSwitched(sender: UISwitch) {
+        if sender == horizontalSliderForSinglePage {
+            horizontalSliderForSinglePage.isOn = sender.isOn
+            contentScrollView.horizontalSliderForSinglePage = horizontalSliderForSinglePage.isOn
+        }else if sender == verticalSliderForSinglePage {
+            verticalSliderForSinglePage.isOn = sender.isOn
+            contentScrollView.verticalSliderForSinglePage = verticalSliderForSinglePage.isOn
+        }else if sender == horizontalSliderForMultiPage {
+            horizontalSliderForMultiPage.isOn = sender.isOn
+            contentScrollView.horizontalSliderForMultiPage = horizontalSliderForMultiPage.isOn
+        }else if sender == verticalSliderForMultiPage {
+            verticalSliderForMultiPage.isOn = sender.isOn
+            contentScrollView.verticalSliderForMultiPage = verticalSliderForMultiPage.isOn
+        }else if sender == unlimitedCarousel {
+            unlimitedCarousel.isOn = sender.isOn
+            contentScrollView.unlimitedCarousel = unlimitedCarousel.isOn
+        }else if sender == automaticCarousel {
+            automaticCarousel.isOn = sender.isOn
+            contentScrollView.automaticCarousel = automaticCarousel.isOn
+        }else if sender == startOrStopTimer {
+            startOrStopTimer.isOn = sender.isOn
+            if startOrStopTimer.isOn {
+                contentScrollView.startTimer()
+            }else {
+                contentScrollView.stopTimer()
+            }
+        }
+    }
+    
+    func addSubView() {
+        view.addSubview(contentScrollView)
+        contentScrollView.snp.makeConstraints { make in
+            make.left.right.equalToSuperview()
+            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight)
+        }
+        
+        view.addSubview(operatioView)
+        operatioView.snp.makeConstraints { make in
+            make.left.right.equalToSuperview()
+            make.top.equalTo(contentScrollView.snp.bottom)
+            make.height.equalTo((UIDevice.wy_screenHeight - UIDevice.wy_navViewHeight - UIDevice.wy_tabbarSafetyZone) / 2)
+            make.bottom.equalToSuperview().offset(UIDevice.wy_tabbarSafetyZone)
+        }
+        
+        let numberOfHorizontalContentView: UIView = createDescContentView(desc: "水平方向内容页视图数量（∞：表示无限数量(Int.Max)）", controView: numberOfHorizontalContent)
+        operatioView.addSubview(numberOfHorizontalContentView)
+        numberOfHorizontalContentView.snp.makeConstraints { make in
+            make.width.equalTo(UIDevice.wy_screenWidth - 20)
+            make.top.equalToSuperview().offset(10)
             make.centerX.equalToSuperview()
-            make.width.equalTo(300)
-            make.height.equalTo(400)
         }
         
-        // 2. 日志视图
-        logTextView.backgroundColor = UIColor.black.withAlphaComponent(0.1)
-        logTextView.font = UIFont.monospacedSystemFont(ofSize: 12, weight: .regular)
-        logTextView.isEditable = false
-        logTextView.text = "日志输出：\n"
-        view.addSubview(logTextView)
-        logTextView.snp.makeConstraints { make in
-            make.left.right.bottom.equalToSuperview().inset(20)
-            make.height.equalTo(150)
+        let numberOfVerticalContentView: UIView = createDescContentView(desc: "垂直方向内容页视图数量（∞：表示无限数量(Int.Max)）", controView: numberOfVerticalContent)
+        operatioView.addSubview(numberOfVerticalContentView)
+        numberOfVerticalContentView.snp.makeConstraints { make in
+            make.top.equalTo(numberOfHorizontalContentView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(numberOfHorizontalContentView)
         }
         
-        // 3. 控制面板容器（可滚动）
-        let scrollContainer = UIScrollView()
-        scrollContainer.showsVerticalScrollIndicator = true
-        view.addSubview(scrollContainer)
-        scrollContainer.snp.makeConstraints { make in
-            make.top.equalTo(scrollView.snp.bottom).offset(20)
-            make.left.right.equalToSuperview().inset(20)
-            make.bottom.equalTo(logTextView.snp.top).offset(-20)
+        let contentSlidingDirectionView: UIView = createDescContentView(desc: "支持的滑动方向", controView: contentSlidingDirection)
+        operatioView.addSubview(contentSlidingDirectionView)
+        contentSlidingDirectionView.snp.makeConstraints { make in
+            make.top.equalTo(numberOfVerticalContentView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(numberOfVerticalContentView)
         }
         
-        // 将 controlStack 添加到容器
-        scrollContainer.addSubview(controlStack)
-        controlStack.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-            make.width.equalToSuperview()
+        let prioritySlidingDirectionView: UIView = createDescContentView(desc: "当contentSlidingDirection == .omnidirectional时，优先支持哪个滑动方向，默认左右滑动(不支持设置为.omnidirectional)", controView: prioritySlidingDirection)
+        operatioView.addSubview(prioritySlidingDirectionView)
+        prioritySlidingDirectionView.snp.makeConstraints { make in
+            make.top.equalTo(contentSlidingDirectionView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(contentSlidingDirectionView)
         }
+        
+        /**
+         *  自动轮播时每一页停留时间，默认为3s，最少1s
+         *  当设置的值小于1s时，则为默认值
+         *  contentSlidingDirection == omnidirectional时不会生效，且会强制停止计时器
+         */
+        let standingTimeView: UIView = createDescContentView(desc: "自动轮播时每一页停留时间，默认为3s，最少1s，当设置的值小于1s时，则为默认值，contentSlidingDirection == omnidirectional时不会生效，且会强制停止计时器", controView: standingTime, valueView: standingTimeValue)
+        operatioView.addSubview(standingTimeView)
+        standingTimeView.snp.makeConstraints { make in
+            make.top.equalTo(prioritySlidingDirectionView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(prioritySlidingDirectionView)
+        }
+        
+        let horizontalSliderForSinglePageView: UIView = createDescContentView(desc: "水平方向只有一张图片时，是否需要支持滑动，默认false", controView: horizontalSliderForSinglePage)
+        operatioView.addSubview(horizontalSliderForSinglePageView)
+        horizontalSliderForSinglePageView.snp.makeConstraints { make in
+            make.top.equalTo(standingTimeView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(standingTimeView)
+        }
+        
+        let verticalSliderForSinglePageView: UIView = createDescContentView(desc: "垂直方向只有一张图片时，是否需要支持滑动，默认false", controView: verticalSliderForSinglePage)
+        operatioView.addSubview(verticalSliderForSinglePageView)
+        verticalSliderForSinglePageView.snp.makeConstraints { make in
+            make.top.equalTo(horizontalSliderForSinglePageView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(horizontalSliderForSinglePageView)
+        }
+        
+        let horizontalSliderForMultiPageView: UIView = createDescContentView(desc: "水平方向有多个内容页面时，是否需要支持滑动(contentSlidingDirection == omnidirectional时固定为false)", controView: horizontalSliderForMultiPage)
+        operatioView.addSubview(horizontalSliderForMultiPageView)
+        horizontalSliderForMultiPageView.snp.makeConstraints { make in
+            make.top.equalTo(verticalSliderForSinglePageView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(verticalSliderForSinglePageView)
+        }
+        
+        let verticalSliderForMultiPageView: UIView = createDescContentView(desc: "垂直方向有多个内容页面时，是否需要支持滑动(contentSlidingDirection == omnidirectional时固定为false)", controView: verticalSliderForMultiPage)
+        operatioView.addSubview(verticalSliderForMultiPageView)
+        verticalSliderForMultiPageView.snp.makeConstraints { make in
+            make.top.equalTo(horizontalSliderForMultiPageView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(horizontalSliderForMultiPageView)
+        }
+        
+        let unlimitedCarouselView: UIView = createDescContentView(desc: "是否需要无限轮播，除contentSlidingDirection == omnidirectional时固定为false外，其余默认开启，当设置false时，会强制设置automaticCarousel为false", controView: unlimitedCarousel)
+        operatioView.addSubview(unlimitedCarouselView)
+        unlimitedCarouselView.snp.makeConstraints { make in
+            make.top.equalTo(verticalSliderForMultiPageView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(verticalSliderForMultiPageView)
+        }
+        
+        let automaticCarouselView: UIView = createDescContentView(desc: "是否需要自动轮播，除contentSlidingDirection == omnidirectional时固定为false外，其余默认开启，当设置false时，会关闭定时器", controView: automaticCarousel)
+        operatioView.addSubview(automaticCarouselView)
+        automaticCarouselView.snp.makeConstraints { make in
+            make.top.equalTo(unlimitedCarouselView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(unlimitedCarouselView)
+        }
+        
+        let startOrStopTimerView: UIView = createDescContentView(desc: "开启或者关闭定时器(不支持contentSlidingDirection == omnidirectional时调用)", controView: startOrStopTimer)
+        operatioView.addSubview(startOrStopTimerView)
+        startOrStopTimerView.snp.makeConstraints { make in
+            make.top.equalTo(automaticCarouselView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(automaticCarouselView)
+        }
+        
+        let nextContentView: UIView = createDescContentViews(desc: "切换指定方向下一个内容页面(不支持直接传入direction为omnidirectional)", controViews: [nextContent, nextContentDirection])
+        operatioView.addSubview(nextContentView)
+        nextContentView.snp.makeConstraints { make in
+            make.top.equalTo(startOrStopTimerView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(startOrStopTimerView)
+        }
+        
+        let lastContentView: UIView = createDescContentViews(desc: "切换指定方向上一个内容页面(不支持直接传入direction为omnidirectional)", controViews: [lastContent, lastContentDirection])
+        operatioView.addSubview(lastContentView)
+        lastContentView.snp.makeConstraints { make in
+            make.top.equalTo(nextContentView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(nextContentView)
+        }
+        
+        let switchContentView: UIView = createDescContentViews(desc: "切换到指定方向指定下标处(不支持直接传入direction为omnidirectional)", controViews: [switchContent, switchContentDirection, switchContentPicker])
+        operatioView.addSubview(switchContentView)
+        switchContentView.snp.makeConstraints { make in
+            make.top.equalTo(lastContentView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(lastContentView)
+        }
+        
+        let currentHorizontalIndexView: UIView = createDescContentView(desc: "当前水平方向内容页索引：", controView: nil, valueView: currentHorizontalIndex)
+        operatioView.addSubview(currentHorizontalIndexView)
+        currentHorizontalIndexView.snp.makeConstraints { make in
+            make.top.equalTo(switchContentView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(switchContentView)
+        }
+        
+        let reserveHorizontalIndexView: UIView = createDescContentView(desc: "水平方向储备内容页索引：", controView: nil, valueView: reserveHorizontalIndex)
+        operatioView.addSubview(reserveHorizontalIndexView)
+        reserveHorizontalIndexView.snp.makeConstraints { make in
+            make.top.equalTo(currentHorizontalIndexView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(currentHorizontalIndexView)
+        }
+        
+        let currentVerticalIndexView: UIView = createDescContentView(desc: "当前垂直方向内容页索引：", controView: nil, valueView: currentVerticalIndex)
+        operatioView.addSubview(currentVerticalIndexView)
+        currentVerticalIndexView.snp.makeConstraints { make in
+            make.top.equalTo(reserveHorizontalIndexView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(reserveHorizontalIndexView)
+        }
+        
+        let reserveVerticalIndexView: UIView = createDescContentView(desc: "垂直方向储备内容页索引：", controView: nil, valueView: reserveVerticalIndex)
+        operatioView.addSubview(reserveVerticalIndexView)
+        reserveVerticalIndexView.snp.makeConstraints { make in
+            make.top.equalTo(currentVerticalIndexView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(currentVerticalIndexView)
+            make.bottom.equalToSuperview().offset(-100)
+        }
+        
+        reserveVerticalIndexView.layoutIfNeeded()
+        operatioView.contentSize = CGSize(width: UIDevice.wy_screenWidth, height: reserveVerticalIndexView.wy_bottom)
     }
     
-    // MARK: - ScrollView Configuration
-    private func setupScrollView() {
-        scrollView.contentDelegate = self
-        // 其他属性在 update 中设置
-    }
-    
-    private func updateScrollViewConfiguration() {
-        // 读取 UI 配置
-        currentDirection = WYContentSlidingDirection(rawValue: directionSeg.selectedSegmentIndex) ?? .leftOrRight
+    func createDescContentView(desc: String, controView: UIView?, valueView: UIView? = nil) -> UIView {
         
-        // ✅ 页数映射：索引0->0, 1->1, 2->2, 3->3, 4->5, 5->Int.max
-        let hIndex = hCountSeg.selectedSegmentIndex
-        horizontalCount = [0, 1, 2, 3, 5, Int.max][hIndex]
-        let vIndex = vCountSeg.selectedSegmentIndex
-        verticalCount = [0, 1, 2, 3, 5, Int.max][vIndex]
+        let contentView = UIView()
         
-        scrollView.contentSlidingDirection = currentDirection
-        scrollView.numberOfHorizontalContent = horizontalCount
-        scrollView.numberOfVerticalContent = verticalCount
-        scrollView.unlimitedCarousel = unlimitedSwitch.isOn
-        scrollView.automaticCarousel = autoSwitch.isOn
-        scrollView.horizontalSliderForSinglePage = hSingleSwitch.isOn
-        scrollView.verticalSliderForSinglePage = vSingleSwitch.isOn
-        scrollView.horizontalSliderForMultiPage = hMultiSwitch.isOn
-        scrollView.verticalSliderForMultiPage = vMultiSwitch.isOn
-        scrollView.standingTime = TimeInterval(standingSlider.value)
-        scrollView.prioritySlidingDirection = prioritySeg.selectedSegmentIndex == 0 ? .leftOrRight : .topOrBottom
+        let descView: UILabel = cerateDescView(desc, superView: contentView)
         
-        // 生成内容视图
-        generateContentViews()
-        
-        // 根据方向设置内容
-        switch currentDirection {
-        case .leftOrRight:
-            // 当水平页数为0时，不添加任何视图，直接返回
-            guard horizontalCount > 0, horizontalViews.count >= 2 else { return }
-            scrollView.horizontalOrVerticalDisplay(currentView: horizontalViews[0], reserveView: horizontalViews[1])
-        case .topOrBottom:
-            guard verticalCount > 0, verticalViews.count >= 2 else { return }
-            scrollView.horizontalOrVerticalDisplay(currentView: verticalViews[0], reserveView: verticalViews[1])
-        case .omnidirectional:
-            guard horizontalCount > 0, verticalCount > 0,
-                  horizontalViews.count >= 2, verticalViews.count >= 2 else { return }
-            scrollView.omnidirectionalDisplay(
-                currentHorizontalView: horizontalViews[0],
-                reserveHorizontalView: horizontalViews[1],
-                currentVerticalView: verticalViews[0],
-                reserveVerticalView: verticalViews[1]
-            )
-        }
-        
-        // 启动或停止定时器
-        if scrollView.automaticCarousel {
-            scrollView.startTimer()
-        } else {
-            scrollView.stopTimer()
-        }
-        
-        appendLog("配置已更新：方向=\(currentDirection), 水平页数=\(horizontalCount), 垂直页数=\(verticalCount)")
-    }
-    
-    private func generateContentViews() {
-        // 水平视图
-        horizontalViews.removeAll()
-        let hCount = (horizontalCount == Int.max) ? 5 : horizontalCount // 展示最多5个
-        for i in 0..<hCount {
-            let view = UIView()
-            view.backgroundColor = UIColor(hue: CGFloat(i) / CGFloat(max(1, hCount)), saturation: 0.8, brightness: 0.8, alpha: 1)
-            let label = UILabel()
-            label.text = "H\(i)"
-            label.textColor = .white
-            label.font = UIFont.boldSystemFont(ofSize: 30)
-            label.textAlignment = .center
-            view.addSubview(label)
-            label.snp.makeConstraints { make in
-                make.center.equalToSuperview()
+        if let controView = controView {
+            contentView.addSubview(controView)
+            controView.snp.makeConstraints { make in
+                make.left.bottom.equalToSuperview()
+                make.height.equalTo(25)
+                if controView is UISwitch {
+                    make.top.equalTo(descView.snp.bottom).offset(5)
+                    make.width.equalTo(80)
+                }else if controView is UILabel {
+                    make.centerY.equalTo(descView)
+                    make.width.equalToSuperview().offset(-30)
+                }else if valueView != nil {
+                    make.top.equalTo(descView.snp.bottom).offset(5)
+                    make.width.equalToSuperview().offset(-55)
+                }else {
+                    make.top.equalTo(descView.snp.bottom).offset(5)
+                    make.width.equalToSuperview()
+                }
             }
-            let tap = UITapGestureRecognizer(target: self, action: #selector(viewTapped(_:)))
-            view.addGestureRecognizer(tap)
-            view.isUserInteractionEnabled = true
-            horizontalViews.append(view)
         }
         
-        // 垂直视图
-        verticalViews.removeAll()
-        let vCount = (verticalCount == Int.max) ? 5 : verticalCount
-        for i in 0..<vCount {
-            let view = UIView()
-            view.backgroundColor = UIColor(hue: CGFloat(i) / CGFloat(max(1, vCount)), saturation: 0.6, brightness: 0.9, alpha: 1)
-            let label = UILabel()
-            label.text = "V\(i)"
-            label.textColor = .white
-            label.font = UIFont.boldSystemFont(ofSize: 30)
-            label.textAlignment = .center
-            view.addSubview(label)
-            label.snp.makeConstraints { make in
-                make.center.equalToSuperview()
+        if let valueView = valueView {
+            contentView.addSubview(valueView)
+            if let controView = controView {
+                valueView.snp.makeConstraints { make in
+                    make.left.equalTo(controView.snp.right).offset(10)
+                    make.centerY.equalTo(controView)
+                }
+            }else {
+                descView.snp.updateConstraints { make in
+                    make.width.equalToSuperview().offset(-55)
+                }
+                valueView.snp.makeConstraints { make in
+                    make.left.equalTo(descView.snp.right).offset(10)
+                    make.centerY.equalTo(descView)
+                }
             }
-            let tap = UITapGestureRecognizer(target: self, action: #selector(viewTapped(_:)))
-            view.addGestureRecognizer(tap)
-            view.isUserInteractionEnabled = true
-            verticalViews.append(view)
         }
+        
+        return contentView
     }
     
-    // MARK: - Actions
-    @objc private func directionChanged() {
-        updateScrollViewConfiguration()
-    }
-    
-    @objc private func countChanged() {
-        updateScrollViewConfiguration()
-    }
-    
-    @objc private func switchChanged() {
-        updateScrollViewConfiguration()
-    }
-    
-    @objc private func sliderChanged() {
-        scrollView.standingTime = TimeInterval(standingSlider.value)
-        if scrollView.automaticCarousel {
-            scrollView.startTimer()
+    func createDescContentViews(desc: String, controViews: [UIView]) -> UIView {
+        let contentView = UIView()
+        
+        let descView: UILabel = cerateDescView(desc, superView: contentView)
+        
+        var contentlastView: UIView? = nil
+        for controView in controViews {
+            if controView is UIButton {
+                (controView as! UIButton).setTitle("切换", for: .normal)
+            }
+            contentView.addSubview(controView)
+            controView.snp.makeConstraints { make in
+                if let lastView = contentlastView {
+                    make.left.equalTo(lastView.snp.right).offset(10)
+                }else {
+                    make.left.equalToSuperview()
+                }
+                
+                if controView is UISegmentedControl {
+                    make.width.equalTo(UIDevice.wy_screenWidth - 20 - 160)
+                } else if controView is UIPickerView {
+                    make.width.equalTo(90)
+                    make.height.equalTo(100)
+                    make.bottom.equalToSuperview()
+                } else {
+                    make.width.equalTo(60)
+                }
+                if !controViews.contains(switchContentDirection) {
+                    make.height.equalTo(25)
+                    make.bottom.equalToSuperview()
+                }
+                
+                make.top.equalTo(descView.snp.bottom).offset(5)
+                
+                contentlastView = controView
+            }
         }
-        appendLog("停留时间设为: \(Int(standingSlider.value))s")
+        
+        return contentView
     }
     
-    @objc private func priorityChanged() {
-        updateScrollViewConfiguration()
-    }
-    
-    @objc private func nextTapped() {
-        scrollView.nextContent(currentDirection)
-        appendLog("手动下一页")
-    }
-    
-    @objc private func lastTapped() {
-        scrollView.lastContent(currentDirection)
-        appendLog("手动上一页")
-    }
-    
-    @objc private func jumpTapped() {
-        guard let text = jumpTextField.text, let index = Int(text) else {
-            appendLog("请输入有效索引")
-            return
+    func cerateDescView(_ desc: String, superView: UIView) -> UILabel {
+        
+        let descView: UILabel = UILabel()
+        descView.text = desc
+        descView.numberOfLines = 0
+        descView.textColor = .black
+        descView.textAlignment = .left
+        superView.addSubview(descView)
+        descView.snp.makeConstraints { make in
+            make.left.top.width.right.equalToSuperview()
         }
-        var idx = index
-        scrollView.switchContent(currentDirection, index: &idx)
-        appendLog("跳转到索引: \(idx)")
-        jumpTextField.resignFirstResponder()
+        
+        return descView
+    }
+
+    /*
+    // MARK: - Navigation
+
+    // In a storyboard-based application, you will often want to do a little preparation before navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        // Get the new view controller using segue.destination.
+        // Pass the selected object to the new view controller.
+    }
+    */
+
+}
+
+extension WYTestInfiniteSwitchController: WYContentScrollViewDelegate {
+    
+    /**
+     *  监听ContentScrollView的偏移量变化事件
+     *
+     *  @param contentScrollView  当前WYContentScrollView的实例对象
+     *
+     *  @param offset             当前的偏移量
+     *
+     *  @param direction          当前的滑动方向
+     *
+     *  @param currentView        当前正在显示的用户传入的View
+     (左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
+     *
+     *  @param reserveView        当前预备显示的用户传入的View
+     (左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
+     *
+     *  @param index              当前滑动的Index
+     */
+    func wy_contentScrollViewDidScroll(_ contentScrollView: WYContentScrollView, offset: CGPoint, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView, index: Int) {
+        //wy_print("监听到ContentScrollView的偏移量事件\n当前X：\(offset.x)\n当前Y：\(offset.y)\n滑动方向：\(direction)\n当前滑动的Index：\(index)\n当前正在显示的用户传入的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)：\(currentView)\n当前预备显示的用户传入的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)：\(reserveView)\n水平方向Contents：\(horizontalViews)\n垂直方向Contents：\(verticalViews)")
     }
     
-    @objc private func viewTapped(_ gesture: UITapGestureRecognizer) {
-        if let view = gesture.view,
-           let label = view.subviews.first(where: { $0 is UILabel }) as? UILabel,
-           let text = label.text {
-            appendLog("点击了视图: \(text)")
-        } else {
-            appendLog("点击了某个视图")
-        }
+    /**
+     *  监听ContentScrollView的点击事件
+     *
+     *  @param contentScrollView  当前WYContentScrollView的实例对象
+     *
+     *  @param direction          当前的滑动方向
+     *
+     *  @param currentView        当前正在显示的用户传入的View
+     (左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
+     *
+     *  @param reserveView        当前预备显示的用户传入的View
+     (左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
+     *
+     *  @param index              当前点击的Index
+     */
+    func wy_contentScrollViewDidClick(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView, index: Int) {
+        wy_print("监听到ContentScrollView点击事件\n滑动方向：\(direction)\n当前滑动的Index：\(index)\n当前正在显示的用户传入的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)：\(currentView)\n当前预备显示的用户传入的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)：\(reserveView)\n水平方向Contents：\(horizontalViews)\n垂直方向Contents：\(verticalViews)")
     }
     
-    // MARK: - Logging
-    private func appendLog(_ message: String) {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm:ss.SSS"
-        let timestamp = formatter.string(from: Date())
-        let log = "[\(timestamp)] \(message)\n"
-        logTextView.text += log
-        logTextView.scrollRangeToVisible(NSRange(location: logTextView.text.count - 1, length: 1))
+    /**
+     *  监听ContentScrollView即将切换页面的事件
+     (contentSlidingDirection != omnidirectional时可用)
+     *
+     *  @param contentScrollView  当前WYContentScrollView的实例对象
+     *
+     *  @param direction          当前的滑动方向
+     *
+     *  @param currentView        当前正在显示的用户传入的View
+     (左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
+     *
+     *  @param reserveView        当前预备显示的用户传入的View
+     (左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
+     */
+    func wy_contentScrollViewWillSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView) {
+        wy_print("监听到ContentScrollView即将切换页面的事件(contentSlidingDirection != omnidirectional时可用)\n滑动方向：\(direction)\n当前正在显示的用户传入的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)：\(currentView)\n当前预备显示的用户传入的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)：\(reserveView)\n水平方向Contents：\(horizontalViews)\n垂直方向Contents：\(verticalViews)")
+    }
+    
+    /**
+     *  监听ContentScrollView页面已经切换完成的事件
+     (contentSlidingDirection != omnidirectional时可用)
+     *
+     *  @param contentScrollView  当前WYContentScrollView的实例对象
+     *
+     *  @param direction          当前的滑动方向
+     *
+     *  @param currentView        当前正在显示的用户传入的View
+     (左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
+     *
+     *  @param reserveView        当前预备显示的用户传入的View
+     (左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
+     */
+    func wy_contentScrollViewDidSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView) {
+        wy_print("监听到ContentScrollView页面已经切换完成的事件(contentSlidingDirection != omnidirectional时可用)\n滑动方向：\(direction)\n当前正在显示的用户传入的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)：\(currentView)\n当前预备显示的用户传入的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)：\(reserveView)\n水平方向Contents：\(horizontalViews)\n垂直方向Contents：\(verticalViews)")
+    }
+    
+    /**
+     *  监听ContentScrollView即将切换页面的事件
+     (contentSlidingDirection == omnidirectional时可用)
+     *
+     *  @param contentScrollView     当前WYContentScrollView的实例对象
+     *
+     *  @param direction             当前的滑动方向
+     *
+     *  @param currentHorizontalView 当前正在水平方向显示的View(用户传入的View)
+     *
+     *  @param reserveHorizontalView 当前水平方向预备显示的View(用户传入的View)
+     *
+     *  @param currentVerticalView   当前正在垂直方向显示的View(用户传入的View)
+     *
+     *  @param reserveVerticalView   当前垂直方向预备显示的View(用户传入的View)
+     */
+    func wy_contentScrollViewWillSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView, reserveHorizontalView: UIView, currentVerticalView: UIView, reserveVerticalView: UIView) {
+        wy_print("监听到ContentScrollView即将切换页面的事件(contentSlidingDirection == omnidirectional时可用)\n滑动方向：\(direction)\n当前正在水平方向显示的View(用户传入的View)：\(currentHorizontalView)\n当前水平方向预备显示的View(用户传入的View)：\(reserveHorizontalView)\n当前正在垂直方向显示的View(用户传入的View)：\(currentVerticalView)\n当前垂直方向预备显示的View(用户传入的View)：\(reserveVerticalView)\n水平方向Contents：\(horizontalViews)\n垂直方向Contents：\(verticalViews)")
+    }
+    
+    /**
+     *  监听ContentScrollView页面已经切换完成的事件
+     (contentSlidingDirection == omnidirectional时可用)
+     *
+     *  @param contentScrollView     当前WYContentScrollView的实例对象
+     *
+     *  @param direction             当前的滑动方向
+     *
+     *  @param currentHorizontalView 当前正在水平方向显示的View(用户传入的View)
+     *
+     *  @param reserveHorizontalView 当前水平方向预备显示的View(用户传入的View)
+     *
+     *  @param currentVerticalView   当前正在垂直方向显示的View(用户传入的View)
+     *
+     *  @param reserveVerticalView   当前垂直方向预备显示的View(用户传入的View)
+     */
+    func wy_contentScrollViewDidSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView, reserveHorizontalView: UIView, currentVerticalView: UIView, reserveVerticalView: UIView) {
+        wy_print("监听ContentScrollView页面已经切换完成的事件(contentSlidingDirection == omnidirectional时可用)\n滑动方向：\(direction)\n当前正在水平方向显示的View(用户传入的View)：\(currentHorizontalView)\n当前水平方向预备显示的View(用户传入的View)：\(reserveHorizontalView)\n当前正在垂直方向显示的View(用户传入的View)：\(currentVerticalView)\n当前垂直方向预备显示的View(用户传入的View)：\(reserveVerticalView)\n水平方向Contents：\(horizontalViews)\n垂直方向Contents：\(verticalViews)")
     }
 }
 
-// MARK: - WYContentScrollViewDelegate
-extension WYTestInfiniteSwitchController: WYContentScrollViewDelegate {
+extension WYTestInfiniteSwitchController: UIPickerViewDelegate, UIPickerViewDataSource {
     
-    func wy_contentScrollViewDidScroll(_ contentScrollView: WYContentScrollView, offset: CGPoint, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView, index: Int) {
-        let directionStr = String(describing: direction)
-        appendLog("DidScroll: offset(\(offset.x), \(offset.y)), dir=\(directionStr), index=\(index)")
+    // 返回每一行显示的文字
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return ["0", "1", "2", "3", "4", "5"][row]
     }
     
-    func wy_contentScrollViewDidClick(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView, index: Int) {
-        let directionStr = String(describing: direction)
-        appendLog("DidClick: dir=\(directionStr), index=\(index)")
+    // 监听选中事件
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        switchContentIndex = row
     }
     
-    func wy_contentScrollViewWillSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView) {
-        let directionStr = String(describing: direction)
-        appendLog("WillSwitch(非全向): dir=\(directionStr)")
+    // 返回组件（列）的数量
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
     }
     
-    func wy_contentScrollViewDidSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView) {
-        let directionStr = String(describing: direction)
-        appendLog("DidSwitch(非全向): dir=\(directionStr)")
-    }
-    
-    func wy_contentScrollViewWillSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView, reserveHorizontalView: UIView, currentVerticalView: UIView, reserveVerticalView: UIView) {
-        let directionStr = String(describing: direction)
-        appendLog("WillSwitch(全向): dir=\(directionStr)")
-    }
-    
-    func wy_contentScrollViewDidSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView, reserveHorizontalView: UIView, currentVerticalView: UIView, reserveVerticalView: UIView) {
-        let directionStr = String(describing: direction)
-        appendLog("DidSwitch(全向): dir=\(directionStr)")
+    // 返回每一列的行数
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return 6
     }
 }
