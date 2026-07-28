@@ -123,7 +123,7 @@ class WYTestInfiniteSwitchController: UIViewController {
             verticalViews.append(vertical)
         }
         
-        contentScrollView.contentDelegate = self
+        //contentScrollView.contentDelegate = self
         
         operatioView.showsHorizontalScrollIndicator = false
         operatioView.contentInsetAdjustmentBehavior = .never

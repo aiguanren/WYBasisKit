@@ -617,12 +617,16 @@ extension WYContentScrollView {
         case .leftOrRight:
             isScrollEnabled = numberOfHorizontalContent > 1 ? horizontalSliderForMultiPage : horizontalSliderForSinglePage
             bounces = numberOfHorizontalContent > 1 ? false : horizontalSliderForSinglePage
-            internalSliderDirection = .left
+            if (internalSliderDirection == .unknown) {
+                internalSliderDirection = .left
+            }
             break
         case .topOrBottom:
             isScrollEnabled = numberOfVerticalContent > 1 ? verticalSliderForMultiPage : verticalSliderForSinglePage
             bounces = numberOfVerticalContent > 1 ? false : verticalSliderForSinglePage
-            internalSliderDirection = .up
+            if (internalSliderDirection == .unknown) {
+                internalSliderDirection = .up
+            }
             break
         case .omnidirectional:
             if (wy_slidingDirection == .left) || (wy_slidingDirection == .right) {
@@ -634,9 +638,13 @@ extension WYContentScrollView {
                 bounces = numberOfVerticalContent > 1 ? false : verticalSliderForSinglePage
             }
             if prioritySlidingDirection == .leftOrRight {
-                internalSliderDirection = .left
+                if (internalSliderDirection == .unknown) {
+                    internalSliderDirection = .left
+                }
             }else if prioritySlidingDirection == .topOrBottom {
-                internalSliderDirection = .up
+                if (internalSliderDirection == .unknown) {
+                    internalSliderDirection = .up
+                }
             }
             break
         }
