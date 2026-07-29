@@ -123,7 +123,7 @@ class WYTestInfiniteSwitchController: UIViewController {
             verticalViews.append(vertical)
         }
         
-        //contentScrollView.contentDelegate = self
+        contentScrollView.contentDelegate = self
         
         operatioView.showsHorizontalScrollIndicator = false
         operatioView.contentInsetAdjustmentBehavior = .never
@@ -539,7 +539,7 @@ extension WYTestInfiniteSwitchController: WYContentScrollViewDelegate {
      *  @param index              当前滑动的Index
      */
     func wy_contentScrollViewDidScroll(_ contentScrollView: WYContentScrollView, offset: CGPoint, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView, index: Int) {
-        //wy_print("监听到ContentScrollView的偏移量事件\n当前X：\(offset.x)\n当前Y：\(offset.y)\n滑动方向：\(direction)\n当前滑动的Index：\(index)\n当前正在显示的用户传入的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)：\(currentView)\n当前预备显示的用户传入的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)：\(reserveView)\n水平方向Contents：\(horizontalViews)\n垂直方向Contents：\(verticalViews)")
+        wy_print("监听到ContentScrollView的偏移量事件\n当前X：\(offset.x)\n当前Y：\(offset.y)\n滑动方向：\(direction)\n当前滑动的Index：\(index)\n当前正在显示的用户传入的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)：\(currentView)\n当前预备显示的用户传入的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)：\(reserveView)\n水平方向Contents：\(horizontalViews)\n垂直方向Contents：\(verticalViews)")
     }
     
     /**

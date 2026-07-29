@@ -394,36 +394,45 @@ public class WYContentScrollView: UIScrollView {
         switch direction {
         case .leftOrRight:
             
+            if index < 0 { index = 0 }
+            if index > (numberOfHorizontalContent - 1) { index = (numberOfHorizontalContent - 1) }
+            
             guard (contentSlidingDirection != .topOrBottom) || (index != currentHorizontalIndex) else {
                 return
             }
             
-            if index < 0 { index = 0 }
-            if index > (numberOfHorizontalContent - 1) { index = (numberOfHorizontalContent - 1) }
-            
             if index < currentHorizontalIndex {
-                currentHorizontalIndex = (index + 1)
-                lastContent(direction)
-            }else {
-                currentHorizontalIndex = (index - 1)
-                lastContent(direction)
+                if (index - 1) >= 0 {
+                    currentHorizontalIndex = (index - 1)
+                    lastContent(direction)
+                }
+            }else if index > currentHorizontalIndex {
+                if (index + 1) <= (numberOfHorizontalContent - 1) {
+                    currentHorizontalIndex = (index + 1)
+                    nextContent(direction)
+                }
             }
+            
             break
         case .topOrBottom:
+            
+            if index < 0 { index = 0 }
+            if index > (numberOfVerticalContent - 1) { index = (numberOfVerticalContent - 1) }
             
             guard (contentSlidingDirection != .leftOrRight) || (index != currentVerticalIndex) else {
                 return
             }
             
-            if index < 0 { index = 0 }
-            if index > (numberOfVerticalContent - 1) { index = (numberOfVerticalContent - 1) }
-            
             if index < currentVerticalIndex {
-                currentVerticalIndex = (index + 1)
-                lastContent(direction)
-            }else {
-                currentVerticalIndex = (index - 1)
-                lastContent(direction)
+                if (index - 1) >= 0 {
+                    currentVerticalIndex = (index - 1)
+                    lastContent(direction)
+                }
+            }else if index > currentVerticalIndex {
+                if (index + 1) <= (numberOfVerticalContent - 1) {
+                    currentVerticalIndex = (index + 1)
+                    nextContent(direction)
+                }
             }
             break
         default:
@@ -548,9 +557,6 @@ extension WYContentScrollView {
         if direction == .leftOrRight {
             guard let currentHorizontalView = currentHorizontalView, let reserveHorizontalView = reserveHorizontalView else { return }
             
-            currentHorizontalView.isUserInteractionEnabled = true
-            reserveHorizontalView.isUserInteractionEnabled = true
-            
             if (contentSlidingDirection == .omnidirectional) {
                 
                 currentHorizontalView.frame = CGRect(x: wy_width, y: wy_height, width: wy_width, height: wy_height)
@@ -617,34 +623,19 @@ extension WYContentScrollView {
         case .leftOrRight:
             isScrollEnabled = numberOfHorizontalContent > 1 ? horizontalSliderForMultiPage : horizontalSliderForSinglePage
             bounces = numberOfHorizontalContent > 1 ? false : horizontalSliderForSinglePage
-            if (internalSliderDirection == .unknown) {
-                internalSliderDirection = .left
-            }
             break
         case .topOrBottom:
             isScrollEnabled = numberOfVerticalContent > 1 ? verticalSliderForMultiPage : verticalSliderForSinglePage
             bounces = numberOfVerticalContent > 1 ? false : verticalSliderForSinglePage
-            if (internalSliderDirection == .unknown) {
-                internalSliderDirection = .up
-            }
             break
         case .omnidirectional:
-            if (wy_slidingDirection == .left) || (wy_slidingDirection == .right) {
+            if (wy_slidingDirection() == .left) || (wy_slidingDirection() == .right) {
                 isScrollEnabled = numberOfHorizontalContent > 1 ? horizontalSliderForMultiPage : horizontalSliderForSinglePage
                 bounces = numberOfHorizontalContent > 1 ? false : horizontalSliderForSinglePage
             }
-            if (wy_slidingDirection == .up) || (wy_slidingDirection == .down) {
+            if (wy_slidingDirection() == .up) || (wy_slidingDirection() == .down) {
                 isScrollEnabled = numberOfVerticalContent > 1 ? verticalSliderForMultiPage : verticalSliderForSinglePage
                 bounces = numberOfVerticalContent > 1 ? false : verticalSliderForSinglePage
-            }
-            if prioritySlidingDirection == .leftOrRight {
-                if (internalSliderDirection == .unknown) {
-                    internalSliderDirection = .left
-                }
-            }else if prioritySlidingDirection == .topOrBottom {
-                if (internalSliderDirection == .unknown) {
-                    internalSliderDirection = .up
-                }
             }
             break
         }
@@ -774,7 +765,7 @@ extension WYContentScrollView {
                 guard let reserveVerticalView = reserveVerticalView else { return }
                 
                 reserveVerticalView.frame = CGRect(x: ((contentSlidingDirection == .omnidirectional) ? wy_width : 0), y: 0, width: wy_width, height: wy_height)
-                reserveVerticalIndex = reserveVerticalIndex - 1
+                reserveVerticalIndex = currentVerticalIndex - 1
                 if (reserveVerticalIndex < 0)  {
                     reserveVerticalIndex = numberOfVerticalContent - 1
                 }
@@ -1072,13 +1063,30 @@ extension WYContentScrollView: UIScrollViewDelegate {
 
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
+        let offsetX = scrollView.contentOffset.x
+        let offsetY = scrollView.contentOffset.y
+
+        if (offsetX != 0) {
+            if offsetX > wy_width {
+                internalSliderDirection = .left
+            }else if offsetX < wy_width {
+                internalSliderDirection = .right
+            }
+        }
+        
+        if (offsetY != 0) {
+            if offsetY > wy_height {
+                internalSliderDirection = .up
+            }else if offsetY < wy_height {
+                internalSliderDirection = .down
+            }
+        }
+        
         guard canScroll() == true else { return }
         
         if (internalSliderDirection == .left) || (internalSliderDirection == .right) {
-            let offsetX = scrollView.contentOffset.x
-            canSwitchedPage = (abs(offsetX - wy_width) >= wy_width)
             
-            internalSliderDirection = offsetX > wy_width ? .left : (offsetX < wy_width ? .right : .unknown)
+            canSwitchedPage = (abs(offsetX - wy_width) >= wy_width)
             
             if let contentDelegate = contentDelegate, let currentHorizontalView = currentHorizontalView, let reserveHorizontalView = reserveHorizontalView {
                 
@@ -1086,10 +1094,8 @@ extension WYContentScrollView: UIScrollViewDelegate {
             }
             
         }else {
-            let offsetY = scrollView.contentOffset.y
-            canSwitchedPage = (abs(offsetY - wy_height) >= wy_height)
             
-            internalSliderDirection = offsetY > wy_height ? .up : (offsetY < wy_height ? .down : .unknown)
+            canSwitchedPage = (abs(offsetY - wy_height) >= wy_height)
             
             if let contentDelegate = contentDelegate, let currentVerticalView = currentVerticalView, let reserveVerticalView = reserveVerticalView {
                 
