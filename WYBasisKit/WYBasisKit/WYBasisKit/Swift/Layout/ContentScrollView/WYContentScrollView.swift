@@ -709,36 +709,55 @@ extension WYContentScrollView {
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.internalSliderDirection, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
             
-            if (newValue == .up) || (newValue == .down) {
+            if ((newValue == .up) || (newValue == .down) && (contentSlidingDirection != .leftOrRight)) {
+                
+                guard verticalViews?.count == 2,
+                      let prepareVerticalView = verticalViews?.first,
+                      let reserveVerticalView = verticalViews?.last else { return }
+                
+                // 滑动前根据滑动方向设置预备显示View的frame(必须放这里优先处理，否则往左右滑动后可能会出现空白页面)
+                if newValue == .up {
+                    reserveVerticalView.frame = CGRect(x: ((contentSlidingDirection == .omnidirectional) ? wy_width : 0), y: 2 * wy_height, width: wy_width, height: wy_height)
+                }else {
+                    reserveVerticalView.frame = CGRect(x: ((contentSlidingDirection == .omnidirectional) ? wy_width : 0), y: 0, width: wy_width, height: wy_height)
+                }
+                
                 // 如果方向没变，reserveVerticalIndex 跟上一次配置的相同，则不重复加载
                 guard reserveVerticalIndex != configVerticalReserveIndex else { return }
                 // 更新标记
                 configVerticalReserveIndex = reserveVerticalIndex
                 
-                guard verticalViews?.count == 2, let currentVerticalView = verticalViews?.first else { return }
-                
-                // 将对应方向的currentVerticalView移到WYContentScrollView的最上面
-                bringSubviewToFront(currentVerticalView)
+                // 将对应方向的正在显示的View移到WYContentScrollView的最上面
+                bringSubviewToFront(prepareVerticalView)
+                bringSubviewToFront(reserveVerticalView)
             }
             
-            if (newValue == .left) || (newValue == .right) {
+            if ((newValue == .left) || (newValue == .right) && (contentSlidingDirection != .topOrBottom)) {
+                
+                guard horizontalViews?.count == 2,
+                      let prepareHorizontalView = horizontalViews?.first,
+                      let reserveHorizontalView = horizontalViews?.last else { return }
+                
+                // 滑动前根据滑动方向设置预备显示View的frame(必须放这里优先处理，否则往上下滑动后可能会出现空白页面)
+                if newValue == .left {
+                    reserveHorizontalView.frame = CGRect(x: 2 * wy_width, y: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0), width: wy_width, height: wy_height)
+                }else {
+                    reserveHorizontalView.frame = CGRect(x: 0, y: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0), width: wy_width, height: wy_height)
+                }
+                
                 // 如果方向没变，reserveHorizontalIndex 跟上一次配置的相同，则不重复加载
                 guard reserveHorizontalIndex != configHorizontalReserveIndex else { return }
                 // 更新标记
                 configHorizontalReserveIndex = reserveHorizontalIndex
                 
-                guard horizontalViews?.count == 2, let currentHorizontalView = horizontalViews?.first else { return }
-                
-                // 将对应方向的currentHorizontalView移到WYContentScrollView的最上面
-                bringSubviewToFront(currentHorizontalView)
+                // 将对应方向的正在显示的View移到WYContentScrollView的最上面
+                bringSubviewToFront(prepareHorizontalView)
+                bringSubviewToFront(reserveHorizontalView)
             }
             
             // 向上滚动
             if (newValue == .up) {
                 guard verticalViews?.count == 2, let reserveVerticalView = verticalViews?.last else { return }
-                
-                // 滑动前根据滑动方向设置预备显示View的frame
-                reserveVerticalView.frame = CGRect(x: ((contentSlidingDirection == .omnidirectional) ? wy_width : 0), y: 2 * wy_height, width: wy_width, height: wy_height)
                 
                 reserveVerticalIndex = (currentVerticalIndex + 1) % numberOfVerticalContent
                 switchContentCallback(isDidSwitch: false)
@@ -748,9 +767,6 @@ extension WYContentScrollView {
             if newValue == .down {
                 
                 guard verticalViews?.count == 2, let reserveVerticalView = verticalViews?.last else { return }
-                
-                // 滑动前根据滑动方向设置预备显示View的frame
-                reserveVerticalView.frame = CGRect(x: ((contentSlidingDirection == .omnidirectional) ? wy_width : 0), y: 0, width: wy_width, height: wy_height)
                 
                 reserveVerticalIndex = currentVerticalIndex - 1
                 if (reserveVerticalIndex < 0)  {
@@ -763,10 +779,7 @@ extension WYContentScrollView {
             if newValue == .left {
                 
                 guard horizontalViews?.count == 2, let reserveHorizontalView = horizontalViews?.last else { return }
-                
-                // 滑动前根据滑动方向设置预备显示View的frame
-                reserveHorizontalView.frame = CGRect(x: 2 * wy_width, y: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0), width: wy_width, height: wy_height)
-                
+
                 reserveHorizontalIndex = (currentHorizontalIndex + 1) % numberOfHorizontalContent
                 
                 switchContentCallback(isDidSwitch: false)
@@ -776,10 +789,7 @@ extension WYContentScrollView {
             if (newValue == .right) {
                 
                 guard horizontalViews?.count == 2, let reserveHorizontalView = horizontalViews?.last else { return }
-                
-                // 滑动前根据滑动方向设置预备显示View的frame
-                reserveHorizontalView.frame = CGRect(x: 0, y: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0), width: wy_width, height: wy_height)
-                
+
                 reserveHorizontalIndex = currentHorizontalIndex - 1
                 if (reserveHorizontalIndex < 0)  {
                     reserveHorizontalIndex = numberOfHorizontalContent - 1
@@ -1098,7 +1108,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
         let offsetX = scrollView.contentOffset.x
         let offsetY = scrollView.contentOffset.y
         
-        if (offsetX != 0) {
+        if (offsetX != 0) && (contentSlidingDirection != .topOrBottom) {
             if offsetX > wy_width {
                 internalSliderDirection = .left
             }else if offsetX < wy_width {
@@ -1106,7 +1116,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
             }
         }
         
-        if (offsetY != 0) {
+        if (offsetY != 0) && (contentSlidingDirection != .leftOrRight) {
             if offsetY > wy_height {
                 internalSliderDirection = .up
             }else if offsetY < wy_height {
