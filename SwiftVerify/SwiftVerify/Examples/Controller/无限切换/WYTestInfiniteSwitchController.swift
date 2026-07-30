@@ -101,16 +101,17 @@ class WYTestInfiniteSwitchController: UIViewController {
     
     func configSubView() {
         
-        for _ in 0...1 {
+        for i in 0...1 {
             let horizontal: UIImageView = UIImageView()
-            horizontal.backgroundColor = .wy_random
+            horizontal.backgroundColor = [.link, .orange][i]
             horizontalViews.append(horizontal)
             
             let vertical: WYMediaPlayer = WYMediaPlayer()
-            vertical.backgroundColor = .wy_random
+            vertical.backgroundColor = [.red, .yellow][i]
             verticalViews.append(vertical)
         }
         
+        contentScrollView.backgroundColor = .purple
         contentScrollView.contentDelegate = self
         
         operatioView.showsHorizontalScrollIndicator = false
