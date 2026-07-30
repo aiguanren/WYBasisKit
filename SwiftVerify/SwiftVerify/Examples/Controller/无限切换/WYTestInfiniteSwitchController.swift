@@ -85,18 +85,6 @@ class WYTestInfiniteSwitchController: UIViewController {
     var switchContentPicker: UIPickerView = UIPickerView()
     var switchContentIndex: Int = 0
     
-    /// 当前水平方向内容页索引
-    var currentHorizontalIndex: UILabel = UILabel()
-    
-    /// 水平方向储备内容页索引
-    var reserveHorizontalIndex: UILabel = UILabel()
-    
-    /// 当前垂直方向内容页索引
-    var currentVerticalIndex: UILabel = UILabel()
-    
-    /// 垂直方向储备内容页索引
-    var reserveVerticalIndex: UILabel = UILabel()
-    
     /// 水平方向Contents
     var horizontalViews: [UIView] = []
     
@@ -129,18 +117,16 @@ class WYTestInfiniteSwitchController: UIViewController {
         operatioView.contentInsetAdjustmentBehavior = .never
         
         numberOfHorizontalContent.selectedSegmentIndex = 6
+        segmentedControlChange(sender: numberOfHorizontalContent)
+        
         numberOfVerticalContent.selectedSegmentIndex = 6
+        segmentedControlChange(sender: numberOfVerticalContent)
         
         contentSlidingDirection.selectedSegmentIndex = 0
         segmentedControlChange(sender: contentSlidingDirection)
         
         prioritySlidingDirection.selectedSegmentIndex = 0
         segmentedControlChange(sender: prioritySlidingDirection)
-        
-        reserveHorizontalIndex.text = "0"
-        reserveHorizontalIndex.text = "0"
-        currentVerticalIndex.text = "0"
-        reserveVerticalIndex.text = "0"
         
         for segmentedControl in [numberOfHorizontalContent, numberOfVerticalContent, contentSlidingDirection, prioritySlidingDirection, nextContentDirection, lastContentDirection, switchContentDirection] {
             segmentedControl.addTarget(self, action: #selector(segmentedControlChange(sender:)), for: .valueChanged)
@@ -163,6 +149,10 @@ class WYTestInfiniteSwitchController: UIViewController {
         
         for switchView in [horizontalSliderForSinglePage, verticalSliderForSinglePage,horizontalSliderForMultiPage,verticalSliderForMultiPage, unlimitedCarousel, automaticCarousel, startOrStopTimer] {
             switchView.addTarget(self, action: #selector(switchSwitched(sender:)), for: .valueChanged)
+            
+            if switchView != startOrStopTimer {
+                switchSwitched(sender: switchView)
+            }
         }
         
         
@@ -173,11 +163,6 @@ class WYTestInfiniteSwitchController: UIViewController {
         
         switchContentPicker.delegate = self
         switchContentPicker.dataSource = self
-        
-        currentHorizontalIndex.text = "\(contentScrollView.currentHorizontalIndex)"
-        reserveHorizontalIndex.text = "\(contentScrollView.reserveHorizontalIndex)"
-        currentVerticalIndex.text = "\(contentScrollView.currentVerticalIndex)"
-        reserveVerticalIndex.text = "\(contentScrollView.reserveVerticalIndex)"
     }
     
     @objc func segmentedControlChange(sender: UISegmentedControl) {
@@ -188,11 +173,21 @@ class WYTestInfiniteSwitchController: UIViewController {
         }else if sender == contentSlidingDirection {
             contentScrollView.contentSlidingDirection = [.leftOrRight, .topOrBottom, .omnidirectional][sender.selectedSegmentIndex]
             switch contentScrollView.contentSlidingDirection {
-            case .omnidirectional:
-                contentScrollView.omnidirectionalDisplay(currentHorizontalView: horizontalViews.first!, reserveHorizontalView: horizontalViews.last!, currentVerticalView: verticalViews.first!, reserveVerticalView: verticalViews.last!)
+            case .leftOrRight:
+                if !contentScrollView.hasHorizontalDisplayView {
+                    contentScrollView.horizontalOrVerticalDisplay(currentView: horizontalViews.first!, reserveView: horizontalViews.last!)
+                }
                 break
-            default:
-                contentScrollView.horizontalOrVerticalDisplay(currentView: horizontalViews.first!, reserveView: horizontalViews.last!)
+            case .topOrBottom:
+                if !contentScrollView.hasVerticalDisplayView {
+                    contentScrollView.horizontalOrVerticalDisplay(currentView: verticalViews.first!, reserveView: verticalViews.last!)
+                }
+                break
+            case .omnidirectional:
+                if !((contentScrollView.hasHorizontalDisplayView) && (contentScrollView.hasVerticalDisplayView)) {
+                    contentScrollView.omnidirectionalDisplay(currentHorizontalView: horizontalViews.first!, reserveHorizontalView: horizontalViews.last!, currentVerticalView: verticalViews.first!, reserveVerticalView: verticalViews.last!)
+                }
+                break
             }
         }else if sender == prioritySlidingDirection {
             contentScrollView.prioritySlidingDirection = [.leftOrRight, .topOrBottom, .omnidirectional][sender.selectedSegmentIndex]
@@ -217,26 +212,19 @@ class WYTestInfiniteSwitchController: UIViewController {
     
     @objc func switchSwitched(sender: UISwitch) {
         if sender == horizontalSliderForSinglePage {
-            horizontalSliderForSinglePage.isOn = sender.isOn
-            contentScrollView.horizontalSliderForSinglePage = horizontalSliderForSinglePage.isOn
+            contentScrollView.horizontalSliderForSinglePage = sender.isOn
         }else if sender == verticalSliderForSinglePage {
-            verticalSliderForSinglePage.isOn = sender.isOn
-            contentScrollView.verticalSliderForSinglePage = verticalSliderForSinglePage.isOn
+            contentScrollView.verticalSliderForSinglePage = sender.isOn
         }else if sender == horizontalSliderForMultiPage {
-            horizontalSliderForMultiPage.isOn = sender.isOn
-            contentScrollView.horizontalSliderForMultiPage = horizontalSliderForMultiPage.isOn
+            contentScrollView.horizontalSliderForMultiPage = sender.isOn
         }else if sender == verticalSliderForMultiPage {
-            verticalSliderForMultiPage.isOn = sender.isOn
-            contentScrollView.verticalSliderForMultiPage = verticalSliderForMultiPage.isOn
+            contentScrollView.verticalSliderForMultiPage = sender.isOn
         }else if sender == unlimitedCarousel {
-            unlimitedCarousel.isOn = sender.isOn
-            contentScrollView.unlimitedCarousel = unlimitedCarousel.isOn
+            contentScrollView.unlimitedCarousel = sender.isOn
         }else if sender == automaticCarousel {
-            automaticCarousel.isOn = sender.isOn
-            contentScrollView.automaticCarousel = automaticCarousel.isOn
+            contentScrollView.automaticCarousel = sender.isOn
         }else if sender == startOrStopTimer {
-            startOrStopTimer.isOn = sender.isOn
-            if startOrStopTimer.isOn {
+            if sender.isOn {
                 contentScrollView.startTimer()
             }else {
                 contentScrollView.stopTimer()
@@ -368,39 +356,11 @@ class WYTestInfiniteSwitchController: UIViewController {
         switchContentView.snp.makeConstraints { make in
             make.top.equalTo(lastContentView.snp.bottom).offset(35)
             make.width.centerX.equalTo(lastContentView)
-        }
-        
-        let currentHorizontalIndexView: UIView = createDescContentView(desc: "当前水平方向内容页索引：", controView: nil, valueView: currentHorizontalIndex)
-        operatioView.addSubview(currentHorizontalIndexView)
-        currentHorizontalIndexView.snp.makeConstraints { make in
-            make.top.equalTo(switchContentView.snp.bottom).offset(35)
-            make.width.centerX.equalTo(switchContentView)
-        }
-        
-        let reserveHorizontalIndexView: UIView = createDescContentView(desc: "水平方向储备内容页索引：", controView: nil, valueView: reserveHorizontalIndex)
-        operatioView.addSubview(reserveHorizontalIndexView)
-        reserveHorizontalIndexView.snp.makeConstraints { make in
-            make.top.equalTo(currentHorizontalIndexView.snp.bottom).offset(35)
-            make.width.centerX.equalTo(currentHorizontalIndexView)
-        }
-        
-        let currentVerticalIndexView: UIView = createDescContentView(desc: "当前垂直方向内容页索引：", controView: nil, valueView: currentVerticalIndex)
-        operatioView.addSubview(currentVerticalIndexView)
-        currentVerticalIndexView.snp.makeConstraints { make in
-            make.top.equalTo(reserveHorizontalIndexView.snp.bottom).offset(35)
-            make.width.centerX.equalTo(reserveHorizontalIndexView)
-        }
-        
-        let reserveVerticalIndexView: UIView = createDescContentView(desc: "垂直方向储备内容页索引：", controView: nil, valueView: reserveVerticalIndex)
-        operatioView.addSubview(reserveVerticalIndexView)
-        reserveVerticalIndexView.snp.makeConstraints { make in
-            make.top.equalTo(currentVerticalIndexView.snp.bottom).offset(35)
-            make.width.centerX.equalTo(currentVerticalIndexView)
             make.bottom.equalToSuperview().offset(-100)
         }
         
-        reserveVerticalIndexView.layoutIfNeeded()
-        operatioView.contentSize = CGSize(width: UIDevice.wy_screenWidth, height: reserveVerticalIndexView.wy_bottom)
+        switchContentView.layoutIfNeeded()
+        operatioView.contentSize = CGSize(width: UIDevice.wy_screenWidth, height: switchContentView.wy_bottom)
     }
     
     func createDescContentView(desc: String, controView: UIView?, valueView: UIView? = nil) -> UIView {

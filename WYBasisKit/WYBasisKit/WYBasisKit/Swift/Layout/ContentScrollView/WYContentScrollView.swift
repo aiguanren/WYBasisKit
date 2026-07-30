@@ -190,6 +190,12 @@ public class WYContentScrollView: UIScrollView {
      */
     public var automaticCarousel: Bool = true
     
+    /// 是否已传入水平方向的显示View
+    public private(set) var hasHorizontalDisplayView: Bool = false
+    
+    /// 是否已传入垂直方向的显示View
+    public private(set) var hasVerticalDisplayView: Bool = false
+    
     /**
      *  需要加载到内容页视图上的自定义View
      (contentSlidingDirection != omnidirectional时调用)
@@ -214,11 +220,15 @@ public class WYContentScrollView: UIScrollView {
         if contentSlidingDirection == .leftOrRight {
             currentHorizontalView = currentView
             reserveHorizontalView = reserveView
+            
+            hasHorizontalDisplayView = true
         }
         
         if contentSlidingDirection == .topOrBottom {
             currentVerticalView = currentView
             reserveVerticalView = reserveView
+            
+            hasVerticalDisplayView = true
         }
         
         internalSettingsContentView()
@@ -256,6 +266,9 @@ public class WYContentScrollView: UIScrollView {
             self.reserveHorizontalView = reserveHorizontalView
             self.currentVerticalView = currentVerticalView
             self.reserveVerticalView = reserveVerticalView
+            
+            hasHorizontalDisplayView = true
+            hasVerticalDisplayView = true
             
             internalSettingsContentView()
         }
@@ -648,24 +661,21 @@ extension WYContentScrollView {
         case .leftOrRight:
             if !contentSize.equalTo(CGSize(width: 3*wy_width, height: wy_height)) {
                 contentSize = CGSize(width: 3*wy_width, height: wy_height)
-            }
-            if !alreadySwitchedPages {
+                
                 contentOffset = CGPoint(x: wy_width, y: 0)
             }
             break
         case .topOrBottom:
             if !contentSize.equalTo(CGSize(width: wy_width, height: 3*wy_height)) {
                 contentSize = CGSize(width: wy_width, height: 3*wy_height)
-            }
-            if !alreadySwitchedPages {
+                
                 contentOffset = CGPoint(x: 0, y: wy_height)
             }
             break
         case .omnidirectional:
             if !contentSize.equalTo(CGSize(width: 3*wy_width, height: 3*wy_height)) {
                 contentSize = CGSize(width: 3*wy_width, height: 3*wy_height)
-            }
-            if !alreadySwitchedPages {
+                
                 contentOffset = CGPoint(x: wy_width, y: wy_height)
             }
             break
@@ -911,9 +921,6 @@ extension WYContentScrollView {
             
             break
         }
-        
-        // 标记为已经切换过内容页面
-        alreadySwitchedPages = true
     }
     
     /// 判断是否可以滚动
@@ -933,7 +940,7 @@ extension WYContentScrollView {
             let isLastPage = (currentHorizontalIndex == (numberOfHorizontalContent - 1)) && (reserveHorizontalIndex == (numberOfHorizontalContent - 1))
             
             // 如果当前在第一页或者最后一页的时候，需要根据numberOfHorizontalContent是否等于Int.max和unlimitedCarousel是否为true来判断是否可以切换页面
-            if isFirstPage || isLastPage {
+            if (isFirstPage && (internalSliderDirection == .right)) || (isLastPage && (internalSliderDirection == .left)) {
                 if (unlimitedCarousel == false) || (numberOfHorizontalContent == Int.max) {
                     if (!CGPointEqualToPoint(contentOffset, CGPoint(x: wy_width, y: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0)))) {
                         contentOffset = CGPoint(x: wy_width, y: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0))
@@ -950,7 +957,7 @@ extension WYContentScrollView {
             let isLastPage = (currentVerticalIndex == (numberOfVerticalContent - 1)) && (reserveVerticalIndex == (numberOfVerticalContent - 1))
             
             // 如果当前在第一页或者最后一页的时候，需要根据numberOfVerticalContent是否等于Int.max和unlimitedCarousel是否为true来判断是否可以切换页面
-            if isFirstPage || isLastPage {
+            if (isFirstPage && (internalSliderDirection == .down)) || (isLastPage && (internalSliderDirection == .up)) {
                 if (unlimitedCarousel == false) || (numberOfVerticalContent == Int.max) {
                     if (!CGPointEqualToPoint(contentOffset, CGPoint(x: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0), y: wy_width))) {
                         contentOffset = CGPoint(x: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0), y: wy_width)
@@ -1011,16 +1018,6 @@ extension WYContentScrollView {
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.configVerticalReserveIndex) as? Int }
     }
     
-    /// 判断是否已经切换过内容页面
-    private var alreadySwitchedPages: Bool {
-        set(newValue) {
-            objc_setAssociatedObject(self, &WYAssociatedKeys.alreadySwitchedPages, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-        }
-        get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.alreadySwitchedPages) as? Bool ?? false
-        }
-    }
-    
     /// 外部真实代理（弱引用避免循环引用）
     private weak var internalDelegate: UIScrollViewDelegate? {
         set(newValue) {
@@ -1042,7 +1039,6 @@ extension WYContentScrollView {
         static var canSwitchedPage: UInt8 = 0
         static var configHorizontalReserveIndex: UInt8 = 0
         static var configVerticalReserveIndex: UInt8 = 0
-        static var alreadySwitchedPages: UInt8 = 0
         static var internalDelegate: UInt8 = 0
     }
 }
@@ -1065,7 +1061,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
         
         let offsetX = scrollView.contentOffset.x
         let offsetY = scrollView.contentOffset.y
-
+        
         if (offsetX != 0) {
             if offsetX > wy_width {
                 internalSliderDirection = .left
@@ -1083,7 +1079,6 @@ extension WYContentScrollView: UIScrollViewDelegate {
         }
         
         guard canScroll() == true else { return }
-        
         if (internalSliderDirection == .left) || (internalSliderDirection == .right) {
             
             canSwitchedPage = (abs(offsetX - wy_width) >= wy_width)
