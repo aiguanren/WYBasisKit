@@ -220,8 +220,7 @@ public class WYContentScrollView: UIScrollView {
             return
         }
         
-        contentViewInitializationCheck(currentView)
-        contentViewInitializationCheck(reserveView)
+        contentViewInitializationCheck([currentView, reserveView], direction: contentSlidingDirection)
         
         if contentSlidingDirection == .leftOrRight {
             horizontalViews = [currentView, reserveView]
@@ -258,12 +257,9 @@ public class WYContentScrollView: UIScrollView {
                                        currentVerticalView: UIView,
                                        reserveVerticalView: UIView) {
         
-        contentViewInitializationCheck(currentHorizontalView)
-        contentViewInitializationCheck(reserveHorizontalView)
-        contentViewInitializationCheck(currentVerticalView)
-        contentViewInitializationCheck(reserveVerticalView)
-        
         if contentSlidingDirection == .omnidirectional {
+            
+            contentViewInitializationCheck([currentHorizontalView, reserveHorizontalView, currentVerticalView, reserveVerticalView], direction: contentSlidingDirection)
             
             horizontalViews = [currentHorizontalView, reserveHorizontalView]
             verticalViews = [currentVerticalView, reserveVerticalView]
@@ -489,7 +485,12 @@ extension WYContentScrollView {
     
     public override func layoutSubviews() {
         super.layoutSubviews()
+        
+        // 检查(设置)contentSize与contentOffset
         checkContentSizeAndContentOffset()
+        
+        // 如果frame发生变化需要及时更新内容视图的frame
+        internalSettingsContentView()
     }
     
     public override weak var delegate: (any UIScrollViewDelegate)? {
@@ -514,20 +515,31 @@ extension WYContentScrollView {
     }
     
     /// 检查各ContentView的superView
-    private func contentViewInitializationCheck(_ contentView: UIView) {
+    private func contentViewInitializationCheck(_ contentViews: [UIView], direction: WYContentSlidingDirection) {
         
-        if contentView.superview != nil {
-            contentView.removeFromSuperview()
+        contentViews.forEach { $0.removeFromSuperview() }
+        
+        switch direction {
+        case .leftOrRight:
+            horizontalViews?.forEach { $0.removeFromSuperview() }
+            horizontalViews = nil
+            hasHorizontalDisplayView = false
+            break
+        case .topOrBottom:
+            verticalViews?.forEach { $0.removeFromSuperview() }
+            verticalViews = nil
+            hasVerticalDisplayView = false
+            break
+        case .omnidirectional:
+            horizontalViews?.forEach { $0.removeFromSuperview() }
+            horizontalViews = nil
+            verticalViews?.forEach { $0.removeFromSuperview() }
+            verticalViews = nil
+            
+            hasHorizontalDisplayView = false
+            hasVerticalDisplayView = false
+            break
         }
-        
-        horizontalViews?.forEach { $0.removeFromSuperview() }
-        horizontalViews = nil
-        
-        verticalViews?.forEach { $0.removeFromSuperview() }
-        verticalViews = nil
-        
-        hasHorizontalDisplayView = false
-        hasVerticalDisplayView = false
     }
     
     /// 内部初始化设置
@@ -546,38 +558,46 @@ extension WYContentScrollView {
     
     /// 内部设置添加ContentView
     private func internalSettingsContentView() {
-        Task { @MainActor in
-            if (contentSlidingDirection == .omnidirectional) {
-                if prioritySlidingDirection == .topOrBottom {
-                    addContentView(.leftOrRight)
-                    addContentView(.topOrBottom)
-                }else {
-                    addContentView(.topOrBottom)
-                    addContentView(.leftOrRight)
-                }
+        if (contentSlidingDirection == .omnidirectional) {
+            if prioritySlidingDirection == .topOrBottom {
+                layoutContentSubViews(.leftOrRight)
+                layoutContentSubViews(.topOrBottom)
             }else {
-                addContentView(contentSlidingDirection)
+                layoutContentSubViews(.topOrBottom)
+                layoutContentSubViews(.leftOrRight)
             }
+        }else {
+            layoutContentSubViews(contentSlidingDirection)
         }
     }
     
-    private func addContentView(_ direction: WYContentSlidingDirection) {
+    private func layoutContentSubViews(_ direction: WYContentSlidingDirection) {
         
         if direction == .leftOrRight {
             guard horizontalViews?.count == 2,
                   let currentHorizontalView = horizontalViews?.first,
                   let reserveHorizontalView = horizontalViews?.last else { return }
             
+            var currentHorizontalViewOffset: CGPoint = .zero
+            var reserveHorizontalViewOffset: CGPoint = .zero
             if (contentSlidingDirection == .omnidirectional) {
-                
-                currentHorizontalView.frame = CGRect(x: wy_width, y: wy_height, width: wy_width, height: wy_height)
-                
-                reserveHorizontalView.frame = CGRect(x: 2 * wy_width, y: 2 * wy_height, width: wy_width, height: wy_height)
-                
+                currentHorizontalViewOffset = CGPoint(x: wy_width, y: wy_height)
+                reserveHorizontalViewOffset = CGPoint(x: 2 * wy_width, y: wy_height)
             }else {
-                currentHorizontalView.frame = CGRect(x: wy_width, y: 0, width: wy_width, height: wy_height)
-                
-                reserveHorizontalView.frame = CGRect(x: 2 * wy_width, y: 0, width: wy_width, height: wy_height)
+                currentHorizontalViewOffset = CGPoint(x: wy_width, y: 0)
+                reserveHorizontalViewOffset = CGPoint(x: 2 * wy_width, y: 0)
+            }
+            
+            let currentHorizontalViewFrame: CGRect = CGRect(x: currentHorizontalViewOffset.x, y: currentHorizontalViewOffset.y, width: wy_width, height: wy_height)
+            
+            let reserveHorizontalViewFrame: CGRect = CGRect(x: reserveHorizontalViewOffset.x, y: reserveHorizontalViewOffset.y, width: wy_width, height: wy_height)
+            
+            if !CGRectEqualToRect(currentHorizontalView.frame, currentHorizontalViewFrame) {
+                currentHorizontalView.frame = currentHorizontalViewFrame
+            }
+            
+            if !CGRectEqualToRect(reserveHorizontalView.frame, reserveHorizontalViewFrame) {
+                reserveHorizontalView.frame = reserveHorizontalViewFrame
             }
             
             if (currentHorizontalView.superview == nil) && (reserveHorizontalView.superview == nil) {
@@ -588,21 +608,30 @@ extension WYContentScrollView {
         }
         
         if direction == .topOrBottom {
-            
             guard verticalViews?.count == 2,
                   let currentVerticalView = verticalViews?.first,
                   let reserveVerticalView = verticalViews?.last else { return }
             
+            var currentVerticalViewOffset: CGPoint = .zero
+            var reserveVerticalViewOffset: CGPoint = .zero
             if (contentSlidingDirection == .omnidirectional) {
-                
-                currentVerticalView.frame = CGRect(x: wy_width, y: wy_height, width: wy_width, height: wy_height)
-                
-                reserveVerticalView.frame = CGRect(x: 2 * wy_width, y: 2 * wy_height, width: wy_width, height: wy_height)
-                
+                currentVerticalViewOffset = CGPoint(x: wy_width, y: wy_height)
+                reserveVerticalViewOffset = CGPoint(x: wy_width, y: 2 * wy_height)
             }else {
-                currentVerticalView.frame = CGRect(x: 0, y: wy_height, width: wy_width, height: wy_height)
-                
-                reserveVerticalView.frame = CGRect(x: 0, y: 2 * wy_height, width: wy_width, height: wy_height)
+                currentVerticalViewOffset = CGPoint(x: 0, y: wy_height)
+                reserveVerticalViewOffset = CGPoint(x: 0, y: 2 * wy_height)
+            }
+            
+            let currentVerticalViewFrame: CGRect = CGRect(x: currentVerticalViewOffset.x, y: currentVerticalViewOffset.y, width: wy_width, height: wy_height)
+            
+            let reserveVerticalViewFrame: CGRect = CGRect(x: reserveVerticalViewOffset.x, y: reserveVerticalViewOffset.y, width: wy_width, height: wy_height)
+            
+            if !CGRectEqualToRect(currentVerticalView.frame, currentVerticalViewFrame) {
+                currentVerticalView.frame = currentVerticalViewFrame
+            }
+            
+            if !CGRectEqualToRect(reserveVerticalView.frame, reserveVerticalViewFrame) {
+                reserveVerticalView.frame = reserveVerticalViewFrame
             }
             
             if (currentVerticalView.superview == nil) && (reserveVerticalView.superview == nil) {
