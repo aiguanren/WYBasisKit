@@ -563,23 +563,23 @@ extension WYContentScrollView {
         
         if direction == .leftOrRight {
             guard horizontalViews?.count == 2,
-                  let prepareHorizontalView = horizontalViews?.first,
+                  let currentHorizontalView = horizontalViews?.first,
                   let reserveHorizontalView = horizontalViews?.last else { return }
             
             if (contentSlidingDirection == .omnidirectional) {
                 
-                prepareHorizontalView.frame = CGRect(x: wy_width, y: wy_height, width: wy_width, height: wy_height)
+                currentHorizontalView.frame = CGRect(x: wy_width, y: wy_height, width: wy_width, height: wy_height)
                 
                 reserveHorizontalView.frame = CGRect(x: 2 * wy_width, y: 2 * wy_height, width: wy_width, height: wy_height)
                 
             }else {
-                prepareHorizontalView.frame = CGRect(x: wy_width, y: 0, width: wy_width, height: wy_height)
+                currentHorizontalView.frame = CGRect(x: wy_width, y: 0, width: wy_width, height: wy_height)
                 
                 reserveHorizontalView.frame = CGRect(x: 2 * wy_width, y: 0, width: wy_width, height: wy_height)
             }
             
-            if (prepareHorizontalView.superview == nil) && (reserveHorizontalView.superview == nil) {
-                addSubview(prepareHorizontalView)
+            if (currentHorizontalView.superview == nil) && (reserveHorizontalView.superview == nil) {
+                addSubview(currentHorizontalView)
                 addSubview(reserveHorizontalView)
                 switchContentCallback(isDidSwitch: true)
             }
@@ -588,23 +588,23 @@ extension WYContentScrollView {
         if direction == .topOrBottom {
             
             guard verticalViews?.count == 2,
-                  let prepareVerticalView = verticalViews?.first,
+                  let currentVerticalView = verticalViews?.first,
                   let reserveVerticalView = verticalViews?.last else { return }
             
             if (contentSlidingDirection == .omnidirectional) {
                 
-                prepareVerticalView.frame = CGRect(x: wy_width, y: wy_height, width: wy_width, height: wy_height)
+                currentVerticalView.frame = CGRect(x: wy_width, y: wy_height, width: wy_width, height: wy_height)
                 
                 reserveVerticalView.frame = CGRect(x: 2 * wy_width, y: 2 * wy_height, width: wy_width, height: wy_height)
                 
             }else {
-                prepareVerticalView.frame = CGRect(x: 0, y: wy_height, width: wy_width, height: wy_height)
+                currentVerticalView.frame = CGRect(x: 0, y: wy_height, width: wy_width, height: wy_height)
                 
                 reserveVerticalView.frame = CGRect(x: 0, y: 2 * wy_height, width: wy_width, height: wy_height)
             }
             
-            if (prepareVerticalView.superview == nil) && (reserveVerticalView.superview == nil) {
-                addSubview(prepareVerticalView)
+            if (currentVerticalView.superview == nil) && (reserveVerticalView.superview == nil) {
+                addSubview(currentVerticalView)
                 addSubview(reserveVerticalView)
                 switchContentCallback(isDidSwitch: true)
             }
@@ -718,7 +718,7 @@ extension WYContentScrollView {
                 guard numberOfVerticalContent > 0 else { return }
                 
                 guard verticalViews?.count == 2,
-                      let prepareVerticalView = verticalViews?.first,
+                      let currentVerticalView = verticalViews?.first,
                       let reserveVerticalView = verticalViews?.last else { return }
                 
                 // 滑动前根据滑动方向设置预备显示View的frame(必须放这里优先处理，否则往左右滑动后可能会出现空白页面)
@@ -734,7 +734,7 @@ extension WYContentScrollView {
                 configVerticalReserveIndex = reserveVerticalIndex
                 
                 // 将对应方向的正在显示的View移到WYContentScrollView的最上面
-                bringSubviewToFront(prepareVerticalView)
+                bringSubviewToFront(currentVerticalView)
                 bringSubviewToFront(reserveVerticalView)
             }
             
@@ -743,7 +743,7 @@ extension WYContentScrollView {
                 guard numberOfHorizontalContent > 0 else { return }
                 
                 guard horizontalViews?.count == 2,
-                      let prepareHorizontalView = horizontalViews?.first,
+                      let currentHorizontalView = horizontalViews?.first,
                       let reserveHorizontalView = horizontalViews?.last else { return }
                 
                 // 滑动前根据滑动方向设置预备显示View的frame(必须放这里优先处理，否则往上下滑动后可能会出现空白页面)
@@ -759,7 +759,7 @@ extension WYContentScrollView {
                 configHorizontalReserveIndex = reserveHorizontalIndex
                 
                 // 将对应方向的正在显示的View移到WYContentScrollView的最上面
-                bringSubviewToFront(prepareHorizontalView)
+                bringSubviewToFront(currentHorizontalView)
                 bringSubviewToFront(reserveHorizontalView)
             }
             
@@ -828,43 +828,43 @@ extension WYContentScrollView {
         if isOmnidirectional {
             
             guard horizontalViews?.count == 2,
-                  let prepareHorizontalView = horizontalViews?.first,
+                  let currentHorizontalView = horizontalViews?.first,
                   let reserveHorizontalView = horizontalViews?.last else { return }
             
             guard verticalViews?.count == 2,
-                  let prepareVerticalView = verticalViews?.first,
+                  let currentVerticalView = verticalViews?.first,
                   let reserveVerticalView = verticalViews?.last else { return }
             
             if isDidSwitch {
-                contentDelegate.wy_contentScrollViewDidSwitch(self, direction: internalSliderDirection, currentHorizontalView: prepareHorizontalView, reserveHorizontalView: reserveHorizontalView, currentVerticalView: prepareVerticalView, reserveVerticalView: reserveVerticalView)
+                contentDelegate.wy_contentScrollViewDidSwitch(self, direction: internalSliderDirection, currentHorizontalView: currentHorizontalView, reserveHorizontalView: reserveHorizontalView, currentVerticalView: currentVerticalView, reserveVerticalView: reserveVerticalView)
             }else {
-                contentDelegate.wy_contentScrollViewWillSwitch(self, direction: internalSliderDirection, currentHorizontalView: prepareHorizontalView, reserveHorizontalView: reserveHorizontalView, currentVerticalView: prepareVerticalView, reserveVerticalView: reserveVerticalView)
+                contentDelegate.wy_contentScrollViewWillSwitch(self, direction: internalSliderDirection, currentHorizontalView: currentHorizontalView, reserveHorizontalView: reserveHorizontalView, currentVerticalView: currentVerticalView, reserveVerticalView: reserveVerticalView)
             }
             
         }else {
             if (internalSliderDirection == .up) || (internalSliderDirection == .down) {
                 
                 guard verticalViews?.count == 2,
-                      let prepareVerticalView = verticalViews?.first,
+                      let currentVerticalView = verticalViews?.first,
                       let reserveVerticalView = verticalViews?.last else { return }
                 
                 if isDidSwitch {
-                    contentDelegate.wy_contentScrollViewDidSwitch(self, direction: internalSliderDirection, currentView: prepareVerticalView, reserveView: reserveVerticalView)
+                    contentDelegate.wy_contentScrollViewDidSwitch(self, direction: internalSliderDirection, currentView: currentVerticalView, reserveView: reserveVerticalView)
                 }else {
-                    contentDelegate.wy_contentScrollViewWillSwitch(self, direction: internalSliderDirection, currentView: prepareVerticalView, reserveView: reserveVerticalView)
+                    contentDelegate.wy_contentScrollViewWillSwitch(self, direction: internalSliderDirection, currentView: currentVerticalView, reserveView: reserveVerticalView)
                 }
             }
             
             if (internalSliderDirection == .left) || (internalSliderDirection == .right) {
                 
                 guard horizontalViews?.count == 2,
-                      let prepareHorizontalView = horizontalViews?.first,
+                      let currentHorizontalView = horizontalViews?.first,
                       let reserveHorizontalView = horizontalViews?.last else { return }
                 
                 if isDidSwitch {
-                    contentDelegate.wy_contentScrollViewDidSwitch(self, direction: internalSliderDirection, currentView: prepareHorizontalView, reserveView: reserveHorizontalView)
+                    contentDelegate.wy_contentScrollViewDidSwitch(self, direction: internalSliderDirection, currentView: currentHorizontalView, reserveView: reserveHorizontalView)
                 }else {
-                    contentDelegate.wy_contentScrollViewWillSwitch(self, direction: internalSliderDirection, currentView: prepareHorizontalView, reserveView: reserveHorizontalView)
+                    contentDelegate.wy_contentScrollViewWillSwitch(self, direction: internalSliderDirection, currentView: currentHorizontalView, reserveView: reserveHorizontalView)
                 }
             }
         }
@@ -881,7 +881,7 @@ extension WYContentScrollView {
         case .leftOrRight:
             
             guard horizontalViews?.count == 2,
-                  let prepareHorizontalView = horizontalViews?.first,
+                  let currentHorizontalView = horizontalViews?.first,
                   let reserveHorizontalView = horizontalViews?.last else { return }
             
             currentHorizontalIndex = reserveHorizontalIndex
@@ -903,7 +903,7 @@ extension WYContentScrollView {
         case .topOrBottom:
             
             guard verticalViews?.count == 2,
-                  let prepareVerticalView = verticalViews?.first,
+                  let currentVerticalView = verticalViews?.first,
                   let reserveVerticalView = verticalViews?.last else { return }
             
             currentVerticalIndex = reserveVerticalIndex
@@ -1027,16 +1027,16 @@ extension WYContentScrollView {
         if (internalSliderDirection == .left) || (internalSliderDirection == .right) {
             
             guard horizontalViews?.count == 2,
-                  let prepareHorizontalView = horizontalViews?.first,
+                  let currentHorizontalView = horizontalViews?.first,
                   let reserveHorizontalView = horizontalViews?.last else { return }
             
-            contentDelegate.wy_contentScrollViewDidClick(self, direction: internalSliderDirection, currentView: prepareHorizontalView, reserveView: reserveHorizontalView, index: currentHorizontalIndex)
+            contentDelegate.wy_contentScrollViewDidClick(self, direction: internalSliderDirection, currentView: currentHorizontalView, reserveView: reserveHorizontalView, index: currentHorizontalIndex)
         }else {
             guard verticalViews?.count == 2,
-                  let prepareVerticalView = verticalViews?.first,
+                  let currentVerticalView = verticalViews?.first,
                   let reserveVerticalView = verticalViews?.last else { return }
             
-            contentDelegate.wy_contentScrollViewDidClick(self, direction: internalSliderDirection, currentView: prepareVerticalView, reserveView: reserveVerticalView, index: currentVerticalIndex)
+            contentDelegate.wy_contentScrollViewDidClick(self, direction: internalSliderDirection, currentView: currentVerticalView, reserveView: reserveVerticalView, index: currentVerticalIndex)
         }
     }
     
@@ -1127,10 +1127,10 @@ extension WYContentScrollView: UIScrollViewDelegate {
             
             if let contentDelegate = contentDelegate,
                horizontalViews?.count == 2,
-               let prepareHorizontalView = horizontalViews?.first,
+               let currentHorizontalView = horizontalViews?.first,
                let reserveHorizontalView = horizontalViews?.last {
                 
-                contentDelegate.wy_contentScrollViewDidScroll(self, offset: scrollView.contentOffset, direction: internalSliderDirection, currentView: prepareHorizontalView, reserveView: reserveHorizontalView, index: currentHorizontalIndex)
+                contentDelegate.wy_contentScrollViewDidScroll(self, offset: scrollView.contentOffset, direction: internalSliderDirection, currentView: currentHorizontalView, reserveView: reserveHorizontalView, index: currentHorizontalIndex)
             }
             
         }else {
@@ -1139,10 +1139,10 @@ extension WYContentScrollView: UIScrollViewDelegate {
             
             if let contentDelegate = contentDelegate,
                verticalViews?.count == 2,
-               let prepareVerticalView = verticalViews?.first,
+               let currentVerticalView = verticalViews?.first,
                let reserveVerticalView = verticalViews?.last {
                 
-                contentDelegate.wy_contentScrollViewDidScroll(self, offset: scrollView.contentOffset, direction: internalSliderDirection, currentView: prepareVerticalView, reserveView: reserveVerticalView, index: currentVerticalIndex)
+                contentDelegate.wy_contentScrollViewDidScroll(self, offset: scrollView.contentOffset, direction: internalSliderDirection, currentView: currentVerticalView, reserveView: reserveVerticalView, index: currentVerticalIndex)
             }
         }
         

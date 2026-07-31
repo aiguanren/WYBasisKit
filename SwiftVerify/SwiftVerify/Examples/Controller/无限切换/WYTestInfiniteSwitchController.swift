@@ -156,7 +156,6 @@ class WYTestInfiniteSwitchController: UIViewController {
             }
         }
         
-        
         for button in [nextContent, lastContent, switchContent] {
             button.setTitleColor(.black, for: .normal)
             button.addTarget(self, action: #selector(buttonClick(sender:)), for: .touchUpInside)
