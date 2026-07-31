@@ -1028,7 +1028,7 @@ extension WYContentScrollView {
             // 如果当前在第一页或者最后一页的时候，需要根据numberOfVerticalContent是否等于Int.max和unlimitedCarousel是否为true来判断是否可以切换页面
             if (isFirstPage && (slidingDirection == .down)) || (isLastPage && (slidingDirection == .up)) {
                 if (unlimitedCarousel == false) || (numberOfVerticalContent == Int.max) {
-                    let targetOffset: CGPoint = CGPoint(x: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0), y: wy_width)
+                    let targetOffset: CGPoint = CGPoint(x: ((contentSlidingDirection == .omnidirectional) ? wy_width : 0), y: wy_height)
                     if (!CGPointEqualToPoint(contentOffset, targetOffset)) {
                         contentOffset = targetOffset
                     }
