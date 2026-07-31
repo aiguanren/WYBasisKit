@@ -134,13 +134,17 @@ public class WYContentScrollView: UIScrollView {
      *  水平方向内容页视图数量（Int.max表示无限数量）
      *  当设置Int.max时，会强制设置automaticCarousel和unlimitedCarousel为false
      */
-    public var numberOfHorizontalContent: Int = Int.max
+    public var numberOfHorizontalContent: Int = Int.max {
+        didSet { checkCarouselStatus() }
+    }
     
     /**
      *  垂直方向内容页视图数量（Int.max表示无限数量）
      *  当设置Int.max时，会强制设置automaticCarousel和unlimitedCarousel为false
      */
-    public var numberOfVerticalContent: Int = Int.max
+    public var numberOfVerticalContent: Int = Int.max {
+        didSet { checkCarouselStatus() }
+    }
     
     /// 支持的滑动方向
     public var contentSlidingDirection: WYContentSlidingDirection = .leftOrRight {
@@ -711,6 +715,8 @@ extension WYContentScrollView {
             
             if ((newValue == .up) || (newValue == .down) && (contentSlidingDirection != .leftOrRight)) {
                 
+                guard numberOfVerticalContent > 0 else { return }
+                
                 guard verticalViews?.count == 2,
                       let prepareVerticalView = verticalViews?.first,
                       let reserveVerticalView = verticalViews?.last else { return }
@@ -733,6 +739,8 @@ extension WYContentScrollView {
             }
             
             if ((newValue == .left) || (newValue == .right) && (contentSlidingDirection != .topOrBottom)) {
+                
+                guard numberOfHorizontalContent > 0 else { return }
                 
                 guard horizontalViews?.count == 2,
                       let prepareHorizontalView = horizontalViews?.first,
@@ -879,12 +887,6 @@ extension WYContentScrollView {
             currentHorizontalIndex = reserveHorizontalIndex
             
             // 滑动后根据滑动方向设置已经显示View的frame
-            if internalSliderDirection == .left {
-                prepareHorizontalView.frame = CGRect(x: 0, y: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0), width: wy_width, height: wy_height)
-            }else {
-                prepareHorizontalView.frame = CGRect(x: 2 * wy_width, y: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0), width: wy_width, height: wy_height)
-            }
- 
             reserveHorizontalView.frame = CGRect(x: wy_width, y: 0, width: wy_width, height: wy_height)
             
             switchContentCallback(isDidSwitch: true)
@@ -907,12 +909,6 @@ extension WYContentScrollView {
             currentVerticalIndex = reserveVerticalIndex
             
             // 滑动后根据滑动方向设置已经显示View的frame
-            if internalSliderDirection == .up {
-                prepareVerticalView.frame = CGRect(x: ((contentSlidingDirection == .omnidirectional) ? wy_width : 0), y: 0, width: wy_width, height: wy_height)
-            }else {
-                prepareVerticalView.frame = CGRect(x: ((contentSlidingDirection == .omnidirectional) ? wy_width : 0), y: 2 * wy_height, width: wy_width, height: wy_height)
-            }
-            
             reserveVerticalView.frame = CGRect(x: 0, y: wy_height, width: wy_width, height: wy_height)
             
             switchContentCallback(isDidSwitch: true)
@@ -1161,11 +1157,6 @@ extension WYContentScrollView: UIScrollViewDelegate {
     public func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
         pauseScroll()
         internalDelegate?.scrollViewDidEndScrollingAnimation?(scrollView)
-    }
-    
-    public func scrollViewDidZoom(_ scrollView: UIScrollView) {
-        // 放大实现逻辑
-        internalDelegate?.scrollViewDidZoom?(scrollView)
     }
     
     /*************** 未实现的方法自动转发实现 ***************/
