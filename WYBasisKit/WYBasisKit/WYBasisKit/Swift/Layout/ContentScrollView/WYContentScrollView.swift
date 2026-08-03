@@ -1042,6 +1042,16 @@ extension WYContentScrollView {
         }
     }
     
+    /// 是否已锁定滑动方向（只在一次拖拽中生效，避免contentSlidingDirection == .omnidirectional时滑动后无法锁定方向的问题）
+    private var isDirectionLocked: Bool {
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.isDirectionLocked, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.isDirectionLocked) as? Bool ?? false
+        }
+    }
+    
     /// 判断是否可以切换页面
     private var canSwitchedPage: Bool {
         set(newValue) {
@@ -1084,6 +1094,7 @@ extension WYContentScrollView {
         static var configHorizontalReserveIndex: UInt8 = 0
         static var configVerticalReserveIndex: UInt8 = 0
         static var internalDelegate: UInt8 = 0
+        static var isDirectionLocked: UInt8 = 0
     }
 }
 
@@ -1091,6 +1102,10 @@ extension WYContentScrollView: UIScrollViewDelegate {
     
     public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         stopTimer()
+        
+        // 重置方向锁定
+        isDirectionLocked = false
+        
         internalDelegate?.scrollViewWillBeginDragging?(scrollView)
     }
     
@@ -1105,24 +1120,77 @@ extension WYContentScrollView: UIScrollViewDelegate {
         
         let offsetX = scrollView.contentOffset.x
         let offsetY = scrollView.contentOffset.y
-        
+
         var slidingDirection: WYSlidingDirection = internalSliderDirection
-        if (offsetX != 0) && (contentSlidingDirection != .topOrBottom) {
-            if offsetX > wy_width {
-                slidingDirection = .left
-            }else if offsetX < wy_width {
-                slidingDirection = .right
+
+        /// 仅在全方向模式下处理
+        if contentSlidingDirection == .omnidirectional {
+            
+            let centerX = wy_width
+            let centerY = wy_height
+
+            /// 相对中心点的偏移
+            let deltaX = offsetX - centerX
+            let deltaY = offsetY - centerY
+            
+            /// 未锁定时，根据主方向判断一次
+            if isDirectionLocked == false {
+                
+                let threshold: CGFloat = 2.0  // 防抖
+                
+                if abs(deltaX) > threshold || abs(deltaY) > threshold {
+                    if abs(deltaX) > abs(deltaY) {
+                        // 横向
+                        if deltaX > 0 {
+                            slidingDirection = .left
+                        } else {
+                            slidingDirection = .right
+                        }
+                        
+                    } else {
+                        // 纵向
+                        if deltaY > 0 {
+                            slidingDirection = .up
+                        } else {
+                            slidingDirection = .down
+                        }
+                    }
+                    /// 一旦判断完成，立即锁定
+                    isDirectionLocked = true
+                }
             }
-            scrollView.contentOffset.y = 0
-        }
-        
-        if (offsetY != 0) && (contentSlidingDirection != .leftOrRight) {
-            if offsetY > wy_height {
-                slidingDirection = .up
-            }else if offsetY < wy_height {
-                slidingDirection = .down
+            
+            /// 锁死另一方向（防止出现多方向同时滑动的问题）
+            if isDirectionLocked {
+                if slidingDirection == .left || slidingDirection == .right {
+                    /// 锁死 Y
+                    if offsetY != centerY {
+                        scrollView.contentOffset.y = centerY
+                    }
+                    
+                } else if slidingDirection == .up || slidingDirection == .down {
+                    /// 锁死 X
+                    if offsetX != centerX {
+                        scrollView.contentOffset.x = centerX
+                    }
+                }
             }
-            scrollView.contentOffset.x = 0
+        }else {
+            if (offsetX != 0) && (contentSlidingDirection != .topOrBottom) {
+                if offsetX > wy_width {
+                    slidingDirection = .left
+                }else if offsetX < wy_width {
+                    slidingDirection = .right
+                }
+            }
+            
+            if (offsetY != 0) && (contentSlidingDirection != .leftOrRight) {
+                if offsetY > wy_height {
+                    slidingDirection = .up
+                }else if offsetY < wy_height {
+                    slidingDirection = .down
+                }
+            }
         }
         
         guard canScroll(slidingDirection) == true else { return }
