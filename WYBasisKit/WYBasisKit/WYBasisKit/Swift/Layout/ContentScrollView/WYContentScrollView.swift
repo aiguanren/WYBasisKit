@@ -948,17 +948,18 @@ extension WYContentScrollView {
             
             currentVerticalIndex = reserveVerticalIndex
             
+            // 交换verticalViews数组中两个View的位置
+            verticalViews?.swapAt(0, 1)
+            
             // 滑动后根据滑动方向设置已经显示View的frame
             reserveVerticalView.frame = CGRect(x: 0, y: wy_height, width: wy_width, height: wy_height)
             
             switchContentCallback(isDidSwitch: true)
             contentOffset = CGPoint(x: 0, y: wy_height)
             
-            // 交换verticalViews数组中两个View的位置
-            verticalViews?.swapAt(0, 1)
-            
             // 下一次方向改变时需要重新设置 reserveVerticalView
             configVerticalReserveIndex = nil
+            
             break
         case.omnidirectional:
             
@@ -971,24 +972,26 @@ extension WYContentScrollView {
             if (internalSliderDirection == .left) || (internalSliderDirection == .right) {
                 
                 currentHorizontalIndex = reserveHorizontalIndex
-                reserveHorizontalView.frame = CGRect(x: wy_width, y: wy_height, width: wy_width, height: wy_height)
-                
-                switchContentCallback(isDidSwitch: true)
                 
                 // 交换horizontalViews数组中两个View的位置
                 horizontalViews?.swapAt(0, 1)
+                
+                reserveHorizontalView.frame = CGRect(x: wy_width, y: wy_height, width: wy_width, height: wy_height)
+                
+                switchContentCallback(isDidSwitch: true)
                 
                 // 下一次方向改变时需要重新设置 reserveHorizontalView
                 configHorizontalReserveIndex = nil
                 
             }else {
                 currentVerticalIndex = reserveVerticalIndex
-                reserveVerticalView.frame = CGRect(x: wy_width, y: wy_height, width: wy_width, height: wy_height)
-                
-                switchContentCallback(isDidSwitch: true)
                 
                 // 交换verticalViews数组中两个View的位置
                 verticalViews?.swapAt(0, 1)
+                
+                reserveVerticalView.frame = CGRect(x: wy_width, y: wy_height, width: wy_width, height: wy_height)
+                
+                switchContentCallback(isDidSwitch: true)
                 
                 // 下一次方向改变时需要重新设置 reserveVerticalView
                 configVerticalReserveIndex = nil
@@ -1010,8 +1013,10 @@ extension WYContentScrollView {
         
         if (slidingDirection == .left) || (slidingDirection == .right) {
             
+            guard contentSlidingDirection != .topOrBottom else { return false }
+            
             // 当前停留页面是否是第一页
-            let isFirstPage = (currentHorizontalIndex == 0) && (reserveHorizontalIndex == 0)
+            let isFirstPage = (currentHorizontalIndex == 0) && ((reserveHorizontalIndex == 0) || (reserveHorizontalIndex == 1))
             
             // 当前停留页面是否是最后一页
             let isLastPage = (currentHorizontalIndex == (numberOfHorizontalContent - 1)) && (reserveHorizontalIndex == (numberOfHorizontalContent - 1))
@@ -1028,8 +1033,11 @@ extension WYContentScrollView {
             }
             
         }else {
+            
+            guard contentSlidingDirection != .leftOrRight else { return false }
+            
             // 当前停留页面是否是第一页
-            let isFirstPage = (currentVerticalIndex == 0) && (reserveVerticalIndex == 0)
+            let isFirstPage = (currentVerticalIndex == 0) && ((reserveHorizontalIndex == 0) || (reserveHorizontalIndex == 1))
             
             // 当前停留页面是否是最后一页
             let isLastPage = (currentVerticalIndex == (numberOfVerticalContent - 1)) && (reserveVerticalIndex == (numberOfVerticalContent - 1))
