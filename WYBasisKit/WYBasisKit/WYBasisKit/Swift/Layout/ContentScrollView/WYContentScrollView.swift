@@ -488,7 +488,6 @@ extension WYContentScrollView {
         
         // 检查(设置)contentSize与contentOffset
         checkContentSizeAndContentOffset()
-        
         // 如果frame发生变化需要及时更新内容视图的frame
         internalSettingsContentView()
     }
@@ -558,6 +557,7 @@ extension WYContentScrollView {
     
     /// 内部设置添加ContentView
     private func internalSettingsContentView() {
+        
         if (contentSlidingDirection == .omnidirectional) {
             if prioritySlidingDirection == .topOrBottom {
                 layoutContentSubViews(.leftOrRight)
@@ -574,9 +574,14 @@ extension WYContentScrollView {
     private func layoutContentSubViews(_ direction: WYContentSlidingDirection) {
         
         if direction == .leftOrRight {
+            
             guard horizontalViews?.count == 2,
                   let currentHorizontalView = horizontalViews?.first,
                   let reserveHorizontalView = horizontalViews?.last else { return }
+            
+            guard !CGSizeEqualToSize(frame.size, currentHorizontalView.frame.size) else {
+                return
+            }
             
             var currentHorizontalViewOffset: CGPoint = .zero
             var reserveHorizontalViewOffset: CGPoint = .zero
@@ -611,6 +616,10 @@ extension WYContentScrollView {
             guard verticalViews?.count == 2,
                   let currentVerticalView = verticalViews?.first,
                   let reserveVerticalView = verticalViews?.last else { return }
+            
+            guard !CGSizeEqualToSize(frame.size, currentVerticalView.frame.size) else {
+                return
+            }
             
             var currentVerticalViewOffset: CGPoint = .zero
             var reserveVerticalViewOffset: CGPoint = .zero
@@ -917,15 +926,15 @@ extension WYContentScrollView {
             
             currentHorizontalIndex = reserveHorizontalIndex
             
+            // 交换horizontalViews数组中两个View的位置
+            horizontalViews?.swapAt(0, 1)
+            
             // 滑动后根据滑动方向设置已经显示View的frame
             reserveHorizontalView.frame = CGRect(x: wy_width, y: 0, width: wy_width, height: wy_height)
             
             switchContentCallback(isDidSwitch: true)
             
             contentOffset = CGPoint(x: wy_width, y: 0)
-            
-            // 交换horizontalViews数组中两个View的位置
-            horizontalViews?.swapAt(0, 1)
             
             // 下一次方向改变时需要重新设置 reserveHorizontalView
             configHorizontalReserveIndex = nil
@@ -1137,7 +1146,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
         let offsetX = scrollView.contentOffset.x
         let offsetY = scrollView.contentOffset.y
         
-        var slidingDirection: WYSlidingDirection = .unknown
+        var slidingDirection: WYSlidingDirection = internalSliderDirection
         
         if (offsetX != 0) && (contentSlidingDirection != .topOrBottom) {
             if offsetX > wy_width {
