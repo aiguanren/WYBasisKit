@@ -1107,13 +1107,13 @@ extension WYContentScrollView: UIScrollViewDelegate {
         let offsetY = scrollView.contentOffset.y
         
         var slidingDirection: WYSlidingDirection = internalSliderDirection
-        
         if (offsetX != 0) && (contentSlidingDirection != .topOrBottom) {
             if offsetX > wy_width {
                 slidingDirection = .left
             }else if offsetX < wy_width {
                 slidingDirection = .right
             }
+            scrollView.contentOffset.y = 0
         }
         
         if (offsetY != 0) && (contentSlidingDirection != .leftOrRight) {
@@ -1122,6 +1122,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
             }else if offsetY < wy_height {
                 slidingDirection = .down
             }
+            scrollView.contentOffset.x = 0
         }
         
         guard canScroll(slidingDirection) == true else { return }
