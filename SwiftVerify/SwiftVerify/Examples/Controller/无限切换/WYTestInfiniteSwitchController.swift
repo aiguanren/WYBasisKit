@@ -174,19 +174,13 @@ class WYTestInfiniteSwitchController: UIViewController {
             contentScrollView.contentSlidingDirection = [.leftOrRight, .topOrBottom, .omnidirectional][sender.selectedSegmentIndex]
             switch contentScrollView.contentSlidingDirection {
             case .leftOrRight:
-                if !contentScrollView.hasHorizontalDisplayView {
-                    contentScrollView.horizontalOrVerticalDisplay(currentView: horizontalViews.first!, reserveView: horizontalViews.last!)
-                }
+                contentScrollView.horizontalOrVerticalDisplay(currentView: horizontalViews.first!, reserveView: horizontalViews.last!)
                 break
             case .topOrBottom:
-                if !contentScrollView.hasVerticalDisplayView {
-                    contentScrollView.horizontalOrVerticalDisplay(currentView: verticalViews.first!, reserveView: verticalViews.last!)
-                }
+                contentScrollView.horizontalOrVerticalDisplay(currentView: verticalViews.first!, reserveView: verticalViews.last!)
                 break
             case .omnidirectional:
-                if !((contentScrollView.hasHorizontalDisplayView) && (contentScrollView.hasVerticalDisplayView)) {
-                    contentScrollView.omnidirectionalDisplay(currentHorizontalView: horizontalViews.first!, reserveHorizontalView: horizontalViews.last!, currentVerticalView: verticalViews.first!, reserveVerticalView: verticalViews.last!)
-                }
+                contentScrollView.omnidirectionalDisplay(currentHorizontalView: horizontalViews.first!, reserveHorizontalView: horizontalViews.last!, currentVerticalView: verticalViews.first!, reserveVerticalView: verticalViews.last!)
                 break
             }
         }else if sender == prioritySlidingDirection {

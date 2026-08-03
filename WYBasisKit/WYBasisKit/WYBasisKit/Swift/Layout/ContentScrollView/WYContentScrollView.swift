@@ -196,12 +196,6 @@ public class WYContentScrollView: UIScrollView {
      */
     public var automaticCarousel: Bool = true
     
-    /// 是否已传入水平方向的显示View
-    public private(set) var hasHorizontalDisplayView: Bool = false
-    
-    /// 是否已传入垂直方向的显示View
-    public private(set) var hasVerticalDisplayView: Bool = false
-    
     /**
      *  需要加载到内容页视图上的自定义View
      (contentSlidingDirection != omnidirectional时调用)
@@ -224,15 +218,13 @@ public class WYContentScrollView: UIScrollView {
         
         if contentSlidingDirection == .leftOrRight {
             horizontalViews = [currentView, reserveView]
-            hasHorizontalDisplayView = true
         }
         
         if contentSlidingDirection == .topOrBottom {
             verticalViews = [currentView, reserveView]
-            hasVerticalDisplayView = true
         }
         
-        internalSettingsContentView()
+        internalSettingsContentView(isReload: true)
     }
     
     /**
@@ -264,10 +256,7 @@ public class WYContentScrollView: UIScrollView {
             horizontalViews = [currentHorizontalView, reserveHorizontalView]
             verticalViews = [currentVerticalView, reserveVerticalView]
             
-            hasHorizontalDisplayView = true
-            hasVerticalDisplayView = true
-            
-            internalSettingsContentView()
+            internalSettingsContentView(isReload: true)
         }
     }
     
@@ -489,7 +478,7 @@ extension WYContentScrollView {
         // 检查(设置)contentSize与contentOffset
         checkContentSizeAndContentOffset()
         // 如果frame发生变化需要及时更新内容视图的frame
-        internalSettingsContentView()
+        internalSettingsContentView(isReload: false)
     }
     
     public override weak var delegate: (any UIScrollViewDelegate)? {
@@ -522,21 +511,16 @@ extension WYContentScrollView {
         case .leftOrRight:
             horizontalViews?.forEach { $0.removeFromSuperview() }
             horizontalViews = nil
-            hasHorizontalDisplayView = false
             break
         case .topOrBottom:
             verticalViews?.forEach { $0.removeFromSuperview() }
             verticalViews = nil
-            hasVerticalDisplayView = false
             break
         case .omnidirectional:
             horizontalViews?.forEach { $0.removeFromSuperview() }
             horizontalViews = nil
             verticalViews?.forEach { $0.removeFromSuperview() }
             verticalViews = nil
-            
-            hasHorizontalDisplayView = false
-            hasVerticalDisplayView = false
             break
         }
     }
@@ -556,22 +540,22 @@ extension WYContentScrollView {
     }
     
     /// 内部设置添加ContentView
-    private func internalSettingsContentView() {
+    private func internalSettingsContentView(isReload: Bool) {
         
         if (contentSlidingDirection == .omnidirectional) {
             if prioritySlidingDirection == .topOrBottom {
-                layoutContentSubViews(.leftOrRight)
-                layoutContentSubViews(.topOrBottom)
+                layoutContentSubViews(.leftOrRight, isReload: isReload)
+                layoutContentSubViews(.topOrBottom, isReload: isReload)
             }else {
-                layoutContentSubViews(.topOrBottom)
-                layoutContentSubViews(.leftOrRight)
+                layoutContentSubViews(.topOrBottom, isReload: isReload)
+                layoutContentSubViews(.leftOrRight, isReload: isReload)
             }
         }else {
-            layoutContentSubViews(contentSlidingDirection)
+            layoutContentSubViews(contentSlidingDirection, isReload: isReload)
         }
     }
     
-    private func layoutContentSubViews(_ direction: WYContentSlidingDirection) {
+    private func layoutContentSubViews(_ direction: WYContentSlidingDirection, isReload: Bool) {
         
         if direction == .leftOrRight {
             
@@ -579,7 +563,7 @@ extension WYContentScrollView {
                   let currentHorizontalView = horizontalViews?.first,
                   let reserveHorizontalView = horizontalViews?.last else { return }
             
-            guard !CGSizeEqualToSize(frame.size, currentHorizontalView.frame.size) else {
+            guard (!CGSizeEqualToSize(frame.size, currentHorizontalView.frame.size)) || (isReload == true) else {
                 return
             }
             
@@ -617,7 +601,7 @@ extension WYContentScrollView {
                   let currentVerticalView = verticalViews?.first,
                   let reserveVerticalView = verticalViews?.last else { return }
             
-            guard !CGSizeEqualToSize(frame.size, currentVerticalView.frame.size) else {
+            guard (!CGSizeEqualToSize(frame.size, currentVerticalView.frame.size)) || (isReload == true) else {
                 return
             }
             
@@ -695,23 +679,23 @@ extension WYContentScrollView {
         
         switch contentSlidingDirection {
         case .leftOrRight:
-            if !contentSize.equalTo(CGSize(width: 3*wy_width, height: wy_height)) {
-                contentSize = CGSize(width: 3*wy_width, height: wy_height)
-                
+            let targetSize: CGSize = CGSize(width: 3*wy_width, height: wy_height)
+            if !contentSize.equalTo(targetSize) {
+                contentSize = targetSize
                 contentOffset = CGPoint(x: wy_width, y: 0)
             }
             break
         case .topOrBottom:
-            if !contentSize.equalTo(CGSize(width: wy_width, height: 3*wy_height)) {
-                contentSize = CGSize(width: wy_width, height: 3*wy_height)
-                
+            let targetSize: CGSize = CGSize(width: wy_width, height: 3*wy_height)
+            if !contentSize.equalTo(targetSize) {
+                contentSize = targetSize
                 contentOffset = CGPoint(x: 0, y: wy_height)
             }
             break
         case .omnidirectional:
-            if !contentSize.equalTo(CGSize(width: 3*wy_width, height: 3*wy_height)) {
-                contentSize = CGSize(width: 3*wy_width, height: 3*wy_height)
-                
+            let targetSize: CGSize = CGSize(width: 3*wy_width, height: 3*wy_height)
+            if !contentSize.equalTo(targetSize) {
+                contentSize = targetSize
                 contentOffset = CGPoint(x: wy_width, y: wy_height)
             }
             break
@@ -1005,7 +989,6 @@ extension WYContentScrollView {
     
     /// 判断是否可以滚动
     private func canScroll(_ slidingDirection: WYSlidingDirection) -> Bool {
-        
         // 检查(设置)轮播状态
         checkCarouselStatus()
         
