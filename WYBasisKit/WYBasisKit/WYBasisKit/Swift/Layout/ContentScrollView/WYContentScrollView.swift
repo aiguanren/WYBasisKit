@@ -256,9 +256,6 @@ public class WYContentScrollView: UIScrollView {
             stopTimer()
         }
         
-        // 检查(设置)属性状态
-        checkCarouselStatus()
-        
         // 未开启轮播或不支持无限循环则跳过
         guard (unlimitedCarousel != false) &&
                 (automaticCarousel != false) else {
@@ -516,6 +513,7 @@ extension WYContentScrollView {
         let gestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(didClickContent))
         addGestureRecognizer(gestureRecognizer)
         
+        bounces = false
         isPagingEnabled = true
         showsHorizontalScrollIndicator = false
         showsVerticalScrollIndicator = false
@@ -624,20 +622,16 @@ extension WYContentScrollView {
         switch contentSlidingDirection {
         case .leftOrRight:
             isScrollEnabled = numberOfHorizontalContent > 1 ? horizontalSliderForMultiPage : horizontalSliderForSinglePage
-            bounces = numberOfHorizontalContent > 1 ? false : horizontalSliderForSinglePage
             break
         case .topOrBottom:
             isScrollEnabled = numberOfVerticalContent > 1 ? verticalSliderForMultiPage : verticalSliderForSinglePage
-            bounces = numberOfVerticalContent > 1 ? false : verticalSliderForSinglePage
             break
         case .omnidirectional:
             if (wy_slidingDirection() == .left) || (wy_slidingDirection() == .right) {
                 isScrollEnabled = numberOfHorizontalContent > 1 ? horizontalSliderForMultiPage : horizontalSliderForSinglePage
-                bounces = numberOfHorizontalContent > 1 ? false : horizontalSliderForSinglePage
             }
             if (wy_slidingDirection() == .up) || (wy_slidingDirection() == .down) {
                 isScrollEnabled = numberOfVerticalContent > 1 ? verticalSliderForMultiPage : verticalSliderForSinglePage
-                bounces = numberOfVerticalContent > 1 ? false : verticalSliderForSinglePage
             }
             break
         }
@@ -1113,6 +1107,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
         if canRestartedTimer == true {
             startTimer()
         }
+        
         internalDelegate?.scrollViewDidEndDragging?(scrollView, willDecelerate: decelerate)
     }
 
