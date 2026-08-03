@@ -130,19 +130,13 @@ public class WYContentScrollView: UIScrollView {
     /// 滑动事件代理
     public weak var contentDelegate: WYContentScrollViewDelegate?
     
-    /**
-     *  水平方向内容页视图数量（Int.max表示无限数量）
-     *  当设置Int.max时，会强制设置automaticCarousel和unlimitedCarousel为false
-     */
+    /// 水平方向内容页视图数量（Int.max表示无限数量）
     public var numberOfHorizontalContent: Int = Int.max {
         // 这里必须调用一次checkCarouselStatus，以便数量发生变化后可以动态更新scrollView的isScrollEnabled状态
         didSet { checkCarouselStatus() }
     }
     
-    /**
-     *  垂直方向内容页视图数量（Int.max表示无限数量）
-     *  当设置Int.max时，会强制设置automaticCarousel和unlimitedCarousel为false
-     */
+    /// 垂直方向内容页视图数量（Int.max表示无限数量）
     public var numberOfVerticalContent: Int = Int.max {
         // 这里必须调用一次checkCarouselStatus，以便数量发生变化后可以动态更新scrollView的isScrollEnabled状态
         didSet { checkCarouselStatus() }
@@ -165,11 +159,7 @@ public class WYContentScrollView: UIScrollView {
     /// 垂直方向储备内容页索引
     public private(set) var reserveVerticalIndex: Int = 0
     
-    /**
-     *  自动轮播时每一页停留时间，默认为3s，最少1s
-     *  当设置的值小于1s时，则为默认值
-     *  contentSlidingDirection == omnidirectional时不会生效，且会强制停止计时器
-     */
+    /// 自动轮播时每一页停留时间，默认为3s，最少1s(当设置的值小于1s时，则为默认值)
     public var standingTime: TimeInterval = 3
     
     /// 水平方向只有一张图片时，是否需要支持滑动，默认false
@@ -178,22 +168,16 @@ public class WYContentScrollView: UIScrollView {
     /// 垂直方向只有一张图片时，是否需要支持滑动，默认false
     public var verticalSliderForSinglePage: Bool = false
     
-    /// 水平方向有多个内容页面时，是否需要支持滑动(contentSlidingDirection == omnidirectional时固定为false)
+    /// 水平方向有多个内容页面时，是否需要支持滑动
     public var horizontalSliderForMultiPage: Bool = true
     
-    /// 垂直方向有多个内容页面时，是否需要支持滑动(contentSlidingDirection == omnidirectional时固定为false)
+    /// 垂直方向有多个内容页面时，是否需要支持滑动
     public var verticalSliderForMultiPage: Bool = true
     
-    /**
-     *  是否需要无限轮播，除contentSlidingDirection == omnidirectional时固定为false外，其余默认开启
-     *  当设置false时，会强制设置automaticCarousel为false
-     */
+    /// 是否需要无限轮播
     public var unlimitedCarousel: Bool = true
     
-    /**
-     *  是否需要自动轮播，除contentSlidingDirection == omnidirectional时固定为false外，其余默认开启
-     *  当设置false时，会关闭定时器
-     */
+    /// 是否需要自动轮播
     public var automaticCarousel: Bool = true
     
     /**
@@ -263,10 +247,7 @@ public class WYContentScrollView: UIScrollView {
     /// 当contentSlidingDirection == .omnidirectional时，优先支持哪个滑动方向，默认左右滑动(不支持设置为.omnidirectional)
     public var prioritySlidingDirection: WYContentSlidingDirection = .leftOrRight
     
-    /**
-     *  开启定时器(不支持contentSlidingDirection == omnidirectional时调用)
-     *  默认开启，调用该方法会重新开启
-     */
+    /// 开启定时器(默认开启，调用该方法会重新开启)
     public func startTimer() {
         
         // 如果已经开启了，就先关闭计时器
@@ -278,47 +259,49 @@ public class WYContentScrollView: UIScrollView {
         // 检查(设置)属性状态
         checkCarouselStatus()
         
-        // 未开启轮播或不支持无限循环或者当前支持的滑动方向是omnidirectional则不开启
-        guard (contentSlidingDirection != .omnidirectional) &&
-                (unlimitedCarousel != false) &&
+        // 未开启轮播或不支持无限循环则跳过
+        guard (unlimitedCarousel != false) &&
                 (automaticCarousel != false) else {
             return
         }
         
+        var direction: WYContentSlidingDirection = .leftOrRight
         switch contentSlidingDirection {
         case .leftOrRight:
             // 判断水平方向是否可以开启定时器
-            if ((numberOfHorizontalContent < 2) ||
-                (unlimitedCarousel == false) ||
-                (automaticCarousel == false) ||
-                (numberOfHorizontalContent == Int.max)) {
+            if numberOfHorizontalContent < 2 {
                 return
             }
+            direction = .leftOrRight
             break
         case .topOrBottom:
             // 判断垂直方向是否可以开启定时器
-            if ((numberOfVerticalContent < 2) ||
-                (unlimitedCarousel == false) ||
-                (automaticCarousel == false) ||
-                (numberOfVerticalContent == Int.max)) {
+            if numberOfVerticalContent < 2 {
                 return
             }
+            direction = .topOrBottom
             break
         case .omnidirectional:
-            // 全向滑动时，不支持开启定时器
+            // 全向滑动时，根据当前显示的第一个ContentView支持的滑动方向来处理
+            guard let currentContentView = subviews.first else { return }
+            if (currentContentView == horizontalViews?.first) {
+                direction = .leftOrRight
+            }else {
+                direction = .topOrBottom
+            }
             return
         }
         
         timer = Timer.scheduledTimer(withTimeInterval: (standingTime < 1) ? 3 : standingTime, repeats: true, block:{ [weak self] (timer: Timer) -> Void in
             guard let self = self else { return }
-            lastContent(contentSlidingDirection)
+            lastContent(direction)
         })
         RunLoop.current.add(timer!, forMode: .common)
         
         canRestartedTimer = true
     }
     
-    /// 停止定时器(不支持contentSlidingDirection == omnidirectional时调用)
+    /// 停止定时器
     public func stopTimer() {
         timer?.invalidate()
         timer = nil
@@ -637,20 +620,6 @@ extension WYContentScrollView {
     
     /// 检查(设置)属性状态
     private func checkCarouselStatus() {
-        
-        if (numberOfHorizontalContent == Int.max) ||
-            (numberOfVerticalContent == Int.max) ||
-            (unlimitedCarousel == false) ||
-            (automaticCarousel == false) ||
-            (contentSlidingDirection == .omnidirectional) {
-            unlimitedCarousel = false
-            automaticCarousel = false
-            
-            if (contentSlidingDirection == .omnidirectional) {
-                horizontalSliderForMultiPage = false
-                verticalSliderForMultiPage = false
-            }
-        }
         
         switch contentSlidingDirection {
         case .leftOrRight:
@@ -1006,7 +975,7 @@ extension WYContentScrollView {
             
             // 如果当前在第一页或者最后一页的时候，需要根据numberOfHorizontalContent是否等于Int.max和unlimitedCarousel是否为true来判断是否可以切换页面
             if (isFirstPage && (slidingDirection == .right)) || (isLastPage && (slidingDirection == .left)) {
-                if (unlimitedCarousel == false) || (numberOfHorizontalContent == Int.max) {
+                if (unlimitedCarousel == false) {
                     let targetOffset: CGPoint = CGPoint(x: wy_width, y: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0))
                     if (!CGPointEqualToPoint(contentOffset, targetOffset)) {
                         contentOffset = targetOffset
@@ -1027,7 +996,7 @@ extension WYContentScrollView {
             
             // 如果当前在第一页或者最后一页的时候，需要根据numberOfVerticalContent是否等于Int.max和unlimitedCarousel是否为true来判断是否可以切换页面
             if (isFirstPage && (slidingDirection == .down)) || (isLastPage && (slidingDirection == .up)) {
-                if (unlimitedCarousel == false) || (numberOfVerticalContent == Int.max) {
+                if (unlimitedCarousel == false) {
                     let targetOffset: CGPoint = CGPoint(x: ((contentSlidingDirection == .omnidirectional) ? wy_width : 0), y: wy_height)
                     if (!CGPointEqualToPoint(contentOffset, targetOffset)) {
                         contentOffset = targetOffset

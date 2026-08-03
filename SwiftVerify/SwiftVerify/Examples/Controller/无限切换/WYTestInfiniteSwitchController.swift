@@ -16,16 +16,10 @@ class WYTestInfiniteSwitchController: UIViewController {
     /// 底部操作View
     var operatioView: UIScrollView = UIScrollView()
     
-    /**
-     *  水平方向内容页视图数量（Int.max表示无限数量）
-     *  当设置Int.max时，会强制设置automaticCarousel和unlimitedCarousel为false
-     */
+    /// 水平方向内容页视图数量（Int.max表示无限数量）
     var numberOfHorizontalContent: UISegmentedControl = UISegmentedControl(items: ["0", "1", "2", "3", "4", "5", "∞"])
     
-    /**
-     *  垂直方向内容页视图数量（Int.max表示无限数量）
-     *  当设置Int.max时，会强制设置automaticCarousel和unlimitedCarousel为false
-     */
+    /// 垂直方向内容页视图数量（Int.max表示无限数量）
     var numberOfVerticalContent: UISegmentedControl = UISegmentedControl(items: ["0", "1", "2", "3", "4", "5", "∞"])
     
     /// 支持的滑动方向
@@ -48,16 +42,13 @@ class WYTestInfiniteSwitchController: UIViewController {
     /// 垂直方向只有一张图片时，是否需要支持滑动，默认false
     var verticalSliderForSinglePage: UISwitch = UISwitch()
     
-    /// 水平方向有多个内容页面时，是否需要支持滑动(contentSlidingDirection == omnidirectional时固定为false)
+    /// 水平方向有多个内容页面时，是否需要支持滑动
     var horizontalSliderForMultiPage: UISwitch = UISwitch()
     
-    /// 垂直方向有多个内容页面时，是否需要支持滑动(contentSlidingDirection == omnidirectional时固定为false)
+    /// 垂直方向有多个内容页面时，是否需要支持滑动
     var verticalSliderForMultiPage: UISwitch = UISwitch()
     
-    /**
-     *  是否需要无限轮播，除contentSlidingDirection == omnidirectional时固定为false外，其余默认开启
-     *  当设置false时，会强制设置automaticCarousel为false
-     */
+    /// 是否需要无限轮播
     var unlimitedCarousel: UISwitch = UISwitch()
     
     /**
@@ -67,7 +58,7 @@ class WYTestInfiniteSwitchController: UIViewController {
     var automaticCarousel: UISwitch = UISwitch()
     
     /**
-     *  开启或者关闭定时器(不支持contentSlidingDirection == omnidirectional时调用)
+     *  开启或者关闭定时器
      */
     var startOrStopTimer: UISwitch = UISwitch()
     
@@ -296,35 +287,35 @@ class WYTestInfiniteSwitchController: UIViewController {
             make.width.centerX.equalTo(horizontalSliderForSinglePageView)
         }
         
-        let horizontalSliderForMultiPageView: UIView = createDescContentView(desc: "水平方向有多个内容页面时，是否需要支持滑动(contentSlidingDirection == omnidirectional时固定为false)", controView: horizontalSliderForMultiPage)
+        let horizontalSliderForMultiPageView: UIView = createDescContentView(desc: "水平方向有多个内容页面时，是否需要支持滑动", controView: horizontalSliderForMultiPage)
         operatioView.addSubview(horizontalSliderForMultiPageView)
         horizontalSliderForMultiPageView.snp.makeConstraints { make in
             make.top.equalTo(verticalSliderForSinglePageView.snp.bottom).offset(35)
             make.width.centerX.equalTo(verticalSliderForSinglePageView)
         }
         
-        let verticalSliderForMultiPageView: UIView = createDescContentView(desc: "垂直方向有多个内容页面时，是否需要支持滑动(contentSlidingDirection == omnidirectional时固定为false)", controView: verticalSliderForMultiPage)
+        let verticalSliderForMultiPageView: UIView = createDescContentView(desc: "垂直方向有多个内容页面时，是否需要支持滑动", controView: verticalSliderForMultiPage)
         operatioView.addSubview(verticalSliderForMultiPageView)
         verticalSliderForMultiPageView.snp.makeConstraints { make in
             make.top.equalTo(horizontalSliderForMultiPageView.snp.bottom).offset(35)
             make.width.centerX.equalTo(horizontalSliderForMultiPageView)
         }
         
-        let unlimitedCarouselView: UIView = createDescContentView(desc: "是否需要无限轮播，除contentSlidingDirection == omnidirectional时固定为false外，其余默认开启，当设置false时，会强制设置automaticCarousel为false", controView: unlimitedCarousel)
+        let unlimitedCarouselView: UIView = createDescContentView(desc: "是否需要无限轮播", controView: unlimitedCarousel)
         operatioView.addSubview(unlimitedCarouselView)
         unlimitedCarouselView.snp.makeConstraints { make in
             make.top.equalTo(verticalSliderForMultiPageView.snp.bottom).offset(35)
             make.width.centerX.equalTo(verticalSliderForMultiPageView)
         }
         
-        let automaticCarouselView: UIView = createDescContentView(desc: "是否需要自动轮播，除contentSlidingDirection == omnidirectional时固定为false外，其余默认开启，当设置false时，会关闭定时器", controView: automaticCarousel)
+        let automaticCarouselView: UIView = createDescContentView(desc: "是否需要自动轮播", controView: automaticCarousel)
         operatioView.addSubview(automaticCarouselView)
         automaticCarouselView.snp.makeConstraints { make in
             make.top.equalTo(unlimitedCarouselView.snp.bottom).offset(35)
             make.width.centerX.equalTo(unlimitedCarouselView)
         }
         
-        let startOrStopTimerView: UIView = createDescContentView(desc: "开启或者关闭定时器(不支持contentSlidingDirection == omnidirectional时调用)", controView: startOrStopTimer)
+        let startOrStopTimerView: UIView = createDescContentView(desc: "开启或者关闭定时器", controView: startOrStopTimer)
         operatioView.addSubview(startOrStopTimerView)
         startOrStopTimerView.snp.makeConstraints { make in
             make.top.equalTo(automaticCarouselView.snp.bottom).offset(35)
