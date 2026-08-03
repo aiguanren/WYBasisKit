@@ -1037,7 +1037,7 @@ extension WYContentScrollView {
             guard contentSlidingDirection != .leftOrRight else { return false }
             
             // 当前停留页面是否是第一页
-            let isFirstPage = (currentVerticalIndex == 0) && ((reserveHorizontalIndex == 0) || (reserveHorizontalIndex == 1))
+            let isFirstPage = (currentVerticalIndex == 0) && ((reserveVerticalIndex == 0) || (reserveVerticalIndex == 1))
             
             // 当前停留页面是否是最后一页
             let isLastPage = (currentVerticalIndex == (numberOfVerticalContent - 1)) && (reserveVerticalIndex == (numberOfVerticalContent - 1))
