@@ -614,27 +614,64 @@ extension WYContentScrollView {
                 switchContentCallback(isDidSwitch: true)
             }
         }
+        // 初始化时同步contentOffset
+        lastValidContentOffset = contentOffset
     }
     
-    /// 检查(设置)属性状态
+    /// 检查当前滚动能力（只控制整体是否可滚动，不参与方向控制）
     private func checkCarouselStatus() {
         
         switch contentSlidingDirection {
         case .leftOrRight:
+            // 横向滑动
             isScrollEnabled = numberOfHorizontalContent > 1 ? horizontalSliderForMultiPage : horizontalSliderForSinglePage
             break
         case .topOrBottom:
+            // 纵向滑动
             isScrollEnabled = numberOfVerticalContent > 1 ? verticalSliderForMultiPage : verticalSliderForSinglePage
             break
         case .omnidirectional:
-            if (wy_slidingDirection() == .left) || (wy_slidingDirection() == .right) {
-                isScrollEnabled = numberOfHorizontalContent > 1 ? horizontalSliderForMultiPage : horizontalSliderForSinglePage
-            }
-            if (wy_slidingDirection() == .up) || (wy_slidingDirection() == .down) {
-                isScrollEnabled = numberOfVerticalContent > 1 ? verticalSliderForMultiPage : verticalSliderForSinglePage
-            }
+            // 横向是否可滑动
+            let horizontalCanScroll = numberOfHorizontalContent > 1 ? horizontalSliderForMultiPage : horizontalSliderForSinglePage
+            // 纵向是否可滑动
+            let verticalCanScroll = numberOfVerticalContent > 1 ? verticalSliderForMultiPage : verticalSliderForSinglePage
+            
+            // 此模式下只要有一个方向可以滑，就需要允许滚动，否则某个方向设置数量为1后，就会导致另一个方向也会锁死不能滑动，因为isScrollEnabled是全局的，具体方向锁定通过handleScrollDirectionLock方法来实现
+            isScrollEnabled = horizontalCanScroll || verticalCanScroll
+            
             break
         }
+    }
+    
+    /// 处理方向锁定（控制某个方向不能滑动）
+    private func handleScrollDirectionLock() {
+        
+        // 横向是否允许滑动
+        let horizontalCanScroll = numberOfHorizontalContent > 1 ? horizontalSliderForMultiPage : horizontalSliderForSinglePage
+        
+        // 纵向是否允许滑动
+        let verticalCanScroll = numberOfVerticalContent > 1 ? verticalSliderForMultiPage : verticalSliderForSinglePage
+        
+        // 目标偏移量
+        var targetOffset = contentOffset
+        
+        // 禁止横向滑动
+        if !horizontalCanScroll {
+            targetOffset.x = lastValidContentOffset.x
+        }
+        
+        // 禁止纵向滑动
+        if !verticalCanScroll {
+            targetOffset.y = lastValidContentOffset.y
+        }
+        
+        // 如果发生变化则修正
+        if targetOffset != contentOffset {
+            contentOffset = targetOffset
+        }
+        
+        // 记录合法偏移量
+        lastValidContentOffset = targetOffset
     }
     
     /// 检查(设置)contentSize与contentOffset
@@ -1046,6 +1083,16 @@ extension WYContentScrollView {
         }
     }
     
+    /// 上一次合法的偏移量（用于方向锁定）
+    private var lastValidContentOffset: CGPoint {
+        set(newValue) {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.lastValidContentOffset, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.lastValidContentOffset) as? CGPoint ?? .zero
+        }
+    }
+    
     /// 判断是否可以切换页面
     private var canSwitchedPage: Bool {
         set(newValue) {
@@ -1089,6 +1136,7 @@ extension WYContentScrollView {
         static var configVerticalReserveIndex: UInt8 = 0
         static var internalDelegate: UInt8 = 0
         static var isDirectionLocked: UInt8 = 0
+        static var lastValidContentOffset: UInt8 = 0
     }
 }
 
@@ -1112,6 +1160,9 @@ extension WYContentScrollView: UIScrollViewDelegate {
     }
 
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        
+        /// 方向锁控制
+        handleScrollDirectionLock()
         
         let offsetX = scrollView.contentOffset.x
         let offsetY = scrollView.contentOffset.y
