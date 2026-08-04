@@ -745,8 +745,8 @@ extension WYContentScrollView {
                       let currentVerticalView = verticalViews?.first,
                       let reserveVerticalView = verticalViews?.last else { return }
                 
-                // 滑动前根据滑动方向设置预备显示View的frame(必须放这里优先处理，否则往左右滑动后可能会出现空白页面)
-                if newValue == .up {
+                // 滑动前根据滑动方向的偏移量设置预备显示View的frame(不能简单根据newValue来设置，否则手指不松开上下滑动时无法更新reserveVerticalView.frame，且必须放这里优先处理，否则往左右滑动后可能会出现空白页面)
+                if contentOffset.y > wy_height {
                     reserveVerticalView.frame = CGRect(x: ((contentSlidingDirection == .omnidirectional) ? wy_width : 0), y: 2 * wy_height, width: wy_width, height: wy_height)
                 }else {
                     reserveVerticalView.frame = CGRect(x: ((contentSlidingDirection == .omnidirectional) ? wy_width : 0), y: 0, width: wy_width, height: wy_height)
@@ -770,8 +770,9 @@ extension WYContentScrollView {
                       let currentHorizontalView = horizontalViews?.first,
                       let reserveHorizontalView = horizontalViews?.last else { return }
                 
-                // 滑动前根据滑动方向设置预备显示View的frame(必须放这里优先处理，否则往上下滑动后可能会出现空白页面)
-                if newValue == .left {
+                // 滑动前根据滑动方向的偏移量设置预备显示View的frame(不能简单根据newValue来设置，否则手指不松开左右滑动时无法更新reserveHorizontalView.frame，且必须放这里优先处理，否则往上下滑动后可能会出现空白页面)
+                
+                if contentOffset.x > wy_width {
                     reserveHorizontalView.frame = CGRect(x: 2 * wy_width, y: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0), width: wy_width, height: wy_height)
                 }else {
                     reserveHorizontalView.frame = CGRect(x: 0, y: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0), width: wy_width, height: wy_height)
