@@ -286,12 +286,12 @@ public class WYContentScrollView: UIScrollView {
             }else {
                 direction = .topOrBottom
             }
-            return
+            break
         }
         
         timer = Timer.scheduledTimer(withTimeInterval: (standingTime < 1) ? 3 : standingTime, repeats: true, block:{ [weak self] (timer: Timer) -> Void in
             guard let self = self else { return }
-            lastContent(direction)
+            nextContent(direction)
         })
         RunLoop.current.add(timer!, forMode: .common)
         
@@ -344,7 +344,7 @@ public class WYContentScrollView: UIScrollView {
                 return
             }
             
-            guard (currentHorizontalIndex <= 0) && (unlimitedCarousel == false) else {
+            guard (currentHorizontalIndex <= 0) && (unlimitedCarousel != false) else {
                 return
             }
             
@@ -771,7 +771,6 @@ extension WYContentScrollView {
                       let reserveHorizontalView = horizontalViews?.last else { return }
                 
                 // 滑动前根据滑动方向的偏移量设置预备显示View的frame(不能简单根据newValue来设置，否则手指不松开左右滑动时无法更新reserveHorizontalView.frame，且必须放这里优先处理，否则往上下滑动后可能会出现空白页面)
-                
                 if contentOffset.x > wy_width {
                     reserveHorizontalView.frame = CGRect(x: 2 * wy_width, y: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0), width: wy_width, height: wy_height)
                 }else {
