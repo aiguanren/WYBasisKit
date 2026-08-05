@@ -132,19 +132,28 @@ public class WYContentScrollView: UIScrollView {
     
     /// 水平方向内容页视图数量（Int.max表示无限数量）
     public var numberOfHorizontalContent: Int = Int.max {
-        // 这里必须调用一次checkCarouselStatus，以便数量发生变化后可以动态更新scrollView的isScrollEnabled状态
-        didSet { checkCarouselStatus() }
+        didSet {
+            bringContentToFront()
+            // 这里必须调用一次checkCarouselStatus，以便数量发生变化后可以动态更新scrollView的isScrollEnabled状态
+            checkCarouselStatus()
+        }
     }
     
     /// 垂直方向内容页视图数量（Int.max表示无限数量）
     public var numberOfVerticalContent: Int = Int.max {
-        // 这里必须调用一次checkCarouselStatus，以便数量发生变化后可以动态更新scrollView的isScrollEnabled状态
-        didSet { checkCarouselStatus() }
+        didSet {
+            bringContentToFront()
+            // 这里必须调用一次checkCarouselStatus，以便数量发生变化后可以动态更新scrollView的isScrollEnabled状态
+            checkCarouselStatus()
+        }
     }
     
     /// 支持的滑动方向
     public var contentSlidingDirection: WYContentSlidingDirection = .leftOrRight {
-        didSet { checkContentSizeAndContentOffset() }
+        didSet {
+            bringContentToFront()
+            checkContentSizeAndContentOffset()
+        }
     }
     
     /// 当前水平方向内容页索引
@@ -245,7 +254,11 @@ public class WYContentScrollView: UIScrollView {
     }
     
     /// 当contentSlidingDirection == .omnidirectional时，优先支持哪个滑动方向，默认左右滑动(不支持设置为.omnidirectional)
-    public var prioritySlidingDirection: WYContentSlidingDirection = .leftOrRight
+    public var prioritySlidingDirection: WYContentSlidingDirection = .leftOrRight {
+        didSet {
+            bringContentToFront()
+        }
+    }
     
     /// 开启定时器(默认开启，调用该方法会重新开启)
     public func startTimer() {
@@ -638,8 +651,69 @@ extension WYContentScrollView {
             
             // 此模式下只要有一个方向可以滑，就需要允许滚动，否则某个方向设置数量为1后，就会导致另一个方向也会锁死不能滑动，因为isScrollEnabled是全局的，具体方向锁定通过handleScrollDirectionLock方法来实现
             isScrollEnabled = horizontalCanScroll || verticalCanScroll
-            
             break
+        }
+    }
+    
+    /// 判断设置展示在顶层的对应方向的View，若contentViews为空则内部自行判断
+    private func bringContentToFront(_ contentViews: [UIView]? = nil) {
+    
+        if let contentViews = contentViews, (contentViews.count == 2) {
+            // 直接将传入的contentViews移到WYContentScrollView的最顶层
+            bringSubviewToFront(contentViews.first!)
+            bringSubviewToFront(contentViews.last!)
+            return
+        }else {
+            // 根据各方向的显示数量以及支持的滑动方向和全向模式时优先显示的方向来设置显示优先级
+            switch contentSlidingDirection {
+            case .leftOrRight:
+                guard horizontalViews?.count == 2,
+                      let currentHorizontalView = horizontalViews?.first,
+                      let reserveHorizontalView = horizontalViews?.last else { return }
+                bringSubviewToFront(currentHorizontalView)
+                bringSubviewToFront(reserveHorizontalView)
+                return
+                break
+            case .topOrBottom:
+                guard verticalViews?.count == 2,
+                      let currentVerticalView = verticalViews?.first,
+                      let reserveVerticalView = verticalViews?.last else { return }
+                bringSubviewToFront(currentVerticalView)
+                bringSubviewToFront(reserveVerticalView)
+                return
+                break
+            case .omnidirectional:
+                guard horizontalViews?.count == 2,
+                      let currentHorizontalView = horizontalViews?.first,
+                      let reserveHorizontalView = horizontalViews?.last else { return }
+                guard verticalViews?.count == 2,
+                      let currentVerticalView = verticalViews?.first,
+                      let reserveVerticalView = verticalViews?.last else { return }
+                if ((numberOfHorizontalContent > 1) && (numberOfVerticalContent > 1)) || (numberOfHorizontalContent == numberOfVerticalContent) {
+                    // 都大于1或者都等于1，则依据优先显示方向来处理
+                    if prioritySlidingDirection == .leftOrRight {
+                        bringSubviewToFront(currentHorizontalView)
+                        bringSubviewToFront(reserveHorizontalView)
+                        return
+                    }
+                    if prioritySlidingDirection == .topOrBottom {
+                        bringSubviewToFront(currentVerticalView)
+                        bringSubviewToFront(reserveVerticalView)
+                        return
+                    }
+                }else {
+                    if numberOfHorizontalContent > numberOfVerticalContent {
+                        bringSubviewToFront(currentHorizontalView)
+                        bringSubviewToFront(reserveHorizontalView)
+                        return
+                    }else {
+                        bringSubviewToFront(currentVerticalView)
+                        bringSubviewToFront(reserveVerticalView)
+                        return
+                    }
+                }
+                break
+            }
         }
     }
     
@@ -758,8 +832,7 @@ extension WYContentScrollView {
                 configVerticalReserveIndex = reserveVerticalIndex
                 
                 // 将对应方向的正在显示的View移到WYContentScrollView的最上面
-                bringSubviewToFront(currentVerticalView)
-                bringSubviewToFront(reserveVerticalView)
+                bringContentToFront([currentVerticalView, reserveVerticalView])
             }
             
             if ((newValue == .left) || (newValue == .right) && (contentSlidingDirection != .topOrBottom)) {
@@ -783,8 +856,7 @@ extension WYContentScrollView {
                 configHorizontalReserveIndex = reserveHorizontalIndex
                 
                 // 将对应方向的正在显示的View移到WYContentScrollView的最上面
-                bringSubviewToFront(currentHorizontalView)
-                bringSubviewToFront(reserveHorizontalView)
+                bringContentToFront([currentHorizontalView, reserveHorizontalView])
             }
             
             // 向上滚动
