@@ -773,7 +773,7 @@ extension WYContentScrollView {
             /// 相对中心点的偏移
             let deltaX = offsetX - centerX
             let deltaY = offsetY - centerY
-            
+        
             /// 未锁定时，根据主方向判断一次
             if isDirectionLocked == false {
                 
@@ -796,8 +796,15 @@ extension WYContentScrollView {
                             slidingDirection = .down
                         }
                     }
-                    /// 一旦判断完成，立即锁定
+                    // 一旦判断完成，立即锁定
                     isDirectionLocked = true
+                    // 同步记录本次拖拽锁定的方向，用于边界拦截后 internalSliderDirection 未更新时仍能保持方向
+                    dragLockedDirection = slidingDirection
+                }
+            } else {
+                // 已锁定时优先使用本次拖拽锁定的方向，避免 internalSliderDirection 未更新时 slidingDirection 退化为 .unknown 导致 canScroll 拦截失效
+                if dragLockedDirection != .unknown {
+                    slidingDirection = dragLockedDirection
                 }
             }
             
@@ -877,6 +884,8 @@ extension WYContentScrollView {
         guard let contentDelegate = contentDelegate, internalSliderDirection != .unknown else { return }
         
         let isOmnidirectional: Bool = (contentSlidingDirection == .omnidirectional)
+        
+        print("\(isDidSwitch ? "isDidSwitch" : "isWillSwitch"), direction：\(internalSliderDirection)")
         
         if isOmnidirectional {
             
@@ -1240,6 +1249,12 @@ extension WYContentScrollView {
             return objc_getAssociatedObject(self, &WYAssociatedKeys.isDirectionLocked) as? Bool ?? false
         }
     }
+
+    /// 本次拖拽中锁定的滑动方向(仅omnidirectional模式下使用)，持久化本次拖拽锁定的方向，配合 handleScrollDirectionLock 避免边界拦截后方向丢失，用于在 canScroll 在边界处拦截(返回false)导致 internalSliderDirection 未更新时仍能保持本次拖拽的方向
+    private var dragLockedDirection: WYSlidingDirection {
+        set { objc_setAssociatedObject(self, &WYAssociatedKeys.dragLockedDirection, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+        get { objc_getAssociatedObject(self, &WYAssociatedKeys.dragLockedDirection) as? WYSlidingDirection ?? .unknown }
+    }
     
     /// 上一次合法的偏移量（用于方向锁定）
     private var lastValidContentOffset: CGPoint {
@@ -1300,6 +1315,7 @@ extension WYContentScrollView {
         static var configVerticalReserveIndex: UInt8 = 0
         static var internalDelegate: UInt8 = 0
         static var isDirectionLocked: UInt8 = 0
+        static var dragLockedDirection: UInt8 = 0
         static var lastValidContentOffset: UInt8 = 0
         static var upperContentView: UInt8 = 0
     }
@@ -1316,6 +1332,9 @@ extension WYContentScrollView: UIScrollViewDelegate {
         stopTimer()
         // 重置方向锁定
         isDirectionLocked = false
+
+        // 重置本次拖拽锁定的方向，避免沿用上一次拖拽的方向
+        dragLockedDirection = .unknown
     }
 
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
