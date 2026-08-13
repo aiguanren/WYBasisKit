@@ -293,7 +293,7 @@ public class WYContentScrollView: UIScrollView {
             break
         case .omnidirectional:
             // 全向滑动时，根据当前显示的第一个ContentView支持的滑动方向来处理
-            guard let currentContentView = subviews.first else { return }
+            guard let currentContentView = upperContentView else { return }
             if (currentContentView == horizontalViews?.first) {
                 direction = .leftOrRight
             }else {
@@ -584,6 +584,7 @@ extension WYContentScrollView {
             }
             
             if (currentHorizontalView.superview == nil) && (reserveHorizontalView.superview == nil) {
+                upperContentView = currentHorizontalView
                 addSubview(currentHorizontalView)
                 addSubview(reserveHorizontalView)
                 switchContentCallback(isDidSwitch: true)
@@ -622,6 +623,7 @@ extension WYContentScrollView {
             }
             
             if (currentVerticalView.superview == nil) && (reserveVerticalView.superview == nil) {
+                upperContentView = currentVerticalView
                 addSubview(currentVerticalView)
                 addSubview(reserveVerticalView)
                 switchContentCallback(isDidSwitch: true)
@@ -657,11 +659,14 @@ extension WYContentScrollView {
     
     /// 判断设置展示在顶层的对应方向的View，若contentViews为空则内部自行判断
     private func bringContentToFront(_ contentViews: [UIView]? = nil) {
-    
-        if let contentViews = contentViews, (contentViews.count == 2) {
-            // 直接将传入的contentViews移到WYContentScrollView的最顶层
-            bringSubviewToFront(contentViews.first!)
-            bringSubviewToFront(contentViews.last!)
+        
+        // 直接将传入的对应的ContentView移到WYContentScrollView的最顶层，且因为currentView和reserveView的frame有可能是一样的，所有需要最后执行bringSubviewToFront(currentView)
+        if (contentViews?.count == 2), let currentView = contentViews?.first, let reserveView = contentViews?.last  {
+            if upperContentView != currentView {
+                bringSubviewToFront(reserveView)
+                bringSubviewToFront(currentView)
+                upperContentView = currentView
+            }
             return
         }else {
             // 根据各方向的显示数量以及支持的滑动方向和全向模式时优先显示的方向来设置显示优先级
@@ -670,18 +675,22 @@ extension WYContentScrollView {
                 guard horizontalViews?.count == 2,
                       let currentHorizontalView = horizontalViews?.first,
                       let reserveHorizontalView = horizontalViews?.last else { return }
-                bringSubviewToFront(currentHorizontalView)
-                bringSubviewToFront(reserveHorizontalView)
+                if upperContentView != currentHorizontalView {
+                    bringSubviewToFront(reserveHorizontalView)
+                    bringSubviewToFront(currentHorizontalView)
+                    upperContentView = currentHorizontalView
+                }
                 return
-                break
             case .topOrBottom:
                 guard verticalViews?.count == 2,
                       let currentVerticalView = verticalViews?.first,
                       let reserveVerticalView = verticalViews?.last else { return }
-                bringSubviewToFront(currentVerticalView)
-                bringSubviewToFront(reserveVerticalView)
+                if upperContentView != currentVerticalView {
+                    bringSubviewToFront(reserveVerticalView)
+                    bringSubviewToFront(currentVerticalView)
+                    upperContentView = currentVerticalView
+                }
                 return
-                break
             case .omnidirectional:
                 guard horizontalViews?.count == 2,
                       let currentHorizontalView = horizontalViews?.first,
@@ -691,34 +700,37 @@ extension WYContentScrollView {
                       let reserveVerticalView = verticalViews?.last else { return }
                 if ((numberOfHorizontalContent > 1) && (numberOfVerticalContent > 1)) || (numberOfHorizontalContent == numberOfVerticalContent) {
                     // 都大于1或者都等于1，则依据优先显示方向来处理
-                    if prioritySlidingDirection == .leftOrRight {
-                        bringSubviewToFront(currentHorizontalView)
+                    if (prioritySlidingDirection == .leftOrRight) && (upperContentView != currentVerticalView) {
                         bringSubviewToFront(reserveHorizontalView)
+                        bringSubviewToFront(currentHorizontalView)
+                        upperContentView = currentHorizontalView
                         return
                     }
-                    if prioritySlidingDirection == .topOrBottom {
-                        bringSubviewToFront(currentVerticalView)
+                    if (prioritySlidingDirection == .topOrBottom) && (upperContentView != currentVerticalView) {
                         bringSubviewToFront(reserveVerticalView)
+                        bringSubviewToFront(currentVerticalView)
+                        upperContentView = currentVerticalView
                         return
                     }
                 }else {
-                    if numberOfHorizontalContent > numberOfVerticalContent {
-                        bringSubviewToFront(currentHorizontalView)
+                    if (numberOfHorizontalContent > numberOfVerticalContent) && (upperContentView != currentHorizontalView) {
                         bringSubviewToFront(reserveHorizontalView)
+                        bringSubviewToFront(currentHorizontalView)
+                        upperContentView = currentHorizontalView
                         return
-                    }else {
-                        bringSubviewToFront(currentVerticalView)
+                    }else if (upperContentView != currentVerticalView) {
                         bringSubviewToFront(reserveVerticalView)
+                        bringSubviewToFront(currentVerticalView)
+                        upperContentView = currentVerticalView
                         return
                     }
                 }
-                break
             }
         }
     }
     
     /// 处理方向锁定（控制某个方向不能滑动）
-    private func handleScrollDirectionLock() {
+    private func handleScrollDirectionLock() -> WYSlidingDirection {
         
         // 横向是否允许滑动
         let horizontalCanScroll = numberOfHorizontalContent > 1 ? horizontalSliderForMultiPage : horizontalSliderForSinglePage
@@ -746,6 +758,83 @@ extension WYContentScrollView {
         
         // 记录合法偏移量
         lastValidContentOffset = targetOffset
+        
+        let offsetX = contentOffset.x
+        let offsetY = contentOffset.y
+
+        var slidingDirection: WYSlidingDirection = internalSliderDirection
+
+        /// 仅在全方向模式下处理
+        if contentSlidingDirection == .omnidirectional {
+            
+            let centerX = wy_width
+            let centerY = wy_height
+
+            /// 相对中心点的偏移
+            let deltaX = offsetX - centerX
+            let deltaY = offsetY - centerY
+            
+            /// 未锁定时，根据主方向判断一次
+            if isDirectionLocked == false {
+                
+                let threshold: CGFloat = 2.0  // 防抖
+                
+                if abs(deltaX) > threshold || abs(deltaY) > threshold {
+                    if abs(deltaX) > abs(deltaY) {
+                        // 横向
+                        if deltaX > 0 {
+                            slidingDirection = .left
+                        } else {
+                            slidingDirection = .right
+                        }
+                        
+                    } else {
+                        // 纵向
+                        if deltaY > 0 {
+                            slidingDirection = .up
+                        } else {
+                            slidingDirection = .down
+                        }
+                    }
+                    /// 一旦判断完成，立即锁定
+                    isDirectionLocked = true
+                }
+            }
+            
+            /// 锁死另一方向（防止出现多方向同时滑动的问题）
+            if isDirectionLocked {
+                if slidingDirection == .left || slidingDirection == .right {
+                    /// 锁死 Y
+                    if offsetY != centerY {
+                        contentOffset.y = centerY
+                    }
+                    
+                } else if slidingDirection == .up || slidingDirection == .down {
+                    /// 锁死 X
+                    if offsetX != centerX {
+                        contentOffset.x = centerX
+                    }
+                }
+            }
+        }else {
+            if (offsetX != 0) && (contentSlidingDirection != .topOrBottom) {
+                if offsetX > wy_width {
+                    slidingDirection = .left
+                }else if offsetX < wy_width {
+                    slidingDirection = .right
+                }
+            }
+            
+            if (offsetY != 0) && (contentSlidingDirection != .leftOrRight) {
+                if offsetY > wy_height {
+                    slidingDirection = .up
+                }else if offsetY < wy_height {
+                    slidingDirection = .down
+                }
+            }
+        }
+        
+        return slidingDirection
     }
     
     /// 检查(设置)contentSize与contentOffset
@@ -776,136 +865,6 @@ extension WYContentScrollView {
         }
     }
     
-    /// 当前正在水平方向显示的Views(用户传入的View)
-    private var horizontalViews: [UIView]? {
-        set(newValue) {
-            objc_setAssociatedObject(self, &WYAssociatedKeys.horizontalViews, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-        }
-        get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.horizontalViews) as? [UIView]
-        }
-    }
-    
-    /// 当前正在垂直方向显示的Views(用户传入的View)
-    private var verticalViews: [UIView]? {
-        set(newValue) {
-            objc_setAssociatedObject(self, &WYAssociatedKeys.verticalViews, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-        }
-        get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.verticalViews) as? [UIView]
-        }
-    }
-    
-    /// 计时器
-    private var timer: Timer? {
-        set(newValue) {
-            objc_setAssociatedObject(self, &WYAssociatedKeys.timer, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-        }
-        get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.timer) as? Timer
-        }
-    }
-    
-    /// 滚动方向
-    private var internalSliderDirection: WYSlidingDirection {
-        set(newValue) {
-            objc_setAssociatedObject(self, &WYAssociatedKeys.internalSliderDirection, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-            
-            if ((newValue == .up) || (newValue == .down) && (contentSlidingDirection != .leftOrRight)) {
-                
-                guard numberOfVerticalContent > 0 else { return }
-                
-                guard verticalViews?.count == 2,
-                      let currentVerticalView = verticalViews?.first,
-                      let reserveVerticalView = verticalViews?.last else { return }
-                
-                // 滑动前根据滑动方向的偏移量设置预备显示View的frame(不能简单根据newValue来设置，否则手指不松开上下滑动时无法更新reserveVerticalView.frame，且必须放这里优先处理，否则往左右滑动后可能会出现空白页面)
-                if contentOffset.y > wy_height {
-                    reserveVerticalView.frame = CGRect(x: ((contentSlidingDirection == .omnidirectional) ? wy_width : 0), y: 2 * wy_height, width: wy_width, height: wy_height)
-                }else {
-                    reserveVerticalView.frame = CGRect(x: ((contentSlidingDirection == .omnidirectional) ? wy_width : 0), y: 0, width: wy_width, height: wy_height)
-                }
-                
-                // 如果方向没变，reserveVerticalIndex 跟上一次配置的相同，则不重复加载
-                guard reserveVerticalIndex != configVerticalReserveIndex else { return }
-                // 更新标记
-                configVerticalReserveIndex = reserveVerticalIndex
-                
-                // 将对应方向的正在显示的View移到WYContentScrollView的最上面
-                bringContentToFront([currentVerticalView, reserveVerticalView])
-            }
-            
-            if ((newValue == .left) || (newValue == .right) && (contentSlidingDirection != .topOrBottom)) {
-                
-                guard numberOfHorizontalContent > 0 else { return }
-                
-                guard horizontalViews?.count == 2,
-                      let currentHorizontalView = horizontalViews?.first,
-                      let reserveHorizontalView = horizontalViews?.last else { return }
-                
-                // 滑动前根据滑动方向的偏移量设置预备显示View的frame(不能简单根据newValue来设置，否则手指不松开左右滑动时无法更新reserveHorizontalView.frame，且必须放这里优先处理，否则往上下滑动后可能会出现空白页面)
-                if contentOffset.x > wy_width {
-                    reserveHorizontalView.frame = CGRect(x: 2 * wy_width, y: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0), width: wy_width, height: wy_height)
-                }else {
-                    reserveHorizontalView.frame = CGRect(x: 0, y: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0), width: wy_width, height: wy_height)
-                }
-                
-                // 如果方向没变，reserveHorizontalIndex 跟上一次配置的相同，则不重复加载
-                guard reserveHorizontalIndex != configHorizontalReserveIndex else { return }
-                // 更新标记
-                configHorizontalReserveIndex = reserveHorizontalIndex
-                
-                // 将对应方向的正在显示的View移到WYContentScrollView的最上面
-                bringContentToFront([currentHorizontalView, reserveHorizontalView])
-            }
-            
-            // 向上滚动
-            if (newValue == .up) {
-                guard verticalViews?.count == 2, let reserveVerticalView = verticalViews?.last else { return }
-                
-                reserveVerticalIndex = (currentVerticalIndex + 1) % numberOfVerticalContent
-                switchContentCallback(isDidSwitch: false)
-            }
-            
-            // 向下滑动
-            if newValue == .down {
-                
-                guard verticalViews?.count == 2, let reserveVerticalView = verticalViews?.last else { return }
-                
-                reserveVerticalIndex = currentVerticalIndex - 1
-                if (reserveVerticalIndex < 0)  {
-                    reserveVerticalIndex = numberOfVerticalContent - 1
-                }
-                switchContentCallback(isDidSwitch: false)
-            }
-            
-            // 向左滚动
-            if newValue == .left {
-                
-                guard horizontalViews?.count == 2, let reserveHorizontalView = horizontalViews?.last else { return }
-
-                reserveHorizontalIndex = (currentHorizontalIndex + 1) % numberOfHorizontalContent
-                
-                switchContentCallback(isDidSwitch: false)
-            }
-            
-            // 向右滚动
-            if (newValue == .right) {
-                
-                guard horizontalViews?.count == 2, let reserveHorizontalView = horizontalViews?.last else { return }
-
-                reserveHorizontalIndex = currentHorizontalIndex - 1
-                if (reserveHorizontalIndex < 0)  {
-                    reserveHorizontalIndex = numberOfHorizontalContent - 1
-                }
-                switchContentCallback(isDidSwitch: false)
-            }
-        }
-        get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.internalSliderDirection) as? WYSlidingDirection ?? .unknown
-        }
-    }
-    
     /**
      *  切换内容页回调
      *
@@ -915,9 +874,7 @@ extension WYContentScrollView {
      */
     private func switchContentCallback(isDidSwitch: Bool) {
         
-        guard let contentDelegate = contentDelegate else { return }
-        
-        guard internalSliderDirection != .unknown else { return }
+        guard let contentDelegate = contentDelegate, internalSliderDirection != .unknown else { return }
         
         let isOmnidirectional: Bool = (contentSlidingDirection == .omnidirectional)
         
@@ -969,9 +926,9 @@ extension WYContentScrollView {
     /// 停止滚动并切换contentViews的位置与frame
     func pauseScroll() {
         
-        guard canSwitchedPage == true else { return }
+        guard (canSwitchedPage == true), (internalSliderDirection != .unknown) else { return }
         
-        guard internalSliderDirection != .unknown else { return }
+        canSwitchedPage = false
         
         switch contentSlidingDirection {
         case .leftOrRight:
@@ -980,20 +937,22 @@ extension WYContentScrollView {
                   let currentHorizontalView = horizontalViews?.first,
                   let reserveHorizontalView = horizontalViews?.last else { return }
             
-            currentHorizontalIndex = reserveHorizontalIndex
+            contentOffset = CGPoint(x: wy_width, y: 0)
             
-            // 交换horizontalViews数组中两个View的位置
-            horizontalViews?.swapAt(0, 1)
+            currentHorizontalIndex = reserveHorizontalIndex
             
             // 滑动后根据滑动方向设置已经显示View的frame
             reserveHorizontalView.frame = CGRect(x: wy_width, y: 0, width: wy_width, height: wy_height)
             
-            switchContentCallback(isDidSwitch: true)
+            // 交换horizontalViews数组中两个View的位置
+            horizontalViews?.swapAt(0, 1)
             
-            contentOffset = CGPoint(x: wy_width, y: 0)
+            bringContentToFront([reserveHorizontalView,currentHorizontalView])
             
             // 下一次方向改变时需要重新设置 reserveHorizontalView
             configHorizontalReserveIndex = nil
+            
+            switchContentCallback(isDidSwitch: true)
             
             break
         case .topOrBottom:
@@ -1002,59 +961,67 @@ extension WYContentScrollView {
                   let currentVerticalView = verticalViews?.first,
                   let reserveVerticalView = verticalViews?.last else { return }
             
-            currentVerticalIndex = reserveVerticalIndex
+            contentOffset = CGPoint(x: 0, y: wy_height)
             
-            // 交换verticalViews数组中两个View的位置
-            verticalViews?.swapAt(0, 1)
+            currentVerticalIndex = reserveVerticalIndex
             
             // 滑动后根据滑动方向设置已经显示View的frame
             reserveVerticalView.frame = CGRect(x: 0, y: wy_height, width: wy_width, height: wy_height)
             
-            switchContentCallback(isDidSwitch: true)
-            contentOffset = CGPoint(x: 0, y: wy_height)
+            // 交换verticalViews数组中两个View的位置
+            verticalViews?.swapAt(0, 1)
+            
+            bringContentToFront([reserveVerticalView, currentVerticalView])
             
             // 下一次方向改变时需要重新设置 reserveVerticalView
             configVerticalReserveIndex = nil
+            
+            switchContentCallback(isDidSwitch: true)
             
             break
         case.omnidirectional:
             
             guard horizontalViews?.count == 2,
+                  let currentHorizontalView = horizontalViews?.first,
                   let reserveHorizontalView = horizontalViews?.last else { return }
             
             guard verticalViews?.count == 2,
+                  let currentVerticalView = verticalViews?.first,
                   let reserveVerticalView = verticalViews?.last else { return }
+            
+            contentOffset = CGPoint(x: wy_width, y: wy_height)
             
             if (internalSliderDirection == .left) || (internalSliderDirection == .right) {
                 
                 currentHorizontalIndex = reserveHorizontalIndex
                 
+                reserveHorizontalView.frame = CGRect(x: wy_width, y: wy_height, width: wy_width, height: wy_height)
+                
                 // 交换horizontalViews数组中两个View的位置
                 horizontalViews?.swapAt(0, 1)
                 
-                reserveHorizontalView.frame = CGRect(x: wy_width, y: wy_height, width: wy_width, height: wy_height)
-                
-                switchContentCallback(isDidSwitch: true)
+                bringContentToFront([reserveHorizontalView, currentHorizontalView])
                 
                 // 下一次方向改变时需要重新设置 reserveHorizontalView
                 configHorizontalReserveIndex = nil
                 
+                switchContentCallback(isDidSwitch: true)
+                
             }else {
                 currentVerticalIndex = reserveVerticalIndex
+                
+                reserveVerticalView.frame = CGRect(x: wy_width, y: wy_height, width: wy_width, height: wy_height)
                 
                 // 交换verticalViews数组中两个View的位置
                 verticalViews?.swapAt(0, 1)
                 
-                reserveVerticalView.frame = CGRect(x: wy_width, y: wy_height, width: wy_width, height: wy_height)
-                
-                switchContentCallback(isDidSwitch: true)
+                bringContentToFront([reserveVerticalView, currentVerticalView])
                 
                 // 下一次方向改变时需要重新设置 reserveVerticalView
                 configVerticalReserveIndex = nil
+                
+                switchContentCallback(isDidSwitch: true)
             }
-            
-            contentOffset = CGPoint(x: wy_width, y: wy_height)
-            
             break
         }
     }
@@ -1112,16 +1079,6 @@ extension WYContentScrollView {
         return true
     }
     
-    /// 判断手动拖拽后是否需要启动定时器
-    private var canRestartedTimer: Bool {
-        set(newValue) {
-            objc_setAssociatedObject(self, &WYAssociatedKeys.canRestartedTimer, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-        }
-        get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.canRestartedTimer) as? Bool ?? false
-        }
-    }
-    
     /// 点击了内容页面
     @objc func didClickContent() {
         
@@ -1142,6 +1099,135 @@ extension WYContentScrollView {
                   let reserveVerticalView = verticalViews?.last else { return }
             
             contentDelegate.wy_contentScrollViewDidClick(self, direction: internalSliderDirection, currentView: currentVerticalView, reserveView: reserveVerticalView, index: currentVerticalIndex)
+        }
+    }
+    
+    /// 滚动方向
+    private var internalSliderDirection: WYSlidingDirection {
+        set(newValue) {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.internalSliderDirection, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+            
+            // 当前显示在最顶层的ContentView
+            guard let upperContentView: UIView = upperContentView else { return }
+            
+            if ((newValue == .up) || (newValue == .down) && (contentSlidingDirection != .leftOrRight)) {
+                
+                guard numberOfVerticalContent > 0 else { return }
+                
+                guard verticalViews?.count == 2,
+                      let currentVerticalView = verticalViews?.first,
+                      let reserveVerticalView = verticalViews?.last else { return }
+                
+                // 滑动前根据滑动方向的偏移量设置预备显示View的frame(不能简单根据newValue来设置，否则手指不松开上下滑动时无法更新reserveVerticalView.frame，且必须放这里优先处理，否则往左右滑动后可能会出现空白页面)
+                if contentOffset.y > wy_height {
+                    reserveVerticalView.frame = CGRect(x: ((contentSlidingDirection == .omnidirectional) ? wy_width : 0), y: 2 * wy_height, width: wy_width, height: wy_height)
+                }else {
+                    reserveVerticalView.frame = CGRect(x: ((contentSlidingDirection == .omnidirectional) ? wy_width : 0), y: 0, width: wy_width, height: wy_height)
+                }
+                
+                // 更新标记
+                configVerticalReserveIndex = reserveVerticalIndex
+                
+                // 将对应方向的正在显示的View移到WYContentScrollView的最上面
+                bringContentToFront([currentVerticalView, reserveVerticalView])
+                
+                if newValue == .up {
+                    reserveVerticalIndex = (currentVerticalIndex + 1) % numberOfVerticalContent
+                    if (reserveVerticalIndex == 0) && (unlimitedCarousel == false) {
+                        reserveVerticalIndex = currentVerticalIndex
+                    }
+                }else {
+                    reserveVerticalIndex = currentVerticalIndex - 1
+                    if (reserveVerticalIndex < 0)  {
+                        reserveVerticalIndex = numberOfVerticalContent - 1
+                    }
+                }
+                
+                if configVerticalReserveIndex != reserveVerticalIndex {
+                    switchContentCallback(isDidSwitch: false)
+                }
+            }
+            
+            if ((newValue == .left) || (newValue == .right) && (contentSlidingDirection != .topOrBottom)) {
+                
+                guard numberOfHorizontalContent > 0 else { return }
+                
+                guard horizontalViews?.count == 2,
+                      let currentHorizontalView = horizontalViews?.first,
+                      let reserveHorizontalView = horizontalViews?.last else { return }
+                
+                // 滑动前根据滑动方向的偏移量设置预备显示View的frame(不能简单根据newValue来设置，否则手指不松开左右滑动时无法更新reserveHorizontalView.frame，且必须放这里优先处理，否则往上下滑动后可能会出现空白页面)
+                if contentOffset.x > wy_width {
+                    reserveHorizontalView.frame = CGRect(x: 2 * wy_width, y: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0), width: wy_width, height: wy_height)
+                }else {
+                    reserveHorizontalView.frame = CGRect(x: 0, y: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0), width: wy_width, height: wy_height)
+                }
+                
+                // 更新标记
+                configHorizontalReserveIndex = reserveHorizontalIndex
+                
+                // 将对应方向的正在显示的View移到WYContentScrollView的最上面
+                bringContentToFront([currentHorizontalView, reserveHorizontalView])
+                
+                if newValue == .left {
+                    reserveHorizontalIndex = (currentHorizontalIndex + 1) % numberOfHorizontalContent
+                    if (reserveHorizontalIndex == 0) && (unlimitedCarousel == false) {
+                        reserveHorizontalIndex = currentHorizontalIndex
+                    }
+                }else {
+                    reserveHorizontalIndex = currentHorizontalIndex - 1
+                    if (reserveHorizontalIndex < 0)  {
+                        reserveHorizontalIndex = numberOfHorizontalContent - 1
+                    }
+                }
+                
+                if configHorizontalReserveIndex != reserveHorizontalIndex {
+                    switchContentCallback(isDidSwitch: false)
+                }
+            }
+        }
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.internalSliderDirection) as? WYSlidingDirection ?? .unknown
+        }
+    }
+    
+    /// 当前正在水平方向显示的Views(用户传入的View)
+    private var horizontalViews: [UIView]? {
+        set(newValue) {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.horizontalViews, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.horizontalViews) as? [UIView]
+        }
+    }
+    
+    /// 当前正在垂直方向显示的Views(用户传入的View)
+    private var verticalViews: [UIView]? {
+        set(newValue) {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.verticalViews, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.verticalViews) as? [UIView]
+        }
+    }
+    
+    /// 计时器
+    private var timer: Timer? {
+        set(newValue) {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.timer, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.timer) as? Timer
+        }
+    }
+    
+    /// 判断手动拖拽后是否需要启动定时器
+    private var canRestartedTimer: Bool {
+        set(newValue) {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.canRestartedTimer, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.canRestartedTimer) as? Bool ?? false
         }
     }
     
@@ -1197,6 +1283,12 @@ extension WYContentScrollView {
         }
     }
     
+    /// 当前显示在最上层的ContentView
+    private var upperContentView: UIView? {
+        set { objc_setAssociatedObject(self, &WYAssociatedKeys.upperContentView, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+        get { objc_getAssociatedObject(self, &WYAssociatedKeys.upperContentView) as? UIView }
+    }
+    
     private struct WYAssociatedKeys {
         static var timer: UInt8 = 0
         static var horizontalViews: UInt8 = 0
@@ -1209,108 +1301,32 @@ extension WYContentScrollView {
         static var internalDelegate: UInt8 = 0
         static var isDirectionLocked: UInt8 = 0
         static var lastValidContentOffset: UInt8 = 0
+        static var upperContentView: UInt8 = 0
     }
 }
 
 extension WYContentScrollView: UIScrollViewDelegate {
     
     public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        stopTimer()
         
+        // 回调外部
+        internalDelegate?.scrollViewWillBeginDragging?(scrollView)
+        
+        // 停止计时器
+        stopTimer()
         // 重置方向锁定
         isDirectionLocked = false
-        
-        internalDelegate?.scrollViewWillBeginDragging?(scrollView)
-    }
-    
-    public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        if canRestartedTimer == true {
-            startTimer()
-        }
-        
-        internalDelegate?.scrollViewDidEndDragging?(scrollView, willDecelerate: decelerate)
     }
 
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
-        /// 方向锁控制
-        handleScrollDirectionLock()
+        // 回调外部
+        internalDelegate?.scrollViewDidScroll?(scrollView)
         
-        let offsetX = scrollView.contentOffset.x
-        let offsetY = scrollView.contentOffset.y
-
-        var slidingDirection: WYSlidingDirection = internalSliderDirection
-
-        /// 仅在全方向模式下处理
-        if contentSlidingDirection == .omnidirectional {
-            
-            let centerX = wy_width
-            let centerY = wy_height
-
-            /// 相对中心点的偏移
-            let deltaX = offsetX - centerX
-            let deltaY = offsetY - centerY
-            
-            /// 未锁定时，根据主方向判断一次
-            if isDirectionLocked == false {
-                
-                let threshold: CGFloat = 2.0  // 防抖
-                
-                if abs(deltaX) > threshold || abs(deltaY) > threshold {
-                    if abs(deltaX) > abs(deltaY) {
-                        // 横向
-                        if deltaX > 0 {
-                            slidingDirection = .left
-                        } else {
-                            slidingDirection = .right
-                        }
-                        
-                    } else {
-                        // 纵向
-                        if deltaY > 0 {
-                            slidingDirection = .up
-                        } else {
-                            slidingDirection = .down
-                        }
-                    }
-                    /// 一旦判断完成，立即锁定
-                    isDirectionLocked = true
-                }
-            }
-            
-            /// 锁死另一方向（防止出现多方向同时滑动的问题）
-            if isDirectionLocked {
-                if slidingDirection == .left || slidingDirection == .right {
-                    /// 锁死 Y
-                    if offsetY != centerY {
-                        scrollView.contentOffset.y = centerY
-                    }
-                    
-                } else if slidingDirection == .up || slidingDirection == .down {
-                    /// 锁死 X
-                    if offsetX != centerX {
-                        scrollView.contentOffset.x = centerX
-                    }
-                }
-            }
-        }else {
-            if (offsetX != 0) && (contentSlidingDirection != .topOrBottom) {
-                if offsetX > wy_width {
-                    slidingDirection = .left
-                }else if offsetX < wy_width {
-                    slidingDirection = .right
-                }
-            }
-            
-            if (offsetY != 0) && (contentSlidingDirection != .leftOrRight) {
-                if offsetY > wy_height {
-                    slidingDirection = .up
-                }else if offsetY < wy_height {
-                    slidingDirection = .down
-                }
-            }
-        }
+        // 方向锁控制
+        let slidingDirection: WYSlidingDirection = handleScrollDirectionLock()
         
+        // 判断是否可以滑动
         guard canScroll(slidingDirection) == true else { return }
         
         // internalSliderDirection 必须放在canScroll之后设置，否则可能会出现屏幕无法铺满的情况
@@ -1318,7 +1334,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
         
         if (internalSliderDirection == .left) || (internalSliderDirection == .right) {
             
-            canSwitchedPage = (abs(offsetX - wy_width) >= wy_width)
+            canSwitchedPage = (abs(contentOffset.x - wy_width) >= wy_width)
             
             if let contentDelegate = contentDelegate,
                horizontalViews?.count == 2,
@@ -1330,7 +1346,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
             
         }else {
             
-            canSwitchedPage = (abs(offsetY - wy_height) >= wy_height)
+            canSwitchedPage = (abs(contentOffset.y - wy_height) >= wy_height)
             
             if let contentDelegate = contentDelegate,
                verticalViews?.count == 2,
@@ -1340,18 +1356,35 @@ extension WYContentScrollView: UIScrollViewDelegate {
                 contentDelegate.wy_contentScrollViewDidScroll(self, offset: scrollView.contentOffset, direction: internalSliderDirection, currentView: currentVerticalView, reserveView: reserveVerticalView, index: currentVerticalIndex)
             }
         }
+    }
+    
+    public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         
-        internalDelegate?.scrollViewDidScroll?(scrollView)
+        // 回调外部
+        internalDelegate?.scrollViewDidEndDragging?(scrollView, willDecelerate: decelerate)
+        
+        if canRestartedTimer == true {
+            startTimer()
+        }
+        
+        // 手指释放，并且没有惯性
+        if decelerate == false {
+            pauseScroll()
+        }
     }
     
+    /// 手指释放且惯性减速结束
     public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        pauseScroll()
+        // 回调外部
         internalDelegate?.scrollViewDidEndDecelerating?(scrollView)
+        pauseScroll()
     }
     
+    /// 代码设置 contentOffset 动画结束
     public func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        pauseScroll()
+        // 回调外部
         internalDelegate?.scrollViewDidEndScrollingAnimation?(scrollView)
+        pauseScroll()
     }
     
     /*************** 未实现的方法自动转发实现 ***************/
