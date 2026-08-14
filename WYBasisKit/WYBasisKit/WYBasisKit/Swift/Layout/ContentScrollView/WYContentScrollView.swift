@@ -171,17 +171,15 @@ public class WYContentScrollView: UIScrollView {
     /// 自动轮播时每一页停留时间，默认为3s，最少1s(当设置的值小于1s时，则为默认值)
     public var standingTime: TimeInterval = 3
     
-    /// 水平方向只有一张图片时，是否需要支持滑动，默认false
-    public var horizontalSliderForSinglePage: Bool = false
-    
-    /// 垂直方向只有一张图片时，是否需要支持滑动，默认false
-    public var verticalSliderForSinglePage: Bool = false
-    
-    /// 水平方向有多个内容页面时，是否需要支持滑动
-    public var horizontalSliderForMultiPage: Bool = true
-    
-    /// 垂直方向有多个内容页面时，是否需要支持滑动
-    public var verticalSliderForMultiPage: Bool = true
+    /// 水平方向是否支持滑动(仅内容页数量大于1时生效，单页/无内容时该方向不可滑)，默认true
+    public var horizontalSliderEnabled: Bool = true {
+        didSet { checkCarouselStatus() }
+    }
+
+    /// 垂直方向是否支持滑动(仅内容页数量大于1时生效，单页/无内容时该方向不可滑)，默认true
+    public var verticalSliderEnabled: Bool = true {
+        didSet { checkCarouselStatus() }
+    }
     
     /// 是否需要无限轮播
     public var unlimitedCarousel: Bool = true
@@ -467,7 +465,6 @@ extension WYContentScrollView {
     
     public override func layoutSubviews() {
         super.layoutSubviews()
-        
         // 检查(设置)contentSize与contentOffset
         checkContentSizeAndContentOffset()
         // 如果frame发生变化需要及时更新内容视图的frame
@@ -515,6 +512,7 @@ extension WYContentScrollView {
         let gestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(didClickContent))
         addGestureRecognizer(gestureRecognizer)
         
+        // 强制关闭 bounces，边界行为统一由 canScroll/handleScrollDirectionLock 控制，条件开启 bounces 需联动 contentSize/alwaysBounce/isPagingEnabled等，判断点过多会引入一系列其他问题
         bounces = false
         isPagingEnabled = true
         showsHorizontalScrollIndicator = false
@@ -627,18 +625,18 @@ extension WYContentScrollView {
         
         switch contentSlidingDirection {
         case .leftOrRight:
-            // 横向滑动
-            isScrollEnabled = numberOfHorizontalContent > 1 ? horizontalSliderForMultiPage : horizontalSliderForSinglePage
+            // 横向滑动(单页/无内容不可滑)
+            isScrollEnabled = (numberOfHorizontalContent > 1) ? horizontalSliderEnabled : false
             break
         case .topOrBottom:
-            // 纵向滑动
-            isScrollEnabled = numberOfVerticalContent > 1 ? verticalSliderForMultiPage : verticalSliderForSinglePage
+            // 纵向滑动(单页/无内容不可滑)
+            isScrollEnabled = (numberOfVerticalContent > 1) ? verticalSliderEnabled : false
             break
         case .omnidirectional:
-            // 横向是否可滑动
-            let horizontalCanScroll = numberOfHorizontalContent > 1 ? horizontalSliderForMultiPage : horizontalSliderForSinglePage
-            // 纵向是否可滑动
-            let verticalCanScroll = numberOfVerticalContent > 1 ? verticalSliderForMultiPage : verticalSliderForSinglePage
+            // 横向是否可滑动(单页/无内容不可滑)
+            let horizontalCanScroll = (numberOfHorizontalContent > 1) ? horizontalSliderEnabled : false
+            // 纵向是否可滑动(单页/无内容不可滑)
+            let verticalCanScroll = (numberOfVerticalContent > 1) ? verticalSliderEnabled : false
             
             // 此模式下只要有一个方向可以滑，就需要允许滚动，否则某个方向设置数量为1后，就会导致另一个方向也会锁死不能滑动，因为isScrollEnabled是全局的，具体方向锁定通过handleScrollDirectionLock方法来实现
             isScrollEnabled = horizontalCanScroll || verticalCanScroll
@@ -727,11 +725,11 @@ extension WYContentScrollView {
     /// 处理方向锁定（控制某个方向不能滑动）
     private func handleScrollDirectionLock() -> WYSlidingDirection {
         
-        // 横向是否允许滑动
-        let horizontalCanScroll = numberOfHorizontalContent > 1 ? horizontalSliderForMultiPage : horizontalSliderForSinglePage
-        
-        // 纵向是否允许滑动
-        let verticalCanScroll = numberOfVerticalContent > 1 ? verticalSliderForMultiPage : verticalSliderForSinglePage
+        // 横向是否允许滑动(单页/无内容不可滑)
+        let horizontalCanScroll = (numberOfHorizontalContent > 1) ? horizontalSliderEnabled : false
+
+        // 纵向是否允许滑动(单页/无内容不可滑)
+        let verticalCanScroll = (numberOfVerticalContent > 1) ? verticalSliderEnabled : false
         
         // 目标偏移量
         var targetOffset = contentOffset
@@ -769,7 +767,8 @@ extension WYContentScrollView {
             let deltaX = offsetX - centerX
             let deltaY = offsetY - centerY
         
-            let threshold: CGFloat = 2.0  // 防抖
+            // 防抖
+            let threshold: CGFloat = 2.0
 
             // 未锁定时，根据主方向判断一次
             if isDirectionLocked == false {

@@ -36,17 +36,11 @@ class WYTestInfiniteSwitchController: UIViewController {
     var standingTime: UISlider = UISlider()
     var standingTimeValue: UILabel = UILabel()
     
-    /// 水平方向只有一张图片时，是否需要支持滑动，默认false
-    var horizontalSliderForSinglePage: UISwitch = UISwitch()
-    
-    /// 垂直方向只有一张图片时，是否需要支持滑动，默认false
-    var verticalSliderForSinglePage: UISwitch = UISwitch()
-    
-    /// 水平方向有多个内容页面时，是否需要支持滑动
-    var horizontalSliderForMultiPage: UISwitch = UISwitch()
-    
-    /// 垂直方向有多个内容页面时，是否需要支持滑动
-    var verticalSliderForMultiPage: UISwitch = UISwitch()
+    /// 水平方向是否支持滑动
+    var horizontalSliderEnabled: UISwitch = UISwitch()
+
+    /// 垂直方向是否支持滑动
+    var verticalSliderEnabled: UISwitch = UISwitch()
     
     /// 是否需要无限轮播
     var unlimitedCarousel: UISwitch = UISwitch()
@@ -134,14 +128,12 @@ class WYTestInfiniteSwitchController: UIViewController {
         standingTimeValue.textColor = .black
         standingTimeValue.text = "3.0"
         
-        horizontalSliderForSinglePage.isOn = false
-        verticalSliderForSinglePage.isOn = false
-        horizontalSliderForMultiPage.isOn = true
-        verticalSliderForMultiPage.isOn = true
+        horizontalSliderEnabled.isOn = true
+        verticalSliderEnabled.isOn = true
         unlimitedCarousel.isOn = true
         automaticCarousel.isOn = true
-        
-        for switchView in [horizontalSliderForSinglePage, verticalSliderForSinglePage,horizontalSliderForMultiPage,verticalSliderForMultiPage, unlimitedCarousel, automaticCarousel, startOrStopTimer] {
+
+        for switchView in [horizontalSliderEnabled, verticalSliderEnabled, unlimitedCarousel, automaticCarousel, startOrStopTimer] {
             switchView.addTarget(self, action: #selector(switchSwitched(sender:)), for: .valueChanged)
             
             if switchView != startOrStopTimer {
@@ -198,14 +190,10 @@ class WYTestInfiniteSwitchController: UIViewController {
     }
     
     @objc func switchSwitched(sender: UISwitch) {
-        if sender == horizontalSliderForSinglePage {
-            contentScrollView.horizontalSliderForSinglePage = sender.isOn
-        }else if sender == verticalSliderForSinglePage {
-            contentScrollView.verticalSliderForSinglePage = sender.isOn
-        }else if sender == horizontalSliderForMultiPage {
-            contentScrollView.horizontalSliderForMultiPage = sender.isOn
-        }else if sender == verticalSliderForMultiPage {
-            contentScrollView.verticalSliderForMultiPage = sender.isOn
+        if sender == horizontalSliderEnabled {
+            contentScrollView.horizontalSliderEnabled = sender.isOn
+        }else if sender == verticalSliderEnabled {
+            contentScrollView.verticalSliderEnabled = sender.isOn
         }else if sender == unlimitedCarousel {
             contentScrollView.unlimitedCarousel = sender.isOn
         }else if sender == automaticCarousel {
@@ -275,39 +263,25 @@ class WYTestInfiniteSwitchController: UIViewController {
             make.width.centerX.equalTo(prioritySlidingDirectionView)
         }
         
-        let horizontalSliderForSinglePageView: UIView = createDescContentView(desc: "水平方向只有一张图片时，是否需要支持滑动，默认false", controView: horizontalSliderForSinglePage)
-        operatioView.addSubview(horizontalSliderForSinglePageView)
-        horizontalSliderForSinglePageView.snp.makeConstraints { make in
+        let horizontalSliderEnabledView: UIView = createDescContentView(desc: "水平方向是否支持滑动(仅内容页数量大于1时生效，单页不可滑)，默认true", controView: horizontalSliderEnabled)
+        operatioView.addSubview(horizontalSliderEnabledView)
+        horizontalSliderEnabledView.snp.makeConstraints { make in
             make.top.equalTo(standingTimeView.snp.bottom).offset(35)
             make.width.centerX.equalTo(standingTimeView)
         }
-        
-        let verticalSliderForSinglePageView: UIView = createDescContentView(desc: "垂直方向只有一张图片时，是否需要支持滑动，默认false", controView: verticalSliderForSinglePage)
-        operatioView.addSubview(verticalSliderForSinglePageView)
-        verticalSliderForSinglePageView.snp.makeConstraints { make in
-            make.top.equalTo(horizontalSliderForSinglePageView.snp.bottom).offset(35)
-            make.width.centerX.equalTo(horizontalSliderForSinglePageView)
+
+        let verticalSliderEnabledView: UIView = createDescContentView(desc: "垂直方向是否支持滑动(仅内容页数量大于1时生效，单页不可滑)，默认true", controView: verticalSliderEnabled)
+        operatioView.addSubview(verticalSliderEnabledView)
+        verticalSliderEnabledView.snp.makeConstraints { make in
+            make.top.equalTo(horizontalSliderEnabledView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(horizontalSliderEnabledView)
         }
-        
-        let horizontalSliderForMultiPageView: UIView = createDescContentView(desc: "水平方向有多个内容页面时，是否需要支持滑动", controView: horizontalSliderForMultiPage)
-        operatioView.addSubview(horizontalSliderForMultiPageView)
-        horizontalSliderForMultiPageView.snp.makeConstraints { make in
-            make.top.equalTo(verticalSliderForSinglePageView.snp.bottom).offset(35)
-            make.width.centerX.equalTo(verticalSliderForSinglePageView)
-        }
-        
-        let verticalSliderForMultiPageView: UIView = createDescContentView(desc: "垂直方向有多个内容页面时，是否需要支持滑动", controView: verticalSliderForMultiPage)
-        operatioView.addSubview(verticalSliderForMultiPageView)
-        verticalSliderForMultiPageView.snp.makeConstraints { make in
-            make.top.equalTo(horizontalSliderForMultiPageView.snp.bottom).offset(35)
-            make.width.centerX.equalTo(horizontalSliderForMultiPageView)
-        }
-        
+
         let unlimitedCarouselView: UIView = createDescContentView(desc: "是否需要无限轮播", controView: unlimitedCarousel)
         operatioView.addSubview(unlimitedCarouselView)
         unlimitedCarouselView.snp.makeConstraints { make in
-            make.top.equalTo(verticalSliderForMultiPageView.snp.bottom).offset(35)
-            make.width.centerX.equalTo(verticalSliderForMultiPageView)
+            make.top.equalTo(verticalSliderEnabledView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(verticalSliderEnabledView)
         }
         
         let automaticCarouselView: UIView = createDescContentView(desc: "是否需要自动轮播", controView: automaticCarousel)
