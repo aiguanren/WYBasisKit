@@ -9,107 +9,74 @@
 import UIKit
 
 public protocol WYContentScrollViewDelegate: AnyObject {
-    
+
     /**
      *  监听ContentScrollView的偏移量变化事件
      *
      *  @param contentScrollView  当前WYContentScrollView的实例对象
-     *
      *  @param offset             当前的偏移量
-     *
      *  @param direction          当前的滑动方向
-     *
-     *  @param currentView        当前正在显示的用户传入的View
-     (左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
-     *
-     *  @param reserveView        当前预备显示的用户传入的View
-     (左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
-     *
+     *  @param currentView        当前正在显示的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
+     *  @param reserveView        当前预备显示的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
      *  @param index              当前滑动的Index
      */
     func wy_contentScrollViewDidScroll(_ contentScrollView: WYContentScrollView, offset: CGPoint, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView, index: Int)
-    
+
     /**
      *  监听ContentScrollView的点击事件
      *
      *  @param contentScrollView  当前WYContentScrollView的实例对象
-     *
      *  @param direction          当前的滑动方向
-     *
-     *  @param currentView        当前正在显示的用户传入的View
-     (左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
-     *
-     *  @param reserveView        当前预备显示的用户传入的View
-     (左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
-     *
+     *  @param currentView        当前正在显示的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
+     *  @param reserveView        当前预备显示的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
      *  @param index              当前点击的Index
      */
     func wy_contentScrollViewDidClick(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView, index: Int)
-    
+
     /**
      *  监听ContentScrollView即将切换页面的事件
-     (contentSlidingDirection != omnidirectional时可用)
+     *  (contentSlidingDirection != omnidirectional时可用)
      *
      *  @param contentScrollView  当前WYContentScrollView的实例对象
-     *
      *  @param direction          当前的滑动方向
-     *
-     *  @param currentView        当前正在显示的用户传入的View
-     (左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
-     *
-     *  @param reserveView        当前预备显示的用户传入的View
-     (左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
+     *  @param currentView        当前正在显示的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
+     *  @param reserveView        当前预备显示的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
      */
     func wy_contentScrollViewWillSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView)
-    
+
     /**
      *  监听ContentScrollView页面已经切换完成的事件
-     (contentSlidingDirection != omnidirectional时可用)
+     *  (contentSlidingDirection != omnidirectional时可用)
      *
      *  @param contentScrollView  当前WYContentScrollView的实例对象
-     *
      *  @param direction          当前的滑动方向
-     *
-     *  @param currentView        当前正在显示的用户传入的View
-     (左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
-     *
-     *  @param reserveView        当前预备显示的用户传入的View
-     (左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
+     *  @param currentView        当前正在显示的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
+     *  @param reserveView        当前预备显示的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
      */
     func wy_contentScrollViewDidSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView)
-    
+
     /**
      *  监听ContentScrollView即将切换页面的事件
-     (contentSlidingDirection == omnidirectional时可用)
+     *  (contentSlidingDirection == omnidirectional时可用)
      *
      *  @param contentScrollView     当前WYContentScrollView的实例对象
-     *
      *  @param direction             当前的滑动方向
-     *
      *  @param currentHorizontalView 当前正在水平方向显示的View(用户传入的View)
-     *
      *  @param reserveHorizontalView 当前水平方向预备显示的View(用户传入的View)
-     *
      *  @param currentVerticalView   当前正在垂直方向显示的View(用户传入的View)
-     *
      *  @param reserveVerticalView   当前垂直方向预备显示的View(用户传入的View)
      */
     func wy_contentScrollViewWillSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView, reserveHorizontalView: UIView, currentVerticalView: UIView, reserveVerticalView: UIView)
-    
+
     /**
      *  监听ContentScrollView页面已经切换完成的事件
-     (contentSlidingDirection == omnidirectional时可用)
+     *  (contentSlidingDirection == omnidirectional时可用)
      *
      *  @param contentScrollView     当前WYContentScrollView的实例对象
-     *
      *  @param direction             当前的滑动方向
-     *
      *  @param currentHorizontalView 当前正在水平方向显示的View(用户传入的View)
-     *
      *  @param reserveHorizontalView 当前水平方向预备显示的View(用户传入的View)
-     *
      *  @param currentVerticalView   当前正在垂直方向显示的View(用户传入的View)
-     *
      *  @param reserveVerticalView   当前垂直方向预备显示的View(用户传入的View)
      */
     func wy_contentScrollViewDidSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView, reserveHorizontalView: UIView, currentVerticalView: UIView, reserveVerticalView: UIView)
@@ -153,6 +120,8 @@ public class WYContentScrollView: UIScrollView {
         didSet {
             bringContentToFront()
             checkContentSizeAndContentOffset()
+            // 方向变化会改变 isScrollEnabled 的计算分支，需同步刷新
+            checkCarouselStatus()
         }
     }
     
@@ -181,23 +150,13 @@ public class WYContentScrollView: UIScrollView {
         didSet { checkCarouselStatus() }
     }
     
-    /// 是否需要无限轮播
+    /// 是否需要无限滑动/轮播
     public var unlimitedCarousel: Bool = true
     
-    /// 是否需要自动轮播
+    /// 是否需要自动轮播/轮播
     public var automaticCarousel: Bool = true
     
-    /**
-     *  需要加载到内容页视图上的自定义View
-     (contentSlidingDirection != omnidirectional时调用)
-     *
-     *  @param currentView      需要添加到正在水平或者垂直方向上显示的自定义View，
-     其Size将等于当前WYContentScrollView的Size
-     *
-     *  @param reserveView      需要添加到预备显示在水平或者垂直方向上的自定义View，
-     其Size将等于当前WYContentScrollView的Size
-     *
-     */
+    /// 设置需要显示的自定义View(contentSlidingDirection != omnidirectional 时调用)，currentView 为正在显示的View、reserveView 为预备显示的View，两者Size都将等于当前WYContentScrollView的Size
     public func horizontalOrVerticalDisplay(currentView: UIView,
                                             reserveView: UIView) {
         
@@ -218,23 +177,7 @@ public class WYContentScrollView: UIScrollView {
         internalSettingsContentView(isReload: true)
     }
     
-    /**
-     *  需要加载到内容页视图上的自定义View
-     (contentSlidingDirection == omnidirectional时调用)
-     *
-     *  @param currentHorizontalView    需要添加到正在水平方向上显示的自定义View，
-     其Size将等于当前WYContentScrollView的Size
-     *
-     *  @param reserveHorizontalView    需要添加到预备显示在水平方向上的自定义View
-     ，其Size将等于当前WYContentScrollView的Size
-     *
-     *  @param currentVerticalView      需要添加到正在垂直方向上显示的自定义View，
-     其Size将等于当前WYContentScrollView的Size
-     *
-     *  @param reserveVerticalView      需要添加到预备显示在垂直方向上的自定义View
-     ，其Size将等于当前WYContentScrollView的Size
-     *
-     */
+    /// 设置需要显示的自定义View(contentSlidingDirection == omnidirectional 时调用)，水平/垂直方向各需 current(正在显示)与 reserve(预备显示)两个View，Size都将等于当前WYContentScrollView的Size
     public func omnidirectionalDisplay(currentHorizontalView: UIView,
                                        reserveHorizontalView: UIView,
                                        currentVerticalView: UIView,
@@ -322,11 +265,11 @@ public class WYContentScrollView: UIScrollView {
             guard contentSlidingDirection != .topOrBottom else {
                 return
             }
-            
-            guard (currentHorizontalIndex != (numberOfHorizontalContent - 1)) && (unlimitedCarousel != false) else {
-                return
+            // 只有在最后一页时才要求无限轮播开启(用于循环回到第一页)，非最后一页无论是否无限轮播都允许切下一页
+            if currentHorizontalIndex == (numberOfHorizontalContent - 1) {
+                guard unlimitedCarousel else { return }
             }
-            
+
             setContentOffset(CGPoint(x: wy_width*2, y: (contentSlidingDirection == .omnidirectional) ? wy_height : 0), animated: true)
             
             break
@@ -335,10 +278,11 @@ public class WYContentScrollView: UIScrollView {
                 return
             }
             
-            guard (currentVerticalIndex != (numberOfVerticalContent - 1)) && (unlimitedCarousel != false) else {
-                return
+            // 只有在最后一页时才要求无限轮播开启(用于循环回到第一页)，非最后一页无论是否无限轮播都允许切下一页
+            if currentVerticalIndex == (numberOfVerticalContent - 1) {
+                guard unlimitedCarousel else { return }
             }
-            
+
             setContentOffset(CGPoint(x: ((contentSlidingDirection == .omnidirectional) ? wy_width : 0), y: wy_height*2), animated: true)
             break
             
@@ -355,10 +299,11 @@ public class WYContentScrollView: UIScrollView {
                 return
             }
             
-            guard (currentHorizontalIndex <= 0) && (unlimitedCarousel != false) else {
-                return
+            // 只有在第一页时才要求无限轮播开启(用于循环回到最后一页)，非第一页无论是否无限轮播都允许切上一页
+            if currentHorizontalIndex <= 0 {
+                guard unlimitedCarousel else { return }
             }
-            
+
             setContentOffset(CGPoint(x: 0, y: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0)), animated: true)
             
             break
@@ -367,10 +312,11 @@ public class WYContentScrollView: UIScrollView {
                 return
             }
             
-            guard (currentVerticalIndex <= 0) && (unlimitedCarousel == false) else {
-                return
+            // 只有在第一页时才要求无限轮播开启(用于循环回到最后一页)，非第一页无论是否无限轮播都允许切上一页，与水平分支对齐
+            if currentVerticalIndex <= 0 {
+                guard unlimitedCarousel else { return }
             }
-            
+
             setContentOffset(CGPoint(x: ((contentSlidingDirection == .omnidirectional) ? wy_width : 0), y: 0), animated: true)
             break
             
@@ -379,7 +325,7 @@ public class WYContentScrollView: UIScrollView {
         }
     }
     
-    /// 切换到指定方向指定下标处(不支持直接传入direction为omnidirectional)
+    /// 切换到指定方向指定下标处(不支持直接传入direction为omnidirectional)，内部通过把 currentXxxIndex 预设为目标下标∓1 再借 lastContent/nextContent 一次滑动到达目标页
     public func switchContent(_ direction: WYContentSlidingDirection, index: inout Int) {
         switch direction {
         case .leftOrRight:
@@ -509,7 +455,8 @@ extension WYContentScrollView {
         
         super.delegate = self
         
-        let gestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(didClickContent))
+        // 手势 target 传弱代理而非 self：gesture 会强持有 target，直接传 self 会与 view→gesture 的强持有构成循环引用，导致实例永不释放
+        let gestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: WYWeakProxy(self), action: #selector(didClickContent))
         addGestureRecognizer(gestureRecognizer)
         
         // 强制关闭 bounces，边界行为统一由 canScroll/handleScrollDirectionLock 控制，条件开启 bounces 需联动 contentSize/alwaysBounce/isPagingEnabled等，判断点过多会引入一系列其他问题
@@ -536,14 +483,16 @@ extension WYContentScrollView {
         }
     }
     
+    /// 按方向布局内容视图：currentView 固定位于中心页，reserveView 位于其滑动方向一侧(全向模式下水平/垂直各自的中心重叠，靠 bringContentToFront 决定顶层)
     private func layoutContentSubViews(_ direction: WYContentSlidingDirection, isReload: Bool) {
-        
+
         if direction == .leftOrRight {
-            
+
             guard horizontalViews?.count == 2,
                   let currentHorizontalView = horizontalViews?.first,
                   let reserveHorizontalView = horizontalViews?.last else { return }
-            
+
+            // 自身尺寸未变化且非强制重载时跳过布局，避免 layoutSubviews 频繁触发造成浪费
             guard (!CGSizeEqualToSize(frame.size, currentHorizontalView.frame.size)) || (isReload == true) else {
                 return
             }
@@ -647,7 +596,7 @@ extension WYContentScrollView {
     /// 判断设置展示在顶层的对应方向的View，若contentViews为空则内部自行判断
     private func bringContentToFront(_ contentViews: [UIView]? = nil) {
         
-        // 直接将传入的对应的ContentView移到WYContentScrollView的最顶层，且因为currentView和reserveView的frame有可能是一样的，所有需要最后执行bringSubviewToFront(currentView)
+        // 直接将传入的对应的ContentView移到WYContentScrollView的最顶层，且因为currentView和reserveView的frame有可能是一样的，所以需要最后执行bringSubviewToFront(currentView)
         if (contentViews?.count == 2), let currentView = contentViews?.first, let reserveView = contentViews?.last  {
             if upperContentView != currentView {
                 bringSubviewToFront(reserveView)
@@ -722,7 +671,7 @@ extension WYContentScrollView {
         }
     }
     
-    /// 处理方向锁定（控制某个方向不能滑动）
+    /// 处理方向锁定并返回当前滑动方向：锁死不可滑动的方向(回退到 lastValidContentOffset)、全向模式下判定并锁定拖拽主方向、边界处钳制 contentOffset 防止越过中心露出背景
     private func handleScrollDirectionLock() -> WYSlidingDirection {
         
         // 横向是否允许滑动(单页/无内容不可滑)
@@ -757,7 +706,7 @@ extension WYContentScrollView {
 
         var slidingDirection: WYSlidingDirection = internalSliderDirection
 
-        /// 仅在全方向模式下处理
+        // 仅在全方向模式下处理
         if contentSlidingDirection == .omnidirectional {
             
             let centerX = wy_width
@@ -816,7 +765,7 @@ extension WYContentScrollView {
                 }
             }
             
-            /// 锁死另一方向（防止出现多方向同时滑动的问题）
+            // 锁死另一方向（防止出现多方向同时滑动的问题）
             if isDirectionLocked {
                 if slidingDirection == .left || slidingDirection == .right {
                     // 锁死 Y
@@ -852,9 +801,8 @@ extension WYContentScrollView {
         return slidingDirection
     }
     
-    /// 检查(设置)contentSize与contentOffset
+    /// 按滑动方向检查并设置 contentSize 与 contentOffset：currentView 固定停在各方向的中心页；设置 contentOffset 前会先同步 lastValidContentOffset 为同值，避免紧随其触发的 handleScrollDirectionLock 用旧方向的合法偏移把 contentOffset 锁回
     private func checkContentSizeAndContentOffset() {
-        // 设置 contentOffset 前先同步 lastValidContentOffset 为同值，使 handleScrollDirectionLock 不再锁回旧位置
         switch contentSlidingDirection {
         case .leftOrRight:
             let targetSize: CGSize = CGSize(width: 3*wy_width, height: wy_height)
@@ -883,13 +831,7 @@ extension WYContentScrollView {
         }
     }
     
-    /**
-     *  切换内容页回调
-     *
-     *  参数:
-     *  - contentView: 要切换到的内容视图
-     *  - isDidSwitch: 切换是否已完成，为true时表示是已经切换完成，false时表示false时表示是即将切换
-     */
+    /// 切换内容页回调，isDidSwitch 为 true 表示切换已完成(didSwitch)、false 表示即将切换(willSwitch)
     private func switchContentCallback(isDidSwitch: Bool) {
         
         guard let contentDelegate = contentDelegate, internalSliderDirection != .unknown else { return }
@@ -1046,24 +988,21 @@ extension WYContentScrollView {
         }
     }
     
-    /// 判断是否可以滚动
+    /// 判断当前方向是否可以继续滚动：处于边界页(第一/最后一页)且关闭无限轮播时，往循环方向(无内容方向)的滑动会被拦截并把 contentOffset 拉回中心页
     private func canScroll(_ slidingDirection: WYSlidingDirection) -> Bool {
-        // 检查(设置)轮播状态
-        checkCarouselStatus()
-        
+
         guard slidingDirection != .unknown else { return false }
-        
+
         if (slidingDirection == .left) || (slidingDirection == .right) {
-            
+
             guard contentSlidingDirection != .topOrBottom else { return false }
-            
-            // 当前停留页面是否是第一页(只看 currentHorizontalIndex，不依赖 reserveHorizontalIndex——canScroll 在 setter 之前执行、用的是上一次的 reserveIndex，若依赖它，先反向滑使 reserveIndex 变化后(如最后一页先右滑使 reserveIndex=3)再正向滑时边界判断会误判失效，导致 reserveView 闪现)
+
+            // 边界判断只看 currentHorizontalIndex：canScroll 在 setter 之前执行，若依赖 reserveHorizontalIndex(上一次的值)，先反向滑使其变化后边界拦截会失效、导致 reserveView 闪现
             let isFirstPage = (currentHorizontalIndex == 0)
-            
-            // 同上，只看 currentHorizontalIndex
+
             let isLastPage = (currentHorizontalIndex == (numberOfHorizontalContent - 1))
-            
-            // 如果当前在第一页或者最后一页的时候，需要根据numberOfHorizontalContent是否等于Int.max和unlimitedCarousel是否为true来判断是否可以切换页面
+
+            // 关闭无限轮播时，边界页往循环方向不允许切换
             if (isFirstPage && (slidingDirection == .right)) || (isLastPage && (slidingDirection == .left)) {
                 if (unlimitedCarousel == false) {
                     let targetOffset: CGPoint = CGPoint(x: wy_width, y: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0))
@@ -1078,13 +1017,12 @@ extension WYContentScrollView {
             
             guard contentSlidingDirection != .leftOrRight else { return false }
             
-            // 同水平分支，只看 currentVerticalIndex
+            // 边界判断只看 currentVerticalIndex：canScroll 在 setter 之前执行，若依赖 reserveVerticalIndex(上一次的值)，先反向滑使其变化后边界拦截会失效、导致 reserveView 闪现
             let isFirstPage = (currentVerticalIndex == 0)
-            
-            // 同水平分支，只看 currentVerticalIndex
+
             let isLastPage = (currentVerticalIndex == (numberOfVerticalContent - 1))
             
-            // 如果当前在第一页或者最后一页的时候，需要根据numberOfVerticalContent是否等于Int.max和unlimitedCarousel是否为true来判断是否可以切换页面
+            // 关闭无限轮播时，边界页往循环方向不允许切换
             if (isFirstPage && (slidingDirection == .down)) || (isLastPage && (slidingDirection == .up)) {
                 if (unlimitedCarousel == false) {
                     let targetOffset: CGPoint = CGPoint(x: ((contentSlidingDirection == .omnidirectional) ? wy_width : 0), y: wy_height)
@@ -1122,7 +1060,7 @@ extension WYContentScrollView {
         }
     }
     
-    /// 滚动方向
+    /// 当前滑动方向：setter 内同步完成 reserveView 的摆位(按当前偏移量放到滑动方向一侧)、reserveIndex 的计算(含关闭无限轮播时的边界处理)以及 willSwitch 回调的触发
     private var internalSliderDirection: WYSlidingDirection {
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.internalSliderDirection, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -1261,13 +1199,13 @@ extension WYContentScrollView {
         }
     }
 
-    /// 本次拖拽中锁定的滑动方向(仅omnidirectional模式下使用)，持久化本次拖拽锁定的方向，配合 handleScrollDirectionLock 避免边界拦截后方向丢失，用于在 canScroll 在边界处拦截(返回false)导致 internalSliderDirection 未更新时仍能保持本次拖拽的方向
+    /// 本次拖拽中锁定的滑动方向(仅omnidirectional模式使用)：边界被 canScroll 拦截时 internalSliderDirection 不会更新，靠它保持本次拖拽的方向使拦截持续生效
     private var dragLockedDirection: WYSlidingDirection {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.dragLockedDirection, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.dragLockedDirection) as? WYSlidingDirection ?? .unknown }
     }
     
-    /// 上一次合法的偏移量（用于方向锁定）
+    /// 上一次合法的偏移量：不可滑方向被锁死时 contentOffset 回退到此值
     private var lastValidContentOffset: CGPoint {
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.lastValidContentOffset, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -1277,7 +1215,7 @@ extension WYContentScrollView {
         }
     }
     
-    /// 判断是否可以切换页面
+    /// 本次拖拽是否已滑过一页宽度(松手时据此判断要不要执行 pauseScroll 切换)
     private var canSwitchedPage: Bool {
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.canSwitchedPage, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -1363,7 +1301,8 @@ extension WYContentScrollView: UIScrollViewDelegate {
         internalSliderDirection = slidingDirection
         
         if (internalSliderDirection == .left) || (internalSliderDirection == .right) {
-            
+
+            // 偏移量越过一页宽度时视为已滑过半程，松手可切换
             canSwitchedPage = (abs(contentOffset.x - wy_width) >= wy_width)
             
             if let contentDelegate = contentDelegate,
@@ -1439,23 +1378,43 @@ extension WYContentScrollView: UIScrollViewDelegate {
 /// 提供默认空实现，使所有方法变成“可选”
 public extension WYContentScrollViewDelegate {
     
-    // 监听ContentScrollView的偏移量变化事件
+    /// 监听偏移量变化事件
     func wy_contentScrollViewDidScroll(_ contentScrollView: WYContentScrollView, offset: CGPoint, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView, index: Int) {}
-    
-    // 监听ContentScrollView的点击事件
+
+    /// 监听内容页点击事件
     func wy_contentScrollViewDidClick(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView, index: Int) {}
-    
-    // 监听ContentScrollView即将切换页面的事件(contentSlidingDirection != omnidirectional时可用)
+
+    /// 监听即将切换页面事件(非omnidirectional时回调)
     func wy_contentScrollViewWillSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView) {}
-    
-    // 监听ContentScrollView页面已经切换完成的事件(contentSlidingDirection != omnidirectional时可用)
+
+    /// 监听页面切换完成事件(非omnidirectional时回调)
     func wy_contentScrollViewDidSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView) {}
-    
-    // 监听ContentScrollView即将切换页面的事件(contentSlidingDirection == omnidirectional时可用)
+
+    /// 监听即将切换页面事件(omnidirectional时回调)
     func wy_contentScrollViewWillSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView, reserveHorizontalView: UIView, currentVerticalView: UIView, reserveVerticalView: UIView) {}
-    
-    // 监听ContentScrollView页面已经切换完成的事件(contentSlidingDirection == omnidirectional时可用)
+
+    /// 监听页面切换完成事件(omnidirectional时回调)
     func wy_contentScrollViewDidSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView, reserveHorizontalView: UIView, currentVerticalView: UIView, reserveVerticalView: UIView) {}
+}
+
+/// 手势 target 的弱引用代理：UIGestureRecognizer 强持有 target，若直接传 self 会与 view→gesture 的强持有构成循环引用导致实例永不释放，故通过此代理以 weak 方式把 action 消息转发给真实对象
+private class WYWeakProxy: NSObject {
+
+    weak var target: AnyObject?
+
+    init(_ target: AnyObject?) {
+        self.target = target
+    }
+
+    /// 把未实现的消息(如手势 action)转发给真实 target
+    override func forwardingTarget(for aSelector: Selector!) -> Any? {
+        return target
+    }
+
+    /// 让手势识别器认为代理可响应 action
+    override func responds(to aSelector: Selector!) -> Bool {
+        return super.responds(to: aSelector) || (target?.responds(to: aSelector) ?? false)
+    }
 }
 
 private class WYWeakBox {
