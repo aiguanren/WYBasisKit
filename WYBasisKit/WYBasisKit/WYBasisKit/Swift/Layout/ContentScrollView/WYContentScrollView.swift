@@ -497,25 +497,14 @@ extension WYContentScrollView {
     
     /// 检查各ContentView的superView
     private func contentViewInitializationCheck(_ contentViews: [UIView], direction: WYContentSlidingDirection) {
-        
+
         contentViews.forEach { $0.removeFromSuperview() }
-        
-        switch direction {
-        case .leftOrRight:
-            horizontalViews?.forEach { $0.removeFromSuperview() }
-            horizontalViews = nil
-            break
-        case .topOrBottom:
-            verticalViews?.forEach { $0.removeFromSuperview() }
-            verticalViews = nil
-            break
-        case .omnidirectional:
-            horizontalViews?.forEach { $0.removeFromSuperview() }
-            horizontalViews = nil
-            verticalViews?.forEach { $0.removeFromSuperview() }
-            verticalViews = nil
-            break
-        }
+
+        // 统一清理水平与垂直两个方向的 view，避免残留 view 遮挡新方向内容
+        horizontalViews?.forEach { $0.removeFromSuperview() }
+        horizontalViews = nil
+        verticalViews?.forEach { $0.removeFromSuperview() }
+        verticalViews = nil
     }
     
     /// 内部初始化设置
@@ -699,8 +688,9 @@ extension WYContentScrollView {
                       let currentVerticalView = verticalViews?.first,
                       let reserveVerticalView = verticalViews?.last else { return }
                 if ((numberOfHorizontalContent > 1) && (numberOfVerticalContent > 1)) || (numberOfHorizontalContent == numberOfVerticalContent) {
+                    
                     // 都大于1或者都等于1，则依据优先显示方向来处理
-                    if (prioritySlidingDirection == .leftOrRight) && (upperContentView != currentVerticalView) {
+                    if (prioritySlidingDirection == .leftOrRight) && (upperContentView != currentHorizontalView) {
                         bringSubviewToFront(reserveHorizontalView)
                         bringSubviewToFront(currentHorizontalView)
                         upperContentView = currentHorizontalView
@@ -713,15 +703,20 @@ extension WYContentScrollView {
                         return
                     }
                 }else {
-                    if (numberOfHorizontalContent > numberOfVerticalContent) && (upperContentView != currentHorizontalView) {
-                        bringSubviewToFront(reserveHorizontalView)
-                        bringSubviewToFront(currentHorizontalView)
-                        upperContentView = currentHorizontalView
+                    // 先按数量决定该显示哪个方向，再判断是否需要切换，每个方向处理完直接 return，杜绝 fall through 到另一方向
+                    if numberOfHorizontalContent > numberOfVerticalContent {
+                        if upperContentView != currentHorizontalView {
+                            bringSubviewToFront(reserveHorizontalView)
+                            bringSubviewToFront(currentHorizontalView)
+                            upperContentView = currentHorizontalView
+                        }
                         return
-                    }else if (upperContentView != currentVerticalView) {
-                        bringSubviewToFront(reserveVerticalView)
-                        bringSubviewToFront(currentVerticalView)
-                        upperContentView = currentVerticalView
+                    } else {
+                        if upperContentView != currentVerticalView {
+                            bringSubviewToFront(reserveVerticalView)
+                            bringSubviewToFront(currentVerticalView)
+                            upperContentView = currentVerticalView
+                        }
                         return
                     }
                 }
@@ -770,15 +765,15 @@ extension WYContentScrollView {
             let centerX = wy_width
             let centerY = wy_height
 
-            /// 相对中心点的偏移
+            // 相对中心点的偏移
             let deltaX = offsetX - centerX
             let deltaY = offsetY - centerY
         
-            /// 未锁定时，根据主方向判断一次
+            let threshold: CGFloat = 2.0  // 防抖
+
+            // 未锁定时，根据主方向判断一次
             if isDirectionLocked == false {
-                
-                let threshold: CGFloat = 2.0  // 防抖
-                
+
                 if abs(deltaX) > threshold || abs(deltaY) > threshold {
                     if abs(deltaX) > abs(deltaY) {
                         // 横向
@@ -802,22 +797,36 @@ extension WYContentScrollView {
                     dragLockedDirection = slidingDirection
                 }
             } else {
-                // 已锁定时优先使用本次拖拽锁定的方向，避免 internalSliderDirection 未更新时 slidingDirection 退化为 .unknown 导致 canScroll 拦截失效
-                if dragLockedDirection != .unknown {
-                    slidingDirection = dragLockedDirection
+                // 已锁定轴时，按 contentOffset 的物理偏移符号(deltaX/deltaY 的正负)判断轴内方向，避免 dragLockedDirection 与实际偏移方向不一致时 setter 把 reserveView 摆到错误一侧而闪现(如最后一页先右滑锁 .right、再左滑时 deltaX 已>0 却仍按 .right 放行，导致 setter 把 reserveView 摆到右侧闪现)；只有偏移为0(边界拦截后回中心)才沿用 dragLockedDirection 保持方向让 canScroll 持续拦截
+                if dragLockedDirection == .left || dragLockedDirection == .right {
+                    if deltaX > 0 {
+                        slidingDirection = .left
+                    } else if deltaX < 0 {
+                        slidingDirection = .right
+                    } else {
+                        slidingDirection = dragLockedDirection
+                    }
+                } else {
+                    if deltaY > 0 {
+                        slidingDirection = .up
+                    } else if deltaY < 0 {
+                        slidingDirection = .down
+                    } else {
+                        slidingDirection = dragLockedDirection
+                    }
                 }
             }
             
             /// 锁死另一方向（防止出现多方向同时滑动的问题）
             if isDirectionLocked {
                 if slidingDirection == .left || slidingDirection == .right {
-                    /// 锁死 Y
+                    // 锁死 Y
                     if offsetY != centerY {
                         contentOffset.y = centerY
                     }
                     
                 } else if slidingDirection == .up || slidingDirection == .down {
-                    /// 锁死 X
+                    // 锁死 X
                     if offsetX != centerX {
                         contentOffset.x = centerX
                     }
@@ -846,12 +855,13 @@ extension WYContentScrollView {
     
     /// 检查(设置)contentSize与contentOffset
     private func checkContentSizeAndContentOffset() {
-        
+        // 设置 contentOffset 前先同步 lastValidContentOffset 为同值，使 handleScrollDirectionLock 不再锁回旧位置
         switch contentSlidingDirection {
         case .leftOrRight:
             let targetSize: CGSize = CGSize(width: 3*wy_width, height: wy_height)
             if !contentSize.equalTo(targetSize) {
                 contentSize = targetSize
+                lastValidContentOffset = CGPoint(x: wy_width, y: 0)
                 contentOffset = CGPoint(x: wy_width, y: 0)
             }
             break
@@ -859,6 +869,7 @@ extension WYContentScrollView {
             let targetSize: CGSize = CGSize(width: wy_width, height: 3*wy_height)
             if !contentSize.equalTo(targetSize) {
                 contentSize = targetSize
+                lastValidContentOffset = CGPoint(x: 0, y: wy_height)
                 contentOffset = CGPoint(x: 0, y: wy_height)
             }
             break
@@ -866,6 +877,7 @@ extension WYContentScrollView {
             let targetSize: CGSize = CGSize(width: 3*wy_width, height: 3*wy_height)
             if !contentSize.equalTo(targetSize) {
                 contentSize = targetSize
+                lastValidContentOffset = CGPoint(x: wy_width, y: wy_height)
                 contentOffset = CGPoint(x: wy_width, y: wy_height)
             }
             break
@@ -1046,11 +1058,11 @@ extension WYContentScrollView {
             
             guard contentSlidingDirection != .topOrBottom else { return false }
             
-            // 当前停留页面是否是第一页
-            let isFirstPage = (currentHorizontalIndex == 0) && ((reserveHorizontalIndex == 0) || (reserveHorizontalIndex == 1))
+            // 当前停留页面是否是第一页(只看 currentHorizontalIndex，不依赖 reserveHorizontalIndex——canScroll 在 setter 之前执行、用的是上一次的 reserveIndex，若依赖它，先反向滑使 reserveIndex 变化后(如最后一页先右滑使 reserveIndex=3)再正向滑时边界判断会误判失效，导致 reserveView 闪现)
+            let isFirstPage = (currentHorizontalIndex == 0)
             
-            // 当前停留页面是否是最后一页
-            let isLastPage = (currentHorizontalIndex == (numberOfHorizontalContent - 1)) && (reserveHorizontalIndex == (numberOfHorizontalContent - 1))
+            // 同上，只看 currentHorizontalIndex
+            let isLastPage = (currentHorizontalIndex == (numberOfHorizontalContent - 1))
             
             // 如果当前在第一页或者最后一页的时候，需要根据numberOfHorizontalContent是否等于Int.max和unlimitedCarousel是否为true来判断是否可以切换页面
             if (isFirstPage && (slidingDirection == .right)) || (isLastPage && (slidingDirection == .left)) {
@@ -1067,11 +1079,11 @@ extension WYContentScrollView {
             
             guard contentSlidingDirection != .leftOrRight else { return false }
             
-            // 当前停留页面是否是第一页
-            let isFirstPage = (currentVerticalIndex == 0) && ((reserveVerticalIndex == 0) || (reserveVerticalIndex == 1))
+            // 同水平分支，只看 currentVerticalIndex
+            let isFirstPage = (currentVerticalIndex == 0)
             
-            // 当前停留页面是否是最后一页
-            let isLastPage = (currentVerticalIndex == (numberOfVerticalContent - 1)) && (reserveVerticalIndex == (numberOfVerticalContent - 1))
+            // 同水平分支，只看 currentVerticalIndex
+            let isLastPage = (currentVerticalIndex == (numberOfVerticalContent - 1))
             
             // 如果当前在第一页或者最后一页的时候，需要根据numberOfVerticalContent是否等于Int.max和unlimitedCarousel是否为true来判断是否可以切换页面
             if (isFirstPage && (slidingDirection == .down)) || (isLastPage && (slidingDirection == .up)) {
