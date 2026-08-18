@@ -452,7 +452,6 @@ extension WYContentScrollView {
         
         super.delegate = self
         
-        // 手势 target 传弱代理而非 self：gesture 会强持有 target，直接传 self 会与 view→gesture 的强持有构成循环引用，导致实例永不释放
         let gestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(didClickContent))
         addGestureRecognizer(gestureRecognizer)
         
@@ -481,22 +480,13 @@ extension WYContentScrollView {
         }else {
             layoutContentSubViews(contentSlidingDirection, isReload: isReload)
         }
-
-        /***************** - 修复开始 - *****************/
-        /**
-         修复问题：全向模式初始didSwitch若同时回调水平/垂直两个方向(左右和上下都是视频的场景)，外部会同时启动两路播放导致声音嘈杂；初始展示只回调当前展示方向(优先方向)，另一方向改由scrollViewDidScroll在首次滑到该轴时立即补发一次该轴当前页的didSwitch(补发逻辑见scrollViewDidScroll)
-         源代码：switch contentSlidingDirection { case .omnidirectional: 按优先顺序对水平/垂直各发一次 .left/.up 的初始didSwitch(两轴同时回调的版本) ... }
-         修改后的代码：先重置两轴的已回调标记为false，只按 initialDisplayDirection 回调一次当前展示方向，并标记该轴已回调(另一轴保持false等待首次滑动补发)
-         */
-        /***************** - 修复开始 - *****************/
-        /**
-         修复问题：切换滑动方向(如左右切到全向且优先方向仍为左右)时，展示轴从头到尾都在显示、从未离开屏幕，重新挂载View后无条件再发一次初始didSwitch属于重复回调——外部若展示轴是视频会重复执行"停旧页+重播当前页"，当前页视频被重启；改为展示轴只有在"尚未回调过"(首次进入、或它此前是非展示轴被重置过)时才发，非展示轴一律重置标记等首次滑动时在scrollViewDidScroll补发
-         源代码：if isInitialDisplay && didDisplay { hasInitialCallbackHorizontal = false; hasInitialCallbackVertical = false; switchContentCallback(isDidSwitch: true, direction: initialDisplayDirection); 按方向标记展示轴 } (每次重新展示都无条件回调一次的版本)
-         修改后的代码：先按 initialDisplayDirection 判断本次展示的是水平轴还是垂直轴，只重置非展示轴的标记；展示轴在标记为false时才发初始didSwitch并置true，已为true则跳过(展示轴没变过就不重复回调)
-         */
+        
         // 本次确实新挂载了内容View才触发初始didSwitch(只回调当前展示方向，另一方向等首次滑动时补发)
         let didDisplay: Bool = (horizontalViews?.first?.superview != nil) || (verticalViews?.first?.superview != nil)
         if isInitialDisplay && didDisplay {
+            
+            internalSliderDirection = .unknown
+
             // 本次展示(前置)的方向：左右模式与全向(优先非上下)为水平轴，上下模式与全向优先上下为垂直轴
             let isHorizontalFront: Bool = (initialDisplayDirection == .left) || (initialDisplayDirection == .right)
             // 非展示轴重置标记，等首次滑动时在scrollViewDidScroll补发
@@ -514,8 +504,6 @@ extension WYContentScrollView {
                 switchContentCallback(isDidSwitch: true, direction: initialDisplayDirection)
             }
         }
-        /***************** - 修复结束 - *****************/
-        /***************** - 修复结束 - *****************/
     }
     
     /// 按方向布局内容视图：currentView 固定位于中心页，reserveView 位于其滑动方向一侧(全向模式下水平/垂直各自的中心重叠，靠 bringContentToFront 决定顶层)
@@ -872,21 +860,7 @@ extension WYContentScrollView {
         
         guard let contentDelegate = contentDelegate, callbackDirection != .unknown else { return }
         
-        let isOmnidirectional: Bool = (contentSlidingDirection == .omnidirectional)
-        
         print("\(isDidSwitch ? "isDidSwitch" : "isWillSwitch"), direction：\(callbackDirection)")
-        
-        if horizontalViews?.count == 2,
-           let currentHorizontalView = horizontalViews?.first,
-           let reserveHorizontalView = horizontalViews?.last {
-            
-        }
-        
-        if verticalViews?.count == 2,
-           let currentVerticalView = verticalViews?.first,
-           let reserveVerticalView = verticalViews?.last {
-            
-        }
         
         if isDidSwitch {
             contentDelegate.wy_contentScrollViewDidSwitch(self, direction: callbackDirection, currentHorizontalView: horizontalViews?.first, reserveHorizontalView: horizontalViews?.last, currentVerticalView: verticalViews?.first, reserveVerticalView: verticalViews?.last)
@@ -1061,24 +1035,25 @@ extension WYContentScrollView {
     
     /// 点击了内容页面
     @objc func didClickContent() {
-        
-        guard internalSliderDirection != .unknown else { return }
-        
+
         guard let contentDelegate = contentDelegate else { return }
-        
-        if (internalSliderDirection == .left) || (internalSliderDirection == .right) {
-            
+
+        // 尚未发生任何滑动时点击的是当前展示方向的内容页，用initialDisplayDirection推导展示方向来分发；已滑动过则沿用实际滑动方向
+        let clickDirection: WYSlidingDirection = (internalSliderDirection != .unknown) ? internalSliderDirection : initialDisplayDirection
+
+        if (clickDirection == .left) || (clickDirection == .right) {
+
             guard horizontalViews?.count == 2,
                   let currentHorizontalView = horizontalViews?.first,
                   let reserveHorizontalView = horizontalViews?.last else { return }
-            
-            contentDelegate.wy_contentScrollViewDidClick(self, direction: internalSliderDirection, currentView: currentHorizontalView, reserveView: reserveHorizontalView, index: currentHorizontalIndex)
+
+            contentDelegate.wy_contentScrollViewDidClick(self, direction: clickDirection, currentView: currentHorizontalView, reserveView: reserveHorizontalView, index: currentHorizontalIndex)
         }else {
             guard verticalViews?.count == 2,
                   let currentVerticalView = verticalViews?.first,
                   let reserveVerticalView = verticalViews?.last else { return }
-            
-            contentDelegate.wy_contentScrollViewDidClick(self, direction: internalSliderDirection, currentView: currentVerticalView, reserveView: reserveVerticalView, index: currentVerticalIndex)
+
+            contentDelegate.wy_contentScrollViewDidClick(self, direction: clickDirection, currentView: currentVerticalView, reserveView: reserveVerticalView, index: currentVerticalIndex)
         }
     }
     
@@ -1086,9 +1061,6 @@ extension WYContentScrollView {
     private var internalSliderDirection: WYSlidingDirection {
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.internalSliderDirection, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-            
-            // 当前显示在最顶层的ContentView
-            guard let upperContentView: UIView = upperContentView else { return }
             
             if ((newValue == .up) || (newValue == .down) && (contentSlidingDirection != .leftOrRight)) {
                 
@@ -1259,12 +1231,6 @@ extension WYContentScrollView {
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.configVerticalReserveIndex) as? Int }
     }
 
-    /***************** - 修复开始 - *****************/
-    /**
-     修复问题：全向模式下初始didSwitch只回调当前展示方向，另一方向第0页的"已展示"回调需要在首次滑到该轴时补发(见scrollViewDidScroll的补发逻辑)，因此需要按轴记录"是否已回调过初始展示"，初始展示时重置并只标记展示轴
-     源代码：(无以下属性)
-     修改后的代码：新增 hasInitialCallbackHorizontal/hasInitialCallbackVertical 两个按轴标记，默认false表示该轴尚未回调过初始展示
-     */
     /// 水平轴是否已触发过"已展示"didSwitch(初始展示只回调当前展示方向，另一轴第一次被滑到时在scrollViewDidScroll立即补发一次，避免刚进页面两轴内容如双视频同时启动导致声音嘈杂)
     private var hasInitialCallbackHorizontal: Bool {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.hasInitialCallbackHorizontal, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
@@ -1276,7 +1242,6 @@ extension WYContentScrollView {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.hasInitialCallbackVertical, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.hasInitialCallbackVertical) as? Bool ?? false }
     }
-    /***************** - 修复结束 - *****************/
     
     /// 外部真实代理（弱引用避免循环引用）
     private weak var internalDelegate: UIScrollViewDelegate? {
@@ -1308,15 +1273,8 @@ extension WYContentScrollView {
         static var dragLockedDirection: UInt8 = 0
         static var lastValidContentOffset: UInt8 = 0
         static var upperContentView: UInt8 = 0
-        /***************** - 修复开始 - *****************/
-        /**
-         修复问题：新增 hasInitialCallbackHorizontal/hasInitialCallbackVertical 两个按轴标记(记录该轴是否已回调过初始展示didSwitch)，需要对应的关联对象key
-         源代码：(无以下key)
-         修改后的代码：新增两个key供按轴标记的objc关联对象使用
-         */
         static var hasInitialCallbackHorizontal: UInt8 = 0
         static var hasInitialCallbackVertical: UInt8 = 0
-        /***************** - 修复结束 - *****************/
     }
 }
 
@@ -1347,12 +1305,6 @@ extension WYContentScrollView: UIScrollViewDelegate {
         // 判断是否可以滑动
         guard canScroll(slidingDirection) == true else { return }
 
-        /***************** - 修复开始 - *****************/
-        /**
-         修复问题：全向模式下初始didSwitch只回调当前展示方向，另一方向的第0页(如垂直方向视频页)在第一次滑到该方向前始终没有"已展示"回调，外部无法启动该轴当前页的内容；此处在首次滑到某轴时(手势滑动与程序切换动画都会经过这里)先立即补发一次该轴当前页的didSwitch，再走后续willSwitch流程——既保证刚进页面只有展示方向的一路内容在播(避免双轴同时起播声音嘈杂)，又保证另一轴第一次被滑到时其当前页能立刻收到回调
-         源代码：(无此逻辑，另一轴第0页只能等首次切换完成后的didSwitch，且回调的是切换后的新页而非第0页)
-         修改后的代码：按轴记录是否已回调过初始展示(hasInitialCallbackHorizontal/hasInitialCallbackVertical，初始展示时重置并只标记展示轴)，首次滑到未标记的轴时先补发一次该轴的didSwitch，再设置internalSliderDirection走willSwitch流程
-         */
         if (slidingDirection == .left) || (slidingDirection == .right) {
             if hasInitialCallbackHorizontal == false {
                 hasInitialCallbackHorizontal = true
@@ -1364,7 +1316,6 @@ extension WYContentScrollView: UIScrollViewDelegate {
                 switchContentCallback(isDidSwitch: true, direction: slidingDirection)
             }
         }
-        /***************** - 修复结束 - *****************/
         
         // internalSliderDirection 必须放在canScroll之后设置，否则可能会出现屏幕无法铺满的情况
         internalSliderDirection = slidingDirection
@@ -1458,26 +1409,6 @@ public extension WYContentScrollViewDelegate {
 
     /// 监听页面切换完成事件
     func wy_contentScrollViewDidSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView?, reserveHorizontalView: UIView?, currentVerticalView: UIView?, reserveVerticalView: UIView?) {}
-}
-
-/// 手势 target 的弱引用代理：UIGestureRecognizer 强持有 target，若直接传 self 会与 view→gesture 的强持有构成循环引用导致实例永不释放，故通过此代理以 weak 方式把 action 消息转发给真实对象
-private class WYWeakProxy: NSObject {
-
-    weak var target: AnyObject?
-
-    init(_ target: AnyObject?) {
-        self.target = target
-    }
-
-    /// 把未实现的消息(如手势 action)转发给真实 target
-    override func forwardingTarget(for aSelector: Selector!) -> Any? {
-        return target
-    }
-
-    /// 让手势识别器认为代理可响应 action
-    override func responds(to aSelector: Selector!) -> Bool {
-        return super.responds(to: aSelector) || (target?.responds(to: aSelector) ?? false)
-    }
 }
 
 private class WYWeakBox {
