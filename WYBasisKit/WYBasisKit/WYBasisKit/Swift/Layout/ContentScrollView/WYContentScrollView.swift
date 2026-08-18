@@ -35,29 +35,6 @@ public protocol WYContentScrollViewDelegate: AnyObject {
 
     /**
      *  监听ContentScrollView即将切换页面的事件
-     *  (contentSlidingDirection != omnidirectional时可用)
-     *
-     *  @param contentScrollView  当前WYContentScrollView的实例对象
-     *  @param direction          当前的滑动方向
-     *  @param currentView        当前正在显示的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
-     *  @param reserveView        当前预备显示的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
-     */
-    func wy_contentScrollViewWillSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView)
-
-    /**
-     *  监听ContentScrollView页面已经切换完成的事件
-     *  (contentSlidingDirection != omnidirectional时可用)
-     *
-     *  @param contentScrollView  当前WYContentScrollView的实例对象
-     *  @param direction          当前的滑动方向
-     *  @param currentView        当前正在显示的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
-     *  @param reserveView        当前预备显示的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
-     */
-    func wy_contentScrollViewDidSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView)
-
-    /**
-     *  监听ContentScrollView即将切换页面的事件
-     *  (contentSlidingDirection == omnidirectional时可用)
      *
      *  @param contentScrollView     当前WYContentScrollView的实例对象
      *  @param direction             当前的滑动方向
@@ -66,11 +43,10 @@ public protocol WYContentScrollViewDelegate: AnyObject {
      *  @param currentVerticalView   当前正在垂直方向显示的View(用户传入的View)
      *  @param reserveVerticalView   当前垂直方向预备显示的View(用户传入的View)
      */
-    func wy_contentScrollViewWillSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView, reserveHorizontalView: UIView, currentVerticalView: UIView, reserveVerticalView: UIView)
+    func wy_contentScrollViewWillSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView?, reserveHorizontalView: UIView?, currentVerticalView: UIView?, reserveVerticalView: UIView?)
 
     /**
      *  监听ContentScrollView页面已经切换完成的事件
-     *  (contentSlidingDirection == omnidirectional时可用)
      *
      *  @param contentScrollView     当前WYContentScrollView的实例对象
      *  @param direction             当前的滑动方向
@@ -79,7 +55,7 @@ public protocol WYContentScrollViewDelegate: AnyObject {
      *  @param currentVerticalView   当前正在垂直方向显示的View(用户传入的View)
      *  @param reserveVerticalView   当前垂直方向预备显示的View(用户传入的View)
      */
-    func wy_contentScrollViewDidSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView, reserveHorizontalView: UIView, currentVerticalView: UIView, reserveVerticalView: UIView)
+    func wy_contentScrollViewDidSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView?, reserveHorizontalView: UIView?, currentVerticalView: UIView?, reserveVerticalView: UIView?)
 }
 
 /// 支持的滑动方向
@@ -262,6 +238,19 @@ public class WYContentScrollView: UIScrollView {
     public func nextContent(_ direction: WYContentSlidingDirection) {
         switch direction {
         case .leftOrRight:
+            if !((numberOfHorizontalContent > 1) ? horizontalSliderEnabled : false) { return }
+        case .topOrBottom:
+            if !((numberOfVerticalContent > 1) ? verticalSliderEnabled : false) { return }
+        default:
+            return
+        }
+
+        isDirectionLocked = false
+        dragLockedDirection = .unknown
+        internalSliderDirection = .unknown
+
+        switch direction {
+        case .leftOrRight:
             guard contentSlidingDirection != .topOrBottom else {
                 return
             }
@@ -295,10 +284,23 @@ public class WYContentScrollView: UIScrollView {
     public func lastContent(_ direction: WYContentSlidingDirection) {
         switch direction {
         case .leftOrRight:
+            if !((numberOfHorizontalContent > 1) ? horizontalSliderEnabled : false) { return }
+        case .topOrBottom:
+            if !((numberOfVerticalContent > 1) ? verticalSliderEnabled : false) { return }
+        default:
+            return
+        }
+        
+        isDirectionLocked = false
+        dragLockedDirection = .unknown
+        internalSliderDirection = .unknown
+
+        switch direction {
+        case .leftOrRight:
             guard contentSlidingDirection != .topOrBottom else {
                 return
             }
-            
+
             // 只有在第一页时才要求无限轮播开启(用于循环回到最后一页)，非第一页无论是否无限轮播都允许切上一页
             if currentHorizontalIndex <= 0 {
                 guard unlimitedCarousel else { return }
@@ -337,16 +339,13 @@ public class WYContentScrollView: UIScrollView {
                 return
             }
             
+            // 向后跳预设目标+1再lastContent(实际滑到 目标+1-1=目标)，向前跳预设目标-1再nextContent(实际滑到 目标-1+1=目标)；预设值恒不落在边界guard上，切换不会被无限轮播拦截，索引也不会被污染
             if index < currentHorizontalIndex {
-                if (index - 1) >= 0 {
-                    currentHorizontalIndex = (index - 1)
-                    lastContent(direction)
-                }
+                currentHorizontalIndex = (index + 1)
+                lastContent(direction)
             }else if index > currentHorizontalIndex {
-                if (index + 1) <= (numberOfHorizontalContent - 1) {
-                    currentHorizontalIndex = (index + 1)
-                    nextContent(direction)
-                }
+                currentHorizontalIndex = (index - 1)
+                nextContent(direction)
             }
             
             break
@@ -359,16 +358,13 @@ public class WYContentScrollView: UIScrollView {
                 return
             }
             
+            // 向后跳预设目标+1再lastContent，向前跳预设目标-1再nextContent，预设值恒不落在边界guard上
             if index < currentVerticalIndex {
-                if (index - 1) >= 0 {
-                    currentVerticalIndex = (index - 1)
-                    lastContent(direction)
-                }
+                currentVerticalIndex = (index + 1)
+                lastContent(direction)
             }else if index > currentVerticalIndex {
-                if (index + 1) <= (numberOfVerticalContent - 1) {
-                    currentVerticalIndex = (index + 1)
-                    nextContent(direction)
-                }
+                currentVerticalIndex = (index - 1)
+                nextContent(direction)
             }
             break
         default:
@@ -395,6 +391,7 @@ public class WYContentScrollView: UIScrollView {
     
     deinit {
         stopTimer()
+        WYLogManager.output("WYContentScrollView deinit")
     }
     
     /*
@@ -456,7 +453,7 @@ extension WYContentScrollView {
         super.delegate = self
         
         // 手势 target 传弱代理而非 self：gesture 会强持有 target，直接传 self 会与 view→gesture 的强持有构成循环引用，导致实例永不释放
-        let gestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: WYWeakProxy(self), action: #selector(didClickContent))
+        let gestureRecognizer: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(didClickContent))
         addGestureRecognizer(gestureRecognizer)
         
         // 强制关闭 bounces，边界行为统一由 canScroll/handleScrollDirectionLock 控制，条件开启 bounces 需联动 contentSize/alwaysBounce/isPagingEnabled等，判断点过多会引入一系列其他问题
@@ -469,7 +466,10 @@ extension WYContentScrollView {
     
     /// 内部设置添加ContentView
     private func internalSettingsContentView(isReload: Bool) {
-        
+
+        // 布局前记录内容View是否尚未挂载(以此判断本次是否为首次展示/切换方向后的重新展示)
+        let isInitialDisplay: Bool = (horizontalViews?.first?.superview == nil) && (verticalViews?.first?.superview == nil)
+
         if (contentSlidingDirection == .omnidirectional) {
             if prioritySlidingDirection == .topOrBottom {
                 layoutContentSubViews(.leftOrRight, isReload: isReload)
@@ -481,6 +481,41 @@ extension WYContentScrollView {
         }else {
             layoutContentSubViews(contentSlidingDirection, isReload: isReload)
         }
+
+        /***************** - 修复开始 - *****************/
+        /**
+         修复问题：全向模式初始didSwitch若同时回调水平/垂直两个方向(左右和上下都是视频的场景)，外部会同时启动两路播放导致声音嘈杂；初始展示只回调当前展示方向(优先方向)，另一方向改由scrollViewDidScroll在首次滑到该轴时立即补发一次该轴当前页的didSwitch(补发逻辑见scrollViewDidScroll)
+         源代码：switch contentSlidingDirection { case .omnidirectional: 按优先顺序对水平/垂直各发一次 .left/.up 的初始didSwitch(两轴同时回调的版本) ... }
+         修改后的代码：先重置两轴的已回调标记为false，只按 initialDisplayDirection 回调一次当前展示方向，并标记该轴已回调(另一轴保持false等待首次滑动补发)
+         */
+        /***************** - 修复开始 - *****************/
+        /**
+         修复问题：切换滑动方向(如左右切到全向且优先方向仍为左右)时，展示轴从头到尾都在显示、从未离开屏幕，重新挂载View后无条件再发一次初始didSwitch属于重复回调——外部若展示轴是视频会重复执行"停旧页+重播当前页"，当前页视频被重启；改为展示轴只有在"尚未回调过"(首次进入、或它此前是非展示轴被重置过)时才发，非展示轴一律重置标记等首次滑动时在scrollViewDidScroll补发
+         源代码：if isInitialDisplay && didDisplay { hasInitialCallbackHorizontal = false; hasInitialCallbackVertical = false; switchContentCallback(isDidSwitch: true, direction: initialDisplayDirection); 按方向标记展示轴 } (每次重新展示都无条件回调一次的版本)
+         修改后的代码：先按 initialDisplayDirection 判断本次展示的是水平轴还是垂直轴，只重置非展示轴的标记；展示轴在标记为false时才发初始didSwitch并置true，已为true则跳过(展示轴没变过就不重复回调)
+         */
+        // 本次确实新挂载了内容View才触发初始didSwitch(只回调当前展示方向，另一方向等首次滑动时补发)
+        let didDisplay: Bool = (horizontalViews?.first?.superview != nil) || (verticalViews?.first?.superview != nil)
+        if isInitialDisplay && didDisplay {
+            // 本次展示(前置)的方向：左右模式与全向(优先非上下)为水平轴，上下模式与全向优先上下为垂直轴
+            let isHorizontalFront: Bool = (initialDisplayDirection == .left) || (initialDisplayDirection == .right)
+            // 非展示轴重置标记，等首次滑动时在scrollViewDidScroll补发
+            if isHorizontalFront {
+                hasInitialCallbackVertical = false
+            }else {
+                hasInitialCallbackHorizontal = false
+            }
+            // 展示轴只有在尚未回调过时才发初始didSwitch(如左右切全向且优先左右，水平轴一直是展示方向则不再重复回调)
+            if isHorizontalFront && !hasInitialCallbackHorizontal {
+                hasInitialCallbackHorizontal = true
+                switchContentCallback(isDidSwitch: true, direction: initialDisplayDirection)
+            }else if !isHorizontalFront && !hasInitialCallbackVertical {
+                hasInitialCallbackVertical = true
+                switchContentCallback(isDidSwitch: true, direction: initialDisplayDirection)
+            }
+        }
+        /***************** - 修复结束 - *****************/
+        /***************** - 修复结束 - *****************/
     }
     
     /// 按方向布局内容视图：currentView 固定位于中心页，reserveView 位于其滑动方向一侧(全向模式下水平/垂直各自的中心重叠，靠 bringContentToFront 决定顶层)
@@ -521,9 +556,8 @@ extension WYContentScrollView {
             
             if (currentHorizontalView.superview == nil) && (reserveHorizontalView.superview == nil) {
                 upperContentView = currentHorizontalView
-                addSubview(currentHorizontalView)
                 addSubview(reserveHorizontalView)
-                switchContentCallback(isDidSwitch: true)
+                addSubview(currentHorizontalView)
             }
         }
         
@@ -560,9 +594,8 @@ extension WYContentScrollView {
             
             if (currentVerticalView.superview == nil) && (reserveVerticalView.superview == nil) {
                 upperContentView = currentVerticalView
-                addSubview(currentVerticalView)
                 addSubview(reserveVerticalView)
-                switchContentCallback(isDidSwitch: true)
+                addSubview(currentVerticalView)
             }
         }
         // 初始化时同步contentOffset
@@ -831,60 +864,49 @@ extension WYContentScrollView {
         }
     }
     
-    /// 切换内容页回调，isDidSwitch 为 true 表示切换已完成(didSwitch)、false 表示即将切换(willSwitch)
-    private func switchContentCallback(isDidSwitch: Bool) {
+    /// 切换内容页回调，isDidSwitch 为 true 表示切换已完成(didSwitch)、false 表示即将切换(willSwitch)；direction 默认取当前滑动方向，首次展示尚未发生滑动时由调用方传入推导出的初始方向
+    private func switchContentCallback(isDidSwitch: Bool, direction: WYSlidingDirection = .unknown) {
+
+        // 优先用调用方显式传入的方向(首次展示场景)，否则用当前滑动方向
+        let callbackDirection: WYSlidingDirection = (direction != .unknown) ? direction : internalSliderDirection
         
-        guard let contentDelegate = contentDelegate, internalSliderDirection != .unknown else { return }
+        guard let contentDelegate = contentDelegate, callbackDirection != .unknown else { return }
         
         let isOmnidirectional: Bool = (contentSlidingDirection == .omnidirectional)
         
-        print("\(isDidSwitch ? "isDidSwitch" : "isWillSwitch"), direction：\(internalSliderDirection)")
+        print("\(isDidSwitch ? "isDidSwitch" : "isWillSwitch"), direction：\(callbackDirection)")
         
-        if isOmnidirectional {
+        if horizontalViews?.count == 2,
+           let currentHorizontalView = horizontalViews?.first,
+           let reserveHorizontalView = horizontalViews?.last {
             
-            guard horizontalViews?.count == 2,
-                  let currentHorizontalView = horizontalViews?.first,
-                  let reserveHorizontalView = horizontalViews?.last else { return }
+        }
+        
+        if verticalViews?.count == 2,
+           let currentVerticalView = verticalViews?.first,
+           let reserveVerticalView = verticalViews?.last {
             
-            guard verticalViews?.count == 2,
-                  let currentVerticalView = verticalViews?.first,
-                  let reserveVerticalView = verticalViews?.last else { return }
-            
-            if isDidSwitch {
-                contentDelegate.wy_contentScrollViewDidSwitch(self, direction: internalSliderDirection, currentHorizontalView: currentHorizontalView, reserveHorizontalView: reserveHorizontalView, currentVerticalView: currentVerticalView, reserveVerticalView: reserveVerticalView)
-            }else {
-                contentDelegate.wy_contentScrollViewWillSwitch(self, direction: internalSliderDirection, currentHorizontalView: currentHorizontalView, reserveHorizontalView: reserveHorizontalView, currentVerticalView: currentVerticalView, reserveVerticalView: reserveVerticalView)
-            }
-            
+        }
+        
+        if isDidSwitch {
+            contentDelegate.wy_contentScrollViewDidSwitch(self, direction: callbackDirection, currentHorizontalView: horizontalViews?.first, reserveHorizontalView: horizontalViews?.last, currentVerticalView: verticalViews?.first, reserveVerticalView: verticalViews?.last)
         }else {
-            if (internalSliderDirection == .up) || (internalSliderDirection == .down) {
-                
-                guard verticalViews?.count == 2,
-                      let currentVerticalView = verticalViews?.first,
-                      let reserveVerticalView = verticalViews?.last else { return }
-                
-                if isDidSwitch {
-                    contentDelegate.wy_contentScrollViewDidSwitch(self, direction: internalSliderDirection, currentView: currentVerticalView, reserveView: reserveVerticalView)
-                }else {
-                    contentDelegate.wy_contentScrollViewWillSwitch(self, direction: internalSliderDirection, currentView: currentVerticalView, reserveView: reserveVerticalView)
-                }
-            }
-            
-            if (internalSliderDirection == .left) || (internalSliderDirection == .right) {
-                
-                guard horizontalViews?.count == 2,
-                      let currentHorizontalView = horizontalViews?.first,
-                      let reserveHorizontalView = horizontalViews?.last else { return }
-                
-                if isDidSwitch {
-                    contentDelegate.wy_contentScrollViewDidSwitch(self, direction: internalSliderDirection, currentView: currentHorizontalView, reserveView: reserveHorizontalView)
-                }else {
-                    contentDelegate.wy_contentScrollViewWillSwitch(self, direction: internalSliderDirection, currentView: currentHorizontalView, reserveView: reserveHorizontalView)
-                }
-            }
+            contentDelegate.wy_contentScrollViewWillSwitch(self, direction: callbackDirection, currentHorizontalView: horizontalViews?.first, reserveHorizontalView: horizontalViews?.last, currentVerticalView: verticalViews?.first, reserveVerticalView: verticalViews?.last)
         }
     }
     
+    /// 当前展示形态对应的初始滑动方向：左右模式为.left、上下模式为.up、全向模式按优先方向取(用于首次展示的didSwitch回调，此时尚未发生任何滑动)
+    private var initialDisplayDirection: WYSlidingDirection {
+        switch contentSlidingDirection {
+        case .leftOrRight:
+            return .left
+        case .topOrBottom:
+            return .up
+        case .omnidirectional:
+            return (prioritySlidingDirection == .topOrBottom) ? .up : .left
+        }
+    }
+
     /// 停止滚动并切换contentViews的位置与frame
     func pauseScroll() {
         
@@ -1236,6 +1258,25 @@ extension WYContentScrollView {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.configVerticalReserveIndex, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.configVerticalReserveIndex) as? Int }
     }
+
+    /***************** - 修复开始 - *****************/
+    /**
+     修复问题：全向模式下初始didSwitch只回调当前展示方向，另一方向第0页的"已展示"回调需要在首次滑到该轴时补发(见scrollViewDidScroll的补发逻辑)，因此需要按轴记录"是否已回调过初始展示"，初始展示时重置并只标记展示轴
+     源代码：(无以下属性)
+     修改后的代码：新增 hasInitialCallbackHorizontal/hasInitialCallbackVertical 两个按轴标记，默认false表示该轴尚未回调过初始展示
+     */
+    /// 水平轴是否已触发过"已展示"didSwitch(初始展示只回调当前展示方向，另一轴第一次被滑到时在scrollViewDidScroll立即补发一次，避免刚进页面两轴内容如双视频同时启动导致声音嘈杂)
+    private var hasInitialCallbackHorizontal: Bool {
+        set { objc_setAssociatedObject(self, &WYAssociatedKeys.hasInitialCallbackHorizontal, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+        get { objc_getAssociatedObject(self, &WYAssociatedKeys.hasInitialCallbackHorizontal) as? Bool ?? false }
+    }
+
+    /// 垂直轴是否已触发过"已展示"didSwitch(初始展示只回调当前展示方向，另一轴第一次被滑到时在scrollViewDidScroll立即补发一次，避免刚进页面两轴内容如双视频同时启动导致声音嘈杂)
+    private var hasInitialCallbackVertical: Bool {
+        set { objc_setAssociatedObject(self, &WYAssociatedKeys.hasInitialCallbackVertical, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+        get { objc_getAssociatedObject(self, &WYAssociatedKeys.hasInitialCallbackVertical) as? Bool ?? false }
+    }
+    /***************** - 修复结束 - *****************/
     
     /// 外部真实代理（弱引用避免循环引用）
     private weak var internalDelegate: UIScrollViewDelegate? {
@@ -1267,6 +1308,15 @@ extension WYContentScrollView {
         static var dragLockedDirection: UInt8 = 0
         static var lastValidContentOffset: UInt8 = 0
         static var upperContentView: UInt8 = 0
+        /***************** - 修复开始 - *****************/
+        /**
+         修复问题：新增 hasInitialCallbackHorizontal/hasInitialCallbackVertical 两个按轴标记(记录该轴是否已回调过初始展示didSwitch)，需要对应的关联对象key
+         源代码：(无以下key)
+         修改后的代码：新增两个key供按轴标记的objc关联对象使用
+         */
+        static var hasInitialCallbackHorizontal: UInt8 = 0
+        static var hasInitialCallbackVertical: UInt8 = 0
+        /***************** - 修复结束 - *****************/
     }
 }
 
@@ -1296,6 +1346,25 @@ extension WYContentScrollView: UIScrollViewDelegate {
         
         // 判断是否可以滑动
         guard canScroll(slidingDirection) == true else { return }
+
+        /***************** - 修复开始 - *****************/
+        /**
+         修复问题：全向模式下初始didSwitch只回调当前展示方向，另一方向的第0页(如垂直方向视频页)在第一次滑到该方向前始终没有"已展示"回调，外部无法启动该轴当前页的内容；此处在首次滑到某轴时(手势滑动与程序切换动画都会经过这里)先立即补发一次该轴当前页的didSwitch，再走后续willSwitch流程——既保证刚进页面只有展示方向的一路内容在播(避免双轴同时起播声音嘈杂)，又保证另一轴第一次被滑到时其当前页能立刻收到回调
+         源代码：(无此逻辑，另一轴第0页只能等首次切换完成后的didSwitch，且回调的是切换后的新页而非第0页)
+         修改后的代码：按轴记录是否已回调过初始展示(hasInitialCallbackHorizontal/hasInitialCallbackVertical，初始展示时重置并只标记展示轴)，首次滑到未标记的轴时先补发一次该轴的didSwitch，再设置internalSliderDirection走willSwitch流程
+         */
+        if (slidingDirection == .left) || (slidingDirection == .right) {
+            if hasInitialCallbackHorizontal == false {
+                hasInitialCallbackHorizontal = true
+                switchContentCallback(isDidSwitch: true, direction: slidingDirection)
+            }
+        }else {
+            if hasInitialCallbackVertical == false {
+                hasInitialCallbackVertical = true
+                switchContentCallback(isDidSwitch: true, direction: slidingDirection)
+            }
+        }
+        /***************** - 修复结束 - *****************/
         
         // internalSliderDirection 必须放在canScroll之后设置，否则可能会出现屏幕无法铺满的情况
         internalSliderDirection = slidingDirection
@@ -1384,17 +1453,11 @@ public extension WYContentScrollViewDelegate {
     /// 监听内容页点击事件
     func wy_contentScrollViewDidClick(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView, index: Int) {}
 
-    /// 监听即将切换页面事件(非omnidirectional时回调)
-    func wy_contentScrollViewWillSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView) {}
+    /// 监听即将切换页面事件
+    func wy_contentScrollViewWillSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView?, reserveHorizontalView: UIView?, currentVerticalView: UIView?, reserveVerticalView: UIView?) {}
 
-    /// 监听页面切换完成事件(非omnidirectional时回调)
-    func wy_contentScrollViewDidSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView) {}
-
-    /// 监听即将切换页面事件(omnidirectional时回调)
-    func wy_contentScrollViewWillSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView, reserveHorizontalView: UIView, currentVerticalView: UIView, reserveVerticalView: UIView) {}
-
-    /// 监听页面切换完成事件(omnidirectional时回调)
-    func wy_contentScrollViewDidSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView, reserveHorizontalView: UIView, currentVerticalView: UIView, reserveVerticalView: UIView) {}
+    /// 监听页面切换完成事件
+    func wy_contentScrollViewDidSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView?, reserveHorizontalView: UIView?, currentVerticalView: UIView?, reserveVerticalView: UIView?) {}
 }
 
 /// 手势 target 的弱引用代理：UIGestureRecognizer 强持有 target，若直接传 self 会与 view→gesture 的强持有构成循环引用导致实例永不释放，故通过此代理以 weak 方式把 action 消息转发给真实对象

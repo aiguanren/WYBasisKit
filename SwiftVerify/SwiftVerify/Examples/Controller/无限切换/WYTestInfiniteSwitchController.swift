@@ -72,9 +72,34 @@ class WYTestInfiniteSwitchController: UIViewController {
     
     /// 水平方向Contents
     var horizontalViews: [UIView] = []
-    
+
     /// 垂直方向Contents
     var verticalViews: [UIView] = []
+
+    /// 水平方向各下标对应的图片
+    let pageImages: [UIImage] = [UIImage(named: "banner_0")!,
+                                 UIImage(named: "banner_1")!,
+                                 UIImage(named: "banner_2")!,
+                                 UIImage(named: "banner_3")!,
+                                 UIImage(named: "banner_4")!,
+                                 UIImage(named: "banner_5")!,
+                                 UIImage(named: "banner_6")!,
+                                 UIImage(named: "banner_7")!,
+                                 UIImage(named: "banner_8")!,
+                                 UIImage(named: "banner_9")!]
+
+    /// 垂直方向各下标对应的视频地址
+    let pageVideoList: [String] = [
+        "https://files.cochat.lenovo.com/download/dbb26a06-4604-3d2b-bb2c-6293989e63a7/55deb281e01b27194daf6da391fdfe83.mp4",
+        "http://www.w3school.com.cn/i/movie.mp4",
+        "https://media.w3.org/2010/05/sintel/trailer.mp4",
+        "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8",
+        "https://playertest.longtailvideo.com/adaptive/oceans_aes/oceans_aes.m3u8",
+        "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+        "http://vjs.zencdn.net/v/oceans.mp4",
+        "https://alimov2.a.kwimgs.com/upic/2022/01/31/15/BMjAyMjAxMzExNTU5MTRfNDAzMDAxOTlfNjYyNzMxNjcwMjBfMF8z_b_Beb3bda599f76c60c463c433ca7460153.mp4",
+        "https://alimov2.a.kwimgs.com/upic/2022/01/31/15/BMjAyMjAxMzExNTU5NTRfNDAzMDAxOTlfNjYyNzMyMzg3MTRfMF8z_b_B192356dadbc90d207ba16964d4c2914c.mp4",
+        "https://alimov2.a.kwimgs.com/upic/2022/01/31/16/BMjAyMjAxMzExNjAwMDFfNDAzMDAxOTlfNjYyNzMyNTAwMzJfMF8z_b_Be73c5abcbc0eeb2ec9fce6842e1362a4.mp4"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -86,19 +111,21 @@ class WYTestInfiniteSwitchController: UIViewController {
     
     func configSubView() {
         
-        for i in 0...1 {
+        for _ in 0...1 {
             let horizontal: UIImageView = UIImageView()
-            horizontal.backgroundColor = [.link, .orange][i]
-            horizontal.tag = 100 + i;
+            horizontal.contentMode = .scaleAspectFill
+            horizontal.clipsToBounds = true
             horizontalViews.append(horizontal)
-            
+
             let vertical: WYMediaPlayer = WYMediaPlayer()
-            vertical.backgroundColor = [.red, .yellow][i]
-            vertical.tag = 200 + i;
+            vertical.backgroundColor = .wy_random
+            vertical.delegate = self
+            // 在代理中监控即将切换和已经切换中动态设置shouldAutoplay
+            vertical.shouldAutoplay = false
             verticalViews.append(vertical)
         }
         
-        contentScrollView.backgroundColor = .purple
+        contentScrollView.backgroundColor = .wy_random
         contentScrollView.contentDelegate = self
         
         operatioView.showsHorizontalScrollIndicator = false
@@ -119,6 +146,10 @@ class WYTestInfiniteSwitchController: UIViewController {
         for segmentedControl in [numberOfHorizontalContent, numberOfVerticalContent, contentSlidingDirection, prioritySlidingDirection, nextContentDirection, lastContentDirection, switchContentDirection] {
             segmentedControl.addTarget(self, action: #selector(segmentedControlChange(sender:)), for: .valueChanged)
         }
+
+        nextContentDirection.selectedSegmentIndex = 0
+        lastContentDirection.selectedSegmentIndex = 0
+        switchContentDirection.selectedSegmentIndex = 0
         
         standingTime.value = 3
         standingTime.minimumValue = 0
@@ -149,7 +180,20 @@ class WYTestInfiniteSwitchController: UIViewController {
         switchContentPicker.delegate = self
         switchContentPicker.dataSource = self
     }
-    
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        // 离开测试页停止所有播放器，避免视频在后台继续发声、耗流
+        verticalViews.forEach { ($0 as? WYMediaPlayer)?.stop(false) }
+    }
+
+    deinit {
+        // 页面销毁时释放播放器全部资源(与WYTestLiveStreamingController的deinit处理一致)
+        verticalViews.forEach { ($0 as? WYMediaPlayer)?.releaseAll() }
+        
+        WYLogManager.output("WYTestInfiniteSwitchController deinit")
+    }
+
     @objc func segmentedControlChange(sender: UISegmentedControl) {
         if sender == numberOfHorizontalContent {
             contentScrollView.numberOfHorizontalContent = [0, 1, 2, 3, 4, 5, Int.max][sender.selectedSegmentIndex]
@@ -168,18 +212,26 @@ class WYTestInfiniteSwitchController: UIViewController {
                 contentScrollView.omnidirectionalDisplay(currentHorizontalView: horizontalViews.first!, reserveHorizontalView: horizontalViews.last!, currentVerticalView: verticalViews.first!, reserveVerticalView: verticalViews.last!)
                 break
             }
+            
         }else if sender == prioritySlidingDirection {
             contentScrollView.prioritySlidingDirection = [.leftOrRight, .topOrBottom, .omnidirectional][sender.selectedSegmentIndex]
         }
     }
     
+    /// 从方向选择器安全取值：未选中(selectedSegmentIndex为-1)或越界时返回默认的"左右"，避免数组下标越界闪退
+    private func selectedDirection(of segmentedControl: UISegmentedControl) -> WYContentSlidingDirection {
+        let directions: [WYContentSlidingDirection] = [.leftOrRight, .topOrBottom, .omnidirectional]
+        let index = segmentedControl.selectedSegmentIndex
+        return (index >= 0 && index < directions.count) ? directions[index] : .leftOrRight
+    }
+
     @objc func buttonClick(sender: UIButton) {
         if sender == nextContent {
-            contentScrollView.nextContent([.leftOrRight, .topOrBottom, .omnidirectional][nextContentDirection.selectedSegmentIndex])
+            contentScrollView.nextContent(selectedDirection(of: nextContentDirection))
         }else if sender == lastContent {
-            contentScrollView.lastContent([.leftOrRight, .topOrBottom, .omnidirectional][lastContentDirection.selectedSegmentIndex])
+            contentScrollView.lastContent(selectedDirection(of: lastContentDirection))
         }else if sender == switchContent {
-            contentScrollView.switchContent([.leftOrRight, .topOrBottom, .omnidirectional][switchContentDirection.selectedSegmentIndex], index: &switchContentIndex)
+            contentScrollView.switchContent(selectedDirection(of: switchContentDirection), index: &switchContentIndex)
         }
     }
     
@@ -480,42 +532,18 @@ extension WYTestInfiniteSwitchController: WYContentScrollViewDelegate {
      */
     func wy_contentScrollViewDidClick(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView, index: Int) {
         //wy_print("监听到ContentScrollView点击事件\n滑动方向：\(direction)\n当前滑动的Index：\(index)\n当前正在显示的用户传入的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)：\(currentView)\n当前预备显示的用户传入的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)：\(reserveView)\n水平方向Contents：\(horizontalViews)\n垂直方向Contents：\(verticalViews)")
-    }
-    
-    /**
-     *  监听ContentScrollView即将切换页面的事件
-     (contentSlidingDirection != omnidirectional时可用)
-     *
-     *  @param contentScrollView  当前WYContentScrollView的实例对象
-     *
-     *  @param direction          当前的滑动方向
-     *
-     *  @param currentView        当前正在显示的用户传入的View
-     (左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
-     *
-     *  @param reserveView        当前预备显示的用户传入的View
-     (左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
-     */
-    func wy_contentScrollViewWillSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView) {
-        //wy_print("监听到ContentScrollView即将切换页面的事件(contentSlidingDirection != omnidirectional时可用)\n滑动方向：\(direction)\n当前正在显示的用户传入的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)：\(currentView)\n当前预备显示的用户传入的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)：\(reserveView)\n水平方向Contents：\(horizontalViews)\n垂直方向Contents：\(verticalViews)")
-    }
-    
-    /**
-     *  监听ContentScrollView页面已经切换完成的事件
-     (contentSlidingDirection != omnidirectional时可用)
-     *
-     *  @param contentScrollView  当前WYContentScrollView的实例对象
-     *
-     *  @param direction          当前的滑动方向
-     *
-     *  @param currentView        当前正在显示的用户传入的View
-     (左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
-     *
-     *  @param reserveView        当前预备显示的用户传入的View
-     (左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
-     */
-    func wy_contentScrollViewDidSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView) {
-        //wy_print("监听到ContentScrollView页面已经切换完成的事件(contentSlidingDirection != omnidirectional时可用)\n滑动方向：\(direction)\n当前正在显示的用户传入的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)：\(currentView)\n当前预备显示的用户传入的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)：\(reserveView)\n水平方向Contents：\(horizontalViews)\n垂直方向Contents：\(verticalViews)")
+        if direction == .up || direction == .down {
+            guard let mediaPlayer: WYMediaPlayer = currentView as? WYMediaPlayer else { return }
+            if let _: Bool = mediaPlayer.ijkPlayer?.isPlaying() {
+                mediaPlayer.pause()
+            }else {
+                mediaPlayer.play()
+            }
+        }
+        
+        if direction == .left || direction == .right {
+            
+        }
     }
     
     /**
@@ -534,8 +562,22 @@ extension WYTestInfiniteSwitchController: WYContentScrollViewDelegate {
      *
      *  @param reserveVerticalView   当前垂直方向预备显示的View(用户传入的View)
      */
-    func wy_contentScrollViewWillSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView, reserveHorizontalView: UIView, currentVerticalView: UIView, reserveVerticalView: UIView) {
-        //wy_print("监听到ContentScrollView即将切换页面的事件(contentSlidingDirection == omnidirectional时可用)\n滑动方向：\(direction)\n当前正在水平方向显示的View(用户传入的View)：\(currentHorizontalView)\n当前水平方向预备显示的View(用户传入的View)：\(reserveHorizontalView)\n当前正在垂直方向显示的View(用户传入的View)：\(currentVerticalView)\n当前垂直方向预备显示的View(用户传入的View)：\(reserveVerticalView)\n水平方向Contents：\(horizontalViews)\n垂直方向Contents：\(verticalViews)")
+    func wy_contentScrollViewWillSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView?, reserveHorizontalView: UIView?, currentVerticalView: UIView?, reserveVerticalView: UIView?) {
+        
+        //wy_print("监听到ContentScrollView即将切换页面的事件\n滑动方向：\(direction)\n当前正在水平方向显示的View(用户传入的View)：\(currentHorizontalView)\n当前水平方向预备显示的View(用户传入的View)：\(reserveHorizontalView)\n当前正在垂直方向显示的View(用户传入的View)：\(currentVerticalView)\n当前垂直方向预备显示的View(用户传入的View)：\(reserveVerticalView)\n水平方向Contents：\(horizontalViews)\n垂直方向Contents：\(verticalViews)")
+        
+        let reserveHorizontalView: UIImageView? = reserveHorizontalView as? UIImageView
+        
+        let reserveVerticalView: WYMediaPlayer? = reserveVerticalView as? WYMediaPlayer
+        
+        if direction == .up || direction == .down {
+            reserveVerticalView?.shouldAutoplay = false
+            reserveVerticalView?.play(with: pageVideoList[contentScrollView.reserveVerticalIndex])
+        }
+        
+        if direction == .left || direction == .right {
+            reserveHorizontalView?.image = pageImages[contentScrollView.reserveHorizontalIndex]
+        }
     }
     
     /**
@@ -554,8 +596,65 @@ extension WYTestInfiniteSwitchController: WYContentScrollViewDelegate {
      *
      *  @param reserveVerticalView   当前垂直方向预备显示的View(用户传入的View)
      */
-    func wy_contentScrollViewDidSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView, reserveHorizontalView: UIView, currentVerticalView: UIView, reserveVerticalView: UIView) {
+    func wy_contentScrollViewDidSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView?, reserveHorizontalView: UIView?, currentVerticalView: UIView?, reserveVerticalView: UIView?) {
         //wy_print("监听ContentScrollView页面已经切换完成的事件(contentSlidingDirection == omnidirectional时可用)\n滑动方向：\(direction)\n当前正在水平方向显示的View(用户传入的View)：\(currentHorizontalView)\n当前水平方向预备显示的View(用户传入的View)：\(reserveHorizontalView)\n当前正在垂直方向显示的View(用户传入的View)：\(currentVerticalView)\n当前垂直方向预备显示的View(用户传入的View)：\(reserveVerticalView)\n水平方向Contents：\(horizontalViews)\n垂直方向Contents：\(verticalViews)")
+        
+        let currentHorizontalView: UIImageView? = currentHorizontalView as? UIImageView
+        
+        let currentVerticalView: WYMediaPlayer? = currentVerticalView as? WYMediaPlayer
+        let reserveVerticalView: WYMediaPlayer? = reserveVerticalView as? WYMediaPlayer
+        
+        if direction == .up || direction == .down {
+            // 此时这里的reservePlayer就是上一次显示的player，所以这里要先stop或者暂停上一次的播放
+            reserveVerticalView?.pause()
+            currentVerticalView?.shouldAutoplay = true
+            
+            let palyUrl: String = pageVideoList[contentScrollView.currentVerticalIndex]
+            currentVerticalView?.play(with: palyUrl)
+        }
+        
+        if direction == .left || direction == .right {
+            currentVerticalView?.pause()
+            reserveVerticalView?.pause()
+            currentHorizontalView?.image = pageImages[contentScrollView.currentHorizontalIndex]
+        }
+    }
+}
+
+extension WYTestInfiniteSwitchController: WYMediaPlayerDelegate {
+    
+    /// 播放器状态回调
+    func wy_mediaPlayerStateDidChanged(_ player: WYMediaPlayer, state: WYMediaPlayerState) {
+        switch state {
+        case .unknown:
+            WYActivity.showLoading(in: view, animation: .gifOrApng, config: WYActivityConfig.concise)
+        case .rendered:
+            WYActivity.dismissLoading(in: view, animate: false)
+        case .ready:
+            WYLogManager.output("可以播放了")
+        case .playing:
+            WYActivity.dismissLoading(in: view, animate: false)
+        case .buffering:
+            WYActivity.showLoading(in: view, animation: .gifOrApng, config: WYActivityConfig.concise)
+        case .playable:
+            WYActivity.dismissLoading(in: view, animate: false)
+        case .paused:
+            WYActivity.dismissLoading(in: view, animate: false)
+        case .interrupted:
+            WYActivity.dismissLoading(in: view, animate: false)
+        case .seekingForward:
+            WYActivity.showLoading(in: view, animation: .gifOrApng, config: WYActivityConfig.concise)
+        case .seekingBackward:
+            WYActivity.showLoading(in: view, animation: .gifOrApng, config: WYActivityConfig.concise)
+        case .ended:
+            WYActivity.dismissLoading(in: view, animate: false)
+        case .userExited:
+            WYActivity.dismissLoading(in: view, animate: false)
+        case .error:
+            WYActivity.dismissLoading(in: view, animate: false)
+        case .playUrlEmpty:
+            WYActivity.dismissLoading(in: view, animate: false)
+        }
     }
 }
 
