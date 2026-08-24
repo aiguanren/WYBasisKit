@@ -80,6 +80,11 @@ end
 target "SwiftVerify" do
   project "SwiftVerify/SwiftVerify.xcodeproj" # 多个项目时需要指定target对应的xcodeproj文件
   pod "WYBasisKit-swift", :path => KITPATH
+
+  # 本地验证：直接使用本地编译的 IJKPlayerKit(深度改名版,模块名/类名均为 IJK 前缀)
+  # :path 方式会忽略 podspec 里的 source(下载地址)，框架文件取自本地仓库目录
+  # 验证完毕要回到官方源时：注释掉这一行并 pod update IJKPlayerKit 即可
+  # pod "IJKPlayerKit", :path => "/Users/guanren/Desktop/官人/IJKPlayerKit"
   
   # 约束
   pod "SnapKit"

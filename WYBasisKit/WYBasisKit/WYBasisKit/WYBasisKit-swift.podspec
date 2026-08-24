@@ -476,10 +476,10 @@ Pod::Spec.new do |kit|
       mediaPlayer.source_files = [
         "#{kit_path}Swift/Layout/MediaPlayer/**/*.{swift,h,m}"
       ]
-      mediaPlayer.resource_bundles = {"WYBasisKitSwiftMediaPlayerFS" => [
+      mediaPlayer.resource_bundles = {"WYBasisKitSwiftMediaPlayer" => [
       "#{kit_path}Swift/Layout/MediaPlayer/PrivacyInfo.xcprivacy"
       ]}
-      mediaPlayer.dependency "IJKPlayerKit", "1.0.4"
+      mediaPlayer.dependency "IJKPlayerKit", "1.0.8"
     end
   end
 end

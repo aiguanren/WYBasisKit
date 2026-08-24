@@ -9,7 +9,7 @@
 #import <Masonry/Masonry.h>
 #import <WYBasisKitObjC/WYBasisKitObjC.h>
 #import <AVKit/AVKit.h>
-#import <FSPlayer/FSPlayer.h>
+#import <IJKPlayerKit/IJKPlayerKit.h>
 
 @interface WYTestLiveStreamingController () <WYMediaPlayerDelegate, AVPictureInPictureControllerDelegate>
 
@@ -60,16 +60,16 @@
 @property (nonatomic, strong) NSTimer *updateTimer;
 
 // 当前旋转偏好
-@property (nonatomic, assign) FSRotatePreference rotatePreference;
+@property (nonatomic, assign) IJKRotatePreference rotatePreference;
 
 // 当前色彩偏好
-@property (nonatomic, assign) FSColorConvertPreference colorPreference;
+@property (nonatomic, assign) IJKColorConvertPreference colorPreference;
 
 // 当前画面比例
-@property (nonatomic, assign) FSDARPreference aspectPreference;
+@property (nonatomic, assign) IJKDARPreference aspectPreference;
 
 // 当前快照类型
-@property (nonatomic, assign) FSSnapshotType currentSnapshotType;
+@property (nonatomic, assign) IJKSnapshotType currentSnapshotType;
 
 // 控制面板是否显示
 @property (nonatomic, assign) BOOL isControlPanelVisible;
@@ -111,7 +111,7 @@
     self.player.delegate = self;
     self.player.looping = 1;
     self.player.backgroundColor = [UIColor blackColor];
-    [self.player scalingStyle:FSScalingModeAspectFit];
+    [self.player scalingStyle:IJKScalingModeAspectFit];
     self.player.layer.borderWidth = 2;
     self.player.layer.borderColor = [UIColor orangeColor].CGColor;
     [self.view addSubview:self.player];
@@ -623,18 +623,18 @@
 }
 
 - (void)changeScaling {
-    FSScalingMode currentMode = self.player.scalingStyle;
-    FSScalingMode nextMode;
+    IJKScalingMode currentMode = self.player.scalingStyle;
+    IJKScalingMode nextMode;
     
     switch (currentMode) {
-        case FSScalingModeAspectFit:
-            nextMode = FSScalingModeAspectFill;
+        case IJKScalingModeAspectFit:
+            nextMode = IJKScalingModeAspectFill;
             break;
-        case FSScalingModeAspectFill:
-            nextMode = FSScalingModeFill;
+        case IJKScalingModeAspectFill:
+            nextMode = IJKScalingModeFill;
             break;
         default:
-            nextMode = FSScalingModeAspectFit;
+            nextMode = IJKScalingModeAspectFit;
             break;
     }
     
@@ -642,19 +642,19 @@
     [self showAlertWithTitle:@"缩放模式已更改" message:[NSString stringWithFormat:@"当前模式: %@", [self scalingModeDescription:nextMode]]];
 }
 
-- (NSString *)scalingModeDescription:(FSScalingMode)mode {
+- (NSString *)scalingModeDescription:(IJKScalingMode)mode {
     switch (mode) {
-        case FSScalingModeAspectFit: return @"适应";
-        case FSScalingModeAspectFill: return @"填充";
-        case FSScalingModeFill: return @"拉伸";
+        case IJKScalingModeAspectFit: return @"适应";
+        case IJKScalingModeAspectFill: return @"填充";
+        case IJKScalingModeFill: return @"拉伸";
         default: return @"未知";
     }
 }
 
 - (void)rotateX {
 
-    FSRotatePreference preference = self.rotatePreference;
-    preference.type = FSRotateX;
+    IJKRotatePreference preference = self.rotatePreference;
+    preference.type = IJKRotateX;
     preference.degrees += 90;
     
     if (preference.degrees >= 360) {
@@ -669,8 +669,8 @@
 
 - (void)rotateY {
     
-    FSRotatePreference preference = self.rotatePreference;
-    preference.type = FSRotateY;
+    IJKRotatePreference preference = self.rotatePreference;
+    preference.type = IJKRotateY;
     preference.degrees += 90;
     
     if (preference.degrees >= 360) {
@@ -685,8 +685,8 @@
 
 - (void)rotateZ {
     
-    FSRotatePreference preference = self.rotatePreference;
-    preference.type = FSRotateZ;
+    IJKRotatePreference preference = self.rotatePreference;
+    preference.type = IJKRotateZ;
     preference.degrees += 90;
     
     if (preference.degrees >= 360) {
@@ -814,7 +814,7 @@
     
     UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"默认" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         
-        FSColorConvertPreference preference = self.colorPreference;
+        IJKColorConvertPreference preference = self.colorPreference;
         preference.brightness = 1.0;
         preference.saturation = 1.0;
         preference.contrast = 1.0;
@@ -827,7 +827,7 @@
     
     UIAlertAction *blackWhiteAction = [UIAlertAction actionWithTitle:@"黑白" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         
-        FSColorConvertPreference preference = self.colorPreference;
+        IJKColorConvertPreference preference = self.colorPreference;
         preference.saturation = 0.0;
         self.colorPreference = preference;
         
@@ -838,7 +838,7 @@
     
     UIAlertAction *retroAction = [UIAlertAction actionWithTitle:@"复古" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         
-        FSColorConvertPreference preference = self.colorPreference;
+        IJKColorConvertPreference preference = self.colorPreference;
         preference.saturation = 0.8;
         preference.contrast = 1.5;
         self.colorPreference = preference;
@@ -850,7 +850,7 @@
     
     UIAlertAction *brightAction = [UIAlertAction actionWithTitle:@"高亮度" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         
-        FSColorConvertPreference preference = self.colorPreference;
+        IJKColorConvertPreference preference = self.colorPreference;
         preference.brightness = 1.5;
         self.colorPreference = preference;
         
@@ -876,7 +876,7 @@
     
     UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"默认" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         
-        FSDARPreference preference = self.aspectPreference;
+        IJKDARPreference preference = self.aspectPreference;
         preference.ratio = 0;
         self.aspectPreference = preference;
         
@@ -886,7 +886,7 @@
     
     UIAlertAction *ratio43Action = [UIAlertAction actionWithTitle:@"4:3" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         
-        FSDARPreference preference = self.aspectPreference;
+        IJKDARPreference preference = self.aspectPreference;
         preference.ratio = 4.0 / 3.0;
         self.aspectPreference = preference;
         
@@ -896,7 +896,7 @@
     
     UIAlertAction *ratio169Action = [UIAlertAction actionWithTitle:@"16:9" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         
-        FSDARPreference preference = self.aspectPreference;
+        IJKDARPreference preference = self.aspectPreference;
         preference.ratio = 16.0 / 9.0;
         self.aspectPreference = preference;
         
@@ -906,7 +906,7 @@
     
     UIAlertAction *ratio11Action = [UIAlertAction actionWithTitle:@"1:1" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         
-        FSDARPreference preference = self.aspectPreference;
+        IJKDARPreference preference = self.aspectPreference;
         preference.ratio = 1.0;
         self.aspectPreference = preference;
         
@@ -930,22 +930,22 @@
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"快照类型" message:@"选择截图方式" preferredStyle:UIAlertControllerStyleActionSheet];
     
     UIAlertAction *originAction = [UIAlertAction actionWithTitle:@"原始尺寸(无字幕无特效)" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        self.currentSnapshotType = FSSnapshotTypeOrigin;
+        self.currentSnapshotType = IJKSnapshotTypeOrigin;
     }];
     [alert addAction:originAction];
     
     UIAlertAction *screenAction = [UIAlertAction actionWithTitle:@"屏幕截图(当前画面)" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        self.currentSnapshotType = FSSnapshotTypeScreen;
+        self.currentSnapshotType = IJKSnapshotTypeScreen;
     }];
     [alert addAction:screenAction];
     
     UIAlertAction *effectOriginAction = [UIAlertAction actionWithTitle:@"原始尺寸(有字幕无特效)" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        self.currentSnapshotType = FSSnapshotTypeEffect_Origin;
+        self.currentSnapshotType = IJKSnapshotTypeEffect_Origin;
     }];
     [alert addAction:effectOriginAction];
     
     UIAlertAction *effectSubtitleOriginAction = [UIAlertAction actionWithTitle:@"原始尺寸(有字幕有特效)" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        self.currentSnapshotType = FSSnapshotTypeEffect_Subtitle_Origin;
+        self.currentSnapshotType = IJKSnapshotTypeEffect_Subtitle_Origin;
     }];
     [alert addAction:effectSubtitleOriginAction];
     

@@ -92,15 +92,29 @@ class WYTestInfiniteSwitchController: UIViewController {
     let pageVideoList: [String] = [
         "https://files.cochat.lenovo.com/download/dbb26a06-4604-3d2b-bb2c-6293989e63a7/55deb281e01b27194daf6da391fdfe83.mp4",
         "http://www.w3school.com.cn/i/movie.mp4",
-        "https://media.w3.org/2010/05/sintel/trailer.mp4",
-        "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8",
-        "https://playertest.longtailvideo.com/adaptive/oceans_aes/oceans_aes.m3u8",
-        "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+        URL(fileURLWithPath: Bundle.main.path(forResource: "mpeg4_local", ofType: "mp4").wy_safe).absoluteString,
         "http://vjs.zencdn.net/v/oceans.mp4",
-        "https://alimov2.a.kwimgs.com/upic/2022/01/31/15/BMjAyMjAxMzExNTU5MTRfNDAzMDAxOTlfNjYyNzMxNjcwMjBfMF8z_b_Beb3bda599f76c60c463c433ca7460153.mp4",
-        "https://alimov2.a.kwimgs.com/upic/2022/01/31/15/BMjAyMjAxMzExNTU5NTRfNDAzMDAxOTlfNjYyNzMyMzg3MTRfMF8z_b_B192356dadbc90d207ba16964d4c2914c.mp4",
-        "https://alimov2.a.kwimgs.com/upic/2022/01/31/16/BMjAyMjAxMzExNjAwMDFfNDAzMDAxOTlfNjYyNzMyNTAwMzJfMF8z_b_Be73c5abcbc0eeb2ec9fce6842e1362a4.mp4"]
-    
+        "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+        "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8",
+        "https://live.metshop.top/douyu/9220456",
+        "https://live.metshop.top/huya/11342412",
+        "https://live.metshop.top/huya/11342421",
+        "https://live.metshop.top/douyu/1713615",
+        "https://live.metshop.top/douyu/9171887",
+        "https://live.metshop.top/douyu/9456028",
+        "https://live.metshop.top/huya/11352881",
+        "https://live.metshop.top/huya/11342390",
+        "https://live.metshop.top/huya/11352876"]
+    /// 按下标取水平方向图片：下标对数组长度取模(∞数量+无限轮播时reserveHorizontalIndex可能环绕成极大值，裸下标会越界闪退)
+    func imageForHorizontalPage(at index: Int) -> UIImage {
+        return pageImages[index % pageImages.count]
+    }
+
+    /// 按下标取垂直方向视频地址：下标对数组长度取模(∞数量+无限轮播时reserveVerticalIndex可能环绕成极大值，裸下标会越界闪退)
+    func videoForVerticalPage(at index: Int) -> String {
+        return pageVideoList[index % pageVideoList.count]
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -111,17 +125,18 @@ class WYTestInfiniteSwitchController: UIViewController {
     
     func configSubView() {
         
-        for _ in 0...1 {
+        for i in 0...1 {
             let horizontal: UIImageView = UIImageView()
             horizontal.contentMode = .scaleAspectFill
             horizontal.clipsToBounds = true
+            horizontal.tag = 100 + i
             horizontalViews.append(horizontal)
 
             let vertical: WYMediaPlayer = WYMediaPlayer()
             vertical.backgroundColor = .wy_random
             vertical.delegate = self
-            // 在代理中监控即将切换和已经切换中动态设置shouldAutoplay
-            vertical.shouldAutoplay = false
+            vertical.shouldUseFirstFrameAsPoster = true
+            vertical.tag = 200 + i
             verticalViews.append(vertical)
         }
         
@@ -534,7 +549,8 @@ extension WYTestInfiniteSwitchController: WYContentScrollViewDelegate {
         //wy_print("监听到ContentScrollView点击事件\n滑动方向：\(direction)\n当前滑动的Index：\(index)\n当前正在显示的用户传入的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)：\(currentView)\n当前预备显示的用户传入的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)：\(reserveView)\n水平方向Contents：\(horizontalViews)\n垂直方向Contents：\(verticalViews)")
         if direction == .up || direction == .down {
             guard let mediaPlayer: WYMediaPlayer = currentView as? WYMediaPlayer else { return }
-            if let _: Bool = mediaPlayer.ijkPlayer?.isPlaying() {
+            let isPlaying: Bool = mediaPlayer.ijkPlayer?.isPlaying() ?? false
+            if isPlaying {
                 mediaPlayer.pause()
             }else {
                 mediaPlayer.play()
@@ -542,7 +558,6 @@ extension WYTestInfiniteSwitchController: WYContentScrollViewDelegate {
         }
         
         if direction == .left || direction == .right {
-            
         }
     }
     
@@ -568,15 +583,28 @@ extension WYTestInfiniteSwitchController: WYContentScrollViewDelegate {
         
         let reserveHorizontalView: UIImageView? = reserveHorizontalView as? UIImageView
         
+        let currentVerticalView: WYMediaPlayer? = currentVerticalView as? WYMediaPlayer
         let reserveVerticalView: WYMediaPlayer? = reserveVerticalView as? WYMediaPlayer
         
         if direction == .up || direction == .down {
-            reserveVerticalView?.shouldAutoplay = false
-            reserveVerticalView?.play(with: pageVideoList[contentScrollView.reserveVerticalIndex])
+            
+            print("reserveVerticalView?.mediaUrl = \(reserveVerticalView!.mediaUrl)\nvideoForVerticalPage(at: contentScrollView.reserveVerticalIndex) = \(videoForVerticalPage(at: contentScrollView.reserveVerticalIndex))\nreserveVerticalView?.state = \(reserveVerticalView!.state)")
+            
+            // 地址已在预备页上则只按预备页处理(在播的暂停、缓冲中的照常缓冲)，否则换源加载；取值走取模方法防∞模式环绕下标越界
+            if let playUrl: String = reserveVerticalView?.mediaUrl, playUrl == videoForVerticalPage(at: contentScrollView.reserveVerticalIndex) {
+                reserveVerticalView?.pause()
+            }else {
+                reserveVerticalView?.prepare(with: videoForVerticalPage(at: contentScrollView.reserveVerticalIndex))
+            }
         }
         
         if direction == .left || direction == .right {
-            reserveHorizontalView?.image = pageImages[contentScrollView.reserveHorizontalIndex]
+            // 切换为图片后也要暂停播放
+            currentVerticalView?.pause()
+            reserveVerticalView?.pause()
+            
+            // 取值走取模方法防∞模式环绕下标越界
+            reserveHorizontalView?.image = imageForHorizontalPage(at: contentScrollView.reserveHorizontalIndex)
         }
     }
     
@@ -607,53 +635,35 @@ extension WYTestInfiniteSwitchController: WYContentScrollViewDelegate {
         if direction == .up || direction == .down {
             // 此时这里的reservePlayer就是上一次显示的player，所以这里要先stop或者暂停上一次的播放
             reserveVerticalView?.pause()
-            currentVerticalView?.shouldAutoplay = true
-            
-            let palyUrl: String = pageVideoList[contentScrollView.currentVerticalIndex]
-            currentVerticalView?.play(with: palyUrl)
+
+            // 当前页必须按currentVerticalIndex加载(补发didSwitch时reserveVerticalIndex还是残留值，用它会串台)；取值走取模方法防∞模式环绕下标越界
+            if let playUrl: String = currentVerticalView?.mediaUrl, playUrl == videoForVerticalPage(at: contentScrollView.currentVerticalIndex) {
+                currentVerticalView?.play()
+            }else {
+                currentVerticalView?.play(with: videoForVerticalPage(at: contentScrollView.currentVerticalIndex))
+            }
         }
         
         if direction == .left || direction == .right {
             currentVerticalView?.pause()
             reserveVerticalView?.pause()
-            currentHorizontalView?.image = pageImages[contentScrollView.currentHorizontalIndex]
+            // 取值走取模方法防∞模式环绕下标越界
+            currentHorizontalView?.image = imageForHorizontalPage(at: contentScrollView.currentHorizontalIndex)
         }
     }
 }
 
 extension WYTestInfiniteSwitchController: WYMediaPlayerDelegate {
-    
     /// 播放器状态回调
     func wy_mediaPlayerStateDidChanged(_ player: WYMediaPlayer, state: WYMediaPlayerState) {
-        switch state {
-        case .unknown:
-            WYActivity.showLoading(in: view, animation: .gifOrApng, config: WYActivityConfig.concise)
-        case .rendered:
-            WYActivity.dismissLoading(in: view, animate: false)
-        case .ready:
+        if state == .ready {
             WYLogManager.output("可以播放了")
-        case .playing:
-            WYActivity.dismissLoading(in: view, animate: false)
-        case .buffering:
-            WYActivity.showLoading(in: view, animation: .gifOrApng, config: WYActivityConfig.concise)
-        case .playable:
-            WYActivity.dismissLoading(in: view, animate: false)
-        case .paused:
-            WYActivity.dismissLoading(in: view, animate: false)
-        case .interrupted:
-            WYActivity.dismissLoading(in: view, animate: false)
-        case .seekingForward:
-            WYActivity.showLoading(in: view, animation: .gifOrApng, config: WYActivityConfig.concise)
-        case .seekingBackward:
-            WYActivity.showLoading(in: view, animation: .gifOrApng, config: WYActivityConfig.concise)
-        case .ended:
-            WYActivity.dismissLoading(in: view, animate: false)
-        case .userExited:
-            WYActivity.dismissLoading(in: view, animate: false)
-        case .error:
-            WYActivity.dismissLoading(in: view, animate: false)
-        case .playUrlEmpty:
-            WYActivity.dismissLoading(in: view, animate: false)
+        }
+        switch state {
+        case .rendered, .ready, .playing, .interrupted, .playable, .ended, .userExited, .error, .playUrlEmpty:
+            WYActivity.dismissLoading(in: player, animate: false)
+        default:
+            WYActivity.showLoading(in: player, animation: .gifOrApng, config: WYActivityConfig.concise)
         }
     }
 }

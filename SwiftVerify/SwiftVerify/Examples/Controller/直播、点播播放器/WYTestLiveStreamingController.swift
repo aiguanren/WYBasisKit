@@ -8,7 +8,7 @@
 
 import UIKit
 import SnapKit
-import FSPlayer
+import IJKPlayerKit
 import AVKit
 
 class WYTestLiveStreamingController: UIViewController {
@@ -60,16 +60,16 @@ class WYTestLiveStreamingController: UIViewController {
     var updateTimer: Timer?
     
     // 当前旋转偏好
-    var rotatePreference: FSRotatePreference = {
-        var pref = FSRotatePreference()
-        pref.type = FSRotateNone
+    var rotatePreference: IJKRotatePreference = {
+        var pref = IJKRotatePreference()
+        pref.type = IJKRotateNone
         pref.degrees = 0
         return pref
     }()
     
     // 当前色彩偏好
-    var colorPreference: FSColorConvertPreference = {
-        var pref = FSColorConvertPreference()
+    var colorPreference: IJKColorConvertPreference = {
+        var pref = IJKColorConvertPreference()
         pref.brightness = 1.0
         pref.saturation = 1.0
         pref.contrast = 1.0
@@ -77,14 +77,14 @@ class WYTestLiveStreamingController: UIViewController {
     }()
     
     // 当前画面比例
-    var aspectPreference: FSDARPreference = {
-        var pref = FSDARPreference()
+    var aspectPreference: IJKDARPreference = {
+        var pref = IJKDARPreference()
         pref.ratio = 0 // 默认比例
         return pref
     }()
     
     // 当前快照类型
-    var currentSnapshotType: FSSnapshotType = FSSnapshotTypeScreen
+    var currentSnapshotType: IJKSnapshotType = IJKSnapshotTypeScreen
     
     // 控制面板是否显示
     var isControlPanelVisible = false
@@ -610,7 +610,7 @@ class WYTestLiveStreamingController: UIViewController {
     
     @objc func changeScaling() {
         let currentMode = player.scalingStyle
-        let nextMode: FSScalingMode
+        let nextMode: IJKScalingMode
         
         switch currentMode {
         case .aspectFit:
@@ -625,7 +625,7 @@ class WYTestLiveStreamingController: UIViewController {
         showAlert(title: "缩放模式已更改", message: "当前模式: \(scalingModeDescription(nextMode))")
     }
     
-    func scalingModeDescription(_ mode: FSScalingMode) -> String {
+    func scalingModeDescription(_ mode: IJKScalingMode) -> String {
         switch mode {
         case .aspectFit: return "适应"
         case .aspectFill: return "填充"
@@ -635,7 +635,7 @@ class WYTestLiveStreamingController: UIViewController {
     }
     
     @objc func rotateX() {
-        rotatePreference.type = FSRotateX
+        rotatePreference.type = IJKRotateX
         rotatePreference.degrees += 90
         if rotatePreference.degrees >= 360 {
             rotatePreference.degrees = 0
@@ -645,7 +645,7 @@ class WYTestLiveStreamingController: UIViewController {
     }
     
     @objc func rotateY() {
-        rotatePreference.type = FSRotateY
+        rotatePreference.type = IJKRotateY
         rotatePreference.degrees += 90
         if rotatePreference.degrees >= 360 {
             rotatePreference.degrees = 0
@@ -655,7 +655,7 @@ class WYTestLiveStreamingController: UIViewController {
     }
     
     @objc func rotateZ() {
-        rotatePreference.type = FSRotateZ
+        rotatePreference.type = IJKRotateZ
         rotatePreference.degrees += 90
         if rotatePreference.degrees >= 360 {
             rotatePreference.degrees = 0
@@ -852,19 +852,19 @@ class WYTestLiveStreamingController: UIViewController {
         let alert = UIAlertController(title: "快照类型", message: "选择截图方式", preferredStyle: .actionSheet)
         
         alert.addAction(UIAlertAction(title: "原始尺寸(无字幕无特效)", style: .default) { _ in
-            self.currentSnapshotType = FSSnapshotTypeOrigin
+            self.currentSnapshotType = IJKSnapshotTypeOrigin
         })
         
         alert.addAction(UIAlertAction(title: "屏幕截图(当前画面)", style: .default) { _ in
-            self.currentSnapshotType = FSSnapshotTypeScreen
+            self.currentSnapshotType = IJKSnapshotTypeScreen
         })
         
         alert.addAction(UIAlertAction(title: "原始尺寸(有字幕无特效)", style: .default) { _ in
-            self.currentSnapshotType = FSSnapshotTypeEffect_Origin
+            self.currentSnapshotType = IJKSnapshotTypeEffect_Origin
         })
         
         alert.addAction(UIAlertAction(title: "原始尺寸(有字幕有特效)", style: .default) { _ in
-            self.currentSnapshotType = FSSnapshotTypeEffect_Subtitle_Origin
+            self.currentSnapshotType = IJKSnapshotTypeEffect_Subtitle_Origin
         })
         
         alert.addAction(UIAlertAction(title: "取消", style: .cancel))

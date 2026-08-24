@@ -742,8 +742,8 @@
 				585B353F2DF8081800E6E08F /* Sources */,
 				585B35402DF8081800E6E08F /* Frameworks */,
 				585B35412DF8081800E6E08F /* Resources */,
-				7A623E1F3422EA687315B2FE /* [CP] Embed Pods Frameworks */,
 				2E60BFC3EA05D53F6FCA53DE /* [CP] Copy Pods Resources */,
+				7956978BE6AEF4D6DC3ED74C /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -907,7 +907,7 @@
 				"${PODS_ROOT}/../WYBasisKit/WYBasisKit/WYBasisKit/Swift/Layout/ChatView/WYChatView.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftLayoutChatView.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftLayoutContentScrollView.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftMediaPlayerFS.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftMediaPlayer.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftLayoutPagingView.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftLayoutScrollText.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftLayoutSoundWavesView.bundle",
@@ -955,7 +955,7 @@
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYChatView.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayoutChatView.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayoutContentScrollView.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftMediaPlayerFS.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftMediaPlayer.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayoutPagingView.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayoutScrollText.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayoutSoundWavesView.bundle",
@@ -970,18 +970,18 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SwiftVerify/Pods-SwiftVerify-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		7A623E1F3422EA687315B2FE /* [CP] Embed Pods Frameworks */ = {
+		7956978BE6AEF4D6DC3ED74C /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SwiftVerify/Pods-SwiftVerify-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/IJKPlayerKit/FSPlayer.framework/FSPlayer",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/IJKPlayerKit/IJKPlayerKit.framework/IJKPlayerKit",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FSPlayer.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/IJKPlayerKit.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
