@@ -12,36 +12,6 @@ import UIKit
 import IJKPlayerKit
 import WYBasisKitSwift
 
-/// IJK内核日志级别(C枚举IJKLogLevel无法直接@objc，故以本枚举桥接，取值与IJK_LOG_*宏对应)
-@objc public enum WYMediaPlayerLogLevel: Int {
-    /// 未知级别
-    case unknown = 0
-    /// 最详细输出
-    case verbose = 2
-    /// 调试输出
-    case debug = 3
-    /// 常规输出
-    case info = 4
-    /// 警告输出
-    case warn = 5
-    /// 错误输出
-    case error = 6
-    /// 致命错误输出
-    case fatal = 7
-    /// 完全静默(默认)
-    case silent = 8
-}
-
-/// 音频声道(C枚举IJKAudioChannel无法直接@objc，故以本枚举桥接，取值与IJKAudioChannelStereo等常量一一对应)
-@objc public enum WYAudioChannel: Int {
-    /// 立体声(默认)
-    case stereo = 0
-    /// 仅右声道
-    case right = 1
-    /// 仅左声道
-    case left = 2
-}
-
 @objc public extension WYMediaPlayer {
 
     /// 播放器组件
@@ -161,27 +131,27 @@ import WYBasisKitSwift
         set { renderDisplayDelegate = newValue }
     }
 
-    /// 渲染视图背景色(红绿蓝各0~255；渲染视图默认黑色，设置可自定义播放器底色；Swift侧为元组属性无法@objc，这里以方法形式提供并放在与Swift属性对应的位置)
+    /// 渲染视图背景色(红绿蓝各0~255；渲染视图默认黑色，设置可自定义播放器底色)
     @objc(setRenderBackgroundColorWithRed:green:blue:)
     public func setRenderBackgroundColorObjC(red: UInt8, green: UInt8, blue: UInt8) {
         renderBackgroundColor = (red, green, blue)
     }
 
-    /// 高斯模糊背景图(填充无画面或黑边区域，替代默认纯色背景；nil=清除，配合placeholder使用体验更佳；属协议@optional属性，经KVC安全读写，渲染视图未实现时静默忽略)
+    /// 高斯模糊背景图(填充无画面或黑边区域，替代默认纯色背景；nil=清除，配合placeholder使用体验更佳)
     @objc(renderBackgroundImage)
     public var renderBackgroundImageObjC: UIImage? {
         get { return renderBackgroundImage }
         set { renderBackgroundImage = newValue }
     }
 
-    /// 高斯模糊迭代次数(默认3，推荐2~4，越大越柔但越耗性能；属协议@optional属性，经KVC安全读写，渲染视图未实现时读取返回默认值)
+    /// 高斯模糊迭代次数(默认3，推荐2~4，越大越柔但越耗性能)
     @objc(renderBackgroundBlurIterations)
     public var renderBackgroundBlurIterationsObjC: Int {
         get { return renderBackgroundBlurIterations }
         set { renderBackgroundBlurIterations = newValue }
     }
 
-    /// 单次高斯模糊的sigma模糊半径(默认30，值越大越模糊；属协议@optional属性，经KVC安全读写，渲染视图未实现时读取返回默认值)
+    /// 单次高斯模糊的sigma模糊半径(默认30，值越大越模糊)
     @objc(renderBackgroundBlurSigma)
     public var renderBackgroundBlurSigmaObjC: Float {
         get { return renderBackgroundBlurSigma }
@@ -327,15 +297,11 @@ import WYBasisKitSwift
         set { shouldShowHudView = newValue }
     }
 
-    /// IJK内核日志级别(默认.silent完全静默，FFmpeg的NAL解析/HTTP/Option等ERROR级日志也不再输出，排查播放问题时改.error等；底层是内核级全局开关，多实例以最后创建实例的值为准，也可用setLogHandlerObjC接管输出；C枚举无法直接@objc经WYMediaPlayerLogLevel桥接，未识别值按.unknown处理)
+    /// IJK内核日志级别(默认IJK_LOG_SILENT完全静默；内核级全局开关，多实例以最后创建实例的值为准)
     @objc(logLevel)
-    public var logLevelObjC: WYMediaPlayerLogLevel {
-        get {
-            return WYMediaPlayerLogLevel(rawValue: numericCast(logLevel.rawValue)) ?? .unknown
-        }
-        set {
-            logLevel = IJKLogLevel(rawValue: numericCast(newValue.rawValue)) ?? IJK_LOG_SILENT
-        }
+    public var logLevelObjC: IJKLogLevel {
+        get { return logLevel }
+        set { logLevel = newValue }
     }
 
     /// HLS分片打开前回调(可改写urlOpenData.url实现本地缓存/鉴权替换，改完自动标记handled；不改url仅做监控也可用)
@@ -455,32 +421,18 @@ import WYBasisKitSwift
     }
 
     /**
-     * 设置音频声道(单声道源切左右声道，双耳助听/外国语场景常用；C枚举无法直接@objc经WYAudioChannel桥接)
+     * 设置音频声道(单声道源切左右声道，双耳助听/外国语场景常用；类型为IJKPlayerKit的IJKAudioChannel，OC侧直接用IJKAudioChannelStereo等常量)
      * @param channel 目标声道
      */
     @objc(setAudioChannel:)
-    public func setAudioChannelObjC(_ channel: WYAudioChannel) {
-        switch channel {
-        case .right:
-            ijkPlayer?.setAudioChannel(IJKAudioChannelRight)
-        case .left:
-            ijkPlayer?.setAudioChannel(IJKAudioChannelLeft)
-        case .stereo:
-            ijkPlayer?.setAudioChannel(IJKAudioChannelStereo)
-        }
+    public func setAudioChannelObjC(_ channel: IJKAudioChannel) {
+        setAudioChannel(channel)
     }
 
-    /// 获取当前音频声道(C枚举无法直接@objc经WYAudioChannel桥接)
+    /// 获取当前音频声道(类型为IJKPlayerKit的IJKAudioChannel，OC侧直接用IJKAudioChannelStereo等常量)
     @objc(audioChannel)
-    public func audioChannelObjC() -> WYAudioChannel {
-        let channel = audioChannel()
-        if channel == IJKAudioChannelRight {
-            return .right
-        }else if channel == IJKAudioChannelLeft {
-            return .left
-        }else {
-            return .stereo
-        }
+    public func audioChannelObjC() -> IJKAudioChannel {
+        return audioChannel()
     }
 
     /// 设定音频延迟(单位：s)
@@ -725,25 +677,19 @@ import WYBasisKitSwift
         setLogReport(preferLogReport)
     }
 
-    /// 获取当前日志级别(WYMediaPlayerLogLevel枚举形式；未识别值按.unknown处理)
+    /// 获取当前日志级别(类型为IJKLogLevel，OC侧直接用IJK_LOG_*宏)
     @objc(getLogLevel)
-    public static func getLogLevelObjC() -> WYMediaPlayerLogLevel {
-        return WYMediaPlayerLogLevel(rawValue: numericCast(getLogLevel().rawValue)) ?? .unknown
+    public static func getLogLevelObjC() -> IJKLogLevel {
+        return getLogLevel()
     }
 
     /**
-     * 重定向日志输出(nil=恢复默认stderr输出；level/tag/msg为级别/标签/内容，业务可接自研日志系统；level为WYMediaPlayerLogLevel枚举，C枚举无法直接@objc经包装闭包桥接)
+     * 重定向日志输出(nil=恢复默认stderr输出；level/tag/msg为级别/标签/内容，业务可接自研日志系统；level为IJKLogLevel，OC侧直接用IJK_LOG_*宏)
      * @param handler 日志处理闭包
      */
     @objc(setLogHandler:)
-    public static func setLogHandlerObjC(_ handler: ((WYMediaPlayerLogLevel, String, String) -> Void)?) {
-        guard let handler = handler else {
-            setLogHandler(nil)
-            return
-        }
-        setLogHandler { level, tag, msg in
-            handler(WYMediaPlayerLogLevel(rawValue: numericCast(level.rawValue)) ?? .unknown, tag, msg)
-        }
+    public static func setLogHandlerObjC(_ handler: ((IJKLogLevel, String, String) -> Void)?) {
+        setLogHandler(handler)
     }
 
     /// 释放播放器组件

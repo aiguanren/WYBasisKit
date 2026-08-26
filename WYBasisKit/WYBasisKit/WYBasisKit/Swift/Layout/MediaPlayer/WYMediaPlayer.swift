@@ -252,13 +252,13 @@ public class WYMediaPlayer: UIImageView {
         set { ijkPlayer?.view.displayDelegate = newValue }
     }
 
-    /// 渲染视图背景色(红绿蓝各0~255；渲染视图默认黑色，设置可自定义播放器底色；属协议@optional方法经可选链调用，渲染视图未实现时静默忽略，且该成员无getter故读取恒返回黑色)
+    /// 渲染视图背景色(红绿蓝各0~255；渲染视图默认黑色，设置可自定义播放器底色)
     public var renderBackgroundColor: (red: UInt8, green: UInt8, blue: UInt8) {
         get { return (0, 0, 0) }
         set { ijkPlayer?.view.setBackgroundColor?(newValue.red, g: newValue.green, b: newValue.blue) }
     }
 
-    /// 高斯模糊背景图(填充无画面或黑边区域，替代默认纯色背景；nil=清除，配合placeholder使用体验更佳；属协议@optional属性，经KVC安全读写，渲染视图未实现时静默忽略)
+    /// 高斯模糊背景图(填充无画面或黑边区域，替代默认纯色背景；nil=清除，配合placeholder使用体验更佳)
     public var renderBackgroundImage: UIImage? {
         get {
             // #selector引用协议声明形成编译期校验：上游改名/删除该成员时这里直接编译报错，杜绝字符串硬编码的静默失效；KVC键名即getter选择子名
@@ -273,7 +273,7 @@ public class WYMediaPlayer: UIImageView {
         }
     }
 
-    /// 高斯模糊迭代次数(默认3，推荐2~4，越大越柔但越耗性能；属协议@optional属性，经KVC安全读写，渲染视图未实现时读取返回默认值)
+    /// 高斯模糊迭代次数(默认3，推荐2~4，越大越柔但越耗性能)
     public var renderBackgroundBlurIterations: Int {
         get {
             // #selector引用协议声明形成编译期校验：上游改名/删除该成员时这里直接编译报错，杜绝字符串硬编码的静默失效；KVC键名即getter选择子名
@@ -288,7 +288,7 @@ public class WYMediaPlayer: UIImageView {
         }
     }
 
-    /// 单次高斯模糊的sigma模糊半径(默认30，值越大越模糊；属协议@optional属性，经KVC安全读写，渲染视图未实现时读取返回默认值)
+    /// 单次高斯模糊的sigma模糊半径(默认30，值越大越模糊)
     public var renderBackgroundBlurSigma: Float {
         get {
             // #selector引用协议声明形成编译期校验：上游改名/删除该成员时这里直接编译报错，杜绝字符串硬编码的静默失效；KVC键名即getter选择子名
@@ -434,7 +434,7 @@ public class WYMediaPlayer: UIImageView {
         set { ijkPlayer?.shouldShowHudView = newValue }
     }
 
-    /// IJK内核日志级别(默认IJK_LOG_SILENT完全静默，FFmpeg的NAL解析/HTTP/Option等ERROR级日志也不再输出；排查播放问题时改IJK_LOG_ERROR等；底层是内核级全局开关，多实例以最后创建实例的值为准，也可用静态setLogHandler接管输出)
+    /// IJK内核日志级别(默认IJK_LOG_SILENT完全静默；内核级全局开关，多实例以最后创建实例的值为准)
     public var logLevel: IJKLogLevel = IJK_LOG_SILENT
 
     /// HLS分片打开前回调(可改写urlOpenData.url实现本地缓存/鉴权替换，改完自动标记handled；不改url仅做监控也可用)
