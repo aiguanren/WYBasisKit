@@ -1231,7 +1231,6 @@ extension WYContentScrollView {
                 if isPageIndexChanged && ((configVerticalReserveIndex != reserveVerticalIndex) || isCrossAxisEntry) {
                     switchContentCallback(isDidSwitch: false)
                 }
-                print("[诊断] setter垂直\(newValue)：previous=\(previousDirection) cross=\(isCrossAxisEntry) finalizing=\(isFinalizingSwitch) current=\(currentVerticalIndex) reserve=\(reserveVerticalIndex)")
             }
             
             if ((newValue == .left) || (newValue == .right) && (contentSlidingDirection != .topOrBottom)) {
@@ -1277,7 +1276,6 @@ extension WYContentScrollView {
                 if isPageIndexChanged && ((configHorizontalReserveIndex != reserveHorizontalIndex) || isCrossAxisEntry) {
                     switchContentCallback(isDidSwitch: false)
                 }
-                print("[诊断] setter水平\(newValue)：previous=\(previousDirection) cross=\(isCrossAxisEntry) finalizing=\(isFinalizingSwitch) current=\(currentHorizontalIndex) reserve=\(reserveHorizontalIndex)")
             }
         }
         get {
@@ -1557,7 +1555,6 @@ extension WYContentScrollView: UIScrollViewDelegate {
             let entryAxisVelocity = entryAxisIsHorizontal ? horizontalVelocity : verticalVelocity
             let otherAxisVelocity = entryAxisIsHorizontal ? verticalVelocity : horizontalVelocity
             if (entryAxisCount >= 1) && (entryAxisIsHorizontal != displayedAxisIsHorizontal) && entryAxisEnabled && (entryAxisVelocity > otherAxisVelocity * 1.5) {
-                print("[诊断] 轻扫直切\(entryDirection)：panVelocity=(\(panVelocity.x), \(panVelocity.y)) H=\(numberOfHorizontalContent) V=\(numberOfVerticalContent)")
                 // 收回惯性目标到中心页：斜向甩动的同轴分量会带动可拖的展示轴产生松手减速/翻页吸附动画，与直切竞争表现为"切换仍有动画"
                 targetContentOffset.pointee = CGPoint(x: wy_width, y: wy_height)
                 // 异步发起：待本次拖拽的收尾回调全部走完后再执行直切，避免与拖拽状态互相干扰
@@ -1600,7 +1597,6 @@ extension WYContentScrollView: UIScrollViewDelegate {
         }
         
         // 手指释放，并且没有惯性
-        print("[诊断] EndDragging decelerate=\(decelerate) offset=(\(Int(scrollView.contentOffset.x)),\(Int(scrollView.contentOffset.y)))")
         if decelerate == false {
             pauseScroll()
         }
