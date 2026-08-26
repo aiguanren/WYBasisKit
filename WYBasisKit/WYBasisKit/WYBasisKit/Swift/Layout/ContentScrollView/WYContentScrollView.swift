@@ -76,7 +76,27 @@ public class WYContentScrollView: UIScrollView {
     /// 水平方向内容页视图数量（Int.max表示无限数量）
     public var numberOfHorizontalContent: Int = Int.max {
         didSet {
+            
+            if currentHorizontalIndex > numberOfHorizontalContent - 1 {
+                currentHorizontalIndex = max(0, numberOfHorizontalContent - 1)
+            }
+            if reserveHorizontalIndex > numberOfHorizontalContent - 1 {
+                reserveHorizontalIndex = max(0, numberOfHorizontalContent - 1)
+            }
+            
+            let previousUpperContentView = upperContentView
             bringContentToFront()
+            if let currentUpperContentView = upperContentView, currentUpperContentView !== previousUpperContentView {
+                if (currentUpperContentView == horizontalViews?.first) && (numberOfHorizontalContent >= 1) {
+                    internalSliderDirection = .left
+                    hasInitialCallbackHorizontal = true
+                    switchContentCallback(isDidSwitch: true, direction: .left)
+                }else if (currentUpperContentView == verticalViews?.first) && (numberOfVerticalContent >= 1) {
+                    internalSliderDirection = .up
+                    hasInitialCallbackVertical = true
+                    switchContentCallback(isDidSwitch: true, direction: .up)
+                }
+            }
             // 这里必须调用一次checkCarouselStatus，以便数量发生变化后可以动态更新scrollView的isScrollEnabled状态
             checkCarouselStatus()
         }
@@ -85,7 +105,26 @@ public class WYContentScrollView: UIScrollView {
     /// 垂直方向内容页视图数量（Int.max表示无限数量）
     public var numberOfVerticalContent: Int = Int.max {
         didSet {
+            if currentVerticalIndex > numberOfVerticalContent - 1 {
+                currentVerticalIndex = max(0, numberOfVerticalContent - 1)
+            }
+            if reserveVerticalIndex > numberOfVerticalContent - 1 {
+                reserveVerticalIndex = max(0, numberOfVerticalContent - 1)
+            }
+            
+            let previousUpperContentView = upperContentView
             bringContentToFront()
+            if let currentUpperContentView = upperContentView, currentUpperContentView !== previousUpperContentView {
+                if (currentUpperContentView == horizontalViews?.first) && (numberOfHorizontalContent >= 1) {
+                    internalSliderDirection = .left
+                    hasInitialCallbackHorizontal = true
+                    switchContentCallback(isDidSwitch: true, direction: .left)
+                }else if (currentUpperContentView == verticalViews?.first) && (numberOfVerticalContent >= 1) {
+                    internalSliderDirection = .up
+                    hasInitialCallbackVertical = true
+                    switchContentCallback(isDidSwitch: true, direction: .up)
+                }
+            }
             // 这里必须调用一次checkCarouselStatus，以便数量发生变化后可以动态更新scrollView的isScrollEnabled状态
             checkCarouselStatus()
         }
@@ -918,6 +957,9 @@ extension WYContentScrollView {
 
     /// 停止滚动并切换contentViews的位置与frame
     func pauseScroll() {
+        
+        let wasInstantCrossAxisEntry = isInstantCrossAxisEntry
+        
         if isInstantCrossAxisEntry {
             isInstantCrossAxisEntry = false
             lastValidContentOffset = CGPoint(x: wy_width, y: wy_height)
@@ -1007,34 +1049,49 @@ extension WYContentScrollView {
             contentOffset = CGPoint(x: wy_width, y: wy_height)
             
             if (internalSliderDirection == .left) || (internalSliderDirection == .right) {
-                
+
+                if wasInstantCrossAxisEntry {
+                    bringContentToFront([currentHorizontalView, reserveHorizontalView])
+                    configHorizontalReserveIndex = nil
+                    switchContentCallback(isDidSwitch: true)
+                    break
+                }
+
                 currentHorizontalIndex = reserveHorizontalIndex
-                
+
                 reserveHorizontalView.frame = CGRect(x: wy_width, y: wy_height, width: wy_width, height: wy_height)
-                
+
                 // 交换horizontalViews数组中两个View的位置
                 horizontalViews?.swapAt(0, 1)
-                
+
                 bringContentToFront([reserveHorizontalView, currentHorizontalView])
-                
+
                 // 下一次方向改变时需要重新设置 reserveHorizontalView
                 configHorizontalReserveIndex = nil
-                
+
                 switchContentCallback(isDidSwitch: true)
-                
+
             }else {
+
+                if wasInstantCrossAxisEntry {
+                    bringContentToFront([currentVerticalView, reserveVerticalView])
+                    configVerticalReserveIndex = nil
+                    switchContentCallback(isDidSwitch: true)
+                    break
+                }
+
                 currentVerticalIndex = reserveVerticalIndex
-                
+
                 reserveVerticalView.frame = CGRect(x: wy_width, y: wy_height, width: wy_width, height: wy_height)
-                
+
                 // 交换verticalViews数组中两个View的位置
                 verticalViews?.swapAt(0, 1)
-                
+
                 bringContentToFront([reserveVerticalView, currentVerticalView])
-                
+
                 // 下一次方向改变时需要重新设置 reserveVerticalView
                 configVerticalReserveIndex = nil
-                
+
                 switchContentCallback(isDidSwitch: true)
             }
             break
@@ -1174,6 +1231,7 @@ extension WYContentScrollView {
                 if isPageIndexChanged && ((configVerticalReserveIndex != reserveVerticalIndex) || isCrossAxisEntry) {
                     switchContentCallback(isDidSwitch: false)
                 }
+                print("[诊断] setter垂直\(newValue)：previous=\(previousDirection) cross=\(isCrossAxisEntry) finalizing=\(isFinalizingSwitch) current=\(currentVerticalIndex) reserve=\(reserveVerticalIndex)")
             }
             
             if ((newValue == .left) || (newValue == .right) && (contentSlidingDirection != .topOrBottom)) {
@@ -1219,6 +1277,7 @@ extension WYContentScrollView {
                 if isPageIndexChanged && ((configHorizontalReserveIndex != reserveHorizontalIndex) || isCrossAxisEntry) {
                     switchContentCallback(isDidSwitch: false)
                 }
+                print("[诊断] setter水平\(newValue)：previous=\(previousDirection) cross=\(isCrossAxisEntry) finalizing=\(isFinalizingSwitch) current=\(currentHorizontalIndex) reserve=\(reserveHorizontalIndex)")
             }
         }
         get {
@@ -1498,6 +1557,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
             let entryAxisVelocity = entryAxisIsHorizontal ? horizontalVelocity : verticalVelocity
             let otherAxisVelocity = entryAxisIsHorizontal ? verticalVelocity : horizontalVelocity
             if (entryAxisCount >= 1) && (entryAxisIsHorizontal != displayedAxisIsHorizontal) && entryAxisEnabled && (entryAxisVelocity > otherAxisVelocity * 1.5) {
+                print("[诊断] 轻扫直切\(entryDirection)：panVelocity=(\(panVelocity.x), \(panVelocity.y)) H=\(numberOfHorizontalContent) V=\(numberOfVerticalContent)")
                 // 收回惯性目标到中心页：斜向甩动的同轴分量会带动可拖的展示轴产生松手减速/翻页吸附动画，与直切竞争表现为"切换仍有动画"
                 targetContentOffset.pointee = CGPoint(x: wy_width, y: wy_height)
                 // 异步发起：待本次拖拽的收尾回调全部走完后再执行直切，避免与拖拽状态互相干扰
@@ -1540,6 +1600,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
         }
         
         // 手指释放，并且没有惯性
+        print("[诊断] EndDragging decelerate=\(decelerate) offset=(\(Int(scrollView.contentOffset.x)),\(Int(scrollView.contentOffset.y)))")
         if decelerate == false {
             pauseScroll()
         }

@@ -133,8 +133,8 @@ class WYTestInfiniteSwitchController: UIViewController {
             horizontalViews.append(horizontal)
 
             let vertical: WYMediaPlayer = WYMediaPlayer()
-            vertical.backgroundColor = .wy_random
             vertical.delegate = self
+            vertical.backgroundColor = .black
             vertical.shouldUseFirstFrameAsPoster = true
             vertical.tag = 200 + i
             verticalViews.append(vertical)
