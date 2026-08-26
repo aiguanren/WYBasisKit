@@ -588,7 +588,7 @@ extension WYTestInfiniteSwitchController: WYContentScrollViewDelegate {
         
         if direction == .up || direction == .down {
             
-            print("reserveVerticalView?.mediaUrl = \(reserveVerticalView!.mediaUrl)\nvideoForVerticalPage(at: contentScrollView.reserveVerticalIndex) = \(videoForVerticalPage(at: contentScrollView.reserveVerticalIndex))\nreserveVerticalView?.state = \(reserveVerticalView!.state)")
+            //wy_print("reserveVerticalView?.mediaUrl = \(reserveVerticalView!.mediaUrl)\nvideoForVerticalPage(at: contentScrollView.reserveVerticalIndex) = \(videoForVerticalPage(at: contentScrollView.reserveVerticalIndex))\nreserveVerticalView?.state = \(reserveVerticalView!.state)")
             
             // 地址已在预备页上则只按预备页处理(在播的暂停、缓冲中的照常缓冲)，否则换源加载；取值走取模方法防∞模式环绕下标越界
             if let playUrl: String = reserveVerticalView?.mediaUrl, playUrl == videoForVerticalPage(at: contentScrollView.reserveVerticalIndex) {

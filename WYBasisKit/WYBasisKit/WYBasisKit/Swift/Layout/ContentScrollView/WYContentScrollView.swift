@@ -603,13 +603,13 @@ extension WYContentScrollView {
             isScrollEnabled = (numberOfVerticalContent > 1) ? verticalSliderEnabled : false
             break
         case .omnidirectional:
-            // 横向是否可滑动(单页/无内容不可滑)
-            let horizontalCanScroll = (numberOfHorizontalContent > 1) ? horizontalSliderEnabled : false
-            // 纵向是否可滑动(单页/无内容不可滑)
-            let verticalCanScroll = (numberOfVerticalContent > 1) ? verticalSliderEnabled : false
-            
-            // 此模式下只要有一个方向可以滑，就需要允许滚动，否则某个方向设置数量为1后，就会导致另一个方向也会锁死不能滑动，因为isScrollEnabled是全局的，具体方向锁定通过handleScrollDirectionLock方法来实现
-            isScrollEnabled = horizontalCanScroll || verticalCanScroll
+            // 横向轴是否存在内容且允许滑动
+            let horizontalExists = (numberOfHorizontalContent >= 1) && horizontalSliderEnabled
+            // 纵向轴是否存在内容且允许滑动
+            let verticalExists = (numberOfVerticalContent >= 1) && verticalSliderEnabled
+
+            // 此模式下只要有一个方向存在内容且允许滑动就放开全局滚动(isScrollEnabled是全局的)，具体方向与单页约束通过handleScrollDirectionLock与canScroll按展示轴动态实现
+            isScrollEnabled = horizontalExists || verticalExists
             break
         }
     }
@@ -655,6 +655,15 @@ extension WYContentScrollView {
                 guard verticalViews?.count == 2,
                       let currentVerticalView = verticalViews?.first,
                       let reserveVerticalView = verticalViews?.last else { return }
+                if (numberOfHorizontalContent >= 1) && (upperContentView == currentHorizontalView) {
+                    // 水平轴正在置顶展示且仍有内容：停留在水平轴，不因数量变化被劫持
+                    return
+                }
+                if (numberOfVerticalContent >= 1) && (upperContentView == currentVerticalView) {
+                    // 垂直轴正在置顶展示且仍有内容：停留在垂直轴，不因数量变化被劫持
+                    return
+                }
+
                 if ((numberOfHorizontalContent > 1) && (numberOfVerticalContent > 1)) || (numberOfHorizontalContent == numberOfVerticalContent) {
                     
                     // 都大于1或者都等于1，则依据优先显示方向来处理
@@ -695,11 +704,29 @@ extension WYContentScrollView {
     /// 处理方向锁定并返回当前滑动方向：锁死不可滑动的方向(回退到 lastValidContentOffset)、全向模式下判定并锁定拖拽主方向、边界处钳制 contentOffset 防止越过中心露出背景
     private func handleScrollDirectionLock() -> WYSlidingDirection {
         
-        // 横向是否允许滑动(单页/无内容不可滑)
-        let horizontalCanScroll = (numberOfHorizontalContent > 1) ? horizontalSliderEnabled : false
+        // 横向是否允许滑动(非全向：单页/无内容不可滑)
+        var horizontalCanScroll = (numberOfHorizontalContent > 1) ? horizontalSliderEnabled : false
 
-        // 纵向是否允许滑动(单页/无内容不可滑)
-        let verticalCanScroll = (numberOfVerticalContent > 1) ? verticalSliderEnabled : false
+        // 纵向是否允许滑动(非全向：单页/无内容不可滑)
+        var verticalCanScroll = (numberOfVerticalContent > 1) ? verticalSliderEnabled : false
+
+        if contentSlidingDirection == .omnidirectional {
+            
+            let displayedAxisIsHorizontal = ((internalSliderDirection == .left) || (internalSliderDirection == .right)) ? true : (((internalSliderDirection == .up) || (internalSliderDirection == .down)) ? false : (prioritySlidingDirection != .topOrBottom))
+            horizontalCanScroll = false
+            verticalCanScroll = false
+            if isDirectionLocked {
+                let lockedAxisIsHorizontal = (dragLockedDirection == .left) || (dragLockedDirection == .right)
+                horizontalCanScroll = lockedAxisIsHorizontal && displayedAxisIsHorizontal && (numberOfHorizontalContent > 1) && horizontalSliderEnabled
+                verticalCanScroll = (lockedAxisIsHorizontal == false) && (displayedAxisIsHorizontal == false) && (numberOfVerticalContent > 1) && verticalSliderEnabled
+            }
+        }
+
+        if isInstantCrossAxisEntry {
+            // 轻扫直切期间：两轴能力临时放开(单轴约束由下方方向锁定逻辑保证)，避免直切偏移被钳回中心
+            horizontalCanScroll = true
+            verticalCanScroll = true
+        }
         
         // 目标偏移量
         var targetOffset = contentOffset
@@ -740,29 +767,37 @@ extension WYContentScrollView {
             // 防抖
             let threshold: CGFloat = 2.0
 
-            // 未锁定时，根据主方向判断一次
+            // 未锁定时，根据主方向判断一次(判轴依据手指位移而非contentOffset的delta：零行程钳制下delta恒为0，offset判不出跨轴意图；手指上/左滑=offset增=left/up，符号需取反)
             if isDirectionLocked == false {
 
-                if abs(deltaX) > threshold || abs(deltaY) > threshold {
-                    if abs(deltaX) > abs(deltaY) {
+                let panTranslation = panGestureRecognizer.translation(in: self)
+                var translationX = -panTranslation.x
+                var translationY = -panTranslation.y
+                if isInstantCrossAxisEntry {
+                    // 轻扫直切期间没有手势位移，按直切偏移方向判轴定向
+                    translationX = deltaX
+                    translationY = deltaY
+                }
+                // 判轴防抖取10pt后按主分量定轴(不要求优势倍数)：优势倍数要求会让接近斜向的同轴手势永远锁不上轴、全程被钳制(表现为同轴前几次滑动弹跳/无法切换)；10pt内两轴全钳制的手感与两轴均单页一致，斜向抖动被吸收在10pt内
+                let lockThreshold: CGFloat = 10.0
+                if (abs(translationX) > lockThreshold) || (abs(translationY) > lockThreshold) {
+                    if abs(translationX) >= abs(translationY) {
                         // 横向
-                        if deltaX > 0 {
+                        if translationX > 0 {
                             slidingDirection = .left
                         } else {
                             slidingDirection = .right
                         }
-                        
-                    } else {
+                    }else {
                         // 纵向
-                        if deltaY > 0 {
+                        if translationY > 0 {
                             slidingDirection = .up
                         } else {
                             slidingDirection = .down
                         }
                     }
-                    // 一旦判断完成，立即锁定
+                    // 一旦判断完成，立即锁定并记录本次拖拽方向，用于边界拦截后 internalSliderDirection 未更新时仍能保持方向
                     isDirectionLocked = true
-                    // 同步记录本次拖拽锁定的方向，用于边界拦截后 internalSliderDirection 未更新时仍能保持方向
                     dragLockedDirection = slidingDirection
                 }
             } else {
@@ -883,11 +918,33 @@ extension WYContentScrollView {
 
     /// 停止滚动并切换contentViews的位置与frame
     func pauseScroll() {
+        if isInstantCrossAxisEntry {
+            isInstantCrossAxisEntry = false
+            lastValidContentOffset = CGPoint(x: wy_width, y: wy_height)
+            if (canSwitchedPage == false) || (internalSliderDirection == .unknown) {
+                contentOffset = CGPoint(x: wy_width, y: wy_height)
+                return
+            }
+        }
         
-        guard (canSwitchedPage == true), (internalSliderDirection != .unknown) else { return }
-        
+        guard (canSwitchedPage == true), (internalSliderDirection != .unknown) else {
+            if (canSwitchedPage == false) && (internalSliderDirection != .unknown) && (isInstantCrossAxisEntry == false) {
+                let centerOffset = CGPoint(x: (contentSlidingDirection == .topOrBottom) ? 0 : wy_width, y: (contentSlidingDirection == .leftOrRight) ? 0 : wy_height)
+                if (contentOffset.x != centerOffset.x) || (contentOffset.y != centerOffset.y) {
+                    contentOffset = centerOffset
+                    lastValidContentOffset = centerOffset
+                }
+                configVerticalReserveIndex = currentVerticalIndex
+                configHorizontalReserveIndex = currentHorizontalIndex
+            }
+            return
+        }
+
+        isFinalizingSwitch = true
+        defer { isFinalizingSwitch = false }
+
         canSwitchedPage = false
-        
+
         switch contentSlidingDirection {
         case .leftOrRight:
             
@@ -989,6 +1046,15 @@ extension WYContentScrollView {
 
         guard slidingDirection != .unknown else { return false }
 
+        if (contentSlidingDirection == .omnidirectional) && isDirectionLocked {
+            let slidingAxisIsHorizontal = (slidingDirection == .left) || (slidingDirection == .right)
+            let displayedAxisIsHorizontal = ((internalSliderDirection == .left) || (internalSliderDirection == .right)) ? true : (((internalSliderDirection == .up) || (internalSliderDirection == .down)) ? false : (prioritySlidingDirection != .topOrBottom))
+            if slidingAxisIsHorizontal != displayedAxisIsHorizontal {
+                // 跨轴意图的普通拖动一律拦截(零行程且不触发setter，避免拖动中把另一轴View置顶提前换页，任意数量组合与两轴均单页的手感完全一致)；仅轻扫直切路径放行
+                return isInstantCrossAxisEntry
+            }
+        }
+
         if (slidingDirection == .left) || (slidingDirection == .right) {
 
             guard contentSlidingDirection != .topOrBottom else { return false }
@@ -1060,6 +1126,9 @@ extension WYContentScrollView {
     /// 当前滑动方向：setter 内同步完成 reserveView 的摆位(按当前偏移量放到滑动方向一侧)、reserveIndex 的计算(含关闭无限轮播时的边界处理)以及 willSwitch 回调的触发
     private var internalSliderDirection: WYSlidingDirection {
         set(newValue) {
+            
+            let previousDirection: WYSlidingDirection = objc_getAssociatedObject(self, &WYAssociatedKeys.internalSliderDirection) as? WYSlidingDirection ?? .unknown
+
             objc_setAssociatedObject(self, &WYAssociatedKeys.internalSliderDirection, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
             
             if ((newValue == .up) || (newValue == .down) && (contentSlidingDirection != .leftOrRight)) {
@@ -1082,8 +1151,14 @@ extension WYContentScrollView {
                 
                 // 将对应方向的正在显示的View移到WYContentScrollView的最上面
                 bringContentToFront([currentVerticalView, reserveVerticalView])
-                
-                if newValue == .up {
+
+                let previousAxisIsHorizontal = ((previousDirection == .left) || (previousDirection == .right)) ? true : (((previousDirection == .up) || (previousDirection == .down)) ? false : (prioritySlidingDirection != .topOrBottom))
+                let isCrossAxisEntry = (contentSlidingDirection == .omnidirectional) && previousAxisIsHorizontal
+                if isFinalizingSwitch {
+                    // 切换收尾期间(pauseScroll复位中心页的重入)：不改动下标，保持刚钳制/落定的值
+                }else if isCrossAxisEntry {
+                    reserveVerticalIndex = currentVerticalIndex
+                }else if newValue == .up {
                     reserveVerticalIndex = (currentVerticalIndex + 1) % numberOfVerticalContent
                     if (reserveVerticalIndex == 0) && (unlimitedCarousel == false) {
                         reserveVerticalIndex = currentVerticalIndex
@@ -1091,11 +1166,12 @@ extension WYContentScrollView {
                 }else {
                     reserveVerticalIndex = currentVerticalIndex - 1
                     if (reserveVerticalIndex < 0)  {
-                        reserveVerticalIndex = numberOfVerticalContent - 1
+                        reserveVerticalIndex = (unlimitedCarousel == false) ? currentVerticalIndex : (numberOfVerticalContent - 1)
                     }
                 }
                 
-                if configVerticalReserveIndex != reserveVerticalIndex {
+                let isPageIndexChanged = (reserveVerticalIndex != currentVerticalIndex)
+                if isPageIndexChanged && ((configVerticalReserveIndex != reserveVerticalIndex) || isCrossAxisEntry) {
                     switchContentCallback(isDidSwitch: false)
                 }
             }
@@ -1120,8 +1196,14 @@ extension WYContentScrollView {
                 
                 // 将对应方向的正在显示的View移到WYContentScrollView的最上面
                 bringContentToFront([currentHorizontalView, reserveHorizontalView])
-                
-                if newValue == .left {
+
+                let previousAxisIsHorizontal = ((previousDirection == .left) || (previousDirection == .right)) ? true : (((previousDirection == .up) || (previousDirection == .down)) ? false : (prioritySlidingDirection != .topOrBottom))
+                let isCrossAxisEntry = (contentSlidingDirection == .omnidirectional) && (previousAxisIsHorizontal == false)
+                if isFinalizingSwitch {
+                    // 切换收尾期间(pauseScroll复位中心页的重入)：不改动下标，保持刚钳制/落定的值
+                }else if isCrossAxisEntry {
+                    reserveHorizontalIndex = currentHorizontalIndex
+                }else if newValue == .left {
                     reserveHorizontalIndex = (currentHorizontalIndex + 1) % numberOfHorizontalContent
                     if (reserveHorizontalIndex == 0) && (unlimitedCarousel == false) {
                         reserveHorizontalIndex = currentHorizontalIndex
@@ -1129,11 +1211,12 @@ extension WYContentScrollView {
                 }else {
                     reserveHorizontalIndex = currentHorizontalIndex - 1
                     if (reserveHorizontalIndex < 0)  {
-                        reserveHorizontalIndex = numberOfHorizontalContent - 1
+                        reserveHorizontalIndex = (unlimitedCarousel == false) ? currentHorizontalIndex : (numberOfHorizontalContent - 1)
                     }
                 }
                 
-                if configHorizontalReserveIndex != reserveHorizontalIndex {
+                let isPageIndexChanged = (reserveHorizontalIndex != currentHorizontalIndex)
+                if isPageIndexChanged && ((configHorizontalReserveIndex != reserveHorizontalIndex) || isCrossAxisEntry) {
                     switchContentCallback(isDidSwitch: false)
                 }
             }
@@ -1197,6 +1280,23 @@ extension WYContentScrollView {
     private var dragLockedDirection: WYSlidingDirection {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.dragLockedDirection, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.dragLockedDirection) as? WYSlidingDirection ?? .unknown }
+    }
+
+    /// 是否正处于轻扫跨轴直切中(直切开始前置true、pauseScroll收尾清除；期间handleScrollDirectionLock临时放开两轴能力让直切偏移通过，否则会被轴能力钳回中心)
+    private var isInstantCrossAxisEntry: Bool {
+        set { objc_setAssociatedObject(self, &WYAssociatedKeys.isInstantCrossAxisEntry, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+        get { objc_getAssociatedObject(self, &WYAssociatedKeys.isInstantCrossAxisEntry) as? Bool ?? false }
+    }
+
+    /// 轻扫跨轴直切的速度阈值(单位：pt/s；快速轻扫通常1000~3000、慢拖约100~300，取500区分有意轻扫与无意拖动；extension内不能有存储属性故以计算属性提供常量)
+    private var crossAxisFlickVelocityThreshold: CGFloat {
+        return 500
+    }
+
+    /// 是否正处于切换收尾中(pauseScroll复位中心页会同步重入didScroll→setter，此时previousDirection已翻为目标轴不再判为跨轴，若不拦会按同轴推进逻辑把刚钳制/落定的下标再次±1)
+    private var isFinalizingSwitch: Bool {
+        set { objc_setAssociatedObject(self, &WYAssociatedKeys.isFinalizingSwitch, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+        get { objc_getAssociatedObject(self, &WYAssociatedKeys.isFinalizingSwitch) as? Bool ?? false }
     }
     
     /// 上一次合法的偏移量：不可滑方向被锁死时 contentOffset 回退到此值
@@ -1275,6 +1375,8 @@ extension WYContentScrollView {
         static var upperContentView: UInt8 = 0
         static var hasInitialCallbackHorizontal: UInt8 = 0
         static var hasInitialCallbackVertical: UInt8 = 0
+        static var isInstantCrossAxisEntry: UInt8 = 0
+        static var isFinalizingSwitch: UInt8 = 0
     }
 }
 
@@ -1308,17 +1410,25 @@ extension WYContentScrollView: UIScrollViewDelegate {
         if (slidingDirection == .left) || (slidingDirection == .right) {
             if hasInitialCallbackHorizontal == false {
                 hasInitialCallbackHorizontal = true
-                switchContentCallback(isDidSwitch: true, direction: slidingDirection)
+                if isInstantCrossAxisEntry == false {
+                    switchContentCallback(isDidSwitch: true, direction: slidingDirection)
+                }
             }
         }else {
             if hasInitialCallbackVertical == false {
                 hasInitialCallbackVertical = true
-                switchContentCallback(isDidSwitch: true, direction: slidingDirection)
+                if isInstantCrossAxisEntry == false {
+                    switchContentCallback(isDidSwitch: true, direction: slidingDirection)
+                }
             }
         }
         
-        // internalSliderDirection 必须放在canScroll之后设置，否则可能会出现屏幕无法铺满的情况
-        internalSliderDirection = slidingDirection
+        if (contentSlidingDirection == .omnidirectional) && (isDirectionLocked == false) && (slidingDirection == internalSliderDirection) {
+            // 判轴前的陈旧方向：跳过(否则setter误staging误发willSwitch)
+        }else {
+            // internalSliderDirection 必须放在canScroll之后设置，否则可能会出现屏幕无法铺满的情况
+            internalSliderDirection = slidingDirection
+        }
         
         if (internalSliderDirection == .left) || (internalSliderDirection == .right) {
 
@@ -1347,6 +1457,79 @@ extension WYContentScrollView: UIScrollViewDelegate {
         }
     }
     
+    public func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+
+        // 回调外部
+        internalDelegate?.scrollViewWillEndDragging?(scrollView, withVelocity: velocity, targetContentOffset: targetContentOffset)
+
+        // 仅全向模式处理跨轴轻扫直切
+        guard contentSlidingDirection == .omnidirectional else { return }
+
+        // 甩动速度取自pan手势而非委托参数：零行程钳制下contentOffset全程不动，委托回传的velocity恒约为0(实测仅2~3pt/s)，只有手指真实速度才能表达切换意图；符号转换到offset语义(手指上/左滑=offset增=left/up)
+        let panVelocity = panGestureRecognizer.velocity(in: self)
+        let flickVelocity = CGPoint(x: -panVelocity.x, y: -panVelocity.y)
+
+        // 候选切入方向：仅取速度分量较大的主轴(次轴回退会劫持带斜向分量的同轴翻页手势，表现为同轴滑动被误判成跨轴直切、页面弹跳无法正常切换)；方向符号与handleScrollDirectionLock的delta语义一致(offset增=left/up)
+        var candidates: [WYSlidingDirection] = []
+        let horizontalVelocity = abs(flickVelocity.x)
+        let verticalVelocity = abs(flickVelocity.y)
+        func candidate(ofAxisIsHorizontal: Bool) -> WYSlidingDirection? {
+            if ofAxisIsHorizontal {
+                guard horizontalVelocity > crossAxisFlickVelocityThreshold else { return nil }
+                return (flickVelocity.x > 0) ? .left : .right
+            }else {
+                guard verticalVelocity > crossAxisFlickVelocityThreshold else { return nil }
+                return (flickVelocity.y > 0) ? .up : .down
+            }
+        }
+        if let primary = candidate(ofAxisIsHorizontal: horizontalVelocity >= verticalVelocity) {
+            candidates.append(primary)
+        }
+        guard candidates.isEmpty == false else { return }
+
+        // 当前展示轴(未滑动过按优先方向推导)
+        let displayedAxisIsHorizontal = ((internalSliderDirection == .left) || (internalSliderDirection == .right)) ? true : (((internalSliderDirection == .up) || (internalSliderDirection == .down)) ? false : (prioritySlidingDirection != .topOrBottom))
+
+        // 逐候选判定：跨轴进入(目标轴存在即可，不论数量)、对应方向开关开启、且切入轴速度分量明显占优(1.5倍，斜向轻扫的同轴分量不允许误触发跨轴直切——否则同方向再次轻扫会误切轴导致内容无谓重载)才构成直切；同轴甩动不经此路径，保持原跟手翻页
+        for entryDirection in candidates {
+            let entryAxisIsHorizontal = (entryDirection == .left) || (entryDirection == .right)
+            let entryAxisCount = entryAxisIsHorizontal ? numberOfHorizontalContent : numberOfVerticalContent
+            let entryAxisEnabled = entryAxisIsHorizontal ? horizontalSliderEnabled : verticalSliderEnabled
+            let entryAxisVelocity = entryAxisIsHorizontal ? horizontalVelocity : verticalVelocity
+            let otherAxisVelocity = entryAxisIsHorizontal ? verticalVelocity : horizontalVelocity
+            if (entryAxisCount >= 1) && (entryAxisIsHorizontal != displayedAxisIsHorizontal) && entryAxisEnabled && (entryAxisVelocity > otherAxisVelocity * 1.5) {
+                // 收回惯性目标到中心页：斜向甩动的同轴分量会带动可拖的展示轴产生松手减速/翻页吸附动画，与直切竞争表现为"切换仍有动画"
+                targetContentOffset.pointee = CGPoint(x: wy_width, y: wy_height)
+                // 异步发起：待本次拖拽的收尾回调全部走完后再执行直切，避免与拖拽状态互相干扰
+                DispatchQueue.main.async { [weak self] in
+                    self?.instantCrossAxisEntry(entryDirection)
+                }
+                return
+            }
+        }
+    }
+
+    /// 轻扫跨轴直切：置直切标记后无动画跳到目标轴页(didScroll链路同步触发方向锁定、储备页摆位与willSwitch补发，随后手动pauseScroll完成换页并回调didSwitch；非动画setContentOffset只触发一次didScroll且不会回调scrollViewDidEndScrollingAnimation，收尾必须手动调用)
+    private func instantCrossAxisEntry(_ direction: WYSlidingDirection) {
+
+        guard (contentSlidingDirection == .omnidirectional), (isInstantCrossAxisEntry == false) else { return }
+
+        isInstantCrossAxisEntry = true
+
+        var targetOffset = CGPoint(x: wy_width, y: wy_height)
+        if direction == .left {
+            targetOffset.x = 2 * wy_width
+        }else if direction == .right {
+            targetOffset.x = 0
+        }else if direction == .up {
+            targetOffset.y = 2 * wy_height
+        }else {
+            targetOffset.y = 0
+        }
+        setContentOffset(targetOffset, animated: false)
+        pauseScroll()
+    }
+
     public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         
         // 回调外部
