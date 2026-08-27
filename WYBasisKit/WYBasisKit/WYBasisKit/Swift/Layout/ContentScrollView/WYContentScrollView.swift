@@ -63,7 +63,7 @@ import UIKit
 }
 
 /// 支持的滑动方向
-public enum WYContentSlidingDirection: Int {
+@objc public enum WYContentSlidingDirection: Int {
     /// 左右滑动
     case leftOrRight = 0
     /// 上下滑动
@@ -159,7 +159,7 @@ public class WYContentScrollView: UIScrollView {
     /// 自动轮播时每一页停留时间，默认为3s，最少1s(当设置的值小于1s时，则为默认值)
     public var standingTime: TimeInterval = 3
 
-    /// 轻扫跨轴直切的速度阈值(单位：pt/s，默认500；仅影响全向模式的轻扫跨轴判定，同轴翻页不经过此阈值，值越低越灵敏，越高越保守
+    /// 轻扫跨轴直切的速度阈值(单位：pt/s，默认500；仅影响全向模式的轻扫跨轴判定，同轴翻页不经过此阈值，值越低越灵敏，越高越保守)
     public var crossAxisFlickVelocityThreshold: CGFloat = 500 {
         didSet {
             let clampedValue = min(max(crossAxisFlickVelocityThreshold, 50), 3000)
@@ -194,7 +194,7 @@ public class WYContentScrollView: UIScrollView {
             return
         }
         
-        contentViewInitializationCheck([currentView, reserveView], direction: contentSlidingDirection)
+        contentViewInitializationCheck([currentView, reserveView])
         
         if contentSlidingDirection == .leftOrRight {
             horizontalViews = [currentView, reserveView]
@@ -215,7 +215,7 @@ public class WYContentScrollView: UIScrollView {
         
         if contentSlidingDirection == .omnidirectional {
             
-            contentViewInitializationCheck([currentHorizontalView, reserveHorizontalView, currentVerticalView, reserveVerticalView], direction: contentSlidingDirection)
+            contentViewInitializationCheck([currentHorizontalView, reserveHorizontalView, currentVerticalView, reserveVerticalView])
             
             horizontalViews = [currentHorizontalView, reserveHorizontalView]
             verticalViews = [currentVerticalView, reserveVerticalView]
@@ -490,7 +490,7 @@ extension WYContentScrollView {
     }
     
     /// 检查各ContentView的superView
-    private func contentViewInitializationCheck(_ contentViews: [UIView], direction: WYContentSlidingDirection) {
+    private func contentViewInitializationCheck(_ contentViews: [UIView]) {
 
         contentViews.forEach { $0.removeFromSuperview() }
 
