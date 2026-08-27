@@ -154,6 +154,17 @@ public class WYContentScrollView: UIScrollView {
     
     /// 自动轮播时每一页停留时间，默认为3s，最少1s(当设置的值小于1s时，则为默认值)
     public var standingTime: TimeInterval = 3
+
+    /// 轻扫跨轴直切的速度阈值(单位：pt/s，默认500；仅影响全向模式的轻扫跨轴判定，同轴翻页不经过此阈值，值越低越灵敏，越高越保守
+    public var crossAxisFlickVelocityThreshold: CGFloat = 500 {
+        didSet {
+            let clampedValue = min(max(crossAxisFlickVelocityThreshold, 50), 3000)
+            if clampedValue != crossAxisFlickVelocityThreshold {
+                // 在自身didSet内赋值不会递归，Swift语言规定，didSet内给本属性赋值时新值直接替换刚设置的值、观察器不会再次触发,导致卡死闪退，这是Swift官方文档定义的行为
+                crossAxisFlickVelocityThreshold = clampedValue
+            }
+        }
+    }
     
     /// 水平方向是否支持滑动(仅内容页数量大于1时生效，单页/无内容时该方向不可滑)，默认true
     public var horizontalSliderEnabled: Bool = true {
@@ -1112,6 +1123,13 @@ extension WYContentScrollView {
             }
         }
 
+        if ((slidingDirection == .left) || (slidingDirection == .right)) && (horizontalSliderEnabled == false) {
+            return false
+        }
+        if ((slidingDirection == .up) || (slidingDirection == .down)) && (verticalSliderEnabled == false) {
+            return false
+        }
+
         if (slidingDirection == .left) || (slidingDirection == .right) {
 
             guard contentSlidingDirection != .topOrBottom else { return false }
@@ -1343,11 +1361,6 @@ extension WYContentScrollView {
     private var isInstantCrossAxisEntry: Bool {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.isInstantCrossAxisEntry, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.isInstantCrossAxisEntry) as? Bool ?? false }
-    }
-
-    /// 轻扫跨轴直切的速度阈值(单位：pt/s；快速轻扫通常1000~3000、慢拖约100~300，取500区分有意轻扫与无意拖动；extension内不能有存储属性故以计算属性提供常量)
-    private var crossAxisFlickVelocityThreshold: CGFloat {
-        return 500
     }
 
     /// 是否正处于切换收尾中(pauseScroll复位中心页会同步重入didScroll→setter，此时previousDirection已翻为目标轴不再判为跨轴，若不拦会按同轴推进逻辑把刚钳制/落定的下标再次±1)

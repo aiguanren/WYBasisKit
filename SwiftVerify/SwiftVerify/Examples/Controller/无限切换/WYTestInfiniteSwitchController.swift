@@ -35,6 +35,10 @@ class WYTestInfiniteSwitchController: UIViewController {
      */
     var standingTime: UISlider = UISlider()
     var standingTimeValue: UILabel = UILabel()
+
+    /// 轻扫跨轴直切的速度阈值滑杆(0~5000超出组件钳制区间[50,3000]的部分会被自动钳到边界，默认500，调低更灵敏调高更保守，实时写入contentScrollView.crossAxisFlickVelocityThreshold)
+    var flickVelocityThreshold: UISlider = UISlider()
+    var flickVelocityValue: UILabel = UILabel()
     
     /// 水平方向是否支持滑动
     var horizontalSliderEnabled: UISwitch = UISwitch()
@@ -170,9 +174,17 @@ class WYTestInfiniteSwitchController: UIViewController {
         standingTime.minimumValue = 0
         standingTime.maximumValue = 5
         standingTime.addTarget(self, action: #selector(standingTimeChanged(sender:)), for: .valueChanged)
-        
+
         standingTimeValue.textColor = .black
         standingTimeValue.text = "3.0"
+
+        flickVelocityThreshold.value = 500
+        flickVelocityThreshold.minimumValue = 0
+        flickVelocityThreshold.maximumValue = 5000
+        flickVelocityThreshold.addTarget(self, action: #selector(flickVelocityChanged(sender:)), for: .valueChanged)
+
+        flickVelocityValue.textColor = .black
+        flickVelocityValue.text = "500"
         
         horizontalSliderEnabled.isOn = true
         verticalSliderEnabled.isOn = true
@@ -255,7 +267,13 @@ class WYTestInfiniteSwitchController: UIViewController {
         standingTimeValue.text = "\(standingTime.value)"
         contentScrollView.standingTime = TimeInterval(standingTime.value)
     }
-    
+
+    @objc func flickVelocityChanged(sender: UISlider) {
+        flickVelocityThreshold.value = floor(sender.value)
+        flickVelocityValue.text = "\(Int(flickVelocityThreshold.value))"
+        contentScrollView.crossAxisFlickVelocityThreshold = CGFloat(flickVelocityThreshold.value)
+    }
+
     @objc func switchSwitched(sender: UISwitch) {
         if sender == horizontalSliderEnabled {
             contentScrollView.horizontalSliderEnabled = sender.isOn
@@ -364,12 +382,19 @@ class WYTestInfiniteSwitchController: UIViewController {
             make.top.equalTo(automaticCarouselView.snp.bottom).offset(35)
             make.width.centerX.equalTo(automaticCarouselView)
         }
-        
+
+        let flickVelocityView: UIView = createDescContentView(desc: "轻扫跨轴直切速度阈值(pt/s，默500，滑杆0~5000可测钳制：低于50/高于3000会被组件自动钳到边界，仅影响全向模式)", controView: flickVelocityThreshold, valueView: flickVelocityValue)
+        operatioView.addSubview(flickVelocityView)
+        flickVelocityView.snp.makeConstraints { make in
+            make.top.equalTo(startOrStopTimerView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(startOrStopTimerView)
+        }
+
         let nextContentView: UIView = createDescContentViews(desc: "切换指定方向下一个内容页面(不支持直接传入direction为omnidirectional)", controViews: [nextContent, nextContentDirection])
         operatioView.addSubview(nextContentView)
         nextContentView.snp.makeConstraints { make in
-            make.top.equalTo(startOrStopTimerView.snp.bottom).offset(35)
-            make.width.centerX.equalTo(startOrStopTimerView)
+            make.top.equalTo(flickVelocityView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(flickVelocityView)
         }
         
         let lastContentView: UIView = createDescContentViews(desc: "切换指定方向上一个内容页面(不支持直接传入direction为omnidirectional)", controViews: [lastContent, lastContentDirection])
