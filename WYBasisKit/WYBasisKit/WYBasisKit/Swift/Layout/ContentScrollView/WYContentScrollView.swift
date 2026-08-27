@@ -8,7 +8,7 @@
 
 import UIKit
 
-public protocol WYContentScrollViewDelegate: AnyObject {
+@objc public protocol WYContentScrollViewDelegate {
 
     /**
      *  监听ContentScrollView的偏移量变化事件
@@ -20,7 +20,8 @@ public protocol WYContentScrollViewDelegate: AnyObject {
      *  @param reserveView        当前预备显示的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
      *  @param index              当前滑动的Index
      */
-    func wy_contentScrollViewDidScroll(_ contentScrollView: WYContentScrollView, offset: CGPoint, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView, index: Int)
+    @objc(wy_contentScrollViewDidScroll:offset:direction:currentView:reserveView:index:)
+    optional func wy_contentScrollViewDidScroll(_ contentScrollView: WYContentScrollView, offset: CGPoint, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView, index: Int)
 
     /**
      *  监听ContentScrollView的点击事件
@@ -31,7 +32,8 @@ public protocol WYContentScrollViewDelegate: AnyObject {
      *  @param reserveView        当前预备显示的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
      *  @param index              当前点击的Index
      */
-    func wy_contentScrollViewDidClick(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView, index: Int)
+    @objc(wy_contentScrollViewDidClick:direction:currentView:reserveView:index:)
+    optional func wy_contentScrollViewDidClick(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView, index: Int)
 
     /**
      *  监听ContentScrollView即将切换页面的事件
@@ -43,7 +45,8 @@ public protocol WYContentScrollViewDelegate: AnyObject {
      *  @param currentVerticalView   当前正在垂直方向显示的View(用户传入的View)
      *  @param reserveVerticalView   当前垂直方向预备显示的View(用户传入的View)
      */
-    func wy_contentScrollViewWillSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView?, reserveHorizontalView: UIView?, currentVerticalView: UIView?, reserveVerticalView: UIView?)
+    @objc(wy_contentScrollViewWillSwitch:direction:currentHorizontalView:reserveHorizontalView:currentVerticalView:reserveVerticalView:)
+    optional func wy_contentScrollViewWillSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView?, reserveHorizontalView: UIView?, currentVerticalView: UIView?, reserveVerticalView: UIView?)
 
     /**
      *  监听ContentScrollView页面已经切换完成的事件
@@ -55,7 +58,8 @@ public protocol WYContentScrollViewDelegate: AnyObject {
      *  @param currentVerticalView   当前正在垂直方向显示的View(用户传入的View)
      *  @param reserveVerticalView   当前垂直方向预备显示的View(用户传入的View)
      */
-    func wy_contentScrollViewDidSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView?, reserveHorizontalView: UIView?, currentVerticalView: UIView?, reserveVerticalView: UIView?)
+    @objc(wy_contentScrollViewDidSwitch:direction:currentHorizontalView:reserveHorizontalView:currentVerticalView:reserveVerticalView:)
+    optional func wy_contentScrollViewDidSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView?, reserveHorizontalView: UIView?, currentVerticalView: UIView?, reserveVerticalView: UIView?)
 }
 
 /// 支持的滑动方向
@@ -948,9 +952,9 @@ extension WYContentScrollView {
         print("\(isDidSwitch ? "isDidSwitch" : "isWillSwitch"), direction：\(callbackDirection)")
         
         if isDidSwitch {
-            contentDelegate.wy_contentScrollViewDidSwitch(self, direction: callbackDirection, currentHorizontalView: horizontalViews?.first, reserveHorizontalView: horizontalViews?.last, currentVerticalView: verticalViews?.first, reserveVerticalView: verticalViews?.last)
+            contentDelegate.wy_contentScrollViewDidSwitch?(self, direction: callbackDirection, currentHorizontalView: horizontalViews?.first, reserveHorizontalView: horizontalViews?.last, currentVerticalView: verticalViews?.first, reserveVerticalView: verticalViews?.last)
         }else {
-            contentDelegate.wy_contentScrollViewWillSwitch(self, direction: callbackDirection, currentHorizontalView: horizontalViews?.first, reserveHorizontalView: horizontalViews?.last, currentVerticalView: verticalViews?.first, reserveVerticalView: verticalViews?.last)
+            contentDelegate.wy_contentScrollViewWillSwitch?(self, direction: callbackDirection, currentHorizontalView: horizontalViews?.first, reserveHorizontalView: horizontalViews?.last, currentVerticalView: verticalViews?.first, reserveVerticalView: verticalViews?.last)
         }
     }
     
@@ -1188,13 +1192,13 @@ extension WYContentScrollView {
                   let currentHorizontalView = horizontalViews?.first,
                   let reserveHorizontalView = horizontalViews?.last else { return }
 
-            contentDelegate.wy_contentScrollViewDidClick(self, direction: clickDirection, currentView: currentHorizontalView, reserveView: reserveHorizontalView, index: currentHorizontalIndex)
+            contentDelegate.wy_contentScrollViewDidClick?(self, direction: clickDirection, currentView: currentHorizontalView, reserveView: reserveHorizontalView, index: currentHorizontalIndex)
         }else {
             guard verticalViews?.count == 2,
                   let currentVerticalView = verticalViews?.first,
                   let reserveVerticalView = verticalViews?.last else { return }
 
-            contentDelegate.wy_contentScrollViewDidClick(self, direction: clickDirection, currentView: currentVerticalView, reserveView: reserveVerticalView, index: currentVerticalIndex)
+            contentDelegate.wy_contentScrollViewDidClick?(self, direction: clickDirection, currentView: currentVerticalView, reserveView: reserveVerticalView, index: currentVerticalIndex)
         }
     }
     
@@ -1510,7 +1514,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
                let currentHorizontalView = horizontalViews?.first,
                let reserveHorizontalView = horizontalViews?.last {
                 
-                contentDelegate.wy_contentScrollViewDidScroll(self, offset: scrollView.contentOffset, direction: internalSliderDirection, currentView: currentHorizontalView, reserveView: reserveHorizontalView, index: currentHorizontalIndex)
+                contentDelegate.wy_contentScrollViewDidScroll?(self, offset: scrollView.contentOffset, direction: internalSliderDirection, currentView: currentHorizontalView, reserveView: reserveHorizontalView, index: currentHorizontalIndex)
             }
             
         }else {
@@ -1522,7 +1526,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
                let currentVerticalView = verticalViews?.first,
                let reserveVerticalView = verticalViews?.last {
                 
-                contentDelegate.wy_contentScrollViewDidScroll(self, offset: scrollView.contentOffset, direction: internalSliderDirection, currentView: currentVerticalView, reserveView: reserveVerticalView, index: currentVerticalIndex)
+                contentDelegate.wy_contentScrollViewDidScroll?(self, offset: scrollView.contentOffset, direction: internalSliderDirection, currentView: currentVerticalView, reserveView: reserveVerticalView, index: currentVerticalIndex)
             }
         }
     }
@@ -1646,22 +1650,6 @@ extension WYContentScrollView: UIScrollViewDelegate {
         return super.forwardingTarget(for: aSelector)
     }
     /*************** 未实现的方法自动转发实现 ***************/
-}
-
-/// 提供默认空实现，使所有方法变成“可选”
-public extension WYContentScrollViewDelegate {
-    
-    /// 监听偏移量变化事件
-    func wy_contentScrollViewDidScroll(_ contentScrollView: WYContentScrollView, offset: CGPoint, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView, index: Int) {}
-
-    /// 监听内容页点击事件
-    func wy_contentScrollViewDidClick(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView, index: Int) {}
-
-    /// 监听即将切换页面事件
-    func wy_contentScrollViewWillSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView?, reserveHorizontalView: UIView?, currentVerticalView: UIView?, reserveVerticalView: UIView?) {}
-
-    /// 监听页面切换完成事件
-    func wy_contentScrollViewDidSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView?, reserveHorizontalView: UIView?, currentVerticalView: UIView?, reserveVerticalView: UIView?) {}
 }
 
 private class WYWeakBox {

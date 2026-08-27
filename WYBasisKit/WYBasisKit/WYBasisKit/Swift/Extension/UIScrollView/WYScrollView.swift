@@ -1,5 +1,5 @@
 //
-//  UIScrollView.swift
+//  WYScrollView.swift
 //  WYBasisKit
 //
 //  Created by guanren on 2025/9/20.
@@ -8,7 +8,7 @@
 import UIKit
 
 /// ScrollView 滑动方向
-@frozen public enum WYSlidingDirection: Int {
+@objc public enum WYSlidingDirection: Int {
     
     /// 未知方向
     case unknown = 0
@@ -32,7 +32,7 @@ import UIKit
  - 注意：纯代码触发的滑动（setContentOffset / scrollRectToVisible 等）
    无法在无额外标记的情况下可靠区分，统一归为 `.none`
  */
-@frozen public enum WYSlidingSource: Int {
+@objc @frozen public enum WYSlidingSource: Int {
     
     /// 未滑动 / 无法识别（含代码主动滑动）
     case none = 0
@@ -136,40 +136,41 @@ public extension UIScrollView {
     }
     
     /**
-     当前手指滑动方向
-     
-     通过对比本次与上一次的 contentOffset 计算位移方向。
-     方向以手指滑动为准（而非内容移动方向）：
-     - deltaX > 0（内容右移）→ 手指左滑 → `.left`
-     - deltaX < 0（内容左移）→ 手指右滑 → `.right`
-     - deltaY > 0（内容下移）→ 手指上滑 → `.up`
-     - deltaY < 0（内容上移）→ 手指下滑 → `.down`
-     
-     建议在 `scrollViewDidScroll(_:)` 中持续调用以获得实时结果。
-     
-     - Parameter threshold: 位移阈值，用于过滤轻微抖动，默认 0.5pt
-     - Returns: 当前有效滑动方向；首次调用或位移过小时返回上一次有效方向（或 `.unknown`）
+     *  当前手指滑动方向
+     *
+     *  通过对比本次与上一次的 contentOffset 计算位移方向，方向以手指滑动为准（而非内容移动方向）：
+     *  deltaX > 0（内容右移）→ 手指左滑 → .left；deltaX < 0（内容左移）→ 手指右滑 → .right；
+     *  deltaY > 0（内容下移）→ 手指上滑 → .up；deltaY < 0（内容上移）→ 手指下滑 → .down
+     *
+     *  建议在 scrollViewDidScroll(_:) 中持续调用以获得实时结果
+     *
+     *  @param threshold 位移阈值，用于过滤轻微抖动，默认 0.5pt
+     *  @return 当前有效滑动方向；首次调用、位移过小、非用户滑动(setContentOffset等代码触发的偏移跳变)、回弹期间均返回上一次有效方向(从未产生过有效方向则返回 .unknown)
      */
     func wy_slidingDirection(threshold: CGFloat = 0.5) -> WYSlidingDirection {
         let currentOffset = contentOffset
-        
+
         // 首次调用时记录当前偏移，避免以 .zero 为基准导致方向瞬间错误
         if !wy_hasRecordedOffset {
             wy_lastContentOffset = currentOffset
             wy_hasRecordedOffset = true
             return .unknown
         }
-        
+
         let lastOffset = wy_lastContentOffset
-        
+
         // 无论本次是否产生有效方向，都更新 lastOffset，保证下一帧计算准确
         defer { wy_lastContentOffset = currentOffset }
-        
+
         let deltaX = currentOffset.x - lastOffset.x
         let deltaY = currentOffset.y - lastOffset.y
-        
+
         // 位移小于阈值，视为抖动，保持上一次有效方向
         if abs(deltaX) < threshold && abs(deltaY) < threshold {
+            return wy_lastValidDirection
+        }
+
+        if wy_isUserSliding == false {
             return wy_lastValidDirection
         }
         
