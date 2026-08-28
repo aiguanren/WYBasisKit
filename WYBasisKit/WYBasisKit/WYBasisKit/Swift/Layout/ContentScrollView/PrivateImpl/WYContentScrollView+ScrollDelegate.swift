@@ -176,14 +176,13 @@ extension WYContentScrollView: UIScrollViewDelegate {
         // 当前展示轴(方向未知时按置顶View判)：按优先方向判会把垂直展示后的同轴垂直轻扫误判成跨轴直切
         let displayedAxisIsHorizontal = axisIsHorizontal(of: internalSliderDirection)
 
-        // 逐候选判定：跨轴进入(目标轴存在即可，不论数量)、对应方向开关开启、且切入轴速度分量明显占优(1.5倍，斜向轻扫的同轴分量不允许误触发跨轴直切——否则同方向再次轻扫会误切轴导致内容无谓重载)才构成直切；同轴甩动不经此路径，保持原跟手翻页
+        // 逐候选判定：跨轴进入(目标轴存在即可，不论数量)且切入轴速度分量明显占优(1.5倍，斜向轻扫的同轴分量不允许误触发跨轴直切——否则同方向再次轻扫会误切轴导致内容无谓重载)才构成直切；目标轴的滑动开关不拦跨轴进入——开关管的是"轴内翻页交互"，不限制"能到达"该轴(进入后该轴零行程不可翻)；同轴甩动不经此路径，保持原跟手翻页
         for entryDirection in candidates {
             let entryAxisIsHorizontal = (entryDirection == .left) || (entryDirection == .right)
             let entryAxisCount = entryAxisIsHorizontal ? numberOfHorizontalContent : numberOfVerticalContent
-            let entryAxisEnabled = entryAxisIsHorizontal ? horizontalSliderEnabled : verticalSliderEnabled
             let entryAxisVelocity = entryAxisIsHorizontal ? horizontalVelocity : verticalVelocity
             let otherAxisVelocity = entryAxisIsHorizontal ? verticalVelocity : horizontalVelocity
-            if (entryAxisCount >= 1) && (entryAxisIsHorizontal != displayedAxisIsHorizontal) && entryAxisEnabled && (entryAxisVelocity > otherAxisVelocity * 1.5) {
+            if (entryAxisCount >= 1) && (entryAxisIsHorizontal != displayedAxisIsHorizontal) && (entryAxisVelocity > otherAxisVelocity * 1.5) {
                 // 收回惯性目标到中心页：斜向甩动的同轴分量会带动可拖的展示轴产生松手减速/翻页吸附动画，与直切竞争表现为"切换仍有动画"
                 targetContentOffset.pointee = CGPoint(x: wy_width, y: wy_height)
                 // 异步发起：待本次拖拽的收尾回调全部走完后再执行直切，避免与拖拽状态互相干扰；呈现样式随crossAxisSwitchStyle

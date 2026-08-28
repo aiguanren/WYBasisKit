@@ -69,7 +69,7 @@ extension WYContentScrollView {
             // 纵向轴是否存在内容且允许滑动
             let verticalExists = (numberOfVerticalContent >= 1) && verticalSliderEnabled
 
-            // 此模式下只要有一个方向存在内容且允许滑动就放开全局滚动(isScrollEnabled是全局的)，具体方向与单页约束通过handleScrollDirectionLock与canScroll按展示轴动态实现
+            // 此模式下只要有一个方向存在内容且允许滑动就放开全局滚动(isScrollEnabled是全局的)，具体方向与单页约束通过handleScrollDirectionLock与canScroll按展示轴动态实现；两轴开关全关时此处为false=手势完全静默(纯展示，跨轴轻扫也不响应——双关的意图是锁死交互)，此时切换方向只能走switchContent等API(显式指令不受手势开关约束，isScrollEnabled只挡触摸不挡程序化赋值)
             isScrollEnabled = horizontalExists || verticalExists
             break
         }

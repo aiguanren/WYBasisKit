@@ -211,12 +211,12 @@ public class WYContentScrollView: UIScrollView {
         }
     }
     
-    /// 水平方向是否支持滑动(仅内容页数量大于1时生效，单页/无内容时该方向不可滑)，默认true
+    /// 水平方向是否支持滑动(仅内容页数量大于1时生效，单页/无内容时该方向不可滑)，默认true。语义边界：①管的是"轴内翻页交互"(同轴拖动零行程、轮播与nextContent/lastContent同轴不推进)，不限制"能到达"该轴——跨轴进入(轻扫直切与跨轴API切换)不看本开关；②两轴开关同时关闭时手势完全静默(纯展示模式，isScrollEnabled为false)，此时切换方向只能走switchContent等API——API是显式指令，不受手势开关约束
     public var horizontalSliderEnabled: Bool = true {
         didSet { checkCarouselStatus() }
     }
 
-    /// 垂直方向是否支持滑动(仅内容页数量大于1时生效，单页/无内容时该方向不可滑)，默认true
+    /// 垂直方向是否支持滑动(仅内容页数量大于1时生效，单页/无内容时该方向不可滑)，默认true。语义边界：①管的是"轴内翻页交互"(同轴拖动零行程、轮播与nextContent/lastContent同轴不推进)，不限制"能到达"该轴——跨轴进入(轻扫直切与跨轴API切换)不看本开关；②两轴开关同时关闭时手势完全静默(纯展示模式，isScrollEnabled为false)，此时切换方向只能走switchContent等API——API是显式指令，不受手势开关约束
     public var verticalSliderEnabled: Bool = true {
         didSet { checkCarouselStatus() }
     }
@@ -327,11 +327,18 @@ public class WYContentScrollView: UIScrollView {
     
     /// 切换指定方向下一个内容页面(不支持直接传入direction为omnidirectional)
     public func nextContent(_ direction: WYContentSlidingDirection) {
+        // 目标轴≠当前展示轴(跨轴)时不受该轴滑动开关与"数量>1"限制——开关管轴内翻页交互不限制到达，跨轴进入目标轴有内容即可；同轴时尊重开关与数量
+        let targetIsHorizontal = (direction == .leftOrRight)
+        let isCrossTarget = (contentSlidingDirection == .omnidirectional) && (axisIsHorizontal(of: .unknown) != targetIsHorizontal)
         switch direction {
         case .leftOrRight:
-            if !((numberOfHorizontalContent > 1) ? horizontalSliderEnabled : false) { return }
+            if isCrossTarget {
+                guard numberOfHorizontalContent > 0 else { return }
+            }else if !((numberOfHorizontalContent > 1) ? horizontalSliderEnabled : false) { return }
         case .topOrBottom:
-            if !((numberOfVerticalContent > 1) ? verticalSliderEnabled : false) { return }
+            if isCrossTarget {
+                guard numberOfVerticalContent > 0 else { return }
+            }else if !((numberOfVerticalContent > 1) ? verticalSliderEnabled : false) { return }
         default:
             return
         }
@@ -387,11 +394,18 @@ public class WYContentScrollView: UIScrollView {
     
     /// 切换指定方向上一个内容页面(不支持直接传入direction为omnidirectional)
     public func lastContent(_ direction: WYContentSlidingDirection) {
+        // 目标轴≠当前展示轴(跨轴)时不受该轴滑动开关与"数量>1"限制——开关管轴内翻页交互不限制到达，跨轴进入目标轴有内容即可；同轴时尊重开关与数量(与nextContent同源)
+        let targetIsHorizontal = (direction == .leftOrRight)
+        let isCrossTarget = (contentSlidingDirection == .omnidirectional) && (axisIsHorizontal(of: .unknown) != targetIsHorizontal)
         switch direction {
         case .leftOrRight:
-            if !((numberOfHorizontalContent > 1) ? horizontalSliderEnabled : false) { return }
+            if isCrossTarget {
+                guard numberOfHorizontalContent > 0 else { return }
+            }else if !((numberOfHorizontalContent > 1) ? horizontalSliderEnabled : false) { return }
         case .topOrBottom:
-            if !((numberOfVerticalContent > 1) ? verticalSliderEnabled : false) { return }
+            if isCrossTarget {
+                guard numberOfVerticalContent > 0 else { return }
+            }else if !((numberOfVerticalContent > 1) ? verticalSliderEnabled : false) { return }
         default:
             return
         }
