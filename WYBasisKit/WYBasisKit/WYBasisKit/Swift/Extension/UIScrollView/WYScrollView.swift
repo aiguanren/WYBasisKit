@@ -170,6 +170,7 @@ public extension UIScrollView {
             return wy_lastValidDirection
         }
 
+        // 防代码滑动跳变：setContentOffset/轮播动画等代码触发的偏移突变会被误判为手指方向并污染lastValidDirection(此后抖动/回弹都沿用错误方向)
         if wy_isUserSliding == false {
             return wy_lastValidDirection
         }

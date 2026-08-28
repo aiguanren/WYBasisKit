@@ -486,6 +486,7 @@ public class WYMediaPlayer: UIImageView {
             isPosterProbing = false
             applyVolume()
         }
+        // prepare未完成时play()调用会被底层直接丢弃(换源重载场景实测)，挂起待prepared回调补执行，保证"最终一定要播"
         if isPreparedToPlay == false {
             isPlayPending = true
             return
