@@ -71,6 +71,11 @@
 		584EAF162E94ACC3003A21B8 /* WYNetworkManagerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF152E94ACC3003A21B8 /* WYNetworkManagerObjC.swift */; };
 		585800E62EC9756100027B75 /* WYCollectionViewFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585800E52EC9756100027B75 /* WYCollectionViewFlowLayout.swift */; };
 		585800E82EC975E300027B75 /* WYCollectionViewFlowLayoutObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585800E72EC975E300027B75 /* WYCollectionViewFlowLayoutObjC.swift */; };
+		58582C1030412CC600A90194 /* WYContentScrollView+PageSwitching.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58582C0B30412CC600A90194 /* WYContentScrollView+PageSwitching.swift */; };
+		58582C1130412CC600A90194 /* WYContentScrollView+Views.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58582C0E30412CC600A90194 /* WYContentScrollView+Views.swift */; };
+		58582C1230412CC600A90194 /* WYContentScrollView+GestureControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58582C0A30412CC600A90194 /* WYContentScrollView+GestureControl.swift */; };
+		58582C1330412CC600A90194 /* WYContentScrollView+State.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58582C0D30412CC600A90194 /* WYContentScrollView+State.swift */; };
+		58582C1430412CC600A90194 /* WYContentScrollView+ScrollDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58582C0C30412CC600A90194 /* WYContentScrollView+ScrollDelegate.swift */; };
 		585B39A22DF8125400E6E08F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B39622DF8125400E6E08F /* AppDelegate.swift */; };
 		585B39A32DF8125400E6E08F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B396A2DF8125400E6E08F /* ViewController.swift */; };
 		585B39AC2DF8125400E6E08F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 585B39632DF8125400E6E08F /* Assets.xcassets */; };
@@ -285,6 +290,11 @@
 		584EAF152E94ACC3003A21B8 /* WYNetworkManagerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkManagerObjC.swift; sourceTree = "<group>"; };
 		585800E52EC9756100027B75 /* WYCollectionViewFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCollectionViewFlowLayout.swift; sourceTree = "<group>"; };
 		585800E72EC975E300027B75 /* WYCollectionViewFlowLayoutObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCollectionViewFlowLayoutObjC.swift; sourceTree = "<group>"; };
+		58582C0A30412CC600A90194 /* WYContentScrollView+GestureControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYContentScrollView+GestureControl.swift"; sourceTree = "<group>"; };
+		58582C0B30412CC600A90194 /* WYContentScrollView+PageSwitching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYContentScrollView+PageSwitching.swift"; sourceTree = "<group>"; };
+		58582C0C30412CC600A90194 /* WYContentScrollView+ScrollDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYContentScrollView+ScrollDelegate.swift"; sourceTree = "<group>"; };
+		58582C0D30412CC600A90194 /* WYContentScrollView+State.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYContentScrollView+State.swift"; sourceTree = "<group>"; };
+		58582C0E30412CC600A90194 /* WYContentScrollView+Views.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYContentScrollView+Views.swift"; sourceTree = "<group>"; };
 		585B35642DF8086C00E6E08F /* WYBasisKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WYBasisKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		585B39622DF8125400E6E08F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		585B39632DF8125400E6E08F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -533,7 +543,7 @@
 			path = AirBubbleView;
 			sourceTree = "<group>";
 		};
-		580ED5862EA72606006012E7 /* Achieve */ = {
+		580ED5862EA72606006012E7 /* PrivateImpl */ = {
 			isa = PBXGroup;
 			children = (
 				580ED58D2EA72649006012E7 /* WYCodableProtocol.swift */,
@@ -541,7 +551,7 @@
 				580ED58B2EA7263F006012E7 /* WYCodableValueTransformer.swift */,
 				580ED5872EA7261F006012E7 /* WYCodableBridge.swift */,
 			);
-			path = Achieve;
+			path = PrivateImpl;
 			sourceTree = "<group>";
 		};
 		58328C332FC9317100C0F556 /* General */ = {
@@ -937,6 +947,18 @@
 			path = UITextView;
 			sourceTree = "<group>";
 		};
+		58582C0F30412CC600A90194 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				58582C0A30412CC600A90194 /* WYContentScrollView+GestureControl.swift */,
+				58582C0B30412CC600A90194 /* WYContentScrollView+PageSwitching.swift */,
+				58582C0C30412CC600A90194 /* WYContentScrollView+ScrollDelegate.swift */,
+				58582C0D30412CC600A90194 /* WYContentScrollView+State.swift */,
+				58582C0E30412CC600A90194 /* WYContentScrollView+Views.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
 		585B355B2DF8086C00E6E08F = {
 			isa = PBXGroup;
 			children = (
@@ -1000,8 +1022,9 @@
 		588797C0300A2F0900FDDE9C /* ContentScrollView */ = {
 			isa = PBXGroup;
 			children = (
-				588797C1300A2F5400FDDE9C /* WYContentScrollView.swift */,
 				58C0C10D300DF1A800425A85 /* PrivacyInfo.xcprivacy */,
+				588797C1300A2F5400FDDE9C /* WYContentScrollView.swift */,
+				58582C0F30412CC600A90194 /* PrivateImpl */,
 			);
 			path = ContentScrollView;
 			sourceTree = "<group>";
@@ -1124,7 +1147,7 @@
 			children = (
 				58C68C512E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68C522E84E436005FD054 /* WYCodableObjC.swift */,
-				580ED5862EA72606006012E7 /* Achieve */,
+				580ED5862EA72606006012E7 /* PrivateImpl */,
 			);
 			path = Codable;
 			sourceTree = "<group>";
@@ -1835,7 +1858,7 @@
 			path = Authorization;
 			sourceTree = "<group>";
 		};
-		58C68CDD2E84E436005FD054 /* Achieve */ = {
+		58C68CDD2E84E436005FD054 /* PrivateImpl */ = {
 			isa = PBXGroup;
 			children = (
 				58C68CD62E84E436005FD054 /* WYCodableAdapter.swift */,
@@ -1846,13 +1869,13 @@
 				58C68CDB2E84E436005FD054 /* WYDecoder.swift */,
 				58C68CDC2E84E436005FD054 /* WYDecodingStorage.swift */,
 			);
-			path = Achieve;
+			path = PrivateImpl;
 			sourceTree = "<group>";
 		};
 		58C68CE02E84E436005FD054 /* Codable */ = {
 			isa = PBXGroup;
 			children = (
-				58C68CDD2E84E436005FD054 /* Achieve */,
+				58C68CDD2E84E436005FD054 /* PrivateImpl */,
 				58C68CDE2E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68CDF2E84E436005FD054 /* WYCodable.swift */,
 			);
@@ -2778,6 +2801,11 @@
 				583E04EE2E8644DD004F1034 /* WYCollectionViewObjC.swift in Sources */,
 				58C68DE12E84E436005FD054 /* WYMoveupTipsView.swift in Sources */,
 				58C68DE22E84E436005FD054 /* WYMicrophoneAuthorizationObjC.swift in Sources */,
+				58582C1030412CC600A90194 /* WYContentScrollView+PageSwitching.swift in Sources */,
+				58582C1130412CC600A90194 /* WYContentScrollView+Views.swift in Sources */,
+				58582C1230412CC600A90194 /* WYContentScrollView+GestureControl.swift in Sources */,
+				58582C1330412CC600A90194 /* WYContentScrollView+State.swift in Sources */,
+				58582C1430412CC600A90194 /* WYContentScrollView+ScrollDelegate.swift in Sources */,
 				58C68DE32E84E436005FD054 /* WYFloatObjC.swift in Sources */,
 				58328C9E2FC93D8000C0F556 /* WYGestureRecognizerShouldBeginSwizzler.swift in Sources */,
 				58C68DE42E84E436005FD054 /* WYNetworkManager.swift in Sources */,

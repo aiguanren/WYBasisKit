@@ -39,6 +39,17 @@ class WYTestInfiniteSwitchController: UIViewController {
     /// 轻扫跨轴直切的速度阈值滑杆(0~5000超出组件钳制区间[50,3000]的部分会被自动钳到边界，默认500，调低更灵敏调高更保守，实时写入contentScrollView.crossAxisFlickVelocityThreshold)
     var flickVelocityThreshold: UISlider = UISlider()
     var flickVelocityValue: UILabel = UILabel()
+
+    /// 跨轴切换呈现样式选择器(瞬时/滑动/渐变/缩放，默认瞬时，写入contentScrollView.crossAxisSwitchStyle；用跨轴轻扫或指定方向切换观察效果)
+    var crossAxisSwitchStyleSegment: UISegmentedControl = UISegmentedControl(items: ["瞬时", "滑动", "渐变", "缩放"])
+
+    /// 跨轴切换动画时长滑杆(0~3.0超出组件钳制区间[0.1,2.0]的部分会被自动钳到边界，默认0.25，仅滑动/渐变/缩放生效，实时写入contentScrollView.crossAxisSwitchDuration，标签显示钳制后的实际值)
+    var switchDuration: UISlider = UISlider()
+    var switchDurationValue: UILabel = UILabel()
+
+    /// 缩放切入比例滑杆(0.5~3.0超出组件钳制区间[1.0,2.0]的部分会被自动钳到边界，默认1.15，仅缩放模式生效，实时写入contentScrollView.crossAxisSwitchZoomScale，标签显示钳制后的实际值)
+    var zoomScale: UISlider = UISlider()
+    var zoomScaleValue: UILabel = UILabel()
     
     /// 水平方向是否支持滑动
     var horizontalSliderEnabled: UISwitch = UISwitch()
@@ -185,6 +196,25 @@ class WYTestInfiniteSwitchController: UIViewController {
 
         flickVelocityValue.textColor = .black
         flickVelocityValue.text = "500"
+
+        crossAxisSwitchStyleSegment.selectedSegmentIndex = 0
+        crossAxisSwitchStyleSegment.addTarget(self, action: #selector(crossAxisSwitchStyleChanged(sender:)), for: .valueChanged)
+
+        switchDuration.value = 0.25
+        switchDuration.minimumValue = 0
+        switchDuration.maximumValue = 3
+        switchDuration.addTarget(self, action: #selector(switchDurationChanged(sender:)), for: .valueChanged)
+
+        switchDurationValue.textColor = .black
+        switchDurationValue.text = "0.25"
+
+        zoomScale.value = 1.15
+        zoomScale.minimumValue = 0.5
+        zoomScale.maximumValue = 3
+        zoomScale.addTarget(self, action: #selector(zoomScaleChanged(sender:)), for: .valueChanged)
+
+        zoomScaleValue.textColor = .black
+        zoomScaleValue.text = "1.15"
         
         horizontalSliderEnabled.isOn = true
         verticalSliderEnabled.isOn = true
@@ -272,6 +302,22 @@ class WYTestInfiniteSwitchController: UIViewController {
         flickVelocityThreshold.value = floor(sender.value)
         flickVelocityValue.text = "\(Int(flickVelocityThreshold.value))"
         contentScrollView.crossAxisFlickVelocityThreshold = CGFloat(flickVelocityThreshold.value)
+    }
+
+    @objc func crossAxisSwitchStyleChanged(sender: UISegmentedControl) {
+        contentScrollView.crossAxisSwitchStyle = WYContentSwitchStyle(rawValue: sender.selectedSegmentIndex) ?? .instant
+    }
+
+    @objc func switchDurationChanged(sender: UISlider) {
+        contentScrollView.crossAxisSwitchDuration = TimeInterval(sender.value)
+        // 标签显示钳制后的实际值：滑到0.1以下/2.0以上可直观看到被组件钳到边界
+        switchDurationValue.text = String(format: "%.2f", contentScrollView.crossAxisSwitchDuration)
+    }
+
+    @objc func zoomScaleChanged(sender: UISlider) {
+        contentScrollView.crossAxisSwitchZoomScale = CGFloat(sender.value)
+        // 标签显示钳制后的实际值：滑到1.0以下/2.0以上可直观看到被组件钳到边界
+        zoomScaleValue.text = String(format: "%.2f", contentScrollView.crossAxisSwitchZoomScale)
     }
 
     @objc func switchSwitched(sender: UISwitch) {
@@ -390,11 +436,32 @@ class WYTestInfiniteSwitchController: UIViewController {
             make.width.centerX.equalTo(startOrStopTimerView)
         }
 
+        let crossAxisSwitchStyleView: UIView = createDescContentView(desc: "跨轴切换呈现样式(默认瞬时；滑动=当前页滑出目标页滑入，渐变=目标页淡入覆盖，缩放=目标页缩放归位淡入；同样作用于跨轴轻扫直切，同轴切换不受影响)", controView: crossAxisSwitchStyleSegment)
+        operatioView.addSubview(crossAxisSwitchStyleView)
+        crossAxisSwitchStyleView.snp.makeConstraints { make in
+            make.top.equalTo(flickVelocityView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(flickVelocityView)
+        }
+
+        let switchDurationView: UIView = createDescContentView(desc: "跨轴切换动画时长(秒，默认0.25，滑杆0~3可测钳制：低于0.1/高于2.0会被组件自动钳到边界，仅滑动/渐变/缩放生效)", controView: switchDuration, valueView: switchDurationValue)
+        operatioView.addSubview(switchDurationView)
+        switchDurationView.snp.makeConstraints { make in
+            make.top.equalTo(crossAxisSwitchStyleView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(crossAxisSwitchStyleView)
+        }
+
+        let zoomScaleView: UIView = createDescContentView(desc: "缩放切入的缩放比例(默认1.15，进入页从该值缩放归位、退场页放大至该值淡出，滑杆0.5~3可测钳制：低于1.0/高于2.0会被组件自动钳到边界，1.0时无缩放退化为渐变，仅缩放模式生效)", controView: zoomScale, valueView: zoomScaleValue)
+        operatioView.addSubview(zoomScaleView)
+        zoomScaleView.snp.makeConstraints { make in
+            make.top.equalTo(switchDurationView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(switchDurationView)
+        }
+
         let nextContentView: UIView = createDescContentViews(desc: "切换指定方向下一个内容页面(不支持直接传入direction为omnidirectional)", controViews: [nextContent, nextContentDirection])
         operatioView.addSubview(nextContentView)
         nextContentView.snp.makeConstraints { make in
-            make.top.equalTo(flickVelocityView.snp.bottom).offset(35)
-            make.width.centerX.equalTo(flickVelocityView)
+            make.top.equalTo(zoomScaleView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(zoomScaleView)
         }
         
         let lastContentView: UIView = createDescContentViews(desc: "切换指定方向上一个内容页面(不支持直接传入direction为omnidirectional)", controViews: [lastContent, lastContentDirection])
