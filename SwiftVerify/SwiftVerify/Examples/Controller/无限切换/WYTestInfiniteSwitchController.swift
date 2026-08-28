@@ -752,7 +752,7 @@ extension WYTestInfiniteSwitchController: WYMediaPlayerDelegate {
             WYLogManager.output("可以播放了")
         }
         switch state {
-        case .rendered, .ready, .playing, .interrupted, .playable, .ended, .userExited, .error, .playUrlEmpty:
+        case .rendered, .ready, .playing, .interrupted, .playable, .ended, .userExited, .error, .playUrlEmpty, .paused:
             WYActivity.dismissLoading(in: player, animate: false)
         default:
             WYActivity.showLoading(in: player, animation: .gifOrApng, config: WYActivityConfig.concise)

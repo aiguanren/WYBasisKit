@@ -480,7 +480,7 @@ public class WYMediaPlayer: UIImageView {
         load(with: url, placeholder: placeholder, autoplay: false)
     }
 
-    /// 继续播放(仅适用于暂停后恢复播放)
+    /// 开始播放(仅适用于暂停后恢复播放)
     public func play() {
         if isPosterProbing {
             isPosterProbing = false
@@ -845,6 +845,8 @@ public class WYMediaPlayer: UIImageView {
         mediaUrl = ""
         hasRenderedFirstFrame = false
         isPosterProbing = false
+        // 真播放标记随实例复位：新加载从"未真播放"开始，期间一切paused静默
+        hasReallyPlayed = false
         isPreparedToPlay = false
         isPlayPending = false
     }
@@ -870,6 +872,9 @@ public class WYMediaPlayer: UIImageView {
     /// 是否正处于海报(首帧)探测中(预加载不起播时管线不渲染首帧、首帧通知不触发，探测=静音起播直到首帧渲染后立即暂停回预备态，期间靠该标记收尾)
     private var isPosterProbing: Bool = false
 
+    /// 本次加载是否真正播放过(非探测的.playing通知出现过即置位，releaseAll/重新load时复位)：未真播放过的实例一切.paused状态只静默不通知——IJKPlayer在实例初始化(prepare阶段即发)与海报探测收尾都会自发paused，它们与"用户主动暂停"同用.paused无法区分，只有真播放之后的暂停才是业务关心的
+    private var hasReallyPlayed: Bool = false
+
     /// 用户设置的音量(0~1，经playbackVolume(_:)记录；实际下发音量统一走applyVolume：muted或海报探测期间为0)
     private var userVolume: Float = 1
 
@@ -883,8 +888,20 @@ public class WYMediaPlayer: UIImageView {
         guard currentState != state else {
             return
         }
-        state = currentState
-        delegate?.wy_mediaPlayerStateDidChanged?(self, state: state)
+        // 滤除内部状态噪声，只静默通知不改状态属性(读state的业务仍能拿到真实值)：探测起播的瞬时.playing是静音探测并非真播放；未真播放过的.paused只代表"初始化/探测收尾/待播预备"——不滤的话业务无法用.paused区分"预加载待播"与"用户主动暂停"(预加载误关loading或真暂停误转loading)
+        if (currentState == .playing) && isPosterProbing {
+            state = currentState
+        }else if (currentState == .playing) {
+            // 非探测的playing=真正开始播放，此后的paused才有资格回调
+            hasReallyPlayed = true
+            state = currentState
+            delegate?.wy_mediaPlayerStateDidChanged?(self, state: state)
+        }else if (currentState == .paused) && (hasReallyPlayed == false) {
+            state = currentState
+        }else {
+            state = currentState
+            delegate?.wy_mediaPlayerStateDidChanged?(self, state: state)
+        }
     }
 
     /**
@@ -895,6 +912,9 @@ public class WYMediaPlayer: UIImageView {
      * @param keepCurrentImage 重试场景传入true以保留已有画面(海报)不清屏
      */
     private func load(with url: String, placeholder: UIImage?, autoplay: Bool, keepCurrentImage: Bool = false) {
+
+        // 每次加载重置真播放标记：新实例/换源期间的paused全是内部噪声
+        hasReallyPlayed = false
 
         guard let playUrl = URL(string: url) else {
             callback(with: .playUrlEmpty)
@@ -916,6 +936,10 @@ public class WYMediaPlayer: UIImageView {
         loadAutoplayIntent = autoplay
 
         releaseAll()
+
+        // 加载发起即通知缓冲态：业务据此在预加载/换源全程先挂loading，到ready/rendered解除——拉流期间组件没有其他可显示loading的状态通知(unknown/buffering类通知prepared之后才开始)，而历史上的预加载loading其实是被IJKPlayer初始化的内部paused误触发的，内部paused被滤除后若不补这一声，预加载全程无loading
+        callback(with: .buffering)
+
         createPlayer(with: playUrl)
 
         // 先隐藏渲染view，因为无法设置其背景色(始终为黑色)等信息，等第一帧渲染完成后再设为false，这样就可以自定义背景色、背景图等信息了
