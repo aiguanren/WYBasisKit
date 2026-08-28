@@ -92,6 +92,11 @@ extension WYContentScrollView {
                 hasInitialCallbackVertical = true
                 switchContentCallback(isDidSwitch: true, direction: initialDisplayDirection)
             }
+
+            // 首次展示(含切换方向重挂载)且开着自动轮播时自动开表：让automaticCarousel默认true的语义名副其实——不自动开表的话"自动轮播开着"却一直不轮播，属性与实际状态割裂；不需要轮播的业务把automaticCarousel设为false即可拦在此处；业务stopTimer过硬停后此自动开表也让位(timerStoppedByBusiness)，只有再次显式startTimer才恢复；此后启停交由startTimer/stopTimer与动态启停管理(拖动暂停松手续播、展示轴不可翻自动停恢复)
+            if (automaticCarousel != false) && (unlimitedCarousel != false) && (timerStoppedByBusiness == false) {
+                startTimer()
+            }
         }
     }
 
@@ -220,12 +225,12 @@ extension WYContentScrollView {
                 guard verticalViews?.count == 2,
                       let currentVerticalView = verticalViews?.first,
                       let reserveVerticalView = verticalViews?.last else { return }
-                if (numberOfHorizontalContent >= 1) && (upperContentView == currentHorizontalView) {
-                    // 水平轴正在置顶展示且仍有内容：停留在水平轴，不因数量变化被劫持
+                if upperContentView == currentHorizontalView {
+                    // 水平轴正在置顶展示：停留不劫持——数量变化不应移动用户页面(数量一路减到1都停留，唯独归零被甩去另一轴是不连续的怪行为)；归零只是该轴不可翻/轮播自动停，跨轴切到有内容的轴随时可行，不会困住用户
                     return
                 }
-                if (numberOfVerticalContent >= 1) && (upperContentView == currentVerticalView) {
-                    // 垂直轴正在置顶展示且仍有内容：停留在垂直轴，不因数量变化被劫持
+                if upperContentView == currentVerticalView {
+                    // 垂直轴正在置顶展示：停留不劫持，语义同上(含数量归零)
                     return
                 }
 

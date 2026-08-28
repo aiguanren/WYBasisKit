@@ -143,6 +143,26 @@ extension WYContentScrollView {
         }
     }
 
+    /// 是否正在进行程序化contentOffset修正(correctContentOffset置位)：修正赋值会同步重入didScroll，判轴钳制/边界拦截在重入里可能再次发起修正且目标不一致时(互拉)会无限互递归直至栈溢出——重入闸保证单层收敛
+    var isCorrectingContentOffset: Bool {
+        set(newValue) {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.isCorrectingContentOffset, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.isCorrectingContentOffset) as? Bool ?? false
+        }
+    }
+
+    /// 业务是否显式停止过计时器(stopTimer置位、startTimer成功时复位)：首次展示的自动开表遇到它必须让位——stopTimer是硬停语义(松手/条件恢复都不复活)，若重挂载时的自动开表不检查它，业务关掉计时器后一切换方向(重挂载)轮播就会复活
+    var timerStoppedByBusiness: Bool {
+        set(newValue) {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.timerStoppedByBusiness, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.timerStoppedByBusiness) as? Bool ?? false
+        }
+    }
+
     /// 是否已锁定滑动方向（只在一次拖拽中生效，避免contentSlidingDirection == .omnidirectional时滑动后无法锁定方向的问题）
     var isDirectionLocked: Bool {
         set {
@@ -237,6 +257,8 @@ extension WYContentScrollView {
         static var verticalViews: UInt8 = 0
         static var internalSliderDirection: UInt8 = 0
         static var canRestartedTimer: UInt8 = 0
+        static var timerStoppedByBusiness: UInt8 = 0
+        static var isCorrectingContentOffset: UInt8 = 0
         static var canSwitchedPage: UInt8 = 0
         static var configHorizontalReserveIndex: UInt8 = 0
         static var configVerticalReserveIndex: UInt8 = 0

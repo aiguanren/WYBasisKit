@@ -61,8 +61,8 @@ class WYTestInfiniteSwitchController: UIViewController {
     var unlimitedCarousel: UISwitch = UISwitch()
     
     /**
-     *  是否需要自动轮播，除contentSlidingDirection == omnidirectional时固定为false外，其余默认开启
-     *  当设置false时，会关闭定时器
+     *  是否需要自动轮播，默认false(不自动轮播，业务想要自动轮播显式开启)
+     *  开启后组件会在首次展示时自动开表；关闭/stopTimer后需显式startTimer才恢复
      */
     var automaticCarousel: UISwitch = UISwitch()
     
@@ -219,7 +219,10 @@ class WYTestInfiniteSwitchController: UIViewController {
         horizontalSliderEnabled.isOn = true
         verticalSliderEnabled.isOn = true
         unlimitedCarousel.isOn = true
-        automaticCarousel.isOn = true
+        // 与组件默认值一致(automaticCarousel默认false，不自动轮播；业务想要自动轮播显式开启，开启后组件会在首次展示时自动开表)
+        automaticCarousel.isOn = false
+        // automaticCarousel默认关闭，挂载时不会自动开表，开关显示off与实际计时器状态一致
+        startOrStopTimer.isOn = false
 
         for switchView in [horizontalSliderEnabled, verticalSliderEnabled, unlimitedCarousel, automaticCarousel, startOrStopTimer] {
             switchView.addTarget(self, action: #selector(switchSwitched(sender:)), for: .valueChanged)
@@ -415,7 +418,7 @@ class WYTestInfiniteSwitchController: UIViewController {
             make.width.centerX.equalTo(verticalSliderEnabledView)
         }
         
-        let automaticCarouselView: UIView = createDescContentView(desc: "是否需要自动轮播", controView: automaticCarousel)
+        let automaticCarouselView: UIView = createDescContentView(desc: "是否需要自动轮播，默认false，开启后首次展示自动开表，关闭或stopTimer后需显式startTimer恢复", controView: automaticCarousel)
         operatioView.addSubview(automaticCarouselView)
         automaticCarouselView.snp.makeConstraints { make in
             make.top.equalTo(unlimitedCarouselView.snp.bottom).offset(35)

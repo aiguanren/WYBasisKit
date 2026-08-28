@@ -214,7 +214,13 @@ extension WYContentScrollView {
 
         switch crossAxisSwitchStyle {
         case .instant:
-            instantCrossAxisEntry(direction)
+            if preservesIndex {
+                instantCrossAxisEntry(direction)
+            }else {
+                // 翻页跨轴的瞬时切换不能带直切标记：直切标记会让pauseScroll走直切收尾(不换位不落标)，switchContent预设的下标(target-1)就会残留在current上(表现为落在目标-1处)——直接跳到目标偏移后pauseScroll正常提交；程序化窗口标记已由nextContent/lastContent置位，didScroll同步完成staging/willSwitch/下标推进
+                setContentOffset(targetOffset, animated: false)
+                pauseScroll()
+            }
         case .slide:
             var enteringView: UIView?
             var hiddenView: UIView?

@@ -122,10 +122,8 @@ extension WYContentScrollView {
             targetOffset.y = lastValidContentOffset.y
         }
         
-        // 如果发生变化则修正
-        if targetOffset != contentOffset {
-            contentOffset = targetOffset
-        }
+        // 如果发生变化则修正(经统一入口，防写入互递归)
+        correctContentOffset(targetOffset)
         
         // 记录合法偏移量
         lastValidContentOffset = targetOffset
@@ -264,6 +262,18 @@ extension WYContentScrollView {
     }
 
     /// 判断当前方向是否可以继续滚动：处于边界页(第一/最后一页)且关闭无限轮播时，往循环方向(无内容方向)的滑动会被拦截并把 contentOffset 拉回中心页
+    /// 程序化修正contentOffset的统一入口(判轴钳制/边界拦截回拉)：赋值会同步重入didScroll，重入链路可能再次发起修正，两个修正目标不一致时互拉成无限互递归栈溢出(实测：关无限轮播+全向+末页回滑触发)——重入闸让重入的修正直接跳过，单层收敛
+    func correctContentOffset(_ target: CGPoint) {
+
+        guard (isCorrectingContentOffset == false) && (target != contentOffset) else {
+            return
+        }
+
+        isCorrectingContentOffset = true
+        contentOffset = target
+        isCorrectingContentOffset = false
+    }
+
     func canScroll(_ slidingDirection: WYSlidingDirection) -> Bool {
 
         guard slidingDirection != .unknown else { return false }
@@ -299,7 +309,8 @@ extension WYContentScrollView {
                 if (unlimitedCarousel == false) {
                     let targetOffset: CGPoint = CGPoint(x: wy_width, y: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0))
                     if (!CGPointEqualToPoint(contentOffset, targetOffset)) {
-                        contentOffset = targetOffset
+                        // 经统一入口修正(防写入互递归)
+                        correctContentOffset(targetOffset)
                     }
                     return false
                 }
@@ -319,7 +330,8 @@ extension WYContentScrollView {
                 if (unlimitedCarousel == false) {
                     let targetOffset: CGPoint = CGPoint(x: ((contentSlidingDirection == .omnidirectional) ? wy_width : 0), y: wy_height)
                     if (!CGPointEqualToPoint(contentOffset, targetOffset)) {
-                        contentOffset = targetOffset
+                        // 经统一入口修正(防写入互递归)
+                        correctContentOffset(targetOffset)
                     }
                     return false
                 }

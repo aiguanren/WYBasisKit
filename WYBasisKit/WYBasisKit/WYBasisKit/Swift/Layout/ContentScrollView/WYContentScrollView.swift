@@ -227,7 +227,7 @@ public class WYContentScrollView: UIScrollView {
     }
     
     /// 是否需要自动轮播/轮播
-    public var automaticCarousel: Bool = true
+    public var automaticCarousel: Bool = false
     
     /// 设置需要显示的自定义View(contentSlidingDirection != omnidirectional 时调用)，currentView 为正在显示的View、reserveView 为预备显示的View，两者Size都将等于当前WYContentScrollView的Size
     public func horizontalOrVerticalDisplay(currentView: UIView,
@@ -309,14 +309,18 @@ public class WYContentScrollView: UIScrollView {
             self.nextContent(direction)
         })
         RunLoop.current.add(timer!, forMode: .common)
-        
+
         canRestartedTimer = true
+        // 业务显式开表：解除硬停记录，后续重挂载的自动开表恢复生效
+        timerStoppedByBusiness = false
     }
-    
-    /// 停止定时器
+
+    /// 停止定时器(业务语义的停止：清除重启标记，此后松手/条件恢复都不会自动重启，直到业务再次startTimer；拖动暂停等需保留续播的场景请用pauseTimer)
     public func stopTimer() {
         pauseTimer()
         canRestartedTimer = false
+        // 记录业务硬停：首次展示的自动开表(见internalSettingsContentView)遇到它必须让位，否则关表后一切换方向重挂载轮播就复活
+        timerStoppedByBusiness = true
     }
 
 
