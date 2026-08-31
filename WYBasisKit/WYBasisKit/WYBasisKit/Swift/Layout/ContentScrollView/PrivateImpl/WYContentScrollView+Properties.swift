@@ -1,5 +1,5 @@
 //
-//  WYContentScrollView+State.swift
+//  WYContentScrollView+Properties.swift
 //  WYBasisKit
 //
 //  Created by 官人 on 2026/8/28.
@@ -8,8 +8,21 @@
 
 import UIKit
 
-/// WYContentScrollView 私有实现：关联对象存储的内部状态属性(滑动方向/视图数组/计时器/锁与标记)
+/// WYContentScrollView 私有属性集中管理：关联对象存储的状态属性(滑动方向/视图数组/置顶视图/计时器/锁与标记)与派生计算属性(初始展示方向/轮播方向)
 extension WYContentScrollView {
+
+    /// 当前展示形态对应的初始滑动方向：左右模式为.left、上下模式为.up、全向模式按优先方向取(用于首次展示的didSwitch回调，此时尚未发生任何滑动)
+    var initialDisplayDirection: WYSlidingDirection {
+        switch contentSlidingDirection {
+        case .leftOrRight:
+            return .left
+        case .topOrBottom:
+            return .up
+        case .omnidirectional:
+            return (prioritySlidingDirection == .topOrBottom) ? .up : .left
+        }
+    }
+
 
     /// 当前滑动方向：setter 内同步完成 reserveView 的摆位(按当前偏移量放到滑动方向一侧)、reserveIndex 的计算(含关闭无限轮播时的边界处理)以及 willSwitch 回调的触发
     var internalSliderDirection: WYSlidingDirection {
@@ -29,10 +42,13 @@ extension WYContentScrollView {
                       let reserveVerticalView = verticalViews?.last else { return }
                 
                 // 滑动前根据滑动方向的偏移量设置预备显示View的frame(不能简单根据newValue来设置，否则手指不松开上下滑动时无法更新reserveVerticalView.frame，且必须放这里优先处理，否则往左右滑动后可能会出现空白页面)
-                if contentOffset.y > wy_height {
-                    reserveVerticalView.frame = CGRect(x: ((contentSlidingDirection == .omnidirectional) ? wy_width : 0), y: 2 * wy_height, width: wy_width, height: wy_height)
-                }else {
-                    reserveVerticalView.frame = CGRect(x: ((contentSlidingDirection == .omnidirectional) ? wy_width : 0), y: 0, width: wy_width, height: wy_height)
+                // 防交互式呈现族拖动把进入页顶出屏：fade/zoom拖动期间偏移全程钳在中心，下面的摆位分支恒走"另一侧"(y=0屏外)，会逐帧把staging摆在中心的进入页挪走——渐变全程在屏外播放(表现为毫无动画、松手提交瞬间切换)，缩放样式的退场页淡出后底下无页可垫直接露出背景色；期间进入页的摆位归交互staging所有(slide不豁免：其偏移跟手，本摆位与staging摆位一致，正好承担逐帧跟手摆位的职责)
+                if (isInteractiveCrossAxisDrag == false) || (crossAxisSwitchStyle == .slide) {
+                    if contentOffset.y > wy_height {
+                        reserveVerticalView.frame = CGRect(x: ((contentSlidingDirection == .omnidirectional) ? wy_width : 0), y: 2 * wy_height, width: wy_width, height: wy_height)
+                    }else {
+                        reserveVerticalView.frame = CGRect(x: ((contentSlidingDirection == .omnidirectional) ? wy_width : 0), y: 0, width: wy_width, height: wy_height)
+                    }
                 }
                 
                 // 更新标记
@@ -62,13 +78,13 @@ extension WYContentScrollView {
                     }
                 }
                 
-                // 页没变不发will(预备页没换就无需预加载)；跨轴进入时reserve刚被钳制、config比对会失效，需强制补发一次will
+                // 页没变不发will(预备页没换就无需预加载)；跨轴进入时reserve刚被钳制、config比对会失效，需强制补发一次will；冻结期间不发——收尾的方向恢复赋值会走到这里，残留reserve(如无限数量的环绕值)与config比对失效会补出幽灵will(业务无谓重载预备页)，正常staging都在未冻结时发生
                 let isPageIndexChanged = (reserveVerticalIndex != currentVerticalIndex)
-                if isPageIndexChanged && ((configVerticalReserveIndex != reserveVerticalIndex) || isCrossAxisEntry) {
+                if (isFinalizingSwitch == false) && isPageIndexChanged && ((configVerticalReserveIndex != reserveVerticalIndex) || isCrossAxisEntry) {
                     switchContentCallback(isDidSwitch: false)
                 }
             }
-            
+
             if ((newValue == .left) || (newValue == .right) && (contentSlidingDirection != .topOrBottom)) {
                 
                 guard numberOfHorizontalContent > 0 else { return }
@@ -78,10 +94,13 @@ extension WYContentScrollView {
                       let reserveHorizontalView = horizontalViews?.last else { return }
                 
                 // 滑动前根据滑动方向的偏移量设置预备显示View的frame(不能简单根据newValue来设置，否则手指不松开左右滑动时无法更新reserveHorizontalView.frame，且必须放这里优先处理，否则往上下滑动后可能会出现空白页面)
-                if contentOffset.x > wy_width {
-                    reserveHorizontalView.frame = CGRect(x: 2 * wy_width, y: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0), width: wy_width, height: wy_height)
-                }else {
-                    reserveHorizontalView.frame = CGRect(x: 0, y: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0), width: wy_width, height: wy_height)
+                // 防交互式呈现族拖动把进入页顶出屏(与垂直分支同源)：fade/zoom拖动期间偏移全程钳在中心，下面的摆位分支恒走"另一侧"(x=0屏外)，会逐帧把staging摆在中心的进入页挪走——渐变全程在屏外播放(表现为毫无动画、松手提交瞬间切换)，缩放样式的退场页淡出后底下无页可垫直接露出背景色；期间进入页的摆位归交互staging所有(slide不豁免：其偏移跟手，本摆位与staging摆位一致，正好承担逐帧跟手摆位的职责)
+                if (isInteractiveCrossAxisDrag == false) || (crossAxisSwitchStyle == .slide) {
+                    if contentOffset.x > wy_width {
+                        reserveHorizontalView.frame = CGRect(x: 2 * wy_width, y: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0), width: wy_width, height: wy_height)
+                    }else {
+                        reserveHorizontalView.frame = CGRect(x: 0, y: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0), width: wy_width, height: wy_height)
+                    }
                 }
                 
                 // 更新标记
@@ -111,9 +130,9 @@ extension WYContentScrollView {
                     }
                 }
                 
-                // 页没变不发will(预备页没换就无需预加载)；跨轴进入时reserve刚被钳制、config比对会失效，需强制补发一次will
+                // 页没变不发will(预备页没换就无需预加载)；跨轴进入时reserve刚被钳制、config比对会失效，需强制补发一次will；冻结期间不发——收尾的方向恢复赋值会走到这里，残留reserve(如无限数量的环绕值)与config比对失效会补出幽灵will(业务无谓重载预备页)，正常staging都在未冻结时发生
                 let isPageIndexChanged = (reserveHorizontalIndex != currentHorizontalIndex)
-                if isPageIndexChanged && ((configHorizontalReserveIndex != reserveHorizontalIndex) || isCrossAxisEntry) {
+                if (isFinalizingSwitch == false) && isPageIndexChanged && ((configHorizontalReserveIndex != reserveHorizontalIndex) || isCrossAxisEntry) {
                     switchContentCallback(isDidSwitch: false)
                 }
             }
@@ -140,6 +159,36 @@ extension WYContentScrollView {
         }
         get {
             return objc_getAssociatedObject(self, &WYAssociatedKeys.canRestartedTimer) as? Bool ?? false
+        }
+    }
+
+    /// 是否正处于交互式跨轴拖动中(slide/fade/zoom样式下判轴锁到跨轴意图时置位)：slide放开锁定轴行程让偏移跟手，fade/zoom偏移保持中心、由拖动距离驱动渐变/缩放进度；松手按进度(≥半页，与同轴分页的过半确认语义对齐)或速度(≥crossAxisFlickVelocityThreshold)决定完成或回弹；instant样式不进此模式(保持零行程+轻扫直切)
+    var isInteractiveCrossAxisDrag: Bool {
+        set(newValue) {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.isInteractiveCrossAxisDrag, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.isInteractiveCrossAxisDrag) as? Bool ?? false
+        }
+    }
+
+    /// 交互式跨轴拖动开始时的原展示轴是否为水平：拖动期间internalSliderDirection已翻成目标轴方向，能力判定的展示轴若再按它推导会误以为"展示轴已翻过去"而放开行程(fade/zoom表现为当前页跟着滚)——期间一律以本值为准；回弹时也靠它恢复原轴方向
+    var interactiveCrossOriginalAxisIsHorizontal: Bool {
+        set(newValue) {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.interactiveCrossOriginalAxisIsHorizontal, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.interactiveCrossOriginalAxisIsHorizontal) as? Bool ?? true
+        }
+    }
+
+    /// 交互式跨轴拖动的目标方向(决定进入侧与进度轴向)
+    var interactiveCrossDirection: WYSlidingDirection {
+        set(newValue) {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.interactiveCrossDirection, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.interactiveCrossDirection) as? WYSlidingDirection ?? .unknown
         }
     }
 
@@ -251,6 +300,48 @@ extension WYContentScrollView {
         }
     }
 
+    /// 当前轮播应推进的方向：单轴模式为模式本身(该轴数量不足2时不轮播，返回nil)，全向模式跟随当前置顶的ContentView所属轴(跨轴直切切换展示轴后，轮播轴随之切换)；展示轴数量不足2同样返回nil——轮播绝不翻非展示轴，否则会把不可见页的回调与下标变动强加给业务
+    var carouselDirection: WYContentSlidingDirection? {
+
+        switch contentSlidingDirection {
+        case .leftOrRight:
+            return (numberOfHorizontalContent >= 2) ? .leftOrRight : nil
+        case .topOrBottom:
+            return (numberOfVerticalContent >= 2) ? .topOrBottom : nil
+        case .omnidirectional:
+            guard let currentContentView = upperContentView else { return nil }
+            if currentContentView == horizontalViews?.first {
+                return (numberOfHorizontalContent >= 2) ? .leftOrRight : nil
+            }
+            return (numberOfVerticalContent >= 2) ? .topOrBottom : nil
+        }
+    }
+
+    /// 当前正在水平方向显示的Views(用户传入的View)
+    var horizontalViews: [UIView]? {
+        set(newValue) {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.horizontalViews, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.horizontalViews) as? [UIView]
+        }
+    }
+
+    /// 当前正在垂直方向显示的Views(用户传入的View)
+    var verticalViews: [UIView]? {
+        set(newValue) {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.verticalViews, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.verticalViews) as? [UIView]
+        }
+    }
+
+    /// 当前显示在最上层的ContentView
+    var upperContentView: UIView? {
+        set { objc_setAssociatedObject(self, &WYAssociatedKeys.upperContentView, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+        get { objc_getAssociatedObject(self, &WYAssociatedKeys.upperContentView) as? UIView }
+    }
     struct WYAssociatedKeys {
         static var timer: UInt8 = 0
         static var horizontalViews: UInt8 = 0
@@ -259,6 +350,9 @@ extension WYContentScrollView {
         static var canRestartedTimer: UInt8 = 0
         static var timerStoppedByBusiness: UInt8 = 0
         static var isCorrectingContentOffset: UInt8 = 0
+        static var isInteractiveCrossAxisDrag: UInt8 = 0
+        static var interactiveCrossDirection: UInt8 = 0
+        static var interactiveCrossOriginalAxisIsHorizontal: UInt8 = 0
         static var canSwitchedPage: UInt8 = 0
         static var configHorizontalReserveIndex: UInt8 = 0
         static var configVerticalReserveIndex: UInt8 = 0

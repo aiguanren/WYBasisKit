@@ -71,6 +71,17 @@ extension WYContentScrollView: UIScrollViewDelegate {
 
         // 暂停计时器(保留重启标记，松手后自动续播；不能用stopTimer——那会清除标记导致松手后轮播不再恢复)
         pauseTimer()
+        // 防御：上一轮交互式跨轴拖动若因异常未收尾，无动画立即复位(正常流程松手会走完成/回弹)
+        if isInteractiveCrossAxisDrag {
+            isInteractiveCrossAxisDrag = false
+            isFinalizingSwitch = false
+            interactiveCrossDirection = .unknown
+            // 全量恢复四页呈现属性：slide松手后由系统减速接管，用户中途按停不会走减速结束回调，staging隐藏过的陈旧当前页若不恢复会残留alpha=0(后续翻到该页表现为隐形、透视出另一轴内容)
+            [horizontalViews?.first, horizontalViews?.last, verticalViews?.first, verticalViews?.last].forEach { (view) in
+                view?.alpha = 1
+                view?.transform = .identity
+            }
+        }
         // 用户接管：清除程序化动画窗口标记
         isProgrammaticAnimatedScroll = false
         // 重置方向锁定
@@ -90,6 +101,9 @@ extension WYContentScrollView: UIScrollViewDelegate {
         
         // 判断是否可以滑动
         guard canScroll(slidingDirection) == true else { return }
+
+        // 交互式跨轴拖动(fade/zoom)：每帧按拖动距离驱动渐变/缩放进度(slide由偏移自然跟手无需驱动)
+        updateInteractiveCrossAxisProgress()
 
         if (slidingDirection == .left) || (slidingDirection == .right) {
             if hasInitialCallbackHorizontal == false {
@@ -155,6 +169,23 @@ extension WYContentScrollView: UIScrollViewDelegate {
         let panVelocity = panGestureRecognizer.velocity(in: self)
         let flickVelocity = CGPoint(x: -panVelocity.x, y: -panVelocity.y)
 
+        // 交互式跨轴拖动收尾：按进度(≥半页)或速度(达轻扫阈值)决定完成或回弹
+        if isInteractiveCrossAxisDrag {
+            if crossAxisSwitchStyle == .slide {
+                // slide改写惯性目标后交给系统动能减速：与同轴翻页松手完全同源的减速曲线，自绘固定时长补间复刻不了动能手感(表现为收尾动画僵硬突兀)；此处不经crossAxisSwitchDuration(它管程序化切换/轻扫直切/fade与zoom松手补间这些组件驱动的动画)，落地后的收尾见endInteractiveSlideDragIfNeeded
+                targetContentOffset.pointee = isInteractiveCrossCommitReady ? interactiveCrossTargetOffset : CGPoint(x: wy_width, y: wy_height)
+            }else {
+                // 呈现族(fade/zoom)收回惯性目标，由组件自己的补间动画接管
+                targetContentOffset.pointee = CGPoint(x: wy_width, y: wy_height)
+                if isInteractiveCrossCommitReady {
+                    finishInteractiveCrossAxisDrag()
+                }else {
+                    cancelInteractiveCrossAxisDrag()
+                }
+            }
+            return
+        }
+
         // 候选切入方向：仅取速度分量较大的主轴(次轴回退会劫持带斜向分量的同轴翻页手势，表现为同轴滑动被误判成跨轴直切、页面弹跳无法正常切换)；方向符号与handleScrollDirectionLock的delta语义一致(offset增=left/up)
         var candidates: [WYSlidingDirection] = []
         let horizontalVelocity = abs(flickVelocity.x)
@@ -203,9 +234,27 @@ extension WYContentScrollView: UIScrollViewDelegate {
             startTimer()
         }
         
-        // 手指释放，并且没有惯性
+        // 手指释放，并且没有惯性：静止释放时系统分页不发起减速，偏移可能停在两页之间，必须按分页语义落位后收尾(直接pauseScroll会把偏移瞬时硬跳回中心，表现为页面卡住后瞬移)
         if decelerate == false {
-            pauseScroll()
+            // slide交互式拖动的松手改写了惯性目标，无减速停止时同样要落地收尾(减速结束时在scrollViewDidEndDecelerating收)
+            if endInteractiveSlideDragIfNeeded() {
+                if canSwitchedPage {
+                    // 完成落地(停在整页侧)：立即提交
+                    pauseScroll()
+                }else if (abs(contentOffset.x - ((contentSlidingDirection == .topOrBottom) ? 0 : wy_width)) >= 0.5) || (abs(contentOffset.y - ((contentSlidingDirection == .leftOrRight) ? 0 : wy_height)) >= 0.5) {
+                    // 回弹落地但静止停在半途：动画滑回中心页，到位由scrollViewDidEndScrollingAnimation走pauseScroll收尾(回弹恢复已把lastValidContentOffset归位中心，落位方向与钳制一致不打架)
+                    let center = CGPoint(x: (contentSlidingDirection == .topOrBottom) ? 0 : wy_width, y: (contentSlidingDirection == .leftOrRight) ? 0 : wy_height)
+                    setContentOffset(center, animated: true)
+                }else {
+                    pauseScroll()
+                }
+            }else if isInteractiveCrossAxisDrag {
+                // 呈现族(fade/zoom)松手回弹：cancel补间在飞行、标记要到补间完成才清，偏移由零行程钳制本应在中心(中途改样式带位移进入的边缘场景，cancel入口已同步归位lastValid并解锁，pauseScroll的复位可安全归中)；不走settle——被取消的跨轴拖动若位移过半页，settle会滑向整页侧误提交
+                pauseScroll()
+            }else if settleStationaryReleaseIfNeeded() == false {
+                // 非交互拖动(同轴/单轴)：按半页阈值落位到整页侧或中心，已无位移则照常收尾
+                pauseScroll()
+            }
         }
     }
 
@@ -213,6 +262,8 @@ extension WYContentScrollView: UIScrollViewDelegate {
     public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         // 回调外部
         internalDelegate?.scrollViewDidEndDecelerating?(scrollView)
+        // slide交互式拖动经系统减速落地：恢复呈现属性与冻结标记后交由pauseScroll按落点提交/复位
+        endInteractiveSlideDragIfNeeded()
         pauseScroll()
     }
 

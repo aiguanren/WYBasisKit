@@ -28,21 +28,8 @@ extension WYContentScrollView {
         }
     }
 
-    /// 当前展示形态对应的初始滑动方向：左右模式为.left、上下模式为.up、全向模式按优先方向取(用于首次展示的didSwitch回调，此时尚未发生任何滑动)
-    var initialDisplayDirection: WYSlidingDirection {
-        switch contentSlidingDirection {
-        case .leftOrRight:
-            return .left
-        case .topOrBottom:
-            return .up
-        case .omnidirectional:
-            return (prioritySlidingDirection == .topOrBottom) ? .up : .left
-        }
-    }
-
     /// 停止滚动并切换contentViews的位置与frame
     func pauseScroll() {
-
 
         // 程序化动画已收尾(到达终点或被中断)，清除窗口标记
         isProgrammaticAnimatedScroll = false
@@ -65,8 +52,9 @@ extension WYContentScrollView {
                 let centerOffset = CGPoint(x: (contentSlidingDirection == .topOrBottom) ? 0 : wy_width, y: (contentSlidingDirection == .leftOrRight) ? 0 : wy_height)
                 if (contentOffset.x != centerOffset.x) || (contentOffset.y != centerOffset.y) {
                     print("[诊断] 卡中间复位：offset(\(Int(contentOffset.x)),\(Int(contentOffset.y)))→中心 canSwitch=\(canSwitchedPage) dir=\(internalSliderDirection) hIdx=\(currentHorizontalIndex) rhIdx=\(reserveHorizontalIndex)")
-                    contentOffset = centerOffset
+                    // 必须先更新lastValid再赋偏移：赋值会同步重入didScroll，判轴钳制按lastValid把偏移拉回"合法位"——顺序反了回中会被陈旧lastValid当场顶回原位移(表现为页面永久卡在两页之间)
                     lastValidContentOffset = centerOffset
+                    contentOffset = centerOffset
                 }
                 configVerticalReserveIndex = currentVerticalIndex
                 configHorizontalReserveIndex = currentHorizontalIndex
@@ -196,6 +184,266 @@ extension WYContentScrollView {
         }
     }
 
+    /// 交互式跨轴拖动的进度(0~1)：slide按偏移行程、fade/zoom按手指位移映射，方向符号与判轴一致(手指上/左滑=正进度)
+    var interactiveCrossProgress: CGFloat {
+
+        let direction = interactiveCrossDirection
+        guard direction != .unknown else { return 0 }
+
+        if crossAxisSwitchStyle == .slide {
+            // slide偏移跟手：行程即进度
+            if direction == .up { return max(0, (contentOffset.y - wy_height) / wy_height) }
+            if direction == .down { return max(0, (wy_height - contentOffset.y) / wy_height) }
+            if direction == .left { return max(0, (contentOffset.x - wy_width) / wy_width) }
+            return max(0, (wy_width - contentOffset.x) / wy_width)
+        }
+
+        // 呈现族偏移不动：按手指位移映射进度(与判轴同符号约定：手指上/左滑=offset增=正)
+        let translation = panGestureRecognizer.translation(in: self)
+        if direction == .up { return max(0, min(1, -translation.y / wy_height)) }
+        if direction == .down { return max(0, min(1, translation.y / wy_height)) }
+        if direction == .left { return max(0, min(1, -translation.x / wy_width)) }
+        return max(0, min(1, translation.x / wy_width))
+    }
+
+    /// 松手判定的完成条件：拖过半页或轴向速度达轻扫阈值(轻甩也算成)；阈值取1/2与同轴分页的过半确认语义对齐(原1/3更激进，与同轴直觉不一致)
+    var isInteractiveCrossCommitReady: Bool {
+
+        if interactiveCrossProgress >= 0.5 { return true }
+
+        let velocity = panGestureRecognizer.velocity(in: self)
+        let axisVelocity = (interactiveCrossDirection == .up) ? -velocity.y
+            : (interactiveCrossDirection == .down) ? velocity.y
+            : (interactiveCrossDirection == .left) ? -velocity.x
+            : velocity.x
+        return abs(axisVelocity) >= crossAxisFlickVelocityThreshold
+    }
+
+    /// 交互式跨轴拖动的目标侧偏移(与performCrossAxisSwitch同映射)
+    var interactiveCrossTargetOffset: CGPoint {
+        var target = CGPoint(x: wy_width, y: wy_height)
+        if interactiveCrossDirection == .left { target.x = 2 * wy_width }
+        else if interactiveCrossDirection == .right { target.x = 0 }
+        else if interactiveCrossDirection == .up { target.y = 2 * wy_height }
+        else if interactiveCrossDirection == .down { target.y = 0 }
+        return target
+    }
+
+    /// 开始交互式跨轴拖动(判轴锁到跨轴意图时调用)：staging复用动画样式的同下标通道(补发will预载+预备页为进入页+钉住下标+隐藏陈旧当前页)，slide把进入页摆到进入侧随偏移跟手，fade/zoom摆中心由进度驱动；冻结setter下标计算防每帧重入推进(与au轮同源)
+    func beginInteractiveCrossAxisDrag(direction: WYSlidingDirection) {
+
+        isInteractiveCrossAxisDrag = true
+        interactiveCrossDirection = direction
+        // 记录原展示轴(置顶View真相)：能力判定与回弹恢复都以此为准
+        interactiveCrossOriginalAxisIsHorizontal = axisIsHorizontal(of: .unknown)
+
+        let enteringFrame = (crossAxisSwitchStyle == .slide)
+            ? CGRect(origin: interactiveCrossTargetOffset, size: CGSize(width: wy_width, height: wy_height))
+            : nil
+        let staged = stageSameIndexAnimatedArrival(direction: direction, enteringFrame: enteringFrame)
+        _ = staged.entering
+        _ = staged.hidden
+
+        isFinalizingSwitch = true
+    }
+
+    /// 交互式跨轴拖动每帧驱动(仅fade/zoom，偏移不动由拖动距离驱动呈现)：进入页alpha随进度、zoom另带缩放与退场页纵深感
+    func updateInteractiveCrossAxisProgress() {
+
+        guard (isInteractiveCrossAxisDrag == true),
+              (crossAxisSwitchStyle == .fade) || (crossAxisSwitchStyle == .zoom) else { return }
+
+        let progress = interactiveCrossProgress
+        let enteringIsHorizontal = (interactiveCrossDirection == .left) || (interactiveCrossDirection == .right)
+        let enteringView = enteringIsHorizontal ? horizontalViews?.last : verticalViews?.last
+        let departingView = enteringIsHorizontal ? verticalViews?.first : horizontalViews?.first
+        guard let enteringView = enteringView else { return }
+
+        enteringView.alpha = progress
+        if crossAxisSwitchStyle == .zoom {
+            // 进入页从crossAxisSwitchZoomScale缩放归位(与非交互呈现族同向：起于放大值、随进度落回1.0)，退场页反向放大制造推近拉远的纵深感
+            let settleScale = crossAxisSwitchZoomScale + (1 - crossAxisSwitchZoomScale) * progress
+            enteringView.transform = CGAffineTransform(scaleX: settleScale, y: settleScale)
+            let departScale = 1 + (crossAxisSwitchZoomScale - 1) * progress
+            departingView?.transform = CGAffineTransform(scaleX: departScale, y: departScale)
+            // 防中段露背景色：退场页的淡出推迟到后半程——两层同时半透明时叠加覆盖不足，背景会从空隙透出(进入页盖在上方，进度过半时它已完全不透明，垫底页此后淡出不可见也不露背景)
+            departingView?.alpha = min(1, max(0, 2 - 2 * progress))
+        }
+    }
+
+    /// 松手完成(呈现族fade/zoom)：把过渡动画补到全量后正常提交(进入页呈现补满+手动置位canSwitchedPage)，下标经pauseScroll正常落定(同下标语义)；slide不走此路径——松手改写惯性目标交给系统减速(与同轴翻页同源手感)，落地收尾见endInteractiveSlideDragIfNeeded
+    func finishInteractiveCrossAxisDrag() {
+
+        // 松手瞬间同步归位钳制基准并解除方向锁：补间完成前(动画窗口内)一切回中写入都会被"按陈旧lastValid(拖动位移)钳回"顶回原位移；呈现族本就零行程此处置多为空操作，但拖动途中切换样式的边缘场景会带着位移进入本路径(表现为页面卡在两页之间)，提交的回中由pauseScroll完成
+        lastValidContentOffset = CGPoint(x: wy_width, y: wy_height)
+        isDirectionLocked = false
+        dragLockedDirection = .unknown
+
+        let direction = interactiveCrossDirection
+        let enteringIsHorizontal = (direction == .left) || (direction == .right)
+        let enteringView = enteringIsHorizontal ? horizontalViews?.last : verticalViews?.last
+        let departingView = enteringIsHorizontal ? verticalViews?.first : horizontalViews?.first
+        let style = crossAxisSwitchStyle
+        let duration = crossAxisSwitchDuration
+        let zoomScale = crossAxisSwitchZoomScale
+
+        // 统一收尾：恢复呈现属性与冻结标记，手动置位canSwitchedPage后经pauseScroll正常提交
+        let finalize: () -> Void = { [weak self] in
+            // 全量恢复四个页面View的呈现属性：staging隐藏过目标轴的陈旧当前页(alpha=0)，漏恢复它会透视出底下另一轴的内容(表现为后续正常翻页"H显示V的内容")
+            [self?.horizontalViews?.first, self?.horizontalViews?.last, self?.verticalViews?.first, self?.verticalViews?.last].forEach { (view) in
+                view?.alpha = 1
+                view?.transform = .identity
+            }
+            guard let self = self else { return }
+            self.isInteractiveCrossAxisDrag = false
+            self.isFinalizingSwitch = false
+            self.canSwitchedPage = true
+            self.pauseScroll()
+        }
+
+        UIView.animate(withDuration: duration, delay: 0, options: [.curveEaseOut], animations: {
+            enteringView?.alpha = 1
+            if style == .zoom {
+                enteringView?.transform = .identity
+                departingView?.transform = CGAffineTransform(scaleX: zoomScale, y: zoomScale)
+                // 防完成补间露背景：退场页不参与完成动画的淡出——进度过半前松手时它还是不透明垫底，与正在渐显的进入页同时补间会短暂两层皆半透明；它垫在进入页下方，finalize会统一恢复其呈现属性
+            }
+        }, completion: { (_) in
+            finalize()
+        })
+    }
+
+    /// 松手回弹(呈现族fade/zoom)：过渡动画归零后恢复原展示轴的层级与页面，config复位重新武装willSwitch(失败语义=只will+回弹，下次重新配对)；slide不走此路径——回弹由系统减速到中心完成，落地收尾见endInteractiveSlideDragIfNeeded
+    func cancelInteractiveCrossAxisDrag() {
+
+        // 松手瞬间同步归位钳制基准并解除方向锁：真实清场(恢复方向/层级)在补间完成回调里异步执行，窗口内方向锁+陈旧lastValid(拖动位移)会让判轴钳制把一切回中写入顶回原位移(系统减速/settle/复位全部失效，页面永久卡在两页之间)；呈现族本就零行程此处置多为空操作，防的是拖动途中切换样式带位移进入本路径的边缘场景
+        lastValidContentOffset = CGPoint(x: wy_width, y: wy_height)
+        isDirectionLocked = false
+        dragLockedDirection = .unknown
+
+        let direction = interactiveCrossDirection
+        let enteringIsHorizontal = (direction == .left) || (direction == .right)
+        let enteringView = enteringIsHorizontal ? horizontalViews?.last : verticalViews?.last
+        let departingView = enteringIsHorizontal ? verticalViews?.first : horizontalViews?.first
+        let style = crossAxisSwitchStyle
+        let duration = crossAxisSwitchDuration
+        let zoomScale = crossAxisSwitchZoomScale
+
+        let restore: () -> Void = { [weak self] in
+            // 全量恢复四个页面View的呈现属性(含staging隐藏的目标轴陈旧当前页，防透视另一轴内容)
+            [self?.horizontalViews?.first, self?.horizontalViews?.last, self?.verticalViews?.first, self?.verticalViews?.last].forEach { (view) in
+                view?.alpha = 1
+                view?.transform = .identity
+            }
+            guard let self = self else { return }
+            // 方向恢复为原展示轴方向：拖动期间它已翻成目标轴方向，残留会让下一次拖动的展示轴推导/能力判定判反(跳转错乱的根源之一)
+            self.internalSliderDirection = self.interactiveCrossOriginalAxisIsHorizontal ? .left : .up
+            self.isInteractiveCrossAxisDrag = false
+            self.isFinalizingSwitch = false
+            // 恢复原展示轴置顶(拖动期间setter的bringContentToFront已把目标轴置顶)与合法偏移基准
+            let originalViews = enteringIsHorizontal ? self.verticalViews : self.horizontalViews
+            if let originalCurrent = originalViews?.first, let originalReserve = originalViews?.last {
+                self.bringContentToFront([originalCurrent, originalReserve])
+            }
+            if enteringIsHorizontal {
+                self.reserveHorizontalIndex = self.currentHorizontalIndex
+                self.configHorizontalReserveIndex = self.currentHorizontalIndex
+            }else {
+                self.reserveVerticalIndex = self.currentVerticalIndex
+                self.configVerticalReserveIndex = self.currentVerticalIndex
+            }
+            self.lastValidContentOffset = CGPoint(x: self.wy_width, y: self.wy_height)
+        }
+
+        UIView.animate(withDuration: duration, delay: 0, options: [.curveEaseOut], animations: {
+            enteringView?.alpha = 0
+            if style == .zoom {
+                enteringView?.transform = CGAffineTransform(scaleX: zoomScale, y: zoomScale)
+                departingView?.transform = .identity
+                departingView?.alpha = 1
+            }
+        }, completion: { (_) in
+            restore()
+        })
+    }
+
+    /// 交互式跨轴拖动(slide)的系统减速落地收尾：slide松手只改写惯性目标(完成=目标侧整页/回弹=中心)，飞行动画由系统动能减速完成(与同轴翻页松手同源)，本方法在减速结束/无减速停止时恢复呈现属性与冻结标记并按落点分流——已越整页(canSwitchedPage成立)交由调用方紧随的pauseScroll正常提交(换位+didSwitch)，未越则恢复原展示轴方向与层级(config复位重新武装willSwitch)；返回是否接管了slide交互收尾(调用方据此决定后续落位处理)
+    @discardableResult
+    func endInteractiveSlideDragIfNeeded() -> Bool {
+
+        guard (isInteractiveCrossAxisDrag == true), (crossAxisSwitchStyle == .slide) else { return false }
+
+        // 全量恢复四个页面View的呈现属性(含staging隐藏的目标轴陈旧当前页，防透视另一轴内容)
+        [horizontalViews?.first, horizontalViews?.last, verticalViews?.first, verticalViews?.last].forEach { (view) in
+            view?.alpha = 1
+            view?.transform = .identity
+        }
+
+        let enteringIsHorizontal = (interactiveCrossDirection == .left) || (interactiveCrossDirection == .right)
+
+        if canSwitchedPage {
+            // 完成：系统减速会精确停在改写的惯性目标上(整页侧)，方向保持目标轴，提交交给调用方紧随的pauseScroll(下标经同下标语义落定)
+            isInteractiveCrossAxisDrag = false
+            isFinalizingSwitch = false
+            return true
+        }else {
+            // 回弹：恢复原展示轴方向(拖动期间它已翻成目标轴方向，残留会让下一次拖动的展示轴推导/能力判定判反)与置顶层级，config复位重新武装willSwitch(失败语义=只will+回弹，下次重新配对)
+            internalSliderDirection = interactiveCrossOriginalAxisIsHorizontal ? .left : .up
+            isInteractiveCrossAxisDrag = false
+            isFinalizingSwitch = false
+            // 落地即解除方向锁：残留的跨轴锁+已恢复的原轴方向会让后续didScroll被判成跨轴意图而钳制拉扯(下一次手势本也会清，提前清掉窗口期干扰)；完成分支不清——提交回中的重入钳制仍依赖锁定轴放行行程
+            isDirectionLocked = false
+            dragLockedDirection = .unknown
+            let originalViews = enteringIsHorizontal ? verticalViews : horizontalViews
+            if let originalCurrent = originalViews?.first, let originalReserve = originalViews?.last {
+                bringContentToFront([originalCurrent, originalReserve])
+            }
+            if enteringIsHorizontal {
+                reserveHorizontalIndex = currentHorizontalIndex
+                configHorizontalReserveIndex = currentHorizontalIndex
+            }else {
+                reserveVerticalIndex = currentVerticalIndex
+                configVerticalReserveIndex = currentVerticalIndex
+            }
+            lastValidContentOffset = CGPoint(x: wy_width, y: wy_height)
+            return true
+        }
+    }
+
+    /// 静止释放落位：零速度释放时系统分页不发起减速(decelerate=false)，偏移停在两页之间，原路径会瞬时硬跳回中心(表现为页面卡住后瞬移)——此处按同轴分页语义补一段系统落位动画：位移过半页滑向整页侧(到位由scrollViewDidEndScrollingAnimation走pauseScroll正常提交)，不足半页滑回中心页；用setContentOffset(animated:)而非UIView.animate，系统的落位动画可被新触摸原生打断；返回false表示无需接管(已在页边界，落位无意义)
+    @discardableResult
+    func settleStationaryReleaseIfNeeded() -> Bool {
+
+        // 各维独立按半页阈值取最近整页(轴锁保证只有一维有位移)；单轴模式另一维的合法位置恒为0
+        var target = CGPoint(x: wy_width, y: wy_height)
+        if contentSlidingDirection == .leftOrRight {
+            target.y = 0
+        }else if contentSlidingDirection == .topOrBottom {
+            target.x = 0
+        }
+
+        if contentSlidingDirection != .topOrBottom {
+            let deltaX = contentOffset.x - wy_width
+            if abs(deltaX) >= (wy_width / 2) {
+                target.x = (deltaX > 0) ? (2 * wy_width) : 0
+            }
+        }
+        if contentSlidingDirection != .leftOrRight {
+            let deltaY = contentOffset.y - wy_height
+            if abs(deltaY) >= (wy_height / 2) {
+                target.y = (deltaY > 0) ? (2 * wy_height) : 0
+            }
+        }
+
+        if (abs(target.x - contentOffset.x) < 0.5) && (abs(target.y - contentOffset.y) < 0.5) {
+            return false
+        }
+
+        // 动画期间每帧didScroll照常走(方向已锁、预备页staging就位，settle目标与钳制方向一致不打架)；到位回调scrollViewDidEndScrollingAnimation→pauseScroll按canSwitchedPage提交/复位
+        setContentOffset(target, animated: true)
+        return true
+    }
+
     /// 跨轴切换统一入口：按crossAxisSwitchStyle呈现并收尾——.instant走instantCrossAxisEntry(无动画跳变+手动收尾)；.slide以UIView.animate驱动偏移滑动(每帧didScroll照常走判轴/staging链路，时长可控——系统setContentOffset动画时长固定不可调)；.fade/.zoom为呈现族(偏移不动、状态机全程静默，见presentationalCrossAxisSwitch)
     /// - parameter direction: 目标方向(同时决定.instant/.slide的落位偏移)
     /// - parameter preservesIndex: true为同下标跨轴(下标保持，用于轻扫直切与switchContent同下标跨轴；instant只发didSwitch，动画样式补发willSwitch后正常提交换位)；false为翻页跨轴(目标轴下标推进/回退、will→did成对，用于nextContent/lastContent/switchContent跨轴翻页)
@@ -259,19 +507,19 @@ extension WYContentScrollView {
     /// - returns: entering=装好目标内容的预备页(已摆位置顶)，hidden=动画后需恢复alpha的同轴当前页
     private func stageSameIndexAnimatedArrival(direction: WYSlidingDirection, enteringFrame: CGRect?) -> (entering: UIView?, hidden: UIView?) {
 
-        // 手动补发will(显式传方向，此刻internalSliderDirection还是旧值)
-        switchContentCallback(isDidSwitch: false, direction: direction)
-
         let arrivingIsHorizontal = (direction == .left) || (direction == .right)
         let enteringView = arrivingIsHorizontal ? horizontalViews?.last : verticalViews?.last
         let hiddenView = arrivingIsHorizontal ? horizontalViews?.first : verticalViews?.first
 
-        // 钉住同下标：提交时current=reserve保持不变
+        // 钉住同下标：提交时current=reserve保持不变；必须在补发will之前钉——will里业务按reserveIndex给预备页装内容，上次失败拖动staging残留的reserve(如V0上滑V1半程回弹后仍是1)会让业务装错页(表现为跨轴切回该轴时先显示陈旧页、提交后才被didSwitch按currentIndex纠正)
         if arrivingIsHorizontal {
             reserveHorizontalIndex = currentHorizontalIndex
         }else {
             reserveVerticalIndex = currentVerticalIndex
         }
+
+        // 手动补发will(显式传方向，此刻internalSliderDirection还是旧值)
+        switchContentCallback(isDidSwitch: false, direction: direction)
 
         if let enteringFrame = enteringFrame {
             enteringView?.frame = enteringFrame

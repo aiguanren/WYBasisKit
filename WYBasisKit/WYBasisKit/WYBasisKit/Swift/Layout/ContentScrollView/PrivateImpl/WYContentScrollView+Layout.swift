@@ -1,5 +1,5 @@
 //
-//  WYContentScrollView+Views.swift
+//  WYContentScrollView+Layout.swift
 //  WYBasisKit
 //
 //  Created by 官人 on 2026/8/28.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-/// WYContentScrollView 私有实现：内容视图存储与布局(挂载/重挂保序/置顶/尺寸偏移检查)
+/// WYContentScrollView 私有实现：内容视图布局与挂载(重挂保序/置顶层级/尺寸偏移检查)
 extension WYContentScrollView {
 
     /// 检查各ContentView的superView
@@ -301,29 +301,6 @@ extension WYContentScrollView {
         }
     }
 
-    /// 当前正在水平方向显示的Views(用户传入的View)
-    var horizontalViews: [UIView]? {
-        set(newValue) {
-            objc_setAssociatedObject(self, &WYAssociatedKeys.horizontalViews, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-        }
-        get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.horizontalViews) as? [UIView]
-        }
-    }
 
-    /// 当前正在垂直方向显示的Views(用户传入的View)
-    var verticalViews: [UIView]? {
-        set(newValue) {
-            objc_setAssociatedObject(self, &WYAssociatedKeys.verticalViews, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-        }
-        get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.verticalViews) as? [UIView]
-        }
-    }
 
-    /// 当前显示在最上层的ContentView
-    var upperContentView: UIView? {
-        set { objc_setAssociatedObject(self, &WYAssociatedKeys.upperContentView, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
-        get { objc_getAssociatedObject(self, &WYAssociatedKeys.upperContentView) as? UIView }
-    }
 }

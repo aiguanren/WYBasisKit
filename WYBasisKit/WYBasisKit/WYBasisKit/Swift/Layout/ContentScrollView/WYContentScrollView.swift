@@ -189,7 +189,7 @@ public class WYContentScrollView: UIScrollView {
     /// 跨轴切换(换方向)的呈现样式，默认.instant；同时作用于API切换(nextContent/lastContent/switchContent的跨轴)与轻扫直切；同轴切换不受影响(始终跟手+吸附/动画翻页)
     public var crossAxisSwitchStyle: WYContentSwitchStyle = .instant
 
-    /// 跨轴切换动画时长(单位：秒，仅.slide/.fade/.zoom生效，.instant无动画不经过此值)，默认0.25s，钳制范围[0.1, 2.0](过短失去动画意义按0.1处理，过长拖沓按2.0处理)
+    /// 跨轴切换动画时长(单位：秒，仅.slide/.fade/.zoom生效，.instant无动画不经过此值)，默认0.25s，钳制范围[0.1, 2.0](过短失去动画意义按0.1处理，过长拖沓按2.0处理)；作用于一切组件驱动的跨轴动画——API切换(nextContent/lastContent/switchContent跨轴)、轻扫直切、fade/zoom拖动松手后的补满/归零补间；唯一例外是slide拖动的松手收尾走系统动能减速(时长随释放速度自然变化，见scrollViewWillEndDragging)，不经此值
     public var crossAxisSwitchDuration: TimeInterval = 0.25 {
         didSet {
             let clampedValue = min(max(crossAxisSwitchDuration, 0.1), 2.0)

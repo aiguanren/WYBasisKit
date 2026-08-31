@@ -11,23 +11,6 @@ import UIKit
 /// WYContentScrollView 私有实现：手势判轴与滚动控制(方向锁定/轴能力钳制/跨轴拦截/轮播计时器启停)
 extension WYContentScrollView {
 
-    /// 当前轮播应推进的方向：单轴模式为模式本身(该轴数量不足2时不轮播，返回nil)，全向模式跟随当前置顶的ContentView所属轴(跨轴直切切换展示轴后，轮播轴随之切换)；展示轴数量不足2同样返回nil——轮播绝不翻非展示轴，否则会把不可见页的回调与下标变动强加给业务
-    var carouselDirection: WYContentSlidingDirection? {
-
-        switch contentSlidingDirection {
-        case .leftOrRight:
-            return (numberOfHorizontalContent >= 2) ? .leftOrRight : nil
-        case .topOrBottom:
-            return (numberOfVerticalContent >= 2) ? .topOrBottom : nil
-        case .omnidirectional:
-            guard let currentContentView = upperContentView else { return nil }
-            if currentContentView == horizontalViews?.first {
-                return (numberOfHorizontalContent >= 2) ? .leftOrRight : nil
-            }
-            return (numberOfVerticalContent >= 2) ? .topOrBottom : nil
-        }
-    }
-
     /// 暂停定时器
     func pauseTimer() {
         if timer != nil {
@@ -92,8 +75,8 @@ extension WYContentScrollView {
 
         if contentSlidingDirection == .omnidirectional {
             
-            // 展示轴判定(方向未知时按置顶View判)：优先方向只是挂载瞬间的展示轴代理，按它判会把垂直展示后的垂直滑动/翻页误判成跨轴而拦死
-            let displayedAxisIsHorizontal = axisIsHorizontal(of: internalSliderDirection)
+            // 展示轴判定(方向未知时按置顶View判)：优先方向只是挂载瞬间的展示轴代理，按它判会把垂直展示后的垂直滑动/翻页误判成跨轴而拦死；交互式跨轴拖动期间改用开始时记录的原展示轴——此时internalSliderDirection已翻成目标轴方向，按它推导会误以为展示轴已翻过去而放开行程(fade/zoom表现为当前页跟着滚)
+            let displayedAxisIsHorizontal = isInteractiveCrossAxisDrag ? interactiveCrossOriginalAxisIsHorizontal : axisIsHorizontal(of: internalSliderDirection)
             horizontalCanScroll = false
             verticalCanScroll = false
             if isDirectionLocked {
@@ -107,6 +90,15 @@ extension WYContentScrollView {
             // 轻扫直切/程序化动画滚动期间：两轴能力临时放开(单轴约束由下方方向锁定逻辑保证)，避免偏移被钳回中心(程序化动画被钳会欠位移导致终点不够整页、切换失败弹回)
             horizontalCanScroll = true
             verticalCanScroll = true
+        }
+
+        if (isInteractiveCrossAxisDrag == true) && (crossAxisSwitchStyle == .slide) && isDirectionLocked {
+            // 交互式跨轴拖动的slide样式：放开锁定轴行程让偏移跟手(fade/zoom不开——呈现族偏移保持中心，进度由拖动距离驱动)
+            if (dragLockedDirection == .left) || (dragLockedDirection == .right) {
+                horizontalCanScroll = true
+            }else {
+                verticalCanScroll = true
+            }
         }
         
         // 目标偏移量
@@ -182,6 +174,11 @@ extension WYContentScrollView {
                     // 一旦判断完成，立即锁定并记录本次拖拽方向，用于边界拦截后 internalSliderDirection 未更新时仍能保持方向
                     isDirectionLocked = true
                     dragLockedDirection = slidingDirection
+                    // 动画样式(slide/fade/zoom)下锁到跨轴意图：进入交互式跟手模式——slide放开锁定轴行程让偏移跟手(像同轴翻页)，fade/zoom由拖动距离驱动渐变/缩放进度，松手按进度/速度决定完成或回弹；instant保持零行程(轻扫直切)，不进此模式
+                    // 展示轴用置顶View真相推导(不信internalSliderDirection——上次回弹残留的目标轴方向会把首次跨轴判反)
+                    if (crossAxisSwitchStyle != .instant) && (axisIsHorizontal(of: .unknown) != ((slidingDirection == .left) || (slidingDirection == .right))) {
+                        beginInteractiveCrossAxisDrag(direction: slidingDirection)
+                    }
                 }
             } else {
                 // 已锁定轴时，按 contentOffset 的物理偏移符号(deltaX/deltaY 的正负)判断轴内方向，避免 dragLockedDirection 与实际偏移方向不一致时 setter 把 reserveView 摆到错误一侧而闪现(如最后一页先右滑锁 .right、再左滑时 deltaX 已>0 却仍按 .right 放行，导致 setter 把 reserveView 摆到右侧闪现)；只有偏移为0(边界拦截后回中心)才沿用 dragLockedDirection 保持方向让 canScroll 持续拦截
@@ -279,12 +276,14 @@ extension WYContentScrollView {
         guard slidingDirection != .unknown else { return false }
 
         if (contentSlidingDirection == .omnidirectional) && isDirectionLocked {
+            // 交互式跨轴拖动期间一律放行(跨轴进入不受目标轴滑动开关限制，bi语义；也避免方向翻转后展示轴推导变化误拦)
+            if isInteractiveCrossAxisDrag { return true }
             let slidingAxisIsHorizontal = (slidingDirection == .left) || (slidingDirection == .right)
             // 展示轴判定(方向未知时按置顶View判)：优先方向只是挂载瞬间的展示轴代理，按它判会把垂直展示后的垂直滑动/翻页误判成跨轴而拦死
             let displayedAxisIsHorizontal = axisIsHorizontal(of: internalSliderDirection)
             if slidingAxisIsHorizontal != displayedAxisIsHorizontal {
                 // 跨轴意图的普通拖动一律拦截(零行程且不触发setter，避免拖动中把另一轴View置顶提前换页，任意数量组合与两轴均单页的手感完全一致)；轻扫直切与程序化跨轴切换(nextContent/lastContent/switchContent指定非展示轴)放行——后者是显式指令，被拦会导致动画锁轴后setter不执行、目标轴无willSwitch不预加载、动画到位却提交失败卡在未加载页
-                return isInstantCrossAxisEntry || isProgrammaticAnimatedScroll
+                return isInstantCrossAxisEntry || isProgrammaticAnimatedScroll || isInteractiveCrossAxisDrag
             }
         }
 
