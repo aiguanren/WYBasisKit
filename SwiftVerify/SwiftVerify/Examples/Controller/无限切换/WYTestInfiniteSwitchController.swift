@@ -57,8 +57,11 @@ class WYTestInfiniteSwitchController: UIViewController {
     /// 垂直方向是否支持滑动
     var verticalSliderEnabled: UISwitch = UISwitch()
     
-    /// 是否需要无限轮播
-    var unlimitedCarousel: UISwitch = UISwitch()
+    /// 水平方向是否无限翻页
+    var horizontalUnlimitedCarousel: UISwitch = UISwitch()
+
+    /// 垂直方向是否无限翻页
+    var verticalUnlimitedCarousel: UISwitch = UISwitch()
     
     /**
      *  是否需要自动轮播，默认false(不自动轮播，业务想要自动轮播显式开启)
@@ -218,13 +221,14 @@ class WYTestInfiniteSwitchController: UIViewController {
         
         horizontalSliderEnabled.isOn = true
         verticalSliderEnabled.isOn = true
-        unlimitedCarousel.isOn = true
+        horizontalUnlimitedCarousel.isOn = true
+        verticalUnlimitedCarousel.isOn = true
         // 与组件默认值一致(automaticCarousel默认false，不自动轮播；业务想要自动轮播显式开启，开启后组件会在首次展示时自动开表)
         automaticCarousel.isOn = false
         // automaticCarousel默认关闭，挂载时不会自动开表，开关显示off与实际计时器状态一致
         startOrStopTimer.isOn = false
 
-        for switchView in [horizontalSliderEnabled, verticalSliderEnabled, unlimitedCarousel, automaticCarousel, startOrStopTimer] {
+        for switchView in [horizontalSliderEnabled, verticalSliderEnabled, horizontalUnlimitedCarousel, verticalUnlimitedCarousel, automaticCarousel, startOrStopTimer] {
             switchView.addTarget(self, action: #selector(switchSwitched(sender:)), for: .valueChanged)
             
             if switchView != startOrStopTimer {
@@ -328,8 +332,10 @@ class WYTestInfiniteSwitchController: UIViewController {
             contentScrollView.horizontalSliderEnabled = sender.isOn
         }else if sender == verticalSliderEnabled {
             contentScrollView.verticalSliderEnabled = sender.isOn
-        }else if sender == unlimitedCarousel {
-            contentScrollView.unlimitedCarousel = sender.isOn
+        }else if sender == horizontalUnlimitedCarousel {
+            contentScrollView.horizontalUnlimitedCarousel = sender.isOn
+        }else if sender == verticalUnlimitedCarousel {
+            contentScrollView.verticalUnlimitedCarousel = sender.isOn
         }else if sender == automaticCarousel {
             contentScrollView.automaticCarousel = sender.isOn
         }else if sender == startOrStopTimer {
@@ -411,18 +417,25 @@ class WYTestInfiniteSwitchController: UIViewController {
             make.width.centerX.equalTo(horizontalSliderEnabledView)
         }
 
-        let unlimitedCarouselView: UIView = createDescContentView(desc: "是否需要无限轮播", controView: unlimitedCarousel)
-        operatioView.addSubview(unlimitedCarouselView)
-        unlimitedCarouselView.snp.makeConstraints { make in
+        let horizontalUnlimitedCarouselView: UIView = createDescContentView(desc: "水平方向是否无限翻页(末页环绕回首页；轮播前提按展示轴读取本开关)", controView: horizontalUnlimitedCarousel)
+        operatioView.addSubview(horizontalUnlimitedCarouselView)
+        horizontalUnlimitedCarouselView.snp.makeConstraints { make in
             make.top.equalTo(verticalSliderEnabledView.snp.bottom).offset(35)
             make.width.centerX.equalTo(verticalSliderEnabledView)
         }
-        
+
+        let verticalUnlimitedCarouselView: UIView = createDescContentView(desc: "垂直方向是否无限翻页(末页环绕回首页；轮播前提按展示轴读取本开关)", controView: verticalUnlimitedCarousel)
+        operatioView.addSubview(verticalUnlimitedCarouselView)
+        verticalUnlimitedCarouselView.snp.makeConstraints { make in
+            make.top.equalTo(horizontalUnlimitedCarouselView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(horizontalUnlimitedCarouselView)
+        }
+
         let automaticCarouselView: UIView = createDescContentView(desc: "是否需要自动轮播，默认false，开启后首次展示自动开表，关闭或stopTimer后需显式startTimer恢复", controView: automaticCarousel)
         operatioView.addSubview(automaticCarouselView)
         automaticCarouselView.snp.makeConstraints { make in
-            make.top.equalTo(unlimitedCarouselView.snp.bottom).offset(35)
-            make.width.centerX.equalTo(unlimitedCarouselView)
+            make.top.equalTo(verticalUnlimitedCarouselView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(verticalUnlimitedCarouselView)
         }
         
         let startOrStopTimerView: UIView = createDescContentView(desc: "开启或者关闭定时器", controView: startOrStopTimer)
@@ -694,10 +707,7 @@ extension WYTestInfiniteSwitchController: WYContentScrollViewDelegate {
         }
         
         if direction == .left || direction == .right {
-            // 切换为图片后也要暂停播放
-            currentVerticalView?.pause()
-            reserveVerticalView?.pause()
-            
+            // 只预载目标轴图片，不在will暂停V轴播放：will在拖动staging瞬间就发出，此处暂停会让V0在滑动过程中就停播——暂停放到didSwitch里做(完全切到H后才停)，与同轴翻页"滑动全程旧页持续播放、提交才切换"的手感一致；拖动取消回弹时组件会重申原轴didSwitch恢复播放，全程无感
             // 取值走取模方法防∞模式环绕下标越界
             reserveHorizontalView?.image = imageForHorizontalPage(at: contentScrollView.reserveHorizontalIndex)
         }

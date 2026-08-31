@@ -172,8 +172,16 @@ public class WYContentScrollView: UIScrollView {
     /// 垂直方向储备内容页索引
     public internal(set) var reserveVerticalIndex: Int = 0
     
-    /// 自动轮播时每一页停留时间，默认为3s，最少1s(当设置的值小于1s时，则为默认值)
-    public var standingTime: TimeInterval = 3
+    /// 自动轮播时每一页停留时间，默认为3s，最少1s(当设置的值小于1s时，则为默认值)；轮播进行中修改会立即生效——计时器以新间隔重建并从修改时刻起算新一轮(运行中的Timer持有的是创建时的旧间隔，不重建不会自己变)
+    public var standingTime: TimeInterval = 3 {
+        didSet {
+            // 间隔只在startTimer创建计时器时读取，运行中修改必须重建才立即生效；用pauseTimer(保留续播标记)而非stopTimer(业务硬停语义)，重建经startTimer自身的门(自动轮播开关/展示轴无限翻页/可轮播方向)重判
+            if timer != nil {
+                pauseTimer()
+                startTimer()
+            }
+        }
+    }
 
     /// 轻扫跨轴直切的速度阈值(单位：pt/s，默认500；仅影响全向模式的轻扫跨轴判定，同轴翻页不经过此阈值，值越低越灵敏，越高越保守)
     public var crossAxisFlickVelocityThreshold: CGFloat = 500 {
@@ -211,18 +219,23 @@ public class WYContentScrollView: UIScrollView {
         }
     }
     
-    /// 水平方向是否支持滑动(仅内容页数量大于1时生效，单页/无内容时该方向不可滑)，默认true。语义边界：①管的是"轴内翻页交互"(同轴拖动零行程、轮播与nextContent/lastContent同轴不推进)，不限制"能到达"该轴——跨轴进入(轻扫直切与跨轴API切换)不看本开关；②两轴开关同时关闭时手势完全静默(纯展示模式，isScrollEnabled为false)，此时切换方向只能走switchContent等API——API是显式指令，不受手势开关约束
+    /// 水平方向是否支持滑动(仅内容页数量大于1时生效，单页/无内容时该方向不可滑)，默认true。语义边界：①纯手势开关——只拦用户手指：本轴同轴拖动零行程不可翻页；跨轴进入(轻扫直切与跨轴API切换)不看目标轴本开关；②轮播不受本开关约束(由automaticCarousel与展示轴的horizontal/verticalUnlimitedCarousel管理，锁手势+自动轮播的Banner场景可用)；③API切换(nextContent/lastContent/switchContent含同轴)是显式指令不受本开关约束；④两轴开关同时关闭时手势完全静默(isScrollEnabled为false，纯展示模式)，切换只能走API
     public var horizontalSliderEnabled: Bool = true {
         didSet { checkCarouselStatus() }
     }
 
-    /// 垂直方向是否支持滑动(仅内容页数量大于1时生效，单页/无内容时该方向不可滑)，默认true。语义边界：①管的是"轴内翻页交互"(同轴拖动零行程、轮播与nextContent/lastContent同轴不推进)，不限制"能到达"该轴——跨轴进入(轻扫直切与跨轴API切换)不看本开关；②两轴开关同时关闭时手势完全静默(纯展示模式，isScrollEnabled为false)，此时切换方向只能走switchContent等API——API是显式指令，不受手势开关约束
+    /// 垂直方向是否支持滑动(仅内容页数量大于1时生效，单页/无内容时该方向不可滑)，默认true。语义边界：①纯手势开关——只拦用户手指：本轴同轴拖动零行程不可翻页；跨轴进入(轻扫直切与跨轴API切换)不看目标轴本开关；②轮播不受本开关约束(由automaticCarousel与展示轴的horizontal/verticalUnlimitedCarousel管理，锁手势+自动轮播的Banner场景可用)；③API切换(nextContent/lastContent/switchContent含同轴)是显式指令不受本开关约束；④两轴开关同时关闭时手势完全静默(isScrollEnabled为false，纯展示模式)，切换只能走API
     public var verticalSliderEnabled: Bool = true {
         didSet { checkCarouselStatus() }
     }
     
-    /// 是否需要无限滑动/轮播
-    public var unlimitedCarousel: Bool = true {
+    /// 水平方向是否无限翻页(仅内容页数量大于1时生效)，默认true。管两件事：①本轴环绕语义——手势与API翻到末页/首页时是否环绕到另一端(关闭则本轴有边界，末页再往前翻不动)；②轮播前提——轮播只翻展示轴，展示轴的本开关关闭时轮播自动停(动态启停)，切回环绕轴自动续播；不影响"能到达"与滑动开关(那是horizontalSliderEnabled的职责)
+    public var horizontalUnlimitedCarousel: Bool = true {
+        didSet { checkCarouselStatus() }
+    }
+
+    /// 垂直方向是否无限翻页(仅内容页数量大于1时生效)，默认true。管两件事：①本轴环绕语义——手势与API翻到末页/首页时是否环绕到另一端(关闭则本轴有边界，末页再往前翻不动)；②轮播前提——轮播只翻展示轴，展示轴的本开关关闭时轮播自动停(动态启停)，切回环绕轴自动续播；不影响"能到达"与滑动开关(那是verticalSliderEnabled的职责)
+    public var verticalUnlimitedCarousel: Bool = true {
         didSet { checkCarouselStatus() }
     }
     
@@ -291,14 +304,16 @@ public class WYContentScrollView: UIScrollView {
             stopTimer()
         }
 
-        // 未开启轮播或不支持无限循环则跳过
-        guard (unlimitedCarousel != false) &&
-                (automaticCarousel != false) else {
+        // 未开启轮播则跳过
+        guard (automaticCarousel != false) else {
             return
         }
 
-        // 创建时仅判一次能否开启轮播(单轴数量不足2/全向无置顶View则不开)；运行期轮播方向由timer闭包每次触发实时推导，跨轴直切换展示轴后跟随新轴
-        guard (carouselDirection != nil) else {
+        // 创建时仅判一次能否开启轮播(单轴数量不足2/全向无置顶View则不开)；轮播翻的是展示轴，无限翻页前提按展示轴的本开关判定；运行期轮播方向由timer闭包每次触发实时推导，跨轴直切换展示轴后跟随新轴
+        guard let carouselDirection = carouselDirection else {
+            return
+        }
+        if ((carouselDirection == .topOrBottom) ? verticalUnlimitedCarousel : horizontalUnlimitedCarousel) == false {
             return
         }
 
@@ -322,23 +337,24 @@ public class WYContentScrollView: UIScrollView {
         // 记录业务硬停：首次展示的自动开表(见internalSettingsContentView)遇到它必须让位，否则关表后一切换方向重挂载轮播就复活
         timerStoppedByBusiness = true
     }
-
-
     
     /// 切换指定方向下一个内容页面(不支持直接传入direction为omnidirectional)
     public func nextContent(_ direction: WYContentSlidingDirection) {
-        // 目标轴≠当前展示轴(跨轴)时不受该轴滑动开关与"数量>1"限制——开关管轴内翻页交互不限制到达，跨轴进入目标轴有内容即可；同轴时尊重开关与数量
+        // 快速连点时先瞬时完成上一段仍在飞行的程序化切换(否则新动画会打断旧的：结束回调丢失、偏移冻结在中途无人提交)
+        completeOngoingProgrammaticSwitch()
+
+        // 目标轴≠当前展示轴(跨轴)时不受该轴滑动开关与"数量>1"限制——开关管轴内翻页交互不限制到达，跨轴进入目标轴有内容即可；同轴只查数量——滑动开关是纯手势开关(只拦手指拖动/轻扫)，API与轮播(计时器经此进入)都是组件/业务显式驱动不受手势开关约束，否则单关/双关下同轴API被拦死(双关语义"切换只能走API"失去逃生门)、锁手势自动轮播的Banner场景无法实现
         let targetIsHorizontal = (direction == .leftOrRight)
         let isCrossTarget = (contentSlidingDirection == .omnidirectional) && (axisIsHorizontal(of: .unknown) != targetIsHorizontal)
         switch direction {
         case .leftOrRight:
             if isCrossTarget {
                 guard numberOfHorizontalContent > 0 else { return }
-            }else if !((numberOfHorizontalContent > 1) ? horizontalSliderEnabled : false) { return }
+            }else if numberOfHorizontalContent <= 1 { return }
         case .topOrBottom:
             if isCrossTarget {
                 guard numberOfVerticalContent > 0 else { return }
-            }else if !((numberOfVerticalContent > 1) ? verticalSliderEnabled : false) { return }
+            }else if numberOfVerticalContent <= 1 { return }
         default:
             return
         }
@@ -356,7 +372,7 @@ public class WYContentScrollView: UIScrollView {
             }
             // 只有在最后一页时才要求无限轮播开启(用于循环回到第一页)，非最后一页无论是否无限轮播都允许切下一页
             if currentHorizontalIndex == (numberOfHorizontalContent - 1) {
-                guard unlimitedCarousel else { return }
+                guard horizontalUnlimitedCarousel else { return }
             }
 
             // 跨轴程序化切换：目标轴非当前展示轴时按crossAxisSwitchStyle呈现(默认瞬时直切，可选滑动/渐变/缩放)，下标按翻页语义推进
@@ -375,7 +391,7 @@ public class WYContentScrollView: UIScrollView {
             
             // 只有在最后一页时才要求无限轮播开启(用于循环回到第一页)，非最后一页无论是否无限轮播都允许切下一页
             if currentVerticalIndex == (numberOfVerticalContent - 1) {
-                guard unlimitedCarousel else { return }
+                guard verticalUnlimitedCarousel else { return }
             }
 
             // 跨轴程序化切换：目标轴非当前展示轴时按crossAxisSwitchStyle呈现(默认瞬时直切，可选滑动/渐变/缩放)，下标按翻页语义推进
@@ -394,18 +410,21 @@ public class WYContentScrollView: UIScrollView {
     
     /// 切换指定方向上一个内容页面(不支持直接传入direction为omnidirectional)
     public func lastContent(_ direction: WYContentSlidingDirection) {
-        // 目标轴≠当前展示轴(跨轴)时不受该轴滑动开关与"数量>1"限制——开关管轴内翻页交互不限制到达，跨轴进入目标轴有内容即可；同轴时尊重开关与数量(与nextContent同源)
+        // 快速连点时先瞬时完成上一段仍在飞行的程序化切换(否则新动画会打断旧的：结束回调丢失、偏移冻结在中途无人提交)
+        completeOngoingProgrammaticSwitch()
+
+        // 同轴只查数量、跨轴只查存在——滑动开关是纯手势开关(只拦手指拖动/轻扫)，API与轮播都是组件/业务显式驱动不受手势开关约束(与nextContent同源)
         let targetIsHorizontal = (direction == .leftOrRight)
         let isCrossTarget = (contentSlidingDirection == .omnidirectional) && (axisIsHorizontal(of: .unknown) != targetIsHorizontal)
         switch direction {
         case .leftOrRight:
             if isCrossTarget {
                 guard numberOfHorizontalContent > 0 else { return }
-            }else if !((numberOfHorizontalContent > 1) ? horizontalSliderEnabled : false) { return }
+            }else if numberOfHorizontalContent <= 1 { return }
         case .topOrBottom:
             if isCrossTarget {
                 guard numberOfVerticalContent > 0 else { return }
-            }else if !((numberOfVerticalContent > 1) ? verticalSliderEnabled : false) { return }
+            }else if numberOfVerticalContent <= 1 { return }
         default:
             return
         }
@@ -424,7 +443,7 @@ public class WYContentScrollView: UIScrollView {
 
             // 只有在第一页时才要求无限轮播开启(用于循环回到最后一页)，非第一页无论是否无限轮播都允许切上一页
             if currentHorizontalIndex <= 0 {
-                guard unlimitedCarousel else { return }
+                guard horizontalUnlimitedCarousel else { return }
             }
 
             // 跨轴程序化切换：目标轴非当前展示轴时按crossAxisSwitchStyle呈现(默认瞬时直切，可选滑动/渐变/缩放)，下标按翻页语义回退
@@ -443,7 +462,7 @@ public class WYContentScrollView: UIScrollView {
             
             // 只有在第一页时才要求无限轮播开启(用于循环回到最后一页)，非第一页无论是否无限轮播都允许切上一页，与水平分支对齐
             if currentVerticalIndex <= 0 {
-                guard unlimitedCarousel else { return }
+                guard verticalUnlimitedCarousel else { return }
             }
 
             // 跨轴程序化切换：目标轴非当前展示轴时按crossAxisSwitchStyle呈现(默认瞬时直切，可选滑动/渐变/缩放)，下标按翻页语义回退
@@ -462,6 +481,9 @@ public class WYContentScrollView: UIScrollView {
     
     /// 切换到指定方向指定下标处(不支持直接传入direction为omnidirectional)，内部通过把 currentXxxIndex 预设为目标下标∓1 再借 lastContent/nextContent 一次滑动到达目标页
     public func switchContent(_ direction: WYContentSlidingDirection, index: inout Int) {
+        // 快速连点时先瞬时完成上一段仍在飞行的程序化切换——必须在本方法的下标预设之前(预设基于当前current下标，在飞切换的提交会改变它)
+        completeOngoingProgrammaticSwitch()
+
         switch direction {
         case .leftOrRight:
             

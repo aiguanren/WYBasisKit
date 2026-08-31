@@ -22,10 +22,34 @@ extension WYContentScrollView {
         print("\(isDidSwitch ? "isDidSwitch" : "isWillSwitch"), direction：\(callbackDirection) hIdx=\(currentHorizontalIndex) rhIdx=\(reserveHorizontalIndex) vIdx=\(currentVerticalIndex) rvIdx=\(reserveVerticalIndex)")
         
         if isDidSwitch {
+            // did本身就是该轴"已展示"的通知：当场消费该轴的初始补发标记——否则跨轴直切后标记仍空，后续陈旧方向窗口(如反向轻扫的锁轴前几帧internalSliderDirection还停在旧轴)会把补发误触发，业务凭空多收一次did(视频场景表现为切走后又被play一次)
+            if (callbackDirection == .left) || (callbackDirection == .right) {
+                hasInitialCallbackHorizontal = true
+            }else if (callbackDirection == .up) || (callbackDirection == .down) {
+                hasInitialCallbackVertical = true
+            }
             contentDelegate.wy_contentScrollViewDidSwitch?(self, direction: callbackDirection, currentHorizontalView: horizontalViews?.first, reserveHorizontalView: horizontalViews?.last, currentVerticalView: verticalViews?.first, reserveVerticalView: verticalViews?.last)
         }else {
             contentDelegate.wy_contentScrollViewWillSwitch?(self, direction: callbackDirection, currentHorizontalView: horizontalViews?.first, reserveHorizontalView: horizontalViews?.last, currentVerticalView: verticalViews?.first, reserveVerticalView: verticalViews?.last)
         }
+    }
+
+    /// 瞬时完成仍在飞行中的程序化切换：快速连点(双击nextContent/lastContent/switchContent)时新调用会落在上一切换的动画途中，直接再setContentOffset会把前一动画打断——其结束回调丢失、偏移冻结在中途且无人提交(表现为页面卡在约四分之三处、程序化窗口标记悬空)；这里先把在飞动画瞬时落位到它的目标整页并经pauseScroll提交(非动画set不回调DidEndScrollingAnimation须手动提交)，新切换从干净基线开始(双击=连续翻两页)；偏移已在中心(标记悬空的守卫提前return残留)时仅清标记复位
+    func completeOngoingProgrammaticSwitch() {
+
+        guard isProgrammaticAnimatedScroll else { return }
+
+        var completion = CGPoint(x: (contentSlidingDirection == .topOrBottom) ? 0 : wy_width, y: (contentSlidingDirection == .leftOrRight) ? 0 : wy_height)
+        if (contentSlidingDirection != .topOrBottom) && (contentOffset.x != wy_width) {
+            completion.x = (contentOffset.x > wy_width) ? (2 * wy_width) : 0
+        }
+        if (contentSlidingDirection != .leftOrRight) && (contentOffset.y != wy_height) {
+            completion.y = (contentOffset.y > wy_height) ? (2 * wy_height) : 0
+        }
+        // 先归位钳制基准再赋偏移(提交回中的重入钳制会按lastValid拉扯，bu轮定理)
+        lastValidContentOffset = completion
+        setContentOffset(completion, animated: false)
+        pauseScroll()
     }
 
     /// 停止滚动并切换contentViews的位置与frame
@@ -66,6 +90,9 @@ extension WYContentScrollView {
         defer { isFinalizingSwitch = false }
 
         canSwitchedPage = false
+
+        // 提交回中必须先归位钳制基准再赋偏移(下方三个分支都会把contentOffset赋回中心页)：赋值会同步重入didScroll，目标轴滑动开关关闭时判轴钳制会把回中按拖动/动画位移的lastValid当场顶回原位移——视图已重排到中心而视口停在两页之间的空列，表现为提交后立即整页空白(开关关闭下的API与跨轴提交暴露，与复位分支的先基准后赋值同定理)
+        lastValidContentOffset = CGPoint(x: (contentSlidingDirection == .topOrBottom) ? 0 : wy_width, y: (contentSlidingDirection == .leftOrRight) ? 0 : wy_height)
 
         switch contentSlidingDirection {
         case .leftOrRight:
@@ -206,7 +233,7 @@ extension WYContentScrollView {
         return max(0, min(1, translation.x / wy_width))
     }
 
-    /// 松手判定的完成条件：拖过半页或轴向速度达轻扫阈值(轻甩也算成)；阈值取1/2与同轴分页的过半确认语义对齐(原1/3更激进，与同轴直觉不一致)
+    /// 松手判定的完成条件：拖过半页或沿完成方向的轴向速度达轻扫阈值(轻甩也算成)；阈值取1/2与同轴分页的过半确认语义对齐(原1/3更激进，与同轴直觉不一致)；速度只认完成方向的正值——回甩(往回拉)速度再快也是取消意图，取abs会把"拖到深处又快速拉回"误判成完成(表现为拉回原页松手却仍跳到目标页)
     var isInteractiveCrossCommitReady: Bool {
 
         if interactiveCrossProgress >= 0.5 { return true }
@@ -216,7 +243,7 @@ extension WYContentScrollView {
             : (interactiveCrossDirection == .down) ? velocity.y
             : (interactiveCrossDirection == .left) ? -velocity.x
             : velocity.x
-        return abs(axisVelocity) >= crossAxisFlickVelocityThreshold
+        return axisVelocity >= crossAxisFlickVelocityThreshold
     }
 
     /// 交互式跨轴拖动的目标侧偏移(与performCrossAxisSwitch同映射)
@@ -353,6 +380,8 @@ extension WYContentScrollView {
                 self.configVerticalReserveIndex = self.currentVerticalIndex
             }
             self.lastValidContentOffset = CGPoint(x: self.wy_width, y: self.wy_height)
+            // 重申一次原轴didSwitch("仍在原页"的通知，与轴初始补发同族)：staging的will已让业务为切走做了准备(暂停当前轴媒体等)，取消后组件无法撤销业务副作用，必须重申让业务恢复(表现为跨轴拖动不足半回弹后原页视频被暂停不再恢复)
+            self.switchContentCallback(isDidSwitch: true, direction: self.interactiveCrossOriginalAxisIsHorizontal ? .left : .up)
         }
 
         UIView.animate(withDuration: duration, delay: 0, options: [.curveEaseOut], animations: {
@@ -406,6 +435,8 @@ extension WYContentScrollView {
                 configVerticalReserveIndex = currentVerticalIndex
             }
             lastValidContentOffset = CGPoint(x: wy_width, y: wy_height)
+            // 重申一次原轴didSwitch("仍在原页"的通知，与轴初始补发同族)：staging的will已让业务为切走做了准备(暂停当前轴媒体等)，取消后组件无法撤销业务副作用，必须重申让业务恢复(表现为跨轴拖动不足半回弹后原页视频被暂停不再恢复)
+            switchContentCallback(isDidSwitch: true, direction: interactiveCrossOriginalAxisIsHorizontal ? .left : .up)
             return true
         }
     }

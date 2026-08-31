@@ -94,7 +94,8 @@ extension WYContentScrollView {
             }
 
             // 首次展示(含切换方向重挂载)且开着自动轮播时自动开表：让automaticCarousel默认true的语义名副其实——不自动开表的话"自动轮播开着"却一直不轮播，属性与实际状态割裂；不需要轮播的业务把automaticCarousel设为false即可拦在此处；业务stopTimer过硬停后此自动开表也让位(timerStoppedByBusiness)，只有再次显式startTimer才恢复；此后启停交由startTimer/stopTimer与动态启停管理(拖动暂停松手续播、展示轴不可翻自动停恢复)
-            if (automaticCarousel != false) && (unlimitedCarousel != false) && (timerStoppedByBusiness == false) {
+            if (automaticCarousel != false) && (timerStoppedByBusiness == false) {
+                // 展示轴的无限翻页前提由startTimer自身的门判定(无限开关已按轴拆分，读展示轴的开关)
                 startTimer()
             }
         }

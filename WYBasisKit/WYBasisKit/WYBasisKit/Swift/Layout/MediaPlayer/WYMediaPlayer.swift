@@ -489,6 +489,8 @@ public class WYMediaPlayer: UIImageView {
         // prepare未完成时play()调用会被底层直接丢弃(换源重载场景实测)，挂起待prepared回调补执行，保证"最终一定要播"
         if isPreparedToPlay == false {
             isPlayPending = true
+            // play意图覆盖prepare期间收到的暂停意图(先pause后play=最终要播)
+            isPausedWhilePreparing = false
             return
         }
         ijkPlayer?.play()
@@ -497,6 +499,10 @@ public class WYMediaPlayer: UIImageView {
     /// 暂停播放
     public func pause() {
         isPlayPending = false
+        // prepare未完成时记下暂停意图：start-on-prepared是内核级自动起播(play(with:)默认autoplay烘进选项)，未就绪的pause调用拦不住，prepared回调必须抢先压住(否则play后快速pause、prepare完成瞬间声音在画面外响起)
+        if isPreparedToPlay == false {
+            isPausedWhilePreparing = true
+        }
         ijkPlayer?.pause()
     }
 
@@ -849,6 +855,7 @@ public class WYMediaPlayer: UIImageView {
         hasReallyPlayed = false
         isPreparedToPlay = false
         isPlayPending = false
+        isPausedWhilePreparing = false
     }
 
     /// 当前已重试失败次数
@@ -865,6 +872,9 @@ public class WYMediaPlayer: UIImageView {
 
     /// 挂起的播放意图(play()在prepare完成前被调用时置true，prepare完成回调补执行；pause()与releaseAll会取消)
     private var isPlayPending: Bool = false
+
+    /// prepare期间收到的暂停意图(pause()在未就绪时置true)：play(with:)默认autoplay会把start-on-prepared=1烘进内核，prepare完成瞬间内核自行起播，未就绪时的pause调用拦不住它——记下意图由prepared回调抢先压住(表现为play后快速pause、画面已切走而声音在prepare完成后响起)；play()的挂起会覆盖它，releaseAll复位
+    private var isPausedWhilePreparing: Bool = false
 
     /// 本次加载是否已渲染出第一帧(首帧渲染回调处置true、releaseAll时重置，供开关didSet补截与渲染时截取判断)
     private var hasRenderedFirstFrame: Bool = false
@@ -1217,6 +1227,10 @@ public class WYMediaPlayer: UIImageView {
         if isPlayPending {
             isPlayPending = false
             player.play()
+        }else if isPausedWhilePreparing {
+            // prepare期间业务已暂停：压制内核start-on-prepared的自动起播(pause()在未就绪时拦不住它)，停在就绪待播态
+            isPausedWhilePreparing = false
+            player.pause()
         }else if loadAutoplayIntent == false, shouldUseFirstFrameAsPoster, hasRenderedFirstFrame == false, isPosterProbing == false {
             if let posterImage: UIImage = player.thumbnailImageAtCurrentTime() {
                 image = posterImage

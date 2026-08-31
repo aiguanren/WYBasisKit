@@ -68,13 +68,13 @@ extension WYContentScrollView {
                     reserveVerticalIndex = currentVerticalIndex
                 }else if newValue == .up {
                     reserveVerticalIndex = (currentVerticalIndex + 1) % numberOfVerticalContent
-                    if (reserveVerticalIndex == 0) && (unlimitedCarousel == false) {
+                    if (reserveVerticalIndex == 0) && (verticalUnlimitedCarousel == false) {
                         reserveVerticalIndex = currentVerticalIndex
                     }
                 }else {
                     reserveVerticalIndex = currentVerticalIndex - 1
                     if (reserveVerticalIndex < 0)  {
-                        reserveVerticalIndex = (unlimitedCarousel == false) ? currentVerticalIndex : (numberOfVerticalContent - 1)
+                        reserveVerticalIndex = (verticalUnlimitedCarousel == false) ? currentVerticalIndex : (numberOfVerticalContent - 1)
                     }
                 }
                 
@@ -120,13 +120,13 @@ extension WYContentScrollView {
                     reserveHorizontalIndex = currentHorizontalIndex
                 }else if newValue == .left {
                     reserveHorizontalIndex = (currentHorizontalIndex + 1) % numberOfHorizontalContent
-                    if (reserveHorizontalIndex == 0) && (unlimitedCarousel == false) {
+                    if (reserveHorizontalIndex == 0) && (horizontalUnlimitedCarousel == false) {
                         reserveHorizontalIndex = currentHorizontalIndex
                     }
                 }else {
                     reserveHorizontalIndex = currentHorizontalIndex - 1
                     if (reserveHorizontalIndex < 0)  {
-                        reserveHorizontalIndex = (unlimitedCarousel == false) ? currentHorizontalIndex : (numberOfHorizontalContent - 1)
+                        reserveHorizontalIndex = (horizontalUnlimitedCarousel == false) ? currentHorizontalIndex : (numberOfHorizontalContent - 1)
                     }
                 }
                 

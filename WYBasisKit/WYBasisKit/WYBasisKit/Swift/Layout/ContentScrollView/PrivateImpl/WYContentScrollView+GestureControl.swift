@@ -19,10 +19,16 @@ extension WYContentScrollView {
         timer = nil
     }
 
-    /// 轮播计时器随展示轴/数量/开关动态启停：当前展示轴翻不了页(数量不足2/关自动轮播/关无限轮播)时停止并清除计时器(避免定时器每3秒空转一次)，恢复可翻时若此前开启过轮播则自动重启；调用点：checkCarouselStatus(方向/数量/开关变化都会经过)与跨轴直切收尾(展示轴翻转不经方向与数量变化)
+    /// 轮播计时器随展示轴/数量/开关动态启停：当前展示轴翻不了页(数量不足2/关自动轮播/展示轴关无限翻页)时停止并清除计时器(避免定时器每3秒空转一次)，恢复可翻时若此前开启过轮播则自动重启；调用点：checkCarouselStatus(方向/数量/开关变化都会经过)与跨轴直切收尾(展示轴翻转不经方向与数量变化)
     func refreshCarouselTimer() {
 
-        guard (automaticCarousel != false) && (unlimitedCarousel != false) && (carouselDirection != nil) else {
+        // 无限翻页前提按展示轴的开关判定(轮播只翻展示轴，无限开关已按轴拆分)
+        guard let carouselDirection = carouselDirection else {
+            // 用暂停而非停止：条件恢复(数量改回/开关重开/展示轴翻回)后自动续播，重启标记不能丢
+            pauseTimer()
+            return
+        }
+        guard (automaticCarousel != false) && ((carouselDirection == .topOrBottom) ? (verticalUnlimitedCarousel != false) : (horizontalUnlimitedCarousel != false)) else {
             // 用暂停而非停止：条件恢复(数量改回/开关重开/展示轴翻回)后自动续播，重启标记不能丢
             pauseTimer()
             return
@@ -287,10 +293,11 @@ extension WYContentScrollView {
             }
         }
 
-        if ((slidingDirection == .left) || (slidingDirection == .right)) && (horizontalSliderEnabled == false) {
+        // 滑动开关是纯手势开关：只拦用户拖动，程序化动画(nextContent/lastContent/switchContent/轮播tick)与轻扫直切是组件/业务显式驱动必须放行——被拦会杀死staging与提交(表现为关开关后API动画到位却切不过去)
+        if ((slidingDirection == .left) || (slidingDirection == .right)) && (horizontalSliderEnabled == false) && (isInstantCrossAxisEntry == false) && (isProgrammaticAnimatedScroll == false) {
             return false
         }
-        if ((slidingDirection == .up) || (slidingDirection == .down)) && (verticalSliderEnabled == false) {
+        if ((slidingDirection == .up) || (slidingDirection == .down)) && (verticalSliderEnabled == false) && (isInstantCrossAxisEntry == false) && (isProgrammaticAnimatedScroll == false) {
             return false
         }
 
@@ -305,7 +312,7 @@ extension WYContentScrollView {
 
             // 关闭无限轮播时，边界页往循环方向不允许切换
             if (isFirstPage && (slidingDirection == .right)) || (isLastPage && (slidingDirection == .left)) {
-                if (unlimitedCarousel == false) {
+                if (horizontalUnlimitedCarousel == false) {
                     let targetOffset: CGPoint = CGPoint(x: wy_width, y: ((contentSlidingDirection == .omnidirectional) ? wy_height : 0))
                     if (!CGPointEqualToPoint(contentOffset, targetOffset)) {
                         // 经统一入口修正(防写入互递归)
@@ -326,7 +333,7 @@ extension WYContentScrollView {
             
             // 关闭无限轮播时，边界页往循环方向不允许切换
             if (isFirstPage && (slidingDirection == .down)) || (isLastPage && (slidingDirection == .up)) {
-                if (unlimitedCarousel == false) {
+                if (verticalUnlimitedCarousel == false) {
                     let targetOffset: CGPoint = CGPoint(x: ((contentSlidingDirection == .omnidirectional) ? wy_width : 0), y: wy_height)
                     if (!CGPointEqualToPoint(contentOffset, targetOffset)) {
                         // 经统一入口修正(防写入互递归)

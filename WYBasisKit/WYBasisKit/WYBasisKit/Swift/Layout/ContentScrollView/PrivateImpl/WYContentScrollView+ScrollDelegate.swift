@@ -106,7 +106,8 @@ extension WYContentScrollView: UIScrollViewDelegate {
         updateInteractiveCrossAxisProgress()
 
         if (slidingDirection == .left) || (slidingDirection == .right) {
-            if hasInitialCallbackHorizontal == false {
+            // 轴初始补发只在触摸方向为当前展示轴时进行(含标记消费)：跨轴方向的触摸此刻目标轴并未真正展示(要等提交才翻转)，补发的did会让业务立刻起播目标轴内容——拖动取消时展示轴仍是原轴，表现为"画面停在原轴、声音来自另一轴"的隐形出声；跨轴进入的提交链路自带完整will→did，无需补发。判据必须含isInteractiveCrossAxisDrag==false：交互式跨轴拖动的staging会把目标轴提前置顶，按置顶View判展示轴会被骗过(补发在拖动首帧就触发，表现为切轴动画还没滑到位另一轴的声音已起播)
+            if (hasInitialCallbackHorizontal == false) && (isInteractiveCrossAxisDrag == false) && (axisIsHorizontal(of: .unknown) == true) {
                 hasInitialCallbackHorizontal = true
                 // 直切/程序化跨轴切换期间不发轴初始补发：两者链路都自带完整will→did，补发会抢在will之前乱序(先did后will再did)；标记照常消费
                 if (isInstantCrossAxisEntry == false) && (isProgrammaticAnimatedScroll == false) {
@@ -114,7 +115,8 @@ extension WYContentScrollView: UIScrollViewDelegate {
                 }
             }
         }else {
-            if hasInitialCallbackVertical == false {
+            // 轴初始补发只在触摸方向为当前展示轴时进行(含标记消费)：跨轴方向的触摸此刻目标轴并未真正展示(要等提交才翻转)，补发的did会让业务立刻起播目标轴内容——拖动取消时展示轴仍是原轴，表现为"画面停在原轴、声音来自另一轴"的隐形出声；跨轴进入的提交链路自带完整will→did，无需补发。判据必须含isInteractiveCrossAxisDrag==false：交互式跨轴拖动的staging会把目标轴提前置顶，按置顶View判展示轴会被骗过(补发在拖动首帧就触发，表现为切轴动画还没滑到位另一轴的声音已起播)
+            if (hasInitialCallbackVertical == false) && (isInteractiveCrossAxisDrag == false) && (axisIsHorizontal(of: .unknown) == false) {
                 hasInitialCallbackVertical = true
                 // 直切/程序化跨轴切换期间不发轴初始补发：两者链路都自带完整will→did，补发会抢在will之前乱序(先did后will再did)；标记照常消费
                 if (isInstantCrossAxisEntry == false) && (isProgrammaticAnimatedScroll == false) {
