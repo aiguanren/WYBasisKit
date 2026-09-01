@@ -408,6 +408,17 @@ Pod::Spec.new do |kit|
     #   chatView.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
     # end
 
+    layout.subspec "ContentScrollView" do |contentScrollView|
+      contentScrollView.source_files = [
+        "#{kit_path}ObjC/Layout/ContentScrollView/**/*.{swift,h,m}"
+      ]
+      contentScrollView.resource_bundles = {"WYBasisKitObjCLayoutContentScrollView" => [
+      "#{kit_path}ObjC/Layout/ContentScrollView/PrivacyInfo.xcprivacy"
+      ]}
+      contentScrollView.dependency "WYBasisKit-swift/Layout/ContentScrollView", kit_swift_version
+      contentScrollView.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
+    end
+
     layout.subspec "MediaPlayer" do |mediaPlayer|
       mediaPlayer.source_files = [
         "#{kit_path}ObjC/Layout/MediaPlayer/**/*.{swift,h,m}"

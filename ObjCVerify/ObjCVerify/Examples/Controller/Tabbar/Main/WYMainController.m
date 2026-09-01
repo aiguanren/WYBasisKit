@@ -51,6 +51,8 @@
             
             [[ListItem alloc] initWithTitle:@"内边距"
                                  controller:@"WYTestEdgeInsetsController"],
+            [[ListItem alloc] initWithTitle:@"无限切换"
+                                 controller:@"WYTestInfiniteSwitchController"],
             
             [[ListItem alloc] initWithTitle:@"Banner轮播"
                                  controller:@"WYTestBannerController"],

@@ -10,7 +10,7 @@ import UIKit
 
 /// WYContentScrollView 私有实现：手势判轴与滚动控制(方向锁定/轴能力钳制/跨轴拦截/轮播计时器启停)
 extension WYContentScrollView {
-
+    
     /// 暂停定时器
     func pauseTimer() {
         if timer != nil {
@@ -18,10 +18,10 @@ extension WYContentScrollView {
         timer?.invalidate()
         timer = nil
     }
-
+    
     /// 轮播计时器随展示轴/数量/开关动态启停：翻不了页时停表，恢复可翻且此前开过轮播时自动重启
     func refreshCarouselTimer() {
-
+        
         // 无限翻页前提按展示轴的开关判定(轮播只翻展示轴，无限开关已按轴拆分)
         guard let carouselDirection = carouselDirection else {
             // 用暂停而非停止：条件恢复(数量改回/开关重开/展示轴翻回)后自动续播，重启标记不能丢
@@ -33,13 +33,13 @@ extension WYContentScrollView {
             pauseTimer()
             return
         }
-
+        
         // 计时器不在跑且开启过轮播才重启：从未startTimer或业务已关轮播则不复活(stopTimer是软停，真正关闭用automaticCarousel=false，与松手重启语义一致)；用户拖动/惯性中不重启，由松手回调负责
         if (timer == nil) && (canRestartedTimer == true) && (isTracking == false) && (isDecelerating == false) {
             startTimer()
         }
     }
-
+    
     /// 检查当前滚动能力（只控制整体是否可滚动，不参与方向控制）
     func checkCarouselStatus() {
         
@@ -57,28 +57,28 @@ extension WYContentScrollView {
             let horizontalExists = (numberOfHorizontalContent >= 1) && horizontalSliderEnabled
             // 纵向轴是否存在内容且允许滑动
             let verticalExists = (numberOfVerticalContent >= 1) && verticalSliderEnabled
-
+            
             // 此模式下只要有一个方向存在内容且允许滑动就放开全局滚动(isScrollEnabled是全局的)，具体方向与单页约束通过handleScrollDirectionLock与canScroll按展示轴动态实现；两轴开关全关时此处为false=手势完全静默(纯展示，跨轴轻扫也不响应——双关的意图是锁死交互)，此时切换方向只能走switchContent等API(显式指令不受手势开关约束，isScrollEnabled只挡触摸不挡程序化赋值)
             isScrollEnabled = horizontalExists || verticalExists
             break
         }
-
+        
         // 方向/数量/开关任何变化后动态启停轮播计时器(展示轴翻不了页时清除防空转，恢复可翻时自动重启)
         refreshCarouselTimer()
     }
-
+    
     /// 处理方向锁定并返回当前滑动方向：锁死不可滑方向、全向判定并锁定拖拽主方向、边界处钳制contentOffset
     func handleScrollDirectionLock() -> WYSlidingDirection {
-
+        
         // 方向推导必须读钳制前的原始偏移：程序化动画的位移会被下方轴能力钳制抹回中心，读钳制后偏移则delta恒0判不了轴(轮播停摆)
         let incomingOffset = contentOffset
-
+        
         // 横向是否允许滑动(非全向：单页/无内容不可滑)
         var horizontalCanScroll = (numberOfHorizontalContent > 1) ? horizontalSliderEnabled : false
-
+        
         // 纵向是否允许滑动(非全向：单页/无内容不可滑)
         var verticalCanScroll = (numberOfVerticalContent > 1) ? verticalSliderEnabled : false
-
+        
         if contentSlidingDirection == .omnidirectional {
             
             // 展示轴判定(方向未知时按置顶View判)：优先方向只是挂载瞬间的展示轴代理，按它判会把垂直展示后的垂直滑动/翻页误判成跨轴而拦死；交互式跨轴拖动期间改用开始时记录的原展示轴——此时internalSliderDirection已翻成目标轴方向，按它推导会误以为展示轴已翻过去而放开行程
@@ -91,13 +91,13 @@ extension WYContentScrollView {
                 verticalCanScroll = (lockedAxisIsHorizontal == false) && (displayedAxisIsHorizontal == false) && (numberOfVerticalContent > 1) && verticalSliderEnabled
             }
         }
-
+        
         if isInstantCrossAxisEntry || isProgrammaticAnimatedScroll {
             // 轻扫直切/程序化动画滚动期间：两轴能力临时放开(单轴约束由下方方向锁定逻辑保证)，避免偏移被钳回中心(程序化动画被钳会欠位移导致终点不够整页、切换失败弹回)
             horizontalCanScroll = true
             verticalCanScroll = true
         }
-
+        
         if (isInteractiveCrossAxisDrag == true) && (crossAxisSwitchStyle == .slide) && isDirectionLocked {
             // 交互式跨轴拖动的slide样式：放开锁定轴行程让偏移跟手(fade/zoom不开——呈现族偏移保持中心，进度由拖动距离驱动)
             if (dragLockedDirection == .left) || (dragLockedDirection == .right) {
@@ -128,22 +128,22 @@ extension WYContentScrollView {
         
         let offsetX = incomingOffset.x
         let offsetY = incomingOffset.y
-
+        
         var slidingDirection: WYSlidingDirection = internalSliderDirection
-
+        
         // 仅在全方向模式下处理
         if contentSlidingDirection == .omnidirectional {
             
             let centerX = wy_width
             let centerY = wy_height
-
+            
             // 相对中心点的偏移
             let deltaX = offsetX - centerX
             let deltaY = offsetY - centerY
-
+            
             // 未锁定时，根据主方向判断一次(判轴依据手指位移而非contentOffset的delta：零行程钳制下delta恒为0，offset判不出跨轴意图；手指上/左滑=offset增=left/up，符号需取反)
             if isDirectionLocked == false {
-
+                
                 let panTranslation = panGestureRecognizer.translation(in: self)
                 var translationX = -panTranslation.x
                 var translationY = -panTranslation.y
@@ -153,7 +153,7 @@ extension WYContentScrollView {
                     translationY = deltaY
                 }else if (isTracking == false) && (isDecelerating == false) {
                     // 纯程序化滚动(定时器轮播/nextContent/lastContent/switchContent)没有手指：pan位移恒为0锁不上轴，判轴前两轴全钳制会把程序化动画掐死在第一帧，此场景回退按偏移位移判轴(与直切同源)
-                // 用户路径不受影响：同轴拖动靠手指位移先锁再放行，被钳制的零行程delta≈0不会误锁；同时消除手势结束后残留的陈旧位移被程序化滚动误用导致的时好时坏
+                    // 用户路径不受影响：同轴拖动靠手指位移先锁再放行，被钳制的零行程delta≈0不会误锁；同时消除手势结束后残留的陈旧位移被程序化滚动误用导致的时好时坏
                     translationX = deltaX
                     translationY = deltaY
                 }
@@ -240,17 +240,17 @@ extension WYContentScrollView {
         
         return slidingDirection
     }
-
+    
     /// 轴向判定：方向明确按方向判，未知按置顶ContentView所属轴判，判不出按优先方向兜底
     func axisIsHorizontal(of direction: WYSlidingDirection) -> Bool {
-
+        
         if (direction == .left) || (direction == .right) {
             return true
         }
         if (direction == .up) || (direction == .down) {
             return false
         }
-
+        
         if let currentContentView = upperContentView {
             if currentContentView == horizontalViews?.first {
                 return true
@@ -261,23 +261,23 @@ extension WYContentScrollView {
         }
         return prioritySlidingDirection != .topOrBottom
     }
-
+    
     /// 程序化修正contentOffset的统一入口：重入闸防修正互拉递归栈溢出
     func correctContentOffset(_ target: CGPoint) {
-
+        
         guard (isCorrectingContentOffset == false) && (target != contentOffset) else {
             return
         }
-
+        
         isCorrectingContentOffset = true
         contentOffset = target
         isCorrectingContentOffset = false
     }
-
+    
     func canScroll(_ slidingDirection: WYSlidingDirection) -> Bool {
-
+        
         guard slidingDirection != .unknown else { return false }
-
+        
         if (contentSlidingDirection == .omnidirectional) && isDirectionLocked {
             // 交互式跨轴拖动期间一律放行(跨轴进入不受目标轴滑动开关限制，bi语义；也避免方向翻转后展示轴推导变化误拦)
             if isInteractiveCrossAxisDrag { return true }
@@ -289,7 +289,7 @@ extension WYContentScrollView {
                 return isInstantCrossAxisEntry || isProgrammaticAnimatedScroll || isInteractiveCrossAxisDrag
             }
         }
-
+        
         // 滑动开关是纯手势开关：只拦用户拖动，程序化动画(nextContent/lastContent/switchContent/轮播tick)与轻扫直切是组件/业务显式驱动必须放行——被拦会杀死staging与提交
         if ((slidingDirection == .left) || (slidingDirection == .right)) && (horizontalSliderEnabled == false) && (isInstantCrossAxisEntry == false) && (isProgrammaticAnimatedScroll == false) {
             return false
@@ -297,16 +297,16 @@ extension WYContentScrollView {
         if ((slidingDirection == .up) || (slidingDirection == .down)) && (verticalSliderEnabled == false) && (isInstantCrossAxisEntry == false) && (isProgrammaticAnimatedScroll == false) {
             return false
         }
-
+        
         if (slidingDirection == .left) || (slidingDirection == .right) {
-
+            
             guard contentSlidingDirection != .topOrBottom else { return false }
-
+            
             // 边界判断只看 currentHorizontalIndex：canScroll 在 setter 之前执行，若依赖 reserveHorizontalIndex(上一次的值)，先反向滑使其变化后边界拦截会失效、导致 reserveView 闪现
             let isFirstPage = (currentHorizontalIndex == 0)
-
+            
             let isLastPage = (currentHorizontalIndex == (numberOfHorizontalContent - 1))
-
+            
             // 关闭无限轮播时，边界页往循环方向不允许切换
             if (isFirstPage && (slidingDirection == .right)) || (isLastPage && (slidingDirection == .left)) {
                 if (horizontalUnlimitedCarousel == false) {
@@ -325,7 +325,7 @@ extension WYContentScrollView {
             
             // 边界判断只看 currentVerticalIndex：canScroll 在 setter 之前执行，若依赖 reserveVerticalIndex(上一次的值)，先反向滑使其变化后边界拦截会失效、导致 reserveView 闪现
             let isFirstPage = (currentVerticalIndex == 0)
-
+            
             let isLastPage = (currentVerticalIndex == (numberOfVerticalContent - 1))
             
             // 关闭无限轮播时，边界页往循环方向不允许切换
@@ -340,7 +340,6 @@ extension WYContentScrollView {
                 }
             }
         }
-        
         return true
     }
 }

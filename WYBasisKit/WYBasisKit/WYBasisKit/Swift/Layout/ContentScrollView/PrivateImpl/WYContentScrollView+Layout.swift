@@ -10,31 +10,31 @@ import UIKit
 
 /// WYContentScrollView 私有实现：内容视图布局与挂载(重挂保序/置顶层级/尺寸偏移检查)
 extension WYContentScrollView {
-
+    
     /// 检查各ContentView的superView
     func contentViewInitializationCheck(_ contentViews: [UIView]) {
-
+        
         contentViews.forEach { $0.removeFromSuperview() }
-
+        
         // 统一清理水平与垂直两个方向的 view，避免残留 view 遮挡新方向内容
         horizontalViews?.forEach { $0.removeFromSuperview() }
         horizontalViews = nil
         verticalViews?.forEach { $0.removeFromSuperview() }
         verticalViews = nil
     }
-
+    
     /// 重挂同一组View时保留组件内部当前/预备顺序，传入新View组时尊重调用方顺序
     func resolveDisplayOrder(_ incomingViews: [UIView], existingViews: [UIView]?) -> [UIView] {
-
+        
         guard let existingViews = existingViews,
               (existingViews.count == 2) && (incomingViews.count == 2),
               Set(incomingViews.map(ObjectIdentifier.init)) == Set(existingViews.map(ObjectIdentifier.init)) else {
             return incomingViews
         }
-
+        
         return existingViews
     }
-
+    
     /// 内部初始化设置
     func internalInitializationSettings() {
         
@@ -50,13 +50,13 @@ extension WYContentScrollView {
         showsVerticalScrollIndicator = false
         contentInsetAdjustmentBehavior = .never
     }
-
+    
     /// 内部设置添加ContentView
     func internalSettingsContentView(isReload: Bool) {
-
+        
         // 布局前记录内容View是否尚未挂载(以此判断本次是否为首次展示/切换方向后的重新展示)
         let isInitialDisplay: Bool = (horizontalViews?.first?.superview == nil) && (verticalViews?.first?.superview == nil)
-
+        
         if (contentSlidingDirection == .omnidirectional) {
             if prioritySlidingDirection == .topOrBottom {
                 layoutContentSubViews(.leftOrRight, isReload: isReload)
@@ -72,10 +72,10 @@ extension WYContentScrollView {
         // 本次确实新挂载了内容View才触发初始didSwitch(只回调当前展示方向，另一方向等首次滑动时补发)
         let didDisplay: Bool = (horizontalViews?.first?.superview != nil) || (verticalViews?.first?.superview != nil)
         if isInitialDisplay && didDisplay {
-
-
+            
+            
             internalSliderDirection = .unknown
-
+            
             // 本次展示(前置)的方向：左右模式与全向(优先非上下)为水平轴，上下模式与全向优先上下为垂直轴
             let isHorizontalFront: Bool = (initialDisplayDirection == .left) || (initialDisplayDirection == .right)
             // 非展示轴重置标记，等首次滑动时在scrollViewDidScroll补发
@@ -92,7 +92,7 @@ extension WYContentScrollView {
                 hasInitialCallbackVertical = true
                 switchContentCallback(isDidSwitch: true, direction: initialDisplayDirection)
             }
-
+            
             // 首次展示(含切换方向重挂载)且开着自动轮播时自动开表：让automaticCarousel默认true的语义名副其实——不自动开表的话"自动轮播开着"却一直不轮播，属性与实际状态割裂；不需要轮播的业务把automaticCarousel设为false即可拦在此处；业务stopTimer过硬停后此自动开表也让位(timerStoppedByBusiness)，只有再次显式startTimer才恢复；此后启停交由startTimer/stopTimer与动态启停管理(拖动暂停松手续播、展示轴不可翻自动停恢复)
             if (automaticCarousel != false) && (timerStoppedByBusiness == false) {
                 // 展示轴的无限翻页前提由startTimer自身的门判定(无限开关已按轴拆分，读展示轴的开关)
@@ -100,16 +100,16 @@ extension WYContentScrollView {
             }
         }
     }
-
+    
     /// 按方向布局内容视图：currentView固定中心页，reserveView位于其滑动方向一侧
     func layoutContentSubViews(_ direction: WYContentSlidingDirection, isReload: Bool) {
-
+        
         if direction == .leftOrRight {
-
+            
             guard horizontalViews?.count == 2,
                   let currentHorizontalView = horizontalViews?.first,
                   let reserveHorizontalView = horizontalViews?.last else { return }
-
+            
             // 自身尺寸未变化且非强制重载时跳过布局，避免 layoutSubviews 频繁触发造成浪费
             guard (!CGSizeEqualToSize(frame.size, currentHorizontalView.frame.size)) || (isReload == true) else {
                 return
@@ -184,7 +184,7 @@ extension WYContentScrollView {
         // 初始化时同步lastValid：否则紧随其后的handleScrollDirectionLock会用旧方向的合法偏移把新布局的contentOffset锁回去
         lastValidContentOffset = contentOffset
     }
-
+    
     /// 判断设置展示在顶层的对应方向的View，若contentViews为空则内部自行判断
     func bringContentToFront(_ contentViews: [UIView]? = nil) {
         
@@ -233,7 +233,7 @@ extension WYContentScrollView {
                     // 垂直轴正在置顶展示：停留不劫持，语义同上(含数量归零)
                     return
                 }
-
+                
                 if ((numberOfHorizontalContent > 1) && (numberOfVerticalContent > 1)) || (numberOfHorizontalContent == numberOfVerticalContent) {
                     
                     // 都大于1或者都等于1，则依据优先显示方向来处理
@@ -270,7 +270,7 @@ extension WYContentScrollView {
             }
         }
     }
-
+    
     /// 按方向检查并设置contentSize与contentOffset：currentView固定停在各方向的中心页
     func checkContentSizeAndContentOffset() {
         switch contentSlidingDirection {
@@ -300,7 +300,4 @@ extension WYContentScrollView {
             break
         }
     }
-
-
-
 }

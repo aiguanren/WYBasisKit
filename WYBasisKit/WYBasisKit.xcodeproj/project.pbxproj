@@ -288,6 +288,8 @@
 		584E8BD13046BC4000C6D2CA /* WYMediaPlayer+LoadCore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+LoadCore.swift"; sourceTree = "<group>"; };
 		584E8BD23046BC4000C6D2CA /* WYMediaPlayer+Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+Notifications.swift"; sourceTree = "<group>"; };
 		584E8BD33046BC4000C6D2CA /* WYMediaPlayer+Properties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+Properties.swift"; sourceTree = "<group>"; };
+		584E8BDD3046C90300C6D2CA /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		584E8BDE3046C90300C6D2CA /* WYContentScrollViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYContentScrollViewObjC.swift; sourceTree = "<group>"; };
 		584EAF002E92791B003A21B8 /* WYLocalizableManagerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLocalizableManagerObjC.swift; sourceTree = "<group>"; };
 		584EAF072E92979A003A21B8 /* WYMediaPlayerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaPlayerObjC.swift; sourceTree = "<group>"; };
 		584EAF092E92A7A0003A21B8 /* WYBannerViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYBannerViewObjC.swift; sourceTree = "<group>"; };
@@ -964,6 +966,15 @@
 				584E8BD33046BC4000C6D2CA /* WYMediaPlayer+Properties.swift */,
 			);
 			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
+		584E8BDF3046C90300C6D2CA /* ContentScrollView */ = {
+			isa = PBXGroup;
+			children = (
+				584E8BDD3046C90300C6D2CA /* PrivacyInfo.xcprivacy */,
+				584E8BDE3046C90300C6D2CA /* WYContentScrollViewObjC.swift */,
+			);
+			path = ContentScrollView;
 			sourceTree = "<group>";
 		};
 		58582C0F30412CC600A90194 /* PrivateImpl */ = {
@@ -1717,6 +1728,7 @@
 		58C68CB02E84E436005FD054 /* Layout */ = {
 			isa = PBXGroup;
 			children = (
+				584E8BDF3046C90300C6D2CA /* ContentScrollView */,
 				588797BD3009F5D500FDDE9C /* SoundWavesView */,
 				580BB8AF2FF64F3D00C1B986 /* AirBubbleView */,
 				58C68C8C2E84E436005FD054 /* BannerView */,

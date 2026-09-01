@@ -10,7 +10,7 @@ import UIKit
 
 /// WYContentScrollView 私有属性集中管理：关联对象存储的状态属性(滑动方向/视图数组/置顶视图/计时器/锁与标记)与派生计算属性(初始展示方向/轮播方向)
 extension WYContentScrollView {
-
+    
     /// 当前展示形态对应的初始滑动方向：左右模式为.left、上下模式为.up、全向模式按优先方向取(用于首次展示的didSwitch回调，此时尚未发生任何滑动)
     var initialDisplayDirection: WYSlidingDirection {
         switch contentSlidingDirection {
@@ -22,15 +22,14 @@ extension WYContentScrollView {
             return (prioritySlidingDirection == .topOrBottom) ? .up : .left
         }
     }
-
-
+    
     /// 当前滑动方向：setter内同步完成reserveView摆位、reserveIndex计算与willSwitch回调
     var internalSliderDirection: WYSlidingDirection {
         set(newValue) {
             
             // 跨轴判定必须用写入前的方向：先写入再读的话previous恒等于newValue(恒判同轴)
             let previousDirection: WYSlidingDirection = objc_getAssociatedObject(self, &WYAssociatedKeys.internalSliderDirection) as? WYSlidingDirection ?? .unknown
-
+            
             objc_setAssociatedObject(self, &WYAssociatedKeys.internalSliderDirection, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
             
             if ((newValue == .up) || (newValue == .down) && (contentSlidingDirection != .leftOrRight)) {
@@ -53,10 +52,10 @@ extension WYContentScrollView {
                 
                 // 更新标记
                 configVerticalReserveIndex = reserveVerticalIndex
-
+                
                 // 跨轴进入判定(方向未知时按置顶View判轴)：必须在下方bringContentToFront之前求值——置顶动作会把目标轴翻上来，之后才判的话.unknown兜底读到的就是刚翻转的目标轴自身，跨轴直切会被误判成"本轴已展示中"的同轴推进(reserve被+1污染+发幽灵will，轻扫直切必现)
                 let previousAxisIsHorizontal = axisIsHorizontal(of: previousDirection)
-
+                
                 // 将对应方向的正在显示的View移到WYContentScrollView的最上面
                 bringContentToFront([currentVerticalView, reserveVerticalView])
                 // 跨轴进入判定(方向未知时按置顶View判轴)：按优先方向判会把垂直进入误判成跨轴、钳住reserve不推进(下标不涨、轮播卡死在未加载的预备页)；程序化跨轴切换(动画窗口内)不按跨轴进入处理——显式调用nextContent/lastContent/switchContent指定非展示轴时期待目标轴下标前进并预加载，"下标保持"语义只属于轻扫直切(用户零成本换轴)
@@ -84,7 +83,7 @@ extension WYContentScrollView {
                     switchContentCallback(isDidSwitch: false)
                 }
             }
-
+            
             if ((newValue == .left) || (newValue == .right) && (contentSlidingDirection != .topOrBottom)) {
                 
                 guard numberOfHorizontalContent > 0 else { return }
@@ -105,10 +104,10 @@ extension WYContentScrollView {
                 
                 // 更新标记
                 configHorizontalReserveIndex = reserveHorizontalIndex
-
+                
                 // 跨轴进入判定(方向未知时按置顶View判轴)：必须在下方bringContentToFront之前求值——置顶动作会把目标轴翻上来，之后才判的话.unknown兜底读到的就是刚翻转的目标轴自身，跨轴直切会被误判成"本轴已展示中"的同轴推进(reserve被+1污染+发幽灵will)
                 let previousAxisIsHorizontal = axisIsHorizontal(of: previousDirection)
-
+                
                 // 将对应方向的正在显示的View移到WYContentScrollView的最上面
                 bringContentToFront([currentHorizontalView, reserveHorizontalView])
                 // 跨轴进入判定(方向未知时按置顶View判轴)：按优先方向判会把垂直进入误判成跨轴、钳住reserve不推进(下标不涨、轮播卡死在未加载的预备页)；程序化跨轴切换(动画窗口内)不按跨轴进入处理——显式调用nextContent/lastContent/switchContent指定非展示轴时期待目标轴下标前进并预加载，"下标保持"语义只属于轻扫直切(用户零成本换轴)
@@ -141,7 +140,7 @@ extension WYContentScrollView {
             return objc_getAssociatedObject(self, &WYAssociatedKeys.internalSliderDirection) as? WYSlidingDirection ?? .unknown
         }
     }
-
+    
     /// 计时器
     var timer: Timer? {
         set(newValue) {
@@ -151,7 +150,7 @@ extension WYContentScrollView {
             return objc_getAssociatedObject(self, &WYAssociatedKeys.timer) as? Timer
         }
     }
-
+    
     /// 判断手动拖拽后是否需要启动定时器
     var canRestartedTimer: Bool {
         set(newValue) {
@@ -161,7 +160,7 @@ extension WYContentScrollView {
             return objc_getAssociatedObject(self, &WYAssociatedKeys.canRestartedTimer) as? Bool ?? false
         }
     }
-
+    
     /// 是否正处于交互式跨轴拖动中：松手按进度(≥半页)或速度(≥轻扫阈值)决定完成或回弹；instant不进此模式
     var isInteractiveCrossAxisDrag: Bool {
         set(newValue) {
@@ -171,7 +170,7 @@ extension WYContentScrollView {
             return objc_getAssociatedObject(self, &WYAssociatedKeys.isInteractiveCrossAxisDrag) as? Bool ?? false
         }
     }
-
+    
     /// 交互式跨轴拖动开始时的原展示轴是否为水平：期间展示轴判定与回弹恢复都以它为准
     var interactiveCrossOriginalAxisIsHorizontal: Bool {
         set(newValue) {
@@ -181,7 +180,7 @@ extension WYContentScrollView {
             return objc_getAssociatedObject(self, &WYAssociatedKeys.interactiveCrossOriginalAxisIsHorizontal) as? Bool ?? true
         }
     }
-
+    
     /// 交互式跨轴拖动的目标方向(决定进入侧与进度轴向)
     var interactiveCrossDirection: WYSlidingDirection {
         set(newValue) {
@@ -191,7 +190,7 @@ extension WYContentScrollView {
             return objc_getAssociatedObject(self, &WYAssociatedKeys.interactiveCrossDirection) as? WYSlidingDirection ?? .unknown
         }
     }
-
+    
     /// 程序化contentOffset修正的重入闸：防修正互拉递归栈溢出
     var isCorrectingContentOffset: Bool {
         set(newValue) {
@@ -201,7 +200,7 @@ extension WYContentScrollView {
             return objc_getAssociatedObject(self, &WYAssociatedKeys.isCorrectingContentOffset) as? Bool ?? false
         }
     }
-
+    
     /// 业务是否显式停止过计时器：置位后自动开表让位，仅再次startTimer才恢复
     var timerStoppedByBusiness: Bool {
         set(newValue) {
@@ -211,7 +210,7 @@ extension WYContentScrollView {
             return objc_getAssociatedObject(self, &WYAssociatedKeys.timerStoppedByBusiness) as? Bool ?? false
         }
     }
-
+    
     /// 是否已锁定滑动方向（只在一次拖拽中生效，避免contentSlidingDirection == .omnidirectional时滑动后无法锁定方向的问题）
     var isDirectionLocked: Bool {
         set {
@@ -221,31 +220,31 @@ extension WYContentScrollView {
             return objc_getAssociatedObject(self, &WYAssociatedKeys.isDirectionLocked) as? Bool ?? false
         }
     }
-
+    
     /// 本次拖拽锁定的滑动方向(仅omnidirectional模式)：边界拦截期间靠它保持方向
     var dragLockedDirection: WYSlidingDirection {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.dragLockedDirection, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.dragLockedDirection) as? WYSlidingDirection ?? .unknown }
     }
-
+    
     /// 是否正处于轻扫跨轴直切中：期间两轴能力临时放开
     var isInstantCrossAxisEntry: Bool {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.isInstantCrossAxisEntry, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.isInstantCrossAxisEntry) as? Bool ?? false }
     }
-
+    
     /// 是否正处于切换收尾中：防止重入setter把刚落定的下标再次±1
     var isFinalizingSwitch: Bool {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.isFinalizingSwitch, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.isFinalizingSwitch) as? Bool ?? false }
     }
-
+    
     /// 是否正处于程序化动画滚动中：期间两轴能力临时放开防动画被钳制
     var isProgrammaticAnimatedScroll: Bool {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.isProgrammaticAnimatedScroll, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.isProgrammaticAnimatedScroll) as? Bool ?? false }
     }
-
+    
     /// 上一次合法的偏移量：不可滑方向被锁死时 contentOffset 回退到此值
     var lastValidContentOffset: CGPoint {
         set(newValue) {
@@ -255,7 +254,7 @@ extension WYContentScrollView {
             return objc_getAssociatedObject(self, &WYAssociatedKeys.lastValidContentOffset) as? CGPoint ?? .zero
         }
     }
-
+    
     /// 本次拖拽是否已滑过一页宽度(松手时据此判断要不要执行 pauseScroll 切换)
     var canSwitchedPage: Bool {
         set(newValue) {
@@ -265,31 +264,31 @@ extension WYContentScrollView {
             return objc_getAssociatedObject(self, &WYAssociatedKeys.canSwitchedPage) as? Bool ?? false
         }
     }
-
+    
     /// 记录上一次为 reserveHorizontalView 配置的索引，避免重复设置
     var configHorizontalReserveIndex: Int? {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.configHorizontalReserveIndex, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.configHorizontalReserveIndex) as? Int }
     }
-
+    
     /// 记录上一次为 reserveVerticalView 配置的索引，避免重复设置
     var configVerticalReserveIndex: Int? {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.configVerticalReserveIndex, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.configVerticalReserveIndex) as? Int }
     }
-
+    
     /// 水平轴是否已触发过初始didSwitch(初始展示只回调展示方向，另一轴首次滑到时补发)
     var hasInitialCallbackHorizontal: Bool {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.hasInitialCallbackHorizontal, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.hasInitialCallbackHorizontal) as? Bool ?? false }
     }
-
+    
     /// 垂直轴是否已触发过初始didSwitch(初始展示只回调展示方向，另一轴首次滑到时补发)
     var hasInitialCallbackVertical: Bool {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.hasInitialCallbackVertical, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.hasInitialCallbackVertical) as? Bool ?? false }
     }
-
+    
     /// 外部真实代理（弱引用避免循环引用）
     weak var internalDelegate: UIScrollViewDelegate? {
         set(newValue) {
@@ -299,10 +298,10 @@ extension WYContentScrollView {
             return (objc_getAssociatedObject(self, &WYAssociatedKeys.internalDelegate ) as? WYWeakBox)?.value as? UIScrollViewDelegate
         }
     }
-
+    
     /// 当前轮播应推进的方向：单轴为模式本身，全向跟随置顶轴；数量不足2返回nil
     var carouselDirection: WYContentSlidingDirection? {
-
+        
         switch contentSlidingDirection {
         case .leftOrRight:
             return (numberOfHorizontalContent >= 2) ? .leftOrRight : nil
@@ -316,7 +315,7 @@ extension WYContentScrollView {
             return (numberOfVerticalContent >= 2) ? .topOrBottom : nil
         }
     }
-
+    
     /// 当前正在水平方向显示的Views(用户传入的View)
     var horizontalViews: [UIView]? {
         set(newValue) {
@@ -326,7 +325,7 @@ extension WYContentScrollView {
             return objc_getAssociatedObject(self, &WYAssociatedKeys.horizontalViews) as? [UIView]
         }
     }
-
+    
     /// 当前正在垂直方向显示的Views(用户传入的View)
     var verticalViews: [UIView]? {
         set(newValue) {
@@ -336,7 +335,7 @@ extension WYContentScrollView {
             return objc_getAssociatedObject(self, &WYAssociatedKeys.verticalViews) as? [UIView]
         }
     }
-
+    
     /// 当前显示在最上层的ContentView
     var upperContentView: UIView? {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.upperContentView, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }

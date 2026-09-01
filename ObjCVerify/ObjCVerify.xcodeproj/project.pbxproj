@@ -22,6 +22,7 @@
 		584D75142F7236E5006C05E7 /* WYTestImageRenderingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 584D75122F7236E5006C05E7 /* WYTestImageRenderingController.m */; };
 		584D75152F7236E5006C05E7 /* WYTestImageRenderingController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 584D75132F7236E5006C05E7 /* WYTestImageRenderingController.xib */; };
 		584D751D2F72822D006C05E7 /* 彩色花.webp in Resources */ = {isa = PBXBuildFile; fileRef = 584D751C2F72822D006C05E7 /* 彩色花.webp */; };
+		584E8BE33046C9AB00C6D2CA /* WYTestInfiniteSwitchController.m in Sources */ = {isa = PBXBuildFile; fileRef = 584E8BE23046C9AB00C6D2CA /* WYTestInfiniteSwitchController.m */; };
 		584EAF0E2E939052003A21B8 /* WYWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF0D2E939052003A21B8 /* WYWebViewController.m */; };
 		58B46FF22E8D0F6100D04BCA /* WYTabBarController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B46FF12E8D0F6100D04BCA /* WYTabBarController.m */; };
 		58B470142E8D112B00D04BCA /* 秋天的树.png in Resources */ = {isa = PBXBuildFile; fileRef = 58B470052E8D112B00D04BCA /* 秋天的树.png */; };
@@ -180,6 +181,8 @@
 		584D75122F7236E5006C05E7 /* WYTestImageRenderingController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestImageRenderingController.m; sourceTree = "<group>"; };
 		584D75132F7236E5006C05E7 /* WYTestImageRenderingController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WYTestImageRenderingController.xib; sourceTree = "<group>"; };
 		584D751C2F72822D006C05E7 /* 彩色花.webp */ = {isa = PBXFileReference; lastKnownFileType = file; path = "彩色花.webp"; sourceTree = "<group>"; };
+		584E8BE13046C9AB00C6D2CA /* WYTestInfiniteSwitchController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestInfiniteSwitchController.h; sourceTree = "<group>"; };
+		584E8BE23046C9AB00C6D2CA /* WYTestInfiniteSwitchController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestInfiniteSwitchController.m; sourceTree = "<group>"; };
 		584EAF0C2E939052003A21B8 /* WYWebViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYWebViewController.h; sourceTree = "<group>"; };
 		584EAF0D2E939052003A21B8 /* WYWebViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYWebViewController.m; sourceTree = "<group>"; };
 		58AE5D612F0CA1020025C492 /* libswiftCompatibilitySpan.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libswiftCompatibilitySpan.tbd; path = usr/lib/swift/libswiftCompatibilitySpan.tbd; sourceTree = SDKROOT; };
@@ -375,6 +378,15 @@
 			path = "图片渲染";
 			sourceTree = "<group>";
 		};
+		584E8BE03046C98C00C6D2CA /* 无限切换 */ = {
+			isa = PBXGroup;
+			children = (
+				584E8BE13046C9AB00C6D2CA /* WYTestInfiniteSwitchController.h */,
+				584E8BE23046C9AB00C6D2CA /* WYTestInfiniteSwitchController.m */,
+			);
+			path = "无限切换";
+			sourceTree = "<group>";
+		};
 		584EAF0B2E939036003A21B8 /* WKWebView */ = {
 			isa = PBXGroup;
 			children = (
@@ -480,6 +492,7 @@
 		58B470482E8D329600D04BCA /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				584E8BE03046C98C00C6D2CA /* 无限切换 */,
 				580BB8B02FF655DC00C1B986 /* 气泡图 */,
 				584D59E72FBEF25B00A862F7 /* 字符串子串点击 */,
 				584D75102F7236D4006C05E7 /* 图片渲染 */,
@@ -1006,6 +1019,7 @@
 				580ED5652EA5DA56006012E7 /* SDKRequest.m in Sources */,
 				58DEA9C12F0F5A9E00664E13 /* WYTestVisualController.m in Sources */,
 				58BFB8B82F16441A0094DDB5 /* WYTestAudioController.m in Sources */,
+				584E8BE33046C9AB00C6D2CA /* WYTestInfiniteSwitchController.m in Sources */,
 				58B59FF22E5D5315008F9C38 /* ViewController.m in Sources */,
 				58DEA9C52F0F5E2400664E13 /* WYTestBannerController.m in Sources */,
 				58BFB8B42F16411A0094DDB5 /* WYLogController.m in Sources */,

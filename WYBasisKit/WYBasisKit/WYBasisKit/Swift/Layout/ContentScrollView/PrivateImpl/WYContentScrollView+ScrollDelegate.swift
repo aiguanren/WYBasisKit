@@ -10,7 +10,7 @@ import UIKit
 
 /// WYContentScrollView 私有实现：UIScrollViewDelegate 实现(拖动生命周期/轻扫跨轴判定)与事件转发
 extension WYContentScrollView: UIScrollViewDelegate {
-
+    
     public override func layoutSubviews() {
         super.layoutSubviews()
         // 检查(设置)contentSize与contentOffset
@@ -18,7 +18,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
         // 如果frame发生变化需要及时更新内容视图的frame
         internalSettingsContentView(isReload: false)
     }
-
+    
     public override weak var delegate: (any UIScrollViewDelegate)? {
         get {
             return internalDelegate
@@ -39,36 +39,36 @@ extension WYContentScrollView: UIScrollViewDelegate {
             }
         }
     }
-
+    
     /// 点击了内容页面
     @objc func didClickContent() {
-
+        
         guard let contentDelegate = contentDelegate else { return }
-
+        
         // 尚未发生任何滑动时点击的是当前展示方向的内容页，用initialDisplayDirection推导展示方向来分发；已滑动过则沿用实际滑动方向
         let clickDirection: WYSlidingDirection = (internalSliderDirection != .unknown) ? internalSliderDirection : initialDisplayDirection
-
+        
         if (clickDirection == .left) || (clickDirection == .right) {
-
+            
             guard horizontalViews?.count == 2,
                   let currentHorizontalView = horizontalViews?.first,
                   let reserveHorizontalView = horizontalViews?.last else { return }
-
+            
             contentDelegate.wy_contentScrollViewDidClick?(self, direction: clickDirection, currentView: currentHorizontalView, reserveView: reserveHorizontalView, index: currentHorizontalIndex)
         }else {
             guard verticalViews?.count == 2,
                   let currentVerticalView = verticalViews?.first,
                   let reserveVerticalView = verticalViews?.last else { return }
-
+            
             contentDelegate.wy_contentScrollViewDidClick?(self, direction: clickDirection, currentView: currentVerticalView, reserveView: reserveVerticalView, index: currentVerticalIndex)
         }
     }
-
+    
     public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-
+        
         // 回调外部
         internalDelegate?.scrollViewWillBeginDragging?(scrollView)
-
+        
         // 暂停计时器(保留重启标记，松手后自动续播；不能用stopTimer——那会清除标记导致松手后轮播不再恢复)
         pauseTimer()
         // 防御：上一轮交互式跨轴拖动若因异常未收尾，无动画立即复位(正常流程松手会走完成/回弹)
@@ -86,11 +86,11 @@ extension WYContentScrollView: UIScrollViewDelegate {
         isProgrammaticAnimatedScroll = false
         // 重置方向锁定
         isDirectionLocked = false
-
+        
         // 重置本次拖拽锁定的方向，避免沿用上一次拖拽的方向
         dragLockedDirection = .unknown
     }
-
+    
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
         // 回调外部
@@ -101,10 +101,10 @@ extension WYContentScrollView: UIScrollViewDelegate {
         
         // 判断是否可以滑动
         guard canScroll(slidingDirection) == true else { return }
-
+        
         // 交互式跨轴拖动(fade/zoom)：每帧按拖动距离驱动渐变/缩放进度(slide由偏移自然跟手无需驱动)
         updateInteractiveCrossAxisProgress()
-
+        
         if (slidingDirection == .left) || (slidingDirection == .right) {
             // 轴初始补发只在触摸方向为当前展示轴时进行(含标记消费)：跨轴方向的触摸此刻目标轴并未真正展示(要等提交才翻转)，补发的did会让业务提前起播目标轴内容，而拖动取消时展示轴仍是原轴；跨轴进入的提交链路自带完整will→did，无需补发。判据必须含isInteractiveCrossAxisDrag==false：交互式跨轴拖动的staging会把目标轴提前置顶，按置顶View判展示轴会被骗过
             if (hasInitialCallbackHorizontal == false) && (isInteractiveCrossAxisDrag == false) && (axisIsHorizontal(of: .unknown) == true) {
@@ -133,7 +133,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
         }
         
         if (internalSliderDirection == .left) || (internalSliderDirection == .right) {
-
+            
             // 偏移量越过一页宽度时视为已滑过半程，松手可切换
             canSwitchedPage = (abs(contentOffset.x - wy_width) >= wy_width)
             
@@ -158,19 +158,19 @@ extension WYContentScrollView: UIScrollViewDelegate {
             }
         }
     }
-
+    
     public func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-
+        
         // 回调外部
         internalDelegate?.scrollViewWillEndDragging?(scrollView, withVelocity: velocity, targetContentOffset: targetContentOffset)
-
+        
         // 仅全向模式处理跨轴轻扫直切
         guard contentSlidingDirection == .omnidirectional else { return }
-
+        
         // 甩动速度取自pan手势而非委托参数：零行程钳制下contentOffset全程不动，委托回传的velocity恒约为0(实测仅2~3pt/s)，只有手指真实速度才能表达切换意图；符号转换到offset语义(手指上/左滑=offset增=left/up)
         let panVelocity = panGestureRecognizer.velocity(in: self)
         let flickVelocity = CGPoint(x: -panVelocity.x, y: -panVelocity.y)
-
+        
         // 交互式跨轴拖动收尾：按进度(≥半页)或速度(达轻扫阈值)决定完成或回弹
         if isInteractiveCrossAxisDrag {
             if crossAxisSwitchStyle == .slide {
@@ -187,7 +187,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
             }
             return
         }
-
+        
         // 候选切入方向：仅取速度分量较大的主轴(次轴回退会劫持带斜向分量的同轴翻页手势)；方向符号与handleScrollDirectionLock的delta语义一致(offset增=left/up)
         var candidates: [WYSlidingDirection] = []
         let horizontalVelocity = abs(flickVelocity.x)
@@ -205,10 +205,10 @@ extension WYContentScrollView: UIScrollViewDelegate {
             candidates.append(primary)
         }
         guard candidates.isEmpty == false else { return }
-
+        
         // 当前展示轴(按置顶View事实源判，不用internalSliderDirection)：方向残留会把这个判定骗反(如残留.left时垂直展示下的水平轻扫被判"同轴"而不触发直切)；跨轴轻扫期间方向尚未更新，本就应读展示真相
         let displayedAxisIsHorizontal = axisIsHorizontal(of: .unknown)
-
+        
         // 逐候选判定：跨轴进入(目标轴存在即可，不论数量)且切入轴速度分量明显占优(1.5倍，斜向轻扫的同轴分量不允许误触发跨轴直切——否则同方向再次轻扫会误切轴导致内容无谓重载)才构成直切；目标轴的滑动开关不拦跨轴进入——开关管的是"轴内翻页交互"，不限制"能到达"该轴(进入后该轴零行程不可翻)；同轴甩动不经此路径，保持原跟手翻页
         for entryDirection in candidates {
             let entryAxisIsHorizontal = (entryDirection == .left) || (entryDirection == .right)
@@ -226,7 +226,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
             }
         }
     }
-
+    
     public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         
         // 回调外部
@@ -259,7 +259,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
             }
         }
     }
-
+    
     /// 手指释放且惯性减速结束
     public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         // 回调外部
@@ -268,20 +268,20 @@ extension WYContentScrollView: UIScrollViewDelegate {
         endInteractiveSlideDragIfNeeded()
         pauseScroll()
     }
-
+    
     /// 代码设置 contentOffset 动画结束
     public func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
         // 回调外部
         internalDelegate?.scrollViewDidEndScrollingAnimation?(scrollView)
         pauseScroll()
     }
-
+    
     /// 告诉系统：我能响应哪些方法
     public override func responds(to aSelector: Selector!) -> Bool {
         return super.responds(to: aSelector)
-            || (internalDelegate?.responds(to: aSelector) ?? false)
+        || (internalDelegate?.responds(to: aSelector) ?? false)
     }
-
+    
     /// 将未实现的方法转发给外部 delegate
     public override func forwardingTarget(for aSelector: Selector!) -> Any? {
         if internalDelegate?.responds(to: aSelector) == true {
