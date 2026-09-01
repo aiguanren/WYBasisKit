@@ -29,7 +29,6 @@
 		58155C082E6A7ABA00D957F3 /* 秋天的树.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BED2E6A7ABA00D957F3 /* 秋天的树.png */; };
 		581955332E4DB9B800469F1A /* 世间美好与你环环相扣.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 581955322E4DB9B800469F1A /* 世间美好与你环环相扣.mp3 */; };
 		582917412FB0C3E70006F98D /* NotoSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 582917402FB0C3E70006F98D /* NotoSans-Regular.ttf */; };
-		583234162E68219E00EFCAD9 /* WYTestScrollTextController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583234152E68219E00EFCAD9 /* WYTestScrollTextController.swift */; };
 		583234192E68382700EFCAD9 /* WYTestPagingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583234182E68382700EFCAD9 /* WYTestPagingViewController.swift */; };
 		584D750E2F723683006C05E7 /* WYTestImageRenderingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D750C2F723683006C05E7 /* WYTestImageRenderingController.swift */; };
 		584D750F2F723683006C05E7 /* WYTestImageRenderingController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 584D750D2F723683006C05E7 /* WYTestImageRenderingController.xib */; };
@@ -69,7 +68,6 @@
 		585B3AC32DF819DC00E6E08F /* WYSpeechRecognitionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A652DF819DC00E6E08F /* WYSpeechRecognitionController.swift */; };
 		585B3AC42DF819DC00E6E08F /* WYTestAnimationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A682DF819DC00E6E08F /* WYTestAnimationController.swift */; };
 		585B3AC52DF819DC00E6E08F /* WYTestLiveStreamingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A6A2DF819DC00E6E08F /* WYTestLiveStreamingController.swift */; };
-		585B3AC62DF819DC00E6E08F /* WYTestBannerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A6C2DF819DC00E6E08F /* WYTestBannerController.swift */; };
 		585B3AC72DF819DC00E6E08F /* WYTestEdgeInsetsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A6E2DF819DC00E6E08F /* WYTestEdgeInsetsController.swift */; };
 		585B3AC82DF819DC00E6E08F /* WYCenterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A702DF819DC00E6E08F /* WYCenterController.swift */; };
 		585B3AC92DF819DC00E6E08F /* WYParseGifController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A722DF819DC00E6E08F /* WYParseGifController.swift */; };
@@ -178,7 +176,6 @@
 		582732442E9FA3D200DAD1AA /* km */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = km; path = km.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		582732452E9FA3D200DAD1AA /* km */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = km; path = km.lproj/Main.strings; sourceTree = "<group>"; };
 		582917402FB0C3E70006F98D /* NotoSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NotoSans-Regular.ttf"; sourceTree = "<group>"; };
-		583234152E68219E00EFCAD9 /* WYTestScrollTextController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestScrollTextController.swift; sourceTree = "<group>"; };
 		583234182E68382700EFCAD9 /* WYTestPagingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestPagingViewController.swift; sourceTree = "<group>"; };
 		584D750C2F723683006C05E7 /* WYTestImageRenderingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestImageRenderingController.swift; sourceTree = "<group>"; };
 		584D750D2F723683006C05E7 /* WYTestImageRenderingController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WYTestImageRenderingController.xib; sourceTree = "<group>"; };
@@ -205,7 +202,6 @@
 		585B3A662DF819DC00E6E08F /* WYSpeechRecognitionController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WYSpeechRecognitionController.xib; sourceTree = "<group>"; };
 		585B3A682DF819DC00E6E08F /* WYTestAnimationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestAnimationController.swift; sourceTree = "<group>"; };
 		585B3A6A2DF819DC00E6E08F /* WYTestLiveStreamingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestLiveStreamingController.swift; sourceTree = "<group>"; };
-		585B3A6C2DF819DC00E6E08F /* WYTestBannerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestBannerController.swift; sourceTree = "<group>"; };
 		585B3A6E2DF819DC00E6E08F /* WYTestEdgeInsetsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestEdgeInsetsController.swift; sourceTree = "<group>"; };
 		585B3A702DF819DC00E6E08F /* WYCenterController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCenterController.swift; sourceTree = "<group>"; };
 		585B3A722DF819DC00E6E08F /* WYParseGifController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYParseGifController.swift; sourceTree = "<group>"; };
@@ -303,14 +299,6 @@
 				585B3A7C2DF819DC00E6E08F /* Right */,
 			);
 			path = Tabbar;
-			sourceTree = "<group>";
-		};
-		583234142E68216600EFCAD9 /* 文本轮播 */ = {
-			isa = PBXGroup;
-			children = (
-				583234152E68219E00EFCAD9 /* WYTestScrollTextController.swift */,
-			);
-			path = "文本轮播";
 			sourceTree = "<group>";
 		};
 		583234172E68380100EFCAD9 /* 分页控制器 */ = {
@@ -460,14 +448,6 @@
 			path = "直播、点播播放器";
 			sourceTree = "<group>";
 		};
-		585B3A6D2DF819DC00E6E08F /* Banner轮播 */ = {
-			isa = PBXGroup;
-			children = (
-				585B3A6C2DF819DC00E6E08F /* WYTestBannerController.swift */,
-			);
-			path = "Banner轮播";
-			sourceTree = "<group>";
-		};
 		585B3A6F2DF819DC00E6E08F /* 内边距 */ = {
 			isa = PBXGroup;
 			children = (
@@ -570,14 +550,12 @@
 				58CDEE592E34900D00ACE975 /* 日志输出与保存 */,
 				5882EAEF2E518A4900638FD3 /* 设备振动 */,
 				585B3A602DF819DC00E6E08F /* 网络请求 */,
-				583234142E68216600EFCAD9 /* 文本轮播 */,
 				585B3A622DF819DC00E6E08F /* 无限层折叠TableView */,
 				585B3A642DF819DC00E6E08F /* 下载与缓存 */,
 				58E7127F2E4B0CC30095E71C /* 音频录制与播放 */,
 				585B3A672DF819DC00E6E08F /* 语音识别 */,
 				585B3A692DF819DC00E6E08F /* 约束view添加动画 */,
 				585B3A6B2DF819DC00E6E08F /* 直播、点播播放器 */,
-				585B3A6D2DF819DC00E6E08F /* Banner轮播 */,
 				585B3A6F2DF819DC00E6E08F /* 内边距 */,
 				585B3A732DF819DC00E6E08F /* Gif加载 */,
 				585B3A762DF819DC00E6E08F /* IM即时通讯 */,
@@ -883,39 +861,36 @@
 				"${PODS_CONFIGURATION_BUILD_DIR}/IQKeyboardToolbarManager/IQKeyboardToolbarManager.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/IQTextInputViewNotification/IQTextInputViewNotification.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/IQTextView/IQTextView.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwift.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwift.bundle",
 				"${PODS_ROOT}/../WYBasisKit/WYBasisKit/WYBasisKit/Swift/Localizable/WYLocalizable.bundle",
 				"${PODS_ROOT}/../WYBasisKit/WYBasisKit/WYBasisKit/Swift/Activity/WYActivity.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftActivity.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftAudioKit.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftAuthorization.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftAuthorizationBiometric.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftAuthorizationCamera.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftAuthorizationContacts.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftAuthorizationLocation.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftAuthorizationMicrophone.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftAuthorizationPhotoAlbums.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftAuthorizationSpeechRecognition.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftCodable.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftConfig.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftEventHandler.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftExtension.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftLayout.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftLayoutAirBubbleView.bundle",
-				"${PODS_ROOT}/../WYBasisKit/WYBasisKit/WYBasisKit/Swift/Layout/BannerView/WYBannerView.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftLayoutBannerView.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftActivity.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftAudioKit.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftAuthorization.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftAuthorizationBiometric.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftAuthorizationCamera.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftAuthorizationContacts.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftAuthorizationLocation.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftAuthorizationMicrophone.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftAuthorizationPhotoAlbums.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftAuthorizationSpeechRecognition.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftCodable.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftConfig.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftEventHandler.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftExtension.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftLayout.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftLayoutAirBubbleView.bundle",
 				"${PODS_ROOT}/../WYBasisKit/WYBasisKit/WYBasisKit/Swift/Layout/ChatView/WYChatView.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftLayoutChatView.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftLayoutContentScrollView.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftMediaPlayer.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftLayoutPagingView.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftLayoutScrollText.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftLayoutSoundWavesView.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftLocalizable.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftLogManager.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftMethodSwizzler.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftNetworking.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-4674f445/WYBasisKitSwiftStorage.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftLayoutChatView.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftLayoutContentScrollView.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftMediaPlayer.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftLayoutPagingView.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftLayoutSoundWavesView.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftLocalizable.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftLogManager.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftMethodSwizzler.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftNetworking.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftStorage.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
@@ -950,14 +925,11 @@
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftExtension.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayout.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayoutAirBubbleView.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBannerView.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayoutBannerView.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYChatView.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayoutChatView.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayoutContentScrollView.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftMediaPlayer.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayoutPagingView.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayoutScrollText.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayoutSoundWavesView.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLocalizable.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLogManager.bundle",
@@ -1025,7 +997,6 @@
 				585B3AB52DF819DC00E6E08F /* SDKRequest.swift in Sources */,
 				58CDEE5D2E34907800ACE975 /* WYLogController.swift in Sources */,
 				585B3AB62DF819DC00E6E08F /* SDKRequestContext.swift in Sources */,
-				583234162E68219E00EFCAD9 /* WYTestScrollTextController.swift in Sources */,
 				585B3AB72DF819DC00E6E08F /* SDKResponse.swift in Sources */,
 				585B3AB82DF819DC00E6E08F /* UserRequest.swift in Sources */,
 				585E7C333017050B00C461A3 /* WYTestInfiniteSwitchController.swift in Sources */,
@@ -1045,7 +1016,6 @@
 				585B3AC32DF819DC00E6E08F /* WYSpeechRecognitionController.swift in Sources */,
 				585B3AC42DF819DC00E6E08F /* WYTestAnimationController.swift in Sources */,
 				585B3AC52DF819DC00E6E08F /* WYTestLiveStreamingController.swift in Sources */,
-				585B3AC62DF819DC00E6E08F /* WYTestBannerController.swift in Sources */,
 				585B3AC72DF819DC00E6E08F /* WYTestEdgeInsetsController.swift in Sources */,
 				585B3AC82DF819DC00E6E08F /* WYCenterController.swift in Sources */,
 				585B3AC92DF819DC00E6E08F /* WYParseGifController.swift in Sources */,

@@ -346,18 +346,6 @@ Pod::Spec.new do |kit|
       soundWavesView.frameworks = "Foundation", "UIKit"
       soundWavesView.dependency "WYBasisKit-swift/Layout/SoundWavesView", kit_swift_version
     end
-
-    layout.subspec "ScrollText" do |scrollText|
-      scrollText.source_files = [
-        "#{kit_path}ObjC/Layout/ScrollText/**/*.{swift,h,m}"
-      ]
-      scrollText.resource_bundles = {"WYBasisKitObjCLayoutScrollText" => [
-        "#{kit_path}ObjC/Layout/ScrollText/PrivacyInfo.xcprivacy"
-      ]}
-      scrollText.frameworks = "Foundation", "UIKit"
-      scrollText.dependency "WYBasisKit-swift/Layout/ScrollText", kit_swift_version
-      scrollText.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
-    end
     
     layout.subspec "PagingView" do |pagingView|
       pagingView.source_files = [
@@ -380,20 +368,9 @@ Pod::Spec.new do |kit|
     #     "#{kit_path}ObjC/Layout/ContentScrollView/PrivacyInfo.xcprivacy"
     #   ]}
     #   contentScrollView.frameworks = "Foundation", "UIKit"
-    #   contentScrollView.dependency "WYBasisKit-swift/ContentScrollView"
+    #   contentScrollView.dependency "WYBasisKit-swift/ContentScrollView", kit_swift_version
+    #   contentScrollView.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
     # end
-    
-    layout.subspec "BannerView" do |bannerView|
-      bannerView.source_files = [
-        "#{kit_path}ObjC/Layout/BannerView/**/*.{swift,h,m}"
-      ]
-      bannerView.resource_bundles = {"WYBasisKitObjCLayoutBannerView" => [
-        "#{kit_path}ObjC/Layout/BannerView/PrivacyInfo.xcprivacy"
-      ]}
-      bannerView.frameworks = "Foundation", "UIKit"
-      bannerView.dependency "WYBasisKit-swift/Layout/BannerView", kit_swift_version
-      bannerView.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
-    end
     
     # layout.subspec "ChatView" do |chatView|
     #   chatView.source_files = [
@@ -408,22 +385,11 @@ Pod::Spec.new do |kit|
     #   chatView.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
     # end
 
-    layout.subspec "ContentScrollView" do |contentScrollView|
-      contentScrollView.source_files = [
-        "#{kit_path}ObjC/Layout/ContentScrollView/**/*.{swift,h,m}"
-      ]
-      contentScrollView.resource_bundles = {"WYBasisKitObjCLayoutContentScrollView" => [
-      "#{kit_path}ObjC/Layout/ContentScrollView/PrivacyInfo.xcprivacy"
-      ]}
-      contentScrollView.dependency "WYBasisKit-swift/Layout/ContentScrollView", kit_swift_version
-      contentScrollView.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
-    end
-
     layout.subspec "MediaPlayer" do |mediaPlayer|
       mediaPlayer.source_files = [
         "#{kit_path}ObjC/Layout/MediaPlayer/**/*.{swift,h,m}"
       ]
-      mediaPlayer.resource_bundles = {"WYBasisKitObjCMediaPlayerFS" => [
+      mediaPlayer.resource_bundles = {"WYBasisKitObjCMediaPlayer" => [
       "#{kit_path}ObjC/Layout/MediaPlayer/PrivacyInfo.xcprivacy"
       ]}
       mediaPlayer.dependency "WYBasisKit-swift/Layout/MediaPlayer", kit_swift_version

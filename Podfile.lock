@@ -134,29 +134,17 @@ PODS:
     - WYBasisKit-ObjC/MacroDefinition (= 26.7.0)
   - WYBasisKit-ObjC/Layout (26.7.0):
     - WYBasisKit-ObjC/Layout/AirBubbleView (= 26.7.0)
-    - WYBasisKit-ObjC/Layout/BannerView (= 26.7.0)
-    - WYBasisKit-ObjC/Layout/ContentScrollView (= 26.7.0)
     - WYBasisKit-ObjC/Layout/MediaPlayer (= 26.7.0)
     - WYBasisKit-ObjC/Layout/PagingView (= 26.7.0)
-    - WYBasisKit-ObjC/Layout/ScrollText (= 26.7.0)
     - WYBasisKit-ObjC/Layout/SoundWavesView (= 26.7.0)
   - WYBasisKit-ObjC/Layout/AirBubbleView (26.7.0):
     - WYBasisKit-swift/Layout/AirBubbleView (= 26.7.0)
-  - WYBasisKit-ObjC/Layout/BannerView (26.7.0):
-    - WYBasisKit-ObjC/Imports (= 26.7.0)
-    - WYBasisKit-swift/Layout/BannerView (= 26.7.0)
-  - WYBasisKit-ObjC/Layout/ContentScrollView (26.7.0):
-    - WYBasisKit-ObjC/Imports (= 26.7.0)
-    - WYBasisKit-swift/Layout/ContentScrollView (= 26.7.0)
   - WYBasisKit-ObjC/Layout/MediaPlayer (26.7.0):
     - WYBasisKit-ObjC/Imports (= 26.7.0)
     - WYBasisKit-swift/Layout/MediaPlayer (= 26.7.0)
   - WYBasisKit-ObjC/Layout/PagingView (26.7.0):
     - WYBasisKit-ObjC/Imports (= 26.7.0)
     - WYBasisKit-swift/Layout/PagingView (= 26.7.0)
-  - WYBasisKit-ObjC/Layout/ScrollText (26.7.0):
-    - WYBasisKit-ObjC/Imports (= 26.7.0)
-    - WYBasisKit-swift/Layout/ScrollText (= 26.7.0)
   - WYBasisKit-ObjC/Layout/SoundWavesView (26.7.0):
     - WYBasisKit-swift/Layout/SoundWavesView (= 26.7.0)
   - WYBasisKit-ObjC/Localizable (26.7.0):
@@ -234,19 +222,12 @@ PODS:
     - WYBasisKit-swift/MethodSwizzler
   - WYBasisKit-swift/Layout (26.7.0):
     - WYBasisKit-swift/Layout/AirBubbleView (= 26.7.0)
-    - WYBasisKit-swift/Layout/BannerView (= 26.7.0)
     - WYBasisKit-swift/Layout/ChatView (= 26.7.0)
     - WYBasisKit-swift/Layout/ContentScrollView (= 26.7.0)
     - WYBasisKit-swift/Layout/MediaPlayer (= 26.7.0)
     - WYBasisKit-swift/Layout/PagingView (= 26.7.0)
-    - WYBasisKit-swift/Layout/ScrollText (= 26.7.0)
     - WYBasisKit-swift/Layout/SoundWavesView (= 26.7.0)
   - WYBasisKit-swift/Layout/AirBubbleView (26.7.0):
-    - WYBasisKit-swift/Localizable
-    - WYBasisKit-swift/LogManager
-    - WYBasisKit-swift/MethodSwizzler
-  - WYBasisKit-swift/Layout/BannerView (26.7.0):
-    - Kingfisher
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
     - WYBasisKit-swift/MethodSwizzler
@@ -268,10 +249,6 @@ PODS:
   - WYBasisKit-swift/Layout/MediaPlayer (26.7.0):
     - IJKPlayerKit (= 1.0.8)
   - WYBasisKit-swift/Layout/PagingView (26.7.0):
-    - WYBasisKit-swift/LogManager
-    - WYBasisKit-swift/MethodSwizzler
-  - WYBasisKit-swift/Layout/ScrollText (26.7.0):
-    - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
     - WYBasisKit-swift/MethodSwizzler
   - WYBasisKit-swift/Layout/SoundWavesView (26.7.0)
@@ -353,8 +330,8 @@ SPEC CHECKSUMS:
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
   SDWebImageWebPCoder: 0e06e365080397465cc73a7a9b472d8a3bd0f377
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
-  WYBasisKit-ObjC: f26e85b00df60becfbc59f68df592040c9d06b28
-  WYBasisKit-swift: a40e92d19a98afa531dc0b44ce76fb2168b73812
+  WYBasisKit-ObjC: d926d2c1b48da8928afc40bbfd295b1f7ba02ab9
+  WYBasisKit-swift: 78d40d48b61141e4333f7ad35358ac271bcab4e0
   WYBasisKit-SwiftUI: 6ee148e94228e05b40b53db09fcc991ab24bbd6c
 
 PODFILE CHECKSUM: be07fc5e70e0afb869de743a639c172cd8ba452e

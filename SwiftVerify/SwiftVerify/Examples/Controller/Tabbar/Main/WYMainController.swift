@@ -30,9 +30,6 @@ class WYMainController: UIViewController {
         
         ListItem(title: "无限切换", controller: "WYTestInfiniteSwitchController"),
         
-        ListItem(title: "Banner轮播",
-                 controller: "WYTestBannerController"),
-        
         ListItem(title: "富文本",
                  controller: "WYTestRichTextController"),
         
@@ -92,9 +89,6 @@ class WYMainController: UIViewController {
         
         ListItem(title: "设备振动",
                  controller: "WYTestVibrateController"),
-        
-        ListItem(title: "文本轮播",
-                 controller: "WYTestScrollTextController"),
         
         ListItem(title: "分页控制器",
                  controller: "WYTestPagingViewController"),

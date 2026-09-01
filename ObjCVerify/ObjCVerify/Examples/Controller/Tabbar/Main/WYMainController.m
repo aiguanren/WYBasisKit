@@ -54,9 +54,6 @@
             [[ListItem alloc] initWithTitle:@"无限切换"
                                  controller:@"WYTestInfiniteSwitchController"],
             
-            [[ListItem alloc] initWithTitle:@"Banner轮播"
-                                 controller:@"WYTestBannerController"],
-            
             [[ListItem alloc] initWithTitle:@"富文本"
                                  controller:@"WYTestRichTextController"],
             
@@ -116,9 +113,6 @@
             
             [[ListItem alloc] initWithTitle:@"设备振动"
                                  controller:@"WYTestVibrateController"],
-            
-            [[ListItem alloc] initWithTitle:@"文本轮播"
-                                 controller:@"WYTestScrollTextController"],
             
             [[ListItem alloc] initWithTitle:@"分页控制器"
                                  controller:@"WYTestPagingViewController"],

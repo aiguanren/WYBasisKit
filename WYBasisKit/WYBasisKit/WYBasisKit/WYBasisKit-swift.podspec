@@ -372,24 +372,6 @@ Pod::Spec.new do |kit|
       ]}
       soundWavesView.frameworks = "Foundation", "UIKit"
     end
-
-    layout.subspec "ScrollText" do |scrollText|
-      scrollText.source_files = [
-        "#{kit_path}Swift/Layout/ScrollText/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Extension/UIFont/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Extension/UIViewController/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Config/**/*.{swift}"
-      ]
-      scrollText.resources = [localizable_bundle]
-      scrollText.resource_bundles = {"WYBasisKitSwiftLayoutScrollText" => [
-        "#{kit_path}Swift/Layout/ScrollText/PrivacyInfo.xcprivacy"
-      ]}
-      scrollText.frameworks = "Foundation", "UIKit"
-      scrollText.dependency "WYBasisKit-swift/Localizable"
-      scrollText.dependency "WYBasisKit-swift/LogManager"
-      scrollText.dependency "WYBasisKit-swift/MethodSwizzler"
-    end
     
     layout.subspec "PagingView" do |pagingView|
       pagingView.source_files = [
@@ -426,27 +408,6 @@ Pod::Spec.new do |kit|
       contentScrollView.dependency "WYBasisKit-swift/Localizable"
       contentScrollView.dependency "WYBasisKit-swift/LogManager"
       contentScrollView.dependency "WYBasisKit-swift/MethodSwizzler"
-    end
-    
-    layout.subspec "BannerView" do |bannerView|
-      bannerView.source_files = [
-        "#{kit_path}Swift/Layout/BannerView/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Extension/UIView/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Extension/UIViewController/**/*.{swift,h,m}"
-      ]
-      bannerView.resources = [
-        localizable_bundle,
-        "#{kit_path}Swift/Layout/BannerView/WYBannerView.bundle"
-      ]
-      bannerView.resource_bundles = {"WYBasisKitSwiftLayoutBannerView" => [
-        "#{kit_path}Swift/Layout/BannerView/PrivacyInfo.xcprivacy"
-      ]}
-      bannerView.frameworks = "Foundation", "UIKit"
-      bannerView.dependency "WYBasisKit-swift/Localizable"
-      bannerView.dependency "WYBasisKit-swift/LogManager"
-      bannerView.dependency "WYBasisKit-swift/MethodSwizzler"
-      bannerView.dependency "Kingfisher"
     end
     
     layout.subspec "ChatView" do |chatView|
