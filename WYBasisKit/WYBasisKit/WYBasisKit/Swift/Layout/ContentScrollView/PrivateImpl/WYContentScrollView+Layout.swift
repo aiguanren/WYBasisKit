@@ -190,11 +190,10 @@ extension WYContentScrollView {
         
         // 直接将传入的对应的ContentView移到WYContentScrollView的最顶层，且因为currentView和reserveView的frame有可能是一样的，所以需要最后执行bringSubviewToFront(currentView)
         if (contentViews?.count == 2), let currentView = contentViews?.first, let reserveView = contentViews?.last  {
-            if upperContentView != currentView {
-                bringSubviewToFront(reserveView)
-                bringSubviewToFront(currentView)
-                upperContentView = currentView
-            }
+            // 每次都实际执行置顶而不按upperContentView缓存跳过：staging等路径存在不经缓存的裸bringSubviewToFront，被打断的切换可能让实际z序与缓存脱钩，按缓存跳过会把脏状态永久固化(表现为某一侧跨轴切换静默失效、重进页面才恢复)；重复置顶幂等无代价，以现实z序为准
+            bringSubviewToFront(reserveView)
+            bringSubviewToFront(currentView)
+            upperContentView = currentView
             return
         }else {
             // 根据各方向的显示数量以及支持的滑动方向和全向模式时优先显示的方向来设置显示优先级

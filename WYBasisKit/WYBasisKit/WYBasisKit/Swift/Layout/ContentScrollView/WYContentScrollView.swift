@@ -240,7 +240,10 @@ public class WYContentScrollView: UIScrollView {
     }
     
     /// 是否需要自动轮播/轮播
-    public var automaticCarousel: Bool = false
+    /// 是否需要自动轮播，默认false(不自动轮播，业务想要自动轮播显式开启；开启后组件会在首次展示时自动开表)；运行中修改会动态启停——关闭立即停表(清计时器)，重新开启且此前表达过开表意图(startTimer成功或尝试过)时自动续播
+    public var automaticCarousel: Bool = false {
+        didSet { checkCarouselStatus() }
+    }
     
     /// 设置需要显示的自定义View(contentSlidingDirection != omnidirectional 时调用)，currentView 为正在显示的View、reserveView 为预备显示的View，两者Size都将等于当前WYContentScrollView的Size
     public func horizontalOrVerticalDisplay(currentView: UIView,
@@ -291,12 +294,19 @@ public class WYContentScrollView: UIScrollView {
     public var prioritySlidingDirection: WYContentSlidingDirection = .leftOrRight {
         didSet {
             bringContentToFront()
+            // 优先方向变化可能翻转全向模式的置顶轴(展示轴换了人)：轮播轴与滚动能力都随之变化，必须重评(漏掉表现为换优先方向后轮播停摆或不该轮播的轴空转)
+            checkCarouselStatus()
         }
     }
-    
+
 
     /// 开启定时器(默认开启，调用该方法会重新开启)
     public func startTimer() {
+
+        // 表达开表意图在门禁判定之前：门禁(自动轮播开关/数量/展示轴无限翻页)可能此刻不满足而返回，但意图已记下——后续任一条件经didSet重评时refreshCarouselTimer会自动开表(否则"先开计时器再开自动轮播"顺序下意图丢失，计时器永远起不来)
+        canRestartedTimer = true
+        // 业务显式开表：解除硬停记录，后续重挂载的自动开表恢复生效
+        timerStoppedByBusiness = false
 
         // 如果已经开启了，就先关闭计时器
         if timer != nil {
@@ -324,10 +334,6 @@ public class WYContentScrollView: UIScrollView {
             self.nextContent(direction)
         })
         RunLoop.current.add(timer!, forMode: .common)
-
-        canRestartedTimer = true
-        // 业务显式开表：解除硬停记录，后续重挂载的自动开表恢复生效
-        timerStoppedByBusiness = false
     }
 
     /// 停止定时器(业务语义的停止：清除重启标记，此后松手/条件恢复都不会自动重启，直到业务再次startTimer；拖动暂停等需保留续播的场景请用pauseTimer)

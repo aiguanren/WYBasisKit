@@ -206,8 +206,8 @@ extension WYContentScrollView: UIScrollViewDelegate {
         }
         guard candidates.isEmpty == false else { return }
 
-        // 当前展示轴(方向未知时按置顶View判)：按优先方向判会把垂直展示后的同轴垂直轻扫误判成跨轴直切
-        let displayedAxisIsHorizontal = axisIsHorizontal(of: internalSliderDirection)
+        // 当前展示轴(按置顶View事实源判，不用internalSliderDirection)：方向残留会把这个判定骗反(残留.left时V上轻扫被判"同轴"不触发跨轴直切，表现为单向切换失效——H→V恰好正常、V→H死，重进页面才恢复)；跨轴轻扫期间方向尚未更新本就应读展示真相
+        let displayedAxisIsHorizontal = axisIsHorizontal(of: .unknown)
 
         // 逐候选判定：跨轴进入(目标轴存在即可，不论数量)且切入轴速度分量明显占优(1.5倍，斜向轻扫的同轴分量不允许误触发跨轴直切——否则同方向再次轻扫会误切轴导致内容无谓重载)才构成直切；目标轴的滑动开关不拦跨轴进入——开关管的是"轴内翻页交互"，不限制"能到达"该轴(进入后该轴零行程不可翻)；同轴甩动不经此路径，保持原跟手翻页
         for entryDirection in candidates {

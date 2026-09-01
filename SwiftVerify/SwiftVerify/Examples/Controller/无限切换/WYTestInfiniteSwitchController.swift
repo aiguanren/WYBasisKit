@@ -264,6 +264,10 @@ class WYTestInfiniteSwitchController: UIViewController {
         }else if sender == numberOfVerticalContent {
             contentScrollView.numberOfVerticalContent = [0, 1, 2, 3, 4, 5, Int.max][sender.selectedSegmentIndex]
         }else if sender == contentSlidingDirection {
+            // 切方向前先停两轴所有视频播放(对称通用)：单轴模式另一轴的视图不挂载(组件对应数组为空、did回调该轴参数为nil)，重挂载会把正在播的播放器从层级摘下且无人再能暂停它(画面不可见声音仍响)——"H轴视频"与"V轴视频"镜像同理；compactMap过滤非播放器的UIImageView，任意内容布局都适用；切到含该轴的模式无碍，进入该轴页面的did会重新起播
+            for player in (horizontalViews + verticalViews).compactMap({ $0 as? WYMediaPlayer }) {
+                player.pause()
+            }
             contentScrollView.contentSlidingDirection = [.leftOrRight, .topOrBottom, .omnidirectional][sender.selectedSegmentIndex]
             switch contentScrollView.contentSlidingDirection {
             case .leftOrRight:

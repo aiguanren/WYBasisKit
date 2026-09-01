@@ -925,6 +925,8 @@ public class WYMediaPlayer: UIImageView {
 
         // 每次加载重置真播放标记：新实例/换源期间的paused全是内部噪声
         hasReallyPlayed = false
+        // 新加载清除准备期暂停意图：业务"先pause再play(with:)"的写法会把标记落到load之前，不清除则prepared回调按压制分支处理，autoplay被旧暂停意图杀死(表现为该页首次显示不起播)；load的autoplay意图覆盖一切旧暂停意图
+        isPausedWhilePreparing = false
 
         guard let playUrl = URL(string: url) else {
             callback(with: .playUrlEmpty)
