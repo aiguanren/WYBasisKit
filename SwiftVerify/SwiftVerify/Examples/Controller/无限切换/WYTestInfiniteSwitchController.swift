@@ -30,8 +30,7 @@ class WYTestInfiniteSwitchController: UIViewController {
     
     /**
      *  自动轮播时每一页停留时间，默认为3s，最少1s
-     *  当设置的值小于1s时，则为默认值
-     *  contentSlidingDirection == omnidirectional时不会生效，且会强制停止计时器
+     *  当设置的值小于1s时，则为默认值；轮播进行中修改立即生效(以新间隔重建计时器，从修改时刻起算新一轮)
      */
     var standingTime: UISlider = UISlider()
     var standingTimeValue: UILabel = UILabel()
@@ -695,7 +694,6 @@ extension WYTestInfiniteSwitchController: WYContentScrollViewDelegate {
         
         let reserveHorizontalView: UIImageView? = reserveHorizontalView as? UIImageView
         
-        let currentVerticalView: WYMediaPlayer? = currentVerticalView as? WYMediaPlayer
         let reserveVerticalView: WYMediaPlayer? = reserveVerticalView as? WYMediaPlayer
         
         if direction == .up || direction == .down {

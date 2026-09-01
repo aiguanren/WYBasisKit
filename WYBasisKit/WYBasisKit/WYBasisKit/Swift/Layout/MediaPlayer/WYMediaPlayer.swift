@@ -261,7 +261,6 @@ public class WYMediaPlayer: UIImageView {
     /// 高斯模糊背景图(填充无画面或黑边区域，替代默认纯色背景；nil=清除，配合placeholder使用体验更佳)
     public var renderBackgroundImage: UIImage? {
         get {
-            // #selector引用协议声明形成编译期校验：上游改名/删除该成员时这里直接编译报错，杜绝字符串硬编码的静默失效；KVC键名即getter选择子名
             let selector = #selector(getter: IJKVideoRenderingProtocol.backgroundImage)
             guard let view = ijkPlayer?.view, view.responds(to: selector) else { return nil }
             return view.value(forKey: NSStringFromSelector(selector)) as? UIImage
@@ -291,7 +290,6 @@ public class WYMediaPlayer: UIImageView {
     /// 单次高斯模糊的sigma模糊半径(默认30，值越大越模糊)
     public var renderBackgroundBlurSigma: Float {
         get {
-            // #selector引用协议声明形成编译期校验：上游改名/删除该成员时这里直接编译报错，杜绝字符串硬编码的静默失效；KVC键名即getter选择子名
             let selector = #selector(getter: IJKVideoRenderingProtocol.backgroundBlurSigma)
             guard let view = ijkPlayer?.view, view.responds(to: selector) else { return 30 }
             return (view.value(forKey: NSStringFromSelector(selector)) as? NSNumber)?.floatValue ?? 30
@@ -499,7 +497,7 @@ public class WYMediaPlayer: UIImageView {
     /// 暂停播放
     public func pause() {
         isPlayPending = false
-        // prepare未完成时记下暂停意图：start-on-prepared是内核级自动起播(play(with:)默认autoplay烘进选项)，未就绪的pause调用拦不住，prepared回调必须抢先压住(否则play后快速pause、prepare完成瞬间声音在画面外响起)
+        // prepare未完成时记下暂停意图：此刻的pause拦不住prepare完成时内核的自动起播，由prepare完成回调补压(见isPausedWhilePreparing)
         if isPreparedToPlay == false {
             isPausedWhilePreparing = true
         }
@@ -873,7 +871,7 @@ public class WYMediaPlayer: UIImageView {
     /// 挂起的播放意图(play()在prepare完成前被调用时置true，prepare完成回调补执行；pause()与releaseAll会取消)
     private var isPlayPending: Bool = false
 
-    /// prepare期间收到的暂停意图(pause()在未就绪时置true)：play(with:)默认autoplay会把start-on-prepared=1烘进内核，prepare完成瞬间内核自行起播，未就绪时的pause调用拦不住它——记下意图由prepared回调抢先压住(表现为play后快速pause、画面已切走而声音在prepare完成后响起)；play()的挂起会覆盖它，releaseAll复位
+    /// prepare期间收到的暂停意图(pause()在prepare未完成时置true，play()挂起或load()/releaseAll时清除)：内核的start-on-prepared自动起播发生在prepare完成内部，未就绪时的pause()拦不住它，只能记下意图由prepare完成回调补压——保证pause之后prepare完成的最终状态是就绪暂停而非自动起播
     private var isPausedWhilePreparing: Bool = false
 
     /// 本次加载是否已渲染出第一帧(首帧渲染回调处置true、releaseAll时重置，供开关didSet补截与渲染时截取判断)
@@ -882,7 +880,8 @@ public class WYMediaPlayer: UIImageView {
     /// 是否正处于海报(首帧)探测中(预加载不起播时管线不渲染首帧、首帧通知不触发，探测=静音起播直到首帧渲染后立即暂停回预备态，期间靠该标记收尾)
     private var isPosterProbing: Bool = false
 
-    /// 本次加载是否真正播放过(非探测的.playing通知出现过即置位，releaseAll/重新load时复位)：未真播放过的实例一切.paused状态只静默不通知——IJKPlayer在实例初始化(prepare阶段即发)与海报探测收尾都会自发paused，它们与"用户主动暂停"同用.paused无法区分，只有真播放之后的暂停才是业务关心的
+    /// 本次加载是否真正播放过(非探测的.playing通知出现过即置位，releaseAll/重新load时复位)
+    /// 说明：IJKPlayer在实例初始化与海报探测收尾都会自发.paused，与用户主动暂停同用一种状态无法区分——未真播放过的实例一切.paused只静默不通知，只有真播放之后的暂停才是业务关心的
     private var hasReallyPlayed: Bool = false
 
     /// 用户设置的音量(0~1，经playbackVolume(_:)记录；实际下发音量统一走applyVolume：muted或海报探测期间为0)
@@ -898,7 +897,9 @@ public class WYMediaPlayer: UIImageView {
         guard currentState != state else {
             return
         }
-        // 滤除内部状态噪声，只静默通知不改状态属性(读state的业务仍能拿到真实值)：探测起播的瞬时.playing是静音探测并非真播放；未真播放过的.paused只代表"初始化/探测收尾/待播预备"——不滤的话业务无法用.paused区分"预加载待播"与"用户主动暂停"(预加载误关loading或真暂停误转loading)
+        // 滤除内部状态噪声：只静默通知、不改state属性(读state的业务仍能拿到真实值)
+        // ①探测起播的瞬时.playing——静音探测不是真播放
+        // ②未真播放过的实例的.paused——只代表初始化/探测收尾/待播预备，与用户主动暂停同用一种状态无法区分，不滤则业务会误判(预加载误关loading、真暂停误转loading)
         if (currentState == .playing) && isPosterProbing {
             state = currentState
         }else if (currentState == .playing) {
@@ -925,7 +926,7 @@ public class WYMediaPlayer: UIImageView {
 
         // 每次加载重置真播放标记：新实例/换源期间的paused全是内部噪声
         hasReallyPlayed = false
-        // 新加载清除准备期暂停意图：业务"先pause再play(with:)"的写法会把标记落到load之前，不清除则prepared回调按压制分支处理，autoplay被旧暂停意图杀死(表现为该页首次显示不起播)；load的autoplay意图覆盖一切旧暂停意图
+        // 新加载清除准备期暂停意图：本次加载自带起播意图(autoplay参数)，旧的暂停意图若不清除会在prepare完成时压住起播，导致本次加载不起播
         isPausedWhilePreparing = false
 
         guard let playUrl = URL(string: url) else {
@@ -949,7 +950,7 @@ public class WYMediaPlayer: UIImageView {
 
         releaseAll()
 
-        // 加载发起即通知缓冲态：业务据此在预加载/换源全程先挂loading，到ready/rendered解除——拉流期间组件没有其他可显示loading的状态通知(unknown/buffering类通知prepared之后才开始)，而历史上的预加载loading其实是被IJKPlayer初始化的内部paused误触发的，内部paused被滤除后若不补这一声，预加载全程无loading
+        // 加载发起即通知缓冲态：让业务从预加载/换源一开始就能挂loading，到ready/rendered解除——缓冲类状态通知在prepare完成后才会出现，不补这一声则加载全程没有可挂loading的状态
         callback(with: .buffering)
 
         createPlayer(with: playUrl)
@@ -1230,7 +1231,7 @@ public class WYMediaPlayer: UIImageView {
             isPlayPending = false
             player.play()
         }else if isPausedWhilePreparing {
-            // prepare期间业务已暂停：压制内核start-on-prepared的自动起播(pause()在未就绪时拦不住它)，停在就绪待播态
+            // prepare期间业务已暂停：补一次pause压住内核的自动起播(未就绪时的pause拦不住它)，停在就绪暂停态
             isPausedWhilePreparing = false
             player.pause()
         }else if loadAutoplayIntent == false, shouldUseFirstFrameAsPoster, hasRenderedFirstFrame == false, isPosterProbing == false {

@@ -140,9 +140,6 @@ extension WYContentScrollView {
             // 相对中心点的偏移
             let deltaX = offsetX - centerX
             let deltaY = offsetY - centerY
-        
-            // 防抖
-            let threshold: CGFloat = 2.0
 
             // 未锁定时，根据主方向判断一次(判轴依据手指位移而非contentOffset的delta：零行程钳制下delta恒为0，offset判不出跨轴意图；手指上/左滑=offset增=left/up，符号需取反)
             if isDirectionLocked == false {
