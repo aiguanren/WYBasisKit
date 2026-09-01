@@ -20,7 +20,7 @@ extension WYContentScrollView {
         guard let contentDelegate = contentDelegate, callbackDirection != .unknown else { return }
         
         print("\(isDidSwitch ? "isDidSwitch" : "isWillSwitch"), direction：\(callbackDirection) hIdx=\(currentHorizontalIndex) rhIdx=\(reserveHorizontalIndex) vIdx=\(currentVerticalIndex) rvIdx=\(reserveVerticalIndex)")
-        
+
         if isDidSwitch {
             // did本身就是该轴"已展示"的通知：当场消费该轴的初始补发标记——否则跨轴直切后标记仍空，后续陈旧方向窗口(如反向轻扫的锁轴前几帧internalSliderDirection还停在旧轴)会把补发误触发，业务凭空多收一次did(视频场景表现为切走后又被play一次)
             if (callbackDirection == .left) || (callbackDirection == .right) {

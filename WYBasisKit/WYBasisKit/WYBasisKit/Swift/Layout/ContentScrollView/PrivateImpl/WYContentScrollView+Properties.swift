@@ -53,12 +53,12 @@ extension WYContentScrollView {
                 
                 // 更新标记
                 configVerticalReserveIndex = reserveVerticalIndex
-                
+
+                // 跨轴进入判定(方向未知时按置顶View判轴)：必须在下方bringContentToFront之前求值——置顶动作会把目标轴翻上来，之后才判的话.unknown兜底读到的就是刚翻转的目标轴自身，跨轴直切会被误判成"本轴已展示中"的同轴推进(reserve被+1污染+发幽灵will，轻扫直切必现)
+                let previousAxisIsHorizontal = axisIsHorizontal(of: previousDirection)
+
                 // 将对应方向的正在显示的View移到WYContentScrollView的最上面
                 bringContentToFront([currentVerticalView, reserveVerticalView])
-
-                // 跨轴进入判定(方向未知时按置顶View判轴)：按优先方向判会把垂直进入误判成跨轴、钳住reserve不推进(下标不涨、轮播卡死在未加载的预备页)
-                let previousAxisIsHorizontal = axisIsHorizontal(of: previousDirection)
                 // 跨轴进入判定(方向未知时按置顶View判轴)：按优先方向判会把垂直进入误判成跨轴、钳住reserve不推进(下标不涨、轮播卡死在未加载的预备页)；程序化跨轴切换(动画窗口内)不按跨轴进入处理——显式调用nextContent/lastContent/switchContent指定非展示轴时期待目标轴下标前进并预加载，"下标保持"语义只属于轻扫直切(用户零成本换轴)
                 let isCrossAxisEntry = (contentSlidingDirection == .omnidirectional) && previousAxisIsHorizontal && (isProgrammaticAnimatedScroll == false)
                 if isFinalizingSwitch {
@@ -105,12 +105,12 @@ extension WYContentScrollView {
                 
                 // 更新标记
                 configHorizontalReserveIndex = reserveHorizontalIndex
-                
+
+                // 跨轴进入判定(方向未知时按置顶View判轴)：必须在下方bringContentToFront之前求值——置顶动作会把目标轴翻上来，之后才判的话.unknown兜底读到的就是刚翻转的目标轴自身，跨轴直切会被误判成"本轴已展示中"的同轴推进(reserve被+1污染+发幽灵will)
+                let previousAxisIsHorizontal = axisIsHorizontal(of: previousDirection)
+
                 // 将对应方向的正在显示的View移到WYContentScrollView的最上面
                 bringContentToFront([currentHorizontalView, reserveHorizontalView])
-
-                // 跨轴进入判定(方向未知时按置顶View判轴)：按优先方向判会把垂直进入误判成跨轴、钳住reserve不推进(下标不涨、轮播卡死在未加载的预备页)
-                let previousAxisIsHorizontal = axisIsHorizontal(of: previousDirection)
                 // 跨轴进入判定(方向未知时按置顶View判轴)：按优先方向判会把垂直进入误判成跨轴、钳住reserve不推进(下标不涨、轮播卡死在未加载的预备页)；程序化跨轴切换(动画窗口内)不按跨轴进入处理——显式调用nextContent/lastContent/switchContent指定非展示轴时期待目标轴下标前进并预加载，"下标保持"语义只属于轻扫直切(用户零成本换轴)
                 let isCrossAxisEntry = (contentSlidingDirection == .omnidirectional) && (previousAxisIsHorizontal == false) && (isProgrammaticAnimatedScroll == false)
                 if isFinalizingSwitch {
