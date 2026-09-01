@@ -19,7 +19,7 @@ extension WYMediaPlayer {
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.failReplayNumber) as? Int ?? 0 }
     }
 
-    /// 本次加载的起播意图(play(with:)走shouldAutoplay、prepare(with:)恒为false；驱动start-on-prepared、实例autoplay、海报探测条件与缓冲上限)
+    /// 本次加载的起播意图(play(with:)走shouldAutoplay、prepare(with:)恒为false)
     var loadAutoplayIntent: Bool {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.loadAutoplayIntent, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.loadAutoplayIntent) as? Bool ?? true }
@@ -31,7 +31,7 @@ extension WYMediaPlayer {
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.loadGeneration) as? Int ?? 0 }
     }
 
-    /// 当前实例是否已prepare完成(IJKPlayerIsPreparedToPlay回调处置true、releaseAll换实例时重置，供play()判断能否立即起播)
+    /// 当前实例是否已prepare完成(供play()判断能否立即起播)
     var isPreparedToPlay: Bool {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.isPreparedToPlay, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.isPreparedToPlay) as? Bool ?? false }
@@ -43,13 +43,13 @@ extension WYMediaPlayer {
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.isPlayPending) as? Bool ?? false }
     }
 
-    /// prepare期间收到的暂停意图(pause()在prepare未完成时置true，play()挂起或load()/releaseAll时清除)：内核的start-on-prepared自动起播发生在prepare完成内部，未就绪时的pause()拦不住它，只能记下意图由prepare完成回调补压——保证pause之后prepare完成的最终状态是就绪暂停而非自动起播
+    /// prepare期间收到的暂停意图：由prepare完成回调补压内核自动起播
     var isPausedWhilePreparing: Bool {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.isPausedWhilePreparing, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.isPausedWhilePreparing) as? Bool ?? false }
     }
 
-    /// 本次加载是否已渲染出第一帧(首帧渲染回调处置true、releaseAll时重置，供开关didSet补截与渲染时截取判断)
+    /// 本次加载是否已渲染出第一帧(供海报截取判断)
     var hasRenderedFirstFrame: Bool {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.hasRenderedFirstFrame, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.hasRenderedFirstFrame) as? Bool ?? false }
@@ -61,14 +61,13 @@ extension WYMediaPlayer {
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.isPosterProbing) as? Bool ?? false }
     }
 
-    /// 本次加载是否真正播放过(非探测的.playing通知出现过即置位，releaseAll/重新load时复位)
-    /// 说明：IJKPlayer在实例初始化与海报探测收尾都会自发.paused，与用户主动暂停同用一种状态无法区分——未真播放过的实例一切.paused只静默不通知，只有真播放之后的暂停才是业务关心的
+    /// 本次加载是否真正播放过：未真播放过的实例一切.paused只静默不通知
     var hasReallyPlayed: Bool {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.hasReallyPlayed, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.hasReallyPlayed) as? Bool ?? false }
     }
 
-    /// 用户设置的音量(0~1，经playbackVolume(_:)记录；实际下发音量统一走applyVolume：muted或海报探测期间为0)
+    /// 用户设置的音量(0~1)；实际下发音量统一走applyVolume
     var userVolume: Float {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.userVolume, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.userVolume) as? Float ?? 1 }

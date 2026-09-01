@@ -23,7 +23,7 @@ extension WYContentScrollView {
         verticalViews = nil
     }
 
-    /// 解析重挂载时应采用的View顺序：传入View组与组件现有View组完全一致(身份级、不看顺序)时保留组件内部的当前/预备顺序(组件每次翻页成功都会交换两View位置，调用方自行保管的数组是滞后的，按其顺序重挂会把旧内容View置顶)；传入新View组时尊重调用方顺序
+    /// 重挂同一组View时保留组件内部当前/预备顺序，传入新View组时尊重调用方顺序
     func resolveDisplayOrder(_ incomingViews: [UIView], existingViews: [UIView]?) -> [UIView] {
 
         guard let existingViews = existingViews,
@@ -101,7 +101,7 @@ extension WYContentScrollView {
         }
     }
 
-    /// 按方向布局内容视图：currentView 固定位于中心页，reserveView 位于其滑动方向一侧(全向模式下水平/垂直各自的中心重叠，靠 bringContentToFront 决定顶层)
+    /// 按方向布局内容视图：currentView固定中心页，reserveView位于其滑动方向一侧
     func layoutContentSubViews(_ direction: WYContentSlidingDirection, isReload: Bool) {
 
         if direction == .leftOrRight {
@@ -181,7 +181,7 @@ extension WYContentScrollView {
                 addSubview(currentVerticalView)
             }
         }
-        // 初始化时同步lastValid：不同步的话紧随其后的handleScrollDirectionLock会用旧方向的合法偏移把新布局的contentOffset锁回去(表现为闪一下又跳回)
+        // 初始化时同步lastValid：否则紧随其后的handleScrollDirectionLock会用旧方向的合法偏移把新布局的contentOffset锁回去
         lastValidContentOffset = contentOffset
     }
 
@@ -190,7 +190,7 @@ extension WYContentScrollView {
         
         // 直接将传入的对应的ContentView移到WYContentScrollView的最顶层，且因为currentView和reserveView的frame有可能是一样的，所以需要最后执行bringSubviewToFront(currentView)
         if (contentViews?.count == 2), let currentView = contentViews?.first, let reserveView = contentViews?.last  {
-            // 每次都实际执行置顶而不按upperContentView缓存跳过：staging等路径存在不经缓存的裸bringSubviewToFront，被打断的切换可能让实际z序与缓存脱钩，按缓存跳过会把脏状态永久固化(表现为某一侧跨轴切换静默失效、重进页面才恢复)；重复置顶幂等无代价，以现实z序为准
+            // 每次都实际执行置顶而不按upperContentView缓存跳过：staging等路径存在不经缓存的裸bringSubviewToFront，被打断的切换可能让实际z序与缓存脱钩，按缓存跳过会把脏状态永久固化；重复置顶幂等无代价，以现实z序为准
             bringSubviewToFront(reserveView)
             bringSubviewToFront(currentView)
             upperContentView = currentView
@@ -271,7 +271,7 @@ extension WYContentScrollView {
         }
     }
 
-    /// 按滑动方向检查并设置 contentSize 与 contentOffset：currentView 固定停在各方向的中心页；设置 contentOffset 前会先同步 lastValidContentOffset 为同值，避免紧随其触发的 handleScrollDirectionLock 用旧方向的合法偏移把 contentOffset 锁回
+    /// 按方向检查并设置contentSize与contentOffset：currentView固定停在各方向的中心页
     func checkContentSizeAndContentOffset() {
         switch contentSlidingDirection {
         case .leftOrRight:

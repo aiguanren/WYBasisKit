@@ -76,7 +76,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
             isInteractiveCrossAxisDrag = false
             isFinalizingSwitch = false
             interactiveCrossDirection = .unknown
-            // 全量恢复四页呈现属性：slide松手后由系统减速接管，用户中途按停不会走减速结束回调，staging隐藏过的陈旧当前页若不恢复会残留alpha=0(后续翻到该页表现为隐形、透视出另一轴内容)
+            // 全量恢复四页呈现属性：slide松手后由系统减速接管，用户中途按停不会走减速结束回调，staging隐藏过的陈旧当前页若不恢复会残留alpha=0(隐形且透视出另一轴内容)
             [horizontalViews?.first, horizontalViews?.last, verticalViews?.first, verticalViews?.last].forEach { (view) in
                 view?.alpha = 1
                 view?.transform = .identity
@@ -106,19 +106,19 @@ extension WYContentScrollView: UIScrollViewDelegate {
         updateInteractiveCrossAxisProgress()
 
         if (slidingDirection == .left) || (slidingDirection == .right) {
-            // 轴初始补发只在触摸方向为当前展示轴时进行(含标记消费)：跨轴方向的触摸此刻目标轴并未真正展示(要等提交才翻转)，补发的did会让业务立刻起播目标轴内容——拖动取消时展示轴仍是原轴，表现为"画面停在原轴、声音来自另一轴"的隐形出声；跨轴进入的提交链路自带完整will→did，无需补发。判据必须含isInteractiveCrossAxisDrag==false：交互式跨轴拖动的staging会把目标轴提前置顶，按置顶View判展示轴会被骗过(补发在拖动首帧就触发，表现为切轴动画还没滑到位另一轴的声音已起播)
+            // 轴初始补发只在触摸方向为当前展示轴时进行(含标记消费)：跨轴方向的触摸此刻目标轴并未真正展示(要等提交才翻转)，补发的did会让业务提前起播目标轴内容，而拖动取消时展示轴仍是原轴；跨轴进入的提交链路自带完整will→did，无需补发。判据必须含isInteractiveCrossAxisDrag==false：交互式跨轴拖动的staging会把目标轴提前置顶，按置顶View判展示轴会被骗过
             if (hasInitialCallbackHorizontal == false) && (isInteractiveCrossAxisDrag == false) && (axisIsHorizontal(of: .unknown) == true) {
                 hasInitialCallbackHorizontal = true
-                // 直切/程序化跨轴切换期间不发轴初始补发：两者链路都自带完整will→did，补发会抢在will之前乱序(先did后will再did)；另需isFinalizingSwitch拦截——pauseScroll开头就清了直切标记，提交重入的didScroll里直切条件已失效(表现为轻扫直切时补发did在提交did之前钻出来，业务提前起播)
+                // 直切/程序化跨轴切换期间不发轴初始补发：两者链路都自带完整will→did，补发会抢在will之前乱序(先did后will再did)；另需isFinalizingSwitch拦截——pauseScroll开头就清了直切标记，提交重入的didScroll里直切条件已失效
                 if (isInstantCrossAxisEntry == false) && (isProgrammaticAnimatedScroll == false) && (isFinalizingSwitch == false) {
                     switchContentCallback(isDidSwitch: true, direction: slidingDirection)
                 }
             }
         }else {
-            // 轴初始补发只在触摸方向为当前展示轴时进行(含标记消费)：跨轴方向的触摸此刻目标轴并未真正展示(要等提交才翻转)，补发的did会让业务立刻起播目标轴内容——拖动取消时展示轴仍是原轴，表现为"画面停在原轴、声音来自另一轴"的隐形出声；跨轴进入的提交链路自带完整will→did，无需补发。判据必须含isInteractiveCrossAxisDrag==false：交互式跨轴拖动的staging会把目标轴提前置顶，按置顶View判展示轴会被骗过(补发在拖动首帧就触发，表现为切轴动画还没滑到位另一轴的声音已起播)
+            // 轴初始补发只在触摸方向为当前展示轴时进行(含标记消费)：跨轴方向的触摸此刻目标轴并未真正展示(要等提交才翻转)，补发的did会让业务提前起播目标轴内容，而拖动取消时展示轴仍是原轴；跨轴进入的提交链路自带完整will→did，无需补发。判据必须含isInteractiveCrossAxisDrag==false：交互式跨轴拖动的staging会把目标轴提前置顶，按置顶View判展示轴会被骗过
             if (hasInitialCallbackVertical == false) && (isInteractiveCrossAxisDrag == false) && (axisIsHorizontal(of: .unknown) == false) {
                 hasInitialCallbackVertical = true
-                // 直切/程序化跨轴切换期间不发轴初始补发：两者链路都自带完整will→did，补发会抢在will之前乱序(先did后will再did)；另需isFinalizingSwitch拦截——pauseScroll开头就清了直切标记，提交重入的didScroll里直切条件已失效(表现为轻扫直切时补发did在提交did之前钻出来，业务提前起播)
+                // 直切/程序化跨轴切换期间不发轴初始补发：两者链路都自带完整will→did，补发会抢在will之前乱序(先did后will再did)；另需isFinalizingSwitch拦截——pauseScroll开头就清了直切标记，提交重入的didScroll里直切条件已失效
                 if (isInstantCrossAxisEntry == false) && (isProgrammaticAnimatedScroll == false) && (isFinalizingSwitch == false) {
                     switchContentCallback(isDidSwitch: true, direction: slidingDirection)
                 }
@@ -174,7 +174,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
         // 交互式跨轴拖动收尾：按进度(≥半页)或速度(达轻扫阈值)决定完成或回弹
         if isInteractiveCrossAxisDrag {
             if crossAxisSwitchStyle == .slide {
-                // slide改写惯性目标后交给系统动能减速：与同轴翻页松手完全同源的减速曲线，自绘固定时长补间复刻不了动能手感(表现为收尾动画僵硬突兀)；此处不经crossAxisSwitchDuration(它管程序化切换/轻扫直切/fade与zoom松手补间这些组件驱动的动画)，落地后的收尾见endInteractiveSlideDragIfNeeded
+                // slide改写惯性目标后交给系统动能减速：与同轴翻页松手完全同源的减速曲线，自绘固定时长补间复刻不了动能手感；此处不经crossAxisSwitchDuration(它管程序化切换/轻扫直切/fade与zoom松手补间这些组件驱动的动画)，落地后的收尾见endInteractiveSlideDragIfNeeded
                 targetContentOffset.pointee = isInteractiveCrossCommitReady ? interactiveCrossTargetOffset : CGPoint(x: wy_width, y: wy_height)
             }else {
                 // 呈现族(fade/zoom)收回惯性目标，由组件自己的补间动画接管
@@ -188,7 +188,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
             return
         }
 
-        // 候选切入方向：仅取速度分量较大的主轴(次轴回退会劫持带斜向分量的同轴翻页手势，表现为同轴滑动被误判成跨轴直切、页面弹跳无法正常切换)；方向符号与handleScrollDirectionLock的delta语义一致(offset增=left/up)
+        // 候选切入方向：仅取速度分量较大的主轴(次轴回退会劫持带斜向分量的同轴翻页手势)；方向符号与handleScrollDirectionLock的delta语义一致(offset增=left/up)
         var candidates: [WYSlidingDirection] = []
         let horizontalVelocity = abs(flickVelocity.x)
         let verticalVelocity = abs(flickVelocity.y)
@@ -206,7 +206,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
         }
         guard candidates.isEmpty == false else { return }
 
-        // 当前展示轴(按置顶View事实源判，不用internalSliderDirection)：方向残留会把这个判定骗反(残留.left时V上轻扫被判"同轴"不触发跨轴直切，表现为单向切换失效——H→V恰好正常、V→H死，重进页面才恢复)；跨轴轻扫期间方向尚未更新本就应读展示真相
+        // 当前展示轴(按置顶View事实源判，不用internalSliderDirection)：方向残留会把这个判定骗反(如残留.left时垂直展示下的水平轻扫被判"同轴"而不触发直切)；跨轴轻扫期间方向尚未更新，本就应读展示真相
         let displayedAxisIsHorizontal = axisIsHorizontal(of: .unknown)
 
         // 逐候选判定：跨轴进入(目标轴存在即可，不论数量)且切入轴速度分量明显占优(1.5倍，斜向轻扫的同轴分量不允许误触发跨轴直切——否则同方向再次轻扫会误切轴导致内容无谓重载)才构成直切；目标轴的滑动开关不拦跨轴进入——开关管的是"轴内翻页交互"，不限制"能到达"该轴(进入后该轴零行程不可翻)；同轴甩动不经此路径，保持原跟手翻页
@@ -216,7 +216,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
             let entryAxisVelocity = entryAxisIsHorizontal ? horizontalVelocity : verticalVelocity
             let otherAxisVelocity = entryAxisIsHorizontal ? verticalVelocity : horizontalVelocity
             if (entryAxisCount >= 1) && (entryAxisIsHorizontal != displayedAxisIsHorizontal) && (entryAxisVelocity > otherAxisVelocity * 1.5) {
-                // 收回惯性目标到中心页：斜向甩动的同轴分量会带动可拖的展示轴产生松手减速/翻页吸附动画，与直切竞争表现为"切换仍有动画"
+                // 收回惯性目标到中心页：斜向甩动的同轴分量会带动可拖的展示轴产生松手减速/翻页吸附动画，与直切竞争
                 targetContentOffset.pointee = CGPoint(x: wy_width, y: wy_height)
                 // 异步发起：待本次拖拽的收尾回调全部走完后再执行直切，避免与拖拽状态互相干扰；呈现样式随crossAxisSwitchStyle
                 DispatchQueue.main.async { [weak self] in
@@ -236,7 +236,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
             startTimer()
         }
         
-        // 手指释放，并且没有惯性：静止释放时系统分页不发起减速，偏移可能停在两页之间，必须按分页语义落位后收尾(直接pauseScroll会把偏移瞬时硬跳回中心，表现为页面卡住后瞬移)
+        // 手指释放，并且没有惯性：静止释放时系统分页不发起减速，偏移可能停在两页之间，必须按分页语义落位后收尾(直接pauseScroll会把偏移瞬时硬跳回中心)
         if decelerate == false {
             // slide交互式拖动的松手改写了惯性目标，无减速停止时同样要落地收尾(减速结束时在scrollViewDidEndDecelerating收)
             if endInteractiveSlideDragIfNeeded() {

@@ -19,7 +19,7 @@ extension WYContentScrollView {
         timer = nil
     }
 
-    /// 轮播计时器随展示轴/数量/开关动态启停：当前展示轴翻不了页(数量不足2/关自动轮播/展示轴关无限翻页)时停止并清除计时器(避免定时器每3秒空转一次)，恢复可翻时若此前开启过轮播则自动重启；调用点：checkCarouselStatus(方向/数量/开关变化都会经过)与跨轴直切收尾(展示轴翻转不经方向与数量变化)
+    /// 轮播计时器随展示轴/数量/开关动态启停：翻不了页时停表，恢复可翻且此前开过轮播时自动重启
     func refreshCarouselTimer() {
 
         // 无限翻页前提按展示轴的开关判定(轮播只翻展示轴，无限开关已按轴拆分)
@@ -67,7 +67,7 @@ extension WYContentScrollView {
         refreshCarouselTimer()
     }
 
-    /// 处理方向锁定并返回当前滑动方向：锁死不可滑动的方向(回退到 lastValidContentOffset)、全向模式下判定并锁定拖拽主方向、边界处钳制 contentOffset 防止越过中心露出背景
+    /// 处理方向锁定并返回当前滑动方向：锁死不可滑方向、全向判定并锁定拖拽主方向、边界处钳制contentOffset
     func handleScrollDirectionLock() -> WYSlidingDirection {
 
         // 方向推导必须读钳制前的原始偏移：程序化动画的位移会被下方轴能力钳制抹回中心，读钳制后偏移则delta恒0判不了轴(轮播停摆)
@@ -81,7 +81,7 @@ extension WYContentScrollView {
 
         if contentSlidingDirection == .omnidirectional {
             
-            // 展示轴判定(方向未知时按置顶View判)：优先方向只是挂载瞬间的展示轴代理，按它判会把垂直展示后的垂直滑动/翻页误判成跨轴而拦死；交互式跨轴拖动期间改用开始时记录的原展示轴——此时internalSliderDirection已翻成目标轴方向，按它推导会误以为展示轴已翻过去而放开行程(fade/zoom表现为当前页跟着滚)
+            // 展示轴判定(方向未知时按置顶View判)：优先方向只是挂载瞬间的展示轴代理，按它判会把垂直展示后的垂直滑动/翻页误判成跨轴而拦死；交互式跨轴拖动期间改用开始时记录的原展示轴——此时internalSliderDirection已翻成目标轴方向，按它推导会误以为展示轴已翻过去而放开行程
             let displayedAxisIsHorizontal = isInteractiveCrossAxisDrag ? interactiveCrossOriginalAxisIsHorizontal : axisIsHorizontal(of: internalSliderDirection)
             horizontalCanScroll = false
             verticalCanScroll = false
@@ -152,11 +152,12 @@ extension WYContentScrollView {
                     translationX = deltaX
                     translationY = deltaY
                 }else if (isTracking == false) && (isDecelerating == false) {
-                    // 纯程序化滚动(定时器轮播/nextContent/lastContent/switchContent)没有手指：pan位移恒为0锁不上轴，判轴前两轴全钳制会把程序化动画掐死在第一帧(表现为切全向后轮播停止；缠斗期间staging仍发willSwitch、失败复位又把页面无动画弹回原页)；此场景回退按偏移位移判轴(与直切同源)。用户路径不受影响：同轴拖动靠手指位移先锁再放行，被钳制的零行程delta≈0不会误锁；同时消除手势结束后残留的陈旧位移被程序化滚动误用导致的时好时坏
+                    // 纯程序化滚动(定时器轮播/nextContent/lastContent/switchContent)没有手指：pan位移恒为0锁不上轴，判轴前两轴全钳制会把程序化动画掐死在第一帧，此场景回退按偏移位移判轴(与直切同源)
+                // 用户路径不受影响：同轴拖动靠手指位移先锁再放行，被钳制的零行程delta≈0不会误锁；同时消除手势结束后残留的陈旧位移被程序化滚动误用导致的时好时坏
                     translationX = deltaX
                     translationY = deltaY
                 }
-                // 判轴防抖取10pt后按主分量定轴(不要求优势倍数)：优势倍数要求会让接近斜向的同轴手势永远锁不上轴、全程被钳制(表现为同轴前几次滑动弹跳/无法切换)；10pt内两轴全钳制的手感与两轴均单页一致，斜向抖动被吸收在10pt内
+                // 判轴防抖取10pt后按主分量定轴(不要求优势倍数)：优势倍数要求会让接近斜向的同轴手势永远锁不上轴、全程被钳制；10pt内两轴全钳制的手感与两轴均单页一致，斜向抖动被吸收在10pt内
                 let lockThreshold: CGFloat = 10.0
                 if (abs(translationX) > lockThreshold) || (abs(translationY) > lockThreshold) {
                     if abs(translationX) >= abs(translationY) {
@@ -240,7 +241,7 @@ extension WYContentScrollView {
         return slidingDirection
     }
 
-    /// 轴向判定：方向明确时按方向判水平/垂直；方向未知(挂载后未滑动、程序切换动画重置、重新展示重置)时按置顶ContentView所属轴判(置顶View是展示轴的事实源，优先方向只是挂载瞬间的代理——按优先方向判会把垂直展示后的垂直翻页/进入/轻扫全部误判成跨轴)；置顶View判不出时按优先方向兜底
+    /// 轴向判定：方向明确按方向判，未知按置顶ContentView所属轴判，判不出按优先方向兜底
     func axisIsHorizontal(of direction: WYSlidingDirection) -> Bool {
 
         if (direction == .left) || (direction == .right) {
@@ -261,8 +262,7 @@ extension WYContentScrollView {
         return prioritySlidingDirection != .topOrBottom
     }
 
-    /// 判断当前方向是否可以继续滚动：处于边界页(第一/最后一页)且关闭无限轮播时，往循环方向(无内容方向)的滑动会被拦截并把 contentOffset 拉回中心页
-    /// 程序化修正contentOffset的统一入口(判轴钳制/边界拦截回拉)：赋值会同步重入didScroll，重入链路可能再次发起修正，两个修正目标不一致时互拉成无限互递归栈溢出(实测：关无限轮播+全向+末页回滑触发)——重入闸让重入的修正直接跳过，单层收敛
+    /// 程序化修正contentOffset的统一入口：重入闸防修正互拉递归栈溢出
     func correctContentOffset(_ target: CGPoint) {
 
         guard (isCorrectingContentOffset == false) && (target != contentOffset) else {
@@ -290,7 +290,7 @@ extension WYContentScrollView {
             }
         }
 
-        // 滑动开关是纯手势开关：只拦用户拖动，程序化动画(nextContent/lastContent/switchContent/轮播tick)与轻扫直切是组件/业务显式驱动必须放行——被拦会杀死staging与提交(表现为关开关后API动画到位却切不过去)
+        // 滑动开关是纯手势开关：只拦用户拖动，程序化动画(nextContent/lastContent/switchContent/轮播tick)与轻扫直切是组件/业务显式驱动必须放行——被拦会杀死staging与提交
         if ((slidingDirection == .left) || (slidingDirection == .right)) && (horizontalSliderEnabled == false) && (isInstantCrossAxisEntry == false) && (isProgrammaticAnimatedScroll == false) {
             return false
         }
