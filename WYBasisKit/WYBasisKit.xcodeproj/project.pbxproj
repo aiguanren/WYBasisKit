@@ -62,6 +62,9 @@
 		583E04FC2E879984004F1034 /* WYViewControllerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583E04FB2E879984004F1034 /* WYViewControllerObjC.swift */; };
 		584D59E32FBC353300A862F7 /* WYMethodSwizzlerCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D59E22FBC353300A862F7 /* WYMethodSwizzlerCenter.swift */; };
 		584D59E62FBEEE8400A862F7 /* WYTextViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D59E52FBEEE8400A862F7 /* WYTextViewObjC.swift */; };
+		584E8BD43046BC4000C6D2CA /* WYMediaPlayer+Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584E8BD23046BC4000C6D2CA /* WYMediaPlayer+Notifications.swift */; };
+		584E8BD53046BC4000C6D2CA /* WYMediaPlayer+Properties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584E8BD33046BC4000C6D2CA /* WYMediaPlayer+Properties.swift */; };
+		584E8BD63046BC4000C6D2CA /* WYMediaPlayer+LoadCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584E8BD13046BC4000C6D2CA /* WYMediaPlayer+LoadCore.swift */; };
 		584EAF012E92791B003A21B8 /* WYLocalizableManagerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF002E92791B003A21B8 /* WYLocalizableManagerObjC.swift */; };
 		584EAF082E92979A003A21B8 /* WYMediaPlayerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF072E92979A003A21B8 /* WYMediaPlayerObjC.swift */; };
 		584EAF0A2E92A7A0003A21B8 /* WYBannerViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584EAF092E92A7A0003A21B8 /* WYBannerViewObjC.swift */; };
@@ -224,6 +227,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2D8AB1CA014BB35F5E33F61B /* WYMediaPlayer+LoadCore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+LoadCore.swift"; sourceTree = "<group>"; };
 		53C1C8E1255F64288E08B8AC /* Pods-WYBasisKit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.release.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.release.xcconfig"; sourceTree = "<group>"; };
 		5802B28D2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYRecordAnimationConfig.swift; sourceTree = "<group>"; };
 		5806BD0F2FD3D25400FEA501 /* WYTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTask.swift; sourceTree = "<group>"; };
@@ -281,6 +285,9 @@
 		583E04FB2E879984004F1034 /* WYViewControllerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYViewControllerObjC.swift; sourceTree = "<group>"; };
 		584D59E22FBC353300A862F7 /* WYMethodSwizzlerCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMethodSwizzlerCenter.swift; sourceTree = "<group>"; };
 		584D59E52FBEEE8400A862F7 /* WYTextViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTextViewObjC.swift; sourceTree = "<group>"; };
+		584E8BD13046BC4000C6D2CA /* WYMediaPlayer+LoadCore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+LoadCore.swift"; sourceTree = "<group>"; };
+		584E8BD23046BC4000C6D2CA /* WYMediaPlayer+Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+Notifications.swift"; sourceTree = "<group>"; };
+		584E8BD33046BC4000C6D2CA /* WYMediaPlayer+Properties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+Properties.swift"; sourceTree = "<group>"; };
 		584EAF002E92791B003A21B8 /* WYLocalizableManagerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLocalizableManagerObjC.swift; sourceTree = "<group>"; };
 		584EAF072E92979A003A21B8 /* WYMediaPlayerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaPlayerObjC.swift; sourceTree = "<group>"; };
 		584EAF092E92A7A0003A21B8 /* WYBannerViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYBannerViewObjC.swift; sourceTree = "<group>"; };
@@ -500,6 +507,8 @@
 		5B0A12B6CD08A1EADB40EC1C /* Pods_WYBasisKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WYBasisKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B8A3708E351CE0BB9E30715 /* Pods-WYBasisKit.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.debug.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.debug.xcconfig"; sourceTree = "<group>"; };
 		AAC46ACF2E07E28F0068B0DF /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+		DAED5053645E21395CF44805 /* WYMediaPlayer+Notifications.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+Notifications.swift"; sourceTree = "<group>"; };
+		E5BA55F71D1EFB496EE59FDE /* WYMediaPlayer+Properties.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+Properties.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -947,6 +956,16 @@
 			path = UITextView;
 			sourceTree = "<group>";
 		};
+		584E8BCE3046B97C00C6D2CA /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				584E8BD13046BC4000C6D2CA /* WYMediaPlayer+LoadCore.swift */,
+				584E8BD23046BC4000C6D2CA /* WYMediaPlayer+Notifications.swift */,
+				584E8BD33046BC4000C6D2CA /* WYMediaPlayer+Properties.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
 		58582C0F30412CC600A90194 /* PrivateImpl */ = {
 			isa = PBXGroup;
 			children = (
@@ -988,6 +1007,7 @@
 				585B39662DF8125400E6E08F /* LaunchScreen.storyboard */,
 				585B39622DF8125400E6E08F /* AppDelegate.swift */,
 				585B396A2DF8125400E6E08F /* ViewController.swift */,
+				F2AA847EA38B4440EEA687B5 /* Swift */,
 			);
 			path = WYBasisKit;
 			sourceTree = "<group>";
@@ -2438,6 +2458,7 @@
 			children = (
 				58C68D692E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68D6A2E84E436005FD054 /* WYMediaPlayer.swift */,
+				584E8BCE3046B97C00C6D2CA /* PrivateImpl */,
 			);
 			path = MediaPlayer;
 			sourceTree = "<group>";
@@ -2587,6 +2608,14 @@
 			path = UITextView;
 			sourceTree = "<group>";
 		};
+		6140E3ED3FB8E22646F68578 /* Layout */ = {
+			isa = PBXGroup;
+			children = (
+				AFC77F406756BDC2ADC5A763 /* MediaPlayer */,
+			);
+			name = Layout;
+			sourceTree = "<group>";
+		};
 		74BEC470B6E92D82AAD2D137 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -2598,6 +2627,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		AFC77F406756BDC2ADC5A763 /* MediaPlayer */ = {
+			isa = PBXGroup;
+			children = (
+				F17F492151E72F3008F59919 /* PrivateImpl */,
+			);
+			name = MediaPlayer;
+			sourceTree = "<group>";
+		};
 		DBAAB43B363BC740AF1D33F1 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -2606,6 +2643,24 @@
 			);
 			name = Pods;
 			path = ../Pods;
+			sourceTree = "<group>";
+		};
+		F17F492151E72F3008F59919 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				E5BA55F71D1EFB496EE59FDE /* WYMediaPlayer+Properties.swift */,
+				2D8AB1CA014BB35F5E33F61B /* WYMediaPlayer+LoadCore.swift */,
+				DAED5053645E21395CF44805 /* WYMediaPlayer+Notifications.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
+		F2AA847EA38B4440EEA687B5 /* Swift */ = {
+			isa = PBXGroup;
+			children = (
+				6140E3ED3FB8E22646F68578 /* Layout */,
+			);
+			name = Swift;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -2917,6 +2972,9 @@
 				583C41B62E922D9E007379FC /* WYAudioKitObjC.swift in Sources */,
 				583E04FA2E8690D1004F1034 /* WYWebViewObjC.swift in Sources */,
 				58C68E292E84E436005FD054 /* WYDictionary.swift in Sources */,
+				584E8BD43046BC4000C6D2CA /* WYMediaPlayer+Notifications.swift in Sources */,
+				584E8BD53046BC4000C6D2CA /* WYMediaPlayer+Properties.swift in Sources */,
+				584E8BD63046BC4000C6D2CA /* WYMediaPlayer+LoadCore.swift in Sources */,
 				58C68E2A2E84E436005FD054 /* WYChatWithdrawnCell.swift in Sources */,
 				58328C8E2FC93C0600C0F556 /* WYDrawTextSwizzler.swift in Sources */,
 				58C68E2B2E84E436005FD054 /* WYChatVoiceCell.swift in Sources */,
