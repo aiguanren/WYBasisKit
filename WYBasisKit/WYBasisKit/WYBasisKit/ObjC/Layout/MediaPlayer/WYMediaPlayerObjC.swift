@@ -47,7 +47,7 @@ import WYBasisKitSwift
         return state
     }
 
-    /// 进度回调间隔(秒，默认0.5；1.0.8起底层通知默认关闭，不设置则wy_mediaPlayerProgressDidChanged收不到周期回调，0=关闭周期回调仅保留prepared/seek等离散事件)
+    /// 进度回调间隔(秒，默认0.5；1.0.8起底层通知默认关闭，不设置则wy_mediaPlayerProgressDidChanged收不到周期回调；0=关闭周期回调，只保留prepare完成、seek完成这类发生一次才通知一次的事件)
     @objc(progressCallbackInterval)
     public var progressCallbackIntervalObjC: TimeInterval {
         get { return progressCallbackInterval }
@@ -96,9 +96,16 @@ import WYBasisKitSwift
         set { muted = newValue }
     }
 
-    /// 音频PCM采样回调(每次渲染回调一块采样；sampleSize为-1时samples为NULL表示需重置刷新UI，配合自定义波形/频谱UI使用；须在play/prepare前设置，加载后设置对当前实例立即生效；底层block属性经Swift导入为非可选，仅非nil时可下发，置nil只对新加载生效)
+    /**
+     *  音频PCM采样数据回调，播放器每渲染一块音频采样就回调一次，配合自定义波形/频谱UI使用(建议在play/prepare前设置；加载后再设置非nil闭包也会立即下发给当前实例，置nil则只对新加载生效——底层block属性经Swift导入为非可选，nil传不下去)
+     *
+     *  @param samples    采样数据指针，指向一块Int16数组，每个元素是一次采样的振幅值
+     *  @param sampleSize 本次回调的采样数量；为-1时samples为NULL，表示音频源已重置，需要清掉旧数据刷新UI
+     *  @param sampleRate 采样率，单位Hz，常见如44100、48000
+     *  @param channels   声道数，1=单声道，2=立体声
+     */
     @objc(audioSamplesCallback)
-    public var audioSamplesCallbackObjC: ((UnsafeMutablePointer<Int16>?, Int32, Int32, Int32) -> Void)? {
+    public var audioSamplesCallbackObjC: ((_ samples: UnsafeMutablePointer<Int16>?, _ sampleSize: Int32, _ sampleRate: Int32, _ channels: Int32) -> Void)? {
         get { return audioSamplesCallback }
         set { audioSamplesCallback = newValue }
     }
@@ -131,10 +138,11 @@ import WYBasisKitSwift
         set { renderDisplayDelegate = newValue }
     }
 
-    /// 渲染视图背景色(红绿蓝各0~255；渲染视图默认黑色，设置可自定义播放器底色)
-    @objc(setRenderBackgroundColorWithRed:green:blue:)
-    public func setRenderBackgroundColorObjC(red: UInt8, green: UInt8, blue: UInt8) {
-        renderBackgroundColor = (red, green, blue)
+    /// 渲染视图背景色，默认黑色(渲染视图自身默认也是黑色，设置可自定义播放器底色)
+    @objc(renderBackgroundColor)
+    public var renderBackgroundColorObjC: UIColor {
+        get { return renderBackgroundColor }
+        set { renderBackgroundColor = newValue }
     }
 
     /// 高斯模糊背景图(填充无画面或黑边区域，替代默认纯色背景；nil=清除，配合placeholder使用体验更佳)
@@ -172,14 +180,16 @@ import WYBasisKitSwift
         set { preventDisplay = newValue }
     }
 
-    /// 是否允许HDR直显(iOS16+；true且设备支持时HDR不做tone-map直接显示，false=一律压回SDR；读取直显支持能力用directDisplayHDRSupportted)
+    /// 是否允许HDR直显(仅iOS16+可调用；true且设备支持时HDR画面不做格式转换直接显示，false=一律转换成SDR再显示；设备是否支持直显看directDisplayHDRSupportted)
+    @available(iOS 16.0, *)
     @objc(allowHDRDirectDisplay)
     public var allowHDRDirectDisplayObjC: Bool {
         get { return allowHDRDirectDisplay }
         set { allowHDRDirectDisplay = newValue }
     }
 
-    /// 当前显示是否支持HDR直显(只读，iOS16+；iOS16以下恒为false，tvOS不支持HDR直显)
+    /// 当前显示是否支持HDR直显(只读，仅iOS16+可调用；tvOS不支持HDR直显)
+    @available(iOS 16.0, *)
     @objc(directDisplayHDRSupportted)
     public var directDisplayHDRSupporttedObjC: Bool {
         return directDisplayHDRSupportted
@@ -306,28 +316,28 @@ import WYBasisKitSwift
 
     /// HLS分片打开前回调(可改写urlOpenData.url实现本地缓存/鉴权替换，改完自动标记handled；不改url仅做监控也可用)
     @objc(willOpenSegmentUrl)
-    public var willOpenSegmentUrlObjC: ((IJKMediaUrlOpenData) -> Void)? {
+    public var willOpenSegmentUrlObjC: ((_ urlOpenData: IJKMediaUrlOpenData) -> Void)? {
         get { return willOpenSegmentUrl }
         set { willOpenSegmentUrl = newValue }
     }
 
     /// TCP连接打开前回调(可读取/改写目标url，观察连接ip/port需配合DidTcpOpen事件属性)
     @objc(willOpenTcpUrl)
-    public var willOpenTcpUrlObjC: ((IJKMediaUrlOpenData) -> Void)? {
+    public var willOpenTcpUrlObjC: ((_ urlOpenData: IJKMediaUrlOpenData) -> Void)? {
         get { return willOpenTcpUrl }
         set { willOpenTcpUrl = newValue }
     }
 
     /// HTTP请求打开前回调(可改写url/查看重试计数retryCounter，适合加签名或换CDN)
     @objc(willOpenHttpUrl)
-    public var willOpenHttpUrlObjC: ((IJKMediaUrlOpenData) -> Void)? {
+    public var willOpenHttpUrlObjC: ((_ urlOpenData: IJKMediaUrlOpenData) -> Void)? {
         get { return willOpenHttpUrl }
         set { willOpenHttpUrl = newValue }
     }
 
     /// 直播流打开前回调(直播重连前触发，可趁机换源)
     @objc(willOpenLiveUrl)
-    public var willOpenLiveUrlObjC: ((IJKMediaUrlOpenData) -> Void)? {
+    public var willOpenLiveUrlObjC: ((_ urlOpenData: IJKMediaUrlOpenData) -> Void)? {
         get { return willOpenLiveUrl }
         set { willOpenLiveUrl = newValue }
     }
@@ -341,7 +351,7 @@ import WYBasisKitSwift
     /**
      * 开始播放(加载完成后自动起播，受shouldAutoplay控制，默认true)
      * @param url 要播放的流地址
-     * @param placeholder 视屏背景图占位图
+     * @param placeholder 视频占位图，加载期间先显示它
      */
     @objc(playWithUrl:)
     public func playObjC(with url: String) {
@@ -355,7 +365,7 @@ import WYBasisKitSwift
     /**
      * 预加载：只加载缓冲、不自动播放不出声(适合预加载预备页)；加载完成若开了shouldUseFirstFrameAsPoster会自动探测首帧作封面，之后调playObjC()即可播放(未prepare完会自动挂起，prepare完成后立即起播并跳过探测)
      * @param url 要加载的流地址
-     * @param placeholder 视屏背景图占位图
+     * @param placeholder 视频占位图，加载期间先显示它
      */
     @objc(prepareWithUrl:)
     public func prepareObjC(with url: String) {
@@ -535,6 +545,17 @@ import WYBasisKitSwift
     }
 
     /**
+     *  按指定类型截取当前画面(1.1.0新增)：比currentSnapshot()多了"截视频原始帧"的能力，返回CGImage方便直接写文件或二次处理
+     *
+     *  @param type 截图类型：IJKSnapshotTypeOrigin=视频原始尺寸(不带字幕和画质特效)、IJKSnapshotTypeScreen=当前屏幕看到的画面(含字幕和画质特效，效果同currentSnapshot())、IJKSnapshotTypeEffect_Origin=原始尺寸带字幕不带画质特效、IJKSnapshotTypeEffect_Subtitle_Origin=原始尺寸带字幕和画质特效
+     *  @return 截好的图像(OC侧拿到的是CGImageRef)；播放器还没创建或第一帧还没渲染出来时返回nil
+     */
+    @objc(currentSnapshotWithType:)
+    public func currentSnapshotObjC(_ type: IJKSnapshotType) -> CGImage? {
+        return currentSnapshot(type)
+    }
+
+    /**
      * 运行时切换硬/软解码(无需停止播放；硬解花屏或兼容性问题时切软解自救)
      * @param hardware true=切硬件解码(VideoToolbox)，false=切软件解码
      * @return 是否切换成功
@@ -629,7 +650,7 @@ import WYBasisKitSwift
         return currentVMDiff()
     }
 
-    /// 本次加载的总流量统计(单位：byte，与numberOfBytesTransferred同源)
+    /// 本次加载的总流量统计(单位：byte，与numberOfBytesTransferred是同一个数据)
     @objc(trafficStatistic)
     public func trafficStatisticObjC() -> Int64 {
         return trafficStatistic()
@@ -671,6 +692,12 @@ import WYBasisKitSwift
         return supportedDecoders()
     }
 
+    /// 设备是否支持HEVC(H.265)硬解码(1.1.0新增；做能力判断用，比如不支持时提示用户或限制HEVC清晰度档位)
+    @objc(isHardwareDecodeSupportedForHEVC)
+    public static func isHardwareDecodeSupportedForHEVCObjC() -> Bool {
+        return isHardwareDecodeSupportedForHEVC()
+    }
+
     /// 开关日志上报(true=日志走上报通道)
     @objc(setLogReport:)
     public static func setLogReportObjC(_ preferLogReport: Bool) {
@@ -688,7 +715,7 @@ import WYBasisKitSwift
      * @param handler 日志处理闭包
      */
     @objc(setLogHandler:)
-    public static func setLogHandlerObjC(_ handler: ((IJKLogLevel, String, String) -> Void)?) {
+    public static func setLogHandlerObjC(_ handler: ((_ level: IJKLogLevel, _ tag: String, _ msg: String) -> Void)?) {
         setLogHandler(handler)
     }
 
@@ -696,6 +723,16 @@ import WYBasisKitSwift
     @objc(releaseAll)
     public func releaseAllObjC() {
         releaseAll()
+    }
+
+    /**
+     *  释放播放器组件(1.1.0起可以选择同步或异步关闭内核)
+     *
+     *  @param sync true=同步关闭，等内核真正释放完资源才返回(紧接着要重建播放器或退出页面的场景用，防止旧实例还没释放完就叠新实例)；false=异步关闭，立即返回不等内核(默认，也是之前版本的行为)
+     */
+    @objc(releaseAllWithSync:)
+    public func releaseAllObjC(sync: Bool) {
+        releaseAll(sync)
     }
 
     /*

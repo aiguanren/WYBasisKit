@@ -724,6 +724,24 @@ public extension UIImage {
     }
     
     /**
+     *  获取 AppIcon 图标
+     *
+     *  App图标不能用图片名直接取到(它不走普通的图片集编译)，图标文件的名字登记在Info.plist的CFBundleIcons字段里，从这里拿到文件名列表后取最后一项(通常是最大尺寸的那张)；无论工程配置的是单尺寸1024还是多尺寸都能取到
+     *
+     */
+    static func wy_appIcon() -> UIImage? {
+
+        guard let icons = Bundle.main.infoDictionary?["CFBundleIcons"] as? [String: Any],
+              let primaryIcon = icons["CFBundlePrimaryIcon"] as? [String: Any],
+              let iconFiles = primaryIcon["CFBundleIconFiles"] as? [String],
+              let iconName = iconFiles.last else {
+            return nil
+        }
+
+        return UIImage(named: iconName)
+    }
+
+    /**
      *  加载本地图片
      *
      *  @param imageName             要加载的图片名

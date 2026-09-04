@@ -446,6 +446,17 @@ import WYBasisKitSwift
      *  @param bundle                从哪个bundle文件内查找，如果为空，则直接在本地路径下查找
      *
      */
+    /**
+     *  获取 AppIcon 图标
+     *
+     *  App图标不能用图片名直接取到(它不走普通的图片集编译)，图标文件的名字登记在Info.plist的CFBundleIcons字段里，从这里拿到文件名列表后取最后一项(通常是最大尺寸的那张)；无论工程配置的是单尺寸1024还是多尺寸都能取到
+     *
+     */
+    @objc(wy_appIcon)
+    static func wy_appIconObjC() -> UIImage? {
+        return UIImage.wy_appIcon()
+    }
+
     @objc(wy_find:)
     static func wy_findObjC(_ imageName: String) -> UIImage {
         return wy_findObjC(imageName, bundle: nil)

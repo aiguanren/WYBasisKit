@@ -43,7 +43,7 @@ at_exit do
   end
 end
 
-# 选择设置选项（三选一）
+# 选择设置选项（三选一）；无论选哪档都会附带执行arm64模拟器自动探测(所有二进制库都支持arm64模拟器就移除EXCLUDED_ARCHS排除、有不支持的库就自动写入排除并在控制台列出是哪些库)和纯OC工程自动补Swift兼容库链接参数
 # configure_settings_option(SETTING_OPTIONS[:pods_only])    # 只设置Pods项目
 # configure_settings_option(SETTING_OPTIONS[:user_only])    # 只设置用户项目
 configure_settings_option(SETTING_OPTIONS[:all_projects])   # 设置所有项目(默认)

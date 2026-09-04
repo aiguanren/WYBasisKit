@@ -55,6 +55,14 @@
 /// 垂直方向是否支持滑动
 @property (nonatomic, strong) UISwitch *verticalSliderEnabled;
 
+/// 水平方向同轴翻页最小间隔滑杆(0~3秒)
+@property (nonatomic, strong) UISlider *minimumHorizontalSwitchInterval;
+@property (nonatomic, strong) UILabel *minimumHorizontalSwitchIntervalValue;
+
+/// 垂直方向同轴翻页最小间隔滑杆(0~3秒)
+@property (nonatomic, strong) UISlider *minimumVerticalSwitchInterval;
+@property (nonatomic, strong) UILabel *minimumVerticalSwitchIntervalValue;
+
 /// 水平方向是否无限翻页
 @property (nonatomic, strong) UISwitch *horizontalUnlimitedCarousel;
 
@@ -194,6 +202,22 @@
 
     self.horizontalSliderEnabled.on = YES;
     self.verticalSliderEnabled.on = YES;
+
+    self.minimumHorizontalSwitchInterval.value = 0;
+    self.minimumHorizontalSwitchInterval.minimumValue = 0;
+    self.minimumHorizontalSwitchInterval.maximumValue = 3;
+    [self.minimumHorizontalSwitchInterval addTarget:self action:@selector(minimumHorizontalSwitchIntervalChanged:) forControlEvents:UIControlEventValueChanged];
+
+    self.minimumHorizontalSwitchIntervalValue.textColor = UIColor.blackColor;
+    self.minimumHorizontalSwitchIntervalValue.text = @"0.0";
+
+    self.minimumVerticalSwitchInterval.value = 0;
+    self.minimumVerticalSwitchInterval.minimumValue = 0;
+    self.minimumVerticalSwitchInterval.maximumValue = 3;
+    [self.minimumVerticalSwitchInterval addTarget:self action:@selector(minimumVerticalSwitchIntervalChanged:) forControlEvents:UIControlEventValueChanged];
+
+    self.minimumVerticalSwitchIntervalValue.textColor = UIColor.blackColor;
+    self.minimumVerticalSwitchIntervalValue.text = @"0.0";
     self.horizontalUnlimitedCarousel.on = YES;
     self.verticalUnlimitedCarousel.on = YES;
     // 与组件默认值一致(automaticCarousel默认false，不自动轮播；业务想要自动轮播显式开启，开启后组件会在首次展示时自动开表)
@@ -338,6 +362,18 @@
     }
 }
 
+- (void)minimumHorizontalSwitchIntervalChanged:(UISlider *)sender {
+    self.contentScrollView.horizontalMinimumSwitchInterval = sender.value;
+    // 标签显示钳制后的实际值
+    self.minimumHorizontalSwitchIntervalValue.text = [NSString stringWithFormat:@"%.1f", self.contentScrollView.horizontalMinimumSwitchInterval];
+}
+
+- (void)minimumVerticalSwitchIntervalChanged:(UISlider *)sender {
+    self.contentScrollView.verticalMinimumSwitchInterval = sender.value;
+    // 标签显示钳制后的实际值
+    self.minimumVerticalSwitchIntervalValue.text = [NSString stringWithFormat:@"%.1f", self.contentScrollView.verticalMinimumSwitchInterval];
+}
+
 - (void)addSubView {
     [self.view addSubview:self.contentScrollView];
     [self.contentScrollView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -403,11 +439,25 @@
         make.width.centerX.equalTo(horizontalSliderEnabledView);
     }];
 
+    UIView *minimumHorizontalSwitchIntervalView = [self createDescContentViewWithDesc:@"水平方向同轴翻页最小间隔(秒，默认0不限制；手势翻页后间隔内的新同轴拖动无效，跨轴与API切换不受影响，滑杆0~3)" controView:self.minimumHorizontalSwitchInterval valueView:self.minimumHorizontalSwitchIntervalValue];
+    [self.operatioView addSubview:minimumHorizontalSwitchIntervalView];
+    [minimumHorizontalSwitchIntervalView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(verticalSliderEnabledView.mas_bottom).offset(35);
+        make.width.centerX.equalTo(verticalSliderEnabledView);
+    }];
+
+    UIView *minimumVerticalSwitchIntervalView = [self createDescContentViewWithDesc:@"垂直方向同轴翻页最小间隔(秒，默认0不限制；手势翻页后间隔内的新同轴拖动无效，跨轴与API切换不受影响，滑杆0~3)" controView:self.minimumVerticalSwitchInterval valueView:self.minimumVerticalSwitchIntervalValue];
+    [self.operatioView addSubview:minimumVerticalSwitchIntervalView];
+    [minimumVerticalSwitchIntervalView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(minimumHorizontalSwitchIntervalView.mas_bottom).offset(35);
+        make.width.centerX.equalTo(minimumHorizontalSwitchIntervalView);
+    }];
+
     UIView *horizontalUnlimitedCarouselView = [self createDescContentViewWithDesc:@"水平方向是否无限翻页(末页环绕回首页；轮播前提按展示轴读取本开关)" controView:self.horizontalUnlimitedCarousel valueView:nil];
     [self.operatioView addSubview:horizontalUnlimitedCarouselView];
     [horizontalUnlimitedCarouselView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(verticalSliderEnabledView.mas_bottom).offset(35);
-        make.width.centerX.equalTo(verticalSliderEnabledView);
+        make.top.equalTo(minimumVerticalSwitchIntervalView.mas_bottom).offset(35);
+        make.width.centerX.equalTo(minimumVerticalSwitchIntervalView);
     }];
 
     UIView *verticalUnlimitedCarouselView = [self createDescContentViewWithDesc:@"垂直方向是否无限翻页(末页环绕回首页；轮播前提按展示轴读取本开关)" controView:self.verticalUnlimitedCarousel valueView:nil];
@@ -709,6 +759,34 @@
         _verticalSliderEnabled = [[UISwitch alloc] init];
     }
     return _verticalSliderEnabled;
+}
+
+- (UISlider *)minimumHorizontalSwitchInterval {
+    if (!_minimumHorizontalSwitchInterval) {
+        _minimumHorizontalSwitchInterval = [[UISlider alloc] init];
+    }
+    return _minimumHorizontalSwitchInterval;
+}
+
+- (UILabel *)minimumHorizontalSwitchIntervalValue {
+    if (!_minimumHorizontalSwitchIntervalValue) {
+        _minimumHorizontalSwitchIntervalValue = [[UILabel alloc] init];
+    }
+    return _minimumHorizontalSwitchIntervalValue;
+}
+
+- (UISlider *)minimumVerticalSwitchInterval {
+    if (!_minimumVerticalSwitchInterval) {
+        _minimumVerticalSwitchInterval = [[UISlider alloc] init];
+    }
+    return _minimumVerticalSwitchInterval;
+}
+
+- (UILabel *)minimumVerticalSwitchIntervalValue {
+    if (!_minimumVerticalSwitchIntervalValue) {
+        _minimumVerticalSwitchIntervalValue = [[UILabel alloc] init];
+    }
+    return _minimumVerticalSwitchIntervalValue;
 }
 
 - (UISwitch *)horizontalUnlimitedCarousel {

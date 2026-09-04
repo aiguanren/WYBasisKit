@@ -12,8 +12,18 @@ import UIKit
 
 import IJKPlayerKit
 
-/// WYMediaPlayer 私有实现：加载管线(统一音量/加载入口与播放器实例构建)
+/// WYMediaPlayer 私有实现：加载相关(统一下发音量、统一加载入口、创建播放器实例)
 extension WYMediaPlayer {
+    /// 把背景色换算成0~255的RGB分量设置给渲染视图(纯白/纯黑这类灰度色走白色分量换算；实例还没创建时设置不到，等下次创建实例时会再调一次补上；属性didSet和createPlayer两处都会调用)
+    func applyRenderBackgroundColor() {
+        var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+        if renderBackgroundColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha) {
+            ijkPlayer?.view.setBackgroundColor?(UInt8(red * 255), g: UInt8(green * 255), b: UInt8(blue * 255))
+        }else if renderBackgroundColor.getWhite(&red, alpha: &alpha) {
+            ijkPlayer?.view.setBackgroundColor?(UInt8(red * 255), g: UInt8(red * 255), b: UInt8(red * 255))
+        }
+    }
+
     /// 统一下发实际音量：muted或海报探测期间为0，否则为userVolume(新建实例/变更静音/探测起止都调这里，保证互不覆盖)
     func applyVolume() {
         ijkPlayer?.playbackVolume = (muted || isPosterProbing) ? 0 : userVolume
@@ -22,8 +32,8 @@ extension WYMediaPlayer {
     /**
      * 加载流地址的统一私有入口
      * @param url 要加载的流地址
-     * @param placeholder 视屏背景图占位图
-     * @param autoplay 本次加载的起播意图(play走shouldAutoplay保持兼容，prepare恒为false)
+     * @param placeholder 视频占位图，加载期间先显示它
+     * @param autoplay 本次加载完成后要不要自动播放(play走shouldAutoplay保持兼容，prepare固定为false)
      * @param keepCurrentImage 重试场景传入true以保留已有画面(海报)不清屏
      */
     func load(with url: String, placeholder: UIImage?, autoplay: Bool, keepCurrentImage: Bool = false) {
@@ -48,13 +58,13 @@ extension WYMediaPlayer {
             failReplayNumber = 0
         }
 
-        // 推进加载代号：迟到的延迟重试若发现代号变了，说明期间发起了新加载，直接放弃
+        // 加载代号+1：延迟1秒才执行的失败重试回来时先核对代号，发现变了说明期间发起了新加载，直接放弃
         loadGeneration &+= 1
         loadAutoplayIntent = autoplay
 
         releaseAll()
 
-        // 加载发起即通知缓冲态：让业务从预加载/换源一开始就能挂loading，到ready/rendered解除——缓冲类状态通知在prepare完成后才会出现，不补这一声则加载全程没有可挂loading的状态
+        // 一发起加载就通知业务进入缓冲状态：让业务从头就能挂上loading转圈，到ready/rendered再解除；因为缓冲类的状态通知要等prepare完成才会出现，不提前补这一声，加载全程都没有一个状态能让业务挂loading
         callback(with: .buffering)
 
         createPlayer(with: playUrl)
@@ -157,6 +167,8 @@ extension WYMediaPlayer {
         refreshUrlOpenDelegates()
         ijkPlayer?.shouldAutoplay = loadAutoplayIntent
         ijkPlayer?.view.frame = bounds
+        // 新实例补发背景色(set发生在加载前时渲染视图还不存在，didSet下发无效)
+        applyRenderBackgroundColor()
         ijkPlayer?.scalingMode = scalingStyle
         ijkPlayer?.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         addSubview((ijkPlayer?.view)!)

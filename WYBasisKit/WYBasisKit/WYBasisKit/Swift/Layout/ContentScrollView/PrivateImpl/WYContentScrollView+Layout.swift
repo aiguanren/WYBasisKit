@@ -11,7 +11,17 @@ import UIKit
 /// WYContentScrollView 私有实现：内容视图布局与挂载(重挂保序/置顶层级/尺寸偏移检查)
 extension WYContentScrollView {
     
-    /// 检查各ContentView的superView
+    /// 把没在展示的那个轴藏起来：全向模式下两个轴的当前页叠在同一个位置(布局就是这样，靠谁在上面决定看到谁)，当页面内容不满铺时(比如aspectFit的小图)，底下那个轴的内容会从四周露出来(表现为同时看到两个轴的内容)；把非展示轴整体设为隐藏就不会露了；挂载时和每次跨轴切换/回弹收尾时调用；单轴模式只有一轴的View，不需要处理
+    func syncAxisViewsVisibility() {
+
+        guard contentSlidingDirection == .omnidirectional else { return }
+
+        let displayedIsHorizontal = axisIsHorizontal(of: .unknown)
+        horizontalViews?.forEach { $0.isHidden = (displayedIsHorizontal == false) }
+        verticalViews?.forEach { $0.isHidden = displayedIsHorizontal }
+    }
+
+    /// 挂载前清场：把传入的View连同两轴旧View全部移出父视图，防止残留的旧View挡住新挂上来的内容
     func contentViewInitializationCheck(_ contentViews: [UIView]) {
         
         contentViews.forEach { $0.removeFromSuperview() }
@@ -93,7 +103,9 @@ extension WYContentScrollView {
                 switchContentCallback(isDidSwitch: true, direction: initialDisplayDirection)
             }
             
-            // 首次展示(含切换方向重挂载)且开着自动轮播时自动开表：让automaticCarousel默认true的语义名副其实——不自动开表的话"自动轮播开着"却一直不轮播，属性与实际状态割裂；不需要轮播的业务把automaticCarousel设为false即可拦在此处；业务stopTimer过硬停后此自动开表也让位(timerStoppedByBusiness)，只有再次显式startTimer才恢复；此后启停交由startTimer/stopTimer与动态启停管理(拖动暂停松手续播、展示轴不可翻自动停恢复)
+            // 第一次显示(包括切换方向重新挂载)时如果开着自动轮播就自动开始轮播：不然"自动轮播"开着却一直不播，名不副实；不想要轮播的业务把automaticCarousel设为false就能挡在这里；业务主动调过stopTimer的话这里不再自动开(尊重业务的停止)，要再显式调startTimer才恢复；之后的启停交给startTimer/stopTimer管理(拖动时暂停、松手继续；展示轴翻不了页时自动停、能翻了自动恢复)
+            syncAxisViewsVisibility()
+
             if (automaticCarousel != false) && (timerStoppedByBusiness == false) {
                 // 展示轴的无限翻页前提由startTimer自身的门判定(无限开关已按轴拆分，读展示轴的开关)
                 startTimer()
@@ -185,12 +197,12 @@ extension WYContentScrollView {
         lastValidContentOffset = contentOffset
     }
     
-    /// 判断设置展示在顶层的对应方向的View，若contentViews为空则内部自行判断
+    /// 把该方向的View摆到最上层：传了contentViews就直接置顶它俩(第一个当当前页)，没传则按各方向数量/滑动方向/优先方向自行判断该置顶哪个轴
     func bringContentToFront(_ contentViews: [UIView]? = nil) {
         
         // 直接将传入的对应的ContentView移到WYContentScrollView的最顶层，且因为currentView和reserveView的frame有可能是一样的，所以需要最后执行bringSubviewToFront(currentView)
         if (contentViews?.count == 2), let currentView = contentViews?.first, let reserveView = contentViews?.last  {
-            // 每次都实际执行置顶而不按upperContentView缓存跳过：staging等路径存在不经缓存的裸bringSubviewToFront，被打断的切换可能让实际z序与缓存脱钩，按缓存跳过会把脏状态永久固化；重复置顶幂等无代价，以现实z序为准
+            // 每次都老老实实执行置顶操作，不要因为"记录里说已经置顶过了"就跳过：有些地方直接调了系统的置顶方法没更新记录，一旦哪次切换被打断，实际的叠放顺序就和记录对不上了；按记录跳过会让错误状态永远留在那里。重复置顶没有副作用也没有开销，以实际的叠放顺序为准最可靠
             bringSubviewToFront(reserveView)
             bringSubviewToFront(currentView)
             upperContentView = currentView
@@ -226,11 +238,11 @@ extension WYContentScrollView {
                       let currentVerticalView = verticalViews?.first,
                       let reserveVerticalView = verticalViews?.last else { return }
                 if upperContentView == currentHorizontalView {
-                    // 水平轴正在置顶展示：停留不劫持——数量变化不应移动用户页面(数量一路减到1都停留，唯独归零被甩去另一轴是不连续的怪行为)；归零只是该轴不可翻/轮播自动停，跨轴切到有内容的轴随时可行，不会困住用户
+                    // 水平轴还在展示时数量怎么变都停在原地：改数量不应该把用户正看的页面切走(数量一路减到1都停着，偏偏减到0就被甩到另一个轴，行为不连贯)；归零只是这个轴不能再翻了、轮播自动停，想切轴随时可以，不会困住用户
                     return
                 }
                 if upperContentView == currentVerticalView {
-                    // 垂直轴正在置顶展示：停留不劫持，语义同上(含数量归零)
+                    // 垂直轴正在置顶展示：数量怎么变都停在原地不劫持(改数量不该把用户正看的页面切走；归零只是这个轴不能再翻了、轮播自动停，想切轴随时可以，不会困住用户)
                     return
                 }
                 

@@ -10,9 +10,15 @@
 #import <WYBasisKitObjC/WYBasisKitObjC.h>
 
 // MARK: - WYGroupedHeaderView
-@interface WYGroupedHeaderView : UITableViewHeaderFooterView
+@interface WYGroupedHeaderView : UITableViewHeaderFooterView <WYContentScrollViewDelegate>
 
-@property (nonatomic, strong) WYBannerView *bannerView;
+@property (nonatomic, strong) WYContentScrollView *contentScrollView;
+
+/// 水平方向的两页View(当前+预备，banner由图片构成)
+@property (nonatomic, strong) NSArray<UIImageView *> *horizontalViews;
+
+/// 各下标对应的图片地址
+@property (nonatomic, strong) NSArray<NSString *> *images;
 
 - (void)reloadWithImages:(NSArray<NSString *> *)images;
 
@@ -20,18 +26,34 @@
 
 @implementation WYGroupedHeaderView
 
+/// 图片内存缓存(复用与环绕重载时避免重复下载)
+static NSCache<NSString *, UIImage *> *imageCache;
+
 - (instancetype)initWithReuseIdentifier:(NSString *)reuseIdentifier {
     self = [super initWithReuseIdentifier:reuseIdentifier];
     if (self) {
         self.contentView.backgroundColor = [UIColor whiteColor];
-        
-        self.bannerView = [[WYBannerView alloc] init];
-        self.bannerView.backgroundColor = [UIColor wy_random];
-        self.bannerView.automaticCarousel = NO;
-        self.bannerView.imageContentMode = UIViewContentModeScaleAspectFit;
-        wy_print(@"字节描述(KB或MB等)：%@，%ld字节", self.bannerView.cacheSizeString, (long)self.bannerView.cacheSize);
-        [self.contentView addSubview:self.bannerView];
-        [self.bannerView mas_makeConstraints:^(MASConstraintMaker *make) {
+
+        if (!imageCache) {
+            imageCache = [[NSCache alloc] init];
+        }
+
+        NSMutableArray<UIImageView *> *views = [NSMutableArray array];
+        for (NSInteger i = 0; i <= 1; i++) {
+            UIImageView *imageView = [[UIImageView alloc] init];
+            imageView.contentMode = UIViewContentModeScaleAspectFit;
+            imageView.clipsToBounds = YES;
+            imageView.tag = 100 + i;
+            [views addObject:imageView];
+        }
+        _horizontalViews = views;
+
+        _contentScrollView = [[WYContentScrollView alloc] init];
+        _contentScrollView.backgroundColor = [UIColor wy_random];
+        _contentScrollView.contentDelegate = self;
+        _contentScrollView.contentSlidingDirection = WYContentSlidingDirectionLeftOrRight;
+        [self.contentView addSubview:_contentScrollView];
+        [_contentScrollView mas_makeConstraints:^(MASConstraintMaker *make) {
             make.size.equalTo([NSValue valueWithCGSize:CGSizeMake(300, 600)]);
             make.edges.equalTo(self.contentView);
         }];
@@ -40,9 +62,59 @@
 }
 
 - (void)reloadWithImages:(NSArray<NSString *> *)images {
-    
-    wy_print(@"第一张图片信息：%@", [self.bannerView cacheImageFromUrlString:[images firstObject]]);
-    [self.bannerView reloadImages:images];
+    self.images = images;
+    // 预取全部图片进缓存：首滑命中缓存无占位阶段(冷缓存时占位图→真图跳变表现为闪一下)
+    for (NSString *urlString in images) {
+        [self warmupCacheWithUrlString:urlString];
+    }
+    self.contentScrollView.numberOfHorizontalContent = images.count;
+    [self.contentScrollView horizontalOrVerticalDisplayWithCurrentView:self.horizontalViews.firstObject reserveView:self.horizontalViews.lastObject];
+}
+
+/// 只下载进缓存不碰View(预取用)
+- (void)warmupCacheWithUrlString:(NSString *)urlString {
+    if (!urlString.length || [imageCache objectForKey:urlString]) { return; }
+    [[[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:urlString] completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        if (error || !data) { return; }
+        UIImage *image = [UIImage imageWithData:data];
+        if (image) {
+            [imageCache setObject:image forKey:urlString];
+        }
+    }] resume];
+}
+
+
+/// 按地址加载图片(缓存命中直接设置，否则下载后回主线程设置)
+- (void)setImage:(UIImageView *)imageView urlString:(NSString *)urlString {
+    if (!urlString.length) { return; }
+    UIImage *cached = [imageCache objectForKey:urlString];
+    if (cached) {
+        imageView.image = cached;
+        return;
+    }
+    [[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:urlString] completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        if (error || !data) { return; }
+        UIImage *image = [UIImage imageWithData:data];
+        if (!image) { return; }
+        [imageCache setObject:image forKey:urlString];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            imageView.image = image;
+        });
+    }];
+}
+
+- (void)wy_contentScrollViewWillSwitch:(WYContentScrollView *)contentScrollView direction:(WYSlidingDirection)direction currentHorizontalView:(UIView *)currentHorizontalView reserveHorizontalView:(UIView *)reserveHorizontalView currentVerticalView:(UIView *)currentVerticalView reserveVerticalView:(UIView *)reserveVerticalView {
+    // 预备页按reserveIndex预载图片(取模防环绕越界)
+    if ((direction == WYSlidingDirectionLeft || direction == WYSlidingDirectionRight) && [reserveHorizontalView isKindOfClass:[UIImageView class]] && self.images.count > 0) {
+        [self setImage:(UIImageView *)reserveHorizontalView urlString:self.images[contentScrollView.reserveHorizontalIndex % self.images.count]];
+    }
+}
+
+- (void)wy_contentScrollViewDidSwitch:(WYContentScrollView *)contentScrollView direction:(WYSlidingDirection)direction currentHorizontalView:(UIView *)currentHorizontalView reserveHorizontalView:(UIView *)reserveHorizontalView currentVerticalView:(UIView *)currentVerticalView reserveVerticalView:(UIView *)reserveVerticalView {
+    // 当前页按currentIndex装图(补发didSwitch时reserveIndex还是残留值，用它会串台；取模防环绕越界)
+    if ((direction == WYSlidingDirectionLeft || direction == WYSlidingDirectionRight) && [currentHorizontalView isKindOfClass:[UIImageView class]] && self.images.count > 0) {
+        [self setImage:(UIImageView *)currentHorizontalView urlString:self.images[contentScrollView.currentHorizontalIndex % self.images.count]];
+    }
 }
 
 @end

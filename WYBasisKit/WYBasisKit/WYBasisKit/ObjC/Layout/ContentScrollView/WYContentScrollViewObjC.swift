@@ -42,6 +42,18 @@ import WYBasisKitSwift
         set { contentSlidingDirection = newValue }
     }
 
+    /// 当前正在水平方向显示的Views(用户传入的View)
+    @objc(horizontalViews)
+    public var horizontalViewsObjC: [UIView]? {
+        return horizontalViews
+    }
+
+    /// 当前正在垂直方向显示的Views(用户传入的View)
+    @objc(verticalViews)
+    public var verticalViewsObjC: [UIView]? {
+        return verticalViews
+    }
+
     /// 当前水平方向内容页索引
     @objc(currentHorizontalIndex)
     public var currentHorizontalIndexObjC: Int {
@@ -115,6 +127,20 @@ import WYBasisKitSwift
         set { verticalSliderEnabled = newValue }
     }
 
+    /// 水平方向同轴翻页的最小时间间隔(单位：秒，默认0不限制，负数按0处理)，手势翻页提交后间隔内的新同轴拖动无效，跨轴切换与API切换不受影响
+    @objc(horizontalMinimumSwitchInterval)
+    public var horizontalMinimumSwitchIntervalObjC: TimeInterval {
+        get { return horizontalMinimumSwitchInterval }
+        set { horizontalMinimumSwitchInterval = newValue }
+    }
+
+    /// 垂直方向同轴翻页的最小时间间隔(单位：秒，默认0不限制，负数按0处理)，手势翻页提交后间隔内的新同轴拖动无效，跨轴切换与API切换不受影响
+    @objc(verticalMinimumSwitchInterval)
+    public var verticalMinimumSwitchIntervalObjC: TimeInterval {
+        get { return verticalMinimumSwitchInterval }
+        set { verticalMinimumSwitchInterval = newValue }
+    }
+
     /// 水平方向是否无限翻页(末页/首页环绕到另一端)，默认true；展示轴关闭本开关时轮播随之停止
     @objc(horizontalUnlimitedCarousel)
     public var horizontalUnlimitedCarouselObjC: Bool {
@@ -129,7 +155,7 @@ import WYBasisKitSwift
         set { verticalUnlimitedCarousel = newValue }
     }
 
-    /// 是否需要自动轮播，默认false；开启后首次展示自动开表，运行中修改即时生效(关闭停表、重开自动续播)
+    /// 是否需要自动轮播，默认false；开启后首次展示自动开始轮播，运行中修改即时生效(关闭就停、再开继续播)
     @objc(automaticCarousel)
     public var automaticCarouselObjC: Bool {
         get { return automaticCarousel }

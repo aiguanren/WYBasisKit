@@ -55,6 +55,14 @@ class WYTestInfiniteSwitchController: UIViewController {
 
     /// 垂直方向是否支持滑动
     var verticalSliderEnabled: UISwitch = UISwitch()
+
+    /// 水平方向同轴翻页最小间隔滑杆(0~3秒)
+    var minimumHorizontalSwitchInterval: UISlider = UISlider()
+    var minimumHorizontalSwitchIntervalValue: UILabel = UILabel()
+
+    /// 垂直方向同轴翻页最小间隔滑杆(0~3秒)
+    var minimumVerticalSwitchInterval: UISlider = UISlider()
+    var minimumVerticalSwitchIntervalValue: UILabel = UILabel()
     
     /// 水平方向是否无限翻页
     var horizontalUnlimitedCarousel: UISwitch = UISwitch()
@@ -142,18 +150,16 @@ class WYTestInfiniteSwitchController: UIViewController {
     
     func configSubView() {
         
-        for i in 0...1 {
+        for _ in 0...1 {
             let horizontal: UIImageView = UIImageView()
             horizontal.contentMode = .scaleAspectFill
             horizontal.clipsToBounds = true
-            horizontal.tag = 100 + i
             horizontalViews.append(horizontal)
 
             let vertical: WYMediaPlayer = WYMediaPlayer()
             vertical.delegate = self
             vertical.backgroundColor = .black
             vertical.shouldUseFirstFrameAsPoster = true
-            vertical.tag = 200 + i
             verticalViews.append(vertical)
         }
         
@@ -220,6 +226,22 @@ class WYTestInfiniteSwitchController: UIViewController {
         
         horizontalSliderEnabled.isOn = true
         verticalSliderEnabled.isOn = true
+
+        minimumHorizontalSwitchInterval.value = 0
+        minimumHorizontalSwitchInterval.minimumValue = 0
+        minimumHorizontalSwitchInterval.maximumValue = 3
+        minimumHorizontalSwitchInterval.addTarget(self, action: #selector(minimumHorizontalSwitchIntervalChanged(sender:)), for: .valueChanged)
+
+        minimumHorizontalSwitchIntervalValue.textColor = .black
+        minimumHorizontalSwitchIntervalValue.text = "0.0"
+
+        minimumVerticalSwitchInterval.value = 0
+        minimumVerticalSwitchInterval.minimumValue = 0
+        minimumVerticalSwitchInterval.maximumValue = 3
+        minimumVerticalSwitchInterval.addTarget(self, action: #selector(minimumVerticalSwitchIntervalChanged(sender:)), for: .valueChanged)
+
+        minimumVerticalSwitchIntervalValue.textColor = .black
+        minimumVerticalSwitchIntervalValue.text = "0.0"
         horizontalUnlimitedCarousel.isOn = true
         verticalUnlimitedCarousel.isOn = true
         // 与组件默认值一致(automaticCarousel默认false，不自动轮播；业务想要自动轮播显式开启，开启后组件会在首次展示时自动开表)
@@ -350,6 +372,18 @@ class WYTestInfiniteSwitchController: UIViewController {
         }
     }
     
+    @objc func minimumHorizontalSwitchIntervalChanged(sender: UISlider) {
+        contentScrollView.horizontalMinimumSwitchInterval = TimeInterval(sender.value)
+        // 标签显示钳制后的实际值
+        minimumHorizontalSwitchIntervalValue.text = String(format: "%.1f", contentScrollView.horizontalMinimumSwitchInterval)
+    }
+
+    @objc func minimumVerticalSwitchIntervalChanged(sender: UISlider) {
+        contentScrollView.verticalMinimumSwitchInterval = TimeInterval(sender.value)
+        // 标签显示钳制后的实际值
+        minimumVerticalSwitchIntervalValue.text = String(format: "%.1f", contentScrollView.verticalMinimumSwitchInterval)
+    }
+
     func addSubView() {
         view.addSubview(contentScrollView)
         contentScrollView.snp.makeConstraints { make in
@@ -420,11 +454,25 @@ class WYTestInfiniteSwitchController: UIViewController {
             make.width.centerX.equalTo(horizontalSliderEnabledView)
         }
 
+        let minimumHorizontalSwitchIntervalView: UIView = createDescContentView(desc: "水平方向同轴翻页最小间隔(秒，默认0不限制；手势翻页后间隔内的新同轴拖动无效，跨轴与API切换不受影响，滑杆0~3)", controView: minimumHorizontalSwitchInterval, valueView: minimumHorizontalSwitchIntervalValue)
+        operatioView.addSubview(minimumHorizontalSwitchIntervalView)
+        minimumHorizontalSwitchIntervalView.snp.makeConstraints { make in
+            make.top.equalTo(verticalSliderEnabledView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(verticalSliderEnabledView)
+        }
+
+        let minimumVerticalSwitchIntervalView: UIView = createDescContentView(desc: "垂直方向同轴翻页最小间隔(秒，默认0不限制；手势翻页后间隔内的新同轴拖动无效，跨轴与API切换不受影响，滑杆0~3)", controView: minimumVerticalSwitchInterval, valueView: minimumVerticalSwitchIntervalValue)
+        operatioView.addSubview(minimumVerticalSwitchIntervalView)
+        minimumVerticalSwitchIntervalView.snp.makeConstraints { make in
+            make.top.equalTo(minimumHorizontalSwitchIntervalView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(minimumHorizontalSwitchIntervalView)
+        }
+
         let horizontalUnlimitedCarouselView: UIView = createDescContentView(desc: "水平方向是否无限翻页(末页环绕回首页；轮播前提按展示轴读取本开关)", controView: horizontalUnlimitedCarousel)
         operatioView.addSubview(horizontalUnlimitedCarouselView)
         horizontalUnlimitedCarouselView.snp.makeConstraints { make in
-            make.top.equalTo(verticalSliderEnabledView.snp.bottom).offset(35)
-            make.width.centerX.equalTo(verticalSliderEnabledView)
+            make.top.equalTo(minimumVerticalSwitchIntervalView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(minimumVerticalSwitchIntervalView)
         }
 
         let verticalUnlimitedCarouselView: UIView = createDescContentView(desc: "垂直方向是否无限翻页(末页环绕回首页；轮播前提按展示轴读取本开关)", controView: verticalUnlimitedCarousel)

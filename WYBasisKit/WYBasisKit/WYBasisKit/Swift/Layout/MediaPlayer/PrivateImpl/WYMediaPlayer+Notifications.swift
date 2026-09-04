@@ -12,16 +12,16 @@ import UIKit
 
 import IJKPlayerKit
 
-/// WYMediaPlayer 私有实现：状态汇流分发(状态去重回调/底层通知转发/URL打开代理)
+/// WYMediaPlayer 私有实现：状态与通知处理(状态去重后回调业务、底层通知转发成代理回调、URL打开事件中转)
 extension WYMediaPlayer {
     /// 状态去重后回调代理(与上次相同的状态不重复通知)
     func callback(with currentState: WYMediaPlayerState) {
         guard currentState != state else {
             return
         }
-        // 滤除内部状态噪声：只静默通知、不改state属性(读state的业务仍能拿到真实值)
-        // ①探测起播的瞬时.playing——静音探测不是真播放
-        // ②未真播放过的实例的.paused——只代表初始化/探测收尾/待播预备，与用户主动暂停同用一种状态无法区分，不滤则业务会误判(预加载误关loading、真暂停误转loading)
+        // 过滤掉播放器内部自己产生的状态噪声：只静默不通知，不改动state属性(直接读state的业务拿到的还是真实值)
+        // ①静音探测起播那一瞬间的playing：探测不是真的在播放
+        // ②还没真正播放过时的paused：它只代表初始化或探测收尾或等待播放，和用户主动暂停是同一个状态没法区分，不滤的话业务会误判(预加载时误关loading、真暂停时误转loading)
         if (currentState == .playing) && isPosterProbing {
             state = currentState
         }else if (currentState == .playing) {
@@ -262,13 +262,13 @@ extension WYMediaPlayer {
         delegate?.wy_mediaPlayerAirPlayActiveDidChanged?(self, active: player.airPlayMediaActive)
     }
 
-    /// URL打开事件统一转发代理：IJKPlayerKit的四个*OpenDelegate声明为retain，直接挂self会循环引用，经此weak代理中转
+    /// URL打开事件的统一转发代理：IJKPlayerKit的四个*OpenDelegate属性是强引用，直接挂self会循环引用(self持有player、player又强持有delegate)，所以经这个weak中转对象间接持有
     class WYMediaUrlOpenProxy: NSObject, IJKMediaUrlOpenDelegate {
 
         /// 弱引用业务播放器，避免player→proxy→player循环
         weak var target: WYMediaPlayer?
 
-        /// IJKPlayerKit要求实现：按event原始值分发(0x20001=TCP/0x20003=HTTP/0x20005=直播/0x20007=HLS分片，取值定义于IJKMediaPlayback.h的IJKMediaCtrl_*且属内核ABI不会变更；枚举名Swift导入有歧义故用rawValue)
+        /// IJKPlayerKit要求实现：按event的原始值分发(0x20001=TCP/0x20003=HTTP/0x20005=直播/0x20007=HLS分片；这些值定义在IJKMediaPlayback.h的IJKMediaCtrl_*常量里、是内核对外约定好的不会变，枚举名导入Swift后有歧义所以直接比数字)
         func willOpenUrl(_ urlOpenData: IJKMediaUrlOpenData) {
             guard let target = target else { return }
             switch urlOpenData.event.rawValue {
@@ -286,7 +286,7 @@ extension WYMediaPlayer {
         }
     }
 
-    /// 按需挂/摘四个URL打开代理：任一闭包非空才挂proxy(避免无谓的回调链路)，全空置nil
+    /// 按需挂载/摘除四个URL打开代理：四个闭包有一个非空才挂proxy(避免没必要的回调链路)，全空时置nil
     func refreshUrlOpenDelegates() {
         let needsProxy = willOpenSegmentUrl != nil || willOpenTcpUrl != nil || willOpenHttpUrl != nil || willOpenLiveUrl != nil
         ijkPlayer?.segmentOpenDelegate = needsProxy ? urlOpenProxy : nil

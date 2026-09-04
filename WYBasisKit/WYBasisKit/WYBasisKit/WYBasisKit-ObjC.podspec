@@ -360,17 +360,17 @@ Pod::Spec.new do |kit|
       pagingView.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
     end
 
-    # layout.subspec "ContentScrollView" do |contentScrollView|
-    #   contentScrollView.source_files = [
-    #     "#{kit_path}ObjC/Layout/ContentScrollView/**/*.{swift,h,m}",
-    #   ]
-    #   contentScrollView.resource_bundles = {"WYBasisKitObjCLayoutContentScrollView" => [
-    #     "#{kit_path}ObjC/Layout/ContentScrollView/PrivacyInfo.xcprivacy"
-    #   ]}
-    #   contentScrollView.frameworks = "Foundation", "UIKit"
-    #   contentScrollView.dependency "WYBasisKit-swift/ContentScrollView", kit_swift_version
-    #   contentScrollView.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
-    # end
+    layout.subspec "ContentScrollView" do |contentScrollView|
+      contentScrollView.source_files = [
+        "#{kit_path}ObjC/Layout/ContentScrollView/**/*.{swift,h,m}"
+      ]
+      contentScrollView.resource_bundles = {"WYBasisKitObjCLayoutContentScrollView" => [
+      "#{kit_path}ObjC/Layout/ContentScrollView/PrivacyInfo.xcprivacy"
+      ]}
+      contentScrollView.frameworks = "Foundation", "UIKit"
+      contentScrollView.dependency "WYBasisKit-swift/Layout/ContentScrollView", kit_swift_version
+      contentScrollView.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
+    end
     
     # layout.subspec "ChatView" do |chatView|
     #   chatView.source_files = [

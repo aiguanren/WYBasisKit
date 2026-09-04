@@ -193,7 +193,7 @@ public class WYMediaPlayer: UIImageView {
     /// 播放器状态
     public internal(set) var state: WYMediaPlayerState = .unknown
 
-    /// 进度回调间隔(秒，默认0.5；1.0.8起底层通知默认关闭，不设置则wy_mediaPlayerProgressDidChanged收不到周期回调，0=关闭周期回调仅保留prepared/seek等离散事件)
+    /// 进度回调间隔(秒，默认0.5；1.0.8起底层通知默认关闭，不设置则wy_mediaPlayerProgressDidChanged收不到周期回调；0=关闭周期回调，只保留prepare完成、seek完成这类发生一次才通知一次的事件)
     public var progressCallbackInterval: TimeInterval = 0.5
 
     /// 是否需要在play(with:)加载完成后自动播放(默认true；仅影响play(with:)，prepare(with:)恒不自动播，预加载请直接用prepare)
@@ -228,8 +228,15 @@ public class WYMediaPlayer: UIImageView {
         }
     }
 
-    /// 音频PCM采样回调(每次渲染回调一块采样；sampleSize为-1时samples为NULL表示需重置刷新UI，配合自定义波形/频谱UI使用；须在play/prepare前设置，加载后设置对当前实例立即生效；底层block属性经Swift导入为非可选，仅非nil时可下发，置nil只对新加载生效)
-    public var audioSamplesCallback: ((UnsafeMutablePointer<Int16>?, Int32, Int32, Int32) -> Void)? {
+    /**
+     *  音频PCM采样数据回调，播放器每渲染一块音频采样就回调一次，配合自定义波形/频谱UI使用(建议在play/prepare前设置；加载后再设置非nil闭包也会立即下发给当前实例，置nil则只对新加载生效——底层block属性经Swift导入为非可选，nil传不下去)
+     *
+     *  @param samples    采样数据指针，指向一块Int16数组，每个元素是一次采样的振幅值
+     *  @param sampleSize 本次回调的采样数量；为-1时samples为NULL，表示音频源已重置，需要清掉旧数据刷新UI
+     *  @param sampleRate 采样率，单位Hz，常见如44100、48000
+     *  @param channels   声道数，1=单声道，2=立体声
+     */
+    public var audioSamplesCallback: ((_ samples: UnsafeMutablePointer<Int16>?, _ sampleSize: Int32, _ sampleRate: Int32, _ channels: Int32) -> Void)? {
         didSet {
             if let audioSamplesCallback = audioSamplesCallback {
                 ijkPlayer?.audioSamplesCallback = audioSamplesCallback
@@ -252,10 +259,11 @@ public class WYMediaPlayer: UIImageView {
         set { ijkPlayer?.view.displayDelegate = newValue }
     }
 
-    /// 渲染视图背景色(红绿蓝各0~255；渲染视图默认黑色，设置可自定义播放器底色)
-    public var renderBackgroundColor: (red: UInt8, green: UInt8, blue: UInt8) {
-        get { return (0, 0, 0) }
-        set { ijkPlayer?.view.setBackgroundColor?(newValue.red, g: newValue.green, b: newValue.blue) }
+    /// 渲染视图背景色，默认黑色(渲染视图自身默认也是黑色，设置可自定义播放器底色)
+    public var renderBackgroundColor: UIColor = .black {
+        didSet {
+            applyRenderBackgroundColor()
+        }
     }
 
     /// 高斯模糊背景图(填充无画面或黑边区域，替代默认纯色背景；nil=清除，配合placeholder使用体验更佳)
@@ -313,29 +321,17 @@ public class WYMediaPlayer: UIImageView {
         set { ijkPlayer?.view.preventDisplay = newValue }
     }
 
-    /// 是否允许HDR直显(iOS16+；true且设备支持时HDR不做tone-map直接显示，false=一律压回SDR；读取直显支持能力用directDisplayHDRSupportted)
+    /// 是否允许HDR直显(仅iOS16+可调用；true且设备支持时HDR画面不做格式转换直接显示，false=一律转换成SDR再显示；设备是否支持直显看directDisplayHDRSupportted)
+    @available(iOS 16.0, *)
     public var allowHDRDirectDisplay: Bool {
-        get {
-            if #available(iOS 16.0, *) {
-                return ijkPlayer?.view.allowHDRDirectDisplay ?? true
-            } else {
-                return false
-            }
-        }
-        set {
-            if #available(iOS 16.0, *) {
-                ijkPlayer?.view.allowHDRDirectDisplay = newValue
-            }
-        }
+        get { return ijkPlayer?.view.allowHDRDirectDisplay ?? true }
+        set { ijkPlayer?.view.allowHDRDirectDisplay = newValue }
     }
 
-    /// 当前显示是否支持HDR直显(只读，iOS16+；iOS16以下恒为false，tvOS不支持HDR直显)
+    /// 当前显示是否支持HDR直显(只读，仅iOS16+可调用；tvOS不支持HDR直显)
+    @available(iOS 16.0, *)
     public var directDisplayHDRSupportted: Bool {
-        if #available(iOS 16.0, *) {
-            return ijkPlayer?.view.directDisplayHDRSupportted ?? false
-        } else {
-            return false
-        }
+        return ijkPlayer?.view.directDisplayHDRSupportted ?? false
     }
 
     /// 反交错开关(0=关闭，1=开启；隔行扫描源如部分电视TS流需开启，作用于当前实例)
@@ -436,22 +432,22 @@ public class WYMediaPlayer: UIImageView {
     public var logLevel: IJKLogLevel = IJK_LOG_SILENT
 
     /// HLS分片打开前回调(可改写urlOpenData.url实现本地缓存/鉴权替换，改完自动标记handled；不改url仅做监控也可用)
-    public var willOpenSegmentUrl: ((IJKMediaUrlOpenData) -> Void)? {
+    public var willOpenSegmentUrl: ((_ urlOpenData: IJKMediaUrlOpenData) -> Void)? {
         didSet { refreshUrlOpenDelegates() }
     }
 
     /// TCP连接打开前回调(可读取/改写目标url，观察连接ip/port需配合DidTcpOpen事件属性)
-    public var willOpenTcpUrl: ((IJKMediaUrlOpenData) -> Void)? {
+    public var willOpenTcpUrl: ((_ urlOpenData: IJKMediaUrlOpenData) -> Void)? {
         didSet { refreshUrlOpenDelegates() }
     }
 
     /// HTTP请求打开前回调(可改写url/查看重试计数retryCounter，适合加签名或换CDN)
-    public var willOpenHttpUrl: ((IJKMediaUrlOpenData) -> Void)? {
+    public var willOpenHttpUrl: ((_ urlOpenData: IJKMediaUrlOpenData) -> Void)? {
         didSet { refreshUrlOpenDelegates() }
     }
 
     /// 直播流打开前回调(直播重连前触发，可趁机换源)
-    public var willOpenLiveUrl: ((IJKMediaUrlOpenData) -> Void)? {
+    public var willOpenLiveUrl: ((_ urlOpenData: IJKMediaUrlOpenData) -> Void)? {
         didSet { refreshUrlOpenDelegates() }
     }
 
@@ -463,7 +459,7 @@ public class WYMediaPlayer: UIImageView {
     /**
      * 开始播放(加载完成后自动起播，受shouldAutoplay控制，默认true)
      * @param url 要播放的流地址
-     * @param placeholder 视屏背景图占位图
+     * @param placeholder 视频占位图，加载期间先显示它
      */
     public func play(with url: String, placeholder: UIImage? = nil) {
         load(with: url, placeholder: placeholder, autoplay: shouldAutoplay)
@@ -472,7 +468,7 @@ public class WYMediaPlayer: UIImageView {
     /**
      * 预加载：只加载缓冲、不自动播放不出声(适合预加载预备页)；加载完成若开了shouldUseFirstFrameAsPoster会自动探测首帧作封面，之后调play()即可播放(未prepare完会自动挂起，prepare完成后立即起播并跳过探测)
      * @param url 要加载的流地址
-     * @param placeholder 视屏背景图占位图
+     * @param placeholder 视频占位图，加载期间先显示它
      */
     public func prepare(with url: String, placeholder: UIImage? = nil) {
         load(with: url, placeholder: placeholder, autoplay: false)
@@ -616,7 +612,8 @@ public class WYMediaPlayer: UIImageView {
 
     /// 播放画面显示模式
     public func scalingStyle(_ style: IJKScalingMode) {
-        ijkPlayer?.scalingMode = scalingStyle
+        // 防下发旧值：必须直接把新style写给player再存属性(scalingStyle是普通存储属性不会自动转发，若照抄属性值下发，player拿到的还是旧模式，新模式要等下次加载才生效)
+        ijkPlayer?.scalingMode = style
         self.scalingStyle = style
     }
 
@@ -667,6 +664,18 @@ public class WYMediaPlayer: UIImageView {
     /// 截取当前显示画面
     public func currentSnapshot() -> UIImage {
         return ijkPlayer?.view.snapshot() ?? UIImage()
+    }
+
+    /**
+     *  按指定类型截取当前画面(1.1.0新增)：比currentSnapshot()多了"截视频原始帧"的能力，返回CGImage方便直接写文件或二次处理
+     *
+     *  @param type 截图类型：IJKSnapshotTypeOrigin=视频原始尺寸(不带字幕和画质特效)、IJKSnapshotTypeScreen=当前屏幕看到的画面(含字幕和画质特效，效果同currentSnapshot())、IJKSnapshotTypeEffect_Origin=原始尺寸带字幕不带画质特效、IJKSnapshotTypeEffect_Subtitle_Origin=原始尺寸带字幕和画质特效
+     *  @return 截好的图像；播放器还没创建或第一帧还没渲染出来时返回nil
+     */
+    public func currentSnapshot(_ type: IJKSnapshotType) -> CGImage? {
+        guard let renderView = ijkPlayer?.view else { return nil }
+        // 底层返回的是autorelease的CGImage(经Swift导入为Unmanaged)，用takeUnretainedValue取出来后ARC会自动持有，业务侧拿到直接用是安全的
+        return renderView.snapshot(type).takeUnretainedValue()
     }
 
     /**
@@ -751,7 +760,7 @@ public class WYMediaPlayer: UIImageView {
         return ijkPlayer?.currentVMDiff() ?? 0
     }
 
-    /// 本次加载的总流量统计(单位：byte，与numberOfBytesTransferred同源)
+    /// 本次加载的总流量统计(单位：byte，与numberOfBytesTransferred是同一个数据)
     public func trafficStatistic() -> Int64 {
         return ijkPlayer?.trafficStatistic() ?? 0
     }
@@ -786,6 +795,11 @@ public class WYMediaPlayer: UIImageView {
         return IJKPlayer.supportedDecoders()
     }
 
+    /// 设备是否支持HEVC(H.265)硬解码(1.1.0新增；做能力判断用，比如不支持时提示用户或限制HEVC清晰度档位)
+    public static func isHardwareDecodeSupportedForHEVC() -> Bool {
+        return IJKPlayer.isHardwareDecodeSupportedForHEVC()
+    }
+
     /// 开关日志上报(true=日志走上报通道)
     public static func setLogReport(_ preferLogReport: Bool) {
         IJKPlayer.setLogReport(preferLogReport)
@@ -800,12 +814,16 @@ public class WYMediaPlayer: UIImageView {
      * 重定向日志输出(nil=恢复默认stderr输出；level/tag/msg为级别/标签/内容，业务可接自研日志系统)
      * @param handler 日志处理闭包
      */
-    public static func setLogHandler(_ handler: ((IJKLogLevel, String, String) -> Void)?) {
+    public static func setLogHandler(_ handler: ((_ level: IJKLogLevel, _ tag: String, _ msg: String) -> Void)?) {
         IJKPlayer.setLogHandler(handler)
     }
 
-    /// 释放播放器组件
-    public func releaseAll() {
+    /**
+     *  释放播放器组件(1.1.0起可以选择同步或异步关闭内核)
+     *
+     *  @param sync true=同步关闭，等内核真正释放完资源才返回(紧接着要重建播放器或退出页面的场景用，防止旧实例还没释放完就叠新实例)；false=异步关闭，立即返回不等内核(默认，也是之前版本的行为)
+     */
+    public func releaseAll(_ sync: Bool = false) {
 
         guard let player = ijkPlayer else {
             return
@@ -840,8 +858,8 @@ public class WYMediaPlayer: UIImageView {
             playerView.removeFromSuperview()
         }
 
-        // 关闭播放器
-        ijkPlayer?.shutdown()
+        // 关闭播放器内核(按参数选择同步等待释放或异步释放；1.1.0起底层shutdown本身已是异步)
+        ijkPlayer?.shutdownSync(sync)
 
         // 最后才置为 nil
         ijkPlayer = nil

@@ -8,7 +8,7 @@
 
 import UIKit
 
-/// WYContentScrollView 私有实现：页面切换(staging回调/pauseScroll提交/跨轴切换呈现编排与直切)
+/// WYContentScrollView 私有实现：页面切换(切换回调分发/pauseScroll提交/跨轴切换动画编排与直切)
 extension WYContentScrollView {
     
     /// 切换内容页回调：isDidSwitch为true=切换完成(didSwitch)、false=即将切换(willSwitch)；direction默认取当前滑动方向
@@ -20,7 +20,7 @@ extension WYContentScrollView {
         guard let contentDelegate = contentDelegate, callbackDirection != .unknown else { return }
         
         if isDidSwitch {
-            // did本身就是该轴"已展示"的通知：当场消费该轴的初始补发标记——否则跨轴直切后标记仍空，后续陈旧方向窗口(如反向轻扫的锁轴前几帧internalSliderDirection还停在旧轴)会把补发误触发，业务凭空多收一次did
+            // didSwitch本身就是"这个轴已经展示了"的通知，收到时顺手把该轴的补发标记设为已发过：如果不设，跨轴切过来后标记还空着，之后某个方向值还没来得及更新的瞬间会把补发误触发，业务平白多收一次didSwitch回调
             if (callbackDirection == .left) || (callbackDirection == .right) {
                 hasInitialCallbackHorizontal = true
             }else if (callbackDirection == .up) || (callbackDirection == .down) {
@@ -32,7 +32,7 @@ extension WYContentScrollView {
         }
     }
     
-    /// 瞬时完成仍在飞行中的程序化切换(防快速连点打断前一动画且无人提交)
+    /// 把还在播的代码切页动画瞬间落到终点(防快速连点打断前一动画后无人提交，页面卡在两页中间)
     func completeOngoingProgrammaticSwitch() {
         
         guard isProgrammaticAnimatedScroll else { return }
@@ -44,7 +44,7 @@ extension WYContentScrollView {
         if (contentSlidingDirection != .leftOrRight) && (contentOffset.y != wy_height) {
             completion.y = (contentOffset.y > wy_height) ? (2 * wy_height) : 0
         }
-        // 先归位钳制基准再赋偏移(提交回中的重入钳制会按lastValid拉扯，bu轮定理)
+        // 先更新lastValidContentOffset再赋偏移量：赋值会立刻触发didScroll，里面的钳制逻辑会把偏移量拉回lastValidContentOffset记录的位置，顺序反了的话刚赋的终点立刻被旧记录顶回去
         lastValidContentOffset = completion
         setContentOffset(completion, animated: false)
         pauseScroll()
@@ -53,7 +53,10 @@ extension WYContentScrollView {
     /// 停止滚动并切换contentViews的位置与frame
     func pauseScroll() {
         
-        // 程序化动画已收尾(到达终点或被中断)，清除窗口标记
+        // 记下这次翻页是谁发起的：手势提交要记录时间(供同轴翻页冷却判断用)，代码提交不记录(API切页不该挡住用户随后的手势)
+        let wasProgrammaticSwitch = isProgrammaticAnimatedScroll
+
+        // 代码切页动画已收尾(到达终点或被中断)，清除窗口标记
         isProgrammaticAnimatedScroll = false
         
         // 清理与回中必须在下方守卫之前无条件执行：直切链路中途失败提前return时若标记残留true，两轴钳制从此失效、一切拖动都会跟手
@@ -68,12 +71,12 @@ extension WYContentScrollView {
             }
         }
         
-        // 行程不足的拖动已staging(发过will)但翻页未成立：复位中心页+重置config重新武装willSwitch(失败滑动语义=只will+弹回，下次重新配对)；dir为unknown的程序切换动画分支保持原行为不复活位(防误伤nextContent动画)
+        // 拖动距离不够没翻成页但willSwitch已经发出去了：把偏移量弹回中间页，并把记录恢复到可以再发willSwitch的状态(没切成的语义就是只发will然后弹回，下次滑动重新走一遍流程)；方向还是unknown的程序动画不走这个复位，避免误伤nextContent的动画
         guard (canSwitchedPage == true), (internalSliderDirection != .unknown) else {
             if (canSwitchedPage == false) && (internalSliderDirection != .unknown) && (isInstantCrossAxisEntry == false) {
                 let centerOffset = CGPoint(x: (contentSlidingDirection == .topOrBottom) ? 0 : wy_width, y: (contentSlidingDirection == .leftOrRight) ? 0 : wy_height)
                 if (contentOffset.x != centerOffset.x) || (contentOffset.y != centerOffset.y) {
-                    // 必须先更新lastValid再赋偏移：赋值会同步重入didScroll，判轴钳制按lastValid把偏移拉回"合法位"——顺序反了回中会被陈旧lastValid当场顶回原位移
+                    // 必须先更新合法偏移记录、再赋值偏移量：赋值会立刻触发didScroll回调，里面的钳制逻辑会把偏移量拉回记录里的位置；顺序写反了的话，刚赋的中间位置立刻被旧记录顶回原来的位置，页面就卡在半路回不去了
                     lastValidContentOffset = centerOffset
                     contentOffset = centerOffset
                 }
@@ -88,7 +91,7 @@ extension WYContentScrollView {
         
         canSwitchedPage = false
         
-        // 提交回中必须先归位钳制基准再赋偏移(下方三个分支都会把contentOffset赋回中心页)：赋值会同步重入didScroll，目标轴滑动开关关闭时判轴钳制会把回中按拖动/动画位移的lastValid当场顶回原位移(与复位分支的先基准后赋值同定理)
+        // 提交回中前先更新lastValidContentOffset再赋中心偏移：赋值会立刻重入didScroll，若目标轴的滑动开关是关的，判轴钳制会按还带着拖动/动画位移的旧lastValid把刚赋的中心值顶回原位移
         lastValidContentOffset = CGPoint(x: (contentSlidingDirection == .topOrBottom) ? 0 : wy_width, y: (contentSlidingDirection == .leftOrRight) ? 0 : wy_height)
         
         switch contentSlidingDirection {
@@ -105,10 +108,14 @@ extension WYContentScrollView {
             // 滑动后根据滑动方向设置已经显示View的frame
             reserveHorizontalView.frame = CGRect(x: wy_width, y: 0, width: wy_width, height: wy_height)
             
-            // 交换horizontalViews数组中两个View的位置——.first恒为新当前页，组件内部数组是"谁是当前页"的唯一事实源(重挂载保序靠它，见resolveDisplayOrder)
+            // 交换数组里两个View的位置，让第一个位置永远是当前页：组件内部的数组记录着"谁是当前页"，重新挂载View时靠它保持顺序不乱
             horizontalViews?.swapAt(0, 1)
             
             bringContentToFront([reserveHorizontalView,currentHorizontalView])
+            
+            // 切换完成后把旧页面挪到屏幕外的预备位置：新页和旧页都停在中间重叠着，如果内容不满铺(比如小图)，旧页会从新页四周露出来(表现为同时看到两页)；挪出去的位置和挂载时预备页的位置一致
+            currentHorizontalView.frame = CGRect(x: 2 * wy_width, y: 0, width: wy_width, height: wy_height)
+            if wasProgrammaticSwitch == false { lastGestureHorizontalSwitchDate = Date() }
             
             // 下一次方向改变时需要重新设置 reserveHorizontalView
             configHorizontalReserveIndex = nil
@@ -129,10 +136,14 @@ extension WYContentScrollView {
             // 滑动后根据滑动方向设置已经显示View的frame
             reserveVerticalView.frame = CGRect(x: 0, y: wy_height, width: wy_width, height: wy_height)
             
-            // 交换verticalViews数组中两个View的位置——.first恒为新当前页，组件内部数组是"谁是当前页"的唯一事实源(重挂载保序靠它，见resolveDisplayOrder)
+            // 交换数组里两个View的位置，让第一个位置永远是当前页：组件内部的数组记录着"谁是当前页"，重新挂载View时靠它保持顺序不乱
             verticalViews?.swapAt(0, 1)
             
             bringContentToFront([reserveVerticalView, currentVerticalView])
+            
+            // 切换完成后把旧页面挪到屏幕外的预备位置：新页和旧页都停在中间重叠着，如果内容不满铺(比如小图)，旧页会从新页四周露出来(表现为同时看到两页)；挪出去的位置和挂载时预备页的位置一致
+            currentVerticalView.frame = CGRect(x: 0, y: 2 * wy_height, width: wy_width, height: wy_height)
+            if wasProgrammaticSwitch == false { lastGestureVerticalSwitchDate = Date() }
             
             // 下一次方向改变时需要重新设置 reserveVerticalView
             configVerticalReserveIndex = nil
@@ -155,12 +166,15 @@ extension WYContentScrollView {
             if (internalSliderDirection == .left) || (internalSliderDirection == .right) {
                 
                 if wasInstantCrossAxisEntry {
-                    // 轻扫直切不翻页不换View：预备View从未staging过目标内容，swap会换到没加载过内容的View
+                    // 轻扫直切不翻页不换View：预备页从来没装过目标页的内容，交换会把一个没加载过内容的View当成当前页
                     bringContentToFront([currentHorizontalView, reserveHorizontalView])
                     configHorizontalReserveIndex = nil
+                    if wasProgrammaticSwitch == false { lastGestureHorizontalSwitchDate = Date() }
                     switchContentCallback(isDidSwitch: true)
-                    // 展示轴已翻转：重评轮播(切到可翻轴自动续播、切到单页轴自动停)——直切不触发方向/数量变化，需在此主动刷新
+                    // 切轴成功后重新评估轮播(切到能翻页的轴自动继续轮播、切到只有一页的轴自动停)：直切不走方向和数量的变化流程，需要在这里主动刷一次
                     refreshCarouselTimer()
+                    // 藏掉离开轴(防不满铺内容从新轴四周透出)
+                    syncAxisViewsVisibility()
                     break
                 }
                 
@@ -168,10 +182,17 @@ extension WYContentScrollView {
                 
                 reserveHorizontalView.frame = CGRect(x: wy_width, y: wy_height, width: wy_width, height: wy_height)
                 
-                // 交换horizontalViews数组中两个View的位置——.first恒为新当前页，组件内部数组是"谁是当前页"的唯一事实源(重挂载保序靠它，见resolveDisplayOrder)
+                // 交换数组里两个View的位置，让第一个位置永远是当前页：组件内部的数组记录着"谁是当前页"，重新挂载View时靠它保持顺序不乱
                 horizontalViews?.swapAt(0, 1)
                 
                 bringContentToFront([reserveHorizontalView, currentHorizontalView])
+                
+                // 切换完成后把旧页面挪到屏幕外的预备位置：新页和旧页都停在中间重叠着，如果内容不满铺(比如小图)，旧页会从新页四周露出来(表现为同时看到两页)；挪出去的位置和挂载时预备页的位置一致
+                currentHorizontalView.frame = CGRect(x: 2 * wy_width, y: wy_height, width: wy_width, height: wy_height)
+                if wasProgrammaticSwitch == false { lastGestureHorizontalSwitchDate = Date() }
+
+                // 跨轴提交后藏掉离开轴(防不满铺内容从新轴四周透出；同轴提交时本调用无变化)
+                syncAxisViewsVisibility()
                 
                 // 下一次方向改变时需要重新设置 reserveHorizontalView
                 configHorizontalReserveIndex = nil
@@ -181,12 +202,15 @@ extension WYContentScrollView {
             }else {
                 
                 if wasInstantCrossAxisEntry {
-                    // 轻扫直切不翻页不换View：预备View从未staging过目标内容，swap会换到没加载过内容的View
+                    // 轻扫直切不翻页不换View：预备页从来没装过目标页的内容，交换会把一个没加载过内容的View当成当前页
                     bringContentToFront([currentVerticalView, reserveVerticalView])
                     configVerticalReserveIndex = nil
+                    if wasProgrammaticSwitch == false { lastGestureVerticalSwitchDate = Date() }
                     switchContentCallback(isDidSwitch: true)
-                    // 展示轴已翻转：重评轮播(切到可翻轴自动续播、切到单页轴自动停)——直切不触发方向/数量变化，需在此主动刷新
+                    // 切轴成功后重新评估轮播(切到能翻页的轴自动继续轮播、切到只有一页的轴自动停)：直切不走方向和数量的变化流程，需要在这里主动刷一次
                     refreshCarouselTimer()
+                    // 藏掉离开轴(防不满铺内容从新轴四周透出)
+                    syncAxisViewsVisibility()
                     break
                 }
                 
@@ -194,10 +218,17 @@ extension WYContentScrollView {
                 
                 reserveVerticalView.frame = CGRect(x: wy_width, y: wy_height, width: wy_width, height: wy_height)
                 
-                // 交换verticalViews数组中两个View的位置——.first恒为新当前页，组件内部数组是"谁是当前页"的唯一事实源(重挂载保序靠它，见resolveDisplayOrder)
+                // 交换数组里两个View的位置，让第一个位置永远是当前页：组件内部的数组记录着"谁是当前页"，重新挂载View时靠它保持顺序不乱
                 verticalViews?.swapAt(0, 1)
                 
                 bringContentToFront([reserveVerticalView, currentVerticalView])
+                
+                // 切换完成后把旧页面挪到屏幕外的预备位置：新页和旧页都停在中间重叠着，如果内容不满铺(比如小图)，旧页会从新页四周露出来(表现为同时看到两页)；挪出去的位置和挂载时预备页的位置一致
+                currentVerticalView.frame = CGRect(x: wy_width, y: 2 * wy_height, width: wy_width, height: wy_height)
+                if wasProgrammaticSwitch == false { lastGestureVerticalSwitchDate = Date() }
+
+                // 跨轴提交后藏掉离开轴(防不满铺内容从新轴四周透出；同轴提交时本调用无变化)
+                syncAxisViewsVisibility()
                 
                 // 下一次方向改变时需要重新设置 reserveVerticalView
                 configVerticalReserveIndex = nil
@@ -222,7 +253,7 @@ extension WYContentScrollView {
             return max(0, (wy_width - contentOffset.x) / wy_width)
         }
         
-        // 呈现族偏移不动：按手指位移映射进度(与判轴同符号约定：手指上/左滑=offset增=正)
+        // 渐变/缩放样式偏移不动：按手指位移换算进度(与判轴同符号约定：手指上/左滑=offset增=正)
         let translation = panGestureRecognizer.translation(in: self)
         if direction == .up { return max(0, min(1, -translation.y / wy_height)) }
         if direction == .down { return max(0, min(1, translation.y / wy_height)) }
@@ -253,7 +284,7 @@ extension WYContentScrollView {
         return target
     }
     
-    /// 开始交互式跨轴拖动：staging复用同下标通道，slide摆进入侧跟手，fade/zoom摆中心由进度驱动
+    /// 开始交互式跨轴拖动：预备页按"同下标"语义摆位(补发willSwitch+钉住下标)，slide把进入页摆在进入侧跟手滑，fade/zoom把进入页摆在中心、显示效果随拖动进度变化
     func beginInteractiveCrossAxisDrag(direction: WYSlidingDirection) {
         
         isInteractiveCrossAxisDrag = true
@@ -271,7 +302,7 @@ extension WYContentScrollView {
         isFinalizingSwitch = true
     }
     
-    /// 交互式跨轴拖动每帧驱动(仅fade/zoom，偏移不动由拖动距离驱动呈现)：进入页alpha随进度、zoom另带缩放与退场页纵深感
+    /// 交互式跨轴拖动期间每帧刷新显示效果(仅fade/zoom，这两种偏移量不动、靠拖动距离控制效果)：进入页透明度随进度变化，zoom还额外带动缩放和退场页的远近感
     func updateInteractiveCrossAxisProgress() {
         
         guard (isInteractiveCrossAxisDrag == true),
@@ -285,20 +316,20 @@ extension WYContentScrollView {
         
         enteringView.alpha = progress
         if crossAxisSwitchStyle == .zoom {
-            // 进入页从crossAxisSwitchZoomScale缩放归位(与非交互呈现族同向：起于放大值、随进度落回1.0)，退场页反向放大制造推近拉远的纵深感
+            // 进入页从crossAxisSwitchZoomScale缩放回1.0(与松手后的补齐动画同方向：起于放大值、随进度落回1.0)，退场页反向放大制造推近拉远的纵深感
             let settleScale = crossAxisSwitchZoomScale + (1 - crossAxisSwitchZoomScale) * progress
             enteringView.transform = CGAffineTransform(scaleX: settleScale, y: settleScale)
             let departScale = 1 + (crossAxisSwitchZoomScale - 1) * progress
             departingView?.transform = CGAffineTransform(scaleX: departScale, y: departScale)
-            // 防中段露背景色：退场页的淡出推迟到后半程——两层同时半透明时叠加覆盖不足，背景会从空隙透出(进入页盖在上方，进度过半时它已完全不透明，垫底页此后淡出不可见也不露背景)
+            // 防止动画中段露出背景色：退场页的淡出推迟到进度过半之后才开始。两个页面同时半透明时会盖不住底，背景色从缝隙里透出来；进度过半时进入页已经完全不透明地盖在上面，这时底下的页再淡出就看不到了，也露不出背景
             departingView?.alpha = min(1, max(0, 2 - 2 * progress))
         }
     }
     
-    /// 松手完成(fade/zoom)：过渡动画补到全量后经pauseScroll正常提交
+    /// 松手完成(fade/zoom)：把效果动画播完(进度补满)后经pauseScroll正常提交
     func finishInteractiveCrossAxisDrag() {
         
-        // 松手瞬间同步归位钳制基准并解除方向锁：补间完成前(动画窗口内)一切回中写入都会被"按陈旧lastValid(拖动位移)钳回"顶回原位移；呈现族本就零行程此处置多为空操作，但拖动途中切换样式的边缘场景会带着位移进入本路径，提交的回中由pauseScroll完成
+        // 松手那一刻就把合法偏移记录归位到中心并解除方向锁：真正的收尾在动画完成回调里才执行，那之前记录里存的还是拖动时的偏移，任何想回到中心的赋值都会被钳制逻辑按旧记录顶回去；普通情况这里本来就是中心没有影响，但拖到一半改样式的边缘情况会带着位移走到这里，需要先归位
         lastValidContentOffset = CGPoint(x: wy_width, y: wy_height)
         isDirectionLocked = false
         dragLockedDirection = .unknown
@@ -311,9 +342,9 @@ extension WYContentScrollView {
         let duration = crossAxisSwitchDuration
         let zoomScale = crossAxisSwitchZoomScale
         
-        // 统一收尾：恢复呈现属性与冻结标记，手动置位canSwitchedPage后经pauseScroll正常提交
+        // 统一收尾：把alpha/transform恢复原样、清掉冻结标记，手动把canSwitchedPage置true后经pauseScroll正常提交
         let finalize: () -> Void = { [weak self] in
-            // 全量恢复四个页面View的呈现属性：staging隐藏过目标轴的陈旧当前页(alpha=0)，漏恢复它会透视出底下另一轴的内容
+            // 把四个页面View的alpha/transform全部恢复：摆位时被临时藏起来的目标轴旧当前页(alpha=0)，漏恢复它会透出底下另一轴的内容
             [self?.horizontalViews?.first, self?.horizontalViews?.last, self?.verticalViews?.first, self?.verticalViews?.last].forEach { (view) in
                 view?.alpha = 1
                 view?.transform = .identity
@@ -330,17 +361,17 @@ extension WYContentScrollView {
             if style == .zoom {
                 enteringView?.transform = .identity
                 departingView?.transform = CGAffineTransform(scaleX: zoomScale, y: zoomScale)
-                // 防完成补间露背景：退场页不参与完成动画的淡出——进度过半前松手时它还是不透明垫底，与正在渐显的进入页同时补间会短暂两层皆半透明；它垫在进入页下方，finalize会统一恢复其呈现属性
+                // 防止松手后的过渡动画露背景：退场页不参与这段淡出。进度没过半就松手时它还是不透明地垫在下面，如果它和正在渐显的进入页一起做动画，会有短暂两页都是半透明而露出背景；它在进入页下方，收尾时会统一恢复
             }
         }, completion: { (_) in
             finalize()
         })
     }
     
-    /// 松手回弹(fade/zoom)：过渡动画归零后恢复原展示轴层级与页面
+    /// 松手回弹(fade/zoom)：效果动画退回去后恢复原展示轴的层级与页面
     func cancelInteractiveCrossAxisDrag() {
         
-        // 松手瞬间同步归位钳制基准并解除方向锁：真实清场(恢复方向/层级)在补间完成回调里异步执行，窗口内方向锁+陈旧lastValid(拖动位移)会让判轴钳制把一切回中写入顶回原位移(系统减速/settle/复位全部失效，页面永久卡在两页之间)；呈现族本就零行程此处置多为空操作，防的是拖动途中切换样式带位移进入本路径的边缘场景
+        // 松手瞬间先把合法偏移记录归位到中心并解除方向锁：真正的恢复(方向/层级)要等回弹动画播完才执行，这段等待时间里如果记录还停在拖动时的偏移，任何想把页面放回中心的操作都会被钳制逻辑按旧记录顶回原位移(系统减速、落位、复位全部失效，页面永远卡在两页中间)；渐变/缩放样式偏移本来就不动，这里多半是走个过场，防的是拖到一半改样式这种带着位移进来的边缘情况
         lastValidContentOffset = CGPoint(x: wy_width, y: wy_height)
         isDirectionLocked = false
         dragLockedDirection = .unknown
@@ -354,7 +385,7 @@ extension WYContentScrollView {
         let zoomScale = crossAxisSwitchZoomScale
         
         let restore: () -> Void = { [weak self] in
-            // 全量恢复四个页面View的呈现属性(含staging隐藏的目标轴陈旧当前页，防透视另一轴内容)
+            // 把四个页面View的alpha/transform全部恢复(含摆位时被临时藏起来的目标轴旧当前页，防止透出另一轴内容)
             [self?.horizontalViews?.first, self?.horizontalViews?.last, self?.verticalViews?.first, self?.verticalViews?.last].forEach { (view) in
                 view?.alpha = 1
                 view?.transform = .identity
@@ -377,7 +408,9 @@ extension WYContentScrollView {
                 self.configVerticalReserveIndex = self.currentVerticalIndex
             }
             self.lastValidContentOffset = CGPoint(x: self.wy_width, y: self.wy_height)
-            // 重申一次原轴didSwitch("仍在原页"的通知，与轴初始补发同族)：staging的will已让业务为切走做了准备(暂停当前轴媒体等)，取消后组件无法撤销业务副作用，必须重申让业务恢复
+            // 回弹恢复原轴后藏掉没切成的目标轴(它的预备页还停在中心，内容不满铺时会透出来)
+            self.syncAxisViewsVisibility()
+            // 重申一次原轴didSwitch(告诉业务"还停在原页"，和轴初始补发是同一类通知)：切轴前的willSwitch已让业务为切走做了准备(比如暂停当前轴的媒体)，取消后组件无法撤销业务的这些动作，必须重申一次让业务恢复
             self.switchContentCallback(isDidSwitch: true, direction: self.interactiveCrossOriginalAxisIsHorizontal ? .left : .up)
         }
         
@@ -399,7 +432,7 @@ extension WYContentScrollView {
         
         guard (isInteractiveCrossAxisDrag == true), (crossAxisSwitchStyle == .slide) else { return false }
         
-        // 全量恢复四个页面View的呈现属性(含staging隐藏的目标轴陈旧当前页，防透视另一轴内容)
+        // 把四个页面View的alpha/transform全部恢复(含摆位时被临时藏起来的目标轴旧当前页，防止透出另一轴内容)
         [horizontalViews?.first, horizontalViews?.last, verticalViews?.first, verticalViews?.last].forEach { (view) in
             view?.alpha = 1
             view?.transform = .identity
@@ -413,11 +446,11 @@ extension WYContentScrollView {
             isFinalizingSwitch = false
             return true
         }else {
-            // 回弹：恢复原展示轴方向(拖动期间它已翻成目标轴方向，残留会让下一次拖动的展示轴推导/能力判定判反)与置顶层级，config复位重新武装willSwitch(失败语义=只will+回弹，下次重新配对)
+            // 回弹：恢复原展示轴方向(拖动期间它已翻成目标轴方向，残留会让下一次拖动的展示轴推导/能力判定判反)与置顶层级，config复位让下次滑动能重新发willSwitch(没切成的语义=只发will然后弹回，下次滑动重新来一遍)
             internalSliderDirection = interactiveCrossOriginalAxisIsHorizontal ? .left : .up
             isInteractiveCrossAxisDrag = false
             isFinalizingSwitch = false
-            // 落地即解除方向锁：残留的跨轴锁+已恢复的原轴方向会让后续didScroll被判成跨轴意图而钳制拉扯(下一次手势本也会清，提前清掉窗口期干扰)；完成分支不清——提交回中的重入钳制仍依赖锁定轴放行行程
+            // 减速落地后马上解除方向锁：残留的锁加上已恢复的原轴方向，会让之后的didScroll被误判成想切轴而钳制拉扯(下一次手势开始时本来也会清，提前清掉免得这个窗口期出干扰)；完成那条分支不能清，提交回中时的钳制还依赖着这个锁放行行程
             isDirectionLocked = false
             dragLockedDirection = .unknown
             let originalViews = enteringIsHorizontal ? verticalViews : horizontalViews
@@ -432,17 +465,19 @@ extension WYContentScrollView {
                 configVerticalReserveIndex = currentVerticalIndex
             }
             lastValidContentOffset = CGPoint(x: wy_width, y: wy_height)
-            // 重申一次原轴didSwitch("仍在原页"的通知，与轴初始补发同族)：staging的will已让业务为切走做了准备(暂停当前轴媒体等)，取消后组件无法撤销业务副作用，必须重申让业务恢复
+            // 回弹恢复原轴后藏掉没切成的目标轴(它的预备页还停在中心，内容不满铺时会透出来)
+            syncAxisViewsVisibility()
+            // 重申一次原轴didSwitch(告诉业务"还停在原页"，和轴初始补发是同一类通知)：切轴前的willSwitch已让业务为切走做了准备(比如暂停当前轴的媒体)，取消后组件无法撤销业务的这些动作，必须重申一次让业务恢复
             switchContentCallback(isDidSwitch: true, direction: interactiveCrossOriginalAxisIsHorizontal ? .left : .up)
             return true
         }
     }
     
-    /// 静止释放落位：零速度释放时按分页语义补系统落位动画(过半滑向整页侧、不足回中心)；返回false表示无需接管
+    /// 静止释放落位：松手时一点速度都没有，系统不会发起减速，按翻页规则补一个落位动画(过半滑向整页那侧、不足一半滑回中心)；返回false表示已经停好无需处理
     @discardableResult
     func settleStationaryReleaseIfNeeded() -> Bool {
         
-        // 各维独立按半页阈值取最近整页(轴锁保证只有一维有位移)；单轴模式另一维的合法位置恒为0
+        // 横竖两个方向各自按"过半取整页"挑最近的目标位置(方向锁保证同时只有一个方向有位移)；单轴模式另一个方向的合法位置固定为0
         var target = CGPoint(x: wy_width, y: wy_height)
         if contentSlidingDirection == .leftOrRight {
             target.y = 0
@@ -467,7 +502,7 @@ extension WYContentScrollView {
             return false
         }
         
-        // 动画期间每帧didScroll照常走(方向已锁、预备页staging就位，settle目标与钳制方向一致不打架)；到位回调scrollViewDidEndScrollingAnimation→pauseScroll按canSwitchedPage提交/复位
+        // 动画期间每帧didScroll照常走(方向已锁、预备页已摆好位，落位目标与钳制方向一致不打架)；到位回调scrollViewDidEndScrollingAnimation→pauseScroll按canSwitchedPage提交/复位
         setContentOffset(target, animated: true)
         return true
     }
@@ -493,7 +528,7 @@ extension WYContentScrollView {
             if preservesIndex {
                 instantCrossAxisEntry(direction)
             }else {
-                // 翻页跨轴的瞬时切换不能带直切标记：直切标记会让pauseScroll走直切收尾(不换位不落标)，switchContent预设的下标(target-1)就会残留在current上——直接跳到目标偏移后pauseScroll正常提交；程序化窗口标记已由nextContent/lastContent置位，didScroll同步完成staging/willSwitch/下标推进
+                // 翻页类的跨轴瞬时切换不能带直切标记：直切标记会让收尾走"不换页、下标不落定"的流程，switchContent预设的下标就会残留下来(表现为落在了目标前一页)；不带标记直接跳到目标偏移量再正常提交收尾，代码切页的窗口标记已由nextContent/lastContent设好，didScroll会同步完成预载和下标推进
                 setContentOffset(targetOffset, animated: false)
                 pauseScroll()
             }
@@ -501,16 +536,16 @@ extension WYContentScrollView {
             var enteringView: UIView?
             var hiddenView: UIView?
             if preservesIndex {
-                // 同下标跨轴滑动需要直切标记+锁重置(与instantCrossAxisEntry同源)：canScroll跨轴拦截只对直切标记/程序化窗口放行，且下标保持的钳制依赖isCrossAxisEntry路径
+                // 同下标跨轴滑动需要直切标记+重置方向锁(与instantCrossAxisEntry同一套逻辑)：canScroll对跨轴的拦截只放行带直切标记或代码切页动画的滚动，且"下标保持不动"的钳制依赖isCrossAxisEntry这条路径
                 isInstantCrossAxisEntry = true
                 isDirectionLocked = false
                 dragLockedDirection = .unknown
                 
-                // 进入侧摆位的是预备页(willSwitch已把目标页内容装进它)，同轴当前页内容陈旧需隐藏防闪现；同下标与当前展示页在中心重叠，偏移滑动只能靠这个临时摆位呈现"当前展示页推出+目标页滑入"的翻页观感
+                // 摆到进入侧的是预备页(willSwitch已经把目标页的内容装进它了)，同轴的当前页内容是旧的就把它藏起来防止闪现；同下标切换时它跟当前展示页叠在中间同一个位置，必须靠这个临时摆位才能做出"旧页推出去、新页滑进来"的翻页效果
                 let staged = stageSameIndexAnimatedArrival(direction: direction, enteringFrame: CGRect(origin: targetOffset, size: CGSize(width: wy_width, height: wy_height)))
                 enteringView = staged.entering
                 hiddenView = staged.hidden
-                // 冻结动画期间每帧重入setter的下标计算：首帧后previous已翻为目标轴，后续帧会被按同轴推进把reserve±1，同下标语义被破坏(instant只触发一次didScroll无此问题)；提交前清除，让pauseScroll正常换位收尾
+                // 冻结动画期间setter每帧都会重算下标：首帧之后"上一个方向"已变成目标轴，后续帧会被当成同轴翻页把预备下标±1，同下标语义就坏了(instant只触发一次didScroll没有这个问题)；提交前解除冻结，让pauseScroll正常换位收尾
                 isFinalizingSwitch = true
             }
             UIView.animate(withDuration: crossAxisSwitchDuration, delay: 0, options: [.curveEaseOut, .allowUserInteraction], animations: { [weak self] in
@@ -531,15 +566,15 @@ extension WYContentScrollView {
         }
     }
     
-    /// 动画样式同下标跨轴的共用staging：补发willSwitch+钉住reserve下标+隐藏陈旧当前页
-    /// /// - returns: entering=装好目标内容的预备页，hidden=动画后需恢复alpha的同轴当前页
+    /// 动画样式同下标跨轴共用的预备页摆位：补发willSwitch+把预备下标钉成和当前下标一样+临时藏起旧当前页
+    /// - returns: entering=装好目标内容的预备页，hidden=动画结束后需要恢复alpha的同轴当前页
     private func stageSameIndexAnimatedArrival(direction: WYSlidingDirection, enteringFrame: CGRect?) -> (entering: UIView?, hidden: UIView?) {
         
         let arrivingIsHorizontal = (direction == .left) || (direction == .right)
         let enteringView = arrivingIsHorizontal ? horizontalViews?.last : verticalViews?.last
         let hiddenView = arrivingIsHorizontal ? horizontalViews?.first : verticalViews?.first
         
-        // 钉住同下标：提交时current=reserve保持不变；必须在补发will之前钉——will里业务按reserveIndex给预备页装内容，上次失败拖动staging残留的reserve(如V0上滑V1半程回弹后仍是1)会让业务装错页
+        // 把预备下标钉成和当前下标一样，提交时下标保持不变；必须先钉再发will，因为will里业务是按预备下标装内容的，如果上次拖动失败残留了旧下标(比如从V0上滑到V1一半弹回来了，预备下标还是1)，业务就会装错页(表现为切回来先显示V1再跳回V0)
         if arrivingIsHorizontal {
             reserveHorizontalIndex = currentHorizontalIndex
         }else {
@@ -552,9 +587,11 @@ extension WYContentScrollView {
         if let enteringFrame = enteringFrame {
             enteringView?.frame = enteringFrame
         }else {
-            // 呈现族(渐变/缩放)偏移不动：进入页摆到中心
+            // 渐变/缩放样式(偏移不动)：进入页摆到中心
             enteringView?.frame = CGRect(x: wy_width, y: wy_height, width: wy_width, height: wy_height)
         }
+        // 解除目标轴隐藏：上一次切走时syncAxisViewsVisibility把它藏了，跨轴摆位时必须让它重新可见(拖动期间原轴的退场页照常展示，由收尾再藏)
+        (arrivingIsHorizontal ? horizontalViews : verticalViews)?.forEach { $0.isHidden = false }
         if let enteringView = enteringView {
             bringSubviewToFront(enteringView)
         }
@@ -563,14 +600,14 @@ extension WYContentScrollView {
         return (enteringView, hiddenView)
     }
     
-    /// 呈现族跨轴切换(.fade/.zoom)：偏移不动只动alpha/transform，结束经pauseScroll正常提交
+    /// 渐变/缩放样式的跨轴切换(.fade/.zoom)：偏移量不动、只改alpha/transform，动画结束经pauseScroll正常提交
     func presentationalCrossAxisSwitch(direction: WYSlidingDirection, preservesIndex: Bool) {
         
         // 缩放样式需要同步动画退场页(放大淡出制造纵深感)，必须在setter翻转展示轴之前捕获当前展示页
         let departingIsHorizontal = axisIsHorizontal(of: .unknown)
         let departingView = departingIsHorizontal ? horizontalViews?.first : verticalViews?.first
         
-        // 直接赋值触发setter：翻页跨轴推进下标+发will并翻转展示轴；同下标跨轴钳制保持(其will由stageSameIndexAnimatedArrival补发，收尾方向也依赖此赋值)
+        // 直接赋值触发方向setter：翻页跨轴会推进下标+发willSwitch并把展示轴翻过去；同下标跨轴则保持下标不动(willSwitch由stageSameIndexAnimatedArrival补发，收尾方向也依赖这次赋值)
         internalSliderDirection = direction
         
         let arrivingIsHorizontal = (direction == .left) || (direction == .right)
@@ -581,12 +618,14 @@ extension WYContentScrollView {
             arrivingView = staged.entering
             hiddenView = staged.hidden
         }else {
-            // 翻页跨轴：进入页=预备页(业务已在willSwitch装好目标内容，staging把它摆在一侧)，挪回中心置顶呈现
+            // 翻页跨轴：进入页=预备页(业务已在willSwitch装好目标内容、把它摆在进入侧)，挪回中心置顶呈现
             arrivingView = arrivingIsHorizontal ? horizontalViews?.last : verticalViews?.last
             arrivingView?.frame = CGRect(x: wy_width, y: wy_height, width: wy_width, height: wy_height)
             if let arrivingView = arrivingView {
                 bringSubviewToFront(arrivingView)
             }
+            // 解除目标轴隐藏(上一次切走时被syncAxisViewsVisibility藏了)
+            (arrivingIsHorizontal ? horizontalViews : verticalViews)?.forEach { $0.isHidden = false }
         }
         guard let arriving = arrivingView else { return }
         
@@ -610,7 +649,7 @@ extension WYContentScrollView {
         let zoomScale = crossAxisSwitchZoomScale
         arriving.alpha = 0
         if isZoom {
-            // 缩放样式：进入页从crossAxisSwitchZoomScale缩放归位，退场页同步放大至同值淡出，形成推近拉远的纵深感(对称缩放一个旋钮控制幅度；初始缩放过小与渐变难以分辨)
+            // 缩放样式：进入页从crossAxisSwitchZoomScale缩放回1.0，退场页同步放大到同一个值再淡出，形成推近拉远的纵深感(进出两边用同一个值控制幅度；初始缩放设得太小会和渐变样式看不出区别)
             arriving.transform = CGAffineTransform(scaleX: zoomScale, y: zoomScale)
             departingView?.transform = .identity
             departingView?.alpha = 1
@@ -635,12 +674,15 @@ extension WYContentScrollView {
             return
         }
         
-        // 防残留方向锁杀死直切(与nextContent/lastContent同源)：上一轮程序化切换/滑动会把锁留在旧轴上，直切跳变后判轴走"已锁定"分支只看旧轴位移(水平跳变的deltaY=0)会沿用旧方向，错判后再被"锁死另一方向"把跳变偏移钳回中心，直切静默失败——轻扫路径因前置拖动(willBeginDragging清锁)从未暴露，switchContent同下标跨轴直调本方法时才现形
+        // 防止残留的方向锁弄死直切(和nextContent/lastContent同理)：上一轮切换会把锁留在旧轴上，直切跳变过去之后判轴走"已锁定"的分支只看旧轴的位移，沿用旧方向一错判，跳过去的偏移量又被钳回中间，直切就无声无息地失败了，轻扫路径因前置拖动(willBeginDragging清锁)从未暴露，switchContent同下标跨轴直调本方法时才现形
         isDirectionLocked = false
         dragLockedDirection = .unknown
         
         isInstantCrossAxisEntry = true
-        
+
+        // 解除目标轴隐藏(上一次切走时被syncAxisViewsVisibility藏了)
+        (((direction == .left) || (direction == .right)) ? horizontalViews : verticalViews)?.forEach { $0.isHidden = false }
+
         var targetOffset = CGPoint(x: wy_width, y: wy_height)
         if direction == .left {
             targetOffset.x = 2 * wy_width

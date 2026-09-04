@@ -10,7 +10,7 @@ import UIKit
 
 #if canImport(IJKPlayerKit)
 
-/// WYMediaPlayer 私有实现：私有属性集中管理(extension不能声明存储属性，经关联对象寄存到实例)
+/// WYMediaPlayer 私有实现：私有属性集中管理(extension里不能声明存储属性，只能用关联对象把值挂到实例上)
 extension WYMediaPlayer {
 
     /// 当前已重试失败次数
@@ -19,13 +19,13 @@ extension WYMediaPlayer {
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.failReplayNumber) as? Int ?? 0 }
     }
 
-    /// 本次加载的起播意图(play(with:)走shouldAutoplay、prepare(with:)恒为false)
+    /// 本次加载完成后要不要自动播放(play(with:)看shouldAutoplay、prepare(with:)固定为false)
     var loadAutoplayIntent: Bool {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.loadAutoplayIntent, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.loadAutoplayIntent) as? Bool ?? true }
     }
 
-    /// 加载代号(每次load推进，供延迟重试校验期间是否又发起了新加载，防止迟到的重试覆盖新加载)
+    /// 加载代号(每次load加1；延迟执行的失败重试回来时先核对它，发现变了说明期间发起了新加载，放弃本次重试，防止迟到的重试覆盖新加载)
     var loadGeneration: Int {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.loadGeneration, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.loadGeneration) as? Int ?? 0 }
@@ -37,13 +37,13 @@ extension WYMediaPlayer {
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.isPreparedToPlay) as? Bool ?? false }
     }
 
-    /// 挂起的播放意图(play()在prepare完成前被调用时置true，prepare完成回调补执行；pause()与releaseAll会取消)
+    /// 挂起的播放请求(play()在prepare完成前被调用时先记true，等prepare完成回调再补执行；pause()与releaseAll会取消)
     var isPlayPending: Bool {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.isPlayPending, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.isPlayPending) as? Bool ?? false }
     }
 
-    /// prepare期间收到的暂停意图：由prepare完成回调补压内核自动起播
+    /// prepare期间收到的暂停请求：prepare完成时内核会自动起播，由完成回调补一次pause把它压住
     var isPausedWhilePreparing: Bool {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.isPausedWhilePreparing, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.isPausedWhilePreparing) as? Bool ?? false }
@@ -55,13 +55,13 @@ extension WYMediaPlayer {
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.hasRenderedFirstFrame) as? Bool ?? false }
     }
 
-    /// 是否正处于海报(首帧)探测中(预加载不起播时管线不渲染首帧、首帧通知不触发，探测=静音起播直到首帧渲染后立即暂停回预备态，期间靠该标记收尾)
+    /// 是否正处于海报(首帧)探测中(预加载不自动播时底层根本不渲染第一帧、首帧通知也不来；所谓探测就是先静音播放，等第一帧画面出来立刻暂停回到准备好状态，全程靠这个标记收尾)
     var isPosterProbing: Bool {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.isPosterProbing, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.isPosterProbing) as? Bool ?? false }
     }
 
-    /// 本次加载是否真正播放过：未真播放过的实例一切.paused只静默不通知
+    /// 本次加载是否真正播放过：没真正播过的实例收到.paused只默默记下不通知业务(这类暂停只是初始化或收尾的内部动静，不是用户暂停)
     var hasReallyPlayed: Bool {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.hasReallyPlayed, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.hasReallyPlayed) as? Bool ?? false }
@@ -73,7 +73,7 @@ extension WYMediaPlayer {
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.userVolume) as? Float ?? 1 }
     }
 
-    /// 当前使用的URL打开转发代理(懒加载语义：首次访问时创建并绑定self，四个闭包全空时不挂到player)
+    /// 当前使用的URL打开转发代理(第一次用到才创建并绑定self；四个闭包全空时不会挂到player上)
     var urlOpenProxy: WYMediaUrlOpenProxy {
         if let proxy = objc_getAssociatedObject(self, &WYAssociatedKeys.urlOpenProxy) as? WYMediaUrlOpenProxy {
             return proxy
