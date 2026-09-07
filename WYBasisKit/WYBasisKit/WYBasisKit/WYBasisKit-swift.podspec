@@ -434,9 +434,13 @@ Pod::Spec.new do |kit|
     end
 
     layout.subspec "MediaPlayer" do |mediaPlayer|
+      # .md文件是MediaPlayer中IJKOptions的查阅文档，匹配进source_files才能显示在Pods工程导航器里，但是此时会产生警告，于是再用EXCLUDED_SOURCE_FILE_NAMES让构建按文件名跳过它来消除警告(source_files匹配的文件都会被加进Compile Sources，md无编译规则会触发no rule to process警告)
       mediaPlayer.source_files = [
         "#{kit_path}Swift/Layout/MediaPlayer/**/*.{swift,h,m,md}"
       ]
+      mediaPlayer.pod_target_xcconfig = {
+        "EXCLUDED_SOURCE_FILE_NAMES" => "$(inherited) *.md"
+      }
       mediaPlayer.resource_bundles = {"WYBasisKitSwiftMediaPlayer" => [
       "#{kit_path}Swift/Layout/MediaPlayer/PrivacyInfo.xcprivacy"
       ]}
