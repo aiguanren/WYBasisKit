@@ -435,7 +435,7 @@ Pod::Spec.new do |kit|
 
     layout.subspec "MediaPlayer" do |mediaPlayer|
       mediaPlayer.source_files = [
-        "#{kit_path}Swift/Layout/MediaPlayer/**/*.{swift,h,m}"
+        "#{kit_path}Swift/Layout/MediaPlayer/**/*.{swift,h,m,md}"
       ]
       mediaPlayer.resource_bundles = {"WYBasisKitSwiftMediaPlayer" => [
       "#{kit_path}Swift/Layout/MediaPlayer/PrivacyInfo.xcprivacy"

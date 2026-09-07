@@ -111,7 +111,7 @@ extension WYMediaPlayer {
             // 开启 cvpixelbufferpool提升性能
             options?.setPlayerOptionIntValue(0, forKey: "enable-cvpixelbufferpool")
 
-            // 使用硬件加速解码视频帧，降低 CPU 消耗
+            // VideoToolbox硬解码开关(1.1.0起由此键控制，旧键videotoolbox已从内核移除)，开启后优先硬解、不支持的编码自动回退软解
             options?.setPlayerOptionIntValue(1, forKey: "videotoolbox_hwaccel")
 
             // 开启精准 seek，避免进度回退
@@ -120,16 +120,7 @@ extension WYMediaPlayer {
             // 精准 seek 超时时长，单位ms
             options?.setPlayerOptionIntValue(1500, forKey: "accurate-seek-timeout")
 
-            // 启用 VideoToolbox 硬件解码（iOS/macOS）
-            options?.setPlayerOptionIntValue(1, forKey: "videotoolbox")
-
-            // 设置视频帧率，29.97对应NTSC制式标准帧率
-            options?.setPlayerOptionIntValue(Int64(29.97), forKey: "r")
-
-            // 设置音频音量，512为默认值（512 = 100%）
-            options?.setPlayerOptionIntValue(512, forKey: "vol")
-
-            // 设置环路滤波器跳过级别，48表示跳过所有非参考帧的环路滤波
+            // 设置环路滤波器跳过级别，48表示跳过所有帧的去块滤波
             options?.setPlayerOptionIntValue(48, forKey: "skip_loop_filter")
 
             // 网络断开时自动重连
@@ -137,9 +128,6 @@ extension WYMediaPlayer {
 
             // 设置最大帧率限制，防止帧率过高消耗资源
             options?.setPlayerOptionIntValue(30, forKey: "max-fps")
-
-            // 禁用HTTP range检测，适用于不支持range请求的服务器
-            options?.setPlayerOptionIntValue(0, forKey: "http-detect-range-support")
 
             // 设置跳帧类型，8表示跳过非参考帧（B帧）
             options?.setPlayerOptionIntValue(8, forKey: "skip_frame")

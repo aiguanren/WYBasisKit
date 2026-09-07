@@ -22,6 +22,9 @@ class WYGroupedHeaderView: UITableViewHeaderFooterView {
     /// 水平方向各下标对应的图片地址
     var horizontalImages: [String] = []
     
+    /// 图片预取器(持引用是为了header复用换图集时能stop()掉旧预取，不占带宽；运行期间KF自身也会持有，fire-and-forget不会半路释放)
+    var prefetcher: ImagePrefetcher?
+    
     /// 垂直方向各下标对应的图片地址
     var verticalImages: [UIImage] = [UIImage(named: "banner_0")!,
                                      UIImage(named: "banner_1")!,
@@ -58,6 +61,11 @@ class WYGroupedHeaderView: UITableViewHeaderFooterView {
     
     func reload(images: [String]) {
         self.horizontalImages = images
+        
+        // URL列表确定即预取全部图片进缓存(与kf.setImage共用KF默认缓存，滑动时直命中内存缓存无等待)；已缓存的会被KF自动跳过，header复用反复调用也不会重复下载；.backgroundDecode让解码也发生在后台线程
+        prefetcher?.stop()
+        prefetcher = ImagePrefetcher(urls: images.compactMap(URL.init(string:)), options: [.backgroundDecode])
+        prefetcher?.start()
         
         contentScrollView.numberOfHorizontalContent = images.count
         contentScrollView.numberOfVerticalContent = images.count

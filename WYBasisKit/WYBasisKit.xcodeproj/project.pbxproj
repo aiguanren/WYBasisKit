@@ -304,6 +304,7 @@
 		585B39652DF8125400E6E08F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		585B39672DF8125400E6E08F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		585B396A2DF8125400E6E08F /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		58652358304E8B960002B284 /* WYMediaPlayer+IJKOptions.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "WYMediaPlayer+IJKOptions.md"; sourceTree = "<group>"; };
 		586FFBB22E8230A700499506 /* Other.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Other.swift; sourceTree = "<group>"; };
 		587CDF8F2E09151500929E1D /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		587CDF912E09153B00929E1D /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
@@ -950,6 +951,7 @@
 				584E8BD13046BC4000C6D2CA /* WYMediaPlayer+LoadCore.swift */,
 				584E8BD23046BC4000C6D2CA /* WYMediaPlayer+Notifications.swift */,
 				584E8BD33046BC4000C6D2CA /* WYMediaPlayer+Properties.swift */,
+				58652358304E8B960002B284 /* WYMediaPlayer+IJKOptions.md */,
 			);
 			path = PrivateImpl;
 			sourceTree = "<group>";
