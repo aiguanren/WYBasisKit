@@ -184,7 +184,7 @@ public class WYMediaPlayer: UIImageView {
     /// 当前正在播放的流地址
     public internal(set) var mediaUrl: String = ""
 
-    /// 播放器配置选项，各选项的作用、取值范围、默认值、建议值与场景化配置详见 PrivateImpl/WYMediaPlayer+IJKOptions.md(纯阅读文档，不参与编译)
+    /// 播放器配置选项，各选项的作用、取值范围、默认值、建议值与场景化配置详见 PrivateImpl/WYMediaPlayer+IJKOptions.md
     public var options: IJKOptions?
 
     /// 播放器状态回调代理
