@@ -40,17 +40,13 @@ public struct WYSourceBundle {
 
 public extension UIImage {
     
-    /**
-     * 根据传入的高度获取图片的等比宽度
-     */
+    /// 根据传入的高度获取图片的等比宽度
     func wy_width(fromHeight height: CGFloat) -> CGFloat {
         guard height > 0, size.height > 0 else { return 0 }
         return size.width * (height / size.height)
     }
     
-    /**
-     * 根据传入的宽度获取图片的等比高度
-     */
+    /// 根据传入的宽度获取图片的等比高度
     func wy_height(fromWidth width: CGFloat) -> CGFloat {
         guard width > 0, size.width > 0 else { return 0 }
         return size.height * (width / size.width)
@@ -58,7 +54,7 @@ public extension UIImage {
     
     /**
      *  图片翻转(旋转)
-     *  orientation: 图片翻转(旋转)的方向
+     *  @param orientation 图片翻转(旋转)的方向
      *    case up // 默认方向
      *    case upMirrored // 默认方向镜像翻转
      *    case down // 顺时针旋转180°
@@ -66,38 +62,38 @@ public extension UIImage {
      *    case left // 逆时针旋转90°
      *    case leftMirrored // 逆时针旋转90°后镜像翻转
      *    case right // 顺时针旋转90°
-     *    case rightMirrored // 顺针旋转90°后镜像翻转
+     *    case rightMirrored // 顺时针旋转90°后镜像翻转
      */
     func wy_flips(_ orientation: UIImage.Orientation) -> UIImage {
         return UIImage(cgImage: cgImage!, scale: scale, orientation:orientation)
     }
     
     /**
-     图片合成(拼接) ，支持重叠控制、缩放、透明度、混合模式等多种效果
-     - standardImage: 基准图片
-     - stitchingImage: 要拼接的图片，将叠加在基准图片上
-     - stitchingCenterPoint: 拼接图片的中心点在基准图片坐标系中的位置
-     - overlapControl: 重叠控制参数，默认0（无重叠）
-     - 0: 精确对齐，无重叠无间隙
-     - 正值: 拼接图片向基准图片方向偏移，产生重叠效果
-     - 负值: 拼接图片远离基准图片，产生间隙效果
-     - alpha: 拼接图片的透明度，默认1.0（不透明）
-     - blendMode: 混合模式，默认.normal（正常叠加）
-     - backgroundColor: 合成图片的背景颜色，默认透明
-     - cornerRadius: 拼接图片的圆角半径，默认0（直角）
-     - rotationAngle: 拼接图片的旋转角度（弧度制），默认0（不旋转）
-     - flipHorizontal: 是否水平翻转拼接图片，默认false
-     - flipVertical: 是否垂直翻转拼接图片，默认false
-     - qualityScale: 输出图片的质量缩放因子，默认使用基准图片的scale
-     - scale: 拼接图片的缩放比例，默认1.0（原始大小）
-     - shadowColor: 阴影颜色，默认无阴影(透明)
-     - shadowBlur: 阴影模糊半径， 默认0
-     - shadowOffset: 阴影偏移，默认.zero
-     - strokeColor: 描边颜色，默认无描边(透明)
-     - strokeWidth: 描边宽度， 默认0
-     - maskImage: 蒙版图片（使用其 alpha 作为遮罩）， 默认nil
-     
-     - return: 拼接后的图片，失败返回nil
+     *  图片合成(拼接)，支持重叠控制、缩放、透明度、混合模式等多种效果
+     *
+     *  @param standardImage 基准图片
+     *  @param stitchingImage 要拼接的图片，将叠加在基准图片上
+     *  @param stitchingCenterPoint 拼接图片的中心点在基准图片坐标系中的位置
+     *  @param overlapControl 重叠控制参数，默认0（无重叠）
+     *    - 0: 精确对齐，无重叠无间隙
+     *    - 正值: 拼接图片向基准图片方向偏移，产生重叠效果
+     *    - 负值: 拼接图片远离基准图片，产生间隙效果
+     *  @param alpha 拼接图片的透明度，默认1.0（不透明）
+     *  @param blendMode 混合模式，默认.normal（正常叠加）
+     *  @param backgroundColor 合成图片的背景颜色，默认透明
+     *  @param cornerRadius 拼接图片的圆角半径，默认0（直角）
+     *  @param rotationAngle 拼接图片的旋转角度（弧度制），默认0（不旋转）
+     *  @param flipHorizontal 是否水平翻转拼接图片，默认false
+     *  @param flipVertical 是否垂直翻转拼接图片，默认false
+     *  @param qualityScale 输出图片的质量缩放因子，默认使用基准图片的scale
+     *  @param scale 拼接图片的缩放比例，默认1.0（原始大小）
+     *  @param shadowColor 阴影颜色，默认无阴影(透明)
+     *  @param shadowBlur 阴影模糊半径，默认0
+     *  @param shadowOffset 阴影偏移，默认.zero
+     *  @param strokeColor 描边颜色，默认无描边(透明)
+     *  @param strokeWidth 描边宽度，默认0
+     *  @param maskImage 蒙版图片（使用其 alpha 作为遮罩），默认nil
+     *  @return 拼接后的图片，失败返回nil
      */
     static func wy_combineImages(
         standardImage: UIImage,
@@ -407,12 +403,14 @@ public extension UIImage {
     /**
      渲染图片至指定颜色（同步）
      ⚠️ 注意：
-     - 该方法为同步执行，会在当前线程完成图像渲染，不建议在主线程高频调用，可能导致卡顿或掉帧，适用于调用次数较少的场景，例如：
-     - 非滚动场景（如页面初始化、静态展示）
-     - 单次或少量图片处理（如按钮状态图、占位图生成）
+     - 该方法为同步执行，会在当前线程完成图像渲染，不建议在主线程高频调用，可能导致卡顿或掉帧
+     - 适用于调用次数较少的场景，例如：
+       - 非滚动场景（如页面初始化、静态展示）
+       - 单次或少量图片处理（如按钮状态图、占位图生成）
      - 若在列表滚动、频繁刷新或大量图片处理等场景中使用，建议改用异步方法
-     - Parameter color: 需要渲染的目标颜色
-     - Returns: 渲染后的新图片
+
+     @param color 需要渲染的目标颜色
+     @return 渲染后的新图片
      */
     func wy_rendering(color: UIColor) -> UIImage {
         
@@ -509,8 +507,8 @@ public extension UIImage {
      }
      }
      
-     - Parameter color: 需要渲染的目标颜色
-     - Parameter completion: 渲染完成回调（主线程，返回处理后的图片）
+     @param color 需要渲染的目标颜色
+     @param completion 渲染完成回调（主线程，返回处理后的图片）
      */
     func wy_rendering(color: UIColor, completion: @escaping @MainActor (_ tintedImage: UIImage) -> Void) {
         
@@ -553,20 +551,16 @@ public extension UIImage {
      */
     static func wy_createQrCode(with info: Data, size: CGSize, waterImage: UIImage? = nil) -> UIImage {
         
-        // CIFilter
+        // 创建二维码滤镜并写入内容数据
         let filter = CIFilter(name: "CIQRCodeGenerator")
         filter?.setDefaults()
-        
-        // Add Data
         filter?.setValue(info, forKeyPath: "inputMessage")
-        
-        // Out Put
+
+        // 滤镜输出的是小尺寸点阵图，按目标size等比放大后画到位图上下文得到清晰图像
         let outputImage = filter?.outputImage
-        //  QRCode
         let extent = outputImage!.extent.integral
         let scale = min(size.width / extent.width, size.height / extent.height)
-        
-        // Create bitmap
+
         let width: size_t = size_t(extent.width * scale)
         let height: size_t = size_t(extent.height * scale)
         let cs: CGColorSpace = CGColorSpaceCreateDeviceGray()
@@ -582,14 +576,12 @@ public extension UIImage {
         if waterImage == nil {
             return originalImage
         }else {
-            // 把logo镶嵌到生成的二维码图片上，注意尺寸不要太大（最大不超过二维码图片的%30），太大会造成扫不出来
+            // 把logo镶嵌到生成的二维码图片上，注意尺寸不要太大（最大不超过二维码图片的30%），太大会造成扫不出来
             return originalImage.wy_mosaic(image: waterImage!)
         }
     }
     
-    /**
-     *  获取二维码信息(必须要真机环境才能获取到相关信息)
-     */
+    /// 获取二维码信息(必须要真机环境才能获取到相关信息)
     func wy_recognitionQRCode() -> [String] {
         
         // 创建过滤器
@@ -691,7 +683,17 @@ public extension UIImage {
         return newImage
     }
     
-    /** 图片上绘制文字 */
+    /**
+     *  图片上绘制文字
+     *
+     *  @param text 要绘制的文字
+     *  @param font 文字字体
+     *  @param color 文字颜色
+     *  @param rect 文字绘制区域(基于图片坐标系)
+     *  @param lineSpacing 行间距，默认0
+     *  @param wordsSpacing 字间距，默认0
+     *  @return 绘制好文字的图片(上下文获取失败时返回原图)
+     */
     func wy_addText(text: String, font: UIFont, color: UIColor, rect: CGRect, lineSpacing: CGFloat = 0, wordsSpacing: CGFloat = 0) -> UIImage {
         
         let size = self.size
@@ -748,6 +750,7 @@ public extension UIImage {
      *
      *  @param bundle                从哪个bundle文件内查找，如果为空，则直接在本地路径下查找
      *
+     *  @return 找到则返回对应图片，名称为空或找不到时返回随机颜色占位图(并打印日志)
      */
     static func wy_find(_ imageName: String, inBundle bundle: WYSourceBundle? = nil) -> UIImage {
         
@@ -827,7 +830,7 @@ public extension UIImage {
      *
      *  @param bundle     从哪个bundle文件内查找，如果为空，则直接在本地路径下查找
      *
-     *  @return Gif       图片解析结果
+     *  @return 图片解析结果(名称为空、文件不存在或创建图像源失败时返回nil)
      */
     static func wy_animatedParse(_ style: WYAnimatedImageStyle = .GIF, name imageName: String, inBundle bundle: WYSourceBundle? = nil) -> WYGifInfo? {
         
@@ -894,7 +897,7 @@ public extension UIImage {
             
             // 将播放时间累加
             totalDuration += duration.doubleValue
-            // 获取到所有的image
+            // 获取到所有的帧图片
             let image = UIImage(cgImage: cgImage)
             images.append(image)
         }
@@ -909,7 +912,7 @@ public struct WYGifInfo {
     /// 解析后得到的图片数组
     public var animationImages: [UIImage]? = nil
     
-    /// 轮询时长
+    /// 动画播放一轮的总时长
     public var animationDuration: CGFloat = 0.0
     
     /// 可以直接显示的动图

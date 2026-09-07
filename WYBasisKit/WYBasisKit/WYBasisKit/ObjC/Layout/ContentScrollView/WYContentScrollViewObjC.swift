@@ -42,6 +42,13 @@ import WYBasisKitSwift
         set { contentSlidingDirection = newValue }
     }
 
+    /// 当contentSlidingDirection == .omnidirectional时，优先支持哪个滑动方向，默认左右滑动(不支持设置为.omnidirectional)
+    @objc(prioritySlidingDirection)
+    public var prioritySlidingDirectionObjC: WYContentSlidingDirection {
+        get { return prioritySlidingDirection }
+        set { prioritySlidingDirection = newValue }
+    }
+
     /// 当前正在水平方向显示的Views(用户传入的View)
     @objc(horizontalViews)
     public var horizontalViewsObjC: [UIView]? {
@@ -78,14 +85,14 @@ import WYBasisKitSwift
         return reserveVerticalIndex
     }
 
-    /// 自动轮播时每一页停留时间，默认为3s，最少1s(当设置的值小于1s时，则为默认值，同时修改值后会立即生效)；
+    /// 自动轮播时每一页停留时间，默认为3s，最少1s(当设置的值小于1s时，则为默认值，同时修改值后会立即生效)
     @objc(standingTime)
     public var standingTimeObjC: TimeInterval {
         get { return standingTime }
         set { standingTime = newValue }
     }
 
-    /// 轻扫跨轴直切的速度阈值(单位：pt/s，默认500，范围限制50 - 3000，仅影响全向模式的轻扫跨轴判定，同轴翻页不经过此阈值，值越低越灵敏，越高越保守)
+    /// 轻扫跨轴直切的速度阈值(单位为pt/s，默认500，范围限制50 - 3000，仅影响全向模式的轻扫跨轴判定，同轴翻页不经过此阈值，值越低越灵敏，越高越保守)
     @objc(crossAxisFlickVelocityThreshold)
     public var crossAxisFlickVelocityThresholdObjC: CGFloat {
         get { return crossAxisFlickVelocityThreshold }
@@ -99,7 +106,7 @@ import WYBasisKitSwift
         set { crossAxisSwitchStyle = newValue }
     }
 
-    /// 跨轴切换动画时长(单位：秒)，默认0.25s，钳制范围[0.1, 2.0]，仅.slide/.fade/.zoom生效
+    /// 跨轴切换动画时长(单位为秒)，默认0.25s，钳制范围[0.1, 2.0]，仅.slide/.fade/.zoom生效
     @objc(crossAxisSwitchDuration)
     public var crossAxisSwitchDurationObjC: TimeInterval {
         get { return crossAxisSwitchDuration }
@@ -127,14 +134,14 @@ import WYBasisKitSwift
         set { verticalSliderEnabled = newValue }
     }
 
-    /// 水平方向同轴翻页的最小时间间隔(单位：秒，默认0不限制，负数按0处理)，手势翻页提交后间隔内的新同轴拖动无效，跨轴切换与API切换不受影响
+    /// 水平方向同轴翻页的最小时间间隔(单位为秒，默认0不限制，负数按0处理)，手势翻页提交后间隔内的新同轴拖动无效，跨轴切换与API切换不受影响
     @objc(horizontalMinimumSwitchInterval)
     public var horizontalMinimumSwitchIntervalObjC: TimeInterval {
         get { return horizontalMinimumSwitchInterval }
         set { horizontalMinimumSwitchInterval = newValue }
     }
 
-    /// 垂直方向同轴翻页的最小时间间隔(单位：秒，默认0不限制，负数按0处理)，手势翻页提交后间隔内的新同轴拖动无效，跨轴切换与API切换不受影响
+    /// 垂直方向同轴翻页的最小时间间隔(单位为秒，默认0不限制，负数按0处理)，手势翻页提交后间隔内的新同轴拖动无效，跨轴切换与API切换不受影响
     @objc(verticalMinimumSwitchInterval)
     public var verticalMinimumSwitchIntervalObjC: TimeInterval {
         get { return verticalMinimumSwitchInterval }
@@ -162,23 +169,26 @@ import WYBasisKitSwift
         set { automaticCarousel = newValue }
     }
 
-    /// 设置需要显示的自定义View(contentSlidingDirection != omnidirectional 时调用)，currentView 为正在显示的View、reserveView 为预备显示的View，两者Size都将等于当前WYContentScrollView的Size
+    /**
+     *  设置需要显示的自定义View(contentSlidingDirection != omnidirectional 时调用)，两个View的Size都将等于当前WYContentScrollView的Size
+     *  @param currentView  正在显示的View
+     *  @param reserveView  预备显示的View
+     */
     @objc(horizontalOrVerticalDisplayWithCurrentView:reserveView:)
     public func horizontalOrVerticalDisplayObjC(currentView: UIView, reserveView: UIView) {
         horizontalOrVerticalDisplay(currentView: currentView, reserveView: reserveView)
     }
 
-    /// 设置需要显示的自定义View(contentSlidingDirection == omnidirectional 时调用)，水平/垂直方向各需 current(正在显示)与 reserve(预备显示)两个View，Size都将等于当前WYContentScrollView的Size
+    /**
+     *  设置需要显示的自定义View(contentSlidingDirection == omnidirectional 时调用)，四个View的Size都将等于当前WYContentScrollView的Size
+     *  @param currentHorizontalView   水平方向正在显示的View
+     *  @param reserveHorizontalView   水平方向预备显示的View
+     *  @param currentVerticalView     垂直方向正在显示的View
+     *  @param reserveVerticalView     垂直方向预备显示的View
+     */
     @objc(omnidirectionalDisplayWithCurrentHorizontalView:reserveHorizontalView:currentVerticalView:reserveVerticalView:)
     public func omnidirectionalDisplayObjC(currentHorizontalView: UIView, reserveHorizontalView: UIView, currentVerticalView: UIView, reserveVerticalView: UIView) {
         omnidirectionalDisplay(currentHorizontalView: currentHorizontalView, reserveHorizontalView: reserveHorizontalView, currentVerticalView: currentVerticalView, reserveVerticalView: reserveVerticalView)
-    }
-
-    /// 当contentSlidingDirection == .omnidirectional时，优先支持哪个滑动方向，默认左右滑动(不支持设置为.omnidirectional)
-    @objc(prioritySlidingDirection)
-    public var prioritySlidingDirectionObjC: WYContentSlidingDirection {
-        get { return prioritySlidingDirection }
-        set { prioritySlidingDirection = newValue }
     }
 
     /// 开启定时器(默认开启，调用该方法会重新开启)
@@ -205,7 +215,11 @@ import WYBasisKitSwift
         lastContent(direction)
     }
 
-    /// 切换到指定方向指定下标处(不支持direction为omnidirectional)
+    /**
+     *  切换到指定方向指定下标处(下标超出数量范围时自动钳制到最近的有效页)
+     *  @param direction  要切换的方向(不支持传omnidirectional)
+     *  @param index      目标下标(inout参数，越界钳制后的实际落地值会写回给调用方)
+     */
     @objc(switchContent:index:)
     public func switchContentObjC(_ direction: WYContentSlidingDirection, index: UnsafeMutablePointer<Int>) {
         switchContent(direction, index: &index.pointee)

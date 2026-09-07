@@ -27,7 +27,7 @@ import WYBasisKitSwift
         return mediaUrl
     }
 
-    /// 播放器配置选项 具体配置可参考 https://github.com/Bilibili/ijkplayer/blob/master/ijkmedia/ijkplayer/ff_ffplay_options.h
+    /// 播放器配置选项，各选项的作用、取值范围、默认值、建议值与场景化配置详见 PrivateImpl/WYMediaPlayer+IJKOptions.md
     @objc(options)
     public var optionsObjC: IJKOptions? {
         get { return options }
@@ -68,7 +68,7 @@ import WYBasisKitSwift
         set { failReplay = newValue }
     }
 
-    /// 循环播放次数：0表示无限次循环，1表示仅播放一次(默认)，N>1表示播放N次，负数同0(点播流有效；即ijkplayer的loop选项语义；在下次加载时生效，运行中改用playbackLoop)
+    /// 循环播放次数，0表示无限次循环，1表示仅播放一次(默认)，N>1表示播放N次，负数同0(点播流有效；即ijkplayer的loop选项语义；在下次加载时生效，运行中改用playbackLoop)
     @objc(looping)
     public var loopingObjC: Int64 {
         get { return looping }
@@ -82,14 +82,14 @@ import WYBasisKitSwift
         set { playbackLoop = newValue }
     }
 
-    /// 加载时是否需要把渲染好的第一帧设置为播放器背景(与shouldAutoplay=false配合可做预加载封面：prepare完成不起播，仅把首帧显示为背景；播放中渲染画面会天然盖住背景，无需额外清理)
+    /// 加载时是否需要把渲染好的第一帧设置为播放器背景(与shouldAutoplay=false配合可做预加载封面，prepare完成不起播，仅把首帧显示为背景；播放中渲染画面会天然盖住背景，无需额外清理)
     @objc(shouldUseFirstFrameAsPoster)
     public var shouldUseFirstFrameAsPosterObjC: Bool {
         get { return shouldUseFirstFrameAsPoster }
         set { shouldUseFirstFrameAsPoster = newValue }
     }
 
-    /// 是否静音(与playbackVolume相互独立：静音时实际音量为0，关闭静音自动恢复原音量；海报探测的临时静音对外不可见，不会覆盖muted状态)
+    /// 是否静音(与playbackVolume相互独立，静音时实际音量为0，关闭静音自动恢复原音量；海报探测的临时静音对外不可见，不会覆盖muted状态)
     @objc(muted)
     public var mutedObjC: Bool {
         get { return muted }
@@ -188,14 +188,14 @@ import WYBasisKitSwift
         set { allowHDRDirectDisplay = newValue }
     }
 
-    /// 当前显示是否支持HDR直显(只读，仅iOS16+可调用；tvOS不支持HDR直显)
+    /// 当前显示是否支持HDR直显(仅iOS16+可调用；tvOS不支持HDR直显)
     @available(iOS 16.0, *)
     @objc(directDisplayHDRSupportted)
     public var directDisplayHDRSupporttedObjC: Bool {
         return directDisplayHDRSupportted
     }
 
-    /// 反交错开关(0=关闭，1=开启；隔行扫描源如部分电视TS流需开启，作用于当前实例)
+    /// 反交错模式(仅软解生效，0=关闭，1=bwdif，2=yadif，3=field；隔行扫描源如部分电视TS流需开启，作用于当前实例)
     @objc(deinterlace)
     public var deinterlaceObjC: Int {
         get { return deinterlace }
@@ -216,43 +216,43 @@ import WYBasisKitSwift
         set { isDanmakuMediaAirPlay = newValue }
     }
 
-    /// AirPlay(无线)投放当前是否活跃(只读)
+    /// AirPlay(无线)投放当前是否活跃
     @objc(airPlayMediaActive)
     public var airPlayMediaActiveObjC: Bool {
         return airPlayMediaActive
     }
 
-    /// 当前播放时间(只读，单位：s；拖动请用playbackTime(_:))
+    /// 当前播放时间(单位，s；拖动请用playbackTime(_:))
     @objc(currentPlaybackTime)
     public var currentPlaybackTimeObjC: TimeInterval {
         return currentPlaybackTime
     }
 
-    /// 当前倍速(只读；设置请用playbackRate(_:))
+    /// 当前倍速(设置请用playbackRate(_:))
     @objc(currentPlaybackRate)
     public var currentPlaybackRateObjC: Float {
         return currentPlaybackRate
     }
 
-    /// 播放调度阶段(只读，比state更细的生命周期：idle→initialized→preparing→prepared→started→paused→completed/stopped/error)
+    /// 播放调度阶段(比state更细的生命周期，idle→initialized→preparing→prepared→started→paused→completed/stopped/error)
     @objc(playbackSchedule)
     public var playbackScheduleObjC: IJKPlayerPlaybackSchedule {
         return playbackSchedule
     }
 
-    /// 是否处于seek缓冲中(只读，1=正在缓冲)
+    /// 本次缓冲是否由seek触发(1=seek引起的，0=普通网络卡顿引起的；取值只有0和1，只在收到buffering状态回调的那一刻能读到，之后立即复位为0，平时读恒是0)
     @objc(isSeekBuffering)
     public var isSeekBufferingObjC: Int32 {
         return isSeekBuffering
     }
 
-    /// 视频原始尺寸(只读，宽高未缩放，prepare完成前为zero)
+    /// 视频原始尺寸(宽高未缩放，prepare完成前为zero)
     @objc(naturalSize)
     public var naturalSizeObjC: CGSize {
         return naturalSize
     }
 
-    /// 视频元数据自带的Z轴旋转角度(只读，部分手机竖拍视频为90/270)
+    /// 视频元数据自带的Z轴旋转角度(部分手机竖拍视频为90/270)
     @objc(videoZRotateDegrees)
     public var videoZRotateDegreesObjC: Int {
         return videoZRotateDegrees
@@ -264,37 +264,37 @@ import WYBasisKitSwift
         return thumbnailImageAtCurrentTime
     }
 
-    /// 监视器(只读；媒体/视频/音频/字幕元数据、网络耗时、各阶段延迟等，支持KVO观察)
+    /// 监视器(媒体/视频/音频/字幕元数据、网络耗时、各阶段延迟等，支持KVO观察)
     @objc(monitor)
     public var monitorObjC: IJKMonitor? {
         return monitor
     }
 
-    /// 元数据标称帧率(只读，单位：帧/秒)
+    /// 元数据标称帧率(单位，帧/秒)
     @objc(fpsInMeta)
     public var fpsInMetaObjC: CGFloat {
         return fpsInMeta
     }
 
-    /// 实际输出帧率(只读，单位：帧/秒，反映真实渲染性能)
+    /// 实际输出帧率(单位，帧/秒，反映真实渲染性能)
     @objc(fpsAtOutput)
     public var fpsAtOutputObjC: CGFloat {
         return fpsAtOutput
     }
 
-    /// 音频是否与主时钟同步(只读，1=已同步)
+    /// seek后音频首帧开始播放瞬间的标记，配合底层IJKPlayerSeekAudioStart通知读取(1=当前以音频为主时钟，0=以视频或外部时钟为主；取值只有0和1，只在收到该通知的那一刻能读到，之后立即复位为0，平时读恒是0)
     @objc(isAudioSync)
     public var isAudioSyncObjC: Int32 {
         return isAudioSync
     }
 
-    /// 视频是否与主时钟同步(只读，1=已同步)
+    /// seek后视频首帧渲染出画面瞬间的标记，配合底层IJKPlayerSeekVideoStart通知读取(1=当前以视频为主时钟，0=以音频或外部时钟为主；取值只有0和1，只在收到该通知的那一刻能读到，之后立即复位为0，平时读恒是0)
     @objc(isVideoSync)
     public var isVideoSyncObjC: Int32 {
         return isVideoSync
     }
 
-    /// 本次加载的总流量统计(只读，单位：byte，含重试流量)
+    /// 本次加载的总流量统计(单位，byte，含重试流量)
     @objc(numberOfBytesTransferred)
     public var numberOfBytesTransferredObjC: Int64 {
         return numberOfBytesTransferred
@@ -342,7 +342,7 @@ import WYBasisKitSwift
         set { willOpenLiveUrl = newValue }
     }
 
-    /// 媒体模块单例(空闲计时器控制：后台播放时防止屏幕休眠等，详见IJKMediaModule)
+    /// 媒体模块单例(空闲计时器控制，后台播放时防止屏幕休眠等，详见IJKMediaModule)
     @objc(mediaModule)
     public static var mediaModuleObjC: IJKMediaModule {
         return mediaModule
@@ -363,7 +363,7 @@ import WYBasisKitSwift
     }
 
     /**
-     * 预加载：只加载缓冲、不自动播放不出声(适合预加载预备页)；加载完成若开了shouldUseFirstFrameAsPoster会自动探测首帧作封面，之后调playObjC()即可播放(未prepare完会自动挂起，prepare完成后立即起播并跳过探测)
+     * 预加载，只加载缓冲、不自动播放不出声(适合预加载预备页)；加载完成若开了shouldUseFirstFrameAsPoster会自动探测首帧作封面，之后调play()即可播放(未prepare完会自动挂起，prepare完成后立即起播并跳过探测)
      * @param url 要加载的流地址
      * @param placeholder 视频占位图，加载期间先显示它
      */
@@ -376,7 +376,7 @@ import WYBasisKitSwift
         prepare(with: url, placeholder: placeholder)
     }
 
-    /// 继续播放(仅适用于暂停后恢复播放)
+    /// 开始播放(仅适用于暂停后恢复播放)
     @objc(play)
     public func playObjC() {
         play()
@@ -424,7 +424,7 @@ import WYBasisKitSwift
         stop(keepLast)
     }
 
-    /// 音量设置，0~1，为0时表示静音(实际下发音量统一走applyVolume：muted或海报探测期间为0)
+    /// 音量设置，0~1，为0时表示静音(实际下发音量统一走applyVolume，muted或海报探测期间为0)
     @objc(playbackVolume:)
     public func playbackVolumeObjC(_ volume: CGFloat) {
         playbackVolume(volume)
@@ -432,7 +432,7 @@ import WYBasisKitSwift
 
     /**
      * 设置音频声道(单声道源切左右声道，双耳助听/外国语场景常用；类型为IJKPlayerKit的IJKAudioChannel，OC侧直接用IJKAudioChannelStereo等常量)
-     * @param channel 目标声道
+     * @param channel 立体声/仅左声道/仅右声道(IJKAudioChannelStereo等常量)
      */
     @objc(setAudioChannel:)
     public func setAudioChannelObjC(_ channel: IJKAudioChannel) {
@@ -445,7 +445,7 @@ import WYBasisKitSwift
         return audioChannel()
     }
 
-    /// 设定音频延迟(单位：s)
+    /// 设定音频延迟(单位，s)
     @objc(audioExtraDelay:)
     public func audioExtraDelayObjC(_ delay: CGFloat) {
         audioExtraDelay(delay)
@@ -493,13 +493,13 @@ import WYBasisKitSwift
         closeCurrentStream(streamStyle)
     }
 
-    /// 设定字幕延迟(单位：s)
+    /// 设定字幕延迟(单位，s)
     @objc(subtitleExtraDelay:)
     public func subtitleExtraDelayObjC(_ delay: CGFloat) {
         subtitleExtraDelay(delay)
     }
 
-    /// 调整字幕样式(支持设置字体，字体颜色，边框颜色，背景颜色等)
+    /// 调整字幕样式(支持设置字体、字体颜色、边框颜色、背景颜色等)
     @objc(subtitlePreference:)
     public func subtitlePreferenceObjC(_ preference: IJKSubtitlePreference) {
         subtitlePreference(preference)
@@ -545,9 +545,9 @@ import WYBasisKitSwift
     }
 
     /**
-     *  按指定类型截取当前画面(1.1.0新增)：比currentSnapshot()多了"截视频原始帧"的能力，返回CGImage方便直接写文件或二次处理
+     *  按指定类型截取当前画面，比currentSnapshot()多了"截视频原始帧"的能力，返回CGImage方便直接写文件或二次处理
      *
-     *  @param type 截图类型：IJKSnapshotTypeOrigin=视频原始尺寸(不带字幕和画质特效)、IJKSnapshotTypeScreen=当前屏幕看到的画面(含字幕和画质特效，效果同currentSnapshot())、IJKSnapshotTypeEffect_Origin=原始尺寸带字幕不带画质特效、IJKSnapshotTypeEffect_Subtitle_Origin=原始尺寸带字幕和画质特效
+     *  @param type 截图类型，IJKSnapshotTypeOrigin=视频原始尺寸(不带字幕和画质特效)、IJKSnapshotTypeScreen=当前屏幕看到的画面(含字幕和画质特效，效果同currentSnapshot())、IJKSnapshotTypeEffect_Origin=原始尺寸带字幕不带画质特效、IJKSnapshotTypeEffect_Subtitle_Origin=原始尺寸带字幕和画质特效
      *  @return 截好的图像(OC侧拿到的是CGImageRef)；播放器还没创建或第一帧还没渲染出来时返回nil
      */
     @objc(currentSnapshotWithType:)
@@ -614,7 +614,7 @@ import WYBasisKitSwift
         return videoDuration()
     }
 
-    /// 获取预加载时长(单位：s)
+    /// 获取预加载时长(单位，s)
     @objc(playableDuration)
     public func playableDurationObjC() -> TimeInterval {
         return playableDuration()
@@ -626,7 +626,7 @@ import WYBasisKitSwift
         return bufferingProgress()
     }
 
-    /// 获取下载速度(单位：byte)
+    /// 获取下载速度(单位，byte)
     @objc(downloadSpeed)
     public func downloadSpeedObjC() -> Int64 {
         return downloadSpeed()
@@ -644,13 +644,13 @@ import WYBasisKitSwift
         return dropFrameCount()
     }
 
-    /// 视频与主时钟的偏差(单位：s，正值=视频落后于主时钟，排查音画不同步用)
+    /// 视频与主时钟的偏差(单位，s，正值=视频落后于主时钟，排查音画不同步用)
     @objc(currentVMDiff)
     public func currentVMDiffObjC() -> Float {
         return currentVMDiff()
     }
 
-    /// 本次加载的总流量统计(单位：byte，与numberOfBytesTransferred是同一个数据)
+    /// 本次加载的总流量统计(单位，byte，与numberOfBytesTransferred是同一个数据)
     @objc(trafficStatistic)
     public func trafficStatisticObjC() -> Int64 {
         return trafficStatistic()
@@ -692,7 +692,7 @@ import WYBasisKitSwift
         return supportedDecoders()
     }
 
-    /// 设备是否支持HEVC(H.265)硬解码(1.1.0新增；做能力判断用，比如不支持时提示用户或限制HEVC清晰度档位)
+    /// 设备是否支持HEVC(H.265)硬解码(做能力判断用，比如不支持时提示用户或限制HEVC清晰度档位)
     @objc(isHardwareDecodeSupportedForHEVC)
     public static func isHardwareDecodeSupportedForHEVCObjC() -> Bool {
         return isHardwareDecodeSupportedForHEVC()
@@ -726,7 +726,7 @@ import WYBasisKitSwift
     }
 
     /**
-     *  释放播放器组件(1.1.0起可以选择同步或异步关闭内核)
+     *  释放播放器组件(可以选择同步或异步关闭内核)
      *
      *  @param sync true=同步关闭，等内核真正释放完资源才返回(紧接着要重建播放器或退出页面的场景用，防止旧实例还没释放完就叠新实例)；false=异步关闭，立即返回不等内核(默认，也是之前版本的行为)
      */

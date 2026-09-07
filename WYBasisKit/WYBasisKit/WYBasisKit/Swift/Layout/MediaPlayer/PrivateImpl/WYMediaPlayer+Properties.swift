@@ -10,7 +10,7 @@ import UIKit
 
 #if canImport(IJKPlayerKit)
 
-/// WYMediaPlayer 私有实现：私有属性集中管理(extension里不能声明存储属性，只能用关联对象把值挂到实例上)
+/// WYMediaPlayer 私有实现，私有属性集中管理
 extension WYMediaPlayer {
 
     /// 当前已重试失败次数
@@ -43,7 +43,7 @@ extension WYMediaPlayer {
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.isPlayPending) as? Bool ?? false }
     }
 
-    /// prepare期间收到的暂停请求：prepare完成时内核会自动起播，由完成回调补一次pause把它压住
+    /// prepare期间收到的暂停请求，prepare完成时内核会自动起播，由完成回调补一次pause把它压住
     var isPausedWhilePreparing: Bool {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.isPausedWhilePreparing, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.isPausedWhilePreparing) as? Bool ?? false }
@@ -61,7 +61,7 @@ extension WYMediaPlayer {
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.isPosterProbing) as? Bool ?? false }
     }
 
-    /// 本次加载是否真正播放过：没真正播过的实例收到.paused只默默记下不通知业务(这类暂停只是初始化或收尾的内部动静，不是用户暂停)
+    /// 本次加载是否真正播放过，没真正播过的实例收到.paused只默默记下不通知业务(这类暂停只是初始化或收尾的内部动静，不是用户暂停)
     var hasReallyPlayed: Bool {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.hasReallyPlayed, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.hasReallyPlayed) as? Bool ?? false }

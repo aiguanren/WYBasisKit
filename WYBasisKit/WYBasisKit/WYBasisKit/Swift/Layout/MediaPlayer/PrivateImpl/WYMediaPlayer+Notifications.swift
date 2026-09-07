@@ -12,20 +12,18 @@ import UIKit
 
 import IJKPlayerKit
 
-/// WYMediaPlayer 私有实现：状态与通知处理(状态去重后回调业务、底层通知转发成代理回调、URL打开事件中转)
+/// WYMediaPlayer 私有实现，状态与通知处理(状态去重后回调业务、底层通知转发成代理回调、URL打开事件中转)
 extension WYMediaPlayer {
     /// 状态去重后回调代理(与上次相同的状态不重复通知)
     func callback(with currentState: WYMediaPlayerState) {
         guard currentState != state else {
             return
         }
-        // 过滤掉播放器内部自己产生的状态噪声：只静默不通知，不改动state属性(直接读state的业务拿到的还是真实值)
-        // ①静音探测起播那一瞬间的playing：探测不是真的在播放
-        // ②还没真正播放过时的paused：它只代表初始化或探测收尾或等待播放，和用户主动暂停是同一个状态没法区分，不滤的话业务会误判(预加载时误关loading、真暂停时误转loading)
+        // 过滤掉播放器内部自己产生的状态噪声，只静默不通知、不改state属性(直接读state的业务拿到的还是真实值)，①静音探测起播那一瞬间的playing，探测不是真的在播放；②还没真正播放过时的paused，它只代表初始化或探测收尾或等待播放，和用户主动暂停是同一个状态没法区分，不滤的话业务会误判(预加载时误关loading、真暂停时误转loading)
         if (currentState == .playing) && isPosterProbing {
             state = currentState
         }else if (currentState == .playing) {
-            // 非探测的playing=真正开始播放，此后的paused才有资格回调
+            // 非探测的playing代表真正开始播放，此后的paused才有资格回调
             hasReallyPlayed = true
             state = currentState
             delegate?.wy_mediaPlayerStateDidChanged?(self, state: state)
@@ -37,12 +35,13 @@ extension WYMediaPlayer {
         }
     }
 
-    /// 转发播放进度给代理： currentTime 当前播放位置， duration 总时长， playableDuration 已缓冲可播时长
+    /// 转发播放进度给代理，currentTime为当前播放位置，duration为总时长，playableDuration为已缓冲可播时长
     @objc func ijkPlayerCurrentPlaybackTimeDidChanged(notification: Notification) {
         guard let player = ijkPlayer else { return }
         delegate?.wy_mediaPlayerProgressDidChanged?(self, currentTime: player.currentPlaybackTime, duration: player.duration, playableDuration: player.playableDuration)
     }
 
+    /// 播放完成通知，按结束原因分流(播放完毕回调ended、用户退出回调userExited、播放出错回调error并自动重试)
     @objc func ijkPlayerDidFinished(notification: Notification) {
 
         if let reason: IJKFinishReason = notification.userInfo?[IJKPlayerDidFinishReasonUserInfoKey] as? IJKFinishReason {
@@ -51,6 +50,7 @@ extension WYMediaPlayer {
                 callback(with: .ended)
             case .playbackError:
                 callback(with: .error)
+                // 播放出错自动重试，未超failReplay次数就延迟1秒重载并保留当前画面(重载前核对loadGeneration，期间发起新加载则放弃本次重试)，超过次数就彻底释放
                 if failReplayNumber < failReplay {
                     failReplayNumber += 1
                     let generation: Int = loadGeneration
@@ -69,6 +69,7 @@ extension WYMediaPlayer {
         }
     }
 
+    /// 播放状态变化通知，把底层播放状态映射成业务状态(stopped归并为ended)后经callback去重回调
     @objc func ijkPlayerPlayStateDidChange(notification: Notification) {
 
         guard let player = ijkPlayer else { return }
@@ -91,6 +92,7 @@ extension WYMediaPlayer {
         }
     }
 
+    /// 加载状态变化通知，把stalled/playthroughOK/playable等加载标志结合当前state推导成业务状态(缓冲中/播放中/就绪/可播/未知)后去重回调，已处于playing的不降级
     @objc func ijkPlayerLoadStateDidChange(notification: Notification) {
         guard let player = ijkPlayer else { return }
 
@@ -99,6 +101,7 @@ extension WYMediaPlayer {
             callback(with: .buffering)
         }else if loadState.contains(.playthroughOK) {
             if state == .playing { return }
+            // playthroughOK只表示缓冲已够顺畅播完，从buffering恢复且内核确实在播才回调playing，否则停在ready
             if state == .buffering, player.isPlaying() {
                 callback(with: .playing)
             }else {
@@ -113,6 +116,7 @@ extension WYMediaPlayer {
         }
     }
 
+    /// 首帧渲染完成通知，显示渲染视图并淡入，按需截取首帧当海报、收尾静音探测，最后回调rendered
     @objc func ijkPlayerLoadStateDidRendered(notification: Notification) {
         // 首帧就绪取消隐藏并短促淡入，配合海报避免封面到视频的生硬切换
         if let renderView: UIView = ijkPlayer?.view {
@@ -135,6 +139,7 @@ extension WYMediaPlayer {
         callback(with: .rendered)
     }
 
+    /// 播放准备完成(字幕流就绪)通知，标记就绪并补执行挂起的播放或暂停请求，不自动播又需要首帧海报时发起静音探测，最后转发媒体元数据
     @objc func ijkPlayerSubtitleStreamPrepared(notification: Notification) {
         guard let player = ijkPlayer else { return }
         isPreparedToPlay = true
@@ -142,10 +147,11 @@ extension WYMediaPlayer {
             isPlayPending = false
             player.play()
         }else if isPausedWhilePreparing {
-            // prepare期间业务已暂停：补一次pause压住内核的自动起播(未就绪时的pause拦不住它)，停在就绪暂停态
+            // prepare期间业务已暂停，补一次pause压住内核的自动起播(未就绪时的pause拦不住它)，停在就绪暂停态
             isPausedWhilePreparing = false
             player.pause()
         }else if loadAutoplayIntent == false, shouldUseFirstFrameAsPoster, hasRenderedFirstFrame == false, isPosterProbing == false {
+            // 不自动播又要用首帧当海报，能直接取到现成首帧就用，取不到就发起静音探测等首帧渲染出来再暂停截取
             if let posterImage: UIImage = player.thumbnailImageAtCurrentTime() {
                 image = posterImage
             }else {
@@ -158,12 +164,13 @@ extension WYMediaPlayer {
         delegate?.wy_mediaPlayerSubtitleStreamDidChanged?(self, mediaMeta: player.monitor.mediaMeta)
     }
 
+    /// 字幕流变化通知，转发最新的媒体元数据
     @objc func ijkPlayerSubtitleStreamDidChange(notification: Notification) {
         guard let player = ijkPlayer else { return }
         delegate?.wy_mediaPlayerSubtitleStreamDidChanged?(self, mediaMeta: player.monitor.mediaMeta)
     }
 
-    /// 普通seek完成：取目标时间与错误码转发
+    /// 普通seek完成，取目标时间与错误码转发
     @objc func ijkPlayerDidSeekComplete(notification: Notification) {
         guard let player = ijkPlayer else { return }
         let target = (notification.userInfo?[IJKPlayerDidSeekCompleteTargetKey] as? NSNumber)?.doubleValue ?? player.currentPlaybackTime
@@ -171,7 +178,7 @@ extension WYMediaPlayer {
         delegate?.wy_mediaPlayerDidSeekComplete?(self, target: target, error: error)
     }
 
-    /// 精准seek完成：取完成后的当前位置转发
+    /// 精准seek完成，取完成后的当前位置转发
     @objc func ijkPlayerDidAccurateSeekComplete(notification: Notification) {
         guard ijkPlayer != nil else { return }
         let curPos = (notification.userInfo?[IJKPlayerDidAccurateSeekCompleteCurPos] as? NSNumber)?.doubleValue ?? currentPlaybackTime
@@ -202,19 +209,19 @@ extension WYMediaPlayer {
         delegate?.wy_mediaPlayerDidSeekFirstVideoFrameDisplayed?(self)
     }
 
-    /// 视频原始尺寸就绪：转发当前naturalSize
+    /// 视频原始尺寸就绪，转发当前naturalSize
     @objc func ijkPlayerNaturalSizeAvailable(notification: Notification) {
         guard let player = ijkPlayer else { return }
         delegate?.wy_mediaPlayerNaturalSizeDidChanged?(self, naturalSize: player.naturalSize)
     }
 
-    /// 解码器打开：转发monitor记录的解码器名
+    /// 解码器打开，转发monitor记录的解码器名
     @objc func ijkPlayerVideoDecoderOpen(notification: Notification) {
         guard let player = ijkPlayer else { return }
         delegate?.wy_mediaPlayerVideoDecoderOpen?(self, decoderName: player.monitor.vdecoder ?? "")
     }
 
-    /// 解码器致命错误：转发错误码并置state为error(收到后建议停止播放)
+    /// 解码器致命错误，转发错误码并置state为error(收到后建议停止播放)
     @objc func ijkPlayerVideoDecoderFatal(notification: Notification) {
         guard ijkPlayer != nil else { return }
         let errorCode = (notification.userInfo?["code"] as? NSNumber)?.intValue ?? 0
@@ -222,7 +229,7 @@ extension WYMediaPlayer {
         delegate?.wy_mediaPlayerVideoDecoderFatal?(self, errorCode: errorCode)
     }
 
-    /// 未找到可用解码器：置state为error并转发
+    /// 未找到可用解码器，置state为error并转发
     @objc func ijkPlayerNoCodecFound(notification: Notification) {
         guard ijkPlayer != nil else { return }
         callback(with: .error)
@@ -236,13 +243,13 @@ extension WYMediaPlayer {
         delegate?.wy_mediaPlayerRecvWarning?(self, reason: reason)
     }
 
-    /// ICY电台元数据变化：原样转发userInfo字典
+    /// ICY电台元数据变化，原样转发userInfo字典
     @objc func ijkPlayerICYMetaChanged(notification: Notification) {
         guard ijkPlayer != nil else { return }
         delegate?.wy_mediaPlayerICYMetaDidChanged?(self, meta: notification.userInfo ?? [:])
     }
 
-    /// 选流失败：取流下标与错误码转发
+    /// 选流失败，取流下标与错误码转发
     @objc func ijkPlayerSelectingStreamDidFailed(notification: Notification) {
         guard ijkPlayer != nil else { return }
         let streamID = (notification.userInfo?[IJKPlayerSelectingStreamIDUserInfoKey] as? NSNumber)?.int32Value ?? 0
@@ -250,7 +257,7 @@ extension WYMediaPlayer {
         delegate?.wy_mediaPlayerSelectingStreamDidFailed?(self, streamID: streamID, errorCode: errorCode)
     }
 
-    /// 缓冲进度变化：转发当前缓冲百分比
+    /// 缓冲进度变化，转发当前缓冲百分比
     @objc func ijkPlayerBufferingDidChange(notification: Notification) {
         guard let player = ijkPlayer else { return }
         delegate?.wy_mediaPlayerBufferingDidChanged?(self, bufferingProgress: Int(player.bufferingProgress))
@@ -262,13 +269,13 @@ extension WYMediaPlayer {
         delegate?.wy_mediaPlayerAirPlayActiveDidChanged?(self, active: player.airPlayMediaActive)
     }
 
-    /// URL打开事件的统一转发代理：IJKPlayerKit的四个*OpenDelegate属性是强引用，直接挂self会循环引用(self持有player、player又强持有delegate)，所以经这个weak中转对象间接持有
+    /// URL打开事件的统一转发代理，IJKPlayerKit的四个*OpenDelegate属性是强引用，直接挂self会循环引用(self持有player、player又强持有delegate)，所以经这个weak中转对象间接持有
     class WYMediaUrlOpenProxy: NSObject, IJKMediaUrlOpenDelegate {
 
         /// 弱引用业务播放器，避免player→proxy→player循环
         weak var target: WYMediaPlayer?
 
-        /// IJKPlayerKit要求实现：按event的原始值分发(0x20001=TCP/0x20003=HTTP/0x20005=直播/0x20007=HLS分片；这些值定义在IJKMediaPlayback.h的IJKMediaCtrl_*常量里、是内核对外约定好的不会变，枚举名导入Swift后有歧义所以直接比数字)
+        /// IJKPlayerKit要求实现，按event的原始值分发(0x20001=TCP/0x20003=HTTP/0x20005=直播/0x20007=HLS分片；这些值定义在IJKMediaPlayback.h的IJKMediaCtrl_*常量里、是内核对外约定好的不会变，枚举名导入Swift后有歧义所以直接比数字)
         func willOpenUrl(_ urlOpenData: IJKMediaUrlOpenData) {
             guard let target = target else { return }
             switch urlOpenData.event.rawValue {
@@ -286,7 +293,7 @@ extension WYMediaPlayer {
         }
     }
 
-    /// 按需挂载/摘除四个URL打开代理：四个闭包有一个非空才挂proxy(避免没必要的回调链路)，全空时置nil
+    /// 按需挂载/摘除四个URL打开代理，四个闭包有一个非空才挂proxy(避免没必要的回调链路)，全空时置nil
     func refreshUrlOpenDelegates() {
         let needsProxy = willOpenSegmentUrl != nil || willOpenTcpUrl != nil || willOpenHttpUrl != nil || willOpenLiveUrl != nil
         ijkPlayer?.segmentOpenDelegate = needsProxy ? urlOpenProxy : nil

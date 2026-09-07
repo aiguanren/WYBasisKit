@@ -26,12 +26,7 @@ import UIKit
     case right
 }
 
-/**
- ScrollView 滑动来源
- 
- - 注意：纯代码触发的滑动（setContentOffset / scrollRectToVisible 等）
-   无法在无额外标记的情况下可靠区分，统一归为 `.none`
- */
+/// ScrollView滑动来源(注意setContentOffset、scrollRectToVisible等纯代码触发的滑动无法可靠区分，统一归为.none)
 @objc @frozen public enum WYSlidingSource: Int {
     
     /// 未滑动 / 无法识别（含代码主动滑动）
@@ -46,43 +41,18 @@ import UIKit
 
 public extension UIScrollView {
     
-    /**
-     手指是否正在拖动
-     
-     - 手指按下并产生位移时为 `true`
-     - 手指释放后进入惯性阶段为 `false`
-     */
+    /// 手指是否正在拖动(按下并产生位移时为true，松手进入惯性阶段后为false)
     var wy_isFingerDragging: Bool {
         let state = panGestureRecognizer.state
         return (state == .began) || (state == .changed)
     }
     
-    /**
-     是否为用户触发的滑动
-     
-     包含：
-     1. 手指拖动
-     2. 手指释放后的惯性滑动
-     
-     不包含：
-     - setContentOffset
-     - scrollToTop
-     - 自动轮播等代码触发的滑动
-     */
+    /// 是否为用户触发的滑动(包含手指拖动和松手后的惯性滑动；不包含setContentOffset、scrollToTop、自动轮播等代码触发的滑动)
     var wy_isUserSliding: Bool {
         return wy_isFingerDragging || isDecelerating
     }
     
-    /**
-     当前滑动来源
-     
-     判断优先级：
-     1. 手指拖动 / 跟踪中 → `.user`
-     2. 惯性减速中 → `.deceleration`
-     3. 其他情况（含代码滑动、完全静止）→ `.none`
-     
-     若只需要简单判断是否用户滑动，直接使用 `wy_isUserSliding` 即可。
-     */
+    /// 当前滑动来源(优先级为手指拖动或跟踪中→user，惯性减速中→deceleration，其余含代码滑动和完全静止→none；只需简单判断是否用户滑动时直接用wy_isUserSliding)
     var wy_slidingSource: WYSlidingSource {
         // 手指按下或正在拖动
         if wy_isFingerDragging || isTracking {
@@ -98,12 +68,7 @@ public extension UIScrollView {
         return .none
     }
     
-    /**
-     是否处于回弹（bounce）状态
-     
-     仅在对应方向 contentSize 大于可视区域时才进行判断，
-     避免内容不足时的误判。
-     */
+    /// 是否处于回弹(bounce)状态(仅在对应方向contentSize大于可视区域时才判断，避免内容不足时误判)
     var wy_isReboundState: Bool {
         
         // 横向可滑动时才判断
@@ -138,7 +103,7 @@ public extension UIScrollView {
     /**
      *  当前手指滑动方向
      *
-     *  通过对比本次与上一次的 contentOffset 计算位移方向，方向以手指滑动为准（而非内容移动方向）：
+     *  通过对比本次与上一次的 contentOffset 计算位移方向，方向以手指滑动为准而非内容移动方向
      *  deltaX > 0（内容右移）→ 手指左滑 → .left；deltaX < 0（内容左移）→ 手指右滑 → .right；
      *  deltaY > 0（内容下移）→ 手指上滑 → .up；deltaY < 0（内容上移）→ 手指下滑 → .down
      *

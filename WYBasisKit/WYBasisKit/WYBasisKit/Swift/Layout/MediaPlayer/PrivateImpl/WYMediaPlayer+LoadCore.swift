@@ -12,7 +12,7 @@ import UIKit
 
 import IJKPlayerKit
 
-/// WYMediaPlayer 私有实现：加载相关(统一下发音量、统一加载入口、创建播放器实例)
+/// WYMediaPlayer 私有实现，加载相关(统一下发音量、统一加载入口、创建播放器实例)
 extension WYMediaPlayer {
     /// 把背景色换算成0~255的RGB分量设置给渲染视图(纯白/纯黑这类灰度色走白色分量换算；实例还没创建时设置不到，等下次创建实例时会再调一次补上；属性didSet和createPlayer两处都会调用)
     func applyRenderBackgroundColor() {
@@ -24,7 +24,7 @@ extension WYMediaPlayer {
         }
     }
 
-    /// 统一下发实际音量：muted或海报探测期间为0，否则为userVolume(新建实例/变更静音/探测起止都调这里，保证互不覆盖)
+    /// 统一下发实际音量，muted或海报探测期间为0，否则为userVolume(新建实例/变更静音/探测起止都调这里，保证互不覆盖)
     func applyVolume() {
         ijkPlayer?.playbackVolume = (muted || isPosterProbing) ? 0 : userVolume
     }
@@ -38,9 +38,9 @@ extension WYMediaPlayer {
      */
     func load(with url: String, placeholder: UIImage?, autoplay: Bool, keepCurrentImage: Bool = false) {
 
-        // 每次加载重置真播放标记：新实例/换源期间的paused全是内部噪声
+        // 每次加载重置真播放标记，新实例/换源期间的paused全是内部噪声
         hasReallyPlayed = false
-        // 新加载清除准备期暂停意图：本次加载自带起播意图(autoplay参数)，旧的暂停意图若不清除会在prepare完成时压住起播，导致本次加载不起播
+        // 新加载清除准备期暂停意图，本次加载自带起播意图(autoplay参数)，旧的暂停意图若不清除会在prepare完成时压住起播，导致本次加载不起播
         isPausedWhilePreparing = false
 
         guard let playUrl = URL(string: url) else {
@@ -58,13 +58,13 @@ extension WYMediaPlayer {
             failReplayNumber = 0
         }
 
-        // 加载代号+1：延迟1秒才执行的失败重试回来时先核对代号，发现变了说明期间发起了新加载，直接放弃
+        // 加载代号+1，延迟1秒才执行的失败重试回来时先核对代号，发现变了说明期间发起了新加载，直接放弃
         loadGeneration &+= 1
         loadAutoplayIntent = autoplay
 
         releaseAll()
 
-        // 一发起加载就通知业务进入缓冲状态：让业务从头就能挂上loading转圈，到ready/rendered再解除；因为缓冲类的状态通知要等prepare完成才会出现，不提前补这一声，加载全程都没有一个状态能让业务挂loading
+        // 一发起加载就通知业务进入缓冲状态，让业务从头就能挂上loading转圈，到ready/rendered再解除；因为缓冲类的状态通知要等prepare完成才会出现，不提前补这一声，加载全程都没有一个状态能让业务挂loading
         callback(with: .buffering)
 
         createPlayer(with: playUrl)
@@ -102,7 +102,7 @@ extension WYMediaPlayer {
             // 停止预加载的最小（未解码的）帧数
             options?.setPlayerOptionIntValue(25, forKey: "min-frames")
 
-            // 设置 mgeg-ts 视频 seek 时过滤非关键帧，能够解决花屏问题
+            // 设置 mpeg-ts 视频 seek 时过滤非关键帧，能够解决花屏问题
             options?.setFormatOptionIntValue(1, forKey: "seek_flag_keyframe")
 
             // 设置探测数据上限，默认是 5000000，但是一些超高码率的视频会探测失败，或者探测信息不全
@@ -111,7 +111,7 @@ extension WYMediaPlayer {
             // 开启 cvpixelbufferpool提升性能
             options?.setPlayerOptionIntValue(0, forKey: "enable-cvpixelbufferpool")
 
-            // VideoToolbox硬解码开关(1.1.0起由此键控制，旧键videotoolbox已从内核移除)，开启后优先硬解、不支持的编码自动回退软解
+            // VideoToolbox硬解码开关，开启后优先硬解、不支持的编码自动回退软解
             options?.setPlayerOptionIntValue(1, forKey: "videotoolbox_hwaccel")
 
             // 开启精准 seek，避免进度回退
@@ -139,7 +139,7 @@ extension WYMediaPlayer {
         // 以下选项每次创建实例都按当前值重新写入(options会被复用，写在options==nil块内的项后续修改不生效)
         options?.setPlayerOptionIntValue(looping, forKey: "loop")
         options?.setPlayerOptionIntValue(loadAutoplayIntent ? 1 : 0, forKey: "start-on-prepared")
-        // 缓冲上限按加载意图区分：预加载4MB省流量省内存，起播15MB对齐ijk默认
+        // 缓冲上限按加载意图区分，预加载4MB省流量省内存，起播15MB对齐ijk默认
         options?.setPlayerOptionIntValue(loadAutoplayIntent ? 15 * 1024 * 1024 : 4 * 1024 * 1024, forKey: "max-buffer-size")
 
         options?.currentPlaybackTimeNotificationInterval = progressCallbackInterval

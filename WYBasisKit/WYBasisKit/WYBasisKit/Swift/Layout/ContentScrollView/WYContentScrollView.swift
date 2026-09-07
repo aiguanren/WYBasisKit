@@ -22,11 +22,11 @@ import UIKit
 @objc public enum WYContentSwitchStyle: Int {
     /// 无动画直接切换(默认，与轻扫跨轴的瞬间直切手感一致)
     case instant = 0
-    /// 翻页滑动：当前页滑出、目标页滑入(时长可用crossAxisSwitchDuration配置)
+    /// 翻页滑动，当前页滑出、目标页滑入(时长可用crossAxisSwitchDuration配置)
     case slide
-    /// 渐变切入：目标页淡入覆盖当前页(时长可用crossAxisSwitchDuration配置)
+    /// 渐变切入，目标页淡入覆盖当前页(时长可用crossAxisSwitchDuration配置)
     case fade
-    /// 缩放切入：目标页从crossAxisSwitchZoomScale缩放归位并淡入、当前页同步放大淡出(时长可用crossAxisSwitchDuration配置)
+    /// 缩放切入，目标页从crossAxisSwitchZoomScale缩放归位并淡入、当前页同步放大淡出(时长可用crossAxisSwitchDuration配置)
     case zoom
 }
 
@@ -93,7 +93,7 @@ public class WYContentScrollView: UIScrollView {
     public var numberOfHorizontalContent: Int = Int.max {
         didSet {
             
-            // 防数量收缩后残留旧下标：下标超出数量后，方向setter会按旧下标±1算出错误的预备下标、误发willSwitch
+            // 防数量收缩后残留旧下标，下标超出数量后，方向setter会按旧下标±1算出错误的预备下标、误发willSwitch
             if currentHorizontalIndex > numberOfHorizontalContent - 1 {
                 currentHorizontalIndex = max(0, numberOfHorizontalContent - 1)
             }
@@ -125,7 +125,7 @@ public class WYContentScrollView: UIScrollView {
     /// 垂直方向内容页视图数量（Int.max表示无限数量）
     public var numberOfVerticalContent: Int = Int.max {
         didSet {
-            // 防数量收缩后残留旧下标：下标超出数量后，方向setter会按旧下标±1算出错误的预备下标、误发willSwitch
+            // 防数量收缩后残留旧下标，下标超出数量后，方向setter会按旧下标±1算出错误的预备下标、误发willSwitch
             if currentVerticalIndex > numberOfVerticalContent - 1 {
                 currentVerticalIndex = max(0, numberOfVerticalContent - 1)
             }
@@ -163,7 +163,16 @@ public class WYContentScrollView: UIScrollView {
             checkCarouselStatus()
         }
     }
-    
+
+    /// 当contentSlidingDirection == .omnidirectional时，优先支持哪个滑动方向，默认左右滑动(不支持设置为.omnidirectional)
+    public var prioritySlidingDirection: WYContentSlidingDirection = .leftOrRight {
+        didSet {
+            bringContentToFront()
+            // 优先方向变化可能翻转全向模式的置顶轴(展示轴换了人)，轮播轴与滚动能力随之变化，必须重评
+            checkCarouselStatus()
+        }
+    }
+
     /// 当前正在水平方向显示的Views(用户传入的View)
     public internal(set) var horizontalViews: [UIView]?
     
@@ -182,10 +191,10 @@ public class WYContentScrollView: UIScrollView {
     /// 垂直方向储备内容页索引
     public internal(set) var reserveVerticalIndex: Int = 0
     
-    /// 自动轮播时每一页停留时间，默认为3s，最少1s(当设置的值小于1s时，则为默认值，同时修改值后会立即生效)；
+    /// 自动轮播时每一页停留时间，默认为3s，最少1s(当设置的值小于1s时，则为默认值，同时修改值后会立即生效)
     public var standingTime: TimeInterval = 3 {
         didSet {
-            // 间隔只在startTimer创建计时器时读取，运行中修改必须重建才立即生效；
+            // 间隔只在startTimer创建计时器时读取，运行中修改必须重建才立即生效
             if timer != nil {
                 pauseTimer()
                 startTimer()
@@ -193,12 +202,12 @@ public class WYContentScrollView: UIScrollView {
         }
     }
     
-    /// 轻扫跨轴直切的速度阈值(单位：pt/s，默认500，范围限制50 - 3000，仅影响全向模式的轻扫跨轴判定，同轴翻页不经过此阈值，值越低越灵敏，越高越保守)
+    /// 轻扫跨轴直切的速度阈值(单位为pt/s，默认500，范围限制50 - 3000，仅影响全向模式的轻扫跨轴判定，同轴翻页不经过此阈值，值越低越灵敏，越高越保守)
     public var crossAxisFlickVelocityThreshold: CGFloat = 500 {
         didSet {
             let clampedValue = min(max(crossAxisFlickVelocityThreshold, 50), 3000)
             if clampedValue != crossAxisFlickVelocityThreshold {
-                // 在自身didSet内赋值不会递归，Swift语言规定，didSet内给本属性赋值时新值直接替换刚设置的值、观察器不会再次触发,导致卡死闪退，这是Swift官方文档定义的行为
+                // 自身didSet内赋值不会触发递归闪退(Swift官方文档定义的行为，didSet内给本属性赋值时新值直接替换刚设置的值、观察器不会再次触发)
                 crossAxisFlickVelocityThreshold = clampedValue
             }
         }
@@ -207,7 +216,7 @@ public class WYContentScrollView: UIScrollView {
     /// 跨轴切换(换方向)的呈现样式，默认.instant，作用于跨轴API切换与轻扫直切，同轴切换不受影响
     public var crossAxisSwitchStyle: WYContentSwitchStyle = .instant
     
-    /// 跨轴切换动画时长(单位：秒)，默认0.25s，钳制范围[0.1, 2.0]，仅.slide/.fade/.zoom生效
+    /// 跨轴切换动画时长(单位为秒)，默认0.25s，钳制范围[0.1, 2.0]，仅.slide/.fade/.zoom生效
     public var crossAxisSwitchDuration: TimeInterval = 0.25 {
         didSet {
             let clampedValue = min(max(crossAxisSwitchDuration, 0.1), 2.0)
@@ -239,7 +248,7 @@ public class WYContentScrollView: UIScrollView {
         didSet { checkCarouselStatus() }
     }
 
-    /// 水平方向同轴翻页的最小时间间隔(单位：秒，默认0不限制，负数按0处理)，手势翻页提交后间隔内的新同轴拖动无效，跨轴切换与API切换不受影响
+    /// 水平方向同轴翻页的最小时间间隔(单位为秒，默认0不限制，负数按0处理)，手势翻页提交后间隔内的新同轴拖动无效，跨轴切换与API切换不受影响
     public var horizontalMinimumSwitchInterval: TimeInterval = 0 {
         didSet {
             if horizontalMinimumSwitchInterval < 0 {
@@ -249,7 +258,7 @@ public class WYContentScrollView: UIScrollView {
         }
     }
 
-    /// 垂直方向同轴翻页的最小时间间隔(单位：秒，默认0不限制，负数按0处理)，手势翻页提交后间隔内的新同轴拖动无效，跨轴切换与API切换不受影响
+    /// 垂直方向同轴翻页的最小时间间隔(单位为秒，默认0不限制，负数按0处理)，手势翻页提交后间隔内的新同轴拖动无效，跨轴切换与API切换不受影响
     public var verticalMinimumSwitchInterval: TimeInterval = 0 {
         didSet {
             if verticalMinimumSwitchInterval < 0 {
@@ -274,7 +283,11 @@ public class WYContentScrollView: UIScrollView {
         didSet { checkCarouselStatus() }
     }
     
-    /// 设置需要显示的自定义View(contentSlidingDirection != omnidirectional 时调用)，currentView 为正在显示的View、reserveView 为预备显示的View，两者Size都将等于当前WYContentScrollView的Size
+    /**
+     *  设置需要显示的自定义View(contentSlidingDirection != omnidirectional 时调用)，两个View的Size都将等于当前WYContentScrollView的Size
+     *  @param currentView  正在显示的View
+     *  @param reserveView  预备显示的View
+     */
     public func horizontalOrVerticalDisplay(currentView: UIView,
                                             reserveView: UIView) {
         
@@ -282,7 +295,7 @@ public class WYContentScrollView: UIScrollView {
             return
         }
         
-        // 重挂同一组View时保留组件内部当前/预备顺序：调用方自行保管的数组不随翻页交换(顺序滞后)，按其顺序重挂会把持有旧内容的View置顶
+        // 重挂同一组View时保留组件内部当前/预备顺序，调用方自行保管的数组不随翻页交换(顺序滞后)，按其顺序重挂会把持有旧内容的View置顶
         let displayViews: [UIView] = resolveDisplayOrder([currentView, reserveView], existingViews: (contentSlidingDirection == .leftOrRight) ? horizontalViews : verticalViews)
         
         contentViewInitializationCheck([currentView, reserveView])
@@ -298,7 +311,13 @@ public class WYContentScrollView: UIScrollView {
         internalSettingsContentView(isReload: true)
     }
     
-    /// 设置需要显示的自定义View(contentSlidingDirection == omnidirectional 时调用)，水平/垂直方向各需 current(正在显示)与 reserve(预备显示)两个View，Size都将等于当前WYContentScrollView的Size
+    /**
+     *  设置需要显示的自定义View(contentSlidingDirection == omnidirectional 时调用)，四个View的Size都将等于当前WYContentScrollView的Size
+     *  @param currentHorizontalView   水平方向正在显示的View
+     *  @param reserveHorizontalView   水平方向预备显示的View
+     *  @param currentVerticalView     垂直方向正在显示的View
+     *  @param reserveVerticalView     垂直方向预备显示的View
+     */
     public func omnidirectionalDisplay(currentHorizontalView: UIView,
                                        reserveHorizontalView: UIView,
                                        currentVerticalView: UIView,
@@ -306,7 +325,7 @@ public class WYContentScrollView: UIScrollView {
         
         if contentSlidingDirection == .omnidirectional {
             
-            // 重挂同一组View时保留组件内部当前/预备顺序(两轴各自判定)：按调用方滞后的顺序重挂会把旧内容View置顶
+            // 重挂同一组View时保留组件内部当前/预备顺序(两轴各自判定)，按调用方滞后的顺序重挂会把旧内容View置顶
             let displayHorizontalViews: [UIView] = resolveDisplayOrder([currentHorizontalView, reserveHorizontalView], existingViews: horizontalViews)
             let displayVerticalViews: [UIView] = resolveDisplayOrder([currentVerticalView, reserveVerticalView], existingViews: verticalViews)
             
@@ -318,23 +337,13 @@ public class WYContentScrollView: UIScrollView {
             internalSettingsContentView(isReload: true)
         }
     }
-    
-    /// 当contentSlidingDirection == .omnidirectional时，优先支持哪个滑动方向，默认左右滑动(不支持设置为.omnidirectional)
-    public var prioritySlidingDirection: WYContentSlidingDirection = .leftOrRight {
-        didSet {
-            bringContentToFront()
-            // 优先方向变化可能翻转全向模式的置顶轴(展示轴换了人)：轮播轴与滚动能力随之变化，必须重评
-            checkCarouselStatus()
-        }
-    }
-    
-    
+
     /// 开启定时器(默认开启，调用该方法会重新开启)
     public func startTimer() {
         
-        // 先记下"业务想开轮播"这个意图再去做条件检查：由于条件(自动轮播开关/数量/无限翻页)可能此刻还不满足导致直接返回，如果意图不先记下，之后条件满足时组件也不知道要开计时器(表现为先开计时器再开自动轮播的顺序下计时器永远起不来)，先记下后任一条件变化时都会自动把计时器开起来
+        // 先记下"业务想开轮播"这个意图再去做条件检查，由于条件(自动轮播开关/数量/无限翻页)可能此刻还不满足导致直接返回，如果意图不先记下，之后条件满足时组件也不知道要开计时器(表现为先开计时器再开自动轮播的顺序下计时器永远起不来)，先记下后任一条件变化时都会自动把计时器开起来
         canRestartedTimer = true
-        // 业务主动开计时器：清掉"业务停止过"的记录，之后重新挂载View时自动开计时器的逻辑恢复生效
+        // 业务主动开计时器，清掉"业务停止过"的记录，之后重新挂载View时自动开计时器的逻辑恢复生效
         timerStoppedByBusiness = false
         
         // 如果已经开启了，就先关闭计时器
@@ -358,7 +367,7 @@ public class WYContentScrollView: UIScrollView {
         
         timer = Timer.scheduledTimer(withTimeInterval: (standingTime < 1) ? 3 : standingTime, repeats: true, block:{ [weak self] (timer: Timer) -> Void in
             guard let self = self else { return }
-            // 每次触发时重新推导轮播方向：跨轴直切后跟随新的展示轴；推导失败(重挂载等过渡态)跳过本次触发
+            // 每次触发时重新推导轮播方向，跨轴直切后跟随新的展示轴；推导失败(重挂载等过渡态)跳过本次触发
             guard let direction = self.carouselDirection else { return }
             self.nextContent(direction)
         })
@@ -369,16 +378,16 @@ public class WYContentScrollView: UIScrollView {
     public func stopTimer() {
         pauseTimer()
         canRestartedTimer = false
-        // 记下"业务主动停过计时器"：首次展示时的自动开轮播(见internalSettingsContentView)看到这个标记就不开，否则业务明明停了计时器，一切换方向重新挂载View轮播又自己复活了
+        // 记下"业务主动停过计时器"，首次展示时的自动开轮播(见internalSettingsContentView)看到这个标记就不开，否则业务明明停了计时器，一切换方向重新挂载View轮播又自己复活了
         timerStoppedByBusiness = true
     }
     
     /// 切换指定方向下一个内容页面(不支持直接传入direction为omnidirectional)
     public func nextContent(_ direction: WYContentSlidingDirection) {
-        // 快速连点时先把上一段还在播的代码切页动画瞬间落到终点(否则新动画会打断旧的：结束回调丢了、偏移停在半路没人提交，页面卡在两页之间)
+        // 快速连点时先把上一段还在播的代码切页动画瞬间落到终点(否则新动画会打断旧的，结束回调丢了、偏移停在半路没人提交，页面卡在两页之间)
         completeOngoingProgrammaticSwitch()
         
-        // 切到另一轴(跨轴)时只要求目标轴有内容即可，不看它的滑动开关和"数量>1"；在同轴翻页时只检查数量、不检查滑动开关：因为滑动开关只管用户手指，而API调用和轮播是业务主动要求的，理应放行(否则关掉开关后连API都切不动，"关掉手势但仍用代码切页"的场景就没法做了)
+        // 切到另一轴(跨轴)时只要求目标轴有内容即可，不看它的滑动开关和"数量>1"；在同轴翻页时只检查数量、不检查滑动开关，因为滑动开关只管用户手指，而API调用和轮播是业务主动要求的，理应放行(否则关掉开关后连API都切不动，"关掉手势但仍用代码切页"的场景就没法做了)
         let targetIsHorizontal = (direction == .leftOrRight)
         let isCrossTarget = (contentSlidingDirection == .omnidirectional) && (axisIsHorizontal(of: .unknown) != targetIsHorizontal)
         switch direction {
@@ -397,7 +406,7 @@ public class WYContentScrollView: UIScrollView {
         isDirectionLocked = false
         dragLockedDirection = .unknown
         internalSliderDirection = .unknown
-        // 标记正处于代码切页的动画中：动画期间两轴都放行，防止还没判出方向时位移全被钳回中心、头几帧被吃掉，最后停的位置不够一整页
+        // 标记正处于代码切页的动画中，动画期间两轴都放行，防止还没判出方向时位移全被钳回中心、头几帧被吃掉，最后停的位置不够一整页
         isProgrammaticAnimatedScroll = true
         
         switch direction {
@@ -410,7 +419,7 @@ public class WYContentScrollView: UIScrollView {
                 guard horizontalUnlimitedCarousel else { return }
             }
             
-            // 代码切到另一轴：目标轴不是当前展示轴时按crossAxisSwitchStyle呈现(默认瞬时直切，可选滑动/渐变/缩放)，下标按翻页规则+1推进
+            // 代码切到另一轴，目标轴不是当前展示轴时按crossAxisSwitchStyle呈现(默认瞬时直切，可选滑动/渐变/缩放)，下标按翻页规则+1推进
             if (contentSlidingDirection == .omnidirectional) && (axisIsHorizontal(of: .unknown) == false) {
                 performCrossAxisSwitch(direction: .left, preservesIndex: false)
                 return
@@ -429,7 +438,7 @@ public class WYContentScrollView: UIScrollView {
                 guard verticalUnlimitedCarousel else { return }
             }
             
-            // 代码切到另一轴：目标轴不是当前展示轴时按crossAxisSwitchStyle呈现(默认瞬时直切，可选滑动/渐变/缩放)，下标按翻页规则+1推进
+            // 代码切到另一轴，目标轴不是当前展示轴时按crossAxisSwitchStyle呈现(默认瞬时直切，可选滑动/渐变/缩放)，下标按翻页规则+1推进
             if (contentSlidingDirection == .omnidirectional) && axisIsHorizontal(of: .unknown) {
                 performCrossAxisSwitch(direction: .up, preservesIndex: false)
                 return
@@ -445,10 +454,10 @@ public class WYContentScrollView: UIScrollView {
     
     /// 切换指定方向上一个内容页面(不支持直接传入direction为omnidirectional)
     public func lastContent(_ direction: WYContentSlidingDirection) {
-        // 快速连点时先把上一段还在播的代码切页动画瞬间落到终点(否则新动画会打断旧的：结束回调丢了、偏移停在半路没人提交，页面卡在两页之间)
+        // 快速连点时先把上一段还在播的代码切页动画瞬间落到终点(否则新动画会打断旧的，结束回调丢了、偏移停在半路没人提交，页面卡在两页之间)
         completeOngoingProgrammaticSwitch()
         
-        // 同轴只查数量、跨轴只查是否存在：滑动开关只拦手指，API调用和轮播是业务主动要求的，不受它约束
+        // 同轴只查数量、跨轴只查是否存在，滑动开关只拦手指，API调用和轮播是业务主动要求的，不受它约束
         let targetIsHorizontal = (direction == .leftOrRight)
         let isCrossTarget = (contentSlidingDirection == .omnidirectional) && (axisIsHorizontal(of: .unknown) != targetIsHorizontal)
         switch direction {
@@ -467,7 +476,7 @@ public class WYContentScrollView: UIScrollView {
         isDirectionLocked = false
         dragLockedDirection = .unknown
         internalSliderDirection = .unknown
-        // 标记正处于代码切页的动画中：动画期间两轴都放行，防止还没判出方向时位移全被钳回中心、头几帧被吃掉，最后停的位置不够一整页
+        // 标记正处于代码切页的动画中，动画期间两轴都放行，防止还没判出方向时位移全被钳回中心、头几帧被吃掉，最后停的位置不够一整页
         isProgrammaticAnimatedScroll = true
         
         switch direction {
@@ -481,7 +490,7 @@ public class WYContentScrollView: UIScrollView {
                 guard horizontalUnlimitedCarousel else { return }
             }
             
-            // 代码切到另一轴：目标轴不是当前展示轴时按crossAxisSwitchStyle呈现(默认瞬时直切，可选滑动/渐变/缩放)，下标按翻页规则-1回退
+            // 代码切到另一轴，目标轴不是当前展示轴时按crossAxisSwitchStyle呈现(默认瞬时直切，可选滑动/渐变/缩放)，下标按翻页规则-1回退
             if (contentSlidingDirection == .omnidirectional) && (axisIsHorizontal(of: .unknown) == false) {
                 performCrossAxisSwitch(direction: .right, preservesIndex: false)
                 return
@@ -500,7 +509,7 @@ public class WYContentScrollView: UIScrollView {
                 guard verticalUnlimitedCarousel else { return }
             }
             
-            // 代码切到另一轴：目标轴不是当前展示轴时按crossAxisSwitchStyle呈现(默认瞬时直切，可选滑动/渐变/缩放)，下标按翻页规则-1回退
+            // 代码切到另一轴，目标轴不是当前展示轴时按crossAxisSwitchStyle呈现(默认瞬时直切，可选滑动/渐变/缩放)，下标按翻页规则-1回退
             if (contentSlidingDirection == .omnidirectional) && axisIsHorizontal(of: .unknown) {
                 performCrossAxisSwitch(direction: .down, preservesIndex: false)
                 return
@@ -514,9 +523,13 @@ public class WYContentScrollView: UIScrollView {
         }
     }
     
-    /// 切换到指定方向指定下标处(不支持direction为omnidirectional)
+    /**
+     *  切换到指定方向指定下标处(下标超出数量范围时自动钳制到最近的有效页)
+     *  @param direction  要切换的方向(不支持传omnidirectional)
+     *  @param index      目标下标(inout参数，越界钳制后的实际落地值会写回给调用方)
+     */
     public func switchContent(_ direction: WYContentSlidingDirection, index: inout Int) {
-        // 快速连点时先把上一次还没播完的切换动画直接落到终点：如果不先落地，上一段动画的提交会改变当前下标，这里基于旧下标做的预设就错了
+        // 快速连点时先把上一次还没播完的切换动画直接落到终点，如果不先落地，上一段动画的提交会改变当前下标，这里基于旧下标做的预设就错了
         completeOngoingProgrammaticSwitch()
         
         switch direction {
@@ -529,7 +542,7 @@ public class WYContentScrollView: UIScrollView {
                 return
             }
             
-            // 先把当前下标预设成目标旁边一格再借翻页到达目标(向后跳先设成目标+1再切上一页，向前跳先设成目标-1再切下一页)：这样预设值永远不会正好落在目标上，也就不会触发"目标页就是当前页不用切"的判断，同时避开无限轮播的边界拦截
+            // 先把当前下标预设成目标旁边一格再借翻页到达目标(向后跳先设成目标+1再切上一页，向前跳先设成目标-1再切下一页)，这样预设值永远不会正好落在目标上，也就不会触发"目标页就是当前页不用切"的判断，同时避开无限轮播的边界拦截
             if index < currentHorizontalIndex {
                 currentHorizontalIndex = (index + 1)
                 lastContent(direction)
@@ -537,7 +550,7 @@ public class WYContentScrollView: UIScrollView {
                 currentHorizontalIndex = (index - 1)
                 nextContent(direction)
             }else if (contentSlidingDirection == .omnidirectional) && (axisIsHorizontal(of: .unknown) == false) {
-                // 同下标但展示轴在另一侧：目标页就是水平轴当前下标，只需翻转展示轴(下标不变、只发didSwitch、样式随crossAxisSwitchStyle)；同轴相等时保持原有no-op
+                // 同下标但展示轴在另一侧，目标页就是当前下标，只需翻转展示轴(下标不变、只发didSwitch、样式随crossAxisSwitchStyle)；同轴相等时保持原有no-op
                 performCrossAxisSwitch(direction: .left, preservesIndex: true)
             }else {
             }
@@ -560,7 +573,7 @@ public class WYContentScrollView: UIScrollView {
                 currentVerticalIndex = (index - 1)
                 nextContent(direction)
             }else if (contentSlidingDirection == .omnidirectional) && axisIsHorizontal(of: .unknown) {
-                // 同下标但展示轴在另一侧：目标页就是垂直轴当前下标，只需翻转展示轴(下标不变、只发didSwitch、样式随crossAxisSwitchStyle)；同轴相等时保持原有no-op
+                // 同下标但展示轴在另一侧，目标页就是当前下标，只需翻转展示轴(下标不变、只发didSwitch、样式随crossAxisSwitchStyle)；同轴相等时保持原有no-op
                 performCrossAxisSwitch(direction: .up, preservesIndex: true)
             }else {
             }
