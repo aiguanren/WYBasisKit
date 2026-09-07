@@ -86,10 +86,10 @@ PODS:
     - WYBasisKit-ObjC/Storage (= 26.7.0)
   - WYBasisKit-ObjC/Activity (26.7.0):
     - WYBasisKit-ObjC/Imports (= 26.7.0)
-    - WYBasisKit-swift/Activity (= 26.7.0)
+    - WYBasisKit-swift (= 26.7.0)
   - WYBasisKit-ObjC/AudioKit (26.7.0):
     - WYBasisKit-ObjC/Imports (= 26.7.0)
-    - WYBasisKit-swift/AudioKit (= 26.7.0)
+    - WYBasisKit-swift (= 26.7.0)
   - WYBasisKit-ObjC/Authorization (26.7.0):
     - WYBasisKit-ObjC/Authorization/Biometric (= 26.7.0)
     - WYBasisKit-ObjC/Authorization/Camera (= 26.7.0)
@@ -100,38 +100,38 @@ PODS:
     - WYBasisKit-ObjC/Authorization/SpeechRecognition (= 26.7.0)
   - WYBasisKit-ObjC/Authorization/Biometric (26.7.0):
     - WYBasisKit-ObjC/Imports (= 26.7.0)
-    - WYBasisKit-swift/Authorization/Biometric (= 26.7.0)
+    - WYBasisKit-swift (= 26.7.0)
   - WYBasisKit-ObjC/Authorization/Camera (26.7.0):
     - WYBasisKit-ObjC/Imports (= 26.7.0)
-    - WYBasisKit-swift/Authorization/Camera (= 26.7.0)
+    - WYBasisKit-swift (= 26.7.0)
   - WYBasisKit-ObjC/Authorization/Contacts (26.7.0):
     - WYBasisKit-ObjC/Imports (= 26.7.0)
-    - WYBasisKit-swift/Authorization/Contacts (= 26.7.0)
+    - WYBasisKit-swift (= 26.7.0)
   - WYBasisKit-ObjC/Authorization/Location (26.7.0):
     - WYBasisKit-ObjC/Imports (= 26.7.0)
-    - WYBasisKit-swift/Authorization/Location (= 26.7.0)
+    - WYBasisKit-swift (= 26.7.0)
   - WYBasisKit-ObjC/Authorization/Microphone (26.7.0):
     - WYBasisKit-ObjC/Imports (= 26.7.0)
-    - WYBasisKit-swift/Authorization/Microphone (= 26.7.0)
+    - WYBasisKit-swift (= 26.7.0)
   - WYBasisKit-ObjC/Authorization/PhotoAlbums (26.7.0):
     - WYBasisKit-ObjC/Imports (= 26.7.0)
-    - WYBasisKit-swift/Authorization/PhotoAlbums (= 26.7.0)
+    - WYBasisKit-swift (= 26.7.0)
   - WYBasisKit-ObjC/Authorization/SpeechRecognition (26.7.0):
     - WYBasisKit-ObjC/Imports (= 26.7.0)
-    - WYBasisKit-swift/Authorization/SpeechRecognition (= 26.7.0)
+    - WYBasisKit-swift (= 26.7.0)
   - WYBasisKit-ObjC/Codable (26.7.0):
     - WYBasisKit-ObjC/Imports (= 26.7.0)
-    - WYBasisKit-swift/Codable (= 26.7.0)
+    - WYBasisKit-swift (= 26.7.0)
   - WYBasisKit-ObjC/Config (26.7.0):
     - WYBasisKit-ObjC/Imports (= 26.7.0)
-    - WYBasisKit-swift/Config (= 26.7.0)
+    - WYBasisKit-swift (= 26.7.0)
   - WYBasisKit-ObjC/EventHandler (26.7.0):
     - WYBasisKit-ObjC/Imports (= 26.7.0)
-    - WYBasisKit-swift/EventHandler (= 26.7.0)
+    - WYBasisKit-swift (= 26.7.0)
   - WYBasisKit-ObjC/Extension (26.7.0):
     - WYBasisKit-ObjC/Config (= 26.7.0)
     - WYBasisKit-ObjC/Imports (= 26.7.0)
-    - WYBasisKit-swift/Extension (= 26.7.0)
+    - WYBasisKit-swift (= 26.7.0)
   - WYBasisKit-ObjC/Imports (26.7.0):
     - WYBasisKit-ObjC/MacroDefinition (= 26.7.0)
   - WYBasisKit-ObjC/Layout (26.7.0):
@@ -141,34 +141,34 @@ PODS:
     - WYBasisKit-ObjC/Layout/PagingView (= 26.7.0)
     - WYBasisKit-ObjC/Layout/SoundWavesView (= 26.7.0)
   - WYBasisKit-ObjC/Layout/AirBubbleView (26.7.0):
-    - WYBasisKit-swift/Layout/AirBubbleView (= 26.7.0)
+    - WYBasisKit-swift (= 26.7.0)
   - WYBasisKit-ObjC/Layout/ContentScrollView (26.7.0):
     - WYBasisKit-ObjC/Imports (= 26.7.0)
-    - WYBasisKit-swift/Layout/ContentScrollView (= 26.7.0)
+    - WYBasisKit-swift (= 26.7.0)
   - WYBasisKit-ObjC/Layout/MediaPlayer (26.7.0):
     - WYBasisKit-ObjC/Imports (= 26.7.0)
-    - WYBasisKit-swift/Layout/MediaPlayer (= 26.7.0)
+    - WYBasisKit-swift (= 26.7.0)
   - WYBasisKit-ObjC/Layout/PagingView (26.7.0):
     - WYBasisKit-ObjC/Imports (= 26.7.0)
-    - WYBasisKit-swift/Layout/PagingView (= 26.7.0)
+    - WYBasisKit-swift (= 26.7.0)
   - WYBasisKit-ObjC/Layout/SoundWavesView (26.7.0):
-    - WYBasisKit-swift/Layout/SoundWavesView (= 26.7.0)
+    - WYBasisKit-swift (= 26.7.0)
   - WYBasisKit-ObjC/Localizable (26.7.0):
     - WYBasisKit-ObjC/Config (= 26.7.0)
     - WYBasisKit-ObjC/Imports (= 26.7.0)
-    - WYBasisKit-swift/Localizable (= 26.7.0)
+    - WYBasisKit-swift (= 26.7.0)
   - WYBasisKit-ObjC/LogManager (26.7.0):
     - WYBasisKit-ObjC/Imports (= 26.7.0)
-    - WYBasisKit-swift/LogManager (= 26.7.0)
+    - WYBasisKit-swift (= 26.7.0)
   - WYBasisKit-ObjC/MacroDefinition (26.7.0)
   - WYBasisKit-ObjC/Networking (26.7.0):
     - WYBasisKit-ObjC/Codable (= 26.7.0)
     - WYBasisKit-ObjC/Imports (= 26.7.0)
     - WYBasisKit-ObjC/Storage (= 26.7.0)
-    - WYBasisKit-swift/Networking (= 26.7.0)
+    - WYBasisKit-swift (= 26.7.0)
   - WYBasisKit-ObjC/Storage (26.7.0):
     - WYBasisKit-ObjC/Imports (= 26.7.0)
-    - WYBasisKit-swift/Storage (= 26.7.0)
+    - WYBasisKit-swift (= 26.7.0)
   - WYBasisKit-swift (26.7.0):
     - WYBasisKit-swift/Activity (= 26.7.0)
     - WYBasisKit-swift/AudioKit (= 26.7.0)
@@ -336,7 +336,7 @@ SPEC CHECKSUMS:
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
   SDWebImageWebPCoder: 0e06e365080397465cc73a7a9b472d8a3bd0f377
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
-  WYBasisKit-ObjC: 5d3490f0c00587ae36f5e9a25828edc081146828
+  WYBasisKit-ObjC: 37922871d754e0e947a0bab4fc504bba9ddd99c9
   WYBasisKit-swift: 27223e958a67df5a9d99bdbe992847d3fbb68081
   WYBasisKit-SwiftUI: 6ee148e94228e05b40b53db09fcc991ab24bbd6c
 

@@ -1,9 +1,11 @@
 # XcodeSettings.rb
-# 每次 pod install/update 结束时由 Podfile 的 post_install 钩子调用，负责给 Pods 工程和用户工程统一设置构建参数，目前做四件事：
+# 每次 pod install/update 结束时由 Podfile 的 post_install 钩子调用，负责给 Pods 工程和用户工程统一设置构建参数，目前做六件事：
 # ① 设置最低部署版本(Podfile 里 platform :ios 的值)
 # ② 自动探测 arm64 模拟器支持：扫描 Pods 里所有二进制库(xcframework/framework/.a，源码库会按架构现编不用查)用 lipo 查模拟器切片，全部支持就移除(或不写)EXCLUDED_ARCHS 排除、M系列芯片模拟器原生跑 arm64；有不支持的库就自动写入排除(模拟器走 x86_64/Rosetta)并在控制台打印是哪些库不支持
 # ③ 纯 OC 工程(一个 .swift 源文件都没有)链接 Swift 静态 pod 时自动补 Swift 兼容库链接参数(按SDK分平台：模拟器/真机各自链各自目录的库，互不串台；清单和路径运行时从当前Xcode工具链动态推导，工具链以后增删兼容库、换目录都能自动跟上)，防止链接报 __swift_FORCE_LOAD_$_swiftCompatibility* 未定义
 # ④ 顺带把 Pods 生成的 xcconfig 里过时的 DT_TOOLCHAIN_DIR 替换成 TOOLCHAIN_DIR 消警告
+# ⑤ 删除用户工程里手动设置的 ENABLE_USER_SCRIPT_SANDBOXING(手动值会覆盖Pods xcconfig统一写入的NO并触发"target overrides ... can lead to problems"警告，删掉后由Pods xcconfig统一管)
+# ⑥ 修复 [CP] Copy Pods Resources / [CP] Embed Pods Frameworks 脚本阶段缺输出声明导致的"will be run during every build"警告(CocoaPods生成了filelist的阶段补上引用、空跑的历史残留阶段直接删除)
 
 require 'pathname'
 
@@ -80,6 +82,12 @@ def apply_user_project_settings(installer)
         end
 
         project.build_configurations.each do |config|
+            # 删除工程级手动设置的ENABLE_USER_SCRIPT_SANDBOXING(App工程手动设YES会覆盖Pods xcconfig统一写入的NO，每次pod install都会警告"target overrides ... can lead to problems"，pod的脚本阶段需要非沙盒环境写文件；删掉后由Pods xcconfig统一管NO，这也是CocoaPods警告里自己建议的做法)
+            if config.build_settings.key?("ENABLE_USER_SCRIPT_SANDBOXING")
+                config.build_settings.delete("ENABLE_USER_SCRIPT_SANDBOXING")
+                modified = true
+            end
+
             # 所有库都支持arm64模拟器时移除排除(含历史pod install写入或手动设置的)，否则保持/写入排除
             if exclude_arm64
                 if config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] != "arm64"
@@ -116,11 +124,60 @@ def apply_user_project_settings(installer)
             end
         end
 
+        # target级手动设置的ENABLE_USER_SCRIPT_SANDBOXING也要删(工程级删了，target级的YES依然会覆盖Pods xcconfig，警告照样出)
+        project.native_targets.each do |target|
+            target.build_configurations.each do |config|
+                if config.build_settings.key?("ENABLE_USER_SCRIPT_SANDBOXING")
+                    config.build_settings.delete("ENABLE_USER_SCRIPT_SANDBOXING")
+                    modified = true
+                end
+            end
+        end
+
+        # 修复"Run script build phase '[CP] Copy Pods Resources' will be run during every build because it does not specify any outputs"警告(历史集成残留的[CP]阶段没声明输出，Xcode视为每次构建都要空跑一遍并逐条警告)
+        modified = fix_cp_script_phase_outputs(project, installer.sandbox.root.to_s) || modified
+
         project.save if modified
     end
 end
 
 private
+
+# 修复[CP]脚本阶段的"does not specify any outputs"警告：App target上历史集成残留的[CP] Copy Pods Resources/[CP] Embed Pods Frameworks阶段若没声明输出文件列表，Xcode会逐条警告"每次构建都要跑"。处理规则：CocoaPods本次为该target生成过对应filelist的，把输入输出列表引用补到阶段上；连filelist都没生成的，说明该target的pod没有资源/框架要处理、这个阶段是空跑的历史残留，直接删掉阶段消警告(CocoaPods以后需要时会自己再加回来)。返回是否修改过工程
+def fix_cp_script_phase_outputs(project, pods_root)
+    modified = false
+    project.native_targets.each do |target|
+        target.build_phases.dup.each do |phase|
+            next unless phase.is_a?(Xcodeproj::Project::Object::PBXShellScriptBuildPhase)
+            next unless ["[CP] Copy Pods Resources", "[CP] Embed Pods Frameworks"].include?(phase.display_name)
+            # 已有任何形式的输出声明都不动：新式是outputFileListPaths(xcfilelist)，旧式是内联outputPaths，两者都算"已声明"(没有声明Xcode才会警告每次构建都要跑；漏判旧式会把健康阶段误删)
+            next if phase.output_paths.to_a.any? || phase.output_file_list_paths.to_a.any?
+            # 阶段调用的Pods脚本路径可能写在shellScript里，也可能只写在inputPaths里，两处都找(如 Target Support Files/Pods-SwiftVerify/Pods-SwiftVerify-resources.sh)
+            script_refs = ([phase.shell_script.to_s] + phase.input_paths.to_a).join("\n")
+            kind = phase.display_name.include?("Resources") ? "resources" : "frameworks"
+            aggregate = script_refs.match(%r{Target Support Files/(Pods-[\w.\-]+)/})&.captures&.first
+            next if aggregate.nil?
+            support_dir = File.join(pods_root, "Target Support Files", aggregate)
+            lists_exist = ["Debug", "Release"].all? do |config|
+                ["input-files", "output-files"].all? do |role|
+                    File.exist?(File.join(support_dir, "#{aggregate}-#{kind}-#{config}-#{role}.xcfilelist"))
+                end
+            end
+            if lists_exist
+                # CocoaPods生成了filelist：给阶段补上输入输出引用
+                list_path_prefix = "${PODS_ROOT}/Target Support Files/#{aggregate}/#{aggregate}-#{kind}-${CONFIGURATION}"
+                phase.input_file_list_paths = ["#{list_path_prefix}-input-files.xcfilelist"]
+                phase.output_file_list_paths = ["#{list_path_prefix}-output-files.xcfilelist"]
+                modified = true
+            else
+                # 既没有输出声明、CocoaPods也没生成filelist=该target没有pod资源/框架要处理，这是空跑的历史残留，删掉消警告(CocoaPods以后需要时会自己再加回来)
+                target.build_phases.delete(phase)
+                modified = true
+            end
+        end
+    end
+    modified
+end
 
 # 检测结果缓存(同一次pod命令里多个入口调用时只扫描一遍Pods目录；扫完把结论和元凶打印出来，让业务知道为什么排除了arm64)
 def arm64_simulator_check_result(installer)

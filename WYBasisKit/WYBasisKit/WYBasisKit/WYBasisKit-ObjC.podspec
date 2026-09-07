@@ -108,7 +108,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}ObjC/Config/PrivacyInfo.xcprivacy"
     ]}
     config.frameworks = "Foundation", "UIKit"
-    config.dependency "WYBasisKit-swift/Config", kit_swift_version
+    config.dependency "WYBasisKit-swift", kit_swift_version
     config.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
   end
 
@@ -120,7 +120,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}ObjC/LogManager/PrivacyInfo.xcprivacy"
     ]}
     logManager.frameworks = "Foundation", "UIKit"
-    logManager.dependency "WYBasisKit-swift/LogManager", kit_swift_version
+    logManager.dependency "WYBasisKit-swift", kit_swift_version
     logManager.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
   end
   
@@ -132,7 +132,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}ObjC/Localizable/PrivacyInfo.xcprivacy"
     ]}
     localizable.frameworks = "Foundation", "UIKit"
-    localizable.dependency "WYBasisKit-swift/Localizable", kit_swift_version
+    localizable.dependency "WYBasisKit-swift", kit_swift_version
     localizable.dependency "WYBasisKit-ObjC/Config", kit_swift_version
     localizable.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
   end
@@ -145,7 +145,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}ObjC/Extension/PrivacyInfo.xcprivacy"
     ]}
     extension.frameworks = "Foundation", "UIKit"
-    extension.dependency "WYBasisKit-swift/Extension", kit_swift_version
+    extension.dependency "WYBasisKit-swift", kit_swift_version
     extension.dependency "WYBasisKit-ObjC/Config", kit_swift_version
     extension.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
   end
@@ -158,7 +158,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}ObjC/Codable/PrivacyInfo.xcprivacy"
     ]}
     codable.frameworks = "Foundation", "UIKit"
-    codable.dependency "WYBasisKit-swift/Codable", kit_swift_version
+    codable.dependency "WYBasisKit-swift", kit_swift_version
     codable.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
   end
   
@@ -170,7 +170,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}ObjC/Networking/PrivacyInfo.xcprivacy"
     ]}
     networking.frameworks = "Foundation", "UIKit", "Network"
-    networking.dependency "WYBasisKit-swift/Networking", kit_swift_version
+    networking.dependency "WYBasisKit-swift", kit_swift_version
     networking.dependency "WYBasisKit-ObjC/Storage", kit_swift_version
     networking.dependency "WYBasisKit-ObjC/Codable", kit_swift_version
     networking.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
@@ -191,7 +191,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}ObjC/Activity/PrivacyInfo.xcprivacy"
     ]}
     activity.frameworks = "Foundation", "UIKit"
-    activity.dependency "WYBasisKit-swift/Activity", kit_swift_version
+    activity.dependency "WYBasisKit-swift", kit_swift_version
     activity.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
   end
   
@@ -203,7 +203,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}ObjC/Storage/PrivacyInfo.xcprivacy"
     ]}
     storage.frameworks = "Foundation", "UIKit"
-    storage.dependency "WYBasisKit-swift/Storage", kit_swift_version
+    storage.dependency "WYBasisKit-swift", kit_swift_version
     storage.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
   end
 
@@ -215,7 +215,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}ObjC/EventHandler/PrivacyInfo.xcprivacy"
     ]}
     eventHandler.frameworks = "Foundation", "UIKit"
-    eventHandler.dependency "WYBasisKit-swift/EventHandler", kit_swift_version
+    eventHandler.dependency "WYBasisKit-swift", kit_swift_version
     eventHandler.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
   end
 
@@ -227,7 +227,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}ObjC/AudioKit/PrivacyInfo.xcprivacy"
     ]}
     audioKit.frameworks = "Foundation", "UIKit"
-    audioKit.dependency "WYBasisKit-swift/AudioKit", kit_swift_version
+    audioKit.dependency "WYBasisKit-swift", kit_swift_version
     audioKit.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
   end
   
@@ -243,7 +243,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}ObjC/Authorization/Camera/PrivacyInfo.xcprivacy"
       ]}
       camera.frameworks = "Foundation", "UIKit"
-      camera.dependency "WYBasisKit-swift/Authorization/Camera", kit_swift_version
+      camera.dependency "WYBasisKit-swift", kit_swift_version
       camera.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
     end
     
@@ -255,7 +255,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}ObjC/Authorization/Biometric/PrivacyInfo.xcprivacy"
       ]}
       biometric.frameworks = "Foundation", "UIKit"
-      biometric.dependency "WYBasisKit-swift/Authorization/Biometric", kit_swift_version
+      biometric.dependency "WYBasisKit-swift", kit_swift_version
       biometric.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
     end
     
@@ -267,7 +267,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}ObjC/Authorization/Contacts/PrivacyInfo.xcprivacy"
       ]}
       contacts.frameworks = "Contacts", "UIKit"
-      contacts.dependency "WYBasisKit-swift/Authorization/Contacts", kit_swift_version
+      contacts.dependency "WYBasisKit-swift", kit_swift_version
       contacts.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
     end
     
@@ -279,7 +279,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}ObjC/Authorization/PhotoAlbums/PrivacyInfo.xcprivacy"
       ]}
       photoAlbums.frameworks = "Foundation", "UIKit"
-      photoAlbums.dependency "WYBasisKit-swift/Authorization/PhotoAlbums", kit_swift_version
+      photoAlbums.dependency "WYBasisKit-swift", kit_swift_version
       photoAlbums.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
     end
     
@@ -291,7 +291,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}ObjC/Authorization/Microphone/PrivacyInfo.xcprivacy"
       ]}
       microphone.frameworks = "Foundation", "UIKit"
-      microphone.dependency "WYBasisKit-swift/Authorization/Microphone", kit_swift_version
+      microphone.dependency "WYBasisKit-swift", kit_swift_version
       microphone.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
     end
     
@@ -303,7 +303,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}ObjC/Authorization/SpeechRecognition/PrivacyInfo.xcprivacy"
       ]}
       speechRecognition.frameworks = "Foundation", "UIKit"
-      speechRecognition.dependency "WYBasisKit-swift/Authorization/SpeechRecognition", kit_swift_version
+      speechRecognition.dependency "WYBasisKit-swift", kit_swift_version
       speechRecognition.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
     end
 
@@ -315,7 +315,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}ObjC/Authorization/Location/PrivacyInfo.xcprivacy"
       ]}
       location.frameworks = "UIKit", "Foundation"
-      location.dependency "WYBasisKit-swift/Authorization/Location", kit_swift_version
+      location.dependency "WYBasisKit-swift", kit_swift_version
       location.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
     end
   end
@@ -333,7 +333,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}ObjC/Layout/AirBubbleView/PrivacyInfo.xcprivacy"
       ]}
       airBubble.frameworks = "Foundation", "UIKit"
-      airBubble.dependency "WYBasisKit-swift/Layout/AirBubbleView", kit_swift_version
+      airBubble.dependency "WYBasisKit-swift", kit_swift_version
     end
 
     layout.subspec "SoundWavesView" do |soundWavesView|
@@ -344,7 +344,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}ObjC/Layout/SoundWavesView/PrivacyInfo.xcprivacy"
       ]}
       soundWavesView.frameworks = "Foundation", "UIKit"
-      soundWavesView.dependency "WYBasisKit-swift/Layout/SoundWavesView", kit_swift_version
+      soundWavesView.dependency "WYBasisKit-swift", kit_swift_version
     end
     
     layout.subspec "PagingView" do |pagingView|
@@ -356,7 +356,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}ObjC/Layout/PagingView/PrivacyInfo.xcprivacy"
       ]}
       pagingView.frameworks = "Foundation", "UIKit"
-      pagingView.dependency "WYBasisKit-swift/Layout/PagingView", kit_swift_version
+      pagingView.dependency "WYBasisKit-swift", kit_swift_version
       pagingView.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
     end
 
@@ -368,7 +368,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}ObjC/Layout/ContentScrollView/PrivacyInfo.xcprivacy"
       ]}
       contentScrollView.frameworks = "Foundation", "UIKit"
-      contentScrollView.dependency "WYBasisKit-swift/Layout/ContentScrollView", kit_swift_version
+      contentScrollView.dependency "WYBasisKit-swift", kit_swift_version
       contentScrollView.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
     end
     
@@ -380,7 +380,7 @@ Pod::Spec.new do |kit|
     #      "#{kit_path}ObjC/Layout/ChatView/PrivacyInfo.xcprivacy"
     #   ]}
     #   chatView.frameworks = "Foundation", "UIKit"
-    #   chatView.dependency "WYBasisKit-swift/Layout/ChatView", kit_swift_version
+    #   chatView.dependency "WYBasisKit-swift", kit_swift_version
     #   chatView.dependency "WYBasisKit-ObjC/Extension", kit_swift_version
     #   chatView.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
     # end
@@ -392,7 +392,7 @@ Pod::Spec.new do |kit|
       mediaPlayer.resource_bundles = {"WYBasisKitObjCMediaPlayer" => [
       "#{kit_path}ObjC/Layout/MediaPlayer/PrivacyInfo.xcprivacy"
       ]}
-      mediaPlayer.dependency "WYBasisKit-swift/Layout/MediaPlayer", kit_swift_version
+      mediaPlayer.dependency "WYBasisKit-swift", kit_swift_version
       mediaPlayer.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
     end
   end

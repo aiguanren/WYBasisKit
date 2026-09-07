@@ -720,8 +720,8 @@
 				585B353F2DF8081800E6E08F /* Sources */,
 				585B35402DF8081800E6E08F /* Frameworks */,
 				585B35412DF8081800E6E08F /* Resources */,
-				2E60BFC3EA05D53F6FCA53DE /* [CP] Copy Pods Resources */,
-				7956978BE6AEF4D6DC3ED74C /* [CP] Embed Pods Frameworks */,
+				8E7D567CE4166AC47025499E /* [CP] Embed Pods Frameworks */,
+				33DFA57C59FC9341D60D2DEF /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -842,7 +842,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		2E60BFC3EA05D53F6FCA53DE /* [CP] Copy Pods Resources */ = {
+		33DFA57C59FC9341D60D2DEF /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -861,36 +861,36 @@
 				"${PODS_CONFIGURATION_BUILD_DIR}/IQKeyboardToolbarManager/IQKeyboardToolbarManager.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/IQTextInputViewNotification/IQTextInputViewNotification.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/IQTextView/IQTextView.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwift.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwift.bundle",
 				"${PODS_ROOT}/../WYBasisKit/WYBasisKit/WYBasisKit/Swift/Localizable/WYLocalizable.bundle",
 				"${PODS_ROOT}/../WYBasisKit/WYBasisKit/WYBasisKit/Swift/Activity/WYActivity.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftActivity.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftAudioKit.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftAuthorization.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftAuthorizationBiometric.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftAuthorizationCamera.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftAuthorizationContacts.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftAuthorizationLocation.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftAuthorizationMicrophone.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftAuthorizationPhotoAlbums.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftAuthorizationSpeechRecognition.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftCodable.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftConfig.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftEventHandler.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftExtension.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftLayout.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftLayoutAirBubbleView.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftActivity.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftAudioKit.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftAuthorization.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftAuthorizationBiometric.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftAuthorizationCamera.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftAuthorizationContacts.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftAuthorizationLocation.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftAuthorizationMicrophone.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftAuthorizationPhotoAlbums.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftAuthorizationSpeechRecognition.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftCodable.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftConfig.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftEventHandler.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftExtension.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftLayout.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftLayoutAirBubbleView.bundle",
 				"${PODS_ROOT}/../WYBasisKit/WYBasisKit/WYBasisKit/Swift/Layout/ChatView/WYChatView.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftLayoutChatView.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftLayoutContentScrollView.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftMediaPlayer.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftLayoutPagingView.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftLayoutSoundWavesView.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftLocalizable.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftLogManager.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftMethodSwizzler.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftNetworking.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift-b98227f4/WYBasisKitSwiftStorage.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftLayoutChatView.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftLayoutContentScrollView.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftMediaPlayer.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftLayoutPagingView.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftLayoutSoundWavesView.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftLocalizable.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftLogManager.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftMethodSwizzler.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftNetworking.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftStorage.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
@@ -942,7 +942,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SwiftVerify/Pods-SwiftVerify-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		7956978BE6AEF4D6DC3ED74C /* [CP] Embed Pods Frameworks */ = {
+		8E7D567CE4166AC47025499E /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1129,7 +1129,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = AAZ295K3HU;
-				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SwiftVerify/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "WYBasisKit(Swift)";
@@ -1168,7 +1167,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = AAZ295K3HU;
-				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SwiftVerify/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "WYBasisKit(Swift)";
@@ -1232,7 +1230,6 @@
 				DEVELOPMENT_TEAM = 48Q2YZZG66;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -1294,7 +1291,6 @@
 				DEVELOPMENT_TEAM = 48Q2YZZG66;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
