@@ -275,15 +275,15 @@ class WYTestInfiniteSwitchController: UIViewController {
         reloadContentResult.text = "false"
         displayDirectionQuery.setTitle("查询", for: .normal)
         displayingDirectionValue.textColor = .black
-        displayingDirectionValue.text = "leftOrRight(左右)"
+        displayingDirectionValue.text = "左右"
 
         switchContentPicker.delegate = self
         switchContentPicker.dataSource = self
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        // 离开测试页停止所有播放器，避免视频在后台继续发声、耗流
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        // 真正离开测试页才停止所有播放器，避免视频在后台继续发声、耗流(侧滑返回划到一半又取消时页面并没有真离开，viewDidDisappear不触发、播放不中断；不能放viewWillDisappear，它在返回手势一开始就触发，会把正在播的视频提前停掉)
         verticalViews.forEach { ($0 as? WYMediaPlayer)?.stop(false) }
     }
 
@@ -347,7 +347,7 @@ class WYTestInfiniteSwitchController: UIViewController {
 
     /// 把displayingSlidingDirection的当前值刷新到标签(随滑动/切换/改方向/重挂实时更新)
     func refreshDisplayingDirectionValue() {
-        displayingDirectionValue.text = (contentScrollView.displayingSlidingDirection == .leftOrRight) ? "leftOrRight(左右)" : "topOrBottom(上下)"
+        displayingDirectionValue.text = (contentScrollView.displayingSlidingDirection == .leftOrRight) ? "左右" : "上下"
     }
     
     @objc func standingTimeChanged(sender: UISlider) {
@@ -604,10 +604,14 @@ class WYTestInfiniteSwitchController: UIViewController {
                 if controView is UISwitch {
                     make.top.equalTo(descView.snp.bottom).offset(5)
                     make.width.equalTo(80)
-                }else if controView is UILabel {
-                    make.centerY.equalTo(descView)
-                    make.width.equalToSuperview().offset(-30)
-                }else if valueView != nil {
+            }else if controView is UILabel {
+                make.centerY.equalTo(descView)
+                make.width.equalToSuperview().offset(-30)
+            }else if controView is UIButton {
+                // 按钮拉满行宽时标题会顶到行中间(看着像居中显示)，固定窄宽让标题靠左，值标签跟在按钮右侧
+                make.top.equalTo(descView.snp.bottom).offset(5)
+                make.width.equalTo(60)
+            }else if valueView != nil {
                     make.top.equalTo(descView.snp.bottom).offset(5)
                     make.width.equalToSuperview().offset(-55)
                 }else {

@@ -66,19 +66,26 @@ extension WYContentScrollView {
         contentInsetAdjustmentBehavior = .never
     }
     
-    /// 内部设置添加ContentView
-    func internalSettingsContentView(isReload: Bool) {
-        
+    /// 内部设置添加ContentView(frontAxisIsHorizontal为全向模式重挂时指定的前置轴，传nil按优先方向，单轴模式忽略)
+    func internalSettingsContentView(isReload: Bool, frontAxisIsHorizontal: Bool? = nil) {
+
         // 布局前记录内容View是否尚未挂载(以此判断本次是否为首次展示/切换方向后的重新展示)
         let isInitialDisplay: Bool = (horizontalViews?.first?.superview == nil) && (verticalViews?.first?.superview == nil)
-        
+
+        // 本次展示(前置)的方向，全向模式优先用调用方指定的前置轴(reload用它保持重挂前的展示轴)，没指定按模式与优先方向推导
+        var frontDirection: WYSlidingDirection = initialDisplayDirection
+        if (contentSlidingDirection == .omnidirectional) && (frontAxisIsHorizontal != nil) {
+            frontDirection = (frontAxisIsHorizontal == true) ? .left : .up
+        }
+
         if (contentSlidingDirection == .omnidirectional) {
-            if prioritySlidingDirection == .topOrBottom {
-                layoutContentSubViews(.leftOrRight, isReload: isReload)
+            // 后布局的轴View最后addSubview、停在置顶，前置轴要放在第二个布局
+            if (frontDirection == .left) || (frontDirection == .right) {
                 layoutContentSubViews(.topOrBottom, isReload: isReload)
+                layoutContentSubViews(.leftOrRight, isReload: isReload)
             }else {
-                layoutContentSubViews(.topOrBottom, isReload: isReload)
                 layoutContentSubViews(.leftOrRight, isReload: isReload)
+                layoutContentSubViews(.topOrBottom, isReload: isReload)
             }
         }else {
             layoutContentSubViews(contentSlidingDirection, isReload: isReload)
@@ -91,8 +98,8 @@ extension WYContentScrollView {
             
             internalSliderDirection = .unknown
             
-            // 本次展示(前置)的方向，左右模式与全向(优先非上下)为水平轴，上下模式与全向优先上下为垂直轴
-            let isHorizontalFront: Bool = (initialDisplayDirection == .left) || (initialDisplayDirection == .right)
+            // 本次展示(前置)的轴，左右模式为水平轴，上下模式为垂直轴，全向模式按优先方向或重挂指定的前置轴
+            let isHorizontalFront: Bool = (frontDirection == .left) || (frontDirection == .right)
             // 非展示轴重置标记，等首次滑动时在scrollViewDidScroll补发
             if isHorizontalFront {
                 hasInitialCallbackVertical = false
@@ -102,10 +109,10 @@ extension WYContentScrollView {
             // 展示轴只有在尚未回调过时才发初始didSwitch(如左右切全向且优先左右，水平轴一直是展示方向则不再重复回调)
             if isHorizontalFront && !hasInitialCallbackHorizontal {
                 hasInitialCallbackHorizontal = true
-                switchContentCallback(isDidSwitch: true, direction: initialDisplayDirection)
+                switchContentCallback(isDidSwitch: true, direction: frontDirection)
             }else if !isHorizontalFront && !hasInitialCallbackVertical {
                 hasInitialCallbackVertical = true
-                switchContentCallback(isDidSwitch: true, direction: initialDisplayDirection)
+                switchContentCallback(isDidSwitch: true, direction: frontDirection)
             }
             
             syncAxisViewsVisibility()

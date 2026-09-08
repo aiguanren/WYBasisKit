@@ -371,18 +371,19 @@ public class WYContentScrollView: UIScrollView {
         // 重挂前先把还在播的代码切页动画瞬间落到终点(否则动画的提交发生在重挂之后，按旧状态换页会把刚挂好的页面又换掉)
         completeOngoingProgrammaticSwitch()
         
-        // 重挂前记下展示轴，重挂流程会把全向模式的展示轴重置回优先方向(两轴下标不受挂载影响，不需要记忆)
+        // 重挂前记下展示轴与该轴已发过初始回调的标记，重挂直接把原展示轴布局到置顶(不先落回优先轴再二次切换，避免页面闪一下另一轴)
         let displayedAxisWasHorizontal = axisIsHorizontal(of: .unknown)
+        let displayedAxisHadCallback = displayedAxisWasHorizontal ? hasInitialCallbackHorizontal : hasInitialCallbackVertical
         
-        // 只摘View不丢数组引用，走完整重挂流程(重摘后isInitialDisplay成立，业务才能收到初始didSwitch重新装内容)
+        // 只摘View不丢数组引用，走完整重挂流程(前置轴传原展示轴，两轴下标不受挂载影响)
         horizontalViews?.forEach { $0.removeFromSuperview() }
         verticalViews?.forEach { $0.removeFromSuperview() }
         
-        internalSettingsContentView(isReload: true)
+        internalSettingsContentView(isReload: true, frontAxisIsHorizontal: displayedAxisWasHorizontal)
         
-        // 全向模式下展示轴被重置回了优先方向，与重挂前不一致时按同下标跨轴切换翻回去(不翻页、两轴下标不动)
-        if (contentSlidingDirection == .omnidirectional) && (axisIsHorizontal(of: .unknown) != displayedAxisWasHorizontal) {
-            performCrossAxisSwitch(direction: displayedAxisWasHorizontal ? .left : .up, preservesIndex: true)
+        // 挂载流程的初始didSwitch有"已回调过就跳过"的去重，展示轴之前回调过时这里补发一条，保证业务每次刷新都收到通知
+        if displayedAxisHadCallback {
+            switchContentCallback(isDidSwitch: true, direction: displayedAxisWasHorizontal ? .left : .up)
         }
         
         return true

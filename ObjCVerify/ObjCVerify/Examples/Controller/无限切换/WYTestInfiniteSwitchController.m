@@ -251,15 +251,15 @@
     self.reloadContentResult.text = @"false";
     [self.displayDirectionQuery setTitle:@"查询" forState:UIControlStateNormal];
     self.displayingDirectionValue.textColor = UIColor.blackColor;
-    self.displayingDirectionValue.text = @"leftOrRight(左右)";
+    self.displayingDirectionValue.text = @"左右";
 
     self.switchContentPicker.delegate = self;
     self.switchContentPicker.dataSource = self;
 }
 
-- (void)viewWillDisappear:(BOOL)animated {
-    [super viewWillDisappear:animated];
-    // 离开测试页停止所有播放器，避免视频在后台继续发声、耗流
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    // 真正离开测试页才停止所有播放器，避免视频在后台继续发声、耗流(侧滑返回划到一半又取消时页面并没有真离开，viewDidDisappear不触发、播放不中断；不能放viewWillDisappear，它在返回手势一开始就触发，会把正在播的视频提前停掉)
     for (WYMediaPlayer *player in self.verticalViews) {
         if ([player isKindOfClass:[WYMediaPlayer class]]) {
             [player stopWithKeepLast:NO];
@@ -337,7 +337,7 @@
 
 /// 把displayingSlidingDirection的当前值刷新到标签(随滑动/切换/改方向/重挂实时更新)
 - (void)refreshDisplayingDirectionValue {
-    self.displayingDirectionValue.text = (self.contentScrollView.displayingSlidingDirection == WYContentSlidingDirectionLeftOrRight) ? @"leftOrRight(左右)" : @"topOrBottom(上下)";
+    self.displayingDirectionValue.text = (self.contentScrollView.displayingSlidingDirection == WYContentSlidingDirectionLeftOrRight) ? @"左右" : @"上下";
 }
 
 - (void)standingTimeChanged:(UISlider *)sender {
@@ -592,6 +592,10 @@
             }else if ([controView isKindOfClass:[UILabel class]]) {
                 make.centerY.equalTo(descView);
                 make.width.equalTo(contentView).offset(-30);
+            }else if ([controView isKindOfClass:[UIButton class]]) {
+                // 按钮拉满行宽时标题会顶到行中间(看着像居中显示)，固定窄宽让标题靠左，值标签跟在按钮右侧
+                make.top.equalTo(descView.mas_bottom).offset(5);
+                make.width.mas_equalTo(60);
             }else if (valueView) {
                 make.top.equalTo(descView.mas_bottom).offset(5);
                 make.width.equalTo(contentView).offset(-55);
