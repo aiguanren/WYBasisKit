@@ -49,6 +49,12 @@ import WYBasisKitSwift
         set { prioritySlidingDirection = newValue }
     }
 
+    /// 当前正在展示的滑动方向(返回值只会有.leftOrRight/.topOrBottom两种类型)
+    @objc(displayingSlidingDirection)
+    public var displayingSlidingDirectionObjC: WYContentSlidingDirection {
+        return displayingSlidingDirection
+    }
+
     /// 当前正在水平方向显示的Views(用户传入的View)
     @objc(horizontalViews)
     public var horizontalViewsObjC: [UIView]? {
@@ -189,6 +195,15 @@ import WYBasisKitSwift
     @objc(omnidirectionalDisplayWithCurrentHorizontalView:reserveHorizontalView:currentVerticalView:reserveVerticalView:)
     public func omnidirectionalDisplayObjC(currentHorizontalView: UIView, reserveHorizontalView: UIView, currentVerticalView: UIView, reserveVerticalView: UIView) {
         omnidirectionalDisplay(currentHorizontalView: currentHorizontalView, reserveHorizontalView: reserveHorizontalView, currentVerticalView: currentVerticalView, reserveVerticalView: reserveVerticalView)
+    }
+
+    /**
+     *  刷新当前WYContentScrollView展示的内容View(适合cell/header/footer等重用场景或刷新场景)
+     *  @return true表示已按当前持有的View完成刷新，false表示当前条件不满足没有执行(还没挂载过内容View，需先调用display方法传入View完成首次挂载)
+     */
+    @objc(reload)
+    public func reloadObjC() -> Bool {
+        return reload()
     }
 
     /// 开启定时器(默认开启，调用该方法会重新开启)

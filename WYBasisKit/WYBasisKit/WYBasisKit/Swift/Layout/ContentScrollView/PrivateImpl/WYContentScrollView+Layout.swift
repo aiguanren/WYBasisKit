@@ -11,10 +11,15 @@ import UIKit
 /// WYContentScrollView 私有实现，内容视图布局与挂载(重挂保序/置顶层级/尺寸偏移检查)
 extension WYContentScrollView {
     
-    /// 把没在展示的那个轴藏起来，全向模式下两个轴的当前页叠在同一个位置(布局就是这样，靠谁在上面决定看到谁)，当页面内容不满铺时(比如aspectFit的小图)，底下那个轴的内容会从四周露出来(表现为同时看到两个轴的内容)；把非展示轴整体设为隐藏就不会露了；挂载时和每次跨轴切换/回弹收尾时调用；单轴模式只有一轴的View，不需要处理
+    /// 把没在展示的那个轴藏起来，全向模式下两个轴的当前页叠在同一个位置(布局就是这样，靠谁在上面决定看到谁)，当页面内容不满铺时(比如aspectFit的小图)，底下那个轴的内容会从四周露出来(表现为同时看到两个轴的内容)；把非展示轴整体设为隐藏就不会露了；挂载时和每次跨轴切换/回弹收尾时调用；单轴模式只挂载一轴的View(另一轴数组为空)，重挂的View可能残留全向期间留下的隐藏标记，两轴全部取消隐藏
     func syncAxisViewsVisibility() {
 
-        guard contentSlidingDirection == .omnidirectional else { return }
+        // 防切回单轴后画面消失(播放器有声无画)，全向期间非展示轴View被设了隐藏、标记跟着View实例残留到单轴模式重挂，单轴模式没有其他复位时机，这里两轴全部取消隐藏
+        guard contentSlidingDirection == .omnidirectional else {
+            horizontalViews?.forEach { $0.isHidden = false }
+            verticalViews?.forEach { $0.isHidden = false }
+            return
+        }
 
         let displayedIsHorizontal = axisIsHorizontal(of: .unknown)
         horizontalViews?.forEach { $0.isHidden = (displayedIsHorizontal == false) }

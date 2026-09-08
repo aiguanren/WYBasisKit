@@ -94,6 +94,14 @@ class WYTestInfiniteSwitchController: UIViewController {
     var switchContentDirection: UISegmentedControl = UISegmentedControl(items: ["左右", "上下", "全向"])
     var switchContentPicker: UIPickerView = UIPickerView()
     var switchContentIndex: Int = 0
+
+    /// 刷新当前WYContentScrollView展示的内容View
+    var reloadContent: UIButton = UIButton(type: .custom)
+    var reloadContentResult: UILabel = UILabel()
+
+    /// 查询当前正在展示的滑动方向
+    var displayDirectionQuery: UIButton = UIButton(type: .custom)
+    var displayingDirectionValue: UILabel = UILabel()
     
     /// 水平方向Contents
     var horizontalViews: [UIView] = []
@@ -257,11 +265,18 @@ class WYTestInfiniteSwitchController: UIViewController {
             }
         }
         
-        for button in [nextContent, lastContent, switchContent] {
+        for button in [nextContent, lastContent, switchContent, reloadContent, displayDirectionQuery] {
             button.setTitleColor(.black, for: .normal)
             button.addTarget(self, action: #selector(buttonClick(sender:)), for: .touchUpInside)
         }
-        
+
+        reloadContent.setTitle("刷新", for: .normal)
+        reloadContentResult.textColor = .black
+        reloadContentResult.text = "false"
+        displayDirectionQuery.setTitle("查询", for: .normal)
+        displayingDirectionValue.textColor = .black
+        displayingDirectionValue.text = "leftOrRight(左右)"
+
         switchContentPicker.delegate = self
         switchContentPicker.dataSource = self
     }
@@ -304,6 +319,8 @@ class WYTestInfiniteSwitchController: UIViewController {
             
         }else if sender == prioritySlidingDirection {
             contentScrollView.prioritySlidingDirection = [.leftOrRight, .topOrBottom, .omnidirectional][sender.selectedSegmentIndex]
+            // 优先方向变化可能翻转全向模式的展示轴，标签同步刷新
+            refreshDisplayingDirectionValue()
         }
     }
     
@@ -321,7 +338,16 @@ class WYTestInfiniteSwitchController: UIViewController {
             contentScrollView.lastContent(selectedDirection(of: lastContentDirection))
         }else if sender == switchContent {
             contentScrollView.switchContent(selectedDirection(of: switchContentDirection), index: &switchContentIndex)
+        }else if sender == reloadContent {
+            // 返回值显示到标签(true已刷新，false还没挂载过内容View没有执行)
+            reloadContentResult.text = contentScrollView.reload() ? "true" : "false"
         }
+        refreshDisplayingDirectionValue()
+    }
+
+    /// 把displayingSlidingDirection的当前值刷新到标签(随滑动/切换/改方向/重挂实时更新)
+    func refreshDisplayingDirectionValue() {
+        displayingDirectionValue.text = (contentScrollView.displayingSlidingDirection == .leftOrRight) ? "leftOrRight(左右)" : "topOrBottom(上下)"
     }
     
     @objc func standingTimeChanged(sender: UISlider) {
@@ -524,10 +550,24 @@ class WYTestInfiniteSwitchController: UIViewController {
             make.width.centerX.equalTo(switchDurationView)
         }
 
+        let reloadContentView: UIView = createDescContentView(desc: "刷新当前WYContentScrollView展示的内容View(返回true已刷新，false还没挂载过内容View没有执行)", controView: reloadContent, valueView: reloadContentResult)
+        operatioView.addSubview(reloadContentView)
+        reloadContentView.snp.makeConstraints { make in
+            make.top.equalTo(zoomScaleView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(zoomScaleView)
+        }
+
+        let displayDirectionView: UIView = createDescContentView(desc: "当前正在展示的滑动方向(返回值只会有.leftOrRight/.topOrBottom两种类型，随滑动/切换/重挂实时刷新)", controView: displayDirectionQuery, valueView: displayingDirectionValue)
+        operatioView.addSubview(displayDirectionView)
+        displayDirectionView.snp.makeConstraints { make in
+            make.top.equalTo(reloadContentView.snp.bottom).offset(35)
+            make.width.centerX.equalTo(reloadContentView)
+        }
+
         let nextContentView: UIView = createDescContentViews(desc: "切换指定方向下一个内容页面(不支持直接传入direction为omnidirectional)", controViews: [nextContent, nextContentDirection])
         operatioView.addSubview(nextContentView)
         nextContentView.snp.makeConstraints { make in
-            make.top.equalTo(zoomScaleView.snp.bottom).offset(35)
+            make.top.equalTo(displayDirectionView.snp.bottom).offset(35)
             make.width.centerX.equalTo(zoomScaleView)
         }
         
@@ -686,6 +726,8 @@ extension WYTestInfiniteSwitchController: WYContentScrollViewDelegate {
      *  @param index              当前滑动的Index
      */
     func wy_contentScrollViewDidScroll(_ contentScrollView: WYContentScrollView, offset: CGPoint, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView, index: Int) {
+        // 滑动中实时刷新当前展示方向标签
+        refreshDisplayingDirectionValue()
         //wy_print("监听到ContentScrollView的偏移量事件\n当前X：\(offset.x)\n当前Y：\(offset.y)\n滑动方向：\(direction)\n当前滑动的Index：\(index)\n当前正在显示的用户传入的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)：\(currentView)\n当前预备显示的用户传入的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)：\(reserveView)\n水平方向Contents：\(horizontalViews)\n垂直方向Contents：\(verticalViews)")
     }
     
@@ -780,6 +822,8 @@ extension WYTestInfiniteSwitchController: WYContentScrollViewDelegate {
      *  @param reserveVerticalView   当前垂直方向预备显示的View(用户传入的View)
      */
     func wy_contentScrollViewDidSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView?, reserveHorizontalView: UIView?, currentVerticalView: UIView?, reserveVerticalView: UIView?) {
+        // 切换完成后实时刷新当前展示方向标签
+        refreshDisplayingDirectionValue()
         //wy_print("监听ContentScrollView页面已经切换完成的事件(contentSlidingDirection == omnidirectional时可用)\n滑动方向：\(direction)\n当前正在水平方向显示的View(用户传入的View)：\(currentHorizontalView)\n当前水平方向预备显示的View(用户传入的View)：\(reserveHorizontalView)\n当前正在垂直方向显示的View(用户传入的View)：\(currentVerticalView)\n当前垂直方向预备显示的View(用户传入的View)：\(reserveVerticalView)\n水平方向Contents：\(horizontalViews)\n垂直方向Contents：\(verticalViews)")
         
         let currentHorizontalView: UIImageView? = currentHorizontalView as? UIImageView

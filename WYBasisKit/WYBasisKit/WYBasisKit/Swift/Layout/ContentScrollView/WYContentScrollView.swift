@@ -173,6 +173,15 @@ public class WYContentScrollView: UIScrollView {
         }
     }
 
+    /// 当前正在展示的滑动方向(返回值只会有.leftOrRight/.topOrBottom两种类型)
+    public var displayingSlidingDirection: WYContentSlidingDirection {
+        // 全向模式按置顶View所在轴推导(与组件内部展示轴判定同源，挂载前置顶View还没定，按优先方向兜底)；单轴模式只挂载一轴，展示方向就是模式本身
+        guard contentSlidingDirection == .omnidirectional else {
+            return contentSlidingDirection
+        }
+        return axisIsHorizontal(of: .unknown) ? .leftOrRight : .topOrBottom
+    }
+
     /// 当前正在水平方向显示的Views(用户传入的View)
     public internal(set) var horizontalViews: [UIView]?
     
@@ -337,7 +346,48 @@ public class WYContentScrollView: UIScrollView {
             internalSettingsContentView(isReload: true)
         }
     }
-
+    
+    /**
+     *  刷新当前WYContentScrollView展示的内容View(适合cell/header/footer等重用场景或刷新场景)
+     *  @return true表示已按当前持有的View完成刷新，false表示当前条件不满足没有执行(还没挂载过内容View，需先调用display方法传入View完成首次挂载)
+     */
+    @discardableResult
+    public func reload() -> Bool {
+        
+        // 外部无脑调用也安全，按当前模式检查该挂载的轴是否就绪(全向模式要两轴就绪、单轴模式只要本轴就绪)，没挂载过就无从重挂，返回false交由外部走首次挂载
+        var hasMountedViews: Bool = false
+        switch contentSlidingDirection {
+        case .leftOrRight:
+            hasMountedViews = (horizontalViews?.count == 2)
+        case .topOrBottom:
+            hasMountedViews = (verticalViews?.count == 2)
+        case .omnidirectional:
+            hasMountedViews = (horizontalViews?.count == 2) && (verticalViews?.count == 2)
+        }
+        guard hasMountedViews else {
+            return false
+        }
+        
+        // 重挂前先把还在播的代码切页动画瞬间落到终点(否则动画的提交发生在重挂之后，按旧状态换页会把刚挂好的页面又换掉)
+        completeOngoingProgrammaticSwitch()
+        
+        // 重挂前记下展示轴，重挂流程会把全向模式的展示轴重置回优先方向(两轴下标不受挂载影响，不需要记忆)
+        let displayedAxisWasHorizontal = axisIsHorizontal(of: .unknown)
+        
+        // 只摘View不丢数组引用，走完整重挂流程(重摘后isInitialDisplay成立，业务才能收到初始didSwitch重新装内容)
+        horizontalViews?.forEach { $0.removeFromSuperview() }
+        verticalViews?.forEach { $0.removeFromSuperview() }
+        
+        internalSettingsContentView(isReload: true)
+        
+        // 全向模式下展示轴被重置回了优先方向，与重挂前不一致时按同下标跨轴切换翻回去(不翻页、两轴下标不动)
+        if (contentSlidingDirection == .omnidirectional) && (axisIsHorizontal(of: .unknown) != displayedAxisWasHorizontal) {
+            performCrossAxisSwitch(direction: displayedAxisWasHorizontal ? .left : .up, preservesIndex: true)
+        }
+        
+        return true
+    }
+    
     /// 开启定时器(默认开启，调用该方法会重新开启)
     public func startTimer() {
         

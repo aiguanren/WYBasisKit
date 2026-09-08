@@ -69,8 +69,11 @@ class WYGroupedHeaderView: UITableViewHeaderFooterView {
         
         contentScrollView.numberOfHorizontalContent = images.count
         contentScrollView.numberOfVerticalContent = images.count
-        
-        contentScrollView.omnidirectionalDisplay(currentHorizontalView: horizontalViews[0], reserveHorizontalView: horizontalViews[1], currentVerticalView: verticalViews[0], reserveVerticalView: verticalViews[1])
+
+        // 判断刷新当前展示的信息，防止因为复用导致展示信息被切换
+        if contentScrollView.reload() == false {
+            contentScrollView.omnidirectionalDisplay(currentHorizontalView: horizontalViews[0], reserveHorizontalView: horizontalViews[1], currentVerticalView: verticalViews[0], reserveVerticalView: verticalViews[1])
+        }
     }
     
     required init?(coder: NSCoder) {

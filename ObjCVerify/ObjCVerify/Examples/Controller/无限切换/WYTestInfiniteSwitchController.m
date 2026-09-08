@@ -89,6 +89,14 @@
 @property (nonatomic, strong) UIPickerView *switchContentPicker;
 @property (nonatomic, assign) NSInteger switchContentIndex;
 
+/// 刷新当前WYContentScrollView展示的内容View
+@property (nonatomic, strong) UIButton *reloadContent;
+@property (nonatomic, strong) UILabel *reloadContentResult;
+
+/// 查询当前正在展示的滑动方向
+@property (nonatomic, strong) UIButton *displayDirectionQuery;
+@property (nonatomic, strong) UILabel *displayingDirectionValue;
+
 /// 水平方向Contents
 @property (nonatomic, strong) NSMutableArray<UIView *> *horizontalViews;
 
@@ -233,10 +241,17 @@
         }
     }
 
-    for (UIButton *button in @[self.nextContent, self.lastContent, self.switchContent]) {
+    for (UIButton *button in @[self.nextContent, self.lastContent, self.switchContent, self.reloadContent, self.displayDirectionQuery]) {
         [button setTitleColor:UIColor.blackColor forState:UIControlStateNormal];
         [button addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
     }
+
+    [self.reloadContent setTitle:@"刷新" forState:UIControlStateNormal];
+    self.reloadContentResult.textColor = UIColor.blackColor;
+    self.reloadContentResult.text = @"false";
+    [self.displayDirectionQuery setTitle:@"查询" forState:UIControlStateNormal];
+    self.displayingDirectionValue.textColor = UIColor.blackColor;
+    self.displayingDirectionValue.text = @"leftOrRight(左右)";
 
     self.switchContentPicker.delegate = self;
     self.switchContentPicker.dataSource = self;
@@ -292,6 +307,8 @@
     }else if (sender == self.prioritySlidingDirection) {
         WYContentSlidingDirection directions[] = {WYContentSlidingDirectionLeftOrRight, WYContentSlidingDirectionTopOrBottom, WYContentSlidingDirectionOmnidirectional};
         self.contentScrollView.prioritySlidingDirection = directions[sender.selectedSegmentIndex];
+        // 优先方向变化可能翻转全向模式的展示轴，标签同步刷新
+        [self refreshDisplayingDirectionValue];
     }
 }
 
@@ -311,7 +328,16 @@
         [self.contentScrollView lastContent:[self selectedDirectionOf:self.lastContentDirection]];
     }else if (sender == self.switchContent) {
         [self.contentScrollView switchContent:[self selectedDirectionOf:self.switchContentDirection] index:&_switchContentIndex];
+    }else if (sender == self.reloadContent) {
+        // 返回值显示到标签(true已刷新，false还没挂载过内容View没有执行)
+        self.reloadContentResult.text = [self.contentScrollView reload] ? @"true" : @"false";
     }
+    [self refreshDisplayingDirectionValue];
+}
+
+/// 把displayingSlidingDirection的当前值刷新到标签(随滑动/切换/改方向/重挂实时更新)
+- (void)refreshDisplayingDirectionValue {
+    self.displayingDirectionValue.text = (self.contentScrollView.displayingSlidingDirection == WYContentSlidingDirectionLeftOrRight) ? @"leftOrRight(左右)" : @"topOrBottom(上下)";
 }
 
 - (void)standingTimeChanged:(UISlider *)sender {
@@ -509,10 +535,24 @@
         make.width.centerX.equalTo(switchDurationView);
     }];
 
+    UIView *reloadContentView = [self createDescContentViewWithDesc:@"刷新当前WYContentScrollView展示的内容View(返回true已刷新，false还没挂载过内容View没有执行)" controView:self.reloadContent valueView:self.reloadContentResult];
+    [self.operatioView addSubview:reloadContentView];
+    [reloadContentView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(zoomScaleView.mas_bottom).offset(35);
+        make.width.centerX.equalTo(zoomScaleView);
+    }];
+
+    UIView *displayDirectionView = [self createDescContentViewWithDesc:@"当前正在展示的滑动方向(返回值只会有.leftOrRight/.topOrBottom两种类型，随滑动/切换/重挂实时刷新)" controView:self.displayDirectionQuery valueView:self.displayingDirectionValue];
+    [self.operatioView addSubview:displayDirectionView];
+    [displayDirectionView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(reloadContentView.mas_bottom).offset(35);
+        make.width.centerX.equalTo(reloadContentView);
+    }];
+
     UIView *nextContentView = [self createDescContentViewsWithDesc:@"切换指定方向下一个内容页面(不支持直接传入direction为omnidirectional)" controViews:@[self.nextContent, self.nextContentDirection]];
     [self.operatioView addSubview:nextContentView];
     [nextContentView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(zoomScaleView.mas_bottom).offset(35);
+        make.top.equalTo(displayDirectionView.mas_bottom).offset(35);
         make.width.centerX.equalTo(zoomScaleView);
     }];
 
@@ -866,6 +906,34 @@
     return _switchContentPicker;
 }
 
+- (UIButton *)reloadContent {
+    if (!_reloadContent) {
+        _reloadContent = [UIButton buttonWithType:UIButtonTypeCustom];
+    }
+    return _reloadContent;
+}
+
+- (UILabel *)reloadContentResult {
+    if (!_reloadContentResult) {
+        _reloadContentResult = [[UILabel alloc] init];
+    }
+    return _reloadContentResult;
+}
+
+- (UIButton *)displayDirectionQuery {
+    if (!_displayDirectionQuery) {
+        _displayDirectionQuery = [UIButton buttonWithType:UIButtonTypeCustom];
+    }
+    return _displayDirectionQuery;
+}
+
+- (UILabel *)displayingDirectionValue {
+    if (!_displayingDirectionValue) {
+        _displayingDirectionValue = [[UILabel alloc] init];
+    }
+    return _displayingDirectionValue;
+}
+
 - (NSMutableArray<UIView *> *)horizontalViews {
     if (!_horizontalViews) {
         _horizontalViews = [NSMutableArray array];
@@ -918,7 +986,8 @@
 #pragma mark - WYContentScrollViewDelegate
 
 - (void)wy_contentScrollViewDidScroll:(WYContentScrollView *)contentScrollView offset:(CGPoint)offset direction:(WYSlidingDirection)direction currentView:(UIView *)currentView reserveView:(UIView *)reserveView index:(NSInteger)index {
-
+    // 滑动中实时刷新当前展示方向标签
+    [self refreshDisplayingDirectionValue];
 }
 
 - (void)wy_contentScrollViewDidClick:(WYContentScrollView *)contentScrollView direction:(WYSlidingDirection)direction currentView:(UIView *)currentView reserveView:(UIView *)reserveView index:(NSInteger)index {
@@ -961,6 +1030,8 @@
 }
 
 - (void)wy_contentScrollViewDidSwitch:(WYContentScrollView *)contentScrollView direction:(WYSlidingDirection)direction currentHorizontalView:(UIView *)currentHorizontalView reserveHorizontalView:(UIView *)reserveHorizontalView currentVerticalView:(UIView *)currentVerticalView reserveVerticalView:(UIView *)reserveVerticalView {
+    // 切换完成后实时刷新当前展示方向标签
+    [self refreshDisplayingDirectionValue];
 
     // 停垂直轴播放提无条件前置(不放在任何方向分支里)：切到H必须停V；切到V时当前页随分支马上重新play(幂等)，前置暂停无副作用；这一停一起播就是did的"停旧起新"骨架
     if ([currentVerticalView isKindOfClass:[WYMediaPlayer class]]) {
