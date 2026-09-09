@@ -27,7 +27,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
             // 防止异常设置（避免死循环）
             guard newValue !== self else { return }
             
-            // 如果系统在释放时传入 nil，且没有外部代理，加上super.delegate 目前是 nil，则跳过设置，避免在对象释放过程中再次建立 weak 引用导致闪退
+            // 系统在释放对象时可能传nil进来，此时若外部代理和super.delegate也都是nil，就跳过赋值，防止对象释放过程中重新建立weak引用导致闪退
             if newValue == nil && internalDelegate == nil && super.delegate == nil {
                 return
             }

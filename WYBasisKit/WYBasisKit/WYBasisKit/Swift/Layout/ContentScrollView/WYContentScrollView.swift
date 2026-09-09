@@ -40,7 +40,7 @@ import UIKit
      *  @param direction          当前的滑动方向
      *  @param currentView        当前正在显示的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
      *  @param reserveView        当前预备显示的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
-     *  @param index              当前滑动的Index
+     *  @param index              当前页的下标
      */
     @objc(wy_contentScrollViewDidScroll:offset:direction:currentView:reserveView:index:)
     optional func wy_contentScrollViewDidScroll(_ contentScrollView: WYContentScrollView, offset: CGPoint, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView, index: Int)
@@ -52,7 +52,7 @@ import UIKit
      *  @param direction          当前的滑动方向
      *  @param currentView        当前正在显示的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
      *  @param reserveView        当前预备显示的View(左右滑动时为水平方向的View，上下滑动时为垂直方向的View)
-     *  @param index              当前点击的Index
+     *  @param index              当前点击页的下标
      */
     @objc(wy_contentScrollViewDidClick:direction:currentView:reserveView:index:)
     optional func wy_contentScrollViewDidClick(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentView: UIView, reserveView: UIView, index: Int)
@@ -101,7 +101,7 @@ public class WYContentScrollView: UIScrollView {
                 reserveHorizontalIndex = max(0, numberOfHorizontalContent - 1)
             }
             
-            // 数量归零时展示轴会自动回落到另一轴，由于这个切换只是调整View的叠放顺序、不走正常翻页流程，业务收不到任何回调就会莫名其妙看到页面换了，所以检测到置顶View变化时补发一次didSwitch让业务知道
+            // 数量变化正常不会切走用户正看的轴(见bringContentToFront)，但挂载、恢复等过渡场景下置顶View仍可能变化，这种变化只调整View的叠放顺序、不走正常翻页流程，业务收不到任何回调就会莫名其妙看到页面换了，所以检测到置顶View变化时补发一次didSwitch让业务知道
             let previousUpperContentView = upperContentView
             bringContentToFront()
             if let currentUpperContentView = upperContentView, currentUpperContentView !== previousUpperContentView {
@@ -115,7 +115,7 @@ public class WYContentScrollView: UIScrollView {
                     switchContentCallback(isDidSwitch: true, direction: .up)
                 }
             }
-            // 展示轴翻转后把没内容的那个轴藏起来，防止不满铺的内容透出来(数量归零回落到另一轴时会走到这里)
+            // 展示轴翻转后把没内容的那个轴藏起来，防止不满铺的内容透出来(置顶View发生变化的过渡场景会走到这里)
             syncAxisViewsVisibility()
             // 这里必须调用一次checkCarouselStatus，以便数量发生变化后可以动态更新scrollView的isScrollEnabled状态
             checkCarouselStatus()
@@ -133,7 +133,7 @@ public class WYContentScrollView: UIScrollView {
                 reserveVerticalIndex = max(0, numberOfVerticalContent - 1)
             }
             
-            // 数量归零时展示轴会自动回落到另一轴，由于这个切换只是调整View的叠放顺序、不走正常翻页流程，业务收不到任何回调就会莫名其妙看到页面换了，所以检测到置顶View变化时补发一次didSwitch让业务知道
+            // 数量变化正常不会切走用户正看的轴(见bringContentToFront)，但挂载、恢复等过渡场景下置顶View仍可能变化，这种变化只调整View的叠放顺序、不走正常翻页流程，业务收不到任何回调就会莫名其妙看到页面换了，所以检测到置顶View变化时补发一次didSwitch让业务知道
             let previousUpperContentView = upperContentView
             bringContentToFront()
             if let currentUpperContentView = upperContentView, currentUpperContentView !== previousUpperContentView {
@@ -147,7 +147,7 @@ public class WYContentScrollView: UIScrollView {
                     switchContentCallback(isDidSwitch: true, direction: .up)
                 }
             }
-            // 展示轴翻转后把没内容的那个轴藏起来，防止不满铺的内容透出来(数量归零回落到另一轴时会走到这里)
+            // 展示轴翻转后把没内容的那个轴藏起来，防止不满铺的内容透出来(置顶View发生变化的过渡场景会走到这里)
             syncAxisViewsVisibility()
             // 这里必须调用一次checkCarouselStatus，以便数量发生变化后可以动态更新scrollView的isScrollEnabled状态
             checkCarouselStatus()
@@ -168,7 +168,7 @@ public class WYContentScrollView: UIScrollView {
     public var prioritySlidingDirection: WYContentSlidingDirection = .leftOrRight {
         didSet {
             bringContentToFront()
-            // 优先方向变化可能翻转全向模式的置顶轴(展示轴换了人)，轮播轴与滚动能力随之变化，必须重评
+            // 优先方向变化可能翻转全向模式的置顶轴(展示轴换了人)，轮播翻哪根轴、还能不能滑都会跟着变，需要重新计算
             checkCarouselStatus()
         }
     }
@@ -200,7 +200,7 @@ public class WYContentScrollView: UIScrollView {
     /// 垂直方向储备内容页索引
     public internal(set) var reserveVerticalIndex: Int = 0
     
-    /// 自动轮播时每一页停留时间，默认为3s，最少1s(当设置的值小于1s时，则为默认值，同时修改值后会立即生效)
+    /// 自动轮播时每一页停留时间，默认3s，最低1s(低于1s时按默认3s处理，修改后立即生效)
     public var standingTime: TimeInterval = 3 {
         didSet {
             // 间隔只在startTimer创建计时器时读取，运行中修改必须重建才立即生效
@@ -216,7 +216,7 @@ public class WYContentScrollView: UIScrollView {
         didSet {
             let clampedValue = min(max(crossAxisFlickVelocityThreshold, 50), 3000)
             if clampedValue != crossAxisFlickVelocityThreshold {
-                // 自身didSet内赋值不会触发递归闪退(Swift官方文档定义的行为，didSet内给本属性赋值时新值直接替换刚设置的值、观察器不会再次触发)
+                // 在自身didSet里回写钳制值不会再触发观察器(Swift规定的特殊行为，不会递归)
                 crossAxisFlickVelocityThreshold = clampedValue
             }
         }
@@ -230,7 +230,7 @@ public class WYContentScrollView: UIScrollView {
         didSet {
             let clampedValue = min(max(crossAxisSwitchDuration, 0.1), 2.0)
             if clampedValue != crossAxisSwitchDuration {
-                // 在自身didSet内赋值不会递归，Swift语言规定，didSet内给本属性赋值时新值直接替换刚设置的值、观察器不会再次触发，这是Swift官方文档定义的行为
+                // 在自身didSet里回写钳制值不会再触发观察器(Swift规定的特殊行为，不会递归)
                 crossAxisSwitchDuration = clampedValue
             }
         }
@@ -241,7 +241,7 @@ public class WYContentScrollView: UIScrollView {
         didSet {
             let clampedValue = min(max(crossAxisSwitchZoomScale, 1.0), 2.0)
             if clampedValue != crossAxisSwitchZoomScale {
-                // 在自身didSet内赋值不会递归，Swift语言规定，didSet内给本属性赋值时新值直接替换刚设置的值、观察器不会再次触发，这是Swift官方文档定义的行为
+                // 在自身didSet里回写钳制值不会再触发观察器(Swift规定的特殊行为，不会递归)
                 crossAxisSwitchZoomScale = clampedValue
             }
         }
@@ -261,7 +261,7 @@ public class WYContentScrollView: UIScrollView {
     public var horizontalMinimumSwitchInterval: TimeInterval = 0 {
         didSet {
             if horizontalMinimumSwitchInterval < 0 {
-                // didSet内赋值不递归(Swift规定同属性didSet内赋值观察器不再次触发)
+                // 在自身didSet里回写不会再触发观察器(Swift规定的特殊行为，不会递归)
                 horizontalMinimumSwitchInterval = 0
             }
         }
@@ -271,7 +271,7 @@ public class WYContentScrollView: UIScrollView {
     public var verticalMinimumSwitchInterval: TimeInterval = 0 {
         didSet {
             if verticalMinimumSwitchInterval < 0 {
-                // didSet内赋值不递归(Swift规定同属性didSet内赋值观察器不再次触发)
+                // 在自身didSet里回写不会再触发观察器(Swift规定的特殊行为，不会递归)
                 verticalMinimumSwitchInterval = 0
             }
         }
@@ -389,7 +389,7 @@ public class WYContentScrollView: UIScrollView {
         return true
     }
     
-    /// 开启定时器(默认开启，调用该方法会重新开启)
+    /// 开启自动轮播计时器(调用该方法会重新开启)
     public func startTimer() {
         
         // 先记下"业务想开轮播"这个意图再去做条件检查，由于条件(自动轮播开关/数量/无限翻页)可能此刻还不满足导致直接返回，如果意图不先记下，之后条件满足时组件也不知道要开计时器(表现为先开计时器再开自动轮播的顺序下计时器永远起不来)，先记下后任一条件变化时都会自动把计时器开起来
@@ -425,7 +425,7 @@ public class WYContentScrollView: UIScrollView {
         RunLoop.current.add(timer!, forMode: .common)
     }
     
-    /// 停止定时器
+    /// 停止自动轮播计时器
     public func stopTimer() {
         pauseTimer()
         canRestartedTimer = false

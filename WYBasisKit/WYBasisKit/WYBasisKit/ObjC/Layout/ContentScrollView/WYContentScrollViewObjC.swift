@@ -91,7 +91,7 @@ import WYBasisKitSwift
         return reserveVerticalIndex
     }
 
-    /// 自动轮播时每一页停留时间，默认为3s，最少1s(当设置的值小于1s时，则为默认值，同时修改值后会立即生效)
+    /// 自动轮播时每一页停留时间，默认3s，最低1s(低于1s时按默认3s处理，修改后立即生效)
     @objc(standingTime)
     public var standingTimeObjC: TimeInterval {
         get { return standingTime }
@@ -206,13 +206,13 @@ import WYBasisKitSwift
         return reload()
     }
 
-    /// 开启定时器(默认开启，调用该方法会重新开启)
+    /// 开启自动轮播计时器(调用该方法会重新开启)
     @objc(startTimer)
     public func startTimerObjC() {
         startTimer()
     }
 
-    /// 停止定时器
+    /// 停止自动轮播计时器
     @objc(stopTimer)
     public func stopTimerObjC() {
         stopTimer()
