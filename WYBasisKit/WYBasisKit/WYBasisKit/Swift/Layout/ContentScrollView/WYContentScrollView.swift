@@ -653,7 +653,6 @@ public class WYContentScrollView: UIScrollView {
     
     deinit {
         stopTimer()
-        WYLogManager.output("WYContentScrollView deinit")
     }
     
     /*
