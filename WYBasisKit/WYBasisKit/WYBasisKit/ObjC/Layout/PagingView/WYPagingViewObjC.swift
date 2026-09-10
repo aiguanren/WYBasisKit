@@ -39,6 +39,16 @@ import WYBasisKitSwift
         itemDidLayout(handler: handler)
     }
 
+    /**
+     * 点击当前已选中页面(也可以通过实现代理监听)
+     *
+     * @param handler 点击当前已选中页面的block
+     */
+    @objc(itemDidRepeatClick:)
+    func itemDidRepeatClickObjC(handler: @escaping ((_ pagingView: WYPagingView, _ pagingIndex: Int) -> Void)) {
+        itemDidRepeatClick(handler: handler)
+    }
+
     /// 分页栏的高度 默认45
     @objc(bar_height)
     var bar_heightObjC: CGFloat {
@@ -76,7 +86,7 @@ import WYBasisKitSwift
         }
     }
     
-    /// 显示整体宽度小于一屏，且设置了bar_Width != 0，是否需要居中显示，默认 居中 (居中后，将会动态调整bar_originlLeftOffset和bar_originlRightOffset的距离)
+    /// bar_item_width不为0且标题总占宽(含间距)小于一屏时是否居中显示，默认居中(居中后会动态调整bar_originlLeftOffset和bar_originlRightOffset)
     @objc(bar_adjustOffset)
     var bar_adjustOffsetObjC: Bool {
         get { return bar_adjustOffset }
@@ -111,7 +121,7 @@ import WYBasisKitSwift
         set { bar_pagingContro_bg_color = newValue }
     }
     
-    /// 分页控制器是否需要弹跳效果
+    /// 分页控制器内容区是否需要弹跳效果
     @objc(bar_pagingContro_bounce)
     var bar_pagingContro_bounceObjC: Bool {
         get { return bar_pagingContro_bounce }
@@ -123,6 +133,13 @@ import WYBasisKitSwift
     var bar_bg_defaultColorObjC: UIColor {
         get { return bar_bg_defaultColor }
         set { bar_bg_defaultColor = newValue }
+    }
+
+    /// 分页栏是否需要弹跳效果(内容区弹跳由bar_pagingContro_bounce单独控制)
+    @objc(bar_bounce)
+    var bar_bounceObjC: Bool {
+        get { return bar_bounce }
+        set { bar_bounce = newValue }
     }
     
     /// 分页栏Item宽度 默认对应每页标题文本宽度(若传入则整体使用传入宽度)
@@ -265,7 +282,7 @@ import WYBasisKitSwift
         set { bar_scrollLineHeight = newValue }
     }
     
-    /// 滑动线条圆角半径，默认0(无圆角)
+    /// 滑动线条圆角半径，默认0(无圆角，想让线条两端呈半圆可传线条高度的一半)
     @objc(bar_scrollLineCornerRadius)
     var bar_scrollLineCornerRadiusObjC: CGFloat {
         get { return bar_scrollLineCornerRadius }
@@ -284,6 +301,13 @@ import WYBasisKitSwift
     var bar_title_selectedFontObjC: UIFont {
         get { return bar_title_selectedFont }
         set { bar_title_selectedFont = newValue }
+    }
+
+    /// 标题选中时的缩放系数，默认1(不缩放，大于1放大如1.2，小于1缩小，需大于0否则按1处理)
+    @objc(bar_title_selectedScale)
+    var bar_title_selectedScaleObjC: CGFloat {
+        get { return bar_title_selectedScale }
+        set { bar_title_selectedScale = newValue }
     }
 
     /// 当前选中的页面的Index，初始化时也可以用来设置默认选中第几个页面
@@ -312,6 +336,13 @@ import WYBasisKitSwift
     var bar_scrollLineFollowFingerObjC: Bool{
         get { return bar_scrollLineFollowFinger }
         set { bar_scrollLineFollowFinger = newValue }
+    }
+
+    /// 相隔超过一页切换时内容是否依次滑动经过中间页(默认false直接落位仅指示线动画，相邻页切换没有中间页不受影响始终滑动)
+    @objc(slideThroughIntermediatePages)
+    var slideThroughIntermediatePagesObjC: Bool {
+        get { return slideThroughIntermediatePages }
+        set { slideThroughIntermediatePages = newValue }
     }
     
     /// 传入的控制器数组
@@ -351,12 +382,12 @@ import WYBasisKitSwift
     }
     
     /**
-     *调用后开始布局
+     *调用后开始布局，对已布局的实例再次调用即为动态更新页面(数量与顺序可变，内部自动拆旧建新，当前选中页还在新数组里时跟着走到新位置、不在则回第0页)
      *
      * @param controllers 控制器数组
-     * @param titles 标题数组
-     * @param defaultImages 未选中状态图片数组(可不传)
-     * @param selectedImages 选中状态图片数组(可不传)
+     * @param titles 标题数组(传入时数量需与controllers一致)
+     * @param defaultImages 未选中状态图片数组(可不传，传入时数量需与controllers一致)
+     * @param selectedImages 选中状态图片数组(可不传，传入时数量需与controllers一致)
      * @param superViewController 父控制器
      */
     @objc(layoutWithControllers:titles:superViewController:)
@@ -366,6 +397,17 @@ import WYBasisKitSwift
     @objc(layoutWithControllers:titles:defaultImages:selectedImages:superViewController:)
     func layoutObjC(controllers: [UIViewController], titles: [String]?, defaultImages: [UIImage]?, selectedImages: [UIImage]?, superViewController: UIViewController) {
         layout(controllers: controllers, titles: titles ?? [], defaultImages: defaultImages ?? [], selectedImages: selectedImages ?? [], superViewController: superViewController)
+    }
+
+    /**
+     * 代码切换到指定页面(效果等同点击对应标题)
+     *
+     * @param index 目标页面下标(越界或等于当前页时不产生任何效果)
+     * @param animated 是否带动画切换(相邻页内容滑动切换，相隔超过一页时内容是否依次滑动经过中间页由slideThroughIntermediatePages决定，false恒为内容直切)
+     */
+    @objc(switchToPageAt:animated:)
+    func switchToPageObjC(at index: Int, animated: Bool) {
+        switchToPage(at: index, animated: animated)
     }
 
     /*

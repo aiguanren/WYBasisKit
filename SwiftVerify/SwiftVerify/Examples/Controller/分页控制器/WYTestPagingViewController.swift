@@ -16,49 +16,156 @@ enum DisplayMode: String, CaseIterable {
 
 // MARK: - 主测试控制器
 class WYTestPagingViewController: UIViewController {
-    
-    private var pagingView: WYPagingView?
+
+    /// 分页控件(整个生命周期复用同一个实例，首次布局、设置更新、动态加减/插删/换顺序都通过重调layout原地重载)
+    private lazy var pagingView: WYPagingView = {
+
+        let pagingView = WYPagingView()
+        pagingView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(pagingView)
+
+        NSLayoutConstraint.activate([
+            pagingView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            pagingView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            pagingView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            pagingView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+
+        // 代理和闭包随实例创建注册一次即可，原地重载不会清除
+        pagingView.delegate = self
+        pagingView.itemDidScroll { pagingView, pagingIndex, isFirstDisplayed in
+            print("分页滚动到第 \(pagingIndex) 页 - 通过闭包回调")
+        }
+        pagingView.itemDidLayout { pagingView in
+            print("分页视图布局完成 - 闭包回调")
+        }
+        pagingView.itemDidRepeatClick { pagingView, pagingIndex in
+            print("重复点击了当前页 第 \(pagingIndex + 1) 页 - 通过闭包回调")
+        }
+
+        return pagingView
+    }()
+
     private var settingsButton: UIBarButtonItem!
     private var settings = PagingSettingsModel()
-    
-    /// 测试用的子控制器数组（固定5个）
-    private let testControllers: [UIViewController] = {
-        let colors: [UIColor] = [.red, .green, .blue, .yellow, .purple, .orange, .cyan, .magenta]
-        return colors.prefix(5).map { color in
-            let vc = UIViewController()
-            vc.view.backgroundColor = color
-            vc.view.layer.borderWidth = 2
-            vc.view.layer.borderColor = UIColor.black.cgColor
-            return vc
-        }
+
+    /// 动态修改title数量的悬浮控件(固定盖在WYPagingView右下角，不占用导航栏，避免顶掉返回按钮)
+    private lazy var countControl: UIView = {
+        
+        let control = UIView()
+        control.backgroundColor = UIColor.white.withAlphaComponent(0.92)
+        control.layer.cornerRadius = 18
+        control.layer.shadowColor = UIColor.black.cgColor
+        control.layer.shadowOpacity = 0.15
+        control.layer.shadowRadius = 4
+        control.layer.shadowOffset = CGSize(width: 0, height: 2)
+        control.translatesAutoresizingMaskIntoConstraints = false
+        
+        control.addSubview(reduceButton)
+        control.addSubview(countButton)
+        control.addSubview(increaseButton)
+        
+        NSLayoutConstraint.activate([
+            reduceButton.leadingAnchor.constraint(equalTo: control.leadingAnchor),
+            reduceButton.centerYAnchor.constraint(equalTo: control.centerYAnchor),
+            reduceButton.widthAnchor.constraint(equalToConstant: 40),
+            reduceButton.heightAnchor.constraint(equalTo: control.heightAnchor),
+            
+            countButton.leadingAnchor.constraint(equalTo: reduceButton.trailingAnchor),
+            countButton.centerYAnchor.constraint(equalTo: control.centerYAnchor),
+            countButton.widthAnchor.constraint(equalToConstant: 60),
+            
+            increaseButton.leadingAnchor.constraint(equalTo: countButton.trailingAnchor),
+            increaseButton.trailingAnchor.constraint(equalTo: control.trailingAnchor),
+            increaseButton.centerYAnchor.constraint(equalTo: control.centerYAnchor),
+            increaseButton.widthAnchor.constraint(equalToConstant: 40),
+            increaseButton.heightAnchor.constraint(equalTo: control.heightAnchor)
+        ])
+        
+        return control
     }()
     
-    /// 测试用的标题数组
-    private let testTitles = ["首页", "消息", "发现", "我的", "设置"]
+    /// 数量+1按钮(到达上限时置灰)
+    private lazy var increaseButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("＋", for: .normal)
+        button.titleLabel?.font = .boldSystemFont(ofSize: 18)
+        button.addTarget(self, action: #selector(increaseTitleCount), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
     
-    /// 测试用的未选中图片数组
-    private let testDefaultImages: [UIImage] = [
-        UIImage(systemName: "house")!,
-        UIImage(systemName: "message")!,
-        UIImage(systemName: "magnifyingglass")!,
-        UIImage(systemName: "person")!,
-        UIImage(systemName: "gearshape")!
-    ]
+    /// 数量-1按钮(到达下限时置灰)
+    private lazy var reduceButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("－", for: .normal)
+        button.titleLabel?.font = .boldSystemFont(ofSize: 18)
+        button.addTarget(self, action: #selector(reduceTitleCount), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
     
-    /// 测试用的选中图片数组
-    private let testSelectedImages: [UIImage] = [
-        UIImage(systemName: "house.fill")!,
-        UIImage(systemName: "message.fill")!,
-        UIImage(systemName: "magnifyingglass.circle.fill")!,
-        UIImage(systemName: "person.fill")!,
-        UIImage(systemName: "gearshape.fill")!
-    ]
+    /// 当前页数展示按钮(点击弹出插删页/换顺序操作菜单)
+    private lazy var countButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.titleLabel?.font = .systemFont(ofSize: 13, weight: .medium)
+        button.setTitleColor(.darkGray, for: .normal)
+        button.addTarget(self, action: #selector(showPageOperations), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
+    /// 测试页数据(控制器/标题/图片绑成一组，插删页或换顺序时标题和内容跟着同一页走)
+    private struct TestPageItem {
+        let controller: UIViewController
+        let title: String
+        let defaultImage: UIImage
+        let selectedImage: UIImage
+    }
+    
+    /// 测试页循环使用的背景色与图标(固定前8页与动态生成的页共用一套)
+    private let pageColors: [UIColor] = [.red, .green, .blue, .yellow, .purple, .orange, .cyan, .magenta]
+    private let pageDefaultSymbols = ["house", "message", "magnifyingglass", "person", "gearshape", "star", "trash", "flag"]
+    private let pageSelectedSymbols = ["house.fill", "message.fill", "magnifyingglass.circle.fill", "person.fill", "gearshape.fill", "star.fill", "trash.fill", "flag.fill"]
+
+    /// 最多准备的测试页数(需要覆盖固定Item宽度下超一屏滚动等场景，20页已远超常见业务规模)
+    private let maxTestPageCount = 20
+    
+    /// 备好的测试页(前8页有专属标题与图标，超出后由firstUnusedItem按序号动态生成)
+    private lazy var allPageItems: [TestPageItem] = {
+        
+        let titles = ["首页", "消息", "发现", "我的", "设置", "收藏", "草稿", "关于"]
+        
+        var items: [TestPageItem] = []
+        for index in 0..<pageColors.count {
+            let controller = UIViewController()
+            controller.view.backgroundColor = pageColors[index]
+            controller.view.layer.borderWidth = 2
+            controller.view.layer.borderColor = UIColor.black.cgColor
+            items.append(TestPageItem(controller: controller,
+                                      title: titles[index],
+                                      defaultImage: UIImage(systemName: pageDefaultSymbols[index])!,
+                                      selectedImage: UIImage(systemName: pageSelectedSymbols[index])!))
+        }
+        return items
+    }()
+    
+    /// 当前展示中的测试页(数量和顺序都会变，模拟接口下发的title数量与顺序)
+    private var currentItems: [TestPageItem] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupNavigationBar()
-        setupInitialPagingView()
+
+        // 首次进入默认展示前5页(之后插删页/换顺序/设置保存改的是currentItems，均保持现状)
+        if currentItems.isEmpty {
+            currentItems = Array(allPageItems.prefix(5))
+        }
+
+        applySettings()
+        setupCountControl()
+        reloadPagingView()
     }
     
     private func setupNavigationBar() {
@@ -76,49 +183,212 @@ class WYTestPagingViewController: UIViewController {
         self.wy_navBarBackgroundColor = .orange
     }
     
-    private func setupInitialPagingView() {
-        pagingView?.removeFromSuperview()
-        pagingView = nil
+    /// 把数量加减悬浮控件加到view上并固定在WYPagingView右下角
+    private func setupCountControl() {
         
-        let newPagingView = WYPagingView()
-        view.addSubview(newPagingView)
+        view.addSubview(countControl)
         
-        newPagingView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            newPagingView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            newPagingView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            newPagingView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            newPagingView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            countControl.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            countControl.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            countControl.heightAnchor.constraint(equalToConstant: 36),
+            countControl.widthAnchor.constraint(equalToConstant: 140)
         ])
         
-        applySettings(to: newPagingView)
+        updateCountControlState()
+    }
+    
+    /// 刷新悬浮控件上的数量显示和加减按钮可用状态(到达上/下限时置灰)
+    private func updateCountControlState() {
+        countButton.setTitle("数量 \(currentItems.count)", for: .normal)
+        increaseButton.isEnabled = firstUnusedItem() != nil
+        reduceButton.isEnabled = currentItems.count > 1
+    }
+    
+    /// title数量+1并原地重载WYPagingView(从没在展示中的页里取一页加到末尾)
+    @objc private func increaseTitleCount() {
+        changeTitleCount(1)
+    }
+    
+    /// title数量-1并原地重载WYPagingView(移除末尾一页)
+    @objc private func reduceTitleCount() {
+        changeTitleCount(-1)
+    }
+    
+    /**
+     * 调整末尾页数量并原地重载当前WYPagingView(中间位置插删、换顺序见showPageOperations菜单)
+     *
+     * @param delta 数量变化值(正数末尾加一页，负数末尾减一页)
+     */
+    private func changeTitleCount(_ delta: Int) {
         
-        // 根据显示模式决定传入的参数
+        if delta > 0 {
+            guard let unusedItem = firstUnusedItem() else { return }
+            currentItems.append(unusedItem)
+        } else {
+            guard currentItems.count > 1 else { return }
+            currentItems.removeLast()
+        }
+        
+        updateCountControlState()
+        reloadPagingView()
+    }
+    
+    /// 弹出插删页/换顺序/代码切页操作菜单(模拟接口下发不同数量与顺序的title，并验证switchToPage与重复点击回调)
+    @objc private func showPageOperations() {
+
+        let alert = UIAlertController(title: "页面操作", message: "当前 \(currentItems.count) 页", preferredStyle: .actionSheet)
+
+        if firstUnusedItem() != nil {
+            alert.addAction(UIAlertAction(title: "随机位置插入一页", style: .default) { _ in
+                self.insertRandomPage()
+            })
+        }
+
+        if currentItems.count > 1 {
+            alert.addAction(UIAlertAction(title: "删除随机一页", style: .destructive) { _ in
+                self.removeRandomPage()
+            })
+
+            alert.addAction(UIAlertAction(title: "打乱顺序", style: .default) { _ in
+                self.shufflePages()
+            })
+
+            alert.addAction(UIAlertAction(title: "代码切页到第3页(动画)", style: .default) { _ in
+                self.pagingView.switchToPage(at: 2)
+            })
+
+            alert.addAction(UIAlertAction(title: "代码切页到第4页(直切)", style: .default) { _ in
+                self.pagingView.switchToPage(at: 3, animated: false)
+            })
+
+            alert.addAction(UIAlertAction(title: "代码切页越界(应无效)", style: .default) { _ in
+                self.pagingView.switchToPage(at: 99)
+            })
+        }
+
+        alert.addAction(UIAlertAction(title: "点击当前页(重复点击回调)", style: .default) { _ in
+            let current = self.pagingView.bar_selectedIndex
+            if let item = self.pagingView.buttonItems.first(where: { $0.tag == 1000 + current }) {
+                item.sendActions(for: .touchUpInside)
+            }
+        })
+
+        alert.addAction(UIAlertAction(title: "恢复初始5页", style: .default) { _ in
+            self.resetPages()
+        })
+
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+
+        // 防iPad上actionSheet没有锚点报错:指向悬浮控件弹出
+        if let popover = alert.popoverPresentationController {
+            popover.sourceView = countControl
+            popover.sourceRect = countControl.bounds
+        }
+
+        present(alert, animated: true)
+    }
+    
+    /// 在随机位置插入一页没在展示中的页
+    @objc private func insertRandomPage() {
+        
+        guard let unusedItem = firstUnusedItem() else { return }
+        
+        currentItems.insert(unusedItem, at: Int.random(in: 0...currentItems.count))
+        
+        updateCountControlState()
+        reloadPagingView()
+    }
+    
+    /// 删除随机一页
+    @objc private func removeRandomPage() {
+        
+        guard currentItems.count > 1 else { return }
+        
+        currentItems.remove(at: Int.random(in: 0..<currentItems.count))
+        
+        updateCountControlState()
+        reloadPagingView()
+    }
+    
+    /// 打乱当前页顺序(数量不变，验证选中页跟着同一页内容走)
+    @objc private func shufflePages() {
+        
+        guard currentItems.count > 1 else { return }
+        
+        currentItems.shuffle()
+        
+        reloadPagingView()
+    }
+    
+    /// 恢复成初始的前5页
+    @objc private func resetPages() {
+        
+        currentItems = Array(allPageItems.prefix(5))
+        
+        updateCountControlState()
+        reloadPagingView()
+    }
+    
+    /// 取第一个没在展示中的测试页(固定数据用完后动态生成，到maxTestPageCount上限后返回nil)
+    private func firstUnusedItem() -> TestPageItem? {
+
+        if let unusedItem = allPageItems.first(where: { item in
+            !currentItems.contains(where: { $0.controller === item.controller })
+        }) {
+            return unusedItem
+        }
+
+        // 防+号加到8页就到顶(前8页是固定数据):数据不够时按序号动态生成，直到maxTestPageCount上限
+        guard allPageItems.count < maxTestPageCount else { return nil }
+
+        let newItem = makePageItem(slot: allPageItems.count)
+        allPageItems.append(newItem)
+        return newItem
+    }
+
+    /// 按序号动态生成一页测试页(标题带序号，颜色与图标循环取用)
+    private func makePageItem(slot: Int) -> TestPageItem {
+
+        let controller = UIViewController()
+        controller.view.backgroundColor = pageColors[slot % pageColors.count]
+        controller.view.layer.borderWidth = 2
+        controller.view.layer.borderColor = UIColor.black.cgColor
+
+        return TestPageItem(controller: controller,
+                            title: "页面\(slot + 1)",
+                            defaultImage: UIImage(systemName: pageDefaultSymbols[slot % pageDefaultSymbols.count])!,
+                            selectedImage: UIImage(systemName: pageSelectedSymbols[slot % pageSelectedSymbols.count])!)
+    }
+    
+    /// 原地(重新)布局分页控件(首次进入、设置保存、加减数量、插删页、换顺序都走这里，落位过渡由控件内部处理)
+    private func reloadPagingView() {
+
         let (titles, defaultImages, selectedImages) = resolveDisplayModeParameters()
-        newPagingView.layout(
-            controllers: testControllers,
+
+        pagingView.layout(
+            controllers: currentItems.map(\.controller),
             titles: titles,
             defaultImages: defaultImages,
             selectedImages: selectedImages,
             superViewController: self
         )
-        
-        pagingView = newPagingView
     }
-    
-    /// 根据显示模式返回对应的 titles 和 images 数组
+
+    /// 根据显示模式返回对应的 titles 和 images 数组(跟随currentItems的数量与顺序)
     private func resolveDisplayModeParameters() -> ([String], [UIImage], [UIImage]) {
         switch settings.displayMode {
         case .textOnly:
-            return (testTitles, [], [])
+            return (currentItems.map(\.title), [], [])
         case .imageOnly:
-            return ([], testDefaultImages, testSelectedImages)
+            return ([], currentItems.map(\.defaultImage), currentItems.map(\.selectedImage))
         case .both:
-            return (testTitles, testDefaultImages, testSelectedImages)
+            return (currentItems.map(\.title), currentItems.map(\.defaultImage), currentItems.map(\.selectedImage))
         }
     }
     
-    private func applySettings(to pagingView: WYPagingView) {
+    /// 把当前设置应用到分页控件(首次进入与设置保存后调用，下次layout时生效)
+    private func applySettings() {
         // 基本属性
         pagingView.bar_height = settings.barHeight
         pagingView.buttonPosition = settings.buttonPosition
@@ -135,6 +405,8 @@ class WYTestPagingViewController: UIViewController {
         pagingView.bar_bg_defaultColor = settings.barBgColor
         pagingView.bar_item_bg_defaultColor = settings.itemDefaultBgColor
         pagingView.bar_item_bg_selectedColor = settings.itemSelectedBgColor
+        pagingView.bar_item_normalBorderColor = settings.itemNormalBorderColor
+        pagingView.bar_item_selectedBorderColor = settings.itemSelectedBorderColor
         pagingView.bar_title_defaultColor = settings.titleDefaultColor
         pagingView.bar_title_selectedColor = settings.titleSelectedColor
         pagingView.bar_dividingStripColor = settings.dividingStripColor
@@ -148,8 +420,11 @@ class WYTestPagingViewController: UIViewController {
         pagingView.bar_item_width = settings.itemWidth
         pagingView.bar_item_height = settings.itemHeight
         pagingView.bar_item_cornerRadius = settings.itemCornerRadius
+        pagingView.bar_item_borderWidth = settings.itemBorderWidth
         pagingView.bar_scrollLineWidth = settings.scrollLineWidth
         pagingView.bar_scrollLineBottomOffset = settings.scrollLineBottomOffset
+        pagingView.bar_scrollLineCornerRadius = settings.scrollLineCornerRadius
+        pagingView.bar_title_selectedScale = settings.titleSelectedScale
         pagingView.bar_dividingStripHeight = settings.dividingStripHeight
         pagingView.bar_scrollLineHeight = settings.scrollLineHeight
         
@@ -166,21 +441,15 @@ class WYTestPagingViewController: UIViewController {
         pagingView.bar_selectedIndex = settings.selectedIndex
         pagingView.canScrollController = settings.canScrollController
         pagingView.canScrollBar = settings.canScrollBar
+        pagingView.slideThroughIntermediatePages = settings.slideThroughIntermediatePages
         pagingView.bar_pagingContro_bounce = settings.pagingBounce
-        
-        // 代理和闭包
-        pagingView.delegate = self
-        pagingView.itemDidScroll { pagingView, pagingIndex, isFirstDisplayed in
-            print("分页滚动到第 \(pagingIndex) 页 - 通过闭包回调")
-        }
-        pagingView.itemDidLayout { pagingView in
-            print("分页视图布局完成 - 闭包回调")
-        }
+        pagingView.bar_bounce = settings.barBounce
     }
-    
+
     @objc private func showSettings() {
         let settingsVC = PagingSettingsViewController(settings: settings)
         settingsVC.delegate = self
+        settingsVC.titleCount = currentItems.count
         let navController = UINavigationController(rootViewController: settingsVC)
         present(navController, animated: true)
     }
@@ -199,13 +468,18 @@ extension WYTestPagingViewController: WYPagingViewDelegate {
     func wy_pagingViewLayoutDidCompleted(_ pagingView: WYPagingView) {
         print("分页视图布局完成 - 代理回调")
     }
+
+    func wy_pagingViewItemDidRepeatClick(_ pagingView: WYPagingView, pagingIndex: Int) {
+        print("重复点击了当前页 第 \(pagingIndex + 1) 页 - 代理回调")
+    }
 }
 
 // MARK: - PagingSettingsDelegate
 extension WYTestPagingViewController: PagingSettingsDelegate {
     func didSaveSettings(_ settings: PagingSettingsModel) {
         self.settings = settings
-        setupInitialPagingView()
+        applySettings()
+        reloadPagingView()
         dismiss(animated: true)
     }
     
@@ -235,6 +509,8 @@ struct PagingSettingsModel {
     var barBgColor: UIColor = .white
     var itemDefaultBgColor: UIColor = .white
     var itemSelectedBgColor: UIColor = .white
+    var itemNormalBorderColor: UIColor? = nil
+    var itemSelectedBorderColor: UIColor? = nil
     var titleDefaultColor: UIColor = .wy_hex("#7B809E")
     var titleSelectedColor: UIColor = .wy_hex("#2D3952")
     var dividingStripColor: UIColor = .wy_hex("#F2F2F2")
@@ -248,10 +524,13 @@ struct PagingSettingsModel {
     var itemWidth: CGFloat = 0
     var itemHeight: CGFloat = 0
     var itemCornerRadius: CGFloat = 0
+    var itemBorderWidth: CGFloat = 0
     var scrollLineWidth: CGFloat = 25
     var scrollLineBottomOffset: CGFloat = 5
+    var scrollLineCornerRadius: CGFloat = 0
     var dividingStripHeight: CGFloat = 2
     var scrollLineHeight: CGFloat = 2
+    var titleSelectedScale: CGFloat = 1
     
     // 新增属性
     var scrollLineFollowFinger: Bool = true
@@ -266,7 +545,9 @@ struct PagingSettingsModel {
     var selectedIndex: Int = 0
     var canScrollController: Bool = true
     var canScrollBar: Bool = true
+    var slideThroughIntermediatePages: Bool = false
     var pagingBounce: Bool = true
+    var barBounce: Bool = true
 }
 
 // MARK: - 设置页面协议
@@ -280,6 +561,9 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
     
     private var settings: PagingSettingsModel
     weak var delegate: PagingSettingsDelegate?
+    
+    /// 当前title数量(用于限制初始选中项的取值范围)
+    var titleCount: Int = 5
     
     private let tableView = UITableView(frame: .zero, style: .grouped)
     
@@ -316,6 +600,8 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
             ("分页栏背景色", "barBgColor"),
             ("Item默认背景", "itemDefaultBgColor"),
             ("Item选中背景", "itemSelectedBgColor"),
+            ("Item边框色(默认)", "itemNormalBorderColor"),
+            ("Item边框色(选中)", "itemSelectedBorderColor"),
             ("标题默认颜色", "titleDefaultColor"),
             ("标题选中颜色", "titleSelectedColor"),
             ("分隔带颜色", "dividingStripColor"),
@@ -327,10 +613,13 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
             ("Item宽度", "itemWidth"),
             ("Item高度", "itemHeight"),
             ("Item圆角", "itemCornerRadius"),
+            ("Item边框宽", "itemBorderWidth"),
             ("滑动线宽度", "scrollLineWidth"),
             ("滑动线底部偏移", "scrollLineBottomOffset"),
+            ("滑动线圆角", "scrollLineCornerRadius"),
             ("分隔带高度", "dividingStripHeight"),
-            ("滑动线高度", "scrollLineHeight")
+            ("滑动线高度", "scrollLineHeight"),
+            ("选中缩放", "titleSelectedScale")
         ],
         
         // 高级属性
@@ -351,7 +640,9 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
             ("初始选中项", "selectedIndex"),
             ("控制器可滚动", "canScrollController"),
             ("分页栏可滚动", "canScrollBar"),
-            ("弹跳效果", "pagingBounce")
+            ("远距滑动中间页", "slideThroughIntermediatePages"),
+            ("内容区弹跳", "pagingBounce"),
+            ("分页栏弹跳", "barBounce")
         ]
     ]
     
@@ -455,15 +746,19 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         case "dividingOffset": return "\(settings.dividingOffset)"
         case "buttonDividingOffset": return "\(settings.buttonDividingOffset)"
         case "pagingContentColor", "pagingBgColor", "barBgColor", "itemDefaultBgColor",
-             "itemSelectedBgColor", "titleDefaultColor", "titleSelectedColor",
+             "itemSelectedBgColor", "itemNormalBorderColor", "itemSelectedBorderColor",
+             "titleDefaultColor", "titleSelectedColor",
              "dividingStripColor", "scrollLineColor": return "已设置"
         case "itemWidth": return "\(settings.itemWidth)"
         case "itemHeight": return "\(settings.itemHeight)"
         case "itemCornerRadius": return "\(settings.itemCornerRadius)"
+        case "itemBorderWidth": return "\(settings.itemBorderWidth)"
         case "scrollLineWidth": return "\(settings.scrollLineWidth)"
         case "scrollLineBottomOffset": return "\(settings.scrollLineBottomOffset)"
+        case "scrollLineCornerRadius": return "\(settings.scrollLineCornerRadius)"
         case "dividingStripHeight": return "\(settings.dividingStripHeight)"
         case "scrollLineHeight": return "\(settings.scrollLineHeight)"
+        case "titleSelectedScale": return "\(settings.titleSelectedScale)"
         case "scrollLineFollowFinger": return settings.scrollLineFollowFinger ? "是" : "否"
         case "itemInsideMargins": return "T:\(settings.itemInsideMargins.top) L:\(settings.itemInsideMargins.left) B:\(settings.itemInsideMargins.bottom) R:\(settings.itemInsideMargins.right)"
         case "itemImageViewSize": return "W:\(settings.itemImageViewSize.width) H:\(settings.itemImageViewSize.height)"
@@ -472,7 +767,9 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         case "selectedIndex": return "\(settings.selectedIndex)"
         case "canScrollController": return settings.canScrollController ? "是" : "否"
         case "canScrollBar": return settings.canScrollBar ? "是" : "否"
+        case "slideThroughIntermediatePages": return settings.slideThroughIntermediatePages ? "是" : "否"
         case "pagingBounce": return settings.pagingBounce ? "是" : "否"
+        case "barBounce": return settings.barBounce ? "是" : "否"
         default: return ""
         }
     }
@@ -484,6 +781,8 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         case "barBgColor": return settings.barBgColor
         case "itemDefaultBgColor": return settings.itemDefaultBgColor
         case "itemSelectedBgColor": return settings.itemSelectedBgColor
+        case "itemNormalBorderColor": return settings.itemNormalBorderColor ?? .clear
+        case "itemSelectedBorderColor": return settings.itemSelectedBorderColor ?? .clear
         case "titleDefaultColor": return settings.titleDefaultColor
         case "titleSelectedColor": return settings.titleSelectedColor
         case "dividingStripColor": return settings.dividingStripColor
@@ -543,7 +842,7 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
             alert.addAction(UIAlertAction(title: "取消", style: .cancel))
             present(alert, animated: true)
             
-        case "adjustOffset", "canScrollController", "canScrollBar", "pagingBounce":
+        case "adjustOffset", "canScrollController", "canScrollBar", "slideThroughIntermediatePages", "pagingBounce", "barBounce":
             showBoolEditor(for: key)
             
         case "titleDefaultFont", "titleSelectedFont":
@@ -557,7 +856,8 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
                 showColorEditor(for: key)
             } else if ["barHeight", "originlLeftOffset", "originlRightOffset", "dividingOffset",
                        "buttonDividingOffset", "itemWidth", "itemHeight", "itemCornerRadius",
-                       "scrollLineWidth", "scrollLineBottomOffset", "dividingStripHeight",
+                       "scrollLineWidth", "scrollLineBottomOffset", "scrollLineCornerRadius", "dividingStripHeight", "titleSelectedScale",
+                       "itemBorderWidth",
                        "scrollLineHeight"].contains(key) {
                 showNumberEditor(for: key)
             } else {
@@ -583,10 +883,13 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
             case "itemWidth": current = self.settings.itemWidth
             case "itemHeight": current = self.settings.itemHeight
             case "itemCornerRadius": current = self.settings.itemCornerRadius
+            case "itemBorderWidth": current = self.settings.itemBorderWidth
             case "scrollLineWidth": current = self.settings.scrollLineWidth
             case "scrollLineBottomOffset": current = self.settings.scrollLineBottomOffset
+            case "scrollLineCornerRadius": current = self.settings.scrollLineCornerRadius
             case "dividingStripHeight": current = self.settings.dividingStripHeight
             case "scrollLineHeight": current = self.settings.scrollLineHeight
+            case "titleSelectedScale": current = self.settings.titleSelectedScale
             default: current = 0
             }
             tf.text = "\(current)"
@@ -603,10 +906,13 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
                 case "itemWidth": self.settings.itemWidth = cgVal
                 case "itemHeight": self.settings.itemHeight = cgVal
                 case "itemCornerRadius": self.settings.itemCornerRadius = cgVal
+                case "itemBorderWidth": self.settings.itemBorderWidth = cgVal
                 case "scrollLineWidth": self.settings.scrollLineWidth = cgVal
                 case "scrollLineBottomOffset": self.settings.scrollLineBottomOffset = cgVal
+                case "scrollLineCornerRadius": self.settings.scrollLineCornerRadius = cgVal
                 case "dividingStripHeight": self.settings.dividingStripHeight = cgVal
                 case "scrollLineHeight": self.settings.scrollLineHeight = cgVal
+                case "titleSelectedScale": self.settings.titleSelectedScale = cgVal
                 default: break
                 }
                 self.tableView.reloadData()
@@ -644,7 +950,9 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         case "adjustOffset": current = settings.adjustOffset
         case "canScrollController": current = settings.canScrollController
         case "canScrollBar": current = settings.canScrollBar
+        case "slideThroughIntermediatePages": current = settings.slideThroughIntermediatePages
         case "pagingBounce": current = settings.pagingBounce
+        case "barBounce": current = settings.barBounce
         default: return
         }
         let alert = UIAlertController(title: "切换状态", message: "当前：\(current ? "开启" : "关闭")", preferredStyle: .alert)
@@ -653,7 +961,9 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
             case "adjustOffset": self.settings.adjustOffset.toggle()
             case "canScrollController": self.settings.canScrollController.toggle()
             case "canScrollBar": self.settings.canScrollBar.toggle()
+            case "slideThroughIntermediatePages": self.settings.slideThroughIntermediatePages.toggle()
             case "pagingBounce": self.settings.pagingBounce.toggle()
+            case "barBounce": self.settings.barBounce.toggle()
             default: break
             }
             self.tableView.reloadData()
@@ -685,14 +995,14 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
     }
     
     private func showIndexEditor() {
-        let alert = UIAlertController(title: "初始选中项", message: "范围 0-4", preferredStyle: .alert)
+        let alert = UIAlertController(title: "初始选中项", message: "范围 0-\(titleCount - 1)", preferredStyle: .alert)
         alert.addTextField { tf in
             tf.keyboardType = .numberPad
             tf.text = "\(self.settings.selectedIndex)"
         }
         alert.addAction(UIAlertAction(title: "确定", style: .default) { _ in
             if let text = alert.textFields?.first?.text, let idx = Int(text) {
-                self.settings.selectedIndex = max(0, min(idx, 4))
+                self.settings.selectedIndex = max(0, min(idx, self.titleCount - 1))
                 self.tableView.reloadData()
             }
         })
@@ -769,6 +1079,8 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         case "barBgColor": settings.barBgColor = color
         case "itemDefaultBgColor": settings.itemDefaultBgColor = color
         case "itemSelectedBgColor": settings.itemSelectedBgColor = color
+        case "itemNormalBorderColor": settings.itemNormalBorderColor = color
+        case "itemSelectedBorderColor": settings.itemSelectedBorderColor = color
         case "titleDefaultColor": settings.titleDefaultColor = color
         case "titleSelectedColor": settings.titleSelectedColor = color
         case "dividingStripColor": settings.dividingStripColor = color
@@ -801,3 +1113,8 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         delegate?.didCancelSettings()
     }
 }
+
+
+
+
+

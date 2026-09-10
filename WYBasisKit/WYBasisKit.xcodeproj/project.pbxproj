@@ -82,6 +82,12 @@
 		585B39AC2DF8125400E6E08F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 585B39632DF8125400E6E08F /* Assets.xcassets */; };
 		585B39AE2DF8125400E6E08F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 585B39662DF8125400E6E08F /* LaunchScreen.storyboard */; };
 		585B39AF2DF8125400E6E08F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 585B39682DF8125400E6E08F /* Main.storyboard */; };
+		586523603051524A0002B284 /* WYPagingView+PageSwitching.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5865235D3051524A0002B284 /* WYPagingView+PageSwitching.swift */; };
+		586523613051524A0002B284 /* WYPagingView+Properties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5865235E3051524A0002B284 /* WYPagingView+Properties.swift */; };
+		586523633051524A0002B284 /* WYPagingView+ScrollDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5865235F3051524A0002B284 /* WYPagingView+ScrollDelegate.swift */; };
+		586523643051524A0002B284 /* WYPagingView+Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5865235C3051524A0002B284 /* WYPagingView+Layout.swift */; };
+		586CD5A830529A8F003302ED /* WYPagingItem+Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586CD5A630529A8F003302ED /* WYPagingItem+Layout.swift */; };
+		586CD5A930529A8F003302ED /* WYPagingItem+Properties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586CD5A730529A8F003302ED /* WYPagingItem+Properties.swift */; };
 		586FFBB32E8230A700499506 /* Other.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586FFBB22E8230A700499506 /* Other.swift */; };
 		587CDF902E09151500929E1D /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 587CDF8F2E09151500929E1D /* libz.tbd */; };
 		587CDF922E09153B00929E1D /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 587CDF912E09153B00929E1D /* libbz2.tbd */; };
@@ -305,6 +311,12 @@
 		585B39672DF8125400E6E08F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		585B396A2DF8125400E6E08F /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		58652358304E8B960002B284 /* WYMediaPlayer+IJKOptions.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "WYMediaPlayer+IJKOptions.md"; sourceTree = "<group>"; };
+		5865235C3051524A0002B284 /* WYPagingView+Layout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYPagingView+Layout.swift"; sourceTree = "<group>"; };
+		5865235D3051524A0002B284 /* WYPagingView+PageSwitching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYPagingView+PageSwitching.swift"; sourceTree = "<group>"; };
+		5865235E3051524A0002B284 /* WYPagingView+Properties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYPagingView+Properties.swift"; sourceTree = "<group>"; };
+		5865235F3051524A0002B284 /* WYPagingView+ScrollDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYPagingView+ScrollDelegate.swift"; sourceTree = "<group>"; };
+		586CD5A630529A8F003302ED /* WYPagingItem+Layout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYPagingItem+Layout.swift"; sourceTree = "<group>"; };
+		586CD5A730529A8F003302ED /* WYPagingItem+Properties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYPagingItem+Properties.swift"; sourceTree = "<group>"; };
 		586FFBB22E8230A700499506 /* Other.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Other.swift; sourceTree = "<group>"; };
 		587CDF8F2E09151500929E1D /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		587CDF912E09153B00929E1D /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
@@ -1009,6 +1021,19 @@
 				F2AA847EA38B4440EEA687B5 /* Swift */,
 			);
 			path = WYBasisKit;
+			sourceTree = "<group>";
+		};
+		5865235A30514C0D0002B284 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				586CD5A630529A8F003302ED /* WYPagingItem+Layout.swift */,
+				586CD5A730529A8F003302ED /* WYPagingItem+Properties.swift */,
+				5865235C3051524A0002B284 /* WYPagingView+Layout.swift */,
+				5865235D3051524A0002B284 /* WYPagingView+PageSwitching.swift */,
+				5865235E3051524A0002B284 /* WYPagingView+Properties.swift */,
+				5865235F3051524A0002B284 /* WYPagingView+ScrollDelegate.swift */,
+			);
+			path = PrivateImpl;
 			sourceTree = "<group>";
 		};
 		58678E8C2DFA627C0035673E /* WYBasisKit */ = {
@@ -2438,6 +2463,7 @@
 			children = (
 				58C68D6C2E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68D6D2E84E436005FD054 /* WYPagingView.swift */,
+				5865235A30514C0D0002B284 /* PrivateImpl */,
 			);
 			path = PagingView;
 			sourceTree = "<group>";
@@ -2796,6 +2822,10 @@
 				58C68DD72E84E436005FD054 /* WYChatEmojiView.swift in Sources */,
 				58C68DD82E84E436005FD054 /* WYLocalizableManager.swift in Sources */,
 				58328C662FC9374900C0F556 /* WYViewWillAppearSwizzler.swift in Sources */,
+				586523603051524A0002B284 /* WYPagingView+PageSwitching.swift in Sources */,
+				586523613051524A0002B284 /* WYPagingView+Properties.swift in Sources */,
+				586523633051524A0002B284 /* WYPagingView+ScrollDelegate.swift in Sources */,
+				586523643051524A0002B284 /* WYPagingView+Layout.swift in Sources */,
 				58328C6E2FC938D600C0F556 /* WYScrollViewDidScrollSwizzler.swift in Sources */,
 				583E04F22E868138004F1034 /* WYColorObjC.swift in Sources */,
 				58C68DD92E84E436005FD054 /* WYTableView.swift in Sources */,
@@ -2900,6 +2930,8 @@
 				58C68E172E84E436005FD054 /* WYContactsAuthorizationObjC.swift in Sources */,
 				58C68E182E84E436005FD054 /* WYDecimal.swift in Sources */,
 				58C68E192E84E436005FD054 /* WYChatView.swift in Sources */,
+				586CD5A830529A8F003302ED /* WYPagingItem+Layout.swift in Sources */,
+				586CD5A930529A8F003302ED /* WYPagingItem+Properties.swift in Sources */,
 				58C68E1A2E84E436005FD054 /* WYDecoder.swift in Sources */,
 				58C68E1B2E84E436005FD054 /* WYCodable.swift in Sources */,
 				58C68E1C2E84E436005FD054 /* WYChatModel.swift in Sources */,
