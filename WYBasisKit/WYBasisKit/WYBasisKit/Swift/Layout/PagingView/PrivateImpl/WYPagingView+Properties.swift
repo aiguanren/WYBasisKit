@@ -34,6 +34,16 @@ extension WYPagingView {
         }
     }
 
+    // 是否已完成过首次layout(用来区分这次layout是首次还是数据源重载，isReload传给布局完成回调)
+    var hasCompletedInitialLayout: Bool {
+        set(newValue) {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.hasCompletedInitialLayout, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.hasCompletedInitialLayout) as? Bool ?? false
+        }
+    }
+
     var repeatClickHandler: ((_ pagingView: WYPagingView, _ pagingIndex: Int) -> Void)? {
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.repeatClickHandler, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -53,13 +63,13 @@ extension WYPagingView {
         }
     }
 
-    var itemDidLayoutHandler: ((_ pagingView: WYPagingView) -> Void)? {
+    var itemDidLayoutHandler: ((_ pagingView: WYPagingView, _ pagingIndex: Int, _ isReload: Bool) -> Void)? {
 
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.itemDidLayoutHandler, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.itemDidLayoutHandler) as? (WYPagingView) -> Void
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.itemDidLayoutHandler) as? (WYPagingView, Int, Bool) -> Void
         }
     }
 
@@ -122,6 +132,8 @@ extension WYPagingView {
         static var currentButtonItem: UInt8 = 0
 
         static var preservedController: UInt8 = 0
+
+        static var hasCompletedInitialLayout: UInt8 = 0
 
         static var clickOrScrollHandler: UInt8 = 0
 

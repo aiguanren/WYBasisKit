@@ -69,7 +69,7 @@ extension WYPagingView {
         barScrollLineWidthConstraint?.constant = bar_scrollLineWidth
 
         if (self.bar_scrollLineCornerRadius > 0) {
-            self.barScrollLine.wy_rectCorner(.allCorners).wy_cornerRadius(self.bar_scrollLineCornerRadius).wy_showVisual()
+            self.barScrollLine.wy_rectCorner(.allCorners).wy_cornerRadius(self.bar_scrollLineCornerRadius)
         }
 
         // 初始化与重载落位时指示线直接到位(没有"上一个位置"可以过渡，播放动画会看到它从起点飞过来)，用户切页时才播动画

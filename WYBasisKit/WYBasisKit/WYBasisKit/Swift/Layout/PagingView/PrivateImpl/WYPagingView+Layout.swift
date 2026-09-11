@@ -15,15 +15,12 @@ extension WYPagingView {
 
         layoutIfNeeded()
 
-        // 防居中计算漏算item之间的间距(只扣一份间距，数量不等于2时左右留白不对称甚至右侧被截断)和触发条件没算间距(数量多时会算出负偏移，第一项被挤出屏幕左侧):按真实占宽(含所有间距)判断并均分
-        let barTotalWidth: CGFloat = (bar_item_width * CGFloat(controllers.count)) + (bar_dividingOffset * CGFloat(controllers.count - 1))
+        // Item之间的间距约束(居中调整时均摊剩余空间用)
+        var barSpacingConstraints: [NSLayoutConstraint] = []
 
-        if (bar_adjustOffset == true) && (bar_item_width > 0) && (barTotalWidth <= self.frame.size.width) {
-
-            bar_originlLeftOffset = (self.frame.size.width - barTotalWidth) / 2
-
-            bar_originlRightOffset = bar_originlLeftOffset
-        }
+        // 第一个Item的左端约束与最后一个Item的右端约束(居中调整时改写两端边距用)
+        var firstLeadingConstraint: NSLayoutConstraint? = nil
+        var lastTrailingConstraint: NSLayoutConstraint? = nil
 
         var lastView: UIView? = nil
         for index in 0..<controllers.count {
@@ -68,6 +65,9 @@ extension WYPagingView {
             buttonItem.tag = buttonItemTagBegin+index
             buttonItem.addTarget(self, action: #selector(buttonItemClick(sender:)), for: .touchUpInside)
 
+            // 图片显示模式由容器统一设置(Item自身不持有容器属性)
+            buttonItem.iconView?.contentMode = bar_item_imageContentMode
+
             if(index == bar_selectedIndex) {
                 buttonItem.setIsSelected(true)
                 applySelectedScale(to: buttonItem, isSelected: true, animated: false)
@@ -87,13 +87,19 @@ extension WYPagingView {
 
             // 设置按钮左右约束
             if lastView == nil {
-                buttonItem.leadingAnchor.constraint(equalTo: barScrollView.leadingAnchor, constant: bar_originlLeftOffset).isActive = true
+                let leadingConstraint = buttonItem.leadingAnchor.constraint(equalTo: barScrollView.leadingAnchor, constant: bar_originlLeftOffset)
+                leadingConstraint.isActive = true
+                firstLeadingConstraint = leadingConstraint
             } else {
-                buttonItem.leadingAnchor.constraint(equalTo: lastView!.trailingAnchor, constant: bar_dividingOffset).isActive = true
+                let spacingConstraint = buttonItem.leadingAnchor.constraint(equalTo: lastView!.trailingAnchor, constant: bar_dividingOffset)
+                spacingConstraint.isActive = true
+                barSpacingConstraints.append(spacingConstraint)
             }
 
             if index == (controllers.count-1) {
-                buttonItem.trailingAnchor.constraint(equalTo: barScrollView.trailingAnchor, constant: -bar_originlRightOffset).isActive = true
+                let trailingConstraint = buttonItem.trailingAnchor.constraint(equalTo: barScrollView.trailingAnchor, constant: -bar_originlRightOffset)
+                trailingConstraint.isActive = true
+                lastTrailingConstraint = trailingConstraint
             }
 
             buttonItems.append(buttonItem)
@@ -107,13 +113,59 @@ extension WYPagingView {
                 controllerScrollView.contentOffset = CGPoint(x: self.frame.size.width * CGFloat(bar_selectedIndex), y: 0)
             }
         }
+        // 两遍式居中调整(自适应宽度在布局前不知道真实总宽):先按用户间距布局量出真实占宽再分配剩余空间，设置了左右偏移按偏移精确保留，没设置才均摊给两端
+        if (bar_autoCenter == true) && (controllers.count > 0) {
+
+            barScrollView.layoutIfNeeded()
+
+            let occupiedWidth: CGFloat = barScrollView.contentSize.width
+
+            if (occupiedWidth > 0) && (occupiedWidth < self.frame.size.width) {
+
+                if (bar_originlLeftOffset > 0) || (bar_originlRightOffset > 0) {
+
+                    // 设置了两端偏移:精确保留偏移为两端边距，剩余空间全部均摊到Item间距(occupiedWidth已含偏移)
+                    let extraWidth: CGFloat = self.frame.size.width - occupiedWidth
+
+                    for spacingConstraint in barSpacingConstraints {
+                        spacingConstraint.constant += extraWidth / CGFloat(controllers.count - 1)
+                    }
+                } else {
+
+                    // 防两端基础边距把剩余空间吃成负数后压缩Item间距(间距比bar_dividingOffset还小甚至重叠):剩余不足时Item间距保持原样，两端只保留基础边距(内容超出部分靠分页栏滚动)
+                    let baseSideOffset: CGFloat = max(0, bar_autoCenterMinSideSpacing)
+                    let extraWidth: CGFloat = self.frame.size.width - occupiedWidth - (baseSideOffset * 2)
+
+                    if extraWidth > 0 {
+                        // 未设置两端偏移:剩余空间均摊到Item间距和左右两端(每处各一份)，单标题无间距可分时剩余只分给两端(标题落在分页栏中间)
+                        let sharedSpacing: CGFloat = extraWidth / CGFloat(controllers.count + 1)
+                        firstLeadingConstraint?.constant = baseSideOffset + sharedSpacing
+                        lastTrailingConstraint?.constant = -(baseSideOffset + sharedSpacing)
+                        for spacingConstraint in barSpacingConstraints {
+                            spacingConstraint.constant += sharedSpacing
+                        }
+                    } else {
+                        firstLeadingConstraint?.constant = baseSideOffset
+                        lastTrailingConstraint?.constant = -baseSideOffset
+                    }
+                }
+            }
+        }
+
         Task { @MainActor in
             // 初始化与重载落位:指示线与标题栏直接到位，不播从起点飞过来的动画
             self.scrollMethod(animated: false)
+
+            // 首次layout之后再来layout都算数据源重载(isReload传给布局完成回调，业务用它区分首屏与刷新)
+            let isReload: Bool = self.hasCompletedInitialLayout
+            self.hasCompletedInitialLayout = true
+
+            let reloadIndex: Int = self.currentButtonItem.tag - self.buttonItemTagBegin
+
             if let itemDidLayoutHandler = self.itemDidLayoutHandler {
-                itemDidLayoutHandler(self)
+                itemDidLayoutHandler(self, reloadIndex, isReload)
             }
-            self.delegate?.wy_pagingViewLayoutDidCompleted?(self)
+            self.delegate?.wy_pagingViewLayoutDidCompleted?(self, pagingIndex: reloadIndex, isReload: isReload)
         }
     }
 

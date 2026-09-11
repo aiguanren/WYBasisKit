@@ -98,7 +98,7 @@ extension WYPagingView: UIScrollViewDelegate {
 
             // 更新圆角（如果指示线是圆角样式）
             if (bar_scrollLineCornerRadius > 0) {
-                barScrollLine.wy_rectCorner(.allCorners).wy_cornerRadius(bar_scrollLineCornerRadius).wy_showVisual()
+                barScrollLine.wy_rectCorner(.allCorners).wy_cornerRadius(bar_scrollLineCornerRadius)
             }
 
             barScrollLine.superview?.layoutIfNeeded()

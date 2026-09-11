@@ -36,8 +36,8 @@ class WYTestPagingViewController: UIViewController {
         pagingView.itemDidScroll { pagingView, pagingIndex, isFirstDisplayed in
             print("分页滚动到第 \(pagingIndex) 页 - 通过闭包回调")
         }
-        pagingView.itemDidLayout { pagingView in
-            print("分页视图布局完成 - 闭包回调")
+        pagingView.itemDidLayout { pagingView, pagingIndex, isReload in
+            print("分页视图布局完成(\(isReload ? "重载" : "首次"), 落位到第 \(pagingIndex) 页) - 闭包回调")
         }
         pagingView.itemDidRepeatClick { pagingView, pagingIndex in
             print("重复点击了当前页 第 \(pagingIndex + 1) 页 - 通过闭包回调")
@@ -61,25 +61,37 @@ class WYTestPagingViewController: UIViewController {
         control.layer.shadowOffset = CGSize(width: 0, height: 2)
         control.translatesAutoresizingMaskIntoConstraints = false
         
+        control.addSubview(insertPositionButton)
         control.addSubview(reduceButton)
         control.addSubview(countButton)
         control.addSubview(increaseButton)
-        
+        control.addSubview(removePositionButton)
+
         NSLayoutConstraint.activate([
-            reduceButton.leadingAnchor.constraint(equalTo: control.leadingAnchor),
+            insertPositionButton.leadingAnchor.constraint(equalTo: control.leadingAnchor),
+            insertPositionButton.centerYAnchor.constraint(equalTo: control.centerYAnchor),
+            insertPositionButton.widthAnchor.constraint(equalToConstant: 44),
+            insertPositionButton.heightAnchor.constraint(equalTo: control.heightAnchor),
+
+            reduceButton.leadingAnchor.constraint(equalTo: insertPositionButton.trailingAnchor),
             reduceButton.centerYAnchor.constraint(equalTo: control.centerYAnchor),
             reduceButton.widthAnchor.constraint(equalToConstant: 40),
             reduceButton.heightAnchor.constraint(equalTo: control.heightAnchor),
-            
+
             countButton.leadingAnchor.constraint(equalTo: reduceButton.trailingAnchor),
             countButton.centerYAnchor.constraint(equalTo: control.centerYAnchor),
             countButton.widthAnchor.constraint(equalToConstant: 60),
-            
+
             increaseButton.leadingAnchor.constraint(equalTo: countButton.trailingAnchor),
-            increaseButton.trailingAnchor.constraint(equalTo: control.trailingAnchor),
             increaseButton.centerYAnchor.constraint(equalTo: control.centerYAnchor),
             increaseButton.widthAnchor.constraint(equalToConstant: 40),
-            increaseButton.heightAnchor.constraint(equalTo: control.heightAnchor)
+            increaseButton.heightAnchor.constraint(equalTo: control.heightAnchor),
+
+            removePositionButton.leadingAnchor.constraint(equalTo: increaseButton.trailingAnchor),
+            removePositionButton.trailingAnchor.constraint(equalTo: control.trailingAnchor),
+            removePositionButton.centerYAnchor.constraint(equalTo: control.centerYAnchor),
+            removePositionButton.widthAnchor.constraint(equalToConstant: 44),
+            removePositionButton.heightAnchor.constraint(equalTo: control.heightAnchor)
         ])
         
         return control
@@ -114,6 +126,28 @@ class WYTestPagingViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
+
+    /// 指定下标插入按钮(点击弹出输入框，把没在展示中的一页插到输入的下标位置)
+    private lazy var insertPositionButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("插入", for: .normal)
+        button.setTitleColor(.systemBlue, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 13, weight: .medium)
+        button.addTarget(self, action: #selector(insertPageAtInputIndex), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+
+    /// 指定下标删除按钮(点击弹出输入框，删除输入下标位置的那一页)
+    private lazy var removePositionButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("删除", for: .normal)
+        button.setTitleColor(.systemRed, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 13, weight: .medium)
+        button.addTarget(self, action: #selector(removePageAtInputIndex), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
     
     /// 测试页数据(控制器/标题/图片绑成一组，插删页或换顺序时标题和内容跟着同一页走)
     private struct TestPageItem {
@@ -128,22 +162,24 @@ class WYTestPagingViewController: UIViewController {
     private let pageDefaultSymbols = ["house", "message", "magnifyingglass", "person", "gearshape", "star", "trash", "flag"]
     private let pageSelectedSymbols = ["house.fill", "message.fill", "magnifyingglass.circle.fill", "person.fill", "gearshape.fill", "star.fill", "trash.fill", "flag.fill"]
 
+    /// 标题字符长度梯度(超短/一般/长/超长四档循环取用，验证自适应宽度在各种长度差距下的表现)
+    private let titleLengthBands: [(minimum: Int, maximum: Int)] = [(1, 1), (2, 4), (5, 7), (8, 10)]
+
     /// 最多准备的测试页数(需要覆盖固定Item宽度下超一屏滚动等场景，20页已远超常见业务规模)
     private let maxTestPageCount = 20
     
-    /// 备好的测试页(前8页有专属标题与图标，超出后由firstUnusedItem按序号动态生成)
+    /// 备好的测试页(前8页标题按长度梯度随机生成，超出后由firstUnusedItem按序号动态生成)
     private lazy var allPageItems: [TestPageItem] = {
-        
-        let titles = ["首页", "消息", "发现", "我的", "设置", "收藏", "草稿", "关于"]
-        
+
         var items: [TestPageItem] = []
         for index in 0..<pageColors.count {
             let controller = UIViewController()
             controller.view.backgroundColor = pageColors[index]
             controller.view.layer.borderWidth = 2
             controller.view.layer.borderColor = UIColor.black.cgColor
+            let titleBand = titleLengthBands[index % titleLengthBands.count]
             items.append(TestPageItem(controller: controller,
-                                      title: titles[index],
+                                      title: String.wy_random(minimum: titleBand.minimum, maximum: titleBand.maximum),
                                       defaultImage: UIImage(systemName: pageDefaultSymbols[index])!,
                                       selectedImage: UIImage(systemName: pageSelectedSymbols[index])!))
         }
@@ -192,17 +228,19 @@ class WYTestPagingViewController: UIViewController {
             countControl.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
             countControl.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
             countControl.heightAnchor.constraint(equalToConstant: 36),
-            countControl.widthAnchor.constraint(equalToConstant: 140)
+            countControl.widthAnchor.constraint(equalToConstant: 228)
         ])
         
         updateCountControlState()
     }
     
-    /// 刷新悬浮控件上的数量显示和加减按钮可用状态(到达上/下限时置灰)
+    /// 刷新悬浮控件上的数量显示和各按钮可用状态(到达上/下限时置灰)
     private func updateCountControlState() {
         countButton.setTitle("数量 \(currentItems.count)", for: .normal)
         increaseButton.isEnabled = firstUnusedItem() != nil
         reduceButton.isEnabled = currentItems.count > 1
+        insertPositionButton.isEnabled = firstUnusedItem() != nil
+        removePositionButton.isEnabled = currentItems.count > 1
     }
     
     /// title数量+1并原地重载WYPagingView(从没在展示中的页里取一页加到末尾)
@@ -213,6 +251,49 @@ class WYTestPagingViewController: UIViewController {
     /// title数量-1并原地重载WYPagingView(移除末尾一页)
     @objc private func reduceTitleCount() {
         changeTitleCount(-1)
+    }
+
+    /// 弹出输入框，把没在展示中的一页插到输入的下标位置并原地重载WYPagingView(下标范围0到当前数量，等于当前数量时等于末尾追加)
+    @objc private func insertPageAtInputIndex() {
+
+        guard firstUnusedItem() != nil else { return }
+        let alert = UIAlertController(title: "插入到指定下标", message: "下标范围 0 ~ \(currentItems.count)(等于当前数量时加到末尾)", preferredStyle: .alert)
+        alert.addTextField { textField in
+            textField.keyboardType = .numberPad
+            textField.placeholder = "0 ~ \(self.currentItems.count)"
+        }
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+        alert.addAction(UIAlertAction(title: "插入", style: .default) { _ in
+            // 防输入非数字或越界时数组操作崩溃:解析失败或不在范围内直接忽略这次输入
+            guard let inputText = alert.textFields?.first?.text, let insertIndex = Int(inputText) else { return }
+            guard (0...self.currentItems.count).contains(insertIndex) else { return }
+            guard let unusedItem = self.firstUnusedItem() else { return }
+            self.currentItems.insert(unusedItem, at: insertIndex)
+            self.updateCountControlState()
+            self.reloadPagingView()
+        })
+        present(alert, animated: true)
+    }
+
+    /// 弹出输入框，删除输入下标位置的那一页并原地重载WYPagingView(至少保留一页)
+    @objc private func removePageAtInputIndex() {
+
+        guard currentItems.count > 1 else { return }
+        let alert = UIAlertController(title: "删除指定下标", message: "下标范围 0 ~ \(currentItems.count - 1)(至少保留一页)", preferredStyle: .alert)
+        alert.addTextField { textField in
+            textField.keyboardType = .numberPad
+            textField.placeholder = "0 ~ \(self.currentItems.count - 1)"
+        }
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+        alert.addAction(UIAlertAction(title: "删除", style: .destructive) { _ in
+            // 防输入非数字或越界时数组操作崩溃:解析失败或不在范围内直接忽略这次输入
+            guard let inputText = alert.textFields?.first?.text, let removeIndex = Int(inputText) else { return }
+            guard (0..<self.currentItems.count).contains(removeIndex) else { return }
+            self.currentItems.remove(at: removeIndex)
+            self.updateCountControlState()
+            self.reloadPagingView()
+        })
+        present(alert, animated: true)
     }
     
     /**
@@ -347,7 +428,7 @@ class WYTestPagingViewController: UIViewController {
         return newItem
     }
 
-    /// 按序号动态生成一页测试页(标题带序号，颜色与图标循环取用)
+    /// 按序号动态生成一页测试页(标题按长度梯度随机生成，颜色与图标循环取用)
     private func makePageItem(slot: Int) -> TestPageItem {
 
         let controller = UIViewController()
@@ -355,8 +436,9 @@ class WYTestPagingViewController: UIViewController {
         controller.view.layer.borderWidth = 2
         controller.view.layer.borderColor = UIColor.black.cgColor
 
+        let titleBand = titleLengthBands[slot % titleLengthBands.count]
         return TestPageItem(controller: controller,
-                            title: "页面\(slot + 1)",
+                            title: String.wy_random(minimum: titleBand.minimum, maximum: titleBand.maximum),
                             defaultImage: UIImage(systemName: pageDefaultSymbols[slot % pageDefaultSymbols.count])!,
                             selectedImage: UIImage(systemName: pageSelectedSymbols[slot % pageSelectedSymbols.count])!)
     }
@@ -395,7 +477,8 @@ class WYTestPagingViewController: UIViewController {
         pagingView.bar_originlLeftOffset = settings.originlLeftOffset
         pagingView.bar_originlRightOffset = settings.originlRightOffset
         pagingView.bar_itemTopOffset = settings.itemTopOffset
-        pagingView.bar_adjustOffset = settings.adjustOffset
+        pagingView.bar_autoCenter = settings.autoCenter
+        pagingView.bar_autoCenterMinSideSpacing = settings.autoCenterMinSideSpacing
         pagingView.bar_dividingOffset = settings.dividingOffset
         pagingView.barButton_dividingOffset = settings.buttonDividingOffset
         
@@ -432,6 +515,7 @@ class WYTestPagingViewController: UIViewController {
         pagingView.bar_scrollLineFollowFinger = settings.scrollLineFollowFinger
         pagingView.bar_item_insideMargins = settings.itemInsideMargins
         pagingView.bar_item_imageViewSize = settings.itemImageViewSize
+        pagingView.bar_item_imageContentMode = settings.itemImageContentMode
         
         // 字体设置
         pagingView.bar_title_defaultFont = settings.titleDefaultFont
@@ -465,8 +549,8 @@ extension WYTestPagingViewController: WYPagingViewDelegate {
         print("分页滚动到第 \(pagingIndex) 页 - 通过代理回调, \(isFirstDisplayed ? "是" : "不是")第一次显示该页面")
     }
     
-    func wy_pagingViewLayoutDidCompleted(_ pagingView: WYPagingView) {
-        print("分页视图布局完成 - 代理回调")
+    func wy_pagingViewLayoutDidCompleted(_ pagingView: WYPagingView, pagingIndex: Int, isReload: Bool) {
+        print("分页视图布局完成(\(isReload ? "重载" : "首次"), 落位到第 \(pagingIndex) 页) - 代理回调")
     }
 
     func wy_pagingViewItemDidRepeatClick(_ pagingView: WYPagingView, pagingIndex: Int) {
@@ -499,7 +583,8 @@ struct PagingSettingsModel {
     var originlLeftOffset: CGFloat = 0
     var originlRightOffset: CGFloat = 0
     var itemTopOffset: CGFloat? = nil
-    var adjustOffset: Bool = true
+    var autoCenter: Bool = false
+    var autoCenterMinSideSpacing: CGFloat = 0
     var dividingOffset: CGFloat = 20
     var buttonDividingOffset: CGFloat = 5
     
@@ -536,6 +621,7 @@ struct PagingSettingsModel {
     var scrollLineFollowFinger: Bool = true
     var itemInsideMargins: UIEdgeInsets = .zero
     var itemImageViewSize: CGSize = .zero
+    var itemImageContentMode: UIView.ContentMode = .scaleAspectFit
     
     // 字体
     var titleDefaultFont: UIFont = UIFont.systemFont(ofSize: 15)
@@ -588,7 +674,8 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
             ("左偏移量", "originlLeftOffset"),
             ("右偏移量", "originlRightOffset"),
             ("Item顶部偏移", "itemTopOffset"),
-            ("居中调整", "adjustOffset"),
+            ("小于一屏居中", "autoCenter"),
+            ("居中两端最小间距", "autoCenterMinSideSpacing"),
             ("分栏间距", "dividingOffset"),
             ("按钮内间距", "buttonDividingOffset")
         ],
@@ -626,7 +713,8 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         [
             ("滑动线跟随手指", "scrollLineFollowFinger"),
             ("按钮内边距", "itemInsideMargins"),
-            ("图片尺寸", "itemImageViewSize")
+            ("图片尺寸", "itemImageViewSize"),
+            ("图片显示模式", "itemImageContentMode")
         ],
         
         // 字体设置
@@ -742,7 +830,8 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         case "originlLeftOffset": return "\(settings.originlLeftOffset)"
         case "originlRightOffset": return "\(settings.originlRightOffset)"
         case "itemTopOffset": return settings.itemTopOffset?.description ?? "nil"
-        case "adjustOffset": return settings.adjustOffset ? "是" : "否"
+        case "autoCenter": return settings.autoCenter ? "是" : "否"
+        case "autoCenterMinSideSpacing": return "\(settings.autoCenterMinSideSpacing)"
         case "dividingOffset": return "\(settings.dividingOffset)"
         case "buttonDividingOffset": return "\(settings.buttonDividingOffset)"
         case "pagingContentColor", "pagingBgColor", "barBgColor", "itemDefaultBgColor",
@@ -762,6 +851,15 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         case "scrollLineFollowFinger": return settings.scrollLineFollowFinger ? "是" : "否"
         case "itemInsideMargins": return "T:\(settings.itemInsideMargins.top) L:\(settings.itemInsideMargins.left) B:\(settings.itemInsideMargins.bottom) R:\(settings.itemInsideMargins.right)"
         case "itemImageViewSize": return "W:\(settings.itemImageViewSize.width) H:\(settings.itemImageViewSize.height)"
+        case "itemImageContentMode":
+            switch settings.itemImageContentMode {
+            case .scaleAspectFit: return "等比适应"
+            case .scaleAspectFill: return "等比填满"
+            case .scaleToFill: return "拉伸填满"
+            case .center: return "居中"
+            case .redraw: return "重绘"
+            default: return "\(settings.itemImageContentMode.rawValue)"
+            }
         case "titleDefaultFont": return "\(Int(settings.titleDefaultFont.pointSize))"
         case "titleSelectedFont": return "\(Int(settings.titleSelectedFont.pointSize))"
         case "selectedIndex": return "\(settings.selectedIndex)"
@@ -832,6 +930,9 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
             
         case "itemImageViewSize":
             showSizeEditor()
+
+        case "itemImageContentMode":
+            showContentModeEditor()
             
         case "scrollLineFollowFinger":
             let alert = UIAlertController(title: "滑动线跟随手指", message: "当前：\(settings.scrollLineFollowFinger ? "开启" : "关闭")", preferredStyle: .alert)
@@ -842,7 +943,7 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
             alert.addAction(UIAlertAction(title: "取消", style: .cancel))
             present(alert, animated: true)
             
-        case "adjustOffset", "canScrollController", "canScrollBar", "slideThroughIntermediatePages", "pagingBounce", "barBounce":
+        case "autoCenter", "canScrollController", "canScrollBar", "slideThroughIntermediatePages", "pagingBounce", "barBounce":
             showBoolEditor(for: key)
             
         case "titleDefaultFont", "titleSelectedFont":
@@ -854,7 +955,7 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         default:
             if key.contains("Color") {
                 showColorEditor(for: key)
-            } else if ["barHeight", "originlLeftOffset", "originlRightOffset", "dividingOffset",
+            } else if ["barHeight", "originlLeftOffset", "originlRightOffset", "autoCenterMinSideSpacing", "dividingOffset",
                        "buttonDividingOffset", "itemWidth", "itemHeight", "itemCornerRadius",
                        "scrollLineWidth", "scrollLineBottomOffset", "scrollLineCornerRadius", "dividingStripHeight", "titleSelectedScale",
                        "itemBorderWidth",
@@ -878,6 +979,7 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
             case "barHeight": current = self.settings.barHeight
             case "originlLeftOffset": current = self.settings.originlLeftOffset
             case "originlRightOffset": current = self.settings.originlRightOffset
+            case "autoCenterMinSideSpacing": current = self.settings.autoCenterMinSideSpacing
             case "dividingOffset": current = self.settings.dividingOffset
             case "buttonDividingOffset": current = self.settings.buttonDividingOffset
             case "itemWidth": current = self.settings.itemWidth
@@ -901,6 +1003,7 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
                 case "barHeight": self.settings.barHeight = cgVal
                 case "originlLeftOffset": self.settings.originlLeftOffset = cgVal
                 case "originlRightOffset": self.settings.originlRightOffset = cgVal
+                case "autoCenterMinSideSpacing": self.settings.autoCenterMinSideSpacing = cgVal
                 case "dividingOffset": self.settings.dividingOffset = cgVal
                 case "buttonDividingOffset": self.settings.buttonDividingOffset = cgVal
                 case "itemWidth": self.settings.itemWidth = cgVal
@@ -947,7 +1050,7 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
     private func showBoolEditor(for key: String) {
         let current: Bool
         switch key {
-        case "adjustOffset": current = settings.adjustOffset
+        case "autoCenter": current = settings.autoCenter
         case "canScrollController": current = settings.canScrollController
         case "canScrollBar": current = settings.canScrollBar
         case "slideThroughIntermediatePages": current = settings.slideThroughIntermediatePages
@@ -958,7 +1061,7 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         let alert = UIAlertController(title: "切换状态", message: "当前：\(current ? "开启" : "关闭")", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "切换", style: .default) { _ in
             switch key {
-            case "adjustOffset": self.settings.adjustOffset.toggle()
+            case "autoCenter": self.settings.autoCenter.toggle()
             case "canScrollController": self.settings.canScrollController.toggle()
             case "canScrollBar": self.settings.canScrollBar.toggle()
             case "slideThroughIntermediatePages": self.settings.slideThroughIntermediatePages.toggle()
@@ -1042,6 +1145,24 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         present(alert, animated: true)
     }
     
+    private func showContentModeEditor() {
+        let alert = UIAlertController(title: "图片显示模式", message: nil, preferredStyle: .actionSheet)
+        let modes: [(String, UIView.ContentMode)] = [("等比适应(默认)", .scaleAspectFit), ("等比填满", .scaleAspectFill), ("拉伸填满", .scaleToFill), ("居中", .center)]
+        for (name, mode) in modes {
+            alert.addAction(UIAlertAction(title: name, style: .default) { _ in
+                self.settings.itemImageContentMode = mode
+                self.tableView.reloadData()
+            })
+        }
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+
+        if let popover = alert.popoverPresentationController {
+            popover.sourceView = tableView
+            popover.sourceRect = tableView.bounds
+        }
+        present(alert, animated: true)
+    }
+
     private func showColorEditor(for key: String) {
         let alert = UIAlertController(title: "选择颜色", message: nil, preferredStyle: .actionSheet)
         for (name, color) in colorOptions {

@@ -29,13 +29,15 @@ import WYBasisKitSwift
         itemDidScroll(handler: handler)
     }
     
+
+    
     /**
      * PagingView页面布局完成(也可以通过实现代理监听)
      *
      * @param handler 点击或滚动事件的block
      */
     @objc(itemDidLayout:)
-    func itemDidLayoutObjC(handler: @escaping ((_ pagingView: WYPagingView) -> Void)) {
+    func itemDidLayoutObjC(handler: @escaping ((_ pagingView: WYPagingView, _ pagingIndex: Int, _ isReload: Bool) -> Void)) {
         itemDidLayout(handler: handler)
     }
 
@@ -86,11 +88,24 @@ import WYBasisKitSwift
         }
     }
     
-    /// bar_item_width不为0且标题总占宽(含间距)小于一屏时是否居中显示，默认居中(居中后会动态调整bar_originlLeftOffset和bar_originlRightOffset)
-    @objc(bar_adjustOffset)
-    var bar_adjustOffsetObjC: Bool {
-        get { return bar_adjustOffset }
-        set { bar_adjustOffset = newValue }
+    /**
+     标题总占宽(含间距、bar_originlLeftOffset与bar_originlRightOffset)小于一屏时是否自动居中，默认false靠左显示，自适应与固定Item宽度均支持
+
+     居中时如果设置了bar_originlLeftOffset/RightOffset，则精确保留bar_originlLeftOffset/RightOffset为两端边距，剩余空间全部均摊到Item之间的间距上
+
+     居中时如果未设置bar_originlLeftOffset/RightOffset，则剩余空间均摊到Item间距和左右两端，两端至少保留bar_autoCenterMinSideSpacing，单个标题时会落在分页栏中间
+     */
+    @objc(bar_autoCenter)
+    var bar_autoCenterObjC: Bool {
+        get { return bar_autoCenter }
+        set { bar_autoCenter = newValue }
+    }
+
+    /// 居中且未设置bar_originlLeftOffset与bar_originlRightOffset时，左右两端参与均摊的基础保留间距，默认0(两端基础边距与Item间距一起均摊剩余空间，设置bar_originlLeftOffset/RightOffset后本属性不再参与)
+    @objc(bar_autoCenterMinSideSpacing)
+    var bar_autoCenterMinSideSpacingObjC: CGFloat {
+        get { return bar_autoCenterMinSideSpacing }
+        set { bar_autoCenterMinSideSpacing = newValue }
     }
 
     /// 左右分页栏之间的间距，默认20像素
@@ -168,6 +183,13 @@ import WYBasisKitSwift
     var bar_item_imageViewSizeObjC: CGSize {
         get { return bar_item_imageViewSize }
         set { bar_item_imageViewSize = newValue }
+    }
+
+    /// 分页栏Item图片显示模式，默认.scaleAspectFit(等比缩放完整显示，可改.scaleAspectFill裁剪填满/.scaleToFill拉伸填满等)
+    @objc(bar_item_imageContentMode)
+    var bar_item_imageContentModeObjC: UIView.ContentMode {
+        get { return bar_item_imageContentMode }
+        set { bar_item_imageContentMode = newValue }
     }
     
     /// 分页栏item圆角半径, 默认0

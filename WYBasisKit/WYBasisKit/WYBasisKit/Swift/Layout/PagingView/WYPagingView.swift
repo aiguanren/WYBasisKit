@@ -12,22 +12,24 @@ import UIKit
 @objc public protocol WYPagingViewDelegate {
 
     /**
-     * Controller页面(Item)切换回调
+     * Controller页面(Item)切换回调(用户切页与数据源重载落位后都会触发，重载落位回同一页时isFirstDisplayed为false，业务可在回调里对比当前页关联的数据ID决定是否刷新)
      *
      * @param pagingView        当前WYPagingView的实例对象
      * @param pagingIndex       当前Controller在WYPagingView中的页面下标
-     * @param isFirstDisplayed       当前Controller是否是第一次在WYPagingView中显示(可用来判断网络请求或页面UI加载时机，避免初始化WYPagingView时就请求所有的Controller的页面数据或者加载UI)，true表示第一次显示，否则为第二次及以后
+     * @param isFirstDisplayed       当前Controller是否是第一次在WYPagingView中显示(可用来判断网络请求或页面UI加载时机，避免初始化WYPagingView时就请求所有的Controller的页面数据或者加载UI)，true表示第一次显示，否则为第二次及以后；Controller实例离开分页栏后再加回会重新按第一次显示处理
      */
-    @objc(wy_pagingViewItemDidScroll:pagingIndex:displayed:)
+    @objc(wy_pagingViewItemDidScroll:pagingIndex:isFirstDisplayed:)
     optional func wy_pagingViewItemDidScroll(_ pagingView: WYPagingView, pagingIndex: Int, isFirstDisplayed: Bool)
 
     /**
-     * PagingView页面布局完成
+     * PagingView页面布局完成(首次layout与数据源重载都会触发)
      *
      * @param pagingView 当前WYPagingView的实例对象
+     * @param pagingIndex 布局完成后落位显示的页面下标
+     * @param isReload   本次布局是否由数据源重载引起(首次layout为false，删页/加页/换顺序等重新layout为true)
      */
-    @objc(wy_pagingViewLayoutDidCompleted:)
-    optional func wy_pagingViewLayoutDidCompleted(_ pagingView: WYPagingView)
+    @objc(wy_pagingViewLayoutDidCompleted:pagingIndex:isReload:)
+    optional func wy_pagingViewLayoutDidCompleted(_ pagingView: WYPagingView, pagingIndex: Int, isReload: Bool)
 
     /**
      * 点击了当前已选中的页面(可用于"再点当前页回到顶部/刷新"这类交互)
@@ -37,6 +39,7 @@ import UIKit
      */
     @objc(wy_pagingViewItemDidRepeatClick:pagingIndex:)
     optional func wy_pagingViewItemDidRepeatClick(_ pagingView: WYPagingView, pagingIndex: Int)
+
 }
 
 public class WYPagingView: UIView {
@@ -56,9 +59,9 @@ public class WYPagingView: UIView {
     /**
      * PagingView页面布局完成(也可以通过实现代理监听)
      *
-     * @param handler 点击或滚动事件的block
+     * @param handler 页面布局完成的block
      */
-    public func itemDidLayout(handler: @escaping ((_ pagingView: WYPagingView) -> Void)) {
+    public func itemDidLayout(handler: @escaping ((_ pagingView: WYPagingView, _ pagingIndex: Int, _ isReload: Bool) -> Void)) {
         itemDidLayoutHandler = handler
     }
 
@@ -70,6 +73,7 @@ public class WYPagingView: UIView {
     public func itemDidRepeatClick(handler: @escaping ((_ pagingView: WYPagingView, _ pagingIndex: Int) -> Void)) {
         repeatClickHandler = handler
     }
+
 
     /// 分页栏的高度 默认45
     public var bar_height: CGFloat = UIDevice.wy_screenWidth(45, WYBasisKitConfig.defaultScreenPixels)
@@ -86,8 +90,17 @@ public class WYPagingView: UIView {
     /// item距离分页栏顶部的偏移量，默认nil
     public var bar_itemTopOffset: CGFloat? = nil
 
-    /// bar_item_width不为0且标题总占宽(含间距)小于一屏时是否居中显示，默认居中(居中后会动态调整bar_originlLeftOffset和bar_originlRightOffset)
-    public var bar_adjustOffset: Bool = true
+    /**
+     标题总占宽(含间距、bar_originlLeftOffset与bar_originlRightOffset)小于一屏时是否自动居中，默认false靠左显示，自适应与固定Item宽度均支持
+
+     居中时如果设置了bar_originlLeftOffset/RightOffset，则精确保留bar_originlLeftOffset/RightOffset为两端边距，剩余空间全部均摊到Item之间的间距上
+
+     居中时如果未设置bar_originlLeftOffset/RightOffset，则剩余空间均摊到Item间距和左右两端，两端至少保留bar_autoCenterMinSideSpacing，单个标题时会落在分页栏中间
+     */
+    public var bar_autoCenter: Bool = false
+
+    /// 居中且未设置bar_originlLeftOffset与bar_originlRightOffset时，左右两端参与均摊的基础保留间距，默认0(两端基础边距与Item间距一起均摊剩余空间，设置bar_originlLeftOffset/RightOffset后本属性不再参与)
+    public var bar_autoCenterMinSideSpacing: CGFloat = 0
 
     /// 左右分页栏之间的间距，默认20像素
     public var bar_dividingOffset: CGFloat = UIDevice.wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels)
@@ -121,6 +134,9 @@ public class WYPagingView: UIView {
 
     /// 分页栏Item按钮内部imageView大小Size，默认.zero(图片本身Size)，仅图文混排时生效，只有图片时可通过bar_item_insideMargins来控制其Size
     public var bar_item_imageViewSize: CGSize = .zero
+
+    /// 分页栏Item图片显示模式，默认.scaleAspectFit(等比缩放完整显示，可改.scaleAspectFill裁剪填满/.scaleToFill拉伸填满等)
+    public var bar_item_imageContentMode: UIView.ContentMode = .scaleAspectFit
 
     /// 分页栏item圆角半径, 默认0
     public var bar_item_cornerRadius: CGFloat = 0
@@ -257,6 +273,9 @@ public class WYPagingView: UIView {
             if titles.isEmpty && defaultImages.isEmpty {
                 fatalError("❌ 错误：titles与defaultImages不能都为空(至少传入一个，且数量与controllers一致)")
             }
+
+            // 防离开分页栏的页残留"已显示过"标记(删掉再加回同一个控制器实例时isFirstDisplayed会误报false):被移出的实例在这里复位标记，重新进入分页栏时按第一次显示处理
+            self.controllers.filter { controllers.contains($0) == false }.forEach { $0.wy_pageControllerIsLastDisplayed = false }
 
             self.controllers = controllers
             self.titles = titles
@@ -444,13 +463,12 @@ public class WYPagingItem: UIButton {
         self.contentDividingOffset = dividingOffset
         self.contentImageViewSize = imageViewSize
 
-        // 设置默认边框与圆角(边框只看边框宽度和颜色，防必须同时设置圆角边框才生效的问题)
+        if cornerRadius > 0 {
+            self.wy_rectCorner(.allCorners).wy_cornerRadius(cornerRadius)
+        }
+
         if let borderColor = normalBorderColor, borderWidth > 0 {
-            if cornerRadius > 0 {
-                self.wy_rectCorner(.allCorners).wy_cornerRadius(cornerRadius).wy_borderWidth(borderWidth).wy_borderColor(borderColor).wy_showVisual()
-            }else {
-                self.wy_borderWidth(borderWidth).wy_borderColor(borderColor).wy_showVisual()
-            }
+            self.wy_borderWidth(borderWidth).wy_borderColor(borderColor)
         }
 
         // 设置默认背景色
@@ -484,19 +502,15 @@ public class WYPagingItem: UIButton {
             textView.font = isSelected ? selectedTextFont : normalTextFont
         }
 
-        // 切换边框颜色(边框只看边框宽度和颜色，防必须同时设置圆角边框才生效的问题)
+        // 切换边框颜色(圆角与边框互相独立，只设圆角没边框时圆角也要正常渲染)
+        if cornerRadius > 0 {
+            self.wy_rectCorner(.allCorners)
+                .wy_cornerRadius(cornerRadius)
+        }
+
         if borderWidth > 0, let borderColor = isSelected ? selectedBorderColor : normalBorderColor {
-            if cornerRadius > 0 {
-                self.wy_rectCorner(.allCorners)
-                    .wy_cornerRadius(cornerRadius)
-                    .wy_borderWidth(borderWidth)
-                    .wy_borderColor(borderColor)
-                    .wy_showVisual()
-            }else {
-                self.wy_borderWidth(borderWidth)
-                    .wy_borderColor(borderColor)
-                    .wy_showVisual()
-            }
+            self.wy_borderWidth(borderWidth)
+                .wy_borderColor(borderColor)
         }
 
         // 切换背景色

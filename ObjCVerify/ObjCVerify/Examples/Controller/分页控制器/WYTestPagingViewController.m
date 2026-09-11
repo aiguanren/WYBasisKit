@@ -55,7 +55,8 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
 @property (nonatomic, assign) CGFloat originlLeftOffset;
 @property (nonatomic, assign) CGFloat originlRightOffset;
 @property (nonatomic, assign) CGFloat itemTopOffset;
-@property (nonatomic, assign) BOOL adjustOffset;
+@property (nonatomic, assign) BOOL autoCenter;
+@property (nonatomic, assign) CGFloat autoCenterMinSideSpacing;
 @property (nonatomic, assign) CGFloat dividingOffset;
 @property (nonatomic, assign) CGFloat buttonDividingOffset;
 
@@ -92,6 +93,7 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
 @property (nonatomic, assign) BOOL scrollLineFollowFinger;
 @property (nonatomic, assign) UIEdgeInsets itemInsideMargins;
 @property (nonatomic, assign) CGSize itemImageViewSize;
+@property (nonatomic, assign) UIViewContentMode itemImageContentMode;
 
 // 字体
 @property (nonatomic, strong) UIFont *titleDefaultFont;
@@ -121,7 +123,8 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
         _originlLeftOffset = 0;
         _originlRightOffset = 0;
         _itemTopOffset = 0;
-        _adjustOffset = YES;
+        _autoCenter = NO;
+        _autoCenterMinSideSpacing = 0;
         _dividingOffset = 20;
         _buttonDividingOffset = 5;
 
@@ -158,6 +161,7 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
         _scrollLineFollowFinger = YES;
         _itemInsideMargins = UIEdgeInsetsZero;
         _itemImageViewSize = CGSizeZero;
+        _itemImageContentMode = UIViewContentModeScaleAspectFit;
 
         // 字体
         _titleDefaultFont = [UIFont systemFontOfSize:15];
@@ -327,8 +331,10 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
         return [NSString stringWithFormat:@"%.0f", self.settings.originlRightOffset];
     } else if ([key isEqualToString:@"itemTopOffset"]) {
         return [NSString stringWithFormat:@"%.0f", self.settings.itemTopOffset];
-    } else if ([key isEqualToString:@"adjustOffset"]) {
-        return self.settings.adjustOffset ? @"是" : @"否";
+    } else if ([key isEqualToString:@"autoCenter"]) {
+        return self.settings.autoCenter ? @"是" : @"否";
+    } else if ([key isEqualToString:@"autoCenterMinSideSpacing"]) {
+        return [NSString stringWithFormat:@"%.0f", self.settings.autoCenterMinSideSpacing];
     } else if ([key isEqualToString:@"dividingOffset"]) {
         return [NSString stringWithFormat:@"%.0f", self.settings.dividingOffset];
     } else if ([key isEqualToString:@"buttonDividingOffset"]) {
@@ -365,6 +371,14 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
                 self.settings.itemInsideMargins.right];
     } else if ([key isEqualToString:@"itemImageViewSize"]) {
         return [NSString stringWithFormat:@"W:%.0f H:%.0f", self.settings.itemImageViewSize.width, self.settings.itemImageViewSize.height];
+    } else if ([key isEqualToString:@"itemImageContentMode"]) {
+        switch (self.settings.itemImageContentMode) {
+            case UIViewContentModeScaleAspectFit: return @"等比适应";
+            case UIViewContentModeScaleAspectFill: return @"等比填满";
+            case UIViewContentModeScaleToFill: return @"拉伸填满";
+            case UIViewContentModeCenter: return @"居中";
+            default: return [NSString stringWithFormat:@"%ld", (long)self.settings.itemImageContentMode];
+        }
     } else if ([key isEqualToString:@"titleDefaultFont"]) {
         return [NSString stringWithFormat:@"%d", (int)self.settings.titleDefaultFont.pointSize];
     } else if ([key isEqualToString:@"titleSelectedFont"]) {
@@ -405,12 +419,14 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
         return;
     } else if ([key isEqualToString:@"itemImageViewSize"]) {
         [self showSizeEditor];
+    } else if ([key isEqualToString:@"itemImageContentMode"]) {
+        [self showContentModeSheet];
         return;
     } else if ([key isEqualToString:@"scrollLineFollowFinger"] ||
                [key isEqualToString:@"slideThroughIntermediatePages"]) {
         [self showBoolEditorForKey:key];
         return;
-    } else if ([key isEqualToString:@"adjustOffset"] || [key isEqualToString:@"canScrollController"] ||
+    } else if ([key isEqualToString:@"autoCenter"] || [key isEqualToString:@"canScrollController"] ||
                [key isEqualToString:@"canScrollBar"] || [key isEqualToString:@"pagingBounce"] ||
                [key isEqualToString:@"barBounce"]) {
         [self showLegacyBoolEditorForKey:key];
@@ -424,7 +440,7 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
     } else if ([key containsString:@"Color"]) {
         [self showColorEditorForKey:key];
         return;
-    } else if ([@[@"barHeight", @"originlLeftOffset", @"originlRightOffset", @"dividingOffset",
+    } else if ([@[@"barHeight", @"originlLeftOffset", @"originlRightOffset", @"autoCenterMinSideSpacing", @"dividingOffset",
                   @"buttonDividingOffset", @"itemWidth", @"itemHeight", @"itemCornerRadius", @"itemBorderWidth",
                   @"scrollLineWidth", @"scrollLineBottomOffset", @"scrollLineCornerRadius", @"titleSelectedScale",
                   @"dividingStripHeight", @"scrollLineHeight"] containsObject:key]) {
@@ -501,6 +517,7 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
         if ([key isEqualToString:@"barHeight"]) currentValue = self.settings.barHeight;
         else if ([key isEqualToString:@"originlLeftOffset"]) currentValue = self.settings.originlLeftOffset;
         else if ([key isEqualToString:@"originlRightOffset"]) currentValue = self.settings.originlRightOffset;
+        else if ([key isEqualToString:@"autoCenterMinSideSpacing"]) currentValue = self.settings.autoCenterMinSideSpacing;
         else if ([key isEqualToString:@"dividingOffset"]) currentValue = self.settings.dividingOffset;
         else if ([key isEqualToString:@"buttonDividingOffset"]) currentValue = self.settings.buttonDividingOffset;
         else if ([key isEqualToString:@"itemWidth"]) currentValue = self.settings.itemWidth;
@@ -526,6 +543,7 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
             if ([key isEqualToString:@"barHeight"]) self.settings.barHeight = value;
             else if ([key isEqualToString:@"originlLeftOffset"]) self.settings.originlLeftOffset = value;
             else if ([key isEqualToString:@"originlRightOffset"]) self.settings.originlRightOffset = value;
+            else if ([key isEqualToString:@"autoCenterMinSideSpacing"]) self.settings.autoCenterMinSideSpacing = value;
             else if ([key isEqualToString:@"dividingOffset"]) self.settings.dividingOffset = value;
             else if ([key isEqualToString:@"buttonDividingOffset"]) self.settings.buttonDividingOffset = value;
             else if ([key isEqualToString:@"itemWidth"]) self.settings.itemWidth = value;
@@ -594,7 +612,7 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
 
 - (void)showLegacyBoolEditorForKey:(NSString *)key {
     BOOL currentValue = NO;
-    if ([key isEqualToString:@"adjustOffset"]) currentValue = self.settings.adjustOffset;
+    if ([key isEqualToString:@"autoCenter"]) currentValue = self.settings.autoCenter;
     else if ([key isEqualToString:@"canScrollController"]) currentValue = self.settings.canScrollController;
     else if ([key isEqualToString:@"canScrollBar"]) currentValue = self.settings.canScrollBar;
     else if ([key isEqualToString:@"pagingBounce"]) currentValue = self.settings.pagingBounce;
@@ -604,7 +622,7 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
                                                                    message:currentValue ? @"当前状态: 开启" : @"当前状态: 关闭"
                                                             preferredStyle:UIAlertControllerStyleAlert];
     [alert addAction:[UIAlertAction actionWithTitle:@"切换" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        if ([key isEqualToString:@"adjustOffset"]) self.settings.adjustOffset = !currentValue;
+        if ([key isEqualToString:@"autoCenter"]) self.settings.autoCenter = !currentValue;
         else if ([key isEqualToString:@"canScrollController"]) self.settings.canScrollController = !currentValue;
         else if ([key isEqualToString:@"canScrollBar"]) self.settings.canScrollBar = !currentValue;
         else if ([key isEqualToString:@"pagingBounce"]) self.settings.pagingBounce = !currentValue;
@@ -770,6 +788,33 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
     [self presentViewController:colorAlert animated:YES completion:nil];
 }
 
+- (void)showContentModeSheet {
+    UIAlertController *modeAlert = [UIAlertController alertControllerWithTitle:@"图片显示模式"
+                                                                       message:nil
+                                                                preferredStyle:UIAlertControllerStyleActionSheet];
+    NSArray<NSString *> *names = @[@"等比适应(默认)", @"等比填满", @"拉伸填满", @"居中"];
+    NSArray<NSNumber *> *modes = @[@(UIViewContentModeScaleAspectFit), @(UIViewContentModeScaleAspectFill), @(UIViewContentModeScaleToFill), @(UIViewContentModeCenter)];
+
+    for (NSInteger i = 0; i < names.count; i++) {
+        [modeAlert addAction:[UIAlertAction actionWithTitle:names[i] style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            self.settings.itemImageContentMode = [modes[i] integerValue];
+            [self.tableView reloadData];
+        }]];
+    }
+    [modeAlert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
+
+    if (UIDevice.wy_iPadSeries) {
+        modeAlert.popoverPresentationController.sourceView = self.tableView;
+        NSIndexPath *foundPath = [self indexPathForKey:@"itemImageContentMode"];
+        if (foundPath) {
+            UITableViewCell *cell = [self.tableView cellForRowAtIndexPath:foundPath];
+            modeAlert.popoverPresentationController.sourceRect = cell.bounds;
+            modeAlert.popoverPresentationController.sourceView = cell;
+        }
+    }
+    [self presentViewController:modeAlert animated:YES completion:nil];
+}
+
 - (void)showCustomColorPickerForKey:(NSString *)key {
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:[NSString stringWithFormat:@"自定义颜色 - %@", key]
                                                                    message:@"请输入RGB值 (0-255)"
@@ -924,7 +969,8 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
                 @{@"title": @"左偏移量", @"key": @"originlLeftOffset"},
                 @{@"title": @"右偏移量", @"key": @"originlRightOffset"},
                 @{@"title": @"Item顶部偏移", @"key": @"itemTopOffset"},
-                @{@"title": @"居中调整", @"key": @"adjustOffset"},
+                @{@"title": @"小于一屏居中", @"key": @"autoCenter"},
+                @{@"title": @"居中两端最小间距", @"key": @"autoCenterMinSideSpacing"},
                 @{@"title": @"分栏间距", @"key": @"dividingOffset"},
                 @{@"title": @"按钮内间距", @"key": @"buttonDividingOffset"}
             ],
@@ -959,7 +1005,8 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
             @[
                 @{@"title": @"滑动线跟随手指", @"key": @"scrollLineFollowFinger"},
                 @{@"title": @"按钮内边距", @"key": @"itemInsideMargins"},
-                @{@"title": @"图片尺寸", @"key": @"itemImageViewSize"}
+                @{@"title": @"图片尺寸", @"key": @"itemImageViewSize"},
+                @{@"title": @"图片显示模式", @"key": @"itemImageContentMode"}
             ],
             // 字体设置
             @[
@@ -1017,6 +1064,8 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
 @property (nonatomic, strong) UIButton *increaseButton;
 @property (nonatomic, strong) UIButton *reduceButton;
 @property (nonatomic, strong) UIButton *countButton;
+@property (nonatomic, strong) UIButton *insertPositionButton;
+@property (nonatomic, strong) UIButton *removePositionButton;
 
 /// 最多准备的测试页数(需要覆盖固定Item宽度下超一屏滚动等场景，20页已远超常见业务规模)
 @property (nonatomic, assign) NSInteger maxTestPageCount;
@@ -1026,7 +1075,7 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
 @property (nonatomic, strong) NSArray<NSString *> *pageDefaultSymbols;
 @property (nonatomic, strong) NSArray<NSString *> *pageSelectedSymbols;
 
-/// 备好的测试页(前8页有专属标题与图标，超出后由firstUnusedItem按序号动态生成)
+/// 备好的测试页(前8页标题按长度梯度随机生成，超出后由firstUnusedItem按序号动态生成)
 @property (nonatomic, strong) NSMutableArray<TestPageItem *> *allPageItems;
 
 /// 当前展示中的测试页(数量和顺序都会变，模拟接口下发的title数量与顺序)
@@ -1083,8 +1132,8 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
         [_pagingView itemDidScroll:^(WYPagingView * _Nonnull pagingView, NSInteger pagingIndex, BOOL isFirstDisplayed) {
             NSLog(@"分页滚动到第 %ld 页 - 通过闭包回调", (long)pagingIndex);
         }];
-        [_pagingView itemDidLayout:^(WYPagingView * _Nonnull pagingView) {
-            NSLog(@"分页视图布局完成 - 闭包回调");
+        [_pagingView itemDidLayout:^(WYPagingView * _Nonnull pagingView, NSInteger pagingIndex, BOOL isReload) {
+            NSLog(@"分页视图布局完成(%@), 落位到第 %ld 页 - 闭包回调", isReload ? @"重载" : @"首次", (long)pagingIndex);
         }];
         [_pagingView itemDidRepeatClick:^(WYPagingView * _Nonnull pagingView, NSInteger pagingIndex) {
             NSLog(@"重复点击了当前页 第 %ld 页 - 通过闭包回调", (long)pagingIndex + 1);
@@ -1132,16 +1181,15 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
     if (!_allPageItems) {
         _allPageItems = [NSMutableArray array];
 
-        NSArray<NSString *> *titles = @[@"首页", @"消息", @"发现", @"我的", @"设置", @"收藏", @"草稿", @"关于"];
-
         for (NSInteger index = 0; index < self.pageColors.count; index++) {
             UIViewController *controller = [[UIViewController alloc] init];
             controller.view.backgroundColor = self.pageColors[index];
             controller.view.layer.borderWidth = 2;
             controller.view.layer.borderColor = [UIColor blackColor].CGColor;
 
+            NSRange titleLengthRange = [self titleLengthRangeForSlot:index];
             TestPageItem *item = [[TestPageItem alloc] initWithController:controller
-                                                                    title:titles[index]
+                                                                    title:[NSString wy_randomWithMinimum:(NSInteger)titleLengthRange.location maximum:(NSInteger)(NSMaxRange(titleLengthRange) - 1)]
                                                               defaultImage:[UIImage systemImageNamed:self.pageDefaultSymbols[index]]
                                                               selectedImage:[UIImage systemImageNamed:self.pageSelectedSymbols[index]]];
             [_allPageItems addObject:item];
@@ -1168,12 +1216,21 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
         _countControl.layer.shadowOffset = CGSizeMake(0, 2);
         _countControl.translatesAutoresizingMaskIntoConstraints = NO;
 
+        [_countControl addSubview:self.insertPositionButton];
         [_countControl addSubview:self.reduceButton];
         [_countControl addSubview:self.countButton];
         [_countControl addSubview:self.increaseButton];
+        [_countControl addSubview:self.removePositionButton];
+
+        [self.insertPositionButton mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.leading.equalTo(_countControl);
+            make.centerY.equalTo(_countControl);
+            make.width.mas_offset(44);
+            make.height.equalTo(_countControl);
+        }];
 
         [self.reduceButton mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.leading.equalTo(_countControl);
+            make.leading.equalTo(self.insertPositionButton.mas_trailing);
             make.centerY.equalTo(_countControl);
             make.width.mas_offset(40);
             make.height.equalTo(_countControl);
@@ -1187,9 +1244,16 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
 
         [self.increaseButton mas_makeConstraints:^(MASConstraintMaker *make) {
             make.leading.equalTo(self.countButton.mas_trailing);
-            make.trailing.equalTo(_countControl);
             make.centerY.equalTo(_countControl);
             make.width.mas_offset(40);
+            make.height.equalTo(_countControl);
+        }];
+
+        [self.removePositionButton mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.leading.equalTo(self.increaseButton.mas_trailing);
+            make.trailing.equalTo(_countControl);
+            make.centerY.equalTo(_countControl);
+            make.width.mas_offset(44);
             make.height.equalTo(_countControl);
         }];
     }
@@ -1232,6 +1296,32 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
     return _countButton;
 }
 
+/// 指定下标插入按钮(点击弹出输入框，把没在展示中的一页插到输入的下标位置)
+- (UIButton *)insertPositionButton {
+    if (!_insertPositionButton) {
+        _insertPositionButton = [UIButton buttonWithType:UIButtonTypeSystem];
+        [_insertPositionButton setTitle:@"插入" forState:UIControlStateNormal];
+        [_insertPositionButton setTitleColor:[UIColor systemBlueColor] forState:UIControlStateNormal];
+        _insertPositionButton.titleLabel.font = [UIFont systemFontOfSize:13 weight:UIFontWeightMedium];
+        [_insertPositionButton addTarget:self action:@selector(insertPageAtInputIndex) forControlEvents:UIControlEventTouchUpInside];
+        _insertPositionButton.translatesAutoresizingMaskIntoConstraints = NO;
+    }
+    return _insertPositionButton;
+}
+
+/// 指定下标删除按钮(点击弹出输入框，删除输入下标位置的那一页)
+- (UIButton *)removePositionButton {
+    if (!_removePositionButton) {
+        _removePositionButton = [UIButton buttonWithType:UIButtonTypeSystem];
+        [_removePositionButton setTitle:@"删除" forState:UIControlStateNormal];
+        [_removePositionButton setTitleColor:[UIColor systemRedColor] forState:UIControlStateNormal];
+        _removePositionButton.titleLabel.font = [UIFont systemFontOfSize:13 weight:UIFontWeightMedium];
+        [_removePositionButton addTarget:self action:@selector(removePageAtInputIndex) forControlEvents:UIControlEventTouchUpInside];
+        _removePositionButton.translatesAutoresizingMaskIntoConstraints = NO;
+    }
+    return _removePositionButton;
+}
+
 #pragma mark - 悬浮控件
 
 - (void)setupCountControl {
@@ -1241,7 +1331,7 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
         make.right.equalTo(self.view.mas_safeAreaLayoutGuideRight).offset(-16);
         make.bottom.equalTo(self.view.mas_safeAreaLayoutGuideBottom).offset(-16);
         make.height.mas_offset(36);
-        make.width.mas_offset(140);
+        make.width.mas_offset(228);
     }];
 
     [self updateCountControlState];
@@ -1251,6 +1341,8 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
     [self.countButton setTitle:[NSString stringWithFormat:@"数量 %ld", (long)self.currentItems.count] forState:UIControlStateNormal];
     self.increaseButton.enabled = ([self firstUnusedItem] != nil);
     self.reduceButton.enabled = (self.currentItems.count > 1);
+    self.insertPositionButton.enabled = ([self firstUnusedItem] != nil);
+    self.removePositionButton.enabled = (self.currentItems.count > 1);
 }
 
 #pragma mark - 设置应用与重载
@@ -1265,7 +1357,8 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
     pagingView.bar_originlLeftOffset = settings.originlLeftOffset;
     pagingView.bar_originlRightOffset = settings.originlRightOffset;
     pagingView.bar_itemTopOffset = settings.itemTopOffset;
-    pagingView.bar_adjustOffset = settings.adjustOffset;
+    pagingView.bar_autoCenter = settings.autoCenter;
+    pagingView.bar_autoCenterMinSideSpacing = settings.autoCenterMinSideSpacing;
     pagingView.bar_dividingOffset = settings.dividingOffset;
     pagingView.barButton_dividingOffset = settings.buttonDividingOffset;
 
@@ -1302,6 +1395,7 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
     pagingView.bar_scrollLineFollowFinger = settings.scrollLineFollowFinger;
     pagingView.bar_item_insideMargins = settings.itemInsideMargins;
     pagingView.bar_item_imageViewSize = settings.itemImageViewSize;
+    pagingView.bar_item_imageContentMode = settings.itemImageContentMode;
 
     // 字体设置
     pagingView.bar_title_defaultFont = settings.titleDefaultFont;
@@ -1378,6 +1472,54 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
     [self changeTitleCount:-1];
 }
 
+/// 弹出输入框，把没在展示中的一页插到输入的下标位置并原地重载WYPagingView(下标范围0到当前数量，等于当前数量时等于末尾追加)
+- (void)insertPageAtInputIndex {
+    if ([self firstUnusedItem] == nil) { return; }
+
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"插入到指定下标"
+                                                                   message:[NSString stringWithFormat:@"下标范围 0 ~ %ld(等于当前数量时加到末尾)", (long)self.currentItems.count]
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    [alert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+        textField.keyboardType = UIKeyboardTypeNumberPad;
+        textField.placeholder = [NSString stringWithFormat:@"0 ~ %ld", (long)self.currentItems.count];
+    }];
+    [alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
+    [alert addAction:[UIAlertAction actionWithTitle:@"插入" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        // 防输入非数字或越界时数组操作崩溃:解析失败或不在范围内直接忽略这次输入
+        NSInteger insertIndex = [alert.textFields.firstObject.text integerValue];
+        if (insertIndex < 0 || insertIndex > self.currentItems.count) { return; }
+        TestPageItem *unusedItem = [self firstUnusedItem];
+        if (unusedItem == nil) { return; }
+        [self.currentItems insertObject:unusedItem atIndex:insertIndex];
+        [self updateCountControlState];
+        [self reloadPagingView];
+    }]];
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+/// 弹出输入框，删除输入下标位置的那一页并原地重载WYPagingView(至少保留一页)
+- (void)removePageAtInputIndex {
+    if (self.currentItems.count <= 1) { return; }
+
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"删除指定下标"
+                                                                   message:[NSString stringWithFormat:@"下标范围 0 ~ %ld(至少保留一页)", (long)self.currentItems.count - 1]
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    [alert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+        textField.keyboardType = UIKeyboardTypeNumberPad;
+        textField.placeholder = [NSString stringWithFormat:@"0 ~ %ld", (long)self.currentItems.count - 1];
+    }];
+    [alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
+    [alert addAction:[UIAlertAction actionWithTitle:@"删除" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+        // 防输入非数字或越界时数组操作崩溃:解析失败或不在范围内直接忽略这次输入
+        NSInteger removeIndex = [alert.textFields.firstObject.text integerValue];
+        if (removeIndex < 0 || removeIndex >= self.currentItems.count) { return; }
+        [self.currentItems removeObjectAtIndex:removeIndex];
+        [self updateCountControlState];
+        [self reloadPagingView];
+    }]];
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
 /**
  * 调整末尾页数量并原地重载当前WYPagingView(中间位置插删、换顺序见showPageOperations菜单)
  *
@@ -1401,6 +1543,7 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
 #pragma mark - 操作菜单
 
 /// 弹出插删页/换顺序/代码切页操作菜单(模拟接口下发不同数量与顺序的title，并验证switchToPage与重复点击回调)
+
 - (void)showPageOperations {
 
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"页面操作"
@@ -1538,7 +1681,15 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
     return nil;
 }
 
-/// 按序号动态生成一页测试页(标题带序号，颜色与图标循环取用)
+/// 取指定序号这一档的标题字符数范围(超短/一般/长/超长四档循环取用，location为最少字符数，NSMaxRange()-1为最多字符数)
+- (NSRange)titleLengthRangeForSlot:(NSInteger)slot {
+    static const NSInteger minimumLengths[] = {1, 2, 5, 8};
+    static const NSInteger maximumLengths[] = {1, 4, 7, 10};
+    NSInteger bandIndex = slot % 4;
+    return NSMakeRange(minimumLengths[bandIndex], maximumLengths[bandIndex] - minimumLengths[bandIndex] + 1);
+}
+
+/// 按序号动态生成一页测试页(标题按长度梯度随机生成，颜色与图标循环取用)
 - (TestPageItem *)makePageItemWithSlot:(NSInteger)slot {
 
     UIViewController *controller = [[UIViewController alloc] init];
@@ -1546,8 +1697,9 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
     controller.view.layer.borderWidth = 2;
     controller.view.layer.borderColor = [UIColor blackColor].CGColor;
 
+    NSRange titleLengthRange = [self titleLengthRangeForSlot:slot];
     return [[TestPageItem alloc] initWithController:controller
-                                              title:[NSString stringWithFormat:@"页面%ld", (long)slot + 1]
+                                              title:[NSString wy_randomWithMinimum:(NSInteger)titleLengthRange.location maximum:(NSInteger)(NSMaxRange(titleLengthRange) - 1)]
                                         defaultImage:[UIImage systemImageNamed:self.pageDefaultSymbols[slot % self.pageDefaultSymbols.count]]
                                         selectedImage:[UIImage systemImageNamed:self.pageSelectedSymbols[slot % self.pageSelectedSymbols.count]]];
 }
@@ -1566,8 +1718,8 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
     NSLog(@"分页滚动到第 %ld 页 - 通过代理回调, %@第一次显示该页面", (long)pagingIndex, isFirstDisplayed ? @"是" : @"不是");
 }
 
-- (void)wy_pagingViewLayoutDidCompleted:(WYPagingView *)pagingView {
-    NSLog(@"分页视图布局完成 - 代理回调");
+- (void)wy_pagingViewLayoutDidCompleted:(WYPagingView *)pagingView pagingIndex:(NSInteger)pagingIndex isReload:(BOOL)isReload {
+    NSLog(@"分页视图布局完成(%@), 落位到第 %ld 页 - 代理回调", isReload ? @"重载" : @"首次", (long)pagingIndex);
 }
 
 - (void)wy_pagingViewItemDidRepeatClick:(WYPagingView *)pagingView pagingIndex:(NSInteger)pagingIndex {
