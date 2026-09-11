@@ -172,7 +172,7 @@ import WYBasisKitSwift
      *
      *  @param edges     要移除的边框的位置
      *
-     *  @param thickness 要移除的边框的宽度或高度
+     *  @param thickness 要移除的边框的宽度或高度(传nil时移除所有匹配位置上的边框)
      *
      */
     @objc(wy_removeBorder:)
@@ -187,7 +187,7 @@ import WYBasisKitSwift
 
 public extension UIView {
     
-    /// 使用链式编程设置圆角、边框、阴影、渐变(调用方式类似SnapKit， 也可直接.语法调用，点语法时需要自己在最后一个设置后面调用wy_showVisual后设置才会生效)
+    /// 使用链式编程设置圆角、边框、阴影、渐变(调用方式类似SnapKit，也可直接用点语法逐项设置，点语法时需要自己在最后一个设置后面调用wy_showVisual设置才会生效)
     @discardableResult
     @objc(wy_makeVisual:)
     func wy_makeVisualObjC(_ visualView: (_ make: UIView) -> Void) -> UIView {
@@ -274,7 +274,7 @@ public extension UIView {
         }
     }
     
-    /// 设置圆角时，会去获取视图的Bounds属性，如果此时获取不到，则需要传入该参数，默认为 nil，如果传入该参数，会设置视图的frame为bounds
+    /// 设置圆角时，会去获取视图的Bounds属性，如果此时获取不到(布局还没完成bounds为0)，则需要传入该参数，默认为 nil
     @objc(wy_viewBounds)
     var wy_viewBoundsObjC: @convention(block) (CGRect) -> UIView {
         return { bounds in
