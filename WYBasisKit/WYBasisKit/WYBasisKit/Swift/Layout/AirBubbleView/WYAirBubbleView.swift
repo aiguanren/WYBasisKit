@@ -558,8 +558,9 @@ public class WYAirBubbleView: UIView {
      */
     private func makeGroup(for layer: CALayer, newPath: CGPath) -> CAAnimationGroup {
         
+        // 防keyPath字符串写错或日后属性改名没报错:统一用#keyPath让编译器对着属性定义校验，属性改名或删除时直接编译报错(运行期keyPath无效只会静默没动画，排查无从下手)
         // path 动画
-        let pathAnimation = CABasicAnimation(keyPath: "path")
+        let pathAnimation = CABasicAnimation(keyPath: #keyPath(CAShapeLayer.path))
         
         // 根据当前 layer 取各自的 fromValue（保证动画完全同步）
         if let shape = layer as? CAShapeLayer {
@@ -577,12 +578,12 @@ public class WYAirBubbleView: UIView {
             group.animations = [pathAnimation]
         } else {
             // bounds 动画（gradient 专用)
-            let boundsAnimation = CABasicAnimation(keyPath: "bounds")
+            let boundsAnimation = CABasicAnimation(keyPath: #keyPath(CALayer.bounds))
             boundsAnimation.fromValue = gradientLayer.presentation()?.bounds ?? gradientLayer.bounds
             boundsAnimation.toValue = CGRect(origin: .zero, size: bounds.size)
             
             // position 动画
-            let posAnimation = CABasicAnimation(keyPath: "position")
+            let posAnimation = CABasicAnimation(keyPath: #keyPath(CALayer.position))
             posAnimation.fromValue = gradientLayer.presentation()?.position ?? gradientLayer.position
             posAnimation.toValue = CGPoint(x: bounds.midX, y: bounds.midY)
             
