@@ -6,7 +6,7 @@ swift_podspec_content = File.read(swift_podspec_path)
 kit_swift_version = swift_podspec_content.match(/kit\.version\s*=\s*["']([^"']+)["']/)[1]
 
 # 定义podspec执行路径(远程验证时路径是从WYBasisKit开始的，所以远程验证时需要填入podspec文件的路径：WYBasisKit/WYBasisKit/WYBasisKit/)
-kit_path = ""
+kit_path = "WYBasisKit/WYBasisKit/WYBasisKit/"
 
 Pod::Spec.new do |kit|
   kit.name         = "WYBasisKit-ObjC"
