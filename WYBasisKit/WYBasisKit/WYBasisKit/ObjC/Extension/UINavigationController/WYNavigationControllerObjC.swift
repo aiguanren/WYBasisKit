@@ -5,10 +5,9 @@
 //  Created by guanren on 2025/9/26.
 //
 
-import UIKit
 #if canImport(WYBasisKitSwift)
+import UIKit
 import WYBasisKitSwift
-#endif
 
 @objc public extension UINavigationController {
     
@@ -236,3 +235,4 @@ import WYBasisKitSwift
         wy_setNavBarShadowLine(hidden: hidden, color: color)
     }
 }
+#endif

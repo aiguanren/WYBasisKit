@@ -5,10 +5,9 @@
 //  Created by guanren on 2025/9/26.
 //
 
-import UIKit
 #if canImport(WYBasisKitSwift)
+import UIKit
 import WYBasisKitSwift
-#endif
 
 @objc public extension UITextField {
     
@@ -25,3 +24,4 @@ import WYBasisKitSwift
         return wy_placeholderLabel
     }
 }
+#endif

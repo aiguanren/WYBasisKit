@@ -5,11 +5,10 @@
 //  Created by guanren on 2025/9/24.
 //
 
+#if canImport(WYBasisKitSwift)
 import Foundation
 import ObjectiveC.runtime
-#if canImport(WYBasisKitSwift)
 import WYBasisKitSwift
-#endif
 
 @objc public extension NSObject {
     
@@ -381,3 +380,4 @@ import WYBasisKitSwift
 
 // 全局注册表
 private var wy_archive_registeredClasses: Set<String> = Set<String>()
+#endif

@@ -6,10 +6,8 @@
 //  Copyright © 2026 官人. All rights reserved.
 //
 
-import UIKit
-
 #if canImport(WYBasisKitSwift)
-
+import UIKit
 import WYBasisKitSwift
 
 @objc public extension WYContentScrollView {
@@ -240,5 +238,4 @@ import WYBasisKitSwift
         switchContent(direction, index: &index.pointee)
     }
 }
-
 #endif

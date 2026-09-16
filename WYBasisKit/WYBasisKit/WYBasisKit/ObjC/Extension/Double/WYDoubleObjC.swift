@@ -5,10 +5,9 @@
 //  Created by guanren on 2025/9/6.
 //
 
-import Foundation
 #if canImport(WYBasisKitSwift)
+import Foundation
 import WYBasisKitSwift
-#endif
 
 @objcMembers public class WYDouble: NSObject {
     
@@ -45,3 +44,4 @@ import WYBasisKitSwift
         return Double.wy_random(minimum: minimum, maximum: maximum)
     }
 }
+#endif

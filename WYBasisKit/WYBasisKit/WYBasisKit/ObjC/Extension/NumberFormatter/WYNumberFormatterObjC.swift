@@ -5,10 +5,9 @@
 //  Created by guanren on 2025/9/24.
 //
 
-import Foundation
 #if canImport(WYBasisKitSwift)
+import Foundation
 import WYBasisKitSwift
-#endif
 
 @objc public extension NumberFormatter {
     
@@ -27,3 +26,4 @@ import WYBasisKitSwift
         return wy_internationalizedFormat(string: string, maximumFractionDigits: maximumFractionDigits)
     }
 }
+#endif

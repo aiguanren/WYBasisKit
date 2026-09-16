@@ -5,10 +5,9 @@
 //  Created by guanren on 2026/7/2.
 //
 
-import UIKit
 #if canImport(WYBasisKitSwift)
+import UIKit
 import WYBasisKitSwift
-#endif
 
 /// 三角箭头的指向方向
 @objc(WYArrowDirection)
@@ -173,3 +172,4 @@ public enum WYArrowDirectionObjC: Int {
         get { return bubblePath }
     }
 }
+#endif

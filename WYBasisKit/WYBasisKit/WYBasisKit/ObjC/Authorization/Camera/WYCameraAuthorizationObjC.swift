@@ -6,10 +6,9 @@
 //  Copyright © 2023 官人. All rights reserved.
 //
 
-import Foundation
 #if canImport(WYBasisKitSwift)
+import Foundation
 import WYBasisKitSwift
-#endif
 
 @objc(WYCameraAuthorization)
 @objcMembers public class WYCameraAuthorizationObjC: NSObject {
@@ -20,4 +19,4 @@ import WYBasisKitSwift
         wy_authorizeCameraAccess(showSettingsAlert: showSettingsAlert, handler: handler)
     }
 }
-
+#endif

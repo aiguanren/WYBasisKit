@@ -5,10 +5,9 @@
 //  Created by 官人 on 2024/1/22.
 //
 
-import Foundation
 #if canImport(WYBasisKitSwift)
+import Foundation
 import WYBasisKitSwift
-#endif
 
 @objc(WYCodableError)
 @frozen public enum WYCodableErrorObjC: Int, Error {
@@ -265,3 +264,4 @@ private extension WYCodableObjC {
         }
     }
 }
+#endif

@@ -5,10 +5,9 @@
 //  Created by guanren on 2025/9/25.
 //
 
-import UIKit
 #if canImport(WYBasisKitSwift)
+import UIKit
 import WYBasisKitSwift
-#endif
 
 @objc extension UIApplication {
     
@@ -30,3 +29,4 @@ import WYBasisKitSwift
         wy_closeDarkMode()
     }
 }
+#endif

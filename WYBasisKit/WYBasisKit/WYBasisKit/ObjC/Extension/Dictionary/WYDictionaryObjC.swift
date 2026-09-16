@@ -5,10 +5,9 @@
 //  Created by guanren on 2025/9/20.
 //
 
-import Foundation
 #if canImport(WYBasisKitSwift)
+import Foundation
 import WYBasisKitSwift
-#endif
 
 @objc public extension NSDictionary {
     
@@ -22,3 +21,4 @@ import WYBasisKitSwift
         return self[key] ?? defaultValue
     }
 }
+#endif

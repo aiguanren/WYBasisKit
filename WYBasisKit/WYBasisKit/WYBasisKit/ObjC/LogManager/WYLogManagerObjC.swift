@@ -5,11 +5,10 @@
 //  Created by guanren on 2025/7/26.
 //
 
+#if canImport(WYBasisKitSwift)
 import UIKit
 import Foundation
-#if canImport(WYBasisKitSwift)
 import WYBasisKitSwift
-#endif
 
 /**
  * 日志输出模式
@@ -112,3 +111,4 @@ import WYBasisKitSwift
         WYLogManager.removePreview()
     }
 }
+#endif

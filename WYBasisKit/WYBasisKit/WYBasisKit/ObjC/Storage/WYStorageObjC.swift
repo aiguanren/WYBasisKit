@@ -5,11 +5,10 @@
 //  Created by guanren on 2025/10/5.
 //
 
-import Foundation
-import UIKit
 #if canImport(WYBasisKitSwift)
+import UIKit
+import Foundation
 import WYBasisKitSwift
-#endif
 
 /// 数据缓存时长(有效期)
 @objc(WYStorageDurable)
@@ -189,3 +188,4 @@ import WYBasisKitSwift
         return WYStorage.clearMemory(forPath: path, asset: asset, completion: completion)
     }
 }
+#endif

@@ -6,10 +6,9 @@
 //  Copyright © 2023 官人. All rights reserved.
 //
 
-import UIKit
 #if canImport(WYBasisKitSwift)
+import UIKit
 import WYBasisKitSwift
-#endif
 
 @objc(WYMicrophoneAuthorization)
 @objcMembers public class WYMicrophoneAuthorizationObjC: NSObject {
@@ -20,3 +19,4 @@ import WYBasisKitSwift
         wy_authorizeMicrophoneAccess(showSettingsAlert: showSettingsAlert, handler: handler)
     }
 }
+#endif

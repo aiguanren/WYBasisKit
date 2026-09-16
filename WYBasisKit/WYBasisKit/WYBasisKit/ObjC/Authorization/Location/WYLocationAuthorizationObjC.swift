@@ -5,11 +5,10 @@
 //  Created by guanren on 2026/2/13.
 //
 
+#if canImport(WYBasisKitSwift)
 import UIKit
 import CoreLocation
-#if canImport(WYBasisKitSwift)
 import WYBasisKitSwift
-#endif
 
 /// 定位授权类型
 @objc(WYLocationAuthorizationStyle)
@@ -106,3 +105,4 @@ public extension WYLocationAuthorization {
         releaseAll()
     }
 }
+#endif

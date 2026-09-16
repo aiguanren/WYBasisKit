@@ -5,11 +5,10 @@
 //  Created by guanren on 2025/9/25.
 //
 
-import Foundation
-import UIKit
 #if canImport(WYBasisKitSwift)
+import UIKit
+import Foundation
 import WYBasisKitSwift
-#endif
 
 @objc public extension UIAlertController {
     
@@ -45,3 +44,4 @@ import WYBasisKitSwift
         wy_show(style: style, title: title, message: message, duration: duration, actionSheetNeedCancel: actionSheetNeedCancel, textFieldPlaceholders: textFieldPlaceholders ?? [], actions: actions ?? [], handler: handler)
     }
 }
+#endif

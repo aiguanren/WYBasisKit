@@ -5,10 +5,9 @@
 //  Created by guanren on 2025/9/27.
 //
 
-import UIKit
 #if canImport(WYBasisKitSwift)
+import UIKit
 import WYBasisKitSwift
-#endif
 
 /// ViewController显示模式
 @objc(WYDisplaMode)
@@ -119,3 +118,4 @@ import WYBasisKitSwift
         get { return wy_returnValue }
     }
 }
+#endif

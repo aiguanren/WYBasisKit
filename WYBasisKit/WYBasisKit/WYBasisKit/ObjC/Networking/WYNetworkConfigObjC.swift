@@ -5,11 +5,10 @@
 //  Created by guanren on 2025/10/7.
 //
 
+#if canImport(WYBasisKitSwift)
 import Foundation
 import Alamofire
-#if canImport(WYBasisKitSwift)
 import WYBasisKitSwift
-#endif
 
 /// 网络请求验证方式
 @objc(WYNetworkRequestStyle)
@@ -566,3 +565,4 @@ import WYBasisKitSwift
         return configValue
     }
 }
+#endif

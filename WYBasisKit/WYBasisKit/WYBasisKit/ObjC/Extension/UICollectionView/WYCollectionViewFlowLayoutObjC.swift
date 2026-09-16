@@ -5,10 +5,9 @@
 //  Created by guanren on 2025/11/16.
 //
 
-import UIKit
 #if canImport(WYBasisKitSwift)
+import UIKit
 import WYBasisKitSwift
-#endif
 
 /**
  *  自定义瀑布流使用说明
@@ -31,3 +30,4 @@ import WYBasisKitSwift
         self.init(delegate: delegate)
     }
 }
+#endif

@@ -6,10 +6,9 @@
 //  Copyright © 2023 官人. All rights reserved.
 //
 
-import UIKit
 #if canImport(WYBasisKitSwift)
+import UIKit
 import WYBasisKitSwift
-#endif
 
 @objc(WYSpeechRecognitionAuthorization)
 @objcMembers public class WYSpeechRecognitionAuthorizationObjC: NSObject {
@@ -19,3 +18,4 @@ import WYBasisKitSwift
         wy_authorizeSpeechRecognition(showSettingsAlert: showSettingsAlert, handler: handler)
     }
 }
+#endif

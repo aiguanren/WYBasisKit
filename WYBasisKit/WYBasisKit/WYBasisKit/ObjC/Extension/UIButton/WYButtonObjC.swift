@@ -5,10 +5,9 @@
 //  Created by guanren on 2025/9/26.
 //
 
-import UIKit
 #if canImport(WYBasisKitSwift)
+import UIKit
 import WYBasisKitSwift
-#endif
 
 /// UIButton图片控件和文本控件显示位置
 @objc(WYButtonPosition)
@@ -128,3 +127,4 @@ import WYBasisKitSwift
         wy_adjust(position: WYButtonPosition(rawValue: position.rawValue) ?? .imageLeftTitleRight, spacing: spacing)
     }
 }
+#endif

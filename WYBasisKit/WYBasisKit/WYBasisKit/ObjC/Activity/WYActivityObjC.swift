@@ -6,11 +6,10 @@
 //  Copyright © 2021 官人. All rights reserved.
 //
 
+#if canImport(WYBasisKitSwift)
 import UIKit
 import Foundation
-#if canImport(WYBasisKitSwift)
 import WYBasisKitSwift
-#endif
 
 /// 信息提示窗口的显示位置
 @objc(WYActivityPosition)
@@ -425,3 +424,4 @@ private extension WYActivityObjC {
         WYActivity.dismissLoading(in: contentView, animate: animate)
     }
 }
+#endif

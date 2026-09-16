@@ -5,10 +5,9 @@
 //  Created by guanren on 2025/9/6.
 //
 
-import UIKit
 #if canImport(WYBasisKitSwift)
+import UIKit
 import WYBasisKitSwift
-#endif
 
 @objc public extension UIFont {
     
@@ -22,3 +21,4 @@ import WYBasisKitSwift
         return UIFont.wy_fontSize(ratioValue, WYScreenPixels(width: pixels.width, height: pixels.height))
     }
 }
+#endif

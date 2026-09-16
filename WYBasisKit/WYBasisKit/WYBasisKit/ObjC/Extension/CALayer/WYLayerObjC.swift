@@ -5,11 +5,10 @@
 //  Created by guanren on 2025/9/6.
 //
 
+#if canImport(WYBasisKitSwift)
 import UIKit
 import QuartzCore
-#if canImport(WYBasisKitSwift)
 import WYBasisKitSwift
-#endif
 
 /// 虚线方向
 @objc(WYDashDirection)
@@ -43,3 +42,4 @@ import WYBasisKitSwift
         return CALayer.wy_drawDashLine(direction: WYDashDirection(rawValue: direction.rawValue) ?? .leftToRight, bounds: bounds, color: color, length: length, isRound: isRound, spacing: spacing)
     }
 }
+#endif

@@ -5,10 +5,9 @@
 //  Created by guanren on 2025/9/26.
 //
 
-import UIKit
 #if canImport(WYBasisKitSwift)
+import UIKit
 import WYBasisKitSwift
-#endif
 
 /// UICollectionView注册类型
 @objc(WYCollectionViewRegisterStyle)
@@ -103,3 +102,4 @@ import WYBasisKitSwift
         return wy_swipeOrTapCollapseKeyboard(target: target, action: action)
     }
 }
+#endif

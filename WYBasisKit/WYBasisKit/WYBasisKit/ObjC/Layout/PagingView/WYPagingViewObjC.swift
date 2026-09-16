@@ -5,10 +5,9 @@
 //  Created by guanren on 2025/10/6.
 //
 
-import UIKit
 #if canImport(WYBasisKitSwift)
+import UIKit
 import WYBasisKitSwift
-#endif
     
 @objc public extension WYPagingView {
     
@@ -637,3 +636,4 @@ import WYBasisKitSwift
         setIsSelected(isSelected)
     }
 }
+#endif

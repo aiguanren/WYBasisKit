@@ -5,11 +5,10 @@
 //  Created by guanren on 2025/9/21.
 //
 
-import Foundation
-import UIKit
 #if canImport(WYBasisKitSwift)
+import UIKit
+import Foundation
 import WYBasisKitSwift
-#endif
 
 /// 间距插入位置
 @objc(WYSpacingPosition)
@@ -377,3 +376,4 @@ import WYBasisKitSwift
         self.spacingAfter = spacingAfter
     }
 }
+#endif

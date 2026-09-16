@@ -6,10 +6,9 @@
 //  Copyright © 2023 官人. All rights reserved.
 //  
 
-import Foundation
 #if canImport(WYBasisKitSwift)
+import Foundation
 import WYBasisKitSwift
-#endif
 
 /// 屏幕分辨率
 @objc(WYScreenPixels)
@@ -136,3 +135,4 @@ import WYBasisKitSwift
         return WYProjectInfo.isSwiftProject
     }
 }
+#endif

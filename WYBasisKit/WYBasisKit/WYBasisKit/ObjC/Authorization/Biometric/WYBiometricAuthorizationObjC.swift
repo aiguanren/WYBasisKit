@@ -6,10 +6,9 @@
 //  Copyright © 2023 官人. All rights reserved.
 //
 
-import Foundation
 #if canImport(WYBasisKitSwift)
+import Foundation
 import WYBasisKitSwift
-#endif
 
 /// 生物识别模式
 @objc(WYBiometricMode)
@@ -51,3 +50,4 @@ import WYBasisKitSwift
         wy_verifyBiometrics(localizedFallbackTitle, localizedReason: localizedReason, handler: handler)
     }
 }
+#endif

@@ -5,11 +5,10 @@
 //  Created by guanren on 2025/9/5.
 //
 
-import Foundation
-import UIKit
 #if canImport(WYBasisKitSwift)
+import UIKit
+import Foundation
 import WYBasisKitSwift
-#endif
 
 /// 获取时间戳的模式
 @objc(WYTimestampMode)
@@ -489,3 +488,4 @@ private extension NSString {
         return dateFormat
     }
 }
+#endif

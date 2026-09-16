@@ -5,10 +5,9 @@
 //  Created by guanren on 2025/9/6.
 //
 
-import Foundation
 #if canImport(WYBasisKitSwift)
+import Foundation
 import WYBasisKitSwift
-#endif
 
 @objcMembers public class WYBool: NSObject {
     
@@ -87,3 +86,4 @@ import WYBasisKitSwift
         return Bool.wy_random()
     }
 }
+#endif

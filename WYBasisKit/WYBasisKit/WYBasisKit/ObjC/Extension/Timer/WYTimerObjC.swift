@@ -5,10 +5,9 @@
 //  Created by guanren on 2025/9/24.
 //
 
-import Foundation
 #if canImport(WYBasisKitSwift)
+import Foundation
 import WYBasisKitSwift
-#endif
 
 @objc public extension Timer {
     
@@ -46,3 +45,4 @@ import WYBasisKitSwift
         wy_cancel(alias)
     }
 }
+#endif

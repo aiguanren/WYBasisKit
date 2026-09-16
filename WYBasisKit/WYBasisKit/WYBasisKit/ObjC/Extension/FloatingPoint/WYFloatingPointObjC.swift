@@ -5,10 +5,9 @@
 //  Created by guanren on 2025/9/6.
 //
 
-import Foundation
 #if canImport(WYBasisKitSwift)
+import Foundation
 import WYBasisKitSwift
-#endif
 
 @objcMembers public class WYFloatingPoint: NSObject {
     
@@ -32,3 +31,4 @@ import WYBasisKitSwift
         return doubleRadian.wy_radianToDegrees
     }
 }
+#endif

@@ -5,10 +5,9 @@
 //  Created by guanren on 2025/9/26.
 //
 
-import UIKit
 #if canImport(WYBasisKitSwift)
+import UIKit
 import WYBasisKitSwift
-#endif
 
 /// UITableView注册类型
 @objc(WYTableViewRegisterStyle)
@@ -105,3 +104,4 @@ import WYBasisKitSwift
         return wy_swipeOrTapCollapseKeyboard(target: target, action: action, slideMode: slideMode)
     }
 }
+#endif

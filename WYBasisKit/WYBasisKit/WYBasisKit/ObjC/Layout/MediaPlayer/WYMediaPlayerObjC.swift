@@ -5,10 +5,8 @@
 //  Created by guanren on 2025/10/5.
 //
 
-import UIKit
-
 #if canImport(WYBasisKitSwift) && canImport(IJKPlayerKit)
-
+import UIKit
 import IJKPlayerKit
 import WYBasisKitSwift
 
@@ -743,5 +741,4 @@ import WYBasisKitSwift
      }
      */
 }
-
 #endif

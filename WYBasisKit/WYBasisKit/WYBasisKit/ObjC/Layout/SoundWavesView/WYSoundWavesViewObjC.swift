@@ -5,7 +5,9 @@
 //  Created by 官人 on 2023/8/10.
 //
 
+#if canImport(WYBasisKitSwift)
 import UIKit
+import WYBasisKitSwift
 
 /// 声波动画参数配置
 @objc(WYSoundWaveConfig)
@@ -372,3 +374,4 @@ private extension WYSoundWavesView {
         static var intervalObjCConfig: UInt8 = 0
     }
 }
+#endif

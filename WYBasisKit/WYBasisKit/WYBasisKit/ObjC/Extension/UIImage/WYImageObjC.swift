@@ -6,11 +6,10 @@
 //  Copyright © 2020 官人. All rights reserved.
 //
 
-import Foundation
-import UIKit
 #if canImport(WYBasisKitSwift)
+import UIKit
+import Foundation
 import WYBasisKitSwift
-#endif
 
 /// 动图格式类型
 @objc(WYAnimatedImageStyle)
@@ -520,3 +519,4 @@ import WYBasisKitSwift
 }
 
 private class WYLocalizableClass {}
+#endif

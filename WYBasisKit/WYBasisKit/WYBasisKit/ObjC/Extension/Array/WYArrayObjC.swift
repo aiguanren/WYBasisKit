@@ -5,10 +5,9 @@
 //  Created by guanren on 2025/9/20.
 //
 
-import Foundation
 #if canImport(WYBasisKitSwift)
+import Foundation
 import WYBasisKitSwift
-#endif
 
 @objc public extension NSArray {
     
@@ -50,3 +49,4 @@ import WYBasisKitSwift
         return result
     }
 }
+#endif

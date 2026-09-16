@@ -5,10 +5,9 @@
 //  Created by guanren on 2025/9/20.
 //
 
-import UIKit
 #if canImport(WYBasisKitSwift)
+import UIKit
 import WYBasisKitSwift
-#endif
 
 @objc public extension UIScrollView {
 
@@ -56,3 +55,4 @@ import WYBasisKitSwift
         }
     }
 }
+#endif

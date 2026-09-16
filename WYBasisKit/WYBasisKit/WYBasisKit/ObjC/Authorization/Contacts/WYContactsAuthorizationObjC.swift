@@ -6,11 +6,10 @@
 //  Copyright © 2023 官人. All rights reserved.
 //
 
+#if canImport(WYBasisKitSwift)
 import UIKit
 import Contacts
-#if canImport(WYBasisKitSwift)
 import WYBasisKitSwift
-#endif
 
 @objc(WYContactsAuthorization)
 @objcMembers public class WYContactsAuthorizationObjC: NSObject {
@@ -24,3 +23,4 @@ import WYBasisKitSwift
         wy_authorizeAddressBookAccess(showSettingsAlert: showSettingsAlert, keysToFetch: keysToFetchs, handler: handler)
     }
 }
+#endif

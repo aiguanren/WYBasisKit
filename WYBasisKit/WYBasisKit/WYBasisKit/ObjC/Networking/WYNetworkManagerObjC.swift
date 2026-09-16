@@ -5,12 +5,11 @@
 //  Created by guanren on 2025/10/7.
 //
 
+#if canImport(WYBasisKitSwift)
 import Network
 import Foundation
 import Alamofire
-#if canImport(WYBasisKitSwift)
 import WYBasisKitSwift
-#endif
 
 /// 网络请求类型(对应Alamofire中HTTPMethod)
 @objc @frozen public enum WYHTTPMethod: Int {
@@ -719,3 +718,4 @@ import WYBasisKitSwift
         WYNetworkManager.cancelRequest(domain: requestDomain, path: path)
     }
 }
+#endif

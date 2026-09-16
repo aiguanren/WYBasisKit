@@ -5,11 +5,10 @@
 //  Created by guanren on 2025/9/26.
 //
 
+#if canImport(WYBasisKitSwift)
 import WebKit
 import Foundation
-#if canImport(WYBasisKitSwift)
 import WYBasisKitSwift
-#endif
 
 /// WKWebView 进度条扩展
 @objc public extension WKWebView {
@@ -48,3 +47,4 @@ import WYBasisKitSwift
         set { wy_navigationProxy = newValue }
     }
 }
+#endif

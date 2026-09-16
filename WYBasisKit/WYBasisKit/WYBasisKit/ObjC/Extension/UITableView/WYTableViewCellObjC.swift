@@ -5,10 +5,9 @@
 //  Created by guanren on 2025/11/15.
 //
 
-import UIKit
 #if canImport(WYBasisKitSwift)
+import UIKit
 import WYBasisKitSwift
-#endif
 
 /// UITableViewCell侧滑方向
 @objc(WYTableViewSideslipDirection)
@@ -356,3 +355,4 @@ import WYBasisKitSwift
         wy_resetAllVisibleCellsSideslipState()
     }
 }
+#endif

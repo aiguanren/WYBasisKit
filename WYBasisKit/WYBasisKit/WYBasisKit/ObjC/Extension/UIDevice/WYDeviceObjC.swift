@@ -5,10 +5,9 @@
 //  Created by guanren on 2025/9/6.
 //
 
-import UIKit
 #if canImport(WYBasisKitSwift)
+import UIKit
 import WYBasisKitSwift
-#endif
 
 /// 设备振动模式
 @objc(WYVibrationStyle)
@@ -293,3 +292,4 @@ import WYBasisKitSwift
         UIDevice.wy_vibrate(style, repeatCount: repeatCount, interval: interval)
     }
 }
+#endif
