@@ -40,7 +40,7 @@ class WYTestTextViewCell: UITableViewCell {
         }
     }
     
-    func reload(clickEffectColor: UIColor?, longPressMinimumDuration: TimeInterval, eventPenetration: Bool, useCustomFont: Bool, randomText: Bool) {
+    func reload(clickEffectColor: UIColor?, longPressEffectColor: UIColor?, overlaysOriginalBackground: Bool, longPressMinimumDuration: TimeInterval, eventPenetration: Bool, useCustomFont: Bool, randomText: Bool) {
         
         var text: String = ""
         if randomText {
@@ -54,6 +54,8 @@ class WYTestTextViewCell: UITableViewCell {
         let delegate_longPress: Any = ["粼粼波光", "沙滩", "关关雎鸠", "参差荇菜"]
         
         linkView?.wy_clickEffectColor = clickEffectColor
+        linkView?.wy_longPressEffectColor = longPressEffectColor
+        linkView?.wy_overlaysOriginalBackground = overlaysOriginalBackground
         linkView?.wy_longPressMinimumDuration = longPressMinimumDuration
         linkView?.wy_eventPenetration = eventPenetration
         let attributedText: NSMutableAttributedString = NSMutableAttributedString(string: text)
@@ -62,11 +64,14 @@ class WYTestTextViewCell: UITableViewCell {
         attributedText.wy_underline(color: .purple, rangeValue: block_longPress)
         attributedText.wy_underline(color: .orange, rangeValue: delegate_tap)
         attributedText.wy_underline(color: .green, rangeValue: delegate_longPress)
+        // 给三个测试词加自带背景色，验证按下高亮对自带背景色的覆盖与还原(左右为点击+长按双注册，沙滩为纯长按，理想为纯点击)
+        attributedText.wy_setBackgroundColor(.systemYellow, rangeValue: ["左右", "沙滩", "理想"])
         let font: UIFont = useCustomFont ? UIFont(name: "NotoSans-Regular", size: 16)! : UIFont.boldSystemFont(ofSize: 16);
         attributedText.wy_setFont([font: attributedText.string])
         linkView?.attributedText = attributedText
         
-        linkView?.wy_addTextTapHandler(rangeValue: block_tap) { textView, text, range, index in
+        linkView?.wy_addTextTapHandler(rangeValue: block_tap) { [weak self] textView, text, range, index in
+            self?.endEditing(true)
             wy_print("自定义Block，点击\ntext:\(text),index:\(index),range:\(range)")
         }
         linkView?.wy_addTextTapDelegate(rangeValue: delegate_tap, delegate: self)
@@ -105,6 +110,7 @@ class WYTestTextViewCell: UITableViewCell {
 extension WYTestTextViewCell: WYTextViewTouchDelegate {
     
     func wy_textViewTextDidClick(_ textView: UITextView, text: String, range: NSRange, index: Int) {
+        endEditing(true)
         wy_print("自定义代理，点击\ntext:\(text),index:\(index),range:\(range)")
     }
     

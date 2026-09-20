@@ -34,7 +34,7 @@ import UIKit
 public extension UITextView {
     
     /**
-     * 点击或长按效果颜色（按下时的背景色）
+     * 点击效果颜色（按下时的背景色）
      *
      * - 若用户未主动设置，则自动使用被点击富文本的文字颜色 + 0.25 透明度。
      * - 若用户主动设置（包括设置为 `.clear`），则使用该颜色（不再动态取色）。
@@ -42,6 +42,24 @@ public extension UITextView {
     var wy_clickEffectColor: UIColor? {
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_clickEffectColor) as? UIColor }
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_clickEffectColor, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+    }
+    
+    /**
+     * 长按效果颜色（长按时背景色）
+     *
+     * - 若用户未主动设置，则先回退使用 wy_clickEffectColor；两者都未设置时，自动使用被长按富文本的文字颜色 + 0.25 透明度。
+     * - 若用户主动设置（包括设置为 `.clear`），则使用该颜色（不再动态取色）。
+     * - 显示时机为只注册了长按的文本按下立即显示本颜色；同时注册了点击的文本按下先显示点击效果色，达到长按最小时长后才切换为本颜色（因为按下瞬间无法区分用户想点击还是长按）。
+     */
+    var wy_longPressEffectColor: UIColor? {
+        get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_longPressEffectColor) as? UIColor }
+        set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_longPressEffectColor, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+    }
+    
+    /// 文本自带背景色时按下高亮要不要盖住它，默认 true(为 true 时按下用效果色盖住、手指移开后还原自带背景色；为 false 时自带背景色的文本按下不显示高亮)
+    var wy_overlaysOriginalBackground: Bool {
+        get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_overlaysOriginalBackground) as? Bool ?? true }
+        set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_overlaysOriginalBackground, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
     }
     
     /// 长按触发的最小时长（秒），默认(最小) 0.5 秒
@@ -215,12 +233,30 @@ private class WYTextTouchRegistration {
     }
 }
 
+/// 按下高亮前备份的单段原背景色信息(用于手指移开后还原)
+private class WYHighlightBackupItem {
+    
+    /// 该段在文本中的子区间
+    let range: NSRange
+    /// 该段原有背景色(整段无背景色则为 nil)
+    let color: UIColor?
+    
+    init(range: NSRange, color: UIColor?) {
+        self.range = range
+        self.color = color
+    }
+}
+
 private extension UITextView {
     
     /// 用于关联对象（Associated Object）的静态键值结构
     struct WYAssociatedKeys {
         /// 点击效果颜色关联键
         static var wy_clickEffectColor: UInt8 = 0
+        /// 长按效果颜色关联键
+        static var wy_longPressEffectColor: UInt8 = 0
+        /// 自带背景色覆盖开关关联键
+        static var wy_overlaysOriginalBackground: UInt8 = 0
         /// 长按最小持续时间关联键
         static var wy_longPressMinimumDuration: UInt8 = 0
         /// 长按允许移动距离关联键
@@ -239,6 +275,8 @@ private extension UITextView {
         static var wy_eventPenetration: UInt8 = 0
         /// 当前高亮的文本区间关联键
         static var wy_highlightedRange: UInt8 = 0
+        /// 高亮覆盖的原背景色备份关联键
+        static var wy_highlightBackup: UInt8 = 0
         /// 触摸开始时记录的点
         static var wy_touchStartPoint: UInt8 = 0
         /// 触摸开始时匹配到的所有点击动作（数组）
@@ -285,6 +323,12 @@ private extension UITextView {
     var wy_highlightedRange: NSRange? {
         get { (objc_getAssociatedObject(self, &WYAssociatedKeys.wy_highlightedRange) as? NSValue)?.rangeValue }
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_highlightedRange, newValue.map { NSValue(range: $0) }, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+    }
+    
+    /// 当前高亮覆盖前的原背景色分段备份(整词同色时只有一段)，手指移开后按它还原。
+    var wy_highlightBackup: [WYHighlightBackupItem]? {
+        get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_highlightBackup) as? [WYHighlightBackupItem] }
+        set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_highlightBackup, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
     }
     
     /// 触摸开始时的点（用于移动距离判断）
@@ -495,26 +539,71 @@ private extension UITextView {
         }
     }
     
-    /// 为指定区间应用高亮效果（按下或长按时的背景色）。
+    /// 为指定区间应用高亮效果（按下或长按时的背景色），并记录高亮区间与被覆盖的原背景色。
     func applyHighlight(for range: NSRange, isLongPress: Bool) {
+        // 防状态残留:上一次高亮未清理时先还原，保证接下来备份到的是文本原背景色而不是上次的效果色
+        clearHighlightIfNeeded()
+        
+        // 防越界崩溃:动作区间来自缓存，文本被整体替换后可能越界，addAttribute 越界会直接崩溃
+        guard range.location + range.length <= textStorage.length else { return }
+        
+        // wy_overlaysOriginalBackground 为 false 时，自带背景色的文本不高亮(原背景色保持不动)
+        if wy_overlaysOriginalBackground == false,
+           textStorage.attribute(.backgroundColor, at: range.location, effectiveRange: nil) != nil {
+            return
+        }
+        
         let finalColor: UIColor
-        if let customColor = wy_clickEffectColor {
+        if isLongPress, let longPressColor = wy_longPressEffectColor {
+            // 长按高亮优先用长按效果色
+            finalColor = longPressColor
+        } else if let customColor = wy_clickEffectColor {
+            // 长按未单独设置时回退点击效果色（保持旧版只设点击色时点按/长按同色的行为）
             finalColor = customColor
         } else {
             let textColor = attributedText?.attribute(.foregroundColor, at: range.location, effectiveRange: nil) as? UIColor ?? .black
             finalColor = textColor.withAlphaComponent(0.25)
         }
         
+        // 覆盖前按分段备份原背景色(只枚举命中词那一段，不拷贝整个富文本)，手指移开后按备份还原
+        var backupItems: [WYHighlightBackupItem] = []
+        textStorage.enumerateAttribute(.backgroundColor, in: range) { value, subRange, _ in
+            backupItems.append(WYHighlightBackupItem(range: subRange, color: value as? UIColor))
+        }
+        wy_highlightBackup = backupItems
+        
         textStorage.beginEditing()
         textStorage.addAttribute(.backgroundColor, value: finalColor, range: range)
         textStorage.endEditing()
+        
+        wy_highlightedRange = range
     }
     
-    /// 移除指定区间的高亮效果。
+    /// 移除指定区间的高亮效果，并按备份还原高亮前的原背景色。
     func removeHighlight(for range: NSRange) {
+        // 防越界还原:手指按下期间文本被替换后原区间可能失效，此时放弃还原(全新文本没有旧背景可还原)
+        guard range.location + range.length <= textStorage.length else {
+            wy_highlightBackup = nil
+            return
+        }
+        
         textStorage.beginEditing()
-        textStorage.removeAttribute(.backgroundColor, range: range)
+        if let backupItems = wy_highlightBackup, !backupItems.isEmpty {
+            // 按备份分段还原(有色段还原原背景色，无色段只移除效果色)
+            for item in backupItems {
+                if let color = item.color {
+                    textStorage.addAttribute(.backgroundColor, value: color, range: item.range)
+                } else {
+                    textStorage.removeAttribute(.backgroundColor, range: item.range)
+                }
+            }
+        } else {
+            // 原文本无背景色，直接移除效果色
+            textStorage.removeAttribute(.backgroundColor, range: range)
+        }
         textStorage.endEditing()
+        
+        wy_highlightBackup = nil
     }
     
     /// 判断当前触摸点是否应该让事件穿透（即忽略自身，传递给父视图）。
@@ -539,9 +628,7 @@ private extension UITextView {
             guard let self = self, !self.wy_longPressTriggered else { return }
             self.wy_longPressTriggered = true
             // 长按时应用高亮
-            self.clearHighlightIfNeeded()
             self.applyHighlight(for: action.range, isLongPress: true)
-            self.wy_highlightedRange = action.range
             // 执行长按回调
             let point = self.wy_touchStartPoint
             let longActions = self.allActionsForPoint(point, actions: self.wy_longPressActions)
@@ -588,14 +675,12 @@ private extension UITextView {
                 // 应用点击高亮（取第一个动作的区间）
                 if let firstTap = tapActions.first {
                     textView.applyHighlight(for: firstTap.range, isLongPress: false)
-                    textView.wy_highlightedRange = firstTap.range
                 }
             } else {
-                // 如果没有点击动作，但有长按动作，则为了即时高亮，应用点击高亮（使用长按动作的区间）
+                // 如果没有点击动作，但有长按动作，则直接应用长按高亮（只注册了长按的文本不存在点击歧义，按下即显示长按效果色）
                 let longActions = textView.allActionsForPoint(point, actions: textView.wy_longPressActions)
                 if let firstLong = longActions.first {
-                    textView.applyHighlight(for: firstLong.range, isLongPress: false)
-                    textView.wy_highlightedRange = firstLong.range
+                    textView.applyHighlight(for: firstLong.range, isLongPress: true)
                 }
             }
             

@@ -65,6 +65,8 @@
 #pragma mark - 刷新数据
 
 - (void)reloadWithClickEffectColor:(UIColor *)clickEffectColor
+                longPressEffectColor:(UIColor *)longPressEffectColor
+              overlaysOriginalBackground:(BOOL)overlaysOriginalBackground
           longPressMinimumDuration:(NSTimeInterval)longPressMinimumDuration
                   eventPenetration:(BOOL)eventPenetration useCustomFont:(BOOL)useCustomFont randomText:(BOOL)randomText {
     
@@ -83,6 +85,8 @@
     
     // 设置 linkView 的基础属性
     self.linkView.wy_clickEffectColor = clickEffectColor;
+    self.linkView.wy_longPressEffectColor = longPressEffectColor;
+    self.linkView.wy_overlaysOriginalBackground = overlaysOriginalBackground;
     self.linkView.wy_longPressMinimumDuration = longPressMinimumDuration;
     self.linkView.wy_eventPenetration = eventPenetration;
     
@@ -96,6 +100,8 @@
     [attributedText wy_underline:[UIColor purpleColor] rangeValue:block_longPress];
     [attributedText wy_underline:[UIColor orangeColor] rangeValue:delegate_tap];
     [attributedText wy_underline:[UIColor greenColor] rangeValue:delegate_longPress];
+    // 给三个测试词加自带背景色，验证按下高亮对自带背景色的覆盖与还原(左右为点击+长按双注册，沙滩为纯长按，理想为纯点击)
+    [attributedText wy_setBackgroundColor:[UIColor systemYellowColor] rangeValue:@[@"左右", @"沙滩", @"理想"]];
     
     // 设置字体
     UIFont *font = nil;
@@ -110,10 +116,12 @@
     
     // Block 回调 - 点击
     [self.linkView wy_addTextTapEventsWithRangeValue:block_tap handler:^(UITextView *textView, NSString *text, NSRange range, NSInteger index) {
+        [self endEditing:YES];
         wy_print(@"自定义Block，点击\ntext:%@,index:%ld,range:%@", text, (long)index, NSStringFromRange(range));
     }];
     // Delegate 回调 - 点击
     [self.linkView wy_addTextTapEventsWithRangeValue:delegate_tap delegate:self];
+    
     // Block 回调 - 长按
     [self.linkView wy_addTextLongPressEventsWithRangeValue:block_longPress handler:^(UITextView *textView, NSString *text, NSRange range, NSInteger index) {
         wy_print(@"自定义Block，长按\ntext:%@,index:%ld,range:%@", text, (long)index, NSStringFromRange(range));
@@ -131,6 +139,7 @@
 #pragma mark - WYTextViewTouchDelegate（代理回调）
 
 - (void)wy_textViewTextDidClick:(UITextView *)textView clickText:(NSString *)text range:(NSRange)range index:(NSInteger)index {
+    [self endEditing:YES];
     wy_print(@"自定义代理，点击\ntext:%@,index:%ld,range:%@", text, (long)index, NSStringFromRange(range));
 }
 
