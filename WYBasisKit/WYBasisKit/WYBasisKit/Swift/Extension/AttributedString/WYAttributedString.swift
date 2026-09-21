@@ -600,10 +600,52 @@ public extension NSAttributedString {
     
     /// 计算富文本宽高
     func wy_calculateSize(controlSize: CGSize) -> CGSize {
-        
+
         let attributedSize = boundingRect(with: controlSize, options: [.truncatesLastVisibleLine, .usesLineFragmentOrigin, .usesFontLeading], context: nil)
-        
+
         return CGSize(width: ceil(attributedSize.width), height: ceil(attributedSize.height))
+    }
+
+    /**
+     *  获取指定`string`的文本矩形区域信息(用到的排版属性(字体、对齐、行间距、字间距、内边距、基线偏移等)请尽量提前设置进富文本，计算才准确)
+     *
+     *  @param rangeValue     范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
+     *
+     *  @param controlSize    排版容器尺寸(宽度即换行宽度，传极大值表示不限)
+     *
+     *  @param numberOfLines  最大行数，0 表示不限制(语义同 `UILabel.numberOfLines`)
+     *
+     *  @param lineBreakMode  换行/截断模式(语义同 `UILabel.lineBreakMode`)
+     *
+     *  - Returns: 文本矩形区域信息，单个目标查 `boundingRect`，数组目标按元素分组查 `boundingRects`，被截断隐藏的部分不产生矩形
+     */
+    func wy_calculateFrame(rangeValue: Any? = nil, controlSize: CGSize, numberOfLines: Int, lineBreakMode: NSLineBreakMode) -> WYTextBoundingInfos {
+
+        // 解析目标与返回值类型(单个 String/NSRange/nil 用 boundingRect，数组类型用 boundingRects 按输入元素分组)
+        let (valueStyle, elementTargets) = wy_boundingTargets(from: rangeValue)
+
+        guard length > 0, !elementTargets.isEmpty else {
+            return WYTextBoundingInfos(valueStyle: valueStyle, boundingRect: nil, boundingRects: nil)
+        }
+
+        // 一次排版供全部目标共用，避免同一份富文本重复布局
+        let engine = WYTextLayoutEngine(attributedText: self,
+                                        containerSize: controlSize,
+                                        numberOfLines: max(0, numberOfLines),
+                                        lineBreakMode: lineBreakMode)
+
+        switch valueStyle {
+        case .string, .range:
+            // 单目标返回一维数组(同一文本多次出现或跨行显示都会拆成多个矩形，全部平铺)
+            let rects = elementTargets.flatMap { $0 }.flatMap { engine.wy_boundingRects(for: $0) }
+            return WYTextBoundingInfos(valueStyle: valueStyle, boundingRect: rects, boundingRects: nil)
+        case .stringArray, .rangeArray, .stringAndRange:
+            // 数组目标返回二维数组(外层与输入元素一一对应，未命中的元素对应空数组)
+            let rects = elementTargets.map { elementRanges in
+                elementRanges.flatMap { engine.wy_boundingRects(for: $0) }
+            }
+            return WYTextBoundingInfos(valueStyle: valueStyle, boundingRect: nil, boundingRects: rects)
+        }
     }
 }
 
@@ -655,6 +697,59 @@ public struct WYImageAttachmentOption {
         self.offsetY = offsetY
         self.spacingBefore = spacingBefore
         self.spacingAfter = spacingAfter
+    }
+}
+
+/// 文本矩形区域信息
+public struct WYTextBoundingRects {
+
+    /// 矩形区域
+    public let rect: CGRect
+
+    /// 矩形对应的字符串
+    public let string: String
+
+    /// 矩形对应的字符串范围
+    public let range: NSRange
+
+    /// 初始化方法
+    public init(rect: CGRect, string: String, range: NSRange) {
+        self.rect = rect
+        self.string = string
+        self.range = range
+    }
+}
+
+public struct WYTextBoundingInfos {
+
+    /// 返回值类型(枚举)
+    @frozen public enum WYTextBoundingInfoValueStyle: Int {
+        /// 单个文本 String
+        case string = 0
+        /// 单个区间 NSRange
+        case range
+        /// 文本数组 [String]
+        case stringArray
+        /// 区间数组 [NSRange]
+        case rangeArray
+        /// 文本与区间组合数组 [String, NSRange]
+        case stringAndRange
+    }
+
+    /// 返回值具体类型
+    public let valueStyle: WYTextBoundingInfoValueStyle
+
+    /// String或NSRange对应的BoundingRects(因为单个文本可能也会存在换行显示，所以这里用数组来返回)
+    public let boundingRect: [WYTextBoundingRects]?
+
+    /// [String]或[NSRange]或[String,NSRange]对应的BoundingRects(因为单个文本可能也会存在换行显示，所以这里用数组来组合返回)
+    public let boundingRects: [[WYTextBoundingRects]]?
+
+    /// 初始化方法
+    public init(valueStyle: WYTextBoundingInfoValueStyle, boundingRect: [WYTextBoundingRects]?, boundingRects: [[WYTextBoundingRects]]?) {
+        self.valueStyle = valueStyle
+        self.boundingRect = boundingRect
+        self.boundingRects = boundingRects
     }
 }
 
@@ -714,5 +809,74 @@ private extension NSMutableAttributedString {
             return mutableStyle
         }
         return NSMutableParagraphStyle()
+    }
+}
+
+private extension NSAttributedString {
+    
+    /**
+     解析 wy_calculateFrame 的 rangeValue 为返回值类型与每个输入元素命中的全部范围
+     
+     - Parameter rangeValue: 支持类型，单个 `String`、`NSRange`(OC 侧为 NSValue 包装)、上述两类元素组成的任意数组（如 `[String]`、`[NSRange]`、`[String, NSRange]`），传 `nil` 表示整个富文本
+     - Returns: (返回值类型, 按输入元素分组的命中范围，单个输入也按一个元素分组，未命中元素的分组为空数组)
+     */
+    func wy_boundingTargets(from rangeValue: Any?) -> (valueStyle: WYTextBoundingInfos.WYTextBoundingInfoValueStyle, elementTargets: [[NSRange]]) {
+        
+        let fullLength = self.length
+        
+        // 传 nil → 整个富文本作为一个目标(返回逐行矩形)
+        guard let rangeValue = rangeValue else {
+            return (.range, [[NSRange(location: 0, length: fullLength)]])
+        }
+        
+        // 单个字符串 → 找出全部出现位置
+        if let keyword = rangeValue as? String {
+            return (.string, [self.string.wy_parseRanges(from: keyword)])
+        }
+        
+        // 单个 NSRange(OC 侧会以 NSValue 包装传入)
+        if let range = self.wy_validatedRange(rangeValue, fullLength: fullLength) {
+            return (.range, [[range]])
+        }
+        
+        // 数组 → 逐元素解析并按元素分组，元素类型决定最终返回值类型
+        if let elements = rangeValue as? [Any] {
+            guard !elements.isEmpty else { return (.rangeArray, []) }
+            var elementTargets: [[NSRange]] = []
+            var containsString = false
+            var containsRange = false
+            for element in elements {
+                if let keyword = element as? String {
+                    containsString = true
+                    elementTargets.append(self.string.wy_parseRanges(from: keyword))
+                } else if let range = self.wy_validatedRange(element, fullLength: fullLength) {
+                    containsRange = true
+                    elementTargets.append([range])
+                } else {
+                    elementTargets.append([])
+                }
+            }
+            let valueStyle: WYTextBoundingInfos.WYTextBoundingInfoValueStyle = (containsString && containsRange) ? .stringAndRange : (containsString ? .stringArray : .rangeArray)
+            return (valueStyle, elementTargets)
+        }
+        
+        return (.rangeArray, [])
+    }
+    
+    /// 把 NSRange 或 NSValue 包装的 NSRange 校验并裁剪到有效范围内(无法识别的类型或无交集时返回 nil)
+    func wy_validatedRange(_ value: Any, fullLength: Int) -> NSRange? {
+        
+        if let range = value as? NSRange {
+            let clipped = NSIntersectionRange(range, NSRange(location: 0, length: fullLength))
+            return clipped.length > 0 ? clipped : nil
+        }
+        
+        // OC 侧的 NSRange 以 NSValue 传入，objCType 为 {_NSRange=QQ} 时才可安全取 rangeValue
+        if let nsValue = value as? NSValue, strcmp(nsValue.objCType, "{_NSRange=QQ}") == 0 {
+            let clipped = NSIntersectionRange(nsValue.rangeValue, NSRange(location: 0, length: fullLength))
+            return clipped.length > 0 ? clipped : nil
+        }
+        
+        return nil
     }
 }

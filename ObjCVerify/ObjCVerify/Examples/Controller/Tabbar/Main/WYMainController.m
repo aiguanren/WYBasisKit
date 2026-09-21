@@ -57,8 +57,11 @@
             [[ListItem alloc] initWithTitle:@"富文本"
                                  controller:@"WYTestRichTextController"],
             
-            [[ListItem alloc] initWithTitle:@"字符串子串点击"
+            [[ListItem alloc] initWithTitle:@"字符串子串点击或长按(UITextView)"
                                  controller:@"WYTestTextViewController"],
+
+            [[ListItem alloc] initWithTitle:@"字符串子串点击或长按(UILabel)"
+                                 controller:@"WYTestLabelViewController"],
             
             [[ListItem alloc] initWithTitle:@"无限层折叠TableView"
                                  controller:@"WYMultilevelTableViewController"],

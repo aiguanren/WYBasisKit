@@ -18,6 +18,8 @@
 		582732112E9F8CDF00DAD1AA /* WYTestDarkNightModeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 582732102E9F8CDF00DAD1AA /* WYTestDarkNightModeController.m */; };
 		582917432FB0C3FD0006F98D /* NotoSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 582917422FB0C3FD0006F98D /* NotoSans-Regular.ttf */; };
 		584D59EA2FBEF27F00A862F7 /* WYTestTextViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 584D59E92FBEF27F00A862F7 /* WYTestTextViewController.m */; };
+		58EE7B152FBED001009AA0CC /* WYTestLabelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58EE7B142FBED001009AA0CC /* WYTestLabelViewController.m */; };
+		58EE7B172FBED002009AA0CC /* WYTestLabelCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 58EE7B162FBED002009AA0CC /* WYTestLabelCell.m */; };
 		584D59ED2FBEF2C100A862F7 /* WYTestTextViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 584D59EC2FBEF2C100A862F7 /* WYTestTextViewCell.m */; };
 		584D75142F7236E5006C05E7 /* WYTestImageRenderingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 584D75122F7236E5006C05E7 /* WYTestImageRenderingController.m */; };
 		584D75152F7236E5006C05E7 /* WYTestImageRenderingController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 584D75132F7236E5006C05E7 /* WYTestImageRenderingController.xib */; };
@@ -173,6 +175,10 @@
 		582917422FB0C3FD0006F98D /* NotoSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NotoSans-Regular.ttf"; sourceTree = "<group>"; };
 		584D59E82FBEF27F00A862F7 /* WYTestTextViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestTextViewController.h; sourceTree = "<group>"; };
 		584D59E92FBEF27F00A862F7 /* WYTestTextViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestTextViewController.m; sourceTree = "<group>"; };
+		58EE7B132FBED001009AA0CC /* WYTestLabelViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestLabelViewController.h; sourceTree = "<group>"; };
+		58EE7B142FBED001009AA0CC /* WYTestLabelViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.objc; path = WYTestLabelViewController.m; sourceTree = "<group>"; };
+		58EE7B152FBED002009AA0CC /* WYTestLabelCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestLabelCell.h; sourceTree = "<group>"; };
+		58EE7B162FBED002009AA0CC /* WYTestLabelCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.objc; path = WYTestLabelCell.m; sourceTree = "<group>"; };
 		584D59EB2FBEF2C100A862F7 /* WYTestTextViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestTextViewCell.h; sourceTree = "<group>"; };
 		584D59EC2FBEF2C100A862F7 /* WYTestTextViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestTextViewCell.m; sourceTree = "<group>"; };
 		584D75112F7236E5006C05E7 /* WYTestImageRenderingController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestImageRenderingController.h; sourceTree = "<group>"; };
@@ -358,6 +364,8 @@
 			children = (
 				584D59E82FBEF27F00A862F7 /* WYTestTextViewController.h */,
 				584D59E92FBEF27F00A862F7 /* WYTestTextViewController.m */,
+				58EE7B132FBED001009AA0CC /* WYTestLabelViewController.h */,
+				58EE7B142FBED001009AA0CC /* WYTestLabelViewController.m */,
 			);
 			path = "字符串子串点击";
 			sourceTree = "<group>";
@@ -479,6 +487,8 @@
 				58B4704A2E8D32D200D04BCA /* WYLeftControllerHeaderView.m */,
 				584D59EB2FBEF2C100A862F7 /* WYTestTextViewCell.h */,
 				584D59EC2FBEF2C100A862F7 /* WYTestTextViewCell.m */,
+				58EE7B152FBED002009AA0CC /* WYTestLabelCell.h */,
+				58EE7B162FBED002009AA0CC /* WYTestLabelCell.m */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1004,6 +1014,8 @@
 				580ED56B2EA5DAE5006012E7 /* SDKResponse.m in Sources */,
 				58BFB87F2F1494000094DDB5 /* WYTestDownloadController.m in Sources */,
 				584D59EA2FBEF27F00A862F7 /* WYTestTextViewController.m in Sources */,
+				58EE7B152FBED001009AA0CC /* WYTestLabelViewController.m in Sources */,
+				58EE7B172FBED002009AA0CC /* WYTestLabelCell.m in Sources */,
 				580ED5712EA5DB37006012E7 /* UserResponse.m in Sources */,
 				58BFB8A92F1634040094DDB5 /* WYSpeechRecognitionController.m in Sources */,
 				58B470412E8D11D400D04BCA /* WYCenterController.m in Sources */,

@@ -15,7 +15,7 @@ import UIKit
      * @param textView    当前 UITextView 实例
      * @param text        被点击的字符串内容
      * @param range       被点击字符串在整个文本中的 NSRange
-     * @param index       被点击字符串在传入 strings 数组中的索引
+     * @param index       本次命中的词在其所属注册解析出的全部范围中按文本出现顺序的下标(同一词多次出现时用于区分点中的是哪一处)
      */
     @objc(wy_textViewTextDidClick:clickText:range:index:)
     optional func wy_textViewTextDidClick(_ textView: UITextView, text: String, range: NSRange, index: Int)
@@ -25,7 +25,7 @@ import UIKit
      * @param textView    当前 UITextView 实例
      * @param text        被长按的字符串内容
      * @param range       被长按字符串在整个文本中的 NSRange
-     * @param index       被长按字符串在传入 strings 数组中的索引
+     * @param index       本次命中的词在其所属注册解析出的全部范围中按文本出现顺序的下标(同一词多次出现时用于区分点中的是哪一处)
      */
     @objc(wy_textViewTextDidLongPress:text:range:index:)
     optional func wy_textViewTextDidLongPress(_ textView: UITextView, text: String, range: NSRange, index: Int)
@@ -289,10 +289,10 @@ private extension UITextView {
         static var wy_disableIntrinsicContentSize: UInt8 = 0
     }
     
-    /// 长按时允许手指移动的最大距离（点），超过则取消长按识别，默认10像素
+    /// 长按时允许手指移动的最大距离（点），超过则取消长按识别，默认15像素
     var wy_longPressAllowableMovement: CGFloat {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_longPressAllowableMovement, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
-        get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_longPressAllowableMovement) as? CGFloat ?? 10 }
+        get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_longPressAllowableMovement) as? CGFloat ?? 15 }
     }
     
     /// 当前所有已解析的点击动作列表。

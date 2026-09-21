@@ -11,12 +11,12 @@ import SnapKit
 class WYTestTextViewCell: UITableViewCell {
     
     var linkView: UITextView?
-    
+
     var textView: UITextView?
-    
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
+
         linkView = UITextView()
         linkView?.textContainer.maximumNumberOfLines = 0 // 限制最多显示6行
         linkView?.wy_enableClickConfig()
@@ -26,7 +26,7 @@ class WYTestTextViewCell: UITableViewCell {
             make.centerX.top.equalToSuperview()
             make.width.equalTo(UIDevice.wy_screenWidth - 30)
         }
-        
+
         textView = UITextView()
         textView?.wy_enableClickConfig()
         textView?.textContainer.lineBreakMode = .byTruncatingTail; // 文本截断方式
@@ -79,9 +79,9 @@ class WYTestTextViewCell: UITableViewCell {
             wy_print("自定义Block，长按\ntext:\(text),index:\(index),range:\(range)")
         }
         linkView?.wy_addTextLongPressDelegate(rangeValue: delegate_longPress, delegate: self)
-        
+
         textView?.attributedText = attributedText
-        
+
         for view in [linkView, textView] {
             view?.wy_addBorder(edges: .all, color: .wy_random, thickness: 1)
         }
@@ -108,12 +108,12 @@ class WYTestTextViewCell: UITableViewCell {
 }
 
 extension WYTestTextViewCell: WYTextViewTouchDelegate {
-    
+
     func wy_textViewTextDidClick(_ textView: UITextView, text: String, range: NSRange, index: Int) {
         endEditing(true)
         wy_print("自定义代理，点击\ntext:\(text),index:\(index),range:\(range)")
     }
-    
+
     func wy_textViewTextDidLongPress(_ textView: UITextView, text: String, range: NSRange, index: Int) {
         wy_print("自定义代理，长按\ntext:\(text),index:\(index),range:\(range)")
     }

@@ -317,6 +317,24 @@ import WYBasisKitSwift
     @objc func wy_calculateSizeWith(controlSize: CGSize) -> CGSize {
         return wy_calculateSize(controlSize: controlSize)
     }
+
+    /**
+     *  获取指定`string`的文本矩形区域信息(用到的排版属性(字体、对齐、行间距、字间距、内边距、基线偏移等)请尽量提前设置进富文本，计算才准确)
+     *
+     *  @param rangeValue     范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
+     *
+     *  @param controlSize    排版容器尺寸(宽度即换行宽度，传极大值表示不限)
+     *
+     *  @param numberOfLines  最大行数，0 表示不限制(语义同 `UILabel.numberOfLines`)
+     *
+     *  @param lineBreakMode  换行/截断模式(语义同 `UILabel.lineBreakMode`)
+     *
+     *  - Returns: 文本矩形区域信息，单个目标查 `boundingRect`，数组目标按元素分组查 `boundingRects`，被截断隐藏的部分不产生矩形
+     */
+    @objc(wy_calculateFrameWithRangeValue:controlSize:numberOfLines:lineBreakMode:)
+    func wy_calculateFrameObjC(rangeValue: Any?, controlSize: CGSize, numberOfLines: Int, lineBreakMode: NSLineBreakMode) -> WYTextBoundingInfosObjC {
+        return wy_calculateFrame(rangeValue: rangeValue, controlSize: controlSize, numberOfLines: numberOfLines, lineBreakMode: lineBreakMode).wy_convertToObjC()
+    }
 }
 
 @objcMembers public class WYTextAttachmentObjC: NSTextAttachment {
@@ -374,6 +392,91 @@ import WYBasisKitSwift
         self.offsetY = offsetY
         self.spacingBefore = spacingBefore
         self.spacingAfter = spacingAfter
+    }
+}
+
+/// 文本矩形区域信息返回值类型(枚举原始值与 WYBasisKitSwift 侧 WYTextBoundingInfoValueStyle 一字不差对应)
+@objc(WYTextBoundingInfoValueStyle)
+@frozen public enum WYTextBoundingInfoValueStyleObjC: Int {
+    /// 单个文本 String
+    case string = 0
+    /// 单个区间 NSRange
+    case range
+    /// 文本数组 [String]
+    case stringArray
+    /// 区间数组 [NSRange]
+    case rangeArray
+    /// 文本与区间组合数组 [String, NSRange]
+    case stringAndRange
+}
+
+/// OC 侧的文本矩形区域信息(单个矩形，与 WYBasisKitSwift 侧 WYTextBoundingRects 一字不差对应)
+@objc(WYTextBoundingRects)
+@objcMembers public final class WYTextBoundingRectsObjC: NSObject {
+
+    /// 矩形区域
+    @objc public let rect: CGRect
+
+    /// 矩形对应的字符串
+    @objc public let string: String
+
+    /// 矩形对应的字符串范围
+    @objc public let range: NSRange
+
+    /// 初始化方法
+    @objc public init(rect: CGRect, string: String, range: NSRange) {
+        self.rect = rect
+        self.string = string
+        self.range = range
+    }
+}
+
+/// OC 侧的文本矩形区域信息组合(与 WYBasisKitSwift 侧 WYTextBoundingInfos 一字不差对应)
+@objc(WYTextBoundingInfos)
+@objcMembers public final class WYTextBoundingInfosObjC: NSObject {
+
+    /// 返回值具体类型
+    @objc public let valueStyle: WYTextBoundingInfoValueStyleObjC
+
+    /// String或NSRange对应的BoundingRects(因为单个文本可能也会存在换行显示，所以这里用数组来返回)
+    @objc public let boundingRect: [WYTextBoundingRectsObjC]?
+
+    /// [String]或[NSRange]或[String,NSRange]对应的BoundingRects(因为单个文本可能也会存在换行显示，所以这里用数组来组合返回)
+    @objc public let boundingRects: [[WYTextBoundingRectsObjC]]?
+
+    /// 初始化方法
+    @objc public init(valueStyle: WYTextBoundingInfoValueStyleObjC, boundingRect: [WYTextBoundingRectsObjC]?, boundingRects: [[WYTextBoundingRectsObjC]]?) {
+        self.valueStyle = valueStyle
+        self.boundingRect = boundingRect
+        self.boundingRects = boundingRects
+        super.init()
+    }
+}
+
+private extension WYTextBoundingRects {
+
+    /// 转换为 OC 侧可用的矩形信息对象
+    func wy_convertToObjC() -> WYTextBoundingRectsObjC {
+        return WYTextBoundingRectsObjC(rect: rect, string: string, range: range)
+    }
+}
+
+private extension WYTextBoundingInfos {
+
+    /// 转换为 OC 侧可用的矩形信息组合对象
+    func wy_convertToObjC() -> WYTextBoundingInfosObjC {
+
+        let valueStyle = WYTextBoundingInfoValueStyleObjC(rawValue: self.valueStyle.rawValue) ?? .string
+
+        let rects: [WYTextBoundingRectsObjC]? = boundingRect.map { items in
+            items.map { $0.wy_convertToObjC() }
+        }
+
+        let rectsGroup: [[WYTextBoundingRectsObjC]]? = boundingRects.map { groups in
+            groups.map { items in items.map { $0.wy_convertToObjC() } }
+        }
+
+        return WYTextBoundingInfosObjC(valueStyle: valueStyle, boundingRect: rects, boundingRects: rectsGroup)
     }
 }
 #endif

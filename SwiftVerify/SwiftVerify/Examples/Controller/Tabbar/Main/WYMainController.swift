@@ -33,8 +33,11 @@ class WYMainController: UIViewController {
         ListItem(title: "富文本",
                  controller: "WYTestRichTextController"),
         
-        ListItem(title: "字符串子串点击",
+        ListItem(title: "字符串子串点击或长按(UITextView)",
                  controller: "WYTestTextViewController"),
+
+        ListItem(title: "字符串子串点击或长按(UILabel)",
+                 controller: "WYTestLabelViewController"),
         
         ListItem(title: "无限层折叠TableView",
                  controller: "WYMultilevelTableViewController"),
@@ -129,9 +132,16 @@ class WYMainController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         // Do any additional setup after loading the view.
-        
+
+        // 调试辅助，带 -WYAutoLabelPage 启动参数时自动进入 UILabel 测试页(仅命令行带参启动时生效)
+        if ProcessInfo.processInfo.arguments.contains("-WYAutoLabelPage") {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                self?.navigationController?.pushViewController(WYTestLabelViewController(), animated: false)
+            }
+        }
+
         navigationItem.title = "各种测试样例"
         tableView.backgroundColor = UIColor.wy_dynamic(.white, .black)
         
