@@ -1145,7 +1145,7 @@ final class WYTextLayoutEngine {
             return unlimited
         }
 
-        var rects = Array(unlimited.rects.prefix(numberOfLines))
+        let rects = Array(unlimited.rects.prefix(numberOfLines))
         var ranges = Array(unlimited.ranges.prefix(numberOfLines))
         let fragments = Array(unlimitedLayout.lineFragments.prefix(numberOfLines))
 
