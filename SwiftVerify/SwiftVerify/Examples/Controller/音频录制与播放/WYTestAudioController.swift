@@ -8,96 +8,6 @@
 import UIKit
 import AVFoundation
 
-class WYVoiceWaveView: UIView {
-    private let barCount = 20
-    private let barWidth: CGFloat = 3
-    private let barSpacing: CGFloat = 2
-    private var barHeights: [CGFloat] = []   // 每个条形的当前高度
-    private var targetHeights: [CGFloat] = [] // 每个条形的目标高度
-    private var displayLink: CADisplayLink?
-    private let smoothing: CGFloat = 0.6   // 平滑系数，值越小过渡越慢（0~1）
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupBars()
-        startDisplayLink()
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setupBars()
-        startDisplayLink()
-    }
-    
-    private func setupBars() {
-        // 初始化数组
-        barHeights = Array(repeating: 0, count: barCount)
-        targetHeights = Array(repeating: 0, count: barCount)
-    }
-    
-    /// 更新音量能量值（由外部调用，传入归一化值 0~1）
-    func updatePower(_ normalizedPower: Float) {
-        let power = CGFloat(max(0, min(1, normalizedPower)))
-        let maxHeight = bounds.height > 0 ? bounds.height : 60
-        // 计算每个条形的目标高度（应用正弦因子，使中间高两边低）
-        for i in 0..<barCount {
-            let factor = sin(CGFloat(i) / CGFloat(barCount) * .pi)
-            let target = maxHeight * power * factor
-            targetHeights[i] = max(1, target)   // 最小高度1像素
-        }
-    }
-    
-    private func startDisplayLink() {
-        displayLink = CADisplayLink(target: self, selector: #selector(updateHeights))
-        displayLink?.add(to: .main, forMode: .common)
-    }
-    
-    @objc private func updateHeights() {
-        var needsRedraw = false
-        for i in 0..<barCount {
-            let diff = targetHeights[i] - barHeights[i]
-            // 如果音量突然降低超过 8 像素，直接跳变，不进行平滑
-            if diff < -8 {
-                barHeights[i] = targetHeights[i]
-                needsRedraw = true
-            } else if abs(diff) > 0.1 {
-                barHeights[i] += diff * smoothing
-                needsRedraw = true
-            } else {
-                barHeights[i] = targetHeights[i]
-            }
-        }
-        if needsRedraw {
-            setNeedsDisplay()
-        }
-    }
-    
-    override func draw(_ rect: CGRect) {
-        guard let context = UIGraphicsGetCurrentContext() else { return }
-        let maxHeight = bounds.height
-        let totalWidth = CGFloat(barCount) * barWidth + CGFloat(barCount - 1) * barSpacing
-        var x = (bounds.width - totalWidth) / 2
-        context.setFillColor(UIColor.systemBlue.cgColor)
-        
-        for i in 0..<barCount {
-            let height = barHeights[i]
-            let y = maxHeight - height
-            let barRect = CGRect(x: x, y: y, width: barWidth, height: height)
-            context.fill(barRect)
-            x += barWidth + barSpacing
-        }
-    }
-    
-    // 兼容原有接口（如果不需要额外操作可留空）
-    func startAnimating() { }
-    func stopAnimating() { }
-    
-    deinit {
-        displayLink?.invalidate()
-        displayLink = nil
-    }
-}
-
 // MARK: - 下载任务卡片视图（保持不变）
 class DownloadTaskCardView: UIView {
     let urlTextField = UITextField()
@@ -186,7 +96,7 @@ class WYTestAudioController: UIViewController {
     private let pauseRecordButton = UIButton(type: .system)
     private let stopRecordButton = UIButton(type: .system)
     private let resumeRecordButton = UIButton(type: .system)
-    private let voiceWaveView = WYVoiceWaveView()
+    private let soundWavesView = WYSoundWavesView()
     
     // 播放控制
     private let playButton = UIButton(type: .system)
@@ -521,10 +431,13 @@ class WYTestAudioController: UIViewController {
         contentView.addSubview(recordProgressLabel)
         yOffset += 40
         
-        voiceWaveView.frame = CGRect(x: 20, y: yOffset, width: view.bounds.width - 40, height: 60)
-        voiceWaveView.backgroundColor = UIColor.systemGray5
-        voiceWaveView.layer.cornerRadius = 8
-        contentView.addSubview(voiceWaveView)
+        soundWavesView.frame = CGRect(x: 20, y: yOffset, width: view.bounds.width - 40, height: 60)
+        // 波形柱颜色沿用旧版蓝色（默认白色在浅灰底上看不清），最大跳动高度取视图高度的一半，防止顶满整个灰底
+        soundWavesView.config.wavesColor = .systemBlue
+        soundWavesView.config.maxBarHeight = 30
+        soundWavesView.backgroundColor = UIColor.systemGray5
+        soundWavesView.layer.cornerRadius = 8
+        contentView.addSubview(soundWavesView)
         yOffset += 70
         
         playRecordedButton.frame = CGRect(x: 20, y: yOffset, width: 150, height: 40)
@@ -1081,12 +994,14 @@ class WYTestAudioController: UIViewController {
 extension WYTestAudioController: WYAudioKitDelegate {
     func wy_audioRecorderDidStart(audioKit: WYAudioKit, isResume: Bool) {
         logInfo("开始录制 \(selectedFormat.rawValue) 格式音频, \(isResume ? "是" : "不是")恢复录音")
-        voiceWaveView.startAnimating()
+        // 录音启动，声波切回静音水波状态（之后由音量自动切到跳动状态）
+        soundWavesView.state = .idle
     }
     
     func wy_audioRecorderDidStop(audioKit: WYAudioKit, isPause: Bool, isTimeout: Bool) {
         logInfo("录音停止, \(isPause ? "是" : "不是")暂停录音, \(isTimeout ? "是": "不是")超时(达到最大录音时长)停止")
-        voiceWaveView.stopAnimating()
+        // 录音停止（含暂停），声波切到停止状态收起柱子（停在跳动状态会拿着旧音量一直跳）
+        soundWavesView.state = .stop
     }
     
     func wy_audioRecorderTimeUpdated(audioKit: WYAudioKit, currentTime: TimeInterval, duration: TimeInterval) {
@@ -1096,14 +1011,9 @@ extension WYTestAudioController: WYAudioKitDelegate {
     }
     
     func wy_audioRecorderDidUpdateMeterings(audioKit: WYAudioKit, peakPowers: [Float], averagePowers: [Float]) {
-        // 使用峰值功率，响应更快
-        let raw = peakPowers.first ?? 0
-        // 放大 80 倍，并限制最大值 1（可根据需要调整倍数）
-        let normalized = min(1.0, raw * 80.0)
-        // 可选：如果想保留 sqrt 让低音量更明显，可去掉注释，但会略微降低灵敏度
-        // normalized = sqrt(normalized)
+        // 使用峰值功率，响应更快（回调给的已是 0~1 归一化值，直接喂给声波动画，不需要旧版的手动放大）
         Task { @MainActor in
-            self.voiceWaveView.updatePower(normalized)
+            self.soundWavesView.updateMeters(power: peakPowers.first ?? 0)
         }
     }
     

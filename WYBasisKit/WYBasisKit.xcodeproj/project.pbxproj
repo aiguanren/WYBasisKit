@@ -230,8 +230,8 @@
 
 /* Begin PBXFileReference section */
 		2D8AB1CA014BB35F5E33F61B /* WYMediaPlayer+LoadCore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+LoadCore.swift"; sourceTree = "<group>"; };
-		4B3F177B4EB89C79E90E629A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		53C11964B2A3BC35D119E938 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		4B3F177B4EB89C79E90E629A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		53C11964B2A3BC35D119E938 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		53C1C8E1255F64288E08B8AC /* Pods-WYBasisKit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.release.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.release.xcconfig"; sourceTree = "<group>"; };
 		5802B28D2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYRecordAnimationConfig.swift; sourceTree = "<group>"; };
 		5806BD0F2FD3D25400FEA501 /* WYTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTask.swift; sourceTree = "<group>"; };
@@ -466,7 +466,7 @@
 		AAC46ACF2E07E28F0068B0DF /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		DAED5053645E21395CF44805 /* WYMediaPlayer+Notifications.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+Notifications.swift"; sourceTree = "<group>"; };
 		E5BA55F71D1EFB496EE59FDE /* WYMediaPlayer+Properties.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+Properties.swift"; sourceTree = "<group>"; };
-		FBBDFDBDB8276D3319F55684 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		FBBDFDBDB8276D3319F55684 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1049,6 +1049,13 @@
 				58B6DAE93061157B00FEBC08 /* WYLabelObjC.swift */,
 			);
 			path = UILabel;
+			sourceTree = "<group>";
+		};
+		58B6DAEB3061296F00FEBC08 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = PrivateImpl;
 			sourceTree = "<group>";
 		};
 		58C3596D2F3F1E7B000E6EF0 /* Location */ = {
@@ -1757,6 +1764,7 @@
 			isa = PBXGroup;
 			children = (
 				58C68CC02E84E436005FD054 /* WYAudioKit.swift */,
+				58B6DAEB3061296F00FEBC08 /* PrivateImpl */,
 			);
 			path = AudioKit;
 			sourceTree = "<group>";

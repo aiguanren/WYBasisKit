@@ -10,142 +10,6 @@
 #import <AVFoundation/AVFoundation.h>
 #import <Masonry/Masonry.h>
 
-#pragma mark - 声波动画视图 (WYVoiceWaveView)
-
-/// 声波动画视图，用于实时显示录音音量
-@interface WYVoiceWaveView : UIView
-
-/// 更新音量能量值（归一化 0~1）
-- (void)updatePower:(CGFloat)normalizedPower;
-
-/// 开始动画（实际由 DisplayLink 持续驱动）
-- (void)startAnimating;
-
-/// 停止动画
-- (void)stopAnimating;
-
-@end
-
-@interface WYVoiceWaveView ()
-
-@property (nonatomic, assign) NSInteger barCount;
-@property (nonatomic, assign) CGFloat barWidth;
-@property (nonatomic, assign) CGFloat barSpacing;
-@property (nonatomic, strong) NSMutableArray<NSNumber *> *barHeights;
-@property (nonatomic, strong) NSMutableArray<NSNumber *> *targetHeights;
-@property (nonatomic, strong) CADisplayLink *displayLink;
-@property (nonatomic, assign) CGFloat smoothing;
-
-@end
-
-@implementation WYVoiceWaveView
-
-- (instancetype)initWithFrame:(CGRect)frame {
-    self = [super initWithFrame:frame];
-    if (self) {
-        _barCount = 20;
-        _barWidth = 3.0;
-        _barSpacing = 2.0;
-        _smoothing = 0.6;
-        _barHeights = [NSMutableArray arrayWithCapacity:_barCount];
-        _targetHeights = [NSMutableArray arrayWithCapacity:_barCount];
-        for (NSInteger i = 0; i < _barCount; i++) {
-            [_barHeights addObject:@0];
-            [_targetHeights addObject:@0];
-        }
-        [self startDisplayLink];
-    }
-    return self;
-}
-
-- (instancetype)initWithCoder:(NSCoder *)coder {
-    self = [super initWithCoder:coder];
-    if (self) {
-        _barCount = 20;
-        _barWidth = 3.0;
-        _barSpacing = 2.0;
-        _smoothing = 0.6;
-        _barHeights = [NSMutableArray arrayWithCapacity:_barCount];
-        _targetHeights = [NSMutableArray arrayWithCapacity:_barCount];
-        for (NSInteger i = 0; i < _barCount; i++) {
-            [_barHeights addObject:@0];
-            [_targetHeights addObject:@0];
-        }
-        [self startDisplayLink];
-    }
-    return self;
-}
-
-- (void)updatePower:(CGFloat)normalizedPower {
-    CGFloat power = MAX(0, MIN(1, normalizedPower));
-    CGFloat maxHeight = self.bounds.size.height > 0 ? self.bounds.size.height : 60;
-    for (NSInteger i = 0; i < self.barCount; i++) {
-        CGFloat factor = sin((CGFloat)i / (CGFloat)self.barCount * M_PI);
-        CGFloat target = maxHeight * power * factor;
-        self.targetHeights[i] = @(MAX(1, target));
-    }
-}
-
-- (void)startAnimating {
-    // DisplayLink 已持续运行，无需额外操作
-}
-
-- (void)stopAnimating {
-    // 无需停止 DisplayLink，因为视图可能被复用；但外部可调用，这里留空
-}
-
-- (void)startDisplayLink {
-    self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(updateHeights)];
-    [self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
-}
-
-- (void)updateHeights {
-    BOOL needsRedraw = NO;
-    for (NSInteger i = 0; i < self.barCount; i++) {
-        CGFloat current = self.barHeights[i].floatValue;
-        CGFloat target = self.targetHeights[i].floatValue;
-        CGFloat diff = target - current;
-        if (diff < -8) {
-            self.barHeights[i] = @(target);
-            needsRedraw = YES;
-        } else if (fabs(diff) > 0.1) {
-            current += diff * self.smoothing;
-            self.barHeights[i] = @(current);
-            needsRedraw = YES;
-        } else {
-            self.barHeights[i] = @(target);
-        }
-    }
-    if (needsRedraw) {
-        [self setNeedsDisplay];
-    }
-}
-
-- (void)drawRect:(CGRect)rect {
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    if (!context) return;
-    
-    CGFloat maxHeight = self.bounds.size.height;
-    CGFloat totalWidth = self.barCount * self.barWidth + (self.barCount - 1) * self.barSpacing;
-    CGFloat x = (self.bounds.size.width - totalWidth) / 2;
-    CGContextSetFillColorWithColor(context, [UIColor systemBlueColor].CGColor);
-    
-    for (NSInteger i = 0; i < self.barCount; i++) {
-        CGFloat height = self.barHeights[i].floatValue;
-        CGFloat y = maxHeight - height;
-        CGRect barRect = CGRectMake(x, y, self.barWidth, height);
-        CGContextFillRect(context, barRect);
-        x += self.barWidth + self.barSpacing;
-    }
-}
-
-- (void)dealloc {
-    [self.displayLink invalidate];
-    self.displayLink = nil;
-}
-
-@end
-
 #pragma mark - 下载任务卡片视图 (DownloadTaskCardView)
 
 /// 单个下载任务的卡片视图，包含 URL 输入、进度条、控制按钮
@@ -260,7 +124,7 @@
 @property (nonatomic, strong) UIButton *pauseRecordButton;
 @property (nonatomic, strong) UIButton *stopRecordButton;
 @property (nonatomic, strong) UIButton *resumeRecordButton;
-@property (nonatomic, strong) WYVoiceWaveView *voiceWaveView;
+@property (nonatomic, strong) WYSoundWavesView *soundWavesView;
 
 // 播放控制
 @property (nonatomic, strong) UIButton *playButton;
@@ -511,10 +375,13 @@
     [self.contentView addSubview:self.recordProgressLabel];
     yOffset += 40;
     
-    self.voiceWaveView = [[WYVoiceWaveView alloc] initWithFrame:CGRectMake(20, yOffset, self.view.bounds.size.width - 40, 60)];
-    self.voiceWaveView.backgroundColor = [UIColor systemGray5Color];
-    self.voiceWaveView.layer.cornerRadius = 8;
-    [self.contentView addSubview:self.voiceWaveView];
+    self.soundWavesView = [[WYSoundWavesView alloc] initWithFrame:CGRectMake(20, yOffset, self.view.bounds.size.width - 40, 60)];
+    // 波形柱颜色沿用旧版蓝色（默认白色在浅灰底上看不清），最大跳动高度取视图高度的一半，防止顶满整个灰底
+    self.soundWavesView.config.wavesColor = [UIColor systemBlueColor];
+    self.soundWavesView.config.maxBarHeight = 30;
+    self.soundWavesView.backgroundColor = [UIColor systemGray5Color];
+    self.soundWavesView.layer.cornerRadius = 8;
+    [self.contentView addSubview:self.soundWavesView];
     yOffset += 70;
     
     self.playRecordedButton = [UIButton buttonWithType:UIButtonTypeSystem];
@@ -1313,12 +1180,14 @@
 
 - (void)wy_audioRecorderDidStart:(WYAudioKit *)audioKit isResume:(BOOL)isResume {
     [self logInfo:[NSString stringWithFormat:@"开始录制 %@ 格式音频, %@恢复录音", [self stringValueForFormat:self.selectedFormat], isResume ? @"是" : @"不是"]];
-    [self.voiceWaveView startAnimating];
+    // 录音启动，声波切回静音水波状态（之后由音量自动切到跳动状态）
+    self.soundWavesView.state = WYSoundWavesStateIdle;
 }
 
 - (void)wy_audioRecorderDidStop:(WYAudioKit *)audioKit isPause:(BOOL)isPause isTimeout:(BOOL)isTimeout {
     [self logInfo:[NSString stringWithFormat:@"录音停止, %@暂停录音, %@超时(达到最大录音时长)停止", isPause ? @"是" : @"不是", isTimeout ? @"是" : @"不是"]];
-    [self.voiceWaveView stopAnimating];
+    // 录音停止（含暂停），声波切到停止状态收起柱子（停在跳动状态会拿着旧音量一直跳）
+    self.soundWavesView.state = WYSoundWavesStateStop;
 }
 
 - (void)wy_audioRecorderTimeUpdated:(WYAudioKit *)audioKit currentTime:(NSTimeInterval)currentTime duration:(NSTimeInterval)duration {
@@ -1327,12 +1196,9 @@
 }
 
 - (void)wy_audioRecorderDidUpdateMeterings:(WYAudioKit *)audioKit peakPowers:(NSArray<NSNumber *> *)peakPowers averagePowers:(NSArray<NSNumber *> *)averagePowers {
-    // 使用峰值功率，响应更快
-    CGFloat raw = peakPowers.firstObject.floatValue;
-    // 放大 80 倍，并限制最大值 1
-    CGFloat normalized = MIN(1.0, raw * 80.0);
+    // 使用峰值功率，响应更快（回调给的已是 0~1 归一化值，直接喂给声波动画，不需要旧版的手动放大）
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.voiceWaveView updatePower:normalized];
+        [self.soundWavesView updateMetersWithPower:peakPowers.firstObject.floatValue];
     });
 }
 
