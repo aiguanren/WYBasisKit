@@ -230,11 +230,12 @@
 
 /* Begin PBXFileReference section */
 		2D8AB1CA014BB35F5E33F61B /* WYMediaPlayer+LoadCore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+LoadCore.swift"; sourceTree = "<group>"; };
+		4B3F177B4EB89C79E90E629A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		53C11964B2A3BC35D119E938 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		53C1C8E1255F64288E08B8AC /* Pods-WYBasisKit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.release.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.release.xcconfig"; sourceTree = "<group>"; };
 		5802B28D2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYRecordAnimationConfig.swift; sourceTree = "<group>"; };
 		5806BD0F2FD3D25400FEA501 /* WYTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTask.swift; sourceTree = "<group>"; };
 		580BB8A82FF63D2200C1B986 /* WYAirBubbleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAirBubbleView.swift; sourceTree = "<group>"; };
-		580BB8AD2FF64F3D00C1B986 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		580BB8AE2FF64F3D00C1B986 /* WYAirBubbleViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAirBubbleViewObjC.swift; sourceTree = "<group>"; };
 		580ED5872EA7261F006012E7 /* WYCodableBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableBridge.swift; sourceTree = "<group>"; };
 		580ED5892EA72632006012E7 /* WYCodableConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableConfig.swift; sourceTree = "<group>"; };
@@ -290,7 +291,6 @@
 		584E8BD13046BC4000C6D2CA /* WYMediaPlayer+LoadCore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+LoadCore.swift"; sourceTree = "<group>"; };
 		584E8BD23046BC4000C6D2CA /* WYMediaPlayer+Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+Notifications.swift"; sourceTree = "<group>"; };
 		584E8BD33046BC4000C6D2CA /* WYMediaPlayer+Properties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+Properties.swift"; sourceTree = "<group>"; };
-		584E8BDD3046C90300C6D2CA /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		584E8BDE3046C90300C6D2CA /* WYContentScrollViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYContentScrollViewObjC.swift; sourceTree = "<group>"; };
 		584EAF002E92791B003A21B8 /* WYLocalizableManagerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLocalizableManagerObjC.swift; sourceTree = "<group>"; };
 		584EAF072E92979A003A21B8 /* WYMediaPlayerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaPlayerObjC.swift; sourceTree = "<group>"; };
@@ -331,32 +331,17 @@
 		58B6DAE6305FA87D00FEBC08 /* WYLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLabel.swift; sourceTree = "<group>"; };
 		58B6DAE93061157B00FEBC08 /* WYLabelObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLabelObjC.swift; sourceTree = "<group>"; };
 		58BE5F022E5E94210046AD5D /* Swift↔ObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Swift↔ObjC.swift"; sourceTree = "<group>"; };
-		58C0C10D300DF1A800425A85 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		58C0C10F300DF1B600425A85 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		58C0C111300DF1C500425A85 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C3596E2F3F2D36000E6EF0 /* WYLocationAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLocationAuthorization.swift; sourceTree = "<group>"; };
 		58C359712F401F9F000E6EF0 /* WYLocationAuthorizationObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLocationAuthorizationObjC.swift; sourceTree = "<group>"; };
-		58C68C382E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68C392E84E436005FD054 /* WYActivityObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYActivityObjC.swift; sourceTree = "<group>"; };
-		58C68C3B2E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		58C68C3D2E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68C3E2E84E436005FD054 /* WYBiometricAuthorizationObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYBiometricAuthorizationObjC.swift; sourceTree = "<group>"; };
-		58C68C402E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68C412E84E436005FD054 /* WYCameraAuthorizationObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCameraAuthorizationObjC.swift; sourceTree = "<group>"; };
-		58C68C432E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68C442E84E436005FD054 /* WYContactsAuthorizationObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYContactsAuthorizationObjC.swift; sourceTree = "<group>"; };
-		58C68C462E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68C472E84E436005FD054 /* WYMicrophoneAuthorizationObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMicrophoneAuthorizationObjC.swift; sourceTree = "<group>"; };
-		58C68C492E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68C4A2E84E436005FD054 /* WYPhotoAlbumsAuthorizationObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPhotoAlbumsAuthorizationObjC.swift; sourceTree = "<group>"; };
-		58C68C4C2E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68C4D2E84E436005FD054 /* WYSpeechRecognitionAuthorizationObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYSpeechRecognitionAuthorizationObjC.swift; sourceTree = "<group>"; };
-		58C68C4F2E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		58C68C512E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68C522E84E436005FD054 /* WYCodableObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableObjC.swift; sourceTree = "<group>"; };
-		58C68C542E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68C552E84E436005FD054 /* WYBasisKitConfigObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYBasisKitConfigObjC.swift; sourceTree = "<group>"; };
-		58C68C572E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68C592E84E436005FD054 /* WYArrayObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYArrayObjC.swift; sourceTree = "<group>"; };
 		58C68C5B2E84E436005FD054 /* WYAttributedStringObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAttributedStringObjC.swift; sourceTree = "<group>"; };
 		58C68C5D2E84E436005FD054 /* WYBoolObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYBoolObjC.swift; sourceTree = "<group>"; };
@@ -375,34 +360,16 @@
 		58C68C7C2E84E436005FD054 /* WYFontObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYFontObjC.swift; sourceTree = "<group>"; };
 		58C68C7E2E84E436005FD054 /* WYImageObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYImageObjC.swift; sourceTree = "<group>"; };
 		58C68C822E84E436005FD054 /* WYScrollViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYScrollViewObjC.swift; sourceTree = "<group>"; };
-		58C68C892E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		58C68CA72E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		58C68CA92E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		58C68CAB2E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		58C68CAF2E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		58C68CB12E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68CB32E84E436005FD054 /* Foundation+JSONLog.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Foundation+JSONLog.m"; sourceTree = "<group>"; };
-		58C68CB42E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		58C68CB62E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		58C68CB82E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		58C68CBB2E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68CBC2E84E436005FD054 /* WYActivity.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = WYActivity.bundle; sourceTree = "<group>"; };
 		58C68CBD2E84E436005FD054 /* WYActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYActivity.swift; sourceTree = "<group>"; };
-		58C68CBF2E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68CC02E84E436005FD054 /* WYAudioKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAudioKit.swift; sourceTree = "<group>"; };
-		58C68CC22E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68CC32E84E436005FD054 /* WYBiometricAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYBiometricAuthorization.swift; sourceTree = "<group>"; };
-		58C68CC52E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68CC62E84E436005FD054 /* WYCameraAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCameraAuthorization.swift; sourceTree = "<group>"; };
-		58C68CC82E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68CC92E84E436005FD054 /* WYContactsAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYContactsAuthorization.swift; sourceTree = "<group>"; };
-		58C68CCB2E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68CCC2E84E436005FD054 /* WYMicrophoneAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMicrophoneAuthorization.swift; sourceTree = "<group>"; };
-		58C68CCE2E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68CCF2E84E436005FD054 /* WYPhotoAlbumsAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPhotoAlbumsAuthorization.swift; sourceTree = "<group>"; };
-		58C68CD12E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68CD22E84E436005FD054 /* WYSpeechRecognitionAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYSpeechRecognitionAuthorization.swift; sourceTree = "<group>"; };
-		58C68CD42E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68CD62E84E436005FD054 /* WYCodableAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableAdapter.swift; sourceTree = "<group>"; };
 		58C68CD72E84E436005FD054 /* WYCodableDefaultValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableDefaultValue.swift; sourceTree = "<group>"; };
 		58C68CD82E84E436005FD054 /* WYCodableUnkeyedContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableUnkeyedContainer.swift; sourceTree = "<group>"; };
@@ -410,11 +377,8 @@
 		58C68CDA2E84E436005FD054 /* WYCodingKeysConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodingKeysConverter.swift; sourceTree = "<group>"; };
 		58C68CDB2E84E436005FD054 /* WYDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYDecoder.swift; sourceTree = "<group>"; };
 		58C68CDC2E84E436005FD054 /* WYDecodingStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYDecodingStorage.swift; sourceTree = "<group>"; };
-		58C68CDE2E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68CDF2E84E436005FD054 /* WYCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodable.swift; sourceTree = "<group>"; };
-		58C68CE12E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68CE22E84E436005FD054 /* WYBasisKitConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYBasisKitConfig.swift; sourceTree = "<group>"; };
-		58C68CE42E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68CE52E84E436005FD054 /* WYEventHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYEventHandler.swift; sourceTree = "<group>"; };
 		58C68CE72E84E436005FD054 /* WYArray.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYArray.swift; sourceTree = "<group>"; };
 		58C68CE92E84E436005FD054 /* WYAttributedString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAttributedString.swift; sourceTree = "<group>"; };
@@ -446,7 +410,6 @@
 		58C68D1F2E84E436005FD054 /* WYView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYView.swift; sourceTree = "<group>"; };
 		58C68D212E84E436005FD054 /* WYViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYViewController.swift; sourceTree = "<group>"; };
 		58C68D232E84E436005FD054 /* WYWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYWebView.swift; sourceTree = "<group>"; };
-		58C68D252E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68D2D2E84E436005FD054 /* WYChatConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYChatConfig.swift; sourceTree = "<group>"; };
 		58C68D2F2E84E436005FD054 /* WYChatModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYChatModel.swift; sourceTree = "<group>"; };
 		58C68D312E84E436005FD054 /* WYMoveupTipsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMoveupTipsView.swift; sourceTree = "<group>"; };
@@ -478,23 +441,15 @@
 		58C68D5E2E84E436005FD054 /* WYChatVoiceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYChatVoiceCell.swift; sourceTree = "<group>"; };
 		58C68D602E84E436005FD054 /* WYChatWebpageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYChatWebpageCell.swift; sourceTree = "<group>"; };
 		58C68D622E84E436005FD054 /* WYChatWithdrawnCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYChatWithdrawnCell.swift; sourceTree = "<group>"; };
-		58C68D662E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68D672E84E436005FD054 /* WYChatView.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = WYChatView.bundle; sourceTree = "<group>"; };
-		58C68D692E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68D6A2E84E436005FD054 /* WYMediaPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaPlayer.swift; sourceTree = "<group>"; };
-		58C68D6C2E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68D6D2E84E436005FD054 /* WYPagingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPagingView.swift; sourceTree = "<group>"; };
-		58C68D722E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		58C68D742E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68D752E84E436005FD054 /* WYLocalizable.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = WYLocalizable.bundle; sourceTree = "<group>"; };
 		58C68D762E84E436005FD054 /* WYLocalizableManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLocalizableManager.swift; sourceTree = "<group>"; };
-		58C68D782E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68D792E84E436005FD054 /* WYLogManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLogManager.swift; sourceTree = "<group>"; };
-		58C68D7B2E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68D7C2E84E436005FD054 /* WYNetworkConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkConfig.swift; sourceTree = "<group>"; };
 		58C68D7D2E84E436005FD054 /* WYNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkManager.swift; sourceTree = "<group>"; };
 		58C68D7E2E84E436005FD054 /* WYNetworkServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkServer.swift; sourceTree = "<group>"; };
-		58C68D802E84E436005FD054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58C68D812E84E436005FD054 /* WYStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYStorage.swift; sourceTree = "<group>"; };
 		58C68E312E850EFC005FD054 /* WYViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYViewObjC.swift; sourceTree = "<group>"; };
 		58C68E332E8537A5005FD054 /* WYAlertControllerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAlertControllerObjC.swift; sourceTree = "<group>"; };
@@ -505,14 +460,13 @@
 		58EE236F2F874AB70031D8BF /* WYSingletonMacro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYSingletonMacro.h; sourceTree = "<group>"; };
 		58EE23702F874CEB0031D8BF /* WYLocalizableManagerMacro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYLocalizableManagerMacro.h; sourceTree = "<group>"; };
 		58EE23712F874CEB0031D8BF /* WYLogManagerMacro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYLogManagerMacro.h; sourceTree = "<group>"; };
-		58EE23722F874D910031D8BF /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		58EE23742F874DAE0031D8BF /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58EE7B0A2FB84A65009AA0CC /* WYTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTextView.swift; sourceTree = "<group>"; };
 		5B0A12B6CD08A1EADB40EC1C /* Pods_WYBasisKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WYBasisKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8B8A3708E351CE0BB9E30715 /* Pods-WYBasisKit.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.debug.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.debug.xcconfig"; sourceTree = "<group>"; };
 		AAC46ACF2E07E28F0068B0DF /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		DAED5053645E21395CF44805 /* WYMediaPlayer+Notifications.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+Notifications.swift"; sourceTree = "<group>"; };
 		E5BA55F71D1EFB496EE59FDE /* WYMediaPlayer+Properties.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+Properties.swift"; sourceTree = "<group>"; };
+		FBBDFDBDB8276D3319F55684 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -542,7 +496,6 @@
 			isa = PBXGroup;
 			children = (
 				580BB8A82FF63D2200C1B986 /* WYAirBubbleView.swift */,
-				58C0C111300DF1C500425A85 /* PrivacyInfo.xcprivacy */,
 			);
 			path = AirBubbleView;
 			sourceTree = "<group>";
@@ -550,7 +503,6 @@
 		580BB8AF2FF64F3D00C1B986 /* AirBubbleView */ = {
 			isa = PBXGroup;
 			children = (
-				580BB8AD2FF64F3D00C1B986 /* PrivacyInfo.xcprivacy */,
 				580BB8AE2FF64F3D00C1B986 /* WYAirBubbleViewObjC.swift */,
 			);
 			path = AirBubbleView;
@@ -974,7 +926,6 @@
 		584E8BDF3046C90300C6D2CA /* ContentScrollView */ = {
 			isa = PBXGroup;
 			children = (
-				584E8BDD3046C90300C6D2CA /* PrivacyInfo.xcprivacy */,
 				584E8BDE3046C90300C6D2CA /* WYContentScrollViewObjC.swift */,
 			);
 			path = ContentScrollView;
@@ -1053,7 +1004,6 @@
 			isa = PBXGroup;
 			children = (
 				588797B93009DDE600FDDE9C /* WYSoundWavesView.swift */,
-				58C0C10F300DF1B600425A85 /* PrivacyInfo.xcprivacy */,
 			);
 			path = SoundWavesView;
 			sourceTree = "<group>";
@@ -1069,7 +1019,6 @@
 		588797C0300A2F0900FDDE9C /* ContentScrollView */ = {
 			isa = PBXGroup;
 			children = (
-				58C0C10D300DF1A800425A85 /* PrivacyInfo.xcprivacy */,
 				588797C1300A2F5400FDDE9C /* WYContentScrollView.swift */,
 				58582C0F30412CC600A90194 /* PrivateImpl */,
 			);
@@ -1121,7 +1070,6 @@
 		58C68C3A2E84E436005FD054 /* Activity */ = {
 			isa = PBXGroup;
 			children = (
-				58C68C382E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68C392E84E436005FD054 /* WYActivityObjC.swift */,
 			);
 			path = Activity;
@@ -1130,7 +1078,6 @@
 		58C68C3C2E84E436005FD054 /* AudioKit */ = {
 			isa = PBXGroup;
 			children = (
-				58C68C3B2E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				583C41B52E922D9E007379FC /* WYAudioKitObjC.swift */,
 			);
 			path = AudioKit;
@@ -1139,7 +1086,6 @@
 		58C68C3F2E84E436005FD054 /* Biometric */ = {
 			isa = PBXGroup;
 			children = (
-				58C68C3D2E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68C3E2E84E436005FD054 /* WYBiometricAuthorizationObjC.swift */,
 			);
 			path = Biometric;
@@ -1148,7 +1094,6 @@
 		58C68C422E84E436005FD054 /* Camera */ = {
 			isa = PBXGroup;
 			children = (
-				58C68C402E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68C412E84E436005FD054 /* WYCameraAuthorizationObjC.swift */,
 			);
 			path = Camera;
@@ -1157,7 +1102,6 @@
 		58C68C452E84E436005FD054 /* Contacts */ = {
 			isa = PBXGroup;
 			children = (
-				58C68C432E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68C442E84E436005FD054 /* WYContactsAuthorizationObjC.swift */,
 			);
 			path = Contacts;
@@ -1166,7 +1110,6 @@
 		58C68C482E84E436005FD054 /* Microphone */ = {
 			isa = PBXGroup;
 			children = (
-				58C68C462E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68C472E84E436005FD054 /* WYMicrophoneAuthorizationObjC.swift */,
 			);
 			path = Microphone;
@@ -1175,7 +1118,6 @@
 		58C68C4B2E84E436005FD054 /* PhotoAlbums */ = {
 			isa = PBXGroup;
 			children = (
-				58C68C492E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68C4A2E84E436005FD054 /* WYPhotoAlbumsAuthorizationObjC.swift */,
 			);
 			path = PhotoAlbums;
@@ -1184,7 +1126,6 @@
 		58C68C4E2E84E436005FD054 /* SpeechRecognition */ = {
 			isa = PBXGroup;
 			children = (
-				58C68C4C2E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68C4D2E84E436005FD054 /* WYSpeechRecognitionAuthorizationObjC.swift */,
 			);
 			path = SpeechRecognition;
@@ -1200,7 +1141,6 @@
 				58C68C482E84E436005FD054 /* Microphone */,
 				58C68C4B2E84E436005FD054 /* PhotoAlbums */,
 				58C68C4E2E84E436005FD054 /* SpeechRecognition */,
-				58C68C4F2E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 			);
 			path = Authorization;
 			sourceTree = "<group>";
@@ -1208,7 +1148,6 @@
 		58C68C532E84E436005FD054 /* Codable */ = {
 			isa = PBXGroup;
 			children = (
-				58C68C512E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68C522E84E436005FD054 /* WYCodableObjC.swift */,
 				580ED5862EA72606006012E7 /* PrivateImpl */,
 			);
@@ -1218,7 +1157,6 @@
 		58C68C562E84E436005FD054 /* Config */ = {
 			isa = PBXGroup;
 			children = (
-				58C68C542E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68C552E84E436005FD054 /* WYBasisKitConfigObjC.swift */,
 			);
 			path = Config;
@@ -1227,7 +1165,6 @@
 		58C68C582E84E436005FD054 /* EventHandler */ = {
 			isa = PBXGroup;
 			children = (
-				58C68C572E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58B470452E8D2CCD00D04BCA /* WYEventHandlerObjC.swift */,
 			);
 			path = EventHandler;
@@ -1482,7 +1419,6 @@
 				58C68C6C2E84E436005FD054 /* Int */,
 				58C68C6E2E84E436005FD054 /* NSObject */,
 				58C68C702E84E436005FD054 /* NumberFormatter */,
-				58C68C892E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68C722E84E436005FD054 /* String */,
 				58C68C742E84E436005FD054 /* Timer */,
 				58C68C752E84E436005FD054 /* UIAlertController */,
@@ -1717,7 +1653,6 @@
 				58C68C8F2E84E436005FD054 /* Models */,
 				58C68C902E84E436005FD054 /* RecordAnimation */,
 				58C68CA62E84E436005FD054 /* Views */,
-				58C68CA72E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 			);
 			path = ChatView;
 			sourceTree = "<group>";
@@ -1725,7 +1660,6 @@
 		58C68CAA2E84E436005FD054 /* MediaPlayer */ = {
 			isa = PBXGroup;
 			children = (
-				58C68CA92E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				584EAF072E92979A003A21B8 /* WYMediaPlayerObjC.swift */,
 			);
 			path = MediaPlayer;
@@ -1734,7 +1668,6 @@
 		58C68CAC2E84E436005FD054 /* PagingView */ = {
 			isa = PBXGroup;
 			children = (
-				58C68CAB2E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				584EAF112E93C54C003A21B8 /* WYPagingViewObjC.swift */,
 			);
 			path = PagingView;
@@ -1749,7 +1682,6 @@
 				58C68CA82E84E436005FD054 /* ChatView */,
 				58C68CAA2E84E436005FD054 /* MediaPlayer */,
 				58C68CAC2E84E436005FD054 /* PagingView */,
-				58C68CAF2E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 			);
 			path = Layout;
 			sourceTree = "<group>";
@@ -1757,7 +1689,6 @@
 		58C68CB22E84E436005FD054 /* Localizable */ = {
 			isa = PBXGroup;
 			children = (
-				58C68CB12E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58EE23702F874CEB0031D8BF /* WYLocalizableManagerMacro.h */,
 				584EAF002E92791B003A21B8 /* WYLocalizableManagerObjC.swift */,
 			);
@@ -1770,7 +1701,6 @@
 				58EE23712F874CEB0031D8BF /* WYLogManagerMacro.h */,
 				58B46FE92E8C080700D04BCA /* WYLogManagerObjC.swift */,
 				58C68CB32E84E436005FD054 /* Foundation+JSONLog.m */,
-				58C68CB42E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 			);
 			path = LogManager;
 			sourceTree = "<group>";
@@ -1778,7 +1708,6 @@
 		58C68CB72E84E436005FD054 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
-				58C68CB62E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				584EAF132E94ACB4003A21B8 /* WYNetworkConfigObjC.swift */,
 				584EAF152E94ACC3003A21B8 /* WYNetworkManagerObjC.swift */,
 			);
@@ -1788,7 +1717,6 @@
 		58C68CB92E84E436005FD054 /* Storage */ = {
 			isa = PBXGroup;
 			children = (
-				58C68CB82E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				583C41B32E9220E9007379FC /* WYStorageObjC.swift */,
 			);
 			path = Storage;
@@ -1811,6 +1739,7 @@
 				58EE236D2F874A350031D8BF /* MacroDefinition */,
 				58C68CB72E84E436005FD054 /* Networking */,
 				58C68CB92E84E436005FD054 /* Storage */,
+				FBBDFDBDB8276D3319F55684 /* PrivacyInfo.xcprivacy */,
 			);
 			path = ObjC;
 			sourceTree = "<group>";
@@ -1818,7 +1747,6 @@
 		58C68CBE2E84E436005FD054 /* Activity */ = {
 			isa = PBXGroup;
 			children = (
-				58C68CBB2E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68CBC2E84E436005FD054 /* WYActivity.bundle */,
 				58C68CBD2E84E436005FD054 /* WYActivity.swift */,
 			);
@@ -1828,7 +1756,6 @@
 		58C68CC12E84E436005FD054 /* AudioKit */ = {
 			isa = PBXGroup;
 			children = (
-				58C68CBF2E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68CC02E84E436005FD054 /* WYAudioKit.swift */,
 			);
 			path = AudioKit;
@@ -1837,7 +1764,6 @@
 		58C68CC42E84E436005FD054 /* Biometric */ = {
 			isa = PBXGroup;
 			children = (
-				58C68CC22E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68CC32E84E436005FD054 /* WYBiometricAuthorization.swift */,
 			);
 			path = Biometric;
@@ -1846,7 +1772,6 @@
 		58C68CC72E84E436005FD054 /* Camera */ = {
 			isa = PBXGroup;
 			children = (
-				58C68CC52E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68CC62E84E436005FD054 /* WYCameraAuthorization.swift */,
 			);
 			path = Camera;
@@ -1855,7 +1780,6 @@
 		58C68CCA2E84E436005FD054 /* Contacts */ = {
 			isa = PBXGroup;
 			children = (
-				58C68CC82E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68CC92E84E436005FD054 /* WYContactsAuthorization.swift */,
 			);
 			path = Contacts;
@@ -1864,7 +1788,6 @@
 		58C68CCD2E84E436005FD054 /* Microphone */ = {
 			isa = PBXGroup;
 			children = (
-				58C68CCB2E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68CCC2E84E436005FD054 /* WYMicrophoneAuthorization.swift */,
 			);
 			path = Microphone;
@@ -1873,7 +1796,6 @@
 		58C68CD02E84E436005FD054 /* PhotoAlbums */ = {
 			isa = PBXGroup;
 			children = (
-				58C68CCE2E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68CCF2E84E436005FD054 /* WYPhotoAlbumsAuthorization.swift */,
 			);
 			path = PhotoAlbums;
@@ -1882,7 +1804,6 @@
 		58C68CD32E84E436005FD054 /* SpeechRecognition */ = {
 			isa = PBXGroup;
 			children = (
-				58C68CD12E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68CD22E84E436005FD054 /* WYSpeechRecognitionAuthorization.swift */,
 			);
 			path = SpeechRecognition;
@@ -1898,7 +1819,6 @@
 				58C68CCD2E84E436005FD054 /* Microphone */,
 				58C68CD02E84E436005FD054 /* PhotoAlbums */,
 				58C68CD32E84E436005FD054 /* SpeechRecognition */,
-				58C68CD42E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 			);
 			path = Authorization;
 			sourceTree = "<group>";
@@ -1921,7 +1841,6 @@
 			isa = PBXGroup;
 			children = (
 				58C68CDD2E84E436005FD054 /* PrivateImpl */,
-				58C68CDE2E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68CDF2E84E436005FD054 /* WYCodable.swift */,
 			);
 			path = Codable;
@@ -1930,7 +1849,6 @@
 		58C68CE32E84E436005FD054 /* Config */ = {
 			isa = PBXGroup;
 			children = (
-				58C68CE12E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68CE22E84E436005FD054 /* WYBasisKitConfig.swift */,
 			);
 			path = Config;
@@ -1939,7 +1857,6 @@
 		58C68CE62E84E436005FD054 /* EventHandler */ = {
 			isa = PBXGroup;
 			children = (
-				58C68CE42E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68CE52E84E436005FD054 /* WYEventHandler.swift */,
 			);
 			path = EventHandler;
@@ -2463,7 +2380,6 @@
 				58C68D302E84E436005FD054 /* Models */,
 				58C68D342E84E436005FD054 /* RecordAnimation */,
 				58C68D652E84E436005FD054 /* Views */,
-				58C68D662E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68D672E84E436005FD054 /* WYChatView.bundle */,
 			);
 			path = ChatView;
@@ -2472,7 +2388,6 @@
 		58C68D6B2E84E436005FD054 /* MediaPlayer */ = {
 			isa = PBXGroup;
 			children = (
-				58C68D692E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68D6A2E84E436005FD054 /* WYMediaPlayer.swift */,
 				584E8BCE3046B97C00C6D2CA /* PrivateImpl */,
 			);
@@ -2482,7 +2397,6 @@
 		58C68D6E2E84E436005FD054 /* PagingView */ = {
 			isa = PBXGroup;
 			children = (
-				58C68D6C2E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68D6D2E84E436005FD054 /* WYPagingView.swift */,
 				5865235A30514C0D0002B284 /* PrivateImpl */,
 			);
@@ -2498,7 +2412,6 @@
 				58C68D682E84E436005FD054 /* ChatView */,
 				58C68D6B2E84E436005FD054 /* MediaPlayer */,
 				58C68D6E2E84E436005FD054 /* PagingView */,
-				58C68D722E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 			);
 			path = Layout;
 			sourceTree = "<group>";
@@ -2506,7 +2419,6 @@
 		58C68D772E84E436005FD054 /* Localizable */ = {
 			isa = PBXGroup;
 			children = (
-				58C68D742E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68D752E84E436005FD054 /* WYLocalizable.bundle */,
 				58C68D762E84E436005FD054 /* WYLocalizableManager.swift */,
 			);
@@ -2516,7 +2428,6 @@
 		58C68D7A2E84E436005FD054 /* LogManager */ = {
 			isa = PBXGroup;
 			children = (
-				58C68D782E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68D792E84E436005FD054 /* WYLogManager.swift */,
 			);
 			path = LogManager;
@@ -2525,7 +2436,6 @@
 		58C68D7F2E84E436005FD054 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
-				58C68D7B2E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68D7C2E84E436005FD054 /* WYNetworkConfig.swift */,
 				58C68D7D2E84E436005FD054 /* WYNetworkManager.swift */,
 				58C68D7E2E84E436005FD054 /* WYNetworkServer.swift */,
@@ -2536,7 +2446,6 @@
 		58C68D822E84E436005FD054 /* Storage */ = {
 			isa = PBXGroup;
 			children = (
-				58C68D802E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68D812E84E436005FD054 /* WYStorage.swift */,
 			);
 			path = Storage;
@@ -2557,8 +2466,8 @@
 				58C68D7A2E84E436005FD054 /* LogManager */,
 				584D59E12FBC351A00A862F7 /* MethodSwizzler */,
 				58C68D7F2E84E436005FD054 /* Networking */,
-				58C68D252E84E436005FD054 /* PrivacyInfo.xcprivacy */,
 				58C68D822E84E436005FD054 /* Storage */,
+				4B3F177B4EB89C79E90E629A /* PrivacyInfo.xcprivacy */,
 			);
 			path = Swift;
 			sourceTree = "<group>";
@@ -2567,7 +2476,6 @@
 			isa = PBXGroup;
 			children = (
 				58E054912E88DEE200DF1F74 /* WYBasisKitObjC.h */,
-				58EE23722F874D910031D8BF /* PrivacyInfo.xcprivacy */,
 			);
 			path = Imports;
 			sourceTree = "<group>";
@@ -2576,6 +2484,7 @@
 			isa = PBXGroup;
 			children = (
 				58C952EF2F051E440032E3F6 /* Extension */,
+				53C11964B2A3BC35D119E938 /* PrivacyInfo.xcprivacy */,
 			);
 			path = SwiftUI;
 			sourceTree = "<group>";
@@ -2599,7 +2508,6 @@
 		58EE236D2F874A350031D8BF /* MacroDefinition */ = {
 			isa = PBXGroup;
 			children = (
-				58EE23742F874DAE0031D8BF /* PrivacyInfo.xcprivacy */,
 				58EE236F2F874AB70031D8BF /* WYSingletonMacro.h */,
 				58EE236E2F874AB70031D8BF /* WYWeakStrongMacros.h */,
 			);

@@ -29,6 +29,7 @@ Pod::Spec.new do |kit|
   kit.source       = { :git => "https://github.com/aiguanren/WYBasisKit.git", :tag => "#{kit.version}" }
   #kit.source       = { :svn => "http://192.168.xxx.xxx:xxxx/xxx/xxx/WYBasiskit"}
   #kit.source       = { :http => "http://192.168.xxx.xxx:xxxx/xxx/xxx/WYBasiskit.zip" }
+  # 隐私清单只在pod根级保留一份，声明整个pod所有subspec代码实际用到的需申报API，所有subspec最终都会合编进同一个framework，且根级resource_bundles不受subspec选装影响(装哪个subspec都会带上)，所以各subspec目录下不需要单独存放清单文件
   kit.resource_bundles = {"WYBasisKitSwift" => [
     "#{kit_path}Swift/PrivacyInfo.xcprivacy"
   ]}
@@ -99,7 +100,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}Swift/Extension/Task/**/*.{swift,h,m}"
     ]
     methodSwizzler.resource_bundles = {"WYBasisKitSwiftMethodSwizzler" => [
-      "#{kit_path}Swift/MethodSwizzler/PrivacyInfo.xcprivacy"
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
     ]}
     methodSwizzler.frameworks = "Foundation", "UIKit"
     methodSwizzler.dependency "WYBasisKit-swift/LogManager"
@@ -111,7 +112,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}Swift/Config/**/*.{swift,h,m}"
     ]
     config.resource_bundles = {"WYBasisKitSwiftConfig" => [
-      "#{kit_path}Swift/Config/PrivacyInfo.xcprivacy"
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
     ]}
     config.frameworks = "Foundation", "UIKit"
   end
@@ -123,7 +124,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}Swift/Extension/Task/**/*.{swift,h,m}"
     ]
     logManager.resource_bundles = {"WYBasisKitSwiftLogManager" => [
-      "#{kit_path}Swift/LogManager/PrivacyInfo.xcprivacy"
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
     ]}
     logManager.frameworks = "Foundation", "UIKit"
     logManager.dependency "WYBasisKit-swift/Localizable"
@@ -134,7 +135,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}Swift/Localizable/**/*.{swift,h,m}"
     ]
     localizable.resource_bundles = {"WYBasisKitSwiftLocalizable" => [
-      "#{kit_path}Swift/Localizable/PrivacyInfo.xcprivacy"
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
     ]}
     localizable.frameworks = "Foundation", "UIKit"
     localizable.dependency "WYBasisKit-swift/Config"
@@ -146,7 +147,7 @@ Pod::Spec.new do |kit|
     ]
     extension.resources = [localizable_bundle]
     extension.resource_bundles = {"WYBasisKitSwiftExtension" => [
-      "#{kit_path}Swift/Extension/PrivacyInfo.xcprivacy"
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
     ]}
     extension.frameworks = "Foundation", "UIKit", "LocalAuthentication", "Photos", "CoreFoundation", "AudioToolbox", "CoreMotion", "CoreTelephony"
     extension.dependency "WYBasisKit-swift/Localizable"
@@ -160,7 +161,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}Swift/Codable/**/*.{swift,h,m}"
     ]
     codable.resource_bundles = {"WYBasisKitSwiftCodable" => [
-      "#{kit_path}Swift/Codable/PrivacyInfo.xcprivacy"
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
     ]}
     codable.frameworks = "Foundation", "UIKit"
   end
@@ -174,7 +175,7 @@ Pod::Spec.new do |kit|
     ]
     networking.resources = [localizable_bundle]
     networking.resource_bundles = {"WYBasisKitSwiftNetworking" => [
-      "#{kit_path}Swift/Networking/PrivacyInfo.xcprivacy"
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
     ]}
     networking.frameworks = "Foundation", "UIKit", "Network"
     networking.dependency "WYBasisKit-swift/Localizable"
@@ -199,7 +200,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}Swift/Activity/WYActivity.bundle"
     ]
     activity.resource_bundles = {"WYBasisKitSwiftActivity" => [
-      "#{kit_path}Swift/Activity/PrivacyInfo.xcprivacy"
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
     ]}
     activity.frameworks = "Foundation", "UIKit"
     activity.dependency "WYBasisKit-swift/Localizable"
@@ -212,7 +213,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}Swift/Storage/**/*.{swift,h,m}"
     ]
     storage.resource_bundles = {"WYBasisKitSwiftStorage" => [
-      "#{kit_path}Swift/Storage/PrivacyInfo.xcprivacy"
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
     ]}
     storage.frameworks = "Foundation", "UIKit"
   end
@@ -222,7 +223,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}Swift/EventHandler/**/*.{swift,h,m}"
     ]
     eventHandler.resource_bundles = {"WYBasisKitSwiftEventHandler" => [
-      "#{kit_path}Swift/EventHandler/PrivacyInfo.xcprivacy"
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
     ]}
     eventHandler.frameworks = "Foundation"
   end
@@ -232,7 +233,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}Swift/AudioKit/**/*.{swift,h,m}"
     ] 
     audioKit.resource_bundles = {"WYBasisKitSwiftAudioKit" => [
-      "#{kit_path}Swift/AudioKit/PrivacyInfo.xcprivacy"
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
     ]}
     audioKit.frameworks = "Foundation", "AVFoundation", "Combine", "QuartzCore"
     audioKit.dependency "WYBasisKit-swift/Authorization/Microphone"
@@ -240,7 +241,7 @@ Pod::Spec.new do |kit|
   
   kit.subspec "Authorization" do |authorization|
     authorization.resource_bundles = {"WYBasisKitSwiftAuthorization" => [
-      "#{kit_path}Swift/Authorization/PrivacyInfo.xcprivacy"
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
     ]}
     authorization.subspec "Camera" do |camera|
       camera.source_files = [
@@ -249,7 +250,7 @@ Pod::Spec.new do |kit|
       ]
       camera.resources = [localizable_bundle]
       camera.resource_bundles = {"WYBasisKitSwiftAuthorizationCamera" => [
-        "#{kit_path}Swift/Authorization/Camera/PrivacyInfo.xcprivacy"
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
       ]}
       camera.frameworks = "AVFoundation", "UIKit", "Photos"
       camera.dependency "WYBasisKit-swift/Localizable"
@@ -262,7 +263,7 @@ Pod::Spec.new do |kit|
       ]
       biometric.resources = [localizable_bundle]
       biometric.resource_bundles = {"WYBasisKitSwiftAuthorizationBiometric" => [
-        "#{kit_path}Swift/Authorization/Biometric/PrivacyInfo.xcprivacy"
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
       ]}
       biometric.frameworks = "Foundation", "LocalAuthentication"
       biometric.dependency "WYBasisKit-swift/Localizable"
@@ -276,7 +277,7 @@ Pod::Spec.new do |kit|
       ]
       contacts.resources = [localizable_bundle]
       contacts.resource_bundles = {"WYBasisKitSwiftAuthorizationContacts" => [
-        "#{kit_path}Swift/Authorization/Contacts/PrivacyInfo.xcprivacy"
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
       ]}
       contacts.frameworks = "Contacts", "UIKit"
       contacts.dependency "WYBasisKit-swift/Localizable"
@@ -290,7 +291,7 @@ Pod::Spec.new do |kit|
       ]
       photoAlbums.resources = [localizable_bundle]
       photoAlbums.resource_bundles = {"WYBasisKitSwiftAuthorizationPhotoAlbums" => [
-        "#{kit_path}Swift/Authorization/PhotoAlbums/PrivacyInfo.xcprivacy"
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
       ]}
       photoAlbums.frameworks = "Photos", "UIKit"
       photoAlbums.dependency "WYBasisKit-swift/Localizable"
@@ -304,7 +305,7 @@ Pod::Spec.new do |kit|
       ]
       microphone.resources = [localizable_bundle]
       microphone.resource_bundles = {"WYBasisKitSwiftAuthorizationMicrophone" => [
-        "#{kit_path}Swift/Authorization/Microphone/PrivacyInfo.xcprivacy"
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
       ]}
       microphone.frameworks = "Photos", "UIKit"
       microphone.dependency "WYBasisKit-swift/Localizable"
@@ -318,7 +319,7 @@ Pod::Spec.new do |kit|
       ]
       speechRecognition.resources = [localizable_bundle]
       speechRecognition.resource_bundles = {"WYBasisKitSwiftAuthorizationSpeechRecognition" => [
-        "#{kit_path}Swift/Authorization/SpeechRecognition/PrivacyInfo.xcprivacy"
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
       ]}
       speechRecognition.frameworks = "Speech", "UIKit"
       speechRecognition.dependency "WYBasisKit-swift/Localizable"
@@ -332,7 +333,7 @@ Pod::Spec.new do |kit|
       ]
       location.resources = [localizable_bundle]
       location.resource_bundles = {"WYBasisKitSwiftAuthorizationLocation" => [
-        "#{kit_path}Swift/Authorization/Location/PrivacyInfo.xcprivacy"
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
       ]}
       location.frameworks = "UIKit", "Foundation", "CoreLocation"
       location.dependency "WYBasisKit-swift/Localizable"
@@ -342,9 +343,8 @@ Pod::Spec.new do |kit|
   
   kit.subspec "Layout" do |layout|
     layout.resource_bundles = {"WYBasisKitSwiftLayout" => [
-      "#{kit_path}Swift/Layout/PrivacyInfo.xcprivacy"
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
     ]}
-    
     layout.subspec "AirBubbleView" do |airBubble|
       airBubble.source_files = [
         "#{kit_path}Swift/Layout/AirBubbleView/**/*.{swift,h,m}",
@@ -355,7 +355,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}Swift/Config/**/*.{swift}"
       ]
       airBubble.resource_bundles = {"WYBasisKitSwiftLayoutAirBubbleView" => [
-        "#{kit_path}Swift/Layout/AirBubbleView/PrivacyInfo.xcprivacy"
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
       ]}
       airBubble.frameworks = "Foundation", "UIKit"
       airBubble.dependency "WYBasisKit-swift/Localizable"
@@ -368,7 +368,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}Swift/Layout/SoundWavesView/**/*.{swift,h,m}",
       ]
       soundWavesView.resource_bundles = {"WYBasisKitSwiftLayoutSoundWavesView" => [
-        "#{kit_path}Swift/Layout/SoundWavesView/PrivacyInfo.xcprivacy"
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
       ]}
       soundWavesView.frameworks = "Foundation", "UIKit"
     end
@@ -386,7 +386,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}Swift/Config/**/*.{swift,h,m}"
       ]
       pagingView.resource_bundles = {"WYBasisKitSwiftLayoutPagingView" => [
-        "#{kit_path}Swift/Layout/PagingView/PrivacyInfo.xcprivacy"
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
       ]}
       pagingView.frameworks = "Foundation", "UIKit"
       pagingView.dependency "WYBasisKit-swift/LogManager"
@@ -402,7 +402,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}Swift/Extension/UIScrollView/**/*.{swift,h,m}"
       ]
       contentScrollView.resource_bundles = {"WYBasisKitSwiftLayoutContentScrollView" => [
-        "#{kit_path}Swift/Layout/ContentScrollView/PrivacyInfo.xcprivacy"
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
       ]}
       contentScrollView.frameworks = "Foundation", "UIKit"
       contentScrollView.dependency "WYBasisKit-swift/Localizable"
@@ -418,7 +418,7 @@ Pod::Spec.new do |kit|
         "#{kit_path}Swift/Layout/ChatView/WYChatView.bundle"
       ]
       chatView.resource_bundles = {"WYBasisKitSwiftLayoutChatView" => [
-         "#{kit_path}Swift/Layout/ChatView/PrivacyInfo.xcprivacy"
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
       ]}
       chatView.frameworks = "Foundation", "UIKit"
       chatView.dependency "WYBasisKit-swift/Extension"
@@ -438,12 +438,12 @@ Pod::Spec.new do |kit|
       mediaPlayer.source_files = [
         "#{kit_path}Swift/Layout/MediaPlayer/**/*.{swift,h,m,md}"
       ]
+      mediaPlayer.resource_bundles = {"WYBasisKitSwiftMediaPlayer" => [
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+      ]}
       mediaPlayer.pod_target_xcconfig = {
         "EXCLUDED_SOURCE_FILE_NAMES" => "$(inherited) *.md"
       }
-      mediaPlayer.resource_bundles = {"WYBasisKitSwiftMediaPlayer" => [
-      "#{kit_path}Swift/Layout/MediaPlayer/PrivacyInfo.xcprivacy"
-      ]}
       mediaPlayer.dependency "IJKPlayerKit", "1.1.0"
     end
   end

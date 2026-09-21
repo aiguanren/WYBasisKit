@@ -18,8 +18,6 @@
 		582732112E9F8CDF00DAD1AA /* WYTestDarkNightModeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 582732102E9F8CDF00DAD1AA /* WYTestDarkNightModeController.m */; };
 		582917432FB0C3FD0006F98D /* NotoSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 582917422FB0C3FD0006F98D /* NotoSans-Regular.ttf */; };
 		584D59EA2FBEF27F00A862F7 /* WYTestTextViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 584D59E92FBEF27F00A862F7 /* WYTestTextViewController.m */; };
-		58EE7B152FBED001009AA0CC /* WYTestLabelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58EE7B142FBED001009AA0CC /* WYTestLabelViewController.m */; };
-		58EE7B172FBED002009AA0CC /* WYTestLabelCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 58EE7B162FBED002009AA0CC /* WYTestLabelCell.m */; };
 		584D59ED2FBEF2C100A862F7 /* WYTestTextViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 584D59EC2FBEF2C100A862F7 /* WYTestTextViewCell.m */; };
 		584D75142F7236E5006C05E7 /* WYTestImageRenderingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 584D75122F7236E5006C05E7 /* WYTestImageRenderingController.m */; };
 		584D75152F7236E5006C05E7 /* WYTestImageRenderingController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 584D75132F7236E5006C05E7 /* WYTestImageRenderingController.xib */; };
@@ -92,6 +90,8 @@
 		58DEA9C92F0F7CB600664E13 /* WYTestRichTextController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DEA9C82F0F7CB600664E13 /* WYTestRichTextController.m */; };
 		58DEA9CD2F10F5F300664E13 /* WYMultilevelTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DEA9CC2F10F5F300664E13 /* WYMultilevelTableViewController.m */; };
 		58DEA9D12F1105EB00664E13 /* WYTableViewPlainController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DEA9D02F1105EB00664E13 /* WYTableViewPlainController.m */; };
+		58EE7B152FBED001009AA0CC /* WYTestLabelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58EE7B142FBED001009AA0CC /* WYTestLabelViewController.m */; };
+		58EE7B172FBED002009AA0CC /* WYTestLabelCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 58EE7B162FBED002009AA0CC /* WYTestLabelCell.m */; };
 		ECC390919651E39B53C48672 /* Pods_ObjCVerify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A235FB04509B2363C98C9226 /* Pods_ObjCVerify.framework */; };
 /* End PBXBuildFile section */
 
@@ -175,10 +175,6 @@
 		582917422FB0C3FD0006F98D /* NotoSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NotoSans-Regular.ttf"; sourceTree = "<group>"; };
 		584D59E82FBEF27F00A862F7 /* WYTestTextViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestTextViewController.h; sourceTree = "<group>"; };
 		584D59E92FBEF27F00A862F7 /* WYTestTextViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestTextViewController.m; sourceTree = "<group>"; };
-		58EE7B132FBED001009AA0CC /* WYTestLabelViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestLabelViewController.h; sourceTree = "<group>"; };
-		58EE7B142FBED001009AA0CC /* WYTestLabelViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.objc; path = WYTestLabelViewController.m; sourceTree = "<group>"; };
-		58EE7B152FBED002009AA0CC /* WYTestLabelCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestLabelCell.h; sourceTree = "<group>"; };
-		58EE7B162FBED002009AA0CC /* WYTestLabelCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.objc; path = WYTestLabelCell.m; sourceTree = "<group>"; };
 		584D59EB2FBEF2C100A862F7 /* WYTestTextViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestTextViewCell.h; sourceTree = "<group>"; };
 		584D59EC2FBEF2C100A862F7 /* WYTestTextViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestTextViewCell.m; sourceTree = "<group>"; };
 		584D75112F7236E5006C05E7 /* WYTestImageRenderingController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestImageRenderingController.h; sourceTree = "<group>"; };
@@ -288,6 +284,10 @@
 		58DEA9CC2F10F5F300664E13 /* WYMultilevelTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYMultilevelTableViewController.m; sourceTree = "<group>"; };
 		58DEA9CF2F1105EB00664E13 /* WYTableViewPlainController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTableViewPlainController.h; sourceTree = "<group>"; };
 		58DEA9D02F1105EB00664E13 /* WYTableViewPlainController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTableViewPlainController.m; sourceTree = "<group>"; };
+		58EE7B132FBED001009AA0CC /* WYTestLabelViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestLabelViewController.h; sourceTree = "<group>"; };
+		58EE7B142FBED001009AA0CC /* WYTestLabelViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.objc; path = WYTestLabelViewController.m; sourceTree = "<group>"; };
+		58EE7B152FBED002009AA0CC /* WYTestLabelCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestLabelCell.h; sourceTree = "<group>"; };
+		58EE7B162FBED002009AA0CC /* WYTestLabelCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.objc; path = WYTestLabelCell.m; sourceTree = "<group>"; };
 		A235FB04509B2363C98C9226 /* Pods_ObjCVerify.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ObjCVerify.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
