@@ -190,6 +190,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}Swift/Extension/UIView/**/*.{swift,h,m}",
       "#{kit_path}Swift/Extension/UIViewController/**/*.{swift,h,m}",
       "#{kit_path}Swift/Extension/AttributedString/**/*.{swift,h,m}",
+      "#{kit_path}Swift/Extension/UILabel/**/*.{swift,h,m}",
       "#{kit_path}Swift/Extension/String/**/*.{swift,h,m}",
       "#{kit_path}Swift/Extension/UIImage/**/*.{swift,h,m}",
       "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",
