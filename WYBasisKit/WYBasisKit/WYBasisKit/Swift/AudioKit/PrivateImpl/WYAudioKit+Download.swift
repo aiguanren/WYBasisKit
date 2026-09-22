@@ -173,7 +173,7 @@ extension WYAudioKit {
                     downloadTask: URLSessionDownloadTask,
                     didFinishDownloadingTo location: URL) {
         guard let originalURL = state.tasksInfo.first(where: { $0.value.task === downloadTask })?.key,
-              var info = state.tasksInfo[originalURL],
+              let info = state.tasksInfo[originalURL],
               var batch = state.downloadGroups[info.batchID] else {
             // 无法找到对应的任务或批次
             wy_handleErrorEvents(url: nil, error: .downloadFailed)

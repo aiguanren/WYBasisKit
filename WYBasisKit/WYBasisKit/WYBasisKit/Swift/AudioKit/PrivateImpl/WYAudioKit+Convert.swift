@@ -236,15 +236,23 @@ extension WYAudioKit {
             writer.startSession(atSourceTime: .zero)
             
             let workQueue = DispatchQueue(label: "com.wybasiskit.audioconvert.pcm")
-            var appendedSeconds: Double = firstBuffer.duration.seconds
+            box.appendedSeconds = firstBuffer.duration.seconds
             if totalDuration > 0 {
-                box.value = Float(min(1, appendedSeconds / totalDuration))
+                box.value = Float(min(1, box.appendedSeconds / totalDuration))
             }
-            
+
+            // 非Sendable系统对象的传递盒(下方@Sendable闭包直接捕获它们会报并发警告，对象实际只在专用串行队列上使用，安全由管线保证)
+            let sendableWriter = WYUnsafeSendableBox(writer)
+            let sendableWriterInput = WYUnsafeSendableBox(writerInput)
+            let sendableReader = WYUnsafeSendableBox(reader)
+            let sendableReaderOutput = WYUnsafeSendableBox(readerOutput)
+
             // 收尾落盘并把结果切回主线程报告(正常读完和写入失败两条路共用)
             func finishWritingAndReport() {
                 writerInput.markAsFinished()
                 writer.finishWriting {
+                    // finishWriting的completion也是@Sendable闭包，writer同样经盒子取
+                    let writer = sendableWriter.value
                     Task { @MainActor [weak self] in
                         guard let self = self else { return }
                         if writer.status == .completed {
@@ -256,14 +264,38 @@ extension WYAudioKit {
                     }
                 }
             }
-            
+
             // 首样本写失败(比如磁盘满)直接收尾报错
             if !writerInput.append(firstBuffer) {
                 finishWritingAndReport()
                 return
             }
-            
+
             writerInput.requestMediaDataWhenReady(on: workQueue) {
+                // 解包出本队列专用对象(整个管线只在workQueue上操作它们)
+                let writer = sendableWriter.value
+                let writerInput = sendableWriterInput.value
+                let reader = sendableReader.value
+                let readerOutput = sendableReaderOutput.value
+
+                // 收尾落盘并把结果切回主线程报告(正常读完和写入失败两条路共用)
+                func finishWritingAndReport() {
+                    writerInput.markAsFinished()
+                    writer.finishWriting {
+                        // finishWriting的completion也是@Sendable闭包，writer同样经盒子取
+                        let writer = sendableWriter.value
+                        Task { @MainActor [weak self] in
+                            guard let self = self else { return }
+                            if writer.status == .completed {
+                                box.value = 1
+                                self.finishConvertFile(batchID: batchID, sourceURL: sourceURL, outputURL: outputURL)
+                            } else {
+                                self.handleConvertError(batchID: batchID, sourceURL: sourceURL, error: writer.error ?? WYAudioError.conversionFailed)
+                            }
+                        }
+                    }
+                }
+
                 while writerInput.isReadyForMoreMediaData {
                     // 每轮都查一次取消标记，点了停止就立刻收工(批次失败由stopAudioFormatConvert同步报，这里不用再报)
                     if box.isCancelled {
@@ -273,9 +305,9 @@ extension WYAudioKit {
                         return
                     }
                     if let sampleBuffer = readerOutput.copyNextSampleBuffer() {
-                        appendedSeconds += sampleBuffer.duration.seconds
+                        box.appendedSeconds += sampleBuffer.duration.seconds
                         if totalDuration > 0 {
-                            box.value = Float(min(1, appendedSeconds / totalDuration))
+                            box.value = Float(min(1, box.appendedSeconds / totalDuration))
                         }
                         // 写入失败(比如磁盘满)就提前收尾，让finishWriting的状态检查去报错，别把整个源文件空读完
                         if !writerInput.append(sampleBuffer) {
@@ -293,12 +325,27 @@ extension WYAudioKit {
     }
 }
 
-/// PCM管线的进度盒子(读写器在后台线程跑，进度值和取消标记放盒子里让主线程句柄读写，Float/Bool单值读写本身原子，进度慢半拍无所谓)
-final class WYConvertProgressBox {
-    
+/// PCM管线的进度盒子(读写器在后台线程跑，进度值和取消标记放盒子里让主线程句柄读写，Float/Bool/Double单值读写本身原子，进度慢半拍无所谓)
+final class WYConvertProgressBox: @unchecked Sendable {
+
     /// 当前进度(0~1)
     var value: Float = 0
-    
+
     /// 是否已请求取消
     var isCancelled = false
+
+    /// 已写入样本的累计时长(秒)，算进度用
+    var appendedSeconds: Double = 0
+}
+
+/// 非Sendable对象的跨闭包传递盒(requestMediaDataWhenReady的闭包是@Sendable的，直接捕获AVAssetReader等系统对象会报并发警告；PCM管线把它们装进盒子传递，对象只在专用串行队列上使用，安全由管线自身保证)
+final class WYUnsafeSendableBox<T>: @unchecked Sendable {
+
+    /// 被包装传递的对象
+    let value: T
+
+    /// 唯一初始化方法
+    init(_ value: T) {
+        self.value = value
+    }
 }
