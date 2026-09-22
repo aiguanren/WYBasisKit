@@ -237,6 +237,8 @@ Pod::Spec.new do |kit|
     ]}
     audioKit.frameworks = "Foundation", "AVFoundation", "Combine", "QuartzCore"
     audioKit.dependency "WYBasisKit-swift/Authorization/Microphone"
+    audioKit.dependency "WYBasisKit-swift/Localizable"
+    audioKit.resources = [localizable_bundle]
   end
   
   kit.subspec "Authorization" do |authorization|

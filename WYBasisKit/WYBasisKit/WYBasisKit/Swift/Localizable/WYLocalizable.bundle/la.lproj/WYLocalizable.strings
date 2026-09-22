@@ -117,3 +117,9 @@
 "App没有访问定位的权限，现在去授权?" = "Applicatio potestatem loci non habet. Visne nunc permittere?";
 
 "任务执行超时" = "Exsecutio muneris excessum temporis";
+
+"该URL已在下载中，忽略重复请求" = "Haec URL iam deducitur, duplicata petitio neglecta est";
+
+"暂停尚未完成，已自动排队，暂停落定后立即恢复" = "Pausa nondum confecta est, automatice in ordinem posita, statim continuabitur post pausam confectam";
+
+"源文件已是%@格式，跳过转换" = "Fons iam in forma %@ est, conversio praetermissa est";

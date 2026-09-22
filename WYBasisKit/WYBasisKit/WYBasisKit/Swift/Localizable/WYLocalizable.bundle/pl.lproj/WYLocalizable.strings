@@ -117,3 +117,9 @@
 "App没有访问定位的权限，现在去授权?" = "Aplikacja nie ma uprawnień do dostępu do Twojej lokalizacji. Czy chcesz je teraz przyznać?";
 
 "任务执行超时" = "Przekroczenie czasu wykonania zadania";
+
+"该URL已在下载中，忽略重复请求" = "Ten adres URL jest już pobierany, zduplikowane żądanie zignorowane";
+
+"暂停尚未完成，已自动排队，暂停落定后立即恢复" = "Wstrzymanie jeszcze się nie zakończyło, automatycznie dodano do kolejki, wznowienie zaraz po zakończeniu wstrzymania";
+
+"源文件已是%@格式，跳过转换" = "Plik źródłowy ma już format %@, konwersja pominięta";

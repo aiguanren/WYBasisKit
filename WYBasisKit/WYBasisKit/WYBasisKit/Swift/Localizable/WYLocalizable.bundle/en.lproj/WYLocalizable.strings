@@ -117,3 +117,9 @@
 "App没有访问定位的权限，现在去授权?" = "The app doesn't have permission to access your location. Would you like to grant it now?";
 
 "任务执行超时" = "Task execution timeout";
+
+"该URL已在下载中，忽略重复请求" = "This URL is already downloading, duplicate request ignored";
+
+"暂停尚未完成，已自动排队，暂停落定后立即恢复" = "Pause not yet finished, queued automatically, will resume as soon as the pause completes";
+
+"源文件已是%@格式，跳过转换" = "Source file is already in %@ format, conversion skipped";

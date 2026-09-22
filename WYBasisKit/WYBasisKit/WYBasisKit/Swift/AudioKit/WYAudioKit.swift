@@ -180,6 +180,8 @@ import QuartzCore
     case conversionCancelled
     /// 不支持的录制格式
     case formatNotSupported
+    /// 源文件已是目标格式，无需转换
+    case sourceAlreadyTargetFormat
     /// 音频会话配置失败
     case sessionConfigurationFailed
     /// 目录创建失败
@@ -457,9 +459,6 @@ public final class WYAudioKit: NSObject {
             }
         }
     }
-    
-    /// 私有状态容器
-    let state = WYAudioKitPrivateState()
     
     /// 唯一初始化方法
     public override init() {
@@ -786,7 +785,7 @@ public final class WYAudioKit: NSObject {
         if urlsToStart.count < remoteUrls.count {
             let duplicated = remoteUrls.filter { state.tasksInfo[$0] != nil }
             for url in duplicated {
-                wy_handleErrorEvents(url: url, error: .downloadFailed, description: "该URL已在下载中，忽略重复请求")
+                wy_handleErrorEvents(url: url, error: .downloadFailed, description: WYLocalized("该URL已在下载中，忽略重复请求", table: WYBasisKitConfig.kitLocalizableTable))
             }
             guard !urlsToStart.isEmpty else {
                 failed(WYAudioError.downloadFailed)
@@ -906,7 +905,7 @@ public final class WYAudioKit: NSObject {
             // 防恢复请求石沉大海:暂停的cancel回调还没回来(resumeData未就绪)时点了恢复，先排队，resumeData到手自动续上
             guard let resumeData = info.resumeData else {
                 state.pendingResumeUrls.insert(originalURL)
-                wy_handleErrorEvents(url: originalURL, error: .downloadFailed, description: "暂停尚未完成，已自动排队，暂停落定后立即恢复")
+                wy_handleErrorEvents(url: originalURL, error: .downloadFailed, description: WYLocalized("暂停尚未完成，已自动排队，暂停落定后立即恢复", table: WYBasisKitConfig.kitLocalizableTable))
                 continue
             }
             
@@ -1149,10 +1148,10 @@ public final class WYAudioKit: NSObject {
         if urlsToConvert.count < sourceUrls.count {
             let skipped = sourceUrls.filter { $0.pathExtension.caseInsensitiveCompare(target.extensionName) == .orderedSame }
             for url in skipped {
-                wy_handleErrorEvents(url: url, error: .formatNotSupported, description: "源文件已是\(target.extensionName.uppercased())格式，跳过转换")
+                wy_handleErrorEvents(url: url, error: .sourceAlreadyTargetFormat, description: String(format: WYLocalized("源文件已是%@格式，跳过转换", table: WYBasisKitConfig.kitLocalizableTable), target.extensionName.uppercased()))
             }
             guard !urlsToConvert.isEmpty else {
-                failed(WYAudioError.formatNotSupported)
+                failed(WYAudioError.sourceAlreadyTargetFormat)
                 return
             }
         }
@@ -1339,8 +1338,10 @@ public final class WYAudioKit: NSObject {
         state.convertProgresses.removeAll()
     }
     
+    /// 私有状态容器
+    let state = WYAudioKitPrivateState()
+    
     deinit {
         releaseAll()
-        wy_print("WYAudioKit releaseAll")
     }
 }

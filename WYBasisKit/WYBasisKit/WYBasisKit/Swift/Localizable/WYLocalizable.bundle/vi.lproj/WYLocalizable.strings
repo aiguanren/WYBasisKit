@@ -117,3 +117,9 @@
 "App没有访问定位的权限，现在去授权?" = "Ứng dụng không có quyền truy cập vị trí của bạn. Bạn có muốn cấp quyền ngay bây giờ không?";
 
 "任务执行超时" = "Hết thời gian thực thi tác vụ";
+
+"该URL已在下载中，忽略重复请求" = "URL này đang được tải xuống, yêu cầu trùng lặp bị bỏ qua";
+
+"暂停尚未完成，已自动排队，暂停落定后立即恢复" = "Tạm dừng chưa hoàn tất, đã tự động xếp hàng, sẽ tiếp tục ngay khi tạm dừng hoàn tất";
+
+"源文件已是%@格式，跳过转换" = "Tệp nguồn đã ở định dạng %@, bỏ qua chuyển đổi";

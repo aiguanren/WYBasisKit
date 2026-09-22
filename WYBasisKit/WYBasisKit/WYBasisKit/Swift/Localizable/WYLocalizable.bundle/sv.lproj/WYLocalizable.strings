@@ -117,3 +117,9 @@
 "App没有访问定位的权限，现在去授权?" = "Appen har inte behörighet att komma åt din plats. Vill du ge behörighet nu?";
 
 "任务执行超时" = "Tidsgräns för uppgiftskörning överskriden";
+
+"该URL已在下载中，忽略重复请求" = "Denna URL hämtas redan, dubblettförfrågan ignoreras";
+
+"暂停尚未完成，已自动排队，暂停落定后立即恢复" = "Pausen är ännu inte klar, köad automatiskt, återupptas så snart pausen är klar";
+
+"源文件已是%@格式，跳过转换" = "Källfilen är redan i format %@, konvertering hoppades över";

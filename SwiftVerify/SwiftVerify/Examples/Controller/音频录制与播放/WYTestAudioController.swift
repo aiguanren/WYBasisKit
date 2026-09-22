@@ -1226,6 +1226,7 @@ class WYTestAudioController: UIViewController {
         case .conversionFailed: return "格式转换失败"
         case .conversionCancelled: return "格式转换已取消"
         case .formatNotSupported: return "不支持的音频格式"
+        case .sourceAlreadyTargetFormat: return "源文件已是目标格式，无需转换"
         case .sessionConfigurationFailed: return "音频会话配置失败"
         case .directoryCreationFailed: return "目录创建失败"
         default: return "未知错误"
@@ -1251,6 +1252,8 @@ class WYTestAudioController: UIViewController {
     }
     
     deinit {
+        // 频率统计timer不随着页面释放停掉的话会一直空跑
+        statsTimer?.invalidate()
         WYLogManager.output("WYTestAudioController release")
     }
 }

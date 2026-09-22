@@ -82,9 +82,19 @@ import AVFoundation
  - 不再使用时主动调用 releaseAll() 释放资源，避免内存泄漏
  */
 @objc public extension WYAudioKit {
-    
-    // MARK: - 公开属性
-    
+
+    /// 是否支持直接录制(mp3/flac等系统只有解码器没有编码器，拿它们开录音会抛formatNotSupported)
+    @objc(isRecordableFormat:)
+    class func isRecordableObjC(_ format: WYAudioFormatObjC) -> Bool {
+        return WYAudioFormat(rawValue: format.rawValue)?.isRecordable ?? false
+    }
+
+    /// 是否支持作为格式转换目标(aac/m4a走AAC导出管线，wav/aiff/caf走PCM读写器管线，其余格式系统没有对应编码器，传入convertAudioFormat会回调formatNotSupported)
+    @objc(isConvertibleFormat:)
+    class func isConvertibleObjC(_ format: WYAudioFormatObjC) -> Bool {
+        return WYAudioFormat(rawValue: format.rawValue)?.isConvertible ?? false
+    }
+
     /// 代理对象，用于回调录音、播放、下载、转换等事件
     @objc(delegate)
     weak var delegateObjC: WYAudioKitDelegate? {
@@ -197,8 +207,6 @@ import AVFoundation
         set { downloadsSubdirectory = newValue }
     }
     
-    // MARK: - 录音控制
-    
     /**
      开始录音
      - Parameters:
@@ -228,8 +236,6 @@ import AVFoundation
     func stopRecordingObjC() throws {
         try stopRecording()
     }
-    
-    // MARK: - 播放控制
     
     /**
      开始播放本地音频文件
@@ -264,8 +270,8 @@ import AVFoundation
     }
     
     /**
-     跳转到指定播放时间点（支持暂停状态下跳转）
-     - Parameter time: 目标播放时间（秒），会自动限制在有效范围内
+     跳转到指定播放时间点（支持暂停状态下跳转，超出总时长会自动夹到末尾并触发完成播放）
+     - Parameter time: 目标播放时间（秒），负数按0处理，超过音频总时长会定位到末尾
      */
     @objc(seekPlaybackWithTime:)
     func seekPlaybackObjC(time: TimeInterval) {
@@ -286,12 +292,10 @@ import AVFoundation
         playRemoteAudio(remoteUrl: remoteUrl, success: success, failed: failed)
     }
     
-    // MARK: - 下载管理
-    
     /**
      下载远程音频文件（支持并发多任务）
      - Parameters:
-       - remoteUrls: 要下载的远程 URL 数组
+       - remoteUrls: 要下载的远程 URL 数组（已在下载中的URL会被跳过，不重新下载）
        - success: 下载成功回调（返回下载信息数组）
        - failed: 下载失败回调
      */
@@ -300,6 +304,12 @@ import AVFoundation
                                     success: @escaping ([WYAudioDownloadInfo]) -> Void,
                                     failed: @escaping (Error?) -> Void) {
         downloadRemoteAudio(remoteUrls: remoteUrls, success: success, failed: failed)
+    }
+
+    /// 查询指定远程URL是否正在下载中（不含已暂停的任务）
+    @objc(isDownloadingWithRemoteUrl:)
+    func isDownloadingObjC(_ remoteUrl: URL) -> Bool {
+        return isDownloading(remoteUrl)
     }
     
     /**
@@ -332,9 +342,7 @@ import AVFoundation
     func cancelDownloadObjC(_ remoteUrls: [URL]?) {
         cancelDownload(remoteUrls)
     }
-    
-    // MARK: - 文件管理
-    
+
     /**
      保存当前录音文件到指定位置
      - Parameter destinationUrl: 目标保存路径
@@ -380,8 +388,6 @@ import AVFoundation
         deleteDownloadFile(info: info)
     }
     
-    // MARK: - 格式转换
-    
     /**
      转换音频文件格式（支持多文件并发）
      
@@ -416,8 +422,6 @@ import AVFoundation
     func stopAudioFormatConvertObjC(_ localUrls: [URL]?) {
         stopAudioFormatConvert(localUrls)
     }
-    
-    // MARK: - 高级功能
     
     /**
      流式播放网络音频（边下载边播放，支持倍速）

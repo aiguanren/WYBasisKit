@@ -117,3 +117,9 @@
 "App没有访问定位的权限，现在去授权?" = "Aplikasi tidak memiliki izin untuk mengakses lokasi Anda. Izinkan sekarang?";
 
 "任务执行超时" = "Waktu eksekusi tugas habis";
+
+"该URL已在下载中，忽略重复请求" = "URL ini sedang diunduh, permintaan duplikat diabaikan";
+
+"暂停尚未完成，已自动排队，暂停落定后立即恢复" = "Jeda belum selesai, otomatis masuk antrean, akan dilanjutkan segera setelah jeda selesai";
+
+"源文件已是%@格式，跳过转换" = "File sumber sudah dalam format %@, konversi dilewati";

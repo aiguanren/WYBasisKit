@@ -117,3 +117,9 @@
 "App没有访问定位的权限，现在去授权?" = "App heeft geen toestemming om je locatie te gebruiken. Wil je nu toestemming geven?";
 
 "任务执行超时" = "Time-out bij taakuitvoering";
+
+"该URL已在下载中，忽略重复请求" = "Deze URL wordt al gedownload, dubbel verzoek genegeerd";
+
+"暂停尚未完成，已自动排队，暂停落定后立即恢复" = "Pauze nog niet voltooid, automatisch in de wachtrij geplaatst, wordt hervat zodra de pauze is voltooid";
+
+"源文件已是%@格式，跳过转换" = "Bronbestand is al in %@-indeling, conversie overgeslagen";

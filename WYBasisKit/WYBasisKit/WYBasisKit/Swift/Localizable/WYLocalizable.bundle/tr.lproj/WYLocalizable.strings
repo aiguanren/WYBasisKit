@@ -117,3 +117,9 @@
 "App没有访问定位的权限，现在去授权?" = "Uygulamanın konumunuza erişim izni yok. Şimdi izin vermek ister misiniz?";
 
 "任务执行超时" = "Görev yürütme zaman aşımı";
+
+"该URL已在下载中，忽略重复请求" = "Bu URL zaten indiriliyor, yinelenen istek yoksayıldı";
+
+"暂停尚未完成，已自动排队，暂停落定后立即恢复" = "Duraklatma henüz tamamlanmadı, otomatik olarak sıraya alındı, duraklatma tamamlanır tamamlanmaz devam edecek";
+
+"源文件已是%@格式，跳过转换" = "Kaynak dosya zaten %@ biçiminde, dönüştürme atlandı";

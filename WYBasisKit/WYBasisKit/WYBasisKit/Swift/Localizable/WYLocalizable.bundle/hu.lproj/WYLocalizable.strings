@@ -117,3 +117,9 @@
 "App没有访问定位的权限，现在去授权?" = "Az alkalmazás nem rendelkezik engedéllyel a helyzeted eléréséhez. Szeretnéd most megadni az engedélyt?";
 
 "任务执行超时" = "Feladat végrehajtási időtúllépés";
+
+"该URL已在下载中，忽略重复请求" = "Ez az URL már letöltés alatt van, a duplikált kérés figyelmen kívül hagyva";
+
+"暂停尚未完成，已自动排队，暂停落定后立即恢复" = "A szünet még nem fejeződött be, automatikusan sorba állítva, a szünet befejezése után azonnal folytatódik";
+
+"源文件已是%@格式，跳过转换" = "A forrásfájl már %@ formátumú, az átalakítás kihagyva";

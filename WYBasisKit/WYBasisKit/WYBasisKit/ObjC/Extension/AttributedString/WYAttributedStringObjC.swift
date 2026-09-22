@@ -395,7 +395,6 @@ import WYBasisKitSwift
     }
 }
 
-/// 文本矩形区域信息返回值类型(枚举原始值与 WYBasisKitSwift 侧 WYTextBoundingInfoValueStyle 一字不差对应)
 @objc(WYTextBoundingInfoValueStyle)
 @frozen public enum WYTextBoundingInfoValueStyleObjC: Int {
     /// 单个文本 String
@@ -410,7 +409,6 @@ import WYBasisKitSwift
     case stringAndRange
 }
 
-/// OC 侧的文本矩形区域信息(单个矩形，与 WYBasisKitSwift 侧 WYTextBoundingRects 一字不差对应)
 @objc(WYTextBoundingRects)
 @objcMembers public final class WYTextBoundingRectsObjC: NSObject {
 
@@ -431,7 +429,6 @@ import WYBasisKitSwift
     }
 }
 
-/// OC 侧的文本矩形区域信息组合(与 WYBasisKitSwift 侧 WYTextBoundingInfos 一字不差对应)
 @objc(WYTextBoundingInfos)
 @objcMembers public final class WYTextBoundingInfosObjC: NSObject {
 

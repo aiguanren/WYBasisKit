@@ -117,3 +117,9 @@
 "App没有访问定位的权限，现在去授权?" = "Sovelluksella ei ole lupaa käyttää sijaintiasi. Haluatko antaa luvan nyt?";
 
 "任务执行超时" = "Tehtävän suoritus aikakatkaistu";
+
+"该URL已在下载中，忽略重复请求" = "Tämä URL on jo latautumassa, päällekkäinen pyyntö ohitettiin";
+
+"暂停尚未完成，已自动排队，暂停落定后立即恢复" = "Tauko ei ole vielä valmis, jonotettu automaattisesti, jatkuu heti kun tauko on valmis";
+
+"源文件已是%@格式，跳过转换" = "Lähdetiedosto on jo %@-muodossa, muunnos ohitettiin";

@@ -124,6 +124,7 @@
 @property (nonatomic, strong) UIButton *pauseRecordButton;
 @property (nonatomic, strong) UIButton *stopRecordButton;
 @property (nonatomic, strong) UIButton *resumeRecordButton;
+@property (nonatomic, strong) UITextField *recordFileNameField;
 @property (nonatomic, strong) WYSoundWavesView *soundWavesView;
 
 // 播放控制
@@ -132,6 +133,7 @@
 @property (nonatomic, strong) UIButton *stopPlayButton;
 @property (nonatomic, strong) UIButton *resumePlayButton;
 @property (nonatomic, strong) UIButton *seekButton;
+@property (nonatomic, strong) UIButton *overSeekButton;
 @property (nonatomic, strong) UISlider *seekSlider;
 @property (nonatomic, strong) UISlider *rateSlider;
 @property (nonatomic, strong) UILabel *rateLabel;
@@ -149,7 +151,12 @@
 @property (nonatomic, strong) UILabel *maxDurationLabel;
 @property (nonatomic, strong) UISegmentedControl *qualitySegmentedControl;
 @property (nonatomic, strong) UIPickerView *formatPicker;
+@property (nonatomic, strong) UILabel *currentFormatLabel;
 @property (nonatomic, strong) UISegmentedControl *storageDirSegmentedControl;
+@property (nonatomic, strong) UISegmentedControl *downloadsDirSegmentedControl;
+@property (nonatomic, strong) UITextField *subdirectoryField;
+@property (nonatomic, strong) UISegmentedControl *subdirectoryTargetControl;
+@property (nonatomic, strong) UIButton *subdirectoryApplyButton;
 
 // 网络音频 - 单任务
 @property (nonatomic, strong) UITextField *remoteURLField;
@@ -174,7 +181,35 @@
 // 格式转换
 @property (nonatomic, strong) UILabel *convertLabel;
 @property (nonatomic, strong) UIPickerView *targetFormatPicker;
+@property (nonatomic, strong) UILabel *targetFormatLabel;
 @property (nonatomic, strong) UIButton *convertButton;
+@property (nonatomic, strong) UIButton *convertAllButton;
+@property (nonatomic, strong) UIButton *stopConvertButton;
+
+// 状态与性能
+@property (nonatomic, strong) UILabel *perfLabel;
+@property (nonatomic, strong) UIButton *stateQueryButton;
+@property (nonatomic, strong) UIButton *durationButton;
+@property (nonatomic, strong) UIButton *reuseAfterReleaseButton;
+@property (nonatomic, strong) UIButton *callbackStatsButton;
+@property (nonatomic, strong) UIButton *fileListPerfButton;
+
+// 回调频率统计(每秒汇总一次各类回调次数，验证刷新器帧率和进度节流)
+@property (nonatomic, assign) BOOL isStatsEnabled;
+@property (nonatomic, strong) NSTimer *statsTimer;
+@property (nonatomic, assign) NSInteger meteringCount;
+@property (nonatomic, assign) NSInteger meteringsCount;
+@property (nonatomic, assign) NSInteger playbackTimeCount;
+@property (nonatomic, assign) NSInteger downloadProgressCount;
+@property (nonatomic, assign) NSInteger convertProgressCount;
+
+// 最近一次录音声波的原始dB值与经makeWaveformLevels换算的能量值(查询状态时打印，验证单通道dB回调链路)
+@property (nonatomic, assign) float lastPeakPower;
+@property (nonatomic, assign) float lastAveragePower;
+@property (nonatomic, assign) float lastWaveformLevel;
+
+// 已打过"开始接收数据"提示的URL(下载源响应慢时点了下载几秒没动静，首帧数据到达时给条日志心里有底)
+@property (nonatomic, strong) NSMutableSet<NSURL *> *startedNotifiedUrls;
 
 // 其他功能
 @property (nonatomic, strong) UIButton *playRecordedButton;
@@ -203,9 +238,11 @@
     self.minRecordingDuration = 0;
     self.maxRecordingDuration = 60;
     self.selectedFormat = WYAudioFormatAac;
-    self.targetFormat = WYAudioFormatMp3;
+    // 默认aac(mp3不在支持转换的格式里，选它一点转换就报不支持)
+    self.targetFormat = WYAudioFormatAac;
     self.currentPlayingDuration = 0;
     self.taskCards = [NSMutableArray array];
+    self.startedNotifiedUrls = [NSMutableSet set];
     
     [self setupUI];
     [self setupAudioKit];
@@ -237,8 +274,8 @@
 
 - (void)addDefaultDownloadTasks {
     NSArray *urls = @[
-        @"http://music.163.com/song/media/outer/url?id=1466027974.mp3",
-        @"http://music.163.com/song/media/outer/url?id=2105354877.mp3"
+        @"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+        @"https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3"
     ];
     for (NSString *urlString in urls) {
         [self addDownloadTaskWithUrlString:urlString];
@@ -316,9 +353,16 @@
     yOffset += 200;
     
     // 格式选择器
-    UILabel *formatLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, yOffset, 200, 30)];
+    UILabel *formatLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, yOffset, 130, 30)];
     formatLabel.text = @"选择录音格式:";
     [self.contentView addSubview:formatLabel];
+    // 当前选中的录音格式实时显示在行尾，光看滚轮中间行不直观
+    self.currentFormatLabel = [[UILabel alloc] init];
+    self.currentFormatLabel.frame = CGRectMake(150, yOffset, self.view.bounds.size.width - 170, 30);
+    self.currentFormatLabel.textAlignment = NSTextAlignmentRight;
+    self.currentFormatLabel.textColor = UIColor.systemGrayColor;
+    self.currentFormatLabel.text = [self formatDisplayTextForFormat:self.selectedFormat isConvertTarget:NO];
+    [self.contentView addSubview:self.currentFormatLabel];
     yOffset += 30;
     self.formatPicker = [[UIPickerView alloc] initWithFrame:CGRectMake(20, yOffset, self.view.bounds.size.width - 40, 100)];
     self.formatPicker.backgroundColor = [UIColor whiteColor];
@@ -337,6 +381,36 @@
     self.storageDirSegmentedControl.selectedSegmentIndex = 0;
     [self.storageDirSegmentedControl addTarget:self action:@selector(storageDirChanged) forControlEvents:UIControlEventValueChanged];
     [self.contentView addSubview:self.storageDirSegmentedControl];
+    yOffset += 40;
+
+    // 下载存储目录
+    UILabel *downloadsDirLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, yOffset, 200, 30)];
+    downloadsDirLabel.text = @"下载目录:";
+    [self.contentView addSubview:downloadsDirLabel];
+    yOffset += 30;
+    self.downloadsDirSegmentedControl = [[UISegmentedControl alloc] initWithItems:@[@"临时", @"文档", @"缓存"]];
+    self.downloadsDirSegmentedControl.frame = CGRectMake(20, yOffset, self.view.bounds.size.width - 40, 30);
+    self.downloadsDirSegmentedControl.selectedSegmentIndex = 0;
+    [self.downloadsDirSegmentedControl addTarget:self action:@selector(downloadsDirChanged) forControlEvents:UIControlEventValueChanged];
+    [self.contentView addSubview:self.downloadsDirSegmentedControl];
+    yOffset += 40;
+
+    // 子目录设置(选中要改哪一侧后点应用)
+    self.subdirectoryField = [[UITextField alloc] init];
+    self.subdirectoryField.frame = CGRectMake(20, yOffset, self.view.bounds.size.width - 40, 34);
+    self.subdirectoryField.borderStyle = UITextBorderStyleRoundedRect;
+    self.subdirectoryField.placeholder = @"子目录名(清空=根目录)";
+    [self.contentView addSubview:self.subdirectoryField];
+    yOffset += 38;
+    self.subdirectoryTargetControl = [[UISegmentedControl alloc] initWithItems:@[@"录音子目录", @"下载子目录"]];
+    self.subdirectoryTargetControl.frame = CGRectMake(20, yOffset, self.view.bounds.size.width - 130, 30);
+    self.subdirectoryTargetControl.selectedSegmentIndex = 0;
+    [self.contentView addSubview:self.subdirectoryTargetControl];
+    self.subdirectoryApplyButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    self.subdirectoryApplyButton.frame = CGRectMake(self.view.bounds.size.width - 100, yOffset, 80, 30);
+    [self.subdirectoryApplyButton setTitle:@"应用" forState:UIControlStateNormal];
+    [self.subdirectoryApplyButton addTarget:self action:@selector(applySubdirectory) forControlEvents:UIControlEventTouchUpInside];
+    [self.contentView addSubview:self.subdirectoryApplyButton];
     yOffset += 40;
     
     // 录音控制
@@ -368,6 +442,14 @@
     [self.stopRecordButton addTarget:self action:@selector(stopRecording) forControlEvents:UIControlEventTouchUpInside];
     [self.contentView addSubview:self.stopRecordButton];
     yOffset += 50;
+
+    // 自定义录音文件名(留空则用自动时间戳名)
+    self.recordFileNameField = [[UITextField alloc] init];
+    self.recordFileNameField.frame = CGRectMake(20, yOffset, self.view.bounds.size.width - 40, 34);
+    self.recordFileNameField.borderStyle = UITextBorderStyleRoundedRect;
+    self.recordFileNameField.placeholder = @"录音文件名(留空=自动时间戳，不带扩展名)";
+    [self.contentView addSubview:self.recordFileNameField];
+    yOffset += 38;
     
     self.recordProgressLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, yOffset, self.view.bounds.size.width - 40, 30)];
     self.recordProgressLabel.textColor = [UIColor blackColor];
@@ -432,6 +514,19 @@
     [self.seekButton addTarget:self action:@selector(seekPlayback) forControlEvents:UIControlEventTouchUpInside];
     [self.contentView addSubview:self.seekButton];
     yOffset += 50;
+
+    // 超界跳转测试(总时长10秒的音频跳999秒，验证库内夹到末尾并触发完成播放)
+    UILabel *overSeekTip = [[UILabel alloc] initWithFrame:CGRectMake(20, yOffset + 10, 240, 20)];
+    overSeekTip.text = @"超界跳转测试(应夹到末尾并完成播放):";
+    overSeekTip.font = [UIFont systemFontOfSize:12];
+    overSeekTip.textColor = UIColor.systemGrayColor;
+    [self.contentView addSubview:overSeekTip];
+    self.overSeekButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    self.overSeekButton.frame = CGRectMake(270, yOffset, 80, 40);
+    [self.overSeekButton setTitle:@"跳999秒" forState:UIControlStateNormal];
+    [self.overSeekButton addTarget:self action:@selector(overSeekPlayback) forControlEvents:UIControlEventTouchUpInside];
+    [self.contentView addSubview:self.overSeekButton];
+    yOffset += 45;
     
     // 倍速控制
     UILabel *rateLabelTitle = [[UILabel alloc] initWithFrame:CGRectMake(20, yOffset, 100, 30)];
@@ -466,6 +561,8 @@
     [self.contentView addSubview:self.minDurationSlider];
     yOffset += 35;
     self.minDurationLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, yOffset, self.view.bounds.size.width - 40, 30)];
+    // 防滑竿没提示:viewDidLoad里setter设置文字时label还没创建，初始文字要在这里补一次
+    self.minDurationLabel.text = [NSString stringWithFormat:@"最短时长: %.1f秒", self.minRecordingDuration];
     [self.contentView addSubview:self.minDurationLabel];
     yOffset += 40;
     self.maxDurationSlider = [[UISlider alloc] initWithFrame:CGRectMake(20, yOffset, self.view.bounds.size.width - 40, 30)];
@@ -476,6 +573,8 @@
     [self.contentView addSubview:self.maxDurationSlider];
     yOffset += 35;
     self.maxDurationLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, yOffset, self.view.bounds.size.width - 40, 30)];
+    // 防滑竿没提示:同最短时长label，viewDidLoad时label未创建文字丢失
+    self.maxDurationLabel.text = [NSString stringWithFormat:@"最长时长: %.1f秒", self.maxRecordingDuration];
     [self.contentView addSubview:self.maxDurationLabel];
     yOffset += 50;
     
@@ -498,7 +597,7 @@
     self.remoteURLField = [[UITextField alloc] initWithFrame:CGRectMake(20, yOffset, self.view.bounds.size.width - 40, 40)];
     self.remoteURLField.borderStyle = UITextBorderStyleRoundedRect;
     self.remoteURLField.placeholder = @"输入音频URL（单个）";
-    self.remoteURLField.text = @"http://music.163.com/song/media/outer/url?id=2105354877.mp3";
+    self.remoteURLField.text = @"https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3";
     [self.contentView addSubview:self.remoteURLField];
     yOffset += 50;
     self.downloadButton = [UIButton buttonWithType:UIButtonTypeSystem];
@@ -583,16 +682,61 @@
     self.convertLabel = [[UILabel alloc] init];
     self.convertLabel.text = @"格式转换:";
     [self.contentView addSubview:self.convertLabel];
-    
+
+    // 当前选中的转换目标格式实时显示在行尾
+    self.targetFormatLabel.textAlignment = NSTextAlignmentRight;
+    self.targetFormatLabel.textColor = UIColor.systemGrayColor;
+    self.targetFormatLabel.text = [self formatDisplayTextForFormat:self.targetFormat isConvertTarget:YES];
+    [self.contentView addSubview:self.targetFormatLabel];
+
     self.targetFormatPicker = [[UIPickerView alloc] init];
     self.targetFormatPicker.dataSource = self;
     self.targetFormatPicker.delegate = self;
     [self.contentView addSubview:self.targetFormatPicker];
-    
+
     self.convertButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    [self.convertButton setTitle:@"转换音频文件格式" forState:UIControlStateNormal];
+    [self.convertButton setTitle:@"转换当前录音" forState:UIControlStateNormal];
     [self.convertButton addTarget:self action:@selector(convertAudio) forControlEvents:UIControlEventTouchUpInside];
     [self.contentView addSubview:self.convertButton];
+
+    self.convertAllButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [self.convertAllButton setTitle:@"转换全部录音" forState:UIControlStateNormal];
+    [self.convertAllButton addTarget:self action:@selector(convertAllRecordings) forControlEvents:UIControlEventTouchUpInside];
+    [self.contentView addSubview:self.convertAllButton];
+
+    self.stopConvertButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [self.stopConvertButton setTitle:@"停止转换" forState:UIControlStateNormal];
+    [self.stopConvertButton addTarget:self action:@selector(stopConvert) forControlEvents:UIControlEventTouchUpInside];
+    [self.contentView addSubview:self.stopConvertButton];
+
+    self.perfLabel = [[UILabel alloc] init];
+    self.perfLabel.text = @"状态与性能:";
+    [self.contentView addSubview:self.perfLabel];
+
+    self.stateQueryButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [self.stateQueryButton setTitle:@"查询当前状态" forState:UIControlStateNormal];
+    [self.stateQueryButton addTarget:self action:@selector(queryCurrentState) forControlEvents:UIControlEventTouchUpInside];
+    [self.contentView addSubview:self.stateQueryButton];
+
+    self.durationButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [self.durationButton setTitle:@"读取音频时长" forState:UIControlStateNormal];
+    [self.durationButton addTarget:self action:@selector(readAudioDuration) forControlEvents:UIControlEventTouchUpInside];
+    [self.contentView addSubview:self.durationButton];
+
+    self.reuseAfterReleaseButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [self.reuseAfterReleaseButton setTitle:@"释放后复用" forState:UIControlStateNormal];
+    [self.reuseAfterReleaseButton addTarget:self action:@selector(testReuseAfterRelease) forControlEvents:UIControlEventTouchUpInside];
+    [self.contentView addSubview:self.reuseAfterReleaseButton];
+
+    self.callbackStatsButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [self.callbackStatsButton setTitle:@"回调频率统计" forState:UIControlStateNormal];
+    [self.callbackStatsButton addTarget:self action:@selector(toggleCallbackStats) forControlEvents:UIControlEventTouchUpInside];
+    [self.contentView addSubview:self.callbackStatsButton];
+
+    self.fileListPerfButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [self.fileListPerfButton setTitle:@"文件列表性能" forState:UIControlStateNormal];
+    [self.fileListPerfButton addTarget:self action:@selector(measureFileListPerformance) forControlEvents:UIControlEventTouchUpInside];
+    [self.contentView addSubview:self.fileListPerfButton];
     
     self.conversionProgressLabel = [[UILabel alloc] init];
     self.conversionProgressLabel.text = @"转换进度: 0.0%";
@@ -633,14 +777,29 @@
     yOffset += 50;
     
     // 格式转换区域
-    self.convertLabel.frame = CGRectMake(20, yOffset, 200, 30);
+    self.convertLabel.frame = CGRectMake(20, yOffset, 90, 30);
+    // 当前选中的转换目标格式实时显示在行尾
+    self.targetFormatLabel.frame = CGRectMake(110, yOffset, self.view.bounds.size.width - 130, 30);
     yOffset += 30;
     self.targetFormatPicker.frame = CGRectMake(20, yOffset, self.view.bounds.size.width - 40, 100);
     yOffset += 110;
-    self.convertButton.frame = CGRectMake(20, yOffset, self.view.bounds.size.width - 40, 40);
+    self.convertButton.frame = CGRectMake(20, yOffset, self.view.bounds.size.width - 260, 40);
+    self.convertAllButton.frame = CGRectMake(self.view.bounds.size.width - 230, yOffset, 100, 40);
+    self.stopConvertButton.frame = CGRectMake(self.view.bounds.size.width - 120, yOffset, 100, 40);
     yOffset += 50;
     self.conversionProgressLabel.frame = CGRectMake(20, yOffset, self.view.bounds.size.width - 40, 30);
     yOffset += 40;
+
+    // 状态与性能区域
+    self.perfLabel.frame = CGRectMake(20, yOffset, 200, 30);
+    yOffset += 30;
+    self.stateQueryButton.frame = CGRectMake(20, yOffset, 110, 40);
+    self.durationButton.frame = CGRectMake(140, yOffset, 110, 40);
+    self.reuseAfterReleaseButton.frame = CGRectMake(260, yOffset, self.view.bounds.size.width - 280, 40);
+    yOffset += 45;
+    self.callbackStatsButton.frame = CGRectMake(20, yOffset, 160, 40);
+    self.fileListPerfButton.frame = CGRectMake(190, yOffset, self.view.bounds.size.width - 210, 40);
+    yOffset += 50;
     
     // 其他功能
     self.customSettingsButton.frame = CGRectMake(20, yOffset, 150, 40);
@@ -672,7 +831,9 @@
 
 - (void)startRecording {
     NSError *error;
-    [self.audioKit startRecordingWithFileName:nil format:self.selectedFormat error:&error];
+    // 输入框留空时传nil，走自动时间戳文件名
+    NSString *name = self.recordFileNameField.text;
+    [self.audioKit startRecordingWithFileName:(name.length > 0 ? name : nil) format:self.selectedFormat error:&error];
     if (error) {
         [self handleError:error];
     }
@@ -758,8 +919,9 @@
 - (void)rateChanged {
     float rate = self.rateSlider.value;
     self.audioKit.playbackRate = rate;
-    self.rateLabel.text = [NSString stringWithFormat:@"%.1fx", rate];
-    [self logInfo:[NSString stringWithFormat:@"设置播放倍速: %.1f", rate]];
+    // 标签和日志都打印夹取后的值，验证0.5~2.0范围限制生效
+    self.rateLabel.text = [NSString stringWithFormat:@"%.1fx", self.audioKit.playbackRate];
+    [self logInfo:[NSString stringWithFormat:@"设置播放倍速: %f -> 夹取后%f", rate, self.audioKit.playbackRate]];
 }
 
 #pragma mark - 设置控制
@@ -810,6 +972,12 @@
         [self logInfo:@"无效的URL"];
         return;
     }
+    // 已在下载中的不再发起重复的下载播放请求，等现有任务完成即可
+    if ([self.audioKit isDownloadingWithRemoteUrl:url]) {
+        [self logInfo:@"该URL已在下载中，忽略重复的下载并播放请求"];
+        return;
+    }
+    [self logInfo:[NSString stringWithFormat:@"发起下载并播放: %@", url.lastPathComponent]];
     [self.audioKit playRemoteAudioWithRemoteUrl:url success:^(WYAudioDownloadInfo *info) {
         [self logInfo:[NSString stringWithFormat:@"网络音频播放成功,存储地址：%@", info.local.lastPathComponent]];
     } failed:^(NSError *error) {
@@ -840,6 +1008,12 @@
 - (void)downloadTaskAction:(UIButton *)sender {
     DownloadTaskCardView *card = [self findCardFromButton:sender];
     if (!card || !card.url) return;
+    // 防重复下载白费流量:同URL已在下载中直接提示并忽略(库内downloadRemoteAudio也有同样的去重防御)
+    if ([self.audioKit isDownloadingWithRemoteUrl:card.url]) {
+        [self logInfo:[NSString stringWithFormat:@"该URL已在下载中，忽略重复请求: %@", card.url.lastPathComponent]];
+        return;
+    }
+    [self logInfo:[NSString stringWithFormat:@"发起下载: %@", card.url.lastPathComponent]];
     [self.audioKit downloadRemoteAudioWithRemoteUrls:@[card.url] success:^(NSArray<WYAudioDownloadInfo *> *infos) {
         [self logInfo:[NSString stringWithFormat:@"下载成功: %@", infos.firstObject.local.lastPathComponent]];
     } failed:^(NSError *error) {
@@ -850,6 +1024,7 @@
 - (void)pauseTaskAction:(UIButton *)sender {
     DownloadTaskCardView *card = [self findCardFromButton:sender];
     if (!card || !card.url) return;
+    [self logInfo:[NSString stringWithFormat:@"发起暂停: %@", card.url.lastPathComponent]];
     [self.audioKit pauseDownloadWithRemoteUrls:@[card.url] success:^(NSURL *url) {
         [self logInfo:[NSString stringWithFormat:@"暂停成功: %@", url]];
     } failed:^(NSURL *url, NSError *error) {
@@ -860,17 +1035,23 @@
 - (void)resumeTaskAction:(UIButton *)sender {
     DownloadTaskCardView *card = [self findCardFromButton:sender];
     if (!card || !card.url) return;
+    // 已在下载中的不用恢复(重复点恢复会走到"没有暂停任务"的报错)
+    if ([self.audioKit isDownloadingWithRemoteUrl:card.url]) {
+        [self logInfo:[NSString stringWithFormat:@"该URL正在下载中，无需恢复: %@", card.url.lastPathComponent]];
+        return;
+    }
+    [self logInfo:[NSString stringWithFormat:@"发起恢复: %@(若提示已自动排队，等暂停落定会自动续上)", card.url.lastPathComponent]];
     [self.audioKit resumeDownloadWithRemoteUrls:@[card.url]];
-    [self logInfo:[NSString stringWithFormat:@"恢复下载: %@", card.url]];
 }
 
 - (void)cancelTaskAction:(UIButton *)sender {
     DownloadTaskCardView *card = [self findCardFromButton:sender];
     if (!card || !card.url) return;
+    [self logInfo:[NSString stringWithFormat:@"发起取消: %@", card.url.lastPathComponent]];
     [self.audioKit cancelDownloadWithRemoteUrls:@[card.url]];
-    [self logInfo:[NSString stringWithFormat:@"取消下载: %@", card.url]];
     card.progressBar.progress = 0;
     card.progressLabel.text = @"进度: 0%";
+    [self.startedNotifiedUrls removeObject:card.url];
 }
 
 - (void)deleteTaskAction:(UIButton *)sender {
@@ -987,7 +1168,8 @@
 #pragma mark - 格式转换
 
 - (void)convertAudio {
-    NSURL *sourceURL = self.audioKit.currentRecordFileURL;
+    // 本次会话没录过音时兜底取文件列表最新的一个(和读取音频时长按钮同款兜底，避免"当前录音"和"全部录音"两按钮对无文件的提示对不上)
+    NSURL *sourceURL = self.audioKit.currentRecordFileURL ?: self.audioKit.getAllRecordingsFiles.firstObject;
     if (!sourceURL) {
         [self logInfo:@"没有可转换的录音文件"];
         return;
@@ -1001,6 +1183,141 @@
     } failed:^(NSError *error) {
         if (error) [self handleError:error];
     }];
+}
+
+- (void)convertAllRecordings {
+    // 空数组也照样传进库，没有录音文件时正好验证noFilesRequireConversion错误路径；有多个文件时验证多文件并发批次和按输入顺序回调
+    NSArray<NSURL *> *sources = [self.audioKit getAllRecordingsFiles];
+    if (sources.count == 0) {
+        [self logInfo:@"没有可转换的录音文件(空数组照样传给库，验证库内noFilesRequireConversion校验)"];
+    }
+    [self logInfo:[NSString stringWithFormat:@"开始批量转换%lu个录音文件 -> %@", (unsigned long)sources.count, [self stringValueForFormat:self.targetFormat]]];
+    [self.audioKit convertAudioFormatWithSourceUrls:sources target:self.targetFormat success:^(NSArray<NSURL *> *outputUrls) {
+        NSMutableArray *names = [NSMutableArray array];
+        for (NSURL *url in outputUrls) {
+            [names addObject:url.lastPathComponent];
+        }
+        [self logInfo:[NSString stringWithFormat:@"批量转换完成%lu个, 按输入顺序输出: %@", (unsigned long)outputUrls.count, names]];
+        [self refreshFileList];
+    } failed:^(NSError *error) {
+        if (error) [self handleError:error];
+    }];
+}
+
+- (void)stopConvert {
+    [self.audioKit stopAudioFormatConvertWithLocalUrls:nil];
+    [self logInfo:@"已停止全部格式转换任务"];
+}
+
+- (void)queryCurrentState {
+    [self logInfo:[NSString stringWithFormat:@"当前状态: isRecording=%d, isPlaying=%d, isRecordingPaused=%d, isPlaybackPaused=%d, currentRecordFileURL=%@",
+                  self.audioKit.isRecording, self.audioKit.isPlaying, self.audioKit.isRecordingPaused, self.audioKit.isPlaybackPaused,
+                  self.audioKit.currentRecordFileURL.lastPathComponent ?: @"nil"]];
+    // 带上最近一次声波采样，录音中点这条能看到单通道dB回调的原始值和换算能量
+    [self logInfo:[NSString stringWithFormat:@"最近声波采样: 峰值%.1fdB, 均值%.1fdB -> 能量%.3f",
+                  self.lastPeakPower, self.lastAveragePower, self.lastWaveformLevel]];
+}
+
+- (void)readAudioDuration {
+    NSURL *url = self.audioKit.currentRecordFileURL ?: self.audioKit.getAllRecordingsFiles.firstObject;
+    if (!url) {
+        [self logInfo:@"没有可读取时长的音频文件(先录一段)"];
+        return;
+    }
+    CFAbsoluteTime start = CFAbsoluteTimeGetCurrent();
+    __weak typeof(self) weakSelf = self;
+    [self.audioKit getAudioDurationWithUrl:url completion:^(NSTimeInterval duration) {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) return;
+        double elapsed = (CFAbsoluteTimeGetCurrent() - start) * 1000;
+        [strongSelf logInfo:[NSString stringWithFormat:@"音频时长: %.2f秒, 耗时%.1fms, 文件: %@", duration, elapsed, url.lastPathComponent]];
+    }];
+}
+
+- (void)testReuseAfterRelease {
+    [self logInfo:@"先释放全部资源，再立刻发起下载(验证下载会话按需重建不崩溃)"];
+    [self.audioKit releaseAll];
+    NSURL *url = [NSURL URLWithString:@"https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3"];
+    if (!url) return;
+    [self.audioKit downloadRemoteAudioWithRemoteUrls:@[url] success:^(NSArray<WYAudioDownloadInfo *> *infos) {
+        [self logInfo:[NSString stringWithFormat:@"释放后复用下载成功: %@", infos.firstObject.local.lastPathComponent]];
+    } failed:^(NSError *error) {
+        [self logInfo:[NSString stringWithFormat:@"释放后复用下载失败: %@", error.localizedDescription ?: @""]];
+    }];
+}
+
+- (void)toggleCallbackStats {
+    self.isStatsEnabled = !self.isStatsEnabled;
+    if (self.isStatsEnabled) {
+        [self resetStatsCounters];
+        __weak typeof(self) weakSelf = self;
+        self.statsTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 repeats:YES block:^(NSTimer *timer) {
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) return;
+            [strongSelf logInfo:[NSString stringWithFormat:@"回调频率/秒: 波形(单通道dB)=%ld, 波形(归一化)=%ld, 播放进度=%ld, 下载进度=%ld, 转换进度=%ld",
+                                                      (long)strongSelf.meteringCount, (long)strongSelf.meteringsCount, (long)strongSelf.playbackTimeCount,
+                                                      (long)strongSelf.downloadProgressCount, (long)strongSelf.convertProgressCount]];
+            [strongSelf resetStatsCounters];
+        }];
+        [self.callbackStatsButton setTitle:@"停止频率统计" forState:UIControlStateNormal];
+        [self logInfo:@"开始统计回调频率(录音中波形约30次/秒，进度数值不变时下载/转换应为0次，停完所有任务后应全为0)"];
+    } else {
+        [self.statsTimer invalidate];
+        self.statsTimer = nil;
+        [self.callbackStatsButton setTitle:@"回调频率统计" forState:UIControlStateNormal];
+        [self logInfo:@"停止统计回调频率"];
+    }
+}
+
+- (void)resetStatsCounters {
+    self.meteringCount = 0;
+    self.meteringsCount = 0;
+    self.playbackTimeCount = 0;
+    self.downloadProgressCount = 0;
+    self.convertProgressCount = 0;
+}
+
+- (void)measureFileListPerformance {
+    CFAbsoluteTime start = CFAbsoluteTimeGetCurrent();
+    NSInteger rounds = 10;
+    for (NSInteger i = 0; i < rounds; i++) {
+        (void)[self.audioKit getAllRecordingsFiles];
+        (void)[self.audioKit getAllDownloads];
+    }
+    double avg = (CFAbsoluteTimeGetCurrent() - start) * 1000 / rounds;
+    [self logInfo:[NSString stringWithFormat:@"文件列表性能: 录音+下载目录各扫%ld轮, 平均每轮%.2fms", (long)rounds, avg]];
+}
+
+- (void)applySubdirectory {
+    NSString *name = ([self.subdirectoryField.text length] > 0) ? self.subdirectoryField.text : nil;
+    if (self.subdirectoryTargetControl.selectedSegmentIndex == 0) {
+        self.audioKit.recordingsSubdirectory = name;
+        [self logInfo:[NSString stringWithFormat:@"录音子目录已设为%@", name ?: @"nil(根目录)"]];
+    } else {
+        self.audioKit.downloadsSubdirectory = name;
+        [self logInfo:[NSString stringWithFormat:@"下载子目录已设为%@", name ?: @"nil(根目录)"]];
+    }
+    [self refreshFileList];
+}
+
+- (void)downloadsDirChanged {
+    WYAudioStorageDirectory directory;
+    switch (self.downloadsDirSegmentedControl.selectedSegmentIndex) {
+        case 0: directory = WYAudioStorageDirectoryTemporary; break;
+        case 1: directory = WYAudioStorageDirectoryDocuments; break;
+        default: directory = WYAudioStorageDirectoryCaches; break;
+    }
+    self.audioKit.downloadsDirectory = directory;
+    [self logInfo:[NSString stringWithFormat:@"设置下载存储目录: %@", [self directoryDescriptionForDirectory:directory]]];
+}
+
+- (void)overSeekPlayback {
+    if (self.currentPlayingDuration <= 0) {
+        [self logInfo:@"还没播放过音频，先播放再测超界跳转"];
+        return;
+    }
+    [self logInfo:[NSString stringWithFormat:@"请求跳转999秒(当前音频总时长%.1f秒)，库内应夹到末尾并触发完成播放", self.currentPlayingDuration]];
+    [self.audioKit seekPlaybackWithTime:999];
 }
 
 #pragma mark - 其他功能
@@ -1054,7 +1371,8 @@
         case WYAudioErrorNoFilesRequireConversion: return @"没有需要格式转换的文件";
         case WYAudioErrorConversionFailed: return @"格式转换失败";
         case WYAudioErrorConversionCancelled: return @"格式转换已取消";
-        case WYAudioErrorFormatNotSupported: return @"不支持的录制格式";
+        case WYAudioErrorFormatNotSupported: return @"不支持的音频格式";
+        case WYAudioErrorSourceAlreadyTargetFormat: return @"源文件已是目标格式，无需转换";
         case WYAudioErrorSessionConfigurationFailed: return @"音频会话配置失败";
         case WYAudioErrorDirectoryCreationFailed: return @"目录创建失败";
         default: return @"未知错误";
@@ -1120,9 +1438,12 @@
 
 - (NSArray<NSNumber *> *)supportedConvertFormats {
     if (!_supportedConvertFormats) {
+        // 全部格式列出，不可转的靠库内拦截并提示，顺便验证formatNotSupported路径
         _supportedConvertFormats = @[
-            @(WYAudioFormatAac), @(WYAudioFormatM4a), @(WYAudioFormatCaf),
-            @(WYAudioFormatWav), @(WYAudioFormatAiff)
+            @(WYAudioFormatAac), @(WYAudioFormatWav), @(WYAudioFormatCaf),
+            @(WYAudioFormatM4a), @(WYAudioFormatAiff), @(WYAudioFormatMp3),
+            @(WYAudioFormatFlac), @(WYAudioFormatAu), @(WYAudioFormatAmr),
+            @(WYAudioFormatAc3), @(WYAudioFormatEac3)
         ];
     }
     return _supportedConvertFormats;
@@ -1154,12 +1475,13 @@
 
 - (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
     WYAudioFormat format;
-    if (pickerView == self.formatPicker) {
-        format = [self.supportedFormats[row] integerValue];
-    } else {
+    BOOL isConvertTarget = (pickerView != self.formatPicker);
+    if (isConvertTarget) {
         format = [self.supportedConvertFormats[row] integerValue];
+    } else {
+        format = [self.supportedFormats[row] integerValue];
     }
-    return [NSString stringWithFormat:@"%@ (%@)", [[self stringValueForFormat:format] uppercaseString], [self formatDescriptionForFormat:format]];
+    return [self formatDisplayTextForFormat:format isConvertTarget:isConvertTarget];
 }
 
 - (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
@@ -1167,13 +1489,30 @@
         WYAudioFormat newFormat = [self.supportedFormats[row] integerValue];
         if (self.selectedFormat != newFormat) {
             self.selectedFormat = newFormat;
+            self.currentFormatLabel.text = [self formatDisplayTextForFormat:newFormat isConvertTarget:NO];
+            [self logInfo:[NSString stringWithFormat:@"切换录音格式: %@", [self formatDisplayTextForFormat:newFormat isConvertTarget:NO]]];
         }
     } else {
         WYAudioFormat newFormat = [self.supportedConvertFormats[row] integerValue];
         if (self.targetFormat != newFormat) {
             self.targetFormat = newFormat;
+            self.targetFormatLabel.text = [self formatDisplayTextForFormat:newFormat isConvertTarget:YES];
+            [self logInfo:[NSString stringWithFormat:@"切换转换目标格式: %@", [self formatDisplayTextForFormat:newFormat isConvertTarget:YES]]];
         }
     }
+}
+
+/// 格式统一展示文案(选择器行标题和当前值标签共用一套，不能录/不能转的格式带标注防止误以为能用)
+- (NSString *)formatDisplayTextForFormat:(WYAudioFormat)format isConvertTarget:(BOOL)isConvertTarget {
+    NSString *mark = @"";
+    if (isConvertTarget) {
+        if (![WYAudioKit isConvertibleFormat:format]) {
+            mark = @"不可转, ";
+        }
+    } else if (![WYAudioKit isRecordableFormat:format]) {
+        mark = @"仅播放, ";
+    }
+    return [NSString stringWithFormat:@"%@ (%@%@)", [[self stringValueForFormat:format] uppercaseString], mark, [self formatDescriptionForFormat:format]];
 }
 
 #pragma mark - WYAudioKitDelegate
@@ -1195,7 +1534,17 @@
     self.recordProgressLabel.text = [NSString stringWithFormat:@"录音进度: %.1f秒/%.1f秒 (%.1f%%)", currentTime, duration, progress];
 }
 
+- (void)wy_audioRecorderDidUpdateMetering:(WYAudioKit *)audioKit peakPower:(float)peakPower averagePower:(float)averagePower {
+    // 只计数不逐帧打日志(和归一化回调同帧触发，打印会刷屏)，原始dB缓存下来供查询状态时打印
+    self.meteringCount += 1;
+    self.lastPeakPower = peakPower;
+    self.lastAveragePower = averagePower;
+    // 顺路验证WYSoundWavesView的dB转能量接口(它按dB原始值设计，正是这路回调给的东西)
+    self.lastWaveformLevel = [self.soundWavesView makeWaveformLevelsPeakPower:peakPower averagePower:averagePower];
+}
+
 - (void)wy_audioRecorderDidUpdateMeterings:(WYAudioKit *)audioKit peakPowers:(NSArray<NSNumber *> *)peakPowers averagePowers:(NSArray<NSNumber *> *)averagePowers {
+    self.meteringsCount += 1;
     // 使用峰值功率，响应更快（回调给的已是 0~1 归一化值，直接喂给声波动画，不需要旧版的手动放大）
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.soundWavesView updateMetersWithPower:peakPowers.firstObject.floatValue];
@@ -1219,11 +1568,22 @@
 }
 
 - (void)wy_audioPlayerTimeUpdated:(WYAudioKit *)audioKit localUrl:(NSURL *)localUrl currentTime:(NSTimeInterval)currentTime duration:(NSTimeInterval)duration progress:(double)progress {
+    self.playbackTimeCount += 1;
     self.currentPlayingDuration = duration;
     self.playProgressLabel.text = [NSString stringWithFormat:@"播放进度: %.1f秒/%.1f秒 (%.1f%%)", currentTime, duration, progress * 100];
 }
 
 - (void)wy_remoteAudioDownloadProgressUpdated:(WYAudioKit *)audioKit remoteUrls:(NSArray<NSURL *> *)remoteUrls progress:(double)progress {
+    self.downloadProgressCount += 1;
+    // 首帧数据到达提示一次(下载源响应慢，点下载后几秒没动静是正常等待，这条日志说明真的开始收数据了)
+    if (progress > 0) {
+        for (NSURL *url in remoteUrls) {
+            if (![self.startedNotifiedUrls containsObject:url]) {
+                [self.startedNotifiedUrls addObject:url];
+                [self logInfo:[NSString stringWithFormat:@"已开始接收数据: %@", url.lastPathComponent]];
+            }
+        }
+    }
     self.downloadProgressLabel.text = [NSString stringWithFormat:@"下载进度: %.1f%%, remoteUrls：%@", progress * 100, remoteUrls];
     for (DownloadTaskCardView *card in self.taskCards) {
         if (card.url && [remoteUrls containsObject:card.url]) {
@@ -1238,6 +1598,7 @@
 - (void)wy_remoteAudioDownloadSuccess:(WYAudioKit *)audioKit fileInfo:(NSArray<WYAudioDownloadInfo *> *)fileInfos {
     for (WYAudioDownloadInfo *info in fileInfos) {
         [self logInfo:[NSString stringWithFormat:@"下载成功: %@", info.local]];
+        [self.startedNotifiedUrls removeObject:info.remote];
         for (DownloadTaskCardView *card in self.taskCards) {
             if (card.url && [card.url isEqual:info.remote]) {
                 dispatch_async(dispatch_get_main_queue(), ^{
@@ -1250,7 +1611,16 @@
     [self refreshFileList];
 }
 
+- (void)wy_remoteAudioDownloadPaused:(WYAudioKit *)audioKit remoteUrls:(NSArray<NSURL *> *)remoteUrls {
+    [self logInfo:[NSString stringWithFormat:@"下载已暂停(代理回调): %@", remoteUrls]];
+}
+
+- (void)wy_remoteAudioDownloadResumed:(WYAudioKit *)audioKit remoteUrls:(NSArray<NSURL *> *)remoteUrls {
+    [self logInfo:[NSString stringWithFormat:@"下载已恢复(代理回调): %@", remoteUrls]];
+}
+
 - (void)wy_formatConversionProgressUpdated:(WYAudioKit *)audioKit localUrls:(NSArray<NSURL *> *)localUrls progress:(double)progress {
+    self.convertProgressCount += 1;
     self.conversionProgressLabel.text = [NSString stringWithFormat:@"转换进度: %.1f%%, localUrls：%@", progress * 100, localUrls];
 }
 
@@ -1263,6 +1633,9 @@
 
 - (void)wy_audioTaskDidFailed:(WYAudioKit *)audioKit url:(NSURL *)url error:(enum WYAudioError)error description:(NSString *)description {
     [self logInfo:[NSString stringWithFormat:@"任务失败: %@, 描述: %@, URL: %@", [self errorDescriptionForError:error], description ?: @"无", url ?: @"空"]];
+    if (url) {
+        [self.startedNotifiedUrls removeObject:url];
+    }
     for (DownloadTaskCardView *card in self.taskCards) {
         if (card.url && [card.url isEqual:url]) {
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -1274,6 +1647,9 @@
 }
 
 - (void)dealloc {
+    // 频率统计timer不随着页面释放停掉的话会一直空跑
+    [self.statsTimer invalidate];
+    self.statsTimer = nil;
     [self.audioKit releaseAll];
     NSLog(@"WYTestAudioController release");
 }
