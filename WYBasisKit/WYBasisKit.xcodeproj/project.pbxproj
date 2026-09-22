@@ -99,6 +99,13 @@
 		58B46FEA2E8C080700D04BCA /* WYLogManagerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B46FE92E8C080700D04BCA /* WYLogManagerObjC.swift */; };
 		58B470462E8D2CCD00D04BCA /* WYEventHandlerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B470452E8D2CCD00D04BCA /* WYEventHandlerObjC.swift */; };
 		58B6DAE8305FA87D00FEBC08 /* WYLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B6DAE6305FA87D00FEBC08 /* WYLabel.swift */; };
+		58B6DAF330612E5B00FEBC08 /* WYAudioKit+Convert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B6DAEC30612E5B00FEBC08 /* WYAudioKit+Convert.swift */; };
+		58B6DAF430612E5B00FEBC08 /* WYAudioKit+Playback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B6DAEF30612E5B00FEBC08 /* WYAudioKit+Playback.swift */; };
+		58B6DAF530612E5B00FEBC08 /* WYAudioKit+Recording.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B6DAF130612E5B00FEBC08 /* WYAudioKit+Recording.swift */; };
+		58B6DAF630612E5B00FEBC08 /* WYAudioKit+DisplayLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B6DAED30612E5B00FEBC08 /* WYAudioKit+DisplayLink.swift */; };
+		58B6DAF730612E5B00FEBC08 /* WYAudioKit+Properties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B6DAF030612E5B00FEBC08 /* WYAudioKit+Properties.swift */; };
+		58B6DAF830612E5B00FEBC08 /* WYAudioKit+Download.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B6DAEE30612E5B00FEBC08 /* WYAudioKit+Download.swift */; };
+		58B6DAF930612E5B00FEBC08 /* WYAudioKit+Setup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B6DAF230612E5B00FEBC08 /* WYAudioKit+Setup.swift */; };
 		58BE5F032E5E94210046AD5D /* Swift↔ObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BE5F022E5E94210046AD5D /* Swift↔ObjC.swift */; };
 		58C3596F2F3F2D37000E6EF0 /* WYLocationAuthorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3596E2F3F2D36000E6EF0 /* WYLocationAuthorization.swift */; };
 		58C359722F401F9F000E6EF0 /* WYLocationAuthorizationObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C359712F401F9F000E6EF0 /* WYLocationAuthorizationObjC.swift */; };
@@ -330,6 +337,13 @@
 		58B470452E8D2CCD00D04BCA /* WYEventHandlerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYEventHandlerObjC.swift; sourceTree = "<group>"; };
 		58B6DAE6305FA87D00FEBC08 /* WYLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLabel.swift; sourceTree = "<group>"; };
 		58B6DAE93061157B00FEBC08 /* WYLabelObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLabelObjC.swift; sourceTree = "<group>"; };
+		58B6DAEC30612E5B00FEBC08 /* WYAudioKit+Convert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYAudioKit+Convert.swift"; sourceTree = "<group>"; };
+		58B6DAED30612E5B00FEBC08 /* WYAudioKit+DisplayLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYAudioKit+DisplayLink.swift"; sourceTree = "<group>"; };
+		58B6DAEE30612E5B00FEBC08 /* WYAudioKit+Download.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYAudioKit+Download.swift"; sourceTree = "<group>"; };
+		58B6DAEF30612E5B00FEBC08 /* WYAudioKit+Playback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYAudioKit+Playback.swift"; sourceTree = "<group>"; };
+		58B6DAF030612E5B00FEBC08 /* WYAudioKit+Properties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYAudioKit+Properties.swift"; sourceTree = "<group>"; };
+		58B6DAF130612E5B00FEBC08 /* WYAudioKit+Recording.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYAudioKit+Recording.swift"; sourceTree = "<group>"; };
+		58B6DAF230612E5B00FEBC08 /* WYAudioKit+Setup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYAudioKit+Setup.swift"; sourceTree = "<group>"; };
 		58BE5F022E5E94210046AD5D /* Swift↔ObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Swift↔ObjC.swift"; sourceTree = "<group>"; };
 		58C3596E2F3F2D36000E6EF0 /* WYLocationAuthorization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLocationAuthorization.swift; sourceTree = "<group>"; };
 		58C359712F401F9F000E6EF0 /* WYLocationAuthorizationObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLocationAuthorizationObjC.swift; sourceTree = "<group>"; };
@@ -1054,6 +1068,13 @@
 		58B6DAEB3061296F00FEBC08 /* PrivateImpl */ = {
 			isa = PBXGroup;
 			children = (
+				58B6DAEC30612E5B00FEBC08 /* WYAudioKit+Convert.swift */,
+				58B6DAED30612E5B00FEBC08 /* WYAudioKit+DisplayLink.swift */,
+				58B6DAEE30612E5B00FEBC08 /* WYAudioKit+Download.swift */,
+				58B6DAEF30612E5B00FEBC08 /* WYAudioKit+Playback.swift */,
+				58B6DAF030612E5B00FEBC08 /* WYAudioKit+Properties.swift */,
+				58B6DAF130612E5B00FEBC08 /* WYAudioKit+Recording.swift */,
+				58B6DAF230612E5B00FEBC08 /* WYAudioKit+Setup.swift */,
 			);
 			path = PrivateImpl;
 			sourceTree = "<group>";
@@ -2863,6 +2884,13 @@
 				58328C922FC93C7C00C0F556 /* WYPrepareSwizzler.swift in Sources */,
 				583C41B42E9220E9007379FC /* WYStorageObjC.swift in Sources */,
 				58C68E162E84E436005FD054 /* WYNumber.swift in Sources */,
+				58B6DAF330612E5B00FEBC08 /* WYAudioKit+Convert.swift in Sources */,
+				58B6DAF430612E5B00FEBC08 /* WYAudioKit+Playback.swift in Sources */,
+				58B6DAF530612E5B00FEBC08 /* WYAudioKit+Recording.swift in Sources */,
+				58B6DAF630612E5B00FEBC08 /* WYAudioKit+DisplayLink.swift in Sources */,
+				58B6DAF730612E5B00FEBC08 /* WYAudioKit+Properties.swift in Sources */,
+				58B6DAF830612E5B00FEBC08 /* WYAudioKit+Download.swift in Sources */,
+				58B6DAF930612E5B00FEBC08 /* WYAudioKit+Setup.swift in Sources */,
 				58328C6C2FC9383A00C0F556 /* WYViewDidDisappearSwizzler.swift in Sources */,
 				58C68E172E84E436005FD054 /* WYContactsAuthorizationObjC.swift in Sources */,
 				58C68E182E84E436005FD054 /* WYDecimal.swift in Sources */,

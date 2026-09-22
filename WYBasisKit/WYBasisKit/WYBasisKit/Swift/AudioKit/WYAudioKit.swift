@@ -28,7 +28,7 @@ import QuartzCore
  - 录制给安卓播放：aac / mp3（兼容性较好）
  - 安卓录制给 iOS 播放：mp3 / aac（无需额外解码）
  */
-@frozen public enum WYAudioFormat: Int {
+@frozen public enum WYAudioFormat: Int, CaseIterable {
     /// AAC 格式（实际保存为 .m4a 容器）
     case aac = 0
     /// WAV 格式（线性 PCM）
@@ -68,6 +68,26 @@ import QuartzCore
         }
     }
     
+    /// 是否支持直接录制(mp3/flac等系统只有解码器没有编码器，拿它们开录音会抛formatNotSupported)
+    public var isRecordable: Bool {
+        switch self {
+        case .aac, .wav, .caf, .m4a, .aiff:
+            return true
+        default:
+            return false
+        }
+    }
+
+    /// 是否支持作为格式转换目标(aac/m4a走AAC导出管线，wav/aiff/caf走PCM读写器管线，其余格式系统没有对应编码器，传入convertAudioFormat会回调formatNotSupported)
+    public var isConvertible: Bool {
+        switch self {
+        case .aac, .m4a, .caf, .wav, .aiff:
+            return true
+        default:
+            return false
+        }
+    }
+
     /// 对应的 AudioFormatID（用于录音设置）
     var audioFormatID: AudioFormatID {
         switch self {
@@ -341,19 +361,17 @@ import QuartzCore
  */
 public final class WYAudioKit: NSObject {
     
-    // MARK: - 公开属性
-    
     /// 代理对象，用于回调录音、播放、下载、转换等事件
     public weak var delegate: WYAudioKitDelegate?
     
     /// 是否正在录音
     public var isRecording: Bool {
-        audioRecorder?.isRecording ?? false
+        state.audioRecorder?.isRecording ?? false
     }
     
     /// 是否正在播放
     public var isPlaying: Bool {
-        guard let player = audioPlayer else { return false }
+        guard let player = state.audioPlayer else { return false }
         return player.rate != 0 && player.timeControlStatus == .playing
     }
     
@@ -361,7 +379,7 @@ public final class WYAudioKit: NSObject {
     public private(set) var isRecordingPaused: Bool = false
     
     /// 播放是否处于暂停状态
-    public private(set) var isPlaybackPaused: Bool = false
+    public internal(set) var isPlaybackPaused: Bool = false
     
     /// 录音最小有效时长（秒），低于此值停止时会自动删除文件，0 表示无限制
     public var minimumRecordDuration: TimeInterval = 0
@@ -374,7 +392,10 @@ public final class WYAudioKit: NSObject {
         didSet {
             if playbackRate < 0.5 { playbackRate = 0.5 }
             if playbackRate > 2.0 { playbackRate = 2.0 }
-            audioPlayer?.rate = playbackRate
+            // 播放中才即时生效，暂停时只记住值(暂停中直接设非0的rate会把播放顶起来)，恢复播放时resumePlayback会带上
+            if isPlaying {
+                state.audioPlayer?.rate = playbackRate
+            }
         }
     }
     
@@ -408,22 +429,22 @@ public final class WYAudioKit: NSObject {
     /// 录音文件存储的目录类型（修改后会自动创建目录）
     public var recordingsDirectory: WYAudioStorageDirectory = .temporary {
         didSet {
-            recordingDirectoryURL = createDirectory(for: recordingsDirectory, subdirectory: recordingsSubdirectory)
+            state.recordingDirectoryURL = createDirectory(for: recordingsDirectory, subdirectory: recordingsSubdirectory)
         }
     }
     
     /// 下载文件存储的目录类型（修改后会自动创建目录）
     public var downloadsDirectory: WYAudioStorageDirectory = .temporary {
         didSet {
-            downloadsDirectoryURL = createDirectory(for: downloadsDirectory, subdirectory: downloadsSubdirectory)
+            state.downloadsDirectoryURL = createDirectory(for: downloadsDirectory, subdirectory: downloadsSubdirectory)
         }
     }
     
     /// 录音文件存放的子目录名称（nil 表示直接放在根目录）
     public var recordingsSubdirectory: String? = "WYRecordings" {
         didSet {
-            if recordingDirectoryURL != nil {
-                recordingDirectoryURL = createDirectory(for: recordingsDirectory, subdirectory: recordingsSubdirectory)
+            if state.recordingDirectoryURL != nil {
+                state.recordingDirectoryURL = createDirectory(for: recordingsDirectory, subdirectory: recordingsSubdirectory)
             }
         }
     }
@@ -431,26 +452,25 @@ public final class WYAudioKit: NSObject {
     /// 下载文件存放的子目录名称（nil 表示直接放在根目录）
     public var downloadsSubdirectory: String? = "WYDownloads" {
         didSet {
-            if downloadsDirectoryURL != nil {
-                downloadsDirectoryURL = createDirectory(for: downloadsDirectory, subdirectory: downloadsSubdirectory)
+            if state.downloadsDirectoryURL != nil {
+                state.downloadsDirectoryURL = createDirectory(for: downloadsDirectory, subdirectory: downloadsSubdirectory)
             }
         }
     }
     
-    // MARK: - 初始化与生命周期
+    /// 私有状态容器
+    let state = WYAudioKitPrivateState()
     
     /// 唯一初始化方法
     public override init() {
         super.init()
         
         setupAudioSession()
-        recordingDirectoryURL = createDirectory(for: recordingsDirectory, subdirectory: recordingsSubdirectory)
-        downloadsDirectoryURL = createDirectory(for: downloadsDirectory, subdirectory: downloadsSubdirectory)
-        setupDownloadSession()
+        state.recordingDirectoryURL = createDirectory(for: recordingsDirectory, subdirectory: recordingsSubdirectory)
+        state.downloadsDirectoryURL = createDirectory(for: downloadsDirectory, subdirectory: downloadsSubdirectory)
+        ensureDownloadSession()
         loadDownloadMapping()
     }
-    
-    // MARK: - 录音控制
     
     /**
      开始录音
@@ -460,7 +480,13 @@ public final class WYAudioKit: NSObject {
      - Throws: WYAudioError（权限、格式、正在录音等异常）
      */
     public func startRecording(fileName: String? = nil, format: WYAudioFormat = .aac) throws {
-        
+
+        // 防误选仅播放格式:mp3/flac等系统没有编码器，硬开录音会在AVAudioRecorder初始化时失败，报的错误还是误导人的"开始录音失败"，这里直接拦下来说清楚
+        guard format.isRecordable else {
+            wy_handleErrorEvents(error: .formatNotSupported)
+            throw WYAudioError.formatNotSupported
+        }
+
         if isRecording {
             wy_handleErrorEvents(error: .recordingInProgress)
             throw WYAudioError.recordingInProgress
@@ -501,7 +527,7 @@ public final class WYAudioKit: NSObject {
             finalFileName = "wy_record_\(formatter.string(from: Date()))"
         }
         let ext = format.extensionName
-        let fileURL = recordingDirectoryURL.appendingPathComponent("\(finalFileName).\(ext)")
+        let fileURL = state.recordingDirectoryURL.appendingPathComponent("\(finalFileName).\(ext)")
         
         var settings = recordSettings
         settings[AVFormatIDKey] = format.audioFormatID
@@ -511,19 +537,20 @@ public final class WYAudioKit: NSObject {
             settings[AVLinearPCMIsBigEndianKey] = false
             settings[AVLinearPCMIsFloatKey] = false
             settings[AVLinearPCMIsNonInterleaved] = false
-        } else if format == .caf {
+        } else {
+            // 压缩编码统一吃recordQuality(旧版只有caf吃到，aac/m4a时调质量等级完全没反应)
             settings[AVEncoderAudioQualityKey] = recordQuality.rawValue
         }
         
-        recordChannelCount = settings[AVNumberOfChannelsKey] as? Int ?? 2
+        state.recordChannelCount = settings[AVNumberOfChannelsKey] as? Int ?? 2
         
         do {
-            audioRecorder = try AVAudioRecorder(url: fileURL, settings: settings)
-            audioRecorder?.delegate = self
-            audioRecorder?.isMeteringEnabled = true
-            audioRecorder?.prepareToRecord()
+            state.audioRecorder = try AVAudioRecorder(url: fileURL, settings: settings)
+            state.audioRecorder?.delegate = self
+            state.audioRecorder?.isMeteringEnabled = true
+            state.audioRecorder?.prepareToRecord()
             
-            guard let recorder = audioRecorder, recorder.record() else {
+            guard let recorder = state.audioRecorder, recorder.record() else {
                 wy_handleErrorEvents(error: .startRecordingFailed)
                 throw WYAudioError.startRecordingFailed
             }
@@ -542,18 +569,20 @@ public final class WYAudioKit: NSObject {
     
     /// 暂停当前录音
     public func pauseRecording() throws {
-        guard let recorder = audioRecorder, recorder.isRecording else {
+        guard let recorder = state.audioRecorder, recorder.isRecording else {
             wy_handleErrorEvents(error: .noAudioRecordedTasks)
             throw WYAudioError.noAudioRecordedTasks
         }
         recorder.pause()
         isRecordingPaused = true
+        // 防暂停期间刷新器空转:暂停后没有要刷的东西，不停的话每秒30帧白烧CPU
+        stopDisplayLinkIfNeeded()
         delegate?.wy_audioRecorderDidStop?(audioKit: self, isPause: true, isTimeout: false)
     }
     
     /// 恢复已暂停的录音
     public func resumeRecording() throws {
-        guard let recorder = audioRecorder, isRecordingPaused else {
+        guard let recorder = state.audioRecorder, isRecordingPaused else {
             wy_handleErrorEvents(error: .noAudioResumeRecordTasks)
             throw WYAudioError.noAudioResumeRecordTasks
         }
@@ -565,7 +594,7 @@ public final class WYAudioKit: NSObject {
     
     /// 停止录音（会检查最小时长，不满足设置则会自动删除文件）
     public func stopRecording() throws {
-        guard let recorder = audioRecorder else {
+        guard let recorder = state.audioRecorder else {
             wy_handleErrorEvents(error: .noAudioRecordedTasks)
             throw WYAudioError.noAudioRecordedTasks
         }
@@ -573,11 +602,15 @@ public final class WYAudioKit: NSObject {
         let duration = recorder.currentTime
         recorder.stop()
         isRecordingPaused = false
-        audioRecorder = nil
+        state.audioRecorder = nil
+        // 防最小时长抛错路径漏停刷新器:这里不停的话，录音太短被删文件后刷新器还在每秒30帧空转
+        stopDisplayLinkIfNeeded()
         
         if minimumRecordDuration > 0 && duration < minimumRecordDuration {
             try? deleteRecordingFile(localUrl: currentRecordFileURL)
             currentRecordFileURL = nil
+            // 防外部UI停在录音状态:录音确实停了、文件也删了，didStop也要发(只抛错不通知的话，声波动画等录音UI收不到复位信号会一直动)
+            delegate?.wy_audioRecorderDidStop?(audioKit: self, isPause: false, isTimeout: false)
             wy_handleErrorEvents(error: .minDurationNotReached)
             throw WYAudioError.minDurationNotReached
         }
@@ -585,11 +618,7 @@ public final class WYAudioKit: NSObject {
         let isTimeout: Bool = ((maximumRecordDuration > 0) && (duration >= maximumRecordDuration))
         
         delegate?.wy_audioRecorderDidStop?(audioKit: self, isPause: false, isTimeout: isTimeout)
-        
-        stopDisplayLinkIfNeeded()
     }
-    
-    // MARK: - 播放控制
     
     /**
      开始播放本地音频文件
@@ -603,7 +632,7 @@ public final class WYAudioKit: NSObject {
                              failed: @escaping (_ playURL: URL?, _ error: Error?, _ description: String?) -> Void) {
         
         // 如果未指定 URL 且录音尚未停止（包括暂停状态），则视为没有可播放的录音文件
-        if url == nil && audioRecorder != nil {
+        if url == nil && state.audioRecorder != nil {
             wy_handleErrorEvents(error: .noAudiofilesToPlay)
             failed(nil, WYAudioError.noAudiofilesToPlay, nil)
             return
@@ -616,23 +645,24 @@ public final class WYAudioKit: NSObject {
             return
         }
         
-        if currentPlaybackURL == playURL && isPlaying {
+        if state.currentPlaybackURL == playURL && isPlaying {
             wy_handleErrorEvents(url: playURL, error: .isPlayingAudio)
             failed(playURL, WYAudioError.isPlayingAudio, nil)
             return
         }
         
-        isInitializingPlayer = true
+        // 防标记被清理覆盖:cleanupPlayback末尾会把isInitializingPlayer归false，标记必须放在stopPlayback之后设才有用
         stopPlayback()
+        state.isInitializingPlayer = true
         
         let playerItem = AVPlayerItem(url: playURL)
-        audioPlayer = AVPlayer(playerItem: playerItem)
-        currentPlaybackURL = playURL
-        audioPlayer?.rate = playbackRate
+        state.audioPlayer = AVPlayer(playerItem: playerItem)
+        state.currentPlaybackURL = playURL
+        state.audioPlayer?.rate = playbackRate
         
         startDisplayLinkIfNeeded()
         
-        playerObservation = audioPlayer?.observe(\.timeControlStatus, options: [.new]) { [weak self] player, _ in
+        state.playerObservation = state.audioPlayer?.observe(\.timeControlStatus, options: [.new]) { [weak self] player, _ in
             self?.handlePlayerStatusChange(player.timeControlStatus)
         }
         
@@ -640,28 +670,29 @@ public final class WYAudioKit: NSObject {
         
         // 使用属性持有观察者
         var hasStarted = false
-        playerItemStatusObservation = playerItem.observe(\.status, options: [.new]) { [weak self] item, _ in
+        state.playerItemStatusObservation = playerItem.observe(\.status, options: [.new]) { [weak self] item, _ in
             guard let self = self else { return }
             if item.status == .readyToPlay && !hasStarted {
                 hasStarted = true
-                self.audioPlayer?.play()
-                self.isInitializingPlayer = false
+                self.state.audioPlayer?.play()
+                self.state.isInitializingPlayer = false
                 self.delegate?.wy_audioPlayerStateDidChanged?(audioKit: self, state: .start)
                 success(playURL)
                 // 观察完成后可以置 nil
-                self.playerItemStatusObservation = nil
+                self.state.playerItemStatusObservation = nil
             } else if item.status == .failed {
                 self.wy_handleErrorEvents(url: playURL, error: .playbackError, description: item.error?.localizedDescription)
                 failed(playURL, WYAudioError.playbackError, item.error?.localizedDescription)
-                self.playerItemStatusObservation = nil
-                self.isInitializingPlayer = false
+                self.state.playerItemStatusObservation = nil
+                self.state.isInitializingPlayer = false
             }
         }
     }
     
     /// 暂停当前播放
     public func pausePlayback() throws {
-        guard let player = audioPlayer, isPlaying else {
+        // 允许缓冲中的暂停(旧版要求isPlaying为true，流式播放网络卡顿处于等待缓冲时暂停会直接报错)，只要播放器还在且没暂停过就行
+        guard let player = state.audioPlayer, !isPlaybackPaused else {
             wy_handleErrorEvents(error: .noAudioToPause)
             throw WYAudioError.noAudioToPause
         }
@@ -672,7 +703,7 @@ public final class WYAudioKit: NSObject {
     
     /// 恢复已暂停的播放
     public func resumePlayback() throws {
-        guard let player = audioPlayer, isPlaybackPaused else {
+        guard let player = state.audioPlayer, isPlaybackPaused else {
             wy_handleErrorEvents(error: .noAudioResumePlayTasks)
             throw WYAudioError.noAudioResumePlayTasks
         }
@@ -685,18 +716,22 @@ public final class WYAudioKit: NSObject {
     /// 停止当前播放并重置状态
     public func stopPlayback() {
         // 如果没有播放器，直接返回，不回调任何状态
-        guard audioPlayer != nil else { return }
+        guard state.audioPlayer != nil else { return }
         cleanupPlayback(shouldCallbackStop: true)
     }
     
     /**
-     跳转到指定播放时间点（支持暂停状态下跳转）
-     - Parameter time: 目标播放时间（秒），会自动限制在有效范围内
+     跳转到指定播放时间点（支持暂停状态下跳转，超出总时长会自动夹到末尾并触发完成播放）
+     - Parameter time: 目标播放时间（秒），负数按0处理，超过音频总时长会定位到末尾
      */
     public func seekPlayback(time: TimeInterval) {
-        guard let player = audioPlayer else { return }
-        let duration = player.currentItem?.duration.seconds ?? 0
-        let clampedTime = max(0, min(time, duration))
+        guard let player = state.audioPlayer else { return }
+        var clampedTime = max(0, time)
+        // 只有时长有效且有限才夹上界(条目未就绪时duration是NaN、流式播放是无限时长，这两种不该夹，交给播放器自己定位)
+        if let itemDuration = player.currentItem?.duration,
+           itemDuration.isValid, itemDuration.seconds.isFinite {
+            clampedTime = min(clampedTime, itemDuration.seconds)
+        }
         let cmTime = CMTime(seconds: clampedTime, preferredTimescale: 600)
         player.seek(to: cmTime)
     }
@@ -713,39 +748,27 @@ public final class WYAudioKit: NSObject {
                                 failed: @escaping (Error?) -> Void) {
         
         downloadRemoteAudio(remoteUrls: [remoteUrl]) { [weak self] infos in
-            guard let first = infos.first else {
+            guard let self = self, let first = infos.first else {
                 failed(WYAudioError.fileNotFound)
                 return
             }
-            
-            Task {
-                try? await Task.wy_delay(0.2, cancelThrows: false, onMain: {
-                    guard let self = self else { return }
-                    if FileManager.default.fileExists(atPath: first.local.path) {
-                        // 尝试播放，播放成功时回调 success，播放失败时回调 failed
-                        self.playPlayback(url: first.local,
-                                          success: { _ in
-                            success(first)
-                        },
-                                          failed: { _, error, _ in
-                            failed(error)
-                        })
-                    } else {
-                        failed(WYAudioError.fileNotFound)
-                    }
-                })
-            }
+            // 下载完成回调在文件同步落盘之后才会走到这里，不需要旧版的0.2秒延时等待
+            self.playPlayback(url: first.local,
+                              success: { _ in
+                success(first)
+            },
+                              failed: { _, error, _ in
+                failed(error)
+            })
         } failed: { error in
             failed(error)
         }
     }
     
-    // MARK: - 下载管理
-    
     /**
      下载远程音频文件（支持并发多任务）
      - Parameters:
-       - remoteUrls: 要下载的远程 URL 数组
+       - remoteUrls: 要下载的远程 URL 数组（已在下载中的URL会被跳过，不重新下载）
        - success: 下载成功回调（返回下载信息数组）
        - failed: 下载失败回调
      */
@@ -758,30 +781,32 @@ public final class WYAudioKit: NSObject {
             return
         }
         
+        // 防重复下载白费流量:同URL已在下载中就跳过(旧版会取消旧任务从头重下，进度回退)，批次只对新增URL建任务
+        let urlsToStart = remoteUrls.filter { state.tasksInfo[$0] == nil }
+        if urlsToStart.count < remoteUrls.count {
+            let duplicated = remoteUrls.filter { state.tasksInfo[$0] != nil }
+            for url in duplicated {
+                wy_handleErrorEvents(url: url, error: .downloadFailed, description: "该URL已在下载中，忽略重复请求")
+            }
+            guard !urlsToStart.isEmpty else {
+                failed(WYAudioError.downloadFailed)
+                return
+            }
+        }
+        
         // 启动 DisplayLink 以更新下载进度
         startDisplayLinkIfNeeded()
         
         let batchID = UUID()
-        let batch = WYDownloadBatch(remoteUrls: remoteUrls,
+        let batch = WYDownloadBatch(remoteUrls: urlsToStart,
                                     success: success,
                                     failed: failed,
-                                    pendingUrls: Set(remoteUrls))
-        downloadGroups[batchID] = batch
+                                    pendingUrls: Set(urlsToStart))
+        state.downloadGroups[batchID] = batch
         
-        for originalURL in remoteUrls {
-            // 清除该URL的所有旧状态（避免残留数据干扰）
-            if let oldInfo = tasksInfo[originalURL] {
-                oldInfo.task?.cancel()
-                tasksInfo.removeValue(forKey: originalURL)
-                downloadProgresses.removeValue(forKey: oldInfo.currentURL)
-            }
-            if let oldPausedInfo = pausedTaskInfo[originalURL] {
-                oldPausedInfo.task?.cancel()
-                pausedTaskInfo.removeValue(forKey: originalURL)
-                downloadProgresses.removeValue(forKey: oldPausedInfo.currentURL)
-            }
-            // 清除暂停相关数据
-            pausedBatchID.removeValue(forKey: originalURL)
+        for originalURL in urlsToStart {
+            // 清除该URL的所有旧状态（避免残留数据干扰，旧批次摘牌防止它永远等不到回调）
+            detachOldDownloadState(for: originalURL)
             
             // 强制重置进度显示
             delegate?.wy_remoteAudioDownloadProgressUpdated?(audioKit: self,
@@ -793,12 +818,17 @@ public final class WYAudioKit: NSObject {
                                           currentURL: originalURL,
                                           batchID: batchID,
                                           progress: 0.0)
-            let task = downloadSession.downloadTask(with: originalURL)
+            let task = ensureDownloadSession().downloadTask(with: originalURL)
             task.resume()
             info.task = task
-            tasksInfo[originalURL] = info
-            downloadProgresses[originalURL] = 0.0
+            state.tasksInfo[originalURL] = info
+            state.downloadProgresses[originalURL] = 0.0
         }
+    }
+    
+    /// 查询指定远程URL是否正在下载中（不含已暂停的任务）
+    public func isDownloading(_ remoteUrl: URL) -> Bool {
+        return state.tasksInfo[remoteUrl] != nil
     }
     
     /**
@@ -810,47 +840,53 @@ public final class WYAudioKit: NSObject {
     public func pauseDownload(_ remoteUrls: [URL]?,
                               success: @escaping (URL) -> Void,
                               failed: @escaping (URL, Error?) -> Void) {
-        let urls = remoteUrls ?? Array(tasksInfo.keys)
+        let urls = remoteUrls ?? Array(state.tasksInfo.keys)
         
         for originalURL in urls {
-            guard let info = tasksInfo[originalURL], let task = info.task else {
+            guard let info = state.tasksInfo[originalURL], let task = info.task else {
                 wy_handleErrorEvents(url: originalURL, error: .noAudioPauseTasks)
                 failed(originalURL, WYAudioError.noAudioPauseTasks)
                 continue
             }
             
-            // 保存 batchID 以便恢复
-            pausedBatchID[originalURL] = info.batchID
             // 将任务从活跃字典移到暂停字典
-            tasksInfo.removeValue(forKey: originalURL)
-            pausedTaskInfo[originalURL] = info
+            state.tasksInfo.removeValue(forKey: originalURL)
+            state.pausedTaskInfo[originalURL] = info
             
             task.cancel { [weak self] resumeData in
                 guard let self = self else { return }
                 guard let data = resumeData else {
                     self.wy_handleErrorEvents(url: originalURL, error: .downloadFailed)
                     failed(originalURL, WYAudioError.downloadFailed)
-                    // 恢复任务到活跃字典
-                    if let failedInfo = self.pausedTaskInfo[originalURL] {
-                        self.pausedTaskInfo.removeValue(forKey: originalURL)
-                        self.tasksInfo[originalURL] = failedInfo
+                    // 恢复任务到活跃字典(拿不到resumeData就当没暂停过，任务挪回活跃侧等错误回调收尾)
+                    if let failedInfo = self.state.pausedTaskInfo[originalURL] {
+                        self.state.pausedTaskInfo.removeValue(forKey: originalURL)
+                        self.state.tasksInfo[originalURL] = failedInfo
                     }
+                    // 任务回到活跃侧，排队中的恢复请求作废
+                    self.state.pendingResumeUrls.remove(originalURL)
                     return
                 }
-                guard var pausedInfo = self.pausedTaskInfo[originalURL] else {
+                guard var pausedInfo = self.state.pausedTaskInfo[originalURL] else {
                     self.wy_handleErrorEvents(url: originalURL, error: .downloadFailed)
                     failed(originalURL, WYAudioError.downloadFailed)
                     return
                 }
                 pausedInfo.resumeData = data
                 pausedInfo.task = nil
-                self.pausedTaskInfo[originalURL] = pausedInfo
+                self.state.pausedTaskInfo[originalURL] = pausedInfo
                 // 代理回调
                 self.delegate?.wy_remoteAudioDownloadPaused?(audioKit: self, remoteUrls: [originalURL])
                 // 成功暂停，回调该任务的 URL
                 success(originalURL)
+                // 防恢复请求石沉大海:暂停期间点过恢复的，resumeData一到手立刻自动续上
+                if self.state.pendingResumeUrls.remove(originalURL) != nil {
+                    self.resumeDownload([originalURL])
+                }
             }
         }
+        // 暂停后没有活跃下载了就停刷新器，防止空转
+        stopDisplayLinkIfNeeded()
     }
     
     /**
@@ -859,35 +895,43 @@ public final class WYAudioKit: NSObject {
      */
     public func resumeDownload(_ remoteUrls: [URL]?) {
         var resumedUrls: [URL] = []
-        let urls = remoteUrls ?? Array(pausedTaskInfo.keys)
+        let urls = remoteUrls ?? Array(state.pausedTaskInfo.keys)
         
         for originalURL in urls {
-            guard var info = pausedTaskInfo[originalURL],
-                  let resumeData = info.resumeData,
-                  let _ = pausedBatchID[originalURL] else {
+            guard var info = state.pausedTaskInfo[originalURL] else {
                 // [WYAudioKit] 无法恢复 \(originalURL)：缺少恢复数据或任务信息"
                 wy_handleErrorEvents(url: originalURL, error: .downloadFailed)
                 continue
             }
+            // 防恢复请求石沉大海:暂停的cancel回调还没回来(resumeData未就绪)时点了恢复，先排队，resumeData到手自动续上
+            guard let resumeData = info.resumeData else {
+                state.pendingResumeUrls.insert(originalURL)
+                wy_handleErrorEvents(url: originalURL, error: .downloadFailed, description: "暂停尚未完成，已自动排队，暂停落定后立即恢复")
+                continue
+            }
             
-            let task = downloadSession.downloadTask(withResumeData: resumeData)
+            let task = ensureDownloadSession().downloadTask(withResumeData: resumeData)
             task.resume()
             
-            // 恢复任务信息
+            // 恢复任务信息(记下字节基点，恢复后系统可能从0重新累计已写字节，进度回调按基点校准防闪0)
             info.task = task
             info.resumeData = nil
-            tasksInfo[originalURL] = info
+            info.resumeBaselineBytes = Int64(resumeData.count)
+            info.hasCalibratedResumeBytes = false
+            info.resumeOffsetBytes = 0
+            state.tasksInfo[originalURL] = info
             // 确保进度字典中有正确的进度值
-            downloadProgresses[originalURL] = info.progress
+            state.downloadProgresses[originalURL] = info.progress
             
             // 清理暂停数据
-            pausedTaskInfo.removeValue(forKey: originalURL)
-            pausedBatchID.removeValue(forKey: originalURL)
+            state.pausedTaskInfo.removeValue(forKey: originalURL)
             
             resumedUrls.append(originalURL)
         }
         
         if !resumedUrls.isEmpty {
+            // 防恢复后收不到进度:暂停时刷新器可能已经停了，不重启的话恢复的下载永远没有进度回调
+            startDisplayLinkIfNeeded()
             delegate?.wy_remoteAudioDownloadResumed?(audioKit: self, remoteUrls: resumedUrls)
         }
     }
@@ -897,40 +941,41 @@ public final class WYAudioKit: NSObject {
      - Parameter remoteUrls: 要取消的 URL 数组，nil 表示取消所有
      */
     public func cancelDownload(_ remoteUrls: [URL]?) {
-        let urls = remoteUrls ?? Array(tasksInfo.keys) + Array(pausedTaskInfo.keys)
+        let urls = remoteUrls ?? Array(state.tasksInfo.keys) + Array(state.pausedTaskInfo.keys)
         var canceledUrls: [URL] = []
         
         for originalURL in Set(urls) {
             var info: WYDownloadTaskInfo?
-            if let activeInfo = tasksInfo[originalURL] {
+            if let activeInfo = state.tasksInfo[originalURL] {
                 info = activeInfo
-                tasksInfo.removeValue(forKey: originalURL)
-            } else if let pausedInfo = pausedTaskInfo[originalURL] {
+                state.tasksInfo.removeValue(forKey: originalURL)
+            } else if let pausedInfo = state.pausedTaskInfo[originalURL] {
                 info = pausedInfo
-                pausedTaskInfo.removeValue(forKey: originalURL)
+                state.pausedTaskInfo.removeValue(forKey: originalURL)
             }
             
             guard let taskInfo = info else { continue }
             taskInfo.task?.cancel()
             
-            // 清理批次
-            if let batchID = taskInfo.batchID as UUID?,
-               var batch = downloadGroups[batchID] {
+            // 清理批次(batchID是非可选值，旧版的as UUID?强转纯属多余)
+            let batchID = taskInfo.batchID
+            if var batch = state.downloadGroups[batchID] {
                 batch.pendingUrls.remove(originalURL)
                 if !batch.hasFailed {
                     batch.hasFailed = true
                     batch.failed(WYAudioError.downloadFailed)
                 }
-                downloadGroups[batchID] = batch
+                state.downloadGroups[batchID] = batch
                 if batch.pendingUrls.isEmpty {
-                    downloadGroups.removeValue(forKey: batchID)
+                    state.downloadGroups.removeValue(forKey: batchID)
+                    state.lastNotifiedBatchProgress.removeValue(forKey: batchID)
                 }
             }
             
-            // 移除所有相关状态
-            downloadProgresses.removeValue(forKey: taskInfo.currentURL)
-            downloadProgresses.removeValue(forKey: originalURL)
-            pausedBatchID.removeValue(forKey: originalURL)
+            // 移除所有相关状态(任务都取消了，排队中的恢复请求一并作废)
+            state.downloadProgresses.removeValue(forKey: taskInfo.currentURL)
+            state.downloadProgresses.removeValue(forKey: originalURL)
+            state.pendingResumeUrls.remove(originalURL)
             
             // 通知进度为0
             delegate?.wy_remoteAudioDownloadProgressUpdated?(audioKit: self,
@@ -938,9 +983,9 @@ public final class WYAudioKit: NSObject {
                                                              progress: 0.0)
             canceledUrls.append(originalURL)
         }
+        // 取消后没有活跃下载了就停刷新器，防止空转
+        stopDisplayLinkIfNeeded()
     }
-    
-    // MARK: - 文件管理
     
     /**
      保存当前录音文件到指定位置
@@ -969,12 +1014,14 @@ public final class WYAudioKit: NSObject {
      */
     public func getAllRecordingsFiles() -> [URL] {
         let fm = FileManager.default
-        guard let contents = try? fm.contentsOfDirectory(at: recordingDirectoryURL,
-                                                         includingPropertiesForKeys: [.creationDateKey],
+        guard let contents = try? fm.contentsOfDirectory(at: state.recordingDirectoryURL,
+                                                         includingPropertiesForKeys: [.creationDateKey, .isDirectoryKey],
                                                          options: [.skipsHiddenFiles]) else {
             return []
         }
-        return contents.sorted { url1, url2 in
+        // 排除子目录(录音目录下有Converted转换输出文件夹，不滤掉会被当成一条录音文件列出来)
+        let files = contents.filter { (try? $0.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) != true }
+        return files.sorted { url1, url2 in
             let date1 = (try? url1.resourceValues(forKeys: [.creationDateKey]).creationDate) ?? Date.distantPast
             let date2 = (try? url2.resourceValues(forKeys: [.creationDateKey]).creationDate) ?? Date.distantPast
             return date1 > date2
@@ -998,7 +1045,7 @@ public final class WYAudioKit: NSObject {
                 currentRecordFileURL = nil
             }
         } else {
-            if let contents = try? fm.contentsOfDirectory(at: recordingDirectoryURL, includingPropertiesForKeys: nil) {
+            if let contents = try? fm.contentsOfDirectory(at: state.recordingDirectoryURL, includingPropertiesForKeys: nil) {
                 for url in contents {
                     do {
                         try fm.removeItem(at: url)
@@ -1018,13 +1065,14 @@ public final class WYAudioKit: NSObject {
      */
     public func getAllDownloads() -> [WYAudioDownloadInfo] {
         let fm = FileManager.default
-        guard let contents = try? fm.contentsOfDirectory(at: downloadsDirectoryURL,
-                                                         includingPropertiesForKeys: [.creationDateKey],
+        guard let contents = try? fm.contentsOfDirectory(at: state.downloadsDirectoryURL,
+                                                         includingPropertiesForKeys: [.creationDateKey, .isDirectoryKey],
                                                          options: [.skipsHiddenFiles]) else {
             return []
         }
-        
-        let sorted = contents.sorted { url1, url2 in
+        // 排除子目录(防御性过滤，保证列出来的都是文件)
+        let files = contents.filter { (try? $0.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) != true }
+        let sorted = files.sorted { url1, url2 in
             let date1 = (try? url1.resourceValues(forKeys: [.creationDateKey]).creationDate) ?? Date.distantPast
             let date2 = (try? url2.resourceValues(forKeys: [.creationDateKey]).creationDate) ?? Date.distantPast
             return date1 > date2
@@ -1032,7 +1080,7 @@ public final class WYAudioKit: NSObject {
         
         var infos: [WYAudioDownloadInfo] = []
         for url in sorted {
-            let remoteString = downloadMapping[url.path] ?? "https://placeholder.unknown"
+            let remoteString = state.downloadMapping[url.path] ?? "https://placeholder.unknown"
             let remote = URL(string: remoteString) ?? URL(string: "https://placeholder.unknown")!
             infos.append(WYAudioDownloadInfo(remote: remote, local: url))
         }
@@ -1047,20 +1095,18 @@ public final class WYAudioKit: NSObject {
         let fm = FileManager.default
         if let info = info {
             try? fm.removeItem(at: info.local)
-            downloadMapping.removeValue(forKey: info.local.path)
-            UserDefaults.standard.set(downloadMapping, forKey: "WYAudioKitDownloadMapping")
+            state.downloadMapping.removeValue(forKey: info.local.path)
         } else {
-            if let contents = try? fm.contentsOfDirectory(at: downloadsDirectoryURL, includingPropertiesForKeys: nil) {
+            if let contents = try? fm.contentsOfDirectory(at: state.downloadsDirectoryURL, includingPropertiesForKeys: nil) {
                 for url in contents {
                     try? fm.removeItem(at: url)
-                    downloadMapping.removeValue(forKey: url.path)
+                    state.downloadMapping.removeValue(forKey: url.path)
                 }
             }
-            UserDefaults.standard.set(downloadMapping, forKey: "WYAudioKitDownloadMapping")
         }
+        // 两个分支都要把映射落盘，抽成一处(旧版两行重复的UserDefaults写)
+        persistDownloadMapping()
     }
-    
-    // MARK: - 格式转换
     
     /**
      转换音频文件格式（支持多文件并发）
@@ -1091,206 +1137,63 @@ public final class WYAudioKit: NSObject {
             return
         }
         
-        // 检查目标格式是否支持
-        let supportedTargets: [WYAudioFormat] = [.aac, .m4a, .caf, .wav, .aiff]
-        guard supportedTargets.contains(target) else {
+        // 检查目标格式是否支持(可转格式统一以WYAudioFormat.isConvertible为单一来源，不在这里另写一份清单)
+        guard target.isConvertible else {
             wy_handleErrorEvents(error: .formatNotSupported)
             failed(WYAudioError.formatNotSupported)
             return
         }
         
+        // 防同格式白转:源文件扩展名和目标格式相同就跳过(容器编码都一样，转了也只是原样重封装；aac的扩展名就是m4a，m4a源转aac目标同样算同格式)，批次只装需要转的
+        let urlsToConvert = sourceUrls.filter { $0.pathExtension.caseInsensitiveCompare(target.extensionName) != .orderedSame }
+        if urlsToConvert.count < sourceUrls.count {
+            let skipped = sourceUrls.filter { $0.pathExtension.caseInsensitiveCompare(target.extensionName) == .orderedSame }
+            for url in skipped {
+                wy_handleErrorEvents(url: url, error: .formatNotSupported, description: "源文件已是\(target.extensionName.uppercased())格式，跳过转换")
+            }
+            guard !urlsToConvert.isEmpty else {
+                failed(WYAudioError.formatNotSupported)
+                return
+            }
+        }
+
         // 生成批次 ID，用于管理多个文件的转换
         let batchID = UUID()
-        let batch = WYConvertBatch(sourceUrls: sourceUrls,
+        let batch = WYConvertBatch(sourceUrls: urlsToConvert,
                                    success: success,
                                    failed: failed,
-                                   pendingUrls: Set(sourceUrls))
-        convertGroups[batchID] = batch
+                                   pendingUrls: Set(urlsToConvert))
+        state.convertGroups[batchID] = batch
         
         // 创建转换输出目录（位于录音目录下的 Converted 文件夹）
-        let convertDir = recordingDirectoryURL.appendingPathComponent("Converted", isDirectory: true)
+        let convertDir = state.recordingDirectoryURL.appendingPathComponent("Converted", isDirectory: true)
         let fm = FileManager.default
         if !fm.fileExists(atPath: convertDir.path) {
             try? fm.createDirectory(at: convertDir, withIntermediateDirectories: true)
         }
         
-        // 根据目标格式选择最合适的导出预设
-        let presetName: String
-        switch target {
-        case .wav, .aiff:
-            // 无损 PCM 格式使用直通预设，避免重编码
-            presetName = AVAssetExportPresetPassthrough
-        case .caf, .aac, .m4a:
-            // 有损压缩格式使用高质量 AAC 预设
-            presetName = AVAssetExportPresetAppleM4A
-        default:
-            presetName = AVAssetExportPresetMediumQuality
-        }
-        
-        if #available(iOS 18.0, *) {
-            for sourceURL in sourceUrls {
-                // 每个文件独立 Task，避免阻塞主线程
-                Task {
-                    let baseName = sourceURL.deletingPathExtension().lastPathComponent
-                    let outputFileName = "\(baseName)_\(target.extensionName).\(target.extensionName)"
-                    let outputURL = convertDir.appendingPathComponent(outputFileName)
-                    
-                    // 如果输出文件已存在，先删除
-                    if fm.fileExists(atPath: outputURL.path) {
-                        try? fm.removeItem(at: outputURL)
-                    }
-                    
-                    // 创建 AVURLAsset
-                    let asset = AVURLAsset(url: sourceURL)
-                    guard let exportSession = AVAssetExportSession(asset: asset, presetName: presetName) else {
-                        await MainActor.run {
-                            self.handleConvertError(batchID: batchID, sourceURL: sourceURL, error: WYAudioError.conversionFailed)
-                        }
-                        return
-                    }
-                    
-                    // 验证输出文件类型是否被支持
-                    let outputFileType = target.avFileType
-                    guard exportSession.supportedFileTypes.contains(outputFileType) else {
-                        await MainActor.run {
-                            self.handleConvertError(batchID: batchID, sourceURL: sourceURL, error: WYAudioError.conversionFailed)
-                        }
-                        return
-                    }
-                    
-                    do {
-                        try await exportSession.export(to: outputURL, as: outputFileType)
-                        
-                        // 导出成功，在主线程更新状态
-                        await MainActor.run {
-                            // 标记该文件转换完成
-                            self.convertProgresses[sourceURL] = 1.0
-                            self.convertSessions.removeValue(forKey: sourceURL)
-                            
-                            // 计算并通知整体进度（仅最终 100% 回调）
-                            if let batch = self.convertGroups[batchID] {
-                                let total = batch.sourceUrls.count
-                                let completed = batch.sourceUrls.filter { url in
-                                    url == sourceURL || self.convertProgresses[url] == 1.0
-                                }.count
-                                let progress = Double(completed) / Double(total)
-                                self.delegate?.wy_formatConversionProgressUpdated?(audioKit: self,
-                                                                                   localUrls: batch.sourceUrls,
-                                                                                   progress: progress)
-                            }
-                            
-                            // 更新批次信息
-                            if var batch = self.convertGroups[batchID] {
-                                batch.pendingUrls.remove(sourceURL)
-                                batch.outputUrls.append(outputURL)
-                                self.convertGroups[batchID] = batch
-                                
-                                // 如果所有文件都已完成，调用成功回调
-                                if batch.pendingUrls.isEmpty {
-                                    batch.success(batch.outputUrls)
-                                    self.convertGroups.removeValue(forKey: batchID)
-                                }
-                            }
-                        }
-                    } catch {
-                        // 导出失败，处理错误
-                        await MainActor.run {
-                            self.handleConvertError(batchID: batchID, sourceURL: sourceURL, error: error)
-                        }
-                    }
-                }
+        // aac/m4a走导出会话(AAC编码)，wav/aiff/caf走读写器PCM管线(导出会话给不了PCM输出，旧版直通预设对这三种目标基本全部失败，详见+Convert.swift)
+        for sourceURL in urlsToConvert {
+            let baseName = sourceURL.deletingPathExtension().lastPathComponent
+            let outputFileName = "\(baseName)_\(target.extensionName).\(target.extensionName)"
+            let outputURL = convertDir.appendingPathComponent(outputFileName)
+            
+            // 如果输出文件已存在，先删除
+            if fm.fileExists(atPath: outputURL.path) {
+                try? fm.removeItem(at: outputURL)
             }
-        } else {
-            for sourceURL in sourceUrls {
-                let baseName = sourceURL.deletingPathExtension().lastPathComponent
-                let outputFileName = "\(baseName)_\(target.extensionName).\(target.extensionName)"
-                let outputURL = convertDir.appendingPathComponent(outputFileName)
-                
-                if fm.fileExists(atPath: outputURL.path) {
-                    try? fm.removeItem(at: outputURL)
-                }
-                
-                let asset: AVAsset = AVAsset(url: sourceURL)
-                
-                guard let exportSession = AVAssetExportSession(asset: asset, presetName: presetName) else {
-                    handleConvertError(batchID: batchID, sourceURL: sourceURL, error: WYAudioError.conversionFailed)
-                    continue
-                }
-                
-                // 设置输出文件类型，并验证有效性
-                let outputFileType = target.avFileType
-                if exportSession.supportedFileTypes.contains(outputFileType) {
-                    exportSession.outputFileType = outputFileType
-                } else {
-                    // 如果不支持，尝试使用通用类型 .m4a
-                    if exportSession.supportedFileTypes.contains(.m4a) {
-                        exportSession.outputFileType = .m4a
-                    } else {
-                        handleConvertError(batchID: batchID, sourceURL: sourceURL, error: WYAudioError.conversionFailed)
-                        continue
-                    }
-                }
-                
-                exportSession.outputURL = outputURL
-                exportSession.shouldOptimizeForNetworkUse = false
-                
-                // 保存转换会话，用于后续进度查询和取消操作
-                convertSessions[sourceURL] = exportSession
-                convertProgresses[sourceURL] = 0.0
-                
-                // 异步导出，提前捕获必要信息，使用 weak exportSession
-                let capturedOutputURL = outputURL
-                let capturedBatchID = batchID
-                let capturedSourceURL = sourceURL
-                
-                exportSession.exportAsynchronously { [weak self, weak exportSession] in
-                    guard let self = self else { return }
-                    // 在闭包内部先提取 exportSession 的状态和错误（值类型）
-                    let status = exportSession?.status ?? .failed
-                    let error = exportSession?.error
-                    let finalOutputURL = exportSession?.outputURL ?? capturedOutputURL
-                    
-                    Task { @MainActor in
-                        switch status {
-                        case .completed:
-                            // 转换成功
-                            self.convertProgresses[capturedSourceURL] = 1.0
-                            self.convertSessions.removeValue(forKey: capturedSourceURL)
-                            
-                            // 计算整体进度并回调
-                            if let batch = self.convertGroups[capturedBatchID] {
-                                let total = batch.sourceUrls.count
-                                let completed = batch.sourceUrls.filter { url in
-                                    url == capturedSourceURL || self.convertProgresses[url] == 1.0
-                                }.count
-                                let progress = Double(completed) / Double(total)
-                                self.delegate?.wy_formatConversionProgressUpdated?(audioKit: self,
-                                                                                   localUrls: batch.sourceUrls,
-                                                                                   progress: progress)
-                            }
-                            
-                            // 更新批次状态
-                            if var batch = self.convertGroups[capturedBatchID] {
-                                batch.pendingUrls.remove(capturedSourceURL)
-                                batch.outputUrls.append(finalOutputURL)
-                                self.convertGroups[capturedBatchID] = batch
-                                
-                                if batch.pendingUrls.isEmpty {
-                                    batch.success(batch.outputUrls)
-                                    self.convertGroups.removeValue(forKey: capturedBatchID)
-                                }
-                            }
-                            
-                        case .failed, .cancelled:
-                            let convertError = error ?? WYAudioError.conversionFailed
-                            self.handleConvertError(batchID: capturedBatchID, sourceURL: capturedSourceURL, error: convertError)
-                            
-                        default:
-                            break
-                        }
-                        self.startDisplayLinkIfNeeded()
-                    }
-                }
+            
+            // 同一文件还在转换中就先取消旧任务再开新的(直接覆盖记录的话旧任务就失控了，谁也取消不掉它)
+            state.convertTasks.removeValue(forKey: sourceURL)?.cancel()
+            
+            switch target {
+            case .aac, .m4a:
+                startExportSessionConvert(batchID: batchID, sourceURL: sourceURL, outputURL: outputURL)
+            case .wav, .aiff, .caf:
+                startPCMConvert(batchID: batchID, sourceURL: sourceURL, outputURL: outputURL, fileType: target.avFileType)
+            default:
+                // 前面supportedTargets已经拦掉了不支持的目标，这里防御性兜个错
+                handleConvertError(batchID: batchID, sourceURL: sourceURL, error: WYAudioError.formatNotSupported)
             }
         }
         // 启动 DisplayLink 以更新进度
@@ -1302,23 +1205,24 @@ public final class WYAudioKit: NSObject {
      - Parameter localUrls: 要停止的源文件 URL 数组，nil 表示停止所有正在进行的转换
      */
     public func stopAudioFormatConvert(_ localUrls: [URL]?) {
-        let urls = localUrls ?? Array(convertSessions.keys)
+        let urls = localUrls ?? Array(state.convertTasks.keys)
         for url in urls {
-            if let session = convertSessions[url] {
-                session.cancelExport()
-                convertSessions.removeValue(forKey: url)
-                convertProgresses.removeValue(forKey: url)
+            if let task = state.convertTasks[url] {
+                task.cancel()
+                state.convertTasks.removeValue(forKey: url)
+                state.convertProgresses.removeValue(forKey: url)
             }
-            for (batchID, var batch) in convertGroups {
+            for (batchID, var batch) in state.convertGroups {
                 if batch.pendingUrls.contains(url) {
                     batch.pendingUrls.remove(url)
                     if !batch.hasFailed {
                         batch.hasFailed = true
                         batch.failed(WYAudioError.conversionCancelled)
                     }
-                    convertGroups[batchID] = batch
+                    state.convertGroups[batchID] = batch
                     if batch.pendingUrls.isEmpty {
-                        convertGroups.removeValue(forKey: batchID)
+                        state.convertGroups.removeValue(forKey: batchID)
+                        state.lastNotifiedConvertProgress.removeValue(forKey: batchID)
                     }
                     break
                 }
@@ -1326,8 +1230,6 @@ public final class WYAudioKit: NSObject {
         }
         stopDisplayLinkIfNeeded()
     }
-    
-    // MARK: - 高级功能
     
     /**
      流式播放网络音频（边下载边播放，支持倍速）
@@ -1343,36 +1245,32 @@ public final class WYAudioKit: NSObject {
         stopPlayback()
         
         let playerItem = AVPlayerItem(url: remoteUrl)
-        audioPlayer = AVPlayer(playerItem: playerItem)
-        currentPlaybackURL = remoteUrl
-        audioPlayer?.rate = rate
+        state.audioPlayer = AVPlayer(playerItem: playerItem)
+        state.currentPlaybackURL = remoteUrl
         
-        playerObservation = audioPlayer?.observe(\.timeControlStatus, options: [.new]) { [weak self] player, _ in
+        state.playerObservation = state.audioPlayer?.observe(\.timeControlStatus, options: [.new]) { [weak self] player, _ in
             self?.handlePlayerStatusChange(player.timeControlStatus)
         }
         
-        streamingObservation = playerItem.observe(\.status, options: [.new]) { [weak self] item, _ in
+        // 旧版靠延时0.2秒后查一次状态来起播，网络慢超过0.2秒就永远收不到进度回调，改成就绪即处理，起播交给rate非0这个播放指令本身
+        var hasStarted = false
+        state.streamingObservation = playerItem.observe(\.status, options: [.new]) { [weak self] item, _ in
+            guard let self = self else { return }
             if item.status == .failed {
                 let error = item.error ?? WYAudioError.playbackError
-                self?.wy_handleErrorEvents(url: remoteUrl, error: .playbackError, description: error.localizedDescription)
+                self.wy_handleErrorEvents(url: remoteUrl, error: .playbackError, description: error.localizedDescription)
                 failed(error)
-                self?.stopPlayback()
-            } else if item.status == .readyToPlay {
+                self.stopPlayback()
+            } else if item.status == .readyToPlay && !hasStarted {
+                hasStarted = true
+                self.state.audioPlayer?.rate = rate
+                self.delegate?.wy_audioPlayerStateDidChanged?(audioKit: self, state: .start)
                 success(remoteUrl)
+                self.startDisplayLinkIfNeeded()
             }
         }
         
         addPlaybackEndObserver()
-        
-        Task {
-            try? await Task.wy_delay(0.2, cancelThrows: false, onMain: { [weak self] in
-                guard let self = self, let player = self.audioPlayer else { return }
-                if player.currentItem?.status == .readyToPlay {
-                    player.play()
-                    self.startDisplayLinkIfNeeded()
-                }
-            })
-        }
     }
     
     /**
@@ -1395,7 +1293,8 @@ public final class WYAudioKit: NSObject {
                 let duration: TimeInterval
                 do {
                     let loadedDuration = try await asset.load(.duration)
-                    duration = loadedDuration.seconds
+                    // 直播流等场景会拿到无效时长，统一兜成0(旧版iOS16以上分支漏了这层判断)
+                    duration = loadedDuration.seconds.isFinite ? loadedDuration.seconds : 0
                 } catch {
                     duration = 0
                 }
@@ -1417,668 +1316,31 @@ public final class WYAudioKit: NSObject {
     
     /// 释放所有资源（建议在不再使用时主动调用，避免内存泄漏）
     public func releaseAll() {
-        audioRecorder?.stop()
-        audioRecorder = nil
+        state.audioRecorder?.stop()
+        state.audioRecorder = nil
         
-        if let observer = playerTimeObserver {
-            audioPlayer?.removeTimeObserver(observer)
-        }
-        playerObservation?.invalidate()
-        streamingObservation?.invalidate()
-        
-        audioPlayer?.pause()
-        audioPlayer?.replaceCurrentItem(with: nil)
-        audioPlayer = nil
-        currentPlaybackURL = nil
-        playerTimeObserver = nil
-        playerObservation = nil
-        streamingObservation = nil
-        isInitializingPlayer = false
+        // 统一走播放清理，顺带把观察者都断掉(旧版漏了流式播放观察者和播放条目观察者的清理)
+        cleanupPlayback(shouldCallbackStop: false)
         
         cancelDownload(nil)
-        downloadSession?.invalidateAndCancel()
-        downloadSession = nil
+        // 会话作废置nil，再次下载时按需重建(旧版置nil后继续下载会拿到死会话直接崩)
+        state.downloadSession?.invalidateAndCancel()
+        state.downloadSession = nil
         
         stopAudioFormatConvert(nil)
         
-        displayLink?.invalidate()
-        displayLink = nil
+        state.displayLink?.invalidate()
+        state.displayLink = nil
         
         isRecordingPaused = false
         isPlaybackPaused = false
-        downloadProgresses.removeAll()
-        convertProgresses.removeAll()
+        state.downloadProgresses.removeAll()
+        state.pendingResumeUrls.removeAll()
+        state.convertProgresses.removeAll()
     }
     
     deinit {
         releaseAll()
-    }
-    
-    /************************ 以下为内部实现  ************************/
-    
-    // MARK: - 私有属性
-    
-    /// AVAudioRecorder 实例，用于录音
-    private var audioRecorder: AVAudioRecorder?
-    /// AVPlayer 实例，用于播放音频
-    private var audioPlayer: AVPlayer?
-    /// CADisplayLink 用于定时更新录音波形、播放进度、下载进度等
-    private var displayLink: CADisplayLink?
-    /// 观察 AVPlayer 的时间控制状态变化
-    private var playerObservation: NSKeyValueObservation?
-    /// 用于播放进度更新的时间观察者
-    private var playerTimeObserver: Any?
-    /// 当前正在播放的音频 URL（本地或远程）
-    private var currentPlaybackURL: URL?
-    /// 录音的通道数，用于多通道声波回调
-    private var recordChannelCount: Int = 2
-    /// 标记播放器是否正在初始化中（避免状态回调干扰）
-    private var isInitializingPlayer: Bool = false
-    
-    /// 录音文件存储的实际目录 URL
-    private var recordingDirectoryURL: URL!
-    /// 下载文件存储的实际目录 URL
-    private var downloadsDirectoryURL: URL!
-    
-    /// 标记是否正在停止播放（防止递归调用）
-    private var isStoppingPlayback = false
-    
-    /// 观察 AVPlayerItem 的状态（用于播放准备就绪或失败）
-    private var playerItemStatusObservation: NSKeyValueObservation?
-    
-    // 下载管理相关私有属性
-    /// URLSession 用于下载任务
-    private var downloadSession: URLSession!
-    /// 活跃下载任务信息（原始 URL -> 任务信息）
-    private var tasksInfo: [URL: WYDownloadTaskInfo] = [:]
-    /// 下载批次管理（批次 ID -> 批次信息）
-    private var downloadGroups: [UUID: WYDownloadBatch] = [:]
-    /// 下载进度缓存（当前 URL -> 进度 0.0~1.0）
-    private var downloadProgresses: [URL: Double] = [:]
-    /// 已暂停的下载任务信息（原始 URL -> 任务信息）
-    private var pausedTaskInfo: [URL: WYDownloadTaskInfo] = [:]
-    /// 已暂停任务对应的批次 ID（原始 URL -> 批次 ID）
-    private var pausedBatchID: [URL: UUID] = [:]
-    /// 本地文件路径到远程 URL 的映射（用于 getAllDownloads）
-    private var downloadMapping: [String: String] = [:]
-    
-    // 格式转换相关私有属性
-    /// 转换批次管理（批次 ID -> 批次信息）
-    private var convertGroups: [UUID: WYConvertBatch] = [:]
-    /// 进行中的转换会话（源 URL -> AVAssetExportSession）
-    private var convertSessions: [URL: AVAssetExportSession] = [:]
-    /// 转换进度缓存（源 URL -> 进度 0.0~1.0）
-    private var convertProgresses: [URL: Float] = [:]
-    
-    /// 流式播放的观察者（AVPlayerItem 状态）
-    private var streamingObservation: NSKeyValueObservation?
-    
-    
-    // MARK: - 私有方法
-    
-    /// 处理播放器时间控制状态变化
-    private func handlePlayerStatusChange(_ status: AVPlayer.TimeControlStatus) {
-        // 初始化期间不处理任何回调
-        if isInitializingPlayer { return }
-        
-        switch status {
-        case .playing:
-            startDisplayLinkIfNeeded()
-        case .paused:
-            if !isPlaybackPaused {
-                isPlaybackPaused = true
-            }
-        default:
-            break
-        }
-    }
-    
-    /**
-     音频任务执行失败回调
-     - Parameters:
-       - url: 出错的任务相关URL（可选，可能是本地或远程）
-       - error: 错误枚举值
-       - description: 详细错误描述(可选)
-     */
-    private func wy_handleErrorEvents(url: URL? = nil, error: WYAudioError, description: String? = nil) {
-        delegate?.wy_audioTaskDidFailed?(audioKit: self, url: url, error: error, description: description)
-    }
-    
-    /// 内部清理播放器资源
-    /// - Parameter shouldCallbackStop: 是否回调 .stop 状态
-    private func cleanupPlayback(shouldCallbackStop: Bool) {
-        guard !isStoppingPlayback else { return }
-        isStoppingPlayback = true
-        defer { isStoppingPlayback = false }
-        
-        // 清理观察者
-        playerItemStatusObservation?.invalidate()
-        playerItemStatusObservation = nil
-        
-        if let observer = playerTimeObserver {
-            audioPlayer?.removeTimeObserver(observer)
-            playerTimeObserver = nil
-        }
-        
-        playerObservation?.invalidate()
-        playerObservation = nil
-        
-        audioPlayer?.pause()
-        audioPlayer?.replaceCurrentItem(with: nil)
-        audioPlayer = nil
-        currentPlaybackURL = nil
-        isPlaybackPaused = false
-        isInitializingPlayer = false
-        
-        if shouldCallbackStop {
-            delegate?.wy_audioPlayerStateDidChanged?(audioKit: self, state: .stop)
-        }
-        stopDisplayLinkIfNeeded()
-    }
-    
-    /// 添加播放结束监听器（通过周期时间观察者检测播放结束）
-    private func addPlaybackEndObserver() {
-        guard let player = audioPlayer else { return }
-        playerTimeObserver = player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.5, preferredTimescale: 600),
-                                                            queue: .main) { [weak self] time in
-            guard let self = self,
-                  let item = player.currentItem,
-                  item.duration.isValid,
-                  item.duration.seconds > 0 else { return }
-            
-            let current = time.seconds
-            let total = item.duration.seconds
-            
-            if current >= total - 0.02 {
-                self.delegate?.wy_audioPlayerStateDidChanged?(audioKit: self, state: .finish)
-                self.cleanupPlayback(shouldCallbackStop: false)
-            }
-        }
-    }
-    
-    /// 处理格式转换错误
-    private func handleConvertError(batchID: UUID, sourceURL: URL, error: Error) {
-        guard var batch = convertGroups[batchID] else { return }
-        batch.pendingUrls.remove(sourceURL)
-        convertSessions.removeValue(forKey: sourceURL)
-        convertProgresses.removeValue(forKey: sourceURL)
-        if !batch.hasFailed {
-            batch.hasFailed = true
-            batch.failed(error)
-        }
-        convertGroups[batchID] = batch
-        if batch.pendingUrls.isEmpty {
-            convertGroups.removeValue(forKey: batchID)
-        }
-    }
-    
-    // MARK: - 下载映射持久化
-    
-    /// 保存下载映射（本地路径 -> 远程 URL）
-    private func saveDownloadMapping(remote: URL, local: URL) {
-        downloadMapping[local.path] = remote.absoluteString
-        UserDefaults.standard.set(downloadMapping, forKey: "WYAudioKitDownloadMapping")
-    }
-    
-    /// 加载持久化的下载映射
-    private func loadDownloadMapping() {
-        if let dict = UserDefaults.standard.dictionary(forKey: "WYAudioKitDownloadMapping") as? [String: String] {
-            downloadMapping = dict
-        }
-    }
-    
-    // MARK: - DisplayLink 管理
-    
-    /// 启动 CADisplayLink（用于实时更新 UI）
-    private func startDisplayLinkIfNeeded() {
-        if displayLink == nil {
-            displayLink = CADisplayLink(target: self, selector: #selector(updateDisplayLink))
-            displayLink?.add(to: .main, forMode: .common)
-        }
-    }
-    
-    /// 停止 CADisplayLink（当没有任何活动任务时）
-    private func stopDisplayLinkIfNeeded() {
-        if !isRecording && !isPlaying && convertSessions.isEmpty && tasksInfo.isEmpty {
-            displayLink?.invalidate()
-            displayLink = nil
-        }
-    }
-    
-    /// DisplayLink 回调，统一更新录音、播放、下载、转换的进度与波形
-    @objc private func updateDisplayLink() {
-        if isRecording {
-            updateRecordingState()
-        }
-        if isPlaying {
-            updatePlaybackProgress()
-        }
-        updateDownloadProgressIfNeeded()
-        updateConversionProgressIfNeeded()
-    }
-    
-    /// 更新录音状态（时间、声波、自动停止）
-    private func updateRecordingState() {
-        guard let recorder = audioRecorder, recorder.isRecording else { return }
-        recorder.updateMeters()
-        
-        let currentTime = recorder.currentTime
-        delegate?.wy_audioRecorderTimeUpdated?(audioKit: self,
-                                               currentTime: currentTime,
-                                               duration: maximumRecordDuration)
-        
-        let peak = recorder.peakPower(forChannel: 0)
-        let avg = recorder.averagePower(forChannel: 0)
-        delegate?.wy_audioRecorderDidUpdateMetering?(audioKit: self,
-                                                     peakPower: peak,
-                                                     averagePower: avg)
-        
-        var normalizedPeaks: [Float] = []
-        var normalizedAverages: [Float] = []
-        
-        for i in 0..<min(recordChannelCount, 2) {
-            let p = recorder.peakPower(forChannel: i)
-            let a = recorder.averagePower(forChannel: i)
-            normalizedPeaks.append(normalizePower(p))
-            normalizedAverages.append(normalizePower(a))
-        }
-        
-        delegate?.wy_audioRecorderDidUpdateMeterings?(audioKit: self,
-                                                      peakPowers: normalizedPeaks,
-                                                      averagePowers: normalizedAverages)
-        
-        if maximumRecordDuration > 0 && currentTime >= maximumRecordDuration {
-            try? stopRecording()
-        }
-    }
-    
-    /// 将分贝值（dB）归一化到 0.0~1.0 范围
-    private func normalizePower(_ power: Float) -> Float {
-        if power <= -160.0 { return 0.0 }
-        if power >= 0.0 { return 1.0 }
-        return pow(10.0, power / 20.0)
-    }
-    
-    /// 更新播放进度
-    private func updatePlaybackProgress() {
-        guard let player = audioPlayer, let item = player.currentItem else { return }
-        let currentTime = player.currentTime().seconds
-        let duration = item.duration.isValid ? item.duration.seconds : 0
-        let progress = duration > 0 ? min(currentTime / duration, 1.0) : 0.0
-        
-        delegate?.wy_audioPlayerTimeUpdated?(audioKit: self,
-                                             localUrl: currentPlaybackURL ?? URL(fileURLWithPath: ""),
-                                             currentTime: currentTime,
-                                             duration: duration,
-                                             progress: progress)
-    }
-    
-    /// 更新下载进度（按批次聚合）
-    private func updateDownloadProgressIfNeeded() {
-        guard !tasksInfo.isEmpty else { return }
-        // 按批次聚合进度
-        var batchProgress: [UUID: (total: Double, count: Int)] = [:]
-        for (_, info) in tasksInfo {
-            let progress = downloadProgresses[info.currentURL] ?? info.progress
-            batchProgress[info.batchID, default: (0,0)].total += progress
-            batchProgress[info.batchID]?.count += 1
-        }
-        
-        for (batchID, value) in batchProgress {
-            let avg = value.total / Double(value.count)
-            if let batch = downloadGroups[batchID] {
-                delegate?.wy_remoteAudioDownloadProgressUpdated?(audioKit: self,
-                                                                 remoteUrls: batch.remoteUrls,
-                                                                 progress: avg)
-            }
-        }
-    }
-    
-    /// 更新格式转换进度（按批次聚合）
-    private func updateConversionProgressIfNeeded() {
-        guard !convertSessions.isEmpty else { return }
-        // 更新每个转换任务的进度
-        for (url, session) in convertSessions {
-            let progress = session.progress
-            convertProgresses[url] = progress
-        }
-        // 按批次计算平均进度并回调
-        for (_, batch) in convertGroups {
-            let urls = batch.sourceUrls
-            guard !urls.isEmpty else { continue }
-            var total: Float = 0
-            for url in urls {
-                total += convertProgresses[url] ?? 0
-            }
-            let avg = Double(total / Float(urls.count))
-            delegate?.wy_formatConversionProgressUpdated?(audioKit: self,
-                                                          localUrls: urls,
-                                                          progress: avg)
-        }
-    }
-    
-    // MARK: - 初始化辅助方法
-    
-    /// 配置音频会话（AVAudioSession）
-    private func setupAudioSession() {
-        do {
-            let session = AVAudioSession.sharedInstance()
-            if #available(iOS 13.0, *) {
-                try session.setCategory(.playAndRecord, mode: .default, options: [AVAudioSession.CategoryOptions.allowBluetoothHFP, .defaultToSpeaker, .allowAirPlay])
-            } else {
-                try session.setCategory(.playAndRecord, mode: .default, options: [.allowBluetooth, .defaultToSpeaker])
-            }
-            try session.setActive(true)
-        } catch {
-            delegate?.wy_audioTaskDidFailed?(audioKit: self,
-                                             url: URL(fileURLWithPath: ""),
-                                             error: .sessionConfigurationFailed,
-                                             description: error.localizedDescription)
-        }
-    }
-    
-    /// 配置下载会话（URLSession）
-    private func setupDownloadSession() {
-        let config = URLSessionConfiguration.default
-        config.allowsCellularAccess = true
-        config.timeoutIntervalForRequest = 60
-        config.timeoutIntervalForResource = 600
-        downloadSession = URLSession(configuration: config,
-                                     delegate: self,
-                                     delegateQueue: OperationQueue.main)
-    }
-    
-    /**
-     根据目录类型和子目录名称创建目录 URL，如果目录不存在则创建
-     - Parameters:
-       - type: 存储目录类型
-       - subdirectory: 子目录名称（可选）
-     - Returns: 目标目录 URL
-     */
-    private func createDirectory(for type: WYAudioStorageDirectory, subdirectory: String?) -> URL {
-        let fileManager = FileManager.default
-        var baseURL: URL
-        switch type {
-        case .temporary:
-            baseURL = fileManager.temporaryDirectory
-        case .documents:
-            baseURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        case .caches:
-            baseURL = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-        }
-        let targetURL = subdirectory.map { baseURL.appendingPathComponent($0) } ?? baseURL
-        if !fileManager.fileExists(atPath: targetURL.path) {
-            do {
-                try fileManager.createDirectory(at: targetURL,
-                                                withIntermediateDirectories: true,
-                                                attributes: nil)
-            } catch {
-                delegate?.wy_audioTaskDidFailed?(audioKit: self,
-                                                 url: targetURL,
-                                                 error: .directoryCreationFailed,
-                                                 description: error.localizedDescription)
-            }
-        }
-        return targetURL
-    }
-    
-    // MARK: - 内部辅助结构体
-    
-    /// 下载批次信息
-    private struct WYDownloadBatch {
-        /// 原始远程 URL 列表
-        var remoteUrls: [URL]
-        /// 成功回调
-        let success: ([WYAudioDownloadInfo]) -> Void
-        /// 失败回调
-        let failed: (Error?) -> Void
-        /// 尚未完成的原始 URL 集合
-        var pendingUrls: Set<URL>
-        /// 已成功下载的文件信息
-        var infos: [WYAudioDownloadInfo] = []
-        /// 是否已经失败（避免重复回调）
-        var hasFailed: Bool = false
-    }
-    
-    /// 转换批次信息
-    private struct WYConvertBatch {
-        /// 源文件 URL 列表
-        let sourceUrls: [URL]
-        /// 成功回调（输出 URL 数组）
-        let success: ([URL]) -> Void
-        /// 失败回调
-        let failed: (Error?) -> Void
-        /// 尚未完成的源 URL 集合
-        var pendingUrls: Set<URL>
-        /// 转换成功的输出 URL 列表
-        var outputUrls: [URL] = []
-        /// 是否已经失败
-        var hasFailed: Bool = false
-    }
-    
-    /// 下载任务信息
-    private struct WYDownloadTaskInfo {
-        /// 用户传入的原始远程 URL
-        let originalURL: URL
-        /// 当前实际请求的 URL（可能因重定向而改变）
-        var currentURL: URL
-        /// 所属批次 ID
-        let batchID: UUID
-        /// 下载进度（0.0~1.0）
-        var progress: Double = 0.0
-        /// 下载任务实例
-        var task: URLSessionDownloadTask?
-        /// 暂停时保存的恢复数据
-        var resumeData: Data?
-    }
-    
-    /************************ 以上为内部实现  ************************/
-}
-
-/************************ 以下为内部实现  ************************/
-
-// MARK: - AVAudioRecorderDelegate
-
-extension WYAudioKit: AVAudioRecorderDelegate {
-    
-    /**
-     录音完成回调（系统方法）
-     - Parameters:
-       - recorder: 录音器实例
-       - flag: 是否成功完成
-     */
-    public func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
-        if !flag {
-            // 录音完成但成功标志为 false
-            wy_handleErrorEvents(error: .startRecordingFailed)
-        }
-    }
-    
-    /**
-     录音编码错误回调（系统方法）
-     - Parameters:
-       - recorder: 录音器实例
-       - error: 错误信息
-     */
-    public func audioRecorderEncodeErrorDidOccur(_ recorder: AVAudioRecorder, error: Error?) {
-        wy_handleErrorEvents(error: .startRecordingFailed, description: error?.localizedDescription)
+        wy_print("WYAudioKit releaseAll")
     }
 }
-
-// MARK: - URLSessionDownloadDelegate
-
-extension WYAudioKit: URLSessionDownloadDelegate {
-    
-    /**
-     处理 HTTP 重定向
-     - Parameters:
-       - session: URLSession 实例
-       - task: 发生重定向的任务
-       - response: HTTP 响应
-       - request: 新的请求
-       - completionHandler: 完成回调
-     */
-    public func urlSession(_ session: URLSession,
-                           task: URLSessionTask,
-                           willPerformHTTPRedirection response: HTTPURLResponse,
-                           newRequest request: URLRequest,
-                           completionHandler: @escaping (URLRequest?) -> Void) {
-        guard let newURL = request.url,
-              let originalRemote = (tasksInfo.first { $0.value.task === task })?.key ??
-                (pausedTaskInfo.first { $0.value.task === task })?.key else {
-            completionHandler(request)
-            return
-        }
-        
-        if originalRemote == newURL {
-            completionHandler(request)
-            return
-        }
-        
-        // 更新任务信息中的当前URL
-        if var info = tasksInfo[originalRemote] {
-            info.currentURL = newURL
-            tasksInfo[originalRemote] = info
-            // 更新进度映射
-            if let progress = downloadProgresses[originalRemote] {
-                downloadProgresses.removeValue(forKey: originalRemote)
-                downloadProgresses[newURL] = progress
-            }
-        } else if var info = pausedTaskInfo[originalRemote] {
-            info.currentURL = newURL
-            pausedTaskInfo[originalRemote] = info
-            // 暂停中的任务也可能有进度映射（如已暂停但未恢复）
-            if let progress = downloadProgresses[originalRemote] {
-                downloadProgresses.removeValue(forKey: originalRemote)
-                downloadProgresses[newURL] = progress
-            }
-        }
-        
-        completionHandler(request)
-    }
-    
-    /**
-     下载进度更新回调
-     - Parameters:
-       - session: URLSession 实例
-       - downloadTask: 下载任务
-       - bytesWritten: 本次写入的字节数
-       - totalBytesWritten: 已写入的总字节数
-       - totalBytesExpectedToWrite: 预期总字节数
-     */
-    public func urlSession(_ session: URLSession,
-                           downloadTask: URLSessionDownloadTask,
-                           didWriteData bytesWritten: Int64,
-                           totalBytesWritten: Int64,
-                           totalBytesExpectedToWrite: Int64) {
-        guard let originalURL = tasksInfo.first(where: { $0.value.task === downloadTask })?.key,
-              var info = tasksInfo[originalURL] else {
-            // 下载进度回调中找不到任务
-            return
-        }
-        let progress = totalBytesExpectedToWrite > 0 ? Double(totalBytesWritten) / Double(totalBytesExpectedToWrite) : 0.0
-        info.progress = progress
-        tasksInfo[originalURL] = info
-        downloadProgresses[info.currentURL] = progress
-    }
-    
-    /**
-     下载完成回调（临时文件位置）
-     - Parameters:
-       - session: URLSession 实例
-       - downloadTask: 下载任务
-       - location: 临时文件 URL
-     */
-    public func urlSession(_ session: URLSession,
-                           downloadTask: URLSessionDownloadTask,
-                           didFinishDownloadingTo location: URL) {
-        guard let originalURL = tasksInfo.first(where: { $0.value.task === downloadTask })?.key,
-              var info = tasksInfo[originalURL],
-              var batch = downloadGroups[info.batchID] else {
-            // 无法找到对应的任务或批次
-            wy_handleErrorEvents(url: nil, error: .downloadFailed)
-            return
-        }
-        
-        let fm = FileManager.default
-        let destination = downloadsDirectoryURL.appendingPathComponent(info.currentURL.lastPathComponent)
-        
-        do {
-            if !fm.fileExists(atPath: destination.deletingLastPathComponent().path) {
-                try fm.createDirectory(at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
-            }
-            
-            if fm.fileExists(atPath: destination.path) {
-                try fm.removeItem(at: destination)
-            }
-            try fm.copyItem(at: location, to: destination)
-            
-            guard fm.fileExists(atPath: destination.path),
-                  let attr = try? fm.attributesOfItem(atPath: destination.path),
-                  (attr[.size] as? Int64 ?? 0) > 0 else {
-                batch.hasFailed = true
-                batch.failed(WYAudioError.downloadFailed)
-                downloadGroups[info.batchID] = batch
-                tasksInfo[originalURL]?.task = nil
-                return
-            }
-            
-            let downloadInfo = WYAudioDownloadInfo(remote: info.currentURL, local: destination)
-            batch.infos.append(downloadInfo)
-            saveDownloadMapping(remote: info.currentURL, local: destination)
-            
-            batch.pendingUrls.remove(originalURL)
-            downloadGroups[info.batchID] = batch
-            downloadProgresses[info.currentURL] = 1.0
-            info.progress = 1.0
-            tasksInfo[originalURL] = info
-            
-            // 立即通知完成进度
-            delegate?.wy_remoteAudioDownloadProgressUpdated?(audioKit: self,
-                                                             remoteUrls: batch.remoteUrls,
-                                                             progress: 1.0)
-            
-            if batch.pendingUrls.isEmpty {
-                batch.success(batch.infos)
-                downloadGroups.removeValue(forKey: info.batchID)
-                tasksInfo.removeValue(forKey: originalURL)
-            }
-        } catch {
-            batch.hasFailed = true
-            batch.failed(error)
-            downloadGroups[info.batchID] = batch
-        }
-        
-        // 清理任务引用
-        tasksInfo[originalURL]?.task = nil
-    }
-}
-
-// MARK: - URLSessionTaskDelegate
-
-extension WYAudioKit: URLSessionTaskDelegate {
-    
-    /**
-     任务完成回调（包含错误）
-     - Parameters:
-       - session: URLSession 实例
-       - task: 完成的任务
-       - error: 发生的错误（如果有）
-     */
-    public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-        if let error = error,
-           let originalURL = tasksInfo.first(where: { $0.value.task === task })?.key,
-           let info = tasksInfo[originalURL],
-           var batch = downloadGroups[info.batchID] {
-            batch.pendingUrls.remove(originalURL)
-            if !batch.hasFailed {
-                batch.hasFailed = true
-                batch.failed(error)
-            }
-            downloadGroups[info.batchID] = batch
-            tasksInfo.removeValue(forKey: originalURL)
-        }
-    }
-}
-
-/************************ 以上为内部实现  ************************/

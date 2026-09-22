@@ -8,7 +8,6 @@
 import UIKit
 import AVFoundation
 
-// MARK: - 下载任务卡片视图（保持不变）
 class DownloadTaskCardView: UIView {
     let urlTextField = UITextField()
     let progressLabel = UILabel()
@@ -96,6 +95,7 @@ class WYTestAudioController: UIViewController {
     private let pauseRecordButton = UIButton(type: .system)
     private let stopRecordButton = UIButton(type: .system)
     private let resumeRecordButton = UIButton(type: .system)
+    private let recordFileNameField = UITextField()
     private let soundWavesView = WYSoundWavesView()
     
     // 播放控制
@@ -104,6 +104,7 @@ class WYTestAudioController: UIViewController {
     private let stopPlayButton = UIButton(type: .system)
     private let resumePlayButton = UIButton(type: .system)
     private let seekButton = UIButton(type: .system)
+    private let overSeekButton = UIButton(type: .system)
     private let seekSlider = UISlider()
     private let rateSlider = UISlider()
     private let rateLabel = UILabel()
@@ -121,7 +122,12 @@ class WYTestAudioController: UIViewController {
     private let maxDurationLabel = UILabel()
     private let qualitySegmentedControl = UISegmentedControl(items: ["低", "中", "高"])
     private let formatPicker = UIPickerView()
+    private let currentFormatLabel = UILabel()
     private let storageDirSegmentedControl = UISegmentedControl(items: ["临时", "文档", "缓存"])
+    private let downloadsDirSegmentedControl = UISegmentedControl(items: ["临时", "文档", "缓存"])
+    private let subdirectoryField = UITextField()
+    private let subdirectoryTargetControl = UISegmentedControl(items: ["录音子目录", "下载子目录"])
+    private let subdirectoryApplyButton = UIButton(type: .system)
     
     // 网络音频 - 多任务管理
     private let downloadTasksContainer = UIView()
@@ -146,7 +152,35 @@ class WYTestAudioController: UIViewController {
     // 格式转换
     private let convertLabel = UILabel()
     private let targetFormatPicker = UIPickerView()
+    private let targetFormatLabel = UILabel()
     private let convertButton = UIButton(type: .system)
+    private let convertAllButton = UIButton(type: .system)
+    private let stopConvertButton = UIButton(type: .system)
+    
+    // 状态与性能
+    private let perfLabel = UILabel()
+    private let stateQueryButton = UIButton(type: .system)
+    private let durationButton = UIButton(type: .system)
+    private let reuseAfterReleaseButton = UIButton(type: .system)
+    private let callbackStatsButton = UIButton(type: .system)
+    private let fileListPerfButton = UIButton(type: .system)
+    
+    // 回调频率统计(每秒汇总一次各类回调次数，验证刷新器帧率和进度节流)
+    private var isStatsEnabled = false
+    private var statsTimer: Timer?
+    private var meteringCount = 0
+    private var meteringsCount = 0
+    private var playbackTimeCount = 0
+    private var downloadProgressCount = 0
+    private var convertProgressCount = 0
+
+    /// 最近一次录音声波的原始dB值与经makeWaveformLevels换算的能量值(查询状态时打印，验证单通道dB回调链路)
+    private var lastPeakPower: Float = 0
+    private var lastAveragePower: Float = 0
+    private var lastWaveformLevel: Float = 0
+
+    /// 已打过"开始接收数据"提示的URL(下载源响应慢时点了下载几秒没动静，首帧数据到达时给条日志心里有底)
+    private var startedNotifiedUrls: Set<URL> = []
     
     // 其他功能
     private let playRecordedButton = UIButton(type: .system)
@@ -158,16 +192,14 @@ class WYTestAudioController: UIViewController {
         .aac, .wav, .caf, .m4a, .aiff, .mp3, .flac, .au, .amr, .ac3, .eac3
     ]
     
-    /// 支持的转换格式（仅限 AVAssetExportSession 支持的格式）
-    private let supportedConvertFormats: [WYAudioFormat] = [
-        .aac, .m4a, .caf, .wav, .aiff
-    ]
+    /// 转换格式列表（全部列出，不可转的靠库内拦截并提示，顺便验证formatNotSupported路径）
+    private let supportedConvertFormats: [WYAudioFormat] = WYAudioFormat.allCases
     
     /// 当前选中的格式
     private var selectedFormat: WYAudioFormat = .aac
     
-    /// 当前选中的目标格式
-    private var targetFormat: WYAudioFormat = .mp3
+    /// 当前选中的目标格式(默认aac，mp3不在支持转换的列表里，选它一点转换就报不支持)
+    private var targetFormat: WYAudioFormat = .aac
     
     /// 最小录音时长
     private var minRecordingDuration: TimeInterval = 0 {
@@ -217,8 +249,8 @@ class WYTestAudioController: UIViewController {
     
     private func addDefaultDownloadTasks() {
         let urls = [
-            "http://music.163.com/song/media/outer/url?id=1466027974.mp3",
-            "http://music.163.com/song/media/outer/url?id=2105354877.mp3"
+            "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+            "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3"
         ]
         for urlString in urls {
             addDownloadTask(with: urlString)
@@ -260,34 +292,47 @@ class WYTestAudioController: UIViewController {
     
     @objc private func downloadTask(_ sender: UIButton) {
         guard let card = findCard(from: sender), let url = card.url else { return }
+        // 防重复下载白费流量:同URL已在下载中直接提示并忽略(库内downloadRemoteAudio也有同样的去重防御)
+        if audioKit.isDownloading(url) {
+            logInfo("该URL已在下载中，忽略重复请求: \(url.lastPathComponent)")
+            return
+        }
+        logInfo("发起下载: \(url.lastPathComponent)")
         audioKit.downloadRemoteAudio(remoteUrls: [url]) { infos in
             self.logInfo("下载成功: \(infos.first?.local.lastPathComponent ?? "")")
         } failed: { error in
             self.logInfo("下载失败: \(error?.localizedDescription ?? "")")
         }
     }
-    
+
     @objc private func pauseTask(_ sender: UIButton) {
         guard let card = findCard(from: sender), let url = card.url else { return }
+        logInfo("发起暂停: \(url.lastPathComponent)")
         audioKit.pauseDownload([url]) { url in
             self.logInfo("暂停成功: \(url)")
         } failed: { url, error in
             self.logInfo("暂停失败: \(url), 错误: \(error?.localizedDescription ?? "未知")")
         }
     }
-    
+
     @objc private func resumeTask(_ sender: UIButton) {
         guard let card = findCard(from: sender), let url = card.url else { return }
+        // 已在下载中的不用恢复(重复点恢复会走到"没有暂停任务"的报错)
+        if audioKit.isDownloading(url) {
+            logInfo("该URL正在下载中，无需恢复: \(url.lastPathComponent)")
+            return
+        }
+        logInfo("发起恢复: \(url.lastPathComponent)(若提示已自动排队，等暂停落定会自动续上)")
         audioKit.resumeDownload([url])
-        logInfo("恢复下载: \(url)")
     }
-    
+
     @objc private func cancelTask(_ sender: UIButton) {
         guard let card = findCard(from: sender), let url = card.url else { return }
+        logInfo("发起取消: \(url.lastPathComponent)")
         audioKit.cancelDownload([url])
-        logInfo("取消下载: \(url)")
         card.progressBar.progress = 0
         card.progressLabel.text = "进度: 0%"
+        startedNotifiedUrls.remove(url)
     }
     
     @objc private func deleteTask(_ sender: UIButton) {
@@ -335,26 +380,40 @@ class WYTestAudioController: UIViewController {
         yOffset += 50
         
         // 格式转换区域
-        convertLabel.frame = CGRect(x: 20, y: yOffset, width: 200, height: 30)
+        convertLabel.frame = CGRect(x: 20, y: yOffset, width: 90, height: 30)
+        // 当前选中的转换目标格式实时显示在行尾
+        targetFormatLabel.frame = CGRect(x: 110, y: yOffset, width: view.bounds.width - 130, height: 30)
         yOffset += 30
         targetFormatPicker.frame = CGRect(x: 20, y: yOffset, width: view.bounds.width - 40, height: 100)
         yOffset += 110
-        convertButton.frame = CGRect(x: 20, y: yOffset, width: view.bounds.width - 40, height: 40)
+        convertButton.frame = CGRect(x: 20, y: yOffset, width: view.bounds.width - 260, height: 40)
+        convertAllButton.frame = CGRect(x: view.bounds.width - 230, y: yOffset, width: 100, height: 40)
+        stopConvertButton.frame = CGRect(x: view.bounds.width - 120, y: yOffset, width: 100, height: 40)
         yOffset += 50
         conversionProgressLabel.frame = CGRect(x: 20, y: yOffset, width: view.bounds.width - 40, height: 30)
         yOffset += 40
+        
+        // 状态与性能区域(标签只能建一次，这里每加一张任务卡都会重跑，建新的话旧标签会漂在老位置叠到别的控件上)
+        perfLabel.frame = CGRect(x: 20, y: yOffset, width: 200, height: 30)
+        yOffset += 30
+        stateQueryButton.frame = CGRect(x: 20, y: yOffset, width: 110, height: 40)
+        durationButton.frame = CGRect(x: 140, y: yOffset, width: 110, height: 40)
+        reuseAfterReleaseButton.frame = CGRect(x: 260, y: yOffset, width: view.bounds.width - 280, height: 40)
+        yOffset += 45
+        callbackStatsButton.frame = CGRect(x: 20, y: yOffset, width: 160, height: 40)
+        fileListPerfButton.frame = CGRect(x: 190, y: yOffset, width: view.bounds.width - 210, height: 40)
+        yOffset += 50
         
         // 其他功能
         customSettingsButton.frame = CGRect(x: 20, y: yOffset, width: 150, height: 40)
         releaseButton.frame = CGRect(x: 180, y: yOffset, width: 100, height: 40)
         yOffset += 50
         
-        // 更新 contentView 高度
+        // 更新 contentView 高度(底部100pt余量，官人最初设计的间距)
         contentView.frame.size.height = yOffset + 100
         scrollView.contentSize = contentView.frame.size
     }
     
-    // MARK: - UI 布局
     private func setupUI() {
         scrollView.frame = CGRect(x: 0, y: UIDevice.wy_navViewHeight, width: UIDevice.wy_screenWidth, height: UIDevice.wy_screenHeight - UIDevice.wy_navViewHeight)
         scrollView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -380,9 +439,15 @@ class WYTestAudioController: UIViewController {
         yOffset += 200
         
         // 格式选择器
-        let formatLabel = UILabel(frame: CGRect(x: 20, y: yOffset, width: 200, height: 30))
+        let formatLabel = UILabel(frame: CGRect(x: 20, y: yOffset, width: 130, height: 30))
         formatLabel.text = "选择录音格式:"
         contentView.addSubview(formatLabel)
+        // 当前选中的录音格式实时显示在行尾，光看滚轮中间行不直观
+        currentFormatLabel.frame = CGRect(x: 150, y: yOffset, width: view.bounds.width - 170, height: 30)
+        currentFormatLabel.textAlignment = .right
+        currentFormatLabel.textColor = .systemGray
+        currentFormatLabel.text = formatDisplayText(for: selectedFormat)
+        contentView.addSubview(currentFormatLabel)
         yOffset += 30
         formatPicker.frame = CGRect(x: 20, y: yOffset, width: view.bounds.width - 40, height: 100)
         formatPicker.backgroundColor = .white
@@ -400,6 +465,32 @@ class WYTestAudioController: UIViewController {
         storageDirSegmentedControl.selectedSegmentIndex = 0
         storageDirSegmentedControl.addTarget(self, action: #selector(storageDirChanged), for: .valueChanged)
         contentView.addSubview(storageDirSegmentedControl)
+        yOffset += 40
+        
+        // 下载存储目录
+        let downloadsDirLabel = UILabel(frame: CGRect(x: 20, y: yOffset, width: 200, height: 30))
+        downloadsDirLabel.text = "下载目录:"
+        contentView.addSubview(downloadsDirLabel)
+        yOffset += 30
+        downloadsDirSegmentedControl.frame = CGRect(x: 20, y: yOffset, width: view.bounds.width - 40, height: 30)
+        downloadsDirSegmentedControl.selectedSegmentIndex = 0
+        downloadsDirSegmentedControl.addTarget(self, action: #selector(downloadsDirChanged), for: .valueChanged)
+        contentView.addSubview(downloadsDirSegmentedControl)
+        yOffset += 40
+        
+        // 子目录设置(选中要改哪一侧后点应用)
+        subdirectoryField.frame = CGRect(x: 20, y: yOffset, width: view.bounds.width - 40, height: 34)
+        subdirectoryField.borderStyle = .roundedRect
+        subdirectoryField.placeholder = "子目录名(清空=根目录)"
+        contentView.addSubview(subdirectoryField)
+        yOffset += 38
+        subdirectoryTargetControl.frame = CGRect(x: 20, y: yOffset, width: view.bounds.width - 130, height: 30)
+        subdirectoryTargetControl.selectedSegmentIndex = 0
+        contentView.addSubview(subdirectoryTargetControl)
+        subdirectoryApplyButton.frame = CGRect(x: view.bounds.width - 100, y: yOffset, width: 80, height: 30)
+        subdirectoryApplyButton.setTitle("应用", for: .normal)
+        subdirectoryApplyButton.addTarget(self, action: #selector(applySubdirectory), for: .touchUpInside)
+        contentView.addSubview(subdirectoryApplyButton)
         yOffset += 40
         
         // 录音控制
@@ -424,6 +515,13 @@ class WYTestAudioController: UIViewController {
         stopRecordButton.addTarget(self, action: #selector(stopRecording), for: .touchUpInside)
         contentView.addSubview(stopRecordButton)
         yOffset += 50
+        
+        // 自定义录音文件名(留空则用自动时间戳名)
+        recordFileNameField.frame = CGRect(x: 20, y: yOffset, width: view.bounds.width - 40, height: 34)
+        recordFileNameField.borderStyle = .roundedRect
+        recordFileNameField.placeholder = "录音文件名(留空=自动时间戳，不带扩展名)"
+        contentView.addSubview(recordFileNameField)
+        yOffset += 38
         
         recordProgressLabel.frame = CGRect(x: 20, y: yOffset, width: view.bounds.width - 40, height: 30)
         recordProgressLabel.textColor = .black
@@ -477,7 +575,19 @@ class WYTestAudioController: UIViewController {
         seekButton.addTarget(self, action: #selector(seekPlayback), for: .touchUpInside)
         contentView.addSubview(seekButton)
         yOffset += 50
-        
+
+        // 超界跳转测试(总时长10秒的音频跳999秒，验证库内夹到末尾并触发完成播放)
+        let overSeekTip = UILabel(frame: CGRect(x: 20, y: yOffset + 10, width: 240, height: 20))
+        overSeekTip.text = "超界跳转测试(应夹到末尾并完成播放):"
+        overSeekTip.font = .systemFont(ofSize: 12)
+        overSeekTip.textColor = .systemGray
+        contentView.addSubview(overSeekTip)
+        overSeekButton.frame = CGRect(x: 270, y: yOffset, width: 80, height: 40)
+        overSeekButton.setTitle("跳999秒", for: .normal)
+        overSeekButton.addTarget(self, action: #selector(overSeekPlayback), for: .touchUpInside)
+        contentView.addSubview(overSeekButton)
+        yOffset += 45
+
         // 倍速控制
         let rateLabelTitle = UILabel(frame: CGRect(x: 20, y: yOffset, width: 100, height: 30))
         rateLabelTitle.text = "播放倍速:"
@@ -511,6 +621,8 @@ class WYTestAudioController: UIViewController {
         contentView.addSubview(minDurationSlider)
         yOffset += 35
         minDurationLabel.frame = CGRect(x: 20, y: yOffset, width: view.bounds.width - 40, height: 30)
+        // 防滑竿没提示:声明处初始化不触发didSet，标签初始文字要在这里手动补一次
+        minDurationLabel.text = "最短时长: \(String(format: "%.1f", minRecordingDuration))秒"
         contentView.addSubview(minDurationLabel)
         yOffset += 40
         maxDurationSlider.frame = CGRect(x: 20, y: yOffset, width: view.bounds.width - 40, height: 30)
@@ -521,6 +633,8 @@ class WYTestAudioController: UIViewController {
         contentView.addSubview(maxDurationSlider)
         yOffset += 35
         maxDurationLabel.frame = CGRect(x: 20, y: yOffset, width: view.bounds.width - 40, height: 30)
+        // 防滑竿没提示:同最短时长标签，didSet初始不触发要手动补文字
+        maxDurationLabel.text = "最长时长: \(String(format: "%.1f", maxRecordingDuration))秒"
         contentView.addSubview(maxDurationLabel)
         yOffset += 50
         
@@ -542,7 +656,7 @@ class WYTestAudioController: UIViewController {
         remoteURLField.frame = CGRect(x: 20, y: yOffset, width: view.bounds.width - 40, height: 40)
         remoteURLField.borderStyle = .roundedRect
         remoteURLField.placeholder = "输入音频URL（单个）"
-        remoteURLField.text = "http://music.163.com/song/media/outer/url?id=2105354877.mp3"
+        remoteURLField.text = "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3"
         contentView.addSubview(remoteURLField)
         yOffset += 50
         downloadButton.frame = CGRect(x: 20, y: yOffset, width: view.bounds.width - 40, height: 40)
@@ -617,13 +731,49 @@ class WYTestAudioController: UIViewController {
         convertLabel.text = "格式转换:"
         contentView.addSubview(convertLabel)
         
+        targetFormatLabel.textAlignment = .right
+        targetFormatLabel.textColor = .systemGray
+        targetFormatLabel.text = formatDisplayText(for: targetFormat, isConvertTarget: true)
+        contentView.addSubview(targetFormatLabel)
+        
         targetFormatPicker.dataSource = self
         targetFormatPicker.delegate = self
         contentView.addSubview(targetFormatPicker)
         
-        convertButton.setTitle("转换音频文件格式", for: .normal)
+        convertButton.setTitle("转换当前录音", for: .normal)
         convertButton.addTarget(self, action: #selector(convertAudio), for: .touchUpInside)
         contentView.addSubview(convertButton)
+
+        convertAllButton.setTitle("转换全部录音", for: .normal)
+        convertAllButton.addTarget(self, action: #selector(convertAllRecordings), for: .touchUpInside)
+        contentView.addSubview(convertAllButton)
+        
+        stopConvertButton.setTitle("停止转换", for: .normal)
+        stopConvertButton.addTarget(self, action: #selector(stopConvert), for: .touchUpInside)
+        contentView.addSubview(stopConvertButton)
+        
+        stateQueryButton.setTitle("查询当前状态", for: .normal)
+        stateQueryButton.addTarget(self, action: #selector(queryCurrentState), for: .touchUpInside)
+        contentView.addSubview(stateQueryButton)
+        
+        durationButton.setTitle("读取音频时长", for: .normal)
+        durationButton.addTarget(self, action: #selector(readAudioDuration), for: .touchUpInside)
+        contentView.addSubview(durationButton)
+        
+        reuseAfterReleaseButton.setTitle("释放后复用", for: .normal)
+        reuseAfterReleaseButton.addTarget(self, action: #selector(testReuseAfterRelease), for: .touchUpInside)
+        contentView.addSubview(reuseAfterReleaseButton)
+        
+        callbackStatsButton.setTitle("回调频率统计", for: .normal)
+        callbackStatsButton.addTarget(self, action: #selector(toggleCallbackStats), for: .touchUpInside)
+        contentView.addSubview(callbackStatsButton)
+        
+        fileListPerfButton.setTitle("文件列表性能", for: .normal)
+        fileListPerfButton.addTarget(self, action: #selector(measureFileListPerformance), for: .touchUpInside)
+        contentView.addSubview(fileListPerfButton)
+        
+        perfLabel.text = "状态与性能:"
+        contentView.addSubview(perfLabel)
         
         conversionProgressLabel.text = "转换进度: 0.0%"
         contentView.addSubview(conversionProgressLabel)
@@ -645,7 +795,6 @@ class WYTestAudioController: UIViewController {
         addDownloadTask()
     }
     
-    // MARK: - 状态更新
     private func logInfo(_ message: String) {
         Task { @MainActor [weak self] in
             guard let self = self else { return }
@@ -658,10 +807,11 @@ class WYTestAudioController: UIViewController {
         }
     }
     
-    // MARK: - 录音控制
     @objc private func startRecording() {
         do {
-            try audioKit.startRecording(format: selectedFormat)
+            // 输入框留空时传nil，走自动时间戳文件名
+            let name = recordFileNameField.text
+            try audioKit.startRecording(fileName: (name?.isEmpty == true) ? nil : name, format: selectedFormat)
         } catch {
             handleError(error)
         }
@@ -691,7 +841,6 @@ class WYTestAudioController: UIViewController {
         }
     }
     
-    // MARK: - 播放控制
     @objc private func playLocalAudio() {
         if let testFileURL = Bundle.main.url(forResource: "世间美好与你环环相扣", withExtension: "mp3") {
             audioKit.playPlayback(url: testFileURL,
@@ -745,15 +894,24 @@ class WYTestAudioController: UIViewController {
         audioKit.seekPlayback(time: seekTime)
         logInfo("跳转到: \(String(format: "%.1f", seekTime))秒")
     }
+
+    @objc private func overSeekPlayback() {
+        guard currentPlayingDuration > 0 else {
+            logInfo("还没播放过音频，先播放再测超界跳转")
+            return
+        }
+        logInfo("请求跳转999秒(当前音频总时长\(String(format: "%.1f", currentPlayingDuration))秒)，库内应夹到末尾并触发完成播放")
+        audioKit.seekPlayback(time: 999)
+    }
     
     @objc private func rateChanged() {
         let rate = rateSlider.value
         audioKit.playbackRate = rate
-        rateLabel.text = String(format: "%.1fx", rate)
-        logInfo("设置播放倍速: \(rate)")
+        // 标签和日志都打印夹取后的值，验证0.5~2.0范围限制生效
+        rateLabel.text = String(format: "%.1fx", audioKit.playbackRate)
+        logInfo("设置播放倍速: \(rate) -> 夹取后\(audioKit.playbackRate)")
     }
     
-    // MARK: - 设置控制
     @objc private func minDurationChanged() {
         minRecordingDuration = TimeInterval(minDurationSlider.value)
         audioKit.minimumRecordDuration = minRecordingDuration
@@ -788,12 +946,17 @@ class WYTestAudioController: UIViewController {
         logInfo("设置录音存储目录: \(directoryDescription(for: directory))")
     }
     
-    // MARK: - 网络音频
     @objc private func downloadAndPlay() {
         guard let urlString = remoteURLField.text, let url = URL(string: urlString) else {
             logInfo("无效的URL")
             return
         }
+        // 已在下载中的不再发起重复的下载播放请求，等现有任务完成即可
+        if audioKit.isDownloading(url) {
+            logInfo("该URL已在下载中，忽略重复的下载并播放请求")
+            return
+        }
+        logInfo("发起下载并播放: \(url.lastPathComponent)")
         audioKit.playRemoteAudio(remoteUrl: url) { [weak self] downloadInfo in
             self?.logInfo("网络音频播放成功,存储地址：\(downloadInfo.local.lastPathComponent)")
         } failed: { [weak self] error in
@@ -815,7 +978,6 @@ class WYTestAudioController: UIViewController {
         }
     }
     
-    // MARK: - 文件管理
     @objc private func refreshFileList() {
         let recordings = audioKit.getAllRecordingsFiles()
         let downloads = audioKit.getAllDownloads()
@@ -883,9 +1045,9 @@ class WYTestAudioController: UIViewController {
         }
     }
     
-    // MARK: - 格式转换
     @objc private func convertAudio() {
-        guard let sourceURL = audioKit.currentRecordFileURL else {
+        // 本次会话没录过音时兜底取文件列表最新的一个(和读取音频时长按钮同款兜底，避免"当前录音"和"全部录音"两按钮对无文件的提示对不上)
+        guard let sourceURL = audioKit.currentRecordFileURL ?? audioKit.getAllRecordingsFiles().first else {
             logInfo("没有可转换的录音文件")
             return
         }
@@ -901,17 +1063,122 @@ class WYTestAudioController: UIViewController {
             }
         }
     }
-    
-    @objc private func stopConvert() {
-        guard let sourceURL = audioKit.currentRecordFileURL else {
-            logInfo("没有正在转换的任务")
-            return
+
+    @objc private func convertAllRecordings() {
+        // 空数组也照样传进库，没有录音文件时正好验证noFilesRequireConversion错误路径；有多个文件时验证多文件并发批次和按输入顺序回调
+        let sources = audioKit.getAllRecordingsFiles()
+        if sources.isEmpty {
+            logInfo("没有可转换的录音文件(空数组照样传给库，验证库内noFilesRequireConversion校验)")
         }
-        audioKit.stopAudioFormatConvert([sourceURL])
-        logInfo("已停止格式转换")
+        logInfo("开始批量转换\(sources.count)个录音文件 -> \(targetFormat.rawValue)")
+        audioKit.convertAudioFormat(sourceUrls: sources, target: targetFormat) { [weak self] outputs in
+            guard let self = self else { return }
+            self.logInfo("批量转换完成\(outputs.count)个, 按输入顺序输出: \(outputs.map { $0.lastPathComponent })")
+            self.refreshFileList()
+        } failed: { [weak self] error in
+            if let error = error {
+                self?.handleError(error)
+            }
+        }
     }
     
-    // MARK: - 其他功能
+    @objc private func stopConvert() {
+        audioKit.stopAudioFormatConvert(nil)
+        logInfo("已停止全部格式转换任务")
+    }
+    
+    @objc private func queryCurrentState() {
+        logInfo("当前状态: isRecording=\(audioKit.isRecording), isPlaying=\(audioKit.isPlaying), isRecordingPaused=\(audioKit.isRecordingPaused), isPlaybackPaused=\(audioKit.isPlaybackPaused), currentRecordFileURL=\(audioKit.currentRecordFileURL?.lastPathComponent ?? "nil")")
+        // 带上最近一次声波采样，录音中点这条能看到单通道dB回调的原始值和换算能量
+        logInfo("最近声波采样: 峰值\(String(format: "%.1f", lastPeakPower))dB, 均值\(String(format: "%.1f", lastAveragePower))dB -> 能量\(String(format: "%.3f", lastWaveformLevel))")
+    }
+    
+    @objc private func readAudioDuration() {
+        guard let url = audioKit.currentRecordFileURL ?? audioKit.getAllRecordingsFiles().first else {
+            logInfo("没有可读取时长的音频文件(先录一段)")
+            return
+        }
+        let start = CFAbsoluteTimeGetCurrent()
+        audioKit.getAudioDuration(with: url) { [weak self] duration in
+            guard let self = self else { return }
+            let elapsed = (CFAbsoluteTimeGetCurrent() - start) * 1000
+            self.logInfo("音频时长: \(String(format: "%.2f", duration))秒, 耗时\(String(format: "%.1f", elapsed))ms, 文件: \(url.lastPathComponent)")
+        }
+    }
+    
+    @objc private func testReuseAfterRelease() {
+        logInfo("先释放全部资源，再立刻发起下载(验证下载会话按需重建不崩溃)")
+        audioKit.releaseAll()
+        guard let url = URL(string: "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3") else { return }
+        audioKit.downloadRemoteAudio(remoteUrls: [url]) { [weak self] infos in
+            self?.logInfo("释放后复用下载成功: \(infos.first?.local.lastPathComponent ?? "")")
+        } failed: { [weak self] error in
+            self?.logInfo("释放后复用下载失败: \(error?.localizedDescription ?? "")")
+        }
+    }
+    
+    @objc private func toggleCallbackStats() {
+        isStatsEnabled.toggle()
+        if isStatsEnabled {
+            resetStatsCounters()
+            statsTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+                guard let self = self else { return }
+                self.logInfo("回调频率/秒: 波形(单通道dB)=\(self.meteringCount), 波形(归一化)=\(self.meteringsCount), 播放进度=\(self.playbackTimeCount), 下载进度=\(self.downloadProgressCount), 转换进度=\(self.convertProgressCount)")
+                self.resetStatsCounters()
+            }
+            callbackStatsButton.setTitle("停止频率统计", for: .normal)
+            logInfo("开始统计回调频率(录音中波形约30次/秒，进度数值不变时下载/转换应为0次，停完所有任务后应全为0)")
+        } else {
+            statsTimer?.invalidate()
+            statsTimer = nil
+            callbackStatsButton.setTitle("回调频率统计", for: .normal)
+            logInfo("停止统计回调频率")
+        }
+    }
+    
+    private func resetStatsCounters() {
+        meteringCount = 0
+        meteringsCount = 0
+        playbackTimeCount = 0
+        downloadProgressCount = 0
+        convertProgressCount = 0
+    }
+    
+    @objc private func measureFileListPerformance() {
+        let start = CFAbsoluteTimeGetCurrent()
+        let rounds = 10
+        for _ in 0..<rounds {
+            _ = audioKit.getAllRecordingsFiles()
+            _ = audioKit.getAllDownloads()
+        }
+        let avg = (CFAbsoluteTimeGetCurrent() - start) * 1000 / Double(rounds)
+        logInfo("文件列表性能: 录音+下载目录各扫\(rounds)轮, 平均每轮\(String(format: "%.2f", avg))ms")
+    }
+    
+    @objc private func applySubdirectory() {
+        let raw = subdirectoryField.text
+        let name = (raw?.isEmpty == true) ? nil : raw
+        if subdirectoryTargetControl.selectedSegmentIndex == 0 {
+            audioKit.recordingsSubdirectory = name
+            logInfo("录音子目录已设为\(name ?? "nil(根目录)")")
+        } else {
+            audioKit.downloadsSubdirectory = name
+            logInfo("下载子目录已设为\(name ?? "nil(根目录)")")
+        }
+        refreshFileList()
+    }
+    
+    @objc private func downloadsDirChanged() {
+        let directory: WYAudioStorageDirectory
+        switch downloadsDirSegmentedControl.selectedSegmentIndex {
+        case 0: directory = .temporary
+        case 1: directory = .documents
+        default: directory = .caches
+        }
+        audioKit.downloadsDirectory = directory
+        logInfo("设置下载存储目录: \(directoryDescription(for: directory))")
+    }
+    
     @objc private func setCustomSettings() {
         let customSettings: [String: Any] = [
             AVSampleRateKey: 22050.0,
@@ -927,7 +1194,6 @@ class WYTestAudioController: UIViewController {
         logInfo("已释放所有音频资源")
     }
     
-    // MARK: - 错误处理
     private func handleError(_ error: Error) {
         let nsError = error as NSError
         if let audioError = WYAudioError(rawValue: nsError.code) {
@@ -959,7 +1225,7 @@ class WYTestAudioController: UIViewController {
         case .invalidRemoteURL: return "无效的远程URL"
         case .conversionFailed: return "格式转换失败"
         case .conversionCancelled: return "格式转换已取消"
-        case .formatNotSupported: return "不支持的录制格式"
+        case .formatNotSupported: return "不支持的音频格式"
         case .sessionConfigurationFailed: return "音频会话配置失败"
         case .directoryCreationFailed: return "目录创建失败"
         default: return "未知错误"
@@ -985,12 +1251,10 @@ class WYTestAudioController: UIViewController {
     }
     
     deinit {
-        audioKit.releaseAll()
         WYLogManager.output("WYTestAudioController release")
     }
 }
 
-// MARK: - WYAudioKitDelegate
 extension WYTestAudioController: WYAudioKitDelegate {
     func wy_audioRecorderDidStart(audioKit: WYAudioKit, isResume: Bool) {
         logInfo("开始录制 \(selectedFormat.rawValue) 格式音频, \(isResume ? "是" : "不是")恢复录音")
@@ -1010,7 +1274,17 @@ extension WYTestAudioController: WYAudioKitDelegate {
                                           currentTime, duration, progress)
     }
     
+    func wy_audioRecorderDidUpdateMetering(audioKit: WYAudioKit, peakPower: Float, averagePower: Float) {
+        // 只计数不逐帧打日志(和归一化回调同帧触发，打印会刷屏)，原始dB缓存下来供查询状态时打印
+        meteringCount += 1
+        lastPeakPower = peakPower
+        lastAveragePower = averagePower
+        // 顺路验证WYSoundWavesView的dB转能量接口(它按dB原始值设计，正是这路回调给的东西)
+        lastWaveformLevel = soundWavesView.makeWaveformLevels(peakPower: peakPower, averagePower: averagePower)
+    }
+    
     func wy_audioRecorderDidUpdateMeterings(audioKit: WYAudioKit, peakPowers: [Float], averagePowers: [Float]) {
+        meteringsCount += 1
         // 使用峰值功率，响应更快（回调给的已是 0~1 归一化值，直接喂给声波动画，不需要旧版的手动放大）
         Task { @MainActor in
             self.soundWavesView.updateMeters(power: peakPowers.first ?? 0)
@@ -1025,12 +1299,19 @@ extension WYTestAudioController: WYAudioKitDelegate {
     }
     
     func wy_audioPlayerTimeUpdated(audioKit: WYAudioKit, localUrl: URL, currentTime: TimeInterval, duration: TimeInterval, progress: Double) {
+        playbackTimeCount += 1
         currentPlayingDuration = duration
         playProgressLabel.text = String(format: "播放进度: %.1f秒/%.1f秒 (%.1f%%)",
                                         currentTime, duration, progress * 100)
     }
     
     func wy_remoteAudioDownloadProgressUpdated(audioKit: WYAudioKit, remoteUrls: [URL], progress: Double) {
+        downloadProgressCount += 1
+        // 首帧数据到达提示一次(下载源响应慢，点下载后几秒没动静是正常等待，这条日志说明真的开始收数据了)
+        for url in remoteUrls where progress > 0 && !startedNotifiedUrls.contains(url) {
+            startedNotifiedUrls.insert(url)
+            logInfo("已开始接收数据: \(url.lastPathComponent)")
+        }
         downloadProgressLabel.text = String(format: "下载进度: %.1f%%, remoteUrls：\(remoteUrls)", progress*100)
         for card in taskCards {
             if let url = card.url, remoteUrls.contains(url) {
@@ -1045,6 +1326,7 @@ extension WYTestAudioController: WYAudioKitDelegate {
     func wy_remoteAudioDownloadSuccess(audioKit: WYAudioKit, fileInfos: [WYAudioDownloadInfo]) {
         for info in fileInfos {
             logInfo("下载成功: \(info.local)")
+            startedNotifiedUrls.remove(info.remote)
             for card in taskCards {
                 if let url = card.url, url == info.remote {
                     Task { @MainActor in
@@ -1057,7 +1339,16 @@ extension WYTestAudioController: WYAudioKitDelegate {
         refreshFileList()
     }
     
+    func wy_remoteAudioDownloadPaused(audioKit: WYAudioKit, remoteUrls: [URL]) {
+        logInfo("下载已暂停(代理回调): \(remoteUrls)")
+    }
+    
+    func wy_remoteAudioDownloadResumed(audioKit: WYAudioKit, remoteUrls: [URL]) {
+        logInfo("下载已恢复(代理回调): \(remoteUrls)")
+    }
+    
     func wy_formatConversionProgressUpdated(audioKit: WYAudioKit, localUrls: [URL], progress: Double) {
+        convertProgressCount += 1
         conversionProgressLabel.text = String(format: "转换进度: %.1f%%, localUrls：\(localUrls)", progress*100)
     }
     
@@ -1070,6 +1361,9 @@ extension WYTestAudioController: WYAudioKitDelegate {
     
     func wy_audioTaskDidFailed(audioKit: WYAudioKit, url: URL?, error: WYAudioError, description: String?) {
         logInfo("任务失败: \(errorDescription(for: error)), 描述: \(description ?? "无"), URL: \(url, default: "空")")
+        if let url = url {
+            startedNotifiedUrls.remove(url)
+        }
         for card in taskCards {
             if let taskUrl = card.url, taskUrl == url {
                 Task { @MainActor in
@@ -1081,7 +1375,6 @@ extension WYTestAudioController: WYAudioKitDelegate {
     }
 }
 
-// MARK: - UIPickerViewDataSource & UIPickerViewDelegate
 extension WYTestAudioController: UIPickerViewDataSource, UIPickerViewDelegate {
     func numberOfComponents(in pickerView: UIPickerView) -> Int { return 1 }
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
@@ -1093,7 +1386,7 @@ extension WYTestAudioController: UIPickerViewDataSource, UIPickerViewDelegate {
     }
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         let format = pickerView == formatPicker ? supportedFormats[row] : supportedConvertFormats[row]
-        return "\(format.extensionName.uppercased()) (\(formatDescription(for: format)))"
+        return formatDisplayText(for: format, isConvertTarget: pickerView != formatPicker)
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
@@ -1101,13 +1394,23 @@ extension WYTestAudioController: UIPickerViewDataSource, UIPickerViewDelegate {
             let newFormat = supportedFormats[row]
             if selectedFormat != newFormat {
                 selectedFormat = newFormat
+                currentFormatLabel.text = formatDisplayText(for: newFormat)
+                logInfo("切换录音格式: \(formatDisplayText(for: newFormat))")
             }
         } else {
             let newFormat = supportedConvertFormats[row]
             if targetFormat != newFormat {
                 targetFormat = newFormat
+                targetFormatLabel.text = formatDisplayText(for: newFormat, isConvertTarget: true)
+                logInfo("切换转换目标格式: \(formatDisplayText(for: newFormat, isConvertTarget: true))")
             }
         }
+    }
+    
+    /// 格式统一展示文案(选择器行标题和当前值标签共用一套，不能录/不能转的格式带标注防止误以为能用)
+    private func formatDisplayText(for format: WYAudioFormat, isConvertTarget: Bool = false) -> String {
+        let mark = isConvertTarget ? (format.isConvertible ? "" : "不可转, ") : (format.isRecordable ? "" : "仅播放, ")
+        return "\(format.extensionName.uppercased()) (\(mark)\(formatDescription(for: format)))"
     }
     
     private func formatDescription(for format: WYAudioFormat) -> String {
