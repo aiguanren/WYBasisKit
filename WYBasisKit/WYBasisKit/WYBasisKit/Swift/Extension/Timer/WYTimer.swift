@@ -41,17 +41,19 @@ public extension Timer {
         })
         wy_timerContainer[alias]?.timer?.resume()
         
-        NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: nil) { _ in
+        // 防通知监听越积越多，block方式注册的通知只能拿返回的token移除,原先的removeObserver(self)对它无效,每次wy_start都会多挂一对监听
+        let enterBackgroundObserver = NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: nil) { _ in
             Task { @MainActor in
                 wy_timerDidEnterBackground(alias)
             }
         }
         
-        NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: nil) { _ in
+        let becomeActiveObserver = NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: nil) { _ in
             Task { @MainActor in
                 wy_timerDidBecomeActive(alias)
             }
         }
+        wy_timerObserverContainer[alias] = (enterBackgroundObserver, becomeActiveObserver)
     }
     
     /// 更新计时器剩余时间，单位 "秒"
@@ -87,9 +89,10 @@ public extension Timer {
             wy_timerContainer.removeValue(forKey: alias)
         }
         
-        if wy_timerContainer.keys.isEmpty == true {
-            NotificationCenter.default.removeObserver(self, name: UIApplication.didEnterBackgroundNotification, object: nil)
-            NotificationCenter.default.removeObserver(self, name: UIApplication.didBecomeActiveNotification, object: nil)
+        if let observers = wy_timerObserverContainer[alias] {
+            NotificationCenter.default.removeObserver(observers.enterBackground)
+            NotificationCenter.default.removeObserver(observers.becomeActive)
+            wy_timerObserverContainer.removeValue(forKey: alias)
         }
     }
 }
@@ -180,7 +183,19 @@ private extension Timer {
         }
     }
     
+    /// 计时器通知监听token容器(与wy_timerContainer同一个alias作key,存block式通知注册返回的token,取消计时器时用它移除对应监听)
+    private static var wy_timerObserverContainer: [String: (enterBackground: NSObjectProtocol, becomeActive: NSObjectProtocol)] {
+        
+        set(newValue) {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.timerObserverContainer, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+        get {
+            return (objc_getAssociatedObject(self, &WYAssociatedKeys.timerObserverContainer) as? [String: (enterBackground: NSObjectProtocol, becomeActive: NSObjectProtocol)]) ?? [:]
+        }
+    }
+    
     private struct WYAssociatedKeys {
         static var timerContainer: UInt8 = 0
+        static var timerObserverContainer: UInt8 = 0
     }
 }

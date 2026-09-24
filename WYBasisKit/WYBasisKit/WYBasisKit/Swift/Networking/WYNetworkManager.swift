@@ -1093,7 +1093,7 @@ extension WYNetworkManager {
             
             var message = WYLocalized("未知的网络，可能存在安全隐患，是否继续？", table: WYBasisKitConfig.kitLocalizableTable)
             var networkStatus = NetworkStatus.unknown
-            var actions = openSetting ? [WYLocalized("去设置", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized(WYLocalized("继续连接", table: WYBasisKitConfig.kitLocalizableTable)), WYLocalized("取消连接", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("继续连接", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("取消连接", table: WYBasisKitConfig.kitLocalizableTable)]
+            var actions = openSetting ? [WYLocalized("去设置", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("继续连接", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("取消连接", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("继续连接", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("取消连接", table: WYBasisKitConfig.kitLocalizableTable)]
             switch nwpath.status {
             case .requiresConnection:
                 message = WYLocalized("未知的网络，可能存在安全隐患，是否继续？", table: WYBasisKitConfig.kitLocalizableTable)

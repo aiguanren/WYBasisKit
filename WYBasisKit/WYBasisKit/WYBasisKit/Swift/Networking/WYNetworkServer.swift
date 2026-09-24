@@ -49,18 +49,23 @@ struct WYTarget: TargetType {
     
     var request: WYRequest
     
+    /// domain/path配错或含非法字符时兜底用的占位地址(拿它发请求必然连接失败，错误经failed回调报给上层而不是闪退)
+    static let invalidDomainURL: URL = URL(string: "https://invalid-domain.wybasiskit/")!
+    
     var baseURL: URL {
         
         let domain: String = request.config.domain.isEmpty ? request.path : request.config.domain
         
+        // 防domain与path都为空直接闪退:返回占位地址，请求会连接失败并经failed回调报错
         guard domain.isEmpty == false else {
-            fatalError("发起网络请求时 request.config.domain + request.path 不能为空")
+            WYNetworkManager.wy_networkPrint("发起网络请求时 request.config.domain + request.path 不能为空")
+            return WYTarget.invalidDomainURL
         }
         
         if (request.config.specialCharacters.contains(where: (domain.contains(request.path) ? domain : (request.config.domain + request.path)).contains)) {
-            return URL(string: (domain.contains(request.path) ? domain : (request.config.domain + request.path)))!
+            return URL(string: (domain.contains(request.path) ? domain : (request.config.domain + request.path))) ?? WYTarget.invalidDomainURL
         }else {
-            return URL(string: domain)!
+            return URL(string: domain) ?? WYTarget.invalidDomainURL
         }
     }
     
@@ -246,7 +251,8 @@ struct WYProviderConfig<target: TargetType> {
                 }
             }
         }else {
-            fatalError("使用HTTPS自建证书进行网络请求时 request.config.domain 传入有误，至少应该包含必要的域名部分")
+            // 防domain格式有误直接闪退:降级沿用原串作evaluators的key，配错时证书校验不通过会走错误回调
+            WYNetworkManager.wy_networkPrint("使用HTTPS自建证书进行网络请求时 request.config.domain 传入有误，至少应该包含必要的域名部分")
         }
         return domains
     }
@@ -266,8 +272,9 @@ private class WYBothwayVerifyDelegate: SessionDelegate, @unchecked Sendable {
                 return
             }
 
-            let p12Contents = PKCS12(pkcs12Data: p12Data, password: config.httpsConfig.clientP12Password, clientP12: config.httpsConfig.clientP12)
-            guard let identity = p12Contents.identity else {
+            // 防p12配错直接闪退:导入失败改为返回nil，走performDefaultHandling降级，握手失败会经failed回调把错误报给上层
+            guard let p12Contents = PKCS12(pkcs12Data: p12Data, password: config.httpsConfig.clientP12Password, clientP12: config.httpsConfig.clientP12),
+                  let identity = p12Contents.identity else {
                 completionHandler(.performDefaultHandling, nil)
                 return
             }
@@ -289,7 +296,8 @@ private class WYBothwayVerifyDelegate: SessionDelegate, @unchecked Sendable {
         let certChain: [SecTrust]?
         let identity: SecIdentity?
         
-        public init(pkcs12Data: Data, password: String, clientP12: String) {
+        // 防p12数据或密码有误直接闪退:改为可失败init，失败时打日志返回nil，由调用方降级处理
+        public init?(pkcs12Data: Data, password: String, clientP12: String) {
             let importPasswordOption = [kSecImportExportPassphrase: password] as CFDictionary
             var items: CFArray?
             let secError = SecPKCS12Import(pkcs12Data as CFData, importPasswordOption, &items)
@@ -298,11 +306,13 @@ private class WYBothwayVerifyDelegate: SessionDelegate, @unchecked Sendable {
                 if secError == errSecAuthFailed {
                     WYNetworkManager.wy_networkPrint("\(clientP12).p12 证书密码错误")
                 }
-                fatalError("尝试导入证书时出错，错误代码：\(secError)")
+                WYNetworkManager.wy_networkPrint("尝试导入证书时出错，错误代码：\(secError)")
+                return nil
             }
             
             guard let theItems = items as? [[String: Any]] else {
-                fatalError("无效的 PKCS12 数据")
+                WYNetworkManager.wy_networkPrint("无效的 PKCS12 数据")
+                return nil
             }
             
             func value<T>(forKey key: CFString) -> T? {

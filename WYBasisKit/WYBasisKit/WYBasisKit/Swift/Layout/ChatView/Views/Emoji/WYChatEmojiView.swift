@@ -26,8 +26,8 @@ public struct WYEmojiViewConfig {
     /// 自定义Emoji控件内collectionView底部距离Emoji控件底部的偏移量
     public var collectionViewBottomOffset: CGFloat = 0
 
-    /// 自定义Emoji数据源，示例：["[玫瑰](表情图片名)","[色](表情图片名)","[嘻嘻](表情图片名)"]
-    public var emojiSource: [String] = try! NSArray(contentsOf: URL(string: "file://".appending(emojiPath))!, error: ()) as! [String]
+    /// 自定义Emoji数据源(默认读WYChatView.bundle的WYChatViewEmoji.plist，资源缺失或格式不符时降级为空数组)，示例：["[玫瑰](表情图片名)","[色](表情图片名)","[嘻嘻](表情图片名)"]
+    public var emojiSource: [String] = ((try? NSArray(contentsOf: URL(fileURLWithPath: emojiPath), error: ())) as? [String]) ?? []
     
     /// 自定义加载Emoji图片的Bundle
     public var emojiBundle: WYSourceBundle? = WYSourceBundle(bundleName: "WYChatView", subdirectory: "WYChatViewEmoji")
