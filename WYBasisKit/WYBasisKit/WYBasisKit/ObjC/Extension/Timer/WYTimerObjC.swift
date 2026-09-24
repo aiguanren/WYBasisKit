@@ -34,9 +34,9 @@ import WYBasisKitSwift
     }
     
     /// 取消某一组计时器
-    @objc(wy_cancelAliass:)
-    static func wy_cancel(aliass: [String]) {
-        wy_cancel(aliass)
+    @objc(wy_cancelAliases:)
+    static func wy_cancel(aliases: [String]) {
+        wy_cancel(aliases)
     }
     
     /// 取消某一个计时器

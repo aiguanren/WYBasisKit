@@ -22,7 +22,7 @@ public extension Bool {
 
      - Parameters:
        - string: 待校验字符串
-       - prefixs: 可选前缀（如 ["+", "-", "¥", "$"]，最多1个且在最前）
+       - prefixes: 可选前缀（如 ["+", "-", "¥", "$"]，最多1个且在最前）
 
      - 示例：
        ✅ 123 / 123.45 / 1,234 / 1,234.56 / +123 / -123.45 / ¥1,234 / $1,234.56等
@@ -30,10 +30,10 @@ public extension Bool {
      
      - Returns: 是否合法
      */
-    static func wy_isValidIntegerOrDecimal(_ string: String, prefixs: [String] = []) -> Bool {
-        let prefixPattern = prefixs.isEmpty
+    static func wy_isValidIntegerOrDecimal(_ string: String, prefixes: [String] = []) -> Bool {
+        let prefixPattern = prefixes.isEmpty
             ? ""
-            : "(?:\(prefixs.map { NSRegularExpression.escapedPattern(for: $0) }.joined(separator: "|")))?"
+            : "(?:\(prefixes.map { NSRegularExpression.escapedPattern(for: $0) }.joined(separator: "|")))?"
         
         let numberPattern = "([0-9]{1,3}(,[0-9]{3})*|[0-9]+)(\\.[0-9]+)?"
         

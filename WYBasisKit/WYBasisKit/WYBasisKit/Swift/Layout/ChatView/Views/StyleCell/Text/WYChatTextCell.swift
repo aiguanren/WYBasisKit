@@ -15,10 +15,10 @@ public struct WYTextChatConfig {
     public var basic: WYBasicChatConfig = WYBasicChatConfig()
     
     /// 单聊时气泡图距离昵称控件的偏移量
-    public var bubbleOffsetForSingle: (sendor: CGPoint, receive: CGPoint) = (sendor: CGPoint(x: UIDevice.wy_screenWidth(12), y: 0), receive: CGPoint(x: -UIDevice.wy_screenWidth(12), y: 0))
+    public var bubbleOffsetForSingle: (sender: CGPoint, receive: CGPoint) = (sender: CGPoint(x: UIDevice.wy_screenWidth(12), y: 0), receive: CGPoint(x: -UIDevice.wy_screenWidth(12), y: 0))
     
     /// 群聊时气泡图距离昵称控件的偏移量
-    public var bubbleOffsetForGroup: (sendor: CGPoint, receive: CGPoint) = (sendor: CGPoint(x: UIDevice.wy_screenWidth(12), y: 0), receive: CGPoint(x: -UIDevice.wy_screenWidth(12), y: 0))
+    public var bubbleOffsetForGroup: (sender: CGPoint, receive: CGPoint) = (sender: CGPoint(x: UIDevice.wy_screenWidth(12), y: 0), receive: CGPoint(x: -UIDevice.wy_screenWidth(12), y: 0))
     
     /// 气泡图距离对侧头像控件的间距
     public var bubbleMaxOffset: CGFloat = UIDevice.wy_screenWidth(5)
@@ -27,21 +27,21 @@ public struct WYTextChatConfig {
     public var receiveBubbleImage: UIImage = UIImage.wy_find("WYChatTextBubblesRight", inBundle: WYChatSourceBundle).withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: UIDevice.wy_screenWidth(35), left: UIDevice.wy_screenWidth(10), bottom: UIDevice.wy_screenWidth(10), right: UIDevice.wy_screenWidth(10)), resizingMode: .stretch)
     
     /// 右侧(发送方)气泡图
-    public var sendorBubbleImage: UIImage = UIImage.wy_find("WYChatTextBubblesLeft", inBundle: WYChatSourceBundle).withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: UIDevice.wy_screenWidth(35), left: UIDevice.wy_screenWidth(10), bottom: UIDevice.wy_screenWidth(10), right: UIDevice.wy_screenWidth(10)), resizingMode: .stretch)
+    public var senderBubbleImage: UIImage = UIImage.wy_find("WYChatTextBubblesLeft", inBundle: WYChatSourceBundle).withRenderingMode(.alwaysTemplate).resizableImage(withCapInsets: UIEdgeInsets(top: UIDevice.wy_screenWidth(35), left: UIDevice.wy_screenWidth(10), bottom: UIDevice.wy_screenWidth(10), right: UIDevice.wy_screenWidth(10)), resizingMode: .stretch)
     
     /// 左侧(接收方)气泡背景色
     public var receiveBubbleColor: UIColor? = .white
     
     /// 右侧(发送方)气泡背景色
-    public var sendorBubbleColor: UIColor? = .wy_rgb(169, 233, 121)
+    public var senderBubbleColor: UIColor? = .wy_rgb(169, 233, 121)
     
     /// 气泡图距离cell底部的间距
     public var bubbleOffsetForBottom: CGFloat = -UIDevice.wy_screenWidth(15)
     
     /// 文本距离气泡内部的边界距离
-    public var textEdgeInsets: (sendor: UIEdgeInsets, receive: UIEdgeInsets) = (
+    public var textEdgeInsets: (sender: UIEdgeInsets, receive: UIEdgeInsets) = (
         
-        sendor: UIEdgeInsets(top: UIDevice.wy_screenWidth(10), left: UIDevice.wy_screenWidth(10), bottom: UIDevice.wy_screenWidth(10), right: UIDevice.wy_screenWidth(15)),
+        sender: UIEdgeInsets(top: UIDevice.wy_screenWidth(10), left: UIDevice.wy_screenWidth(10), bottom: UIDevice.wy_screenWidth(10), right: UIDevice.wy_screenWidth(15)),
         
         receive: UIEdgeInsets(top: UIDevice.wy_screenWidth(10), left: UIDevice.wy_screenWidth(15), bottom: UIDevice.wy_screenWidth(10), right: UIDevice.wy_screenWidth(10)))
     
@@ -98,8 +98,8 @@ public class WYChatTextCell: WYChatBasicCell {
     public func updateContent(config: WYTextChatConfig) {
         super.updateContent(config: config.basic)
         
-        bubblesView.tintColor = message.isSender(userID) ? config.sendorBubbleColor : config.receiveBubbleColor
-        bubblesView.image = (message.isSender(userID) ? config.sendorBubbleImage : config.receiveBubbleImage)
+        bubblesView.tintColor = message.isSender(userID) ? config.senderBubbleColor : config.receiveBubbleColor
+        bubblesView.image = (message.isSender(userID) ? config.senderBubbleImage : config.receiveBubbleImage)
         
         textView.attributedText = sharedEmojiAttributed(string: message.content.text ?? "")
         
@@ -111,9 +111,9 @@ public class WYChatTextCell: WYChatBasicCell {
         
         if message.isSender(userID) {
             if areMultipleRows {
-                textView.textContainerInset = chatTextConfig.textEdgeInsets.sendor
+                textView.textContainerInset = chatTextConfig.textEdgeInsets.sender
             }else {
-                textView.textContainerInset = UIEdgeInsets(top: (config.basic.avatarSize.height - config.textFont.lineHeight) / 2, left: chatTextConfig.textEdgeInsets.sendor.left, bottom: (config.basic.avatarSize.height - config.textFont.lineHeight) / 2, right: chatTextConfig.textEdgeInsets.sendor.right)
+                textView.textContainerInset = UIEdgeInsets(top: (config.basic.avatarSize.height - config.textFont.lineHeight) / 2, left: chatTextConfig.textEdgeInsets.sender.left, bottom: (config.basic.avatarSize.height - config.textFont.lineHeight) / 2, right: chatTextConfig.textEdgeInsets.sender.right)
             }
         }else {
             if areMultipleRows {
@@ -133,15 +133,15 @@ public class WYChatTextCell: WYChatBasicCell {
                 
                 make.left.greaterThanOrEqualToSuperview().offset((chatTextConfig.basic.avatarSize.width + abs(chatTextConfig.basic.avatarOffset.receive.x) + chatTextConfig.bubbleMaxOffset))
                 if message.group == nil {
-                    make.right.equalTo(nicknameView).offset(chatTextConfig.bubbleOffsetForSingle.sendor.x)
-                    make.top.equalTo(nicknameView.snp.bottom).offset(chatTextConfig.bubbleOffsetForSingle.sendor.y)
+                    make.right.equalTo(nicknameView).offset(chatTextConfig.bubbleOffsetForSingle.sender.x)
+                    make.top.equalTo(nicknameView.snp.bottom).offset(chatTextConfig.bubbleOffsetForSingle.sender.y)
                     
                 }else {
-                    make.right.equalTo(nicknameView).offset(chatTextConfig.bubbleOffsetForGroup.sendor.x)
-                    make.top.equalTo(nicknameView.snp.bottom).offset(chatTextConfig.bubbleOffsetForGroup.sendor.y)
+                    make.right.equalTo(nicknameView).offset(chatTextConfig.bubbleOffsetForGroup.sender.x)
+                    make.top.equalTo(nicknameView.snp.bottom).offset(chatTextConfig.bubbleOffsetForGroup.sender.y)
                 }
             }else {
-                make.right.lessThanOrEqualToSuperview().offset(-(chatTextConfig.basic.avatarSize.width + abs(chatTextConfig.basic.avatarOffset.sendor.x) + chatTextConfig.bubbleMaxOffset))
+                make.right.lessThanOrEqualToSuperview().offset(-(chatTextConfig.basic.avatarSize.width + abs(chatTextConfig.basic.avatarOffset.sender.x) + chatTextConfig.bubbleMaxOffset))
                 if message.group == nil {
                     make.left.equalTo(nicknameView).offset(chatTextConfig.bubbleOffsetForSingle.receive.x)
                     make.top.equalTo(nicknameView.snp.bottom).offset(chatTextConfig.bubbleOffsetForSingle.receive.y)
@@ -166,7 +166,7 @@ public class WYChatTextCell: WYChatBasicCell {
     // 获取textView的最大显示宽度
     public func sharedTextMaxWidth() -> CGFloat {
         if message.isSender(userID) {
-            return sharedContentMaxWidth() - abs(chatTextConfig.textEdgeInsets.sendor.left) - abs(chatTextConfig.textEdgeInsets.sendor.right)
+            return sharedContentMaxWidth() - abs(chatTextConfig.textEdgeInsets.sender.left) - abs(chatTextConfig.textEdgeInsets.sender.right)
         }else {
             return sharedContentMaxWidth() - abs(chatTextConfig.textEdgeInsets.receive.left) - abs(chatTextConfig.textEdgeInsets.receive.right)
         }

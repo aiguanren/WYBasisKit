@@ -293,7 +293,7 @@ public extension UIDevice {
         return addresses.first ?? "0.0.0.0"
     }
     
-    /// 获取 Wifi IP地址
+    /// 获取 Wi-Fi IP地址
     static var wy_wifiIP: String {
         
         var address: String?

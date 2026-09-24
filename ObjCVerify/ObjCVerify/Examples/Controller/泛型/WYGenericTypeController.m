@@ -25,10 +25,10 @@
     UserRequest *request = [[UserRequest alloc] init];
     request.eventId = @"测试eventId";
     context.request = request;
-    [self userMoudleSuccessMethodWithContext:context];
+    [self userModuleSuccessMethodWithContext:context];
 }
 
-- (void)userMoudleSuccessMethodWithContext:(SDKRequestContext<UserRequest *, UserResponse *> *)context {
+- (void)userModuleSuccessMethodWithContext:(SDKRequestContext<UserRequest *, UserResponse *> *)context {
     wy_print(@"context.request?.eventId = %@",context.request.eventId ?: @"");
     
     UserResponse *response = [[UserResponse alloc] init];
@@ -49,7 +49,7 @@
     [context setResponse:response];
 }
 
-- (void)testMothodWithData:(NSString *)data data2:(NSInteger)data2 {
+- (void)testMethodWithData:(NSString *)data data2:(NSInteger)data2 {
     
     wy_print(@"离线方法调用,data = %@, data2 = %ld", data, data2);
 }

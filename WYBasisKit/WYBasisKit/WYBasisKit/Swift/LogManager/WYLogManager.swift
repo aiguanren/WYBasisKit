@@ -311,7 +311,7 @@ final class WYLogCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configure(text: String, keyword: String?, canCopyed: Bool = true) {
+    func configure(text: String, keyword: String?, canCopy: Bool = true) {
         if let keyword = keyword, !keyword.isEmpty {
             let attributed = NSMutableAttributedString(string: text)
             
@@ -324,7 +324,7 @@ final class WYLogCell: UITableViewCell {
             label.text = text
         }
         
-        copyButton.isEnabled = canCopyed
+        copyButton.isEnabled = canCopy
         copyButton.layer.borderColor = copyButton.isEnabled
             ? copyButton.titleLabel?.textColor.cgColor
             : UIColor.lightGray.cgColor
@@ -476,7 +476,7 @@ extension WYLogPreviewViewController: UITableViewDataSource {
             filteredLogChunks.first == "暂无日志" ||
             filteredLogChunks.first == "日志已清除" {
             let message = logs.isEmpty || logs == "日志已清除" ? "日志已清除" : "未找到匹配的日志内容"
-            cell.configure(text: message, keyword: nil, canCopyed: false)
+            cell.configure(text: message, keyword: nil, canCopy: false)
             cell.copyAction = nil
         } else {
             let logText = filteredLogChunks[indexPath.row]

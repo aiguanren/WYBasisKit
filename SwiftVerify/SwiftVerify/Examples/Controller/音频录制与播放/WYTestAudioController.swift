@@ -1213,7 +1213,7 @@ class WYTestAudioController: UIViewController {
         case .notDetermined: return "未申请录音权限(权限未确定)"
         case .permissionDenied: return "录音权限被拒绝"
         case .fileNotFound: return "音频文件未找到"
-        case .noAudiofilesToPlay: return "没有可以播放的音频文件"
+        case .noAudioFilesToPlay: return "没有可以播放的音频文件"
         case .fileSaveFailed: return "录音文件保存失败"
         case .recordingInProgress: return "录音正在进行中"
         case .minDurationNotReached: return "录音时长未达到最小值"

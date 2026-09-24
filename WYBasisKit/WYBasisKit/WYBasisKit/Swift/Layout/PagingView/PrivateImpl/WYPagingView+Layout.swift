@@ -97,7 +97,7 @@ extension WYPagingView {
 
             // 设置按钮左右约束
             if lastView == nil {
-                let leadingConstraint = buttonItem.leadingAnchor.constraint(equalTo: barScrollView.leadingAnchor, constant: bar_originlLeftOffset)
+                let leadingConstraint = buttonItem.leadingAnchor.constraint(equalTo: barScrollView.leadingAnchor, constant: bar_originalLeftOffset)
                 leadingConstraint.isActive = true
                 firstLeadingConstraint = leadingConstraint
             } else {
@@ -107,7 +107,7 @@ extension WYPagingView {
             }
 
             if index == (controllers.count-1) {
-                let trailingConstraint = buttonItem.trailingAnchor.constraint(equalTo: barScrollView.trailingAnchor, constant: -bar_originlRightOffset)
+                let trailingConstraint = buttonItem.trailingAnchor.constraint(equalTo: barScrollView.trailingAnchor, constant: -bar_originalRightOffset)
                 trailingConstraint.isActive = true
                 lastTrailingConstraint = trailingConstraint
             }
@@ -132,7 +132,7 @@ extension WYPagingView {
 
             if (occupiedWidth > 0) && (occupiedWidth < self.frame.size.width) {
 
-                if (bar_originlLeftOffset > 0) || (bar_originlRightOffset > 0) {
+                if (bar_originalLeftOffset > 0) || (bar_originalRightOffset > 0) {
 
                     // 设置了两端偏移:精确保留偏移为两端边距，剩余空间全部均摊到Item间距(occupiedWidth已含偏移)
                     let extraWidth: CGFloat = self.frame.size.width - occupiedWidth

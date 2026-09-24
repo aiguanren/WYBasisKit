@@ -21,15 +21,15 @@
     
     Class class = NSClassFromString(@"WYGenericTypeController");
     if ([class isSubclassOfClass:[UIViewController class]]) {
-        UIViewController *moudleClass = [[class alloc] init];
-        NSString *method = @"testMothodWithData:data2:";
+        UIViewController *moduleClass = [[class alloc] init];
+        NSString *method = @"testMethodWithData:data2:";
         SEL selector = NSSelectorFromString(method);
         
-        if ([moudleClass respondsToSelector:selector]) {
+        if ([moduleClass respondsToSelector:selector]) {
             // 声明函数指针类型与所需参数
             id (*typed_msgSend)(id, SEL, NSString *, NSInteger) = (id (*)(id, SEL, NSString *, NSInteger))objc_msgSend;
             // 直接调用并传参
-            typed_msgSend(moudleClass, selector, @"context", 99999);
+            typed_msgSend(moduleClass, selector, @"context", 99999);
         }
     }
 }

@@ -553,7 +553,7 @@ private class WYActivityLoadingView: UIView {
         switch animation {
         case .indicator:
             
-            loadingLayout(subContro: indicator, contentView: contentView, subControSize: config.animationSize)
+            loadingLayout(subControl: indicator, contentView: contentView, subControlSize: config.animationSize)
             
             if #available(iOS 14.0, *) {
                 indicator.wy_left = indicator.wy_left + 1.5;
@@ -566,7 +566,7 @@ private class WYActivityLoadingView: UIView {
             break
         case .gifOrApng:
             
-            loadingLayout(subContro: imageView, contentView: contentView, subControSize: config.animationSize)
+            loadingLayout(subControl: imageView, contentView: contentView, subControlSize: config.animationSize)
             
             imageView.animationDuration = config.gifInfo.animationDuration
             imageView.animationImages = config.gifInfo.animationImages
@@ -605,22 +605,22 @@ private class WYActivityLoadingView: UIView {
                 
                 textlabel.sizeToFit()
                 
-                let controWidth = textlabel.frame.size.width < textMinimum ? textMinimum : textlabel.frame.size.width
+                let controlWidth = textlabel.frame.size.width < textMinimum ? textMinimum : textlabel.frame.size.width
                 
-                var controSize = CGSize(width: controWidth + (UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels) * 2), height: frame.size.height + textlabel.frame.size.height)
+                var controlSize = CGSize(width: controlWidth + (UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels) * 2), height: frame.size.height + textlabel.frame.size.height)
                 
-                if controSize.width < controSize.height {
-                    controSize.width = controSize.height
-                    textlabel.wy_width = controSize.width - (UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels) * 2)
+                if controlSize.width < controlSize.height {
+                    controlSize.width = controlSize.height
+                    textlabel.wy_width = controlSize.width - (UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels) * 2)
                     textlabel.sizeToFit()
-                    controSize.height = frame.size.height + textlabel.frame.size.height
+                    controlSize.height = frame.size.height + textlabel.frame.size.height
                 }
                 
-                self.frame = CGRect(x: (contentView.frame.size.width - controSize.width) / 2, y: (contentView.frame.size.height - controSize.height - navViewHeight(contentView: contentView)) / 2, width: controSize.width, height: controSize.height)
+                self.frame = CGRect(x: (contentView.frame.size.width - controlSize.width) / 2, y: (contentView.frame.size.height - controlSize.height - navViewHeight(contentView: contentView)) / 2, width: controlSize.width, height: controlSize.height)
                 
                 switch animation {
                 case .indicator:
-                    textLayout(textBottomOffset: config.textBottomOffset, subContro: indicator, contentView: contentView)
+                    textLayout(textBottomOffset: config.textBottomOffset, subControl: indicator, contentView: contentView)
                     if #available(iOS 14.0, *) {
                         indicator.wy_left = indicator.wy_left + 1.5;
                         indicator.wy_top = indicator.wy_top + 1.5;
@@ -628,7 +628,7 @@ private class WYActivityLoadingView: UIView {
                     break
                     
                 case .gifOrApng:
-                    textLayout(textBottomOffset: config.textBottomOffset, subContro: imageView, contentView: contentView)
+                    textLayout(textBottomOffset: config.textBottomOffset, subControl: imageView, contentView: contentView)
                     break
                 }
             }
@@ -667,18 +667,18 @@ private class WYActivityLoadingView: UIView {
         }
     }
     
-    private func loadingLayout(subContro: UIView, contentView: UIView, subControSize: CGSize) {
+    private func loadingLayout(subControl: UIView, contentView: UIView, subControlSize: CGSize) {
         
-        self.frame = CGRect(x: (contentView.frame.size.width - subControSize.width - 10) / 2, y: (contentView.frame.size.height - subControSize.height - navViewHeight(contentView: contentView) - 10) / 2, width: subControSize.width + 10, height: subControSize.height + 10)
+        self.frame = CGRect(x: (contentView.frame.size.width - subControlSize.width - 10) / 2, y: (contentView.frame.size.height - subControlSize.height - navViewHeight(contentView: contentView) - 10) / 2, width: subControlSize.width + 10, height: subControlSize.height + 10)
         
-        subContro.frame = CGRect(x: (frame.size.width - subControSize.width) / 2, y: (frame.size.height - subControSize.height) / 2, width: subControSize.width, height: subControSize.height)
+        subControl.frame = CGRect(x: (frame.size.width - subControlSize.width) / 2, y: (frame.size.height - subControlSize.height) / 2, width: subControlSize.width, height: subControlSize.height)
     }
     
-    private func textLayout(textBottomOffset: CGFloat, subContro: UIView, contentView: UIView) {
+    private func textLayout(textBottomOffset: CGFloat, subControl: UIView, contentView: UIView) {
         
-        subContro.frame = CGRect(x: UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels), y: UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels), width: frame.size.width - (UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels) * 2), height: subContro.frame.size.height)
+        subControl.frame = CGRect(x: UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels), y: UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels), width: frame.size.width - (UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels) * 2), height: subControl.frame.size.height)
         
-        textlabel.frame = CGRect(x: (frame.size.width - textlabel.frame.size.width) / 2, y: subContro.wy_bottom - textBottomOffset, width: textlabel.frame.size.width, height: textlabel.frame.size.height)
+        textlabel.frame = CGRect(x: (frame.size.width - textlabel.frame.size.width) / 2, y: subControl.wy_bottom - textBottomOffset, width: textlabel.frame.size.width, height: textlabel.frame.size.height)
     }
     
     func navViewHeight(contentView: UIView) -> CGFloat {

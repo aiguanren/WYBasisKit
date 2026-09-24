@@ -36,16 +36,16 @@ public struct WYInputBarConfig {
     public var emojiPattern: String = "\\[.{1,3}\\]"
     
     /// 文本切换按钮图片
-    public var textButtomImage: UIImage = UIImage.wy_find("WYChatViewTogglekeyboard", inBundle: WYChatSourceBundle)
+    public var textBottomImage: UIImage = UIImage.wy_find("WYChatViewTogglekeyboard", inBundle: WYChatSourceBundle)
     
     /// 语音切换按钮图片
     public var voiceButtonImage: UIImage = UIImage.wy_find("WYChatViewVoice", inBundle: WYChatSourceBundle)
     
     /// 表情切换按钮图片
-    public var emojiButtomImage: UIImage = UIImage.wy_find("WYChatViewToggleEmoji", inBundle: WYChatSourceBundle)
+    public var emojiBottomImage: UIImage = UIImage.wy_find("WYChatViewToggleEmoji", inBundle: WYChatSourceBundle)
     
     /// 更多切换按钮图片
-    public var moreButtomImage: UIImage = UIImage.wy_find("WYChatViewMore", inBundle: WYChatSourceBundle)
+    public var moreBottomImage: UIImage = UIImage.wy_find("WYChatViewMore", inBundle: WYChatSourceBundle)
     
     /// 文本输入框背景图
     public var textViewBackgroundImage: UIImage = UIImage.wy_createImage(from: .white)
@@ -385,7 +385,7 @@ public class WYChatInputView: UIImageView {
         }
         
         textVoiceView.wy_nImage = inputBarConfig.voiceButtonImage
-        textVoiceView.wy_sImage = inputBarConfig.textButtomImage
+        textVoiceView.wy_sImage = inputBarConfig.textBottomImage
         textVoiceView.wy_sTitle = inputBarConfig.voicePlaceholder
         textVoiceView.wy_title_sColor = inputBarConfig.voicePlaceholderColor
         textVoiceView.wy_titleFont = inputBarConfig.voicePlaceholderFont
@@ -399,8 +399,8 @@ public class WYChatInputView: UIImageView {
             make.bottom.equalTo(textVoiceContentView).offset(-inputBarConfig.voiceTextButtonBottomOffset)
         }
         
-        emojiView.setBackgroundImage(inputBarConfig.emojiButtomImage, for: .normal)
-        emojiView.setBackgroundImage(inputBarConfig.textButtomImage, for: .selected)
+        emojiView.setBackgroundImage(inputBarConfig.emojiBottomImage, for: .normal)
+        emojiView.setBackgroundImage(inputBarConfig.textBottomImage, for: .selected)
         emojiView.addTarget(self, action: #selector(didClickEmojiView(sender:)), for: .touchUpInside)
         addSubview(emojiView)
         emojiView.snp.makeConstraints { make in
@@ -409,8 +409,8 @@ public class WYChatInputView: UIImageView {
             make.bottom.equalTo(textVoiceContentView).offset(-inputBarConfig.emojiTextButtonBottomOffset)
         }
         
-        moreView.setBackgroundImage(inputBarConfig.moreButtomImage, for: .normal)
-        moreView.setBackgroundImage(inputBarConfig.moreButtomImage, for: .highlighted)
+        moreView.setBackgroundImage(inputBarConfig.moreBottomImage, for: .normal)
+        moreView.setBackgroundImage(inputBarConfig.moreBottomImage, for: .highlighted)
         moreView.addTarget(self, action: #selector(didClickMoreView(sender:)), for: .touchUpInside)
         if specialSendButton != nil {
             insertSubview(moreView, belowSubview: specialSendButton!)

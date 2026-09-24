@@ -16,9 +16,9 @@ import WYBasisKitSwift
     static func wy_rgbObjC(_ red: CGFloat, _ green: CGFloat, _ blue: CGFloat) -> UIColor {
         return wy_rgb(red, green, blue)
     }
-    @objc(wy_rgbWithRed:green:blue:aplha:)
-    static func wy_rgbObjC(_ red: CGFloat, _ green: CGFloat, _ blue: CGFloat, _ aplha: CGFloat = 1.0) -> UIColor {
-        return wy_rgb(red, green, blue, aplha)
+    @objc(wy_rgbWithRed:green:blue:alpha:)
+    static func wy_rgbObjC(_ red: CGFloat, _ green: CGFloat, _ blue: CGFloat, _ alpha: CGFloat = 1.0) -> UIColor {
+        return wy_rgb(red, green, blue, alpha)
     }
     
     /// 十六进制字符串或整数转换为UIColor(支持字符串类型或整数类型)

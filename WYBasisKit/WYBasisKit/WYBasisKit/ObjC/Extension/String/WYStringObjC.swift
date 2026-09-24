@@ -410,7 +410,7 @@ import WYBasisKitSwift
     /**
      从字符串中提取数字（支持可选前缀、千分位、小数）
 
-     - Parameter prefixs: 可选前缀（如 ["+", "-", "¥", "$"]，最多1个且在最前）
+     - Parameter prefixes: 可选前缀（如 ["+", "-", "¥", "$"]，最多1个且在最前）
 
      - 示例：
        输入："价格 ¥1,234.56，优惠 $999，再加 +100，折扣 0.5"
@@ -423,11 +423,11 @@ import WYBasisKitSwift
      */
     @objc(wy_extractNumbers)
     func wy_extractNumbersObjC() -> [String] {
-        return wy_extractNumbersObjC(prefixs: [])
+        return wy_extractNumbersObjC(prefixes: [])
     }
-    @objc(wy_extractNumbersWithPrefixs:)
-    func wy_extractNumbersObjC(prefixs: [String] = []) -> [String] {
-        return (self as String).wy_extractNumbers(prefixs: prefixs)
+    @objc(wy_extractNumbersWithPrefixes:)
+    func wy_extractNumbersObjC(prefixes: [String] = []) -> [String] {
+        return (self as String).wy_extractNumbers(prefixes: prefixes)
     }
     
     /**

@@ -121,14 +121,14 @@ extension WYChatView: WYChatInputViewDelegate, WYChatInputViewEventsHandler {
         let timestamp: String = String.wy_sharedDeviceTimestamp()
         
         /// 消息发送者信息
-        let sendor: WYChatUaerModel = userInfo ?? WYChatUaerModel()
+        let sender: WYChatUserModel = userInfo ?? WYChatUserModel()
 
         /// 消息内容
-        let content: WYChatMeesageContentModel = WYChatMeesageContentModel()
+        let content: WYChatMessageContentModel = WYChatMessageContentModel()
         content.text = text
          
         /// 引用消息
-        //let reference: WYChatMeesageContentModel? = nil
+        //let reference: WYChatMessageContentModel? = nil
         
         let message: WYChatMessageModel = WYChatMessageModel()
         message.readers = readers
@@ -136,7 +136,7 @@ extension WYChatView: WYChatInputViewDelegate, WYChatInputViewEventsHandler {
         message.sendState = sendState
         message.timestamp = timestamp
         message.lastMessageTimestamp = message.sharedLastMessageTimestamp(dataSource)
-        message.sendor = sendor
+        message.sender = sender
         message.content = content
         message.index = dataSource.count
         dataSource.append(message)

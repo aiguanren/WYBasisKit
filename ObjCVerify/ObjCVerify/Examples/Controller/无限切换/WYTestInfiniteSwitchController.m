@@ -16,7 +16,7 @@
 @property (nonatomic, strong) WYContentScrollView *contentScrollView;
 
 /// 底部操作View
-@property (nonatomic, strong) UIScrollView *operatioView;
+@property (nonatomic, strong) UIScrollView *operationView;
 
 /// 水平方向内容页视图数量（Int.max表示无限数量）
 @property (nonatomic, strong) UISegmentedControl *numberOfHorizontalContent;
@@ -150,8 +150,8 @@
     self.contentScrollView.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1];
     self.contentScrollView.contentDelegate = self;
 
-    self.operatioView.showsHorizontalScrollIndicator = NO;
-    self.operatioView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    self.operationView.showsHorizontalScrollIndicator = NO;
+    self.operationView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
 
     self.numberOfHorizontalContent.selectedSegmentIndex = 6;
     [self segmentedControlChange:self.numberOfHorizontalContent];
@@ -407,8 +407,8 @@
         make.top.equalTo(self.view).offset(UIDevice.wy_navViewHeight);
     }];
 
-    [self.view addSubview:self.operatioView];
-    [self.operatioView mas_makeConstraints:^(MASConstraintMaker *make) {
+    [self.view addSubview:self.operationView];
+    [self.operationView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.equalTo(self.view);
         make.top.equalTo(self.contentScrollView.mas_bottom);
         make.height.mas_equalTo((UIDevice.wy_screenHeight - UIDevice.wy_navViewHeight - UIDevice.wy_tabbarSafetyZone) / 2);
@@ -416,163 +416,163 @@
     }];
 
     UIView *numberOfHorizontalContentView = [self createDescContentViewWithDesc:@"水平方向内容页视图数量（∞：表示无限数量(Int.Max)）" controView:self.numberOfHorizontalContent valueView:nil];
-    [self.operatioView addSubview:numberOfHorizontalContentView];
+    [self.operationView addSubview:numberOfHorizontalContentView];
     [numberOfHorizontalContentView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.width.mas_equalTo(UIDevice.wy_screenWidth - 20);
-        make.top.equalTo(self.operatioView).offset(10);
-        make.centerX.equalTo(self.operatioView);
+        make.top.equalTo(self.operationView).offset(10);
+        make.centerX.equalTo(self.operationView);
     }];
 
     UIView *numberOfVerticalContentView = [self createDescContentViewWithDesc:@"垂直方向内容页视图数量（∞：表示无限数量(Int.Max)）" controView:self.numberOfVerticalContent valueView:nil];
-    [self.operatioView addSubview:numberOfVerticalContentView];
+    [self.operationView addSubview:numberOfVerticalContentView];
     [numberOfVerticalContentView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(numberOfHorizontalContentView.mas_bottom).offset(35);
         make.width.centerX.equalTo(numberOfHorizontalContentView);
     }];
 
     UIView *contentSlidingDirectionView = [self createDescContentViewWithDesc:@"支持的滑动方向" controView:self.contentSlidingDirection valueView:nil];
-    [self.operatioView addSubview:contentSlidingDirectionView];
+    [self.operationView addSubview:contentSlidingDirectionView];
     [contentSlidingDirectionView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(numberOfVerticalContentView.mas_bottom).offset(35);
         make.width.centerX.equalTo(numberOfVerticalContentView);
     }];
 
     UIView *prioritySlidingDirectionView = [self createDescContentViewWithDesc:@"当contentSlidingDirection == omnidirectional时，优先支持哪个滑动方向，默认左右滑动(不支持设置为omnidirectional)" controView:self.prioritySlidingDirection valueView:nil];
-    [self.operatioView addSubview:prioritySlidingDirectionView];
+    [self.operationView addSubview:prioritySlidingDirectionView];
     [prioritySlidingDirectionView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(contentSlidingDirectionView.mas_bottom).offset(35);
         make.width.centerX.equalTo(contentSlidingDirectionView);
     }];
 
     UIView *standingTimeView = [self createDescContentViewWithDesc:@"自动轮播时每一页停留时间，默认为3s，最少1s，当设置的值小于1s时，则为默认值，同时修改值后会立即生效" controView:self.standingTime valueView:self.standingTimeValue];
-    [self.operatioView addSubview:standingTimeView];
+    [self.operationView addSubview:standingTimeView];
     [standingTimeView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(prioritySlidingDirectionView.mas_bottom).offset(35);
         make.width.centerX.equalTo(prioritySlidingDirectionView);
     }];
 
     UIView *horizontalSliderEnabledView = [self createDescContentViewWithDesc:@"水平方向是否支持滑动(仅内容页数量大于1时生效，单页不可滑)，默认true" controView:self.horizontalSliderEnabled valueView:nil];
-    [self.operatioView addSubview:horizontalSliderEnabledView];
+    [self.operationView addSubview:horizontalSliderEnabledView];
     [horizontalSliderEnabledView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(standingTimeView.mas_bottom).offset(35);
         make.width.centerX.equalTo(standingTimeView);
     }];
 
     UIView *verticalSliderEnabledView = [self createDescContentViewWithDesc:@"垂直方向是否支持滑动(仅内容页数量大于1时生效，单页不可滑)，默认true" controView:self.verticalSliderEnabled valueView:nil];
-    [self.operatioView addSubview:verticalSliderEnabledView];
+    [self.operationView addSubview:verticalSliderEnabledView];
     [verticalSliderEnabledView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(horizontalSliderEnabledView.mas_bottom).offset(35);
         make.width.centerX.equalTo(horizontalSliderEnabledView);
     }];
 
     UIView *minimumHorizontalSwitchIntervalView = [self createDescContentViewWithDesc:@"水平方向同轴翻页最小间隔(秒，默认0不限制；手势翻页后间隔内的新同轴拖动无效，跨轴与API切换不受影响，滑杆0~3)" controView:self.minimumHorizontalSwitchInterval valueView:self.minimumHorizontalSwitchIntervalValue];
-    [self.operatioView addSubview:minimumHorizontalSwitchIntervalView];
+    [self.operationView addSubview:minimumHorizontalSwitchIntervalView];
     [minimumHorizontalSwitchIntervalView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(verticalSliderEnabledView.mas_bottom).offset(35);
         make.width.centerX.equalTo(verticalSliderEnabledView);
     }];
 
     UIView *minimumVerticalSwitchIntervalView = [self createDescContentViewWithDesc:@"垂直方向同轴翻页最小间隔(秒，默认0不限制；手势翻页后间隔内的新同轴拖动无效，跨轴与API切换不受影响，滑杆0~3)" controView:self.minimumVerticalSwitchInterval valueView:self.minimumVerticalSwitchIntervalValue];
-    [self.operatioView addSubview:minimumVerticalSwitchIntervalView];
+    [self.operationView addSubview:minimumVerticalSwitchIntervalView];
     [minimumVerticalSwitchIntervalView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(minimumHorizontalSwitchIntervalView.mas_bottom).offset(35);
         make.width.centerX.equalTo(minimumHorizontalSwitchIntervalView);
     }];
 
     UIView *horizontalUnlimitedCarouselView = [self createDescContentViewWithDesc:@"水平方向是否无限翻页(末页环绕回首页；轮播前提按展示轴读取本开关)" controView:self.horizontalUnlimitedCarousel valueView:nil];
-    [self.operatioView addSubview:horizontalUnlimitedCarouselView];
+    [self.operationView addSubview:horizontalUnlimitedCarouselView];
     [horizontalUnlimitedCarouselView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(minimumVerticalSwitchIntervalView.mas_bottom).offset(35);
         make.width.centerX.equalTo(minimumVerticalSwitchIntervalView);
     }];
 
     UIView *verticalUnlimitedCarouselView = [self createDescContentViewWithDesc:@"垂直方向是否无限翻页(末页环绕回首页；轮播前提按展示轴读取本开关)" controView:self.verticalUnlimitedCarousel valueView:nil];
-    [self.operatioView addSubview:verticalUnlimitedCarouselView];
+    [self.operationView addSubview:verticalUnlimitedCarouselView];
     [verticalUnlimitedCarouselView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(horizontalUnlimitedCarouselView.mas_bottom).offset(35);
         make.width.centerX.equalTo(horizontalUnlimitedCarouselView);
     }];
 
     UIView *automaticCarouselView = [self createDescContentViewWithDesc:@"是否需要自动轮播，默认false，开启后首次展示自动开表，关闭或stopTimer后需显式startTimer恢复" controView:self.automaticCarousel valueView:nil];
-    [self.operatioView addSubview:automaticCarouselView];
+    [self.operationView addSubview:automaticCarouselView];
     [automaticCarouselView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(verticalUnlimitedCarouselView.mas_bottom).offset(35);
         make.width.centerX.equalTo(verticalUnlimitedCarouselView);
     }];
 
     UIView *startOrStopTimerView = [self createDescContentViewWithDesc:@"开启或者关闭定时器" controView:self.startOrStopTimer valueView:nil];
-    [self.operatioView addSubview:startOrStopTimerView];
+    [self.operationView addSubview:startOrStopTimerView];
     [startOrStopTimerView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(automaticCarouselView.mas_bottom).offset(35);
         make.width.centerX.equalTo(automaticCarouselView);
     }];
 
     UIView *flickVelocityView = [self createDescContentViewWithDesc:@"轻扫跨轴直切速度阈值(pt/s，默500，滑杆0~5000可测钳制：低于50/高于3000会被组件自动钳到边界，仅影响全向模式)" controView:self.flickVelocityThreshold valueView:self.flickVelocityValue];
-    [self.operatioView addSubview:flickVelocityView];
+    [self.operationView addSubview:flickVelocityView];
     [flickVelocityView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(startOrStopTimerView.mas_bottom).offset(35);
         make.width.centerX.equalTo(startOrStopTimerView);
     }];
 
     UIView *crossAxisSwitchStyleView = [self createDescContentViewWithDesc:@"跨轴切换呈现样式(默认瞬时；滑动=当前页滑出目标页滑入，渐变=目标页淡入覆盖，缩放=目标页缩放归位淡入；同样作用于跨轴轻扫直切，同轴切换不受影响)" controView:self.crossAxisSwitchStyleSegment valueView:nil];
-    [self.operatioView addSubview:crossAxisSwitchStyleView];
+    [self.operationView addSubview:crossAxisSwitchStyleView];
     [crossAxisSwitchStyleView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(flickVelocityView.mas_bottom).offset(35);
         make.width.centerX.equalTo(flickVelocityView);
     }];
 
     UIView *switchDurationView = [self createDescContentViewWithDesc:@"跨轴切换动画时长(秒，默认0.25，滑杆0~3可测钳制：低于0.1/高于2.0会被组件自动钳到边界，仅滑动/渐变/缩放生效)" controView:self.switchDuration valueView:self.switchDurationValue];
-    [self.operatioView addSubview:switchDurationView];
+    [self.operationView addSubview:switchDurationView];
     [switchDurationView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(crossAxisSwitchStyleView.mas_bottom).offset(35);
         make.width.centerX.equalTo(crossAxisSwitchStyleView);
     }];
 
     UIView *zoomScaleView = [self createDescContentViewWithDesc:@"缩放切入的缩放比例(默认1.15，进入页从该值缩放归位、退场页放大至该值淡出，滑杆0.5~3可测钳制：低于1.0/高于2.0会被组件自动钳到边界，1.0时无缩放退化为渐变，仅缩放模式生效)" controView:self.zoomScale valueView:self.zoomScaleValue];
-    [self.operatioView addSubview:zoomScaleView];
+    [self.operationView addSubview:zoomScaleView];
     [zoomScaleView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(switchDurationView.mas_bottom).offset(35);
         make.width.centerX.equalTo(switchDurationView);
     }];
 
     UIView *reloadContentView = [self createDescContentViewWithDesc:@"刷新当前WYContentScrollView展示的内容View(返回true已刷新，false还没挂载过内容View没有执行)" controView:self.reloadContent valueView:self.reloadContentResult];
-    [self.operatioView addSubview:reloadContentView];
+    [self.operationView addSubview:reloadContentView];
     [reloadContentView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(zoomScaleView.mas_bottom).offset(35);
         make.width.centerX.equalTo(zoomScaleView);
     }];
 
     UIView *displayDirectionView = [self createDescContentViewWithDesc:@"当前正在展示的滑动方向(返回值只会有.leftOrRight/.topOrBottom两种类型，随滑动/切换/重挂实时刷新)" controView:self.displayDirectionQuery valueView:self.displayingDirectionValue];
-    [self.operatioView addSubview:displayDirectionView];
+    [self.operationView addSubview:displayDirectionView];
     [displayDirectionView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(reloadContentView.mas_bottom).offset(35);
         make.width.centerX.equalTo(reloadContentView);
     }];
 
     UIView *nextContentView = [self createDescContentViewsWithDesc:@"切换指定方向下一个内容页面(不支持直接传入direction为omnidirectional)" controViews:@[self.nextContent, self.nextContentDirection]];
-    [self.operatioView addSubview:nextContentView];
+    [self.operationView addSubview:nextContentView];
     [nextContentView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(displayDirectionView.mas_bottom).offset(35);
         make.width.centerX.equalTo(zoomScaleView);
     }];
 
     UIView *lastContentView = [self createDescContentViewsWithDesc:@"切换指定方向上一个内容页面(不支持直接传入direction为omnidirectional)" controViews:@[self.lastContent, self.lastContentDirection]];
-    [self.operatioView addSubview:lastContentView];
+    [self.operationView addSubview:lastContentView];
     [lastContentView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(nextContentView.mas_bottom).offset(35);
         make.width.centerX.equalTo(nextContentView);
     }];
 
     UIView *switchContentView = [self createDescContentViewsWithDesc:@"切换到指定方向指定下标处(不支持直接传入direction为omnidirectional)" controViews:@[self.switchContent, self.switchContentDirection, self.switchContentPicker]];
-    [self.operatioView addSubview:switchContentView];
+    [self.operationView addSubview:switchContentView];
     [switchContentView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(lastContentView.mas_bottom).offset(35);
         make.width.centerX.equalTo(lastContentView);
-        make.bottom.equalTo(self.operatioView).offset(-100);
+        make.bottom.equalTo(self.operationView).offset(-100);
     }];
 
     [switchContentView layoutIfNeeded];
-    self.operatioView.contentSize = CGSizeMake(UIDevice.wy_screenWidth, CGRectGetMaxY(switchContentView.frame));
+    self.operationView.contentSize = CGSizeMake(UIDevice.wy_screenWidth, CGRectGetMaxY(switchContentView.frame));
 }
 
 - (UIView *)createDescContentViewWithDesc:(NSString *)desc controView:(UIView *)controView valueView:(UIView *)valueView {
@@ -693,11 +693,11 @@
     return _contentScrollView;
 }
 
-- (UIScrollView *)operatioView {
-    if (!_operatioView) {
-        _operatioView = [[UIScrollView alloc] init];
+- (UIScrollView *)operationView {
+    if (!_operationView) {
+        _operationView = [[UIScrollView alloc] init];
     }
-    return _operatioView;
+    return _operationView;
 }
 
 - (UISegmentedControl *)numberOfHorizontalContent {

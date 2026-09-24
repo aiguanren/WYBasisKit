@@ -71,9 +71,9 @@ public extension Timer {
     }
     
     /// 取消某一组计时器
-    static func wy_cancel(_ aliass: [String]) {
-        for index in 0..<aliass.count {
-            wy_cancel(aliass[index])
+    static func wy_cancel(_ aliases: [String]) {
+        for index in 0..<aliases.count {
+            wy_cancel(aliases[index])
         }
     }
     

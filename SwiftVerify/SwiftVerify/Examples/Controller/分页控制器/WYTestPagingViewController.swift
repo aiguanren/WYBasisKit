@@ -474,8 +474,8 @@ class WYTestPagingViewController: UIViewController {
         // 基本属性
         pagingView.bar_height = settings.barHeight
         pagingView.buttonPosition = settings.buttonPosition
-        pagingView.bar_originlLeftOffset = settings.originlLeftOffset
-        pagingView.bar_originlRightOffset = settings.originlRightOffset
+        pagingView.bar_originalLeftOffset = settings.originalLeftOffset
+        pagingView.bar_originalRightOffset = settings.originalRightOffset
         pagingView.bar_itemTopOffset = settings.itemTopOffset
         pagingView.bar_autoCenter = settings.autoCenter
         pagingView.bar_autoCenterMinSideSpacing = settings.autoCenterMinSideSpacing
@@ -586,8 +586,8 @@ struct PagingSettingsModel {
     // 基本属性
     var barHeight: CGFloat = 65
     var buttonPosition: WYButtonPosition = .imageTopTitleBottom
-    var originlLeftOffset: CGFloat = 0
-    var originlRightOffset: CGFloat = 0
+    var originalLeftOffset: CGFloat = 0
+    var originalRightOffset: CGFloat = 0
     var itemTopOffset: CGFloat? = nil
     var autoCenter: Bool = false
     var autoCenterMinSideSpacing: CGFloat = 0
@@ -686,8 +686,8 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         [
             ("分页栏高度", "barHeight"),
             ("按钮位置", "buttonPosition"),
-            ("左偏移量", "originlLeftOffset"),
-            ("右偏移量", "originlRightOffset"),
+            ("左偏移量", "originalLeftOffset"),
+            ("右偏移量", "originalRightOffset"),
             ("Item顶部偏移", "itemTopOffset"),
             ("小于一屏居中", "autoCenter"),
             ("居中两端最小间距", "autoCenterMinSideSpacing"),
@@ -847,8 +847,8 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
             case .imageTopTitleBottom: return "图片上文字下"
             case .imageBottomTitleTop: return "图片下文字上"
             }
-        case "originlLeftOffset": return "\(settings.originlLeftOffset)"
-        case "originlRightOffset": return "\(settings.originlRightOffset)"
+        case "originalLeftOffset": return "\(settings.originalLeftOffset)"
+        case "originalRightOffset": return "\(settings.originalRightOffset)"
         case "itemTopOffset": return settings.itemTopOffset?.description ?? "nil"
         case "autoCenter": return settings.autoCenter ? "是" : "否"
         case "autoCenterMinSideSpacing": return "\(settings.autoCenterMinSideSpacing)"
@@ -982,7 +982,7 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         default:
             if key.contains("Color") {
                 showColorEditor(for: key)
-            } else if ["barHeight", "originlLeftOffset", "originlRightOffset", "autoCenterMinSideSpacing", "dividingOffset",
+            } else if ["barHeight", "originalLeftOffset", "originalRightOffset", "autoCenterMinSideSpacing", "dividingOffset",
                        "buttonDividingOffset", "itemWidth", "itemHeight", "itemCornerRadius",
                        "scrollLineWidth", "scrollLineBottomOffset", "scrollLineCornerRadius", "dividingStripHeight", "titleSelectedScale",
                        "itemBorderWidth",
@@ -1005,8 +1005,8 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
             let current: CGFloat
             switch key {
             case "barHeight": current = self.settings.barHeight
-            case "originlLeftOffset": current = self.settings.originlLeftOffset
-            case "originlRightOffset": current = self.settings.originlRightOffset
+            case "originalLeftOffset": current = self.settings.originalLeftOffset
+            case "originalRightOffset": current = self.settings.originalRightOffset
             case "autoCenterMinSideSpacing": current = self.settings.autoCenterMinSideSpacing
             case "dividingOffset": current = self.settings.dividingOffset
             case "buttonDividingOffset": current = self.settings.buttonDividingOffset
@@ -1031,8 +1031,8 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
                 let cgVal = CGFloat(val)
                 switch key {
                 case "barHeight": self.settings.barHeight = cgVal
-                case "originlLeftOffset": self.settings.originlLeftOffset = cgVal
-                case "originlRightOffset": self.settings.originlRightOffset = cgVal
+                case "originalLeftOffset": self.settings.originalLeftOffset = cgVal
+                case "originalRightOffset": self.settings.originalRightOffset = cgVal
                 case "autoCenterMinSideSpacing": self.settings.autoCenterMinSideSpacing = cgVal
                 case "dividingOffset": self.settings.dividingOffset = cgVal
                 case "buttonDividingOffset": self.settings.buttonDividingOffset = cgVal

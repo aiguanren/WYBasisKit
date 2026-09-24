@@ -270,7 +270,7 @@
     
     NSString *className = ListItem.cellItems[indexPath.row].controller;
     
-    UIViewController *nextController = [self wy_showViewControllerWithClassName:className parameters:nil displaMode:WYDisplaModePush animated:YES];
+    UIViewController *nextController = [self wy_showViewControllerWithClassName:className parameters:nil displayMode:WYDisplayModePush animated:YES];
     
     nextController.navigationItem.title = ListItem.cellItems[indexPath.row].title;
 }

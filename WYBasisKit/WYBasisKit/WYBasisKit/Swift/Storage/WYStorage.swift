@@ -258,7 +258,7 @@ public struct WYStorage {
      *
      *  @param asset        为空表示清除传入 path 下所有资源，否则表示清除传入 path 下对应 asset 的指定资源
      *
-     *  @param complte      完成后回调，error 为空表示成功，否则为失败
+     *  @param completion      完成后回调，error 为空表示成功，否则为失败
      *
      */
     public static func clearMemory(forPath path: String, asset: String = "", completion:((_ error: String?) -> Void)? = .none) {

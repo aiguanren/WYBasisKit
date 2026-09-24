@@ -18,24 +18,24 @@ class WYGenericTypeController: UIViewController {
         let request: UserRequest = UserRequest()
         request.eventId = "测试eventId"
         context.request = request
-        userMoudleSuccessMethod(context: context)
+        userModuleSuccessMethod(context: context)
     }
     
-    func userMoudleSuccessMethod(context: SDKRequestContext<UserRequest, UserResponse>) {
+    func userModuleSuccessMethod(context: SDKRequestContext<UserRequest, UserResponse>) {
         WYLogManager.output("context.request?.eventId = \(context.request?.eventId ?? "")")
     
-        let respone: UserResponse = UserResponse()
-        respone.errorCode = "100"
-        respone.errorMessage = "测试消息"
+        let response: UserResponse = UserResponse()
+        response.errorCode = "100"
+        response.errorMessage = "测试消息"
         
-        context.setResponse(response: respone)
+        context.setResponse(response: response)
     }
     
-    @objc func testMothod(data: String) {
+    @objc func testMethod(data: String) {
         WYLogManager.output("离线方法调用,data = \(data)")
     }
     
-    @objc func testMothod(data: String, data2: Int) {
+    @objc func testMethod(data: String, data2: Int) {
         WYLogManager.output("离线方法调用, data = \(data), data2 = \(data2)")
     }
 

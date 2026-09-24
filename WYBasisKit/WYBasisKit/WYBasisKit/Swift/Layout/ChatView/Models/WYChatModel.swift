@@ -224,7 +224,7 @@ public class WYChatLuckyMoneyModel: NSObject {
     public var fullCover: WYChatAssetsModel = WYChatAssetsModel()
     
     /// 小封面
-    public var smailCover: WYChatAssetsModel = WYChatAssetsModel()
+    public var smallCover: WYChatAssetsModel = WYChatAssetsModel()
     
     /// 封面视频
     public var coverVideo: WYChatAssetsModel = WYChatAssetsModel()
@@ -274,10 +274,10 @@ public class WYChatLocationModel: NSObject {
 public class WYChatTakePatModel: NSObject {
     
     /// 拍人者
-    public var striking: WYChatUaerModel = WYChatUaerModel()
+    public var striking: WYChatUserModel = WYChatUserModel()
     
     /// 被拍者
-    public var beaten: WYChatUaerModel = WYChatUaerModel()
+    public var beaten: WYChatUserModel = WYChatUserModel()
     
     /// 被拍者拍一拍设置
     public var notes: String = ""
@@ -312,10 +312,10 @@ public class WYChatCallModel: NSObject {
     public var callStyle: WYChatCallStyle = .oneToOneVoice
     
     /// 通话发起者信息
-    public var promoter: WYChatUaerModel = WYChatUaerModel()
+    public var promoter: WYChatUserModel = WYChatUserModel()
     
     /// 通话成员信息(一对一通话时只有一个成员)
-    public var members: [WYChatUaerModel] = []
+    public var members: [WYChatUserModel] = []
 }
 
 /// 网页、小程序model
@@ -372,7 +372,7 @@ public class WYChatBusinessCardModel: NSObject {
     public var id: String = ""
     
     /// 用户信息
-    public var userInfo: WYChatUaerModel = WYChatUaerModel()
+    public var userInfo: WYChatUserModel = WYChatUserModel()
     
     /// 描述
     public var remarks: String = ""
@@ -392,7 +392,7 @@ public class WYChatRecordsModel: NSObject {
 }
 
 /// 消息体
-public class WYChatMeesageContentModel: NSObject {
+public class WYChatMessageContentModel: NSObject {
     
     /// 文本
     public var text: String? = nil
@@ -448,7 +448,7 @@ public class WYChatMeesageContentModel: NSObject {
 }
 
 /// 聊天用户model
-public class WYChatUaerModel: NSObject {
+public class WYChatUserModel: NSObject {
     
     /// 用户id
     public var id: String = ""
@@ -500,7 +500,7 @@ public class WYChatGroupModel: NSObject {
     public var nickname: String = ""
     
     /// 群主信息
-    public var ownerInfo: WYChatUaerModel = WYChatUaerModel()
+    public var ownerInfo: WYChatUserModel = WYChatUserModel()
     
     /// 群名称
     public var name: String = ""
@@ -524,10 +524,10 @@ public class WYChatGroupModel: NSObject {
     public var qrCode: WYChatAssetsModel = WYChatAssetsModel()
     
     /// 群管理信息
-    public var managers: [WYChatUaerModel] = []
+    public var managers: [WYChatUserModel] = []
     
     /// 群成员信息
-    public var members: [WYChatUaerModel] = []
+    public var members: [WYChatUserModel] = []
     
     /// model在数组中对应的下标
     public var index: Int = 0
@@ -592,16 +592,16 @@ public class WYChatMessageModel: NSObject {
     public var timeFormat: String?
 
     /// 消息发送者信息
-    public var sendor: WYChatUaerModel = WYChatUaerModel()
+    public var sender: WYChatUserModel = WYChatUserModel()
 
     /// 消息所属群信息(若为空为单聊，否则为群聊)
     public var group: WYChatGroupModel? = nil
 
     /// 消息内容
-    public var content: WYChatMeesageContentModel = WYChatMeesageContentModel()
+    public var content: WYChatMessageContentModel = WYChatMessageContentModel()
     
     /// 引用消息
-    public var reference: WYChatMeesageContentModel? = nil
+    public var reference: WYChatMessageContentModel? = nil
     
     /// model在数组中对应的下标
     public var index: Int = 0
@@ -611,7 +611,7 @@ public class WYChatMessageModel: NSObject {
      *  userID 某人的ID
      */
     public func isSender(_ userID: String) ->Bool {
-        return (userID == sendor.id)
+        return (userID == sender.id)
     }
     
     /**

@@ -108,7 +108,7 @@ public class WYChatView: UIView {
     public var recentlyEmojis: [String] = []
     
     /// 当前登录用户的用户信息
-    public var userInfo: WYChatUaerModel!
+    public var userInfo: WYChatUserModel!
     
     /// tableView数据源
     public var dataSource: [WYChatMessageModel] = [] {
@@ -125,7 +125,7 @@ public class WYChatView: UIView {
     /// 区分当前点击的是哪个控件
     public var touchStyle: WYChatTouchStyle = .done
     
-    public init(userInfo: WYChatUaerModel? = nil) {
+    public init(userInfo: WYChatUserModel? = nil) {
         super.init(frame: .zero)
         
         self.userInfo = userInfo

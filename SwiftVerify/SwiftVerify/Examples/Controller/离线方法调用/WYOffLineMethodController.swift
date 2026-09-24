@@ -22,7 +22,7 @@ class WYOffLineMethodController: UIViewController {
         if let classType = NSClassFromString(fullClassName) as? UIViewController.Type {
             let obj = classType.init()
             
-            let selector = NSSelectorFromString("testMothodWithData:data2:")
+            let selector = NSSelectorFromString("testMethodWithData:data2:")
             
             if obj.responds(to: selector) {
                 

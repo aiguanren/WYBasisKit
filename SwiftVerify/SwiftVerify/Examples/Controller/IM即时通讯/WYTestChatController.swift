@@ -37,7 +37,7 @@ class WYTestChatController: UIViewController {
         }
         
         chatView = WYChatView()
-        chatView.userInfo = sharedUaerInfo(id: "99999", name: "官人", avatar: "https://tse3-mm.cn.bing.net/th/id/OIP-C.sLiEXoTdJvx0fe3erN8NeAAAAA?pid=ImgDet&rs=1")
+        chatView.userInfo = sharedUserInfo(id: "99999", name: "官人", avatar: "https://tse3-mm.cn.bing.net/th/id/OIP-C.sLiEXoTdJvx0fe3erN8NeAAAAA?pid=ImgDet&rs=1")
         chatView.dataSource = []
         chatView.eventsHandler = self
         chatView.delegate = self
@@ -132,7 +132,7 @@ extension WYTestChatController: WYChatViewDelegate {
                 replyMessage.timestamp = String.wy_sharedDeviceTimestamp()
                 replyMessage.lastMessageTimestamp = replyMessage.sharedLastMessageTimestamp(self.chatView.dataSource)
                 replyMessage.clientTimestamp = String.wy_sharedDeviceTimestamp()
-                replyMessage.sendor = self.sharedUaerInfo(id: "88888", name: "大官人", avatar: "https://img1.baidu.com/it/u=3709586903,1286591012&fm=253&fmt=auto&app=138&f=JPEG")
+                replyMessage.sender = self.sharedUserInfo(id: "88888", name: "大官人", avatar: "https://img1.baidu.com/it/u=3709586903,1286591012&fm=253&fmt=auto&app=138&f=JPEG")
                 replyMessage.content.text = ["这是自动模拟的回复消息😄😄😄😄😄😄", "回复消息", "这是自动模拟的多行回复消息😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄"][Int.wy_random(minimum: 0, maximum: 2)]
                 replyMessage.index = message.index + 1
                 replyMessage.sendState = .success
@@ -263,12 +263,12 @@ extension WYTestChatController: WYChatViewEventsHandler {
 extension WYTestChatController {
     
     @discardableResult
-    func sharedUaerInfo(id: String, name: String, avatar: String) -> WYChatUaerModel {
+    func sharedUserInfo(id: String, name: String, avatar: String) -> WYChatUserModel {
         
         let assets: WYChatAssetsModel = WYChatAssetsModel()
         assets.downloadPath = avatar
         
-        let userModel: WYChatUaerModel = WYChatUaerModel()
+        let userModel: WYChatUserModel = WYChatUserModel()
         userModel.id = id
         userModel.name = name
         userModel.nickname = name

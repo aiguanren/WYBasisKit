@@ -52,8 +52,8 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
 // 基本属性
 @property (nonatomic, assign) CGFloat barHeight;
 @property (nonatomic, assign) WYButtonPosition buttonPosition;
-@property (nonatomic, assign) CGFloat originlLeftOffset;
-@property (nonatomic, assign) CGFloat originlRightOffset;
+@property (nonatomic, assign) CGFloat originalLeftOffset;
+@property (nonatomic, assign) CGFloat originalRightOffset;
 @property (nonatomic, assign) CGFloat itemTopOffset;
 @property (nonatomic, assign) BOOL autoCenter;
 @property (nonatomic, assign) CGFloat autoCenterMinSideSpacing;
@@ -129,8 +129,8 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
         // 基本属性
         _barHeight = 65;
         _buttonPosition = WYButtonPositionImageTopTitleBottom;
-        _originlLeftOffset = 0;
-        _originlRightOffset = 0;
+        _originalLeftOffset = 0;
+        _originalRightOffset = 0;
         _itemTopOffset = 0;
         _autoCenter = NO;
         _autoCenterMinSideSpacing = 0;
@@ -343,10 +343,10 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
             case WYButtonPositionImageTopTitleBottom: return @"图片上文字下";
             case WYButtonPositionImageBottomTitleTop: return @"图片下文字上";
         }
-    } else if ([key isEqualToString:@"originlLeftOffset"]) {
-        return [NSString stringWithFormat:@"%.0f", self.settings.originlLeftOffset];
-    } else if ([key isEqualToString:@"originlRightOffset"]) {
-        return [NSString stringWithFormat:@"%.0f", self.settings.originlRightOffset];
+    } else if ([key isEqualToString:@"originalLeftOffset"]) {
+        return [NSString stringWithFormat:@"%.0f", self.settings.originalLeftOffset];
+    } else if ([key isEqualToString:@"originalRightOffset"]) {
+        return [NSString stringWithFormat:@"%.0f", self.settings.originalRightOffset];
     } else if ([key isEqualToString:@"itemTopOffset"]) {
         return [NSString stringWithFormat:@"%.0f", self.settings.itemTopOffset];
     } else if ([key isEqualToString:@"autoCenter"]) {
@@ -469,7 +469,7 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
     } else if ([key containsString:@"Color"]) {
         [self showColorEditorForKey:key];
         return;
-    } else if ([@[@"barHeight", @"originlLeftOffset", @"originlRightOffset", @"autoCenterMinSideSpacing", @"dividingOffset",
+    } else if ([@[@"barHeight", @"originalLeftOffset", @"originalRightOffset", @"autoCenterMinSideSpacing", @"dividingOffset",
                   @"buttonDividingOffset", @"itemWidth", @"itemHeight", @"itemCornerRadius", @"itemBorderWidth",
                   @"scrollLineWidth", @"scrollLineBottomOffset", @"scrollLineCornerRadius", @"titleSelectedScale",
                   @"dividingStripHeight", @"scrollLineHeight",
@@ -545,8 +545,8 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
         textField.placeholder = @"请输入数值";
         CGFloat currentValue = 0;
         if ([key isEqualToString:@"barHeight"]) currentValue = self.settings.barHeight;
-        else if ([key isEqualToString:@"originlLeftOffset"]) currentValue = self.settings.originlLeftOffset;
-        else if ([key isEqualToString:@"originlRightOffset"]) currentValue = self.settings.originlRightOffset;
+        else if ([key isEqualToString:@"originalLeftOffset"]) currentValue = self.settings.originalLeftOffset;
+        else if ([key isEqualToString:@"originalRightOffset"]) currentValue = self.settings.originalRightOffset;
         else if ([key isEqualToString:@"autoCenterMinSideSpacing"]) currentValue = self.settings.autoCenterMinSideSpacing;
         else if ([key isEqualToString:@"dividingOffset"]) currentValue = self.settings.dividingOffset;
         else if ([key isEqualToString:@"buttonDividingOffset"]) currentValue = self.settings.buttonDividingOffset;
@@ -573,8 +573,8 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
         if (textField.text.length > 0) {
             CGFloat value = [textField.text doubleValue];
             if ([key isEqualToString:@"barHeight"]) self.settings.barHeight = value;
-            else if ([key isEqualToString:@"originlLeftOffset"]) self.settings.originlLeftOffset = value;
-            else if ([key isEqualToString:@"originlRightOffset"]) self.settings.originlRightOffset = value;
+            else if ([key isEqualToString:@"originalLeftOffset"]) self.settings.originalLeftOffset = value;
+            else if ([key isEqualToString:@"originalRightOffset"]) self.settings.originalRightOffset = value;
             else if ([key isEqualToString:@"autoCenterMinSideSpacing"]) self.settings.autoCenterMinSideSpacing = value;
             else if ([key isEqualToString:@"dividingOffset"]) self.settings.dividingOffset = value;
             else if ([key isEqualToString:@"buttonDividingOffset"]) self.settings.buttonDividingOffset = value;
@@ -1023,8 +1023,8 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
             @[
                 @{@"title": @"分页栏高度", @"key": @"barHeight"},
                 @{@"title": @"按钮位置", @"key": @"buttonPosition"},
-                @{@"title": @"左偏移量", @"key": @"originlLeftOffset"},
-                @{@"title": @"右偏移量", @"key": @"originlRightOffset"},
+                @{@"title": @"左偏移量", @"key": @"originalLeftOffset"},
+                @{@"title": @"右偏移量", @"key": @"originalRightOffset"},
                 @{@"title": @"Item顶部偏移", @"key": @"itemTopOffset"},
                 @{@"title": @"小于一屏居中", @"key": @"autoCenter"},
                 @{@"title": @"居中两端最小间距", @"key": @"autoCenterMinSideSpacing"},
@@ -1416,8 +1416,8 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
     // 基本属性
     pagingView.bar_height = settings.barHeight;
     pagingView.buttonPosition = settings.buttonPosition;
-    pagingView.bar_originlLeftOffset = settings.originlLeftOffset;
-    pagingView.bar_originlRightOffset = settings.originlRightOffset;
+    pagingView.bar_originalLeftOffset = settings.originalLeftOffset;
+    pagingView.bar_originalRightOffset = settings.originalRightOffset;
     pagingView.bar_itemTopOffset = settings.itemTopOffset;
     pagingView.bar_autoCenter = settings.autoCenter;
     pagingView.bar_autoCenterMinSideSpacing = settings.autoCenterMinSideSpacing;

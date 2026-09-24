@@ -164,7 +164,7 @@ struct WYProviderConfig<target: TargetType> {
                 serverTrustManager = trustManager
             }else {
                 
-                if let cerPath = ((Bundle(for: WYBothwayVerifyDeleagte.self).path(forResource: config.httpsConfig.serverCer, ofType: "cer")) ?? (Bundle.main.path(forResource: config.httpsConfig.serverCer, ofType: "cer"))) {
+                if let cerPath = ((Bundle(for: WYBothwayVerifyDelegate.self).path(forResource: config.httpsConfig.serverCer, ofType: "cer")) ?? (Bundle.main.path(forResource: config.httpsConfig.serverCer, ofType: "cer"))) {
                     do {
                         let certificationData = try Data(contentsOf: URL(fileURLWithPath: cerPath)) as CFData
                         if let certificate = SecCertificateCreateWithData(nil, certificationData){
@@ -217,7 +217,7 @@ struct WYProviderConfig<target: TargetType> {
             }
             
             if config.requestStyle == .httpsBothway {
-                sessionDelegate = config.httpsConfig.sessionDelegate ?? WYBothwayVerifyDeleagte()
+                sessionDelegate = config.httpsConfig.sessionDelegate ?? WYBothwayVerifyDelegate()
             }
         }
         return Session(configuration: configuration, delegate: sessionDelegate, serverTrustManager: serverTrustManager)
@@ -252,7 +252,7 @@ struct WYProviderConfig<target: TargetType> {
     }
 }
 
-private class WYBothwayVerifyDeleagte: SessionDelegate, @unchecked Sendable {
+private class WYBothwayVerifyDelegate: SessionDelegate, @unchecked Sendable {
     
     override func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         switch challenge.protectionSpace.authenticationMethod {
@@ -260,7 +260,7 @@ private class WYBothwayVerifyDeleagte: SessionDelegate, @unchecked Sendable {
             
             let config = MoyaProvider<WYTarget>.config
             
-            guard let p12Path = ((Bundle(for: WYBothwayVerifyDeleagte.self).path(forResource: config.httpsConfig.clientP12, ofType: "p12")) ?? (Bundle.main.path(forResource: config.httpsConfig.clientP12, ofType: "p12"))),
+            guard let p12Path = ((Bundle(for: WYBothwayVerifyDelegate.self).path(forResource: config.httpsConfig.clientP12, ofType: "p12")) ?? (Bundle.main.path(forResource: config.httpsConfig.clientP12, ofType: "p12"))),
                   let p12Data = try? Data(contentsOf: URL(fileURLWithPath: p12Path)) else {
                 completionHandler(.performDefaultHandling, nil)
                 return

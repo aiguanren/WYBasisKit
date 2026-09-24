@@ -652,8 +652,8 @@ public extension String {
     /// 获取当前的 年、月、日
     static func wy_currentYearMonthDay() -> (year: String, month: String, day: String) {
         let calendar = Calendar.current
-        let dateComponets = calendar.dateComponents([Calendar.Component.year,Calendar.Component.month,Calendar.Component.day], from: Date())
-        return ("\(dateComponets.year!)", "\(dateComponets.month!)", "\(dateComponets.day!)")
+        let dateComponents = calendar.dateComponents([Calendar.Component.year,Calendar.Component.month,Calendar.Component.day], from: Date())
+        return ("\(dateComponents.year!)", "\(dateComponents.month!)", "\(dateComponents.day!)")
     }
     
     /// 获取当前月的总天数
@@ -764,7 +764,7 @@ public extension String {
     /**
      从字符串中提取数字（支持可选前缀、千分位、小数）
      
-     - Parameter prefixs: 可选前缀（如 ["+", "-", "¥", "$"]，最多1个且在最前）
+     - Parameter prefixes: 可选前缀（如 ["+", "-", "¥", "$"]，最多1个且在最前）
      
      - 示例：
      输入："价格 ¥1,234.56，优惠 $999，再加 +100，折扣 0.5"
@@ -775,10 +775,10 @@ public extension String {
      
      - Returns: 提取到的数字字符串数组
      */
-    func wy_extractNumbers(prefixs: [String] = []) -> [String] {
-        let prefixPattern = prefixs.isEmpty
+    func wy_extractNumbers(prefixes: [String] = []) -> [String] {
+        let prefixPattern = prefixes.isEmpty
         ? ""
-        : "(?:\(prefixs.map { NSRegularExpression.escapedPattern(for: $0) }.joined(separator: "|")))?"
+        : "(?:\(prefixes.map { NSRegularExpression.escapedPattern(for: $0) }.joined(separator: "|")))?"
         
         let numberPattern = "(?:[0-9]{1,3}(?:,[0-9]{3})*|[0-9]+)(?:\\.[0-9]+)?"
         

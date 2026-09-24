@@ -35,8 +35,8 @@ import WYBasisKitSwift
     }
     
     /// 获取对象或者类的所有属性和对应的类型(struct类型也适用本方法)
-    @objc static func wy_sharedPropertys(_ object: Any? = nil, className: String = "") -> [String: Any] {
-        return wy_sharedPropertys(object: object, className: className)
+    @objc static func wy_sharedProperties(_ object: Any? = nil, className: String = "") -> [String: Any] {
+        return wy_sharedProperties(object: object, className: className)
     }
 }
 

@@ -14,7 +14,7 @@ class WYTestInfiniteSwitchController: UIViewController {
     var contentScrollView: WYContentScrollView = WYContentScrollView()
     
     /// 底部操作View
-    var operatioView: UIScrollView = UIScrollView()
+    var operationView: UIScrollView = UIScrollView()
     
     /// 水平方向内容页视图数量（Int.max表示无限数量）
     var numberOfHorizontalContent: UISegmentedControl = UISegmentedControl(items: ["0", "1", "2", "3", "4", "5", "∞"])
@@ -174,8 +174,8 @@ class WYTestInfiniteSwitchController: UIViewController {
         contentScrollView.backgroundColor = .wy_random
         contentScrollView.contentDelegate = self
         
-        operatioView.showsHorizontalScrollIndicator = false
-        operatioView.contentInsetAdjustmentBehavior = .never
+        operationView.showsHorizontalScrollIndicator = false
+        operationView.contentInsetAdjustmentBehavior = .never
         
         numberOfHorizontalContent.selectedSegmentIndex = 6
         segmentedControlChange(sender: numberOfHorizontalContent)
@@ -417,8 +417,8 @@ class WYTestInfiniteSwitchController: UIViewController {
             make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight)
         }
         
-        view.addSubview(operatioView)
-        operatioView.snp.makeConstraints { make in
+        view.addSubview(operationView)
+        operationView.snp.makeConstraints { make in
             make.left.right.equalToSuperview()
             make.top.equalTo(contentScrollView.snp.bottom)
             make.height.equalTo((UIDevice.wy_screenHeight - UIDevice.wy_navViewHeight - UIDevice.wy_tabbarSafetyZone) / 2)
@@ -426,7 +426,7 @@ class WYTestInfiniteSwitchController: UIViewController {
         }
         
         let numberOfHorizontalContentView: UIView = createDescContentView(desc: "水平方向内容页视图数量（∞：表示无限数量(Int.Max)）", controView: numberOfHorizontalContent)
-        operatioView.addSubview(numberOfHorizontalContentView)
+        operationView.addSubview(numberOfHorizontalContentView)
         numberOfHorizontalContentView.snp.makeConstraints { make in
             make.width.equalTo(UIDevice.wy_screenWidth - 20)
             make.top.equalToSuperview().offset(10)
@@ -434,21 +434,21 @@ class WYTestInfiniteSwitchController: UIViewController {
         }
         
         let numberOfVerticalContentView: UIView = createDescContentView(desc: "垂直方向内容页视图数量（∞：表示无限数量(Int.Max)）", controView: numberOfVerticalContent)
-        operatioView.addSubview(numberOfVerticalContentView)
+        operationView.addSubview(numberOfVerticalContentView)
         numberOfVerticalContentView.snp.makeConstraints { make in
             make.top.equalTo(numberOfHorizontalContentView.snp.bottom).offset(35)
             make.width.centerX.equalTo(numberOfHorizontalContentView)
         }
         
         let contentSlidingDirectionView: UIView = createDescContentView(desc: "支持的滑动方向", controView: contentSlidingDirection)
-        operatioView.addSubview(contentSlidingDirectionView)
+        operationView.addSubview(contentSlidingDirectionView)
         contentSlidingDirectionView.snp.makeConstraints { make in
             make.top.equalTo(numberOfVerticalContentView.snp.bottom).offset(35)
             make.width.centerX.equalTo(numberOfVerticalContentView)
         }
         
         let prioritySlidingDirectionView: UIView = createDescContentView(desc: "当contentSlidingDirection == .omnidirectional时，优先支持哪个滑动方向，默认左右滑动(不支持设置为.omnidirectional)", controView: prioritySlidingDirection)
-        operatioView.addSubview(prioritySlidingDirectionView)
+        operationView.addSubview(prioritySlidingDirectionView)
         prioritySlidingDirectionView.snp.makeConstraints { make in
             make.top.equalTo(contentSlidingDirectionView.snp.bottom).offset(35)
             make.width.centerX.equalTo(contentSlidingDirectionView)
@@ -460,126 +460,126 @@ class WYTestInfiniteSwitchController: UIViewController {
          *  contentSlidingDirection == omnidirectional时不会生效，且会强制停止计时器
          */
         let standingTimeView: UIView = createDescContentView(desc: "自动轮播时每一页停留时间，默认为3s，最少1s，当设置的值小于1s时，则为默认值，contentSlidingDirection == omnidirectional时不会生效，且会强制停止计时器", controView: standingTime, valueView: standingTimeValue)
-        operatioView.addSubview(standingTimeView)
+        operationView.addSubview(standingTimeView)
         standingTimeView.snp.makeConstraints { make in
             make.top.equalTo(prioritySlidingDirectionView.snp.bottom).offset(35)
             make.width.centerX.equalTo(prioritySlidingDirectionView)
         }
         
         let horizontalSliderEnabledView: UIView = createDescContentView(desc: "水平方向是否支持滑动(仅内容页数量大于1时生效，单页不可滑)，默认true", controView: horizontalSliderEnabled)
-        operatioView.addSubview(horizontalSliderEnabledView)
+        operationView.addSubview(horizontalSliderEnabledView)
         horizontalSliderEnabledView.snp.makeConstraints { make in
             make.top.equalTo(standingTimeView.snp.bottom).offset(35)
             make.width.centerX.equalTo(standingTimeView)
         }
 
         let verticalSliderEnabledView: UIView = createDescContentView(desc: "垂直方向是否支持滑动(仅内容页数量大于1时生效，单页不可滑)，默认true", controView: verticalSliderEnabled)
-        operatioView.addSubview(verticalSliderEnabledView)
+        operationView.addSubview(verticalSliderEnabledView)
         verticalSliderEnabledView.snp.makeConstraints { make in
             make.top.equalTo(horizontalSliderEnabledView.snp.bottom).offset(35)
             make.width.centerX.equalTo(horizontalSliderEnabledView)
         }
 
         let minimumHorizontalSwitchIntervalView: UIView = createDescContentView(desc: "水平方向同轴翻页最小间隔(秒，默认0不限制；手势翻页后间隔内的新同轴拖动无效，跨轴与API切换不受影响，滑杆0~3)", controView: minimumHorizontalSwitchInterval, valueView: minimumHorizontalSwitchIntervalValue)
-        operatioView.addSubview(minimumHorizontalSwitchIntervalView)
+        operationView.addSubview(minimumHorizontalSwitchIntervalView)
         minimumHorizontalSwitchIntervalView.snp.makeConstraints { make in
             make.top.equalTo(verticalSliderEnabledView.snp.bottom).offset(35)
             make.width.centerX.equalTo(verticalSliderEnabledView)
         }
 
         let minimumVerticalSwitchIntervalView: UIView = createDescContentView(desc: "垂直方向同轴翻页最小间隔(秒，默认0不限制；手势翻页后间隔内的新同轴拖动无效，跨轴与API切换不受影响，滑杆0~3)", controView: minimumVerticalSwitchInterval, valueView: minimumVerticalSwitchIntervalValue)
-        operatioView.addSubview(minimumVerticalSwitchIntervalView)
+        operationView.addSubview(minimumVerticalSwitchIntervalView)
         minimumVerticalSwitchIntervalView.snp.makeConstraints { make in
             make.top.equalTo(minimumHorizontalSwitchIntervalView.snp.bottom).offset(35)
             make.width.centerX.equalTo(minimumHorizontalSwitchIntervalView)
         }
 
         let horizontalUnlimitedCarouselView: UIView = createDescContentView(desc: "水平方向是否无限翻页(末页环绕回首页；轮播前提按展示轴读取本开关)", controView: horizontalUnlimitedCarousel)
-        operatioView.addSubview(horizontalUnlimitedCarouselView)
+        operationView.addSubview(horizontalUnlimitedCarouselView)
         horizontalUnlimitedCarouselView.snp.makeConstraints { make in
             make.top.equalTo(minimumVerticalSwitchIntervalView.snp.bottom).offset(35)
             make.width.centerX.equalTo(minimumVerticalSwitchIntervalView)
         }
 
         let verticalUnlimitedCarouselView: UIView = createDescContentView(desc: "垂直方向是否无限翻页(末页环绕回首页；轮播前提按展示轴读取本开关)", controView: verticalUnlimitedCarousel)
-        operatioView.addSubview(verticalUnlimitedCarouselView)
+        operationView.addSubview(verticalUnlimitedCarouselView)
         verticalUnlimitedCarouselView.snp.makeConstraints { make in
             make.top.equalTo(horizontalUnlimitedCarouselView.snp.bottom).offset(35)
             make.width.centerX.equalTo(horizontalUnlimitedCarouselView)
         }
 
         let automaticCarouselView: UIView = createDescContentView(desc: "是否需要自动轮播，默认false，开启后首次展示自动开表，关闭或stopTimer后需显式startTimer恢复", controView: automaticCarousel)
-        operatioView.addSubview(automaticCarouselView)
+        operationView.addSubview(automaticCarouselView)
         automaticCarouselView.snp.makeConstraints { make in
             make.top.equalTo(verticalUnlimitedCarouselView.snp.bottom).offset(35)
             make.width.centerX.equalTo(verticalUnlimitedCarouselView)
         }
         
         let startOrStopTimerView: UIView = createDescContentView(desc: "开启或者关闭定时器", controView: startOrStopTimer)
-        operatioView.addSubview(startOrStopTimerView)
+        operationView.addSubview(startOrStopTimerView)
         startOrStopTimerView.snp.makeConstraints { make in
             make.top.equalTo(automaticCarouselView.snp.bottom).offset(35)
             make.width.centerX.equalTo(automaticCarouselView)
         }
 
         let flickVelocityView: UIView = createDescContentView(desc: "轻扫跨轴直切速度阈值(pt/s，默500，滑杆0~5000可测钳制：低于50/高于3000会被组件自动钳到边界，仅影响全向模式)", controView: flickVelocityThreshold, valueView: flickVelocityValue)
-        operatioView.addSubview(flickVelocityView)
+        operationView.addSubview(flickVelocityView)
         flickVelocityView.snp.makeConstraints { make in
             make.top.equalTo(startOrStopTimerView.snp.bottom).offset(35)
             make.width.centerX.equalTo(startOrStopTimerView)
         }
 
         let crossAxisSwitchStyleView: UIView = createDescContentView(desc: "跨轴切换呈现样式(默认瞬时；滑动=当前页滑出目标页滑入，渐变=目标页淡入覆盖，缩放=目标页缩放归位淡入；同样作用于跨轴轻扫直切，同轴切换不受影响)", controView: crossAxisSwitchStyleSegment)
-        operatioView.addSubview(crossAxisSwitchStyleView)
+        operationView.addSubview(crossAxisSwitchStyleView)
         crossAxisSwitchStyleView.snp.makeConstraints { make in
             make.top.equalTo(flickVelocityView.snp.bottom).offset(35)
             make.width.centerX.equalTo(flickVelocityView)
         }
 
         let switchDurationView: UIView = createDescContentView(desc: "跨轴切换动画时长(秒，默认0.25，滑杆0~3可测钳制：低于0.1/高于2.0会被组件自动钳到边界，仅滑动/渐变/缩放生效)", controView: switchDuration, valueView: switchDurationValue)
-        operatioView.addSubview(switchDurationView)
+        operationView.addSubview(switchDurationView)
         switchDurationView.snp.makeConstraints { make in
             make.top.equalTo(crossAxisSwitchStyleView.snp.bottom).offset(35)
             make.width.centerX.equalTo(crossAxisSwitchStyleView)
         }
 
         let zoomScaleView: UIView = createDescContentView(desc: "缩放切入的缩放比例(默认1.15，进入页从该值缩放归位、退场页放大至该值淡出，滑杆0.5~3可测钳制：低于1.0/高于2.0会被组件自动钳到边界，1.0时无缩放退化为渐变，仅缩放模式生效)", controView: zoomScale, valueView: zoomScaleValue)
-        operatioView.addSubview(zoomScaleView)
+        operationView.addSubview(zoomScaleView)
         zoomScaleView.snp.makeConstraints { make in
             make.top.equalTo(switchDurationView.snp.bottom).offset(35)
             make.width.centerX.equalTo(switchDurationView)
         }
 
         let reloadContentView: UIView = createDescContentView(desc: "刷新当前WYContentScrollView展示的内容View(返回true已刷新，false还没挂载过内容View没有执行)", controView: reloadContent, valueView: reloadContentResult)
-        operatioView.addSubview(reloadContentView)
+        operationView.addSubview(reloadContentView)
         reloadContentView.snp.makeConstraints { make in
             make.top.equalTo(zoomScaleView.snp.bottom).offset(35)
             make.width.centerX.equalTo(zoomScaleView)
         }
 
         let displayDirectionView: UIView = createDescContentView(desc: "当前正在展示的滑动方向(返回值只会有.leftOrRight/.topOrBottom两种类型，随滑动/切换/重挂实时刷新)", controView: displayDirectionQuery, valueView: displayingDirectionValue)
-        operatioView.addSubview(displayDirectionView)
+        operationView.addSubview(displayDirectionView)
         displayDirectionView.snp.makeConstraints { make in
             make.top.equalTo(reloadContentView.snp.bottom).offset(35)
             make.width.centerX.equalTo(reloadContentView)
         }
 
         let nextContentView: UIView = createDescContentViews(desc: "切换指定方向下一个内容页面(不支持直接传入direction为omnidirectional)", controViews: [nextContent, nextContentDirection])
-        operatioView.addSubview(nextContentView)
+        operationView.addSubview(nextContentView)
         nextContentView.snp.makeConstraints { make in
             make.top.equalTo(displayDirectionView.snp.bottom).offset(35)
             make.width.centerX.equalTo(zoomScaleView)
         }
         
         let lastContentView: UIView = createDescContentViews(desc: "切换指定方向上一个内容页面(不支持直接传入direction为omnidirectional)", controViews: [lastContent, lastContentDirection])
-        operatioView.addSubview(lastContentView)
+        operationView.addSubview(lastContentView)
         lastContentView.snp.makeConstraints { make in
             make.top.equalTo(nextContentView.snp.bottom).offset(35)
             make.width.centerX.equalTo(nextContentView)
         }
         
         let switchContentView: UIView = createDescContentViews(desc: "切换到指定方向指定下标处(不支持直接传入direction为omnidirectional)", controViews: [switchContent, switchContentDirection, switchContentPicker])
-        operatioView.addSubview(switchContentView)
+        operationView.addSubview(switchContentView)
         switchContentView.snp.makeConstraints { make in
             make.top.equalTo(lastContentView.snp.bottom).offset(35)
             make.width.centerX.equalTo(lastContentView)
@@ -587,7 +587,7 @@ class WYTestInfiniteSwitchController: UIViewController {
         }
         
         switchContentView.layoutIfNeeded()
-        operatioView.contentSize = CGSize(width: UIDevice.wy_screenWidth, height: switchContentView.wy_bottom)
+        operationView.contentSize = CGSize(width: UIDevice.wy_screenWidth, height: switchContentView.wy_bottom)
     }
     
     func createDescContentView(desc: String, controView: UIView?, valueView: UIView? = nil) -> UIView {

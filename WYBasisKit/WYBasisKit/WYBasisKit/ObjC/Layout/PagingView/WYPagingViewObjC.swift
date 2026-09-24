@@ -65,17 +65,17 @@ import WYBasisKitSwift
     }
 
     /// 分页栏左起始点距离(第一个标题栏距离屏幕边界的距离) 默认0
-    @objc(bar_originlLeftOffset)
-    var bar_originlLeftOffsetObjC: CGFloat {
-        get { return bar_originlLeftOffset }
-        set { bar_originlLeftOffset = newValue }
+    @objc(bar_originalLeftOffset)
+    var bar_originalLeftOffsetObjC: CGFloat {
+        get { return bar_originalLeftOffset }
+        set { bar_originalLeftOffset = newValue }
     }
 
     /// 分页栏右起始点距离(最后一个标题栏距离屏幕边界的距离) 默认0
-    @objc(bar_originlRightOffset)
-    var bar_originlRightOffsetObjC: CGFloat {
-        get { return bar_originlRightOffset }
-        set { bar_originlRightOffset = newValue }
+    @objc(bar_originalRightOffset)
+    var bar_originalRightOffsetObjC: CGFloat {
+        get { return bar_originalRightOffset }
+        set { bar_originalRightOffset = newValue }
     }
     
     /// item距离分页栏顶部的偏移量，默认0(等于0时会强制转为nil传给swift)，如需传入0则传入0.01等具体值
@@ -88,11 +88,11 @@ import WYBasisKitSwift
     }
     
     /**
-     标题总占宽(含间距、bar_originlLeftOffset与bar_originlRightOffset)小于一屏时是否自动居中，默认false靠左显示，自适应与固定Item宽度均支持
+     标题总占宽(含间距、bar_originalLeftOffset与bar_originalRightOffset)小于一屏时是否自动居中，默认false靠左显示，自适应与固定Item宽度均支持
 
-     居中时如果设置了bar_originlLeftOffset/RightOffset，则精确保留bar_originlLeftOffset/RightOffset为两端边距，剩余空间全部均摊到Item之间的间距上
+     居中时如果设置了bar_originalLeftOffset/RightOffset，则精确保留bar_originalLeftOffset/RightOffset为两端边距，剩余空间全部均摊到Item之间的间距上
 
-     居中时如果未设置bar_originlLeftOffset/RightOffset，则剩余空间均摊到Item间距和左右两端，两端至少保留bar_autoCenterMinSideSpacing，单个标题时会落在分页栏中间
+     居中时如果未设置bar_originalLeftOffset/RightOffset，则剩余空间均摊到Item间距和左右两端，两端至少保留bar_autoCenterMinSideSpacing，单个标题时会落在分页栏中间
      */
     @objc(bar_autoCenter)
     var bar_autoCenterObjC: Bool {
@@ -100,7 +100,7 @@ import WYBasisKitSwift
         set { bar_autoCenter = newValue }
     }
 
-    /// 居中且未设置bar_originlLeftOffset与bar_originlRightOffset时，左右两端参与均摊的基础保留间距，默认0(两端基础边距与Item间距一起均摊剩余空间，设置bar_originlLeftOffset/RightOffset后本属性不再参与)
+    /// 居中且未设置bar_originalLeftOffset与bar_originalRightOffset时，左右两端参与均摊的基础保留间距，默认0(两端基础边距与Item间距一起均摊剩余空间，设置bar_originalLeftOffset/RightOffset后本属性不再参与)
     @objc(bar_autoCenterMinSideSpacing)
     var bar_autoCenterMinSideSpacingObjC: CGFloat {
         get { return bar_autoCenterMinSideSpacing }

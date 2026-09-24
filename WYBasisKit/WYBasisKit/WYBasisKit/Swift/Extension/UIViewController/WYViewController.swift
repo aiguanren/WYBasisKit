@@ -9,7 +9,7 @@
 import UIKit
 
 /// ViewController显示模式
-@frozen public enum WYDisplaMode: Int {
+@frozen public enum WYDisplayMode: Int {
     
     /// push模式
     case push = 0
@@ -88,30 +88,30 @@ public extension UIViewController {
     
     /// 跳转到指定的视图控制器
     @discardableResult
-    func wy_showViewController(className: String, parameters: AnyObject? = nil, displaMode: WYDisplaMode = .push, animated: Bool = true) -> UIViewController? {
+    func wy_showViewController(className: String, parameters: AnyObject? = nil, displayMode: WYDisplayMode = .push, animated: Bool = true) -> UIViewController? {
 
         guard let controller = wy_controller(from: className)  else { return nil}
         
-        wy_showViewController(controller: controller, parameters: parameters, displaMode: displaMode, animated: animated)
+        wy_showViewController(controller: controller, parameters: parameters, displayMode: displayMode, animated: animated)
         
         return controller
     }
     
     /// 跳转到指定的视图控制器，此方法可防止循环跳转
     @discardableResult
-    func wy_showOnlyViewController(className: String, parameters: AnyObject? = nil, displaMode: WYDisplaMode = .push, animated: Bool = true) -> UIViewController? {
+    func wy_showOnlyViewController(className: String, parameters: AnyObject? = nil, displayMode: WYDisplayMode = .push, animated: Bool = true) -> UIViewController? {
         
         wy_deleteViewController(className: className)
         
-        return wy_showViewController(className: className, parameters: parameters, displaMode: displaMode, animated: animated)
+        return wy_showViewController(className: className, parameters: parameters, displayMode: displayMode, animated: animated)
     }
     
     /// 跳转到指定的视图控制器(通用)
-    func wy_showViewController(controller: UIViewController, parameters: AnyObject? = nil, displaMode: WYDisplaMode = .push, animated: Bool = true) {
+    func wy_showViewController(controller: UIViewController, parameters: AnyObject? = nil, displayMode: WYDisplayMode = .push, animated: Bool = true) {
         
         controller.hidesBottomBarWhenPushed = true
         controller.wy_parameters = parameters
-        switch displaMode {
+        switch displayMode {
         case .push:
             self.navigationController?.pushViewController(controller, animated: animated)
         case .present:
@@ -133,21 +133,21 @@ public extension UIViewController {
     }
     
     /// 获取viewController跳转模式
-    func wy_viewControllerDisplaMode() -> WYDisplaMode {
+    func wy_viewControllerDisplayMode() -> WYDisplayMode {
         
         let viewcontrollers = self.navigationController?.viewControllers
-        var displaMode: WYDisplaMode = .push
+        var displayMode: WYDisplayMode = .push
         
         if viewcontrollers?.isEmpty == false {
             
-            displaMode = (viewcontrollers?.last == self) ? .push : .present
+            displayMode = (viewcontrollers?.last == self) ? .push : .present
             
         }else {
             
-            displaMode = .present
+            displayMode = .present
         }
         
-        return displaMode;
+        return displayMode;
     }
     
     /**
@@ -170,7 +170,7 @@ public extension UIViewController {
                 return
             }
             
-            if wy_viewControllerDisplaMode() == .push {
+            if wy_viewControllerDisplayMode() == .push {
                 guard let nav = self.navigationController, !nav.viewControllers.isEmpty else { return }
                 targetController = nav.viewControllers.first(where: { $0.isKind(of: controllerClass.self) })
             } else {
@@ -183,7 +183,7 @@ public extension UIViewController {
             }
         } else {
             // className 为 nil：返回到上一个控制器
-            if wy_viewControllerDisplaMode() == .push {
+            if wy_viewControllerDisplayMode() == .push {
                 guard let nav = self.navigationController,
                       let index = nav.viewControllers.firstIndex(of: self),
                       index > 0 else { return }
@@ -200,7 +200,7 @@ public extension UIViewController {
         target.wy_returnValue = returnValue
         
         // 执行返回操作
-        if wy_viewControllerDisplaMode() == .push,
+        if wy_viewControllerDisplayMode() == .push,
            let nav = self.navigationController,
            nav.viewControllers.contains(self) {
             // push 模式：pop 到目标控制器

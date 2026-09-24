@@ -28,18 +28,18 @@
     
     UIViewController *leftController = [[WYMainController alloc] init];
     leftController.view.backgroundColor = [UIColor wy_dynamicWithLight:[UIColor whiteColor] dark:[UIColor blackColor]];
-    [self layoutTabbrItem:leftController title:@"左" defaultImage:[UIImage wy_find:@"tabbar_left_default"] selectedImage:[UIImage wy_find:@"tabbar_left_selected"]];
+    [self layoutTabbarItem:leftController title:@"左" defaultImage:[UIImage wy_find:@"tabbar_left_default"] selectedImage:[UIImage wy_find:@"tabbar_left_selected"]];
     
     UIViewController *centerController = [[WYCenterController alloc] init];
     centerController.view.backgroundColor = [UIColor wy_dynamicWithLight:[UIColor whiteColor] dark:[UIColor blackColor]];
-    [self layoutTabbrItem:centerController title:@"中" defaultImage:[UIImage wy_find:@"tabbar_center_default"] selectedImage:[UIImage wy_find:@"tabbar_center_selected"]];
+    [self layoutTabbarItem:centerController title:@"中" defaultImage:[UIImage wy_find:@"tabbar_center_default"] selectedImage:[UIImage wy_find:@"tabbar_center_selected"]];
     
     UIViewController *rightController = [[WYRightController alloc] init];
     rightController.view.backgroundColor = [UIColor wy_dynamicWithLight:[UIColor whiteColor] dark:[UIColor blackColor]];
-    [self layoutTabbrItem:rightController title:@"右" defaultImage:[UIImage wy_find:@"tabbar_right_default"] selectedImage:[UIImage wy_find:@"tabbar_right_selected"]];
+    [self layoutTabbarItem:rightController title:@"右" defaultImage:[UIImage wy_find:@"tabbar_right_default"] selectedImage:[UIImage wy_find:@"tabbar_right_selected"]];
 }
 
-- (void)layoutTabbrItem:(UIViewController *)controller title:(NSString *)title defaultImage:(UIImage *)defaultImage selectedImage:(UIImage *)selectedImage {
+- (void)layoutTabbarItem:(UIViewController *)controller title:(NSString *)title defaultImage:(UIImage *)defaultImage selectedImage:(UIImage *)selectedImage {
     
     UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:controller];
     [self layoutNavigationBar:nav];

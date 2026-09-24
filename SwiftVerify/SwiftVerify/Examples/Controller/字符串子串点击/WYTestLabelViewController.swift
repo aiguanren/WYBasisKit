@@ -45,22 +45,22 @@ class WYTestLabelViewController: UIViewController {
             make.centerX.equalTo(view)
         }
 
-        let clickEffectColorView: UIButton = createButton(title: "点击效果颜色", selecror: #selector(selectedClickEffectColor), superView: contentView, leftView: nil, topView: nil)
+        let clickEffectColorView: UIButton = createButton(title: "点击效果颜色", selector: #selector(selectedClickEffectColor), superView: contentView, leftView: nil, topView: nil)
 
-        let longPressEffectColorView: UIButton = createButton(title: "长按效果颜色", selecror: #selector(selectedLongPressEffectColor), superView: contentView, leftView: clickEffectColorView, topView: nil)
+        let longPressEffectColorView: UIButton = createButton(title: "长按效果颜色", selector: #selector(selectedLongPressEffectColor), superView: contentView, leftView: clickEffectColorView, topView: nil)
 
-        let longPressMinimumDurationView: UIButton = createButton(title: "长按手势触发\n的最小时长", selecror: #selector(longPressMinimumDuration(sender:)), superView: contentView, leftView: longPressEffectColorView, topView: nil, isRight: true)
+        let longPressMinimumDurationView: UIButton = createButton(title: "长按手势触发\n的最小时长", selector: #selector(longPressMinimumDuration(sender:)), superView: contentView, leftView: longPressEffectColorView, topView: nil, isRight: true)
 
-        let overlaysOriginalBackgroundView: UIButton = createButton(title: "(覆盖)自带\n背景色高亮", selecror: #selector(overlaysOriginalBackground(sender:)), superView: contentView, leftView: nil, topView: longPressMinimumDurationView)
+        let overlaysOriginalBackgroundView: UIButton = createButton(title: "(覆盖)自带\n背景色高亮", selector: #selector(overlaysOriginalBackground(sender:)), superView: contentView, leftView: nil, topView: longPressMinimumDurationView)
         overlaysOriginalBackgroundView.setTitle("(忽略)自带\n背景色高亮", for: .selected)
 
-        let useCustomFontView: UIButton = createButton(title: "未使用自定义字体", selecror: #selector(useCustomFont(sender:)), superView: contentView, leftView: overlaysOriginalBackgroundView, topView: longPressMinimumDurationView)
+        let useCustomFontView: UIButton = createButton(title: "未使用自定义字体", selector: #selector(useCustomFont(sender:)), superView: contentView, leftView: overlaysOriginalBackgroundView, topView: longPressMinimumDurationView)
         useCustomFontView.setTitle("已使用自定义字体", for: .selected)
 
-        let randomTextView: UIButton = createButton(title: "未使用随机文本", selecror: #selector(useRandomText(sender:)), superView: contentView, leftView: useCustomFontView, topView: longPressMinimumDurationView, isRight: true)
+        let randomTextView: UIButton = createButton(title: "未使用随机文本", selector: #selector(useRandomText(sender:)), superView: contentView, leftView: useCustomFontView, topView: longPressMinimumDurationView, isRight: true)
         randomTextView.setTitle("已使用随机文本", for: .selected)
 
-        let touchUpInsideView: UIButton = createButton(title: "(已开启)\n抬起时触发", selecror: #selector(touchUpInsideToggle(sender:)), superView: contentView, leftView: nil, topView: overlaysOriginalBackgroundView, isLast: true)
+        let touchUpInsideView: UIButton = createButton(title: "(已开启)\n抬起时触发", selector: #selector(touchUpInsideToggle(sender:)), superView: contentView, leftView: nil, topView: overlaysOriginalBackgroundView, isLast: true)
         touchUpInsideView.setTitle("(已关闭)\n抬起时触发", for: .selected)
 
         tableView = UITableView.wy_shared(delegate: self, dataSource: self, superView: view)
@@ -71,14 +71,14 @@ class WYTestLabelViewController: UIViewController {
         }
     }
 
-    func createButton(title: String, selecror: Selector, superView: UIView, leftView: UIView?, topView: UIView?, isRight: Bool = false, isLast: Bool = false) -> UIButton {
+    func createButton(title: String, selector: Selector, superView: UIView, leftView: UIView?, topView: UIView?, isRight: Bool = false, isLast: Bool = false) -> UIButton {
         let button: UIButton = UIButton(type: .custom)
         button.setTitle(title, for: .normal)
         button.titleLabel?.numberOfLines = 0
         button.titleLabel?.font = .systemFont(ofSize: 15)
         button.setTitleColor(.wy_random, for: .normal)
         button.wy_addBorder(edges: .all, color: .wy_random, thickness: 1)
-        button.addTarget(self, action: selecror, for: .touchUpInside)
+        button.addTarget(self, action: selector, for: .touchUpInside)
         button.titleLabel?.textAlignment = .center
         superView.addSubview(button)
         button.snp.makeConstraints { make in

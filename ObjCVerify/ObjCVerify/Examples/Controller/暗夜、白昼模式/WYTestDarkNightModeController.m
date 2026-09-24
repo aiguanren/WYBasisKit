@@ -44,7 +44,7 @@
                 
                 WYTabBarController *tabbarController = (WYTabBarController *)[AppDelegate shared].window.rootViewController;
                 UINavigationController *navController = (UINavigationController *)tabbarController.selectedViewController;
-                [navController.topViewController wy_showViewControllerWithClassName:@"WYTestDarkNightModeController" parameters:nil displaMode:WYDisplaModePush animated:NO];
+                [navController.topViewController wy_showViewControllerWithClassName:@"WYTestDarkNightModeController" parameters:nil displayMode:WYDisplayModePush animated:NO];
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)),
                                dispatch_get_main_queue(), ^{
                     [UIViewController wy_currentController].navigationItem.title = @"重启后的新Controller";
@@ -59,7 +59,7 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 WYTabBarController *tabbarController = (WYTabBarController *)[AppDelegate shared].window.rootViewController;
                 UINavigationController *navController = (UINavigationController *)tabbarController.selectedViewController;
-                [navController.topViewController wy_showViewControllerWithClassName:@"WYTestDarkNightModeController" parameters:nil displaMode:WYDisplaModePush animated:NO];
+                [navController.topViewController wy_showViewControllerWithClassName:@"WYTestDarkNightModeController" parameters:nil displayMode:WYDisplayModePush animated:NO];
                 
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)),
                                dispatch_get_main_queue(), ^{

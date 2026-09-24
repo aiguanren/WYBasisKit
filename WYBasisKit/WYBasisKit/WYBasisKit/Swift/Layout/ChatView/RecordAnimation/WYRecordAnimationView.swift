@@ -74,20 +74,20 @@ public class WYRecordAnimationView: UIView {
         kit.minimumRecordDuration = recordAnimationConfig.recordTime.min
         kit.maximumRecordDuration = recordAnimationConfig.recordTime.max
         
-        var setingDictionary: Dictionary = Dictionary<String, Any>()
+        var settingDictionary: Dictionary = Dictionary<String, Any>()
         // 设置录音格式
-        setingDictionary[AVFormatIDKey] = kAudioFormatMPEG4AAC
+        settingDictionary[AVFormatIDKey] = kAudioFormatMPEG4AAC
         // 设置录音采样率，8000是电话采样率，对于一般录音已经够了
-        setingDictionary[AVSampleRateKey] = 44100.0
+        settingDictionary[AVSampleRateKey] = 44100.0
         // 设置通道,这里采用单声道
-        setingDictionary[AVNumberOfChannelsKey] = 1
+        settingDictionary[AVNumberOfChannelsKey] = 1
         // 每个采样点位数,分为8、16、24、32
-        setingDictionary[AVLinearPCMBitDepthKey] = 16
+        settingDictionary[AVLinearPCMBitDepthKey] = 16
         // 是否使用浮点数采样
-        setingDictionary[AVLinearPCMIsFloatKey] = false
-        setingDictionary[AVEncoderAudioQualityKey] = AVAudioQuality.high.rawValue
+        settingDictionary[AVLinearPCMIsFloatKey] = false
+        settingDictionary[AVEncoderAudioQualityKey] = AVAudioQuality.high.rawValue
         
-        kit.recordSettings = setingDictionary
+        kit.recordSettings = settingDictionary
         
         return kit
     }()
@@ -201,17 +201,17 @@ public class WYRecordAnimationView: UIView {
         switch status {
         case .recording:
             if subview == leftView {
-                leftView.moveuplView.snp.updateConstraints { make in
-                    make.centerY.equalTo(leftView.tipsView.snp.bottom).offset(recordAnimationConfig.moveupButtonCenterOffsetY.onExternal)
-                    make.width.height.equalTo(CGSize(width: recordAnimationConfig.moveupButtonDiameter.onExternal, height: recordAnimationConfig.moveupButtonDiameter.onExternal))
+                leftView.moveUpView.snp.updateConstraints { make in
+                    make.centerY.equalTo(leftView.tipsView.snp.bottom).offset(recordAnimationConfig.moveUpButtonCenterOffsetY.onExternal)
+                    make.width.height.equalTo(CGSize(width: recordAnimationConfig.moveUpButtonDiameter.onExternal, height: recordAnimationConfig.moveUpButtonDiameter.onExternal))
                     leftView.refresh(tipsState: .cancel, isTouched: false)
                 }
             }
             
             if subview == rightView {
-                rightView.moveuplView.snp.updateConstraints { make in
-                    make.centerY.equalTo(rightView.tipsView.snp.bottom).offset(recordAnimationConfig.moveupButtonCenterOffsetY.onExternal)
-                    make.width.height.equalTo(CGSize(width: recordAnimationConfig.moveupButtonDiameter.onExternal, height: recordAnimationConfig.moveupButtonDiameter.onExternal))
+                rightView.moveUpView.snp.updateConstraints { make in
+                    make.centerY.equalTo(rightView.tipsView.snp.bottom).offset(recordAnimationConfig.moveUpButtonCenterOffsetY.onExternal)
+                    make.width.height.equalTo(CGSize(width: recordAnimationConfig.moveUpButtonDiameter.onExternal, height: recordAnimationConfig.moveUpButtonDiameter.onExternal))
                     rightView.refresh(tipsState: .transfer, isTouched: false)
                 }
             }
@@ -234,24 +234,24 @@ public class WYRecordAnimationView: UIView {
             break
         case .cancel:
             if subview == leftView {
-                leftView.moveuplView.snp.updateConstraints { make in
-                    make.centerY.equalTo(leftView.tipsView.snp.bottom).offset(recordAnimationConfig.moveupButtonCenterOffsetY.onInterior)
-                    make.width.height.equalTo(CGSize(width: recordAnimationConfig.moveupButtonDiameter.onInterior, height: recordAnimationConfig.moveupButtonDiameter.onInterior))
+                leftView.moveUpView.snp.updateConstraints { make in
+                    make.centerY.equalTo(leftView.tipsView.snp.bottom).offset(recordAnimationConfig.moveUpButtonCenterOffsetY.onInterior)
+                    make.width.height.equalTo(CGSize(width: recordAnimationConfig.moveUpButtonDiameter.onInterior, height: recordAnimationConfig.moveUpButtonDiameter.onInterior))
                 }
                 leftView.refresh(tipsState: .cancel, isTouched: true)
             }
             
             if subview == rightView {
-                rightView.moveuplView.snp.updateConstraints { make in
-                    make.centerY.equalTo(rightView.tipsView.snp.bottom).offset(recordAnimationConfig.moveupButtonCenterOffsetY.onExternal)
-                    make.width.height.equalTo(CGSize(width: recordAnimationConfig.moveupButtonDiameter.onExternal, height: recordAnimationConfig.moveupButtonDiameter.onExternal))
+                rightView.moveUpView.snp.updateConstraints { make in
+                    make.centerY.equalTo(rightView.tipsView.snp.bottom).offset(recordAnimationConfig.moveUpButtonCenterOffsetY.onExternal)
+                    make.width.height.equalTo(CGSize(width: recordAnimationConfig.moveUpButtonDiameter.onExternal, height: recordAnimationConfig.moveUpButtonDiameter.onExternal))
                 }
                 rightView.refresh(tipsState: .transfer, isTouched: false)
             }
             
             if subview == soundAnimationView {
                 soundAnimationView.snp.updateConstraints { make in
-                    make.centerX.equalToSuperview().offset(-recordAnimationConfig.moveupButtonCenterOffsetX - (recordAnimationConfig.moveupButtonDiameter.onInterior / 2) + (recordAnimationConfig.soundWavesViewWidth.cancel / 2))
+                    make.centerX.equalToSuperview().offset(-recordAnimationConfig.moveUpButtonCenterOffsetX - (recordAnimationConfig.moveUpButtonDiameter.onInterior / 2) + (recordAnimationConfig.soundWavesViewWidth.cancel / 2))
                     make.width.equalTo(recordAnimationConfig.soundWavesViewWidth.cancel)
                     make.height.equalTo(recordAnimationConfig.soundWavesViewHeight.cancel)
                 }
@@ -267,17 +267,17 @@ public class WYRecordAnimationView: UIView {
             break
         case .transfer:
             if subview == leftView {
-                leftView.moveuplView.snp.updateConstraints { make in
-                    make.centerY.equalTo(leftView.tipsView.snp.bottom).offset(recordAnimationConfig.moveupButtonCenterOffsetY.onExternal)
-                    make.width.height.equalTo(CGSize(width: recordAnimationConfig.moveupButtonDiameter.onExternal, height: recordAnimationConfig.moveupButtonDiameter.onExternal))
+                leftView.moveUpView.snp.updateConstraints { make in
+                    make.centerY.equalTo(leftView.tipsView.snp.bottom).offset(recordAnimationConfig.moveUpButtonCenterOffsetY.onExternal)
+                    make.width.height.equalTo(CGSize(width: recordAnimationConfig.moveUpButtonDiameter.onExternal, height: recordAnimationConfig.moveUpButtonDiameter.onExternal))
                 }
                 leftView.refresh(tipsState: .cancel, isTouched: false)
             }
             
             if subview == rightView {
-                rightView.moveuplView.snp.updateConstraints { make in
-                    make.centerY.equalTo(rightView.tipsView.snp.bottom).offset(recordAnimationConfig.moveupButtonCenterOffsetY.onInterior)
-                    make.width.height.equalTo(CGSize(width: recordAnimationConfig.moveupButtonDiameter.onInterior, height: recordAnimationConfig.moveupButtonDiameter.onInterior))
+                rightView.moveUpView.snp.updateConstraints { make in
+                    make.centerY.equalTo(rightView.tipsView.snp.bottom).offset(recordAnimationConfig.moveUpButtonCenterOffsetY.onInterior)
+                    make.width.height.equalTo(CGSize(width: recordAnimationConfig.moveUpButtonDiameter.onInterior, height: recordAnimationConfig.moveUpButtonDiameter.onInterior))
                 }
                 rightView.refresh(tipsState: .transfer, isTouched: true)
             }
@@ -378,29 +378,29 @@ public class WYRecordAnimationView: UIView {
         return soundAnimationView
     }()
     
-    private lazy var leftView: WYMoveupTipsView = {
+    private lazy var leftView: WYMoveUpTipsView = {
         
-        let leftView: WYMoveupTipsView = WYMoveupTipsView(tipsState: .cancel)
+        let leftView: WYMoveUpTipsView = WYMoveUpTipsView(tipsState: .cancel)
         addSubview(leftView)
         leftView.snp.makeConstraints { make in
             if recordAnimationConfig.supportSpeechRecognition {
-                make.centerX.equalToSuperview().offset(-recordAnimationConfig.moveupButtonCenterOffsetX)
+                make.centerX.equalToSuperview().offset(-recordAnimationConfig.moveUpButtonCenterOffsetX)
             }else {
                 make.centerX.equalToSuperview()
             }
-            make.centerY.equalTo(self.snp.bottom).offset(-(recordAnimationConfig.areaHeight + recordAnimationConfig.moveupButtonOffset.bottom))
+            make.centerY.equalTo(self.snp.bottom).offset(-(recordAnimationConfig.areaHeight + recordAnimationConfig.moveUpButtonOffset.bottom))
         }
         return leftView
     }()
     
-    private lazy var rightView: WYMoveupTipsView = {
+    private lazy var rightView: WYMoveUpTipsView = {
         
-        let rightView: WYMoveupTipsView = WYMoveupTipsView(tipsState: .transfer)
+        let rightView: WYMoveUpTipsView = WYMoveUpTipsView(tipsState: .transfer)
         rightView.isHidden = !recordAnimationConfig.supportSpeechRecognition
         addSubview(rightView)
         rightView.snp.makeConstraints { make in
-            make.centerX.equalToSuperview().offset(recordAnimationConfig.moveupButtonCenterOffsetX)
-            make.centerY.equalTo(self.snp.bottom).offset(-(recordAnimationConfig.areaHeight + recordAnimationConfig.moveupButtonOffset.bottom))
+            make.centerX.equalToSuperview().offset(recordAnimationConfig.moveUpButtonCenterOffsetX)
+            make.centerY.equalTo(self.snp.bottom).offset(-(recordAnimationConfig.areaHeight + recordAnimationConfig.moveUpButtonOffset.bottom))
         }
         return rightView
     }()

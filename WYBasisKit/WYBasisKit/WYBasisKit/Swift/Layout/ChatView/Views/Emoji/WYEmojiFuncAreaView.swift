@@ -52,10 +52,10 @@ public struct WYEmojiFuncAreaConfig {
     public var deleteViewAndSendViewCornerRadius: CGFloat = UIDevice.wy_screenWidth(5)
     
     /// 删除按钮不可点击时背景图
-    public var deleteViewImageWithUnenable: UIImage = UIImage.wy_find("WYChatDeleteUnenable", inBundle: WYChatSourceBundle)
+    public var deleteViewImageWithDisabled: UIImage = UIImage.wy_find("WYChatDeleteUnenable", inBundle: WYChatSourceBundle)
     
     /// 发送按钮不可点击时背景图
-    public var sendViewImageWithUnenable: UIImage = UIImage.wy_createImage(from: .white, size: CGSize(width: UIDevice.wy_screenWidth(60), height: UIDevice.wy_screenWidth(50)))
+    public var sendViewImageWithDisabled: UIImage = UIImage.wy_createImage(from: .white, size: CGSize(width: UIDevice.wy_screenWidth(60), height: UIDevice.wy_screenWidth(50)))
     
     /// 删除按钮可点击时背景图
     public var deleteViewImageWithEnable: UIImage = UIImage.wy_find("WYChatDeleteEnable", inBundle: WYChatSourceBundle)
@@ -82,10 +82,10 @@ public struct WYEmojiFuncAreaConfig {
     public var sendViewFont: UIFont = .boldSystemFont(ofSize: UIDevice.wy_screenWidth(16.5))
     
     /// 删除按钮不可点击时文本颜色
-    public var deleteViewTextColorWithUnenable: UIColor = .wy_hex("#E5E5E5")
+    public var deleteViewTextColorWithDisabled: UIColor = .wy_hex("#E5E5E5")
     
     /// 发送按钮不可点击时文本颜色
-    public var sendViewTextColorWithUnenable: UIColor = .wy_hex("#E5E5E5")
+    public var sendViewTextColorWithDisabled: UIColor = .wy_hex("#E5E5E5")
     
     /// 删除按钮可点击时文本颜色
     public var deleteViewTextColorWithEnable: UIColor = .blue
@@ -149,7 +149,7 @@ public class WYEmojiFuncAreaView: UIView {
             make.left.equalTo(gradualView)
         }
 
-        sendView = createFuncButton(text: emojiViewConfig.funcAreaConfig.sendViewText, textColorWithUnenable: emojiViewConfig.funcAreaConfig.sendViewTextColorWithUnenable, textColorWithEnable: emojiViewConfig.funcAreaConfig.sendViewTextColorWithEnable, textColorWithHighly: emojiViewConfig.funcAreaConfig.sendViewTextColorWithHighly, backgroundImageWithUnenable: emojiViewConfig.funcAreaConfig.sendViewImageWithUnenable, backgroundImageWithEnable: emojiViewConfig.funcAreaConfig.sendViewImageWithEnable, backgroundImageWithHighly: emojiViewConfig.funcAreaConfig.sendViewImageWithHighly, target: self, selector: #selector(clickSendView))
+        sendView = createFuncButton(text: emojiViewConfig.funcAreaConfig.sendViewText, textColorWithDisabled: emojiViewConfig.funcAreaConfig.sendViewTextColorWithDisabled, textColorWithEnable: emojiViewConfig.funcAreaConfig.sendViewTextColorWithEnable, textColorWithHighly: emojiViewConfig.funcAreaConfig.sendViewTextColorWithHighly, backgroundImageWithDisabled: emojiViewConfig.funcAreaConfig.sendViewImageWithDisabled, backgroundImageWithEnable: emojiViewConfig.funcAreaConfig.sendViewImageWithEnable, backgroundImageWithHighly: emojiViewConfig.funcAreaConfig.sendViewImageWithHighly, target: self, selector: #selector(clickSendView))
         sendView.wy_titleFont = emojiViewConfig.funcAreaConfig.sendViewFont
         contentView.addSubview(sendView)
         sendView.snp.makeConstraints { make in
@@ -158,7 +158,7 @@ public class WYEmojiFuncAreaView: UIView {
             make.top.equalToSuperview()
         }
 
-        deleteView = createFuncButton(text: emojiViewConfig.funcAreaConfig.deleteViewText, textColorWithUnenable: emojiViewConfig.funcAreaConfig.deleteViewTextColorWithUnenable, textColorWithEnable: emojiViewConfig.funcAreaConfig.deleteViewTextColorWithEnable, textColorWithHighly: emojiViewConfig.funcAreaConfig.deleteViewTextColorWithHighly, backgroundImageWithUnenable: emojiViewConfig.funcAreaConfig.deleteViewImageWithUnenable, backgroundImageWithEnable: emojiViewConfig.funcAreaConfig.deleteViewImageWithEnable, backgroundImageWithHighly: emojiViewConfig.funcAreaConfig.deleteViewImageWithHighly, target: self, selector: #selector(clickDeleteView))
+        deleteView = createFuncButton(text: emojiViewConfig.funcAreaConfig.deleteViewText, textColorWithDisabled: emojiViewConfig.funcAreaConfig.deleteViewTextColorWithDisabled, textColorWithEnable: emojiViewConfig.funcAreaConfig.deleteViewTextColorWithEnable, textColorWithHighly: emojiViewConfig.funcAreaConfig.deleteViewTextColorWithHighly, backgroundImageWithDisabled: emojiViewConfig.funcAreaConfig.deleteViewImageWithDisabled, backgroundImageWithEnable: emojiViewConfig.funcAreaConfig.deleteViewImageWithEnable, backgroundImageWithHighly: emojiViewConfig.funcAreaConfig.deleteViewImageWithHighly, target: self, selector: #selector(clickDeleteView))
         deleteView.wy_titleFont = emojiViewConfig.funcAreaConfig.deleteViewFont
         if (emojiViewConfig.funcAreaConfig.longPressDelete == true) {
             let longPress: UILongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(didLongPress(sender:)))
@@ -173,16 +173,16 @@ public class WYEmojiFuncAreaView: UIView {
         }
     }
 
-    public func createFuncButton(text: String, textColorWithUnenable: UIColor, textColorWithEnable: UIColor, textColorWithHighly: UIColor, backgroundImageWithUnenable: UIImage, backgroundImageWithEnable: UIImage, backgroundImageWithHighly: UIImage, target: Any?, selector: Selector) -> UIButton {
+    public func createFuncButton(text: String, textColorWithDisabled: UIColor, textColorWithEnable: UIColor, textColorWithHighly: UIColor, backgroundImageWithDisabled: UIImage, backgroundImageWithEnable: UIImage, backgroundImageWithHighly: UIImage, target: Any?, selector: Selector) -> UIButton {
 
         let button: UIButton = UIButton(type: .custom)
         button.wy_sTitle = text
         button.wy_nTitle = text
         button.wy_hTitle = text
-        button.wy_title_sColor = textColorWithUnenable
+        button.wy_title_sColor = textColorWithDisabled
         button.wy_title_nColor = textColorWithEnable
         button.wy_title_hColor = textColorWithHighly
-        button.setBackgroundImage(backgroundImageWithUnenable, for: .selected)
+        button.setBackgroundImage(backgroundImageWithDisabled, for: .selected)
         button.setBackgroundImage(backgroundImageWithEnable, for: .normal)
         button.setBackgroundImage(backgroundImageWithHighly, for: .highlighted)
         button.wy_cornerRadius(emojiViewConfig.funcAreaConfig.deleteViewAndSendViewCornerRadius).wy_showVisual()

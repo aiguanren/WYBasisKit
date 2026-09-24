@@ -16,7 +16,7 @@ import WYBasisKitSwift
 
      - Parameters:
        - string: 待校验字符串
-       - prefixs: 可选前缀（如 ["+", "-", "¥", "$"]，最多1个且在最前）
+       - prefixes: 可选前缀（如 ["+", "-", "¥", "$"]，最多1个且在最前）
 
      - 示例：
        ✅ 123 / 123.45 / 1,234 / 1,234.56 / +123 / -123.45 / ¥1,234 / $1,234.56等
@@ -25,10 +25,10 @@ import WYBasisKitSwift
      - Returns: 是否合法
      */
     @objc public static func wy_isValidIntegerOrDecimal(_ string: String) -> Bool {
-        return wy_isValidIntegerOrDecimal(string, prefixs: [])
+        return wy_isValidIntegerOrDecimal(string, prefixes: [])
     }
-    @objc public static func wy_isValidIntegerOrDecimal(_ string: String, prefixs: [String] = []) -> Bool {
-        return Bool.wy_isValidIntegerOrDecimal(string, prefixs: prefixs)
+    @objc public static func wy_isValidIntegerOrDecimal(_ string: String, prefixes: [String] = []) -> Bool {
+        return Bool.wy_isValidIntegerOrDecimal(string, prefixes: prefixes)
     }
     
     /// 判断是否是纯数字

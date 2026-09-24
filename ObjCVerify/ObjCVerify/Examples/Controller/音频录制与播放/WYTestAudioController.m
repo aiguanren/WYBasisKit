@@ -1357,7 +1357,7 @@
         case WYAudioErrorDeleteAudioFileFailed: return @"删除音频(录音)文件失败";
         case WYAudioErrorNotDetermined: return @"未申请录音权限(权限未确定)";
         case WYAudioErrorPermissionDenied: return @"录音权限被拒绝";
-        case WYAudioErrorNoAudiofilesToPlay: return @"没有可以播放的音频文件";
+        case WYAudioErrorNoAudioFilesToPlay: return @"没有可以播放的音频文件";
         case WYAudioErrorFileNotFound: return @"音频文件未找到";
         case WYAudioErrorFileSaveFailed: return @"录音文件保存失败";
         case WYAudioErrorRecordingInProgress: return @"录音正在进行中";

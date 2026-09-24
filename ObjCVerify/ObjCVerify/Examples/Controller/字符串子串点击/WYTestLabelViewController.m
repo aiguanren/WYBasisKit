@@ -71,7 +71,7 @@
                                                                isLast:NO];
 
     UIButton *longPressMinimumDurationView = [self createButtonWithTitle:@"长按手势触发\n的最小时长"
-                                                                 selector:@selector(longPressMinimumDurationSectcted)
+                                                                 selector:@selector(longPressMinimumDurationSelected)
                                                                 superView:contentView
                                                                  leftView:longPressEffectColorView
                                                                   topView:nil
@@ -195,7 +195,7 @@
     }];
 }
 
-- (void)longPressMinimumDurationSectcted {
+- (void)longPressMinimumDurationSelected {
     wy_weakify(self);
     [UIAlertController wy_showStyle:UIAlertControllerStyleAlert title:@"长按手势触发的最小时长(秒)" message:nil duration:0 actionSheetNeedCancel:NO textFieldPlaceholders:@[[NSString stringWithFormat:@"当前%.2f秒", self.longPressMinimumDuration]] actions:@[@"确定", @"取消"] handler:^(NSString * _Nonnull action, NSArray<NSString *> * _Nonnull inputTexts) {
         wy_strongify(self);

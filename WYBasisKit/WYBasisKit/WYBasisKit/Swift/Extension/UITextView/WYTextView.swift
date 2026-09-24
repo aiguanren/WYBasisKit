@@ -72,7 +72,7 @@ public extension UITextView {
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_longPressMinimumDuration) as? TimeInterval ?? 0.5 }
     }
     
-    /// 非链接区域的点击事件是否需要穿透UITextView，默认False(为False时点击指定字符串之外区域，事件按照UITextVeiw默认响应链响应，为True时，将跳过UITextVeiw，直接响应事件到UITextVeiw的父View)
+    /// 非链接区域的点击事件是否需要穿透UITextView，默认False(为False时点击指定字符串之外区域，事件按照UITextView默认响应链响应，为True时，将跳过UITextView，直接响应事件到UITextView的父View)
     var wy_eventPenetration: Bool {
         set {
             objc_setAssociatedObject(self, &WYAssociatedKeys.wy_eventPenetration, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)

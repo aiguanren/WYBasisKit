@@ -224,7 +224,7 @@ import WYBasisKitSwift
         return UIDevice.wy_carrierIP
     }
     
-    /// 获取 Wifi IP地址
+    /// 获取 Wi-Fi IP地址
     @objc(wy_wifiIP)
     static var wy_wifiIPObjC: String {
         return UIDevice.wy_wifiIP

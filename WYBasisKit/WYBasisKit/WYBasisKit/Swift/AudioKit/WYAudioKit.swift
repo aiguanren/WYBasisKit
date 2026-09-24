@@ -151,7 +151,7 @@ import QuartzCore
     /// 录音权限被拒绝
     case permissionDenied
     /// 没有可以播放的音频文件
-    case noAudiofilesToPlay
+    case noAudioFilesToPlay
     /// 音频文件未找到
     case fileNotFound
     /// 录音文件保存失败
@@ -632,15 +632,15 @@ public final class WYAudioKit: NSObject {
         
         // 如果未指定 URL 且录音尚未停止（包括暂停状态），则视为没有可播放的录音文件
         if url == nil && state.audioRecorder != nil {
-            wy_handleErrorEvents(error: .noAudiofilesToPlay)
-            failed(nil, WYAudioError.noAudiofilesToPlay, nil)
+            wy_handleErrorEvents(error: .noAudioFilesToPlay)
+            failed(nil, WYAudioError.noAudioFilesToPlay, nil)
             return
         }
         
         let targetURL = url ?? currentRecordFileURL
         guard let playURL = targetURL else {
-            wy_handleErrorEvents(url: targetURL, error: .noAudiofilesToPlay)
-            failed(targetURL, WYAudioError.noAudiofilesToPlay, nil)
+            wy_handleErrorEvents(url: targetURL, error: .noAudioFilesToPlay)
+            failed(targetURL, WYAudioError.noAudioFilesToPlay, nil)
             return
         }
         

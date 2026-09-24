@@ -69,42 +69,42 @@ public struct WYRecordAnimationConfig {
                                     transfer: UIDevice.wy_screenWidth(90))
     
     /// 录音、取消录音与转文字时声波动画气泡主体圆角半径
-    public var cornerRadiusForMoveup: (recording: CGFloat,
+    public var cornerRadiusForMoveUp: (recording: CGFloat,
                                           cancel: CGFloat,
                                        transfer: CGFloat) = (recording: UIDevice.wy_screenWidth(12),
                                                                 cancel: UIDevice.wy_screenWidth(12),
                                             transfer: UIDevice.wy_screenWidth(12))
     
     /// 录音、取消录音与转文字时声波动画气泡背景色
-    public var backgroundColorForMoveup: (recording: UIColor,
+    public var backgroundColorForMoveUp: (recording: UIColor,
                                           cancel: UIColor,
                                           transfer: UIColor) = (recording: .wy_hex("#95EC69"),
                                                                 cancel: .wy_hex("#FA5151"),
                                             transfer: .wy_hex("#95EC69"))
     
     /// 录音、取消录音与转文字时声波动画气泡边框的颜色
-    public var borderColorForMoveup: (recording: UIColor,
+    public var borderColorForMoveUp: (recording: UIColor,
                                           cancel: UIColor,
                                           transfer: UIColor) = (recording: .wy_hex("#95EC69"),
                                                                 cancel: .wy_hex("#FA5151"),
                                             transfer: .wy_hex("#95EC69"))
     
     /// 录音、取消录音与转文字时声波动画气泡边框宽度
-    public var borderWidthForMoveup: (recording: CGFloat,
+    public var borderWidthForMoveUp: (recording: CGFloat,
                                           cancel: CGFloat,
                                        transfer: CGFloat) = (recording: 0,
                                                                 cancel: 0,
                                             transfer: 0)
     
     /// 录音、取消录音与转文字时声波动画气泡三角箭头的尺寸（宽度，高度）(宽度是底边长度，高度是尖点到底边的垂直距离)
-    public var arrowSizeForMoveup: (recording: CGSize,
+    public var arrowSizeForMoveUp: (recording: CGSize,
                                           cancel: CGSize,
                                        transfer: CGSize) = (recording: CGSize(width: UIDevice.wy_screenWidth(16, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels)),
                                                                 cancel: CGSize(width: UIDevice.wy_screenWidth(16, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels)),
                                             transfer: CGSize(width: UIDevice.wy_screenWidth(16, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels)))
     
     /// 录音、取消录音与转文字时声波动画气泡三角箭头的圆角半径
-    public var arrowTipRadiusForMoveup: (recording: CGFloat,
+    public var arrowTipRadiusForMoveUp: (recording: CGFloat,
                                           cancel: CGFloat,
                                          transfer: CGFloat) = (recording: UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels),
                                                                cancel: UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels),
@@ -129,7 +129,7 @@ public struct WYRecordAnimationConfig {
     public var transferViewImage: (onInterior: UIImage, onExternal: UIImage) = (onInterior: .wy_createImage(from: .wy_rgb(236, 236, 236), size: CGSize(width: UIDevice.wy_screenWidth(100), height: UIDevice.wy_screenWidth(100))).wy_cuttingRound(), onExternal: .wy_createImage(from: .wy_rgb(57, 57, 57), size: CGSize(width: UIDevice.wy_screenWidth(80), height: UIDevice.wy_screenWidth(80))).wy_cuttingRound())
     
     /// 取消按钮及转文字按钮的提示语字号和色值
-    public var tipsInfoForMoveup: (font: UIFont, color: UIColor) = (font: .systemFont(ofSize: UIFont.wy_fontSize(15)), color: .wy_rgb(163, 163, 163))
+    public var tipsInfoForMoveUp: (font: UIFont, color: UIColor) = (font: .systemFont(ofSize: UIFont.wy_fontSize(15)), color: .wy_rgb(163, 163, 163))
     
     /// 录音按钮提示语内部字体及色值
     public var recordViewTipsInfoForInterior: (font: UIFont, color: UIColor) = (font: .systemFont(ofSize: UIFont.wy_fontSize(15)), color: .wy_rgb(20, 20, 20))
@@ -150,7 +150,7 @@ public struct WYRecordAnimationConfig {
     public var transferViewTextInfoForExternal: (font: UIFont, color: UIColor) = (font: .systemFont(ofSize: UIFont.wy_fontSize(15)), color: .wy_rgb(156, 156, 156))
     
     /// 取消录音按钮和转文字按钮的偏转角度
-    public var moveupViewDeviationAngle: CGFloat = Double.pi * 0.12
+    public var moveUpViewDeviationAngle: CGFloat = Double.pi * 0.12
     
     /// 录音按钮背景色
     public var recordViewColor:(onInterior: UIColor, onExternal: UIColor) = (onInterior: .wy_rgb(57, 57, 57), onExternal: .white)
@@ -171,16 +171,16 @@ public struct WYRecordAnimationConfig {
     public var recordTipViewTopOffset: CGFloat = UIDevice.wy_screenWidth(20)
     
     /// 取消录音或者语音转文字按钮直径
-    public var moveupButtonDiameter: (onInterior: CGFloat, onExternal: CGFloat) = (onInterior: UIDevice.wy_screenWidth(100), onExternal: UIDevice.wy_screenWidth(80))
+    public var moveUpButtonDiameter: (onInterior: CGFloat, onExternal: CGFloat) = (onInterior: UIDevice.wy_screenWidth(100), onExternal: UIDevice.wy_screenWidth(80))
     
     /// 取消录音或者语音转文字按钮中心点距离 声波动画控件底部 与 底部圆弧顶点 的间距
-    public var moveupButtonOffset: (top: CGFloat, bottom: CGFloat) = (top: UIDevice.wy_screenWidth(130), bottom: UIDevice.wy_screenWidth(65))
+    public var moveUpButtonOffset: (top: CGFloat, bottom: CGFloat) = (top: UIDevice.wy_screenWidth(130), bottom: UIDevice.wy_screenWidth(65))
     
     /// 取消录音或者语音转文字按钮中心点距离tip控件底部的间距
-    public var moveupButtonCenterOffsetY: (onInterior: CGFloat, onExternal: CGFloat) = (onInterior: UIDevice.wy_screenWidth(55), onExternal: UIDevice.wy_screenWidth(45))
+    public var moveUpButtonCenterOffsetY: (onInterior: CGFloat, onExternal: CGFloat) = (onInterior: UIDevice.wy_screenWidth(55), onExternal: UIDevice.wy_screenWidth(45))
     
     /// 取消录音按钮和转文字按钮中心点X值距离屏幕父控件左侧或者右侧的间距(如果supportSpeechRecognition为false，则此属性无效，内部会强制水平居中)
-    public var moveupButtonCenterOffsetX: CGFloat = UIDevice.wy_screenWidth(UIDevice.wy_screenWidth(100))
+    public var moveUpButtonCenterOffsetX: CGFloat = UIDevice.wy_screenWidth(UIDevice.wy_screenWidth(100))
     
     /// 声波动画操作区切换时是否需要震动反馈
     public var vibrationFeedback: Bool = true

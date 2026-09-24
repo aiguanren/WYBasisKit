@@ -73,7 +73,7 @@ public extension NSObject {
     }
     
     /// 获取对象或者类的所有属性和对应的类型(struct类型也适用本方法)
-    static func wy_sharedPropertys(object: Any? = nil, className: String = "") -> [String: Any] {
+    static func wy_sharedProperties(object: Any? = nil, className: String = "") -> [String: Any] {
         
         var properties: [String: Any] = [:]
         

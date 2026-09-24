@@ -50,12 +50,12 @@ public class WYSoundAnimationView: WYAirBubbleView {
         
         switch status {
         case .recording:
-            cornerRadius = recordAnimationConfig.cornerRadiusForMoveup.recording
-            fillColor = recordAnimationConfig.backgroundColorForMoveup.recording
-            borderColor = recordAnimationConfig.borderColorForMoveup.recording
-            borderWidth = recordAnimationConfig.borderWidthForMoveup.recording
-            arrowSize = recordAnimationConfig.arrowSizeForMoveup.recording
-            arrowTipRadius = recordAnimationConfig.arrowTipRadiusForMoveup.recording
+            cornerRadius = recordAnimationConfig.cornerRadiusForMoveUp.recording
+            fillColor = recordAnimationConfig.backgroundColorForMoveUp.recording
+            borderColor = recordAnimationConfig.borderColorForMoveUp.recording
+            borderWidth = recordAnimationConfig.borderWidthForMoveUp.recording
+            arrowSize = recordAnimationConfig.arrowSizeForMoveUp.recording
+            arrowTipRadius = recordAnimationConfig.arrowTipRadiusForMoveUp.recording
             arrowOffset = 0
             
             soundWavesView.snp.updateConstraints { make in
@@ -65,13 +65,13 @@ public class WYSoundAnimationView: WYAirBubbleView {
             }
             break
         case .transfer:
-            cornerRadius = recordAnimationConfig.cornerRadiusForMoveup.transfer
-            fillColor = recordAnimationConfig.backgroundColorForMoveup.transfer
-            borderColor = recordAnimationConfig.borderColorForMoveup.transfer
-            borderWidth = recordAnimationConfig.borderWidthForMoveup.transfer
-            arrowSize = recordAnimationConfig.arrowSizeForMoveup.transfer
-            arrowTipRadius = recordAnimationConfig.arrowTipRadiusForMoveup.transfer
-            arrowOffset = (recordAnimationConfig.soundWavesViewWidth.transfer - recordAnimationConfig.moveupButtonDiameter.onInterior - arrowSize.width) / 2
+            cornerRadius = recordAnimationConfig.cornerRadiusForMoveUp.transfer
+            fillColor = recordAnimationConfig.backgroundColorForMoveUp.transfer
+            borderColor = recordAnimationConfig.borderColorForMoveUp.transfer
+            borderWidth = recordAnimationConfig.borderWidthForMoveUp.transfer
+            arrowSize = recordAnimationConfig.arrowSizeForMoveUp.transfer
+            arrowTipRadius = recordAnimationConfig.arrowTipRadiusForMoveUp.transfer
+            arrowOffset = (recordAnimationConfig.soundWavesViewWidth.transfer - recordAnimationConfig.moveUpButtonDiameter.onInterior - arrowSize.width) / 2
             
             soundWavesView.snp.updateConstraints { make in
                 make.centerX.equalToSuperview().offset((recordAnimationConfig.soundWavesViewWidth.transfer / 2) - recordAnimationConfig.soundWavesRightOffsetForAirBubble.x - (soundWavesSize.width / 2))
@@ -80,12 +80,12 @@ public class WYSoundAnimationView: WYAirBubbleView {
             }
             break
         case .cancel:
-            cornerRadius = recordAnimationConfig.cornerRadiusForMoveup.cancel
-            fillColor = recordAnimationConfig.backgroundColorForMoveup.cancel
-            borderColor = recordAnimationConfig.borderColorForMoveup.cancel
-            borderWidth = recordAnimationConfig.borderWidthForMoveup.cancel
-            arrowSize = recordAnimationConfig.arrowSizeForMoveup.cancel
-            arrowTipRadius = recordAnimationConfig.arrowTipRadiusForMoveup.cancel
+            cornerRadius = recordAnimationConfig.cornerRadiusForMoveUp.cancel
+            fillColor = recordAnimationConfig.backgroundColorForMoveUp.cancel
+            borderColor = recordAnimationConfig.borderColorForMoveUp.cancel
+            borderWidth = recordAnimationConfig.borderWidthForMoveUp.cancel
+            arrowSize = recordAnimationConfig.arrowSizeForMoveUp.cancel
+            arrowTipRadius = recordAnimationConfig.arrowTipRadiusForMoveUp.cancel
             arrowOffset = 0
             
             soundWavesView.snp.updateConstraints { make in

@@ -34,9 +34,9 @@ public struct WYBasicChatConfig {
     public var avatarContentMode: UIView.ContentMode = .scaleAspectFit
     
     /// 显示昵称时头像距离cell的偏移量
-    public var avatarOffset: (sendor: CGPoint, receive: CGPoint) = (
+    public var avatarOffset: (sender: CGPoint, receive: CGPoint) = (
         
-        sendor: CGPoint(x: UIDevice.wy_screenWidth(15), y: 0),
+        sender: CGPoint(x: UIDevice.wy_screenWidth(15), y: 0),
         
         receive: CGPoint(x: UIDevice.wy_screenWidth(15), y: 0))
 
@@ -47,22 +47,22 @@ public struct WYBasicChatConfig {
     public var avatarCornerRadius: CGFloat = UIDevice.wy_screenWidth(5)
     
     /// 单聊时是否显示昵称
-    public var showNicknameForSingle: (sendor: Bool, receive: Bool) = (sendor: false, receive: false)
+    public var showNicknameForSingle: (sender: Bool, receive: Bool) = (sender: false, receive: false)
     
     /// 群聊时是否显示昵称
-    public var showNicknameForGroup: (sendor: Bool, receive: Bool) = (sendor: false, receive: true)
+    public var showNicknameForGroup: (sender: Bool, receive: Bool) = (sender: false, receive: true)
     
     /// 单聊时昵称距离时间控件的偏移量
-    public var nameViewOffsetForSingle: (sendor: CGPoint, receive: CGPoint) = (
+    public var nameViewOffsetForSingle: (sender: CGPoint, receive: CGPoint) = (
         
-        sendor: CGPoint(x: -UIDevice.wy_screenWidth(20), y: UIDevice.wy_screenWidth(20)),
+        sender: CGPoint(x: -UIDevice.wy_screenWidth(20), y: UIDevice.wy_screenWidth(20)),
         
         receive: CGPoint(x: UIDevice.wy_screenWidth(20), y: UIDevice.wy_screenWidth(20)))
     
     /// 群聊时昵称距离时间控件的偏移量
-    public var nameViewOffsetForGroup: (sendor: CGPoint, receive: CGPoint) = (
+    public var nameViewOffsetForGroup: (sender: CGPoint, receive: CGPoint) = (
         
-        sendor: CGPoint(x: -UIDevice.wy_screenWidth(20), y: UIDevice.wy_screenWidth(20)),
+        sender: CGPoint(x: -UIDevice.wy_screenWidth(20), y: UIDevice.wy_screenWidth(20)),
         
         receive: CGPoint(x: UIDevice.wy_screenWidth(20), y: UIDevice.wy_screenWidth(20)))
 
@@ -168,13 +168,13 @@ public class WYChatBasicCell: UITableViewCell {
         loadImage(avatarView)
         
         nicknameView.font = config.nicknameFont
-        nicknameView.text = message.sendor.name
+        nicknameView.text = message.sender.name
         nicknameView.textAlignment = message.isSender(userID) ? .right : .left
         if message.isSender(userID) {
             if message.group == nil {
-                nicknameView.textColor = config.showNicknameForSingle.sendor ? config.nicknameColor : .clear
+                nicknameView.textColor = config.showNicknameForSingle.sender ? config.nicknameColor : .clear
             }else {
-                nicknameView.textColor = config.showNicknameForGroup.sendor ? config.nicknameColor : .clear
+                nicknameView.textColor = config.showNicknameForGroup.sender ? config.nicknameColor : .clear
             }
         }else {
             if message.group == nil {
@@ -213,11 +213,11 @@ public class WYChatBasicCell: UITableViewCell {
             if message.isSender(userID) {
                 make.left.equalToSuperview().offset(abs(chatTextConfig.basic.avatarOffset.receive.x) + config.avatarSize.width + abs(chatTextConfig.bubbleMaxOffset))
                 if message.group == nil {
-                    make.width.equalTo(sharedContentMaxWidth() - abs(chatTextConfig.bubbleOffsetForSingle.sendor.x))
-                    make.top.equalTo(timeView.snp.bottom).offset((timeView.text?.isEmpty ?? true) ? 0 : config.nameViewOffsetForSingle.sendor.y)
+                    make.width.equalTo(sharedContentMaxWidth() - abs(chatTextConfig.bubbleOffsetForSingle.sender.x))
+                    make.top.equalTo(timeView.snp.bottom).offset((timeView.text?.isEmpty ?? true) ? 0 : config.nameViewOffsetForSingle.sender.y)
                 }else {
-                    make.width.equalTo(sharedContentMaxWidth() - abs(chatTextConfig.bubbleOffsetForGroup.sendor.x))
-                    make.top.equalTo(timeView.snp.bottom).offset((timeView .text?.isEmpty ?? true) ? 0 : config.nameViewOffsetForGroup.sendor.y)
+                    make.width.equalTo(sharedContentMaxWidth() - abs(chatTextConfig.bubbleOffsetForGroup.sender.x))
+                    make.top.equalTo(timeView.snp.bottom).offset((timeView .text?.isEmpty ?? true) ? 0 : config.nameViewOffsetForGroup.sender.y)
                 }
             }else {
                 if message.group == nil {
@@ -235,8 +235,8 @@ public class WYChatBasicCell: UITableViewCell {
         
         avatarView.snp.updateConstraints { make in
             if message.isSender(userID) {
-                make.top.equalTo(nicknameView.snp.bottom).offset(config.avatarOffset.sendor.y)
-                make.left.equalToSuperview().offset(wy_width - config.avatarOffset.sendor.x - config.avatarSize.width)
+                make.top.equalTo(nicknameView.snp.bottom).offset(config.avatarOffset.sender.y)
+                make.left.equalToSuperview().offset(wy_width - config.avatarOffset.sender.x - config.avatarSize.width)
             }else {
                 make.top.equalTo(nicknameView.snp.bottom).offset(config.avatarOffset.receive.y)
                 make.left.equalToSuperview().offset(config.avatarOffset.receive.x)
@@ -325,9 +325,9 @@ public extension WYChatBasicCell {
     
     func loadImage(_ imageView: UIImageView) {
          
-        let imageCache = try! ImageCache(name: message.sendor.name, cacheDirectoryURL: createDirectory(directory: .cachesDirectory, subDirectory: "WYBasisKit/WYChatView/\(message.sendor.name)"))
+        let imageCache = try! ImageCache(name: message.sender.name, cacheDirectoryURL: createDirectory(directory: .cachesDirectory, subDirectory: "WYBasisKit/WYChatView/\(message.sender.name)"))
         
-        let urlString: String = message.sendor.avatar.downloadPath
+        let urlString: String = message.sender.avatar.downloadPath
         
         avatarView.kf.setImage(with: URL(string: urlString), placeholder: config.defaultAvatar, options: [.targetCache(imageCache)]) { [weak self] result in
             
@@ -336,9 +336,9 @@ public extension WYChatBasicCell {
             switch result {
             case .success(let source):
                 imageView.image = source.image
-                self.message.sendor.avatar.localPath = imageCache.cachePath(forKey: urlString)
-                self.message.sendor.avatar.id = urlString.wy_sha256()
-                self.message.sendor.avatar.name = urlString.wy_sha256()
+                self.message.sender.avatar.localPath = imageCache.cachePath(forKey: urlString)
+                self.message.sender.avatar.id = urlString.wy_sha256()
+                self.message.sender.avatar.name = urlString.wy_sha256()
                 break
             case .failure(let error):
                 WYLogManager.output("\(error)")
@@ -428,21 +428,21 @@ public extension WYChatBasicCell {
             
             if message.group == nil {
                 
-                return (wy_width - abs(chatTextConfig.basic.avatarOffset.sendor.x) - abs(chatTextConfig.basic.avatarOffset.receive.x) - (chatTextConfig.basic.avatarSize.width * 2.0) - abs(chatTextConfig.bubbleMaxOffset)) - abs(config.nameViewOffsetForSingle.sendor.x) + abs(chatTextConfig.bubbleOffsetForSingle.sendor.x)
+                return (wy_width - abs(chatTextConfig.basic.avatarOffset.sender.x) - abs(chatTextConfig.basic.avatarOffset.receive.x) - (chatTextConfig.basic.avatarSize.width * 2.0) - abs(chatTextConfig.bubbleMaxOffset)) - abs(config.nameViewOffsetForSingle.sender.x) + abs(chatTextConfig.bubbleOffsetForSingle.sender.x)
                 
             }else {
                 
-                return (wy_width - abs(chatTextConfig.basic.avatarOffset.sendor.x) - abs(chatTextConfig.basic.avatarOffset.receive.x) - (chatTextConfig.basic.avatarSize.width * 2.0) - abs(chatTextConfig.bubbleMaxOffset)) - abs(config.nameViewOffsetForGroup.sendor.x) + abs(chatTextConfig.bubbleOffsetForGroup.sendor.x)
+                return (wy_width - abs(chatTextConfig.basic.avatarOffset.sender.x) - abs(chatTextConfig.basic.avatarOffset.receive.x) - (chatTextConfig.basic.avatarSize.width * 2.0) - abs(chatTextConfig.bubbleMaxOffset)) - abs(config.nameViewOffsetForGroup.sender.x) + abs(chatTextConfig.bubbleOffsetForGroup.sender.x)
             }
             
         }else {
             if message.group == nil {
                 
-                return (wy_width - abs(chatTextConfig.basic.avatarOffset.sendor.x) - abs(chatTextConfig.basic.avatarOffset.receive.x) - (chatTextConfig.basic.avatarSize.width * 2.0) - abs(chatTextConfig.bubbleMaxOffset)) - abs(config.nameViewOffsetForSingle.receive.x) + abs(chatTextConfig.bubbleOffsetForSingle.receive.x)
+                return (wy_width - abs(chatTextConfig.basic.avatarOffset.sender.x) - abs(chatTextConfig.basic.avatarOffset.receive.x) - (chatTextConfig.basic.avatarSize.width * 2.0) - abs(chatTextConfig.bubbleMaxOffset)) - abs(config.nameViewOffsetForSingle.receive.x) + abs(chatTextConfig.bubbleOffsetForSingle.receive.x)
                 
             }else {
                 
-                return (wy_width - abs(chatTextConfig.basic.avatarOffset.sendor.x) - abs(chatTextConfig.basic.avatarOffset.receive.x) - (chatTextConfig.basic.avatarSize.width * 2.0) - abs(chatTextConfig.bubbleMaxOffset)) - abs(config.nameViewOffsetForGroup.receive.x) + abs(chatTextConfig.bubbleOffsetForGroup.receive.x)
+                return (wy_width - abs(chatTextConfig.basic.avatarOffset.sender.x) - abs(chatTextConfig.basic.avatarOffset.receive.x) - (chatTextConfig.basic.avatarSize.width * 2.0) - abs(chatTextConfig.bubbleMaxOffset)) - abs(config.nameViewOffsetForGroup.receive.x) + abs(chatTextConfig.bubbleOffsetForGroup.receive.x)
             }
         }
     }

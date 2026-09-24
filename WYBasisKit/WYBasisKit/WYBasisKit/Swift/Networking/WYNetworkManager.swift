@@ -746,7 +746,7 @@ public struct WYNetworkManager {
      *
      *  @param asset        为空表示清除传入 path 下所有资源，否则表示清除传入 path 下对应 asset 的指定资源
      *
-     *  @param complte      完成后回调，error 为空表示成功，否则为失败
+     *  @param completion      完成后回调，error 为空表示成功，否则为失败
      *
      */
     public static func clearDiskCache(path: String, asset: String = "", completion:((_ error: String?) -> Void)? = .none) {
@@ -1026,7 +1026,7 @@ extension WYNetworkManager {
     
     private static func checkNetworkStatus(handler: ((_ status: (NetworkStatus, String)) -> Void)? = .none) {
         
-        networkStatus(showStatusAlert: false, openSeting: true, statusHandler: { (status) in
+        networkStatus(showStatusAlert: false, openSetting: true, statusHandler: { (status) in
             
             DispatchQueue.main.async {
                 
@@ -1034,7 +1034,7 @@ extension WYNetworkManager {
                     
                     if (networkSecurityInfo.0 == .userNotSelectedConnect) {
                         
-                        networkStatus(showStatusAlert: true, openSeting: true, actionHandler: { (actionStr, networkStatus) in
+                        networkStatus(showStatusAlert: true, openSetting: true, actionHandler: { (actionStr, networkStatus) in
                             
                             DispatchQueue.main.async {
                                 
@@ -1072,7 +1072,7 @@ extension WYNetworkManager {
                     
                 }else {
                     
-                    networkStatus(showStatusAlert: false, openSeting: true, statusHandler: { (_) in
+                    networkStatus(showStatusAlert: false, openSetting: true, statusHandler: { (_) in
                         
                         DispatchQueue.main.async {
                             
@@ -1087,36 +1087,36 @@ extension WYNetworkManager {
         })
     }
     
-    private static func networkStatus(showStatusAlert: Bool, openSeting: Bool, statusHandler:((_ status: NetworkStatus) -> Void)? = nil, actionHandler:((_ action: String, _ status: NetworkStatus) -> Void)? = nil) {
+    private static func networkStatus(showStatusAlert: Bool, openSetting: Bool, statusHandler:((_ status: NetworkStatus) -> Void)? = nil, actionHandler:((_ action: String, _ status: NetworkStatus) -> Void)? = nil) {
         
         WYNetworkStatus.listening("WYNetworkManager") { nwpath in
             
             var message = WYLocalized("未知的网络，可能存在安全隐患，是否继续？", table: WYBasisKitConfig.kitLocalizableTable)
             var networkStatus = NetworkStatus.unknown
-            var actions = openSeting ? [WYLocalized("去设置", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized(WYLocalized("继续连接", table: WYBasisKitConfig.kitLocalizableTable)), WYLocalized("取消连接", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("继续连接", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("取消连接", table: WYBasisKitConfig.kitLocalizableTable)]
+            var actions = openSetting ? [WYLocalized("去设置", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized(WYLocalized("继续连接", table: WYBasisKitConfig.kitLocalizableTable)), WYLocalized("取消连接", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("继续连接", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("取消连接", table: WYBasisKitConfig.kitLocalizableTable)]
             switch nwpath.status {
             case .requiresConnection:
                 message = WYLocalized("未知的网络，可能存在安全隐患，是否继续？", table: WYBasisKitConfig.kitLocalizableTable)
                 networkStatus = .unknown
-                actions = openSeting ? [WYLocalized("去设置", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("继续连接", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("取消连接", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("继续连接", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("取消连接", table: WYBasisKitConfig.kitLocalizableTable)]
+                actions = openSetting ? [WYLocalized("去设置", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("继续连接", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("取消连接", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("继续连接", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("取消连接", table: WYBasisKitConfig.kitLocalizableTable)]
                 break
             case .unsatisfied:
                 message = WYLocalized("不可用的网络，请确认您的网络环境或网络连接权限已正确设置", table: WYBasisKitConfig.kitLocalizableTable)
                 networkStatus = .notReachable
-                actions = openSeting ? [WYLocalized("去设置", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)]
+                actions = openSetting ? [WYLocalized("去设置", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)]
                 break
             case .satisfied:
                 
                 if nwpath.usesInterfaceType(.wifi) {
                     message = WYLocalized("您正在使用Wifi联网", table: WYBasisKitConfig.kitLocalizableTable)
                     networkStatus = .reachableWifi
-                    actions = openSeting ? [WYLocalized("去设置", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)]
+                    actions = openSetting ? [WYLocalized("去设置", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)]
                 }
                 
                 if nwpath.usesInterfaceType(.cellular) {
                     message = WYLocalized("您正在使用蜂窝移动网络联网", table: WYBasisKitConfig.kitLocalizableTable)
                     networkStatus = .reachableCellular
-                    actions = openSeting ? [WYLocalized("去设置", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)]
+                    actions = openSetting ? [WYLocalized("去设置", table: WYBasisKitConfig.kitLocalizableTable), WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)] : [WYLocalized("知道了", table: WYBasisKitConfig.kitLocalizableTable)]
                 }
                 break
             @unknown default: break

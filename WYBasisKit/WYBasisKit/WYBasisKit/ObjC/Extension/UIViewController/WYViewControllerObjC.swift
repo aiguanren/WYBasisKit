@@ -10,8 +10,8 @@ import UIKit
 import WYBasisKitSwift
 
 /// ViewController显示模式
-@objc(WYDisplaMode)
-@frozen public enum WYDisplaModeObjC: Int {
+@objc(WYDisplayMode)
+@frozen public enum WYDisplayModeObjC: Int {
     
     /// push模式
     case push = 0
@@ -58,22 +58,22 @@ import WYBasisKitSwift
     
     /// 跳转到指定的视图控制器
     @discardableResult
-    @objc(wy_showViewControllerWithClassName:parameters:displaMode:animated:)
-    func wy_showViewControllerObjC(className: String, parameters: AnyObject? = nil, displaMode: WYDisplaModeObjC = .push, animated: Bool = true) -> UIViewController? {
-        wy_showViewController(className: className, parameters: parameters, displaMode: WYDisplaMode(rawValue: displaMode.rawValue) ?? .push, animated: animated)
+    @objc(wy_showViewControllerWithClassName:parameters:displayMode:animated:)
+    func wy_showViewControllerObjC(className: String, parameters: AnyObject? = nil, displayMode: WYDisplayModeObjC = .push, animated: Bool = true) -> UIViewController? {
+        wy_showViewController(className: className, parameters: parameters, displayMode: WYDisplayMode(rawValue: displayMode.rawValue) ?? .push, animated: animated)
     }
     
     /// 跳转到指定的视图控制器，此方法可防止循环跳转
     @discardableResult
-    @objc(wy_showOnlyViewControllerWithClassName:parameters:displaMode:animated:)
-    func wy_showOnlyViewControllerObjC(className: String, parameters: AnyObject? = nil, displaMode: WYDisplaModeObjC = .push, animated: Bool = true) -> UIViewController? {
-        wy_showOnlyViewController(className: className, parameters: parameters, displaMode: WYDisplaMode(rawValue: displaMode.rawValue) ?? .push, animated: animated)
+    @objc(wy_showOnlyViewControllerWithClassName:parameters:displayMode:animated:)
+    func wy_showOnlyViewControllerObjC(className: String, parameters: AnyObject? = nil, displayMode: WYDisplayModeObjC = .push, animated: Bool = true) -> UIViewController? {
+        wy_showOnlyViewController(className: className, parameters: parameters, displayMode: WYDisplayMode(rawValue: displayMode.rawValue) ?? .push, animated: animated)
     }
     
     /// 跳转到指定的视图控制器(通用)
-    @objc(wy_showViewController:parameters:displaMode:animated:)
-    func wy_showViewControllerObjC(controller: UIViewController, parameters: AnyObject? = nil, displaMode: WYDisplaModeObjC = .push, animated: Bool = true) {
-        wy_showViewController(controller: controller, parameters: parameters, displaMode: WYDisplaMode(rawValue: displaMode.rawValue) ?? .push, animated: animated)
+    @objc(wy_showViewController:parameters:displayMode:animated:)
+    func wy_showViewControllerObjC(controller: UIViewController, parameters: AnyObject? = nil, displayMode: WYDisplayModeObjC = .push, animated: Bool = true) {
+        wy_showViewController(controller: controller, parameters: parameters, displayMode: WYDisplayMode(rawValue: displayMode.rawValue) ?? .push, animated: animated)
     }
     
     /// 根据字符串获得对应控制器
@@ -83,9 +83,9 @@ import WYBasisKitSwift
     }
     
     /// 获取viewController跳转模式
-    @objc(wy_viewControllerDisplaMode)
-    func wy_viewControllerDisplaModeObjC() -> WYDisplaModeObjC {
-        return WYDisplaModeObjC(rawValue: wy_viewControllerDisplaMode().rawValue) ?? .push
+    @objc(wy_viewControllerDisplayMode)
+    func wy_viewControllerDisplayModeObjC() -> WYDisplayModeObjC {
+        return WYDisplayModeObjC(rawValue: wy_viewControllerDisplayMode().rawValue) ?? .push
     }
     
     /**
