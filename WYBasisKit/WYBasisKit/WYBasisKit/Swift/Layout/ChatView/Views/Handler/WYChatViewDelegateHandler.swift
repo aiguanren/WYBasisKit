@@ -86,8 +86,8 @@ import UIKit
     /// 输入框文本发生变化
     @objc optional func textDidChanged(_ text: String)
     
-    /// 点击了键盘上的 发送 按钮
-    @objc optional func keyboardSendMessage(_ message: WYChatMessageModel)
+    /// 点击了键盘上的 发送 按钮(参数为消息ID，需要完整消息model时可用chatView的messageModelFrom(_ messageID:)反查)
+    @objc optional func keyboardSendMessage(_ messageID: String)
     
     /// 点击了emoji控件内某个item
     @objc optional func didClickEmojiView(_ emojiView: WYChatEmojiView, _ indexPath: IndexPath)

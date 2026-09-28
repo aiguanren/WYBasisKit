@@ -94,15 +94,21 @@ extension WYChatView: WYChatInputViewDelegate, WYChatInputViewEventsHandler {
         chatInput.textView.text = ""
         updateEmojiFuncAreaViewState()
         chatInput.textViewDidChange(chatInput.textView, silence: true)
-        delegate?.keyboardSendMessage?(sendMessage(text))
+        delegate?.keyboardSendMessage?(sendMessage(text).messageID)
     }
     
     public func didClickKeyboardEvent(_ text: String) {
         didClickKeyboardEvent(text, silence: false)
     }
     
+    /**
+     *  发送一条文本消息(发送后会加入dataSource)
+     *  @param text 消息文本内容
+     *  @param messageID 消息ID(外部指定了就用指定的，不指定就默认生成一个唯一ID)
+     *  @return 组装好的消息model
+     */
     @discardableResult
-    public func sendMessage(_ text: String) -> WYChatMessageModel  {
+    public func sendMessage(_ text: String, messageID: String = UUID().uuidString) -> WYChatMessageModel  {
         
         /**
          *  消息已读人数
@@ -124,13 +130,14 @@ extension WYChatView: WYChatInputViewDelegate, WYChatInputViewEventsHandler {
         let sender: WYChatUserModel = userInfo ?? WYChatUserModel()
 
         /// 消息内容
-        let content: WYChatMessageContentModel = WYChatMessageContentModel()
+        var content: WYChatMessageContentModel = WYChatMessageContentModel()
         content.text = text
          
         /// 引用消息
         //let reference: WYChatMessageContentModel? = nil
         
-        let message: WYChatMessageModel = WYChatMessageModel()
+        var message: WYChatMessageModel = WYChatMessageModel()
+        message.messageID = messageID
         message.readers = readers
         message.readBackState = readBackState
         message.sendState = sendState

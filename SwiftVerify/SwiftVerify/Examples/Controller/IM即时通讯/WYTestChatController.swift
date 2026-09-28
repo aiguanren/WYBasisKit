@@ -118,23 +118,27 @@ extension WYTestChatController: WYChatViewDelegate {
     }
     
     /// 点击了键盘上的 发送 按钮
-    func keyboardSendMessage(_ message: WYChatMessageModel) {
-        //wy_print("发送文本消息：\(message)，时间戳 = \(message.timestamp)")
-        
+    func keyboardSendMessage(_ messageID: String) {
+        //wy_print("发送文本消息ID：\(messageID)")
+
         Task {
             try? await Task.wy_delay(1, cancelThrows: false) { [weak self] in
                 guard let self = self else { return }
-                
-                message.sendState = .success
-                message.readers = "1"
-                
-                let replyMessage: WYChatMessageModel = WYChatMessageModel()
+
+                // 模拟1秒后发送成功，struct是值类型，直接改dataSource里对应下标的消息才会反映到UI
+                if let index = self.chatView.dataSource.firstIndex(where: { $0.messageID == messageID }) {
+                    self.chatView.dataSource[index].sendState = .success
+                    self.chatView.dataSource[index].readers = "1"
+                }
+
+                var replyMessage: WYChatMessageModel = WYChatMessageModel()
+                replyMessage.messageID = UUID().uuidString
                 replyMessage.timestamp = String.wy_sharedDeviceTimestamp()
                 replyMessage.lastMessageTimestamp = replyMessage.sharedLastMessageTimestamp(self.chatView.dataSource)
                 replyMessage.clientTimestamp = String.wy_sharedDeviceTimestamp()
                 replyMessage.sender = self.sharedUserInfo(id: "88888", name: "大官人", avatar: "https://img1.baidu.com/it/u=3709586903,1286591012&fm=253&fmt=auto&app=138&f=JPEG")
                 replyMessage.content.text = ["这是自动模拟的回复消息😄😄😄😄😄😄", "回复消息", "这是自动模拟的多行回复消息😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄😄"][Int.wy_random(minimum: 0, maximum: 2)]
-                replyMessage.index = message.index + 1
+                replyMessage.index = self.chatView.dataSource.count
                 replyMessage.sendState = .success
                 replyMessage.readers = "1"
                 self.chatView.dataSource.append(replyMessage)
@@ -265,10 +269,10 @@ extension WYTestChatController {
     @discardableResult
     func sharedUserInfo(id: String, name: String, avatar: String) -> WYChatUserModel {
         
-        let assets: WYChatAssetsModel = WYChatAssetsModel()
+        var assets: WYChatAssetsModel = WYChatAssetsModel()
         assets.downloadPath = avatar
         
-        let userModel: WYChatUserModel = WYChatUserModel()
+        var userModel: WYChatUserModel = WYChatUserModel()
         userModel.id = id
         userModel.name = name
         userModel.nickname = name
