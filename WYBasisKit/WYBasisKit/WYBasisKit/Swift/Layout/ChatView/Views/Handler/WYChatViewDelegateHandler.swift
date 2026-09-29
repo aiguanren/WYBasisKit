@@ -99,7 +99,7 @@ import UIKit
     @objc optional func didClickEmojiSendView(_ sendView: UIButton)
     
     /// 长按了表情预览控件(仅限WYEmojiPreviewStyle == other时才会回调)
-    @objc optional func emojiItemLongPress(_ gestureRecognizer: UILongPressGestureRecognizer, emoji: String, imageView: UIImageView)
+    @objc optional func willShowPreviewView(_ gestureRecognizer: UILongPressGestureRecognizer, emoji: String, imageView: UIImageView)
     
     /// 点击了More控件内某个item
     @objc(didClickMoreView:itemIndex:)

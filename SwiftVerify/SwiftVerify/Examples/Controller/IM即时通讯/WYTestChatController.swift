@@ -160,12 +160,12 @@ extension WYTestChatController: WYChatViewDelegate {
     func didClickEmojiSendView(_ sendView: UIButton) {
         //wy_print("点击了emoji控件内功能区发送按钮")
     }
-    
+
     /// 将要显示表情预览控件(仅限WYEmojiPreviewStyle == other时才会回调)
-    func willShowPreviewView(_ imageView: UIImageView, _ imageName: String) {
-        //wy_print("imageView = \(imageView), imageName = \(imageName)")
+    func willShowPreviewView(_ gestureRecognizer: UILongPressGestureRecognizer, emoji: String, imageView: UIImageView) {
+        //wy_print("gestureRecognizer = \(gestureRecognizer), emoji = \(emoji), imageView = \(imageView)")
     }
-    
+
     /// 点击了More控件内某个item
     func didClickMoreView(_ moreView: WYChatMoreView, _ itemIndex: Int) {
         //wy_print("点击More控件 \(moreView) 内第 \(itemIndex) 个item")

@@ -112,7 +112,7 @@ public struct WYEmojiViewConfig {
     optional func didClick(_ emojiView: WYChatEmojiView, _ indexPath: IndexPath)
     
     /// 长按了表情预览控件(仅限WYEmojiPreviewStyle == other时才会回调)
-    @objc optional func emojiItemLongPress(_ gestureRecognizer: UILongPressGestureRecognizer, emoji: String, imageView: UIImageView)
+    @objc optional func willShowPreviewView(_ gestureRecognizer: UILongPressGestureRecognizer, emoji: String, imageView: UIImageView)
     
     /// 点击了发送按钮
     @objc optional func didClickEmojiSendView(_ sendView: UIButton)
@@ -144,6 +144,12 @@ public class WYChatEmojiView: UIView, WYEmojiFuncAreaViewDelegate {
             make.left.top.right.equalToSuperview()
             make.bottom.equalToSuperview().offset(-emojiViewConfig.collectionViewBottomOffset)
         }
+
+        // 长按预览手势
+        let longPress: UILongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(didLongPressEmoji(_:)))
+        longPress.minimumPressDuration = 0.5
+        collectionView.addGestureRecognizer(longPress)
+        
         return collectionView
     }()
     
@@ -182,6 +188,9 @@ public class WYChatEmojiView: UIView, WYEmojiFuncAreaViewDelegate {
     }()
     
     private var appendEmoji: [String] = []
+
+    /// 长按手势当前指向的表情indexPath(拖动切换预览用，nil表示手指在表情有效区外)
+    private var longPressIndexPath: IndexPath?
     
     public lazy var dataSource: [[String]] = {
         var dataSource: [[String]] = []
@@ -376,10 +385,10 @@ extension WYChatEmojiView: UICollectionViewDelegate, UICollectionViewDataSource,
     }
     
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
+
         let cell: WYEmojiViewCell = collectionView.dequeueReusableCell(withReuseIdentifier: "WYEmojiViewCell", for: indexPath) as! WYEmojiViewCell
         cell.emoji = dataSource[indexPath.section][indexPath.item]
-        cell.delegate = self
+        
         return cell
     }
     
@@ -388,7 +397,7 @@ extension WYChatEmojiView: UICollectionViewDelegate, UICollectionViewDataSource,
     }
     
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
+
         guard (eventsHandler?.canManagerEmojiViewClickEvents?(self, indexPath) ?? true) else {
             return
         }
@@ -397,24 +406,65 @@ extension WYChatEmojiView: UICollectionViewDelegate, UICollectionViewDataSource,
     }
 }
 
-extension WYChatEmojiView: WYEmojiViewCellDelegate {
-    
-    public func willShowPreviewView(_ gestureRecognizer: UILongPressGestureRecognizer, emoji: String, according: UIImageView) {
-        
-        guard (eventsHandler?.canManagerEmojiLongPressEvents?(gestureRecognizer, emoji: emoji, imageView: according) ?? true) else {
-            return
-        }
-        
-        if gestureRecognizer.state == .began {
-            WYEmojiPreviewView.show(emoji: emoji, according: according) { [weak self] imageName, imageView in
+extension WYChatEmojiView {
+
+    /// 长按表情的状态机(began弹出预览浮层，changed拖动时反查手指指向并切换预览，ended松手只收起预览不选中任何表情，滑出有效区隐藏预览)
+    @objc fileprivate func didLongPressEmoji(_ sender: UILongPressGestureRecognizer) {
+
+        let location: CGPoint = sender.location(in: collectionView)
+        let indexPath: IndexPath? = collectionView.indexPathForItem(at: location)
+
+        switch sender.state {
+        case .began:
+
+            guard let indexPath: IndexPath = indexPath else {
+                return
+            }
+
+            guard (eventsHandler?.canManagerEmojiLongPressEvents?(sender, emoji: dataSource[indexPath.section][indexPath.item], imageView: emojiImageView(at: indexPath)) ?? true) else {
+                return
+            }
+
+            longPressIndexPath = indexPath
+            WYEmojiPreviewView.show(emoji: dataSource[indexPath.section][indexPath.item], according: emojiImageView(at: indexPath)) { [weak self] imageName, imageView in
                 Task { @MainActor in
-                    self?.delegate?.emojiItemLongPress?(gestureRecognizer, emoji: emoji, imageView: according)
+                    self?.delegate?.willShowPreviewView?(sender, emoji: imageName, imageView: imageView)
                 }
             }
-        }
-        
-        if (gestureRecognizer.state == .cancelled) || (gestureRecognizer.state == .ended) {
+            break
+
+        case .changed:
+
+            if let indexPath: IndexPath = indexPath {
+                WYEmojiPreviewView.setHidden(false)
+                if indexPath != longPressIndexPath {
+                    longPressIndexPath = indexPath
+                    WYEmojiPreviewView.update(emoji: dataSource[indexPath.section][indexPath.item], according: emojiImageView(at: indexPath)) { [weak self] imageName, imageView in
+                        Task { @MainActor in
+                            self?.delegate?.willShowPreviewView?(sender, emoji: imageName, imageView: imageView)
+                        }
+                    }
+                }
+            }else {
+                // 手指滑到header、行间距、删除键、面板外等无效区域
+                longPressIndexPath = nil
+                WYEmojiPreviewView.setHidden(true)
+            }
+            break
+
+        case .ended, .cancelled, .failed:
+
+            longPressIndexPath = nil
             WYEmojiPreviewView.dismiss()
+            break
+
+        default:
+            break
         }
+    }
+
+    /// 取indexPath对应cell的表情图(作为预览浮层的锚点)
+    private func emojiImageView(at indexPath: IndexPath) -> UIImageView {
+        return (collectionView.cellForItem(at: indexPath) as? WYEmojiViewCell)?.emojiView ?? UIImageView()
     }
 }

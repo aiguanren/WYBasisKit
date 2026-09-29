@@ -195,8 +195,8 @@ extension WYChatView: WYChatEmojiViewDelegate, WYChatEmojiViewEventsHandler {
         delegate?.didClickEmojiView?(emojiView, indexPath)
     }
     
-    public func emojiItemLongPress(_ gestureRecognizer: UILongPressGestureRecognizer, emoji: String, imageView: UIImageView) {
-        delegate?.emojiItemLongPress?(gestureRecognizer, emoji: emoji, imageView: imageView)
+    public func willShowPreviewView(_ gestureRecognizer: UILongPressGestureRecognizer, emoji: String, imageView: UIImageView) {
+        delegate?.willShowPreviewView?(gestureRecognizer, emoji: emoji, imageView: imageView)
     }
     
     public func didClickEmojiSendView(_ sendView: UIButton) {
