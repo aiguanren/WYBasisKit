@@ -31,7 +31,7 @@
 	<string>[汗]</string>
 	<string>[见钱]</string>
 	<string>[哭]</string>
-	<string>[互粉]</string>
+	<string>[好友]</string>
 	<string>[搞定]</string>
 	<string>[思考]</string>
 	<string>[摸头]</string>
@@ -49,7 +49,7 @@
 	<string>[大吐]</string>
 	<string>[狗]</string>
 	<string>[脸黑]</string>
-	<string>[蓝狗]</string>
+	<string>[贵宾]</string>
 	<string>[大叫]</string>
 	<string>[高兴]</string>
 	<string>[关注]</string>
@@ -62,8 +62,8 @@
 	<string>[耳机]</string>
 	<string>[拒绝]</string>
 	<string>[18禁]</string>
-	<string>[吐血]</string>
-	<string>[灰狗]</string>
+	<string>[融化]</string>
+	<string>[工作犬]</string>
 	<string>[露牙]</string>
 	<string>[生日]</string>
 	<string>[笑哭]</string>
@@ -78,7 +78,7 @@
 	<string>[嘘]</string>
 	<string>[酷]</string>
 	<string>[便便]</string>
-	<string>[菜刀]</string>
+	<string>[水果刀]</string>
 	<string>[色]</string>
 	<string>[害羞]</string>
 	<string>[得意]</string>
@@ -105,5 +105,28 @@
 	<string>[抠鼻]</string>
 	<string>[哈欠]</string>
 	<string>[闭嘴]</string>
+	<string>[发抖]</string>
+	<string>[叹气]</string>
+	<string>[捂脸]</string>
+	<string>[奸笑]</string>
+	<string>[皱眉]</string>
+	<string>[失望]</string>
+	<string>[惊讶]</string>
+	<string>[眨眼]</string>
+	<string>[崇拜]</string>
+	<string>[头大]</string>
+	<string>[比心]</string>
+	<string>[天使]</string>
+	<string>[猪]</string>
+	<string>[猫]</string>
+	<string>[奶牛]</string>
+	<string>[好运]</string>
+	<string>[击掌]</string>
+	<string>[庆祝]</string>
+	<string>[闪亮]</string>
+	<string>[彩虹]</string>
+	<string>[独角兽]</string>
+	<string>[太阳]</string>
+	<string>[外星人]</string>
 </array>
 </plist>

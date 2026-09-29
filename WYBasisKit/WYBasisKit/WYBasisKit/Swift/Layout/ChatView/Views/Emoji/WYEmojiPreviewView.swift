@@ -12,8 +12,8 @@ public struct WYEmojiPreviewConfig {
     /// Emoji表情是否需要支持长按预览详情
     public var show: Bool = true
     
-    /// 预览详情时图片展示类型
-    public var style: WYEmojiPreviewStyle = .default
+    /// 预览详情时图片展示类型(默认.gif动图展示，动图资源缺失时自动降级为静态图展示)
+    public var style: WYEmojiPreviewStyle = .gif
     
     /// 表情预览控件的背景图
     public var backgroundImage: UIImage = UIImage.wy_find("WYChatEmojiPreview", inBundle: WYChatSourceBundle)
@@ -41,7 +41,7 @@ public struct WYEmojiPreviewConfig {
 
 @frozen public enum WYEmojiPreviewStyle: Int {
     
-    /// 默认静态图展示(png、jpg、jpeg等格式的静态图)
+    /// 静态图展示(png、jpg、jpeg等格式的静态图)
     case `default` = 0
     /// gif格式图片展示
     case gif
@@ -94,10 +94,20 @@ public class WYEmojiPreviewView: UIImageView {
             emojiView.image = UIImage.wy_find(emoji, inBundle: emojiViewConfig.emojiBundle)
             break
         case .gif:
-            emojiView.image = UIImage.wy_animatedParse(.GIF, name: emoji, inBundle: emojiViewConfig.emojiBundle)?.animatedImage
+            if let gifInfo: WYGifInfo = UIImage.wy_animatedParse(.GIF, name: emoji, inBundle: emojiViewConfig.emojiBundle) {
+                emojiView.image = gifInfo.animatedImage
+            }else {
+                // 不一定所有图都是gif的
+                emojiView.image = UIImage.wy_find(emoji, inBundle: emojiViewConfig.emojiBundle)
+            }
             break
         case .apng:
-            emojiView.image = UIImage.wy_animatedParse(.APNG, name: "apng_"+emoji, inBundle: emojiViewConfig.emojiBundle)?.animatedImage
+            if let gifInfo: WYGifInfo = UIImage.wy_animatedParse(.APNG, name: "apng_"+emoji, inBundle: emojiViewConfig.emojiBundle) {
+                emojiView.image = gifInfo.animatedImage
+            }else {
+                // 不一定所有图都是apng的
+                emojiView.image = UIImage.wy_find(emoji, inBundle: emojiViewConfig.emojiBundle)
+            }
             break
         case .other:
             handler(emoji, emojiView)
