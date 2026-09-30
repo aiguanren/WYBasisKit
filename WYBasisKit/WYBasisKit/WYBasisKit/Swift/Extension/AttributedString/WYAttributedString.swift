@@ -493,11 +493,11 @@ public extension NSMutableAttributedString {
      *  @param textFont      富文本的字体
      *  @param emojiTable    表情解析对照表，如 ["哈哈](哈哈表情对应的图片名)", [嘿嘿(嘿嘿表情对应的图片名)]]
      *  @param bundle        从哪个bundle文件内查找图片资源，如果为空，则直接在本地路径下查找
-     *  @param pattern       正则匹配规则, 默认匹配1到3位, 如 [哈] [哈哈] [哈哈哈] 这种
+     *  @param pattern       正则匹配规则, 默认匹配一对不嵌套方括号的[表情名], 不限长度
      *
      *  - Returns: 当前 `NSMutableAttributedString` 对象
      */
-    static func wy_convertEmojiAttributed(emojiString: String, textColor: UIColor, textFont: UIFont, emojiTable: [String], sourceBundle: WYSourceBundle? = nil, pattern: String = "\\[.{1,3}\\]") -> NSMutableAttributedString {
+    static func wy_convertEmojiAttributed(emojiString: String, textColor: UIColor, textFont: UIFont, emojiTable: [String], sourceBundle: WYSourceBundle? = nil, pattern: String = "\\[[^\\[\\]]+\\]") -> NSMutableAttributedString {
         
         // 字体、颜色
         let textAttributes: [NSAttributedString.Key: Any] = [.font: textFont, .foregroundColor: textColor]

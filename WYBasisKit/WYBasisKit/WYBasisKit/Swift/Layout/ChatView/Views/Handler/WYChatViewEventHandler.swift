@@ -194,11 +194,7 @@ extension WYChatView: WYChatEmojiViewDelegate, WYChatEmojiViewEventsHandler {
         
         delegate?.didClickEmojiView?(emojiView, indexPath)
     }
-    
-    public func willShowPreviewView(_ gestureRecognizer: UILongPressGestureRecognizer, emoji: String, imageView: UIImageView) {
-        delegate?.willShowPreviewView?(gestureRecognizer, emoji: emoji, imageView: imageView)
-    }
-    
+
     public func didClickEmojiSendView(_ sendView: UIButton) {
         let emojiText: String = NSMutableAttributedString(attributedString: chatInput.textView.attributedText).wy_convertEmojiAttributedString(textColor: inputBarConfig.textColor, textFont: inputBarConfig.textFont).string
         didClickKeyboardEvent(emojiText, silence: true)
@@ -213,11 +209,7 @@ extension WYChatView: WYChatEmojiViewDelegate, WYChatEmojiViewEventsHandler {
     public func canManagerEmojiViewClickEvents(_ emojiView: WYChatEmojiView, _ indexPath: IndexPath) -> Bool {
         return eventsHandler?.canManagerEmojiViewClickEvents?(emojiView, indexPath) ?? true
     }
-    
-    public func canManagerEmojiLongPressEvents(_ gestureRecognizer: UILongPressGestureRecognizer, emoji: String, imageView: UIImageView) -> Bool {
-        return eventsHandler?.canManagerEmojiLongPressEvents?(gestureRecognizer, emoji: emoji, imageView: imageView) ?? true
-    }
-    
+
     public func canManagerEmojiDeleteViewClickEvents(_ deleteView: UIButton) -> Bool {
         return eventsHandler?.canManagerEmojiDeleteViewClickEvents?(deleteView) ?? true
     }

@@ -161,11 +161,6 @@ extension WYTestChatController: WYChatViewDelegate {
         //wy_print("点击了emoji控件内功能区发送按钮")
     }
 
-    /// 将要显示表情预览控件(仅限WYEmojiPreviewStyle == other时才会回调)
-    func willShowPreviewView(_ gestureRecognizer: UILongPressGestureRecognizer, emoji: String, imageView: UIImageView) {
-        //wy_print("gestureRecognizer = \(gestureRecognizer), emoji = \(emoji), imageView = \(imageView)")
-    }
-
     /// 点击了More控件内某个item
     func didClickMoreView(_ moreView: WYChatMoreView, _ itemIndex: Int) {
         //wy_print("点击More控件 \(moreView) 内第 \(itemIndex) 个item")
@@ -231,12 +226,6 @@ extension WYTestChatController: WYChatViewEventsHandler {
     /// 是否需要内部处理Emoji控件内 cell 的点击事件
     func canManagerEmojiViewClickEvents(_ emojiView: WYChatEmojiView, _ indexPath: IndexPath) -> Bool {
         //wy_print("是否需要内部处理Emoji控件内 cell 的点击事件, emojiView = \(emojiView), indexPath = \(indexPath)")
-        return true
-    }
-
-    /// 是否需要内部处理Emoji控件内 表情预览控件(仅限WYEmojiPreviewStyle == other时才会回调) 的长按事件
-    func canManagerEmojiLongPressEvents(_ gestureRecognizer: UILongPressGestureRecognizer, emoji: String, imageView: UIImageView) -> Bool {
-        //wy_print("是否需要内部处理Emoji控件内 表情预览控件(仅限WYEmojiPreviewStyle == other时才会回调) 的长按事件, imageView = \(imageView), emoji = \(emoji), gestureRecognizer.state = \(gestureRecognizer.state)")
         return true
     }
 

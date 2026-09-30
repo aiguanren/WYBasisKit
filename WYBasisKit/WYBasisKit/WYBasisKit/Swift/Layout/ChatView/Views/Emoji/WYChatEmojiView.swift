@@ -92,10 +92,7 @@ public struct WYEmojiViewConfig {
     /// 是否需要内部处理 Emoji 点击事件
     @objc(canManagerEmojiViewClickEventsWithEmojiView:indexPath:)
     optional func canManagerEmojiViewClickEvents(_ emojiView: WYChatEmojiView, _ indexPath: IndexPath) -> Bool
-    
-    /// 是否需要内部处理 表情预览控件(仅限WYEmojiPreviewStyle == other时才会回调) 的长按事件
-    @objc optional func canManagerEmojiLongPressEvents(_ gestureRecognizer: UILongPressGestureRecognizer, emoji: String, imageView: UIImageView) -> Bool
-    
+
     /// 是否需要内部处理 删除按钮 点击事件
     @objc(canManagerEmojiDeleteViewClickEventsWithDeleteView:)
     optional func canManagerEmojiDeleteViewClickEvents(_ deleteView: UIButton) -> Bool
@@ -110,10 +107,7 @@ public struct WYEmojiViewConfig {
     /// 监听Emoji点击事件
     @objc(didClickEmojiView:indexPath:)
     optional func didClick(_ emojiView: WYChatEmojiView, _ indexPath: IndexPath)
-    
-    /// 长按了表情预览控件(仅限WYEmojiPreviewStyle == other时才会回调)
-    @objc optional func willShowPreviewView(_ gestureRecognizer: UILongPressGestureRecognizer, emoji: String, imageView: UIImageView)
-    
+
     /// 点击了发送按钮
     @objc optional func didClickEmojiSendView(_ sendView: UIButton)
     
@@ -421,16 +415,8 @@ extension WYChatEmojiView {
                 return
             }
 
-            guard (eventsHandler?.canManagerEmojiLongPressEvents?(sender, emoji: dataSource[indexPath.section][indexPath.item], imageView: emojiImageView(at: indexPath)) ?? true) else {
-                return
-            }
-
             longPressIndexPath = indexPath
-            WYEmojiPreviewView.show(emoji: dataSource[indexPath.section][indexPath.item], according: emojiImageView(at: indexPath)) { [weak self] imageName, imageView in
-                Task { @MainActor in
-                    self?.delegate?.willShowPreviewView?(sender, emoji: imageName, imageView: imageView)
-                }
-            }
+            WYEmojiPreviewView.show(emoji: dataSource[indexPath.section][indexPath.item], according: emojiImageView(at: indexPath))
             break
 
         case .changed:
@@ -439,11 +425,7 @@ extension WYChatEmojiView {
                 WYEmojiPreviewView.setHidden(false)
                 if indexPath != longPressIndexPath {
                     longPressIndexPath = indexPath
-                    WYEmojiPreviewView.update(emoji: dataSource[indexPath.section][indexPath.item], according: emojiImageView(at: indexPath)) { [weak self] imageName, imageView in
-                        Task { @MainActor in
-                            self?.delegate?.willShowPreviewView?(sender, emoji: imageName, imageView: imageView)
-                        }
-                    }
+                    WYEmojiPreviewView.update(emoji: dataSource[indexPath.section][indexPath.item], according: emojiImageView(at: indexPath))
                 }
             }else {
                 // 手指滑到header、行间距、删除键、面板外等无效区域

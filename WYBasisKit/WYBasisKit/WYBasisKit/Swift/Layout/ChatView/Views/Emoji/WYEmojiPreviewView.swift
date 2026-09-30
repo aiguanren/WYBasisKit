@@ -12,9 +12,6 @@ public struct WYEmojiPreviewConfig {
     /// Emoji表情是否需要支持长按预览详情
     public var show: Bool = true
     
-    /// 预览详情时图片展示类型(默认.gif动图展示，动图资源缺失时自动降级为静态图展示)
-    public var style: WYEmojiPreviewStyle = .gif
-    
     /// 表情预览控件的背景图
     public var backgroundImage: UIImage = UIImage.wy_find("WYChatEmojiPreview", inBundle: WYChatSourceBundle)
     
@@ -39,18 +36,6 @@ public struct WYEmojiPreviewConfig {
     public init() {}
 }
 
-@frozen public enum WYEmojiPreviewStyle: Int {
-    
-    /// 静态图展示(png、jpg、jpeg等格式的静态图)
-    case `default` = 0
-    /// gif格式图片展示
-    case gif
-    /// apng格式图片展示(为了防止文件名冲突，apng格式图片需要自行拼接为：apng_[666].png样式格式)
-    case apng
-    /// 其他格式图片展示(需要自己实现相应代理后展示)
-    case other
-}
-
 private var previewView: WYEmojiPreviewView?
 public class WYEmojiPreviewView: UIImageView {
 
@@ -60,7 +45,7 @@ public class WYEmojiPreviewView: UIImageView {
     /// 表情文本控件(长按拖动切换表情时只更新它的文本)
     private let textView: UILabel = UILabel()
 
-    init(emoji: String, handler: @escaping ((_ imageName: String, _ imageView: UIImageView) -> Void)) {
+    init(emoji: String) {
         super.init(frame: .zero)
         isUserInteractionEnabled = true
         alpha = 0.0
@@ -72,7 +57,7 @@ public class WYEmojiPreviewView: UIImageView {
             make.size.equalTo(emojiViewConfig.previewConfig.emojiSize)
             make.top.equalToSuperview().offset(emojiViewConfig.previewConfig.emojiTopOffset)
         }
-        updateContent(emoji, handler: handler)
+        updateContent(emoji)
 
         textView.textColor = emojiViewConfig.previewConfig.textColor
         textView.font = emojiViewConfig.previewConfig.textFont
@@ -86,39 +71,24 @@ public class WYEmojiPreviewView: UIImageView {
         }
     }
 
-    /// 更新预览的内容(default/gif/apng按配置解析，other交给外部handler填充)
-    private func updateContent(_ emoji: String, handler: @escaping ((_ imageName: String, _ imageView: UIImageView) -> Void)) {
-
-        switch emojiViewConfig.previewConfig.style {
-        case .default:
+    /// 更新预览的内容(依次尝试gif、apng动图，两者都没有时展示静态图)
+    private func updateContent(_ emoji: String) {
+        
+        if let gifInfo: WYGifInfo = UIImage.wy_animatedParse(.GIF, name: emoji, inBundle: emojiViewConfig.emojiBundle) {
+            emojiView.image = gifInfo.animatedImage
+            
+        }else if let gifInfo: WYGifInfo = UIImage.wy_animatedParse(.APNG, name: "apng_"+emoji, inBundle: emojiViewConfig.emojiBundle) {
+            emojiView.image = gifInfo.animatedImage
+            
+        }else {
             emojiView.image = UIImage.wy_find(emoji, inBundle: emojiViewConfig.emojiBundle)
-            break
-        case .gif:
-            if let gifInfo: WYGifInfo = UIImage.wy_animatedParse(.GIF, name: emoji, inBundle: emojiViewConfig.emojiBundle) {
-                emojiView.image = gifInfo.animatedImage
-            }else {
-                // 不一定所有图都是gif的
-                emojiView.image = UIImage.wy_find(emoji, inBundle: emojiViewConfig.emojiBundle)
-            }
-            break
-        case .apng:
-            if let gifInfo: WYGifInfo = UIImage.wy_animatedParse(.APNG, name: "apng_"+emoji, inBundle: emojiViewConfig.emojiBundle) {
-                emojiView.image = gifInfo.animatedImage
-            }else {
-                // 不一定所有图都是apng的
-                emojiView.image = UIImage.wy_find(emoji, inBundle: emojiViewConfig.emojiBundle)
-            }
-            break
-        case .other:
-            handler(emoji, emojiView)
-            break
         }
 
         textView.text = WYLocalized(emoji.wy_substring(from: 1, to: emoji.count - 1), table: WYBasisKitConfig.kitLocalizableTable)
     }
     
     @discardableResult
-    public static func show(emoji: String, according: UIView, handler: @escaping ((_ imageName: String, _ imageView: UIImageView) -> Void)) ->WYEmojiPreviewView?  {
+    public static func show(emoji: String, according: UIView) ->WYEmojiPreviewView?  {
 
         releaseAll()
 
@@ -126,7 +96,7 @@ public class WYEmojiPreviewView: UIImageView {
             return nil
         }
 
-        previewView = WYEmojiPreviewView(emoji: emoji, handler: handler)
+        previewView = WYEmojiPreviewView(emoji: emoji)
         UIViewController.wy_currentController()?.view.addSubview(previewView!)
         let offset: CGPoint = previewOffset(according: according, superView: previewView!.superview!)
         previewView?.snp.makeConstraints({ make in
@@ -141,13 +111,13 @@ public class WYEmojiPreviewView: UIImageView {
     }
 
     /// 更新预览浮层的内容和位置(长按拖动切换表情时用，浮层不存在时不动作)
-    public static func update(emoji: String, according: UIView, handler: @escaping ((_ imageName: String, _ imageView: UIImageView) -> Void)) {
+    public static func update(emoji: String, according: UIView) {
 
         guard let existPreview: WYEmojiPreviewView = previewView, let superView: UIView = existPreview.superview else {
             return
         }
 
-        existPreview.updateContent(emoji, handler: handler)
+        existPreview.updateContent(emoji)
 
         let offset: CGPoint = previewOffset(according: according, superView: superView)
         existPreview.snp.updateConstraints { make in
