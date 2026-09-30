@@ -1,19 +1,14 @@
-本目录内的表情图片来自谷歌官方开源的 Noto Emoji(允许免费商用)
-动图(115张[表情名].gif): 来自 Google "Animated Noto Emoji" 项目，官方页面FAQ明确标注 CC BY 4.0 协议(可商用、可修改，需保留署名)
-  官方页面: https://googlefonts.github.io/noto-emoji-animation
-  原始文件: https://fonts.gstatic.com/s/e/notoemoji/latest/{码点}/512.gif (512px，此处缩小至96px并重编码)
-静态图(11张[表情名].png，动图库未覆盖的表情): 来自 noto-emoji 开源仓库的图片资源，Apache 2.0 协议(可商用、需保留协议声明)
-  仓库地址: https://github.com/googlefonts/noto-emoji
-  原始文件: 2D/png/128/emoji_u{码点}.png (128px，此处缩小至96px)
-修改说明: 全部图片仅做了缩小与格式重编码，另[绿帽].png单独做了色相调整(原蓝色帽子调成绿色)以贴合表情含义
+本目录内全部表情的图片(png静态与gif动图)均来自谷歌官方开源的 "Animated Noto Emoji" 项目，官方页面FAQ明确标注 CC BY 4.0 协议(可免费商用、可修改，需保留署名)
+官方页面: https://googlefonts.github.io/noto-emoji-animation
+原始文件: https://fonts.gstatic.com/s/e/notoemoji/latest/{码点}/512.gif 与 512.png (512px，此处缩小至96px并重编码，静态图取官方静态版或动图形态最完整的一帧)
+修改说明: 全部图片仅做了缩小与格式重编码，图案内容未做任何修改
 署名要求(按CC BY 4.0): 使用时注明 "Animated Noto Emoji by Google" 并附协议链接 https://creativecommons.org/licenses/by/4.0/
 
-Emoji images in this directory are from Google's open-source Noto Emoji (free for commercial use).
-Animated (115 [name].gif files): from Google's "Animated Noto Emoji", licensed CC BY 4.0 per the
-official site FAQ (https://googlefonts.github.io/noto-emoji-animation), originals served from
-https://fonts.gstatic.com/s/e/notoemoji/latest/{codepoint}/512.gif (resized to 96px and re-encoded).
-Static (11 [name].png files, for emojis not covered by the animated set): image resources from the
-noto-emoji repository (https://github.com/googlefonts/noto-emoji), Apache 2.0, from 2D/png/128/.
-Modification note: all images were only resized/re-encoded; additionally [绿帽].png was hue-shifted
-(blue cap to green) to match its meaning.
+All emoji images in this directory (static png and animated gif) are from Google's
+open-source "Animated Noto Emoji" project, licensed CC BY 4.0 per the official site FAQ
+(https://googlefonts.github.io/noto-emoji-animation), free for commercial use and modification
+with attribution. Originals served from https://fonts.gstatic.com/s/e/notoemoji/latest/{codepoint}/512.gif|512.png
+(resized to 96px and re-encoded; statics from the official static render or the most
+representative animation frame).
+Modification note: images were only resized/re-encoded, artwork unmodified.
 Attribution (CC BY 4.0): "Animated Noto Emoji by Google", https://creativecommons.org/licenses/by/4.0/
