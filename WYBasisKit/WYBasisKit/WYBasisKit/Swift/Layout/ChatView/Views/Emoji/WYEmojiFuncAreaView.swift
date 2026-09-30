@@ -31,7 +31,7 @@ public struct WYEmojiFuncAreaConfig {
     public var areaBottomOffset: CGFloat = 0
     
     /// 删除按钮左侧距离功能区左侧的间距
-    public var deleteViewLeftOffsetWithArea: CGFloat = inputBarConfig.showSpecialSendButton ? UIDevice.wy_screenWidth(20) : 0
+    public var deleteViewLeftOffsetWithArea: CGFloat = inputBarConfig.showSpecialSendButton ? UIDevice.wy_screenWidth(25) : 0
     
     /// 发送按钮size
     public var sendViewSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(60), height: UIDevice.wy_screenWidth(50))
