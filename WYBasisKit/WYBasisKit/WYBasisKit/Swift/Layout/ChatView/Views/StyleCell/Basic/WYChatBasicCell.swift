@@ -297,8 +297,7 @@ public extension WYChatBasicCell {
             loadingView.stopAnimating()
             break
         case .sending, .notSent:
-            
-            Task {
+            Task { [weak self] in
                 try? await Task.wy_delay(0.5, cancelThrows: false, onMain: { [weak self] in
                     guard let self = self else { return }
                     

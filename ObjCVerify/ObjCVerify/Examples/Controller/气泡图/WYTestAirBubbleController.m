@@ -462,7 +462,9 @@
         [btn setTitleColor:(color == [UIColor clearColor]) ? [UIColor darkGrayColor] : [UIColor whiteColor] forState:UIControlStateNormal];
         btn.layer.cornerRadius = 4;
         btn.clipsToBounds = YES;
-        btn.contentEdgeInsets = UIEdgeInsetsMake(4, 8, 4, 8);
+        CGSize chipTitleSize = [title sizeWithAttributes:@{NSFontAttributeName: btn.titleLabel.font}];
+        [btn.heightAnchor constraintEqualToConstant:4 + chipTitleSize.height + 4].active = YES;
+        [btn.widthAnchor constraintEqualToConstant:8 + chipTitleSize.width + 8].active = YES;
         btn.tag = self.borderColorButtons.count;
         [btn addTarget:self action:@selector(borderColorButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
         [self.borderColorButtons addObject:btn];
@@ -574,7 +576,8 @@
     resetAllButton.titleLabel.font = [UIFont systemFontOfSize:15 weight:UIFontWeightSemibold];
     resetAllButton.backgroundColor = [UIColor systemGray5Color];
     resetAllButton.layer.cornerRadius = 8;
-    resetAllButton.contentEdgeInsets = UIEdgeInsetsMake(8, 16, 8, 16);
+    CGSize resetTitleSize = [@"重置所有属性" sizeWithAttributes:@{NSFontAttributeName: resetAllButton.titleLabel.font}];
+    [resetAllButton.heightAnchor constraintEqualToConstant:8 + resetTitleSize.height + 8].active = YES;
     [resetAllButton addTarget:self action:@selector(resetAllTapped) forControlEvents:UIControlEventTouchUpInside];
     [verticalStack addArrangedSubview:resetAllButton];
 }

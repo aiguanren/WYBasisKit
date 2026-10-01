@@ -432,7 +432,7 @@ class WYTestVisualController: UIViewController {
     @objc private func slowToggleAndReapply() {
         // 验证动画中改配置重应用:2秒慢动画进行到一半时换边框宽度和渐变色再重新应用，各图层应从当前屏显位置无缝接力到新配置，不跳变不多出短动画
         slowToggleSize()
-        Task {
+        Task { [weak self] in
             try? await Task.wy_delay(0.7, cancelThrows: false, onMain: { [weak self] in
                 guard let self = self else { return }
                 self.midFlightThick.toggle()
@@ -486,7 +486,7 @@ class WYTestVisualController: UIViewController {
     @objc private func clearAndReapply() {
         bigButton.wy_clearVisual()
         bigButton.wy_removeBorder(edges: .all)
-        Task {
+        Task { [weak self] in
             try? await Task.wy_delay(0.6, cancelThrows: false, onMain: { [weak self] in
                 guard let self = self else { return }
                 self.applyBigButtonVisual()

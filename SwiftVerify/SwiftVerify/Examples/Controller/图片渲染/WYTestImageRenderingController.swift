@@ -56,12 +56,11 @@ class WYTestImageRenderingController: UIViewController {
                     
                     // 渲染
                     func render() {
-                        sourceImage.wy_rendering(color: renderingColor) { [weak self] tintedImage in
-                            guard let self = self else { return }
-                            
+                        sourceImage.wy_rendering(color: renderingColor) { tintedImage in
+
                             // 校验任务
                             guard self.imageView6.accessibilityIdentifier == urlTaskId else { return }
-                            
+
                             // 写入缓存 + 设置图片
                             cache.store(tintedImage, forKey: urlCacheKey)
                             self.imageView6.image = tintedImage

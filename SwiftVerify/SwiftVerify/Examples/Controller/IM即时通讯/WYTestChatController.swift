@@ -121,7 +121,7 @@ extension WYTestChatController: WYChatViewDelegate {
     func keyboardSendMessage(_ messageID: String) {
         //wy_print("发送文本消息ID：\(messageID)")
 
-        Task {
+        Task { [weak self] in
             try? await Task.wy_delay(1, cancelThrows: false) { [weak self] in
                 guard let self = self else { return }
 

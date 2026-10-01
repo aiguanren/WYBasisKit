@@ -584,7 +584,8 @@ class WYTestAirBubbleController: UIViewController {
         resetAllButton.titleLabel?.font = .systemFont(ofSize: 15, weight: .semibold)
         resetAllButton.backgroundColor = .systemGray5
         resetAllButton.layer.cornerRadius = 8
-        resetAllButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
+        let resetTitleSize = ("重置所有属性" as NSString).size(withAttributes: [.font: resetAllButton.titleLabel?.font ?? .systemFont(ofSize: 15, weight: .semibold)])
+        resetAllButton.heightAnchor.constraint(equalToConstant: 8 + resetTitleSize.height + 8).isActive = true
         resetAllButton.addTarget(self, action: #selector(resetAllTapped), for: .touchUpInside)
         stack.addArrangedSubview(resetAllButton)
     }
@@ -657,7 +658,9 @@ class WYTestAirBubbleController: UIViewController {
             btn.setTitleColor(color == .clear ? .darkGray : .white, for: .normal)
             btn.layer.cornerRadius = 4
             btn.clipsToBounds = true
-            btn.contentEdgeInsets = UIEdgeInsets(top: 4, left: 8, bottom: 4, right: 8)
+            let chipTitleSize = (title as NSString).size(withAttributes: [.font: btn.titleLabel?.font ?? .systemFont(ofSize: 12)])
+            btn.heightAnchor.constraint(equalToConstant: 4 + chipTitleSize.height + 4).isActive = true
+            btn.widthAnchor.constraint(equalToConstant: 8 + chipTitleSize.width + 8).isActive = true
             btn.tag = buttons.count
             btn.addTarget(target, action: action, for: .touchUpInside)
             buttons.append(btn)
