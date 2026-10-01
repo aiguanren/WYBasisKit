@@ -1,7 +1,7 @@
 本目录内全部表情的图片(png静态与gif动图)均来自谷歌官方开源的 "Animated Noto Emoji" 项目，官方页面FAQ明确标注 CC BY 4.0 协议(可免费商用、可修改，需保留署名)
 官方页面: https://googlefonts.github.io/noto-emoji-animation
 原始文件: https://fonts.gstatic.com/s/e/notoemoji/latest/{码点}/512.gif 与 512.png (512px，此处缩小至96px并重编码，静态图取官方静态版或动图形态最完整的一帧)
-修改说明: 全部图片仅做了缩小与格式重编码，图案内容未做任何修改
+修改说明: 图片做了缩小与格式重编码，静态图取自动画中形态较完整的一帧(CC BY 4.0允许修改与二次创作，特此说明)
 署名要求(按CC BY 4.0): 使用时注明 "Animated Noto Emoji by Google" 并附协议链接 https://creativecommons.org/licenses/by/4.0/
 
 All emoji images in this directory (static png and animated gif) are from Google's
@@ -10,5 +10,5 @@ open-source "Animated Noto Emoji" project, licensed CC BY 4.0 per the official s
 with attribution. Originals served from https://fonts.gstatic.com/s/e/notoemoji/latest/{codepoint}/512.gif|512.png
 (resized to 96px and re-encoded; statics from the official static render or the most
 representative animation frame).
-Modification note: images were only resized/re-encoded, artwork unmodified.
+Modification note: images were resized/re-encoded; static images are frames extracted from the animations (modifications and adaptations are permitted under CC BY 4.0).
 Attribution (CC BY 4.0): "Animated Noto Emoji by Google", https://creativecommons.org/licenses/by/4.0/
