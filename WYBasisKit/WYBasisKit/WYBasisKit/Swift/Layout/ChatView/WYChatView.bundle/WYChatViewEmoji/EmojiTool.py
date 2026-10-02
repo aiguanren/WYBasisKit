@@ -375,11 +375,22 @@ def cmd_migrate(args):
 
 
 def cmd_convert(args):
-    target, to_fmt, keep, dry, lossy, out_path = None, None, False, False, False, None
+    target, to_fmt, keep, dry, lossy, out_path, plain, force, all_mode, prefix_arg = None, None, False, False, False, None, False, False, False, None
     i = 0
     while i < len(args):
         a = args[i]
-        if a == '--to':
+        if a == '--plain':
+            plain = True
+        elif a == '--force':
+            force = True
+        elif a == '--all':
+            all_mode = True
+        elif a == '--prefix':
+            i += 1
+            if i >= len(args):
+                die('--prefix 缺参数(自定义前缀, 如 xxx_ 或 xxx)')
+            prefix_arg = args[i]
+        elif a == '--to':
             i += 1
             if i >= len(args):
                 die('--to 缺参数(apng/gif/webp/frames)')
@@ -398,11 +409,28 @@ def cmd_convert(args):
         else:
             target = a
         i += 1
-    if target is None or to_fmt not in ('apng', 'gif', 'webp', 'frames'):
-        die('用法: convert <表情名或文件路径或帧序列目录> --to apng|gif|webp|frames [--lossy] [--out 路径] [--keep-source] [--dry-run]')
+    if to_fmt not in ('apng', 'gif', 'webp', 'frames') or (target is None and not all_mode):
+        die('用法: convert <表情名|文件路径|帧序列目录|--all> --to apng|gif|webp|frames [--prefix 前缀] [--plain] [--force] [--lossy] [--out 路径] [--keep-source] [--dry-run]')
+
+    # 批量模式: --all 对全部表情执行转换(apng/gif/webp), 冲突项跳过(--force覆盖)
+    if all_mode:
+        if to_fmt not in ('apng', 'gif', 'webp'):
+            die('--all 只支持 --to apng|gif|webp')
+        ok = skipped = failed = 0
+        for name in load_plist():
+            status = _convert_bundle_one(name, to_fmt, plain, force, keep, dry, lossy, prefix_arg, batch=True)
+            if status == 'ok':
+                ok += 1
+            elif status == 'skip':
+                skipped += 1
+            else:
+                failed += 1
+        tail = f'批量转换{"[dry-run]" if dry else "完成"}: 成功{ok}, 跳过{skipped}, 失败{failed}'
+        log(f'✓ {tail}')
+        return
 
     # 帧序列目录模式: 编号PNG合成gif/apng
-    if os.path.isdir(target):
+    if target is not None and os.path.isdir(target):
         if to_fmt not in ('gif', 'apng'):
             die('帧序列目录只能合成gif或apng')
         frame_files = sorted(f for f in os.listdir(target) if f.endswith('.png'))
@@ -418,7 +446,7 @@ def cmd_convert(args):
 
     # 导出帧序列模式: 动画拆成编号PNG(桌面目录或--out指定目录)
     if to_fmt == 'frames':
-        if os.path.isfile(target):
+        if target is not None and os.path.isfile(target):
             src_path = target
             name = os.path.splitext(os.path.basename(target))[0]
         else:
@@ -438,8 +466,8 @@ def cmd_convert(args):
         log(f'✓ [{name}] {len(frames)}帧已导出到 {out_dir}/ (f0000.png~f{len(frames) - 1:04d}.png)')
         return
 
-    # 独立文件模式: 原地同名互转
-    if os.path.isfile(target):
+    # 独立文件模式: 原地同名互转(自定义前缀时输出为 前缀+原文件名)
+    if target is not None and os.path.isfile(target):
         src_path = target
         src_ext = os.path.splitext(src_path)[1].lower()
         if to_fmt == 'gif' and src_ext == '.gif':
@@ -447,7 +475,10 @@ def cmd_convert(args):
         if to_fmt != 'gif' and src_ext == ('.png' if to_fmt == 'apng' else '.webp'):
             die(f'源文件已是{to_fmt}')
         dst_ext = {'apng': '.png', 'gif': '.gif', 'webp': '.webp'}[to_fmt]
-        dst_path = os.path.splitext(src_path)[0] + dst_ext
+        stem, ext = os.path.splitext(src_path)
+        dst_path = stem + dst_ext
+        if prefix_arg and to_fmt != 'gif' and not plain:
+            dst_path = os.path.join(os.path.dirname(stem), prefix_arg + os.path.basename(stem) + dst_ext)
         frames, durations = load_gif_frames(src_path)
         plan = f'{os.path.basename(src_path)}({len(frames)}帧) -> {os.path.basename(dst_path)}, {"保留" if keep else "删除"}源文件'
         if dry:
@@ -459,24 +490,79 @@ def cmd_convert(args):
         log(f'✓ {plan}')
         return
 
-    # bundle表情模式: apng/webp用前缀约定落位, gif用[名].gif
-    name = plain_name(target)
+    # bundle表情模式: 单个表情
+    _convert_bundle_one(plain_name(target), to_fmt, plain, force, keep, dry, lossy, prefix_arg, batch=False)
+    return
+
+
+def _convert_bundle_one(name, to_fmt, plain, force, keep, dry, lossy, prefix_arg, batch):
+    """bundle内单个表情的格式转换, 返回ok/skip/fail(批量模式不中断, 单次模式内部die)"""
     if to_fmt == 'gif':
-        src_path = os.path.join(EMOJI_DIR, f'apng_[{name}].png')
-        src_path = src_path if os.path.exists(src_path) else os.path.join(EMOJI_DIR, f'webp_[{name}].webp')
+        candidates = [os.path.join(EMOJI_DIR, f'apng_[{name}].png'),
+                      os.path.join(EMOJI_DIR, f'webp_[{name}].webp'),
+                      os.path.join(EMOJI_DIR, f'[{name}].webp')]
+        src_path = next((p for p in candidates if os.path.exists(p)), None)
+        # 原名png只有在是多帧(真APNG)时才算合法源, 静态单帧png不算
+        plain_png = os.path.join(EMOJI_DIR, f'[{name}].png')
+        if src_path is None and os.path.exists(plain_png):
+            probe = Image.open(plain_png)
+            if getattr(probe, 'n_frames', 1) > 1:
+                src_path = plain_png
+        if src_path is None:
+            # 自定义前缀产物兜底: 扫描 *[{name}].png(多帧) 与 *[{name}].webp
+            import glob as _glob
+            # glob里[]是字符类, 匹配字面方括号要用[[]和[]]转义
+            png_pat = os.path.join(EMOJI_DIR, f'*[[]{name}[]].png')
+            for p in sorted(_glob.glob(png_pat)):
+                if os.path.basename(p) == f'[{name}].png':
+                    continue
+                if getattr(Image.open(p), 'n_frames', 1) > 1:
+                    src_path = p
+                    break
+            if src_path is None:
+                webp_pat = os.path.join(EMOJI_DIR, f'*[[]{name}[]].webp')
+                webps = [p for p in sorted(_glob.glob(webp_pat))
+                         if os.path.basename(p) != f'[{name}].webp']
+                src_path = webps[0] if webps else None
+        if src_path is None:
+            if batch:
+                return 'skip'
+            die(f'找不到 [{name}] 的动画源(apng_[名].png/webp_[名].webp/[名].webp/多帧[名].png/自定义前缀产物)')
         dst_path = gif_path(name)
     else:
         src_path = gif_path(name)
-        prefix, ext = ('apng_', '.png') if to_fmt == 'apng' else ('webp_', '.webp')
-        dst_path = os.path.join(EMOJI_DIR, f'{prefix}[{name}]{ext}')
+        ext = '.png' if to_fmt == 'apng' else '.webp'
+        prefix = prefix_arg if prefix_arg is not None else ('apng_' if to_fmt == 'apng' else 'webp_')
+        if plain:
+            dst_path = os.path.join(EMOJI_DIR, f'[{name}]{ext}')
+            if to_fmt == 'apng' and os.path.exists(png_path(name)):
+                warn = (f'[{name}].png静态图已存在, 原名apng会覆盖它, 后果: 原静态定稿帧丢失, '
+                        f'面板和气泡的静态显示将变成apng首帧(首帧不佳时面板效果差, 可restore还原)')
+                if dry:
+                    log(f'[dry-run] 检测到同名冲突, 正式执行时将询问是否覆盖: {warn}')
+                elif force:
+                    log(f'  提示: --force强制覆盖, {warn}')
+                elif batch:
+                    log(f'  跳过 [{name}]: {warn}')
+                    return 'skip'
+                elif sys.stdin.isatty():
+                    print(f"{ANSI['yellow']}警告: {warn}{ANSI['reset']}")
+                    if input('是否替换? [y/N] ').strip().lower() != 'y':
+                        die('已取消')
+                else:
+                    die(f'{warn}; 非交互环境无法询问, 确认要覆盖请加 --force')
+        else:
+            dst_path = os.path.join(EMOJI_DIR, f'{prefix}[{name}]{ext}')
     if not os.path.exists(src_path):
+        if batch:
+            return 'skip'
         die(f'找不到 {src_path}')
     frames, durations = load_gif_frames(src_path)
     plan = (f'[{name}] {os.path.basename(src_path)}({len(frames)}帧) -> {os.path.basename(dst_path)}, '
             f'{"保留" if keep else "删除"}源文件')
     if dry:
         log(f'[dry-run] 将执行: {plan}')
-        return
+        return 'ok'
     _write_animation(dst_path, frames, durations, to_fmt, lossy)
     if not keep:
         os.remove(src_path)
@@ -485,6 +571,7 @@ def cmd_convert(args):
         log('  提示: 预览探测链当前为gif->apng->静态, webp_通道需等代码侧支持后生效')
     else:
         log(f'  提示: 预览探测链为gif->apng->静态, {"转apng后走apng_通道" if to_fmt == "apng" else "转gif后优先走gif通道"}')
+    return 'ok'
 
 
 def _write_animation(path, frames, durations, to_fmt, lossy=False):
@@ -604,12 +691,13 @@ HELP = [
     ('add', '<gif路径> <表情名> [--after 某表情]', ['导入新表情gif并生成三维评分静态图, 插入plist(默认追加到末尾)']),
     ('bake', '<表情名> --frame N --first|--last [选项]', ['把gif里的第N帧烧进动画首/尾, 未来面板直接显示首/尾帧即可省掉静态图', '选项: --keep-static保留静态图, --dry-run仅预览']),
     ('migrate', '--first|--last [--dry-run]', ['批量把现有静态图(即人工定稿帧)烧进所有gif的首/尾并删静态图, 迁移到单文件方案']),
-    ('convert', '<表情名|文件路径|帧序列目录> --to apng|gif|webp|frames', ['GIF/APNG/WebP互转或导出帧序列, 传表情名按bundle约定落位(apng_[名].png/webp_[名].webp), 传文件路径原地同名互转, 传帧序列目录反向合成动画', '选项: --out指定输出, --keep-source保留源文件, --lossy有损webp, --dry-run仅预览']),
+    ('convert', '<表情名|文件路径|帧序列目录> | --all --to apng|gif|webp|frames', ['GIF/APNG/WebP互转或导出帧序列: 传表情名默认按apng_/webp_前缀落位(--prefix自定义前缀如xxx_/xxx, --plain保持原名), --all批量转换全部表情(冲突项跳过, --force覆盖), 传文件路径原地互转(--prefix时输出为前缀+原文件名), 传帧序列目录反向合成动画', '选项: --prefix自定义前缀, --plain原名, --force强制覆盖, --out指定输出, --keep-source保留源文件, --lossy有损webp, --dry-run仅预览']),
     ('restore', '<表情名> | --emojis | --all | --plist | --license | --tool', ['把资源还原到某次git提交的版本(默认HEAD): 单个表情(png/gif及apng_/webp_变体)、--emojis仅还原表情图片(不动LICENSE/工具/plist)、--all交互询问是否连带还原LICENSE/工具/plist(非终端环境默认不连带)、其余为定向还原', '--ref可指定历史提交; 未提交过的新文件无法还原; 还原会覆盖当前未提交的修改']),
 ]
 HELP_NOTES = [
     '表情名可不带方括号(写"微笑"或"[微笑]"都行)',
     'bake/migrate/convert会重写或删除文件, 先用--dry-run预览将要发生的变更',
+    '不会用某条命令时: python3 EmojiTool.py example <命令名> 查看带注释的示例',
     '可用环境变量WY_EMOJI_DIR覆盖表情目录(测试用): WY_EMOJI_DIR=/tmp/test python3 EmojiTool.py verify',
 ]
 
@@ -632,6 +720,81 @@ def print_help():
     print(bar)
 
 
+# 各命令的示例: (完整命令行, 注释说明)
+EXAMPLES = {
+    'verify': [
+        ('python3 EmojiTool.py verify', '校验plist/png/gif三向一致性, 每次批量操作后跑一遍最安心'),
+    ],
+    'scan': [
+        ('python3 EmojiTool.py scan', '全量按三维评分(完整+鲜艳+居中)重刷静态图, 自动换到形态最完整的帧'),
+    ],
+    'sheet': [
+        ('python3 EmojiTool.py sheet 微笑', '铺开微笑全部帧到桌面(红框=当前静态帧), 挑好帧号后配合static换帧'),
+    ],
+    'static': [
+        ('python3 EmojiTool.py static 微笑 --frame 29', '把微笑的静态图换成gif里的第29帧(帧号从sheet对照图里挑)'),
+    ],
+    'move': [
+        ('python3 EmojiTool.py move 猪 --after 笑猫', '把[猪]移到[笑猫]后面(面板显示顺序跟着变)'),
+        ('python3 EmojiTool.py move 月亮 --before 太阳', '把[月亮]移到[太阳]前面'),
+        ('python3 EmojiTool.py move "[猪]" --after "[笑猫]"', '表情名带不带方括号都行, 两种写法等价'),
+    ],
+    'add': [
+        ('python3 EmojiTool.py add ~/Desktop/rocket_1f680.gif 火箭', '导入新表情gif, 静态图自动取三维评分最佳帧, 追加到plist末尾'),
+        ('python3 EmojiTool.py add ~/Desktop/rocket_1f680.gif 火箭 --after 帆船', '导入并插入到[帆船]后面'),
+    ],
+    'bake': [
+        ('python3 EmojiTool.py bake 微笑 --frame 29 --last --dry-run', '先预览: 把第29帧烧进动画尾部(56帧->57帧)'),
+        ('python3 EmojiTool.py bake 微笑 --frame 29 --last', '正式执行并删静态图(单文件方案, 面板显示末帧)'),
+        ('python3 EmojiTool.py bake 微笑 --frame 29 --first --keep-static', '烧进首部且保留静态图(--first对应面板显示首帧)'),
+    ],
+    'migrate': [
+        ('python3 EmojiTool.py migrate --last --dry-run', '预览: 把所有表情的静态定稿帧批量烧进gif尾部'),
+        ('python3 EmojiTool.py migrate --last', '正式迁移到单文件方案(烧帧+删全部静态图)'),
+    ],
+    'convert': [
+        ('python3 EmojiTool.py convert 微笑 --to apng', 'gif转apng(生成apng_[微笑].png并删gif, 预览走apng_通道)'),
+        ('python3 EmojiTool.py convert 微笑 --to webp --dry-run', '预览转webp(webp_通道需代码侧支持后生效)'),
+        ('python3 EmojiTool.py convert ~/Desktop/x.gif --to apng', '独立文件原地互转(x.gif -> x.png)'),
+        ('python3 EmojiTool.py convert 微笑 --to frames', '导出编号PNG序列到桌面(微笑-帧序列/f0000.png~)'),
+        ('python3 EmojiTool.py convert ~/Desktop/微笑-帧序列 --to gif --out ~/Desktop/重拼.gif', '帧序列目录反向合成gif'),
+        ('python3 EmojiTool.py convert 微笑 --to webp --plain', 'webp保持原名([微笑].webp, 不加webp_前缀)'),
+        ('python3 EmojiTool.py convert 微笑 --to apng --plain', 'apng保持原名, 与静态图同名冲突时会警告后果并询问是否替换(非交互加--force强制)'),
+        ('python3 EmojiTool.py convert --all --to apng', '批量: 全部表情gif转apng(默认apng_前缀, 冲突项跳过)'),
+        ('python3 EmojiTool.py convert --all --to webp --prefix my_', '批量+自定义前缀: 生成 my_[微笑].webp 这种(前缀带不带下划线自己定)'),
+        ('python3 EmojiTool.py convert ~/Desktop/aa.gif --to apng --prefix xxx_', '独立文件: aa.gif -> xxx_aa.png(xxx_自定义前缀)'),
+    ],
+    'restore': [
+        ('python3 EmojiTool.py restore 微笑', '只还原微笑一个表情(png/gif及apng_/webp_变体)'),
+        ('python3 EmojiTool.py restore --emojis', '仅还原所有表情图片, 不动LICENSE/工具/plist'),
+        ('python3 EmojiTool.py restore --all', '还原表情图片, 并交互询问是否连带还原LICENSE/工具/plist'),
+        ('python3 EmojiTool.py restore --plist', '定向还原plist(顺序/增删全部回退到提交版)'),
+        ('python3 EmojiTool.py restore --tool', '定向还原工具自身'),
+        ('python3 EmojiTool.py restore --emojis --ref HEAD~2', '回退到两次提交前的表情图片版本'),
+    ],
+}
+
+
+def cmd_example(args):
+    if not args:
+        die(f'用法: example <命令名>, 可选命令: {" ".join(COMMANDS)}')
+    cmd = args[0]
+    if cmd not in EXAMPLES:
+        die(f'{cmd} 没有示例, 可选命令: {" ".join(COMMANDS)}')
+    B, G, Y, C, D, R = (ANSI[k] for k in ('bold', 'green', 'yellow', 'cyan', 'dim', 'reset'))
+    entry = next(e for e in HELP if e[0] == cmd)
+    usage = (cmd + ' ' + entry[1]).rstrip()
+    bar = C + '─' * 66 + R
+    print(bar)
+    print(f"{B}{Y}示例{R} {D}·{R} {G}{usage}{R}")
+    print(bar)
+    cmd_w = max(len(c) for c, _ in EXAMPLES[cmd]) + 2
+    for command, comment in EXAMPLES[cmd]:
+        pad = ' ' * max(1, cmd_w - len(command))
+        print(f"  {command}{pad}{D}# {comment}{R}")
+    print(bar)
+
+
 COMMANDS = {
     'verify': cmd_verify,
     'scan': cmd_scan,
@@ -643,6 +806,7 @@ COMMANDS = {
     'migrate': cmd_migrate,
     'convert': cmd_convert,
     'restore': cmd_restore,
+    'example': cmd_example,
 }
 
 
