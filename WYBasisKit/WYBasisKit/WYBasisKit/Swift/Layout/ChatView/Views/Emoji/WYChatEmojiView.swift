@@ -36,6 +36,9 @@ public struct WYEmojiViewConfig {
     /// 自定义加载Emoji图片的Bundle
     public var emojiBundle: WYSourceBundle? = WYSourceBundle(bundleName: "WYChatView", subdirectory: "WYChatViewEmoji")
 
+    /// 表情资源是否放在同名子文件夹中(如WYChatViewEmoji/微笑/[微笑].png + [微笑].gif)
+    public var emojiFolders: Bool = false
+
     /// 自定义表情图片加载器(传入表情名和bundle返回UIImage，返回nil时走内部加载链)，适合接入Lottie等内部不支持的格式
     public var customImageLoader: ((_ emojiName: String, _ bundle: WYSourceBundle?) -> UIImage)? = nil
 
@@ -108,6 +111,17 @@ public struct WYEmojiViewConfig {
             }
         }
         return UIImage.wy_find(emojiName, inBundle: emojiBundle)
+    }
+
+    /// 获取某个表情对应的加载Bundle(emojiFolders为true时subdirectory包含表情名子目录，供wy_animatedParse等需要WYSourceBundle的场景使用)
+    public func emojiSourceBundle(for emojiName: String) -> WYSourceBundle? {
+        guard emojiFolders, let original = emojiBundle else {
+            return emojiBundle
+        }
+        let base = original.subdirectory.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        let plain = emojiName.trimmingCharacters(in: CharacterSet(charactersIn: "[]"))
+        let newSub = base.isEmpty ? plain : base + "/" + plain
+        return WYSourceBundle(targetClass: original.targetClass, bundleName: original.bundleName, subdirectory: newSub)
     }
 
     public init() {}
@@ -532,7 +546,7 @@ extension WYEmojiViewConfig {
         return image
     }
 
-    /// 拼接表情文件的完整路径(targetClass所在Bundle → WYChatEmojiView所在Bundle → Bundle.main)
+    /// 拼接表情文件的完整路径(emojiFolders时在subdirectory后加表情名子目录)
     func emojiFilePath(_ emojiName: String, ext: String) -> String? {
         guard let config = emojiBundle, config.bundleName.isEmpty == false else {
             return nil
@@ -544,10 +558,17 @@ extension WYEmojiViewConfig {
                 return [Bundle(for: WYChatEmojiView.self), Bundle.main]
             }
         }()
+        let baseSubDir = config.subdirectory.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        let subDir = {
+            if emojiFolders {
+                let plain = emojiName.trimmingCharacters(in: CharacterSet(charactersIn: "[]"))
+                return baseSubDir.isEmpty ? plain : baseSubDir + "/" + plain
+            }
+            return baseSubDir
+        }()
         for searchBundle in searchBundles {
             if let bundlePath = searchBundle.path(forResource: config.bundleName, ofType: "bundle"),
                let resourceBundle = Bundle(path: bundlePath) {
-                let subDir = config.subdirectory.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
                 if subDir.isEmpty {
                     if let filePath = resourceBundle.path(forResource: emojiName, ofType: ext) {
                         return filePath

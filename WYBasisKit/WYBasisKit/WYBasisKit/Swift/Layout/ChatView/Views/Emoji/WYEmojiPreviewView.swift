@@ -74,20 +74,22 @@ public class WYEmojiPreviewView: UIImageView {
     /// 更新预览的内容(依次尝试gif、webp、apng动图，都没有时走customImageLoader，最终降级静态图)
     private func updateContent(_ emoji: String) {
 
-        if let gifInfo: WYGifInfo = UIImage.wy_animatedParse(.GIF, name: emoji, inBundle: emojiViewConfig.emojiBundle) {
+        let bundle = emojiViewConfig.emojiSourceBundle(for: emoji)
+
+        if let gifInfo: WYGifInfo = UIImage.wy_animatedParse(.GIF, name: emoji, inBundle: bundle) {
             emojiView.image = gifInfo.animatedImage
 
-        }else if let webpInfo: WYGifInfo = UIImage.wy_animatedParse(.WebP, name: emoji, inBundle: emojiViewConfig.emojiBundle) {
+        }else if let webpInfo: WYGifInfo = UIImage.wy_animatedParse(.WebP, name: emoji, inBundle: bundle) {
             emojiView.image = webpInfo.animatedImage
 
-        }else if let apngInfo: WYGifInfo = UIImage.wy_animatedParse(.APNG, name: emoji, inBundle: emojiViewConfig.emojiBundle) {
+        }else if let apngInfo: WYGifInfo = UIImage.wy_animatedParse(.APNG, name: emoji, inBundle: bundle) {
             emojiView.image = apngInfo.animatedImage
 
         }else if let customImage: UIImage = emojiViewConfig.customImageLoader?(emoji, emojiViewConfig.emojiBundle) {
             emojiView.image = customImage
 
         }else {
-            emojiView.image = UIImage.wy_find(emoji, inBundle: emojiViewConfig.emojiBundle)
+            emojiView.image = emojiViewConfig.staticEmojiImage(emoji)
         }
 
         textView.text = WYLocalized(emoji.wy_substring(from: 1, to: emoji.count - 1), table: WYBasisKitConfig.kitLocalizableTable)

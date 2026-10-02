@@ -3,6 +3,7 @@
 """EmojiTool - WYChatView表情资源管理工具(运行无参数查看彩色帮助)"""
 import os
 import plistlib
+import shutil
 import re
 import sys
 import time
@@ -454,6 +455,45 @@ def _extract_one(name, frame, pos, strip, dry):
     return True
 
 
+def cmd_organize(args):
+    dry = '--dry-run' in args
+    names = load_plist()
+    moved = 0
+    for name in names:
+        folder = os.path.join(EMOJI_DIR, name)
+        if dry:
+            log(f'[dry-run] 将创建 {name}/ 并移入 [{name}].png + [{name}].gif')
+            continue
+        os.makedirs(folder, exist_ok=True)
+        for ext in ('.png', '.gif', '.webp'):
+            src = os.path.join(EMOJI_DIR, f'[{name}]{ext}')
+            if os.path.exists(src):
+                shutil.move(src, os.path.join(folder, f'[{name}]{ext}'))
+                moved += 1
+    log(f'✓ organize{"[dry-run]" if dry else "完成"}: {len(names)}个文件夹, 移入{moved}个文件')
+
+
+def cmd_flatten(args):
+    dry = '--dry-run' in args
+    moved = removed = 0
+    for d in os.listdir(EMOJI_DIR):
+        dp = os.path.join(EMOJI_DIR, d)
+        if not os.path.isdir(dp) or d in ('.', '..'):
+            continue
+        for f in os.listdir(dp):
+            src = os.path.join(dp, f)
+            dst = os.path.join(EMOJI_DIR, f)
+            if dry:
+                log(f'[dry-run] 将移出 {d}/{f}')
+                continue
+            shutil.move(src, dst)
+            moved += 1
+        if not dry:
+            os.rmdir(dp)
+            removed += 1
+    log(f'✓ flatten{"[dry-run]" if dry else "完成"}: 移出{moved}个文件, 删除{removed}个文件夹')
+
+
 def cmd_sync(args):
     dry = '--dry-run' in args
     names = load_plist()
@@ -597,6 +637,8 @@ HELP = [
     ('bake', '<表情名> | --all --first|--last [--frame N] [--keep-static] [--dry-run]', ['把gif中的帧烧进动画首/尾: 单个需--frame N指定帧号, --all批量自动匹配静态图对应帧号', '--keep-static保留静态图(默认删除), --dry-run仅预览']),
     ('extract', '<表情名> | --all [--frame N | --first | --last] [--strip] [--dry-run]', ['从动图导出指定帧作为静态图', '--frame N指定帧号, --first取首帧, --last取末帧(默认)', '--strip同时从gif中删掉该帧(不加则gif不动)']),
     ('convert', '<表情名|文件路径|帧序列目录> | --all --to apng|gif|webp|frames', ['GIF/APNG/WebP互转或导出帧序列: 默认保持原名, --prefix加前缀, --all批量', '选项: --prefix自定义前缀, --force强制覆盖, --out指定输出, --keep-source保留源, --lossy有损webp, --dry-run预览']),
+    ('organize', '[--dry-run]', ['把每个表情的文件移入同名子文件夹(如 微笑/[微笑].png + [微笑].gif)']),
+    ('flatten', '[--dry-run]', ['把子文件夹内的文件移回根目录并删除空文件夹(organize的逆操作)']),
     ('sync', '[--dry-run]', ['同步plist与表情文件: 有新文件自动加入plist末尾, plist有但文件缺失的逐个询问']),
     ('restore', '<表情名> | --emojis | --all | --plist | --license | --tool', ['把资源还原到某次git提交的版本(默认HEAD)', '--ref可指定历史提交; 未提交过的新文件无法还原']),
 ]
@@ -643,6 +685,12 @@ EXAMPLES = {
         ('python3 EmojiTool.py convert ~/Desktop/x.gif --to apng', '独立文件原地互转'),
         ('python3 EmojiTool.py convert 微笑 --to frames', '导出编号PNG序列到桌面'),
         ('python3 EmojiTool.py convert --all --to webp --prefix my_', '批量+自定义前缀'),
+    ],
+    'organize': [
+        ('python3 EmojiTool.py organize', '把所有表情文件归入同名文件夹(配合emojiFolders=true使用)'),
+    ],
+    'flatten': [
+        ('python3 EmojiTool.py flatten', '把文件夹内的文件移回根目录(organize的逆操作)'),
     ],
     'sync': [
         ('python3 EmojiTool.py sync', '检查plist与文件差异, 新文件自动加入, 缺文件的逐个问删还是留'),
@@ -719,6 +767,8 @@ COMMANDS = {
     'bake': cmd_bake,
     'extract': cmd_extract,
     'convert': None,  # placeholder
+    'organize': cmd_organize,
+    'flatten': cmd_flatten,
     'sync': cmd_sync,
     'restore': cmd_restore,
     'example': cmd_example,

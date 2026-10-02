@@ -36,6 +36,8 @@ class WYTestChatController: UIViewController {
             moreViewConfig.contentInset = UIEdgeInsets(top: UIDevice.wy_screenWidth(10), left: UIDevice.wy_screenWidth(20), bottom: UIDevice.wy_screenWidth(20), right: UIDevice.wy_screenWidth(40))
         }
         
+        emojiViewConfig.emojiFolders = true
+        
         chatView = WYChatView()
         chatView.userInfo = sharedUserInfo(id: "99999", name: "官人", avatar: "https://tse3-mm.cn.bing.net/th/id/OIP-C.sLiEXoTdJvx0fe3erN8NeAAAAA?pid=ImgDet&rs=1")
         chatView.dataSource = []
