@@ -1,34 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-EmojiTool - WYChatView表情资源管理工具
-
-用法(python3 EmojiTool.py <命令> [参数]):
-  verify                          校验plist/png/gif三向一致性(数量、一一对应、重名、LICENSE)
-  scan                            按三维评分(完整度50%+鲜艳度30%+居中度20%)重刷全部静态图
-  sheet <表情名>                   铺某表情的全部帧编号对照图到桌面(红框=当前静态帧), 用于人工挑帧
-  static <表情名> --frame N        把某表情的静态图换成gif里的第N帧
-  move <表情名> --before|--after <锚点表情>   修改表情在plist中的位置(即面板显示顺序)
-  add <gif路径> <表情名> [--after 某表情]   导入新表情gif并生成三维评分静态图, 插入plist(默认追加到末尾)
-  bake <表情名> --frame N --first|--last [--keep-static] [--dry-run]
-                                  把gif里的第N帧烧进动画首/尾(未来面板直接显示首/尾帧即可省掉静态图)
-  migrate --first|--last [--dry-run]
-                                  批量把现有静态图(即人工定稿帧)烧进所有gif的首/尾并删静态图, 迁移到单文件方案
-  convert <表情名或文件路径> --to apng|gif|webp|frames [--lossy] [--keep-source] [--dry-run]
-                                  GIF/APNG/WebP互转或导出帧序列: 传表情名按bundle约定落位(gif转apng/webp生成
-                                  apng_[名].png/webp_[名].webp并删gif, apng/webp转gif生成[名].gif并删源),
-                                  传文件路径则原地同名互转; --to frames把动画导出成编号PNG序列(桌面目录 名-帧序列/);
-                                  也可传帧序列目录反向合成: convert <帧序列目录> --to gif|apng [--out 输出路径]
-
-说明:
-  - 表情名可不带方括号(写"微笑"或"[微笑]"都行)
-  - bake/migrate/convert会重写或删除文件, 先用--dry-run预览将要发生的变更
-  - 可用环境变量WY_EMOJI_DIR覆盖表情目录(测试用): WY_EMOJI_DIR=/tmp/test python3 EmojiTool.py verify
-"""
+"""EmojiTool - WYChatView表情资源管理工具(运行无参数查看彩色帮助)"""
 import os
 import plistlib
 import sys
-import tempfile
 from PIL import Image, ImageDraw, ImageFont
 
 # 表情目录从脚本自身位置推导(脚本就放在表情目录里), 不写死绝对路径
@@ -41,7 +16,7 @@ DESKTOP = os.path.expanduser('~/Desktop')
 FONT_PATH = '/System/Library/Fonts/STHeiti Medium.ttc'
 W_COV, W_SAT, W_CEN = 0.5, 0.3, 0.2  # 三维评分权重
 
-# 提示配色: 成功绿/失败红/dry-run黄/提示灰, 按消息内容自动匹配
+# 提示配色: 成功绿/失败红/dry-run黄/提示灰/标题青, 按消息内容自动匹配
 ANSI = {'bold': '\033[1m', 'green': '\033[32m', 'red': '\033[31m', 'yellow': '\033[33m', 'cyan': '\033[36m', 'dim': '\033[90m', 'reset': '\033[0m'}
 
 
@@ -51,9 +26,9 @@ def log(msg):
         msg = ANSI['green'] + msg + ANSI['reset']
     elif stripped.startswith('✗'):
         msg = ANSI['red'] + msg + ANSI['reset']
-    elif stripped.startswith('[dry-run]'):
+    elif stripped.startswith('[dry-run]') or stripped.startswith('[') and ']' in stripped[:12]:
         msg = ANSI['yellow'] + msg + ANSI['reset']
-    elif stripped.startswith('提示'):
+    elif stripped.startswith('提示') or stripped.startswith('跳过'):
         msg = ANSI['dim'] + msg + ANSI['reset']
     print(msg, flush=True)
 
@@ -87,7 +62,7 @@ def save_plist(names):
 
 
 def load_gif_frames(path):
-    """读出gif全部帧(RGBA)与每帧时长(ms)"""
+    """读出动画(gif/apng/webp)全部帧(RGBA)与每帧时长(ms)"""
     img = Image.open(path)
     frames, durations = [], []
     for i in range(getattr(img, 'n_frames', 1)):
@@ -227,7 +202,8 @@ def cmd_sheet(args):
     d = ImageDraw.Draw(sheet)
     for i, f in enumerate(frames):
         x, y = 10 + (i % cols) * cell, 10 + (i // cols) * (cell + label_h)
-        sheet.paste(f.resize((88, 88), Image.LANCZOS), (x, y), f.resize((88, 88), Image.LANCZOS))
+        small = f.resize((88, 88), Image.LANCZOS)
+        sheet.paste(small, (x, y), small)
         if i == cur_i:
             d.rectangle([x - 1, y - 1, x + 92, y + 92], outline=(220, 40, 40), width=4)
             d.text((x + 18, y + 96), f'{i} 当前', fill=(220, 40, 40), font=font)
@@ -261,13 +237,46 @@ def cmd_static(args):
     log(f'✓ [{plain_name(name)}] 静态图已换成第{frame}帧')
 
 
+def cmd_move(args):
+    name, anchor, rel = None, None, None
+    i = 0
+    while i < len(args):
+        a = args[i]
+        if a in ('--before', '--after'):
+            i += 1
+            if i >= len(args):
+                die(f'{a} 缺参数(锚点表情名)')
+            rel, anchor = a[2:], args[i]
+        else:
+            name = a
+        i += 1
+    if name is None or anchor is None or rel is None:
+        die('用法: move <表情名> --before|--after <锚点表情>')
+    name, anchor = plain_name(name), plain_name(anchor)
+    names = load_plist()
+    if name not in names:
+        die(f'[{name}] 不在plist里')
+    if anchor not in names:
+        die(f'锚点表情[{anchor}]不在plist里')
+    if name == anchor:
+        die('不能以自己为锚点')
+    names.remove(name)
+    idx = names.index(anchor)
+    names.insert(idx if rel == 'before' else idx + 1, name)
+    save_plist(names)
+    log(f'✓ [{name}] 已移到[{anchor}]{"前面" if rel == "before" else "后面"}, plist共{len(names)}个')
+
+
 def cmd_add(args):
     if len(args) < 2:
         die('用法: add <gif路径> <表情名> [--after 某表情]')
     src, name = args[0], plain_name(args[1])
     after = None
     if '--after' in args:
-        after = plain_name(args[args.index('--after') + 1]) if len(args) > args.index('--after') + 1 else die('--after 缺参数')
+        pos = args.index('--after')
+        if len(args) <= pos + 1:
+            die('--after 缺参数')
+        after = plain_name(args[pos + 1])
     if not os.path.exists(src):
         die(f'找不到源文件 {src}')
     names = load_plist()
@@ -492,47 +501,97 @@ def _write_animation(path, frames, durations, to_fmt, lossy=False):
         save_gif_frames(path, frames, durations)
 
 
-def cmd_move(args):
-    name, anchor, rel = None, None, None
+def cmd_restore(args):
+    import subprocess
+    target, scope, ref = None, None, 'HEAD'
     i = 0
     while i < len(args):
         a = args[i]
-        if a in ('--before', '--after'):
+        if a in ('--emojis', '--all', '--plist', '--license', '--tool'):
+            scope = a[2:]
+        elif a == '--ref':
             i += 1
             if i >= len(args):
-                die(f'{a} 缺参数(锚点表情名)')
-            rel, anchor = a[2:], args[i]
+                die('--ref 缺参数(commit或分支名)')
+            ref = args[i]
         else:
-            name = a
+            target = a
         i += 1
-    if name is None or anchor is None or rel is None:
-        die('用法: move <表情名> --before|--after <锚点表情>')
-    name, anchor = plain_name(name), plain_name(anchor)
-    names = load_plist()
-    if name not in names:
-        die(f'[{name}] 不在plist里')
-    if anchor not in names:
-        die(f'锚点表情[{anchor}]不在plist里')
-    if name == anchor:
-        die('不能以自己为锚点')
-    names.remove(name)
-    idx = names.index(anchor)
-    names.insert(idx if rel == 'before' else idx + 1, name)
-    save_plist(names)
-    log(f'✓ [{name}] 已移到[{anchor}]{"前面" if rel == "before" else "后面"}, plist共{len(names)}个')
+    if (target is None) == (scope is None):
+        die('用法: restore <表情名> | --emojis | --all | --plist | --license | --tool [--ref 提交]')
 
+    # git仓库根与相对路径
+    try:
+        repo = subprocess.check_output(['git', 'rev-parse', '--show-toplevel'],
+                                       cwd=os.path.dirname(EMOJI_DIR), stderr=subprocess.DEVNULL).decode().strip()
+    except subprocess.CalledProcessError:
+        die('当前不在git仓库里, 无法还原')
+    if subprocess.run(['git', '-C', repo, 'rev-parse', '--verify', ref],
+                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode != 0:
+        die(f'git里找不到引用: {ref}')
+    emoji_rel = os.path.relpath(EMOJI_DIR, repo)
 
-COMMANDS = {
-    'verify': cmd_verify,
-    'scan': cmd_scan,
-    'sheet': cmd_sheet,
-    'static': cmd_static,
-    'move': cmd_move,
-    'add': cmd_add,
-    'bake': cmd_bake,
-    'migrate': cmd_migrate,
-    'convert': cmd_convert,
-}
+    def in_ref(rel_path):
+        return subprocess.run(['git', '-C', repo, 'cat-file', '-e', f'{ref}:{rel_path}'],
+                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
+
+    def checkout(rel_paths):
+        rel_paths = [p for p in rel_paths if in_ref(p)]
+        if not rel_paths:
+            return []
+        subprocess.check_call(['git', '-C', repo, 'checkout', ref, '--'] + rel_paths,
+                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return rel_paths
+
+    # 表情图片清单 = git跟踪的表情目录文件里排除LICENSE和工具本身
+    def emoji_image_paths():
+        out = subprocess.check_output(['git', '-C', repo, 'ls-files', emoji_rel]).decode().splitlines()
+        return [p for p in out
+                if os.path.basename(p) not in (LICENSE_NAME, TOOL_NAME)
+                and os.path.basename(p).endswith(('.png', '.gif', '.webp'))]
+
+    # --all交互确认是否连带LICENSE/工具/plist(非终端环境默认不连带)
+    extras = []
+    if scope == 'all':
+        if sys.stdin.isatty():
+            for label in ('LICENSE', '表情管理工具', 'plist'):
+                ans = input(f'是否连带还原{label}? [y/N] ').strip().lower()
+                if ans == 'y':
+                    extras.append(label)
+        else:
+            log('  提示: 非交互环境, --all仅还原表情图片(不含LICENSE/工具/plist)')
+
+    if scope in ('all', 'emojis'):
+        restored = checkout(emoji_image_paths())
+        label = '表情图片'
+    elif scope == 'plist':
+        restored = checkout([os.path.relpath(PLIST_PATH, repo)])
+        label = 'plist'
+    elif scope == 'license':
+        restored = checkout([os.path.join(emoji_rel, LICENSE_NAME)])
+        label = 'LICENSE'
+    elif scope == 'tool':
+        restored = checkout([os.path.join(emoji_rel, TOOL_NAME)])
+        label = '表情管理工具'
+    else:
+        name = plain_name(target)
+        candidates = [os.path.join(emoji_rel, f'[{name}]{ext}') for ext in ('.png', '.gif')]
+        candidates += [os.path.join(emoji_rel, f'{prefix}[{name}]{ext}')
+                       for prefix, ext in (('apng_', '.png'), ('webp_', '.webp'))]
+        restored = checkout(candidates)
+        label = f'[{name}]'
+    if not restored:
+        die(f'{label} 在 {ref} 里不存在(未提交过的新文件无法还原)')
+    log(f'✓ 已从 {ref} 还原{label}: {len(restored)}个文件')
+
+    for label in extras:
+        path = {'LICENSE': os.path.join(emoji_rel, LICENSE_NAME),
+                '表情管理工具': os.path.join(emoji_rel, TOOL_NAME),
+                'plist': os.path.relpath(PLIST_PATH, repo)}[label]
+        r = checkout([path])
+        log(f'✓ 连带还原{label}: {len(r)}个文件' if r else f'  跳过 {label} (在 {ref} 里不存在)')
+    log('  提示: 还原会覆盖当前未提交的修改, 改到满意记得git提交, 提交了才有还原点')
+    cmd_verify([])
 
 
 # 帮助条目: (命令, 参数, [描述行])
@@ -546,6 +605,7 @@ HELP = [
     ('bake', '<表情名> --frame N --first|--last [选项]', ['把gif里的第N帧烧进动画首/尾, 未来面板直接显示首/尾帧即可省掉静态图', '选项: --keep-static保留静态图, --dry-run仅预览']),
     ('migrate', '--first|--last [--dry-run]', ['批量把现有静态图(即人工定稿帧)烧进所有gif的首/尾并删静态图, 迁移到单文件方案']),
     ('convert', '<表情名|文件路径|帧序列目录> --to apng|gif|webp|frames', ['GIF/APNG/WebP互转或导出帧序列, 传表情名按bundle约定落位(apng_[名].png/webp_[名].webp), 传文件路径原地同名互转, 传帧序列目录反向合成动画', '选项: --out指定输出, --keep-source保留源文件, --lossy有损webp, --dry-run仅预览']),
+    ('restore', '<表情名> | --emojis | --all | --plist | --license | --tool', ['把资源还原到某次git提交的版本(默认HEAD): 单个表情(png/gif及apng_/webp_变体)、--emojis仅还原表情图片(不动LICENSE/工具/plist)、--all交互询问是否连带还原LICENSE/工具/plist(非终端环境默认不连带)、其余为定向还原', '--ref可指定历史提交; 未提交过的新文件无法还原; 还原会覆盖当前未提交的修改']),
 ]
 HELP_NOTES = [
     '表情名可不带方括号(写"微笑"或"[微笑]"都行)',
@@ -570,6 +630,20 @@ def print_help():
     for n in HELP_NOTES:
         print(f"  {D}·{R} {n}")
     print(bar)
+
+
+COMMANDS = {
+    'verify': cmd_verify,
+    'scan': cmd_scan,
+    'sheet': cmd_sheet,
+    'static': cmd_static,
+    'move': cmd_move,
+    'add': cmd_add,
+    'bake': cmd_bake,
+    'migrate': cmd_migrate,
+    'convert': cmd_convert,
+    'restore': cmd_restore,
+}
 
 
 def main():
