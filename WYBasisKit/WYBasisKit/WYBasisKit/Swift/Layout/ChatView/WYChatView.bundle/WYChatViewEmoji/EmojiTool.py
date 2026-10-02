@@ -8,15 +8,21 @@ EmojiTool - WYChatView表情资源管理工具
   scan                            按三维评分(完整度50%+鲜艳度30%+居中度20%)重刷全部静态图
   sheet <表情名>                   铺某表情的全部帧编号对照图到桌面(红框=当前静态帧), 用于人工挑帧
   static <表情名> --frame N        把某表情的静态图换成gif里的第N帧
+  move <表情名> --before|--after <锚点表情>   修改表情在plist中的位置(即面板显示顺序)
   add <gif路径> <表情名> [--after 某表情]   导入新表情gif并生成三维评分静态图, 插入plist(默认追加到末尾)
   bake <表情名> --frame N --first|--last [--keep-static] [--dry-run]
                                   把gif里的第N帧烧进动画首/尾(未来面板直接显示首/尾帧即可省掉静态图)
   migrate --first|--last [--dry-run]
                                   批量把现有静态图(即人工定稿帧)烧进所有gif的首/尾并删静态图, 迁移到单文件方案
+  convert <表情名或文件路径> --to apng|gif|webp|frames [--lossy] [--keep-source] [--dry-run]
+                                  GIF/APNG/WebP互转或导出帧序列: 传表情名按bundle约定落位(gif转apng/webp生成
+                                  apng_[名].png/webp_[名].webp并删gif, apng/webp转gif生成[名].gif并删源),
+                                  传文件路径则原地同名互转; --to frames把动画导出成编号PNG序列(桌面目录 名-帧序列/);
+                                  也可传帧序列目录反向合成: convert <帧序列目录> --to gif|apng [--out 输出路径]
 
 说明:
   - 表情名可不带方括号(写"微笑"或"[微笑]"都行)
-  - bake/migrate会重写gif文件, 先用--dry-run预览将要发生的变更
+  - bake/migrate/convert会重写或删除文件, 先用--dry-run预览将要发生的变更
   - 可用环境变量WY_EMOJI_DIR覆盖表情目录(测试用): WY_EMOJI_DIR=/tmp/test python3 EmojiTool.py verify
 """
 import os
@@ -25,24 +31,35 @@ import sys
 import tempfile
 from PIL import Image, ImageDraw, ImageFont
 
-# 表情目录从脚本自身位置推导(脚本在仓库根目录), 不写死绝对路径
+# 表情目录从脚本自身位置推导(脚本就放在表情目录里), 不写死绝对路径
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-EMOJI_DIR = os.environ.get('WY_EMOJI_DIR') or os.path.join(
-    SCRIPT_DIR, 'WYBasisKit', 'WYBasisKit', 'WYBasisKit',
-    'Swift', 'Layout', 'ChatView', 'WYChatView.bundle', 'WYChatViewEmoji')
+EMOJI_DIR = os.environ.get('WY_EMOJI_DIR') or SCRIPT_DIR
 PLIST_PATH = os.path.join(os.path.dirname(EMOJI_DIR), 'WYChatViewEmoji.plist')
 LICENSE_NAME = 'LICENSE.txt'
+TOOL_NAME = 'EmojiTool.py'
 DESKTOP = os.path.expanduser('~/Desktop')
 FONT_PATH = '/System/Library/Fonts/STHeiti Medium.ttc'
 W_COV, W_SAT, W_CEN = 0.5, 0.3, 0.2  # 三维评分权重
 
+# 提示配色: 成功绿/失败红/dry-run黄/提示灰, 按消息内容自动匹配
+ANSI = {'bold': '\033[1m', 'green': '\033[32m', 'red': '\033[31m', 'yellow': '\033[33m', 'cyan': '\033[36m', 'dim': '\033[90m', 'reset': '\033[0m'}
+
 
 def log(msg):
+    stripped = msg.lstrip()
+    if stripped.startswith('✓'):
+        msg = ANSI['green'] + msg + ANSI['reset']
+    elif stripped.startswith('✗'):
+        msg = ANSI['red'] + msg + ANSI['reset']
+    elif stripped.startswith('[dry-run]'):
+        msg = ANSI['yellow'] + msg + ANSI['reset']
+    elif stripped.startswith('提示'):
+        msg = ANSI['dim'] + msg + ANSI['reset']
     print(msg, flush=True)
 
 
 def die(msg):
-    print(f'错误: {msg}', file=sys.stderr)
+    print(f"{ANSI['red']}错误: {msg}{ANSI['reset']}", file=sys.stderr)
     sys.exit(1)
 
 
@@ -168,7 +185,7 @@ def cmd_verify(_):
         problems.append(f'png没有同名gif: {sorted(pngs - gifs)[:5]}')
     if LICENSE_NAME not in files:
         problems.append('缺少LICENSE.txt')
-    extras = [f for f in files if not (f.startswith('[') or f == LICENSE_NAME) and not f.endswith(('.png', '.gif'))]
+    extras = [f for f in files if not (f.startswith('[') or f in (LICENSE_NAME, TOOL_NAME)) and not f.endswith(('.png', '.gif'))]
     if extras:
         problems.append(f'目录有意外文件: {extras[:5]}')
     if problems:
@@ -348,20 +365,216 @@ def cmd_migrate(args):
         log(f'✓ migrate完成: {tail}{hint}')
 
 
+def cmd_convert(args):
+    target, to_fmt, keep, dry, lossy, out_path = None, None, False, False, False, None
+    i = 0
+    while i < len(args):
+        a = args[i]
+        if a == '--to':
+            i += 1
+            if i >= len(args):
+                die('--to 缺参数(apng/gif/webp/frames)')
+            to_fmt = args[i].lower()
+        elif a == '--keep-source':
+            keep = True
+        elif a == '--dry-run':
+            dry = True
+        elif a == '--lossy':
+            lossy = True
+        elif a == '--out':
+            i += 1
+            if i >= len(args):
+                die('--out 缺参数')
+            out_path = args[i]
+        else:
+            target = a
+        i += 1
+    if target is None or to_fmt not in ('apng', 'gif', 'webp', 'frames'):
+        die('用法: convert <表情名或文件路径或帧序列目录> --to apng|gif|webp|frames [--lossy] [--out 路径] [--keep-source] [--dry-run]')
+
+    # 帧序列目录模式: 编号PNG合成gif/apng
+    if os.path.isdir(target):
+        if to_fmt not in ('gif', 'apng'):
+            die('帧序列目录只能合成gif或apng')
+        frame_files = sorted(f for f in os.listdir(target) if f.endswith('.png'))
+        if not frame_files:
+            die(f'目录里没有png帧: {target}')
+        frames = [Image.open(os.path.join(target, f)).convert('RGBA') for f in frame_files]
+        durations = [80] * len(frames)
+        dst = out_path or os.path.join(os.path.dirname(target.rstrip('/')),
+                                       os.path.basename(target.rstrip('/')) + ('.gif' if to_fmt == 'gif' else '.png'))
+        _write_animation(dst, frames, durations, to_fmt, lossy)
+        log(f'✓ {len(frame_files)}帧({frame_files[0]}..{frame_files[-1]}) 合成为 {dst}')
+        return
+
+    # 导出帧序列模式: 动画拆成编号PNG(桌面目录或--out指定目录)
+    if to_fmt == 'frames':
+        if os.path.isfile(target):
+            src_path = target
+            name = os.path.splitext(os.path.basename(target))[0]
+        else:
+            name = plain_name(target)
+            src_path = gif_path(name)
+            if not os.path.exists(src_path):
+                src_path = os.path.join(EMOJI_DIR, f'apng_[{name}].png')
+            if not os.path.exists(src_path):
+                src_path = os.path.join(EMOJI_DIR, f'webp_[{name}].webp')
+            if not os.path.exists(src_path):
+                die(f'找不到 [{name}] 的动画文件(gif/apng/webp)')
+        frames, _ = load_gif_frames(src_path)
+        out_dir = out_path or os.path.join(DESKTOP, f'{name}-帧序列')
+        os.makedirs(out_dir, exist_ok=True)
+        for i, f in enumerate(frames):
+            f.save(os.path.join(out_dir, f'f{i:04d}.png'), optimize=True)
+        log(f'✓ [{name}] {len(frames)}帧已导出到 {out_dir}/ (f0000.png~f{len(frames) - 1:04d}.png)')
+        return
+
+    # 独立文件模式: 原地同名互转
+    if os.path.isfile(target):
+        src_path = target
+        src_ext = os.path.splitext(src_path)[1].lower()
+        if to_fmt == 'gif' and src_ext == '.gif':
+            die('源文件已是gif')
+        if to_fmt != 'gif' and src_ext == ('.png' if to_fmt == 'apng' else '.webp'):
+            die(f'源文件已是{to_fmt}')
+        dst_ext = {'apng': '.png', 'gif': '.gif', 'webp': '.webp'}[to_fmt]
+        dst_path = os.path.splitext(src_path)[0] + dst_ext
+        frames, durations = load_gif_frames(src_path)
+        plan = f'{os.path.basename(src_path)}({len(frames)}帧) -> {os.path.basename(dst_path)}, {"保留" if keep else "删除"}源文件'
+        if dry:
+            log(f'[dry-run] 将执行: {plan}')
+            return
+        _write_animation(dst_path, frames, durations, to_fmt, lossy)
+        if not keep:
+            os.remove(src_path)
+        log(f'✓ {plan}')
+        return
+
+    # bundle表情模式: apng/webp用前缀约定落位, gif用[名].gif
+    name = plain_name(target)
+    if to_fmt == 'gif':
+        src_path = os.path.join(EMOJI_DIR, f'apng_[{name}].png')
+        src_path = src_path if os.path.exists(src_path) else os.path.join(EMOJI_DIR, f'webp_[{name}].webp')
+        dst_path = gif_path(name)
+    else:
+        src_path = gif_path(name)
+        prefix, ext = ('apng_', '.png') if to_fmt == 'apng' else ('webp_', '.webp')
+        dst_path = os.path.join(EMOJI_DIR, f'{prefix}[{name}]{ext}')
+    if not os.path.exists(src_path):
+        die(f'找不到 {src_path}')
+    frames, durations = load_gif_frames(src_path)
+    plan = (f'[{name}] {os.path.basename(src_path)}({len(frames)}帧) -> {os.path.basename(dst_path)}, '
+            f'{"保留" if keep else "删除"}源文件')
+    if dry:
+        log(f'[dry-run] 将执行: {plan}')
+        return
+    _write_animation(dst_path, frames, durations, to_fmt, lossy)
+    if not keep:
+        os.remove(src_path)
+    log(f'✓ {plan}')
+    if to_fmt == 'webp':
+        log('  提示: 预览探测链当前为gif->apng->静态, webp_通道需等代码侧支持后生效')
+    else:
+        log(f'  提示: 预览探测链为gif->apng->静态, {"转apng后走apng_通道" if to_fmt == "apng" else "转gif后优先走gif通道"}')
+
+
+def _write_animation(path, frames, durations, to_fmt, lossy=False):
+    """按目标格式写动画文件(apng/webp保留全透明通道, gif走透明配方, webp默认无损)"""
+    norm = [f.resize((96, 96), Image.LANCZOS) if f.size != (96, 96) else f for f in frames]
+    if to_fmt == 'apng':
+        norm[0].save(path, format='PNG', save_all=True, append_images=norm[1:],
+                     duration=durations, loop=0)
+    elif to_fmt == 'webp':
+        kwargs = {'quality': 80} if lossy else {'lossless': True}
+        norm[0].save(path, format='WEBP', save_all=True, append_images=norm[1:],
+                     duration=durations, loop=0, **kwargs)
+    else:
+        save_gif_frames(path, frames, durations)
+
+
+def cmd_move(args):
+    name, anchor, rel = None, None, None
+    i = 0
+    while i < len(args):
+        a = args[i]
+        if a in ('--before', '--after'):
+            i += 1
+            if i >= len(args):
+                die(f'{a} 缺参数(锚点表情名)')
+            rel, anchor = a[2:], args[i]
+        else:
+            name = a
+        i += 1
+    if name is None or anchor is None or rel is None:
+        die('用法: move <表情名> --before|--after <锚点表情>')
+    name, anchor = plain_name(name), plain_name(anchor)
+    names = load_plist()
+    if name not in names:
+        die(f'[{name}] 不在plist里')
+    if anchor not in names:
+        die(f'锚点表情[{anchor}]不在plist里')
+    if name == anchor:
+        die('不能以自己为锚点')
+    names.remove(name)
+    idx = names.index(anchor)
+    names.insert(idx if rel == 'before' else idx + 1, name)
+    save_plist(names)
+    log(f'✓ [{name}] 已移到[{anchor}]{"前面" if rel == "before" else "后面"}, plist共{len(names)}个')
+
+
 COMMANDS = {
     'verify': cmd_verify,
     'scan': cmd_scan,
     'sheet': cmd_sheet,
     'static': cmd_static,
+    'move': cmd_move,
     'add': cmd_add,
     'bake': cmd_bake,
     'migrate': cmd_migrate,
+    'convert': cmd_convert,
 }
+
+
+# 帮助条目: (命令, 参数, [描述行])
+HELP = [
+    ('verify', '', ['校验plist/png/gif三向一致性(数量、一一对应、重名、LICENSE)']),
+    ('scan', '', ['按三维评分(完整度50%+鲜艳度30%+居中度20%)重刷全部静态图']),
+    ('sheet', '<表情名>', ['铺某表情的全部帧编号对照图到桌面(红框=当前静态帧), 用于人工挑帧']),
+    ('static', '<表情名> --frame N', ['把某表情的静态图换成gif里的第N帧']),
+    ('move', '<表情名> --before|--after <锚点表情>', ['修改表情在plist中的位置(即面板显示顺序)']),
+    ('add', '<gif路径> <表情名> [--after 某表情]', ['导入新表情gif并生成三维评分静态图, 插入plist(默认追加到末尾)']),
+    ('bake', '<表情名> --frame N --first|--last [选项]', ['把gif里的第N帧烧进动画首/尾, 未来面板直接显示首/尾帧即可省掉静态图', '选项: --keep-static保留静态图, --dry-run仅预览']),
+    ('migrate', '--first|--last [--dry-run]', ['批量把现有静态图(即人工定稿帧)烧进所有gif的首/尾并删静态图, 迁移到单文件方案']),
+    ('convert', '<表情名|文件路径|帧序列目录> --to apng|gif|webp|frames', ['GIF/APNG/WebP互转或导出帧序列, 传表情名按bundle约定落位(apng_[名].png/webp_[名].webp), 传文件路径原地同名互转, 传帧序列目录反向合成动画', '选项: --out指定输出, --keep-source保留源文件, --lossy有损webp, --dry-run仅预览']),
+]
+HELP_NOTES = [
+    '表情名可不带方括号(写"微笑"或"[微笑]"都行)',
+    'bake/migrate/convert会重写或删除文件, 先用--dry-run预览将要发生的变更',
+    '可用环境变量WY_EMOJI_DIR覆盖表情目录(测试用): WY_EMOJI_DIR=/tmp/test python3 EmojiTool.py verify',
+]
+
+
+def print_help():
+    B, G, Y, C, D, R = (ANSI[k] for k in ('bold', 'green', 'yellow', 'cyan', 'dim', 'reset'))
+    bar = C + '─' * 66 + R
+    print(bar)
+    print(f"{B}{C}  EmojiTool{R} {D}· WYChatView表情资源管理工具{R}")
+    print(bar)
+    print(f"{Y}用法{R}  {D}python3 EmojiTool.py <命令> [参数]{R}\n")
+    for cmd, args, descs in HELP:
+        print(f"  {B}{G}{cmd}{R}" + (f" {C}{args}{R}" if args else ''))
+        for d in descs:
+            print(f"    {d}")
+        print()
+    print(f"{Y}说明{R}")
+    for n in HELP_NOTES:
+        print(f"  {D}·{R} {n}")
+    print(bar)
 
 
 def main():
     if len(sys.argv) < 2 or sys.argv[1] in ('-h', '--help', 'help'):
-        print(__doc__)
+        print_help()
         return
     cmd = sys.argv[1]
     if cmd not in COMMANDS:
