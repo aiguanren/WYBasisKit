@@ -632,11 +632,11 @@ def cmd_restore(args):
                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         return rel_paths
 
-    # 表情图片清单 = git跟踪的表情目录文件里排除LICENSE和工具本身
+    # 表情图片清单 = git跟踪的表情目录文件里排除LICENSE和工具本身(-z避免中文路径被引号转义导致过滤失效)
     def emoji_image_paths():
-        out = subprocess.check_output(['git', '-C', repo, 'ls-files', emoji_rel]).decode().splitlines()
-        return [p for p in out
-                if os.path.basename(p) not in (LICENSE_NAME, TOOL_NAME)
+        out = subprocess.check_output(['git', '-C', repo, 'ls-files', '-z', emoji_rel]).decode().split('\0')
+        return [p for p in out if p
+                and os.path.basename(p) not in (LICENSE_NAME, TOOL_NAME)
                 and os.path.basename(p).endswith(('.png', '.gif', '.webp'))]
 
     # --all交互确认是否连带LICENSE/工具/plist(非终端环境默认不连带)
