@@ -416,6 +416,8 @@ def cmd_convert(args):
     if all_mode:
         if to_fmt not in ('apng', 'gif', 'webp'):
             die('--all 只支持 --to apng|gif|webp')
+        if to_fmt == 'apng' and prefix_arg is None and not force:
+            die('批量转apng且不带前缀时, 输出[名].png会与全部静态图同名冲突, 请二选一: 加 --prefix 前缀, 或加 --force 覆盖静态图(即apng单文件方案, 静态显示将取apng首帧)')
         ok = skipped = failed = 0
         for name in load_plist():
             status = _convert_bundle_one(name, to_fmt, plain, force, keep, dry, lossy, prefix_arg, batch=True)
@@ -498,11 +500,11 @@ def cmd_convert(args):
 def _convert_bundle_one(name, to_fmt, plain, force, keep, dry, lossy, prefix_arg, batch):
     """bundle内单个表情的格式转换, 返回ok/skip/fail(批量模式不中断, 单次模式内部die)"""
     if to_fmt == 'gif':
-        candidates = [os.path.join(EMOJI_DIR, f'apng_[{name}].png'),
-                      os.path.join(EMOJI_DIR, f'webp_[{name}].webp'),
-                      os.path.join(EMOJI_DIR, f'[{name}].webp')]
+        # 原名png只有在是多帧(真APNG)时才算合法源, 静态单帧png不算; 默认无前缀方案下原名产物优先
+        candidates = [os.path.join(EMOJI_DIR, f'[{name}].webp'),
+                      os.path.join(EMOJI_DIR, f'apng_[{name}].png'),
+                      os.path.join(EMOJI_DIR, f'webp_[{name}].webp')]
         src_path = next((p for p in candidates if os.path.exists(p)), None)
-        # 原名png只有在是多帧(真APNG)时才算合法源, 静态单帧png不算
         plain_png = os.path.join(EMOJI_DIR, f'[{name}].png')
         if src_path is None and os.path.exists(plain_png):
             probe = Image.open(plain_png)
@@ -532,8 +534,8 @@ def _convert_bundle_one(name, to_fmt, plain, force, keep, dry, lossy, prefix_arg
     else:
         src_path = gif_path(name)
         ext = '.png' if to_fmt == 'apng' else '.webp'
-        prefix = prefix_arg if prefix_arg is not None else ('apng_' if to_fmt == 'apng' else 'webp_')
-        if plain:
+        prefix = prefix_arg
+        if prefix is None:
             dst_path = os.path.join(EMOJI_DIR, f'[{name}]{ext}')
             if to_fmt == 'apng' and os.path.exists(png_path(name)):
                 warn = (f'[{name}].png静态图已存在, 原名apng会覆盖它, 后果: 原静态定稿帧丢失, '
@@ -568,9 +570,9 @@ def _convert_bundle_one(name, to_fmt, plain, force, keep, dry, lossy, prefix_arg
         os.remove(src_path)
     log(f'✓ {plan}')
     if to_fmt == 'webp':
-        log('  提示: 预览探测链当前为gif->apng->静态, webp_通道需等代码侧支持后生效')
+        log('  提示: 预览探测链当前为gif->apng->静态, webp通道需等代码侧支持后生效')
     else:
-        log(f'  提示: 预览探测链为gif->apng->静态, {"转apng后走apng_通道" if to_fmt == "apng" else "转gif后优先走gif通道"}')
+        log(f'  提示: 预览探测链为gif->apng->静态, {"转gif后优先走gif通道" if to_fmt == "gif" else "apng需与静态图同名共存或用--prefix区分, 代码侧识别前缀的能力待扩展"}')
     return 'ok'
 
 
@@ -691,7 +693,7 @@ HELP = [
     ('add', '<gif路径> <表情名> [--after 某表情]', ['导入新表情gif并生成三维评分静态图, 插入plist(默认追加到末尾)']),
     ('bake', '<表情名> --frame N --first|--last [选项]', ['把gif里的第N帧烧进动画首/尾, 未来面板直接显示首/尾帧即可省掉静态图', '选项: --keep-static保留静态图, --dry-run仅预览']),
     ('migrate', '--first|--last [--dry-run]', ['批量把现有静态图(即人工定稿帧)烧进所有gif的首/尾并删静态图, 迁移到单文件方案']),
-    ('convert', '<表情名|文件路径|帧序列目录> | --all --to apng|gif|webp|frames', ['GIF/APNG/WebP互转或导出帧序列: 传表情名默认按apng_/webp_前缀落位(--prefix自定义前缀如xxx_/xxx, --plain保持原名), --all批量转换全部表情(冲突项跳过, --force覆盖), 传文件路径原地互转(--prefix时输出为前缀+原文件名), 传帧序列目录反向合成动画', '选项: --prefix自定义前缀, --plain原名, --force强制覆盖, --out指定输出, --keep-source保留源文件, --lossy有损webp, --dry-run仅预览']),
+    ('convert', '<表情名|文件路径|帧序列目录> | --all --to apng|gif|webp|frames', ['GIF/APNG/WebP互转或导出帧序列: 默认保持原名不加前缀(--prefix xxx_才加前缀), apng与静态图[名].png同名冲突时会警告后果并询问(批量则拦截, 需--prefix或--force), --all批量转换全部表情, 传文件路径原地互转(--prefix时输出为前缀+原文件名), 传帧序列目录反向合成动画', '选项: --prefix自定义前缀, --force强制覆盖, --out指定输出, --keep-source保留源文件, --lossy有损webp, --dry-run仅预览']),
     ('restore', '<表情名> | --emojis | --all | --plist | --license | --tool', ['把资源还原到某次git提交的版本(默认HEAD): 单个表情(png/gif及apng_/webp_变体)、--emojis仅还原表情图片(不动LICENSE/工具/plist)、--all交互询问是否连带还原LICENSE/工具/plist(非终端环境默认不连带)、其余为定向还原', '--ref可指定历史提交; 未提交过的新文件无法还原; 还原会覆盖当前未提交的修改']),
 ]
 HELP_NOTES = [
@@ -753,14 +755,14 @@ EXAMPLES = {
         ('python3 EmojiTool.py migrate --last', '正式迁移到单文件方案(烧帧+删全部静态图)'),
     ],
     'convert': [
-        ('python3 EmojiTool.py convert 微笑 --to apng', 'gif转apng(生成apng_[微笑].png并删gif, 预览走apng_通道)'),
-        ('python3 EmojiTool.py convert 微笑 --to webp --dry-run', '预览转webp(webp_通道需代码侧支持后生效)'),
+        ('python3 EmojiTool.py convert 微笑 --to apng', 'gif转apng, 默认生成[微笑].png(与静态图同名会警告询问)'),
+        ('python3 EmojiTool.py convert 微笑 --to webp --dry-run', '预览转webp(默认生成[微笑].webp, 不加前缀)'),
         ('python3 EmojiTool.py convert ~/Desktop/x.gif --to apng', '独立文件原地互转(x.gif -> x.png)'),
         ('python3 EmojiTool.py convert 微笑 --to frames', '导出编号PNG序列到桌面(微笑-帧序列/f0000.png~)'),
         ('python3 EmojiTool.py convert ~/Desktop/微笑-帧序列 --to gif --out ~/Desktop/重拼.gif', '帧序列目录反向合成gif'),
         ('python3 EmojiTool.py convert 微笑 --to webp --plain', 'webp保持原名([微笑].webp, 不加webp_前缀)'),
-        ('python3 EmojiTool.py convert 微笑 --to apng --plain', 'apng保持原名, 与静态图同名冲突时会警告后果并询问是否替换(非交互加--force强制)'),
-        ('python3 EmojiTool.py convert --all --to apng', '批量: 全部表情gif转apng(默认apng_前缀, 冲突项跳过)'),
+        ('python3 EmojiTool.py convert 微笑 --to apng --force', 'apng原名与静态图同名时跳过询问强制覆盖(即apng单文件方案)'),
+        ('python3 EmojiTool.py convert --all --to apng --prefix anim_', '批量: 全部转apng并加anim_前缀(无前缀批量会被拦截, 因与全部静态图同名)'),
         ('python3 EmojiTool.py convert --all --to webp --prefix my_', '批量+自定义前缀: 生成 my_[微笑].webp 这种(前缀带不带下划线自己定)'),
         ('python3 EmojiTool.py convert ~/Desktop/aa.gif --to apng --prefix xxx_', '独立文件: aa.gif -> xxx_aa.png(xxx_自定义前缀)'),
     ],
