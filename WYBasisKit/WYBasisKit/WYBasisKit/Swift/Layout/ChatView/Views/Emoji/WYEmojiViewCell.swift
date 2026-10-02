@@ -19,7 +19,7 @@ public class WYEmojiViewCell: UICollectionViewCell {
 
         set {
             emojiString = newValue
-            emojiView.image = emojiViewConfig.customImageLoader?(newValue, emojiViewConfig.emojiBundle) ?? UIImage.wy_find(newValue, inBundle: emojiViewConfig.emojiBundle)
+            emojiView.image = emojiViewConfig.staticEmojiImage(newValue)
         }
         get {
             return emojiString

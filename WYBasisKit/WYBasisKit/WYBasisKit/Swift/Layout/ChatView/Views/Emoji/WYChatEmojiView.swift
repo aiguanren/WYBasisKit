@@ -8,9 +8,13 @@
 
 import UIKit
 
-private let emojiViewRecentlyCountKey: String = "emojiViewRecentlyCountKey"
-
-private let emojiPath: String = Bundle(path: (((Bundle(for: WYChatEmojiView.self).path(forResource: "WYChatView", ofType: "bundle")) ?? (Bundle.main.path(forResource: "WYChatView", ofType: "bundle"))) ?? ""))?.path(forResource: "WYChatViewEmoji", ofType: "plist") ?? ""
+/// 静态图不存在时从动图取哪一帧
+@frozen public enum WYEmojiStaticFramePosition: Int {
+    /// 首帧
+    case first = 0
+    /// 末帧(默认)
+    case last
+}
 
 public struct WYEmojiViewConfig {
     
@@ -32,8 +36,11 @@ public struct WYEmojiViewConfig {
     /// 自定义加载Emoji图片的Bundle
     public var emojiBundle: WYSourceBundle? = WYSourceBundle(bundleName: "WYChatView", subdirectory: "WYChatViewEmoji")
 
-    /// 自定义表情图片加载器(传入表情名和bundle返回UIImage，返回nil时走内部加载链gif末帧→wy_find)，适合接入Lottie等内部不支持的格式
+    /// 自定义表情图片加载器(传入表情名和bundle返回UIImage，返回nil时走内部加载链)，适合接入Lottie等内部不支持的格式
     public var customImageLoader: ((_ emojiName: String, _ bundle: WYSourceBundle?) -> UIImage)? = nil
+
+    /// 静态图不存在时从动图取哪一帧当静态图(默认末帧)
+    public var staticFramePosition: WYEmojiStaticFramePosition = .last
 
     /// 自定义Emoji控件是否需要显示最近使用的表情
     public var showRecently: Bool = true
@@ -86,6 +93,23 @@ public struct WYEmojiViewConfig {
     /// Emoji表情长按预览控件配置
     public var previewConfig: WYEmojiPreviewConfig = WYEmojiPreviewConfig()
     
+    /// 从动态图中获取对应的静态展示图(当表情没有对应的静态图时)
+    public func staticEmojiImage(_ emojiName: String) -> UIImage {
+        if let customImage = customImageLoader?(emojiName, emojiBundle) {
+            return customImage
+        }
+        if let staticImage = emojiStaticFile(emojiName) {
+            return staticImage
+        }
+        let frameIndex = (staticFramePosition == .first) ? 0 : -1
+        for ext in ["gif", "webp"] {
+            if let frameImage = emojiAnimatedFrame(emojiName, ext: ext, frameIndex: frameIndex) {
+                return frameImage
+            }
+        }
+        return UIImage.wy_find(emojiName, inBundle: emojiBundle)
+    }
+
     public init() {}
 }
 
@@ -450,5 +474,91 @@ extension WYChatEmojiView {
     /// 取indexPath对应cell的表情图(作为预览浮层的锚点)
     private func emojiImageView(at indexPath: IndexPath) -> UIImageView {
         return (collectionView.cellForItem(at: indexPath) as? WYEmojiViewCell)?.emojiView ?? UIImageView()
+    }
+}
+
+private let emojiViewRecentlyCountKey: String = "emojiViewRecentlyCountKey"
+
+private let emojiPath: String = Bundle(path: (((Bundle(for: WYChatEmojiView.self).path(forResource: "WYChatView", ofType: "bundle")) ?? (Bundle.main.path(forResource: "WYChatView", ofType: "bundle"))) ?? ""))?.path(forResource: "WYChatViewEmoji", ofType: "plist") ?? ""
+
+/// 表情动图取帧缓存(同一路径同一帧只解码一次)
+private let wy_emojiFrameCache: NSCache<NSString, UIImage> = {
+    let cache = NSCache<NSString, UIImage>()
+    cache.countLimit = 256
+    return cache
+}()
+
+extension WYEmojiViewConfig {
+
+    /// 查找表情的静态图文件(单帧png直接用，多帧apng按staticFramePosition取帧)
+    func emojiStaticFile(_ emojiName: String) -> UIImage? {
+        guard let filePath = emojiFilePath(emojiName, ext: "png") else {
+            return nil
+        }
+        guard let source = CGImageSourceCreateWithURL(URL(fileURLWithPath: filePath) as CFURL, nil) else {
+            return UIImage(contentsOfFile: filePath)
+        }
+        let frameCount = CGImageSourceGetCount(source)
+        guard frameCount > 1 else {
+            return UIImage(contentsOfFile: filePath)
+        }
+        let index = (staticFramePosition == .first) ? 0 : frameCount - 1
+        guard let cgImage = CGImageSourceCreateImageAtIndex(source, index, nil) else {
+            return UIImage(contentsOfFile: filePath)
+        }
+        return UIImage(cgImage: cgImage)
+    }
+
+    /// 从动图文件中取指定帧(frameIndex传-1表示末帧，带缓存防滚动复用重复解码)
+    func emojiAnimatedFrame(_ emojiName: String, ext: String, frameIndex: Int) -> UIImage? {
+        guard let filePath = emojiFilePath(emojiName, ext: ext) else {
+            return nil
+        }
+        let cacheKey = "\(filePath)#\(frameIndex)" as NSString
+        if let cached = wy_emojiFrameCache.object(forKey: cacheKey) {
+            return cached
+        }
+        guard let source = CGImageSourceCreateWithURL(URL(fileURLWithPath: filePath) as CFURL, nil) else {
+            return nil
+        }
+        let count = CGImageSourceGetCount(source)
+        let index = (frameIndex < 0) ? count - 1 : frameIndex
+        guard count > 0, index >= 0, index < count,
+              let cgImage = CGImageSourceCreateImageAtIndex(source, index, nil) else {
+            return nil
+        }
+        let image = UIImage(cgImage: cgImage)
+        wy_emojiFrameCache.setObject(image, forKey: cacheKey)
+        return image
+    }
+
+    /// 拼接表情文件的完整路径(targetClass所在Bundle → WYChatEmojiView所在Bundle → Bundle.main)
+    func emojiFilePath(_ emojiName: String, ext: String) -> String? {
+        guard let config = emojiBundle, config.bundleName.isEmpty == false else {
+            return nil
+        }
+        let searchBundles: [Bundle] = {
+            if let targetClass = config.targetClass {
+                return [Bundle(for: targetClass), Bundle.main]
+            } else {
+                return [Bundle(for: WYChatEmojiView.self), Bundle.main]
+            }
+        }()
+        for searchBundle in searchBundles {
+            if let bundlePath = searchBundle.path(forResource: config.bundleName, ofType: "bundle"),
+               let resourceBundle = Bundle(path: bundlePath) {
+                let subDir = config.subdirectory.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+                if subDir.isEmpty {
+                    if let filePath = resourceBundle.path(forResource: emojiName, ofType: ext) {
+                        return filePath
+                    }
+                } else {
+                    if let filePath = resourceBundle.path(forResource: emojiName, ofType: ext, inDirectory: subDir) {
+                        return filePath
+                    }
+                }
+            }
+        }
+        return nil
     }
 }
