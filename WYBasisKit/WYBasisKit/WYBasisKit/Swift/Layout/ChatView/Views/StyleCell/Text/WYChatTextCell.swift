@@ -157,7 +157,7 @@ public class WYChatTextCell: WYChatBasicCell {
     // 根据传入的表情字符串生成富文本，例如字符串 "哈哈[哈哈]" 会生成 "哈哈😄"
     public func sharedEmojiAttributed(string: String) -> NSAttributedString {
         
-        let attributed: NSMutableAttributedString = NSMutableAttributedString.wy_convertEmojiAttributed(emojiString: string, textColor: chatTextConfig.textColor, textFont: chatTextConfig.textFont, emojiTable: emojiViewConfig.emojiSource, sourceBundle: emojiViewConfig.emojiBundle, pattern: inputBarConfig.emojiPattern)
+        let attributed: NSMutableAttributedString = NSMutableAttributedString.wy_convertEmojiAttributed(emojiString: string, textColor: chatTextConfig.textColor, textFont: chatTextConfig.textFont, emojiTable: emojiViewConfig.emojiSource, sourceBundle: emojiViewConfig.emojiBundle, pattern: inputBarConfig.emojiPattern, customImageLoader: emojiViewConfig.customImageLoader)
         
         attributed.wy_lineSpacing(chatTextConfig.textLineSpacing, alignment: .left)
         

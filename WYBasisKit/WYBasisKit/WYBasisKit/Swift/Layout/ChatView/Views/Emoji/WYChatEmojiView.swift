@@ -32,6 +32,9 @@ public struct WYEmojiViewConfig {
     /// 自定义加载Emoji图片的Bundle
     public var emojiBundle: WYSourceBundle? = WYSourceBundle(bundleName: "WYChatView", subdirectory: "WYChatViewEmoji")
 
+    /// 自定义表情图片加载器(传入表情名和bundle返回UIImage，返回nil时走内部加载链gif末帧→wy_find)，适合接入Lottie等内部不支持的格式
+    public var customImageLoader: ((_ emojiName: String, _ bundle: WYSourceBundle?) -> UIImage)? = nil
+
     /// 自定义Emoji控件是否需要显示最近使用的表情
     public var showRecently: Bool = true
     
@@ -88,7 +91,6 @@ public struct WYEmojiViewConfig {
 
 /// 返回一个Bool值来判定各控件的点击或手势事件是否需要内部处理(默认返回True)
 @objc public protocol WYChatEmojiViewEventsHandler {
-    
     /// 是否需要内部处理 Emoji 点击事件
     @objc(canManagerEmojiViewClickEventsWithEmojiView:indexPath:)
     optional func canManagerEmojiViewClickEvents(_ emojiView: WYChatEmojiView, _ indexPath: IndexPath) -> Bool

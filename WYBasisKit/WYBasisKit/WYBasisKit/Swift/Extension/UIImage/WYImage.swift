@@ -11,12 +11,15 @@ import Foundation
 
 /// 动图格式类型
 @frozen public enum WYAnimatedImageStyle: Int {
-    
-    /// 普通 GIF 图片
+
+    /// GIF格式动图
     case GIF = 0
-    
-    /// APNG 图片
+
+    /// APNG 格式动图
     case APNG
+
+    /// WebP 格式动图
+    case WebP
 }
 
 public struct WYSourceBundle {
@@ -822,23 +825,28 @@ public extension UIImage {
     }
     
     /**
-     *  解析 Gif 或者 APNG 图片
+     *  解析 Gif、APNG 或 WebP 动图
      *
-     *  @param style      要解析的图片的格式(仅支持 Gif 或者 APNG 格式)
+     *  @param style      要解析的动图的格式(支持 Gif、APNG、WebP)
      *
-     *  @param imageName  要解析的 Gif 或者 APNG 图
+     *  @param imageName  要解析的动图的名字
      *
      *  @param bundle     从哪个bundle文件内查找，如果为空，则直接在本地路径下查找
      *
      *  @return 图片解析结果(名称为空、文件不存在或创建图像源失败时返回nil)
      */
     static func wy_animatedParse(_ style: WYAnimatedImageStyle = .GIF, name imageName: String, inBundle bundle: WYSourceBundle? = nil) -> WYGifInfo? {
-        
+
         guard imageName.isEmpty == false else {
             return nil
         }
-        
-        let suffix: String = (style == .GIF) ? ".gif" : ".png"
+
+        let suffix: String
+        switch style {
+        case .GIF: suffix = ".gif"
+        case .APNG: suffix = ".png"
+        case .WebP: suffix = ".webp"
+        }
         
         let animatedImageName: String = imageName.hasSuffix(suffix) ? imageName : (imageName + suffix)
         
@@ -878,13 +886,17 @@ public extension UIImage {
             }
             
             var pngDic: [CFString: Any]? = nil
-            
+
             if let gifDic = properties[kCGImagePropertyGIFDictionary] as? [CFString: Any] {
                 pngDic = gifDic
             }
-            
+
             if pngDic == nil {
                 pngDic = properties[kCGImagePropertyPNGDictionary] as? [CFString: Any]
+            }
+
+            if pngDic == nil {
+                pngDic = properties[kCGImagePropertyWebPDictionary as CFString] as? [CFString: Any]
             }
             
             guard let animatedDic = pngDic else {

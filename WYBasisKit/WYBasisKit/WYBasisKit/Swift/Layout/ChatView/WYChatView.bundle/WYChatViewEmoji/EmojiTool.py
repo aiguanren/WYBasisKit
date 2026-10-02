@@ -335,6 +335,58 @@ def cmd_bake(args):
     log(f'✓ {plan}')
 
 
+def cmd_unbake(args):
+    name, frame, strip, dry = None, None, False, False
+    i = 0
+    while i < len(args):
+        a = args[i]
+        if a == '--frame':
+            i += 1
+            if i >= len(args):
+                die('--frame 缺参数')
+            frame = int(args[i])
+        elif a == '--strip':
+            strip = True
+        elif a == '--dry-run':
+            dry = True
+        else:
+            name = a
+        i += 1
+    if name is None:
+        die('用法: unbake <表情名> [--frame N] [--strip] [--dry-run]')
+    name = plain_name(name)
+    path = gif_path(name)
+    if not os.path.exists(path):
+        die(f'找不到 {path}')
+    frames, durations = load_gif_frames(path)
+
+    if strip:
+        # 从gif中删掉烧进去的那帧(--strip)，恢复原始帧数
+        if frame is None:
+            die('--strip 需要配合 --frame N 指定要删的帧')
+        if not 0 <= frame < len(frames):
+            die(f'帧号超范围, 共{len(frames)}帧')
+        plan = f'[{name}] 删除gif第{frame}帧({len(frames)}帧->{len(frames) - 1}帧) 并生成静态图'
+        if dry:
+            log(f'[dry-run] 将执行: {plan}')
+            return
+        save_static(frames[frame], name)
+        del frames[frame]
+        del durations[frame]
+        save_gif_frames(path, frames, durations)
+    else:
+        # 仅从gif提取帧生成静态图(不动gif)
+        frame = frame if frame is not None else len(frames) - 1
+        if not 0 <= frame < len(frames):
+            die(f'帧号超范围, 共{len(frames)}帧')
+        plan = f'[{name}] 取gif第{frame}帧生成静态图(gif不动, 共{len(frames)}帧)'
+        if dry:
+            log(f'[dry-run] 将执行: {plan}')
+            return
+        save_static(frames[frame], name)
+    log(f'✓ {plan}')
+
+
 def cmd_migrate(args):
     pos, dry = None, False
     for a in args:
@@ -692,6 +744,7 @@ HELP = [
     ('move', '<表情名> --before|--after <锚点表情>', ['修改表情在plist中的位置(即面板显示顺序)']),
     ('add', '<gif路径> <表情名> [--after 某表情]', ['导入新表情gif并生成三维评分静态图, 插入plist(默认追加到末尾)']),
     ('bake', '<表情名> --frame N --first|--last [选项]', ['把gif里的第N帧烧进动画首/尾, 未来面板直接显示首/尾帧即可省掉静态图', '选项: --keep-static保留静态图, --dry-run仅预览']),
+    ('unbake', '<表情名> [--frame N] [--strip] [--dry-run]', ['bake/migrate的逆操作: 从gif提取帧恢复静态图', '--frame N指定取哪帧(默认末帧), --strip同时把该帧从gif中删掉(完全还原烧帧前状态)']),
     ('migrate', '--first|--last [--dry-run]', ['批量把现有静态图(即人工定稿帧)烧进所有gif的首/尾并删静态图, 迁移到单文件方案']),
     ('convert', '<表情名|文件路径|帧序列目录> | --all --to apng|gif|webp|frames', ['GIF/APNG/WebP互转或导出帧序列: 默认保持原名不加前缀(--prefix xxx_才加前缀), apng与静态图[名].png同名冲突时会警告后果并询问(批量则拦截, 需--prefix或--force), --all批量转换全部表情, 传文件路径原地互转(--prefix时输出为前缀+原文件名), 传帧序列目录反向合成动画', '选项: --prefix自定义前缀, --force强制覆盖, --out指定输出, --keep-source保留源文件, --lossy有损webp, --dry-run仅预览']),
     ('restore', '<表情名> | --emojis | --all | --plist | --license | --tool', ['把资源还原到某次git提交的版本(默认HEAD): 单个表情(png/gif及apng_/webp_变体)、--emojis仅还原表情图片(不动LICENSE/工具/plist)、--all交互询问是否连带还原LICENSE/工具/plist(非终端环境默认不连带)、其余为定向还原', '--ref可指定历史提交; 未提交过的新文件无法还原; 还原会覆盖当前未提交的修改']),
@@ -750,6 +803,11 @@ EXAMPLES = {
         ('python3 EmojiTool.py bake 微笑 --frame 29 --last', '正式执行并删静态图(单文件方案, 面板显示末帧)'),
         ('python3 EmojiTool.py bake 微笑 --frame 29 --first --keep-static', '烧进首部且保留静态图(--first对应面板显示首帧)'),
     ],
+    'unbake': [
+        ('python3 EmojiTool.py unbake 微笑', '取微笑gif末帧生成[微笑].png(gif不动, 恢复双文件)'),
+        ('python3 EmojiTool.py unbake 微笑 --frame 57', '取gif第57帧生成静态图(比如烧进去的那帧)'),
+        ('python3 EmojiTool.py unbake 微笑 --frame 57 --strip', '取第57帧生成静态图并从gif中删掉该帧(完全还原烧帧前状态)'),
+    ],
     'migrate': [
         ('python3 EmojiTool.py migrate --last --dry-run', '预览: 把所有表情的静态定稿帧批量烧进gif尾部'),
         ('python3 EmojiTool.py migrate --last', '正式迁移到单文件方案(烧帧+删全部静态图)'),
@@ -805,6 +863,7 @@ COMMANDS = {
     'move': cmd_move,
     'add': cmd_add,
     'bake': cmd_bake,
+    'unbake': cmd_unbake,
     'migrate': cmd_migrate,
     'convert': cmd_convert,
     'restore': cmd_restore,

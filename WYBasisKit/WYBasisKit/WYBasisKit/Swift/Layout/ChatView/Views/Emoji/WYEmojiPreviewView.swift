@@ -71,15 +71,21 @@ public class WYEmojiPreviewView: UIImageView {
         }
     }
 
-    /// 更新预览的内容(依次尝试gif、apng动图，两者都没有时展示静态图)
+    /// 更新预览的内容(依次尝试gif、webp、apng动图，都没有时走customImageLoader，最终降级静态图)
     private func updateContent(_ emoji: String) {
-        
+
         if let gifInfo: WYGifInfo = UIImage.wy_animatedParse(.GIF, name: emoji, inBundle: emojiViewConfig.emojiBundle) {
             emojiView.image = gifInfo.animatedImage
-            
-        }else if let gifInfo: WYGifInfo = UIImage.wy_animatedParse(.APNG, name: "apng_"+emoji, inBundle: emojiViewConfig.emojiBundle) {
-            emojiView.image = gifInfo.animatedImage
-            
+
+        }else if let webpInfo: WYGifInfo = UIImage.wy_animatedParse(.WebP, name: emoji, inBundle: emojiViewConfig.emojiBundle) {
+            emojiView.image = webpInfo.animatedImage
+
+        }else if let apngInfo: WYGifInfo = UIImage.wy_animatedParse(.APNG, name: emoji, inBundle: emojiViewConfig.emojiBundle) {
+            emojiView.image = apngInfo.animatedImage
+
+        }else if let customImage: UIImage = emojiViewConfig.customImageLoader?(emoji, emojiViewConfig.emojiBundle) {
+            emojiView.image = customImage
+
         }else {
             emojiView.image = UIImage.wy_find(emoji, inBundle: emojiViewConfig.emojiBundle)
         }
