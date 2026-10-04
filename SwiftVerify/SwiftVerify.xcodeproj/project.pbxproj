@@ -85,6 +85,7 @@
 		585B3AD42DF819DC00E6E08F /* WYTestTableViewHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A862DF819DC00E6E08F /* WYTestTableViewHeaderView.swift */; };
 		585B3AD52DF819DC00E6E08F /* WYTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A872DF819DC00E6E08F /* WYTestView.swift */; };
 		585B3AD72DF819DC00E6E08F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A982DF819DC00E6E08F /* AppDelegate.swift */; };
+		585B3B022DF819DC00E6E08F /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3B012DF819DC00E6E08F /* SceneDelegate.swift */; };
 		585B3AD82DF819DC00E6E08F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A9F2DF819DC00E6E08F /* ViewController.swift */; };
 		585B3AD92DF819DC00E6E08F /* WYTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3AA02DF819DC00E6E08F /* WYTabBarController.swift */; };
 		585E7C333017050B00C461A3 /* WYTestInfiniteSwitchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585E7C323017050B00C461A3 /* WYTestInfiniteSwitchController.swift */; };
@@ -233,6 +234,7 @@
 		585B3A962DF819DC00E6E08F /* [唇].png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "[唇].png"; sourceTree = "<group>"; };
 		585B3A972DF819DC00E6E08F /* [喝彩].png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "[喝彩].png"; sourceTree = "<group>"; };
 		585B3A982DF819DC00E6E08F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		585B3B012DF819DC00E6E08F /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		585B3A992DF819DC00E6E08F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		585B3A9A2DF819DC00E6E08F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		585B3A9B2DF819DC00E6E08F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -644,6 +646,7 @@
 				582917402FB0C3E70006F98D /* NotoSans-Regular.ttf */,
 				581955322E4DB9B800469F1A /* 世间美好与你环环相扣.mp3 */,
 				585B3A982DF819DC00E6E08F /* AppDelegate.swift */,
+				585B3B012DF819DC00E6E08F /* SceneDelegate.swift */,
 				585B3A9F2DF819DC00E6E08F /* ViewController.swift */,
 				585B3AA02DF819DC00E6E08F /* WYTabBarController.swift */,
 				585B3A992DF819DC00E6E08F /* Assets.xcassets */,
@@ -1048,6 +1051,7 @@
 				585B3AD42DF819DC00E6E08F /* WYTestTableViewHeaderView.swift in Sources */,
 				585B3AD52DF819DC00E6E08F /* WYTestView.swift in Sources */,
 				585B3AD72DF819DC00E6E08F /* AppDelegate.swift in Sources */,
+				585B3B022DF819DC00E6E08F /* SceneDelegate.swift in Sources */,
 				585B3AD82DF819DC00E6E08F /* ViewController.swift in Sources */,
 				585B3AD92DF819DC00E6E08F /* WYTabBarController.swift in Sources */,
 				AAA708702E1C11060040F2ED /* WYArchivedController.swift in Sources */,
@@ -1152,7 +1156,6 @@
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "WYBasisKit申请使用相册权限用于照片相关的测试";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "WYBasisKit申请使用语音转文字权限，用于语音与文字之间的转换测试";
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = "$(RECOMMENDED_IPHONEOS_DEPLOYMENT_TARGET)";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1190,7 +1193,6 @@
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "WYBasisKit申请使用相册权限用于照片相关的测试";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "WYBasisKit申请使用语音转文字权限，用于语音与文字之间的转换测试";
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = "$(RECOMMENDED_IPHONEOS_DEPLOYMENT_TARGET)";
 				LD_RUNPATH_SEARCH_PATHS = (

@@ -64,6 +64,7 @@
 		58B470502E8D37B000D04BCA /* AppEventDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B4704F2E8D37B000D04BCA /* AppEventDelegate.m */; };
 		58B59FEF2E5D5315008F9C38 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B59FE22E5D5315008F9C38 /* AppDelegate.m */; };
 		58B59FF02E5D5315008F9C38 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B59FE72E5D5315008F9C38 /* main.m */; };
+		58B59FF12E5D5315008F9C38 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B59FA12E5D5315008F9C38 /* SceneDelegate.m */; };
 		58B59FF22E5D5315008F9C38 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B59FED2E5D5315008F9C38 /* ViewController.m */; };
 		58B59FF32E5D5315008F9C38 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58B59FE32E5D5315008F9C38 /* Assets.xcassets */; };
 		58B59FF52E5D5315008F9C38 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 58B59FE62E5D5315008F9C38 /* LaunchScreen.storyboard */; };
@@ -229,6 +230,7 @@
 		58B4704A2E8D32D200D04BCA /* WYLeftControllerHeaderView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYLeftControllerHeaderView.m; sourceTree = "<group>"; };
 		58B4704E2E8D37B000D04BCA /* AppEventDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppEventDelegate.h; sourceTree = "<group>"; };
 		58B4704F2E8D37B000D04BCA /* AppEventDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppEventDelegate.m; sourceTree = "<group>"; };
+		58B59FA12E5D5315008F9C38 /* SceneDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SceneDelegate.m; sourceTree = "<group>"; };
 		58B59FC42E5D530F008F9C38 /* ObjCVerify.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ObjCVerify.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		58B59FE12E5D5315008F9C38 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		58B59FE22E5D5315008F9C38 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -574,6 +576,8 @@
 				582917422FB0C3FD0006F98D /* NotoSans-Regular.ttf */,
 				58B59FE12E5D5315008F9C38 /* AppDelegate.h */,
 				58B59FE22E5D5315008F9C38 /* AppDelegate.m */,
+				58B59FA12E5D5315008F9C38 /* SceneDelegate.m */,
+				58B59FE52E5D5315008F9C38 /* Base */,
 				58B59FE32E5D5315008F9C38 /* Assets.xcassets */,
 				58B59FE42E5D5315008F9C38 /* Info.plist */,
 				58B59FE62E5D5315008F9C38 /* LaunchScreen.storyboard */,
@@ -993,6 +997,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				58B59FEF2E5D5315008F9C38 /* AppDelegate.m in Sources */,
+				58B59FF12E5D5315008F9C38 /* SceneDelegate.m in Sources */,
 				58BFB87B2F1488920094DDB5 /* WYTableViewGroupedController.m in Sources */,
 				58DEA9BD2F0F580200664E13 /* WYTestAnimationController.m in Sources */,
 				582732112E9F8CDF00DAD1AA /* WYTestDarkNightModeController.m in Sources */,
@@ -1048,7 +1053,6 @@
 		58B59FE62E5D5315008F9C38 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				58B59FE52E5D5315008F9C38 /* Base */,
 				582732462E9FA3ED00DAD1AA /* zh-Hans */,
 				582732482E9FA3F400DAD1AA /* zh-Hant */,
 				5827324A2E9FA40000DAD1AA /* fr */,
@@ -1141,7 +1145,6 @@
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "WYBasisKit申请使用语音转文字权限，用于语音与文字之间的转换测试";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = "$(RECOMMENDED_IPHONEOS_DEPLOYMENT_TARGET)";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1180,7 +1183,6 @@
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "WYBasisKit申请使用语音转文字权限，用于语音与文字之间的转换测试";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = "$(RECOMMENDED_IPHONEOS_DEPLOYMENT_TARGET)";
 				LD_RUNPATH_SEARCH_PATHS = (

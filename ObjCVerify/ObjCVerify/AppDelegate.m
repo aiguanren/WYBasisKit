@@ -30,11 +30,6 @@
     return YES;
 }
 
-/// 切换为深色或浅色模式
-- (void)applicationDidBecomeActive:(UIApplication *)application {
-    [application wy_switchAppDisplayBrightness:WYLocalizableManager.currentLanguage == WYLanguageEnglish ? UIUserInterfaceStyleDark : UIUserInterfaceStyleLight];
-}
-
 /// 屏幕旋转需要支持的方向
 - (UIInterfaceOrientationMask)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window {
     return UIDevice.wy_currentInterfaceOrientation;

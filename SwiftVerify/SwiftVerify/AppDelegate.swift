@@ -23,9 +23,10 @@ enum AppEvent {
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-    
+
+    /// App主窗口
     var window: UIWindow?
-    
+
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         
         // 屏蔽控制台约束输出
@@ -38,13 +39,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             .processor(WebPProcessor.default),
             .cacheSerializer(WebPSerializer.default)
         ]
-        
+
         return true
-    }
-    
-    /// 切换为深色或浅色模式
-    func applicationDidBecomeActive(_ application: UIApplication) {
-        application.wy_switchAppDisplayBrightness(style: (WYLocalizableManager.currentLanguage() == .english) ? .dark : .light)
     }
 
     /// 屏幕旋转需要支持的方向
