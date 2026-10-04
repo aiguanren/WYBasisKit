@@ -85,9 +85,9 @@
 		585B3AD42DF819DC00E6E08F /* WYTestTableViewHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A862DF819DC00E6E08F /* WYTestTableViewHeaderView.swift */; };
 		585B3AD52DF819DC00E6E08F /* WYTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A872DF819DC00E6E08F /* WYTestView.swift */; };
 		585B3AD72DF819DC00E6E08F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A982DF819DC00E6E08F /* AppDelegate.swift */; };
-		585B3B022DF819DC00E6E08F /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3B012DF819DC00E6E08F /* SceneDelegate.swift */; };
 		585B3AD82DF819DC00E6E08F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A9F2DF819DC00E6E08F /* ViewController.swift */; };
 		585B3AD92DF819DC00E6E08F /* WYTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3AA02DF819DC00E6E08F /* WYTabBarController.swift */; };
+		585B3B022DF819DC00E6E08F /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3B012DF819DC00E6E08F /* SceneDelegate.swift */; };
 		585E7C333017050B00C461A3 /* WYTestInfiniteSwitchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585E7C323017050B00C461A3 /* WYTestInfiniteSwitchController.swift */; };
 		5882EAF12E518A5D00638FD3 /* WYTestVibrateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5882EAF02E518A5D00638FD3 /* WYTestVibrateController.swift */; };
 		589B0A3C2E49CE12000DBD10 /* bird.gif in Resources */ = {isa = PBXBuildFile; fileRef = 589B0A3B2E49CE12000DBD10 /* bird.gif */; };
@@ -234,7 +234,6 @@
 		585B3A962DF819DC00E6E08F /* [唇].png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "[唇].png"; sourceTree = "<group>"; };
 		585B3A972DF819DC00E6E08F /* [喝彩].png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "[喝彩].png"; sourceTree = "<group>"; };
 		585B3A982DF819DC00E6E08F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		585B3B012DF819DC00E6E08F /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		585B3A992DF819DC00E6E08F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		585B3A9A2DF819DC00E6E08F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		585B3A9B2DF819DC00E6E08F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -243,6 +242,7 @@
 		585B3AA02DF819DC00E6E08F /* WYTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTabBarController.swift; sourceTree = "<group>"; };
 		585B3ADB2DF8201F00E6E08F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		585B3ADD2DF8202500E6E08F /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
+		585B3B012DF819DC00E6E08F /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		585E7C323017050B00C461A3 /* WYTestInfiniteSwitchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestInfiniteSwitchController.swift; sourceTree = "<group>"; };
 		5874BC852DF9176700703A4B /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
 		5874BC892DF9179300703A4B /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Main.strings"; sourceTree = "<group>"; };
@@ -1157,7 +1157,7 @@
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "WYBasisKit申请使用语音转文字权限，用于语音与文字之间的转换测试";
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = "$(RECOMMENDED_IPHONEOS_DEPLOYMENT_TARGET)";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1194,7 +1194,7 @@
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "WYBasisKit申请使用语音转文字权限，用于语音与文字之间的转换测试";
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = "$(RECOMMENDED_IPHONEOS_DEPLOYMENT_TARGET)";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
