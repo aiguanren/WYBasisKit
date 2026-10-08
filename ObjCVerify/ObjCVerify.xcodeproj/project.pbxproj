@@ -92,6 +92,7 @@
 		58DEA9C92F0F7CB600664E13 /* WYTestRichTextController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DEA9C82F0F7CB600664E13 /* WYTestRichTextController.m */; };
 		58DEA9CD2F10F5F300664E13 /* WYMultilevelTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DEA9CC2F10F5F300664E13 /* WYMultilevelTableViewController.m */; };
 		58DEA9D12F1105EB00664E13 /* WYTableViewPlainController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DEA9D02F1105EB00664E13 /* WYTableViewPlainController.m */; };
+		58E989983077394A00916AB4 /* 烟花.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 58E989973077394A00916AB4 /* 烟花.mp3 */; };
 		58EE7B152FBED001009AA0CC /* WYTestLabelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58EE7B142FBED001009AA0CC /* WYTestLabelViewController.m */; };
 		58EE7B172FBED002009AA0CC /* WYTestLabelCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 58EE7B162FBED002009AA0CC /* WYTestLabelCell.m */; };
 /* End PBXBuildFile section */
@@ -286,6 +287,7 @@
 		58DEA9CC2F10F5F300664E13 /* WYMultilevelTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYMultilevelTableViewController.m; sourceTree = "<group>"; };
 		58DEA9CF2F1105EB00664E13 /* WYTableViewPlainController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTableViewPlainController.h; sourceTree = "<group>"; };
 		58DEA9D02F1105EB00664E13 /* WYTableViewPlainController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTableViewPlainController.m; sourceTree = "<group>"; };
+		58E989973077394A00916AB4 /* 烟花.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "烟花.mp3"; sourceTree = "<group>"; };
 		58EE7B132FBED001009AA0CC /* WYTestLabelViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestLabelViewController.h; sourceTree = "<group>"; };
 		58EE7B142FBED001009AA0CC /* WYTestLabelViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.objc; path = WYTestLabelViewController.m; sourceTree = "<group>"; };
 		58EE7B152FBED002009AA0CC /* WYTestLabelCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestLabelCell.h; sourceTree = "<group>"; };
@@ -572,6 +574,7 @@
 				58B46FF32E8D112B00D04BCA /* [爱心].png */,
 				58B46FF42E8D112B00D04BCA /* [唇].png */,
 				58B46FF52E8D112B00D04BCA /* [喝彩].png */,
+				58E989973077394A00916AB4 /* 烟花.mp3 */,
 				58B46FF62E8D112B00D04BCA /* 世间美好与你环环相扣.mp3 */,
 				582917422FB0C3FD0006F98D /* NotoSans-Regular.ttf */,
 				58B59FE12E5D5315008F9C38 /* AppDelegate.h */,
@@ -915,6 +918,7 @@
 				58B470282E8D112B00D04BCA /* [唇].png in Resources */,
 				58B470292E8D112B00D04BCA /* [666].gif in Resources */,
 				58B4702A2E8D112B00D04BCA /* 夕阳下的花.png in Resources */,
+				58E989983077394A00916AB4 /* 烟花.mp3 in Resources */,
 				58B4702B2E8D112B00D04BCA /* 世间美好与你环环相扣.mp3 in Resources */,
 				58B4702C2E8D112B00D04BCA /* apng格式图片2.png in Resources */,
 				58B4702D2E8D112B00D04BCA /* 1650855755919.mp4 in Resources */,
