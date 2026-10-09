@@ -147,7 +147,7 @@ extension UIAlertController {
                         handler!("", [])
                     }
                     alertController.wy_alertWindow?.rootViewController?.dismiss(animated: true, completion: nil)
-                    alertController.wy_sharedAppDelegate().window?!.makeKeyAndVisible()
+                    UIApplication.shared.wy_keyWindow.makeKeyAndVisible()
                 })
             }
         }
@@ -174,7 +174,7 @@ extension UIAlertController {
                 }
                 handler!(alertAction.title!, texts.copy() as! Array<String>)
             }
-            alertController.wy_sharedAppDelegate().window?!.makeKeyAndVisible()
+            UIApplication.shared.wy_keyWindow.makeKeyAndVisible()
         }
         alertController.addAction(action)
     }
