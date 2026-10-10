@@ -94,15 +94,21 @@ extension WYChatView: WYChatInputViewDelegate, WYChatInputViewEventsHandler {
         chatInput.textView.text = ""
         updateEmojiFuncAreaViewState()
         chatInput.textViewDidChange(chatInput.textView, silence: true)
-        delegate?.keyboardSendMessage?(sendMessage(text))
+        delegate?.keyboardSendMessage?(sendMessage(text).messageID)
     }
     
     public func didClickKeyboardEvent(_ text: String) {
         didClickKeyboardEvent(text, silence: false)
     }
     
+    /**
+     *  发送一条文本消息(发送后会加入dataSource)
+     *  @param text 消息文本内容
+     *  @param messageID 消息ID(外部指定了就用指定的，不指定就默认生成一个唯一ID)
+     *  @return 组装好的消息model
+     */
     @discardableResult
-    public func sendMessage(_ text: String) -> WYChatMessageModel  {
+    public func sendMessage(_ text: String, messageID: String = UUID().uuidString) -> WYChatMessageModel  {
         
         /**
          *  消息已读人数
@@ -124,13 +130,14 @@ extension WYChatView: WYChatInputViewDelegate, WYChatInputViewEventsHandler {
         let sender: WYChatUserModel = userInfo ?? WYChatUserModel()
 
         /// 消息内容
-        let content: WYChatMessageContentModel = WYChatMessageContentModel()
+        var content: WYChatMessageContentModel = WYChatMessageContentModel()
         content.text = text
          
         /// 引用消息
         //let reference: WYChatMessageContentModel? = nil
         
-        let message: WYChatMessageModel = WYChatMessageModel()
+        var message: WYChatMessageModel = WYChatMessageModel()
+        message.messageID = messageID
         message.readers = readers
         message.readBackState = readBackState
         message.sendState = sendState
@@ -187,11 +194,7 @@ extension WYChatView: WYChatEmojiViewDelegate, WYChatEmojiViewEventsHandler {
         
         delegate?.didClickEmojiView?(emojiView, indexPath)
     }
-    
-    public func emojiItemLongPress(_ gestureRecognizer: UILongPressGestureRecognizer, emoji: String, imageView: UIImageView) {
-        delegate?.emojiItemLongPress?(gestureRecognizer, emoji: emoji, imageView: imageView)
-    }
-    
+
     public func didClickEmojiSendView(_ sendView: UIButton) {
         let emojiText: String = NSMutableAttributedString(attributedString: chatInput.textView.attributedText).wy_convertEmojiAttributedString(textColor: inputBarConfig.textColor, textFont: inputBarConfig.textFont).string
         didClickKeyboardEvent(emojiText, silence: true)
@@ -206,11 +209,7 @@ extension WYChatView: WYChatEmojiViewDelegate, WYChatEmojiViewEventsHandler {
     public func canManagerEmojiViewClickEvents(_ emojiView: WYChatEmojiView, _ indexPath: IndexPath) -> Bool {
         return eventsHandler?.canManagerEmojiViewClickEvents?(emojiView, indexPath) ?? true
     }
-    
-    public func canManagerEmojiLongPressEvents(_ gestureRecognizer: UILongPressGestureRecognizer, emoji: String, imageView: UIImageView) -> Bool {
-        return eventsHandler?.canManagerEmojiLongPressEvents?(gestureRecognizer, emoji: emoji, imageView: imageView) ?? true
-    }
-    
+
     public func canManagerEmojiDeleteViewClickEvents(_ deleteView: UIButton) -> Bool {
         return eventsHandler?.canManagerEmojiDeleteViewClickEvents?(deleteView) ?? true
     }

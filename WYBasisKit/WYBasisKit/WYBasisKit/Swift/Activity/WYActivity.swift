@@ -398,11 +398,12 @@ private class WYActivityInfoView: UIView {
                 
                 self.frame = CGRect(x: (contentView.frame.size.width - controlWidth) / 2, y: offset + UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels), width: controlWidth, height: controlHeight)
                 
-            } completion: { _ in
-                
-                self.activityTimer = Timer.scheduledTimer(withTimeInterval: self.sharedTimeInterval(config: config), repeats: false, block: { [weak self] _ in
-                    self?.dismissActivity(direction: .up, isHandleSwipe: false)
-                    self?.superview?.wy_infoView = nil
+            } completion: { [weak self] _ in
+                guard let self = self else { return }
+                weak let weakSelf = self
+                self.activityTimer = Timer.scheduledTimer(withTimeInterval: self.sharedTimeInterval(config: config), repeats: false, block: { _ in
+                    weakSelf?.dismissActivity(direction: .up, isHandleSwipe: false)
+                    weakSelf?.superview?.wy_infoView = nil
                 })
             }
             break
@@ -432,11 +433,12 @@ private class WYActivityInfoView: UIView {
             self.alpha = 0
             UIView.animate(withDuration: 0.5) {
                 self.alpha = 1.0
-            } completion: { _ in
-                
-                self.activityTimer = Timer.scheduledTimer(withTimeInterval: self.sharedTimeInterval(config: config), repeats: false, block: { [weak self] _ in
-                    self?.dismissActivity(direction: .right, isHandleSwipe: false)
-                    self?.superview?.wy_infoView = nil
+            } completion: { [weak self] _ in
+                guard let self = self else { return }
+                weak let weakSelf = self
+                self.activityTimer = Timer.scheduledTimer(withTimeInterval: self.sharedTimeInterval(config: config), repeats: false, block: { _ in
+                    weakSelf?.dismissActivity(direction: .right, isHandleSwipe: false)
+                    weakSelf?.superview?.wy_infoView = nil
                 })
             }
             break

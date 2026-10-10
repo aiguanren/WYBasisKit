@@ -41,10 +41,7 @@ import UIKit
     /// 是否需要内部处理Emoji控件内 cell 的点击事件
     @objc(canManagerEmojiViewClickEvents:indexPath:)
     optional func canManagerEmojiViewClickEvents(_ emojiView: WYChatEmojiView, _ indexPath: IndexPath) -> Bool
-    
-    /// 是否需要内部处理 表情预览控件(仅限WYEmojiPreviewStyle == other时才会回调) 的长按事件
-    @objc optional func canManagerEmojiLongPressEvents(_ gestureRecognizer: UILongPressGestureRecognizer, emoji: String, imageView: UIImageView) -> Bool
-    
+
     /// 是否需要内部处理Emoji控件内 删除按钮 的点击事件
     @objc optional func canManagerEmojiDeleteViewClickEvents(_ deleteView: UIButton) -> Bool
     
@@ -86,8 +83,8 @@ import UIKit
     /// 输入框文本发生变化
     @objc optional func textDidChanged(_ text: String)
     
-    /// 点击了键盘上的 发送 按钮
-    @objc optional func keyboardSendMessage(_ message: WYChatMessageModel)
+    /// 点击了键盘上的 发送 按钮(参数为消息ID，需要完整消息model时可用chatView的messageModelFrom(_ messageID:)反查)
+    @objc optional func keyboardSendMessage(_ messageID: String)
     
     /// 点击了emoji控件内某个item
     @objc optional func didClickEmojiView(_ emojiView: WYChatEmojiView, _ indexPath: IndexPath)
@@ -97,10 +94,7 @@ import UIKit
     
     /// 点击了emoji控件内功能区发送按钮
     @objc optional func didClickEmojiSendView(_ sendView: UIButton)
-    
-    /// 长按了表情预览控件(仅限WYEmojiPreviewStyle == other时才会回调)
-    @objc optional func emojiItemLongPress(_ gestureRecognizer: UILongPressGestureRecognizer, emoji: String, imageView: UIImageView)
-    
+
     /// 点击了More控件内某个item
     @objc(didClickMoreView:itemIndex:)
     optional func didClickMoreView(_ moreView: WYChatMoreView, _ itemIndex: Int)

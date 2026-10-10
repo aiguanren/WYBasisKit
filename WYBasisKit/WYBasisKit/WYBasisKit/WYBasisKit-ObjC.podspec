@@ -10,7 +10,7 @@ kit_path = "WYBasisKit/WYBasisKit/WYBasisKit/"
 
 Pod::Spec.new do |kit|
   kit.name         = "WYBasisKit-ObjC"
-  kit.version      = "26.9.1"
+  kit.version      = "26.9.2"
   kit.summary      = "WYBasisKit 不仅可以帮助开发者快速构建一个工程，还有基于常用网络框架和系统API而封装的各种实用方法、扩展，开发者只需简单的调用API就可以快速实现相应功能， 大幅提高开发效率。"
   kit.description  = <<-DESC
     Localizable: 国际化解决方案
@@ -28,7 +28,7 @@ Pod::Spec.new do |kit|
   kit.homepage     = "https://github.com/aiguanren/WYBasisKit"
   kit.license      = { :type => "MIT", :file => "#{kit_path}License.md" }
   kit.author             = { "官人" => "aiguanren@icloud.com" }
-  kit.ios.deployment_target = "13.0"
+  kit.ios.deployment_target = "15.0"
   kit.source       = { :git => "https://github.com/aiguanren/WYBasisKit.git", :tag => "#{kit.version}" }
   #kit.source       = { :svn => "http://192.168.xxx.xxx:xxxx/xxx/xxx/WYBasiskit"}
   #kit.source       = { :http => "http://192.168.xxx.xxx:xxxx/xxx/xxx/WYBasiskit.zip" }

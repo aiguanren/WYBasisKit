@@ -493,44 +493,41 @@ public extension NSMutableAttributedString {
      *  @param textFont      富文本的字体
      *  @param emojiTable    表情解析对照表，如 ["哈哈](哈哈表情对应的图片名)", [嘿嘿(嘿嘿表情对应的图片名)]]
      *  @param bundle        从哪个bundle文件内查找图片资源，如果为空，则直接在本地路径下查找
-     *  @param pattern       正则匹配规则, 默认匹配1到3位, 如 [哈] [哈哈] [哈哈哈] 这种
+     *  @param pattern       正则匹配规则, 默认匹配一对不嵌套方括号的[表情名], 不限长度
+     *  @param customImageLoader   自定义表情图片加载器(传入表情名和bundle返回UIImage，返回nil时降级走wy_find)，不传时走wy_find
      *
      *  - Returns: 当前 `NSMutableAttributedString` 对象
      */
-    static func wy_convertEmojiAttributed(emojiString: String, textColor: UIColor, textFont: UIFont, emojiTable: [String], sourceBundle: WYSourceBundle? = nil, pattern: String = "\\[.{1,3}\\]") -> NSMutableAttributedString {
-        
+    static func wy_convertEmojiAttributed(emojiString: String, textColor: UIColor, textFont: UIFont, emojiTable: [String], sourceBundle: WYSourceBundle? = nil, pattern: String = "\\[[^\\[\\]]+\\]", customImageLoader: ((_ emojiName: String, _ bundle: WYSourceBundle?) -> UIImage)? = nil) -> NSMutableAttributedString {
+
         // 字体、颜色
         let textAttributes: [NSAttributedString.Key: Any] = [.font: textFont, .foregroundColor: textColor]
-        
+
         // 富文本初始对象
         let attributedString = NSMutableAttributedString(string: emojiString, attributes: textAttributes)
-        
+
         // 表情高度
         let attachmentHeight = textFont.lineHeight
-        
-        // 正则匹配
-        let regex: NSRegularExpression?
-        do {
-            regex = try NSRegularExpression(pattern: pattern, options: .caseInsensitive)
-        } catch let error {
-            WYLogManager.output(error.localizedDescription)
-            regex = nil
-        }
-        
+
+        // 正则匹配(缓存已编译实例防高频调用时重复编译，NSRegularExpression创建后不可变无并发风险)
+        struct RegexCache { static var cache: [String: NSRegularExpression] = [:] }
+        let regex: NSRegularExpression? = RegexCache.cache[pattern] ?? (try? NSRegularExpression(pattern: pattern, options: .caseInsensitive))
+        if let regex { RegexCache.cache[pattern] = regex }
+
         guard let matches = regex?.matches(in: emojiString, options: [], range: NSRange(emojiString.startIndex..., in: emojiString)),
               !matches.isEmpty else {
             return attributedString
         }
-        
+
         // 倒序遍历，防止替换偏移
         for result in matches.reversed() {
             let nsRange = result.range
             guard let range = Range(nsRange, in: emojiString) else { continue }
             let emojiStr = String(emojiString[range])
-            
+
             // 检查是否是表情
             if emojiTable.contains(emojiStr) {
-                let image = UIImage.wy_find(emojiStr, inBundle: sourceBundle)
+                let image = customImageLoader?(emojiStr, sourceBundle) ?? UIImage.wy_find(emojiStr, inBundle: sourceBundle)
                 
                 let attachment = WYTextAttachment()
                 attachment.image = image
@@ -880,3 +877,4 @@ private extension NSAttributedString {
         return nil
     }
 }
+

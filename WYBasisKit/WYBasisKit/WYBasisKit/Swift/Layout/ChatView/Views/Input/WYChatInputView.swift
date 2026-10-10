@@ -32,8 +32,8 @@ public struct WYInputBarConfig {
     /// 输入法自带的Emoji表情替换成什么字符(需要canInputEmoji为false才生效)
     public var emojiReplacement: String = ""
     
-    /// 自定义表情转换时的正则匹配规则
-    public var emojiPattern: String = "\\[.{1,3}\\]"
+    /// 自定义表情转换时的正则匹配规则(默认匹配一对不嵌套方括号的[表情名]，不限长度)
+    public var emojiPattern: String = "\\[[^\\[\\]]+\\]"
     
     /// 文本切换按钮图片
     public var textBottomImage: UIImage = UIImage.wy_find("WYChatViewTogglekeyboard", inBundle: WYChatSourceBundle)
@@ -557,7 +557,8 @@ public class WYChatInputView: UIImageView {
     
     // 根据传入的表情字符串生成富文本，例如字符串 "哈哈[哈哈]" 会生成 "哈哈😄"
     public func sharedEmojiAttributed(string: String) -> NSAttributedString {
-        let attributed: NSMutableAttributedString = NSMutableAttributedString.wy_convertEmojiAttributed(emojiString: string, textColor: inputBarConfig.textColor, textFont: inputBarConfig.textFont, emojiTable: emojiViewConfig.emojiSource, sourceBundle: emojiViewConfig.emojiBundle, pattern: inputBarConfig.emojiPattern)
+        
+        let attributed: NSMutableAttributedString = NSMutableAttributedString.wy_convertEmojiAttributed(emojiString: string, textColor: inputBarConfig.textColor, textFont: inputBarConfig.textFont, emojiTable: emojiViewConfig.emojiSource, sourceBundle: emojiViewConfig.emojiBundle, pattern: inputBarConfig.emojiPattern, customImageLoader: { emojiName, _ in emojiViewConfig.staticEmojiImage(emojiName) })
         attributed.wy_lineSpacing(inputBarConfig.textLineSpacing, alignment: .left)
         
         return attributed

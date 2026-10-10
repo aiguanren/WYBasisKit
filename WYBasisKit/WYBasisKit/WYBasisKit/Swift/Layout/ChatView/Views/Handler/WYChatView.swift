@@ -161,6 +161,11 @@ public class WYChatView: UIView {
             }
         }
     }
+
+    /// 根据消息ID获取对应的消息model(在dataSource里查找，查不到返回nil)
+    public func messageModelFrom(_ messageID: String) -> WYChatMessageModel? {
+        return dataSource.first { $0.messageID == messageID }
+    }
     
     @objc public func keyboardWillShowWith(_ notification: Notification, silence: Bool) {
         if silence == false {

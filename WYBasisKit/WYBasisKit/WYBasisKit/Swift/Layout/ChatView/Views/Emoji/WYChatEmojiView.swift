@@ -8,9 +8,13 @@
 
 import UIKit
 
-private let emojiViewRecentlyCountKey: String = "emojiViewRecentlyCountKey"
-
-private let emojiPath: String = Bundle(path: (((Bundle(for: WYChatEmojiView.self).path(forResource: "WYChatView", ofType: "bundle")) ?? (Bundle.main.path(forResource: "WYChatView", ofType: "bundle"))) ?? ""))?.path(forResource: "WYChatViewEmoji", ofType: "plist") ?? ""
+/// 静态图不存在时从动图取哪一帧
+@frozen public enum WYEmojiStaticFramePosition: Int {
+    /// 首帧
+    case first = 0
+    /// 末帧(默认)
+    case last
+}
 
 public struct WYEmojiViewConfig {
     
@@ -31,6 +35,15 @@ public struct WYEmojiViewConfig {
     
     /// 自定义加载Emoji图片的Bundle
     public var emojiBundle: WYSourceBundle? = WYSourceBundle(bundleName: "WYChatView", subdirectory: "WYChatViewEmoji")
+
+    /// 表情资源是否放在同名子文件夹中(如WYChatViewEmoji/微笑/[微笑].png + [微笑].gif)
+    public var emojiFolders: Bool = false
+
+    /// 自定义表情图片加载器(传入表情名和bundle返回UIImage，返回nil时走内部加载链)，适合接入Lottie等内部不支持的格式
+    public var customImageLoader: ((_ emojiName: String, _ bundle: WYSourceBundle?) -> UIImage)? = nil
+
+    /// 静态图不存在时从动图取哪一帧当静态图(默认末帧)
+    public var staticFramePosition: WYEmojiStaticFramePosition = .last
 
     /// 自定义Emoji控件是否需要显示最近使用的表情
     public var showRecently: Bool = true
@@ -83,19 +96,43 @@ public struct WYEmojiViewConfig {
     /// Emoji表情长按预览控件配置
     public var previewConfig: WYEmojiPreviewConfig = WYEmojiPreviewConfig()
     
+    /// 从动态图中获取对应的静态展示图(当表情没有对应的静态图时)
+    public func staticEmojiImage(_ emojiName: String) -> UIImage {
+        if let customImage = customImageLoader?(emojiName, emojiBundle) {
+            return customImage
+        }
+        if let staticImage = emojiStaticFile(emojiName) {
+            return staticImage
+        }
+        let frameIndex = (staticFramePosition == .first) ? 0 : -1
+        for ext in ["gif", "webp"] {
+            if let frameImage = emojiAnimatedFrame(emojiName, ext: ext, frameIndex: frameIndex) {
+                return frameImage
+            }
+        }
+        return UIImage.wy_find(emojiName, inBundle: emojiBundle)
+    }
+
+    /// 获取某个表情对应的加载Bundle(emojiFolders为true时subdirectory包含表情名子目录，供wy_animatedParse等需要WYSourceBundle的场景使用)
+    public func emojiSourceBundle(for emojiName: String) -> WYSourceBundle? {
+        guard emojiFolders, let original = emojiBundle else {
+            return emojiBundle
+        }
+        let base = original.subdirectory.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        let plain = emojiName.trimmingCharacters(in: CharacterSet(charactersIn: "[]"))
+        let newSub = base.isEmpty ? plain : base + "/" + plain
+        return WYSourceBundle(targetClass: original.targetClass, bundleName: original.bundleName, subdirectory: newSub)
+    }
+
     public init() {}
 }
 
 /// 返回一个Bool值来判定各控件的点击或手势事件是否需要内部处理(默认返回True)
 @objc public protocol WYChatEmojiViewEventsHandler {
-    
     /// 是否需要内部处理 Emoji 点击事件
     @objc(canManagerEmojiViewClickEventsWithEmojiView:indexPath:)
     optional func canManagerEmojiViewClickEvents(_ emojiView: WYChatEmojiView, _ indexPath: IndexPath) -> Bool
-    
-    /// 是否需要内部处理 表情预览控件(仅限WYEmojiPreviewStyle == other时才会回调) 的长按事件
-    @objc optional func canManagerEmojiLongPressEvents(_ gestureRecognizer: UILongPressGestureRecognizer, emoji: String, imageView: UIImageView) -> Bool
-    
+
     /// 是否需要内部处理 删除按钮 点击事件
     @objc(canManagerEmojiDeleteViewClickEventsWithDeleteView:)
     optional func canManagerEmojiDeleteViewClickEvents(_ deleteView: UIButton) -> Bool
@@ -110,10 +147,7 @@ public struct WYEmojiViewConfig {
     /// 监听Emoji点击事件
     @objc(didClickEmojiView:indexPath:)
     optional func didClick(_ emojiView: WYChatEmojiView, _ indexPath: IndexPath)
-    
-    /// 长按了表情预览控件(仅限WYEmojiPreviewStyle == other时才会回调)
-    @objc optional func emojiItemLongPress(_ gestureRecognizer: UILongPressGestureRecognizer, emoji: String, imageView: UIImageView)
-    
+
     /// 点击了发送按钮
     @objc optional func didClickEmojiSendView(_ sendView: UIButton)
     
@@ -144,6 +178,12 @@ public class WYChatEmojiView: UIView, WYEmojiFuncAreaViewDelegate {
             make.left.top.right.equalToSuperview()
             make.bottom.equalToSuperview().offset(-emojiViewConfig.collectionViewBottomOffset)
         }
+
+        // 长按预览手势
+        let longPress: UILongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(didLongPressEmoji(_:)))
+        longPress.minimumPressDuration = 0.5
+        collectionView.addGestureRecognizer(longPress)
+        
         return collectionView
     }()
     
@@ -182,6 +222,9 @@ public class WYChatEmojiView: UIView, WYEmojiFuncAreaViewDelegate {
     }()
     
     private var appendEmoji: [String] = []
+
+    /// 长按手势当前指向的表情indexPath(拖动切换预览用，nil表示手指在表情有效区外)
+    private var longPressIndexPath: IndexPath?
     
     public lazy var dataSource: [[String]] = {
         var dataSource: [[String]] = []
@@ -376,10 +419,10 @@ extension WYChatEmojiView: UICollectionViewDelegate, UICollectionViewDataSource,
     }
     
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
+
         let cell: WYEmojiViewCell = collectionView.dequeueReusableCell(withReuseIdentifier: "WYEmojiViewCell", for: indexPath) as! WYEmojiViewCell
         cell.emoji = dataSource[indexPath.section][indexPath.item]
-        cell.delegate = self
+        
         return cell
     }
     
@@ -388,7 +431,7 @@ extension WYChatEmojiView: UICollectionViewDelegate, UICollectionViewDataSource,
     }
     
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
+
         guard (eventsHandler?.canManagerEmojiViewClickEvents?(self, indexPath) ?? true) else {
             return
         }
@@ -397,24 +440,146 @@ extension WYChatEmojiView: UICollectionViewDelegate, UICollectionViewDataSource,
     }
 }
 
-extension WYChatEmojiView: WYEmojiViewCellDelegate {
-    
-    public func willShowPreviewView(_ gestureRecognizer: UILongPressGestureRecognizer, emoji: String, according: UIImageView) {
-        
-        guard (eventsHandler?.canManagerEmojiLongPressEvents?(gestureRecognizer, emoji: emoji, imageView: according) ?? true) else {
-            return
+extension WYChatEmojiView {
+
+    /// 长按表情的状态机(began弹出预览浮层，changed拖动时反查手指指向并切换预览，ended松手只收起预览不选中任何表情，滑出有效区隐藏预览)
+    @objc fileprivate func didLongPressEmoji(_ sender: UILongPressGestureRecognizer) {
+
+        let location: CGPoint = sender.location(in: collectionView)
+        let indexPath: IndexPath? = collectionView.indexPathForItem(at: location)
+
+        switch sender.state {
+        case .began:
+
+            guard let indexPath: IndexPath = indexPath else {
+                return
+            }
+
+            longPressIndexPath = indexPath
+            WYEmojiPreviewView.show(emoji: dataSource[indexPath.section][indexPath.item], according: emojiImageView(at: indexPath))
+            break
+
+        case .changed:
+
+            if let indexPath: IndexPath = indexPath {
+                WYEmojiPreviewView.setHidden(false)
+                if indexPath != longPressIndexPath {
+                    longPressIndexPath = indexPath
+                    WYEmojiPreviewView.update(emoji: dataSource[indexPath.section][indexPath.item], according: emojiImageView(at: indexPath))
+                }
+            }else {
+                // 手指滑到header、行间距、删除键、面板外等无效区域
+                longPressIndexPath = nil
+                WYEmojiPreviewView.setHidden(true)
+            }
+            break
+
+        case .ended, .cancelled, .failed:
+
+            longPressIndexPath = nil
+            WYEmojiPreviewView.dismiss()
+            break
+
+        default:
+            break
         }
-        
-        if gestureRecognizer.state == .began {
-            WYEmojiPreviewView.show(emoji: emoji, according: according) { [weak self] imageName, imageView in
-                Task { @MainActor in
-                    self?.delegate?.emojiItemLongPress?(gestureRecognizer, emoji: emoji, imageView: according)
+    }
+
+    /// 取indexPath对应cell的表情图(作为预览浮层的锚点)
+    private func emojiImageView(at indexPath: IndexPath) -> UIImageView {
+        return (collectionView.cellForItem(at: indexPath) as? WYEmojiViewCell)?.emojiView ?? UIImageView()
+    }
+}
+
+private let emojiViewRecentlyCountKey: String = "emojiViewRecentlyCountKey"
+
+private let emojiPath: String = Bundle(path: (((Bundle(for: WYChatEmojiView.self).path(forResource: "WYChatView", ofType: "bundle")) ?? (Bundle.main.path(forResource: "WYChatView", ofType: "bundle"))) ?? ""))?.path(forResource: "WYChatViewEmoji", ofType: "plist") ?? ""
+
+/// 表情动图取帧缓存(同一路径同一帧只解码一次)
+private let wy_emojiFrameCache: NSCache<NSString, UIImage> = {
+    let cache = NSCache<NSString, UIImage>()
+    cache.countLimit = 256
+    return cache
+}()
+
+extension WYEmojiViewConfig {
+
+    /// 查找表情的静态图文件(单帧png直接用，多帧apng按staticFramePosition取帧)
+    func emojiStaticFile(_ emojiName: String) -> UIImage? {
+        guard let filePath = emojiFilePath(emojiName, ext: "png") else {
+            return nil
+        }
+        guard let source = CGImageSourceCreateWithURL(URL(fileURLWithPath: filePath) as CFURL, nil) else {
+            return UIImage(contentsOfFile: filePath)
+        }
+        let frameCount = CGImageSourceGetCount(source)
+        guard frameCount > 1 else {
+            return UIImage(contentsOfFile: filePath)
+        }
+        let index = (staticFramePosition == .first) ? 0 : frameCount - 1
+        guard let cgImage = CGImageSourceCreateImageAtIndex(source, index, nil) else {
+            return UIImage(contentsOfFile: filePath)
+        }
+        return UIImage(cgImage: cgImage)
+    }
+
+    /// 从动图文件中取指定帧(frameIndex传-1表示末帧，带缓存防滚动复用重复解码)
+    func emojiAnimatedFrame(_ emojiName: String, ext: String, frameIndex: Int) -> UIImage? {
+        guard let filePath = emojiFilePath(emojiName, ext: ext) else {
+            return nil
+        }
+        let cacheKey = "\(filePath)#\(frameIndex)" as NSString
+        if let cached = wy_emojiFrameCache.object(forKey: cacheKey) {
+            return cached
+        }
+        guard let source = CGImageSourceCreateWithURL(URL(fileURLWithPath: filePath) as CFURL, nil) else {
+            return nil
+        }
+        let count = CGImageSourceGetCount(source)
+        let index = (frameIndex < 0) ? count - 1 : frameIndex
+        guard count > 0, index >= 0, index < count,
+              let cgImage = CGImageSourceCreateImageAtIndex(source, index, nil) else {
+            return nil
+        }
+        let image = UIImage(cgImage: cgImage)
+        wy_emojiFrameCache.setObject(image, forKey: cacheKey)
+        return image
+    }
+
+    /// 拼接表情文件的完整路径(emojiFolders时在subdirectory后加表情名子目录)
+    func emojiFilePath(_ emojiName: String, ext: String) -> String? {
+        guard let config = emojiBundle, config.bundleName.isEmpty == false else {
+            return nil
+        }
+        let searchBundles: [Bundle] = {
+            if let targetClass = config.targetClass {
+                return [Bundle(for: targetClass), Bundle.main]
+            } else {
+                return [Bundle(for: WYChatEmojiView.self), Bundle.main]
+            }
+        }()
+        let baseSubDir = config.subdirectory.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        let subDir = {
+            if emojiFolders {
+                let plain = emojiName.trimmingCharacters(in: CharacterSet(charactersIn: "[]"))
+                return baseSubDir.isEmpty ? plain : baseSubDir + "/" + plain
+            }
+            return baseSubDir
+        }()
+        for searchBundle in searchBundles {
+            if let bundlePath = searchBundle.path(forResource: config.bundleName, ofType: "bundle"),
+               let resourceBundle = Bundle(path: bundlePath) {
+                if subDir.isEmpty {
+                    if let filePath = resourceBundle.path(forResource: emojiName, ofType: ext) {
+                        return filePath
+                    }
+                } else {
+                    if let filePath = resourceBundle.path(forResource: emojiName, ofType: ext, inDirectory: subDir) {
+                        return filePath
+                    }
                 }
             }
         }
-        
-        if (gestureRecognizer.state == .cancelled) || (gestureRecognizer.state == .ended) {
-            WYEmojiPreviewView.dismiss()
-        }
+        return nil
     }
 }

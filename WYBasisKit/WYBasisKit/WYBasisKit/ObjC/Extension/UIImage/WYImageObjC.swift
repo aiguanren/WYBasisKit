@@ -26,13 +26,13 @@ import WYBasisKitSwift
 @objcMembers public class WYSourceBundleObjC: NSObject {
     
     /// 指定 Bundle.class，效果如：Bundle(for: targetClass)
-    @objc public let targetClass: AnyClass?
+    @objc public var targetClass: AnyClass?
     
     /// 从哪个bundle文件内查找，如果bundleName对应的bundle不存在，则直接在本地路径下查找
-    @objc public let bundleName: String
+    @objc public var bundleName: String
     
     /// bundleName.bundle下面的子文件夹路径，如果子文件夹有多层，就用/隔开(如果要获取资源是放在bundle文件下面的子文件夹中，则需要传入该路径，例如ImageSource.bundle下面有个叫apple的子文件夹，则subdirectory应该传入 apple)
-    @objc public let subdirectory: String
+    @objc public var subdirectory: String
     
     /// 通用初始化方法(实例)
     @objc public init(targetClass: AnyClass? = nil, bundleName: String = "", subdirectory: String = "") {

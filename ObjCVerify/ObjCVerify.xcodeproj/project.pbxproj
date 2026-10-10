@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2EEED0E79E92E529179C07F5 /* Pods_SharedPods_ObjCVerify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC8256BD473181184828AE62 /* Pods_SharedPods_ObjCVerify.framework */; };
 		580BB8B32FF655F100C1B986 /* WYTestAirBubbleController.m in Sources */ = {isa = PBXBuildFile; fileRef = 580BB8B22FF655F100C1B986 /* WYTestAirBubbleController.m */; };
 		580ED5652EA5DA56006012E7 /* SDKRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5642EA5DA56006012E7 /* SDKRequest.m */; };
 		580ED5682EA5DA9C006012E7 /* SDKRequestContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5672EA5DA9C006012E7 /* SDKRequestContext.m */; };
@@ -63,6 +64,7 @@
 		58B470502E8D37B000D04BCA /* AppEventDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B4704F2E8D37B000D04BCA /* AppEventDelegate.m */; };
 		58B59FEF2E5D5315008F9C38 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B59FE22E5D5315008F9C38 /* AppDelegate.m */; };
 		58B59FF02E5D5315008F9C38 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B59FE72E5D5315008F9C38 /* main.m */; };
+		58B59FF12E5D5315008F9C38 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B59FA12E5D5315008F9C38 /* SceneDelegate.m */; };
 		58B59FF22E5D5315008F9C38 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B59FED2E5D5315008F9C38 /* ViewController.m */; };
 		58B59FF32E5D5315008F9C38 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58B59FE32E5D5315008F9C38 /* Assets.xcassets */; };
 		58B59FF52E5D5315008F9C38 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 58B59FE62E5D5315008F9C38 /* LaunchScreen.storyboard */; };
@@ -90,9 +92,9 @@
 		58DEA9C92F0F7CB600664E13 /* WYTestRichTextController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DEA9C82F0F7CB600664E13 /* WYTestRichTextController.m */; };
 		58DEA9CD2F10F5F300664E13 /* WYMultilevelTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DEA9CC2F10F5F300664E13 /* WYMultilevelTableViewController.m */; };
 		58DEA9D12F1105EB00664E13 /* WYTableViewPlainController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58DEA9D02F1105EB00664E13 /* WYTableViewPlainController.m */; };
+		58E989983077394A00916AB4 /* 烟花.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 58E989973077394A00916AB4 /* 烟花.mp3 */; };
 		58EE7B152FBED001009AA0CC /* WYTestLabelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58EE7B142FBED001009AA0CC /* WYTestLabelViewController.m */; };
 		58EE7B172FBED002009AA0CC /* WYTestLabelCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 58EE7B162FBED002009AA0CC /* WYTestLabelCell.m */; };
-		ECC390919651E39B53C48672 /* Pods_ObjCVerify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A235FB04509B2363C98C9226 /* Pods_ObjCVerify.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -229,6 +231,7 @@
 		58B4704A2E8D32D200D04BCA /* WYLeftControllerHeaderView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYLeftControllerHeaderView.m; sourceTree = "<group>"; };
 		58B4704E2E8D37B000D04BCA /* AppEventDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppEventDelegate.h; sourceTree = "<group>"; };
 		58B4704F2E8D37B000D04BCA /* AppEventDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppEventDelegate.m; sourceTree = "<group>"; };
+		58B59FA12E5D5315008F9C38 /* SceneDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SceneDelegate.m; sourceTree = "<group>"; };
 		58B59FC42E5D530F008F9C38 /* ObjCVerify.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ObjCVerify.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		58B59FE12E5D5315008F9C38 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		58B59FE22E5D5315008F9C38 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -284,11 +287,14 @@
 		58DEA9CC2F10F5F300664E13 /* WYMultilevelTableViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYMultilevelTableViewController.m; sourceTree = "<group>"; };
 		58DEA9CF2F1105EB00664E13 /* WYTableViewPlainController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTableViewPlainController.h; sourceTree = "<group>"; };
 		58DEA9D02F1105EB00664E13 /* WYTableViewPlainController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTableViewPlainController.m; sourceTree = "<group>"; };
+		58E989973077394A00916AB4 /* 烟花.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "烟花.mp3"; sourceTree = "<group>"; };
 		58EE7B132FBED001009AA0CC /* WYTestLabelViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestLabelViewController.h; sourceTree = "<group>"; };
 		58EE7B142FBED001009AA0CC /* WYTestLabelViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.objc; path = WYTestLabelViewController.m; sourceTree = "<group>"; };
 		58EE7B152FBED002009AA0CC /* WYTestLabelCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestLabelCell.h; sourceTree = "<group>"; };
 		58EE7B162FBED002009AA0CC /* WYTestLabelCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.objc; path = WYTestLabelCell.m; sourceTree = "<group>"; };
-		A235FB04509B2363C98C9226 /* Pods_ObjCVerify.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ObjCVerify.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C46CD550F75C96CF7AD29356 /* Pods-SharedPods-ObjCVerify.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SharedPods-ObjCVerify.release.xcconfig"; path = "Target Support Files/Pods-SharedPods-ObjCVerify/Pods-SharedPods-ObjCVerify.release.xcconfig"; sourceTree = "<group>"; };
+		CC8256BD473181184828AE62 /* Pods_SharedPods_ObjCVerify.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SharedPods_ObjCVerify.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		DF8E77A7EA5B000E32A36E8B /* Pods-SharedPods-ObjCVerify.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SharedPods-ObjCVerify.debug.xcconfig"; path = "Target Support Files/Pods-SharedPods-ObjCVerify/Pods-SharedPods-ObjCVerify.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -296,7 +302,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ECC390919651E39B53C48672 /* Pods_ObjCVerify.framework in Frameworks */,
+				2EEED0E79E92E529179C07F5 /* Pods_SharedPods_ObjCVerify.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -308,6 +314,8 @@
 			children = (
 				00E93EF8A69093A840C991C9 /* Pods-ObjCVerify.debug.xcconfig */,
 				287657987D557763A49D167F /* Pods-ObjCVerify.release.xcconfig */,
+				DF8E77A7EA5B000E32A36E8B /* Pods-SharedPods-ObjCVerify.debug.xcconfig */,
+				C46CD550F75C96CF7AD29356 /* Pods-SharedPods-ObjCVerify.release.xcconfig */,
 			);
 			name = Pods;
 			path = ../Pods;
@@ -566,10 +574,13 @@
 				58B46FF32E8D112B00D04BCA /* [爱心].png */,
 				58B46FF42E8D112B00D04BCA /* [唇].png */,
 				58B46FF52E8D112B00D04BCA /* [喝彩].png */,
+				58E989973077394A00916AB4 /* 烟花.mp3 */,
 				58B46FF62E8D112B00D04BCA /* 世间美好与你环环相扣.mp3 */,
 				582917422FB0C3FD0006F98D /* NotoSans-Regular.ttf */,
 				58B59FE12E5D5315008F9C38 /* AppDelegate.h */,
 				58B59FE22E5D5315008F9C38 /* AppDelegate.m */,
+				58B59FA12E5D5315008F9C38 /* SceneDelegate.m */,
+				58B59FE52E5D5315008F9C38 /* Base */,
 				58B59FE32E5D5315008F9C38 /* Assets.xcassets */,
 				58B59FE42E5D5315008F9C38 /* Info.plist */,
 				58B59FE62E5D5315008F9C38 /* LaunchScreen.storyboard */,
@@ -786,7 +797,7 @@
 			isa = PBXGroup;
 			children = (
 				58AE5D612F0CA1020025C492 /* libswiftCompatibilitySpan.tbd */,
-				A235FB04509B2363C98C9226 /* Pods_ObjCVerify.framework */,
+				CC8256BD473181184828AE62 /* Pods_SharedPods_ObjCVerify.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -821,7 +832,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastUpgradeCheck = 1630;
+				LastUpgradeCheck = 2700;
 				TargetAttributes = {
 					58B59FC32E5D530F008F9C38 = {
 						CreatedOnToolsVersion = 16.3;
@@ -907,6 +918,7 @@
 				58B470282E8D112B00D04BCA /* [唇].png in Resources */,
 				58B470292E8D112B00D04BCA /* [666].gif in Resources */,
 				58B4702A2E8D112B00D04BCA /* 夕阳下的花.png in Resources */,
+				58E989983077394A00916AB4 /* 烟花.mp3 in Resources */,
 				58B4702B2E8D112B00D04BCA /* 世间美好与你环环相扣.mp3 in Resources */,
 				58B4702C2E8D112B00D04BCA /* apng格式图片2.png in Resources */,
 				58B4702D2E8D112B00D04BCA /* 1650855755919.mp4 in Resources */,
@@ -940,7 +952,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-ObjCVerify-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-SharedPods-ObjCVerify-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -953,15 +965,19 @@
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-SharedPods-ObjCVerify/Pods-SharedPods-ObjCVerify-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			inputPaths = (
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-SharedPods-ObjCVerify/Pods-SharedPods-ObjCVerify-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SharedPods-ObjCVerify/Pods-SharedPods-ObjCVerify-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		EFC244E333B24E1CF0EE0ACF /* [CP] Copy Pods Resources */ = {
@@ -970,15 +986,19 @@
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-resources-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-SharedPods-ObjCVerify/Pods-SharedPods-ObjCVerify-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			inputPaths = (
 			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-resources-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-SharedPods-ObjCVerify/Pods-SharedPods-ObjCVerify-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ObjCVerify/Pods-ObjCVerify-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SharedPods-ObjCVerify/Pods-SharedPods-ObjCVerify-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -989,6 +1009,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				58B59FEF2E5D5315008F9C38 /* AppDelegate.m in Sources */,
+				58B59FF12E5D5315008F9C38 /* SceneDelegate.m in Sources */,
 				58BFB87B2F1488920094DDB5 /* WYTableViewGroupedController.m in Sources */,
 				58DEA9BD2F0F580200664E13 /* WYTestAnimationController.m in Sources */,
 				582732112E9F8CDF00DAD1AA /* WYTestDarkNightModeController.m in Sources */,
@@ -1044,7 +1065,6 @@
 		58B59FE62E5D5315008F9C38 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				58B59FE52E5D5315008F9C38 /* Base */,
 				582732462E9FA3ED00DAD1AA /* zh-Hans */,
 				582732482E9FA3F400DAD1AA /* zh-Hant */,
 				5827324A2E9FA40000DAD1AA /* fr */,
@@ -1118,7 +1138,7 @@
 /* Begin XCBuildConfiguration section */
 		58B59FDD2E5D5310008F9C38 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 00E93EF8A69093A840C991C9 /* Pods-ObjCVerify.debug.xcconfig */;
+			baseConfigurationReference = DF8E77A7EA5B000E32A36E8B /* Pods-SharedPods-ObjCVerify.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -1137,9 +1157,8 @@
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "WYBasisKit申请使用语音转文字权限，用于语音与文字之间的转换测试";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1157,7 +1176,7 @@
 		};
 		58B59FDE2E5D5310008F9C38 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 287657987D557763A49D167F /* Pods-ObjCVerify.release.xcconfig */;
+			baseConfigurationReference = C46CD550F75C96CF7AD29356 /* Pods-SharedPods-ObjCVerify.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -1176,9 +1195,8 @@
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "WYBasisKit申请使用语音转文字权限，用于语音与文字之间的转换测试";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1272,6 +1290,7 @@
 					"-lswiftCompatibilityPacks",
 				);
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_VERSION = "";
 			};
 			name = Debug;
@@ -1348,6 +1367,7 @@
 					"-lswiftCompatibilityPacks",
 				);
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_VERSION = "";
 				VALIDATE_PRODUCT = YES;
 			};

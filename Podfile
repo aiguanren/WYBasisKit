@@ -1,5 +1,5 @@
 # iOS兼容版本
-platform :ios, "13.0"
+platform :ios, "15.0"
 
 # 动态框架(等同于：use_frameworks!)，可被多个扩展（Extension）共享，减少主二进制体积，但会略微增加启动时间，且可能影响 category 加载
 #use_frameworks! :linkage => :dynamic
@@ -77,81 +77,85 @@ target "WYBasisKit" do
   end
 end
 
-target "SwiftVerify" do
-  project "SwiftVerify/SwiftVerify.xcodeproj" # 多个项目时需要指定target对应的xcodeproj文件
+# WYBasisKit-swift上提到抽象target层单实例共享：本地dev pod在被多个target块引用时(直接引用或经其它pod传递引用)会按块各生成一套同名pod target副本，两套同名WYBasisKitSwift模块会被Xcode报"missing a dependency"互缺依赖声明、链接时也会报"Multiple targets match implicit dependency"歧义；上提后各验证工程(SwiftVerify直接引用、SwiftUIVerify经WYBasisKit-SwiftUI传递、ObjCVerify经WYBasisKit-ObjC传递)共用一套副本，警告从根源消除
+abstract_target "SharedPods" do
+
+  # 本地Swift库(单实例，下面的验证工程共用)
   pod "WYBasisKit-swift", :path => KITPATH
 
-  # 本地验证：直接使用本地编译的 IJKPlayerKit(深度改名版,模块名/类名均为 IJK 前缀)
-  # :path 方式会忽略 podspec 里的 source(下载地址)，框架文件取自本地仓库目录
-  # 验证完毕要回到官方源时：注释掉这一行并 pod update IJKPlayerKit 即可
-  # pod "IJKPlayerKit", :path => "/Users/guanren/Desktop/官人/IJKPlayerKit"
-  
-  # 约束
-  pod "SnapKit"
-  
-  # 图片裁剪库
-  #pod "Mantis"
-  
-  # 照片选择库
-  #pod "ZLPhotoBrowser"
-  
-  # UIScrollView刷新header和footer
-  #pod "MJRefresh"
-  
-  # 根据Xcode版本号指定三方库的版本号
-  if xcode_version_less_than_or_equal_to(14, 2)
-    # 网络请求
-    pod "Alamofire", "5.9.1"
-    
-    # 管理键盘弹出时的界面适配
-    pod "IQKeyboardManagerSwift", "7.0.0"
-  else
-    pod "IQKeyboardManagerSwift"
-  end
-  
-  # Kingfisher扩展库，支持显示webp格式图片
-  pod "KingfisherWebP"
-  
-end
+  target "SwiftVerify" do
+    project "SwiftVerify/SwiftVerify.xcodeproj" # 多个项目时需要指定target对应的xcodeproj文件
 
-target "ObjCVerify" do
-  project "ObjCVerify/ObjCVerify.xcodeproj" # 多个项目时需要指定target对应的xcodeproj文件
-  pod "WYBasisKit-ObjC", :path => KITPATH
-  
-  # 图片裁剪库
-  #pod "Mantis"
-  
-  # 照片选择库
-  #pod "ZLPhotoBrowser"
-  
-  # UIScrollView刷新header和footer
-  #pod "MJRefresh"
-  
-  # 约束
-  pod "Masonry"
-  
-  # 图片下载/缓存
-  pod "SDWebImage"
-  
-  # SDWebImage扩展库，支持显示webp格式图片
-  pod "SDWebImageWebPCoder"
-  
-  # 根据Xcode版本号指定三方库的版本号
-  if xcode_version_less_than_or_equal_to(14, 2)
-    # 网络请求
-    pod "Alamofire", "5.9.1"
-    
-    # 管理键盘弹出时的界面适配
-    pod "IQKeyboardManagerSwift", "7.0.0"
-  else
-    pod "IQKeyboardManagerSwift"
-  end
-  
-end
+    # pod "IJKPlayerKit", :path => "/Users/guanren/Desktop/官人/IJKPlayerKit"
 
-target "SwiftUIVerify" do
-  project "SwiftUIVerify/SwiftUIVerify.xcodeproj" # 多个项目时需要指定target对应的xcodeproj文件
-  pod "WYBasisKit-SwiftUI", :path => KITPATH
+    # 约束
+    pod "SnapKit"
+
+    # 图片裁剪库
+    #pod "Mantis"
+
+    # 照片选择库
+    #pod "ZLPhotoBrowser"
+
+    # UIScrollView刷新header和footer
+    #pod "MJRefresh"
+
+    # 根据Xcode版本号指定三方库的版本号
+    if xcode_version_less_than_or_equal_to(14, 2)
+      # 网络请求
+      pod "Alamofire", "5.9.1"
+
+      # 管理键盘弹出时的界面适配
+      pod "IQKeyboardManagerSwift", "7.0.0"
+    else
+      pod "IQKeyboardManagerSwift"
+    end
+
+    # Kingfisher扩展库，支持显示webp格式图片
+    pod "KingfisherWebP"
+
+  end
+
+  target "SwiftUIVerify" do
+    project "SwiftUIVerify/SwiftUIVerify.xcodeproj" # 多个项目时需要指定target对应的xcodeproj文件
+    pod "WYBasisKit-SwiftUI", :path => KITPATH
+  end
+
+  target "ObjCVerify" do
+    project "ObjCVerify/ObjCVerify.xcodeproj" # 多个项目时需要指定target对应的xcodeproj文件
+    pod "WYBasisKit-ObjC", :path => KITPATH
+
+    # 图片裁剪库
+    #pod "Mantis"
+
+    # 照片选择库
+    #pod "ZLPhotoBrowser"
+
+    # UIScrollView刷新header和footer
+    #pod "MJRefresh"
+
+    # 约束
+    pod "Masonry"
+
+    # 图片下载/缓存
+    pod "SDWebImage"
+
+    # SDWebImage扩展库，支持显示webp格式图片
+    pod "SDWebImageWebPCoder"
+
+    # 根据Xcode版本号指定三方库的版本号
+    if xcode_version_less_than_or_equal_to(14, 2)
+      # 网络请求
+      pod "Alamofire", "5.9.1"
+
+      # 管理键盘弹出时的界面适配
+      pod "IQKeyboardManagerSwift", "7.0.0"
+    else
+      pod "IQKeyboardManagerSwift"
+    end
+
+  end
+
 end
 
 # 准备执行pod命令(执行pod命令前的处理)

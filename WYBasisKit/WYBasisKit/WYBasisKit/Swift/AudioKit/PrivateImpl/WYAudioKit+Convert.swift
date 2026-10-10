@@ -250,8 +250,7 @@ extension WYAudioKit {
             // 收尾落盘并把结果切回主线程报告(正常读完和写入失败两条路共用)
             func finishWritingAndReport() {
                 writerInput.markAsFinished()
-                writer.finishWriting {
-                    // finishWriting的completion也是@Sendable闭包，writer同样经盒子取
+                writer.finishWriting { [weak self] in
                     let writer = sendableWriter.value
                     Task { @MainActor [weak self] in
                         guard let self = self else { return }
@@ -271,7 +270,7 @@ extension WYAudioKit {
                 return
             }
 
-            writerInput.requestMediaDataWhenReady(on: workQueue) {
+            writerInput.requestMediaDataWhenReady(on: workQueue) { [weak self] in
                 // 解包出本队列专用对象(整个管线只在workQueue上操作它们)
                 let writer = sendableWriter.value
                 let writerInput = sendableWriterInput.value
@@ -281,8 +280,7 @@ extension WYAudioKit {
                 // 收尾落盘并把结果切回主线程报告(正常读完和写入失败两条路共用)
                 func finishWritingAndReport() {
                     writerInput.markAsFinished()
-                    writer.finishWriting {
-                        // finishWriting的completion也是@Sendable闭包，writer同样经盒子取
+                    writer.finishWriting { [weak self] in
                         let writer = sendableWriter.value
                         Task { @MainActor [weak self] in
                             guard let self = self else { return }

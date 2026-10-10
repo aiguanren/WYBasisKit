@@ -109,9 +109,12 @@ public class WYChatBasicCell: UITableViewCell {
     
     /// 消息model
     public var message: WYChatMessageModel = WYChatMessageModel()
-    
+
     /// 布局配置
     private var config: WYBasicChatConfig = WYBasicChatConfig()
+
+    /// 已经加载过头像的URL(防同一条头像重复发起加载用)
+    private var lastLoadedAvatarURL: String = ""
     
     /// 头像控件
     public lazy var avatarView: UIImageView = {
@@ -294,8 +297,7 @@ public extension WYChatBasicCell {
             loadingView.stopAnimating()
             break
         case .sending, .notSent:
-            
-            Task {
+            Task { [weak self] in
                 try? await Task.wy_delay(0.5, cancelThrows: false, onMain: { [weak self] in
                     guard let self = self else { return }
                     
@@ -324,18 +326,23 @@ public extension WYChatBasicCell {
     }
     
     func loadImage(_ imageView: UIImageView) {
-         
-        let imageCache = try! ImageCache(name: message.sender.name, cacheDirectoryURL: createDirectory(directory: .cachesDirectory, subDirectory: "WYBasisKit/WYChatView/\(message.sender.name)"))
-        
+
         let urlString: String = message.sender.avatar.downloadPath
-        
+
+        guard urlString != lastLoadedAvatarURL else {
+            return
+        }
+
+        let imageCache = try! ImageCache(name: message.sender.name, cacheDirectoryURL: createDirectory(directory: .cachesDirectory, subDirectory: "WYBasisKit/WYChatView/\(message.sender.name)"))
+
         avatarView.kf.setImage(with: URL(string: urlString), placeholder: config.defaultAvatar, options: [.targetCache(imageCache)]) { [weak self] result in
-            
+
             guard let self = self else { return }
-            
+
             switch result {
             case .success(let source):
                 imageView.image = source.image
+                self.lastLoadedAvatarURL = urlString
                 self.message.sender.avatar.localPath = imageCache.cachePath(forKey: urlString)
                 self.message.sender.avatar.id = urlString.wy_sha256()
                 self.message.sender.avatar.name = urlString.wy_sha256()
