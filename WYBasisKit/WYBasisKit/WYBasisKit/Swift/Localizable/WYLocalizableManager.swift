@@ -337,6 +337,26 @@ public struct WYLocalizableManager {
     public static func switchLanguage(language: WYLanguage, reload: Bool = true, name: String = "Main", identifier: String = "rootViewController", handler:(() -> Void)? = nil) {
         
         guard language.stringValue != currentLanguage().stringValue else {
+            // 目标语言与当前一致：缓存的读取表可能还停在别的语言(默认值被外部改过)，此时补一次对齐并重建界面
+            if bundle?.bundlePath.contains("/\(language.stringValue).lproj") != true || kitBundle?.bundlePath.contains("/\(language.stringValue).lproj") != true {
+                if WYBasisKitConfig.localizableTable.isEmpty == false, let appBundle = localizableBundle(from: language, table: WYBasisKitConfig.localizableTable) {
+                    bundle = appBundle
+                }
+                if let appKitBundle = localizableBundle(from: language, table: WYBasisKitConfig.kitLocalizableTable) {
+                    kitBundle = appKitBundle
+                }
+                if reload == true {
+                    if let provider = rootViewControllerProvider {
+                        reloadWithProvider(provider: provider, handler: handler)
+                    }else {
+                        reloadStoryboard(name: name, identifier: identifier, handler: handler)
+                    }
+                    return
+                }
+            }
+            if handler != nil {
+                handler!()
+            }
             return
         }
         
