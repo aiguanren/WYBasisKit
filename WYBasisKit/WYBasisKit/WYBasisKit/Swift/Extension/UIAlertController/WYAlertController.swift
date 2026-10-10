@@ -147,7 +147,7 @@ extension UIAlertController {
                         handler!("", [])
                     }
                     alertController.wy_alertWindow?.rootViewController?.dismiss(animated: true, completion: nil)
-                    UIApplication.shared.wy_keyWindow.makeKeyAndVisible()
+                    alertController.wy_dismissAlertWindow()
                 })
             }
         }
@@ -174,9 +174,30 @@ extension UIAlertController {
                 }
                 handler!(alertAction.title!, texts.copy() as! Array<String>)
             }
-            UIApplication.shared.wy_keyWindow.makeKeyAndVisible()
+            alertController.wy_dismissAlertWindow()
         }
         alertController.addAction(action)
+    }
+
+    /// 弹窗关闭后收掉专用window并把弹窗前的key窗口还原回来(触摸立即放行，视觉清理延迟到dismiss动画结束，避免画面突兀)
+    func wy_dismissAlertWindow() {
+
+        let alertWindow: UIWindow? = objc_getAssociatedObject(self, &WYAssociatedKeys.wy_alertWindow) as? UIWindow
+
+        let previousWindow: UIWindow? = objc_getAssociatedObject(self, &WYAssociatedKeys.wy_previousWindow) as? UIWindow
+
+        alertWindow?.isUserInteractionEnabled = false
+
+        if let previousWindow = previousWindow, previousWindow.isHidden == false {
+            previousWindow.makeKeyAndVisible()
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+
+            alertWindow?.isHidden = true
+            alertWindow?.rootViewController = nil
+            alertWindow?.isUserInteractionEnabled = true
+        }
     }
     
     func wy_sharedActionStyle(actionStr: String!, alertStyle: UIAlertController.Style!) -> UIAlertAction.Style {
@@ -251,13 +272,14 @@ extension UIAlertController {
     
     struct WYAssociatedKeys {
         static var wy_alertWindow: UInt8 = 0
+        static var wy_previousWindow: UInt8 = 0
     }
-    
+
     var wy_alertWindow: UIWindow? {
-        
+
         get {
             var showWindow: UIWindow? = objc_getAssociatedObject(self, &WYAssociatedKeys.wy_alertWindow) as? UIWindow
-            
+
             if showWindow == nil {
                 if #available(iOS 26.0, *) {
                     showWindow = UIWindow(windowScene: UIApplication.shared.wy_keyWindowScene)
@@ -265,10 +287,12 @@ extension UIAlertController {
                     showWindow = UIWindow(frame: UIScreen.main.bounds)
                 }
                 showWindow?.rootViewController = UIViewController()
+                showWindow?.windowLevel = .alert
+                objc_setAssociatedObject(self, &WYAssociatedKeys.wy_previousWindow, UIApplication.shared.wy_keyWindow, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
                 objc_setAssociatedObject(self, &WYAssociatedKeys.wy_alertWindow, showWindow, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
             }
             showWindow?.makeKeyAndVisible()
-            
+
             return showWindow
         }
     }
