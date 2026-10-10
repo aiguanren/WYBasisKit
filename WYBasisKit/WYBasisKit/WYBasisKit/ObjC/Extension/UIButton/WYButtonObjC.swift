@@ -117,7 +117,8 @@ import WYBasisKitSwift
     }
     
     /**
-     *  设置按钮内容的四周边距(替代系统已废弃的contentEdgeInsets，内部走运行时赋值保证全系统版本行为一致且无过时警告)
+     *  设置按钮内容的四周边距
+     *
      *  @param insets 四周内边距
      */
     @objc(wy_contentInsets:)

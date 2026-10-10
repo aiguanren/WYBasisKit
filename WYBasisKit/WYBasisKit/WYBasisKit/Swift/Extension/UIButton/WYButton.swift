@@ -168,7 +168,9 @@ public extension UIButton {
      *  @param insets 四周内边距
      */
     func wy_contentInsets(_ insets: UIEdgeInsets) {
-        setValue(insets, forKeyPath: #keyPath(UIButton.contentEdgeInsets))
+        var buttonConfiguration = configuration ?? UIButton.Configuration.borderless()
+        buttonConfiguration.contentInsets = NSDirectionalEdgeInsets(top: insets.top, leading: insets.left, bottom: insets.bottom, trailing: insets.right)
+        configuration = buttonConfiguration
     }
 
     /**
