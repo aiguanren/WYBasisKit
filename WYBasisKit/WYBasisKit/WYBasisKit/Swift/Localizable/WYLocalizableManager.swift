@@ -200,9 +200,12 @@ public func WYLocalized(_ key: String, table: String = WYBasisKitConfig.localiza
 }
 
 public struct WYLocalizableManager {
-    
+
     private static var bundle: Bundle? = localizableBundle(table: WYBasisKitConfig.localizableTable)
     private static var kitBundle: Bundle? = localizableBundle(table: WYBasisKitConfig.kitLocalizableTable)
+
+    /// 纯代码工程注册的根控制器构建闭包(切换语言后用它重建界面；没注册时回落Storyboard重建方式)
+    public static var rootViewControllerProvider: (() -> UIViewController)?
     
     /// 当前正在使用的语言
     public static func currentLanguage() -> WYLanguage {
@@ -358,7 +361,41 @@ public struct WYLocalizableManager {
             }
             return
         }
+
+        if let provider = rootViewControllerProvider {
+            reloadWithProvider(provider: provider, handler: handler)
+            return
+        }
         reloadStoryboard(name: name, identifier: identifier, handler: handler)
+    }
+
+    /// 用注册的根控制器构建闭包重建界面(纯代码+SceneDelegate工程走这里)
+    private static func reloadWithProvider(provider: () -> UIViewController, handler:(() -> Void)? = nil) {
+
+        // 优先找前台活跃场景的keyWindow，找不到再回落AppDelegate.window
+        var targetWindow: UIWindow?
+        if #available(iOS 13.0, *) {
+            if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+                if #available(iOS 15.0, *) {
+                    targetWindow = scene.keyWindow
+                }
+                if targetWindow == nil {
+                    targetWindow = scene.windows.first
+                }
+            }
+        }
+        if targetWindow == nil {
+            targetWindow = UIApplication.shared.delegate?.window ?? nil
+        }
+
+        if let window = targetWindow {
+            window.rootViewController = provider()
+            window.makeKeyAndVisible()
+        }
+
+        if handler != nil {
+            handler!()
+        }
     }
     
     /**
