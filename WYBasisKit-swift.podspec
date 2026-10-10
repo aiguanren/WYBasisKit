@@ -1,0 +1,453 @@
+# 定义podspec执行路径(远程验证时路径是从WYBasisKit开始的，所以远程验证时需要填入podspec文件的路径：WYBasisKit/WYBasisKit/WYBasisKit/)
+kit_path = "WYBasisKit/WYBasisKit/WYBasisKit/"
+
+# 国际化资源需要的Bundle
+localizable_bundle = "#{kit_path}Swift/Localizable/WYLocalizable.bundle"
+
+Pod::Spec.new do |kit|
+  kit.name         = "WYBasisKit-swift"
+  kit.version      = "26.9.1"
+  kit.summary      = "WYBasisKit 不仅可以帮助开发者快速构建一个工程，还有基于常用网络框架和系统API而封装的各种实用方法、扩展，开发者只需简单的调用API就可以快速实现相应功能， 大幅提高开发效率。"
+  kit.description  = <<-DESC
+    Localizable: 国际化解决方案
+    Extension: 各种系统扩展
+    Networking: 网络请求解决方案
+    Activity: 活动指示器
+    Storage: 本地存储
+    Layout: 各种自定义控件(注意：ChatView尚未开发完毕，敬请期待)
+    Codable: 数据解析
+    Authorization: 各种权限请求与判断
+    LogManager: 日志打印，日志导出等日志管理相关
+    AudioKit: 音频录制与播放
+    MethodSwizzler: 内部使用，第三方请勿调用
+  DESC
+  
+  kit.homepage     = "https://github.com/aiguanren/WYBasisKit"
+  kit.license      = { :type => "MIT", :file => "#{kit_path}License.md" }
+  kit.author             = { "官人" => "aiguanren@icloud.com" }
+  kit.ios.deployment_target = "13.0"
+  kit.source       = { :git => "https://github.com/aiguanren/WYBasisKit.git", :tag => "#{kit.version}" }
+  #kit.source       = { :svn => "http://192.168.xxx.xxx:xxxx/xxx/xxx/WYBasiskit"}
+  #kit.source       = { :http => "http://192.168.xxx.xxx:xxxx/xxx/xxx/WYBasiskit.zip" }
+  # 隐私清单只在pod根级保留一份，声明整个pod所有subspec代码实际用到的需申报API，所有subspec最终都会合编进同一个framework，且根级resource_bundles不受subspec选装影响(装哪个subspec都会带上)，所以各subspec目录下不需要单独存放清单文件
+  kit.resource_bundles = {"WYBasisKitSwift" => [
+    "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+  ]}
+  kit.swift_versions = ["5.0"]
+  #kit.swift_version = "5.0"
+  kit.requires_arc = true
+  
+  # 设置框架类型，若设为 true（静态框架），能优化 App 启动速度，避免 +load 方法丢失、分类找不到等问题，代码直接链接进主二进制，无额外动态库加载开销; 若设为 false（动态框架），则可被多个扩展（Extension）共享，减少主二进制体积，但会略微增加启动时间，且可能影响 category 加载; 作为Cocoapods库，我们不建议在这里写死为True或False，而是建议让用户在 Podfile 中通过 use_frameworks! :linkage => :static/:dynamic 自行控制链接方式，因为不同项目对包体积、启动速度、扩展共享的需求不同，由 App 层面统一控制更灵活，避免库作者强制选择带来的局限性。
+  #kit.static_framework = true 
+  
+  # 这里需要忽略前面的lib和后面的tbd，例如libz.tbd直接写为z即可，如果是.a则需要写全，如："xxx.a"
+  # kit.libraries = "z", "xxx.a"  # 这里的.a是指系统的
+  # kit.vendored_libraries = "xxx.a"  # 这里的.a是指第三方或者自己自定义的
+  # 手动指定模块名
+  kit.module_name  = "WYBasisKitSwift" 
+  
+  # 指定默认模块，不指定则表示全部模块
+  # kit.default_subspecs = [
+  #   "Config",
+  #   "LogManager",
+  #   "Extension",
+  #   "Storage",
+  #   "EventHandler"
+  # ]
+
+  # 安装时执行配置脚本(如需Push到Cocoapods远程，不可使用此方法，会因为安全原因被Cocoapods拒绝)
+  # kit.prepare_command = <<-CMD
+  #   bash #{kit_path}WYBasisKit.sh
+  #   python3 #{kit_path}WYBasisKit.py
+  # CMD
+
+  # 编译时执行配置脚本(该脚本仅针对当前pod库target编译时生效，主工程target编译后不会执行)
+  # kit.script_phase = {
+  #   :name => "WYBasisKit",
+  #   :script => "python3 #{kit_path}WYBasisKit.py",
+  #   :execution_position => :before_compile
+  # }
+
+  # 主工程设置
+  # kit.user_target_xcconfig = {
+  #   "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64" # 跟多常见设置可以参照kit.pod_target_xcconfig
+  # }
+
+  # Pod工程设置
+  # kit.pod_target_xcconfig = {
+  #   "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "arm64", # 过滤模拟器arm64，解决M系列芯片MAC上模拟器架构问题
+  #   "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) WYBasisKit_SUPPORTS_SIMULATOR_FULL=1",  # 用于 Objective-C 的 #if 判断
+  #   "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) WYBasisKit_SUPPORTS_SIMULATOR_FULL", # 用于 Swift 的 #if 判断（注意不带 =1，就是直接使用宏名即可）
+  #   "OTHER_LDFLAGS[sdk=iphonesimulator*]" => "", # 模拟器环境下清空与 aaa.xcframework 相关的链接标记，避免链接导致的验证不通过与编译错误(如果aaa.xcframework仅支持真机又想让模拟器环境编译通过就需要设置)
+  #   "LD_RUNPATH_SEARCH_PATHS[sdk=iphonesimulator*]" => "" # 模拟器环境下清空与 aaa.xcframework 相关的运行路径设置，避免链接导致的验证不通过与编译错误(如果aaa.xcframework仅支持真机又想让模拟器环境编译通过就需要设置)
+  # }
+
+  # 排除匹配某个文件夹下面的所有文件和文件夹，如排除匹配aaa文件夹下面的所有文件和文件夹
+  # kit.exclude_files = [
+  #   "#{kit_path}aaa/**/*"
+  # ] 
+
+  # 放置Assets.xcassets到pods中方便图片资源加载(与.Bundle互补)
+  # kit.resource_bundles = {
+  #   'WYBasisKitSwift' => [
+  #             'Assets/Assets.xcassets',
+  #             ]
+  # } 
+
+  kit.subspec "MethodSwizzler" do |methodSwizzler|
+    methodSwizzler.source_files = [
+      "#{kit_path}Swift/MethodSwizzler/**/*.{swift,h,m}",
+      "#{kit_path}Swift/Extension/Task/**/*.{swift,h,m}"
+    ]
+    methodSwizzler.resource_bundles = {"WYBasisKitSwiftMethodSwizzler" => [
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+    ]}
+    methodSwizzler.frameworks = "Foundation", "UIKit"
+    methodSwizzler.dependency "WYBasisKit-swift/LogManager"
+    methodSwizzler.dependency "WYBasisKit-swift/Localizable"
+  end
+
+  kit.subspec "Config" do |config|
+    config.source_files = [
+      "#{kit_path}Swift/Config/**/*.{swift,h,m}"
+    ]
+    config.resource_bundles = {"WYBasisKitSwiftConfig" => [
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+    ]}
+    config.frameworks = "Foundation", "UIKit"
+  end
+
+  kit.subspec "LogManager" do |logManager|
+    logManager.source_files = [
+      "#{kit_path}Swift/LogManager/**/*.{swift,h,m}",
+      "#{kit_path}Swift/Extension/UIApplication/**/*.{swift,h,m}",
+      "#{kit_path}Swift/Extension/Task/**/*.{swift,h,m}"
+    ]
+    logManager.resource_bundles = {"WYBasisKitSwiftLogManager" => [
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+    ]}
+    logManager.frameworks = "Foundation", "UIKit"
+    logManager.dependency "WYBasisKit-swift/Localizable"
+  end
+  
+  kit.subspec "Localizable" do |localizable|
+    localizable.source_files = [
+      "#{kit_path}Swift/Localizable/**/*.{swift,h,m}"
+    ]
+    localizable.resource_bundles = {"WYBasisKitSwiftLocalizable" => [
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+    ]}
+    localizable.frameworks = "Foundation", "UIKit"
+    localizable.dependency "WYBasisKit-swift/Config"
+  end
+  
+  kit.subspec "Extension" do |extension|
+    extension.source_files = [
+      "#{kit_path}Swift/Extension/**/*.{swift,h,m}"
+    ]
+    extension.resources = [localizable_bundle]
+    extension.resource_bundles = {"WYBasisKitSwiftExtension" => [
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+    ]}
+    extension.frameworks = "Foundation", "UIKit", "LocalAuthentication", "Photos", "CoreFoundation", "AudioToolbox", "CoreMotion", "CoreTelephony"
+    extension.dependency "WYBasisKit-swift/Localizable"
+    extension.dependency "WYBasisKit-swift/Config"
+    extension.dependency "WYBasisKit-swift/LogManager"
+    extension.dependency "WYBasisKit-swift/MethodSwizzler"
+  end
+  
+  kit.subspec "Codable" do |codable|
+    codable.source_files = [
+      "#{kit_path}Swift/Codable/**/*.{swift,h,m}"
+    ]
+    codable.resource_bundles = {"WYBasisKitSwiftCodable" => [
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+    ]}
+    codable.frameworks = "Foundation", "UIKit"
+  end
+  
+  kit.subspec "Networking" do |networking|
+    networking.source_files = [
+      "#{kit_path}Swift/Networking/**/*.{swift,h,m}",
+      "#{kit_path}Swift/Extension/UIAlertController/**/*.{swift,h,m}",
+      "#{kit_path}Swift/Extension/UIApplication/**/*.{swift,h,m}",
+      "#{kit_path}Swift/Extension/Task/**/*.{swift,h,m}"
+    ]
+    networking.resources = [localizable_bundle]
+    networking.resource_bundles = {"WYBasisKitSwiftNetworking" => [
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+    ]}
+    networking.frameworks = "Foundation", "UIKit", "Network"
+    networking.dependency "WYBasisKit-swift/Localizable"
+    networking.dependency "WYBasisKit-swift/Storage"
+    networking.dependency "WYBasisKit-swift/Codable"
+    networking.dependency "Moya"
+  end
+  
+  kit.subspec "Activity" do |activity|
+    activity.source_files = [
+      "#{kit_path}Swift/Activity/**/*.{swift,h,m}",
+      "#{kit_path}Swift/Extension/UIView/**/*.{swift,h,m}",
+      "#{kit_path}Swift/Extension/UIViewController/**/*.{swift,h,m}",
+      "#{kit_path}Swift/Extension/AttributedString/**/*.{swift,h,m}",
+      "#{kit_path}Swift/Extension/UILabel/**/*.{swift,h,m}",
+      "#{kit_path}Swift/Extension/String/**/*.{swift,h,m}",
+      "#{kit_path}Swift/Extension/UIImage/**/*.{swift,h,m}",
+      "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",
+      "#{kit_path}Swift/Config/**/*.{swift}"
+    ]
+    activity.resources = [
+      localizable_bundle,
+      "#{kit_path}Swift/Activity/WYActivity.bundle"
+    ]
+    activity.resource_bundles = {"WYBasisKitSwiftActivity" => [
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+    ]}
+    activity.frameworks = "Foundation", "UIKit"
+    activity.dependency "WYBasisKit-swift/Localizable"
+    activity.dependency "WYBasisKit-swift/LogManager"
+    activity.dependency "WYBasisKit-swift/MethodSwizzler"
+  end
+  
+  kit.subspec "Storage" do |storage|
+    storage.source_files = [
+      "#{kit_path}Swift/Storage/**/*.{swift,h,m}"
+    ]
+    storage.resource_bundles = {"WYBasisKitSwiftStorage" => [
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+    ]}
+    storage.frameworks = "Foundation", "UIKit"
+  end
+
+  kit.subspec "EventHandler" do |eventHandler|
+    eventHandler.source_files = [
+      "#{kit_path}Swift/EventHandler/**/*.{swift,h,m}"
+    ]
+    eventHandler.resource_bundles = {"WYBasisKitSwiftEventHandler" => [
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+    ]}
+    eventHandler.frameworks = "Foundation"
+  end
+
+  kit.subspec "AudioKit" do |audioKit|
+    audioKit.source_files = [
+      "#{kit_path}Swift/AudioKit/**/*.{swift,h,m}"
+    ] 
+    audioKit.resource_bundles = {"WYBasisKitSwiftAudioKit" => [
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+    ]}
+    audioKit.frameworks = "Foundation", "AVFoundation", "Combine", "QuartzCore"
+    audioKit.dependency "WYBasisKit-swift/Authorization/Microphone"
+    audioKit.dependency "WYBasisKit-swift/Localizable"
+    audioKit.resources = [localizable_bundle]
+  end
+  
+  kit.subspec "Authorization" do |authorization|
+    authorization.resource_bundles = {"WYBasisKitSwiftAuthorization" => [
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+    ]}
+    authorization.subspec "Camera" do |camera|
+      camera.source_files = [
+        "#{kit_path}Swift/Authorization/Camera/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIAlertController/**/*.{swift,h,m}"
+      ]
+      camera.resources = [localizable_bundle]
+      camera.resource_bundles = {"WYBasisKitSwiftAuthorizationCamera" => [
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+      ]}
+      camera.frameworks = "AVFoundation", "UIKit", "Photos"
+      camera.dependency "WYBasisKit-swift/Localizable"
+      camera.dependency "WYBasisKit-swift/LogManager"
+    end
+    
+    authorization.subspec "Biometric" do |biometric|
+      biometric.source_files = [
+        "#{kit_path}Swift/Authorization/Biometric/**/*.{swift,h,m}"
+      ]
+      biometric.resources = [localizable_bundle]
+      biometric.resource_bundles = {"WYBasisKitSwiftAuthorizationBiometric" => [
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+      ]}
+      biometric.frameworks = "Foundation", "LocalAuthentication"
+      biometric.dependency "WYBasisKit-swift/Localizable"
+      biometric.dependency "WYBasisKit-swift/LogManager"
+    end
+    
+    authorization.subspec "Contacts" do |contacts|
+      contacts.source_files = [
+        "#{kit_path}Swift/Authorization/Contacts/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIAlertController/**/*.{swift,h,m}"
+      ]
+      contacts.resources = [localizable_bundle]
+      contacts.resource_bundles = {"WYBasisKitSwiftAuthorizationContacts" => [
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+      ]}
+      contacts.frameworks = "Contacts", "UIKit"
+      contacts.dependency "WYBasisKit-swift/Localizable"
+      contacts.dependency "WYBasisKit-swift/LogManager"
+    end
+    
+    authorization.subspec "PhotoAlbums" do |photoAlbums|
+      photoAlbums.source_files = [
+        "#{kit_path}Swift/Authorization/PhotoAlbums/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIAlertController/**/*.{swift,h,m}"
+      ]
+      photoAlbums.resources = [localizable_bundle]
+      photoAlbums.resource_bundles = {"WYBasisKitSwiftAuthorizationPhotoAlbums" => [
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+      ]}
+      photoAlbums.frameworks = "Photos", "UIKit"
+      photoAlbums.dependency "WYBasisKit-swift/Localizable"
+      photoAlbums.dependency "WYBasisKit-swift/LogManager"
+    end
+    
+    authorization.subspec "Microphone" do |microphone|
+      microphone.source_files = [
+        "#{kit_path}Swift/Authorization/Microphone/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIAlertController/**/*.{swift,h,m}"
+      ]
+      microphone.resources = [localizable_bundle]
+      microphone.resource_bundles = {"WYBasisKitSwiftAuthorizationMicrophone" => [
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+      ]}
+      microphone.frameworks = "Photos", "UIKit"
+      microphone.dependency "WYBasisKit-swift/Localizable"
+      microphone.dependency "WYBasisKit-swift/LogManager"
+    end
+    
+    authorization.subspec "SpeechRecognition" do |speechRecognition|
+      speechRecognition.source_files = [
+        "#{kit_path}Swift/Authorization/SpeechRecognition/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIAlertController/**/*.{swift,h,m}"
+      ]
+      speechRecognition.resources = [localizable_bundle]
+      speechRecognition.resource_bundles = {"WYBasisKitSwiftAuthorizationSpeechRecognition" => [
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+      ]}
+      speechRecognition.frameworks = "Speech", "UIKit"
+      speechRecognition.dependency "WYBasisKit-swift/Localizable"
+      speechRecognition.dependency "WYBasisKit-swift/LogManager"
+    end
+
+    authorization.subspec "Location" do |location|
+      location.source_files = [
+        "#{kit_path}Swift/Authorization/Location/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIAlertController/**/*.{swift,h,m}"
+      ]
+      location.resources = [localizable_bundle]
+      location.resource_bundles = {"WYBasisKitSwiftAuthorizationLocation" => [
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+      ]}
+      location.frameworks = "UIKit", "Foundation", "CoreLocation"
+      location.dependency "WYBasisKit-swift/Localizable"
+      location.dependency "WYBasisKit-swift/LogManager"
+    end
+  end
+  
+  kit.subspec "Layout" do |layout|
+    layout.resource_bundles = {"WYBasisKitSwiftLayout" => [
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+    ]}
+    layout.subspec "AirBubbleView" do |airBubble|
+      airBubble.source_files = [
+        "#{kit_path}Swift/Layout/AirBubbleView/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIView/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIViewController/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIApplication/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Config/**/*.{swift}"
+      ]
+      airBubble.resource_bundles = {"WYBasisKitSwiftLayoutAirBubbleView" => [
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+      ]}
+      airBubble.frameworks = "Foundation", "UIKit"
+      airBubble.dependency "WYBasisKit-swift/Localizable"
+      airBubble.dependency "WYBasisKit-swift/LogManager"
+      airBubble.dependency "WYBasisKit-swift/MethodSwizzler"
+    end
+
+    layout.subspec "SoundWavesView" do |soundWavesView|
+      soundWavesView.source_files = [
+        "#{kit_path}Swift/Layout/SoundWavesView/**/*.{swift,h,m}",
+      ]
+      soundWavesView.resource_bundles = {"WYBasisKitSwiftLayoutSoundWavesView" => [
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+      ]}
+      soundWavesView.frameworks = "Foundation", "UIKit"
+    end
+    
+    layout.subspec "PagingView" do |pagingView|
+      pagingView.source_files = [
+        "#{kit_path}Swift/Layout/PagingView/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIView/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIButton/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIColor/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIImage/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIFont/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIViewController/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Config/**/*.{swift,h,m}"
+      ]
+      pagingView.resource_bundles = {"WYBasisKitSwiftLayoutPagingView" => [
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+      ]}
+      pagingView.frameworks = "Foundation", "UIKit"
+      pagingView.dependency "WYBasisKit-swift/LogManager"
+      pagingView.dependency "WYBasisKit-swift/MethodSwizzler"
+    end
+
+    layout.subspec "ContentScrollView" do |contentScrollView|
+      contentScrollView.source_files = [
+        "#{kit_path}Swift/Layout/ContentScrollView/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIView/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIViewController/**/*.{swift,h,m}",
+        "#{kit_path}Swift/Extension/UIScrollView/**/*.{swift,h,m}"
+      ]
+      contentScrollView.resource_bundles = {"WYBasisKitSwiftLayoutContentScrollView" => [
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+      ]}
+      contentScrollView.frameworks = "Foundation", "UIKit"
+      contentScrollView.dependency "WYBasisKit-swift/Localizable"
+      contentScrollView.dependency "WYBasisKit-swift/LogManager"
+      contentScrollView.dependency "WYBasisKit-swift/MethodSwizzler"
+    end
+    
+    layout.subspec "ChatView" do |chatView|
+      chatView.source_files = [
+        "#{kit_path}Swift/Layout/ChatView/**/*.{swift,h,m}",
+      ]
+      chatView.resources = [
+        "#{kit_path}Swift/Layout/ChatView/WYChatView.bundle"
+      ]
+      chatView.resource_bundles = {"WYBasisKitSwiftLayoutChatView" => [
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+      ]}
+      chatView.frameworks = "Foundation", "UIKit"
+      chatView.dependency "WYBasisKit-swift/Extension"
+      chatView.dependency "WYBasisKit-swift/Localizable"
+      chatView.dependency "WYBasisKit-swift/Authorization/Microphone"
+      chatView.dependency "WYBasisKit-swift/Storage"
+      chatView.dependency "WYBasisKit-swift/LogManager"
+      chatView.dependency "WYBasisKit-swift/AudioKit"
+      chatView.dependency "WYBasisKit-swift/Layout/AirBubbleView"
+      chatView.dependency "WYBasisKit-swift/Layout/SoundWavesView"
+      chatView.dependency "SnapKit"
+      chatView.dependency "Kingfisher"
+    end
+
+    layout.subspec "MediaPlayer" do |mediaPlayer|
+      # .md文件是MediaPlayer中IJKOptions的查阅文档，匹配进source_files才能显示在Pods工程导航器里，但是此时会产生警告，于是再用EXCLUDED_SOURCE_FILE_NAMES让构建按文件名跳过它来消除警告(source_files匹配的文件都会被加进Compile Sources，md无编译规则会触发no rule to process警告)
+      mediaPlayer.source_files = [
+        "#{kit_path}Swift/Layout/MediaPlayer/**/*.{swift,h,m,md}"
+      ]
+      mediaPlayer.resource_bundles = {"WYBasisKitSwiftMediaPlayer" => [
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+      ]}
+      mediaPlayer.pod_target_xcconfig = {
+        "EXCLUDED_SOURCE_FILE_NAMES" => "$(inherited) *.md"
+      }
+      mediaPlayer.dependency "IJKPlayerKit", "1.1.0"
+    end
+  end
+end
