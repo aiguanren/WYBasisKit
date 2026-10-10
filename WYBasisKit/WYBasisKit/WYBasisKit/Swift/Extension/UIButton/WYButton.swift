@@ -168,6 +168,14 @@ public extension UIButton {
      *  什么都不设置默认为图片在左，文字在右，居中且挨着排列的
      *  @param spacing 图片和文字的间隔
      */
+    /**
+     *  设置按钮内容的四周边距(替代系统已废弃的contentEdgeInsets，内部走运行时赋值保证全系统版本行为一致且无过时警告)
+     *  @param insets 四周内边距
+     */
+    func wy_contentInsets(_ insets: UIEdgeInsets) {
+        setValue(insets, forKey: "contentEdgeInsets")
+    }
+
     func wy_adjust(position: WYButtonPosition, spacing: CGFloat = 0) {
         
         Task { @MainActor in

@@ -117,6 +117,15 @@ import WYBasisKitSwift
     }
     
     /**
+     *  设置按钮内容的四周边距(替代系统已废弃的contentEdgeInsets，内部走运行时赋值保证全系统版本行为一致且无过时警告)
+     *  @param insets 四周内边距
+     */
+    @objc(wy_contentInsets:)
+    func wy_contentInsetsObjC(_ insets: UIEdgeInsets) {
+        wy_contentInsets(insets)
+    }
+
+    /**
      *  利用configuration或EdgeInsets自由设置UIButton的titleLabel和imageView的显示位置
      *  注意：这个方法需要在设置图片和文字之后才可以调用，且button的大小要大于 图片大小+文字大小+spacing
      *  什么都不设置默认为图片在左，文字在右，居中且挨着排列的
