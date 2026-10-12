@@ -123,3 +123,4 @@
 "暂停尚未完成，已自动排队，暂停落定后立即恢复" = "Jeda belum selesai, otomatis masuk antrean, akan dilanjutkan segera setelah jeda selesai";
 
 "源文件已是%@格式，跳过转换" = "File sumber sudah dalam format %@, konversi dilewati";
+"日志" = "Log";

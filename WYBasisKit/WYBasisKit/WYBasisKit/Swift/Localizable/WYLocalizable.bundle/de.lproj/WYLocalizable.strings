@@ -111,3 +111,4 @@
 "暂停尚未完成，已自动排队，暂停落定后立即恢复" = "Pause noch nicht abgeschlossen, automatisch eingereiht, wird fortgesetzt, sobald die Pause abgeschlossen ist";
 
 "源文件已是%@格式，跳过转换" = "Die Quelldatei liegt bereits im Format %@ vor, Konvertierung übersprungen";
+"日志" = "Log";

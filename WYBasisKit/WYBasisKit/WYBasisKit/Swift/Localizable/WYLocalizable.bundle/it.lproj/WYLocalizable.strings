@@ -123,3 +123,4 @@
 "暂停尚未完成，已自动排队，暂停落定后立即恢复" = "La pausa non è ancora completata, messo in coda automaticamente, verrà ripreso appena la pausa sarà completata";
 
 "源文件已是%@格式，跳过转换" = "Il file sorgente è già in formato %@, conversione ignorata";
+"日志" = "Log";

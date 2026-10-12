@@ -123,3 +123,4 @@
 "暂停尚未完成，已自动排队，暂停落定后立即恢复" = "Pauze nog niet voltooid, automatisch in de wachtrij geplaatst, wordt hervat zodra de pauze is voltooid";
 
 "源文件已是%@格式，跳过转换" = "Bronbestand is al in %@-indeling, conversie overgeslagen";
+"日志" = "Log";

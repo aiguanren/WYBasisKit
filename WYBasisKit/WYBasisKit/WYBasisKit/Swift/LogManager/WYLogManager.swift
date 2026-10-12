@@ -95,7 +95,7 @@ public struct WYLogManager {
         return docURL.appendingPathComponent("\(resolvedFileName()).log").path
     }
 
-    /// 自定义日志文件名(不含扩展名，设置后日志文件名不再取App名；启动期主线程一次写入、之后各线程只读)
+    /// 自定义日志文件名(不含扩展名；不设置时默认名=本地化App名+本地化"日志"词，如中文名"语音工坊"生成"语音工坊日志"、英文名"VoiceFactory"生成"VoiceFactoryLog"；启动期主线程一次写入、之后各线程只读)
     nonisolated(unsafe) public static var logFileName: String?
 
     /// 日志加密模式(默认aesGCM，加密后文件内容与导出附件均为密文，只能通过decryptedLogText()或配套解密脚本阅读；启动期主线程一次写入、之后各线程只读)
@@ -244,22 +244,29 @@ public struct WYLogManager {
         return WYCryptor.pbkdf2(password: bundleId, salt: internalSeedValue, rounds: 4096, length: 32) ?? Data((bundleId + internalSeedValue).utf8)
     }
 
-    /// 解析日志文件名(自定义名优先，未设置时取App名，纯中文等名字清洗后只剩下划线时回落到包名末段，避免生成"____.log"这种不可读文件名)
+    /// 解析日志文件名(自定义名优先；默认名=本地化App名+本地化"日志"词，App名缺失或清洗为空回落到包名末段)
     private static func resolvedFileName() -> String {
         let fallbackName = Bundle.main.bundleIdentifier?.components(separatedBy: ".").last ?? "App"
-        let wordCharacters = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 
         if let custom = logFileName?.trimmingCharacters(in: .whitespacesAndNewlines), custom.isEmpty == false {
-            let sanitized = custom.replacingOccurrences(of: "[^a-zA-Z0-9_\\-]", with: "_", options: .regularExpression)
-            return sanitized.rangeOfCharacter(from: wordCharacters) != nil ? sanitized : fallbackName
+            let sanitized = sanitizeFileName(custom)
+            return sanitized.isEmpty == false ? sanitized : fallbackName
         }
 
-        let appName = Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String
+        let displayName = (Bundle.main.localizedInfoDictionary?["CFBundleDisplayName"] as? String)
+        ?? Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String
         ?? Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String
-        ?? "App"
 
-        let sanitizedName = appName.replacingOccurrences(of: "[^a-zA-Z0-9_\\-]", with: "_", options: .regularExpression)
-        return sanitizedName.rangeOfCharacter(from: wordCharacters) != nil ? sanitizedName : fallbackName
+        let sanitizedName = sanitizeFileName(displayName ?? "")
+        let baseName = sanitizedName.isEmpty == false ? sanitizedName : fallbackName
+        return baseName + WYLocalized("日志")
+    }
+
+    /// 清洗文件名(只去掉路径不友好字符与换行控制符，各语言文字与数字都保留)
+    private static func sanitizeFileName(_ name: String) -> String {
+        let invalidCharacters = CharacterSet(charactersIn: "/\\:?%*|\"<>").union(.newlines).union(.controlCharacters)
+        let cleaned = name.components(separatedBy: invalidCharacters).joined(separator: "_")
+        return cleaned.trimmingCharacters(in: .whitespaces)
     }
 
     /**

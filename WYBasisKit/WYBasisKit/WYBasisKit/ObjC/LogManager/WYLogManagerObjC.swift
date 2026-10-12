@@ -79,7 +79,7 @@ import WYBasisKitSwift
         return WYLogManager.logFilePath
     }
 
-    /// 自定义日志文件名(不含扩展名，设置后日志文件名不再取App名；启动期主线程一次写入、之后各线程只读)
+    /// 自定义日志文件名(不含扩展名；不设置时默认名=本地化App名+本地化"日志"词，如中文名"语音工坊"生成"语音工坊日志"、英文名"VoiceFactory"生成"VoiceFactoryLog"；启动期主线程一次写入、之后各线程只读)
     @objc public static var logFileName: String? {
         get {
             return WYLogManager.logFileName

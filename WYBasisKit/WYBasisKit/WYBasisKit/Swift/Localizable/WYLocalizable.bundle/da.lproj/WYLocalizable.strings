@@ -123,3 +123,4 @@
 "暂停尚未完成，已自动排队，暂停落定后立即恢复" = "Paussen er endnu ikke afsluttet, sat i kø automatisk, genoptages så snart pausen er afsluttet";
 
 "源文件已是%@格式，跳过转换" = "Kildefilen er allerede i %@-format, konvertering sprunget over";
+"日志" = "Log";
