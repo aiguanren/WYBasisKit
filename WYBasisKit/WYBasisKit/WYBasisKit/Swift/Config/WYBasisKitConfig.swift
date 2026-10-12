@@ -56,7 +56,7 @@ public struct WYBasisKitConfig {
     public static var screenHeightRatio: WYRatio = WYRatio(min: 0.5, max: 1.5)
     
     /// 设置国际化语言读取表(如果有Bundle，则要求Bundle名与表名一致，否则会读取失败)
-    public static var localizableTable: String = ""
+    public nonisolated(unsafe) static var localizableTable: String = ""
     
     /// 设置WYBasisKit内部国际化语言读取表，设置后需自己将WYLocalizable表中的国际化文本写入自定义的表中(如果有Bundle，则要求Bundle名与表名一致，否则会读取失败)，默认使用自带的表：WYLocalizable
     public static var kitLocalizableTable: String = "WYLocalizable"
