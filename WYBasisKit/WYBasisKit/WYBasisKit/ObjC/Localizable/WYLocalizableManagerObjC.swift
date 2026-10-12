@@ -168,7 +168,7 @@ import WYBasisKitSwift
      *  @param identifier  Storyboard文件的Identifier
      *
      */
-    @objc public static func switchLanguage(language: WYLanguageObjC, reload: Bool = true, name: String? = nil, identifier: String? = nil, handler:(() -> Void)? = nil) {
+    @MainActor @objc public static func switchLanguage(language: WYLanguageObjC, reload: Bool = true, name: String? = nil, identifier: String? = nil, handler:(() -> Void)? = nil) {
         
         let switchLanguage: WYLanguage = WYLanguage(rawValue: language.rawValue) ?? .zh_Hans
         
