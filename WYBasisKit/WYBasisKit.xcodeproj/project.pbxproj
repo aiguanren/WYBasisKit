@@ -117,6 +117,7 @@
 		588D00812E5FEB570034A1CF /* AutoLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588D00802E5FEB570034A1CF /* AutoLayout.swift */; };
 		58B415B92FE2486700C4D1AA /* WYSoundAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B415B82FE2486700C4D1AA /* WYSoundAnimationView.swift */; };
 		58B46FEA2E8C080700D04BCA /* WYLogManagerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B46FE92E8C080700D04BCA /* WYLogManagerObjC.swift */; };
+		B61CA42A4DA447BCE604C620 /* WYCryptorObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 684CA039106944C16D6C83B2 /* WYCryptorObjC.swift */; };
 		58B470462E8D2CCD00D04BCA /* WYEventHandlerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B470452E8D2CCD00D04BCA /* WYEventHandlerObjC.swift */; };
 		58B6DAE8305FA87D00FEBC08 /* WYLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B6DAE6305FA87D00FEBC08 /* WYLabel.swift */; };
 		58B6DAF330612E5B00FEBC08 /* WYAudioKit+Convert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B6DAEC30612E5B00FEBC08 /* WYAudioKit+Convert.swift */; };
@@ -179,6 +180,7 @@
 		58C68DE32E84E436005FD054 /* WYFloatObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68C612E84E436005FD054 /* WYFloatObjC.swift */; };
 		58C68DE42E84E436005FD054 /* WYNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68D7D2E84E436005FD054 /* WYNetworkManager.swift */; };
 		58C68DE52E84E436005FD054 /* WYLogManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68D792E84E436005FD054 /* WYLogManager.swift */; };
+		682A1481F5DBCD823E4E7C2F /* WYCryptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AC33A9B8043652655C0FF86 /* WYCryptor.swift */; };
 		58C68DE72E84E436005FD054 /* WYCameraAuthorizationObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68C412E84E436005FD054 /* WYCameraAuthorizationObjC.swift */; };
 		58C68DE82E84E436005FD054 /* WYChatVideoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68D5C2E84E436005FD054 /* WYChatVideoCell.swift */; };
 		58C68DE92E84E436005FD054 /* WYDouble.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68CF52E84E436005FD054 /* WYDouble.swift */; };
@@ -372,6 +374,7 @@
 		588797C1300A2F5400FDDE9C /* WYContentScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYContentScrollView.swift; sourceTree = "<group>"; };
 		588D00802E5FEB570034A1CF /* AutoLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoLayout.swift; sourceTree = "<group>"; };
 		58B415B82FE2486700C4D1AA /* WYSoundAnimationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYSoundAnimationView.swift; sourceTree = "<group>"; };
+		684CA039106944C16D6C83B2 /* WYCryptorObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCryptorObjC.swift; sourceTree = "<group>"; };
 		58B46FE92E8C080700D04BCA /* WYLogManagerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLogManagerObjC.swift; sourceTree = "<group>"; };
 		58B470452E8D2CCD00D04BCA /* WYEventHandlerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYEventHandlerObjC.swift; sourceTree = "<group>"; };
 		58B6DAE6305FA87D00FEBC08 /* WYLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLabel.swift; sourceTree = "<group>"; };
@@ -499,6 +502,7 @@
 		58C68D752E84E436005FD054 /* WYLocalizable.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = WYLocalizable.bundle; sourceTree = "<group>"; };
 		58C68D762E84E436005FD054 /* WYLocalizableManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLocalizableManager.swift; sourceTree = "<group>"; };
 		58C68D792E84E436005FD054 /* WYLogManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLogManager.swift; sourceTree = "<group>"; };
+		9AC33A9B8043652655C0FF86 /* WYCryptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCryptor.swift; sourceTree = "<group>"; };
 		58C68D7C2E84E436005FD054 /* WYNetworkConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkConfig.swift; sourceTree = "<group>"; };
 		58C68D7D2E84E436005FD054 /* WYNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkManager.swift; sourceTree = "<group>"; };
 		58C68D7E2E84E436005FD054 /* WYNetworkServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkServer.swift; sourceTree = "<group>"; };
@@ -1772,6 +1776,14 @@
 			path = LogManager;
 			sourceTree = "<group>";
 		};
+		FAF5DB3C4B04200C40AF70B3 /* Cryptor */ = {
+			isa = PBXGroup;
+			children = (
+				684CA039106944C16D6C83B2 /* WYCryptorObjC.swift */,
+			);
+			path = Cryptor;
+			sourceTree = "<group>";
+		};
 		58C68CB72E84E436005FD054 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
@@ -1803,6 +1815,7 @@
 				58C68CB02E84E436005FD054 /* Layout */,
 				58C68CB22E84E436005FD054 /* Localizable */,
 				58C68CB52E84E436005FD054 /* LogManager */,
+				FAF5DB3C4B04200C40AF70B3 /* Cryptor */,
 				58EE236D2F874A350031D8BF /* MacroDefinition */,
 				58C68CB72E84E436005FD054 /* Networking */,
 				58C68CB92E84E436005FD054 /* Storage */,
@@ -2519,6 +2532,14 @@
 			path = LogManager;
 			sourceTree = "<group>";
 		};
+		2049506550CA1936ECB308B3 /* Cryptor */ = {
+			isa = PBXGroup;
+			children = (
+				9AC33A9B8043652655C0FF86 /* WYCryptor.swift */,
+			);
+			path = Cryptor;
+			sourceTree = "<group>";
+		};
 		58C68D7F2E84E436005FD054 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
@@ -2550,6 +2571,7 @@
 				58C68D732E84E436005FD054 /* Layout */,
 				58C68D772E84E436005FD054 /* Localizable */,
 				58C68D7A2E84E436005FD054 /* LogManager */,
+				2049506550CA1936ECB308B3 /* Cryptor */,
 				584D59E12FBC351A00A862F7 /* MethodSwizzler */,
 				58C68D7F2E84E436005FD054 /* Networking */,
 				58C68D822E84E436005FD054 /* Storage */,
@@ -2877,6 +2899,7 @@
 				58328C9E2FC93D8000C0F556 /* WYGestureRecognizerShouldBeginSwizzler.swift in Sources */,
 				58C68DE42E84E436005FD054 /* WYNetworkManager.swift in Sources */,
 				58C68DE52E84E436005FD054 /* WYLogManager.swift in Sources */,
+				682A1481F5DBCD823E4E7C2F /* WYCryptor.swift in Sources */,
 				58C68E322E850EFC005FD054 /* WYViewObjC.swift in Sources */,
 				58C68DE72E84E436005FD054 /* WYCameraAuthorizationObjC.swift in Sources */,
 				58C68DE82E84E436005FD054 /* WYChatVideoCell.swift in Sources */,
@@ -2992,6 +3015,7 @@
 				58328C802FC93ACE00C0F556 /* WYLayoutSubviewsSwizzler.swift in Sources */,
 				58C68E272E84E436005FD054 /* WYDoubleObjC.swift in Sources */,
 				58B46FEA2E8C080700D04BCA /* WYLogManagerObjC.swift in Sources */,
+				B61CA42A4DA447BCE604C620 /* WYCryptorObjC.swift in Sources */,
 				58C68E282E84E436005FD054 /* WYBiometricAuthorization.swift in Sources */,
 				580ED58A2EA72632006012E7 /* WYCodableConfig.swift in Sources */,
 				584B59FC306A0C5F002B81C5 /* WYChatFileModel.swift in Sources */,

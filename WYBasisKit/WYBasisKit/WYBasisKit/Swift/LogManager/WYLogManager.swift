@@ -46,6 +46,29 @@ import QuickLook
 }
 
 /**
+ * 日志加密模式(写进文件的日志内容默认加密，直接打开文件或导出附件都看不到明文)
+ *
+ * 说明：
+ * 1. 默认aesGCM，接入方零配置即开启加密，导出的日志只能通过decryptedLogText()或配套解密脚本阅读
+ * 2. xor与aesGCM未设置encryptionKey时按包名派生密钥，建议接入方在首次写日志前设置自己的密钥
+ * 3. 每条日志独立加密成文件里的一行，历史明文条目不解密原样保留，新旧内容可共存
+ */
+@frozen public enum WYLogEncryptionMode: Int {
+
+    /// 不加密，文件内容为明文(仅排查极端场景时临时使用)
+    case none = 0
+
+    /// Base64编码，无密钥，仅让文件内容无法被直接阅读和搜索
+    case base64 = 1
+
+    /// XOR流加密，防随手打开阅读，强度弱于aesGCM
+    case xor = 2
+
+    /// AES-256-GCM加密，逐条独立加解密并带完整性校验(默认)
+    case aesGCM = 3
+}
+
+/**
  * 日志打印
  * - Parameters:
  *   - messages: 要输出的日志内容
@@ -69,14 +92,34 @@ public struct WYLogManager {
     /// 日志文件路径（可根据路径获取并导出显示或者上传）
     public static var logFilePath: String {
         let docURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        
-        let appName = Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String
-        ?? Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String
-        ?? "App"
-        
-        let sanitizedName = appName.replacingOccurrences(of: "[^a-zA-Z0-9_\\-]", with: "_", options: .regularExpression)
-        
-        return docURL.appendingPathComponent("\(sanitizedName).log").path
+        return docURL.appendingPathComponent("\(resolvedFileName()).log").path
+    }
+
+    /// 自定义日志文件名(不含扩展名，设置后日志文件名不再取App名；启动期主线程一次写入、之后各线程只读)
+    nonisolated(unsafe) public static var logFileName: String?
+
+    /// 日志加密模式(默认aesGCM，加密后文件内容与导出附件均为密文，只能通过decryptedLogText()或配套解密脚本阅读；启动期主线程一次写入、之后各线程只读)
+    nonisolated(unsafe) public static var encryptionMode: WYLogEncryptionMode = .aesGCM
+
+    /// 日志加密密钥(xor与aesGCM使用；不设置时按包名派生，接入方建议在首次写日志前设置；启动期主线程一次写入、之后各线程只读)
+    nonisolated(unsafe) public static var encryptionKey: Data?
+
+    /**
+     * 读取整个日志文件并解密成明文
+     * - Returns: 解密后的完整日志文本(历史明文条目原样保留，解密失败的条目自动跳过；文件不存在时返回空串)
+     */
+    public static func decryptedLogText() -> String {
+        guard let text = try? String(contentsOfFile: logFilePath, encoding: .utf8) else { return "" }
+        let entries = text.split(separator: "\n", omittingEmptySubsequences: true).compactMap { decryptLine(String($0)) }
+        return entries.joined(separator: logEntrySeparator)
+    }
+
+    /**
+     * 同步加密写入一条日志
+     * - Parameter content: 要写入的完整日志内容(崩溃捕获等进程即将退出的场景用，不走异步队列确保落盘)
+     */
+    public static func writeEncryptedSynchronously(_ content: String) {
+        appendLine(encryptEntry(content))
     }
     
     /**
@@ -182,42 +225,113 @@ public struct WYLogManager {
     /// 写入日志文件
     private static func saveLogToFile(_ log: String) {
         logQueue.async {
-            
-            let path = logFilePath
-            let fileManager = FileManager.default
-            
-            // 确保目录存在
-            let directory = URL(fileURLWithPath: path).deletingLastPathComponent().path
-            if !fileManager.fileExists(atPath: directory) {
-                try? fileManager.createDirectory(atPath: directory, withIntermediateDirectories: true)
-            }
-            
-            // 确保文件存在
-            if !fileManager.fileExists(atPath: path) {
-                fileManager.createFile(atPath: path, contents: nil)
-            }
-            
-            // 使用 FileHandle 追加写入（UTF-8编码）
-            guard let fileHandle = FileHandle(forWritingAtPath: path) else {
-                output("[WYLogManager] 打开日志文件失败，可能是路径无效或没有写入权限")
-                return
-            }
-            
-            defer { fileHandle.closeFile() }
-            fileHandle.seekToEndOfFile()
-            
-            // 添加 UTF-8 BOM 头（仅首次写入）
-            if fileHandle.offsetInFile == 0 {
-                let bomData = Data([0xEF, 0xBB, 0xBF])
-                fileHandle.write(bomData)
-            }
-            
-            // 写入日志数据（确保使用 UTF-8）
-            guard let logData = (log + "\n").data(using: .utf8) else {
-                output("[WYLogManager] 日志内容无法转换为 UTF-8 数据")
-                return
-            }
-            fileHandle.write(logData)
+            appendLine(encryptEntry(log))
+        }
+    }
+
+    /// 加密条目行前缀(带版本号，文件里每行一条密文，解密端据此识别格式)
+    private static let encryptedLinePrefix = "WYLOG1:"
+
+    /// 默认密钥派生盐(接入方未设置encryptionKey时与包名一起喂PBKDF2派生日志密钥；发版时随机换新值可让照旧默认派生写的解密脚本失效，设了自定义密钥的接入方不受影响)
+    private static let internalSeedValue = "c079b05228d588a6"
+
+    /// 实际生效的密钥(接入方设置过就用接入方的，否则按包名与内部常量派生32字节)
+    private static var activeKey: Data {
+        if let key = encryptionKey, key.isEmpty == false {
+            return key
+        }
+        let bundleId = Bundle.main.bundleIdentifier ?? "WYBasisKit"
+        return WYCryptor.pbkdf2(password: bundleId, salt: internalSeedValue, rounds: 4096, length: 32) ?? Data((bundleId + internalSeedValue).utf8)
+    }
+
+    /// 解析日志文件名(自定义名优先，未设置时取App名，纯中文等名字清洗后只剩下划线时回落到包名末段，避免生成"____.log"这种不可读文件名)
+    private static func resolvedFileName() -> String {
+        let fallbackName = Bundle.main.bundleIdentifier?.components(separatedBy: ".").last ?? "App"
+        let wordCharacters = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+
+        if let custom = logFileName?.trimmingCharacters(in: .whitespacesAndNewlines), custom.isEmpty == false {
+            let sanitized = custom.replacingOccurrences(of: "[^a-zA-Z0-9_\\-]", with: "_", options: .regularExpression)
+            return sanitized.rangeOfCharacter(from: wordCharacters) != nil ? sanitized : fallbackName
+        }
+
+        let appName = Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String
+        ?? Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String
+        ?? "App"
+
+        let sanitizedName = appName.replacingOccurrences(of: "[^a-zA-Z0-9_\\-]", with: "_", options: .regularExpression)
+        return sanitizedName.rangeOfCharacter(from: wordCharacters) != nil ? sanitizedName : fallbackName
+    }
+
+    /**
+     * 加密一条日志成单行密文
+     * - Parameter entry: 要加密的完整日志条目
+     * - Returns: 带格式前缀的单行密文(加密失败时回落明文，保证日志不丢)
+     */
+    private static func encryptEntry(_ entry: String) -> String {
+        let mode = encryptionMode
+        if mode == .none { return entry }
+
+        let plainData = Data(entry.utf8)
+        let payload: String
+        switch mode {
+        case .none:
+            return entry
+        case .base64:
+            payload = WYCryptor.base64Encode(plainData)
+        case .xor:
+            payload = WYCryptor.base64Encode(WYCryptor.xor(plainData, key: activeKey))
+        case .aesGCM:
+            guard let combined = WYCryptor.aesGCMEncrypt(plainData, key: activeKey) else { return entry }
+            payload = WYCryptor.base64Encode(combined)
+        }
+        return encryptedLinePrefix + "\(mode.rawValue):" + payload
+    }
+
+    /**
+     * 解密一行日志内容
+     * - Parameter line: 日志文件里的一行
+     * - Returns: 解密后的明文条目(不带加密前缀的历史明文原样返回，格式损坏或解密失败的行返回nil由调用方丢弃)
+     */
+    private static func decryptLine(_ line: String) -> String? {
+        guard line.hasPrefix(encryptedLinePrefix) else { return line }
+
+        let rest = String(line.dropFirst(encryptedLinePrefix.count))
+        guard let colonIndex = rest.firstIndex(of: ":"),
+              let modeRaw = Int(rest[..<colonIndex]),
+              let mode = WYLogEncryptionMode(rawValue: modeRaw),
+              let payload = Data(base64Encoded: String(rest[rest.index(after: colonIndex)...])) else { return nil }
+
+        switch mode {
+        case .none, .base64:
+            return String(decoding: payload, as: UTF8.self)
+        case .xor:
+            return String(decoding: WYCryptor.xor(payload, key: activeKey), as: UTF8.self)
+        case .aesGCM:
+            guard let clear = WYCryptor.aesGCMDecrypt(payload, key: activeKey) else { return nil }
+            return String(decoding: clear, as: UTF8.self)
+        }
+    }
+
+    /// 把一行内容追加进日志文件(不存在时先创建文件与目录)
+    private static func appendLine(_ line: String) {
+        let path = logFilePath
+        let fileManager = FileManager.default
+
+        let directory = URL(fileURLWithPath: path).deletingLastPathComponent().path
+        if !fileManager.fileExists(atPath: directory) {
+            try? fileManager.createDirectory(atPath: directory, withIntermediateDirectories: true)
+        }
+
+        if !fileManager.fileExists(atPath: path) {
+            fileManager.createFile(atPath: path, contents: nil)
+        }
+
+        guard let fileHandle = FileHandle(forWritingAtPath: path) else { return }
+        defer { fileHandle.closeFile() }
+        fileHandle.seekToEndOfFile()
+
+        if let data = (line + "\n").data(using: .utf8) {
+            fileHandle.write(data)
         }
     }
 }
@@ -396,7 +510,10 @@ final class WYLogPreviewViewController: UIViewController {
     }
     
     private func loadLogs() {
-        logs = (try? String(contentsOfFile: WYLogManager.logFilePath, encoding: .utf8)) ?? "暂无日志"
+        logs = WYLogManager.decryptedLogText()
+        if logs.isEmpty {
+            logs = "暂无日志"
+        }
         logChunks = logs
             .components(separatedBy: WYLogManager.logEntrySeparator)
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }

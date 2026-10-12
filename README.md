@@ -41,6 +41,45 @@ let assetObj: WYDownloadModel? = try! WYCodable().decode(WYDownloadModel.self, f
 WYLocalized("这是使用示例")
 ```
 
+##### 通用加解密(2026-10-12新增，MD5/SHA/HMAC/AES-GCM/XOR/Base64/Hex/随机数/PBKDF2)
+```
+// 摘要与签名(小写十六进制串)
+WYCryptor.md5Hex("abc")                    // 900150983cd24fb0d6963f7d28e17f72
+WYCryptor.sha256Hex("abc")
+WYCryptor.hmacSHA256Hex(message: "content", key: "secret")
+
+// AES-256-GCM(每次随机nonce，密钥任意长度，篡改可检测)
+let cipher = WYCryptor.aesGCMEncryptString("明文内容", key: "任意长度密钥")
+let plain = WYCryptor.aesGCMDecryptString(cipher!, key: "任意长度密钥")
+
+// 其他工具
+WYCryptor.xor(data, key: keyData)          // 加密解密同一方法
+WYCryptor.hexDecode("deadbeef")
+WYCryptor.randomBytes(count: 32)           // 安全随机源
+WYCryptor.pbkdf2(password: "pwd", salt: "salt", rounds: 10000, length: 32)
+```
+
+##### 日志(文件默认AES-GCM加密，直接打开或导出的都是密文；预览界面自动解密)
+```
+// 打印日志(五种输出模式，含只落文件不打控制台的onlySaveToFile)
+wy_print("日志内容", outputMode: .onlySaveToFile)
+
+// 加密四档：none(排查用)/base64/xor/aesGCM(默认)，零配置默认开启
+WYLogManager.encryptionMode = .aesGCM
+
+// 建议接入方首次写日志前设置自己的密钥(不设置时按包名派生)
+WYLogManager.encryptionKey = Data("你的密钥".utf8)
+
+// 自定义日志文件名(不含扩展名；不设置时取App名，纯中文App名自动回落包名末段，不会生成"____.log")
+WYLogManager.logFileName = "MyApp-DiagnosticLog"
+
+// 读回明文(历史明文条目原样保留，解密失败条目自动跳过)
+let plainLogs = WYLogManager.decryptedLogText()
+
+// 悬浮按钮预览日志(内置搜索/复制/分享/清除)
+WYLogManager.showPreview()
+```
+
 ##### 本地存储(可设置过期时间)
 
 ```

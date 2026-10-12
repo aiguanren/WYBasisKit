@@ -17,7 +17,8 @@ Pod::Spec.new do |kit|
     Layout: 各种自定义控件(注意：ChatView尚未开发完毕，敬请期待)
     Codable: 数据解析
     Authorization: 各种权限请求与判断
-    LogManager: 日志打印，日志导出等日志管理相关
+    LogManager: 日志打印，日志导出等日志管理相关(文件默认AES-GCM加密，四档可选)
+    Cryptor: 通用加解密工具(MD5/SHA/HMAC/AES-GCM/XOR/Base64/Hex/随机数/PBKDF2)
     AudioKit: 音频录制与播放
     MethodSwizzler: 内部使用，第三方请勿调用
   DESC
@@ -126,8 +127,16 @@ Pod::Spec.new do |kit|
     logManager.resource_bundles = {"WYBasisKitSwiftLogManager" => [
       "#{kit_path}Swift/PrivacyInfo.xcprivacy"
     ]}
-    logManager.frameworks = "Foundation", "UIKit"
+    logManager.frameworks = "Foundation", "UIKit", "CryptoKit"
     logManager.dependency "WYBasisKit-swift/Localizable"
+    logManager.dependency "WYBasisKit-swift/Cryptor"
+  end
+
+  kit.subspec "Cryptor" do |cryptor|
+    cryptor.source_files = [
+      "#{kit_path}Swift/Cryptor/**/*.{swift,h,m}"
+    ]
+    cryptor.frameworks = "Foundation", "CryptoKit"
   end
   
   kit.subspec "Localizable" do |localizable|

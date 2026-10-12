@@ -47,14 +47,79 @@ import WYBasisKitSwift
     case onlySaveToFile
 }
 
+/**
+ * 日志加密模式(写进文件的日志内容默认加密，直接打开文件或导出附件都看不到明文)
+ *
+ * 说明：
+ * 1. 默认aesGCM，接入方零配置即开启加密，导出的日志只能通过decryptedLogText()或配套解密脚本阅读
+ * 2. xor与aesGCM未设置encryptionKey时按包名派生密钥，建议接入方在首次写日志前设置自己的密钥
+ * 3. 每条日志独立加密成文件里的一行，历史明文条目不解密原样保留，新旧内容可共存
+ */
+@objc(WYLogEncryptionMode)
+@frozen public enum WYLogEncryptionModeObjC: Int {
+
+    /// 不加密，文件内容为明文(仅排查极端场景时临时使用)
+    case none = 0
+
+    /// Base64编码，无密钥，仅让文件内容无法被直接阅读和搜索
+    case base64 = 1
+
+    /// XOR流加密，防随手打开阅读，强度弱于aesGCM
+    case xor = 2
+
+    /// AES-256-GCM加密，逐条独立加解密并带完整性校验(默认)
+    case aesGCM = 3
+}
+
 @objc(WYLogManager)
 @objcMembers public class WYLogManagerObjC: NSObject {
-    
+
     /// 日志文件路径（可根据路径获取并导出显示或者上传）
     @objc public static var logFilePath: String {
         return WYLogManager.logFilePath
     }
-    
+
+    /// 自定义日志文件名(不含扩展名，设置后日志文件名不再取App名；启动期主线程一次写入、之后各线程只读)
+    @objc public static var logFileName: String? {
+        get {
+            return WYLogManager.logFileName
+        }
+        set {
+            WYLogManager.logFileName = newValue
+        }
+    }
+
+    /// 日志加密模式(默认aesGCM，加密后文件内容与导出附件均为密文，只能通过decryptedLogText()或配套解密脚本阅读)
+    @objc public static var encryptionMode: WYLogEncryptionModeObjC {
+        get {
+            WYLogEncryptionModeObjC(rawValue: WYLogManager.encryptionMode.rawValue) ?? .aesGCM
+        }
+        set {
+            WYLogManager.encryptionMode = WYLogEncryptionMode(rawValue: newValue.rawValue) ?? .aesGCM
+        }
+    }
+
+    /// 日志加密密钥(xor与aesGCM使用；不设置时按包名派生，接入方建议在首次写日志前设置)
+    @objc public static func setEncryptionKey(_ key: Data?) {
+        WYLogManager.encryptionKey = key
+    }
+
+    /**
+     * 读取整个日志文件并解密成明文
+     * - Returns: 解密后的完整日志文本(历史明文条目原样保留，解密失败的条目自动跳过；文件不存在时返回空串)
+     */
+    @objc public static func decryptedLogText() -> String {
+        return WYLogManager.decryptedLogText()
+    }
+
+    /**
+     * 同步加密写入一条日志
+     * - Parameter content: 要写入的完整日志内容(崩溃捕获等进程即将退出的场景用，不走异步队列确保落盘)
+     */
+    @objc public static func writeEncryptedSynchronously(_ content: String) {
+        WYLogManager.writeEncryptedSynchronously(content)
+    }
+
     /**
      * 日志
      * - Parameters:
