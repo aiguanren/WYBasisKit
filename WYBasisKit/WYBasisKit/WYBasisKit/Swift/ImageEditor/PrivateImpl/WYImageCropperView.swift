@@ -212,11 +212,11 @@ class WYImageCropperView: UIView {
             let fitRect = CGRect(x: (boundsWidth - fitWidth) / 2, y: (boundsHeight - fitHeight) / 2, width: fitWidth, height: fitHeight)
             if shape == .circle {
 
-                // 圆形裁剪框保持正方形，边长取适配后图片的短边
-                let side = min(fitWidth, fitHeight) * 0.88
+                // 圆形裁剪框保持正方形，边长取适配后图片的短边铺满
+                let side = min(fitWidth, fitHeight)
                 cropBox = CGRect(x: (boundsWidth - side) / 2, y: (boundsHeight - side) / 2, width: side, height: side)
             } else {
-                cropBox = fitRect.insetBy(dx: fitRect.width * 0.06, dy: fitRect.height * 0.06)
+                cropBox = fitRect
             }
             scrollView.minimumZoomScale = fitScale
             scrollView.maximumZoomScale = zoomEnabled ? fitScale * 8 : fitScale
