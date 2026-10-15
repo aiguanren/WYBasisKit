@@ -154,7 +154,7 @@ public class WYImageEditorViewController: UIViewController {
 
     /// 顶部取消按钮(编辑 discard 出口)
     private lazy var cancelButton: UIButton = {
-        let button = UIButton(type: .system)
+        let button = UIButton(type: .custom)
         button.setTitle(WYLocalized("取消", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 17)
@@ -164,7 +164,7 @@ public class WYImageEditorViewController: UIViewController {
 
     /// 顶部还原按钮(裁剪和标记全部退回原图状态)
     private lazy var revertButton: UIButton = {
-        let button = UIButton(type: .system)
+        let button = UIButton(type: .custom)
         button.setTitle(WYLocalized("还原", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 17)
@@ -174,7 +174,7 @@ public class WYImageEditorViewController: UIViewController {
 
     /// 顶部完成按钮(按当前裁剪与标记出成品图并回调)
     private lazy var doneButton: UIButton = {
-        let button = UIButton(type: .system)
+        let button = UIButton(type: .custom)
         button.setTitle(WYLocalized("完成", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
         button.setTitleColor(.systemBlue, for: .normal)
         button.titleLabel?.font = .boldSystemFont(ofSize: 17)
@@ -193,10 +193,11 @@ public class WYImageEditorViewController: UIViewController {
 
     /// 裁剪模式切换按钮(进入裁剪模式)
     private lazy var cropModeButton: UIButton = {
-        let button = UIButton(type: .system)
+        let button = UIButton(type: .custom)
         button.setTitle(WYLocalized("裁剪", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.setTitleColor(.systemBlue, for: .selected)
+        button.setTitleColor(.systemBlue, for: [.selected, .highlighted])
         button.titleLabel?.font = .systemFont(ofSize: 15, weight: .semibold)
         button.addTarget(self, action: #selector(cropModeButtonTapped), for: .touchUpInside)
         return button
@@ -204,10 +205,11 @@ public class WYImageEditorViewController: UIViewController {
 
     /// 标记模式切换按钮(进入标记模式，配置allowsMarking为false时隐藏)
     private lazy var markModeButton: UIButton = {
-        let button = UIButton(type: .system)
+        let button = UIButton(type: .custom)
         button.setTitle(WYLocalized("标记", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.setTitleColor(.systemBlue, for: .selected)
+        button.setTitleColor(.systemBlue, for: [.selected, .highlighted])
         button.titleLabel?.font = .systemFont(ofSize: 15, weight: .semibold)
         button.addTarget(self, action: #selector(markModeButtonTapped), for: .touchUpInside)
         return button
@@ -250,10 +252,11 @@ public class WYImageEditorViewController: UIViewController {
                       WYLocalized("划线", table: WYBasisKitConfig.kitLocalizableTable)]
         let icons = [WYImageEditorIcon.text, WYImageEditorIcon.rectangle, WYImageEditorIcon.circle, WYImageEditorIcon.arrow, WYImageEditorIcon.line]
         return titles.enumerated().map { index, title in
-            let button = UIButton(type: .system)
+            let button = UIButton(type: .custom)
             button.setTitle(title, for: .normal)
             button.setTitleColor(.white, for: .normal)
             button.setTitleColor(.systemBlue, for: .selected)
+            button.setTitleColor(.systemBlue, for: [.selected, .highlighted])
             button.setImage(icons[index], for: .normal)
             button.setImage(icons[index].withTintColor(.systemBlue, renderingMode: .alwaysOriginal), for: .selected)
             button.tintColor = .white
@@ -267,9 +270,10 @@ public class WYImageEditorViewController: UIViewController {
 
     /// 直线形态切换按钮(划线语境显示，点后划线为两点连直线)
     private lazy var straightChipButton: UIButton = {
-        let button = UIButton(type: .system)
+        let button = UIButton(type: .custom)
         button.setTitle(WYLocalized("直线", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
         button.setTitleColor(.black, for: .selected)
+        button.setTitleColor(.black, for: [.selected, .highlighted])
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 12, weight: .semibold)
         button.layer.cornerRadius = 14
@@ -279,9 +283,10 @@ public class WYImageEditorViewController: UIViewController {
 
     /// 自由形态切换按钮(划线语境显示，点后划线跟随手指轨迹)
     private lazy var freeChipButton: UIButton = {
-        let button = UIButton(type: .system)
+        let button = UIButton(type: .custom)
         button.setTitle(WYLocalized("自由", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
         button.setTitleColor(.black, for: .selected)
+        button.setTitleColor(.black, for: [.selected, .highlighted])
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 12, weight: .semibold)
         button.layer.cornerRadius = 14
@@ -292,7 +297,7 @@ public class WYImageEditorViewController: UIViewController {
     /// 线宽档位圆点按钮数组(矩形圆形箭头划线语境显示，圆点大小示意粗细)
     private lazy var lineWidthDotButtons: [UIButton] = {
         return (0..<4).map { index in
-            let button = UIButton(type: .system)
+            let button = UIButton(type: .custom)
             button.backgroundColor = .white
             button.addTarget(self, action: #selector(lineWidthDotTapped(_:)), for: .touchUpInside)
             button.tag = index
@@ -303,7 +308,7 @@ public class WYImageEditorViewController: UIViewController {
     /// 字号档位按钮数组(文本语境显示，字母A的大小示意字号)
     private lazy var fontSizeButtons: [UIButton] = {
         return (0..<4).map { index in
-            let button = UIButton(type: .system)
+            let button = UIButton(type: .custom)
             let attributes: [NSAttributedString.Key: Any] = [.font: UIFont.boldSystemFont(ofSize: CGFloat([12, 16, 21, 27][index])), .foregroundColor: UIColor.white]
             button.setAttributedTitle(NSAttributedString(string: "A", attributes: attributes), for: .normal)
             button.addTarget(self, action: #selector(fontSizeButtonTapped(_:)), for: .touchUpInside)
@@ -314,7 +319,7 @@ public class WYImageEditorViewController: UIViewController {
 
     /// 撤销按钮(撤掉最后画的那一个标记)
     private lazy var undoButton: UIButton = {
-        let button = UIButton(type: .system)
+        let button = UIButton(type: .custom)
         button.setImage(WYImageEditorIcon.undo, for: .normal)
         button.tintColor = .white
         button.imageView?.contentMode = .scaleAspectFit
@@ -324,7 +329,7 @@ public class WYImageEditorViewController: UIViewController {
 
     /// 删除按钮(删掉当前选中的标记，没选中时按下没效果)
     private lazy var deleteButton: UIButton = {
-        let button = UIButton(type: .system)
+        let button = UIButton(type: .custom)
         button.setImage(WYImageEditorIcon.trash, for: .normal)
         button.tintColor = .white
         button.imageView?.contentMode = .scaleAspectFit
@@ -335,7 +340,7 @@ public class WYImageEditorViewController: UIViewController {
     /// 颜色圆点按钮数组(白黑黄红绿蓝紫，点的瞬间作用于选中的标记或之后的标记)
     private lazy var colorButtons: [UIButton] = {
         return markerColorValues().map { color in
-            let button = UIButton(type: .system)
+            let button = UIButton(type: .custom)
             button.backgroundColor = color
             button.layer.cornerRadius = 13
             button.layer.borderWidth = 1
