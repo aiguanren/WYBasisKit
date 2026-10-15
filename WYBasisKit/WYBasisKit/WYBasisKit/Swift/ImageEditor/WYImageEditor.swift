@@ -727,14 +727,13 @@ public class WYImageEditorViewController: UIViewController {
         setMarkMode(true)
     }
 
-    /// 刷新顶部标题按钮(裁剪模式恒显裁剪二字与还原成对可点，标记模式显示编辑)
+    /// 刷新顶部标题按钮(仅裁剪模式显示裁剪确认按钮，标记模式整颗隐藏不占位)
     private func refreshTitleForPendingCrop() {
-        if !isMarkMode, configuration.allowsCropping {
+        let showCropButton = !isMarkMode && configuration.allowsCropping
+        titleLabel.isHidden = !showCropButton
+        if showCropButton {
             titleLabel.setTitle(WYLocalized("裁剪", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
             titleLabel.setTitleColor(configuration.appearance.topBarCropButtonColor, for: .normal)
-        } else {
-            titleLabel.setTitle(WYLocalized("编辑", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
-            titleLabel.setTitleColor(configuration.appearance.topBarButtonColor, for: .normal)
         }
     }
 
@@ -772,16 +771,16 @@ public class WYImageEditorViewController: UIViewController {
             refreshMarkerDisplayRegion()
             self.markerView.alpha = 0
             self.markerView.isHidden = false
+            self.cropperView.isHidden = true
             UIView.animate(withDuration: 0.2, animations: {
                 self.markerView.alpha = 1
             })
         } else {
             self.cropperView.alpha = 0
             self.cropperView.isHidden = false
+            self.markerView.isHidden = true
             UIView.animate(withDuration: 0.2, animations: {
                 self.cropperView.alpha = 1
-            }, completion: { _ in
-                self.markerView.isHidden = true
             })
         }
         view.setNeedsLayout()
