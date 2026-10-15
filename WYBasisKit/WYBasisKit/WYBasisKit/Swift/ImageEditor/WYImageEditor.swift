@@ -757,7 +757,6 @@ public class WYImageEditorViewController: UIViewController {
 
     /// 切换裁剪与标记模式(带淡入淡出，进标记前先把用户调过的裁剪框应用掉)
     private func setMarkMode(_ marking: Bool) {
-        print("[WYDBG2] setMarkMode(\(marking)) markerView.bounds=\(markerView.bounds.size) frame=\(markerView.frame)")
         if marking, configuration.allowsCropping {
             cropperView.commitCrop()
         }

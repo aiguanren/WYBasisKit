@@ -181,7 +181,6 @@ class WYImageMarkerView: UIView {
     /// 更新显示区域(切到标记模式或裁剪框变化时按裁剪框取景)
     func updateDisplayRegion(_ region: CGRect) {
         displayRegion = region
-        print("[WYDBG2] updateDisplayRegion region=\(region) 当前bounds=\(bounds.size)")
         setNeedsDisplay()
     }
 
@@ -532,7 +531,6 @@ class WYImageMarkerView: UIView {
         guard let context = UIGraphicsGetCurrentContext(), displayRegion.width > 0 else { return }
 
         let transform = displayTransform()
-        print("[WYDBG2] markerView.draw bounds=\(bounds.size) region=\(displayRegion) scale=\(transform.scale)")
         let region = validRegion
 
         // 图片与标记都按显示区域映射画(先平移缩放进图片坐标系)
@@ -540,7 +538,6 @@ class WYImageMarkerView: UIView {
         context.translateBy(x: transform.origin.x, y: transform.origin.y)
         context.scaleBy(x: transform.scale, y: transform.scale)
         context.translateBy(x: -region.origin.x, y: -region.origin.y)
-        context.clip(to: [bounds])
         sourceImage.draw(in: CGRect(origin: .zero, size: sourceImage.size))
         for item in items {
             drawMarkerItem(item, in: context)
@@ -695,7 +692,6 @@ class WYImageMarkerView: UIView {
     /// 画布尺寸变化时强制重画(切模式画布高度跳变时旧位图会被系统拉伸铺满新尺寸显示成图片变大变形)
     override func layoutSubviews() {
         super.layoutSubviews()
-        print("[WYDBG2] markerView.layoutSubviews bounds=\(bounds.size)")
         setNeedsDisplay()
     }
 
