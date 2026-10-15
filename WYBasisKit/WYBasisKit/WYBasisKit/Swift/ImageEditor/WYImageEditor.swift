@@ -304,7 +304,7 @@ public class WYImageEditorViewController: UIViewController {
     /// 模式切换底条(裁剪与标记两个入口并排)
     private lazy var modeBar: UIView = {
         let bar = UIView()
-        bar.backgroundColor = configuration.appearance.toolbarBackgroundColor
+        bar.backgroundColor = .clear
         return bar
     }()
 
@@ -468,7 +468,7 @@ public class WYImageEditorViewController: UIViewController {
                 setMarkMode(true)
             }
         }
-        titleLabel.text = WYLocalized("裁剪", table: WYBasisKitConfig.kitLocalizableTable)
+        titleLabel.text = WYLocalized("编辑", table: WYBasisKitConfig.kitLocalizableTable)
 
         markerToolButtons.forEach { markerToolbar.addSubview($0) }
         markerToolbar.addSubview(undoButton)
@@ -737,7 +737,7 @@ public class WYImageEditorViewController: UIViewController {
         isMarkMode = marking
         cropModeButton.isSelected = !marking
         markModeButton.isSelected = marking
-        titleLabel.text = marking ? WYLocalized("标记", table: WYBasisKitConfig.kitLocalizableTable) : WYLocalized("裁剪", table: WYBasisKitConfig.kitLocalizableTable)
+        // 顶部标题固定显示编辑二字，当前模式由底部分段胶囊表达(标题随模式变会像可点按钮造成误解)
         refreshModeSegmented()
         markerToolbar.isHidden = !marking
 
