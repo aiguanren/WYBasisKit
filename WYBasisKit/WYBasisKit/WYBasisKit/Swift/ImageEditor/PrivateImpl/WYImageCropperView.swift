@@ -608,10 +608,13 @@ class WYImageCropOverlayView: UIView {
             return .right
         }
 
-        // 贴近任一条框线的其余位置算框线本体，拖着平移整个裁剪框
-        let nearVerticalLine = abs(point.x - cropBox.minX) <= edgeBand || abs(point.x - cropBox.maxX) <= edgeBand
-        let nearHorizontalLine = abs(point.y - cropBox.minY) <= edgeBand || abs(point.y - cropBox.maxY) <= edgeBand
-        if nearVerticalLine || nearHorizontalLine {
+        // 框内区域(矩形九宫格内或圆内)作为整框拖动区，抓着拖着裁剪框平移定位
+        if shape == .circle {
+            let center = CGPoint(x: cropBox.midX, y: cropBox.midY)
+            if hypot(point.x - center.x, point.y - center.y) <= cropBox.width / 2 {
+                return .boxBody
+            }
+        } else if cropBox.contains(point) {
             return .boxBody
         }
         return []
