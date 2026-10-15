@@ -120,6 +120,7 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
 
     }
 
+
     @discardableResult func createButton(title: String, selector: Selector, superView: UIView, leftView: UIView?, topView: UIView?, isRight: Bool = false, isLast: Bool = false) -> UIButton {
         let button: UIButton = UIButton(type: .custom)
         button.setTitle(title, for: .normal)

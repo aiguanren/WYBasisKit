@@ -816,6 +816,7 @@ public class WYImageEditorViewController: UIViewController {
 
     /// 点标记工具(选中后拖动画布生成对应标记，文本工具点画布弹输入)
     @objc private func markerToolButtonTapped(_ sender: UIControl) {
+        print("[WYDBG3] 工具按钮tag=\(sender.tag)被点击")
         guard let type = WYImageMarkerType(rawValue: sender.tag) else { return }
         markerToolButtons.forEach { $0.isSelected = ($0 == sender) }
         markerView.activeTool = type
@@ -834,6 +835,7 @@ public class WYImageEditorViewController: UIViewController {
 
     /// 点直线或自由按钮(把划线形态切到点的那边，选中的划线也会跟着转换)
     @objc private func lineShapeChipTapped(_ sender: UIControl) {
+        print("[WYDBG3] 形态胶囊被点击")
         let wantStraight = sender === straightChipButton
         if markerView.activeStraightLine() != wantStraight {
             markerView.toggleStraightLine()
@@ -843,6 +845,7 @@ public class WYImageEditorViewController: UIViewController {
 
     /// 点线宽圆点(有选中标记改它的线宽，没有就改默认线宽影响之后的标记)
     @objc private func lineWidthDotTapped(_ sender: UIControl) {
+        print("[WYDBG3] 线宽圆点\(sender.tag)被点击")
         let presets = markerView.presetLineWidths()
         guard sender.tag < presets.count else { return }
         markerView.applyLineWidth(presets[sender.tag])
@@ -851,6 +854,7 @@ public class WYImageEditorViewController: UIViewController {
 
     /// 点字号按钮(有选中文本标记改它的字号，没有就改默认字号影响之后的文本)
     @objc private func fontSizeButtonTapped(_ sender: UIControl) {
+        print("[WYDBG3] 字号按钮tag=\(sender.tag)被点击")
         let presets = markerView.presetFontSizes()
         guard sender.tag < presets.count else { return }
         markerView.applyFontSize(presets[sender.tag])
@@ -859,6 +863,7 @@ public class WYImageEditorViewController: UIViewController {
 
     /// 点颜色圆点(有选中标记直接改它，没有就当作之后标记的颜色)
     @objc private func colorButtonTapped(_ sender: UIButton) {
+        print("[WYDBG3] 颜色圆点被点击")
         guard let index = colorButtons.firstIndex(of: sender), configuration.appearance.markerPalette.indices.contains(index) else { return }
         markerView.applyColor(configuration.appearance.markerPalette[index])
         refreshColorSelection(color: configuration.appearance.markerPalette[index])
