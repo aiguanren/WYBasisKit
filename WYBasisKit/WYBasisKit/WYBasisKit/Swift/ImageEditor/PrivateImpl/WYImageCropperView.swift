@@ -46,6 +46,9 @@ class WYImageCropperView: UIView {
     /// 即时裁剪回调(参数为裁剪出的新基准图与本次裁掉区域在旧基准图中的坐标，编辑器用它同步标记画布)
     var onCropCommitted: ((UIImage, CGRect) -> Void)?
 
+    /// 用户是否动过裁剪框(动过后切标记模式才需要应用裁剪，没动过不做无意义裁剪)
+    private(set) var hasUserAdjustedCropBox = false
+
     /// 界面外观(遮罩框线网格与把手样式从这里取)
     var appearance = WYImageEditorAppearance()
 
@@ -120,6 +123,7 @@ class WYImageCropperView: UIView {
     /// 还原(恢复原图并把裁剪框位置大小与图片缩放位移退回刚进来时的状态)
     func reset() {
         cropImage = originalImage
+        hasUserAdjustedCropBox = false
         applyImageContent(originalImage)
         applyInitialLayout()
     }
@@ -224,9 +228,9 @@ class WYImageCropperView: UIView {
         scrollView.contentSize = image.size
     }
 
-    /// 应用当前裁剪框的裁剪(松手即所见即所得，CGImage像素直裁不重采样，裁完框回满图内收状态)
-    private func commitCrop() {
-        guard fixedOutputSize == nil else { return }
+    /// 应用当前裁剪框的裁剪(CGImage像素直裁不重采样，裁完框回满图内收状态，框没动过或无效时什么都不做)
+    func commitCrop() {
+        guard fixedOutputSize == nil, hasUserAdjustedCropBox else { return }
         let region = cropRectInImageCoordinates()
         guard region.width >= 1, region.height >= 1, let cgImage = cropImage.cgImage else { return }
 
@@ -242,6 +246,7 @@ class WYImageCropperView: UIView {
         // 换基准图重摆布局(标记画布由编辑器经回调同步平移)
         let regionInOldBase = CGRect(x: pixelRect.origin.x / scale, y: pixelRect.origin.y / scale, width: pixelRect.width / scale, height: pixelRect.height / scale)
         cropImage = UIImage(cgImage: croppedCG, scale: scale, orientation: .up)
+        hasUserAdjustedCropBox = false
         applyImageContent(cropImage)
         applyInitialLayout()
         onCropCommitted?(cropImage, regionInOldBase)
@@ -266,9 +271,9 @@ class WYImageCropperView: UIView {
             dragStartBox = cropBox
         }
 
-        // 松手时框有实际位移且抓的是把手，立即应用裁剪(所见即所得，画布直接变成裁剪后的图)
+        // 松手只保持预览状态，应用裁剪由编辑器在用户点标记或完成时调commitCrop
         if state == .ended, zone != [], abs(translation.x) > 1 || abs(translation.y) > 1 {
-            commitCrop()
+            hasUserAdjustedCropBox = true
         }
         guard state == .began || state == .changed else { return }
 

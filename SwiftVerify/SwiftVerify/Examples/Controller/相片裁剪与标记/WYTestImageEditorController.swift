@@ -98,11 +98,11 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
 
         let blockButton: UIButton = createButton(title: "Block方式\n打开编辑器", selector: #selector(blockButtonTapped), superView: contentView, leftView: nil, topView: colorRowButton)
 
-        createButton(title: "Delegate方式\n打开编辑器", selector: #selector(delegateButtonTapped), superView: contentView, leftView: blockButton, topView: colorRowButton)
+        let delegateButton: UIButton = createButton(title: "Delegate方式\n打开编辑器", selector: #selector(delegateButtonTapped), superView: contentView, leftView: blockButton, topView: colorRowButton)
 
-        let staticButton: UIButton = createButton(title: "静态方法\n一行打开", selector: #selector(staticButtonTapped), superView: contentView, leftView: nil, topView: imageButton)
+        createButton(title: "静态方法\n一行打开", selector: #selector(staticButtonTapped), superView: contentView, leftView: delegateButton, topView: colorRowButton, isRight: true)
 
-        createButton(title: "清除结果", selector: #selector(clearButtonTapped), superView: contentView, leftView: staticButton, topView: imageButton, isLast: true)
+        createButton(title: "清除结果", selector: #selector(clearButtonTapped), superView: contentView, leftView: nil, topView: blockButton, isLast: true)
 
         tableView = UITableView.wy_shared(delegate: self, dataSource: self, superView: view)
         tableView?.wy_register(WYTestImageEditorResultCell.self, .cell)

@@ -207,27 +207,27 @@
                                                  isRight:NO
                                                   isLast:NO];
 
-    [self createButtonWithTitle:@"Delegate方式\n打开编辑器"
-                       selector:@selector(delegateButtonTapped)
+    UIButton *delegateButton = [self createButtonWithTitle:@"Delegate方式\n打开编辑器"
+                                                 selector:@selector(delegateButtonTapped)
+                                                superView:contentView
+                                                 leftView:blockButton
+                                                  topView:colorRowButton
+                                                   isRight:NO
+                                                    isLast:NO];
+
+    [self createButtonWithTitle:@"静态方法\n一行打开"
+                       selector:@selector(staticButtonTapped)
                       superView:contentView
-                       leftView:blockButton
+                       leftView:delegateButton
                         topView:colorRowButton
                          isRight:YES
                           isLast:NO];
 
-    UIButton *staticButton = [self createButtonWithTitle:@"静态方法\n一行打开"
-                                                selector:@selector(staticButtonTapped)
-                                               superView:contentView
-                                                leftView:nil
-                                                 topView:imageButton
-                                                  isRight:NO
-                                                   isLast:NO];
-
     [self createButtonWithTitle:@"清除结果"
                        selector:@selector(clearButtonTapped)
                       superView:contentView
-                       leftView:staticButton
-                        topView:imageButton
+                       leftView:nil
+                        topView:blockButton
                          isRight:NO
                           isLast:YES];
 

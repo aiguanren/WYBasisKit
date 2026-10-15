@@ -729,8 +729,11 @@ public class WYImageEditorViewController: UIViewController {
         markModeButton.setTitleColor(markModeButton.isSelected ? selectedText : normalText, for: .normal)
     }
 
-    /// 切换裁剪与标记模式(带淡入淡出)
+    /// 切换裁剪与标记模式(带淡入淡出，进标记前先把用户调过的裁剪框应用掉)
     private func setMarkMode(_ marking: Bool) {
+        if marking, configuration.allowsCropping {
+            cropperView.commitCrop()
+        }
         isMarkMode = marking
         cropModeButton.isSelected = !marking
         markModeButton.isSelected = marking
@@ -766,9 +769,14 @@ public class WYImageEditorViewController: UIViewController {
         return cropperView.cropRectInImageCoordinates()
     }
 
-    /// 让标记视图按当前裁剪框取景(标记画在原图坐标系上，裁剪框变了显示区域跟着变)
+    /// 让标记视图取景(自由模式进标记前已应用裁剪，显示整张基准图；固定尺寸模式按取景框显示)
     private func refreshMarkerDisplayRegion() {
-        markerView.updateDisplayRegion(currentCropRegion())
+        if configuration.cropSize == .zero {
+            let size = cropperView.currentBaseImage.size
+            markerView.updateDisplayRegion(CGRect(origin: .zero, size: size))
+        } else {
+            markerView.updateDisplayRegion(currentCropRegion())
+        }
     }
 
     /// 点标记工具(选中后拖动画布生成对应标记，文本工具点画布弹输入)
