@@ -458,21 +458,20 @@ class WYImageCropOverlayView: UIView {
         fillPath.usesEvenOddFillRule = true
         fillPath.fill()
 
-        // 框线
+        // 框线(线宽必须设在UIBezierPath自身上，设CGContext线宽对path.stroke()不生效)
         context.setStrokeColor(appearance.cropBorderColor.cgColor)
-        context.setLineWidth(appearance.cropBorderWidth)
         let borderPath: UIBezierPath
         if shape == .circle {
             borderPath = UIBezierPath(ovalIn: cropBox.insetBy(dx: 0.75, dy: 0.75))
         } else {
             borderPath = UIBezierPath(rect: cropBox.insetBy(dx: 0.75, dy: 0.75))
         }
+        borderPath.lineWidth = appearance.cropBorderWidth
         borderPath.stroke()
 
         // 矩形画九宫格辅助线(圆形不画)
         if shape == .rectangle {
             context.setStrokeColor(appearance.gridLineColor.cgColor)
-            context.setLineWidth(1)
             let gridPath = UIBezierPath()
             for index in 1...2 {
                 let xPosition = cropBox.origin.x + cropBox.width * CGFloat(index) / 3
@@ -482,27 +481,27 @@ class WYImageCropOverlayView: UIView {
                 gridPath.move(to: CGPoint(x: cropBox.origin.x, y: yPosition))
                 gridPath.addLine(to: CGPoint(x: cropBox.maxX, y: yPosition))
             }
+            gridPath.lineWidth = 1
             gridPath.stroke()
         }
 
         guard showsHandles else { return }
 
-        // 四角L形把手(整体画在框线外侧与框线分离清晰可见，线宽与四边短把手同厚)
+        // 四角L形把手(线宽设在路径自身才生效，与四边短把手同厚)
         context.setStrokeColor(appearance.handleColor.cgColor)
-        context.setLineWidth(4)
-        context.setLineCap(.round)
         let armLength: CGFloat = appearance.handleArmLength
-        let outward: CGFloat = 4
         let cornerPath = UIBezierPath()
+        cornerPath.lineWidth = 4
+        cornerPath.lineCapStyle = .round
+        cornerPath.lineJoinStyle = .round
         let corners = [CGPoint(x: cropBox.minX, y: cropBox.minY), CGPoint(x: cropBox.maxX, y: cropBox.minY), CGPoint(x: cropBox.minX, y: cropBox.maxY), CGPoint(x: cropBox.maxX, y: cropBox.maxY)]
         for corner in corners {
             let horizontalDirection: CGFloat = corner.x == cropBox.minX ? 1 : -1
             let verticalDirection: CGFloat = corner.y == cropBox.minY ? 1 : -1
-            let outerCorner = CGPoint(x: corner.x + horizontalDirection * outward, y: corner.y + verticalDirection * outward)
-            cornerPath.move(to: outerCorner)
-            cornerPath.addLine(to: CGPoint(x: outerCorner.x + horizontalDirection * armLength, y: outerCorner.y))
-            cornerPath.move(to: outerCorner)
-            cornerPath.addLine(to: CGPoint(x: outerCorner.x, y: outerCorner.y + verticalDirection * armLength))
+            cornerPath.move(to: corner)
+            cornerPath.addLine(to: CGPoint(x: corner.x + horizontalDirection * armLength, y: corner.y))
+            cornerPath.move(to: corner)
+            cornerPath.addLine(to: CGPoint(x: corner.x, y: corner.y + verticalDirection * armLength))
         }
         cornerPath.stroke()
 
