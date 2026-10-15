@@ -2559,13 +2559,21 @@
 			path = Cryptor;
 			sourceTree = "<group>";
 		};
+		956B53CAD48C42A69A58E7C5 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				B46C27D2941B4A85A99A2E30 /* WYImageCropperView.swift */,
+				DCFF8F17400C4B01BA509737 /* WYImageMarkerView.swift */,
+				6BA3CE4FE747490FBA5C36BB /* WYImageEditorIcons.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
 		A5D0F7D692DA40E68770A5E4 /* ImageEditor */ = {
 			isa = PBXGroup;
 			children = (
 				724E997D3636410EA290CD51 /* WYImageEditor.swift */,
-				B46C27D2941B4A85A99A2E30 /* WYImageCropperView.swift */,
-				DCFF8F17400C4B01BA509737 /* WYImageMarkerView.swift */,
-				6BA3CE4FE747490FBA5C36BB /* WYImageEditorIcons.swift */,
+				956B53CAD48C42A69A58E7C5 /* PrivateImpl */,
 			);
 			path = ImageEditor;
 			sourceTree = "<group>";
