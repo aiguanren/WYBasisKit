@@ -387,11 +387,14 @@ public class WYImageEditorViewController: UIViewController {
         return button
     }()
 
-    /// 线宽档位圆点按钮数组(矩形圆形箭头划线语境显示，圆点大小示意粗细)
+    /// 线宽档位圆点按钮数组(矩形圆形箭头划线语境显示，按钮热区统一放大好点中，圆点只是内部视觉层示意粗细)
     private lazy var lineWidthDotButtons: [UIButton] = {
         return (0..<4).map { index in
             let button = UIButton(type: .custom)
-            button.backgroundColor = .white
+            let dotLayer = CALayer()
+            dotLayer.name = "widthDot"
+            dotLayer.backgroundColor = UIColor.white.cgColor
+            button.layer.addSublayer(dotLayer)
             button.addTarget(self, action: #selector(lineWidthDotTapped(_:)), for: .touchUpInside)
             button.tag = index
             return button
@@ -622,9 +625,13 @@ public class WYImageEditorViewController: UIViewController {
         if lineWidthDotButtons.first?.isHidden == false {
             var dotX = x + 14
             for (index, button) in lineWidthDotButtons.enumerated() {
-                button.frame = CGRect(x: dotX, y: y + 15 - dotSizes[index] / 2, width: dotSizes[index], height: dotSizes[index])
-                button.layer.cornerRadius = dotSizes[index] / 2
-                dotX += dotSizes[index] + 24
+                button.frame = CGRect(x: dotX, y: y, width: 40, height: 30)
+                if let dotLayer = button.layer.sublayers?.first(where: { $0.name == "widthDot" }) {
+                    dotLayer.frame = CGRect(x: (40 - dotSizes[index]) / 2, y: (30 - dotSizes[index]) / 2, width: dotSizes[index], height: dotSizes[index])
+                    dotLayer.cornerRadius = dotSizes[index] / 2
+                    dotLayer.masksToBounds = true
+                }
+                dotX += 52
             }
         }
         if fontSizeButtons.first?.isHidden == false {
@@ -655,7 +662,8 @@ public class WYImageEditorViewController: UIViewController {
 
         let widthIndex = markerView.activeLineWidthIndex()
         for (index, button) in lineWidthDotButtons.enumerated() {
-            button.backgroundColor = index == widthIndex ? configuration.appearance.accentColor : .white
+            let dotColor = index == widthIndex ? configuration.appearance.accentColor : UIColor.white
+            button.layer.sublayers?.first(where: { $0.name == "widthDot" })?.backgroundColor = dotColor.cgColor
         }
         let fontIndex = markerView.activeFontSizeIndex()
         let fontSizes: [CGFloat] = [12, 16, 21, 27]
