@@ -29,6 +29,81 @@ import UIKit
     case line = 4
 }
 
+/// 编辑器界面外观配置(全部属性都有默认值，按需覆盖，不设置时与默认外观一致)
+public struct WYImageEditorAppearance {
+
+    /// 画布背景色(裁剪与标记画布的底色)
+    public var canvasBackgroundColor: UIColor = .black
+
+    /// 裁剪遮罩暗度(0全透明到1全黑，框外区域的压暗程度)
+    public var maskDimmingAmount: CGFloat = 0.62
+
+    /// 裁剪框边线颜色
+    public var cropBorderColor: UIColor = .white
+
+    /// 裁剪框边线宽度(单位为点)
+    public var cropBorderWidth: CGFloat = 1.5
+
+    /// 九宫格辅助线颜色(仅矩形裁剪画)
+    public var gridLineColor: UIColor = UIColor(white: 1, alpha: 0.4)
+
+    /// 裁剪把手颜色(四角L形把手与四边短把手)
+    public var handleColor: UIColor = .white
+
+    /// 四角L形把手的臂长(单位为点)
+    public var handleArmLength: CGFloat = 18
+
+    /// 标记选中态虚线颜色(主虚线，底下自动垫一圈半透明黑描边保证浅色背景上可读)
+    public var selectionDashColor: UIColor = .white
+
+    /// 标记选中态虚线线宽(单位为点)
+    public var selectionDashWidth: CGFloat = 1.5
+
+    /// 标记选中态虚线外扩边距(单位为点，虚线框相对标记边界四围的留白)
+    public var selectionInset: CGFloat = 6
+
+    /// 选中态删除按钮底色(左上角带叉圆钮)
+    public var deleteButtonColor: UIColor = UIColor.black.withAlphaComponent(0.75)
+
+    /// 选中态缩放与端点把手圆点颜色
+    public var resizeDotColor: UIColor = .white
+
+    /// 颜色选择条色板(按顺序展示，传空数组时界面不显示颜色行)
+    public var markerPalette: [UIColor] = [UIColor.white, UIColor.black, UIColor(red: 1, green: 0.84, blue: 0.03, alpha: 1), UIColor(red: 1, green: 0.27, blue: 0.23, alpha: 1), UIColor(red: 0.22, green: 0.8, blue: 0.35, alpha: 1), UIColor(red: 0.04, green: 0.52, blue: 1, alpha: 1), UIColor(red: 0.69, green: 0.33, blue: 0.87, alpha: 1)]
+
+    /// 线宽档位倍率(相对默认线宽的倍数序列，界面按序展示圆点)
+    public var lineWidthRatios: [CGFloat] = [0.5, 1, 2, 3.5]
+
+    /// 字号档位倍率(相对默认字号的倍数序列，界面按序展示字母A)
+    public var fontSizeRatios: [CGFloat] = [0.6, 1, 1.6, 2.4]
+
+    /// 标记工具条背景色
+    public var toolbarBackgroundColor: UIColor = UIColor(white: 0.08, alpha: 1)
+
+    /// 模式分段控件底色(裁剪标记两个胶囊所在的圆角容器)
+    public var segmentedBackgroundColor: UIColor = UIColor(white: 1, alpha: 0.12)
+
+    /// 模式分段控件选中胶囊底色
+    public var segmentedSelectedBackgroundColor: UIColor = .white
+
+    /// 模式分段控件选中胶囊文字颜色
+    public var segmentedSelectedTextColor: UIColor = .black
+
+    /// 模式分段控件未选中胶囊文字颜色
+    public var segmentedTextColor: UIColor = .white
+
+    /// 顶部栏普通按钮文字颜色(取消与还原)
+    public var topBarButtonColor: UIColor = .white
+
+    /// 顶部栏完成按钮文字颜色
+    public var topBarDoneColor: UIColor = .systemBlue
+
+    /// 选中态强调色(当前模式按钮、当前工具、生效档位圆点与字号的点亮色)
+    public var accentColor: UIColor = .systemBlue
+
+    public init() {}
+}
+
 /// 编辑器配置(全部属性都有默认值，按需改)
 public struct WYImageEditorConfiguration {
 
@@ -37,6 +112,9 @@ public struct WYImageEditorConfiguration {
 
     /// 固定裁剪输出尺寸(单位为像素；宽高任一为0表示不固定，由用户自由拖动裁剪框决定；圆形裁剪时取宽高较小边做直径)
     public var cropSize: CGSize = .zero
+
+    /// 是否允许裁剪(false时编辑器只有标记功能；与allowsMarking同时为false时按只裁剪处理)
+    public var allowsCropping: Bool = true
 
     /// 是否允许在图片上做标记(false时编辑器只有裁剪功能)
     public var allowsMarking: Bool = true
@@ -58,6 +136,9 @@ public struct WYImageEditorConfiguration {
 
     /// 界面上是否显示颜色选择条(false时用户只能用markerColor定的默认颜色)
     public var showsColorOptions: Bool = true
+
+    /// 界面外观(颜色线宽色板档位等UI细节都从这里改，不设置用默认外观)
+    public var appearance: WYImageEditorAppearance = WYImageEditorAppearance()
 
     public init() {}
 }
@@ -156,7 +237,7 @@ public class WYImageEditorViewController: UIViewController {
     private lazy var cancelButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setTitle(WYLocalized("取消", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(configuration.appearance.topBarButtonColor, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 17)
         button.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
         return button
@@ -166,7 +247,7 @@ public class WYImageEditorViewController: UIViewController {
     private lazy var revertButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setTitle(WYLocalized("还原", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(configuration.appearance.topBarButtonColor, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 17)
         button.addTarget(self, action: #selector(revertButtonTapped), for: .touchUpInside)
         return button
@@ -176,7 +257,7 @@ public class WYImageEditorViewController: UIViewController {
     private lazy var doneButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setTitle(WYLocalized("完成", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
-        button.setTitleColor(.systemBlue, for: .normal)
+        button.setTitleColor(configuration.appearance.topBarDoneColor, for: .normal)
         button.titleLabel?.font = .boldSystemFont(ofSize: 17)
         button.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
         return button
@@ -191,55 +272,60 @@ public class WYImageEditorViewController: UIViewController {
         return label
     }()
 
-    /// 裁剪模式切换按钮(进入裁剪模式)
+    /// 裁剪模式切换按钮(分段控件左胶囊)
     private lazy var cropModeButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setTitle(WYLocalized("裁剪", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.setTitleColor(.systemBlue, for: .selected)
-        button.setTitleColor(.systemBlue, for: [.selected, .highlighted])
-        button.titleLabel?.font = .systemFont(ofSize: 15, weight: .semibold)
+        button.titleLabel?.font = .systemFont(ofSize: 14, weight: .semibold)
+        button.layer.cornerRadius = 13
         button.addTarget(self, action: #selector(cropModeButtonTapped), for: .touchUpInside)
         return button
     }()
 
-    /// 标记模式切换按钮(进入标记模式，配置allowsMarking为false时隐藏)
+    /// 标记模式切换按钮(分段控件右胶囊)
     private lazy var markModeButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setTitle(WYLocalized("标记", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.setTitleColor(.systemBlue, for: .selected)
-        button.setTitleColor(.systemBlue, for: [.selected, .highlighted])
-        button.titleLabel?.font = .systemFont(ofSize: 15, weight: .semibold)
+        button.titleLabel?.font = .systemFont(ofSize: 14, weight: .semibold)
+        button.layer.cornerRadius = 13
         button.addTarget(self, action: #selector(markModeButtonTapped), for: .touchUpInside)
         return button
+    }()
+
+    /// 模式分段控件(两个胶囊居中悬浮，不再整条铺背景)
+    private lazy var modeSegmentedControl: UIView = {
+        let view = UIView()
+        view.backgroundColor = configuration.appearance.segmentedBackgroundColor
+        view.layer.cornerRadius = 16
+        view.layer.masksToBounds = true
+        return view
     }()
 
     /// 模式切换底条(裁剪与标记两个入口并排)
     private lazy var modeBar: UIView = {
         let bar = UIView()
-        bar.backgroundColor = UIColor(white: 0.08, alpha: 1)
+        bar.backgroundColor = configuration.appearance.toolbarBackgroundColor
         return bar
     }()
 
-    /// 标记工具条(四种工具加撤销删除加颜色条)
+    /// 标记工具条(五种工具加撤销删除加颜色条加粗细字号档)
     private lazy var markerToolbar: UIView = {
         let bar = UIView()
-        bar.backgroundColor = UIColor(white: 0.08, alpha: 1)
+        bar.backgroundColor = configuration.appearance.toolbarBackgroundColor
         return bar
     }()
 
     /// 裁剪视图(捏合缩放拖动图片加拖拽裁剪框都在它里面完成)
     private lazy var cropperView: WYImageCropperView = {
         let view = WYImageCropperView()
-        view.backgroundColor = .black
+        view.backgroundColor = configuration.appearance.canvasBackgroundColor
         return view
     }()
 
     /// 标记视图(显示当前裁剪区域内的图片，在上面画标记)
     private lazy var markerView: WYImageMarkerView = {
         let view = WYImageMarkerView()
-        view.backgroundColor = .black
+        view.backgroundColor = configuration.appearance.canvasBackgroundColor
         return view
     }()
 
@@ -255,10 +341,10 @@ public class WYImageEditorViewController: UIViewController {
             let button = UIButton(type: .custom)
             button.setTitle(title, for: .normal)
             button.setTitleColor(.white, for: .normal)
-            button.setTitleColor(.systemBlue, for: .selected)
-            button.setTitleColor(.systemBlue, for: [.selected, .highlighted])
+            button.setTitleColor(configuration.appearance.accentColor, for: .selected)
+            button.setTitleColor(configuration.appearance.accentColor, for: [.selected, .highlighted])
             button.setImage(icons[index], for: .normal)
-            button.setImage(icons[index].withTintColor(.systemBlue, renderingMode: .alwaysOriginal), for: .selected)
+            button.setImage(icons[index].withTintColor(configuration.appearance.accentColor, renderingMode: .alwaysOriginal), for: .selected)
             button.tintColor = .white
             button.titleLabel?.font = .systemFont(ofSize: 11)
             button.imageView?.contentMode = .scaleAspectFit
@@ -337,9 +423,9 @@ public class WYImageEditorViewController: UIViewController {
         return button
     }()
 
-    /// 颜色圆点按钮数组(白黑黄红绿蓝紫，点的瞬间作用于选中的标记或之后的标记)
+    /// 颜色圆点按钮数组(按外观色板生成，点的瞬间作用于选中的标记或之后的标记)
     private lazy var colorButtons: [UIButton] = {
-        return markerColorValues().map { color in
+        return configuration.appearance.markerPalette.map { color in
             let button = UIButton(type: .custom)
             button.backgroundColor = color
             button.layer.cornerRadius = 13
@@ -353,14 +439,9 @@ public class WYImageEditorViewController: UIViewController {
     /// 当前是否处于标记模式(false表示裁剪模式)
     private var isMarkMode = false
 
-    /// 预设标记颜色(白黑黄红绿蓝紫，白最常用放最前)
-    private func markerColorValues() -> [UIColor] {
-        return [UIColor.white, UIColor.black, UIColor(red: 1, green: 0.84, blue: 0.03, alpha: 1), UIColor(red: 1, green: 0.27, blue: 0.23, alpha: 1), UIColor(red: 0.22, green: 0.80, blue: 0.35, alpha: 1), UIColor(red: 0.04, green: 0.52, blue: 1, alpha: 1), UIColor(red: 0.69, green: 0.33, blue: 0.87, alpha: 1)]
-    }
-
     override public func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .black
+        view.backgroundColor = configuration.appearance.canvasBackgroundColor
 
         view.addSubview(cropperView)
         view.addSubview(markerView)
@@ -372,11 +453,21 @@ public class WYImageEditorViewController: UIViewController {
         view.addSubview(revertButton)
         view.addSubview(doneButton)
 
-        modeBar.addSubview(cropModeButton)
-        if configuration.allowsMarking {
-            modeBar.addSubview(markModeButton)
+        let bothModesEnabled = configuration.allowsCropping && configuration.allowsMarking
+        if bothModesEnabled {
+            modeBar.addSubview(modeSegmentedControl)
+            modeSegmentedControl.addSubview(cropModeButton)
+            modeSegmentedControl.addSubview(markModeButton)
+            cropModeButton.isSelected = true
+            refreshModeSegmented()
+        } else {
+            modeBar.isHidden = true
+
+            // 单模式直接进入对应模式，裁剪与标记都关时按只裁剪兜底
+            if !configuration.allowsCropping, configuration.allowsMarking {
+                setMarkMode(true)
+            }
         }
-        cropModeButton.isSelected = true
         titleLabel.text = WYLocalized("裁剪", table: WYBasisKitConfig.kitLocalizableTable)
 
         markerToolButtons.forEach { markerToolbar.addSubview($0) }
@@ -392,13 +483,19 @@ public class WYImageEditorViewController: UIViewController {
             fontSizeButtons.forEach { markerToolbar.addSubview($0) }
         }
 
-        cropperView.setup(image: image, shape: configuration.cropShape, fixedOutputSize: configuration.cropSize == .zero ? nil : configuration.cropSize)
+        cropperView.setup(image: image, shape: configuration.cropShape, fixedOutputSize: configuration.cropSize == .zero ? nil : configuration.cropSize, appearance: configuration.appearance)
+
+        // 自由模式松手应用裁剪后，标记画布跟着换基准并平移全部标记坐标
+        cropperView.onCropCommitted = { [weak self] croppedImage, region in
+            self?.markerView.applyCroppedBase(croppedImage, region: region)
+        }
 
         markerView.setup(image: image,
                          defaultColor: configuration.markerColor,
                          lineWidth: configuration.markerLineWidth,
                          textFontSize: configuration.markerTextFontSize,
-                         straightLine: configuration.lineDrawsStraight)
+                         straightLine: configuration.lineDrawsStraight,
+                         appearance: configuration.appearance)
         markerView.onRequestTextEdit = { [weak self] text, completion in
             self?.showTextInputAlert(existingText: text, completion: completion)
         }
@@ -430,7 +527,7 @@ public class WYImageEditorViewController: UIViewController {
         doneButton.frame = CGRect(x: width - safeRight - 80, y: safeTop + 4, width: 68, height: 44)
         titleLabel.frame = CGRect(x: (width - 160) / 2, y: safeTop + 4, width: 160, height: 44)
 
-        let modeBarHeight: CGFloat = 46
+        let modeBarHeight: CGFloat = modeBar.isHidden ? 0 : 46
         var toolbarHeight: CGFloat = 56
         if configuration.showsColorOptions {
             toolbarHeight += 38
@@ -445,12 +542,12 @@ public class WYImageEditorViewController: UIViewController {
         markerView.frame = cropperView.frame
 
         modeBar.frame = CGRect(x: 0, y: view.bounds.height - safeBottom - bottomBarsHeight, width: width, height: modeBarHeight)
-        let halfWidth = width / 2
-        if configuration.allowsMarking {
-            cropModeButton.frame = CGRect(x: 0, y: 0, width: halfWidth, height: modeBarHeight)
-            markModeButton.frame = CGRect(x: halfWidth, y: 0, width: halfWidth, height: modeBarHeight)
-        } else {
-            cropModeButton.frame = CGRect(x: 0, y: 0, width: width, height: modeBarHeight)
+        if !modeBar.isHidden {
+            let controlWidth: CGFloat = 200
+            let controlHeight: CGFloat = 32
+            modeSegmentedControl.frame = CGRect(x: (width - controlWidth) / 2, y: (modeBarHeight - controlHeight) / 2, width: controlWidth, height: controlHeight)
+            cropModeButton.frame = CGRect(x: 3, y: 3, width: controlWidth / 2 - 5, height: controlHeight - 6)
+            markModeButton.frame = CGRect(x: controlWidth / 2 + 2, y: 3, width: controlWidth / 2 - 5, height: controlHeight - 6)
         }
 
         if isMarkMode {
@@ -547,12 +644,12 @@ public class WYImageEditorViewController: UIViewController {
 
         let widthIndex = markerView.activeLineWidthIndex()
         for (index, button) in lineWidthDotButtons.enumerated() {
-            button.backgroundColor = index == widthIndex ? .systemBlue : .white
+            button.backgroundColor = index == widthIndex ? configuration.appearance.accentColor : .white
         }
         let fontIndex = markerView.activeFontSizeIndex()
         let fontSizes: [CGFloat] = [12, 16, 21, 27]
         for (index, button) in fontSizeButtons.enumerated() {
-            let color: UIColor = index == fontIndex ? .systemBlue : .white
+            let color: UIColor = index == fontIndex ? configuration.appearance.accentColor : .white
             let attributes: [NSAttributedString.Key: Any] = [.font: UIFont.boldSystemFont(ofSize: fontSizes[index]), .foregroundColor: color]
             button.setAttributedTitle(NSAttributedString(string: "A", attributes: attributes), for: .normal)
         }
@@ -587,6 +684,12 @@ public class WYImageEditorViewController: UIViewController {
     /// 点还原(裁剪状态与全部标记退回刚进编辑器时的样子)
     @objc private func revertButtonTapped() {
         cropperView.reset()
+        markerView.setup(image: image,
+                         defaultColor: configuration.markerColor,
+                         lineWidth: configuration.markerLineWidth,
+                         textFontSize: configuration.markerTextFontSize,
+                         straightLine: configuration.lineDrawsStraight,
+                         appearance: configuration.appearance)
         markerView.removeAllMarkers()
         if isMarkMode {
             refreshMarkerDisplayRegion()
@@ -615,12 +718,24 @@ public class WYImageEditorViewController: UIViewController {
         setMarkMode(true)
     }
 
+    /// 刷新模式分段控件的胶囊选中样式(选中的铺底色配文字色，未选中透明)
+    private func refreshModeSegmented() {
+        let selectedBackground = configuration.appearance.segmentedSelectedBackgroundColor
+        let selectedText = configuration.appearance.segmentedSelectedTextColor
+        let normalText = configuration.appearance.segmentedTextColor
+        cropModeButton.backgroundColor = cropModeButton.isSelected ? selectedBackground : .clear
+        cropModeButton.setTitleColor(cropModeButton.isSelected ? selectedText : normalText, for: .normal)
+        markModeButton.backgroundColor = markModeButton.isSelected ? selectedBackground : .clear
+        markModeButton.setTitleColor(markModeButton.isSelected ? selectedText : normalText, for: .normal)
+    }
+
     /// 切换裁剪与标记模式(带淡入淡出)
     private func setMarkMode(_ marking: Bool) {
         isMarkMode = marking
         cropModeButton.isSelected = !marking
         markModeButton.isSelected = marking
         titleLabel.text = marking ? WYLocalized("标记", table: WYBasisKitConfig.kitLocalizableTable) : WYLocalized("裁剪", table: WYBasisKitConfig.kitLocalizableTable)
+        refreshModeSegmented()
         markerToolbar.isHidden = !marking
 
         if marking {
@@ -642,10 +757,18 @@ public class WYImageEditorViewController: UIViewController {
         view.setNeedsLayout()
     }
 
+    /// 当前取景区域(允许裁剪时为裁剪框映射，纯标记模式为整张基准图)
+    private func currentCropRegion() -> CGRect {
+        if !configuration.allowsCropping {
+            let size = cropperView.currentBaseImage.size
+            return CGRect(origin: .zero, size: size)
+        }
+        return cropperView.cropRectInImageCoordinates()
+    }
+
     /// 让标记视图按当前裁剪框取景(标记画在原图坐标系上，裁剪框变了显示区域跟着变)
     private func refreshMarkerDisplayRegion() {
-        let region = cropperView.cropRectInImageCoordinates()
-        markerView.updateDisplayRegion(region)
+        markerView.updateDisplayRegion(currentCropRegion())
     }
 
     /// 点标记工具(选中后拖动画布生成对应标记，文本工具点画布弹输入)
@@ -693,14 +816,14 @@ public class WYImageEditorViewController: UIViewController {
 
     /// 点颜色圆点(有选中标记直接改它，没有就当作之后标记的颜色)
     @objc private func colorButtonTapped(_ sender: UIButton) {
-        guard let index = colorButtons.firstIndex(of: sender), markerColorValues().indices.contains(index) else { return }
-        markerView.applyColor(markerColorValues()[index])
-        refreshColorSelection(color: markerColorValues()[index])
+        guard let index = colorButtons.firstIndex(of: sender), configuration.appearance.markerPalette.indices.contains(index) else { return }
+        markerView.applyColor(configuration.appearance.markerPalette[index])
+        refreshColorSelection(color: configuration.appearance.markerPalette[index])
     }
 
     /// 刷新颜色圆点选中态(选中的颜色加一圈白描边)
     private func refreshColorSelection(color: UIColor) {
-        let values = markerColorValues()
+        let values = configuration.appearance.markerPalette
         for (index, button) in colorButtons.enumerated() {
             button.layer.borderWidth = values[index] == color ? 3 : 1
             button.layer.borderColor = values[index] == color ? UIColor.white.cgColor : UIColor(white: 1, alpha: 0.35).cgColor
@@ -709,8 +832,8 @@ public class WYImageEditorViewController: UIViewController {
 
     /// 合成成品图(先按裁剪框裁出区域再叠加标记，圆形裁剪时四角抠成透明)
     private func renderEditedImage() -> UIImage {
-        let cropRegion = cropperView.cropRectInImageCoordinates()
-        var region = cropRegion
+        let baseImage = cropperView.currentBaseImage
+        var region = currentCropRegion()
         region.size.width = max(region.size.width, 1)
         region.size.height = max(region.size.height, 1)
 
@@ -731,7 +854,7 @@ public class WYImageEditorViewController: UIViewController {
         }
 
         let format = UIGraphicsImageRendererFormat.default()
-        format.scale = configuration.cropSize == .zero ? image.scale : 1
+        format.scale = configuration.cropSize == .zero ? baseImage.scale : 1
         let renderer = UIGraphicsImageRenderer(size: outputSize, format: format)
         return renderer.image { rendererContext in
 
@@ -747,7 +870,7 @@ public class WYImageEditorViewController: UIViewController {
             let scaleY = outputSize.height / region.height
             context.translateBy(x: -region.origin.x * scaleX, y: -region.origin.y * scaleY)
             context.scaleBy(x: scaleX, y: scaleY)
-            image.draw(in: CGRect(origin: .zero, size: image.size))
+            baseImage.draw(in: CGRect(origin: .zero, size: baseImage.size))
 
             markerView.drawMarkers(in: context)
 

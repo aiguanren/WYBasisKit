@@ -18,6 +18,12 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
     /// 是否允许标记
     var allowsMarking: Bool = true
 
+    /// 是否允许裁剪
+    var allowsCropping: Bool = true
+
+    /// 是否用自定义外观(一组覆盖多项外观属性的示例值)
+    var useCustomAppearance: Bool = false
+
     /// 标记颜色
     var markerColor: UIColor = .white
 
@@ -68,30 +74,35 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
 
         createButton(title: "(已允许)标记", selector: #selector(markingButtonTapped(sender:)), superView: contentView, leftView: sizeButton, topView: nil, isRight: true)
 
-        let colorButton: UIButton = createButton(title: "标记颜色(白)", selector: #selector(colorButtonTapped(sender:)), superView: contentView, leftView: nil, topView: shapeButton)
+        let croppingButton: UIButton = createButton(title: "(已允许)裁剪", selector: #selector(croppingButtonTapped(sender:)), superView: contentView, leftView: nil, topView: shapeButton)
+        croppingButton.setTitle("(已关闭)裁剪", for: .selected)
 
-        let lineWidthButton: UIButton = createButton(title: "线条宽度(自动)", selector: #selector(lineWidthButtonTapped(sender:)), superView: contentView, leftView: colorButton, topView: shapeButton)
+        let colorButton: UIButton = createButton(title: "标记颜色(白)", selector: #selector(colorButtonTapped(sender:)), superView: contentView, leftView: croppingButton, topView: shapeButton)
 
-        createButton(title: "文本字号(自动)", selector: #selector(fontSizeButtonTapped(sender:)), superView: contentView, leftView: lineWidthButton, topView: shapeButton, isRight: true)
+        createButton(title: "线条宽度(自动)", selector: #selector(lineWidthButtonTapped(sender:)), superView: contentView, leftView: colorButton, topView: shapeButton, isRight: true)
 
-        let imageButton: UIButton = createButton(title: "测试图片(标尺横图)", selector: #selector(imageButtonTapped(sender:)), superView: contentView, leftView: nil, topView: colorButton)
+        let fontSizeButton: UIButton = createButton(title: "文本字号(自动)", selector: #selector(fontSizeButtonTapped(sender:)), superView: contentView, leftView: nil, topView: croppingButton)
 
-        let lineShapeButton: UIButton = createButton(title: "划线形态(自由)", selector: #selector(lineShapeButtonTapped(sender:)), superView: contentView, leftView: imageButton, topView: colorButton)
+        let lineShapeButton: UIButton = createButton(title: "划线形态(自由)", selector: #selector(lineShapeButtonTapped(sender:)), superView: contentView, leftView: fontSizeButton, topView: croppingButton)
         lineShapeButton.setTitle("划线形态(直线)", for: .selected)
 
-        let styleRowButton: UIButton = createButton(title: "(显示)粗细字号行", selector: #selector(styleRowButtonTapped(sender:)), superView: contentView, leftView: lineShapeButton, topView: colorButton, isRight: true)
-        styleRowButton.setTitle("(隐藏)粗细字号行", for: .selected)
+        createButton(title: "(显示)粗细字号行", selector: #selector(styleRowButtonTapped(sender:)), superView: contentView, leftView: lineShapeButton, topView: croppingButton, isRight: true)
 
-        let colorRowButton: UIButton = createButton(title: "(显示)颜色条", selector: #selector(colorRowButtonTapped(sender:)), superView: contentView, leftView: nil, topView: imageButton)
+        let colorRowButton: UIButton = createButton(title: "(显示)颜色条", selector: #selector(colorRowButtonTapped(sender:)), superView: contentView, leftView: nil, topView: fontSizeButton)
         colorRowButton.setTitle("(隐藏)颜色条", for: .selected)
 
-        let blockButton: UIButton = createButton(title: "Block方式\n打开编辑器", selector: #selector(blockButtonTapped), superView: contentView, leftView: colorRowButton, topView: imageButton)
+        let imageButton: UIButton = createButton(title: "测试图片(标尺横图)", selector: #selector(imageButtonTapped(sender:)), superView: contentView, leftView: colorRowButton, topView: fontSizeButton)
 
-        createButton(title: "Delegate方式\n打开编辑器", selector: #selector(delegateButtonTapped), superView: contentView, leftView: blockButton, topView: imageButton, isRight: true)
+        let appearanceButton: UIButton = createButton(title: "外观(默认)", selector: #selector(appearanceButtonTapped(sender:)), superView: contentView, leftView: imageButton, topView: fontSizeButton, isRight: true)
+        appearanceButton.setTitle("外观(自定义)", for: .selected)
 
-        let staticButton: UIButton = createButton(title: "静态方法\n一行打开", selector: #selector(staticButtonTapped), superView: contentView, leftView: nil, topView: colorRowButton)
+        let blockButton: UIButton = createButton(title: "Block方式\n打开编辑器", selector: #selector(blockButtonTapped), superView: contentView, leftView: nil, topView: colorRowButton)
 
-        createButton(title: "清除结果", selector: #selector(clearButtonTapped), superView: contentView, leftView: staticButton, topView: colorRowButton, isLast: true)
+        createButton(title: "Delegate方式\n打开编辑器", selector: #selector(delegateButtonTapped), superView: contentView, leftView: blockButton, topView: colorRowButton)
+
+        let staticButton: UIButton = createButton(title: "静态方法\n一行打开", selector: #selector(staticButtonTapped), superView: contentView, leftView: nil, topView: imageButton)
+
+        createButton(title: "清除结果", selector: #selector(clearButtonTapped), superView: contentView, leftView: staticButton, topView: imageButton, isLast: true)
 
         tableView = UITableView.wy_shared(delegate: self, dataSource: self, superView: view)
         tableView?.wy_register(WYTestImageEditorResultCell.self, .cell)
@@ -144,7 +155,23 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
         var configuration = WYImageEditorConfiguration()
         configuration.cropShape = cropShape
         configuration.cropSize = fixedCropSize ?? .zero
+        configuration.allowsCropping = allowsCropping
         configuration.allowsMarking = allowsMarking
+        if useCustomAppearance {
+            var appearance = WYImageEditorAppearance()
+            appearance.selectionDashColor = .systemRed
+            appearance.selectionDashWidth = 2.5
+            appearance.selectionInset = 10
+            appearance.handleColor = .systemYellow
+            appearance.maskDimmingAmount = 0.8
+            appearance.accentColor = .systemGreen
+            appearance.segmentedSelectedBackgroundColor = .systemGreen
+            appearance.segmentedSelectedTextColor = .white
+            appearance.markerPalette = [.white, .red, .yellow]
+            appearance.lineWidthRatios = [0.5, 2, 4]
+            appearance.canvasBackgroundColor = UIColor(white: 0.15, alpha: 1)
+            configuration.appearance = appearance
+        }
         configuration.markerColor = markerColor
         configuration.markerLineWidth = markerLineWidth
         configuration.markerTextFontSize = markerTextFontSize
@@ -230,7 +257,9 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
         let styleRowText = showsStyleOptions ? "显示" : "隐藏"
         let colorRowText = showsColorOptions ? "显示" : "隐藏"
         let imageSourceText = testImageName ?? "标尺图"
-        wy_print("[\(source)] 打开编辑器 图片=\(imageSourceText) 原图\(Int(image.size.width))×\(Int(image.size.height)) 配置=形状\(shapeText) 尺寸\(sizeText) 标记\(markingText) 线宽\(lineWidthText) 字号\(fontSizeText) 划线\(lineShapeText) 粗细字号行\(styleRowText) 颜色条\(colorRowText)")
+        let croppingText = allowsCropping ? "允许" : "关闭"
+        let appearanceText = useCustomAppearance ? "自定义" : "默认"
+        wy_print("[\(source)] 打开编辑器 图片=\(imageSourceText) 原图\(Int(image.size.width))×\(Int(image.size.height)) 配置=形状\(shapeText) 尺寸\(sizeText) 裁剪\(croppingText) 标记\(markingText) 线宽\(lineWidthText) 字号\(fontSizeText) 划线\(lineShapeText) 粗细字号行\(styleRowText) 颜色条\(colorRowText) 外观\(appearanceText)")
     }
 
     /// 记录编辑结果并刷新表格(三种打开方式共用)
@@ -273,6 +302,18 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
     @objc func markingButtonTapped(sender: UIButton) {
         allowsMarking.toggle()
         sender.isSelected = !allowsMarking
+    }
+
+    /// 允许裁剪开关(关掉后编辑器只有标记功能)
+    @objc func croppingButtonTapped(sender: UIButton) {
+        allowsCropping.toggle()
+        sender.isSelected = !allowsCropping
+    }
+
+    /// 外观样式切换(自定义为覆盖多项外观属性的示例值)
+    @objc func appearanceButtonTapped(sender: UIButton) {
+        useCustomAppearance.toggle()
+        sender.isSelected = useCustomAppearance
     }
 
     @objc func colorButtonTapped(sender: UIButton) {

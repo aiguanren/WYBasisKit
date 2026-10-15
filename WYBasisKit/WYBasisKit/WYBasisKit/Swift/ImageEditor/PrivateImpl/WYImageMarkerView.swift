@@ -109,6 +109,9 @@ class WYImageMarkerView: UIView {
     /// 默认文本字号(图片坐标，配置传0时按图片宽度自动取值)
     private var defaultFontSize: CGFloat = 32
 
+    /// 界面外观(选中态虚线删除钮把手与档位倍率都从这里取)
+    private var appearance = WYImageEditorAppearance()
+
     /// 要标记的原图
     private var sourceImage: UIImage = UIImage()
 
@@ -163,11 +166,13 @@ class WYImageMarkerView: UIView {
      *   - lineWidth: 默认线条宽度(传0按图片宽度自动)
      *   - textFontSize: 默认文本字号(传0按图片宽度自动)
      *   - straightLine: 划线默认形态(true为直线)
+     *   - appearance: 界面外观
      */
-    func setup(image: UIImage, defaultColor: UIColor, lineWidth: CGFloat, textFontSize: CGFloat, straightLine: Bool) {
+    func setup(image: UIImage, defaultColor: UIColor, lineWidth: CGFloat, textFontSize: CGFloat, straightLine: Bool, appearance: WYImageEditorAppearance) {
         sourceImage = image
         currentColor = defaultColor
         lineDrawsStraight = straightLine
+        self.appearance = appearance
         let baseWidth = max(image.size.width, 1)
         defaultLineWidth = lineWidth > 0 ? lineWidth : min(max(baseWidth / 160, 3), 48)
         defaultFontSize = textFontSize > 0 ? textFontSize : min(max(baseWidth / 18, 16), 220)
@@ -176,6 +181,26 @@ class WYImageMarkerView: UIView {
     /// 更新显示区域(切到标记模式或裁剪框变化时按裁剪框取景)
     func updateDisplayRegion(_ region: CGRect) {
         displayRegion = region
+        setNeedsDisplay()
+    }
+
+    /// 换基准图(裁剪视图松手应用裁剪后调用，region为本次裁掉区域在旧基准图中的坐标，全部标记坐标平移保持锚定图片内容)
+    func applyCroppedBase(_ croppedImage: UIImage, region: CGRect) {
+        sourceImage = croppedImage
+        displayRegion.origin.x -= region.origin.x
+        displayRegion.origin.y -= region.origin.y
+        for index in items.indices {
+            items[index].frame.origin.x -= region.origin.x
+            items[index].frame.origin.y -= region.origin.y
+            items[index].startPoint.x -= region.origin.x
+            items[index].startPoint.y -= region.origin.y
+            items[index].endPoint.x -= region.origin.x
+            items[index].endPoint.y -= region.origin.y
+            for pointIndex in items[index].linePoints.indices {
+                items[index].linePoints[pointIndex].x -= region.origin.x
+                items[index].linePoints[pointIndex].y -= region.origin.y
+            }
+        }
         setNeedsDisplay()
     }
 
@@ -266,14 +291,14 @@ class WYImageMarkerView: UIView {
         onSelectionChanged?()
     }
 
-    /// 界面线宽档位(默认线宽的0.5倍1倍2倍3.5倍，图片坐标)
+    /// 界面线宽档位(按外观倍率序列乘默认线宽，图片坐标)
     func presetLineWidths() -> [CGFloat] {
-        return [defaultLineWidth * 0.5, defaultLineWidth, defaultLineWidth * 2, defaultLineWidth * 3.5]
+        return appearance.lineWidthRatios.map { defaultLineWidth * $0 }
     }
 
-    /// 界面字号档位(默认字号的0.6倍1倍1.6倍2.4倍，图片坐标)
+    /// 界面字号档位(按外观倍率序列乘默认字号，图片坐标)
     func presetFontSizes() -> [CGFloat] {
-        return [defaultFontSize * 0.6, defaultFontSize, defaultFontSize * 1.6, defaultFontSize * 2.4]
+        return appearance.fontSizeRatios.map { defaultFontSize * $0 }
     }
 
     /// 当前生效线宽在档位中的下标(选中文本或没有精确命中时返回nil)
@@ -332,16 +357,16 @@ class WYImageMarkerView: UIView {
         return activeTool == .line
     }
 
-    /// 画布触点转图片坐标
+    /// 画布触点转图片坐标(映射含取景区域原点，与标记绘制的变换完全一致)
     private func imagePoint(fromViewPoint viewPoint: CGPoint) -> CGPoint {
         let transform = displayTransform()
-        return CGPoint(x: (viewPoint.x - transform.origin.x) / transform.scale, y: (viewPoint.y - transform.origin.y) / transform.scale)
+        return CGPoint(x: (viewPoint.x - transform.origin.x) / transform.scale + validRegion.origin.x, y: (viewPoint.y - transform.origin.y) / transform.scale + validRegion.origin.y)
     }
 
-    /// 图片坐标转画布触点
+    /// 图片坐标转画布触点(映射含取景区域原点，选中框与把手都靠它对齐标记内容)
     private func viewPoint(fromImagePoint imageCoordinate: CGPoint) -> CGPoint {
         let transform = displayTransform()
-        return CGPoint(x: imageCoordinate.x * transform.scale + transform.origin.x, y: imageCoordinate.y * transform.scale + transform.origin.y)
+        return CGPoint(x: (imageCoordinate.x - validRegion.origin.x) * transform.scale + transform.origin.x, y: (imageCoordinate.y - validRegion.origin.y) * transform.scale + transform.origin.y)
     }
 
     /// 显示区到画布的映射(等比缩放加平移，图片区域完整显示在画布内居中)
@@ -598,16 +623,16 @@ class WYImageMarkerView: UIView {
     private func drawSelectionChrome(for item: WYImageMarkerItem, in context: CGContext) {
 
         let frame = viewFrame(of: item)
-        let chromeFrame = frame.insetBy(dx: -6, dy: -6)
+        let chromeFrame = frame.insetBy(dx: -appearance.selectionInset, dy: -appearance.selectionInset)
 
         // 一深一浅两圈虚线，浅色背景上也能看清
-        context.setLineWidth(3)
+        context.setLineWidth(appearance.selectionDashWidth + 1.5)
         context.setStrokeColor(UIColor(white: 0, alpha: 0.55).cgColor)
         let darkPath = UIBezierPath(rect: chromeFrame)
         darkPath.setLineDash([4, 3], count: 2, phase: 0)
         darkPath.stroke()
-        context.setLineWidth(1.5)
-        context.setStrokeColor(UIColor.white.cgColor)
+        context.setLineWidth(appearance.selectionDashWidth)
+        context.setStrokeColor(appearance.selectionDashColor.cgColor)
         let lightPath = UIBezierPath(rect: chromeFrame)
         lightPath.setLineDash([4, 3], count: 2, phase: 0)
         lightPath.stroke()
@@ -615,9 +640,9 @@ class WYImageMarkerView: UIView {
         // 左上角删除圆钮带叉
         let deleteCenter = CGPoint(x: chromeFrame.minX, y: chromeFrame.minY)
         let deletePath = UIBezierPath(arcCenter: deleteCenter, radius: 11, startAngle: 0, endAngle: .pi * 2, clockwise: true)
-        UIColor.black.withAlphaComponent(0.75).setFill()
+        appearance.deleteButtonColor.setFill()
         deletePath.fill()
-        context.setStrokeColor(UIColor.white.cgColor)
+        context.setStrokeColor(appearance.selectionDashColor.cgColor)
         context.setLineWidth(1.8)
         let crossPath = UIBezierPath()
         crossPath.move(to: CGPoint(x: deleteCenter.x - 4.5, y: deleteCenter.y - 4.5))
@@ -629,7 +654,7 @@ class WYImageMarkerView: UIView {
         // 白圈小圆点把手(箭头与直线划线在两端，其余在右下角)
         func drawHandleDot(_ center: CGPoint) {
             let dotPath = UIBezierPath(arcCenter: center, radius: 7, startAngle: 0, endAngle: .pi * 2, clockwise: true)
-            UIColor.white.setFill()
+            appearance.resizeDotColor.setFill()
             dotPath.fill()
             context.setLineWidth(1.5)
             context.setStrokeColor(UIColor(white: 0, alpha: 0.4).cgColor)

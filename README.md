@@ -91,13 +91,22 @@ WYImageEditorViewController.present(from: self, image: image) { resultImage in
 var configuration = WYImageEditorConfiguration()
 configuration.cropShape = .circle
 configuration.cropSize = CGSize(width: 300, height: 300)
-configuration.allowsMarking = false
+configuration.allowsCropping = true          // false时编辑器只有标记功能
+configuration.allowsMarking = false          // false时编辑器只有裁剪功能
 configuration.markerColor = .white
 configuration.markerLineWidth = 0            // 0按图片宽度自动
 configuration.markerTextFontSize = 0         // 0按图片宽度自动
 configuration.lineDrawsStraight = false      // 划线形态(true为两点连直线，false为跟随手指自由划线)
 configuration.showsStyleOptions = true       // 界面是否显示粗细字号选择行(false时用户只能用配置的默认值)
 configuration.showsColorOptions = true       // 界面是否显示颜色选择条(false时用户只能用配置的默认颜色)
+
+// 界面外观全部可配(22项：画布/遮罩/裁剪框线/把手/选中虚线/删除钮/色板/档位倍率/工具条/分段控件/强调色等)
+configuration.appearance.selectionDashColor = .systemRed   // 标记选中态虚线颜色
+configuration.appearance.handleColor = .systemYellow       // 裁剪把手颜色
+configuration.appearance.accentColor = .systemGreen        // 选中态强调色
+configuration.appearance.markerPalette = [.white, .red]    // 颜色条色板(空数组隐藏颜色行)
+configuration.appearance.lineWidthRatios = [0.5, 1, 2]     // 线宽档位倍率
+
 let editor = WYImageEditorViewController(image: image, configuration: configuration)
 editor.onFinish = { resultImage in ... }     // Block回调
 editor.onCancel = { ... }

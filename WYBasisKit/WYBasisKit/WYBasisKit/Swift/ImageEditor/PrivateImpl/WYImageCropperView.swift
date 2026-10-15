@@ -28,7 +28,7 @@ struct WYImageCropHandleZone: OptionSet {
     static let bottomRight: WYImageCropHandleZone = [.bottom, .right]
 }
 
-/// 裁剪视图(图片可捏合缩放与拖动，自由模式裁剪框可拖把手调整，固定尺寸模式下裁剪框锁死只能动图片)
+/// 裁剪视图(图片可捏合缩放与拖动，自由模式裁剪框可拖把手调整且松手立即应用裁剪，固定尺寸模式下裁剪框锁死只能动图片)
 class WYImageCropperView: UIView {
 
     /// 裁剪形状
@@ -37,8 +37,22 @@ class WYImageCropperView: UIView {
     /// 固定输出尺寸(nil表示不固定，由用户自由拖动裁剪框决定)
     private var fixedOutputSize: CGSize?
 
-    /// 要裁剪的图片
+    /// 进入时的原图(点还原时恢复它)
+    private var originalImage: UIImage = UIImage()
+
+    /// 当前裁剪基准图(自由模式松手应用裁剪后会换成裁剪出的新图)
     private var cropImage: UIImage = UIImage()
+
+    /// 即时裁剪回调(参数为裁剪出的新基准图与本次裁掉区域在旧基准图中的坐标，编辑器用它同步标记画布)
+    var onCropCommitted: ((UIImage, CGRect) -> Void)?
+
+    /// 界面外观(遮罩框线网格与把手样式从这里取)
+    var appearance = WYImageEditorAppearance()
+
+    /// 当前裁剪基准图(出成品图时按它绘制)
+    var currentBaseImage: UIImage {
+        return cropImage
+    }
 
     /// 当前裁剪框(本视图坐标的矩形框，圆形裁剪时圆内切于这个框)
     private var cropBox: CGRect = .zero
@@ -88,22 +102,25 @@ class WYImageCropperView: UIView {
      *   - image: 要裁剪的图片
      *   - shape: 裁剪形状(矩形或圆形)
      *   - fixedOutputSize: 固定输出尺寸(nil表示不固定)
+     *   - appearance: 界面外观
      */
-    func setup(image: UIImage, shape: WYImageCropShape, fixedOutputSize: CGSize?) {
+    func setup(image: UIImage, shape: WYImageCropShape, fixedOutputSize: CGSize?, appearance: WYImageEditorAppearance) {
+        originalImage = image
         cropImage = image
         self.shape = shape
         self.fixedOutputSize = fixedOutputSize
-
-        imageView.image = image
-        imageView.frame = CGRect(origin: .zero, size: image.size)
-        scrollView.contentSize = image.size
+        self.appearance = appearance
+        overlayView.appearance = appearance
+        applyImageContent(image)
         scrollView.addSubview(imageView)
         addSubview(scrollView)
         addSubview(overlayView)
     }
 
-    /// 还原(裁剪框位置大小与图片缩放位移都退回刚进来时的状态)
+    /// 还原(恢复原图并把裁剪框位置大小与图片缩放位移退回刚进来时的状态)
     func reset() {
+        cropImage = originalImage
+        applyImageContent(originalImage)
         applyInitialLayout()
     }
 
@@ -200,6 +217,36 @@ class WYImageCropperView: UIView {
         overlayView.updateCropBox(cropBox, shape: shape, showsHandles: fixedOutputSize == nil)
     }
 
+    /// 换基准图后同步图片视图与滚动内容尺寸
+    private func applyImageContent(_ image: UIImage) {
+        imageView.image = image
+        imageView.frame = CGRect(origin: .zero, size: image.size)
+        scrollView.contentSize = image.size
+    }
+
+    /// 应用当前裁剪框的裁剪(松手即所见即所得，CGImage像素直裁不重采样，裁完框回满图内收状态)
+    private func commitCrop() {
+        guard fixedOutputSize == nil else { return }
+        let region = cropRectInImageCoordinates()
+        guard region.width >= 1, region.height >= 1, let cgImage = cropImage.cgImage else { return }
+
+        // 像素坐标裁剪并夹回图片实际范围(cropping越界会返回nil)
+        let scale = cropImage.scale
+        var pixelRect = CGRect(x: region.minX * scale, y: region.minY * scale, width: region.width * scale, height: region.height * scale)
+        pixelRect.origin.x = max(0, min(pixelRect.origin.x, CGFloat(cgImage.width) - pixelRect.width))
+        pixelRect.origin.y = max(0, min(pixelRect.origin.y, CGFloat(cgImage.height) - pixelRect.height))
+        pixelRect.size.width = min(pixelRect.width, CGFloat(cgImage.width) - pixelRect.origin.x)
+        pixelRect.size.height = min(pixelRect.height, CGFloat(cgImage.height) - pixelRect.origin.y)
+        guard pixelRect.width >= 1, pixelRect.height >= 1, let croppedCG = cgImage.cropping(to: pixelRect) else { return }
+
+        // 换基准图重摆布局(标记画布由编辑器经回调同步平移)
+        let regionInOldBase = CGRect(x: pixelRect.origin.x / scale, y: pixelRect.origin.y / scale, width: pixelRect.width / scale, height: pixelRect.height / scale)
+        cropImage = UIImage(cgImage: croppedCG, scale: scale, orientation: .up)
+        applyImageContent(cropImage)
+        applyInitialLayout()
+        onCropCommitted?(cropImage, regionInOldBase)
+    }
+
     /// 自由模式图片比画布小时用内容边距把它居中
     private func centerContentWithInset() {
         let contentWidth = cropImage.size.width * scrollView.zoomScale
@@ -217,6 +264,11 @@ class WYImageCropperView: UIView {
 
         if state == .began {
             dragStartBox = cropBox
+        }
+
+        // 松手时框有实际位移且抓的是把手，立即应用裁剪(所见即所得，画布直接变成裁剪后的图)
+        if state == .ended, zone != [], abs(translation.x) > 1 || abs(translation.y) > 1 {
+            commitCrop()
         }
         guard state == .began || state == .changed else { return }
 
@@ -311,6 +363,9 @@ class WYImageCropOverlayView: UIView {
     /// 把手拖拽回调(状态加把手位置加累计位移)
     var onPanHandle: ((UIGestureRecognizer.State, WYImageCropHandleZone, CGPoint) -> Void)?
 
+    /// 界面外观(遮罩框线网格与把手样式)
+    var appearance = WYImageEditorAppearance()
+
     /// 当前裁剪框
     private var cropBox: CGRect = .zero
 
@@ -320,9 +375,10 @@ class WYImageCropOverlayView: UIView {
     /// 是否显示拖拽把手(固定尺寸模式不显示)
     private var showsHandles = true
 
-    /// 把手拖拽手势
+    /// 把手拖拽手势(只认单指，多指全部让给下层滚动视图的捏合)
     private lazy var panGesture: UIPanGestureRecognizer = {
         let gesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
+        gesture.maximumNumberOfTouches = 1
         return gesture
     }()
 
@@ -352,7 +408,7 @@ class WYImageCropOverlayView: UIView {
         guard let context = UIGraphicsGetCurrentContext(), cropBox.width > 0, cropBox.height > 0 else { return }
 
         // 框外压暗(矩形按矩形挖孔，圆形按内切圆挖孔)
-        context.setFillColor(UIColor(white: 0, alpha: 0.62).cgColor)
+        context.setFillColor(UIColor(white: 0, alpha: max(0, min(1, appearance.maskDimmingAmount))).cgColor)
         let fillPath = UIBezierPath(rect: bounds)
         let holePath: UIBezierPath
         if shape == .circle {
@@ -365,8 +421,8 @@ class WYImageCropOverlayView: UIView {
         fillPath.fill()
 
         // 框线
-        context.setStrokeColor(UIColor.white.cgColor)
-        context.setLineWidth(1.5)
+        context.setStrokeColor(appearance.cropBorderColor.cgColor)
+        context.setLineWidth(appearance.cropBorderWidth)
         let borderPath: UIBezierPath
         if shape == .circle {
             borderPath = UIBezierPath(ovalIn: cropBox.insetBy(dx: 0.75, dy: 0.75))
@@ -377,7 +433,7 @@ class WYImageCropOverlayView: UIView {
 
         // 矩形画九宫格辅助线(圆形不画)
         if shape == .rectangle {
-            context.setStrokeColor(UIColor(white: 1, alpha: 0.4).cgColor)
+            context.setStrokeColor(appearance.gridLineColor.cgColor)
             context.setLineWidth(1)
             let gridPath = UIBezierPath()
             for index in 1...2 {
@@ -394,10 +450,10 @@ class WYImageCropOverlayView: UIView {
         guard showsHandles else { return }
 
         // 四角L形把手
-        context.setStrokeColor(UIColor.white.cgColor)
+        context.setStrokeColor(appearance.handleColor.cgColor)
         context.setLineWidth(3)
         context.setLineCap(.round)
-        let armLength: CGFloat = 18
+        let armLength: CGFloat = appearance.handleArmLength
         let cornerPath = UIBezierPath()
         let corners = [CGPoint(x: cropBox.minX, y: cropBox.minY), CGPoint(x: cropBox.maxX, y: cropBox.minY), CGPoint(x: cropBox.minX, y: cropBox.maxY), CGPoint(x: cropBox.maxX, y: cropBox.maxY)]
         for corner in corners {
@@ -414,7 +470,7 @@ class WYImageCropOverlayView: UIView {
         let barLength: CGFloat = 28
         let barThickness: CGFloat = 4
         let barRadius: CGFloat = 2
-        let barColor = UIColor.white
+        let barColor = appearance.handleColor
         let edgeBars = [
             CGRect(x: cropBox.midX - barLength / 2, y: cropBox.minY - barThickness / 2, width: barLength, height: barThickness),
             CGRect(x: cropBox.midX - barLength / 2, y: cropBox.maxY - barThickness / 2, width: barLength, height: barThickness),
@@ -444,7 +500,13 @@ class WYImageCropOverlayView: UIView {
             // 用按下时刻的触点判热区(pan要移动几像素才触发began，用当前点判定会因手指微滑出热区而抓空)
             let downPoint = gesture.numberOfTouches > 0 ? gesture.location(ofTouch: 0, in: self) : gesture.location(in: self)
             activeZone = handleZone(at: downPoint)
-            if activeZone == [] { return }
+            if activeZone == [] {
+
+                // 判空说明手势被误识别，立即置失败把触摸还给下层滚动视图
+                gesture.isEnabled = false
+                gesture.isEnabled = true
+                return
+            }
             onPanHandle?(.began, activeZone, .zero)
         case .changed:
             let translation = gesture.translation(in: self)

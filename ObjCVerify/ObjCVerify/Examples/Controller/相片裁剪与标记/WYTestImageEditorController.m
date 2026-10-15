@@ -34,6 +34,12 @@
 /// 是否允许标记
 @property (nonatomic, assign) BOOL allowsMarking;
 
+/// 是否允许裁剪
+@property (nonatomic, assign) BOOL allowsCropping;
+
+/// 是否用自定义外观(一组覆盖多项外观属性的示例值)
+@property (nonatomic, assign) BOOL useCustomAppearance;
+
 /// 标记颜色
 @property (nonatomic, strong) UIColor *markerColor;
 
@@ -77,6 +83,7 @@
     [super viewDidLoad];
 
     _cropShape = WYImageCropShapeRectangle;
+    _allowsCropping = YES;
     _allowsMarking = YES;
     _showsStyleOptions = YES;
     _showsColorOptions = YES;
@@ -108,79 +115,95 @@
                                                 isRight:NO
                                                  isLast:NO];
 
-    UIButton *markingButton = [self createButtonWithTitle:@"(已允许)标记"
-                                                 selector:@selector(markingButtonTapped:)
+    [self createButtonWithTitle:@"(已允许)标记"
+                       selector:@selector(markingButtonTapped:)
+                      superView:contentView
+                       leftView:sizeButton
+                        topView:nil
+                         isRight:YES
+                          isLast:NO];
+
+    UIButton *croppingButton = [self createButtonWithTitle:@"(已允许)裁剪"
+                                                 selector:@selector(croppingButtonTapped:)
                                                 superView:contentView
-                                                 leftView:sizeButton
-                                                  topView:nil
-                                                   isRight:YES
+                                                 leftView:nil
+                                                  topView:shapeButton
+                                                   isRight:NO
                                                     isLast:NO];
-    [markingButton setTitle:@"(已关闭)标记" forState:UIControlStateSelected];
+    [croppingButton setTitle:@"(已关闭)裁剪" forState:UIControlStateSelected];
 
     UIButton *colorButton = [self createButtonWithTitle:@"标记颜色(白)"
                                                selector:@selector(colorButtonTapped:)
                                               superView:contentView
-                                               leftView:nil
+                                               leftView:croppingButton
                                                 topView:shapeButton
                                                  isRight:NO
                                                   isLast:NO];
 
-    UIButton *lineWidthButton = [self createButtonWithTitle:@"线条宽度(自动)"
-                                                   selector:@selector(lineWidthButtonTapped:)
-                                                  superView:contentView
-                                                   leftView:colorButton
-                                                    topView:shapeButton
-                                                     isRight:NO
-                                                      isLast:NO];
-
-    [self createButtonWithTitle:@"文本字号(自动)"
-                       selector:@selector(fontSizeButtonTapped:)
+    [self createButtonWithTitle:@"线条宽度(自动)"
+                       selector:@selector(lineWidthButtonTapped:)
                       superView:contentView
-                       leftView:lineWidthButton
+                       leftView:colorButton
                         topView:shapeButton
                          isRight:YES
                           isLast:NO];
 
-    UIButton *imageButton = [self createButtonWithTitle:@"测试图片(标尺横图)"
-                                               selector:@selector(imageButtonTapped:)
-                                              superView:contentView
-                                               leftView:nil
-                                                topView:colorButton
-                                                 isRight:NO
-                                                  isLast:NO];
+    UIButton *fontSizeButton = [self createButtonWithTitle:@"文本字号(自动)"
+                                                  selector:@selector(fontSizeButtonTapped:)
+                                                 superView:contentView
+                                                  leftView:nil
+                                                   topView:croppingButton
+                                                    isRight:NO
+                                                     isLast:NO];
 
     UIButton *lineShapeButton = [self createButtonWithTitle:@"划线形态(自由)"
                                                    selector:@selector(lineShapeButtonTapped:)
                                                   superView:contentView
-                                                   leftView:imageButton
-                                                    topView:colorButton
+                                                   leftView:fontSizeButton
+                                                    topView:croppingButton
                                                      isRight:NO
                                                       isLast:NO];
     [lineShapeButton setTitle:@"划线形态(直线)" forState:UIControlStateSelected];
 
-    UIButton *styleRowButton = [self createButtonWithTitle:@"(显示)粗细字号行"
-                                                 selector:@selector(styleRowButtonTapped:)
-                                                superView:contentView
-                                                 leftView:lineShapeButton
-                                                  topView:colorButton
-                                                   isRight:YES
-                                                    isLast:NO];
-    [styleRowButton setTitle:@"(隐藏)粗细字号行" forState:UIControlStateSelected];
+    [self createButtonWithTitle:@"(显示)粗细字号行"
+                       selector:@selector(styleRowButtonTapped:)
+                      superView:contentView
+                       leftView:lineShapeButton
+                        topView:croppingButton
+                         isRight:YES
+                          isLast:NO];
 
     UIButton *colorRowButton = [self createButtonWithTitle:@"(显示)颜色条"
                                                  selector:@selector(colorRowButtonTapped:)
                                                 superView:contentView
                                                  leftView:nil
-                                                  topView:imageButton
+                                                  topView:fontSizeButton
                                                    isRight:NO
                                                     isLast:NO];
     [colorRowButton setTitle:@"(隐藏)颜色条" forState:UIControlStateSelected];
 
+    UIButton *imageButton = [self createButtonWithTitle:@"测试图片(标尺横图)"
+                                               selector:@selector(imageButtonTapped:)
+                                              superView:contentView
+                                               leftView:colorRowButton
+                                                topView:fontSizeButton
+                                                 isRight:NO
+                                                  isLast:NO];
+
+    UIButton *appearanceButton = [self createButtonWithTitle:@"外观(默认)"
+                                                   selector:@selector(appearanceButtonTapped:)
+                                                  superView:contentView
+                                                   leftView:imageButton
+                                                    topView:fontSizeButton
+                                                     isRight:YES
+                                                      isLast:NO];
+    [appearanceButton setTitle:@"外观(自定义)" forState:UIControlStateSelected];
+
     UIButton *blockButton = [self createButtonWithTitle:@"Block方式\n打开编辑器"
                                                selector:@selector(blockButtonTapped)
                                               superView:contentView
-                                               leftView:colorRowButton
-                                                topView:imageButton
+                                               leftView:nil
+                                                topView:colorRowButton
                                                  isRight:NO
                                                   isLast:NO];
 
@@ -188,7 +211,7 @@
                        selector:@selector(delegateButtonTapped)
                       superView:contentView
                        leftView:blockButton
-                        topView:imageButton
+                        topView:colorRowButton
                          isRight:YES
                           isLast:NO];
 
@@ -196,7 +219,7 @@
                                                 selector:@selector(staticButtonTapped)
                                                superView:contentView
                                                 leftView:nil
-                                                 topView:colorRowButton
+                                                 topView:imageButton
                                                   isRight:NO
                                                    isLast:NO];
 
@@ -204,7 +227,7 @@
                        selector:@selector(clearButtonTapped)
                       superView:contentView
                        leftView:staticButton
-                        topView:colorRowButton
+                        topView:imageButton
                          isRight:NO
                           isLast:YES];
 
@@ -265,7 +288,23 @@
     WYImageEditorConfigurationObjC *configuration = [[WYImageEditorConfigurationObjC alloc] init];
     configuration.cropShape = self.cropShape;
     configuration.cropSize = self.hasFixedCropSize ? self.fixedCropSize : CGSizeZero;
+    configuration.allowsCropping = self.allowsCropping;
     configuration.allowsMarking = self.allowsMarking;
+    if (self.useCustomAppearance) {
+        WYImageEditorAppearanceObjC *appearance = [[WYImageEditorAppearanceObjC alloc] init];
+        appearance.selectionDashColor = UIColor.systemRedColor;
+        appearance.selectionDashWidth = 2.5;
+        appearance.selectionInset = 10;
+        appearance.handleColor = UIColor.systemYellowColor;
+        appearance.maskDimmingAmount = 0.8;
+        appearance.accentColor = UIColor.systemGreenColor;
+        appearance.segmentedSelectedBackgroundColor = UIColor.systemGreenColor;
+        appearance.segmentedSelectedTextColor = UIColor.whiteColor;
+        appearance.markerPalette = @[UIColor.whiteColor, UIColor.redColor, UIColor.yellowColor];
+        appearance.lineWidthRatios = @[@0.5, @2, @4];
+        appearance.canvasBackgroundColor = [UIColor colorWithWhite:0.15 alpha:1];
+        configuration.appearance = appearance;
+    }
     configuration.markerColor = self.markerColor;
     configuration.markerLineWidth = self.markerLineWidth;
     configuration.markerTextFontSize = self.markerTextFontSize;
@@ -347,7 +386,9 @@
     NSString *styleRowText = self.showsStyleOptions ? @"显示" : @"隐藏";
     NSString *colorRowText = self.showsColorOptions ? @"显示" : @"隐藏";
     NSString *imageSourceText = self.testImageName.length > 0 ? self.testImageName : @"标尺图";
-    wy_print(@"[%@] 打开编辑器 图片=%@ 原图%.0f×%.0f 配置=形状%@ 尺寸%@ 标记%@ 线宽%@ 字号%@ 划线%@ 粗细字号行%@ 颜色条%@", source, imageSourceText, image.size.width, image.size.height, shapeText, sizeText, markingText, lineWidthText, fontSizeText, lineShapeText, styleRowText, colorRowText);
+    NSString *croppingText = self.allowsCropping ? @"允许" : @"关闭";
+    NSString *appearanceText = self.useCustomAppearance ? @"自定义" : @"默认";
+    wy_print(@"[%@] 打开编辑器 图片=%@ 原图%.0f×%.0f 配置=形状%@ 尺寸%@ 裁剪%@ 标记%@ 线宽%@ 字号%@ 划线%@ 粗细字号行%@ 颜色条%@ 外观%@", source, imageSourceText, image.size.width, image.size.height, shapeText, sizeText, croppingText, markingText, lineWidthText, fontSizeText, lineShapeText, styleRowText, colorRowText, appearanceText);
 }
 
 /// 记录编辑结果并刷新表格(三种打开方式共用)
@@ -390,6 +431,18 @@
 - (void)markingButtonTapped:(UIButton *)sender {
     self.allowsMarking = !self.allowsMarking;
     sender.selected = !self.allowsMarking;
+}
+
+/// 允许裁剪开关(关掉后编辑器只有标记功能)
+- (void)croppingButtonTapped:(UIButton *)sender {
+    self.allowsCropping = !self.allowsCropping;
+    sender.selected = !self.allowsCropping;
+}
+
+/// 外观样式切换(自定义为覆盖多项外观属性的示例值)
+- (void)appearanceButtonTapped:(UIButton *)sender {
+    self.useCustomAppearance = !self.useCustomAppearance;
+    sender.selected = self.useCustomAppearance;
 }
 
 - (void)colorButtonTapped:(UIButton *)sender {
