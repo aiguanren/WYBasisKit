@@ -773,6 +773,9 @@ public class WYImageEditorViewController: UIViewController {
         markModeButton.isSelected = marking
         // 顶部标题固定显示编辑二字，当前模式由底部分段胶囊表达(标题随模式变会像可点按钮造成误解)
         refreshTitleForPendingCrop()
+
+        // 标记模式顶部还原与底部撤销重复故隐藏，裁剪模式保留(回退裁剪步骤用)
+        revertButton.isHidden = marking
         refreshModeSegmented()
         markerToolbar.isHidden = !marking
 
