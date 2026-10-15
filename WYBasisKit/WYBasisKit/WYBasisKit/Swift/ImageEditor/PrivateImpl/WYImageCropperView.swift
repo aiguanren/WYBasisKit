@@ -240,6 +240,17 @@ class WYImageCropperView: UIView {
         if !force {
             guard fixedOutputSize == nil, hasUserAdjustedCropBox else { return }
         }
+
+        // 先强制收敛进行中的把手拖拽与滚动缩放手势，避免手势结束时把旧缩放位移套回新布局(表现为裁完图片反而放大超出画布，且逐次叠加)
+        overlayView.cancelActivePan()
+        if scrollView.isTracking || scrollView.isZooming || scrollView.isDragging || scrollView.isDecelerating {
+            if let pinch = scrollView.pinchGestureRecognizer {
+                pinch.isEnabled = false
+                pinch.isEnabled = true
+            }
+            scrollView.panGestureRecognizer.isEnabled = false
+            scrollView.panGestureRecognizer.isEnabled = true
+        }
         let region = cropRectInImageCoordinates()
         guard region.width >= 1, region.height >= 1, let cgImage = cropImage.cgImage else { return }
 
@@ -503,6 +514,14 @@ class WYImageCropOverlayView: UIView {
             let barPath = UIBezierPath(roundedRect: barRect, cornerRadius: barRadius)
             barColor.setFill()
             barPath.fill()
+        }
+    }
+
+    /// 取消进行中的把手拖拽手势(应用裁剪前调用，手势强置失败立即结束)
+    func cancelActivePan() {
+        if panGesture.isEnabled {
+            panGesture.isEnabled = false
+            panGesture.isEnabled = true
         }
     }
 
