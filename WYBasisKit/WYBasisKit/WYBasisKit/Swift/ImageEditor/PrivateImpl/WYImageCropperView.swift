@@ -18,6 +18,8 @@ struct WYImageCropHandleZone: OptionSet {
     static let left = WYImageCropHandleZone(rawValue: 1 << 2)
     /// 右边
     static let right = WYImageCropHandleZone(rawValue: 1 << 3)
+    /// 框线本体(把手之间的线段，拖着平移整个裁剪框)
+    static let boxBody = WYImageCropHandleZone(rawValue: 1 << 4)
     /// 左上角
     static let topLeft: WYImageCropHandleZone = [.top, .left]
     /// 右上角
@@ -315,6 +317,17 @@ class WYImageCropperView: UIView {
         let maxWidth = bounds.width - margin * 2
         let maxHeight = bounds.height - margin * 2
         let start = dragStartBox
+
+        // 抓框线本体拖着走，整个裁剪框平移(位置微调不用再靠缩放框或动图)
+        if zone == .boxBody {
+            var box = start
+            box.origin.x = min(max(start.minX + translation.x, margin), bounds.width - margin - box.width)
+            box.origin.y = min(max(start.minY + translation.y, margin), bounds.height - margin - box.height)
+            cropBox = box
+            overlayView.updateCropBox(cropBox, shape: shape, showsHandles: fixedOutputSize == nil)
+            return
+        }
+
         let aspectLocked = shape == .circle
         var box: CGRect
 
@@ -593,6 +606,13 @@ class WYImageCropOverlayView: UIView {
         }
         if abs(point.x - cropBox.maxX) <= edgeBand, withinVerticalEdges {
             return .right
+        }
+
+        // 贴近任一条框线的其余位置算框线本体，拖着平移整个裁剪框
+        let nearVerticalLine = abs(point.x - cropBox.minX) <= edgeBand || abs(point.x - cropBox.maxX) <= edgeBand
+        let nearHorizontalLine = abs(point.y - cropBox.minY) <= edgeBand || abs(point.y - cropBox.maxY) <= edgeBand
+        if nearVerticalLine || nearHorizontalLine {
+            return .boxBody
         }
         return []
     }
