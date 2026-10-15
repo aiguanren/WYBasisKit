@@ -201,9 +201,6 @@ public func WYLocalized(_ key: String, table: String = WYBasisKitConfig.localiza
 
 public struct WYLocalizableManager {
 
-    private static var bundle: Bundle? = localizableBundle(table: WYBasisKitConfig.localizableTable)
-    private static var kitBundle: Bundle? = localizableBundle(table: WYBasisKitConfig.kitLocalizableTable)
-
     /// 纯代码工程注册的根控制器构建闭包(切换语言后用它重建界面；没注册时回落Storyboard重建方式；)
     @MainActor public static var rootViewControllerProvider: (() -> UIViewController)?
     
@@ -424,6 +421,12 @@ public struct WYLocalizableManager {
         }
         return languageBundle.localizedString(forKey: key, value: nil, table: table)
     }
+    
+    /// App当前语言的国际化语言包(App语言表的国际化文案从它读取，切换语言后自动更新)
+    private static var bundle: Bundle? = localizableBundle(table: WYBasisKitConfig.localizableTable)
+    
+    /// WYBasisKit内置文案的国际化语言包(与App语言包分开维护，切换语言后自动更新)
+    private static var kitBundle: Bundle? = localizableBundle(table: WYBasisKitConfig.kitLocalizableTable)
     
     /// 用注册的根控制器构建闭包重建界面(纯代码+SceneDelegate工程走这里)
     @MainActor private static func reloadWithProvider(provider: () -> UIViewController, handler:(() -> Void)? = nil) {
