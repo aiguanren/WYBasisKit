@@ -133,6 +133,9 @@ import WYBasisKitSwift
     /// 界面上是否显示颜色选择条(false时用户只能用markerColor定的默认颜色)
     public var showsColorOptions: Bool = true
 
+    /// 编辑时图片是否支持捏合缩放(false时只能拖动平移图片)
+    public var allowsImageZoom: Bool = true
+
     /// 界面外观(传nil用默认外观)
     public var appearance: WYImageEditorAppearanceObjC?
 }
@@ -209,6 +212,7 @@ import WYBasisKitSwift
             configuration.lineDrawsStraight = bridgeConfiguration.lineDrawsStraight
             configuration.showsStyleOptions = bridgeConfiguration.showsStyleOptions
             configuration.showsColorOptions = bridgeConfiguration.showsColorOptions
+            configuration.allowsImageZoom = bridgeConfiguration.allowsImageZoom
             if let bridgeAppearance = bridgeConfiguration.appearance {
                 var appearance = WYImageEditorAppearance()
                 if let color = bridgeAppearance.canvasBackgroundColor { appearance.canvasBackgroundColor = color }

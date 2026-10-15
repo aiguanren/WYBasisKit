@@ -46,11 +46,23 @@ class WYImageCropperView: UIView {
     /// 即时裁剪回调(参数为裁剪出的新基准图与本次裁掉区域在旧基准图中的坐标，编辑器用它同步标记画布)
     var onCropCommitted: ((UIImage, CGRect) -> Void)?
 
+    /// 裁剪框被用户拖动过的通知回调(编辑器用它点亮顶部的裁剪确认按钮)
+    var onCropBoxAdjusted: (() -> Void)?
+
     /// 用户是否动过裁剪框(动过后切标记模式才需要应用裁剪，没动过不做无意义裁剪)
-    private(set) var hasUserAdjustedCropBox = false
+    private(set) var hasUserAdjustedCropBox = false {
+        didSet {
+            if hasUserAdjustedCropBox != oldValue {
+                onCropBoxAdjusted?()
+            }
+        }
+    }
 
     /// 界面外观(遮罩框线网格与把手样式从这里取)
     var appearance = WYImageEditorAppearance()
+
+    /// 图片是否支持捏合缩放(false时最大缩放钉死在最小值，只能拖动平移)
+    var zoomEnabled = true
 
     /// 当前裁剪基准图(出成品图时按它绘制)
     var currentBaseImage: UIImage {
@@ -107,12 +119,13 @@ class WYImageCropperView: UIView {
      *   - fixedOutputSize: 固定输出尺寸(nil表示不固定)
      *   - appearance: 界面外观
      */
-    func setup(image: UIImage, shape: WYImageCropShape, fixedOutputSize: CGSize?, appearance: WYImageEditorAppearance) {
+    func setup(image: UIImage, shape: WYImageCropShape, fixedOutputSize: CGSize?, appearance: WYImageEditorAppearance, zoomEnabled: Bool) {
         originalImage = image
         cropImage = image
         self.shape = shape
         self.fixedOutputSize = fixedOutputSize
         self.appearance = appearance
+        self.zoomEnabled = zoomEnabled
         overlayView.appearance = appearance
         applyImageContent(image)
         scrollView.addSubview(imageView)
@@ -188,7 +201,7 @@ class WYImageCropperView: UIView {
             scrollView.bounces = false
             let coverScale = max(boxWidth / imageWidth, boxHeight / imageHeight)
             scrollView.minimumZoomScale = coverScale
-            scrollView.maximumZoomScale = max(coverScale * 8, fitScale * 8)
+            scrollView.maximumZoomScale = zoomEnabled ? max(coverScale * 8, fitScale * 8) : coverScale
             scrollView.zoomScale = coverScale
             scrollView.contentInset = .zero
 
@@ -213,7 +226,7 @@ class WYImageCropperView: UIView {
                 cropBox = fitRect.insetBy(dx: fitRect.width * 0.06, dy: fitRect.height * 0.06)
             }
             scrollView.minimumZoomScale = fitScale
-            scrollView.maximumZoomScale = fitScale * 8
+            scrollView.maximumZoomScale = zoomEnabled ? fitScale * 8 : fitScale
             scrollView.zoomScale = fitScale
             centerContentWithInset()
         }

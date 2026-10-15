@@ -24,6 +24,9 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
     /// 是否用自定义外观(一组覆盖多项外观属性的示例值)
     var useCustomAppearance: Bool = false
 
+    /// 编辑时图片是否支持捏合缩放
+    var allowsImageZoom: Bool = true
+
     /// 标记颜色
     var markerColor: UIColor = .white
 
@@ -102,7 +105,10 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
 
         createButton(title: "静态方法\n一行打开", selector: #selector(staticButtonTapped), superView: contentView, leftView: delegateButton, topView: colorRowButton, isRight: true)
 
-        createButton(title: "清除结果", selector: #selector(clearButtonTapped), superView: contentView, leftView: nil, topView: blockButton, isLast: true)
+        let clearButton: UIButton = createButton(title: "清除结果", selector: #selector(clearButtonTapped), superView: contentView, leftView: nil, topView: blockButton, isLast: true)
+
+        let zoomButton: UIButton = createButton(title: "(可缩放)图片", selector: #selector(zoomButtonTapped(sender:)), superView: contentView, leftView: clearButton, topView: blockButton)
+        zoomButton.setTitle("(禁用)缩放", for: .selected)
 
         tableView = UITableView.wy_shared(delegate: self, dataSource: self, superView: view)
         tableView?.wy_register(WYTestImageEditorResultCell.self, .cell)
@@ -172,6 +178,7 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
             appearance.canvasBackgroundColor = UIColor(white: 0.15, alpha: 1)
             configuration.appearance = appearance
         }
+        configuration.allowsImageZoom = allowsImageZoom
         configuration.markerColor = markerColor
         configuration.markerLineWidth = markerLineWidth
         configuration.markerTextFontSize = markerTextFontSize
@@ -259,7 +266,8 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
         let imageSourceText = testImageName ?? "标尺图"
         let croppingText = allowsCropping ? "允许" : "关闭"
         let appearanceText = useCustomAppearance ? "自定义" : "默认"
-        wy_print("[\(source)] 打开编辑器 图片=\(imageSourceText) 原图\(Int(image.size.width))×\(Int(image.size.height)) 配置=形状\(shapeText) 尺寸\(sizeText) 裁剪\(croppingText) 标记\(markingText) 线宽\(lineWidthText) 字号\(fontSizeText) 划线\(lineShapeText) 粗细字号行\(styleRowText) 颜色条\(colorRowText) 外观\(appearanceText)")
+        let zoomText = allowsImageZoom ? "可缩放" : "禁缩放"
+        wy_print("[\(source)] 打开编辑器 图片=\(imageSourceText) 原图\(Int(image.size.width))×\(Int(image.size.height)) 配置=形状\(shapeText) 尺寸\(sizeText) 裁剪\(croppingText) 标记\(markingText) 线宽\(lineWidthText) 字号\(fontSizeText) 划线\(lineShapeText) 粗细字号行\(styleRowText) 颜色条\(colorRowText) 外观\(appearanceText) 缩放\(zoomText)")
     }
 
     /// 记录编辑结果并刷新表格(三种打开方式共用)
@@ -314,6 +322,12 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
     @objc func appearanceButtonTapped(sender: UIButton) {
         useCustomAppearance.toggle()
         sender.isSelected = useCustomAppearance
+    }
+
+    /// 编辑时图片缩放开关(关掉后编辑器里不能捏合缩放)
+    @objc func zoomButtonTapped(sender: UIButton) {
+        allowsImageZoom.toggle()
+        sender.isSelected = !allowsImageZoom
     }
 
     @objc func colorButtonTapped(sender: UIButton) {

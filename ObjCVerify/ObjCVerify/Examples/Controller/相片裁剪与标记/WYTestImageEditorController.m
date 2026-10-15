@@ -40,6 +40,9 @@
 /// 是否用自定义外观(一组覆盖多项外观属性的示例值)
 @property (nonatomic, assign) BOOL useCustomAppearance;
 
+/// 编辑时图片是否支持捏合缩放
+@property (nonatomic, assign) BOOL allowsImageZoom;
+
 /// 标记颜色
 @property (nonatomic, strong) UIColor *markerColor;
 
@@ -84,6 +87,7 @@
 
     _cropShape = WYImageCropShapeRectangle;
     _allowsCropping = YES;
+    _allowsImageZoom = YES;
     _allowsMarking = YES;
     _showsStyleOptions = YES;
     _showsColorOptions = YES;
@@ -223,13 +227,22 @@
                          isRight:YES
                           isLast:NO];
 
-    [self createButtonWithTitle:@"清除结果"
-                       selector:@selector(clearButtonTapped)
-                      superView:contentView
-                       leftView:nil
-                        topView:blockButton
-                         isRight:NO
-                          isLast:YES];
+    UIButton *clearButton = [self createButtonWithTitle:@"清除结果"
+                                                selector:@selector(clearButtonTapped)
+                                               superView:contentView
+                                                leftView:nil
+                                                 topView:blockButton
+                                                  isRight:NO
+                                                   isLast:YES];
+
+    UIButton *zoomButton = [self createButtonWithTitle:@"(可缩放)图片"
+                                              selector:@selector(zoomButtonTapped:)
+                                             superView:contentView
+                                              leftView:clearButton
+                                               topView:blockButton
+                                                isRight:NO
+                                                 isLast:NO];
+    [zoomButton setTitle:@"(禁用)缩放" forState:UIControlStateSelected];
 
     self.tableView = [UITableView wy_sharedWithStyle:UITableViewStylePlain separatorStyle:UITableViewCellSeparatorStyleSingleLine delegate:self dataSource:self backgroundColor:[UIColor whiteColor] superView:self.view];
     [self.tableView wy_register:[WYTestImageEditorResultCell class] style:WYTableViewRegisterStyleCell];
@@ -305,6 +318,7 @@
         appearance.canvasBackgroundColor = [UIColor colorWithWhite:0.15 alpha:1];
         configuration.appearance = appearance;
     }
+    configuration.allowsImageZoom = self.allowsImageZoom;
     configuration.markerColor = self.markerColor;
     configuration.markerLineWidth = self.markerLineWidth;
     configuration.markerTextFontSize = self.markerTextFontSize;
@@ -388,7 +402,8 @@
     NSString *imageSourceText = self.testImageName.length > 0 ? self.testImageName : @"标尺图";
     NSString *croppingText = self.allowsCropping ? @"允许" : @"关闭";
     NSString *appearanceText = self.useCustomAppearance ? @"自定义" : @"默认";
-    wy_print(@"[%@] 打开编辑器 图片=%@ 原图%.0f×%.0f 配置=形状%@ 尺寸%@ 裁剪%@ 标记%@ 线宽%@ 字号%@ 划线%@ 粗细字号行%@ 颜色条%@ 外观%@", source, imageSourceText, image.size.width, image.size.height, shapeText, sizeText, croppingText, markingText, lineWidthText, fontSizeText, lineShapeText, styleRowText, colorRowText, appearanceText);
+    NSString *zoomText = self.allowsImageZoom ? @"可缩放" : @"禁缩放";
+    wy_print(@"[%@] 打开编辑器 图片=%@ 原图%.0f×%.0f 配置=形状%@ 尺寸%@ 裁剪%@ 标记%@ 线宽%@ 字号%@ 划线%@ 粗细字号行%@ 颜色条%@ 外观%@ 缩放%@", source, imageSourceText, image.size.width, image.size.height, shapeText, sizeText, croppingText, markingText, lineWidthText, fontSizeText, lineShapeText, styleRowText, colorRowText, appearanceText, zoomText);
 }
 
 /// 记录编辑结果并刷新表格(三种打开方式共用)
@@ -443,6 +458,12 @@
 - (void)appearanceButtonTapped:(UIButton *)sender {
     self.useCustomAppearance = !self.useCustomAppearance;
     sender.selected = self.useCustomAppearance;
+}
+
+/// 编辑时图片缩放开关(关掉后编辑器里不能捏合缩放)
+- (void)zoomButtonTapped:(UIButton *)sender {
+    self.allowsImageZoom = !self.allowsImageZoom;
+    sender.selected = !self.allowsImageZoom;
 }
 
 - (void)colorButtonTapped:(UIButton *)sender {

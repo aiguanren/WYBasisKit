@@ -137,6 +137,9 @@ public struct WYImageEditorConfiguration {
     /// 界面上是否显示颜色选择条(false时用户只能用markerColor定的默认颜色)
     public var showsColorOptions: Bool = true
 
+    /// 编辑时图片是否支持捏合缩放(false时只能拖动平移图片)
+    public var allowsImageZoom: Bool = true
+
     /// 界面外观(颜色线宽色板档位等UI细节都从这里改，不设置用默认外观)
     public var appearance: WYImageEditorAppearance = WYImageEditorAppearance()
 
@@ -263,13 +266,14 @@ public class WYImageEditorViewController: UIViewController {
         return button
     }()
 
-    /// 顶部标题(显示当前所处的编辑模式名)
-    private lazy var titleLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .white
-        label.font = .systemFont(ofSize: 17, weight: .semibold)
-        label.textAlignment = .center
-        return label
+    /// 顶部标题按钮(常态显示编辑二字静态不可点，裁剪框调过后变蓝字裁剪，点了应用裁剪)
+    private lazy var titleLabel: UIButton = {
+        let button = UIButton(type: .custom)
+        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(configuration.appearance.accentColor, for: .disabled)
+        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
+        button.addTarget(self, action: #selector(titleButtonTapped), for: .touchUpInside)
+        return button
     }()
 
     /// 裁剪模式切换按钮(分段控件左胶囊)
@@ -468,7 +472,7 @@ public class WYImageEditorViewController: UIViewController {
                 setMarkMode(true)
             }
         }
-        titleLabel.text = WYLocalized("编辑", table: WYBasisKitConfig.kitLocalizableTable)
+        titleLabel.setTitle(WYLocalized("编辑", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
 
         markerToolButtons.forEach { markerToolbar.addSubview($0) }
         markerToolbar.addSubview(undoButton)
@@ -483,11 +487,15 @@ public class WYImageEditorViewController: UIViewController {
             fontSizeButtons.forEach { markerToolbar.addSubview($0) }
         }
 
-        cropperView.setup(image: image, shape: configuration.cropShape, fixedOutputSize: configuration.cropSize == .zero ? nil : configuration.cropSize, appearance: configuration.appearance)
+        cropperView.setup(image: image, shape: configuration.cropShape, fixedOutputSize: configuration.cropSize == .zero ? nil : configuration.cropSize, appearance: configuration.appearance, zoomEnabled: configuration.allowsImageZoom)
 
         // 自由模式松手应用裁剪后，标记画布跟着换基准并平移全部标记坐标
         cropperView.onCropCommitted = { [weak self] croppedImage, region in
             self?.markerView.applyCroppedBase(croppedImage, region: region)
+            self?.refreshTitleForPendingCrop()
+        }
+        cropperView.onCropBoxAdjusted = { [weak self] in
+            self?.refreshTitleForPendingCrop()
         }
 
         markerView.setup(image: image,
@@ -694,6 +702,7 @@ public class WYImageEditorViewController: UIViewController {
         if isMarkMode {
             refreshMarkerDisplayRegion()
         }
+        refreshTitleForPendingCrop()
     }
 
     /// 点完成(按当前裁剪范围与标记合成成品图，回调后关闭编辑器)
@@ -718,6 +727,29 @@ public class WYImageEditorViewController: UIViewController {
         setMarkMode(true)
     }
 
+    /// 刷新顶部标题(裁剪模式且框被调过且自由尺寸时显示蓝字裁剪可点，其余显示编辑静态)
+    private func refreshTitleForPendingCrop() {
+        let pendingCrop = !isMarkMode
+            && configuration.allowsCropping
+            && configuration.cropSize == .zero
+            && cropperView.hasUserAdjustedCropBox
+        titleLabel.isEnabled = !pendingCrop
+        if pendingCrop {
+            titleLabel.setTitle(WYLocalized("裁剪", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
+            titleLabel.setTitleColor(configuration.appearance.accentColor, for: .normal)
+        } else {
+            titleLabel.setTitle(WYLocalized("编辑", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
+            titleLabel.setTitleColor(.white, for: .normal)
+        }
+    }
+
+    /// 点顶部裁剪按钮(把调过的裁剪框立即应用，画布变成裁剪后的图)
+    @objc private func titleButtonTapped() {
+        guard !isMarkMode, configuration.allowsCropping, configuration.cropSize == .zero, cropperView.hasUserAdjustedCropBox else { return }
+        cropperView.commitCrop()
+        refreshTitleForPendingCrop()
+    }
+
     /// 刷新模式分段控件的胶囊选中样式(选中的铺底色配文字色，未选中透明)
     private func refreshModeSegmented() {
         let selectedBackground = configuration.appearance.segmentedSelectedBackgroundColor
@@ -738,6 +770,7 @@ public class WYImageEditorViewController: UIViewController {
         cropModeButton.isSelected = !marking
         markModeButton.isSelected = marking
         // 顶部标题固定显示编辑二字，当前模式由底部分段胶囊表达(标题随模式变会像可点按钮造成误解)
+        refreshTitleForPendingCrop()
         refreshModeSegmented()
         markerToolbar.isHidden = !marking
 
