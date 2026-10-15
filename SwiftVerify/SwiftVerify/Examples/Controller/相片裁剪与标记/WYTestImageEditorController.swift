@@ -116,6 +116,7 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
             make.top.equalTo(contentView.snp.bottom).offset(20)
             make.left.right.bottom.equalToSuperview()
         }
+
     }
 
     @discardableResult func createButton(title: String, selector: Selector, superView: UIView, leftView: UIView?, topView: UIView?, isRight: Bool = false, isLast: Bool = false) -> UIButton {
