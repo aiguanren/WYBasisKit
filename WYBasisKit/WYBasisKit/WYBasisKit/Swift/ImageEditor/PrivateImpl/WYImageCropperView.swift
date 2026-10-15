@@ -284,6 +284,16 @@ class WYImageCropperView: UIView {
         applyInitialLayout()
         scrollView.layoutIfNeeded()
         CATransaction.commit()
+
+        // 落定保护(下一个主线程周期核对，真实手势时序里若有任何环节把框改回旧值或漏刷遮罩，强制纠正回裁剪后的满图状态)
+        let settledBox = cropBox
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, self.fixedOutputSize == nil else { return }
+            if self.cropBox != settledBox {
+                self.cropBox = settledBox
+            }
+            self.overlayView.updateCropBox(self.cropBox, shape: self.shape, showsHandles: self.fixedOutputSize == nil)
+        }
         onCropCommitted?(cropImage, regionInOldBase)
     }
 
