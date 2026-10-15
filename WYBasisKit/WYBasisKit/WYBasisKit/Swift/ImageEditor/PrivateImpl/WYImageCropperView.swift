@@ -436,17 +436,15 @@ class WYImageCropOverlayView: UIView {
         return nil
     }
 
-    /// 把手拖拽处理(开始时记住命中把手，过程中持续回报累计位移)
+    /// 把手拖拽处理(开始时用按下触点记住命中把手，过程中持续回报累计位移)
     @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
-        let point = gesture.location(in: self)
         switch gesture.state {
         case .began:
-            activeZone = handleZone(at: point)
-            if activeZone == [] {
-                gesture.isEnabled = false
-                gesture.isEnabled = true
-                return
-            }
+
+            // 用按下时刻的触点判热区(pan要移动几像素才触发began，用当前点判定会因手指微滑出热区而抓空)
+            let downPoint = gesture.numberOfTouches > 0 ? gesture.location(ofTouch: 0, in: self) : gesture.location(in: self)
+            activeZone = handleZone(at: downPoint)
+            if activeZone == [] { return }
             onPanHandle?(.began, activeZone, .zero)
         case .changed:
             let translation = gesture.translation(in: self)
@@ -457,9 +455,9 @@ class WYImageCropOverlayView: UIView {
         }
     }
 
-    /// 判断点落在哪个把手的热区(角把手优先，热区半径22)
+    /// 判断点落在哪个把手的热区(角把手优先半径30，四条边整条边可抓带宽18，好抓不误触)
     private func handleZone(at point: CGPoint) -> WYImageCropHandleZone {
-        let hotRadius: CGFloat = 22
+        let cornerRadius: CGFloat = 30
         let corners: [(CGPoint, WYImageCropHandleZone)] = [
             (CGPoint(x: cropBox.minX, y: cropBox.minY), .topLeft),
             (CGPoint(x: cropBox.maxX, y: cropBox.minY), .topRight),
@@ -467,20 +465,24 @@ class WYImageCropOverlayView: UIView {
             (CGPoint(x: cropBox.maxX, y: cropBox.maxY), .bottomRight)
         ]
         for (corner, zone) in corners {
-            if hypot(point.x - corner.x, point.y - corner.y) <= hotRadius {
+            if hypot(point.x - corner.x, point.y - corner.y) <= cornerRadius {
                 return zone
             }
         }
-        if abs(point.y - cropBox.minY) <= hotRadius / 2, abs(point.x - cropBox.midX) <= 30 {
+        let edgeBand: CGFloat = 18
+        let cornerExclusion: CGFloat = 26
+        let withinHorizontalEdges = point.x > cropBox.minX + cornerExclusion && point.x < cropBox.maxX - cornerExclusion
+        let withinVerticalEdges = point.y > cropBox.minY + cornerExclusion && point.y < cropBox.maxY - cornerExclusion
+        if abs(point.y - cropBox.minY) <= edgeBand, withinHorizontalEdges {
             return .top
         }
-        if abs(point.y - cropBox.maxY) <= hotRadius / 2, abs(point.x - cropBox.midX) <= 30 {
+        if abs(point.y - cropBox.maxY) <= edgeBand, withinHorizontalEdges {
             return .bottom
         }
-        if abs(point.x - cropBox.minX) <= hotRadius / 2, abs(point.y - cropBox.midY) <= 30 {
+        if abs(point.x - cropBox.minX) <= edgeBand, withinVerticalEdges {
             return .left
         }
-        if abs(point.x - cropBox.maxX) <= hotRadius / 2, abs(point.y - cropBox.midY) <= 30 {
+        if abs(point.x - cropBox.maxX) <= edgeBand, withinVerticalEdges {
             return .right
         }
         return []
