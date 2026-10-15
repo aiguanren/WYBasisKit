@@ -487,9 +487,9 @@ class WYImageCropOverlayView: UIView {
 
         guard showsHandles else { return }
 
-        // 四角L形把手
+        // 四角L形把手(线宽与四边短把手同厚，视觉统一)
         context.setStrokeColor(appearance.handleColor.cgColor)
-        context.setLineWidth(3)
+        context.setLineWidth(4)
         context.setLineCap(.round)
         let armLength: CGFloat = appearance.handleArmLength
         let cornerPath = UIBezierPath()
