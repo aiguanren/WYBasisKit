@@ -690,6 +690,12 @@ class WYImageMarkerView: UIView {
         addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:))))
     }
 
+    /// 画布尺寸变化时强制重画(切模式画布高度跳变时旧位图会被系统拉伸铺满新尺寸显示成图片变大变形)
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        setNeedsDisplay()
+    }
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
