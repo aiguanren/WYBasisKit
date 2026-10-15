@@ -128,6 +128,7 @@ class WYImageCropperView: UIView {
 
     /// 还原(恢复原图并把裁剪框位置大小与图片缩放位移退回刚进来时的状态)
     func reset() {
+        print("[WYDBG] reset还原")
         cropImage = originalImage
         hasUserAdjustedCropBox = false
         rebuildContentView(with: originalImage)
@@ -155,13 +156,14 @@ class WYImageCropperView: UIView {
         super.layoutSubviews()
         overlayView.frame = bounds
         if needsRelayoutAfterBoundsChange {
+            print("[WYDBG] layoutSubviews触发重摆 bounds=\(bounds.size) 上次=\(lastLaidOutBounds.size)")
             applyInitialLayout()
         }
     }
 
     /// 计算并应用初始布局(裁剪框摆中间，图片缩放到合适倍数)
     private func applyInitialLayout() {
-
+        print("[WYDBG] applyInitialLayout 图=\(cropImage.size) bounds=\(bounds.size) 固定=\(fixedOutputSize != nil)")
         lastLaidOutBounds = bounds
         let boundsWidth = bounds.width
         let boundsHeight = bounds.height
@@ -224,6 +226,7 @@ class WYImageCropperView: UIView {
             centerContentWithInset()
         }
 
+        print("[WYDBG] applyInitialLayout完成 zoom=\(scrollView.zoomScale) 框=\(cropBox)")
         overlayView.updateCropBox(cropBox, shape: shape, showsHandles: fixedOutputSize == nil)
     }
 
@@ -246,6 +249,7 @@ class WYImageCropperView: UIView {
      * - Parameter force: true为无条件按当前框真裁(顶部裁剪按钮)，false为框没动过或固定尺寸模式时不裁(切标记模式的保护)
      */
     func commitCrop(force: Bool = false) {
+        print("[WYDBG] commitCrop入口 force=\(force) box=\(cropBox) zoom=\(scrollView.zoomScale)")
         if !force {
             guard fixedOutputSize == nil, hasUserAdjustedCropBox else { return }
         }
@@ -261,6 +265,7 @@ class WYImageCropperView: UIView {
             scrollView.panGestureRecognizer.isEnabled = true
         }
         let region = cropRectInImageCoordinates()
+        print("[WYDBG] commitCrop region=\(region)")
         guard region.width >= 1, region.height >= 1, let cgImage = cropImage.cgImage else { return }
 
         // 像素坐标裁剪并夹回图片实际范围(cropping越界会返回nil)
@@ -294,6 +299,7 @@ class WYImageCropperView: UIView {
             }
             self.overlayView.updateCropBox(self.cropBox, shape: self.shape, showsHandles: self.fixedOutputSize == nil)
         }
+        print("[WYDBG] commitCrop完成 新图=\(cropImage.size) 落定框=\(settledBox)")
         onCropCommitted?(cropImage, regionInOldBase)
     }
 
@@ -412,6 +418,7 @@ extension WYImageCropperView: UIScrollViewDelegate {
 
     /// 缩放结束后图片比画布小时重新居中
     func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
+        print("[WYDBG] DidEndZooming scale=\(scale) min=\(scrollView.minimumZoomScale)")
         if fixedOutputSize == nil {
             centerContentWithInset()
         }
