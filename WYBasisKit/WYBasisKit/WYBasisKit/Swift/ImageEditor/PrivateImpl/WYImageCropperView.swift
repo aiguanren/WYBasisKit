@@ -118,17 +118,17 @@ class WYImageCropperView: UIView {
         self.appearance = appearance
         self.zoomEnabled = zoomEnabled
         overlayView.appearance = appearance
-        applyImageContent(image)
         scrollView.addSubview(imageView)
         addSubview(scrollView)
         addSubview(overlayView)
+        rebuildContentView(with: image)
     }
 
     /// 还原(恢复原图并把裁剪框位置大小与图片缩放位移退回刚进来时的状态)
     func reset() {
         cropImage = originalImage
         hasUserAdjustedCropBox = false
-        applyImageContent(originalImage)
+        rebuildContentView(with: originalImage)
         applyInitialLayout()
     }
 
@@ -225,11 +225,18 @@ class WYImageCropperView: UIView {
         overlayView.updateCropBox(cropBox, shape: shape, showsHandles: fixedOutputSize == nil)
     }
 
-    /// 换基准图后同步图片视图与滚动内容尺寸
-    private func applyImageContent(_ image: UIImage) {
+    /// 干净重建内容视图(先把缩放归一再拆下重挂图片视图，滚动视图内部缩放基准彻底重置，任何脏状态都归位)
+    private func rebuildContentView(with image: UIImage) {
+        scrollView.minimumZoomScale = 1
+        scrollView.maximumZoomScale = 1
+        scrollView.zoomScale = 1
+        imageView.removeFromSuperview()
+        scrollView.addSubview(imageView)
         imageView.image = image
         imageView.frame = CGRect(origin: .zero, size: image.size)
         scrollView.contentSize = image.size
+        scrollView.contentInset = .zero
+        scrollView.contentOffset = .zero
     }
 
     /**
@@ -271,9 +278,7 @@ class WYImageCropperView: UIView {
         // 禁隐式动画并归零旧偏移后重摆，规避真实手势下旧缩放位移瞬间套进新布局
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        scrollView.contentOffset = .zero
-        scrollView.contentInset = .zero
-        applyImageContent(cropImage)
+        rebuildContentView(with: cropImage)
         applyInitialLayout()
         scrollView.layoutIfNeeded()
         CATransaction.commit()
