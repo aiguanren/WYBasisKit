@@ -554,9 +554,10 @@ class WYImageCropOverlayView: UIView {
         }
     }
 
-    /// 只拦截把手附近的触摸，其余透给下层滚动视图(缩放拖动图片)
+    /// 只拦截需要的触摸，其余透给下层滚动视图(缩放拖动图片)；自由模式认全部热区，固定尺寸模式只认框内拖动(尺寸锁死位置可调)
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-        if showsHandles, handleZone(at: point) != [] {
+        let zone = handleZone(at: point)
+        if zone == .boxBody || (showsHandles && zone != []) {
             return self
         }
         return nil
