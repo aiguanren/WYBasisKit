@@ -124,3 +124,13 @@
 
 "源文件已是%@格式，跳过转换" = "File sumber sudah dalam format %@, konversi dilewati";
 "日志" = "Log";
+"完成" = "Selesai";
+"还原" = "Pulihkan";
+"裁剪" = "Pangkas";
+"标记" = "Tandai";
+"文本" = "Teks";
+"矩形" = "Segi empat panjang";
+"圆形" = "Lingkaran";
+"箭头" = "Panah";
+"撤销" = "Urungkan";
+"输入文本" = "Masukkan teks";

@@ -124,3 +124,13 @@
 
 "源文件已是%@格式，跳过转换" = "A forrásfájl már %@ formátumú, az átalakítás kihagyva";
 "日志" = "Napló";
+"完成" = "Kész";
+"还原" = "Visszaállítás";
+"裁剪" = "Kivágás";
+"标记" = "Jelölés";
+"文本" = "Szöveg";
+"矩形" = "Téglalap";
+"圆形" = "Kör";
+"箭头" = "Nyíl";
+"撤销" = "Visszavonás";
+"输入文本" = "Szöveg megadása";

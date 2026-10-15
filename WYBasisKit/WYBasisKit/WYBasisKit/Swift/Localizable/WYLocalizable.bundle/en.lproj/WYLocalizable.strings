@@ -124,3 +124,13 @@
 
 "源文件已是%@格式，跳过转换" = "Source file is already in %@ format, conversion skipped";
 "日志" = "Log";
+"完成" = "Done";
+"还原" = "Revert";
+"裁剪" = "Crop";
+"标记" = "Markup";
+"文本" = "Text";
+"矩形" = "Rectangle";
+"圆形" = "Circle";
+"箭头" = "Arrow";
+"撤销" = "Undo";
+"输入文本" = "Enter text";

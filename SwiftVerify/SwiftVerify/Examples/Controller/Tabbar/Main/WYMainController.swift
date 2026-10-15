@@ -103,6 +103,9 @@ class WYMainController: UIViewController {
                  controller: "WYTestCombineImagesController"),
         
         ListItem(title: "图片渲染", controller: "WYTestImageRenderingController"),
+
+        ListItem(title: "相片裁剪与标记",
+                 controller: "WYTestImageEditorController"),
         
         ListItem(title: "气泡图", controller: "WYTestAirBubbleController"),
         

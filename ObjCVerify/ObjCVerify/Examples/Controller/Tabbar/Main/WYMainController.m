@@ -127,6 +127,9 @@
                                  controller:@"WYTestCombineImagesController"],
             
             [[ListItem alloc] initWithTitle:@"图片渲染" controller:@"WYTestImageRenderingController"],
+
+            [[ListItem alloc] initWithTitle:@"相片裁剪与标记"
+                                 controller:@"WYTestImageEditorController"],
             
             [[ListItem alloc] initWithTitle:@"气泡图" controller:@"WYTestAirBubbleController"],
             

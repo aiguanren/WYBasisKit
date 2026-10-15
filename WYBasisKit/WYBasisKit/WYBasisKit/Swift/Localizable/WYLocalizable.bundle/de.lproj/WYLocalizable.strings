@@ -112,3 +112,13 @@
 
 "源文件已是%@格式，跳过转换" = "Die Quelldatei liegt bereits im Format %@ vor, Konvertierung übersprungen";
 "日志" = "Log";
+"完成" = "Fertig";
+"还原" = "Wiederherstellen";
+"裁剪" = "Zuschneiden";
+"标记" = "Anmerkungen";
+"文本" = "Text";
+"矩形" = "Rechteck";
+"圆形" = "Kreis";
+"箭头" = "Pfeil";
+"撤销" = "Widerrufen";
+"输入文本" = "Text eingeben";

@@ -124,3 +124,13 @@
 
 "源文件已是%@格式，跳过转换" = "Källfilen är redan i format %@, konvertering hoppades över";
 "日志" = "Logg";
+"完成" = "Klar";
+"还原" = "Återställ";
+"裁剪" = "Beskär";
+"标记" = "Markeringar";
+"文本" = "Text";
+"矩形" = "Rektangel";
+"圆形" = "Cirkel";
+"箭头" = "Pil";
+"撤销" = "Ångra";
+"输入文本" = "Skriv in text";

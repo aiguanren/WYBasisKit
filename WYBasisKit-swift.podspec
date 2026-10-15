@@ -19,6 +19,7 @@ Pod::Spec.new do |kit|
     Authorization: 各种权限请求与判断
     LogManager: 日志打印，日志导出等日志管理相关(文件默认AES-GCM加密，四档可选)
     Cryptor: 通用加解密工具(MD5/SHA/HMAC/AES-GCM/XOR/Base64/Hex/随机数/PBKDF2)
+    ImageEditor: 相片裁剪与标记(矩形圆形支持固定或自由尺寸，文本矩形圆形箭头标记)
     AudioKit: 音频录制与播放
     MethodSwizzler: 内部使用，第三方请勿调用
   DESC
@@ -26,7 +27,7 @@ Pod::Spec.new do |kit|
   kit.homepage     = "https://github.com/aiguanren/WYBasisKit"
   kit.license      = { :type => "MIT", :file => "#{kit_path}License.md" }
   kit.author             = { "官人" => "aiguanren@icloud.com" }
-  kit.ios.deployment_target = "13.0"
+  kit.ios.deployment_target = "15.0"
   kit.source       = { :git => "https://github.com/aiguanren/WYBasisKit.git", :tag => "#{kit.version}" }
   #kit.source       = { :svn => "http://192.168.xxx.xxx:xxxx/xxx/xxx/WYBasiskit"}
   #kit.source       = { :http => "http://192.168.xxx.xxx:xxxx/xxx/xxx/WYBasiskit.zip" }
@@ -137,6 +138,17 @@ Pod::Spec.new do |kit|
       "#{kit_path}Swift/Cryptor/**/*.{swift,h,m}"
     ]
     cryptor.frameworks = "Foundation", "CryptoKit"
+  end
+  
+  kit.subspec "ImageEditor" do |imageEditor|
+    imageEditor.source_files = [
+      "#{kit_path}Swift/ImageEditor/**/*.{swift,h,m}"
+    ]
+    imageEditor.resource_bundles = {"WYBasisKitSwiftImageEditor" => [
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+    ]}
+    imageEditor.frameworks = "Foundation", "UIKit"
+    imageEditor.dependency "WYBasisKit-swift/Extension"
   end
   
   kit.subspec "Localizable" do |localizable|

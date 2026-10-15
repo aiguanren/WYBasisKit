@@ -124,3 +124,13 @@
 
 "源文件已是%@格式，跳过转换" = "Kildefilen er allerede i %@-format, konvertering hoppet over";
 "日志" = "Logg";
+"完成" = "Fullfør";
+"还原" = "Gjenopprett";
+"裁剪" = "Beskjær";
+"标记" = "Merkninger";
+"文本" = "Tekst";
+"矩形" = "Rektangel";
+"圆形" = "Sirkel";
+"箭头" = "Pil";
+"撤销" = "Angre";
+"输入文本" = "Skriv inn tekst";

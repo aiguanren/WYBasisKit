@@ -124,3 +124,13 @@
 
 "源文件已是%@格式，跳过转换" = "El archivo de origen ya está en formato %@, conversión omitida";
 "日志" = "Registro";
+"完成" = "Hecho";
+"还原" = "Revertir";
+"裁剪" = "Recortar";
+"标记" = "Marcado";
+"文本" = "Texto";
+"矩形" = "Rectángulo";
+"圆形" = "Círculo";
+"箭头" = "Flecha";
+"撤销" = "Deshacer";
+"输入文本" = "Introducir texto";

@@ -124,3 +124,13 @@
 
 "源文件已是%@格式，跳过转换" = "Bronbestand is al in %@-indeling, conversie overgeslagen";
 "日志" = "Log";
+"完成" = "Klaar";
+"还原" = "Herstellen";
+"裁剪" = "Bijsnijden";
+"标记" = "Markeringen";
+"文本" = "Tekst";
+"矩形" = "Rechthoek";
+"圆形" = "Cirkel";
+"箭头" = "Pijl";
+"撤销" = "Ongedaan maken";
+"输入文本" = "Tekst invoeren";

@@ -124,3 +124,13 @@
 
 "源文件已是%@格式，跳过转换" = "Kaynak dosya zaten %@ biçiminde, dönüştürme atlandı";
 "日志" = "Günlük";
+"完成" = "Bitti";
+"还原" = "Eski Haline Getir";
+"裁剪" = "Kırp";
+"标记" = "İşaretleme";
+"文本" = "Metin";
+"矩形" = "Dikdörtgen";
+"圆形" = "Daire";
+"箭头" = "Ok";
+"撤销" = "Geri Al";
+"输入文本" = "Metin gir";

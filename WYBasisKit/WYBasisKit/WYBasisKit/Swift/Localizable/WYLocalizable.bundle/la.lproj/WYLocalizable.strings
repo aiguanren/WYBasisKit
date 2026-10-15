@@ -124,3 +124,13 @@
 
 "源文件已是%@格式，跳过转换" = "Fons iam in forma %@ est, conversio praetermissa est";
 "日志" = "Log";
+"完成" = "Factum";
+"还原" = "Restitue";
+"裁剪" = "Praecide";
+"标记" = "Nota";
+"文本" = "Textus";
+"矩形" = "Rectangulum";
+"圆形" = "Circulus";
+"箭头" = "Sagitta";
+"撤销" = "Revoca";
+"输入文本" = "Scribe textum";

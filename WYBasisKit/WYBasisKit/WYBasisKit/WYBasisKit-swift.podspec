@@ -6,7 +6,7 @@ localizable_bundle = "#{kit_path}Swift/Localizable/WYLocalizable.bundle"
 
 Pod::Spec.new do |kit|
   kit.name         = "WYBasisKit-swift"
-  kit.version      = "26.9.2"
+  kit.version      = "26.9.3"
   kit.summary      = "WYBasisKit 不仅可以帮助开发者快速构建一个工程，还有基于常用网络框架和系统API而封装的各种实用方法、扩展，开发者只需简单的调用API就可以快速实现相应功能， 大幅提高开发效率。"
   kit.description  = <<-DESC
     Localizable: 国际化解决方案
@@ -19,6 +19,7 @@ Pod::Spec.new do |kit|
     Authorization: 各种权限请求与判断
     LogManager: 日志打印，日志导出等日志管理相关(文件默认AES-GCM加密，四档可选)
     Cryptor: 通用加解密工具(MD5/SHA/HMAC/AES-GCM/XOR/Base64/Hex/随机数/PBKDF2)
+    ImageEditor: 相片裁剪与标记(矩形圆形支持固定或自由尺寸，文本矩形圆形箭头标记)
     AudioKit: 音频录制与播放
     MethodSwizzler: 内部使用，第三方请勿调用
   DESC
@@ -137,6 +138,17 @@ Pod::Spec.new do |kit|
       "#{kit_path}Swift/Cryptor/**/*.{swift,h,m}"
     ]
     cryptor.frameworks = "Foundation", "CryptoKit"
+  end
+  
+  kit.subspec "ImageEditor" do |imageEditor|
+    imageEditor.source_files = [
+      "#{kit_path}Swift/ImageEditor/**/*.{swift,h,m}"
+    ]
+    imageEditor.resource_bundles = {"WYBasisKitSwiftImageEditor" => [
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+    ]}
+    imageEditor.frameworks = "Foundation", "UIKit"
+    imageEditor.dependency "WYBasisKit-swift/Extension"
   end
   
   kit.subspec "Localizable" do |localizable|

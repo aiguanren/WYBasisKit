@@ -80,6 +80,28 @@ let plainLogs = WYLogManager.decryptedLogText()
 WYLogManager.showPreview()
 ```
 
+##### 相片裁剪与标记(2026-10-15新增，矩形/圆形支持固定或自由尺寸，文本/矩形/圆形/箭头标记)
+```
+// 一行代码打开编辑器(编辑成成品图回调图片，取消回调nil)
+WYImageEditorViewController.present(from: self, image: image) { resultImage in
+    // 圆形裁剪时resultImage是四角透明的PNG
+}
+
+// 也可以自己组装配置(固定300x300圆形头像裁剪、只裁剪不让标记)
+var configuration = WYImageEditorConfiguration()
+configuration.cropShape = .circle
+configuration.cropSize = CGSize(width: 300, height: 300)
+configuration.allowsMarking = false
+configuration.markerColor = .white
+configuration.markerLineWidth = 0            // 0按图片宽度自动
+configuration.markerTextFontSize = 0         // 0按图片宽度自动
+let editor = WYImageEditorViewController(image: image, configuration: configuration)
+editor.onFinish = { resultImage in ... }     // Block回调
+editor.onCancel = { ... }
+editor.editorDelegate = self                 // 与Block同时设置时两边都会回调
+present(editor, animated: true)
+```
+
 ##### 本地存储(可设置过期时间)
 
 ```

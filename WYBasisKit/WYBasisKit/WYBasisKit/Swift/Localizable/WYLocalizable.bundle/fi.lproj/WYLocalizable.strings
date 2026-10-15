@@ -124,3 +124,13 @@
 
 "源文件已是%@格式，跳过转换" = "Lähdetiedosto on jo %@-muodossa, muunnos ohitettiin";
 "日志" = "Loki";
+"完成" = "Valmis";
+"还原" = "Palauta";
+"裁剪" = "Rajaa";
+"标记" = "Merkinnät";
+"文本" = "Teksti";
+"矩形" = "Suorakulmio";
+"圆形" = "Ympyrä";
+"箭头" = "Nuoli";
+"撤销" = "Kumoa";
+"输入文本" = "Kirjoita teksti";
