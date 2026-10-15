@@ -475,7 +475,7 @@ public class WYImageEditorViewController: UIViewController {
                 setMarkMode(true)
             }
         }
-        titleLabel.setTitle(WYLocalized("编辑", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
+        refreshTitleForPendingCrop()
 
         markerToolButtons.forEach { markerToolbar.addSubview($0) }
         markerToolbar.addSubview(undoButton)

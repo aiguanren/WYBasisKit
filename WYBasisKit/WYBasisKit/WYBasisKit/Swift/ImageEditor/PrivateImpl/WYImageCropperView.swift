@@ -256,8 +256,16 @@ class WYImageCropperView: UIView {
         let regionInOldBase = CGRect(x: pixelRect.origin.x / scale, y: pixelRect.origin.y / scale, width: pixelRect.width / scale, height: pixelRect.height / scale)
         cropImage = UIImage(cgImage: croppedCG, scale: scale, orientation: .up)
         hasUserAdjustedCropBox = false
+
+        // 禁隐式动画并归零旧偏移后重摆，规避真实手势下旧缩放位移瞬间套进新布局
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        scrollView.contentOffset = .zero
+        scrollView.contentInset = .zero
         applyImageContent(cropImage)
         applyInitialLayout()
+        scrollView.layoutIfNeeded()
+        CATransaction.commit()
         onCropCommitted?(cropImage, regionInOldBase)
     }
 
