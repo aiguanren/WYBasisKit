@@ -165,6 +165,7 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
         configuration.allowsMarking = allowsMarking
         if useCustomAppearance {
             var appearance = WYImageEditorAppearance()
+            appearance.topBarCropButtonColor = .systemYellow
             appearance.selectionDashColor = .systemRed
             appearance.selectionDashWidth = 2.5
             appearance.selectionInset = 10

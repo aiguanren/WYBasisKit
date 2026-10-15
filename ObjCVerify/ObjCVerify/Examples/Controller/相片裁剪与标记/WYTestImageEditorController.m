@@ -305,6 +305,7 @@
     configuration.allowsMarking = self.allowsMarking;
     if (self.useCustomAppearance) {
         WYImageEditorAppearanceObjC *appearance = [[WYImageEditorAppearanceObjC alloc] init];
+        appearance.topBarCropButtonColor = UIColor.systemYellowColor;
         appearance.selectionDashColor = UIColor.systemRedColor;
         appearance.selectionDashWidth = 2.5;
         appearance.selectionInset = 10;

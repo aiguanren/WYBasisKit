@@ -93,6 +93,9 @@ import WYBasisKitSwift
     /// 顶部栏普通按钮文字颜色(取消与还原)
     public var topBarButtonColor: UIColor?
 
+    /// 顶部栏裁剪按钮文字颜色(默认与还原按钮一致)
+    public var topBarCropButtonColor: UIColor?
+
     /// 顶部栏完成按钮文字颜色
     public var topBarDoneColor: UIColor?
 
@@ -236,6 +239,7 @@ import WYBasisKitSwift
                 if let color = bridgeAppearance.segmentedSelectedTextColor { appearance.segmentedSelectedTextColor = color }
                 if let color = bridgeAppearance.segmentedTextColor { appearance.segmentedTextColor = color }
                 if let color = bridgeAppearance.topBarButtonColor { appearance.topBarButtonColor = color }
+                if let color = bridgeAppearance.topBarCropButtonColor { appearance.topBarCropButtonColor = color }
                 if let color = bridgeAppearance.topBarDoneColor { appearance.topBarDoneColor = color }
                 if let color = bridgeAppearance.accentColor { appearance.accentColor = color }
                 configuration.appearance = appearance

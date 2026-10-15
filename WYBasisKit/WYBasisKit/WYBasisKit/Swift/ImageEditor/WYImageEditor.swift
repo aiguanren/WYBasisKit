@@ -95,6 +95,9 @@ public struct WYImageEditorAppearance {
     /// 顶部栏普通按钮文字颜色(取消与还原)
     public var topBarButtonColor: UIColor = .white
 
+    /// 顶部栏裁剪按钮文字颜色(默认与还原按钮一致)
+    public var topBarCropButtonColor: UIColor = .white
+
     /// 顶部栏完成按钮文字颜色
     public var topBarDoneColor: UIColor = .systemBlue
 
@@ -494,9 +497,6 @@ public class WYImageEditorViewController: UIViewController {
             self?.markerView.applyCroppedBase(croppedImage, region: region)
             self?.refreshTitleForPendingCrop()
         }
-        cropperView.onCropBoxAdjusted = { [weak self] in
-            self?.refreshTitleForPendingCrop()
-        }
 
         markerView.setup(image: image,
                          defaultColor: configuration.markerColor,
@@ -727,27 +727,21 @@ public class WYImageEditorViewController: UIViewController {
         setMarkMode(true)
     }
 
-    /// 刷新顶部标题(裁剪模式且框被调过且自由尺寸时显示蓝字裁剪可点，其余显示编辑静态)
+    /// 刷新顶部标题按钮(裁剪模式恒显裁剪二字与还原成对可点，标记模式显示编辑)
     private func refreshTitleForPendingCrop() {
-        let pendingCrop = !isMarkMode
-            && configuration.allowsCropping
-            && configuration.cropSize == .zero
-            && cropperView.hasUserAdjustedCropBox
-        titleLabel.isEnabled = !pendingCrop
-        if pendingCrop {
+        if !isMarkMode, configuration.allowsCropping {
             titleLabel.setTitle(WYLocalized("裁剪", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
-            titleLabel.setTitleColor(configuration.appearance.accentColor, for: .normal)
+            titleLabel.setTitleColor(configuration.appearance.topBarCropButtonColor, for: .normal)
         } else {
             titleLabel.setTitle(WYLocalized("编辑", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
-            titleLabel.setTitleColor(.white, for: .normal)
+            titleLabel.setTitleColor(configuration.appearance.topBarButtonColor, for: .normal)
         }
     }
 
-    /// 点顶部裁剪按钮(把调过的裁剪框立即应用，画布变成裁剪后的图)
+    /// 点顶部裁剪按钮(按当前框立即真裁，页面只显示裁剪后的图，与还原互逆)
     @objc private func titleButtonTapped() {
-        guard !isMarkMode, configuration.allowsCropping, configuration.cropSize == .zero, cropperView.hasUserAdjustedCropBox else { return }
-        cropperView.commitCrop()
-        refreshTitleForPendingCrop()
+        guard !isMarkMode, configuration.allowsCropping else { return }
+        cropperView.commitCrop(force: true)
     }
 
     /// 刷新模式分段控件的胶囊选中样式(选中的铺底色配文字色，未选中透明)

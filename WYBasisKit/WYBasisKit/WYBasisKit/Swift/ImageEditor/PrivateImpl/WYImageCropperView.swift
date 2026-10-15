@@ -46,17 +46,8 @@ class WYImageCropperView: UIView {
     /// 即时裁剪回调(参数为裁剪出的新基准图与本次裁掉区域在旧基准图中的坐标，编辑器用它同步标记画布)
     var onCropCommitted: ((UIImage, CGRect) -> Void)?
 
-    /// 裁剪框被用户拖动过的通知回调(编辑器用它点亮顶部的裁剪确认按钮)
-    var onCropBoxAdjusted: (() -> Void)?
-
     /// 用户是否动过裁剪框(动过后切标记模式才需要应用裁剪，没动过不做无意义裁剪)
-    private(set) var hasUserAdjustedCropBox = false {
-        didSet {
-            if hasUserAdjustedCropBox != oldValue {
-                onCropBoxAdjusted?()
-            }
-        }
-    }
+    private(set) var hasUserAdjustedCropBox = false
 
     /// 界面外观(遮罩框线网格与把手样式从这里取)
     var appearance = WYImageEditorAppearance()
@@ -241,9 +232,14 @@ class WYImageCropperView: UIView {
         scrollView.contentSize = image.size
     }
 
-    /// 应用当前裁剪框的裁剪(CGImage像素直裁不重采样，裁完框回满图内收状态，框没动过或无效时什么都不做)
-    func commitCrop() {
-        guard fixedOutputSize == nil, hasUserAdjustedCropBox else { return }
+    /**
+     * 应用当前裁剪框的裁剪(CGImage像素直裁不重采样，裁完框回满图内收状态)
+     * - Parameter force: true为无条件按当前框真裁(顶部裁剪按钮)，false为框没动过或固定尺寸模式时不裁(切标记模式的保护)
+     */
+    func commitCrop(force: Bool = false) {
+        if !force {
+            guard fixedOutputSize == nil, hasUserAdjustedCropBox else { return }
+        }
         let region = cropRectInImageCoordinates()
         guard region.width >= 1, region.height >= 1, let cgImage = cropImage.cgImage else { return }
 

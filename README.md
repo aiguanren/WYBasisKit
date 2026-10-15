@@ -102,6 +102,7 @@ configuration.showsColorOptions = true       // 界面是否显示颜色选择�
 configuration.allowsImageZoom = true        // false时编辑器里不能捏合缩放图片
 
 // 界面外观全部可配(22项：画布/遮罩/裁剪框线/把手/选中虚线/删除钮/色板/档位倍率/工具条/分段控件/强调色等)
+configuration.appearance.topBarCropButtonColor = .systemYellow // 顶部裁剪按钮颜色
 configuration.appearance.selectionDashColor = .systemRed   // 标记选中态虚线颜色
 configuration.appearance.handleColor = .systemYellow       // 裁剪把手颜色
 configuration.appearance.accentColor = .systemGreen        // 选中态强调色
