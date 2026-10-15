@@ -145,13 +145,6 @@ class WYMainController: UIViewController {
             }
         }
 
-        // [临时验证代码，验证完删除]
-        if ProcessInfo.processInfo.arguments.contains("-WYAutoImageEditorPage") {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-                self?.navigationController?.pushViewController(WYTestImageEditorController(), animated: false)
-            }
-        }
-
         navigationItem.title = "各种测试样例"
         tableView.backgroundColor = UIColor.wy_dynamic(.white, .black)
         

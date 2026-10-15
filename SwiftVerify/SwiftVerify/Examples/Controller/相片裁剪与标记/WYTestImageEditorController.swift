@@ -117,33 +117,6 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
             make.left.right.bottom.equalToSuperview()
         }
 
-        // [临时验证代码，验证完删除]进编辑器1.5秒后自动点标记按钮
-        if ProcessInfo.processInfo.arguments.contains("-WYAutoMarkTap") {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-                guard let self = self else { return }
-                self.testImageName = "蓝色小屋"
-                let editor = WYImageEditorViewController(image: self.buildTestImage(), configuration: self.buildConfiguration())
-                editor.modalPresentationStyle = .fullScreen
-                self.present(editor, animated: true)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
-                    guard let self = self else { return }
-                    let buttons = self.findAllButtons(in: editor.view, titled: "标记")
-                    buttons.first?.sendActions(for: .touchUpInside)
-                }
-            }
-        }
-    }
-
-    /// [临时验证代码，验证完删除]深度遍历找指定标题的全部按钮
-    func findAllButtons(in view: UIView, titled title: String) -> [UIButton] {
-        var result: [UIButton] = []
-        if let button = view as? UIButton, button.currentTitle == title {
-            result.append(button)
-        }
-        for subview in view.subviews {
-            result.append(contentsOf: findAllButtons(in: subview, titled: title))
-        }
-        return result
     }
 
     @discardableResult func createButton(title: String, selector: Selector, superView: UIView, leftView: UIView?, topView: UIView?, isRight: Bool = false, isLast: Bool = false) -> UIButton {
