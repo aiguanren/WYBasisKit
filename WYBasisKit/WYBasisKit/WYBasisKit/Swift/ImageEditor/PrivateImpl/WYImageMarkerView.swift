@@ -184,6 +184,31 @@ class WYImageMarkerView: UIView {
         setNeedsDisplay()
     }
 
+    /// 是否还有标记(编辑器逐步还原时先撤标记)
+    var hasMarkers: Bool {
+        return !items.isEmpty
+    }
+
+    /// 回退基准图(逐步还原裁剪时调用，region为当初裁掉的区域，全部标记坐标反向平移回旧基准图坐标)
+    func revertCroppedBase(_ previousImage: UIImage, region: CGRect) {
+        sourceImage = previousImage
+        displayRegion.origin.x += region.origin.x
+        displayRegion.origin.y += region.origin.y
+        for index in items.indices {
+            items[index].frame.origin.x += region.origin.x
+            items[index].frame.origin.y += region.origin.y
+            items[index].startPoint.x += region.origin.x
+            items[index].startPoint.y += region.origin.y
+            items[index].endPoint.x += region.origin.x
+            items[index].endPoint.y += region.origin.y
+            for pointIndex in items[index].linePoints.indices {
+                items[index].linePoints[pointIndex].x += region.origin.x
+                items[index].linePoints[pointIndex].y += region.origin.y
+            }
+        }
+        setNeedsDisplay()
+    }
+
     /// 换基准图(裁剪视图松手应用裁剪后调用，region为本次裁掉区域在旧基准图中的坐标，全部标记坐标平移保持锚定图片内容)
     func applyCroppedBase(_ croppedImage: UIImage, region: CGRect) {
         sourceImage = croppedImage

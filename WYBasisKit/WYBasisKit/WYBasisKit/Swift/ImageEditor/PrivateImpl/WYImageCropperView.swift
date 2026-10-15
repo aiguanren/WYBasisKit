@@ -51,6 +51,12 @@ class WYImageCropperView: UIView {
     /// 用户是否动过裁剪框(动过后切标记模式才需要应用裁剪，没动过不做无意义裁剪)
     private(set) var hasUserAdjustedCropBox = false
 
+    /// 裁剪历史栈(每次应用裁剪压入旧基准图与本次裁掉区域，逐步还原时回退用)
+    private var cropHistory: [(image: UIImage, region: CGRect)] = []
+
+    /// 裁剪回退回调(参数为回退到的旧基准图与当初裁掉的区域，编辑器用它把标记坐标平移回去)
+    var onCropReverted: ((UIImage, CGRect) -> Void)?
+
     /// 界面外观(遮罩框线网格与把手样式从这里取)
     var appearance = WYImageEditorAppearance()
 
@@ -130,6 +136,7 @@ class WYImageCropperView: UIView {
     func reset() {
         cropImage = originalImage
         hasUserAdjustedCropBox = false
+        cropHistory.removeAll()
         rebuildContentView(with: originalImage)
         applyInitialLayout()
     }
@@ -227,6 +234,23 @@ class WYImageCropperView: UIView {
         overlayView.updateCropBox(cropBox, shape: shape, showsHandles: fixedOutputSize == nil)
     }
 
+    /// 回退上一次裁剪(有历史才回退，标记坐标由编辑器经回调平移回去，返回false表示没有可回退的裁剪)
+    func undoLastCrop() -> Bool {
+        guard let last = cropHistory.last else { return false }
+        cropHistory.removeLast()
+        cropImage = last.image
+        hasUserAdjustedCropBox = false
+
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        rebuildContentView(with: cropImage)
+        applyInitialLayout()
+        scrollView.layoutIfNeeded()
+        CATransaction.commit()
+        onCropReverted?(cropImage, last.region)
+        return true
+    }
+
     /// 干净重建内容视图(先把缩放归一再拆下重挂图片视图，滚动视图内部缩放基准彻底重置，任何脏状态都归位)
     private func rebuildContentView(with image: UIImage) {
         scrollView.minimumZoomScale = 1
@@ -274,6 +298,7 @@ class WYImageCropperView: UIView {
 
         // 换基准图重摆布局(标记画布由编辑器经回调同步平移)
         let regionInOldBase = CGRect(x: pixelRect.origin.x / scale, y: pixelRect.origin.y / scale, width: pixelRect.width / scale, height: pixelRect.height / scale)
+        let oldBaseImage = cropImage
         cropImage = UIImage(cgImage: croppedCG, scale: scale, orientation: .up)
         hasUserAdjustedCropBox = false
 
@@ -284,6 +309,8 @@ class WYImageCropperView: UIView {
         applyInitialLayout()
         scrollView.layoutIfNeeded()
         CATransaction.commit()
+
+        cropHistory.append((image: oldBaseImage, region: regionInOldBase))
 
         // 落定保护(下一个主线程周期核对，真实手势时序里若有任何环节把框改回旧值或漏刷遮罩，强制纠正回裁剪后的满图状态)
         let settledBox = cropBox

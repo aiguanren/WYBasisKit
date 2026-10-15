@@ -497,6 +497,9 @@ public class WYImageEditorViewController: UIViewController {
             self?.markerView.applyCroppedBase(croppedImage, region: region)
             self?.refreshTitleForPendingCrop()
         }
+        cropperView.onCropReverted = { [weak self] previousImage, region in
+            self?.markerView.revertCroppedBase(previousImage, region: region)
+        }
 
         markerView.setup(image: image,
                          defaultColor: configuration.markerColor,
@@ -689,20 +692,18 @@ public class WYImageEditorViewController: UIViewController {
         }
     }
 
-    /// 点还原(裁剪状态与全部标记退回刚进编辑器时的样子)
+    /// 点还原(逐步回退，每次撤销最近一步操作：先撤最后一个标记，标记撤完再回退上一次裁剪，一路退回原图)
     @objc private func revertButtonTapped() {
-        cropperView.reset()
-        markerView.setup(image: image,
-                         defaultColor: configuration.markerColor,
-                         lineWidth: configuration.markerLineWidth,
-                         textFontSize: configuration.markerTextFontSize,
-                         straightLine: configuration.lineDrawsStraight,
-                         appearance: configuration.appearance)
-        markerView.removeAllMarkers()
-        if isMarkMode {
-            refreshMarkerDisplayRegion()
+        if markerView.hasMarkers {
+            markerView.undoLastMarker()
+            return
         }
-        refreshTitleForPendingCrop()
+        if cropperView.undoLastCrop() {
+            if isMarkMode {
+                refreshMarkerDisplayRegion()
+            }
+            return
+        }
     }
 
     /// 点完成(按当前裁剪范围与标记合成成品图，回调后关闭编辑器)
