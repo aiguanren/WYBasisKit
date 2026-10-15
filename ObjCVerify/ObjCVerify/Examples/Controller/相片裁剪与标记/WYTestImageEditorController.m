@@ -119,13 +119,14 @@
                                                 isRight:NO
                                                  isLast:NO];
 
-    [self createButtonWithTitle:@"(已允许)标记"
-                       selector:@selector(markingButtonTapped:)
-                      superView:contentView
-                       leftView:sizeButton
-                        topView:nil
-                         isRight:YES
-                          isLast:NO];
+    UIButton *markingButton = [self createButtonWithTitle:@"(已允许)标记"
+                                                 selector:@selector(markingButtonTapped:)
+                                                superView:contentView
+                                                 leftView:sizeButton
+                                                  topView:nil
+                                                   isRight:YES
+                                                    isLast:NO];
+    [markingButton setTitle:@"(已关闭)标记" forState:UIControlStateSelected];
 
     UIButton *croppingButton = [self createButtonWithTitle:@"(已允许)裁剪"
                                                  selector:@selector(croppingButtonTapped:)

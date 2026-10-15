@@ -75,7 +75,8 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
 
         let sizeButton: UIButton = createButton(title: "裁剪尺寸(自由)", selector: #selector(sizeButtonTapped(sender:)), superView: contentView, leftView: shapeButton, topView: nil)
 
-        createButton(title: "(已允许)标记", selector: #selector(markingButtonTapped(sender:)), superView: contentView, leftView: sizeButton, topView: nil, isRight: true)
+        let markingButton: UIButton = createButton(title: "(已允许)标记", selector: #selector(markingButtonTapped(sender:)), superView: contentView, leftView: sizeButton, topView: nil, isRight: true)
+        markingButton.setTitle("(已关闭)标记", for: .selected)
 
         let croppingButton: UIButton = createButton(title: "(已允许)裁剪", selector: #selector(croppingButtonTapped(sender:)), superView: contentView, leftView: nil, topView: shapeButton)
         croppingButton.setTitle("(已关闭)裁剪", for: .selected)
