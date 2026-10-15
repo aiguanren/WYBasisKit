@@ -43,8 +43,20 @@
 /// 文本字号(0表示自动)
 @property (nonatomic, assign) CGFloat markerTextFontSize;
 
-/// 测试图片下标(0横图 1竖图 2方图)
-@property (nonatomic, assign) NSInteger testImageIndex;
+/// 划线默认形态(true为直线)
+@property (nonatomic, assign) BOOL lineDrawsStraight;
+
+/// 界面是否显示粗细字号选择行
+@property (nonatomic, assign) BOOL showsStyleOptions;
+
+/// 界面是否显示颜色选择条
+@property (nonatomic, assign) BOOL showsColorOptions;
+
+/// 测试图片名字(nil表示用生成的标尺图)
+@property (nonatomic, copy, nullable) NSString *testImageName;
+
+/// 标尺图下标(0横图 1竖图 2方图，testImageName为nil时生效)
+@property (nonatomic, assign) NSInteger rulerImageIndex;
 
 /// 编辑成品图
 @property (nonatomic, strong, nullable) UIImage *resultImage;
@@ -66,6 +78,8 @@
 
     _cropShape = WYImageCropShapeRectangle;
     _allowsMarking = YES;
+    _showsStyleOptions = YES;
+    _showsColorOptions = YES;
     _markerColor = [UIColor whiteColor];
     _resultSource = @"暂无结果";
 
@@ -127,7 +141,7 @@
                          isRight:YES
                           isLast:NO];
 
-    UIButton *imageButton = [self createButtonWithTitle:@"测试图片(横图)"
+    UIButton *imageButton = [self createButtonWithTitle:@"测试图片(标尺横图)"
                                                selector:@selector(imageButtonTapped:)
                                               superView:contentView
                                                leftView:nil
@@ -135,11 +149,38 @@
                                                  isRight:NO
                                                   isLast:NO];
 
+    UIButton *lineShapeButton = [self createButtonWithTitle:@"划线形态(自由)"
+                                                   selector:@selector(lineShapeButtonTapped:)
+                                                  superView:contentView
+                                                   leftView:imageButton
+                                                    topView:colorButton
+                                                     isRight:NO
+                                                      isLast:NO];
+    [lineShapeButton setTitle:@"划线形态(直线)" forState:UIControlStateSelected];
+
+    UIButton *styleRowButton = [self createButtonWithTitle:@"(显示)粗细字号行"
+                                                 selector:@selector(styleRowButtonTapped:)
+                                                superView:contentView
+                                                 leftView:lineShapeButton
+                                                  topView:colorButton
+                                                   isRight:YES
+                                                    isLast:NO];
+    [styleRowButton setTitle:@"(隐藏)粗细字号行" forState:UIControlStateSelected];
+
+    UIButton *colorRowButton = [self createButtonWithTitle:@"(显示)颜色条"
+                                                 selector:@selector(colorRowButtonTapped:)
+                                                superView:contentView
+                                                 leftView:nil
+                                                  topView:imageButton
+                                                   isRight:NO
+                                                    isLast:NO];
+    [colorRowButton setTitle:@"(隐藏)颜色条" forState:UIControlStateSelected];
+
     UIButton *blockButton = [self createButtonWithTitle:@"Block方式\n打开编辑器"
                                                selector:@selector(blockButtonTapped)
                                               superView:contentView
-                                               leftView:imageButton
-                                                topView:colorButton
+                                               leftView:colorRowButton
+                                                topView:imageButton
                                                  isRight:NO
                                                   isLast:NO];
 
@@ -147,7 +188,7 @@
                        selector:@selector(delegateButtonTapped)
                       superView:contentView
                        leftView:blockButton
-                        topView:colorButton
+                        topView:imageButton
                          isRight:YES
                           isLast:NO];
 
@@ -155,7 +196,7 @@
                                                 selector:@selector(staticButtonTapped)
                                                superView:contentView
                                                 leftView:nil
-                                                 topView:imageButton
+                                                 topView:colorRowButton
                                                   isRight:NO
                                                    isLast:NO];
 
@@ -163,7 +204,7 @@
                        selector:@selector(clearButtonTapped)
                       superView:contentView
                        leftView:staticButton
-                        topView:imageButton
+                        topView:colorRowButton
                          isRight:NO
                           isLast:YES];
 
@@ -228,13 +269,20 @@
     configuration.markerColor = self.markerColor;
     configuration.markerLineWidth = self.markerLineWidth;
     configuration.markerTextFontSize = self.markerTextFontSize;
+    configuration.lineDrawsStraight = self.lineDrawsStraight;
+    configuration.showsStyleOptions = self.showsStyleOptions;
+    configuration.showsColorOptions = self.showsColorOptions;
     return configuration;
 }
 
-/// 生成当前选中的测试图(渐变底加百像素网格加标尺数字，肉眼核对裁剪范围)
+/// 生成当前选中的测试图(真实图片直接取Resource目录，标尺图现场绘制)
 - (UIImage *)buildTestImage {
+    if (self.testImageName.length > 0) {
+        UIImage *loaded = [UIImage imageNamed:self.testImageName];
+        if (loaded != nil) { return loaded; }
+    }
     CGSize sizes[3] = { CGSizeMake(800, 600), CGSizeMake(600, 800), CGSizeMake(700, 700) };
-    CGSize imageSize = sizes[self.testImageIndex];
+    CGSize imageSize = sizes[self.rulerImageIndex];
 
     UIGraphicsImageRendererFormat *format = [UIGraphicsImageRendererFormat defaultFormat];
     format.scale = 1;
@@ -295,7 +343,11 @@
     NSString *markingText = self.allowsMarking ? @"允许" : @"关闭";
     NSString *lineWidthText = self.markerLineWidth == 0 ? @"自动" : [NSString stringWithFormat:@"%.0f", self.markerLineWidth];
     NSString *fontSizeText = self.markerTextFontSize == 0 ? @"自动" : [NSString stringWithFormat:@"%.0f", self.markerTextFontSize];
-    wy_print(@"[%@] 打开编辑器 原图%.0f×%.0f 配置=形状%@ 尺寸%@ 标记%@ 线宽%@ 字号%@", source, image.size.width, image.size.height, shapeText, sizeText, markingText, lineWidthText, fontSizeText);
+    NSString *lineShapeText = self.lineDrawsStraight ? @"直线" : @"自由";
+    NSString *styleRowText = self.showsStyleOptions ? @"显示" : @"隐藏";
+    NSString *colorRowText = self.showsColorOptions ? @"显示" : @"隐藏";
+    NSString *imageSourceText = self.testImageName.length > 0 ? self.testImageName : @"标尺图";
+    wy_print(@"[%@] 打开编辑器 图片=%@ 原图%.0f×%.0f 配置=形状%@ 尺寸%@ 标记%@ 线宽%@ 字号%@ 划线%@ 粗细字号行%@ 颜色条%@", source, imageSourceText, image.size.width, image.size.height, shapeText, sizeText, markingText, lineWidthText, fontSizeText, lineShapeText, styleRowText, colorRowText);
 }
 
 /// 记录编辑结果并刷新表格(三种打开方式共用)
@@ -373,14 +425,41 @@
 }
 
 - (void)imageButtonTapped:(UIButton *)sender {
-    NSArray *imageNames = @[@"横图(800×600)", @"竖图(600×800)", @"方图(700×700)"];
-    [UIAlertController wy_showStyle:UIAlertControllerStyleAlert title:@"测试图片" message:nil actions:imageNames handler:^(NSString *action, NSArray<NSString *> *inputTexts) {
-        NSUInteger index = [imageNames indexOfObject:action];
-        if (index == NSNotFound) { return; }
-        self.testImageIndex = index;
-        NSArray *shortNames = @[@"横图", @"竖图", @"方图"];
-        [sender setTitle:[NSString stringWithFormat:@"测试图片(%@)", shortNames[index]] forState:UIControlStateNormal];
+    NSArray *realImageNames = @[@"窗花", @"帆船", @"红色爱心", @"红色花", @"蓝色小屋", @"蓝天下的红色花", @"蓝天下的花", @"啤酒"];
+    NSArray *rulerTitles = @[@"标尺横图(800×600)", @"标尺竖图(600×800)", @"标尺方图(700×700)"];
+    [UIAlertController wy_showStyle:UIAlertControllerStyleAlert title:@"测试图片(前八项为Resource里的真实图片)" message:nil actions:[realImageNames arrayByAddingObjectsFromArray:rulerTitles] handler:^(NSString *action, NSArray<NSString *> *inputTexts) {
+        NSUInteger realIndex = [realImageNames indexOfObject:action];
+        if (realIndex != NSNotFound) {
+            self.testImageName = realImageNames[realIndex];
+            [sender setTitle:[NSString stringWithFormat:@"测试图片(%@)", realImageNames[realIndex]] forState:UIControlStateNormal];
+            return;
+        }
+        NSUInteger rulerIndex = [rulerTitles indexOfObject:action];
+        if (rulerIndex != NSNotFound) {
+            self.testImageName = nil;
+            self.rulerImageIndex = rulerIndex;
+            NSArray *shortNames = @[@"横图", @"竖图", @"方图"];
+            [sender setTitle:[NSString stringWithFormat:@"测试图片(标尺%@)", shortNames[rulerIndex]] forState:UIControlStateNormal];
+        }
     }];
+}
+
+/// 划线默认形态切换(自由与直线两态)
+- (void)lineShapeButtonTapped:(UIButton *)sender {
+    self.lineDrawsStraight = !self.lineDrawsStraight;
+    sender.selected = self.lineDrawsStraight;
+}
+
+/// 界面粗细字号选择行显示开关
+- (void)styleRowButtonTapped:(UIButton *)sender {
+    self.showsStyleOptions = !self.showsStyleOptions;
+    sender.selected = !self.showsStyleOptions;
+}
+
+/// 界面颜色选择条显示开关
+- (void)colorRowButtonTapped:(UIButton *)sender {
+    self.showsColorOptions = !self.showsColorOptions;
+    sender.selected = !self.showsColorOptions;
 }
 
 /// Block回调方式(静态方法一行打开，handler里拿结果)

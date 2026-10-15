@@ -27,8 +27,20 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
     /// 文本字号(0表示自动)
     var markerTextFontSize: CGFloat = 0
 
-    /// 测试图片下标(0横图 1竖图 2方图)
-    var testImageIndex: Int = 0
+    /// 划线默认形态(true为直线)
+    var lineDrawsStraight: Bool = false
+
+    /// 界面是否显示粗细字号选择行
+    var showsStyleOptions: Bool = true
+
+    /// 界面是否显示颜色选择条
+    var showsColorOptions: Bool = true
+
+    /// 测试图片名字(nil表示用生成的标尺图)
+    var testImageName: String? = nil
+
+    /// 标尺图下标(0横图 1竖图 2方图，testImageName为nil时生效)
+    var rulerImageIndex: Int = 0
 
     /// 编辑成品图(三种打开方式的回调里更新并刷表)
     var resultImage: UIImage? = nil
@@ -62,15 +74,24 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
 
         createButton(title: "文本字号(自动)", selector: #selector(fontSizeButtonTapped(sender:)), superView: contentView, leftView: lineWidthButton, topView: shapeButton, isRight: true)
 
-        let imageButton: UIButton = createButton(title: "测试图片(横图)", selector: #selector(imageButtonTapped(sender:)), superView: contentView, leftView: nil, topView: colorButton)
+        let imageButton: UIButton = createButton(title: "测试图片(标尺横图)", selector: #selector(imageButtonTapped(sender:)), superView: contentView, leftView: nil, topView: colorButton)
 
-        let blockButton: UIButton = createButton(title: "Block方式\n打开编辑器", selector: #selector(blockButtonTapped), superView: contentView, leftView: imageButton, topView: colorButton)
+        let lineShapeButton: UIButton = createButton(title: "划线形态(自由)", selector: #selector(lineShapeButtonTapped(sender:)), superView: contentView, leftView: imageButton, topView: colorButton)
+        lineShapeButton.setTitle("划线形态(直线)", for: .selected)
 
-        createButton(title: "Delegate方式\n打开编辑器", selector: #selector(delegateButtonTapped), superView: contentView, leftView: blockButton, topView: colorButton, isRight: true)
+        let styleRowButton: UIButton = createButton(title: "(显示)粗细字号行", selector: #selector(styleRowButtonTapped(sender:)), superView: contentView, leftView: lineShapeButton, topView: colorButton, isRight: true)
+        styleRowButton.setTitle("(隐藏)粗细字号行", for: .selected)
 
-        let staticButton: UIButton = createButton(title: "静态方法\n一行打开", selector: #selector(staticButtonTapped), superView: contentView, leftView: nil, topView: imageButton)
+        let colorRowButton: UIButton = createButton(title: "(显示)颜色条", selector: #selector(colorRowButtonTapped(sender:)), superView: contentView, leftView: nil, topView: imageButton)
+        colorRowButton.setTitle("(隐藏)颜色条", for: .selected)
 
-        createButton(title: "清除结果", selector: #selector(clearButtonTapped), superView: contentView, leftView: staticButton, topView: imageButton, isLast: true)
+        let blockButton: UIButton = createButton(title: "Block方式\n打开编辑器", selector: #selector(blockButtonTapped), superView: contentView, leftView: colorRowButton, topView: imageButton)
+
+        createButton(title: "Delegate方式\n打开编辑器", selector: #selector(delegateButtonTapped), superView: contentView, leftView: blockButton, topView: imageButton, isRight: true)
+
+        let staticButton: UIButton = createButton(title: "静态方法\n一行打开", selector: #selector(staticButtonTapped), superView: contentView, leftView: nil, topView: colorRowButton)
+
+        createButton(title: "清除结果", selector: #selector(clearButtonTapped), superView: contentView, leftView: staticButton, topView: colorRowButton, isLast: true)
 
         tableView = UITableView.wy_shared(delegate: self, dataSource: self, superView: view)
         tableView?.wy_register(WYTestImageEditorResultCell.self, .cell)
@@ -127,13 +148,19 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
         configuration.markerColor = markerColor
         configuration.markerLineWidth = markerLineWidth
         configuration.markerTextFontSize = markerTextFontSize
+        configuration.lineDrawsStraight = lineDrawsStraight
+        configuration.showsStyleOptions = showsStyleOptions
+        configuration.showsColorOptions = showsColorOptions
         return configuration
     }
 
-    /// 生成当前选中的测试图(渐变底加百像素网格加标尺数字，肉眼核对裁剪范围)
+    /// 生成当前选中的测试图(真实图片直接取Resource目录，标尺图现场绘制)
     func buildTestImage() -> UIImage {
+        if let imageName = testImageName, let loaded = UIImage(named: imageName) {
+            return loaded
+        }
         let sizes = [CGSize(width: 800, height: 600), CGSize(width: 600, height: 800), CGSize(width: 700, height: 700)]
-        let imageSize = sizes[testImageIndex]
+        let imageSize = sizes[rulerImageIndex]
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1
         let renderer = UIGraphicsImageRenderer(size: imageSize, format: format)
@@ -199,7 +226,11 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
         let markingText = allowsMarking ? "允许" : "关闭"
         let lineWidthText = markerLineWidth == 0 ? "自动" : String(format: "%.0f", markerLineWidth)
         let fontSizeText = markerTextFontSize == 0 ? "自动" : String(format: "%.0f", markerTextFontSize)
-        wy_print("[\(source)] 打开编辑器 原图\(Int(image.size.width))×\(Int(image.size.height)) 配置=形状\(shapeText) 尺寸\(sizeText) 标记\(markingText) 线宽\(lineWidthText) 字号\(fontSizeText)")
+        let lineShapeText = lineDrawsStraight ? "直线" : "自由"
+        let styleRowText = showsStyleOptions ? "显示" : "隐藏"
+        let colorRowText = showsColorOptions ? "显示" : "隐藏"
+        let imageSourceText = testImageName ?? "标尺图"
+        wy_print("[\(source)] 打开编辑器 图片=\(imageSourceText) 原图\(Int(image.size.width))×\(Int(image.size.height)) 配置=形状\(shapeText) 尺寸\(sizeText) 标记\(markingText) 线宽\(lineWidthText) 字号\(fontSizeText) 划线\(lineShapeText) 粗细字号行\(styleRowText) 颜色条\(colorRowText)")
     }
 
     /// 记录编辑结果并刷新表格(三种打开方式共用)
@@ -273,12 +304,37 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
     }
 
     @objc func imageButtonTapped(sender: UIButton) {
-        let imageNames = ["横图(800×600)", "竖图(600×800)", "方图(700×700)"]
-        UIAlertController.wy_show(title: "测试图片", actions: imageNames) { [weak self] action, _ in
-            guard let self = self, let index = imageNames.firstIndex(of: action) else { return }
-            self.testImageIndex = index
-            sender.setTitle("测试图片(\(["横图", "竖图", "方图"][index]))", for: .normal)
+        let realImageNames = ["窗花", "帆船", "红色爱心", "红色花", "蓝色小屋", "蓝天下的红色花", "蓝天下的花", "啤酒"]
+        let actionTitles = realImageNames + ["标尺横图(800×600)", "标尺竖图(600×800)", "标尺方图(700×700)"]
+        UIAlertController.wy_show(title: "测试图片(前八项为Resource里的真实图片)", actions: actionTitles) { [weak self] action, _ in
+            guard let self = self else { return }
+            if let realIndex = realImageNames.firstIndex(of: action) {
+                self.testImageName = realImageNames[realIndex]
+                sender.setTitle("测试图片(\(realImageNames[realIndex]))", for: .normal)
+            } else if let rulerIndex = ["标尺横图(800×600)", "标尺竖图(600×800)", "标尺方图(700×700)"].firstIndex(of: action) {
+                self.testImageName = nil
+                self.rulerImageIndex = rulerIndex
+                sender.setTitle("测试图片(标尺\(["横图", "竖图", "方图"][rulerIndex]))", for: .normal)
+            }
         }
+    }
+
+    /// 划线默认形态切换(自由与直线两态)
+    @objc func lineShapeButtonTapped(sender: UIButton) {
+        lineDrawsStraight.toggle()
+        sender.isSelected = lineDrawsStraight
+    }
+
+    /// 界面粗细字号选择行显示开关
+    @objc func styleRowButtonTapped(sender: UIButton) {
+        showsStyleOptions.toggle()
+        sender.isSelected = !showsStyleOptions
+    }
+
+    /// 界面颜色选择条显示开关
+    @objc func colorRowButtonTapped(sender: UIButton) {
+        showsColorOptions.toggle()
+        sender.isSelected = !showsColorOptions
     }
 
     /// Block回调方式(直接构造编辑器设onFinish与onCancel)

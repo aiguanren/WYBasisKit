@@ -51,6 +51,16 @@ enum WYImageEditorIcon {
         }
     }
 
+    /// 划线工具图标(手绘曲线)
+    static var line: UIImage {
+        return drawIcon { context in
+            let path = UIBezierPath()
+            path.move(to: CGPoint(x: 5, y: 17))
+            path.addCurve(to: CGPoint(x: 19, y: 7), controlPoint1: CGPoint(x: 9, y: 5), controlPoint2: CGPoint(x: 15, y: 19))
+            path.stroke()
+        }
+    }
+
     /// 撤销图标(逆时针回转箭头)
     static var undo: UIImage {
         return drawIcon { context in

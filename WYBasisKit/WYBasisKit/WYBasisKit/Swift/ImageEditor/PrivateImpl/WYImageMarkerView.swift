@@ -13,7 +13,7 @@ struct WYImageMarkerItem {
     /// 标记类型
     var type: WYImageMarkerType = .rectangle
 
-    /// 标记边界(文本矩形圆形用，箭头用起点终点)
+    /// 标记边界(文本矩形圆形用，箭头与划线用各自起终点)
     var frame: CGRect = .zero
 
     /// 箭头起点(图片坐标)
@@ -21,6 +21,12 @@ struct WYImageMarkerItem {
 
     /// 箭头终点(图片坐标)
     var endPoint: CGPoint = .zero
+
+    /// 划线轨迹点(图片坐标，直线形态只有首尾两个点，自由划线为手指经过的全部点)
+    var linePoints: [CGPoint] = []
+
+    /// 划线是否为直线形态(直线为首尾两点连线，false为自由划线轨迹)
+    var isStraightLine: Bool = false
 
     /// 文本内容
     var text: String = ""
@@ -43,6 +49,34 @@ struct WYImageMarkerItem {
         return CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
     }
 
+    /// 划线整体边界(全部轨迹点围成的矩形往外扩两个线宽)
+    var lineFrame: CGRect {
+        guard let first = linePoints.first else { return .zero }
+        var minX = first.x, minY = first.y, maxX = first.x, maxY = first.y
+        for point in linePoints {
+            minX = min(minX, point.x)
+            minY = min(minY, point.y)
+            maxX = max(maxX, point.x)
+            maxY = max(maxY, point.y)
+        }
+        minX -= lineWidth * 2
+        minY -= lineWidth * 2
+        maxX += lineWidth * 2
+        maxY += lineWidth * 2
+        return CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
+    }
+
+    /// 标记的有效边界(文本矩形圆形用frame，箭头划线用各自的起终点边界，选中框与命中都用它)
+    var effectiveFrame: CGRect {
+        if type == .arrow {
+            return arrowFrame
+        }
+        if type == .line {
+            return lineFrame
+        }
+        return frame
+    }
+
     /// 文本排版属性(按标记自身的字号与颜色生成)
     var textAttributes: [NSAttributedString.Key: Any] {
         let paragraph = NSMutableParagraphStyle()
@@ -51,14 +85,20 @@ struct WYImageMarkerItem {
     }
 }
 
-/// 标记视图(显示裁剪框取景范围内的图片，在上面写字画框画圈画箭头，标记可选中拖动缩放删除)
+/// 标记视图(显示裁剪框取景范围内的图片，在上面写字画框画圈画箭头划线，标记可选中拖动缩放删除)
 class WYImageMarkerView: UIView {
 
     /// 文本输入请求回调(参数为已有文本可为nil，回调参数为用户输入，取消时回调nil)
     var onRequestTextEdit: ((String?, @escaping (String?) -> Void) -> Void)?
 
+    /// 选中状态变化回调(点选新建删除撤销后触发，编辑器用它刷新粗细字号颜色选择行)
+    var onSelectionChanged: (() -> Void)?
+
     /// 当前选中的标记类型(选中后点画布空白处拖动即生成对应标记，文本工具点空白处弹输入)
     var activeTool: WYImageMarkerType = .text
+
+    /// 划线的默认形态(true为两点连直线，false为跟随手指自由划线，选中划线时可单独转换)
+    var lineDrawsStraight = false
 
     /// 当前默认颜色(改色时没有选中标记就改它，影响之后新建的标记)
     private var currentColor: UIColor = .white
@@ -87,18 +127,20 @@ class WYImageMarkerView: UIView {
         case none
         /// 拖删除把手(直接删掉)
         case deleteMarker
-        /// 拖缩放把手(矩形圆形文本调整大小，文本按宽度比例缩放字号)
+        /// 拖缩放把手(矩形圆形文本调整大小，文本按宽度比例缩放字号，自由划线等比缩放轨迹)
         case resizeMarker
-        /// 拖箭头起点把手
-        case arrowStart
-        /// 拖箭头终点把手
-        case arrowEnd
+        /// 拖起点把手(箭头与直线划线共用)
+        case endpointStart
+        /// 拖终点把手(箭头与直线划线共用)
+        case endpointEnd
         /// 移动整个标记
         case moveMarker
         /// 新建矩形或圆形
         case createShape
         /// 新建箭头
         case createArrow
+        /// 新建划线(直线还是自由由lineDrawsStraight决定)
+        case createLine
     }
 
     /// 当前拖拽模式
@@ -120,10 +162,12 @@ class WYImageMarkerView: UIView {
      *   - defaultColor: 标记默认颜色
      *   - lineWidth: 默认线条宽度(传0按图片宽度自动)
      *   - textFontSize: 默认文本字号(传0按图片宽度自动)
+     *   - straightLine: 划线默认形态(true为直线)
      */
-    func setup(image: UIImage, defaultColor: UIColor, lineWidth: CGFloat, textFontSize: CGFloat) {
+    func setup(image: UIImage, defaultColor: UIColor, lineWidth: CGFloat, textFontSize: CGFloat, straightLine: Bool) {
         sourceImage = image
         currentColor = defaultColor
+        lineDrawsStraight = straightLine
         let baseWidth = max(image.size.width, 1)
         defaultLineWidth = lineWidth > 0 ? lineWidth : min(max(baseWidth / 160, 3), 48)
         defaultFontSize = textFontSize > 0 ? textFontSize : min(max(baseWidth / 18, 16), 220)
@@ -139,6 +183,7 @@ class WYImageMarkerView: UIView {
     func deselectMarker() {
         selectedIndex = nil
         setNeedsDisplay()
+        onSelectionChanged?()
     }
 
     /// 撤销最后一个标记
@@ -149,6 +194,7 @@ class WYImageMarkerView: UIView {
             selectedIndex = nil
         }
         setNeedsDisplay()
+        onSelectionChanged?()
     }
 
     /// 删除当前选中的标记
@@ -157,6 +203,7 @@ class WYImageMarkerView: UIView {
         items.remove(at: index)
         selectedIndex = nil
         setNeedsDisplay()
+        onSelectionChanged?()
     }
 
     /// 清空全部标记(编辑器点还原时调用)
@@ -164,6 +211,7 @@ class WYImageMarkerView: UIView {
         items.removeAll()
         selectedIndex = nil
         setNeedsDisplay()
+        onSelectionChanged?()
     }
 
     /// 应用颜色(有选中标记改它自己的颜色，没有就改默认颜色影响之后的标记)
@@ -174,6 +222,114 @@ class WYImageMarkerView: UIView {
             currentColor = color
         }
         setNeedsDisplay()
+    }
+
+    /// 应用线条宽度(有选中标记改它自己的线宽，没有就改默认线宽影响之后的标记，选中文本时不生效)
+    func applyLineWidth(_ width: CGFloat) {
+        guard width > 0 else { return }
+        if let index = selectedIndex, items.indices.contains(index), items[index].type != .text {
+            items[index].lineWidth = width
+        } else {
+            defaultLineWidth = width
+        }
+        setNeedsDisplay()
+    }
+
+    /// 应用文本字号(有选中文本标记改它自己的字号并重排版，没有就改默认字号影响之后的文本)
+    func applyFontSize(_ fontSize: CGFloat) {
+        guard fontSize > 0 else { return }
+        if let index = selectedIndex, items.indices.contains(index), items[index].type == .text {
+            items[index].fontSize = fontSize
+            let textSize = (items[index].text as NSString).size(withAttributes: items[index].textAttributes)
+            items[index].frame.size = CGSize(width: textSize.width, height: ceil(textSize.height))
+        } else {
+            defaultFontSize = fontSize
+        }
+        setNeedsDisplay()
+    }
+
+    /// 切换划线形态(选中划线时转换它自己的直线自由形态，没选中就切默认形态影响之后的划线)
+    func toggleStraightLine() {
+        if let index = selectedIndex, items.indices.contains(index), items[index].type == .line {
+            items[index].isStraightLine.toggle()
+            if items[index].isStraightLine, items[index].linePoints.count > 2 {
+
+                // 转直线时轨迹收成首尾两点
+                let first = items[index].linePoints.first!
+                let last = items[index].linePoints.last!
+                items[index].linePoints = [first, last]
+            }
+        } else {
+            lineDrawsStraight.toggle()
+        }
+        setNeedsDisplay()
+        onSelectionChanged?()
+    }
+
+    /// 界面线宽档位(默认线宽的0.5倍1倍2倍3.5倍，图片坐标)
+    func presetLineWidths() -> [CGFloat] {
+        return [defaultLineWidth * 0.5, defaultLineWidth, defaultLineWidth * 2, defaultLineWidth * 3.5]
+    }
+
+    /// 界面字号档位(默认字号的0.6倍1倍1.6倍2.4倍，图片坐标)
+    func presetFontSizes() -> [CGFloat] {
+        return [defaultFontSize * 0.6, defaultFontSize, defaultFontSize * 1.6, defaultFontSize * 2.4]
+    }
+
+    /// 当前生效线宽在档位中的下标(选中文本或没有精确命中时返回nil)
+    func activeLineWidthIndex() -> Int? {
+        let width: CGFloat
+        if let index = selectedIndex, items.indices.contains(index), items[index].type != .text {
+            width = items[index].lineWidth
+        } else {
+            width = defaultLineWidth
+        }
+        return presetLineWidths().firstIndex(where: { abs($0 - width) < 0.5 })
+    }
+
+    /// 当前生效字号在档位中的下标(选中的不是文本且文本工具没激活时返回nil)
+    func activeFontSizeIndex() -> Int? {
+        let fontSize: CGFloat
+        if let index = selectedIndex, items.indices.contains(index), items[index].type == .text {
+            fontSize = items[index].fontSize
+        } else if activeTool == .text {
+            fontSize = defaultFontSize
+        } else {
+            return nil
+        }
+        return presetFontSizes().firstIndex(where: { abs($0 - fontSize) < 0.5 })
+    }
+
+    /// 当前生效颜色(有选中标记取它的颜色，没有取默认颜色)
+    func activeColor() -> UIColor {
+        if let index = selectedIndex, items.indices.contains(index) {
+            return items[index].color
+        }
+        return currentColor
+    }
+
+    /// 当前生效的划线形态(选中划线取它自己的形态，没有取默认形态)
+    func activeStraightLine() -> Bool {
+        if let index = selectedIndex, items.indices.contains(index), items[index].type == .line {
+            return items[index].isStraightLine
+        }
+        return lineDrawsStraight
+    }
+
+    /// 粗细字号行是否该按文本语境展示(选中文本标记或文本工具激活且无选中)
+    func contextIsText() -> Bool {
+        if let index = selectedIndex, items.indices.contains(index) {
+            return items[index].type == .text
+        }
+        return activeTool == .text
+    }
+
+    /// 当前语境是否划线(选中划线标记或划线工具激活且无选中)
+    func contextIsLineTool() -> Bool {
+        if let index = selectedIndex, items.indices.contains(index) {
+            return items[index].type == .line
+        }
+        return activeTool == .line
     }
 
     /// 画布触点转图片坐标
@@ -199,9 +355,10 @@ class WYImageMarkerView: UIView {
 
     /// 标记边界转画布坐标矩形
     private func viewFrame(of item: WYImageMarkerItem) -> CGRect {
-        let frame = item.type == .arrow ? item.arrowFrame : item.frame
+        let frame = item.effectiveFrame
         let origin = viewPoint(fromImagePoint: frame.origin)
-        return CGRect(x: origin.x, y: origin.y, width: frame.width * displayTransform().scale, height: frame.height * displayTransform().scale)
+        let scale = displayTransform().scale
+        return CGRect(x: origin.x, y: origin.y, width: frame.width * scale, height: frame.height * scale)
     }
 
     /// 图片区域(去掉零区域保护后的合法显示范围)
@@ -212,24 +369,51 @@ class WYImageMarkerView: UIView {
         return region
     }
 
-    /// 命中的标记下标(后画的优先，触点按图片坐标判断，命中范围向外扩一点方便点中)
+    /// 点到线段的距离(划线命中判断用)
+    private func distance(from point: CGPoint, toSegment start: CGPoint, end: CGPoint) -> CGFloat {
+        let dx = end.x - start.x
+        let dy = end.y - start.y
+        let lengthSquared = dx * dx + dy * dy
+        if lengthSquared == 0 {
+            return hypot(point.x - start.x, point.y - start.y)
+        }
+        let ratio = max(0, min(1, ((point.x - start.x) * dx + (point.y - start.y) * dy) / lengthSquared))
+        let projected = CGPoint(x: start.x + ratio * dx, y: start.y + ratio * dy)
+        return hypot(point.x - projected.x, point.y - projected.y)
+    }
+
+    /// 划线轨迹上离触点最近的距离(逐段算取最小)
+    private func lineDistance(atImagePoint point: CGPoint, linePoints: [CGPoint]) -> CGFloat {
+        guard linePoints.count >= 2 else {
+            guard let only = linePoints.first else { return .greatestFiniteMagnitude }
+            return hypot(point.x - only.x, point.y - only.y)
+        }
+        var minimum: CGFloat = .greatestFiniteMagnitude
+        for index in 0..<(linePoints.count - 1) {
+            minimum = min(minimum, distance(from: point, toSegment: linePoints[index], end: linePoints[index + 1]))
+        }
+        return minimum
+    }
+
+    /// 命中的标记下标(后画的优先，触点按图片坐标判断，划线按轨迹距离命中其余按边界命中)
     private func markerIndex(atImagePoint point: CGPoint) -> Int? {
         let scale = displayTransform().scale
         let padding = 12 / max(scale, 0.001)
         for index in items.indices.reversed() {
             let item = items[index]
-            if item.type == .arrow {
-                let frame = item.arrowFrame.insetBy(dx: -padding, dy: -padding)
-                if frame.contains(point) { return index }
+            if item.type == .line {
+                if lineDistance(atImagePoint: point, linePoints: item.linePoints) <= padding + item.lineWidth {
+                    return index
+                }
             } else {
-                let frame = item.frame.insetBy(dx: -padding, dy: -padding)
+                let frame = item.effectiveFrame.insetBy(dx: -padding, dy: -padding)
                 if frame.contains(point) { return index }
             }
         }
         return nil
     }
 
-    /// 触点命中的操作把手(删除缩放或箭头端点，按画布坐标判断)
+    /// 触点命中的操作把手(删除缩放端点，按画布坐标判断，箭头与直线划线用两端点把手)
     private func handleAtViewPoint(_ point: CGPoint) -> DragMode? {
         guard let index = selectedIndex, items.indices.contains(index) else { return nil }
         let item = items[index]
@@ -239,12 +423,16 @@ class WYImageMarkerView: UIView {
         let deleteCenter = CGPoint(x: frame.minX, y: frame.minY)
         if hypot(point.x - deleteCenter.x, point.y - deleteCenter.y) <= 22 { return .deleteMarker }
 
-        if item.type == .arrow {
-            let startCenter = viewPoint(fromImagePoint: item.startPoint)
-            let endCenter = viewPoint(fromImagePoint: item.endPoint)
-            if hypot(point.x - startCenter.x, point.y - startCenter.y) <= 22 { return .arrowStart }
-            if hypot(point.x - endCenter.x, point.y - endCenter.y) <= 22 { return .arrowEnd }
+        let usesEndpoints = item.type == .arrow || (item.type == .line && item.isStraightLine)
+        if usesEndpoints {
+            let startPoint = item.type == .arrow ? item.startPoint : (item.linePoints.first ?? .zero)
+            let endPoint = item.type == .arrow ? item.endPoint : (item.linePoints.last ?? .zero)
+            let startCenter = viewPoint(fromImagePoint: startPoint)
+            let endCenter = viewPoint(fromImagePoint: endPoint)
+            if hypot(point.x - startCenter.x, point.y - startCenter.y) <= 22 { return .endpointStart }
+            if hypot(point.x - endCenter.x, point.y - endCenter.y) <= 22 { return .endpointEnd }
         } else {
+
             // 右下角缩放把手
             let resizeCenter = CGPoint(x: frame.maxX, y: frame.maxY)
             if hypot(point.x - resizeCenter.x, point.y - resizeCenter.y) <= 22 { return .resizeMarker }
@@ -267,6 +455,7 @@ class WYImageMarkerView: UIView {
             self.items.append(item)
             self.selectedIndex = self.items.count - 1
             self.setNeedsDisplay()
+            self.onSelectionChanged?()
         }
     }
 
@@ -298,9 +487,19 @@ class WYImageMarkerView: UIView {
                 selectedIndex = nil
             }
         }
+        if dragMode == .createLine, let index = selectedIndex, items.indices.contains(index) {
+            let item = items[index]
+            let frame = item.lineFrame
+            let screenDiagonal = hypot(frame.width, frame.height) * displayTransform().scale
+            if screenDiagonal < 12 {
+                items.remove(at: index)
+                selectedIndex = nil
+            }
+        }
         dragMode = .none
         dragStartItem = nil
         setNeedsDisplay()
+        onSelectionChanged?()
     }
 
     override func draw(_ rect: CGRect) {
@@ -314,7 +513,7 @@ class WYImageMarkerView: UIView {
         context.translateBy(x: transform.origin.x, y: transform.origin.y)
         context.scaleBy(x: transform.scale, y: transform.scale)
         context.translateBy(x: -region.origin.x, y: -region.origin.y)
-        context.clip(to: [bounds]) 
+        context.clip(to: [bounds])
         sourceImage.draw(in: CGRect(origin: .zero, size: sourceImage.size))
         for item in items {
             drawMarkerItem(item, in: context)
@@ -327,7 +526,7 @@ class WYImageMarkerView: UIView {
         }
     }
 
-    /// 画单个标记(在图片坐标系里画，箭头画线加实心三角头)
+    /// 画单个标记(在图片坐标系里画，划线直线两点连线自由划线轨迹平滑连曲线)
     private func drawMarkerItem(_ item: WYImageMarkerItem, in context: CGContext) {
         context.setStrokeColor(item.color.cgColor)
         context.setFillColor(item.color.cgColor)
@@ -371,10 +570,31 @@ class WYImageMarkerView: UIView {
             headPath.addLine(to: CGPoint(x: endPoint.x - cos(angle + 0.4) * headLength, y: endPoint.y - sin(angle + 0.4) * headLength))
             headPath.close()
             headPath.fill()
+        case .line:
+            guard item.linePoints.count >= 2 else { break }
+            let path = UIBezierPath()
+            path.lineWidth = item.lineWidth
+            path.lineCapStyle = .round
+            path.lineJoinStyle = .round
+            path.move(to: item.linePoints[0])
+            if item.isStraightLine {
+                path.addLine(to: item.linePoints[item.linePoints.count - 1])
+            } else {
+
+                // 自由划线按相邻点中点走二次曲线，线条圆滑跟手
+                var previous = item.linePoints[0]
+                for index in 1..<(item.linePoints.count - 1) {
+                    let midPoint = CGPoint(x: (item.linePoints[index].x + item.linePoints[index + 1].x) / 2, y: (item.linePoints[index].y + item.linePoints[index + 1].y) / 2)
+                    path.addQuadCurve(to: midPoint, controlPoint: previous)
+                    previous = item.linePoints[index]
+                }
+                path.addLine(to: item.linePoints[item.linePoints.count - 1])
+            }
+            path.stroke()
         }
     }
 
-    /// 画选中态样式(虚线框加左上删除把手加右下缩放把手或箭头两端把手)
+    /// 画选中态样式(虚线框加左上删除把手加右下缩放把手或箭头直线划线的两端把手)
     private func drawSelectionChrome(for item: WYImageMarkerItem, in context: CGContext) {
 
         let frame = viewFrame(of: item)
@@ -406,7 +626,7 @@ class WYImageMarkerView: UIView {
         crossPath.addLine(to: CGPoint(x: deleteCenter.x - 4.5, y: deleteCenter.y + 4.5))
         crossPath.stroke()
 
-        // 白圈小圆点把手(矩形圆形文本在右下角，箭头在两端)
+        // 白圈小圆点把手(箭头与直线划线在两端，其余在右下角)
         func drawHandleDot(_ center: CGPoint) {
             let dotPath = UIBezierPath(arcCenter: center, radius: 7, startAngle: 0, endAngle: .pi * 2, clockwise: true)
             UIColor.white.setFill()
@@ -416,9 +636,12 @@ class WYImageMarkerView: UIView {
             let ringPath = UIBezierPath(arcCenter: center, radius: 6, startAngle: 0, endAngle: .pi * 2, clockwise: true)
             ringPath.stroke()
         }
-        if item.type == .arrow {
-            drawHandleDot(viewPoint(fromImagePoint: item.startPoint))
-            drawHandleDot(viewPoint(fromImagePoint: item.endPoint))
+        let usesEndpoints = item.type == .arrow || (item.type == .line && item.isStraightLine)
+        if usesEndpoints {
+            let startPoint = item.type == .arrow ? item.startPoint : (item.linePoints.first ?? .zero)
+            let endPoint = item.type == .arrow ? item.endPoint : (item.linePoints.last ?? .zero)
+            drawHandleDot(viewPoint(fromImagePoint: startPoint))
+            drawHandleDot(viewPoint(fromImagePoint: endPoint))
         } else {
             drawHandleDot(CGPoint(x: chromeFrame.maxX, y: chromeFrame.maxY))
         }
@@ -464,8 +687,9 @@ class WYImageMarkerView: UIView {
                 requestEditText(itemIndex: hitIndex)
             } else {
                 selectedIndex = hitIndex
+                setNeedsDisplay()
+                onSelectionChanged?()
             }
-            setNeedsDisplay()
             return
         }
 
@@ -503,9 +727,6 @@ class WYImageMarkerView: UIView {
             }
             if let index = selectedIndex {
                 dragStartItem = items[index]
-                if handle == .moveMarker {
-                    moveGrabOffset = CGPoint(x: imageLocation.x - (items[index].type == .arrow ? items[index].arrowFrame.origin.x : items[index].frame.origin.x), y: imageLocation.y - (items[index].type == .arrow ? items[index].arrowFrame.origin.y : items[index].frame.origin.y))
-                }
             }
             return
         }
@@ -514,22 +735,21 @@ class WYImageMarkerView: UIView {
             selectedIndex = hitIndex
             dragMode = .moveMarker
             dragStartItem = items[hitIndex]
-            let item = items[hitIndex]
-            let origin = item.type == .arrow ? item.arrowFrame.origin : item.frame.origin
-            moveGrabOffset = CGPoint(x: imageLocation.x - origin.x, y: imageLocation.y - origin.y)
+            moveGrabOffset = CGPoint(x: imageLocation.x - items[hitIndex].effectiveFrame.origin.x, y: imageLocation.y - items[hitIndex].effectiveFrame.origin.y)
             setNeedsDisplay()
+            onSelectionChanged?()
             return
         }
 
         // 空白处按当前工具新建(文本工具靠点按落字，拖动不生成)
+        var item = WYImageMarkerItem()
+        item.color = currentColor
+        item.lineWidth = defaultLineWidth
         switch activeTool {
         case .text:
             dragMode = .none
         case .rectangle, .circle:
-            var item = WYImageMarkerItem()
             item.type = activeTool
-            item.color = currentColor
-            item.lineWidth = defaultLineWidth
             item.frame = CGRect(origin: imageLocation, size: .zero)
             items.append(item)
             selectedIndex = items.count - 1
@@ -538,10 +758,7 @@ class WYImageMarkerView: UIView {
             dragMode = .createShape
             setNeedsDisplay()
         case .arrow:
-            var item = WYImageMarkerItem()
             item.type = .arrow
-            item.color = currentColor
-            item.lineWidth = defaultLineWidth
             item.startPoint = imageLocation
             item.endPoint = imageLocation
             items.append(item)
@@ -549,6 +766,16 @@ class WYImageMarkerView: UIView {
             dragStartItem = item
             dragStartImagePoint = imageLocation
             dragMode = .createArrow
+            setNeedsDisplay()
+        case .line:
+            item.type = .line
+            item.isStraightLine = lineDrawsStraight
+            item.linePoints = [imageLocation]
+            items.append(item)
+            selectedIndex = items.count - 1
+            dragStartItem = item
+            dragStartImagePoint = imageLocation
+            dragMode = .createLine
             setNeedsDisplay()
         }
     }
@@ -560,7 +787,7 @@ class WYImageMarkerView: UIView {
         switch dragMode {
         case .moveMarker:
             guard var item = dragStartItem else { return }
-            let origin = item.type == .arrow ? item.arrowFrame.origin : item.frame.origin
+            let origin = item.effectiveFrame.origin
             let deltaX = imageLocation.x - moveGrabOffset.x - origin.x
             let deltaY = imageLocation.y - moveGrabOffset.y - origin.y
             if item.type == .arrow {
@@ -568,6 +795,11 @@ class WYImageMarkerView: UIView {
                 item.startPoint.y += deltaY
                 item.endPoint.x += deltaX
                 item.endPoint.y += deltaY
+            } else if item.type == .line {
+                for pointIndex in item.linePoints.indices {
+                    item.linePoints[pointIndex].x += deltaX
+                    item.linePoints[pointIndex].y += deltaY
+                }
             } else {
                 item.frame.origin.x += deltaX
                 item.frame.origin.y += deltaY
@@ -584,18 +816,38 @@ class WYImageMarkerView: UIView {
                 item.fontSize = min(max(item.fontSize * ratio, 12), 400)
                 let textSize = (item.text as NSString).size(withAttributes: item.textAttributes)
                 item.frame.size = CGSize(width: textSize.width, height: ceil(textSize.height))
+            } else if item.type == .line {
+
+                // 自由划线拖右下角按新旧宽高比例等比缩放全部轨迹点
+                let oldFrame = item.effectiveFrame
+                let newWidth = max(imageLocation.x - item.frame.origin.x, item.lineWidth * 2)
+                let newHeight = max(imageLocation.y - item.frame.origin.y, item.lineWidth * 2)
+                let ratioX = newWidth / max(oldFrame.width, 1)
+                let ratioY = newHeight / max(oldFrame.height, 1)
+                for pointIndex in item.linePoints.indices {
+                    item.linePoints[pointIndex].x = oldFrame.origin.x + (item.linePoints[pointIndex].x - oldFrame.origin.x) * ratioX
+                    item.linePoints[pointIndex].y = oldFrame.origin.y + (item.linePoints[pointIndex].y - oldFrame.origin.y) * ratioY
+                }
             } else {
                 item.frame.size.width = max(imageLocation.x - item.frame.origin.x, defaultLineWidth * 2)
                 item.frame.size.height = max(imageLocation.y - item.frame.origin.y, defaultLineWidth * 2)
             }
             items[index] = item
-        case .arrowStart:
+        case .endpointStart:
             guard var item = dragStartItem else { return }
-            item.startPoint = imageLocation
+            if item.type == .arrow {
+                item.startPoint = imageLocation
+            } else if item.type == .line, !item.linePoints.isEmpty {
+                item.linePoints[0] = imageLocation
+            }
             items[index] = item
-        case .arrowEnd:
+        case .endpointEnd:
             guard var item = dragStartItem else { return }
-            item.endPoint = imageLocation
+            if item.type == .arrow {
+                item.endPoint = imageLocation
+            } else if item.type == .line, !item.linePoints.isEmpty {
+                item.linePoints[item.linePoints.count - 1] = imageLocation
+            }
             items[index] = item
         case .createShape:
             guard dragStartItem != nil else { return }
@@ -604,6 +856,25 @@ class WYImageMarkerView: UIView {
         case .createArrow:
             guard dragStartItem != nil else { return }
             items[index].endPoint = imageLocation
+        case .createLine:
+            guard dragStartItem != nil else { return }
+            if items[index].isStraightLine {
+
+                // 直线形态只保留首尾两个点
+                if items[index].linePoints.count == 1 {
+                    items[index].linePoints.append(imageLocation)
+                } else {
+                    items[index].linePoints[items[index].linePoints.count - 1] = imageLocation
+                }
+            } else {
+
+                // 自由划线记录手指轨迹，离上一个点太近就不记，控制点的数量
+                let minimumStep = 2 / max(displayTransform().scale, 0.001)
+                let lastPoint = items[index].linePoints[items[index].linePoints.count - 1]
+                if hypot(imageLocation.x - lastPoint.x, imageLocation.y - lastPoint.y) >= minimumStep {
+                    items[index].linePoints.append(imageLocation)
+                }
+            }
         case .deleteMarker, .none:
             return
         }

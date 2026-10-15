@@ -80,7 +80,7 @@ let plainLogs = WYLogManager.decryptedLogText()
 WYLogManager.showPreview()
 ```
 
-##### 相片裁剪与标记(2026-10-15新增，矩形/圆形支持固定或自由尺寸，文本/矩形/圆形/箭头标记)
+##### 相片裁剪与标记(2026-10-15新增，矩形/圆形支持固定或自由尺寸，文本/矩形/圆形/箭头/划线标记)
 ```
 // 一行代码打开编辑器(编辑成成品图回调图片，取消回调nil)
 WYImageEditorViewController.present(from: self, image: image) { resultImage in
@@ -95,6 +95,9 @@ configuration.allowsMarking = false
 configuration.markerColor = .white
 configuration.markerLineWidth = 0            // 0按图片宽度自动
 configuration.markerTextFontSize = 0         // 0按图片宽度自动
+configuration.lineDrawsStraight = false      // 划线形态(true为两点连直线，false为跟随手指自由划线)
+configuration.showsStyleOptions = true       // 界面是否显示粗细字号选择行(false时用户只能用配置的默认值)
+configuration.showsColorOptions = true       // 界面是否显示颜色选择条(false时用户只能用配置的默认颜色)
 let editor = WYImageEditorViewController(image: image, configuration: configuration)
 editor.onFinish = { resultImage in ... }     // Block回调
 editor.onCancel = { ... }

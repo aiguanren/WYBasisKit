@@ -47,6 +47,15 @@ import WYBasisKitSwift
 
     /// 文本标记字号(单位为像素；0表示按图片宽度自动配一个合适的值)
     public var markerTextFontSize: CGFloat = 0
+
+    /// 划线工具的默认形态(true为两点连成直线，false为跟随手指自由划线)
+    public var lineDrawsStraight: Bool = false
+
+    /// 界面上是否显示粗细与字号选择行(false时用户只能用配置定的默认粗细字号)
+    public var showsStyleOptions: Bool = true
+
+    /// 界面上是否显示颜色选择条(false时用户只能用markerColor定的默认颜色)
+    public var showsColorOptions: Bool = true
 }
 
 /// 相片编辑器OC入口(封装WYImageEditorViewController的弹出与回调，delegate方式用实例方法，Block方式用静态方法)
@@ -118,6 +127,9 @@ import WYBasisKitSwift
             configuration.markerColor = bridgeConfiguration.markerColor
             configuration.markerLineWidth = bridgeConfiguration.markerLineWidth
             configuration.markerTextFontSize = bridgeConfiguration.markerTextFontSize
+            configuration.lineDrawsStraight = bridgeConfiguration.lineDrawsStraight
+            configuration.showsStyleOptions = bridgeConfiguration.showsStyleOptions
+            configuration.showsColorOptions = bridgeConfiguration.showsColorOptions
         }
         return configuration
     }

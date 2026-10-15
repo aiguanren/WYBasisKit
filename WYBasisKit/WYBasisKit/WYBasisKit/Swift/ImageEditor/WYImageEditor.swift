@@ -15,7 +15,7 @@ import UIKit
     case circle = 1
 }
 
-/// 标记类型(在图片上画画写写用的四种工具)
+/// 标记类型(在图片上写写画画用的五种工具)
 @objc public enum WYImageMarkerType: Int {
     /// 文本标记(写一段字到指定位置)
     case text = 0
@@ -25,6 +25,8 @@ import UIKit
     case circle = 2
     /// 箭头标记(画一支箭头指向重点)
     case arrow = 3
+    /// 划线标记(两点连直线或跟随手指自由划线)
+    case line = 4
 }
 
 /// 编辑器配置(全部属性都有默认值，按需改)
@@ -47,6 +49,15 @@ public struct WYImageEditorConfiguration {
 
     /// 文本标记字号(单位为像素；0表示按图片宽度自动配一个合适的值)
     public var markerTextFontSize: CGFloat = 0
+
+    /// 划线工具的默认形态(true为两点连成直线，false为跟随手指自由划线)
+    public var lineDrawsStraight: Bool = false
+
+    /// 界面上是否显示粗细与字号选择行(false时用户只能用配置定的默认粗细字号)
+    public var showsStyleOptions: Bool = true
+
+    /// 界面上是否显示颜色选择条(false时用户只能用markerColor定的默认颜色)
+    public var showsColorOptions: Bool = true
 
     public init() {}
 }
@@ -230,13 +241,14 @@ public class WYImageEditorViewController: UIViewController {
         return view
     }()
 
-    /// 标记工具按钮数组(顺序为文本矩形圆形箭头，图文上下排列用WYBasisKit的UIButton扩展调整)
+    /// 标记工具按钮数组(顺序为文本矩形圆形箭头划线，图文上下排列用WYBasisKit的UIButton扩展调整)
     private lazy var markerToolButtons: [UIButton] = {
         let titles = [WYLocalized("文本", table: WYBasisKitConfig.kitLocalizableTable),
                       WYLocalized("矩形", table: WYBasisKitConfig.kitLocalizableTable),
                       WYLocalized("圆形", table: WYBasisKitConfig.kitLocalizableTable),
-                      WYLocalized("箭头", table: WYBasisKitConfig.kitLocalizableTable)]
-        let icons = [WYImageEditorIcon.text, WYImageEditorIcon.rectangle, WYImageEditorIcon.circle, WYImageEditorIcon.arrow]
+                      WYLocalized("箭头", table: WYBasisKitConfig.kitLocalizableTable),
+                      WYLocalized("划线", table: WYBasisKitConfig.kitLocalizableTable)]
+        let icons = [WYImageEditorIcon.text, WYImageEditorIcon.rectangle, WYImageEditorIcon.circle, WYImageEditorIcon.arrow, WYImageEditorIcon.line]
         return titles.enumerated().map { index, title in
             let button = UIButton(type: .system)
             button.setTitle(title, for: .normal)
@@ -248,6 +260,53 @@ public class WYImageEditorViewController: UIViewController {
             button.titleLabel?.font = .systemFont(ofSize: 11)
             button.imageView?.contentMode = .scaleAspectFit
             button.addTarget(self, action: #selector(markerToolButtonTapped(_:)), for: .touchUpInside)
+            button.tag = index
+            return button
+        }
+    }()
+
+    /// 直线形态切换按钮(划线语境显示，点后划线为两点连直线)
+    private lazy var straightChipButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle(WYLocalized("直线", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
+        button.setTitleColor(.black, for: .selected)
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 12, weight: .semibold)
+        button.layer.cornerRadius = 14
+        button.addTarget(self, action: #selector(lineShapeChipTapped(_:)), for: .touchUpInside)
+        return button
+    }()
+
+    /// 自由形态切换按钮(划线语境显示，点后划线跟随手指轨迹)
+    private lazy var freeChipButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle(WYLocalized("自由", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
+        button.setTitleColor(.black, for: .selected)
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 12, weight: .semibold)
+        button.layer.cornerRadius = 14
+        button.addTarget(self, action: #selector(lineShapeChipTapped(_:)), for: .touchUpInside)
+        return button
+    }()
+
+    /// 线宽档位圆点按钮数组(矩形圆形箭头划线语境显示，圆点大小示意粗细)
+    private lazy var lineWidthDotButtons: [UIButton] = {
+        return (0..<4).map { index in
+            let button = UIButton(type: .system)
+            button.backgroundColor = .white
+            button.addTarget(self, action: #selector(lineWidthDotTapped(_:)), for: .touchUpInside)
+            button.tag = index
+            return button
+        }
+    }()
+
+    /// 字号档位按钮数组(文本语境显示，字母A的大小示意字号)
+    private lazy var fontSizeButtons: [UIButton] = {
+        return (0..<4).map { index in
+            let button = UIButton(type: .system)
+            let attributes: [NSAttributedString.Key: Any] = [.font: UIFont.boldSystemFont(ofSize: CGFloat([12, 16, 21, 27][index])), .foregroundColor: UIColor.white]
+            button.setAttributedTitle(NSAttributedString(string: "A", attributes: attributes), for: .normal)
+            button.addTarget(self, action: #selector(fontSizeButtonTapped(_:)), for: .touchUpInside)
             button.tag = index
             return button
         }
@@ -318,22 +377,38 @@ public class WYImageEditorViewController: UIViewController {
         markerToolButtons.forEach { markerToolbar.addSubview($0) }
         markerToolbar.addSubview(undoButton)
         markerToolbar.addSubview(deleteButton)
+        if configuration.showsColorOptions {
+            colorButtons.forEach { markerToolbar.addSubview($0) }
+        }
+        if configuration.showsStyleOptions {
+            markerToolbar.addSubview(straightChipButton)
+            markerToolbar.addSubview(freeChipButton)
+            lineWidthDotButtons.forEach { markerToolbar.addSubview($0) }
+            fontSizeButtons.forEach { markerToolbar.addSubview($0) }
+        }
 
         cropperView.setup(image: image, shape: configuration.cropShape, fixedOutputSize: configuration.cropSize == .zero ? nil : configuration.cropSize)
 
         markerView.setup(image: image,
                          defaultColor: configuration.markerColor,
                          lineWidth: configuration.markerLineWidth,
-                         textFontSize: configuration.markerTextFontSize)
+                         textFontSize: configuration.markerTextFontSize,
+                         straightLine: configuration.lineDrawsStraight)
         markerView.onRequestTextEdit = { [weak self] text, completion in
             self?.showTextInputAlert(existingText: text, completion: completion)
         }
+        markerView.onSelectionChanged = { [weak self] in
+            guard let self = self else { return }
+            self.refreshStyleRow()
+            self.refreshColorSelection(color: self.markerView.activeColor())
+        }
         markerView.isHidden = true
 
-        // 默认颜色圆点带上选中描边
+        // 默认文本工具选中，颜色圆点与字号档位带上选中态
         markerToolButtons.first?.isSelected = true
         markerView.activeTool = .text
         refreshColorSelection(color: configuration.markerColor)
+        refreshStyleRow()
     }
 
     override public func viewDidLayoutSubviews() {
@@ -351,7 +426,13 @@ public class WYImageEditorViewController: UIViewController {
         titleLabel.frame = CGRect(x: (width - 160) / 2, y: safeTop + 4, width: 160, height: 44)
 
         let modeBarHeight: CGFloat = 46
-        let toolbarHeight: CGFloat = 96
+        var toolbarHeight: CGFloat = 56
+        if configuration.showsColorOptions {
+            toolbarHeight += 38
+        }
+        if configuration.showsStyleOptions {
+            toolbarHeight += 40
+        }
         let bottomBarsHeight = isMarkMode ? modeBarHeight + toolbarHeight : modeBarHeight
         let canvasY = safeTop + 52
         let canvasHeight = view.bounds.height - canvasY - safeBottom - bottomBarsHeight
@@ -378,11 +459,11 @@ public class WYImageEditorViewController: UIViewController {
         }
     }
 
-    /// 布局标记工具条(第一行四个工具加撤销删除，第二行七个颜色圆点)
+    /// 布局标记工具条(第一行五个工具加撤销删除，第二行颜色圆点，第三行粗细字号档位，后两行可按配置隐藏)
     private func layoutMarkerToolbar(width: CGFloat, height: CGFloat, safeLeft: CGFloat, safeRight: CGFloat) {
 
         let toolCount = markerToolButtons.count + 2
-        let itemSize: CGFloat = 46
+        let itemSize: CGFloat = 44
         let spacing = (width - safeLeft - safeRight - CGFloat(toolCount) * itemSize) / CGFloat(toolCount + 1)
         var x = safeLeft + spacing
         for button in markerToolButtons {
@@ -393,18 +474,84 @@ public class WYImageEditorViewController: UIViewController {
         x += itemSize + spacing
         deleteButton.frame = CGRect(x: x, y: 6, width: itemSize, height: itemSize)
 
-        let colorDiameter: CGFloat = 26
-        let colorSpacing = (width - safeLeft - safeRight - CGFloat(colorButtons.count) * colorDiameter) / CGFloat(colorButtons.count + 1)
-        var colorX = safeLeft + colorSpacing
-        for button in colorButtons {
-            button.frame = CGRect(x: colorX, y: 58, width: colorDiameter, height: colorDiameter)
-            colorX += colorDiameter + colorSpacing
+        var nextRowY: CGFloat = 56
+        if configuration.showsColorOptions {
+            let colorDiameter: CGFloat = 26
+            let colorSpacing = (width - safeLeft - safeRight - CGFloat(colorButtons.count) * colorDiameter) / CGFloat(colorButtons.count + 1)
+            var colorX = safeLeft + colorSpacing
+            for button in colorButtons {
+                button.frame = CGRect(x: colorX, y: nextRowY, width: colorDiameter, height: colorDiameter)
+                colorX += colorDiameter + colorSpacing
+            }
+            nextRowY += 38
+        }
+        if configuration.showsStyleOptions {
+            layoutStyleRow(width: width, y: nextRowY, safeLeft: safeLeft, safeRight: safeRight)
         }
 
         // 工具按钮图标在上文字在下(用WYBasisKit的UIButton扩展排版，需在frame落定后调用)
         for button in markerToolButtons {
             button.wy_adjust(position: .imageTopTitleBottom, spacing: 2)
         }
+    }
+
+    /// 布局粗细字号档位行(划线语境多两个形态切换按钮，圆点大小示意粗细，字母A大小示意字号)
+    private func layoutStyleRow(width: CGFloat, y: CGFloat, safeLeft: CGFloat, safeRight: CGFloat) {
+
+        var x = safeLeft + 10
+        if !straightChipButton.isHidden {
+            straightChipButton.frame = CGRect(x: x, y: y + 1, width: 54, height: 28)
+            freeChipButton.frame = CGRect(x: x + 58, y: y + 1, width: 54, height: 28)
+            x += 130
+        }
+
+        let dotSizes: [CGFloat] = [10, 16, 22, 30]
+        if lineWidthDotButtons.first?.isHidden == false {
+            var dotX = x + 14
+            for (index, button) in lineWidthDotButtons.enumerated() {
+                button.frame = CGRect(x: dotX, y: y + 15 - dotSizes[index] / 2, width: dotSizes[index], height: dotSizes[index])
+                button.layer.cornerRadius = dotSizes[index] / 2
+                dotX += dotSizes[index] + 24
+            }
+        }
+        if fontSizeButtons.first?.isHidden == false {
+            var fontX = x + 14
+            for button in fontSizeButtons {
+                button.frame = CGRect(x: fontX, y: y + 1, width: 40, height: 28)
+                fontX += 44
+            }
+        }
+    }
+
+    /// 刷新粗细字号档位行(按当前选中与工具语境切换显示内容并点亮生效档位)
+    private func refreshStyleRow() {
+        guard configuration.showsStyleOptions else { return }
+
+        let isTextContext = markerView.contextIsText()
+        let isLineContext = markerView.contextIsLineTool()
+        straightChipButton.isHidden = !isLineContext
+        freeChipButton.isHidden = !isLineContext
+        lineWidthDotButtons.forEach { $0.isHidden = isTextContext }
+        fontSizeButtons.forEach { $0.isHidden = !isTextContext }
+
+        let straightActive = markerView.activeStraightLine()
+        straightChipButton.isSelected = straightActive
+        freeChipButton.isSelected = !straightActive
+        straightChipButton.backgroundColor = straightActive ? .white : UIColor(white: 0.22, alpha: 1)
+        freeChipButton.backgroundColor = straightActive ? UIColor(white: 0.22, alpha: 1) : .white
+
+        let widthIndex = markerView.activeLineWidthIndex()
+        for (index, button) in lineWidthDotButtons.enumerated() {
+            button.backgroundColor = index == widthIndex ? .systemBlue : .white
+        }
+        let fontIndex = markerView.activeFontSizeIndex()
+        let fontSizes: [CGFloat] = [12, 16, 21, 27]
+        for (index, button) in fontSizeButtons.enumerated() {
+            let color: UIColor = index == fontIndex ? .systemBlue : .white
+            let attributes: [NSAttributedString.Key: Any] = [.font: UIFont.boldSystemFont(ofSize: fontSizes[index]), .foregroundColor: color]
+            button.setAttributedTitle(NSAttributedString(string: "A", attributes: attributes), for: .normal)
+        }
+        view.setNeedsLayout()
     }
 
     /// 弹出文本输入弹窗(新建文本标记或修改选中文本时用)
@@ -512,6 +659,31 @@ public class WYImageEditorViewController: UIViewController {
     /// 点删除(删掉当前选中的标记)
     @objc private func deleteButtonTapped() {
         markerView.removeSelectedMarker()
+    }
+
+    /// 点直线或自由按钮(把划线形态切到点的那边，选中的划线也会跟着转换)
+    @objc private func lineShapeChipTapped(_ sender: UIControl) {
+        let wantStraight = sender === straightChipButton
+        if markerView.activeStraightLine() != wantStraight {
+            markerView.toggleStraightLine()
+        }
+        refreshStyleRow()
+    }
+
+    /// 点线宽圆点(有选中标记改它的线宽，没有就改默认线宽影响之后的标记)
+    @objc private func lineWidthDotTapped(_ sender: UIControl) {
+        let presets = markerView.presetLineWidths()
+        guard sender.tag < presets.count else { return }
+        markerView.applyLineWidth(presets[sender.tag])
+        refreshStyleRow()
+    }
+
+    /// 点字号按钮(有选中文本标记改它的字号，没有就改默认字号影响之后的文本)
+    @objc private func fontSizeButtonTapped(_ sender: UIControl) {
+        let presets = markerView.presetFontSizes()
+        guard sender.tag < presets.count else { return }
+        markerView.applyFontSize(presets[sender.tag])
+        refreshStyleRow()
     }
 
     /// 点颜色圆点(有选中标记直接改它，没有就当作之后标记的颜色)
