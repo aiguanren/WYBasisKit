@@ -112,6 +112,12 @@ class WYImageMarkerView: UIView {
     /// 界面外观(选中态虚线删除钮把手与档位倍率都从这里取)
     private var appearance = WYImageEditorAppearance()
 
+    /// 线宽档位的固定基准(进入编辑器时解析一次，点档位只改当前选择不改基准，防档位值滚雪球漂移)
+    private var baseLineWidth: CGFloat = 5
+
+    /// 字号档位的固定基准(同线宽基准的理由)
+    private var baseFontSize: CGFloat = 32
+
     /// 要标记的原图
     private var sourceImage: UIImage = UIImage()
 
@@ -176,6 +182,8 @@ class WYImageMarkerView: UIView {
         let baseWidth = max(image.size.width, 1)
         defaultLineWidth = lineWidth > 0 ? lineWidth : min(max(baseWidth / 160, 3), 48)
         defaultFontSize = textFontSize > 0 ? textFontSize : min(max(baseWidth / 18, 16), 220)
+        baseLineWidth = defaultLineWidth
+        baseFontSize = defaultFontSize
     }
 
     /// 更新显示区域(切到标记模式或裁剪框变化时按裁剪框取景)
@@ -316,14 +324,14 @@ class WYImageMarkerView: UIView {
         onSelectionChanged?()
     }
 
-    /// 界面线宽档位(按外观倍率序列乘默认线宽，图片坐标)
+    /// 界面线宽档位(按外观倍率序列乘固定基准，点档位不会改变基准防止档位值滚雪球)
     func presetLineWidths() -> [CGFloat] {
-        return appearance.lineWidthRatios.map { defaultLineWidth * $0 }
+        return appearance.lineWidthRatios.map { baseLineWidth * $0 }
     }
 
-    /// 界面字号档位(按外观倍率序列乘默认字号，图片坐标)
+    /// 界面字号档位(按外观倍率序列乘固定基准，点档位不会改变基准防止档位值滚雪球)
     func presetFontSizes() -> [CGFloat] {
-        return appearance.fontSizeRatios.map { defaultFontSize * $0 }
+        return appearance.fontSizeRatios.map { baseFontSize * $0 }
     }
 
     /// 当前生效线宽在档位中的下标(选中文本或没有精确命中时返回nil)
@@ -334,7 +342,7 @@ class WYImageMarkerView: UIView {
         } else {
             width = defaultLineWidth
         }
-        return presetLineWidths().firstIndex(where: { abs($0 - width) < 0.5 })
+        return presetLineWidths().firstIndex(where: { abs($0 - width) < max(0.5, baseLineWidth * 0.05) })
     }
 
     /// 当前生效字号在档位中的下标(选中的不是文本且文本工具没激活时返回nil)
@@ -347,7 +355,7 @@ class WYImageMarkerView: UIView {
         } else {
             return nil
         }
-        return presetFontSizes().firstIndex(where: { abs($0 - fontSize) < 0.5 })
+        return presetFontSizes().firstIndex(where: { abs($0 - fontSize) < max(0.5, baseFontSize * 0.05) })
     }
 
     /// 当前生效颜色(有选中标记取它的颜色，没有取默认颜色)
