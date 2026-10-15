@@ -189,18 +189,19 @@ class WYImageCropperView: UIView {
             }
             cropBox = CGRect(x: (boundsWidth - boxWidth) / 2, y: (boundsHeight - boxHeight) / 2, width: boxWidth, height: boxHeight)
 
-            scrollView.frame = cropBox
+            // 滚动视图铺满画布，图片至少铺满整个画布，取景框外透过遮罩隐约可见而不是纯黑像被裁掉
+            scrollView.frame = bounds
             scrollView.bounces = false
-            let coverScale = max(boxWidth / imageWidth, boxHeight / imageHeight)
+            let coverScale = max(boxWidth / imageWidth, boxHeight / imageHeight, boundsWidth / imageWidth, boundsHeight / imageHeight)
             scrollView.minimumZoomScale = coverScale
             scrollView.maximumZoomScale = zoomEnabled ? max(coverScale * 8, fitScale * 8) : coverScale
             scrollView.zoomScale = coverScale
             scrollView.contentInset = .zero
 
-            // 图片居中摆(内容比裁剪框大多少就往回挪一半)
+            // 图片居中摆(内容比画布大多少就往回挪一半)
             let contentWidth = imageWidth * coverScale
             let contentHeight = imageHeight * coverScale
-            scrollView.contentOffset = CGPoint(x: max(0, (contentWidth - boxWidth) / 2), y: max(0, (contentHeight - boxHeight) / 2))
+            scrollView.contentOffset = CGPoint(x: max(0, (contentWidth - boundsWidth) / 2), y: max(0, (contentHeight - boundsHeight) / 2))
         } else {
 
             // 自由模式，滚动视图铺满画布，裁剪框默认框住整张图再内收一成
