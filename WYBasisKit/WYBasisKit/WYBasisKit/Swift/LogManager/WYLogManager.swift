@@ -83,12 +83,6 @@ public func wy_print(_ messages: Any..., outputMode: WYLogOutputMode = .debugCon
 
 public struct WYLogManager {
     
-    /// 写文件使用串行队列，避免并发冲突
-    private static let logQueue = DispatchQueue(label: "com.WYBasisKit.WYLogManager.queue")
-    
-    /// 日志分隔符（用于日志条目之间的换行与逻辑隔断）
-    internal static let logEntrySeparator = "\n\n\n"
-    
     /// 日志文件路径（可根据路径获取并导出显示或者上传）
     public static var logFilePath: String {
         let docURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
@@ -187,9 +181,6 @@ public struct WYLogManager {
         }
     }
     
-    /// 悬浮按钮
-    fileprivate static var floatingButton: WYLogFloatingButton?
-    
     /**
      * 显示预览组件
      * - Parameters:
@@ -228,6 +219,15 @@ public struct WYLogManager {
             appendLine(encryptEntry(log))
         }
     }
+    
+    /// 悬浮按钮
+    fileprivate static var floatingButton: WYLogFloatingButton?
+    
+    /// 写文件使用串行队列，避免并发冲突
+    private static let logQueue = DispatchQueue(label: "com.WYBasisKit.WYLogManager.queue")
+    
+    /// 日志分隔符（用于日志条目之间的换行与逻辑隔断）
+    internal static let logEntrySeparator = "\n\n\n"
 
     /// 加密条目行前缀(带版本号，文件里每行一条密文，解密端据此识别格式)
     private static let encryptedLinePrefix = "WYLOG1:"
