@@ -18,13 +18,13 @@ import WYBasisKitSwift
      *   - editor: 回调来源编辑器
      *   - image: 编辑成品图(圆形裁剪时是四角透明的PNG)
      */
-    @objc optional func imageEditor(_ editor: WYImageEditorObjC, didFinishEditing image: UIImage)
+    @objc optional func wy_imageEditor(_ editor: WYImageEditorObjC, didFinishEditing image: UIImage)
 
     /**
      * 取消编辑(点取消按钮时回调)
      * - Parameter editor: 回调来源编辑器
      */
-    @objc optional func imageEditorDidCancel(_ editor: WYImageEditorObjC)
+    @objc optional func wy_imageEditorDidCancel(_ editor: WYImageEditorObjC)
 }
 
 /// OC侧界面外观配置(属性含义与WYImageEditorAppearance一字不差；颜色数组传nil表示该项用默认值，数值传负数表示该项用默认值，markerPalette传空数组时界面不显示颜色行)
@@ -166,11 +166,11 @@ import WYBasisKitSwift
 
         // 强持有自身到编辑器关闭为止，中途不会被释放掉导致回调丢失
         editor.onFinish = { resultImage in
-            self.delegate?.imageEditor?(self, didFinishEditing: resultImage)
+            self.delegate?.wy_imageEditor?(self, didFinishEditing: resultImage)
             self.editHandler?(resultImage)
         }
         editor.onCancel = {
-            self.delegate?.imageEditorDidCancel?(self)
+            self.delegate?.wy_imageEditorDidCancel?(self)
             self.editHandler?(nil)
         }
         editor.modalPresentationStyle = .fullScreen

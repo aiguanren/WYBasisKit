@@ -577,11 +577,11 @@
 
 #pragma mark - WYImageEditorDelegate
 
-- (void)imageEditor:(WYImageEditor *)editor didFinishEditingImage:(UIImage *)image {
+- (void)wy_imageEditor:(WYImageEditor *)editor didFinishEditingImage:(UIImage *)image {
     [self handleResult:image source:@"Delegate方式"];
 }
 
-- (void)imageEditorDidCancel:(WYImageEditor *)editor {
+- (void)wy_imageEditorDidCancel:(WYImageEditor *)editor {
     [self handleResult:nil source:@"Delegate方式"];
 }
 

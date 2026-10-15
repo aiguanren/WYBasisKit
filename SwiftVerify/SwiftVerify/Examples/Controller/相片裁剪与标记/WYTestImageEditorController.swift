@@ -438,11 +438,11 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
         tableView?.reloadData()
     }
 
-    func imageEditorViewController(_ editor: WYImageEditorViewController, didFinishEditing image: UIImage) {
+    func wy_imageEditorViewController(_ editor: WYImageEditorViewController, didFinishEditing image: UIImage) {
         handleResult(image, source: "Delegate方式")
     }
 
-    func imageEditorViewControllerDidCancel(_ editor: WYImageEditorViewController) {
+    func wy_imageEditorViewControllerDidCancel(_ editor: WYImageEditorViewController) {
         handleResult(nil, source: "Delegate方式")
     }
 }

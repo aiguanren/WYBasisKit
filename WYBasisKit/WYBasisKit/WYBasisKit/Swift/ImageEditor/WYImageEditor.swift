@@ -158,13 +158,13 @@ public protocol WYImageEditorViewControllerDelegate: AnyObject {
      *   - editor: 回调来源编辑器
      *   - image: 编辑成品图(圆形裁剪时是四角透明的PNG)
      */
-    func imageEditorViewController(_ editor: WYImageEditorViewController, didFinishEditing image: UIImage)
+    func wy_imageEditorViewController(_ editor: WYImageEditorViewController, didFinishEditing image: UIImage)
 
     /**
      * 取消编辑(点取消按钮或侧滑关闭时回调)
      * - Parameter editor: 回调来源编辑器
      */
-    func imageEditorViewControllerDidCancel(_ editor: WYImageEditorViewController)
+    func wy_imageEditorViewControllerDidCancel(_ editor: WYImageEditorViewController)
 }
 
 /**
@@ -685,7 +685,7 @@ public class WYImageEditorViewController: UIViewController {
         dismiss(animated: true) { [weak self] in
             guard let self = self else { return }
             self.onCancel?()
-            self.editorDelegate?.imageEditorViewControllerDidCancel(self)
+            self.editorDelegate?.wy_imageEditorViewControllerDidCancel(self)
         }
     }
 
@@ -711,7 +711,7 @@ public class WYImageEditorViewController: UIViewController {
         dismiss(animated: true) { [weak self] in
             guard let self = self else { return }
             self.onFinish?(result)
-            self.editorDelegate?.imageEditorViewController(self, didFinishEditing: result)
+            self.editorDelegate?.wy_imageEditorViewController(self, didFinishEditing: result)
         }
     }
 
