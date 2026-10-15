@@ -487,20 +487,22 @@ class WYImageCropOverlayView: UIView {
 
         guard showsHandles else { return }
 
-        // 四角L形把手(线宽与四边短把手同厚，视觉统一)
+        // 四角L形把手(整体画在框线外侧与框线分离清晰可见，线宽与四边短把手同厚)
         context.setStrokeColor(appearance.handleColor.cgColor)
         context.setLineWidth(4)
         context.setLineCap(.round)
         let armLength: CGFloat = appearance.handleArmLength
+        let outward: CGFloat = 4
         let cornerPath = UIBezierPath()
         let corners = [CGPoint(x: cropBox.minX, y: cropBox.minY), CGPoint(x: cropBox.maxX, y: cropBox.minY), CGPoint(x: cropBox.minX, y: cropBox.maxY), CGPoint(x: cropBox.maxX, y: cropBox.maxY)]
         for corner in corners {
             let horizontalDirection: CGFloat = corner.x == cropBox.minX ? 1 : -1
             let verticalDirection: CGFloat = corner.y == cropBox.minY ? 1 : -1
-            cornerPath.move(to: corner)
-            cornerPath.addLine(to: CGPoint(x: corner.x + horizontalDirection * armLength, y: corner.y))
-            cornerPath.move(to: corner)
-            cornerPath.addLine(to: CGPoint(x: corner.x, y: corner.y + verticalDirection * armLength))
+            let outerCorner = CGPoint(x: corner.x + horizontalDirection * outward, y: corner.y + verticalDirection * outward)
+            cornerPath.move(to: outerCorner)
+            cornerPath.addLine(to: CGPoint(x: outerCorner.x + horizontalDirection * armLength, y: outerCorner.y))
+            cornerPath.move(to: outerCorner)
+            cornerPath.addLine(to: CGPoint(x: outerCorner.x, y: outerCorner.y + verticalDirection * armLength))
         }
         cornerPath.stroke()
 
