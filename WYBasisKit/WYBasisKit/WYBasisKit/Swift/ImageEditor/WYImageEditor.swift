@@ -733,9 +733,9 @@ public class WYImageEditorViewController: UIViewController {
                     dotLayer.cornerRadius = dotSizes[index] / 2
                     dotLayer.masksToBounds = true
                 }
-                dotX += UIDevice.wy_screenWidth(50, WYBasisKitConfig.defaultScreenPixels)
+                dotX += UIDevice.wy_screenWidth(43, WYBasisKitConfig.defaultScreenPixels)
             }
-            x += CGFloat(lineWidthDotButtons.count) * UIDevice.wy_screenWidth(50, WYBasisKitConfig.defaultScreenPixels) + UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
+            x += CGFloat(lineWidthDotButtons.count) * UIDevice.wy_screenWidth(43, WYBasisKitConfig.defaultScreenPixels) + UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
         }
         if fontSizeButtons.first?.isHidden == false {
             var fontX = x
