@@ -66,6 +66,12 @@ import WYBasisKitSwift
     /// 工具行图标按钮按住颜色(手指按住时变色，松开回常态)
     public var iconButtonHighlightedColor: UIColor?
 
+    /// 粗细档位的提示文案(nil用本地化默认，文案含换行时上下两行显示)
+    public var lineWidthHintText: String?
+
+    /// 字号档位的提示文案(nil用本地化默认，文案含换行时上下两行显示)
+    public var fontSizeHintText: String?
+
     /// 模式分段控件底色(裁剪标记两个胶囊所在的圆角容器)
     public var segmentedBackgroundColor: UIColor?
 
@@ -228,6 +234,8 @@ import WYBasisKitSwift
                 if let color = bridgeAppearance.toolbarBackgroundColor { appearance.toolbarBackgroundColor = color }
                 if let color = bridgeAppearance.iconButtonColor { appearance.iconButtonColor = color }
                 if let color = bridgeAppearance.iconButtonHighlightedColor { appearance.iconButtonHighlightedColor = color }
+                if let text = bridgeAppearance.lineWidthHintText, !text.isEmpty { appearance.lineWidthHintText = text }
+                if let text = bridgeAppearance.fontSizeHintText, !text.isEmpty { appearance.fontSizeHintText = text }
                 if let color = bridgeAppearance.segmentedBackgroundColor { appearance.segmentedBackgroundColor = color }
                 if let color = bridgeAppearance.segmentedSelectedBackgroundColor { appearance.segmentedSelectedBackgroundColor = color }
                 if let color = bridgeAppearance.segmentedSelectedTextColor { appearance.segmentedSelectedTextColor = color }

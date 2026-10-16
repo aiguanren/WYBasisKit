@@ -187,6 +187,8 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
             appearance.canvasBackgroundColor = UIColor(white: 0.15, alpha: 1)
             appearance.iconButtonColor = .white
             appearance.iconButtonHighlightedColor = .systemYellow
+            appearance.lineWidthHintText = "笔刷\n宽度"
+            appearance.fontSizeHintText = "字体\n大小"
             configuration.appearance = appearance
         }
         configuration.allowsImageZoom = allowsImageZoom

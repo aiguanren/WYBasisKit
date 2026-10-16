@@ -332,6 +332,8 @@
         appearance.canvasBackgroundColor = [UIColor colorWithWhite:0.15 alpha:1];
         appearance.iconButtonColor = UIColor.whiteColor;
         appearance.iconButtonHighlightedColor = UIColor.systemYellowColor;
+        appearance.lineWidthHintText = @"笔刷\n宽度";
+        appearance.fontSizeHintText = @"字体\n大小";
         configuration.appearance = appearance;
     }
     configuration.allowsImageZoom = self.allowsImageZoom;

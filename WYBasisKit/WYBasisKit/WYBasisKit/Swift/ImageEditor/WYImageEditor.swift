@@ -86,6 +86,12 @@ public struct WYImageEditorAppearance {
     /// 工具行图标按钮按住颜色(手指按住时变色，松开回常态)
     public var iconButtonHighlightedColor: UIColor = UIColor(white: 1, alpha: 0.45)
 
+    /// 粗细档位的提示文案(nil用本地化默认，文案含换行时上下两行显示)
+    public var lineWidthHintText: String?
+
+    /// 字号档位的提示文案(nil用本地化默认，文案含换行时上下两行显示)
+    public var fontSizeHintText: String?
+
     /// 模式分段控件底色(裁剪标记两个胶囊所在的圆角容器)
     public var segmentedBackgroundColor: UIColor = UIColor(white: 1, alpha: 0.12)
 
@@ -383,6 +389,18 @@ public class WYImageEditorViewController: UIViewController {
         }
     }()
 
+    /// 档位提示文本(粗细档前显示画笔粗细、字号档前显示文本字号，随工具语境切换且文案可配置)
+    private lazy var styleHintLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = UIColor(white: 1, alpha: 0.62)
+        label.font = .systemFont(ofSize: UIFont.wy_fontSize(10, WYBasisKitConfig.defaultScreenPixels))
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.7
+        return label
+    }()
+
     /// 直线形态切换按钮(划线语境显示，点后划线为两点连直线)
     private lazy var straightChipButton: UIButton = {
         let button = UIButton(type: .custom)
@@ -534,6 +552,7 @@ public class WYImageEditorViewController: UIViewController {
             colorButtons.forEach { markerToolbar.addSubview($0) }
         }
         if configuration.showsStyleOptions {
+            markerToolbar.addSubview(styleHintLabel)
             markerToolbar.addSubview(straightChipButton)
             markerToolbar.addSubview(freeChipButton)
             lineWidthDotButtons.forEach { markerToolbar.addSubview($0) }
@@ -690,6 +709,9 @@ public class WYImageEditorViewController: UIViewController {
         let buttonWidth = UIDevice.wy_screenWidth(39, WYBasisKitConfig.defaultScreenPixels)
         let buttonHeight = UIDevice.wy_screenHeight(29, WYBasisKitConfig.defaultScreenPixels)
         var x = safeLeft + UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels)
+        let hintWidth = UIDevice.wy_screenWidth(36, WYBasisKitConfig.defaultScreenPixels)
+        styleHintLabel.frame = CGRect(x: x, y: y + 1, width: hintWidth, height: buttonHeight)
+        x += hintWidth + UIDevice.wy_screenWidth(6, WYBasisKitConfig.defaultScreenPixels)
         if !straightChipButton.isHidden {
             straightChipButton.frame = CGRect(x: x, y: y + 1, width: chipWidth, height: chipHeight)
             freeChipButton.frame = CGRect(x: x + UIDevice.wy_screenWidth(56, WYBasisKitConfig.defaultScreenPixels), y: y + 1, width: chipWidth, height: chipHeight)
@@ -724,6 +746,7 @@ public class WYImageEditorViewController: UIViewController {
 
         let isTextContext = markerView.contextIsText()
         let isLineContext = markerView.contextIsLineTool()
+        styleHintLabel.text = isTextContext ? (configuration.appearance.fontSizeHintText ?? WYLocalized("文本字号", table: WYBasisKitConfig.kitLocalizableTable)) : (configuration.appearance.lineWidthHintText ?? WYLocalized("画笔粗细", table: WYBasisKitConfig.kitLocalizableTable))
         straightChipButton.isHidden = !isLineContext
         freeChipButton.isHidden = !isLineContext
         lineWidthDotButtons.forEach { $0.isHidden = isTextContext }

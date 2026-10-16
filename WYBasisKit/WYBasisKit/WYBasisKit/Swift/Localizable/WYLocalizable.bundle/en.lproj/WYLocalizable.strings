@@ -138,3 +138,5 @@
 "直线" = "Straight";
 "自由" = "Freehand";
 "编辑" = "Edit";
+"画笔粗细" = "Brush\nWidth";
+"文本字号" = "Text\nSize";
