@@ -63,6 +63,9 @@ class WYImageCropperView: UIView {
     /// 图片是否支持捏合缩放(false时最大缩放钉死在最小值，只能拖动平移)
     var zoomEnabled = true
 
+    /// 进入页面时图片的初始缩放倍数(相对适配大小的倍数，1为适配显示，0也按适配；会被钳制在允许缩放范围内)
+    var initialZoomMultiplier: CGFloat = 1
+
     /// 当前裁剪基准图(出成品图时按它绘制)
     var currentBaseImage: UIImage {
         return cropImage
@@ -118,13 +121,14 @@ class WYImageCropperView: UIView {
      *   - fixedOutputSize: 固定输出尺寸(nil表示不固定)
      *   - appearance: 界面外观
      */
-    func setup(image: UIImage, shape: WYImageCropShape, fixedOutputSize: CGSize?, appearance: WYImageEditorAppearance, zoomEnabled: Bool) {
+    func setup(image: UIImage, shape: WYImageCropShape, fixedOutputSize: CGSize?, appearance: WYImageEditorAppearance, zoomEnabled: Bool, initialZoomMultiplier: CGFloat = 1) {
         originalImage = image
         cropImage = image
         self.shape = shape
         self.fixedOutputSize = fixedOutputSize
         self.appearance = appearance
         self.zoomEnabled = zoomEnabled
+        self.initialZoomMultiplier = initialZoomMultiplier
         overlayView.appearance = appearance
         scrollView.addSubview(imageView)
         addSubview(scrollView)
@@ -202,7 +206,7 @@ class WYImageCropperView: UIView {
             let coverScale = max(boxWidth / imageWidth, boxHeight / imageHeight, boundsWidth / imageWidth, boundsHeight / imageHeight)
             scrollView.minimumZoomScale = coverScale
             scrollView.maximumZoomScale = zoomEnabled ? max(coverScale * 8, fitScale * 8) : coverScale
-            scrollView.zoomScale = coverScale
+            scrollView.zoomScale = min(max(coverScale * max(initialZoomMultiplier, 1), coverScale), scrollView.maximumZoomScale)
             scrollView.contentInset = .zero
 
             // 图片居中摆(内容比画布大多少就往回挪一半)
@@ -227,7 +231,7 @@ class WYImageCropperView: UIView {
             }
             scrollView.minimumZoomScale = fitScale
             scrollView.maximumZoomScale = zoomEnabled ? fitScale * 8 : fitScale
-            scrollView.zoomScale = fitScale
+            scrollView.zoomScale = min(max(fitScale * max(initialZoomMultiplier, 1), fitScale), scrollView.maximumZoomScale)
             centerContentWithInset()
         }
 
@@ -626,7 +630,7 @@ class WYImageCropOverlayView: UIView {
         }
     }
 
-    /// 只拦截需要的触摸，其余透给下层滚动视图(缩放拖动图片)；自由模式认全部热区，固定尺寸模式只认框内拖动(尺寸锁死位置可调)
+    /// 只拦截把手与框线段的触摸，框内框外都透给下层滚动视图(拖动捏合图片随时可用)；固定尺寸模式同样只认把手与框线
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
         let zone = handleZone(at: point)
         if zone == .boxBody || (showsHandles && zone != []) {
@@ -674,30 +678,25 @@ class WYImageCropOverlayView: UIView {
                 return zone
             }
         }
+        // 边把手只认中点附近(把手之间的框线段留给整框拖动，框内区域还给图片供拖动捏合)
         let edgeBand: CGFloat = 18
-        let cornerExclusion: CGFloat = 26
-        let withinHorizontalEdges = point.x > cropBox.minX + cornerExclusion && point.x < cropBox.maxX - cornerExclusion
-        let withinVerticalEdges = point.y > cropBox.minY + cornerExclusion && point.y < cropBox.maxY - cornerExclusion
-        if abs(point.y - cropBox.minY) <= edgeBand, withinHorizontalEdges {
+        if abs(point.y - cropBox.minY) <= edgeBand, abs(point.x - cropBox.midX) <= 30 {
             return .top
         }
-        if abs(point.y - cropBox.maxY) <= edgeBand, withinHorizontalEdges {
+        if abs(point.y - cropBox.maxY) <= edgeBand, abs(point.x - cropBox.midX) <= 30 {
             return .bottom
         }
-        if abs(point.x - cropBox.minX) <= edgeBand, withinVerticalEdges {
+        if abs(point.x - cropBox.minX) <= edgeBand, abs(point.y - cropBox.midY) <= 30 {
             return .left
         }
-        if abs(point.x - cropBox.maxX) <= edgeBand, withinVerticalEdges {
+        if abs(point.x - cropBox.maxX) <= edgeBand, abs(point.y - cropBox.midY) <= 30 {
             return .right
         }
 
-        // 框内区域(矩形九宫格内或圆内)作为整框拖动区，抓着拖着裁剪框平移定位
-        if shape == .circle {
-            let center = CGPoint(x: cropBox.midX, y: cropBox.midY)
-            if hypot(point.x - center.x, point.y - center.y) <= cropBox.width / 2 {
-                return .boxBody
-            }
-        } else if cropBox.contains(point) {
+        // 把手之间的框线段拖着平移整个裁剪框(框内与框外都还给图片，放大缩小随时可操作)
+        let nearVerticalLine = abs(point.x - cropBox.minX) <= edgeBand || abs(point.x - cropBox.maxX) <= edgeBand
+        let nearHorizontalLine = abs(point.y - cropBox.minY) <= edgeBand || abs(point.y - cropBox.maxY) <= edgeBand
+        if nearVerticalLine || nearHorizontalLine {
             return .boxBody
         }
         return []

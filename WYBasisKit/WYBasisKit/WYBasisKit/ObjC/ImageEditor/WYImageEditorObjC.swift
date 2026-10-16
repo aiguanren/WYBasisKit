@@ -139,6 +139,9 @@ import WYBasisKitSwift
     /// 编辑时图片是否支持捏合缩放(false时只能拖动平移图片)
     public var allowsImageZoom: Bool = true
 
+    /// 进入页面时图片的初始缩放倍数(相对适配大小的倍数，1为适配显示，超过允许范围会被钳制)
+    public var initialImageZoomScale: CGFloat = 1
+
     /// 界面外观(传nil用默认外观)
     public var appearance: WYImageEditorAppearanceObjC?
 }
@@ -216,6 +219,7 @@ import WYBasisKitSwift
             configuration.showsStyleOptions = bridgeConfiguration.showsStyleOptions
             configuration.showsColorOptions = bridgeConfiguration.showsColorOptions
             configuration.allowsImageZoom = bridgeConfiguration.allowsImageZoom
+            configuration.initialImageZoomScale = bridgeConfiguration.initialImageZoomScale
             if let bridgeAppearance = bridgeConfiguration.appearance {
                 var appearance = WYImageEditorAppearance()
                 if let color = bridgeAppearance.canvasBackgroundColor { appearance.canvasBackgroundColor = color }
