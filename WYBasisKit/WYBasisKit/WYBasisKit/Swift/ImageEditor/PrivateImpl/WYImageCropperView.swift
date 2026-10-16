@@ -410,6 +410,16 @@ class WYImageCropperView: UIView {
         if zone == .boxBody {
             var box = start
             let imageRect = imageDisplayRect
+
+            // 框比图片大时先收成图内最大并居中(否则钳制区间反转上限小于下限，框能拖出边界)
+            if box.width > imageRect.width {
+                box.size.width = imageRect.width
+                box.origin.x = imageRect.midX - box.width / 2
+            }
+            if box.height > imageRect.height {
+                box.size.height = imageRect.height
+                box.origin.y = imageRect.midY - box.height / 2
+            }
             box.origin.x = min(max(start.minX + translation.x, imageRect.minX), imageRect.maxX - box.width)
             box.origin.y = min(max(start.minY + translation.y, imageRect.minY), imageRect.maxY - box.height)
             cropBox = box
