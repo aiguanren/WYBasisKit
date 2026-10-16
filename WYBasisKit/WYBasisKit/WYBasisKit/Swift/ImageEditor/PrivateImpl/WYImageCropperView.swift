@@ -66,6 +66,9 @@ class WYImageCropperView: UIView {
     /// 进入页面时图片的初始缩放倍数(相对适配大小的倍数，1为适配显示，0也按适配；会被钳制在允许缩放范围内)
     var initialZoomMultiplier: CGFloat = 1
 
+    /// 适配画布的基准缩放(最小缩放的基线，动态最小缩放=它与覆盖裁剪框的较大者)
+    private var baseFitScale: CGFloat = 1
+
     /// 当前裁剪基准图(出成品图时按它绘制)
     var currentBaseImage: UIImage {
         return cropImage
@@ -180,6 +183,7 @@ class WYImageCropperView: UIView {
         guard boundsWidth > 0, boundsHeight > 0, imageWidth > 0, imageHeight > 0 else { return }
 
         let fitScale = min(boundsWidth / imageWidth, boundsHeight / imageHeight)
+        baseFitScale = fitScale
 
         if let fixedSize = fixedOutputSize {
 
@@ -229,9 +233,9 @@ class WYImageCropperView: UIView {
             } else {
                 cropBox = fitRect
             }
-            scrollView.minimumZoomScale = fitScale
             scrollView.maximumZoomScale = zoomEnabled ? fitScale * 8 : fitScale
             scrollView.zoomScale = min(max(fitScale * max(initialZoomMultiplier, 1), fitScale), scrollView.maximumZoomScale)
+            updateMinimumZoomScale()
             centerContentWithInset()
         }
 
@@ -336,6 +340,17 @@ class WYImageCropperView: UIView {
         return CGRect(x: originX, y: originY, width: cropImage.size.width * zoom, height: cropImage.size.height * zoom)
     }
 
+    /// 更新最小缩放(图不许缩到小于当前裁剪框，捏合到图等于框时停住，框内始终有图不会露出画布底色)
+    private func updateMinimumZoomScale() {
+        guard fixedOutputSize == nil else { return }
+        let coverBoxScale = max(cropBox.width / max(cropImage.size.width, 1), cropBox.height / max(cropImage.size.height, 1))
+        scrollView.minimumZoomScale = max(baseFitScale, coverBoxScale)
+        if scrollView.zoomScale < scrollView.minimumZoomScale {
+            scrollView.zoomScale = scrollView.minimumZoomScale
+            centerContentWithInset()
+        }
+    }
+
     /// 把裁剪框钳回图片显示区内(拖动缩放图片后图片动了框跟着收，尺寸超图时收成图内最大并居中)
     private func clampCropBoxToImage() {
         let imageRect = imageDisplayRect
@@ -355,6 +370,7 @@ class WYImageCropperView: UIView {
             cropBox = box
             overlayView.updateCropBox(cropBox, shape: shape, showsHandles: fixedOutputSize == nil)
         }
+        updateMinimumZoomScale()
     }
 
     /// 自由模式图片比画布小时用内容边距把它居中
@@ -379,6 +395,7 @@ class WYImageCropperView: UIView {
         // 松手只保持预览状态，应用裁剪由编辑器在用户点标记或完成时调commitCrop
         if state == .ended, zone != [], abs(translation.x) > 1 || abs(translation.y) > 1 {
             hasUserAdjustedCropBox = true
+            updateMinimumZoomScale()
         }
         guard state == .began || state == .changed else { return }
 
