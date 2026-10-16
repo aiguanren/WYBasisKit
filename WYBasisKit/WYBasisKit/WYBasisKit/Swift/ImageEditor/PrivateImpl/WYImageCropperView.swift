@@ -478,14 +478,21 @@ extension WYImageCropperView: UIScrollViewDelegate {
         return imageView
     }
 
-    /// 拖动或缩放图片进行中，自由模式把裁剪框动态钳回图片内(图片动了框跟着收，保证框始终在照片内部)
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    /// 拖动图片结束(无惯性)，若框悬到图片外一次性钳回(交互进行中框保持画布位置不动)
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if fixedOutputSize == nil, !decelerate {
+            clampCropBoxToImage()
+        }
+    }
+
+    /// 拖动惯性滚动结束，若框悬到图片外一次性钳回
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         if fixedOutputSize == nil {
             clampCropBoxToImage()
         }
     }
 
-    /// 缩放结束后图片比画布小时重新居中并再次钳框
+    /// 缩放结束后图片比画布小时重新居中，若框悬到图片外一次性钳回
     func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
         if fixedOutputSize == nil {
             centerContentWithInset()
