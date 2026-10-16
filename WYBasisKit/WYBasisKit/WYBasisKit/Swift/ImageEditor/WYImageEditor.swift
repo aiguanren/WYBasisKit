@@ -398,7 +398,7 @@ public class WYImageEditorViewController: UIViewController {
         label.textColor = configuration.appearance.hintTextColor
         label.font = .systemFont(ofSize: UIFont.wy_fontSize(10, WYBasisKitConfig.defaultScreenPixels))
         label.numberOfLines = 0
-        label.textAlignment = .left
+        label.textAlignment = .center
         label.adjustsFontSizeToFitWidth = true
         label.minimumScaleFactor = 0.7
         return label
@@ -451,7 +451,6 @@ public class WYImageEditorViewController: UIViewController {
             let fontSize = UIFont.wy_fontSize(CGFloat([12, 15, 20, 26][index]), WYBasisKitConfig.defaultScreenPixels)
             let attributes: [NSAttributedString.Key: Any] = [.font: UIFont.boldSystemFont(ofSize: fontSize), .foregroundColor: UIColor.white]
             button.setAttributedTitle(NSAttributedString(string: "A", attributes: attributes), for: .normal)
-            button.contentHorizontalAlignment = .leading
             button.addTarget(self, action: #selector(fontSizeButtonTapped(_:)), for: .touchUpInside)
             button.tag = index
             return button
@@ -722,28 +721,29 @@ public class WYImageEditorViewController: UIViewController {
         let buttonTop = y + (UIDevice.wy_screenHeight(37, WYBasisKitConfig.defaultScreenPixels) - buttonHeight) / 2
         let hintWidth = UIDevice.wy_screenWidth(30, WYBasisKitConfig.defaultScreenPixels)
         styleHintLabel.frame = CGRect(x: dotsColumnX - UIDevice.wy_screenWidth(4, WYBasisKitConfig.defaultScreenPixels) - hintWidth, y: buttonTop, width: hintWidth, height: buttonHeight)
+        // 档位列以颜色圆点的列中心为准逐列中心对齐(列距与颜色行同算式保证任何屏宽取整后也一致)
+        let colorDiameter = UIDevice.wy_screenWidth(25, WYBasisKitConfig.defaultScreenPixels)
+        let columnPitch = colorDiameter + UIDevice.wy_screenWidth(18, WYBasisKitConfig.defaultScreenPixels)
         var x = dotsColumnX
         let dotSizes = [10, 15, 21, 29].map { UIDevice.wy_screenWidth(CGFloat($0), WYBasisKitConfig.defaultScreenPixels) }
         if lineWidthDotButtons.first?.isHidden == false {
-            var dotX = x
             for (index, button) in lineWidthDotButtons.enumerated() {
-                button.frame = CGRect(x: dotX, y: buttonTop, width: buttonWidth, height: buttonHeight)
+                let columnCenter = dotsColumnX + colorDiameter / 2 + CGFloat(index) * columnPitch
+                button.frame = CGRect(x: columnCenter - buttonWidth / 2, y: buttonTop, width: buttonWidth, height: buttonHeight)
                 if let dotLayer = button.layer.sublayers?.first(where: { $0.name == "widthDot" }) {
-                    dotLayer.frame = CGRect(x: 0, y: (buttonHeight - dotSizes[index]) / 2, width: dotSizes[index], height: dotSizes[index])
+                    dotLayer.frame = CGRect(x: (buttonWidth - dotSizes[index]) / 2, y: (buttonHeight - dotSizes[index]) / 2, width: dotSizes[index], height: dotSizes[index])
                     dotLayer.cornerRadius = dotSizes[index] / 2
                     dotLayer.masksToBounds = true
                 }
-                dotX += UIDevice.wy_screenWidth(43, WYBasisKitConfig.defaultScreenPixels)
             }
-            x += CGFloat(lineWidthDotButtons.count) * UIDevice.wy_screenWidth(43, WYBasisKitConfig.defaultScreenPixels) + UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
+            x = dotsColumnX + colorDiameter / 2 + CGFloat(lineWidthDotButtons.count - 1) * columnPitch + buttonWidth / 2 + UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
         }
         if fontSizeButtons.first?.isHidden == false {
-            var fontX = x
-            for button in fontSizeButtons {
-                button.frame = CGRect(x: fontX, y: buttonTop, width: buttonWidth, height: chipHeight)
-                fontX += UIDevice.wy_screenWidth(43, WYBasisKitConfig.defaultScreenPixels)
+            for (index, button) in fontSizeButtons.enumerated() {
+                let columnCenter = dotsColumnX + colorDiameter / 2 + CGFloat(index) * columnPitch
+                button.frame = CGRect(x: columnCenter - buttonWidth / 2, y: buttonTop, width: buttonWidth, height: chipHeight)
             }
-            x += CGFloat(fontSizeButtons.count) * UIDevice.wy_screenWidth(43, WYBasisKitConfig.defaultScreenPixels) + UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
+            x = dotsColumnX + colorDiameter / 2 + CGFloat(fontSizeButtons.count - 1) * columnPitch + buttonWidth / 2 + UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
         }
         if !straightChipButton.isHidden {
             straightChipButton.frame = CGRect(x: x, y: chipTop, width: chipWidth, height: chipHeight)
