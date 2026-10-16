@@ -398,7 +398,7 @@ public class WYImageEditorViewController: UIViewController {
         label.textColor = configuration.appearance.hintTextColor
         label.font = .systemFont(ofSize: UIFont.wy_fontSize(10, WYBasisKitConfig.defaultScreenPixels))
         label.numberOfLines = 0
-        label.textAlignment = .center
+        label.textAlignment = .left
         label.adjustsFontSizeToFitWidth = true
         label.minimumScaleFactor = 0.7
         return label
@@ -451,6 +451,7 @@ public class WYImageEditorViewController: UIViewController {
             let fontSize = UIFont.wy_fontSize(CGFloat([12, 15, 20, 26][index]), WYBasisKitConfig.defaultScreenPixels)
             let attributes: [NSAttributedString.Key: Any] = [.font: UIFont.boldSystemFont(ofSize: fontSize), .foregroundColor: UIColor.white]
             button.setAttributedTitle(NSAttributedString(string: "A", attributes: attributes), for: .normal)
+            button.contentHorizontalAlignment = .leading
             button.addTarget(self, action: #selector(fontSizeButtonTapped(_:)), for: .touchUpInside)
             button.tag = index
             return button
@@ -722,24 +723,19 @@ public class WYImageEditorViewController: UIViewController {
         let hintWidth = UIDevice.wy_screenWidth(30, WYBasisKitConfig.defaultScreenPixels)
         styleHintLabel.frame = CGRect(x: dotsColumnX - UIDevice.wy_screenWidth(4, WYBasisKitConfig.defaultScreenPixels) - hintWidth, y: buttonTop, width: hintWidth, height: buttonHeight)
         var x = dotsColumnX
-        if !straightChipButton.isHidden {
-            straightChipButton.frame = CGRect(x: x, y: chipTop, width: chipWidth, height: chipHeight)
-            freeChipButton.frame = CGRect(x: x + UIDevice.wy_screenWidth(56, WYBasisKitConfig.defaultScreenPixels), y: chipTop, width: chipWidth, height: chipHeight)
-            x += UIDevice.wy_screenWidth(126, WYBasisKitConfig.defaultScreenPixels)
-        }
-
         let dotSizes = [10, 15, 21, 29].map { UIDevice.wy_screenWidth(CGFloat($0), WYBasisKitConfig.defaultScreenPixels) }
         if lineWidthDotButtons.first?.isHidden == false {
             var dotX = x
             for (index, button) in lineWidthDotButtons.enumerated() {
                 button.frame = CGRect(x: dotX, y: buttonTop, width: buttonWidth, height: buttonHeight)
                 if let dotLayer = button.layer.sublayers?.first(where: { $0.name == "widthDot" }) {
-                    dotLayer.frame = CGRect(x: (buttonWidth - dotSizes[index]) / 2, y: (buttonHeight - dotSizes[index]) / 2, width: dotSizes[index], height: dotSizes[index])
+                    dotLayer.frame = CGRect(x: 0, y: (buttonHeight - dotSizes[index]) / 2, width: dotSizes[index], height: dotSizes[index])
                     dotLayer.cornerRadius = dotSizes[index] / 2
                     dotLayer.masksToBounds = true
                 }
                 dotX += UIDevice.wy_screenWidth(50, WYBasisKitConfig.defaultScreenPixels)
             }
+            x += CGFloat(lineWidthDotButtons.count) * UIDevice.wy_screenWidth(50, WYBasisKitConfig.defaultScreenPixels) + UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
         }
         if fontSizeButtons.first?.isHidden == false {
             var fontX = x
@@ -747,6 +743,11 @@ public class WYImageEditorViewController: UIViewController {
                 button.frame = CGRect(x: fontX, y: buttonTop, width: buttonWidth, height: chipHeight)
                 fontX += UIDevice.wy_screenWidth(43, WYBasisKitConfig.defaultScreenPixels)
             }
+            x += CGFloat(fontSizeButtons.count) * UIDevice.wy_screenWidth(43, WYBasisKitConfig.defaultScreenPixels) + UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
+        }
+        if !straightChipButton.isHidden {
+            straightChipButton.frame = CGRect(x: x, y: chipTop, width: chipWidth, height: chipHeight)
+            freeChipButton.frame = CGRect(x: x + chipWidth + UIDevice.wy_screenWidth(6, WYBasisKitConfig.defaultScreenPixels), y: chipTop, width: chipWidth, height: chipHeight)
         }
     }
 
