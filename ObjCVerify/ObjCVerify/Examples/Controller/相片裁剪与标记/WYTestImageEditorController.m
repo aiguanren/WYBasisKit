@@ -43,6 +43,9 @@
 /// 编辑时图片是否支持捏合缩放
 @property (nonatomic, assign) BOOL allowsImageZoom;
 
+/// 进入页面时图片初始缩放倍数(1为适配)
+@property (nonatomic, assign) CGFloat initialImageZoomScale;
+
 /// 标记颜色
 @property (nonatomic, strong) UIColor *markerColor;
 
@@ -88,6 +91,7 @@
     _cropShape = WYImageCropShapeRectangle;
     _allowsCropping = YES;
     _allowsImageZoom = YES;
+    _initialImageZoomScale = 1;
     _allowsMarking = YES;
     _showsStyleOptions = YES;
     _showsColorOptions = YES;
@@ -245,6 +249,14 @@
                                                  isLast:NO];
     [zoomButton setTitle:@"(禁用)缩放" forState:UIControlStateSelected];
 
+    [self createButtonWithTitle:@"初始缩放(1倍)"
+                       selector:@selector(initialZoomButtonTapped:)
+                      superView:contentView
+                       leftView:zoomButton
+                        topView:blockButton
+                         isRight:YES
+                          isLast:YES];
+
     self.tableView = [UITableView wy_sharedWithStyle:UITableViewStylePlain separatorStyle:UITableViewCellSeparatorStyleSingleLine delegate:self dataSource:self backgroundColor:[UIColor whiteColor] superView:self.view];
     [self.tableView wy_register:[WYTestImageEditorResultCell class] style:WYTableViewRegisterStyleCell];
     [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -321,6 +333,7 @@
         configuration.appearance = appearance;
     }
     configuration.allowsImageZoom = self.allowsImageZoom;
+    configuration.initialImageZoomScale = self.initialImageZoomScale;
     configuration.markerColor = self.markerColor;
     configuration.markerLineWidth = self.markerLineWidth;
     configuration.markerTextFontSize = self.markerTextFontSize;
@@ -466,6 +479,20 @@
 - (void)zoomButtonTapped:(UIButton *)sender {
     self.allowsImageZoom = !self.allowsImageZoom;
     sender.selected = !self.allowsImageZoom;
+}
+
+/// 初始缩放倍数(输入相对适配大小的倍数)
+- (void)initialZoomButtonTapped:(UIButton *)sender {
+    [UIAlertController wy_showStyle:UIAlertControllerStyleAlert title:@"进入页面时图片初始缩放倍数(1为适配显示)" message:nil duration:0 actionSheetNeedCancel:NO textFieldPlaceholders:@[@"倍数"] actions:@[@"确定"] handler:^(NSString *action, NSArray<NSString *> *inputTexts) {
+        if (![action isEqualToString:@"确定"]) { return; }
+        double scale = [inputTexts.firstObject doubleValue];
+        self.initialImageZoomScale = scale > 0 ? scale : 1;
+        if (self.initialImageZoomScale == 1) {
+            [sender setTitle:@"初始缩放(1倍)" forState:UIControlStateNormal];
+        } else {
+            [sender setTitle:[NSString stringWithFormat:@"初始缩放(%.1f倍)", self.initialImageZoomScale] forState:UIControlStateNormal];
+        }
+    }];
 }
 
 - (void)colorButtonTapped:(UIButton *)sender {

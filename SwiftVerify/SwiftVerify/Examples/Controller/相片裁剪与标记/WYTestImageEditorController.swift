@@ -27,6 +27,9 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
     /// 编辑时图片是否支持捏合缩放
     var allowsImageZoom: Bool = true
 
+    /// 进入页面时图片初始缩放倍数(1为适配)
+    var initialImageZoomScale: CGFloat = 1
+
     /// 标记颜色
     var markerColor: UIColor = .white
 
@@ -111,6 +114,8 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
         let zoomButton: UIButton = createButton(title: "(可缩放)图片", selector: #selector(zoomButtonTapped(sender:)), superView: contentView, leftView: clearButton, topView: blockButton)
         zoomButton.setTitle("(禁用)缩放", for: .selected)
 
+        createButton(title: "初始缩放(1倍)", selector: #selector(initialZoomButtonTapped(sender:)), superView: contentView, leftView: zoomButton, topView: blockButton, isLast: true)
+
         tableView = UITableView.wy_shared(delegate: self, dataSource: self, superView: view)
         tableView?.wy_register(WYTestImageEditorResultCell.self, .cell)
         tableView?.snp.makeConstraints { make in
@@ -183,6 +188,7 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
             configuration.appearance = appearance
         }
         configuration.allowsImageZoom = allowsImageZoom
+        configuration.initialImageZoomScale = initialImageZoomScale
         configuration.markerColor = markerColor
         configuration.markerLineWidth = markerLineWidth
         configuration.markerTextFontSize = markerTextFontSize
@@ -332,6 +338,16 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
     @objc func zoomButtonTapped(sender: UIButton) {
         allowsImageZoom.toggle()
         sender.isSelected = !allowsImageZoom
+    }
+
+    /// 初始缩放倍数(输入相对适配大小的倍数)
+    @objc func initialZoomButtonTapped(sender: UIButton) {
+        UIAlertController.wy_show(title: "进入页面时图片初始缩放倍数(1为适配显示)", textFieldPlaceholders: ["倍数"], actions: ["确定"]) { [weak self] action, inputTexts in
+            guard let self = self, action == "确定" else { return }
+            let scale = Double(inputTexts.first ?? "")
+            self.initialImageZoomScale = scale == nil ? 1 : CGFloat(scale!)
+            sender.setTitle(self.initialImageZoomScale == 1 ? "初始缩放(1倍)" : String(format: "初始缩放(%.1f倍)", self.initialImageZoomScale), for: .normal)
+        }
     }
 
     @objc func colorButtonTapped(sender: UIButton) {

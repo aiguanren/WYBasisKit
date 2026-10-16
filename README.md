@@ -100,6 +100,7 @@ configuration.lineDrawsStraight = false      // 划线形态(true为两点连直
 configuration.showsStyleOptions = true       // 界面是否显示粗细字号选择行(false时用户只能用配置的默认值)
 configuration.showsColorOptions = true       // 界面是否显示颜色选择条(false时用户只能用配置的默认颜色)
 configuration.allowsImageZoom = true        // false时编辑器里不能捏合缩放图片
+configuration.initialImageZoomScale = 1     // 进入页面时图片初始缩放倍数(1为适配显示)
 
 // 界面外观全部可配(22项：画布/遮罩/裁剪框线/把手/选中虚线/删除钮/色板/档位倍率/工具条/分段控件/强调色等)
 configuration.appearance.topBarCropButtonColor = .systemYellow // 顶部裁剪按钮颜色
