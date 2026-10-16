@@ -83,6 +83,12 @@ import WYBasisKitSwift
 
     /// 选中态强调色(当前模式按钮、当前工具、生效档位圆点与字号的点亮色)
     public var accentColor: UIColor?
+
+    /// 工具行撤销按钮的说明文字颜色(默认淡白与工具按钮区分)
+    public var undoButtonTitleColor: UIColor?
+
+    /// 工具行删除按钮的说明文字颜色(默认淡红提示危险操作)
+    public var deleteButtonTitleColor: UIColor?
 }
 
 /// OC侧编辑器配置(属性含义与WYImageEditorConfiguration一字不差，宽高任一为0表示不固定尺寸)
@@ -227,6 +233,8 @@ import WYBasisKitSwift
                 if let color = bridgeAppearance.topBarCropButtonColor { appearance.topBarCropButtonColor = color }
                 if let color = bridgeAppearance.topBarDoneColor { appearance.topBarDoneColor = color }
                 if let color = bridgeAppearance.accentColor { appearance.accentColor = color }
+                if let color = bridgeAppearance.undoButtonTitleColor { appearance.undoButtonTitleColor = color }
+                if let color = bridgeAppearance.deleteButtonTitleColor { appearance.deleteButtonTitleColor = color }
                 configuration.appearance = appearance
             }
         }
