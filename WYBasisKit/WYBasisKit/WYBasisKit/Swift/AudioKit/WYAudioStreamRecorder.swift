@@ -76,13 +76,13 @@ public final class WYAudioStreamRecorder: NSObject {
             throw WYAudioError.startRecordingFailed
         }
 
-        // 直接按目标格式装采样回调，音频引擎自动在硬件格式与目标格式之间插转换(自己拿AVAudioConverter逐帧转在降采样组合下会输出错乱数据，能量正常但内容乱，实时识别认不出)
+        // 按硬件原生格式装采样回调，拿到Float32后在handleTap里手工重采样转目标格式(AVAudioConverter逐帧单发转换在降采样组合下会输出错乱数据，installTap指定异构格式会抛格式不匹配异常，两条路都不能走)
         let inputNode = audioEngine.inputNode
+        let inputFormat = inputNode.outputFormat(forBus: 0)
         targetBufferFormat = targetFormat
         totalFramesConverted = 0
-        tapBufferCapacity = 2048
 
-        inputNode.installTap(onBus: 0, bufferSize: 2048, format: targetFormat) { [weak self] buffer, _ in
+        inputNode.installTap(onBus: 0, bufferSize: 2048, format: inputFormat) { [weak self] buffer, _ in
             self?.handleTap(buffer: buffer)
         }
 
@@ -115,9 +115,6 @@ public final class WYAudioStreamRecorder: NSObject {
     /// 目标音频格式(16千赫兹16位单声道Int16)
     private var targetBufferFormat: AVAudioFormat?
 
-    /// 单次转换输出的帧容量
-    private var tapBufferCapacity: AVAudioFrameCount = 0
-
     /// 已转换的目标帧数累计(除以采样率得到已录秒数)
     private var totalFramesConverted: AVAudioFrameCount = 0
 
@@ -128,29 +125,55 @@ public final class WYAudioStreamRecorder: NSObject {
         targetBufferFormat = nil
     }
 
-    /// 处理一棒麦克风采到的音频(采样回调本身就是目标格式，直接回调出去，顺带算响度)
+    /// 处理一棒麦克风采到的音频(硬件Float32帧手工重采样转目标采样率的单声道Int16后回调出去，顺带算响度)
     private func handleTap(buffer: AVAudioPCMBuffer) {
         guard let targetFormat = targetBufferFormat, isRecording else { return }
-        guard buffer.frameLength > 0 else { return }
+        guard let inputChannel = buffer.floatChannelData?[0], buffer.frameLength > 0 else { return }
 
-        totalFramesConverted += buffer.frameLength
-        let currentTime = TimeInterval(totalFramesConverted) / targetFormat.sampleRate
-        onAudioChunk?(buffer, currentTime)
+        let inputRate = buffer.format.sampleRate
+        let inputFrames = Int(buffer.frameLength)
+        let outputFrames = inputRate == sampleRate ? inputFrames : max(1, Int((Double(inputFrames) * sampleRate / inputRate).rounded()))
 
-        if let channelData = buffer.int16ChannelData?[0] {
-            let sampleCount = Int(buffer.frameLength)
-            var sum: Double = 0
-            for index in 0..<sampleCount {
-                let sample = Double(channelData[index])
-                sum += sample * sample
+        var int16Samples = [Int16](repeating: 0, count: outputFrames)
+        if inputRate == sampleRate {
+            for index in 0..<outputFrames {
+                let clamped = max(-1.0, min(1.0, Double(inputChannel[index])))
+                int16Samples[index] = Int16(clamped * 32767.0)
             }
-            // 均方根换算成分贝(除以32768归一到0.0~1.0再乘20，安静时压到-160防log10算出负无穷)
-            let rms = (sum / Double(max(sampleCount, 1))).squareRoot() / 32768.0
-            let averagePower = rms > 0.00001 ? max(20.0 * log10(rms), -160.0) : -160.0
-            onMetering?(Float(averagePower), currentTime)
         }else {
-            onMetering?(-160.0, currentTime)
+            // 线性插值重采样(16千赫兹语音识别带宽8千赫兹以内，插值损失的高频不影响识别)
+            let ratio = inputRate / sampleRate
+            for index in 0..<outputFrames {
+                let position = Double(index) * ratio
+                let base = min(Int(position), inputFrames - 1)
+                let next = min(base + 1, inputFrames - 1)
+                let fraction = position - Double(base)
+                let sample = Double(inputChannel[base]) * (1.0 - fraction) + Double(inputChannel[next]) * fraction
+                let clamped = max(-1.0, min(1.0, sample))
+                int16Samples[index] = Int16(clamped * 32767.0)
+            }
         }
+
+        guard let outBuffer = AVAudioPCMBuffer(pcmFormat: targetFormat, frameCapacity: AVAudioFrameCount(outputFrames)) else { return }
+        outBuffer.frameLength = AVAudioFrameCount(outputFrames)
+        if let destination = outBuffer.int16ChannelData?[0] {
+            int16Samples.withUnsafeBufferPointer { pointer in
+                memcpy(destination, pointer.baseAddress, outputFrames * 2)
+            }
+        }
+
+        totalFramesConverted += AVAudioFrameCount(outputFrames)
+        let currentTime = TimeInterval(totalFramesConverted) / sampleRate
+        onAudioChunk?(outBuffer, currentTime)
+
+        var sum: Double = 0
+        for sample in int16Samples {
+            sum += Double(sample) * Double(sample)
+        }
+        // 均方根换算成分贝(除以32768归一到0.0~1.0再乘20，安静时压到-160防log10算出负无穷)
+        let rms = (sum / Double(max(outputFrames, 1))).squareRoot() / 32768.0
+        let averagePower = rms > 0.00001 ? max(20.0 * log10(rms), -160.0) : -160.0
+        onMetering?(Float(averagePower), currentTime)
     }
 
     deinit {
