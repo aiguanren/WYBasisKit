@@ -404,7 +404,7 @@ public class WYImageEditorViewController: UIViewController {
         return label
     }()
 
-    /// 直线形态切换按钮(划线语境显示，点后划线为两点连直线)
+    /// 直线形态切换按钮(划线语境显示，与自由按钮拼成横跨两列的双段胶囊，此为左半段只有左侧外圆角，点后划线为两点连直线)
     private lazy var straightChipButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setTitle(WYLocalized("直线", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
@@ -413,11 +413,13 @@ public class WYImageEditorViewController: UIViewController {
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: UIFont.wy_fontSize(12, WYBasisKitConfig.defaultScreenPixels), weight: .semibold)
         button.layer.cornerRadius = UIDevice.wy_screenWidth(14, WYBasisKitConfig.defaultScreenPixels)
+        button.layer.maskedCorners = [.layerMinXMinYCorner, .layerMinXMaxYCorner]
+        button.layer.masksToBounds = true
         button.addTarget(self, action: #selector(lineShapeChipTapped(_:)), for: .touchUpInside)
         return button
     }()
 
-    /// 自由形态切换按钮(划线语境显示，点后划线跟随手指轨迹)
+    /// 自由形态切换按钮(划线语境显示，与直线按钮拼成横跨两列的双段胶囊，此为右半段只有右侧外圆角，点后划线跟随手指轨迹)
     private lazy var freeChipButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setTitle(WYLocalized("自由", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
@@ -426,6 +428,8 @@ public class WYImageEditorViewController: UIViewController {
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: UIFont.wy_fontSize(12, WYBasisKitConfig.defaultScreenPixels), weight: .semibold)
         button.layer.cornerRadius = UIDevice.wy_screenWidth(14, WYBasisKitConfig.defaultScreenPixels)
+        button.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMaxXMaxYCorner]
+        button.layer.masksToBounds = true
         button.addTarget(self, action: #selector(lineShapeChipTapped(_:)), for: .touchUpInside)
         return button
     }()
@@ -738,10 +742,13 @@ public class WYImageEditorViewController: UIViewController {
             }
         }
         if !straightChipButton.isHidden {
-            let straightCenter = firstColumnCenter + CGFloat(5) * columnPitch
-            let freeCenter = firstColumnCenter + CGFloat(6) * columnPitch
-            straightChipButton.frame = CGRect(x: straightCenter - chipWidth / 2, y: chipTop, width: chipWidth, height: chipHeight)
-            freeChipButton.frame = CGRect(x: freeCenter - chipWidth / 2, y: chipTop, width: chipWidth, height: chipHeight)
+            // 两颗形态按钮拼成一个横跨第6-7列的双段胶囊，右缘贴住第8颗图标列右缘以内不出屏
+            let pairCenter = firstColumnCenter + CGFloat(5.5) * columnPitch
+            let pairWidth = columnPitch + chipWidth
+            let pairRight = min(pairCenter + pairWidth / 2, width - safeRight - UIDevice.wy_screenWidth(4, WYBasisKitConfig.defaultScreenPixels))
+            let pairLeft = pairRight - pairWidth
+            straightChipButton.frame = CGRect(x: pairLeft, y: chipTop, width: pairWidth / 2, height: chipHeight)
+            freeChipButton.frame = CGRect(x: pairLeft + pairWidth / 2, y: chipTop, width: pairWidth / 2, height: chipHeight)
         }
     }
 
