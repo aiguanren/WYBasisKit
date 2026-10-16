@@ -75,21 +75,10 @@ enum WYImageEditorIcon {
         }
     }
 
-    /// 清除图标(iconfont清除搜索页第3页第4个原图路径复刻，左下向右上的清洁擦加圆头与散落圆点，多路径统一单色填充)
+    /// 清除图标(iconfont清除搜索页第8页第36个原图路径复刻，斜置橡皮擦加底部横线，官人2026-10-16选定)
     static var clear: UIImage {
         return drawIcon { context in
-            let paths = [
-                "M454.72 906.89c7.14-43.65 38.94-190.14 101.15-267.78a10.55 10.55 0 0 0-0.64-14.15L339.94 403.43a10.55 10.55 0 0 0-14.15-0.64C249 464.27 119.05 481.89 73.71 489.4a10.56 10.56 0 0 0-7.48 15.6l55 90.71a10.59 10.59 0 0 0 12.71 4.87l152.45-35.62c11.28-3.9 19.39 10.94 10 18.32l-122.23 96.2a10.58 10.58 0 0 0-1.85 14.76l69.28 90.37a10.57 10.57 0 0 0 14.92 1.9l110.94-86.87c9-7 21.19 3.14 15.91 13.24l-72.63 139.59a10.58 10.58 0 0 0 5.27 14.64l124.17 47.75a10.53 10.53 0 0 0 14.55-7.97z",
-                "M707.75 550.62l-234.06-234 31.76-19.29c71.49-43.4 157.17-38 208.38 13.21s56.63 136.9 13.2 208.38zM571.09 331.47l121.75 121.76c11.17-38.42 4.25-77-20.25-101.5s-63.07-31.42-101.5-20.26z",
-                "M714.13 340.14a29.17 29.17 0 0 1-20.66-49.75L877 106.23a29.16 29.16 0 0 1 41.31 41.17L734.78 331.56a29 29 0 0 1-20.65 8.58zM527.8 918.77a39.65 39.65 0 0 1-13.87-2.51l-142.09-44.58a39.75 39.75 0 0 1-19.69-55l28-53.49L337 797a39.74 39.74 0 0 1-56.06-7.12l-69.32-90.38a39.84 39.84 0 0 1 7-55.41L275 599.66l-71 16.59a39.65 39.65 0 0 1-45.85-18.86l-54.42-89.76c-6.84-12.27-7.21-25.95-1.6-37.59a39.79 39.79 0 0 1 29.25-21.88c39.72-6.59 174.9-32.52 246.74-90.07a39.78 39.78 0 0 1 53 2.74l223.35 223.38a39.7 39.7 0 0 1 2.78 53c-57.93 72.32-83.76 208.27-90.25 248.24a39.74 39.74 0 0 1-39.14 33.31zM509.39 876z m-95.21-52l98.92 30.93c11.34-60.48 37.44-168.2 88.68-240.89L401.35 413.56c-70 49.31-172.53 75.35-233.54 87.28l34 56 139.35-32.54a39.75 39.75 0 0 1 35.71 69.39l-107.8 84.89 46.7 60.92 96.16-75.29a39.75 39.75 0 0 1 59.74 49.71z m-156.3-160zM208 567.09l0.62 1c-0.22-0.33-0.42-0.67-0.62-1z",
-                "M756 758.26m-90.81 0a90.81 90.81 0 1 0 181.62 0 90.81 90.81 0 1 0-181.62 0Z",
-                "M873.16 486.5m-80.63 0a80.63 80.63 0 1 0 161.26 0 80.63 80.63 0 1 0-161.26 0Z",
-                "M359.85 211.23m-80.63 0a80.63 80.63 0 1 0 161.26 0 80.63 80.63 0 1 0-161.26 0Z",
-                "M756 860.45a102.19 102.19 0 1 1 102.2-102.19A102.3 102.3 0 0 1 756 860.45z m0-146a43.86 43.86 0 1 0 43.87 43.85A43.9 43.9 0 0 0 756 714.41zM359.85 296.7a85.47 85.47 0 1 1 85.48-85.47 85.55 85.55 0 0 1-85.48 85.47z m0-112.61A27.14 27.14 0 1 0 387 211.23a27.17 27.17 0 0 0-27.15-27.14zM873.17 572a85.47 85.47 0 1 1 85.47-85.46A85.56 85.56 0 0 1 873.17 572z m0-112.61a27.14 27.14 0 1 0 27.14 27.15 27.18 27.18 0 0 0-27.14-27.18z",
-            ]
-            for d in paths {
-                svgPath(d, design: 1024).fill()
-            }
+            svgPath("M912 767.8H579.1l309.5-309.5c19-19 29.4-44.2 29.4-71.1 0-26.8-10.5-52.1-29.5-71.1l-185-185c-39.2-39.2-103-39.2-142.2 0L150.1 542.2c-19 19-29.4 44.2-29.4 71.1 0 26.8 10.5 52.1 29.5 71.1l83.4 83.4H114c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h798c8.8 0 16-7.2 16-16v-32c0-8.9-7.2-16-16-16zM195.4 639.1c-6.9-6.9-10.7-16.1-10.7-25.9 0-9.8 3.8-18.9 10.7-25.8l341.1-341.1 236.8 236.8-284.8 284.7H324.1L195.4 639.1z", design: 1024).fill()
         }
     }
 
@@ -147,7 +136,7 @@ enum WYImageEditorIcon {
         var current = CGPoint.zero
         var subpathStart = CGPoint.zero
         var lastControl: CGPoint?
-        for (begin, command) in commands {
+        for (commandIndex, (begin, command)) in commands.enumerated() {
             let upper = Character(command.uppercased())
             let relative = command.isLowercase
             let arity: Int
@@ -164,8 +153,10 @@ enum WYImageEditorIcon {
                 lastControl = nil
                 continue
             }
-            let index = begin
-            if index + arity <= numbers.count {
+            var index = begin
+            var pairIndex = 0
+            let end = commandIndex + 1 < commands.count ? commands[commandIndex + 1].0 : numbers.count
+            while index + arity <= end {
                 let n = { (offset: Int) -> CGFloat in numbers[index + offset] }
                 let absolute = { (dx: CGFloat, dy: CGFloat) -> CGPoint in CGPoint(x: dx * scale, y: dy * scale) }
                 let relativeTo = { (dx: CGFloat, dy: CGFloat) -> CGPoint in CGPoint(x: current.x + dx * scale, y: current.y + dy * scale) }
@@ -173,8 +164,12 @@ enum WYImageEditorIcon {
                 switch upper {
                 case "M":
                     target = relative ? relativeTo(n(0), n(1)) : absolute(n(0), n(1))
-                    path.move(to: target)
-                    subpathStart = target
+                    if pairIndex == 0 {
+                        path.move(to: target)
+                        subpathStart = target
+                    } else {
+                        path.addLine(to: target)
+                    }
                     lastControl = nil
                 case "L":
                     target = relative ? relativeTo(n(0), n(1)) : absolute(n(0), n(1))
@@ -207,6 +202,8 @@ enum WYImageEditorIcon {
                     lastControl = control2
                 }
                 current = target
+                index += arity
+                pairIndex += 1
             }
         }
         return path
