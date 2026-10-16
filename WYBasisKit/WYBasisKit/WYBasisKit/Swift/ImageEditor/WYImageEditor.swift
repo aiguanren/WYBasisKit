@@ -685,23 +685,20 @@ public class WYImageEditorViewController: UIViewController {
         clearButton.frame = CGRect(x: x, y: itemTop, width: itemSize, height: itemSize)
 
         var nextRowY: CGFloat = rowHeight
-        // 颜色行与样式行共用列起点：提示文字列左缘对齐第一行按钮内图标的左缘，颜色圆点与样式行档位控件同列
-        let visualLeading = safeLeft + edgePadding + (itemSize - 24) / 2
-        let hintColumnWidth = UIDevice.wy_screenWidth(30, WYBasisKitConfig.defaultScreenPixels) + UIDevice.wy_screenWidth(4, WYBasisKitConfig.defaultScreenPixels)
-        let dotsColumnX = visualLeading + hintColumnWidth
+        // 全区列对齐基准：列中心=第一行工具按钮内图标的中心(列距与工具行同算式，任何屏宽都一致)
+        let columnPitch = itemSize + itemGap
+        let firstColumnCenter = startX + itemSize / 2
         if configuration.showsColorOptions {
             let colorRowHeight = UIDevice.wy_screenHeight(37, WYBasisKitConfig.defaultScreenPixels)
             let colorDiameter = UIDevice.wy_screenWidth(25, WYBasisKitConfig.defaultScreenPixels)
-            let colorGap = UIDevice.wy_screenWidth(18, WYBasisKitConfig.defaultScreenPixels)
-            var colorX = dotsColumnX
-            for button in colorButtons {
-                button.frame = CGRect(x: colorX, y: nextRowY + (colorRowHeight - colorDiameter) / 2, width: colorDiameter, height: colorDiameter)
-                colorX += colorDiameter + colorGap
+            for (index, button) in colorButtons.enumerated() {
+                let columnCenter = firstColumnCenter + CGFloat(index) * columnPitch
+                button.frame = CGRect(x: columnCenter - colorDiameter / 2, y: nextRowY + (colorRowHeight - colorDiameter) / 2, width: colorDiameter, height: colorDiameter)
             }
             nextRowY += colorRowHeight
         }
         if configuration.showsStyleOptions {
-            layoutStyleRow(width: width, y: nextRowY, safeLeft: safeLeft, safeRight: safeRight, dotsColumnX: dotsColumnX)
+            layoutStyleRow(width: width, y: nextRowY, safeLeft: safeLeft, safeRight: safeRight, firstColumnCenter: firstColumnCenter, columnPitch: columnPitch)
         }
 
         // 工具按钮图标在上文字在下(用WYBasisKit的UIButton扩展排版，需在frame落定后调用)
@@ -711,7 +708,7 @@ public class WYImageEditorViewController: UIViewController {
     }
 
     /// 布局粗细字号档位行(划线语境多两个形态切换按钮，圆点大小示意粗细，字母A大小示意字号)
-    private func layoutStyleRow(width: CGFloat, y: CGFloat, safeLeft: CGFloat, safeRight: CGFloat, dotsColumnX: CGFloat) {
+    private func layoutStyleRow(width: CGFloat, y: CGFloat, safeLeft: CGFloat, safeRight: CGFloat, firstColumnCenter: CGFloat, columnPitch: CGFloat) {
 
         let chipWidth = UIDevice.wy_screenWidth(52, WYBasisKitConfig.defaultScreenPixels)
         let chipHeight = UIDevice.wy_screenHeight(27, WYBasisKitConfig.defaultScreenPixels)
@@ -719,16 +716,13 @@ public class WYImageEditorViewController: UIViewController {
         let buttonHeight = UIDevice.wy_screenHeight(29, WYBasisKitConfig.defaultScreenPixels)
         let chipTop = y + (UIDevice.wy_screenHeight(37, WYBasisKitConfig.defaultScreenPixels) - chipHeight) / 2
         let buttonTop = y + (UIDevice.wy_screenHeight(37, WYBasisKitConfig.defaultScreenPixels) - buttonHeight) / 2
+        // 提示占第1列、档位控件占第2-5列、直线自由胶囊占第6-7列，全部以列中心对齐第一行图标
         let hintWidth = UIDevice.wy_screenWidth(30, WYBasisKitConfig.defaultScreenPixels)
-        styleHintLabel.frame = CGRect(x: dotsColumnX - UIDevice.wy_screenWidth(4, WYBasisKitConfig.defaultScreenPixels) - hintWidth, y: buttonTop, width: hintWidth, height: buttonHeight)
-        // 档位列以颜色圆点的列中心为准逐列中心对齐(列距与颜色行同算式保证任何屏宽取整后也一致)
-        let colorDiameter = UIDevice.wy_screenWidth(25, WYBasisKitConfig.defaultScreenPixels)
-        let columnPitch = colorDiameter + UIDevice.wy_screenWidth(18, WYBasisKitConfig.defaultScreenPixels)
-        var x = dotsColumnX
+        styleHintLabel.frame = CGRect(x: firstColumnCenter - hintWidth / 2, y: buttonTop, width: hintWidth, height: buttonHeight)
         let dotSizes = [10, 15, 21, 29].map { UIDevice.wy_screenWidth(CGFloat($0), WYBasisKitConfig.defaultScreenPixels) }
         if lineWidthDotButtons.first?.isHidden == false {
             for (index, button) in lineWidthDotButtons.enumerated() {
-                let columnCenter = dotsColumnX + colorDiameter / 2 + CGFloat(index) * columnPitch
+                let columnCenter = firstColumnCenter + CGFloat(index + 1) * columnPitch
                 button.frame = CGRect(x: columnCenter - buttonWidth / 2, y: buttonTop, width: buttonWidth, height: buttonHeight)
                 if let dotLayer = button.layer.sublayers?.first(where: { $0.name == "widthDot" }) {
                     dotLayer.frame = CGRect(x: (buttonWidth - dotSizes[index]) / 2, y: (buttonHeight - dotSizes[index]) / 2, width: dotSizes[index], height: dotSizes[index])
@@ -736,18 +730,18 @@ public class WYImageEditorViewController: UIViewController {
                     dotLayer.masksToBounds = true
                 }
             }
-            x = dotsColumnX + colorDiameter / 2 + CGFloat(lineWidthDotButtons.count - 1) * columnPitch + buttonWidth / 2 + UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
         }
         if fontSizeButtons.first?.isHidden == false {
             for (index, button) in fontSizeButtons.enumerated() {
-                let columnCenter = dotsColumnX + colorDiameter / 2 + CGFloat(index) * columnPitch
+                let columnCenter = firstColumnCenter + CGFloat(index + 1) * columnPitch
                 button.frame = CGRect(x: columnCenter - buttonWidth / 2, y: buttonTop, width: buttonWidth, height: chipHeight)
             }
-            x = dotsColumnX + colorDiameter / 2 + CGFloat(fontSizeButtons.count - 1) * columnPitch + buttonWidth / 2 + UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
         }
         if !straightChipButton.isHidden {
-            straightChipButton.frame = CGRect(x: x, y: chipTop, width: chipWidth, height: chipHeight)
-            freeChipButton.frame = CGRect(x: x + chipWidth + UIDevice.wy_screenWidth(6, WYBasisKitConfig.defaultScreenPixels), y: chipTop, width: chipWidth, height: chipHeight)
+            let straightCenter = firstColumnCenter + CGFloat(5) * columnPitch
+            let freeCenter = firstColumnCenter + CGFloat(6) * columnPitch
+            straightChipButton.frame = CGRect(x: straightCenter - chipWidth / 2, y: chipTop, width: chipWidth, height: chipHeight)
+            freeChipButton.frame = CGRect(x: freeCenter - chipWidth / 2, y: chipTop, width: chipWidth, height: chipHeight)
         }
     }
 
