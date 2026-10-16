@@ -506,13 +506,14 @@ class WYImageMarkerView: UIView {
             let endPoint = item.type == .arrow ? item.endPoint : (item.linePoints.last ?? .zero)
             let startCenter = viewPoint(fromImagePoint: startPoint)
             let endCenter = viewPoint(fromImagePoint: endPoint)
-            if hypot(point.x - startCenter.x, point.y - startCenter.y) <= 22 { return .endpointStart }
-            if hypot(point.x - endCenter.x, point.y - endCenter.y) <= 22 { return .endpointEnd }
+            let endpointHitRadius = UIDevice.wy_screenWidth(21, WYBasisKitConfig.defaultScreenPixels)
+            if hypot(point.x - startCenter.x, point.y - startCenter.y) <= endpointHitRadius { return .endpointStart }
+            if hypot(point.x - endCenter.x, point.y - endCenter.y) <= endpointHitRadius { return .endpointEnd }
         } else {
 
             // 右下角缩放把手
             let resizeCenter = CGPoint(x: frame.maxX, y: frame.maxY)
-            if hypot(point.x - resizeCenter.x, point.y - resizeCenter.y) <= 22 { return .resizeMarker }
+            if hypot(point.x - resizeCenter.x, point.y - resizeCenter.y) <= UIDevice.wy_screenWidth(21, WYBasisKitConfig.defaultScreenPixels) { return .resizeMarker }
         }
         return nil
     }
@@ -704,7 +705,7 @@ class WYImageMarkerView: UIView {
 
         // 左上角删除圆钮带叉
         let deleteCenter = CGPoint(x: chromeFrame.minX, y: chromeFrame.minY)
-        let deletePath = UIBezierPath(arcCenter: deleteCenter, radius: 11, startAngle: 0, endAngle: .pi * 2, clockwise: true)
+        let deletePath = UIBezierPath(arcCenter: deleteCenter, radius: UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels), startAngle: 0, endAngle: .pi * 2, clockwise: true)
         appearance.deleteButtonColor.setFill()
         deletePath.fill()
         context.setStrokeColor(appearance.selectionDashColor.cgColor)

@@ -250,7 +250,7 @@ public class WYImageEditorViewController: UIViewController {
         let button = UIButton(type: .custom)
         button.setTitle(WYLocalized("取消", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
         button.setTitleColor(configuration.appearance.topBarButtonColor, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 17)
+        button.titleLabel?.font = .systemFont(ofSize: UIFont.wy_fontSize(16, WYBasisKitConfig.defaultScreenPixels))
         button.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
         return button
     }()
@@ -260,7 +260,7 @@ public class WYImageEditorViewController: UIViewController {
         let button = UIButton(type: .custom)
         button.setTitle(WYLocalized("还原", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
         button.setTitleColor(configuration.appearance.topBarButtonColor, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 17)
+        button.titleLabel?.font = .systemFont(ofSize: UIFont.wy_fontSize(16, WYBasisKitConfig.defaultScreenPixels))
         button.addTarget(self, action: #selector(revertButtonTapped), for: .touchUpInside)
         return button
     }()
@@ -270,7 +270,7 @@ public class WYImageEditorViewController: UIViewController {
         let button = UIButton(type: .custom)
         button.setTitle(WYLocalized("完成", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
         button.setTitleColor(configuration.appearance.topBarDoneColor, for: .normal)
-        button.titleLabel?.font = .boldSystemFont(ofSize: 17)
+        button.titleLabel?.font = .boldSystemFont(ofSize: UIFont.wy_fontSize(16, WYBasisKitConfig.defaultScreenPixels))
         button.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
         return button
     }()
@@ -280,7 +280,7 @@ public class WYImageEditorViewController: UIViewController {
         let button = UIButton(type: .custom)
         button.setTitleColor(.white, for: .normal)
         button.setTitleColor(configuration.appearance.accentColor, for: .disabled)
-        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .semibold)
+        button.titleLabel?.font = .systemFont(ofSize: UIFont.wy_fontSize(16, WYBasisKitConfig.defaultScreenPixels), weight: .semibold)
         button.addTarget(self, action: #selector(titleButtonTapped), for: .touchUpInside)
         return button
     }()
@@ -289,8 +289,8 @@ public class WYImageEditorViewController: UIViewController {
     private lazy var cropModeButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setTitle(WYLocalized("裁剪", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 14, weight: .semibold)
-        button.layer.cornerRadius = 13
+        button.titleLabel?.font = .systemFont(ofSize: UIFont.wy_fontSize(13, WYBasisKitConfig.defaultScreenPixels), weight: .semibold)
+        button.layer.cornerRadius = UIDevice.wy_screenWidth(12, WYBasisKitConfig.defaultScreenPixels)
         button.addTarget(self, action: #selector(cropModeButtonTapped), for: .touchUpInside)
         return button
     }()
@@ -299,8 +299,8 @@ public class WYImageEditorViewController: UIViewController {
     private lazy var markModeButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setTitle(WYLocalized("标记", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 14, weight: .semibold)
-        button.layer.cornerRadius = 13
+        button.titleLabel?.font = .systemFont(ofSize: UIFont.wy_fontSize(13, WYBasisKitConfig.defaultScreenPixels), weight: .semibold)
+        button.layer.cornerRadius = UIDevice.wy_screenWidth(12, WYBasisKitConfig.defaultScreenPixels)
         button.addTarget(self, action: #selector(markModeButtonTapped), for: .touchUpInside)
         return button
     }()
@@ -309,7 +309,7 @@ public class WYImageEditorViewController: UIViewController {
     private lazy var modeSegmentedControl: UIView = {
         let view = UIView()
         view.backgroundColor = configuration.appearance.segmentedBackgroundColor
-        view.layer.cornerRadius = 16
+        view.layer.cornerRadius = UIDevice.wy_screenWidth(15, WYBasisKitConfig.defaultScreenPixels)
         view.layer.masksToBounds = true
         return view
     }()
@@ -369,7 +369,7 @@ public class WYImageEditorViewController: UIViewController {
             button.setImage(icons[index], for: .normal)
             button.setImage(icons[index].withTintColor(configuration.appearance.accentColor, renderingMode: .alwaysOriginal), for: .selected)
             button.tintColor = .white
-            button.titleLabel?.font = .systemFont(ofSize: 11)
+            button.titleLabel?.font = .systemFont(ofSize: UIFont.wy_fontSize(11, WYBasisKitConfig.defaultScreenPixels))
             button.imageView?.contentMode = .scaleAspectFit
             button.addTarget(self, action: #selector(markerToolButtonTapped(_:)), for: .touchUpInside)
             button.tag = index
@@ -384,8 +384,8 @@ public class WYImageEditorViewController: UIViewController {
         button.setTitleColor(.black, for: .selected)
         button.setTitleColor(.black, for: [.selected, .highlighted])
         button.setTitleColor(.white, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 12, weight: .semibold)
-        button.layer.cornerRadius = 14
+        button.titleLabel?.font = .systemFont(ofSize: UIFont.wy_fontSize(12, WYBasisKitConfig.defaultScreenPixels), weight: .semibold)
+        button.layer.cornerRadius = UIDevice.wy_screenWidth(14, WYBasisKitConfig.defaultScreenPixels)
         button.addTarget(self, action: #selector(lineShapeChipTapped(_:)), for: .touchUpInside)
         return button
     }()
@@ -397,8 +397,8 @@ public class WYImageEditorViewController: UIViewController {
         button.setTitleColor(.black, for: .selected)
         button.setTitleColor(.black, for: [.selected, .highlighted])
         button.setTitleColor(.white, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 12, weight: .semibold)
-        button.layer.cornerRadius = 14
+        button.titleLabel?.font = .systemFont(ofSize: UIFont.wy_fontSize(12, WYBasisKitConfig.defaultScreenPixels), weight: .semibold)
+        button.layer.cornerRadius = UIDevice.wy_screenWidth(14, WYBasisKitConfig.defaultScreenPixels)
         button.addTarget(self, action: #selector(lineShapeChipTapped(_:)), for: .touchUpInside)
         return button
     }()
@@ -421,7 +421,8 @@ public class WYImageEditorViewController: UIViewController {
     private lazy var fontSizeButtons: [UIButton] = {
         return (0..<4).map { index in
             let button = UIButton(type: .custom)
-            let attributes: [NSAttributedString.Key: Any] = [.font: UIFont.boldSystemFont(ofSize: CGFloat([12, 16, 21, 27][index])), .foregroundColor: UIColor.white]
+            let fontSize = UIFont.wy_fontSize(CGFloat([12, 15, 20, 26][index]), WYBasisKitConfig.defaultScreenPixels)
+            let attributes: [NSAttributedString.Key: Any] = [.font: UIFont.boldSystemFont(ofSize: fontSize), .foregroundColor: UIColor.white]
             button.setAttributedTitle(NSAttributedString(string: "A", attributes: attributes), for: .normal)
             button.addTarget(self, action: #selector(fontSizeButtonTapped(_:)), for: .touchUpInside)
             button.tag = index
@@ -464,7 +465,7 @@ public class WYImageEditorViewController: UIViewController {
         return configuration.appearance.markerPalette.map { color in
             let button = UIButton(type: .custom)
             button.backgroundColor = color
-            button.layer.cornerRadius = 13
+            button.layer.cornerRadius = UIDevice.wy_screenWidth(13, WYBasisKitConfig.defaultScreenPixels)
             button.layer.borderWidth = 1
             button.layer.borderColor = UIColor(white: 1, alpha: 0.35).cgColor
             button.addTarget(self, action: #selector(colorButtonTapped(_:)), for: .touchUpInside)
@@ -580,31 +581,33 @@ public class WYImageEditorViewController: UIViewController {
         let safeRight = view.safeAreaInsets.right
         let width = view.bounds.width
 
-        cancelButton.frame = CGRect(x: safeLeft + 12, y: safeTop + 4, width: 60, height: 44)
-        revertButton.frame = CGRect(x: width - safeRight - 152, y: safeTop + 4, width: 60, height: 44)
-        doneButton.frame = CGRect(x: width - safeRight - 80, y: safeTop + 4, width: 68, height: 44)
-        titleLabel.frame = CGRect(x: (width - 160) / 2, y: safeTop + 4, width: 160, height: 44)
+        let barButtonHeight = UIDevice.wy_screenHeight(41, WYBasisKitConfig.defaultScreenPixels)
+        let cancelButtonWidth = UIDevice.wy_screenWidth(56, WYBasisKitConfig.defaultScreenPixels)
+        cancelButton.frame = CGRect(x: safeLeft + UIDevice.wy_screenWidth(11, WYBasisKitConfig.defaultScreenPixels), y: safeTop + UIDevice.wy_screenHeight(4, WYBasisKitConfig.defaultScreenPixels), width: cancelButtonWidth, height: barButtonHeight)
+        revertButton.frame = CGRect(x: width - safeRight - UIDevice.wy_screenWidth(142, WYBasisKitConfig.defaultScreenPixels), y: safeTop + UIDevice.wy_screenHeight(4, WYBasisKitConfig.defaultScreenPixels), width: cancelButtonWidth, height: barButtonHeight)
+        doneButton.frame = CGRect(x: width - safeRight - UIDevice.wy_screenWidth(75, WYBasisKitConfig.defaultScreenPixels), y: safeTop + UIDevice.wy_screenHeight(4, WYBasisKitConfig.defaultScreenPixels), width: UIDevice.wy_screenWidth(63, WYBasisKitConfig.defaultScreenPixels), height: barButtonHeight)
+        titleLabel.frame = CGRect(x: (width - UIDevice.wy_screenWidth(149, WYBasisKitConfig.defaultScreenPixels)) / 2, y: safeTop + UIDevice.wy_screenHeight(4, WYBasisKitConfig.defaultScreenPixels), width: UIDevice.wy_screenWidth(149, WYBasisKitConfig.defaultScreenPixels), height: barButtonHeight)
 
-        let modeBarHeight: CGFloat = modeBar.isHidden ? 0 : 46
-        var toolbarHeight: CGFloat = 56
+        let modeBarHeight: CGFloat = modeBar.isHidden ? 0 : UIDevice.wy_screenHeight(43, WYBasisKitConfig.defaultScreenPixels)
+        var toolbarHeight: CGFloat = UIDevice.wy_screenHeight(54, WYBasisKitConfig.defaultScreenPixels)
         if configuration.showsColorOptions {
-            toolbarHeight += 38
+            toolbarHeight += UIDevice.wy_screenHeight(37, WYBasisKitConfig.defaultScreenPixels)
         }
         if configuration.showsStyleOptions {
-            toolbarHeight += 40
+            toolbarHeight += UIDevice.wy_screenHeight(39, WYBasisKitConfig.defaultScreenPixels)
         }
         let bottomBarsHeight = isMarkMode ? modeBarHeight + toolbarHeight : modeBarHeight
-        let canvasY = safeTop + 52
+        let canvasY = safeTop + UIDevice.wy_screenHeight(48, WYBasisKitConfig.defaultScreenPixels)
         let canvasHeight = view.bounds.height - canvasY - safeBottom - bottomBarsHeight
         cropperView.frame = CGRect(x: 0, y: canvasY, width: width, height: canvasHeight)
         markerView.frame = cropperView.frame
 
         modeBar.frame = CGRect(x: 0, y: view.bounds.height - safeBottom - bottomBarsHeight, width: width, height: modeBarHeight)
         if !modeBar.isHidden {
-            let controlWidth: CGFloat = 200
-            let controlHeight: CGFloat = 32
+            let controlWidth = UIDevice.wy_screenWidth(186, WYBasisKitConfig.defaultScreenPixels)
+            let controlHeight = UIDevice.wy_screenHeight(30, WYBasisKitConfig.defaultScreenPixels)
             modeSegmentedControl.frame = CGRect(x: (width - controlWidth) / 2, y: (modeBarHeight - controlHeight) / 2, width: controlWidth, height: controlHeight)
-            cropModeButton.frame = CGRect(x: 3, y: 3, width: controlWidth / 2 - 5, height: controlHeight - 6)
+            cropModeButton.frame = CGRect(x: 3, y: 3, width: controlWidth / 2 - UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels), height: controlHeight - UIDevice.wy_screenHeight(6, WYBasisKitConfig.defaultScreenPixels))
             markModeButton.frame = CGRect(x: controlWidth / 2 + 2, y: 3, width: controlWidth / 2 - 5, height: controlHeight - 6)
         }
 
@@ -623,38 +626,42 @@ public class WYImageEditorViewController: UIViewController {
     private func layoutMarkerToolbar(width: CGFloat, height: CGFloat, safeLeft: CGFloat, safeRight: CGFloat) {
 
         let toolCount = markerToolButtons.count + 3
-        let itemSize: CGFloat = 44
-        let edgePadding: CGFloat = 8
-        // 按钮间距在4到10之间弹性收缩，屏宽够时整行放得下不滚动，放不下才贴边排开靠左右滑动查看
+        let itemSize = UIDevice.wy_screenWidth(40, WYBasisKitConfig.defaultScreenPixels)
+        let rowHeight = UIDevice.wy_screenHeight(54, WYBasisKitConfig.defaultScreenPixels)
+        let itemTop = UIDevice.wy_screenHeight(6, WYBasisKitConfig.defaultScreenPixels)
+        let edgePadding = UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
+        let preferredGap = UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels)
+        // 按钮间距在最小值到期望值之间弹性收缩，屏宽够时整行放得下不滚动，放不下才贴边排开靠左右滑动查看
         let availableWidth = width - safeLeft - safeRight
         let flexGap = (availableWidth - edgePadding * 2 - CGFloat(toolCount) * itemSize) / CGFloat(toolCount - 1)
-        let fitsInRow = flexGap >= 4
-        let itemGap = fitsInRow ? min(flexGap, 10) : 10
+        let minimumGap = UIDevice.wy_screenWidth(4, WYBasisKitConfig.defaultScreenPixels)
+        let fitsInRow = flexGap >= minimumGap
+        let itemGap = fitsInRow ? min(flexGap, preferredGap) : preferredGap
         let contentWidth = CGFloat(toolCount) * itemSize + CGFloat(toolCount - 1) * itemGap
         let startX = fitsInRow ? safeLeft + (availableWidth - contentWidth) / 2 : safeLeft + edgePadding
-        toolRowScrollView.frame = CGRect(x: 0, y: 0, width: width, height: 56)
-        toolRowScrollView.contentSize = CGSize(width: max(startX + contentWidth + safeRight + edgePadding, width), height: 56)
+        toolRowScrollView.frame = CGRect(x: 0, y: 0, width: width, height: rowHeight)
+        toolRowScrollView.contentSize = CGSize(width: max(startX + contentWidth + safeRight + edgePadding, width), height: rowHeight)
         var x = startX
         for button in markerToolButtons {
-            button.frame = CGRect(x: x, y: 6, width: itemSize, height: itemSize)
+            button.frame = CGRect(x: x, y: itemTop, width: itemSize, height: itemSize)
             x += itemSize + itemGap
         }
-        undoButton.frame = CGRect(x: x, y: 6, width: itemSize, height: itemSize)
+        undoButton.frame = CGRect(x: x, y: itemTop, width: itemSize, height: itemSize)
         x += itemSize + itemGap
-        redoButton.frame = CGRect(x: x, y: 6, width: itemSize, height: itemSize)
+        redoButton.frame = CGRect(x: x, y: itemTop, width: itemSize, height: itemSize)
         x += itemSize + itemGap
-        clearButton.frame = CGRect(x: x, y: 6, width: itemSize, height: itemSize)
+        clearButton.frame = CGRect(x: x, y: itemTop, width: itemSize, height: itemSize)
 
-        var nextRowY: CGFloat = 56
+        var nextRowY: CGFloat = rowHeight
         if configuration.showsColorOptions {
-            let colorDiameter: CGFloat = 26
+            let colorDiameter = UIDevice.wy_screenWidth(25, WYBasisKitConfig.defaultScreenPixels)
             let colorSpacing = (width - safeLeft - safeRight - CGFloat(colorButtons.count) * colorDiameter) / CGFloat(colorButtons.count + 1)
             var colorX = safeLeft + colorSpacing
             for button in colorButtons {
                 button.frame = CGRect(x: colorX, y: nextRowY, width: colorDiameter, height: colorDiameter)
                 colorX += colorDiameter + colorSpacing
             }
-            nextRowY += 38
+            nextRowY += UIDevice.wy_screenHeight(37, WYBasisKitConfig.defaultScreenPixels)
         }
         if configuration.showsStyleOptions {
             layoutStyleRow(width: width, y: nextRowY, safeLeft: safeLeft, safeRight: safeRight)
@@ -669,31 +676,35 @@ public class WYImageEditorViewController: UIViewController {
     /// 布局粗细字号档位行(划线语境多两个形态切换按钮，圆点大小示意粗细，字母A大小示意字号)
     private func layoutStyleRow(width: CGFloat, y: CGFloat, safeLeft: CGFloat, safeRight: CGFloat) {
 
-        var x = safeLeft + 10
+        let chipWidth = UIDevice.wy_screenWidth(52, WYBasisKitConfig.defaultScreenPixels)
+        let chipHeight = UIDevice.wy_screenHeight(27, WYBasisKitConfig.defaultScreenPixels)
+        let buttonWidth = UIDevice.wy_screenWidth(39, WYBasisKitConfig.defaultScreenPixels)
+        let buttonHeight = UIDevice.wy_screenHeight(29, WYBasisKitConfig.defaultScreenPixels)
+        var x = safeLeft + UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels)
         if !straightChipButton.isHidden {
-            straightChipButton.frame = CGRect(x: x, y: y + 1, width: 54, height: 28)
-            freeChipButton.frame = CGRect(x: x + 58, y: y + 1, width: 54, height: 28)
-            x += 130
+            straightChipButton.frame = CGRect(x: x, y: y + 1, width: chipWidth, height: chipHeight)
+            freeChipButton.frame = CGRect(x: x + UIDevice.wy_screenWidth(56, WYBasisKitConfig.defaultScreenPixels), y: y + 1, width: chipWidth, height: chipHeight)
+            x += UIDevice.wy_screenWidth(126, WYBasisKitConfig.defaultScreenPixels)
         }
 
-        let dotSizes: [CGFloat] = [10, 16, 22, 30]
+        let dotSizes = [10, 15, 21, 29].map { UIDevice.wy_screenWidth(CGFloat($0), WYBasisKitConfig.defaultScreenPixels) }
         if lineWidthDotButtons.first?.isHidden == false {
-            var dotX = x + 14
+            var dotX = x + UIDevice.wy_screenWidth(14, WYBasisKitConfig.defaultScreenPixels)
             for (index, button) in lineWidthDotButtons.enumerated() {
-                button.frame = CGRect(x: dotX, y: y, width: 40, height: 30)
+                button.frame = CGRect(x: dotX, y: y, width: buttonWidth, height: buttonHeight)
                 if let dotLayer = button.layer.sublayers?.first(where: { $0.name == "widthDot" }) {
-                    dotLayer.frame = CGRect(x: (40 - dotSizes[index]) / 2, y: (30 - dotSizes[index]) / 2, width: dotSizes[index], height: dotSizes[index])
+                    dotLayer.frame = CGRect(x: (buttonWidth - dotSizes[index]) / 2, y: (buttonHeight - dotSizes[index]) / 2, width: dotSizes[index], height: dotSizes[index])
                     dotLayer.cornerRadius = dotSizes[index] / 2
                     dotLayer.masksToBounds = true
                 }
-                dotX += 52
+                dotX += UIDevice.wy_screenWidth(50, WYBasisKitConfig.defaultScreenPixels)
             }
         }
         if fontSizeButtons.first?.isHidden == false {
-            var fontX = x + 14
+            var fontX = x + UIDevice.wy_screenWidth(14, WYBasisKitConfig.defaultScreenPixels)
             for button in fontSizeButtons {
-                button.frame = CGRect(x: fontX, y: y + 1, width: 40, height: 28)
-                fontX += 44
+                button.frame = CGRect(x: fontX, y: y + 1, width: buttonWidth, height: chipHeight)
+                fontX += UIDevice.wy_screenWidth(43, WYBasisKitConfig.defaultScreenPixels)
             }
         }
     }
@@ -721,9 +732,9 @@ public class WYImageEditorViewController: UIViewController {
             button.layer.sublayers?.first(where: { $0.name == "widthDot" })?.backgroundColor = dotColor.cgColor
         }
         let fontIndex = markerView.activeFontSizeIndex()
-        let fontSizes: [CGFloat] = [12, 16, 21, 27]
+        let fontSizes = [12, 15, 20, 26].map { UIFont.wy_fontSize(CGFloat($0), WYBasisKitConfig.defaultScreenPixels) }
         for (index, button) in fontSizeButtons.enumerated() {
-            let color: UIColor = index == fontIndex ? configuration.appearance.accentColor : .white
+            let color: UIColor = index == fontIndex ? configuration.appearance.accentColor : UIColor.white
             let attributes: [NSAttributedString.Key: Any] = [.font: UIFont.boldSystemFont(ofSize: fontSizes[index]), .foregroundColor: color]
             button.setAttributedTitle(NSAttributedString(string: "A", attributes: attributes), for: .normal)
         }

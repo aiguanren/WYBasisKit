@@ -434,8 +434,8 @@ class WYImageCropperView: UIView {
         }
         guard state == .began || state == .changed else { return }
 
-        let margin: CGFloat = 4
-        let minSize: CGFloat = 44
+        let margin = UIDevice.wy_screenWidth(4, WYBasisKitConfig.defaultScreenPixels)
+        let minSize = UIDevice.wy_screenWidth(41, WYBasisKitConfig.defaultScreenPixels)
         let maxWidth = bounds.width - margin * 2
         let maxHeight = bounds.height - margin * 2
         let start = dragStartBox
@@ -747,7 +747,7 @@ class WYImageCropOverlayView: UIView {
 
     /// 判断点落在哪个把手的热区(角把手优先半径30，四条边整条边可抓带宽18，好抓不误触)
     private func handleZone(at point: CGPoint) -> WYImageCropHandleZone {
-        let cornerRadius: CGFloat = 30
+        let cornerRadius = UIDevice.wy_screenWidth(28, WYBasisKitConfig.defaultScreenPixels)
         let corners: [(CGPoint, WYImageCropHandleZone)] = [
             (CGPoint(x: cropBox.minX, y: cropBox.minY), .topLeft),
             (CGPoint(x: cropBox.maxX, y: cropBox.minY), .topRight),
@@ -760,22 +760,22 @@ class WYImageCropOverlayView: UIView {
             }
         }
         // 边把手只认中点附近(把手之间的框线段留给整框拖动，框内区域还给图片供拖动捏合)
-        let edgeBand: CGFloat = 18
-        if abs(point.y - cropBox.minY) <= edgeBand, abs(point.x - cropBox.midX) <= 30 {
+        let edgeBand = UIDevice.wy_screenWidth(17, WYBasisKitConfig.defaultScreenPixels)
+        if abs(point.y - cropBox.minY) <= edgeBand, abs(point.x - cropBox.midX) <= cornerRadius {
             return .top
         }
-        if abs(point.y - cropBox.maxY) <= edgeBand, abs(point.x - cropBox.midX) <= 30 {
+        if abs(point.y - cropBox.maxY) <= edgeBand, abs(point.x - cropBox.midX) <= cornerRadius {
             return .bottom
         }
-        if abs(point.x - cropBox.minX) <= edgeBand, abs(point.y - cropBox.midY) <= 30 {
+        if abs(point.x - cropBox.minX) <= edgeBand, abs(point.y - cropBox.midY) <= cornerRadius {
             return .left
         }
-        if abs(point.x - cropBox.maxX) <= edgeBand, abs(point.y - cropBox.midY) <= 30 {
+        if abs(point.x - cropBox.maxX) <= edgeBand, abs(point.y - cropBox.midY) <= cornerRadius {
             return .right
         }
 
         // 把手之间的框线段拖着平移整个裁剪框(热区10pt比把手窄，框外贴线误触少)
-        let lineBand: CGFloat = 10
+        let lineBand = UIDevice.wy_screenWidth(9, WYBasisKitConfig.defaultScreenPixels)
         let nearVerticalLine = abs(point.x - cropBox.minX) <= lineBand || abs(point.x - cropBox.maxX) <= lineBand
         let nearHorizontalLine = abs(point.y - cropBox.minY) <= lineBand || abs(point.y - cropBox.maxY) <= lineBand
         if nearVerticalLine || nearHorizontalLine {
