@@ -702,7 +702,8 @@ public class WYImageEditorViewController: UIViewController {
             nextRowY += colorRowHeight
         }
         if configuration.showsStyleOptions {
-            layoutStyleRow(width: width, y: nextRowY, safeLeft: safeLeft, safeRight: safeRight, firstColumnCenter: firstColumnCenter, columnPitch: columnPitch)
+            let undoColumnLeft = startX + CGFloat(markerToolButtons.count) * columnPitch
+            layoutStyleRow(width: width, y: nextRowY, safeLeft: safeLeft, safeRight: safeRight, firstColumnCenter: firstColumnCenter, columnPitch: columnPitch, undoColumnLeft: undoColumnLeft)
         }
 
         // 工具按钮图标在上文字在下(用WYBasisKit的UIButton扩展排版，需在frame落定后调用)
@@ -712,7 +713,7 @@ public class WYImageEditorViewController: UIViewController {
     }
 
     /// 布局粗细字号档位行(划线语境多两个形态切换按钮，圆点大小示意粗细，字母A大小示意字号)
-    private func layoutStyleRow(width: CGFloat, y: CGFloat, safeLeft: CGFloat, safeRight: CGFloat, firstColumnCenter: CGFloat, columnPitch: CGFloat) {
+    private func layoutStyleRow(width: CGFloat, y: CGFloat, safeLeft: CGFloat, safeRight: CGFloat, firstColumnCenter: CGFloat, columnPitch: CGFloat, undoColumnLeft: CGFloat) {
 
         let chipWidth = UIDevice.wy_screenWidth(52, WYBasisKitConfig.defaultScreenPixels)
         let chipHeight = UIDevice.wy_screenHeight(27, WYBasisKitConfig.defaultScreenPixels)
@@ -742,11 +743,9 @@ public class WYImageEditorViewController: UIViewController {
             }
         }
         if !straightChipButton.isHidden {
-            // 两颗形态按钮拼成一个横跨第6-7列的双段胶囊，右缘贴住第8颗图标列右缘以内不出屏
-            let pairCenter = firstColumnCenter + CGFloat(5.5) * columnPitch
+            // 两颗形态按钮拼成双段胶囊，左缘与撤销按钮左缘对齐，右缘超屏时整体左移钳制
             let pairWidth = columnPitch + chipWidth
-            let pairRight = min(pairCenter + pairWidth / 2, width - safeRight - UIDevice.wy_screenWidth(4, WYBasisKitConfig.defaultScreenPixels))
-            let pairLeft = pairRight - pairWidth
+            let pairLeft = min(undoColumnLeft, width - safeRight - UIDevice.wy_screenWidth(4, WYBasisKitConfig.defaultScreenPixels) - pairWidth)
             straightChipButton.frame = CGRect(x: pairLeft, y: chipTop, width: pairWidth / 2, height: chipHeight)
             freeChipButton.frame = CGRect(x: pairLeft + pairWidth / 2, y: chipTop, width: pairWidth / 2, height: chipHeight)
         }
