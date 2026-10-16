@@ -94,6 +94,9 @@ class WYImageMarkerView: UIView {
     /// 选中状态变化回调(点选新建删除撤销后触发，编辑器用它刷新粗细字号颜色选择行)
     var onSelectionChanged: (() -> Void)?
 
+    /// 标记操作上报回调(用户新建删除编辑改样式时触发，编辑器记入统一撤销栈，撤销重做自身不重复上报)
+    var onMarkerOperation: (() -> Void)?
+
     /// 当前选中的标记类型(选中后点画布空白处拖动即生成对应标记，文本工具点空白处弹输入)
     var activeTool: WYImageMarkerType = .text
 
@@ -275,6 +278,7 @@ class WYImageMarkerView: UIView {
         selectedIndex = nil
         redoItems.removeAll()
         setNeedsDisplay()
+        onMarkerOperation?()
         onSelectionChanged?()
     }
 
@@ -529,6 +533,7 @@ class WYImageMarkerView: UIView {
             self.selectedIndex = self.items.count - 1
             self.redoItems.removeAll()
             self.setNeedsDisplay()
+            self.onMarkerOperation?()
             self.onSelectionChanged?()
         }
     }
@@ -542,16 +547,20 @@ class WYImageMarkerView: UIView {
             let textSize = (text as NSString).size(withAttributes: self.items[itemIndex].textAttributes)
             self.items[itemIndex].frame.size = CGSize(width: textSize.width, height: ceil(textSize.height))
             self.setNeedsDisplay()
+            self.onMarkerOperation?()
         }
     }
 
     /// 拖拽结束收尾(尺寸太小的标记直接丢弃，避免误触留下小点)
     private func finishDragging() {
+        var createdNewMarker = false
         if dragMode == .createShape, let index = selectedIndex, items.indices.contains(index) {
             let scale = displayTransform().scale
             if items[index].frame.width * scale < 10 || items[index].frame.height * scale < 10 {
                 items.remove(at: index)
                 selectedIndex = nil
+            } else {
+                createdNewMarker = true
             }
         }
         if dragMode == .createArrow, let index = selectedIndex, items.indices.contains(index) {
@@ -559,6 +568,8 @@ class WYImageMarkerView: UIView {
             if hypot(item.endPoint.x - item.startPoint.x, item.endPoint.y - item.startPoint.y) * displayTransform().scale < 14 {
                 items.remove(at: index)
                 selectedIndex = nil
+            } else {
+                createdNewMarker = true
             }
         }
         if dragMode == .createLine, let index = selectedIndex, items.indices.contains(index) {
@@ -568,7 +579,13 @@ class WYImageMarkerView: UIView {
             if screenDiagonal < 12 {
                 items.remove(at: index)
                 selectedIndex = nil
+            } else {
+                createdNewMarker = true
             }
+        }
+        if createdNewMarker {
+            redoItems.removeAll()
+            onMarkerOperation?()
         }
         dragMode = .none
         dragStartItem = nil

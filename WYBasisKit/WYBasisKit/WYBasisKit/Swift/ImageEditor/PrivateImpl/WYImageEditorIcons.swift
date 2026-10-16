@@ -61,43 +61,41 @@ enum WYImageEditorIcon {
         }
     }
 
-    /// 撤销图标(iOS标记工具栏样式，右侧水平引入线接逆时针大弧，左端沿切线的三角箭头)
+    /// 撤销图标(照iOS标记工具栏截图，约204°弧从右上经底部到左下，无引入线，左端三角箭头指向左下)
     static var undo: UIImage {
         return drawIcon { context in
-            let arc = UIBezierPath(arcCenter: CGPoint(x: 12, y: 13.5), radius: 7, startAngle: -0.25, endAngle: .pi + 0.45, clockwise: true)
-            let startPoint = arc.currentPoint
-            let path = UIBezierPath()
-            path.move(to: CGPoint(x: 21.5, y: startPoint.y - 1.5))
-            path.addLine(to: startPoint)
-            path.append(arc)
-            path.stroke()
-            let endPoint = arc.currentPoint
+            let center = CGPoint(x: 12, y: 12.5)
+            let radius: CGFloat = 6.8
+            let startAngle: CGFloat = -0.7
+            let endAngle: CGFloat = .pi - 0.28
+            let arc = UIBezierPath(arcCenter: center, radius: radius, startAngle: startAngle, endAngle: endAngle, clockwise: true)
+            arc.stroke()
+            let tip = CGPoint(x: center.x + radius * cos(endAngle), y: center.y + radius * sin(endAngle))
             let head = UIBezierPath()
-            head.move(to: CGPoint(x: endPoint.x - 1.6, y: endPoint.y + 5.2))
-            head.addLine(to: CGPoint(x: endPoint.x + 3.8, y: endPoint.y - 1.4))
-            head.addLine(to: CGPoint(x: endPoint.x + 4.6, y: endPoint.y + 4.8))
+            head.move(to: CGPoint(x: tip.x - 1.7, y: tip.y + 2.0))
+            head.addLine(to: CGPoint(x: tip.x + 3.4, y: tip.y - 1.2))
+            head.addLine(to: CGPoint(x: tip.x + 3.9, y: tip.y + 4.6))
             head.close()
             head.fill()
         }
     }
 
-    /// 重做图标(撤销的镜像，左侧引入线接顺时针大弧，右端切向箭头)
+    /// 重做图标(撤销的水平镜像，约204°弧从左上经底部到右下，右端箭头指向右下)
     static var redo: UIImage {
         return drawIcon { context in
             context.translateBy(x: 24, y: 0)
             context.scaleBy(x: -1, y: 1)
-            let arc = UIBezierPath(arcCenter: CGPoint(x: 12, y: 13.5), radius: 7, startAngle: -0.25, endAngle: .pi + 0.45, clockwise: true)
-            let startPoint = arc.currentPoint
-            let path = UIBezierPath()
-            path.move(to: CGPoint(x: 21.5, y: startPoint.y - 1.5))
-            path.addLine(to: startPoint)
-            path.append(arc)
-            path.stroke()
-            let endPoint = arc.currentPoint
+            let center = CGPoint(x: 12, y: 12.5)
+            let radius: CGFloat = 6.8
+            let startAngle: CGFloat = -0.7
+            let endAngle: CGFloat = .pi - 0.28
+            let arc = UIBezierPath(arcCenter: center, radius: radius, startAngle: startAngle, endAngle: endAngle, clockwise: true)
+            arc.stroke()
+            let tip = CGPoint(x: center.x + radius * cos(endAngle), y: center.y + radius * sin(endAngle))
             let head = UIBezierPath()
-            head.move(to: CGPoint(x: endPoint.x - 1.6, y: endPoint.y + 5.2))
-            head.addLine(to: CGPoint(x: endPoint.x + 3.8, y: endPoint.y - 1.4))
-            head.addLine(to: CGPoint(x: endPoint.x + 4.6, y: endPoint.y + 4.8))
+            head.move(to: CGPoint(x: tip.x - 1.7, y: tip.y + 2.0))
+            head.addLine(to: CGPoint(x: tip.x + 3.4, y: tip.y - 1.2))
+            head.addLine(to: CGPoint(x: tip.x + 3.9, y: tip.y + 4.6))
             head.close()
             head.fill()
         }

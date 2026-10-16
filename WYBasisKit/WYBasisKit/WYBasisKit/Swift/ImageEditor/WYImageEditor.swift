@@ -455,6 +455,15 @@ public class WYImageEditorViewController: UIViewController {
     /// 当前是否处于标记模式(false表示裁剪模式)
     private var isMarkMode = false
 
+    /// 统一撤销栈(true为标记操作false为裁剪操作，按操作先后记录)
+    private var operationStack: [Bool] = []
+
+    /// 统一重做栈(撤销时压入，重做时弹出，任何新操作清空)
+    private var redoOperationStack: [Bool] = []
+
+    /// 撤销重做与一键清除的内部恢复动作不重复记入撤销栈
+    private var suppressOperationRecording = false
+
     override public func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = configuration.appearance.canvasBackgroundColor
@@ -504,10 +513,17 @@ public class WYImageEditorViewController: UIViewController {
         // 自由模式松手应用裁剪后，标记画布跟着换基准并平移全部标记坐标
         cropperView.onCropCommitted = { [weak self] croppedImage, region in
             self?.markerView.applyCroppedBase(croppedImage, region: region)
+            self?.recordOperation(false)
             self?.refreshTitleForPendingCrop()
         }
         cropperView.onCropReverted = { [weak self] previousImage, region in
             self?.markerView.revertCroppedBase(previousImage, region: region)
+        }
+        cropperView.onCropRedone = { [weak self] croppedImage, region in
+            self?.markerView.applyCroppedBase(croppedImage, region: region)
+        }
+        markerView.onMarkerOperation = { [weak self] in
+            self?.recordOperation(true)
         }
 
         markerView.setup(image: image,
@@ -706,18 +722,17 @@ public class WYImageEditorViewController: UIViewController {
         }
     }
 
-    /// 点还原(逐步回退，每次撤销最近一步操作：先撤最后一个标记，标记撤完再回退上一次裁剪，一路退回原图)
+    /// 点还原(一键清除且按页面区分语义：裁剪页面恢复图片至裁剪前全部裁剪回退标记保留，标记页面清除全部标记裁剪保留)
     @objc private func revertButtonTapped() {
-        if markerView.hasMarkers {
-            markerView.undoLastMarker()
-            return
+        suppressOperationRecording = true
+        if isMarkMode {
+            markerView.removeAllMarkers()
+        } else {
+            _ = cropperView.undoAllCrops()
         }
-        if cropperView.undoLastCrop() {
-            if isMarkMode {
-                refreshMarkerDisplayRegion()
-            }
-            return
-        }
+        operationStack.removeAll()
+        redoOperationStack.removeAll()
+        suppressOperationRecording = false
     }
 
     /// 点完成(按当前裁剪范围与标记合成成品图，回调后关闭编辑器)
@@ -740,6 +755,13 @@ public class WYImageEditorViewController: UIViewController {
     @objc private func markModeButtonTapped() {
         guard !isMarkMode else { return }
         setMarkMode(true)
+    }
+
+    /// 记录一步用户操作进统一撤销栈(内部恢复动作不记录)
+    private func recordOperation(_ isMarkerOperation: Bool) {
+        guard !suppressOperationRecording else { return }
+        operationStack.append(isMarkerOperation)
+        redoOperationStack.removeAll()
     }
 
     /// 刷新顶部标题按钮(仅裁剪模式显示裁剪确认按钮，标记模式整颗隐藏不占位)
@@ -831,14 +853,30 @@ public class WYImageEditorViewController: UIViewController {
         markerView.deselectMarker()
     }
 
-    /// 点撤销(撤掉最后画的那一个标记)
+    /// 点撤销(统一时间线逐步回退，标记与裁剪按操作先后撤销)
     @objc private func undoButtonTapped() {
-        markerView.undoLastMarker()
+        guard let isMarkerOperation = operationStack.popLast() else { return }
+        redoOperationStack.append(isMarkerOperation)
+        suppressOperationRecording = true
+        if isMarkerOperation {
+            markerView.undoLastMarker()
+        } else {
+            _ = cropperView.undoLastCrop()
+        }
+        suppressOperationRecording = false
     }
 
-    /// 点重做(恢复最近一次撤销的标记)
+    /// 点重做(统一时间线逐步恢复，与撤销对称)
     @objc private func redoButtonTapped() {
-        markerView.redoLastMarker()
+        guard let isMarkerOperation = redoOperationStack.popLast() else { return }
+        operationStack.append(isMarkerOperation)
+        suppressOperationRecording = true
+        if isMarkerOperation {
+            markerView.redoLastMarker()
+        } else {
+            _ = cropperView.redoCrop()
+        }
+        suppressOperationRecording = false
     }
 
     /// 点直线或自由按钮(把划线形态切到点的那边，选中的划线也会跟着转换)

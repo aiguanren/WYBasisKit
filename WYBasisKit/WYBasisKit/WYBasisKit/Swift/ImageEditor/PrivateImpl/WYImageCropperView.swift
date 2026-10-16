@@ -54,8 +54,14 @@ class WYImageCropperView: UIView {
     /// 裁剪历史栈(每次应用裁剪压入旧基准图与本次裁掉区域，逐步还原时回退用)
     private var cropHistory: [(image: UIImage, region: CGRect)] = []
 
+    /// 裁剪重做栈(回退裁剪时压入被撤销的裁后图与区域，重做时恢复；新应用裁剪时清空)
+    private var cropRedoStack: [(image: UIImage, region: CGRect)] = []
+
     /// 裁剪回退回调(参数为回退到的旧基准图与当初裁掉的区域，编辑器用它把标记坐标平移回去)
     var onCropReverted: ((UIImage, CGRect) -> Void)?
+
+    /// 裁剪重做回调(参数为恢复的裁后图与当初裁掉的区域，编辑器用它把标记坐标再平移过去)
+    var onCropRedone: ((UIImage, CGRect) -> Void)?
 
     /// 界面外观(遮罩框线网格与把手样式从这里取)
     var appearance = WYImageEditorAppearance()
@@ -145,6 +151,7 @@ class WYImageCropperView: UIView {
         cropImage = originalImage
         hasUserAdjustedCropBox = false
         cropHistory.removeAll()
+        cropRedoStack.removeAll()
         rebuildContentView(with: originalImage)
         applyInitialLayout()
     }
@@ -247,6 +254,7 @@ class WYImageCropperView: UIView {
     func undoLastCrop() -> Bool {
         guard let last = cropHistory.last else { return false }
         cropHistory.removeLast()
+        cropRedoStack.append((image: cropImage, region: last.region))
         cropImage = last.image
         hasUserAdjustedCropBox = false
 
@@ -257,6 +265,31 @@ class WYImageCropperView: UIView {
         scrollView.layoutIfNeeded()
         CATransaction.commit()
         onCropReverted?(cropImage, last.region)
+        return true
+    }
+
+    /// 重做最近一次回退的裁剪(恢复裁后图，标记坐标由编辑器经回调再平移过去，返回false表示没有可重做的)
+    func redoCrop() -> Bool {
+        guard let last = cropRedoStack.popLast() else { return false }
+        cropHistory.append((image: cropImage, region: last.region))
+        cropImage = last.image
+        hasUserAdjustedCropBox = false
+
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        rebuildContentView(with: cropImage)
+        applyInitialLayout()
+        scrollView.layoutIfNeeded()
+        CATransaction.commit()
+        onCropRedone?(cropImage, last.region)
+        return true
+    }
+
+    /// 一次回退全部裁剪(图片恢复到刚进来时的原图，标记坐标逐层平移回去，返回false表示没有裁剪历史)
+    func undoAllCrops() -> Bool {
+        guard !cropHistory.isEmpty else { return false }
+        while undoLastCrop() { }
+        cropRedoStack.removeAll()
         return true
     }
 
@@ -320,6 +353,7 @@ class WYImageCropperView: UIView {
         CATransaction.commit()
 
         cropHistory.append((image: oldBaseImage, region: regionInOldBase))
+        cropRedoStack.removeAll()
 
         // 落定保护(下一个主线程周期核对，真实手势时序里若有任何环节把框改回旧值或漏刷遮罩，强制纠正回裁剪后的满图状态)
         let settledBox = cropBox
