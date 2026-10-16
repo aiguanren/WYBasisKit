@@ -92,6 +92,9 @@ public struct WYImageEditorAppearance {
     /// 字号档位的提示文案(nil用本地化默认，文案含换行时上下两行显示)
     public var fontSizeHintText: String?
 
+    /// 档位提示文本颜色(粗细与字号档位行首的两行小字)
+    public var hintTextColor: UIColor = UIColor(white: 1, alpha: 0.62)
+
     /// 模式分段控件底色(裁剪标记两个胶囊所在的圆角容器)
     public var segmentedBackgroundColor: UIColor = UIColor(white: 1, alpha: 0.12)
 
@@ -340,7 +343,7 @@ public class WYImageEditorViewController: UIViewController {
         return bar
     }()
 
-    /// 工具行横向滚动容器(按钮多到一行放不下时左右滑动查看，放得下时内容整体居中)
+    /// 工具行横向滚动容器(按钮多到一行放不下时左右滑动查看，放得下时与颜色档位行统一左对齐)
     private lazy var toolRowScrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.showsHorizontalScrollIndicator = false
@@ -392,7 +395,7 @@ public class WYImageEditorViewController: UIViewController {
     /// 档位提示文本(粗细档前显示画笔粗细、字号档前显示文本字号，随工具语境切换且文案可配置)
     private lazy var styleHintLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor(white: 1, alpha: 0.62)
+        label.textColor = configuration.appearance.hintTextColor
         label.font = .systemFont(ofSize: UIFont.wy_fontSize(10, WYBasisKitConfig.defaultScreenPixels))
         label.numberOfLines = 0
         label.textAlignment = .center
@@ -656,7 +659,7 @@ public class WYImageEditorViewController: UIViewController {
         let toolCount = markerToolButtons.count + 3
         let itemSize = UIDevice.wy_screenWidth(40, WYBasisKitConfig.defaultScreenPixels)
         let rowHeight = UIDevice.wy_screenHeight(54, WYBasisKitConfig.defaultScreenPixels)
-        let itemTop = UIDevice.wy_screenHeight(6, WYBasisKitConfig.defaultScreenPixels)
+        let itemTop = (rowHeight - itemSize) / 2
         let edgePadding = UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
         let preferredGap = UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels)
         // 按钮间距在最小值到期望值之间弹性收缩，屏宽够时整行放得下不滚动，放不下才贴边排开靠左右滑动查看
@@ -666,7 +669,8 @@ public class WYImageEditorViewController: UIViewController {
         let fitsInRow = flexGap >= minimumGap
         let itemGap = fitsInRow ? min(flexGap, preferredGap) : preferredGap
         let contentWidth = CGFloat(toolCount) * itemSize + CGFloat(toolCount - 1) * itemGap
-        let startX = fitsInRow ? safeLeft + (availableWidth - contentWidth) / 2 : safeLeft + edgePadding
+        let rowLeading = safeLeft + edgePadding
+        let startX = rowLeading
         toolRowScrollView.frame = CGRect(x: 0, y: 0, width: width, height: rowHeight)
         toolRowScrollView.contentSize = CGSize(width: max(startX + contentWidth + safeRight + edgePadding, width), height: rowHeight)
         var x = startX
@@ -682,14 +686,15 @@ public class WYImageEditorViewController: UIViewController {
 
         var nextRowY: CGFloat = rowHeight
         if configuration.showsColorOptions {
+            let colorRowHeight = UIDevice.wy_screenHeight(37, WYBasisKitConfig.defaultScreenPixels)
             let colorDiameter = UIDevice.wy_screenWidth(25, WYBasisKitConfig.defaultScreenPixels)
-            let colorSpacing = (width - safeLeft - safeRight - CGFloat(colorButtons.count) * colorDiameter) / CGFloat(colorButtons.count + 1)
-            var colorX = safeLeft + colorSpacing
+            let colorGap = UIDevice.wy_screenWidth(18, WYBasisKitConfig.defaultScreenPixels)
+            var colorX = safeLeft + edgePadding
             for button in colorButtons {
-                button.frame = CGRect(x: colorX, y: nextRowY, width: colorDiameter, height: colorDiameter)
-                colorX += colorDiameter + colorSpacing
+                button.frame = CGRect(x: colorX, y: nextRowY + (colorRowHeight - colorDiameter) / 2, width: colorDiameter, height: colorDiameter)
+                colorX += colorDiameter + colorGap
             }
-            nextRowY += UIDevice.wy_screenHeight(37, WYBasisKitConfig.defaultScreenPixels)
+            nextRowY += colorRowHeight
         }
         if configuration.showsStyleOptions {
             layoutStyleRow(width: width, y: nextRowY, safeLeft: safeLeft, safeRight: safeRight)
@@ -708,21 +713,24 @@ public class WYImageEditorViewController: UIViewController {
         let chipHeight = UIDevice.wy_screenHeight(27, WYBasisKitConfig.defaultScreenPixels)
         let buttonWidth = UIDevice.wy_screenWidth(39, WYBasisKitConfig.defaultScreenPixels)
         let buttonHeight = UIDevice.wy_screenHeight(29, WYBasisKitConfig.defaultScreenPixels)
-        var x = safeLeft + UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels)
-        let hintWidth = UIDevice.wy_screenWidth(36, WYBasisKitConfig.defaultScreenPixels)
-        styleHintLabel.frame = CGRect(x: x, y: y + 1, width: hintWidth, height: buttonHeight)
-        x += hintWidth + UIDevice.wy_screenWidth(6, WYBasisKitConfig.defaultScreenPixels)
+        let rowLeading = safeLeft + UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
+        let chipTop = y + (UIDevice.wy_screenHeight(37, WYBasisKitConfig.defaultScreenPixels) - chipHeight) / 2
+        let buttonTop = y + (UIDevice.wy_screenHeight(37, WYBasisKitConfig.defaultScreenPixels) - buttonHeight) / 2
+        var x = rowLeading
+        let hintWidth = UIDevice.wy_screenWidth(30, WYBasisKitConfig.defaultScreenPixels)
+        styleHintLabel.frame = CGRect(x: x, y: buttonTop, width: hintWidth, height: buttonHeight)
+        x += hintWidth + UIDevice.wy_screenWidth(4, WYBasisKitConfig.defaultScreenPixels)
         if !straightChipButton.isHidden {
-            straightChipButton.frame = CGRect(x: x, y: y + 1, width: chipWidth, height: chipHeight)
-            freeChipButton.frame = CGRect(x: x + UIDevice.wy_screenWidth(56, WYBasisKitConfig.defaultScreenPixels), y: y + 1, width: chipWidth, height: chipHeight)
+            straightChipButton.frame = CGRect(x: x, y: chipTop, width: chipWidth, height: chipHeight)
+            freeChipButton.frame = CGRect(x: x + UIDevice.wy_screenWidth(56, WYBasisKitConfig.defaultScreenPixels), y: chipTop, width: chipWidth, height: chipHeight)
             x += UIDevice.wy_screenWidth(126, WYBasisKitConfig.defaultScreenPixels)
         }
 
         let dotSizes = [10, 15, 21, 29].map { UIDevice.wy_screenWidth(CGFloat($0), WYBasisKitConfig.defaultScreenPixels) }
         if lineWidthDotButtons.first?.isHidden == false {
-            var dotX = x + UIDevice.wy_screenWidth(14, WYBasisKitConfig.defaultScreenPixels)
+            var dotX = x
             for (index, button) in lineWidthDotButtons.enumerated() {
-                button.frame = CGRect(x: dotX, y: y, width: buttonWidth, height: buttonHeight)
+                button.frame = CGRect(x: dotX, y: buttonTop, width: buttonWidth, height: buttonHeight)
                 if let dotLayer = button.layer.sublayers?.first(where: { $0.name == "widthDot" }) {
                     dotLayer.frame = CGRect(x: (buttonWidth - dotSizes[index]) / 2, y: (buttonHeight - dotSizes[index]) / 2, width: dotSizes[index], height: dotSizes[index])
                     dotLayer.cornerRadius = dotSizes[index] / 2
@@ -732,9 +740,9 @@ public class WYImageEditorViewController: UIViewController {
             }
         }
         if fontSizeButtons.first?.isHidden == false {
-            var fontX = x + UIDevice.wy_screenWidth(14, WYBasisKitConfig.defaultScreenPixels)
+            var fontX = x
             for button in fontSizeButtons {
-                button.frame = CGRect(x: fontX, y: y + 1, width: buttonWidth, height: chipHeight)
+                button.frame = CGRect(x: fontX, y: buttonTop, width: buttonWidth, height: chipHeight)
                 fontX += UIDevice.wy_screenWidth(43, WYBasisKitConfig.defaultScreenPixels)
             }
         }

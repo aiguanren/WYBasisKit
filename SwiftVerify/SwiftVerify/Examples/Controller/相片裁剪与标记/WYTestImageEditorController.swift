@@ -189,6 +189,7 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
             appearance.iconButtonHighlightedColor = .systemYellow
             appearance.lineWidthHintText = "笔刷\n宽度"
             appearance.fontSizeHintText = "字体\n大小"
+            appearance.hintTextColor = .systemYellow
             configuration.appearance = appearance
         }
         configuration.allowsImageZoom = allowsImageZoom

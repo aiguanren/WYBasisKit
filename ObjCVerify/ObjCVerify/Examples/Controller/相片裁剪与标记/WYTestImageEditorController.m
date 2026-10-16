@@ -334,6 +334,7 @@
         appearance.iconButtonHighlightedColor = UIColor.systemYellowColor;
         appearance.lineWidthHintText = @"笔刷\n宽度";
         appearance.fontSizeHintText = @"字体\n大小";
+        appearance.hintTextColor = UIColor.systemYellowColor;
         configuration.appearance = appearance;
     }
     configuration.allowsImageZoom = self.allowsImageZoom;

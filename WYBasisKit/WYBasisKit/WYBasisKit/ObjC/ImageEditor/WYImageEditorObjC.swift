@@ -72,6 +72,9 @@ import WYBasisKitSwift
     /// 字号档位的提示文案(nil用本地化默认，文案含换行时上下两行显示)
     public var fontSizeHintText: String?
 
+    /// 档位提示文本颜色(粗细与字号档位行首的两行小字)
+    public var hintTextColor: UIColor?
+
     /// 模式分段控件底色(裁剪标记两个胶囊所在的圆角容器)
     public var segmentedBackgroundColor: UIColor?
 
@@ -236,6 +239,7 @@ import WYBasisKitSwift
                 if let color = bridgeAppearance.iconButtonHighlightedColor { appearance.iconButtonHighlightedColor = color }
                 if let text = bridgeAppearance.lineWidthHintText, !text.isEmpty { appearance.lineWidthHintText = text }
                 if let text = bridgeAppearance.fontSizeHintText, !text.isEmpty { appearance.fontSizeHintText = text }
+                if let color = bridgeAppearance.hintTextColor { appearance.hintTextColor = color }
                 if let color = bridgeAppearance.segmentedBackgroundColor { appearance.segmentedBackgroundColor = color }
                 if let color = bridgeAppearance.segmentedSelectedBackgroundColor { appearance.segmentedSelectedBackgroundColor = color }
                 if let color = bridgeAppearance.segmentedSelectedTextColor { appearance.segmentedSelectedTextColor = color }
