@@ -133,6 +133,7 @@ class WYImageCropperView: UIView {
         self.zoomEnabled = zoomEnabled
         self.initialZoomMultiplier = initialZoomMultiplier
         overlayView.appearance = appearance
+        overlayView.scrollView = scrollView
         scrollView.addSubview(imageView)
         addSubview(scrollView)
         addSubview(overlayView)
@@ -533,6 +534,9 @@ class WYImageCropOverlayView: UIView {
     /// 界面外观(遮罩框线网格与把手样式)
     var appearance = WYImageEditorAppearance()
 
+    /// 下层滚动视图(正在拖拽捏合图片时框线移框手势让位，防止操作图片误动框)
+    weak var scrollView: UIScrollView?
+
     /// 当前裁剪框
     private var cropBox: CGRect = .zero
 
@@ -652,6 +656,16 @@ class WYImageCropOverlayView: UIView {
         }
     }
 
+    /// 滚动视图正在拖拽或捏合图片时框线移框手势不启动(捏合有一指碰到框线热区也不误动框)
+    override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        if gestureRecognizer === panGesture, let scroll = scrollView {
+            if scroll.isTracking || scroll.isZooming || scroll.isDecelerating || scroll.isDragging {
+                return false
+            }
+        }
+        return super.gestureRecognizerShouldBegin(gestureRecognizer)
+    }
+
     /// 取消进行中的把手拖拽手势(应用裁剪前调用，手势强置失败立即结束)
     func cancelActivePan() {
         if panGesture.isEnabled {
@@ -723,9 +737,10 @@ class WYImageCropOverlayView: UIView {
             return .right
         }
 
-        // 把手之间的框线段拖着平移整个裁剪框(框内与框外都还给图片，放大缩小随时可操作)
-        let nearVerticalLine = abs(point.x - cropBox.minX) <= edgeBand || abs(point.x - cropBox.maxX) <= edgeBand
-        let nearHorizontalLine = abs(point.y - cropBox.minY) <= edgeBand || abs(point.y - cropBox.maxY) <= edgeBand
+        // 把手之间的框线段拖着平移整个裁剪框(热区10pt比把手窄，框外贴线误触少)
+        let lineBand: CGFloat = 10
+        let nearVerticalLine = abs(point.x - cropBox.minX) <= lineBand || abs(point.x - cropBox.maxX) <= lineBand
+        let nearHorizontalLine = abs(point.y - cropBox.minY) <= lineBand || abs(point.y - cropBox.maxY) <= lineBand
         if nearVerticalLine || nearHorizontalLine {
             return .boxBody
         }
