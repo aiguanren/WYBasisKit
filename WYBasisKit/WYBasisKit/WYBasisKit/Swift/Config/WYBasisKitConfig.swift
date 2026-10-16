@@ -44,7 +44,7 @@ public struct WYRatio {
 public struct WYBasisKitConfig {
     
     /// 设置默认屏幕分辨率
-    @MainActor public static var defaultScreenPixels: WYScreenPixels = WYScreenPixels(width: 390, height: 844)
+    nonisolated(unsafe) public static var defaultScreenPixels: WYScreenPixels = WYScreenPixels(width: 390, height: 844)
     
     /// 设置字号适配的最大最小比率数
     public static var fontRatio: WYRatio = WYRatio(min: 0.5, max: 1.5)
