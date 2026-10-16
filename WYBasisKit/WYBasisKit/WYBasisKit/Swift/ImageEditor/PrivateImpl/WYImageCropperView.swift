@@ -496,18 +496,12 @@ extension WYImageCropperView: UIScrollViewDelegate {
         return imageView
     }
 
-    /// 拖动图片结束(无惯性)，若框悬到图片外一次性钳回(交互进行中框保持画布位置不动)
+    /// 拖动图片结束(框在画布上的位置只由用户拖框的手决定，拖图捏合绝不挪框，框悬到图外时出图交集自动裁掉空区)
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        if fixedOutputSize == nil, !decelerate {
-            clampCropBoxToImage()
-        }
     }
 
-    /// 拖动惯性滚动结束，若框悬到图片外一次性钳回
+    /// 拖动惯性滚动结束(同上不挪框)
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        if fixedOutputSize == nil {
-            clampCropBoxToImage()
-        }
     }
 
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
@@ -516,11 +510,10 @@ extension WYImageCropperView: UIScrollViewDelegate {
         }
     }
 
-    /// 缩放结束后图片比画布小时重新居中，若框悬到图片外一次性钳回
+    /// 缩放结束后图片比画布小时重新居中(不挪框)
     func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
         if fixedOutputSize == nil {
             centerContentWithInset()
-            clampCropBoxToImage()
         }
     }
 }
