@@ -9,24 +9,6 @@
 import UIKit
 import WYBasisKitSwift
 
-/// 编辑器回调delegate(与Block回调二选一或同时使用)
-@objc public protocol WYImageEditorDelegate: NSObjectProtocol {
-
-    /**
-     * 编辑完成(点完成按钮时回调，成品图已按裁剪形状与标记绘制好)
-     * - Parameters:
-     *   - editor: 回调来源编辑器
-     *   - image: 编辑成品图(圆形裁剪时是四角透明的PNG)
-     */
-    @objc optional func wy_imageEditor(_ editor: WYImageEditorObjC, didFinishEditing image: UIImage)
-
-    /**
-     * 取消编辑(点取消按钮时回调)
-     * - Parameter editor: 回调来源编辑器
-     */
-    @objc optional func wy_imageEditorDidCancel(_ editor: WYImageEditorObjC)
-}
-
 /// OC侧界面外观配置(属性含义与WYImageEditorAppearance一字不差；颜色数组传nil表示该项用默认值，数值传负数表示该项用默认值，markerPalette传空数组时界面不显示颜色行)
 @objcMembers public class WYImageEditorAppearanceObjC: NSObject {
 
@@ -150,8 +132,8 @@ import WYBasisKitSwift
 @objc(WYImageEditor)
 @objcMembers public class WYImageEditorObjC: NSObject {
 
-    /// 编辑回调delegate(与editHandler同时设置时两边都会回调)
-    public weak var delegate: WYImageEditorDelegate?
+    /// 编辑回调delegate(Swift与OC共用的WYImageEditorViewControllerDelegate，与editHandler同时设置时两边都会回调)
+    public weak var delegate: WYImageEditorViewControllerDelegate?
 
     /// 编辑结果Block(编辑成成品图回调图片，取消回调nil；与delegate同时设置时两边都会回调)
     public var editHandler: ((UIImage?) -> Void)?
@@ -167,13 +149,12 @@ import WYBasisKitSwift
     public func showEditor(withImage image: UIImage, from viewController: UIViewController, configuration: WYImageEditorConfigurationObjC?) {
         let editor = WYImageEditorViewController(image: image, configuration: WYImageEditorObjC.convertConfiguration(configuration))
 
-        // 强持有自身到编辑器关闭为止，中途不会被释放掉导致回调丢失
+        // delegate直接桥接到编辑器共用协议(编辑器回调原生送达)，editHandler走Block路
+        editor.editorDelegate = delegate
         editor.onFinish = { resultImage in
-            self.delegate?.wy_imageEditor?(self, didFinishEditing: resultImage)
             self.editHandler?(resultImage)
         }
         editor.onCancel = {
-            self.delegate?.wy_imageEditorDidCancel?(self)
             self.editHandler?(nil)
         }
         editor.modalPresentationStyle = .fullScreen

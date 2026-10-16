@@ -20,7 +20,7 @@
 
 @end
 
-@interface WYTestImageEditorController () <UITableViewDelegate, UITableViewDataSource, WYImageEditorDelegate>
+@interface WYTestImageEditorController () <UITableViewDelegate, UITableViewDataSource, WYImageEditorViewControllerDelegate>
 
 /// 裁剪形状(矩形或圆形)
 @property (nonatomic, assign) WYImageCropShape cropShape;
@@ -604,11 +604,11 @@
 
 #pragma mark - WYImageEditorDelegate
 
-- (void)wy_imageEditor:(WYImageEditor *)editor didFinishEditingImage:(UIImage *)image {
+- (void)wy_imageEditorViewController:(WYImageEditorViewController *)editor didFinishEditingImage:(UIImage *)image {
     [self handleResult:image source:@"Delegate方式"];
 }
 
-- (void)wy_imageEditorDidCancel:(WYImageEditor *)editor {
+- (void)wy_imageEditorViewControllerDidCancel:(WYImageEditorViewController *)editor {
     [self handleResult:nil source:@"Delegate方式"];
 }
 

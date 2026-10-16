@@ -152,22 +152,25 @@ public struct WYImageEditorConfiguration {
     public init() {}
 }
 
-/// 编辑器完成与取消的回调(delegate方式，与Block回调二选一或同时使用)
-public protocol WYImageEditorViewControllerDelegate: AnyObject {
+/// 编辑器完成与取消的回调(delegate方式，与Block回调二选一或同时使用，Swift与OC共用这一份协议)
+@objc public protocol WYImageEditorViewControllerDelegate {
 
     /**
      * 编辑完成(点完成按钮时回调，成品图已按裁剪形状与标记绘制好)
-     * - Parameters:
-     *   - editor: 回调来源编辑器
-     *   - image: 编辑成品图(圆形裁剪时是四角透明的PNG)
+     *
+     * @param editor 回调来源编辑器
+     * @param image  编辑成品图(圆形裁剪时是四角透明的PNG)
      */
-    func wy_imageEditorViewController(_ editor: WYImageEditorViewController, didFinishEditing image: UIImage)
+    @objc(wy_imageEditorViewController:didFinishEditingImage:)
+    optional func wy_imageEditorViewController(_ editor: WYImageEditorViewController, didFinishEditing image: UIImage)
 
     /**
      * 取消编辑(点取消按钮或侧滑关闭时回调)
-     * - Parameter editor: 回调来源编辑器
+     *
+     * @param editor 回调来源编辑器
      */
-    func wy_imageEditorViewControllerDidCancel(_ editor: WYImageEditorViewController)
+    @objc(wy_imageEditorViewControllerDidCancel:)
+    optional func wy_imageEditorViewControllerDidCancel(_ editor: WYImageEditorViewController)
 }
 
 /**
@@ -699,7 +702,7 @@ public class WYImageEditorViewController: UIViewController {
         dismiss(animated: true) { [weak self] in
             guard let self = self else { return }
             self.onCancel?()
-            self.editorDelegate?.wy_imageEditorViewControllerDidCancel(self)
+            self.editorDelegate?.wy_imageEditorViewControllerDidCancel?(self)
         }
     }
 
@@ -723,7 +726,7 @@ public class WYImageEditorViewController: UIViewController {
         dismiss(animated: true) { [weak self] in
             guard let self = self else { return }
             self.onFinish?(result)
-            self.editorDelegate?.wy_imageEditorViewController(self, didFinishEditing: result)
+            self.editorDelegate?.wy_imageEditorViewController?(self, didFinishEditing: result)
         }
     }
 
