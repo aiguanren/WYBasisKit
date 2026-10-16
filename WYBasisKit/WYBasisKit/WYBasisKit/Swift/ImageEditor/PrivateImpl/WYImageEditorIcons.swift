@@ -61,18 +61,17 @@ enum WYImageEditorIcon {
         }
     }
 
-    /// 撤销图标(左弯返回箭头，弯钩造型与刷新的回环箭头区分)
+    /// 撤销图标(上拱回钩箭头，回复图标的弯钩造型，撤回语义明确且与刷新的回环区分)
     static var undo: UIImage {
         return drawIcon { context in
             let path = UIBezierPath()
-            path.move(to: CGPoint(x: 21, y: 8))
-            path.addLine(to: CGPoint(x: 8, y: 8))
-            path.addQuadCurve(to: CGPoint(x: 8, y: 18), controlPoint: CGPoint(x: 8, y: 13))
+            path.move(to: CGPoint(x: 19.5, y: 16))
+            path.addQuadCurve(to: CGPoint(x: 7, y: 11), controlPoint: CGPoint(x: 12, y: 2.5))
             path.stroke()
             let head = UIBezierPath()
-            head.move(to: CGPoint(x: 8, y: 8))
-            head.addLine(to: CGPoint(x: 13, y: 4.8))
-            head.addLine(to: CGPoint(x: 13, y: 11.2))
+            head.move(to: CGPoint(x: 6.5, y: 11))
+            head.addLine(to: CGPoint(x: 12.5, y: 8.5))
+            head.addLine(to: CGPoint(x: 11.5, y: 14.5))
             head.close()
             head.fill()
         }

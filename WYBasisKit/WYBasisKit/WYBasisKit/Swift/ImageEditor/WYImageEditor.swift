@@ -104,12 +104,6 @@ public struct WYImageEditorAppearance {
     /// 选中态强调色(当前模式按钮、当前工具、生效档位圆点与字号的点亮色)
     public var accentColor: UIColor = .systemBlue
 
-    /// 工具行撤销按钮的说明文字颜色(默认淡白与工具按钮区分)
-    public var undoButtonTitleColor: UIColor = UIColor(white: 1, alpha: 0.72)
-
-    /// 工具行删除按钮的说明文字颜色(默认淡红提示危险操作)
-    public var deleteButtonTitleColor: UIColor = UIColor(red: 1, green: 0.45, blue: 0.45, alpha: 0.95)
-
     public init() {}
 }
 
@@ -425,12 +419,9 @@ public class WYImageEditorViewController: UIViewController {
         }
     }()
 
-    /// 撤销按钮(撤掉最后画的那一个标记，图文上下排说明文字颜色可配)
+    /// 撤销按钮(撤掉最后画的那一个标记，纯图标与创造类工具区分)
     private lazy var undoButton: UIButton = {
         let button = UIButton(type: .custom)
-        button.setTitle(WYLocalized("撤销", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
-        button.setTitleColor(configuration.appearance.undoButtonTitleColor, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 11)
         button.setImage(WYImageEditorIcon.undo, for: .normal)
         button.tintColor = .white
         button.imageView?.contentMode = .scaleAspectFit
@@ -438,12 +429,9 @@ public class WYImageEditorViewController: UIViewController {
         return button
     }()
 
-    /// 删除按钮(删掉当前选中的标记，图文上下排说明文字颜色可配)
+    /// 删除按钮(删掉当前选中的标记，纯图标与创造类工具区分)
     private lazy var deleteButton: UIButton = {
         let button = UIButton(type: .custom)
-        button.setTitle(WYLocalized("删除", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
-        button.setTitleColor(configuration.appearance.deleteButtonTitleColor, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 11)
         button.setImage(WYImageEditorIcon.trash, for: .normal)
         button.tintColor = .white
         button.imageView?.contentMode = .scaleAspectFit
@@ -627,8 +615,6 @@ public class WYImageEditorViewController: UIViewController {
         for button in markerToolButtons {
             button.wy_adjust(position: .imageTopTitleBottom, spacing: 2)
         }
-        undoButton.wy_adjust(position: .imageTopTitleBottom, spacing: 2)
-        deleteButton.wy_adjust(position: .imageTopTitleBottom, spacing: 2)
     }
 
     /// 布局粗细字号档位行(划线语境多两个形态切换按钮，圆点大小示意粗细，字母A大小示意字号)
