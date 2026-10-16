@@ -234,8 +234,8 @@ class WYImageCropperView: UIView {
                 cropBox = fitRect
             }
             scrollView.maximumZoomScale = zoomEnabled ? fitScale * 8 : fitScale
-            scrollView.zoomScale = min(max(fitScale * max(initialZoomMultiplier, 1), fitScale), scrollView.maximumZoomScale)
             updateMinimumZoomScale()
+            scrollView.zoomScale = min(max(fitScale * max(initialZoomMultiplier, 1), fitScale), scrollView.maximumZoomScale)
             centerContentWithInset()
         }
 
@@ -344,7 +344,6 @@ class WYImageCropperView: UIView {
     private func updateMinimumZoomScale() {
         guard fixedOutputSize == nil else { return }
         let coverBoxScale = max(cropBox.width / max(cropImage.size.width, 1), cropBox.height / max(cropImage.size.height, 1))
-        print("[WYDBG4] 更新最小缩放 coverBox=\(coverBoxScale) fit基线=\(baseFitScale) 框=\(cropBox.size) 图=\(cropImage.size) 当前zoom=\(scrollView.zoomScale)")
         scrollView.minimumZoomScale = max(baseFitScale, coverBoxScale)
         if scrollView.zoomScale < scrollView.minimumZoomScale {
             scrollView.zoomScale = scrollView.minimumZoomScale
@@ -510,12 +509,10 @@ extension WYImageCropperView: UIScrollViewDelegate {
         }
     }
 
-    func scrollViewWillBeginZooming(_ scrollView: UIScrollView, with view: UIView?) {
-        print("[WYDBG4] 开始捏合 zoom=\(scrollView.zoomScale) min=\(scrollView.minimumZoomScale) max=\(scrollView.maximumZoomScale) 固定模式=\(fixedOutputSize != nil)")
-    }
-
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
-        print("[WYDBG4] 捏合中 zoom=\(scrollView.zoomScale) min=\(scrollView.minimumZoomScale)")
+        if fixedOutputSize == nil, scrollView.zoomScale < scrollView.minimumZoomScale {
+            scrollView.zoomScale = scrollView.minimumZoomScale
+        }
     }
 
     /// 缩放结束后图片比画布小时重新居中，若框悬到图片外一次性钳回
