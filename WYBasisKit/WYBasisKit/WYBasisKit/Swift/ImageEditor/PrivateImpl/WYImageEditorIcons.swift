@@ -61,43 +61,70 @@ enum WYImageEditorIcon {
         }
     }
 
-    /// 撤销图标(照iOS标记工具栏截图，约204°弧从右上经底部到左下，无引入线，左端三角箭头指向左下)
+    /// 撤销图标(照官人撤销.png，扁长回复箭头，向左横线右端小弯钩上翘，左端开口V形箭头)
     static var undo: UIImage {
         return drawIcon { context in
-            let center = CGPoint(x: 12, y: 12.5)
-            let radius: CGFloat = 6.8
-            let startAngle: CGFloat = -0.7
-            let endAngle: CGFloat = .pi - 0.28
-            let arc = UIBezierPath(arcCenter: center, radius: radius, startAngle: startAngle, endAngle: endAngle, clockwise: true)
-            arc.stroke()
-            let tip = CGPoint(x: center.x + radius * cos(endAngle), y: center.y + radius * sin(endAngle))
+            let path = UIBezierPath()
+            path.move(to: CGPoint(x: 4.2, y: 12.7))
+            path.addLine(to: CGPoint(x: 16.2, y: 12.7))
+            path.addArc(withCenter: CGPoint(x: 16.2, y: 10.1), radius: 2.6, startAngle: .pi / 2, endAngle: 0, clockwise: false)
+            path.addLine(to: CGPoint(x: 18.8, y: 7.9))
+            path.stroke()
             let head = UIBezierPath()
-            head.move(to: CGPoint(x: tip.x - 1.7, y: tip.y + 2.0))
-            head.addLine(to: CGPoint(x: tip.x + 3.4, y: tip.y - 1.2))
-            head.addLine(to: CGPoint(x: tip.x + 3.9, y: tip.y + 4.6))
-            head.close()
-            head.fill()
+            head.move(to: CGPoint(x: 8.2, y: 8.7))
+            head.addLine(to: CGPoint(x: 4.2, y: 12.7))
+            head.addLine(to: CGPoint(x: 8.6, y: 16.5))
+            head.stroke()
         }
     }
 
-    /// 重做图标(撤销的水平镜像，约204°弧从左上经底部到右下，右端箭头指向右下)
+    /// 重做图标(撤销的水平镜像，扁长回复箭头，向右横线左端小弯钩上翘，右端开口V形箭头)
     static var redo: UIImage {
         return drawIcon { context in
             context.translateBy(x: 24, y: 0)
             context.scaleBy(x: -1, y: 1)
-            let center = CGPoint(x: 12, y: 12.5)
-            let radius: CGFloat = 6.8
-            let startAngle: CGFloat = -0.7
-            let endAngle: CGFloat = .pi - 0.28
-            let arc = UIBezierPath(arcCenter: center, radius: radius, startAngle: startAngle, endAngle: endAngle, clockwise: true)
-            arc.stroke()
-            let tip = CGPoint(x: center.x + radius * cos(endAngle), y: center.y + radius * sin(endAngle))
+            let path = UIBezierPath()
+            path.move(to: CGPoint(x: 4.2, y: 12.7))
+            path.addLine(to: CGPoint(x: 16.2, y: 12.7))
+            path.addArc(withCenter: CGPoint(x: 16.2, y: 10.1), radius: 2.6, startAngle: .pi / 2, endAngle: 0, clockwise: false)
+            path.addLine(to: CGPoint(x: 18.8, y: 7.9))
+            path.stroke()
             let head = UIBezierPath()
-            head.move(to: CGPoint(x: tip.x - 1.7, y: tip.y + 2.0))
-            head.addLine(to: CGPoint(x: tip.x + 3.4, y: tip.y - 1.2))
-            head.addLine(to: CGPoint(x: tip.x + 3.9, y: tip.y + 4.6))
-            head.close()
-            head.fill()
+            head.move(to: CGPoint(x: 8.2, y: 8.7))
+            head.addLine(to: CGPoint(x: 4.2, y: 12.7))
+            head.addLine(to: CGPoint(x: 8.6, y: 16.5))
+            head.stroke()
+        }
+    }
+
+    /// 清除图标(照官人清除.png，扁平左扫的扫帚，右端枢纽向左展开成束毛刷，柄向右下伸，散落圆点)
+    static var clear: UIImage {
+        return drawIcon { context in
+            let handle = UIBezierPath()
+            handle.move(to: CGPoint(x: 17.2, y: 7.2))
+            handle.addLine(to: CGPoint(x: 22.6, y: 10.2))
+            handle.stroke()
+            let binding = UIBezierPath()
+            binding.move(to: CGPoint(x: 16.4, y: 8.6))
+            binding.addLine(to: CGPoint(x: 18.0, y: 5.8))
+            binding.stroke()
+            let bristles = UIBezierPath()
+            bristles.lineWidth = 1.8
+            bristles.move(to: CGPoint(x: 16.6, y: 8.0))
+            bristles.addLine(to: CGPoint(x: 1.6, y: 11.2))
+            bristles.move(to: CGPoint(x: 16.4, y: 9.0))
+            bristles.addLine(to: CGPoint(x: 1.2, y: 13.4))
+            bristles.move(to: CGPoint(x: 16.2, y: 10.0))
+            bristles.addLine(to: CGPoint(x: 2.2, y: 15.4))
+            bristles.move(to: CGPoint(x: 15.9, y: 11.0))
+            bristles.addLine(to: CGPoint(x: 4.0, y: 17.2))
+            bristles.stroke()
+            let ring = UIBezierPath(ovalIn: CGRect(x: 14.6 - 1.6, y: 14.4 - 1.6, width: 3.2, height: 3.2))
+            ring.lineWidth = 1.4
+            ring.stroke()
+            for (center, radius) in [(CGPoint(x: 20.8, y: 13.0), 1.0), (CGPoint(x: 18.6, y: 14.8), 0.9), (CGPoint(x: 7.6, y: 13.6), 1.0)] {
+                UIBezierPath(ovalIn: CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2)).fill()
+            }
         }
     }
 

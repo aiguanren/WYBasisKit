@@ -321,11 +321,21 @@ public class WYImageEditorViewController: UIViewController {
         return bar
     }()
 
-    /// 标记工具条(五种工具加撤销删除加颜色条加粗细字号档)
+    /// 标记工具条(五种工具加撤销重做清除加颜色条加粗细字号档，工具行放不下时可左右滑动)
     private lazy var markerToolbar: UIView = {
         let bar = UIView()
         bar.backgroundColor = configuration.appearance.toolbarBackgroundColor
         return bar
+    }()
+
+    /// 工具行横向滚动容器(按钮多到一行放不下时左右滑动查看，放得下时内容整体居中)
+    private lazy var toolRowScrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.alwaysBounceHorizontal = false
+        scrollView.delaysContentTouches = false
+        scrollView.contentInsetAdjustmentBehavior = .never
+        return scrollView
     }()
 
     /// 裁剪视图(捏合缩放拖动图片加拖拽裁剪框都在它里面完成)
@@ -439,6 +449,16 @@ public class WYImageEditorViewController: UIViewController {
         return button
     }()
 
+    /// 清除按钮(标记页面一键清掉全部标记，扫帚图标，与撤销重做同排在工具行末尾)
+    private lazy var clearButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.setImage(WYImageEditorIcon.clear, for: .normal)
+        button.tintColor = .white
+        button.imageView?.contentMode = .scaleAspectFit
+        button.addTarget(self, action: #selector(revertButtonTapped), for: .touchUpInside)
+        return button
+    }()
+
     /// 颜色圆点按钮数组(按外观色板生成，点的瞬间作用于选中的标记或之后的标记)
     private lazy var colorButtons: [UIButton] = {
         return configuration.appearance.markerPalette.map { color in
@@ -495,9 +515,11 @@ public class WYImageEditorViewController: UIViewController {
         }
         refreshTitleForPendingCrop()
 
-        markerToolButtons.forEach { markerToolbar.addSubview($0) }
-        markerToolbar.addSubview(undoButton)
-        markerToolbar.addSubview(redoButton)
+        markerToolbar.addSubview(toolRowScrollView)
+        markerToolButtons.forEach { toolRowScrollView.addSubview($0) }
+        toolRowScrollView.addSubview(undoButton)
+        toolRowScrollView.addSubview(redoButton)
+        toolRowScrollView.addSubview(clearButton)
         if configuration.showsColorOptions {
             colorButtons.forEach { markerToolbar.addSubview($0) }
         }
@@ -597,20 +619,31 @@ public class WYImageEditorViewController: UIViewController {
         }
     }
 
-    /// 布局标记工具条(第一行五个工具加撤销删除，第二行颜色圆点，第三行粗细字号档位，后两行可按配置隐藏)
+    /// 布局标记工具条(第一行五种工具加撤销重做清除放横向滚动容器，第二行颜色圆点，第三行粗细字号档位，后两行可按配置隐藏)
     private func layoutMarkerToolbar(width: CGFloat, height: CGFloat, safeLeft: CGFloat, safeRight: CGFloat) {
 
-        let toolCount = markerToolButtons.count + 2
+        let toolCount = markerToolButtons.count + 3
         let itemSize: CGFloat = 44
-        let spacing = (width - safeLeft - safeRight - CGFloat(toolCount) * itemSize) / CGFloat(toolCount + 1)
-        var x = safeLeft + spacing
+        let edgePadding: CGFloat = 8
+        // 按钮间距在4到10之间弹性收缩，屏宽够时整行放得下不滚动，放不下才贴边排开靠左右滑动查看
+        let availableWidth = width - safeLeft - safeRight
+        let flexGap = (availableWidth - edgePadding * 2 - CGFloat(toolCount) * itemSize) / CGFloat(toolCount - 1)
+        let fitsInRow = flexGap >= 4
+        let itemGap = fitsInRow ? min(flexGap, 10) : 10
+        let contentWidth = CGFloat(toolCount) * itemSize + CGFloat(toolCount - 1) * itemGap
+        let startX = fitsInRow ? safeLeft + (availableWidth - contentWidth) / 2 : safeLeft + edgePadding
+        toolRowScrollView.frame = CGRect(x: 0, y: 0, width: width, height: 56)
+        toolRowScrollView.contentSize = CGSize(width: max(startX + contentWidth + safeRight + edgePadding, width), height: 56)
+        var x = startX
         for button in markerToolButtons {
             button.frame = CGRect(x: x, y: 6, width: itemSize, height: itemSize)
-            x += itemSize + spacing
+            x += itemSize + itemGap
         }
         undoButton.frame = CGRect(x: x, y: 6, width: itemSize, height: itemSize)
-        x += itemSize + spacing
+        x += itemSize + itemGap
         redoButton.frame = CGRect(x: x, y: 6, width: itemSize, height: itemSize)
+        x += itemSize + itemGap
+        clearButton.frame = CGRect(x: x, y: 6, width: itemSize, height: itemSize)
 
         var nextRowY: CGFloat = 56
         if configuration.showsColorOptions {
@@ -627,7 +660,7 @@ public class WYImageEditorViewController: UIViewController {
             layoutStyleRow(width: width, y: nextRowY, safeLeft: safeLeft, safeRight: safeRight)
         }
 
-        // 工具按钮与撤销删除按钮图标在上文字在下(用WYBasisKit的UIButton扩展排版，需在frame落定后调用)
+        // 工具按钮图标在上文字在下(用WYBasisKit的UIButton扩展排版，需在frame落定后调用)
         for button in markerToolButtons {
             button.wy_adjust(position: .imageTopTitleBottom, spacing: 2)
         }
@@ -722,7 +755,7 @@ public class WYImageEditorViewController: UIViewController {
         }
     }
 
-    /// 点还原(一键清除且按页面区分语义：裁剪页面恢复图片至裁剪前全部裁剪回退标记保留，标记页面清除全部标记裁剪保留)
+    /// 点还原或清除(一键清除且按页面区分语义：裁剪页面恢复图片至裁剪前全部裁剪回退标记保留，标记页面清除全部标记裁剪保留)
     @objc private func revertButtonTapped() {
         suppressOperationRecording = true
         if isMarkMode {
@@ -802,7 +835,7 @@ public class WYImageEditorViewController: UIViewController {
         // 顶部标题固定显示编辑二字，当前模式由底部分段胶囊表达(标题随模式变会像可点按钮造成误解)
         refreshTitleForPendingCrop()
 
-        // 标记模式顶部还原与底部撤销重复故隐藏，裁剪模式保留(回退裁剪步骤用)
+        // 标记模式清除入口在底部工具行故顶栏隐藏，裁剪模式保留(一键回退全部裁剪用)
         revertButton.isHidden = marking
         refreshModeSegmented()
         markerToolbar.isHidden = !marking
