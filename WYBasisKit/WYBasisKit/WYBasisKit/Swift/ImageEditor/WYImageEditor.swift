@@ -429,13 +429,13 @@ public class WYImageEditorViewController: UIViewController {
         return button
     }()
 
-    /// 删除按钮(删掉当前选中的标记，纯图标与创造类工具区分)
-    private lazy var deleteButton: UIButton = {
+    /// 重做按钮(恢复最近一次撤销的标记，与撤销成对，iOS标记工具栏样式)
+    private lazy var redoButton: UIButton = {
         let button = UIButton(type: .custom)
-        button.setImage(WYImageEditorIcon.trash, for: .normal)
+        button.setImage(WYImageEditorIcon.redo, for: .normal)
         button.tintColor = .white
         button.imageView?.contentMode = .scaleAspectFit
-        button.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
+        button.addTarget(self, action: #selector(redoButtonTapped), for: .touchUpInside)
         return button
     }()
 
@@ -488,7 +488,7 @@ public class WYImageEditorViewController: UIViewController {
 
         markerToolButtons.forEach { markerToolbar.addSubview($0) }
         markerToolbar.addSubview(undoButton)
-        markerToolbar.addSubview(deleteButton)
+        markerToolbar.addSubview(redoButton)
         if configuration.showsColorOptions {
             colorButtons.forEach { markerToolbar.addSubview($0) }
         }
@@ -594,7 +594,7 @@ public class WYImageEditorViewController: UIViewController {
         }
         undoButton.frame = CGRect(x: x, y: 6, width: itemSize, height: itemSize)
         x += itemSize + spacing
-        deleteButton.frame = CGRect(x: x, y: 6, width: itemSize, height: itemSize)
+        redoButton.frame = CGRect(x: x, y: 6, width: itemSize, height: itemSize)
 
         var nextRowY: CGFloat = 56
         if configuration.showsColorOptions {
@@ -836,9 +836,9 @@ public class WYImageEditorViewController: UIViewController {
         markerView.undoLastMarker()
     }
 
-    /// 点删除(删掉当前选中的标记)
-    @objc private func deleteButtonTapped() {
-        markerView.removeSelectedMarker()
+    /// 点重做(恢复最近一次撤销的标记)
+    @objc private func redoButtonTapped() {
+        markerView.redoLastMarker()
     }
 
     /// 点直线或自由按钮(把划线形态切到点的那边，选中的划线也会跟着转换)

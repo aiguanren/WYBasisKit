@@ -127,6 +127,9 @@ class WYImageMarkerView: UIView {
     /// 全部标记(按绘制顺序排列，后画的盖在前面)
     private var items: [WYImageMarkerItem] = []
 
+    /// 重做栈(撤销时压入，重做时弹出，任何新编辑清空)
+    private var redoItems: [WYImageMarkerItem] = []
+
     /// 当前选中标记的下标(nil表示没有选中)
     private var selectedIndex: Int?
 
@@ -244,13 +247,23 @@ class WYImageMarkerView: UIView {
         onSelectionChanged?()
     }
 
-    /// 撤销最后一个标记
+    /// 撤销最后一个标记(压入重做栈，重做可恢复)
     func undoLastMarker() {
         guard !items.isEmpty else { return }
-        items.removeLast()
+        let removed = items.removeLast()
+        redoItems.append(removed)
         if selectedIndex == items.count {
             selectedIndex = nil
         }
+        setNeedsDisplay()
+        onSelectionChanged?()
+    }
+
+    /// 重做最近一次撤销的标记(没有可重做的时不生效)
+    func redoLastMarker() {
+        guard let restored = redoItems.popLast() else { return }
+        items.append(restored)
+        selectedIndex = items.count - 1
         setNeedsDisplay()
         onSelectionChanged?()
     }
@@ -260,6 +273,7 @@ class WYImageMarkerView: UIView {
         guard let index = selectedIndex, items.indices.contains(index) else { return }
         items.remove(at: index)
         selectedIndex = nil
+        redoItems.removeAll()
         setNeedsDisplay()
         onSelectionChanged?()
     }
@@ -267,6 +281,7 @@ class WYImageMarkerView: UIView {
     /// 清空全部标记(编辑器点还原时调用)
     func removeAllMarkers() {
         items.removeAll()
+        redoItems.removeAll()
         selectedIndex = nil
         setNeedsDisplay()
         onSelectionChanged?()
@@ -512,6 +527,7 @@ class WYImageMarkerView: UIView {
             item.frame = CGRect(x: point.x - textSize.width / 2, y: point.y - textSize.height / 2, width: textSize.width, height: ceil(textSize.height))
             self.items.append(item)
             self.selectedIndex = self.items.count - 1
+            self.redoItems.removeAll()
             self.setNeedsDisplay()
             self.onSelectionChanged?()
         }

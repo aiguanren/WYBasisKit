@@ -61,17 +61,43 @@ enum WYImageEditorIcon {
         }
     }
 
-    /// 撤销图标(上拱回钩箭头，回复图标的弯钩造型，撤回语义明确且与刷新的回环区分)
+    /// 撤销图标(iOS标记工具栏样式，右侧水平引入线接逆时针大弧，左端沿切线的三角箭头)
     static var undo: UIImage {
         return drawIcon { context in
+            let arc = UIBezierPath(arcCenter: CGPoint(x: 12, y: 13.5), radius: 7, startAngle: -0.25, endAngle: .pi + 0.45, clockwise: true)
+            let startPoint = arc.currentPoint
             let path = UIBezierPath()
-            path.move(to: CGPoint(x: 19.5, y: 16))
-            path.addQuadCurve(to: CGPoint(x: 7, y: 11), controlPoint: CGPoint(x: 12, y: 2.5))
+            path.move(to: CGPoint(x: 21.5, y: startPoint.y - 1.5))
+            path.addLine(to: startPoint)
+            path.append(arc)
             path.stroke()
+            let endPoint = arc.currentPoint
             let head = UIBezierPath()
-            head.move(to: CGPoint(x: 6.5, y: 11))
-            head.addLine(to: CGPoint(x: 12.5, y: 8.5))
-            head.addLine(to: CGPoint(x: 11.5, y: 14.5))
+            head.move(to: CGPoint(x: endPoint.x - 1.6, y: endPoint.y + 5.2))
+            head.addLine(to: CGPoint(x: endPoint.x + 3.8, y: endPoint.y - 1.4))
+            head.addLine(to: CGPoint(x: endPoint.x + 4.6, y: endPoint.y + 4.8))
+            head.close()
+            head.fill()
+        }
+    }
+
+    /// 重做图标(撤销的镜像，左侧引入线接顺时针大弧，右端切向箭头)
+    static var redo: UIImage {
+        return drawIcon { context in
+            context.translateBy(x: 24, y: 0)
+            context.scaleBy(x: -1, y: 1)
+            let arc = UIBezierPath(arcCenter: CGPoint(x: 12, y: 13.5), radius: 7, startAngle: -0.25, endAngle: .pi + 0.45, clockwise: true)
+            let startPoint = arc.currentPoint
+            let path = UIBezierPath()
+            path.move(to: CGPoint(x: 21.5, y: startPoint.y - 1.5))
+            path.addLine(to: startPoint)
+            path.append(arc)
+            path.stroke()
+            let endPoint = arc.currentPoint
+            let head = UIBezierPath()
+            head.move(to: CGPoint(x: endPoint.x - 1.6, y: endPoint.y + 5.2))
+            head.addLine(to: CGPoint(x: endPoint.x + 3.8, y: endPoint.y - 1.4))
+            head.addLine(to: CGPoint(x: endPoint.x + 4.6, y: endPoint.y + 4.8))
             head.close()
             head.fill()
         }
