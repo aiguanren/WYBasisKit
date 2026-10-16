@@ -702,8 +702,7 @@ public class WYImageEditorViewController: UIViewController {
             nextRowY += colorRowHeight
         }
         if configuration.showsStyleOptions {
-            let undoColumnLeft = startX + CGFloat(markerToolButtons.count) * columnPitch
-            layoutStyleRow(width: width, y: nextRowY, safeLeft: safeLeft, safeRight: safeRight, firstColumnCenter: firstColumnCenter, columnPitch: columnPitch, undoColumnLeft: undoColumnLeft)
+            layoutStyleRow(width: width, y: nextRowY, safeLeft: safeLeft, safeRight: safeRight, firstColumnCenter: firstColumnCenter, columnPitch: columnPitch)
         }
 
         // 工具按钮图标在上文字在下(用WYBasisKit的UIButton扩展排版，需在frame落定后调用)
@@ -713,7 +712,7 @@ public class WYImageEditorViewController: UIViewController {
     }
 
     /// 布局粗细字号档位行(划线语境多两个形态切换按钮，圆点大小示意粗细，字母A大小示意字号)
-    private func layoutStyleRow(width: CGFloat, y: CGFloat, safeLeft: CGFloat, safeRight: CGFloat, firstColumnCenter: CGFloat, columnPitch: CGFloat, undoColumnLeft: CGFloat) {
+    private func layoutStyleRow(width: CGFloat, y: CGFloat, safeLeft: CGFloat, safeRight: CGFloat, firstColumnCenter: CGFloat, columnPitch: CGFloat) {
 
         let chipWidth = UIDevice.wy_screenWidth(52, WYBasisKitConfig.defaultScreenPixels)
         let chipHeight = UIDevice.wy_screenHeight(27, WYBasisKitConfig.defaultScreenPixels)
@@ -742,10 +741,12 @@ public class WYImageEditorViewController: UIViewController {
             }
         }
         if !straightChipButton.isHidden {
-            // 两颗形态按钮拼成双段胶囊：高度与最大粗细圆点同高且圆角取半高成胶囊形，左缘在撤销按钮左缘基础上再左移10，右缘超屏时整体左移钳制
+            // 两颗形态按钮拼成双段胶囊：高度与最大粗细圆点同高且圆角取半高成胶囊形，左缘固定对齐第6列圆点的左缘(默认色板即蓝色那颗，以后色板新增圆点蓝色挪位后锚点仍钉在第6列不漂移)，右缘超屏时整体左移钳制
             let pairHeight = UIDevice.wy_screenWidth(29, WYBasisKitConfig.defaultScreenPixels)
             let pairWidth = columnPitch + chipWidth
-            let pairLeft = min(undoColumnLeft - UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels), width - safeRight - UIDevice.wy_screenWidth(4, WYBasisKitConfig.defaultScreenPixels) - pairWidth)
+            let colorDiameter = UIDevice.wy_screenWidth(25, WYBasisKitConfig.defaultScreenPixels)
+            let anchorDotLeft = firstColumnCenter + CGFloat(5) * columnPitch - colorDiameter / 2
+            let pairLeft = min(anchorDotLeft, width - safeRight - UIDevice.wy_screenWidth(4, WYBasisKitConfig.defaultScreenPixels) - pairWidth)
             let pairTop = y + (UIDevice.wy_screenHeight(37, WYBasisKitConfig.defaultScreenPixels) - pairHeight) / 2
             straightChipButton.layer.cornerRadius = pairHeight / 2
             freeChipButton.layer.cornerRadius = pairHeight / 2
