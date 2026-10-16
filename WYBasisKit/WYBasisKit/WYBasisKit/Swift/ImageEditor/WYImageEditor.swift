@@ -80,6 +80,12 @@ public struct WYImageEditorAppearance {
     /// 标记工具条背景色
     public var toolbarBackgroundColor: UIColor = UIColor(white: 0.08, alpha: 1)
 
+    /// 工具行图标按钮常态颜色(撤销重做清除三颗纯图标按钮)
+    public var iconButtonColor: UIColor = .white
+
+    /// 工具行图标按钮按住颜色(手指按住时变色，松开回常态)
+    public var iconButtonHighlightedColor: UIColor = UIColor(white: 1, alpha: 0.45)
+
     /// 模式分段控件底色(裁剪标记两个胶囊所在的圆角容器)
     public var segmentedBackgroundColor: UIColor = UIColor(white: 1, alpha: 0.12)
 
@@ -434,7 +440,8 @@ public class WYImageEditorViewController: UIViewController {
     private lazy var undoButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setImage(WYImageEditorIcon.undo, for: .normal)
-        button.tintColor = .white
+        button.setImage(WYImageEditorIcon.undo.withTintColor(configuration.appearance.iconButtonHighlightedColor, renderingMode: .alwaysOriginal), for: .highlighted)
+        button.tintColor = configuration.appearance.iconButtonColor
         button.imageView?.contentMode = .scaleAspectFit
         button.addTarget(self, action: #selector(undoButtonTapped), for: .touchUpInside)
         return button
@@ -444,7 +451,8 @@ public class WYImageEditorViewController: UIViewController {
     private lazy var redoButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setImage(WYImageEditorIcon.redo, for: .normal)
-        button.tintColor = .white
+        button.setImage(WYImageEditorIcon.redo.withTintColor(configuration.appearance.iconButtonHighlightedColor, renderingMode: .alwaysOriginal), for: .highlighted)
+        button.tintColor = configuration.appearance.iconButtonColor
         button.imageView?.contentMode = .scaleAspectFit
         button.addTarget(self, action: #selector(redoButtonTapped), for: .touchUpInside)
         return button
@@ -454,7 +462,8 @@ public class WYImageEditorViewController: UIViewController {
     private lazy var clearButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setImage(WYImageEditorIcon.clear, for: .normal)
-        button.tintColor = .white
+        button.setImage(WYImageEditorIcon.clear.withTintColor(configuration.appearance.iconButtonHighlightedColor, renderingMode: .alwaysOriginal), for: .highlighted)
+        button.tintColor = configuration.appearance.iconButtonColor
         button.imageView?.contentMode = .scaleAspectFit
         button.addTarget(self, action: #selector(revertButtonTapped), for: .touchUpInside)
         return button

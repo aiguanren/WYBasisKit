@@ -330,6 +330,8 @@
         appearance.markerPalette = @[UIColor.whiteColor, UIColor.redColor, UIColor.yellowColor];
         appearance.lineWidthRatios = @[@0.5, @2, @4];
         appearance.canvasBackgroundColor = [UIColor colorWithWhite:0.15 alpha:1];
+        appearance.iconButtonColor = UIColor.whiteColor;
+        appearance.iconButtonHighlightedColor = UIColor.systemYellowColor;
         configuration.appearance = appearance;
     }
     configuration.allowsImageZoom = self.allowsImageZoom;

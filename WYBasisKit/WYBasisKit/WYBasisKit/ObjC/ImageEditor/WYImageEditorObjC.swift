@@ -60,6 +60,12 @@ import WYBasisKitSwift
     /// 标记工具条背景色
     public var toolbarBackgroundColor: UIColor?
 
+    /// 工具行图标按钮常态颜色(撤销重做清除三颗纯图标按钮)
+    public var iconButtonColor: UIColor?
+
+    /// 工具行图标按钮按住颜色(手指按住时变色，松开回常态)
+    public var iconButtonHighlightedColor: UIColor?
+
     /// 模式分段控件底色(裁剪标记两个胶囊所在的圆角容器)
     public var segmentedBackgroundColor: UIColor?
 
@@ -220,6 +226,8 @@ import WYBasisKitSwift
                 if let ratios = bridgeAppearance.lineWidthRatios, !ratios.isEmpty { appearance.lineWidthRatios = ratios }
                 if let ratios = bridgeAppearance.fontSizeRatios, !ratios.isEmpty { appearance.fontSizeRatios = ratios }
                 if let color = bridgeAppearance.toolbarBackgroundColor { appearance.toolbarBackgroundColor = color }
+                if let color = bridgeAppearance.iconButtonColor { appearance.iconButtonColor = color }
+                if let color = bridgeAppearance.iconButtonHighlightedColor { appearance.iconButtonHighlightedColor = color }
                 if let color = bridgeAppearance.segmentedBackgroundColor { appearance.segmentedBackgroundColor = color }
                 if let color = bridgeAppearance.segmentedSelectedBackgroundColor { appearance.segmentedSelectedBackgroundColor = color }
                 if let color = bridgeAppearance.segmentedSelectedTextColor { appearance.segmentedSelectedTextColor = color }
