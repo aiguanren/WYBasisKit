@@ -324,6 +324,35 @@ class WYImageCropperView: UIView {
         onCropCommitted?(cropImage, regionInOldBase)
     }
 
+    /// 图片当前显示区(本视图坐标，随缩放平移实时变化，裁剪框始终被钳制在它内部防选到照片外黑边)
+    private var imageDisplayRect: CGRect {
+        let zoom = scrollView.zoomScale
+        let originX = scrollView.frame.minX - scrollView.contentOffset.x
+        let originY = scrollView.frame.minY - scrollView.contentOffset.y
+        return CGRect(x: originX, y: originY, width: cropImage.size.width * zoom, height: cropImage.size.height * zoom)
+    }
+
+    /// 把裁剪框钳回图片显示区内(拖动缩放图片后图片动了框跟着收，尺寸超图时收成图内最大并居中)
+    private func clampCropBoxToImage() {
+        let imageRect = imageDisplayRect
+        guard imageRect.width > 10, imageRect.height > 10 else { return }
+        var box = cropBox
+        if box.width > imageRect.width {
+            box.size.width = imageRect.width
+            box.origin.x = imageRect.midX - box.width / 2
+        }
+        if box.height > imageRect.height {
+            box.size.height = imageRect.height
+            box.origin.y = imageRect.midY - box.height / 2
+        }
+        box.origin.x = min(max(box.minX, imageRect.minX), imageRect.maxX - box.width)
+        box.origin.y = min(max(box.minY, imageRect.minY), imageRect.maxY - box.height)
+        if box != cropBox {
+            cropBox = box
+            overlayView.updateCropBox(cropBox, shape: shape, showsHandles: fixedOutputSize == nil)
+        }
+    }
+
     /// 自由模式图片比画布小时用内容边距把它居中
     private func centerContentWithInset() {
         let contentWidth = cropImage.size.width * scrollView.zoomScale
@@ -358,8 +387,9 @@ class WYImageCropperView: UIView {
         // 抓框线本体拖着走，整个裁剪框平移(位置微调不用再靠缩放框或动图)
         if zone == .boxBody {
             var box = start
-            box.origin.x = min(max(start.minX + translation.x, margin), bounds.width - margin - box.width)
-            box.origin.y = min(max(start.minY + translation.y, margin), bounds.height - margin - box.height)
+            let imageRect = imageDisplayRect
+            box.origin.x = min(max(start.minX + translation.x, imageRect.minX), imageRect.maxX - box.width)
+            box.origin.y = min(max(start.minY + translation.y, imageRect.minY), imageRect.maxY - box.height)
             cropBox = box
             overlayView.updateCropBox(cropBox, shape: shape, showsHandles: fixedOutputSize == nil)
             return
@@ -422,9 +452,16 @@ class WYImageCropperView: UIView {
             box = CGRect(x: x, y: y, width: width, height: height)
         }
 
-        // 整体不拖出画布，出界时贴边
-        box.origin.x = min(max(box.origin.x, margin), bounds.width - margin - box.width)
-        box.origin.y = min(max(box.origin.y, margin), bounds.height - margin - box.height)
+        // 整体不拖出照片显示区，出界时贴图边(尺寸超图时收成图内最大)
+        let imageRect = imageDisplayRect
+        if box.width > imageRect.width {
+            box.size.width = imageRect.width
+        }
+        if box.height > imageRect.height {
+            box.size.height = imageRect.height
+        }
+        box.origin.x = min(max(box.origin.x, imageRect.minX), imageRect.maxX - box.width)
+        box.origin.y = min(max(box.origin.y, imageRect.minY), imageRect.maxY - box.height)
         cropBox = box
         overlayView.updateCropBox(cropBox, shape: shape, showsHandles: fixedOutputSize == nil)
     }
@@ -437,10 +474,18 @@ extension WYImageCropperView: UIScrollViewDelegate {
         return imageView
     }
 
-    /// 缩放结束后图片比画布小时重新居中
+    /// 拖动或缩放图片进行中，自由模式把裁剪框动态钳回图片内(图片动了框跟着收，保证框始终在照片内部)
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if fixedOutputSize == nil {
+            clampCropBoxToImage()
+        }
+    }
+
+    /// 缩放结束后图片比画布小时重新居中并再次钳框
     func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
         if fixedOutputSize == nil {
             centerContentWithInset()
+            clampCropBoxToImage()
         }
     }
 }
