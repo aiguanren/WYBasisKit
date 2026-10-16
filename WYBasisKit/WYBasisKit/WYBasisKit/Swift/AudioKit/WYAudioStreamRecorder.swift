@@ -76,17 +76,13 @@ public final class WYAudioStreamRecorder: NSObject {
             throw WYAudioError.startRecordingFailed
         }
 
+        // 直接按目标格式装采样回调，音频引擎自动在硬件格式与目标格式之间插转换(自己拿AVAudioConverter逐帧转在降采样组合下会输出错乱数据，能量正常但内容乱，实时识别认不出)
         let inputNode = audioEngine.inputNode
-        let inputFormat = inputNode.outputFormat(forBus: 0)
-        converter = AVAudioConverter(from: inputFormat, to: targetFormat)
         targetBufferFormat = targetFormat
         totalFramesConverted = 0
+        tapBufferCapacity = 2048
 
-        // 单次转换的输出帧容量(输入2048帧按采样率比例换算目标帧数并上取整，加32帧余量防非整数倍采样率被截断)
-        let inputFrames: AVAudioFrameCount = 2048
-        tapBufferCapacity = AVAudioFrameCount((Double(inputFrames) * targetFormat.sampleRate / inputFormat.sampleRate).rounded(.up)) + 32
-
-        inputNode.installTap(onBus: 0, bufferSize: inputFrames, format: inputFormat) { [weak self] buffer, _ in
+        inputNode.installTap(onBus: 0, bufferSize: 2048, format: targetFormat) { [weak self] buffer, _ in
             self?.handleTap(buffer: buffer)
         }
 
@@ -116,9 +112,6 @@ public final class WYAudioStreamRecorder: NSObject {
     /// 录音引擎(装麦克风输入采样的部件)
     private let audioEngine = AVAudioEngine()
 
-    /// 采样格式转换器(把麦克风原始格式转成目标采样率的单声道Int16)
-    private var converter: AVAudioConverter?
-
     /// 目标音频格式(16千赫兹16位单声道Int16)
     private var targetBufferFormat: AVAudioFormat?
 
@@ -132,38 +125,20 @@ public final class WYAudioStreamRecorder: NSObject {
     private func cleanTap() {
         audioEngine.inputNode.removeTap(onBus: 0)
         audioEngine.stop()
-        converter = nil
         targetBufferFormat = nil
     }
 
-    /// 处理一棒麦克风采到的音频(转成目标格式后回调出去，顺带算响度)
+    /// 处理一棒麦克风采到的音频(采样回调本身就是目标格式，直接回调出去，顺带算响度)
     private func handleTap(buffer: AVAudioPCMBuffer) {
-        guard let converter = converter, let targetFormat = targetBufferFormat, isRecording else { return }
+        guard let targetFormat = targetBufferFormat, isRecording else { return }
+        guard buffer.frameLength > 0 else { return }
 
-        let outBuffer = AVAudioPCMBuffer(pcmFormat: targetFormat, frameCapacity: tapBufferCapacity)
-        guard let outBuffer = outBuffer else { return }
-
-        // 单发转换闭包只交一次输入缓冲，转换器不会再要更多数据
-        var hasFedInput = false
-        var conversionError: NSError?
-        let status = converter.convert(to: outBuffer, error: &conversionError) { _, inputStatus in
-            if hasFedInput {
-                inputStatus.pointee = .noDataNow
-                return nil
-            }
-            hasFedInput = true
-            inputStatus.pointee = .haveData
-            return buffer
-        }
-
-        guard status != .error, outBuffer.frameLength > 0 else { return }
-
-        totalFramesConverted += outBuffer.frameLength
+        totalFramesConverted += buffer.frameLength
         let currentTime = TimeInterval(totalFramesConverted) / targetFormat.sampleRate
-        onAudioChunk?(outBuffer, currentTime)
+        onAudioChunk?(buffer, currentTime)
 
-        if let channelData = outBuffer.int16ChannelData?[0] {
-            let sampleCount = Int(outBuffer.frameLength)
+        if let channelData = buffer.int16ChannelData?[0] {
+            let sampleCount = Int(buffer.frameLength)
             var sum: Double = 0
             for index in 0..<sampleCount {
                 let sample = Double(channelData[index])
