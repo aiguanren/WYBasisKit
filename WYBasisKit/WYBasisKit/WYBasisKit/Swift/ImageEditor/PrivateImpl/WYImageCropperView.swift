@@ -215,9 +215,9 @@ class WYImageCropperView: UIView {
             scrollView.contentOffset = CGPoint(x: max(0, (contentWidth - boundsWidth) / 2), y: max(0, (contentHeight - boundsHeight) / 2))
         } else {
 
-            // 自由模式，滚动视图铺满画布，裁剪框默认框住整张图再内收一成
+            // 自由模式，滚动视图铺满画布；关闭弹跳(拖到边界硬停，弹跳瞬间图片被拉离裁剪框会露出黑底，苹果照片裁剪页同样无弹跳)
             scrollView.frame = bounds
-            scrollView.bounces = true
+            scrollView.bounces = false
             let fitWidth = imageWidth * fitScale
             let fitHeight = imageHeight * fitScale
             let fitRect = CGRect(x: (boundsWidth - fitWidth) / 2, y: (boundsHeight - fitHeight) / 2, width: fitWidth, height: fitHeight)
