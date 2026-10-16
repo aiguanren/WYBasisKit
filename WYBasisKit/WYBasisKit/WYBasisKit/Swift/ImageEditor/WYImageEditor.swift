@@ -685,11 +685,15 @@ public class WYImageEditorViewController: UIViewController {
         clearButton.frame = CGRect(x: x, y: itemTop, width: itemSize, height: itemSize)
 
         var nextRowY: CGFloat = rowHeight
+        // 颜色行与样式行共用列起点：提示文字列左缘对齐第一行按钮内图标的左缘，颜色圆点与样式行档位控件同列
+        let visualLeading = safeLeft + edgePadding + (itemSize - 24) / 2
+        let hintColumnWidth = UIDevice.wy_screenWidth(30, WYBasisKitConfig.defaultScreenPixels) + UIDevice.wy_screenWidth(4, WYBasisKitConfig.defaultScreenPixels)
+        let dotsColumnX = visualLeading + hintColumnWidth
         if configuration.showsColorOptions {
             let colorRowHeight = UIDevice.wy_screenHeight(37, WYBasisKitConfig.defaultScreenPixels)
             let colorDiameter = UIDevice.wy_screenWidth(25, WYBasisKitConfig.defaultScreenPixels)
             let colorGap = UIDevice.wy_screenWidth(18, WYBasisKitConfig.defaultScreenPixels)
-            var colorX = safeLeft + edgePadding
+            var colorX = dotsColumnX
             for button in colorButtons {
                 button.frame = CGRect(x: colorX, y: nextRowY + (colorRowHeight - colorDiameter) / 2, width: colorDiameter, height: colorDiameter)
                 colorX += colorDiameter + colorGap
@@ -697,7 +701,7 @@ public class WYImageEditorViewController: UIViewController {
             nextRowY += colorRowHeight
         }
         if configuration.showsStyleOptions {
-            layoutStyleRow(width: width, y: nextRowY, safeLeft: safeLeft, safeRight: safeRight)
+            layoutStyleRow(width: width, y: nextRowY, safeLeft: safeLeft, safeRight: safeRight, dotsColumnX: dotsColumnX)
         }
 
         // 工具按钮图标在上文字在下(用WYBasisKit的UIButton扩展排版，需在frame落定后调用)
@@ -707,19 +711,17 @@ public class WYImageEditorViewController: UIViewController {
     }
 
     /// 布局粗细字号档位行(划线语境多两个形态切换按钮，圆点大小示意粗细，字母A大小示意字号)
-    private func layoutStyleRow(width: CGFloat, y: CGFloat, safeLeft: CGFloat, safeRight: CGFloat) {
+    private func layoutStyleRow(width: CGFloat, y: CGFloat, safeLeft: CGFloat, safeRight: CGFloat, dotsColumnX: CGFloat) {
 
         let chipWidth = UIDevice.wy_screenWidth(52, WYBasisKitConfig.defaultScreenPixels)
         let chipHeight = UIDevice.wy_screenHeight(27, WYBasisKitConfig.defaultScreenPixels)
         let buttonWidth = UIDevice.wy_screenWidth(39, WYBasisKitConfig.defaultScreenPixels)
         let buttonHeight = UIDevice.wy_screenHeight(29, WYBasisKitConfig.defaultScreenPixels)
-        let rowLeading = safeLeft + UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
         let chipTop = y + (UIDevice.wy_screenHeight(37, WYBasisKitConfig.defaultScreenPixels) - chipHeight) / 2
         let buttonTop = y + (UIDevice.wy_screenHeight(37, WYBasisKitConfig.defaultScreenPixels) - buttonHeight) / 2
-        var x = rowLeading
         let hintWidth = UIDevice.wy_screenWidth(30, WYBasisKitConfig.defaultScreenPixels)
-        styleHintLabel.frame = CGRect(x: x, y: buttonTop, width: hintWidth, height: buttonHeight)
-        x += hintWidth + UIDevice.wy_screenWidth(4, WYBasisKitConfig.defaultScreenPixels)
+        styleHintLabel.frame = CGRect(x: dotsColumnX - UIDevice.wy_screenWidth(4, WYBasisKitConfig.defaultScreenPixels) - hintWidth, y: buttonTop, width: hintWidth, height: buttonHeight)
+        var x = dotsColumnX
         if !straightChipButton.isHidden {
             straightChipButton.frame = CGRect(x: x, y: chipTop, width: chipWidth, height: chipHeight)
             freeChipButton.frame = CGRect(x: x + UIDevice.wy_screenWidth(56, WYBasisKitConfig.defaultScreenPixels), y: chipTop, width: chipWidth, height: chipHeight)
