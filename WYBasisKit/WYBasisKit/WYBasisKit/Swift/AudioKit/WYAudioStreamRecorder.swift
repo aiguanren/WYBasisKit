@@ -17,11 +17,11 @@ import AVFoundation
  */
 public final class WYAudioStreamRecorder: NSObject {
 
-    /// 音频块回调(pcmBuffer为16千赫兹采样、16位整型、单声道的PCM音频块，currentTime为本块结束时已录的秒数；闭包在音频采集线程回调，不要在这里做耗时操作，UI刷新需自行切回主线程)
-    public var onAudioChunk: ((_ pcmBuffer: AVAudioPCMBuffer, _ currentTime: TimeInterval) -> Void)?
+    /// 音频块回调(pcmBuffer为16千赫兹采样、16位整型、单声道的PCM音频块，currentTime为本块结束时已录的秒数；闭包在音频采集线程回调且为Sendable，不要在这里做耗时操作，UI刷新需自行切回主线程)
+    public var onAudioChunk: (@Sendable (_ pcmBuffer: AVAudioPCMBuffer, _ currentTime: TimeInterval) -> Void)?
 
-    /// 音量回调(averagePower为当前音频块的响度，范围-160.0到0.0，0.0最响，适合喂声波动画；currentTime为已录秒数；闭包在音频采集线程回调)
-    public var onMetering: ((_ averagePower: Float, _ currentTime: TimeInterval) -> Void)?
+    /// 音量回调(averagePower为当前音频块的响度，范围-160.0到0.0，0.0最响，适合喂声波动画；currentTime为已录秒数；闭包在音频采集线程回调且为Sendable)
+    public var onMetering: (@Sendable (_ averagePower: Float, _ currentTime: TimeInterval) -> Void)?
 
     /// 目标采样率(单位为赫兹，默认16000是实时语音识别的常用规格，必须在start前设置，start后改动无效)
     public var sampleRate: Double = 16000
