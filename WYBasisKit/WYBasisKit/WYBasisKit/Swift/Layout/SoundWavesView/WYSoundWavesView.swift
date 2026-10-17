@@ -197,10 +197,13 @@ public class WYSoundWavesView: UIView {
         return Float(p)
     }
     
-    /// 声波数据更新（由外部每帧调用）
+    /// 声波数据更新（由外部每帧调用；power传0~1能量或录音器原始分贝负值均可，负值先走能量管线归一成0~1再进平滑与阈值，否则永远过不了起跳阈值只走待机水波纹）
     public func updateMeters(power: Float) {
-        
-        let newPower = CGFloat(power)
+
+        var newPower = CGFloat(power)
+        if newPower < 0 {
+            newPower = CGFloat(makeWaveformLevels(peakPower: power, averagePower: power))
+        }
         
         // 低通滤波（核心优化）：消除音频抖动，让动画更顺滑(current = current + (新值 - 旧值) * 平滑系数)
         currentPower = currentPower + (newPower - currentPower) * config.smoothingFactor
