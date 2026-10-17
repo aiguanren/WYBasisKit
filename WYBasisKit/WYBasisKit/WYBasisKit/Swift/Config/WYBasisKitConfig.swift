@@ -50,10 +50,10 @@ public struct WYBasisKitConfig {
     public static var fontRatio: WYRatio = WYRatio(min: 0.5, max: 1.5)
     
     /// 设置屏幕分辨率宽度比最大最小比率数
-    public static var screenWidthRatio: WYRatio = WYRatio(min: 0.5, max: 1.5)
+    nonisolated(unsafe) public static var screenWidthRatio: WYRatio = WYRatio(min: 0.5, max: 1.5)
     
     /// 设置屏幕分辨率高度比最大最小比率数
-    public static var screenHeightRatio: WYRatio = WYRatio(min: 0.5, max: 1.5)
+    nonisolated(unsafe) public static var screenHeightRatio: WYRatio = WYRatio(min: 0.5, max: 1.5)
     
     /// 设置国际化语言读取表(如果有Bundle，则要求Bundle名与表名一致，否则会读取失败)
     public nonisolated(unsafe) static var localizableTable: String = ""
