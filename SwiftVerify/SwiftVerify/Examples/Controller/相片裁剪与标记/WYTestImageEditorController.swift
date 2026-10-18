@@ -21,26 +21,18 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
     /// 是否允许裁剪
     var allowsCropping: Bool = true
 
-    /// 是否用自定义外观(一组覆盖多项外观属性的示例值)
-    var useCustomAppearance: Bool = false
+    /// 裁剪页图片是否支持捏合缩放
+    var allowsCropZoom: Bool = true
 
-    /// 编辑时图片是否支持捏合缩放
-    var allowsImageZoom: Bool = true
+    /// 进入裁剪页时图片初始缩放倍数(1为适配)
+    var initialCropZoomScale: CGFloat = 1
 
-    /// 进入页面时图片初始缩放倍数(1为适配)
-    var initialImageZoomScale: CGFloat = 1
+    /// 标记页画布是否支持捏合缩放
+    var allowsMarkZoom: Bool = true
 
-    /// 标记颜色
-    var markerColor: UIColor = .white
+    /// 进入标记页时画布初始缩放倍数(1为适配)
+    var initialMarkZoomScale: CGFloat = 1
 
-    /// 标记线宽(0表示自动)
-    var markerLineWidth: CGFloat = 0
-
-    /// 文本字号(0表示自动)
-    var markerTextFontSize: CGFloat = 0
-
-    /// 划线默认形态(true为直线)
-    var lineDrawsStraight: Bool = false
 
     /// 界面是否显示粗细字号选择行
     var showsStyleOptions: Bool = true
@@ -84,37 +76,31 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
         let croppingButton: UIButton = createButton(title: "(已允许)裁剪", selector: #selector(croppingButtonTapped(sender:)), superView: contentView, leftView: nil, topView: shapeButton)
         croppingButton.setTitle("(已关闭)裁剪", for: .selected)
 
-        let colorButton: UIButton = createButton(title: "标记颜色(白)", selector: #selector(colorButtonTapped(sender:)), superView: contentView, leftView: croppingButton, topView: shapeButton)
+        let styleRowButton: UIButton = createButton(title: "(显示)粗细字号行", selector: #selector(styleRowButtonTapped(sender:)), superView: contentView, leftView: croppingButton, topView: shapeButton)
+        styleRowButton.setTitle("(隐藏)粗细字号行", for: .selected)
 
-        createButton(title: "线条宽度(自动)", selector: #selector(lineWidthButtonTapped(sender:)), superView: contentView, leftView: colorButton, topView: shapeButton, isRight: true)
-
-        let fontSizeButton: UIButton = createButton(title: "文本字号(自动)", selector: #selector(fontSizeButtonTapped(sender:)), superView: contentView, leftView: nil, topView: croppingButton)
-
-        let lineShapeButton: UIButton = createButton(title: "划线形态(自由)", selector: #selector(lineShapeButtonTapped(sender:)), superView: contentView, leftView: fontSizeButton, topView: croppingButton)
-        lineShapeButton.setTitle("划线形态(直线)", for: .selected)
-
-        createButton(title: "(显示)粗细字号行", selector: #selector(styleRowButtonTapped(sender:)), superView: contentView, leftView: lineShapeButton, topView: croppingButton, isRight: true)
-
-        let colorRowButton: UIButton = createButton(title: "(显示)颜色条", selector: #selector(colorRowButtonTapped(sender:)), superView: contentView, leftView: nil, topView: fontSizeButton)
+        let colorRowButton: UIButton = createButton(title: "(显示)颜色条", selector: #selector(colorRowButtonTapped(sender:)), superView: contentView, leftView: styleRowButton, topView: shapeButton, isRight: true)
         colorRowButton.setTitle("(隐藏)颜色条", for: .selected)
 
-        let imageButton: UIButton = createButton(title: "测试图片(标尺横图)", selector: #selector(imageButtonTapped(sender:)), superView: contentView, leftView: colorRowButton, topView: fontSizeButton)
+        let cropZoomButton: UIButton = createButton(title: "(可缩放)裁剪页", selector: #selector(cropZoomButtonTapped(sender:)), superView: contentView, leftView: nil, topView: croppingButton)
+        cropZoomButton.setTitle("(禁缩放)裁剪页", for: .selected)
 
-        let appearanceButton: UIButton = createButton(title: "外观(默认)", selector: #selector(appearanceButtonTapped(sender:)), superView: contentView, leftView: imageButton, topView: fontSizeButton, isRight: true)
-        appearanceButton.setTitle("外观(自定义)", for: .selected)
+        let markZoomButton: UIButton = createButton(title: "(可缩放)标记页", selector: #selector(markZoomButtonTapped(sender:)), superView: contentView, leftView: cropZoomButton, topView: croppingButton)
+        markZoomButton.setTitle("(禁缩放)标记页", for: .selected)
 
-        let blockButton: UIButton = createButton(title: "Block方式\n打开编辑器", selector: #selector(blockButtonTapped), superView: contentView, leftView: nil, topView: colorRowButton)
+        let imageButton: UIButton = createButton(title: "测试图片(标尺横图)", selector: #selector(imageButtonTapped(sender:)), superView: contentView, leftView: markZoomButton, topView: croppingButton, isRight: true)
 
-        let delegateButton: UIButton = createButton(title: "Delegate方式\n打开编辑器", selector: #selector(delegateButtonTapped), superView: contentView, leftView: blockButton, topView: colorRowButton)
+        let initialCropZoomButton: UIButton = createButton(title: "裁剪初始缩放(1倍)", selector: #selector(initialCropZoomButtonTapped(sender:)), superView: contentView, leftView: nil, topView: cropZoomButton)
 
-        createButton(title: "静态方法\n一行打开", selector: #selector(staticButtonTapped), superView: contentView, leftView: delegateButton, topView: colorRowButton, isRight: true)
+        let initialMarkZoomButton: UIButton = createButton(title: "标记初始缩放(1倍)", selector: #selector(initialMarkZoomButtonTapped(sender:)), superView: contentView, leftView: initialCropZoomButton, topView: cropZoomButton)
 
-        let clearButton: UIButton = createButton(title: "清除结果", selector: #selector(clearButtonTapped), superView: contentView, leftView: nil, topView: blockButton, isLast: true)
+        createButton(title: "清除结果", selector: #selector(clearButtonTapped), superView: contentView, leftView: initialMarkZoomButton, topView: cropZoomButton, isRight: true)
 
-        let zoomButton: UIButton = createButton(title: "(可缩放)图片", selector: #selector(zoomButtonTapped(sender:)), superView: contentView, leftView: clearButton, topView: blockButton)
-        zoomButton.setTitle("(禁用)缩放", for: .selected)
+        let blockButton: UIButton = createButton(title: "Block方式\n打开编辑器", selector: #selector(blockButtonTapped), superView: contentView, leftView: nil, topView: initialCropZoomButton)
 
-        createButton(title: "初始缩放(1倍)", selector: #selector(initialZoomButtonTapped(sender:)), superView: contentView, leftView: zoomButton, topView: blockButton, isLast: true)
+        let delegateButton: UIButton = createButton(title: "Delegate方式\n打开编辑器", selector: #selector(delegateButtonTapped), superView: contentView, leftView: blockButton, topView: initialCropZoomButton)
+
+        createButton(title: "静态方法\n一行打开", selector: #selector(staticButtonTapped), superView: contentView, leftView: delegateButton, topView: initialCropZoomButton, isRight: true, isLast: true)
 
         tableView = UITableView.wy_shared(delegate: self, dataSource: self, superView: view)
         tableView?.wy_register(WYTestImageEditorResultCell.self, .cell)
@@ -171,33 +157,10 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
         configuration.cropSize = fixedCropSize ?? .zero
         configuration.allowsCropping = allowsCropping
         configuration.allowsMarking = allowsMarking
-        if useCustomAppearance {
-            var appearance = WYImageEditorAppearance()
-            appearance.topBarCropButtonColor = .systemYellow
-            appearance.selectionDashColor = .systemRed
-            appearance.selectionDashWidth = 2.5
-            appearance.selectionInset = 10
-            appearance.handleColor = .systemYellow
-            appearance.maskDimmingAmount = 0.8
-            appearance.accentColor = .systemGreen
-            appearance.segmentedSelectedBackgroundColor = .systemGreen
-            appearance.segmentedSelectedTextColor = .white
-            appearance.markerPalette = [.white, .red, .yellow]
-            appearance.lineWidthRatios = [0.5, 2, 4]
-            appearance.canvasBackgroundColor = UIColor(white: 0.15, alpha: 1)
-            appearance.iconButtonColor = .white
-            appearance.iconButtonHighlightedColor = .systemYellow
-            appearance.lineWidthHintText = "笔刷\n宽度"
-            appearance.fontSizeHintText = "字体\n大小"
-            appearance.hintTextColor = .systemYellow
-            configuration.appearance = appearance
-        }
-        configuration.allowsImageZoom = allowsImageZoom
-        configuration.initialImageZoomScale = initialImageZoomScale
-        configuration.markerColor = markerColor
-        configuration.markerLineWidth = markerLineWidth
-        configuration.markerTextFontSize = markerTextFontSize
-        configuration.lineDrawsStraight = lineDrawsStraight
+        configuration.allowsCropZoom = allowsCropZoom
+        configuration.initialCropZoomScale = initialCropZoomScale
+        configuration.allowsMarkZoom = allowsMarkZoom
+        configuration.initialMarkZoomScale = initialMarkZoomScale
         configuration.showsStyleOptions = showsStyleOptions
         configuration.showsColorOptions = showsColorOptions
         return configuration
@@ -273,16 +236,13 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
         let shapeText = cropShape == .circle ? "圆形" : "矩形"
         let sizeText = fixedCropSize == nil ? "自由" : String(format: "固定%.0f×%.0f", fixedCropSize!.width, fixedCropSize!.height)
         let markingText = allowsMarking ? "允许" : "关闭"
-        let lineWidthText = markerLineWidth == 0 ? "自动" : String(format: "%.0f", markerLineWidth)
-        let fontSizeText = markerTextFontSize == 0 ? "自动" : String(format: "%.0f", markerTextFontSize)
-        let lineShapeText = lineDrawsStraight ? "直线" : "自由"
         let styleRowText = showsStyleOptions ? "显示" : "隐藏"
         let colorRowText = showsColorOptions ? "显示" : "隐藏"
         let imageSourceText = testImageName ?? "标尺图"
         let croppingText = allowsCropping ? "允许" : "关闭"
-        let appearanceText = useCustomAppearance ? "自定义" : "默认"
-        let zoomText = allowsImageZoom ? "可缩放" : "禁缩放"
-        wy_print("[\(source)] 打开编辑器 图片=\(imageSourceText) 原图\(Int(image.size.width))×\(Int(image.size.height)) 配置=形状\(shapeText) 尺寸\(sizeText) 裁剪\(croppingText) 标记\(markingText) 线宽\(lineWidthText) 字号\(fontSizeText) 划线\(lineShapeText) 粗细字号行\(styleRowText) 颜色条\(colorRowText) 外观\(appearanceText) 缩放\(zoomText)")
+        let cropZoomText = allowsCropZoom ? "可缩放" : "禁缩放"
+        let markZoomText = allowsMarkZoom ? "可缩放" : "禁缩放"
+        wy_print("[\(source)] 打开编辑器 图片=\(imageSourceText) 原图\(Int(image.size.width))×\(Int(image.size.height)) 配置=形状\(shapeText) 尺寸\(sizeText) 裁剪\(croppingText) 标记\(markingText) 粗细字号行\(styleRowText) 颜色条\(colorRowText) 裁剪缩放\(cropZoomText) 标记缩放\(markZoomText)")
     }
 
     /// 记录编辑结果并刷新表格(三种打开方式共用)
@@ -333,53 +293,35 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
         sender.isSelected = !allowsCropping
     }
 
-    /// 外观样式切换(自定义为覆盖多项外观属性的示例值)
-    @objc func appearanceButtonTapped(sender: UIButton) {
-        useCustomAppearance.toggle()
-        sender.isSelected = useCustomAppearance
+    /// 裁剪页缩放开关(关掉后裁剪页不能捏合缩放图片)
+    @objc func cropZoomButtonTapped(sender: UIButton) {
+        allowsCropZoom.toggle()
+        sender.isSelected = !allowsCropZoom
     }
 
-    /// 编辑时图片缩放开关(关掉后编辑器里不能捏合缩放)
-    @objc func zoomButtonTapped(sender: UIButton) {
-        allowsImageZoom.toggle()
-        sender.isSelected = !allowsImageZoom
+    /// 标记页缩放开关(关掉后标记页不能捏合缩放画布)
+    @objc func markZoomButtonTapped(sender: UIButton) {
+        allowsMarkZoom.toggle()
+        sender.isSelected = !allowsMarkZoom
     }
 
-    /// 初始缩放倍数(输入相对适配大小的倍数)
-    @objc func initialZoomButtonTapped(sender: UIButton) {
-        UIAlertController.wy_show(title: "进入页面时图片初始缩放倍数(1为适配显示)", textFieldPlaceholders: ["倍数"], actions: ["确定"]) { [weak self] action, inputTexts in
+    /// 裁剪页初始缩放倍数(输入相对适配大小的倍数)
+    @objc func initialCropZoomButtonTapped(sender: UIButton) {
+        UIAlertController.wy_show(title: "进入裁剪页时图片初始缩放倍数(1为适配显示)", textFieldPlaceholders: ["倍数"], actions: ["确定"]) { [weak self] action, inputTexts in
             guard let self = self, action == "确定" else { return }
             let scale = Double(inputTexts.first ?? "")
-            self.initialImageZoomScale = scale == nil ? 1 : CGFloat(scale!)
-            sender.setTitle(self.initialImageZoomScale == 1 ? "初始缩放(1倍)" : String(format: "初始缩放(%.1f倍)", self.initialImageZoomScale), for: .normal)
+            self.initialCropZoomScale = scale == nil ? 1 : CGFloat(scale!)
+            sender.setTitle(self.initialCropZoomScale == 1 ? "裁剪初始缩放(1倍)" : String(format: "裁剪初始缩放(%.1f倍)", self.initialCropZoomScale), for: .normal)
         }
     }
 
-    @objc func colorButtonTapped(sender: UIButton) {
-        let colorNames = ["白", "黑", "黄", "红", "绿", "蓝", "紫"]
-        UIAlertController.wy_show(title: "标记颜色", actions: colorNames) { [weak self] action, _ in
-            guard let self = self, let index = colorNames.firstIndex(of: action) else { return }
-            let colors = [UIColor.white, UIColor.black, UIColor(red: 1, green: 0.84, blue: 0.03, alpha: 1), UIColor(red: 1, green: 0.27, blue: 0.23, alpha: 1), UIColor(red: 0.22, green: 0.8, blue: 0.35, alpha: 1), UIColor(red: 0.04, green: 0.52, blue: 1, alpha: 1), UIColor(red: 0.69, green: 0.33, blue: 0.87, alpha: 1)]
-            self.markerColor = colors[index]
-            sender.setTitle("标记颜色(\(action))", for: .normal)
-        }
-    }
-
-    @objc func lineWidthButtonTapped(sender: UIButton) {
-        UIAlertController.wy_show(title: "标记线条宽度(0为按图片宽度自动)", textFieldPlaceholders: ["线宽(像素)"], actions: ["确定"]) { [weak self] action, inputTexts in
+    /// 标记页初始缩放倍数(输入相对适配大小的倍数)
+    @objc func initialMarkZoomButtonTapped(sender: UIButton) {
+        UIAlertController.wy_show(title: "进入标记页时画布初始缩放倍数(1为适配显示)", textFieldPlaceholders: ["倍数"], actions: ["确定"]) { [weak self] action, inputTexts in
             guard let self = self, action == "确定" else { return }
-            let width = Double(inputTexts.first ?? "")
-            self.markerLineWidth = width == nil ? 0 : CGFloat(width!)
-            sender.setTitle(self.markerLineWidth == 0 ? "线条宽度(自动)" : String(format: "线条宽度(%.0f)", self.markerLineWidth), for: .normal)
-        }
-    }
-
-    @objc func fontSizeButtonTapped(sender: UIButton) {
-        UIAlertController.wy_show(title: "文本字号(0为按图片宽度自动)", textFieldPlaceholders: ["字号(像素)"], actions: ["确定"]) { [weak self] action, inputTexts in
-            guard let self = self, action == "确定" else { return }
-            let fontSize = Double(inputTexts.first ?? "")
-            self.markerTextFontSize = fontSize == nil ? 0 : CGFloat(fontSize!)
-            sender.setTitle(self.markerTextFontSize == 0 ? "文本字号(自动)" : String(format: "文本字号(%.0f)", self.markerTextFontSize), for: .normal)
+            let scale = Double(inputTexts.first ?? "")
+            self.initialMarkZoomScale = scale == nil ? 1 : CGFloat(scale!)
+            sender.setTitle(self.initialMarkZoomScale == 1 ? "标记初始缩放(1倍)" : String(format: "标记初始缩放(%.1f倍)", self.initialMarkZoomScale), for: .normal)
         }
     }
 
@@ -400,10 +342,6 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
     }
 
     /// 划线默认形态切换(自由与直线两态)
-    @objc func lineShapeButtonTapped(sender: UIButton) {
-        lineDrawsStraight.toggle()
-        sender.isSelected = lineDrawsStraight
-    }
 
     /// 界面粗细字号选择行显示开关
     @objc func styleRowButtonTapped(sender: UIButton) {

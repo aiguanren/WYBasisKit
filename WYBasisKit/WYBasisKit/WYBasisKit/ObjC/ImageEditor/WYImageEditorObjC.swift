@@ -134,11 +134,17 @@ import WYBasisKitSwift
     /// 界面上是否显示颜色选择条(false时用户只能用markerColor定的默认颜色)
     public var showsColorOptions: Bool = true
 
-    /// 编辑时图片是否支持捏合缩放(false时只能拖动平移图片)
-    public var allowsImageZoom: Bool = true
+    /// 裁剪页图片是否支持捏合缩放(false时只能拖动平移图片)
+    public var allowsCropZoom: Bool = true
 
-    /// 进入页面时图片的初始缩放倍数(相对适配大小的倍数，1为适配显示，超过允许范围会被钳制)
-    public var initialImageZoomScale: CGFloat = 1
+    /// 进入裁剪页时图片的初始缩放倍数(相对适配大小的倍数，1为适配显示，超过允许范围会被钳制)
+    public var initialCropZoomScale: CGFloat = 1
+
+    /// 标记页画布是否支持捏合缩放(false时只能按适配大小查看)
+    public var allowsMarkZoom: Bool = true
+
+    /// 进入标记页时画布的初始缩放倍数(相对适配大小的倍数，1为适配显示，超过允许范围会被钳制，取景变化后复位到该倍数)
+    public var initialMarkZoomScale: CGFloat = 1
 
     /// 界面外观(传nil用默认外观)
     public var appearance: WYImageEditorAppearanceObjC?
@@ -215,8 +221,10 @@ import WYBasisKitSwift
             configuration.lineDrawsStraight = bridgeConfiguration.lineDrawsStraight
             configuration.showsStyleOptions = bridgeConfiguration.showsStyleOptions
             configuration.showsColorOptions = bridgeConfiguration.showsColorOptions
-            configuration.allowsImageZoom = bridgeConfiguration.allowsImageZoom
-            configuration.initialImageZoomScale = bridgeConfiguration.initialImageZoomScale
+            configuration.allowsCropZoom = bridgeConfiguration.allowsCropZoom
+            configuration.initialCropZoomScale = bridgeConfiguration.initialCropZoomScale
+            configuration.allowsMarkZoom = bridgeConfiguration.allowsMarkZoom
+            configuration.initialMarkZoomScale = bridgeConfiguration.initialMarkZoomScale
             if let bridgeAppearance = bridgeConfiguration.appearance {
                 var appearance = WYImageEditorAppearance()
                 if let color = bridgeAppearance.canvasBackgroundColor { appearance.canvasBackgroundColor = color }

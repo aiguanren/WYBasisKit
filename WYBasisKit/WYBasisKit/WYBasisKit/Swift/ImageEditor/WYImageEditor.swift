@@ -155,11 +155,17 @@ public struct WYImageEditorConfiguration {
     /// 界面上是否显示颜色选择条(false时用户只能用markerColor定的默认颜色)
     public var showsColorOptions: Bool = true
 
-    /// 编辑时图片是否支持捏合缩放(false时只能拖动平移图片)
-    public var allowsImageZoom: Bool = true
+    /// 裁剪页图片是否支持捏合缩放(false时只能拖动平移图片)
+    public var allowsCropZoom: Bool = true
 
-    /// 进入页面时图片的初始缩放倍数(相对适配大小的倍数，1为适配显示，超过允许范围会被钳制)
-    public var initialImageZoomScale: CGFloat = 1
+    /// 进入裁剪页时图片的初始缩放倍数(相对适配大小的倍数，1为适配显示，超过允许范围会被钳制)
+    public var initialCropZoomScale: CGFloat = 1
+
+    /// 标记页画布是否支持捏合缩放(false时只能按适配大小查看)
+    public var allowsMarkZoom: Bool = true
+
+    /// 进入标记页时画布的初始缩放倍数(相对适配大小的倍数，1为适配显示，超过允许范围会被钳制，取景变化后复位到该倍数)
+    public var initialMarkZoomScale: CGFloat = 1
 
     /// 界面外观(颜色线宽色板档位等UI细节都从这里改，不设置用默认外观)
     public var appearance: WYImageEditorAppearance = WYImageEditorAppearance()
@@ -521,6 +527,11 @@ public class WYImageEditorViewController: UIViewController {
 
     override public func viewDidLoad() {
         super.viewDidLoad()
+
+        // 裁剪和标记至少需要开启一项
+        if !configuration.allowsCropping && !configuration.allowsMarking {
+            assertionFailure("allowsCropping与allowsMarking不能同时为false，请至少开启一项编辑能力")
+        }
         view.backgroundColor = configuration.appearance.canvasBackgroundColor
 
         view.addSubview(cropperView)
@@ -542,11 +553,6 @@ public class WYImageEditorViewController: UIViewController {
             refreshModeSegmented()
         } else {
             modeBar.isHidden = true
-
-            // 单模式直接进入对应模式，裁剪与标记都关时按只裁剪兜底
-            if !configuration.allowsCropping, configuration.allowsMarking {
-                setMarkMode(true)
-            }
         }
         refreshTitleForPendingCrop()
 
@@ -566,7 +572,7 @@ public class WYImageEditorViewController: UIViewController {
             fontSizeButtons.forEach { markerToolbar.addSubview($0) }
         }
 
-        cropperView.setup(image: image, shape: configuration.cropShape, fixedOutputSize: configuration.cropSize == .zero ? nil : configuration.cropSize, appearance: configuration.appearance, zoomEnabled: configuration.allowsImageZoom, initialZoomMultiplier: configuration.initialImageZoomScale)
+        cropperView.setup(image: image, shape: configuration.cropShape, fixedOutputSize: configuration.cropSize == .zero ? nil : configuration.cropSize, appearance: configuration.appearance, zoomEnabled: configuration.allowsCropZoom, initialZoomMultiplier: configuration.initialCropZoomScale)
 
         // 自由模式松手应用裁剪后，标记画布跟着换基准并平移全部标记坐标
         cropperView.onCropCommitted = { [weak self] croppedImage, region in
@@ -589,7 +595,9 @@ public class WYImageEditorViewController: UIViewController {
                          lineWidth: configuration.markerLineWidth,
                          textFontSize: configuration.markerTextFontSize,
                          straightLine: configuration.lineDrawsStraight,
-                         appearance: configuration.appearance)
+                         appearance: configuration.appearance,
+                         zoomEnabled: configuration.allowsMarkZoom,
+                         initialZoomMultiplier: configuration.initialMarkZoomScale)
         markerView.onRequestTextEdit = { [weak self] text, completion in
             self?.showTextInputAlert(existingText: text, completion: completion)
         }
@@ -605,6 +613,11 @@ public class WYImageEditorViewController: UIViewController {
         markerView.activeTool = .text
         refreshColorSelection(color: configuration.markerColor)
         refreshStyleRow()
+
+        // 单模式在视图数据齐备后进入，裁剪与标记都关时按只裁剪兜底(仅标记时进标记页要读裁剪基准图定取景区域，提前到setup前调用会拿到空图)
+        if !configuration.allowsCropping, configuration.allowsMarking {
+            setMarkMode(true)
+        }
     }
 
     override public func viewDidLayoutSubviews() {

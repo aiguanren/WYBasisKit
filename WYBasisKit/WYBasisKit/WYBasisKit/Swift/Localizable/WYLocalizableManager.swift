@@ -169,9 +169,6 @@ import UIKit
     }
 }
 
-private let WYBasisKitLanguage = "AppleLanguages"
-private let WYBasisKit_preferred_language = "preferredLocalizations"
-
 /// 国际化资源定位信息
 public struct WYLocalizableSource {
     
@@ -514,4 +511,6 @@ public struct WYLocalizableManager {
     }
 }
 
+private let WYBasisKitLanguage = "AppleLanguages"
+private let WYBasisKit_preferred_language = "preferredLocalizations"
 private class WYLocalizableClass {}

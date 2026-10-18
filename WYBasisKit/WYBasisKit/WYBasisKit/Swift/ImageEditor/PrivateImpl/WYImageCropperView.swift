@@ -120,6 +120,10 @@ class WYImageCropperView: UIView {
         overlay.onPanHandle = { [weak self] state, zone, translation in
             self?.cropBoxPanned(state: state, zone: zone, translation: translation)
         }
+        overlay.onImagePinchEnded = { [weak self] in
+            self?.centerContentWithInset()
+            self?.clampCropBoxToImage()
+        }
         return overlay
     }()
 
@@ -321,6 +325,7 @@ class WYImageCropperView: UIView {
 
         // 先强制收敛进行中的把手拖拽与滚动缩放手势，避免手势结束时把旧缩放位移套回新布局(表现为裁完图片反而放大超出画布，且逐次叠加)
         overlayView.cancelActivePan()
+        overlayView.cancelActivePinch()
         if scrollView.isTracking || scrollView.isZooming || scrollView.isDragging || scrollView.isDecelerating {
             if let pinch = scrollView.pinchGestureRecognizer {
                 pinch.isEnabled = false
@@ -397,7 +402,7 @@ class WYImageCropperView: UIView {
 
     /// 把裁剪框钳回图片显示区内(拖动缩放图片后图片动了框跟着收，尺寸超图时收成图内最大并居中)
     private func clampCropBoxToImage() {
-        let imageRect = imageDisplayRect
+        let imageRect = cropBoxLimitRect
         guard imageRect.width > 10, imageRect.height > 10 else { return }
         var box = cropBox
         if box.width > imageRect.width {
@@ -433,6 +438,13 @@ class WYImageCropperView: UIView {
     private func cropBoxPanned(state: UIGestureRecognizer.State, zone: WYImageCropHandleZone, translation: CGPoint) {
 
         if scrollView.zoomScale < scrollView.minimumZoomScale - 0.001 {
+            return
+        }
+        if state == .cancelled || state == .failed {
+            if cropBox != dragStartBox {
+                cropBox = dragStartBox
+                overlayView.updateCropBox(cropBox, shape: shape, showsHandles: fixedOutputSize == nil)
+            }
             return
         }
         if state == .began {
@@ -560,6 +572,7 @@ extension WYImageCropperView: UIScrollViewDelegate {
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
     }
 
+
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
         if fixedOutputSize == nil, scrollView.zoomScale < scrollView.minimumZoomScale {
             scrollView.zoomScale = scrollView.minimumZoomScale
@@ -569,6 +582,7 @@ extension WYImageCropperView: UIScrollViewDelegate {
     /// 缩放结束后图片比画布小时重新居中(不挪框)
     func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
         centerContentWithInset()
+        clampCropBoxToImage()
     }
 }
 
@@ -577,6 +591,9 @@ class WYImageCropOverlayView: UIView {
 
     /// 把手拖拽回调(状态加把手位置加累计位移)
     var onPanHandle: ((UIGestureRecognizer.State, WYImageCropHandleZone, CGPoint) -> Void)?
+
+    /// 捏合缩放图片结束回调(程序化缩放不触发滚动视图的缩放结束回调，图片与裁剪框的收尾钳制由裁剪视图在这里做)
+    var onImagePinchEnded: (() -> Void)?
 
     /// 界面外观(遮罩框线网格与把手样式)
     var appearance = WYImageEditorAppearance()
@@ -600,6 +617,19 @@ class WYImageCropOverlayView: UIView {
         return gesture
     }()
 
+    /// 框内双指捏合手势(程序化驱动滚动视图缩放图片，缩放锚点跟在两指中点上)
+    private lazy var pinchGesture: UIPinchGestureRecognizer = {
+        let gesture = UIPinchGestureRecognizer(target: self, action: #selector(handlePinchGesture(_:)))
+        gesture.delegate = self
+        return gesture
+    }()
+
+    /// 捏合进行中标志(期间吞掉框线拖动手势的一切事件，拖框中转捏合时框停在当前位置不回弹)
+    private var isPinchActive = false
+
+    /// 上一次捏合倍率(按增量换算缩放，捏合结束后重捏不跳变)
+    private var lastPinchScale: CGFloat = 1
+
     /// 手势起点命中的把手位置
     private var activeZone: WYImageCropHandleZone = []
 
@@ -608,6 +638,7 @@ class WYImageCropOverlayView: UIView {
         backgroundColor = UIColor.clear
         isOpaque = false
         addGestureRecognizer(panGesture)
+        addGestureRecognizer(pinchGesture)
     }
 
     required init?(coder: NSCoder) {
@@ -721,23 +752,55 @@ class WYImageCropOverlayView: UIView {
         }
     }
 
-    /// 只拦截把手与框线段的触摸，框内框外都透给下层滚动视图(拖动捏合图片随时可用)，固定尺寸模式同样只认把手与框线
+    /// 取消进行中的捏合手势(应用裁剪前调用，取消同样走结束回调做收尾钳制)
+    func cancelActivePinch() {
+        if pinchGesture.isEnabled {
+            pinchGesture.isEnabled = false
+            pinchGesture.isEnabled = true
+        }
+    }
+
+    /// 把手、框线段与框内区域归遮罩层(框内单指移框、双指捏合缩放图片)，框外区域透给下层滚动视图
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
         let zone = handleZone(at: point)
         if zone == .boxBody || (showsHandles && zone != []) {
             return self
         }
+
+        // 框内区域也归遮罩层(单指拖框内移框、双指捏合缩放图片)，框外透给下层滚动视图
+        if isPointInsideCropArea(point) {
+            return self
+        }
         return nil
+    }
+
+    /// 点是否在裁剪区域内(矩形按框、圆形按内切圆)
+    private func isPointInsideCropArea(_ point: CGPoint) -> Bool {
+        guard cropBox.width > 0, cropBox.height > 0 else { return false }
+        if shape == .circle {
+            let center = CGPoint(x: cropBox.midX, y: cropBox.midY)
+            return hypot(point.x - center.x, point.y - center.y) <= cropBox.width / 2
+        }
+        return cropBox.contains(point)
     }
 
     /// 把手拖拽处理(开始时用按下触点记住命中把手，过程中持续回报累计位移)
     @objc private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
+        if isPinchActive {
+            return
+        }
         switch gesture.state {
         case .began:
 
             // 用按下时刻的触点判热区(pan要移动几像素才触发began，用当前点判定会因手指微滑出热区而抓空)
             let downPoint = gesture.numberOfTouches > 0 ? gesture.location(ofTouch: 0, in: self) : gesture.location(in: self)
-            activeZone = handleZone(at: downPoint)
+            var zone = handleZone(at: downPoint)
+
+            // 框内空白热区按移框处理(框内触摸已归遮罩层)
+            if zone == [], isPointInsideCropArea(downPoint) {
+                zone = .boxBody
+            }
+            activeZone = zone
             if activeZone == [] {
 
                 // 判空说明手势被误识别，立即置失败把触摸还给下层滚动视图
@@ -747,11 +810,57 @@ class WYImageCropOverlayView: UIView {
             }
             onPanHandle?(.began, activeZone, .zero)
         case .changed:
+            if let scroll = scrollView {
+                if scroll.isTracking || scroll.isZooming || scroll.isDragging || scroll.isDecelerating {
+                    if panGesture.isEnabled {
+                        panGesture.isEnabled = false
+                        panGesture.isEnabled = true
+                    }
+                    return
+                }
+            }
             let translation = gesture.translation(in: self)
             onPanHandle?(.changed, activeZone, translation)
         default:
             onPanHandle?(gesture.state, activeZone, gesture.translation(in: self))
             activeZone = []
+        }
+    }
+
+    /// 捏合处理(按增量倍率程序化驱动滚动视图缩放，锚点换算成内容坐标补偿偏移，两指中点下的图片内容保持不动，缩放与平移一体)
+    @objc private func handlePinchGesture(_ gesture: UIPinchGestureRecognizer) {
+        guard let scroll = scrollView else { return }
+        switch gesture.state {
+        case .began:
+
+            // 拖框进行中转捏合，先按松手结算拖动再把触摸让给捏合，框停在当前位置
+            if panGesture.state == .began || panGesture.state == .changed {
+                onPanHandle?(.ended, activeZone, panGesture.translation(in: self))
+                activeZone = []
+                if panGesture.isEnabled {
+                    panGesture.isEnabled = false
+                    panGesture.isEnabled = true
+                }
+            }
+            isPinchActive = true
+            lastPinchScale = gesture.scale
+        case .changed:
+            let incremental = gesture.scale / lastPinchScale
+            lastPinchScale = gesture.scale
+            let anchor = gesture.location(in: self)
+            let targetZoom = min(max(scroll.zoomScale * incremental, scroll.minimumZoomScale), scroll.maximumZoomScale)
+            let anchorInContent = CGPoint(x: (anchor.x + scroll.contentOffset.x) / scroll.zoomScale, y: (anchor.y + scroll.contentOffset.y) / scroll.zoomScale)
+            scroll.zoomScale = targetZoom
+
+            // 缩放后先同步居中边距再补偏移(旧边距对应缩放前的内容尺寸，会把合法偏移范围压窄，锚点补偿被钳制后图会偏到一侧大量跑出画布)
+            let contentWidth = scroll.contentSize.width
+            let contentHeight = scroll.contentSize.height
+            scroll.contentInset = UIEdgeInsets(top: max(0, (scroll.bounds.height - contentHeight) / 2), left: max(0, (scroll.bounds.width - contentWidth) / 2), bottom: max(0, (scroll.bounds.height - contentHeight) / 2), right: max(0, (scroll.bounds.width - contentWidth) / 2))
+            let targetOffset = CGPoint(x: anchorInContent.x * targetZoom - anchor.x, y: anchorInContent.y * targetZoom - anchor.y)
+            scroll.contentOffset = targetOffset
+        default:
+            isPinchActive = false
+            onImagePinchEnded?()
         }
     }
 
@@ -792,5 +901,13 @@ class WYImageCropOverlayView: UIView {
             return .boxBody
         }
         return []
+    }
+}
+
+extension WYImageCropOverlayView: UIGestureRecognizerDelegate {
+
+    /// 捏合与框线拖动允许同时识别(单指拖框中第二指落下可无缝转捏合，捏合开始时手动结算拖动)
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return (gestureRecognizer === pinchGesture && otherGestureRecognizer === panGesture) || (gestureRecognizer === panGesture && otherGestureRecognizer === pinchGesture)
     }
 }

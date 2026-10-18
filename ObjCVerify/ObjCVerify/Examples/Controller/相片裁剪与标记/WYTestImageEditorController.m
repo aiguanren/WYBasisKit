@@ -37,26 +37,17 @@
 /// 是否允许裁剪
 @property (nonatomic, assign) BOOL allowsCropping;
 
-/// 是否用自定义外观(一组覆盖多项外观属性的示例值)
-@property (nonatomic, assign) BOOL useCustomAppearance;
+/// 裁剪页图片是否支持捏合缩放
+@property (nonatomic, assign) BOOL allowsCropZoom;
 
-/// 编辑时图片是否支持捏合缩放
-@property (nonatomic, assign) BOOL allowsImageZoom;
+/// 进入裁剪页时图片初始缩放倍数(1为适配)
+@property (nonatomic, assign) CGFloat initialCropZoomScale;
 
-/// 进入页面时图片初始缩放倍数(1为适配)
-@property (nonatomic, assign) CGFloat initialImageZoomScale;
+/// 标记页画布是否支持捏合缩放
+@property (nonatomic, assign) BOOL allowsMarkZoom;
 
-/// 标记颜色
-@property (nonatomic, strong) UIColor *markerColor;
-
-/// 标记线宽(0表示自动)
-@property (nonatomic, assign) CGFloat markerLineWidth;
-
-/// 文本字号(0表示自动)
-@property (nonatomic, assign) CGFloat markerTextFontSize;
-
-/// 划线默认形态(true为直线)
-@property (nonatomic, assign) BOOL lineDrawsStraight;
+/// 进入标记页时画布初始缩放倍数(1为适配)
+@property (nonatomic, assign) CGFloat initialMarkZoomScale;
 
 /// 界面是否显示粗细字号选择行
 @property (nonatomic, assign) BOOL showsStyleOptions;
@@ -90,12 +81,13 @@
 
     _cropShape = WYImageCropShapeRectangle;
     _allowsCropping = YES;
-    _allowsImageZoom = YES;
-    _initialImageZoomScale = 1;
+    _allowsCropZoom = YES;
+    _initialCropZoomScale = 1;
+    _allowsMarkZoom = YES;
+    _initialMarkZoomScale = 1;
     _allowsMarking = YES;
     _showsStyleOptions = YES;
     _showsColorOptions = YES;
-    _markerColor = [UIColor whiteColor];
     _resultSource = @"暂无结果";
 
     UIView *contentView = [[UIView alloc] init];
@@ -141,121 +133,98 @@
                                                     isLast:NO];
     [croppingButton setTitle:@"(已关闭)裁剪" forState:UIControlStateSelected];
 
-    UIButton *colorButton = [self createButtonWithTitle:@"标记颜色(白)"
-                                               selector:@selector(colorButtonTapped:)
-                                              superView:contentView
-                                               leftView:croppingButton
-                                                topView:shapeButton
-                                                 isRight:NO
-                                                  isLast:NO];
-
-    [self createButtonWithTitle:@"线条宽度(自动)"
-                       selector:@selector(lineWidthButtonTapped:)
-                      superView:contentView
-                       leftView:colorButton
-                        topView:shapeButton
-                         isRight:YES
-                          isLast:NO];
-
-    UIButton *fontSizeButton = [self createButtonWithTitle:@"文本字号(自动)"
-                                                  selector:@selector(fontSizeButtonTapped:)
+    UIButton *styleRowButton = [self createButtonWithTitle:@"(显示)粗细字号行"
+                                                  selector:@selector(styleRowButtonTapped:)
                                                  superView:contentView
-                                                  leftView:nil
-                                                   topView:croppingButton
+                                                  leftView:croppingButton
+                                                   topView:shapeButton
                                                     isRight:NO
                                                      isLast:NO];
-
-    UIButton *lineShapeButton = [self createButtonWithTitle:@"划线形态(自由)"
-                                                   selector:@selector(lineShapeButtonTapped:)
-                                                  superView:contentView
-                                                   leftView:fontSizeButton
-                                                    topView:croppingButton
-                                                     isRight:NO
-                                                      isLast:NO];
-    [lineShapeButton setTitle:@"划线形态(直线)" forState:UIControlStateSelected];
-
-    [self createButtonWithTitle:@"(显示)粗细字号行"
-                       selector:@selector(styleRowButtonTapped:)
-                      superView:contentView
-                       leftView:lineShapeButton
-                        topView:croppingButton
-                         isRight:YES
-                          isLast:NO];
+    [styleRowButton setTitle:@"(隐藏)粗细字号行" forState:UIControlStateSelected];
 
     UIButton *colorRowButton = [self createButtonWithTitle:@"(显示)颜色条"
                                                  selector:@selector(colorRowButtonTapped:)
                                                 superView:contentView
-                                                 leftView:nil
-                                                  topView:fontSizeButton
-                                                   isRight:NO
+                                                 leftView:styleRowButton
+                                                  topView:shapeButton
+                                                   isRight:YES
                                                     isLast:NO];
     [colorRowButton setTitle:@"(隐藏)颜色条" forState:UIControlStateSelected];
+
+    UIButton *cropZoomButton = [self createButtonWithTitle:@"(可缩放)裁剪页"
+                                                 selector:@selector(cropZoomButtonTapped:)
+                                                superView:contentView
+                                                 leftView:nil
+                                                  topView:colorRowButton
+                                                   isRight:NO
+                                                    isLast:NO];
+    [cropZoomButton setTitle:@"(禁缩放)裁剪页" forState:UIControlStateSelected];
+
+    UIButton *markZoomButton = [self createButtonWithTitle:@"(可缩放)标记页"
+                                                 selector:@selector(markZoomButtonTapped:)
+                                                superView:contentView
+                                                 leftView:cropZoomButton
+                                                  topView:colorRowButton
+                                                   isRight:YES
+                                                    isLast:NO];
+    [markZoomButton setTitle:@"(禁缩放)标记页" forState:UIControlStateSelected];
 
     UIButton *imageButton = [self createButtonWithTitle:@"测试图片(标尺横图)"
                                                selector:@selector(imageButtonTapped:)
                                               superView:contentView
-                                               leftView:colorRowButton
-                                                topView:fontSizeButton
-                                                 isRight:NO
+                                               leftView:markZoomButton
+                                                topView:colorRowButton
+                                                 isRight:YES
                                                   isLast:NO];
 
-    UIButton *appearanceButton = [self createButtonWithTitle:@"外观(默认)"
-                                                   selector:@selector(appearanceButtonTapped:)
-                                                  superView:contentView
-                                                   leftView:imageButton
-                                                    topView:fontSizeButton
-                                                     isRight:YES
-                                                      isLast:NO];
-    [appearanceButton setTitle:@"外观(自定义)" forState:UIControlStateSelected];
+    UIButton *initialCropZoomButton = [self createButtonWithTitle:@"裁剪初始缩放(1倍)"
+                                                        selector:@selector(initialCropZoomButtonTapped:)
+                                                       superView:contentView
+                                                        leftView:nil
+                                                         topView:cropZoomButton
+                                                          isRight:NO
+                                                           isLast:NO];
+
+    UIButton *initialMarkZoomButton = [self createButtonWithTitle:@"标记初始缩放(1倍)"
+                                                        selector:@selector(initialMarkZoomButtonTapped:)
+                                                       superView:contentView
+                                                        leftView:initialCropZoomButton
+                                                         topView:cropZoomButton
+                                                          isRight:NO
+                                                           isLast:NO];
+
+    [self createButtonWithTitle:@"清除结果"
+                       selector:@selector(clearButtonTapped)
+                      superView:contentView
+                       leftView:initialMarkZoomButton
+                        topView:cropZoomButton
+                         isRight:YES
+                          isLast:NO];
 
     UIButton *blockButton = [self createButtonWithTitle:@"Block方式\n打开编辑器"
                                                selector:@selector(blockButtonTapped)
                                               superView:contentView
                                                leftView:nil
-                                                topView:colorRowButton
+                                                topView:initialCropZoomButton
                                                  isRight:NO
                                                   isLast:NO];
 
     UIButton *delegateButton = [self createButtonWithTitle:@"Delegate方式\n打开编辑器"
-                                                 selector:@selector(delegateButtonTapped)
-                                                superView:contentView
-                                                 leftView:blockButton
-                                                  topView:colorRowButton
-                                                   isRight:NO
-                                                    isLast:NO];
+                                               selector:@selector(delegateButtonTapped)
+                                              superView:contentView
+                                               leftView:blockButton
+                                                topView:initialCropZoomButton
+                                                 isRight:NO
+                                                  isLast:NO];
 
     [self createButtonWithTitle:@"静态方法\n一行打开"
                        selector:@selector(staticButtonTapped)
                       superView:contentView
                        leftView:delegateButton
-                        topView:colorRowButton
-                         isRight:YES
-                          isLast:NO];
-
-    UIButton *clearButton = [self createButtonWithTitle:@"清除结果"
-                                                selector:@selector(clearButtonTapped)
-                                               superView:contentView
-                                                leftView:nil
-                                                 topView:blockButton
-                                                  isRight:NO
-                                                   isLast:YES];
-
-    UIButton *zoomButton = [self createButtonWithTitle:@"(可缩放)图片"
-                                              selector:@selector(zoomButtonTapped:)
-                                             superView:contentView
-                                              leftView:clearButton
-                                               topView:blockButton
-                                                isRight:NO
-                                                 isLast:NO];
-    [zoomButton setTitle:@"(禁用)缩放" forState:UIControlStateSelected];
-
-    [self createButtonWithTitle:@"初始缩放(1倍)"
-                       selector:@selector(initialZoomButtonTapped:)
-                      superView:contentView
-                       leftView:zoomButton
-                        topView:blockButton
+                        topView:initialCropZoomButton
                          isRight:YES
                           isLast:YES];
+
 
     self.tableView = [UITableView wy_sharedWithStyle:UITableViewStylePlain separatorStyle:UITableViewCellSeparatorStyleSingleLine delegate:self dataSource:self backgroundColor:[UIColor whiteColor] superView:self.view];
     [self.tableView wy_register:[WYTestImageEditorResultCell class] style:WYTableViewRegisterStyleCell];
@@ -316,33 +285,10 @@
     configuration.cropSize = self.hasFixedCropSize ? self.fixedCropSize : CGSizeZero;
     configuration.allowsCropping = self.allowsCropping;
     configuration.allowsMarking = self.allowsMarking;
-    if (self.useCustomAppearance) {
-        WYImageEditorAppearanceObjC *appearance = [[WYImageEditorAppearanceObjC alloc] init];
-        appearance.topBarCropButtonColor = UIColor.systemYellowColor;
-        appearance.selectionDashColor = UIColor.systemRedColor;
-        appearance.selectionDashWidth = 2.5;
-        appearance.selectionInset = 10;
-        appearance.handleColor = UIColor.systemYellowColor;
-        appearance.maskDimmingAmount = 0.8;
-        appearance.accentColor = UIColor.systemGreenColor;
-        appearance.segmentedSelectedBackgroundColor = UIColor.systemGreenColor;
-        appearance.segmentedSelectedTextColor = UIColor.whiteColor;
-        appearance.markerPalette = @[UIColor.whiteColor, UIColor.redColor, UIColor.yellowColor];
-        appearance.lineWidthRatios = @[@0.5, @2, @4];
-        appearance.canvasBackgroundColor = [UIColor colorWithWhite:0.15 alpha:1];
-        appearance.iconButtonColor = UIColor.whiteColor;
-        appearance.iconButtonHighlightedColor = UIColor.systemYellowColor;
-        appearance.lineWidthHintText = @"笔刷\n宽度";
-        appearance.fontSizeHintText = @"字体\n大小";
-        appearance.hintTextColor = UIColor.systemYellowColor;
-        configuration.appearance = appearance;
-    }
-    configuration.allowsImageZoom = self.allowsImageZoom;
-    configuration.initialImageZoomScale = self.initialImageZoomScale;
-    configuration.markerColor = self.markerColor;
-    configuration.markerLineWidth = self.markerLineWidth;
-    configuration.markerTextFontSize = self.markerTextFontSize;
-    configuration.lineDrawsStraight = self.lineDrawsStraight;
+    configuration.allowsCropZoom = self.allowsCropZoom;
+    configuration.initialCropZoomScale = self.initialCropZoomScale;
+    configuration.allowsMarkZoom = self.allowsMarkZoom;
+    configuration.initialMarkZoomScale = self.initialMarkZoomScale;
     configuration.showsStyleOptions = self.showsStyleOptions;
     configuration.showsColorOptions = self.showsColorOptions;
     return configuration;
@@ -414,16 +360,13 @@
     NSString *shapeText = self.cropShape == WYImageCropShapeCircle ? @"圆形" : @"矩形";
     NSString *sizeText = self.hasFixedCropSize ? [NSString stringWithFormat:@"固定%.0f×%.0f", self.fixedCropSize.width, self.fixedCropSize.height] : @"自由";
     NSString *markingText = self.allowsMarking ? @"允许" : @"关闭";
-    NSString *lineWidthText = self.markerLineWidth == 0 ? @"自动" : [NSString stringWithFormat:@"%.0f", self.markerLineWidth];
-    NSString *fontSizeText = self.markerTextFontSize == 0 ? @"自动" : [NSString stringWithFormat:@"%.0f", self.markerTextFontSize];
-    NSString *lineShapeText = self.lineDrawsStraight ? @"直线" : @"自由";
     NSString *styleRowText = self.showsStyleOptions ? @"显示" : @"隐藏";
     NSString *colorRowText = self.showsColorOptions ? @"显示" : @"隐藏";
     NSString *imageSourceText = self.testImageName.length > 0 ? self.testImageName : @"标尺图";
     NSString *croppingText = self.allowsCropping ? @"允许" : @"关闭";
-    NSString *appearanceText = self.useCustomAppearance ? @"自定义" : @"默认";
-    NSString *zoomText = self.allowsImageZoom ? @"可缩放" : @"禁缩放";
-    wy_print(@"[%@] 打开编辑器 图片=%@ 原图%.0f×%.0f 配置=形状%@ 尺寸%@ 裁剪%@ 标记%@ 线宽%@ 字号%@ 划线%@ 粗细字号行%@ 颜色条%@ 外观%@ 缩放%@", source, imageSourceText, image.size.width, image.size.height, shapeText, sizeText, croppingText, markingText, lineWidthText, fontSizeText, lineShapeText, styleRowText, colorRowText, appearanceText, zoomText);
+    NSString *cropZoomText = self.allowsCropZoom ? @"可缩放" : @"禁缩放";
+    NSString *markZoomText = self.allowsMarkZoom ? @"可缩放" : @"禁缩放";
+    wy_print(@"[%@] 打开编辑器 图片=%@ 原图%.0f×%.0f 配置=形状%@ 尺寸%@ 裁剪%@ 标记%@ 粗细字号行%@ 颜色条%@ 裁剪缩放%@ 标记缩放%@", source, imageSourceText, image.size.width, image.size.height, shapeText, sizeText, croppingText, markingText, styleRowText, colorRowText, cropZoomText, markZoomText);
 }
 
 /// 记录编辑结果并刷新表格(三种打开方式共用)
@@ -474,61 +417,43 @@
     sender.selected = !self.allowsCropping;
 }
 
-/// 外观样式切换(自定义为覆盖多项外观属性的示例值)
-- (void)appearanceButtonTapped:(UIButton *)sender {
-    self.useCustomAppearance = !self.useCustomAppearance;
-    sender.selected = self.useCustomAppearance;
+/// 裁剪页缩放开关(关掉后裁剪页不能捏合缩放图片)
+- (void)cropZoomButtonTapped:(UIButton *)sender {
+    self.allowsCropZoom = !self.allowsCropZoom;
+    sender.selected = !self.allowsCropZoom;
 }
 
-/// 编辑时图片缩放开关(关掉后编辑器里不能捏合缩放)
-- (void)zoomButtonTapped:(UIButton *)sender {
-    self.allowsImageZoom = !self.allowsImageZoom;
-    sender.selected = !self.allowsImageZoom;
+/// 标记页缩放开关(关掉后标记页不能捏合缩放画布)
+- (void)markZoomButtonTapped:(UIButton *)sender {
+    self.allowsMarkZoom = !self.allowsMarkZoom;
+    sender.selected = !self.allowsMarkZoom;
 }
 
-/// 初始缩放倍数(输入相对适配大小的倍数)
-- (void)initialZoomButtonTapped:(UIButton *)sender {
-    [UIAlertController wy_showStyle:UIAlertControllerStyleAlert title:@"进入页面时图片初始缩放倍数(1为适配显示)" message:nil duration:0 actionSheetNeedCancel:NO textFieldPlaceholders:@[@"倍数"] actions:@[@"确定"] handler:^(NSString *action, NSArray<NSString *> *inputTexts) {
+/// 裁剪页初始缩放倍数(输入相对适配大小的倍数)
+- (void)initialCropZoomButtonTapped:(UIButton *)sender {
+    [UIAlertController wy_showStyle:UIAlertControllerStyleAlert title:@"进入裁剪页时图片初始缩放倍数(1为适配显示)" message:nil duration:0 actionSheetNeedCancel:NO textFieldPlaceholders:@[@"倍数"] actions:@[@"确定"] handler:^(NSString *action, NSArray<NSString *> *inputTexts) {
         if (![action isEqualToString:@"确定"]) { return; }
         double scale = [inputTexts.firstObject doubleValue];
-        self.initialImageZoomScale = scale > 0 ? scale : 1;
-        if (self.initialImageZoomScale == 1) {
-            [sender setTitle:@"初始缩放(1倍)" forState:UIControlStateNormal];
+        self.initialCropZoomScale = scale > 0 ? scale : 1;
+        if (self.initialCropZoomScale == 1) {
+            [sender setTitle:@"裁剪初始缩放(1倍)" forState:UIControlStateNormal];
         } else {
-            [sender setTitle:[NSString stringWithFormat:@"初始缩放(%.1f倍)", self.initialImageZoomScale] forState:UIControlStateNormal];
+            [sender setTitle:[NSString stringWithFormat:@"裁剪初始缩放(%.1f倍)", self.initialCropZoomScale] forState:UIControlStateNormal];
         }
     }];
 }
 
-- (void)colorButtonTapped:(UIButton *)sender {
-    NSArray *colorNames = @[@"白", @"黑", @"黄", @"红", @"绿", @"蓝", @"紫"];
-    [UIAlertController wy_showStyle:UIAlertControllerStyleAlert title:@"标记颜色" message:nil actions:colorNames handler:^(NSString *action, NSArray<NSString *> *inputTexts) {
-        NSUInteger index = [colorNames indexOfObject:action];
-        if (index == NSNotFound) { return; }
-        NSArray *colors = @[UIColor.whiteColor, UIColor.blackColor,
-                            [UIColor colorWithRed:1 green:0.84 blue:0.03 alpha:1],
-                            [UIColor colorWithRed:1 green:0.27 blue:0.23 alpha:1],
-                            [UIColor colorWithRed:0.22 green:0.8 blue:0.35 alpha:1],
-                            [UIColor colorWithRed:0.04 green:0.52 blue:1 alpha:1],
-                            [UIColor colorWithRed:0.69 green:0.33 blue:0.87 alpha:1]];
-        self.markerColor = colors[index];
-        [sender setTitle:[NSString stringWithFormat:@"标记颜色(%@)", action] forState:UIControlStateNormal];
-    }];
-}
-
-- (void)lineWidthButtonTapped:(UIButton *)sender {
-    [UIAlertController wy_showStyle:UIAlertControllerStyleAlert title:@"标记线条宽度(0为按图片宽度自动)" message:nil duration:0 actionSheetNeedCancel:NO textFieldPlaceholders:@[@"线宽(像素)"] actions:@[@"确定"] handler:^(NSString *action, NSArray<NSString *> *inputTexts) {
+/// 标记页初始缩放倍数(输入相对适配大小的倍数)
+- (void)initialMarkZoomButtonTapped:(UIButton *)sender {
+    [UIAlertController wy_showStyle:UIAlertControllerStyleAlert title:@"进入标记页时画布初始缩放倍数(1为适配显示)" message:nil duration:0 actionSheetNeedCancel:NO textFieldPlaceholders:@[@"倍数"] actions:@[@"确定"] handler:^(NSString *action, NSArray<NSString *> *inputTexts) {
         if (![action isEqualToString:@"确定"]) { return; }
-        self.markerLineWidth = [inputTexts.firstObject doubleValue];
-        [sender setTitle:self.markerLineWidth == 0 ? @"线条宽度(自动)" : [NSString stringWithFormat:@"线条宽度(%.0f)", self.markerLineWidth] forState:UIControlStateNormal];
-    }];
-}
-
-- (void)fontSizeButtonTapped:(UIButton *)sender {
-    [UIAlertController wy_showStyle:UIAlertControllerStyleAlert title:@"文本字号(0为按图片宽度自动)" message:nil duration:0 actionSheetNeedCancel:NO textFieldPlaceholders:@[@"字号(像素)"] actions:@[@"确定"] handler:^(NSString *action, NSArray<NSString *> *inputTexts) {
-        if (![action isEqualToString:@"确定"]) { return; }
-        self.markerTextFontSize = [inputTexts.firstObject doubleValue];
-        [sender setTitle:self.markerTextFontSize == 0 ? @"文本字号(自动)" : [NSString stringWithFormat:@"文本字号(%.0f)", self.markerTextFontSize] forState:UIControlStateNormal];
+        double scale = [inputTexts.firstObject doubleValue];
+        self.initialMarkZoomScale = scale > 0 ? scale : 1;
+        if (self.initialMarkZoomScale == 1) {
+            [sender setTitle:@"标记初始缩放(1倍)" forState:UIControlStateNormal];
+        } else {
+            [sender setTitle:[NSString stringWithFormat:@"标记初始缩放(%.1f倍)", self.initialMarkZoomScale] forState:UIControlStateNormal];
+        }
     }];
 }
 
@@ -550,12 +475,6 @@
             [sender setTitle:[NSString stringWithFormat:@"测试图片(标尺%@)", shortNames[rulerIndex]] forState:UIControlStateNormal];
         }
     }];
-}
-
-/// 划线默认形态切换(自由与直线两态)
-- (void)lineShapeButtonTapped:(UIButton *)sender {
-    self.lineDrawsStraight = !self.lineDrawsStraight;
-    sender.selected = self.lineDrawsStraight;
 }
 
 /// 界面粗细字号选择行显示开关

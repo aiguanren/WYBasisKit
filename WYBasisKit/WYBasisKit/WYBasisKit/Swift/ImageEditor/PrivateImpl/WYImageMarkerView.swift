@@ -127,6 +127,32 @@ class WYImageMarkerView: UIView {
     /// 当前显示的图片区域(原图坐标，跟随裁剪框变化)
     private var displayRegion: CGRect = .zero
 
+    /// 查看缩放系数(双指捏合放大画布看细节，只影响显示与命中，不影响标记存储坐标与导出)
+    private var userZoom: CGFloat = 1
+
+    /// 查看平移分量(放大后画布可拖，与查看缩放系数同属查看变换)
+    private var userPan: CGPoint = .zero
+
+    /// 配置的初始查看倍数(取景变化复位时回到它而不是1)
+    private var initialZoomMultiplier: CGFloat = 1
+
+    /// 上一次捏合倍率(按增量换算查看缩放，捏合结束后重捏不跳变)
+    private var lastPinchScale: CGFloat = 1
+
+    /// 画标记的拖动手势(只认单指，第二指落下不干扰正在画的线)
+    private lazy var panGesture: UIPanGestureRecognizer = {
+        let gesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
+        gesture.maximumNumberOfTouches = 1
+        return gesture
+    }()
+
+    /// 双指捏合查看手势(缩放平移画布，与画线手势互斥交接)
+    private lazy var pinchGesture: UIPinchGestureRecognizer = {
+        let gesture = UIPinchGestureRecognizer(target: self, action: #selector(handlePinchGesture(_:)))
+        gesture.delegate = self
+        return gesture
+    }()
+
     /// 全部标记(按绘制顺序排列，后画的盖在前面)
     private var items: [WYImageMarkerItem] = []
 
@@ -180,11 +206,15 @@ class WYImageMarkerView: UIView {
      *   - straightLine: 划线默认形态(true为直线)
      *   - appearance: 界面外观
      */
-    func setup(image: UIImage, defaultColor: UIColor, lineWidth: CGFloat, textFontSize: CGFloat, straightLine: Bool, appearance: WYImageEditorAppearance) {
+    func setup(image: UIImage, defaultColor: UIColor, lineWidth: CGFloat, textFontSize: CGFloat, straightLine: Bool, appearance: WYImageEditorAppearance, zoomEnabled: Bool = true, initialZoomMultiplier: CGFloat = 1) {
         sourceImage = image
         currentColor = defaultColor
         lineDrawsStraight = straightLine
         self.appearance = appearance
+        pinchGesture.isEnabled = zoomEnabled
+        self.initialZoomMultiplier = min(max(initialZoomMultiplier, 1), 8)
+        userZoom = self.initialZoomMultiplier
+        userPan = .zero
         let baseWidth = max(image.size.width, 1)
         defaultLineWidth = lineWidth > 0 ? lineWidth : min(max(baseWidth / 160, 3), 48)
         defaultFontSize = textFontSize > 0 ? textFontSize : min(max(baseWidth / 18, 16), 220)
@@ -192,8 +222,12 @@ class WYImageMarkerView: UIView {
         baseFontSize = defaultFontSize
     }
 
-    /// 更新显示区域(切到标记模式或裁剪框变化时按裁剪框取景)
+    /// 更新显示区域(切到标记模式或裁剪框变化时按裁剪框取景，取景变了查看缩放与平移复位到初始倍数)
     func updateDisplayRegion(_ region: CGRect) {
+        if region.size != displayRegion.size {
+            userZoom = initialZoomMultiplier
+            userPan = .zero
+        }
         displayRegion = region
         setNeedsDisplay()
     }
@@ -421,12 +455,12 @@ class WYImageMarkerView: UIView {
         return CGPoint(x: (imageCoordinate.x - validRegion.origin.x) * transform.scale + transform.origin.x, y: (imageCoordinate.y - validRegion.origin.y) * transform.scale + transform.origin.y)
     }
 
-    /// 显示区到画布的映射(等比缩放加平移，图片区域完整显示在画布内居中)
+    /// 显示区到画布的映射(等比缩放加平移，图片区域完整显示在画布内居中，查看缩放与平移叠加其上)
     private func displayTransform() -> (scale: CGFloat, origin: CGPoint) {
         guard displayRegion.width > 0, displayRegion.height > 0, bounds.width > 0, bounds.height > 0 else { return (1, .zero) }
-        let scale = min(bounds.width / displayRegion.width, bounds.height / displayRegion.height)
-        let originX = (bounds.width - displayRegion.width * scale) / 2
-        let originY = (bounds.height - displayRegion.height * scale) / 2
+        let scale = min(bounds.width / displayRegion.width, bounds.height / displayRegion.height) * userZoom
+        let originX = (bounds.width - displayRegion.width * scale) / 2 + userPan.x
+        let originY = (bounds.height - displayRegion.height * scale) / 2 + userPan.y
         return (scale, CGPoint(x: originX, y: originY))
     }
 
@@ -751,9 +785,10 @@ class WYImageMarkerView: UIView {
         super.init(frame: frame)
         backgroundColor = UIColor.clear
         isOpaque = false
-        isMultipleTouchEnabled = false
+        isMultipleTouchEnabled = true
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTapGesture(_:))))
-        addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:))))
+        addGestureRecognizer(panGesture)
+        addGestureRecognizer(pinchGesture)
     }
 
     /// 画布尺寸变化时强制重画(切模式画布高度跳变时旧位图会被系统拉伸铺满新尺寸显示成图片变大变形)
@@ -809,6 +844,54 @@ class WYImageMarkerView: UIView {
             updateDragging(toViewLocation: viewLocation, imageLocation: imageLocation)
         default:
             finishDragging()
+        }
+    }
+
+    /// 双指捏合查看(增量缩放画布，锚点跟在两指中点且缩放平移一体，只影响显示与命中不影响标记存储坐标与导出)
+    @objc private func handlePinchGesture(_ gesture: UIPinchGestureRecognizer) {
+        switch gesture.state {
+        case .began:
+
+            // 画标记拖拽中转捏合，先强制结束拖拽再把触摸让给捏合
+            if panGesture.state == .began || panGesture.state == .changed {
+                if panGesture.isEnabled {
+                    panGesture.isEnabled = false
+                    panGesture.isEnabled = true
+                }
+            }
+            lastPinchScale = gesture.scale
+        case .changed:
+            let incremental = gesture.scale / lastPinchScale
+            lastPinchScale = gesture.scale
+            let old = displayTransform()
+            let anchor = gesture.location(in: self)
+            let newZoom = min(max(userZoom * incremental, 1), 8)
+            let newScale = old.scale * newZoom / userZoom
+
+            // 锚点跟手(两指中点下的内容保持不动)反解出缩放后的显示原点
+            let anchoredOriginX = anchor.x - (anchor.x - old.origin.x) * newScale / old.scale
+            let anchoredOriginY = anchor.y - (anchor.y - old.origin.y) * newScale / old.scale
+            userZoom = newZoom
+
+            // 平移钳制(内容不大于画布时归零保持居中，大于画布时不许把内容拖出画布边缘)
+            let contentWidth = validRegion.width * newScale
+            let contentHeight = validRegion.height * newScale
+            var panX = anchoredOriginX - (bounds.width - contentWidth) / 2
+            var panY = anchoredOriginY - (bounds.height - contentHeight) / 2
+            if contentWidth <= bounds.width {
+                panX = 0
+            } else {
+                panX = min(max(panX, -(contentWidth - bounds.width) / 2), (contentWidth - bounds.width) / 2)
+            }
+            if contentHeight <= bounds.height {
+                panY = 0
+            } else {
+                panY = min(max(panY, -(contentHeight - bounds.height) / 2), (contentHeight - bounds.height) / 2)
+            }
+            userPan = CGPoint(x: panX, y: panY)
+            setNeedsDisplay()
+        default:
+            break
         }
     }
 
@@ -976,5 +1059,13 @@ class WYImageMarkerView: UIView {
             return
         }
         setNeedsDisplay()
+    }
+}
+
+extension WYImageMarkerView: UIGestureRecognizerDelegate {
+
+    /// 捏合与画标记拖动允许同时识别(画线中第二指落下可无缝转捏合，捏合开始时手动结束拖拽)
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return (gestureRecognizer === pinchGesture && otherGestureRecognizer === panGesture) || (gestureRecognizer === panGesture && otherGestureRecognizer === pinchGesture)
     }
 }
