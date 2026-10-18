@@ -284,7 +284,7 @@ extension UIAlertController {
                 if #available(iOS 26.0, *) {
                     showWindow = UIWindow(windowScene: UIApplication.shared.wy_keyWindowScene)
                 } else {
-                    showWindow = UIWindow(frame: UIScreen.main.bounds)
+                    showWindow = UIWindow(frame: UIApplication.shared.wy_keyWindow.bounds)
                 }
                 showWindow?.rootViewController = UIViewController()
                 showWindow?.windowLevel = .alert

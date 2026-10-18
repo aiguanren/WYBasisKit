@@ -79,12 +79,12 @@ public extension UIDevice {
     
     /// 屏幕宽
     static var wy_screenWidth: CGFloat {
-        return UIScreen.main.bounds.size.width
+        return UIApplication.shared.wy_keyWindow.bounds.size.width
     }
     
     /// 屏幕高
     static var wy_screenHeight: CGFloat {
-        return UIScreen.main.bounds.size.height
+        return UIApplication.shared.wy_keyWindow.bounds.size.height
     }
     
     /// 屏幕宽度比率

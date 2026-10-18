@@ -18,6 +18,13 @@ extension UIApplication: @retroactive UIApplicationDelegate {
             return windowScene
         }
         
+        // keyWindow 没挂场景的兜底窗口时，取第一个已连接的场景兜底
+        if let windowScene = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first {
+            return windowScene
+        }
+        
         // 都没有找到，抛出fatalError
         fatalError("❌ 错误：没有找到可用的 UIWindowScene，请确保应用已正确初始化并显示了窗口。")
     }
@@ -49,8 +56,23 @@ extension UIApplication: @retroactive UIApplicationDelegate {
             return window
         }
         
-        // 都没有找到，抛出fatalError
-        fatalError("❌ 错误：没有找到可用的 UIWindow，请确保应用已正确初始化并显示了窗口。")
+        // 场景里已有窗口但都还没显示(启动最早期 rootVC 初始化阶段)，取第一个窗口
+        if let window = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .flatMap({ $0.windows })
+            .first {
+            return window
+        }
+        
+        // 场景已连接但窗口还没建，创建挂靠第一个场景的全屏窗口(会被场景持有，之后走前面的分支就能找到)
+        if let windowScene = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first {
+            return UIWindow(windowScene: windowScene)
+        }
+        
+        // 连场景都还没连接的启动极早期，创建游离全屏窗口(UIWindow() 默认取主屏尺寸)
+        return UIWindow()
     }
     
     /// 切换为深色或浅色模式
