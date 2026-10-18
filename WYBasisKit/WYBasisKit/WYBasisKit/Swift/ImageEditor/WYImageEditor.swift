@@ -128,10 +128,10 @@ public struct WYImageEditorConfiguration {
     /// 裁剪形状(默认矩形)
     public var cropShape: WYImageCropShape = .rectangle
 
-    /// 固定裁剪输出尺寸(单位为像素；宽高任一为0表示不固定，由用户自由拖动裁剪框决定；圆形裁剪时取宽高较小边做直径)
+    /// 固定裁剪输出尺寸(单位为像素，宽高任一为0表示不固定，由用户自由拖动裁剪框决定，圆形裁剪时取宽高较小边做直径)
     public var cropSize: CGSize = .zero
 
-    /// 是否允许裁剪(false时编辑器只有标记功能；与allowsMarking同时为false时按只裁剪处理)
+    /// 是否允许裁剪(false时编辑器只有标记功能，与allowsMarking同时为false时按只裁剪处理)
     public var allowsCropping: Bool = true
 
     /// 是否允许在图片上做标记(false时编辑器只有裁剪功能)
@@ -140,10 +140,10 @@ public struct WYImageEditorConfiguration {
     /// 标记默认颜色(选中有标记时改颜色会直接应用到它)
     public var markerColor: UIColor = .white
 
-    /// 标记线条宽度(单位为像素；0表示按图片宽度自动配一个合适的值)
+    /// 标记线条宽度(单位为像素，0表示按图片宽度自动配一个合适的值)
     public var markerLineWidth: CGFloat = 0
 
-    /// 文本标记字号(单位为像素；0表示按图片宽度自动配一个合适的值)
+    /// 文本标记字号(单位为像素，0表示按图片宽度自动配一个合适的值)
     public var markerTextFontSize: CGFloat = 0
 
     /// 划线工具的默认形态(true为两点连成直线，false为跟随手指自由划线)
@@ -260,7 +260,7 @@ public class WYImageEditorViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    /// 顶部取消按钮(编辑 discard 出口)
+    /// 顶部取消按钮(放弃编辑的出口)
     private lazy var cancelButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setTitle(WYLocalized("取消", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
@@ -689,7 +689,7 @@ public class WYImageEditorViewController: UIViewController {
         clearButton.frame = CGRect(x: x, y: itemTop, width: itemSize, height: itemSize)
 
         var nextRowY: CGFloat = rowHeight
-        // 全区列对齐基准：列中心=第一行工具按钮内图标的中心(列距与工具行同算式，任何屏宽都一致)
+        // 全区列对齐基准(列中心=第一行工具按钮内图标的中心，列距与工具行同算式，任何屏宽都一致)
         let columnPitch = itemSize + itemGap
         let firstColumnCenter = startX + itemSize / 2
         if configuration.showsColorOptions {
@@ -723,25 +723,24 @@ public class WYImageEditorViewController: UIViewController {
         let hintWidth = UIDevice.wy_screenWidth(30, WYBasisKitConfig.defaultScreenPixels)
         styleHintLabel.frame = CGRect(x: firstColumnCenter - hintWidth / 2, y: buttonTop, width: hintWidth, height: buttonHeight)
         let dotSizes = [10, 15, 21, 29].map { UIDevice.wy_screenWidth(CGFloat($0), WYBasisKitConfig.defaultScreenPixels) }
-        if lineWidthDotButtons.first?.isHidden == false {
-            for (index, button) in lineWidthDotButtons.enumerated() {
-                let columnCenter = firstColumnCenter + CGFloat(index + 1) * columnPitch
-                button.frame = CGRect(x: columnCenter - buttonWidth / 2, y: buttonTop, width: buttonWidth, height: buttonHeight)
-                if let dotLayer = button.layer.sublayers?.first(where: { $0.name == "widthDot" }) {
-                    dotLayer.frame = CGRect(x: (buttonWidth - dotSizes[index]) / 2, y: (buttonHeight - dotSizes[index]) / 2, width: dotSizes[index], height: dotSizes[index])
-                    dotLayer.cornerRadius = dotSizes[index] / 2
-                    dotLayer.masksToBounds = true
-                }
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        for (index, button) in lineWidthDotButtons.enumerated() {
+            let columnCenter = firstColumnCenter + CGFloat(index + 1) * columnPitch
+            button.frame = CGRect(x: columnCenter - buttonWidth / 2, y: buttonTop, width: buttonWidth, height: buttonHeight)
+            if let dotLayer = button.layer.sublayers?.first(where: { $0.name == "widthDot" }) {
+                dotLayer.frame = CGRect(x: (buttonWidth - dotSizes[index]) / 2, y: (buttonHeight - dotSizes[index]) / 2, width: dotSizes[index], height: dotSizes[index])
+                dotLayer.cornerRadius = dotSizes[index] / 2
+                dotLayer.masksToBounds = true
             }
         }
-        if fontSizeButtons.first?.isHidden == false {
-            for (index, button) in fontSizeButtons.enumerated() {
-                let columnCenter = firstColumnCenter + CGFloat(index + 1) * columnPitch
-                button.frame = CGRect(x: columnCenter - buttonWidth / 2, y: buttonTop, width: buttonWidth, height: chipHeight)
-            }
+        CATransaction.commit()
+        for (index, button) in fontSizeButtons.enumerated() {
+            let columnCenter = firstColumnCenter + CGFloat(index + 1) * columnPitch
+            button.frame = CGRect(x: columnCenter - buttonWidth / 2, y: buttonTop, width: buttonWidth, height: chipHeight)
         }
         if !straightChipButton.isHidden {
-            // 两颗形态按钮拼成双段胶囊：高度与最大粗细圆点同高且圆角取半高成胶囊形，左缘固定对齐第6列圆点的左缘(默认色板即蓝色那颗，以后色板新增圆点蓝色挪位后锚点仍钉在第6列不漂移)，右缘超屏时整体左移钳制
+            // 两颗形态按钮拼成双段胶囊(高度与最大粗细圆点同高且圆角取半高成胶囊形)，左缘固定对齐第6列圆点的左缘(锚点固定在第6列，色板增减圆点后不漂移)，右缘超屏时整体左移钳制
             let pairHeight = UIDevice.wy_screenWidth(29, WYBasisKitConfig.defaultScreenPixels)
             let pairWidth = columnPitch + chipWidth
             let colorDiameter = UIDevice.wy_screenWidth(25, WYBasisKitConfig.defaultScreenPixels)
@@ -813,7 +812,7 @@ public class WYImageEditorViewController: UIViewController {
         }
     }
 
-    /// 点还原或清除(一键清除且按页面区分语义：裁剪页面恢复图片至裁剪前全部裁剪回退标记保留，标记页面清除全部标记裁剪保留)
+    /// 点还原或清除(按页面区分语义，裁剪页面恢复图片至裁剪前、全部裁剪回退且标记保留，标记页面清除全部标记且裁剪保留)
     @objc private func revertButtonTapped() {
         suppressOperationRecording = true
         if isMarkMode {
@@ -926,7 +925,7 @@ public class WYImageEditorViewController: UIViewController {
         return cropperView.cropRectInImageCoordinates()
     }
 
-    /// 让标记视图取景(自由模式进标记前已应用裁剪，显示整张基准图；固定尺寸模式按取景框显示)
+    /// 让标记视图取景(自由模式进标记前已应用裁剪，显示整张基准图，固定尺寸模式按取景框显示)
     private func refreshMarkerDisplayRegion() {
         if configuration.cropSize == .zero {
             let size = cropperView.currentBaseImage.size

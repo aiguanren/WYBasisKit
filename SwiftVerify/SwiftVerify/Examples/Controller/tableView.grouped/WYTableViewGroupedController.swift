@@ -22,7 +22,7 @@ class WYGroupedHeaderView: UITableViewHeaderFooterView {
     /// 水平方向各下标对应的图片地址
     var horizontalImages: [String] = []
     
-    /// 图片预取器(持引用是为了header复用换图集时能stop()掉旧预取，不占带宽；运行期间KF自身也会持有，fire-and-forget不会半路释放)
+    /// 图片预取器(持引用是为了header复用换图集时能stop()掉旧预取，不占带宽，运行期间KF自身也会持有，fire-and-forget不会半路释放)
     var prefetcher: ImagePrefetcher?
     
     /// 垂直方向各下标对应的图片地址
@@ -62,7 +62,7 @@ class WYGroupedHeaderView: UITableViewHeaderFooterView {
     func reload(images: [String]) {
         self.horizontalImages = images
         
-        // URL列表确定即预取全部图片进缓存(与kf.setImage共用KF默认缓存，滑动时直命中内存缓存无等待)；已缓存的会被KF自动跳过，header复用反复调用也不会重复下载；.backgroundDecode让解码也发生在后台线程
+        // URL列表确定即预取全部图片进缓存(与kf.setImage共用KF默认缓存，滑动时直接命中内存缓存无等待)，已缓存的会被KF自动跳过，header复用反复调用也不会重复下载，.backgroundDecode让解码发生在后台线程
         prefetcher?.stop()
         prefetcher = ImagePrefetcher(urls: images.compactMap(URL.init(string:)), options: [.backgroundDecode])
         prefetcher?.start()
@@ -96,12 +96,12 @@ extension WYGroupedHeaderView: WYContentScrollViewDelegate {
     }
     
     func wy_contentScrollViewDidSwitch(_ contentScrollView: WYContentScrollView, direction: WYSlidingDirection, currentHorizontalView: UIView?, reserveHorizontalView: UIView?, currentVerticalView: UIView?, reserveVerticalView: UIView?) {
-        // 当前页按currentIndex装图(取模防环绕越界)；同样keepCurrentImageWhileLoading——willSwitch已装过同URL时重设不再被占位图顶掉，补发场景(未预载)也能保留旧图到真图就位
+        // 当前页按currentIndex装图，取模防止环绕越界，keepCurrentImageWhileLoading让willSwitch已装过同URL时重设不再被占位图覆盖，补发场景(未预载)也能保留旧图到真图就位
         if ((direction == .left) || (direction == .right)), let imageView = currentHorizontalView as? UIImageView, horizontalImages.isEmpty == false {
             imageView.kf.setImage(with: URL(string: horizontalImages[contentScrollView.currentHorizontalIndex % horizontalImages.count]), placeholder: UIImage.wy_appIcon(), options: [.keepCurrentImageWhileLoading])
         }
         
-        // 当前页按currentIndex装图(补发didSwitch时reserveIndex还是残留值，用它会串台；取模防环绕越界)
+        // 当前页按currentIndex装图
         if ((direction == .up) || (direction == .down)), let imageView = currentVerticalView as? UIImageView, verticalImages.isEmpty == false {
             imageView.image = verticalImages[contentScrollView.currentVerticalIndex % verticalImages.count]
         }

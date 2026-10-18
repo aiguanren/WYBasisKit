@@ -12,9 +12,9 @@ import UIKit
  
  - Parameters:
    - targetClass: 目标视图类（如 `UIView.self`）。
-   - intercept: 拦截决策闭包。返回 `.proceed` 则使用原始矩形；返回 `.result(rect)` 则使用新矩形进行绘制。参数依次为：当前视图、原始矩形。
-   - before: 方法执行前回调。参数依次为：当前视图、绘制区域矩形。无返回值。
-   - after: 方法执行后回调。参数依次为：当前视图、绘制区域矩形。无返回值（仅通知）。
+   - intercept: 拦截决策闭包，返回 `.proceed` 则使用原始矩形，返回 `.result(rect)` 则使用新矩形进行绘制，参数依次为：当前视图、原始矩形
+   - before: 方法执行前回调，参数依次为：当前视图、绘制区域矩形。无返回值。
+   - after: 方法执行后回调，参数依次为：当前视图、绘制区域矩形。无返回值（仅通知）。
  */
 internal func wy_swizzlerDrawRect(
     for targetClass: UIView.Type,

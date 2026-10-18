@@ -191,7 +191,7 @@ import WYBasisKitSwift
         set { bar_item_imageContentMode = newValue }
     }
 
-    /// 分页栏Item图片Normal状态tint颜色，默认nil不设置(设置后图标强制按模板图渲染颜色才会生效；仅设置单个状态时另一状态沿用上次颜色，与边框颜色切换行为一致)
+    /// 分页栏Item图片Normal状态tintColor，默认nil
     @objc(bar_item_defaultIconTintColor)
     var bar_item_defaultIconTintColorObjC: UIColor? {
         get { return bar_item_defaultIconTintColor }
@@ -324,14 +324,14 @@ import WYBasisKitSwift
         set { bar_scrollLineCornerRadius = newValue }
     }
 
-    /// 分页栏标题 Normal状态 字号 默认15号；
+    /// 分页栏标题 Normal状态 字号 默认15号
     @objc(bar_title_defaultFont)
     var bar_title_defaultFontObjC: UIFont {
         get { return bar_title_defaultFont }
         set { bar_title_defaultFont = newValue }
     }
 
-    /// 分页栏标题 Selected状态 字号 默认15号；
+    /// 分页栏标题 Selected状态 字号 默认15号
     @objc(bar_title_selectedFont)
     var bar_title_selectedFontObjC: UIFont {
         get { return bar_title_selectedFont }
@@ -345,21 +345,21 @@ import WYBasisKitSwift
         set { bar_title_selectedScale = newValue }
     }
 
-    /// 文本显示不下时最多可换行到几行，默认1不换行，传0表示不限行数(仅在bar_item_width传入固定宽度时生效，自适应宽度时Item会随文本撑开不存在显示不下；不为1时按换行显示，此时bar_title_shrinkFontToFit不生效，两个属性只能生效一个，Item高度装不下所有行时超出部分截断)
+    /// 文本显示不下时最多可换行到几行，默认1不换行，传0表示不限行数(仅在bar_item_width传入固定宽度时生效，自适应宽度时Item会随文本撑开不存在显示不下，不为1时按换行显示，此时bar_title_shrinkFontToFit不生效，两个属性只能生效一个，Item高度装不下所有行时超出部分截断)
     @objc(bar_title_numberOfLines)
     var bar_title_numberOfLinesObjC: Int {
         get { return bar_title_numberOfLines }
         set { bar_title_numberOfLines = newValue }
     }
 
-    /// 文本显示不下时是否缩小字号自适应完整显示，默认true(仅在bar_item_width传入固定宽度且bar_title_numberOfLines为1时生效，不为1走换行显示；false时显示不下直接截断)
+    /// 文本显示不下时是否缩小字号自适应完整显示，默认true(仅在bar_item_width传入固定宽度且bar_title_numberOfLines为1时生效，不为1走换行显示，false时显示不下直接截断)
     @objc(bar_title_shrinkFontToFit)
     var bar_title_shrinkFontToFitObjC: Bool {
         get { return bar_title_shrinkFontToFit }
         set { bar_title_shrinkFontToFit = newValue }
     }
 
-    /// 文本缩字自适应的最小字号系数，默认0.6(例如：15号字最小缩到约9号；仅在bar_title_shrinkFontToFit生效时有意义，取值范围0~1，超出按边界值处理)
+    /// 文本缩字自适应的最小字号系数，默认0.6(例如：15号字最小缩到约9号，仅在bar_title_shrinkFontToFit生效时有意义，取值范围0~1，超出按边界值处理)
     @objc(bar_title_minimumFontScale)
     var bar_title_minimumFontScaleObjC: CGFloat {
         get { return bar_title_minimumFontScale }

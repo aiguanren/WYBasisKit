@@ -12,9 +12,9 @@ import UIKit
  
  - Parameters:
    - targetClass: 目标布局类。
-   - intercept: 拦截决策闭包。返回 `.proceed` 则继续执行原始方法；返回 `.result(shouldInvalidate)` 则直接返回该布尔值，**不再调用原始方法**。参数依次为：布局对象、新边界。
-   - before: 方法执行前回调。参数依次为：布局对象、新边界。无返回值。
-   - after: 方法执行后回调。参数依次为：布局对象、新边界、原始返回值（`Bool`）。可返回一个新的 `Bool` 来替换原始返回值。
+   - intercept: 拦截决策闭包，返回 `.proceed` 则继续执行原始方法，返回 `.result(shouldInvalidate)` 则直接返回该布尔值，**不再调用原始方法**，参数依次为：布局对象、新边界
+   - before: 方法执行前回调，参数依次为：布局对象、新边界。无返回值。
+   - after: 方法执行后回调，参数依次为：布局对象、新边界、原始返回值（`Bool`）。可返回一个新的 `Bool` 来替换原始返回值。
  */
 internal func wy_swizzlerShouldInvalidateLayout(
     for targetClass: UICollectionViewLayout.Type,

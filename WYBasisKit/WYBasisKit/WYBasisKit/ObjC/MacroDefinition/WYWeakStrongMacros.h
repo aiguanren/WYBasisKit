@@ -21,7 +21,7 @@
  *     由于宏展开后包含多条语句，请始终在 if/else/for/while 等语句后使用花括号 {}，避免控制流错误。
  *
  *   ⚠️嵌套 Block 说明：
- *     wy_weakify 只需要在最外层调用一次；但每一层 Block 内都必须重新调用 wy_strongify。
+ *     wy_weakify 只需要在最外层调用一次，但每一层 Block 内都必须重新调用 wy_strongify。
  *
  *   ✅正确示例：
  *       if (condition) {

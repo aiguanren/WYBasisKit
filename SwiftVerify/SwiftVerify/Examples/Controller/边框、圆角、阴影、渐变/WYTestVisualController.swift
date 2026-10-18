@@ -452,7 +452,7 @@ class WYTestVisualController: UIViewController {
     }
 
     @objc private func toggleShadowBlockChild() {
-        // 验证矩形shadowPath和轮廓阴影的自动迁移:加子视图后重应用，内容不再铺满矩形应切回轮廓阴影(子视图伸出左边界，阴影形状跟着变宽)；移除后重应用应切回矩形shadowPath，来回无残留
+        // 验证矩形shadowPath和轮廓阴影的自动迁移(加子视图后重应用，内容不再铺满矩形应切回轮廓阴影，子视图伸出左边界时阴影形状跟着变宽，移除后重应用应切回矩形shadowPath，来回无残留)
         shadowBlockHasChild.toggle()
         if shadowBlockHasChild {
             shadowBlock.addSubview(shadowBlockChild)

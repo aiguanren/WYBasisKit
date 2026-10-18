@@ -320,7 +320,7 @@ public extension WYChatMoreView {
     
     /**
      *  设置分页控件指示器的图片
-     *  iOS14以前两个图片必须同时设置，否则设置无效，iOS14及以后可以只设置其中一张
+     *  两枚图片可以只设置其中一张
      *  不设置则为系统默认
      *
      *  @param defaultImage    其他页码的图片

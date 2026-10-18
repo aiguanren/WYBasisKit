@@ -254,7 +254,7 @@ public extension UIImage {
         let scaledShadowBlur = safeShadowBlur / scale
         let scaledShadowOffset = CGSize(width: shadowOffset.width / scale, height: shadowOffset.height / scale)
         
-        // 确定阴影路径（如果有蒙版，使用矩形路径；否则使用圆角路径）
+        // 确定阴影路径（如果有蒙版，使用矩形路径，否则使用圆角路径）
         let shadowPath: UIBezierPath
         if maskImage != nil {
             shadowPath = UIBezierPath(rect: imageRect)
@@ -731,7 +731,7 @@ public extension UIImage {
     /**
      *  获取 AppIcon 图标
      *
-     *  App图标不能用图片名直接取到(它不走普通的图片集编译)，图标文件的名字登记在Info.plist的CFBundleIcons字段里，从这里拿到文件名列表后取最后一项(通常是最大尺寸的那张)；无论工程配置的是单尺寸1024还是多尺寸都能取到
+     *  App图标不能用图片名直接取到(它不走普通的图片集编译)，图标文件的名字登记在Info.plist的CFBundleIcons字段里，从这里拿到文件名列表后取最后一项(通常是最大尺寸的那张)，无论工程配置的是单尺寸1024还是多尺寸都能取到
      *
      */
     static func wy_appIcon() -> UIImage? {

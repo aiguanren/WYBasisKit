@@ -29,14 +29,13 @@ extension WYAudioKit {
         }
     }
     
-    /// 内部清理播放器资源
-    /// - Parameter shouldCallbackStop: 是否回调 .stop 状态
+    /// 内部清理播放器资源(shouldCallbackStop为true时回调 .stop 状态)
     func cleanupPlayback(shouldCallbackStop: Bool) {
         guard !state.isStoppingPlayback else { return }
         state.isStoppingPlayback = true
         defer { state.isStoppingPlayback = false }
         
-        // 清理观察者(流式播放的观察者也要断，旧版漏了它，流式播完停掉后观察者还挂在旧的playerItem上)
+        // 清理观察者(含流式播放的观察者，不断开时它会一直挂在旧的playerItem上)
         state.playerItemStatusObservation?.invalidate()
         state.playerItemStatusObservation = nil
         state.streamingObservation?.invalidate()

@@ -89,18 +89,18 @@ public struct WYLogManager {
         return docURL.appendingPathComponent("\(resolvedFileName()).log").path
     }
 
-    /// 自定义日志文件名(不含扩展名；不设置时默认名=本地化App名+本地化"日志"词，如中文名"语音工坊"生成"语音工坊日志"、英文名"VoiceFactory"生成"VoiceFactoryLog"；启动期主线程一次写入、之后各线程只读)
+    /// 自定义日志文件名(不含扩展名，不设置时默认名=本地化App名+本地化"日志"词，如中文名"语音工坊"生成"语音工坊日志"、英文名"VoiceFactory"生成"VoiceFactoryLog")
     nonisolated(unsafe) public static var logFileName: String?
 
-    /// 日志加密模式(默认aesGCM，加密后文件内容与导出附件均为密文，只能通过decryptedLogText()或配套解密脚本阅读；启动期主线程一次写入、之后各线程只读)
+    /// 日志加密模式(默认aesGCM，加密后文件内容与导出附件均为密文，只能通过decryptedLogText()或配套解密脚本阅读)
     nonisolated(unsafe) public static var encryptionMode: WYLogEncryptionMode = .aesGCM
 
-    /// 日志加密密钥(xor与aesGCM使用；不设置时按包名派生，接入方建议在首次写日志前设置；启动期主线程一次写入、之后各线程只读)
+    /// 日志加密密钥(xor与aesGCM使用，不设置时按包名派生，接入方建议在首次写日志前设置)
     nonisolated(unsafe) public static var encryptionKey: Data?
 
     /**
      * 读取整个日志文件并解密成明文
-     * - Returns: 解密后的完整日志文本(历史明文条目原样保留，解密失败的条目自动跳过；文件不存在时返回空串)
+     * - Returns: 解密后的完整日志文本(历史明文条目原样保留，解密失败的条目自动跳过，文件不存在时返回空串)
      */
     public static func decryptedLogText() -> String {
         guard let text = try? String(contentsOfFile: logFilePath, encoding: .utf8) else { return "" }
@@ -232,7 +232,7 @@ public struct WYLogManager {
     /// 加密条目行前缀(带版本号，文件里每行一条密文，解密端据此识别格式)
     private static let encryptedLinePrefix = "WYLOG1:"
 
-    /// 默认密钥派生盐(接入方未设置encryptionKey时与包名一起喂PBKDF2派生日志密钥；发版时随机换新值可让照旧默认派生写的解密脚本失效，设了自定义密钥的接入方不受影响)
+    /// 默认密钥派生盐(接入方未设置encryptionKey时与包名一起喂PBKDF2派生日志密钥，发版时随机换新值可让照旧默认派生写的解密脚本失效，设了自定义密钥的接入方不受影响)
     private static let internalSeedValue = "c079b05228d588a6"
 
     /// 实际生效的密钥(接入方设置过就用接入方的，否则按包名与内部常量派生32字节)
@@ -244,7 +244,7 @@ public struct WYLogManager {
         return WYCryptor.pbkdf2(password: bundleId, salt: internalSeedValue, rounds: 4096, length: 32) ?? Data((bundleId + internalSeedValue).utf8)
     }
 
-    /// 解析日志文件名(自定义名优先；默认名=本地化App名+本地化"日志"词，App名缺失或清洗为空回落到包名末段)
+    /// 解析日志文件名(自定义名优先，默认名=本地化App名+本地化"日志"词，App名缺失或清洗为空回落到包名末段)
     private static func resolvedFileName() -> String {
         let fallbackName = Bundle.main.bundleIdentifier?.components(separatedBy: ".").last ?? "App"
 

@@ -12,9 +12,9 @@ import UIKit
  
  - Parameters:
    - targetClass: 目标 Label 类（如 `UILabel.self`）。
-   - intercept: 拦截决策闭包。返回 `.proceed` 则使用原始矩形；返回 `.result(rect)` 则使用新矩形进行绘制。参数依次为：当前标签、原始矩形。
-   - before: 方法执行前观察闭包（仅在原始方法执行前调用）。参数依次为：当前标签、最终使用的矩形。无返回值。
-   - after: 方法执行后回调。参数依次为：当前标签、最终使用的矩形。无返回值（仅通知）。
+   - intercept: 拦截决策闭包，返回 `.proceed` 则使用原始矩形，返回 `.result(rect)` 则使用新矩形进行绘制，参数依次为：当前标签、原始矩形
+   - before: 方法执行前观察闭包（仅在原始方法执行前调用），参数依次为：当前标签、最终使用的矩形。无返回值。
+   - after: 方法执行后回调，参数依次为：当前标签、最终使用的矩形。无返回值（仅通知）。
  */
 internal func wy_swizzlerDrawText(
     for targetClass: UILabel.Type,

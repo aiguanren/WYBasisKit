@@ -12,15 +12,15 @@ import AVFoundation
 /**
  流式录音器 - 边录边回调PCM音频块，不落音频文件
  
- 与WYAudioKit的差异，WYAudioKit把录音写成m4a等文件、录完再处理，本类从麦克风取到声音就立刻把音频块回调出来，适合边说边识别语音、实时变声这类等不了录完的场景。
- 使用方式，start成功后音频块从onAudioChunk持续吐出，不需要了调stop或releaseAll收尾。
+ 与WYAudioKit的差异：WYAudioKit把录音写成m4a等文件、录完再处理，本类从麦克风取到声音就立刻把音频块回调出来，适合边说边识别语音、实时变声这类需要实时音频的场景。
+ 使用方式：start成功后音频块从onAudioChunk持续回调，不再使用时调stop或releaseAll收尾。
  */
 public final class WYAudioStreamRecorder: NSObject {
 
-    /// 音频块回调(pcmBuffer为16千赫兹采样、16位整型、单声道的PCM音频块，currentTime为本块结束时已录的秒数；闭包在音频采集线程回调且为Sendable，不要在这里做耗时操作，UI刷新需自行切回主线程)
+    /// 音频块回调(pcmBuffer为16千赫兹采样、16位整型、单声道的PCM音频块，currentTime为本块结束时已录的秒数，闭包在音频采集线程回调且为Sendable，避免耗时操作，UI刷新需自行切回主线程)
     public var onAudioChunk: (@Sendable (_ pcmBuffer: AVAudioPCMBuffer, _ currentTime: TimeInterval) -> Void)?
 
-    /// 音量回调(averagePower为当前音频块的响度，范围-160.0到0.0，0.0最响，适合喂声波动画；currentTime为已录秒数；闭包在音频采集线程回调且为Sendable)
+    /// 音量回调(averagePower为当前音频块的响度，范围-160.0到0.0，0.0最响，适合驱动声波动画，currentTime为已录秒数，闭包在音频采集线程回调且为Sendable)
     public var onMetering: (@Sendable (_ averagePower: Float, _ currentTime: TimeInterval) -> Void)?
 
     /// 目标采样率(单位为赫兹，默认16000是实时语音识别的常用规格，必须在start前设置，start后改动无效)
@@ -76,7 +76,7 @@ public final class WYAudioStreamRecorder: NSObject {
             throw WYAudioError.startRecordingFailed
         }
 
-        // 按硬件原生格式装采样回调，拿到Float32后在handleTap里手工重采样转目标格式(AVAudioConverter逐帧单发转换在降采样组合下会输出错乱数据，installTap指定异构格式会抛格式不匹配异常，两条路都不能走)
+        // 按硬件原生格式装采样回调，拿到Float32后在handleTap里手工重采样转目标格式(AVAudioConverter逐帧单发转换在降采样组合下会输出错乱数据，installTap指定异构格式会抛格式不匹配异常，两条路径均不可用)
         let inputNode = audioEngine.inputNode
         let inputFormat = inputNode.outputFormat(forBus: 0)
         targetBufferFormat = targetFormat
@@ -96,7 +96,7 @@ public final class WYAudioStreamRecorder: NSObject {
         isRecording = true
     }
 
-    /// 停止流式录音(停止后可以再次start，音频块回调随停而止)
+    /// 停止流式录音(停止后可以再次start，停止即不再回调音频块)
     public func stop() {
         guard isRecording else { return }
         isRecording = false
@@ -109,7 +109,7 @@ public final class WYAudioStreamRecorder: NSObject {
         audioEngine.reset()
     }
 
-    /// 录音引擎(装麦克风输入采样的部件)
+    /// 录音引擎(采集麦克风输入)
     private let audioEngine = AVAudioEngine()
 
     /// 目标音频格式(16千赫兹16位单声道Int16)
@@ -125,7 +125,7 @@ public final class WYAudioStreamRecorder: NSObject {
         targetBufferFormat = nil
     }
 
-    /// 处理一棒麦克风采到的音频(硬件Float32帧手工重采样转目标采样率的单声道Int16后回调出去，顺带算响度)
+    /// 处理一块麦克风采到的音频(硬件Float32帧手工重采样转目标采样率的单声道Int16后回调，并计算响度)
     private func handleTap(buffer: AVAudioPCMBuffer) {
         guard let targetFormat = targetBufferFormat, isRecording else { return }
         guard let inputChannel = buffer.floatChannelData?[0], buffer.frameLength > 0 else { return }
@@ -170,7 +170,7 @@ public final class WYAudioStreamRecorder: NSObject {
         for sample in int16Samples {
             sum += Double(sample) * Double(sample)
         }
-        // 均方根换算成分贝(除以32768归一到0.0~1.0再乘20，安静时压到-160防log10算出负无穷)
+        // 均方根换算成分贝(除以32768归一到0.0~1.0再乘20，安静时压到-160防止log10算出负无穷)
         let rms = (sum / Double(max(outputFrames, 1))).squareRoot() / 32768.0
         let averagePower = rms > 0.00001 ? max(20.0 * log10(rms), -160.0) : -160.0
         onMetering?(Float(averagePower), currentTime)

@@ -492,7 +492,6 @@ typedef void(^WYVisualMakeBlock)(UIView *make);
 }
 
 - (void)clearAndReapply {
-    // 防取到block没调用:wy_clearVisual在OC桥接里是block属性，方括号消息只拿到block不会执行，必须带()调用，否则视觉永远清不掉(点了清除重建没反应)
     [self.bigButton wy_clearVisual]();
     [self.bigButton wy_removeBorder:UIRectEdgeAll];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.6 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -588,7 +587,7 @@ typedef void(^WYVisualMakeBlock)(UIView *make);
 }
 
 - (void)toggleShadowBlockChild {
-    // 验证矩形shadowPath和轮廓阴影的自动迁移:加子视图后重应用，内容不再铺满矩形应切回轮廓阴影(子视图伸出左边界，阴影形状跟着变宽)；移除后重应用应切回矩形shadowPath，来回无残留
+    // 验证矩形shadowPath和轮廓阴影的自动迁移(加子视图后重应用，内容不再铺满矩形应切回轮廓阴影，子视图伸出左边界时阴影形状跟着变宽，移除后重应用应切回矩形shadowPath，来回无残留)
     self.shadowBlockHasChild = !self.shadowBlockHasChild;
     if (self.shadowBlockHasChild) {
         [self.shadowBlock addSubview:self.shadowBlockChild];

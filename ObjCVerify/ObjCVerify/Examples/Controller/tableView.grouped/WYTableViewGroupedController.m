@@ -135,7 +135,7 @@ static NSCache<NSString *, UIImage *> *imageCache;
 }
 
 - (void)wy_contentScrollViewDidSwitch:(WYContentScrollView *)contentScrollView direction:(WYSlidingDirection)direction currentHorizontalView:(UIView *)currentHorizontalView reserveHorizontalView:(UIView *)reserveHorizontalView currentVerticalView:(UIView *)currentVerticalView reserveVerticalView:(UIView *)reserveVerticalView {
-    // 当前页按currentIndex装图(补发didSwitch时reserveIndex还是残留值，用它会串台；取模防环绕越界)
+    // 当前页按currentIndex装图
     if ((direction == WYSlidingDirectionLeft || direction == WYSlidingDirectionRight) && [currentHorizontalView isKindOfClass:[UIImageView class]] && self.horizontalImages.count > 0) {
         [self setImage:(UIImageView *)currentHorizontalView urlString:self.horizontalImages[contentScrollView.currentHorizontalIndex % self.horizontalImages.count]];
     }

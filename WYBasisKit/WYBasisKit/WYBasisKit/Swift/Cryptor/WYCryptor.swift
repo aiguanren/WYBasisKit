@@ -90,7 +90,7 @@ public struct WYCryptor {
      * - Parameters:
      *   - plaintext: 要加密的明文数据
      *   - key: 加密密钥(任意长度，内部先归一成32字节对称密钥)
-     * - Returns: 组合密文(12字节随机nonce+密文+16字节认证标签)，解密用aesGCMDecrypt；加密失败返回nil
+     * - Returns: 组合密文(12字节随机nonce+密文+16字节认证标签)，解密用aesGCMDecrypt，加密失败返回nil
      */
     public static func aesGCMEncrypt(_ plaintext: Data, key: Data) -> Data? {
         guard let sealed = try? AES.GCM.seal(plaintext, using: normalizedKey(key)).combined else { return nil }
@@ -102,7 +102,7 @@ public struct WYCryptor {
      * - Parameters:
      *   - combined: aesGCMEncrypt返回的组合密文
      *   - key: 加密时用的同一把密钥
-     * - Returns: 解密出的明文数据；密钥不符或数据被篡改时返回nil
+     * - Returns: 解密出的明文数据，密钥不符或数据被篡改时返回nil
      */
     public static func aesGCMDecrypt(_ combined: Data, key: Data) -> Data? {
         guard let sealedBox = try? AES.GCM.SealedBox(combined: combined),
@@ -115,7 +115,7 @@ public struct WYCryptor {
      * - Parameters:
      *   - plaintext: 要加密的明文字符串(按UTF-8取字节)
      *   - key: 加密密钥(任意长度)
-     * - Returns: 组合密文的Base64串，解密用aesGCMDecryptString；加密失败返回nil
+     * - Returns: 组合密文的Base64串，解密用aesGCMDecryptString，加密失败返回nil
      */
     public static func aesGCMEncryptString(_ plaintext: String, key: String) -> String? {
         guard let combined = aesGCMEncrypt(Data(plaintext.utf8), key: Data(key.utf8)) else { return nil }
@@ -127,7 +127,7 @@ public struct WYCryptor {
      * - Parameters:
      *   - base64Combined: aesGCMEncryptString返回的Base64串
      *   - key: 加密时用的同一把密钥
-     * - Returns: 解密出的明文字符串；密钥不符或数据被篡改时返回nil
+     * - Returns: 解密出的明文字符串，密钥不符或数据被篡改时返回nil
      */
     public static func aesGCMDecryptString(_ base64Combined: String, key: String) -> String? {
         guard let combined = Data(base64Encoded: base64Combined),
@@ -166,7 +166,7 @@ public struct WYCryptor {
     /**
      * Base64解码
      * - Parameter input: 要解码的Base64字符串
-     * - Returns: 解码出的数据；格式非法时返回nil
+     * - Returns: 解码出的数据，格式非法时返回nil
      */
     public static func base64Decode(_ input: String) -> Data? {
         return Data(base64Encoded: input)
@@ -184,7 +184,7 @@ public struct WYCryptor {
     /**
      * 十六进制解码
      * - Parameter input: 要解码的十六进制字符串(大小写都认)
-     * - Returns: 解码出的数据；含非十六进制字符时返回nil
+     * - Returns: 解码出的数据，含非十六进制字符时返回nil
      */
     public static func hexDecode(_ input: String) -> Data? {
         let characters = Array(input.lowercased())
@@ -223,7 +223,7 @@ public struct WYCryptor {
      *   - salt: 派生盐(按UTF-8取字节)
      *   - rounds: 迭代次数(默认10000，调大更慢更抗暴力)
      *   - length: 派生输出的字节数(默认32)
-     * - Returns: 派生出的密钥数据；参数非法时返回nil
+     * - Returns: 派生出的密钥数据，参数非法时返回nil
      */
     public static func pbkdf2(password: String, salt: String, rounds: UInt32 = 10000, length: Int = 32) -> Data? {
         guard rounds > 0, length > 0 else { return nil }

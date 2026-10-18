@@ -77,12 +77,12 @@ public extension UIDevice {
         return privateTabBar.sizeThatFits(.zero).height + wy_tabbarSafetyZone
     }
     
-    /// 屏幕宽(直接取主屏，keyWindow还没建的启动最早期也可用，比率换算类API在任何时机调用都不崩)
+    /// 屏幕宽
     static var wy_screenWidth: CGFloat {
         return UIScreen.main.bounds.size.width
     }
     
-    /// 屏幕高(直接取主屏，keyWindow还没建的启动最早期也可用)
+    /// 屏幕高
     static var wy_screenHeight: CGFloat {
         return UIScreen.main.bounds.size.height
     }

@@ -25,7 +25,7 @@ extension WYMediaPlayer {
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.loadAutoplayIntent) as? Bool ?? true }
     }
 
-    /// 加载代号(每次load加1；延迟执行的失败重试回来时先核对它，发现变了说明期间发起了新加载，放弃本次重试，防止迟到的重试覆盖新加载)
+    /// 加载代号(每次load加1，延迟执行的失败重试回来时先核对它，发现变了说明期间发起了新加载，放弃本次重试，防止迟到的重试覆盖新加载)
     var loadGeneration: Int {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.loadGeneration, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.loadGeneration) as? Int ?? 0 }
@@ -37,7 +37,7 @@ extension WYMediaPlayer {
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.isPreparedToPlay) as? Bool ?? false }
     }
 
-    /// 挂起的播放请求(play()在prepare完成前被调用时先记true，等prepare完成回调再补执行；pause()与releaseAll会取消)
+    /// 挂起的播放请求(play()在prepare完成前被调用时先记true，等prepare完成回调再补执行，pause()与releaseAll会取消)
     var isPlayPending: Bool {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.isPlayPending, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.isPlayPending) as? Bool ?? false }
@@ -55,25 +55,25 @@ extension WYMediaPlayer {
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.hasRenderedFirstFrame) as? Bool ?? false }
     }
 
-    /// 是否正处于海报(首帧)探测中(预加载不自动播时底层根本不渲染第一帧、首帧通知也不来；所谓探测就是先静音播放，等第一帧画面出来立刻暂停回到准备好状态，全程靠这个标记收尾)
+    /// 是否正处于海报(首帧)探测中(预加载不自动播时底层不渲染第一帧、首帧通知也不来，探测即先静音播放，等第一帧画面出来立刻暂停回到准备好状态，全程靠这个标记收尾)
     var isPosterProbing: Bool {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.isPosterProbing, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.isPosterProbing) as? Bool ?? false }
     }
 
-    /// 本次加载是否真正播放过，没真正播过的实例收到.paused只默默记下不通知业务(这类暂停只是初始化或收尾的内部动静，不是用户暂停)
+    /// 本次加载是否真正播放过，没真正播过的实例收到.paused只记状态不通知调用方(这类暂停只是初始化或收尾的内部动作，不是用户暂停)
     var hasReallyPlayed: Bool {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.hasReallyPlayed, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.hasReallyPlayed) as? Bool ?? false }
     }
 
-    /// 用户设置的音量(0~1)；实际下发音量统一走applyVolume
+    /// 用户设置的音量(0~1)，实际下发音量统一走applyVolume
     var userVolume: Float {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.userVolume, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.userVolume) as? Float ?? 1 }
     }
 
-    /// 当前使用的URL打开转发代理(第一次用到才创建并绑定self；四个闭包全空时不会挂到player上)
+    /// 当前使用的URL打开转发代理(第一次用到才创建并绑定self，四个闭包全空时不会挂到player上)
     var urlOpenProxy: WYMediaUrlOpenProxy {
         if let proxy = objc_getAssociatedObject(self, &WYAssociatedKeys.urlOpenProxy) as? WYMediaUrlOpenProxy {
             return proxy

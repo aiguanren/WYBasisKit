@@ -14,7 +14,7 @@ import IJKPlayerKit
 
 /// WYMediaPlayer 私有实现，加载相关(统一下发音量、统一加载入口、创建播放器实例)
 extension WYMediaPlayer {
-    /// 把背景色换算成0~255的RGB分量设置给渲染视图(纯白/纯黑这类灰度色走白色分量换算；实例还没创建时设置不到，等下次创建实例时会再调一次补上；属性didSet和createPlayer两处都会调用)
+    /// 把背景色换算成0~255的RGB分量设置给渲染视图(纯白/纯黑这类灰度色走白色分量换算，实例还没创建时设置不到，等下次创建实例时会再调一次补上，属性didSet和createPlayer两处都会调用)
     func applyRenderBackgroundColor() {
         var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
         if renderBackgroundColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha) {
@@ -64,12 +64,12 @@ extension WYMediaPlayer {
 
         releaseAll()
 
-        // 一发起加载就通知业务进入缓冲状态，让业务从头就能挂上loading转圈，到ready/rendered再解除；因为缓冲类的状态通知要等prepare完成才会出现，不提前补这一声，加载全程都没有一个状态能让业务挂loading
+        // 发起加载即进入缓冲状态，调用方可从起点显示loading(到ready/rendered解除)，缓冲类的状态通知要等prepare完成才会出现，不提前补这一次，加载全程没有可挂loading的状态
         callback(with: .buffering)
 
         createPlayer(with: playUrl)
 
-        // 先隐藏渲染view，因为无法设置其背景色(始终为黑色)等信息，等第一帧渲染完成后再设为false，这样就可以自定义背景色、背景图等信息了
+        // 先隐藏渲染view(渲染视图自身背景色固定为黑色无法设置，第一帧渲染完成后再显示，届时可自定义背景色、背景图等信息)
         ijkPlayer?.view.isHidden = true
 
         ijkPlayer?.prepareToPlay()

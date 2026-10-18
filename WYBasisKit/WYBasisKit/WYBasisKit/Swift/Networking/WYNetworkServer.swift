@@ -272,7 +272,7 @@ private class WYBothwayVerifyDelegate: SessionDelegate, @unchecked Sendable {
                 return
             }
 
-            // 防p12配错直接闪退:导入失败改为返回nil，走performDefaultHandling降级，握手失败会经failed回调把错误报给上层
+            // 导入失败改为返回nil走performDefaultHandling降级，防止p12配错直接闪退(握手失败会经failed回调把错误报给上层)
             guard let p12Contents = PKCS12(pkcs12Data: p12Data, password: config.httpsConfig.clientP12Password, clientP12: config.httpsConfig.clientP12),
                   let identity = p12Contents.identity else {
                 completionHandler(.performDefaultHandling, nil)

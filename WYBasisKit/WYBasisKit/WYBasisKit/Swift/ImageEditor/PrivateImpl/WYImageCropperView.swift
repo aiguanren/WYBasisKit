@@ -54,7 +54,7 @@ class WYImageCropperView: UIView {
     /// 裁剪历史栈(每次应用裁剪压入旧基准图与本次裁掉区域，逐步还原时回退用)
     private var cropHistory: [(image: UIImage, region: CGRect)] = []
 
-    /// 裁剪重做栈(回退裁剪时压入被撤销的裁后图与区域，重做时恢复；新应用裁剪时清空)
+    /// 裁剪重做栈(回退裁剪时压入被撤销的裁后图与区域，重做时恢复，新应用裁剪时清空)
     private var cropRedoStack: [(image: UIImage, region: CGRect)] = []
 
     /// 裁剪回退回调(参数为回退到的旧基准图与当初裁掉的区域，编辑器用它把标记坐标平移回去)
@@ -69,7 +69,7 @@ class WYImageCropperView: UIView {
     /// 图片是否支持捏合缩放(false时最大缩放钉死在最小值，只能拖动平移)
     var zoomEnabled = true
 
-    /// 进入页面时图片的初始缩放倍数(相对适配大小的倍数，1为适配显示，0也按适配；会被钳制在允许缩放范围内)
+    /// 进入页面时图片的初始缩放倍数(相对适配大小的倍数，1为适配显示，0也按适配，会被钳制在允许缩放范围内)
     var initialZoomMultiplier: CGFloat = 1
 
     /// 适配画布的基准缩放(最小缩放的基线，动态最小缩放=它与覆盖裁剪框的较大者)
@@ -102,6 +102,7 @@ class WYImageCropperView: UIView {
         scroll.delegate = self
         scroll.backgroundColor = UIColor.clear
         scroll.contentInsetAdjustmentBehavior = .never
+        scroll.bouncesZoom = false
         return scroll
     }()
 
@@ -212,22 +213,24 @@ class WYImageCropperView: UIView {
             }
             cropBox = CGRect(x: (boundsWidth - boxWidth) / 2, y: (boundsHeight - boxHeight) / 2, width: boxWidth, height: boxHeight)
 
-            // 滚动视图铺满画布，图片至少铺满整个画布，取景框外透过遮罩隐约可见而不是纯黑像被裁掉
+            // 滚动视图铺满画布，最小缩放只保证铺满取景框(框内始终有图)，可继续缩小到适配画布，框外露出画布底色
             scrollView.frame = bounds
             scrollView.bounces = false
-            let coverScale = max(boxWidth / imageWidth, boxHeight / imageHeight, boundsWidth / imageWidth, boundsHeight / imageHeight)
-            scrollView.minimumZoomScale = coverScale
-            scrollView.maximumZoomScale = zoomEnabled ? max(coverScale * 8, fitScale * 8) : coverScale
-            scrollView.zoomScale = min(max(coverScale * max(initialZoomMultiplier, 1), coverScale), scrollView.maximumZoomScale)
-            scrollView.contentInset = .zero
+            let coverBoxScale = max(boxWidth / imageWidth, boxHeight / imageHeight)
+            scrollView.minimumZoomScale = max(fitScale, coverBoxScale)
+            scrollView.maximumZoomScale = zoomEnabled ? max(fitScale * 8, scrollView.minimumZoomScale) : scrollView.minimumZoomScale
+            scrollView.zoomScale = min(max(fitScale * max(initialZoomMultiplier, 1), fitScale), scrollView.maximumZoomScale)
 
-            // 图片居中摆(内容比画布大多少就往回挪一半)
-            let contentWidth = imageWidth * coverScale
-            let contentHeight = imageHeight * coverScale
-            scrollView.contentOffset = CGPoint(x: max(0, (contentWidth - boundsWidth) / 2), y: max(0, (contentHeight - boundsHeight) / 2))
+            // 图片居中摆(比画布大的维度居中取中段，比画布小的维度用内容边距居中)
+            let contentWidth = imageWidth * scrollView.zoomScale
+            let contentHeight = imageHeight * scrollView.zoomScale
+            let insetX = max(0, (boundsWidth - contentWidth) / 2)
+            let insetY = max(0, (boundsHeight - contentHeight) / 2)
+            scrollView.contentInset = UIEdgeInsets(top: insetY, left: insetX, bottom: insetY, right: insetX)
+            scrollView.contentOffset = CGPoint(x: contentWidth > boundsWidth ? (contentWidth - boundsWidth) / 2 : -insetX, y: contentHeight > boundsHeight ? (contentHeight - boundsHeight) / 2 : -insetY)
         } else {
 
-            // 自由模式，滚动视图铺满画布；关闭弹跳(拖到边界硬停，弹跳瞬间图片被拉离裁剪框会露出黑底，苹果照片裁剪页同样无弹跳)
+            // 自由模式，滚动视图铺满画布，关闭弹跳(拖到边界硬停，弹跳瞬间图片被拉离裁剪框会露出黑底)
             scrollView.frame = bounds
             scrollView.bounces = false
             let fitWidth = imageWidth * fitScale
@@ -375,6 +378,12 @@ class WYImageCropperView: UIView {
         return CGRect(x: originX, y: originY, width: cropImage.size.width * zoom, height: cropImage.size.height * zoom)
     }
 
+    /// 裁剪框拖动钳制区(图片显示区与画布的交集，图片放大超出画布后框也只许停在画布可见范围内)
+    private var cropBoxLimitRect: CGRect {
+        let visibleRect = imageDisplayRect.intersection(bounds)
+        return visibleRect.isNull ? bounds : visibleRect
+    }
+
     /// 更新最小缩放(图不许缩到小于当前裁剪框，捏合到图等于框时停住，框内始终有图不会露出画布底色)
     private func updateMinimumZoomScale() {
         guard fixedOutputSize == nil else { return }
@@ -423,6 +432,9 @@ class WYImageCropperView: UIView {
     /// 自由模式拖拽把手(移动或缩放裁剪框，圆形保持正方形等比缩放)
     private func cropBoxPanned(state: UIGestureRecognizer.State, zone: WYImageCropHandleZone, translation: CGPoint) {
 
+        if scrollView.zoomScale < scrollView.minimumZoomScale - 0.001 {
+            return
+        }
         if state == .began {
             dragStartBox = cropBox
         }
@@ -443,7 +455,7 @@ class WYImageCropperView: UIView {
         // 抓框线本体拖着走，整个裁剪框平移(位置微调不用再靠缩放框或动图)
         if zone == .boxBody {
             var box = start
-            let imageRect = imageDisplayRect
+            let imageRect = cropBoxLimitRect
 
             // 框比图片大时先收成图内最大并居中(否则钳制区间反转上限小于下限，框能拖出边界)
             if box.width > imageRect.width {
@@ -519,7 +531,7 @@ class WYImageCropperView: UIView {
         }
 
         // 整体不拖出照片显示区，出界时贴图边(尺寸超图时收成图内最大)
-        let imageRect = imageDisplayRect
+        let imageRect = cropBoxLimitRect
         if box.width > imageRect.width {
             box.size.width = imageRect.width
         }
@@ -544,7 +556,7 @@ extension WYImageCropperView: UIScrollViewDelegate {
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
     }
 
-    /// 拖动惯性滚动结束(同上不挪框)
+    /// 拖动惯性滚动结束(框位置只由拖框手势决定，拖图不挪框)
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
     }
 
@@ -556,9 +568,7 @@ extension WYImageCropperView: UIScrollViewDelegate {
 
     /// 缩放结束后图片比画布小时重新居中(不挪框)
     func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
-        if fixedOutputSize == nil {
-            centerContentWithInset()
-        }
+        centerContentWithInset()
     }
 }
 
@@ -711,7 +721,7 @@ class WYImageCropOverlayView: UIView {
         }
     }
 
-    /// 只拦截把手与框线段的触摸，框内框外都透给下层滚动视图(拖动捏合图片随时可用)；固定尺寸模式同样只认把手与框线
+    /// 只拦截把手与框线段的触摸，框内框外都透给下层滚动视图(拖动捏合图片随时可用)，固定尺寸模式同样只认把手与框线
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
         let zone = handleZone(at: point)
         if zone == .boxBody || (showsHandles && zone != []) {
@@ -745,7 +755,7 @@ class WYImageCropOverlayView: UIView {
         }
     }
 
-    /// 判断点落在哪个把手的热区(角把手优先半径30，四条边整条边可抓带宽18，好抓不误触)
+    /// 判断点落在哪个把手的热区(角把手优先半径28，四条边整条边可抓带宽17，好抓且不易误触)
     private func handleZone(at point: CGPoint) -> WYImageCropHandleZone {
         let cornerRadius = UIDevice.wy_screenWidth(28, WYBasisKitConfig.defaultScreenPixels)
         let corners: [(CGPoint, WYImageCropHandleZone)] = [
@@ -774,7 +784,7 @@ class WYImageCropOverlayView: UIView {
             return .right
         }
 
-        // 把手之间的框线段拖着平移整个裁剪框(热区10pt比把手窄，框外贴线误触少)
+        // 把手之间的框线段拖着平移整个裁剪框(热区9pt比把手窄，减少框外贴线误触)
         let lineBand = UIDevice.wy_screenWidth(9, WYBasisKitConfig.defaultScreenPixels)
         let nearVerticalLine = abs(point.x - cropBox.minX) <= lineBand || abs(point.x - cropBox.maxX) <= lineBand
         let nearHorizontalLine = abs(point.y - cropBox.minY) <= lineBand || abs(point.y - cropBox.maxY) <= lineBand

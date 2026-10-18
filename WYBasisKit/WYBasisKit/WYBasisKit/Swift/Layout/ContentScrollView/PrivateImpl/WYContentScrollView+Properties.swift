@@ -27,7 +27,7 @@ extension WYContentScrollView {
     var internalSliderDirection: WYSlidingDirection {
         set(newValue) {
             
-            // 跨轴判定必须用写入前的方向，先写入再读的话，读出来的"上一个方向"永远是刚写进去的新值，跨轴永远判不出来
+            // 跨轴判定必须用写入前的方向(先写入再读时，读出来的"上一个方向"恒为刚写入的新值，跨轴判不出来)
             let previousDirection: WYSlidingDirection = objc_getAssociatedObject(self, &WYAssociatedKeys.internalSliderDirection) as? WYSlidingDirection ?? .unknown
             
             objc_setAssociatedObject(self, &WYAssociatedKeys.internalSliderDirection, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -41,8 +41,8 @@ extension WYContentScrollView {
                       let reserveVerticalView = verticalViews?.last else { return }
                 
                 /**
-                 *  滑动时按偏移量把预备页摆到正确的一侧，不能简单按新方向值来摆，否则手指不松开来回滑时预备页的位置不会跟着更新；这一步必须放在最前面先处理，不然滑完另一个轴再回来可能出现空白页面
-                 *  fade/zoom拖动期间跳过这里的摆位，它们拖动时偏移量全程被钳在中心不动，这里的摆位会把已经摆在中间的进入页一帧一帧地挪到屏幕外去，拖动期间进入页的位置由交互逻辑管理(slide不跳过，它的偏移跟手，这里的摆位和交互摆位恰好一致，正好顺便承担逐帧摆位的活)
+                 *  滑动时按偏移量把预备页摆到正确的一侧，不能简单按新方向值来摆(手指不松开来回滑时预备页的位置不会跟着更新)，这一步必须放在最前面先处理，否则滑完另一个轴再回来可能出现空白页面
+                 *  fade/zoom拖动期间跳过这里的摆位(它们拖动时偏移量全程被钳在中心不动，这里的摆位会把已摆在中间的进入页逐帧挪到屏幕外，拖动期间进入页的位置由交互逻辑管理)，slide不跳过(它的偏移跟手，这里的摆位与交互摆位一致，直接承担逐帧摆位)
                  */
                 if (isInteractiveCrossAxisDrag == false) || (crossAxisSwitchStyle == .slide) {
                     if contentOffset.y > wy_height {
@@ -55,12 +55,12 @@ extension WYContentScrollView {
                 // 更新标记
                 configVerticalReserveIndex = reserveVerticalIndex
                 
-                // 判断这次方向变化是不是切轴进来，必须在下面置顶操作之前判断，因为置顶会把目标轴翻到最上面，之后再判断时"按置顶View算展示轴"算出来的就是刚翻上来的目标轴自己，切轴会被误判成"本来就是我在展示"，预备下标被错误加一、还多发一条willSwitch(轻扫直切必现)
+                // 判断这次方向变化是不是切轴进来，必须在下面置顶操作之前判断(置顶会把目标轴翻到最上面，之后按置顶View算展示轴算出的是刚翻上来的目标轴，切轴会被误判成同轴延续，预备下标被错误加一、还多发一条willSwitch，轻扫直切必现)
                 let previousAxisIsHorizontal = axisIsHorizontal(of: previousDirection)
                 
                 // 将对应方向的正在显示的View移到WYContentScrollView的最上面
                 bringContentToFront([currentVerticalView, reserveVerticalView])
-                // 判断这次方向变化是不是切轴进来(方向还不知道时按置顶View算)，按优先方向算会把切到垂直轴判错、预备下标不推进(下标不涨、轮播卡在一个没加载的页上)；代码切页(动画期间)不按切轴处理，业务明确调next/last/switchContent切另一轴时期待目标轴下标前进并预加载，"下标不动"只属于轻扫直切(用户随手换轴)
+                // 判断这次方向变化是不是切轴进来(方向未知时按置顶View算，按优先方向算会把切到垂直轴判错、预备下标不推进，轮播卡在一个没加载的页上)，代码切页(动画期间)不按切轴处理(调用方明确调next/last/switchContent切另一轴时期待目标轴下标前进并预加载，"下标不动"只属于轻扫直切的用户随手换轴)
                 let isCrossAxisEntry = (contentSlidingDirection == .omnidirectional) && previousAxisIsHorizontal && (isProgrammaticAnimatedScroll == false)
                 if isFinalizingSwitch {
                     // 切换收尾期间(pauseScroll复位中心页的重入)，不改动下标，保持刚钳制/落定的值
@@ -79,7 +79,7 @@ extension WYContentScrollView {
                     }
                 }
                 
-                // 页码没变就不发will(预备页没换就没有预加载的必要)；切轴进来时因为预备下标刚被钳住、比对会失灵，需要强制发一次；收尾冻结期间不发，因为收尾恢复方向时会路过这里，失灵的比对会补出一条多余的willSwitch让业务白白重载预备页(正常的预加载都发生在未冻结时)
+                // 页码没变就不发will(预备页没换就没有预加载的必要)，切轴进来时预备下标刚被钳住、比对不成立，需要强制发一次，收尾冻结期间不发(收尾恢复方向时会经过这里，比对不成立会补出一条多余的willSwitch让调用方无效重载预备页，正常的预加载都发生在未冻结时)
                 let isPageIndexChanged = (reserveVerticalIndex != currentVerticalIndex)
                 if (isFinalizingSwitch == false) && isPageIndexChanged && ((configVerticalReserveIndex != reserveVerticalIndex) || isCrossAxisEntry) {
                     switchContentCallback(isDidSwitch: false)
@@ -95,8 +95,8 @@ extension WYContentScrollView {
                       let reserveHorizontalView = horizontalViews?.last else { return }
                 
                 /**
-                 *  滑动时按偏移量把预备页摆到正确的一侧，不能简单按新方向值来摆，否则手指不松开来回滑时预备页的位置不会跟着更新；这一步必须放在最前面先处理，不然滑完另一个轴再回来可能出现空白页面
-                 *  fade/zoom拖动期间跳过这里的摆位，它们拖动时偏移量全程被钳在中心不动，这里的摆位会把已经摆在中间的进入页一帧一帧地挪到屏幕外去，拖动期间进入页的位置由交互逻辑管理(slide不跳过，它的偏移跟手，这里的摆位和交互摆位恰好一致，正好顺便承担逐帧摆位的活)
+                 *  滑动时按偏移量把预备页摆到正确的一侧，不能简单按新方向值来摆(手指不松开来回滑时预备页的位置不会跟着更新)，这一步必须放在最前面先处理，否则滑完另一个轴再回来可能出现空白页面
+                 *  fade/zoom拖动期间跳过这里的摆位(它们拖动时偏移量全程被钳在中心不动，这里的摆位会把已摆在中间的进入页逐帧挪到屏幕外，拖动期间进入页的位置由交互逻辑管理)，slide不跳过(它的偏移跟手，这里的摆位与交互摆位一致，直接承担逐帧摆位)
                  */
                 if (isInteractiveCrossAxisDrag == false) || (crossAxisSwitchStyle == .slide) {
                     if contentOffset.x > wy_width {
@@ -109,12 +109,12 @@ extension WYContentScrollView {
                 // 更新标记
                 configHorizontalReserveIndex = reserveHorizontalIndex
                 
-                // 判断这次方向变化是不是切轴进来，必须在下面置顶操作之前判断，因为置顶会把目标轴翻到最上面，之后再判断时"按置顶View算展示轴"算出来的就是刚翻上来的目标轴自己，切轴会被误判成"本来就是我在展示"，预备下标被错误加一、还多发一条willSwitch
+                // 判断这次方向变化是不是切轴进来，必须在下面置顶操作之前判断(置顶会把目标轴翻到最上面，之后按置顶View算展示轴算出的是刚翻上来的目标轴，切轴会被误判成同轴延续，预备下标被错误加一、还多发一条willSwitch)
                 let previousAxisIsHorizontal = axisIsHorizontal(of: previousDirection)
                 
                 // 将对应方向的正在显示的View移到WYContentScrollView的最上面
                 bringContentToFront([currentHorizontalView, reserveHorizontalView])
-                // 判断这次方向变化是不是切轴进来(方向还不知道时按置顶View算)，按优先方向算会把切到垂直轴判错、预备下标不推进(下标不涨、轮播卡在一个没加载的页上)；代码切页(动画期间)不按切轴处理，业务明确调next/last/switchContent切另一轴时期待目标轴下标前进并预加载，"下标不动"只属于轻扫直切(用户随手换轴)
+                // 判断这次方向变化是不是切轴进来(方向未知时按置顶View算，按优先方向算会把切到水平轴判错、预备下标不推进，轮播卡在一个没加载的页上)，代码切页(动画期间)不按切轴处理(调用方明确调next/last/switchContent切另一轴时期待目标轴下标前进并预加载，"下标不动"只属于轻扫直切的用户随手换轴)
                 let isCrossAxisEntry = (contentSlidingDirection == .omnidirectional) && (previousAxisIsHorizontal == false) && (isProgrammaticAnimatedScroll == false)
                 if isFinalizingSwitch {
                     // 切换收尾期间(pauseScroll复位中心页的重入)，不改动下标，保持刚钳制/落定的值
@@ -133,7 +133,7 @@ extension WYContentScrollView {
                     }
                 }
                 
-                // 页码没变就不发will(预备页没换就没有预加载的必要)；切轴进来时因为预备下标刚被钳住、比对会失灵，需要强制发一次；收尾冻结期间不发，因为收尾恢复方向时会路过这里，失灵的比对会补出一条多余的willSwitch让业务白白重载预备页(正常的预加载都发生在未冻结时)
+                // 页码没变就不发will(预备页没换就没有预加载的必要)，切轴进来时预备下标刚被钳住、比对不成立，需要强制发一次，收尾冻结期间不发(收尾恢复方向时会经过这里，比对不成立会补出一条多余的willSwitch让调用方无效重载预备页，正常的预加载都发生在未冻结时)
                 let isPageIndexChanged = (reserveHorizontalIndex != currentHorizontalIndex)
                 if (isFinalizingSwitch == false) && isPageIndexChanged && ((configHorizontalReserveIndex != reserveHorizontalIndex) || isCrossAxisEntry) {
                     switchContentCallback(isDidSwitch: false)
@@ -155,13 +155,13 @@ extension WYContentScrollView {
         }
     }
     
-    /// 水平轴上次手势翻页提交时间(同轴翻页冷却计时用，代码切页的提交不记录时间)
+    /// 水平轴上次手势翻页落定时间(同轴翻页冷却计时用，代码切页不记录时间)
     var lastGestureHorizontalSwitchDate: Date? {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.lastGestureHorizontalSwitchDate, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.lastGestureHorizontalSwitchDate) as? Date }
     }
 
-    /// 垂直轴上次手势翻页提交时间(同轴翻页冷却计时用，代码切页的提交不记录时间)
+    /// 垂直轴上次手势翻页落定时间(同轴翻页冷却计时用，代码切页不记录时间)
     var lastGestureVerticalSwitchDate: Date? {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.lastGestureVerticalSwitchDate, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.lastGestureVerticalSwitchDate) as? Date }
@@ -177,7 +177,7 @@ extension WYContentScrollView {
         }
     }
     
-    /// 是否正处于交互式跨轴拖动中，松手按进度(≥半页)或速度(≥轻扫阈值)决定完成或回弹；instant不进此模式
+    /// 是否正处于交互式跨轴拖动中，松手按进度(≥半页)或速度(≥轻扫阈值)决定完成或回弹，instant不进此模式
     var isInteractiveCrossAxisDrag: Bool {
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.isInteractiveCrossAxisDrag, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -207,7 +207,7 @@ extension WYContentScrollView {
         }
     }
     
-    /// 代码修正偏移量时的"正在修正"标记，拦住重入，防止两处修正互相触发、无限递归把栈撑爆
+    /// 代码修正偏移量时的"正在修正"标记，拦住重入，防止两处修正互相触发导致无限递归
     var isCorrectingContentOffset: Bool {
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.isCorrectingContentOffset, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -217,7 +217,7 @@ extension WYContentScrollView {
         }
     }
     
-    /// 业务是否主动停止过计时器，置位后首次展示的自动开轮播让位不再自动开，只有再调startTimer才恢复
+    /// 调用方是否主动停止过计时器，置位后首次展示不再自动开轮播，只有再调startTimer才恢复
     var timerStoppedByBusiness: Bool {
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.timerStoppedByBusiness, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -315,7 +315,7 @@ extension WYContentScrollView {
         }
     }
     
-    /// 当前轮播应推进的方向，单轴为模式本身，全向跟随置顶轴；数量不足2返回nil
+    /// 当前轮播应推进的方向，单轴为模式本身，全向跟随置顶轴，数量不足2返回nil
     var carouselDirection: WYContentSlidingDirection? {
         
         switch contentSlidingDirection {
@@ -364,7 +364,7 @@ extension WYContentScrollView {
     }
 }
 
-/// 内部代理的弱引用包装(代理不能强持有业务对象)
+/// 内部代理的弱引用包装(避免强持有代理对象)
 private class WYWeakBox {
     weak var value: AnyObject?
     init(_ value: AnyObject?) {

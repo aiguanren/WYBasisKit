@@ -61,7 +61,7 @@ import IJKPlayerKit
     /**
      *  普通seek完成回调
      *  @param player 播放器组件
-     *  @param target 本次seek的目标时间点(单位，s)
+     *  @param target 本次seek的目标时间点(单位为秒)
      *  @param error seek结果错误码，0表示成功
      */
     @objc(wy_mediaPlayerDidSeekComplete:target:error:)
@@ -70,7 +70,7 @@ import IJKPlayerKit
     /**
      *  精准seek完成回调(enable-accurate-seek开启时走这里)
      *  @param player 播放器组件
-     *  @param currentPosition 精准seek完成后的当前播放位置(单位，s)
+     *  @param currentPosition 精准seek完成后的当前播放位置(单位为秒)
      */
     @objc(wy_mediaPlayerDidAccurateSeekComplete:currentPosition:)
     optional func wy_mediaPlayerDidAccurateSeekComplete(_ player: WYMediaPlayer, currentPosition: TimeInterval)
@@ -120,7 +120,7 @@ import IJKPlayerKit
     optional func wy_mediaPlayerVideoDecoderOpen(_ player: WYMediaPlayer, decoderName: String)
 
     /**
-     *  视频解码器致命错误回调(收到后建议停止播放，否则底层会继续读帧播到结尾；组件会同步置state为error)
+     *  视频解码器致命错误回调(收到后建议停止播放，否则底层会继续读帧播到结尾，组件会同步置state为error)
      *  @param player 播放器组件
      *  @param errorCode 解码器错误码
      */
@@ -193,35 +193,35 @@ public class WYMediaPlayer: UIImageView {
     /// 播放器状态
     public internal(set) var state: WYMediaPlayerState = .unknown
 
-    /// 进度回调间隔(秒，默认0.5；1.0.8起底层通知默认关闭，不设置则wy_mediaPlayerProgressDidChanged收不到周期回调；0=关闭周期回调，只保留prepare完成、seek完成这类发生一次才通知一次的事件)
+    /// 进度回调间隔(秒，默认0.5，IJKPlayerKit 1.0.8起底层通知默认关闭，不设置则wy_mediaPlayerProgressDidChanged收不到周期回调，0=关闭周期回调，只保留prepare完成、seek完成这类发生一次才通知一次的事件)
     public var progressCallbackInterval: TimeInterval = 0.5
 
-    /// 是否需要在play(with:)加载完成后自动播放(默认true；仅影响play(with:)，prepare(with:)恒不自动播，预加载请直接用prepare)
+    /// 是否需要在play(with:)加载完成后自动播放(默认true，仅影响play(with:)，prepare(with:)恒不自动播，预加载请直接用prepare)
     public var shouldAutoplay: Bool = true
 
     /// 播放失败后重试次数，默认2次
     public var failReplay: Int = 2
 
-    /// 循环播放次数，0表示无限次循环，1表示仅播放一次(默认)，N>1表示播放N次，负数同0(点播流有效；即ijkplayer的loop选项语义；在下次加载时生效，运行中改用playbackLoop)
+    /// 循环播放次数，0表示无限次循环，1表示仅播放一次(默认)，N>1表示播放N次，负数同0(点播流有效，即ijkplayer的loop选项语义，在下次加载时生效，运行中改用playbackLoop)
     public var looping: Int64 = 0
 
-    /// 协议层循环播放次数，语义与looping一致(0=无限次，1=仅一次，N>1播N次)；与looping的区别是运行中可改、立即生效，looping在下次加载时生效
+    /// 协议层循环播放次数，语义与looping一致(0=无限次，1=仅一次，N>1播N次)，与looping的区别是运行中可改、立即生效，looping在下次加载时生效
     public var playbackLoop: Int {
         get { return Int(ijkPlayer?.playbackLoop ?? 0) }
         set { ijkPlayer?.playbackLoop = Int32(newValue) }
     }
 
-    /// 加载时是否需要把渲染好的第一帧设置为播放器背景(与shouldAutoplay=false配合可做预加载封面，prepare完成不起播，仅把首帧显示为背景；播放中渲染画面会天然盖住背景，无需额外清理)
+    /// 加载时是否需要把渲染好的第一帧设置为播放器背景(与shouldAutoplay=false配合可做预加载封面，prepare完成不起播，仅把首帧显示为背景，播放中渲染画面会天然盖住背景，无需额外清理)
     public var shouldUseFirstFrameAsPoster: Bool = false {
         didSet {
-            // 首帧已渲染后才打开开关且当前没有背景图时立即补截一次(覆盖"加载前设置"之外的时序)；播放中不截，避免取到非首帧
+            // 首帧已渲染后才打开开关且当前没有背景图时立即补截一次(覆盖"加载前设置"之外的时序)，播放中不截，避免取到非首帧
             if shouldUseFirstFrameAsPoster, hasRenderedFirstFrame, image == nil, state != .playing {
                 image = ijkPlayer?.thumbnailImageAtCurrentTime()
             }
         }
     }
 
-    /// 是否静音(与playbackVolume相互独立，静音时实际音量为0，关闭静音自动恢复原音量；海报探测的临时静音对外不可见，不会覆盖muted状态)
+    /// 是否静音(与playbackVolume相互独立，静音时实际音量为0，关闭静音自动恢复原音量，海报探测的临时静音对外不可见，不会覆盖muted状态)
     public var muted: Bool = false {
         didSet {
             applyVolume()
@@ -229,10 +229,10 @@ public class WYMediaPlayer: UIImageView {
     }
 
     /**
-     *  音频PCM采样数据回调，播放器每渲染一块音频采样就回调一次，配合自定义波形/频谱UI使用(建议在play/prepare前设置；加载后再设置非nil闭包也会立即下发给当前实例，置nil则只对新加载生效——底层block属性经Swift导入为非可选，nil传不下去)
+     *  音频PCM采样数据回调，播放器每渲染一块音频采样就回调一次，配合自定义波形/频谱UI使用(建议在play/prepare前设置，加载后再设置非nil闭包也会立即下发给当前实例，置nil则只对新加载生效)
      *
      *  @param samples    采样数据指针，指向一块Int16数组，每个元素是一次采样的振幅值
-     *  @param sampleSize 本次回调的采样数量；为-1时samples为NULL，表示音频源已重置，需要清掉旧数据刷新UI
+     *  @param sampleSize 本次回调的采样数量，为-1时samples为NULL，表示音频源已重置
      *  @param sampleRate 采样率，单位Hz，常见如44100、48000
      *  @param channels   声道数，1=单声道，2=立体声
      */
@@ -244,13 +244,13 @@ public class WYMediaPlayer: UIImageView {
         }
     }
 
-    /// 自定义音频渲染组件(须在play/prepare之前设置；nil=使用内置音频输出，自定义时音量/静音由自定义组件自行处理)
+    /// 自定义音频渲染组件(须在play/prepare之前设置，nil=使用内置音频输出，自定义时音量/静音由自定义组件自行处理)
     public var audioRendering: IJKAudioRenderingProtocol?
 
     /// 视频缩放模式
     public var scalingStyle: IJKScalingMode = .aspectFit
 
-    /// 自定义视频渲染视图(须在play/prepare之前设置；nil=使用内置Metal渲染视图，组件会自动addSubview并跟随bounds)
+    /// 自定义视频渲染视图(须在play/prepare之前设置，nil=使用内置Metal渲染视图，组件会自动addSubview并跟随bounds)
     public var videoRendering: (UIView & IJKVideoRenderingProtocol)?
 
     /// 渲染帧回调代理(实现IJKVideoRenderingDelegate的videoRenderingWillDisplay可在渲染前替换CVPixelBuffer帧数据，做滤镜/水印处理)
@@ -266,7 +266,7 @@ public class WYMediaPlayer: UIImageView {
         }
     }
 
-    /// 高斯模糊背景图(填充无画面或黑边区域，替代默认纯色背景；nil=清除，配合placeholder使用体验更佳)
+    /// 高斯模糊背景图(填充无画面或黑边区域，替代默认纯色背景，nil=清除，配合placeholder使用体验更佳)
     public var renderBackgroundImage: UIImage? {
         get {
             let selector = #selector(getter: IJKVideoRenderingProtocol.backgroundImage)
@@ -283,7 +283,7 @@ public class WYMediaPlayer: UIImageView {
     /// 高斯模糊迭代次数(默认3，推荐2~4，越大越柔但越耗性能)
     public var renderBackgroundBlurIterations: Int {
         get {
-            // #selector引用协议声明形成编译期校验，上游改名/删除该成员时这里直接编译报错，杜绝字符串硬编码的静默失效；KVC键名即getter选择子名
+            // #selector引用协议声明形成编译期校验(上游改名/删除该成员时这里直接编译报错，杜绝字符串硬编码的静默失效)，KVC键名即getter选择子名
             let selector = #selector(getter: IJKVideoRenderingProtocol.backgroundBlurIterations)
             guard let view = ijkPlayer?.view, view.responds(to: selector) else { return 3 }
             return (view.value(forKey: NSStringFromSelector(selector)) as? NSNumber)?.intValue ?? 3
@@ -315,26 +315,26 @@ public class WYMediaPlayer: UIImageView {
         set { ijkPlayer?.view.scaleFactor = newValue }
     }
 
-    /// 暂停画面渲染(true=不再渲染新画面与字幕，仅保留叠加层内容；做画面冻结/截图场景使用)
+    /// 暂停画面渲染(true=不再渲染新画面与字幕，仅保留叠加层内容，做画面冻结/截图场景使用)
     public var preventDisplay: Bool {
         get { return ijkPlayer?.view.preventDisplay ?? false }
         set { ijkPlayer?.view.preventDisplay = newValue }
     }
 
-    /// 是否允许HDR直显(仅iOS16+可调用；true且设备支持时HDR画面不做格式转换直接显示，false=一律转换成SDR再显示；设备是否支持直显看directDisplayHDRSupportted)
+    /// 是否允许HDR直显(仅iOS16+可调用，true且设备支持时HDR画面不做格式转换直接显示，false=一律转换成SDR再显示，设备是否支持直显看directDisplayHDRSupportted)
     @available(iOS 16.0, *)
     public var allowHDRDirectDisplay: Bool {
         get { return ijkPlayer?.view.allowHDRDirectDisplay ?? true }
         set { ijkPlayer?.view.allowHDRDirectDisplay = newValue }
     }
 
-    /// 当前显示是否支持HDR直显(仅iOS16+可调用；tvOS不支持HDR直显)
+    /// 当前显示是否支持HDR直显(仅iOS16+可调用，tvOS不支持HDR直显)
     @available(iOS 16.0, *)
     public var directDisplayHDRSupportted: Bool {
         return ijkPlayer?.view.directDisplayHDRSupportted ?? false
     }
 
-    /// 反交错模式(仅软解生效，0=关闭，1=bwdif，2=yadif，3=field；隔行扫描源如部分电视TS流需开启，作用于当前实例)
+    /// 反交错模式(仅软解生效，0=关闭，1=bwdif，2=yadif，3=field，隔行扫描源如部分电视TS流需开启，作用于当前实例)
     public var deinterlace: Int {
         get { return Int(ijkPlayer?.deinterlace ?? 0) }
         set { ijkPlayer?.deinterlace = Int32(newValue) }
@@ -357,7 +357,7 @@ public class WYMediaPlayer: UIImageView {
         return ijkPlayer?.airPlayMediaActive ?? false
     }
 
-    /// 当前播放时间(单位，s；拖动请用playbackTime(_:))
+    /// 当前播放时间(单位为秒，拖动请用playbackTime(_:))
     public var currentPlaybackTime: TimeInterval {
         return ijkPlayer?.currentPlaybackTime ?? 0
     }
@@ -372,7 +372,7 @@ public class WYMediaPlayer: UIImageView {
         return ijkPlayer?.playbackSchedule ?? .idle
     }
 
-    /// 本次缓冲是否由seek触发(1=seek引起的，0=普通网络卡顿引起的；取值只有0和1，只在收到buffering状态回调的那一刻能读到，之后立即复位为0，平时读恒是0)
+    /// 本次缓冲是否由seek触发(1=seek引起的，0=普通网络卡顿引起的，取值只有0和1，只在收到buffering状态回调的那一刻能读到，之后立即复位为0，平时读取固定是0)
     public var isSeekBuffering: Int32 {
         return ijkPlayer?.isSeekBuffering ?? 0
     }
@@ -397,27 +397,27 @@ public class WYMediaPlayer: UIImageView {
         return ijkPlayer?.monitor
     }
 
-    /// 元数据标称帧率(单位，帧/秒)
+    /// 元数据标称帧率(单位为帧/秒)
     public var fpsInMeta: CGFloat {
         return ijkPlayer?.fpsInMeta ?? 0
     }
 
-    /// 实际输出帧率(单位，帧/秒，反映真实渲染性能)
+    /// 实际输出帧率(单位为帧/秒，反映真实渲染性能)
     public var fpsAtOutput: CGFloat {
         return ijkPlayer?.fpsAtOutput ?? 0
     }
 
-    /// seek后音频首帧开始播放瞬间的标记，配合底层IJKPlayerSeekAudioStart通知读取(1=当前以音频为主时钟，0=以视频或外部时钟为主；取值只有0和1，只在收到该通知的那一刻能读到，之后立即复位为0，平时读恒是0)
+    /// seek后音频首帧开始播放瞬间的标记，配合底层IJKPlayerSeekAudioStart通知读取(1=当前以音频为主时钟，0=以视频或外部时钟为主，取值只有0和1，只在收到该通知的那一刻能读到，之后立即复位为0，平时读取固定是0)
     public var isAudioSync: Int32 {
         return ijkPlayer?.isAudioSync ?? 0
     }
 
-    /// seek后视频首帧渲染出画面瞬间的标记，配合底层IJKPlayerSeekVideoStart通知读取(1=当前以视频为主时钟，0=以音频或外部时钟为主；取值只有0和1，只在收到该通知的那一刻能读到，之后立即复位为0，平时读恒是0)
+    /// seek后视频首帧渲染出画面瞬间的标记，配合底层IJKPlayerSeekVideoStart通知读取(1=当前以视频为主时钟，0=以音频或外部时钟为主，取值只有0和1，只在收到该通知的那一刻能读到，之后立即复位为0，平时读取固定是0)
     public var isVideoSync: Int32 {
         return ijkPlayer?.isVideoSync ?? 0
     }
 
-    /// 本次加载的总流量统计(单位，byte，含重试流量)
+    /// 本次加载的总流量统计(单位为byte，含重试流量)
     public var numberOfBytesTransferred: Int64 {
         return ijkPlayer?.numberOfBytesTransferred ?? 0
     }
@@ -428,10 +428,10 @@ public class WYMediaPlayer: UIImageView {
         set { ijkPlayer?.shouldShowHudView = newValue }
     }
 
-    /// IJK内核日志级别(默认IJK_LOG_SILENT完全静默；内核级全局开关，多实例以最后创建实例的值为准)
+    /// IJK内核日志级别(默认IJK_LOG_SILENT完全静默，内核级全局开关，多实例以最后创建实例的值为准)
     public var logLevel: IJKLogLevel = IJK_LOG_SILENT
 
-    /// HLS分片打开前回调(可改写urlOpenData.url实现本地缓存/鉴权替换，改完自动标记handled；不改url仅做监控也可用)
+    /// HLS分片打开前回调(可改写urlOpenData.url实现本地缓存/鉴权替换，改完自动标记handled，不改url仅做监控也可用)
     public var willOpenSegmentUrl: ((_ urlOpenData: IJKMediaUrlOpenData) -> Void)? {
         didSet { refreshUrlOpenDelegates() }
     }
@@ -446,7 +446,7 @@ public class WYMediaPlayer: UIImageView {
         didSet { refreshUrlOpenDelegates() }
     }
 
-    /// 直播流打开前回调(直播重连前触发，可趁机换源)
+    /// 直播流打开前回调(直播重连前触发，可在此换源)
     public var willOpenLiveUrl: ((_ urlOpenData: IJKMediaUrlOpenData) -> Void)? {
         didSet { refreshUrlOpenDelegates() }
     }
@@ -466,7 +466,7 @@ public class WYMediaPlayer: UIImageView {
     }
 
     /**
-     * 预加载，只加载缓冲、不自动播放不出声(适合预加载预备页)；加载完成若开了shouldUseFirstFrameAsPoster会自动探测首帧作封面，之后调play()即可播放(未prepare完会自动挂起，prepare完成后立即起播并跳过探测)
+     * 预加载，只加载缓冲、不自动播放不出声(适合预加载预备页)，加载完成若开了shouldUseFirstFrameAsPoster会自动探测首帧作封面，之后调play()即可播放(未prepare完会自动挂起，prepare完成后立即起播并跳过探测)
      * @param url 要加载的流地址
      * @param placeholder 视频占位图，加载期间先显示它
      */
@@ -480,7 +480,7 @@ public class WYMediaPlayer: UIImageView {
             isPosterProbing = false
             applyVolume()
         }
-        // prepare未完成时play()调用会被底层直接丢弃(换源重载场景实测)，挂起待prepared回调补执行，保证"最终一定要播"
+        // prepare未完成时play()调用会被底层直接丢弃(换源重载场景实测)，挂起待prepared回调补执行，保证最终一定起播
         if isPreparedToPlay == false {
             isPlayPending = true
             // play意图覆盖prepare期间收到的暂停意图(先pause后play=最终要播)
@@ -493,7 +493,7 @@ public class WYMediaPlayer: UIImageView {
     /// 暂停播放
     public func pause() {
         isPlayPending = false
-        // prepare未完成时记下暂停意图，此刻的pause拦不住prepare完成时内核的自动起播，由prepare完成回调补压(见isPausedWhilePreparing)
+        // prepare未完成时记下暂停意图，此刻的pause拦不住prepare完成时内核的自动起播，由prepare完成回调补一次暂停(见isPausedWhilePreparing)
         if isPreparedToPlay == false {
             isPausedWhilePreparing = true
         }
@@ -516,7 +516,7 @@ public class WYMediaPlayer: UIImageView {
     }
 
     /**
-     * 开关精准seek(运行中可切换；开启后seek会解码到目标帧，准确但更耗时)
+     * 开关精准seek(运行中可切换，开启后seek会解码到目标帧，准确但更耗时)
      * @param open true=开启精准seek，false=关闭
      */
     public func enableAccurateSeek(_ open: Bool) {
@@ -559,7 +559,7 @@ public class WYMediaPlayer: UIImageView {
         return ijkPlayer?.getAudioChanne() ?? IJKAudioChannelStereo
     }
 
-    /// 设定音频延迟(单位，s)
+    /// 设定音频延迟(单位为秒)
     public func audioExtraDelay(_ delay: CGFloat) {
         ijkPlayer?.currentAudioExtraDelay = Float(delay)
     }
@@ -600,7 +600,7 @@ public class WYMediaPlayer: UIImageView {
         ijkPlayer?.closeCurrentStream(streamStyle)
     }
 
-    /// 设定字幕延迟(单位，s)
+    /// 设定字幕延迟(单位为秒)
     public func subtitleExtraDelay(_ delay: CGFloat) {
         ijkPlayer?.currentSubtitleExtraDelay = Float(delay)
     }
@@ -612,7 +612,7 @@ public class WYMediaPlayer: UIImageView {
 
     /// 播放画面显示模式
     public func scalingStyle(_ style: IJKScalingMode) {
-        // 防下发旧值，必须直接把新style写给player再存属性(scalingStyle是普通存储属性不会自动转发，若照抄属性值下发，player拿到的还是旧模式，新模式要等下次加载才生效)
+        // 必须先把新style写给player再存属性(scalingStyle是普通存储属性不会自动转发，直接按属性值下发时player拿到的还是旧模式，新模式要等下次加载才生效)
         ijkPlayer?.scalingMode = style
         self.scalingStyle = style
     }
@@ -654,7 +654,7 @@ public class WYMediaPlayer: UIImageView {
     }
 
     /**
-     * 注册画面刷新回调(暂停状态下修改rotatePreference/colorPreference/darPreference后，渲染器刷新完画面会回调；nil=移除)
+     * 注册画面刷新回调(暂停状态下修改rotatePreference/colorPreference/darPreference后，渲染器刷新完画面会回调，nil=移除)
      * @param block 刷新完成回调
      */
     public func registerRefreshCurrentPicObserver(_ block: (() -> Void)?) {
@@ -670,16 +670,16 @@ public class WYMediaPlayer: UIImageView {
      *  按指定类型截取当前画面，比currentSnapshot()多了"截视频原始帧"的能力，返回CGImage方便直接写文件或二次处理
      *
      *  @param type 截图类型，IJKSnapshotTypeOrigin=视频原始尺寸(不带字幕和画质特效)、IJKSnapshotTypeScreen=当前屏幕看到的画面(含字幕和画质特效，效果同currentSnapshot())、IJKSnapshotTypeEffect_Origin=原始尺寸带字幕不带画质特效、IJKSnapshotTypeEffect_Subtitle_Origin=原始尺寸带字幕和画质特效
-     *  @return 截好的图像；播放器还没创建或第一帧还没渲染出来时返回nil
+     *  @return 截好的图像，播放器还没创建或第一帧还没渲染出来时返回nil
      */
     public func currentSnapshot(_ type: IJKSnapshotType) -> CGImage? {
         guard let renderView = ijkPlayer?.view else { return nil }
-        // 底层返回的是autorelease的CGImage(经Swift导入为Unmanaged)，用takeUnretainedValue取出来后ARC会自动持有，业务侧拿到直接用是安全的
+        // 底层返回的是autorelease的CGImage(经Swift导入为Unmanaged)，用takeUnretainedValue取出来后ARC会自动持有，调用方拿到直接用是安全的
         return renderView.snapshot(type).takeUnretainedValue()
     }
 
     /**
-     * 运行时切换硬/软解码(无需停止播放；硬解花屏或兼容性问题时切软解自救)
+     * 运行时切换硬/软解码(无需停止播放，硬解花屏或兼容性问题时切软解自救)
      * @param hardware true=切硬件解码(VideoToolbox)，false=切软件解码
      * @return 是否切换成功
      */
@@ -689,7 +689,7 @@ public class WYMediaPlayer: UIImageView {
     }
 
     /**
-     * 开始快速录制(边播边录，速度优先；建议.mp4/.mov容器)
+     * 开始快速录制(边播边录，速度优先，建议.mp4/.mov容器)
      * @param filePath 录制文件完整路径
      * @return 0=成功，非0=错误码
      */
@@ -730,7 +730,7 @@ public class WYMediaPlayer: UIImageView {
         return ijkPlayer?.duration ?? 0
     }
 
-    /// 获取预加载时长(单位，s)
+    /// 获取预加载时长(单位为秒)
     public func playableDuration() -> TimeInterval {
         return ijkPlayer?.playableDuration ?? 0
     }
@@ -740,7 +740,7 @@ public class WYMediaPlayer: UIImageView {
         return Int(ijkPlayer?.bufferingProgress ?? 0)
     }
 
-    /// 获取下载速度(单位，byte)
+    /// 获取下载速度(单位为byte)
     public func downloadSpeed() -> Int64 {
         return ijkPlayer?.currentDownloadSpeed() ?? 0
     }
@@ -755,12 +755,12 @@ public class WYMediaPlayer: UIImageView {
         return Int(ijkPlayer?.dropFrameCount() ?? 0)
     }
 
-    /// 视频与主时钟的偏差(单位，s，正值=视频落后于主时钟，排查音画不同步用)
+    /// 视频与主时钟的偏差(单位为秒，正值=视频落后于主时钟，排查音画不同步用)
     public func currentVMDiff() -> Float {
         return ijkPlayer?.currentVMDiff() ?? 0
     }
 
-    /// 本次加载的总流量统计(单位，byte，与numberOfBytesTransferred是同一个数据)
+    /// 本次加载的总流量统计(单位为byte，与numberOfBytesTransferred是同一个数据)
     public func trafficStatistic() -> Int64 {
         return ijkPlayer?.trafficStatistic() ?? 0
     }
@@ -811,7 +811,7 @@ public class WYMediaPlayer: UIImageView {
     }
 
     /**
-     * 重定向日志输出(nil=恢复默认stderr输出；level/tag/msg为级别/标签/内容，业务可接自研日志系统)
+     * 重定向日志输出(nil=恢复默认stderr输出，level/tag/msg为级别/标签/内容，调用方可接自研日志系统)
      * @param handler 日志处理闭包
      */
     public static func setLogHandler(_ handler: ((_ level: IJKLogLevel, _ tag: String, _ msg: String) -> Void)?) {
@@ -821,7 +821,7 @@ public class WYMediaPlayer: UIImageView {
     /**
      *  释放播放器组件(可以选择同步或异步关闭内核)
      *
-     *  @param sync true=同步关闭，等内核真正释放完资源才返回(紧接着要重建播放器或退出页面的场景用，防止旧实例还没释放完就叠新实例)；false=异步关闭，立即返回不等内核(默认，也是之前版本的行为)
+     *  @param sync true=同步关闭，等内核真正释放完资源才返回(紧接着要重建播放器或退出页面的场景用，防止旧实例还没释放完就叠新实例)，false=异步关闭，立即返回不等内核(默认)
      */
     public func releaseAll(_ sync: Bool = false) {
 
@@ -858,7 +858,7 @@ public class WYMediaPlayer: UIImageView {
             playerView.removeFromSuperview()
         }
 
-        // 关闭播放器内核(按参数选择同步等待释放或异步释放；底层shutdown本身已是异步)
+        // 关闭播放器内核(按参数选择同步等待释放或异步释放，底层shutdown本身已是异步)
         ijkPlayer?.shutdownSync(sync)
 
         // 最后才置为 nil

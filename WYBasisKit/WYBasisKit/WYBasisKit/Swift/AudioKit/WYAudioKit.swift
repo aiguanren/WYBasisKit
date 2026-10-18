@@ -12,8 +12,8 @@ import QuartzCore
 /**
  音频文件格式说明：
  可直接录制（iOS 原生支持）：
- - aac ：高效压缩，体积小，音质好；适合音乐、播客、配音；跨平台兼容性好
- - wav ：无损 PCM，音质最佳，文件较大；适合高音质场景
+ - aac ：高效压缩，体积小，音质好，适合音乐、播客、配音，跨平台兼容性好
+ - wav ：无损 PCM，音质最佳，文件较大，适合高音质场景
  - caf ：Apple 容器，支持多种编码，适合长音频无大小限制
  - m4a ：基于 MPEG-4 容器，常封装 AAC/ALAC，Apple 生态常用
  - aiff：无损 PCM，Apple 早期格式，音质好，体积较大
@@ -240,8 +240,8 @@ import QuartzCore
      录音声波数据更新（单通道）
      - Parameters:
        - audioKit: 音频工具实例
-       - peakPower: 当前峰值功率（dB），范围 -160.0 到 0.0（0.0 表示最响，-160.0 表示最安静）；适合用于实时响应敏感的声波动画，但可能导致动画跳动剧烈
-       - averagePower: 当前平均功率（dB），范围 -160.0 到 0.0；比 peakPower 更平滑，适合语音录制页面的声波动画
+       - peakPower: 当前峰值功率（dB），范围 -160.0 到 0.0（0.0 表示最响，-160.0 表示最安静），适合用于实时响应敏感的声波动画，但可能导致动画跳动剧烈
+       - averagePower: 当前平均功率（dB），范围 -160.0 到 0.0，比 peakPower 更平滑，适合语音录制页面的声波动画
      */
     @objc(wy_audioRecorderDidUpdateMetering:peakPower:averagePower:)
     optional func wy_audioRecorderDidUpdateMetering(audioKit: WYAudioKit, peakPower: Float, averagePower: Float)
@@ -250,8 +250,8 @@ import QuartzCore
      录音声波数据更新（多通道，归一化 0.0 ~ 1.0）
      - Parameters:
        - audioKit: 音频工具实例
-       - peakPowers: 当前各通道的归一化峰值幅度数组（0.0 ~ 1.0，0.0 最安静，1.0 最响）；适合直接用于声波动画、音量条等 UI 显示
-       - averagePowers: 当前各通道的归一化平均幅度数组（0.0 ~ 1.0）；更平滑，推荐用于语音录制波形动画
+       - peakPowers: 当前各通道的归一化峰值幅度数组（0.0 ~ 1.0，0.0 最安静，1.0 最响），适合直接用于声波动画、音量条等 UI 显示
+       - averagePowers: 当前各通道的归一化平均幅度数组（0.0 ~ 1.0），更平滑，推荐用于语音录制波形动画
      */
     @objc(wy_audioRecorderDidUpdateMeterings:peakPowers:averagePowers:)
     optional func wy_audioRecorderDidUpdateMeterings(audioKit: WYAudioKit, peakPowers: [Float], averagePowers: [Float])
@@ -394,7 +394,7 @@ public final class WYAudioKit: NSObject {
         didSet {
             if playbackRate < 0.5 { playbackRate = 0.5 }
             if playbackRate > 2.0 { playbackRate = 2.0 }
-            // 播放中才即时生效，暂停时只记住值(暂停中直接设非0的rate会把播放顶起来)，恢复播放时resumePlayback会带上
+            // 播放中才即时生效，暂停时只记住值(暂停中直接设非0的rate会触发自动起播)，恢复播放时resumePlayback会带上
             if isPlaying {
                 state.audioPlayer?.rate = playbackRate
             }
@@ -480,7 +480,7 @@ public final class WYAudioKit: NSObject {
      */
     public func startRecording(fileName: String? = nil, format: WYAudioFormat = .aac) throws {
 
-        // 防误选仅播放格式:mp3/flac等系统没有编码器，硬开录音会在AVAudioRecorder初始化时失败，报的错误还是误导人的"开始录音失败"，这里直接拦下来说清楚
+        // 拦截仅播放格式(mp3/flac等系统没有编码器，直接开录音会在AVAudioRecorder初始化时失败，错误信息只有笼统的"开始录音失败"，这里提前拦截并给出明确错误)
         guard format.isRecordable else {
             wy_handleErrorEvents(error: .formatNotSupported)
             throw WYAudioError.formatNotSupported
@@ -537,7 +537,7 @@ public final class WYAudioKit: NSObject {
             settings[AVLinearPCMIsFloatKey] = false
             settings[AVLinearPCMIsNonInterleaved] = false
         } else {
-            // 压缩编码统一吃recordQuality(旧版只有caf吃到，aac/m4a时调质量等级完全没反应)
+            // 压缩编码统一采用recordQuality
             settings[AVEncoderAudioQualityKey] = recordQuality.rawValue
         }
         
@@ -574,7 +574,7 @@ public final class WYAudioKit: NSObject {
         }
         recorder.pause()
         isRecordingPaused = true
-        // 防暂停期间刷新器空转:暂停后没有要刷的东西，不停的话每秒30帧白烧CPU
+        // 暂停期间没有要刷新的数据，停止刷新器避免空转(每秒30帧空耗CPU)
         stopDisplayLinkIfNeeded()
         delegate?.wy_audioRecorderDidStop?(audioKit: self, isPause: true, isTimeout: false)
     }
@@ -602,13 +602,13 @@ public final class WYAudioKit: NSObject {
         recorder.stop()
         isRecordingPaused = false
         state.audioRecorder = nil
-        // 防最小时长抛错路径漏停刷新器:这里不停的话，录音太短被删文件后刷新器还在每秒30帧空转
+        // 最小时长不满足走抛错路径也要停刷新器(录音太短被删文件后刷新器仍在每秒30帧空转)
         stopDisplayLinkIfNeeded()
         
         if minimumRecordDuration > 0 && duration < minimumRecordDuration {
             try? deleteRecordingFile(localUrl: currentRecordFileURL)
             currentRecordFileURL = nil
-            // 防外部UI停在录音状态:录音确实停了、文件也删了，didStop也要发(只抛错不通知的话，声波动画等录音UI收不到复位信号会一直动)
+            // 录音已停止且文件已删除时也要发didStop(只抛错不通知时，声波动画等录音UI收不到复位信号会一直动)
             delegate?.wy_audioRecorderDidStop?(audioKit: self, isPause: false, isTimeout: false)
             wy_handleErrorEvents(error: .minDurationNotReached)
             throw WYAudioError.minDurationNotReached
@@ -650,7 +650,7 @@ public final class WYAudioKit: NSObject {
             return
         }
         
-        // 防标记被清理覆盖:cleanupPlayback末尾会把isInitializingPlayer归false，标记必须放在stopPlayback之后设才有用
+        // 标记须在stopPlayback之后设置(cleanupPlayback末尾会把isInitializingPlayer归false，先设会被覆盖)
         stopPlayback()
         state.isInitializingPlayer = true
         
@@ -690,7 +690,7 @@ public final class WYAudioKit: NSObject {
     
     /// 暂停当前播放
     public func pausePlayback() throws {
-        // 允许缓冲中的暂停(旧版要求isPlaying为true，流式播放网络卡顿处于等待缓冲时暂停会直接报错)，只要播放器还在且没暂停过就行
+        // 允许缓冲中的暂停(流式播放网络卡顿处于等待缓冲时也能暂停)，只要播放器还在且没暂停过
         guard let player = state.audioPlayer, !isPlaybackPaused else {
             wy_handleErrorEvents(error: .noAudioToPause)
             throw WYAudioError.noAudioToPause
@@ -751,7 +751,7 @@ public final class WYAudioKit: NSObject {
                 failed(WYAudioError.fileNotFound)
                 return
             }
-            // 下载完成回调在文件同步落盘之后才会走到这里，不需要旧版的0.2秒延时等待
+            // 下载完成回调在文件同步落盘之后才触发，无需延时等待
             self.playPlayback(url: first.local,
                               success: { _ in
                 success(first)
@@ -780,7 +780,7 @@ public final class WYAudioKit: NSObject {
             return
         }
         
-        // 防重复下载白费流量:同URL已在下载中就跳过(旧版会取消旧任务从头重下，进度回退)，批次只对新增URL建任务
+        // 同URL已在下载中就跳过(重复下载浪费流量，取消重下会使进度回退)，批次只对新增URL建任务
         let urlsToStart = remoteUrls.filter { state.tasksInfo[$0] == nil }
         if urlsToStart.count < remoteUrls.count {
             let duplicated = remoteUrls.filter { state.tasksInfo[$0] != nil }
@@ -804,7 +804,7 @@ public final class WYAudioKit: NSObject {
         state.downloadGroups[batchID] = batch
         
         for originalURL in urlsToStart {
-            // 清除该URL的所有旧状态（避免残留数据干扰，旧批次摘牌防止它永远等不到回调）
+            // 清除该URL的所有旧状态(避免残留数据干扰，同时从旧批次的待完成集合中移除，防止旧批次一直等不到回调)
             detachOldDownloadState(for: originalURL)
             
             // 强制重置进度显示
@@ -878,7 +878,7 @@ public final class WYAudioKit: NSObject {
                 self.delegate?.wy_remoteAudioDownloadPaused?(audioKit: self, remoteUrls: [originalURL])
                 // 成功暂停，回调该任务的 URL
                 success(originalURL)
-                // 防恢复请求石沉大海:暂停期间点过恢复的，resumeData一到手立刻自动续上
+                // 暂停期间请求过恢复的，resumeData一到手立刻自动续上(避免恢复请求没有响应)
                 if self.state.pendingResumeUrls.remove(originalURL) != nil {
                     self.resumeDownload([originalURL])
                 }
@@ -898,11 +898,10 @@ public final class WYAudioKit: NSObject {
         
         for originalURL in urls {
             guard var info = state.pausedTaskInfo[originalURL] else {
-                // [WYAudioKit] 无法恢复 \(originalURL)：缺少恢复数据或任务信息"
                 wy_handleErrorEvents(url: originalURL, error: .downloadFailed)
                 continue
             }
-            // 防恢复请求石沉大海:暂停的cancel回调还没回来(resumeData未就绪)时点了恢复，先排队，resumeData到手自动续上
+            // 暂停的cancel回调还没回来(resumeData未就绪)时点了恢复的先排队，resumeData到手自动续上
             guard let resumeData = info.resumeData else {
                 state.pendingResumeUrls.insert(originalURL)
                 wy_handleErrorEvents(url: originalURL, error: .downloadFailed, description: WYLocalized("暂停尚未完成，已自动排队，暂停落定后立即恢复", table: WYBasisKitConfig.kitLocalizableTable))
@@ -912,7 +911,7 @@ public final class WYAudioKit: NSObject {
             let task = ensureDownloadSession().downloadTask(withResumeData: resumeData)
             task.resume()
             
-            // 恢复任务信息(记下字节基点，恢复后系统可能从0重新累计已写字节，进度回调按基点校准防闪0)
+            // 恢复任务信息(记下字节基点，恢复后系统可能从0重新累计已写字节，进度回调按基点校准避免跳回0)
             info.task = task
             info.resumeData = nil
             info.resumeBaselineBytes = Int64(resumeData.count)
@@ -929,7 +928,7 @@ public final class WYAudioKit: NSObject {
         }
         
         if !resumedUrls.isEmpty {
-            // 防恢复后收不到进度:暂停时刷新器可能已经停了，不重启的话恢复的下载永远没有进度回调
+            // 暂停时刷新器可能已经停止，恢复后需要重启，否则下载没有进度回调
             startDisplayLinkIfNeeded()
             delegate?.wy_remoteAudioDownloadResumed?(audioKit: self, remoteUrls: resumedUrls)
         }
@@ -956,7 +955,7 @@ public final class WYAudioKit: NSObject {
             guard let taskInfo = info else { continue }
             taskInfo.task?.cancel()
             
-            // 清理批次(batchID是非可选值，旧版的as UUID?强转纯属多余)
+            // 清理批次(batchID是非可选值，直接使用)
             let batchID = taskInfo.batchID
             if var batch = state.downloadGroups[batchID] {
                 batch.pendingUrls.remove(originalURL)
@@ -1103,7 +1102,7 @@ public final class WYAudioKit: NSObject {
                 }
             }
         }
-        // 两个分支都要把映射落盘，抽成一处(旧版两行重复的UserDefaults写)
+        // 两个分支都要把映射落盘，统一在方法末尾执行一次
         persistDownloadMapping()
     }
     
@@ -1143,7 +1142,7 @@ public final class WYAudioKit: NSObject {
             return
         }
         
-        // 防同格式白转:源文件扩展名和目标格式相同就跳过(容器编码都一样，转了也只是原样重封装；aac的扩展名就是m4a，m4a源转aac目标同样算同格式)，批次只装需要转的
+        // 源文件扩展名和目标格式相同就跳过(容器编码都一样，转换只是原样重封装，aac的扩展名就是m4a，m4a源转aac目标同样算同格式)，批次只装需要转的
         let urlsToConvert = sourceUrls.filter { $0.pathExtension.caseInsensitiveCompare(target.extensionName) != .orderedSame }
         if urlsToConvert.count < sourceUrls.count {
             let skipped = sourceUrls.filter { $0.pathExtension.caseInsensitiveCompare(target.extensionName) == .orderedSame }
@@ -1171,7 +1170,7 @@ public final class WYAudioKit: NSObject {
             try? fm.createDirectory(at: convertDir, withIntermediateDirectories: true)
         }
         
-        // aac/m4a走导出会话(AAC编码)，wav/aiff/caf走读写器PCM管线(导出会话给不了PCM输出，旧版直通预设对这三种目标基本全部失败，详见+Convert.swift)
+        // aac/m4a走导出会话(AAC编码)，wav/aiff/caf走读写器PCM管线(导出会话给不了PCM输出，详见+Convert.swift)
         for sourceURL in urlsToConvert {
             let baseName = sourceURL.deletingPathExtension().lastPathComponent
             let outputFileName = "\(baseName)_\(target.extensionName).\(target.extensionName)"
@@ -1182,7 +1181,7 @@ public final class WYAudioKit: NSObject {
                 try? fm.removeItem(at: outputURL)
             }
             
-            // 同一文件还在转换中就先取消旧任务再开新的(直接覆盖记录的话旧任务就失控了，谁也取消不掉它)
+            // 同一文件还在转换中就先取消旧任务再开新的(直接覆盖记录会使旧任务失去引用、无法取消)
             state.convertTasks.removeValue(forKey: sourceURL)?.cancel()
             
             switch target {
@@ -1191,7 +1190,7 @@ public final class WYAudioKit: NSObject {
             case .wav, .aiff, .caf:
                 startPCMConvert(batchID: batchID, sourceURL: sourceURL, outputURL: outputURL, fileType: target.avFileType)
             default:
-                // 前面supportedTargets已经拦掉了不支持的目标，这里防御性兜个错
+                // 前面isConvertible已拦掉不支持的目标，这里防御性兜底报错
                 handleConvertError(batchID: batchID, sourceURL: sourceURL, error: WYAudioError.formatNotSupported)
             }
         }
@@ -1251,7 +1250,7 @@ public final class WYAudioKit: NSObject {
             self?.handlePlayerStatusChange(player.timeControlStatus)
         }
         
-        // 旧版靠延时0.2秒后查一次状态来起播，网络慢超过0.2秒就永远收不到进度回调，改成就绪即处理，起播交给rate非0这个播放指令本身
+        // 就绪即起播(起播由rate非0这个播放指令本身触发，不依赖定时轮询状态，网络慢也能正常收到进度回调)
         var hasStarted = false
         state.streamingObservation = playerItem.observe(\.status, options: [.new]) { [weak self] item, _ in
             guard let self = self else { return }
@@ -1292,7 +1291,7 @@ public final class WYAudioKit: NSObject {
                 let duration: TimeInterval
                 do {
                     let loadedDuration = try await asset.load(.duration)
-                    // 直播流等场景会拿到无效时长，统一兜成0(旧版iOS16以上分支漏了这层判断)
+                    // 直播流等场景会拿到无效时长，统一按0处理
                     duration = loadedDuration.seconds.isFinite ? loadedDuration.seconds : 0
                 } catch {
                     duration = 0
@@ -1318,11 +1317,11 @@ public final class WYAudioKit: NSObject {
         state.audioRecorder?.stop()
         state.audioRecorder = nil
         
-        // 统一走播放清理，顺带把观察者都断掉(旧版漏了流式播放观察者和播放条目观察者的清理)
+        // 统一走播放清理，同时断开全部观察者(含流式播放观察者与播放条目观察者)
         cleanupPlayback(shouldCallbackStop: false)
         
         cancelDownload(nil)
-        // 会话作废置nil，再次下载时按需重建(旧版置nil后继续下载会拿到死会话直接崩)
+        // 会话作废置nil，再次下载时按需重建
         state.downloadSession?.invalidateAndCancel()
         state.downloadSession = nil
         

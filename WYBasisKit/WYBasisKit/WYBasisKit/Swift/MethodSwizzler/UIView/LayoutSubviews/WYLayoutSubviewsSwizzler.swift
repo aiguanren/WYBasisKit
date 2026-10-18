@@ -12,8 +12,8 @@ import UIKit
  
  - Parameters:
    - targetClass: 目标视图类（如 `UIView.self`）。
-   - before: 方法执行前回调。参数为当前视图。无返回值。
-   - after: 方法执行后回调。参数为当前视图。无返回值（仅通知）。
+   - before: 方法执行前回调，参数为当前视图。无返回值。
+   - after: 方法执行后回调，参数为当前视图。无返回值（仅通知）。
  */
 internal func wy_swizzlerLayoutSubviews(
     for targetClass: UIView.Type,

@@ -89,7 +89,7 @@ import WYBasisKitSwift
         return reserveVerticalIndex
     }
 
-    /// 自动轮播时每一页停留时间，默认3s，最低1s(低于1s时按默认3s处理，修改后立即生效)
+    /// 自动轮播时每一页停留时间，默认3s(设置的值小于1s时按3s处理，修改后立即生效)
     @objc(standingTime)
     public var standingTimeObjC: TimeInterval {
         get { return standingTime }
@@ -124,49 +124,49 @@ import WYBasisKitSwift
         set { crossAxisSwitchZoomScale = newValue }
     }
 
-    /// 水平方向是否支持滑动(仅内容页数量大于1时生效)，默认true；仅拦截手势，API切换与轮播不受影响
+    /// 水平方向是否支持滑动(仅内容页数量大于1时生效，仅拦截手势不影响API切换与轮播，默认true)
     @objc(horizontalSliderEnabled)
     public var horizontalSliderEnabledObjC: Bool {
         get { return horizontalSliderEnabled }
         set { horizontalSliderEnabled = newValue }
     }
 
-    /// 垂直方向是否支持滑动(仅内容页数量大于1时生效)，默认true；仅拦截手势，API切换与轮播不受影响
+    /// 垂直方向是否支持滑动(仅内容页数量大于1时生效，仅拦截手势不影响API切换与轮播，默认true)
     @objc(verticalSliderEnabled)
     public var verticalSliderEnabledObjC: Bool {
         get { return verticalSliderEnabled }
         set { verticalSliderEnabled = newValue }
     }
 
-    /// 水平方向同轴翻页的最小时间间隔(单位为秒，默认0不限制，负数按0处理)，手势翻页提交后间隔内的新同轴拖动无效，跨轴切换与API切换不受影响
+    /// 水平方向同轴翻页的最小时间间隔(单位为秒，默认0不限制，负数按0处理)，手势翻页落定后间隔内的新同轴拖动无效，跨轴切换与API切换不受影响
     @objc(horizontalMinimumSwitchInterval)
     public var horizontalMinimumSwitchIntervalObjC: TimeInterval {
         get { return horizontalMinimumSwitchInterval }
         set { horizontalMinimumSwitchInterval = newValue }
     }
 
-    /// 垂直方向同轴翻页的最小时间间隔(单位为秒，默认0不限制，负数按0处理)，手势翻页提交后间隔内的新同轴拖动无效，跨轴切换与API切换不受影响
+    /// 垂直方向同轴翻页的最小时间间隔(单位为秒，默认0不限制，负数按0处理)，手势翻页落定后间隔内的新同轴拖动无效，跨轴切换与API切换不受影响
     @objc(verticalMinimumSwitchInterval)
     public var verticalMinimumSwitchIntervalObjC: TimeInterval {
         get { return verticalMinimumSwitchInterval }
         set { verticalMinimumSwitchInterval = newValue }
     }
 
-    /// 水平方向是否无限翻页(末页/首页环绕到另一端)，默认true；展示轴关闭本开关时轮播随之停止
+    /// 水平方向是否无限翻页(末页/首页环绕到另一端，默认true，展示轴关闭本开关时轮播随之停止)
     @objc(horizontalUnlimitedCarousel)
     public var horizontalUnlimitedCarouselObjC: Bool {
         get { return horizontalUnlimitedCarousel }
         set { horizontalUnlimitedCarousel = newValue }
     }
 
-    /// 垂直方向是否无限翻页(末页/首页环绕到另一端)，默认true；展示轴关闭本开关时轮播随之停止
+    /// 垂直方向是否无限翻页(末页/首页环绕到另一端，默认true，展示轴关闭本开关时轮播随之停止)
     @objc(verticalUnlimitedCarousel)
     public var verticalUnlimitedCarouselObjC: Bool {
         get { return verticalUnlimitedCarousel }
         set { verticalUnlimitedCarousel = newValue }
     }
 
-    /// 是否需要自动轮播，默认false；开启后首次展示自动开始轮播，运行中修改即时生效(关闭就停、再开继续播)
+    /// 是否需要自动轮播(默认false，开启后首次展示时自动开始，运行中修改即时生效)
     @objc(automaticCarousel)
     public var automaticCarouselObjC: Bool {
         get { return automaticCarousel }

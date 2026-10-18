@@ -81,7 +81,7 @@ extension WYPagingView {
                 currentButtonItem = buttonItem
             }
 
-            // 图标tint初始态由容器统一设置(Item自身不持有容器属性；之后切页时在updateButtonItemProperty里随选中态刷新)
+            // 图标tint初始态由容器统一设置(Item自身不持有容器属性，之后切页时在updateButtonItemProperty里随选中态刷新)
             applyIconTint(to: buttonItem, isSelected: (index == bar_selectedIndex))
 
             barScrollView.insertSubview(buttonItem, at: 0)
@@ -166,7 +166,7 @@ extension WYPagingView {
             // 初始化与重载落位:指示线与标题栏直接到位，不播从起点飞过来的动画
             self.scrollMethod(animated: false)
 
-            // 首次layout之后再来layout都算数据源重载(isReload传给布局完成回调，业务用它区分首屏与刷新)
+            // 首次layout之后再来layout都算数据源重载(isReload传给布局完成回调，调用方用它区分首屏与刷新)
             let isReload: Bool = self.hasCompletedInitialLayout
             self.hasCompletedInitialLayout = true
 

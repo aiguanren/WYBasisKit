@@ -251,7 +251,7 @@ public extension UIView {
         // 开启bounds监听，视图尺寸变化时边框自动跟随更新
         wy_startBoundsObserving()
 
-        // 防同帧连设多条边重复排队:已有待执行任务时不再排新任务(任务执行时刷新的是当前全部边框层，合并执行和逐个执行最终效果一致)
+        // 已有待执行任务时不再排新任务，防止同帧连设多条边重复排队(任务执行时刷新的是当前全部边框层，合并执行和逐个执行最终效果一致)
         if objc_getAssociatedObject(self, &WYAssociatedKeys.pendingBorderApply) == nil {
             objc_setAssociatedObject(self, &WYAssociatedKeys.pendingBorderApply, true, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 
@@ -392,11 +392,11 @@ public extension UIView {
     @discardableResult
     func wy_showVisual() -> UIView {
 
-        // 防新加进层级的视图裸奔一帧:应用任务要等下一拍才执行，这一拍里新视图会以原始方块外观上屏闪一下(无圆角深色直角块一闪而过)，这里先按当前bounds同步落一遍，尺寸还没就绪也没关系，空路径的mask会把原始背景整体藏住，任务里再按布局结果修正
+        // 应用任务要等下一拍才执行，这一拍里新视图会以原始方块外观上屏闪一下(无圆角深色直角块一闪而过)，这里先按当前bounds同步落一遍，尺寸还没就绪也没关系，空路径的mask会把原始背景整体藏住，任务里再按布局结果修正
         let syncVisualFrame = wy_sharedBounds()
         let syncBezierPath = wy_sharedBezierPath()
 
-        // 防动画不同拍:同步落值阶段同样不能带隐式动画，否则调用方处在动画上下文里时会多出一段0.25秒动画
+        // 同步落值阶段同样不能带隐式动画，防止动画不同拍(调用方处在动画上下文里时会多出一段0.25秒动画)
         CATransaction.begin()
         CATransaction.setDisableActions(true)
 
@@ -409,7 +409,7 @@ public extension UIView {
 
         CATransaction.commit()
 
-        // 防同帧连点重复排队:已有待执行任务时不再排新任务(任务执行时读的总是最新config，合并执行和逐个执行最终效果一致)
+        // 已有待执行任务时不再排新任务，防止同帧连点重复排队(任务执行时读的总是最新config，合并执行和逐个执行最终效果一致)
         if objc_getAssociatedObject(self, &WYAssociatedKeys.pendingVisualApply) == nil {
             objc_setAssociatedObject(self, &WYAssociatedKeys.pendingVisualApply, true, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 
@@ -427,7 +427,7 @@ public extension UIView {
                 let visualFrame = self.wy_sharedBounds()
                 let bezierPath = self.wy_sharedBezierPath()
 
-                // 防动画不同拍:应用阶段不在动画上下文里，图层改动必须直接落值，否则长动画进行中重新应用时会多出一段0.25秒隐式动画和长动画各走各的(屏显路径跳变)
+                // 应用阶段不在动画上下文里，图层改动必须直接落值，否则长动画进行中重新应用时会多出一段0.25秒隐式动画与长动画不同拍(屏显路径跳变)
                 CATransaction.begin()
                 CATransaction.setDisableActions(true)
 
@@ -444,7 +444,7 @@ public extension UIView {
                 if self.wy_hasChainVisuals() {
                     self.wy_startBoundsObserving()
                 }else if self.layer.sublayers?.contains(where: { $0.borderInfo != nil }) != true {
-                    // 防监听空转:之前有视觉后来全撤干净、又没重新加上时，停掉bounds监听，免得之后每次bounds变化白跑一遍刷新
+                    // 视觉全部撤干净且未重新设置时停掉bounds监听(否则之后每次bounds变化都空跑一遍刷新)
                     self.wy_stopBoundsObserving()
                 }
             }
@@ -506,7 +506,7 @@ private extension UIView {
     func wy_addShadow(bezierPath: UIBezierPath, visualFrame: CGRect) {
         let config = wy_visualConfig
 
-        // 防阴影没开还留痕迹:颜色透明或透明度不大于0时先把旧阴影清干净再返回，顺带防"只传bezierPath不开阴影"的场景白建阴影背景视图
+        // 颜色透明或透明度不大于0时先把旧阴影清干净再返回(同时避免"只传bezierPath不开阴影"的场景空建阴影背景视图)
         guard config.shadowOpacity > 0, wy_colorAlpha(config.shadowColor) > 0 else {
             config.shadowBackgroundView?.removeFromSuperview()
             config.shadowBackgroundView = nil
@@ -542,11 +542,11 @@ private extension UIView {
                     NSLayoutConstraint(item: shadowView, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: self, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1.0, constant: 0)])
 
                 config.shadowBackgroundView = shadowView
-                // 防形变残留错位:视图已带transform时新建的阴影背景视图要先抄一份transform，否则第一帧两层不贴合
+                // 视图已带transform时新建的阴影背景视图要先复制一份transform，防止第一帧两层不贴合
                 shadowView.transform = self.transform
             }
 
-            // 防双阴影:阴影从挂在自身切到挂在背景视图时，自身layer上的旧阴影(之前无圆角时设的)不清会两层影子叠着
+            // 阴影从挂在自身切到挂在背景视图时，自身layer上的旧阴影(无圆角时设的)要清掉，防止两层影子叠加
             layer.shadowOpacity = 0
             layer.shadowPath = nil
 
@@ -557,7 +557,7 @@ private extension UIView {
             config.shadowBackgroundView?.removeFromSuperview()
             config.shadowBackgroundView = nil
 
-            // 防每帧按内容轮廓离屏算阴影:无圆角时阴影挂在自身，内容恰好铺满整个矩形(纯背景色或纯渐变、无子视图)的前提下，矩形shadowPath的阴影和轮廓阴影完全一样，用shadowPath换掉轮廓计算的性能开销；内容不铺满矩形(有子视图、半透明、带图片等)时保持轮廓阴影，并清掉残留的旧矩形路径防阴影停在旧尺寸上
+            // 无圆角时阴影挂在自身，内容恰好铺满整个矩形(纯背景色或纯渐变、无子视图)的前提下矩形shadowPath的阴影与轮廓阴影完全一样，用shadowPath换掉逐帧按内容轮廓离屏计算阴影的开销，内容不铺满矩形(有子视图、半透明、带图片等)时保持轮廓阴影，并清掉残留的旧矩形路径防止阴影停在旧尺寸上
             layer.shadowPath = wy_isSolidRectShadowContent() ? UIBezierPath(rect: visualFrame).cgPath : nil
         }
 
@@ -568,7 +568,7 @@ private extension UIView {
         shadowView.layer.shadowColor = config.shadowColor.cgColor
     }
 
-    /// 取颜色的透明度(iOS 14及以上直接用CGColor的alpha属性，更早的系统退化取分量表最后一个，RGB、灰度、CMYK色彩空间里最后一位都是alpha，图案色取不到分量时按不透明算)
+    /// 取颜色的透明度(直接读CGColor的alpha属性，图案色取不到分量时按不透明算)
     func wy_colorAlpha(_ color: UIColor) -> CGFloat {
         if #available(iOS 14.0, *) {
             return color.cgColor.alpha
@@ -646,7 +646,7 @@ private extension UIView {
                 borderLayer.fillColor = UIColor.clear.cgColor
                 borderLayer.lineCap = .square
                 borderLayer.lineJoin = .miter
-                // zPosition固定为1让边框渲染在普通子图层(默认0，含wy_addBorder加的指定位置边框)之上，与旧版每次重建后位于最上层的行为一致
+                // zPosition固定为1让边框渲染在普通子图层(默认0，含wy_addBorder加的指定位置边框)之上
                 borderLayer.zPosition = 1
                 self.layer.addSublayer(borderLayer)
             }
@@ -691,7 +691,7 @@ private extension UIView {
             endPoint = CGPoint(x: 0.0, y: 1.0)
         }
 
-        // 防重复应用时闪一帧:已有渐变层原地更新颜色方向，不先移除再重建也不重新挂载，图层任何时刻都在场、树结构不动
+        // 已有渐变层原地更新颜色方向，不先移除再重建也不重新挂载，防止重复应用时闪一帧(图层任何时刻都在场、树结构不动)
         if let existLayer = self.layer.sublayers?.first(where: { $0.name == WYLayerName.gradientLayer }) as? CAGradientLayer {
             existLayer.frame = visualFrame
             existLayer.colors = cgColors
@@ -700,7 +700,7 @@ private extension UIView {
         }else {
             let gradientLayer = CAGradientLayer()
             gradientLayer.name = WYLayerName.gradientLayer
-            // zPosition固定为-1让渐变渲染在所有子图层(默认0)之下，与旧版每次重建后位于最底层的行为一致
+            // zPosition固定为-1让渐变渲染在所有子图层(默认0)之下
             gradientLayer.zPosition = -1
             gradientLayer.frame = visualFrame
             gradientLayer.colors = cgColors
@@ -748,7 +748,7 @@ private extension UIView {
         let borderInset = min(max(config.borderWidth / 2.0, 0), maxRadius)
 
         if cornerRadius > 0 {
-            // 防宽边框吃掉圆角:路径不内缩、直接用设置的半径，配合翻倍线宽让描边只画进mask内侧；旧实现把半径减掉半个边框宽，边框越宽可见圆角越小，边框宽到半径2倍时圆角直接变直角
+            // 路径不内缩、直接用设置的半径，配合翻倍线宽让描边只画进mask内侧，防止宽边框压缩可见圆角(把半径减掉半个边框宽时，边框越宽可见圆角越小，边框宽到半径2倍时圆角变直角)
             return UIBezierPath(
                 roundedRect: bounds,
                 byRoundingCorners: config.rectCorner,
@@ -783,7 +783,7 @@ private extension UIView {
         var shadowBackgroundView: UIView? = nil
 
         deinit {
-            // 防视图销毁后孤儿阴影:阴影背景视图插在父视图上由父视图持有，本体销毁时这里把它从父视图摘掉，否则屏幕上会残留一块没人管的阴影
+            // 本体销毁时把阴影背景视图从父视图摘掉(它插在父视图上由父视图持有，不摘掉时屏幕上会残留一块失去管理的阴影)
             shadowBackgroundView?.removeFromSuperview()
         }
     }
@@ -820,7 +820,7 @@ private extension UIView {
                 view.wy_refreshVisualLayout()
             }
             transformObservation = view.layer.observe(\.transform, options: [.new]) { [weak view] _, _ in
-                // 防阴影背景视图不跟形变:位移、旋转、缩放只改transform不动bounds，靠约束定位的阴影背景视图不会跟着动，这里把视图当前的transform抄给它让阴影和本体始终贴在一起(在动画上下文里改transform时，这次赋值也会被UIKit做成同拍动画)
+                // 位移、旋转、缩放只改transform不动bounds，靠约束定位的阴影背景视图不会跟着动，把视图当前的transform复制给它让阴影和本体始终贴在一起(在动画上下文里改transform时，这次赋值也会被UIKit做成同拍动画)
                 guard Thread.isMainThread, let view = view else { return }
                 view.wy_visualConfig.shadowBackgroundView?.transform = view.transform
             }
@@ -842,10 +842,10 @@ private extension UIView {
     /// 视觉图层同步过渡用的动画key(每次先移除同key旧动画再加新的，防快速连点时动画叠加)
     static let wy_visualSyncAnimationKey = "WYBasisKit.visualSyncAnimation"
 
-    /// 让视觉图层与view本体同拍过渡(动画上下文里补一份显式动画组再落值，没有动画上下文时禁隐式动画直接落值；frame传nil表示frame不变只更新路径)
+    /// 让视觉图层与view本体同拍过渡(动画上下文里补一份显式动画组再落值，没有动画上下文时禁隐式动画直接落值，frame传nil表示frame不变只更新路径)
     static func wy_syncLayerGeometry(_ layer: CALayer, frame: CGRect?, path: CGPath? = nil, shadowPath: CGPath? = nil) {
 
-        // 防隐式动画在真实渲染里不跟拍:改约束动画时bounds监听里靠CATransaction隐式动画同步这些图层，屏幕上圆角mask不参与过渡(动画中圆角变直角)、边框和渐变瞬间跳到新尺寸压到还没挪完的周边控件，动画结束又恢复正常；这里照搬WYAirBubbleView验证过的做法，动画上下文里给每个图层显式加一份动画组(fromValue取presentation当前屏显值、时长取inheritedAnimationDuration)，让图层和view本体一起平滑过渡
+        // 改约束动画时bounds监听里靠CATransaction隐式动画同步这些图层，屏幕上圆角mask不参与过渡(动画中圆角变直角)、边框和渐变瞬间跳到新尺寸压到还没挪完的周边控件，动画结束又恢复正常，动画上下文里给每个图层显式加一份动画组(fromValue取presentation当前屏显值、时长取inheritedAnimationDuration)，让图层和view本体一起平滑过渡
         if UIView.inheritedAnimationDuration > 0 {
 
             layer.removeAnimation(forKey: wy_visualSyncAnimationKey)
@@ -912,7 +912,7 @@ private extension UIView {
     /// 视图bounds变化后，把已应用的圆角mask、边框、渐变、阴影路径按新尺寸重算(没有视觉图层时直接返回)
     func wy_refreshVisualLayout() {
 
-        // 防普通视图空跑:没有任何链式视觉图层时不往下走(阴影背景视图存在时mask必定存在，不用单独判)
+        // 没有任何链式视觉图层时不往下走(阴影背景视图存在时mask必定存在，不用单独判)
         guard wy_hasChainVisuals(), bounds.width > 0, bounds.height > 0 else {
             return
         }
@@ -938,7 +938,7 @@ private extension UIView {
         if let shadowBackgroundView = config.shadowBackgroundView, (config.cornerRadius > 0) || (config.bezierPath != nil) {
             UIView.wy_syncLayerGeometry(shadowBackgroundView.layer, frame: nil, shadowPath: bezierPath.cgPath)
         }else if (config.shadowOpacity > 0) && (layer.shadowOpacity > 0) && (layer.shadowPath != nil) {
-            // 无圆角场景挂在自身上的矩形shadowPath，bounds变了同步换新尺寸矩形；后来加了子视图等内容导致轮廓不再铺满矩形时，撤掉路径回到轮廓阴影
+            // 无圆角场景挂在自身上的矩形shadowPath，bounds变了同步换新尺寸矩形，内容不再铺满矩形时撤掉路径回到轮廓阴影
             if wy_isSolidRectShadowContent() {
                 UIView.wy_syncLayerGeometry(layer, frame: nil, shadowPath: UIBezierPath(rect: visualFrame).cgPath)
             }else {
@@ -959,7 +959,7 @@ private extension UIView {
     private func addBorder(edge: UIRectEdge,
                            color: UIColor,
                            thickness: CGFloat) {
-        // 防图层树结构抖动:重复设置同一条边时原地复用旧边框层改颜色厚度，不先移除再新建(拆层加层会触发图层重挂载，cell复用高频换边框场景开销可见)；顺手清掉历史残留的多余同边层，保证同一条边永远只有一层
+        // 重复设置同一条边时原地复用旧边框层改颜色厚度，不先移除再新建(拆层加层会触发图层重挂载，cell复用高频换边框场景开销可见，避免图层树结构抖动)，并清掉历史残留的多余同边层，保证同一条边永远只有一层
         let sameEdgeBorders = layer.sublayers?.filter { $0.borderInfo?.edge == edge } ?? []
         if let existBorder = sameEdgeBorders.first {
             existBorder.backgroundColor = color.cgColor

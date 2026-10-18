@@ -12,9 +12,9 @@ import UIKit
  
  - Parameters:
    - targetClass: 目标视图类（如 `UIView.self`）。
-   - intercept: 拦截决策闭包。返回 `.proceed` 则继续执行原始方法；返回 `.result(view)` 则直接返回该视图（可为 `nil`），**不再调用原始方法**。参数依次为：当前视图、点击位置、事件。
-   - before: 方法执行前观察闭包（仅在原始方法执行前调用，不影响流程）。参数依次为：当前视图、点击位置、事件。无返回值。
-   - after: 方法执行后回调，可修改原始返回值。参数依次为：当前视图、点击位置、事件、原始返回值（`UIView?`）。返回一个新的 `UIView?` 作为最终结果。
+   - intercept: 拦截决策闭包，返回 `.proceed` 则继续执行原始方法，返回 `.result(view)` 则直接返回该视图（可为 `nil`），**不再调用原始方法**，参数依次为：当前视图、点击位置、事件
+   - before: 方法执行前观察闭包（仅在原始方法执行前调用，不影响流程），参数依次为：当前视图、点击位置、事件。无返回值。
+   - after: 方法执行后回调，可修改原始返回值，参数依次为：当前视图、点击位置、事件、原始返回值（`UIView?`），返回一个新的 `UIView?` 作为最终结果。
  */
 internal func wy_swizzlerHitTest(
     for targetClass: UIView.Type,

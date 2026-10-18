@@ -20,7 +20,7 @@ internal enum WYInterceptResult<Value> {
  
  - Parameters:
    - anyClass: 目标类。
-   - selector: 方法选择器。若传入 `nil`，则移除该类的所有钩子（所有方法）；若指定 `selector`，则只移除该方法的钩子。
+   - selector: 方法选择器。若传入 `nil` 则移除该类的所有钩子(所有方法)，若指定 `selector` 则只移除该方法的钩子
  */
 internal func wy_removeMethodExchangeHooks(for anyClass: AnyClass, selector: Selector? = nil) {
     

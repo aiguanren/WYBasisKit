@@ -165,7 +165,7 @@ class WYTestPagingViewController: UIViewController {
     /// 标题字符长度梯度(超短/一般/长/超长四档循环取用，验证自适应宽度在各种长度差距下的表现)
     private let titleLengthBands: [(minimum: Int, maximum: Int)] = [(1, 1), (2, 4), (5, 7), (8, 10)]
 
-    /// 最多准备的测试页数(需要覆盖固定Item宽度下超一屏滚动等场景，20页已远超常见业务规模)
+    /// 最多准备的测试页数
     private let maxTestPageCount = 20
     
     /// 备好的测试页(前8页标题按长度梯度随机生成，超出后由firstUnusedItem按序号动态生成)

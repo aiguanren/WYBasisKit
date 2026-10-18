@@ -15,11 +15,11 @@ extension WYAudioKit {
     /// 启动 CADisplayLink（用于实时更新 UI）
     func startDisplayLinkIfNeeded() {
         guard state.displayLink == nil else { return }
-        // 防kit被丢弃后泄漏:displayLink会强持有target，直接传self的话录音/播放期间kit永远释放不了(deinit永远走不到)，用弱代理隔断持有链，kit释放时deinit里先把displayLink停掉，断开后不会再触发
+        // displayLink会强持有target，直接传self时录音/播放期间kit永远释放不了(deinit走不到)，用弱代理隔断持有链，kit释放时deinit里先停displayLink，断开后不会再触发
         let proxy = WYWeakProxy()
         proxy.target = self
         state.displayLink = CADisplayLink(target: proxy, selector: #selector(updateDisplayLink))
-        // 音频进度和波形30帧人眼完全够用(60帧纯烧一倍CPU)，柱状波形动画由WYSoundWavesView自己的36帧刷新器负责
+        // 音频进度和波形30帧人眼足够(60帧多耗一倍CPU)，柱状波形动画由WYSoundWavesView自己的36帧刷新器负责
         state.displayLink?.preferredFramesPerSecond = 30
         state.displayLink?.add(to: .main, forMode: .common)
     }

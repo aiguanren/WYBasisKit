@@ -192,7 +192,7 @@ class WYTestAudioController: UIViewController {
         .aac, .wav, .caf, .m4a, .aiff, .mp3, .flac, .au, .amr, .ac3, .eac3
     ]
     
-    /// 转换格式列表（全部列出，不可转的靠库内拦截并提示，顺便验证formatNotSupported路径）
+    /// 转换格式列表（全部列出，不可转的靠库内拦截并提示，同时验证formatNotSupported路径）
     private let supportedConvertFormats: [WYAudioFormat] = WYAudioFormat.allCases
     
     /// 当前选中的格式
@@ -292,7 +292,7 @@ class WYTestAudioController: UIViewController {
     
     @objc private func downloadTask(_ sender: UIButton) {
         guard let card = findCard(from: sender), let url = card.url else { return }
-        // 防重复下载白费流量:同URL已在下载中直接提示并忽略(库内downloadRemoteAudio也有同样的去重防御)
+        // 同URL已在下载中直接提示并忽略，防止重复下载浪费流量
         if audioKit.isDownloading(url) {
             logInfo("该URL已在下载中，忽略重复请求: \(url.lastPathComponent)")
             return
@@ -530,7 +530,7 @@ class WYTestAudioController: UIViewController {
         yOffset += 40
         
         soundWavesView.frame = CGRect(x: 20, y: yOffset, width: view.bounds.width - 40, height: 60)
-        // 波形柱颜色沿用旧版蓝色（默认白色在浅灰底上看不清），最大跳动高度取视图高度的一半，防止顶满整个灰底
+        // 波形柱颜色用蓝色(默认白色在浅灰底上看不清)，最大跳动高度取视图高度的一半，防止顶满整个灰底
         soundWavesView.config.wavesColor = .systemBlue
         soundWavesView.config.maxBarHeight = 30
         soundWavesView.backgroundColor = UIColor.systemGray5
@@ -621,7 +621,7 @@ class WYTestAudioController: UIViewController {
         contentView.addSubview(minDurationSlider)
         yOffset += 35
         minDurationLabel.frame = CGRect(x: 20, y: yOffset, width: view.bounds.width - 40, height: 30)
-        // 防滑竿没提示:声明处初始化不触发didSet，标签初始文字要在这里手动补一次
+        // 声明处初始化不触发didSet，标签初始文字要在这里手动补一次
         minDurationLabel.text = "最短时长: \(String(format: "%.1f", minRecordingDuration))秒"
         contentView.addSubview(minDurationLabel)
         yOffset += 40
@@ -633,7 +633,7 @@ class WYTestAudioController: UIViewController {
         contentView.addSubview(maxDurationSlider)
         yOffset += 35
         maxDurationLabel.frame = CGRect(x: 20, y: yOffset, width: view.bounds.width - 40, height: 30)
-        // 防滑竿没提示:同最短时长标签，didSet初始不触发要手动补文字
+        // didSet初始不触发，标签初始文字要在这里手动补一次
         maxDurationLabel.text = "最长时长: \(String(format: "%.1f", maxRecordingDuration))秒"
         contentView.addSubview(maxDurationLabel)
         yOffset += 50
@@ -1065,7 +1065,7 @@ class WYTestAudioController: UIViewController {
     }
 
     @objc private func convertAllRecordings() {
-        // 空数组也照样传进库，没有录音文件时正好验证noFilesRequireConversion错误路径；有多个文件时验证多文件并发批次和按输入顺序回调
+        // 空数组也照样传进库，没有录音文件时正好验证noFilesRequireConversion错误路径，有多个文件时验证多文件并发批次和按输入顺序回调
         let sources = audioKit.getAllRecordingsFiles()
         if sources.isEmpty {
             logInfo("没有可转换的录音文件(空数组照样传给库，验证库内noFilesRequireConversion校验)")
@@ -1288,7 +1288,7 @@ extension WYTestAudioController: WYAudioKitDelegate {
     
     func wy_audioRecorderDidUpdateMeterings(audioKit: WYAudioKit, peakPowers: [Float], averagePowers: [Float]) {
         meteringsCount += 1
-        // 使用峰值功率，响应更快（回调给的已是 0~1 归一化值，直接喂给声波动画，不需要旧版的手动放大）
+        // 使用峰值功率，响应更快(回调给的已是 0~1 归一化值，直接喂给声波动画，无需手动放大)
         Task { @MainActor in
             self.soundWavesView.updateMeters(power: peakPowers.first ?? 0)
         }

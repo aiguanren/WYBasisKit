@@ -12,7 +12,7 @@ import AVFoundation
 /// WYAudioKit 格式转换内部实现，AAC走导出会话、wav/aiff/caf走读写器PCM管线，单文件完成收尾、错误处理与批次进度聚合回调
 extension WYAudioKit {
     
-    /// 单个文件转换成功后的收尾(进度置满、批次摘牌，全部完成时按源文件顺序回调成功)
+    /// 单个文件转换成功后的收尾(进度置满、从批次待完成集合移除，全部完成时按源文件顺序回调成功)
     func finishConvertFile(batchID: UUID, sourceURL: URL, outputURL: URL) {
         state.convertProgresses[sourceURL] = 1.0
         state.convertTasks.removeValue(forKey: sourceURL)
@@ -36,7 +36,7 @@ extension WYAudioKit {
             batch.outputMap[sourceURL] = outputURL
             state.convertGroups[batchID] = batch
             
-            // 如果所有文件都已完成，按源文件顺序回调成功(文件完成的先后顺序是随机的，直接给外部对不上号)
+            // 如果所有文件都已完成，按源文件顺序回调成功(文件完成的先后顺序是随机的，直接按完成顺序回调会与源顺序不一致)
             if batch.pendingUrls.isEmpty {
                 batch.success(batch.sourceUrls.compactMap { batch.outputMap[$0] })
                 state.convertGroups.removeValue(forKey: batchID)
@@ -80,7 +80,7 @@ extension WYAudioKit {
                 total += state.convertProgresses[url] ?? 0
             }
             let avg = Double(total / Float(urls.count))
-            // 进度没变化就不回调(刷新器每帧都跑，不拦的话一秒30次内容完全相同的delegate，外部UI白刷)
+            // 进度没变化就不回调(刷新器每帧都跑，不拦截时一秒30次内容完全相同的delegate，外部UI无效刷新)
             guard abs(avg - (state.lastNotifiedConvertProgress[batchID] ?? -1)) > 0.001 else { continue }
             state.lastNotifiedConvertProgress[batchID] = avg
             delegate?.wy_formatConversionProgressUpdated?(audioKit: self,
@@ -106,7 +106,7 @@ extension WYAudioKit {
         exportSession.outputURL = outputURL
         exportSession.shouldOptimizeForNetworkUse = false
         
-        // 句柄强持有会话直到完成摘牌(弱持有的话没有任何人给会话保活，导出中途会话可能被释放掉，任务就永远不会有结果)
+        // 句柄强持有会话直到任务结束(弱持有时无人保活会话，导出中途会话可能被释放，任务不会有结果)
         let handle = WYConvertTaskHandle {
             exportSession.cancelExport()
         } readProgress: {
@@ -141,7 +141,7 @@ extension WYAudioKit {
     /**
      用读写器把音频解码成线性PCM再封装成wav/aiff/caf
      
-     导出会话给不了PCM输出，旧版对这三种目标用直通预设，源文件是压缩编码时基本全部失败，这条路才能真正转成功；管线整体在后台线程跑，主线程只收结果
+     导出会话给不了PCM输出，导出会话的直通预设对压缩编码源基本全部失败，读写器才能真正转成PCM，管线整体在后台线程跑，主线程只收结果
      */
     func startPCMConvert(batchID: UUID, sourceURL: URL, outputURL: URL, fileType: AVFileType) {
         let box = WYConvertProgressBox()
@@ -160,7 +160,7 @@ extension WYAudioKit {
                 }
             }
             
-            // 取音频轨(异步load是iOS15起的写法，旧系统退回同步属性)
+            // 取音频轨(用异步load读取)
             let audioTrack: AVAssetTrack?
             if #available(iOS 15.0, *) {
                 audioTrack = (try? await asset.loadTracks(withMediaType: .audio))?.first
@@ -172,7 +172,7 @@ extension WYAudioKit {
                 return
             }
             
-            // 读出来的统一按容器合规格式解码成线性PCM(AVAssetWriter对PCM写入有三条铁律，违反任何一条都抛ObjC异常、Swift接不住直接闪退:PCM输出键必须给全、AIFF容器强制大端、WAV容器不吃浮点PCM，压缩源默认解码出的Float32进WAV必炸，所以这里统一按Int16整型解码，端序按容器定，采样率/声道跟源)
+            // 读出来的统一按容器合规格式解码成线性PCM(AVAssetWriter对PCM写入有三条硬性要求，违反任何一条都抛ObjC异常、Swift无法捕获直接闪退，PCM输出键必须给全、AIFF容器强制大端、WAV容器不收浮点PCM，压缩源默认解码出的Float32写WAV必崩，这里统一按Int16整型解码，端序按容器定，采样率/声道跟源)
             guard let reader = try? AVAssetReader(asset: asset) else {
                 fail(WYAudioError.conversionFailed)
                 return
@@ -200,7 +200,7 @@ extension WYAudioKit {
             }
             
             /**
-             先拉首个样本拿到实际PCM格式(采样率/声道/位深/交错)再建写入器，写入器端PCM键必须给全(位深/浮点/端序/交错)，缺键时AVAssetWriterInput直接抛ObjC异常闪退；reader侧已按Int16+容器端序解码，这里推导出的设置天然与容器相容
+             先拉首个样本拿到实际PCM格式(采样率/声道/位深/交错)再建写入器，写入器端PCM键必须给全(位深/浮点/端序/交错)，缺键时AVAssetWriterInput直接抛ObjC异常闪退，reader侧已按Int16+容器端序解码，这里推导出的设置天然与容器相容
              */
             guard let firstBuffer = readerOutput.copyNextSampleBuffer() else {
                 reader.cancelReading()
@@ -295,7 +295,7 @@ extension WYAudioKit {
                 }
 
                 while writerInput.isReadyForMoreMediaData {
-                    // 每轮都查一次取消标记，点了停止就立刻收工(批次失败由stopAudioFormatConvert同步报，这里不用再报)
+                    // 每轮都查一次取消标记，点了停止就立刻结束(批次失败由stopAudioFormatConvert同步报，这里不用再报)
                     if box.isCancelled {
                         reader.cancelReading()
                         writerInput.markAsFinished()
@@ -307,7 +307,7 @@ extension WYAudioKit {
                         if totalDuration > 0 {
                             box.value = Float(min(1, box.appendedSeconds / totalDuration))
                         }
-                        // 写入失败(比如磁盘满)就提前收尾，让finishWriting的状态检查去报错，别把整个源文件空读完
+                        // 写入失败(比如磁盘满)就提前收尾，由finishWriting的状态检查报错，避免空读整个源文件
                         if !writerInput.append(sampleBuffer) {
                             finishWritingAndReport()
                             return
@@ -323,7 +323,7 @@ extension WYAudioKit {
     }
 }
 
-/// PCM管线的进度盒子(读写器在后台线程跑，进度值和取消标记放盒子里让主线程句柄读写，Float/Bool/Double单值读写本身原子，进度慢半拍无所谓)
+/// PCM管线的进度盒子(读写器在后台线程跑，进度值和取消标记放盒子里让主线程句柄读写，Float/Bool/Double单值读写本身原子，进度略滞后无影响)
 final class WYConvertProgressBox: @unchecked Sendable {
 
     /// 当前进度(0~1)
@@ -336,7 +336,7 @@ final class WYConvertProgressBox: @unchecked Sendable {
     var appendedSeconds: Double = 0
 }
 
-/// 非Sendable对象的跨闭包传递盒(requestMediaDataWhenReady的闭包是@Sendable的，直接捕获AVAssetReader等系统对象会报并发警告；PCM管线把它们装进盒子传递，对象只在专用串行队列上使用，安全由管线自身保证)
+/// 非Sendable对象的跨闭包传递盒(requestMediaDataWhenReady的闭包是@Sendable的，直接捕获AVAssetReader等系统对象会报并发警告，PCM管线把它们装进盒子传递，对象只在专用串行队列上使用，安全由管线自身保证)
 final class WYUnsafeSendableBox<T>: @unchecked Sendable {
 
     /// 被包装传递的对象

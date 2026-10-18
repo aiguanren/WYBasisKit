@@ -29,7 +29,7 @@ extension WYPagingView {
                 isClickScrolling = false
             }
         }else {
-            // 点击当前已选中的页面:通知业务层做"再点当前页回顶部/刷新"这类交互(不产生切页回调)
+            // 点击当前已选中的页面，通知调用方做"再点当前页回顶部/刷新"这类交互(不产生切页回调)
             let repeatIndex: Int = sender.tag - buttonItemTagBegin
 
             if let repeatClickHandler = repeatClickHandler {
@@ -92,7 +92,7 @@ extension WYPagingView {
         controller.wy_pageControllerIsLastDisplayed = true
     }
 
-    // 应用/还原标题按钮的选中缩放(带短动画，系数为1时等于没有缩放；初始化与重载落位时不播动画直接到位)
+    // 应用/还原标题按钮的选中缩放(带短动画，系数为1时等于没有缩放，初始化与重载落位时不播动画直接到位)
     func applySelectedScale(to item: WYPagingItem, isSelected: Bool, animated: Bool = true) {
         if animated {
             UIView.animate(withDuration: 0.15) {
@@ -103,7 +103,7 @@ extension WYPagingView {
         }
     }
 
-    // 应用图标当前状态的tint颜色(对应状态未设置tint时不干预，图标保持原样或上次颜色，与边框颜色切换行为一致；设置了tint才强制模板渲染，防原图渲染模式下颜色不生效)
+    // 应用图标当前状态的tint颜色(对应状态未设置tint时不干预，图标保持原样或上次颜色，与边框颜色切换行为一致，设置了tint才强制模板渲染，原图渲染模式下颜色不生效)
     func applyIconTint(to item: WYPagingItem, isSelected: Bool) {
         guard let iconView = item.iconView else { return }
         guard let tintColor = isSelected ? bar_item_selectedIconTintColor : bar_item_defaultIconTintColor else { return }

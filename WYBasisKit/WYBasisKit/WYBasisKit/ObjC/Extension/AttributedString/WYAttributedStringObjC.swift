@@ -241,9 +241,9 @@ import WYBasisKitSwift
      - Returns: 当前 `NSMutableAttributedString` 对象
      
      使用说明：
-     1. position 支持插入到指定文本前/后或指定字符下标处；
+     1. position 支持插入到指定文本前/后或指定字符下标处
      2. offsetY 图片相对于文本的偏移量(正值向上，负值向下)
-     3. spacingBefore / spacingAfter 可用于设置插入图片前后的间距；
+     3. spacingBefore / spacingAfter 可用于设置插入图片前后的间距
      */
     @discardableResult
     @objc(wy_insertImageWithAttachments:)

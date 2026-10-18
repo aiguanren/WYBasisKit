@@ -411,9 +411,9 @@ public extension NSMutableAttributedString {
      - Returns: 当前 `NSMutableAttributedString` 对象
      
      使用说明：
-     1. position 支持插入到指定文本前/后或指定字符下标处；
+     1. position 支持插入到指定文本前/后或指定字符下标处
      2. offsetY 图片相对于文本的偏移量(正值向上，负值向下)
-     3. spacingBefore / spacingAfter 可用于设置插入图片前后的间距；
+     3. spacingBefore / spacingAfter 可用于设置插入图片前后的间距
      */
     @discardableResult
     func wy_insertImage(_ attachments: [WYImageAttachmentOption]) -> NSMutableAttributedString {
@@ -785,7 +785,7 @@ private extension NSMutableAttributedString {
     /**
      * 创建或者获取指定富文本范围内的可变段落样式
      *
-     * 该方法会尝试获取指定 range 处的现有段落样式，如果存在则返回其可变副本；
+     * 该方法会尝试获取指定 range 处的现有段落样式，如果存在则返回其可变副本
      * 如果不存在，则返回一个新的 `NSMutableParagraphStyle` 实例。
      *
      * - Parameter range: 需要获取段落样式的富文本范围（通常用目标 range 的起始位置即可）

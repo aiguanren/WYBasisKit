@@ -30,7 +30,7 @@ class WYTestInfiniteSwitchController: UIViewController {
     
     /**
      *  自动轮播时每一页停留时间，默认为3s，最少1s
-     *  当设置的值小于1s时，则为默认值；轮播进行中修改立即生效(以新间隔重建计时器，从修改时刻起算新一轮)
+     *  自动轮播时每一页停留时间，默认3s(设置的值小于1s时按3s处理，轮播进行中修改立即生效)
      */
     var standingTime: UISlider = UISlider()
     var standingTimeValue: UILabel = UILabel()
@@ -39,7 +39,7 @@ class WYTestInfiniteSwitchController: UIViewController {
     var flickVelocityThreshold: UISlider = UISlider()
     var flickVelocityValue: UILabel = UILabel()
 
-    /// 跨轴切换呈现样式选择器(瞬时/滑动/渐变/缩放，默认瞬时，写入contentScrollView.crossAxisSwitchStyle；用跨轴轻扫或指定方向切换观察效果)
+    /// 跨轴切换呈现样式选择器(瞬时/滑动/渐变/缩放，默认瞬时，写入contentScrollView.crossAxisSwitchStyle，用跨轴轻扫或指定方向切换观察效果)
     var crossAxisSwitchStyleSegment: UISegmentedControl = UISegmentedControl(items: ["瞬时", "滑动", "渐变", "缩放"])
 
     /// 跨轴切换动画时长滑杆(0~3.0超出组件钳制区间[0.1,2.0]的部分会被自动钳到边界，默认0.25，仅滑动/渐变/缩放生效，实时写入contentScrollView.crossAxisSwitchDuration，标签显示钳制后的实际值)
@@ -71,8 +71,8 @@ class WYTestInfiniteSwitchController: UIViewController {
     var verticalUnlimitedCarousel: UISwitch = UISwitch()
     
     /**
-     *  是否需要自动轮播，默认false(不自动轮播，业务想要自动轮播显式开启)
-     *  开启后组件会在首次展示时自动开表；关闭/stopTimer后需显式startTimer才恢复
+     *  是否需要自动轮播，默认false(不自动轮播，需要时显式开启)
+     *  开启后组件会在首次展示时自动开计时器，关闭/stopTimer后需显式startTimer才恢复
      */
     var automaticCarousel: UISwitch = UISwitch()
     
@@ -252,9 +252,9 @@ class WYTestInfiniteSwitchController: UIViewController {
         minimumVerticalSwitchIntervalValue.text = "0.0"
         horizontalUnlimitedCarousel.isOn = true
         verticalUnlimitedCarousel.isOn = true
-        // 与组件默认值一致(automaticCarousel默认false，不自动轮播；业务想要自动轮播显式开启，开启后组件会在首次展示时自动开表)
+        // 与组件默认值一致(automaticCarousel默认false不自动轮播，需要自动轮播时显式开启，开启后组件会在首次展示时自动开计时器)
         automaticCarousel.isOn = false
-        // automaticCarousel默认关闭，挂载时不会自动开表，开关显示off与实际计时器状态一致
+        // automaticCarousel默认关闭，挂载时不会自动开计时器，开关显示off与实际计时器状态一致
         startOrStopTimer.isOn = false
 
         for switchView in [horizontalSliderEnabled, verticalSliderEnabled, horizontalUnlimitedCarousel, verticalUnlimitedCarousel, automaticCarousel, startOrStopTimer] {
@@ -283,7 +283,7 @@ class WYTestInfiniteSwitchController: UIViewController {
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        // 真正离开测试页才停止所有播放器，避免视频在后台继续发声、耗流(侧滑返回划到一半又取消时页面并没有真离开，viewDidDisappear不触发、播放不中断；不能放viewWillDisappear，它在返回手势一开始就触发，会把正在播的视频提前停掉)
+        // 真正离开测试页才停止所有播放器，避免视频在后台继续发声、耗流(侧滑返回划到一半又取消时页面并没有真离开，viewDidDisappear不触发、播放不中断，不能放viewWillDisappear，它在返回手势一开始就触发，会把正在播的视频提前停掉)
         verticalViews.forEach { ($0 as? WYMediaPlayer)?.stop(false) }
     }
 
@@ -300,7 +300,7 @@ class WYTestInfiniteSwitchController: UIViewController {
         }else if sender == numberOfVerticalContent {
             contentScrollView.numberOfVerticalContent = [0, 1, 2, 3, 4, 5, Int.max][sender.selectedSegmentIndex]
         }else if sender == contentSlidingDirection {
-            // 切方向前先停两轴所有视频播放(对称通用)：单轴模式另一轴的视图不挂载(组件对应数组为空、did回调该轴参数为nil)，重挂载会把正在播的播放器从层级摘下且无人再能暂停它(画面不可见声音仍响)——"H轴视频"与"V轴视频"镜像同理；compactMap过滤非播放器的UIImageView，任意内容布局都适用；切到含该轴的模式无碍，进入该轴页面的did会重新起播
+            // 切方向前先停两轴所有视频播放(单轴模式另一轴的视图不挂载，组件对应数组为空、did回调该轴参数为nil，重挂载会把正在播的播放器从层级摘下且无人再能暂停它，画面不可见声音仍响，compactMap过滤非播放器的UIImageView，任意内容布局都适用，切到含该轴的模式无碍，进入该轴页面的did会重新起播)
             for player in (horizontalViews + verticalViews).compactMap({ $0 as? WYMediaPlayer }) {
                 player.pause()
             }
@@ -794,7 +794,7 @@ extension WYTestInfiniteSwitchController: WYContentScrollViewDelegate {
             
             //wy_print("reserveVerticalView?.mediaUrl = \(reserveVerticalView!.mediaUrl)\nvideoForVerticalPage(at: contentScrollView.reserveVerticalIndex) = \(videoForVerticalPage(at: contentScrollView.reserveVerticalIndex))\nreserveVerticalView?.state = \(reserveVerticalView!.state)")
             
-            // 地址已在预备页上则只按预备页处理(在播的暂停、缓冲中的照常缓冲)，否则换源加载；取值走取模方法防∞模式环绕下标越界
+            // 地址已在预备页上则只按预备页处理(在播的暂停、缓冲中的照常缓冲)，否则换源加载，取值走取模方法防止无限模式环绕下标越界
             if let playUrl: String = reserveVerticalView?.mediaUrl, playUrl == videoForVerticalPage(at: contentScrollView.reserveVerticalIndex) {
                 reserveVerticalView?.pause()
             }else {
@@ -803,8 +803,8 @@ extension WYTestInfiniteSwitchController: WYContentScrollViewDelegate {
         }
         
         if direction == .left || direction == .right {
-            // 只预载目标轴图片，不在will暂停V轴播放：will在拖动staging瞬间就发出，此处暂停会让V0在滑动过程中就停播——暂停放到didSwitch里做(完全切到H后才停)，与同轴翻页"滑动全程旧页持续播放、提交才切换"的手感一致；拖动取消回弹时组件会重申原轴didSwitch恢复播放，全程无感
-            // 取值走取模方法防∞模式环绕下标越界
+            // 只预载目标轴图片，不在will暂停V轴播放(will在拖动staging瞬间就发出，此处暂停会让V0在滑动过程中就停播，暂停放到didSwitch里做，完全切到H后才停，与同轴翻页"滑动全程旧页持续播放、松手落定才切换"的手感一致)，拖动取消回弹时组件会补发原轴didSwitch恢复播放，全程无感
+            // 取值走取模方法防止无限模式环绕下标越界
             reserveHorizontalView?.image = imageForHorizontalPage(at: contentScrollView.reserveHorizontalIndex)
         }
     }
@@ -839,7 +839,7 @@ extension WYTestInfiniteSwitchController: WYContentScrollViewDelegate {
             // 此时这里的reservePlayer就是上一次显示的player，所以这里要先stop或者暂停上一次的播放
             reserveVerticalView?.pause()
 
-            // 当前页必须按currentVerticalIndex加载(补发didSwitch时reserveVerticalIndex还是残留值，用它会串台)；取值走取模方法防∞模式环绕下标越界
+            // 当前页必须按currentVerticalIndex加载(补发didSwitch时reserveVerticalIndex还是残留值，直接用会装错内容)，取值走取模方法防止无限模式环绕下标越界
             if let playUrl: String = currentVerticalView?.mediaUrl, playUrl == videoForVerticalPage(at: contentScrollView.currentVerticalIndex) {
                 currentVerticalView?.play()
             }else {
@@ -850,7 +850,7 @@ extension WYTestInfiniteSwitchController: WYContentScrollViewDelegate {
         if direction == .left || direction == .right {
             currentVerticalView?.pause()
             reserveVerticalView?.pause()
-            // 取值走取模方法防∞模式环绕下标越界
+            // 取值走取模方法防止无限模式环绕下标越界
             currentHorizontalView?.image = imageForHorizontalPage(at: contentScrollView.currentHorizontalIndex)
         }
     }

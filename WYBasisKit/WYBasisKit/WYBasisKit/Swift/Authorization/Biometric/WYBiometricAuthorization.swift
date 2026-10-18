@@ -36,7 +36,6 @@ public func wy_checkBiometric() -> WYBiometricMode {
     if authContent.canEvaluatePolicy(
         .deviceOwnerAuthenticationWithBiometrics,
         error: &error) {
-        // iPhoneX出厂最低系统版本号：iOS11.0.0
         if #available(iOS 11.0, *) {
             if authContent.biometryType == .faceID {
                 biometric = .faceID

@@ -226,7 +226,7 @@ import WYBasisKitSwift
     
     /**
      *  提取字符串中的链接(默认支持 http://、https://、www.、ftp://、mailto:、tel: 等)
-     *  @return 提取到的链接字符串数组，顺序按链接在原始字符串中首次出现的位置排列；若 content 为空或无效，返回空数组。
+     *  @return 提取到的链接字符串数组，顺序按链接在原始字符串中首次出现的位置排列，若 content 为空或无效，返回空数组。
      */
     @objc(wy_extractLinks)
     func wy_extractLinksObjC() -> [String] {

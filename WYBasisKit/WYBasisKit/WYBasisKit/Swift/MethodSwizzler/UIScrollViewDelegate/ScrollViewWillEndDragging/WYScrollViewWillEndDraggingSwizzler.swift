@@ -12,8 +12,8 @@ import UIKit
  
  - Parameters:
    - targetClass: 目标代理类。
-   - before: 方法执行前回调。参数依次为：代理对象、滚动视图、速度、目标偏移指针。无返回值。
-   - after: 方法执行后回调。参数依次为：代理对象、滚动视图、速度、目标偏移指针。无返回值（仅通知）。
+   - before: 方法执行前回调，参数依次为：代理对象、滚动视图、速度、目标偏移指针。无返回值。
+   - after: 方法执行后回调，参数依次为：代理对象、滚动视图、速度、目标偏移指针。无返回值（仅通知）。
  */
 internal func wy_swizzlerScrollViewWillEndDragging(
     for targetClass: NSObject.Type,

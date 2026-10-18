@@ -25,9 +25,9 @@ import UIKit
     /**
      * 长按效果颜色（长按时背景色）
      *
-     * - 若用户未主动设置，则先回退使用 wy_clickEffectColor；两者都未设置时，自动使用被长按富文本的文字颜色 + 0.25 透明度。
+     * - 若用户未主动设置，则先回退使用 wy_clickEffectColor，两者都未设置时，自动使用被长按富文本的文字颜色 + 0.25 透明度。
      * - 若用户主动设置（包括设置为 `.clear`），则使用该颜色（不再动态取色）。
-     * - 显示时机为只注册了长按的文本按下立即显示本颜色；同时注册了点击的文本按下先显示点击效果色，达到长按最小时长后才切换为本颜色（因为按下瞬间无法区分用户想点击还是长按）。
+     * - 显示时机为只注册了长按的文本按下立即显示本颜色，同时注册了点击的文本按下先显示点击效果色，达到长按最小时长后才切换为本颜色（因为按下瞬间无法区分用户想点击还是长按）。
      */
     @objc(wy_longPressEffectColor)
     var wy_longPressEffectColorObjC: UIColor? {
@@ -35,7 +35,7 @@ import UIKit
         set { wy_longPressEffectColor = newValue }
     }
 
-    /// 文本自带背景色时按下高亮要不要盖住它，默认 true(为 true 时按下用效果色盖住、手指移开后还原自带背景色；为 false 时自带背景色的文本按下不显示高亮)
+    /// 文本自带背景色时按下高亮要不要盖住它，默认 true(为 true 时按下用效果色盖住、手指移开后还原自带背景色，为 false 时自带背景色的文本按下不显示高亮)
     @objc(wy_overlaysOriginalBackground)
     var wy_overlaysOriginalBackgroundObjC: Bool {
         get { return wy_overlaysOriginalBackground }
@@ -49,7 +49,7 @@ import UIKit
         set { wy_longPressMinimumDuration = newValue }
     }
 
-    /// 是否需要模仿 UIButton 的 TouchUpInside 效果（即按下并抬起时在相同富文本上才触发回调），默认 true，若设置为 false，则在 touchesBegan 命中后立即触发回调（类似 TouchDown；注意此时同词又注册了长按的话，一次长按操作会先触发点击回调、到时长再触发长按回调）
+    /// 是否需要模仿 UIButton 的 TouchUpInside 效果（即按下并抬起时在相同富文本上才触发回调），默认 true，若设置为 false，则在 touchesBegan 命中后立即触发回调（类似 TouchDown，注意此时同词同时注册了长按时，一次长按操作会先触发点击回调、到时长再触发长按回调）
     @objc(wy_touchUpInside)
     var wy_touchUpInsideObjC: Bool {
         get { return wy_touchUpInside }

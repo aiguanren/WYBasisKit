@@ -324,7 +324,6 @@ private extension WYLocationAuthorization {
         if #available(iOS 14.0, *) {
             return locationManager?.accuracyAuthorization == .fullAccuracy
         }
-        // iOS 13 及以下默认视为 full accuracy
         return true
     }
     

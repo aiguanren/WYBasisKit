@@ -47,16 +47,16 @@ public extension UITextView {
     /**
      * 长按效果颜色（长按时背景色）
      *
-     * - 若用户未主动设置，则先回退使用 wy_clickEffectColor；两者都未设置时，自动使用被长按富文本的文字颜色 + 0.25 透明度。
+     * - 若用户未主动设置，则先回退使用 wy_clickEffectColor，两者都未设置时，自动使用被长按富文本的文字颜色 + 0.25 透明度。
      * - 若用户主动设置（包括设置为 `.clear`），则使用该颜色（不再动态取色）。
-     * - 显示时机为只注册了长按的文本按下立即显示本颜色；同时注册了点击的文本按下先显示点击效果色，达到长按最小时长后才切换为本颜色（因为按下瞬间无法区分用户想点击还是长按）。
+     * - 显示时机为只注册了长按的文本按下立即显示本颜色，同时注册了点击的文本按下先显示点击效果色，达到长按最小时长后才切换为本颜色（因为按下瞬间无法区分用户想点击还是长按）。
      */
     var wy_longPressEffectColor: UIColor? {
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_longPressEffectColor) as? UIColor }
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_longPressEffectColor, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
     }
     
-    /// 文本自带背景色时按下高亮要不要盖住它，默认 true(为 true 时按下用效果色盖住、手指移开后还原自带背景色；为 false 时自带背景色的文本按下不显示高亮)
+    /// 文本自带背景色时按下高亮要不要盖住它，默认 true(为 true 时按下用效果色盖住、手指移开后还原自带背景色，为 false 时自带背景色的文本按下不显示高亮)
     var wy_overlaysOriginalBackground: Bool {
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_overlaysOriginalBackground) as? Bool ?? true }
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_overlaysOriginalBackground, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
@@ -541,10 +541,10 @@ private extension UITextView {
     
     /// 为指定区间应用高亮效果（按下或长按时的背景色），并记录高亮区间与被覆盖的原背景色。
     func applyHighlight(for range: NSRange, isLongPress: Bool) {
-        // 防状态残留:上一次高亮未清理时先还原，保证接下来备份到的是文本原背景色而不是上次的效果色
+        // 上一次高亮未清理时先还原，防止状态残留(保证接下来备份到的是文本原背景色而不是上次的效果色)
         clearHighlightIfNeeded()
         
-        // 防越界崩溃:动作区间来自缓存，文本被整体替换后可能越界，addAttribute 越界会直接崩溃
+        // 动作区间来自缓存，文本被整体替换后可能越界(addAttribute 越界会直接崩溃)
         guard range.location + range.length <= textStorage.length else { return }
         
         // wy_overlaysOriginalBackground 为 false 时，自带背景色的文本不高亮(原背景色保持不动)
@@ -558,7 +558,7 @@ private extension UITextView {
             // 长按高亮优先用长按效果色
             finalColor = longPressColor
         } else if let customColor = wy_clickEffectColor {
-            // 长按未单独设置时回退点击效果色（保持旧版只设点击色时点按/长按同色的行为）
+            // 长按未单独设置时回退点击效果色(只设点击色时点按/长按同色)
             finalColor = customColor
         } else {
             let textColor = attributedText?.attribute(.foregroundColor, at: range.location, effectiveRange: nil) as? UIColor ?? .black

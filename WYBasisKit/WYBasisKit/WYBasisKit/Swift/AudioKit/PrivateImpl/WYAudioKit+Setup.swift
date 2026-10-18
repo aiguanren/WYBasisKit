@@ -30,7 +30,7 @@ extension WYAudioKit {
         }
     }
     
-    /// 按需创建并返回下载会话(releaseAll会把会话作废置nil，之后再次下载时靠这里重建，旧版置nil后继续下载会拿到死会话直接崩)
+    /// 按需创建并返回下载会话(releaseAll会把会话作废置nil，之后再次下载时靠这里重建)
     @discardableResult
     func ensureDownloadSession() -> URLSession {
         if let downloadSession = state.downloadSession {
@@ -40,7 +40,7 @@ extension WYAudioKit {
         config.allowsCellularAccess = true
         config.timeoutIntervalForRequest = 60
         config.timeoutIntervalForResource = 600
-        // delegate必须走弱引用代理(会话强持有delegate，直接传self就形成自持，不调releaseAll永远释放不了)
+        // delegate必须走弱引用代理(会话强持有delegate，直接传self会形成循环引用，不调releaseAll永远释放不了)
         let session = URLSession(configuration: config,
                                  delegate: WYWeakSessionDelegate(kit: self),
                                  delegateQueue: OperationQueue.main)

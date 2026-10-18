@@ -12,18 +12,22 @@ import UIKit
 
 import IJKPlayerKit
 
-/// WYMediaPlayer 私有实现，状态与通知处理(状态去重后回调业务、底层通知转发成代理回调、URL打开事件中转)
+/// WYMediaPlayer 私有实现，状态与通知处理(状态去重后回调调用方、底层通知转发成代理回调、URL打开事件中转)
 extension WYMediaPlayer {
     /// 状态去重后回调代理(与上次相同的状态不重复通知)
     func callback(with currentState: WYMediaPlayerState) {
         guard currentState != state else {
             return
         }
-        // 过滤掉播放器内部自己产生的状态噪声，只静默不通知、不改state属性(直接读state的业务拿到的还是真实值)，①静音探测起播那一瞬间的playing，探测不是真的在播放；②还没真正播放过时的paused，它只代表初始化或探测收尾或等待播放，和用户主动暂停是同一个状态没法区分，不滤的话业务会误判(预加载时误关loading、真暂停时误转loading)
+        /**
+         *  过滤播放器内部产生的状态噪声，只静默不通知、不改state属性(直接读state的调用方拿到的仍是真实值)
+         *  ①静音探测起播瞬间的playing，探测不是真的在播放
+         *  ②还没真正播放过时的paused，它只代表初始化或探测收尾或等待播放，与用户主动暂停是同一个状态无法区分，不过滤时调用方会误判(预加载时误关loading、真暂停时误转loading)
+         */
         if (currentState == .playing) && isPosterProbing {
             state = currentState
         }else if (currentState == .playing) {
-            // 非探测的playing代表真正开始播放，此后的paused才有资格回调
+            // 非探测的playing代表真正开始播放，此后的paused才会回调
             hasReallyPlayed = true
             state = currentState
             delegate?.wy_mediaPlayerStateDidChanged?(self, state: state)
@@ -69,7 +73,7 @@ extension WYMediaPlayer {
         }
     }
 
-    /// 播放状态变化通知，把底层播放状态映射成业务状态(stopped归并为ended)后经callback去重回调
+    /// 播放状态变化通知，把底层播放状态映射成组件状态(stopped归并为ended)后经callback去重回调
     @objc func ijkPlayerPlayStateDidChange(notification: Notification) {
 
         guard let player = ijkPlayer else { return }
@@ -92,7 +96,7 @@ extension WYMediaPlayer {
         }
     }
 
-    /// 加载状态变化通知，把stalled/playthroughOK/playable等加载标志结合当前state推导成业务状态(缓冲中/播放中/就绪/可播/未知)后去重回调，已处于playing的不降级
+    /// 加载状态变化通知，把stalled/playthroughOK/playable等加载标志结合当前state推导成组件状态(缓冲中/播放中/就绪/可播/未知)后去重回调，已处于playing的不降级
     @objc func ijkPlayerLoadStateDidChange(notification: Notification) {
         guard let player = ijkPlayer else { return }
 
@@ -147,7 +151,7 @@ extension WYMediaPlayer {
             isPlayPending = false
             player.play()
         }else if isPausedWhilePreparing {
-            // prepare期间业务已暂停，补一次pause压住内核的自动起播(未就绪时的pause拦不住它)，停在就绪暂停态
+            // prepare期间调用方已暂停，补一次pause压住内核的自动起播(未就绪时的pause拦不住它)，停在就绪暂停态
             isPausedWhilePreparing = false
             player.pause()
         }else if loadAutoplayIntent == false, shouldUseFirstFrameAsPoster, hasRenderedFirstFrame == false, isPosterProbing == false {
@@ -272,10 +276,10 @@ extension WYMediaPlayer {
     /// URL打开事件的统一转发代理，IJKPlayerKit的四个*OpenDelegate属性是强引用，直接挂self会循环引用(self持有player、player又强持有delegate)，所以经这个weak中转对象间接持有
     class WYMediaUrlOpenProxy: NSObject, IJKMediaUrlOpenDelegate {
 
-        /// 弱引用业务播放器，避免player→proxy→player循环
+        /// 弱引用所属播放器，避免player→proxy→player循环引用
         weak var target: WYMediaPlayer?
 
-        /// IJKPlayerKit要求实现，按event的原始值分发(0x20001=TCP/0x20003=HTTP/0x20005=直播/0x20007=HLS分片；这些值定义在IJKMediaPlayback.h的IJKMediaCtrl_*常量里、是内核对外约定好的不会变，枚举名导入Swift后有歧义所以直接比数字)
+        /// 按event原始值分发(0x20001=TCP/0x20003=HTTP/0x20005=直播/0x20007=HLS分片，取值定义见IJKMediaPlayback.h的IJKMediaCtrl_*常量)
         func willOpenUrl(_ urlOpenData: IJKMediaUrlOpenData) {
             guard let target = target else { return }
             switch urlOpenData.event.rawValue {

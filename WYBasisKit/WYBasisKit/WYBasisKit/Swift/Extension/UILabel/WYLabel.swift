@@ -52,16 +52,16 @@ public extension UILabel {
     /**
      * 长按效果颜色（长按时背景色）
      *
-     * - 若用户未主动设置，则先回退使用 wy_clickEffectColor；两者都未设置时，自动使用被长按富文本的文字颜色 + 0.25 透明度。
+     * - 若用户未主动设置，则先回退使用 wy_clickEffectColor，两者都未设置时，自动使用被长按富文本的文字颜色 + 0.25 透明度。
      * - 若用户主动设置（包括设置为 `.clear`），则使用该颜色（不再动态取色）。
-     * - 显示时机为只注册了长按的文本按下立即显示本颜色；同时注册了点击的文本按下先显示点击效果色，达到长按最小时长后才切换为本颜色（因为按下瞬间无法区分用户想点击还是长按）。
+     * - 显示时机为只注册了长按的文本按下立即显示本颜色，同时注册了点击的文本按下先显示点击效果色，达到长按最小时长后才切换为本颜色（因为按下瞬间无法区分用户想点击还是长按）。
      */
     var wy_longPressEffectColor: UIColor? {
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_longPressEffectColor) as? UIColor }
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_longPressEffectColor, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
     }
     
-    /// 文本自带背景色时按下高亮要不要盖住它，默认 true(为 true 时按下用效果色盖住、手指移开后还原自带背景色；为 false 时自带背景色的文本按下不显示高亮)
+    /// 文本自带背景色时按下高亮要不要盖住它，默认 true(为 true 时按下用效果色盖住、手指移开后还原自带背景色，为 false 时自带背景色的文本按下不显示高亮)
     var wy_overlaysOriginalBackground: Bool {
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_overlaysOriginalBackground) as? Bool ?? true }
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_overlaysOriginalBackground, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
@@ -73,7 +73,7 @@ public extension UILabel {
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_longPressMinimumDuration) as? TimeInterval ?? 0.5 }
     }
 
-    /// 是否需要模仿 UIButton 的 TouchUpInside 效果（即按下并抬起时在相同富文本上才触发回调），默认 true，若设置为 false，则在 touchesBegan 命中后立即触发回调（类似 TouchDown；注意此时同词又注册了长按的话，一次长按操作会先触发点击回调、到时长再触发长按回调）
+    /// 是否需要模仿 UIButton 的 TouchUpInside 效果（即按下并抬起时在相同富文本上才触发回调），默认 true，若设置为 false，则在 touchesBegan 命中后立即触发回调（类似 TouchDown，注意此时同词同时注册了长按时，一次长按操作会先触发点击回调、到时长再触发长按回调）
     var wy_touchUpInside: Bool {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_needTouchUpInside, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_needTouchUpInside) as? Bool ?? true }
@@ -151,7 +151,7 @@ extension UILabel {
         // 使用指针比较代替 isEqual，避免深度遍历，提升性能（仅当对象引用变化时才刷新）
         let textChanged = wy_cachedAttributedText !== attributedText
         let boundsChanged = wy_cachedBounds != bounds
-        // 防陈旧高亮:按下期间文本被外部替换时，高亮矩形与剥离备份均已过期，直接丢弃且不回写还原(还原会覆盖外部新文本)；仅尺寸变化时正常还原清除
+        // 按下期间文本被外部替换时高亮矩形与剥离备份均已过期，直接丢弃且不回写还原(还原会覆盖外部新文本)，仅尺寸变化时正常还原清除
         if wy_highlight != nil {
             if textChanged {
                 wy_highlight = nil
@@ -173,7 +173,7 @@ extension UILabel {
         }
     }
 
-    /// 按下时记录起点并做命中检测，命中点击词应用点击高亮，命中长按词开表(纯长按词立即显示长按色)
+    /// 按下时记录起点并做命中检测，命中点击词应用点击高亮，命中长按词开计时器(纯长按词立即显示长按色)
     private func wy_handleTouchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard ((wy_isClickAction == true) && (attributedText != nil)) else { return }
         let touch = touches.first
@@ -198,27 +198,27 @@ extension UILabel {
             wy_applyHighlight(range: firstMatch.wy_range, isLongPress: false)
         }
 
-        // 长按检测：按下时立即检测是否命中长按专用字符串，命中则开表
+        // 长按检测，按下时立即检测是否命中长按专用字符串，命中则开计时器
         if !wy_longPressAttributeStrings.isEmpty {
             let longMatches = wy_allMatchedModels(at: point, models: wy_longPressAttributeStrings, lineGroups: wy_longPressLineRanges)
             if let firstLongMatch = longMatches.first {
                 // 记录当前命中的长按模型
                 wy_currentLongPressModel = firstLongMatch
-                // 只注册了长按的词不存在点击歧义，按下即显示长按效果色；双注册词保持上面已应用的点击效果色
+                // 只注册了长按的词不存在点击歧义，按下即显示长按效果色，双注册词保持已应用的点击效果色
                 if wy_currentTouchModel == nil {
                     wy_applyHighlight(range: firstLongMatch.wy_range, isLongPress: true)
                 }
-                // 命中长按目标即开表，到最小时长就地触发回调(不等松手)
+                // 命中长按目标即开计时器，到最小时长就地触发回调(不等松手)
                 wy_scheduleLongPressTimer()
             }
         }
     }
 
-    /// 松手时停表，长按未触发的按按钮模式规则回调点击，最后清除按下高亮
+    /// 松手时停长按计时器，未触发的按按钮模式规则回调点击，最后清除按下高亮
     private func wy_handleTouchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard ((wy_isClickAction == true) && (attributedText != nil)) else { return }
 
-        // 松手即停表(到时长的长按已在定时器触发时就地回调，提前松手则取消不触发)
+        // 松手即停计时器(到时长的长按已在定时器触发时就地回调，提前松手则取消不触发)
         wy_invalidateLongPressTimer()
 
         // 按钮模式：直接使用 touchesBegan 中记录的结果（点击专用），不再重复计算位置
@@ -241,10 +241,10 @@ extension UILabel {
         wy_currentLongPressModel = nil
     }
 
-    /// 触摸被系统取消时停表并清理按下状态与高亮
+    /// 触摸被系统取消时停计时器并清理按下状态与高亮
     private func wy_handleTouchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard ((wy_isClickAction == true) && (attributedText != nil)) else { return }
-        // 触摸被系统取消(来电、手势竞争等)时停表，长按不再触发
+        // 触摸被系统取消(来电、手势竞争等)时停计时器，长按不再触发
         wy_invalidateLongPressTimer()
         if wy_touchUpInside == true {
             wy_resetTouchState()
@@ -254,7 +254,7 @@ extension UILabel {
         wy_currentLongPressModel = nil
     }
 
-    /// 移动时按距离与所在词区域做取消判定，移出清高亮停表，移回重新应用效果色
+    /// 移动时按距离与所在词区域做取消判定，移出清高亮停计时器，移回重新应用效果色
     private func wy_handleTouchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard ((wy_isClickAction == true) && (attributedText != nil)) else { return }
 
@@ -293,11 +293,11 @@ extension UILabel {
             }
         }
 
-        // 处理长按的移动检测：如果手指移动距离超出阈值或移出当前长按目标区域，则清除高亮并停表
+        // 长按的移动检测，手指移动距离超出阈值或移出当前长按目标区域时清除高亮并停计时器
         if let longPressModel = wy_currentLongPressModel, let touch = touches.first {
             let currentPoint = touch.location(in: self)
             let moveDistance = wy_calculateDistance(from: wy_touchBeginPoint, to: currentPoint)
-            // 超出允许移动距离则取消长按效果并停表
+            // 超出允许移动距离则取消长按效果并停计时器
             if moveDistance > wy_maxTouchMoveDistance {
                 wy_invalidateLongPressTimer()
                 wy_clearHighlight()
@@ -367,7 +367,7 @@ extension UILabel {
      * - Returns: 是否命中任何富文本
      *
      * - Note: 该方法正确处理了文本水平对齐（左/中/右）和垂直居中对齐。
-     *         排版使用 TextKit（iOS 15+优先TextKit2，旧系统TextKit1），与 UILabel 渲染走同一套引擎，
+     *         排版使用 TextKit，与 UILabel 渲染走同一套引擎
      *         自定义字体的行高、基线、换行位置也与实际显示一致，字符索引计算基于行实际矩形，点击区域严格等于字符区域。
      */
     @discardableResult
@@ -378,7 +378,7 @@ extension UILabel {
         guard let attributedText = attributedText else { return false }
 
         // 缓存过期（富文本对象或尺寸变化）时重新排版，行分组一并重建
-        // 防行分组过期:注册回调时label可能尚未布局完成(bounds为零)，之后命中时若发现缓存过期只刷行矩形不重建分组，会用旧分组把别的行的字符张冠李戴
+        // 缓存过期时重建行分组(注册回调时label可能尚未布局完成(bounds为零)，只刷行矩形不重建分组时，会用旧分组把别的行的字符误当成这行的)
         if wy_cachedAttributedText !== attributedText || wy_cachedBounds != bounds {
             wy_refreshFrameCache(attributedText: attributedText)
             if !wy_attributeStrings.isEmpty {
@@ -399,7 +399,7 @@ extension UILabel {
         // 触摸点换算回排版布局坐标（布局坐标 y 从文本内容顶部向下，行矩形本身不含垂直居中偏移）
         let layoutPoint = CGPoint(x: touchPoint.x, y: touchPoint.y - wy_verticalOffset)
 
-        // 命中检测：先定位行，再反查行内字符下标（iOS 15+内部走TextKit2，旧系统TextKit1）
+        // 命中检测，先定位行，再反查行内字符下标(内部走TextKit2)
         for (i, lineRect) in lineRects.enumerated() {
             guard lineRect.contains(layoutPoint) else { continue }
 
@@ -433,7 +433,7 @@ extension UILabel {
         wy_cachedAttributedText = attributedText
         wy_cachedBounds = bounds
 
-        // 用TextKit排版(iOS 15+优先TextKit2，旧系统TextKit1；防自定义字体命中偏移:CoreText与UILabel渲染在自定义字体上行高/基线不一致，换成与UILabel同源的TextKit)
+        // 用TextKit排版(自定义字体上CoreText与UILabel渲染的行高/基线不一致会导致命中偏移，换成与UILabel同源的TextKit)
         let layoutEngine = WYTextLayoutEngine(attributedText: attributedText,
                                               containerSize: bounds.size,
                                               numberOfLines: numberOfLines,
@@ -504,7 +504,7 @@ extension UILabel {
         setNeedsDisplay()
     }
 
-    /// 交换 UILabel 的 drawText(in:)，在文字绘制前先画按下高亮矩形(高亮画在文字下层；未命中高亮的 label 只多一次空判断)
+    /// 交换 UILabel 的 drawText(in:)，在文字绘制前先画按下高亮矩形(高亮画在文字下层，未命中高亮的 label 只多一次空判断)
     static let wy_swizzleDrawText: Void = {
         wy_swizzlerDrawText(for: UILabel.self, before: { currentLabel, _ in
             guard let highlight = currentLabel.wy_highlight else { return }
@@ -515,17 +515,17 @@ extension UILabel {
         })
     }()
 
-    /// 注册触摸目标(点击与长按各自累加、同参数重复注册去重；解析全部注册的关键词重建模型并按行分组，注册即启用交互)
+    /// 注册触摸目标(点击与长按各自累加、同参数重复注册去重，解析全部注册的关键词重建模型并按行分组，注册即启用交互)
     private func wy_registerTouchTargets(rangeValue: Any, isLongPress: Bool, handler: ((_ label: UILabel, _ richText: String, _ range: NSRange, _ index: Int) -> Void)?, delegate: WYRichTextTouchDelegate?) {
 
         wy_isClickAction = attributedText != nil
         guard let attributed = attributedText else { return }
-        // 防注册后收不到触摸:UILabel默认isUserInteractionEnabled为false，注册点击或长按都必须打开
+        // 注册点击或长按都必须打开isUserInteractionEnabled(UILabel默认为false，不打开则收不到触摸)
         isUserInteractionEnabled = true
         // 激活 touches/layoutSubviews/drawText 三处方法交换(静态量保证全局只交换一次)
         wy_enableSwizzleMethods()
 
-        // 防重复注册:同区间描述同回调方式的注册只保留一份(回调只区分有无，闭包每次调用都是新实例不能比内容)
+        // 同区间描述同回调方式的注册只保留一份，防止重复注册(回调只区分有无，闭包每次调用都是新实例不能比内容)
         let registration = WYRichTextRegistration(rangeValue: rangeValue, handler: handler, delegate: delegate)
         let isTap = !isLongPress
         var registrations = isTap ? wy_tapRegistrations : wy_longPressRegistrations
@@ -589,7 +589,7 @@ extension UILabel {
         return groups
     }
 
-    /// 开表：按下命中最小时长后到点就地触发长按回调的定时器(不等松手，与 UILongPressGestureRecognizer 行为一致)
+    /// 按下命中最小时长后到点就地触发长按回调的定时器(不等松手，与 UILongPressGestureRecognizer 行为一致)
     private func wy_scheduleLongPressTimer() {
 
         guard wy_longPressTimer == nil else { return }
@@ -616,7 +616,7 @@ extension UILabel {
         wy_longPressTimer = timer
     }
 
-    /// 停表：取消尚未到时长的长按定时器(重复调用安全)
+    /// 取消尚未到时长的长按定时器(重复调用安全)
     private func wy_invalidateLongPressTimer() {
         wy_longPressTimer?.invalidate()
         wy_longPressTimer = nil
@@ -680,7 +680,7 @@ extension UILabel {
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_touchBeginPoint) as? CGPoint }
     }
 
-    /// 触摸允许的最大移动距离(pt)，超出视为取消本次点击或长按，默认 15(防按下后拖动松手误触；UITextView 侧对应 wy_longPressAllowableMovement 同为私有且默认值统一为 15)
+    /// 触摸允许的最大移动距离(pt)，超出视为取消本次点击或长按，默认 15(按下后拖动松手会误触，UITextView 侧对应 wy_longPressAllowableMovement 同为私有且默认值统一为 15)
     private var wy_maxTouchMoveDistance: CGFloat {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_maxTouchMoveDistance, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_maxTouchMoveDistance) as? CGFloat ?? 15.0 }
@@ -722,7 +722,7 @@ extension UILabel {
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_longPressAttributeStrings) as? [WYRichTextModel] ?? [] }
     }
 
-    /// TextKit 排版引擎缓存（iOS 15+内部是TextKit2，旧系统是TextKit1；命中检测时用它反查触摸点对应的字符下标）
+    /// TextKit 排版引擎缓存（内部为TextKit2，命中检测时用它反查触摸点对应的字符下标）
     private var wy_layoutEngine: WYTextLayoutEngine? {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_layoutEngine, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_layoutEngine) as? WYTextLayoutEngine }
@@ -770,7 +770,7 @@ extension UILabel {
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_longPressLineRanges) as? [[WYRichTextModel]] }
     }
 
-    /// 长按触发定时器(按下时开表，到 wy_longPressMinimumDuration 就地触发回调)
+    /// 长按触发定时器(按下时开计时器，到 wy_longPressMinimumDuration 就地触发回调)
     private var wy_longPressTimer: Timer? {
         set { objc_setAssociatedObject(self, &WYAssociatedKeys.wy_longPressTimer, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
         get { return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_longPressTimer) as? Timer }
@@ -879,8 +879,7 @@ private class WYLabelHighlight {
 /**
  *  基于 TextKit 的文本排版引擎，一次排版后对外提供每行矩形、每行字符范围、文本块整体高度、坐标反查字符下标与任意子范围的分行矩形
  *
- *  iOS 15 及以上内部走 TextKit2(NSTextLayoutManager)，旧系统自动降级为 TextKit1(NSLayoutManager)；
- *  两条路径都与 UILabel 渲染同源，系统字体与第三方自定义字体的行高、基线、换行位置均与实际显示一致。
+ *  内部走 TextKit2(NSTextLayoutManager)，与 UILabel 渲染同源，系统字体与第三方自定义字体的行高、基线、换行位置均与实际显示一致。
  *  供 WYLabel 的富文本点击命中与 WYAttributedString 的 wy_calculateFrame 共用，
  *  排版结果在初始化时一次算好，后续查询只读缓存数据，重复命中检测(如滑动列表)不会重复排版。
  */
@@ -960,7 +959,7 @@ final class WYTextLayoutEngine {
             let segments = Self.wy_tk2BoundingRects(for: clipped, layout: layout)
             guard layout.isLineCapped, let lastRect = lineRects.last, let lastLineRange = lineCharacterRanges.last else { return segments }
             // 行数受限截断:末行之上的可见行保留原始行片段矩形(矩形更紧凑)，末行可见内容按裁剪后的行范围构造
-            // (截断头部/中间的末行显示的是全文末尾内容，其原始位置在被截掉的行上，不能用原始行片段反查；截断尾部的末行可见终点就是 totalLength，clipped 已自动裁到可见边界)
+            // (截断头部/中间的末行显示的是全文末尾内容，其原始位置在被截掉的行上，不能用原始行片段反查，截断尾部的末行可见终点就是 totalLength，clipped 已自动裁到可见边界)
             var results = segments.filter { $0.rect.midY < lastRect.midY }
             let intersection = NSIntersectionRange(clipped, lastLineRange)
             if intersection.length > 0 {
@@ -973,10 +972,10 @@ final class WYTextLayoutEngine {
         }
     }
 
-    /// TextKit2 排版对象(以 Any 装箱存储，iOS 15 以下固定为 nil，使用处再解箱)
+    /// TextKit2 排版对象(以 Any 装箱存储，使用处再解箱)
     private let tk2Storage: Any?
 
-    /// TextKit1 排版对象(仅 iOS 15 以下有值)
+    /// TextKit1 排版对象
     private let tk1Layout: WYTextKit1Layout?
 
     /// 排版文本的 UTF-16 总长度(用于裁剪越界范围)
@@ -1083,9 +1082,10 @@ final class WYTextLayoutEngine {
         }
     }
 
-    /// 推导排版容器高度上限
-    /// 在传入高度上补 2pt 余量(UILabel 的内在高度与其内部排版的行高存在亚像素级取整出入，容器高度卡得太死会把最后一行整体裁掉，导致行矩形与实际显示错位、命中偏移)；
-    /// 行数有限的截断场景由 wy_layoutTextKit2Capped 把高度精确钳到第 N 行底部，这里只负责不限行数的排版
+    /**
+     *  推导排版容器高度上限，在传入高度上补 2pt 余量(UILabel 的内在高度与其内部排版的行高存在亚像素级取整出入，容器高度卡得太死会把最后一行整体裁掉，导致行矩形与实际显示错位、命中偏移)
+     *  行数有限的截断场景由 wy_layoutTextKit2Capped 把高度精确钳到第 N 行底部，这里只负责不限行数的排版
+     */
     private static func wy_layoutHeightLimit(containerSize: CGSize, numberOfLines: Int) -> CGFloat {
         if numberOfLines > 0 {
             // 单行高度现实中远小于 1000pt，按行数加一行余量推导的有限上限足够容纳全部行
@@ -1094,16 +1094,18 @@ final class WYTextLayoutEngine {
         return min(containerSize.height + 2, CGFloat.greatestFiniteMagnitude)
     }
 
-    /// 不限行数时把富文本内各段落的换行模式归一到目标换行模式，返回原对象或可变副本
-    /// 段落样式的换行模式默认值是 byTruncatingTail(设置过行间距、对齐等属性的富文本都会携带)，
-    /// TextKit2 对段落截断模式加不限行数加充裕有限高度的组合会把全部文字并进第一行；截断由容器的 lineBreakMode 统一控制(与 UILabel 内部实现一致)，段落归一不影响显示语义；
-    /// 段落与容器必须归一到同一换行模式(TextKit 排版段落样式优先于容器设置，只改容器不改段落会导致按字换行时引擎与 UILabel 实际显示逐行错位)；
-    /// UILabel 不限行数时的实际换行(2026-09-21 用 Vision OCR 逐模式核对模拟器显示确认)只有 byCharWrapping 按字，截断类与 byClipping 都按词
+    /**
+     *  不限行数时把富文本内各段落的换行模式归一到目标换行模式，返回原对象或可变副本
+     *  段落样式的换行模式默认值是 byTruncatingTail(设置过行间距、对齐等属性的富文本都会携带)，
+     *  TextKit2 对段落截断模式加不限行数加充裕有限高度的组合会把全部文字并进第一行，截断由容器的 lineBreakMode 统一控制(与 UILabel 内部实现一致)，段落归一不影响显示语义，
+     *  段落与容器必须归一到同一换行模式(TextKit 排版段落样式优先于容器设置，只改容器不改段落会导致按字换行时引擎与 UILabel 实际显示逐行错位)，
+     *  UILabel 不限行数时的实际换行只有 byCharWrapping 按字，截断类与 byClipping 都按词
+     */
     private static func wy_wordWrappedAttributed(_ attributedText: NSAttributedString, numberOfLines: Int, lineBreakMode: NSLineBreakMode) -> NSAttributedString {
 
         guard numberOfLines <= 0, attributedText.length > 0 else { return attributedText }
 
-        // 不限行数时段落与容器统一到的换行模式(仅 byCharWrapping 按字换行，截断类与 byClipping 都按词换行——2026-09-21 用 Vision OCR 逐模式核对 UILabel 实际显示确认)
+        // 不限行数时段落与容器统一到的换行模式(仅 byCharWrapping 按字换行，截断类与 byClipping 都按词换行)
         let wrapMode: NSLineBreakMode = lineBreakMode == .byCharWrapping ? .byCharWrapping : .byWordWrapping
 
         let fullRange = NSRange(location: 0, length: attributedText.length)
@@ -1125,11 +1127,13 @@ final class WYTextLayoutEngine {
         return mutable
     }
 
-    /// TextKit2 排版的外层包装(仅处理 numberOfLines 大于 0 的场景)
-    /// TextKit2 的容器截断(maximumNumberOfLines 加截断模式)在部分系统版本上会把全部文字并进第一行，
-    /// 所以行数限制统一在引擎层实现，先不限行数排一次，文本未超限直接用该结果，超限则裁掉多余行并对末行按截断方式裁剪可见内容；
-    /// 行数受限时 UILabel 的真实末行显示(2026-09-21 用 Vision OCR 核对模拟器显示确认)为截断尾部/直接裁剪保留末行开头(前者省略号在前者预留宽度、后者不预留)，
-    /// 截断头部显示"…+全文末尾内容"，截断中间显示"末行开头…+全文末尾内容"，显示内容不按顺序
+    /**
+     *  TextKit2 排版的外层包装(仅处理 numberOfLines 大于 0 的场景)
+     *  TextKit2 的容器截断(maximumNumberOfLines 加截断模式)在部分系统版本上会把全部文字并进第一行，
+     *  所以行数限制统一在引擎层实现，先不限行数排一次，文本未超限直接用该结果，超限则裁掉多余行并对末行按截断方式裁剪可见内容
+     *  行数受限时 UILabel 的真实末行显示为截断尾部/直接裁剪保留末行开头(前者省略号在前者预留宽度、后者不预留)
+     *  截断头部显示"…+全文末尾内容"，截断中间显示"末行开头…+全文末尾内容"，显示内容不按顺序
+     */
     @available(iOS 15.0, *)
     private static func wy_layoutTextKit2Capped(attributedText: NSAttributedString, containerSize: CGSize, numberOfLines: Int, lineBreakMode: NSLineBreakMode) -> WYTextLayoutOutput {
 
@@ -1171,7 +1175,7 @@ final class WYTextLayoutEngine {
                     ranges[ranges.count - 1] = NSRange(location: lastRange.location, length: visibleEnd - lastRange.location)
                 }
             case .byClipping:
-                // 直接裁剪:从末行起点按全宽簇断行建议连续填充；行尾的 CJK 标点按系统标点悬挂/压缩规则补入(显示时压缩悬挂在行尾，簇断行建议按全宽计算未计入)
+                // 直接裁剪，从末行起点按全宽簇断行建议连续填充，行尾的 CJK 标点按系统标点悬挂/压缩规则补入(显示时压缩悬挂在行尾，簇断行建议按全宽计算未计入)
                 var visibleLength = Self.wy_typesetterVisibleLength(of: attributedText, from: lastRange.location, budget: containerSize.width)
                 let punctuationEnd = lastRange.location + visibleLength
                 if punctuationEnd < attributedText.length {
@@ -1232,7 +1236,7 @@ final class WYTextLayoutEngine {
         return NSAttributedString(string: "…", attributes: [.font: font]).size().width
     }
 
-    /// TextKit2 排版(NSTextContentStorage + NSTextLayoutManager，iOS 15+)
+    /// TextKit2 排版(NSTextContentStorage + NSTextLayoutManager)
     @available(iOS 15.0, *)
     private static func wy_layoutTextKit2(attributedText: NSAttributedString, containerSize: CGSize, numberOfLines: Int, lineBreakMode: NSLineBreakMode) -> WYTextLayoutOutput {
 
@@ -1276,10 +1280,14 @@ final class WYTextLayoutEngine {
             }
             return true
         }
-
-        // 探测 characterIndex(for:) 的索引基准(行左缘反查的原始值 0/行内起点/全下起点分别对应 行内/段落/全下 三种基准)
-        // 选样按区分度排优先级(段落偏移和行内位置都大于0的行能三分；只有段落偏移大于0能区分全下基准；只有行内位置大于0能区分行内基准)，
-        // 单段落或各段皆单行的文本各基准换算结果本就一致，取不到高优先级样本时按段落基准兜底
+        
+        /*
+         * 探测 characterIndex(for:) 的索引基准(行左缘反查的原始值 0/行内起点/全下起点分别对应 行内/段落/全下 三种基准)
+         
+         * 选样按区分度排优先级(段落偏移和行内位置都大于0的行能三分，只有段落偏移大于0能区分全下基准，只有行内位置大于0能区分行内基准)
+         
+         * 单段落或各段皆单行的文本各基准换算结果本就一致，取不到高优先级样本时按段落基准兜底
+         */
         var indexBase: WYTK2IndexBase = .paragraph
         let probePriority: ((Int, Int)) -> Int = { entry in
             let (offset, location) = entry
@@ -1322,7 +1330,7 @@ final class WYTextLayoutEngine {
         return WYTextLayoutOutput(rects: rects, ranges: ranges, blockHeight: blockHeight, layout: layout)
     }
 
-    /// TextKit1 排版(NSTextStorage + NSLayoutManager，iOS 15 以下降级使用)
+    /// TextKit1 排版(NSTextStorage + NSLayoutManager)
     private static func wy_layoutTextKit1(attributedText: NSAttributedString, containerSize: CGSize, numberOfLines: Int, lineBreakMode: NSLineBreakMode) -> WYTextLayoutOutput1 {
 
         let layoutText = wy_wordWrappedAttributed(attributedText, numberOfLines: numberOfLines, lineBreakMode: lineBreakMode)

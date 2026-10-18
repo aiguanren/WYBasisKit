@@ -201,7 +201,7 @@ public func WYLocalized(_ key: String, table: String = WYBasisKitConfig.localiza
 
 public struct WYLocalizableManager {
 
-    /// 纯代码工程注册的根控制器构建闭包(切换语言后用它重建界面；没注册时回落Storyboard重建方式；)
+    /// 纯代码工程注册的根控制器构建闭包(切换语言后用它重建界面，没注册时回落Storyboard重建方式)
     @MainActor public static var rootViewControllerProvider: (() -> UIViewController)?
     
     /// 当前正在使用的语言

@@ -590,7 +590,7 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
             else if ([key isEqualToString:@"scrollLineHeight"]) self.settings.scrollLineHeight = value;
             // 防行数输入负数喂给库出未定义行为:收敛到0，0表示不限行数
             else if ([key isEqualToString:@"titleMaxLines"]) self.settings.titleMaxLines = MAX(0, (NSInteger)value);
-            // 防缩字下限超出合法范围:收敛到0~1
+            // 缩字下限收敛到0~1合法范围
             else if ([key isEqualToString:@"titleMinimumFontScale"]) self.settings.titleMinimumFontScale = MIN(MAX(value, 0), 1);
 
             [self.tableView reloadData];
@@ -1129,7 +1129,7 @@ typedef NS_ENUM(NSInteger, DisplayMode) {
 @property (nonatomic, strong) UIButton *insertPositionButton;
 @property (nonatomic, strong) UIButton *removePositionButton;
 
-/// 最多准备的测试页数(需要覆盖固定Item宽度下超一屏滚动等场景，20页已远超常见业务规模)
+/// 最多准备的测试页数
 @property (nonatomic, assign) NSInteger maxTestPageCount;
 
 /// 测试页循环使用的背景色与图标(固定前8页与动态生成的页共用一套)

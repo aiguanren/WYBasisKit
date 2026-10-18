@@ -12,8 +12,8 @@ import UIKit
  
  - Parameters:
    - targetClass: 目标响应者类（如 `UIView.self` 或 `UIViewController.self`）。
-   - before: 方法执行前回调。参数依次为：当前响应者、触摸集合、事件。无返回值。
-   - after: 方法执行后回调。参数依次为：当前响应者、触摸集合、事件。无返回值（仅通知）。
+   - before: 方法执行前回调，参数依次为：当前响应者、触摸集合、事件。无返回值。
+   - after: 方法执行后回调，参数依次为：当前响应者、触摸集合、事件。无返回值（仅通知）。
  */
 internal func wy_swizzlerTouchesBegan(
     for targetClass: UIResponder.Type,

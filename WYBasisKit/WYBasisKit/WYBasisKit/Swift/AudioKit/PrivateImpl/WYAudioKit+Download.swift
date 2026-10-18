@@ -26,7 +26,7 @@ extension WYAudioKit {
         }
     }
     
-    /// 清掉某个原始URL残留的旧下载状态(重新下载前调用)，旧任务取消、旧批次摘牌，防止旧批次永远等不到回调卡在字典里
+    /// 清掉某个原始URL残留的旧下载状态(重新下载前调用)，旧任务取消、从旧批次待完成集合移除，防止旧批次永远等不到回调卡在字典里
     func detachOldDownloadState(for originalURL: URL) {
         let oldInfo = state.tasksInfo[originalURL] ?? state.pausedTaskInfo[originalURL]
         
@@ -45,7 +45,7 @@ extension WYAudioKit {
         // 旧任务都清了，排队中的恢复请求一并作废
         state.pendingResumeUrls.remove(originalURL)
         
-        // 从旧批次里摘掉这个URL，批次空了就整个删掉(不补发failed，用户主动重新下载说明不要旧结果了)
+        // 从旧批次里移除这个URL，批次空了就整个删掉(不补发failed，用户主动重新下载说明不需要旧结果)
         if let batchID = oldInfo?.batchID, var batch = state.downloadGroups[batchID] {
             batch.pendingUrls.remove(originalURL)
             state.downloadGroups[batchID] = batch
@@ -75,7 +75,7 @@ extension WYAudioKit {
         for (batchID, value) in batchProgress {
             let avg = value.total / Double(value.count)
             guard let batch = state.downloadGroups[batchID],
-                  // 进度没变化就不回调(刷新器每帧都跑，不拦的话一秒30次内容完全相同的delegate，外部UI白刷)
+                  // 进度没变化就不回调(刷新器每帧都跑，不拦截时一秒30次内容完全相同的delegate，外部UI无效刷新)
                   abs(avg - (state.lastNotifiedBatchProgress[batchID] ?? -1)) > 0.001 else { continue }
             state.lastNotifiedBatchProgress[batchID] = avg
             delegate?.wy_remoteAudioDownloadProgressUpdated?(audioKit: self,
@@ -151,7 +151,7 @@ extension WYAudioKit {
             // 下载进度回调中找不到任务
             return
         }
-        // 防恢复下载进度闪0:恢复的任务系统可能从0重新累计已写字节，首次回调校准一次(已写字节没到基点说明是从0计的，把基点补上)，之后按校准偏移算进度
+        // 恢复下载进度防跳回0(恢复的任务系统可能从0重新累计已写字节，首次回调校准一次，已写字节没到基点说明是从0计的，把基点补上)，之后按校准偏移算进度
         if !info.hasCalibratedResumeBytes {
             info.hasCalibratedResumeBytes = true
             info.resumeOffsetBytes = totalBytesWritten < info.resumeBaselineBytes ? info.resumeBaselineBytes : 0
@@ -191,7 +191,7 @@ extension WYAudioKit {
             if fm.fileExists(atPath: destination.path) {
                 try fm.removeItem(at: destination)
             }
-            // 系统给的location文件在本回调返回后就会被删，用move一次落盘即可(copy要把整份音频再读写一遍，大文件白翻倍I/O)
+            // 系统给的location文件在本回调返回后就会被删，用move一次落盘即可(copy要把整份音频再读写一遍，大文件I/O翻倍)
             try fm.moveItem(at: location, to: destination)
             
             guard fm.fileExists(atPath: destination.path),
@@ -218,7 +218,7 @@ extension WYAudioKit {
                                                              progress: 1.0)
             
             if batch.pendingUrls.isEmpty {
-                // 按用户传入的remoteUrls顺序回调，文件完成的先后顺序是随机的，直接给外部对不上号
+                // 按用户传入的remoteUrls顺序回调(文件完成的先后顺序是随机的，直接按完成顺序回调会与传入顺序不一致)
                 batch.success(batch.remoteUrls.compactMap { batch.infosByOriginalURL[$0] })
                 state.downloadGroups.removeValue(forKey: info.batchID)
                 state.lastNotifiedBatchProgress.removeValue(forKey: info.batchID)
@@ -229,7 +229,7 @@ extension WYAudioKit {
             state.downloadGroups[info.batchID] = batch
         }
         
-        // 单个文件完成就摘掉任务记录(旧版只在整批完成时才清，批次里只要有别的文件没完成这条记录就永远留着，刷新器也就永远停不下来)
+        // 单个文件完成就移除任务记录(批次里还有别的文件未完成时该记录会一直留着，刷新器也就一直停不下来)
         state.tasksInfo.removeValue(forKey: originalURL)
         state.downloadProgresses.removeValue(forKey: info.currentURL)
         stopDisplayLinkIfNeeded()
@@ -263,7 +263,7 @@ extension WYAudioKit {
     }
 }
 
-/// URLSession 的弱引用代理(会话会强持有delegate直到invalidate，直接把kit传给它的话不调releaseAll就永远释放不了，这是旧版泄漏的根源；会话持有它、它只弱持有kit，kit释放时deinit里作废会话，整条链一起断)
+/// URLSession 的弱引用代理(会话会强持有delegate直到invalidate，直接把kit传给它时不调releaseAll就永远释放不了，会话持有它、它只弱持有kit，kit释放时deinit里作废会话，整条引用链一起断开)
 final class WYWeakSessionDelegate: NSObject, URLSessionDownloadDelegate, URLSessionTaskDelegate {
     
     /// 真正处理回调的kit实例

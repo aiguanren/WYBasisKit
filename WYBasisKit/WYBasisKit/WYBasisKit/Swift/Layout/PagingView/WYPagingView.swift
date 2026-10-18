@@ -16,7 +16,7 @@ import UIKit
      *
      * @param pagingView        当前WYPagingView的实例对象
      * @param pagingIndex       当前Controller在WYPagingView中的页面下标
-     * @param isFirstDisplayed       当前Controller是否是第一次在WYPagingView中显示(可用来判断网络请求或页面UI加载时机，避免初始化WYPagingView时就请求所有的Controller的页面数据或者加载UI)，true表示第一次显示，否则为第二次及以后；Controller实例离开分页栏后再加回会重新按第一次显示处理
+     * @param isFirstDisplayed       当前Controller是否是第一次在WYPagingView中显示(可用来判断网络请求或页面UI加载时机，避免初始化WYPagingView时就请求所有的Controller的页面数据或者加载UI)，true表示第一次显示，否则为第二次及以后，Controller实例离开分页栏后再加回会重新按第一次显示处理
      */
     @objc(wy_pagingViewItemDidScroll:pagingIndex:isFirstDisplayed:)
     optional func wy_pagingViewItemDidScroll(_ pagingView: WYPagingView, pagingIndex: Int, isFirstDisplayed: Bool)
@@ -195,22 +195,22 @@ public class WYPagingView: UIView {
     /// 滑动线条圆角半径，默认0(无圆角，想让线条两端呈半圆可传线条高度的一半)
     public var bar_scrollLineCornerRadius: CGFloat = 0
 
-    /// 分页栏标题 Normal状态 字号 默认15号；
+    /// 分页栏标题 Normal状态 字号 默认15号
     public var bar_title_defaultFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(15, WYBasisKitConfig.defaultScreenPixels))
 
-    /// 分页栏标题 Selected状态 字号 默认15号；
+    /// 分页栏标题 Selected状态 字号 默认15号
     public var bar_title_selectedFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(15, WYBasisKitConfig.defaultScreenPixels))
 
     /// 标题选中时的缩放系数，默认1(不缩放，大于1放大如1.2，小于1缩小，需大于0否则按1处理)
     public var bar_title_selectedScale: CGFloat = 1
 
-    /// 文本显示不下时最多可换行到几行，默认1不换行，传0表示不限行数(仅在bar_item_width传入固定宽度时生效，自适应宽度时Item会随文本撑开不存在显示不下；不为1时按换行显示，此时bar_title_shrinkFontToFit不生效，两个属性只能生效一个，Item高度装不下所有行时超出部分截断)
+    /// 文本显示不下时最多可换行到几行，默认1不换行，传0表示不限行数(仅在bar_item_width传入固定宽度时生效，自适应宽度时Item会随文本撑开不存在显示不下，不为1时按换行显示，此时bar_title_shrinkFontToFit不生效，两个属性只能生效一个，Item高度装不下所有行时超出部分截断)
     public var bar_title_numberOfLines: Int = 1
 
-    /// 文本显示不下时是否缩小字号自适应完整显示，默认true(仅在bar_item_width传入固定宽度且bar_title_numberOfLines为1时生效，不为1走换行显示；false时显示不下直接截断)
+    /// 文本显示不下时是否缩小字号自适应完整显示，默认true(仅在bar_item_width传入固定宽度且bar_title_numberOfLines为1时生效，不为1走换行显示，false时显示不下直接截断)
     public var bar_title_shrinkFontToFit: Bool = true
 
-    /// 文本缩字自适应的最小字号(缩放)系数，默认0.6(例如：15号字最小缩到约9号；仅在bar_title_shrinkFontToFit生效时有意义，取值范围0~1，超出按边界值处理)
+    /// 文本缩字自适应的最小字号(缩放)系数，默认0.6(例如：15号字最小缩到约9号，仅在bar_title_shrinkFontToFit生效时有意义，取值范围0~1，超出按边界值处理)
     public var bar_title_minimumFontScale: CGFloat = 0.6
 
     /// 当前选中的页面的Index，初始化时也可以用来设置默认选中第几个页面
@@ -328,7 +328,7 @@ public class WYPagingView: UIView {
      */
     public func switchToPage(at index: Int, animated: Bool = true) {
 
-        // 防越界和切到当前页无意义:直接忽略这次切换
+        // 越界与切到当前页的调用直接忽略(无切页意义且下标可能越界)
         guard (0..<buttonItems.count).contains(index), index != bar_selectedIndex else { return }
 
         if animated {
@@ -458,7 +458,7 @@ public class WYPagingItem: UIButton {
         super.init(frame: .zero)
         self.translatesAutoresizingMaskIntoConstraints = false
         self.isUserInteractionEnabled = true
-        // 防Item宽度小于内容宽时文本图片画出边界压到相邻标题(矩形裁切由GPU同一渲染pass完成，不触发离屏渲染；设了圆角时本就有CAShapeLayer mask，不新增开销)
+        // Item宽度小于内容宽时裁掉越界内容，防止文本图片画出边界压到相邻标题(矩形裁切由GPU同一渲染pass完成，不触发离屏渲染，设了圆角时本就有CAShapeLayer mask，不新增开销)
         self.clipsToBounds = true
 
         // 保存状态数据

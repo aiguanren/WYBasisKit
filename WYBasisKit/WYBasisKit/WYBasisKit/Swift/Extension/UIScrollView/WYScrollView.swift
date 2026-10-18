@@ -47,12 +47,12 @@ public extension UIScrollView {
         return (state == .began) || (state == .changed)
     }
     
-    /// 是否为用户触发的滑动(包含手指拖动和松手后的惯性滑动；不包含setContentOffset、scrollToTop、自动轮播等代码触发的滑动)
+    /// 是否为用户触发的滑动(包含手指拖动和松手后的惯性滑动，不包含setContentOffset、scrollToTop、自动轮播等代码触发的滑动)
     var wy_isUserSliding: Bool {
         return wy_isFingerDragging || isDecelerating
     }
     
-    /// 当前滑动来源(优先级为手指拖动或跟踪中→user，惯性减速中→deceleration，其余含代码滑动和完全静止→none；只需简单判断是否用户滑动时直接用wy_isUserSliding)
+    /// 当前滑动来源(优先级为手指拖动或跟踪中→user，惯性减速中→deceleration，其余含代码滑动和完全静止→none，只需简单判断是否用户滑动时直接用wy_isUserSliding)
     var wy_slidingSource: WYSlidingSource {
         // 手指按下或正在拖动
         if wy_isFingerDragging || isTracking {
@@ -104,13 +104,13 @@ public extension UIScrollView {
      *  当前手指滑动方向
      *
      *  通过对比本次与上一次的 contentOffset 计算位移方向，方向以手指滑动为准而非内容移动方向
-     *  deltaX > 0（内容右移）→ 手指左滑 → .left；deltaX < 0（内容左移）→ 手指右滑 → .right；
-     *  deltaY > 0（内容下移）→ 手指上滑 → .up；deltaY < 0（内容上移）→ 手指下滑 → .down
+     *  deltaX > 0（内容右移）→ 手指左滑 → .left，deltaX < 0（内容左移）→ 手指右滑 → .right
+     *  deltaY > 0（内容下移）→ 手指上滑 → .up，deltaY < 0（内容上移）→ 手指下滑 → .down
      *
      *  建议在 scrollViewDidScroll(_:) 中持续调用以获得实时结果
      *
      *  @param threshold 位移阈值，用于过滤轻微抖动，默认 0.5pt
-     *  @return 当前有效滑动方向；首次调用、位移过小、非用户滑动(setContentOffset等代码触发的偏移跳变)、回弹期间均返回上一次有效方向(从未产生过有效方向则返回 .unknown)
+     *  @return 当前有效滑动方向，首次调用、位移过小、非用户滑动(setContentOffset等代码触发的偏移跳变)、回弹期间均返回上一次有效方向(从未产生过有效方向则返回 .unknown)
      */
     func wy_slidingDirection(threshold: CGFloat = 0.5) -> WYSlidingDirection {
         let currentOffset = contentOffset
@@ -135,7 +135,7 @@ public extension UIScrollView {
             return wy_lastValidDirection
         }
 
-        // 非用户滑动不判方向(代码触发的偏移跳变)，防污染lastValidDirection
+        // 非用户滑动不判方向(代码触发的偏移跳变)，防止干扰lastValidDirection记录的方向
         if wy_isUserSliding == false {
             return wy_lastValidDirection
         }

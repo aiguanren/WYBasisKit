@@ -171,7 +171,7 @@ public class WYSoundWavesView: UIView {
             return CGFloat((power - config.minDb) / -config.minDb)
         }
         
-        // 使用 average（更稳定），peak 虽然灵敏，但会抖；average 更适合做 UI 动画
+        // 取average不取peak(average更稳定，peak灵敏但抖动大，average更适合驱动UI动画)
         let avg = normalize(averagePower)
         
         // 当前能量值（原始能量）
@@ -197,7 +197,7 @@ public class WYSoundWavesView: UIView {
         return Float(p)
     }
     
-    /// 声波数据更新（由外部每帧调用；power传0~1能量或录音器原始分贝负值均可，负值先走能量管线归一成0~1再进平滑与阈值，否则永远过不了起跳阈值只走待机水波纹）
+    /// 声波数据更新（由外部每帧调用，power传0~1能量或录音器原始分贝负值均可，负值先走能量管线归一成0~1再进平滑与阈值，否则永远过不了起跳阈值只走待机水波纹）
     public func updateMeters(power: Float) {
 
         var newPower = CGFloat(power)

@@ -12,9 +12,9 @@ import UIKit
  
  - Parameters:
    - targetClass: 目标 Label 类（如 `UILabel.self`）。
-   - intercept: 拦截决策闭包。返回 `.proceed` 则继续执行原始方法；返回 `.result(rect)` 则直接返回该矩形，**不再调用原始方法**。参数依次为：当前标签、建议的边界矩形、最大行数。
-   - before: 方法执行前回调。参数依次为：当前标签、建议的边界矩形、最大行数。无返回值。
-   - after: 方法执行后回调。参数依次为：当前标签、建议的边界矩形、最大行数、原始返回值（`CGRect`）。可返回一个新的 `CGRect` 来替换原始返回值。
+   - intercept: 拦截决策闭包，返回 `.proceed` 则继续执行原始方法，返回 `.result(rect)` 则直接返回该矩形，**不再调用原始方法**，参数依次为：当前标签、建议的边界矩形、最大行数
+   - before: 方法执行前回调，参数依次为：当前标签、建议的边界矩形、最大行数。无返回值。
+   - after: 方法执行后回调，参数依次为：当前标签、建议的边界矩形、最大行数、原始返回值（`CGRect`）。可返回一个新的 `CGRect` 来替换原始返回值。
  */
 internal func wy_swizzlerTextRect(
     for targetClass: UILabel.Type,

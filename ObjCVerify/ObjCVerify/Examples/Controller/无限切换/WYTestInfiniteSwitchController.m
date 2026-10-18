@@ -69,7 +69,7 @@
 /// 垂直方向是否无限翻页
 @property (nonatomic, strong) UISwitch *verticalUnlimitedCarousel;
 
-/// 是否需要自动轮播，默认false(不自动轮播，业务想要自动轮播显式开启)
+/// 是否需要自动轮播，默认false(不自动轮播，需要时显式开启)
 @property (nonatomic, strong) UISwitch *automaticCarousel;
 
 /// 开启或者关闭定时器
@@ -228,7 +228,7 @@
     self.minimumVerticalSwitchIntervalValue.text = @"0.0";
     self.horizontalUnlimitedCarousel.on = YES;
     self.verticalUnlimitedCarousel.on = YES;
-    // 与组件默认值一致(automaticCarousel默认false，不自动轮播；业务想要自动轮播显式开启，开启后组件会在首次展示时自动开表)
+    // 与组件默认值一致(automaticCarousel默认false不自动轮播，需要自动轮播时显式开启，开启后组件会在首次展示时自动开计时器)
     self.automaticCarousel.on = NO;
     // automaticCarousel默认关闭，挂载时不会自动开表，开关显示off与实际计时器状态一致
     self.startOrStopTimer.on = NO;
@@ -259,7 +259,7 @@
 
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
-    // 真正离开测试页才停止所有播放器，避免视频在后台继续发声、耗流(侧滑返回划到一半又取消时页面并没有真离开，viewDidDisappear不触发、播放不中断；不能放viewWillDisappear，它在返回手势一开始就触发，会把正在播的视频提前停掉)
+    // 真正离开测试页才停止所有播放器，避免视频在后台继续发声、耗流(侧滑返回划到一半又取消时页面并没有真离开，viewDidDisappear不触发、播放不中断，不能放viewWillDisappear，它在返回手势一开始就触发，会把正在播的视频提前停掉)
     for (WYMediaPlayer *player in self.verticalViews) {
         if ([player isKindOfClass:[WYMediaPlayer class]]) {
             [player stopWithKeepLast:NO];
@@ -285,7 +285,7 @@
     }else if (sender == self.numberOfVerticalContent) {
         self.contentScrollView.numberOfVerticalContent = counts[sender.selectedSegmentIndex].integerValue;
     }else if (sender == self.contentSlidingDirection) {
-        // 切方向前先停两轴所有视频播放(对称通用)：单轴模式另一轴的视图不挂载(组件对应数组为空、did回调该轴参数为nil)，重挂载会把正在播的播放器从层级摘下且无人再能暂停它(画面不可见声音仍响)；切到含该轴的模式无碍，进入该轴页面的did会重新起播
+        // 切方向前先停两轴所有视频播放(单轴模式另一轴的视图不挂载，组件对应数组为空、did回调该轴参数为nil，重挂载会把正在播的播放器从层级摘下且无人再能暂停它，画面不可见声音仍响，切到含该轴的模式无碍，进入该轴页面的did会重新起播)
         for (UIView *view in [self.horizontalViews arrayByAddingObjectsFromArray:self.verticalViews]) {
             if ([view isKindOfClass:[WYMediaPlayer class]]) {
                 [(WYMediaPlayer *)view pause];
@@ -1016,7 +1016,7 @@
         if (![reserveVerticalView isKindOfClass:[WYMediaPlayer class]]) { return; }
         WYMediaPlayer *reservePlayer = (WYMediaPlayer *)reserveVerticalView;
 
-        // 地址已在预备页上则只按预备页处理(在播的暂停、缓冲中的照常缓冲)，否则换源加载；取值走取模方法防∞模式环绕下标越界
+        // 地址已在预备页上则只按预备页处理(在播的暂停、缓冲中的照常缓冲)，否则换源加载，取值走取模方法防止无限模式环绕下标越界
         NSString *playUrl = [self videoForVerticalPageAtIndex:contentScrollView.reserveVerticalIndex];
         if (reservePlayer.mediaUrl && [reservePlayer.mediaUrl isEqualToString:playUrl]) {
             [reservePlayer pause];
@@ -1026,7 +1026,7 @@
     }
 
     if (direction == WYSlidingDirectionLeft || direction == WYSlidingDirectionRight) {
-        // 只预载目标轴图片，不在will暂停V轴播放：暂停放到didSwitch里做(完全切到H后才停)，与同轴翻页"滑动全程旧页持续播放、提交才切换"的手感一致；拖动取消回弹时组件会重申原轴didSwitch恢复播放
+        // 只预载目标轴图片，不在will暂停V轴播放(暂停放到didSwitch里做，完全切到H后才停，与同轴翻页"滑动全程旧页持续播放、松手落定才切换"的手感一致)，拖动取消回弹时组件会补发原轴didSwitch恢复播放
         if ([reserveHorizontalView isKindOfClass:[UIImageView class]]) {
             ((UIImageView *)reserveHorizontalView).image = [self imageForHorizontalPageAtIndex:contentScrollView.reserveHorizontalIndex];
         }
@@ -1037,7 +1037,7 @@
     // 切换完成后实时刷新当前展示方向标签
     [self refreshDisplayingDirectionValue];
 
-    // 停垂直轴播放提无条件前置(不放在任何方向分支里)：切到H必须停V；切到V时当前页随分支马上重新play(幂等)，前置暂停无副作用；这一停一起播就是did的"停旧起新"骨架
+    // 停垂直轴播放作为无条件前置，不放在任何方向分支里(切到H必须停V，切到V时当前页随分支马上重新play且幂等，前置暂停无副作用，这一停一起播构成did的"停旧起新")
     if ([currentVerticalView isKindOfClass:[WYMediaPlayer class]]) {
         [(WYMediaPlayer *)currentVerticalView pause];
     }
@@ -1049,7 +1049,7 @@
         if (![currentVerticalView isKindOfClass:[WYMediaPlayer class]]) { return; }
         WYMediaPlayer *currentPlayer = (WYMediaPlayer *)currentVerticalView;
 
-        // 当前页必须按currentVerticalIndex加载(补发didSwitch时reserveVerticalIndex还是残留值，用它会串台)；取值走取模方法防∞模式环绕下标越界
+        // 当前页必须按currentVerticalIndex加载(补发didSwitch时reserveVerticalIndex还是残留值，直接用会装错内容)，取值走取模方法防止无限模式环绕下标越界
         NSString *playUrl = [self videoForVerticalPageAtIndex:contentScrollView.currentVerticalIndex];
         if (currentPlayer.mediaUrl && [currentPlayer.mediaUrl isEqualToString:playUrl]) {
             [currentPlayer play];
@@ -1059,7 +1059,7 @@
     }
 
     if (direction == WYSlidingDirectionLeft || direction == WYSlidingDirectionRight) {
-        // 取值走取模方法防∞模式环绕下标越界
+        // 取值走取模方法防止无限模式环绕下标越界
         if ([currentHorizontalView isKindOfClass:[UIImageView class]]) {
             ((UIImageView *)currentHorizontalView).image = [self imageForHorizontalPageAtIndex:contentScrollView.currentHorizontalIndex];
         }

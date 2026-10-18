@@ -458,7 +458,7 @@
     yOffset += 40;
     
     self.soundWavesView = [[WYSoundWavesView alloc] initWithFrame:CGRectMake(20, yOffset, self.view.bounds.size.width - 40, 60)];
-    // 波形柱颜色沿用旧版蓝色（默认白色在浅灰底上看不清），最大跳动高度取视图高度的一半，防止顶满整个灰底
+    // 波形柱颜色用蓝色(默认白色在浅灰底上看不清)，最大跳动高度取视图高度的一半，防止顶满整个灰底
     self.soundWavesView.config.wavesColor = [UIColor systemBlueColor];
     self.soundWavesView.config.maxBarHeight = 30;
     self.soundWavesView.backgroundColor = [UIColor systemGray5Color];
@@ -561,7 +561,7 @@
     [self.contentView addSubview:self.minDurationSlider];
     yOffset += 35;
     self.minDurationLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, yOffset, self.view.bounds.size.width - 40, 30)];
-    // 防滑竿没提示:viewDidLoad里setter设置文字时label还没创建，初始文字要在这里补一次
+    // viewDidLoad里setter设置文字时label还没创建，初始文字要在这里补一次
     self.minDurationLabel.text = [NSString stringWithFormat:@"最短时长: %.1f秒", self.minRecordingDuration];
     [self.contentView addSubview:self.minDurationLabel];
     yOffset += 40;
@@ -573,7 +573,7 @@
     [self.contentView addSubview:self.maxDurationSlider];
     yOffset += 35;
     self.maxDurationLabel = [[UILabel alloc] initWithFrame:CGRectMake(20, yOffset, self.view.bounds.size.width - 40, 30)];
-    // 防滑竿没提示:同最短时长label，viewDidLoad时label未创建文字丢失
+    // viewDidLoad时label未创建文字丢失，初始文字要在这里补一次
     self.maxDurationLabel.text = [NSString stringWithFormat:@"最长时长: %.1f秒", self.maxRecordingDuration];
     [self.contentView addSubview:self.maxDurationLabel];
     yOffset += 50;
@@ -1008,7 +1008,7 @@
 - (void)downloadTaskAction:(UIButton *)sender {
     DownloadTaskCardView *card = [self findCardFromButton:sender];
     if (!card || !card.url) return;
-    // 防重复下载白费流量:同URL已在下载中直接提示并忽略(库内downloadRemoteAudio也有同样的去重防御)
+    // 同URL已在下载中直接提示并忽略，防止重复下载浪费流量(库内downloadRemoteAudio也有同样的去重防御)
     if ([self.audioKit isDownloadingWithRemoteUrl:card.url]) {
         [self logInfo:[NSString stringWithFormat:@"该URL已在下载中，忽略重复请求: %@", card.url.lastPathComponent]];
         return;
@@ -1186,7 +1186,7 @@
 }
 
 - (void)convertAllRecordings {
-    // 空数组也照样传进库，没有录音文件时正好验证noFilesRequireConversion错误路径；有多个文件时验证多文件并发批次和按输入顺序回调
+    // 空数组也照样传进库，没有录音文件时正好验证noFilesRequireConversion错误路径，有多个文件时验证多文件并发批次和按输入顺序回调
     NSArray<NSURL *> *sources = [self.audioKit getAllRecordingsFiles];
     if (sources.count == 0) {
         [self logInfo:@"没有可转换的录音文件(空数组照样传给库，验证库内noFilesRequireConversion校验)"];
@@ -1438,7 +1438,7 @@
 
 - (NSArray<NSNumber *> *)supportedConvertFormats {
     if (!_supportedConvertFormats) {
-        // 全部格式列出，不可转的靠库内拦截并提示，顺便验证formatNotSupported路径
+        // 全部格式列出，不可转的靠库内拦截并提示，同时验证formatNotSupported路径
         _supportedConvertFormats = @[
             @(WYAudioFormatAac), @(WYAudioFormatWav), @(WYAudioFormatCaf),
             @(WYAudioFormatM4a), @(WYAudioFormatAiff), @(WYAudioFormatMp3),
@@ -1545,7 +1545,7 @@
 
 - (void)wy_audioRecorderDidUpdateMeterings:(WYAudioKit *)audioKit peakPowers:(NSArray<NSNumber *> *)peakPowers averagePowers:(NSArray<NSNumber *> *)averagePowers {
     self.meteringsCount += 1;
-    // 使用峰值功率，响应更快（回调给的已是 0~1 归一化值，直接喂给声波动画，不需要旧版的手动放大）
+    // 使用峰值功率，响应更快（回调给的已是 0~1 归一化值，直接喂给声波动画，无需手动放大)
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.soundWavesView updateMetersWithPower:peakPowers.firstObject.floatValue];
     });

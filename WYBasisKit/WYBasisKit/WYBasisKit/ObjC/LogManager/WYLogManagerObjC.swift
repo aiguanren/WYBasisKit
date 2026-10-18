@@ -79,7 +79,7 @@ import WYBasisKitSwift
         return WYLogManager.logFilePath
     }
 
-    /// 自定义日志文件名(不含扩展名；不设置时默认名=本地化App名+本地化"日志"词，如中文名"语音工坊"生成"语音工坊日志"、英文名"VoiceFactory"生成"VoiceFactoryLog"；启动期主线程一次写入、之后各线程只读)
+    /// 自定义日志文件名(不含扩展名，不设置时默认名=本地化App名+本地化"日志"词，如中文名"语音工坊"生成"语音工坊日志"、英文名"VoiceFactory"生成"VoiceFactoryLog")
     @objc public static var logFileName: String? {
         get {
             return WYLogManager.logFileName
@@ -99,14 +99,14 @@ import WYBasisKitSwift
         }
     }
 
-    /// 日志加密密钥(xor与aesGCM使用；不设置时按包名派生，接入方建议在首次写日志前设置)
+    /// 日志加密密钥(xor与aesGCM使用，不设置时按包名派生，接入方建议在首次写日志前设置)
     @objc public static func setEncryptionKey(_ key: Data?) {
         WYLogManager.encryptionKey = key
     }
 
     /**
      * 读取整个日志文件并解密成明文
-     * - Returns: 解密后的完整日志文本(历史明文条目原样保留，解密失败的条目自动跳过；文件不存在时返回空串)
+     * - Returns: 解密后的完整日志文本(历史明文条目原样保留，解密失败的条目自动跳过，文件不存在时返回空串)
      */
     @objc public static func decryptedLogText() -> String {
         return WYLogManager.decryptedLogText()

@@ -44,7 +44,7 @@ public extension Task where Success == Never, Failure == Never {
                 await MainActor.run { operation() }
             }
         } catch {
-            // 若取消且需要抛出错误，则抛出；否则静默
+            // 取消且需要抛出错误时抛出，否则静默
             if cancelThrows {
                 throw error
             }

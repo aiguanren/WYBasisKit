@@ -9,7 +9,7 @@
 import UIKit
 import WYBasisKitSwift
 
-/// OC侧界面外观配置(属性含义与WYImageEditorAppearance一字不差；颜色数组传nil表示该项用默认值，数值传负数表示该项用默认值，markerPalette传空数组时界面不显示颜色行)
+/// 界面外观配置(全部属性都有默认值，按需覆盖，不设置时与默认外观一致，颜色对象传nil、数值传负数表示该项用默认值，markerPalette传空数组时界面不显示颜色行)
 @objcMembers public class WYImageEditorAppearanceObjC: NSObject {
 
     /// 画布背景色(裁剪与标记画布的底色)
@@ -101,16 +101,16 @@ import WYBasisKitSwift
 
 }
 
-/// OC侧编辑器配置(属性含义与WYImageEditorConfiguration一字不差，宽高任一为0表示不固定尺寸)
+/// 编辑器配置(全部属性都有默认值，按需改，宽高任一为0表示不固定尺寸)
 @objcMembers public class WYImageEditorConfigurationObjC: NSObject {
 
     /// 裁剪形状(默认矩形)
     public var cropShape: WYImageCropShape = .rectangle
 
-    /// 固定裁剪输出尺寸(单位为像素；宽高任一为0表示不固定，由用户自由拖动裁剪框决定；圆形裁剪时取宽高较小边做直径)
+    /// 固定裁剪输出尺寸(单位为像素，宽高任一为0表示不固定，由用户自由拖动裁剪框决定，圆形裁剪时取宽高较小边做直径)
     public var cropSize: CGSize = .zero
 
-    /// 是否允许裁剪(false时编辑器只有标记功能；与allowsMarking同时为false时按只裁剪处理)
+    /// 是否允许裁剪(false时编辑器只有标记功能，与allowsMarking同时为false时按只裁剪处理)
     public var allowsCropping: Bool = true
 
     /// 是否允许在图片上做标记(false时编辑器只有裁剪功能)
@@ -119,10 +119,10 @@ import WYBasisKitSwift
     /// 标记默认颜色(选中有标记时改颜色会直接应用到它)
     public var markerColor: UIColor = .white
 
-    /// 标记线条宽度(单位为像素；0表示按图片宽度自动配一个合适的值)
+    /// 标记线条宽度(单位为像素，0表示按图片宽度自动配一个合适的值)
     public var markerLineWidth: CGFloat = 0
 
-    /// 文本标记字号(单位为像素；0表示按图片宽度自动配一个合适的值)
+    /// 文本标记字号(单位为像素，0表示按图片宽度自动配一个合适的值)
     public var markerTextFontSize: CGFloat = 0
 
     /// 划线工具的默认形态(true为两点连成直线，false为跟随手指自由划线)
@@ -151,7 +151,7 @@ import WYBasisKitSwift
     /// 编辑回调delegate(Swift与OC共用的WYImageEditorViewControllerDelegate，与editHandler同时设置时两边都会回调)
     public weak var delegate: WYImageEditorViewControllerDelegate?
 
-    /// 编辑结果Block(编辑成成品图回调图片，取消回调nil；与delegate同时设置时两边都会回调)
+    /// 编辑结果Block(编辑成成品图回调图片，取消回调nil，与delegate同时设置时两边都会回调)
     public var editHandler: ((UIImage?) -> Void)?
 
     /**
@@ -200,7 +200,7 @@ import WYBasisKitSwift
 
     /**
      * OC配置转Swift配置
-     * - Parameter bridgeConfiguration: OC侧配置(传nil用默认配置)
+     * - Parameter bridgeConfiguration: 编辑配置(传nil用默认配置)
      * - Returns: Swift编辑器用的配置
      */
     private static func convertConfiguration(_ bridgeConfiguration: WYImageEditorConfigurationObjC?) -> WYImageEditorConfiguration {

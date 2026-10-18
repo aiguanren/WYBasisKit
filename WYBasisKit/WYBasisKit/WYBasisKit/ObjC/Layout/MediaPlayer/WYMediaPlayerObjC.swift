@@ -45,14 +45,14 @@ import WYBasisKitSwift
         return state
     }
 
-    /// 进度回调间隔(秒，默认0.5；1.0.8起底层通知默认关闭，不设置则wy_mediaPlayerProgressDidChanged收不到周期回调；0=关闭周期回调，只保留prepare完成、seek完成这类发生一次才通知一次的事件)
+    /// 进度回调间隔(秒，默认0.5，IJKPlayerKit 1.0.8起底层通知默认关闭，不设置则wy_mediaPlayerProgressDidChanged收不到周期回调，0=关闭周期回调，只保留prepare完成、seek完成这类发生一次才通知一次的事件)
     @objc(progressCallbackInterval)
     public var progressCallbackIntervalObjC: TimeInterval {
         get { return progressCallbackInterval }
         set { progressCallbackInterval = newValue }
     }
 
-    /// 是否需要在play(with:)加载完成后自动播放(默认true；仅影响play(with:)，prepare(with:)恒不自动播，预加载请直接用prepare)
+    /// 是否需要在play(with:)加载完成后自动播放(默认true，仅影响play(with:)，prepare(with:)恒不自动播，预加载请直接用prepare)
     @objc(shouldAutoplay)
     public var shouldAutoplayObjC: Bool {
         get { return shouldAutoplay }
@@ -66,28 +66,28 @@ import WYBasisKitSwift
         set { failReplay = newValue }
     }
 
-    /// 循环播放次数，0表示无限次循环，1表示仅播放一次(默认)，N>1表示播放N次，负数同0(点播流有效；即ijkplayer的loop选项语义；在下次加载时生效，运行中改用playbackLoop)
+    /// 循环播放次数，0表示无限次循环，1表示仅播放一次(默认)，N>1表示播放N次，负数同0(点播流有效，即ijkplayer的loop选项语义，在下次加载时生效，运行中改用playbackLoop)
     @objc(looping)
     public var loopingObjC: Int64 {
         get { return looping }
         set { looping = newValue }
     }
 
-    /// 协议层循环播放次数，语义与looping一致(0=无限次，1=仅一次，N>1播N次)；与looping的区别是运行中可改、立即生效，looping在下次加载时生效
+    /// 协议层循环播放次数，语义与looping一致(0=无限次，1=仅一次，N>1播N次)，与looping的区别是运行中可改、立即生效，looping在下次加载时生效
     @objc(playbackLoop)
     public var playbackLoopObjC: Int {
         get { return playbackLoop }
         set { playbackLoop = newValue }
     }
 
-    /// 加载时是否需要把渲染好的第一帧设置为播放器背景(与shouldAutoplay=false配合可做预加载封面，prepare完成不起播，仅把首帧显示为背景；播放中渲染画面会天然盖住背景，无需额外清理)
+    /// 加载时是否需要把渲染好的第一帧设置为播放器背景(与shouldAutoplay=false配合可做预加载封面，prepare完成不起播，仅把首帧显示为背景，播放中渲染画面会天然盖住背景，无需额外清理)
     @objc(shouldUseFirstFrameAsPoster)
     public var shouldUseFirstFrameAsPosterObjC: Bool {
         get { return shouldUseFirstFrameAsPoster }
         set { shouldUseFirstFrameAsPoster = newValue }
     }
 
-    /// 是否静音(与playbackVolume相互独立，静音时实际音量为0，关闭静音自动恢复原音量；海报探测的临时静音对外不可见，不会覆盖muted状态)
+    /// 是否静音(与playbackVolume相互独立，静音时实际音量为0，关闭静音自动恢复原音量，海报探测的临时静音对外不可见，不会覆盖muted状态)
     @objc(muted)
     public var mutedObjC: Bool {
         get { return muted }
@@ -95,10 +95,10 @@ import WYBasisKitSwift
     }
 
     /**
-     *  音频PCM采样数据回调，播放器每渲染一块音频采样就回调一次，配合自定义波形/频谱UI使用(建议在play/prepare前设置；加载后再设置非nil闭包也会立即下发给当前实例，置nil则只对新加载生效——底层block属性经Swift导入为非可选，nil传不下去)
+     *  音频PCM采样数据回调，播放器每渲染一块音频采样就回调一次，配合自定义波形/频谱UI使用(建议在play/prepare前设置，加载后再设置非nil闭包也会立即下发给当前实例，置nil则只对新加载生效)
      *
      *  @param samples    采样数据指针，指向一块Int16数组，每个元素是一次采样的振幅值
-     *  @param sampleSize 本次回调的采样数量；为-1时samples为NULL，表示音频源已重置，需要清掉旧数据刷新UI
+     *  @param sampleSize 本次回调的采样数量，为-1时samples为NULL，表示音频源已重置
      *  @param sampleRate 采样率，单位Hz，常见如44100、48000
      *  @param channels   声道数，1=单声道，2=立体声
      */
@@ -108,7 +108,7 @@ import WYBasisKitSwift
         set { audioSamplesCallback = newValue }
     }
 
-    /// 自定义音频渲染组件(须在play/prepare之前设置；nil=使用内置音频输出，自定义时音量/静音由自定义组件自行处理)
+    /// 自定义音频渲染组件(须在play/prepare之前设置，nil=使用内置音频输出，自定义时音量/静音由自定义组件自行处理)
     @objc(audioRendering)
     public var audioRenderingObjC: IJKAudioRenderingProtocol? {
         get { return audioRendering }
@@ -122,7 +122,7 @@ import WYBasisKitSwift
         set { scalingStyle = newValue }
     }
 
-    /// 自定义视频渲染视图(须在play/prepare之前设置；nil=使用内置Metal渲染视图，组件会自动addSubview并跟随bounds)
+    /// 自定义视频渲染视图(须在play/prepare之前设置，nil=使用内置Metal渲染视图，组件会自动addSubview并跟随bounds)
     @objc(videoRendering)
     public var videoRenderingObjC: (UIView & IJKVideoRenderingProtocol)? {
         get { return videoRendering }
@@ -143,7 +143,7 @@ import WYBasisKitSwift
         set { renderBackgroundColor = newValue }
     }
 
-    /// 高斯模糊背景图(填充无画面或黑边区域，替代默认纯色背景；nil=清除，配合placeholder使用体验更佳)
+    /// 高斯模糊背景图(填充无画面或黑边区域，替代默认纯色背景，nil=清除，配合placeholder使用体验更佳)
     @objc(renderBackgroundImage)
     public var renderBackgroundImageObjC: UIImage? {
         get { return renderBackgroundImage }
@@ -171,14 +171,14 @@ import WYBasisKitSwift
         set { renderScaleFactor = newValue }
     }
 
-    /// 暂停画面渲染(true=不再渲染新画面与字幕，仅保留叠加层内容；做画面冻结/截图场景使用)
+    /// 暂停画面渲染(true=不再渲染新画面与字幕，仅保留叠加层内容，做画面冻结/截图场景使用)
     @objc(preventDisplay)
     public var preventDisplayObjC: Bool {
         get { return preventDisplay }
         set { preventDisplay = newValue }
     }
 
-    /// 是否允许HDR直显(仅iOS16+可调用；true且设备支持时HDR画面不做格式转换直接显示，false=一律转换成SDR再显示；设备是否支持直显看directDisplayHDRSupportted)
+    /// 是否允许HDR直显(仅iOS16+可调用，true且设备支持时HDR画面不做格式转换直接显示，false=一律转换成SDR再显示，设备是否支持直显看directDisplayHDRSupportted)
     @available(iOS 16.0, *)
     @objc(allowHDRDirectDisplay)
     public var allowHDRDirectDisplayObjC: Bool {
@@ -186,14 +186,14 @@ import WYBasisKitSwift
         set { allowHDRDirectDisplay = newValue }
     }
 
-    /// 当前显示是否支持HDR直显(仅iOS16+可调用；tvOS不支持HDR直显)
+    /// 当前显示是否支持HDR直显(仅iOS16+可调用，tvOS不支持HDR直显)
     @available(iOS 16.0, *)
     @objc(directDisplayHDRSupportted)
     public var directDisplayHDRSupporttedObjC: Bool {
         return directDisplayHDRSupportted
     }
 
-    /// 反交错模式(仅软解生效，0=关闭，1=bwdif，2=yadif，3=field；隔行扫描源如部分电视TS流需开启，作用于当前实例)
+    /// 反交错模式(仅软解生效，0=关闭，1=bwdif，2=yadif，3=field，隔行扫描源如部分电视TS流需开启，作用于当前实例)
     @objc(deinterlace)
     public var deinterlaceObjC: Int {
         get { return deinterlace }
@@ -220,7 +220,7 @@ import WYBasisKitSwift
         return airPlayMediaActive
     }
 
-    /// 当前播放时间(单位，s；拖动请用playbackTime(_:))
+    /// 当前播放时间(单位为秒，拖动请用playbackTime(_:))
     @objc(currentPlaybackTime)
     public var currentPlaybackTimeObjC: TimeInterval {
         return currentPlaybackTime
@@ -238,7 +238,7 @@ import WYBasisKitSwift
         return playbackSchedule
     }
 
-    /// 本次缓冲是否由seek触发(1=seek引起的，0=普通网络卡顿引起的；取值只有0和1，只在收到buffering状态回调的那一刻能读到，之后立即复位为0，平时读恒是0)
+    /// 本次缓冲是否由seek触发(1=seek引起的，0=普通网络卡顿引起的，取值只有0和1，只在收到buffering状态回调的那一刻能读到，之后立即复位为0，平时读取固定是0)
     @objc(isSeekBuffering)
     public var isSeekBufferingObjC: Int32 {
         return isSeekBuffering
@@ -268,31 +268,31 @@ import WYBasisKitSwift
         return monitor
     }
 
-    /// 元数据标称帧率(单位，帧/秒)
+    /// 元数据标称帧率(单位为帧/秒)
     @objc(fpsInMeta)
     public var fpsInMetaObjC: CGFloat {
         return fpsInMeta
     }
 
-    /// 实际输出帧率(单位，帧/秒，反映真实渲染性能)
+    /// 实际输出帧率(单位为帧/秒，反映真实渲染性能)
     @objc(fpsAtOutput)
     public var fpsAtOutputObjC: CGFloat {
         return fpsAtOutput
     }
 
-    /// seek后音频首帧开始播放瞬间的标记，配合底层IJKPlayerSeekAudioStart通知读取(1=当前以音频为主时钟，0=以视频或外部时钟为主；取值只有0和1，只在收到该通知的那一刻能读到，之后立即复位为0，平时读恒是0)
+    /// seek后音频首帧开始播放瞬间的标记，配合底层IJKPlayerSeekAudioStart通知读取(1=当前以音频为主时钟，0=以视频或外部时钟为主，取值只有0和1，只在收到该通知的那一刻能读到，之后立即复位为0，平时读取固定是0)
     @objc(isAudioSync)
     public var isAudioSyncObjC: Int32 {
         return isAudioSync
     }
 
-    /// seek后视频首帧渲染出画面瞬间的标记，配合底层IJKPlayerSeekVideoStart通知读取(1=当前以视频为主时钟，0=以音频或外部时钟为主；取值只有0和1，只在收到该通知的那一刻能读到，之后立即复位为0，平时读恒是0)
+    /// seek后视频首帧渲染出画面瞬间的标记，配合底层IJKPlayerSeekVideoStart通知读取(1=当前以视频为主时钟，0=以音频或外部时钟为主，取值只有0和1，只在收到该通知的那一刻能读到，之后立即复位为0，平时读取固定是0)
     @objc(isVideoSync)
     public var isVideoSyncObjC: Int32 {
         return isVideoSync
     }
 
-    /// 本次加载的总流量统计(单位，byte，含重试流量)
+    /// 本次加载的总流量统计(单位为byte，含重试流量)
     @objc(numberOfBytesTransferred)
     public var numberOfBytesTransferredObjC: Int64 {
         return numberOfBytesTransferred
@@ -305,14 +305,14 @@ import WYBasisKitSwift
         set { shouldShowHudView = newValue }
     }
 
-    /// IJK内核日志级别(默认IJK_LOG_SILENT完全静默；内核级全局开关，多实例以最后创建实例的值为准)
+    /// IJK内核日志级别(默认IJK_LOG_SILENT完全静默，内核级全局开关，多实例以最后创建实例的值为准)
     @objc(logLevel)
     public var logLevelObjC: IJKLogLevel {
         get { return logLevel }
         set { logLevel = newValue }
     }
 
-    /// HLS分片打开前回调(可改写urlOpenData.url实现本地缓存/鉴权替换，改完自动标记handled；不改url仅做监控也可用)
+    /// HLS分片打开前回调(可改写urlOpenData.url实现本地缓存/鉴权替换，改完自动标记handled，不改url仅做监控也可用)
     @objc(willOpenSegmentUrl)
     public var willOpenSegmentUrlObjC: ((_ urlOpenData: IJKMediaUrlOpenData) -> Void)? {
         get { return willOpenSegmentUrl }
@@ -333,7 +333,7 @@ import WYBasisKitSwift
         set { willOpenHttpUrl = newValue }
     }
 
-    /// 直播流打开前回调(直播重连前触发，可趁机换源)
+    /// 直播流打开前回调(直播重连前触发，可在此换源)
     @objc(willOpenLiveUrl)
     public var willOpenLiveUrlObjC: ((_ urlOpenData: IJKMediaUrlOpenData) -> Void)? {
         get { return willOpenLiveUrl }
@@ -361,7 +361,7 @@ import WYBasisKitSwift
     }
 
     /**
-     * 预加载，只加载缓冲、不自动播放不出声(适合预加载预备页)；加载完成若开了shouldUseFirstFrameAsPoster会自动探测首帧作封面，之后调play()即可播放(未prepare完会自动挂起，prepare完成后立即起播并跳过探测)
+     * 预加载，只加载缓冲、不自动播放不出声(适合预加载预备页)，加载完成若开了shouldUseFirstFrameAsPoster会自动探测首帧作封面，之后调play()即可播放(未prepare完会自动挂起，prepare完成后立即起播并跳过探测)
      * @param url 要加载的流地址
      * @param placeholder 视频占位图，加载期间先显示它
      */
@@ -405,7 +405,7 @@ import WYBasisKitSwift
     }
 
     /**
-     * 开关精准seek(运行中可切换；开启后seek会解码到目标帧，准确但更耗时)
+     * 开关精准seek(运行中可切换，开启后seek会解码到目标帧，准确但更耗时)
      * @param open true=开启精准seek，false=关闭
      */
     @objc(enableAccurateSeek:)
@@ -429,7 +429,7 @@ import WYBasisKitSwift
     }
 
     /**
-     * 设置音频声道(单声道源切左右声道，双耳助听/外国语场景常用；类型为IJKPlayerKit的IJKAudioChannel，OC侧直接用IJKAudioChannelStereo等常量)
+     * 设置音频声道(单声道源切左右声道，双耳助听/外国语场景常用)
      * @param channel 立体声/仅左声道/仅右声道(IJKAudioChannelStereo等常量)
      */
     @objc(setAudioChannel:)
@@ -437,13 +437,13 @@ import WYBasisKitSwift
         setAudioChannel(channel)
     }
 
-    /// 获取当前音频声道(类型为IJKPlayerKit的IJKAudioChannel，OC侧直接用IJKAudioChannelStereo等常量)
+    /// 获取当前音频声道
     @objc(audioChannel)
     public func audioChannelObjC() -> IJKAudioChannel {
         return audioChannel()
     }
 
-    /// 设定音频延迟(单位，s)
+    /// 设定音频延迟(单位为秒)
     @objc(audioExtraDelay:)
     public func audioExtraDelayObjC(_ delay: CGFloat) {
         audioExtraDelay(delay)
@@ -491,7 +491,7 @@ import WYBasisKitSwift
         closeCurrentStream(streamStyle)
     }
 
-    /// 设定字幕延迟(单位，s)
+    /// 设定字幕延迟(单位为秒)
     @objc(subtitleExtraDelay:)
     public func subtitleExtraDelayObjC(_ delay: CGFloat) {
         subtitleExtraDelay(delay)
@@ -528,7 +528,7 @@ import WYBasisKitSwift
     }
 
     /**
-     * 注册画面刷新回调(暂停状态下修改rotatePreference/colorPreference/darPreference后，渲染器刷新完画面会回调；nil=移除)
+     * 注册画面刷新回调(暂停状态下修改rotatePreference/colorPreference/darPreference后，渲染器刷新完画面会回调，nil=移除)
      * @param block 刷新完成回调
      */
     @objc(registerRefreshCurrentPicObserver:)
@@ -546,7 +546,7 @@ import WYBasisKitSwift
      *  按指定类型截取当前画面，比currentSnapshot()多了"截视频原始帧"的能力，返回CGImage方便直接写文件或二次处理
      *
      *  @param type 截图类型，IJKSnapshotTypeOrigin=视频原始尺寸(不带字幕和画质特效)、IJKSnapshotTypeScreen=当前屏幕看到的画面(含字幕和画质特效，效果同currentSnapshot())、IJKSnapshotTypeEffect_Origin=原始尺寸带字幕不带画质特效、IJKSnapshotTypeEffect_Subtitle_Origin=原始尺寸带字幕和画质特效
-     *  @return 截好的图像(OC侧拿到的是CGImageRef)；播放器还没创建或第一帧还没渲染出来时返回nil
+     *  @return 截好的图像(即CGImageRef)，播放器还没创建或第一帧还没渲染出来时返回nil
      */
     @objc(currentSnapshotWithType:)
     public func currentSnapshotObjC(_ type: IJKSnapshotType) -> CGImage? {
@@ -554,7 +554,7 @@ import WYBasisKitSwift
     }
 
     /**
-     * 运行时切换硬/软解码(无需停止播放；硬解花屏或兼容性问题时切软解自救)
+     * 运行时切换硬/软解码(无需停止播放，硬解花屏或兼容性问题时切软解自救)
      * @param hardware true=切硬件解码(VideoToolbox)，false=切软件解码
      * @return 是否切换成功
      */
@@ -565,7 +565,7 @@ import WYBasisKitSwift
     }
 
     /**
-     * 开始快速录制(边播边录，速度优先；建议.mp4/.mov容器)
+     * 开始快速录制(边播边录，速度优先，建议.mp4/.mov容器)
      * @param filePath 录制文件完整路径
      * @return 0=成功，非0=错误码
      */
@@ -612,7 +612,7 @@ import WYBasisKitSwift
         return videoDuration()
     }
 
-    /// 获取预加载时长(单位，s)
+    /// 获取预加载时长(单位为秒)
     @objc(playableDuration)
     public func playableDurationObjC() -> TimeInterval {
         return playableDuration()
@@ -624,7 +624,7 @@ import WYBasisKitSwift
         return bufferingProgress()
     }
 
-    /// 获取下载速度(单位，byte)
+    /// 获取下载速度(单位为byte)
     @objc(downloadSpeed)
     public func downloadSpeedObjC() -> Int64 {
         return downloadSpeed()
@@ -642,13 +642,13 @@ import WYBasisKitSwift
         return dropFrameCount()
     }
 
-    /// 视频与主时钟的偏差(单位，s，正值=视频落后于主时钟，排查音画不同步用)
+    /// 视频与主时钟的偏差(单位为秒，正值=视频落后于主时钟，排查音画不同步用)
     @objc(currentVMDiff)
     public func currentVMDiffObjC() -> Float {
         return currentVMDiff()
     }
 
-    /// 本次加载的总流量统计(单位，byte，与numberOfBytesTransferred是同一个数据)
+    /// 本次加载的总流量统计(单位为byte，与numberOfBytesTransferred是同一个数据)
     @objc(trafficStatistic)
     public func trafficStatisticObjC() -> Int64 {
         return trafficStatistic()
@@ -702,14 +702,14 @@ import WYBasisKitSwift
         setLogReport(preferLogReport)
     }
 
-    /// 获取当前日志级别(类型为IJKLogLevel，OC侧直接用IJK_LOG_*宏)
+    /// 获取当前日志级别
     @objc(getLogLevel)
     public static func getLogLevelObjC() -> IJKLogLevel {
         return getLogLevel()
     }
 
     /**
-     * 重定向日志输出(nil=恢复默认stderr输出；level/tag/msg为级别/标签/内容，业务可接自研日志系统；level为IJKLogLevel，OC侧直接用IJK_LOG_*宏)
+     * 重定向日志输出(nil=恢复默认stderr输出，level/tag/msg为级别/标签/内容，调用方可接自研日志系统)
      * @param handler 日志处理闭包
      */
     @objc(setLogHandler:)
@@ -726,7 +726,7 @@ import WYBasisKitSwift
     /**
      *  释放播放器组件(可以选择同步或异步关闭内核)
      *
-     *  @param sync true=同步关闭，等内核真正释放完资源才返回(紧接着要重建播放器或退出页面的场景用，防止旧实例还没释放完就叠新实例)；false=异步关闭，立即返回不等内核(默认，也是之前版本的行为)
+     *  @param sync true=同步关闭，等内核真正释放完资源才返回(紧接着要重建播放器或退出页面的场景用，防止旧实例还没释放完就叠新实例)，false=异步关闭，立即返回不等内核(默认)
      */
     @objc(releaseAllWithSync:)
     public func releaseAllObjC(sync: Bool) {

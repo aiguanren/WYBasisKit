@@ -85,7 +85,7 @@ import WYBasisKitSwift
      * - Parameters:
      *   - plaintext: 要加密的明文数据
      *   - key: 加密密钥(任意长度，内部先归一成32字节对称密钥)
-     * - Returns: 组合密文(12字节随机nonce+密文+16字节认证标签)，解密用aesGCMDecrypt；加密失败返回nil
+     * - Returns: 组合密文(12字节随机nonce+密文+16字节认证标签)，解密用aesGCMDecrypt，加密失败返回nil
      */
     @objc public static func aesGCMEncrypt(_ plaintext: Data, key: Data) -> Data? {
         return WYCryptor.aesGCMEncrypt(plaintext, key: key)
@@ -96,7 +96,7 @@ import WYBasisKitSwift
      * - Parameters:
      *   - combined: aesGCMEncrypt返回的组合密文
      *   - key: 加密时用的同一把密钥
-     * - Returns: 解密出的明文数据；密钥不符或数据被篡改时返回nil
+     * - Returns: 解密出的明文数据，密钥不符或数据被篡改时返回nil
      */
     @objc public static func aesGCMDecrypt(_ combined: Data, key: Data) -> Data? {
         return WYCryptor.aesGCMDecrypt(combined, key: key)
@@ -107,7 +107,7 @@ import WYBasisKitSwift
      * - Parameters:
      *   - plaintext: 要加密的明文字符串(按UTF-8取字节)
      *   - key: 加密密钥(任意长度)
-     * - Returns: 组合密文的Base64串，解密用aesGCMDecryptString；加密失败返回nil
+     * - Returns: 组合密文的Base64串，解密用aesGCMDecryptString，加密失败返回nil
      */
     @objc public static func aesGCMEncryptString(_ plaintext: String, key: String) -> String? {
         return WYCryptor.aesGCMEncryptString(plaintext, key: key)
@@ -118,7 +118,7 @@ import WYBasisKitSwift
      * - Parameters:
      *   - base64Combined: aesGCMEncryptString返回的Base64串
      *   - key: 加密时用的同一把密钥
-     * - Returns: 解密出的明文字符串；密钥不符或数据被篡改时返回nil
+     * - Returns: 解密出的明文字符串，密钥不符或数据被篡改时返回nil
      */
     @objc public static func aesGCMDecryptString(_ base64Combined: String, key: String) -> String? {
         return WYCryptor.aesGCMDecryptString(base64Combined, key: key)
@@ -147,7 +147,7 @@ import WYBasisKitSwift
     /**
      * Base64解码
      * - Parameter input: 要解码的Base64字符串
-     * - Returns: 解码出的数据；格式非法时返回nil
+     * - Returns: 解码出的数据，格式非法时返回nil
      */
     @objc public static func base64Decode(_ input: String) -> Data? {
         return WYCryptor.base64Decode(input)
@@ -165,7 +165,7 @@ import WYBasisKitSwift
     /**
      * 十六进制解码
      * - Parameter input: 要解码的十六进制字符串(大小写都认)
-     * - Returns: 解码出的数据；含非十六进制字符时返回nil
+     * - Returns: 解码出的数据，含非十六进制字符时返回nil
      */
     @objc public static func hexDecode(_ input: String) -> Data? {
         return WYCryptor.hexDecode(input)
@@ -187,7 +187,7 @@ import WYBasisKitSwift
      *   - salt: 派生盐(按UTF-8取字节)
      *   - rounds: 迭代次数(默认10000，调大更慢更抗暴力)
      *   - length: 派生输出的字节数(默认32)
-     * - Returns: 派生出的密钥数据；参数非法时返回nil
+     * - Returns: 派生出的密钥数据，参数非法时返回nil
      */
     @objc public static func pbkdf2(password: String, salt: String, rounds: UInt32, length: Int) -> Data? {
         return WYCryptor.pbkdf2(password: password, salt: salt, rounds: rounds, length: length)
