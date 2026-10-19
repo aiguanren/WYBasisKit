@@ -515,31 +515,14 @@ public extension UIImage {
      */
     func wy_rendering(color: UIColor, completion: @escaping @MainActor (_ tintedImage: UIImage) -> Void) {
         
-        if #available(iOS 15.0, *) {
+        // 在后台线程执行渲染，避免阻塞主线程滑动
+        Task.detached(priority: .userInitiated) {
             
-            // 在后台线程执行渲染，避免阻塞主线程滑动
-            Task.detached(priority: .userInitiated) {
-                
-                // 复用同步方法
-                let tintedImage = self.wy_rendering(color: color)
-                
-                // 回到主线程
-                await completion(tintedImage)
-            }
+            // 复用同步方法
+            let tintedImage = self.wy_rendering(color: color)
             
-        } else {
-            
-            // 在后台线程执行渲染，避免阻塞主线程滑动
-            DispatchQueue.global(qos: .userInitiated).async {
-                
-                // 复用同步方法
-                let tintedImage = self.wy_rendering(color: color)
-                
-                // 回调到主线程更新 UI
-                Task { @MainActor in
-                    completion(tintedImage)
-                }
-            }
+            // 回到主线程
+            await completion(tintedImage)
         }
     }
     

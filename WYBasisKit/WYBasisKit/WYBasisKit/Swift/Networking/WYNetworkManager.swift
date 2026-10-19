@@ -979,7 +979,7 @@ extension WYNetworkManager {
     
     private static func handlerSuccess(response: WYSuccess, handler:((_ success: WYHandler) -> Void)? = .none) {
         
-        DispatchQueue.main.async {
+        Swift.Task { @MainActor in
             
             if (handler != nil) {
                 handler!(.success(response))
@@ -989,7 +989,7 @@ extension WYNetworkManager {
     
     private static func handlerFailure(error: WYError, isStatusCodeError: Bool = false, debugModeLog: Bool, function: String = #function, line: Int = #line, handler:((_ error: WYHandler) -> Void)? = .none) {
         
-        DispatchQueue.main.async {
+        Swift.Task { @MainActor in
             
             if (handler != nil) {
                 
@@ -1028,7 +1028,7 @@ extension WYNetworkManager {
         
         networkStatus(showStatusAlert: false, openSetting: true, statusHandler: { (status) in
             
-            DispatchQueue.main.async {
+            Swift.Task { @MainActor in
                 
                 if ((status == .unknown) || (status == .notReachable)) {
                     
@@ -1036,7 +1036,7 @@ extension WYNetworkManager {
                         
                         networkStatus(showStatusAlert: true, openSetting: true, actionHandler: { (actionStr, networkStatus) in
                             
-                            DispatchQueue.main.async {
+                            Swift.Task { @MainActor in
                                 
                                 if (actionStr == WYLocalized("继续连接", table: WYBasisKitConfig.kitLocalizableTable)) {
                                     
@@ -1074,7 +1074,7 @@ extension WYNetworkManager {
                     
                     networkStatus(showStatusAlert: false, openSetting: true, statusHandler: { (_) in
                         
-                        DispatchQueue.main.async {
+                        Swift.Task { @MainActor in
                             
                             if (handler != nil) {
                                 
@@ -1141,7 +1141,7 @@ extension WYNetworkManager {
         
         UIAlertController.wy_show(message: message, actions: actions) { (actionStr, _) in
             
-            DispatchQueue.main.async(execute: {
+            Swift.Task { @MainActor in
                 
                 if (actionHandler != nil) {
                     
@@ -1170,7 +1170,7 @@ extension WYNetworkManager {
                 }else {
                     networkSecurityInfo = (NetworkStatus.userNotSelectedConnect, "")
                 }
-            })
+            }
         }
     }
     

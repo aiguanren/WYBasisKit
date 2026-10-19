@@ -1301,7 +1301,7 @@ public final class WYAudioKit: NSObject {
                 }
             }
         } else {
-            DispatchQueue.global().async {
+            Task.detached {
                 let asset = AVAsset(url: url)
                 let duration = asset.duration.seconds
                 let validDuration = duration.isFinite ? duration : 0

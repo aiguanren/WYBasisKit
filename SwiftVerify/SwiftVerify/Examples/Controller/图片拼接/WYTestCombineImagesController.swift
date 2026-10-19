@@ -674,32 +674,51 @@ class WYTestCombineImagesController: UIViewController {
     // MARK: - Image Combination
     
     @objc private func combineImages() {
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let self = self else { return }
-            
+        let standardImage = self.standardImage
+        let stitchingImage = self.stitchingImage
+        let stitchingCenterPoint = self.stitchingCenterPoint
+        let overlapControl = self.overlapControl
+        let alpha = self.alpha
+        let blendMode = self.blendMode
+        let backgroundColor = self.backgroundColor
+        let cornerRadius = self.cornerRadius
+        let rotationAngle = self.rotationAngle
+        let flipHorizontal = self.flipHorizontal
+        let flipVertical = self.flipVertical
+        let qualityScale = self.qualityScale
+        let scale = self.scale
+        let shadowColor = self.shadowColor
+        let shadowBlur = self.shadowBlur
+        let shadowOffset = self.shadowOffset
+        let strokeColor = self.strokeColor
+        let strokeWidth = self.strokeWidth
+        let maskImage = self.maskImage
+        
+        Task.detached(priority: .userInitiated) { [weak self] in
             let result = UIImage.wy_combineImages(
-                standardImage: self.standardImage,
-                stitchingImage: self.stitchingImage,
-                stitchingCenterPoint: self.stitchingCenterPoint,
-                overlapControl: self.overlapControl,
-                alpha: self.alpha,
-                blendMode: self.blendMode,
-                backgroundColor: self.backgroundColor,
-                cornerRadius: self.cornerRadius,
-                rotationAngle: self.rotationAngle,
-                flipHorizontal: self.flipHorizontal,
-                flipVertical: self.flipVertical,
-                qualityScale: self.qualityScale,
-                scale: self.scale,
-                shadowColor: self.shadowColor,
-                shadowBlur: self.shadowBlur,
-                shadowOffset: self.shadowOffset,
-                strokeColor: self.strokeColor,
-                strokeWidth: self.strokeWidth,
-                maskImage: self.maskImage
+                standardImage: standardImage,
+                stitchingImage: stitchingImage,
+                stitchingCenterPoint: stitchingCenterPoint,
+                overlapControl: overlapControl,
+                alpha: alpha,
+                blendMode: blendMode,
+                backgroundColor: backgroundColor,
+                cornerRadius: cornerRadius,
+                rotationAngle: rotationAngle,
+                flipHorizontal: flipHorizontal,
+                flipVertical: flipVertical,
+                qualityScale: qualityScale,
+                scale: scale,
+                shadowColor: shadowColor,
+                shadowBlur: shadowBlur,
+                shadowOffset: shadowOffset,
+                strokeColor: strokeColor,
+                strokeWidth: strokeWidth,
+                maskImage: maskImage
             )
             
-            Task { @MainActor in
+            Task { @MainActor [weak self] in
+                guard let self = self else { return }
                 if let result = result {
                     self.resultImageView.image = result
                     print("图片合成成功，尺寸: \(result.size)")

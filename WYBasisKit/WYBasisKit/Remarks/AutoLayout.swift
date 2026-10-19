@@ -259,7 +259,8 @@ class AutoLayout: UIViewController {
         // ===========================
         // ✅ 动态更新约束示例
         // ===========================
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+        Task { @MainActor in
+            try? await Task.wy_delay(2.0, cancelThrows: false)
             // 修改 redView 宽高
             self.redViewWidthConstraint.constant = 220
             self.redViewHeightConstraint.constant = 120

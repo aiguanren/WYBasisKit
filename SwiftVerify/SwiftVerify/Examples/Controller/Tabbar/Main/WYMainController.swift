@@ -140,7 +140,8 @@ class WYMainController: UIViewController {
 
         // 调试辅助，带 -WYAutoLabelPage 启动参数时自动进入 UILabel 测试页(仅命令行带参启动时生效)
         if ProcessInfo.processInfo.arguments.contains("-WYAutoLabelPage") {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            Task { @MainActor [weak self] in
+                try? await Task.wy_delay(0.5, cancelThrows: false)
                 self?.navigationController?.pushViewController(WYTestLabelViewController(), animated: false)
             }
         }

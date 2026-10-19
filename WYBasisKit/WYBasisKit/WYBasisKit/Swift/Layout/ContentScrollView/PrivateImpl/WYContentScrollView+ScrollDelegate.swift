@@ -219,7 +219,7 @@ extension WYContentScrollView: UIScrollViewDelegate {
                 // 收回惯性目标到中心页，斜向甩动的同轴分量会带动可拖的展示轴产生松手减速/翻页吸附动画，与直切竞争
                 targetContentOffset.pointee = CGPoint(x: wy_width, y: wy_height)
                 // 异步发起，待本次拖拽的收尾回调全部走完后再执行直切，避免与拖拽状态互相干扰，呈现样式随crossAxisSwitchStyle
-                DispatchQueue.main.async { [weak self] in
+                DispatchQueue.main.async { @MainActor [weak self] in
                     self?.performCrossAxisSwitch(direction: entryDirection, preservesIndex: true)
                 }
                 return
