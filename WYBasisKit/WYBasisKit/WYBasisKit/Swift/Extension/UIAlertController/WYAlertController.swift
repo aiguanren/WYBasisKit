@@ -192,12 +192,12 @@ extension UIAlertController {
             previousWindow.makeKeyAndVisible()
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+        Task { try? await Task.wy_delay(0.6, cancelThrows: false, onMain: {
 
             alertWindow?.isHidden = true
             alertWindow?.rootViewController = nil
             alertWindow?.isUserInteractionEnabled = true
-        }
+        }) }
     }
     
     func wy_sharedActionStyle(actionStr: String!, alertStyle: UIAlertController.Style!) -> UIAlertAction.Style {

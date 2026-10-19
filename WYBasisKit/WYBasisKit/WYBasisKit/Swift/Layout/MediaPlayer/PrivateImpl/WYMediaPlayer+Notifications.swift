@@ -58,10 +58,10 @@ extension WYMediaPlayer {
                 if failReplayNumber < failReplay {
                     failReplayNumber += 1
                     let generation: Int = loadGeneration
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+                    Task { try? await Task.wy_delay(1, cancelThrows: false, onMain: { [weak self] in
                         guard let self = self, self.loadGeneration == generation, self.mediaUrl.isEmpty == false else { return }
                         self.load(with: self.mediaUrl, placeholder: nil, autoplay: self.loadAutoplayIntent, keepCurrentImage: true)
-                    }
+                    }) }
                 }else {
                     releaseAll()
                 }

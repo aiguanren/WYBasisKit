@@ -12,8 +12,10 @@ Pod::Spec.new do |kit|
     Localizable: 国际化解决方案
     Extension: 各种系统扩展
     Networking: 网络请求解决方案
+    NetworkMonitor: 网络状态监听(NWPathMonitor封装，网络类型查询与别名监听)
     Activity: 活动指示器
     Storage: 本地存储
+    MediaCache: 视频边下边播缓存(mp4等渐进式资源分块Range下载、缓存区间索引、LRU容量上限淘汰)
     Layout: 各种自定义控件(注意：ChatView尚未开发完毕，敬请期待)
     Codable: 数据解析
     Authorization: 各种权限请求与判断
@@ -187,6 +189,18 @@ Pod::Spec.new do |kit|
     codable.frameworks = "Foundation", "UIKit"
   end
   
+  kit.subspec "NetworkMonitor" do |networkMonitor|
+    networkMonitor.source_files = [
+      "#{kit_path}Swift/NetworkMonitor/**/*.{swift,h,m}",
+      "#{kit_path}Swift/Extension/Task/**/*.{swift,h,m}"
+    ]
+    networkMonitor.resource_bundles = {"WYBasisKitSwiftNetworkMonitor" => [
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+    ]}
+    networkMonitor.frameworks = "Foundation", "Network"
+    networkMonitor.dependency "WYBasisKit-swift/Localizable"
+  end
+
   kit.subspec "Networking" do |networking|
     networking.source_files = [
       "#{kit_path}Swift/Networking/**/*.{swift,h,m}",
@@ -201,6 +215,7 @@ Pod::Spec.new do |kit|
     networking.frameworks = "Foundation", "UIKit", "Network"
     networking.dependency "WYBasisKit-swift/Localizable"
     networking.dependency "WYBasisKit-swift/Storage"
+    networking.dependency "WYBasisKit-swift/NetworkMonitor"
     networking.dependency "WYBasisKit-swift/Codable"
     networking.dependency "Moya"
   end
@@ -238,6 +253,18 @@ Pod::Spec.new do |kit|
       "#{kit_path}Swift/PrivacyInfo.xcprivacy"
     ]}
     storage.frameworks = "Foundation", "UIKit"
+  end
+
+  kit.subspec "MediaCache" do |mediaCache|
+    mediaCache.source_files = [
+      "#{kit_path}Swift/MediaCache/**/*.{swift,h,m}"
+    ]
+    mediaCache.resource_bundles = {"WYBasisKitSwiftMediaCache" => [
+      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+    ]}
+    mediaCache.frameworks = "Foundation", "AVFoundation", "CryptoKit", "Network", "UniformTypeIdentifiers"
+    mediaCache.dependency "WYBasisKit-swift/Storage"
+    mediaCache.dependency "WYBasisKit-swift/NetworkMonitor"
   end
 
   kit.subspec "EventHandler" do |eventHandler|
@@ -457,10 +484,23 @@ Pod::Spec.new do |kit|
       chatView.dependency "Kingfisher"
     end
 
+      photoBrowser.source_files = [
+      ]
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+      ]}
+      photoBrowser.frameworks = "Foundation", "UIKit", "Photos", "PhotosUI"
+      photoBrowser.dependency "WYBasisKit-swift/Extension"
+      photoBrowser.dependency "WYBasisKit-swift/Localizable"
+      photoBrowser.dependency "WYBasisKit-swift/Authorization/PhotoAlbums"
+      photoBrowser.dependency "WYBasisKit-swift/Activity"
+      photoBrowser.dependency "Kingfisher"
+    end
+
     layout.subspec "MediaPlayer" do |mediaPlayer|
       # .md文件是MediaPlayer中IJKOptions的查阅文档，匹配进source_files才能显示在Pods工程导航器里，但是此时会产生警告，于是再用EXCLUDED_SOURCE_FILE_NAMES让构建按文件名跳过它来消除警告(source_files匹配的文件都会被加进Compile Sources，md无编译规则会触发no rule to process警告)
       mediaPlayer.source_files = [
-        "#{kit_path}Swift/Layout/MediaPlayer/**/*.{swift,h,m,md}"
+        "#{kit_path}Swift/Layout/MediaPlayer/**/*.{swift,h,m,md}",
+        "#{kit_path}Swift/Extension/Task/**/*.{swift,h,m}"
       ]
       mediaPlayer.resource_bundles = {"WYBasisKitSwiftMediaPlayer" => [
         "#{kit_path}Swift/PrivacyInfo.xcprivacy"

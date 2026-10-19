@@ -11,9 +11,12 @@
 		04B0542BD68343EB808C882D /* WYImageEditorObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E7D9319DA254FEBB18880DB /* WYImageEditorObjC.swift */; };
 		24397A41A7A0493D8AC83BC4 /* WYImageMarkerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFF8F17400C4B01BA509737 /* WYImageMarkerView.swift */; };
 		34695EBADD85427988DC5616 /* WYImageEditorIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BA3CE4FE747490FBA5C36BB /* WYImageEditorIcons.swift */; };
+		434CB74727D04EABB783E5F9 /* WYMediaCacheItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 501D44946B964750878E0E27 /* WYMediaCacheItem.swift */; };
+		45228F4741BA4567BFCFC0B3 /* WYMediaCacheResourceLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C607C62B1F874EA7A3F5024E /* WYMediaCacheResourceLoader.swift */; };
 		4A1B2C3D4E5F60718293A0B5 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1B2C3D4E5F60718293A0B4 /* SceneDelegate.swift */; };
 		5802B28E2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5802B28D2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift */; };
 		5806BD102FD3D25400FEA501 /* WYTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5806BD0F2FD3D25400FEA501 /* WYTask.swift */; };
+		58091AFA4B9C481B9B06472E /* WYMediaCacheConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72295827F44C4697B2FB4907 /* WYMediaCacheConfig.swift */; };
 		580BB8A92FF63D2200C1B986 /* WYAirBubbleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580BB8A82FF63D2200C1B986 /* WYAirBubbleView.swift */; };
 		580ED5882EA7261F006012E7 /* WYCodableBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5872EA7261F006012E7 /* WYCodableBridge.swift */; };
 		580ED58A2EA72632006012E7 /* WYCodableConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5892EA72632006012E7 /* WYCodableConfig.swift */; };
@@ -21,6 +24,7 @@
 		580ED58E2EA72649006012E7 /* WYCodableProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580ED58D2EA72649006012E7 /* WYCodableProtocol.swift */; };
 		5814080A2EC831A50099D41B /* WYTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581408092EC831A50099D41B /* WYTableViewCell.swift */; };
 		5814080F2EC881AB0099D41B /* WYTableViewCellObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5814080E2EC881AB0099D41B /* WYTableViewCellObjC.swift */; };
+		581D2E8230860D68001C1B9E /* WYNetworkMonitorObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2E8130860D68001C1B9E /* WYNetworkMonitorObjC.swift */; };
 		58328C602FC9364600C0F556 /* WYPopViewControllerSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C5F2FC9364600C0F556 /* WYPopViewControllerSwizzler.swift */; };
 		58328C622FC936D100C0F556 /* WYPresentSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C612FC936D100C0F556 /* WYPresentSwizzler.swift */; };
 		58328C642FC9371800C0F556 /* WYViewDidLoadSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C632FC9371800C0F556 /* WYViewDidLoadSwizzler.swift */; };
@@ -117,6 +121,7 @@
 		588797BA3009DDE600FDDE9C /* WYSoundWavesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588797B93009DDE600FDDE9C /* WYSoundWavesView.swift */; };
 		588797BE3009F5D500FDDE9C /* WYSoundWavesViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588797BC3009F5D500FDDE9C /* WYSoundWavesViewObjC.swift */; };
 		588797C2300A2F5400FDDE9C /* WYContentScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588797C1300A2F5400FDDE9C /* WYContentScrollView.swift */; };
+		588963777CE041F993E94766 /* WYMediaCacheMetaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54858D7CC1A14C3AB19CE19A /* WYMediaCacheMetaData.swift */; };
 		588D00812E5FEB570034A1CF /* AutoLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588D00802E5FEB570034A1CF /* AutoLayout.swift */; };
 		58B415B92FE2486700C4D1AA /* WYSoundAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B415B82FE2486700C4D1AA /* WYSoundAnimationView.swift */; };
 		58B46FEA2E8C080700D04BCA /* WYLogManagerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B46FE92E8C080700D04BCA /* WYLogManagerObjC.swift */; };
@@ -254,19 +259,27 @@
 		58C68E362E853D71005FD054 /* WYApplicationObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C68E352E853D71005FD054 /* WYApplicationObjC.swift */; };
 		58C952F22F051E800032E3F6 /* WYColorSwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C952F02F051E800032E3F6 /* WYColorSwiftUI.swift */; };
 		58EE7B0B2FB84A65009AA0CC /* WYTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EE7B0A2FB84A65009AA0CC /* WYTextView.swift */; };
+		5D9B7A1D5BA64CD79951FD91 /* WYMediaCacheDownloadTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2933A783B02A48DA9F08F495 /* WYMediaCacheDownloadTask.swift */; };
 		682A1481F5DBCD823E4E7C2F /* WYCryptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AC33A9B8043652655C0FF86 /* WYCryptor.swift */; };
 		7B66B79DFD684ACE8B6652F7 /* WYImageEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724E997D3636410EA290CD51 /* WYImageEditor.swift */; };
 		AAC46AD02E07E28F0068B0DF /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = AAC46ACF2E07E28F0068B0DF /* libc++.tbd */; };
+		AD72FABA68B94803A54AC716 /* WYNetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D9BF75B6B7C45429E451E50 /* WYNetworkMonitor.swift */; };
+		ADED48648DE64BE587893515 /* WYMediaCacheObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4563C02952724E24B18AC302 /* WYMediaCacheObjC.swift */; };
 		B61CA42A4DA447BCE604C620 /* WYCryptorObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 684CA039106944C16D6C83B2 /* WYCryptorObjC.swift */; };
 		CF080236B6634685A6318861 /* WYImageCropperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B46C27D2941B4A85A99A2E30 /* WYImageCropperView.swift */; };
+		F9B01DB67BCA4F268210F6EF /* WYMediaCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20024D929D9487584DE7607 /* WYMediaCache.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2933A783B02A48DA9F08F495 /* WYMediaCacheDownloadTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaCacheDownloadTask.swift; sourceTree = "<group>"; };
 		2D8AB1CA014BB35F5E33F61B /* WYMediaPlayer+LoadCore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+LoadCore.swift"; sourceTree = "<group>"; };
+		4563C02952724E24B18AC302 /* WYMediaCacheObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaCacheObjC.swift; sourceTree = "<group>"; };
 		4A1B2C3D4E5F60718293A0B4 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		4B3F177B4EB89C79E90E629A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		501D44946B964750878E0E27 /* WYMediaCacheItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaCacheItem.swift; sourceTree = "<group>"; };
 		53C11964B2A3BC35D119E938 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		53C1C8E1255F64288E08B8AC /* Pods-WYBasisKit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.release.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.release.xcconfig"; sourceTree = "<group>"; };
+		54858D7CC1A14C3AB19CE19A /* WYMediaCacheMetaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaCacheMetaData.swift; sourceTree = "<group>"; };
 		5802B28D2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYRecordAnimationConfig.swift; sourceTree = "<group>"; };
 		5806BD0F2FD3D25400FEA501 /* WYTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTask.swift; sourceTree = "<group>"; };
 		580BB8A82FF63D2200C1B986 /* WYAirBubbleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAirBubbleView.swift; sourceTree = "<group>"; };
@@ -277,6 +290,7 @@
 		580ED58D2EA72649006012E7 /* WYCodableProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCodableProtocol.swift; sourceTree = "<group>"; };
 		581408092EC831A50099D41B /* WYTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTableViewCell.swift; sourceTree = "<group>"; };
 		5814080E2EC881AB0099D41B /* WYTableViewCellObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTableViewCellObjC.swift; sourceTree = "<group>"; };
+		581D2E8130860D68001C1B9E /* WYNetworkMonitorObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkMonitorObjC.swift; sourceTree = "<group>"; };
 		58328C5F2FC9364600C0F556 /* WYPopViewControllerSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPopViewControllerSwizzler.swift; sourceTree = "<group>"; };
 		58328C612FC936D100C0F556 /* WYPresentSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPresentSwizzler.swift; sourceTree = "<group>"; };
 		58328C632FC9371800C0F556 /* WYViewDidLoadSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYViewDidLoadSwizzler.swift; sourceTree = "<group>"; };
@@ -523,12 +537,16 @@
 		5B0A12B6CD08A1EADB40EC1C /* Pods_WYBasisKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WYBasisKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		684CA039106944C16D6C83B2 /* WYCryptorObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCryptorObjC.swift; sourceTree = "<group>"; };
 		6BA3CE4FE747490FBA5C36BB /* WYImageEditorIcons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYImageEditorIcons.swift; sourceTree = "<group>"; };
+		72295827F44C4697B2FB4907 /* WYMediaCacheConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaCacheConfig.swift; sourceTree = "<group>"; };
 		724E997D3636410EA290CD51 /* WYImageEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYImageEditor.swift; sourceTree = "<group>"; };
+		7D9BF75B6B7C45429E451E50 /* WYNetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkMonitor.swift; sourceTree = "<group>"; };
 		8B8A3708E351CE0BB9E30715 /* Pods-WYBasisKit.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.debug.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.debug.xcconfig"; sourceTree = "<group>"; };
 		8E7D9319DA254FEBB18880DB /* WYImageEditorObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYImageEditorObjC.swift; sourceTree = "<group>"; };
 		9AC33A9B8043652655C0FF86 /* WYCryptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCryptor.swift; sourceTree = "<group>"; };
 		AAC46ACF2E07E28F0068B0DF /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		B46C27D2941B4A85A99A2E30 /* WYImageCropperView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYImageCropperView.swift; sourceTree = "<group>"; };
+		C20024D929D9487584DE7607 /* WYMediaCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaCache.swift; sourceTree = "<group>"; };
+		C607C62B1F874EA7A3F5024E /* WYMediaCacheResourceLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaCacheResourceLoader.swift; sourceTree = "<group>"; };
 		DAED5053645E21395CF44805 /* WYMediaPlayer+Notifications.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+Notifications.swift"; sourceTree = "<group>"; };
 		DCFF8F17400C4B01BA509737 /* WYImageMarkerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYImageMarkerView.swift; sourceTree = "<group>"; };
 		E5BA55F71D1EFB496EE59FDE /* WYMediaPlayer+Properties.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+Properties.swift"; sourceTree = "<group>"; };
@@ -550,6 +568,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0FF8CCFB2B544E4A9957267A /* MediaCache */ = {
+			isa = PBXGroup;
+			children = (
+				C20024D929D9487584DE7607 /* WYMediaCache.swift */,
+				72295827F44C4697B2FB4907 /* WYMediaCacheConfig.swift */,
+				AF57F047A7244364932D35B9 /* PrivateImpl */,
+			);
+			path = MediaCache;
+			sourceTree = "<group>";
+		};
+		1F7B4E87F622409FBACCCE18 /* NetworkMonitor */ = {
+			isa = PBXGroup;
+			children = (
+				7D9BF75B6B7C45429E451E50 /* WYNetworkMonitor.swift */,
+			);
+			path = NetworkMonitor;
+			sourceTree = "<group>";
+		};
 		2049506550CA1936ECB308B3 /* Cryptor */ = {
 			isa = PBXGroup;
 			children = (
@@ -558,12 +594,27 @@
 			path = Cryptor;
 			sourceTree = "<group>";
 		};
+		2FFE9081B0032ADCA27C2577 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
 		311BFFA118D042F19F4B9BE2 /* ImageEditor */ = {
 			isa = PBXGroup;
 			children = (
 				8E7D9319DA254FEBB18880DB /* WYImageEditorObjC.swift */,
 			);
 			path = ImageEditor;
+			sourceTree = "<group>";
+		};
+		48FBEE3DF5D843EAB1BFB5CE /* MediaCache */ = {
+			isa = PBXGroup;
+			children = (
+				4563C02952724E24B18AC302 /* WYMediaCacheObjC.swift */,
+			);
+			path = MediaCache;
 			sourceTree = "<group>";
 		};
 		5806BD0E2FD3D23700FEA501 /* Task */ = {
@@ -599,6 +650,14 @@
 				580ED5872EA7261F006012E7 /* WYCodableBridge.swift */,
 			);
 			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
+		581D2E8030860D4B001C1B9E /* NetworkMonitor */ = {
+			isa = PBXGroup;
+			children = (
+				581D2E8130860D68001C1B9E /* WYNetworkMonitorObjC.swift */,
+			);
+			path = NetworkMonitor;
 			sourceTree = "<group>";
 		};
 		58328C332FC9317100C0F556 /* General */ = {
@@ -1837,6 +1896,8 @@
 				311BFFA118D042F19F4B9BE2 /* ImageEditor */,
 				58EE236D2F874A350031D8BF /* MacroDefinition */,
 				58C68CB72E84E436005FD054 /* Networking */,
+				48FBEE3DF5D843EAB1BFB5CE /* MediaCache */,
+				581D2E8030860D4B001C1B9E /* NetworkMonitor */,
 				58C68CB92E84E436005FD054 /* Storage */,
 				FBBDFDBDB8276D3319F55684 /* PrivacyInfo.xcprivacy */,
 			);
@@ -2586,6 +2647,8 @@
 				A5D0F7D692DA40E68770A5E4 /* ImageEditor */,
 				584D59E12FBC351A00A862F7 /* MethodSwizzler */,
 				58C68D7F2E84E436005FD054 /* Networking */,
+				0FF8CCFB2B544E4A9957267A /* MediaCache */,
+				1F7B4E87F622409FBACCCE18 /* NetworkMonitor */,
 				58C68D822E84E436005FD054 /* Storage */,
 				4B3F177B4EB89C79E90E629A /* PrivacyInfo.xcprivacy */,
 			);
@@ -2650,6 +2713,12 @@
 			name = Layout;
 			sourceTree = "<group>";
 		};
+			isa = PBXGroup;
+			children = (
+				2FFE9081B0032ADCA27C2577 /* PrivateImpl */,
+			);
+			sourceTree = "<group>";
+		};
 		74BEC470B6E92D82AAD2D137 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -2680,12 +2749,28 @@
 			path = ImageEditor;
 			sourceTree = "<group>";
 		};
+		AF57F047A7244364932D35B9 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				2933A783B02A48DA9F08F495 /* WYMediaCacheDownloadTask.swift */,
+				501D44946B964750878E0E27 /* WYMediaCacheItem.swift */,
+				54858D7CC1A14C3AB19CE19A /* WYMediaCacheMetaData.swift */,
+				C607C62B1F874EA7A3F5024E /* WYMediaCacheResourceLoader.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
 		AFC77F406756BDC2ADC5A763 /* MediaPlayer */ = {
 			isa = PBXGroup;
 			children = (
 				F17F492151E72F3008F59919 /* PrivateImpl */,
 			);
 			name = MediaPlayer;
+			sourceTree = "<group>";
+		};
+			isa = PBXGroup;
+			children = (
+			);
 			sourceTree = "<group>";
 		};
 		DBAAB43B363BC740AF1D33F1 /* Pods */ = {
@@ -2933,6 +3018,7 @@
 				58582C1230412CC600A90194 /* WYContentScrollView+GestureControl.swift in Sources */,
 				58582C1330412CC600A90194 /* WYContentScrollView+Properties.swift in Sources */,
 				584B59F0306A0BEB002B81C5 /* WYChatLuckyMoneyModel.swift in Sources */,
+				581D2E8230860D68001C1B9E /* WYNetworkMonitorObjC.swift in Sources */,
 				58582C1430412CC600A90194 /* WYContentScrollView+ScrollDelegate.swift in Sources */,
 				58C68DE32E84E436005FD054 /* WYFloatObjC.swift in Sources */,
 				58328C9E2FC93D8000C0F556 /* WYGestureRecognizerShouldBeginSwizzler.swift in Sources */,
@@ -3045,6 +3131,14 @@
 				58328C962FC93CD000C0F556 /* WYLayoutAttributesForItemSwizzler.swift in Sources */,
 				58C68E1F2E84E436005FD054 /* WYChatPhotoCell.swift in Sources */,
 				58C68E202E84E436005FD054 /* WYStorage.swift in Sources */,
+				AD72FABA68B94803A54AC716 /* WYNetworkMonitor.swift in Sources */,
+				F9B01DB67BCA4F268210F6EF /* WYMediaCache.swift in Sources */,
+				58091AFA4B9C481B9B06472E /* WYMediaCacheConfig.swift in Sources */,
+				5D9B7A1D5BA64CD79951FD91 /* WYMediaCacheDownloadTask.swift in Sources */,
+				434CB74727D04EABB783E5F9 /* WYMediaCacheItem.swift in Sources */,
+				588963777CE041F993E94766 /* WYMediaCacheMetaData.swift in Sources */,
+				45228F4741BA4567BFCFC0B3 /* WYMediaCacheResourceLoader.swift in Sources */,
+				ADED48648DE64BE587893515 /* WYMediaCacheObjC.swift in Sources */,
 				58B6DAE8305FA87D00FEBC08 /* WYLabel.swift in Sources */,
 				584D59E32FBC353300A862F7 /* WYMethodSwizzlerCenter.swift in Sources */,
 				58C68E222E84E436005FD054 /* WYCodableObjC.swift in Sources */,

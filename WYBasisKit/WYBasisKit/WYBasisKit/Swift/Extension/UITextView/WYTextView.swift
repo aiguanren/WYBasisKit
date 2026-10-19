@@ -646,7 +646,7 @@ private extension UITextView {
             }
         }
         wy_longPressTimer = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + wy_longPressMinimumDuration, execute: work)
+        Task { try? await Task.wy_delay(wy_longPressMinimumDuration, cancelThrows: false, onMain: { work.perform() }) }
     }
     
     /// 交换 hitTest 方法，注入穿透判断逻辑
