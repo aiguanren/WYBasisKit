@@ -140,3 +140,25 @@
 "编辑" = "Editar";
 "画笔粗细" = "Grosor\ndel pincel";
 "文本字号" = "Tamaño\ndel texto";
+"马赛克" = "Mosaico";
+"水印" = "Marca de agua";
+"水印字号" = "Tamaño de\nmarca de agua";
+"输入水印" = "Introducir marca de agua";
+"图片" = "Imagen";
+"平铺" = "Repetido";
+"框选" = "Recuadro";
+"涂抹" = "Difuminar";
+
+"保存图片" = "Guardar imagen";
+
+"已保存到相册" = "Guardado en el álbum";
+
+"保存失败，请重试" = "Error al guardar. Inténtalo de nuevo";
+
+"查看原图" = "Ver original";
+
+"查看原图(%@)" = "Ver original (%@)";
+
+"已显示原图" = "Original mostrado";
+
+"加载失败，点击重试" = "Error al cargar. Toca para reintentar";

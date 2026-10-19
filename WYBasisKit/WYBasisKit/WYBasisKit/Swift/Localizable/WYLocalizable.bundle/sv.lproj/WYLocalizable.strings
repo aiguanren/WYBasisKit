@@ -140,3 +140,25 @@
 "编辑" = "Redigera";
 "画笔粗细" = "Pensel-\nbredd";
 "文本字号" = "Text-\nstorlek";
+"马赛克" = "Mosaik";
+"水印" = "Vattenmärke";
+"水印字号" = "Vattenmärke\ntextstorlek";
+"输入水印" = "Ange vattenmärke";
+"图片" = "Bild";
+"平铺" = "Upprepad";
+"框选" = "Ram";
+"涂抹" = "Smet";
+
+"保存图片" = "Spara bild";
+
+"已保存到相册" = "Sparat i albumet";
+
+"保存失败，请重试" = "Det gick inte att spara. Försök igen";
+
+"查看原图" = "Visa original";
+
+"查看原图(%@)" = "Visa original (%@)";
+
+"已显示原图" = "Original visas";
+
+"加载失败，点击重试" = "Det gick inte att läsa in. Tryck för att försöka igen";

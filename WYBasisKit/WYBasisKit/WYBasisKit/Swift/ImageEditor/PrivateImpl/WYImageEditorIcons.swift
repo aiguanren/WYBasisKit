@@ -61,6 +61,34 @@ enum WYImageEditorIcon {
         }
     }
 
+    /// 马赛克工具图标(九宫格方格)
+    static var mosaic: UIImage {
+        return drawIcon { context in
+            let grid = UIBezierPath(roundedRect: CGRect(x: 4, y: 4, width: 16, height: 16), cornerRadius: 2)
+            grid.move(to: CGPoint(x: 9.33, y: 4))
+            grid.addLine(to: CGPoint(x: 9.33, y: 20))
+            grid.move(to: CGPoint(x: 14.67, y: 4))
+            grid.addLine(to: CGPoint(x: 14.67, y: 20))
+            grid.move(to: CGPoint(x: 4, y: 9.33))
+            grid.addLine(to: CGPoint(x: 20, y: 9.33))
+            grid.move(to: CGPoint(x: 4, y: 14.67))
+            grid.addLine(to: CGPoint(x: 20, y: 14.67))
+            grid.stroke()
+        }
+    }
+
+    /// 水印工具图标(两道斜排短线示意平铺文字)
+    static var watermark: UIImage {
+        return drawIcon { context in
+            let path = UIBezierPath()
+            path.move(to: CGPoint(x: 4, y: 14))
+            path.addLine(to: CGPoint(x: 14, y: 4))
+            path.move(to: CGPoint(x: 10, y: 20))
+            path.addLine(to: CGPoint(x: 20, y: 10))
+            path.stroke()
+        }
+    }
+
     /// 撤销图标(向左箭头，右端尾巴向下弯)
     static var undo: UIImage {
         return drawIcon { context in

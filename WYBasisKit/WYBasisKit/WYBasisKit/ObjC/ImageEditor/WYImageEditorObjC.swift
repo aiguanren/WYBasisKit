@@ -57,6 +57,9 @@ import WYBasisKitSwift
     /// 字号档位倍率(相对默认字号的倍数序列)
     public var fontSizeRatios: [CGFloat]?
 
+    /// 水印整体透明度(0全透明到1不透明，负数表示用默认值)
+    public var watermarkAlpha: CGFloat = -1
+
     /// 标记工具条背景色
     public var toolbarBackgroundColor: UIColor?
 
@@ -127,6 +130,30 @@ import WYBasisKitSwift
 
     /// 划线工具的默认形态(true为两点连成直线，false为跟随手指自由划线)
     public var lineDrawsStraight: Bool = false
+
+    /// 马赛克笔刷默认宽度(单位为像素，0表示按图片宽度自动配一个合适的值，仅涂抹形态用)
+    public var mosaicBrushWidth: CGFloat = 0
+
+    /// 马赛克像素块大小(单位为像素，0表示按图片宽度自动配一个合适的值，块越大打码越糊)
+    public var mosaicCellSize: CGFloat = 0
+
+    /// 马赛克工具的默认形态(true为拖矩形框整块打码，false为手指涂抹打码)
+    public var mosaicDrawsBox: Bool = false
+
+    /// 水印logo图(调用方预置，nil时界面水印语境不显示图片钮且水印不带logo)
+    public var watermarkImage: UIImage? = nil
+
+    /// 水印默认文案(落水印时输入弹窗的预填内容，nil时预填本地化默认两字)
+    public var watermarkText: String? = nil
+
+    /// 水印默认颜色(选中有水印时改颜色会直接应用到它)
+    public var watermarkColor: UIColor = .white
+
+    /// 水印字号(单位为像素，0表示按图片宽度自动配一个合适的值)
+    public var watermarkFontSize: CGFloat = 0
+
+    /// 水印倾斜角(单位为度，单条与平铺共用，0为水平，负数为逆时针)
+    public var watermarkRotation: CGFloat = -30
 
     /// 界面上是否显示粗细与字号选择行(false时用户只能用配置定的默认粗细字号)
     public var showsStyleOptions: Bool = true
@@ -214,11 +241,20 @@ import WYBasisKitSwift
         if let bridgeConfiguration = bridgeConfiguration {
             configuration.cropShape = bridgeConfiguration.cropShape
             configuration.cropSize = bridgeConfiguration.cropSize
+            configuration.allowsCropping = bridgeConfiguration.allowsCropping
             configuration.allowsMarking = bridgeConfiguration.allowsMarking
             configuration.markerColor = bridgeConfiguration.markerColor
             configuration.markerLineWidth = bridgeConfiguration.markerLineWidth
             configuration.markerTextFontSize = bridgeConfiguration.markerTextFontSize
             configuration.lineDrawsStraight = bridgeConfiguration.lineDrawsStraight
+            configuration.mosaicBrushWidth = bridgeConfiguration.mosaicBrushWidth
+            configuration.mosaicCellSize = bridgeConfiguration.mosaicCellSize
+            configuration.mosaicDrawsBox = bridgeConfiguration.mosaicDrawsBox
+            configuration.watermarkImage = bridgeConfiguration.watermarkImage
+            configuration.watermarkText = bridgeConfiguration.watermarkText
+            configuration.watermarkColor = bridgeConfiguration.watermarkColor
+            configuration.watermarkFontSize = bridgeConfiguration.watermarkFontSize
+            configuration.watermarkRotation = bridgeConfiguration.watermarkRotation
             configuration.showsStyleOptions = bridgeConfiguration.showsStyleOptions
             configuration.showsColorOptions = bridgeConfiguration.showsColorOptions
             configuration.allowsCropZoom = bridgeConfiguration.allowsCropZoom
@@ -242,6 +278,7 @@ import WYBasisKitSwift
                 if let palette = bridgeAppearance.markerPalette, !palette.isEmpty { appearance.markerPalette = palette }
                 if let ratios = bridgeAppearance.lineWidthRatios, !ratios.isEmpty { appearance.lineWidthRatios = ratios }
                 if let ratios = bridgeAppearance.fontSizeRatios, !ratios.isEmpty { appearance.fontSizeRatios = ratios }
+                if bridgeAppearance.watermarkAlpha >= 0 { appearance.watermarkAlpha = bridgeAppearance.watermarkAlpha }
                 if let color = bridgeAppearance.toolbarBackgroundColor { appearance.toolbarBackgroundColor = color }
                 if let color = bridgeAppearance.iconButtonColor { appearance.iconButtonColor = color }
                 if let color = bridgeAppearance.iconButtonHighlightedColor { appearance.iconButtonHighlightedColor = color }

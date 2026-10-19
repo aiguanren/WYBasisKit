@@ -19,7 +19,7 @@ Pod::Spec.new do |kit|
     Authorization: 各种权限请求与判断
     LogManager: 日志打印，日志导出等日志管理相关(文件默认AES-GCM加密，四档可选)
     Cryptor: 通用加解密工具(MD5/SHA/HMAC/AES-GCM/XOR/Base64/Hex/随机数/PBKDF2)
-    ImageEditor: 相片裁剪与标记(矩形圆形支持固定或自由尺寸，文本矩形圆形箭头标记)
+    ImageEditor: 相片裁剪与标记(矩形圆形支持固定或自由尺寸，文本矩形圆形箭头划线标记，马赛克涂抹框选打码，文字logo组合水印与整图平铺)
     AudioKit: 音频录制与播放
     MethodSwizzler: 内部使用，第三方请勿调用
   DESC

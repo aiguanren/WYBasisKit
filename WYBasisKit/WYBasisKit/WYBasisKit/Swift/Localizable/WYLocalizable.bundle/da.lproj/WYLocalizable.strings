@@ -140,3 +140,25 @@
 "编辑" = "Rediger";
 "画笔粗细" = "Pensel-\ntykkelse";
 "文本字号" = "Tekst-\nstørrelse";
+"马赛克" = "Mosaik";
+"水印" = "Vandmærke";
+"水印字号" = "Vandmærke\nfontstørrelse";
+"输入水印" = "Indtast vandmærke";
+"图片" = "Billede";
+"平铺" = "Gentaget";
+"框选" = "Boks";
+"涂抹" = "Smed";
+
+"保存图片" = "Gem billede";
+
+"已保存到相册" = "Gemt i albummet";
+
+"保存失败，请重试" = "Kunne ikke gemmes. Prøv igen";
+
+"查看原图" = "Se original";
+
+"查看原图(%@)" = "Se original (%@)";
+
+"已显示原图" = "Original vises";
+
+"加载失败，点击重试" = "Indlæsning mislykkedes. Tryk for at prøve igen";

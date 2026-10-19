@@ -140,3 +140,25 @@
 "编辑" = "Düzenle";
 "画笔粗细" = "Fırça\nkalınlığı";
 "文本字号" = "Metin\nboyutu";
+"马赛克" = "Mozaik";
+"水印" = "Filigran";
+"水印字号" = "Filigran\nyazı boyutu";
+"输入水印" = "Filigran gir";
+"图片" = "Görsel";
+"平铺" = "Döşeli";
+"框选" = "Kutu";
+"涂抹" = "Sür";
+
+"保存图片" = "Görseli kaydet";
+
+"已保存到相册" = "Albüme kaydedildi";
+
+"保存失败，请重试" = "Kaydedilemedi. Lütfen tekrar deneyin";
+
+"查看原图" = "Orijinali görüntüle";
+
+"查看原图(%@)" = "Orijinali görüntüle (%@)";
+
+"已显示原图" = "Orijinal görüntülendi";
+
+"加载失败，点击重试" = "Yüklenemedi. Yeniden denemek için dokun";

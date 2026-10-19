@@ -140,3 +140,25 @@
 "编辑" = "Rediger";
 "画笔粗细" = "Pensel-\nbredde";
 "文本字号" = "Tekst-\nstørrelse";
+"马赛克" = "Mosaikk";
+"水印" = "Vannmerke";
+"水印字号" = "Vannmerke\nfontstørrelse";
+"输入水印" = "Skriv inn vannmerke";
+"图片" = "Bilde";
+"平铺" = "Gjentatt";
+"框选" = "Boks";
+"涂抹" = "Smør";
+
+"保存图片" = "Lagre bilde";
+
+"已保存到相册" = "Lagret i albumet";
+
+"保存失败，请重试" = "Lagring mislyktes. Prøv igjen";
+
+"查看原图" = "Se original";
+
+"查看原图(%@)" = "Se original (%@)";
+
+"已显示原图" = "Original vises";
+
+"加载失败，点击重试" = "Lasting mislyktes. Trykk for å prøve igjen";

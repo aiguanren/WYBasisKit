@@ -140,3 +140,25 @@
 "编辑" = "Chỉnh sửa";
 "画笔粗细" = "Độ đậm\nbút vẽ";
 "文本字号" = "Cỡ\nchữ";
+"马赛克" = "Mô sa";
+"水印" = "Hình mờ";
+"水印字号" = "Cỡ chữ\nhình mờ";
+"输入水印" = "Nhập hình mờ";
+"图片" = "Hình ảnh";
+"平铺" = "Lặp lại";
+"框选" = "Khung";
+"涂抹" = "Bôi";
+
+"保存图片" = "Lưu hình ảnh";
+
+"已保存到相册" = "Đã lưu vào album";
+
+"保存失败，请重试" = "Lưu không thành công. Vui lòng thử lại";
+
+"查看原图" = "Xem bản gốc";
+
+"查看原图(%@)" = "Xem bản gốc (%@)";
+
+"已显示原图" = "Đã hiển thị bản gốc";
+
+"加载失败，点击重试" = "Tải không thành công. Chạm để thử lại";

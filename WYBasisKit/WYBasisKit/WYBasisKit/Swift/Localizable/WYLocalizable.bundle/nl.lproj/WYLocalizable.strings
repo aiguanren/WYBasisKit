@@ -140,3 +140,25 @@
 "编辑" = "Bewerken";
 "画笔粗细" = "Pensel-\ndikte";
 "文本字号" = "Tekst-\ngrootte";
+"马赛克" = "Mozaïek";
+"水印" = "Watermerk";
+"水印字号" = "Watermerk\nlettergrootte";
+"输入水印" = "Watermerk invoeren";
+"图片" = "Afbeelding";
+"平铺" = "Herhaald";
+"框选" = "Kader";
+"涂抹" = "Smeren";
+
+"保存图片" = "Afbeelding bewaren";
+
+"已保存到相册" = "Bewaard in album";
+
+"保存失败，请重试" = "Bewaren mislukt. Probeer opnieuw";
+
+"查看原图" = "Origineel bekijken";
+
+"查看原图(%@)" = "Origineel bekijken (%@)";
+
+"已显示原图" = "Origineel weergegeven";
+
+"加载失败，点击重试" = "Laden mislukt. Tik om opnieuw te proberen";

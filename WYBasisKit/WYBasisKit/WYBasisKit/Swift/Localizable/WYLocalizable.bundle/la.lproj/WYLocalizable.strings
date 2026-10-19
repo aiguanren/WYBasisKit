@@ -140,3 +140,25 @@
 "编辑" = "Edere";
 "画笔粗细" = "Crassitudo\npenicilli";
 "文本字号" = "Magnitudo\ntextus";
+"马赛克" = "Mosaicum";
+"水印" = "Signum aquae";
+"水印字号" = "Magnitudo\nsigni";
+"输入水印" = "Insere signum aquae";
+"图片" = "Imago";
+"平铺" = "Tegulatim";
+"框选" = "Capsa";
+"涂抹" = "Ungue";
+
+"保存图片" = "Serva imaginem";
+
+"已保存到相册" = "In album servatum est";
+
+"保存失败，请重试" = "Servare non potuit. Iterum conare";
+
+"查看原图" = "Vide originale";
+
+"查看原图(%@)" = "Vide originale (%@)";
+
+"已显示原图" = "Originale monstratum est";
+
+"加载失败，点击重试" = "Onus non processit. Tange et iterum conare";

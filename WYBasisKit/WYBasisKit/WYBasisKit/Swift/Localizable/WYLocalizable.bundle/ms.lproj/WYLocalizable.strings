@@ -140,3 +140,25 @@
 "编辑" = "Edit";
 "画笔粗细" = "Ketebalan\nberus";
 "文本字号" = "Saiz\nteks";
+"马赛克" = "Mosaik";
+"水印" = "Tanda air";
+"水印字号" = "Saiz fon\ntanda air";
+"输入水印" = "Masukkan tanda air";
+"图片" = "Gambar";
+"平铺" = "Berulang";
+"框选" = "Kotak";
+"涂抹" = "Sapu";
+
+"保存图片" = "Simpan gambar";
+
+"已保存到相册" = "Disimpan ke album";
+
+"保存失败，请重试" = "Gagal menyimpan. Cuba lagi";
+
+"查看原图" = "Lihat asal";
+
+"查看原图(%@)" = "Lihat asal (%@)";
+
+"已显示原图" = "Asal dipaparkan";
+
+"加载失败，点击重试" = "Gagal memuatkan. Ketik untuk cuba lagi";

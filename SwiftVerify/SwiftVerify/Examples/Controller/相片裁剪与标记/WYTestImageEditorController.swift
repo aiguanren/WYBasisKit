@@ -43,6 +43,15 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
     /// 测试图片名字(nil表示用生成的标尺图)
     var testImageName: String? = nil
 
+    /// 水印logo图(nil表示不预置)
+    var watermarkLogoImage: UIImage? = nil
+
+    /// 水印预填文案(nil表示用编辑器默认)
+    var watermarkText: String? = nil
+
+    /// 水印倾斜角(度)
+    var watermarkRotation: CGFloat = -30
+
     /// 标尺图下标(0横图 1竖图 2方图，testImageName为nil时生效)
     var rulerImageIndex: Int = 0
 
@@ -88,7 +97,7 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
         let markZoomButton: UIButton = createButton(title: "(可缩放)标记页", selector: #selector(markZoomButtonTapped(sender:)), superView: contentView, leftView: cropZoomButton, topView: croppingButton)
         markZoomButton.setTitle("(禁缩放)标记页", for: .selected)
 
-        let imageButton: UIButton = createButton(title: "测试图片(标尺横图)", selector: #selector(imageButtonTapped(sender:)), superView: contentView, leftView: markZoomButton, topView: croppingButton, isRight: true)
+        _ = createButton(title: "测试图片(标尺横图)", selector: #selector(imageButtonTapped(sender:)), superView: contentView, leftView: markZoomButton, topView: croppingButton, isRight: true)
 
         let initialCropZoomButton: UIButton = createButton(title: "裁剪初始缩放(1倍)", selector: #selector(initialCropZoomButtonTapped(sender:)), superView: contentView, leftView: nil, topView: cropZoomButton)
 
@@ -96,11 +105,19 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
 
         createButton(title: "清除结果", selector: #selector(clearButtonTapped), superView: contentView, leftView: initialMarkZoomButton, topView: cropZoomButton, isRight: true)
 
-        let blockButton: UIButton = createButton(title: "Block方式\n打开编辑器", selector: #selector(blockButtonTapped), superView: contentView, leftView: nil, topView: initialCropZoomButton)
+        let watermarkImageButton: UIButton = createButton(title: "水印图片(无)", selector: #selector(watermarkImageButtonTapped(sender:)), superView: contentView, leftView: nil, topView: initialCropZoomButton)
+        watermarkImageButton.setTitle("水印图片(窗花)", for: .selected)
 
-        let delegateButton: UIButton = createButton(title: "Delegate方式\n打开编辑器", selector: #selector(delegateButtonTapped), superView: contentView, leftView: blockButton, topView: initialCropZoomButton)
+        let watermarkTextButton: UIButton = createButton(title: "水印文字(默认)", selector: #selector(watermarkTextButtonTapped(sender:)), superView: contentView, leftView: watermarkImageButton, topView: initialCropZoomButton)
+        watermarkTextButton.setTitle("水印文字(官方水印)", for: .selected)
 
-        createButton(title: "静态方法\n一行打开", selector: #selector(staticButtonTapped), superView: contentView, leftView: delegateButton, topView: initialCropZoomButton, isRight: true, isLast: true)
+        createButton(title: "水印角度(-30°)", selector: #selector(watermarkAngleButtonTapped(sender:)), superView: contentView, leftView: watermarkTextButton, topView: initialCropZoomButton, isRight: true)
+
+        let blockButton: UIButton = createButton(title: "Block方式\n打开编辑器", selector: #selector(blockButtonTapped), superView: contentView, leftView: nil, topView: watermarkImageButton)
+
+        let delegateButton: UIButton = createButton(title: "Delegate方式\n打开编辑器", selector: #selector(delegateButtonTapped), superView: contentView, leftView: blockButton, topView: watermarkImageButton)
+
+        createButton(title: "静态方法\n一行打开", selector: #selector(staticButtonTapped), superView: contentView, leftView: delegateButton, topView: watermarkImageButton, isRight: true, isLast: true)
 
         tableView = UITableView.wy_shared(delegate: self, dataSource: self, superView: view)
         tableView?.wy_register(WYTestImageEditorResultCell.self, .cell)
@@ -163,6 +180,9 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
         configuration.initialMarkZoomScale = initialMarkZoomScale
         configuration.showsStyleOptions = showsStyleOptions
         configuration.showsColorOptions = showsColorOptions
+        configuration.watermarkImage = watermarkLogoImage
+        configuration.watermarkText = watermarkText
+        configuration.watermarkRotation = watermarkRotation
         return configuration
     }
 
@@ -242,7 +262,9 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
         let croppingText = allowsCropping ? "允许" : "关闭"
         let cropZoomText = allowsCropZoom ? "可缩放" : "禁缩放"
         let markZoomText = allowsMarkZoom ? "可缩放" : "禁缩放"
-        wy_print("[\(source)] 打开编辑器 图片=\(imageSourceText) 原图\(Int(image.size.width))×\(Int(image.size.height)) 配置=形状\(shapeText) 尺寸\(sizeText) 裁剪\(croppingText) 标记\(markingText) 粗细字号行\(styleRowText) 颜色条\(colorRowText) 裁剪缩放\(cropZoomText) 标记缩放\(markZoomText)")
+        let watermarkLogoText = watermarkLogoImage == nil ? "无logo" : "有logo"
+        let watermarkText = self.watermarkText ?? "默认"
+        wy_print("[\(source)] 打开编辑器 图片=\(imageSourceText) 原图\(Int(image.size.width))×\(Int(image.size.height)) 配置=形状\(shapeText) 尺寸\(sizeText) 裁剪\(croppingText) 标记\(markingText) 粗细字号行\(styleRowText) 颜色条\(colorRowText) 裁剪缩放\(cropZoomText) 标记缩放\(markZoomText) 水印=\(watermarkLogoText)预填\(watermarkText)角度\(Int(watermarkRotation))度")
     }
 
     /// 记录编辑结果并刷新表格(三种打开方式共用)
@@ -342,6 +364,32 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
     }
 
     /// 划线默认形态切换(自由与直线两态)
+
+    /// 水印logo图开关(开时编辑器水印语境出图片钮)
+    @objc func watermarkImageButtonTapped(sender: UIButton) {
+        if watermarkLogoImage == nil {
+            watermarkLogoImage = UIImage(named: "窗花")
+        } else {
+            watermarkLogoImage = nil
+        }
+        sender.isSelected = watermarkLogoImage != nil
+    }
+
+    /// 水印预填文案开关(开时落水印弹窗预填官方水印)
+    @objc func watermarkTextButtonTapped(sender: UIButton) {
+        if watermarkText == nil {
+            watermarkText = "官方水印"
+        } else {
+            watermarkText = nil
+        }
+        sender.isSelected = watermarkText != nil
+    }
+
+    /// 水印倾斜角切换(-30度与0度水平两态)
+    @objc func watermarkAngleButtonTapped(sender: UIButton) {
+        watermarkRotation = watermarkRotation == -30 ? 0 : -30
+        sender.setTitle(watermarkRotation == -30 ? "水印角度(-30°)" : "水印角度(0°)", for: .normal)
+    }
 
     /// 界面粗细字号选择行显示开关
     @objc func styleRowButtonTapped(sender: UIButton) {

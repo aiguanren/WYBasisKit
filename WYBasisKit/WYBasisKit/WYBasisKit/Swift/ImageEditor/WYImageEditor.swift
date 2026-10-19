@@ -15,7 +15,7 @@ import UIKit
     case circle = 1
 }
 
-/// 标记类型(在图片上写写画画用的五种工具)
+/// 标记类型(在图片上写写画画用的七种工具)
 @objc public enum WYImageMarkerType: Int {
     /// 文本标记(写一段字到指定位置)
     case text = 0
@@ -27,6 +27,10 @@ import UIKit
     case arrow = 3
     /// 划线标记(两点连直线或跟随手指自由划线)
     case line = 4
+    /// 马赛克标记(手指涂抹或拖矩形框整块打码)
+    case mosaic = 5
+    /// 水印标记(单条可拖动的文字或logo组合，或整图平铺防盗图)
+    case watermark = 6
 }
 
 /// 编辑器界面外观配置(全部属性都有默认值，按需覆盖，不设置时与默认外观一致)
@@ -76,6 +80,9 @@ public struct WYImageEditorAppearance {
 
     /// 字号档位倍率(相对默认字号的倍数序列，界面按序展示字母A)
     public var fontSizeRatios: [CGFloat] = [0.6, 1, 1.6, 2.4]
+
+    /// 水印整体透明度(0全透明到1不透明，单条与平铺水印的logo和文字都乘它)
+    public var watermarkAlpha: CGFloat = 0.5
 
     /// 标记工具条背景色
     public var toolbarBackgroundColor: UIColor = UIColor(white: 0.08, alpha: 1)
@@ -148,6 +155,30 @@ public struct WYImageEditorConfiguration {
 
     /// 划线工具的默认形态(true为两点连成直线，false为跟随手指自由划线)
     public var lineDrawsStraight: Bool = false
+
+    /// 马赛克笔刷默认宽度(单位为像素，0表示按图片宽度自动配一个合适的值，仅涂抹形态用)
+    public var mosaicBrushWidth: CGFloat = 0
+
+    /// 马赛克像素块大小(单位为像素，0表示按图片宽度自动配一个合适的值，块越大打码越糊)
+    public var mosaicCellSize: CGFloat = 0
+
+    /// 马赛克工具的默认形态(true为拖矩形框整块打码，false为手指涂抹打码)
+    public var mosaicDrawsBox: Bool = false
+
+    /// 水印logo图(调用方预置，nil时界面水印语境不显示图片钮且水印不带logo)
+    public var watermarkImage: UIImage? = nil
+
+    /// 水印默认文案(落水印时输入弹窗的预填内容，nil时预填本地化默认两字)
+    public var watermarkText: String? = nil
+
+    /// 水印默认颜色(选中有水印时改颜色会直接应用到它)
+    public var watermarkColor: UIColor = .white
+
+    /// 水印字号(单位为像素，0表示按图片宽度自动配一个合适的值)
+    public var watermarkFontSize: CGFloat = 0
+
+    /// 水印倾斜角(单位为度，单条与平铺共用，0为水平，负数为逆时针)
+    public var watermarkRotation: CGFloat = -30
 
     /// 界面上是否显示粗细与字号选择行(false时用户只能用配置定的默认粗细字号)
     public var showsStyleOptions: Bool = true
@@ -351,7 +382,7 @@ public class WYImageEditorViewController: UIViewController {
 
     /// 工具行横向滚动容器(按钮多到一行放不下时左右滑动查看，放得下时与颜色档位行统一左对齐)
     private lazy var toolRowScrollView: UIScrollView = {
-        let scrollView = UIScrollView()
+        let scrollView = WYImageEditorToolRowScrollView()
         scrollView.showsHorizontalScrollIndicator = false
         scrollView.alwaysBounceHorizontal = false
         scrollView.delaysContentTouches = false
@@ -373,14 +404,16 @@ public class WYImageEditorViewController: UIViewController {
         return view
     }()
 
-    /// 标记工具按钮数组(顺序为文本矩形圆形箭头划线，图文上下排列用WYBasisKit的UIButton扩展调整)
+    /// 标记工具按钮数组(顺序为文本矩形圆形箭头划线马赛克水印，图文上下排列用WYBasisKit的UIButton扩展调整)
     private lazy var markerToolButtons: [UIButton] = {
         let titles = [WYLocalized("文本", table: WYBasisKitConfig.kitLocalizableTable),
                       WYLocalized("矩形", table: WYBasisKitConfig.kitLocalizableTable),
                       WYLocalized("圆形", table: WYBasisKitConfig.kitLocalizableTable),
                       WYLocalized("箭头", table: WYBasisKitConfig.kitLocalizableTable),
-                      WYLocalized("划线", table: WYBasisKitConfig.kitLocalizableTable)]
-        let icons = [WYImageEditorIcon.text, WYImageEditorIcon.rectangle, WYImageEditorIcon.circle, WYImageEditorIcon.arrow, WYImageEditorIcon.line]
+                      WYLocalized("划线", table: WYBasisKitConfig.kitLocalizableTable),
+                      WYLocalized("马赛克", table: WYBasisKitConfig.kitLocalizableTable),
+                      WYLocalized("水印", table: WYBasisKitConfig.kitLocalizableTable)]
+        let icons = [WYImageEditorIcon.text, WYImageEditorIcon.rectangle, WYImageEditorIcon.circle, WYImageEditorIcon.arrow, WYImageEditorIcon.line, WYImageEditorIcon.mosaic, WYImageEditorIcon.watermark]
         return titles.enumerated().map { index, title in
             let button = UIButton(type: .custom)
             button.setTitle(title, for: .normal)
@@ -437,6 +470,64 @@ public class WYImageEditorViewController: UIViewController {
         button.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMaxXMaxYCorner]
         button.layer.masksToBounds = true
         button.addTarget(self, action: #selector(lineShapeChipTapped(_:)), for: .touchUpInside)
+        return button
+    }()
+
+    /// 框选形态切换按钮(马赛克语境显示，与涂抹按钮拼成横跨两列的双段胶囊，此为左半段只有左侧外圆角，点后新建马赛克为拖矩形框整块打码)
+    private lazy var mosaicBoxChipButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.setTitle(WYLocalized("框选", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
+        button.setTitleColor(.black, for: .selected)
+        button.setTitleColor(.black, for: [.selected, .highlighted])
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: UIFont.wy_fontSize(12, WYBasisKitConfig.defaultScreenPixels), weight: .semibold)
+        button.layer.cornerRadius = UIDevice.wy_screenWidth(14, WYBasisKitConfig.defaultScreenPixels)
+        button.layer.maskedCorners = [.layerMinXMinYCorner, .layerMinXMaxYCorner]
+        button.layer.masksToBounds = true
+        button.addTarget(self, action: #selector(mosaicShapeChipTapped(_:)), for: .touchUpInside)
+        return button
+    }()
+
+    /// 涂抹形态切换按钮(马赛克语境显示，与框选按钮拼成横跨两列的双段胶囊，此为右半段只有右侧外圆角，点后新建马赛克为手指涂抹打码)
+    private lazy var mosaicBrushChipButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.setTitle(WYLocalized("涂抹", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
+        button.setTitleColor(.black, for: .selected)
+        button.setTitleColor(.black, for: [.selected, .highlighted])
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: UIFont.wy_fontSize(12, WYBasisKitConfig.defaultScreenPixels), weight: .semibold)
+        button.layer.cornerRadius = UIDevice.wy_screenWidth(14, WYBasisKitConfig.defaultScreenPixels)
+        button.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMaxXMaxYCorner]
+        button.layer.masksToBounds = true
+        button.addTarget(self, action: #selector(mosaicShapeChipTapped(_:)), for: .touchUpInside)
+        return button
+    }()
+
+    /// 水印图片切换按钮(水印语境且配置了watermarkImage时显示，独立开关钮，点后落的水印带上logo，可与平铺同时开)
+    private lazy var watermarkLogoChipButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.setTitle(WYLocalized("图片", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
+        button.setTitleColor(.black, for: .selected)
+        button.setTitleColor(.black, for: [.selected, .highlighted])
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: UIFont.wy_fontSize(12, WYBasisKitConfig.defaultScreenPixels), weight: .semibold)
+        button.layer.cornerRadius = UIDevice.wy_screenWidth(14, WYBasisKitConfig.defaultScreenPixels)
+        button.layer.masksToBounds = true
+        button.addTarget(self, action: #selector(watermarkLogoChipTapped(_:)), for: .touchUpInside)
+        return button
+    }()
+
+    /// 水印平铺切换按钮(水印语境显示，独立开关钮，点后落的水印为整图平铺防盗图式，可与图片同时开)
+    private lazy var watermarkTileChipButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.setTitle(WYLocalized("平铺", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
+        button.setTitleColor(.black, for: .selected)
+        button.setTitleColor(.black, for: [.selected, .highlighted])
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: UIFont.wy_fontSize(12, WYBasisKitConfig.defaultScreenPixels), weight: .semibold)
+        button.layer.cornerRadius = UIDevice.wy_screenWidth(14, WYBasisKitConfig.defaultScreenPixels)
+        button.layer.masksToBounds = true
+        button.addTarget(self, action: #selector(watermarkTileChipTapped(_:)), for: .touchUpInside)
         return button
     }()
 
@@ -568,6 +659,10 @@ public class WYImageEditorViewController: UIViewController {
             markerToolbar.addSubview(styleHintLabel)
             markerToolbar.addSubview(straightChipButton)
             markerToolbar.addSubview(freeChipButton)
+            markerToolbar.addSubview(mosaicBoxChipButton)
+            markerToolbar.addSubview(mosaicBrushChipButton)
+            markerToolbar.addSubview(watermarkLogoChipButton)
+            markerToolbar.addSubview(watermarkTileChipButton)
             lineWidthDotButtons.forEach { markerToolbar.addSubview($0) }
             fontSizeButtons.forEach { markerToolbar.addSubview($0) }
         }
@@ -595,11 +690,19 @@ public class WYImageEditorViewController: UIViewController {
                          lineWidth: configuration.markerLineWidth,
                          textFontSize: configuration.markerTextFontSize,
                          straightLine: configuration.lineDrawsStraight,
+                         mosaicBrushWidth: configuration.mosaicBrushWidth,
+                         mosaicCellSize: configuration.mosaicCellSize,
+                         mosaicDrawsBox: configuration.mosaicDrawsBox,
+                         watermarkText: configuration.watermarkText,
+                         watermarkColor: configuration.watermarkColor,
+                         watermarkFontSize: configuration.watermarkFontSize,
+                         watermarkRotation: configuration.watermarkRotation,
+                         watermarkImage: configuration.watermarkImage,
                          appearance: configuration.appearance,
                          zoomEnabled: configuration.allowsMarkZoom,
                          initialZoomMultiplier: configuration.initialMarkZoomScale)
-        markerView.onRequestTextEdit = { [weak self] text, completion in
-            self?.showTextInputAlert(existingText: text, completion: completion)
+        markerView.onRequestTextEdit = { [weak self] text, title, completion in
+            self?.showTextInputAlert(existingText: text, title: title, completion: completion)
         }
         markerView.onSelectionChanged = { [weak self] in
             guard let self = self else { return }
@@ -752,19 +855,49 @@ public class WYImageEditorViewController: UIViewController {
             let columnCenter = firstColumnCenter + CGFloat(index + 1) * columnPitch
             button.frame = CGRect(x: columnCenter - buttonWidth / 2, y: buttonTop, width: buttonWidth, height: chipHeight)
         }
+        let pairTop = y + (UIDevice.wy_screenHeight(37, WYBasisKitConfig.defaultScreenPixels) - UIDevice.wy_screenWidth(29, WYBasisKitConfig.defaultScreenPixels)) / 2
         if !straightChipButton.isHidden {
-            // 两颗形态按钮拼成双段胶囊(高度与最大粗细圆点同高且圆角取半高成胶囊形)，左缘固定对齐第6列圆点的左缘(锚点固定在第6列，色板增减圆点后不漂移)，右缘超屏时整体左移钳制
+            layoutChipPair(leadingChip: straightChipButton, trailingChip: freeChipButton, width: width, safeRight: safeRight, firstColumnCenter: firstColumnCenter, columnPitch: columnPitch, chipWidth: chipWidth, top: pairTop)
+        }
+        if !mosaicBoxChipButton.isHidden {
+            layoutChipPair(leadingChip: mosaicBoxChipButton, trailingChip: mosaicBrushChipButton, width: width, safeRight: safeRight, firstColumnCenter: firstColumnCenter, columnPitch: columnPitch, chipWidth: chipWidth, top: pairTop)
+        }
+        if !watermarkLogoChipButton.isHidden {
+
+            // 图片与平铺是两个独立开关，两颗全圆角小钮并排，左缘固定锚定第6列，右缘超屏时整体左移钳制
             let pairHeight = UIDevice.wy_screenWidth(29, WYBasisKitConfig.defaultScreenPixels)
-            let pairWidth = columnPitch + chipWidth
             let colorDiameter = UIDevice.wy_screenWidth(25, WYBasisKitConfig.defaultScreenPixels)
             let anchorDotLeft = firstColumnCenter + CGFloat(5) * columnPitch - colorDiameter / 2
+            let chipGap = UIDevice.wy_screenWidth(6, WYBasisKitConfig.defaultScreenPixels)
+            let pairWidth = chipWidth * 2 + chipGap
             let pairLeft = min(anchorDotLeft, width - safeRight - UIDevice.wy_screenWidth(4, WYBasisKitConfig.defaultScreenPixels) - pairWidth)
-            let pairTop = y + (UIDevice.wy_screenHeight(37, WYBasisKitConfig.defaultScreenPixels) - pairHeight) / 2
-            straightChipButton.layer.cornerRadius = pairHeight / 2
-            freeChipButton.layer.cornerRadius = pairHeight / 2
-            straightChipButton.frame = CGRect(x: pairLeft, y: pairTop, width: pairWidth / 2, height: pairHeight)
-            freeChipButton.frame = CGRect(x: pairLeft + pairWidth / 2, y: pairTop, width: pairWidth / 2, height: pairHeight)
+            watermarkLogoChipButton.frame = CGRect(x: pairLeft, y: pairTop, width: chipWidth, height: pairHeight)
+            watermarkTileChipButton.frame = CGRect(x: pairLeft + chipWidth + chipGap, y: pairTop, width: chipWidth, height: pairHeight)
+        } else if !watermarkTileChipButton.isHidden {
+
+            // 只开平铺没配logo图时平铺钮单独成颗，左缘仍固定锚定第6列
+            let pairHeight = UIDevice.wy_screenWidth(29, WYBasisKitConfig.defaultScreenPixels)
+            let colorDiameter = UIDevice.wy_screenWidth(25, WYBasisKitConfig.defaultScreenPixels)
+            let anchorDotLeft = firstColumnCenter + CGFloat(5) * columnPitch - colorDiameter / 2
+            let chipLeft = min(anchorDotLeft, width - safeRight - UIDevice.wy_screenWidth(4, WYBasisKitConfig.defaultScreenPixels) - chipWidth)
+            watermarkTileChipButton.layer.cornerRadius = pairHeight / 2
+            watermarkTileChipButton.frame = CGRect(x: chipLeft, y: pairTop, width: chipWidth, height: pairHeight)
         }
+    }
+
+    /// 布局横跨两列的双段胶囊对(高度与最大粗细圆点同高且圆角取半高成胶囊形，左缘固定对齐第6列圆点的左缘，锚点固定在第6列不随色板增减漂移，右缘超屏时整体左移钳制)
+    private func layoutChipPair(leadingChip: UIButton, trailingChip: UIButton, width: CGFloat, safeRight: CGFloat, firstColumnCenter: CGFloat, columnPitch: CGFloat, chipWidth: CGFloat, top: CGFloat) {
+        let pairHeight = UIDevice.wy_screenWidth(29, WYBasisKitConfig.defaultScreenPixels)
+        let pairWidth = columnPitch + chipWidth
+        let colorDiameter = UIDevice.wy_screenWidth(25, WYBasisKitConfig.defaultScreenPixels)
+        let anchorDotLeft = firstColumnCenter + CGFloat(5) * columnPitch - colorDiameter / 2
+        let pairLeft = min(anchorDotLeft, width - safeRight - UIDevice.wy_screenWidth(4, WYBasisKitConfig.defaultScreenPixels) - pairWidth)
+        leadingChip.layer.cornerRadius = pairHeight / 2
+        trailingChip.layer.cornerRadius = pairHeight / 2
+        leadingChip.layer.maskedCorners = [.layerMinXMinYCorner, .layerMinXMaxYCorner]
+        trailingChip.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMaxXMaxYCorner]
+        leadingChip.frame = CGRect(x: pairLeft, y: top, width: pairWidth / 2, height: pairHeight)
+        trailingChip.frame = CGRect(x: pairLeft + pairWidth / 2, y: top, width: pairWidth / 2, height: pairHeight)
     }
 
     /// 刷新粗细字号档位行(按当前选中与工具语境切换显示内容并点亮生效档位)
@@ -772,18 +905,41 @@ public class WYImageEditorViewController: UIViewController {
         guard configuration.showsStyleOptions else { return }
 
         let isTextContext = markerView.contextIsText()
+        let isWatermarkContext = markerView.contextIsWatermarkText()
         let isLineContext = markerView.contextIsLineTool()
-        styleHintLabel.text = isTextContext ? (configuration.appearance.fontSizeHintText ?? WYLocalized("文本字号", table: WYBasisKitConfig.kitLocalizableTable)) : (configuration.appearance.lineWidthHintText ?? WYLocalized("画笔粗细", table: WYBasisKitConfig.kitLocalizableTable))
+        let isMosaicContext = markerView.contextIsMosaicTool()
+        if isWatermarkContext {
+            styleHintLabel.text = configuration.appearance.fontSizeHintText ?? WYLocalized("水印字号", table: WYBasisKitConfig.kitLocalizableTable)
+        } else if isTextContext {
+            styleHintLabel.text = configuration.appearance.fontSizeHintText ?? WYLocalized("文本字号", table: WYBasisKitConfig.kitLocalizableTable)
+        } else {
+            styleHintLabel.text = configuration.appearance.lineWidthHintText ?? WYLocalized("画笔粗细", table: WYBasisKitConfig.kitLocalizableTable)
+        }
         straightChipButton.isHidden = !isLineContext
         freeChipButton.isHidden = !isLineContext
-        lineWidthDotButtons.forEach { $0.isHidden = isTextContext }
-        fontSizeButtons.forEach { $0.isHidden = !isTextContext }
+        mosaicBoxChipButton.isHidden = !isMosaicContext
+        mosaicBrushChipButton.isHidden = !isMosaicContext
+        watermarkLogoChipButton.isHidden = !isWatermarkContext || configuration.watermarkImage == nil
+        watermarkTileChipButton.isHidden = !isWatermarkContext
+        lineWidthDotButtons.forEach { $0.isHidden = isTextContext || isWatermarkContext }
+        fontSizeButtons.forEach { $0.isHidden = !(isTextContext || isWatermarkContext) }
 
         let straightActive = markerView.activeStraightLine()
         straightChipButton.isSelected = straightActive
         freeChipButton.isSelected = !straightActive
         straightChipButton.backgroundColor = straightActive ? .white : UIColor(white: 0.22, alpha: 1)
         freeChipButton.backgroundColor = straightActive ? UIColor(white: 0.22, alpha: 1) : .white
+
+        let boxActive = markerView.activeMosaicBoxed()
+        mosaicBoxChipButton.isSelected = boxActive
+        mosaicBrushChipButton.isSelected = !boxActive
+        mosaicBoxChipButton.backgroundColor = boxActive ? .white : UIColor(white: 0.22, alpha: 1)
+        mosaicBrushChipButton.backgroundColor = boxActive ? UIColor(white: 0.22, alpha: 1) : .white
+
+        watermarkLogoChipButton.isSelected = markerView.watermarkUsesLogo
+        watermarkLogoChipButton.backgroundColor = markerView.watermarkUsesLogo ? .white : UIColor(white: 0.22, alpha: 1)
+        watermarkTileChipButton.isSelected = markerView.watermarkTiled
+        watermarkTileChipButton.backgroundColor = markerView.watermarkTiled ? .white : UIColor(white: 0.22, alpha: 1)
 
         let widthIndex = markerView.activeLineWidthIndex()
         for (index, button) in lineWidthDotButtons.enumerated() {
@@ -800,9 +956,9 @@ public class WYImageEditorViewController: UIViewController {
         view.setNeedsLayout()
     }
 
-    /// 弹出文本输入弹窗(新建文本标记或修改选中文本时用)
-    private func showTextInputAlert(existingText: String?, completion: @escaping (String?) -> Void) {
-        let alert = UIAlertController(title: WYLocalized("输入文本", table: WYBasisKitConfig.kitLocalizableTable), message: nil, preferredStyle: .alert)
+    /// 弹出文本输入弹窗(新建文本或水印、修改选中的文本或水印时用，标题按语境传)
+    private func showTextInputAlert(existingText: String?, title: String, completion: @escaping (String?) -> Void) {
+        let alert = UIAlertController(title: title, message: nil, preferredStyle: .alert)
         alert.addTextField { textField in
             textField.text = existingText
             textField.clearButtonMode = .whileEditing
@@ -991,6 +1147,27 @@ public class WYImageEditorViewController: UIViewController {
         refreshStyleRow()
     }
 
+    /// 点框选或涂抹按钮(把马赛克默认形态切到点的那边，只影响之后新建的马赛克)
+    @objc private func mosaicShapeChipTapped(_ sender: UIControl) {
+        let wantBox = sender === mosaicBoxChipButton
+        if markerView.activeMosaicBoxed() != wantBox {
+            markerView.toggleMosaicShape()
+        }
+        refreshStyleRow()
+    }
+
+    /// 点水印图片按钮(切换之后落的水印是否带上logo)
+    @objc private func watermarkLogoChipTapped(_ sender: UIControl) {
+        markerView.watermarkUsesLogo.toggle()
+        refreshStyleRow()
+    }
+
+    /// 点水印平铺按钮(切换之后落的水印是整图平铺还是单条)
+    @objc private func watermarkTileChipTapped(_ sender: UIControl) {
+        markerView.watermarkTiled.toggle()
+        refreshStyleRow()
+    }
+
     /// 点线宽圆点(有选中标记改它的线宽，没有就改默认线宽影响之后的标记)
     @objc private func lineWidthDotTapped(_ sender: UIControl) {
         let presets = markerView.presetLineWidths()
@@ -1071,5 +1248,14 @@ public class WYImageEditorViewController: UIViewController {
                 context.restoreGState()
             }
         }
+    }
+}
+
+/// 工具行滚动容器(手指落在工具按钮上拖动时取消按钮触摸转成滚动，任何位置都能左右滑，点按不受触摸延时)
+class WYImageEditorToolRowScrollView: UIScrollView {
+
+    /// 触摸落在按钮上开始拖动时允许取消按钮触摸接管滚动(系统默认对UIControl不取消，按住按钮就拖不动列表)
+    override func touchesShouldCancel(in view: UIView) -> Bool {
+        return view is UIControl
     }
 }

@@ -140,3 +140,25 @@
 "编辑" = "Modifier";
 "画笔粗细" = "Épaisseur\npinceau";
 "文本字号" = "Taille\ndu texte";
+"马赛克" = "Mosaïque";
+"水印" = "Filigrane";
+"水印字号" = "Taille de\nfiligrane";
+"输入水印" = "Saisir le filigrane";
+"图片" = "Image";
+"平铺" = "Étalé";
+"框选" = "Cadre";
+"涂抹" = "Étaler";
+
+"保存图片" = "Enregistrer l'image";
+
+"已保存到相册" = "Enregistré dans l'album";
+
+"保存失败，请重试" = "Échec de l'enregistrement. Veuillez réessayer";
+
+"查看原图" = "Voir l'original";
+
+"查看原图(%@)" = "Voir l'original (%@)";
+
+"已显示原图" = "Original affiché";
+
+"加载失败，点击重试" = "Échec du chargement. Touchez pour réessayer";

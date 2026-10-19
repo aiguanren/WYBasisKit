@@ -128,3 +128,25 @@
 "编辑" = "Bearbeiten";
 "画笔粗细" = "Pinsel-\nstärke";
 "文本字号" = "Text-\ngröße";
+"马赛克" = "Mosaik";
+"水印" = "Wasserzeichen";
+"水印字号" = "Wasserzeichen-\nSchriftgröße";
+"输入水印" = "Wasserzeichen eingeben";
+"图片" = "Bild";
+"平铺" = "Wiederholt";
+"框选" = "Rahmen";
+"涂抹" = "Verwischen";
+
+"保存图片" = "Bild speichern";
+
+"已保存到相册" = "Im Album gespeichert";
+
+"保存失败，请重试" = "Speichern fehlgeschlagen. Bitte erneut versuchen";
+
+"查看原图" = "Original anzeigen";
+
+"查看原图(%@)" = "Original anzeigen (%@)";
+
+"已显示原图" = "Original wird angezeigt";
+
+"加载失败，点击重试" = "Laden fehlgeschlagen. Zum Wiederholen tippen";

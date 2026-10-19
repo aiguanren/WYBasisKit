@@ -140,3 +140,25 @@
 "编辑" = "Szerkesztés";
 "画笔粗细" = "Ecset-\nvastagság";
 "文本字号" = "Szöveg-\nméret";
+"马赛克" = "Mozaik";
+"水印" = "Vízjel";
+"水印字号" = "Vízjel\nbetűméret";
+"输入水印" = "Vízjel megadása";
+"图片" = "Kép";
+"平铺" = "Ismételt";
+"框选" = "Keret";
+"涂抹" = "Ken";
+
+"保存图片" = "Kép mentése";
+
+"已保存到相册" = "Mentve az albumba";
+
+"保存失败，请重试" = "A mentés nem sikerült. Próbálja újra";
+
+"查看原图" = "Eredeti megtekintése";
+
+"查看原图(%@)" = "Eredeti megtekintése (%@)";
+
+"已显示原图" = "Az eredeti megjelenítve";
+
+"加载失败，点击重试" = "A betöltés nem sikerült. Koppintson az újrapróbáláshoz";

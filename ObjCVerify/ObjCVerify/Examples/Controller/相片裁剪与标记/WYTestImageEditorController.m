@@ -58,6 +58,15 @@
 /// 测试图片名字(nil表示用生成的标尺图)
 @property (nonatomic, copy, nullable) NSString *testImageName;
 
+/// 水印logo图(nil表示不预置)
+@property (nonatomic, strong, nullable) UIImage *watermarkLogoImage;
+
+/// 水印预填文案(nil表示用编辑器默认)
+@property (nonatomic, copy, nullable) NSString *watermarkText;
+
+/// 水印倾斜角(度)
+@property (nonatomic, assign) CGFloat watermarkRotation;
+
 /// 标尺图下标(0横图 1竖图 2方图，testImageName为nil时生效)
 @property (nonatomic, assign) NSInteger rulerImageIndex;
 
@@ -88,6 +97,7 @@
     _allowsMarking = YES;
     _showsStyleOptions = YES;
     _showsColorOptions = YES;
+    _watermarkRotation = -30;
     _resultSource = @"暂无结果";
 
     UIView *contentView = [[UIView alloc] init];
@@ -169,13 +179,13 @@
                                                     isLast:NO];
     [markZoomButton setTitle:@"(禁缩放)标记页" forState:UIControlStateSelected];
 
-    UIButton *imageButton = [self createButtonWithTitle:@"测试图片(标尺横图)"
-                                               selector:@selector(imageButtonTapped:)
-                                              superView:contentView
-                                               leftView:markZoomButton
-                                                topView:colorRowButton
-                                                 isRight:YES
-                                                  isLast:NO];
+    [self createButtonWithTitle:@"测试图片(标尺横图)"
+                       selector:@selector(imageButtonTapped:)
+                      superView:contentView
+                       leftView:markZoomButton
+                        topView:colorRowButton
+                         isRight:YES
+                          isLast:NO];
 
     UIButton *initialCropZoomButton = [self createButtonWithTitle:@"裁剪初始缩放(1倍)"
                                                         selector:@selector(initialCropZoomButtonTapped:)
@@ -201,27 +211,53 @@
                          isRight:YES
                           isLast:NO];
 
+    UIButton *watermarkImageButton = [self createButtonWithTitle:@"水印图片(无)"
+                                                        selector:@selector(watermarkImageButtonTapped:)
+                                                       superView:contentView
+                                                        leftView:nil
+                                                         topView:initialCropZoomButton
+                                                          isRight:NO
+                                                           isLast:NO];
+    [watermarkImageButton setTitle:@"水印图片(窗花)" forState:UIControlStateSelected];
+
+    UIButton *watermarkTextButton = [self createButtonWithTitle:@"水印文字(默认)"
+                                                       selector:@selector(watermarkTextButtonTapped:)
+                                                      superView:contentView
+                                                       leftView:watermarkImageButton
+                                                        topView:initialCropZoomButton
+                                                         isRight:NO
+                                                          isLast:NO];
+    [watermarkTextButton setTitle:@"水印文字(官方水印)" forState:UIControlStateSelected];
+
+    [self createButtonWithTitle:@"水印角度(-30°)"
+                       selector:@selector(watermarkAngleButtonTapped:)
+                      superView:contentView
+                       leftView:watermarkTextButton
+                        topView:initialCropZoomButton
+                         isRight:YES
+                          isLast:NO];
+
     UIButton *blockButton = [self createButtonWithTitle:@"Block方式\n打开编辑器"
                                                selector:@selector(blockButtonTapped)
                                               superView:contentView
                                                leftView:nil
-                                                topView:initialCropZoomButton
+                                                topView:watermarkImageButton
                                                  isRight:NO
                                                   isLast:NO];
 
     UIButton *delegateButton = [self createButtonWithTitle:@"Delegate方式\n打开编辑器"
-                                               selector:@selector(delegateButtonTapped)
-                                              superView:contentView
-                                               leftView:blockButton
-                                                topView:initialCropZoomButton
-                                                 isRight:NO
-                                                  isLast:NO];
+                                                 selector:@selector(delegateButtonTapped)
+                                                superView:contentView
+                                                 leftView:blockButton
+                                                  topView:watermarkImageButton
+                                                   isRight:NO
+                                                    isLast:NO];
 
     [self createButtonWithTitle:@"静态方法\n一行打开"
                        selector:@selector(staticButtonTapped)
                       superView:contentView
                        leftView:delegateButton
-                        topView:initialCropZoomButton
+                        topView:watermarkImageButton
                          isRight:YES
                           isLast:YES];
 
@@ -291,6 +327,9 @@
     configuration.initialMarkZoomScale = self.initialMarkZoomScale;
     configuration.showsStyleOptions = self.showsStyleOptions;
     configuration.showsColorOptions = self.showsColorOptions;
+    configuration.watermarkImage = self.watermarkLogoImage;
+    configuration.watermarkText = self.watermarkText;
+    configuration.watermarkRotation = self.watermarkRotation;
     return configuration;
 }
 
@@ -366,7 +405,9 @@
     NSString *croppingText = self.allowsCropping ? @"允许" : @"关闭";
     NSString *cropZoomText = self.allowsCropZoom ? @"可缩放" : @"禁缩放";
     NSString *markZoomText = self.allowsMarkZoom ? @"可缩放" : @"禁缩放";
-    wy_print(@"[%@] 打开编辑器 图片=%@ 原图%.0f×%.0f 配置=形状%@ 尺寸%@ 裁剪%@ 标记%@ 粗细字号行%@ 颜色条%@ 裁剪缩放%@ 标记缩放%@", source, imageSourceText, image.size.width, image.size.height, shapeText, sizeText, croppingText, markingText, styleRowText, colorRowText, cropZoomText, markZoomText);
+    NSString *watermarkLogoText = self.watermarkLogoImage == nil ? @"无logo" : @"有logo";
+    NSString *watermarkText = self.watermarkText == nil ? @"默认" : self.watermarkText;
+    wy_print(@"[%@] 打开编辑器 图片=%@ 原图%.0f×%.0f 配置=形状%@ 尺寸%@ 裁剪%@ 标记%@ 粗细字号行%@ 颜色条%@ 裁剪缩放%@ 标记缩放%@ 水印=%@预填%@角度%.0f度", source, imageSourceText, image.size.width, image.size.height, shapeText, sizeText, croppingText, markingText, styleRowText, colorRowText, cropZoomText, markZoomText, watermarkLogoText, watermarkText, self.watermarkRotation);
 }
 
 /// 记录编辑结果并刷新表格(三种打开方式共用)
@@ -475,6 +516,24 @@
             [sender setTitle:[NSString stringWithFormat:@"测试图片(标尺%@)", shortNames[rulerIndex]] forState:UIControlStateNormal];
         }
     }];
+}
+
+/// 水印logo图开关(开时编辑器水印语境出图片钮)
+- (void)watermarkImageButtonTapped:(UIButton *)sender {
+    self.watermarkLogoImage = self.watermarkLogoImage == nil ? [UIImage imageNamed:@"窗花"] : nil;
+    sender.selected = self.watermarkLogoImage != nil;
+}
+
+/// 水印预填文案开关(开时落水印弹窗预填官方水印)
+- (void)watermarkTextButtonTapped:(UIButton *)sender {
+    self.watermarkText = self.watermarkText == nil ? @"官方水印" : nil;
+    sender.selected = self.watermarkText != nil;
+}
+
+/// 水印倾斜角切换(-30度与0度水平两态)
+- (void)watermarkAngleButtonTapped:(UIButton *)sender {
+    self.watermarkRotation = self.watermarkRotation == -30 ? 0 : -30;
+    [sender setTitle:self.watermarkRotation == -30 ? @"水印角度(-30°)" : @"水印角度(0°)" forState:UIControlStateNormal];
 }
 
 /// 界面粗细字号选择行显示开关

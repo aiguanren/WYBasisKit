@@ -40,6 +40,15 @@ struct WYImageMarkerItem {
     /// 文本字号(图片坐标)
     var fontSize: CGFloat = 32
 
+    /// 水印组合的logo图(nil为纯文字水印，单条与平铺都支持)
+    var watermarkImage: UIImage? = nil
+
+    /// 是否平铺水印(true为整图网格平铺防盗图式，false为单条可拖动水印)
+    var isTiledWatermark: Bool = false
+
+    /// 马赛克是否框选形态(true为矩形框整块打码，false为手指涂抹打码)
+    var isBoxedMosaic: Bool = false
+
     /// 箭头整体边界(起点终点围成的矩形往外扩两个线宽)
     var arrowFrame: CGRect {
         let minX = min(startPoint.x, endPoint.x) - lineWidth * 2
@@ -66,13 +75,16 @@ struct WYImageMarkerItem {
         return CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
     }
 
-    /// 标记的有效边界(文本矩形圆形用frame，箭头划线用各自的起终点边界，选中框与命中都用它)
+    /// 标记的有效边界(文本矩形圆形水印单条用frame，箭头划线马赛克用轨迹边界，平铺水印返回null不参与命中与选中)
     var effectiveFrame: CGRect {
         if type == .arrow {
             return arrowFrame
         }
-        if type == .line {
+        if type == .line || type == .mosaic {
             return lineFrame
+        }
+        if type == .watermark, isTiledWatermark {
+            return .null
         }
         return frame
     }
@@ -85,11 +97,11 @@ struct WYImageMarkerItem {
     }
 }
 
-/// 标记视图(显示裁剪框取景范围内的图片，在上面写字画框画圈画箭头划线，标记可选中拖动缩放删除)
+/// 标记视图(显示裁剪框取景范围内的图片，在上面写字画框画圈画箭头划线打马赛克盖水印，标记可选中拖动缩放删除)
 class WYImageMarkerView: UIView {
 
-    /// 文本输入请求回调(参数为已有文本可为nil，回调参数为用户输入，取消时回调nil)
-    var onRequestTextEdit: ((String?, @escaping (String?) -> Void) -> Void)?
+    /// 文本输入请求回调(参数依次为已有文本可为nil、弹窗标题，回调参数为用户输入，取消时回调nil)
+    var onRequestTextEdit: ((_ existingText: String?, _ title: String, _ completion: @escaping (String?) -> Void) -> Void)?
 
     /// 选中状态变化回调(点选新建删除撤销后触发，编辑器用它刷新粗细字号颜色选择行)
     var onSelectionChanged: (() -> Void)?
@@ -97,11 +109,20 @@ class WYImageMarkerView: UIView {
     /// 标记操作上报回调(用户新建删除编辑改样式时触发，编辑器记入统一撤销栈，撤销重做自身不重复上报)
     var onMarkerOperation: (() -> Void)?
 
-    /// 当前选中的标记类型(选中后点画布空白处拖动即生成对应标记，文本工具点空白处弹输入)
+    /// 当前选中的标记类型(选中后点画布空白处拖动即生成对应标记，文本与水印工具点空白处弹输入)
     var activeTool: WYImageMarkerType = .text
 
     /// 划线的默认形态(true为两点连直线，false为跟随手指自由划线，选中划线时可单独转换)
     var lineDrawsStraight = false
+
+    /// 马赛克的默认形态(true为拖矩形框整块打码，false为手指涂抹打码，只影响之后新建的马赛克)
+    var mosaicDrawsBox = false
+
+    /// 水印是否带上logo(编辑器水印语境图片钮的开关态，配置了watermarkImage才有意义)
+    var watermarkUsesLogo = true
+
+    /// 水印是否平铺模式(编辑器水印语境平铺钮的开关态，true时点画布生成整图平铺水印，false为单条)
+    var watermarkTiled = false
 
     /// 当前默认颜色(改色时没有选中标记就改它，影响之后新建的标记)
     private var currentColor: UIColor = .white
@@ -112,6 +133,21 @@ class WYImageMarkerView: UIView {
     /// 默认文本字号(图片坐标，配置传0时按图片宽度自动取值)
     private var defaultFontSize: CGFloat = 32
 
+    /// 水印默认颜色(改色时水印语境没有选中标记就改它，影响之后新建的水印)
+    private var currentWatermarkColor: UIColor = .white
+
+    /// 水印默认字号(图片坐标，配置传0时按图片宽度自动取值)
+    private var defaultWatermarkFontSize: CGFloat = 30
+
+    /// 水印倾斜角(单位为度，单条与平铺共用，0为水平)
+    private var watermarkRotation: CGFloat = -30
+
+    /// 落水印时输入弹窗的预填文案(nil用本地化默认)
+    private var watermarkDefaultText: String?
+
+    /// 调用方预置的水印logo图(nil时水印不带logo)
+    private var watermarkLogoImage: UIImage?
+
     /// 界面外观(选中态虚线删除钮把手与档位倍率都从这里取)
     private var appearance = WYImageEditorAppearance()
 
@@ -120,6 +156,21 @@ class WYImageMarkerView: UIView {
 
     /// 字号档位的固定基准(同线宽基准的理由)
     private var baseFontSize: CGFloat = 32
+
+    /// 马赛克笔刷默认宽度(图片坐标，配置传0时按图片宽度自动取值)
+    private var defaultMosaicBrushWidth: CGFloat = 12
+
+    /// 马赛克笔刷档位的固定基准(同线宽基准的理由)
+    private var baseMosaicBrushWidth: CGFloat = 12
+
+    /// 马赛克像素块大小(图片坐标，配置传0时按图片宽度自动取值)
+    private var mosaicCellSize: CGFloat = 18
+
+    /// 水印字号档位的固定基准(同线宽基准的理由)
+    private var baseWatermarkFontSize: CGFloat = 30
+
+    /// 像素化整图缓存(第一次画马赛克时生成，基准图或像素块大小变化时清空重生成)
+    private var cachedMosaicImage: UIImage?
 
     /// 要标记的原图
     private var sourceImage: UIImage = UIImage()
@@ -182,6 +233,8 @@ class WYImageMarkerView: UIView {
         case createArrow
         /// 新建划线(直线还是自由由lineDrawsStraight决定)
         case createLine
+        /// 新建涂抹马赛克(框选形态复用createShape)
+        case createMosaic
     }
 
     /// 当前拖拽模式
@@ -204,12 +257,25 @@ class WYImageMarkerView: UIView {
      *   - lineWidth: 默认线条宽度(传0按图片宽度自动)
      *   - textFontSize: 默认文本字号(传0按图片宽度自动)
      *   - straightLine: 划线默认形态(true为直线)
+     *   - mosaicBrushWidth: 马赛克笔刷默认宽度(传0按图片宽度自动)
+     *   - mosaicCellSize: 马赛克像素块大小(传0按图片宽度自动)
+     *   - mosaicDrawsBox: 马赛克默认形态(true为框选)
+     *   - watermarkText: 落水印时输入弹窗的预填文案(传nil用本地化默认)
+     *   - watermarkColor: 水印默认颜色
+     *   - watermarkFontSize: 水印默认字号(传0按图片宽度自动)
+     *   - watermarkRotation: 水印倾斜角(单位为度，0为水平)
+     *   - watermarkImage: 调用方预置的水印logo图(传nil水印不带logo)
      *   - appearance: 界面外观
      */
-    func setup(image: UIImage, defaultColor: UIColor, lineWidth: CGFloat, textFontSize: CGFloat, straightLine: Bool, appearance: WYImageEditorAppearance, zoomEnabled: Bool = true, initialZoomMultiplier: CGFloat = 1) {
+    func setup(image: UIImage, defaultColor: UIColor, lineWidth: CGFloat, textFontSize: CGFloat, straightLine: Bool, mosaicBrushWidth: CGFloat, mosaicCellSize: CGFloat, mosaicDrawsBox: Bool, watermarkText: String?, watermarkColor: UIColor, watermarkFontSize: CGFloat, watermarkRotation: CGFloat, watermarkImage: UIImage?, appearance: WYImageEditorAppearance, zoomEnabled: Bool = true, initialZoomMultiplier: CGFloat = 1) {
         sourceImage = image
         currentColor = defaultColor
         lineDrawsStraight = straightLine
+        self.mosaicDrawsBox = mosaicDrawsBox
+        watermarkDefaultText = watermarkText
+        currentWatermarkColor = watermarkColor
+        self.watermarkRotation = watermarkRotation
+        watermarkLogoImage = watermarkImage
         self.appearance = appearance
         pinchGesture.isEnabled = zoomEnabled
         self.initialZoomMultiplier = min(max(initialZoomMultiplier, 1), 8)
@@ -218,8 +284,13 @@ class WYImageMarkerView: UIView {
         let baseWidth = max(image.size.width, 1)
         defaultLineWidth = lineWidth > 0 ? lineWidth : min(max(baseWidth / 160, 3), 48)
         defaultFontSize = textFontSize > 0 ? textFontSize : min(max(baseWidth / 18, 16), 220)
+        defaultMosaicBrushWidth = mosaicBrushWidth > 0 ? mosaicBrushWidth : min(max(baseWidth / 45, 6), 160)
+        self.mosaicCellSize = mosaicCellSize > 0 ? mosaicCellSize : min(max(baseWidth / 64, 8), 120)
+        defaultWatermarkFontSize = watermarkFontSize > 0 ? watermarkFontSize : min(max(baseWidth / 26, 14), 180)
         baseLineWidth = defaultLineWidth
         baseFontSize = defaultFontSize
+        baseMosaicBrushWidth = defaultMosaicBrushWidth
+        baseWatermarkFontSize = defaultWatermarkFontSize
     }
 
     /// 更新显示区域(切到标记模式或裁剪框变化时按裁剪框取景，取景变了查看缩放与平移复位到初始倍数)
@@ -240,6 +311,7 @@ class WYImageMarkerView: UIView {
     /// 回退基准图(逐步还原裁剪时调用，region为当初裁掉的区域，全部标记坐标反向平移回旧基准图坐标)
     func revertCroppedBase(_ previousImage: UIImage, region: CGRect) {
         sourceImage = previousImage
+        cachedMosaicImage = nil
         displayRegion.origin.x += region.origin.x
         displayRegion.origin.y += region.origin.y
         for index in items.indices {
@@ -260,6 +332,7 @@ class WYImageMarkerView: UIView {
     /// 换基准图(裁剪视图松手应用裁剪后调用，region为本次裁掉区域在旧基准图中的坐标，全部标记坐标平移保持锚定图片内容)
     func applyCroppedBase(_ croppedImage: UIImage, region: CGRect) {
         sourceImage = croppedImage
+        cachedMosaicImage = nil
         displayRegion.origin.x -= region.origin.x
         displayRegion.origin.y -= region.origin.y
         for index in items.indices {
@@ -325,34 +398,44 @@ class WYImageMarkerView: UIView {
         onSelectionChanged?()
     }
 
-    /// 应用颜色(有选中标记改它自己的颜色，没有就改默认颜色影响之后的标记)
+    /// 应用颜色(有选中标记改它自己的颜色，没有就按工具语境改水印或标记的默认颜色影响之后的标记，马赛克语境不响应)
     func applyColor(_ color: UIColor) {
-        if let index = selectedIndex, items.indices.contains(index) {
+        if let index = selectedIndex, items.indices.contains(index), items[index].type != .mosaic {
             items[index].color = color
-        } else {
+        } else if activeTool == .watermark {
+            currentWatermarkColor = color
+        } else if activeTool != .mosaic {
             currentColor = color
         }
         setNeedsDisplay()
     }
 
-    /// 应用线条宽度(有选中标记改它自己的线宽，没有就改默认线宽影响之后的标记，选中文本时不生效)
+    /// 应用线条宽度(涂抹马赛克语境改笔刷宽度，其余语境改标记线宽，选中文本与框选马赛克时不生效)
     func applyLineWidth(_ width: CGFloat) {
         guard width > 0 else { return }
         if let index = selectedIndex, items.indices.contains(index), items[index].type != .text {
+            if items[index].type == .mosaic, items[index].isBoxedMosaic { return }
             items[index].lineWidth = width
+        } else if activeTool == .mosaic {
+            defaultMosaicBrushWidth = width
         } else {
             defaultLineWidth = width
         }
         setNeedsDisplay()
     }
 
-    /// 应用文本字号(有选中文本标记改它自己的字号并重排版，没有就改默认字号影响之后的文本)
+    /// 应用文本字号(选中文本或水印改它自己的字号并重排版，没有就按工具语境改水印或文本的默认字号影响之后的标记)
     func applyFontSize(_ fontSize: CGFloat) {
         guard fontSize > 0 else { return }
         if let index = selectedIndex, items.indices.contains(index), items[index].type == .text {
             items[index].fontSize = fontSize
             let textSize = (items[index].text as NSString).size(withAttributes: items[index].textAttributes)
             items[index].frame.size = CGSize(width: textSize.width, height: ceil(textSize.height))
+        } else if let index = selectedIndex, items.indices.contains(index), items[index].type == .watermark {
+            items[index].fontSize = fontSize
+            items[index].frame.size = watermarkBoundsSize(contentSize: watermarkContentSize(text: items[index].text, logo: items[index].watermarkImage, fontSize: fontSize))
+        } else if activeTool == .watermark {
+            defaultWatermarkFontSize = fontSize
         } else {
             defaultFontSize = fontSize
         }
@@ -377,44 +460,69 @@ class WYImageMarkerView: UIView {
         onSelectionChanged?()
     }
 
-    /// 界面线宽档位(按外观倍率序列乘固定基准，点档位不会改变基准防止档位值滚雪球)
+    /// 切换马赛克默认形态(框选与涂抹互换，只影响之后新建的马赛克，不改已画的)
+    func toggleMosaicShape() {
+        mosaicDrawsBox.toggle()
+        onSelectionChanged?()
+    }
+
+    /// 当前马赛克新建形态(true为框选，false为涂抹，编辑器胶囊的显示与切换都按它)
+    func activeMosaicBoxed() -> Bool {
+        return mosaicDrawsBox
+    }
+
+    /// 界面线宽档位(马赛克语境按笔刷基准，其余按标记线宽基准，倍率序列共用外观配置)
     func presetLineWidths() -> [CGFloat] {
-        return appearance.lineWidthRatios.map { baseLineWidth * $0 }
+        let base = contextIsMosaicTool() ? baseMosaicBrushWidth : baseLineWidth
+        return appearance.lineWidthRatios.map { base * $0 }
     }
 
-    /// 界面字号档位(按外观倍率序列乘固定基准，点档位不会改变基准防止档位值滚雪球)
+    /// 界面字号档位(水印语境按水印字号基准，其余按文本字号基准，倍率序列共用外观配置)
     func presetFontSizes() -> [CGFloat] {
-        return appearance.fontSizeRatios.map { baseFontSize * $0 }
+        let base = contextIsWatermarkText() ? baseWatermarkFontSize : baseFontSize
+        return appearance.fontSizeRatios.map { base * $0 }
     }
 
-    /// 当前生效线宽在档位中的下标(选中文本或没有精确命中时返回nil)
+    /// 当前生效线宽在档位中的下标(选中文本或框选马赛克或没有精确命中时返回nil)
     func activeLineWidthIndex() -> Int? {
         let width: CGFloat
         if let index = selectedIndex, items.indices.contains(index), items[index].type != .text {
+            if items[index].type == .mosaic, items[index].isBoxedMosaic { return nil }
             width = items[index].lineWidth
+        } else if activeTool == .mosaic {
+            width = defaultMosaicBrushWidth
         } else {
             width = defaultLineWidth
         }
-        return presetLineWidths().firstIndex(where: { abs($0 - width) < max(0.5, baseLineWidth * 0.05) })
+        let base = contextIsMosaicTool() ? baseMosaicBrushWidth : baseLineWidth
+        return presetLineWidths().firstIndex(where: { abs($0 - width) < max(0.5, base * 0.05) })
     }
 
-    /// 当前生效字号在档位中的下标(选中的不是文本且文本工具没激活时返回nil)
+    /// 当前生效字号在档位中的下标(选中的不是文本或水印且对应工具没激活时返回nil)
     func activeFontSizeIndex() -> Int? {
         let fontSize: CGFloat
         if let index = selectedIndex, items.indices.contains(index), items[index].type == .text {
             fontSize = items[index].fontSize
+        } else if let index = selectedIndex, items.indices.contains(index), items[index].type == .watermark {
+            fontSize = items[index].fontSize
         } else if activeTool == .text {
             fontSize = defaultFontSize
+        } else if activeTool == .watermark {
+            fontSize = defaultWatermarkFontSize
         } else {
             return nil
         }
-        return presetFontSizes().firstIndex(where: { abs($0 - fontSize) < max(0.5, baseFontSize * 0.05) })
+        let base = contextIsWatermarkText() ? baseWatermarkFontSize : baseFontSize
+        return presetFontSizes().firstIndex(where: { abs($0 - fontSize) < max(0.5, base * 0.05) })
     }
 
-    /// 当前生效颜色(有选中标记取它的颜色，没有取默认颜色)
+    /// 当前生效颜色(有选中标记取它的颜色，水印语境没有选中取水印默认颜色，其余取标记默认颜色)
     func activeColor() -> UIColor {
-        if let index = selectedIndex, items.indices.contains(index) {
+        if let index = selectedIndex, items.indices.contains(index), items[index].type != .mosaic {
             return items[index].color
+        }
+        if activeTool == .watermark {
+            return currentWatermarkColor
         }
         return currentColor
     }
@@ -435,12 +543,28 @@ class WYImageMarkerView: UIView {
         return activeTool == .text
     }
 
+    /// 当前语境是否水印(选中水印标记或水印工具激活且无选中)
+    func contextIsWatermarkText() -> Bool {
+        if let index = selectedIndex, items.indices.contains(index) {
+            return items[index].type == .watermark
+        }
+        return activeTool == .watermark
+    }
+
     /// 当前语境是否划线(选中划线标记或划线工具激活且无选中)
     func contextIsLineTool() -> Bool {
         if let index = selectedIndex, items.indices.contains(index) {
             return items[index].type == .line
         }
         return activeTool == .line
+    }
+
+    /// 当前语境是否马赛克(选中马赛克标记或马赛克工具激活且无选中)
+    func contextIsMosaicTool() -> Bool {
+        if let index = selectedIndex, items.indices.contains(index) {
+            return items[index].type == .mosaic
+        }
+        return activeTool == .mosaic
     }
 
     /// 画布触点转图片坐标(映射含取景区域原点，与标记绘制的变换完全一致)
@@ -506,13 +630,14 @@ class WYImageMarkerView: UIView {
         return minimum
     }
 
-    /// 命中的标记下标(后画的优先，触点按图片坐标判断，划线按轨迹距离命中其余按边界命中)
+    /// 命中的标记下标(后画的优先，触点按图片坐标判断，划线与涂抹马赛克按轨迹距离命中平铺水印跳过其余按边界命中)
     private func markerIndex(atImagePoint point: CGPoint) -> Int? {
         let scale = displayTransform().scale
         let padding = 12 / max(scale, 0.001)
         for index in items.indices.reversed() {
             let item = items[index]
-            if item.type == .line {
+            if item.type == .watermark, item.isTiledWatermark { continue }
+            if item.type == .line || (item.type == .mosaic && !item.isBoxedMosaic) {
                 if lineDistance(atImagePoint: point, linePoints: item.linePoints) <= padding + item.lineWidth {
                     return index
                 }
@@ -554,7 +679,7 @@ class WYImageMarkerView: UIView {
 
     /// 新建文本标记(在指定图片坐标处落字，取消输入时不生成)
     private func requestNewText(atImagePoint point: CGPoint) {
-        onRequestTextEdit?(nil) { [weak self] input in
+        onRequestTextEdit?(nil, WYLocalized("输入文本", table: WYBasisKitConfig.kitLocalizableTable)) { [weak self] input in
             guard let self = self, let text = input, !text.isEmpty else { return }
             var item = WYImageMarkerItem()
             item.type = .text
@@ -573,16 +698,63 @@ class WYImageMarkerView: UIView {
         }
     }
 
-    /// 编辑选中的文本标记(重新弹输入改字)
+    /// 编辑选中的文本或水印标记(重新弹输入改字)
     private func requestEditText(itemIndex: Int) {
         let originalText = items[itemIndex].text
-        onRequestTextEdit?(originalText) { [weak self] input in
+        let isWatermark = items[itemIndex].type == .watermark
+        let title = isWatermark ? WYLocalized("输入水印", table: WYBasisKitConfig.kitLocalizableTable) : WYLocalized("输入文本", table: WYBasisKitConfig.kitLocalizableTable)
+        onRequestTextEdit?(originalText, title) { [weak self] input in
             guard let self = self, let text = input, !text.isEmpty, self.items.indices.contains(itemIndex) else { return }
             self.items[itemIndex].text = text
-            let textSize = (text as NSString).size(withAttributes: self.items[itemIndex].textAttributes)
-            self.items[itemIndex].frame.size = CGSize(width: textSize.width, height: ceil(textSize.height))
+            if self.items[itemIndex].type == .watermark {
+                self.items[itemIndex].frame.size = self.watermarkBoundsSize(contentSize: self.watermarkContentSize(text: text, logo: self.items[itemIndex].watermarkImage, fontSize: self.items[itemIndex].fontSize))
+            } else {
+                let textSize = (text as NSString).size(withAttributes: self.items[itemIndex].textAttributes)
+                self.items[itemIndex].frame.size = CGSize(width: textSize.width, height: ceil(textSize.height))
+            }
             self.setNeedsDisplay()
             self.onMarkerOperation?()
+        }
+    }
+
+    /// 点画布落水印(平铺模式新建或原地更新整图平铺层，单条模式在点击处落一条可拖动的组合水印，取消输入或既无字又无logo时不生成)
+    private func requestNewWatermark(atImagePoint point: CGPoint) {
+        let presetText = watermarkDefaultText ?? WYLocalized("水印", table: WYBasisKitConfig.kitLocalizableTable)
+        let logo = watermarkUsesLogo ? watermarkLogoImage : nil
+        onRequestTextEdit?(presetText, WYLocalized("输入水印", table: WYBasisKitConfig.kitLocalizableTable)) { [weak self] input in
+            guard let self = self, let text = input else { return }
+            let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmedText.isEmpty || logo != nil else { return }
+            if self.watermarkTiled {
+                if let tiledIndex = self.items.firstIndex(where: { $0.type == .watermark && $0.isTiledWatermark }) {
+                    self.items[tiledIndex].text = trimmedText
+                    self.items[tiledIndex].watermarkImage = logo
+                } else {
+                    var item = WYImageMarkerItem()
+                    item.type = .watermark
+                    item.isTiledWatermark = true
+                    item.text = trimmedText
+                    item.watermarkImage = logo
+                    item.color = self.currentWatermarkColor
+                    item.fontSize = self.defaultWatermarkFontSize
+                    self.items.append(item)
+                }
+            } else {
+                var item = WYImageMarkerItem()
+                item.type = .watermark
+                item.text = trimmedText
+                item.watermarkImage = logo
+                item.color = self.currentWatermarkColor
+                item.fontSize = self.defaultWatermarkFontSize
+                let boundsSize = self.watermarkBoundsSize(contentSize: self.watermarkContentSize(text: trimmedText, logo: logo, fontSize: item.fontSize))
+                item.frame = CGRect(x: point.x - boundsSize.width / 2, y: point.y - boundsSize.height / 2, width: boundsSize.width, height: boundsSize.height)
+                self.items.append(item)
+                self.selectedIndex = self.items.count - 1
+            }
+            self.redoItems.removeAll()
+            self.setNeedsDisplay()
+            self.onMarkerOperation?()
+            self.onSelectionChanged?()
         }
     }
 
@@ -618,6 +790,18 @@ class WYImageMarkerView: UIView {
                 createdNewMarker = true
             }
         }
+        if dragMode == .createMosaic, let index = selectedIndex, items.indices.contains(index) {
+            let item = items[index]
+            let frame = item.lineFrame
+            let screenDiagonal = hypot(frame.width, frame.height) * displayTransform().scale
+            if screenDiagonal < 12 {
+                items.remove(at: index)
+                selectedIndex = nil
+            } else {
+                createdNewMarker = true
+                selectedIndex = nil
+            }
+        }
         if createdNewMarker {
             redoItems.removeAll()
             onMarkerOperation?()
@@ -645,8 +829,8 @@ class WYImageMarkerView: UIView {
         }
         context.restoreGState()
 
-        // 选中态的虚线框与操作把手按画布坐标画，保证任何缩放下大小一致
-        if let index = selectedIndex, items.indices.contains(index) {
+        // 选中态的虚线框与操作把手按画布坐标画，保证任何缩放下大小一致，涂抹马赛克创建过程中不画(画框跟手碍涂抹)
+        if let index = selectedIndex, items.indices.contains(index), dragMode != .createMosaic {
             drawSelectionChrome(for: items[index], in: context)
         }
     }
@@ -716,6 +900,141 @@ class WYImageMarkerView: UIView {
                 path.addLine(to: item.linePoints[item.linePoints.count - 1])
             }
             path.stroke()
+        case .mosaic:
+            let mosaicImage = mosaicImageForDrawing()
+            context.saveGState()
+            if item.isBoxedMosaic {
+                context.clip(to: item.frame)
+            } else {
+                let brushPath = UIBezierPath()
+                brushPath.lineWidth = item.lineWidth
+                brushPath.lineCapStyle = .round
+                brushPath.lineJoinStyle = .round
+                if let first = item.linePoints.first {
+                    brushPath.move(to: first)
+                    brushPath.addLine(to: item.linePoints.count > 1 ? item.linePoints[1] : first)
+                    for index in 2..<max(item.linePoints.count, 2) {
+                        brushPath.addLine(to: item.linePoints[index])
+                    }
+                }
+                context.addPath(brushPath.cgPath)
+                context.replacePathWithStrokedPath()
+                context.clip()
+            }
+            mosaicImage.draw(in: CGRect(origin: .zero, size: sourceImage.size))
+            context.restoreGState()
+        case .watermark:
+            drawWatermarkContent(item, in: context)
+        }
+    }
+
+    /// 像素化整图(最近邻采样缩小到像素块网格再关插值放大回来，每块是纯色块马赛克感更强，缓存到基准图或块大小变化为止)
+    private func mosaicImageForDrawing() -> UIImage {
+        if let cached = cachedMosaicImage { return cached }
+        let cell = max(mosaicCellSize, 2)
+        let size = sourceImage.size
+        let tinySize = CGSize(width: max(size.width / cell, 1), height: max(size.height / cell, 1))
+
+        let tinyFormat = UIGraphicsImageRendererFormat.default()
+        tinyFormat.scale = 1
+        let tinyRenderer = UIGraphicsImageRenderer(size: tinySize, format: tinyFormat)
+        let tinyImage = tinyRenderer.image { rendererContext in
+            rendererContext.cgContext.interpolationQuality = .none
+            sourceImage.draw(in: CGRect(origin: .zero, size: tinySize))
+        }
+
+        let fullFormat = UIGraphicsImageRendererFormat.default()
+        fullFormat.scale = sourceImage.scale
+        let fullRenderer = UIGraphicsImageRenderer(size: size, format: fullFormat)
+        let mosaicImage = fullRenderer.image { rendererContext in
+            rendererContext.cgContext.interpolationQuality = .none
+            tinyImage.draw(in: CGRect(origin: .zero, size: size))
+        }
+        cachedMosaicImage = mosaicImage
+        return mosaicImage
+    }
+
+    /// 水印内容的排版尺寸(logo与文字横排组合，图片坐标，带字时logo高为字号的1.3倍，纯logo单条时高为图短边的六分之一，纯logo平铺时高同字号1.3倍保持小而密)
+    private func watermarkContentSize(text: String, logo: UIImage?, fontSize: CGFloat, tiled: Bool = false) -> CGSize {
+        var width: CGFloat = 0
+        var height: CGFloat = 0
+        if !text.isEmpty {
+            let textSize = (text as NSString).size(withAttributes: watermarkTextAttributes(color: .white, fontSize: fontSize))
+            width += textSize.width
+            height = max(height, ceil(textSize.height))
+        }
+        if let logo = logo {
+            let logoHeight = text.isEmpty && !tiled ? min(min(sourceImage.size.width, sourceImage.size.height) / 6, max(logo.size.height, 1)) : fontSize * 1.3
+            let logoWidth = max(logoHeight * logo.size.width / max(logo.size.height, 1), 1)
+            if !text.isEmpty { width += fontSize * 0.4 }
+            width += logoWidth
+            height = max(height, logoHeight)
+        }
+        return CGSize(width: max(width, 1), height: max(height, 1))
+    }
+
+    /// 水印标记的边界尺寸(排版尺寸按倾斜角旋转后的外接矩形，标记的frame与选中框命中都按它算，旋转后内容才不出框)
+    private func watermarkBoundsSize(contentSize: CGSize) -> CGSize {
+        let radians = abs(watermarkRotation) * .pi / 180
+        return CGSize(width: contentSize.width * cos(radians) + contentSize.height * sin(radians),
+                      height: contentSize.width * sin(radians) + contentSize.height * cos(radians))
+    }
+
+    /// 水印文字排版属性(颜色按传入色乘外观透明度)
+    private func watermarkTextAttributes(color: UIColor, fontSize: CGFloat) -> [NSAttributedString.Key: Any] {
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.lineBreakMode = .byClipping
+        return [.font: UIFont.boldSystemFont(ofSize: fontSize), .foregroundColor: color.withAlphaComponent(appearance.watermarkAlpha), .paragraphStyle: paragraph]
+    }
+
+    /// 画水印内容(单条以标记中心旋转绘制，平铺先裁剪到图片区域再旋转按网格交错铺满，每组都是logo与文字的组合)
+    private func drawWatermarkContent(_ item: WYImageMarkerItem, in context: CGContext) {
+        let contentSize = watermarkContentSize(text: item.text, logo: item.watermarkImage, fontSize: item.fontSize)
+        context.saveGState()
+        if item.isTiledWatermark {
+            let diagonal = hypot(sourceImage.size.width, sourceImage.size.height)
+            let rowSpacing = contentSize.height * 1.9
+            let columnSpacing = contentSize.width + contentSize.height * 1.1
+
+            // 网格覆盖范围按对角线算，边缘格子的内容会伸出图片，先裁剪到图片区域保证只铺在照片上
+            context.clip(to: CGRect(origin: .zero, size: sourceImage.size))
+            context.translateBy(x: sourceImage.size.width / 2, y: sourceImage.size.height / 2)
+            context.rotate(by: watermarkRotation * .pi / 180)
+            let rowCount = Int(ceil(diagonal / max(rowSpacing, 1))) / 2 + 1
+            let columnCount = Int(ceil(diagonal / max(columnSpacing, 1))) / 2 + 1
+            for row in -rowCount...rowCount {
+                let rowOffset = (row % 2 == 0) ? 0 : columnSpacing / 2
+                for column in -columnCount...columnCount {
+                    let center = CGPoint(x: CGFloat(column) * columnSpacing + rowOffset, y: CGFloat(row) * rowSpacing)
+                    drawWatermarkUnit(text: item.text, logo: item.watermarkImage, fontSize: item.fontSize, color: item.color, contentSize: contentSize, center: center, tiled: true, in: context)
+                }
+            }
+        } else {
+            context.translateBy(x: item.frame.midX, y: item.frame.midY)
+            context.rotate(by: watermarkRotation * .pi / 180)
+            drawWatermarkUnit(text: item.text, logo: item.watermarkImage, fontSize: item.fontSize, color: item.color, contentSize: contentSize, center: .zero, tiled: false, in: context)
+        }
+        context.restoreGState()
+    }
+
+    /// 画一组水印内容(logo与文字横排，以center为内容中心，上下文已旋转到位)
+    private func drawWatermarkUnit(text: String, logo: UIImage?, fontSize: CGFloat, color: UIColor, contentSize: CGSize, center: CGPoint, tiled: Bool, in context: CGContext) {
+        let originX = center.x - contentSize.width / 2
+        var cursorX = originX
+        if let logo = logo {
+            let logoHeight = text.isEmpty && !tiled ? min(min(sourceImage.size.width, sourceImage.size.height) / 6, max(logo.size.height, 1)) : fontSize * 1.3
+            let logoWidth = max(logoHeight * logo.size.width / max(logo.size.height, 1), 1)
+            let logoRect = CGRect(x: cursorX, y: center.y - logoHeight / 2, width: logoWidth, height: logoHeight)
+            context.saveGState()
+            context.setAlpha(appearance.watermarkAlpha)
+            logo.draw(in: logoRect)
+            context.restoreGState()
+            cursorX += logoWidth + fontSize * 0.4
+        }
+        if !text.isEmpty {
+            let attributes = watermarkTextAttributes(color: color, fontSize: fontSize)
+            let textSize = (text as NSString).size(withAttributes: attributes)
+            (text as NSString).draw(at: CGPoint(x: cursorX, y: center.y - textSize.height / 2), withAttributes: attributes)
         }
     }
 
@@ -801,7 +1120,7 @@ class WYImageMarkerView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    /// 点画布(点标记选中它，再点选中的文本重新编辑，点空白处文本工具落字其余取消选中)
+    /// 点画布(点标记选中它，再点选中的文本或水印重新编辑，点空白处文本水印工具落字其余取消选中)
     @objc private func handleTapGesture(_ gesture: UITapGestureRecognizer) {
         guard gesture.state == .ended else { return }
         let viewLocation = gesture.location(in: self)
@@ -815,7 +1134,7 @@ class WYImageMarkerView: UIView {
         }
 
         if let hitIndex = markerIndex(atImagePoint: imageLocation) {
-            if selectedIndex == hitIndex, items[hitIndex].type == .text {
+            if selectedIndex == hitIndex, items[hitIndex].type == .text || items[hitIndex].type == .watermark {
                 requestEditText(itemIndex: hitIndex)
             } else {
                 selectedIndex = hitIndex
@@ -827,6 +1146,8 @@ class WYImageMarkerView: UIView {
 
         if activeTool == .text {
             requestNewText(atImagePoint: imageLocation)
+        } else if activeTool == .watermark {
+            requestNewWatermark(atImagePoint: imageLocation)
         } else {
             deselectMarker()
         }
@@ -911,7 +1232,9 @@ class WYImageMarkerView: UIView {
             return
         }
 
-        if let hitIndex = markerIndex(atImagePoint: imageLocation) {
+        // 涂抹马赛克工具下拖到未选中的标记上不选中它，当作空白处新建涂抹(连续涂抹不被旧涂抹挡住，编辑旧涂抹靠点按选中)
+        let brushPainting = activeTool == .mosaic && !mosaicDrawsBox
+        if let hitIndex = markerIndex(atImagePoint: imageLocation), !(brushPainting && hitIndex != selectedIndex) {
             selectedIndex = hitIndex
             dragMode = .moveMarker
             dragStartItem = items[hitIndex]
@@ -957,6 +1280,28 @@ class WYImageMarkerView: UIView {
             dragStartImagePoint = imageLocation
             dragMode = .createLine
             setNeedsDisplay()
+        case .mosaic:
+            item.type = .mosaic
+            item.lineWidth = defaultMosaicBrushWidth
+            if mosaicDrawsBox {
+                item.isBoxedMosaic = true
+                item.frame = CGRect(origin: imageLocation, size: .zero)
+                items.append(item)
+                selectedIndex = items.count - 1
+                dragStartItem = item
+                dragStartImagePoint = imageLocation
+                dragMode = .createShape
+            } else {
+                item.linePoints = [imageLocation]
+                items.append(item)
+                selectedIndex = items.count - 1
+                dragStartItem = item
+                dragStartImagePoint = imageLocation
+                dragMode = .createMosaic
+            }
+            setNeedsDisplay()
+        case .watermark:
+            dragMode = .none
         }
     }
 
@@ -975,7 +1320,7 @@ class WYImageMarkerView: UIView {
                 item.startPoint.y += deltaY
                 item.endPoint.x += deltaX
                 item.endPoint.y += deltaY
-            } else if item.type == .line {
+            } else if item.type == .line || (item.type == .mosaic && !item.isBoxedMosaic) {
                 for pointIndex in item.linePoints.indices {
                     item.linePoints[pointIndex].x += deltaX
                     item.linePoints[pointIndex].y += deltaY
@@ -996,6 +1341,27 @@ class WYImageMarkerView: UIView {
                 item.fontSize = min(max(item.fontSize * ratio, 12), 400)
                 let textSize = (item.text as NSString).size(withAttributes: item.textAttributes)
                 item.frame.size = CGSize(width: textSize.width, height: ceil(textSize.height))
+            } else if item.type == .watermark {
+
+                // 水印拖右下角按宽度比例缩放字号，logo与整体排版跟着重算
+                let oldWidth = max(item.frame.width, 1)
+                let newWidth = max(imageLocation.x - item.frame.origin.x, item.fontSize)
+                let ratio = newWidth / oldWidth
+                item.fontSize = min(max(item.fontSize * ratio, 8), 600)
+                item.frame.size = watermarkBoundsSize(contentSize: watermarkContentSize(text: item.text, logo: item.watermarkImage, fontSize: item.fontSize))
+            } else if item.type == .mosaic, !item.isBoxedMosaic {
+
+                // 涂抹马赛克拖右下角按新旧宽高比例等比缩放全部轨迹点与笔刷宽度
+                let oldFrame = item.effectiveFrame
+                let newWidth = max(imageLocation.x - item.frame.origin.x, item.lineWidth * 2)
+                let newHeight = max(imageLocation.y - item.frame.origin.y, item.lineWidth * 2)
+                let ratioX = newWidth / max(oldFrame.width, 1)
+                let ratioY = newHeight / max(oldFrame.height, 1)
+                for pointIndex in item.linePoints.indices {
+                    item.linePoints[pointIndex].x = oldFrame.origin.x + (item.linePoints[pointIndex].x - oldFrame.origin.x) * ratioX
+                    item.linePoints[pointIndex].y = oldFrame.origin.y + (item.linePoints[pointIndex].y - oldFrame.origin.y) * ratioY
+                }
+                item.lineWidth = max(item.lineWidth * sqrt(ratioX * ratioY), 2)
             } else if item.type == .line {
 
                 // 自由划线拖右下角按新旧宽高比例等比缩放全部轨迹点
@@ -1036,7 +1402,7 @@ class WYImageMarkerView: UIView {
         case .createArrow:
             guard dragStartItem != nil else { return }
             items[index].endPoint = imageLocation
-        case .createLine:
+        case .createLine, .createMosaic:
             guard dragStartItem != nil else { return }
             if items[index].isStraightLine {
 
@@ -1048,7 +1414,7 @@ class WYImageMarkerView: UIView {
                 }
             } else {
 
-                // 自由划线记录手指轨迹，离上一个点太近就不记，控制点的数量
+                // 自由划线与涂抹马赛克记录手指轨迹，离上一个点太近就不记，控制点的数量
                 let minimumStep = 2 / max(displayTransform().scale, 0.001)
                 let lastPoint = items[index].linePoints[items[index].linePoints.count - 1]
                 if hypot(imageLocation.x - lastPoint.x, imageLocation.y - lastPoint.y) >= minimumStep {

@@ -140,3 +140,25 @@
 "编辑" = "Edit";
 "画笔粗细" = "Brush\nWidth";
 "文本字号" = "Text\nSize";
+"马赛克" = "Mosaic";
+"水印" = "Watermark";
+"水印字号" = "Watermark\nfont size";
+"输入水印" = "Enter watermark";
+"图片" = "Image";
+"平铺" = "Tiled";
+"框选" = "Box";
+"涂抹" = "Smear";
+
+"保存图片" = "Save Image";
+
+"已保存到相册" = "Saved to Albums";
+
+"保存失败，请重试" = "Save failed. Please try again";
+
+"查看原图" = "View original";
+
+"查看原图(%@)" = "View original (%@)";
+
+"已显示原图" = "Original displayed";
+
+"加载失败，点击重试" = "Load failed. Tap to retry";
