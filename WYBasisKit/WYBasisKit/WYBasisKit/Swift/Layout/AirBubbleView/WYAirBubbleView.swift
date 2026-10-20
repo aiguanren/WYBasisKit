@@ -558,7 +558,7 @@ public class WYAirBubbleView: UIView {
      */
     private func makeGroup(for layer: CALayer, newPath: CGPath) -> CAAnimationGroup {
         
-        // 防keyPath字符串写错或日后属性改名没报错:统一用#keyPath让编译器对着属性定义校验，属性改名或删除时直接编译报错(运行期keyPath无效只会静默没动画，排查无从下手)
+        // 防止keyPath字符串写错或日后属性改名没报错，统一用#keyPath让编译器对着属性定义校验，属性改名或删除时直接编译报错(运行期keyPath无效只会静默没动画)
         // path 动画
         let pathAnimation = CABasicAnimation(keyPath: #keyPath(CAShapeLayer.path))
         

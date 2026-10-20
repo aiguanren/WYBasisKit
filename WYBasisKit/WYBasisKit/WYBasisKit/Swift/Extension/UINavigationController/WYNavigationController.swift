@@ -38,7 +38,6 @@ public extension UINavigationController {
 
 public extension UINavigationController {
     
-    // MARK: - 导航栏(全局)配置属性
     
     /// 导航栏背景色 (优先级: 背景图 > 背景色)
     static var wy_navBarBackgroundColor: UIColor? = .white
@@ -47,7 +46,7 @@ public extension UINavigationController {
     static var wy_navBarBackgroundImage: UIImage?
     
     /// 导航栏标题字体
-    static var wy_navBarTitleFont: UIFont = .systemFont(ofSize: 16)
+    static var wy_navBarTitleFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(16, WYBasisKitConfig.defaultScreenPixels))
     
     /// 导航栏标题颜色
     static var wy_navBarTitleColor: UIColor = .black
@@ -67,7 +66,6 @@ public extension UINavigationController {
     /// 导航栏阴影线颜色 (当 shadowHidden = false 时生效)
     static var wy_navBarShadowLineColor: UIColor? = UIColor(white: 0.9, alpha: 1.0)
     
-    // MARK: - 便捷(全局)配置方法
     
     /// 设置全局导航栏样式
     static func wy_setGlobalNavigationBar(
@@ -95,7 +93,6 @@ public extension UINavigationController {
 
 public extension UIViewController {
     
-    // MARK: - 控制器级别属性（有自定义值使用自定义值，否则使用全局值）
     
     /// 导航栏背景色
     var wy_navBarBackgroundColor: UIColor? {
@@ -201,7 +198,6 @@ public extension UIViewController {
         navigationController?.updateNavigationBarAppearance(for: self)
     }
     
-    // MARK: - 便捷设置方法
     
     /// 设置导航栏背景色
     func wy_setNavBarBackgroundColor(_ color: UIColor?) {
@@ -263,7 +259,6 @@ extension UINavigationController: @retroactive UINavigationControllerDelegate {
     }
 }
 
-// MARK: - 导航控制器实现(内部)
 
 public extension UINavigationController {
     

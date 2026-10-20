@@ -65,7 +65,6 @@ import Foundation
         return objects.compactMap { jsonFromObject($0) }
     }
     
-    // MARK: - 解码：JSON -> 对象
     @objc public static func updateObject(_ object: NSObject, with json: [String: Any]) -> Bool {
         // 检查是否实现了协议
         guard object is WYCodableProtocol else {
@@ -139,7 +138,6 @@ import Foundation
         return success ? instance : nil
     }
     
-    // MARK: - 私有方法
     private static func getAllProperties(of object: NSObject) -> [WYCodableProperty] {
         var properties: [WYCodableProperty] = []
         var cls: AnyClass? = type(of: object)
@@ -479,10 +477,8 @@ import Foundation
     }
 }
 
-// MARK: - OC友好扩展
 @objc public extension NSObject {
     
-    // MARK: - 编码方法
     @objc func wy_toJSONDictionary() -> [String: Any] {
         return WYCodableBridge.jsonFromObject(self)
     }
@@ -500,7 +496,6 @@ import Foundation
         return String(data: data, encoding: .utf8)
     }
     
-    // MARK: - 解码方法
     @objc func wy_updateWithJSONDictionary(_ dict: [String: Any]) -> Bool {
         return WYCodableBridge.updateObject(self, with: dict)
     }
@@ -517,7 +512,6 @@ import Foundation
         return wy_updateWithJSONData(data)
     }
     
-    // MARK: - 类方法
     @objc static func wy_objectFromJSONDictionary(_ dict: [String: Any]) -> Self? {
         return WYCodableBridge.createObject(from: dict, className: NSStringFromClass(self)) as? Self
     }

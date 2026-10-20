@@ -348,14 +348,7 @@ public class WYPagingView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    /*
-     // Only override draw() if you perform custom drawing.
-     // An empty implementation adversely affects performance during animation.
-     override draw(_ rect: CGRect) {
-     // Drawing code
-     }
-     */
-}
+    }
 
 /// PagingView按钮栏Item
 public class WYPagingItem: UIButton {

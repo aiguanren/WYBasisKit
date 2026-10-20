@@ -34,7 +34,7 @@ extension WYPagingView {
             ? self.bar_item_height
             : (self.bar_height - self.bar_dividingStripHeight)
 
-            // 防顶部偏移后固定高度把item底部顶出分页栏可见区域:有顶部偏移时高度收敛到剩余可用空间(栏高减偏移再减栏底装饰，装饰取分隔带与滑动线条占位大者)
+            // 防止顶部偏移后固定高度把item底部挤出分页栏可见区域，有顶部偏移时高度收敛到剩余可用空间(栏高减偏移再减栏底装饰，装饰取分隔带与滑动线条占位大者)
             if let bar_itemTopOffset = bar_itemTopOffset {
                 let bottomDecorations: CGFloat = max(self.bar_dividingStripHeight, self.bar_scrollLineBottomOffset + self.bar_scrollLineHeight)
                 finalItemHeight = max(0, min(finalItemHeight, self.bar_height - bar_itemTopOffset - bottomDecorations))
@@ -68,11 +68,13 @@ extension WYPagingView {
             // 图片显示模式由容器统一设置(Item自身不持有容器属性)
             buttonItem.iconView?.contentMode = bar_item_imageContentMode
 
-            // 标题换行与缩字由容器统一设置(Item自身不持有容器属性)，行数不为1时按换行显示并自动关闭缩字(两个属性只能生效一个)
-            // 防负数行数喂给UILabel出未定义行为:收敛到0，0表示不限行数
+            /**
+             *  标题换行与缩字由容器统一设置(Item自身不持有容器属性)，行数不为1时按换行显示并自动关闭缩字(两个属性只能生效一个)
+             *  负数行数收敛到0，防止喂给UILabel出未定义行为，0表示不限行数
+             */
             buttonItem.textView?.numberOfLines = max(0, bar_title_numberOfLines)
             buttonItem.textView?.adjustsFontSizeToFitWidth = bar_title_shrinkFontToFit && (bar_title_numberOfLines == 1)
-            // 防缩字下限系数超出UILabel合法范围:收敛到0~1
+            // 防止缩字下限系数超出UILabel合法范围，收敛到0~1
             buttonItem.textView?.minimumScaleFactor = min(max(bar_title_minimumFontScale, 0), 1)
 
             if(index == bar_selectedIndex) {

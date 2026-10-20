@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// 各基础类型的默认值约定(解码取不到值时回落用)
 protocol WYCodableDefaultValue {
     static var defaultValue: Self { get }
 }

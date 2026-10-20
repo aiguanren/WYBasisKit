@@ -10,20 +10,25 @@ kit_path = "WYBasisKit/WYBasisKit/WYBasisKit/"
 
 Pod::Spec.new do |kit|
   kit.name         = "WYBasisKit-ObjC"
-  kit.version      = "26.9.3"
+  kit.version      = "26.10.1"
   kit.summary      = "WYBasisKit 不仅可以帮助开发者快速构建一个工程，还有基于常用网络框架和系统API而封装的各种实用方法、扩展，开发者只需简单的调用API就可以快速实现相应功能， 大幅提高开发效率。"
   kit.description  = <<-DESC
     Localizable: 国际化解决方案
     Extension: 各种系统扩展
     Networking: 网络请求解决方案
+    NetworkMonitor: 网络状态监听(NWPathMonitor封装，网络类型查询与别名监听)
     Activity: 活动指示器
     Storage: 本地存储
+    MediaCache: 视频边下边播缓存(mp4等渐进式资源分块Range下载、缓存区间索引、LRU容量上限淘汰)
+    DanmakuView: 弹幕视图(滚动顶部底部三类型、轨道自适应、播放器时钟注入暂停冻结与定位清屏)
+    VideoPlayer: 点播播放器(AVPlayer内核，边下边播弹幕字幕手势全屏画中画清晰度切换，控制壳可整体替换)
     Layout: 各种自定义控件(注意：ChatView尚未开发完毕，敬请期待)
     Codable: 数据解析
     Authorization: 各种权限请求与判断
     LogManager: 日志打印，日志导出等日志管理相关(文件默认AES-GCM加密，四档可选)
     Cryptor: 通用加解密工具(MD5/SHA/HMAC/AES-GCM/XOR/Base64/Hex/随机数/PBKDF2)
     ImageEditor: 相片裁剪与标记(矩形圆形支持固定或自由尺寸，文本矩形圆形箭头划线标记，马赛克涂抹框选打码，文字logo组合水印与整图平铺)
+    PhotoBrowser: 图片浏览器(大图缩放浏览与缩放转场拖拽关闭，LivePhoto长按播放，视频封面点击播放回调)
     AudioKit: 音频录制与播放
   DESC
   
@@ -183,6 +188,18 @@ Pod::Spec.new do |kit|
     codable.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
   end
   
+  kit.subspec "NetworkMonitor" do |networkMonitor|
+    networkMonitor.source_files = [
+      "#{kit_path}ObjC/NetworkMonitor/**/*.{swift,h,m}"
+    ]
+    networkMonitor.resource_bundles = {"WYBasisKitObjCNetworkMonitor" => [
+      "#{kit_path}ObjC/PrivacyInfo.xcprivacy"
+    ]}
+    networkMonitor.frameworks = "Foundation", "Network"
+    networkMonitor.dependency "WYBasisKit-swift/NetworkMonitor", kit_swift_version
+    networkMonitor.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
+  end
+
   kit.subspec "Networking" do |networking|
     networking.source_files = [
       "#{kit_path}ObjC/Networking/**/*.{swift,h,m}"
@@ -226,6 +243,18 @@ Pod::Spec.new do |kit|
     storage.frameworks = "Foundation", "UIKit"
     storage.dependency "WYBasisKit-swift/Storage", kit_swift_version
     storage.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
+  end
+
+  kit.subspec "MediaCache" do |mediaCache|
+    mediaCache.source_files = [
+      "#{kit_path}ObjC/MediaCache/**/*.{swift,h,m}"
+    ]
+    mediaCache.resource_bundles = {"WYBasisKitObjCMediaCache" => [
+      "#{kit_path}ObjC/PrivacyInfo.xcprivacy"
+    ]}
+    mediaCache.frameworks = "Foundation", "AVFoundation"
+    mediaCache.dependency "WYBasisKit-swift/MediaCache", kit_swift_version
+    mediaCache.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
   end
 
   kit.subspec "EventHandler" do |eventHandler|
@@ -405,6 +434,33 @@ Pod::Spec.new do |kit|
     #   chatView.dependency "WYBasisKit-ObjC/Extension", kit_swift_version
     #   chatView.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
     # end
+
+    layout.subspec "PhotoBrowser" do |photoBrowser|
+      photoBrowser.source_files = [
+        "#{kit_path}ObjC/Layout/PhotoBrowser/**/*.{swift,h,m}"
+      ]
+      photoBrowser.frameworks = "Foundation", "UIKit", "Photos", "PhotosUI"
+      photoBrowser.dependency "WYBasisKit-swift/Layout/PhotoBrowser", kit_swift_version
+      photoBrowser.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
+    end
+
+    layout.subspec "VideoPlayer" do |videoPlayer|
+      videoPlayer.source_files = [
+        "#{kit_path}ObjC/Layout/VideoPlayer/**/*.{swift,h,m}"
+      ]
+      videoPlayer.frameworks = "Foundation", "AVFoundation", "AVKit"
+      videoPlayer.dependency "WYBasisKit-swift/Layout/VideoPlayer", kit_swift_version
+      videoPlayer.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
+    end
+
+    layout.subspec "DanmakuView" do |danmakuView|
+      danmakuView.source_files = [
+        "#{kit_path}ObjC/Layout/DanmakuView/**/*.{swift,h,m}"
+      ]
+      danmakuView.frameworks = "Foundation", "UIKit"
+      danmakuView.dependency "WYBasisKit-swift/Layout/DanmakuView", kit_swift_version
+      danmakuView.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
+    end
 
     layout.subspec "MediaPlayer" do |mediaPlayer|
       mediaPlayer.source_files = [

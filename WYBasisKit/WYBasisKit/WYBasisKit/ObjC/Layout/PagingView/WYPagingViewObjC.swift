@@ -466,14 +466,7 @@ import WYBasisKitSwift
         switchToPage(at: index, animated: animated)
     }
 
-    /*
-    // Only override draw() if you perform custom drawing.
-    // An empty implementation adversely affects performance during animation.
-    override func draw(_ rect: CGRect) {
-        // Drawing code
-    }
-    */
-
+    
 }
 
 /// PagingView按钮栏Item

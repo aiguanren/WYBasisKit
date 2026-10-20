@@ -11,7 +11,7 @@ import WYBasisKitSwift
 
 @objc extension UIApplication {
     
-    /// 获取当前当前正在显示的window
+    /// 获取当前正在显示的window
     @objc(wy_keyWindow)
     public var wy_keyWindowObjC: UIWindow {
         return wy_keyWindow

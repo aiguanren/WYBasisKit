@@ -155,9 +155,6 @@ import Foundation
                 processedJson[key] = encodeValue(value, visitedObjects: visitedObjects) ?? NSNull()
             }
             
-            // 移除已访问标记（对于树形结构，但保留对循环引用的检测）
-            // visitedObjects.remove(object) // 注释掉以保持对同一对象的循环引用检测
-            
             return processedJson
         default:
             return "\(value)"

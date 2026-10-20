@@ -173,7 +173,7 @@ extension WYPagingItem {
                 textContentWidthConstraint?.priority = .init(999)
                 textContentWidthConstraint?.isActive = true
                 textContentHeightConstraint = contentView.heightAnchor.constraint(greaterThanOrEqualToConstant: totalHeight)
-                // 防顶部偏移后内容高度下限把item底部顶出分页栏:降为998给底部边界约束让路
+                // 防止顶部偏移后内容高度下限把item底部挤出分页栏，降为998给底部边界约束让路
                 textContentHeightConstraint?.priority = .init(998)
                 textContentHeightConstraint?.isActive = true
 
@@ -196,7 +196,7 @@ extension WYPagingItem {
                 textContentWidthConstraint?.priority = .init(999)
                 textContentWidthConstraint?.isActive = true
                 textContentHeightConstraint = contentView.heightAnchor.constraint(greaterThanOrEqualToConstant: totalHeight)
-                // 防顶部偏移后内容高度下限把item底部顶出分页栏:降为998给底部边界约束让路
+                // 防止顶部偏移后内容高度下限把item底部挤出分页栏，降为998给底部边界约束让路
                 textContentHeightConstraint?.priority = .init(998)
                 textContentHeightConstraint?.isActive = true
             }

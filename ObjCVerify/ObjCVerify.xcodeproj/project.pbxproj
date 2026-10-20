@@ -17,6 +17,8 @@
 		580ED5712EA5DB37006012E7 /* UserResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5702EA5DB37006012E7 /* UserResponse.m */; };
 		580ED5742EA5DB55006012E7 /* WYGenericTypeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5732EA5DB55006012E7 /* WYGenericTypeController.m */; };
 		580ED5822EA62AE9006012E7 /* WYArchivedController.m in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5812EA62AE9006012E7 /* WYArchivedController.m */; };
+		581D2E9A3086236D001C1B9E /* WYTestDanmakuController.m in Sources */ = {isa = PBXBuildFile; fileRef = 581D2E993086236D001C1B9E /* WYTestDanmakuController.m */; };
+		581D2EC430863EB0001C1B9E /* WYTestVideoPlayerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 581D2EC330863EB0001C1B9E /* WYTestVideoPlayerController.m */; };
 		582732112E9F8CDF00DAD1AA /* WYTestDarkNightModeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 582732102E9F8CDF00DAD1AA /* WYTestDarkNightModeController.m */; };
 		582917432FB0C3FD0006F98D /* NotoSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 582917422FB0C3FD0006F98D /* NotoSans-Regular.ttf */; };
 		584D59EA2FBEF27F00A862F7 /* WYTestTextViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 584D59E92FBEF27F00A862F7 /* WYTestTextViewController.m */; };
@@ -96,6 +98,7 @@
 		58E989983077394A00916AB4 /* 烟花.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 58E989973077394A00916AB4 /* 烟花.mp3 */; };
 		58EE7B152FBED001009AA0CC /* WYTestLabelViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58EE7B142FBED001009AA0CC /* WYTestLabelViewController.m */; };
 		58EE7B172FBED002009AA0CC /* WYTestLabelCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 58EE7B162FBED002009AA0CC /* WYTestLabelCell.m */; };
+		9D61E502D868CF5ECE43ACD6 /* WYTestPhotoBrowserController.m in Sources */ = {isa = PBXBuildFile; fileRef = F3DEB7D7A2F69158C475ADEE /* WYTestPhotoBrowserController.m */; };
 		9D92C688B58547468C29E0EF /* WYTestImageEditorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 45DF6DE539F0497CABCFF185 /* WYTestImageEditorController.m */; };
 		C3EE448F3AE440A0B1CBA5C5 /* WYTestMediaCacheController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A3E5455F0CC4CA98B4F4929 /* WYTestMediaCacheController.m */; };
 		C6EB8525D748346DDD36A7A5 /* 海边小屋.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = E289EE5ADDEB0D0A9A42C819 /* 海边小屋.mp4 */; };
@@ -122,6 +125,10 @@
 		580ED5732EA5DB55006012E7 /* WYGenericTypeController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYGenericTypeController.m; sourceTree = "<group>"; };
 		580ED5802EA62AE9006012E7 /* WYArchivedController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYArchivedController.h; sourceTree = "<group>"; };
 		580ED5812EA62AE9006012E7 /* WYArchivedController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYArchivedController.m; sourceTree = "<group>"; };
+		581D2E983086236D001C1B9E /* WYTestDanmakuController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestDanmakuController.h; sourceTree = "<group>"; };
+		581D2E993086236D001C1B9E /* WYTestDanmakuController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestDanmakuController.m; sourceTree = "<group>"; };
+		581D2EC230863EB0001C1B9E /* WYTestVideoPlayerController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestVideoPlayerController.h; sourceTree = "<group>"; };
+		581D2EC330863EB0001C1B9E /* WYTestVideoPlayerController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestVideoPlayerController.m; sourceTree = "<group>"; };
 		5827320F2E9F8CDF00DAD1AA /* WYTestDarkNightModeController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestDarkNightModeController.h; sourceTree = "<group>"; };
 		582732102E9F8CDF00DAD1AA /* WYTestDarkNightModeController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestDarkNightModeController.m; sourceTree = "<group>"; };
 		582732462E9FA3ED00DAD1AA /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
@@ -298,6 +305,7 @@
 		58EE7B142FBED001009AA0CC /* WYTestLabelViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.objc; path = WYTestLabelViewController.m; sourceTree = "<group>"; };
 		58EE7B152FBED002009AA0CC /* WYTestLabelCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestLabelCell.h; sourceTree = "<group>"; };
 		58EE7B162FBED002009AA0CC /* WYTestLabelCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.objc; path = WYTestLabelCell.m; sourceTree = "<group>"; };
+		6FEB1F1398008F4A28D3A5AD /* WYTestPhotoBrowserController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestPhotoBrowserController.h; sourceTree = "<group>"; };
 		76D6AAEE5EB24C9CA2CD4A1F /* WYTestImageEditorController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestImageEditorController.h; sourceTree = "<group>"; };
 		BC5984BDDB9582CE12F2E21C /* LivePhoto静图.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "LivePhoto静图.jpg"; sourceTree = "<group>"; };
 		C46CD550F75C96CF7AD29356 /* Pods-SharedPods-ObjCVerify.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SharedPods-ObjCVerify.release.xcconfig"; path = "Target Support Files/Pods-SharedPods-ObjCVerify/Pods-SharedPods-ObjCVerify.release.xcconfig"; sourceTree = "<group>"; };
@@ -305,6 +313,7 @@
 		DF8E77A7EA5B000E32A36E8B /* Pods-SharedPods-ObjCVerify.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SharedPods-ObjCVerify.debug.xcconfig"; path = "Target Support Files/Pods-SharedPods-ObjCVerify/Pods-SharedPods-ObjCVerify.debug.xcconfig"; sourceTree = "<group>"; };
 		E289EE5ADDEB0D0A9A42C819 /* 海边小屋.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "海边小屋.mp4"; sourceTree = "<group>"; };
 		EA2CC6464AD7489BBD8943FF /* WYTestMediaCacheController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestMediaCacheController.h; sourceTree = "<group>"; };
+		F3DEB7D7A2F69158C475ADEE /* WYTestPhotoBrowserController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestPhotoBrowserController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -375,6 +384,24 @@
 				580ED5812EA62AE9006012E7 /* WYArchivedController.m */,
 			);
 			path = "归档解归档";
+			sourceTree = "<group>";
+		};
+		581D2E973086235F001C1B9E /* 弹幕 */ = {
+			isa = PBXGroup;
+			children = (
+				581D2E983086236D001C1B9E /* WYTestDanmakuController.h */,
+				581D2E993086236D001C1B9E /* WYTestDanmakuController.m */,
+			);
+			path = "弹幕";
+			sourceTree = "<group>";
+		};
+		581D2EC130863E9B001C1B9E /* 点播播放器 */ = {
+			isa = PBXGroup;
+			children = (
+				581D2EC230863EB0001C1B9E /* WYTestVideoPlayerController.h */,
+				581D2EC330863EB0001C1B9E /* WYTestVideoPlayerController.m */,
+			);
+			path = "点播播放器";
 			sourceTree = "<group>";
 		};
 		5827320E2E9F8CAB00DAD1AA /* 暗夜、白昼模式 */ = {
@@ -525,10 +552,13 @@
 		58B470482E8D329600D04BCA /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				581D2EC130863E9B001C1B9E /* 点播播放器 */,
+				581D2E973086235F001C1B9E /* 弹幕 */,
 				584E8BE03046C98C00C6D2CA /* 无限切换 */,
 				580BB8B02FF655DC00C1B986 /* 气泡图 */,
 				584D59E72FBEF25B00A862F7 /* 字符串子串点击 */,
 				EB3A9C2FE7AE498090ADA65F /* 相片裁剪与标记 */,
+				E9DDC1CF1F20F609F8ABB4D7 /* 图片浏览 */,
 				3452A791999E438C90572ED0 /* 视频边下边播 */,
 				584D75102F7236D4006C05E7 /* 图片渲染 */,
 				58C359622F3C60F3000E6EF0 /* 图片拼接 */,
@@ -825,9 +855,13 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		E9DDC1CF1F20F609F8ABB4D7 /* 图片浏览 */ = {
 			isa = PBXGroup;
 			children = (
+				6FEB1F1398008F4A28D3A5AD /* WYTestPhotoBrowserController.h */,
+				F3DEB7D7A2F69158C475ADEE /* WYTestPhotoBrowserController.m */,
 			);
+			path = "图片浏览";
 			sourceTree = "<group>";
 		};
 		EB3A9C2FE7AE498090ADA65F /* 相片裁剪与标记 */ = {
@@ -1056,6 +1090,7 @@
 				58DEA9C12F0F5A9E00664E13 /* WYTestVisualController.m in Sources */,
 				58BFB8B82F16441A0094DDB5 /* WYTestAudioController.m in Sources */,
 				584E8BE33046C9AB00C6D2CA /* WYTestInfiniteSwitchController.m in Sources */,
+				581D2E9A3086236D001C1B9E /* WYTestDanmakuController.m in Sources */,
 				58B59FF22E5D5315008F9C38 /* ViewController.m in Sources */,
 				58BFB8B42F16411A0094DDB5 /* WYLogController.m in Sources */,
 				58BFB8A52F14EE350094DDB5 /* WYTestLiveStreamingController.m in Sources */,
@@ -1085,9 +1120,11 @@
 				58DEA9D12F1105EB00664E13 /* WYTableViewPlainController.m in Sources */,
 				58B46FF22E8D0F6100D04BCA /* WYTabBarController.m in Sources */,
 				580ED5682EA5DA9C006012E7 /* SDKRequestContext.m in Sources */,
+				581D2EC430863EB0001C1B9E /* WYTestVideoPlayerController.m in Sources */,
 				58C359682F3C614D000E6EF0 /* WYTestCombineImagesController.m in Sources */,
 				58BFB8832F14D9950094DDB5 /* WYTestRequestController.m in Sources */,
 				584EAF0E2E939052003A21B8 /* WYWebViewController.m in Sources */,
+				9D61E502D868CF5ECE43ACD6 /* WYTestPhotoBrowserController.m in Sources */,
 				C3EE448F3AE440A0B1CBA5C5 /* WYTestMediaCacheController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

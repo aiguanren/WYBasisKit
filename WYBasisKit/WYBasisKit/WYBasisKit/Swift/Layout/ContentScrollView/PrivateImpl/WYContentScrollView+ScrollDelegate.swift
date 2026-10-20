@@ -11,35 +11,6 @@ import UIKit
 /// WYContentScrollView 私有实现，UIScrollViewDelegate 实现(拖动生命周期/轻扫跨轴判定)与事件转发
 extension WYContentScrollView: UIScrollViewDelegate {
     
-    public override func layoutSubviews() {
-        super.layoutSubviews()
-        // 检查(设置)contentSize与contentOffset
-        checkContentSizeAndContentOffset()
-        // 如果frame发生变化需要及时更新内容视图的frame
-        internalSettingsContentView(isReload: false)
-    }
-    
-    public override weak var delegate: (any UIScrollViewDelegate)? {
-        get {
-            return internalDelegate
-        }
-        set {
-            // 防止异常设置（避免死循环）
-            guard newValue !== self else { return }
-            
-            // 系统在释放对象时可能传nil进来，此时若外部代理和super.delegate也都是nil，就跳过赋值，防止对象释放过程中重新建立weak引用导致闪退
-            if newValue == nil && internalDelegate == nil && super.delegate == nil {
-                return
-            }
-            
-            internalDelegate = newValue
-            // 只有不是 self 时才设置（避免重复）
-            if super.delegate !== self {
-                super.delegate = self
-            }
-        }
-    }
-    
     /// 点击了内容页面
     @objc func didClickContent() {
         
@@ -276,18 +247,4 @@ extension WYContentScrollView: UIScrollViewDelegate {
         pauseScroll()
     }
     
-    /// 告诉系统我能响应哪些方法
-    public override func responds(to aSelector: Selector!) -> Bool {
-        return super.responds(to: aSelector)
-        || (internalDelegate?.responds(to: aSelector) ?? false)
-    }
-    
-    /// 将未实现的方法转发给外部 delegate
-    public override func forwardingTarget(for aSelector: Selector!) -> Any? {
-        if internalDelegate?.responds(to: aSelector) == true {
-            return internalDelegate
-            
-        }
-        return super.forwardingTarget(for: aSelector)
-    }
 }

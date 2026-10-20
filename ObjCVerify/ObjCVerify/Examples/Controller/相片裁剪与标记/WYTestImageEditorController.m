@@ -315,8 +315,8 @@
 }
 
 /// 生成当前配置的编辑器配置对象
-- (WYImageEditorConfigurationObjC *)buildConfiguration {
-    WYImageEditorConfigurationObjC *configuration = [[WYImageEditorConfigurationObjC alloc] init];
+- (WYImageEditorConfiguration *)buildConfiguration {
+    WYImageEditorConfiguration *configuration = [[WYImageEditorConfiguration alloc] init];
     configuration.cropShape = self.cropShape;
     configuration.cropSize = self.hasFixedCropSize ? self.fixedCropSize : CGSizeZero;
     configuration.allowsCropping = self.allowsCropping;

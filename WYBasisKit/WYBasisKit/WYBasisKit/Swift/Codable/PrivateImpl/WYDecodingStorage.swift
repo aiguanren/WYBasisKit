@@ -9,16 +9,12 @@ import Foundation
 
 struct WYDecodingStorage {
     
-    /// The container stack.
-    /// Elements may be any one of the JSON types (NSNull, NSNumber, String, Array, [String : Any]).
+    /// 容器栈(元素为 JSON 值，NSNull、NSNumber、String、Array、[String : Any] 任意一种)
     private(set) var containers: [Any] = []
     
-    // MARK: - Initialization
-    
-    /// Initializes `self` with no containers.
+    /// 建一个空容器栈
     init() {}
     
-    // MARK: - Modifying the Stack
     
     var count: Int {
         return self.containers.count
@@ -41,21 +37,19 @@ struct WYDecodingStorage {
 
 final class WYCodableInfo: WYDecoder {
     
-    /// The decoder's storage.
+    /// 解码用的容器栈存储
     var storage: WYDecodingStorage
     
-    /// Options set on the top-level decoder.
+    /// 键名转换策略
     var mappingKeys: JSONDecoder.KeyDecodingStrategy
     
-    /// The path to the current point in encoding.
+    /// 当前解码位置的字段路径
     public var codingPath: [CodingKey]
     
-    /// Contextual user-provided information for use during encoding.
+    /// 调用方随解码流程传自定义信息的字典
     public var userInfo: [CodingUserInfoKey : Any]
     
-    // MARK: - Initialization
-    
-    /// Initializes `self` with the given top-level container and options.
+    /// 以顶层容器与解码配置建实例
     init(referencing container: Any, at codingPath: [CodingKey] = [], userInfo: [CodingUserInfoKey : Any], mappingKeys: JSONDecoder.KeyDecodingStrategy) {
         self.storage = WYDecodingStorage()
         self.storage.push(container: container)
@@ -63,8 +57,6 @@ final class WYCodableInfo: WYDecoder {
         self.userInfo = userInfo
         self.mappingKeys = mappingKeys
     }
-    
-    // MARK: - Decoder Methods
     
     public func container<Key>(keyedBy type: Key.Type) throws -> KeyedDecodingContainer<Key> {
         guard !(self.storage.topContainer is NSNull) else {
@@ -107,8 +99,13 @@ final class WYCodableInfo: WYDecoder {
     }
 }
 
+/**
+ *  带默认值的枚举协议(遵守后解码遇到无法识别的原始值时回落到 defaultCase，不再抛错)
+ *
+ */
 public protocol WYCaseDefaultable: RawRepresentable {
     
+    /// 解码无法识别时使用的默认枚举值
     static var defaultCase: Self { get }
 }
 

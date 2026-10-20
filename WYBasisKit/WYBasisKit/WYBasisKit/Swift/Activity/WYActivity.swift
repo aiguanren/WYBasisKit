@@ -48,7 +48,7 @@ public struct WYScrollInfoConfig {
     public var textColor: UIColor
     
     /// 设置滚动信息提示窗口文本控件的默认字体、字号
-    public static var textFont: UIFont = .systemFont(ofSize: 15)
+    public static var textFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(15, WYBasisKitConfig.defaultScreenPixels))
     public var textFont: UIFont
     
     public init(backgroundColor: UIColor = backgroundColor, movingSpeed: CGFloat = movingSpeed, textColor: UIColor = textColor, textFont: UIFont = textFont) {
@@ -71,7 +71,7 @@ public struct WYMessageInfoConfig {
     public var textColor: UIColor
     
     /// 设置信息提示窗口文本控件的默认字体、字号
-    public static var textFont: UIFont = .systemFont(ofSize: 15)
+    public static var textFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(15, WYBasisKitConfig.defaultScreenPixels))
     public var textFont: UIFont
     
     public init(backgroundColor: UIColor = backgroundColor, textColor: UIColor = textColor, textFont: UIFont = textFont) {

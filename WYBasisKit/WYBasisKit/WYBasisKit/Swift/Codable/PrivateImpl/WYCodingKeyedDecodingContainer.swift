@@ -7,32 +7,29 @@
 
 import Foundation
 
+/// 字典字段的解码容器(字段缺失或类型不符时回落默认值)
 struct WYCodingKeyedDecodingContainer<K: CodingKey>: KeyedDecodingContainerProtocol {
     
     typealias Key = K
     
-    // MARK: Properties
-    
-    /// A reference to the decoder we're reading from.
+    /// 正在读取的解码器
     private let decoder: WYCodableInfo
     
-    /// A reference to the container we're reading from.
+    /// 正在读取的字典容器
     private let container: [String: Any]
     
-    /// The path of coding keys taken to get to this point in decoding.
+    /// 当前解码位置的字段路径
     private(set) public var codingPath: [CodingKey]
     
-    // MARK: - Initialization
     
-    /// Initializes `self` by referencing the given decoder and container.
+    /// 以解码器与字典容器建实例
     init(referencing decoder: WYCodableInfo, wrapping container: [String: Any]) {
         self.decoder = decoder
         switch decoder.mappingKeys {
         case .useDefaultKeys:
             self.container = container
         case .convertFromSnakeCase:
-            // Convert the snake case keys in the container to camel case.
-            // If we hit a duplicate key after conversion, then we'll use the first one we saw. Effectively an undefined behavior with JSON dictionaries.
+            // 容器里的下划线键转驼峰，转换后撞键时保留先出现的那个(JSON 字典键重复本就是未定义行为)
             self.container = Dictionary(container.map {
                 dict in (WYCodable.KeyDecodingStrategy._convertFromSnakeCase(dict.key), dict.value)
             }, uniquingKeysWith: { (first, _) in first })
@@ -46,7 +43,6 @@ struct WYCodingKeyedDecodingContainer<K: CodingKey>: KeyedDecodingContainerProto
         self.codingPath = decoder.codingPath
     }
     
-    // MARK: - KeyedDecodingContainerProtocol Methods
     
     public var allKeys: [Key] {
         return self.container.keys.compactMap { Key(stringValue: $0) }
@@ -176,10 +172,10 @@ struct WYCodingKeyedDecodingContainer<K: CodingKey>: KeyedDecodingContainerProto
             return try decoder.decodeAsDefaultValue()
         }
         
-        /// 若期望解析的类型是字符串类型，则正常解析
+        // 若期望解析的类型是字符串类型，则正常解析
         if let _ = String.defaultValue as? T { return try decodeObject(from: decoder) }
         
-        /// 若原始值不是有效的 JSON 字符串则正常解析
+        // 若原始值不是有效的 JSON 字符串则正常解析
         guard let string = try decoder.unbox(entry, as: String.self),
               let jsonObject = string.wy_toJSONObjectString()
         else {
@@ -349,10 +345,10 @@ extension WYCodingKeyedDecodingContainer {
             return nil
         }
         
-        /// 若期望解析的类型是字符串类型，则正常解析
+        // 若期望解析的类型是字符串类型，则正常解析
         if let _ = String.defaultValue as? T { return try decodeObject(from: decoder) }
         
-        /// 若原始值不是有效的 JSON 字符串则正常解析
+        // 若原始值不是有效的 JSON 字符串则正常解析
         guard let string = try decoder.unbox(entry, as: String.self),
               let jsonObject = string.wy_toJSONObjectString()
         else {
@@ -367,13 +363,13 @@ private extension WYCodable.KeyDecodingStrategy {
     static func _convertFromSnakeCase(_ stringKey: String) -> String {
         guard !stringKey.isEmpty else { return stringKey }
         
-        // Find the first non-underscore character
+        // 找第一个非下划线字符
         guard let firstNonUnderscore = stringKey.firstIndex(where: { $0 != "_" }) else {
-            // Reached the end without finding an _
+            // 整串都是下划线，原样返回
             return stringKey
         }
         
-        // Find the last non-underscore character
+        // 找最后一个非下划线字符
         var lastNonUnderscore = stringKey.index(before: stringKey.endIndex)
         while lastNonUnderscore > firstNonUnderscore && stringKey[lastNonUnderscore] == "_" {
             stringKey.formIndex(before: &lastNonUnderscore)
@@ -386,24 +382,24 @@ private extension WYCodable.KeyDecodingStrategy {
         let components = stringKey[keyRange].split(separator: "_")
         let joinedString : String
         if components.count == 1 {
-            // No underscores in key, leave the word as is - maybe already camel cased
+            // 键里没有下划线，原样保留(可能已是驼峰)
             joinedString = String(stringKey[keyRange])
         } else {
             joinedString = ([components[0].lowercased()] + components[1...].map { $0.capitalized }).joined()
         }
         
-        // Do a cheap isEmpty check before creating and appending potentially empty strings
+        // 先判空再拼接，避免拼出空串
         let result : String
         if (leadingUnderscoreRange.isEmpty && trailingUnderscoreRange.isEmpty) {
             result = joinedString
         } else if (!leadingUnderscoreRange.isEmpty && !trailingUnderscoreRange.isEmpty) {
-            // Both leading and trailing underscores
+            // 首尾都有下划线
             result = String(stringKey[leadingUnderscoreRange]) + joinedString + String(stringKey[trailingUnderscoreRange])
         } else if (!leadingUnderscoreRange.isEmpty) {
-            // Just leading
+            // 只有头部下划线
             result = String(stringKey[leadingUnderscoreRange]) + joinedString
         } else {
-            // Just trailing
+            // 只有尾部下划线
             result = joinedString + String(stringKey[trailingUnderscoreRange])
         }
         return result

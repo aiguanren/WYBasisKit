@@ -452,7 +452,7 @@ import WYBasisKitSwift
 
 private extension WYTextBoundingRects {
 
-    /// 转换为 OC 侧可用的矩形信息对象
+    /// 转换为矩形信息对象
     func wy_convertToObjC() -> WYTextBoundingRectsObjC {
         return WYTextBoundingRectsObjC(rect: rect, string: string, range: range)
     }
@@ -460,7 +460,7 @@ private extension WYTextBoundingRects {
 
 private extension WYTextBoundingInfos {
 
-    /// 转换为 OC 侧可用的矩形信息组合对象
+    /// 转换为矩形信息组合对象
     func wy_convertToObjC() -> WYTextBoundingInfosObjC {
 
         let valueStyle = WYTextBoundingInfoValueStyleObjC(rawValue: self.valueStyle.rawValue) ?? .string

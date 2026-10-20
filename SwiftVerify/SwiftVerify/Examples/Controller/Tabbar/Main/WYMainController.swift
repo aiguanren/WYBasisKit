@@ -19,6 +19,12 @@ class WYMainController: UIViewController {
         ListItem(title: "视频边下边播",
                  controller: "WYTestMediaCacheController"),
 
+        ListItem(title: "弹幕",
+                 controller: "WYTestDanmakuController"),
+
+        ListItem(title: "点播播放器",
+                 controller: "WYTestVideoPlayerController"),
+
         ListItem(title: "暗夜、白昼模式",
                  controller: "WYTestDarkNightModeController"),
         
@@ -110,6 +116,8 @@ class WYMainController: UIViewController {
         ListItem(title: "相片裁剪与标记",
                  controller: "WYTestImageEditorController"),
 
+        ListItem(title: "图片浏览",
+                 controller: "WYTestPhotoBrowserController"),
         
         ListItem(title: "气泡图", controller: "WYTestAirBubbleController"),
         
@@ -140,9 +148,7 @@ class WYMainController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
-
-        // 调试辅助，带 -WYAutoLabelPage 启动参数时自动进入 UILabel 测试页(仅命令行带参启动时生效)
+        // Do any additional setup after loading the view.        // 调试辅助，带 -WYAutoLabelPage 启动参数时自动进入 UILabel 测试页(仅命令行带参启动时生效)
         if ProcessInfo.processInfo.arguments.contains("-WYAutoLabelPage") {
             Task { @MainActor [weak self] in
                 try? await Task.wy_delay(0.5, cancelThrows: false)

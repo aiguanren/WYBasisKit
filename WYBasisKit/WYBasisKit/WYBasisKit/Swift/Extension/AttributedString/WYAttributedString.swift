@@ -814,7 +814,7 @@ private extension NSAttributedString {
     /**
      解析 wy_calculateFrame 的 rangeValue 为返回值类型与每个输入元素命中的全部范围
      
-     - Parameter rangeValue: 支持类型，单个 `String`、`NSRange`(OC 侧为 NSValue 包装)、上述两类元素组成的任意数组（如 `[String]`、`[NSRange]`、`[String, NSRange]`），传 `nil` 表示整个富文本
+     - Parameter rangeValue: 支持类型，单个 `String`、`NSRange`(OC 传入时以 NSValue 包装)、上述两类元素组成的任意数组（如 `[String]`、`[NSRange]`、`[String, NSRange]`），传 `nil` 表示整个富文本
      - Returns: (返回值类型, 按输入元素分组的命中范围，单个输入也按一个元素分组，未命中元素的分组为空数组)
      */
     func wy_boundingTargets(from rangeValue: Any?) -> (valueStyle: WYTextBoundingInfos.WYTextBoundingInfoValueStyle, elementTargets: [[NSRange]]) {
@@ -831,7 +831,7 @@ private extension NSAttributedString {
             return (.string, [self.string.wy_parseRanges(from: keyword)])
         }
         
-        // 单个 NSRange(OC 侧会以 NSValue 包装传入)
+        // 单个 NSRange(OC 传入时以 NSValue 包装)
         if let range = self.wy_validatedRange(rangeValue, fullLength: fullLength) {
             return (.range, [[range]])
         }
@@ -868,7 +868,7 @@ private extension NSAttributedString {
             return clipped.length > 0 ? clipped : nil
         }
         
-        // OC 侧的 NSRange 以 NSValue 传入，objCType 为 {_NSRange=QQ} 时才可安全取 rangeValue
+        // OC 传入的 NSRange 以 NSValue 包装，objCType 为 {_NSRange=QQ} 时才可安全取 rangeValue
         if let nsValue = value as? NSValue, strcmp(nsValue.objCType, "{_NSRange=QQ}") == 0 {
             let clipped = NSIntersectionRange(nsValue.rangeValue, NSRange(location: 0, length: fullLength))
             return clipped.length > 0 ? clipped : nil

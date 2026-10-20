@@ -209,7 +209,6 @@ public extension UIButton {
             // 可用内容区域
             let contentRect = self.bounds
             
-            // MARK: - 计算起始 X
             let contentX: CGFloat
             switch self.contentHorizontalAlignment {
             case .left, .leading:
@@ -222,7 +221,6 @@ public extension UIButton {
                 contentX = contentRect.minX + (contentRect.width - totalWidth) / 2.0
             }
             
-            // MARK: - 计算起始 Y
             let contentY: CGFloat
             switch self.contentVerticalAlignment {
             case .top:

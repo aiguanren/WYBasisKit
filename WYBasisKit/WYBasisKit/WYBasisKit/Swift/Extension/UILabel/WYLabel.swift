@@ -221,8 +221,7 @@ extension UILabel {
         // 松手即停计时器(到时长的长按已在定时器触发时就地回调，提前松手则取消不触发)
         wy_invalidateLongPressTimer()
 
-        // 按钮模式：直接使用 touchesBegan 中记录的结果（点击专用），不再重复计算位置
-        // 长按已触发的本次触摸不再响应点击(防止长按松手后又触发点击回调)
+        // 按钮模式直接用 touchesBegan 中记录的结果，长按已触发的本次触摸不再响应点击(防止长按松手后又触发点击回调)
         if wy_touchUpInside == true, !wy_touchStartTapModels.isEmpty, wy_longPressTriggered == false {
             let endPoint = touches.first?.location(in: self) ?? .zero
             let moveDistance = wy_calculateDistance(from: wy_touchBeginPoint, to: endPoint)
@@ -377,8 +376,10 @@ extension UILabel {
                                   handler:((_ model: WYRichTextModel) -> Void)? = nil) -> Bool {
         guard let attributedText = attributedText else { return false }
 
-        // 缓存过期（富文本对象或尺寸变化）时重新排版，行分组一并重建
-        // 缓存过期时重建行分组(注册回调时label可能尚未布局完成(bounds为零)，只刷行矩形不重建分组时，会用旧分组把别的行的字符误当成这行的)
+        /**
+         *  缓存过期(富文本对象或尺寸变化)时重新排版，行分组一并重建
+         *  注册回调时label可能尚未布局完成(bounds为零)，只刷行矩形不重建分组时，会用旧分组把别的行的字符误当成这行的
+         */
         if wy_cachedAttributedText !== attributedText || wy_cachedBounds != bounds {
             wy_refreshFrameCache(attributedText: attributedText)
             if !wy_attributeStrings.isEmpty {
@@ -958,8 +959,10 @@ final class WYTextLayoutEngine {
             guard let layout = tk2Storage as? WYTextKit2Layout else { return [] }
             let segments = Self.wy_tk2BoundingRects(for: clipped, layout: layout)
             guard layout.isLineCapped, let lastRect = lineRects.last, let lastLineRange = lineCharacterRanges.last else { return segments }
-            // 行数受限截断:末行之上的可见行保留原始行片段矩形(矩形更紧凑)，末行可见内容按裁剪后的行范围构造
-            // (截断头部/中间的末行显示的是全文末尾内容，其原始位置在被截掉的行上，不能用原始行片段反查，截断尾部的末行可见终点就是 totalLength，clipped 已自动裁到可见边界)
+            /**
+             *  行数受限截断时，末行之上的可见行保留原始行片段矩形(矩形更紧凑)，末行可见内容按裁剪后的行范围构造
+             *  截断头部/中间的末行显示的是全文末尾内容，其原始位置在被截掉的行上，不能用原始行片段反查；截断尾部的末行可见终点就是 totalLength，clipped 已自动裁到可见边界
+             */
             var results = segments.filter { $0.rect.midY < lastRect.midY }
             let intersection = NSIntersectionRange(clipped, lastLineRange)
             if intersection.length > 0 {
@@ -1166,8 +1169,10 @@ final class WYTextLayoutEngine {
                     ranges[ranges.count - 1] = tail.range
                 }
             case .byTruncatingMiddle:
-                // 截断中间:末行显示"末行开头…+全文末尾内容"，末尾段按约一半预算量出占宽，开头段在剩余宽度内按断行建议连续填充
-                // (行字符范围是单个连续区间，末行只能表达开头段，末尾段的全文末尾内容暂无法合进同一行范围)
+                /**
+                 *  截断中间时末行显示"末行开头…+全文末尾内容"，末尾段按约一半预算量出占宽，开头段在剩余宽度内按断行建议连续填充
+                 *  行字符范围是单个连续区间，末行只能表达开头段，末尾段的全文末尾内容暂无法合进同一行范围
+                 */
                 let tail = Self.wy_tailFittingSuffix(of: attributedText, availableWidth: (containerSize.width - ellipsisWidth) / 2)
                 let prefixLength = Self.wy_typesetterVisibleLength(of: attributedText, from: lastRange.location, budget: containerSize.width - ellipsisWidth - tail.width)
                 let visibleEnd = min(attributedText.length, lastRange.location + max(1, prefixLength))
@@ -1313,8 +1318,10 @@ final class WYTextLayoutEngine {
         let blockHeight = rects.map({ $0.maxY }).max() ?? 0
         let layout = WYTextKit2Layout(contentStorage: contentStorage, layoutManager: layoutManager, container: container, lineFragments: lineFragments, indexBase: indexBase)
 
-        // 截断裁剪：行数被 numberOfLines 封顶(截断行会把余下整段吞进自身范围)或文本被容器高度裁剪时，
-        // 最后一行的 characterRange 会包含未显示的文本，用行右缘反查到的可见边界裁剪，防止隐藏文本被算进可见行导致点击误命中
+        /**
+         *  行数被 numberOfLines 封顶(截断行会把余下整段吞进自身范围)或文本被容器高度裁剪时，最后一行的 characterRange 会包含未显示的文本
+         *  用行右缘反查到的可见边界裁剪，防止隐藏文本被算进可见行导致点击误命中
+         */
         let cappedByLineLimit = container.maximumNumberOfLines > 0 && ranges.count == container.maximumNumberOfLines
         if var lastRange = ranges.last, let lastLine = lineFragments.last, cappedByLineLimit || NSMaxRange(lastRange) < layoutText.length {
             let bounds = lastLine.line.typographicBounds

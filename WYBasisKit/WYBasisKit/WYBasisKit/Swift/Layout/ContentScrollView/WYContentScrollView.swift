@@ -292,6 +292,26 @@ public class WYContentScrollView: UIScrollView {
         didSet { checkCarouselStatus() }
     }
     
+    public override weak var delegate: (any UIScrollViewDelegate)? {
+        get {
+            return internalDelegate
+        }
+        set {
+            // 防止异常设置（避免死循环）
+            guard newValue !== self else { return }
+            
+            // 系统在释放对象时可能传nil进来，此时若外部代理和super.delegate也都是nil，就跳过赋值，防止对象释放过程中重新建立weak引用导致闪退
+            if newValue == nil && internalDelegate == nil && super.delegate == nil {
+                return
+            }
+            
+            internalDelegate = newValue
+            // 只有不是 self 时才设置（避免重复）
+            if super.delegate !== self {
+                super.delegate = self
+            }
+        }
+    }
     /**
      *  设置需要显示的自定义View(contentSlidingDirection != omnidirectional 时调用)，两个View的Size都将等于当前WYContentScrollView的Size
      *  @param currentView  正在显示的View
@@ -640,6 +660,14 @@ public class WYContentScrollView: UIScrollView {
     }
     
     /// 指定初始化方法，通过 frame 创建视图
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        // 检查(设置)contentSize与contentOffset
+        checkContentSizeAndContentOffset()
+        // 如果frame发生变化需要及时更新内容视图的frame
+        internalSettingsContentView(isReload: false)
+    }
+    
     public override init(frame: CGRect) {
         super.init(frame: frame)
         internalInitializationSettings()
@@ -655,11 +683,18 @@ public class WYContentScrollView: UIScrollView {
         stopTimer()
     }
     
-    /*
-     // Only override draw() if you perform custom drawing.
-     // An empty implementation adversely affects performance during animation.
-     override func draw(_ rect: CGRect) {
-     // Drawing code
-     }
-     */
-}
+    /// 告诉系统我能响应哪些方法
+    public override func responds(to aSelector: Selector!) -> Bool {
+        return super.responds(to: aSelector)
+        || (internalDelegate?.responds(to: aSelector) ?? false)
+    }
+    
+    /// 将未实现的方法转发给外部 delegate
+    public override func forwardingTarget(for aSelector: Selector!) -> Any? {
+        if internalDelegate?.responds(to: aSelector) == true {
+            return internalDelegate
+            
+        }
+        return super.forwardingTarget(for: aSelector)
+    }
+    }

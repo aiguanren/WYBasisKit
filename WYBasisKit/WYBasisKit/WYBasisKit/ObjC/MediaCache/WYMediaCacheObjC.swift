@@ -65,7 +65,7 @@ import WYBasisKitSwift
     }
 }
 
-/// 视频边下边播的全局缓存配置(修改后对之后新发起的数据请求与下载任务生效，已在下载中的分块沿用旧值，OC 侧属性经这类转调 Swift 侧同一份配置实例)
+/// 视频边下边播的全局缓存配置(修改后对之后新发起的数据请求与下载任务生效，已在下载中的分块沿用旧值，属性转调全局同一份配置实例)
 @objc(WYMediaCacheConfig)
 @objcMembers public class WYMediaCacheConfigObjC: NSObject {
 

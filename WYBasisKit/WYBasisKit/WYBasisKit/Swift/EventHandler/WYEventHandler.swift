@@ -105,7 +105,6 @@ public final class WYEventHandler {
         eventHandlers.removeAll()
     }
     
-    // MARK: - 以下为私有
     
     /// 保证线程安全的互斥锁
     private let lock = NSLock()

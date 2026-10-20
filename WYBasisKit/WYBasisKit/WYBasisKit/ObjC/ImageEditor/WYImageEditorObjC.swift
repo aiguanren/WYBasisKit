@@ -10,6 +10,7 @@ import UIKit
 import WYBasisKitSwift
 
 /// 界面外观配置(全部属性都有默认值，按需覆盖，不设置时与默认外观一致，颜色对象传nil、数值传负数表示该项用默认值，markerPalette传空数组时界面不显示颜色行)
+@objc(WYImageEditorAppearance)
 @objcMembers public class WYImageEditorAppearanceObjC: NSObject {
 
     /// 画布背景色(裁剪与标记画布的底色)
@@ -105,6 +106,7 @@ import WYBasisKitSwift
 }
 
 /// 编辑器配置(全部属性都有默认值，按需改，宽高任一为0表示不固定尺寸)
+@objc(WYImageEditorConfiguration)
 @objcMembers public class WYImageEditorConfigurationObjC: NSObject {
 
     /// 裁剪形状(默认矩形)
@@ -177,7 +179,7 @@ import WYBasisKitSwift
     public var appearance: WYImageEditorAppearanceObjC?
 }
 
-/// 相片编辑器OC入口(封装WYImageEditorViewController的弹出与回调，delegate方式用实例方法，Block方式用静态方法)
+/// 相片编辑器入口(封装WYImageEditorViewController的弹出与回调，delegate方式用实例方法，Block方式用静态方法)
 @objc(WYImageEditor)
 @objcMembers public class WYImageEditorObjC: NSObject {
 

@@ -31,6 +31,8 @@
 		58155C072E6A7ABA00D957F3 /* 阳光和窗户.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BF32E6A7ABA00D957F3 /* 阳光和窗户.png */; };
 		58155C082E6A7ABA00D957F3 /* 秋天的树.png in Resources */ = {isa = PBXBuildFile; fileRef = 58155BED2E6A7ABA00D957F3 /* 秋天的树.png */; };
 		581955332E4DB9B800469F1A /* 世间美好与你环环相扣.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 581955322E4DB9B800469F1A /* 世间美好与你环环相扣.mp3 */; };
+		581D2E9630862355001C1B9E /* WYTestDanmakuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2E9530862355001C1B9E /* WYTestDanmakuController.swift */; };
+		581D2EC730863ED3001C1B9E /* WYTestVideoPlayerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2EC630863ED3001C1B9E /* WYTestVideoPlayerController.swift */; };
 		582917412FB0C3E70006F98D /* NotoSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 582917402FB0C3E70006F98D /* NotoSans-Regular.ttf */; };
 		583234192E68382700EFCAD9 /* WYTestPagingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583234182E68382700EFCAD9 /* WYTestPagingViewController.swift */; };
 		584D750E2F723683006C05E7 /* WYTestImageRenderingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D750C2F723683006C05E7 /* WYTestImageRenderingController.swift */; };
@@ -101,6 +103,7 @@
 		58EE7B102FB990FB009AA0CC /* WYTestTextViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EE7B0F2FB990FB009AA0CC /* WYTestTextViewCell.swift */; };
 		58EE7B122FBA0001009AA0CC /* WYTestLabelViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EE7B112FBA0001009AA0CC /* WYTestLabelViewController.swift */; };
 		58EE7B142FBA0001009AA0CC /* WYTestLabelCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EE7B132FBA0001009AA0CC /* WYTestLabelCell.swift */; };
+		9297DDF3C7B90802E65D0E27 /* WYTestPhotoBrowserController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 785A9E48AEF94E7CE4DA876E /* WYTestPhotoBrowserController.swift */; };
 		AAA708702E1C11060040F2ED /* WYArchivedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA7086F2E1C11060040F2ED /* WYArchivedController.swift */; };
 		D26033239062A05E5E558F24 /* 海边小屋.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = A033B07C289DAFE5092C2D99 /* 海边小屋.mp4 */; };
 		E6A893588DCF4135BE3091D0 /* WYTestImageEditorController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843E9914E8E3471E89D812AB /* WYTestImageEditorController.swift */; };
@@ -134,6 +137,8 @@
 		58155BF42E6A7ABA00D957F3 /* 阳光蓝天下的花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "阳光蓝天下的花.png"; sourceTree = "<group>"; };
 		58155BF52E6A7ABA00D957F3 /* 樱花.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "樱花.png"; sourceTree = "<group>"; };
 		581955322E4DB9B800469F1A /* 世间美好与你环环相扣.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "世间美好与你环环相扣.mp3"; sourceTree = "<group>"; };
+		581D2E9530862355001C1B9E /* WYTestDanmakuController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestDanmakuController.swift; sourceTree = "<group>"; };
+		581D2EC630863ED3001C1B9E /* WYTestVideoPlayerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestVideoPlayerController.swift; sourceTree = "<group>"; };
 		582732132E9F9AD900DAD1AA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Main.strings; sourceTree = "<group>"; };
 		582732142E9F9B8500DAD1AA /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		582732152E9F9B8500DAD1AA /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Main.strings; sourceTree = "<group>"; };
@@ -263,6 +268,7 @@
 		58EE7B132FBA0001009AA0CC /* WYTestLabelCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestLabelCell.swift; sourceTree = "<group>"; };
 		73C35E5F0FC853E398DA68A1 /* LivePhoto静图.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "LivePhoto静图.jpg"; sourceTree = "<group>"; };
 		78011E74F07D4B40A356BBFE /* WYTestMediaCacheController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestMediaCacheController.swift; sourceTree = "<group>"; };
+		785A9E48AEF94E7CE4DA876E /* WYTestPhotoBrowserController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestPhotoBrowserController.swift; sourceTree = "<group>"; };
 		843E9914E8E3471E89D812AB /* WYTestImageEditorController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestImageEditorController.swift; sourceTree = "<group>"; };
 		A033B07C289DAFE5092C2D99 /* 海边小屋.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "海边小屋.mp4"; sourceTree = "<group>"; };
 		AAA7086F2E1C11060040F2ED /* WYArchivedController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYArchivedController.swift; sourceTree = "<group>"; };
@@ -319,6 +325,22 @@
 				585B3A7C2DF819DC00E6E08F /* Right */,
 			);
 			path = Tabbar;
+			sourceTree = "<group>";
+		};
+		581D2E9230862324001C1B9E /* 弹幕 */ = {
+			isa = PBXGroup;
+			children = (
+				581D2E9530862355001C1B9E /* WYTestDanmakuController.swift */,
+			);
+			path = "弹幕";
+			sourceTree = "<group>";
+		};
+		581D2EC530863EC2001C1B9E /* 点播播放器 */ = {
+			isa = PBXGroup;
+			children = (
+				581D2EC630863ED3001C1B9E /* WYTestVideoPlayerController.swift */,
+			);
+			path = "点播播放器";
 			sourceTree = "<group>";
 		};
 		583234172E68380100EFCAD9 /* 分页控制器 */ = {
@@ -552,11 +574,14 @@
 		585B3A832DF819DC00E6E08F /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				581D2EC530863EC2001C1B9E /* 点播播放器 */,
+				581D2E9230862324001C1B9E /* 弹幕 */,
 				58C0C113300DF98B00425A85 /* 无限切换 */,
 				580BB8AA2FF63F3B00C1B986 /* 气泡图 */,
 				58EE7B0C2FB88B12009AA0CC /* 字符串子串点击 */,
 				70A07C4DF253487CB3F0FD66 /* 相片裁剪与标记 */,
 				66F3930C6D9D46F5AB6AB48C /* 视频边下边播 */,
+				95FF0E56075F4F7D907BBB52 /* 图片浏览 */,
 				584D75092F723605006C05E7 /* 图片渲染 */,
 				58C359612F3C607A000E6EF0 /* 图片拼接 */,
 				585B3A4B2DF819DC00E6E08F /* 暗夜、白昼模式 */,
@@ -745,9 +770,12 @@
 			path = "相片裁剪与标记";
 			sourceTree = "<group>";
 		};
+		95FF0E56075F4F7D907BBB52 /* 图片浏览 */ = {
 			isa = PBXGroup;
 			children = (
+				785A9E48AEF94E7CE4DA876E /* WYTestPhotoBrowserController.swift */,
 			);
+			path = "图片浏览";
 			sourceTree = "<group>";
 		};
 		AAA7086B2E1C10AE0040F2ED /* 归档解归档 */ = {
@@ -928,9 +956,12 @@
 				"${PODS_ROOT}/../WYBasisKit/WYBasisKit/WYBasisKit/Swift/Layout/ChatView/WYChatView.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftLayoutChatView.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftLayoutContentScrollView.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftLayoutDanmakuView.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftMediaPlayer.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftLayoutPagingView.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftLayoutPhotoBrowser.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftLayoutSoundWavesView.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftLayoutVideoPlayer.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftLocalizable.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftLogManager.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/WYBasisKit-swift/WYBasisKitSwiftMediaCache.bundle",
@@ -976,9 +1007,12 @@
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYChatView.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayoutChatView.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayoutContentScrollView.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayoutDanmakuView.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftMediaPlayer.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayoutPagingView.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayoutPhotoBrowser.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayoutSoundWavesView.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLayoutVideoPlayer.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLocalizable.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftLogManager.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WYBasisKitSwiftMediaCache.bundle",
@@ -1079,6 +1113,7 @@
 				585B3AC52DF819DC00E6E08F /* WYTestLiveStreamingController.swift in Sources */,
 				585B3AC72DF819DC00E6E08F /* WYTestEdgeInsetsController.swift in Sources */,
 				585B3AC82DF819DC00E6E08F /* WYCenterController.swift in Sources */,
+				581D2EC730863ED3001C1B9E /* WYTestVideoPlayerController.swift in Sources */,
 				585B3AC92DF819DC00E6E08F /* WYParseGifController.swift in Sources */,
 				585B3ACA2DF819DC00E6E08F /* WYTestChatController.swift in Sources */,
 				585B3ACB2DF819DC00E6E08F /* WYTestChatDataSource.swift in Sources */,
@@ -1097,11 +1132,13 @@
 				585B3AD42DF819DC00E6E08F /* WYTestTableViewHeaderView.swift in Sources */,
 				585B3AD52DF819DC00E6E08F /* WYTestView.swift in Sources */,
 				585B3AD72DF819DC00E6E08F /* AppDelegate.swift in Sources */,
+				581D2E9630862355001C1B9E /* WYTestDanmakuController.swift in Sources */,
 				585B3B022DF819DC00E6E08F /* SceneDelegate.swift in Sources */,
 				585B3AD82DF819DC00E6E08F /* ViewController.swift in Sources */,
 				585B3AD92DF819DC00E6E08F /* WYTabBarController.swift in Sources */,
 				AAA708702E1C11060040F2ED /* WYArchivedController.swift in Sources */,
 				10F9D70B486C41BCB9F38283 /* WYTestMediaCacheController.swift in Sources */,
+				9297DDF3C7B90802E65D0E27 /* WYTestPhotoBrowserController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -7,24 +7,23 @@
 
 import Foundation
 
+/// 数组元素的解码容器(元素缺失或类型不符时回落默认值)
 struct WYCodableUnkeyedContainer : UnkeyedDecodingContainer {
-    // MARK: Properties
     
-    /// A reference to the decoder we're reading from.
+    /// 正在读取的解码器
     private let decoder: WYCodableInfo
     
-    /// A reference to the container we're reading from.
+    /// 正在读取的数组容器
     private let container: [Any]
     
-    /// The path of coding keys taken to get to this point in decoding.
+    /// 当前解码位置的字段路径
     private(set) public var codingPath: [CodingKey]
     
-    /// The index of the element we're about to decode.
+    /// 下一个要解码元素的下标
     private(set) public var currentIndex: Int
     
-    // MARK: - Initialization
     
-    /// Initializes `self` by referencing the given decoder and container.
+    /// 以解码器与数组容器建实例
     init(referencing decoder: WYCodableInfo, wrapping container: [Any]) {
         self.decoder = decoder
         self.container = container
@@ -32,7 +31,6 @@ struct WYCodableUnkeyedContainer : UnkeyedDecodingContainer {
         self.currentIndex = 0
     }
     
-    // MARK: - UnkeyedDecodingContainer Methods
     
     public var count: Int? {
         return self.container.count

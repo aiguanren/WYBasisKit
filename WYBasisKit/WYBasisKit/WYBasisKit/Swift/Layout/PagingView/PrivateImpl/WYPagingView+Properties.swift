@@ -163,7 +163,7 @@ extension UIViewController {
     var wy_pageControllerIsLastDisplayed: Bool {
 
         set(newValue) {
-            // 防ASSOCIATION_ASSIGN不持有包装出的NSNumber导致后续读取野指针(目前靠tagged pointer侥幸不崩):换成RETAIN持有
+            // 防止ASSOCIATION_ASSIGN不持有包装出的NSNumber导致后续读取野指针，换成RETAIN持有
             objc_setAssociatedObject(self, &WYPagingView.WYAssociatedKeys.pageControllerIsLastDisplayed, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {

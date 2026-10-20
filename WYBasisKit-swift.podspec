@@ -16,12 +16,15 @@ Pod::Spec.new do |kit|
     Activity: 活动指示器
     Storage: 本地存储
     MediaCache: 视频边下边播缓存(mp4等渐进式资源分块Range下载、缓存区间索引、LRU容量上限淘汰)
+    DanmakuView: 弹幕视图(滚动顶部底部三类型、轨道自适应、播放器时钟注入暂停冻结与定位清屏)
+    VideoPlayer: 点播播放器(AVPlayer内核，边下边播弹幕字幕手势全屏画中画清晰度切换，控制壳可整体替换)
     Layout: 各种自定义控件(注意：ChatView尚未开发完毕，敬请期待)
     Codable: 数据解析
     Authorization: 各种权限请求与判断
     LogManager: 日志打印，日志导出等日志管理相关(文件默认AES-GCM加密，四档可选)
     Cryptor: 通用加解密工具(MD5/SHA/HMAC/AES-GCM/XOR/Base64/Hex/随机数/PBKDF2)
     ImageEditor: 相片裁剪与标记(矩形圆形支持固定或自由尺寸，文本矩形圆形箭头划线标记，马赛克涂抹框选打码，文字logo组合水印与整图平铺)
+    PhotoBrowser: 图片浏览器(大图缩放浏览与缩放转场拖拽关闭，LivePhoto长按播放，视频封面点击播放回调)
     AudioKit: 音频录制与播放
     MethodSwizzler: 内部使用，第三方请勿调用
   DESC
@@ -484,16 +487,46 @@ Pod::Spec.new do |kit|
       chatView.dependency "Kingfisher"
     end
 
+    layout.subspec "PhotoBrowser" do |photoBrowser|
       photoBrowser.source_files = [
+        "#{kit_path}Swift/Layout/PhotoBrowser/**/*.{swift,h,m}",
       ]
+      photoBrowser.resource_bundles = {"WYBasisKitSwiftLayoutPhotoBrowser" => [
         "#{kit_path}Swift/PrivacyInfo.xcprivacy"
       ]}
       photoBrowser.frameworks = "Foundation", "UIKit", "Photos", "PhotosUI"
       photoBrowser.dependency "WYBasisKit-swift/Extension"
       photoBrowser.dependency "WYBasisKit-swift/Localizable"
+      photoBrowser.resources = [localizable_bundle]
       photoBrowser.dependency "WYBasisKit-swift/Authorization/PhotoAlbums"
       photoBrowser.dependency "WYBasisKit-swift/Activity"
       photoBrowser.dependency "Kingfisher"
+    end
+
+    layout.subspec "VideoPlayer" do |videoPlayer|
+      videoPlayer.source_files = [
+        "#{kit_path}Swift/Layout/VideoPlayer/**/*.{swift,h,m}"
+      ]
+      videoPlayer.resource_bundles = {"WYBasisKitSwiftLayoutVideoPlayer" => [
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+      ]}
+      videoPlayer.frameworks = "Foundation", "AVFoundation", "AVKit", "MediaPlayer"
+      videoPlayer.dependency "WYBasisKit-swift/Extension"
+      videoPlayer.dependency "WYBasisKit-swift/Localizable"
+      videoPlayer.resources = [localizable_bundle]
+      videoPlayer.dependency "WYBasisKit-swift/Layout/DanmakuView"
+      videoPlayer.dependency "WYBasisKit-swift/MediaCache"
+    end
+
+    layout.subspec "DanmakuView" do |danmakuView|
+      danmakuView.source_files = [
+        "#{kit_path}Swift/Layout/DanmakuView/**/*.{swift,h,m}"
+      ]
+      danmakuView.resource_bundles = {"WYBasisKitSwiftLayoutDanmakuView" => [
+        "#{kit_path}Swift/PrivacyInfo.xcprivacy"
+      ]}
+      danmakuView.frameworks = "Foundation", "UIKit", "QuartzCore"
+      danmakuView.dependency "WYBasisKit-swift/Extension"
     end
 
     layout.subspec "MediaPlayer" do |mediaPlayer|

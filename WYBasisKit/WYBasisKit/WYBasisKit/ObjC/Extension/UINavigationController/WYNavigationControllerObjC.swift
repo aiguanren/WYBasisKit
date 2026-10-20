@@ -38,7 +38,6 @@ import WYBasisKitSwift
 
 @objc public extension UINavigationController {
     
-    // MARK: - 导航栏(全局)配置属性
     
     /// 导航栏背景色 (优先级: 背景图 > 背景色)
     @objc(wy_navBarBackgroundColor)
@@ -103,7 +102,6 @@ import WYBasisKitSwift
         get { return wy_navBarShadowLineColor }
     }
     
-    // MARK: - 便捷(全局)配置方法
     
     /// 设置全局导航栏样式
     @objc(wy_setGlobalNavigationBarWithBackgroundColor:backgroundImage:titleFont:titleColor:returnButtonImage:returnButtonColor:returnButtonTitle:shadowLineHidden:shadowLineColor:)
@@ -132,7 +130,6 @@ import WYBasisKitSwift
 
 @objc public extension UIViewController {
     
-    // MARK: - 控制器级别属性（有自定义值使用自定义值，否则使用全局值）
     
     /// 导航栏背景色
     @objc(wy_navBarBackgroundColor)
@@ -203,7 +200,6 @@ import WYBasisKitSwift
         updateNavigationBarAppearance()
     }
     
-    // MARK: - 便捷设置方法
     
     /// 设置导航栏背景色
     @objc(wy_setNavBarBackgroundColor:)

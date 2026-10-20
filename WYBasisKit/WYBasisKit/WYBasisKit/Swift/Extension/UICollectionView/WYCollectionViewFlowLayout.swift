@@ -89,11 +89,8 @@ public class WYCollectionViewFlowLayout: UICollectionViewFlowLayout {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-}
 
-public extension WYCollectionViewFlowLayout {
-    
-    override func prepare() {
+    public override func prepare() {
         
         super.prepare()
         
@@ -248,11 +245,11 @@ public extension WYCollectionViewFlowLayout {
         }
     }
     
-    override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
+    public override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
         return attributesArray
     }
     
-    override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+    public override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
         
         // 分区对齐方式
         let alignment: WYFlowLayoutAlignment = flowLayoutAlignmentIn(indexPath.section)
@@ -263,7 +260,7 @@ public extension WYCollectionViewFlowLayout {
         }
     }
     
-    override func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+    public override func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
         
         let attributes = UICollectionViewLayoutAttributes(forSupplementaryViewOfKind: elementKind, with: indexPath)
         
@@ -331,7 +328,7 @@ public extension WYCollectionViewFlowLayout {
         return attributes
     }
     
-    override var collectionViewContentSize: CGSize {
+    public override var collectionViewContentSize: CGSize {
         if scrollDirection == .vertical {
             return CGSize(width: collectionView?.frame.size.width ?? 0, height: contentSize.height)
         }else {
@@ -339,7 +336,7 @@ public extension WYCollectionViewFlowLayout {
         }
     }
     
-    override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+    public override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         
         if (scrollDirection == .horizontal) || (collectionView?.isPagingEnabled == true) {
             return false

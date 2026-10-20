@@ -9,10 +9,12 @@
 /* Begin PBXBuildFile section */
 		02317E95937A422D4510B1BE /* Pods_WYBasisKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B0A12B6CD08A1EADB40EC1C /* Pods_WYBasisKit.framework */; };
 		04B0542BD68343EB808C882D /* WYImageEditorObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E7D9319DA254FEBB18880DB /* WYImageEditorObjC.swift */; };
+		15F3D3C618E93B7564F1EFC0 /* WYPhotoBrowserPageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42FC218D652F6064335DAD12 /* WYPhotoBrowserPageCell.swift */; };
 		24397A41A7A0493D8AC83BC4 /* WYImageMarkerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFF8F17400C4B01BA509737 /* WYImageMarkerView.swift */; };
 		34695EBADD85427988DC5616 /* WYImageEditorIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BA3CE4FE747490FBA5C36BB /* WYImageEditorIcons.swift */; };
 		434CB74727D04EABB783E5F9 /* WYMediaCacheItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 501D44946B964750878E0E27 /* WYMediaCacheItem.swift */; };
 		45228F4741BA4567BFCFC0B3 /* WYMediaCacheResourceLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C607C62B1F874EA7A3F5024E /* WYMediaCacheResourceLoader.swift */; };
+		49D5798A0DBD037562F370D2 /* WYPhotoBrowserObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36E83887783410A035B5E89 /* WYPhotoBrowserObjC.swift */; };
 		4A1B2C3D4E5F60718293A0B5 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1B2C3D4E5F60718293A0B4 /* SceneDelegate.swift */; };
 		5802B28E2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5802B28D2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift */; };
 		5806BD102FD3D25400FEA501 /* WYTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5806BD0F2FD3D25400FEA501 /* WYTask.swift */; };
@@ -25,6 +27,29 @@
 		5814080A2EC831A50099D41B /* WYTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581408092EC831A50099D41B /* WYTableViewCell.swift */; };
 		5814080F2EC881AB0099D41B /* WYTableViewCellObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5814080E2EC881AB0099D41B /* WYTableViewCellObjC.swift */; };
 		581D2E8230860D68001C1B9E /* WYNetworkMonitorObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2E8130860D68001C1B9E /* WYNetworkMonitorObjC.swift */; };
+		581D2E8530862226001C1B9E /* WYDanmakuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2E8430862226001C1B9E /* WYDanmakuView.swift */; };
+		581D2E8830862299001C1B9E /* WYDanmakuConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2E8730862299001C1B9E /* WYDanmakuConfiguration.swift */; };
+		581D2E8A308622A7001C1B9E /* WYDanmakuEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2E89308622A7001C1B9E /* WYDanmakuEngine.swift */; };
+		581D2E8C308622D0001C1B9E /* WYDanmakuItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2E8B308622D0001C1B9E /* WYDanmakuItemView.swift */; };
+		581D2E8E308622DF001C1B9E /* WYDanmakuModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2E8D308622DF001C1B9E /* WYDanmakuModel.swift */; };
+		581D2E9130862303001C1B9E /* WYDanmakuViewObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2E9030862303001C1B9E /* WYDanmakuViewObjC.swift */; };
+		581D2E9E30863D17001C1B9E /* WYVideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2E9D30863D17001C1B9E /* WYVideoPlayer.swift */; };
+		581D2EA030863D46001C1B9E /* WYVideoPlayerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2E9F30863D46001C1B9E /* WYVideoPlayerObjC.swift */; };
+		581D2EA230863D55001C1B9E /* WYVideoPlayerConfigObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2EA130863D55001C1B9E /* WYVideoPlayerConfigObjC.swift */; };
+		581D2EA430863D7A001C1B9E /* WYVideoPlayerConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2EA330863D7A001C1B9E /* WYVideoPlayerConfig.swift */; };
+		581D2EA630863D84001C1B9E /* WYVideoPlayerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2EA530863D84001C1B9E /* WYVideoPlayerDelegate.swift */; };
+		581D2EA830863D93001C1B9E /* WYVideoPlayerControlShell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2EA730863D93001C1B9E /* WYVideoPlayerControlShell.swift */; };
+		581D2EAA30863DA7001C1B9E /* WYVideoPlayerMediaAsset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2EA930863DA7001C1B9E /* WYVideoPlayerMediaAsset.swift */; };
+		581D2EAC30863DB1001C1B9E /* WYVideoPlayerSubtitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2EAB30863DB1001C1B9E /* WYVideoPlayerSubtitle.swift */; };
+		581D2EB030863DF5001C1B9E /* WYVideoPlayerEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2EAF30863DF5001C1B9E /* WYVideoPlayerEngine.swift */; };
+		581D2EB230863DFF001C1B9E /* WYVideoPlayerGestureController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2EB130863DFF001C1B9E /* WYVideoPlayerGestureController.swift */; };
+		581D2EB430863E0B001C1B9E /* WYVideoPlayerDefaultShell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2EB330863E0B001C1B9E /* WYVideoPlayerDefaultShell.swift */; };
+		581D2EB630863E17001C1B9E /* WYVideoPlayerShellViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2EB530863E17001C1B9E /* WYVideoPlayerShellViews.swift */; };
+		581D2EB830863E22001C1B9E /* WYVideoPlayerFullscreenManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2EB730863E22001C1B9E /* WYVideoPlayerFullscreenManager.swift */; };
+		581D2EBA30863E2B001C1B9E /* WYVideoPlayerPipManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2EB930863E2B001C1B9E /* WYVideoPlayerPipManager.swift */; };
+		581D2EBC30863E48001C1B9E /* WYVideoPlayerSubtitleParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2EBB30863E48001C1B9E /* WYVideoPlayerSubtitleParser.swift */; };
+		581D2EBE30863E53001C1B9E /* WYVideoPlayerSnapshotTaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2EBD30863E53001C1B9E /* WYVideoPlayerSnapshotTaker.swift */; };
+		581D2EC030863E5E001C1B9E /* WYVideoPlayerQualitySwitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2EBF30863E5E001C1B9E /* WYVideoPlayerQualitySwitcher.swift */; };
 		58328C602FC9364600C0F556 /* WYPopViewControllerSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C5F2FC9364600C0F556 /* WYPopViewControllerSwizzler.swift */; };
 		58328C622FC936D100C0F556 /* WYPresentSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C612FC936D100C0F556 /* WYPresentSwizzler.swift */; };
 		58328C642FC9371800C0F556 /* WYViewDidLoadSwizzler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58328C632FC9371800C0F556 /* WYViewDidLoadSwizzler.swift */; };
@@ -265,14 +290,19 @@
 		AAC46AD02E07E28F0068B0DF /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = AAC46ACF2E07E28F0068B0DF /* libc++.tbd */; };
 		AD72FABA68B94803A54AC716 /* WYNetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D9BF75B6B7C45429E451E50 /* WYNetworkMonitor.swift */; };
 		ADED48648DE64BE587893515 /* WYMediaCacheObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4563C02952724E24B18AC302 /* WYMediaCacheObjC.swift */; };
+		B33989045E87D56FF65D7C1D /* WYPhotoBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94836A6EC0A19FB965B458EC /* WYPhotoBrowser.swift */; };
 		B61CA42A4DA447BCE604C620 /* WYCryptorObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 684CA039106944C16D6C83B2 /* WYCryptorObjC.swift */; };
+		B768B9625EDE9F3363234579 /* WYPhotoBrowserTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 084E7EAF0CAC71E9AABDF813 /* WYPhotoBrowserTransition.swift */; };
 		CF080236B6634685A6318861 /* WYImageCropperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B46C27D2941B4A85A99A2E30 /* WYImageCropperView.swift */; };
+		F8CDEF0FEB4C2E16D7D25654 /* WYPhotoBrowserMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4EE578F5C81426AA5BC1D29 /* WYPhotoBrowserMenuView.swift */; };
 		F9B01DB67BCA4F268210F6EF /* WYMediaCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20024D929D9487584DE7607 /* WYMediaCache.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		084E7EAF0CAC71E9AABDF813 /* WYPhotoBrowserTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPhotoBrowserTransition.swift; sourceTree = "<group>"; };
 		2933A783B02A48DA9F08F495 /* WYMediaCacheDownloadTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaCacheDownloadTask.swift; sourceTree = "<group>"; };
 		2D8AB1CA014BB35F5E33F61B /* WYMediaPlayer+LoadCore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+LoadCore.swift"; sourceTree = "<group>"; };
+		42FC218D652F6064335DAD12 /* WYPhotoBrowserPageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPhotoBrowserPageCell.swift; sourceTree = "<group>"; };
 		4563C02952724E24B18AC302 /* WYMediaCacheObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaCacheObjC.swift; sourceTree = "<group>"; };
 		4A1B2C3D4E5F60718293A0B4 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		4B3F177B4EB89C79E90E629A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -291,6 +321,29 @@
 		581408092EC831A50099D41B /* WYTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTableViewCell.swift; sourceTree = "<group>"; };
 		5814080E2EC881AB0099D41B /* WYTableViewCellObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTableViewCellObjC.swift; sourceTree = "<group>"; };
 		581D2E8130860D68001C1B9E /* WYNetworkMonitorObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkMonitorObjC.swift; sourceTree = "<group>"; };
+		581D2E8430862226001C1B9E /* WYDanmakuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYDanmakuView.swift; sourceTree = "<group>"; };
+		581D2E8730862299001C1B9E /* WYDanmakuConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYDanmakuConfiguration.swift; sourceTree = "<group>"; };
+		581D2E89308622A7001C1B9E /* WYDanmakuEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYDanmakuEngine.swift; sourceTree = "<group>"; };
+		581D2E8B308622D0001C1B9E /* WYDanmakuItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYDanmakuItemView.swift; sourceTree = "<group>"; };
+		581D2E8D308622DF001C1B9E /* WYDanmakuModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYDanmakuModel.swift; sourceTree = "<group>"; };
+		581D2E9030862303001C1B9E /* WYDanmakuViewObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYDanmakuViewObjC.swift; sourceTree = "<group>"; };
+		581D2E9D30863D17001C1B9E /* WYVideoPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYVideoPlayer.swift; sourceTree = "<group>"; };
+		581D2E9F30863D46001C1B9E /* WYVideoPlayerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYVideoPlayerObjC.swift; sourceTree = "<group>"; };
+		581D2EA130863D55001C1B9E /* WYVideoPlayerConfigObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYVideoPlayerConfigObjC.swift; sourceTree = "<group>"; };
+		581D2EA330863D7A001C1B9E /* WYVideoPlayerConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYVideoPlayerConfig.swift; sourceTree = "<group>"; };
+		581D2EA530863D84001C1B9E /* WYVideoPlayerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYVideoPlayerDelegate.swift; sourceTree = "<group>"; };
+		581D2EA730863D93001C1B9E /* WYVideoPlayerControlShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYVideoPlayerControlShell.swift; sourceTree = "<group>"; };
+		581D2EA930863DA7001C1B9E /* WYVideoPlayerMediaAsset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYVideoPlayerMediaAsset.swift; sourceTree = "<group>"; };
+		581D2EAB30863DB1001C1B9E /* WYVideoPlayerSubtitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYVideoPlayerSubtitle.swift; sourceTree = "<group>"; };
+		581D2EAF30863DF5001C1B9E /* WYVideoPlayerEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYVideoPlayerEngine.swift; sourceTree = "<group>"; };
+		581D2EB130863DFF001C1B9E /* WYVideoPlayerGestureController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYVideoPlayerGestureController.swift; sourceTree = "<group>"; };
+		581D2EB330863E0B001C1B9E /* WYVideoPlayerDefaultShell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYVideoPlayerDefaultShell.swift; sourceTree = "<group>"; };
+		581D2EB530863E17001C1B9E /* WYVideoPlayerShellViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYVideoPlayerShellViews.swift; sourceTree = "<group>"; };
+		581D2EB730863E22001C1B9E /* WYVideoPlayerFullscreenManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYVideoPlayerFullscreenManager.swift; sourceTree = "<group>"; };
+		581D2EB930863E2B001C1B9E /* WYVideoPlayerPipManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYVideoPlayerPipManager.swift; sourceTree = "<group>"; };
+		581D2EBB30863E48001C1B9E /* WYVideoPlayerSubtitleParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYVideoPlayerSubtitleParser.swift; sourceTree = "<group>"; };
+		581D2EBD30863E53001C1B9E /* WYVideoPlayerSnapshotTaker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYVideoPlayerSnapshotTaker.swift; sourceTree = "<group>"; };
+		581D2EBF30863E5E001C1B9E /* WYVideoPlayerQualitySwitcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYVideoPlayerQualitySwitcher.swift; sourceTree = "<group>"; };
 		58328C5F2FC9364600C0F556 /* WYPopViewControllerSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPopViewControllerSwizzler.swift; sourceTree = "<group>"; };
 		58328C612FC936D100C0F556 /* WYPresentSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPresentSwizzler.swift; sourceTree = "<group>"; };
 		58328C632FC9371800C0F556 /* WYViewDidLoadSwizzler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYViewDidLoadSwizzler.swift; sourceTree = "<group>"; };
@@ -542,13 +595,16 @@
 		7D9BF75B6B7C45429E451E50 /* WYNetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkMonitor.swift; sourceTree = "<group>"; };
 		8B8A3708E351CE0BB9E30715 /* Pods-WYBasisKit.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.debug.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.debug.xcconfig"; sourceTree = "<group>"; };
 		8E7D9319DA254FEBB18880DB /* WYImageEditorObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYImageEditorObjC.swift; sourceTree = "<group>"; };
+		94836A6EC0A19FB965B458EC /* WYPhotoBrowser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPhotoBrowser.swift; sourceTree = "<group>"; };
 		9AC33A9B8043652655C0FF86 /* WYCryptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCryptor.swift; sourceTree = "<group>"; };
 		AAC46ACF2E07E28F0068B0DF /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+		B36E83887783410A035B5E89 /* WYPhotoBrowserObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPhotoBrowserObjC.swift; sourceTree = "<group>"; };
 		B46C27D2941B4A85A99A2E30 /* WYImageCropperView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYImageCropperView.swift; sourceTree = "<group>"; };
 		C20024D929D9487584DE7607 /* WYMediaCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaCache.swift; sourceTree = "<group>"; };
 		C607C62B1F874EA7A3F5024E /* WYMediaCacheResourceLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaCacheResourceLoader.swift; sourceTree = "<group>"; };
 		DAED5053645E21395CF44805 /* WYMediaPlayer+Notifications.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+Notifications.swift"; sourceTree = "<group>"; };
 		DCFF8F17400C4B01BA509737 /* WYImageMarkerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYImageMarkerView.swift; sourceTree = "<group>"; };
+		E4EE578F5C81426AA5BC1D29 /* WYPhotoBrowserMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPhotoBrowserMenuView.swift; sourceTree = "<group>"; };
 		E5BA55F71D1EFB496EE59FDE /* WYMediaPlayer+Properties.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+Properties.swift"; sourceTree = "<group>"; };
 		FBBDFDBDB8276D3319F55684 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -597,6 +653,9 @@
 		2FFE9081B0032ADCA27C2577 /* PrivateImpl */ = {
 			isa = PBXGroup;
 			children = (
+				42FC218D652F6064335DAD12 /* WYPhotoBrowserPageCell.swift */,
+				084E7EAF0CAC71E9AABDF813 /* WYPhotoBrowserTransition.swift */,
+				E4EE578F5C81426AA5BC1D29 /* WYPhotoBrowserMenuView.swift */,
 			);
 			path = PrivateImpl;
 			sourceTree = "<group>";
@@ -658,6 +717,73 @@
 				581D2E8130860D68001C1B9E /* WYNetworkMonitorObjC.swift */,
 			);
 			path = NetworkMonitor;
+			sourceTree = "<group>";
+		};
+		581D2E8330862211001C1B9E /* DanmakuView */ = {
+			isa = PBXGroup;
+			children = (
+				581D2E8430862226001C1B9E /* WYDanmakuView.swift */,
+				581D2E8730862299001C1B9E /* WYDanmakuConfiguration.swift */,
+				581D2E8630862287001C1B9E /* PrivateImpl */,
+			);
+			path = DanmakuView;
+			sourceTree = "<group>";
+		};
+		581D2E8630862287001C1B9E /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				581D2E89308622A7001C1B9E /* WYDanmakuEngine.swift */,
+				581D2E8B308622D0001C1B9E /* WYDanmakuItemView.swift */,
+				581D2E8D308622DF001C1B9E /* WYDanmakuModel.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
+		581D2E8F308622F6001C1B9E /* DanmakuView */ = {
+			isa = PBXGroup;
+			children = (
+				581D2E9030862303001C1B9E /* WYDanmakuViewObjC.swift */,
+			);
+			path = DanmakuView;
+			sourceTree = "<group>";
+		};
+		581D2E9B30863CF7001C1B9E /* VideoPlayer */ = {
+			isa = PBXGroup;
+			children = (
+				581D2E9D30863D17001C1B9E /* WYVideoPlayer.swift */,
+				581D2EA330863D7A001C1B9E /* WYVideoPlayerConfig.swift */,
+				581D2EA530863D84001C1B9E /* WYVideoPlayerDelegate.swift */,
+				581D2EA730863D93001C1B9E /* WYVideoPlayerControlShell.swift */,
+				581D2EA930863DA7001C1B9E /* WYVideoPlayerMediaAsset.swift */,
+				581D2EAB30863DB1001C1B9E /* WYVideoPlayerSubtitle.swift */,
+				581D2EAE30863DDB001C1B9E /* PrivateImpl */,
+			);
+			path = VideoPlayer;
+			sourceTree = "<group>";
+		};
+		581D2E9C30863CFF001C1B9E /* VideoPlayer */ = {
+			isa = PBXGroup;
+			children = (
+				581D2E9F30863D46001C1B9E /* WYVideoPlayerObjC.swift */,
+				581D2EA130863D55001C1B9E /* WYVideoPlayerConfigObjC.swift */,
+			);
+			path = VideoPlayer;
+			sourceTree = "<group>";
+		};
+		581D2EAE30863DDB001C1B9E /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				581D2EAF30863DF5001C1B9E /* WYVideoPlayerEngine.swift */,
+				581D2EB130863DFF001C1B9E /* WYVideoPlayerGestureController.swift */,
+				581D2EB330863E0B001C1B9E /* WYVideoPlayerDefaultShell.swift */,
+				581D2EB530863E17001C1B9E /* WYVideoPlayerShellViews.swift */,
+				581D2EB730863E22001C1B9E /* WYVideoPlayerFullscreenManager.swift */,
+				581D2EB930863E2B001C1B9E /* WYVideoPlayerPipManager.swift */,
+				581D2EBB30863E48001C1B9E /* WYVideoPlayerSubtitleParser.swift */,
+				581D2EBD30863E53001C1B9E /* WYVideoPlayerSnapshotTaker.swift */,
+				581D2EBF30863E5E001C1B9E /* WYVideoPlayerQualitySwitcher.swift */,
+			);
+			path = PrivateImpl;
 			sourceTree = "<group>";
 		};
 		58328C332FC9317100C0F556 /* General */ = {
@@ -1832,10 +1958,13 @@
 		58C68CB02E84E436005FD054 /* Layout */ = {
 			isa = PBXGroup;
 			children = (
+				581D2E9C30863CFF001C1B9E /* VideoPlayer */,
+				581D2E8F308622F6001C1B9E /* DanmakuView */,
 				584E8BDF3046C90300C6D2CA /* ContentScrollView */,
 				588797BD3009F5D500FDDE9C /* SoundWavesView */,
 				580BB8AF2FF64F3D00C1B986 /* AirBubbleView */,
 				58C68CA82E84E436005FD054 /* ChatView */,
+				D52D2B5B95689E2FC8A2D0BF /* PhotoBrowser */,
 				58C68CAA2E84E436005FD054 /* MediaPlayer */,
 				58C68CAC2E84E436005FD054 /* PagingView */,
 			);
@@ -2585,10 +2714,13 @@
 		58C68D732E84E436005FD054 /* Layout */ = {
 			isa = PBXGroup;
 			children = (
+				581D2E9B30863CF7001C1B9E /* VideoPlayer */,
+				581D2E8330862211001C1B9E /* DanmakuView */,
 				588797C0300A2F0900FDDE9C /* ContentScrollView */,
 				588797B83009DD8F00FDDE9C /* SoundWavesView */,
 				580BB8A72FF63BDB00C1B986 /* AirBubbleView */,
 				58C68D682E84E436005FD054 /* ChatView */,
+				71B7FAE9F72C294E5F0DC833 /* PhotoBrowser */,
 				58C68D6B2E84E436005FD054 /* MediaPlayer */,
 				58C68D6E2E84E436005FD054 /* PagingView */,
 			);
@@ -2713,10 +2845,13 @@
 			name = Layout;
 			sourceTree = "<group>";
 		};
+		71B7FAE9F72C294E5F0DC833 /* PhotoBrowser */ = {
 			isa = PBXGroup;
 			children = (
+				94836A6EC0A19FB965B458EC /* WYPhotoBrowser.swift */,
 				2FFE9081B0032ADCA27C2577 /* PrivateImpl */,
 			);
+			path = PhotoBrowser;
 			sourceTree = "<group>";
 		};
 		74BEC470B6E92D82AAD2D137 /* Frameworks */ = {
@@ -2768,9 +2903,12 @@
 			name = MediaPlayer;
 			sourceTree = "<group>";
 		};
+		D52D2B5B95689E2FC8A2D0BF /* PhotoBrowser */ = {
 			isa = PBXGroup;
 			children = (
+				B36E83887783410A035B5E89 /* WYPhotoBrowserObjC.swift */,
 			);
+			path = PhotoBrowser;
 			sourceTree = "<group>";
 		};
 		DBAAB43B363BC740AF1D33F1 /* Pods */ = {
@@ -2949,6 +3087,7 @@
 				58C68DC02E84E436005FD054 /* WYInt.swift in Sources */,
 				58C68DC12E84E436005FD054 /* WYObject.swift in Sources */,
 				58C68DC22E84E436005FD054 /* WYChatTextCell.swift in Sources */,
+				581D2EAC30863DB1001C1B9E /* WYVideoPlayerSubtitle.swift in Sources */,
 				580ED58C2EA7263F006012E7 /* WYCodableValueTransformer.swift in Sources */,
 				584B59FE306A0C72002B81C5 /* WYChatBusinessCardModel.swift in Sources */,
 				584B59E8306A0B7B002B81C5 /* WYChatVoiceModel.swift in Sources */,
@@ -2967,6 +3106,8 @@
 				58C68DC92E84E436005FD054 /* WYChatTakePatCell.swift in Sources */,
 				584B5A02306A0C92002B81C5 /* WYChatMessageContentModel.swift in Sources */,
 				58C68DCA2E84E436005FD054 /* WYViewController.swift in Sources */,
+				581D2EA630863D84001C1B9E /* WYVideoPlayerDelegate.swift in Sources */,
+				581D2EA430863D7A001C1B9E /* WYVideoPlayerConfig.swift in Sources */,
 				580BB8A92FF63D2200C1B986 /* WYAirBubbleView.swift in Sources */,
 				58C68DCB2E84E436005FD054 /* WYFontObjC.swift in Sources */,
 				58328C782FC93A1700C0F556 /* WYScrollViewDidEndDeceleratingSwizzler.swift in Sources */,
@@ -2975,6 +3116,7 @@
 				585800E82EC975E300027B75 /* WYCollectionViewFlowLayoutObjC.swift in Sources */,
 				58C68DCD2E84E436005FD054 /* WYTextField.swift in Sources */,
 				584EAF142E94ACB4003A21B8 /* WYNetworkConfigObjC.swift in Sources */,
+				581D2EBC30863E48001C1B9E /* WYVideoPlayerSubtitleParser.swift in Sources */,
 				58C68DCE2E84E436005FD054 /* WYTimerObjC.swift in Sources */,
 				58C68DCF2E84E436005FD054 /* WYNavigationController.swift in Sources */,
 				58C68DD02E84E436005FD054 /* Foundation+JSONLog.m in Sources */,
@@ -2983,6 +3125,7 @@
 				58C68DD22E84E436005FD054 /* WYCodingKeysConverter.swift in Sources */,
 				58C68DD32E84E436005FD054 /* WYDevice.swift in Sources */,
 				58C68DD42E84E436005FD054 /* WYChatViewDelegateHandler.swift in Sources */,
+				581D2E9E30863D17001C1B9E /* WYVideoPlayer.swift in Sources */,
 				584EAF122E93C54C003A21B8 /* WYPagingViewObjC.swift in Sources */,
 				58C68DD52E84E436005FD054 /* WYFont.swift in Sources */,
 				58C68DD62E84E436005FD054 /* WYView.swift in Sources */,
@@ -2997,6 +3140,7 @@
 				58328C6E2FC938D600C0F556 /* WYScrollViewDidScrollSwizzler.swift in Sources */,
 				583E04F22E868138004F1034 /* WYColorObjC.swift in Sources */,
 				58C68DD92E84E436005FD054 /* WYTableView.swift in Sources */,
+				581D2E9130862303001C1B9E /* WYDanmakuViewObjC.swift in Sources */,
 				58C68DDA2E84E436005FD054 /* WYChatMoreView.swift in Sources */,
 				58C68DDB2E84E436005FD054 /* WYIntObjC.swift in Sources */,
 				584B59E6306A0B61002B81C5 /* WYChatAssetsModel.swift in Sources */,
@@ -3017,8 +3161,10 @@
 				58582C1130412CC600A90194 /* WYContentScrollView+Layout.swift in Sources */,
 				58582C1230412CC600A90194 /* WYContentScrollView+GestureControl.swift in Sources */,
 				58582C1330412CC600A90194 /* WYContentScrollView+Properties.swift in Sources */,
+				581D2E8830862299001C1B9E /* WYDanmakuConfiguration.swift in Sources */,
 				584B59F0306A0BEB002B81C5 /* WYChatLuckyMoneyModel.swift in Sources */,
 				581D2E8230860D68001C1B9E /* WYNetworkMonitorObjC.swift in Sources */,
+				581D2EBA30863E2B001C1B9E /* WYVideoPlayerPipManager.swift in Sources */,
 				58582C1430412CC600A90194 /* WYContentScrollView+ScrollDelegate.swift in Sources */,
 				58C68DE32E84E436005FD054 /* WYFloatObjC.swift in Sources */,
 				58328C9E2FC93D8000C0F556 /* WYGestureRecognizerShouldBeginSwizzler.swift in Sources */,
@@ -3027,6 +3173,7 @@
 				682A1481F5DBCD823E4E7C2F /* WYCryptor.swift in Sources */,
 				34695EBADD85427988DC5616 /* WYImageEditorIcons.swift in Sources */,
 				24397A41A7A0493D8AC83BC4 /* WYImageMarkerView.swift in Sources */,
+				581D2EBE30863E53001C1B9E /* WYVideoPlayerSnapshotTaker.swift in Sources */,
 				CF080236B6634685A6318861 /* WYImageCropperView.swift in Sources */,
 				7B66B79DFD684ACE8B6652F7 /* WYImageEditor.swift in Sources */,
 				58C68E322E850EFC005FD054 /* WYViewObjC.swift in Sources */,
@@ -3062,6 +3209,7 @@
 				58C68DF62E84E436005FD054 /* WYCodableUnkeyedContainer.swift in Sources */,
 				583E04EC2E8635CA004F1034 /* WYButtonObjC.swift in Sources */,
 				585800E62EC9756100027B75 /* WYCollectionViewFlowLayout.swift in Sources */,
+				581D2EA030863D46001C1B9E /* WYVideoPlayerObjC.swift in Sources */,
 				58C68DF72E84E436005FD054 /* WYDecodingStorage.swift in Sources */,
 				58C68DF82E84E436005FD054 /* WYCameraAuthorization.swift in Sources */,
 				58C68DF92E84E436005FD054 /* WYChatWebpageCell.swift in Sources */,
@@ -3073,6 +3221,7 @@
 				58C68DFD2E84E436005FD054 /* WYNumberFormatter.swift in Sources */,
 				58C68DFE2E84E436005FD054 /* WYEmojiFuncAreaView.swift in Sources */,
 				5802B28E2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift in Sources */,
+				581D2EB030863DF5001C1B9E /* WYVideoPlayerEngine.swift in Sources */,
 				58C68DFF2E84E436005FD054 /* WYChatInputView.swift in Sources */,
 				584B59F4306A0C19002B81C5 /* WYChatTakePatModel.swift in Sources */,
 				584D59E62FBEEE8400A862F7 /* WYTextViewObjC.swift in Sources */,
@@ -3086,9 +3235,11 @@
 				588797BE3009F5D500FDDE9C /* WYSoundWavesViewObjC.swift in Sources */,
 				58C68E062E84E436005FD054 /* WYChatViewEventHandler.swift in Sources */,
 				58328C902FC93C2D00C0F556 /* WYIntrinsicContentSizeSwizzler.swift in Sources */,
+				581D2E8E308622DF001C1B9E /* WYDanmakuModel.swift in Sources */,
 				58C68E072E84E436005FD054 /* WYLayerObjC.swift in Sources */,
 				58EE7B0B2FB84A65009AA0CC /* WYTextView.swift in Sources */,
 				58C68E082E84E436005FD054 /* WYMoreViewCell.swift in Sources */,
+				581D2EB430863E0B001C1B9E /* WYVideoPlayerDefaultShell.swift in Sources */,
 				58C68E092E84E436005FD054 /* WYSpeechRecognitionAuthorizationObjC.swift in Sources */,
 				58328C942FC93CA900C0F556 /* WYLayoutAttributesForElementsSwizzler.swift in Sources */,
 				58C68E0A2E84E436005FD054 /* WYAudioKit.swift in Sources */,
@@ -3101,6 +3252,7 @@
 				58C68E102E84E436005FD054 /* WYString.swift in Sources */,
 				58C68E112E84E436005FD054 /* WYRecordAnimationView.swift in Sources */,
 				58C68E122E84E436005FD054 /* WYNetworkConfig.swift in Sources */,
+				581D2EAA30863DA7001C1B9E /* WYVideoPlayerMediaAsset.swift in Sources */,
 				583E04F62E868708004F1034 /* WYNavigationControllerObjC.swift in Sources */,
 				58C68E132E84E436005FD054 /* WYChatMusicCell.swift in Sources */,
 				584B59EA306A0BA3002B81C5 /* WYChatPhotoModel.swift in Sources */,
@@ -3109,6 +3261,8 @@
 				58328C922FC93C7C00C0F556 /* WYPrepareSwizzler.swift in Sources */,
 				583C41B42E9220E9007379FC /* WYStorageObjC.swift in Sources */,
 				584B59EE306A0BCD002B81C5 /* WYChatVideoModel.swift in Sources */,
+				581D2EC030863E5E001C1B9E /* WYVideoPlayerQualitySwitcher.swift in Sources */,
+				581D2E8C308622D0001C1B9E /* WYDanmakuItemView.swift in Sources */,
 				58C68E162E84E436005FD054 /* WYNumber.swift in Sources */,
 				58B6DAF330612E5B00FEBC08 /* WYAudioKit+Convert.swift in Sources */,
 				58B6DAF430612E5B00FEBC08 /* WYAudioKit+Playback.swift in Sources */,
@@ -3120,6 +3274,7 @@
 				58328C6C2FC9383A00C0F556 /* WYViewDidDisappearSwizzler.swift in Sources */,
 				58C68E172E84E436005FD054 /* WYContactsAuthorizationObjC.swift in Sources */,
 				58C68E182E84E436005FD054 /* WYDecimal.swift in Sources */,
+				581D2EB230863DFF001C1B9E /* WYVideoPlayerGestureController.swift in Sources */,
 				58C68E192E84E436005FD054 /* WYChatView.swift in Sources */,
 				586CD5A830529A8F003302ED /* WYPagingItem+Layout.swift in Sources */,
 				586CD5A930529A8F003302ED /* WYPagingItem+Properties.swift in Sources */,
@@ -3141,20 +3296,24 @@
 				ADED48648DE64BE587893515 /* WYMediaCacheObjC.swift in Sources */,
 				58B6DAE8305FA87D00FEBC08 /* WYLabel.swift in Sources */,
 				584D59E32FBC353300A862F7 /* WYMethodSwizzlerCenter.swift in Sources */,
+				581D2E8530862226001C1B9E /* WYDanmakuView.swift in Sources */,
 				58C68E222E84E436005FD054 /* WYCodableObjC.swift in Sources */,
 				58C68E232E84E436005FD054 /* WYTimer.swift in Sources */,
 				58C952F22F051E800032E3F6 /* WYColorSwiftUI.swift in Sources */,
 				58C68E242E84E436005FD054 /* WYStringObjC.swift in Sources */,
 				584EAF012E92791B003A21B8 /* WYLocalizableManagerObjC.swift in Sources */,
 				58C68E252E84E436005FD054 /* WYActivity.swift in Sources */,
+				581D2EB630863E17001C1B9E /* WYVideoPlayerShellViews.swift in Sources */,
 				58C359722F401F9F000E6EF0 /* WYLocationAuthorizationObjC.swift in Sources */,
 				58C68E262E84E436005FD054 /* WYCodableAdapter.swift in Sources */,
 				58328C802FC93ACE00C0F556 /* WYLayoutSubviewsSwizzler.swift in Sources */,
 				58C68E272E84E436005FD054 /* WYDoubleObjC.swift in Sources */,
+				581D2E8A308622A7001C1B9E /* WYDanmakuEngine.swift in Sources */,
 				58B46FEA2E8C080700D04BCA /* WYLogManagerObjC.swift in Sources */,
 				B61CA42A4DA447BCE604C620 /* WYCryptorObjC.swift in Sources */,
 				04B0542BD68343EB808C882D /* WYImageEditorObjC.swift in Sources */,
 				58C68E282E84E436005FD054 /* WYBiometricAuthorization.swift in Sources */,
+				581D2EB830863E22001C1B9E /* WYVideoPlayerFullscreenManager.swift in Sources */,
 				580ED58A2EA72632006012E7 /* WYCodableConfig.swift in Sources */,
 				584B59FC306A0C5F002B81C5 /* WYChatFileModel.swift in Sources */,
 				58C3596F2F3F2D37000E6EF0 /* WYLocationAuthorization.swift in Sources */,
@@ -3170,7 +3329,9 @@
 				58C68E2B2E84E436005FD054 /* WYChatVoiceCell.swift in Sources */,
 				58328C982FC93CF700C0F556 /* WYLayoutAttributesForSupplementaryViewSwizzler.swift in Sources */,
 				58328C742FC939B100C0F556 /* WYScrollViewDidEndDraggingSwizzler.swift in Sources */,
+				581D2EA830863D93001C1B9E /* WYVideoPlayerControlShell.swift in Sources */,
 				58328C7A2FC93A4100C0F556 /* WYScrollViewDidZoomSwizzler.swift in Sources */,
+				581D2EA230863D55001C1B9E /* WYVideoPlayerConfigObjC.swift in Sources */,
 				58328C702FC9391800C0F556 /* WYScrollViewWillBeginDraggingSwizzler.swift in Sources */,
 				58328C602FC9364600C0F556 /* WYPopViewControllerSwizzler.swift in Sources */,
 				58C68E2D2E84E436005FD054 /* WYActivityObjC.swift in Sources */,
@@ -3184,6 +3345,11 @@
 				586FFBB32E8230A700499506 /* Other.swift in Sources */,
 				58328C642FC9371800C0F556 /* WYViewDidLoadSwizzler.swift in Sources */,
 				583E04F82E869051004F1034 /* WYTextFieldObjC.swift in Sources */,
+				B33989045E87D56FF65D7C1D /* WYPhotoBrowser.swift in Sources */,
+				15F3D3C618E93B7564F1EFC0 /* WYPhotoBrowserPageCell.swift in Sources */,
+				B768B9625EDE9F3363234579 /* WYPhotoBrowserTransition.swift in Sources */,
+				F8CDEF0FEB4C2E16D7D25654 /* WYPhotoBrowserMenuView.swift in Sources */,
+				49D5798A0DBD037562F370D2 /* WYPhotoBrowserObjC.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -43,6 +43,12 @@
             [[ListItem alloc] initWithTitle:@"视频边下边播"
                                  controller:@"WYTestMediaCacheController"],
 
+            [[ListItem alloc] initWithTitle:@"弹幕"
+                                 controller:@"WYTestDanmakuController"],
+
+            [[ListItem alloc] initWithTitle:@"点播播放器"
+                                 controller:@"WYTestVideoPlayerController"],
+
             [[ListItem alloc] initWithTitle:@"暗夜、白昼模式"
                                  controller:@"WYTestDarkNightModeController"],
             
@@ -134,6 +140,8 @@
             [[ListItem alloc] initWithTitle:@"相片裁剪与标记"
                                  controller:@"WYTestImageEditorController"],
 
+            [[ListItem alloc] initWithTitle:@"图片浏览"
+                                 controller:@"WYTestPhotoBrowserController"],
             
             [[ListItem alloc] initWithTitle:@"气泡图" controller:@"WYTestAirBubbleController"],
             

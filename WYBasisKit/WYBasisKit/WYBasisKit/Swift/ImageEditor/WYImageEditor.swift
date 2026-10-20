@@ -241,7 +241,7 @@ public class WYImageEditorViewController: UIViewController {
     public var configuration: WYImageEditorConfiguration
 
     /// 编辑完成回调Block(与delegate同时设置时两边都会回调)
-    public var onFinish: ((UIImage) -> Void)?
+    public var onFinish: ((_ editedImage: UIImage) -> Void)?
 
     /// 取消编辑回调Block(与delegate同时设置时两边都会回调)
     public var onCancel: (() -> Void)?

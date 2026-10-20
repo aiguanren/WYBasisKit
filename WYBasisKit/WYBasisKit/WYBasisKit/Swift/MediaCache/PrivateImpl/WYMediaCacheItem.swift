@@ -279,7 +279,7 @@ final class WYMediaCacheItem {
         }
     }
 
-    /// 刷新最近使用时间(顺带按元数据落盘节流间隔决定是否落一次盘)
+    /// 刷新最近使用时间(并按元数据落盘节流间隔决定是否落一次盘)
     func touch() {
         lastAccessDate = Date()
         saveMetaDataIfNeeded()

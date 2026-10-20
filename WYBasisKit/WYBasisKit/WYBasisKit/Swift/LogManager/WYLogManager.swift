@@ -406,7 +406,7 @@ final class WYLogCell: UITableViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         
         copyButton.setTitle("复制", for: .normal)
-        copyButton.titleLabel?.font = .systemFont(ofSize: 13, weight: .medium)
+        copyButton.titleLabel?.font = .systemFont(ofSize: UIFont.wy_fontSize(13, WYBasisKitConfig.defaultScreenPixels), weight: .medium)
         copyButton.translatesAutoresizingMaskIntoConstraints = false
         copyButton.layer.cornerRadius = 5
         copyButton.layer.borderWidth = 1

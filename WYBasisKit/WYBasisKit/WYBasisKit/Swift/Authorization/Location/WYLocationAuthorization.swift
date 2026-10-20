@@ -389,7 +389,6 @@ private extension WYLocationAuthorization {
     }
 }
 
-// MARK: - CLLocationManagerDelegate
 extension WYLocationAuthorization: CLLocationManagerDelegate {
     
     public func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {

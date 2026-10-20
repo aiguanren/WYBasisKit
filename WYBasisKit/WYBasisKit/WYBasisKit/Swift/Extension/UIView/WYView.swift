@@ -850,7 +850,7 @@ private extension UIView {
 
             layer.removeAnimation(forKey: wy_visualSyncAnimationKey)
 
-            // 防keyPath字符串写错或日后属性改名没报错:统一用#keyPath让编译器对着属性定义校验，属性改名或删除时直接编译报错(运行期keyPath无效只会静默没动画，排查无从下手)
+            // 防止keyPath字符串写错或日后属性改名没报错，统一用#keyPath让编译器对着属性定义校验，属性改名或删除时直接编译报错(运行期keyPath无效只会静默没动画)
             var animations: [CAAnimation] = []
             let presentation = layer.presentation()
 
