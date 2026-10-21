@@ -23,8 +23,8 @@ import WYBasisKitSwift
     
     /**
      设置富文本中指定范围的颜色。
-     - Parameter colorRanges: 字典，Key为颜色，Value为范围定义(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
-     - Returns: 当前 `NSMutableAttributedString` 对象
+     @param colorRanges 字典，Key为颜色，Value为范围定义(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
+     @return 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
     @objc func wy_setColorForRanges(_ colorRanges: [UIColor : Any]) -> NSMutableAttributedString {
@@ -33,8 +33,8 @@ import WYBasisKitSwift
     
     /**
      设置富文本中指定范围的字体。
-     - Parameter fontRanges: 字典，Key为字体，Value为范围定义(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
-     - Returns: 当前 `NSMutableAttributedString` 对象
+     @param fontRanges 字典，Key为字体，Value为范围定义(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
+     @return 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
     @objc func wy_setFontForRanges(_ fontRanges: [UIFont : Any]) -> NSMutableAttributedString {
@@ -43,9 +43,9 @@ import WYBasisKitSwift
     
     /**
      设置富文本中指定范围的背景色
-     - Parameter color:       背景色
-     - Parameter rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
-     - Returns: 当前 `NSMutableAttributedString` 对象
+     @param color 背景色
+     @param rangeValue 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
+     @return 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
     @objc(wy_setBackgroundColor:rangeValue:)
@@ -55,7 +55,7 @@ import WYBasisKitSwift
     
     /**
      *  设置富文本字体(整个富文本统一设置字体)
-     *  - Returns: 当前 `NSMutableAttributedString` 对象
+     *  @return 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
     @objc(wy_setFont:)
@@ -65,7 +65,7 @@ import WYBasisKitSwift
     
     /**
      *  设置富文本的截断方式(默认 `.byTruncatingTail`（尾部截断）)
-     *  - Returns: 当前 `NSMutableAttributedString` 对象
+     *  @return 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
     @objc(wy_setLineBreakMode:)
@@ -76,12 +76,11 @@ import WYBasisKitSwift
     /**
      *  设置行间距，支持多种范围定义
 
-     *  - Parameters:
-     *    - lineSpacing: 行间距值（单位：pt）
-     *    - rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
-     *    - alignment:  段落对齐方式，默认为 `.left`
+     *    @param lineSpacing 行间距值（单位：pt）
+     *    @param rangeValue 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
+     *    @param alignment 段落对齐方式，默认为 `.left`
      *
-     *  - Returns: 当前 `NSMutableAttributedString` 对象
+     *  @return 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
     @objc(wy_lineSpacing:rangeValue:alignment:)
@@ -99,13 +98,12 @@ import WYBasisKitSwift
      *            这是第二段，包含 afterString。
      *  调用后第一段底部和第二段头部之间会增加 paragraphSpace 的空白间距
      *
-     *  - Parameters:
-     *    - paragraphSpace:   段落间距值（单位：pt），需大于 0
-     *    - beforeString:     起始字符串，其所在段落的底部将会增加间距
-     *    - afterString:      结束字符串，必须位于 `beforeString` 之后
-     *    - alignment:        段落对齐方式，默认为 `.left`
+     *    @param paragraphSpace 段落间距值（单位：pt），需大于 0
+     *    @param beforeString 起始字符串，其所在段落的底部将会增加间距
+     *    @param afterString 结束字符串，必须位于 `beforeString` 之后
+     *    @param alignment 段落对齐方式，默认为 `.left`
      *
-     *  - Returns: 当前 `NSMutableAttributedString` 对象，
+     *  @return 当前 `NSMutableAttributedString` 对象，
      */
     @discardableResult
     @objc(wy_paragraphSpace:beforeString:afterString:alignment:)
@@ -119,11 +117,10 @@ import WYBasisKitSwift
     /**
      *  设置字间距（字符间距），支持多种范围定义
      *
-     *  - Parameters:
-     *    - wordsSpacing: 字间距值（单位：pt）
-     *    - rangeValue:   范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
+     *    @param wordsSpacing 字间距值（单位：pt）
+     *    @param rangeValue 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
      *
-     *  - Returns: 当前 `NSMutableAttributedString` 对象
+     *  @return 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
     @objc(wy_wordsSpacing:rangeValue:)
@@ -139,12 +136,11 @@ import WYBasisKitSwift
     /**
      在指定范围 前/后 插入水平间距
      
-     - Parameters:
-     - spacing:     要插入的间距值（单位：pt），需大于 0
-     - position:    插入位置，`.before`（范围之前）或 `.after`（范围之后）
-     - rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
+     @param spacing 要插入的间距值（单位：pt），需大于 0
+     @param position 插入位置，`.before`（范围之前）或 `.after`（范围之后）
+     @param rangeValue 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
      
-     - Returns: 当前 `NSMutableAttributedString` 对象
+     @return 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
     @objc(wy_insertSpacing:position:rangeValue:)
@@ -158,14 +154,13 @@ import WYBasisKitSwift
     /**
      *  文本添加段落缩进
      *
-     *  - Parameters:
-     *    - rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
-     *    - firstLineHeadIndent:  首行左边距
-     *    - headIndent:  第二行及以后的左边距(换行符\n除外)
-     *    - tailIndent:  尾部右边距
-     *    - alignment:  对齐方式
+     *    @param rangeValue 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
+     *    @param firstLineHeadIndent 首行左边距
+     *    @param headIndent 第二行及以后的左边距(换行符\n除外)
+     *    @param tailIndent 尾部右边距
+     *    @param alignment 对齐方式
      *
-     *  - Returns: 当前 `NSMutableAttributedString` 对象
+     *  @return 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
     @objc(wy_paragraphIndentsWithRangeValue:firstLineHeadIndent:headIndent:tailIndent:alignment:)
@@ -180,11 +175,10 @@ import WYBasisKitSwift
     /**
      *  调整文本基线偏移（实现文字上下移动），支持多种范围定义
      *
-     *  - Parameters:
-     *    - offset: 偏移量（单位：pt），**正值向上移动，负值向下移动**
-     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
+     *    @param offset 偏移量（单位：pt），**正值向上移动，负值向下移动**
+     *    @param rangeValue 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
      *
-     *  - Returns: 当前 `NSMutableAttributedString` 对象
+     *  @return 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
     @objc(wy_baselineOffsetY:rangeValue:)
@@ -199,11 +193,10 @@ import WYBasisKitSwift
     /**
      *  为文本添加下划线，支持多种范围定义
      *
-     *  - Parameters:
-     *    - color:  下划线的颜色
-     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
+     *    @param color 下划线的颜色
+     *    @param rangeValue 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
      *
-     *  - Returns: 当前 `NSMutableAttributedString` 对象
+     *  @return 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
     @objc(wy_underline:rangeValue:)
@@ -218,11 +211,10 @@ import WYBasisKitSwift
     /**
      *  为文本添加删除线，支持多种范围定义
      *
-     *  - Parameters:
-     *    - color:  删除线的颜色
-     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
+     *    @param color 删除线的颜色
+     *    @param rangeValue 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）)
      *
-     *  - Returns: 当前 `NSMutableAttributedString` 对象
+     *  @return 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
     @objc(wy_strikethrough:rangeValue:)
@@ -237,8 +229,8 @@ import WYBasisKitSwift
     /**
      向富文本中插入图片（支持图文混排，自动处理位置和对齐方式）
      
-     - Parameter attachments: 富文本图片插入配置数组，每个元素定义了图片、位置、尺寸、对齐方式和间距
-     - Returns: 当前 `NSMutableAttributedString` 对象
+     @param attachments 富文本图片插入配置数组，每个元素定义了图片、位置、尺寸、对齐方式和间距
+     @return 当前 `NSMutableAttributedString` 对象
      
      使用说明：
      1. position 支持插入到指定文本前/后或指定字符下标处
@@ -279,7 +271,7 @@ import WYBasisKitSwift
      *  @param bundle        从哪个bundle文件内查找图片资源，如果为空，则直接在本地路径下查找
      *  @param pattern       正则匹配规则, 默认匹配1到3位, 如 [哈] [哈哈] [哈哈哈] 这种
      *
-     *  - Returns: 当前 `NSMutableAttributedString` 对象
+     *  @return 当前 `NSMutableAttributedString` 对象
      */
     @objc static func wy_convertEmojiAttributed(_ emojiString: String, textColor: UIColor, textFont: UIFont, emojiTable: [String]) -> NSMutableAttributedString {
         return wy_convertEmojiAttributed(emojiString, textColor: textColor, textFont: textFont, emojiTable: emojiTable, sourceBundle: nil, pattern: nil)
@@ -294,7 +286,7 @@ import WYBasisKitSwift
      *  @param textFont      富文本的字体
      *  @param replace       未知图片(表情)的标识替换符，默认：[未知]
      *
-     *  - Returns: 当前 `NSMutableAttributedString` 对象
+     *  @return 当前 `NSMutableAttributedString` 对象
      */
     @objc func wy_convertEmojiAttributedString(_ textColor: UIColor, textFont: UIFont, replace: String = "[未知]") -> NSMutableAttributedString {
         return wy_convertEmojiAttributedString(textColor: textColor, textFont: textFont, replace: replace)
@@ -329,7 +321,7 @@ import WYBasisKitSwift
      *
      *  @param lineBreakMode  换行/截断模式(语义同 `UILabel.lineBreakMode`)
      *
-     *  - Returns: 文本矩形区域信息，单个目标查 `boundingRect`，数组目标按元素分组查 `boundingRects`，被截断隐藏的部分不产生矩形
+     *  @return 文本矩形区域信息，单个目标查 `boundingRect`，数组目标按元素分组查 `boundingRects`，被截断隐藏的部分不产生矩形
      */
     @objc(wy_calculateFrameWithRangeValue:controlSize:numberOfLines:lineBreakMode:)
     func wy_calculateFrameObjC(rangeValue: Any?, controlSize: CGSize, numberOfLines: Int, lineBreakMode: NSLineBreakMode) -> WYTextBoundingInfosObjC {

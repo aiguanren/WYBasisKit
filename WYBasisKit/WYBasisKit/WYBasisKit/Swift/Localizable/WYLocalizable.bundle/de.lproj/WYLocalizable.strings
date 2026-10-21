@@ -52,7 +52,7 @@
 
 "去设置" = "Gehe zu Einstellungen";
 
-"已取消不安全网络连接“ = „Unsichere Netzwerkverbindung abgebrochen";
+"已取消不安全网络连接" = "Unsichere Netzwerkverbindung abgebrochen";
 
 "无网络连接，请检查您的网络设置" = "Keine Netzwerkverbindung, bitte überprüfen Sie Ihre Netzwerkeinstellungen";
 
@@ -99,6 +99,18 @@
 "星期五" = "Freitag";
 
 "星期六" = "Samstag";
+
+"年" = "Jahr";
+
+"月" = "Monat";
+
+"日" = "Tag";
+
+"时" = "Stunde";
+
+"分" = "Minute";
+
+"秒" = "Sekunde";
 
 "定位权限被限制" = "Zugriffsrecht auf Standort eingeschränkt";
 

@@ -60,8 +60,7 @@ import WYBasisKitSwift
 
     /**
      * 图片浏览项便捷初始化
-     * - Parameters:
-     *   - localImage: 本地图片(只有一张本地图时用它一步到位)
+     *   @param localImage 本地图片(只有一张本地图时用它一步到位)
      */
     public convenience init(localImage: UIImage) {
         self.init()
@@ -70,7 +69,7 @@ import WYBasisKitSwift
 
     /**
      * 转成结构体浏览项
-     * - return: 与自身字段一致的WYPhotoBrowserItem
+     * @param return 与自身字段一致的WYPhotoBrowserItem
      */
     public func toItem() -> WYPhotoBrowserItem {
         var item = WYPhotoBrowserItem()

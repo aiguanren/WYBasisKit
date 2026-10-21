@@ -52,13 +52,13 @@ import WYBasisKitSwift
     /// 颜色选择条色板(按顺序展示，传空数组时界面不显示颜色行)
     public var markerPalette: [UIColor]?
 
-    /// 线宽档位倍率(相对默认线宽的倍数序列)
+    /// 线宽档位倍率(相对默认线宽的倍数序列，界面按序展示圆点)
     public var lineWidthRatios: [CGFloat]?
 
-    /// 字号档位倍率(相对默认字号的倍数序列)
+    /// 字号档位倍率(相对默认字号的倍数序列，界面按序展示字母A)
     public var fontSizeRatios: [CGFloat]?
 
-    /// 水印整体透明度(0全透明到1不透明，负数表示用默认值)
+    /// 水印整体透明度(0全透明到1不透明，单条与平铺水印的logo和文字都乘它，负数表示用默认值)
     public var watermarkAlpha: CGFloat = -1
 
     /// 标记工具条背景色
@@ -187,14 +187,13 @@ import WYBasisKitSwift
     public weak var delegate: WYImageEditorViewControllerDelegate?
 
     /// 编辑结果Block(编辑成成品图回调图片，取消回调nil，与delegate同时设置时两边都会回调)
-    public var editHandler: ((UIImage?) -> Void)?
+    public var editHandler: ((_ resultImage: UIImage?) -> Void)?
 
     /**
      * 弹出编辑器(delegate回调方式，回调走本对象的delegate与editHandler)
-     * - Parameters:
-     *   - image: 要编辑的图片
-     *   - viewController: 从哪个控制器弹出
-     *   - configuration: 编辑配置(传nil用默认配置)
+     *   @param image 要编辑的图片
+     *   @param viewController 从哪个控制器弹出
+     *   @param configuration 编辑配置(传nil用默认配置)
      */
     @objc(showEditorWithImage:from:configuration:)
     public func showEditor(withImage image: UIImage, from viewController: UIViewController, configuration: WYImageEditorConfigurationObjC?) {
@@ -214,14 +213,13 @@ import WYBasisKitSwift
 
     /**
      * 弹出编辑器(Block回调方式，一行调用不用持有对象)
-     * - Parameters:
-     *   - image: 要编辑的图片
-     *   - viewController: 从哪个控制器弹出
-     *   - configuration: 编辑配置(传nil用默认配置)
-     *   - handler: 编辑结果回调(编辑成成品图回调图片，取消回调nil)
+     *   @param image 要编辑的图片
+     *   @param viewController 从哪个控制器弹出
+     *   @param configuration 编辑配置(传nil用默认配置)
+     *   @param handler 编辑结果回调(编辑成成品图回调图片，取消回调nil)
      */
     @objc(showEditorWithImage:from:configuration:handler:)
-    public static func showEditor(withImage image: UIImage, from viewController: UIViewController, configuration: WYImageEditorConfigurationObjC?, handler: ((UIImage?) -> Void)?) {
+    public static func showEditor(withImage image: UIImage, from viewController: UIViewController, configuration: WYImageEditorConfigurationObjC?, handler: ((_ resultImage: UIImage?) -> Void)?) {
         let editor = WYImageEditorViewController(image: image, configuration: WYImageEditorObjC.convertConfiguration(configuration))
         editor.onFinish = { resultImage in
             handler?(resultImage)
@@ -235,8 +233,8 @@ import WYBasisKitSwift
 
     /**
      * OC配置转Swift配置
-     * - Parameter bridgeConfiguration: 编辑配置(传nil用默认配置)
-     * - Returns: Swift编辑器用的配置
+     @param bridgeConfiguration 编辑配置(传nil用默认配置)
+     * @return Swift编辑器用的配置
      */
     private static func convertConfiguration(_ bridgeConfiguration: WYImageEditorConfigurationObjC?) -> WYImageEditorConfiguration {
         var configuration = WYImageEditorConfiguration()

@@ -207,43 +207,52 @@ private let canSaveLastInputTextKey: String = "canSaveLastInputTextKey"
 private let canSaveLastInputViewStyleKey: String = "canSaveLastInputViewStyleKey"
 public let WYChatSourceBundle: WYSourceBundle = WYSourceBundle(bundleName: "WYChatView")
 
-/// 返回一个Bool值来判定各控件的点击或手势事件是否需要内部处理(默认返回True)
+/// 返回一个Bool值来判定各控件的点击或手势事件是否需要内部处理(默认返回true)
 @objc public protocol WYChatInputViewEventsHandler {
     
     /// 是否需要内部处理 语音 按钮的长按事件
-    @objc optional func canManagerVoiceRecordEvents(_ longPress: UILongPressGestureRecognizer) -> Bool
+    @objc(wy_canManagerVoiceRecordEvents:)
+    optional func wy_canManagerVoiceRecordEvents(_ longPress: UILongPressGestureRecognizer) -> Bool
     
     /// 是否需要内部处理 文本/语音 按钮的点击事件
-    @objc optional func canManagerTextVoiceViewEvents(_ textVoiceView: UIButton) -> Bool
+    @objc(wy_canManagerTextVoiceViewEvents:)
+    optional func wy_canManagerTextVoiceViewEvents(_ textVoiceView: UIButton) -> Bool
     
     /// 是否需要内部处理 文本/表情 切换按钮的点击事件
-    @objc optional func canManagerTextEmojiViewEvents(_ textEmojiView: UIButton) -> Bool
+    @objc(wy_canManagerTextEmojiViewEvents:)
+    optional func wy_canManagerTextEmojiViewEvents(_ textEmojiView: UIButton) -> Bool
     
     /// 是否需要内部处理 更多 按钮的点击事件
-    @objc optional func canManagerMoreViewEvents(_ moreView: UIButton) -> Bool
+    @objc(wy_canManagerMoreViewEvents:)
+    optional func wy_canManagerMoreViewEvents(_ moreView: UIButton) -> Bool
     
     /// 是否需要内部处理 textView 的代理事件
-    @objc(canManagerTextViewDelegateEvents:placeholderView:)
-    optional func canManagerTextViewDelegateEvents(_ textView: WYChatInputTextView, _ placeholderView: UILabel) -> Bool
+    @objc(wy_canManagerTextViewDelegateEvents:placeholderView:)
+    optional func wy_canManagerTextViewDelegateEvents(_ textView: WYChatInputTextView, placeholderView: UILabel) -> Bool
 }
 
 /// 监听各控件点击事件
 @objc public protocol WYChatInputViewDelegate {
     
     /// 点击了 文本/语音 切换按钮
-    @objc optional func didClickTextVoiceView(_ isText: Bool)
+    @objc(wy_didClickTextVoiceView:)
+    optional func wy_didClickTextVoiceView(isText: Bool)
     
     /// 点击了 表情/文本 切换按钮
-    @objc optional func didClickEmojiTextView(_ isText: Bool)
+    @objc(wy_didClickEmojiTextView:)
+    optional func wy_didClickEmojiTextView(isText: Bool)
     
     /// 点击了 更多 按钮
-    @objc optional func didClickMoreView(_ isText: Bool)
+    @objc(wy_didClickMoreView:)
+    optional func wy_didClickMoreView(isText: Bool)
     
     /// 输入框文本发生变化
-    @objc optional func textDidChanged(_ text: String)
+    @objc(wy_textDidChanged:)
+    optional func wy_textDidChanged(text: String)
     
     /// 点击了键盘右下角按钮(例如发送)
-    @objc optional func didClickKeyboardEvent(_ text: String)
+    @objc(wy_didClickKeyboardEvent:)
+    optional func wy_didClickKeyboardEvent(text: String)
 }
 
 public class WYChatInputView: UIImageView {
@@ -346,7 +355,7 @@ public class WYChatInputView: UIImageView {
         textView.textContainer.lineBreakMode = inputBarConfig.textLineBreakMode
         textView.textContainer.maximumNumberOfLines = inputBarConfig.inputTextMaximumNumberOfLines
         textView.isScrollEnabled = inputBarConfig.textViewIsScrollEnabled
-        if (eventsHandler?.canManagerTextViewDelegateEvents?(textView, textPlaceholderView) ?? true) == true {
+        if (eventsHandler?.wy_canManagerTextViewDelegateEvents?(textView, placeholderView: textPlaceholderView) ?? true) == true {
             textView.delegate = self
         }
         textVoiceContentView.addSubview(textView)
@@ -428,7 +437,7 @@ public class WYChatInputView: UIImageView {
     
     @objc private func didClickTextVoiceView(sender: UIButton) {
         
-        guard (eventsHandler?.canManagerTextVoiceViewEvents?(sender) ?? true) else {
+        guard (eventsHandler?.wy_canManagerTextVoiceViewEvents?(sender) ?? true) else {
             return
         }
         
@@ -446,13 +455,13 @@ public class WYChatInputView: UIImageView {
         
         updateContentViewHeight()
         
-        delegate?.didClickTextVoiceView?(!sender.isSelected)
+        delegate?.wy_didClickTextVoiceView?(isText: !sender.isSelected)
         saveLastInputViewStyle()
     }
     
     @objc private func voiceViewLongPressMethod(_ sender: UILongPressGestureRecognizer) {
         
-        guard ((eventsHandler?.canManagerVoiceRecordEvents?(sender) ?? true) && textVoiceView.isSelected == true) else {
+        guard ((eventsHandler?.wy_canManagerVoiceRecordEvents?(sender) ?? true) && textVoiceView.isSelected == true) else {
             return
         }
         /// 检查是否拥有麦克风权限
@@ -483,7 +492,7 @@ public class WYChatInputView: UIImageView {
     
     @objc private func didClickMoreView(sender: UIButton) {
         
-        guard (eventsHandler?.canManagerMoreViewEvents?(sender) ?? true) else {
+        guard (eventsHandler?.wy_canManagerMoreViewEvents?(sender) ?? true) else {
             return
         }
         
@@ -505,13 +514,13 @@ public class WYChatInputView: UIImageView {
         }
         updateContentViewHeight()
         
-        delegate?.didClickMoreView?(!sender.isSelected)
+        delegate?.wy_didClickMoreView?(isText: !sender.isSelected)
         saveLastInputViewStyle()
     }
     
     @objc private func didClickEmojiView(sender: UIButton) {
         
-        guard (eventsHandler?.canManagerTextEmojiViewEvents?(sender) ?? true) else {
+        guard (eventsHandler?.wy_canManagerTextEmojiViewEvents?(sender) ?? true) else {
             return
         }
         
@@ -533,7 +542,7 @@ public class WYChatInputView: UIImageView {
         }
         updateContentViewHeight()
         
-        delegate?.didClickEmojiTextView?(!sender.isSelected)
+        delegate?.wy_didClickEmojiTextView?(isText: !sender.isSelected)
         saveLastInputViewStyle()
     }
     
@@ -681,7 +690,7 @@ public class WYChatInputView: UIImageView {
         
         textPlaceholderView.isHidden = !emojiText.isEmpty
         if silence == false {
-            delegate?.textDidChanged?(emojiText)
+            delegate?.wy_textDidChanged?(text: emojiText)
         }
         updateContentViewHeight()
         
@@ -724,7 +733,7 @@ public class WYChatInputView: UIImageView {
         let emojiText: String = NSMutableAttributedString(attributedString: textView.attributedText).wy_convertEmojiAttributedString(textColor: inputBarConfig.textColor, textFont: inputBarConfig.textFont).string
         
         if emojiText.wy_replace(appointSymbol: "\n", replacement: "").count > 0 {
-            delegate?.didClickKeyboardEvent?(emojiText)
+            delegate?.wy_didClickKeyboardEvent?(text: emojiText)
         }
     }
     

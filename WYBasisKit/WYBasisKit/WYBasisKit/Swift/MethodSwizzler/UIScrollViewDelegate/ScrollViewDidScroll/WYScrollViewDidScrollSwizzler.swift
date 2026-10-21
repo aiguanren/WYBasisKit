@@ -12,10 +12,9 @@ import UIKit
  
  注意：该方法通常由 `UIViewController` 或 `UIView` 实现，因此交换时需要传入具体的类（如 `MyViewController.self`）。
  
- - Parameters:
-   - targetClass: 目标代理类（如 `MyViewController.self`）。
-   - before: 方法执行前回调，参数依次为：代理对象、滚动视图。无返回值。
-   - after: 方法执行后回调，参数依次为：代理对象、滚动视图。无返回值（仅通知）。
+   @param targetClass 目标代理类（如 `MyViewController.self`）。
+   @param before 方法执行前回调，参数依次为：代理对象、滚动视图。无返回值。
+   @param after 方法执行后回调，参数依次为：代理对象、滚动视图。无返回值（仅通知）。
  */
 internal func wy_swizzlerScrollViewDidScroll(
     for targetClass: NSObject.Type,

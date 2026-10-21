@@ -31,7 +31,7 @@ public final class WYAudioStreamRecorder: NSObject {
 
     /**
      开始流式录音(先要已获得麦克风权限，页面侧推荐先用wy_authorizeMicrophoneAccess请求好再调本方法)
-     - Throws: WYAudioError(权限被拒绝、未决定、会话配置失败、录音开启失败)
+     @throws WYAudioError(权限被拒绝、未决定、会话配置失败、录音开启失败)
      */
     public func start() throws {
         if isRecording { return }
@@ -157,7 +157,7 @@ public final class WYAudioStreamRecorder: NSObject {
         guard let outBuffer = AVAudioPCMBuffer(pcmFormat: targetFormat, frameCapacity: AVAudioFrameCount(outputFrames)) else { return }
         outBuffer.frameLength = AVAudioFrameCount(outputFrames)
         if let destination = outBuffer.int16ChannelData?[0] {
-            int16Samples.withUnsafeBufferPointer { pointer in
+            _ = int16Samples.withUnsafeBufferPointer { pointer in
                 memcpy(destination, pointer.baseAddress, outputFrames * 2)
             }
         }

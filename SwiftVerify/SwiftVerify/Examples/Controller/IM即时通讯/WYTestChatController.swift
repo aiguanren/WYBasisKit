@@ -68,27 +68,27 @@ class WYTestChatController: UIViewController {
 extension WYTestChatController: WYChatViewDelegate {
     
     /// APP变的活跃了
-    func applicationDidBecomeActive(_ application: UIApplication) {
+    func wy_applicationDidBecomeActive(_ application: UIApplication) {
         //wy_print("applicationDidBecomeActive")
     }
     
     /// 键盘将要弹出
-    func keyboardWillShow(_ notification: Notification) {
+    func wy_keyboardWillShow(_ notification: Notification) {
         //wy_print("键盘将要弹出")
     }
     
     /// 键盘将要消失
-    func keyboardWillDismiss() {
+    func wy_keyboardWillDismiss() {
         //wy_print("键盘将要消失")
     }
     
     /// tableView的滚动事件
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    func wy_scrollViewDidScroll(_ scrollView: UIScrollView) {
         //wy_print("tableView的滚动事件")
     }
     
     /// 点击了 文本/语音 切换按钮
-    func didClickTextVoiceView(_ isText: Bool) {
+    func wy_didClickTextVoiceView(isText: Bool) {
         if isText {
             //wy_print("显示键盘")
         }else {
@@ -97,7 +97,7 @@ extension WYTestChatController: WYChatViewDelegate {
     }
     
     /// 点击了 表情/文本 切换按钮
-    func didClickEmojiTextView(_ isText: Bool) {
+    func wy_didClickEmojiTextView(isText: Bool) {
         if isText {
             //wy_print("显示键盘")
         }else {
@@ -106,7 +106,7 @@ extension WYTestChatController: WYChatViewDelegate {
     }
     
     /// 点击了 更多 按钮
-    func didClickMoreView(_ isText: Bool) {
+    func wy_didClickMoreView(isText: Bool) {
         if isText {
             //wy_print("显示键盘")
         }else {
@@ -115,12 +115,12 @@ extension WYTestChatController: WYChatViewDelegate {
     }
     
     /// 输入框文本发生变化
-    func textDidChanged(_ text: String) {
+    func wy_textDidChanged(text: String) {
         //wy_print("输入的文本：\(text)")
     }
     
     /// 点击了键盘上的 发送 按钮
-    func keyboardSendMessage(_ messageID: String) {
+    func wy_keyboardSendMessage(messageID: String) {
         //wy_print("发送文本消息ID：\(messageID)")
 
         Task { [weak self] in
@@ -149,22 +149,22 @@ extension WYTestChatController: WYChatViewDelegate {
     }
     
     /// 点击了emoji控件内某个item
-    func didClickEmojiView(_ emojiView: WYChatEmojiView, _ indexPath: IndexPath) {
+    func wy_didClickEmojiView(_ emojiView: WYChatEmojiView, indexPath: IndexPath) {
         //wy_print("emojiView = \(emojiView), emojiName = \(emojiView.dataSource[indexPath.section][indexPath.item])")
     }
     
     /// 点击了emoji控件内功能区删除按钮
-    func didClickEmojiDeleteView(_ deleteView: UIButton) {
+    func wy_didClickEmojiDeleteView(_ deleteView: UIButton) {
         //wy_print("点击了emoji控件内功能区删除按钮")
     }
     
     /// 点击了emoji控件内功能区发送按钮
-    func didClickEmojiSendView(_ sendView: UIButton) {
+    func wy_didClickEmojiSendView(_ sendView: UIButton) {
         //wy_print("点击了emoji控件内功能区发送按钮")
     }
 
     /// 点击了More控件内某个item
-    func didClickMoreView(_ moreView: WYChatMoreView, _ itemIndex: Int) {
+    func wy_didClickMoreView(_ moreView: WYChatMoreView, itemIndex: Int) {
         //wy_print("点击More控件 \(moreView) 内第 \(itemIndex) 个item")
     }
 }
@@ -172,85 +172,85 @@ extension WYTestChatController: WYChatViewDelegate {
 extension WYTestChatController: WYChatViewEventsHandler {
     
     /// 是否需要内部处理 APP变的活跃了 时的事件
-    func canManagerApplicationDidBecomeActiveEvents(_ application: UIApplication) -> Bool {
+    func wy_canManagerApplicationDidBecomeActiveEvents(_ application: UIApplication) -> Bool {
         //wy_print("是否需要内部处理 APP变的活跃了 时的事件， application = \(application)")
         return true
     }
     
     /// 是否需要内部处理 键盘将要弹出 时的事件
-    func canManagerKeyboardWillShowEvents(_ notification: Notification) -> Bool {
+    func wy_canManagerKeyboardWillShowEvents(_ notification: Notification) -> Bool {
         //wy_print("是否需要内部处理 键盘将要弹出 时的事件, notification = \(notification)")
         return true
     }
 
     /// 是否需要内部处理 键盘将要消失 时的事件
-    func canManagerKeyboardWillDismissEvents() -> Bool {
+    func wy_canManagerKeyboardWillDismissEvents() -> Bool {
         //wy_print("是否需要内部处理 键盘将要消失 时的事件")
         return true
     }
 
     /// 是否需要内部处理 tableView的滚动事件
-    func canManagerScrollViewDidScrollEvents(_ scrollView: UIScrollView) -> Bool {
+    func wy_canManagerScrollViewDidScrollEvents(_ scrollView: UIScrollView) -> Bool {
         //wy_print("是否需要内部处理 tableView的滚动事件, scrollView = \(scrollView)")
         return true
     }
     
     /// 是否需要内部处理chatInput控件内 语音 按钮的长按事件
-    func canManagerVoiceRecordEvents(_ longPress: UILongPressGestureRecognizer) -> Bool {
+    func wy_canManagerVoiceRecordEvents(_ longPress: UILongPressGestureRecognizer) -> Bool {
         //wy_print("是否需要内部处理chatInput控件内 语音 按钮的长按事件, longPress = \(longPress)")
         return true
     }
 
     /// 是否需要内部处理chatInput控件内 文本/语音 按钮的点击事件
-    func canManagerTextVoiceViewEvents(_ textVoiceView: UIButton) -> Bool {
+    func wy_canManagerTextVoiceViewEvents(_ textVoiceView: UIButton) -> Bool {
         //wy_print("是否需要内部处理chatInput控件内 文本/语音 按钮的点击事件, textVoiceView = \(textVoiceView)")
         return true
     }
 
     /// 是否需要内部处理chatInput控件内 文本/表情 切换按钮的点击事件
-    func canManagerTextEmojiViewEvents(_ textEmojiView: UIButton) -> Bool {
+    func wy_canManagerTextEmojiViewEvents(_ textEmojiView: UIButton) -> Bool {
         //wy_print("是否需要内部处理chatInput控件内 文本/表情 切换按钮的点击事件, textEmojiView = \(textEmojiView)")
         return true
     }
 
     /// 是否需要内部处理chatInput控件内 更多 按钮的点击事件
-    func canManagerMoreViewEvents(_ moreView: UIButton) -> Bool {
+    func wy_canManagerMoreViewEvents(_ moreView: UIButton) -> Bool {
         //wy_print("是否需要内部处理chatInput控件内 更多 按钮的点击事件, moreView = \(moreView)")
         return true
     }
     
     /// 是否需要内部处理chatInput控件内 键盘发送按钮 的点击事件
-    func canManagerKeyboardSendEvents(_ text: String) -> Bool {
+    func wy_canManagerKeyboardSendEvents(_ text: String) -> Bool {
         //wy_print("是否需要内部处理chatInput控件内 键盘发送按钮 的点击事件, text = \(text)")
         return true
     }
 
     /// 是否需要内部处理Emoji控件内 cell 的点击事件
-    func canManagerEmojiViewClickEvents(_ emojiView: WYChatEmojiView, _ indexPath: IndexPath) -> Bool {
+    func wy_canManagerEmojiViewClickEvents(_ emojiView: WYChatEmojiView, indexPath: IndexPath) -> Bool {
         //wy_print("是否需要内部处理Emoji控件内 cell 的点击事件, emojiView = \(emojiView), indexPath = \(indexPath)")
         return true
     }
 
     /// 是否需要内部处理Emoji控件内 删除按钮 的点击事件
-    func canManagerEmojiDeleteViewClickEvents(_ deleteView: UIButton) -> Bool {
+    func wy_canManagerEmojiDeleteViewClickEvents(_ deleteView: UIButton) -> Bool {
         //wy_print("是否需要内部处理Emoji控件内 删除按钮 的点击事件, deleteView = \(deleteView)")
         return true
     }
 
     /// 是否需要内部处理Emoji控件内 发送按钮 的点击事件
-    func canManagerEmojiSendViewClickEvents(_ sendView: UIButton) -> Bool {
+    func wy_canManagerEmojiSendViewClickEvents(_ sendView: UIButton) -> Bool {
         //wy_print("是否需要内部处理Emoji控件内 发送按钮 的点击事件, sendView = \(sendView)")
         return true
     }
 
     /// 是否需要内部处理More控件内 cell 的点击事件
-    func canManagerMoreViewClickEvents(_ moreView: WYChatMoreView, _ itemIndex: Int) -> Bool {
+    func wy_canManagerMoreViewClickEvents(_ moreView: WYChatMoreView, itemIndex: Int) -> Bool {
         //wy_print("是否需要内部处理More控件内 cell 的点击事件, moreView = \(moreView), itemIndex = \(itemIndex)")
         return true
     }
     
     /// 是否需要内部处理tableView代理 cellForRowAt 方法
-    func canManagerCellForRowEvents(_ chatView: WYChatView, _ tableView: UITableView, _ indexPath: IndexPath) -> UITableViewCell? {
+    func wy_canManagerCellForRowEvents(_ chatView: WYChatView, tableView: UITableView, indexPath: IndexPath) -> UITableViewCell? {
         return nil
     }
 }

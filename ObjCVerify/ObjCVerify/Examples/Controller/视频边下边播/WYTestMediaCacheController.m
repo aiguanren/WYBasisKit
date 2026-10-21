@@ -293,7 +293,6 @@
              @"清空全部缓存"];
 }
 
-/// 用当前素材构造带缓存的播放条并播放
 /// 当前生效的播放地址(输入框地址生效时用它，否则用素材清单当前项)
 - (NSURL *)currentMediaURL {
     if (self.activeCustomURL != nil) {

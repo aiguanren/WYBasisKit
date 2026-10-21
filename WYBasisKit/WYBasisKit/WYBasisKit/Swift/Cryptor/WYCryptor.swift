@@ -14,8 +14,8 @@ public struct WYCryptor {
 
     /**
      * 字符串MD5摘要
-     * - Parameter input: 要摘要的字符串(按UTF-8取字节)
-     * - Returns: 32位小写十六进制摘要串
+     @param input 要摘要的字符串(按UTF-8取字节)
+     * @return 32位小写十六进制摘要串
      */
     public static func md5Hex(_ input: String) -> String {
         return md5Hex(Data(input.utf8))
@@ -23,8 +23,8 @@ public struct WYCryptor {
 
     /**
      * 数据MD5摘要
-     * - Parameter input: 要摘要的数据
-     * - Returns: 32位小写十六进制摘要串
+     @param input 要摘要的数据
+     * @return 32位小写十六进制摘要串
      */
     public static func md5Hex(_ input: Data) -> String {
         let digest = Insecure.MD5.hash(data: input)
@@ -33,8 +33,8 @@ public struct WYCryptor {
 
     /**
      * 字符串SHA1摘要
-     * - Parameter input: 要摘要的字符串(按UTF-8取字节)
-     * - Returns: 40位小写十六进制摘要串
+     @param input 要摘要的字符串(按UTF-8取字节)
+     * @return 40位小写十六进制摘要串
      */
     public static func sha1Hex(_ input: String) -> String {
         let digest = Insecure.SHA1.hash(data: Data(input.utf8))
@@ -43,8 +43,8 @@ public struct WYCryptor {
 
     /**
      * 字符串SHA256摘要
-     * - Parameter input: 要摘要的字符串(按UTF-8取字节)
-     * - Returns: 64位小写十六进制摘要串
+     @param input 要摘要的字符串(按UTF-8取字节)
+     * @return 64位小写十六进制摘要串
      */
     public static func sha256Hex(_ input: String) -> String {
         let digest = SHA256.hash(data: Data(input.utf8))
@@ -53,8 +53,8 @@ public struct WYCryptor {
 
     /**
      * 字符串SHA512摘要
-     * - Parameter input: 要摘要的字符串(按UTF-8取字节)
-     * - Returns: 128位小写十六进制摘要串
+     @param input 要摘要的字符串(按UTF-8取字节)
+     * @return 128位小写十六进制摘要串
      */
     public static func sha512Hex(_ input: String) -> String {
         let digest = SHA512.hash(data: Data(input.utf8))
@@ -63,10 +63,9 @@ public struct WYCryptor {
 
     /**
      * HMAC-SHA256签名
-     * - Parameters:
-     *   - message: 要签名的内容(按UTF-8取字节)
-     *   - key: 签名密钥(按UTF-8取字节)
-     * - Returns: 64位小写十六进制签名串
+     *   @param message 要签名的内容(按UTF-8取字节)
+     *   @param key 签名密钥(按UTF-8取字节)
+     * @return 64位小写十六进制签名串
      */
     public static func hmacSHA256Hex(message: String, key: String) -> String {
         let mac = HMAC<SHA256>.authenticationCode(for: Data(message.utf8), using: SymmetricKey(data: Data(key.utf8)))
@@ -75,10 +74,9 @@ public struct WYCryptor {
 
     /**
      * HMAC-SHA1签名
-     * - Parameters:
-     *   - message: 要签名的内容(按UTF-8取字节)
-     *   - key: 签名密钥(按UTF-8取字节)
-     * - Returns: 40位小写十六进制签名串
+     *   @param message 要签名的内容(按UTF-8取字节)
+     *   @param key 签名密钥(按UTF-8取字节)
+     * @return 40位小写十六进制签名串
      */
     public static func hmacSHA1Hex(message: String, key: String) -> String {
         let mac = HMAC<Insecure.SHA1>.authenticationCode(for: Data(message.utf8), using: SymmetricKey(data: Data(key.utf8)))
@@ -87,10 +85,9 @@ public struct WYCryptor {
 
     /**
      * AES-256-GCM加密
-     * - Parameters:
-     *   - plaintext: 要加密的明文数据
-     *   - key: 加密密钥(任意长度，内部先归一成32字节对称密钥)
-     * - Returns: 组合密文(12字节随机nonce+密文+16字节认证标签)，解密用aesGCMDecrypt，加密失败返回nil
+     *   @param plaintext 要加密的明文数据
+     *   @param key 加密密钥(任意长度，内部先归一成32字节对称密钥)
+     * @return 组合密文(12字节随机nonce+密文+16字节认证标签)，解密用aesGCMDecrypt，加密失败返回nil
      */
     public static func aesGCMEncrypt(_ plaintext: Data, key: Data) -> Data? {
         guard let sealed = try? AES.GCM.seal(plaintext, using: normalizedKey(key)).combined else { return nil }
@@ -99,10 +96,9 @@ public struct WYCryptor {
 
     /**
      * AES-256-GCM解密
-     * - Parameters:
-     *   - combined: aesGCMEncrypt返回的组合密文
-     *   - key: 加密时用的同一把密钥
-     * - Returns: 解密出的明文数据，密钥不符或数据被篡改时返回nil
+     *   @param combined aesGCMEncrypt返回的组合密文
+     *   @param key 加密时用的同一把密钥
+     * @return 解密出的明文数据，密钥不符或数据被篡改时返回nil
      */
     public static func aesGCMDecrypt(_ combined: Data, key: Data) -> Data? {
         guard let sealedBox = try? AES.GCM.SealedBox(combined: combined),
@@ -112,10 +108,9 @@ public struct WYCryptor {
 
     /**
      * AES-256-GCM加密字符串
-     * - Parameters:
-     *   - plaintext: 要加密的明文字符串(按UTF-8取字节)
-     *   - key: 加密密钥(任意长度)
-     * - Returns: 组合密文的Base64串，解密用aesGCMDecryptString，加密失败返回nil
+     *   @param plaintext 要加密的明文字符串(按UTF-8取字节)
+     *   @param key 加密密钥(任意长度)
+     * @return 组合密文的Base64串，解密用aesGCMDecryptString，加密失败返回nil
      */
     public static func aesGCMEncryptString(_ plaintext: String, key: String) -> String? {
         guard let combined = aesGCMEncrypt(Data(plaintext.utf8), key: Data(key.utf8)) else { return nil }
@@ -124,10 +119,9 @@ public struct WYCryptor {
 
     /**
      * AES-256-GCM解密字符串
-     * - Parameters:
-     *   - base64Combined: aesGCMEncryptString返回的Base64串
-     *   - key: 加密时用的同一把密钥
-     * - Returns: 解密出的明文字符串，密钥不符或数据被篡改时返回nil
+     *   @param base64Combined aesGCMEncryptString返回的Base64串
+     *   @param key 加密时用的同一把密钥
+     * @return 解密出的明文字符串，密钥不符或数据被篡改时返回nil
      */
     public static func aesGCMDecryptString(_ base64Combined: String, key: String) -> String? {
         guard let combined = Data(base64Encoded: base64Combined),
@@ -137,10 +131,9 @@ public struct WYCryptor {
 
     /**
      * XOR流处理
-     * - Parameters:
-     *   - input: 要处理的数据
-     *   - key: 循环取字节的密钥
-     * - Returns: 与密钥循环异或的结果(加密解密是同一个方法)
+     *   @param input 要处理的数据
+     *   @param key 循环取字节的密钥
+     * @return 与密钥循环异或的结果(加密解密是同一个方法)
      */
     public static func xor(_ input: Data, key: Data) -> Data {
         let inputBytes = [UInt8](input)
@@ -156,8 +149,8 @@ public struct WYCryptor {
 
     /**
      * Base64编码
-     * - Parameter input: 要编码的数据
-     * - Returns: Base64字符串
+     @param input 要编码的数据
+     * @return Base64字符串
      */
     public static func base64Encode(_ input: Data) -> String {
         return input.base64EncodedString()
@@ -165,8 +158,8 @@ public struct WYCryptor {
 
     /**
      * Base64解码
-     * - Parameter input: 要解码的Base64字符串
-     * - Returns: 解码出的数据，格式非法时返回nil
+     @param input 要解码的Base64字符串
+     * @return 解码出的数据，格式非法时返回nil
      */
     public static func base64Decode(_ input: String) -> Data? {
         return Data(base64Encoded: input)
@@ -174,8 +167,8 @@ public struct WYCryptor {
 
     /**
      * 十六进制编码
-     * - Parameter input: 要编码的数据
-     * - Returns: 小写十六进制字符串
+     @param input 要编码的数据
+     * @return 小写十六进制字符串
      */
     public static func hexEncode(_ input: Data) -> String {
         return input.map { String(format: "%02x", $0) }.joined()
@@ -183,8 +176,8 @@ public struct WYCryptor {
 
     /**
      * 十六进制解码
-     * - Parameter input: 要解码的十六进制字符串(大小写都认)
-     * - Returns: 解码出的数据，含非十六进制字符时返回nil
+     @param input 要解码的十六进制字符串(大小写都认)
+     * @return 解码出的数据，含非十六进制字符时返回nil
      */
     public static func hexDecode(_ input: String) -> Data? {
         let characters = Array(input.lowercased())
@@ -207,8 +200,8 @@ public struct WYCryptor {
 
     /**
      * 安全随机字节
-     * - Parameter count: 要生成的字节数
-     * - Returns: 系统安全随机源生成的数据(密钥/盐/nonce生成用)
+     @param count 要生成的字节数
+     * @return 系统安全随机源生成的数据(密钥/盐/nonce生成用)
      */
     public static func randomBytes(count: Int) -> Data {
         var bytes = [UInt8](repeating: 0, count: max(0, count))
@@ -218,12 +211,11 @@ public struct WYCryptor {
 
     /**
      * PBKDF2密钥派生
-     * - Parameters:
-     *   - password: 派生口令(按UTF-8取字节)
-     *   - salt: 派生盐(按UTF-8取字节)
-     *   - rounds: 迭代次数(默认10000，调大更慢更抗暴力)
-     *   - length: 派生输出的字节数(默认32)
-     * - Returns: 派生出的密钥数据，参数非法时返回nil
+     *   @param password 派生口令(按UTF-8取字节)
+     *   @param salt 派生盐(按UTF-8取字节)
+     *   @param rounds 迭代次数(默认10000，调大更慢更抗暴力)
+     *   @param length 派生输出的字节数(默认32)
+     * @return 派生出的密钥数据，参数非法时返回nil
      */
     public static func pbkdf2(password: String, salt: String, rounds: UInt32 = 10000, length: Int = 32) -> Data? {
         guard rounds > 0, length > 0 else { return nil }

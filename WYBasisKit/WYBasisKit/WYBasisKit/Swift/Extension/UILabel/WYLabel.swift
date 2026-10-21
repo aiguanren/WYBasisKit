@@ -358,12 +358,11 @@ extension UILabel {
     /**
      * 根据触摸点查找命中的富文本（支持指定目标模型）
      *
-     * - Parameters:
-     *   - touchPoint: 触摸点在当前 label 坐标系中的位置
-     *   - targetModels: 要匹配的富文本模型数组（可选，不传则使用点击专用模型）
-     *   - targetLineGroups: 对应按行分组的模型（可选，不传则使用点击专用分组）
-     *   - handler: 命中后执行的回调，参数为命中的富文本模型(含字符串、range、索引与所属注册的回调)
-     * - Returns: 是否命中任何富文本
+     *   @param touchPoint 触摸点在当前 label 坐标系中的位置
+     *   @param targetModels 要匹配的富文本模型数组（可选，不传则使用点击专用模型）
+     *   @param targetLineGroups 对应按行分组的模型（可选，不传则使用点击专用分组）
+     *   @param handler 命中后执行的回调，参数为命中的富文本模型(含字符串、range、索引与所属注册的回调)
+     * @return 是否命中任何富文本
      *
      * - Note: 该方法正确处理了文本水平对齐（左/中/右）和垂直居中对齐。
      *         排版使用 TextKit，与 UILabel 渲染走同一套引擎
@@ -567,8 +566,8 @@ extension UILabel {
     /**
      * 将给定的富文本模型按行分组，便于在命中时只检查当前行（性能优化）
      *
-     * - Parameter models: 需要分组的富文本模型数组
-     * - Returns: 按行索引组织的二维数组
+     @param models 需要分组的富文本模型数组
+     * @return 按行索引组织的二维数组
      */
     private func wy_groupModelsByLine(for models: [WYRichTextModel]) -> [[WYRichTextModel]] {
         guard let lineCharacterRanges = wy_lineCharacterRanges, !lineCharacterRanges.isEmpty else { return [] }

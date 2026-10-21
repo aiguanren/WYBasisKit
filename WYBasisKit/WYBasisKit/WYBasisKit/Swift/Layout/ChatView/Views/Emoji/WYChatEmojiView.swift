@@ -127,32 +127,34 @@ public struct WYEmojiViewConfig {
     public init() {}
 }
 
-/// 返回一个Bool值来判定各控件的点击或手势事件是否需要内部处理(默认返回True)
+/// 返回一个Bool值来判定各控件的点击或手势事件是否需要内部处理(默认返回true)
 @objc public protocol WYChatEmojiViewEventsHandler {
     /// 是否需要内部处理 Emoji 点击事件
-    @objc(canManagerEmojiViewClickEventsWithEmojiView:indexPath:)
-    optional func canManagerEmojiViewClickEvents(_ emojiView: WYChatEmojiView, _ indexPath: IndexPath) -> Bool
+    @objc(wy_canManagerEmojiViewClickEvents:indexPath:)
+    optional func wy_canManagerEmojiViewClickEvents(_ emojiView: WYChatEmojiView, indexPath: IndexPath) -> Bool
 
     /// 是否需要内部处理 删除按钮 点击事件
-    @objc(canManagerEmojiDeleteViewClickEventsWithDeleteView:)
-    optional func canManagerEmojiDeleteViewClickEvents(_ deleteView: UIButton) -> Bool
+    @objc(wy_canManagerEmojiDeleteViewClickEvents:)
+    optional func wy_canManagerEmojiDeleteViewClickEvents(_ deleteView: UIButton) -> Bool
     
     /// 是否需要内部处理 发送按钮 点击事件
-    @objc(canManagerEmojiSendViewClickEventsWithSendView:)
-    optional func canManagerEmojiSendViewClickEvents(_ sendView: UIButton) -> Bool
+    @objc(wy_canManagerEmojiSendViewClickEvents:)
+    optional func wy_canManagerEmojiSendViewClickEvents(_ sendView: UIButton) -> Bool
 }
 
 @objc public protocol WYChatEmojiViewDelegate {
     
     /// 监听Emoji点击事件
-    @objc(didClickEmojiView:indexPath:)
-    optional func didClick(_ emojiView: WYChatEmojiView, _ indexPath: IndexPath)
+    @objc(wy_didClickEmojiView:indexPath:)
+    optional func wy_didClickEmojiView(_ emojiView: WYChatEmojiView, indexPath: IndexPath)
 
     /// 点击了发送按钮
-    @objc optional func didClickEmojiSendView(_ sendView: UIButton)
+    @objc(wy_didClickEmojiSendView:)
+    optional func wy_didClickEmojiSendView(_ sendView: UIButton)
     
     /// 点击了删除按钮
-    @objc optional func didClickEmojiDeleteView(_ deleteView: UIButton)
+    @objc(wy_didClickEmojiDeleteView:)
+    optional func wy_didClickEmojiDeleteView(_ deleteView: UIButton)
 }
 
 public class WYChatEmojiView: UIView, WYEmojiFuncAreaViewDelegate {
@@ -318,23 +320,23 @@ public class WYChatEmojiView: UIView, WYEmojiFuncAreaViewDelegate {
         }
     }
     
-    @objc public func didClickEmojiSendView(_ sendView: UIButton) {
+    @objc public func wy_didClickEmojiSendView(_ sendView: UIButton) {
         
         if let sendView: UIButton = funcAreaView?.sendView {
-            guard (eventsHandler?.canManagerEmojiSendViewClickEvents?(sendView) ?? true) else {
+            guard (eventsHandler?.wy_canManagerEmojiSendViewClickEvents?(sendView) ?? true) else {
                 return
             }
         }
-        delegate?.didClickEmojiSendView?(sendView)
+        delegate?.wy_didClickEmojiSendView?(sendView)
     }
     
-    @objc public func didClickEmojiDeleteView(_ deleteView: UIButton) {
+    @objc public func wy_didClickEmojiDeleteView(_ deleteView: UIButton) {
         if let deleteView: UIButton = funcAreaView?.deleteView {
-            guard (eventsHandler?.canManagerEmojiDeleteViewClickEvents?(deleteView) ?? true) else {
+            guard (eventsHandler?.wy_canManagerEmojiDeleteViewClickEvents?(deleteView) ?? true) else {
                 return
             }
         }
-        delegate?.didClickEmojiDeleteView?(deleteView)
+        delegate?.wy_didClickEmojiDeleteView?(deleteView)
     }
     
     private func sectionInset(_ section: Int) -> UIEdgeInsets {
@@ -425,11 +427,11 @@ extension WYChatEmojiView: UICollectionViewDelegate, UICollectionViewDataSource,
     
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 
-        guard (eventsHandler?.canManagerEmojiViewClickEvents?(self, indexPath) ?? true) else {
+        guard (eventsHandler?.wy_canManagerEmojiViewClickEvents?(self, indexPath: indexPath) ?? true) else {
             return
         }
         collectionView.deselectItem(at: indexPath, animated: true)
-        delegate?.didClick?(self, indexPath)
+        delegate?.wy_didClickEmojiView?(self, indexPath: indexPath)
     }
 }
 

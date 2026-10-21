@@ -251,21 +251,20 @@ class WYImageMarkerView: UIView {
 
     /**
      * 初始化标记视图内容
-     * - Parameters:
-     *   - image: 要标记的原图
-     *   - defaultColor: 标记默认颜色
-     *   - lineWidth: 默认线条宽度(传0按图片宽度自动)
-     *   - textFontSize: 默认文本字号(传0按图片宽度自动)
-     *   - straightLine: 划线默认形态(true为直线)
-     *   - mosaicBrushWidth: 马赛克笔刷默认宽度(传0按图片宽度自动)
-     *   - mosaicCellSize: 马赛克像素块大小(传0按图片宽度自动)
-     *   - mosaicDrawsBox: 马赛克默认形态(true为框选)
-     *   - watermarkText: 落水印时输入弹窗的预填文案(传nil用本地化默认)
-     *   - watermarkColor: 水印默认颜色
-     *   - watermarkFontSize: 水印默认字号(传0按图片宽度自动)
-     *   - watermarkRotation: 水印倾斜角(单位为度，0为水平)
-     *   - watermarkImage: 调用方预置的水印logo图(传nil水印不带logo)
-     *   - appearance: 界面外观
+     *   @param image 要标记的原图
+     *   @param defaultColor 标记默认颜色
+     *   @param lineWidth 默认线条宽度(传0按图片宽度自动)
+     *   @param textFontSize 默认文本字号(传0按图片宽度自动)
+     *   @param straightLine 划线默认形态(true为直线)
+     *   @param mosaicBrushWidth 马赛克笔刷默认宽度(传0按图片宽度自动)
+     *   @param mosaicCellSize 马赛克像素块大小(传0按图片宽度自动)
+     *   @param mosaicDrawsBox 马赛克默认形态(true为框选)
+     *   @param watermarkText 落水印时输入弹窗的预填文案(传nil用本地化默认)
+     *   @param watermarkColor 水印默认颜色
+     *   @param watermarkFontSize 水印默认字号(传0按图片宽度自动)
+     *   @param watermarkRotation 水印倾斜角(单位为度，0为水平)
+     *   @param watermarkImage 调用方预置的水印logo图(传nil水印不带logo)
+     *   @param appearance 界面外观
      */
     func setup(image: UIImage, defaultColor: UIColor, lineWidth: CGFloat, textFontSize: CGFloat, straightLine: Bool, mosaicBrushWidth: CGFloat, mosaicCellSize: CGFloat, mosaicDrawsBox: Bool, watermarkText: String?, watermarkColor: UIColor, watermarkFontSize: CGFloat, watermarkRotation: CGFloat, watermarkImage: UIImage?, appearance: WYImageEditorAppearance, zoomEnabled: Bool = true, initialZoomMultiplier: CGFloat = 1) {
         sourceImage = image

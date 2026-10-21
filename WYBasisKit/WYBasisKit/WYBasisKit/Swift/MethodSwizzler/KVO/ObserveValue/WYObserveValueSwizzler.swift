@@ -10,10 +10,9 @@ import UIKit
 /**
  交换 `NSObject` 及其子类的 `observeValue(forKeyPath:of:change:context:)` 方法。
  
- - Parameters:
-   - targetClass: 目标观察者类（如 `NSObject.self`）。
-   - before: 方法执行前回调，参数依次为：观察者、键路径、被观察对象、变化字典、上下文指针。无返回值。
-   - after: 方法执行后回调，参数依次为：观察者、键路径、被观察对象、变化字典、上下文指针。无返回值（仅通知）。
+   @param targetClass 目标观察者类（如 `NSObject.self`）。
+   @param before 方法执行前回调，参数依次为：观察者、键路径、被观察对象、变化字典、上下文指针。无返回值。
+   @param after 方法执行后回调，参数依次为：观察者、键路径、被观察对象、变化字典、上下文指针。无返回值（仅通知）。
  */
 internal func wy_swizzlerKVOObserve(
     for targetClass: NSObject.Type,

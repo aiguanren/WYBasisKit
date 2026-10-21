@@ -21,8 +21,8 @@ public extension NSMutableAttributedString {
     
     /**
      设置富文本中指定范围的颜色。
-     - Parameter colorRanges: 字典，Key为颜色，Value为范围定义(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
-     - Returns: 当前 `NSMutableAttributedString` 对象
+     @param colorRanges 字典，Key为颜色，Value为范围定义(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
+     @return 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
     func wy_setColor(_ colorRanges: Dictionary<UIColor, Any>) -> NSMutableAttributedString {
@@ -38,8 +38,8 @@ public extension NSMutableAttributedString {
     
     /**
      设置富文本中指定范围的字体。
-     - Parameter fontRanges: 字典，Key为字体，Value为范围定义(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
-     - Returns: 当前 `NSMutableAttributedString` 对象
+     @param fontRanges 字典，Key为字体，Value为范围定义(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
+     @return 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
     func wy_setFont(_ fontRanges: Dictionary<UIFont, Any>) -> NSMutableAttributedString {
@@ -55,9 +55,9 @@ public extension NSMutableAttributedString {
     
     /**
      设置富文本中指定范围的背景色
-     - Parameter color:       背景色
-     - Parameter rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
-     - Returns: 当前 `NSMutableAttributedString` 对象
+     @param color 背景色
+     @param rangeValue 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
+     @return 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
     func wy_setBackgroundColor(_ color: UIColor, rangeValue: Any? = nil) -> NSMutableAttributedString {
@@ -75,7 +75,7 @@ public extension NSMutableAttributedString {
     
     /**
      *  设置富文本字体(整个富文本统一设置字体)
-     *  - Returns: 当前 `NSMutableAttributedString` 对象
+     *  @return 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
     func wy_setFont(_ font: UIFont) -> NSMutableAttributedString {
@@ -85,7 +85,7 @@ public extension NSMutableAttributedString {
     
     /**
      *  设置富文本的截断方式(默认 `.byTruncatingTail`（尾部截断）)
-     *  - Returns: 当前 `NSMutableAttributedString` 对象
+     *  @return 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
     func wy_setLineBreakMode(_ lineBreakMode: NSLineBreakMode = .byTruncatingTail) -> NSMutableAttributedString {
@@ -103,12 +103,11 @@ public extension NSMutableAttributedString {
     /**
      *  设置行间距，支持多种范围定义
      
-     *  - Parameters:
-     *    - lineSpacing: 行间距值（单位：pt）
-     *    - rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
-     *    - alignment:  段落对齐方式，默认为 `.left`
+     *    @param lineSpacing 行间距值（单位：pt）
+     *    @param rangeValue 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
+     *    @param alignment 段落对齐方式，默认为 `.left`
      *
-     *  - Returns: 当前 `NSMutableAttributedString` 对象
+     *  @return 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
     func wy_lineSpacing(_ lineSpacing: CGFloat, rangeValue: Any? = nil, alignment: NSTextAlignment = .left) -> NSMutableAttributedString {
@@ -140,13 +139,12 @@ public extension NSMutableAttributedString {
      *            这是第二段，包含 afterString。
      *  调用后第一段底部和第二段头部之间会增加 paragraphSpace 的空白间距
      *
-     *  - Parameters:
-     *    - paragraphSpace:   段落间距值（单位：pt），需大于 0
-     *    - beforeString:     起始字符串，其所在段落的底部将会增加间距
-     *    - afterString:      结束字符串，必须位于 `beforeString` 之后
-     *    - alignment:        段落对齐方式，默认为 `.left`
+     *    @param paragraphSpace 段落间距值（单位：pt），需大于 0
+     *    @param beforeString 起始字符串，其所在段落的底部将会增加间距
+     *    @param afterString 结束字符串，必须位于 `beforeString` 之后
+     *    @param alignment 段落对齐方式，默认为 `.left`
      *
-     *  - Returns: 当前 `NSMutableAttributedString` 对象，
+     *  @return 当前 `NSMutableAttributedString` 对象，
      */
     @discardableResult
     func wy_paragraphSpace(_ paragraphSpace: CGFloat,
@@ -203,11 +201,10 @@ public extension NSMutableAttributedString {
     /**
      *  设置字间距（字符间距），支持多种范围定义
      *
-     *  - Parameters:
-     *    - wordsSpacing: 字间距值（单位：pt）
-     *    - rangeValue:   范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
+     *    @param wordsSpacing 字间距值（单位：pt）
+     *    @param rangeValue 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
      *
-     *  - Returns: 当前 `NSMutableAttributedString` 对象
+     *  @return 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
     func wy_wordsSpacing(_ wordsSpacing: CGFloat, rangeValue: Any? = nil) -> NSMutableAttributedString {
@@ -229,12 +226,11 @@ public extension NSMutableAttributedString {
     /**
      在指定范围 前/后 插入水平间距
      
-     - Parameters:
-     - spacing:     要插入的间距值（单位：pt），需大于 0
-     - position:    插入位置，`.before`（范围之前）或 `.after`（范围之后）
-     - rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
+     @param spacing 要插入的间距值（单位：pt），需大于 0
+     @param position 插入位置，`.before`（范围之前）或 `.after`（范围之后）
+     @param rangeValue 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
      
-     - Returns: 当前 `NSMutableAttributedString` 对象
+     @return 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
     func wy_insertSpacing(_ spacing: CGFloat,
@@ -289,14 +285,13 @@ public extension NSMutableAttributedString {
     /**
      *  文本添加段落缩进
      *
-     *  - Parameters:
-     *    - rangeValue:  范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
-     *    - firstLineHeadIndent:  首行左边距
-     *    - headIndent:  第二行及以后的左边距(换行符\n除外)
-     *    - tailIndent:  尾部右边距
-     *    - alignment:  对齐方式
+     *    @param rangeValue 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
+     *    @param firstLineHeadIndent 首行左边距
+     *    @param headIndent 第二行及以后的左边距(换行符\n除外)
+     *    @param tailIndent 尾部右边距
+     *    @param alignment 对齐方式
      *
-     *  - Returns: 当前 `NSMutableAttributedString` 对象
+     *  @return 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
     func wy_paragraphIndents(rangeValue: Any? = nil,
@@ -327,11 +322,10 @@ public extension NSMutableAttributedString {
     /**
      *  调整文本基线偏移（实现文字上下移动），支持多种范围定义
      *
-     *  - Parameters:
-     *    - offset: 偏移量（单位：pt），**正值向上移动，负值向下移动**
-     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
+     *    @param offset 偏移量（单位：pt），**正值向上移动，负值向下移动**
+     *    @param rangeValue 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
      *
-     *  - Returns: 当前 `NSMutableAttributedString` 对象
+     *  @return 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
     func wy_baseline(offset: CGFloat, rangeValue: Any? = nil) -> NSMutableAttributedString {
@@ -353,11 +347,10 @@ public extension NSMutableAttributedString {
     /**
      *  为文本添加下划线，支持多种范围定义
      *
-     *  - Parameters:
-     *    - color:  下划线的颜色
-     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
+     *    @param color 下划线的颜色
+     *    @param rangeValue 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
      *
-     *  - Returns: 当前 `NSMutableAttributedString` 对象
+     *  @return 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
     func wy_underline(color: UIColor, rangeValue: Any? = nil) -> NSMutableAttributedString {
@@ -380,11 +373,10 @@ public extension NSMutableAttributedString {
     /**
      *  为文本添加删除线，支持多种范围定义
      *
-     *  - Parameters:
-     *    - color:  删除线的颜色
-     *    - rangeValue: 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
+     *    @param color 删除线的颜色
+     *    @param rangeValue 范围定义，传 `nil` 则对整个富文本生效(支持类型：`String`、`NSRange`、`[String]`、`[NSRange]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange]`）)
      *
-     *  - Returns: 当前 `NSMutableAttributedString` 对象
+     *  @return 当前 `NSMutableAttributedString` 对象
      */
     @discardableResult
     func wy_strikethrough(color: UIColor, rangeValue: Any? = nil) -> NSMutableAttributedString {
@@ -407,8 +399,8 @@ public extension NSMutableAttributedString {
     /**
      向富文本中插入图片（支持图文混排，自动处理位置和对齐方式）
      
-     - Parameter attachments: 富文本图片插入配置数组，每个元素定义了图片、位置、尺寸、对齐方式和间距
-     - Returns: 当前 `NSMutableAttributedString` 对象
+     @param attachments 富文本图片插入配置数组，每个元素定义了图片、位置、尺寸、对齐方式和间距
+     @return 当前 `NSMutableAttributedString` 对象
      
      使用说明：
      1. position 支持插入到指定文本前/后或指定字符下标处
@@ -496,7 +488,7 @@ public extension NSMutableAttributedString {
      *  @param pattern       正则匹配规则, 默认匹配一对不嵌套方括号的[表情名], 不限长度
      *  @param customImageLoader   自定义表情图片加载器(传入表情名和bundle返回UIImage，返回nil时降级走wy_find)，不传时走wy_find
      *
-     *  - Returns: 当前 `NSMutableAttributedString` 对象
+     *  @return 当前 `NSMutableAttributedString` 对象
      */
     static func wy_convertEmojiAttributed(emojiString: String, textColor: UIColor, textFont: UIFont, emojiTable: [String], sourceBundle: WYSourceBundle? = nil, pattern: String = "\\[[^\\[\\]]+\\]", customImageLoader: ((_ emojiName: String, _ bundle: WYSourceBundle?) -> UIImage)? = nil) -> NSMutableAttributedString {
 
@@ -554,7 +546,7 @@ public extension NSMutableAttributedString {
      *  @param textFont      富文本的字体
      *  @param replace       未知图片(表情)的标识替换符，默认：[未知]
      *
-     *  - Returns: 当前 `NSMutableAttributedString` 对象
+     *  @return 当前 `NSMutableAttributedString` 对象
      */
     func wy_convertEmojiAttributedString(textColor: UIColor, textFont: UIFont, replace: String = "[未知]") -> NSMutableAttributedString {
         
@@ -614,7 +606,7 @@ public extension NSAttributedString {
      *
      *  @param lineBreakMode  换行/截断模式(语义同 `UILabel.lineBreakMode`)
      *
-     *  - Returns: 文本矩形区域信息，单个目标查 `boundingRect`，数组目标按元素分组查 `boundingRects`，被截断隐藏的部分不产生矩形
+     *  @return 文本矩形区域信息，单个目标查 `boundingRect`，数组目标按元素分组查 `boundingRects`，被截断隐藏的部分不产生矩形
      */
     func wy_calculateFrame(rangeValue: Any? = nil, controlSize: CGSize, numberOfLines: Int, lineBreakMode: NSLineBreakMode) -> WYTextBoundingInfos {
 
@@ -754,10 +746,9 @@ private extension NSMutableAttributedString {
     
     /**
      根据 rangeValue 批量设置属性（如字体、颜色）。
-     - Parameters:
-     - key: 属性键，如 `.font`
-     - value: 属性值，如 UIFont
-     - rangeValue: 范围，支持 `wy_parseRanges` 定义的所有格式（子串匹配、区间数组等）
+     @param key 属性键，如 `.font`
+     @param value 属性值，如 UIFont
+     @param rangeValue 范围，支持 `wy_parseRanges` 定义的所有格式（子串匹配、区间数组等）
      */
     func wy_applyFontsOrColorsAttributes(key: NSAttributedString.Key, value: Any, rangeValue: Any) {
         
@@ -769,10 +760,9 @@ private extension NSMutableAttributedString {
     
     /**
      获取包含指定字符位置的完整段落范围（基于原始字符串，以 `\n` 为界）。
-     - Parameters:
-     - range: 字符索引范围
-     - value: 原始字符串
-     - Returns: 段落边界范围，若字符串为空则返回 nil
+     @param range 字符索引范围
+     @param value 原始字符串
+     @return 段落边界范围，若字符串为空则返回 nil
      */
     func wy_paragraphRange(containing range: Range<String.Index>, value: String) -> Range<String.Index>? {
         guard !value.isEmpty else { return nil }
@@ -788,8 +778,8 @@ private extension NSMutableAttributedString {
      * 该方法会尝试获取指定 range 处的现有段落样式，如果存在则返回其可变副本
      * 如果不存在，则返回一个新的 `NSMutableParagraphStyle` 实例。
      *
-     * - Parameter range: 需要获取段落样式的富文本范围（通常用目标 range 的起始位置即可）
-     * - Returns: 可变的段落样式对象，调用方可以修改其属性，然后自行通过 `addAttribute` 应用到指定范围
+     @param range 需要获取段落样式的富文本范围（通常用目标 range 的起始位置即可）
+     * @return 可变的段落样式对象，调用方可以修改其属性，然后自行通过 `addAttribute` 应用到指定范围
      *
      */
     func wy_paragraphStyle(at range: NSRange) -> NSMutableParagraphStyle {
@@ -814,8 +804,8 @@ private extension NSAttributedString {
     /**
      解析 wy_calculateFrame 的 rangeValue 为返回值类型与每个输入元素命中的全部范围
      
-     - Parameter rangeValue: 支持类型，单个 `String`、`NSRange`(OC 传入时以 NSValue 包装)、上述两类元素组成的任意数组（如 `[String]`、`[NSRange]`、`[String, NSRange]`），传 `nil` 表示整个富文本
-     - Returns: (返回值类型, 按输入元素分组的命中范围，单个输入也按一个元素分组，未命中元素的分组为空数组)
+     @param rangeValue 支持类型，单个 `String`、`NSRange`(OC 传入时以 NSValue 包装)、上述两类元素组成的任意数组（如 `[String]`、`[NSRange]`、`[String, NSRange]`），传 `nil` 表示整个富文本
+     @return (返回值类型, 按输入元素分组的命中范围，单个输入也按一个元素分组，未命中元素的分组为空数组)
      */
     func wy_boundingTargets(from rangeValue: Any?) -> (valueStyle: WYTextBoundingInfos.WYTextBoundingInfoValueStyle, elementTargets: [[NSRange]]) {
         

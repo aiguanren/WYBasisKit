@@ -193,7 +193,7 @@ public class WYMediaPlayer: UIImageView {
     /// 播放器状态
     public internal(set) var state: WYMediaPlayerState = .unknown
 
-    /// 进度回调间隔(秒，默认0.5，IJKPlayerKit 1.0.8起底层通知默认关闭，不设置则wy_mediaPlayerProgressDidChanged收不到周期回调，0=关闭周期回调，只保留prepare完成、seek完成这类发生一次才通知一次的事件)
+    /// 进度回调间隔(秒，默认0.5，wy_mediaPlayerProgressDidChanged的周期回调由它驱动，设为0则关闭周期回调只保留prepare完成、seek完成这类发生一次才通知一次的事件)
     public var progressCallbackInterval: TimeInterval = 0.5
 
     /// 是否需要在play(with:)加载完成后自动播放(默认true，仅影响play(with:)，prepare(with:)恒不自动播，预加载请直接用prepare)

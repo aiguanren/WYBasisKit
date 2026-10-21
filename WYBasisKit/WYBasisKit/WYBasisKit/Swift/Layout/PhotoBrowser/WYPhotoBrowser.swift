@@ -92,12 +92,11 @@ import Kingfisher
 
     /**
      * 菜单动作初始化
-     * - Parameters:
-     *   - actionTitle: 动作标题(菜单里显示的文字)
-     *   - actionIcon: 动作图标(nil时菜单里只显示标题)
-     *   - handler: 动作回调(点菜单项时回调，参数为回调来源浏览器与当前页下标)
+     *   @param actionTitle 动作标题(菜单里显示的文字)
+     *   @param actionIcon 动作图标(nil时菜单里只显示标题)
+     *   @param handler 动作回调(点菜单项时回调，参数为回调来源浏览器与当前页下标)
      */
-    public init(title actionTitle: String, icon actionIcon: UIImage? = nil, handler: ((WYPhotoBrowser, Int) -> Void)? = nil) {
+    public init(title actionTitle: String, icon actionIcon: UIImage? = nil, handler: ((_ browser: WYPhotoBrowser, _ index: Int) -> Void)? = nil) {
         self.title = actionTitle
         self.icon = actionIcon
         self.handler = handler
@@ -152,8 +151,7 @@ public struct WYPhotoBrowserItem {
 
     /**
      * 图片浏览项便捷初始化
-     * - Parameters:
-     *   - localImage: 本地图片(只有一张本地图时用它一步到位)
+     *   @param localImage 本地图片(只有一张本地图时用它一步到位)
      */
     public init(localImage: UIImage) {
         placeholder = localImage
@@ -161,9 +159,8 @@ public struct WYPhotoBrowserItem {
 
     /**
      * 网络图片浏览项便捷初始化
-     * - Parameters:
-     *   - remoteURL: 图片网络地址
-     *   - localThumbnail: 本地缩略图(可先显示它再下载大图，nil时显示加载进度)
+     *   @param remoteURL 图片网络地址
+     *   @param localThumbnail 本地缩略图(可先显示它再下载大图，nil时显示加载进度)
      */
     public init(remoteURL: URL, localThumbnail: UIImage? = nil) {
         placeholder = localThumbnail
@@ -175,7 +172,7 @@ public struct WYPhotoBrowserItem {
 public protocol WYPhotoBrowserItemConvertible: AnyObject {
     /**
      * 转成结构体浏览项
-     * - return: 转换出的WYPhotoBrowserItem
+     * @param return 转换出的WYPhotoBrowserItem
      */
     func toItem() -> WYPhotoBrowserItem
 }
@@ -432,13 +429,12 @@ public class WYPhotoBrowser: UIViewController {
 
     /**
      * 便利弹出入口(一行代码从指定控制器弹出浏览器并返回浏览器实例，弹出后可继续持有它调用reloadData等方法)
-     * - Parameters:
-     *   - viewController: 从哪个控制器弹出(浏览器全屏盖在它上面)
-     *   - index: 进入时显示的页下标
-     *   - dataSource: 数据源(浏览项数量与内容)
-     *   - configuration: 行为与外观配置(不传用默认配置)
-     *   - delegate: 代理(不传无事件回调)
-     * - return: 弹出的浏览器实例
+     *   @param viewController 从哪个控制器弹出(浏览器全屏盖在它上面)
+     *   @param index 进入时显示的页下标
+     *   @param dataSource 数据源(浏览项数量与内容)
+     *   @param configuration 行为与外观配置(不传用默认配置)
+     *   @param delegate 代理(不传无事件回调)
+     * @param return 弹出的浏览器实例
      */
     @discardableResult
     public static func show(from viewController: UIViewController, index: Int, dataSource: WYPhotoBrowserDataSource, configuration: WYPhotoBrowserConfiguration = WYPhotoBrowserConfiguration(), delegate: WYPhotoBrowserDelegate? = nil) -> WYPhotoBrowser {
@@ -454,8 +450,7 @@ public class WYPhotoBrowser: UIViewController {
 
     /**
      * 浏览器初始化
-     * - Parameters:
-     *   - configuration: 行为与外观配置(不传用默认配置)
+     *   @param configuration 行为与外观配置(不传用默认配置)
      */
     public init(configuration: WYPhotoBrowserConfiguration = WYPhotoBrowserConfiguration()) {
         self.configuration = configuration
@@ -469,9 +464,8 @@ public class WYPhotoBrowser: UIViewController {
 
     /**
      * 跳到指定页
-     * - Parameters:
-     *   - index: 目标页下标
-     *   - animated: true带翻页动画，false立即落定
+     *   @param index 目标页下标
+     *   @param animated true带翻页动画，false立即落定
      */
     @objc public func scrollToItem(at index: Int, animated: Bool) {
         guard numberOfItems > 0, index >= 0, index < numberOfItems else { return }
@@ -495,8 +489,7 @@ public class WYPhotoBrowser: UIViewController {
 
     /**
      * 关闭浏览器
-     * - Parameters:
-     *   - animated: true按配置的转场样式退出，false立即消失
+     *   @param animated true按配置的转场样式退出，false立即消失
      */
     @objc public func dismissBrowser(animated: Bool) {
         hideMenu()
@@ -1044,9 +1037,8 @@ extension WYPhotoBrowser: UIScrollViewDelegate {
 
     /**
      * 集合页码换显示页码(循环模式缓冲页映射回真实页，非循环模式原样返回)
-     * - Parameters:
-     *   - collectionIndex: 集合视图页码
-     * - return: 数据源真实页码
+     *   @param collectionIndex 集合视图页码
+     * @param return 数据源真实页码
      */
     func displayIndex(fromCollection collectionIndex: Int) -> Int {
         guard isLoopScrollingEnabled else { return collectionIndex }
@@ -1061,9 +1053,8 @@ extension WYPhotoBrowser: UIScrollViewDelegate {
 
     /**
      * 显示页码换集合页码(循环模式真实页码落在缓冲区中间段)
-     * - Parameters:
-     *   - displayIndex: 数据源真实页码
-     * - return: 集合视图页码
+     *   @param displayIndex 数据源真实页码
+     * @param return 集合视图页码
      */
     func collectionIndex(for displayIndex: Int) -> Int {
         guard isLoopScrollingEnabled else { return displayIndex }

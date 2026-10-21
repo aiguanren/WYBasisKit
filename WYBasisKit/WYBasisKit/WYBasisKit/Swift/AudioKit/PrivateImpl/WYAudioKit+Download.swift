@@ -86,12 +86,11 @@ extension WYAudioKit {
     
     /**
      处理 HTTP 重定向
-     - Parameters:
-       - session: URLSession 实例
-       - task: 发生重定向的任务
-       - response: HTTP 响应
-       - request: 新的请求
-       - completionHandler: 完成回调
+       @param session URLSession 实例
+       @param task 发生重定向的任务
+       @param response HTTP 响应
+       @param request 新的请求
+       @param completionHandler 完成回调
      */
     func urlSession(_ session: URLSession,
                     task: URLSessionTask,
@@ -134,12 +133,11 @@ extension WYAudioKit {
     
     /**
      下载进度更新回调
-     - Parameters:
-       - session: URLSession 实例
-       - downloadTask: 下载任务
-       - bytesWritten: 本次写入的字节数
-       - totalBytesWritten: 已写入的总字节数
-       - totalBytesExpectedToWrite: 预期总字节数
+       @param session URLSession 实例
+       @param downloadTask 下载任务
+       @param bytesWritten 本次写入的字节数
+       @param totalBytesWritten 已写入的总字节数
+       @param totalBytesExpectedToWrite 预期总字节数
      */
     func urlSession(_ session: URLSession,
                     downloadTask: URLSessionDownloadTask,
@@ -164,10 +162,9 @@ extension WYAudioKit {
     
     /**
      下载完成回调（临时文件位置）
-     - Parameters:
-       - session: URLSession 实例
-       - downloadTask: 下载任务
-       - location: 临时文件 URL
+       @param session URLSession 实例
+       @param downloadTask 下载任务
+       @param location 临时文件 URL
      */
     func urlSession(_ session: URLSession,
                     downloadTask: URLSessionDownloadTask,
@@ -237,10 +234,9 @@ extension WYAudioKit {
     
     /**
      任务完成回调（包含错误）
-     - Parameters:
-       - session: URLSession 实例
-       - task: 完成的任务
-       - error: 发生的错误（如果有）
+       @param session URLSession 实例
+       @param task 完成的任务
+       @param error 发生的错误（如果有）
      */
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         guard let error = error,

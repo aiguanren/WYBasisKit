@@ -280,9 +280,9 @@ import WYBasisKitSwift
     /**
      字符串Encode
 
-     - Parameter shouldNotEncode: 一个字符串，用于指定 **不进行编码** 的字符集合。
+     @param shouldNotEncode 一个字符串，用于指定 **不进行编码** 的字符集合。
        默认值为 `"?!@#$^&%*+,:;='\"`<>()[]{}/\\| "`，即该字符串中的所有字符将原样保留，其余字符会被编码。
-     - Returns: 编码后的字符串。如果编码失败（例如字符串本身无法转换为 UTF-8），则返回原字符串。
+     @return 编码后的字符串。如果编码失败（例如字符串本身无法转换为 UTF-8），则返回原字符串。
      */
     @objc(wy_encoded)
     func wy_encodedObjC() -> String {
@@ -320,11 +320,11 @@ import WYBasisKitSwift
     /**
      将秒数转换为时间格式字符串（`HH:MM:SS` 或 `MM:SS`）。
 
-     - Parameter omitHoursIfZero: 是否检查小时部分。
+     @param omitHoursIfZero 是否检查小时部分。
        - 当 `omitHoursIfZero == true` 且小时数为 `0` 时，返回 `MM:SS` 格式（不包含小时部分）。
        - 当 `omitHoursIfZero == false` 或小时数大于 `0` 时，始终返回 `HH:MM:SS` 格式。
        - 默认值为 `true`。
-     - Returns: 格式化后的时间字符串。
+     @return 格式化后的时间字符串。
      */
     @objc(wy_formatDurationWithOmitHoursIfZero:)
     func wy_formatDurationObjC(omitHoursIfZero: Bool = true) -> String {
@@ -410,7 +410,7 @@ import WYBasisKitSwift
     /**
      从字符串中提取数字（支持可选前缀、千分位、小数）
 
-     - Parameter prefixes: 可选前缀（如 ["+", "-", "¥", "$"]，最多1个且在最前）
+     @param prefixes 可选前缀（如 ["+", "-", "¥", "$"]，最多1个且在最前）
 
      - 示例：
        输入："价格 ¥1,234.56，优惠 $999，再加 +100，折扣 0.5"
@@ -419,7 +419,7 @@ import WYBasisKitSwift
        输入："数量 123 和 45.67"
        输出：["123", "45.67"]
 
-     - Returns: 提取到的数字字符串数组
+     @return 提取到的数字字符串数组
      */
     @objc(wy_extractNumbers)
     func wy_extractNumbersObjC() -> [String] {
@@ -445,7 +445,7 @@ import WYBasisKitSwift
      
      支持类型：`String`、`NSRange(NSValue包装)`、`[String]`、`[NSRange(NSValue包装)]`，以及上述类型的任意嵌套组合（例如 `[String, NSRange(NSValue包装)]`）。
      
-     - Returns: 经过边界有效性检查并去重后的 `[NSRange(NSValue包装)]` 数组。
+     @return 经过边界有效性检查并去重后的 `[NSRange(NSValue包装)]` 数组。
      */
     @objc(wy_parseRangesWithValue:)
     func wy_parseRangesObjC(_ rangeValue: Any) -> [NSValue] {

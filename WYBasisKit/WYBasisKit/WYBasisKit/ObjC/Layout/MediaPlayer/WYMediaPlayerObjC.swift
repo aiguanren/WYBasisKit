@@ -45,7 +45,7 @@ import WYBasisKitSwift
         return state
     }
 
-    /// 进度回调间隔(秒，默认0.5，IJKPlayerKit 1.0.8起底层通知默认关闭，不设置则wy_mediaPlayerProgressDidChanged收不到周期回调，0=关闭周期回调，只保留prepare完成、seek完成这类发生一次才通知一次的事件)
+    /// 进度回调间隔(秒，默认0.5，wy_mediaPlayerProgressDidChanged的周期回调由它驱动，设为0则关闭周期回调只保留prepare完成、seek完成这类发生一次才通知一次的事件)
     @objc(progressCallbackInterval)
     public var progressCallbackIntervalObjC: TimeInterval {
         get { return progressCallbackInterval }

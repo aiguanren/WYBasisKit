@@ -50,10 +50,9 @@ extension WYAudioKit {
     
     /**
      根据目录类型和子目录名称创建目录 URL，如果目录不存在则创建
-     - Parameters:
-       - type: 存储目录类型
-       - subdirectory: 子目录名称（可选）
-     - Returns: 目标目录 URL
+       @param type 存储目录类型
+       @param subdirectory 子目录名称（可选）
+     @return 目标目录 URL
      */
     func createDirectory(for type: WYAudioStorageDirectory, subdirectory: String?) -> URL {
         let fileManager = FileManager.default

@@ -214,10 +214,9 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
 
     /**
      * 配置页内容
-     * - Parameters:
-     *   - item: 该页浏览项
-     *   - index: 该页下标
-     *   - configuration: 浏览器行为与外观配置
+     *   @param item 该页浏览项
+     *   @param index 该页下标
+     *   @param configuration 浏览器行为与外观配置
      */
     func configure(item: WYPhotoBrowserItem, index: Int, configuration: WYPhotoBrowserConfiguration) {
         configureGeneration += 1
@@ -309,10 +308,9 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
 
     /**
      * 自定义图标超尺寸压回(内置符号图标自带点号尺寸不受影响)
-     * - Parameters:
-     *   - icon: 播放图标
-     *   - maxSize: 允许的最大边长(设计值换算后的点)
-     * - return: 不超尺寸返回原图，超了返回缩放图
+     *   @param icon 播放图标
+     *   @param maxSize 允许的最大边长(设计值换算后的点)
+     * @param return 不超尺寸返回原图，超了返回缩放图
      */
     func scaleIconIfNeeded(_ icon: UIImage?, maxSize: CGFloat) -> UIImage? {
         guard let icon = icon else { return nil }
@@ -329,12 +327,11 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
 
     /**
      * 给胶囊按钮套样式(WYButton扩展实现，无过时API)
-     * - Parameters:
-     *   - button: 目标按钮
-     *   - backgroundColor: 胶囊底色
-     *   - textColor: 文字颜色
-     *   - fontSize: 文字字号(设计值，按基准屏换算)
-     *   - capsuleHeight: 胶囊高度(设计值，按基准屏换算，圆角取高度一半)
+     *   @param button 目标按钮
+     *   @param backgroundColor 胶囊底色
+     *   @param textColor 文字颜色
+     *   @param fontSize 文字字号(设计值，按基准屏换算)
+     *   @param capsuleHeight 胶囊高度(设计值，按基准屏换算，圆角取高度一半)
      */
     func styleCapsule(_ button: UIButton, backgroundColor: UIColor, textColor: UIColor, fontSize: CGFloat, capsuleHeight: CGFloat) {
         button.wy_title_nColor = textColor
@@ -382,9 +379,8 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
 
     /**
      * 施加多页同屏的过渡特效(按页中心离视口中心的比例做缩放平移与压暗，拖拽关闭进行中不调用)
-     * - Parameters:
-     *   - style: 过渡特效样式
-     *   - ratio: 页中心偏离视口中心的比例(0为居中，负在左正在右)
+     *   @param style 过渡特效样式
+     *   @param ratio 页中心偏离视口中心的比例(0为居中，负在左正在右)
      */
     func applyLayoutTransform(style: WYPhotoBrowserTransformStyle, ratio: CGFloat) {
         let clamped = max(-1.5, min(1.5, ratio))
@@ -594,10 +590,9 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
 
     /**
      * 从网络加载原图
-     * - Parameters:
-     *   - item: 浏览项
-     *   - url: 原图网络地址
-     *   - showButtonProgress: true在原图按钮上显示百分比进度，false静默加载(无可显内容时才显示中央进度环)
+     *   @param item 浏览项
+     *   @param url 原图网络地址
+     *   @param showButtonProgress true在原图按钮上显示百分比进度，false静默加载(无可显内容时才显示中央进度环)
      */
     func loadOriginalFromNetwork(item: WYPhotoBrowserItem, url: URL, showButtonProgress: Bool) {
         let generation = configureGeneration

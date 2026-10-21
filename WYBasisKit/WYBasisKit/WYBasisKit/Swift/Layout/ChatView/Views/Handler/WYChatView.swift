@@ -134,11 +134,11 @@ public class WYChatView: UIView {
         self.emojiView?.backgroundColor = .clear
         self.moreView?.backgroundColor = .clear
         
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillDismiss), name: UIResponder.keyboardWillHideNotification, object: nil)
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive(_:)), name: UIApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(wy_keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+
+        NotificationCenter.default.addObserver(self, selector: #selector(wy_keyboardWillDismiss), name: UIResponder.keyboardWillHideNotification, object: nil)
+
+        NotificationCenter.default.addObserver(self, selector: #selector(wy_applicationDidBecomeActive(_:)), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
     
     /// 点击空白处收起键盘、表情、更多...
@@ -169,7 +169,7 @@ public class WYChatView: UIView {
     
     @objc public func keyboardWillShowWith(_ notification: Notification, silence: Bool) {
         if silence == false {
-            guard (eventsHandler?.canManagerKeyboardWillShowEvents?(notification) ?? true) else {
+            guard (eventsHandler?.wy_canManagerKeyboardWillShowEvents?(notification) ?? true) else {
                 return
             }
         }
@@ -180,13 +180,13 @@ public class WYChatView: UIView {
         updateMoreViewConstraints(false)
     }
     
-    @objc public func keyboardWillShow(notification: Notification) {
+    @objc public func wy_keyboardWillShow(notification: Notification) {
         keyboardWillShowWith(notification, silence: false)
     }
     
     @objc public func keyboardWillDismissWith(_ silence: Bool) {
         if silence == false {
-            guard (eventsHandler?.canManagerKeyboardWillDismissEvents?() ?? true) else {
+            guard (eventsHandler?.wy_canManagerKeyboardWillDismissEvents?() ?? true) else {
                 return
             }
         }
@@ -206,7 +206,7 @@ public class WYChatView: UIView {
         updateInputViewOffset(offsety: offsety)
     }
     
-    @objc public func keyboardWillDismiss() {
+    @objc public func wy_keyboardWillDismiss() {
         keyboardWillDismissWith(false)
     }
     
@@ -293,18 +293,23 @@ public class WYChatView: UIView {
     }
     
     public func scrollViewDidScroll(_ scrollView: UIScrollView, silence: Bool) {
-        
+
         if silence == false {
-            guard (eventsHandler?.canManagerScrollViewDidScrollEvents?(scrollView) ?? true) else {
+            guard (eventsHandler?.wy_canManagerScrollViewDidScrollEvents?(scrollView) ?? true) else {
                 return
             }
         }
         if silence == false {
-            delegate?.scrollViewDidScroll?(scrollView)
+            delegate?.wy_scrollViewDidScroll?(scrollView)
         }
     }
-    
+
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        wy_scrollViewDidScroll(scrollView)
+    }
+
+    /// tableView的滚动事件
+    public func wy_scrollViewDidScroll(_ scrollView: UIScrollView) {
         scrollViewDidScroll(scrollView, silence: false)
     }
     
@@ -318,13 +323,13 @@ public class WYChatView: UIView {
     }
     
     /// APP变的活跃了
-    @objc public func applicationDidBecomeActive(_ application: UIApplication) {
+    @objc public func wy_applicationDidBecomeActive(_ application: UIApplication) {
         
-        guard (eventsHandler?.canManagerApplicationDidBecomeActiveEvents?(application) ?? false) == true else {
+        guard (eventsHandler?.wy_canManagerApplicationDidBecomeActiveEvents?(application) ?? false) == true else {
             return
         }
         
-        delegate?.applicationDidBecomeActive?(application)
+        delegate?.wy_applicationDidBecomeActive?(application)
         tableView.reloadData()
     }
     

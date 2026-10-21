@@ -10,10 +10,9 @@ import UIKit
 /**
  交换遵循 `UIScrollViewDelegate` 的对象的 `scrollViewDidEndDragging(_:willDecelerate:)` 方法。
  
- - Parameters:
-   - targetClass: 目标代理类。
-   - before: 方法执行前回调，参数依次为：代理对象、滚动视图、是否减速。无返回值。
-   - after: 方法执行后回调，参数依次为：代理对象、滚动视图、是否减速。无返回值（仅通知）。
+   @param targetClass 目标代理类。
+   @param before 方法执行前回调，参数依次为：代理对象、滚动视图、是否减速。无返回值。
+   @param after 方法执行后回调，参数依次为：代理对象、滚动视图、是否减速。无返回值（仅通知）。
  */
 internal func wy_swizzlerScrollViewDidEndDragging(
     for targetClass: NSObject.Type,

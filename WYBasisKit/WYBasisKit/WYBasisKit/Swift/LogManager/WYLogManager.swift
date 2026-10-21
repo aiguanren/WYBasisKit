@@ -70,12 +70,11 @@ import QuickLook
 
 /**
  * 日志打印
- * - Parameters:
- *   - messages: 要输出的日志内容
- *   - outputMode: 日志输出模式
- *   - file: 文件名(自动捕获)
- *   - function: 函数名(自动捕获)
- *   - line: 代码行号(自动捕获)
+ *   @param messages 要输出的日志内容
+ *   @param outputMode 日志输出模式
+ *   @param file 文件名(自动捕获)
+ *   @param function 函数名(自动捕获)
+ *   @param line 代码行号(自动捕获)
  */
 public func wy_print(_ messages: Any..., outputMode: WYLogOutputMode = .debugConsoleOnly, file: String = #file, function: String = #function, line: Int = #line) {
     WYLogManager.output(messages, outputMode: outputMode, file: file, function: function, line: line)
@@ -100,7 +99,7 @@ public struct WYLogManager {
 
     /**
      * 读取整个日志文件并解密成明文
-     * - Returns: 解密后的完整日志文本(历史明文条目原样保留，解密失败的条目自动跳过，文件不存在时返回空串)
+     * @return 解密后的完整日志文本(历史明文条目原样保留，解密失败的条目自动跳过，文件不存在时返回空串)
      */
     public static func decryptedLogText() -> String {
         guard let text = try? String(contentsOfFile: logFilePath, encoding: .utf8) else { return "" }
@@ -110,7 +109,7 @@ public struct WYLogManager {
 
     /**
      * 同步加密写入一条日志
-     * - Parameter content: 要写入的完整日志内容(崩溃捕获等进程即将退出的场景用，不走异步队列确保落盘)
+     @param content 要写入的完整日志内容(崩溃捕获等进程即将退出的场景用，不走异步队列确保落盘)
      */
     public static func writeEncryptedSynchronously(_ content: String) {
         appendLine(encryptEntry(content))
@@ -118,12 +117,11 @@ public struct WYLogManager {
     
     /**
      * 日志打印
-     * - Parameters:
-     *   - messages: 要输出的日志内容
-     *   - outputMode: 日志输出模式
-     *   - file: 文件名(自动捕获)
-     *   - function: 函数名(自动捕获)
-     *   - line: 代码行号(自动捕获)
+     *   @param messages 要输出的日志内容
+     *   @param outputMode 日志输出模式
+     *   @param file 文件名(自动捕获)
+     *   @param function 函数名(自动捕获)
+     *   @param line 代码行号(自动捕获)
      */
     public static func output(_ messages: Any..., outputMode: WYLogOutputMode = .debugConsoleOnly, file: String = #file, function: String = #function, line: Int = #line) {
         
@@ -183,8 +181,7 @@ public struct WYLogManager {
     
     /**
      * 显示预览组件
-     * - Parameters:
-     *   - contentView: 预览按钮的父控件，如果不传则为当前正在显示的Window
+     *   @param contentView 预览按钮的父控件，如果不传则为当前正在显示的Window
      */
     public static func showPreview(_ contentView: UIView = UIApplication.shared.wy_keyWindow) {
         if floatingButton != nil { return } // 防止重复创建预览组件和页面
@@ -271,8 +268,8 @@ public struct WYLogManager {
 
     /**
      * 加密一条日志成单行密文
-     * - Parameter entry: 要加密的完整日志条目
-     * - Returns: 带格式前缀的单行密文(加密失败时回落明文，保证日志不丢)
+     @param entry 要加密的完整日志条目
+     * @return 带格式前缀的单行密文(加密失败时回落明文，保证日志不丢)
      */
     private static func encryptEntry(_ entry: String) -> String {
         let mode = encryptionMode
@@ -296,8 +293,8 @@ public struct WYLogManager {
 
     /**
      * 解密一行日志内容
-     * - Parameter line: 日志文件里的一行
-     * - Returns: 解密后的明文条目(不带加密前缀的历史明文原样返回，格式损坏或解密失败的行返回nil由调用方丢弃)
+     @param line 日志文件里的一行
+     * @return 解密后的明文条目(不带加密前缀的历史明文原样返回，格式损坏或解密失败的行返回nil由调用方丢弃)
      */
     private static func decryptLine(_ line: String) -> String? {
         guard line.hasPrefix(encryptedLinePrefix) else { return line }

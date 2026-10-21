@@ -189,16 +189,20 @@ import QuartzCore
 }
 
 /// 网络下载(音频)文件的远程和本地URL信息
-@objcMembers public class WYAudioDownloadInfo: NSObject {
-    
+public struct WYAudioDownloadInfo {
+
     /// 远程URL
-    @objc public let remote: URL
-    
+    public let remote: URL
+
     /// 本地URL
-    @objc public let local: URL
-    
+    public let local: URL
+
     /// 唯一初始化方法
-    @objc public init(remote: URL, local: URL) {
+    /**
+     @param remote 远程URL
+     @param local 本地URL
+     */
+    public init(remote: URL, local: URL) {
         self.remote = remote
         self.local = local
     }
@@ -209,137 +213,123 @@ import QuartzCore
     
     /**
      录音开始
-     - Parameters:
-       - audioKit: 音频工具实例
-       - isResume: 是否是恢复录音
+       @param audioKit 音频工具实例
+       @param isResume 是否是恢复录音
      */
     @objc(wy_audioRecorderDidStart:isResume:)
     optional func wy_audioRecorderDidStart(audioKit: WYAudioKit, isResume: Bool)
     
     /**
      录音停止
-     - Parameters:
-       - audioKit: 音频工具实例
-       - isPause: 是否是暂停录音
-       - isTimeout: 是否是超时(达到最大录音时长)停止
+       @param audioKit 音频工具实例
+       @param isPause 是否是暂停录音
+       @param isTimeout 是否是超时(达到最大录音时长)停止
      */
     @objc(wy_audioRecorderDidStop:isPause:isTimeout:)
     optional func wy_audioRecorderDidStop(audioKit: WYAudioKit, isPause: Bool, isTimeout: Bool)
     
     /**
      录音时间更新
-     - Parameters:
-       - audioKit: 音频工具实例
-       - currentTime: 当前录音时间（秒）
-       - duration: 总录音时长限制（秒）
+       @param audioKit 音频工具实例
+       @param currentTime 当前录音时间（秒）
+       @param duration 总录音时长限制（秒）
      */
     @objc(wy_audioRecorderTimeUpdated:currentTime:duration:)
     optional func wy_audioRecorderTimeUpdated(audioKit: WYAudioKit, currentTime: TimeInterval, duration: TimeInterval)
     
     /**
      录音声波数据更新（单通道）
-     - Parameters:
-       - audioKit: 音频工具实例
-       - peakPower: 当前峰值功率（dB），范围 -160.0 到 0.0（0.0 表示最响，-160.0 表示最安静），适合用于实时响应敏感的声波动画，但可能导致动画跳动剧烈
-       - averagePower: 当前平均功率（dB），范围 -160.0 到 0.0，比 peakPower 更平滑，适合语音录制页面的声波动画
+       @param audioKit 音频工具实例
+       @param peakPower 当前峰值功率（dB），范围 -160.0 到 0.0（0.0 表示最响，-160.0 表示最安静），适合用于实时响应敏感的声波动画，但可能导致动画跳动剧烈
+       @param averagePower 当前平均功率（dB），范围 -160.0 到 0.0，比 peakPower 更平滑，适合语音录制页面的声波动画
      */
     @objc(wy_audioRecorderDidUpdateMetering:peakPower:averagePower:)
     optional func wy_audioRecorderDidUpdateMetering(audioKit: WYAudioKit, peakPower: Float, averagePower: Float)
     
     /**
      录音声波数据更新（多通道，归一化 0.0 ~ 1.0）
-     - Parameters:
-       - audioKit: 音频工具实例
-       - peakPowers: 当前各通道的归一化峰值幅度数组（0.0 ~ 1.0，0.0 最安静，1.0 最响），适合直接用于声波动画、音量条等 UI 显示
-       - averagePowers: 当前各通道的归一化平均幅度数组（0.0 ~ 1.0），更平滑，推荐用于语音录制波形动画
+       @param audioKit 音频工具实例
+       @param peakPowers 当前各通道的归一化峰值幅度数组（0.0 ~ 1.0，0.0 最安静，1.0 最响），适合直接用于声波动画、音量条等 UI 显示
+       @param averagePowers 当前各通道的归一化平均幅度数组（0.0 ~ 1.0），更平滑，推荐用于语音录制波形动画
      */
     @objc(wy_audioRecorderDidUpdateMeterings:peakPowers:averagePowers:)
     optional func wy_audioRecorderDidUpdateMeterings(audioKit: WYAudioKit, peakPowers: [Float], averagePowers: [Float])
     
     /**
      播放状态发生改变
-     - Parameters:
-       - audioKit: 音频工具实例
-       - state: 播放状态
+       @param audioKit 音频工具实例
+       @param state 播放状态
      */
     @objc(wy_audioPlayerStateDidChanged:state:)
     optional func wy_audioPlayerStateDidChanged(audioKit: WYAudioKit, state: WYAudioPlayState)
     
     /**
      播放进度更新
-     - Parameters:
-       - audioKit: 音频工具实例
-       - localUrl: 正在播放的本地音频文件的URL
-       - currentTime: 当前播放位置（秒）
-       - duration: 音频总时长（秒）
-       - progress: 播放进度百分比（0.0 - 1.0）
+       @param audioKit 音频工具实例
+       @param localUrl 正在播放的本地音频文件的URL
+       @param currentTime 当前播放位置（秒）
+       @param duration 音频总时长（秒）
+       @param progress 播放进度百分比（0.0 - 1.0）
      */
     @objc(wy_audioPlayerTimeUpdated:localUrl:currentTime:duration:progress:)
     optional func wy_audioPlayerTimeUpdated(audioKit: WYAudioKit, localUrl: URL, currentTime: TimeInterval, duration: TimeInterval, progress: Double)
     
     /**
      网络音频下载进度更新
-     - Parameters:
-       - audioKit: 音频工具实例
-       - remoteUrls: 下载中的URL进度信息(如果数量为1则表示单条音频进度更新，否则为多条并发进度)
-       - progress: 下载进度百分比（0.0 - 1.0）
+       @param audioKit 音频工具实例
+       @param remoteUrls 下载中的URL进度信息(如果数量为1则表示单条音频进度更新，否则为多条并发进度)
+       @param progress 下载进度百分比（0.0 - 1.0）
      */
     @objc(wy_remoteAudioDownloadProgressUpdated:remoteUrls:progress:)
     optional func wy_remoteAudioDownloadProgressUpdated(audioKit: WYAudioKit, remoteUrls: [URL], progress: Double)
     
     /**
      网络音频下载成功
-     - Parameters:
-       - audioKit: 音频工具实例
-       - fileInfos: 下载成功的文件信息数组(单条或多条)
+       @param audioKit 音频工具实例
+       @param remoteUrls 下载成功的远程 URL 数组（单条或多条）
      */
-    @objc(wy_remoteAudioDownloadSuccess:fileInfo:)
-    optional func wy_remoteAudioDownloadSuccess(audioKit: WYAudioKit, fileInfos: [WYAudioDownloadInfo])
+    @objc(wy_remoteAudioDownloadSuccess:remoteUrls:)
+    optional func wy_remoteAudioDownloadSuccess(audioKit: WYAudioKit, remoteUrls: [URL])
     
     /**
      网络音频下载暂停
-     - Parameters:
-       - audioKit: 音频工具实例
-       - remoteUrls: 被暂停的远程 URL 数组（用户传入的原始 URL）
+       @param audioKit 音频工具实例
+       @param remoteUrls 被暂停的远程 URL 数组（用户传入的原始 URL）
      */
     @objc(wy_remoteAudioDownloadPaused:remoteUrls:)
     optional func wy_remoteAudioDownloadPaused(audioKit: WYAudioKit, remoteUrls: [URL])
     
     /**
      网络音频下载恢复
-     - Parameters:
-       - audioKit: 音频工具实例
-       - remoteUrls: 被恢复的远程 URL 数组（用户传入的原始 URL）
+       @param audioKit 音频工具实例
+       @param remoteUrls 被恢复的远程 URL 数组（用户传入的原始 URL）
      */
     @objc(wy_remoteAudioDownloadResumed:remoteUrls:)
     optional func wy_remoteAudioDownloadResumed(audioKit: WYAudioKit, remoteUrls: [URL])
     
     /**
      格式转换进度更新
-     - Parameters:
-       - audioKit: 音频工具实例
-       - localUrls: 正在转换的本地URL数组
-       - progress: 转换进度百分比（0.0 - 1.0）
+       @param audioKit 音频工具实例
+       @param localUrls 正在转换的本地URL数组
+       @param progress 转换进度百分比（0.0 - 1.0）
      */
     @objc(wy_formatConversionProgressUpdated:localUrls:progress:)
     optional func wy_formatConversionProgressUpdated(audioKit: WYAudioKit, localUrls: [URL], progress: Double)
     
     /**
      格式转换完成
-     - Parameters:
-       - audioKit: 音频工具实例
-       - outputUrls: 转换成功后的输出文件URL数组
+       @param audioKit 音频工具实例
+       @param outputUrls 转换成功后的输出文件URL数组
      */
     @objc(wy_formatConversionDidCompleted:outputUrls:)
     optional func wy_formatConversionDidCompleted(audioKit: WYAudioKit, outputUrls: [URL])
     
     /**
      音频任务执行失败
-     - Parameters:
-       - audioKit: 音频工具实例
-       - url: 出错的任务相关URL（可选，可能是本地或远程）
-       - error: 错误枚举值
-       - description: 详细错误描述(可选)
+       @param audioKit 音频工具实例
+       @param url 出错的任务相关URL（可选，可能是本地或远程）
+       @param error 错误枚举值
+       @param description 详细错误描述(可选)
      */
     @objc(wy_audioTaskDidFailed:url:error:description:)
     optional func wy_audioTaskDidFailed(audioKit: WYAudioKit, url: URL?, error: WYAudioError, description: String?)
@@ -403,13 +393,13 @@ public final class WYAudioKit: NSObject {
     
     /**
      设置音频质量等级（影响比特率、采样率等，默认中等）
-     - Parameter quality: AVAudioQuality 枚举值，会影响默认比特率和采样质量
+     @param quality AVAudioQuality 枚举值，会影响默认比特率和采样质量
      */
     public var recordQuality: AVAudioQuality = .medium
     
     /**
      设置自定义录音参数
-     - Parameter settings: 录音参数字典，会与默认设置合并（自定义优先）
+     @param settings 录音参数字典，会与默认设置合并（自定义优先）
      常用键值:
      - AVFormatIDKey: 音频格式
      - AVSampleRateKey: 采样率
@@ -473,10 +463,9 @@ public final class WYAudioKit: NSObject {
     
     /**
      开始录音
-     - Parameters:
-       - fileName: 自定义文件名（可选，不传则自动生成带时间戳的名字）
-       - format: 录音格式（默认 .aac）
-     - Throws: WYAudioError（权限、格式、正在录音等异常）
+       @param fileName 自定义文件名（可选，不传则自动生成带时间戳的名字）
+       @param format 录音格式（默认 .aac）
+     @throws WYAudioError（权限、格式、正在录音等异常）
      */
     public func startRecording(fileName: String? = nil, format: WYAudioFormat = .aac) throws {
 
@@ -621,10 +610,9 @@ public final class WYAudioKit: NSObject {
     
     /**
      开始播放本地音频文件
-     - Parameters:
-       - url: 要播放的音频文件URL，为 nil 则播放当前录音文件（currentRecordFileURL）
-       - success: 播放成功回调，返回实际播放的 URL
-       - failed: 播放失败回调，返回错误相关信息
+       @param url 要播放的音频文件URL，为 nil 则播放当前录音文件（currentRecordFileURL）
+       @param success 播放成功回调，返回实际播放的 URL
+       @param failed 播放失败回调，返回错误相关信息
      */
     public func playPlayback(url: URL? = nil,
                              success: @escaping (_ playURL: URL) -> Void,
@@ -721,7 +709,7 @@ public final class WYAudioKit: NSObject {
     
     /**
      跳转到指定播放时间点（支持暂停状态下跳转，超出总时长会自动夹到末尾并触发完成播放）
-     - Parameter time: 目标播放时间（秒），负数按0处理，超过音频总时长会定位到末尾
+     @param time 目标播放时间（秒），负数按0处理，超过音频总时长会定位到末尾
      */
     public func seekPlayback(time: TimeInterval) {
         guard let player = state.audioPlayer else { return }
@@ -737,10 +725,9 @@ public final class WYAudioKit: NSObject {
     
     /**
      播放网络音频文件（先下载后播放）
-     - Parameters:
-       - remoteUrl: 远程音频 URL
-       - success: 下载并播放成功回调（返回下载信息）
-       - failed: 下载或播放失败回调
+       @param remoteUrl 远程音频 URL
+       @param success 下载并播放成功回调（返回下载信息）
+       @param failed 下载或播放失败回调
      */
     public func playRemoteAudio(remoteUrl: URL,
                                 success: @escaping (WYAudioDownloadInfo) -> Void,
@@ -766,10 +753,9 @@ public final class WYAudioKit: NSObject {
     
     /**
      下载远程音频文件（支持并发多任务）
-     - Parameters:
-       - remoteUrls: 要下载的远程 URL 数组（已在下载中的URL会被跳过，不重新下载）
-       - success: 下载成功回调（返回下载信息数组）
-       - failed: 下载失败回调
+       @param remoteUrls 要下载的远程 URL 数组（已在下载中的URL会被跳过，不重新下载）
+       @param success 下载成功回调（返回下载信息数组）
+       @param failed 下载失败回调
      */
     public func downloadRemoteAudio(remoteUrls: [URL],
                                     success: @escaping ([WYAudioDownloadInfo]) -> Void,
@@ -832,9 +818,9 @@ public final class WYAudioKit: NSObject {
     
     /**
      暂停指定的远程下载任务
-     - Parameter remoteUrls: 要暂停的 URL 数组，nil 表示暂停所有
-     - Parameter success: 每个任务成功暂停时的回调，返回该任务的 URL
-     - Parameter failed: 每个任务暂停失败时的回调，返回该任务的 URL 和错误
+     @param remoteUrls 要暂停的 URL 数组，nil 表示暂停所有
+     @param success 每个任务成功暂停时的回调，返回该任务的 URL
+     @param failed 每个任务暂停失败时的回调，返回该任务的 URL 和错误
      */
     public func pauseDownload(_ remoteUrls: [URL]?,
                               success: @escaping (URL) -> Void,
@@ -890,7 +876,7 @@ public final class WYAudioKit: NSObject {
     
     /**
      恢复指定的远程下载任务
-     - Parameter remoteUrls: 要恢复的 URL 数组，nil 表示恢复所有
+     @param remoteUrls 要恢复的 URL 数组，nil 表示恢复所有
      */
     public func resumeDownload(_ remoteUrls: [URL]?) {
         var resumedUrls: [URL] = []
@@ -936,7 +922,7 @@ public final class WYAudioKit: NSObject {
     
     /**
      取消指定的远程下载任务
-     - Parameter remoteUrls: 要取消的 URL 数组，nil 表示取消所有
+     @param remoteUrls 要取消的 URL 数组，nil 表示取消所有
      */
     public func cancelDownload(_ remoteUrls: [URL]?) {
         let urls = remoteUrls ?? Array(state.tasksInfo.keys) + Array(state.pausedTaskInfo.keys)
@@ -987,7 +973,7 @@ public final class WYAudioKit: NSObject {
     
     /**
      保存当前录音文件到指定位置
-     - Parameter destinationUrl: 目标保存路径
+     @param destinationUrl 目标保存路径
      */
     public func saveRecording(destinationUrl: URL) throws {
         guard let source = currentRecordFileURL else {
@@ -1008,7 +994,7 @@ public final class WYAudioKit: NSObject {
     
     /**
      获取所有已保存的录音文件（按创建时间倒序）
-     - Returns: 文件 URL 数组
+     @return 文件 URL 数组
      */
     public func getAllRecordingsFiles() -> [URL] {
         let fm = FileManager.default
@@ -1028,7 +1014,7 @@ public final class WYAudioKit: NSObject {
     
     /**
      删除录音文件
-     - Parameter localUrl: 要删除的具体文件 URL，nil 表示删除所有录音文件
+     @param localUrl 要删除的具体文件 URL，nil 表示删除所有录音文件
      */
     public func deleteRecordingFile(localUrl: URL? = nil) throws {
         let fm = FileManager.default
@@ -1059,7 +1045,7 @@ public final class WYAudioKit: NSObject {
     
     /**
      获取所有已下载的音频文件信息（按创建时间倒序）
-     - Returns: 下载信息数组（remote 通过持久化映射获取，若无则为占位符）
+     @return 下载信息数组（remote 通过持久化映射获取，若无则为占位符）
      */
     public func getAllDownloads() -> [WYAudioDownloadInfo] {
         let fm = FileManager.default
@@ -1087,7 +1073,7 @@ public final class WYAudioKit: NSObject {
     
     /**
      删除已下载的音频文件
-     - Parameter info: 要删除的下载信息，nil 表示删除所有下载文件
+     @param info 要删除的下载信息，nil 表示删除所有下载文件
      */
     public func deleteDownloadFile(info: WYAudioDownloadInfo?) {
         let fm = FileManager.default
@@ -1118,11 +1104,10 @@ public final class WYAudioKit: NSObject {
      **不支持的目标格式**：
      - `.mp3`, `.flac`, `.au`, `.amr`, `.ac3`, `.eac3`
      
-     - Parameters:
-       - sourceUrls: 源文件 URL 数组
-       - target: 目标格式（仅限上述支持列表）
-       - success: 转换成功回调，返回输出文件 URL 数组
-       - failed: 转换失败回调
+       @param sourceUrls 源文件 URL 数组
+       @param target 目标格式（仅限上述支持列表）
+       @param success 转换成功回调，返回输出文件 URL 数组
+       @param failed 转换失败回调
      */
     public func convertAudioFormat(sourceUrls: [URL],
                                    target: WYAudioFormat,
@@ -1200,7 +1185,7 @@ public final class WYAudioKit: NSObject {
     
     /**
      停止格式转换任务
-     - Parameter localUrls: 要停止的源文件 URL 数组，nil 表示停止所有正在进行的转换
+     @param localUrls 要停止的源文件 URL 数组，nil 表示停止所有正在进行的转换
      */
     public func stopAudioFormatConvert(_ localUrls: [URL]?) {
         let urls = localUrls ?? Array(state.convertTasks.keys)
@@ -1231,11 +1216,10 @@ public final class WYAudioKit: NSObject {
     
     /**
      流式播放网络音频（边下载边播放，支持倍速）
-     - Parameters:
-       - remoteUrl: 远程音频 URL
-       - rate: 播放速率（0.5~2.0）
-       - success: 播放成功回调，返回远程 URL
-       - failed: 播放失败回调
+       @param remoteUrl 远程音频 URL
+       @param rate 播放速率（0.5~2.0）
+       @param success 播放成功回调，返回远程 URL
+       @param failed 播放失败回调
      */
     public func playStreamingRemoteAudio(remoteUrl: URL, rate: Float = 1.0,
                                          success: @escaping (URL) -> Void,
@@ -1273,8 +1257,8 @@ public final class WYAudioKit: NSObject {
     
     /**
      获取音频时长（本地/远程均支持）
-     - Parameter url: 音频文件 URL（本地或远程）
-     - completion: 时长获取完成回调，参数为音频时长（秒），保证在主线程执行
+     @param url 音频文件 URL（本地或远程）
+     @param completion 时长获取完成回调，参数为音频时长（秒），保证在主线程执行
      */
     public func getAudioDuration(with url: URL, completion: @escaping @MainActor (TimeInterval) -> Void) {
         guard url.isFileURL else {

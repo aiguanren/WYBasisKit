@@ -287,12 +287,11 @@ import WYBasisKitSwift
         4. 非线性调整（优化手感）
         5. 限幅（防止爆炸）
      
-     - Parameters:
-       - peakPower: 峰值 dB（-160~0），响应快但抖动大（一般不直接用）
-       - averagePower: 平均 dB（-160~0），更稳定（推荐）
-       - config: 声波配置（控制灵敏度 / 强度 等）
+       @param peakPower 峰值 dB（-160~0），响应快但抖动大（一般不直接用）
+       @param averagePower 平均 dB（-160~0），更稳定（推荐）
+       @param config 声波配置（控制灵敏度 / 强度 等）
      
-     - Returns: 整体能量值（0~1），所有声波柱子共用此值
+     @return 整体能量值（0~1），所有声波柱子共用此值
      */
     @objc(makeWaveformLevelsPeakPower:averagePower:)
     func makeWaveformLevelsObjC(peakPower: Float,

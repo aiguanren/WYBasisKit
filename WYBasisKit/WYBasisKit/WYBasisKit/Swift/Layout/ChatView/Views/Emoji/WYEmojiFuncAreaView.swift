@@ -111,10 +111,12 @@ public struct WYEmojiFuncAreaConfig {
 @objc public protocol WYEmojiFuncAreaViewDelegate {
     
     /// 点击了发送按钮
-    @objc optional func didClickEmojiSendView(_ sendView: UIButton)
+    @objc(wy_didClickEmojiSendView:)
+    optional func wy_didClickEmojiSendView(_ sendView: UIButton)
     
     /// 点击了删除按钮
-    @objc optional func didClickEmojiDeleteView(_ deleteView: UIButton)
+    @objc(wy_didClickEmojiDeleteView:)
+    optional func wy_didClickEmojiDeleteView(_ deleteView: UIButton)
 }
 
 public class WYEmojiFuncAreaView: UIView {
@@ -216,11 +218,11 @@ public class WYEmojiFuncAreaView: UIView {
     }
     
     @objc public func clickDeleteView() {
-        delegate?.didClickEmojiDeleteView?(deleteView)
+        delegate?.wy_didClickEmojiDeleteView?(deleteView)
     }
     
     @objc public func clickSendView() {
-        delegate?.didClickEmojiSendView?(sendView)
+        delegate?.wy_didClickEmojiSendView?(sendView)
     }
     
     public func cancelLongPressTimer() {

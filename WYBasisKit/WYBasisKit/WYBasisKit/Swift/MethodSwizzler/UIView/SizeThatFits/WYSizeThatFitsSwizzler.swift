@@ -10,11 +10,10 @@ import UIKit
 /**
  交换 `UIView` 及其子类的 `sizeThatFits(_:)` 方法。
  
- - Parameters:
-   - targetClass: 目标视图类（如 `UIView.self`）。
-   - intercept: 拦截决策闭包，返回 `.proceed` 则继续执行原始方法，返回 `.result(size)` 则直接返回该尺寸，**不再调用原始方法**，参数依次为：当前视图、建议的尺寸
-   - before: 方法执行前回调，参数依次为：当前视图、建议的尺寸。无返回值。
-   - after: 方法执行后回调，参数依次为：当前视图、建议的尺寸、原始返回值（`CGSize`），可返回一个新的 `CGSize` 来替换原始返回值。
+   @param targetClass 目标视图类（如 `UIView.self`）。
+   @param intercept 拦截决策闭包，返回 `.proceed` 则继续执行原始方法，返回 `.result(size)` 则直接返回该尺寸，**不再调用原始方法**，参数依次为：当前视图、建议的尺寸
+   @param before 方法执行前回调，参数依次为：当前视图、建议的尺寸。无返回值。
+   @param after 方法执行后回调，参数依次为：当前视图、建议的尺寸、原始返回值（`CGSize`），可返回一个新的 `CGSize` 来替换原始返回值。
  */
 internal func wy_swizzlerSizeThatFits(
     for targetClass: UIView.Type,
@@ -149,10 +148,9 @@ internal func wy_swizzlerSizeThatFits(
 /**
  查找 sizeThatFits 的 intercept 闭包（沿继承链）
  
- - Parameters:
-   - receiver: 当前视图
-   - selector: 方法选择器
- - Returns: 找到的第一个 intercept 闭包，若未找到则返回 nil
+   @param receiver 当前视图
+   @param selector 方法选择器
+ @return 找到的第一个 intercept 闭包，若未找到则返回 nil
  */
 internal func wy_findSizeThatFitsIntercept(for receiver: UIView, selector: Selector) -> ((UIView, CGSize) -> WYInterceptResult<CGSize>)? {
     let selName = NSStringFromSelector(selector)

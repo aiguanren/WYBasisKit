@@ -10,11 +10,10 @@ import UIKit
 /**
  交换 `UILabel` 及其子类的 `textRect(forBounds:limitedToNumberOfLines:)` 方法。
  
- - Parameters:
-   - targetClass: 目标 Label 类（如 `UILabel.self`）。
-   - intercept: 拦截决策闭包，返回 `.proceed` 则继续执行原始方法，返回 `.result(rect)` 则直接返回该矩形，**不再调用原始方法**，参数依次为：当前标签、建议的边界矩形、最大行数
-   - before: 方法执行前回调，参数依次为：当前标签、建议的边界矩形、最大行数。无返回值。
-   - after: 方法执行后回调，参数依次为：当前标签、建议的边界矩形、最大行数、原始返回值（`CGRect`）。可返回一个新的 `CGRect` 来替换原始返回值。
+   @param targetClass 目标 Label 类（如 `UILabel.self`）。
+   @param intercept 拦截决策闭包，返回 `.proceed` 则继续执行原始方法，返回 `.result(rect)` 则直接返回该矩形，**不再调用原始方法**，参数依次为：当前标签、建议的边界矩形、最大行数
+   @param before 方法执行前回调，参数依次为：当前标签、建议的边界矩形、最大行数。无返回值。
+   @param after 方法执行后回调，参数依次为：当前标签、建议的边界矩形、最大行数、原始返回值（`CGRect`）。可返回一个新的 `CGRect` 来替换原始返回值。
  */
 internal func wy_swizzlerTextRect(
     for targetClass: UILabel.Type,
@@ -136,10 +135,9 @@ internal func wy_swizzlerTextRect(
 /**
  沿继承链查找 textRect 的 intercept 闭包
  
- - Parameters:
-   - receiver: 当前标签
-   - selector: textRect 方法选择器
- - Returns: 找到的第一个 intercept 闭包，若未找到则返回 nil
+   @param receiver 当前标签
+   @param selector textRect 方法选择器
+ @return 找到的第一个 intercept 闭包，若未找到则返回 nil
  */
 internal func wy_findTextRectIntercept(for receiver: UILabel, selector: Selector) -> ((UILabel, CGRect, Int) -> WYInterceptResult<CGRect>)? {
     // 获取方法名字符串

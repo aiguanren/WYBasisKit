@@ -86,6 +86,16 @@ public class WYMediaCache: NSObject {
     /// 全局缓存配置(各配置项什么时候生效见 WYMediaCacheConfig 的属性注释)
     public var config: WYMediaCacheConfig = .shared
 
+    /// 当前是否联网(断网时播放数据请求会挂起等待，恢复联网后自动续起)
+    public var isNetworkOnline: Bool {
+        return perform { self.isOnlineMirror }
+    }
+
+    /// 当前是否蜂窝网络(蜂窝或手机热点这类计费网络)
+    public var isNetworkCellular: Bool {
+        return perform { self.isCellularMirror }
+    }
+
     /// 内部状态串行队列(条目、任务、容量整理都在这条队列上动，也兼作播放器数据请求的回调队列)
     let queue: DispatchQueue
 
@@ -109,6 +119,9 @@ public class WYMediaCache: NSObject {
 
     /// 内部队列上镜像的蜂窝状态
     var isCellularMirror = false
+
+    /// 内部队列上镜像的后台状态(进后台置 true 期间不创建新下载任务，回前台复位后续起)
+    var isBackgrounded = false
 
     /// 待蜂窝确认的条目键名队列(同一时刻只弹一个弹窗)
     var cellularConfirmItems: [String] = []
@@ -224,16 +237,6 @@ public class WYMediaCache: NSObject {
             let item = self.item(for: url)
             return item.isFullyCached ? item.mediaURL.path : nil
         }
-    }
-
-    /// 当前是否联网(断网时播放数据请求会挂起等待，恢复联网后自动续起)
-    public var isNetworkOnline: Bool {
-        return perform { self.isOnlineMirror }
-    }
-
-    /// 当前是否蜂窝网络(蜂窝或手机热点这类计费网络)
-    public var isNetworkCellular: Bool {
-        return perform { self.isCellularMirror }
     }
 
     /// 缓存目录当前占用的总大小，单位为字节
@@ -379,6 +382,7 @@ public class WYMediaCache: NSObject {
     /// 进后台处理(取消全部在途下载任务并把全部条目元数据落盘，回前台再统一续起)
     @objc func handleEnterBackground() {
         queue.async {
+            self.isBackgrounded = true
             for item in self.items.values {
                 for task in item.downloadTasks {
                     self.cancelSessionTask(task)
@@ -391,7 +395,11 @@ public class WYMediaCache: NSObject {
     /// 回前台处理(续起全部条目的播放请求与预下载，蜂窝放行状态按一次前台周期重置)
     @objc func handleEnterForeground() {
         queue.async {
+            self.isBackgrounded = false
             for item in self.items.values {
+                for task in item.downloadTasks {
+                    self.cancelSessionTask(task)
+                }
                 item.cellularAllowed = false
             }
             self.resumeAllItems()

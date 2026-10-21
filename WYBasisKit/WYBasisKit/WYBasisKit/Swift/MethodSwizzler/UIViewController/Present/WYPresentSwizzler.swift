@@ -10,10 +10,9 @@ import UIKit
 /**
  交换 `UIViewController` 及其子类的 `present(_:animated:completion:)` 方法。
  
- - Parameters:
-   - targetClass: 目标视图控制器类（如 `UIViewController.self`）。
-   - before: 方法执行前回调，参数依次为：当前控制器、被 present 的控制器、是否动画、完成闭包。无返回值。
-   - after: 方法执行后回调，参数依次为：当前控制器、被 present 的控制器、是否动画、完成闭包。无返回值（仅通知，不可修改返回值）。
+   @param targetClass 目标视图控制器类（如 `UIViewController.self`）。
+   @param before 方法执行前回调，参数依次为：当前控制器、被 present 的控制器、是否动画、完成闭包。无返回值。
+   @param after 方法执行后回调，参数依次为：当前控制器、被 present 的控制器、是否动画、完成闭包。无返回值（仅通知，不可修改返回值）。
  */
 internal func wy_swizzlerControllerPresent(
     for targetClass: UIViewController.Type,

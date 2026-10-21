@@ -10,11 +10,10 @@ import UIKit
 /**
  交换 `UIView` 及其子类的 `hitTest(_:with:)` 方法。
  
- - Parameters:
-   - targetClass: 目标视图类（如 `UIView.self`）。
-   - intercept: 拦截决策闭包，返回 `.proceed` 则继续执行原始方法，返回 `.result(view)` 则直接返回该视图（可为 `nil`），**不再调用原始方法**，参数依次为：当前视图、点击位置、事件
-   - before: 方法执行前观察闭包（仅在原始方法执行前调用，不影响流程），参数依次为：当前视图、点击位置、事件。无返回值。
-   - after: 方法执行后回调，可修改原始返回值，参数依次为：当前视图、点击位置、事件、原始返回值（`UIView?`），返回一个新的 `UIView?` 作为最终结果。
+   @param targetClass 目标视图类（如 `UIView.self`）。
+   @param intercept 拦截决策闭包，返回 `.proceed` 则继续执行原始方法，返回 `.result(view)` 则直接返回该视图（可为 `nil`），**不再调用原始方法**，参数依次为：当前视图、点击位置、事件
+   @param before 方法执行前观察闭包（仅在原始方法执行前调用，不影响流程），参数依次为：当前视图、点击位置、事件。无返回值。
+   @param after 方法执行后回调，可修改原始返回值，参数依次为：当前视图、点击位置、事件、原始返回值（`UIView?`），返回一个新的 `UIView?` 作为最终结果。
  */
 internal func wy_swizzlerHitTest(
     for targetClass: UIView.Type,
@@ -150,10 +149,9 @@ internal func wy_swizzlerHitTest(
 /**
  沿继承链查找 hitTest 的 intercept 闭包
  
- - Parameters:
-   - receiver: 当前视图
-   - selector: hitTest 方法选择器
- - Returns: 找到的第一个 intercept 闭包，若未找到则返回 nil
+   @param receiver 当前视图
+   @param selector hitTest 方法选择器
+ @return 找到的第一个 intercept 闭包，若未找到则返回 nil
  */
 internal func wy_findHitTestIntercept(for receiver: UIView, selector: Selector) -> ((UIView, CGPoint, UIEvent?) -> WYInterceptResult<UIView?>)? {
     // 获取方法名字符串

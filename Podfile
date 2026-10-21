@@ -62,13 +62,13 @@ target "WYBasisKit" do
   project "WYBasisKit/WYBasisKit.xcodeproj"
   
   # 约束
-  pod "SnapKit"
+  pod "SnapKit"  # 当前版本号 5.7.1 集成更新日期：2026.10.21
   
   # 图片下载/缓存
-  pod "Kingfisher"
+  pod "Kingfisher"  # 当前版本号 8.12.0 集成更新日期：2026.10.21
   
   # 网络请求
-  pod "Moya"
+  pod "Moya"  # 当前版本号 15.0.0 集成更新日期：2026.10.21
 
   # 根据Xcode版本号指定三方库的版本号
   if xcode_version_less_than_or_equal_to(14, 2)
@@ -89,7 +89,7 @@ abstract_target "SharedPods" do
     # pod "IJKPlayerKit", :path => "/Users/guanren/Desktop/官人/IJKPlayerKit"
 
     # 约束
-    pod "SnapKit"
+    pod "SnapKit"  # 当前版本号 5.7.1 集成更新日期：2026.10.21
 
     # 图片裁剪库
     #pod "Mantis"
@@ -108,11 +108,11 @@ abstract_target "SharedPods" do
       # 管理键盘弹出时的界面适配
       pod "IQKeyboardManagerSwift", "7.0.0"
     else
-      pod "IQKeyboardManagerSwift"
+      pod "IQKeyboardManagerSwift"  # 当前版本号 8.0.3 集成更新日期：2026.10.21
     end
 
     # Kingfisher扩展库，支持显示webp格式图片
-    pod "KingfisherWebP"
+    pod "KingfisherWebP"  # 当前版本号 1.7.3 集成更新日期：2026.10.21
 
   end
 
@@ -135,13 +135,13 @@ abstract_target "SharedPods" do
     #pod "MJRefresh"
 
     # 约束
-    pod "Masonry"
+    pod "Masonry"  # 当前版本号 1.1.0 集成更新日期：2026.10.21
 
     # 图片下载/缓存
-    pod "SDWebImage"
+    pod "SDWebImage"  # 当前版本号 5.21.7 集成更新日期：2026.10.21
 
     # SDWebImage扩展库，支持显示webp格式图片
-    pod "SDWebImageWebPCoder"
+    pod "SDWebImageWebPCoder"  # 当前版本号 0.15.0 集成更新日期：2026.10.21
 
     # 根据Xcode版本号指定三方库的版本号
     if xcode_version_less_than_or_equal_to(14, 2)
@@ -151,7 +151,7 @@ abstract_target "SharedPods" do
       # 管理键盘弹出时的界面适配
       pod "IQKeyboardManagerSwift", "7.0.0"
     else
-      pod "IQKeyboardManagerSwift"
+      pod "IQKeyboardManagerSwift"  # 当前版本号 8.0.3 集成更新日期：2026.10.21
     end
 
   end

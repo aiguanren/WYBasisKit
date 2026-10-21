@@ -140,7 +140,17 @@ public class WYSoundWavesView: UIView {
     
     /// 当前状态（外部不直接控制，由音量驱动）
     public var state: WYSoundWavesState = .idle
-    
+
+    public override init(frame: CGRect) {
+        super.init(frame: frame)
+        setup()
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setup()
+    }
+
     /**
      生成声波柱能量值（0~1）
      
@@ -153,12 +163,11 @@ public class WYSoundWavesView: UIView {
         4. 非线性调整（优化手感）
         5. 限幅（防止爆炸）
      
-     - Parameters:
-       - peakPower: 峰值 dB（-160~0），响应快但抖动大（一般不直接用）
-       - averagePower: 平均 dB（-160~0），更稳定（推荐）
-       - config: 声波配置（控制灵敏度 / 强度 等）
+       @param peakPower 峰值 dB（-160~0），响应快但抖动大（一般不直接用）
+       @param averagePower 平均 dB（-160~0），更稳定（推荐）
+       @param config 声波配置（控制灵敏度 / 强度 等）
      
-     - Returns: 整体能量值（0~1），所有声波柱子共用此值
+     @return 整体能量值（0~1），所有声波柱子共用此值
      */
     public func makeWaveformLevels(peakPower: Float,
                                    averagePower: Float) -> Float {
@@ -229,6 +238,45 @@ public class WYSoundWavesView: UIView {
         }
     }
     
+    /// 绘制（使用 CGPath 减少转换开销）
+    public override func draw(_ rect: CGRect) {
+        guard let ctx = UIGraphicsGetCurrentContext() else { return }
+
+        ctx.setFillColor(config.wavesColor.cgColor)
+
+        let centerX = rect.midX
+        let centerY = rect.midY
+
+        let count = bars.count
+        let totalWidth = CGFloat(count) * config.barWidth + CGFloat(max(0, count - 1)) * config.barSpacing
+        let startX = centerX - totalWidth / 2
+
+        for (i, bar) in bars.enumerated() {
+            let x = startX + CGFloat(i) * (config.barWidth + config.barSpacing)
+            let height = bar.currentHeight
+            let y = centerY - height / 2
+
+            let rect = CGRect(x: x, y: y, width: config.barWidth, height: height)
+            // 使用 CGPath 直接创建圆角矩形，避免 UIBezierPath 的中间转换开销
+            let path = CGPath(
+                roundedRect: rect,
+                cornerWidth: config.barWidth / 2,
+                cornerHeight: config.barWidth / 2,
+                transform: nil
+            )
+            ctx.addPath(path)
+        }
+
+        // 一次性填充所有柱子（批量绘制，性能更好）
+        ctx.fillPath()
+    }
+
+    /// 控制 displayLink 生命周期（View 被移除时暂停，避免 CPU 空转）
+    override public func didMoveToWindow() {
+        super.didMoveToWindow()
+        displayLink.isPaused = (window == nil)
+    }
+
     /// 所有声波柱子（动画最小单位）
     private var bars: [WYAudioBarUnit] = []
     
@@ -282,13 +330,7 @@ public class WYSoundWavesView: UIView {
     @objc private func appDidBecomeActive() {
         displayLink?.isPaused = false
     }
-    
-    /// 控制 displayLink 生命周期（View 被移除时暂停，避免 CPU 空转）
-    override public func didMoveToWindow() {
-        super.didMoveToWindow()
-        displayLink.isPaused = (window == nil)
-    }
-    
+
     /// 动画驱动（每帧执行）
     @objc private func tick() {
         let now = CACurrentMediaTime()
@@ -303,50 +345,7 @@ public class WYSoundWavesView: UIView {
         // 标记重绘，触发 draw 方法
         setNeedsDisplay()
     }
-    
-    /// 绘制（使用 CGPath 减少转换开销）
-    public override func draw(_ rect: CGRect) {
-        guard let ctx = UIGraphicsGetCurrentContext() else { return }
-        
-        ctx.setFillColor(config.wavesColor.cgColor)
-        
-        let centerX = rect.midX
-        let centerY = rect.midY
-        
-        let count = bars.count
-        let totalWidth = CGFloat(count) * config.barWidth + CGFloat(max(0, count - 1)) * config.barSpacing
-        let startX = centerX - totalWidth / 2
-        
-        for (i, bar) in bars.enumerated() {
-            let x = startX + CGFloat(i) * (config.barWidth + config.barSpacing)
-            let height = bar.currentHeight
-            let y = centerY - height / 2
-            
-            let rect = CGRect(x: x, y: y, width: config.barWidth, height: height)
-            // 使用 CGPath 直接创建圆角矩形，避免 UIBezierPath 的中间转换开销
-            let path = CGPath(
-                roundedRect: rect,
-                cornerWidth: config.barWidth / 2,
-                cornerHeight: config.barWidth / 2,
-                transform: nil
-            )
-            ctx.addPath(path)
-        }
-        
-        // 一次性填充所有柱子（批量绘制，性能更好）
-        ctx.fillPath()
-    }
-    
-    public override init(frame: CGRect) {
-        super.init(frame: frame)
-        setup()
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setup()
-    }
-    
+
     deinit {
         // 移除通知监听，避免野指针
         NotificationCenter.default.removeObserver(self)
@@ -384,9 +383,8 @@ private class WYAudioBarUnit {
     /**
      初始化声波柱子单元
      
-     - Parameters:
-       - index: 柱子的索引位置（从左到右从 0 开始计数），用于计算波形相位和空间分布
-       - config: 声波动画配置，控制柱子的高度、动画参数等
+       @param index 柱子的索引位置（从左到右从 0 开始计数），用于计算波形相位和空间分布
+       @param config 声波动画配置，控制柱子的高度、动画参数等
      
      初始化时会缓存以下内容：
        - 当前柱子的初始高度（使用 config.minBarHeight）

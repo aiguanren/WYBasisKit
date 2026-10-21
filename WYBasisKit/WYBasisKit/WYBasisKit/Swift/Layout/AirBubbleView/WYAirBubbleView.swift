@@ -182,7 +182,37 @@ public class WYAirBubbleView: UIView {
         super.init(coder: coder)
         setupLayer()
     }
-    
+
+    /// 布局子视图时调用，检测 bounds 变化并更新路径
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+
+        // 只有 bounds 真正改变时才重算路径，避免不必要的性能开销
+        guard bounds != lastBounds else { return }
+        lastBounds = bounds
+
+        // 安全尺寸检查
+        checkMinimumSize()
+
+        if gradientColors.count > 1 {
+            // 关闭隐式动画，否则有渐变的时候动画会不自然(如动画中圆角不显示)
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            gradientLayer.frame = bounds
+            maskLayer.frame = bounds
+            CATransaction.commit()
+        }else {
+            // 防止之前有残留 frame/动画
+            gradientLayer.removeAllAnimations()
+            maskLayer.removeAllAnimations()
+            // 避免旧 mask 残留
+            gradientLayer.mask = nil
+        }
+
+        // 当视图尺寸变化时重新计算路径
+        updatePath()
+    }
+
     /// 用于渲染填充颜色的 CAShapeLayer（包括普通颜色和渐变色的背景层）
     private let fillLayer = CAShapeLayer()
     
@@ -203,37 +233,7 @@ public class WYAirBubbleView: UIView {
     
     /// 专用于边框的复用路径（避免重复创建）
     private let borderReusablePath = UIBezierPath()
-    
-    /// 布局子视图时调用，检测 bounds 变化并更新路径
-    public override func layoutSubviews() {
-        super.layoutSubviews()
-        
-        // 只有 bounds 真正改变时才重算路径，避免不必要的性能开销
-        guard bounds != lastBounds else { return }
-        lastBounds = bounds
-        
-        // 安全尺寸检查
-        checkMinimumSize()
-        
-        if gradientColors.count > 1 {
-            // 关闭隐式动画，否则有渐变的时候动画会不自然(如动画中圆角不显示)
-            CATransaction.begin()
-            CATransaction.setDisableActions(true)
-            gradientLayer.frame = bounds
-            maskLayer.frame = bounds
-            CATransaction.commit()
-        }else {
-            // 防止之前有残留 frame/动画
-            gradientLayer.removeAllAnimations()
-            maskLayer.removeAllAnimations()
-            // 避免旧 mask 残留
-            gradientLayer.mask = nil
-        }
-        
-        // 当视图尺寸变化时重新计算路径
-        updatePath()
-    }
-    
+
     /**
      *  检查当前尺寸是否满足气泡绘制要求
      *
@@ -603,7 +603,7 @@ public class WYAirBubbleView: UIView {
     
     /**
      计算气泡主体矩形（扣除箭头占据的区域）
-     - Returns: 气泡主体部分的 CGRect，不包含箭头
+     @return 气泡主体部分的 CGRect，不包含箭头
      */
     private func bubbleRect() -> CGRect {
         var rect = bounds
@@ -630,10 +630,9 @@ public class WYAirBubbleView: UIView {
     /**
      完整构建路径（气泡主体 + 箭头）
      
-     - Parameters:
-     - path: 空的 UIBezierPath，用于接收构建的路径
-     - rect: 气泡主体矩形
-     - includeArrowBaseEdge:
+     @param path 空的 UIBezierPath，用于接收构建的路径
+     @param rect 气泡主体矩形
+     @param includeArrowBaseEdge
      是否包含箭头底边：
      - true：用于填充（fillLayer）
      - false：用于边框（borderLayer），避免出现内部边
@@ -780,12 +779,11 @@ public class WYAirBubbleView: UIView {
      用于 borderLayer（边框路径），不绘制底边，
      从而避免“箭头与气泡连接处出现边框”的问题
      
-     - Parameters:
-     - path: 当前路径
-     - p1: 箭头底边左点
-     - tip: 箭头尖点
-     - p2: 箭头底边右点
-     - includeBase: 是否包含底边
+     @param path 当前路径
+     @param p1 箭头底边左点
+     @param tip 箭头尖点
+     @param p2 箭头底边右点
+     @param includeBase 是否包含底边
      */
     private func addArrowPath(_ path: UIBezierPath,
                               from p1: CGPoint,
@@ -811,8 +809,8 @@ public class WYAirBubbleView: UIView {
     
     /**
      根据当前箭头方向和偏移量，计算箭头的三个关键点（底边左点 / 尖点 / 底边右点），用于路径拼接
-     - Parameter rect: 气泡主体矩形（不含箭头占位）
-     - Returns: 元组 (p1, tip, p2)
+     @param rect 气泡主体矩形（不含箭头占位）
+     @return 元组 (p1, tip, p2)
      
      安全规则：
      1. 箭头必须避开圆角区域（cornerRadius）

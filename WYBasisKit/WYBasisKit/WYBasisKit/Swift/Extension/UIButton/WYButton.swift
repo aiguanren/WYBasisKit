@@ -309,7 +309,7 @@ public extension UIButton {
     }
 }
 
-public typealias WYIntervalSelector = ((UIButton)->Void)
+public typealias WYIntervalSelector = ((_ button: UIButton) -> Void)
 private extension UIButton {
     
     private var intervalSelector: WYIntervalSelector? {

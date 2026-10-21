@@ -106,7 +106,7 @@ import WYBasisKitSwift
 
     /**
      * 读取整个日志文件并解密成明文
-     * - Returns: 解密后的完整日志文本(历史明文条目原样保留，解密失败的条目自动跳过，文件不存在时返回空串)
+     * @return 解密后的完整日志文本(历史明文条目原样保留，解密失败的条目自动跳过，文件不存在时返回空串)
      */
     @objc public static func decryptedLogText() -> String {
         return WYLogManager.decryptedLogText()
@@ -114,7 +114,7 @@ import WYBasisKitSwift
 
     /**
      * 同步加密写入一条日志
-     * - Parameter content: 要写入的完整日志内容(崩溃捕获等进程即将退出的场景用，不走异步队列确保落盘)
+     @param content 要写入的完整日志内容(崩溃捕获等进程即将退出的场景用，不走异步队列确保落盘)
      */
     @objc public static func writeEncryptedSynchronously(_ content: String) {
         WYLogManager.writeEncryptedSynchronously(content)
@@ -122,9 +122,8 @@ import WYBasisKitSwift
 
     /**
      * 日志
-     * - Parameters:
-     *   - messages: 要输出的日志内容
-     *   - outputMode: 日志输出模式
+     *   @param messages 要输出的日志内容
+     *   @param outputMode 日志输出模式
      */
     @objc public static var output: @convention(block) (Any) -> Void {
         return { messages in
@@ -140,12 +139,11 @@ import WYBasisKitSwift
     
     /**
      * 日志
-     * - Parameters:
-     *   - messages: 要输出的日志内容
-     *   - outputMode: 日志输出模式
-     *   - file: 文件名(自动捕获)
-     *   - function: 函数名(自动捕获)
-     *   - line: 代码行号(自动捕获)
+     *   @param messages 要输出的日志内容
+     *   @param outputMode 日志输出模式
+     *   @param file 文件名(自动捕获)
+     *   @param function 函数名(自动捕获)
+     *   @param line 代码行号(自动捕获)
      */
     @objc public static func output(_ messages: Any, outputMode: WYLogOutputModeObjC = .debugConsoleOnly, file: String = #file, function: String = #function, line: Int = #line) {
         WYLogManager.output(messages, outputMode: WYLogOutputMode(rawValue: outputMode.rawValue) ?? .debugConsoleOnly, file: file, function: function, line: line)
@@ -161,8 +159,7 @@ import WYBasisKitSwift
     
     /**
      * 显示预览组件
-     * - Parameters:
-     *   - contentView: 预览按钮的父控件，如果不传则为当前正在显示的Window
+     *   @param contentView 预览按钮的父控件，如果不传则为当前正在显示的Window
      */
     @objc public static func showPreview() {
         showPreview(UIApplication.shared.wy_keyWindow)

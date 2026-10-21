@@ -101,10 +101,9 @@ import WYBasisKitSwift
     
     /**
      *  实时监听网络状态
-     *  - Parameters:
-     *    - alias: 监听器别名
-     *    - queue: 回调队列，默认为主队列
-     *    - handler: 回调 path
+     *    @param alias 监听器别名
+     *    @param queue 回调队列，默认为主队列
+     *    @param handler 回调 path
      *    回调参数 state 映射 NWPath.Status：
      *      0 = NWPath.Status.satisfied (已连接)
      *      1 = NWPath.Status.unsatisfied (无法连接)
@@ -127,8 +126,7 @@ import WYBasisKitSwift
     
     /**
      *  停止监听
-     *  - Parameters:
-     *    - alias: 监听器别名，如果为 nil 则停止所有监听器
+     *    @param alias 监听器别名，如果为 nil 则停止所有监听器
      */
     @objc public static func stopListening(_ alias: String? = nil) {
         WYNetworkMonitor.stopListening(alias)

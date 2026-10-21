@@ -10,10 +10,9 @@ import UIKit
 /**
  交换 `UICollectionViewLayout` 及其子类的 `prepare()` 方法。
  
- - Parameters:
-   - targetClass: 目标布局类（如 `UICollectionViewFlowLayout.self`）。
-   - before: 方法执行前回调，参数为当前布局对象。无返回值。
-   - after: 方法执行后回调，参数为当前布局对象。无返回值（仅通知）。
+   @param targetClass 目标布局类（如 `UICollectionViewFlowLayout.self`）。
+   @param before 方法执行前回调，参数为当前布局对象。无返回值。
+   @param after 方法执行后回调，参数为当前布局对象。无返回值（仅通知）。
  */
 internal func wy_swizzlerLayoutPrepare(
     for targetClass: UICollectionViewLayout.Type,

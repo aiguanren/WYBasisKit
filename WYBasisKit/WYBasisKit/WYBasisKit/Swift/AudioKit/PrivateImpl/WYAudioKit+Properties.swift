@@ -144,10 +144,9 @@ extension WYAudioKit {
     
     /**
      音频任务执行失败回调
-     - Parameters:
-       - url: 出错的任务相关URL（可选，可能是本地或远程）
-       - error: 错误枚举值
-       - description: 详细错误描述(可选)
+       @param url 出错的任务相关URL（可选，可能是本地或远程）
+       @param error 错误枚举值
+       @param description 详细错误描述(可选)
      */
     func wy_handleErrorEvents(url: URL? = nil, error: WYAudioError, description: String? = nil) {
         delegate?.wy_audioTaskDidFailed?(audioKit: self, url: url, error: error, description: description)

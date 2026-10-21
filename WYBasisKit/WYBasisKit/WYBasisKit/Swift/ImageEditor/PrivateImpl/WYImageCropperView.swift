@@ -129,11 +129,10 @@ class WYImageCropperView: UIView {
 
     /**
      * 初始化裁剪视图内容
-     * - Parameters:
-     *   - image: 要裁剪的图片
-     *   - shape: 裁剪形状(矩形或圆形)
-     *   - fixedOutputSize: 固定输出尺寸(nil表示不固定)
-     *   - appearance: 界面外观
+     *   @param image 要裁剪的图片
+     *   @param shape 裁剪形状(矩形或圆形)
+     *   @param fixedOutputSize 固定输出尺寸(nil表示不固定)
+     *   @param appearance 界面外观
      */
     func setup(image: UIImage, shape: WYImageCropShape, fixedOutputSize: CGSize?, appearance: WYImageEditorAppearance, zoomEnabled: Bool, initialZoomMultiplier: CGFloat = 1) {
         originalImage = image
@@ -316,7 +315,7 @@ class WYImageCropperView: UIView {
 
     /**
      * 应用当前裁剪框的裁剪(CGImage像素直裁不重采样，裁完框回满图内收状态)
-     * - Parameter force: true为无条件按当前框真裁(顶部裁剪按钮)，false为框没动过或固定尺寸模式时不裁(切标记模式的保护)
+     @param force true为无条件按当前框真裁(顶部裁剪按钮)，false为框没动过或固定尺寸模式时不裁(切标记模式的保护)
      */
     func commitCrop(force: Bool = false) {
         if !force {

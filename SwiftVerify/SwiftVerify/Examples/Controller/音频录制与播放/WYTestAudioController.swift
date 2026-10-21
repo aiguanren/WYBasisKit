@@ -1326,12 +1326,12 @@ extension WYTestAudioController: WYAudioKitDelegate {
         }
     }
     
-    func wy_remoteAudioDownloadSuccess(audioKit: WYAudioKit, fileInfos: [WYAudioDownloadInfo]) {
-        for info in fileInfos {
-            logInfo("下载成功: \(info.local)")
-            startedNotifiedUrls.remove(info.remote)
+    func wy_remoteAudioDownloadSuccess(audioKit: WYAudioKit, remoteUrls: [URL]) {
+        for url in remoteUrls {
+            logInfo("下载成功: \(url)")
+            startedNotifiedUrls.remove(url)
             for card in taskCards {
-                if let url = card.url, url == info.remote {
+                if card.url == url {
                     Task { @MainActor in
                         card.progressBar.progress = 1.0
                         card.progressLabel.text = "进度: 100%"

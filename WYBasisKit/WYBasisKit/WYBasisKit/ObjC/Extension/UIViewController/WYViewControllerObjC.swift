@@ -90,10 +90,9 @@ import WYBasisKitSwift
     
     /**
      返回到指定的视图控制器
-     - Parameters:
-       - className: 要返回到哪个控制器，如果为nil，则表示返回到上一个控制器
-       - returnValue: 要带给回退页面的返回值，默认nil
-       - animated: 是否以动画的方式返回，默认True
+       @param className 要返回到哪个控制器，如果为nil，则表示返回到上一个控制器
+       @param returnValue 要带给回退页面的返回值，默认nil
+       @param animated 是否以动画的方式返回，默认True
      */
     @objc(wy_backToViewControllerWithClassName:returnValue:animated:)
     func wy_backToViewControllerObjC(className: String? = nil, returnValue: Any? = nil, animated: Bool = true) {

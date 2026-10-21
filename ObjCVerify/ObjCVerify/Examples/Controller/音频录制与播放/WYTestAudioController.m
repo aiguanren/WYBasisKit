@@ -1595,12 +1595,12 @@
     }
 }
 
-- (void)wy_remoteAudioDownloadSuccess:(WYAudioKit *)audioKit fileInfo:(NSArray<WYAudioDownloadInfo *> *)fileInfos {
-    for (WYAudioDownloadInfo *info in fileInfos) {
-        [self logInfo:[NSString stringWithFormat:@"下载成功: %@", info.local]];
-        [self.startedNotifiedUrls removeObject:info.remote];
+- (void)wy_remoteAudioDownloadSuccess:(WYAudioKit *)audioKit remoteUrls:(NSArray<NSURL *> *)remoteUrls {
+    for (NSURL *url in remoteUrls) {
+        [self logInfo:[NSString stringWithFormat:@"下载成功: %@", url]];
+        [self.startedNotifiedUrls removeObject:url];
         for (DownloadTaskCardView *card in self.taskCards) {
-            if (card.url && [card.url isEqual:info.remote]) {
+            if (card.url && [card.url isEqual:url]) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     card.progressBar.progress = 1.0;
                     card.progressLabel.text = @"进度: 100%";

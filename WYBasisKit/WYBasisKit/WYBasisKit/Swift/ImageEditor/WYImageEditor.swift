@@ -251,13 +251,12 @@ public class WYImageEditorViewController: UIViewController {
 
     /**
      * 便利弹出入口(一行代码从指定控制器全屏弹出编辑器)
-     * - Parameters:
-     *   - viewController: 从哪个控制器弹出(编辑器以全屏模态方式盖在它上面)
-     *   - image: 要编辑的图片
-     *   - configuration: 编辑配置(不传用默认配置)
-     *   - handler: 编辑结果回调(编辑成成品图回调图片，取消回调nil)
+     *   @param viewController 从哪个控制器弹出(编辑器以全屏模态方式盖在它上面)
+     *   @param image 要编辑的图片
+     *   @param configuration 编辑配置(不传用默认配置)
+     *   @param handler 编辑结果回调(编辑成成品图回调图片，取消回调nil)
      */
-    public static func present(from viewController: UIViewController, image: UIImage, configuration: WYImageEditorConfiguration = WYImageEditorConfiguration(), handler: ((UIImage?) -> Void)? = nil) {
+    public static func present(from viewController: UIViewController, image: UIImage, configuration: WYImageEditorConfiguration = WYImageEditorConfiguration(), handler: ((_ resultImage: UIImage?) -> Void)? = nil) {
         let editor = WYImageEditorViewController(image: image, configuration: configuration)
         editor.onFinish = { resultImage in
             handler?(resultImage)
@@ -272,9 +271,8 @@ public class WYImageEditorViewController: UIViewController {
 
     /**
      * 编辑器初始化
-     * - Parameters:
-     *   - image: 要编辑的图片(内部会把方向不正的图片先摆正，不用提前处理)
-     *   - configuration: 编辑配置(不传用默认配置)
+     *   @param image 要编辑的图片(内部会把方向不正的图片先摆正，不用提前处理)
+     *   @param configuration 编辑配置(不传用默认配置)
      */
     public init(image: UIImage, configuration: WYImageEditorConfiguration = WYImageEditorConfiguration()) {
 

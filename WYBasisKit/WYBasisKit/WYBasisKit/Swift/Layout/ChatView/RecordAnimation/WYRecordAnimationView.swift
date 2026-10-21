@@ -12,50 +12,45 @@ import AVFoundation
     
     /**
      录音开始
-     - Parameters:
-     - audioKit: 音频工具实例
-     - isResume: 是否是恢复录音
+     @param audioKit 音频工具实例
+     @param isResume 是否是恢复录音
      */
     @objc(wy_audioRecorderDidStart:isResume:)
     optional func wy_audioRecorderDidStart(audioKit: WYAudioKit, isResume: Bool)
     
     /**
      录音停止
-     - Parameters:
-     - audioKit: 音频工具实例
-     - isPause: 是否是暂停录音
-     - isTimeout: 是否是超时(达到最大录音时长)停止
+     @param audioKit 音频工具实例
+     @param isPause 是否是暂停录音
+     @param isTimeout 是否是超时(达到最大录音时长)停止
      */
     @objc(wy_audioRecorderDidStop:isPause:isTimeout:)
     optional func wy_audioRecorderDidStop(audioKit: WYAudioKit, isPause: Bool, isTimeout: Bool)
     
     /**
      录音时间更新
-     - Parameters:
-     - audioKit: 音频工具实例
-     - currentTime: 当前录音时间（秒）
-     - duration: 总录音时长限制（秒）
+     @param audioKit 音频工具实例
+     @param currentTime 当前录音时间（秒）
+     @param duration 总录音时长限制（秒）
      */
     @objc(wy_audioRecorderTimeUpdated:currentTime:duration:)
     optional func wy_audioRecorderTimeUpdated(audioKit: WYAudioKit, currentTime: TimeInterval, duration: TimeInterval)
     
     /**
      录音声波数据更新（单通道）
-     - Parameters:
-       - audioKit: 音频工具实例
-       - peakPower: 当前峰值功率（dB），范围 -160.0 到 0.0（0.0 表示最响，-160.0 表示最安静），适合用于实时响应敏感的声波动画，但可能导致动画跳动剧烈
-       - averagePower: 当前平均功率（dB），范围 -160.0 到 0.0，比 peakPower 更平滑，适合语音录制页面的声波动画
+       @param audioKit 音频工具实例
+       @param peakPower 当前峰值功率（dB），范围 -160.0 到 0.0（0.0 表示最响，-160.0 表示最安静），适合用于实时响应敏感的声波动画，但可能导致动画跳动剧烈
+       @param averagePower 当前平均功率（dB），范围 -160.0 到 0.0，比 peakPower 更平滑，适合语音录制页面的声波动画
      */
     @objc(wy_audioRecorderDidUpdateMetering:peakPower:averagePower:)
     optional func wy_audioRecorderDidUpdateMetering(audioKit: WYAudioKit, peakPower: Float, averagePower: Float)
     
     /**
      音频任务执行失败
-     - Parameters:
-     - audioKit: 音频工具实例
-     - url: 出错的任务相关URL（可选，可能是本地或远程）
-     - error: 错误枚举值
-     - description: 详细错误描述(可选)
+     @param audioKit 音频工具实例
+     @param url 出错的任务相关URL（可选，可能是本地或远程）
+     @param error 错误枚举值
+     @param description 详细错误描述(可选)
      */
     @objc(wy_audioTaskDidFailed:url:error:description:)
     optional func wy_audioTaskDidFailed(audioKit: WYAudioKit, url: URL?, error: WYAudioError, description: String?)
@@ -420,9 +415,8 @@ extension WYRecordAnimationView: WYAudioKitDelegate {
     
     /**
      录音开始
-     - Parameters:
-     - audioKit: 音频工具实例
-     - isResume: 是否是恢复录音
+     @param audioKit 音频工具实例
+     @param isResume 是否是恢复录音
      */
     public func wy_audioRecorderDidStart(audioKit: WYAudioKit, isResume: Bool) {
         delegate?.wy_audioRecorderDidStart?(audioKit: audioKit, isResume: isResume)
@@ -430,10 +424,9 @@ extension WYRecordAnimationView: WYAudioKitDelegate {
     
     /**
      录音停止
-     - Parameters:
-     - audioKit: 音频工具实例
-     - isPause: 是否是暂停录音
-     - isTimeout: 是否是超时(达到最大录音时长)停止
+     @param audioKit 音频工具实例
+     @param isPause 是否是暂停录音
+     @param isTimeout 是否是超时(达到最大录音时长)停止
      */
     public func wy_audioRecorderDidStop(audioKit: WYAudioKit, isPause: Bool, isTimeout: Bool) {
         
@@ -444,10 +437,9 @@ extension WYRecordAnimationView: WYAudioKitDelegate {
     
     /**
      录音时间更新
-     - Parameters:
-     - audioKit: 音频工具实例
-     - currentTime: 当前录音时间（秒）
-     - duration: 总录音时长限制（秒）
+     @param audioKit 音频工具实例
+     @param currentTime 当前录音时间（秒）
+     @param duration 总录音时长限制（秒）
      */
     public func wy_audioRecorderTimeUpdated(audioKit: WYAudioKit, currentTime: TimeInterval, duration: TimeInterval) {
         delegate?.wy_audioRecorderTimeUpdated?(audioKit: audioKit, currentTime: currentTime, duration: duration)
@@ -455,10 +447,9 @@ extension WYRecordAnimationView: WYAudioKitDelegate {
     
     /**
      录音声波数据更新（单通道）
-     - Parameters:
-     - audioKit: 音频工具实例
-     - peakPower: 当前峰值功率（dB），范围 -160.0 到 0.0（0.0 表示最响，-160.0 表示最安静），适合用于实时响应敏感的声波动画，但可能导致动画跳动剧烈
-     - averagePower: 当前平均功率（dB），范围 -160.0 到 0.0，比 peakPower 更平滑，适合语音录制页面的声波动画
+     @param audioKit 音频工具实例
+     @param peakPower 当前峰值功率（dB），范围 -160.0 到 0.0（0.0 表示最响，-160.0 表示最安静），适合用于实时响应敏感的声波动画，但可能导致动画跳动剧烈
+     @param averagePower 当前平均功率（dB），范围 -160.0 到 0.0，比 peakPower 更平滑，适合语音录制页面的声波动画
      */
     public func wy_audioRecorderDidUpdateMetering(audioKit: WYAudioKit, peakPower: Float, averagePower: Float) {
         
@@ -477,11 +468,10 @@ extension WYRecordAnimationView: WYAudioKitDelegate {
     
     /**
      音频任务执行失败
-     - Parameters:
-     - audioKit: 音频工具实例
-     - url: 出错的任务相关URL（可选，可能是本地或远程）
-     - error: 错误枚举值
-     - description: 详细错误描述(可选)
+     @param audioKit 音频工具实例
+     @param url 出错的任务相关URL（可选，可能是本地或远程）
+     @param error 错误枚举值
+     @param description 详细错误描述(可选)
      */
     public func wy_audioTaskDidFailed(audioKit: WYAudioKit, url: URL?, error: WYAudioError, description: String?) {
         delegate?.wy_audioTaskDidFailed?(audioKit: audioKit, url: url, error: error, description: description)

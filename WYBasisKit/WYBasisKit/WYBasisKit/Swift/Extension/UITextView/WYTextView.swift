@@ -72,7 +72,7 @@ public extension UITextView {
         get { objc_getAssociatedObject(self, &WYAssociatedKeys.wy_longPressMinimumDuration) as? TimeInterval ?? 0.5 }
     }
     
-    /// 非链接区域的点击事件是否需要穿透UITextView，默认False(为False时点击指定字符串之外区域，事件按照UITextView默认响应链响应，为True时，将跳过UITextView，直接响应事件到UITextView的父View)
+    /// 非链接区域的点击事件是否需要穿透UITextView，默认false(为false时点击指定字符串之外区域，事件按照UITextView默认响应链响应，为true时，将跳过UITextView，直接响应事件到UITextView的父View)
     var wy_eventPenetration: Bool {
         set {
             objc_setAssociatedObject(self, &WYAssociatedKeys.wy_eventPenetration, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -389,7 +389,7 @@ private extension UITextView {
         // 不可编辑
         isEditable = false
         
-        // 必须为 False 才能响应链接（保持 false 避免系统手势干扰，且不影响矩形获取）
+        // 必须为 false 才能响应链接（保持 false 避免系统手势干扰，且不影响矩形获取）
         isSelectable = false
         
         // 禁用视图自身的延迟触摸（不影响父视图）

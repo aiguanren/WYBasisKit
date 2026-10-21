@@ -115,10 +115,9 @@ public struct WYNetworkMonitor {
     
     /**
      *  实时监听网络状态
-     *  - Parameters:
-     *    - alias: 监听器别名
-     *    - queue: 回调队列，默认为主队列
-     *    - handler: 回调 path
+     *    @param alias 监听器别名
+     *    @param queue 回调队列，默认为主队列
+     *    @param handler 回调 path
      */
     public static func listening(_ alias: String,
                                  queue: DispatchQueue = .main,
@@ -171,8 +170,7 @@ public struct WYNetworkMonitor {
     
     /**
      *  停止监听
-     *  - Parameters:
-     *    - alias: 监听器别名，如果为 nil 则停止所有监听器
+     *    @param alias 监听器别名，如果为 nil 则停止所有监听器
      */
     public static func stopListening(_ alias: String? = nil) {
         listenerLock.lock()

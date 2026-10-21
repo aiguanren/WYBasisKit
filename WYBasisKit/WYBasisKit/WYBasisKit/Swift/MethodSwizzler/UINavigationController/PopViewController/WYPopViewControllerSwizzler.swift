@@ -10,11 +10,10 @@ import UIKit
 /**
  交换 `UINavigationController` 及其子类的 `popViewController(animated:)` 方法。
  
- - Parameters:
-   - targetClass: 目标导航控制器类（如 `UINavigationController.self`）。
-   - intercept: 拦截决策闭包，返回 `.proceed` 则继续执行原始方法，返回 `.result(controller)` 则直接返回该控制器（可为 `nil`），**不再调用原始方法**，参数依次为：当前导航控制器、是否动画
-   - before: 方法执行前回调，参数依次为：当前导航控制器、是否动画。无返回值。
-   - after: 方法执行后回调，参数依次为：当前导航控制器、是否动画、被弹出的视图控制器（可能为 `nil`）。无返回值（仅通知）。
+   @param targetClass 目标导航控制器类（如 `UINavigationController.self`）。
+   @param intercept 拦截决策闭包，返回 `.proceed` 则继续执行原始方法，返回 `.result(controller)` 则直接返回该控制器（可为 `nil`），**不再调用原始方法**，参数依次为：当前导航控制器、是否动画
+   @param before 方法执行前回调，参数依次为：当前导航控制器、是否动画。无返回值。
+   @param after 方法执行后回调，参数依次为：当前导航控制器、是否动画、被弹出的视图控制器（可能为 `nil`）。无返回值（仅通知）。
  */
 internal func wy_swizzlerPopViewController(
     for targetClass: UINavigationController.Type,

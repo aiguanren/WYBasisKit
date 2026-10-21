@@ -18,12 +18,11 @@ public extension Task where Success == Never, Failure == Never {
        - 若 `cancelThrows = false`，取消时静默结束，不抛错误。
      - 注意：无论 `cancelThrows` 为何值，一旦取消，`onMain` 闭包都不会被执行（因为延时未完成）。
 
-     - Parameters:
-       - seconds: 延时的秒数。
-       - cancelThrows: 取消时是否抛出错误，默认为 `true`。
-       - onMain: 延时结束后在主线程执行的闭包（可选），仅当任务未取消且延时完成时才会执行。
+       @param seconds 延时的秒数。
+       @param cancelThrows 取消时是否抛出错误，默认为 `true`。
+       @param onMain 延时结束后在主线程执行的闭包（可选），仅当任务未取消且延时完成时才会执行。
 
-     - Throws: 若 `cancelThrows = true` 且任务被取消，则抛出 `CancellationError`。
+     @throws 若 `cancelThrows = true` 且任务被取消，则抛出 `CancellationError`。
 
      - 使用场景:
        - `cancelThrows = true`：需要区分正常完成和取消（例如依赖取消状态做逻辑）。
@@ -58,11 +57,10 @@ public extension Task where Success == Never, Failure == Never {
      - 功能：创建一个独立的延时任务，返回 `Task` 对象，可随时调用 `.cancel()` 取消。
      - 取消行为：被取消后，内部的 `operation` 闭包不会被执行。
 
-     - Parameters:
-       - seconds: 延时的秒数。
-       - operation: 延时结束后执行的异步闭包（`@Sendable`）。
+       @param seconds 延时的秒数。
+       @param operation 延时结束后执行的异步闭包（`@Sendable`）。
 
-     - Returns: 可取消的 `Task<Void, Never>` 句柄。
+     @return 可取消的 `Task<Void, Never>` 句柄。
 
      - 使用场景：需要单独控制一个延时操作的取消，例如“延迟跳转”或“延迟动画”，用户反悔时可取消。
      */
@@ -93,14 +91,13 @@ public extension Task {
      - 功能：执行操作，若失败则等待 `delay` 秒后重试，最多尝试 `numberOfRetries` 次（包含第一次尝试）。
      - 取消行为：若操作或等待期间任务被取消，立即抛出 `CancellationError`，不会继续重试。
 
-     - Parameters:
-       - delay: 每次失败后的等待秒数（重试间隔）。
-       - numberOfRetries: 最大重试次数（包含第一次尝试）。
-       - operation: 要执行的可抛出错误的异步操作（`@Sendable`）。
+       @param delay 每次失败后的等待秒数（重试间隔）。
+       @param numberOfRetries 最大重试次数（包含第一次尝试）。
+       @param operation 要执行的可抛出错误的异步操作（`@Sendable`）。
 
-     - Returns: 操作成功时的返回值，类型为 `Success`。
+     @return 操作成功时的返回值，类型为 `Success`。
 
-     - Throws:
+     @throws
        - `CancellationError`：当任务被外部取消时。
        - 最后一次失败的错误：所有重试均失败时抛出最后一次捕获的错误。
 
@@ -137,13 +134,12 @@ public extension Task {
        - 若超时发生，会抛出一个包含中文描述的 `NSError`（domain: "WYTask", code: -1, 描述: "任务执行超时"）。
        - 无论哪种失败，未完成的任务都会被自动取消。
 
-     - Parameters:
-       - seconds: 超时时间（秒）。
-       - operation: 要执行的可抛出错误的异步操作（`@Sendable`）。
+       @param seconds 超时时间（秒）。
+       @param operation 要执行的可抛出错误的异步操作（`@Sendable`）。
 
-     - Returns: 操作成功时的返回值，类型为 `T`。
+     @return 操作成功时的返回值，类型为 `T`。
 
-     - Throws:
+     @throws
        - `CancellationError`：任务被外部取消。
        - `NSError`：超时发生时抛出的自定义错误。
 

@@ -130,17 +130,18 @@ public extension WYMoreViewConfig {
     }
 }
 
-/// 返回一个Bool值来判定各控件的点击或手势事件是否需要内部处理(默认返回True)
+/// 返回一个Bool值来判定各控件的点击或手势事件是否需要内部处理(默认返回true)
 @objc public protocol WYMoreViewEventsHandler {
     /// 是否需要内部处理 cell 的点击事件
-    @objc(canManagerMoreViewClickEvents:itemIndex:)
-    optional func canManagerMoreViewClickEvents(_ moreView: WYChatMoreView, _ itemIndex: Int) -> Bool
+    @objc(wy_canManagerMoreViewClickEvents:itemIndex:)
+    optional func wy_canManagerMoreViewClickEvents(_ moreView: WYChatMoreView, itemIndex: Int) -> Bool
 }
 
 @objc public protocol WYChatMoreViewDelegate {
     
     /// 监听cell点击事件
-    @objc optional func didClickMoreViewAtIndex(_ itemIndex: Int)
+    @objc(wy_didClickMoreViewAtIndex:)
+    optional func wy_didClickMoreViewAtIndex(itemIndex: Int)
 }
 
 public class WYChatMoreView: UIView {
@@ -240,12 +241,12 @@ extension WYChatMoreView: UICollectionViewDelegate, UICollectionViewDataSource, 
     
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        guard (eventsHandler?.canManagerMoreViewClickEvents?(self, indexPath.item) ?? true) else {
+        guard (eventsHandler?.wy_canManagerMoreViewClickEvents?(self, itemIndex: indexPath.item) ?? true) else {
             return
         }
         
         collectionView.deselectItem(at: indexPath, animated: true)
-        delegate?.didClickMoreViewAtIndex?(indexPath.item)
+        delegate?.wy_didClickMoreViewAtIndex?(itemIndex: indexPath.item)
     }
 }
 

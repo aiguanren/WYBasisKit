@@ -24,8 +24,7 @@ class WYPhotoBrowserMenuView: UIView {
 
     /**
      * 菜单初始化
-     * - Parameters:
-     *   - appearance: 外观配置
+     *   @param appearance 外观配置
      */
     init(appearance: WYPhotoBrowserAppearance) {
         self.appearance = appearance
@@ -42,11 +41,10 @@ class WYPhotoBrowserMenuView: UIView {
 
     /**
      * 显示菜单(动作列表按顺序竖排，浮层优先落在长按点上方，放不下落下方)
-     * - Parameters:
-     *   - actions: 动作列表
-     *   - anchorPoint: 长按点(父视图坐标)
-     *   - parentView: 父视图
-     *   - handler: 动作选择回调
+     *   @param actions 动作列表
+     *   @param anchorPoint 长按点(父视图坐标)
+     *   @param parentView 父视图
+     *   @param handler 动作选择回调
      */
     func show(actions: [WYPhotoBrowserAction], anchorPoint: CGPoint, in parentView: UIView, handler: @escaping (WYPhotoBrowserAction) -> Void) {
         self.actions = actions

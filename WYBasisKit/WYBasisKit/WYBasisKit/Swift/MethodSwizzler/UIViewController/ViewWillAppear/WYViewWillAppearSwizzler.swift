@@ -10,10 +10,9 @@ import UIKit
 /**
  交换 `UIViewController` 及其子类的 `viewWillAppear(_:)` 方法。
  
- - Parameters:
-   - targetClass: 目标视图控制器类（如 `UIViewController.self`）。
-   - before: 方法执行前回调，参数依次为：当前控制器、是否动画。无返回值。
-   - after: 方法执行后回调，参数依次为：当前控制器、是否动画。无返回值（仅通知）。
+   @param targetClass 目标视图控制器类（如 `UIViewController.self`）。
+   @param before 方法执行前回调，参数依次为：当前控制器、是否动画。无返回值。
+   @param after 方法执行后回调，参数依次为：当前控制器、是否动画。无返回值（仅通知）。
  */
 internal func wy_swizzlerViewWillAppear(
     for targetClass: UIViewController.Type,

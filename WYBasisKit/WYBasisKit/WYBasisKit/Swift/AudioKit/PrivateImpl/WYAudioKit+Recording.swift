@@ -60,9 +60,8 @@ extension WYAudioKit: AVAudioRecorderDelegate {
     
     /**
      录音完成回调（系统方法）
-     - Parameters:
-       - recorder: 录音器实例
-       - flag: 是否成功完成
+       @param recorder 录音器实例
+       @param flag 是否成功完成
      */
     public func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
         if !flag {
@@ -73,9 +72,8 @@ extension WYAudioKit: AVAudioRecorderDelegate {
     
     /**
      录音编码错误回调（系统方法）
-     - Parameters:
-       - recorder: 录音器实例
-       - error: 错误信息
+       @param recorder 录音器实例
+       @param error 错误信息
      */
     public func audioRecorderEncodeErrorDidOccur(_ recorder: AVAudioRecorder, error: Error?) {
         wy_handleErrorEvents(error: .startRecordingFailed, description: error?.localizedDescription)

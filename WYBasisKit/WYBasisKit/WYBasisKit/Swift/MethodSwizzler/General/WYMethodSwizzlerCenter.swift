@@ -18,9 +18,8 @@ internal enum WYInterceptResult<Value> {
 /**
  移除指定类的指定方法的钩子（包括 before、after 和 intercept）。
  
- - Parameters:
-   - anyClass: 目标类。
-   - selector: 方法选择器。若传入 `nil` 则移除该类的所有钩子(所有方法)，若指定 `selector` 则只移除该方法的钩子
+   @param anyClass 目标类。
+   @param selector 方法选择器。若传入 `nil` 则移除该类的所有钩子(所有方法)，若指定 `selector` 则只移除该方法的钩子
  */
 internal func wy_removeMethodExchangeHooks(for anyClass: AnyClass, selector: Selector? = nil) {
     
@@ -421,10 +420,9 @@ internal func wy_methodSwizzlerKey(for style: WYMethodSwizzlerKeyStyle, classNam
 /**
  获取指定类的实例方法，若方法不存在则输出错误信息并返回 nil。
  
- - Parameters:
-   - targetClass: 目标类
-   - selector: 方法选择器
- - Returns: 找到的 Method 对象，如果不存在则返回 nil
+   @param targetClass 目标类
+   @param selector 方法选择器
+ @return 找到的 Method 对象，如果不存在则返回 nil
  */
 internal func wy_getInstanceMethod(_ targetClass: AnyClass, _ selector: Selector) -> Method? {
     guard let method = class_getInstanceMethod(targetClass, selector) else {
@@ -441,10 +439,9 @@ internal func wy_getInstanceMethod(_ targetClass: AnyClass, _ selector: Selector
 /**
  沿继承链查找指定选择器的钩子集合
  
- - Parameters:
-   - receiver: 当前对象
-   - selector: 方法选择器
- - Returns: 找到的第一个非空钩子集合，若未找到则返回空集合
+   @param receiver 当前对象
+   @param selector 方法选择器
+ @return 找到的第一个非空钩子集合，若未找到则返回空集合
  */
 internal func wy_findHooks<Args, Return>(for receiver: AnyObject, selector: Selector) -> WYMethodHooks<Args, Return> {
     // 获取方法名字符串
@@ -489,10 +486,9 @@ internal func wy_findHooks<Args, Return>(for receiver: AnyObject, selector: Sele
 /**
  对指定类的指定方法进行 IMP 替换（仅一次）
  
- - Parameters:
-   - targetClass: 目标类
-   - selector: 方法选择器
-   - newImpBlock: 新的 Block IMP，类型为 @convention(block)
+   @param targetClass 目标类
+   @param selector 方法选择器
+   @param newImpBlock 新的 Block IMP，类型为 @convention(block)
  */
 internal func wy_swizzleMethod(
     for targetClass: AnyClass,
@@ -530,9 +526,8 @@ internal func wy_swizzleMethod(
  但对应的关联对象 `swizzleKey` 已经存在（说明被意外提前设置），则强制清除该标记，
  以便后续的 `wy_swizzleMethod` 能够正常执行 IMP 替换。
  
- - Parameters:
-   - targetClass: 目标类
-   - selector: 方法选择器
+   @param targetClass 目标类
+   @param selector 方法选择器
  
  - Note: 此函数内部使用 `WYExchangedMethodsSet` 记录已经执行过交换的方法，
          并通过 `WYExchangedMethodsLock` 保证线程安全。

@@ -20,15 +20,14 @@ public extension Bool {
     /**
      判断字符串是否为整数或小数（支持可选前缀、千分位）
 
-     - Parameters:
-       - string: 待校验字符串
-       - prefixes: 可选前缀（如 ["+", "-", "¥", "$"]，最多1个且在最前）
+       @param string 待校验字符串
+       @param prefixes 可选前缀（如 ["+", "-", "¥", "$"]，最多1个且在最前）
 
      - 示例：
        ✅ 123 / 123.45 / 1,234 / 1,234.56 / +123 / -123.45 / ¥1,234 / $1,234.56等
        ❎ 1,23,456 / 1,234,56 / ++123 / abc123 / 123. / 1,234. / 1,234.5.6等
      
-     - Returns: 是否合法
+     @return 是否合法
      */
     static func wy_isValidIntegerOrDecimal(_ string: String, prefixes: [String] = []) -> Bool {
         let prefixPattern = prefixes.isEmpty

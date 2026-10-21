@@ -81,6 +81,32 @@ import AVFoundation
  - 推荐设置 delegate 接收实时回调（录音波形、播放进度、下载状态等）
  - 不再使用时主动调用 releaseAll() 释放资源，避免内存泄漏
  */
+/// 网络下载(音频)文件的远程和本地URL信息
+@objc(WYAudioDownloadInfo)
+@objcMembers public class WYAudioDownloadInfoObjC: NSObject {
+
+    /// 远程URL
+    @objc public let remote: URL
+
+    /// 本地URL
+    @objc public let local: URL
+
+    /// 唯一初始化方法
+    /**
+     @param remote 远程URL
+     @param local 本地URL
+     */
+    @objc public init(remote: URL, local: URL) {
+        self.remote = remote
+        self.local = local
+    }
+
+    /// 转成结构体下载信息
+    func toDownloadInfo() -> WYAudioDownloadInfo {
+        return WYAudioDownloadInfo(remote: remote, local: local)
+    }
+}
+
 @objc public extension WYAudioKit {
 
     /// 是否支持直接录制(mp3/flac等系统只有解码器没有编码器，拿它们开录音会抛formatNotSupported)
@@ -149,7 +175,7 @@ import AVFoundation
     
     /**
      设置音频质量等级（影响比特率、采样率等，默认中等）
-     - Parameter quality: AVAudioQuality 枚举值，会影响默认比特率和采样质量
+     @param quality AVAudioQuality 枚举值，会影响默认比特率和采样质量
      */
     @objc(recordQuality)
     var recordQualityObjC: AVAudioQuality {
@@ -159,7 +185,7 @@ import AVFoundation
     
     /**
      设置自定义录音参数
-     - Parameter settings: 录音参数字典，会与默认设置合并（自定义优先）
+     @param settings 录音参数字典，会与默认设置合并（自定义优先）
      常用键值:
      - AVFormatIDKey: 音频格式
      - AVSampleRateKey: 采样率
@@ -209,10 +235,9 @@ import AVFoundation
     
     /**
      开始录音
-     - Parameters:
-       - fileName: 自定义文件名（可选，不传则自动生成带时间戳的名字）
-       - format: 录音格式（默认 .aac）
-     - Throws: WYAudioError（权限、格式、正在录音等异常）
+       @param fileName 自定义文件名（可选，不传则自动生成带时间戳的名字）
+       @param format 录音格式（默认 .aac）
+     @throws WYAudioError（权限、格式、正在录音等异常）
      */
     @objc(startRecordingWithFileName:format:error:)
     func startRecordingObjC(fileName: String? = nil, format: WYAudioFormatObjC = .aac) throws {
@@ -239,10 +264,9 @@ import AVFoundation
     
     /**
      开始播放本地音频文件
-     - Parameters:
-       - url: 要播放的音频文件URL，为 nil 则播放当前录音文件（currentRecordFileURL）
-       - success: 播放成功回调，返回实际播放的 URL
-       - failed: 播放失败回调，返回错误相关信息
+       @param url 要播放的音频文件URL，为 nil 则播放当前录音文件（currentRecordFileURL）
+       @param success 播放成功回调，返回实际播放的 URL
+       @param failed 播放失败回调，返回错误相关信息
      */
     @objc(playPlaybackWithUrl:success:failed:)
     func playPlaybackObjC(url: URL? = nil,
@@ -271,7 +295,7 @@ import AVFoundation
     
     /**
      跳转到指定播放时间点（支持暂停状态下跳转，超出总时长会自动夹到末尾并触发完成播放）
-     - Parameter time: 目标播放时间（秒），负数按0处理，超过音频总时长会定位到末尾
+     @param time 目标播放时间（秒），负数按0处理，超过音频总时长会定位到末尾
      */
     @objc(seekPlaybackWithTime:)
     func seekPlaybackObjC(time: TimeInterval) {
@@ -280,30 +304,32 @@ import AVFoundation
     
     /**
      播放网络音频文件（先下载后播放）
-     - Parameters:
-       - remoteUrl: 远程音频 URL
-       - success: 下载并播放成功回调（返回下载信息）
-       - failed: 下载或播放失败回调
+       @param remoteUrl 远程音频 URL
+       @param success 下载并播放成功回调（返回下载信息）
+       @param failed 下载或播放失败回调
      */
     @objc(playRemoteAudioWithRemoteUrl:success:failed:)
     func playRemoteAudioObjC(remoteUrl: URL,
-                                success: @escaping (WYAudioDownloadInfo) -> Void,
+                                success: @escaping (WYAudioDownloadInfoObjC) -> Void,
                                 failed: @escaping (Error?) -> Void) {
-        playRemoteAudio(remoteUrl: remoteUrl, success: success, failed: failed)
+        playRemoteAudio(remoteUrl: remoteUrl, success: { info in
+            success(WYAudioDownloadInfoObjC(remote: info.remote, local: info.local))
+        }, failed: failed)
     }
     
     /**
      下载远程音频文件（支持并发多任务）
-     - Parameters:
-       - remoteUrls: 要下载的远程 URL 数组（已在下载中的URL会被跳过，不重新下载）
-       - success: 下载成功回调（返回下载信息数组）
-       - failed: 下载失败回调
+       @param remoteUrls 要下载的远程 URL 数组（已在下载中的URL会被跳过，不重新下载）
+       @param success 下载成功回调（返回下载信息数组）
+       @param failed 下载失败回调
      */
     @objc(downloadRemoteAudioWithRemoteUrls:success:failed:)
     func downloadRemoteAudioObjC(remoteUrls: [URL],
-                                    success: @escaping ([WYAudioDownloadInfo]) -> Void,
+                                    success: @escaping ([WYAudioDownloadInfoObjC]) -> Void,
                                     failed: @escaping (Error?) -> Void) {
-        downloadRemoteAudio(remoteUrls: remoteUrls, success: success, failed: failed)
+        downloadRemoteAudio(remoteUrls: remoteUrls, success: { infos in
+            success(infos.map { WYAudioDownloadInfoObjC(remote: $0.remote, local: $0.local) })
+        }, failed: failed)
     }
 
     /// 查询指定远程URL是否正在下载中（不含已暂停的任务）
@@ -314,9 +340,9 @@ import AVFoundation
     
     /**
      暂停指定的远程下载任务
-     - Parameter remoteUrls: 要暂停的 URL 数组，nil 表示暂停所有
-     - Parameter success: 每个任务成功暂停时的回调，返回该任务的 URL
-     - Parameter failed: 每个任务暂停失败时的回调，返回该任务的 URL 和错误
+     @param remoteUrls 要暂停的 URL 数组，nil 表示暂停所有
+     @param success 每个任务成功暂停时的回调，返回该任务的 URL
+     @param failed 每个任务暂停失败时的回调，返回该任务的 URL 和错误
      */
     @objc(pauseDownloadWithRemoteUrls:success:failed:)
     func pauseDownloadObjC(_ remoteUrls: [URL]?,
@@ -327,7 +353,7 @@ import AVFoundation
     
     /**
      恢复指定的远程下载任务
-     - Parameter remoteUrls: 要恢复的 URL 数组，nil 表示恢复所有
+     @param remoteUrls 要恢复的 URL 数组，nil 表示恢复所有
      */
     @objc(resumeDownloadWithRemoteUrls:)
     func resumeDownloadObjC(_ remoteUrls: [URL]?) {
@@ -336,7 +362,7 @@ import AVFoundation
     
     /**
      取消指定的远程下载任务
-     - Parameter remoteUrls: 要取消的 URL 数组，nil 表示取消所有
+     @param remoteUrls 要取消的 URL 数组，nil 表示取消所有
      */
     @objc(cancelDownloadWithRemoteUrls:)
     func cancelDownloadObjC(_ remoteUrls: [URL]?) {
@@ -345,7 +371,7 @@ import AVFoundation
 
     /**
      保存当前录音文件到指定位置
-     - Parameter destinationUrl: 目标保存路径
+     @param destinationUrl 目标保存路径
      */
     @objc(saveRecordingWithDestinationUrl:error:)
     func saveRecordingObjC(destinationUrl: URL) throws {
@@ -354,7 +380,7 @@ import AVFoundation
     
     /**
      获取所有已保存的录音文件（按创建时间倒序）
-     - Returns: 文件 URL 数组
+     @return 文件 URL 数组
      */
     @objc(getAllRecordingsFiles)
     func getAllRecordingsFilesObjC() -> [URL] {
@@ -363,7 +389,7 @@ import AVFoundation
     
     /**
      删除录音文件
-     - Parameter localUrl: 要删除的具体文件 URL，nil 表示删除所有录音文件
+     @param localUrl 要删除的具体文件 URL，nil 表示删除所有录音文件
      */
     @objc(deleteRecordingFileWithLocalUrl:error:)
     func deleteRecordingFileObjC(localUrl: URL? = nil) throws {
@@ -372,20 +398,20 @@ import AVFoundation
     
     /**
      获取所有已下载的音频文件信息（按创建时间倒序）
-     - Returns: 下载信息数组（remote 通过持久化映射获取，若无则为占位符）
+     @return 下载信息数组（remote 通过持久化映射获取，若无则为占位符）
      */
     @objc(getAllDownloads)
-    func getAllDownloadsObjC() -> [WYAudioDownloadInfo] {
-        return getAllDownloads()
+    func getAllDownloadsObjC() -> [WYAudioDownloadInfoObjC] {
+        return getAllDownloads().map { WYAudioDownloadInfoObjC(remote: $0.remote, local: $0.local) }
     }
     
     /**
      删除已下载的音频文件
-     - Parameter info: 要删除的下载信息，nil 表示删除所有下载文件
+     @param info 要删除的下载信息，nil 表示删除所有下载文件
      */
     @objc(deleteDownloadFileWithInfo:)
-    func deleteDownloadFileObjC(info: WYAudioDownloadInfo?) {
-        deleteDownloadFile(info: info)
+    func deleteDownloadFileObjC(info: WYAudioDownloadInfoObjC?) {
+        deleteDownloadFile(info: info?.toDownloadInfo())
     }
     
     /**
@@ -400,11 +426,10 @@ import AVFoundation
      **不支持的目标格式**：
      - `.mp3`, `.flac`, `.au`, `.amr`, `.ac3`, `.eac3`
      
-     - Parameters:
-       - sourceUrls: 源文件 URL 数组
-       - target: 目标格式（仅限上述支持列表）
-       - success: 转换成功回调，返回输出文件 URL 数组
-       - failed: 转换失败回调
+       @param sourceUrls 源文件 URL 数组
+       @param target 目标格式（仅限上述支持列表）
+       @param success 转换成功回调，返回输出文件 URL 数组
+       @param failed 转换失败回调
      */
     @objc(convertAudioFormatWithSourceUrls:target:success:failed:)
     func convertAudioFormatObjC(sourceUrls: [URL],
@@ -416,7 +441,7 @@ import AVFoundation
     
     /**
      停止格式转换任务
-     - Parameter localUrls: 要停止的源文件 URL 数组，nil 表示停止所有正在进行的转换
+     @param localUrls 要停止的源文件 URL 数组，nil 表示停止所有正在进行的转换
      */
     @objc(stopAudioFormatConvertWithLocalUrls:)
     func stopAudioFormatConvertObjC(_ localUrls: [URL]?) {
@@ -425,11 +450,10 @@ import AVFoundation
     
     /**
      流式播放网络音频（边下载边播放，支持倍速）
-     - Parameters:
-       - remoteUrl: 远程音频 URL
-       - rate: 播放速率（0.5~2.0）
-       - success: 播放成功回调，返回远程 URL
-       - failed: 播放失败回调
+       @param remoteUrl 远程音频 URL
+       @param rate 播放速率（0.5~2.0）
+       @param success 播放成功回调，返回远程 URL
+       @param failed 播放失败回调
      */
     @objc(playStreamingRemoteAudioWithRemoteUrl:rate:success:failed:)
     func playStreamingRemoteAudioObjC(remoteUrl: URL, rate: Float = 1.0,
@@ -440,8 +464,8 @@ import AVFoundation
     
     /**
      获取音频时长（本地/远程均支持）
-     - Parameter url: 音频文件 URL（本地或远程）
-     - completion: 时长获取完成回调，参数为音频时长（秒），保证在主线程执行
+     @param url 音频文件 URL（本地或远程）
+     @param completion 时长获取完成回调，参数为音频时长（秒），保证在主线程执行
      */
     @objc(getAudioDurationWithUrl:completion:)
     func getAudioDurationObjC(with url: URL, completion: @escaping @MainActor (TimeInterval) -> Void) {
