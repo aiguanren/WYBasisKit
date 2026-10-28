@@ -303,6 +303,7 @@
 		58D99A9430903C8000B7B5A4 /* WYScrollView+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99A9330903C8000B7B5A4 /* WYScrollView+Implementation.swift */; };
 		58D99AB430903E0400B7B5A4 /* WYViewController+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99AB330903E0400B7B5A4 /* WYViewController+Implementation.swift */; };
 		58D99B8C3090430200B7B5A4 /* WYLocationAuthorization+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99B8B3090430200B7B5A4 /* WYLocationAuthorization+Implementation.swift */; };
+		5872465B3088BE120093EC33 /* WYImageEditor+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5872465A3088BE120093EC33 /* WYImageEditor+Implementation.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -621,6 +622,7 @@
 		58D99A9330903C8000B7B5A4 /* WYScrollView+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYScrollView+Implementation.swift"; sourceTree = "<group>"; };
 		58D99AB330903E0400B7B5A4 /* WYViewController+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYViewController+Implementation.swift"; sourceTree = "<group>"; };
 		58D99B8B3090430200B7B5A4 /* WYLocationAuthorization+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYLocationAuthorization+Implementation.swift"; sourceTree = "<group>"; };
+		5872465A3088BE120093EC33 /* WYImageEditor+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYImageEditor+Implementation.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2892,6 +2894,7 @@
 				B46C27D2941B4A85A99A2E30 /* WYImageCropperView.swift */,
 				DCFF8F17400C4B01BA509737 /* WYImageMarkerView.swift */,
 				6BA3CE4FE747490FBA5C36BB /* WYImageEditorIcons.swift */,
+				5872465A3088BE120093EC33 /* WYImageEditor+Implementation.swift */,
 			);
 			path = PrivateImpl;
 			sourceTree = "<group>";
@@ -3434,6 +3437,7 @@
 				58D99AB430903E0400B7B5A4 /* WYViewController+Implementation.swift in Sources */,
 				58D99A9430903C8000B7B5A4 /* WYScrollView+Implementation.swift in Sources */,
 				58D99B8C3090430200B7B5A4 /* WYLocationAuthorization+Implementation.swift in Sources */,
+				5872465B3088BE120093EC33 /* WYImageEditor+Implementation.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
