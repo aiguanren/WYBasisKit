@@ -44,9 +44,6 @@ class WYTabBarController: UITabBarController {
         nav.tabBarItem.selectedImage = selectedImage
         self.addChild(nav)
         
-        let clearView = UIView(frame: CGRect(x: 0, y: 0, width: UIDevice.wy_screenWidth, height: UIDevice.wy_tabBarHeight))
-        clearView.backgroundColor = .wy_dynamic(.white, .black)
-        tabBar.insertSubview(clearView, at: 0)
     }
     
     func layoutNavigationBar(nav: UINavigationController) {

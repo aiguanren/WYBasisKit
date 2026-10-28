@@ -49,9 +49,6 @@
     nav.tabBarItem.selectedImage = selectedImage;
     [self addChildViewController:nav];
     
-    UIView *clearView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, UIDevice.wy_screenWidth, UIDevice.wy_tabBarHeight)];
-    clearView.backgroundColor = [UIColor wy_dynamicWithLight:[UIColor whiteColor] dark:[UIColor blackColor]];
-    [self.tabBar insertSubview:clearView atIndex:0];
 }
 
 - (void)layoutNavigationBar:(UINavigationController *)nav {
