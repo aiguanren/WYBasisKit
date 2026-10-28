@@ -230,9 +230,4 @@ public struct WYCryptor {
         guard status == kCCSuccess else { return nil }
         return Data(derived)
     }
-
-    /// 任意长度密钥归一成32字节对称密钥(内部统一走SHA256，保证AES拿到的key定长)
-    private static func normalizedKey(_ key: Data) -> SymmetricKey {
-        return SymmetricKey(data: SHA256.hash(data: key))
-    }
 }

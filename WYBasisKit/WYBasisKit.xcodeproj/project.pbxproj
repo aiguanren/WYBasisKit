@@ -296,6 +296,8 @@
 		CF080236B6634685A6318861 /* WYImageCropperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B46C27D2941B4A85A99A2E30 /* WYImageCropperView.swift */; };
 		F8CDEF0FEB4C2E16D7D25654 /* WYPhotoBrowserMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4EE578F5C81426AA5BC1D29 /* WYPhotoBrowserMenuView.swift */; };
 		F9B01DB67BCA4F268210F6EF /* WYMediaCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20024D929D9487584DE7607 /* WYMediaCache.swift */; };
+		58D99B93309043B700B7B5A4 /* WYCryptor+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99B92309043B700B7B5A4 /* WYCryptor+Implementation.swift */; };
+		58D99B96309043D400B7B5A4 /* WYStorage+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99B95309043D400B7B5A4 /* WYStorage+Implementation.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -607,6 +609,8 @@
 		E4EE578F5C81426AA5BC1D29 /* WYPhotoBrowserMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPhotoBrowserMenuView.swift; sourceTree = "<group>"; };
 		E5BA55F71D1EFB496EE59FDE /* WYMediaPlayer+Properties.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+Properties.swift"; sourceTree = "<group>"; };
 		FBBDFDBDB8276D3319F55684 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		58D99B92309043B700B7B5A4 /* WYCryptor+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYCryptor+Implementation.swift"; sourceTree = "<group>"; };
+		58D99B95309043D400B7B5A4 /* WYStorage+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYStorage+Implementation.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -646,6 +650,7 @@
 			isa = PBXGroup;
 			children = (
 				9AC33A9B8043652655C0FF86 /* WYCryptor.swift */,
+				58D99B91309043A500B7B5A4 /* PrivateImpl */,
 			);
 			path = Cryptor;
 			sourceTree = "<group>";
@@ -2758,6 +2763,7 @@
 			isa = PBXGroup;
 			children = (
 				58C68D812E84E436005FD054 /* WYStorage.swift */,
+				58D99B94309043C700B7B5A4 /* PrivateImpl */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
@@ -2945,6 +2951,22 @@
 				684CA039106944C16D6C83B2 /* WYCryptorObjC.swift */,
 			);
 			path = Cryptor;
+			sourceTree = "<group>";
+		};
+		58D99B91309043A500B7B5A4 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				58D99B92309043B700B7B5A4 /* WYCryptor+Implementation.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
+		58D99B94309043C700B7B5A4 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				58D99B95309043D400B7B5A4 /* WYStorage+Implementation.swift */,
+			);
+			path = PrivateImpl;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -3350,6 +3372,8 @@
 				B768B9625EDE9F3363234579 /* WYPhotoBrowserTransition.swift in Sources */,
 				F8CDEF0FEB4C2E16D7D25654 /* WYPhotoBrowserMenuView.swift in Sources */,
 				49D5798A0DBD037562F370D2 /* WYPhotoBrowserObjC.swift in Sources */,
+				58D99B96309043D400B7B5A4 /* WYStorage+Implementation.swift in Sources */,
+				58D99B93309043B700B7B5A4 /* WYCryptor+Implementation.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
