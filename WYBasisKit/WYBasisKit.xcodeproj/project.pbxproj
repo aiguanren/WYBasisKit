@@ -304,6 +304,22 @@
 		58D99AB430903E0400B7B5A4 /* WYViewController+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99AB330903E0400B7B5A4 /* WYViewController+Implementation.swift */; };
 		58D99B8C3090430200B7B5A4 /* WYLocationAuthorization+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99B8B3090430200B7B5A4 /* WYLocationAuthorization+Implementation.swift */; };
 		5872465B3088BE120093EC33 /* WYImageEditor+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5872465A3088BE120093EC33 /* WYImageEditor+Implementation.swift */; };
+		58D99AA030903D1600B7B5A4 /* WYView+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99A9F30903D1600B7B5A4 /* WYView+Implementation.swift */; };
+		58D99AA630903D5400B7B5A4 /* WYAttributedString+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99AA530903D5400B7B5A4 /* WYAttributedString+Implementation.swift */; };
+		58D99AA930903D7200B7B5A4 /* WYWebView+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99AA830903D7200B7B5A4 /* WYWebView+Implementation.swift */; };
+		58D99AB730903E2300B7B5A4 /* WYNavigationController+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99AB630903E2300B7B5A4 /* WYNavigationController+Implementation.swift */; };
+		58D99AC530903F0600B7B5A4 /* WYCodable+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99AC430903F0600B7B5A4 /* WYCodable+Implementation.swift */; };
+		58D99B7130903F6200B7B5A4 /* WYRecordAnimationView+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99B7030903F6200B7B5A4 /* WYRecordAnimationView+Implementation.swift */; };
+		58D99B7430903F8200B7B5A4 /* WYChatInputView+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99B7330903F8200B7B5A4 /* WYChatInputView+Implementation.swift */; };
+		58D99B7830903FAF00B7B5A4 /* WYChatEmojiView+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99B7730903FAF00B7B5A4 /* WYChatEmojiView+Implementation.swift */; };
+		58D99B7A30903FD700B7B5A4 /* WYEmojiPreviewView+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99B7930903FD700B7B5A4 /* WYEmojiPreviewView+Implementation.swift */; };
+		58D99B7D30903FF200B7B5A4 /* WYChatMoreView+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99B7C30903FF200B7B5A4 /* WYChatMoreView+Implementation.swift */; };
+		58D99B85309042A100B7B5A4 /* WYNetworkMonitor+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99B84309042A100B7B5A4 /* WYNetworkMonitor+Implementation.swift */; };
+		58D99B89309042D600B7B5A4 /* WYEventHandler+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99B88309042D600B7B5A4 /* WYEventHandler+Implementation.swift */; };
+		58D99B9C3090445D00B7B5A4 /* WYAttributedStringObjC+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99B9B3090445D00B7B5A4 /* WYAttributedStringObjC+Implementation.swift */; };
+		58D99B9F3090447C00B7B5A4 /* WYObjectObjC+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99B9E3090447C00B7B5A4 /* WYObjectObjC+Implementation.swift */; };
+		58D99BA6309044E100B7B5A4 /* WYSoundWavesViewObjC+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99BA5309044E100B7B5A4 /* WYSoundWavesViewObjC+Implementation.swift */; };
+		58D99BA83090450500B7B5A4 /* WYCodableObjC+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99BA73090450500B7B5A4 /* WYCodableObjC+Implementation.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -623,6 +639,22 @@
 		58D99AB330903E0400B7B5A4 /* WYViewController+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYViewController+Implementation.swift"; sourceTree = "<group>"; };
 		58D99B8B3090430200B7B5A4 /* WYLocationAuthorization+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYLocationAuthorization+Implementation.swift"; sourceTree = "<group>"; };
 		5872465A3088BE120093EC33 /* WYImageEditor+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYImageEditor+Implementation.swift"; sourceTree = "<group>"; };
+		58D99A9F30903D1600B7B5A4 /* WYView+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYView+Implementation.swift"; sourceTree = "<group>"; };
+		58D99AA530903D5400B7B5A4 /* WYAttributedString+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYAttributedString+Implementation.swift"; sourceTree = "<group>"; };
+		58D99AA830903D7200B7B5A4 /* WYWebView+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYWebView+Implementation.swift"; sourceTree = "<group>"; };
+		58D99AB630903E2300B7B5A4 /* WYNavigationController+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYNavigationController+Implementation.swift"; sourceTree = "<group>"; };
+		58D99AC430903F0600B7B5A4 /* WYCodable+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYCodable+Implementation.swift"; sourceTree = "<group>"; };
+		58D99B7030903F6200B7B5A4 /* WYRecordAnimationView+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYRecordAnimationView+Implementation.swift"; sourceTree = "<group>"; };
+		58D99B7330903F8200B7B5A4 /* WYChatInputView+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYChatInputView+Implementation.swift"; sourceTree = "<group>"; };
+		58D99B7730903FAF00B7B5A4 /* WYChatEmojiView+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYChatEmojiView+Implementation.swift"; sourceTree = "<group>"; };
+		58D99B7930903FD700B7B5A4 /* WYEmojiPreviewView+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYEmojiPreviewView+Implementation.swift"; sourceTree = "<group>"; };
+		58D99B7C30903FF200B7B5A4 /* WYChatMoreView+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYChatMoreView+Implementation.swift"; sourceTree = "<group>"; };
+		58D99B84309042A100B7B5A4 /* WYNetworkMonitor+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYNetworkMonitor+Implementation.swift"; sourceTree = "<group>"; };
+		58D99B88309042D600B7B5A4 /* WYEventHandler+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYEventHandler+Implementation.swift"; sourceTree = "<group>"; };
+		58D99B9B3090445D00B7B5A4 /* WYAttributedStringObjC+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYAttributedStringObjC+Implementation.swift"; sourceTree = "<group>"; };
+		58D99B9E3090447C00B7B5A4 /* WYObjectObjC+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYObjectObjC+Implementation.swift"; sourceTree = "<group>"; };
+		58D99BA5309044E100B7B5A4 /* WYSoundWavesViewObjC+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYSoundWavesViewObjC+Implementation.swift"; sourceTree = "<group>"; };
+		58D99BA73090450500B7B5A4 /* WYCodableObjC+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYCodableObjC+Implementation.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -654,6 +686,7 @@
 			isa = PBXGroup;
 			children = (
 				7D9BF75B6B7C45429E451E50 /* WYNetworkMonitor.swift */,
+				58D99B833090429400B7B5A4 /* PrivateImpl */,
 			);
 			path = NetworkMonitor;
 			sourceTree = "<group>";
@@ -724,6 +757,7 @@
 				580ED5892EA72632006012E7 /* WYCodableConfig.swift */,
 				580ED58B2EA7263F006012E7 /* WYCodableValueTransformer.swift */,
 				580ED5872EA7261F006012E7 /* WYCodableBridge.swift */,
+				58D99BA73090450500B7B5A4 /* WYCodableObjC+Implementation.swift */,
 			);
 			path = PrivateImpl;
 			sourceTree = "<group>";
@@ -1297,6 +1331,7 @@
 			isa = PBXGroup;
 			children = (
 				588797BC3009F5D500FDDE9C /* WYSoundWavesViewObjC.swift */,
+				58D99BA4309044B700B7B5A4 /* PrivateImpl */,
 			);
 			path = SoundWavesView;
 			sourceTree = "<group>";
@@ -1482,6 +1517,7 @@
 			isa = PBXGroup;
 			children = (
 				58C68C5B2E84E436005FD054 /* WYAttributedStringObjC.swift */,
+				58D99B9A3090444F00B7B5A4 /* PrivateImpl */,
 			);
 			path = AttributedString;
 			sourceTree = "<group>";
@@ -1554,6 +1590,7 @@
 			isa = PBXGroup;
 			children = (
 				58C68C6D2E84E436005FD054 /* WYObjectObjC.swift */,
+				58D99B9D3090447000B7B5A4 /* PrivateImpl */,
 			);
 			path = NSObject;
 			sourceTree = "<group>";
@@ -2141,6 +2178,7 @@
 				58C68CDA2E84E436005FD054 /* WYCodingKeysConverter.swift */,
 				58C68CDB2E84E436005FD054 /* WYDecoder.swift */,
 				58C68CDC2E84E436005FD054 /* WYDecodingStorage.swift */,
+				58D99AC430903F0600B7B5A4 /* WYCodable+Implementation.swift */,
 			);
 			path = PrivateImpl;
 			sourceTree = "<group>";
@@ -2166,6 +2204,7 @@
 			isa = PBXGroup;
 			children = (
 				58C68CE52E84E436005FD054 /* WYEventHandler.swift */,
+				58D99B87309042BE00B7B5A4 /* PrivateImpl */,
 			);
 			path = EventHandler;
 			sourceTree = "<group>";
@@ -2182,6 +2221,7 @@
 			isa = PBXGroup;
 			children = (
 				58C68CE92E84E436005FD054 /* WYAttributedString.swift */,
+				58D99AA430903D4400B7B5A4 /* PrivateImpl */,
 			);
 			path = AttributedString;
 			sourceTree = "<group>";
@@ -2361,6 +2401,7 @@
 			isa = PBXGroup;
 			children = (
 				58C68D172E84E436005FD054 /* WYNavigationController.swift */,
+				58D99AB530903E1200B7B5A4 /* PrivateImpl */,
 			);
 			path = UINavigationController;
 			sourceTree = "<group>";
@@ -2395,6 +2436,7 @@
 			isa = PBXGroup;
 			children = (
 				58C68D1F2E84E436005FD054 /* WYView.swift */,
+				58D99A9E30903D0900B7B5A4 /* PrivateImpl */,
 			);
 			path = UIView;
 			sourceTree = "<group>";
@@ -2412,6 +2454,7 @@
 			isa = PBXGroup;
 			children = (
 				58C68D232E84E436005FD054 /* WYWebView.swift */,
+				58D99AA730903D6300B7B5A4 /* PrivateImpl */,
 			);
 			path = WKWebView;
 			sourceTree = "<group>";
@@ -2497,6 +2540,7 @@
 				5802B28D2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift */,
 				58C68D322E84E436005FD054 /* WYRecordAnimationView.swift */,
 				58B415B82FE2486700C4D1AA /* WYSoundAnimationView.swift */,
+				58D99B6F30903F5300B7B5A4 /* PrivateImpl */,
 			);
 			path = RecordAnimation;
 			sourceTree = "<group>";
@@ -2509,6 +2553,7 @@
 				58C68D372E84E436005FD054 /* WYEmojiHeaderView.swift */,
 				58C68D382E84E436005FD054 /* WYEmojiPreviewView.swift */,
 				58C68D392E84E436005FD054 /* WYEmojiViewCell.swift */,
+				58D99B7630903F9D00B7B5A4 /* PrivateImpl */,
 			);
 			path = Emoji;
 			sourceTree = "<group>";
@@ -2527,6 +2572,7 @@
 			isa = PBXGroup;
 			children = (
 				58C68D3F2E84E436005FD054 /* WYChatInputView.swift */,
+				58D99B7230903F7600B7B5A4 /* PrivateImpl */,
 			);
 			path = Input;
 			sourceTree = "<group>";
@@ -2536,6 +2582,7 @@
 			children = (
 				58C68D412E84E436005FD054 /* WYChatMoreView.swift */,
 				58C68D422E84E436005FD054 /* WYMoreViewCell.swift */,
+				58D99B7B30903FE400B7B5A4 /* PrivateImpl */,
 			);
 			path = More;
 			sourceTree = "<group>";
@@ -3027,6 +3074,111 @@
 			path = PrivateImpl;
 			sourceTree = "<group>";
 		};
+		58D99A9E30903D0900B7B5A4 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				58D99A9F30903D1600B7B5A4 /* WYView+Implementation.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
+		58D99AA430903D4400B7B5A4 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				58D99AA530903D5400B7B5A4 /* WYAttributedString+Implementation.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
+		58D99AA730903D6300B7B5A4 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				58D99AA830903D7200B7B5A4 /* WYWebView+Implementation.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
+		58D99AB530903E1200B7B5A4 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				58D99AB630903E2300B7B5A4 /* WYNavigationController+Implementation.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
+		58D99B6F30903F5300B7B5A4 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				58D99B7030903F6200B7B5A4 /* WYRecordAnimationView+Implementation.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
+		58D99B7230903F7600B7B5A4 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				58D99B7330903F8200B7B5A4 /* WYChatInputView+Implementation.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
+		58D99B7630903F9D00B7B5A4 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				58D99B7730903FAF00B7B5A4 /* WYChatEmojiView+Implementation.swift */,
+				58D99B7930903FD700B7B5A4 /* WYEmojiPreviewView+Implementation.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
+		58D99B7B30903FE400B7B5A4 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				58D99B7C30903FF200B7B5A4 /* WYChatMoreView+Implementation.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
+		58D99B833090429400B7B5A4 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				58D99B84309042A100B7B5A4 /* WYNetworkMonitor+Implementation.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
+		58D99B87309042BE00B7B5A4 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				58D99B88309042D600B7B5A4 /* WYEventHandler+Implementation.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
+		58D99B9A3090444F00B7B5A4 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				58D99B9B3090445D00B7B5A4 /* WYAttributedStringObjC+Implementation.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
+		58D99B9D3090447000B7B5A4 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				58D99B9E3090447C00B7B5A4 /* WYObjectObjC+Implementation.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
+		58D99BA4309044B700B7B5A4 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				58D99BA5309044E100B7B5A4 /* WYSoundWavesViewObjC+Implementation.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -3438,6 +3590,22 @@
 				58D99A9430903C8000B7B5A4 /* WYScrollView+Implementation.swift in Sources */,
 				58D99B8C3090430200B7B5A4 /* WYLocationAuthorization+Implementation.swift in Sources */,
 				5872465B3088BE120093EC33 /* WYImageEditor+Implementation.swift in Sources */,
+				58D99B7D30903FF200B7B5A4 /* WYChatMoreView+Implementation.swift in Sources */,
+				58D99B7A30903FD700B7B5A4 /* WYEmojiPreviewView+Implementation.swift in Sources */,
+				58D99B7130903F6200B7B5A4 /* WYRecordAnimationView+Implementation.swift in Sources */,
+				58D99B7830903FAF00B7B5A4 /* WYChatEmojiView+Implementation.swift in Sources */,
+				58D99B7430903F8200B7B5A4 /* WYChatInputView+Implementation.swift in Sources */,
+				58D99BA6309044E100B7B5A4 /* WYSoundWavesViewObjC+Implementation.swift in Sources */,
+				58D99AA930903D7200B7B5A4 /* WYWebView+Implementation.swift in Sources */,
+				58D99B85309042A100B7B5A4 /* WYNetworkMonitor+Implementation.swift in Sources */,
+				58D99B89309042D600B7B5A4 /* WYEventHandler+Implementation.swift in Sources */,
+				58D99AA630903D5400B7B5A4 /* WYAttributedString+Implementation.swift in Sources */,
+				58D99AB730903E2300B7B5A4 /* WYNavigationController+Implementation.swift in Sources */,
+				58D99AC530903F0600B7B5A4 /* WYCodable+Implementation.swift in Sources */,
+				58D99BA83090450500B7B5A4 /* WYCodableObjC+Implementation.swift in Sources */,
+				58D99B9C3090445D00B7B5A4 /* WYAttributedStringObjC+Implementation.swift in Sources */,
+				58D99AA030903D1600B7B5A4 /* WYView+Implementation.swift in Sources */,
+				58D99B9F3090447C00B7B5A4 /* WYObjectObjC+Implementation.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
