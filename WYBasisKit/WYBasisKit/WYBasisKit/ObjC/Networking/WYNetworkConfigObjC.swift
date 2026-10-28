@@ -430,6 +430,13 @@ import WYBasisKitSwift
     }
     @objc public var serverRequestSuccessCode: String = serverRequestSuccessCode
     
+    /// 允许成功的HTTP状态码(默认200至299)
+    @objc public static var acceptableStatusCodes: IndexSet {
+        get { return WYNetworkConfig.acceptableStatusCodes }
+        set { WYNetworkConfig.acceptableStatusCodes = newValue }
+    }
+    @objc public var acceptableStatusCodes: IndexSet = acceptableStatusCodes
+
     /// 配置网络连接失败code
     @objc public static var networkServerFailCode: String {
         get { return WYNetworkConfig.networkServerFailCode }
@@ -501,7 +508,7 @@ import WYBasisKitSwift
         }
         
         // 创建并返回 Swift 配置
-        return WYNetworkConfig(
+        var convertedConfig = WYNetworkConfig(
             requestStyle: WYNetworkRequestStyle(rawValue: requestStyle.rawValue) ?? .httpOrCAHttps,
             httpsConfig: swiftHttpsConfig,
             taskMethod: WYTaskMethod(rawValue: taskMethod.rawValue) ?? .parameters,
@@ -520,6 +527,8 @@ import WYBasisKitSwift
             unpackServerFailCode: unpackServerFailCode,
             debugModeLog: debugModeLog
         )
+        convertedConfig.acceptableStatusCodes = acceptableStatusCodes
+        return convertedConfig
     }
     
     /// 转换为ObjC类型
@@ -558,6 +567,7 @@ import WYBasisKitSwift
         configValue.mapper = objcMapper
         
         configValue.serverRequestSuccessCode = swiftConfig.serverRequestSuccessCode
+        configValue.acceptableStatusCodes = swiftConfig.acceptableStatusCodes
         configValue.networkServerFailCode = swiftConfig.networkServerFailCode
         configValue.unpackServerFailCode = swiftConfig.unpackServerFailCode
         configValue.debugModeLog = swiftConfig.debugModeLog

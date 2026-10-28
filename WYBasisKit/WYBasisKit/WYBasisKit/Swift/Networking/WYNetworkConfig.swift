@@ -169,6 +169,10 @@ public struct WYNetworkConfig {
     public static var serverRequestSuccessCode: String = "200"
     public var serverRequestSuccessCode: String = serverRequestSuccessCode
     
+    /// 允许成功的HTTP状态码(默认200至299)
+    public static var acceptableStatusCodes: IndexSet = IndexSet(integersIn: 200..<300)
+    public var acceptableStatusCodes: IndexSet = acceptableStatusCodes
+
     /// 配置网络连接失败code
     public static var networkServerFailCode: String = "10002"
     public var networkServerFailCode: String = networkServerFailCode

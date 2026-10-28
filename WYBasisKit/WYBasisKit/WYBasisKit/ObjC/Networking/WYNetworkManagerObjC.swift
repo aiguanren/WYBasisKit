@@ -345,7 +345,7 @@ import WYBasisKitSwift
                 
                 switch fileType {
                 case .image:
-                    _mimeType = "image/jpeg"
+                    return "image/jpeg"
                 case .audio:
                     _mimeType =  "audio/aac"
                 case .video:
@@ -369,7 +369,7 @@ import WYBasisKitSwift
     @objc public var compressionQuality: CGFloat {
         
         set {
-            _compressionQuality = ((newValue > 1.0) || (newValue <= 0.0)) ? 1.0 : newValue
+            _compressionQuality = (!newValue.isFinite || newValue > 1.0 || newValue <= 0.0) ? 1.0 : newValue
         }
         get {
             return _compressionQuality
@@ -384,12 +384,7 @@ import WYBasisKitSwift
         
         willSet {
             
-            if ((data == nil) && (newValue != nil)) {
-                
-                data = newValue!.jpegData(compressionQuality: compressionQuality)
-            }else {
-                fatalError("二进制文件 \(String(describing: data)) 与 图片 \(String(describing: image))只传入其中一项即可")
-            }
+            data = newValue?.jpegData(compressionQuality: compressionQuality)
         }
     }
     
@@ -403,10 +398,10 @@ import WYBasisKitSwift
         self._mimeType = mimeType
         self.fileName = fileName
         self.folderName = folderName
-        self._compressionQuality = compressionQuality
+        self._compressionQuality = (!compressionQuality.isFinite || compressionQuality > 1.0 || compressionQuality <= 0.0) ? 1.0 : compressionQuality
         self.fileType = fileType
         self.image = image
-        self.data = data
+        self.data = data ?? image?.jpegData(compressionQuality: self._compressionQuality)
         self.fileUrl = fileUrl
     }
     

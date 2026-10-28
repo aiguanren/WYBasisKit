@@ -169,12 +169,14 @@ final class WYMediaCacheItem {
     /// 处理下载任务收到的响应头(返回 .allow 继续收数据，返回 .cancel 结束任务，地址不可用或服务器不支持断点续传时同步失败相关请求)
     func handleResponse(_ task: WYMediaCacheDownloadTask, response: URLResponse) -> URLSession.ResponseDisposition {
         guard let httpResponse = response as? HTTPURLResponse else {
+            task.isCancelled = true
             failUnservedRequests(error: WYMediaCacheError.network("服务器响应不是 HTTP 数据"))
             finishFullDownloads(error: WYMediaCacheError.network("服务器响应不是 HTTP 数据"))
             return .cancel
         }
         if httpResponse.statusCode == 206 {
             if applyContentInfo(length: totalLength(from: httpResponse), mimeType: httpResponse.mimeType) == false {
+                task.isCancelled = true
                 failUnservedRequests(error: WYMediaCacheError.contentLengthUnknown)
                 finishFullDownloads(error: WYMediaCacheError.contentLengthUnknown)
                 return .cancel
@@ -188,12 +190,14 @@ final class WYMediaCacheItem {
         if httpResponse.statusCode == 200 {
             // 服务器没按 Range 请求返回，从文件头整段给数据，从中间偏移发起的任务没法服务
             if task.startOffset > 0 {
+                task.isCancelled = true
                 failUnservedRequests(error: WYMediaCacheError.rangeUnsupported)
                 finishFullDownloads(error: WYMediaCacheError.rangeUnsupported)
                 return .cancel
             }
             let length = httpResponse.expectedContentLength
             if applyContentInfo(length: length > 0 ? length : 0, mimeType: httpResponse.mimeType) == false {
+                task.isCancelled = true
                 failUnservedRequests(error: WYMediaCacheError.contentLengthUnknown)
                 finishFullDownloads(error: WYMediaCacheError.contentLengthUnknown)
                 return .cancel
@@ -206,6 +210,7 @@ final class WYMediaCacheItem {
             return .allow
         }
         let message = "服务器返回状态码 \(httpResponse.statusCode)"
+        task.isCancelled = true
         failUnservedRequests(error: WYMediaCacheError.network(message))
         finishFullDownloads(error: WYMediaCacheError.network(message))
         return .cancel
@@ -217,6 +222,7 @@ final class WYMediaCacheItem {
         let offset = task.startOffset + task.receivedBytes
         let range = Range<Int64>(uncheckedBounds: (offset, offset + Int64(data.count)))
         guard writeData(data, at: offset) else {
+            task.isCancelled = true
             failUnservedRequests(error: WYMediaCacheError.fileIO("写入缓存文件失败"))
             finishFullDownloads(error: WYMediaCacheError.fileIO("写入缓存文件失败"))
             cache.cancelSessionTask(task)
@@ -382,6 +388,7 @@ final class WYMediaCacheItem {
         guard index.range(covering: offset) == nil else { return }
         // 断网期间不启动下载任务，等网络恢复后由管理器统一重新收敛
         guard cache.isNetworkOnline else { return }
+        guard cache.isBackgrounded == false else { return }
         for task in downloadTasks where offset >= task.startOffset && offset < task.chunkEnd { return }
         guard downloadTasks.count < cache.config.maxConcurrentDownloadCount else { return }
         guard cache.canStartMoreDownloadTasks() else { return }
