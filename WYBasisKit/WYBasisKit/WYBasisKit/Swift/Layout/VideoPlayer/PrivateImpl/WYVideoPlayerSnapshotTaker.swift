@@ -50,9 +50,12 @@ final class WYVideoPlayerSnapshotTaker: NSObject {
         }
         // 直接按时间点同步拷帧，画面层还没渲染出帧时拷不到返回 nil
         let pixelBuffer = output.copyPixelBuffer(forItemTime: time, itemTimeForDisplay: nil)
-        let image = pixelBuffer.flatMap { image(from: $0) }
-        DispatchQueue.main.async {
-            completion(image)
+        var snapshotImage: UIImage?
+        if let buffer = pixelBuffer {
+            snapshotImage = image(from: buffer)
+        }
+        Task { @MainActor in
+            completion(snapshotImage)
         }
     }
 

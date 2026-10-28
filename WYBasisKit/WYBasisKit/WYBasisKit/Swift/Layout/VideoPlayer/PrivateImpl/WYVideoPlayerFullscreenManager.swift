@@ -8,89 +8,174 @@
 
 import UIKit
 
-/// 全屏管理(把播放器视图从原父视图取出铺满窗口，退出放回原位，跟随设备方向旋转，只被播放器内部使用)
 final class WYVideoPlayerFullscreenManager: NSObject {
 
-    /// 全屏前的父视图
-    private weak var originalSuperview: UIView?
-
-    /// 全屏前的 frame
-    private var originalFrame: CGRect = .zero
-
-    /// 播放器原父视图的 transform(宿主可能给父视图转过方向，记录避免退出后错位)
-    private var originalTransform: CGAffineTransform = .identity
-
-    /// 是否正处于全屏
     private(set) var isFullscreen = false
 
-    /**
-     *  进入全屏
-     *
-     *  @param player       播放器
-     *  @param animated     是否带转场动画
-     *
-     */
+    private weak var originalSuperview: UIView?
+    private var originalFrame: CGRect = .zero
+    private var originalIndex = 0
+    private var originalTranslatesAutoresizingMask = true
+    private var originalAutoresizingMask: UIView.AutoresizingMask = []
+    private var originalOrientation: UIInterfaceOrientationMask = .portrait
+    private var originalInterfaceOrientation: UIInterfaceOrientation = .portrait
+    private var savedConstraints: [NSLayoutConstraint] = []
+    private var isTransitioning = false
+    private var exitRequested = false
+    private var transitionTimeoutTask: DispatchWorkItem?
+    private var transitionCover: UIView?
+    private var fullscreenController: WYVideoPlayerFullscreenController?
+
     func enterFullscreen(player: WYVideoPlayer, animated: Bool) {
-        guard isFullscreen == false else { return }
-        isFullscreen = true
-        originalSuperview = player.superview
+        guard !isFullscreen, !isTransitioning, let parent = player.superview,
+              let window = player.window, var presenter = window.rootViewController else { return }
+        while let presented = presenter.presentedViewController {
+            presenter = presented
+        }
+        guard !presenter.isBeingDismissed, !presenter.isBeingPresented else { return }
+        originalSuperview = parent
         originalFrame = player.frame
-        originalTransform = player.superview?.transform ?? .identity
-        // 点播全屏取横屏方向，设备不支持横屏时退回竖屏铺满
-        let interfaceOrientation = UIInterfaceOrientation.landscapeRight
-        let window = WYVideoPlayerFullscreenManager.hostWindow()
-        let bounds = window?.bounds ?? UIScreen.main.bounds
+        originalIndex = parent.subviews.firstIndex(of: player) ?? 0
+        originalTranslatesAutoresizingMask = player.translatesAutoresizingMaskIntoConstraints
+        originalAutoresizingMask = player.autoresizingMask
+        originalOrientation = UIDevice.wy_setInterfaceOrientation
+        originalInterfaceOrientation = window.windowScene?.interfaceOrientation ?? .portrait
+        var ancestor: UIView? = parent
+        while let view = ancestor {
+            savedConstraints += view.constraints.filter {
+                ($0.firstItem as? UIView) === player || ($0.secondItem as? UIView) === player
+            }
+            ancestor = view.superview
+        }
+        savedConstraints += player.constraints.filter {
+            ($0.firstItem as? UIView) === player &&
+            ($0.secondItem == nil || ($0.secondItem as? UIView) === player)
+        }
+        transitionCover = player.snapshotView(afterScreenUpdates: false) ?? UIView(frame: player.frame)
+        if let cover = transitionCover {
+            cover.frame = player.frame
+            cover.autoresizingMask = originalAutoresizingMask
+            parent.insertSubview(cover, aboveSubview: player)
+        }
+        isTransitioning = true
+        NSLayoutConstraint.deactivate(savedConstraints)
+        let controller = WYVideoPlayerFullscreenController()
+        controller.supportedOrientations = UIInterfaceOrientationMask(rawValue: 1 << originalInterfaceOrientation.rawValue)
+        controller.modalPresentationStyle = .fullScreen
+        controller.modalTransitionStyle = player.configuration.fullscreenTransitionStyle
+        controller.loadViewIfNeeded()
         player.removeFromSuperview()
-        window?.addSubview(player)
-        let rotatedSize = CGSize(width: max(bounds.width, bounds.height), height: min(bounds.width, bounds.height))
-        setPlayerOrientation(player, interfaceOrientation: interfaceOrientation)
-        player.bounds.origin = .zero
-        player.frame = CGRect(origin: .zero, size: rotatedSize)
-        if animated {
-            player.alpha = 0.2
-            UIView.animate(withDuration: 0.25) {
-                player.alpha = 1
+        player.setContentRotation(0, contentSize: controller.view.bounds.size)
+        player.transform = .identity
+        player.translatesAutoresizingMaskIntoConstraints = true
+        player.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        controller.view.addSubview(player)
+        player.frame = controller.view.bounds
+        controller.onLayout = { [weak player, weak controller] in
+            guard let player = player, let controller = controller else { return }
+            UIView.performWithoutAnimation {
+                player.frame = controller.view.bounds
+                player.setNeedsLayout()
+                player.layoutIfNeeded()
+            }
+        }
+        fullscreenController = controller
+        isFullscreen = true
+        presenter.present(controller, animated: animated && originalInterfaceOrientation.isLandscape) { [self, player, controller] in
+            controller.supportedOrientations = .landscape
+            let finish = { [weak self, weak player, weak controller] in
+                guard let self = self, let player = player, let controller = controller,
+                      self.fullscreenController === controller, self.isFullscreen else { return }
+                controller.onRotationCompleted = nil
+                self.cancelTransitionTimeout()
+                self.isTransitioning = false
+                if self.exitRequested {
+                    self.exitRequested = false
+                    player.exitFullscreen()
+                }
+            }
+            controller.onRotationCompleted = finish
+            scheduleTransitionTimeout(player: player, controller: controller, completion: finish)
+            let target: UIInterfaceOrientationMask = originalInterfaceOrientation == .landscapeLeft ? .landscapeLeft : .landscapeRight
+            UIDevice.wy_setInterfaceOrientation = target
+            if controller.view.bounds.width > controller.view.bounds.height {
+                finish()
             }
         }
     }
 
-    /**
-     *  退出全屏
-     *
-     *  @param player       播放器
-     *  @param animated     是否带转场动画
-     *
-     */
     func exitFullscreen(player: WYVideoPlayer, animated: Bool) {
-        guard isFullscreen else { return }
+        guard isFullscreen, let controller = fullscreenController else { return }
+        if isTransitioning {
+            exitRequested = true
+            return
+        }
+        exitRequested = false
+        isTransitioning = true
         isFullscreen = false
-        setPlayerOrientation(player, interfaceOrientation: .portrait)
-        player.removeFromSuperview()
-        let superview = originalSuperview
-        if let superview = superview {
-            superview.transform = originalTransform
-            player.frame = originalFrame
-            superview.addSubview(player)
+        let target = UIInterfaceOrientationMask(rawValue: 1 << originalInterfaceOrientation.rawValue)
+        let needsRotation = controller.view.window?.windowScene?.interfaceOrientation != originalInterfaceOrientation
+        var restoreStarted = false
+        let restore = { [self] in
+            guard !restoreStarted else { return }
+            restoreStarted = true
+            cancelTransitionTimeout()
+            controller.onRotationCompleted = nil
+            controller.dismiss(animated: animated && !needsRotation) {
+                controller.onLayout = nil
+                UIView.performWithoutAnimation {
+                    player.removeFromSuperview()
+                    player.transform = .identity
+                    player.translatesAutoresizingMaskIntoConstraints = self.originalTranslatesAutoresizingMask
+                    player.autoresizingMask = self.originalAutoresizingMask
+                    if let parent = self.originalSuperview {
+                        parent.insertSubview(player, at: min(self.originalIndex, parent.subviews.count))
+                        if let cover = self.transitionCover, cover.superview === parent {
+                            player.frame = cover.frame
+                        } else {
+                            player.frame = self.originalFrame
+                        }
+                        NSLayoutConstraint.activate(self.savedConstraints)
+                        parent.layoutIfNeeded()
+                    }
+                    self.transitionCover?.removeFromSuperview()
+                    self.transitionCover = nil
+                    self.savedConstraints.removeAll()
+                    self.originalSuperview = nil
+                    self.fullscreenController = nil
+                    if UIDevice.wy_setInterfaceOrientation != self.originalOrientation {
+                        UIDevice.wy_setInterfaceOrientation = self.originalOrientation
+                    }
+                }
+                self.isTransitioning = false
+            }
         }
-        originalSuperview = nil
+        controller.supportedOrientations = target
+        controller.onRotationCompleted = restore
+        scheduleTransitionTimeout(player: player, controller: controller, completion: restore)
+        UIDevice.wy_setInterfaceOrientation = target
+        let orientation = controller.view.window?.windowScene?.interfaceOrientation
+        let alreadyRestored = orientation.map { target.contains(UIInterfaceOrientationMask(rawValue: 1 << $0.rawValue)) } ?? true
+        if alreadyRestored {
+            controller.onRotationCompleted = nil
+            restore()
+        }
     }
 
-    /// 给播放器设置方向(transform 旋转，不依赖工程声明支持的方向)
-    private func setPlayerOrientation(_ player: WYVideoPlayer, interfaceOrientation: UIInterfaceOrientation) {
-        switch interfaceOrientation {
-        case .landscapeLeft:
-            player.transform = CGAffineTransform(rotationAngle: -.pi / 2)
-        case .landscapeRight:
-            player.transform = CGAffineTransform(rotationAngle: .pi / 2)
-        default:
-            player.transform = .identity
+    private func scheduleTransitionTimeout(player: WYVideoPlayer, controller: WYVideoPlayerFullscreenController, completion: @escaping () -> Void) {
+        cancelTransitionTimeout()
+        let interval = player.configuration.fullscreenTransitionTimeout
+        let task = DispatchWorkItem { [weak self, weak controller] in
+            guard let self = self, let controller = controller,
+                  self.fullscreenController === controller, self.isTransitioning else { return }
+            completion()
         }
+        transitionTimeoutTask = task
+        DispatchQueue.main.asyncAfter(deadline: .now() + (interval.isFinite ? max(0, interval) : 0), execute: task)
     }
 
-    /// 找承载全屏的窗口
-    private static func hostWindow() -> UIWindow? {
-        let sceneWindows = UIApplication.shared.connectedScenes.compactMap { ($0 as? UIWindowScene)?.keyWindow }
-        let fallbackWindows = UIApplication.shared.connectedScenes.compactMap { ($0 as? UIWindowScene)?.windows.first }
-        return sceneWindows.first ?? fallbackWindows.first
+    private func cancelTransitionTimeout() {
+        transitionTimeoutTask?.cancel()
+        transitionTimeoutTask = nil
     }
 }

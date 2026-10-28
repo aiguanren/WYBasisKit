@@ -37,6 +37,21 @@ final class WYVideoPlayerProgressView: UIView {
         didSet { thumbView.backgroundColor = thumbColor }
     }
 
+    /// 轨道粗细
+    var trackBarHeight: CGFloat = UIDevice.wy_screenHeight(3, WYBasisKitConfig.defaultScreenPixels) {
+        didSet { relayoutLayers() }
+    }
+
+    /// 滑块边长
+    var thumbNormalSize: CGFloat = UIDevice.wy_screenWidth(14, WYBasisKitConfig.defaultScreenPixels) {
+        didSet { relayoutLayers() }
+    }
+
+    /// 滑块拖动中的边长
+    var thumbDraggingSize: CGFloat = UIDevice.wy_screenWidth(16, WYBasisKitConfig.defaultScreenPixels) {
+        didSet { relayoutLayers() }
+    }
+
     /// 当前播放进度 0~1(拖动中不跟随外部刷新)
     var progress: CGFloat = 0 {
         didSet { if isDragging == false { relayoutLayers() } }
@@ -71,7 +86,7 @@ final class WYVideoPlayerProgressView: UIView {
         layer.addSublayer(bufferLayer)
         layer.addSublayer(playLayer)
         thumbView.backgroundColor = .white
-        thumbView.layer.cornerRadius = UIDevice.wy_screenWidth(7, WYBasisKitConfig.defaultScreenPixels)
+        thumbView.layer.cornerRadius = thumbNormalSize / 2
         addSubview(thumbView)
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
         addGestureRecognizer(panGesture)
@@ -88,12 +103,12 @@ final class WYVideoPlayerProgressView: UIView {
 
     /// 按当前进度排布各层
     private func relayoutLayers() {
-        let barHeight: CGFloat = UIDevice.wy_screenHeight(3, WYBasisKitConfig.defaultScreenPixels)
+        let barHeight = trackBarHeight
         let y = (bounds.height - barHeight) / 2
         trackLayer.frame = CGRect(x: 0, y: y, width: bounds.width, height: barHeight)
         bufferLayer.frame = CGRect(x: 0, y: y, width: bounds.width * bufferProgress, height: barHeight)
         playLayer.frame = CGRect(x: 0, y: y, width: bounds.width * progress, height: barHeight)
-        let thumbSize: CGFloat = isDragging ? UIDevice.wy_screenWidth(16, WYBasisKitConfig.defaultScreenPixels) : UIDevice.wy_screenWidth(14, WYBasisKitConfig.defaultScreenPixels)
+        let thumbSize: CGFloat = isDragging ? thumbDraggingSize : thumbNormalSize
         let thumbX = bounds.width * progress - thumbSize / 2
         thumbView.frame = CGRect(x: max(0, min(bounds.width - thumbSize, thumbX)), y: bounds.height / 2 - thumbSize / 2, width: thumbSize, height: thumbSize)
         thumbView.layer.cornerRadius = thumbSize / 2
@@ -130,6 +145,12 @@ final class WYVideoPlayerProgressView: UIView {
 /// 控制壳的选择菜单面板(倍速、清晰度、字幕共用的单列选项浮层，只被默认壳使用)
 final class WYVideoPlayerMenuPanel: UIView {
 
+    weak var anchorView: UIView?
+    var optionHorizontalInset: CGFloat = 0
+    var checkmarkSize: CGFloat = 0
+    var selectedBackgroundColor: UIColor = .clear
+    var textAlignment: NSTextAlignment = .left
+
     /// 选中某项回调，参数为下标
     var onSelect: ((Int) -> Void)?
 
@@ -147,6 +168,26 @@ final class WYVideoPlayerMenuPanel: UIView {
     /// 未选中项颜色
     var normalColor: UIColor = .white
 
+    /// 面板圆角半径
+    var panelCornerRadius: CGFloat = UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels) {
+        didSet { tableView.layer.cornerRadius = panelCornerRadius }
+    }
+
+    /// 面板宽度
+    var panelItemWidth: CGFloat = UIDevice.wy_screenWidth(136, WYBasisKitConfig.defaultScreenPixels) {
+        didSet { setNeedsLayout() }
+    }
+
+    /// 行高
+    var itemRowHeight: CGFloat = UIDevice.wy_screenHeight(40, WYBasisKitConfig.defaultScreenPixels) {
+        didSet { setNeedsLayout() }
+    }
+
+    /// 条目文字字号
+    var itemFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(13, WYBasisKitConfig.defaultScreenPixels)) {
+        didSet { tableView.reloadData() }
+    }
+
     /// 全部选项
     private var options: [String] = []
 
@@ -162,7 +203,7 @@ final class WYVideoPlayerMenuPanel: UIView {
     init() {
         super.init(frame: .zero)
         tableView.backgroundColor = panelBackgroundColor
-        tableView.layer.cornerRadius = UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
+        tableView.layer.cornerRadius = panelCornerRadius
         tableView.separatorStyle = .none
         tableView.dataSource = self
         tableView.delegate = self
@@ -179,9 +220,18 @@ final class WYVideoPlayerMenuPanel: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         dimmingView.frame = bounds
-        let rowHeight: CGFloat = UIDevice.wy_screenHeight(40, WYBasisKitConfig.defaultScreenPixels)
-        let panelHeight = min(bounds.height - UIDevice.wy_screenHeight(24, WYBasisKitConfig.defaultScreenPixels), CGFloat(options.count) * rowHeight + UIDevice.wy_screenHeight(8, WYBasisKitConfig.defaultScreenPixels))
-        tableView.frame = CGRect(x: bounds.width - UIDevice.wy_screenWidth(148, WYBasisKitConfig.defaultScreenPixels), y: UIDevice.wy_screenHeight(12, WYBasisKitConfig.defaultScreenPixels), width: UIDevice.wy_screenWidth(136, WYBasisKitConfig.defaultScreenPixels), height: panelHeight)
+        let margin = UIDevice.wy_screenWidth(12, WYBasisKitConfig.defaultScreenPixels)
+        let available = bounds.inset(by: safeAreaInsets).insetBy(dx: margin, dy: margin)
+        let anchor = anchorView.map { $0.convert($0.bounds, to: self) }
+        let above = max(0, (anchor?.minY ?? available.maxY) - margin - available.minY)
+        let below = max(0, available.maxY - (anchor?.maxY ?? available.minY) - margin)
+        let useAbove = above >= below
+        let panelHeight = max(0, min(useAbove ? above : below, CGFloat(options.count) * itemRowHeight))
+        let y = useAbove ? (anchor?.minY ?? available.maxY) - margin - panelHeight : (anchor?.maxY ?? available.minY) + margin
+        let width = max(0, min(panelItemWidth, available.width))
+        let centerX = anchor?.midX ?? available.maxX - width / 2
+        let x = max(available.minX, min(centerX - width / 2, available.maxX - width))
+        tableView.frame = CGRect(x: x, y: max(available.minY, y), width: width, height: panelHeight)
     }
 
     /**
@@ -219,19 +269,24 @@ extension WYVideoPlayerMenuPanel: UITableViewDataSource, UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        cell.backgroundColor = .clear
+        let selected = indexPath.row == selectedIndex
+        cell.backgroundColor = selected ? selectedBackgroundColor : .clear
         cell.selectionStyle = .none
         cell.textLabel?.text = options[indexPath.row]
-        cell.textLabel?.textAlignment = .center
-        cell.textLabel?.font = .systemFont(ofSize: UIFont.wy_fontSize(13, WYBasisKitConfig.defaultScreenPixels))
-        cell.textLabel?.textColor = (indexPath.row == selectedIndex) ? selectedColor : normalColor
-        cell.accessoryType = (indexPath.row == selectedIndex) ? .checkmark : .none
-        cell.tintColor = selectedColor
+        cell.textLabel?.font = itemFont
+        cell.textLabel?.textColor = selected ? selectedColor : normalColor
+        cell.textLabel?.textAlignment = textAlignment
+        cell.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 0, leading: optionHorizontalInset, bottom: 0, trailing: optionHorizontalInset)
+        let checkmark = UIImageView(image: UIImage(systemName: "checkmark"))
+        checkmark.frame.size = CGSize(width: checkmarkSize, height: checkmarkSize)
+        checkmark.tintColor = selectedColor
+        checkmark.alpha = selected ? 1 : 0
+        cell.accessoryView = checkmark
         return cell
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 40
+        return itemRowHeight
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

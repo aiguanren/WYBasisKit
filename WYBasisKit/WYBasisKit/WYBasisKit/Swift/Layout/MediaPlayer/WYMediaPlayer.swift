@@ -828,7 +828,6 @@ public class WYMediaPlayer: UIImageView {
         guard let player = ijkPlayer else {
             return
         }
-        player.stop()
 
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name.IJKPlayerDidFinish, object: ijkPlayer)
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name.IJKPlayerPlaybackStateDidChange, object: ijkPlayer)
@@ -852,6 +851,8 @@ public class WYMediaPlayer: UIImageView {
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name(IJKPlayerSelectingStreamDidFailed), object: ijkPlayer)
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name.IJKPlayerBufferingDidChange, object: ijkPlayer)
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name.IJKPlayerIsAirPlayVideoActiveDidChange, object: ijkPlayer)
+
+        player.stop()
 
         // 安全地移除视图
         if let playerView = self.ijkPlayer?.view, playerView.superview != nil {

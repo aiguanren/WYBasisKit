@@ -48,6 +48,7 @@ final class WYVideoPlayerGestureController: NSObject, UIGestureRecognizerDelegat
         super.init()
         tapGesture.addTarget(self, action: #selector(handleTap(_:)))
         doubleTapGesture.addTarget(self, action: #selector(handleDoubleTap(_:)))
+        doubleTapGesture.numberOfTapsRequired = 2
         panGesture.addTarget(self, action: #selector(handlePan(_:)))
         panGesture.maximumNumberOfTouches = 1
         longPressGesture.addTarget(self, action: #selector(handleLongPress(_:)))
@@ -70,32 +71,53 @@ final class WYVideoPlayerGestureController: NSObject, UIGestureRecognizerDelegat
         player.addSubview(volumeView)
     }
 
+    /// 把全屏旋转坐标换算回竖屏手势语义坐标(横屏内容的上下左右与竖屏是转置关系)
+    private func semanticLocation(_ point: CGPoint, in player: WYVideoPlayer) -> CGPoint {
+        guard player.contentRotationAngle != 0 else { return point }
+        let bounds = player.bounds
+        return CGPoint(x: player.contentRotationAngle > 0 ? point.y : bounds.height - point.y,
+                       y: player.contentRotationAngle > 0 ? bounds.width - point.x : point.x)
+    }
+
     /// 手势是否允许响应(壳菜单打开时不抢手势)
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         guard let player = player else { return false }
         let location = touch.location(in: player)
         // 落在壳的可点控件上不接管(按钮滑条自己响应)
-        if player.hitTest(location, with: nil) is UIControl {
+        var hitView = player.hitTest(location, with: nil)
+        while let view = hitView, view !== player {
+            if view is UIControl || view is UITableView || (view as? UIScrollView)?.isScrollEnabled == true { return false }
+            hitView = view.superview
+        }
+        return true
+    }
+
+    /// 手势互斥策略(自身四类手势保持互斥；外部单击类手势如键盘管理挂在窗口上的点按允许并存，避免播放器单击被挤掉；外部滑动类手势如导航侧滑返回保持互斥，防止拖进度时页面被侧滑退)
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        let ownGestures: [UIGestureRecognizer] = [tapGesture, doubleTapGesture, panGesture, longPressGesture]
+        if ownGestures.contains(gestureRecognizer) && ownGestures.contains(otherGestureRecognizer) {
+            return false
+        }
+        if otherGestureRecognizer is UIPanGestureRecognizer || otherGestureRecognizer is UIScreenEdgePanGestureRecognizer {
             return false
         }
         return true
     }
 
-    /// 双击与长按不与拖动互斥，滑动中不再响应点按
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        return false
-    }
-
     /// 单击切换壳显隐
     @objc private func handleTap(_ gesture: UITapGestureRecognizer) {
-        guard let player = player, player.configuration.allowsTapGesture else { return }
+        guard let player = player, player.configuration.allowsTapGesture else {
+            return
+        }
         player.toggleShellVisibility()
         player.delegate?.wy_videoPlayerDidSingleTap?(player)
     }
 
     /// 双击切换播放暂停
     @objc private func handleDoubleTap(_ gesture: UITapGestureRecognizer) {
-        guard let player = player, player.configuration.allowsDoubleTapGesture else { return }
+        guard let player = player, player.configuration.allowsDoubleTapGesture else {
+            return
+        }
         if player.state == .playing {
             player.pause()
         }else {
@@ -109,7 +131,7 @@ final class WYVideoPlayerGestureController: NSObject, UIGestureRecognizerDelegat
         guard let player = player else { return }
         let configuration = player.configuration
         let translation = gesture.translation(in: player)
-        let location = gesture.location(in: player)
+        let location = semanticLocation(gesture.location(in: player), in: player)
         switch gesture.state {
         case .began:
             panDirection = 0
@@ -122,13 +144,13 @@ final class WYVideoPlayerGestureController: NSObject, UIGestureRecognizerDelegat
                 }else if abs(translation.y) > abs(translation.x) + 8 {
                     guard configuration.allowsVolumeBrightnessPanGesture else { return }
                     panDirection = (location.x < player.bounds.midX) ? 2 : 3
-                    panBaseValue = (panDirection == 2) ? currentSystemVolume() : UIScreen.main.brightness
+                    panBaseValue = (panDirection == 2) ? currentSystemVolume() : (player.window?.windowScene?.screen ?? UIScreen.main).brightness
                     player.pauseShellAutoHide()
                 }
             }
             switch panDirection {
             case 1:
-                let delta = TimeInterval(translation.x / max(configuration.seekPanSensitivity, 0.1))
+                let delta = seekDelta(translation.x, player: player)
                 let target = max(0, min(player.duration, seekBaseTime + delta))
                 player.showSeekPreview(targetTime: target, delta: target - player.playbackTime)
             case 2:
@@ -137,7 +159,7 @@ final class WYVideoPlayerGestureController: NSObject, UIGestureRecognizerDelegat
                 player.showPanIndicator(isVolume: true, value: Float(value))
             case 3:
                 let value = max(0, min(1, panBaseValue - translation.y / (player.bounds.height / 2)))
-                UIScreen.main.brightness = value
+                (player.window?.windowScene?.screen ?? UIScreen.main).brightness = value
                 player.showPanIndicator(isVolume: false, value: Float(value))
             default:
                 break
@@ -145,11 +167,13 @@ final class WYVideoPlayerGestureController: NSObject, UIGestureRecognizerDelegat
         case .ended, .cancelled, .failed:
             switch panDirection {
             case 1:
-                let delta = TimeInterval(translation.x / max(configuration.seekPanSensitivity, 0.1))
+                let delta = seekDelta(translation.x, player: player)
                 let target = max(0, min(player.duration, seekBaseTime + delta))
                 player.hideSeekPreview()
-                player.seek(to: target, accurate: false)
-                player.delegate?.wy_videoPlayer?(player, seekPanDidEndWithTargetTime: target)
+                if gesture.state == .ended {
+                    player.seek(to: target, accurate: false)
+                    player.delegate?.wy_videoPlayer?(player, seekPanDidEndWithTargetTime: target)
+                }
             case 2, 3:
                 player.hidePanIndicator()
                 player.resumeShellAutoHide()
@@ -160,6 +184,16 @@ final class WYVideoPlayerGestureController: NSObject, UIGestureRecognizerDelegat
         default:
             break
         }
+    }
+
+    /// 按视频时长和画面宽度换算横滑秒数
+    private func seekDelta(_ translation: CGFloat, player: WYVideoPlayer) -> TimeInterval {
+        guard player.duration.isFinite, player.duration > 0 else { return 0 }
+        let config = player.configuration
+        let minimum = max(0, config.seekPanMinimumSeconds)
+        let maximum = max(minimum, config.seekPanMaximumSeconds)
+        let span = min(maximum, max(minimum, player.duration * TimeInterval(max(0, config.seekPanDurationRatio))))
+        return TimeInterval(translation / max(player.bounds.width, 1) * max(player.configuration.seekPanSensitivity, 0.1)) * span
     }
 
     /// 长按临时倍速(松手回原速)

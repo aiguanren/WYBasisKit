@@ -144,10 +144,11 @@ extension WYMediaPlayer {
 
         options?.currentPlaybackTimeNotificationInterval = progressCallbackInterval
 
+        let content = playUrl.isFileURL ? playUrl.path : playUrl.absoluteString
         if let videoRendering = videoRendering {
-            ijkPlayer = IJKPlayer(content: playUrl.absoluteString, options: options, videoRendering: videoRendering, audioRendering: audioRendering)
+            ijkPlayer = IJKPlayer(content: content, options: options, videoRendering: videoRendering, audioRendering: audioRendering)
         }else {
-            ijkPlayer = IJKPlayer(content: playUrl.absoluteString, options: options)
+            ijkPlayer = IJKPlayer(content: content, options: options)
         }
         if let audioSamplesCallback = audioSamplesCallback {
             ijkPlayer?.audioSamplesCallback = audioSamplesCallback

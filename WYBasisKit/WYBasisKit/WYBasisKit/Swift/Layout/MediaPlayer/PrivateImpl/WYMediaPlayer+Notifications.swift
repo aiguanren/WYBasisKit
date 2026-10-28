@@ -14,6 +14,12 @@ import IJKPlayerKit
 
 /// WYMediaPlayer 私有实现，状态与通知处理(状态去重后回调调用方、底层通知转发成代理回调、URL打开事件中转)
 extension WYMediaPlayer {
+    /// 结束时是否真正播到了结尾(须真正起播过且时长已知、播放位置贴近总时长，时长未知的直播流与缓冲期断流一律不算，按播放出错重试处理)
+    var isPlayedToEnd: Bool {
+        guard let player = ijkPlayer, hasReallyPlayed, player.duration > 0 else { return false }
+        return player.currentPlaybackTime >= player.duration - 2
+    }
+
     /// 状态去重后回调代理(与上次相同的状态不重复通知)
     func callback(with currentState: WYMediaPlayerState) {
         guard currentState != state else {
@@ -48,7 +54,10 @@ extension WYMediaPlayer {
     /// 播放完成通知，按结束原因分流(播放完毕回调ended、用户退出回调userExited、播放出错回调error并自动重试)
     @objc func ijkPlayerDidFinished(notification: Notification) {
 
-        if let reason: IJKFinishReason = notification.userInfo?[IJKPlayerDidFinishReasonUserInfoKey] as? IJKFinishReason {
+        if var reason: IJKFinishReason = notification.userInfo?[IJKPlayerDidFinishReasonUserInfoKey] as? IJKFinishReason {
+            if reason == .playbackEnded, isPlayedToEnd == false {
+                reason = .playbackError
+            }
             switch reason {
             case .playbackEnded:
                 callback(with: .ended)
@@ -90,7 +99,9 @@ extension WYMediaPlayer {
         case .seekingBackward:
             callback(with: .seekingBackward)
         case .stopped:
-            callback(with: .ended)
+            if isPlayedToEnd {
+                callback(with: .ended)
+            }
         default:
             break
         }

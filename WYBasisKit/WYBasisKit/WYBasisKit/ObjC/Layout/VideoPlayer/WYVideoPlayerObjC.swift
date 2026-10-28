@@ -209,7 +209,8 @@ import WYBasisKitSwift
     /// 播放配置(实例级，外观与开关全量可配，属性转调播放器持有的同一份配置实例)
     @objc(configuration)
     var configurationObjC: WYVideoPlayerConfigObjC {
-        return WYVideoPlayerConfigObjC(configuration: configuration)
+        get { return WYVideoPlayerConfigObjC(configuration: configuration) }
+        set { configuration = newValue.configuration }
     }
 
     /// 播放代理
@@ -237,6 +238,52 @@ import WYBasisKitSwift
     var isFullscreenObjC: Bool {
         return isFullscreen
     }
+
+    /// 当前是否可以启动画中画
+    @objc(isPictureInPicturePossible)
+    var isPictureInPicturePossibleObjC: Bool {
+        return isPictureInPicturePossible
+    }
+
+    /// 当前是否正在画中画播放
+    @objc(isPictureInPictureActive)
+    var isPictureInPictureActiveObjC: Bool {
+        return isPictureInPictureActive
+    }
+
+    /// 是否只播放音频，默认 false
+    @objc(isAudioOnly)
+    var isAudioOnlyObjC: Bool {
+        get { return isAudioOnly }
+        set { isAudioOnly = newValue }
+    }
+
+    /// 是否允许后台继续播放，宿主需声明 audio 后台模式，默认 false
+    @objc(isBackgroundPlaybackEnabled)
+    var isBackgroundPlaybackEnabledObjC: Bool {
+        get { return isBackgroundPlaybackEnabled }
+        set { isBackgroundPlaybackEnabled = newValue }
+    }
+
+    /// 定时关闭的剩余秒数，没有倒计时时返回 0
+    @objc(sleepTimerRemaining)
+    var sleepTimerRemainingObjC: TimeInterval { return sleepTimerRemaining }
+
+    /// 是否将在本集结束时暂停
+    @objc(sleepsAtVideoEnd)
+    var sleepsAtVideoEndObjC: Bool { return sleepsAtVideoEnd }
+
+    /// 是否正在下载当前视频
+    @objc(isDownloading)
+    var isDownloadingObjC: Bool { return isDownloading }
+
+    /// 当前下载进度，范围为 0...1
+    @objc(downloadProgress)
+    var downloadProgressObjC: Double { return downloadProgress }
+
+    /// 当前清晰度的完整离线地址，尚未下载完成时返回 nil
+    @objc(offlineFileURL)
+    var offlineFileURLObjC: URL? { return offlineFileURL }
 
     /// 当前倍速(设置即时生效)
     @objc(rate)
@@ -373,6 +420,19 @@ import WYBasisKitSwift
         sendDanmaku(text, type: type)
     }
 
+    /**
+     *  发带头像的弹幕到内置弹幕视图(内置弹幕开启时有效)
+     *
+     *  @param text     弹幕文字
+     *  @param type     弹幕类型
+     *  @param avatar   头像图片(弹幕配置关闭头像显示时传了也不显示)
+     *
+     */
+    @objc(sendDanmaku:type:avatar:)
+    func sendDanmakuAvatarObjC(_ text: String, type: WYDanmakuType, avatar: UIImage?) {
+        sendDanmaku(text, type: type, avatar: avatar)
+    }
+
     /// 开始画中画(系统不支持或画面未就绪时无动作)
     @objc(startPictureInPicture)
     func startPictureInPictureObjC() {
@@ -407,5 +467,41 @@ import WYBasisKitSwift
     func snapshotObjC(completion: ((_ image: UIImage?) -> Void)?) {
         snapshot(completion: completion)
     }
+    /**
+     *  设置定时关闭，计时结束后暂停播放
+     *
+     *  @param interval 等待秒数，非正数或非有限值取消定时关闭
+     */
+    @objc(setSleepTimerAfter:)
+    func setSleepTimerObjC(after interval: TimeInterval) {
+        setSleepTimer(after: interval)
+    }
+
+    /// 设置本集结束后暂停并取消已有倒计时
+    @objc(sleepAtVideoEnd)
+    func sleepAtVideoEndObjC() {
+        sleepAtVideoEnd()
+    }
+
+    /**
+     *  下载当前清晰度的点播视频供离线播放
+     *
+     *  @param completion 下载结束回调，参数依次为完整离线地址和错误，主线程回调
+     */
+    @objc(downloadCurrentVideoWithCompletion:)
+    func downloadCurrentVideoObjC(completion: ((_ url: URL?, _ error: Error?) -> Void)?) {
+        downloadCurrentVideo(completion: completion)
+    }
+
+    /// 取消当前视频下载
+    @objc(cancelVideoDownload)
+    func cancelVideoDownloadObjC() {
+        cancelVideoDownload()
+    }
+
+    /// 显示可配置的更多播放功能面板
+    @objc(showMoreControls)
+    func showMoreControlsObjC() { showMoreControls() }
+
 }
 #endif

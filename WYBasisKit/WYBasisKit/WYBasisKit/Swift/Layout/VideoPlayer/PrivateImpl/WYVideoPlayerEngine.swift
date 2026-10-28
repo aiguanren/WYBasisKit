@@ -28,6 +28,9 @@ final class WYVideoPlayerEngine: NSObject {
     /// 周期进度监听
     private var timeObserver: Any?
 
+    /// 已应用的进度回调间隔
+    private var appliedProgressInterval: TimeInterval?
+
     /// 通知监听者
     private var notificationObservers: [NSObjectProtocol] = []
 
@@ -37,11 +40,14 @@ final class WYVideoPlayerEngine: NSObject {
     /// 音频打断前是否在播(打断结束按它决定要不要续)
     private var wasPlayingBeforeInterruption = false
 
+    /// 加载与缓冲超时任务
+    private var loadingTimeoutWorkItem: DispatchWorkItem?
+
     /// 条目 ready 前进来的 seek 请求(条目好了补执行)
     private var pendingSeekTime: TimeInterval?
 
     /// 条目 ready 前是否要开播
-    private var pendingAutoplay = false
+    private var pendingAutoplay: Bool?
 
     init(playerHolder: WYVideoPlayer?) {
         self.player = playerHolder
@@ -61,25 +67,40 @@ final class WYVideoPlayerEngine: NSObject {
         itemStatusObservation?.invalidate()
         timeObserver.map { player?.avPlayer.removeTimeObserver($0) }
         timeObserver = nil
+        // 换条目前先拆掉播放器级 KVO，替换瞬间的旧状态不再漏进状态机造成假 playing 抖动
+        timeControlStatusObservation?.invalidate()
+        timeControlStatusObservation = nil
+        rateObservation?.invalidate()
+        rateObservation = nil
         playedLoopCount = 0
+        pendingAutoplay = nil
+        pendingSeekTime = nil
         player?.setState(.preparing)
+        player?.readyForDisplayObservation?.invalidate()
+        player?.readyForDisplayObservation = nil
         player?.avPlayer.replaceCurrentItem(with: item)
         itemStatusObservation = item.observe(\.status, options: [.initial, .new]) { [weak self] (item, _) in
             guard let self = self, let player = self.player else { return }
             DispatchQueue.main.async {
+                guard player.avPlayer.currentItem === item else { return }
                 switch item.status {
                 case .readyToPlay:
+                    self.observePlayer()
                     player.setState(.readyToPlay)
+                    player.observeReadyForDisplay()
                     player.snapshotTaker.attach(to: item)
                     player.subtitleParser.collectNativeTracks(from: item)
+                    player.playbackOptions.applyVideoTracks()
                     player.refreshMediaInfoToShell()
+                    player.controlShell?.updateProgress(currentTime: player.playbackTime, duration: player.duration, playableDuration: 0)
                     if let seekTime = self.pendingSeekTime {
                         self.pendingSeekTime = nil
                         player.seek(to: seekTime, accurate: true)
                     }
-                    if self.pendingAutoplay || player.configuration.shouldAutoplay {
-                        self.pendingAutoplay = false
+                    if self.pendingAutoplay ?? player.configuration.shouldAutoplay {
                         player.resume()
+                    } else if self.pendingAutoplay == false {
+                        player.setState(.paused)
                     }
                 case .failed:
                     player.setState(.failed)
@@ -89,10 +110,45 @@ final class WYVideoPlayerEngine: NSObject {
                 }
             }
         }
+        refreshProgressObservation()
+    }
+
+    /// 按配置更新进度回调间隔
+    func refreshProgressObservation() {
         guard let player = player else { return }
-        timeObserver = player.avPlayer.addPeriodicTimeObserver(forInterval: CMTime(seconds: player.configuration.progressCallbackInterval, preferredTimescale: 600), queue: .main) { [weak self] (time) in
+        let interval = player.configuration.progressCallbackInterval.isFinite && player.configuration.progressCallbackInterval > 0 ? player.configuration.progressCallbackInterval : 1 / Double(UIScreen.main.maximumFramesPerSecond)
+        guard timeObserver == nil || appliedProgressInterval != interval else { return }
+        if let observer = timeObserver { player.avPlayer.removeTimeObserver(observer) }
+        timeObserver = nil
+        appliedProgressInterval = interval
+        guard player.avPlayer.currentItem != nil else { return }
+        timeObserver = player.avPlayer.addPeriodicTimeObserver(forInterval: CMTime(seconds: interval, preferredTimescale: 600), queue: .main) { [weak self] time in
             self?.handleProgress(time)
         }
+    }
+
+    /// 按播放状态控制等待时限，超时后交给控制壳显示重试
+    func handleLoadingState(_ state: WYVideoPlayerState) {
+        guard let player = player else { return }
+        if state == .playing && !player.isAudioOnly && !player.playerLayer.isReadyForDisplay { return }
+        cancelLoadingTimeout()
+        guard state == .preparing || state == .readyToPlay || state == .buffering,
+              player.configuration.loadingTimeout > 0 else { return }
+        let workItem = DispatchWorkItem { [weak self] in
+            guard let self = self, let player = self.player else { return }
+            guard player.state == .preparing || player.state == .readyToPlay || player.state == .buffering || (player.state == .playing && !player.isAudioOnly && !player.playerLayer.isReadyForDisplay) else { return }
+            player.avPlayer.replaceCurrentItem(with: nil)
+            player.setState(.failed)
+            player.delegate?.wy_videoPlayer?(player, didFailWithError: NSError(domain: NSURLErrorDomain, code: NSURLErrorTimedOut))
+        }
+        loadingTimeoutWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + player.configuration.loadingTimeout, execute: workItem)
+    }
+
+    /// 取消加载等待任务
+    func cancelLoadingTimeout() {
+        loadingTimeoutWorkItem?.cancel()
+        loadingTimeoutWorkItem = nil
     }
 
     /// 记住条目就绪后要定位的位置(切清晰度续播用)
@@ -101,12 +157,37 @@ final class WYVideoPlayerEngine: NSObject {
     }
 
     /// 记住条目就绪后要开播
-    func setAutoplayWhenReady() {
-        pendingAutoplay = true
+    func setAutoplayWhenReady(_ shouldPlay: Bool) {
+        pendingAutoplay = shouldPlay
+    }
+
+    /// 无缝换档收尾(画面层已换到新 AVPlayer 后调)：重绑播放器级监听与新条目装配，不重走装载黑帧路径
+    func adoptAVPlayer(item: AVPlayerItem, replacing oldPlayer: AVPlayer) {
+        guard let player = player else { return }
+        timeControlStatusObservation?.invalidate()
+        rateObservation?.invalidate()
+        if let observer = timeObserver {
+            oldPlayer.removeTimeObserver(observer)
+        }
+        timeObserver = nil
+        itemStatusObservation?.invalidate()
+        playedLoopCount = 0
+        observePlayer()
+        refreshProgressObservation()
+        itemStatusObservation = item.observe(\.status, options: [.new]) { [weak self] (item, _) in
+            guard let self = self, let player = self.player, item.status == .failed else { return }
+            DispatchQueue.main.async {
+                player.setState(.failed)
+                player.delegate?.wy_videoPlayer?(player, didFailWithError: item.error ?? NSError(domain: "WYVideoPlayer", code: -1))
+            }
+        }
+        player.snapshotTaker.attach(to: item)
+        player.subtitleParser.collectNativeTracks(from: item)
     }
 
     /// 全部监听拆除(播放器销毁时调)
     func unload() {
+        cancelLoadingTimeout()
         timeControlStatusObservation?.invalidate()
         itemStatusObservation?.invalidate()
         rateObservation?.invalidate()
@@ -126,6 +207,7 @@ final class WYVideoPlayerEngine: NSObject {
         timeControlStatusObservation = player.avPlayer.observe(\.timeControlStatus, options: [.initial, .new]) { [weak self] (avPlayer, _) in
             guard let self = self, let player = self.player else { return }
             DispatchQueue.main.async {
+                guard player.avPlayer === avPlayer else { return }
                 switch avPlayer.timeControlStatus {
                 case .playing:
                     player.setState(.playing)
@@ -146,6 +228,8 @@ final class WYVideoPlayerEngine: NSObject {
         rateObservation = player.avPlayer.observe(\.rate, options: [.new]) { [weak self] (avPlayer, _) in
             guard let self = self, let player = self.player else { return }
             DispatchQueue.main.async {
+                guard player.avPlayer === avPlayer else { return }
+                if avPlayer.rate != 0 { player.preferredPlaybackRate = avPlayer.rate }
                 player.controlShell?.updateRate(player.rate)
             }
         }
@@ -166,7 +250,9 @@ final class WYVideoPlayerEngine: NSObject {
                 self.wasPlayingBeforeInterruption = (player.state == .playing)
                 player.pause()
             }else if self.wasPlayingBeforeInterruption {
-                player.resume()
+                self.wasPlayingBeforeInterruption = false
+                let rawOptions = notification.userInfo?[AVAudioSessionInterruptionOptionKey] as? UInt ?? 0
+                if AVAudioSession.InterruptionOptions(rawValue: rawOptions).contains(.shouldResume) { player.resume() }
             }
         })
         notificationObservers.append(center.addObserver(forName: UIApplication.didBecomeActiveNotification, object: nil, queue: .main) { [weak self] (_) in
@@ -177,8 +263,9 @@ final class WYVideoPlayerEngine: NSObject {
         })
         notificationObservers.append(center.addObserver(forName: UIApplication.willResignActiveNotification, object: nil, queue: .main) { [weak self] (_) in
             guard let self = self, let player = self.player else { return }
-            self.wasPlayingBeforeResignActive = (player.state == .playing)
-            if player.configuration.shouldPauseOnAppResignActive {
+            self.wasPlayingBeforeResignActive = false
+            if player.configuration.shouldPauseOnAppResignActive && !player.pipManager.isStartingOrActive && !player.isBackgroundPlaybackEnabled {
+                self.wasPlayingBeforeResignActive = player.state == .playing
                 player.pause()
             }
         })
@@ -196,7 +283,6 @@ final class WYVideoPlayerEngine: NSObject {
         player.delegate?.wy_videoPlayer?(player, currentTime: currentTime, duration: duration, playableDuration: playable)
         player.controlShell?.updateProgress(currentTime: currentTime, duration: duration, playableDuration: playable)
         player.subtitleParser.update(time: currentTime)
-        player.danmakuView?.play(at: currentTime)
     }
 
     /// 已缓冲可以播到的位置
@@ -211,6 +297,7 @@ final class WYVideoPlayerEngine: NSObject {
         guard let player = player else { return }
         playedLoopCount += 1
         player.delegate?.wy_videoPlayer?(player, didPlayToEndWithLoopIndex: playedLoopCount)
+        if player.playbackOptions.consumeSleepAtEnd() { return }
         if player.configuration.loopCount == 0 || playedLoopCount < player.configuration.loopCount {
             player.seek(to: 0, accurate: false)
             player.resume()

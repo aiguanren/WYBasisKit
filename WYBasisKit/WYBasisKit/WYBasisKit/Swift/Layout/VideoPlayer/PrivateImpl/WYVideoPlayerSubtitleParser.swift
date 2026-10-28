@@ -26,7 +26,13 @@ struct WYVideoPlayerSubtitleCue {
 final class WYVideoPlayerSubtitleParser: NSObject {
 
     /// 字幕渲染标签(左下角跟随播放时间刷新)
-    private let subtitleLabel = UILabel()
+    let subtitleLabel = UILabel()
+
+    /// 字幕文字绘制属性
+    private var textAttributes: [NSAttributedString.Key: Any] = [:]
+
+    /// 字幕布局边距
+    private var subtitleInsets = UIEdgeInsets.zero
 
     /// 当前解析出的外挂字幕条目
     private var cues: [WYVideoPlayerSubtitleCue] = []
@@ -60,18 +66,25 @@ final class WYVideoPlayerSubtitleParser: NSObject {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineBreakMode = .byWordWrapping
         paragraphStyle.alignment = .center
+        subtitleInsets = UIEdgeInsets(top: 0, left: configuration.subtitleHorizontalInset, bottom: configuration.subtitleBottomInset, right: configuration.subtitleHorizontalInset)
+        textAttributes = [.font: configuration.subtitleFont, .foregroundColor: configuration.subtitleTextColor, .strokeColor: configuration.subtitleStrokeColor, .strokeWidth: configuration.subtitleStrokeWidth, .paragraphStyle: paragraphStyle]
         subtitleLabel.font = configuration.subtitleFont
         // 描边用富文本属性画，普通 label 文字色保持可读
         subtitleLabel.textColor = configuration.subtitleTextColor
-        subtitleLabel.shadowColor = configuration.subtitleStrokeColor
-        subtitleLabel.shadowOffset = CGSize(width: 0.6, height: 0.6)
+        subtitleLabel.shadowColor = nil
+        subtitleLabel.shadowOffset = .zero
+        if let text = subtitleLabel.text {
+            subtitleLabel.attributedText = NSAttributedString(string: text, attributes: textAttributes)
+        }
         relayout()
     }
 
     /// 布局字幕标签(底部居中)
     func relayout() {
         guard let hostView = hostView else { return }
-        subtitleLabel.frame = CGRect(x: 12, y: hostView.bounds.height - subtitleLabel.intrinsicContentSize.height - 24, width: hostView.bounds.width - 24, height: subtitleLabel.intrinsicContentSize.height)
+        let width = max(0, hostView.bounds.width - subtitleInsets.left - subtitleInsets.right)
+        let height = max(0, subtitleLabel.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude)).height)
+        subtitleLabel.frame = CGRect(x: subtitleInsets.left, y: hostView.bounds.height - subtitleInsets.bottom - height, width: width, height: height)
     }
 
     /// 收集内嵌字幕轨(条目装载完成后调，收集前清掉旧的内嵌轨保留外挂轨)
@@ -137,10 +150,10 @@ final class WYVideoPlayerSubtitleParser: NSObject {
 
     /// 按播放时间刷新外挂字幕显示
     func update(time: TimeInterval) {
-        guard selectedIndex >= 0, tracks[selectedIndex].type == .externalSRT else { return }
+        guard tracks.indices.contains(selectedIndex), tracks[selectedIndex].type == .externalSRT else { return }
         let current = cues.first { time >= $0.startTime && time <= $0.endTime }
         if subtitleLabel.text != current?.text {
-            subtitleLabel.text = current?.text
+            subtitleLabel.attributedText = current.map { NSAttributedString(string: $0.text, attributes: textAttributes) }
             relayout()
         }
     }
