@@ -24,22 +24,26 @@ extension String {
 
         let timestamp: String = self
 
-        guard let t = Double(timestamp) else { return nil }
+        guard let t = Double(timestamp), t.isFinite else { return nil }
 
         let absT = abs(t)
+        var normalizedTimestamp = t
 
         // 微秒级时间戳通常大于1万亿(如 1700000000000000)，除以 1_000_000 归一化成秒
-        if absT > 1_000_000_000_000 {
-            return t / 1_000_000
+        if absT >= 100_000_000_000_000 {
+            normalizedTimestamp = t / 1_000_000
         }
 
         // 毫秒级时间戳通常大于10亿(如 1700000000000)，除以 1000 归一化成秒
-        if absT > 1_000_000_000 {
-            return t / 1000
+        if absT >= 100_000_000_000 && absT < 100_000_000_000_000 {
+            normalizedTimestamp = t / 1000
         }
 
         // 秒级时间戳通常小于10亿，直接返回(支持小数如 1700000000.123)
-        return t
+        guard normalizedTimestamp >= Date.distantPast.timeIntervalSince1970,
+              normalizedTimestamp <= Date.distantFuture.timeIntervalSince1970 else { return nil }
+
+        return normalizedTimestamp
     }
 
     /// 获取格式化后的时间格式
