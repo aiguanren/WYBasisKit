@@ -14,7 +14,7 @@ import UIKit
    @param before 方法执行前回调，参数为当前控制器。无返回值。
    @param after 方法执行后回调，参数为当前控制器。无返回值（仅通知）。
  */
-internal func wy_swizzlerViewDidLoad(
+public func wy_swizzlerViewDidLoad(
     for targetClass: UIViewController.Type,
     before: ((_ currentController: UIViewController) -> Void)? = nil,
     after: ((_ currentController: UIViewController) -> Void)? = nil
@@ -34,8 +34,6 @@ internal func wy_swizzlerViewDidLoad(
     // 定义原始方法的 C 调用约定类型
     typealias OriginalFunc = @convention(c) (UIViewController, Selector) -> Void
     
-    // 将 IMP 转换为可调用的 Swift 闭包 originalBlock
-    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
     
     // 定义泛型参数：无参数，无返回值
     typealias Args = Void
@@ -81,8 +79,10 @@ internal func wy_swizzlerViewDidLoad(
     
     // 构造新的方法实现（newBlock），该实现将替换原始方法
     let newBlock: @convention(block) (UIViewController) -> Void = { receiver in
+        // 将 IMP 转换为可调用的 Swift 闭包 originalBlock
+        let originalBlock = unsafeBitCast(wy_originalMethodImplementation(for: targetClass, selector: selector, fallback: originalIMP), to: OriginalFunc.self)
         // 查找当前接收者对应的 before/after 钩子集合（自动处理继承链和缓存）
-        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        let hooks: Hooks = wy_methodHooks(for: targetClass, selector: selector)
         
         // 依次执行所有 before 闭包
         for before in hooks.before {

@@ -14,7 +14,7 @@ import UIKit
    @param before 方法执行前回调，参数依次为：代理对象、滚动视图、速度、目标偏移指针。无返回值。
    @param after 方法执行后回调，参数依次为：代理对象、滚动视图、速度、目标偏移指针。无返回值（仅通知）。
  */
-internal func wy_swizzlerScrollViewWillEndDragging(
+public func wy_swizzlerScrollViewWillEndDragging(
     for targetClass: NSObject.Type,
     before: ((_ delegate: NSObject, _ scrollView: UIScrollView, _ velocity: CGPoint, _ targetContentOffset: UnsafeMutablePointer<CGPoint>) -> Void)? = nil,
     after: ((_ delegate: NSObject, _ scrollView: UIScrollView, _ velocity: CGPoint, _ targetContentOffset: UnsafeMutablePointer<CGPoint>) -> Void)? = nil
@@ -34,8 +34,6 @@ internal func wy_swizzlerScrollViewWillEndDragging(
     // 定义原始方法的 C 调用约定类型
     typealias OriginalFunc = @convention(c) (NSObject, Selector, UIScrollView, CGPoint, UnsafeMutablePointer<CGPoint>) -> Void
     
-    // 将 IMP 转换为可调用的 Swift 闭包 originalBlock
-    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
     
     // 定义泛型参数：方法参数为 (UIScrollView, CGPoint, UnsafeMutablePointer<CGPoint>)，返回值为 Void
     typealias Args = (UIScrollView, CGPoint, UnsafeMutablePointer<CGPoint>)
@@ -81,7 +79,9 @@ internal func wy_swizzlerScrollViewWillEndDragging(
     
     // 构造新的方法实现（newBlock），该实现将替换原始方法
     let newBlock: @convention(block) (NSObject, UIScrollView, CGPoint, UnsafeMutablePointer<CGPoint>) -> Void = { receiver, scrollView, velocity, targetContentOffset in
-        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        // 将 IMP 转换为可调用的 Swift 闭包 originalBlock
+        let originalBlock = unsafeBitCast(wy_originalMethodImplementation(for: targetClass, selector: selector, fallback: originalIMP), to: OriginalFunc.self)
+        let hooks: Hooks = wy_methodHooks(for: targetClass, selector: selector)
         let args = (scrollView, velocity, targetContentOffset)
         for before in hooks.before {
             before(receiver, selector, args)

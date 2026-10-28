@@ -14,7 +14,7 @@ import UIKit
    @param before 方法执行前回调，参数依次为：当前控制器、被 present 的控制器、是否动画、完成闭包。无返回值。
    @param after 方法执行后回调，参数依次为：当前控制器、被 present 的控制器、是否动画、完成闭包。无返回值（仅通知，不可修改返回值）。
  */
-internal func wy_swizzlerControllerPresent(
+public func wy_swizzlerControllerPresent(
     for targetClass: UIViewController.Type,
     before: ((_ currentController: UIViewController, _ presentController: UIViewController, _ animated: Bool, _ completion: (() -> Void)?) -> Void)? = nil,
     after: ((_ currentController: UIViewController, _ presentController: UIViewController, _ animated: Bool, _ completion: (() -> Void)?) -> Void)? = nil
@@ -34,8 +34,6 @@ internal func wy_swizzlerControllerPresent(
     // 定义原始方法的 C 调用约定类型
     typealias OriginalFunc = @convention(c) (UIViewController, Selector, UIViewController, Bool, (() -> Void)?) -> Void
     
-    // 将 IMP 转换为可调用的 Swift 闭包 originalBlock
-    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
     
     // 定义泛型参数：方法参数为 (UIViewController, Bool, (() -> Void)?)，返回值为 Void
     typealias Args = (UIViewController, Bool, (() -> Void)?)
@@ -82,8 +80,10 @@ internal func wy_swizzlerControllerPresent(
     
     // 构造新的方法实现（newBlock），该实现将替换原始方法
     let newBlock: @convention(block) (UIViewController, UIViewController, Bool, (() -> Void)?) -> Void = { receiver, viewControllerToPresent, animated, completion in
+        // 将 IMP 转换为可调用的 Swift 闭包 originalBlock
+        let originalBlock = unsafeBitCast(wy_originalMethodImplementation(for: targetClass, selector: selector, fallback: originalIMP), to: OriginalFunc.self)
         // 查找当前接收者对应的 before/after 钩子集合（自动处理继承链和缓存）
-        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        let hooks: Hooks = wy_methodHooks(for: targetClass, selector: selector)
         let args = (viewControllerToPresent, animated, completion)
         
         // 依次执行所有 before 闭包

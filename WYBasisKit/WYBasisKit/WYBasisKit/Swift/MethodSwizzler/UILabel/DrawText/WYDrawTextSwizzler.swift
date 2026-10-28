@@ -15,7 +15,7 @@ import UIKit
    @param before 方法执行前观察闭包（仅在原始方法执行前调用），参数依次为：当前标签、最终使用的矩形。无返回值。
    @param after 方法执行后回调，参数依次为：当前标签、最终使用的矩形。无返回值（仅通知）。
  */
-internal func wy_swizzlerDrawText(
+public func wy_swizzlerDrawText(
     for targetClass: UILabel.Type,
     intercept: ((_ currentLabel: UILabel, _ originalRect: CGRect) -> WYInterceptResult<CGRect>)? = nil,
     before: ((_ currentLabel: UILabel, _ rect: CGRect) -> Void)? = nil,
@@ -36,8 +36,6 @@ internal func wy_swizzlerDrawText(
     // 定义原始方法的 C 调用约定类型
     typealias OriginalFunc = @convention(c) (UILabel, Selector, CGRect) -> Void
     
-    // 将 IMP 转换为可调用的 Swift 闭包 originalBlock
-    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
     
     // 定义钩子集合类型，用于存储 before/after 闭包
     typealias Args = CGRect
@@ -86,15 +84,17 @@ internal func wy_swizzlerDrawText(
     WYHooksLock.lock()
     
     // 存储 intercept 闭包到全局字典
-    WYDrawTextInterceptMap[interceptKey] = intercept
+    if let intercept = intercept { WYDrawTextInterceptMap[interceptKey] = intercept }
     
     // 解锁
     WYHooksLock.unlock()
     
     // 构造新的方法实现（newBlock），该实现将替换原始方法
     let newBlock: @convention(block) (UILabel, CGRect) -> Void = { receiver, rect in
+        // 将 IMP 转换为可调用的 Swift 闭包 originalBlock
+        let originalBlock = unsafeBitCast(wy_originalMethodImplementation(for: targetClass, selector: selector, fallback: originalIMP), to: OriginalFunc.self)
         // 查找 intercept 决策（沿继承链，使用缓存）
-        let foundIntercept = wy_findDrawTextIntercept(for: receiver, selector: selector)
+        let foundIntercept = wy_findDrawTextIntercept(for: receiver, selector: selector, ownerClass: targetClass)
         
         // 如果存在 intercept 闭包，根据决策决定使用的矩形
         var finalRect = rect
@@ -108,7 +108,7 @@ internal func wy_swizzlerDrawText(
         }
         
         // 获取钩子集合（before/after）
-        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        let hooks: Hooks = wy_methodHooks(for: targetClass, selector: selector)
         
         // 执行所有 before 闭包
         for before in hooks.before {
@@ -138,11 +138,11 @@ internal func wy_swizzlerDrawText(
    @param selector drawText 方法选择器
  @return 找到的第一个 intercept 闭包，若未找到则返回 nil
  */
-internal func wy_findDrawTextIntercept(for receiver: UILabel, selector: Selector) -> ((UILabel, CGRect) -> WYInterceptResult<CGRect>)? {
+internal func wy_findDrawTextIntercept(for receiver: UILabel, selector: Selector, ownerClass: AnyClass? = nil) -> ((UILabel, CGRect) -> WYInterceptResult<CGRect>)? {
     // 获取方法名字符串
     let selName = NSStringFromSelector(selector)
     // 从当前对象的类开始向上查找
-    var currentClass: AnyClass? = type(of: receiver)
+    var currentClass: AnyClass? = ownerClass ?? type(of: receiver)
     
     // 遍历继承链（从当前类直到 NSObject）
     while let cls = currentClass, cls != NSObject.self {
@@ -174,14 +174,8 @@ internal func wy_findDrawTextIntercept(for receiver: UILabel, selector: Selector
             return intercept
         }
         // 未找到，继续向父类查找
-        currentClass = class_getSuperclass(cls)
+        currentClass = ownerClass == nil ? class_getSuperclass(cls) : nil
     }
     // 整个继承链都没有找到任何 intercept 闭包，返回 nil
     return nil
 }
-
-/// 独立存储 drawText 的 intercept 闭包
-internal var WYDrawTextInterceptMap: [String: (UILabel, CGRect) -> WYInterceptResult<CGRect>] = [:]
-
-/// 缓存 wy_findDrawTextIntercept 的结果
-internal var WYDrawTextCacheMap: [String: (UILabel, CGRect) -> WYInterceptResult<CGRect>] = [:]

@@ -15,7 +15,7 @@ import UIKit
    @param before 方法执行前回调，参数依次为：当前导航控制器、是否动画。无返回值。
    @param after 方法执行后回调，参数依次为：当前导航控制器、是否动画、被弹出的视图控制器（可能为 `nil`）。无返回值（仅通知）。
  */
-internal func wy_swizzlerPopViewController(
+public func wy_swizzlerPopViewController(
     for targetClass: UINavigationController.Type,
     intercept: ((_ currentNavigationController: UINavigationController, _ animated: Bool) -> WYInterceptResult<UIViewController?>)? = nil,
     before: ((_ currentNavigationController: UINavigationController, _ animated: Bool) -> Void)? = nil,
@@ -36,8 +36,6 @@ internal func wy_swizzlerPopViewController(
     // 定义原始方法的 C 调用约定类型
     typealias OriginalFunc = @convention(c) (UINavigationController, Selector, Bool) -> UIViewController?
     
-    // 将 IMP 转换为可调用的 Swift 闭包 originalBlock
-    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
     
     // 定义泛型参数：方法参数为 Bool，返回值为 UIViewController?
     typealias Args = Bool
@@ -89,8 +87,10 @@ internal func wy_swizzlerPopViewController(
     
     // 构造新的方法实现（newBlock），该实现将替换原始方法
     let newBlock: @convention(block) (UINavigationController, Bool) -> UIViewController? = { receiver, animated in
+        // 将 IMP 转换为可调用的 Swift 闭包 originalBlock
+        let originalBlock = unsafeBitCast(wy_originalMethodImplementation(for: targetClass, selector: selector, fallback: originalIMP), to: OriginalFunc.self)
         // 沿继承链向上查找 intercept 闭包
-        var currentClass: AnyClass? = type(of: receiver)
+        var currentClass: AnyClass? = targetClass
         var foundIntercept: ((UINavigationController, Bool) -> WYInterceptResult<UIViewController?>)? = nil
         while let cls = currentClass, cls != NSObject.self {
             let className = NSStringFromClass(cls)
@@ -102,7 +102,7 @@ internal func wy_swizzlerPopViewController(
                 foundIntercept = intercept
                 break
             }
-            currentClass = class_getSuperclass(cls)
+            currentClass = nil
         }
         
         // 执行拦截决策
@@ -116,7 +116,7 @@ internal func wy_swizzlerPopViewController(
         }
         
         // 查找当前接收者对应的 before/after 钩子集合（自动处理继承链和缓存）
-        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        let hooks: Hooks = wy_methodHooks(for: targetClass, selector: selector)
         
         // 依次执行所有 before 闭包
         for before in hooks.before {
@@ -140,6 +140,3 @@ internal func wy_swizzlerPopViewController(
     // 记录当前方法的 swizzleKey 已被调用，供容错函数检查
     wy_remarkSwizzleKeyCalled(for: targetClass, selector: selector)
 }
-
-/// 独立存储 popViewController 的拦截闭包
-internal var WYInterceptPopMap: [String: (UINavigationController, Bool) -> WYInterceptResult<UIViewController?>] = [:]

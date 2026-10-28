@@ -15,7 +15,7 @@ import UIKit
    @param before 方法执行前回调，参数依次为：布局对象、元素类型、索引路径。无返回值。
    @param after 方法执行后回调，参数依次为：布局对象、元素类型、索引路径、原始返回值（`UICollectionViewLayoutAttributes?`）。可返回一个新的属性对象来替换原始返回值。
  */
-internal func wy_swizzlerLayoutAttributesForSupplementaryView(
+public func wy_swizzlerLayoutAttributesForSupplementaryView(
     for targetClass: UICollectionViewLayout.Type,
     intercept: ((_ layout: UICollectionViewLayout, _ elementKind: String, _ indexPath: IndexPath) -> WYInterceptResult<UICollectionViewLayoutAttributes?>)? = nil,
     before: ((_ layout: UICollectionViewLayout, _ elementKind: String, _ indexPath: IndexPath) -> Void)? = nil,
@@ -36,8 +36,6 @@ internal func wy_swizzlerLayoutAttributesForSupplementaryView(
     // 定义原始方法的 C 调用约定类型
     typealias OriginalFunc = @convention(c) (UICollectionViewLayout, Selector, String, IndexPath) -> UICollectionViewLayoutAttributes?
     
-    // 将 IMP 转换为可调用的 Swift 闭包 originalBlock
-    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
     
     // 定义钩子集合类型，用于存储 before/after 闭包
     typealias Args = (String, IndexPath)
@@ -57,7 +55,7 @@ internal func wy_swizzlerLayoutAttributesForSupplementaryView(
     WYHooksLock.lock()
     
     // 存储 intercept 闭包到全局字典
-    WYLayoutAttributesForSupplementaryViewInterceptMap[interceptKey] = intercept
+    if let intercept = intercept { WYLayoutAttributesForSupplementaryViewInterceptMap[interceptKey] = intercept }
     
     // 解锁
     WYHooksLock.unlock()
@@ -92,8 +90,10 @@ internal func wy_swizzlerLayoutAttributesForSupplementaryView(
     
     // 构造新的方法实现（newBlock），该实现将替换原始方法
     let newBlock: @convention(block) (UICollectionViewLayout, String, IndexPath) -> UICollectionViewLayoutAttributes? = { receiver, elementKind, indexPath in
+        // 将 IMP 转换为可调用的 Swift 闭包 originalBlock
+        let originalBlock = unsafeBitCast(wy_originalMethodImplementation(for: targetClass, selector: selector, fallback: originalIMP), to: OriginalFunc.self)
         // 沿继承链查找 intercept 闭包
-        var currentClass: AnyClass? = type(of: receiver)
+        var currentClass: AnyClass? = targetClass
         var foundIntercept: ((UICollectionViewLayout, String, IndexPath) -> WYInterceptResult<UICollectionViewLayoutAttributes?>)? = nil
         while let cls = currentClass, cls != NSObject.self {
             let className = NSStringFromClass(cls)
@@ -106,7 +106,7 @@ internal func wy_swizzlerLayoutAttributesForSupplementaryView(
                 foundIntercept = intercept
                 break
             }
-            currentClass = class_getSuperclass(cls)
+            currentClass = nil
         }
         
         // 如果存在 intercept 闭包，根据决策决定是否直接返回
@@ -120,7 +120,7 @@ internal func wy_swizzlerLayoutAttributesForSupplementaryView(
         }
         
         // 获取钩子集合（before/after）
-        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        let hooks: Hooks = wy_methodHooks(for: targetClass, selector: selector)
         let args = (elementKind, indexPath)
         
         // 执行所有 before 闭包
@@ -145,6 +145,3 @@ internal func wy_swizzlerLayoutAttributesForSupplementaryView(
     // 记录当前方法的 swizzleKey 已被调用，供容错函数检查
     wy_remarkSwizzleKeyCalled(for: targetClass, selector: selector)
 }
-
-/// 独立存储 layoutAttributesForSupplementaryView 的 intercept 闭包
-internal var WYLayoutAttributesForSupplementaryViewInterceptMap: [String: (UICollectionViewLayout, String, IndexPath) -> WYInterceptResult<UICollectionViewLayoutAttributes?>] = [:]

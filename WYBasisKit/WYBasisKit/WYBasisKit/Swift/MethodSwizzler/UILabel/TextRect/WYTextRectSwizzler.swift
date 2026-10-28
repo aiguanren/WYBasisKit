@@ -15,7 +15,7 @@ import UIKit
    @param before 方法执行前回调，参数依次为：当前标签、建议的边界矩形、最大行数。无返回值。
    @param after 方法执行后回调，参数依次为：当前标签、建议的边界矩形、最大行数、原始返回值（`CGRect`）。可返回一个新的 `CGRect` 来替换原始返回值。
  */
-internal func wy_swizzlerTextRect(
+public func wy_swizzlerTextRect(
     for targetClass: UILabel.Type,
     intercept: ((_ currentLabel: UILabel, _ bounds: CGRect, _ numberOfLines: Int) -> WYInterceptResult<CGRect>)? = nil,
     before: ((_ currentLabel: UILabel, _ bounds: CGRect, _ numberOfLines: Int) -> Void)? = nil,
@@ -36,8 +36,6 @@ internal func wy_swizzlerTextRect(
     // 定义原始方法的 C 调用约定类型
     typealias OriginalFunc = @convention(c) (UILabel, Selector, CGRect, Int) -> CGRect
     
-    // 将 IMP 转换为可调用的 Swift 闭包 originalBlock
-    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
     
     // 定义钩子集合类型，用于存储 before/after 闭包
     typealias Args = (CGRect, Int)
@@ -85,15 +83,17 @@ internal func wy_swizzlerTextRect(
     WYHooksLock.lock()
     
     // 存储 intercept 闭包到全局字典
-    WYTextRectInterceptMap[interceptKey] = intercept
+    if let intercept = intercept { WYTextRectInterceptMap[interceptKey] = intercept }
     
     // 解锁
     WYHooksLock.unlock()
     
     // 构造新的方法实现（newBlock），该实现将替换原始方法
     let newBlock: @convention(block) (UILabel, CGRect, Int) -> CGRect = { receiver, bounds, numberOfLines in
+        // 将 IMP 转换为可调用的 Swift 闭包 originalBlock
+        let originalBlock = unsafeBitCast(wy_originalMethodImplementation(for: targetClass, selector: selector, fallback: originalIMP), to: OriginalFunc.self)
         // 查找 intercept 决策（沿继承链，使用缓存）
-        let foundIntercept = wy_findTextRectIntercept(for: receiver, selector: selector)
+        let foundIntercept = wy_findTextRectIntercept(for: receiver, selector: selector, ownerClass: targetClass)
         
         // 如果存在 intercept 闭包，根据决策决定是否直接返回
         if let intercept = foundIntercept {
@@ -106,7 +106,7 @@ internal func wy_swizzlerTextRect(
         }
         
         // 获取钩子集合（before/after）
-        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        let hooks: Hooks = wy_methodHooks(for: targetClass, selector: selector)
         let args = (bounds, numberOfLines)
         
         // 执行所有 before 闭包
@@ -139,11 +139,11 @@ internal func wy_swizzlerTextRect(
    @param selector textRect 方法选择器
  @return 找到的第一个 intercept 闭包，若未找到则返回 nil
  */
-internal func wy_findTextRectIntercept(for receiver: UILabel, selector: Selector) -> ((UILabel, CGRect, Int) -> WYInterceptResult<CGRect>)? {
+internal func wy_findTextRectIntercept(for receiver: UILabel, selector: Selector, ownerClass: AnyClass? = nil) -> ((UILabel, CGRect, Int) -> WYInterceptResult<CGRect>)? {
     // 获取方法名字符串
     let selName = NSStringFromSelector(selector)
     // 从当前对象的类开始向上查找
-    var currentClass: AnyClass? = type(of: receiver)
+    var currentClass: AnyClass? = ownerClass ?? type(of: receiver)
     
     // 遍历继承链（从当前类直到 NSObject）
     while let cls = currentClass, cls != NSObject.self {
@@ -176,14 +176,8 @@ internal func wy_findTextRectIntercept(for receiver: UILabel, selector: Selector
             return intercept
         }
         // 未找到，继续向父类查找
-        currentClass = class_getSuperclass(cls)
+        currentClass = ownerClass == nil ? class_getSuperclass(cls) : nil
     }
     // 整个继承链都没有找到任何 intercept 闭包，返回 nil
     return nil
 }
-
-/// 独立存储 textRect 的 intercept 闭包
-internal var WYTextRectInterceptMap: [String: (UILabel, CGRect, Int) -> WYInterceptResult<CGRect>] = [:]
-
-/// 缓存 wy_findTextRectIntercept 的结果
-internal var WYTextRectCacheMap: [String: (UILabel, CGRect, Int) -> WYInterceptResult<CGRect>] = [:]

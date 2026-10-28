@@ -15,7 +15,7 @@ import UIKit
    @param before 方法执行前观察闭包（仅在原始方法执行前调用，不影响流程），参数依次为：当前视图、点击位置、事件。无返回值。
    @param after 方法执行后回调，可修改原始返回值，参数依次为：当前视图、点击位置、事件、原始返回值（`UIView?`），返回一个新的 `UIView?` 作为最终结果。
  */
-internal func wy_swizzlerHitTest(
+public func wy_swizzlerHitTest(
     for targetClass: UIView.Type,
     intercept: ((_ currentView: UIView, _ point: CGPoint, _ event: UIEvent?) -> WYInterceptResult<UIView?>)? = nil,
     before: ((_ currentView: UIView, _ point: CGPoint, _ event: UIEvent?) -> Void)? = nil,
@@ -36,8 +36,6 @@ internal func wy_swizzlerHitTest(
     // 定义原始方法的 C 调用约定类型
     typealias OriginalFunc = @convention(c) (UIView, Selector, CGPoint, UIEvent?) -> UIView?
     
-    // 将 IMP 转换为可调用的 Swift 闭包 originalBlock
-    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
     
     // 定义钩子集合类型，用于存储 before/after 闭包
     typealias Args = (CGPoint, UIEvent?)
@@ -85,15 +83,17 @@ internal func wy_swizzlerHitTest(
     WYHooksLock.lock()
     
     // 存储 intercept 闭包到全局字典
-    WYHitTestInterceptMap[interceptKey] = intercept
+    if let intercept = intercept { WYHitTestInterceptMap[interceptKey] = intercept }
     
     // 解锁
     WYHooksLock.unlock()
     
     // 构造新的方法实现（newBlock），该实现将替换原始方法
     let newBlock: @convention(block) (UIView, CGPoint, UIEvent?) -> UIView? = { receiver, point, event in
+        // 将 IMP 转换为可调用的 Swift 闭包 originalBlock
+        let originalBlock = unsafeBitCast(wy_originalMethodImplementation(for: targetClass, selector: selector, fallback: originalIMP), to: OriginalFunc.self)
         // 查找 intercept 决策（沿继承链）
-        var currentClass: AnyClass? = type(of: receiver)
+        var currentClass: AnyClass? = targetClass
         var foundIntercept: ((UIView, CGPoint, UIEvent?) -> WYInterceptResult<UIView?>)? = nil
         while let cls = currentClass, cls != NSObject.self {
             let className = NSStringFromClass(cls)
@@ -106,7 +106,7 @@ internal func wy_swizzlerHitTest(
                 foundIntercept = intercept
                 break
             }
-            currentClass = class_getSuperclass(cls)
+            currentClass = nil
         }
         
         // 如果存在 intercept 闭包，根据决策决定是否直接返回
@@ -120,7 +120,7 @@ internal func wy_swizzlerHitTest(
         }
         
         // 获取钩子集合（before/after）
-        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        let hooks: Hooks = wy_methodHooks(for: targetClass, selector: selector)
         let args = (point, event)
         
         // 执行所有 before 闭包
@@ -195,9 +195,3 @@ internal func wy_findHitTestIntercept(for receiver: UIView, selector: Selector) 
     // 整个继承链都没有找到任何 intercept 闭包，返回 nil
     return nil
 }
-
-/// 独立存储 hitTest 的 intercept 闭包（返回 WYHitTestDecision）
-internal var WYHitTestInterceptMap: [String: (UIView, CGPoint, UIEvent?) -> WYInterceptResult<UIView?>] = [:]
-
-/// 缓存 wy_findHitTestIntercept 的结果（key: "wy_cache_hitTest_<className>_<selName>"）
-internal var WYHitTestCacheMap: [String: (UIView, CGPoint, UIEvent?) -> WYInterceptResult<UIView?>] = [:]

@@ -14,7 +14,7 @@ import UIKit
    @param before 方法执行前回调，参数依次为：当前响应者、触摸集合、事件。无返回值。
    @param after 方法执行后回调，参数依次为：当前响应者、触摸集合、事件。无返回值（仅通知）。
  */
-internal func wy_swizzlerTouchesEnded(
+public func wy_swizzlerTouchesEnded(
     for targetClass: UIResponder.Type,
     before: ((_ responder: UIResponder, _ touches: Set<UITouch>, _ event: UIEvent?) -> Void)? = nil,
     after: ((_ responder: UIResponder, _ touches: Set<UITouch>, _ event: UIEvent?) -> Void)? = nil
@@ -34,8 +34,6 @@ internal func wy_swizzlerTouchesEnded(
     // 定义原始方法的 C 调用约定类型
     typealias OriginalFunc = @convention(c) (UIResponder, Selector, Set<UITouch>, UIEvent?) -> Void
     
-    // 将 IMP 转换为可调用的 Swift 闭包 originalBlock
-    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
     
     // 定义泛型参数：方法参数为 (Set<UITouch>, UIEvent?)，返回值为 Void
     typealias Args = (Set<UITouch>, UIEvent?)
@@ -81,8 +79,10 @@ internal func wy_swizzlerTouchesEnded(
     
     // 构造新的方法实现（newBlock），该实现将替换原始方法
     let newBlock: @convention(block) (UIResponder, Set<UITouch>, UIEvent?) -> Void = { receiver, touches, event in
+        // 将 IMP 转换为可调用的 Swift 闭包 originalBlock
+        let originalBlock = unsafeBitCast(wy_originalMethodImplementation(for: targetClass, selector: selector, fallback: originalIMP), to: OriginalFunc.self)
         // 查找当前接收者对应的 before/after 钩子集合（自动处理继承链和缓存）
-        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        let hooks: Hooks = wy_methodHooks(for: targetClass, selector: selector)
         let args = (touches, event)
         
         // 依次执行所有 before 闭包

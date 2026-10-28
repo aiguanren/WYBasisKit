@@ -15,7 +15,7 @@ import UIKit
    @param before 方法执行前回调，参数依次为：当前视图、绘制区域矩形。无返回值。
    @param after 方法执行后回调，参数依次为：当前视图、绘制区域矩形。无返回值（仅通知）。
  */
-internal func wy_swizzlerDrawRect(
+public func wy_swizzlerDrawRect(
     for targetClass: UIView.Type,
     intercept: ((_ currentView: UIView, _ originalRect: CGRect) -> WYInterceptResult<CGRect>)? = nil,
     before: ((_ currentView: UIView, _ rect: CGRect) -> Void)? = nil,
@@ -36,8 +36,6 @@ internal func wy_swizzlerDrawRect(
     // 定义原始方法的 C 调用约定类型
     typealias OriginalFunc = @convention(c) (UIView, Selector, CGRect) -> Void
     
-    // 将 IMP 转换为可调用的 Swift 闭包 originalBlock
-    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
     
     // 定义泛型参数：方法参数为 CGRect，返回值为 Void
     typealias Args = CGRect
@@ -86,13 +84,15 @@ internal func wy_swizzlerDrawRect(
     
     // 加锁，存储 intercept 闭包
     WYHooksLock.lock()
-    WYDrawRectInterceptMap[interceptKey] = intercept
+    if let intercept = intercept { WYDrawRectInterceptMap[interceptKey] = intercept }
     WYHooksLock.unlock()
     
     // 构造新的方法实现（newBlock），该实现将替换原始方法
     let newBlock: @convention(block) (UIView, CGRect) -> Void = { receiver, rect in
+        // 将 IMP 转换为可调用的 Swift 闭包 originalBlock
+        let originalBlock = unsafeBitCast(wy_originalMethodImplementation(for: targetClass, selector: selector, fallback: originalIMP), to: OriginalFunc.self)
         // 沿继承链查找 intercept 闭包
-        var currentClass: AnyClass? = type(of: receiver)
+        var currentClass: AnyClass? = targetClass
         var foundIntercept: ((UIView, CGRect) -> WYInterceptResult<CGRect>)? = nil
         while let cls = currentClass, cls != NSObject.self {
             let className = NSStringFromClass(cls)
@@ -105,7 +105,7 @@ internal func wy_swizzlerDrawRect(
                 foundIntercept = intercept
                 break
             }
-            currentClass = class_getSuperclass(cls)
+            currentClass = nil
         }
         
         // 如果存在 intercept 闭包，根据决策决定使用的矩形
@@ -120,7 +120,7 @@ internal func wy_swizzlerDrawRect(
         }
         
         // 获取钩子集合（before/after）
-        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        let hooks: Hooks = wy_methodHooks(for: targetClass, selector: selector)
         
         // 执行所有 before 闭包
         for before in hooks.before {
@@ -191,9 +191,3 @@ internal func wy_findDrawRectIntercept(for receiver: UIView, selector: Selector)
     // 整个继承链都没有找到任何 intercept 闭包，返回 nil
     return nil
 }
-
-/// 独立存储 drawRect 的 intercept 闭包（返回 WYInterceptResult<CGRect>）
-internal var WYDrawRectInterceptMap: [String: (UIView, CGRect) -> WYInterceptResult<CGRect>] = [:]
-
-/// 缓存 wy_findDrawRectIntercept 的结果（key: "wy_cache_drawRect_<className>_<selName>"）
-internal var WYDrawRectCacheMap: [String: (UIView, CGRect) -> WYInterceptResult<CGRect>] = [:]

@@ -14,7 +14,7 @@ import UIKit
    @param before 方法执行前回调，参数为当前布局对象。无返回值。
    @param after 方法执行后回调，参数为当前布局对象。无返回值（仅通知）。
  */
-internal func wy_swizzlerLayoutPrepare(
+public func wy_swizzlerLayoutPrepare(
     for targetClass: UICollectionViewLayout.Type,
     before: ((_ layout: UICollectionViewLayout) -> Void)? = nil,
     after: ((_ layout: UICollectionViewLayout) -> Void)? = nil
@@ -34,8 +34,6 @@ internal func wy_swizzlerLayoutPrepare(
     // 定义原始方法的 C 调用约定类型
     typealias OriginalFunc = @convention(c) (UICollectionViewLayout, Selector) -> Void
     
-    // 将 IMP 转换为可调用的 Swift 闭包 originalBlock
-    let originalBlock = unsafeBitCast(originalIMP, to: OriginalFunc.self)
     
     // 定义泛型参数：无参数，返回值为 Void
     typealias Args = Void
@@ -81,7 +79,9 @@ internal func wy_swizzlerLayoutPrepare(
     
     // 构造新的方法实现（newBlock），该实现将替换原始方法
     let newBlock: @convention(block) (UICollectionViewLayout) -> Void = { receiver in
-        let hooks: Hooks = wy_findHooks(for: receiver, selector: selector)
+        // 将 IMP 转换为可调用的 Swift 闭包 originalBlock
+        let originalBlock = unsafeBitCast(wy_originalMethodImplementation(for: targetClass, selector: selector, fallback: originalIMP), to: OriginalFunc.self)
+        let hooks: Hooks = wy_methodHooks(for: targetClass, selector: selector)
         for before in hooks.before {
             before(receiver, selector, ())
         }
