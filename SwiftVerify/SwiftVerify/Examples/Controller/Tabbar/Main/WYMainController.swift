@@ -131,13 +131,32 @@ class WYMainController: UIViewController {
         tableview.wy_register(UITableViewCell.self, .cell)
         tableview.wy_register(WYLeftControllerHeaderView.self, .headerFooterView)
         tableview.snp.makeConstraints { (make) in
-            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight)
-            make.left.right.equalToSuperview()
-            make.bottom.equalToSuperview().offset(-UIDevice.wy_tabBarHeight)
+            make.edges.equalTo(view.safeAreaLayoutGuide)
         }
         return tableview
     }()
     
+    private var tabBarHiddenBeforePush: Bool?
+
+    private lazy var navigationBackgroundView: UIView = {
+        let background = UIView()
+        background.isUserInteractionEnabled = false
+        view.insertSubview(background, at: 0)
+        return background
+    }()
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        guard let navigationController = navigationController else { return }
+        let bar = navigationController.navigationBar
+        let appearance = bar.standardAppearance
+        let barFrame = bar.convert(bar.bounds, to: view)
+        let drawsOpaqueBackground = appearance.backgroundEffect == nil && appearance.backgroundColor?.cgColor.alpha == 1
+        navigationBackgroundView.isHidden = navigationController.isNavigationBarHidden || appearance.backgroundImage != nil || !drawsOpaqueBackground
+        navigationBackgroundView.backgroundColor = appearance.backgroundColor
+        navigationBackgroundView.frame = CGRect(x: view.bounds.minX, y: view.bounds.minY, width: view.bounds.width, height: max(barFrame.minY - view.bounds.minY, 0))
+    }
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         if (wy_returnValue != nil) {
@@ -145,6 +164,14 @@ class WYMainController: UIViewController {
         }
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if #available(iOS 26.0, *), let hidden = tabBarHiddenBeforePush {
+            tabBarController?.setTabBarHidden(hidden, animated: false)
+            tabBarHiddenBeforePush = nil
+        }
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -258,7 +285,6 @@ class WYMainController: UIViewController {
     
     
     /*
-     // MARK: - Navigation
      
      // In a storyboard-based application, you will often want to do a little preparation before navigation
      override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -292,7 +318,20 @@ extension WYMainController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let className: String = cellItems[indexPath.row].controller
-        let nextController = wy_showViewController(className: className)
+        let nextController: UIViewController?
+        var usesVerticalBar = false
+        if #available(iOS 27.1, *) { usesVerticalBar = traitCollection.verticalBarEdge != .unspecified }
+        if #available(iOS 26.0, *), (traitCollection.horizontalSizeClass == .regular || usesVerticalBar), let tabs = tabBarController,
+           let navigation = navigationController, let controller = wy_controller(from: className) {
+            nextController = controller
+            controller.hidesBottomBarWhenPushed = false
+            controller.navigationItem.title = cellItems[indexPath.row].title
+            tabBarHiddenBeforePush = tabs.isTabBarHidden
+            tabs.setTabBarHidden(true, animated: false)
+            navigation.pushViewController(controller, animated: true)
+        } else {
+            nextController = wy_showViewController(className: className)
+        }
         nextController?.navigationItem.title = cellItems[indexPath.row].title
     }
 }

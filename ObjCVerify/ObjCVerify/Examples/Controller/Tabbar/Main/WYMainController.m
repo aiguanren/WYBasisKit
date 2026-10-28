@@ -157,6 +157,8 @@
 @interface WYMainController ()<UITableViewDelegate, UITableViewDataSource, AppEventDelegate>
 
 @property (nonatomic, strong) UITableView *tableView;
+@property (nonatomic, strong) NSNumber *tabBarHiddenBeforePush;
+@property (nonatomic, strong) UIView *navigationBackgroundView;
 
 @end
 
@@ -167,6 +169,34 @@
     if (self.wy_returnValue != nil) {
         wy_print(@"returnValue = %@",self.wy_returnValue);
     }
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    if (@available(iOS 26.0, *)) {
+        if (self.tabBarHiddenBeforePush != nil) {
+            [self.tabBarController setTabBarHidden:self.tabBarHiddenBeforePush.boolValue animated:NO];
+            self.tabBarHiddenBeforePush = nil;
+        }
+    }
+}
+
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    UINavigationController *navigationController = self.navigationController;
+    if (navigationController == nil) { return; }
+    if (self.navigationBackgroundView == nil) {
+        self.navigationBackgroundView = [[UIView alloc] init];
+        self.navigationBackgroundView.userInteractionEnabled = NO;
+        [self.view insertSubview:self.navigationBackgroundView atIndex:0];
+    }
+    UINavigationBar *bar = navigationController.navigationBar;
+    UINavigationBarAppearance *appearance = bar.standardAppearance;
+    CGRect barFrame = [bar convertRect:bar.bounds toView:self.view];
+    BOOL drawsOpaqueBackground = appearance.backgroundEffect == nil && appearance.backgroundColor != nil && CGColorGetAlpha(appearance.backgroundColor.CGColor) == 1;
+    self.navigationBackgroundView.hidden = navigationController.isNavigationBarHidden || appearance.backgroundImage != nil || !drawsOpaqueBackground;
+    self.navigationBackgroundView.backgroundColor = appearance.backgroundColor;
+    self.navigationBackgroundView.frame = CGRectMake(CGRectGetMinX(self.view.bounds), CGRectGetMinY(self.view.bounds), CGRectGetWidth(self.view.bounds), MAX(CGRectGetMinY(barFrame) - CGRectGetMinY(self.view.bounds), 0));
 }
 
 - (void)viewDidLoad {
@@ -285,7 +315,24 @@
     
     NSString *className = ListItem.cellItems[indexPath.row].controller;
     
-    UIViewController *nextController = [self wy_showViewControllerWithClassName:className parameters:nil displayMode:WYDisplayModePush animated:YES];
+    UIViewController *nextController = nil;
+    BOOL usesVerticalBar = NO;
+    if (@available(iOS 27.1, *)) { usesVerticalBar = self.traitCollection.verticalBarEdge != UIVerticalBarEdgeUnspecified; }
+    if (@available(iOS 26.0, *)) {
+        if ((self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassRegular || usesVerticalBar) && self.tabBarController != nil && self.navigationController != nil) {
+            nextController = [self wy_controllerFromClassName:className];
+            if (nextController != nil) {
+                nextController.hidesBottomBarWhenPushed = NO;
+                nextController.navigationItem.title = ListItem.cellItems[indexPath.row].title;
+                self.tabBarHiddenBeforePush = @(self.tabBarController.isTabBarHidden);
+                [self.tabBarController setTabBarHidden:YES animated:NO];
+                [self.navigationController pushViewController:nextController animated:YES];
+            }
+        }
+    }
+    if (nextController == nil) {
+        nextController = [self wy_showViewControllerWithClassName:className parameters:nil displayMode:WYDisplayModePush animated:YES];
+    }
     
     nextController.navigationItem.title = ListItem.cellItems[indexPath.row].title;
 }
@@ -297,9 +344,10 @@
         [_tableView wy_register:[UITableViewCell class] style:WYTableViewRegisterStyleCell];
         [_tableView wy_register:[WYLeftControllerHeaderView class] style:WYTableViewRegisterStyleHeaderFooterView];
         [_tableView mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.top.equalTo(self.view).mas_offset(UIDevice.wy_navViewHeight);
-            make.left.right.equalTo(self.view);
-            make.bottom.equalTo(self.view).mas_offset(-UIDevice.wy_tabBarHeight);
+            make.top.equalTo(self.view.mas_safeAreaLayoutGuideTop);
+            make.left.equalTo(self.view.mas_safeAreaLayoutGuideLeft);
+            make.right.equalTo(self.view.mas_safeAreaLayoutGuideRight);
+            make.bottom.equalTo(self.view.mas_safeAreaLayoutGuideBottom);
         }];
     }
     return _tableView;
