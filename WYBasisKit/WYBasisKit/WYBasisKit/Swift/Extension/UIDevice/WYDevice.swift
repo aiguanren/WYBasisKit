@@ -11,6 +11,21 @@ import CoreMotion
 import CoreTelephony
 import AudioToolbox
 
+/// 设备折叠状态
+@available(iOS 27.1, *)
+@objc public enum WYDeviceFoldableState: Int {
+    /// 无可用铰链信息
+    case unavailable = -1
+    /// 状态未知
+    case unknown = 0
+    /// 折叠
+    case closed = 1
+    /// 半折叠
+    case partiallyOpen = 2
+    /// 展开
+    case fullyOpen = 3
+}
+
 /// 设备振动模式
 @frozen public enum WYVibrationStyle: Int {
     /// 系统震动（强烈）
@@ -46,6 +61,9 @@ public extension UIDevice {
     
     /// 导航栏安全区域高度
     static var wy_navBarSafetyZone: CGFloat {
+        if let bar = privateVisibleNavigationBar {
+            return max(0, bar.convert(bar.bounds, to: UIApplication.shared.wy_keyWindow).minY)
+        }
         return UIApplication.shared.wy_keyWindow.safeAreaInsets.top
     }
     
@@ -55,7 +73,8 @@ public extension UIDevice {
              iOS26以前默认是44像素
      */
     static var wy_navBarHeight: CGFloat {
-        return privateNavigationBar.intrinsicContentSize.height
+        if let bar = privateVisibleNavigationBar, bar.bounds.height > 0 { return bar.bounds.height }
+        return max(0, privateNavigationBar.intrinsicContentSize.height)
     }
     
     /// 导航视图高度（导航栏安全区域+导航栏）
@@ -74,9 +93,36 @@ public extension UIDevice {
              和上下文动态调整 TabBar 的高度，iOS26以前默认是49像素
      */
     static var wy_tabBarHeight: CGFloat {
-        return privateTabBar.sizeThatFits(.zero).height + wy_tabbarSafetyZone
+        return wy_tabBarContentInsets.bottom
     }
     
+    /// 当前窗口的安全区域边距
+    static var wy_windowSafeAreaInsets: UIEdgeInsets {
+        return UIApplication.shared.wy_keyWindow.safeAreaInsets
+    }
+
+    /// TabBar 容器的内容边距(包含安全区，支持底部、顶部和侧边布局)
+    static var wy_tabBarContentInsets: UIEdgeInsets {
+        let window = UIApplication.shared.wy_keyWindow
+        let controller = UIViewController.wy_currentController()
+        guard let tabs = (controller as? UITabBarController) ?? controller?.tabBarController,
+              tabs.isViewLoaded else { return window.safeAreaInsets }
+        if #available(iOS 26.0, *) {
+            let bounds = tabs.view.bounds
+            let frame = tabs.contentLayoutGuide.layoutFrame
+            if bounds.width > 0, bounds.height > 0, !frame.isEmpty {
+                return UIEdgeInsets(top: max(0, frame.minY - bounds.minY), left: max(0, frame.minX - bounds.minX),
+                                    bottom: max(0, bounds.maxY - frame.maxY), right: max(0, bounds.maxX - frame.maxX))
+            }
+        }
+        let bar = tabs.tabBar
+        guard !bar.isHidden, bar.window != nil else { return window.safeAreaInsets }
+        let frame = bar.convert(bar.bounds, to: window).intersection(window.bounds)
+        guard !frame.isNull, frame.width > frame.height else { return window.safeAreaInsets }
+        return UIEdgeInsets(top: window.safeAreaInsets.top, left: window.safeAreaInsets.left,
+                            bottom: max(window.safeAreaInsets.bottom, window.bounds.maxY - frame.minY), right: window.safeAreaInsets.right)
+    }
+
     /// 屏幕宽
     static var wy_screenWidth: CGFloat {
         return UIApplication.shared.wy_keyWindow.bounds.size.width
@@ -141,11 +187,34 @@ public extension UIDevice {
         return current.userInterfaceIdiom == .phone
     }
     
+    /// 是否是iPhone折叠屏系列(尚未取得系统铰链信息时为nil)
+    @available(iOS 27.1, *)
+    static var wy_iPhoneFoldableSeries: Bool? {
+        guard wy_iPhoneSeries else { return false }
+        if WYDeviceFoldableContext.hasObservedFoldablePhone { return true }
+        guard let context = WYDeviceFoldableContext.context(in: UIApplication.shared.wy_keyWindow),
+              context.hasReceivedUpdate else { return nil }
+        return context.hinge != nil
+    }
+
     /// 是否是iPad系列
     static var wy_iPadSeries: Bool {
         return current.userInterfaceIdiom == .pad
     }
     
+    /// iPhone折叠屏系列(当前)窗口的折叠状态
+    @available(iOS 27.1, *)
+    static var wy_foldableState: WYDeviceFoldableState {
+        guard let context = WYDeviceFoldableContext.context(in: UIApplication.shared.wy_keyWindow) else { return .unknown }
+        return WYDeviceFoldableContext.state(for: context.hinge, hasReceivedUpdate: context.hasReceivedUpdate)
+    }
+
+    /// iPhone折叠屏系列(当前)窗口的铰链角度(单位为弧度，无可用铰链信息时为nil)
+    @available(iOS 27.1, *)
+    static var wy_foldableAngle: CGFloat? {
+        return WYDeviceFoldableContext.context(in: UIApplication.shared.wy_keyWindow)?.hinge?.angle
+    }
+
     /// 是否是模拟器
     static var wy_simulatorSeries: Bool {
 #if targetEnvironment(simulator)
@@ -405,7 +474,7 @@ public extension UIDevice {
     }
     
     /// 获取当前设备屏幕方向(只会出现 portrait、landscapeLeft、landscapeRight、portraitUpsideDown 四种情况)
-    static private(set) var wy_currentInterfaceOrientation: UIInterfaceOrientationMask {
+    static internal(set) var wy_currentInterfaceOrientation: UIInterfaceOrientationMask {
         set(newValue) {
             
             objc_setAssociatedObject(self, &WYAssociatedKeys.privateCurrentInterfaceOrientation, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -461,113 +530,15 @@ public extension UIDevice {
             }
         }
     }
-}
 
-private extension UIDevice {
-    
-    // 旋转屏幕到指定方向
-    static private func wy_rotateScreenTo(_ orientation: UIInterfaceOrientation) {
-        if #available(iOS 16.0, *) {
-            UIViewController.wy_currentController()?.setNeedsUpdateOfSupportedInterfaceOrientations()
-            UIApplication.shared.wy_keyWindowScene.requestGeometryUpdate(UIWindowScene.GeometryPreferences.iOS(interfaceOrientations: self.wy_currentInterfaceOrientation)) { error in
-                WYLogManager.output("旋转屏幕方向出错啦： \(error.localizedDescription)")
-            }
-        }else {
-            UIDevice.current.setValue(orientation.rawValue, forKey: "orientation")
-            UIViewController.attemptRotationToDeviceOrientation()
-        }
-    }
-    
-    static func rotateScreenOrientationDynamically(_ orientation: UIInterfaceOrientationMask) {
-        
-        if motionManager == nil {
-            motionManager = CMMotionManager()
-            motionManager?.accelerometerUpdateInterval = 0.75
-        }
-        if motionManager!.isAccelerometerAvailable {
-            
-            motionManager!.startAccelerometerUpdates(to: OperationQueue.current!) { (accelerometerData, error) in
-                if error != nil {
-                    stopMotionManager()
-                    WYLogManager.output("启用加速传感器出错：\(error!.localizedDescription)")
-                }else {
-                    
-                    let x: Double = accelerometerData!.acceleration.x
-                    let y: Double = accelerometerData!.acceleration.y
-                    
-                    if (fabs(y) >= fabs(x)) {
-                        
-                        if orientation == .landscape {
-                            return
-                        }
-                        
-                        if y >= 0 {
-                            if orientation == .allButUpsideDown {
-                                return
-                            }
-                            
-                            wy_currentInterfaceOrientation = .portraitUpsideDown
-                            UIDevice.wy_rotateScreenTo(.portraitUpsideDown)
-                            
-                        } else {
-                            
-                            wy_currentInterfaceOrientation = .portrait
-                            UIDevice.wy_rotateScreenTo(.portrait)
-                        }
-                        
-                    }else {
-                        
-                        if x >= 0 {
-                            
-                            wy_currentInterfaceOrientation = .landscapeLeft
-                            UIDevice.wy_rotateScreenTo(.landscapeLeft)
-                            
-                        } else{
-                            
-                            wy_currentInterfaceOrientation = .landscapeRight
-                            UIDevice.wy_rotateScreenTo(.landscapeRight)
-                        }
-                    }
-                }
-            }
-        }else {
-            WYLogManager.output("当前设备不支持加速传感器")
-        }
-    }
-    
-    static func stopMotionManager() {
-        
-        guard motionManager != nil else {
-            return
-        }
-        
-        if motionManager!.isAccelerometerActive {
-            motionManager?.stopAccelerometerUpdates()
-        }
-        motionManager = nil
-    }
-    
-    static var motionManager: CMMotionManager? {
-        
-        set(newValue) {
-            
-            objc_setAssociatedObject(self, &WYAssociatedKeys.privateMotionManager, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-        }
-        get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.privateMotionManager) as? CMMotionManager
-        }
-    }
-    
-    static let privateNavigationBar: UINavigationBar = UINavigationBar()
-    
-    static let privateTabBar: UITabBar = UITabBar()
-    
-    struct WYAssociatedKeys {
-        
-        static var privateMotionManager: UInt8 = 0
-        
-        static var privateInterfaceOrientation: UInt8 = 0
-        
-        static var privateCurrentInterfaceOrientation: UInt8 = 0
+    /**
+     观察视图所在窗口的折叠状态
+     @param view 接收系统铰链更新的视图
+     @param handler 状态回调，state为当前折叠状态
+     @return 已加入view的交互对象，停止观察时调用view.removeInteraction移除
+     */
+    @available(iOS 27.1, *)
+    static func wy_observeFoldableState(in view: UIView, handler: @escaping (_ state: WYDeviceFoldableState) -> Void) -> UIHingeInteraction {
+        return WYDeviceFoldableContext.observe(in: view, handler: handler)
     }
 }

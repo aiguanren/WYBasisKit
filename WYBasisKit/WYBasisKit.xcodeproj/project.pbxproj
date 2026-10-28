@@ -323,6 +323,8 @@
 		58D99B8F3090432600B7B5A4 /* WYLocalizableManager+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99B8E3090432600B7B5A4 /* WYLocalizableManager+Implementation.swift */; };
 		58D99B993090443400B7B5A4 /* WYMethodSwizzlerCenter+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99B983090443400B7B5A4 /* WYMethodSwizzlerCenter+Implementation.swift */; };
 		58D99AC330903ED900B7B5A4 /* WYString+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99AC230903ED900B7B5A4 /* WYString+Implementation.swift */; };
+		58D999443090318D00B7B5A4 /* WYDevice+Foldable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D999433090318D00B7B5A4 /* WYDevice+Foldable.swift */; };
+		58D99AAE30903DB000B7B5A4 /* WYDevice+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99AAD30903DB000B7B5A4 /* WYDevice+Implementation.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -661,6 +663,8 @@
 		58D99B8E3090432600B7B5A4 /* WYLocalizableManager+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYLocalizableManager+Implementation.swift"; sourceTree = "<group>"; };
 		58D99B983090443400B7B5A4 /* WYMethodSwizzlerCenter+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYMethodSwizzlerCenter+Implementation.swift"; sourceTree = "<group>"; };
 		58D99AC230903ED900B7B5A4 /* WYString+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYString+Implementation.swift"; sourceTree = "<group>"; };
+		58D999433090318D00B7B5A4 /* WYDevice+Foldable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYDevice+Foldable.swift"; sourceTree = "<group>"; };
+		58D99AAD30903DB000B7B5A4 /* WYDevice+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYDevice+Implementation.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2385,6 +2389,7 @@
 			isa = PBXGroup;
 			children = (
 				58C68D0F2E84E436005FD054 /* WYDevice.swift */,
+				58D999423090317A00B7B5A4 /* PrivateImpl */,
 			);
 			path = UIDevice;
 			sourceTree = "<group>";
@@ -3212,6 +3217,15 @@
 			path = PrivateImpl;
 			sourceTree = "<group>";
 		};
+		58D999423090317A00B7B5A4 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				58D999433090318D00B7B5A4 /* WYDevice+Foldable.swift */,
+				58D99AAD30903DB000B7B5A4 /* WYDevice+Implementation.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -3642,6 +3656,8 @@
 				58D99B8F3090432600B7B5A4 /* WYLocalizableManager+Implementation.swift in Sources */,
 				58D99B993090443400B7B5A4 /* WYMethodSwizzlerCenter+Implementation.swift in Sources */,
 				58D99AC330903ED900B7B5A4 /* WYString+Implementation.swift in Sources */,
+				58D999443090318D00B7B5A4 /* WYDevice+Foldable.swift in Sources */,
+				58D99AAE30903DB000B7B5A4 /* WYDevice+Implementation.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

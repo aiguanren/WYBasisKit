@@ -78,6 +78,18 @@ import WYBasisKitSwift
         return UIDevice.wy_tabBarHeight
     }
     
+    /// 当前窗口的安全区域边距
+    @objc(wy_windowSafeAreaInsets)
+    static var wy_windowSafeAreaInsetsObjC: UIEdgeInsets {
+        return UIDevice.wy_windowSafeAreaInsets
+    }
+
+    /// TabBar 容器的内容边距(包含安全区，支持底部、顶部和侧边布局)
+    @objc(wy_tabBarContentInsets)
+    static var wy_tabBarContentInsetsObjC: UIEdgeInsets {
+        return UIDevice.wy_tabBarContentInsets
+    }
+
     /// 屏幕宽
     @objc(wy_screenWidth)
     static var wy_screenWidthObjC: CGFloat {
@@ -154,12 +166,33 @@ import WYBasisKitSwift
         return UIDevice.wy_iPhoneSeries
     }
     
+    /// 是否是iPhone折叠屏系列(尚未取得系统铰链信息时为nil)
+    @available(iOS 27.1, *)
+    @objc(wy_iPhoneFoldableSeries)
+    static var wy_iPhoneFoldableSeriesObjC: NSNumber? {
+        return UIDevice.wy_iPhoneFoldableSeries.map { NSNumber(value: $0) }
+    }
+
     /// 是否是iPad系列
     @objc(wy_iPadSeries)
     static var wy_iPadSeriesObjC: Bool {
         return UIDevice.wy_iPadSeries
     }
     
+    /// iPhone折叠屏系列(当前)窗口的折叠状态
+    @available(iOS 27.1, *)
+    @objc(wy_foldableState)
+    static var wy_foldableStateObjC: WYDeviceFoldableState {
+        return UIDevice.wy_foldableState
+    }
+
+    /// iPhone折叠屏系列(当前)窗口的铰链角度(单位为弧度，无可用铰链信息时为nil)
+    @available(iOS 27.1, *)
+    @objc(wy_foldableAngle)
+    static var wy_foldableAngleObjC: NSNumber? {
+        return UIDevice.wy_foldableAngle.map { NSNumber(value: Double($0)) }
+    }
+
     /// 是否是模拟器
     @objc(wy_simulatorSeries)
     static var wy_simulatorSeriesObjC: Bool {
@@ -290,6 +323,18 @@ import WYBasisKitSwift
         
         let style: WYVibrationStyle = WYVibrationStyle(rawValue: style.rawValue) ?? .system
         UIDevice.wy_vibrate(style, repeatCount: repeatCount, interval: interval)
+    }
+
+    /**
+     观察视图所在窗口的折叠状态
+     @param view 接收系统铰链更新的视图
+     @param handler 状态回调，state为当前折叠状态
+     @return 已加入view的交互对象，停止观察时调用view.removeInteraction移除
+     */
+    @available(iOS 27.1, *)
+    @objc(wy_observeFoldableStateInView:handler:)
+    static func wy_observeFoldableStateObjC(in view: UIView, handler: @escaping (_ state: WYDeviceFoldableState) -> Void) -> UIHingeInteraction {
+        return UIDevice.wy_observeFoldableState(in: view, handler: handler)
     }
 }
 #endif
