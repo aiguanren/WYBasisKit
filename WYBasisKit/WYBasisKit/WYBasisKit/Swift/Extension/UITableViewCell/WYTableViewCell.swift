@@ -442,7 +442,11 @@ private extension UITableViewCell {
             return gesture
         }
         
-        let gesture = UIPanGestureRecognizer(target: self, action: #selector(wy_handlePan(_:)))
+        let gesture = WYTableViewCellPanGestureRecognizer(target: self, action: #selector(wy_handlePan(_:)))
+        gesture.navigationGestureShouldWait = { [weak self] otherGestureRecognizer in
+            guard let self = self else { return false }
+            return self.wy_navigationGestureShouldWait(otherGestureRecognizer, navigationController: self.wy_parentTableView?.wy_parentViewController?.navigationController)
+        }
         gesture.delegate = self
         
         objc_setAssociatedObject(self, &WYAssociatedKeys.panGesture, gesture, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -942,8 +946,10 @@ private extension UITableViewCell {
                 }
                 
                 // 根据手势优先级处理导航栏返回手势冲突
-                let location = cell.wy_panGesture.location(in: cell)
-                let isFromLeftEdge = location.x < 30
+                let navigationView = cell.wy_parentTableView?.wy_parentViewController?.navigationController?.view ?? cell
+                let location = cell.wy_panGesture.location(in: navigationView)
+                let offset = cell.wy_panGesture.translation(in: navigationView)
+                let isFromLeftEdge = location.x - offset.x - navigationView.bounds.minX < 30
                 
                 switch cell.wy_gesturePriority {
                 case .sideslipFirst:
@@ -1099,7 +1105,12 @@ extension UITableViewCell {
         // 与导航栏返回手势同时识别
         if let navController = wy_parentTableView?.wy_parentViewController?.navigationController,
            otherGestureRecognizer == navController.interactivePopGestureRecognizer {
-            return true
+            return false
+        }
+        if #available(iOS 26.0, *),
+           let navController = wy_parentTableView?.wy_parentViewController?.navigationController,
+           otherGestureRecognizer == navController.interactiveContentPopGestureRecognizer {
+            return false
         }
         
         return false

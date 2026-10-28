@@ -252,18 +252,13 @@ public extension UIViewController {
 
 
 extension UINavigationController: @retroactive UINavigationControllerDelegate {
-    override open func viewDidLoad() {
-        super.viewDidLoad()
-        _ = UINavigationController.wy_swizzlePopOnce
-        _ = UIViewController.wy_swizzleViewWillAppearOnce
-    }
 }
 
 
 public extension UINavigationController {
     
     // 返回按钮拦截处理
-    private static let wy_swizzlePopOnce: Void = {
+    fileprivate static let wy_swizzlePopOnce: Void = {
         
         wy_swizzlerPopViewController(for: UINavigationController.self, intercept: { currentNavigationController, animated in
             // 获取当前正在显示的控制器
@@ -357,4 +352,20 @@ public extension UINavigationController {
         }
         return nil
     }
+}
+
+/// 导航扩展初始化
+@objc(WYNavigationBootstrapInstaller)
+final class WYNavigationBootstrapInstaller: NSObject {
+
+    /// 安装导航样式与返回拦截
+    @objc static func install() {
+        _ = installation
+    }
+
+    /// 导航交换只执行一次
+    private static let installation: Void = {
+        _ = UINavigationController.wy_swizzlePopOnce
+        _ = UIViewController.wy_swizzleViewWillAppearOnce
+    }()
 }

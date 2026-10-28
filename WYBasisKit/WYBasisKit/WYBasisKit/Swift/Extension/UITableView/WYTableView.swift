@@ -64,9 +64,7 @@ public extension UITableView {
         tableview.tableHeaderView = UIView()
         tableview.tableFooterView = UIView()
         tableview.contentInsetAdjustmentBehavior = .never
-        if #available(iOS 15.0, *) {
-            tableview.sectionHeaderTopPadding = 0
-        }
+        tableview.sectionHeaderTopPadding = 0
         superView?.addSubview(tableview)
         
         return tableview

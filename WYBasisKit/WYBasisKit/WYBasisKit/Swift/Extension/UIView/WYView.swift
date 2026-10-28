@@ -570,10 +570,7 @@ private extension UIView {
 
     /// 取颜色的透明度(直接读CGColor的alpha属性，图案色取不到分量时按不透明算)
     func wy_colorAlpha(_ color: UIColor) -> CGFloat {
-        if #available(iOS 14.0, *) {
-            return color.cgColor.alpha
-        }
-        return color.cgColor.components?.last ?? 1
+        return color.cgColor.alpha
     }
 
     /// 判断自身可见内容是否恰好铺满整个bounds矩形(无子视图、无自定义contents、子图层只有本库加的、背景色或渐变色不透明)
