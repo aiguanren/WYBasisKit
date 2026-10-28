@@ -69,7 +69,7 @@ import WYBasisKitSwift
 
     /**
      * 转成结构体浏览项
-     * @param return 与自身字段一致的WYPhotoBrowserItem
+     * @return 与自身字段一致的WYPhotoBrowserItem
      */
     public func toItem() -> WYPhotoBrowserItem {
         var item = WYPhotoBrowserItem()

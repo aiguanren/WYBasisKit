@@ -36,7 +36,9 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
     var livePhotoRequestGeneration: Int = -1
 
     /// LivePhoto素材下载任务(取消旧下载用)
-    var livePhotoDownloadTasks: [URLSessionTask] = []
+    var livePhotoAssemblyTask: Task<Void, Never>?
+    var livePhotoRequestID: PHLivePhotoRequestID?
+    var livePhotoAssetRequestID: PHImageRequestID?
 
     /// LivePhoto是否已就绪(就绪后才显示角标并允许长按播放)
     var isLivePhotoReady: Bool = false
@@ -97,11 +99,13 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
         progressContainerView.addSubview(progressLabel)
 
         zoomScrollView.addGestureRecognizer(doubleTapGesture)
+        zoomScrollView.panGestureRecognizer.isEnabled = false
         let singleTap = UITapGestureRecognizer(target: self, action: #selector(singleTapped))
         singleTap.require(toFail: doubleTapGesture)
         contentView.addGestureRecognizer(singleTap)
 
         let dragPan = UIPanGestureRecognizer(target: self, action: #selector(dragPanned(_:)))
+        dragPan.maximumNumberOfTouches = 1
         dragPan.delegate = self
         zoomScrollView.addGestureRecognizer(dragPan)
     }
@@ -223,6 +227,7 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
         self.item = item
         self.index = index
         self.configuration = configuration
+        zoomScrollView.maximumZoomScale = max(1, configuration.maxZoomScale)
 
         cancelLoadingTasks()
         contentImageView.kf.cancelDownloadTask()
@@ -255,6 +260,7 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
 
     override func prepareForReuse() {
         super.prepareForReuse()
+        configureGeneration += 1
         cancelLoadingTasks()
         contentImageView.kf.cancelDownloadTask()
         contentImageView.image = nil
@@ -271,8 +277,25 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
     override func layoutSubviews() {
         super.layoutSubviews()
 
+        let sizeChanged = zoomScrollView.bounds.size != contentView.bounds.size
+        let previousZoom = zoomScrollView.zoomScale
+        let center = zoomScrollView.convert(CGPoint(x: zoomScrollView.bounds.midX, y: zoomScrollView.bounds.midY), to: zoomContainer)
+        let relativeCenter = CGPoint(x: zoomContainer.bounds.width > 0 ? center.x / zoomContainer.bounds.width : 0.5,
+                                     y: zoomContainer.bounds.height > 0 ? center.y / zoomContainer.bounds.height : 0.5)
         zoomScrollView.frame = contentView.bounds
-        layoutMainContent()
+        if sizeChanged {
+            layoutMainContent()
+            if previousZoom > 1, displayedImageSize != nil {
+                zoomScrollView.setZoomScale(min(previousZoom, zoomScrollView.maximumZoomScale), animated: false)
+                centerZoomContainer()
+                let x = zoomContainer.frame.minX + max(0, min(1, relativeCenter.x)) * zoomContainer.frame.width - zoomScrollView.bounds.width / 2
+                let y = zoomContainer.frame.minY + max(0, min(1, relativeCenter.y)) * zoomContainer.frame.height - zoomScrollView.bounds.height / 2
+                let inset = zoomScrollView.adjustedContentInset
+                let maxX = max(-inset.left, zoomScrollView.contentSize.width - zoomScrollView.bounds.width + inset.right)
+                let maxY = max(-inset.top, zoomScrollView.contentSize.height - zoomScrollView.bounds.height + inset.bottom)
+                zoomScrollView.contentOffset = CGPoint(x: max(-inset.left, min(maxX, x)), y: max(-inset.top, min(maxY, y)))
+            }
+        }
         layoutOverlays()
     }
 
@@ -304,13 +327,17 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
         styleCapsule(retryButton, backgroundColor: appearance.retryButtonBackgroundColor, textColor: appearance.retryButtonTextColor, fontSize: appearance.retryButtonFontSize, capsuleHeight: UIDevice.wy_screenHeight(34, WYBasisKitConfig.defaultScreenPixels))
         styleCapsule(originalButton, backgroundColor: appearance.originalButtonBackgroundColor, textColor: appearance.originalButtonTextColor, fontSize: appearance.originalButtonFontSize, capsuleHeight: UIDevice.wy_screenHeight(32, WYBasisKitConfig.defaultScreenPixels))
         retryButton.wy_nTitle = WYLocalized("加载失败，点击重试", table: WYBasisKitConfig.kitLocalizableTable)
+        livePhotoBadge.accessibilityIdentifier = "WYPhotoBrowser.liveBadge"
+        retryButton.accessibilityIdentifier = "WYPhotoBrowser.retry"
+        originalButton.accessibilityIdentifier = "WYPhotoBrowser.original"
+        playButton.accessibilityIdentifier = "WYPhotoBrowser.videoPlay"
     }
 
     /**
      * 自定义图标超尺寸压回(内置符号图标自带点号尺寸不受影响)
      *   @param icon 播放图标
      *   @param maxSize 允许的最大边长(设计值换算后的点)
-     * @param return 不超尺寸返回原图，超了返回缩放图
+     * @return 不超尺寸返回原图，超了返回缩放图
      */
     func scaleIconIfNeeded(_ icon: UIImage?, maxSize: CGFloat) -> UIImage? {
         guard let icon = icon else { return nil }
@@ -438,9 +465,13 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
 
     /// 取消进行中的加载与合成任务(复用与重新配置时调用)
     func cancelLoadingTasks() {
-        livePhotoDownloadTasks.forEach { $0.cancel() }
-        livePhotoDownloadTasks = []
-        livePhotoRequestGeneration = configureGeneration
+        livePhotoAssemblyTask?.cancel()
+        livePhotoAssemblyTask = nil
+        livePhotoRequestGeneration = -1
+        if let request = livePhotoRequestID { PHLivePhoto.cancelRequest(withRequestID: request) }
+        livePhotoRequestID = nil
+        if let request = livePhotoAssetRequestID { PHImageManager.default().cancelImageRequest(request) }
+        livePhotoAssetRequestID = nil
     }
 
     /// 显示图片并按新尺寸重摆(用户正在缩放时只换图不重摆，避免打断手势)
@@ -461,11 +492,11 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
             zoomScrollView.contentSize = contentView.bounds.size
             return
         }
-        let fitRect = AVMakeRect(aspectRatio: imageSize, insideRect: zoomScrollView.bounds)
+        zoomScrollView.setZoomScale(1, animated: false)
+        let fitRect = AVMakeRect(aspectRatio: imageSize, insideRect: CGRect(origin: .zero, size: zoomScrollView.bounds.size))
         zoomContainer.frame = fitRect
         contentImageView.frame = zoomContainer.bounds
         livePhotoView.frame = zoomContainer.bounds
-        zoomScrollView.setZoomScale(1, animated: false)
         zoomScrollView.contentSize = CGSize(width: max(fitRect.width, zoomScrollView.bounds.width), height: max(fitRect.height, zoomScrollView.bounds.height))
         centerZoomContainer()
     }
@@ -513,7 +544,8 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
     /// 加载缩略图(本地路径与网络地址都走Kingfisher保留GIF动画，无可显内容时显示进度环)
     func loadThumbnail(item: WYPhotoBrowserItem) {
         let generation = configureGeneration
-        if let thumbnailPath = item.thumbnailPath, let fileURL = URL(string: thumbnailPath) {
+        if let thumbnailPath = item.thumbnailPath {
+            let fileURL = URL(string: thumbnailPath).flatMap { $0.isFileURL ? $0 : nil } ?? URL(fileURLWithPath: thumbnailPath)
             contentImageView.kf.setImage(with: .provider(LocalFileImageDataProvider(fileURL: fileURL)), options: [.backgroundDecode]) { [weak self] result in
                 guard let self = self, generation == self.configureGeneration else { return }
                 if case .success(let value) = result {
@@ -560,7 +592,8 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
 
     /// 按配置决定是否加载原图(本地原图直接加载，自动方式与视频封面直接下载，手动方式显示按钮)
     func loadOriginalIfSuitable(item: WYPhotoBrowserItem) {
-        if let originalPath = item.originalPath, let fileURL = URL(string: originalPath) {
+        if let originalPath = item.originalPath {
+            let fileURL = URL(string: originalPath).flatMap { $0.isFileURL ? $0 : nil } ?? URL(fileURLWithPath: originalPath)
             let generation = configureGeneration
             contentImageView.kf.setImage(with: .provider(LocalFileImageDataProvider(fileURL: fileURL)), options: [.backgroundDecode, .keepCurrentImageWhileLoading]) { [weak self] result in
                 guard let self = self, generation == self.configureGeneration else { return }
@@ -704,20 +737,26 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
             livePhotoRequestGeneration = generation
             let options = PHLivePhotoRequestOptions()
             options.deliveryMode = .highQualityFormat
+            options.isNetworkAccessAllowed = true
             let targetSize = CGSize(width: asset.pixelWidth, height: asset.pixelHeight)
-            PHImageManager.default().requestLivePhoto(for: asset, targetSize: targetSize, contentMode: .aspectFit, options: options) { [weak self] livePhoto, info in
-                guard let self = self, self.livePhotoRequestGeneration == generation else { return }
+            livePhotoAssetRequestID = PHImageManager.default().requestLivePhoto(for: asset, targetSize: targetSize, contentMode: .aspectFit, options: options) { [weak self] livePhoto, info in
                 let isDegraded = (info?[PHImageResultIsDegradedKey] as? Bool) ?? false
-                if let livePhoto = livePhoto {
-                    self.applyLivePhoto(livePhoto)
-                    if isDegraded == false {
-                        self.browser?.cacheLivePhoto(livePhoto, for: self.index)
-                    }
-                } else if self.contentImageView.image == nil {
-                    PHImageManager.default().requestImage(for: asset, targetSize: targetSize, contentMode: .aspectFit, options: nil) { [weak self] posterImage, _ in
-                        guard let self = self, self.livePhotoRequestGeneration == generation, self.contentImageView.image == nil else { return }
-                        if let posterImage = posterImage {
-                            self.applyImage(posterImage)
+                Task { @MainActor [weak self] in
+                    guard let self = self, self.livePhotoRequestGeneration == generation else { return }
+                    if let livePhoto = livePhoto {
+                        self.applyLivePhoto(livePhoto)
+                        self.isLivePhotoReady = !isDegraded
+                        self.livePhotoBadge.isHidden = isDegraded
+                        if !isDegraded { self.browser?.cacheLivePhoto(livePhoto, for: self.index) }
+                    } else if !isDegraded {
+                        self.showRetryOrNothing()
+                        if self.contentImageView.image == nil {
+                            PHImageManager.default().requestImage(for: asset, targetSize: targetSize, contentMode: .aspectFit, options: nil) { [weak self] posterImage, _ in
+                                Task { @MainActor [weak self] in
+                                    guard let self = self, self.livePhotoRequestGeneration == generation, self.contentImageView.image == nil else { return }
+                                    if let posterImage = posterImage { self.applyImage(posterImage) }
+                                }
+                            }
                         }
                     }
                 }
@@ -732,54 +771,70 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
     /// 生效LivePhoto(接管显示并亮角标)
     func applyLivePhoto(_ livePhoto: PHLivePhoto) {
         isLivePhotoReady = true
+        displayedImageSize = livePhoto.size
         livePhotoView.livePhoto = livePhoto
         livePhotoView.isHidden = false
         livePhotoBadge.isHidden = false
+        layoutMainContent()
+        hideProgressAndRetry()
     }
 
     /// 下载并合成LivePhoto素材对(网络地址先落成本地文件再交系统合成)
     func assembleLivePhoto(stillURL: URL, videoURL: URL, item: WYPhotoBrowserItem) {
         let generation = configureGeneration
-        let group = DispatchGroup()
-        let tempDirectory = FileManager.default.temporaryDirectory
-        let stillFileURL = tempDirectory.appendingPathComponent("wy_photo_browser_live_\(index)_still.\(stillURL.pathExtension.isEmpty ? "jpg" : stillURL.pathExtension)")
-        let videoFileURL = tempDirectory.appendingPathComponent("wy_photo_browser_live_\(index)_video.\(videoURL.pathExtension.isEmpty ? "mov" : videoURL.pathExtension)")
-        var downloadFailed = false
-
-        for sourceURL in [stillURL, videoURL] {
-            group.enter()
-            let task = URLSession.shared.downloadTask(with: sourceURL) { [weak self] localURL, _, error in
-                defer { group.leave() }
-                guard let self = self, generation == self.configureGeneration else { return }
-                guard let localURL = localURL, error == nil else {
-                    downloadFailed = true
-                    return
+        livePhotoRequestGeneration = generation
+        showProgress(percent: 0)
+        livePhotoAssemblyTask?.cancel()
+        livePhotoAssemblyTask = Task { @MainActor [weak self] in
+            guard let self = self else { return }
+            do {
+                var resources: [URL] = []
+                var directory: URL?
+                for (position, source) in [stillURL, videoURL].enumerated() {
+                    try Task.checkCancellation()
+                    guard generation == self.configureGeneration else { return }
+                    if source.isFileURL {
+                        guard FileManager.default.fileExists(atPath: source.path) else { throw CocoaError(.fileNoSuchFile) }
+                        resources.append(source)
+                    } else {
+                        if directory == nil {
+                            let folder = FileManager.default.temporaryDirectory.appendingPathComponent("wy_photo_browser_live_" + UUID().uuidString, isDirectory: true)
+                            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+                            directory = folder
+                            self.browser?.livePhotoResources.directories.append(folder)
+                        }
+                        let (downloaded, response) = try await URLSession.shared.download(from: source)
+                        try Task.checkCancellation()
+                        guard generation == self.configureGeneration else { return }
+                        if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
+                            throw URLError(.badServerResponse)
+                        }
+                        let ext = source.pathExtension.isEmpty ? (position == 0 ? "jpg" : "mov") : source.pathExtension
+                        let destination = directory!.appendingPathComponent(String(position) + "." + ext)
+                        try FileManager.default.moveItem(at: downloaded, to: destination)
+                        resources.append(destination)
+                    }
+                    self.showProgress(percent: CGFloat(position + 1) / 2)
                 }
-                let destinationURL = sourceURL == stillURL ? stillFileURL : videoFileURL
-                try? FileManager.default.removeItem(at: destinationURL)
-                do {
-                    try FileManager.default.moveItem(at: localURL, to: destinationURL)
-                } catch {
-                    downloadFailed = true
-                }
-            }
-            task.resume()
-            livePhotoDownloadTasks.append(task)
-        }
-
-        group.notify(queue: .main) { [weak self] in
-            guard let self = self, generation == self.configureGeneration, downloadFailed == false else { return }
-            self.livePhotoRequestGeneration = generation
-            let targetSize = self.contentView.bounds.size == .zero ? CGSize(width: 1200, height: 1200) : self.contentView.bounds.size
-            PHLivePhoto.request(withResourceFileURLs: [stillFileURL, videoFileURL], placeholderImage: item.placeholder, targetSize: targetSize, contentMode: .aspectFit) { [weak self] livePhoto, info in
-                guard let self = self, self.livePhotoRequestGeneration == generation else { return }
-                let isDegraded = (info[PHImageResultIsDegradedKey] as? Bool) ?? false
-                if let livePhoto = livePhoto {
-                    self.applyLivePhoto(livePhoto)
-                    if isDegraded == false {
-                        self.browser?.cacheLivePhoto(livePhoto, for: self.index)
+                try Task.checkCancellation()
+                guard generation == self.configureGeneration else { return }
+                self.livePhotoRequestID = PHLivePhoto.request(withResourceFileURLs: resources, placeholderImage: item.placeholder, targetSize: self.contentView.bounds.size, contentMode: .aspectFit) { [weak self] livePhoto, info in
+                    guard let self = self, self.livePhotoRequestGeneration == generation else { return }
+                    let degraded = (info[PHLivePhotoInfoIsDegradedKey] as? Bool) ?? false
+                    if let livePhoto = livePhoto {
+                        self.applyLivePhoto(livePhoto)
+                        self.isLivePhotoReady = !degraded
+                        self.livePhotoBadge.isHidden = degraded
+                        if !degraded { self.browser?.cacheLivePhoto(livePhoto, for: self.index) }
+                    } else if !degraded {
+                        self.hideProgressAndRetry()
+                        self.showRetryOrNothing()
                     }
                 }
+            } catch {
+                guard !Task.isCancelled, generation == self.configureGeneration else { return }
+                self.hideProgressAndRetry()
+                self.showRetryOrNothing()
             }
         }
     }
@@ -797,7 +852,7 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
             return
         }
         let targetScale = min(max(configuration.doubleTapZoomScale, 1), configuration.maxZoomScale)
-        let point = gesture.location(in: zoomScrollView)
+        let point = gesture.location(in: zoomContainer)
         let zoomWidth = zoomScrollView.bounds.width / targetScale
         let zoomHeight = zoomScrollView.bounds.height / targetScale
         let zoomRect = CGRect(x: point.x - zoomWidth / 2, y: point.y - zoomHeight / 2, width: zoomWidth, height: zoomHeight)
@@ -825,7 +880,7 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
             guard isDraggingToDismiss else { return }
             isDraggingToDismiss = false
             let velocity = gesture.velocity(in: contentView)
-            browser?.pageCell(self, didEndDragWithTranslation: translation, velocity: velocity)
+            browser?.pageCell(self, didEndDragWithTranslation: gesture.state == .ended ? translation : .zero, velocity: gesture.state == .ended ? velocity : .zero)
         default:
             break
         }
@@ -851,6 +906,7 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
         retryButton.isHidden = true
         progressContainerView.isHidden = true
         loadThumbnail(item: item)
+        prepareLivePhotoIfNeeded(item: item)
     }
 
     /// 原图按钮点击(待加载时开始下载，失败时重试，完成态忽略)
@@ -873,6 +929,8 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
         centerZoomContainer()
         let isZoomed = scrollView.zoomScale > 1.01
+        scrollView.panGestureRecognizer.isEnabled = isZoomed
+        guard browser?.currentIndex == index else { return }
         if let collectionView = browser?.collectionView, collectionView.isScrollEnabled == isZoomed {
             collectionView.isScrollEnabled = !isZoomed
         }
@@ -883,6 +941,13 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
     }
 
     // UIGestureRecognizerDelegate
+
+    override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        guard let pan = gestureRecognizer as? UIPanGestureRecognizer else { return true }
+        guard canBeginDragDismiss() else { return false }
+        let velocity = pan.velocity(in: contentView)
+        return abs(velocity.y) > abs(velocity.x)
+    }
 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         if gestureRecognizer is UIPanGestureRecognizer, otherGestureRecognizer == zoomScrollView.panGestureRecognizer {

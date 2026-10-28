@@ -134,7 +134,7 @@ class WYPhotoBrowserTransitionAnimator: NSObject, UIViewControllerAnimatedTransi
     /**
      * 按屏幕位置取来源视图快照(整窗普通快照裁剪出目标区域，动画时整图随容器形变，不出现局部拉伸条纹)
      *   @param frame 来源的屏幕位置
-     * @param return 快照容器(取不到时返回nil，转场降级渐隐)
+     * @return 快照容器(取不到时返回nil，转场降级渐隐)
      */
     func makeSnapshot(fromFrame frame: CGRect) -> UIView? {
         guard let window = browser?.view.window else { return nil }
