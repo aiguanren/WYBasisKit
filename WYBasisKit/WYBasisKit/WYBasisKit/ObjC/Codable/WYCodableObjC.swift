@@ -82,51 +82,33 @@ import WYBasisKitSwift
     @objc public static func encode(_ model: AnyObject, convertType: AnyClass) throws -> AnyObject {
         
         
-        guard let object = model as? NSObject else {
-            throw WYCodableErrorObjC.typeMismatch
+        let jsonObject: Any
+        if let objects = model as? [NSObject] {
+            guard objects.allSatisfy({ $0 is WYCodableProtocol }) else { throw WYCodableErrorObjC.protocolMismatch }
+            jsonObject = objects.map { WYCodableBridge.jsonFromObject($0) }
+        } else {
+            guard let object = model as? NSObject else { throw WYCodableErrorObjC.typeMismatch }
+            guard object is WYCodableProtocol else { throw WYCodableErrorObjC.protocolMismatch }
+            jsonObject = WYCodableBridge.jsonFromObject(object)
         }
-        
-        // 检查是否支持 WYCodableProtocol
-        let supportsProtocol = (object is WYCodableProtocol)
-        
-        if WYCodableConfig.debugMode {
-            let className = NSStringFromClass(type(of: object))
-            wy_codablePrint("WYCodable - Object \(className) supports WYCodableProtocol: \(supportsProtocol)")
+        if convertType == NSDictionary.self {
+            guard let dictionary = jsonObject as? [String: Any] else { throw WYCodableErrorObjC.typeMismatch }
+            return dictionary as NSDictionary
         }
-        
-        // 只支持桥接方式
-        if !supportsProtocol {
-            throw WYCodableErrorObjC.protocolMismatch
+        if convertType == NSArray.self {
+            if let array = jsonObject as? [[String: Any]] { return array as NSArray }
+            return [jsonObject] as NSArray
         }
-        
-        // 使用桥接方式编码
-        let jsonDict = WYCodableBridge.jsonFromObject(object)
-        
-        if convertType == NSString.self {
-            // 转换为JSON字符串
-            guard JSONSerialization.isValidJSONObject(jsonDict),
-                  let data = try? JSONSerialization.data(withJSONObject: jsonDict, options: []),
-                  let jsonString = String(data: data, encoding: .utf8) else {
+        if convertType == NSString.self || convertType == NSData.self {
+            guard JSONSerialization.isValidJSONObject(jsonObject),
+                  let data = try? JSONSerialization.data(withJSONObject: jsonObject, options: []) else {
                 throw WYCodableErrorObjC.dataFormatError
             }
-            return jsonString as NSString
+            if convertType == NSData.self { return data as NSData }
+            guard let string = String(data: data, encoding: .utf8) else { throw WYCodableErrorObjC.dataFormatError }
+            return string as NSString
         }
-        else if convertType == NSDictionary.self {
-            return jsonDict as NSDictionary
-        }
-        else if convertType == NSArray.self {
-            // 如果是数组，返回包含单个字典的数组
-            return [jsonDict] as NSArray
-        }
-        else if convertType == NSData.self {
-            // 转换为Data
-            guard JSONSerialization.isValidJSONObject(jsonDict),
-                  let data = try? JSONSerialization.data(withJSONObject: jsonDict, options: []) else {
-                throw WYCodableErrorObjC.dataFormatError
-            }
-            return data as NSData
-        }
-        
+
         throw WYCodableErrorObjC.typeMismatch
     }
     
@@ -248,8 +230,11 @@ private extension WYCodableObjC {
         
         if let jsonArray = jsonObject as? [[String: Any]] {
             // 数组处理
-            let resultArray = jsonArray.compactMap { jsonDict in
-                return WYCodableBridge.createObject(from: jsonDict, className: className)
+            let resultArray = try jsonArray.map { jsonDict in
+                guard let object = WYCodableBridge.createObject(from: jsonDict, className: className) else {
+                    throw WYCodableErrorObjC.typeMismatch
+                }
+                return object
             }
             return resultArray as AnyObject
         } else if let jsonDict = jsonObject as? [String: Any] {

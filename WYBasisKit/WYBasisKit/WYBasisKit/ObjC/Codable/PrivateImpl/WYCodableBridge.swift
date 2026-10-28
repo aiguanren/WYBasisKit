@@ -11,6 +11,12 @@ import Foundation
     
     /// 编码：对象 -> JSON
     @objc public static func jsonFromObject(_ object: NSObject) -> [String: Any] {
+        let visitedObjects = NSHashTable<NSObject>(options: [.weakMemory, .objectPointerPersonality])
+        visitedObjects.add(object)
+        return jsonFromObject(object, visitedObjects: visitedObjects)
+    }
+
+    @nonobjc static func jsonFromObject(_ object: NSObject, visitedObjects: NSHashTable<NSObject>) -> [String: Any] {
         // 检查是否实现了协议
         guard object is WYCodableProtocol else {
             if WYCodableConfig.debugMode {
@@ -49,7 +55,7 @@ import Foundation
                 wy_codablePrint("WYCodable - Processing property: \(propertyName) -> \(jsonKey), value: \(value)")
             }
             
-            if let transformed = encodeValue(value, propertyName: propertyName) {
+            if let transformed = WYCodableValueTransformer.encodeValue(value, visitedObjects: visitedObjects) {
                 result[jsonKey] = transformed
             }
         }
@@ -84,7 +90,7 @@ import Foundation
         }
         
         // 明确指定字典类型
-        let reverseMapping: [String: String] = Dictionary(uniqueKeysWithValues: keyMapping.map { ($1, $0) })
+        let reverseMapping = Dictionary(grouping: keyMapping.keys.sorted(), by: { keyMapping[$0]! })
         
         let properties = getAllProperties(of: object)
         let propertyMap = Dictionary(uniqueKeysWithValues: properties.map { ($0.name, $0) })
@@ -92,32 +98,38 @@ import Foundation
         var success = true
         
         for (jsonKey, jsonValue) in json {
-            let propertyName = reverseMapping[jsonKey] ?? jsonKey
-            
-            guard let property = propertyMap[propertyName] else {
-                if !WYCodableConfig.ignoreUnknownProperties {
-                    success = false
-                    if WYCodableConfig.debugMode {
-                        wy_codablePrint("WYCodable - Unknown property: \(propertyName)")
+            let propertyNames = reverseMapping[jsonKey] ?? [jsonKey]
+            for propertyName in propertyNames {
+                if shouldSkipProperty(propertyName) { continue }
+                guard let property = propertyMap[propertyName] else {
+                    if !WYCodableConfig.ignoreUnknownProperties {
+                        success = false
+                        if WYCodableConfig.debugMode {
+                            wy_codablePrint("WYCodable - Unknown property: \(propertyName)")
+                        }
                     }
+                    continue
                 }
-                continue
-            }
-            
-            if let value = decodeValue(jsonValue,
-                                       property: property,
-                                       propertyName: propertyName,
-                                       object: object) {
-                
-                object.setValue(value, forKey: propertyName)
-            } else {
-                if WYCodableConfig.debugMode {
-                    wy_codablePrint("WYCodable - Failed to decode value for key: \(propertyName)")
+                let attributes = property.attributes.components(separatedBy: ",")
+                if attributes.contains("R") { continue }
+                if jsonValue is NSNull {
+                    if property.attributes.hasPrefix("T@") { object.setValue(nil, forKey: propertyName) }
+                    continue
                 }
-                success = false
+                if let value = decodeValue(jsonValue,
+                                           property: property,
+                                           propertyName: propertyName,
+                                           object: object) {
+                    object.setValue(value, forKey: propertyName)
+                } else {
+                    if WYCodableConfig.debugMode {
+                        wy_codablePrint("WYCodable - Failed to decode value for key: \(propertyName)")
+                    }
+                    success = false
+                }
             }
         }
-        
+
         if WYCodableConfig.debugMode {
             wy_codablePrint("WYCodable - Update \(success ? "success" : "partial success") for \(type(of: object))")
         }
@@ -146,14 +158,8 @@ import Foundation
         var processedPropertyNames = Set<String>()
         
         while let currentClass = cls {
-            let className = NSStringFromClass(currentClass)
-            
             // 如果是系统框架的类，跳过（只处理用户自定义类）
-            if className.hasPrefix("NS") ||
-                className.hasPrefix("UI") ||
-                className.hasPrefix("WK") ||
-                className.hasPrefix("CA") ||
-                className.hasPrefix("_") {
+            if currentClass == NSObject.self || Bundle(for: currentClass) == Bundle(for: NSObject.self) {
                 break
             }
             
@@ -192,10 +198,6 @@ import Foundation
         return object.value(forKey: property.name)
     }
     
-    private static func encodeValue(_ value: Any, propertyName: String) -> Any? {
-        return WYCodableValueTransformer.encodeValue(value)
-    }
-    
     private static func decodeValue(_ value: Any,
                                     property: WYCodableProperty,
                                     propertyName: String,
@@ -213,6 +215,11 @@ import Foundation
         }
         
         let (targetType, genericType) = getPropertyType(from: property.attributes)
+        if let modelClass = WYCodableProtocolHelper.getObjectClassMapping(for: object)[propertyName] {
+            let className = NSStringFromClass(modelClass)
+            if let dictionary = value as? [String: Any] { return createObject(from: dictionary, className: className) }
+            if let array = value as? [Any] { return decodeObjectArray(array, elementType: className) }
+        }
         
         if WYCodableConfig.debugMode {
             wy_codablePrint("WYCodable - Property \(propertyName) targetType: \(targetType), genericType: \(genericType ?? "nil")")
@@ -221,7 +228,7 @@ import Foundation
         // 处理嵌套对象（字典 -> 对象）
         if let dictValue = value as? [String: Any] {
             // 如果没有配置，尝试使用属性类型
-            if targetType != "NSDictionary" && targetType != "NSMutableDictionary" {
+            if targetType != "NSDictionary" && targetType != "NSMutableDictionary" && targetType != "NSObject" {
                 return createObject(from: dictValue, className: targetType)
             }
         }
@@ -272,11 +279,6 @@ import Foundation
             return inferredFromName
         }
         
-        // 方法2：根据数组内容推断（如果数组元素都是字典，且有共同结构）
-        if let inferredFromContent = inferElementTypeFromArrayContent(array) {
-            return inferredFromContent
-        }
-        
         // 方法3：检查是否有对应的单数属性存在
         if let inferredFromSingular = inferElementTypeFromSingularProperty(propertyName, object: object) {
             return inferredFromSingular
@@ -288,13 +290,6 @@ import Foundation
     /// 根据属性名推断元素类型
     private static func inferElementTypeFromPropertyName(_ propertyName: String) -> String? {
         var possibleClassNames: [String] = []
-        
-        // subResponses -> SubUserResponse 的特殊处理
-        if propertyName == "subResponses" {
-            possibleClassNames.append("SubUserResponse")
-            possibleClassNames.append("SubResponse")
-            possibleClassNames.append("UserResponse")
-        }
         
         // 通用规则
         if propertyName.hasSuffix("s") {
@@ -336,39 +331,6 @@ import Foundation
         return nil
     }
     
-    /// 根据数组内容推断元素类型
-    private static func inferElementTypeFromArrayContent(_ array: [Any]) -> String? {
-        guard !array.isEmpty else { return nil }
-        
-        // 如果数组元素都是字典，检查是否有共同的键
-        let dictionaries = array.compactMap { $0 as? [String: Any] }
-        guard dictionaries.count == array.count else { return nil }
-        
-        let allKeys = Set(dictionaries.flatMap { $0.keys })
-        
-        // 基于常见字段的模式匹配
-        if allKeys.contains("iconName") {
-            // 包含 iconName 的可能是 SubUserResponse
-            return "SubUserResponse"
-        }
-        
-        // 可以添加更多模式匹配规则
-        if allKeys.contains("errorCode") && allKeys.contains("errorMessage") {
-            return "UserResponse"
-        }
-        
-        // 基于字段组合的推断
-        if allKeys.contains("userId") && allKeys.contains("userName") {
-            return "User"
-        }
-        
-        if allKeys.contains("productId") && allKeys.contains("productName") {
-            return "Product"
-        }
-        
-        return nil
-    }
-    
     /// 根据单数属性推断数组元素类型
     private static func inferElementTypeFromSingularProperty(_ propertyName: String, object: NSObject) -> String? {
         // 如果属性名是复数形式，检查是否有对应的单数属性
@@ -396,21 +358,19 @@ import Foundation
         var result: [Any] = []
         
         for element in array {
-            if let dict = element as? [String: Any],
-               let obj = createObject(from: dict, className: elementType) {
-                result.append(obj)
+            if let dictionary = element as? [String: Any] {
+                guard let object = createObject(from: dictionary, className: elementType) else { return nil }
+                result.append(object)
             } else {
-                // 如果不是字典，尝试基础类型转换
-                if let transformed = WYCodableValueTransformer.transformValue(element, toClass: elementType) {
-                    result.append(transformed)
-                }
+                guard let objectClass = NSClassFromString(elementType),
+                      let transformed = WYCodableValueTransformer.transformValue(element, toClass: elementType) as? NSObject,
+                      transformed.isKind(of: objectClass) else { return nil }
+                result.append(transformed)
             }
         }
-        
-        // 关键修复：确保返回 NSArray 类型，因为 Objective-C 属性期望 NSArray
-        return result.isEmpty ? nil : (result as NSArray) as? [Any]
+        return result
     }
-    
+
     private static func getPropertyType(from attributes: String) -> (String, String?) {
         if WYCodableConfig.debugMode {
             wy_codablePrint("WYCodable - Parsing property attributes: \(attributes)")
@@ -418,9 +378,15 @@ import Foundation
         
         let pattern = "T@\"([^\"]+)\""
         guard let regex = try? NSRegularExpression(pattern: pattern),
-              let match = regex.firstMatch(in: attributes, range: NSRange(location: 0, length: attributes.count)),
+              let match = regex.firstMatch(in: attributes, range: NSRange(location: 0, length: (attributes as NSString).length)),
               match.numberOfRanges > 1 else {
-            return ("NSObject", nil)
+            let encoding = attributes.components(separatedBy: ",").first ?? ""
+            switch encoding {
+            case "Tc", "TC", "Ts", "TS", "Ti", "TI", "Tl", "TL", "Tq", "TQ": return ("NSNumber", nil)
+            case "Tf", "Td": return ("Double", nil)
+            case "TB": return ("Bool", nil)
+            default: return ("NSObject", nil)
+            }
         }
         
         let fullType = (attributes as NSString).substring(with: match.range(at: 1))

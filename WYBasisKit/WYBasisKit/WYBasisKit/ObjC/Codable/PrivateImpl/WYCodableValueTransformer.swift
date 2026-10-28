@@ -12,6 +12,15 @@ import Foundation
     /// 基础类型转换
     @objc public static func transformValue(_ value: Any, toClass className: String) -> Any? {
         switch className {
+        case "NSURL", "URL":
+            if let url = value as? URL { return url }
+            return (value as? String).flatMap { URL(string: $0) }
+        case "NSDecimalNumber":
+            if let number = value as? NSDecimalNumber { return number }
+            let text = (value as? String) ?? (value as? NSNumber)?.stringValue
+            guard let text = text else { return nil }
+            let number = NSDecimalNumber(string: text, locale: Locale(identifier: "en_US_POSIX"))
+            return number == .notANumber ? nil : number
         case "NSString", "String":
             return transformToString(value)
         case "NSNumber", "Int", "NSInteger", "NSUInteger", "UInt":
@@ -109,12 +118,16 @@ import Foundation
     }
     
     @objc public static func encodeValue(_ value: Any) -> Any? {
-        return encodeValue(value, visitedObjects: NSHashTable<NSObject>.weakObjects())
+        return encodeValue(value, visitedObjects: NSHashTable<NSObject>(options: [.weakMemory, .objectPointerPersonality]))
     }
     
     /// 内部递归方法，跟踪已访问的对象以防止循环引用
-    private static func encodeValue(_ value: Any, visitedObjects: NSHashTable<NSObject>) -> Any? {
+    @nonobjc static func encodeValue(_ value: Any, visitedObjects: NSHashTable<NSObject>) -> Any? {
         switch value {
+        case is NSNull:
+            return NSNull()
+        case let url as URL:
+            return url.absoluteString
         case let string as String:
             return string
         case let number as NSNumber:
@@ -145,9 +158,10 @@ import Foundation
             
             // 标记为已访问
             visitedObjects.add(object)
-            
+            defer { visitedObjects.remove(object) }
+
             // 使用桥接方式编码对象
-            let json = WYCodableBridge.jsonFromObject(object)
+            let json = WYCodableBridge.jsonFromObject(object, visitedObjects: visitedObjects)
             
             // 递归处理嵌套对象
             var processedJson: [String: Any] = [:]
@@ -174,8 +188,7 @@ import Foundation
         }
         
         // 其他 Foundation 类型
-        let className = NSStringFromClass(type(of: object))
-        return className.hasPrefix("NS") || className.hasPrefix("__NSCF")
+        return Bundle(for: type(of: object)) == Bundle(for: NSObject.self)
     }
     
     /// 清空编码对象缓存（用于重置状态）
