@@ -216,9 +216,9 @@ PODS:
     - WYBasisKit-swift/NetworkMonitor (= 26.10.1)
     - WYBasisKit-swift/Storage (= 26.10.1)
   - WYBasisKit-swift/Activity (26.10.1):
+    - WYBasisKit-swift/Extension
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-    - WYBasisKit-swift/MethodSwizzler
   - WYBasisKit-swift/AudioKit (26.10.1):
     - WYBasisKit-swift/Authorization/Microphone
     - WYBasisKit-swift/Localizable
@@ -259,7 +259,18 @@ PODS:
     - WYBasisKit-swift/Config
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-    - WYBasisKit-swift/MethodSwizzler
+    - WYBasisKit-swift/MethodSwizzler/UIGestureRecognizerDelegate/GestureRecognizerShouldBegin
+    - WYBasisKit-swift/MethodSwizzler/UILabel/DrawText
+    - WYBasisKit-swift/MethodSwizzler/UINavigationController/PopViewController
+    - WYBasisKit-swift/MethodSwizzler/UIResponder/TouchesBegan
+    - WYBasisKit-swift/MethodSwizzler/UIResponder/TouchesCancelled
+    - WYBasisKit-swift/MethodSwizzler/UIResponder/TouchesEnded
+    - WYBasisKit-swift/MethodSwizzler/UIResponder/TouchesMoved
+    - WYBasisKit-swift/MethodSwizzler/UIView/HitTest
+    - WYBasisKit-swift/MethodSwizzler/UIView/IntrinsicContentSize
+    - WYBasisKit-swift/MethodSwizzler/UIView/LayoutSubviews
+    - WYBasisKit-swift/MethodSwizzler/UIViewController/Present
+    - WYBasisKit-swift/MethodSwizzler/UIViewController/ViewWillAppear
   - WYBasisKit-swift/ImageEditor (26.10.1):
     - WYBasisKit-swift/Extension
   - WYBasisKit-swift/Layout (26.10.1):
@@ -273,9 +284,9 @@ PODS:
     - WYBasisKit-swift/Layout/SoundWavesView (= 26.10.1)
     - WYBasisKit-swift/Layout/VideoPlayer (= 26.10.1)
   - WYBasisKit-swift/Layout/AirBubbleView (26.10.1):
+    - WYBasisKit-swift/Extension
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-    - WYBasisKit-swift/MethodSwizzler
   - WYBasisKit-swift/Layout/ChatView (26.10.1):
     - Kingfisher
     - SnapKit
@@ -288,16 +299,16 @@ PODS:
     - WYBasisKit-swift/LogManager
     - WYBasisKit-swift/Storage
   - WYBasisKit-swift/Layout/ContentScrollView (26.10.1):
+    - WYBasisKit-swift/Extension
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
-    - WYBasisKit-swift/MethodSwizzler
   - WYBasisKit-swift/Layout/DanmakuView (26.10.1):
     - WYBasisKit-swift/Extension
   - WYBasisKit-swift/Layout/MediaPlayer (26.10.1):
     - IJKPlayerKit (= 1.1.0)
   - WYBasisKit-swift/Layout/PagingView (26.10.1):
+    - WYBasisKit-swift/Extension
     - WYBasisKit-swift/LogManager
-    - WYBasisKit-swift/MethodSwizzler
   - WYBasisKit-swift/Layout/PhotoBrowser (26.10.1):
     - Kingfisher
     - WYBasisKit-swift/Activity
@@ -319,8 +330,125 @@ PODS:
     - WYBasisKit-swift/NetworkMonitor
     - WYBasisKit-swift/Storage
   - WYBasisKit-swift/MethodSwizzler (26.10.1):
-    - WYBasisKit-swift/Localizable
-    - WYBasisKit-swift/LogManager
+    - WYBasisKit-swift/MethodSwizzler/General (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/KVO (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UICollectionViewLayout (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UIGestureRecognizerDelegate (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UILabel (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UINavigationController (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UIResponder (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UIScrollViewDelegate (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UIView (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UIViewController (= 26.10.1)
+  - WYBasisKit-swift/MethodSwizzler/General (26.10.1)
+  - WYBasisKit-swift/MethodSwizzler/KVO (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/KVO/ObserveValue (= 26.10.1)
+  - WYBasisKit-swift/MethodSwizzler/KVO/ObserveValue (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UICollectionViewLayout (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/UICollectionViewLayout/CollectionViewContentSize (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UICollectionViewLayout/LayoutAttributesForElements (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UICollectionViewLayout/LayoutAttributesForItem (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UICollectionViewLayout/LayoutAttributesForSupplementaryView (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UICollectionViewLayout/Prepare (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UICollectionViewLayout/ShouldInvalidateLayout (= 26.10.1)
+  - WYBasisKit-swift/MethodSwizzler/UICollectionViewLayout/CollectionViewContentSize (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UICollectionViewLayout/LayoutAttributesForElements (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UICollectionViewLayout/LayoutAttributesForItem (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UICollectionViewLayout/LayoutAttributesForSupplementaryView (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UICollectionViewLayout/Prepare (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UICollectionViewLayout/ShouldInvalidateLayout (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UIGestureRecognizerDelegate (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/UIGestureRecognizerDelegate/GestureRecognizerShouldBegin (= 26.10.1)
+  - WYBasisKit-swift/MethodSwizzler/UIGestureRecognizerDelegate/GestureRecognizerShouldBegin (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UILabel (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/UILabel/DrawText (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UILabel/TextRect (= 26.10.1)
+  - WYBasisKit-swift/MethodSwizzler/UILabel/DrawText (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UILabel/TextRect (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UINavigationController (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/UINavigationController/PopViewController (= 26.10.1)
+  - WYBasisKit-swift/MethodSwizzler/UINavigationController/PopViewController (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UIResponder (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/UIResponder/TouchesBegan (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UIResponder/TouchesCancelled (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UIResponder/TouchesEnded (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UIResponder/TouchesMoved (= 26.10.1)
+  - WYBasisKit-swift/MethodSwizzler/UIResponder/TouchesBegan (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UIResponder/TouchesCancelled (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UIResponder/TouchesEnded (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UIResponder/TouchesMoved (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UIScrollViewDelegate (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewDidEndDecelerating (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewDidEndDragging (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewDidScroll (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewDidZoom (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewWillBeginDecelerating (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewWillBeginDragging (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewWillEndDragging (= 26.10.1)
+  - WYBasisKit-swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewDidEndDecelerating (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewDidEndDragging (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewDidScroll (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewDidZoom (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewWillBeginDecelerating (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewWillBeginDragging (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewWillEndDragging (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UIView (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/UIView/DrawRect (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UIView/HitTest (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UIView/IntrinsicContentSize (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UIView/LayoutSubviews (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UIView/SizeThatFits (= 26.10.1)
+  - WYBasisKit-swift/MethodSwizzler/UIView/DrawRect (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UIView/HitTest (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UIView/IntrinsicContentSize (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UIView/LayoutSubviews (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UIView/SizeThatFits (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UIViewController (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/UIViewController/Present (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UIViewController/ViewDidAppear (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UIViewController/ViewDidDisappear (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UIViewController/ViewDidLoad (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UIViewController/ViewWillAppear (= 26.10.1)
+    - WYBasisKit-swift/MethodSwizzler/UIViewController/ViewWillDisappear (= 26.10.1)
+  - WYBasisKit-swift/MethodSwizzler/UIViewController/Present (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UIViewController/ViewDidAppear (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UIViewController/ViewDidDisappear (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UIViewController/ViewDidLoad (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UIViewController/ViewWillAppear (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
+  - WYBasisKit-swift/MethodSwizzler/UIViewController/ViewWillDisappear (26.10.1):
+    - WYBasisKit-swift/MethodSwizzler/General
   - WYBasisKit-swift/Networking (26.10.1):
     - Moya
     - WYBasisKit-swift/Codable
@@ -396,9 +524,9 @@ SPEC CHECKSUMS:
   SDWebImageWebPCoder: 0e06e365080397465cc73a7a9b472d8a3bd0f377
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
   WYBasisKit-ObjC: edf3bc6334b80793144f2fd3d770ca3c83fb4746
-  WYBasisKit-swift: 28d3d1ca907a0ed0c3dba1ac4787fdbba307cdeb
+  WYBasisKit-swift: cf03a483bcfaa6ddcba7cde0ac77ee263127bdcb
   WYBasisKit-SwiftUI: 859159655bf83de70b4d8c1905fa318724e66664
 
-PODFILE CHECKSUM: b05c65a588bef42c839967a986c579e7ad993f2f
+PODFILE CHECKSUM: c0237d73aa154b85d7e516759a5d5267c9ecb2de
 
 COCOAPODS: 1.17.0

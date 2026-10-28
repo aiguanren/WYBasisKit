@@ -26,7 +26,7 @@ Pod::Spec.new do |kit|
     ImageEditor: 相片裁剪与标记(矩形圆形支持固定或自由尺寸，文本矩形圆形箭头划线标记，马赛克涂抹框选打码，文字logo组合水印与整图平铺)
     PhotoBrowser: 图片浏览器(大图缩放浏览与缩放转场拖拽关闭，LivePhoto长按播放，视频封面点击播放回调)
     AudioKit: 音频录制与播放
-    MethodSwizzler: 内部使用，第三方请勿调用
+    MethodSwizzler: 可按能力选择集成的方法交换工具
   DESC
   
   kit.homepage     = "https://github.com/aiguanren/WYBasisKit"
@@ -102,16 +102,161 @@ Pod::Spec.new do |kit|
   # } 
 
   kit.subspec "MethodSwizzler" do |methodSwizzler|
-    methodSwizzler.source_files = [
-      "#{kit_path}Swift/MethodSwizzler/**/*.{swift,h,m}",
-      "#{kit_path}Swift/Extension/Task/**/*.{swift,h,m}"
-    ]
-    methodSwizzler.resource_bundles = {"WYBasisKitSwiftMethodSwizzler" => [
-      "#{kit_path}Swift/PrivacyInfo.xcprivacy"
-    ]}
     methodSwizzler.frameworks = "Foundation", "UIKit"
-    methodSwizzler.dependency "WYBasisKit-swift/LogManager"
-    methodSwizzler.dependency "WYBasisKit-swift/Localizable"
+    methodSwizzler.subspec "General" do |general|
+      general.source_files = ["#{kit_path}Swift/MethodSwizzler/General/**/*.{swift,h,m}"]
+      general.resource_bundles = {"WYBasisKitSwiftMethodSwizzler" => ["#{kit_path}Swift/PrivacyInfo.xcprivacy"]}
+    end
+    methodSwizzler.subspec "KVO" do |group|
+      group.subspec "ObserveValue" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/KVO/ObserveValue/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+    end
+    methodSwizzler.subspec "UICollectionViewLayout" do |group|
+      group.subspec "CollectionViewContentSize" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UICollectionViewLayout/CollectionViewContentSize/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+      group.subspec "LayoutAttributesForElements" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UICollectionViewLayout/LayoutAttributesForElements/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+      group.subspec "LayoutAttributesForItem" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UICollectionViewLayout/LayoutAttributesForItem/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+      group.subspec "LayoutAttributesForSupplementaryView" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UICollectionViewLayout/LayoutAttributesForSupplementaryView/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+      group.subspec "Prepare" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UICollectionViewLayout/Prepare/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+      group.subspec "ShouldInvalidateLayout" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UICollectionViewLayout/ShouldInvalidateLayout/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+    end
+    methodSwizzler.subspec "UIGestureRecognizerDelegate" do |group|
+      group.subspec "GestureRecognizerShouldBegin" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UIGestureRecognizerDelegate/GestureRecognizerShouldBegin/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+    end
+    methodSwizzler.subspec "UILabel" do |group|
+      group.subspec "DrawText" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UILabel/DrawText/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+      group.subspec "TextRect" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UILabel/TextRect/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+    end
+    methodSwizzler.subspec "UINavigationController" do |group|
+      group.subspec "PopViewController" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UINavigationController/PopViewController/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+    end
+    methodSwizzler.subspec "UIResponder" do |group|
+      group.subspec "TouchesBegan" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UIResponder/TouchesBegan/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+      group.subspec "TouchesCancelled" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UIResponder/TouchesCancelled/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+      group.subspec "TouchesEnded" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UIResponder/TouchesEnded/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+      group.subspec "TouchesMoved" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UIResponder/TouchesMoved/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+    end
+    methodSwizzler.subspec "UIScrollViewDelegate" do |group|
+      group.subspec "ScrollViewDidEndDecelerating" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewDidEndDecelerating/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+      group.subspec "ScrollViewDidEndDragging" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewDidEndDragging/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+      group.subspec "ScrollViewDidScroll" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewDidScroll/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+      group.subspec "ScrollViewDidZoom" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewDidZoom/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+      group.subspec "ScrollViewWillBeginDecelerating" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewWillBeginDecelerating/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+      group.subspec "ScrollViewWillBeginDragging" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewWillBeginDragging/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+      group.subspec "ScrollViewWillEndDragging" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewWillEndDragging/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+    end
+    methodSwizzler.subspec "UIView" do |group|
+      group.subspec "DrawRect" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UIView/DrawRect/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+      group.subspec "HitTest" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UIView/HitTest/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+      group.subspec "IntrinsicContentSize" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UIView/IntrinsicContentSize/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+      group.subspec "LayoutSubviews" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UIView/LayoutSubviews/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+      group.subspec "SizeThatFits" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UIView/SizeThatFits/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+    end
+    methodSwizzler.subspec "UIViewController" do |group|
+      group.subspec "Present" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UIViewController/Present/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+      group.subspec "ViewDidAppear" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UIViewController/ViewDidAppear/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+      group.subspec "ViewDidDisappear" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UIViewController/ViewDidDisappear/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+      group.subspec "ViewDidLoad" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UIViewController/ViewDidLoad/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+      group.subspec "ViewWillAppear" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UIViewController/ViewWillAppear/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+      group.subspec "ViewWillDisappear" do |hook|
+        hook.source_files = ["#{kit_path}Swift/MethodSwizzler/UIViewController/ViewWillDisappear/**/*.{swift,h,m}"]
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/General"
+      end
+    end
   end
 
   kit.subspec "Config" do |config|
@@ -179,7 +324,18 @@ Pod::Spec.new do |kit|
     extension.dependency "WYBasisKit-swift/Localizable"
     extension.dependency "WYBasisKit-swift/Config"
     extension.dependency "WYBasisKit-swift/LogManager"
-    extension.dependency "WYBasisKit-swift/MethodSwizzler"
+    extension.dependency "WYBasisKit-swift/MethodSwizzler/UIResponder/TouchesBegan"
+    extension.dependency "WYBasisKit-swift/MethodSwizzler/UIResponder/TouchesMoved"
+    extension.dependency "WYBasisKit-swift/MethodSwizzler/UIResponder/TouchesEnded"
+    extension.dependency "WYBasisKit-swift/MethodSwizzler/UIResponder/TouchesCancelled"
+    extension.dependency "WYBasisKit-swift/MethodSwizzler/UIView/LayoutSubviews"
+    extension.dependency "WYBasisKit-swift/MethodSwizzler/UIView/HitTest"
+    extension.dependency "WYBasisKit-swift/MethodSwizzler/UIView/IntrinsicContentSize"
+    extension.dependency "WYBasisKit-swift/MethodSwizzler/UILabel/DrawText"
+    extension.dependency "WYBasisKit-swift/MethodSwizzler/UIViewController/Present"
+    extension.dependency "WYBasisKit-swift/MethodSwizzler/UIViewController/ViewWillAppear"
+    extension.dependency "WYBasisKit-swift/MethodSwizzler/UINavigationController/PopViewController"
+    extension.dependency "WYBasisKit-swift/MethodSwizzler/UIGestureRecognizerDelegate/GestureRecognizerShouldBegin"
   end
   
   kit.subspec "Codable" do |codable|
@@ -224,17 +380,7 @@ Pod::Spec.new do |kit|
   end
   
   kit.subspec "Activity" do |activity|
-    activity.source_files = [
-      "#{kit_path}Swift/Activity/**/*.{swift,h,m}",
-      "#{kit_path}Swift/Extension/UIView/**/*.{swift,h,m}",
-      "#{kit_path}Swift/Extension/UIViewController/**/*.{swift,h,m}",
-      "#{kit_path}Swift/Extension/AttributedString/**/*.{swift,h,m}",
-      "#{kit_path}Swift/Extension/UILabel/**/*.{swift,h,m}",
-      "#{kit_path}Swift/Extension/String/**/*.{swift,h,m}",
-      "#{kit_path}Swift/Extension/UIImage/**/*.{swift,h,m}",
-      "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",
-      "#{kit_path}Swift/Config/**/*.{swift}"
-    ]
+    activity.source_files = ["#{kit_path}Swift/Activity/**/*.{swift,h,m}"]
     activity.resources = [
       localizable_bundle,
       "#{kit_path}Swift/Activity/WYActivity.bundle"
@@ -243,9 +389,10 @@ Pod::Spec.new do |kit|
       "#{kit_path}Swift/PrivacyInfo.xcprivacy"
     ]}
     activity.frameworks = "Foundation", "UIKit"
+    activity.dependency "WYBasisKit-swift/Extension"
     activity.dependency "WYBasisKit-swift/Localizable"
     activity.dependency "WYBasisKit-swift/LogManager"
-    activity.dependency "WYBasisKit-swift/MethodSwizzler"
+
   end
   
   kit.subspec "Storage" do |storage|
@@ -400,21 +547,15 @@ Pod::Spec.new do |kit|
       "#{kit_path}Swift/PrivacyInfo.xcprivacy"
     ]}
     layout.subspec "AirBubbleView" do |airBubble|
-      airBubble.source_files = [
-        "#{kit_path}Swift/Layout/AirBubbleView/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Extension/UIView/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Extension/UIViewController/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Extension/UIApplication/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Config/**/*.{swift}"
-      ]
+      airBubble.source_files = ["#{kit_path}Swift/Layout/AirBubbleView/**/*.{swift,h,m}"]
       airBubble.resource_bundles = {"WYBasisKitSwiftLayoutAirBubbleView" => [
         "#{kit_path}Swift/PrivacyInfo.xcprivacy"
       ]}
       airBubble.frameworks = "Foundation", "UIKit"
+      airBubble.dependency "WYBasisKit-swift/Extension"
       airBubble.dependency "WYBasisKit-swift/Localizable"
       airBubble.dependency "WYBasisKit-swift/LogManager"
-      airBubble.dependency "WYBasisKit-swift/MethodSwizzler"
+
     end
 
     layout.subspec "SoundWavesView" do |soundWavesView|
@@ -428,40 +569,26 @@ Pod::Spec.new do |kit|
     end
     
     layout.subspec "PagingView" do |pagingView|
-      pagingView.source_files = [
-        "#{kit_path}Swift/Layout/PagingView/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Extension/UIView/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Extension/UIButton/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Extension/UIColor/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Extension/UIImage/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Extension/UIFont/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Extension/UIViewController/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Config/**/*.{swift,h,m}"
-      ]
+      pagingView.source_files = ["#{kit_path}Swift/Layout/PagingView/**/*.{swift,h,m}"]
       pagingView.resource_bundles = {"WYBasisKitSwiftLayoutPagingView" => [
         "#{kit_path}Swift/PrivacyInfo.xcprivacy"
       ]}
       pagingView.frameworks = "Foundation", "UIKit"
+      pagingView.dependency "WYBasisKit-swift/Extension"
       pagingView.dependency "WYBasisKit-swift/LogManager"
-      pagingView.dependency "WYBasisKit-swift/MethodSwizzler"
+
     end
 
     layout.subspec "ContentScrollView" do |contentScrollView|
-      contentScrollView.source_files = [
-        "#{kit_path}Swift/Layout/ContentScrollView/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Extension/UIView/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Extension/UIDevice/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Extension/UIViewController/**/*.{swift,h,m}",
-        "#{kit_path}Swift/Extension/UIScrollView/**/*.{swift,h,m}"
-      ]
+      contentScrollView.source_files = ["#{kit_path}Swift/Layout/ContentScrollView/**/*.{swift,h,m}"]
       contentScrollView.resource_bundles = {"WYBasisKitSwiftLayoutContentScrollView" => [
         "#{kit_path}Swift/PrivacyInfo.xcprivacy"
       ]}
       contentScrollView.frameworks = "Foundation", "UIKit"
+      contentScrollView.dependency "WYBasisKit-swift/Extension"
       contentScrollView.dependency "WYBasisKit-swift/Localizable"
       contentScrollView.dependency "WYBasisKit-swift/LogManager"
-      contentScrollView.dependency "WYBasisKit-swift/MethodSwizzler"
+
     end
     
     layout.subspec "ChatView" do |chatView|
