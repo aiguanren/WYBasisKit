@@ -162,7 +162,23 @@ class WYImageCropperView: UIView {
 
     /// bounds变化后重新适配(首次布局与屏幕旋转时调用)
     func relayoutForNewBounds() {
+        let region = cropRectInImageCoordinates()
         applyInitialLayout()
+        guard bounds.width > 0, bounds.height > 0, region.width > 0, region.height > 0 else { return }
+
+        if fixedOutputSize == nil {
+            let scale = min(bounds.width / region.width, bounds.height / region.height)
+            let size = CGSize(width: region.width * scale, height: region.height * scale)
+            cropBox = CGRect(x: bounds.midX - size.width / 2, y: bounds.midY - size.height / 2, width: size.width, height: size.height)
+        }
+        let zoom = max(cropBox.width / region.width, cropBox.height / region.height)
+        scrollView.maximumZoomScale = max(scrollView.maximumZoomScale, zoom)
+        scrollView.minimumZoomScale = min(scrollView.minimumZoomScale, zoom)
+        scrollView.zoomScale = zoom
+        centerContentWithInset()
+        scrollView.layoutIfNeeded()
+        scrollView.contentOffset = CGPoint(x: region.minX * zoom - cropBox.minX, y: region.minY * zoom - cropBox.minY)
+        overlayView.updateCropBox(cropBox, shape: shape, showsHandles: fixedOutputSize == nil)
     }
 
     /// 当前裁剪框映射到图片坐标系的范围(与图片实际范围取交集，拖出图片边界的部分自动裁掉)
@@ -181,7 +197,7 @@ class WYImageCropperView: UIView {
         super.layoutSubviews()
         overlayView.frame = bounds
         if needsRelayoutAfterBoundsChange {
-            applyInitialLayout()
+            relayoutForNewBounds()
         }
     }
 
