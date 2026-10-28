@@ -9,7 +9,6 @@ import UIKit
 
 class WYTestAirBubbleController: UIViewController {
 
-    // MARK: - 交互气泡（悬浮于顶部）
     private var bubbleContainer: UIView!
     private var interactiveBubble: WYAirBubbleView!
     private var bubbleDescriptionLabel: UILabel!
@@ -20,12 +19,10 @@ class WYTestAirBubbleController: UIViewController {
     private var bubbleTopConstraint: NSLayoutConstraint!
     private var containerHeightConstraint: NSLayoutConstraint!
 
-    // MARK: - 滚动容器
     private var scrollView: UIScrollView!
     private var contentView: UIView!
     private var staticVerticalStack: UIStackView!
 
-    // MARK: - 控件
     private var directionSegmented: UISegmentedControl!
     private var showArrowSwitch: UISwitch!
     private var radiusSlider: UISlider!
@@ -79,7 +76,6 @@ class WYTestAirBubbleController: UIViewController {
     // 预估描述标签高度（用于边界计算）
     private let estimatedDescriptionHeight: CGFloat = 80
 
-    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -106,7 +102,6 @@ class WYTestAirBubbleController: UIViewController {
         }
     }
 
-    // MARK: - 滚动容器
 
     private func setupScrollView() {
         scrollView = UIScrollView()
@@ -132,7 +127,6 @@ class WYTestAirBubbleController: UIViewController {
         ])
     }
 
-    // MARK: - 静态示例（使用 StackView 管理）
 
     private func setupStaticExamples() {
         typealias BubbleConfig = (WYAirBubbleView) -> Void
@@ -284,7 +278,6 @@ class WYTestAirBubbleController: UIViewController {
         }
     }
 
-    // MARK: - 交互气泡（悬浮于顶部）
 
     private func setupInteractiveBubble() {
         bubbleContainer = UIView()
@@ -359,7 +352,6 @@ class WYTestAirBubbleController: UIViewController {
         }
     }
 
-    // MARK: - 控制控件
 
     private func setupControls() {
         let stack = UIStackView()
@@ -590,7 +582,6 @@ class WYTestAirBubbleController: UIViewController {
         stack.addArrangedSubview(resetAllButton)
     }
 
-    // MARK: - 辅助：滑块行
 
     private func makeSliderRow(label: String, min: Float, max: Float, value: Float, action: Selector) -> (view: UIStackView, slider: UISlider) {
         let stack = UIStackView()
@@ -634,7 +625,6 @@ class WYTestAirBubbleController: UIViewController {
         }
     }
 
-    // MARK: - 辅助：颜色按钮行
 
     private func makeColorButtonRow(label: String, colors: [(UIColor, String)], target: Any?, action: Selector) -> (view: UIStackView, buttons: [UIButton]) {
         let stack = UIStackView()
@@ -670,7 +660,6 @@ class WYTestAirBubbleController: UIViewController {
         return (stack, buttons)
     }
 
-    // MARK: - 边界限制函数
 
     /// 根据当前容器尺寸和气泡尺寸，将状态值限制在有效范围内，防止超出容器
     private func clampState(_ state: (x: CGFloat, y: CGFloat, width: CGFloat, height: CGFloat)) -> (x: CGFloat, y: CGFloat, width: CGFloat, height: CGFloat) {
@@ -706,7 +695,6 @@ class WYTestAirBubbleController: UIViewController {
         return (clampedX, clampedY, clampedWidth, clampedHeight)
     }
 
-    // MARK: - 状态应用方法（使用约束，并应用边界限制）
 
     private func applyState(_ state: (x: CGFloat, y: CGFloat, width: CGFloat, height: CGFloat),
                             animated: Bool,
@@ -731,7 +719,6 @@ class WYTestAirBubbleController: UIViewController {
         }
     }
 
-    // MARK: - 滑块回调
 
     @objc private func initialXChanged(_ sender: UISlider) {
         initialState.x = CGFloat(sender.value)
@@ -801,7 +788,6 @@ class WYTestAirBubbleController: UIViewController {
         updateLabel(for: sender)
     }
 
-    // MARK: - 动画操作
 
     @objc private func startAnimation() {
         // 取消当前动画
@@ -836,7 +822,6 @@ class WYTestAirBubbleController: UIViewController {
         updateStatusLabel()
     }
 
-    // MARK: - 原有控件响应
 
     @objc private func directionChanged(_ sender: UISegmentedControl) {
         let directions: [WYArrowDirection] = [.top, .bottom, .left, .right]
@@ -1025,7 +1010,6 @@ class WYTestAirBubbleController: UIViewController {
         updateStatusLabel()
     }
 
-    // MARK: - 重置所有
 
     @objc private func resetAllTapped() {
         interactiveBubble.layer.removeAllAnimations()
@@ -1134,7 +1118,6 @@ class WYTestAirBubbleController: UIViewController {
         updateStatusLabel()
     }
 
-    // MARK: - 状态更新
 
     private func updateStatusLabel() {
         let dirNames = ["上", "下", "左", "右"]
@@ -1212,7 +1195,6 @@ class WYTestAirBubbleController: UIViewController {
     }
 }
 
-// MARK: - 辅助扩展
 
 extension UIView {
     func viewWithAccessibilityIdentifier(_ identifier: String) -> UIView? {

@@ -79,10 +79,10 @@
 /// 播放时间标签
 @property (strong, nonatomic) UILabel *timeLabel;
 
-/// 素材切换条(三个公共示例视频，后两个体积小适合演示容量淘汰)
+/// 素材切换条(四个公共示例视频，后两个体积小适合演示容量淘汰)
 @property (strong, nonatomic) UISegmentedControl *mediaSegment;
 
-/// 素材清单(地址为谷歌公共示例视频)
+/// 素材清单(地址为数英、test-videos 与 MDN 的公共示例视频，前两项为长片方便观察缓存进度)
 @property (copy, nonatomic) NSArray<NSURL *> *mediaList;
 
 /// 当前素材下标
@@ -120,7 +120,8 @@
     [super viewDidLoad];
     self.view.backgroundColor = UIColor.whiteColor;
     self.title = @"视频边下边播";
-    self.mediaList = @[[NSURL URLWithString:@"https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_5MB.mp4"],
+    self.mediaList = @[[NSURL URLWithString:@"https://file.digitaling.com/eImg/uvideos/2026/0202/1770014172754013.mp4"],
+                       [NSURL URLWithString:@"https://file.digitaling.com/eImg/uvideos/2026/0202/1770014287213328.mp4"],
                        [NSURL URLWithString:@"https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4"],
                        [NSURL URLWithString:@"https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"]];
     [self setupPlayerUI];
@@ -146,7 +147,7 @@
     self.playerLayer.videoGravity = AVLayerVideoGravityResizeAspect;
     [self.playerContainer.layer addSublayer:self.playerLayer];
 
-    self.mediaSegment = [[UISegmentedControl alloc] initWithItems:@[@"主视频", @"小视频1", @"小视频2"]];
+    self.mediaSegment = [[UISegmentedControl alloc] initWithItems:@[@"正片 87MB", @"花絮 33MB", @"小视频1", @"小视频2"]];
     self.mediaSegment.selectedSegmentIndex = 0;
     [self.mediaSegment addTarget:self action:@selector(mediaSegmentChanged) forControlEvents:UIControlEventValueChanged];
     [self.view addSubview:self.mediaSegment];
@@ -356,8 +357,8 @@
     long long originalLimit = WYMediaCacheConfig.shared.maxCacheSize;
     WYMediaCacheConfig.shared.maxCacheSize = 2 * 1024 * 1024;
     self.statusLabel.text = @"容量上限临时调为 2MB，开始下载小视频1";
-    NSURL *firstURL = self.mediaList[1];
-    NSURL *secondURL = self.mediaList[2];
+    NSURL *firstURL = self.mediaList[2];
+    NSURL *secondURL = self.mediaList[3];
     [WYMediaCache.shared downloadWithURL:firstURL progress:nil completion:^(NSError *error) {
         WYMediaCacheStatus *firstStatus = [WYMediaCache.shared cacheStatusForURL:firstURL];
         self.statusLabel.text = [NSString stringWithFormat:@"小视频1完成(完整 %d)，开始下载小视频2", firstStatus.isFullyCached];

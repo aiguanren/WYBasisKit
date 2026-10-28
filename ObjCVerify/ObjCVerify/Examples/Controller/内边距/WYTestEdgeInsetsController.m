@@ -58,34 +58,32 @@
         make.centerY.equalTo(button.mas_bottom).offset(100);
     }];
     
-    if (@available(iOS 15.0, *)) {
-        
-        UIButtonConfiguration *config = [UIButtonConfiguration plainButtonConfiguration];
-        
-        config.title = @"config按钮";
-        config.image = [UIImage wy_find:@"tabbar_right_selected"];
-        config.imagePlacement = NSDirectionalRectEdgeTop;        // 图片在上，文字在下
-        config.imagePadding = 5;
-        config.contentInsets = NSDirectionalEdgeInsetsMake(20, 30, 20, 30);
-        
-        UIButton *configButton = [UIButton buttonWithConfiguration:config primaryAction:nil];
-        
-        configButton.backgroundColor = [UIColor wy_random];
-        
-        configButton.titleLabel.backgroundColor = [UIColor wy_random];
-        configButton.imageView.backgroundColor = [UIColor wy_random];
-        
-        configButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
-        
-        [self.view addSubview:configButton];
-        
-        [configButton mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.equalTo(self.view).offset(10);
-            make.centerY.equalTo(itemButton.mas_bottom).offset(100);
-        }];
-        
-        [configButton wy_adjustPosition:WYButtonPositionImageTopTitleBottom spacing:10];
-    }
+    
+    UIButtonConfiguration *config = [UIButtonConfiguration plainButtonConfiguration];
+    
+    config.title = @"config按钮";
+    config.image = [UIImage wy_find:@"tabbar_right_selected"];
+    config.imagePlacement = NSDirectionalRectEdgeTop;        // 图片在上，文字在下
+    config.imagePadding = 5;
+    config.contentInsets = NSDirectionalEdgeInsetsMake(20, 30, 20, 30);
+    
+    UIButton *configButton = [UIButton buttonWithConfiguration:config primaryAction:nil];
+    
+    configButton.backgroundColor = [UIColor wy_random];
+    
+    configButton.titleLabel.backgroundColor = [UIColor wy_random];
+    configButton.imageView.backgroundColor = [UIColor wy_random];
+    
+    configButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+    
+    [self.view addSubview:configButton];
+    
+    [configButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(self.view).offset(10);
+        make.centerY.equalTo(itemButton.mas_bottom).offset(100);
+    }];
+    
+    [configButton wy_adjustPosition:WYButtonPositionImageTopTitleBottom spacing:10];
 }
 
 /*

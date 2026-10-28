@@ -54,7 +54,7 @@
 }
 
 - (void)setupTableView {
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(10, UIDevice.wy_navViewHeight, UIDevice.wy_screenWidth - 20, UIDevice.wy_screenHeight - UIDevice.wy_navViewHeight) style:UITableViewStylePlain];
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     self.tableView.backgroundColor = UIColor.whiteColor;
@@ -62,6 +62,15 @@
     self.tableView.tableFooterView = [[UIView alloc] init];
     
     [self.view addSubview:self.tableView];
+    self.tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    self.tableView.translatesAutoresizingMaskIntoConstraints = false;
+    CGFloat inset = [UIDevice wy_screenWidth:10 pixels:WYBasisKitConfig.defaultScreenPixels];
+    [NSLayoutConstraint activateConstraints:@[
+        [self.tableView.leadingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor constant:inset],
+        [self.tableView.trailingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor constant:-inset],
+        [self.tableView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
+        [self.tableView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor]
+    ]];
 }
 
 - (void)setupData {

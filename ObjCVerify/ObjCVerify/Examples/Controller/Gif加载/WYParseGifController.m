@@ -21,87 +21,111 @@
     
     self.view.backgroundColor = [UIColor whiteColor];
     
-    CGFloat widthHeight = ([UIScreen mainScreen].bounds.size.width - 40) / 3;
+    CGFloat spacing = [UIDevice wy_screenWidth:10 pixels:WYBasisKitConfig.defaultScreenPixels];
+    CGFloat topSpacing = [UIDevice wy_screenHeight:80 pixels:WYBasisKitConfig.defaultScreenPixels];
+    CGFloat rowSpacing = [UIDevice wy_screenHeight:50 pixels:WYBasisKitConfig.defaultScreenPixels];
+    UIScrollView *scrollView = [[UIScrollView alloc] init];
+    scrollView.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.view addSubview:scrollView];
+    UIView *contentView = [[UIView alloc] init];
+    contentView.translatesAutoresizingMaskIntoConstraints = NO;
+    [scrollView addSubview:contentView];
+    [NSLayoutConstraint activateConstraints:@[
+        [scrollView.leadingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor],
+        [scrollView.trailingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor],
+        [scrollView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],
+        [scrollView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor],
+        [contentView.leadingAnchor constraintEqualToAnchor:scrollView.contentLayoutGuide.leadingAnchor],
+        [contentView.trailingAnchor constraintEqualToAnchor:scrollView.contentLayoutGuide.trailingAnchor],
+        [contentView.topAnchor constraintEqualToAnchor:scrollView.contentLayoutGuide.topAnchor],
+        [contentView.bottomAnchor constraintEqualToAnchor:scrollView.contentLayoutGuide.bottomAnchor],
+        [contentView.widthAnchor constraintEqualToAnchor:scrollView.frameLayoutGuide.widthAnchor]
+    ]];
     UIViewContentMode contentMode = UIViewContentModeScaleAspectFit;
     
     UIImageView *oneGifView = [[UIImageView alloc] init];
     oneGifView.contentMode = contentMode;
-    [self.view addSubview:oneGifView];
+    [contentView addSubview:oneGifView];
     [oneGifView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.view).offset(10);
-        make.top.equalTo(self.view).offset([UIDevice wy_navViewHeight] + 80);
-        make.width.height.equalTo(@(widthHeight));
+        make.left.equalTo(contentView).offset(spacing);
+        make.top.equalTo(contentView).offset(topSpacing);
+        make.width.equalTo(contentView).multipliedBy(1.0 / 3).offset(-spacing * 4 / 3);
+        make.height.equalTo(oneGifView.mas_width);
     }];
     
     UIImageView *animatedGifView = [[UIImageView alloc] init];
     animatedGifView.contentMode = contentMode;
-    [self.view addSubview:animatedGifView];
+    [contentView addSubview:animatedGifView];
     [animatedGifView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.equalTo(self.view);
-        make.top.equalTo(self.view).offset([UIDevice wy_navViewHeight] + 80);
-        make.width.height.equalTo(@(widthHeight));
+        make.centerX.equalTo(contentView);
+        make.top.equalTo(contentView).offset(topSpacing);
+        make.width.equalTo(contentView).multipliedBy(1.0 / 3).offset(-spacing * 4 / 3);
+        make.height.equalTo(animatedGifView.mas_width);
     }];
     
     UIImageView *customGifView = [[UIImageView alloc] init];
     customGifView.contentMode = contentMode;
-    [self.view addSubview:customGifView];
+    [contentView addSubview:customGifView];
     [customGifView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.right.equalTo(self.view).offset(-10);
-        make.top.equalTo(self.view).offset([UIDevice wy_navViewHeight] + 80);
-        make.width.height.equalTo(@(widthHeight));
+        make.right.equalTo(contentView).offset(-spacing);
+        make.top.equalTo(contentView).offset(topSpacing);
+        make.width.equalTo(contentView).multipliedBy(1.0 / 3).offset(-spacing * 4 / 3);
+        make.height.equalTo(customGifView.mas_width);
     }];
     
     UIImageView *oneApngView = [[UIImageView alloc] init];
     oneApngView.contentMode = contentMode;
-    [self.view addSubview:oneApngView];
+    [contentView addSubview:oneApngView];
     [oneApngView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.view).offset(10);
-        make.top.equalTo(self.view).offset([UIDevice wy_navViewHeight] + 80 + widthHeight + 50);
-        make.width.height.equalTo(@(widthHeight));
+        make.left.equalTo(contentView).offset(spacing);
+        make.top.equalTo(oneGifView.mas_bottom).offset(rowSpacing);
+        make.width.equalTo(contentView).multipliedBy(1.0 / 3).offset(-spacing * 4 / 3);
+        make.height.equalTo(oneApngView.mas_width);
     }];
     
     UIImageView *animatedApngView = [[UIImageView alloc] init];
     animatedApngView.contentMode = contentMode;
-    [self.view addSubview:animatedApngView];
+    [contentView addSubview:animatedApngView];
     [animatedApngView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.equalTo(self.view);
-        make.top.equalTo(self.view).offset([UIDevice wy_navViewHeight] + 80 + widthHeight + 50);
-        make.width.height.equalTo(@(widthHeight));
+        make.centerX.equalTo(contentView);
+        make.top.equalTo(oneGifView.mas_bottom).offset(rowSpacing);
+        make.width.equalTo(contentView).multipliedBy(1.0 / 3).offset(-spacing * 4 / 3);
+        make.height.equalTo(animatedApngView.mas_width);
     }];
     
     UIImageView *customApngView = [[UIImageView alloc] init];
     customApngView.contentMode = contentMode;
     customApngView.layer.masksToBounds = YES;
-    [self.view addSubview:customApngView];
+    [contentView addSubview:customApngView];
     [customApngView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.right.equalTo(self.view).offset(-10);
-        make.top.equalTo(self.view).offset([UIDevice wy_navViewHeight] + 80 + widthHeight + 50);
-        make.width.height.equalTo(@(widthHeight));
+        make.right.equalTo(contentView).offset(-spacing);
+        make.top.equalTo(oneGifView.mas_bottom).offset(rowSpacing);
+        make.width.equalTo(contentView).multipliedBy(1.0 / 3).offset(-spacing * 4 / 3);
+        make.height.equalTo(customApngView.mas_width);
+        make.bottom.equalTo(contentView).offset(-topSpacing);
     }];
     
     // 修复：三个 imageView 的 contentMode 都设置为 oneGifView 的问题
     animatedGifView.contentMode = contentMode;
     customGifView.contentMode = contentMode;
     
-    WYGifInfo *apngInfo1 = [UIImage wy_animatedParse:WYAnimatedImageStyleAPNG imageName:@"apng格式图片1"];
-    WYGifInfo *apngInfo2 = [UIImage wy_animatedParse:WYAnimatedImageStyleAPNG imageName:@"apng格式图片2"];
+    WYGifInfo *apngInfo = [UIImage wy_animatedParse:WYAnimatedImageStyleAPNG imageName:@"连线主播"];
     
-    WYGifInfo *gifInfo1 = [UIImage wy_animatedParse:WYAnimatedImageStyleGIF imageName:@"动图1"];
-    WYGifInfo *gifInfo2 = [UIImage wy_animatedParse:WYAnimatedImageStyleGIF imageName:@"动图2"];
+    WYGifInfo *gifInfo = [UIImage wy_animatedParse:WYAnimatedImageStyleGIF imageName:@"关注主播"];
     
     // 直接显示解析得到的图片(实际上就是无限循环播放)
-    oneGifView.image = gifInfo2.animatedImage;
-    oneApngView.image = apngInfo2.animatedImage;
+    oneGifView.image = gifInfo.animatedImage;
+    oneApngView.image = apngInfo.animatedImage;
     
     // 只播放一次解析得到的图片
     NSArray<UIImageView *> *animatedImageViews = @[animatedGifView, animatedApngView];
     for (UIImageView *imageView in animatedImageViews) {
         if (imageView == animatedGifView) {
-            imageView.animationImages = gifInfo1.animationImages;
-            imageView.animationDuration = gifInfo1.animationDuration;
+            imageView.animationImages = gifInfo.animationImages;
+            imageView.animationDuration = gifInfo.animationDuration;
         } else {
-            imageView.animationImages = apngInfo1.animationImages;
-            imageView.animationDuration = apngInfo1.animationDuration;
+            imageView.animationImages = apngInfo.animationImages;
+            imageView.animationDuration = apngInfo.animationDuration;
         }
         imageView.animationRepeatCount = 1;
         [imageView startAnimating];
@@ -117,11 +141,11 @@
     NSArray<UIImageView *> *customImageViews = @[customGifView, customApngView];
     for (UIImageView *imageView in customImageViews) {
         if (imageView == customGifView) {
-            imageView.animationImages = gifInfo2.animationImages;
-            imageView.animationDuration = gifInfo2.animationDuration;
+            imageView.animationImages = gifInfo.animationImages;
+            imageView.animationDuration = gifInfo.animationDuration;
         } else {
-            imageView.animationImages = apngInfo2.animationImages;
-            imageView.animationDuration = apngInfo2.animationDuration;
+            imageView.animationImages = apngInfo.animationImages;
+            imageView.animationDuration = apngInfo.animationDuration;
         }
         // 0 表示无限循环播放
         imageView.animationRepeatCount = 0;

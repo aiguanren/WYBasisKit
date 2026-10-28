@@ -125,7 +125,7 @@ class WYTestInfiniteSwitchController: UIViewController {
     let pageVideoList: [String] = [
         "https://files.cochat.lenovo.com/download/dbb26a06-4604-3d2b-bb2c-6293989e63a7/55deb281e01b27194daf6da391fdfe83.mp4",
         "http://www.w3school.com.cn/i/movie.mp4",
-        URL(fileURLWithPath: Bundle.main.path(forResource: "mpeg4_local", ofType: "mp4").wy_safe).absoluteString,
+        URL(fileURLWithPath: Bundle.main.path(forResource: "乌篷转桨晃一晃，春风牵衣过平江", ofType: "mp4").wy_safe).absoluteString,
         "http://vjs.zencdn.net/v/oceans.mp4",
         "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
         "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8",
@@ -699,7 +699,6 @@ class WYTestInfiniteSwitchController: UIViewController {
     }
 
     /*
-    // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

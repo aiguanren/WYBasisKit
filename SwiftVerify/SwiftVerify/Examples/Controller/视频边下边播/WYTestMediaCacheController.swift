@@ -32,11 +32,12 @@ class WYTestMediaCacheController: UIViewController {
     let timeLabel = UILabel()
 
     /// 素材切换条(三个公共示例视频，后两个体积小适合演示容量淘汰)
-    let mediaSegment = UISegmentedControl(items: ["主视频", "小视频1", "小视频2"])
+    let mediaSegment = UISegmentedControl(items: ["正片 87MB", "花絮 33MB", "小视频1", "小视频2"])
 
-    /// 素材清单(地址为 test-videos 与 MDN 的公共示例视频)
+    /// 素材清单(地址为数英、test-videos 与 MDN 的公共示例视频，前两项为长片方便观察缓存进度)
     let mediaList: [(name: String, url: URL)] = [
-        (name: "主视频", url: URL(string: "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_5MB.mp4")!),
+        (name: "正片 87MB", url: URL(string: "https://file.digitaling.com/eImg/uvideos/2026/0202/1770014172754013.mp4")!),
+        (name: "花絮 33MB", url: URL(string: "https://file.digitaling.com/eImg/uvideos/2026/0202/1770014287213328.mp4")!),
         (name: "小视频1", url: URL(string: "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4")!),
         (name: "小视频2", url: URL(string: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4")!)
     ]
@@ -292,8 +293,8 @@ class WYTestMediaCacheController: UIViewController {
         let originalLimit = WYMediaCache.shared.config.maxCacheSize
         WYMediaCache.shared.config.maxCacheSize = 2 * 1024 * 1024
         statusLabel.text = "容量上限临时调为 2MB，开始下载小视频1"
-        let first = mediaList[1].url
-        let second = mediaList[2].url
+        let first = mediaList[2].url
+        let second = mediaList[3].url
         WYMediaCache.shared.download(url: first, progress: nil, completion: { [weak self] (_) in
             guard let self = self else { return }
             let status = WYMediaCache.shared.cacheStatus(for: first)

@@ -31,8 +31,11 @@
 /// 自动弹幕定时器
 @property (strong, nonatomic) NSTimer *danmakuTimer;
 
-/// 演示用多档素材
+/// 演示用多档素材(同一支幕后花絮的1080p与360p，切清晰度时画面内容不变)
 @property (strong, nonatomic) WYVideoPlayerMediaAsset *multiAsset;
+
+/// 演示用单档素材(约12分钟的长片，验证单档地址的完整播放流程)
+@property (strong, nonatomic) WYVideoPlayerMediaAsset *singleAsset;
 
 @end
 
@@ -42,14 +45,14 @@
     [super viewDidLoad];
     self.view.backgroundColor = UIColor.whiteColor;
     self.title = @"点播播放器";
-    WYVideoPlayerMediaQuality *high = [WYVideoPlayerMediaQuality qualityWithName:@"高清" URL:[NSURL URLWithString:@"https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_5MB.mp4"]];
-    WYVideoPlayerMediaQuality *standard = [WYVideoPlayerMediaQuality qualityWithName:@"标清" URL:[NSURL URLWithString:@"https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4"]];
-    self.multiAsset = [WYVideoPlayerMediaAsset assetWithQualities:@[high, standard] defaultIndex:0];
+    WYVideoPlayerMediaQuality *standard = [WYVideoPlayerMediaQuality qualityWithName:@"标清" URL:[NSURL URLWithString:@"https://videoal-platform.cdn.huya.com/leaf/1048585/59a91b252545dcc3e53b1e831b45d090/99634977/73467960_2e4da4f83b6e2e39a68377497b56de2f_264_360_1.mp4?hyvid=1093775374&hyauid=1239535418978&hyroomid=1239535418978&hyratio=350&hyscence=vod&appid=66&domainid=41&srckey=NjZfNDFfMTA5Mzc3NTM3NA%3D%3D&&bitrate=328&client=110&definition=350&pid=1239535418978&scene=vod&vid=1093775374"]];
+    WYVideoPlayerMediaQuality *high = [WYVideoPlayerMediaQuality qualityWithName:@"高清" URL:[NSURL URLWithString:@"https://videoal-platform.cdn.huya.com/leaf/1048585/59a91b252545dcc3e53b1e831b45d090/99634977/73467960_d3f67e02fa27857a54ca55b15f2c5878_264_1080_1_max.mp4?hyvid=1093775374&hyauid=1239535418978&hyroomid=1239535418978&hyratio=4000&hyscence=vod&appid=66&domainid=41&srckey=NjZfNDFfMTA5Mzc3NTM3NA%3D%3D&&bitrate=1803&client=110&definition=yuanhua&pid=1239535418978&scene=vod&vid=1093775374"]];
+    self.multiAsset = [WYVideoPlayerMediaAsset assetWithQualities:@[standard, high] defaultIndex:0];
+    self.singleAsset = [WYVideoPlayerMediaAsset assetWithURL:[NSURL URLWithString:@"https://file.digitaling.com/eImg/uvideos/2026/0202/1770014172754013.mp4"]];
     [self setupPlayerUI];
     [self setupStatusUI];
     [self setupActionList];
     self.player.delegate = self;
-    self.player.configuration.showsDanmaku = YES;
     self.player.configuration.shellShowsSnapshotButton = YES;
     [self.player playWithAsset:self.multiAsset];
 }
@@ -112,6 +115,7 @@
              @"定位到中间",
              @"倍速 1.0 / 1.5 / 2.0 循环",
              @"切清晰度 高清 / 标清",
+             @"换单档素材(长片)",
              @"加内联SRT字幕并选中",
              @"关闭字幕",
              @"开弹幕 + 发一条",
@@ -204,39 +208,42 @@
             [self.player selectQualityAtIndex:(self.player.currentAsset.selectedIndex == 0) ? 1 : 0];
             break;
         case 4:
-            [self loadInlineSubtitle];
+            [self.player playWithAsset:self.singleAsset];
             break;
         case 5:
-            [self.player selectSubtitleAtIndex:-1];
+            [self loadInlineSubtitle];
             break;
         case 6:
+            [self.player selectSubtitleAtIndex:-1];
+            break;
+        case 7:
             if (self.player.danmakuView == nil) {
                 self.player.configuration.showsDanmaku = YES;
             }
             [self.player sendDanmaku:[NSString stringWithFormat:@"弹幕跟播放时间走%ld", (long)self.danmakuIndex] type:WYDanmakuTypeScroll];
             self.danmakuIndex += 1;
             break;
-        case 7:
+        case 8:
             [self toggleAutoDanmaku];
             break;
-        case 8:
+        case 9:
             [self.player snapshotWithCompletion:nil];
             break;
-        case 9:
+        case 10:
             if (self.player.isFullscreen) {
                 [self.player exitFullscreen];
             } else {
                 [self.player enterFullscreen];
             }
             break;
-        case 10:
+        case 11:
             [self.player startPictureInPicture];
             break;
-        case 11:
+        case 12:
             self.player.configuration.usesMediaCache = !self.player.configuration.usesMediaCache;
             [self.player playWithAsset:self.multiAsset];
             break;
-        case 12: {
+        case 13: {
             NSURL *url = self.player.currentAsset.currentQuality.url;
             WYMediaCacheStatus *status = [WYMediaCache.shared cacheStatusForURL:url];
             [self log:[NSString stringWithFormat:@"已缓存 %.1fMB / %.1fMB", status.cachedBytes / 1024.0 / 1024.0, status.contentLength / 1024.0 / 1024.0]];

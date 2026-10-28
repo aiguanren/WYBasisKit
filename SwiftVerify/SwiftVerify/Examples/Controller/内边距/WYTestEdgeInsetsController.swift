@@ -61,33 +61,30 @@ class WYTestEdgeInsetsController: UIViewController {
             make.centerY.equalTo(button.snp.bottom).offset(150)
         }
         
-        if #available(iOS 15.0, *) {
-            
-            var config = UIButton.Configuration.plain()
-            config.title = "config按钮"
-            config.image = UIImage.wy_find("tabbar_right_selected")
-            config.imagePlacement = .top
-            config.imagePadding = 5
-            config.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30)
-            
-            let configButton = UIButton(configuration: config)
-            configButton.backgroundColor = .wy_random
-            
-            configButton.titleLabel?.backgroundColor = .wy_random
-            configButton.imageView?.backgroundColor = .wy_random
-            configButton.contentHorizontalAlignment = .left
-            
-            view.addSubview(configButton)
-            configButton.snp.makeConstraints { make in
-                make.left.equalToSuperview().offset(10)
-                make.centerY.equalTo(itemButton.snp.bottom).offset(100)
-            }
-            configButton.wy_adjust(position: .imageTopTitleBottom, spacing: 10)
+        
+        var config = UIButton.Configuration.plain()
+        config.title = "config按钮"
+        config.image = UIImage.wy_find("tabbar_right_selected")
+        config.imagePlacement = .top
+        config.imagePadding = 5
+        config.contentInsets = NSDirectionalEdgeInsets(top: 20, leading: 30, bottom: 20, trailing: 30)
+        
+        let configButton = UIButton(configuration: config)
+        configButton.backgroundColor = .wy_random
+        
+        configButton.titleLabel?.backgroundColor = .wy_random
+        configButton.imageView?.backgroundColor = .wy_random
+        configButton.contentHorizontalAlignment = .left
+        
+        view.addSubview(configButton)
+        configButton.snp.makeConstraints { make in
+            make.left.equalToSuperview().offset(10)
+            make.centerY.equalTo(itemButton.snp.bottom).offset(100)
         }
+        configButton.wy_adjust(position: .imageTopTitleBottom, spacing: 10)
     }
 
     /*
-    // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

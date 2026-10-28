@@ -64,7 +64,6 @@
     [self setupControlUI];
     [self setupActionList];
     [self setupPlayerClock];
-    [self startAutoDanmaku];
 }
 
 - (void)viewDidLayoutSubviews {
@@ -164,7 +163,7 @@
 
 /// 接播放器时钟(把播放时间注入弹幕，播放暂停冻结弹幕，拖进度定位清屏)
 - (void)setupPlayerClock {
-    NSURL *mediaURL = [NSURL URLWithString:@"https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_5MB.mp4"];
+    NSURL *mediaURL = [NSURL URLWithString:@"https://file.digitaling.com/eImg/uvideos/2026/0202/1770014172754013.mp4"];
     [self.player replaceCurrentItemWithPlayerItem:[WYMediaCache.shared playerItemWithURL:mediaURL]];
     [self.player play];
     [self.playButton setTitle:@"暂停" forState:UIControlStateNormal];
@@ -176,8 +175,11 @@
         }
         double seconds = CMTimeGetSeconds(time);
         [self.danmakuView playAtTime:seconds];
-        self.progressSlider.value = seconds / 10;
-        self.timeLabel.text = [NSString stringWithFormat:@"%@ / 00:10", [self.class timeText:seconds]];
+        double total = CMTimeGetSeconds(self.player.currentItem.duration);
+        if (total > 0) {
+            self.progressSlider.value = seconds / total;
+            self.timeLabel.text = [NSString stringWithFormat:@"%@ / %@", [self.class timeText:seconds], [self.class timeText:total]];
+        }
     }];
 }
 
@@ -193,6 +195,11 @@
              @"显示区域 1/4~全部循环",
              @"滚动时长 4/8/12秒循环",
              @"满轨策略 排队/丢弃切换",
+             @"发带头像弹幕",
+             @"弹幕背景 开/关",
+             @"文字阴影 开/关",
+             @"同轨间距 8/40循环",
+             @"轨道间距 0/12循环",
              @"清屏"];
 }
 
@@ -216,6 +223,7 @@
     }
     [self.danmakuView send:text type:WYDanmakuTypeScroll];
     self.inputTextField.text = nil;
+    [self.inputTextField resignFirstResponder];
 }
 
 /// 自动弹幕开关切换
@@ -299,6 +307,65 @@
     }
 }
 
+/// 发带头像弹幕(头像外观取弹幕配置)
+- (void)sendAvatarDanmaku {
+    [self.danmakuView send:[self.class randomText:-1] type:WYDanmakuTypeScroll avatar:[self.class avatarImage:arc4random_uniform(100)]];
+}
+
+/// 单条弹幕背景开/关(开时套半透明黑底加圆角加左右留白)
+- (void)toggleItemBackground {
+    if (self.danmakuView.configuration.itemBackgroundColor == nil) {
+        self.danmakuView.configuration.itemBackgroundColor = [UIColor colorWithWhite:0 alpha:0.45];
+        self.danmakuView.configuration.itemBackgroundCornerRadius = 8;
+        self.danmakuView.configuration.itemHorizontalPadding = 8;
+        self.danmakuView.configuration.itemVerticalPadding = 4;
+    } else {
+        self.danmakuView.configuration.itemBackgroundColor = nil;
+        self.danmakuView.configuration.itemBackgroundCornerRadius = 0;
+        self.danmakuView.configuration.itemHorizontalPadding = 0;
+        self.danmakuView.configuration.itemVerticalPadding = 0;
+    }
+}
+
+/// 文字阴影开/关(开时套黑色柔边阴影增强浅色画面可读性)
+- (void)toggleTextShadow {
+    if (self.danmakuView.configuration.textShadowColor == nil) {
+        self.danmakuView.configuration.textShadowColor = UIColor.blackColor;
+        self.danmakuView.configuration.textShadowBlurRadius = 4;
+        self.danmakuView.configuration.textShadowOffset = CGSizeMake(0, 1);
+    } else {
+        self.danmakuView.configuration.textShadowColor = nil;
+        self.danmakuView.configuration.textShadowBlurRadius = 0;
+        self.danmakuView.configuration.textShadowOffset = CGSizeZero;
+    }
+}
+
+/// 同轨最小间距 8/40 循环
+- (void)toggleItemSpacing {
+    NSArray<NSNumber *> *spacings = @[@8, @40];
+    CGFloat current = self.danmakuView.configuration.itemSpacing;
+    NSUInteger currentIndex = [spacings indexOfObjectPassingTest:^BOOL(NSNumber *spacing, NSUInteger idx, BOOL *stop) {
+        return fabs(spacing.doubleValue - current) < 0.01;
+    }];
+    if (currentIndex == NSNotFound) {
+        currentIndex = 0;
+    }
+    self.danmakuView.configuration.itemSpacing = spacings[(currentIndex + 1) % spacings.count].doubleValue;
+}
+
+/// 轨道行间距 0/12 循环
+- (void)toggleTrackSpacing {
+    NSArray<NSNumber *> *spacings = @[@0, @12];
+    CGFloat current = self.danmakuView.configuration.trackSpacing;
+    NSUInteger currentIndex = [spacings indexOfObjectPassingTest:^BOOL(NSNumber *spacing, NSUInteger idx, BOOL *stop) {
+        return fabs(spacing.doubleValue - current) < 0.01;
+    }];
+    if (currentIndex == NSNotFound) {
+        currentIndex = 0;
+    }
+    self.danmakuView.configuration.trackSpacing = spacings[(currentIndex + 1) % spacings.count].doubleValue;
+}
+
 /// 播放暂停切换(暂停时弹幕随之冻结)
 - (void)playButtonClicked {
     if (self.player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
@@ -313,8 +380,12 @@
 
 /// 拖动进度条定位(弹幕定位清屏，定位完成前不回写滑块位置)
 - (void)progressSliderChanged {
+    double total = CMTimeGetSeconds(self.player.currentItem.duration);
+    if (!(total > 0)) {
+        return;
+    }
     self.isDraggingSlider = YES;
-    double target = self.progressSlider.value * 10;
+    double target = self.progressSlider.value * total;
     [self.danmakuView seekToTime:target];
     __weak typeof(self) weakSelf = self;
     [self.player seekToTime:CMTimeMakeWithSeconds(target, 600) completionHandler:^(BOOL finished) {
@@ -328,6 +399,21 @@
                                      @"滚动顶部底部三类型", @"边下边播叠弹幕", @"富文本带描边", @"排队策略满轨不丢"];
     NSInteger number = (index < 0) ? arc4random_uniform((uint32_t)samples.count) : index;
     return [NSString stringWithFormat:@"%@%ld", samples[number % samples.count], (long)(number % 97)];
+}
+
+/// 生成测试头像(色块底加一个字)
++ (UIImage *)avatarImage:(NSInteger)seed {
+    NSArray<UIColor *> *colors = @[UIColor.systemRedColor, UIColor.systemBlueColor, UIColor.systemGreenColor, UIColor.systemOrangeColor, UIColor.systemPurpleColor];
+    UIColor *color = colors[seed % colors.count];
+    CGSize size = CGSizeMake(48, 48);
+    UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc] initWithSize:size];
+    return [renderer imageWithActions:^(UIGraphicsImageRendererContext *context) {
+        [color setFill];
+        CGContextFillRect(context.CGContext, CGRectMake(0, 0, size.width, size.height));
+        NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:20 weight:UIFontWeightMedium],
+                                     NSForegroundColorAttributeName: UIColor.whiteColor};
+        [@"弹" drawAtPoint:CGPointMake(12, 12) withAttributes:attributes];
+    }];
 }
 
 /// 秒数转分秒文字
@@ -388,6 +474,21 @@
             break;
         case 9:
             [self toggleOverflowPolicy];
+            break;
+        case 10:
+            [self sendAvatarDanmaku];
+            break;
+        case 11:
+            [self toggleItemBackground];
+            break;
+        case 12:
+            [self toggleTextShadow];
+            break;
+        case 13:
+            [self toggleItemSpacing];
+            break;
+        case 14:
+            [self toggleTrackSpacing];
             break;
         default:
             [self.danmakuView clearDanmaku];

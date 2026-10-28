@@ -207,6 +207,13 @@ public static func clearDiskCache(path: String, asset: String = "", completion:(
     2、在需要使用的页面引入，即 import WYBasisKit
 ```
 
+### 图片浏览测试素材
+
+两组 Live Photo 样例位于 [SwiftVerify/SwiftVerify/Resource](SwiftVerify/SwiftVerify/Resource)，Swift 与 Objective-C 验证工程共用这些资源。每组由同名 HEIC 静图和 MOV 视频组成，需保持配对使用，在「图片浏览」测试页长按播放。
+
+- `棕榈步道`：[素材来源](https://github.com/NightMean/MotionPhotoSamples/tree/main/Apple%20Live%20Photo)
+- `水中游鸟`：[素材来源](https://github.com/thun888/LivePhoto/tree/main/images)
+
 ### 传送门
 
 *   **简书**：[https://www.jianshu.com/u/2404ca96b483](https://www.jianshu.com/u/2404ca96b483)

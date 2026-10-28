@@ -52,6 +52,9 @@ class WYTestDanmakuController: UIViewController {
     /// 拖动滑块时暂停注入的标记
     var isDraggingSlider = false
 
+    /// 视频总时长秒数(素材装入后异步读取，进度条与时间文案按它换算)
+    var mediaDuration: TimeInterval = 0
+
     /// 动作清单(标题与点击行为)
     lazy var actions: [(String, () -> Void)] = [
         ("发滚动弹幕", { [weak self] in
@@ -67,6 +70,13 @@ class WYTestDanmakuController: UIViewController {
         ("显示区域 1/4~全部循环", { [weak self] in self?.toggleDisplayArea() }),
         ("滚动时长 4/8/12秒循环", { [weak self] in self?.toggleScrollDuration() }),
         ("满轨策略 排队/丢弃切换", { [weak self] in self?.toggleOverflowPolicy() }),
+        ("发带头像弹幕", { [weak self] in
+            self?.danmakuView.send(Self.randomText(), avatar: Self.avatarImage(seed: Int.random(in: 0..<100)))
+        }),
+        ("弹幕背景 开/关", { [weak self] in self?.toggleItemBackground() }),
+        ("文字阴影 开/关", { [weak self] in self?.toggleTextShadow() }),
+        ("同轨间距 8/40循环", { [weak self] in self?.toggleItemSpacing() }),
+        ("轨道间距 0/12循环", { [weak self] in self?.toggleTrackSpacing() }),
         ("清屏", { [weak self] in self?.danmakuView.clear() })
     ]
 
@@ -78,7 +88,6 @@ class WYTestDanmakuController: UIViewController {
         setupControlUI()
         setupActionList()
         setupPlayerClock()
-        startAutoDanmaku()
     }
 
     override func viewDidLayoutSubviews() {
@@ -168,7 +177,7 @@ class WYTestDanmakuController: UIViewController {
 
     /// 接播放器时钟(把播放时间注入弹幕，播放暂停冻结弹幕，拖进度定位清屏)
     func setupPlayerClock() {
-        let mediaURL = URL(string: "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_5MB.mp4")!
+        let mediaURL = URL(string: "https://file.digitaling.com/eImg/uvideos/2026/0202/1770014172754013.mp4")!
         player.replaceCurrentItem(with: WYMediaCache.shared.playerItem(with: mediaURL))
         player.play()
         playButton.setTitle("暂停", for: .normal)
@@ -176,8 +185,13 @@ class WYTestDanmakuController: UIViewController {
             guard let self = self, self.isDraggingSlider == false else { return }
             let seconds = CMTimeGetSeconds(time)
             self.danmakuView.play(at: seconds)
-            self.progressSlider.value = Float(seconds / 10)
-            self.timeLabel.text = "\(Self.timeText(seconds)) / 00:10"
+            if self.mediaDuration == 0, let total = self.player.currentItem?.duration, total.seconds.isFinite, total.seconds > 0 {
+                self.mediaDuration = total.seconds
+            }
+            if self.mediaDuration > 0 {
+                self.progressSlider.value = Float(seconds / self.mediaDuration)
+                self.timeLabel.text = "\(Self.timeText(seconds)) / \(Self.timeText(self.mediaDuration))"
+            }
         }
     }
 
@@ -197,6 +211,7 @@ class WYTestDanmakuController: UIViewController {
         guard let text = inputTextField.text, text.isEmpty == false else { return }
         danmakuView.send(text)
         inputTextField.text = nil
+        inputTextField.resignFirstResponder()
     }
 
     /// 自动弹幕开关切换
@@ -257,6 +272,48 @@ class WYTestDanmakuController: UIViewController {
         danmakuView.configuration.overflowPolicy = (danmakuView.configuration.overflowPolicy == .queue) ? .discard : .queue
     }
 
+    /// 单条弹幕背景开/关(开时套半透明黑底加圆角加左右留白)
+    func toggleItemBackground() {
+        if danmakuView.configuration.itemBackgroundColor == nil {
+            danmakuView.configuration.itemBackgroundColor = UIColor(white: 0, alpha: 0.45)
+            danmakuView.configuration.itemBackgroundCornerRadius = 8
+            danmakuView.configuration.itemHorizontalPadding = 8
+            danmakuView.configuration.itemVerticalPadding = 4
+        }else {
+            danmakuView.configuration.itemBackgroundColor = nil
+            danmakuView.configuration.itemBackgroundCornerRadius = 0
+            danmakuView.configuration.itemHorizontalPadding = 0
+            danmakuView.configuration.itemVerticalPadding = 0
+        }
+    }
+
+    /// 文字阴影开/关(开时套黑色柔边阴影增强浅色画面可读性)
+    func toggleTextShadow() {
+        if danmakuView.configuration.textShadowColor == nil {
+            danmakuView.configuration.textShadowColor = .black
+            danmakuView.configuration.textShadowBlurRadius = 4
+            danmakuView.configuration.textShadowOffset = CGSize(width: 0, height: 1)
+        }else {
+            danmakuView.configuration.textShadowColor = nil
+            danmakuView.configuration.textShadowBlurRadius = 0
+            danmakuView.configuration.textShadowOffset = .zero
+        }
+    }
+
+    /// 同轨最小间距 8/40 循环
+    func toggleItemSpacing() {
+        let spacings: [CGFloat] = [8, 40]
+        let currentIndex = spacings.firstIndex(of: danmakuView.configuration.itemSpacing) ?? 0
+        danmakuView.configuration.itemSpacing = spacings[(currentIndex + 1) % spacings.count]
+    }
+
+    /// 轨道行间距 0/12 循环
+    func toggleTrackSpacing() {
+        let spacings: [CGFloat] = [0, 12]
+        let currentIndex = spacings.firstIndex(of: danmakuView.configuration.trackSpacing) ?? 0
+        danmakuView.configuration.trackSpacing = spacings[(currentIndex + 1) % spacings.count]
+    }
+
     /// 播放暂停切换(暂停时弹幕随之冻结)
     @objc func playButtonClicked() {
         if player.timeControlStatus == .playing {
@@ -272,7 +329,7 @@ class WYTestDanmakuController: UIViewController {
     /// 拖动进度条定位(弹幕定位清屏，松手前不回写滑块位置)
     @objc func progressSliderChanged() {
         isDraggingSlider = true
-        let target = Double(progressSlider.value) * 10
+        let target = Double(progressSlider.value) * mediaDuration
         danmakuView.seek(to: target)
         player.seek(to: CMTime(seconds: target, preferredTimescale: 600)) { [weak self] (_) in
             self?.isDraggingSlider = false
@@ -285,6 +342,19 @@ class WYTestDanmakuController: UIViewController {
                        "滚动顶部底部三类型", "边下边播叠弹幕", "富文本带描边", "排队策略满轨不丢"]
         let number = index ?? Int.random(in: 0..<samples.count)
         return "\(samples[number % samples.count])\(number % 97)"
+    }
+
+    /// 生成测试头像(色块底加一个字)
+    static func avatarImage(seed: Int) -> UIImage {
+        let colors: [UIColor] = [.systemRed, .systemBlue, .systemGreen, .systemOrange, .systemPurple]
+        let size = CGSize(width: 48, height: 48)
+        let renderer = UIGraphicsImageRenderer(size: size)
+        return renderer.image { (_) in
+            colors[seed % colors.count].setFill()
+            UIRectFill(CGRect(origin: .zero, size: size))
+            let text = "弹" as NSString
+            text.draw(at: CGPoint(x: 12, y: 12), withAttributes: [.font: UIFont.systemFont(ofSize: 20, weight: .medium), .foregroundColor: UIColor.white])
+        }
     }
 
     /// 秒数转分秒文字

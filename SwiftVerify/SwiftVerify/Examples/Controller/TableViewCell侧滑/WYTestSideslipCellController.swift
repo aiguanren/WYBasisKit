@@ -9,7 +9,7 @@ import UIKit
 
 class WYTestSideslipCellController: UIViewController {
     
-    private let tableView = UITableView(frame: CGRect(x: 10, y: UIDevice.wy_navViewHeight, width: UIDevice.wy_screenWidth - 20, height: UIDevice.wy_screenHeight - UIDevice.wy_navViewHeight), style: .plain)
+    private let tableView = UITableView(frame: .zero, style: .plain)
     private var dataSource: [String] = []
     
     // 控制开关
@@ -60,6 +60,15 @@ class WYTestSideslipCellController: UIViewController {
         tableView.tableFooterView = UIView()
         
         view.addSubview(tableView)
+        tableView.contentInsetAdjustmentBehavior = .never
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        let inset = UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels)
+        NSLayoutConstraint.activate([
+            tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: inset),
+            tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -inset),
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        ])
     }
     
     private func setupData() {
@@ -116,7 +125,6 @@ class WYTestSideslipCellController: UIViewController {
     }
     
     /*
-     // MARK: - Navigation
      
      // In a storyboard-based application, you will often want to do a little preparation before navigation
      override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

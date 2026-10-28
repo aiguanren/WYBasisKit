@@ -7,10 +7,8 @@
 import UIKit
 import SnapKit
 
-@available(iOS 14.0, *)
 class WYTestCombineImagesController: UIViewController {
     
-    // MARK: - Associated Object Keys
     private static var valueChangedKey: Void?
     private static var valueLabelKey: Void?
     private static var valueFormatKey: Void?
@@ -18,7 +16,6 @@ class WYTestCombineImagesController: UIViewController {
     private static var pickerValueChangedKey: Void?
     private static var pickerColorViewKey: Void?
     
-    // MARK: - UI Elements
     private let scrollView = UIScrollView()
     private let contentView = UIView()
     private let resultImageView = UIImageView()
@@ -53,7 +50,6 @@ class WYTestCombineImagesController: UIViewController {
         combineImages()
     }
     
-    // MARK: - Setup UI
     private func setupUI() {
         title = "图片合成测试"
         view.backgroundColor = .systemGroupedBackground
@@ -95,7 +91,6 @@ class WYTestCombineImagesController: UIViewController {
         }
     }
     
-    // MARK: - 创建参数输入控件
     private func setupParametersUI() {
         var lastView: UIView?
         
@@ -372,7 +367,6 @@ class WYTestCombineImagesController: UIViewController {
         }
     }
     
-    // MARK: - UI Creation Helpers
     
     private func createLabel(_ text: String) -> UILabel {
         let label = UILabel()
@@ -618,7 +612,6 @@ class WYTestCombineImagesController: UIViewController {
         return container
     }
     
-    // MARK: - Control Actions
     
     @objc private func pointSliderChanged(_ slider: UISlider) {
         if let valueLabel = objc_getAssociatedObject(slider, &Self.valueLabelKey) as? UILabel {
@@ -671,7 +664,6 @@ class WYTestCombineImagesController: UIViewController {
         }
     }
     
-    // MARK: - Image Combination
     
     @objc private func combineImages() {
         let standardImage = self.standardImage
@@ -737,8 +729,6 @@ class WYTestCombineImagesController: UIViewController {
     }
 }
 
-// MARK: - UIColorPickerViewControllerDelegate
-@available(iOS 14.0, *)
 extension WYTestCombineImagesController: UIColorPickerViewControllerDelegate {
     func colorPickerViewController(_ viewController: UIColorPickerViewController, didSelect color: UIColor, continuously: Bool) {
         if let colorView = objc_getAssociatedObject(viewController, &Self.pickerColorViewKey) as? UIView {

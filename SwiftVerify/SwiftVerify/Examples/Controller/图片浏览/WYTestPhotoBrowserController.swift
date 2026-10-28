@@ -248,11 +248,11 @@ class WYTestPhotoBrowserController: UIViewController, WYPhotoBrowserDataSource, 
         result.append(twoLevelItem)
 
         var gifItem = WYPhotoBrowserItem()
-        gifItem.originalPath = resourcePath("动图1", "gif")
+        gifItem.originalPath = resourcePath("关注主播", "gif")
         gifItem.identifier = "local_gif"
         result.append(gifItem)
 
-        for videoName in ["mpeg4_local", "海边小屋"] {
+        for videoName in ["乌篷转桨晃一晃，春风牵衣过平江", "树屋"] {
             let videoPath = resourcePath(videoName, "mp4")
             var videoItem = WYPhotoBrowserItem()
             videoItem.placeholder = videoPoster(path: videoPath)
@@ -263,9 +263,9 @@ class WYTestPhotoBrowserController: UIViewController, WYPhotoBrowserDataSource, 
 
         var localLiveItem = WYPhotoBrowserItem()
         localLiveItem.mediaType = .livePhoto
-        localLiveItem.placeholder = UIImage(contentsOfFile: resourcePath("LivePhoto静图", "jpg"))
-        localLiveItem.livePhotoStillURL = URL(fileURLWithPath: resourcePath("LivePhoto静图", "jpg"))
-        localLiveItem.livePhotoVideoURL = URL(fileURLWithPath: resourcePath("1650855755919", "mp4"))
+        localLiveItem.placeholder = UIImage(contentsOfFile: resourcePath("棕榈步道", "heic"))
+        localLiveItem.livePhotoStillURL = URL(fileURLWithPath: resourcePath("棕榈步道", "heic"))
+        localLiveItem.livePhotoVideoURL = URL(fileURLWithPath: resourcePath("棕榈步道", "mov"))
         localLiveItem.identifier = "live_local"
         result.append(localLiveItem)
 
@@ -286,8 +286,8 @@ class WYTestPhotoBrowserController: UIViewController, WYPhotoBrowserDataSource, 
 
         var networkLiveItem = WYPhotoBrowserItem()
         networkLiveItem.mediaType = .livePhoto
-        networkLiveItem.livePhotoStillURL = URL(string: "https://picsum.photos/seed/liveremote/800/1000.jpg")
-        networkLiveItem.livePhotoVideoURL = URL(string: "https://test-videos.co.uk/vids/jellyfish/mp4/h264/360/Jellyfish_360_10s_1MB.mp4")
+        networkLiveItem.livePhotoStillURL = URL(string: "https://raw.githubusercontent.com/NightMean/MotionPhotoSamples/main/Apple%20Live%20Photo/Apple%20iPhone%2015%20-%20photo.HEIC")
+        networkLiveItem.livePhotoVideoURL = URL(string: "https://raw.githubusercontent.com/NightMean/MotionPhotoSamples/main/Apple%20Live%20Photo/Apple%20iPhone%2015%20-%20video.MOV")
         networkLiveItem.identifier = "live_remote"
         result.append(networkLiveItem)
 
@@ -295,6 +295,14 @@ class WYTestPhotoBrowserController: UIViewController, WYPhotoBrowserDataSource, 
         invalidItem.thumbnailURL = URL(string: "https://invalid.wybasiskit.test/none.jpg")
         invalidItem.identifier = "invalid_url"
         result.append(invalidItem)
+
+        var secondLiveItem = WYPhotoBrowserItem()
+        secondLiveItem.mediaType = .livePhoto
+        secondLiveItem.placeholder = UIImage(contentsOfFile: resourcePath("水中游鸟", "heic"))
+        secondLiveItem.livePhotoStillURL = URL(fileURLWithPath: resourcePath("水中游鸟", "heic"))
+        secondLiveItem.livePhotoVideoURL = URL(fileURLWithPath: resourcePath("水中游鸟", "mov"))
+        secondLiveItem.identifier = "live_local_2"
+        result.append(secondLiveItem)
         return result
     }
 
@@ -329,6 +337,7 @@ class WYTestPhotoBrowserController: UIViewController, WYPhotoBrowserDataSource, 
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath)
+        cell.accessibilityIdentifier = "WYPhotoGrid." + String(indexPath.item)
         cell.contentView.subviews.forEach { $0.removeFromSuperview() }
         let item = items[indexPath.item]
 
@@ -544,6 +553,9 @@ class WYTestPhotoBrowserSettingsViewController: UIViewController, UITableViewDat
         super.viewDidLoad()
         view.backgroundColor = .white
         title = "浏览器配置"
+        if #available(iOS 27.0, *) {
+            navigationItem.navigationBarMinimization.minimizationBehavior = .never
+        }
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "取消", style: .plain, target: self, action: #selector(cancelSettings))
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "保存", style: .done, target: self, action: #selector(saveSettings))
@@ -645,8 +657,9 @@ class WYTestPhotoBrowserSettingsViewController: UIViewController, UITableViewDat
         }
         let row = sectionRows[indexPath.section].1[indexPath.row]
         cell!.textLabel?.text = row.title
-        cell!.textLabel?.font = .systemFont(ofSize: 14)
+        cell!.textLabel?.font = .systemFont(ofSize: UIFont.wy_fontSize(14, WYBasisKitConfig.defaultScreenPixels))
         if row.isSwitch {
+            cell!.detailTextLabel?.text = nil
             let switchControl = UISwitch()
             switchControl.isOn = row.switchValue()
             switchControl.tag = indexPath.section * 100 + indexPath.row
@@ -656,7 +669,7 @@ class WYTestPhotoBrowserSettingsViewController: UIViewController, UITableViewDat
         } else {
             cell!.accessoryView = nil
             cell!.detailTextLabel?.text = row.value()
-            cell!.detailTextLabel?.font = .systemFont(ofSize: 12)
+            cell!.detailTextLabel?.font = .systemFont(ofSize: UIFont.wy_fontSize(12, WYBasisKitConfig.defaultScreenPixels))
             cell!.detailTextLabel?.textColor = .gray
             cell!.selectionStyle = .default
         }

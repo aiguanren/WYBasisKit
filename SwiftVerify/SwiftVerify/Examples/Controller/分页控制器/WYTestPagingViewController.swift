@@ -7,14 +7,12 @@
 
 import UIKit
 
-// MARK: - 显示模式枚举
 enum DisplayMode: String, CaseIterable {
     case textOnly = "仅文本"
     case imageOnly = "仅图片"
     case both = "图片+文本"
 }
 
-// MARK: - 主测试控制器
 class WYTestPagingViewController: UIViewController {
 
     /// 分页控件(整个生命周期复用同一个实例，首次布局、设置更新、动态加减/插删/换顺序都通过重调layout原地重载)
@@ -549,7 +547,6 @@ class WYTestPagingViewController: UIViewController {
     }
 }
 
-// MARK: - WYPagingViewDelegate
 extension WYTestPagingViewController: WYPagingViewDelegate {
     func wy_pagingViewItemDidScroll(_ pagingView: WYPagingView, pagingIndex: Int, isFirstDisplayed: Bool) {
         print("分页滚动到第 \(pagingIndex) 页 - 通过代理回调, \(isFirstDisplayed ? "是" : "不是")第一次显示该页面")
@@ -564,7 +561,6 @@ extension WYTestPagingViewController: WYPagingViewDelegate {
     }
 }
 
-// MARK: - PagingSettingsDelegate
 extension WYTestPagingViewController: PagingSettingsDelegate {
     func didSaveSettings(_ settings: PagingSettingsModel) {
         self.settings = settings
@@ -578,7 +574,6 @@ extension WYTestPagingViewController: PagingSettingsDelegate {
     }
 }
 
-// MARK: - 设置数据模型
 struct PagingSettingsModel {
     // 显示模式
     var displayMode: DisplayMode = .both
@@ -651,13 +646,11 @@ struct PagingSettingsModel {
     var barBounce: Bool = true
 }
 
-// MARK: - 设置页面协议
 protocol PagingSettingsDelegate: AnyObject {
     func didSaveSettings(_ settings: PagingSettingsModel)
     func didCancelSettings()
 }
 
-// MARK: - 设置页面控制器
 class PagingSettingsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     private var settings: PagingSettingsModel
@@ -800,7 +793,6 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "保存", style: .done, target: self, action: #selector(saveSettings))
     }
     
-    // MARK: - UITableViewDataSource
     func numberOfSections(in tableView: UITableView) -> Int {
         return sections.count
     }
@@ -835,7 +827,6 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         return cell
     }
     
-    // MARK: - 辅助方法
     private func valueDescription(for key: String) -> String {
         switch key {
         case "displayMode": return settings.displayMode.rawValue
@@ -916,7 +907,6 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         }
     }
     
-    // MARK: - UITableViewDelegate
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let key = items[indexPath.section][indexPath.row].1
@@ -997,7 +987,6 @@ class PagingSettingsViewController: UIViewController, UITableViewDataSource, UIT
         }
     }
     
-    // MARK: - 各种编辑器
     private func showNumberEditor(for key: String) {
         let alert = UIAlertController(title: "输入数值", message: nil, preferredStyle: .alert)
         alert.addTextField { tf in

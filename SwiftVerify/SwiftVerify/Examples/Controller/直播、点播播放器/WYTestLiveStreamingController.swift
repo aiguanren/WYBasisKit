@@ -13,20 +13,16 @@ import AVKit
 
 class WYTestLiveStreamingController: UIViewController {
     
-    // MARK: - 播放器
     let player: WYMediaPlayer = WYMediaPlayer()
     
-    // MARK: - 控制面板
     let controlPanel = UIView()
     let panelScrollView = UIScrollView()
     let closePanelButton = UIButton(type: .system)
     
-    // MARK: - 播放控制滑块
     let volumeSlider = UISlider() // 音量
     let rateSlider = UISlider() // 倍速
     let seekSlider = UISlider() // 进度
     
-    // MARK: - 播放控制按钮
     let playPauseButton = UIButton(type: .system)
     let stopButton = UIButton(type: .system)
     let scalingButton = UIButton(type: .system)
@@ -43,17 +39,14 @@ class WYTestLiveStreamingController: UIViewController {
     let aspectButton = UIButton(type: .system)
     let snapshotTypeButton = UIButton(type: .system)
     
-    // MARK: - 新增按钮
     let pipButton = UIButton(type: .system)          // 画中画按钮
     let fullScreenButton = UIButton(type: .system)   // 全屏/半屏按钮
     let orientationButton = UIButton(type: .system)  // 横竖屏切换按钮
     
-    // MARK: - 信息显示
     let infoLabel = UILabel()
     let stateLabel = UILabel()
     let streamLabel = UILabel()
     
-    // MARK: - 播放数据
     var mediaList: [(name: String, url: String)] = []
     var subtitleList: [URL] = []
     var currentIndex = 0
@@ -248,9 +241,7 @@ class WYTestLiveStreamingController: UIViewController {
         audioDelayButton.addTarget(self, action: #selector(adjustAudioDelay), for: .touchUpInside)
         
         // 字幕延迟
-        if #available(iOS 15.0, *) {
-            buttonConfig(subtitleDelayButton, "字幕延迟", .systemCyan)
-        }
+        buttonConfig(subtitleDelayButton, "字幕延迟", .systemCyan)
         subtitleDelayButton.addTarget(self, action: #selector(adjustSubtitleDelay), for: .touchUpInside)
         
         // 色彩调整
@@ -259,9 +250,7 @@ class WYTestLiveStreamingController: UIViewController {
         colorButton.addTarget(self, action: #selector(showColorSettings), for: .touchUpInside)
         
         // 画面比例
-        if #available(iOS 15.0, *) {
-            buttonConfig(aspectButton, "画面比例", .systemMint)
-        }
+        buttonConfig(aspectButton, "画面比例", .systemMint)
         aspectButton.addTarget(self, action: #selector(showAspectSettings), for: .touchUpInside)
         
         // 快照类型按钮
@@ -435,7 +424,6 @@ class WYTestLiveStreamingController: UIViewController {
             make.width.height.equalTo(playPauseButton)
         }
         
-        // MARK: - 新增按钮布局
         pipButton.snp.makeConstraints { make in
             make.top.equalTo(snapshotTypeButton.snp.bottom).offset(16)
             make.left.equalTo(playPauseButton)
@@ -576,7 +564,6 @@ class WYTestLiveStreamingController: UIViewController {
         }
     }
     
-    // MARK: - 控制功能
     
     @objc func togglePlayPause() {
         if player.state == .playing {
@@ -878,7 +865,6 @@ class WYTestLiveStreamingController: UIViewController {
         present(alert, animated: true)
     }
     
-    // MARK: - 新增按钮功能
     
     // 切换画中画模式
     @objc func togglePictureInPicture() {
@@ -971,7 +957,6 @@ class WYTestLiveStreamingController: UIViewController {
     }
 }
 
-// MARK: - 播放器代理
 extension WYTestLiveStreamingController: WYMediaPlayerDelegate {
     
     func wy_mediaPlayerStateDidChanged(_ player: WYMediaPlayer, state: WYMediaPlayerState) {
@@ -1011,7 +996,7 @@ extension WYTestLiveStreamingController: WYMediaPlayerDelegate {
             if isControlPanelVisible {
                 toggleControlPanel()
             }
-            currentIndex = ((currentIndex + 1) > mediaList.count) ? 0 : (currentIndex + 1)
+            currentIndex = ((currentIndex + 1) >= mediaList.count) ? 0 : (currentIndex + 1)
             playCurrentMedia()
         case .userExited:
             WYLogManager.output("用户中断播放")
@@ -1030,7 +1015,6 @@ extension WYTestLiveStreamingController: WYMediaPlayerDelegate {
     }
 }
 
-// MARK: - 画中画代理
 extension WYTestLiveStreamingController: AVPictureInPictureControllerDelegate {
     func pictureInPictureControllerDidStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
         pipButton.backgroundColor = .systemRed
@@ -1306,9 +1290,20 @@ extension WYTestLiveStreamingController {
             ("韩国太妍37", "https://cloud.video.taobao.com//play/u/57349687/p/1/e/6/t/1/240139720035.mp4"),
             ("韩国太妍38", "https://cloud.video.taobao.com//play/u/57349687/p/1/e/6/t/1/240368550193.mp4"),
             ("韩国太妍40", "https://cloud.video.taobao.com//play/u/57349687/p/1/e/6/t/1/240370230905.mp4"),
-            ("韩国太妍41", "https://cloud.video.taobao.com//play/u/57349687/p/1/e/6/t/1/240160716008.mp4"),
-            ("献血车(本地)", URL(fileURLWithPath: Bundle.main.path(forResource: "mpeg4_local", ofType: "mp4").wy_safe).absoluteString),
-            ("某办公楼", URL(fileURLWithPath: Bundle.main.path(forResource: "1650855755919", ofType: "mp4").wy_safe).absoluteString)]
+            ("韩国太妍41", "https://cloud.video.taobao.com//play/u/57349687/p/1/e/6/t/1/240160716008.mp4")]
+
+        let localMedias: [(display: String, file: String)] = [
+            ("乌篷转桨晃一晃，春风牵衣过平江", "乌篷转桨晃一晃，春风牵衣过平江"),
+            ("目光所及，我如钻石般闪闪发光", "目光所及，我如钻石般闪闪发光"),
+            ("恰是一樽江湖还一樽千年", "恰是一樽江湖还一樽千年"),
+            ("Apple很高兴遇见你", "Apple很高兴遇见你"),
+            ("这支舞，我只给你一个人跳", "这支舞，我只给你一个人跳"),
+            ("当舞蹈老师穿汉服跳舞会有多美《赤伶》", "当舞蹈老师穿汉服跳舞会有多美《赤伶》")]
+        for localMedia in localMedias {
+            if let path = Bundle.main.path(forResource: localMedia.file, ofType: "mp4") {
+                mediaList.append((localMedia.display, URL(fileURLWithPath: path).absoluteString))
+            }
+        }
         
         // 示例字幕（实际使用时替换为真实URL）
         subtitleList = [

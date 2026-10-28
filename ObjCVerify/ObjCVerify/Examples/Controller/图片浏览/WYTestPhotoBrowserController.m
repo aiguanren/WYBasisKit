@@ -137,11 +137,11 @@
     [items addObject:twoLevelItem];
 
     WYPhotoBrowserItem *gifItem = [[WYPhotoBrowserItem alloc] init];
-    gifItem.originalPath = [self resourcePath:@"动图1" ext:@"gif"];
+    gifItem.originalPath = [self resourcePath:@"关注主播" ext:@"gif"];
     gifItem.identifier = @"oc_local_gif";
     [items addObject:gifItem];
 
-    for (NSString *videoName in @[@"mpeg4_local", @"海边小屋"]) {
+    for (NSString *videoName in @[@"乌篷转桨晃一晃，春风牵衣过平江", @"树屋"]) {
         NSString *videoPath = [self resourcePath:videoName ext:@"mp4"];
         WYPhotoBrowserItem *videoItem = [[WYPhotoBrowserItem alloc] init];
         videoItem.placeholder = [self videoPosterWithPath:videoPath];
@@ -150,13 +150,17 @@
         [items addObject:videoItem];
     }
 
-    WYPhotoBrowserItem *liveItem = [[WYPhotoBrowserItem alloc] init];
-    liveItem.mediaType = WYPhotoBrowserMediaTypeLivePhoto;
-    liveItem.placeholder = [UIImage imageWithContentsOfFile:[self resourcePath:@"LivePhoto静图" ext:@"jpg"]];
-    liveItem.livePhotoStillURL = [NSURL fileURLWithPath:[self resourcePath:@"LivePhoto静图" ext:@"jpg"]];
-    liveItem.livePhotoVideoURL = [NSURL fileURLWithPath:[self resourcePath:@"1650855755919" ext:@"mp4"]];
-    liveItem.identifier = @"oc_live_local";
-    [items addObject:liveItem];
+    NSArray<NSString *> *livePhotoNames = @[@"棕榈步道", @"水中游鸟"];
+    for (NSInteger sample = 1; sample <= livePhotoNames.count; sample++) {
+        NSString *name = livePhotoNames[sample - 1];
+        WYPhotoBrowserItem *liveItem = [[WYPhotoBrowserItem alloc] init];
+        liveItem.mediaType = WYPhotoBrowserMediaTypeLivePhoto;
+        liveItem.placeholder = [UIImage imageWithContentsOfFile:[self resourcePath:name ext:@"heic"]];
+        liveItem.livePhotoStillURL = [NSURL fileURLWithPath:[self resourcePath:name ext:@"heic"]];
+        liveItem.livePhotoVideoURL = [NSURL fileURLWithPath:[self resourcePath:name ext:@"mov"]];
+        liveItem.identifier = [NSString stringWithFormat:@"oc_live_local_%ld", (long)sample];
+        [items addObject:liveItem];
+    }
     return items;
 }
 
@@ -180,8 +184,8 @@
 
     WYPhotoBrowserItem *liveItem = [[WYPhotoBrowserItem alloc] init];
     liveItem.mediaType = WYPhotoBrowserMediaTypeLivePhoto;
-    liveItem.livePhotoStillURL = [NSURL URLWithString:@"https://picsum.photos/seed/ocliveremote/800/1000.jpg"];
-    liveItem.livePhotoVideoURL = [NSURL URLWithString:@"https://test-videos.co.uk/vids/jellyfish/mp4/h264/360/Jellyfish_360_10s_1MB.mp4"];
+    liveItem.livePhotoStillURL = [NSURL URLWithString:@"https://raw.githubusercontent.com/NightMean/MotionPhotoSamples/main/Apple%20Live%20Photo/Apple%20iPhone%2015%20-%20photo.HEIC"];
+    liveItem.livePhotoVideoURL = [NSURL URLWithString:@"https://raw.githubusercontent.com/NightMean/MotionPhotoSamples/main/Apple%20Live%20Photo/Apple%20iPhone%2015%20-%20video.MOV"];
     liveItem.identifier = @"oc_live_remote";
     [items addObject:liveItem];
 

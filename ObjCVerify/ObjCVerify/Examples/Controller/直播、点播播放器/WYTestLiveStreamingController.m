@@ -249,10 +249,8 @@
     [self.audioDelayButton addTarget:self action:@selector(adjustAudioDelay) forControlEvents:UIControlEventTouchUpInside];
     
     // 字幕延迟
-    if (@available(iOS 15.0, *)) {
-        self.subtitleDelayButton = [UIButton buttonWithType:UIButtonTypeSystem];
-        buttonConfig(self.subtitleDelayButton, @"字幕延迟", [UIColor systemCyanColor]);
-    }
+    self.subtitleDelayButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    buttonConfig(self.subtitleDelayButton, @"字幕延迟", [UIColor systemCyanColor]);
     [self.subtitleDelayButton addTarget:self action:@selector(adjustSubtitleDelay) forControlEvents:UIControlEventTouchUpInside];
     
     // 色彩调整
@@ -262,10 +260,8 @@
     [self.colorButton addTarget:self action:@selector(showColorSettings) forControlEvents:UIControlEventTouchUpInside];
     
     // 画面比例
-    if (@available(iOS 15.0, *)) {
-        self.aspectButton = [UIButton buttonWithType:UIButtonTypeSystem];
-        buttonConfig(self.aspectButton, @"画面比例", [UIColor systemMintColor]);
-    }
+    self.aspectButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    buttonConfig(self.aspectButton, @"画面比例", [UIColor systemMintColor]);
     [self.aspectButton addTarget:self action:@selector(showAspectSettings) forControlEvents:UIControlEventTouchUpInside];
     
     // 快照类型按钮
@@ -1104,7 +1100,7 @@
             if (self.isControlPanelVisible) {
                 [self toggleControlPanel];
             }
-            self.currentIndex = ((self.currentIndex + 1) > self.mediaList.count) ? 0 : (self.currentIndex + 1);
+            self.currentIndex = ((self.currentIndex + 1) >= self.mediaList.count) ? 0 : (self.currentIndex + 1);
             [self playCurrentMedia];
             break;
         case WYMediaPlayerStateUserExited:
@@ -1409,10 +1405,25 @@
         @{@"name": @"韩国太妍37", @"url": @"https://cloud.video.taobao.com//play/u/57349687/p/1/e/6/t/1/240139720035.mp4"},
         @{@"name": @"韩国太妍38", @"url": @"https://cloud.video.taobao.com//play/u/57349687/p/1/e/6/t/1/240368550193.mp4"},
         @{@"name": @"韩国太妍40", @"url": @"https://cloud.video.taobao.com//play/u/57349687/p/1/e/6/t/1/240370230905.mp4"},
-        @{@"name": @"韩国太妍41", @"url": @"https://cloud.video.taobao.com//play/u/57349687/p/1/e/6/t/1/240160716008.mp4"},
-        @{@"name": @"献血车(本地)", @"url": [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"mpeg4_local" ofType:@"mp4"]].absoluteString},
-        @{@"name": @"某办公楼", @"url": [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"1650855755919" ofType:@"mp4"]].absoluteString}
+        @{@"name": @"韩国太妍41", @"url": @"https://cloud.video.taobao.com//play/u/57349687/p/1/e/6/t/1/240160716008.mp4"}
     ];
+
+    NSArray<NSDictionary *> *localMedias = @[
+        @{@"name": @"乌篷转桨晃一晃，春风牵衣过平江", @"file": @"乌篷转桨晃一晃，春风牵衣过平江"},
+        @{@"name": @"目光所及，我如钻石般闪闪发光", @"file": @"目光所及，我如钻石般闪闪发光"},
+        @{@"name": @"恰是一樽江湖还一樽千年", @"file": @"恰是一樽江湖还一樽千年"},
+        @{@"name": @"Apple很高兴遇见你", @"file": @"Apple很高兴遇见你"},
+        @{@"name": @"这支舞，我只给你一个人跳", @"file": @"这支舞，我只给你一个人跳"},
+        @{@"name": @"当舞蹈老师穿汉服跳舞会有多美《赤伶》", @"file": @"当舞蹈老师穿汉服跳舞会有多美《赤伶》"}
+    ];
+    NSMutableArray<NSDictionary *> *mediaList = [self.mediaList mutableCopy];
+    for (NSDictionary *localMedia in localMedias) {
+        NSString *path = [[NSBundle mainBundle] pathForResource:localMedia[@"file"] ofType:@"mp4"];
+        if (path != nil) {
+            [mediaList addObject:@{@"name": localMedia[@"name"], @"url": [NSURL fileURLWithPath:path].absoluteString}];
+        }
+    }
+    self.mediaList = mediaList;
     
     // 示例字幕（实际使用时替换为真实URL）
     self.subtitleList = @[

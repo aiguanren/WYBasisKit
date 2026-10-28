@@ -16,79 +16,109 @@ class WYParseGifController: UIViewController {
         // Do any additional setup after loading the view.
         view.backgroundColor = .white
         
-        let widthHeight: CGFloat = (UIApplication.shared.wy_keyWindowScene.screen.bounds.self.width - 40) / 3
+        let spacing = UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels)
+        let topSpacing = UIDevice.wy_screenHeight(80, WYBasisKitConfig.defaultScreenPixels)
+        let rowSpacing = UIDevice.wy_screenHeight(50, WYBasisKitConfig.defaultScreenPixels)
+        let scrollView = UIScrollView()
+        view.addSubview(scrollView)
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalTo(view.safeAreaLayoutGuide)
+        }
+        let contentView = UIView()
+        scrollView.addSubview(contentView)
+        contentView.snp.makeConstraints { make in
+            make.edges.equalTo(scrollView.contentLayoutGuide)
+            make.width.equalTo(scrollView.frameLayoutGuide)
+        }
         let contentMode: UIView.ContentMode = .scaleAspectFit
         
         let oneGifView = UIImageView()
+        oneGifView.accessibilityIdentifier = "WYAnimation.oneGifView"
+        oneGifView.isAccessibilityElement = true
         oneGifView.contentMode = contentMode
-        view.addSubview(oneGifView)
+        contentView.addSubview(oneGifView)
         oneGifView.snp.makeConstraints { make in
-            make.left.equalToSuperview().offset(10)
-            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight + 80)
-            make.width.height.equalTo(widthHeight)
+            make.left.equalToSuperview().offset(spacing)
+            make.top.equalToSuperview().offset(topSpacing)
+            make.width.equalTo(contentView).multipliedBy(1.0 / 3).offset(-spacing * 4 / 3)
+            make.height.equalTo(oneGifView.snp.width)
         }
         
         let animatedGifView = UIImageView()
-        oneGifView.contentMode = contentMode
-        view.addSubview(animatedGifView)
+        animatedGifView.accessibilityIdentifier = "WYAnimation.animatedGifView"
+        animatedGifView.isAccessibilityElement = true
+        animatedGifView.contentMode = contentMode
+        contentView.addSubview(animatedGifView)
         animatedGifView.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight + 80)
-            make.width.height.equalTo(widthHeight)
+            make.top.equalToSuperview().offset(topSpacing)
+            make.width.equalTo(contentView).multipliedBy(1.0 / 3).offset(-spacing * 4 / 3)
+            make.height.equalTo(animatedGifView.snp.width)
         }
         
         let customGifView = UIImageView()
-        oneGifView.contentMode = contentMode
-        view.addSubview(customGifView)
+        customGifView.accessibilityIdentifier = "WYAnimation.customGifView"
+        customGifView.isAccessibilityElement = true
+        customGifView.contentMode = contentMode
+        contentView.addSubview(customGifView)
         customGifView.snp.makeConstraints { make in
-            make.right.equalToSuperview().offset(-10)
-            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight + 80)
-            make.width.height.equalTo(widthHeight)
+            make.right.equalToSuperview().offset(-spacing)
+            make.top.equalToSuperview().offset(topSpacing)
+            make.width.equalTo(contentView).multipliedBy(1.0 / 3).offset(-spacing * 4 / 3)
+            make.height.equalTo(customGifView.snp.width)
         }
         
         
         let oneApngView = UIImageView()
+        oneApngView.accessibilityIdentifier = "WYAnimation.oneApngView"
+        oneApngView.isAccessibilityElement = true
         oneApngView.contentMode = contentMode
-        view.addSubview(oneApngView)
+        contentView.addSubview(oneApngView)
         oneApngView.snp.makeConstraints { make in
-            make.left.equalToSuperview().offset(10)
-            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight + 80 + widthHeight + 50)
-            make.width.height.equalTo(widthHeight)
+            make.left.equalToSuperview().offset(spacing)
+            make.top.equalTo(oneGifView.snp.bottom).offset(rowSpacing)
+            make.width.equalTo(contentView).multipliedBy(1.0 / 3).offset(-spacing * 4 / 3)
+            make.height.equalTo(oneApngView.snp.width)
         }
         
         let animatedApngView = UIImageView()
+        animatedApngView.accessibilityIdentifier = "WYAnimation.animatedApngView"
+        animatedApngView.isAccessibilityElement = true
         animatedApngView.contentMode = contentMode
-        view.addSubview(animatedApngView)
+        contentView.addSubview(animatedApngView)
         animatedApngView.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight + 80 + widthHeight + 50)
-            make.width.height.equalTo(widthHeight)
+            make.top.equalTo(oneGifView.snp.bottom).offset(rowSpacing)
+            make.width.equalTo(contentView).multipliedBy(1.0 / 3).offset(-spacing * 4 / 3)
+            make.height.equalTo(animatedApngView.snp.width)
         }
         
         let customApngView = UIImageView()
+        customApngView.accessibilityIdentifier = "WYAnimation.customApngView"
+        customApngView.isAccessibilityElement = true
         customApngView.contentMode = contentMode
         customApngView.layer.masksToBounds = true
-        view.addSubview(customApngView)
+        contentView.addSubview(customApngView)
         customApngView.snp.makeConstraints { make in
-            make.right.equalToSuperview().offset(-10)
-            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight + 80 + widthHeight + 50)
-            make.width.height.equalTo(widthHeight)
+            make.right.equalToSuperview().offset(-spacing)
+            make.top.equalTo(oneGifView.snp.bottom).offset(rowSpacing)
+            make.width.equalTo(contentView).multipliedBy(1.0 / 3).offset(-spacing * 4 / 3)
+            make.height.equalTo(customApngView.snp.width)
+            make.bottom.equalToSuperview().offset(-topSpacing)
         }
         
-        let apngInfo1: WYGifInfo? = UIImage.wy_animatedParse(.APNG, name: "apng格式图片1")
-        let apngInfo2: WYGifInfo? = UIImage.wy_animatedParse(.APNG, name: "apng格式图片2")
+        let apngInfo: WYGifInfo? = UIImage.wy_animatedParse(.APNG, name: "连线主播")
         
-        let gifInfo1: WYGifInfo? = UIImage.wy_animatedParse(name: "动图1")
-        let gifInfo2: WYGifInfo? = UIImage.wy_animatedParse(name: "动图2")
+        let gifInfo: WYGifInfo? = UIImage.wy_animatedParse(name: "关注主播")
         
         // 直接显示解析得到的图片(实际上就是无限循环播放)
-        oneGifView.image = gifInfo2?.animatedImage
-        oneApngView.image = apngInfo2?.animatedImage
+        oneGifView.image = gifInfo?.animatedImage
+        oneApngView.image = apngInfo?.animatedImage
         
         // 只播放一次解析得到的图片
         for imageView: UIImageView in [animatedGifView, animatedApngView] {
-            imageView.animationImages = (imageView == animatedGifView) ? gifInfo1!.animationImages : apngInfo1!.animationImages
-            imageView.animationDuration = (imageView == animatedGifView) ? gifInfo1!.animationDuration : apngInfo1!.animationDuration
+            imageView.animationImages = (imageView == animatedGifView) ? gifInfo!.animationImages : apngInfo!.animationImages
+            imageView.animationDuration = (imageView == animatedGifView) ? gifInfo!.animationDuration : apngInfo!.animationDuration
             imageView.animationRepeatCount = 1
             imageView.startAnimating()
 
@@ -100,8 +130,8 @@ class WYParseGifController: UIViewController {
         
         // 无限循环播放(和直接调用解析得到的animatedImage效果一样)
         for imageView: UIImageView in [customGifView, customApngView] {
-            imageView.animationImages = (imageView == customGifView) ? gifInfo2!.animationImages : apngInfo2!.animationImages
-            imageView.animationDuration = (imageView == customGifView) ? gifInfo2!.animationDuration : apngInfo2!.animationDuration
+            imageView.animationImages = (imageView == customGifView) ? gifInfo!.animationImages : apngInfo!.animationImages
+            imageView.animationDuration = (imageView == customGifView) ? gifInfo!.animationDuration : apngInfo!.animationDuration
             // 0 表示无限循环播放
             imageView.animationRepeatCount = 0
             imageView.startAnimating()
@@ -119,7 +149,6 @@ class WYParseGifController: UIViewController {
     
 
     /*
-    // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

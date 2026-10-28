@@ -7,6 +7,8 @@
 
 #import "AppDelegate.h"
 #import <WYBasisKitObjC-Swift.h>
+@import IQKeyboardManagerSwift;
+@import IQKeyboardToolbarManager;
 #import <SDWebImage/SDImageCodersManager.h>
 #import <SDWebImageWebPCoder/SDImageWebPCoder.h>
 
@@ -26,7 +28,18 @@
     
     // 全局设置SDWebImage支持显示webp格式图片
     [[SDImageCodersManager sharedManager] addCoder:[SDImageWebPCoder sharedCoder]];
-    
+
+    // 开启键盘管理(输入框自动带上完成工具条，点页面空白处收起键盘)
+    [IQKeyboardManager shared].isEnabled = YES;
+    [IQKeyboardManager shared].resignOnTouchOutside = YES;
+    IQKeyboardToolbarManager.shared.isEnabled = YES;
+    // 播放器区域不触发点外收回(键盘管理的窗口点按手势不与播放器单击抢事件)
+    {
+        NSMutableArray<Class> *ignoreClasses = [[IQKeyboardManager shared].touchResignedGestureIgnoreClasses mutableCopy];
+        [ignoreClasses addObject:WYVideoPlayer.class];
+        [IQKeyboardManager shared].touchResignedGestureIgnoreClasses = ignoreClasses;
+    }
+
     return YES;
 }
 

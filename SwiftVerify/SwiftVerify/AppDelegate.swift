@@ -9,6 +9,8 @@
 import UIKit
 import Kingfisher
 import KingfisherWebP
+import IQKeyboardManagerSwift
+import IQKeyboardToolbarManager
 @_exported import WYBasisKitSwift
 
 protocol AppEventDelegate: AnyObject {
@@ -40,6 +42,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             .cacheSerializer(WebPSerializer.default)
         ]
 
+        // 开启键盘管理(输入框自动带上完成工具条，点页面空白处收起键盘)
+        IQKeyboardManager.shared.isEnabled = true
+        IQKeyboardManager.shared.resignOnTouchOutside = true
+        IQKeyboardToolbarManager.shared.isEnabled = true
+        // 播放器区域不触发点外收回(键盘管理的窗口点按手势不与播放器单击抢事件)
+        IQKeyboardManager.shared.touchResignedGestureIgnoreClasses.append(WYVideoPlayer.self)
+
+
         return true
     }
 
@@ -56,4 +66,3 @@ extension AppDelegate {
         return UIApplication.shared.delegate as! AppDelegate
     }
 }
-

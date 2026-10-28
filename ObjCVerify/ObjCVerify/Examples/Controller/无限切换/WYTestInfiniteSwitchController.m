@@ -965,7 +965,7 @@
 
 - (NSArray<NSString *> *)pageVideoList {
     if (!_pageVideoList) {
-        NSURL *localUrl = [NSURL fileURLWithPath:[NSBundle.mainBundle pathForResource:@"mpeg4_local" ofType:@"mp4"]];
+        NSURL *localUrl = [NSURL fileURLWithPath:[NSBundle.mainBundle pathForResource:@"乌篷转桨晃一晃，春风牵衣过平江" ofType:@"mp4"]];
         _pageVideoList = @[
             @"https://files.cochat.lenovo.com/download/dbb26a06-4604-3d2b-bb2c-6293989e63a7/55deb281e01b27194daf6da391fdfe83.mp4",
             @"http://www.w3school.com.cn/i/movie.mp4",

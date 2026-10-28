@@ -87,11 +87,9 @@ class WYTestVibrateController: UIViewController {
             button.setTitleColor(.white, for: .normal)
             button.layer.cornerRadius = 8
             button.heightAnchor.constraint(equalToConstant: 44).isActive = true
-            if #available(iOS 14.0, *) {
-                button.addAction(UIAction { [weak self] _ in
-                    self?.testVibration(type)
-                }, for: .touchUpInside)
-            }
+            button.addAction(UIAction { [weak self] _ in
+                self?.testVibration(type)
+            }, for: .touchUpInside)
             stackView.addArrangedSubview(button)
         }
     }
@@ -114,7 +112,6 @@ class WYTestVibrateController: UIViewController {
     }
     
     /*
-     // MARK: - Navigation
      
      // In a storyboard-based application, you will often want to do a little preparation before navigation
      override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

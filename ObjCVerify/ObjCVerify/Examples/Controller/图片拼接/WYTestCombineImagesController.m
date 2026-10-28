@@ -671,17 +671,15 @@ static char kPickerColorViewKey;
     
     if (!colorView || !valueChanged) return;
     
-    if (@available(iOS 14.0, *)) {
-        UIColorPickerViewController *picker = [[UIColorPickerViewController alloc] init];
-        picker.supportsAlpha = YES;
-        picker.selectedColor = colorView.backgroundColor ?: [UIColor clearColor];
-        picker.delegate = self;
-        
-        objc_setAssociatedObject(picker, &kPickerColorViewKey, colorView, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-        objc_setAssociatedObject(picker, &kPickerValueChangedKey, valueChanged, OBJC_ASSOCIATION_COPY_NONATOMIC);
-        
-        [self presentViewController:picker animated:YES completion:nil];
-    }
+    UIColorPickerViewController *picker = [[UIColorPickerViewController alloc] init];
+    picker.supportsAlpha = YES;
+    picker.selectedColor = colorView.backgroundColor ?: [UIColor clearColor];
+    picker.delegate = self;
+    
+    objc_setAssociatedObject(picker, &kPickerColorViewKey, colorView, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(picker, &kPickerValueChangedKey, valueChanged, OBJC_ASSOCIATION_COPY_NONATOMIC);
+    
+    [self presentViewController:picker animated:YES completion:nil];
 }
 
 - (void)switchChanged:(UISwitch *)switchCtrl {

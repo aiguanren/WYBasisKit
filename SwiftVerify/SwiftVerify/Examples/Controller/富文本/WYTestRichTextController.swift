@@ -17,37 +17,40 @@ class WYTestRichTextController: UIViewController {
         view.backgroundColor = .white
         
         let scrollView: UIScrollView = UIScrollView()
+        scrollView.accessibilityIdentifier = "WYRichText.scroll"
+        scrollView.contentInsetAdjustmentBehavior = .never
         view.addSubview(scrollView);
         scrollView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.edges.equalTo(view.safeAreaLayoutGuide)
         }
         
         let label = UILabel()
+        label.accessibilityIdentifier = "WYRichText.primary"
         let str = "治性之道，必审己之所有余而强其所不足，盖聪明疏通者戒于太察，寡闻少见者戒于壅蔽，勇猛刚强者戒于太暴，仁爱温良者戒于无断，湛静安舒者戒于后时，广心浩大者戒于遗忘。必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"
         label.numberOfLines = 0
         let attribute = NSMutableAttributedString(string: str)
         
-        attribute.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 20), range: NSMakeRange(0, str.count))
+        attribute.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: UIFont.wy_fontSize(20, WYBasisKitConfig.defaultScreenPixels)), range: NSMakeRange(0, str.count))
         
         attribute.wy_setColor([UIColor.blue: "勇猛刚强",
                                UIColor.orange: "仁爱温良者戒于无断",
                                UIColor.purple: "安舒",
                                UIColor.magenta: "必审己之所当戒而齐之以义，然后中和之化应，而巧伪之徒不敢比周而望进。"])
         attribute.wy_setColor([UIColor.wy_random: ["太", "暴"]])
-        attribute.wy_setFont([UIFont.boldSystemFont(ofSize: 26): [NSMakeRange(2, 2), NSMakeRange(20, 6)]])
+        attribute.wy_setFont([UIFont.boldSystemFont(ofSize: UIFont.wy_fontSize(26, WYBasisKitConfig.defaultScreenPixels)): [NSMakeRange(2, 2), NSMakeRange(20, 6)]])
         attribute.wy_lineSpacing(15, rangeValue: attribute.string)
         attribute.wy_wordsSpacing(20, rangeValue: ["必审己之所有余而强其所不足", NSMakeRange(20, 6)])
         attribute.wy_underline(color: .magenta, rangeValue: "勇猛刚强")
         label.attributedText = attribute
         scrollView.addSubview(label)
         label.snp.makeConstraints { (make) in
-            make.centerX.equalToSuperview()
-            make.width.equalTo(UIDevice.wy_screenWidth - 30)
-            make.top.equalToSuperview().offset(20)
+            make.centerX.equalTo(scrollView.frameLayoutGuide)
+            make.width.equalTo(scrollView.frameLayoutGuide).offset(-UIDevice.wy_screenWidth(30, WYBasisKitConfig.defaultScreenPixels))
+            make.top.equalToSuperview().offset(UIDevice.wy_screenHeight(20, WYBasisKitConfig.defaultScreenPixels))
         }
         
         let emojiLabel = UILabel()
-        emojiLabel.font = .systemFont(ofSize: 18)
+        emojiLabel.font = .systemFont(ofSize: UIFont.wy_fontSize(18, WYBasisKitConfig.defaultScreenPixels))
         emojiLabel.numberOfLines = 0
         emojiLabel.backgroundColor = .white
         emojiLabel.textColor = .black
@@ -56,14 +59,14 @@ class WYTestRichTextController: UIViewController {
         emojiLabel.attributedText = emojiLabelAttributed
         scrollView.addSubview(emojiLabel)
         emojiLabel.snp.makeConstraints { (make) in
-            make.top.equalTo(label.snp.bottom).offset(50)
-            make.centerX.equalToSuperview()
-            make.width.equalTo(UIDevice.wy_screenWidth - 30)
+            make.top.equalTo(label.snp.bottom).offset(UIDevice.wy_screenHeight(50, WYBasisKitConfig.defaultScreenPixels))
+            make.centerX.equalTo(scrollView.frameLayoutGuide)
+            make.width.equalTo(scrollView.frameLayoutGuide).offset(-UIDevice.wy_screenWidth(30, WYBasisKitConfig.defaultScreenPixels))
         }
         
         let marginLabel = UILabel()
         marginLabel.text = "测试内边距"
-        marginLabel.font = .systemFont(ofSize: 18)
+        marginLabel.font = .systemFont(ofSize: UIFont.wy_fontSize(18, WYBasisKitConfig.defaultScreenPixels))
         marginLabel.backgroundColor = .purple
         marginLabel.textColor = .orange
         
@@ -77,15 +80,16 @@ class WYTestRichTextController: UIViewController {
         let marginLabelWidth: CGFloat = marginLabel.text?.wy_calculateWidth(controlHeight: marginLabel.font.lineHeight, controlFont: marginLabel.font) ?? 0
         
         marginLabel.snp.makeConstraints { (make) in
-            make.centerX.equalToSuperview()
-            make.width.equalTo(marginLabelWidth + 30)
-            make.top.equalTo(emojiLabel.snp.bottom).offset(50)
+            make.centerX.equalTo(scrollView.frameLayoutGuide)
+            make.width.equalTo(marginLabelWidth + UIDevice.wy_screenWidth(30, WYBasisKitConfig.defaultScreenPixels))
+            make.width.lessThanOrEqualTo(scrollView.frameLayoutGuide)
+            make.top.equalTo(emojiLabel.snp.bottom).offset(UIDevice.wy_screenHeight(50, WYBasisKitConfig.defaultScreenPixels))
         }
         
         label.layoutIfNeeded()
         
         let attachmentView: UILabel = UILabel()
-        attachmentView.font = UIFont.systemFont(ofSize: 15)
+        attachmentView.font = UIFont.systemFont(ofSize: UIFont.wy_fontSize(15, WYBasisKitConfig.defaultScreenPixels))
         attachmentView.numberOfLines = 0
         let string_font_30: String = "嘴唇"
         let string_font_40: String = "爱心"
@@ -109,17 +113,17 @@ class WYTestRichTextController: UIViewController {
             .init(image: image_font_50, size: CGSize(width: 10, height: 10), position: .index(string_font_50Index + 2), offsetY: 30),
             .init(image: image_font_50, size: CGSize(width: 20, height: 20), position: .after(text: string_font_50), offsetY: -5)
         ]
-        attributed.wy_setFont([UIFont.systemFont(ofSize: 30): string_font_30,
-                               UIFont.systemFont(ofSize: 40): string_font_40,
-                               UIFont.systemFont(ofSize: 50): string_font_50])
+        attributed.wy_setFont([UIFont.systemFont(ofSize: UIFont.wy_fontSize(30, WYBasisKitConfig.defaultScreenPixels)): string_font_30,
+                               UIFont.systemFont(ofSize: UIFont.wy_fontSize(40, WYBasisKitConfig.defaultScreenPixels)): string_font_40,
+                               UIFont.systemFont(ofSize: UIFont.wy_fontSize(50, WYBasisKitConfig.defaultScreenPixels)): string_font_50])
         attributed.wy_insertImage(options)
         attributed.wy_lineSpacing(10)
         attachmentView.attributedText = attributed
         scrollView.addSubview(attachmentView)
         attachmentView.snp.makeConstraints { make in
-            make.width.equalTo(UIDevice.wy_screenWidth - 30)
-            make.centerX.equalToSuperview()
-            make.top.equalTo(marginLabel.snp.bottom).offset(50)
+            make.width.equalTo(scrollView.frameLayoutGuide).offset(-UIDevice.wy_screenWidth(30, WYBasisKitConfig.defaultScreenPixels))
+            make.centerX.equalTo(scrollView.frameLayoutGuide)
+            make.top.equalTo(marginLabel.snp.bottom).offset(UIDevice.wy_screenHeight(50, WYBasisKitConfig.defaultScreenPixels))
         }
         
         let spacingView = UILabel()
@@ -127,9 +131,9 @@ class WYTestRichTextController: UIViewController {
         spacingView.numberOfLines = 0
         scrollView.addSubview(spacingView)
         spacingView.snp.makeConstraints { make in
-            make.width.equalTo(UIDevice.wy_screenWidth - 30)
-            make.centerX.equalToSuperview()
-            make.top.equalTo(attachmentView.snp.bottom).offset(50)
+            make.width.equalTo(scrollView.frameLayoutGuide).offset(-UIDevice.wy_screenWidth(30, WYBasisKitConfig.defaultScreenPixels))
+            make.centerX.equalTo(scrollView.frameLayoutGuide)
+            make.top.equalTo(attachmentView.snp.bottom).offset(UIDevice.wy_screenHeight(50, WYBasisKitConfig.defaultScreenPixels))
         }
         
         let spacing10: String = String.wy_random(minimum: 50, maximum: 100)
@@ -147,18 +151,18 @@ class WYTestRichTextController: UIViewController {
         spacingAttributed.wy_lineSpacing(50, rangeValue: spacing20)
         spacingView.attributedText = spacingAttributed
         
-        let sizeWidth: CGFloat = UIDevice.wy_screenWidth - 30
-        let sizeHeight: CGFloat = 30
+        let sizeHeight: CGFloat = UIDevice.wy_screenHeight(30, WYBasisKitConfig.defaultScreenPixels)
         
         let widthView: UILabel = UILabel()
         widthView.backgroundColor = .wy_random
-        widthView.font = UIFont.boldSystemFont(ofSize: 15)
+        widthView.font = UIFont.boldSystemFont(ofSize: UIFont.wy_fontSize(15, WYBasisKitConfig.defaultScreenPixels))
         widthView.text = String.wy_random(minimum: 5, maximum: 20)
         scrollView.addSubview(widthView)
         widthView.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.top.equalTo(spacingView.snp.bottom).offset(UIDevice.wy_screenWidth(50))
+            make.centerX.equalTo(scrollView.frameLayoutGuide)
+            make.top.equalTo(spacingView.snp.bottom).offset(UIDevice.wy_screenHeight(50, WYBasisKitConfig.defaultScreenPixels))
             make.height.equalTo(sizeHeight)
+            make.width.lessThanOrEqualTo(scrollView.frameLayoutGuide)
         }
         
         let textWidth: CGFloat = widthView.text!.wy_calculateWidth(controlHeight: sizeHeight, controlFont: widthView.font)
@@ -168,23 +172,21 @@ class WYTestRichTextController: UIViewController {
         let attributedWidth: CGFloat = widthAttributed.wy_calculateWidth(controlHeight: sizeHeight)
         
         let heightView: UILabel = UILabel()
+        heightView.accessibilityIdentifier = "WYRichText.height"
         heightView.backgroundColor = .wy_random
         heightView.numberOfLines = 0
-        heightView.font = UIFont.boldSystemFont(ofSize: 15)
+        heightView.font = UIFont.boldSystemFont(ofSize: UIFont.wy_fontSize(15, WYBasisKitConfig.defaultScreenPixels))
         heightView.text = String.wy_random(minimum: 150, maximum: 300)
         scrollView.addSubview(heightView)
         heightView.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.top.equalTo(widthView.snp.bottom).offset(UIDevice.wy_screenWidth(50))
-            make.width.equalTo(sizeWidth)
-            make.bottom.equalToSuperview().offset(-50)
+            make.centerX.equalTo(scrollView.frameLayoutGuide)
+            make.top.equalTo(widthView.snp.bottom).offset(UIDevice.wy_screenHeight(50, WYBasisKitConfig.defaultScreenPixels))
+            make.width.equalTo(scrollView.frameLayoutGuide).offset(-UIDevice.wy_screenWidth(30, WYBasisKitConfig.defaultScreenPixels))
+            make.bottom.equalToSuperview().offset(-UIDevice.wy_screenHeight(50, WYBasisKitConfig.defaultScreenPixels))
         }
-        
-        let textHeight: CGFloat = heightView.text!.wy_calculateHeight(controlWidth: sizeWidth, controlFont: heightView.font)
         
         let heightAttributed: NSMutableAttributedString = NSMutableAttributedString(string: heightView.text!)
         heightAttributed.wy_setFont(heightView.font)
-        let attributedHeight: CGFloat = heightAttributed.wy_calculateHeight(controlWidth: sizeWidth)
         
         let textWidthLine: UIView = UIView()
         textWidthLine.backgroundColor = .orange
@@ -209,7 +211,7 @@ class WYTestRichTextController: UIViewController {
         scrollView.addSubview(textHeightLine)
         textHeightLine.snp.makeConstraints { make in
             make.left.top.equalTo(heightView)
-            make.height.equalTo(textHeight)
+            make.height.equalTo(0)
             make.width.equalTo(2)
         }
         
@@ -218,11 +220,28 @@ class WYTestRichTextController: UIViewController {
         scrollView.addSubview(attributedHeightLine)
         attributedHeightLine.snp.makeConstraints { make in
             make.right.top.equalTo(heightView)
-            make.height.equalTo(attributedHeight)
+            make.height.equalTo(0)
             make.width.equalTo(2)
         }
+        var measuredWidth: CGFloat = 0
+        updateMeasuredHeights = {
+            let width = heightView.bounds.width
+            guard width > 0, width != measuredWidth else { return }
+            measuredWidth = width
+            let textHeight = heightView.text!.wy_calculateHeight(controlWidth: width, controlFont: heightView.font)
+            let attributedHeight = heightAttributed.wy_calculateHeight(controlWidth: width)
+            textHeightLine.snp.updateConstraints { make in make.height.equalTo(textHeight) }
+            attributedHeightLine.snp.updateConstraints { make in make.height.equalTo(attributedHeight) }
+        }
     }
-    
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        updateMeasuredHeights?()
+    }
+
+    private var updateMeasuredHeights: (() -> Void)?
+
     deinit {
         WYLogManager.output("deinit")
     }

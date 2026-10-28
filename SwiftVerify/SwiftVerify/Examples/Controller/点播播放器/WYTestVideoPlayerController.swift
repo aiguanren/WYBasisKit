@@ -31,15 +31,15 @@ class WYTestVideoPlayerController: UIViewController, WYVideoPlayerDelegate, UITa
     /// 自动弹幕定时器
     var danmakuTimer: Timer?
 
-    /// 演示用多档素材
+    /// 演示用多档素材(同一支幕后花絮的360p与1080p，切清晰度时画面内容不变，默认标清起播快)
     let multiAsset: WYVideoPlayerMediaAsset = {
-        let high = WYVideoPlayerMediaQuality(name: "高清", url: URL(string: "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_5MB.mp4")!)
-        let standard = WYVideoPlayerMediaQuality(name: "标清", url: URL(string: "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4")!)
-        return WYVideoPlayerMediaAsset(qualities: [high, standard])
+        let standard = WYVideoPlayerMediaQuality(name: "标清", url: URL(string: "https://videoal-platform.cdn.huya.com/leaf/1048585/59a91b252545dcc3e53b1e831b45d090/99634977/73467960_2e4da4f83b6e2e39a68377497b56de2f_264_360_1.mp4?hyvid=1093775374&hyauid=1239535418978&hyroomid=1239535418978&hyratio=350&hyscence=vod&appid=66&domainid=41&srckey=NjZfNDFfMTA5Mzc3NTM3NA%3D%3D&&bitrate=328&client=110&definition=350&pid=1239535418978&scene=vod&vid=1093775374")!)
+        let high = WYVideoPlayerMediaQuality(name: "高清", url: URL(string: "https://videoal-platform.cdn.huya.com/leaf/1048585/59a91b252545dcc3e53b1e831b45d090/99634977/73467960_d3f67e02fa27857a54ca55b15f2c5878_264_1080_1_max.mp4?hyvid=1093775374&hyauid=1239535418978&hyroomid=1239535418978&hyratio=4000&hyscence=vod&appid=66&domainid=41&srckey=NjZfNDFfMTA5Mzc3NTM3NA%3D%3D&&bitrate=1803&client=110&definition=yuanhua&pid=1239535418978&scene=vod&vid=1093775374")!)
+        return WYVideoPlayerMediaAsset(qualities: [standard, high])
     }()
 
-    /// 演示用单档素材
-    let singleAsset = WYVideoPlayerMediaAsset(url: URL(string: "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_5MB.mp4")!)
+    /// 演示用单档素材(约12分钟的长片，验证单档地址的完整播放流程)
+    let singleAsset = WYVideoPlayerMediaAsset(url: URL(string: "https://file.digitaling.com/eImg/uvideos/2026/0202/1770014172754013.mp4")!)
 
     /// 动作清单(标题与点击行为)
     lazy var actions: [(String, () -> Void)] = [
@@ -63,6 +63,10 @@ class WYTestVideoPlayerController: UIViewController, WYVideoPlayerDelegate, UITa
         ("切清晰度 高清 / 标清", { [weak self] in
             guard let self = self else { return }
             self.player.selectQuality(at: (self.player.currentAsset?.selectedIndex == 0) ? 1 : 0)
+        }),
+        ("换单档素材(长片)", { [weak self] in
+            guard let self = self else { return }
+            self.player.play(with: self.singleAsset)
         }),
         ("加内联SRT字幕并选中", { [weak self] in
             self?.loadInlineSubtitle()
@@ -93,17 +97,42 @@ class WYTestVideoPlayerController: UIViewController, WYVideoPlayerDelegate, UITa
             }
         }),
         ("画中画(真机)", { [weak self] in
-            self?.player.startPictureInPicture()
+            guard let self = self else { return }
+            self.log("正在启动画中画")
+            WYActivity.showInfo("正在启动画中画", in: self.view)
+            self.player.startPictureInPicture()
         }),
         ("边下边播 开/关", { [weak self] in
             guard let self = self else { return }
             self.player.configuration.usesMediaCache.toggle()
-            self.player.play(with: self.multiAsset)
         }),
         ("边播边缓存状态", { [weak self] in
             guard let url = self?.player.currentAsset?.currentQuality.url else { return }
             let status = WYMediaCache.shared.cacheStatus(for: url)
             self?.log("已缓存 \(String(format: "%.1f", Double(status.cachedBytes) / 1024 / 1024))MB / \(String(format: "%.1f", Double(status.contentLength) / 1024 / 1024))MB")
+        }),
+        ("播放本地素材", { [weak self] in
+            guard let url = Bundle.main.url(forResource: "乌篷转桨晃一晃，春风牵衣过平江", withExtension: "mp4") else { return }
+            self?.player.play(with: url)
+        }),
+        ("播放指定地址", { [weak self] in
+            self?.showURLInput()
+        }),
+        ("控件显隐 开/关", { [weak self] in
+            guard let config = self?.player.configuration else { return }
+            config.shellHiddenControls = config.shellHiddenControls.isEmpty ? [.airPlay, .duration] : []
+        }),
+        ("控件顺序 正序/反序", { [weak self] in
+            guard let config = self?.player.configuration else { return }
+            config.shellInlineBottomControls.reverse()
+        }),
+        ("自定义按钮位置 开/关", { [weak self] in
+            guard let config = self?.player.configuration else { return }
+            if config.shellLayoutHandler != nil { config.shellLayoutHandler = nil; return }
+            config.shellLayoutHandler = { _, _, safe, _ in
+                let size = UIDevice.wy_screenWidth(40, WYBasisKitConfig.defaultScreenPixels)
+                return [.more: CGRect(x: max(safe.left, UIDevice.wy_screenWidth(16, WYBasisKitConfig.defaultScreenPixels)), y: safe.top, width: size, height: size)]
+            }
         }),
         ("重播", { [weak self] in
             self?.player.seek(to: 0, accurate: false)
@@ -119,17 +148,48 @@ class WYTestVideoPlayerController: UIViewController, WYVideoPlayerDelegate, UITa
         setupStatusUI()
         setupActionList()
         player.delegate = self
-        player.configuration.showsDanmaku = true
         player.configuration.shellShowsSnapshotButton = true
+        player.configuration.sleepTimerOptions = [3, 900, 1800, 3600]
         player.play(with: multiAsset)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
     }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
     }
 
+    /// 输入地址验证不同视频来源和网络加载行为
+    func showURLInput() {
+        let alert = UIAlertController(title: "播放指定地址", message: nil, preferredStyle: .alert)
+        alert.addTextField { field in
+            field.placeholder = "https://"
+            field.keyboardType = .URL
+            field.autocapitalizationType = .none
+            field.accessibilityIdentifier = "WYVideoPlayerDemo.url"
+        }
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+        alert.addAction(UIAlertAction(title: "播放", style: .default) { [weak self, weak alert] action in
+            guard let value = alert?.textFields?.first?.text, let url = URL(string: value),
+                  ["http", "https"].contains(url.scheme?.lowercased() ?? "") else { return }
+            self?.player.play(with: url)
+        })
+        present(alert, animated: true)
+    }
+
     /// 搭建播放器与截图预览
     func setupPlayerUI() {
+        player.accessibilityIdentifier = "WYVideoPlayerDemo.player"
         view.addSubview(player)
         player.snp.makeConstraints { (make) in
             make.top.equalTo(view.safeAreaLayoutGuide).offset(8)
@@ -149,6 +209,7 @@ class WYTestVideoPlayerController: UIViewController, WYVideoPlayerDelegate, UITa
 
     /// 搭建状态区
     func setupStatusUI() {
+        statusLabel.accessibilityIdentifier = "WYVideoPlayerDemo.status"
         statusLabel.font = .systemFont(ofSize: 12)
         statusLabel.textColor = .darkGray
         statusLabel.numberOfLines = 0
@@ -222,6 +283,11 @@ class WYTestVideoPlayerController: UIViewController, WYVideoPlayerDelegate, UITa
         let current = Int(currentTime)
         let total = Int(duration)
         statusLabel.text = "\(current)s / \(total)s，缓冲到 \(Int(playableDuration))s，状态 \(player.state == .playing ? "播放中" : "非播放")"
+    }
+
+    func wy_videoPlayer(_ player: WYVideoPlayer, didFailWithError error: Error) {
+        log("播放操作失败：\(error.localizedDescription)")
+        WYActivity.showInfo("播放操作失败：\(error.localizedDescription)", in: view)
     }
 
     func wy_videoPlayer(_ player: WYVideoPlayer, didTakeSnapshot image: UIImage?) {
