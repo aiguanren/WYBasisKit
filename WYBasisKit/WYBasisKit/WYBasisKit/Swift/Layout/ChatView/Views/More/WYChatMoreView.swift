@@ -270,9 +270,7 @@ public extension WYChatMoreView {
                 pagecontrol.currentPage = 0
                 pagecontrol.numberOfPages = moreViewConfig.numberOfPages()
                 pagecontrol.addTarget(self, action: #selector(switchCurrentPage(_:)), for: .valueChanged)
-                if #available(iOS 14.0, *) {
-                    pagecontrol.backgroundStyle = .minimal
-                }
+                pagecontrol.backgroundStyle = .minimal
                 if moreViewConfig.scrollDirection == .vertical {
                     // 围绕中心旋转90度
                     pagecontrol.transform = CGAffineTransform(rotationAngle: Double.pi / 2)
@@ -355,28 +353,18 @@ public extension WYChatMoreView {
             pageControlSetting.currentColor = nil
         }
         
-        if #available(iOS 14.0, *) {
-            if let defaultImage: UIImage = pageControlSetting.defaultImage, let currentImage: UIImage = pageControlSetting.currentImage {
-                for page: Int in 0..<(pageControl?.numberOfPages ?? 0) {
-                    pageControl?.setIndicatorImage(page == pageControl?.currentPage ? currentImage : defaultImage, forPage: page)
-                }
-            }else {
-                if let defaultImage: UIImage = pageControlSetting.defaultImage {
-                    pageControl?.preferredIndicatorImage = defaultImage
-                    pageControlSetting.defaultImage = nil
-                }
-                
-                if let currentImage: UIImage = pageControlSetting.currentImage {
-                    pageControl?.preferredIndicatorImage = currentImage
-                    pageControlSetting.currentImage = nil
-                }
+        if let defaultImage: UIImage = pageControlSetting.defaultImage, let currentImage: UIImage = pageControlSetting.currentImage {
+            for page: Int in 0..<(pageControl?.numberOfPages ?? 0) {
+                pageControl?.setIndicatorImage(page == pageControl?.currentPage ? currentImage : defaultImage, forPage: page)
+            }
+        }else {
+            if let defaultImage: UIImage = pageControlSetting.defaultImage {
+                pageControl?.preferredIndicatorImage = defaultImage
+                pageControlSetting.defaultImage = nil
             }
             
-        }else {
-            if let defaultImage: UIImage = pageControlSetting.defaultImage, let currentImage: UIImage = pageControlSetting.currentImage {
-                pageControl?.setValue(defaultImage, forKey: "_pageImage")
-                pageControl?.setValue(currentImage, forKey: "_currentPageImage")
-                pageControlSetting.defaultImage = nil
+            if let currentImage: UIImage = pageControlSetting.currentImage {
+                pageControl?.preferredIndicatorImage = currentImage
                 pageControlSetting.currentImage = nil
             }
         }

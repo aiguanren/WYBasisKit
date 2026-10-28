@@ -17,17 +17,11 @@ public func wy_authorizeAlbumAccess(showSettingsAlert: Bool = true, handler: @es
     
     Task { @MainActor in
         if let _ = Bundle.main.infoDictionary?[photoLibraryKey] as? String {
-            if #available(iOS 14, *) {
-                let requiredAccessLevel: PHAccessLevel = .readWrite
-                PHPhotoLibrary.requestAuthorization(for: requiredAccessLevel) { (authStatus) in
-                    Task { @MainActor in
-                        wy_checkAlbumAccess(showSettingsAlert: showSettingsAlert, authStatus: authStatus, handler: handler)
-                    }
-                    return
+            let requiredAccessLevel: PHAccessLevel = .readWrite
+            PHPhotoLibrary.requestAuthorization(for: requiredAccessLevel) { (authStatus) in
+                Task { @MainActor in
+                    wy_checkAlbumAccess(showSettingsAlert: showSettingsAlert, authStatus: authStatus, handler: handler)
                 }
-                
-            }else {
-                wy_checkAlbumAccess(showSettingsAlert: showSettingsAlert, authStatus: PHPhotoLibrary.authorizationStatus(), handler: handler)
                 return
             }
         }else {

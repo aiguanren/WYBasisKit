@@ -36,23 +36,12 @@ public func wy_checkBiometric() -> WYBiometricMode {
     if authContent.canEvaluatePolicy(
         .deviceOwnerAuthenticationWithBiometrics,
         error: &error) {
-        if #available(iOS 11.0, *) {
-            if authContent.biometryType == .faceID {
-                biometric = .faceID
-            }else if authContent.biometryType == .touchID {
-                biometric = .touchID
-            }else {
-                biometric = .none
-            }
-        } else {
-            guard let laError = error as? LAError else {
-                
-                biometric = .none
-                return biometric
-            }
-            if laError.code != .touchIDNotAvailable {
-                biometric = .touchID
-            }
+        if authContent.biometryType == .faceID {
+            biometric = .faceID
+        }else if authContent.biometryType == .touchID {
+            biometric = .touchID
+        }else {
+            biometric = .none
         }
     }
     return biometric

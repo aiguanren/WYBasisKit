@@ -67,7 +67,6 @@ public extension Color {
     }
     
     /// 动态颜色
-    @available(iOS 14.0, *)
     static func wy_dynamic(_ light: Color, _ dark: Color) -> Color {
         return Color(UIColor { trait in
             switch trait.userInterfaceStyle {

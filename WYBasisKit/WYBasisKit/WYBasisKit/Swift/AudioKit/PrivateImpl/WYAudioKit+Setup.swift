@@ -16,11 +16,7 @@ extension WYAudioKit {
     func setupAudioSession() {
         do {
             let session = AVAudioSession.sharedInstance()
-            if #available(iOS 13.0, *) {
-                try session.setCategory(.playAndRecord, mode: .default, options: [AVAudioSession.CategoryOptions.allowBluetoothHFP, .defaultToSpeaker, .allowAirPlay])
-            } else {
-                try session.setCategory(.playAndRecord, mode: .default, options: [.allowBluetooth, .defaultToSpeaker])
-            }
+            try session.setCategory(.playAndRecord, mode: .default, options: [AVAudioSession.CategoryOptions.allowBluetoothHFP, .defaultToSpeaker, .allowAirPlay])
             try session.setActive(true)
         } catch {
             delegate?.wy_audioTaskDidFailed?(audioKit: self,

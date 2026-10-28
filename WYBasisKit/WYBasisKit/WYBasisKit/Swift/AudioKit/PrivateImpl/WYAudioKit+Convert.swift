@@ -162,11 +162,7 @@ extension WYAudioKit {
             
             // 取音频轨(用异步load读取)
             let audioTrack: AVAssetTrack?
-            if #available(iOS 15.0, *) {
-                audioTrack = (try? await asset.loadTracks(withMediaType: .audio))?.first
-            } else {
-                audioTrack = asset.tracks(withMediaType: .audio).first
-            }
+            audioTrack = (try? await asset.loadTracks(withMediaType: .audio))?.first
             guard let track = audioTrack else {
                 fail(WYAudioError.conversionFailed)
                 return
