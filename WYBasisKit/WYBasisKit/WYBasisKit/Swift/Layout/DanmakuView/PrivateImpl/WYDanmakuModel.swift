@@ -50,21 +50,21 @@ final class WYDanmakuItem {
         return time - startTime >= duration
     }
 
-    /// 算条目在弹幕区里的当前帧位置(滚动型从右缘进入匀速左移到完全走出，顶部型在轨道正序位置居中，底部型在显示区最下轨往上数居中)
-    func frame(in bounds: CGRect, displayOriginY: CGFloat, displayHeight: CGFloat, trackCount: Int, trackHeight: CGFloat, at time: TimeInterval) -> CGRect {
+    /// 算条目在弹幕区里的当前帧位置(滚动型从右缘进入匀速左移到完全走出，顶部型在轨道正序位置居中，底部型在显示区最下轨往上数居中，条目高在轨道行高内垂直居中)
+    func frame(in bounds: CGRect, displayOriginY: CGFloat, displayHeight: CGFloat, trackCount: Int, trackStride: CGFloat, itemHeight: CGFloat, at time: TimeInterval) -> CGRect {
         let y: CGFloat
         if type == .bottom {
-            y = displayOriginY + displayHeight - CGFloat(trackCount - trackIndex) * trackHeight
+            y = displayOriginY + displayHeight - CGFloat(trackCount - trackIndex) * trackStride + (trackStride - itemHeight) / 2
         }else {
-            y = displayOriginY + CGFloat(trackIndex) * trackHeight
+            y = displayOriginY + CGFloat(trackIndex) * trackStride + (trackStride - itemHeight) / 2
         }
         let elapsed = CGFloat(time - startTime)
         if type == .scroll {
             let x = bounds.width - speed * elapsed
-            return CGRect(x: x, y: y, width: size.width, height: trackHeight)
+            return CGRect(x: x, y: y, width: size.width, height: itemHeight)
         }
         let x = (bounds.width - size.width) / 2
-        return CGRect(x: x, y: y, width: size.width, height: trackHeight)
+        return CGRect(x: x, y: y, width: size.width, height: itemHeight)
     }
 }
 

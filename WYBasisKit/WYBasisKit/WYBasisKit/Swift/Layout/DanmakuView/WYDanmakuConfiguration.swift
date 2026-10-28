@@ -48,6 +48,45 @@ public class WYDanmakuConfiguration {
     /// 文字描边宽度，单位为pt(负数表示描边同时保留文字填充，正数表示只描边不填充，绝对值越大边越粗)
     public var textStrokeWidth: CGFloat = -2
 
+    /// 文字阴影颜色(nil 表示不画阴影)
+    public var textShadowColor: UIColor?
+
+    /// 文字阴影模糊半径，单位为pt
+    public var textShadowBlurRadius: CGFloat = 0
+
+    /// 文字阴影偏移，单位为pt
+    public var textShadowOffset: CGSize = .zero
+
+    /// 单条弹幕的背景色(nil 表示不画背景)
+    public var itemBackgroundColor: UIColor?
+
+    /// 单条弹幕背景的圆角半径，单位为pt
+    public var itemBackgroundCornerRadius: CGFloat = 0
+
+    /// 弹幕文字距条目背景左右边缘的留白，单位为pt
+    public var itemHorizontalPadding: CGFloat = 0
+
+    /// 弹幕文字距条目背景上下边缘的留白，单位为pt(条目高按轨道行高减上下留白后在轨道内垂直居中)
+    public var itemVerticalPadding: CGFloat = 0
+
+    /// 同轨相邻两条弹幕之间的最小间距，单位为pt(前一条让出这个距离后同轨才允许进新条)
+    public var itemSpacing: CGFloat = UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
+
+    /// 轨道行与行之间的纵向间距，单位为pt(轨道条数自适应时按轨道行高加本间距计算)
+    public var trackSpacing: CGFloat = 0
+
+    /// 是否显示弹幕头像(发送时传了头像图片且此项为 true 才显示)
+    public var showsAvatar = true
+
+    /// 头像边长，单位为pt
+    public var avatarSize: CGFloat = UIDevice.wy_screenWidth(24, WYBasisKitConfig.defaultScreenPixels)
+
+    /// 头像圆角半径，单位为pt(设为头像边长的一半即圆形头像)
+    public var avatarCornerRadius: CGFloat = UIDevice.wy_screenWidth(12, WYBasisKitConfig.defaultScreenPixels)
+
+    /// 头像与文字的间距，单位为pt
+    public var avatarSpacing: CGFloat = UIDevice.wy_screenWidth(4, WYBasisKitConfig.defaultScreenPixels)
+
     /// 轨道满时的处理方式
     public var overflowPolicy: WYDanmakuOverflowPolicy = .queue
 

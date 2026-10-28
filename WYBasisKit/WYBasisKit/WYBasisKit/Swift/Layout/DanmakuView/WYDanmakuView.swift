@@ -59,12 +59,13 @@ public class WYDanmakuView: UIView {
     /**
      *  发一条弹幕
      *
-     *  @param text         弹幕文字，外观取配置里的字体颜色与描边
+     *  @param text         弹幕文字，外观取配置里的字体颜色描边与阴影
      *  @param type         弹幕类型，默认滚动
+     *  @param avatar       头像图片，默认 nil 不显示(配置关闭头像显示时传了也不显示)
      *
      */
-    public func send(_ text: String, type: WYDanmakuType = .scroll) {
-        send(attributedText(for: text), type: type)
+    public func send(_ text: String, type: WYDanmakuType = .scroll, avatar: UIImage? = nil) {
+        send(attributedText(for: text), type: type, avatar: avatar)
     }
 
     /**
@@ -72,17 +73,18 @@ public class WYDanmakuView: UIView {
      *
      *  @param attributedText    弹幕富文本，自带字体与颜色的段落保留自身样式，其余段落套配置外观
      *  @param type              弹幕类型，默认滚动
+     *  @param avatar            头像图片，默认 nil 不显示(配置关闭头像显示时传了也不显示)
      *
      */
-    public func send(_ attributedText: NSAttributedString, type: WYDanmakuType = .scroll) {
-        engine.send(attributedText, type: type)
+    public func send(_ attributedText: NSAttributedString, type: WYDanmakuType = .scroll, avatar: UIImage? = nil) {
+        engine.send(attributedText, avatar: avatar, type: type)
         engine.startAutoClockIfNeeded()
     }
 
     /**
      *  注入播放时间驱动弹幕
      *
-     *  @param time         当前播放时间，单位为秒(播放中周期调用，注入后内置时钟自动停用，时间回跳按 seek 清屏处理)
+     *  @param time         当前播放时间，单位为秒(播放中周期调用，注入后内置时钟自动停用，注入时间倒退超过 0.5 秒按定位清屏，小幅度倒退只对齐引擎时间)
      *
      */
     public func play(at time: TimeInterval) {
@@ -114,15 +116,22 @@ public class WYDanmakuView: UIView {
         engine.clear()
     }
 
-    /// 把纯文本套上配置里的字体颜色与描边
+    /// 把纯文本套上配置里的字体颜色描边与阴影
     private func attributedText(for text: String) -> NSAttributedString {
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineBreakMode = .byClipping
-        let attributes: [NSAttributedString.Key: Any] = [.font: configuration.font,
+        var attributes: [NSAttributedString.Key: Any] = [.font: configuration.font,
                                                          .foregroundColor: configuration.textColor,
                                                          .strokeColor: configuration.textStrokeColor,
                                                          .strokeWidth: configuration.textStrokeWidth,
                                                          .paragraphStyle: paragraphStyle]
+        if let shadowColor = configuration.textShadowColor {
+            let shadow = NSShadow()
+            shadow.shadowColor = shadowColor
+            shadow.shadowBlurRadius = configuration.textShadowBlurRadius
+            shadow.shadowOffset = configuration.textShadowOffset
+            attributes[.shadow] = shadow
+        }
         return NSAttributedString(string: text, attributes: attributes)
     }
 }

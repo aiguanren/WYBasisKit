@@ -75,6 +75,84 @@ import WYBasisKitSwift
         set { configuration.textStrokeWidth = newValue }
     }
 
+    /// 文字阴影颜色(nil 表示不画阴影)
+    public var textShadowColor: UIColor? {
+        get { return configuration.textShadowColor }
+        set { configuration.textShadowColor = newValue }
+    }
+
+    /// 文字阴影模糊半径，单位为pt
+    public var textShadowBlurRadius: CGFloat {
+        get { return configuration.textShadowBlurRadius }
+        set { configuration.textShadowBlurRadius = newValue }
+    }
+
+    /// 文字阴影偏移，单位为pt
+    public var textShadowOffset: CGSize {
+        get { return configuration.textShadowOffset }
+        set { configuration.textShadowOffset = newValue }
+    }
+
+    /// 单条弹幕的背景色(nil 表示不画背景)
+    public var itemBackgroundColor: UIColor? {
+        get { return configuration.itemBackgroundColor }
+        set { configuration.itemBackgroundColor = newValue }
+    }
+
+    /// 单条弹幕背景的圆角半径，单位为pt
+    public var itemBackgroundCornerRadius: CGFloat {
+        get { return configuration.itemBackgroundCornerRadius }
+        set { configuration.itemBackgroundCornerRadius = newValue }
+    }
+
+    /// 弹幕文字距条目背景左右边缘的留白，单位为pt
+    public var itemHorizontalPadding: CGFloat {
+        get { return configuration.itemHorizontalPadding }
+        set { configuration.itemHorizontalPadding = newValue }
+    }
+
+    /// 弹幕文字距条目背景上下边缘的留白，单位为pt(条目高按轨道行高减上下留白后在轨道内垂直居中)
+    public var itemVerticalPadding: CGFloat {
+        get { return configuration.itemVerticalPadding }
+        set { configuration.itemVerticalPadding = newValue }
+    }
+
+    /// 同轨相邻两条弹幕之间的最小间距，单位为pt(前一条让出这个距离后同轨才允许进新条)
+    public var itemSpacing: CGFloat {
+        get { return configuration.itemSpacing }
+        set { configuration.itemSpacing = newValue }
+    }
+
+    /// 轨道行与行之间的纵向间距，单位为pt(轨道条数自适应时按轨道行高加本间距计算)
+    public var trackSpacing: CGFloat {
+        get { return configuration.trackSpacing }
+        set { configuration.trackSpacing = newValue }
+    }
+
+    /// 是否显示弹幕头像(发送时传了头像图片且此项为 true 才显示)
+    public var showsAvatar: Bool {
+        get { return configuration.showsAvatar }
+        set { configuration.showsAvatar = newValue }
+    }
+
+    /// 头像边长，单位为pt
+    public var avatarSize: CGFloat {
+        get { return configuration.avatarSize }
+        set { configuration.avatarSize = newValue }
+    }
+
+    /// 头像圆角半径，单位为pt(设为头像边长的一半即圆形头像)
+    public var avatarCornerRadius: CGFloat {
+        get { return configuration.avatarCornerRadius }
+        set { configuration.avatarCornerRadius = newValue }
+    }
+
+    /// 头像与文字的间距，单位为pt
+    public var avatarSpacing: CGFloat {
+        get { return configuration.avatarSpacing }
+        set { configuration.avatarSpacing = newValue }
+    }
+
     /// 轨道满时的处理方式
     public var overflowPolicy: WYDanmakuOverflowPolicy {
         get { return configuration.overflowPolicy }
@@ -99,13 +177,26 @@ import WYBasisKitSwift
     /**
      *  发一条弹幕
      *
-     *  @param text         弹幕文字，外观取配置里的字体颜色与描边
+     *  @param text         弹幕文字，外观取配置里的字体颜色描边与阴影
      *  @param type         弹幕类型，默认滚动
      *
      */
     @objc(send:type:)
     func sendObjC(_ text: String, type: WYDanmakuType) {
         send(text, type: type)
+    }
+
+    /**
+     *  发一条带头像的弹幕
+     *
+     *  @param text         弹幕文字，外观取配置里的字体颜色描边与阴影
+     *  @param type         弹幕类型，默认滚动
+     *  @param avatar       头像图片(配置关闭头像显示时传了也不显示)
+     *
+     */
+    @objc(send:type:avatar:)
+    func sendAvatarObjC(_ text: String, type: WYDanmakuType, avatar: UIImage?) {
+        send(text, type: type, avatar: avatar)
     }
 
     /**
@@ -123,7 +214,7 @@ import WYBasisKitSwift
     /**
      *  注入播放时间驱动弹幕
      *
-     *  @param time         当前播放时间，单位为秒(播放中周期调用，注入后内置时钟自动停用，时间回跳按 seek 清屏处理)
+     *  @param time         当前播放时间，单位为秒(播放中周期调用，注入后内置时钟自动停用，注入时间倒退超过 0.5 秒按定位清屏，小幅度倒退只对齐引擎时间)
      *
      */
     @objc(playAtTime:)

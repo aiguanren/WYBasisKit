@@ -37,13 +37,10 @@ final class WYDanmakuEngine {
     private var trackCount: Int = 0
 
     /// 满轨时等待发送的条目(丢弃策略下不用)
-    private var pendingItems: [(attributedText: NSAttributedString, type: WYDanmakuType)] = []
+    private var pendingItems: [(attributedText: NSAttributedString, avatar: UIImage?, type: WYDanmakuType)] = []
 
     /// 展示视图复用池
     private var itemViewPool: [WYDanmakuItemView] = []
-
-    /// 轨道间为防止贴近而要求前一条让出的最小距离
-    private let trackEntryGap: CGFloat = UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
 
     init(danmakuView: WYDanmakuView?) {
         self.danmakuView = danmakuView
@@ -65,11 +62,12 @@ final class WYDanmakuEngine {
         let bounds = danmakuView.bounds
         guard bounds.width > 0, bounds.height > 0, configuration.trackHeight > 0 else { return }
         let displayHeight = bounds.height * configuration.displayAreaRatio
+        let trackStride = configuration.trackHeight + configuration.trackSpacing
         var count = configuration.trackCount
         if count <= 0 {
-            count = max(1, Int(displayHeight / configuration.trackHeight))
+            count = max(1, Int(displayHeight / trackStride))
         }
-        count = min(count, max(1, Int(displayHeight / configuration.trackHeight)))
+        count = min(count, max(1, Int(displayHeight / trackStride)))
         trackCount = count
         displayOriginY = 0
         if trackStates.count != count {
@@ -83,26 +81,30 @@ final class WYDanmakuEngine {
      *  发一条弹幕
      *
      *  @param attributedText    已套好外观属性的内容
+     *  @param avatar            头像图片(配置关闭头像显示或传 nil 时不显示)
      *  @param type              弹幕类型
      *
      */
-    func send(_ attributedText: NSAttributedString, type: WYDanmakuType) {
+    func send(_ attributedText: NSAttributedString, avatar: UIImage?, type: WYDanmakuType) {
         if trackCount <= 0 {
             // 视图还没有尺寸时先补算一次轨道，仍没有就丢弃这条
             layoutTracks()
             guard self.danmakuView != nil, trackCount > 0 else { return }
         }
         guard let danmakuView = self.danmakuView else { return }
-        guard let trackIndex = availableTrackIndex(for: type, attributedText: attributedText) else {
+        let configuration = danmakuView.configuration
+        let showsAvatar = avatar != nil && configuration.showsAvatar
+        let avatarWidth: CGFloat = showsAvatar ? configuration.avatarSize + configuration.avatarSpacing : 0
+        let size = attributedText.size()
+        let itemHeight = max(1, configuration.trackHeight - configuration.itemVerticalPadding * 2)
+        let measureSize = CGSize(width: ceil(size.width) + avatarWidth + configuration.itemHorizontalPadding * 2, height: itemHeight)
+        guard let trackIndex = availableTrackIndex(for: type, itemWidth: measureSize.width) else {
             if danmakuView.configuration.overflowPolicy == .queue {
-                pendingItems.append((attributedText, type))
+                pendingItems.append((attributedText, avatar, type))
             }
             return
         }
-        let configuration = danmakuView.configuration
-        let size = attributedText.size()
-        let itemHeight = configuration.trackHeight
-        let measureSize = CGSize(width: ceil(size.width), height: itemHeight)
+        let trackStride = configuration.trackHeight + configuration.trackSpacing
         let speed = danmakuView.bounds.width / configuration.scrollDuration
         let duration: TimeInterval
         if type == .scroll {
@@ -122,10 +124,10 @@ final class WYDanmakuEngine {
         }
         let item = WYDanmakuItem(attributedText: attributedText, type: type, startTime: currentTime, duration: duration, trackIndex: trackIndex, size: measureSize, speed: speed)
         let itemView = dequeueReusableItemView()
-        itemView.prepare(attributedText: attributedText)
+        itemView.prepare(attributedText: attributedText, avatar: avatar, configuration: configuration)
         item.itemView = itemView
         danmakuView.addSubview(itemView)
-        itemView.frame = item.frame(in: danmakuView.bounds, displayOriginY: displayOriginY, displayHeight: danmakuView.bounds.height * configuration.displayAreaRatio, trackCount: trackCount, trackHeight: itemHeight, at: currentTime)
+        itemView.frame = item.frame(in: danmakuView.bounds, displayOriginY: displayOriginY, displayHeight: danmakuView.bounds.height * configuration.displayAreaRatio, trackCount: trackCount, trackStride: trackStride, itemHeight: itemHeight, at: currentTime)
         activeItems.append(item)
     }
 
@@ -137,14 +139,24 @@ final class WYDanmakuEngine {
         drainPendingItems()
     }
 
-    /// 注入播放时间推进(时间回跳按 seek 清屏处理)
+    /// 注入播放时间推进(注入时间比引擎时间倒退超过 0.5 秒按定位清屏处理，小幅度倒退只把引擎时间对齐到注入值，防止自驱时钟把引擎时间推到注入时间前面时被误判成定位)
     func play(at time: TimeInterval) {
+        if time + 0.5 < currentTime {
+        }
+        if displayLink != nil {
+        }
+        lastInjectionDate = Date()
         stopAutoClock()
-        if time + 0.05 < currentTime {
+        if time + 0.5 < currentTime {
             seek(to: time)
             return
         }
-        tick(delta: time - currentTime)
+        if time > currentTime {
+            tick(delta: time - currentTime)
+        }else {
+            currentTime = time
+            relayoutActiveItems()
+        }
     }
 
     /// 停自驱时钟(暂停时冻结全部在屏弹幕)
@@ -185,9 +197,9 @@ final class WYDanmakuEngine {
     }
 
     /// 找一条能放这条弹幕的轨道(滚动型要求前一条已完全进入弹幕区，顶部型从上往下找到期轨道，底部型从下往上找，找不到返回 nil)
-    private func availableTrackIndex(for type: WYDanmakuType, attributedText: NSAttributedString) -> Int? {
-        guard danmakuView != nil else { return nil }
-        let width = attributedText.size().width
+    private func availableTrackIndex(for type: WYDanmakuType, itemWidth: CGFloat) -> Int? {
+        guard let danmakuView = danmakuView else { return nil }
+        let width = itemWidth
         let searchOrder: [Int] = (type == .bottom) ? Array(trackStates.indices.reversed()) : Array(trackStates.indices)
         for index in searchOrder {
             if type == .scroll {
@@ -197,8 +209,8 @@ final class WYDanmakuEngine {
                 let lastWidth = trackStates[index].lastScrollWidth
                 let lastSpeed = trackStates[index].lastScrollSpeed
                 let elapsed = CGFloat(currentTime - lastStart)
-                // 前一条左缘要让出自身宽加新条宽再加防贴近距离后才可同轨再进
-                if lastSpeed * elapsed >= lastWidth + width + trackEntryGap {
+                // 前一条左缘要让出自身宽加新条宽再加配置的最小间距后才可同轨再进
+                if lastSpeed * elapsed >= lastWidth + width + danmakuView.configuration.itemSpacing {
                     return index
                 }
             }else {
@@ -218,8 +230,10 @@ final class WYDanmakuEngine {
         guard let danmakuView = danmakuView else { return }
         let configuration = danmakuView.configuration
         let displayHeight = danmakuView.bounds.height * configuration.displayAreaRatio
+        let trackStride = configuration.trackHeight + configuration.trackSpacing
+        let itemHeight = max(1, configuration.trackHeight - configuration.itemVerticalPadding * 2)
         for item in activeItems {
-            item.itemView?.frame = item.frame(in: danmakuView.bounds, displayOriginY: displayOriginY, displayHeight: displayHeight, trackCount: trackCount, trackHeight: configuration.trackHeight, at: currentTime)
+            item.itemView?.frame = item.frame(in: danmakuView.bounds, displayOriginY: displayOriginY, displayHeight: displayHeight, trackCount: trackCount, trackStride: trackStride, itemHeight: itemHeight, at: currentTime)
         }
     }
 
@@ -246,7 +260,7 @@ final class WYDanmakuEngine {
         let waiting = pendingItems
         pendingItems.removeAll()
         for entry in waiting {
-            send(entry.attributedText, type: entry.type)
+            send(entry.attributedText, avatar: entry.avatar, type: entry.type)
         }
     }
 
@@ -259,8 +273,14 @@ final class WYDanmakuEngine {
         return WYDanmakuItemView(frame: .zero)
     }
 
-    /// 开自驱时钟(已开时不重复开)
+    /// 最近一次注入时间(注入驱动场景下发弹幕不再起自驱时钟，防止反复起停在出帧间隙掉帧)
+    private var lastInjectionDate: Date?
+
+    /// 开自驱时钟(已开时不重复开，注入时钟活跃时也不起)
     func startAutoClockIfNeeded() {
+        if let last = lastInjectionDate, Date().timeIntervalSince(last) < 1 {
+            return
+        }
         guard displayLink == nil else { return }
         let link = CADisplayLink(target: self, selector: #selector(handleLink(_:)))
         link.add(to: .main, forMode: .common)
