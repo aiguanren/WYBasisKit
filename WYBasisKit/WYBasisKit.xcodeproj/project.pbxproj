@@ -300,6 +300,8 @@
 		58D99B96309043D400B7B5A4 /* WYStorage+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99B95309043D400B7B5A4 /* WYStorage+Implementation.swift */; };
 		58D99ABF30903EA400B7B5A4 /* WYBool+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99ABE30903EA400B7B5A4 /* WYBool+Implementation.swift */; };
 		58D99AA330903D3500B7B5A4 /* WYTimer+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99AA230903D3500B7B5A4 /* WYTimer+Implementation.swift */; };
+		58D99A9430903C8000B7B5A4 /* WYScrollView+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99A9330903C8000B7B5A4 /* WYScrollView+Implementation.swift */; };
+		58D99AB430903E0400B7B5A4 /* WYViewController+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99AB330903E0400B7B5A4 /* WYViewController+Implementation.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -615,6 +617,8 @@
 		58D99B95309043D400B7B5A4 /* WYStorage+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYStorage+Implementation.swift"; sourceTree = "<group>"; };
 		58D99ABE30903EA400B7B5A4 /* WYBool+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYBool+Implementation.swift"; sourceTree = "<group>"; };
 		58D99AA230903D3500B7B5A4 /* WYTimer+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYTimer+Implementation.swift"; sourceTree = "<group>"; };
+		58D99A9330903C8000B7B5A4 /* WYScrollView+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYScrollView+Implementation.swift"; sourceTree = "<group>"; };
+		58D99AB330903E0400B7B5A4 /* WYViewController+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYViewController+Implementation.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2360,6 +2364,7 @@
 			isa = PBXGroup;
 			children = (
 				58C68D192E84E436005FD054 /* WYScrollView.swift */,
+				58D99A9230903C7500B7B5A4 /* PrivateImpl */,
 			);
 			path = UIScrollView;
 			sourceTree = "<group>";
@@ -2393,6 +2398,7 @@
 			isa = PBXGroup;
 			children = (
 				58C68D212E84E436005FD054 /* WYViewController.swift */,
+				58D99AB230903DF600B7B5A4 /* PrivateImpl */,
 			);
 			path = UIViewController;
 			sourceTree = "<group>";
@@ -2991,6 +2997,22 @@
 			path = PrivateImpl;
 			sourceTree = "<group>";
 		};
+		58D99A9230903C7500B7B5A4 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				58D99A9330903C8000B7B5A4 /* WYScrollView+Implementation.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
+		58D99AB230903DF600B7B5A4 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				58D99AB330903E0400B7B5A4 /* WYViewController+Implementation.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -3398,6 +3420,8 @@
 				58D99B93309043B700B7B5A4 /* WYCryptor+Implementation.swift in Sources */,
 				58D99ABF30903EA400B7B5A4 /* WYBool+Implementation.swift in Sources */,
 				58D99AA330903D3500B7B5A4 /* WYTimer+Implementation.swift in Sources */,
+				58D99AB430903E0400B7B5A4 /* WYViewController+Implementation.swift in Sources */,
+				58D99A9430903C8000B7B5A4 /* WYScrollView+Implementation.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

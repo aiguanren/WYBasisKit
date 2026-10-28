@@ -240,11 +240,7 @@ public extension UIViewController {
             objc_setAssociatedObject(self, &WYAssociatedKeys.wy_returnValue, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
     }
-    
-    private func wy_sharedControllerName(className: String) -> String {
-        return WYProjectInfo.isSwiftProject ? (WYProjectInfo.projectName + "." + className) : className
-    }
-    
+
     private struct WYAssociatedKeys {
         static var wy_parameters: UInt8 = 0
         static var wy_returnValue: UInt8 = 0
