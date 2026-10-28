@@ -298,6 +298,7 @@
 		F9B01DB67BCA4F268210F6EF /* WYMediaCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20024D929D9487584DE7607 /* WYMediaCache.swift */; };
 		58D99B93309043B700B7B5A4 /* WYCryptor+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99B92309043B700B7B5A4 /* WYCryptor+Implementation.swift */; };
 		58D99B96309043D400B7B5A4 /* WYStorage+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99B95309043D400B7B5A4 /* WYStorage+Implementation.swift */; };
+		58D99ABF30903EA400B7B5A4 /* WYBool+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99ABE30903EA400B7B5A4 /* WYBool+Implementation.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -611,6 +612,7 @@
 		FBBDFDBDB8276D3319F55684 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		58D99B92309043B700B7B5A4 /* WYCryptor+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYCryptor+Implementation.swift"; sourceTree = "<group>"; };
 		58D99B95309043D400B7B5A4 /* WYStorage+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYStorage+Implementation.swift"; sourceTree = "<group>"; };
+		58D99ABE30903EA400B7B5A4 /* WYBool+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYBool+Implementation.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2177,6 +2179,7 @@
 			isa = PBXGroup;
 			children = (
 				58C68CEB2E84E436005FD054 /* WYBool.swift */,
+				58D99ABD30903E9000B7B5A4 /* PrivateImpl */,
 			);
 			path = Bool;
 			sourceTree = "<group>";
@@ -2969,6 +2972,14 @@
 			path = PrivateImpl;
 			sourceTree = "<group>";
 		};
+		58D99ABD30903E9000B7B5A4 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				58D99ABE30903EA400B7B5A4 /* WYBool+Implementation.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -3374,6 +3385,7 @@
 				49D5798A0DBD037562F370D2 /* WYPhotoBrowserObjC.swift in Sources */,
 				58D99B96309043D400B7B5A4 /* WYStorage+Implementation.swift in Sources */,
 				58D99B93309043B700B7B5A4 /* WYCryptor+Implementation.swift in Sources */,
+				58D99ABF30903EA400B7B5A4 /* WYBool+Implementation.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

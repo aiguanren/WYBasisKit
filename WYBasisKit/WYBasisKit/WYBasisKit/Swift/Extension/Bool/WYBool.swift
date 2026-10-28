@@ -104,30 +104,3 @@ public extension Bool {
         return Bool.random()
     }
 }
-
-private extension Bool {
-    /// 正则匹配辅助方法
-    private static func wy_matchesRegex(_ string: String, regex: String) -> Bool {
-        guard !string.isEmpty else { return false }
-        let predicate = NSPredicate(format: "SELF MATCHES %@", regex)
-        return predicate.evaluate(with: string)
-    }
-}
-
-private extension Character {
-    
-    /// 是否是Emoji（支持组合Emoji）
-    var wy_isEmoji: Bool {
-        // 单个 scalar
-        if unicodeScalars.count == 1 {
-            let scalar = unicodeScalars.first!
-            return scalar.properties.isEmoji &&
-            (scalar.properties.isEmojiPresentation || scalar.value > 0x238C)
-        }
-        // 多 scalar（组合 emoji），只要包含 ZWJ 或 emoji 标量即可认为是 emoji
-        return unicodeScalars.contains {
-            $0.properties.isEmoji &&
-            ($0.properties.isEmojiPresentation || $0.value > 0x238C)
-        }
-    }
-}
