@@ -299,6 +299,7 @@
 		58D99B93309043B700B7B5A4 /* WYCryptor+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99B92309043B700B7B5A4 /* WYCryptor+Implementation.swift */; };
 		58D99B96309043D400B7B5A4 /* WYStorage+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99B95309043D400B7B5A4 /* WYStorage+Implementation.swift */; };
 		58D99ABF30903EA400B7B5A4 /* WYBool+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99ABE30903EA400B7B5A4 /* WYBool+Implementation.swift */; };
+		58D99AA330903D3500B7B5A4 /* WYTimer+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99AA230903D3500B7B5A4 /* WYTimer+Implementation.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -613,6 +614,7 @@
 		58D99B92309043B700B7B5A4 /* WYCryptor+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYCryptor+Implementation.swift"; sourceTree = "<group>"; };
 		58D99B95309043D400B7B5A4 /* WYStorage+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYStorage+Implementation.swift"; sourceTree = "<group>"; };
 		58D99ABE30903EA400B7B5A4 /* WYBool+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYBool+Implementation.swift"; sourceTree = "<group>"; };
+		58D99AA230903D3500B7B5A4 /* WYTimer+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYTimer+Implementation.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2276,6 +2278,7 @@
 			isa = PBXGroup;
 			children = (
 				58C68D032E84E436005FD054 /* WYTimer.swift */,
+				58D99AA130903D2900B7B5A4 /* PrivateImpl */,
 			);
 			path = Timer;
 			sourceTree = "<group>";
@@ -2980,6 +2983,14 @@
 			path = PrivateImpl;
 			sourceTree = "<group>";
 		};
+		58D99AA130903D2900B7B5A4 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				58D99AA230903D3500B7B5A4 /* WYTimer+Implementation.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -3386,6 +3397,7 @@
 				58D99B96309043D400B7B5A4 /* WYStorage+Implementation.swift in Sources */,
 				58D99B93309043B700B7B5A4 /* WYCryptor+Implementation.swift in Sources */,
 				58D99ABF30903EA400B7B5A4 /* WYBool+Implementation.swift in Sources */,
+				58D99AA330903D3500B7B5A4 /* WYTimer+Implementation.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
