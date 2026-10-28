@@ -12,6 +12,7 @@ import UIKit
 final class WYVideoPlayerPlaybackOptions {
 
     weak var player: WYVideoPlayer?
+    var stateChanged: (() -> Void)?
     private(set) var isAudioOnly = false
     private(set) var isBackgroundPlaybackEnabled = false
     private(set) var sleepDeadline: Date?
@@ -21,8 +22,18 @@ final class WYVideoPlayerPlaybackOptions {
 
     /// 设置音频播放模式
     func setAudioOnly(_ enabled: Bool) {
-        if enabled && !activateAudioSession() { return }
+        guard isAudioOnly != enabled else { return }
+        let request = UUID()
+        audioOnlyRequest = request
         isAudioOnly = enabled
+        if enabled {
+            activateAudioSession { [weak self] error in
+                guard let self = self, self.audioOnlyRequest == request, let error = error else { return }
+                self.setAudioOnly(false)
+                self.stateChanged?()
+                if let player = self.player { player.delegate?.wy_videoPlayer?(player, didFailWithError: error) }
+            }
+        }
         applyVideoTracks()
         if let player = player {
             player.engine.handleLoadingState(player.state)
@@ -40,8 +51,18 @@ final class WYVideoPlayerPlaybackOptions {
 
     /// 后台播放需要播放类音频会话
     func setBackgroundPlayback(_ enabled: Bool) {
-        if enabled && !activateAudioSession() { return }
+        guard isBackgroundPlaybackEnabled != enabled else { return }
+        let request = UUID()
+        backgroundPlaybackRequest = request
         isBackgroundPlaybackEnabled = enabled
+        if enabled {
+            activateAudioSession { [weak self] error in
+                guard let self = self, self.backgroundPlaybackRequest == request, let error = error else { return }
+                self.setBackgroundPlayback(false)
+                self.stateChanged?()
+                if let player = self.player { player.delegate?.wy_videoPlayer?(player, didFailWithError: error) }
+            }
+        }
     }
 
     /// 设置关闭时间，nil 取消
@@ -98,17 +119,41 @@ final class WYVideoPlayerPlaybackOptions {
         isDownloading = false
     }
 
-    private func activateAudioSession() -> Bool {
-        do {
-            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
-            try AVAudioSession.sharedInstance().setActive(true)
-            return true
-        } catch {
-            if let player = player { player.delegate?.wy_videoPlayer?(player, didFailWithError: error) }
-            return false
+    private func activateAudioSession(completion: @escaping (Error?) -> Void) {
+        audioSessionCompletions.append(completion)
+        guard audioSessionCompletions.count == 1 else { return }
+        audioSessionQueue.async { [weak self] in
+            let finish: (Error?) -> Void = { error in
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
+                    let completions = self.audioSessionCompletions
+                    self.audioSessionCompletions.removeAll()
+                    completions.forEach { $0(error) }
+                }
+            }
+            do {
+                let session = AVAudioSession.sharedInstance()
+                if session.category != .playback || session.mode != .moviePlayback {
+                    try session.setCategory(.playback, mode: .moviePlayback)
+                }
+                if #available(iOS 27.0, *) {
+                    session.activate(options: []) { activated, error in
+                        finish(activated ? nil : (error ?? NSError(domain: AVFoundationErrorDomain, code: AVError.Code.unknown.rawValue)))
+                    }
+                }else {
+                    try session.setActive(true)
+                    finish(nil)
+                }
+            } catch {
+                finish(error)
+            }
         }
     }
 
+    private var audioOnlyRequest = UUID()
+    private var backgroundPlaybackRequest = UUID()
+    private var audioSessionCompletions: [(Error?) -> Void] = []
+    private let audioSessionQueue = DispatchQueue(label: "com.wybasiskit.videoPlayer.audioSession", qos: .userInitiated)
     private var sleepWork: DispatchWorkItem?
     private let downloader = WYVideoPlayerOfflineDownload()
 

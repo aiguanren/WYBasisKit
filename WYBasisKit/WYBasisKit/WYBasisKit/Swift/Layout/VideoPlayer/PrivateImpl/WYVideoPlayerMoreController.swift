@@ -22,6 +22,7 @@ final class WYVideoPlayerMoreController: UIViewController, UITableViewDataSource
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        player?.playbackOptions.stateChanged = { [weak self] in self?.refreshSelection() }
         view.backgroundColor = configuration.moreDimmingColor
         let background = UIButton(type: .custom)
         background.addTarget(self, action: #selector(close), for: .touchUpInside)

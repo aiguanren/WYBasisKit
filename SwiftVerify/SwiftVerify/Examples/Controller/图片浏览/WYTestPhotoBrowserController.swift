@@ -113,6 +113,15 @@ class WYTestPhotoBrowserController: UIViewController, WYPhotoBrowserDataSource, 
         collectionView.dataSource = self
         collectionView.delegate = self
         view.addSubview(collectionView)
+        for (index, item) in items.enumerated() where item.mediaType == .video {
+            guard let identifier = item.identifier, identifier.hasPrefix("play:/") else { continue }
+            let path = String(identifier.dropFirst("play:".count))
+            videoPoster(path: path) { [weak self] image in
+                guard let self = self, self.items.indices.contains(index), self.items[index].identifier == item.identifier else { return }
+                self.items[index].placeholder = image
+                self.collectionView.reloadItems(at: [IndexPath(item: index, section: 0)])
+            }
+        }
 
         logLabel.snp.makeConstraints { (make) in
             make.top.equalTo(view.safeAreaLayoutGuide).offset(4)
@@ -255,7 +264,6 @@ class WYTestPhotoBrowserController: UIViewController, WYPhotoBrowserDataSource, 
         for videoName in ["乌篷转桨晃一晃，春风牵衣过平江", "树屋"] {
             let videoPath = resourcePath(videoName, "mp4")
             var videoItem = WYPhotoBrowserItem()
-            videoItem.placeholder = videoPoster(path: videoPath)
             videoItem.mediaType = .video
             videoItem.identifier = "play:\(videoPath)"
             result.append(videoItem)
@@ -312,16 +320,16 @@ class WYTestPhotoBrowserController: UIViewController, WYPhotoBrowserDataSource, 
     }
 
     /// 抽视频首帧做封面(本地视频封面格用)
-    func videoPoster(path: String) -> UIImage? {
-        guard path.isEmpty == false else { return nil }
+    func videoPoster(path: String, completion: @escaping (UIImage?) -> Void) {
+        guard path.isEmpty == false else { completion(nil); return }
         let asset = AVAsset(url: URL(fileURLWithPath: path))
         let generator = AVAssetImageGenerator(asset: asset)
         generator.appliesPreferredTrackTransform = true
         generator.maximumSize = CGSize(width: 800, height: 800)
-        if let frame = try? generator.copyCGImage(at: CMTime(seconds: 0.5, preferredTimescale: 600), actualTime: nil) {
-            return UIImage(cgImage: frame)
+        generator.generateCGImagesAsynchronously(forTimes: [NSValue(time: CMTime(seconds: 0.5, preferredTimescale: 600))]) { _, frame, _, _, _ in
+            let image = frame.map { UIImage(cgImage: $0) }
+            DispatchQueue.main.async { completion(image) }
         }
-        return nil
     }
 
     /// 写一条事件日志(代理回调与菜单动作都走这里)
