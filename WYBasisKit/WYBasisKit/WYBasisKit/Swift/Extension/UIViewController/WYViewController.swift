@@ -227,7 +227,7 @@ public extension UIViewController {
             objc_setAssociatedObject(self, &WYAssociatedKeys.wy_parameters, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_parameters) as AnyObject
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.wy_parameters) as AnyObject?
         }
     }
     
