@@ -320,6 +320,7 @@
 		58D99B9F3090447C00B7B5A4 /* WYObjectObjC+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99B9E3090447C00B7B5A4 /* WYObjectObjC+Implementation.swift */; };
 		58D99BA6309044E100B7B5A4 /* WYSoundWavesViewObjC+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99BA5309044E100B7B5A4 /* WYSoundWavesViewObjC+Implementation.swift */; };
 		58D99BA83090450500B7B5A4 /* WYCodableObjC+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99BA73090450500B7B5A4 /* WYCodableObjC+Implementation.swift */; };
+		58D99B8F3090432600B7B5A4 /* WYLocalizableManager+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99B8E3090432600B7B5A4 /* WYLocalizableManager+Implementation.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -655,6 +656,7 @@
 		58D99B9E3090447C00B7B5A4 /* WYObjectObjC+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYObjectObjC+Implementation.swift"; sourceTree = "<group>"; };
 		58D99BA5309044E100B7B5A4 /* WYSoundWavesViewObjC+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYSoundWavesViewObjC+Implementation.swift"; sourceTree = "<group>"; };
 		58D99BA73090450500B7B5A4 /* WYCodableObjC+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYCodableObjC+Implementation.swift"; sourceTree = "<group>"; };
+		58D99B8E3090432600B7B5A4 /* WYLocalizableManager+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYLocalizableManager+Implementation.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2801,6 +2803,7 @@
 			children = (
 				58C68D752E84E436005FD054 /* WYLocalizable.bundle */,
 				58C68D762E84E436005FD054 /* WYLocalizableManager.swift */,
+				58D99B8D3090431A00B7B5A4 /* PrivateImpl */,
 			);
 			path = Localizable;
 			sourceTree = "<group>";
@@ -3175,6 +3178,14 @@
 			isa = PBXGroup;
 			children = (
 				58D99BA5309044E100B7B5A4 /* WYSoundWavesViewObjC+Implementation.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
+		58D99B8D3090431A00B7B5A4 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				58D99B8E3090432600B7B5A4 /* WYLocalizableManager+Implementation.swift */,
 			);
 			path = PrivateImpl;
 			sourceTree = "<group>";
@@ -3606,6 +3617,7 @@
 				58D99B9C3090445D00B7B5A4 /* WYAttributedStringObjC+Implementation.swift in Sources */,
 				58D99AA030903D1600B7B5A4 /* WYView+Implementation.swift in Sources */,
 				58D99B9F3090447C00B7B5A4 /* WYObjectObjC+Implementation.swift in Sources */,
+				58D99B8F3090432600B7B5A4 /* WYLocalizableManager+Implementation.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

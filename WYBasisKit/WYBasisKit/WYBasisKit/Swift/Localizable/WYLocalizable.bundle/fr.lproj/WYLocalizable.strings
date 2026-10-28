@@ -168,3 +168,16 @@
 "关闭" = "Désactivé";
 "字幕" = "Sous-titres";
 "原画" = "Original";
+
+"更多" = "Plus";
+"画中画" = "Image dans l’image";
+"定时关闭" = "Minuterie de veille";
+"下载" = "Télécharger";
+"倍速" = "Vitesse";
+"音频播放" = "Audio uniquement";
+"后台播放" = "Lecture en arrière-plan";
+"循环播放" = "Lecture en boucle";
+"开启" = "Activé";
+"本集结束" = "À la fin de l’épisode";
+"清晰度" = "Qualité";
+"仅支持下载点播视频" = "Seules les vidéos à la demande peuvent être téléchargées";

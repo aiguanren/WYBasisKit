@@ -180,6 +180,33 @@ import WYBasisKitSwift
     }
     
     /**
+     *  切换本地语言
+     *
+     *  @param language  准备切换的目标语言
+     *
+     *  @param reload  是否重新加载App
+     *
+     *  @param name  Storyboard文件的名字，默认Main(一般不需要修改，使用默认的就好)
+     *
+     *  @param identifier  Storyboard文件的Identifier
+     *
+     *  @param rootViewControllerProvider  重建根控制器的闭包(返回新的根控制器，nil时使用name和identifier加载Storyboard)
+     *
+     *  @param handler  语言切换及界面重建完成后的回调
+     *
+     */
+    @MainActor @objc(switchLanguageWithLanguage:reload:name:identifier:rootViewControllerProvider:handler:) public static func switchLanguage(language: WYLanguageObjC, reload: Bool = true, name: String? = nil, identifier: String? = nil, rootViewControllerProvider: (() -> UIViewController)?, handler:(() -> Void)? = nil) {
+        
+        let switchLanguage: WYLanguage = WYLanguage(rawValue: language.rawValue) ?? .zh_Hans
+        
+        let storyboardName: String = name ?? "Main"
+        
+        let storyboardIdentifier: String = identifier ?? "rootViewController"
+        
+        WYLocalizableManager.switchLanguage(language: switchLanguage, reload: reload, name: storyboardName, identifier: storyboardIdentifier, rootViewControllerProvider: rootViewControllerProvider, handler: handler)
+    }
+    
+    /**
      *  根据传入的Key读取对应的本地语言
      *
      *  @param key  本地语言对应的Key

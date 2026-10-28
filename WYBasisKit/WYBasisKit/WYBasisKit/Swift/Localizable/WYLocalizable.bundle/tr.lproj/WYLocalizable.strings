@@ -168,3 +168,16 @@
 "关闭" = "Kapalı";
 "字幕" = "Altyazı";
 "原画" = "Orijinal";
+
+"更多" = "Diğer";
+"画中画" = "Resim içinde resim";
+"定时关闭" = "Uyku zamanlayıcısı";
+"下载" = "İndir";
+"倍速" = "Hız";
+"音频播放" = "Yalnızca ses";
+"后台播放" = "Arka planda oynatma";
+"循环播放" = "Tekrarla";
+"开启" = "Açık";
+"本集结束" = "Bölüm sonunda";
+"清晰度" = "Kalite";
+"仅支持下载点播视频" = "Yalnızca isteğe bağlı videolar indirilebilir";

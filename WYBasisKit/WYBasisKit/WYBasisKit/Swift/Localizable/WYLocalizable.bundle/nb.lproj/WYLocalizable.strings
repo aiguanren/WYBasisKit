@@ -168,3 +168,16 @@
 "关闭" = "Av";
 "字幕" = "Undertekster";
 "原画" = "Original";
+
+"更多" = "Mer";
+"画中画" = "Bilde i bilde";
+"定时关闭" = "Innsovningstimer";
+"下载" = "Last ned";
+"倍速" = "Hastighet";
+"音频播放" = "Kun lyd";
+"后台播放" = "Bakgrunnsavspilling";
+"循环播放" = "Gjenta";
+"开启" = "På";
+"本集结束" = "Ved episodens slutt";
+"清晰度" = "Kvalitet";
+"仅支持下载点播视频" = "Bare videoer på forespørsel kan lastes ned";

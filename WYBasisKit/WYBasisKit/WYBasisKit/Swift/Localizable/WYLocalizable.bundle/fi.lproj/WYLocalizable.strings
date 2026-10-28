@@ -168,3 +168,16 @@
 "关闭" = "Pois";
 "字幕" = "Tekstitys";
 "原画" = "Alkuperäinen";
+
+"更多" = "Lisää";
+"画中画" = "Kuva kuvassa";
+"定时关闭" = "Uniajastin";
+"下载" = "Lataa";
+"倍速" = "Nopeus";
+"音频播放" = "Vain ääni";
+"后台播放" = "Taustatoisto";
+"循环播放" = "Toista jatkuvasti";
+"开启" = "Päällä";
+"本集结束" = "Jakson lopussa";
+"清晰度" = "Laatu";
+"仅支持下载点播视频" = "Vain tilausvideoita voi ladata";

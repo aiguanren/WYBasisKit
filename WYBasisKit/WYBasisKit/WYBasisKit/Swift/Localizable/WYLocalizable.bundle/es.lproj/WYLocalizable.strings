@@ -168,3 +168,16 @@
 "关闭" = "Desactivado";
 "字幕" = "Subtítulos";
 "原画" = "Original";
+
+"更多" = "Más";
+"画中画" = "Imagen en imagen";
+"定时关闭" = "Temporizador";
+"下载" = "Descargar";
+"倍速" = "Velocidad";
+"音频播放" = "Solo audio";
+"后台播放" = "Reproducción en segundo plano";
+"循环播放" = "Repetir";
+"开启" = "Activado";
+"本集结束" = "Al finalizar el episodio";
+"清晰度" = "Calidad";
+"仅支持下载点播视频" = "Solo se pueden descargar vídeos bajo demanda";

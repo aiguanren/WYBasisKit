@@ -168,3 +168,16 @@
 "关闭" = "Off";
 "字幕" = "Subtitles";
 "原画" = "Original";
+
+"更多" = "More";
+"画中画" = "Picture in Picture";
+"定时关闭" = "Sleep Timer";
+"下载" = "Download";
+"倍速" = "Speed";
+"音频播放" = "Audio Only";
+"后台播放" = "Background Playback";
+"循环播放" = "Loop Playback";
+"开启" = "On";
+"本集结束" = "At Episode End";
+"清晰度" = "Quality";
+"仅支持下载点播视频" = "Only on-demand videos can be downloaded";

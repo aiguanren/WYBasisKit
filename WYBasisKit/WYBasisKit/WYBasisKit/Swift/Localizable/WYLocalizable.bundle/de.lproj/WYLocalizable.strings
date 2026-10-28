@@ -168,3 +168,16 @@
 "关闭" = "Aus";
 "字幕" = "Untertitel";
 "原画" = "Original";
+
+"更多" = "Mehr";
+"画中画" = "Bild in Bild";
+"定时关闭" = "Abschalttimer";
+"下载" = "Herunterladen";
+"倍速" = "Geschwindigkeit";
+"音频播放" = "Nur Audio";
+"后台播放" = "Hintergrundwiedergabe";
+"循环播放" = "Wiederholen";
+"开启" = "Ein";
+"本集结束" = "Am Ende der Folge";
+"清晰度" = "Qualität";
+"仅支持下载点播视频" = "Nur Videos auf Abruf können heruntergeladen werden";
