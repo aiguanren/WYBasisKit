@@ -201,34 +201,4 @@ import WYBasisKitSwift
     }
 }
 
-private extension WYCodableObjC {
-    
-    static func decodeJSONObject(_ jsonObject: Any, toClass modelClass: AnyClass, supportsProtocol: Bool) throws -> AnyObject {
-        let className = NSStringFromClass(modelClass)
-        
-        // 只支持桥接方式
-        if !supportsProtocol {
-            throw WYCodableErrorObjC.protocolMismatch
-        }
-        
-        if let jsonArray = jsonObject as? [[String: Any]] {
-            // 数组处理
-            let resultArray = try jsonArray.map { jsonDict in
-                guard let object = WYCodableBridge.createObject(from: jsonDict, className: className) else {
-                    throw WYCodableErrorObjC.typeMismatch
-                }
-                return object
-            }
-            return resultArray as AnyObject
-        } else if let jsonDict = jsonObject as? [String: Any] {
-            // 单个对象处理
-            guard let result = WYCodableBridge.createObject(from: jsonDict, className: className) else {
-                throw WYCodableErrorObjC.typeMismatch
-            }
-            return result
-        } else {
-            throw WYCodableErrorObjC.dataFormatError
-        }
-    }
-}
 #endif
