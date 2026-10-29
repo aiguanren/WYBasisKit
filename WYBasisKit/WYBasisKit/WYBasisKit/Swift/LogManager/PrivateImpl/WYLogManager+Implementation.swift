@@ -10,8 +10,9 @@ extension WYLogManager {
     /// 写入日志文件
     static func saveLogToFile(_ log: String) {
         let path = logFilePath
+        let entry = encryptEntry(log)
         logQueue.async {
-            appendLine(encryptEntry(log), filePath: path)
+            appendLine(entry, filePath: path)
         }
     }
 
