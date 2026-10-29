@@ -18,6 +18,8 @@ extension WYLogManager {
     /// 写文件使用串行队列，避免并发冲突
     static let logQueue = DispatchQueue(label: "com.WYBasisKit.WYLogManager.queue")
 
+    private static let appendLock = NSLock()
+
     /// 日志分隔符（用于日志条目之间的换行与逻辑隔断）
     internal static let logEntrySeparator = "\n\n\n"
 
@@ -136,6 +138,8 @@ extension WYLogManager {
 
     /// 把一行内容追加进日志文件(不存在时先创建文件与目录)
     static func appendLine(_ line: String, filePath: String? = nil) {
+        appendLock.lock()
+        defer { appendLock.unlock() }
         let path = filePath ?? logFilePath
         let fileManager = FileManager.default
 
