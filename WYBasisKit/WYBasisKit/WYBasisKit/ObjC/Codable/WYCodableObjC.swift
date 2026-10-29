@@ -183,18 +183,20 @@ import WYBasisKitSwift
         let data = try swiftDictionary.wy_convertToData()
         return data as Data
     }
+
+    @nonobjc internal var keyDecodingTransform: (([String]) -> String)?
 }
 
 @objc public extension WYCodableObjC {
     
     /// 使用桥接方式将JSON转换为对象（适用于非Codable的NSObject子类）
     @objc func bridgeDecode(_ json: [String: Any], toObject object: NSObject) -> Bool {
-        return WYCodableBridge.updateObject(object, with: json)
+        return WYCodableBridge.updateObject(object, with: json, keyTransform: keyDecodingTransform)
     }
     
     /// 使用桥接方式创建对象
     @objc func bridgeCreateObject(from json: [String: Any], className: String) -> NSObject? {
-        return WYCodableBridge.createObject(from: json, className: className)
+        return WYCodableBridge.createObject(from: json, className: className, keyTransform: keyDecodingTransform)
     }
     
     /// 使用桥接方式将对象转换为JSON
@@ -204,17 +206,17 @@ import WYBasisKitSwift
     
     /// 设置键值解码策略(使用默认的键值策略，不进行任何转换)
     @objc func useDefaultKeys() {
-        // 桥接方案不需要这个配置，保持空实现以保持API兼容性
+        keyDecodingTransform = nil
     }
     
     /// 设置键值解码策略(将蛇形命名法转换为驼峰命名法（例如：first_name -> firstName）)
     @objc func convertFromSnakeCase() {
-        // 桥接方案不需要这个配置，保持空实现以保持API兼容性
+        keyDecodingTransform = Self.keyFromSnakeCase
     }
     
     /// 设置键值解码策略(使用自定义的键名转换策略)
     @objc func customKeyMapping(_ handler: @escaping ([String]) -> String) {
-        // 桥接方案不需要这个配置，保持空实现以保持API兼容性
+        keyDecodingTransform = handler
     }
 }
 

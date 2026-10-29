@@ -72,6 +72,13 @@ import Foundation
     }
     
     @objc public static func updateObject(_ object: NSObject, with json: [String: Any]) -> Bool {
+        return updateObject(object, with: json, keyTransform: nil)
+    }
+
+    @nonobjc static func updateObject(_ object: NSObject,
+                                     with json: [String: Any],
+                                     keyTransform: (([String]) -> String)?,
+                                     codingPath: [String] = []) -> Bool {
         // 检查是否实现了协议
         guard object is WYCodableProtocol else {
             if WYCodableConfig.debugMode {
@@ -98,7 +105,14 @@ import Foundation
         var success = true
         
         for (jsonKey, jsonValue) in json {
-            let propertyNames = reverseMapping[jsonKey] ?? [jsonKey]
+            let keyPath = codingPath + [jsonKey]
+            let propertyNames: [String]
+            if let mappedNames = reverseMapping[jsonKey] {
+                propertyNames = mappedNames
+            } else {
+                let decodedKey = keyTransform?(keyPath) ?? jsonKey
+                propertyNames = reverseMapping[decodedKey] ?? [decodedKey]
+            }
             for propertyName in propertyNames {
                 if shouldSkipProperty(propertyName) { continue }
                 guard let property = propertyMap[propertyName] else {
@@ -119,7 +133,9 @@ import Foundation
                 if let value = decodeValue(jsonValue,
                                            property: property,
                                            propertyName: propertyName,
-                                           object: object) {
+                                           object: object,
+                                           keyTransform: keyTransform,
+                                           codingPath: keyPath) {
                     object.setValue(value, forKey: propertyName)
                 } else {
                     if WYCodableConfig.debugMode {
@@ -138,6 +154,13 @@ import Foundation
     }
     
     @objc public static func createObject(from json: [String: Any], className: String) -> NSObject? {
+        return createObject(from: json, className: className, keyTransform: nil)
+    }
+
+    @nonobjc static func createObject(from json: [String: Any],
+                                     className: String,
+                                     keyTransform: (([String]) -> String)?,
+                                     codingPath: [String] = []) -> NSObject? {
         guard let cls = NSClassFromString(className) as? NSObject.Type else {
             if WYCodableConfig.debugMode {
                 wy_codablePrint("WYCodable - Class not found: \(className)")
@@ -146,7 +169,7 @@ import Foundation
         }
         
         let instance = cls.init()
-        let success = updateObject(instance, with: json)
+        let success = updateObject(instance, with: json, keyTransform: keyTransform, codingPath: codingPath)
         return success ? instance : nil
     }
     
@@ -201,7 +224,9 @@ import Foundation
     private static func decodeValue(_ value: Any,
                                     property: WYCodableProperty,
                                     propertyName: String,
-                                    object: NSObject) -> Any? {
+                                    object: NSObject,
+                                    keyTransform: (([String]) -> String)?,
+                                    codingPath: [String]) -> Any? {
         
         if WYCodableConfig.debugMode {
             wy_codablePrint("WYCodable - Decoding property: \(propertyName)")
@@ -217,8 +242,8 @@ import Foundation
         let (targetType, genericType) = getPropertyType(from: property.attributes)
         if let modelClass = WYCodableProtocolHelper.getObjectClassMapping(for: object)[propertyName] {
             let className = NSStringFromClass(modelClass)
-            if let dictionary = value as? [String: Any] { return createObject(from: dictionary, className: className) }
-            if let array = value as? [Any] { return decodeObjectArray(array, elementType: className) }
+            if let dictionary = value as? [String: Any] { return createObject(from: dictionary, className: className, keyTransform: keyTransform, codingPath: codingPath) }
+            if let array = value as? [Any] { return decodeObjectArray(array, elementType: className, keyTransform: keyTransform, codingPath: codingPath) }
         }
         
         if WYCodableConfig.debugMode {
@@ -229,7 +254,7 @@ import Foundation
         if let dictValue = value as? [String: Any] {
             // 如果没有配置，尝试使用属性类型
             if targetType != "NSDictionary" && targetType != "NSMutableDictionary" && targetType != "NSObject" {
-                return createObject(from: dictValue, className: targetType)
+                return createObject(from: dictValue, className: targetType, keyTransform: keyTransform, codingPath: codingPath)
             }
         }
         
@@ -244,7 +269,7 @@ import Foundation
                 if WYCodableConfig.debugMode {
                     wy_codablePrint("WYCodable - Creating objects for array with elementType: \(elementType)")
                 }
-                return decodeObjectArray(arrayValue, elementType: elementType)
+                return decodeObjectArray(arrayValue, elementType: elementType, keyTransform: keyTransform, codingPath: codingPath)
             }
             // 2. 自动推断：根据属性名和数组内容推断元素类型
             else if let inferredType = autoInferArrayElementType(propertyName: propertyName,
@@ -253,7 +278,7 @@ import Foundation
                 if WYCodableConfig.debugMode {
                     wy_codablePrint("WYCodable - Auto-inferred element type: \(inferredType) for property: \(propertyName)")
                 }
-                return decodeObjectArray(arrayValue, elementType: inferredType)
+                return decodeObjectArray(arrayValue, elementType: inferredType, keyTransform: keyTransform, codingPath: codingPath)
             } else {
                 if WYCodableConfig.debugMode {
                     wy_codablePrint("WYCodable - No element type found for array property: \(propertyName), returning raw array")
@@ -354,12 +379,15 @@ import Foundation
     }
     
     /// 解码对象数组
-    private static func decodeObjectArray(_ array: [Any], elementType: String) -> [Any]? {
+    private static func decodeObjectArray(_ array: [Any],
+                                          elementType: String,
+                                          keyTransform: (([String]) -> String)?,
+                                          codingPath: [String]) -> [Any]? {
         var result: [Any] = []
         
-        for element in array {
+        for (index, element) in array.enumerated() {
             if let dictionary = element as? [String: Any] {
-                guard let object = createObject(from: dictionary, className: elementType) else { return nil }
+                guard let object = createObject(from: dictionary, className: elementType, keyTransform: keyTransform, codingPath: codingPath + ["Index \(index)"]) else { return nil }
                 result.append(object)
             } else {
                 guard let objectClass = NSClassFromString(elementType),
