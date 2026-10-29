@@ -11,6 +11,20 @@ import Foundation
     
     /// 基础类型转换
     @objc public static func transformValue(_ value: Any, toClass className: String) -> Any? {
+        if let targetClass = NSClassFromString(className) {
+            if targetClass == NSMutableString.self {
+                return transformToString(value).map { NSMutableString(string: $0) }
+            }
+            if targetClass == NSMutableDictionary.self {
+                return transformToDictionary(value).map { NSMutableDictionary(dictionary: $0) }
+            }
+            if targetClass == NSMutableArray.self {
+                return transformToArray(value).map { NSMutableArray(array: $0) }
+            }
+            if targetClass == NSMutableData.self {
+                return transformToData(value).map { NSMutableData(data: $0) }
+            }
+        }
         switch className {
         case "NSURL", "URL":
             if let url = value as? URL { return url }
@@ -38,6 +52,9 @@ import Foundation
         case "NSDictionary", "Dictionary":
             return transformToDictionary(value)
         default:
+            if let targetClass = NSClassFromString(className) {
+                guard let object = value as? NSObject, object.isKind(of: targetClass) else { return nil }
+            }
             return value
         }
     }

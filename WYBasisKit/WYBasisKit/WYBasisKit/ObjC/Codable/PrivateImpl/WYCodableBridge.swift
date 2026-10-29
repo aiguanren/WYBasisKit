@@ -136,7 +136,17 @@ import Foundation
                                            object: object,
                                            keyTransform: keyTransform,
                                            codingPath: keyPath) {
-                    object.setValue(value, forKey: propertyName)
+                    let (targetType, _) = getPropertyType(from: property.attributes)
+                    if property.attributes.hasPrefix("T@"), let targetClass = NSClassFromString(targetType) {
+                        guard let transformed = WYCodableValueTransformer.transformValue(value, toClass: targetType) as? NSObject,
+                              transformed.isKind(of: targetClass) else {
+                            success = false
+                            continue
+                        }
+                        object.setValue(transformed, forKey: propertyName)
+                    } else {
+                        object.setValue(value, forKey: propertyName)
+                    }
                 } else {
                     if WYCodableConfig.debugMode {
                         wy_codablePrint("WYCodable - Failed to decode value for key: \(propertyName)")
