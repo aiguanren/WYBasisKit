@@ -42,7 +42,9 @@ extension WYLogManager {
 
         if let custom = logFileName?.trimmingCharacters(in: .whitespacesAndNewlines), custom.isEmpty == false {
             let sanitized = sanitizeFileName(custom)
-            return sanitized.isEmpty == false ? sanitized : fallbackName
+            let suffix = ".log"
+            let name = sanitized.lowercased().hasSuffix(suffix) ? String(sanitized.dropLast(suffix.count)) : sanitized
+            return name.isEmpty == false ? name : fallbackName
         }
 
         let displayName = (Bundle.main.localizedInfoDictionary?["CFBundleDisplayName"] as? String)
