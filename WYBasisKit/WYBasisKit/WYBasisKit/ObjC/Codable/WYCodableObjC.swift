@@ -25,24 +25,7 @@ import WYBasisKitSwift
     /// 检查类是否支持 WYCodableProtocol
     @objc public static func isClassSupportWYCodableProtocol(_ modelClass: AnyClass) -> Bool {
         // 检查类是否实现了 WYCodableProtocol 协议
-        var currentClass: AnyClass? = modelClass
-        while let cls = currentClass {
-            // 获取类遵循的所有协议
-            var count: UInt32 = 0
-            let protocolList = class_copyProtocolList(cls, &count)
-            if let protocolList = protocolList {
-                for i in 0..<Int(count) {
-                    let protocolName = NSStringFromProtocol(protocolList[i])
-                    if protocolName.contains("WYCodableProtocol") {
-                        free(UnsafeMutableRawPointer(protocolList))
-                        return true
-                    }
-                }
-                free(UnsafeMutableRawPointer(protocolList))
-            }
-            currentClass = class_getSuperclass(cls)
-        }
-        return false
+        return modelClass is WYCodableProtocol.Type
     }
     
     /// 将String、Dictionary、Array、Data类型数据解析成传入的Model类型
