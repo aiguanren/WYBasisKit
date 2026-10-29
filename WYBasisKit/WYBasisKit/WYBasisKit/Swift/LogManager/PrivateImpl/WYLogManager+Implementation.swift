@@ -152,11 +152,17 @@ extension WYLogManager {
             fileManager.createFile(atPath: path, contents: nil)
         }
 
-        guard let fileHandle = FileHandle(forWritingAtPath: path) else { return }
+        guard let fileHandle = FileHandle(forUpdatingAtPath: path) else { return }
         defer { fileHandle.closeFile() }
-        fileHandle.seekToEndOfFile()
+        let offset = fileHandle.seekToEndOfFile()
+        var needsLineBreak = false
+        if offset > 0 {
+            fileHandle.seek(toFileOffset: offset - 1)
+            needsLineBreak = fileHandle.readData(ofLength: 1).last != 10
+            fileHandle.seekToEndOfFile()
+        }
 
-        if let data = (line + "\n").data(using: .utf8) {
+        if let data = ((needsLineBreak ? "\n" : "") + line + "\n").data(using: .utf8) {
             fileHandle.write(data)
         }
     }
