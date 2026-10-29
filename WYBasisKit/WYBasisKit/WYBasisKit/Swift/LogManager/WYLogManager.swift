@@ -103,8 +103,7 @@ public struct WYLogManager {
      */
     public static func decryptedLogText() -> String {
         guard let text = try? String(contentsOfFile: logFilePath, encoding: .utf8) else { return "" }
-        let entries = text.split(separator: "\n", omittingEmptySubsequences: true).compactMap { decryptLine(String($0)) }
-        return entries.joined(separator: logEntrySeparator)
+        return decryptText(text)
     }
 
     /**

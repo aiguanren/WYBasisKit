@@ -111,6 +111,29 @@ extension WYLogManager {
         }
     }
 
+    static func decryptText(_ text: String) -> String {
+        var entries: [String] = []
+        var plainText = ""
+        for line in text.split(separator: "\n", omittingEmptySubsequences: false) {
+            if line.hasPrefix(encryptedLinePrefix) {
+                if plainText.isEmpty == false {
+                    entries.append(plainText)
+                    plainText = ""
+                }
+                if let entry = decryptLine(String(line)) {
+                    entries.append(entry)
+                }
+            } else {
+                let endIndex = line.endIndex < text.endIndex ? text.index(after: line.endIndex) : line.endIndex
+                plainText += text[line.startIndex..<endIndex]
+            }
+        }
+        if plainText.isEmpty == false {
+            entries.append(plainText)
+        }
+        return entries.joined(separator: logEntrySeparator)
+    }
+
     /// 把一行内容追加进日志文件(不存在时先创建文件与目录)
     static func appendLine(_ line: String, filePath: String? = nil) {
         let path = filePath ?? logFilePath
