@@ -158,7 +158,7 @@ public extension UIView {
             return 0
         }
         // 整数向上取整即为行数(正好整除时结果不变)
-        return (total + perLine - 1) / perLine
+        return total / perLine + (total % perLine == 0 ? 0 : 1)
     }
 
     /// 移除所有子控件
@@ -231,6 +231,12 @@ public extension UIView {
     func wy_addBorder(edges: UIRectEdge,
                       color: UIColor,
                       thickness: CGFloat) {
+        guard !edges.intersection(.all).isEmpty else { return }
+        guard thickness.isFinite, thickness > 0 else {
+            wy_removeBorder(edges: edges)
+            return
+        }
+        _ = wy_visualConfig
 
         if edges.contains(.top) {
             addBorder(edge: .top, color: color, thickness: thickness)
@@ -307,90 +313,152 @@ public extension UIView {
     /// 圆角的位置， 默认4角圆角
     @discardableResult
     func wy_rectCorner(_ corner: UIRectCorner) -> UIView {
-        wy_visualConfig.rectCorner = corner
+        let config = wy_visualConfig
+        if config.rectCorner != corner {
+            config.rectCorner = corner
+            config.revision &+= 1
+        }
         return self
     }
 
     /// 圆角的半径 默认0.0
     @discardableResult
     func wy_cornerRadius(_ radius: CGFloat) -> UIView {
-        wy_visualConfig.cornerRadius = radius
+        let radius = radius.isFinite ? max(radius, 0) : 0
+        let config = wy_visualConfig
+        if config.cornerRadius != radius {
+            config.cornerRadius = radius
+            config.revision &+= 1
+        }
         return self
     }
 
     /// 边框颜色 默认透明
     @discardableResult
     func wy_borderColor(_ color: UIColor) -> UIView {
-        wy_visualConfig.borderColor = color
+        let config = wy_visualConfig
+        if config.borderColor != color {
+            config.borderColor = color
+            config.revision &+= 1
+        }
         return self
     }
 
     /// 边框宽度 默认0.0
     @discardableResult
     func wy_borderWidth(_ width: CGFloat) -> UIView {
-        wy_visualConfig.borderWidth = width
+        let width = width.isFinite ? max(width, 0) : 0
+        let config = wy_visualConfig
+        if config.borderWidth != width {
+            config.borderWidth = width
+            config.revision &+= 1
+        }
         return self
     }
 
     /// 阴影颜色 默认透明
     @discardableResult
     func wy_shadowColor(_ color: UIColor) -> UIView {
-        wy_visualConfig.shadowColor = color
+        let config = wy_visualConfig
+        if config.shadowColor != color {
+            config.shadowColor = color
+            config.revision &+= 1
+        }
         return self
     }
 
     /// 阴影偏移度 默认CGSize.zero (width : 为正数时，向右偏移，为负数时，向左偏移，height : 为正数时，向下偏移，为负数时，向上偏移)
     @discardableResult
     func wy_shadowOffset(_ offset: CGSize) -> UIView {
-        wy_visualConfig.shadowOffset = offset
+        let offset = CGSize(width: offset.width.isFinite ? offset.width : 0, height: offset.height.isFinite ? offset.height : 0)
+        let config = wy_visualConfig
+        if config.shadowOffset != offset {
+            config.shadowOffset = offset
+            config.revision &+= 1
+        }
         return self
     }
 
     /// 阴影模糊半径 默认0.0，需要大于0才会有阴影扩散效果(阴影才可见)
     @discardableResult
     func wy_shadowRadius(_ radius: CGFloat) -> UIView {
-        wy_visualConfig.shadowRadius = radius
+        let radius = radius.isFinite ? max(radius, 0) : 0
+        let config = wy_visualConfig
+        if config.shadowRadius != radius {
+            config.shadowRadius = radius
+            config.revision &+= 1
+        }
         return self
     }
 
     /// 阴影透明度，默认0.5，取值范围0~1
     @discardableResult
     func wy_shadowOpacity(_ opacity: CGFloat) -> UIView {
-        wy_visualConfig.shadowOpacity = opacity
+        let opacity = min(max(opacity.isNaN ? 0 : opacity, 0), 1)
+        let config = wy_visualConfig
+        if config.shadowOpacity != opacity {
+            config.shadowOpacity = opacity
+            config.revision &+= 1
+        }
         return self
     }
 
     /// 渐变色数组(设置渐变色时不能设置背景色，会有影响)
     @discardableResult
     func wy_gradualColors(_ colors: [UIColor]) -> UIView {
-        wy_visualConfig.gradualColors = colors
+        let config = wy_visualConfig
+        if config.gradualColors != colors {
+            config.gradualColors = colors
+            config.revision &+= 1
+        }
         return self
     }
 
     /// 渐变色方向 默认从左到右
     @discardableResult
     func wy_gradientDirection(_ direction: WYGradientDirection) -> UIView {
-        wy_visualConfig.gradientDirection = direction
+        let config = wy_visualConfig
+        if config.gradientDirection != direction {
+            config.gradientDirection = direction
+            config.revision &+= 1
+        }
         return self
     }
 
     /// 设置圆角时，会去获取视图的Bounds属性，如果此时获取不到(布局还没完成bounds为0)，则需要传入该参数，默认为 nil
     @discardableResult
     func wy_viewBounds(_ bounds: CGRect) -> UIView {
-        wy_visualConfig.viewBounds = bounds
+        let bounds = bounds.origin.x.isFinite && bounds.origin.y.isFinite && bounds.width.isFinite && bounds.height.isFinite && bounds.width >= 0 && bounds.height >= 0 ? bounds : .zero
+        let config = wy_visualConfig
+        if config.viewBounds != bounds {
+            config.viewBounds = bounds
+            config.revision &+= 1
+        }
         return self
     }
 
     /// 贝塞尔路径 默认nil (有值时，radius属性将失效)
     @discardableResult
     func wy_bezierPath(_ path: UIBezierPath) -> UIView {
-        wy_visualConfig.bezierPath = path
+        let config = wy_visualConfig
+        if config.bezierPath != path {
+            config.bezierPath = path
+            config.revision &+= 1
+        }
         return self
     }
 
     /// 显示(更新)边框、阴影、圆角、渐变
     @discardableResult
     func wy_showVisual() -> UIView {
+        let config = wy_visualConfig
+        config.isApplied = true
+        wy_startBoundsObserving()
+        guard wy_needsVisualApply() else {
+            wy_syncShadowView()
+            return self
+        }
+        config.isApplying = true
 
         // 应用任务要等下一拍才执行，这一拍里新视图会以原始方块外观上屏闪一下(无圆角深色直角块一闪而过)，这里先按当前bounds同步落一遍，尺寸还没就绪也没关系，空路径的mask会把原始背景整体藏住，任务里再按布局结果修正
         let syncVisualFrame = wy_sharedBounds()
@@ -408,6 +476,7 @@ public extension UIView {
         wy_addShadow(bezierPath: syncBezierPath, visualFrame: syncVisualFrame)
 
         CATransaction.commit()
+        wy_didApplyVisual()
 
         // 已有待执行任务时不再排新任务，防止同帧连点重复排队(任务执行时读的总是最新config，合并执行和逐个执行最终效果一致)
         if objc_getAssociatedObject(self, &WYAssociatedKeys.pendingVisualApply) == nil {
@@ -422,6 +491,8 @@ public extension UIView {
                 // 强制更新布局以确保获取最新尺寸(整棵视图树只强制这一次，后续各处直接取bounds)
                 self.superview?.layoutIfNeeded()
                 self.layoutIfNeeded()
+                guard self.wy_visualConfig.isApplied, self.wy_needsVisualApply() else { return }
+                self.wy_visualConfig.isApplying = true
 
                 // 路径和尺寸整轮只算一次，圆角边框、渐变、阴影共用(防一次应用里同一条路径重复构建两遍)
                 let visualFrame = self.wy_sharedBounds()
@@ -439,6 +510,7 @@ public extension UIView {
                 self.wy_addShadow(bezierPath: bezierPath, visualFrame: visualFrame)
 
                 CATransaction.commit()
+                self.wy_didApplyVisual()
 
                 // 有视觉图层才开启bounds监听，视图尺寸变化时圆角、边框、渐变、阴影自动跟随更新
                 if self.wy_hasChainVisuals() {
@@ -458,6 +530,11 @@ public extension UIView {
     func wy_clearVisual() -> UIView {
 
         let config = wy_visualConfig
+        config.isApplied = false
+        config.isApplying = true
+        config.revision &+= 1
+        wy_restoreNativeClipping()
+        wy_cancelVisualAnimations()
 
         // 阴影
         config.shadowBackgroundView?.removeFromSuperview()
@@ -471,7 +548,7 @@ public extension UIView {
         config.cornerRadius = 0.0
         config.borderColor = .clear
         config.borderWidth = 0.0
-        config.shadowOpacity = 0.0
+        config.shadowOpacity = 0.5
         config.shadowRadius = 0.0
         config.shadowOffset = .zero
         config.viewBounds = .zero
@@ -490,6 +567,11 @@ public extension UIView {
         layer.shadowColor = UIColor.clear.cgColor
         layer.shadowOffset = .zero
         layer.mask = nil
+        config.maskLayer = nil
+        config.borderLayer = nil
+        config.gradientLayer = nil
+        config.nativeVisual = false
+        config.isApplying = false
 
         // 链式视觉图层全部撤掉且没有指定位置边框时，一并停掉bounds监听
         if (layer.sublayers?.contains(where: { $0.borderInfo != nil }) != true) && (wy_hasChainVisuals() == false) {
@@ -502,10 +584,15 @@ public extension UIView {
 
 extension UIView {
 
+    internal var wy_existingVisualConfig: WYVisualConfig? {
+        return objc_getAssociatedObject(self, &WYAssociatedKeys.visualConfig) as? WYVisualConfig
+    }
+
     internal var wy_visualConfig: WYVisualConfig {
         if let config = objc_getAssociatedObject(self, &WYAssociatedKeys.visualConfig) as? WYVisualConfig {
             return config
         }
+        WYVisualConfig.installHooks(for: type(of: self))
         let config = WYVisualConfig()
         objc_setAssociatedObject(self, &WYAssociatedKeys.visualConfig, config, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         return config
@@ -513,7 +600,10 @@ extension UIView {
 
     /// 开启bounds/transform监听，让指定位置边框和已应用的链式视觉跟随视图尺寸变化自动更新、阴影背景视图跟随视图形变移动
     internal func wy_startBoundsObserving() {
-        guard objc_getAssociatedObject(self, &WYAssociatedKeys.borderObserver) == nil else { return }
+        if let observer = objc_getAssociatedObject(self, &WYAssociatedKeys.borderObserver) as? WYBoundsObserver {
+            observer.enableShadowObserving(view: self)
+            return
+        }
         let observer = WYBoundsObserver(view: self)
         objc_setAssociatedObject(self, &WYAssociatedKeys.borderObserver, observer, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
     }
