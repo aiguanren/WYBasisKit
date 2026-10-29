@@ -10,6 +10,19 @@ import Foundation
 #if canImport(WYBasisKitSwift)
 extension WYCodableObjC {
 
+    @nonobjc internal var keyDecodingTransform: (([String]) -> String)? {
+        get {
+            return objc_getAssociatedObject(self, &WYAssociatedKeys.keyDecodingTransform) as? ([String]) -> String
+        }
+        set {
+            objc_setAssociatedObject(self, &WYAssociatedKeys.keyDecodingTransform, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+    }
+
+    private struct WYAssociatedKeys {
+        static var keyDecodingTransform: UInt8 = 0
+    }
+
     @nonobjc static func keyFromSnakeCase(_ codingPath: [String]) -> String {
         guard let key = codingPath.last,
               let first = key.firstIndex(where: { $0 != "_" }),

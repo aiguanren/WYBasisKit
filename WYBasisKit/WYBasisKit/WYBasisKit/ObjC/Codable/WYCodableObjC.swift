@@ -166,8 +166,6 @@ import WYBasisKitSwift
         let data = try swiftDictionary.wy_convertToData()
         return data as Data
     }
-
-    @nonobjc internal var keyDecodingTransform: (([String]) -> String)?
 }
 
 @objc public extension WYCodableObjC {
