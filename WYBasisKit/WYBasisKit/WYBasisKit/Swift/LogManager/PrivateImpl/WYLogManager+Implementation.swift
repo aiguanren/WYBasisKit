@@ -32,13 +32,13 @@ extension WYLogManager {
         if let key = encryptionKey, key.isEmpty == false {
             return key
         }
-        let bundleId = Bundle.main.bundleIdentifier ?? "WYBasisKit"
+        let bundleId = WYProjectInfo.appIdentifier.isEmpty ? "WYBasisKit" : WYProjectInfo.appIdentifier
         return WYCryptor.pbkdf2(password: bundleId, salt: internalSeedValue, rounds: 4096, length: 32) ?? Data((bundleId + internalSeedValue).utf8)
     }
 
     /// 解析日志文件名(自定义名优先，默认名=本地化App名+本地化"日志"词，App名缺失或清洗为空回落到包名末段)
     static func resolvedFileName() -> String {
-        let fallbackName = Bundle.main.bundleIdentifier?.components(separatedBy: ".").last ?? "App"
+        let fallbackName = WYProjectInfo.appIdentifier.isEmpty ? "App" : WYProjectInfo.appIdentifier.components(separatedBy: ".").last ?? "App"
 
         if let custom = logFileName?.trimmingCharacters(in: .whitespacesAndNewlines), custom.isEmpty == false {
             let sanitized = sanitizeFileName(custom)
@@ -47,11 +47,9 @@ extension WYLogManager {
             return name.isEmpty == false ? name : fallbackName
         }
 
-        let displayName = (Bundle.main.localizedInfoDictionary?["CFBundleDisplayName"] as? String)
-        ?? Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String
-        ?? Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String
+        let displayName = WYProjectInfo.appStoreName.isEmpty ? WYProjectInfo.projectName : WYProjectInfo.appStoreName
 
-        let sanitizedName = sanitizeFileName(displayName ?? "")
+        let sanitizedName = sanitizeFileName(displayName)
         let baseName = sanitizedName.isEmpty == false ? sanitizedName : fallbackName
         return baseName + WYLocalized("日志")
     }
