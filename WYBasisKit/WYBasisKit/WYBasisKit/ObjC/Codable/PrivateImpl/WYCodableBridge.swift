@@ -145,7 +145,11 @@ import Foundation
                         }
                         object.setValue(transformed, forKey: propertyName)
                     } else {
-                        object.setValue(value, forKey: propertyName)
+                        guard let transformed = decodeScalarValue(value, attributes: property.attributes) else {
+                            success = false
+                            continue
+                        }
+                        object.setValue(transformed, forKey: propertyName)
                     }
                 } else {
                     if WYCodableConfig.debugMode {
@@ -249,6 +253,10 @@ import Foundation
             return customValue
         }
         
+        if !property.attributes.hasPrefix("T@") {
+            return decodeScalarValue(value, attributes: property.attributes)
+        }
+
         let (targetType, genericType) = getPropertyType(from: property.attributes)
         if let modelClass = WYCodableProtocolHelper.getObjectClassMapping(for: object)[propertyName] {
             let className = NSStringFromClass(modelClass)
@@ -306,6 +314,57 @@ import Foundation
         return nil
     }
     
+    private static func decodeScalarValue(_ value: Any, attributes: String) -> Any? {
+        let encoding = attributes.components(separatedBy: ",").first ?? ""
+        let bounds: (NSNumber, NSNumber)
+        switch encoding {
+        case "Tc": bounds = (NSNumber(value: Int8.min), NSNumber(value: Int8.max))
+        case "TC": bounds = (NSNumber(value: UInt8.min), NSNumber(value: UInt8.max))
+        case "Ts": bounds = (NSNumber(value: Int16.min), NSNumber(value: Int16.max))
+        case "TS": bounds = (NSNumber(value: UInt16.min), NSNumber(value: UInt16.max))
+        case "Ti": bounds = (NSNumber(value: Int32.min), NSNumber(value: Int32.max))
+        case "TI": bounds = (NSNumber(value: UInt32.min), NSNumber(value: UInt32.max))
+        case "Tl": bounds = (NSNumber(value: CLong.min), NSNumber(value: CLong.max))
+        case "TL": bounds = (NSNumber(value: CUnsignedLong.min), NSNumber(value: CUnsignedLong.max))
+        case "Tq": bounds = (NSNumber(value: Int64.min), NSNumber(value: Int64.max))
+        case "TQ": bounds = (NSNumber(value: UInt64.min), NSNumber(value: UInt64.max))
+        case "Tf", "Td":
+            guard let number = WYCodableValueTransformer.transformToNumber(value), number.doubleValue.isFinite else { return nil }
+            if encoding == "Tf", !Float(number.doubleValue).isFinite { return nil }
+            return number
+        case "TB":
+            if let string = value as? String {
+                switch string.lowercased() {
+                case "true", "yes", "y", "1": return NSNumber(value: true)
+                case "false", "no", "n", "0": return NSNumber(value: false)
+                default: return nil
+                }
+            }
+            guard let number = value as? NSNumber, number == NSNumber(value: false) || number == NSNumber(value: true) else { return nil }
+            return number
+        default: return value
+        }
+        let number: NSNumber
+        if let string = value as? String, let integer = Int64(string) {
+            number = NSNumber(value: integer)
+        } else if let string = value as? String, let integer = UInt64(string) {
+            number = NSNumber(value: integer)
+        } else if let transformed = WYCodableValueTransformer.transformToNumber(value) {
+            number = transformed
+        } else {
+            return nil
+        }
+        guard number.doubleValue.isFinite else { return nil }
+        let locale = Locale(identifier: "en_US_POSIX")
+        guard var decimal = Decimal(string: number.stringValue, locale: locale),
+              let minimum = Decimal(string: bounds.0.stringValue, locale: locale),
+              let maximum = Decimal(string: bounds.1.stringValue, locale: locale) else { return nil }
+        var integer = Decimal()
+        NSDecimalRound(&integer, &decimal, 0, .down)
+        guard decimal == integer, decimal >= minimum, decimal <= maximum else { return nil }
+        return number
+    }
+
     /// 自动推断数组元素类型
     private static func autoInferArrayElementType(propertyName: String, array: [Any], object: NSObject) -> String? {
         
