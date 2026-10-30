@@ -10,6 +10,7 @@
 		00B2C4C299944D2E9BC3331F /* WYAudioStreamRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D589747BE2548B98D33E818 /* WYAudioStreamRecorder.swift */; };
 		02317E95937A422D4510B1BE /* Pods_WYBasisKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B0A12B6CD08A1EADB40EC1C /* Pods_WYBasisKit.framework */; };
 		04B0542BD68343EB808C882D /* WYImageEditorObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E7D9319DA254FEBB18880DB /* WYImageEditorObjC.swift */; };
+		0DF424E5A4DB473A82F3F396 /* WYLogManager+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6844B385DD164265A0D10707 /* WYLogManager+Implementation.swift */; };
 		15F3D3C618E93B7564F1EFC0 /* WYPhotoBrowserPageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42FC218D652F6064335DAD12 /* WYPhotoBrowserPageCell.swift */; };
 		24397A41A7A0493D8AC83BC4 /* WYImageMarkerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFF8F17400C4B01BA509737 /* WYImageMarkerView.swift */; };
 		34695EBADD85427988DC5616 /* WYImageEditorIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BA3CE4FE747490FBA5C36BB /* WYImageEditorIcons.swift */; };
@@ -336,6 +337,9 @@
 		58D99BA23090449900B7B5A4 /* WYActivityObjC+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99BA13090449900B7B5A4 /* WYActivityObjC+Implementation.swift */; };
 		58D99BA6309044E100B7B5A4 /* WYSoundWavesViewObjC+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99BA5309044E100B7B5A4 /* WYSoundWavesViewObjC+Implementation.swift */; };
 		58D99BA83090450500B7B5A4 /* WYCodableObjC+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D99BA73090450500B7B5A4 /* WYCodableObjC+Implementation.swift */; };
+		58D9A79230946B5500B7B5A4 /* WYAppleServicesObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D9A79130946B5500B7B5A4 /* WYAppleServicesObjC.swift */; };
+		58D9A79430946B5F00B7B5A4 /* WYAppleServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D9A79330946B5F00B7B5A4 /* WYAppleServices.swift */; };
+		58D9A79F30946E2000B7B5A4 /* WYAppleServices+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D9A79E30946E2000B7B5A4 /* WYAppleServices+Implementation.swift */; };
 		58EE7B0B2FB84A65009AA0CC /* WYTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EE7B0A2FB84A65009AA0CC /* WYTextView.swift */; };
 		5D9B7A1D5BA64CD79951FD91 /* WYMediaCacheDownloadTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2933A783B02A48DA9F08F495 /* WYMediaCacheDownloadTask.swift */; };
 		682A1481F5DBCD823E4E7C2F /* WYCryptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AC33A9B8043652655C0FF86 /* WYCryptor.swift */; };
@@ -349,7 +353,6 @@
 		CF080236B6634685A6318861 /* WYImageCropperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B46C27D2941B4A85A99A2E30 /* WYImageCropperView.swift */; };
 		F8CDEF0FEB4C2E16D7D25654 /* WYPhotoBrowserMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4EE578F5C81426AA5BC1D29 /* WYPhotoBrowserMenuView.swift */; };
 		F9B01DB67BCA4F268210F6EF /* WYMediaCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20024D929D9487584DE7607 /* WYMediaCache.swift */; };
-		0DF424E5A4DB473A82F3F396 /* WYLogManager+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6844B385DD164265A0D10707 /* WYLogManager+Implementation.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -687,6 +690,9 @@
 		58D99BA13090449900B7B5A4 /* WYActivityObjC+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYActivityObjC+Implementation.swift"; sourceTree = "<group>"; };
 		58D99BA5309044E100B7B5A4 /* WYSoundWavesViewObjC+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYSoundWavesViewObjC+Implementation.swift"; sourceTree = "<group>"; };
 		58D99BA73090450500B7B5A4 /* WYCodableObjC+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYCodableObjC+Implementation.swift"; sourceTree = "<group>"; };
+		58D9A79130946B5500B7B5A4 /* WYAppleServicesObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAppleServicesObjC.swift; sourceTree = "<group>"; };
+		58D9A79330946B5F00B7B5A4 /* WYAppleServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAppleServices.swift; sourceTree = "<group>"; };
+		58D9A79E30946E2000B7B5A4 /* WYAppleServices+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYAppleServices+Implementation.swift"; sourceTree = "<group>"; };
 		58E054912E88DEE200DF1F74 /* WYBasisKitObjC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYBasisKitObjC.h; sourceTree = "<group>"; };
 		58EE236E2F874AB70031D8BF /* WYWeakStrongMacros.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYWeakStrongMacros.h; sourceTree = "<group>"; };
 		58EE236F2F874AB70031D8BF /* WYSingletonMacro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYSingletonMacro.h; sourceTree = "<group>"; };
@@ -694,6 +700,7 @@
 		58EE23712F874CEB0031D8BF /* WYLogManagerMacro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYLogManagerMacro.h; sourceTree = "<group>"; };
 		58EE7B0A2FB84A65009AA0CC /* WYTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTextView.swift; sourceTree = "<group>"; };
 		5B0A12B6CD08A1EADB40EC1C /* Pods_WYBasisKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WYBasisKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		6844B385DD164265A0D10707 /* WYLogManager+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYLogManager+Implementation.swift"; sourceTree = "<group>"; };
 		684CA039106944C16D6C83B2 /* WYCryptorObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCryptorObjC.swift; sourceTree = "<group>"; };
 		6BA3CE4FE747490FBA5C36BB /* WYImageEditorIcons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYImageEditorIcons.swift; sourceTree = "<group>"; };
 		72295827F44C4697B2FB4907 /* WYMediaCacheConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaCacheConfig.swift; sourceTree = "<group>"; };
@@ -714,7 +721,6 @@
 		E4EE578F5C81426AA5BC1D29 /* WYPhotoBrowserMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPhotoBrowserMenuView.swift; sourceTree = "<group>"; };
 		E5BA55F71D1EFB496EE59FDE /* WYMediaPlayer+Properties.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+Properties.swift"; sourceTree = "<group>"; };
 		FBBDFDBDB8276D3319F55684 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		6844B385DD164265A0D10707 /* WYLogManager+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYLogManager+Implementation.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2164,6 +2170,7 @@
 		58C68CBA2E84E436005FD054 /* ObjC */ = {
 			isa = PBXGroup;
 			children = (
+				58D9A78F30946AAB00B7B5A4 /* AppleServices */,
 				58C68C3A2E84E436005FD054 /* Activity */,
 				58C68C3C2E84E436005FD054 /* AudioKit */,
 				58C68C502E84E436005FD054 /* Authorization */,
@@ -2941,6 +2948,7 @@
 		58C68D832E84E436005FD054 /* Swift */ = {
 			isa = PBXGroup;
 			children = (
+				58D9A79030946AD600B7B5A4 /* AppleServices */,
 				58C68CBE2E84E436005FD054 /* Activity */,
 				58C68CC12E84E436005FD054 /* AudioKit */,
 				58C68CD52E84E436005FD054 /* Authorization */,
@@ -3291,6 +3299,31 @@
 			path = UITableViewCell;
 			sourceTree = "<group>";
 		};
+		58D9A78F30946AAB00B7B5A4 /* AppleServices */ = {
+			isa = PBXGroup;
+			children = (
+				58D9A79130946B5500B7B5A4 /* WYAppleServicesObjC.swift */,
+			);
+			path = AppleServices;
+			sourceTree = "<group>";
+		};
+		58D9A79030946AD600B7B5A4 /* AppleServices */ = {
+			isa = PBXGroup;
+			children = (
+				58D9A79330946B5F00B7B5A4 /* WYAppleServices.swift */,
+				58D9A79D30946E0C00B7B5A4 /* PrivateImpl */,
+			);
+			path = AppleServices;
+			sourceTree = "<group>";
+		};
+		58D9A79D30946E0C00B7B5A4 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				58D9A79E30946E2000B7B5A4 /* WYAppleServices+Implementation.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
 		58EE236D2F874A350031D8BF /* MacroDefinition */ = {
 			isa = PBXGroup;
 			children = (
@@ -3626,6 +3659,7 @@
 				586523633051524A0002B284 /* WYPagingView+ScrollDelegate.swift in Sources */,
 				586523643051524A0002B284 /* WYPagingView+Layout.swift in Sources */,
 				58328C6E2FC938D600C0F556 /* WYScrollViewDidScrollSwizzler.swift in Sources */,
+				58D9A79F30946E2000B7B5A4 /* WYAppleServices+Implementation.swift in Sources */,
 				583E04F22E868138004F1034 /* WYColorObjC.swift in Sources */,
 				58C68DD92E84E436005FD054 /* WYTableView.swift in Sources */,
 				581D2E9130862303001C1B9E /* WYDanmakuViewObjC.swift in Sources */,
@@ -3668,6 +3702,7 @@
 				24397A41A7A0493D8AC83BC4 /* WYImageMarkerView.swift in Sources */,
 				587246513088BCCF0093EC33 /* WYAirBubbleView+Rendering.swift in Sources */,
 				581D2EBE30863E53001C1B9E /* WYVideoPlayerSnapshotTaker.swift in Sources */,
+				58D9A79430946B5F00B7B5A4 /* WYAppleServices.swift in Sources */,
 				CF080236B6634685A6318861 /* WYImageCropperView.swift in Sources */,
 				7B66B79DFD684ACE8B6652F7 /* WYImageEditor.swift in Sources */,
 				58D99B89309042D600B7B5A4 /* WYEventHandler+Implementation.swift in Sources */,
@@ -3800,6 +3835,7 @@
 				58C68E1D2E84E436005FD054 /* WYColor.swift in Sources */,
 				58C68E1E2E84E436005FD054 /* WYSpeechRecognitionAuthorization.swift in Sources */,
 				58328C962FC93CD000C0F556 /* WYLayoutAttributesForItemSwizzler.swift in Sources */,
+				58D9A79230946B5500B7B5A4 /* WYAppleServicesObjC.swift in Sources */,
 				58C68E1F2E84E436005FD054 /* WYChatPhotoCell.swift in Sources */,
 				58C68E202E84E436005FD054 /* WYStorage.swift in Sources */,
 				AD72FABA68B94803A54AC716 /* WYNetworkMonitor.swift in Sources */,

@@ -16,6 +16,12 @@ class WYMainController: UIViewController {
     }
     
     let cellItems: [ListItem] = [
+        ListItem(title: "eSIM安装唤起",
+                 controller: "WYTestESimController"),
+
+        ListItem(title: "系统服务唤起",
+                 controller: "WYTestAppleServicesController"),
+
         ListItem(title: "视频边下边播",
                  controller: "WYTestMediaCacheController"),
 

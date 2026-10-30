@@ -40,6 +40,12 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         items = @[
+            [[ListItem alloc] initWithTitle:@"eSIM安装唤起"
+                                 controller:@"WYTestESimController"],
+
+            [[ListItem alloc] initWithTitle:@"系统服务唤起"
+                                 controller:@"WYTestAppleServicesController"],
+
             [[ListItem alloc] initWithTitle:@"视频边下边播"
                                  controller:@"WYTestMediaCacheController"],
 

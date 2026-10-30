@@ -6,7 +6,7 @@ localizable_bundle = "#{kit_path}Swift/Localizable/WYLocalizable.bundle"
 
 Pod::Spec.new do |kit|
   kit.name         = "WYBasisKit-swift"
-  kit.version      = "26.10.1"
+  kit.version      = "26.10.2"
   kit.summary      = "WYBasisKit 不仅可以帮助开发者快速构建一个工程，还有基于常用网络框架和系统API而封装的各种实用方法、扩展，开发者只需简单的调用API就可以快速实现相应功能， 大幅提高开发效率。"
   kit.description  = <<-DESC
     Localizable: 国际化解决方案
@@ -27,6 +27,7 @@ Pod::Spec.new do |kit|
     PhotoBrowser: 图片浏览器(大图缩放浏览与缩放转场拖拽关闭，LivePhoto长按播放，视频封面点击播放回调)
     AudioKit: 音频录制与播放
     MethodSwizzler: 可按能力选择集成的方法交换工具
+    AppleServices: 苹果系统服务唤起(eSIM安装与LPA二维码、邮件、短信、电话、App Store、系统设置页，统一链接唤起与结果回调)
   DESC
   
   kit.homepage     = "https://github.com/aiguanren/WYBasisKit"
@@ -288,6 +289,16 @@ Pod::Spec.new do |kit|
       "#{kit_path}Swift/Cryptor/**/*.{swift,h,m}"
     ]
     cryptor.frameworks = "Foundation", "CryptoKit"
+  end
+
+  kit.subspec "AppleServices" do |appleServices|
+    appleServices.source_files = [
+      "#{kit_path}Swift/AppleServices/**/*.{swift,h,m}"
+    ]
+    appleServices.resources = [localizable_bundle]
+    appleServices.frameworks = "Foundation", "UIKit"
+    appleServices.dependency "WYBasisKit-swift/Extension"
+    appleServices.dependency "WYBasisKit-swift/Localizable"
   end
   
   kit.subspec "ImageEditor" do |imageEditor|

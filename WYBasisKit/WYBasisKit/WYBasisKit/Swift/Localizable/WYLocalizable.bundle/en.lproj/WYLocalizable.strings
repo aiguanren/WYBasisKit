@@ -181,3 +181,5 @@
 "本集结束" = "At Episode End";
 "清晰度" = "Quality";
 "仅支持下载点播视频" = "Only on-demand videos can be downloaded";
+
+"当前设备不支持 eSIM" = "This device does not support eSIM.";

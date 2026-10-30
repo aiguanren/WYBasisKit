@@ -181,3 +181,5 @@
 "本集结束" = "Jakson lopussa";
 "清晰度" = "Laatu";
 "仅支持下载点播视频" = "Vain tilausvideoita voi ladata";
+
+"当前设备不支持 eSIM" = "Tämä laite ei tue eSIM-iä.";
