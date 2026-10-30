@@ -15,6 +15,26 @@ class WYTestVisualController: UIViewController {
         super.viewDidAppear(animated)
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        cancelPendingVisualTask()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        for index in ovalDemoViews.indices {
+            let demoView = ovalDemoViews[index].view
+            if ovalDemoViews[index].bounds != demoView.bounds {
+                ovalDemoViews[index].bounds = demoView.bounds
+                demoView.wy_bezierPath(UIBezierPath(ovalIn: demoView.bounds.insetBy(dx: min(8, demoView.bounds.width / 2), dy: min(5, demoView.bounds.height / 2)))).wy_showVisual()
+            }
+        }
+    }
+
+    deinit {
+        pendingVisualTask?.cancel()
+    }
+
     /// 每个静态组合的标题和链式配置(标题显示在视觉区下方的外部标签上，不会被边框、圆角、阴影挡住)
     private let visualItems: [(title: String, make: (UIView) -> Void)] = [
         ("radius 10", { $0.wy_cornerRadius(10) }),
@@ -33,7 +53,7 @@ class WYTestVisualController: UIViewController {
         ("阴影 + radius 15", { $0.wy_shadowColor(.black).wy_shadowRadius(8).wy_shadowOpacity(0.6).wy_cornerRadius(15) }),
         ("阴影 + radius + border", { $0.wy_shadowColor(.black).wy_shadowRadius(8).wy_shadowOpacity(0.6).wy_cornerRadius(15).wy_borderWidth(5).wy_borderColor(.black) }),
         ("全叠加(渐变+圆角+边框+阴影)", { $0.wy_gradualColors([.orange, .red]).wy_cornerRadius(15).wy_borderWidth(5).wy_borderColor(.black).wy_shadowColor(.black).wy_shadowRadius(8).wy_shadowOpacity(0.6) }),
-        ("椭圆路径 + border 5 + 阴影", { $0.wy_bezierPath(UIBezierPath(ovalIn: CGRect(x: 8, y: 5, width: 155, height: 100))).wy_borderWidth(5).wy_borderColor(.purple).wy_shadowColor(.black).wy_shadowRadius(8).wy_shadowOpacity(0.6) }),
+        ("椭圆路径 + border 5 + 阴影", { $0.wy_bezierPath(UIBezierPath(ovalIn: $0.bounds.insetBy(dx: min(8, $0.bounds.width / 2), dy: min(5, $0.bounds.height / 2)))).wy_borderWidth(5).wy_borderColor(.purple).wy_shadowColor(.black).wy_shadowRadius(8).wy_shadowOpacity(0.6) }),
         ("指定位置边框 all 8", { $0.backgroundColor = UIColor.systemTeal }),
         ("阴影+半透明背景(保持轮廓)", { $0.backgroundColor = UIColor(white: 0.92, alpha: 0.5); $0.wy_shadowColor(.black).wy_shadowRadius(8).wy_shadowOpacity(0.6) }),
         ("阴影+子视图(轮廓随子视图)", { $0.backgroundColor = UIColor.clear; let icon = UIView(frame: CGRect(x: 25, y: 25, width: 100, height: 60)); icon.backgroundColor = UIColor.systemTeal; $0.addSubview(icon); $0.wy_shadowColor(.black).wy_shadowRadius(8).wy_shadowOpacity(0.6) }),
@@ -45,7 +65,7 @@ class WYTestVisualController: UIViewController {
         ("border 80超宽(内缩钳制)", { $0.backgroundColor = UIColor.systemTeal; $0.wy_borderWidth(80).wy_borderColor(.systemPurple) }),
         ("圆角裁图片", { $0.backgroundColor = UIColor.clear; let renderer = UIGraphicsImageRenderer(size: CGSize(width: 150, height: 90)); let image = renderer.image { context in UIColor.systemRed.setFill(); context.fill(CGRect(x: 0, y: 0, width: 75, height: 90)); UIColor.systemBlue.setFill(); context.fill(CGRect(x: 75, y: 0, width: 75, height: 90)) }; let imageView = UIImageView(image: image); imageView.frame = CGRect(x: 0, y: 0, width: 150, height: 90); imageView.contentMode = .scaleToFill; imageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]; $0.addSubview(imageView); $0.wy_cornerRadius(24) }),
         ("圆角裁子视图(左上角被裁圆)", { $0.backgroundColor = UIColor(white: 0.92, alpha: 1.0); let cornerSquare = UIView(frame: CGRect(x: 0, y: 0, width: 44, height: 44)); cornerSquare.backgroundColor = UIColor.systemRed; $0.addSubview(cornerSquare); let centerLabel = UILabel(); centerLabel.text = "内容"; centerLabel.textAlignment = .center; centerLabel.frame = CGRect(x: 30, y: 40, width: 100, height: 30); $0.addSubview(centerLabel); $0.wy_cornerRadius(20) }),
-        ("椭圆路径+渐变+阴影", { $0.wy_bezierPath(UIBezierPath(ovalIn: CGRect(x: 8, y: 5, width: 155, height: 100))).wy_gradualColors([.orange, .red]).wy_shadowColor(.black).wy_shadowRadius(8).wy_shadowOpacity(0.6) }),
+        ("椭圆路径+渐变+阴影", { $0.wy_bezierPath(UIBezierPath(ovalIn: $0.bounds.insetBy(dx: min(8, $0.bounds.width / 2), dy: min(5, $0.bounds.height / 2)))).wy_gradualColors([.orange, .red]).wy_shadowColor(.black).wy_shadowRadius(8).wy_shadowOpacity(0.6) }),
         ("渐变+部分圆角", { $0.wy_gradualColors([.orange, .red]).wy_cornerRadius(18).wy_rectCorner([.topLeft, .bottomRight]) }),
         ("单色渐变数组(不启用)", { $0.wy_gradualColors([.purple]) }),
         ("透明底+边框条+阴影(空心轮廓)", { $0.backgroundColor = UIColor.clear; $0.wy_addBorder(edges: .all, color: .black, thickness: 6); $0.wy_shadowColor(.black).wy_shadowRadius(8).wy_shadowOpacity(0.6) }),
@@ -65,7 +85,7 @@ class WYTestVisualController: UIViewController {
     private var isRotated: Bool = false
     private var isScaled: Bool = false
     private var isNarrow: Bool = false
-    private var shadowBlockHasRadius: Bool = false
+    private var shadowBlockRadius: CGFloat = 0
     private var shadowBlockBig: Bool = false
     private var extremeIndex: Int = 0
     private let extremeRadii: [CGFloat] = [-20, 8, 500]
@@ -75,6 +95,9 @@ class WYTestVisualController: UIViewController {
     private let shadowBlockChild = UIView(frame: CGRect(x: -24, y: 20, width: 60, height: 60))
     private let lateMountSlot = UIView()
     private let edgeThicknesses: [CGFloat] = [6, 14]
+    private var currentEdgeThicknesses: [CGFloat] = []
+    private var pendingVisualTask: Task<Void, Never>?
+    private var ovalDemoViews: [(view: UIView, bounds: CGRect)] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -120,6 +143,7 @@ class WYTestVisualController: UIViewController {
         contentStack.addArrangedSubview(makeDynamicArea())
         applyBigButtonVisual()
         applyShadowBlockVisual()
+        currentEdgeThicknesses = [edgeThicknesses[borderIndex]]
         bigButton.wy_addBorder(edges: .all, color: .magenta, thickness: edgeThicknesses[borderIndex])
         refreshStatus()
     }
@@ -139,6 +163,9 @@ class WYTestVisualController: UIViewController {
                 current.demoView.wy_addBorder(edges: .all, color: .magenta, thickness: 8)
             }else if current.item.title.hasPrefix("viewBounds") == false {
                 current.demoView.wy_makeVisual(current.item.make)
+                if current.item.title.hasPrefix("椭圆路径") {
+                    ovalDemoViews.append((view: current.demoView, bounds: .zero))
+                }
             }
         }
         return rowStack
@@ -293,14 +320,20 @@ class WYTestVisualController: UIViewController {
         shadowBlock.wy_shadowColor(.black).wy_shadowRadius(10).wy_shadowOpacity(0.6).wy_showVisual()
     }
 
+    private func cancelPendingVisualTask() {
+        pendingVisualTask?.cancel()
+        pendingVisualTask = nil
+    }
+
     private func refreshStatus() {
-        let edgeText = edgeBorderRemoved ? "已移除" : "厚度\(Int(edgeThicknesses[borderIndex]))"
+        let edgeText = edgeBorderRemoved ? "已移除" : "厚度\(currentEdgeThicknesses.map { String(Int($0)) }.joined(separator: "/"))"
         let transformText = isRotated ? "旋转45度" : (isScaled ? "缩放0.7" : "无形变")
-        let shadowText = "阴影块\(shadowBlockHasRadius ? "圆角" : "直角")x\(shadowBlockBig ? 150 : 100)\(shadowBlockHasChild ? "+子视图" : "")(极端半径\(Int(extremeRadii[extremeIndex])))"
+        let shadowText = "阴影块\(shadowBlockRadius > 0 ? "圆角" : "直角")x\(shadowBlockBig ? 150 : 100)\(shadowBlockHasChild ? "+子视图" : "")(半径\(Int(shadowBlockRadius)))"
         statusLabel.text = "已应用\(applyCount)次 · 指定边框\(edgeText) · 当前尺寸\(isNarrow ? "减宽" : "全宽")x\(isBigSize ? 150 : 110) · \(transformText) · \(isOffset ? "位移80" : "未位移") · \(shadowText)"
     }
 
     @objc private func toggleSize() {
+        cancelPendingVisualTask()
         isBigSize = !isBigSize
         // 验证动画同步:动画上下文里改约束并强制布局，view本体和圆角、边框、渐变、阴影应以相同时长一起过渡
         UIView.animate(withDuration: 0.25) {
@@ -313,6 +346,7 @@ class WYTestVisualController: UIViewController {
     }
 
     @objc private func togglePosition() {
+        cancelPendingVisualTask()
         isOffset = !isOffset
         // 验证位移同步:动画上下文里只改水平位置不改尺寸，渐变、边框、阴影背景视图应整体一起平移
         UIView.animate(withDuration: 0.4) {
@@ -325,6 +359,7 @@ class WYTestVisualController: UIViewController {
     }
 
     @objc private func toggleRotation() {
+        cancelPendingVisualTask()
         isRotated = !isRotated
         isScaled = false
         // 验证形变同步:transform旋转45度，圆角、边框、渐变是子图层天然跟着转，阴影背景视图靠库内部同步transform跟转
@@ -335,6 +370,7 @@ class WYTestVisualController: UIViewController {
     }
 
     @objc private func toggleScale() {
+        cancelPendingVisualTask()
         isScaled = !isScaled
         isRotated = false
         // 验证形变同步:transform整体缩放0.7，全部视觉图层应一起缩放不变形
@@ -345,6 +381,7 @@ class WYTestVisualController: UIViewController {
     }
 
     @objc private func toggleWidth() {
+        cancelPendingVisualTask()
         isNarrow = !isNarrow
         // 验证宽度跟随:动画上下文里只改宽度，左右边框、渐变、阴影路径应同时收缩不拉伸
         UIView.animate(withDuration: 0.25) {
@@ -357,6 +394,7 @@ class WYTestVisualController: UIViewController {
     }
 
     @objc private func snapSize() {
+        cancelPendingVisualTask()
         // 验证无动画直切:不在动画上下文里改尺寸，视觉图层应一步到位且不闪帧
         isBigSize = !isBigSize
         bigButton.snp.updateConstraints { make in
@@ -367,6 +405,7 @@ class WYTestVisualController: UIViewController {
     }
 
     @objc private func slowToggleSize() {
+        cancelPendingVisualTask()
         // 验证动画中断接力:2秒慢动画途中再点会反向，视觉图层应从当前屏显位置无缝接上不跳变
         isBigSize = !isBigSize
         UIView.animate(withDuration: 2.0) {
@@ -379,13 +418,15 @@ class WYTestVisualController: UIViewController {
     }
 
     @objc private func toggleShadowBlockRadius() {
-        shadowBlockHasRadius = !shadowBlockHasRadius
+        cancelPendingVisualTask()
+        shadowBlockRadius = shadowBlockRadius > 0 ? 0 : 20
         // 验证阴影挂载迁移:无圆角(阴影挂自身矩形shadowPath)和有圆角(阴影挂背景视图)来回切，不应出现双阴影、残影或闪烁
-        shadowBlock.wy_cornerRadius(shadowBlockHasRadius ? 20 : 0).wy_showVisual()
+        shadowBlock.wy_cornerRadius(shadowBlockRadius).wy_showVisual()
         refreshStatus()
     }
 
     @objc private func toggleShadowBlockSize() {
+        cancelPendingVisualTask()
         shadowBlockBig = !shadowBlockBig
         // 验证自身矩形shadowPath的动画同步:动画上下文里改高度，阴影应和本体同拍伸缩不跳变
         UIView.animate(withDuration: 0.45) {
@@ -398,18 +439,21 @@ class WYTestVisualController: UIViewController {
     }
 
     @objc private func cycleShadowBlockRadius() {
+        cancelPendingVisualTask()
         // 验证极端值钳制:负数、常规、超过短边一半的半径轮换，路径不畸形不崩溃，阴影挂载也跟着正确迁移
         extremeIndex = (extremeIndex + 1) % extremeRadii.count
-        shadowBlock.wy_cornerRadius(extremeRadii[extremeIndex]).wy_showVisual()
-        shadowBlockHasRadius = extremeRadii[extremeIndex] > 0
+        shadowBlockRadius = extremeRadii[extremeIndex]
+        shadowBlock.wy_cornerRadius(shadowBlockRadius).wy_showVisual()
         refreshStatus()
     }
 
     @objc private func clearAndReapplyNow() {
+        cancelPendingVisualTask()
         // 验证同帧清除重建(骚操作):清除后立刻重新应用，排队任务合并执行后效果应完整恢复不缺项(含指定位置边框，防重建后边框缺失被误判成库的问题)
         bigButton.wy_clearVisual()
         bigButton.wy_removeBorder(edges: .all)
         applyBigButtonVisual()
+        currentEdgeThicknesses = [edgeThicknesses[borderIndex]]
         bigButton.wy_addBorder(edges: .all, color: .magenta, thickness: edgeThicknesses[borderIndex])
         edgeBorderRemoved = false
         applyCount += 1
@@ -417,10 +461,12 @@ class WYTestVisualController: UIViewController {
     }
 
     @objc private func sameFrameEdgeBorders() {
+        cancelPendingVisualTask()
         // 验证同帧连设四条边(骚操作):四次调用应合并成一个任务、同一条边原地复用图层，最终四边各自厚度颜色正确且无闪烁
         sameFrameThick.toggle()
         let color: UIColor = sameFrameThick ? .systemBlue : .magenta
         let thickness: CGFloat = sameFrameThick ? 10 : 6
+        currentEdgeThicknesses = [thickness, thickness + 2, thickness + 4, thickness + 6]
         bigButton.wy_addBorder(edges: .top, color: color, thickness: thickness)
         bigButton.wy_addBorder(edges: .left, color: color, thickness: thickness + 2)
         bigButton.wy_addBorder(edges: .right, color: color, thickness: thickness + 4)
@@ -430,11 +476,12 @@ class WYTestVisualController: UIViewController {
     }
 
     @objc private func slowToggleAndReapply() {
+        cancelPendingVisualTask()
         // 验证动画中改配置重应用:2秒慢动画进行到一半时换边框宽度和渐变色再重新应用，各图层应从当前屏显位置无缝接力到新配置，不跳变不多出短动画
         slowToggleSize()
-        Task { [weak self] in
+        pendingVisualTask = Task { [weak self] in
             try? await Task.wy_delay(0.7, cancelThrows: false, onMain: { [weak self] in
-                guard let self = self else { return }
+                guard let self = self, Task<Never, Never>.isCancelled == false else { return }
                 self.midFlightThick.toggle()
                 self.bigButton.wy_borderWidth(self.midFlightThick ? 8 : 3).wy_gradualColors(self.midFlightThick ? [.orange, .red] : [.purple, .blue]).wy_showVisual()
                 self.applyCount += 1
@@ -444,6 +491,7 @@ class WYTestVisualController: UIViewController {
     }
 
     @objc private func clearOnly() {
+        cancelPendingVisualTask()
         // 验证纯清除:清除后不重建，视觉应完全回到裸视图(无mask无图层无阴影背景视图)，再点其它应用按钮能从零完整重建
         bigButton.wy_clearVisual()
         bigButton.wy_removeBorder(edges: .all)
@@ -452,6 +500,7 @@ class WYTestVisualController: UIViewController {
     }
 
     @objc private func toggleShadowBlockChild() {
+        cancelPendingVisualTask()
         // 验证矩形shadowPath和轮廓阴影的自动迁移(加子视图后重应用，内容不再铺满矩形应切回轮廓阴影，子视图伸出左边界时阴影形状跟着变宽，移除后重应用应切回矩形shadowPath，来回无残留)
         shadowBlockHasChild.toggle()
         if shadowBlockHasChild {
@@ -464,6 +513,7 @@ class WYTestVisualController: UIViewController {
     }
 
     @objc private func applyThenMount() {
+        cancelPendingVisualTask()
         // 验证先应用后上树(骚操作):视图还没加到父视图就调wy_showVisual，之后才加进槽位，全套视觉应完整生效(任务延后一拍取尺寸的设计)，且上树第一帧不应闪过无圆角的原始方块(同步预应用会先用空路径mask把原始背景藏住)
         lateMountSlot.subviews.forEach { $0.removeFromSuperview() }
         let lateView = UIView()
@@ -478,19 +528,24 @@ class WYTestVisualController: UIViewController {
     }
 
     @objc private func reapplyVisual() {
+        cancelPendingVisualTask()
         applyBigButtonVisual()
         applyCount += 1
         refreshStatus()
     }
 
     @objc private func clearAndReapply() {
+        cancelPendingVisualTask()
         bigButton.wy_clearVisual()
         bigButton.wy_removeBorder(edges: .all)
-        Task { [weak self] in
+        edgeBorderRemoved = true
+        refreshStatus()
+        pendingVisualTask = Task { [weak self] in
             try? await Task.wy_delay(0.6, cancelThrows: false, onMain: { [weak self] in
-                guard let self = self else { return }
+                guard let self = self, Task<Never, Never>.isCancelled == false else { return }
                 self.applyBigButtonVisual()
                 self.edgeBorderRemoved = false
+                self.currentEdgeThicknesses = [self.edgeThicknesses[self.borderIndex]]
                 self.bigButton.wy_addBorder(edges: .all, color: .magenta, thickness: self.edgeThicknesses[self.borderIndex])
                 self.applyCount += 1
                 self.refreshStatus()
@@ -499,13 +554,16 @@ class WYTestVisualController: UIViewController {
     }
 
     @objc private func cycleEdgeBorder() {
+        cancelPendingVisualTask()
         borderIndex = (borderIndex + 1) % edgeThicknesses.count
         edgeBorderRemoved = false
+        currentEdgeThicknesses = [edgeThicknesses[borderIndex]]
         bigButton.wy_addBorder(edges: .all, color: .magenta, thickness: edgeThicknesses[borderIndex])
         refreshStatus()
     }
 
     @objc private func removeEdgeBorder() {
+        cancelPendingVisualTask()
         edgeBorderRemoved = true
         bigButton.wy_removeBorder(edges: .all)
         refreshStatus()
