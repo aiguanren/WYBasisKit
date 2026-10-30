@@ -1297,7 +1297,8 @@ extension WYTestLiveStreamingController {
             ("目光所及，我如钻石般闪闪发光", "目光所及，我如钻石般闪闪发光"),
             ("美妖姐姐麾下全是呆瓜", "美妖姐姐麾下全是呆瓜"),
             ("这支舞，我只给你一个人跳", "这支舞，我只给你一个人跳"),
-            ("当舞蹈老师穿汉服跳舞会有多美《赤伶》", "当舞蹈老师穿汉服跳舞会有多美《赤伶》")]
+            ("当舞蹈老师穿汉服跳舞会有多美《赤伶》", "当舞蹈老师穿汉服跳舞会有多美《赤伶》"),
+            ("沙滩上比基尼美女打篮球", "沙滩上比基尼美女打篮球")]
         for localMedia in localMedias {
             if let path = Bundle.main.path(forResource: localMedia.file, ofType: "mp4") {
                 mediaList.append((localMedia.display, URL(fileURLWithPath: path).absoluteString))

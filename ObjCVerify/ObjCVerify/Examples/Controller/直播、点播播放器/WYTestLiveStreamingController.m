@@ -1413,7 +1413,8 @@
         @{@"name": @"目光所及，我如钻石般闪闪发光", @"file": @"目光所及，我如钻石般闪闪发光"},
         @{@"name": @"美妖姐姐麾下全是呆瓜", @"file": @"美妖姐姐麾下全是呆瓜"},
         @{@"name": @"这支舞，我只给你一个人跳", @"file": @"这支舞，我只给你一个人跳"},
-        @{@"name": @"当舞蹈老师穿汉服跳舞会有多美《赤伶》", @"file": @"当舞蹈老师穿汉服跳舞会有多美《赤伶》"}
+        @{@"name": @"当舞蹈老师穿汉服跳舞会有多美《赤伶》", @"file": @"当舞蹈老师穿汉服跳舞会有多美《赤伶》"},
+        @{@"name": @"沙滩上比基尼美女打篮球", @"file": @"沙滩上比基尼美女打篮球"}
     ];
     NSMutableArray<NSDictionary *> *mediaList = [self.mediaList mutableCopy];
     for (NSDictionary *localMedia in localMedias) {
