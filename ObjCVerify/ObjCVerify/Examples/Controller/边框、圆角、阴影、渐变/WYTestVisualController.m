@@ -27,12 +27,15 @@ typedef void(^WYVisualMakeBlock)(UIView *make);
 @property (nonatomic, assign) BOOL isRotated;
 @property (nonatomic, assign) BOOL isScaled;
 @property (nonatomic, assign) BOOL isNarrow;
-@property (nonatomic, assign) BOOL shadowBlockHasRadius;
+@property (nonatomic, assign) CGFloat shadowBlockRadius;
 @property (nonatomic, assign) BOOL shadowBlockBig;
 @property (nonatomic, assign) BOOL shadowBlockHasChild;
 @property (nonatomic, assign) BOOL sameFrameThick;
 @property (nonatomic, assign) BOOL midFlightThick;
 @property (nonatomic, assign) NSInteger extremeIndex;
+@property (nonatomic, assign) NSUInteger visualOperationGeneration;
+@property (nonatomic, copy) NSArray<NSNumber *> *currentEdgeThicknesses;
+@property (nonatomic, strong) NSMapTable<UIView *, NSValue *> *ovalDemoBounds;
 
 @end
 
@@ -42,9 +45,26 @@ typedef void(^WYVisualMakeBlock)(UIView *make);
     [super viewDidAppear:animated];
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    self.visualOperationGeneration += 1;
+}
+
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    for (UIView *demoView in self.ovalDemoBounds.keyEnumerator.allObjects) {
+        CGRect previousBounds = [self.ovalDemoBounds objectForKey:demoView].CGRectValue;
+        if (CGRectEqualToRect(previousBounds, demoView.bounds) == NO) {
+            [self.ovalDemoBounds setObject:[NSValue valueWithCGRect:demoView.bounds] forKey:demoView];
+            demoView.wy_bezierPath([UIBezierPath bezierPathWithOvalInRect:CGRectInset(demoView.bounds, MIN(8, CGRectGetWidth(demoView.bounds) / 2), MIN(5, CGRectGetHeight(demoView.bounds) / 2))]).wy_showVisual();
+        }
+    }
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
 
+    self.ovalDemoBounds = [NSMapTable strongToStrongObjectsMapTable];
     self.view.backgroundColor = [UIColor whiteColor];
     self.navigationItem.title = @"边框、圆角、阴影、渐变";
 
@@ -90,6 +110,7 @@ typedef void(^WYVisualMakeBlock)(UIView *make);
     [contentStack addArrangedSubview:[self makeDynamicArea]];
     [self applyBigButtonVisual];
     [self applyShadowBlockVisual];
+    self.currentEdgeThicknesses = @[@([self currentEdgeThickness])];
     [self.bigButton wy_addBorder:UIRectEdgeAll color:[UIColor magentaColor] thickness:[self currentEdgeThickness]];
     [self refreshStatus];
 }
@@ -113,7 +134,7 @@ typedef void(^WYVisualMakeBlock)(UIView *make);
         @{@"title": @"阴影 + radius 15", @"make": ^(UIView *make) { make.wy_shadowColor([UIColor blackColor]).wy_shadowRadius(8).wy_shadowOpacity(0.6).wy_cornerRadius(15); }},
         @{@"title": @"阴影 + radius + border", @"make": ^(UIView *make) { make.wy_shadowColor([UIColor blackColor]).wy_shadowRadius(8).wy_shadowOpacity(0.6).wy_cornerRadius(15).wy_borderWidth(5).wy_borderColor([UIColor blackColor]); }},
         @{@"title": @"全叠加(渐变+圆角+边框+阴影)", @"make": ^(UIView *make) { make.wy_gradualColors(@[[UIColor orangeColor], [UIColor redColor]]).wy_cornerRadius(15).wy_borderWidth(5).wy_borderColor([UIColor blackColor]).wy_shadowColor([UIColor blackColor]).wy_shadowRadius(8).wy_shadowOpacity(0.6); }},
-        @{@"title": @"椭圆路径 + border 5 + 阴影", @"make": ^(UIView *make) { make.wy_bezierPath([UIBezierPath bezierPathWithOvalInRect:CGRectMake(8, 5, 155, 100)]).wy_borderWidth(5).wy_borderColor([UIColor purpleColor]).wy_shadowColor([UIColor blackColor]).wy_shadowRadius(8).wy_shadowOpacity(0.6); }},
+        @{@"title": @"椭圆路径 + border 5 + 阴影", @"make": ^(UIView *make) { make.wy_bezierPath([UIBezierPath bezierPathWithOvalInRect:CGRectInset(make.bounds, MIN(8, CGRectGetWidth(make.bounds) / 2), MIN(5, CGRectGetHeight(make.bounds) / 2))]).wy_borderWidth(5).wy_borderColor([UIColor purpleColor]).wy_shadowColor([UIColor blackColor]).wy_shadowRadius(8).wy_shadowOpacity(0.6); }},
         @{@"title": @"指定位置边框 all 8", @"make": ^(UIView *make) { make.backgroundColor = [UIColor systemTealColor]; }},
         @{@"title": @"阴影+半透明背景(保持轮廓)", @"make": ^(UIView *make) { make.backgroundColor = [UIColor colorWithWhite:0.92 alpha:0.5]; make.wy_shadowColor([UIColor blackColor]).wy_shadowRadius(8).wy_shadowOpacity(0.6); }},
         @{@"title": @"阴影+子视图(轮廓随子视图)", @"make": ^(UIView *make) {
@@ -159,7 +180,7 @@ typedef void(^WYVisualMakeBlock)(UIView *make);
             [make addSubview:centerLabel];
             make.wy_cornerRadius(20);
         }},
-        @{@"title": @"椭圆路径+渐变+阴影", @"make": ^(UIView *make) { make.wy_bezierPath([UIBezierPath bezierPathWithOvalInRect:CGRectMake(8, 5, 155, 100)]).wy_gradualColors(@[[UIColor orangeColor], [UIColor redColor]]).wy_shadowColor([UIColor blackColor]).wy_shadowRadius(8).wy_shadowOpacity(0.6); }},
+        @{@"title": @"椭圆路径+渐变+阴影", @"make": ^(UIView *make) { make.wy_bezierPath([UIBezierPath bezierPathWithOvalInRect:CGRectInset(make.bounds, MIN(8, CGRectGetWidth(make.bounds) / 2), MIN(5, CGRectGetHeight(make.bounds) / 2))]).wy_gradualColors(@[[UIColor orangeColor], [UIColor redColor]]).wy_shadowColor([UIColor blackColor]).wy_shadowRadius(8).wy_shadowOpacity(0.6); }},
         @{@"title": @"渐变+部分圆角", @"make": ^(UIView *make) { make.wy_gradualColors(@[[UIColor orangeColor], [UIColor redColor]]).wy_cornerRadius(18).wy_rectCorner(UIRectCornerTopLeft | UIRectCornerBottomRight); }},
         @{@"title": @"单色渐变数组(不启用)", @"make": ^(UIView *make) { make.wy_gradualColors(@[[UIColor purpleColor]]); }},
         @{@"title": @"透明底+边框条+阴影(空心轮廓)", @"make": ^(UIView *make) {
@@ -202,6 +223,9 @@ typedef void(^WYVisualMakeBlock)(UIView *make);
         }else if ([title hasPrefix:@"viewBounds"] == NO) {
             WYVisualMakeBlock makeBlock = item[@"make"];
             [demoView wy_makeVisual:makeBlock];
+            if ([title hasPrefix:@"椭圆路径"]) {
+                [self.ovalDemoBounds setObject:[NSValue valueWithCGRect:CGRectZero] forKey:demoView];
+            }
         }
     }
     return rowStack;
@@ -400,14 +424,15 @@ typedef void(^WYVisualMakeBlock)(UIView *make);
 }
 
 - (void)refreshStatus {
-    NSString *edgeText = self.edgeBorderRemoved ? @"已移除" : [NSString stringWithFormat:@"厚度%.0f", self.currentEdgeThickness];
+    NSString *edgeText = self.edgeBorderRemoved ? @"已移除" : [NSString stringWithFormat:@"厚度%@", [self.currentEdgeThicknesses componentsJoinedByString:@"/"]];
     NSString *transformText = self.isRotated ? @"旋转45度" : (self.isScaled ? @"缩放0.7" : @"无形变");
     NSString *sizeText = [NSString stringWithFormat:@"%@x%@", self.isNarrow ? @"减宽" : @"全宽", self.isBigSize ? @"150" : @"110"];
-    NSString *shadowText = [NSString stringWithFormat:@"阴影块%@x%ld%@(极端半径%.0f)", self.shadowBlockHasRadius ? @"圆角" : @"直角", (long)(self.shadowBlockBig ? 150 : 100), self.shadowBlockHasChild ? @"+子视图" : @"", self.currentExtremeRadius];
+    NSString *shadowText = [NSString stringWithFormat:@"阴影块%@x%ld%@(半径%.0f)", self.shadowBlockRadius > 0 ? @"圆角" : @"直角", (long)(self.shadowBlockBig ? 150 : 100), self.shadowBlockHasChild ? @"+子视图" : @"", self.shadowBlockRadius];
     self.statusLabel.text = [NSString stringWithFormat:@"已应用%ld次 · 指定边框%@ · 当前尺寸%@ · %@ · %@ · %@", (long)self.applyCount, edgeText, sizeText, transformText, self.isOffset ? @"位移80" : @"未位移", shadowText];
 }
 
 - (void)toggleSize {
+    self.visualOperationGeneration += 1;
     self.isBigSize = !self.isBigSize;
     // 验证动画同步:动画上下文里改约束并强制布局，view本体和圆角、边框、渐变、阴影应以相同时长一起过渡
     [UIView animateWithDuration:0.25 animations:^{
@@ -420,6 +445,7 @@ typedef void(^WYVisualMakeBlock)(UIView *make);
 }
 
 - (void)togglePosition {
+    self.visualOperationGeneration += 1;
     self.isOffset = !self.isOffset;
     // 验证位移同步:动画上下文里只改水平位置不改尺寸，渐变、边框、阴影背景视图应整体一起平移
     [UIView animateWithDuration:0.4 animations:^{
@@ -432,6 +458,7 @@ typedef void(^WYVisualMakeBlock)(UIView *make);
 }
 
 - (void)toggleRotation {
+    self.visualOperationGeneration += 1;
     self.isRotated = !self.isRotated;
     self.isScaled = NO;
     // 验证形变同步:transform旋转45度，圆角、边框、渐变是子图层天然跟着转，阴影背景视图靠库内部同步transform跟转
@@ -442,6 +469,7 @@ typedef void(^WYVisualMakeBlock)(UIView *make);
 }
 
 - (void)toggleScale {
+    self.visualOperationGeneration += 1;
     self.isScaled = !self.isScaled;
     self.isRotated = NO;
     // 验证形变同步:transform整体缩放0.7，全部视觉图层应一起缩放不变形
@@ -452,6 +480,7 @@ typedef void(^WYVisualMakeBlock)(UIView *make);
 }
 
 - (void)toggleWidth {
+    self.visualOperationGeneration += 1;
     self.isNarrow = !self.isNarrow;
     // 验证宽度跟随:动画上下文里只改宽度，左右边框、渐变、阴影路径应同时收缩不拉伸
     [UIView animateWithDuration:0.25 animations:^{
@@ -464,6 +493,7 @@ typedef void(^WYVisualMakeBlock)(UIView *make);
 }
 
 - (void)snapSize {
+    self.visualOperationGeneration += 1;
     // 验证无动画直切:不在动画上下文里改尺寸，视觉图层应一步到位且不闪帧
     self.isBigSize = !self.isBigSize;
     [self.bigButton mas_updateConstraints:^(MASConstraintMaker *make) {
@@ -474,6 +504,7 @@ typedef void(^WYVisualMakeBlock)(UIView *make);
 }
 
 - (void)slowToggleSize {
+    self.visualOperationGeneration += 1;
     // 验证动画中断接力:2秒慢动画途中再点会反向，视觉图层应从当前屏显位置无缝接上不跳变
     self.isBigSize = !self.isBigSize;
     [UIView animateWithDuration:2.0 animations:^{
@@ -486,17 +517,26 @@ typedef void(^WYVisualMakeBlock)(UIView *make);
 }
 
 - (void)reapplyVisual {
+    self.visualOperationGeneration += 1;
     [self applyBigButtonVisual];
     self.applyCount += 1;
     [self refreshStatus];
 }
 
 - (void)clearAndReapply {
+    self.visualOperationGeneration += 1;
     [self.bigButton wy_clearVisual]();
     [self.bigButton wy_removeBorder:UIRectEdgeAll];
+    self.edgeBorderRemoved = YES;
+    [self refreshStatus];
+    NSUInteger generation = self.visualOperationGeneration;
+    __weak typeof(self) weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.6 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        __strong typeof(weakSelf) self = weakSelf;
+        if (self == nil || self.visualOperationGeneration != generation) { return; }
         [self applyBigButtonVisual];
         self.edgeBorderRemoved = NO;
+        self.currentEdgeThicknesses = @[@([self currentEdgeThickness])];
         [self.bigButton wy_addBorder:UIRectEdgeAll color:[UIColor magentaColor] thickness:self.currentEdgeThickness];
         self.applyCount += 1;
         [self refreshStatus];
@@ -504,26 +544,31 @@ typedef void(^WYVisualMakeBlock)(UIView *make);
 }
 
 - (void)cycleEdgeBorder {
+    self.visualOperationGeneration += 1;
     self.borderIndex = (self.borderIndex + 1) % self.edgeThicknesses.count;
     self.edgeBorderRemoved = NO;
+    self.currentEdgeThicknesses = @[@([self currentEdgeThickness])];
     [self.bigButton wy_addBorder:UIRectEdgeAll color:[UIColor magentaColor] thickness:self.currentEdgeThickness];
     [self refreshStatus];
 }
 
 - (void)removeEdgeBorder {
+    self.visualOperationGeneration += 1;
     self.edgeBorderRemoved = YES;
     [self.bigButton wy_removeBorder:UIRectEdgeAll];
     [self refreshStatus];
 }
 
 - (void)toggleShadowBlockRadius {
-    self.shadowBlockHasRadius = !self.shadowBlockHasRadius;
+    self.visualOperationGeneration += 1;
+    self.shadowBlockRadius = self.shadowBlockRadius > 0 ? 0 : 20;
     // 验证阴影挂载迁移:无圆角(阴影挂自身矩形shadowPath)和有圆角(阴影挂背景视图)来回切，不应出现双阴影、残影或闪烁
-    self.shadowBlock.wy_cornerRadius(self.shadowBlockHasRadius ? 20 : 0).wy_showVisual();
+    self.shadowBlock.wy_cornerRadius(self.shadowBlockRadius).wy_showVisual();
     [self refreshStatus];
 }
 
 - (void)toggleShadowBlockSize {
+    self.visualOperationGeneration += 1;
     self.shadowBlockBig = !self.shadowBlockBig;
     // 验证自身矩形shadowPath的动画同步:动画上下文里改高度，阴影应和本体同拍伸缩不跳变
     [UIView animateWithDuration:0.45 animations:^{
@@ -536,18 +581,21 @@ typedef void(^WYVisualMakeBlock)(UIView *make);
 }
 
 - (void)cycleShadowBlockRadius {
+    self.visualOperationGeneration += 1;
     // 验证极端值钳制:负数、常规、超过短边一半的半径轮换，路径不畸形不崩溃，阴影挂载也跟着正确迁移
     self.extremeIndex = (self.extremeIndex + 1) % self.extremeRadii.count;
-    self.shadowBlock.wy_cornerRadius([self currentExtremeRadius]).wy_showVisual();
-    self.shadowBlockHasRadius = [self currentExtremeRadius] > 0;
+    self.shadowBlockRadius = [self currentExtremeRadius];
+    self.shadowBlock.wy_cornerRadius(self.shadowBlockRadius).wy_showVisual();
     [self refreshStatus];
 }
 
 - (void)clearAndReapplyNow {
+    self.visualOperationGeneration += 1;
     // 验证同帧清除重建(骚操作):清除后立刻重新应用，排队任务合并执行后效果应完整恢复不缺项(含指定位置边框，防重建后边框缺失被误判成库的问题)
     [self.bigButton wy_clearVisual]();
     [self.bigButton wy_removeBorder:UIRectEdgeAll];
     [self applyBigButtonVisual];
+    self.currentEdgeThicknesses = @[@([self currentEdgeThickness])];
     [self.bigButton wy_addBorder:UIRectEdgeAll color:[UIColor magentaColor] thickness:[self currentEdgeThickness]];
     self.edgeBorderRemoved = NO;
     self.applyCount += 1;
@@ -555,9 +603,14 @@ typedef void(^WYVisualMakeBlock)(UIView *make);
 }
 
 - (void)slowToggleAndReapply {
+    self.visualOperationGeneration += 1;
     // 验证动画中改配置重应用:2秒慢动画进行到一半时换边框宽度和渐变色再重新应用，各图层应从当前屏显位置无缝接力到新配置，不跳变不多出短动画
     [self slowToggleSize];
+    NSUInteger generation = self.visualOperationGeneration;
+    __weak typeof(self) weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.7 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        __strong typeof(weakSelf) self = weakSelf;
+        if (self == nil || self.visualOperationGeneration != generation) { return; }
         self.midFlightThick = !self.midFlightThick;
         self.bigButton.wy_borderWidth(self.midFlightThick ? 8 : 3).wy_gradualColors(self.midFlightThick ? @[[UIColor orangeColor], [UIColor redColor]] : @[[UIColor purpleColor], [UIColor blueColor]]).wy_showVisual();
         self.applyCount += 1;
@@ -566,10 +619,12 @@ typedef void(^WYVisualMakeBlock)(UIView *make);
 }
 
 - (void)sameFrameEdgeBorders {
+    self.visualOperationGeneration += 1;
     // 验证同帧连设四条边(骚操作):四次调用应合并成一个任务、同一条边原地复用图层，最终四边各自厚度颜色正确且无闪烁
     self.sameFrameThick = !self.sameFrameThick;
     UIColor *color = self.sameFrameThick ? [UIColor systemBlueColor] : [UIColor magentaColor];
     CGFloat thickness = self.sameFrameThick ? 10 : 6;
+    self.currentEdgeThicknesses = @[@(thickness), @(thickness + 2), @(thickness + 4), @(thickness + 6)];
     [self.bigButton wy_addBorder:UIRectEdgeTop color:color thickness:thickness];
     [self.bigButton wy_addBorder:UIRectEdgeLeft color:color thickness:thickness + 2];
     [self.bigButton wy_addBorder:UIRectEdgeRight color:color thickness:thickness + 4];
@@ -579,6 +634,7 @@ typedef void(^WYVisualMakeBlock)(UIView *make);
 }
 
 - (void)clearOnly {
+    self.visualOperationGeneration += 1;
     // 验证纯清除:清除后不重建，视觉应完全回到裸视图(无mask无图层无阴影背景视图)，再点其它应用按钮能从零完整重建
     [self.bigButton wy_clearVisual]();
     [self.bigButton wy_removeBorder:UIRectEdgeAll];
@@ -587,6 +643,7 @@ typedef void(^WYVisualMakeBlock)(UIView *make);
 }
 
 - (void)toggleShadowBlockChild {
+    self.visualOperationGeneration += 1;
     // 验证矩形shadowPath和轮廓阴影的自动迁移(加子视图后重应用，内容不再铺满矩形应切回轮廓阴影，子视图伸出左边界时阴影形状跟着变宽，移除后重应用应切回矩形shadowPath，来回无残留)
     self.shadowBlockHasChild = !self.shadowBlockHasChild;
     if (self.shadowBlockHasChild) {
@@ -599,6 +656,7 @@ typedef void(^WYVisualMakeBlock)(UIView *make);
 }
 
 - (void)applyThenMount {
+    self.visualOperationGeneration += 1;
     // 验证先应用后上树(骚操作):视图还没加到父视图就调wy_showVisual，之后才加进槽位，全套视觉应完整生效(任务延后一拍取尺寸的设计)，且上树第一帧不应闪过无圆角的原始方块(同步预应用会先用空路径mask把原始背景藏住)
     for (UIView *subview in self.lateMountSlot.subviews) {
         [subview removeFromSuperview];
