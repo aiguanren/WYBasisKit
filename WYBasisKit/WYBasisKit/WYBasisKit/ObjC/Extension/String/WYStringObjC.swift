@@ -347,6 +347,22 @@ import WYBasisKitSwift
     }
     
     /**
+     时间戳转年月日格式
+     @param dateFormat 要转换的格式
+     @param showAmPmSymbol 是否显示上午下午，为true时为12小时制，否则为24小时制
+     @param timestampMode 时间戳单位，nil时按数值大小自动推断，已知单位时应明确指定（此入口须指定单位，自动推断使用不带Mode的入口）
+     @param customFormat 仅dateFormat为custom时传入自定义格式，其余传nil
+     @return 格式化后的日期，时间戳无效或超出允许日期范围时返回空字符串
+     */
+    @objc(wy_timestampConvertDateWithMode)
+    var wy_timestampConvertDateWithModeObjC: @convention(block) (_ dateFormat: WYTimeFormatObjC, _ showAmPmSymbol: Bool, _ timestampMode: WYTimestampModeObjC, _ customFormat: String?) -> String {
+        return { dateFormat, showAmPmSymbol, timestampMode, customFormat in
+            guard let mode = WYTimestampMode(rawValue: timestampMode.rawValue) else { return "" }
+            return (self as String).wy_timestampConvertDate(self.wy_convertObjCTimeFormatToSwift(dateFormat, customFormat), showAmPmSymbol, timestampMode: mode)
+        }
+    }
+
+    /**
      *  年月日格式转时间戳
      *  dateFormat 要转换的格式
      *  customFormat 仅dateFormat为custom时才需要传(如"yyyy-MM-dd HH:mm:ss")，其余传nil就行
@@ -381,6 +397,19 @@ import WYBasisKitSwift
     }
     
     /**
+     时间戳转星期几
+     @param timestampMode 时间戳单位，nil时按数值大小自动推断，已知单位时应明确指定（此入口须指定单位，自动推断使用不带Mode的入口）
+     @return 星期几，时间戳无效或超出允许日期范围时返回unknown
+     */
+    @objc(wy_whatDayWithMode)
+    var wy_whatDayWithModeObjC: @convention(block) (_ timestampMode: WYTimestampModeObjC) -> WYWhatDayObjC {
+        return { timestampMode in
+            guard let mode = WYTimestampMode(rawValue: timestampMode.rawValue) else { return .unknown }
+            return WYWhatDayObjC(rawValue: (self as String).wy_whatDay(timestampMode: mode).rawValue) ?? .unknown
+        }
+    }
+
+    /**
      *  计算两个时间戳之间的间隔周期(适用于IM项目)
      *  messageTimestamp  消息对应的时间戳
      *  clientTimestamp 客户端时间戳(当前的网络时间戳或者设备本地的时间戳)
@@ -393,6 +422,24 @@ import WYBasisKitSwift
         return WYTimeDistanceObjC(rawValue: timeDistance.rawValue) ?? .unknown
     }
     
+    /**
+     计算两个时间戳之间的间隔周期(适用于IM项目)
+     @param timestamp 消息对应的时间戳
+     @param clientTimestamp 客户端时间戳，默认为设备当前秒级时间戳（此入口须传入客户端时间戳）
+     @param timestampMode 消息时间戳单位，nil时按数值大小自动推断，已知单位时应明确指定（此入口须指定单位，自动推断使用不带Modes的入口）
+     @param clientTimestampMode 客户端时间戳单位，nil时按数值大小自动推断，已知单位时应明确指定（此入口须指定单位，自动推断使用不带Modes的入口）
+     @return 间隔周期，任一时间戳无效或超出允许日期范围时返回unknown
+     */
+    @objc(wy_timeIntervalCycleWithModes)
+    static var wy_timeIntervalCycleWithModesObjC: @convention(block) (_ timestamp: String, _ clientTimestamp: String, _ timestampMode: WYTimestampModeObjC, _ clientTimestampMode: WYTimestampModeObjC) -> WYTimeDistanceObjC {
+        return { timestamp, clientTimestamp, timestampMode, clientTimestampMode in
+            guard let mode = WYTimestampMode(rawValue: timestampMode.rawValue),
+                  let clientMode = WYTimestampMode(rawValue: clientTimestampMode.rawValue) else { return .unknown }
+            let distance = String.wy_timeIntervalCycle(timestamp, clientTimestamp, timestampMode: mode, clientTimestampMode: clientMode)
+            return WYTimeDistanceObjC(rawValue: distance.rawValue) ?? .unknown
+        }
+    }
+
     /**
      *  时间戳距离现在的间隔时间
      *  dateFormat 要转换的格式
@@ -407,6 +454,21 @@ import WYBasisKitSwift
         return (self as String).wy_dateDifferenceWithNowTimer(wy_convertObjCTimeFormatToSwift(dateFormat, customFormat))
     }
     
+    /**
+     时间戳距离现在的间隔时间
+     @param dateFormat 间隔较长时显示的日期格式
+     @param timestampMode 时间戳单位，nil时按数值大小自动推断，已知单位时应明确指定（此入口须指定单位，自动推断使用不带Mode的入口）
+     @param customFormat 仅dateFormat为custom时传入自定义格式，其余传nil
+     @return 间隔时间，时间戳无效或超出允许日期范围时返回空字符串
+     */
+    @objc(wy_dateDifferenceWithNowTimerWithMode)
+    var wy_dateDifferenceWithNowTimerWithModeObjC: @convention(block) (_ dateFormat: WYTimeFormatObjC, _ timestampMode: WYTimestampModeObjC, _ customFormat: String?) -> String {
+        return { dateFormat, timestampMode, customFormat in
+            guard let mode = WYTimestampMode(rawValue: timestampMode.rawValue) else { return "" }
+            return (self as String).wy_dateDifferenceWithNowTimer(self.wy_convertObjCTimeFormatToSwift(dateFormat, customFormat), timestampMode: mode)
+        }
+    }
+
     /**
      从字符串中提取数字（支持可选前缀、千分位、小数）
 
@@ -457,6 +519,20 @@ import WYBasisKitSwift
     @objc(wy_convertToConstellation:)
     static func wy_convertToConstellationObjC(_ timestamp: String) -> WYConstellationObjC {
         return WYConstellationObjC(rawValue: String.wy_convertToConstellation(timestamp).rawValue) ?? .unknown
+    }
+
+    /**
+     时间戳转星座
+     @param timestamp 时间戳字符串
+     @param timestampMode 时间戳单位，nil时按数值大小自动推断，已知单位时应明确指定（此入口须指定单位，自动推断使用不带Mode的入口）
+     @return 星座，时间戳无效或超出允许日期范围时返回unknown
+     */
+    @objc(wy_convertToConstellationWithMode)
+    static var wy_convertToConstellationWithModeObjC: @convention(block) (_ timestamp: String, _ timestampMode: WYTimestampModeObjC) -> WYConstellationObjC {
+        return { timestamp, timestampMode in
+            guard let mode = WYTimestampMode(rawValue: timestampMode.rawValue) else { return .unknown }
+            return WYConstellationObjC(rawValue: String.wy_convertToConstellation(timestamp, timestampMode: mode).rawValue) ?? .unknown
+        }
     }
 }
 

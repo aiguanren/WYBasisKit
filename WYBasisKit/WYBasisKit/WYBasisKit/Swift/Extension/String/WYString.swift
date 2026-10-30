@@ -607,11 +607,22 @@ public extension String {
      *  showAmPmSymbol 是否显示上午下午，为true时为12小时制，否则为24小时制
      */
     func wy_timestampConvertDate(_ dateFormat: WYTimeFormat, _ showAmPmSymbol: Bool = false) -> String {
+        return wy_timestampConvertDate(dateFormat, showAmPmSymbol, timestampMode: nil)
+    }
+
+    /**
+     时间戳转年月日格式
+     @param dateFormat 要转换的格式
+     @param showAmPmSymbol 是否显示上午下午，为true时为12小时制，否则为24小时制
+     @param timestampMode 时间戳单位，nil时按数值大小自动推断，已知单位时应明确指定
+     @return 格式化后的日期，时间戳无效或超出允许日期范围时返回空字符串
+     */
+    func wy_timestampConvertDate(_ dateFormat: WYTimeFormat, _ showAmPmSymbol: Bool = false, timestampMode: WYTimestampMode?) -> String {
         
         guard !self.isEmpty else { return "" }
         
         // 转为秒级时间戳
-        guard let timestamp = wy_normalizedTimestamp() else { return "" }
+        guard let timestamp = wy_normalizedTimestamp(timestampMode) else { return "" }
         
         let date = Date(timeIntervalSince1970: timestamp)
         
@@ -665,9 +676,18 @@ public extension String {
     
     /// 时间戳转星期几
     var wy_whatDay: WYWhatDay {
+        return wy_whatDay(timestampMode: nil)
+    }
+
+    /**
+     时间戳转星期几
+     @param timestampMode 时间戳单位，nil时按数值大小自动推断，已知单位时应明确指定
+     @return 星期几，时间戳无效或超出允许日期范围时返回unknown
+     */
+    func wy_whatDay(timestampMode: WYTimestampMode?) -> WYWhatDay {
         
         // 转换为秒级时间戳
-        guard let timeInterval = wy_normalizedTimestamp() else { return .unknown }
+        guard let timeInterval = wy_normalizedTimestamp(timestampMode) else { return .unknown }
         
         let date = Date(timeIntervalSince1970: timeInterval)
         
@@ -686,9 +706,21 @@ public extension String {
      *  clientTimestamp 客户端时间戳(当前的网络时间戳或者设备本地的时间戳)
      */
     static func wy_timeIntervalCycle(_ timestamp: String, _ clientTimestamp: String = wy_sharedDeviceTimestamp()) -> WYTimeDistance {
+        return wy_timeIntervalCycle(timestamp, clientTimestamp, timestampMode: nil, clientTimestampMode: nil)
+    }
+
+    /**
+     计算两个时间戳之间的间隔周期(适用于IM项目)
+     @param timestamp 消息对应的时间戳
+     @param clientTimestamp 客户端时间戳，默认为设备当前秒级时间戳
+     @param timestampMode 消息时间戳单位，nil时按数值大小自动推断，已知单位时应明确指定
+     @param clientTimestampMode 客户端时间戳单位，nil时按数值大小自动推断，已知单位时应明确指定
+     @return 间隔周期，任一时间戳无效或超出允许日期范围时返回unknown
+     */
+    static func wy_timeIntervalCycle(_ timestamp: String, _ clientTimestamp: String = wy_sharedDeviceTimestamp(), timestampMode: WYTimestampMode?, clientTimestampMode: WYTimestampMode? = nil) -> WYTimeDistance {
         
-        guard let msg = timestamp.wy_normalizedTimestamp(),
-              let client = clientTimestamp.wy_normalizedTimestamp() else {
+        guard let msg = timestamp.wy_normalizedTimestamp(timestampMode),
+              let client = clientTimestamp.wy_normalizedTimestamp(clientTimestampMode) else {
             return .unknown
         }
         let calendar = Calendar.current
@@ -716,12 +748,22 @@ public extension String {
      *  dateFormat 要转换的格式
      */
     func wy_dateDifferenceWithNowTimer(_ dateFormat: WYTimeFormat) -> String {
+        return wy_dateDifferenceWithNowTimer(dateFormat, timestampMode: nil)
+    }
+
+    /**
+     时间戳距离现在的间隔时间
+     @param dateFormat 间隔较长时显示的日期格式
+     @param timestampMode 时间戳单位，nil时按数值大小自动推断，已知单位时应明确指定
+     @return 间隔时间，时间戳无效或超出允许日期范围时返回空字符串
+     */
+    func wy_dateDifferenceWithNowTimer(_ dateFormat: WYTimeFormat, timestampMode: WYTimestampMode?) -> String {
         
         // 当前时间戳（秒级）
         let currentTime = Date().timeIntervalSince1970
         
         // 转换传入的时间戳为秒级
-        guard let computingTime = wy_normalizedTimestamp() else { return "" }
+        guard let computingTime = wy_normalizedTimestamp(timestampMode) else { return "" }
         
         // 距离当前的时间差（秒）
         let timeDifference = Int(currentTime - computingTime)
@@ -758,7 +800,7 @@ public extension String {
         if years < 3 {
             return String(format: WYLocalized("X年前", table: WYBasisKitConfig.kitLocalizableTable), "\(years)")
         }
-        return wy_timestampConvertDate(dateFormat)
+        return wy_timestampConvertDate(dateFormat, timestampMode: timestampMode)
     }
     
     /**
@@ -906,12 +948,22 @@ public extension String {
 
     /// 时间戳(转)获取星座
     static func wy_convertToConstellation(_ timestamp: String) -> WYConstellation {
+        return wy_convertToConstellation(timestamp, timestampMode: nil)
+    }
+
+    /**
+     时间戳转星座
+     @param timestamp 时间戳字符串
+     @param timestampMode 时间戳单位，nil时按数值大小自动推断，已知单位时应明确指定
+     @return 星座，时间戳无效或超出允许日期范围时返回unknown
+     */
+    static func wy_convertToConstellation(_ timestamp: String, timestampMode: WYTimestampMode?) -> WYConstellation {
         
         // 默认返回值
         let defaultValue: WYConstellation = .unknown
         
         // 统一时间戳为秒
-        guard let timeInterval = timestamp.wy_normalizedTimestamp() else { return defaultValue }
+        guard let timeInterval = timestamp.wy_normalizedTimestamp(timestampMode) else { return defaultValue }
         
         // 转换成 Date
         let date = Date(timeIntervalSince1970: timeInterval)
