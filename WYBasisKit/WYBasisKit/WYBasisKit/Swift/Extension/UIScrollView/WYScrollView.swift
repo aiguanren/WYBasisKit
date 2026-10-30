@@ -74,11 +74,11 @@ public extension UIScrollView {
         // 横向可滑动时才判断
         if contentSize.width > bounds.width {
             
-            if contentOffset.x < -contentInset.left {
+            if contentOffset.x < -adjustedContentInset.left {
                 return true
             }
             
-            let maxOffsetX = contentSize.width - bounds.width + contentInset.right
+            let maxOffsetX = contentSize.width - bounds.width + adjustedContentInset.right
             if contentOffset.x > maxOffsetX {
                 return true
             }
@@ -87,11 +87,11 @@ public extension UIScrollView {
         // 纵向可滑动时才判断
         if contentSize.height > bounds.height {
             
-            if contentOffset.y < -contentInset.top {
+            if contentOffset.y < -adjustedContentInset.top {
                 return true
             }
             
-            let maxOffsetY = contentSize.height - bounds.height + contentInset.bottom
+            let maxOffsetY = contentSize.height - bounds.height + adjustedContentInset.bottom
             if contentOffset.y > maxOffsetY {
                 return true
             }
