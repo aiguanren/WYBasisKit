@@ -10,9 +10,11 @@ import UIKit
 extension Timer {
 
     /// 倒计时方法
-    static func wy_beginTimer(_ alias: String) {
+    static func wy_beginTimer(_ alias: String, _ identifier: UUID) {
+        wy_timerLock.lock()
 
-        guard wy_timerContainer.keys.contains(alias) == true else {
+        guard wy_timerContainer[alias]?.identifier == identifier else {
+            wy_timerLock.unlock()
             return
         }
 
@@ -20,18 +22,26 @@ extension Timer {
             wy_timerContainer[alias]?.remainingTime -= 1
         }
 
-        if wy_timerContainer[alias]?.handler != nil {
-            wy_timerContainer[alias]?.handler!(wy_timerContainer[alias]?.remainingTime ?? 0)
-        }
+        let handler = wy_timerContainer[alias]?.handler
+        let remainingTime = wy_timerContainer[alias]?.remainingTime ?? 0
+        wy_timerLock.unlock()
 
-        if (wy_timerContainer[alias]?.remainingTime ?? 0) <= 0 {
+        handler?(remainingTime)
+
+        wy_timerLock.lock()
+        defer { wy_timerLock.unlock() }
+
+        if wy_timerContainer[alias]?.identifier == identifier && (wy_timerContainer[alias]?.remainingTime ?? 0) <= 0 {
             wy_cancel(alias)
         }
     }
 
     /// 进入后台
-    static func wy_timerDidEnterBackground(_ alias: String) {
-        guard wy_existTimer(alias) == true else {
+    static func wy_timerDidEnterBackground(_ alias: String, _ identifier: UUID) {
+        wy_timerLock.lock()
+        defer { wy_timerLock.unlock() }
+
+        guard wy_timerContainer[alias]?.identifier == identifier else {
             return
         }
 
@@ -42,14 +52,18 @@ extension Timer {
     }
 
     /// 返回前台
-    static func wy_timerDidBecomeActive(_ alias: String) {
-        guard wy_existTimer(alias) == true else {
+    static func wy_timerDidBecomeActive(_ alias: String, _ identifier: UUID) {
+        wy_timerLock.lock()
+
+        guard wy_timerContainer[alias]?.identifier == identifier else {
+            wy_timerLock.unlock()
             return
         }
 
         let date: Date? = UserDefaults.standard.value(forKey: "timer \(alias) didEnterBackground") as? Date
 
         guard date != nil else {
+            wy_timerLock.unlock()
             return
         }
 
@@ -64,12 +78,15 @@ extension Timer {
         wy_updateRemainingTime(alias, lastRemainingTime - different)
 
         wy_timerContainer[alias]?.enterBackground = false
+        wy_timerLock.unlock()
 
-        wy_beginTimer(alias)
+        wy_beginTimer(alias, identifier)
     }
 
     /// 检查计时器是否存在
     static func wy_existTimer(_ alias: String) ->Bool {
+        wy_timerLock.lock()
+        defer { wy_timerLock.unlock() }
 
         guard wy_timerContainer.keys.contains(alias) == true else {
             return false
@@ -83,13 +100,13 @@ extension Timer {
     }
 
     /// 计时器容器
-    static var wy_timerContainer: [String: (timer: DispatchSourceTimer?, remainingTime: Int, enterBackground: Bool, handler: ((_ remainingTime: Int) -> Void)?)] {
+    static var wy_timerContainer: [String: (timer: DispatchSourceTimer?, remainingTime: Int, enterBackground: Bool, handler: ((_ remainingTime: Int) -> Void)?, identifier: UUID)] {
 
         set(newValue) {
             objc_setAssociatedObject(self, &WYAssociatedKeys.timerContainer, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
-            return (objc_getAssociatedObject(self, &WYAssociatedKeys.timerContainer) as? [String: (timer: DispatchSourceTimer?, remainingTime: Int, enterBackground: Bool, handler: ((_ remainingTime: Int) -> Void)?)]) ?? [:]
+            return (objc_getAssociatedObject(self, &WYAssociatedKeys.timerContainer) as? [String: (timer: DispatchSourceTimer?, remainingTime: Int, enterBackground: Bool, handler: ((_ remainingTime: Int) -> Void)?, identifier: UUID)]) ?? [:]
         }
     }
 
@@ -104,7 +121,10 @@ extension Timer {
         }
     }
 
+    static var wy_timerLock: NSRecursiveLock { WYAssociatedKeys.lock }
+
     private struct WYAssociatedKeys {
+        static let lock = NSRecursiveLock()
         static var timerContainer: UInt8 = 0
         static var timerObserverContainer: UInt8 = 0
     }
