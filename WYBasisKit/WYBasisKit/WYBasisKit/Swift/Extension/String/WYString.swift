@@ -650,10 +650,12 @@ public extension String {
         if self.isEmpty {return ""}
         
         let format = DateFormatter()
+        format.calendar = Calendar(identifier: .gregorian)
         
         format.dateStyle = .medium
         format.timeStyle = .short
         format.dateFormat = sharedTimeFormat(dateFormat: dateFormat)
+        format.isLenient = false
         
         guard let date = format.date(from: self) else { return "" }
         
