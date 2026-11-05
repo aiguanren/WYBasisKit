@@ -63,7 +63,7 @@
     [self.view addSubview:self.player];
     __weak typeof(self) weakSelf = self;
     [self.player mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(weakSelf.view.mas_safeAreaLayoutGuide).offset(8);
+        make.top.equalTo(weakSelf.view.mas_safeAreaLayoutGuideTop).offset(8);
         make.left.and.right.equalTo(weakSelf.view);
         make.height.mas_equalTo(weakSelf.player.mas_width).multipliedBy(9.0 / 16.0);
     }];
