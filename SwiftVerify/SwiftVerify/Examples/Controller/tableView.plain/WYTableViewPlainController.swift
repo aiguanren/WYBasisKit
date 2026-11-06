@@ -70,7 +70,12 @@ extension WYTableViewPlainController: UITableViewDelegate, UITableViewDataSource
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "UITableViewCell", for: indexPath)
         
-        cell.textLabel?.text = "section = \(indexPath.section)  row = \(indexPath.row)"
+        var content = cell.defaultContentConfiguration()
+        content.text = "section = \(indexPath.section)  row = \(indexPath.row)"
+        content.textProperties.numberOfLines = 0
+        content.directionalLayoutMargins.top = UIDevice.wy_screenHeight(15, WYBasisKitConfig.defaultScreenPixels)
+        content.directionalLayoutMargins.bottom = content.directionalLayoutMargins.top
+        cell.contentConfiguration = content
         
         return cell
     }
@@ -87,6 +92,6 @@ extension WYTableViewPlainController: UITableViewDelegate, UITableViewDataSource
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         
-        return 50
+        return UITableView.automaticDimension
     }
 }

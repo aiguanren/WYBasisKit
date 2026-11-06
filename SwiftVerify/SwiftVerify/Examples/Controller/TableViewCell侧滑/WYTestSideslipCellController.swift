@@ -157,6 +157,9 @@ extension WYTestSideslipCellController: UITableViewDelegate, UITableViewDataSour
         let gestureStatus = gestureStatusText()
         
         cell.textLabel?.text = dataSource[indexPath.row] + "(\(direction)\(longPullStatus)\(gestureStatus))"
+        cell.textLabel?.numberOfLines = 0
+        cell.textLabel?.font = .preferredFont(forTextStyle: .body)
+        cell.textLabel?.adjustsFontForContentSizeCategory = true
         
         let btn = UIButton(type: .custom)
         btn.backgroundColor = UIColor.magenta.withAlphaComponent(0.25)
@@ -168,7 +171,7 @@ extension WYTestSideslipCellController: UITableViewDelegate, UITableViewDataSour
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 60
+        return UITableView.automaticDimension
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

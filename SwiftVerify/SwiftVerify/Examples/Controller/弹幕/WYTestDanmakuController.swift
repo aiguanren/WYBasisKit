@@ -110,7 +110,8 @@ class WYTestDanmakuController: UIViewController {
         playerContainer.snp.makeConstraints { (make) in
             make.top.equalTo(view.safeAreaLayoutGuide).offset(8)
             make.left.right.equalToSuperview()
-            make.height.equalTo(playerContainer.snp.width).multipliedBy(9.0 / 16.0)
+            make.height.equalTo(playerContainer.snp.width).multipliedBy(9.0 / 16.0).priority(.low)
+            make.height.greaterThanOrEqualTo(0)
         }
         danmakuView.snp.makeConstraints { (make) in
             make.edges.equalTo(playerContainer)
@@ -171,7 +172,9 @@ class WYTestDanmakuController: UIViewController {
         view.addSubview(tableView)
         tableView.snp.makeConstraints { (make) in
             make.top.equalTo(inputTextField.snp.bottom).offset(8)
-            make.left.right.bottom.equalToSuperview()
+            make.left.right.equalToSuperview()
+            make.bottom.equalTo(view.safeAreaLayoutGuide)
+            make.height.greaterThanOrEqualTo(view.snp.height).multipliedBy(0.2)
         }
     }
 

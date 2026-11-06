@@ -596,7 +596,13 @@ final class WYBasisKitRegressionTests: XCTestCase {
         XCTAssertTrue(field.waitForExistence(timeout: 5))
         field.tap()
         field.typeText(address)
-        app.alerts.buttons["播放"].tap()
+        let alert = app.alerts.firstMatch
+        for _ in 0..<3 {
+            alert.buttons["播放"].tap()
+            let dismissed = NSPredicate { _, _ in !alert.exists }
+            if XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: dismissed, object: nil)], timeout: 2) == .completed { return }
+        }
+        XCTFail("播放地址弹窗未关闭")
     }
 
     @MainActor

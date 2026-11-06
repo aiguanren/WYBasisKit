@@ -65,7 +65,8 @@
     [self.player mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(weakSelf.view.mas_safeAreaLayoutGuideTop).offset(8);
         make.left.and.right.equalTo(weakSelf.view);
-        make.height.mas_equalTo(weakSelf.player.mas_width).multipliedBy(9.0 / 16.0);
+        make.height.mas_equalTo(weakSelf.player.mas_width).multipliedBy(9.0 / 16.0).priorityLow();
+        make.height.greaterThanOrEqualTo(@0);
     }];
     self.snapshotImageView = [[UIImageView alloc] init];
     self.snapshotImageView.contentMode = UIViewContentModeScaleAspectFit;
@@ -104,8 +105,12 @@
     [self.view addSubview:self.tableView];
     __weak typeof(self) weakSelf = self;
     [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(weakSelf.statusLabel.mas_bottom).offset(6);
-        make.left.and.right.and.bottom.equalTo(weakSelf.view);
+        make.top.greaterThanOrEqualTo(weakSelf.statusLabel.mas_bottom).offset(6);
+        make.top.greaterThanOrEqualTo(weakSelf.snapshotImageView.mas_bottom).offset(6);
+        make.top.equalTo(weakSelf.snapshotImageView.mas_bottom).offset(6).priorityHigh();
+        make.left.and.right.equalTo(weakSelf.view);
+        make.bottom.equalTo(weakSelf.view.mas_safeAreaLayoutGuideBottom);
+        make.height.greaterThanOrEqualTo(weakSelf.view.mas_height).multipliedBy(0.2);
     }];
 }
 

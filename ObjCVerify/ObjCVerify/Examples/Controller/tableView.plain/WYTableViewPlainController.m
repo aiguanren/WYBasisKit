@@ -116,7 +116,14 @@
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"UITableViewCell" forIndexPath:indexPath];
     
-    cell.textLabel.text = [NSString stringWithFormat:@"section = %ld  row = %ld", (long)indexPath.section, (long)indexPath.row];
+    UIListContentConfiguration *content = [cell defaultContentConfiguration];
+    content.text = [NSString stringWithFormat:@"section = %ld  row = %ld", (long)indexPath.section, (long)indexPath.row];
+    content.textProperties.numberOfLines = 0;
+    NSDirectionalEdgeInsets margins = content.directionalLayoutMargins;
+    margins.top = [UIDevice wy_screenHeight:15 pixels:WYBasisKitConfig.defaultScreenPixels];
+    margins.bottom = margins.top;
+    content.directionalLayoutMargins = margins;
+    cell.contentConfiguration = content;
     
     return cell;
 }
@@ -148,7 +155,7 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return 50;
+    return UITableViewAutomaticDimension;
 }
 
 

@@ -34,9 +34,18 @@
     UIImageView *imageView = [[UIImageView alloc] initWithImage:qrImage];
     [self.view addSubview:imageView];
     [imageView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.center.equalTo(self.view);
+        make.width.equalTo(imageView.mas_height);
+        make.left.greaterThanOrEqualTo(self.view.mas_safeAreaLayoutGuideLeft);
+        make.right.lessThanOrEqualTo(self.view.mas_safeAreaLayoutGuideRight);
+        make.top.greaterThanOrEqualTo(self.view.mas_safeAreaLayoutGuideTop);
+        make.bottom.lessThanOrEqualTo(self.view.mas_safeAreaLayoutGuideBottom);
     }];
     
+    [NSLayoutConstraint activateConstraints:@[
+        [imageView.centerXAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.centerXAnchor],
+        [imageView.centerYAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.centerYAnchor]
+    ]];
+
     // 获取二维码信息(必须要真机环境才能获取到相关信息)
     NSArray *infoArr = [imageView.image wy_recognitionQRCode];
     if (infoArr) {

@@ -13,4 +13,8 @@
 
 @implementation UserResponse
 
++ (NSDictionary<NSString *, Class> *)wy_objectClassMapping {
+    return @{NSStringFromSelector(@selector(subResponses)): SubUserResponse.class};
+}
+
 @end

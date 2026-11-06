@@ -194,7 +194,8 @@ class WYTestVideoPlayerController: UIViewController, WYVideoPlayerDelegate, UITa
         player.snp.makeConstraints { (make) in
             make.top.equalTo(view.safeAreaLayoutGuide).offset(8)
             make.left.right.equalToSuperview()
-            make.height.equalTo(player.snp.width).multipliedBy(9.0 / 16.0)
+            make.height.equalTo(player.snp.width).multipliedBy(9.0 / 16.0).priority(.low)
+            make.height.greaterThanOrEqualTo(0)
         }
         snapshotImageView.contentMode = .scaleAspectFit
         snapshotImageView.layer.borderWidth = 1
@@ -229,8 +230,12 @@ class WYTestVideoPlayerController: UIViewController, WYVideoPlayerDelegate, UITa
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         view.addSubview(tableView)
         tableView.snp.makeConstraints { (make) in
-            make.top.equalTo(statusLabel.snp.bottom).offset(6)
-            make.left.right.bottom.equalToSuperview()
+            make.top.greaterThanOrEqualTo(statusLabel.snp.bottom).offset(6)
+            make.top.greaterThanOrEqualTo(snapshotImageView.snp.bottom).offset(6)
+            make.top.equalTo(snapshotImageView.snp.bottom).offset(6).priority(.high)
+            make.left.right.equalToSuperview()
+            make.bottom.equalTo(view.safeAreaLayoutGuide)
+            make.height.greaterThanOrEqualTo(view.snp.height).multipliedBy(0.2)
         }
     }
 

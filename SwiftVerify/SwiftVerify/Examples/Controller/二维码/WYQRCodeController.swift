@@ -23,7 +23,12 @@ class WYQRCodeController: UIViewController {
         let imageView = UIImageView(image: UIImage.wy_createQrCode(with: qrData, size: CGSize(width: 350, height: 350), waterImage: UIImage.wy_find("WYBasisKit_60*60")))
         view.addSubview(imageView)
         imageView.snp.makeConstraints { make in
-            make.center.equalToSuperview()
+            make.center.equalTo(view.safeAreaLayoutGuide)
+            make.width.equalTo(imageView.snp.height)
+            make.left.greaterThanOrEqualTo(view.safeAreaLayoutGuide)
+            make.right.lessThanOrEqualTo(view.safeAreaLayoutGuide)
+            make.top.greaterThanOrEqualTo(view.safeAreaLayoutGuide)
+            make.bottom.lessThanOrEqualTo(view.safeAreaLayoutGuide)
         }
 
         // 获取二维码信息(必须要真机环境才能获取到相关信息)

@@ -78,6 +78,7 @@ final class WYVideoPlayerEngine: NSObject {
         player?.setState(.preparing)
         player?.readyForDisplayObservation?.invalidate()
         player?.readyForDisplayObservation = nil
+        player?.avPlayer.currentItem?.asset.cancelLoading()
         player?.avPlayer.replaceCurrentItem(with: item)
         itemStatusObservation = item.observe(\.status, options: [.initial, .new]) { [weak self] (item, _) in
             guard let self = self, let player = self.player else { return }
@@ -137,6 +138,7 @@ final class WYVideoPlayerEngine: NSObject {
         let workItem = DispatchWorkItem { [weak self] in
             guard let self = self, let player = self.player else { return }
             guard player.state == .preparing || player.state == .readyToPlay || player.state == .buffering || (player.state == .playing && !player.isAudioOnly && !player.playerLayer.isReadyForDisplay) else { return }
+            player.avPlayer.currentItem?.asset.cancelLoading()
             player.avPlayer.replaceCurrentItem(with: nil)
             player.setState(.failed)
             player.delegate?.wy_videoPlayer?(player, didFailWithError: NSError(domain: NSURLErrorDomain, code: NSURLErrorTimedOut))

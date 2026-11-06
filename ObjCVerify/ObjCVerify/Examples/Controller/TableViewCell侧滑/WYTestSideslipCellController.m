@@ -163,6 +163,9 @@
     NSString *gestureStatus = [self gestureStatusText];
     
     cell.textLabel.text = [NSString stringWithFormat:@"%@(%@%@%@)", self.dataSource[indexPath.row], direction, longPullStatus, gestureStatus];
+    cell.textLabel.numberOfLines = 0;
+    cell.textLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+    cell.textLabel.adjustsFontForContentSizeCategory = YES;
     
     UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
     btn.backgroundColor = [UIColor.magentaColor colorWithAlphaComponent:0.25];
@@ -174,7 +177,7 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return 60;
+    return UITableViewAutomaticDimension;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {

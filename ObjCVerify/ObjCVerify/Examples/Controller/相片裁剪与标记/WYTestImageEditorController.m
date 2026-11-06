@@ -100,13 +100,23 @@
     _watermarkRotation = -30;
     _resultSource = @"暂无结果";
 
+    UIScrollView *scrollView = [[UIScrollView alloc] init];
+    [self.view addSubview:scrollView];
+    [scrollView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.view.mas_safeAreaLayoutGuideTop);
+        make.bottom.equalTo(self.view.mas_safeAreaLayoutGuideBottom);
+        make.left.equalTo(self.view.mas_safeAreaLayoutGuideLeft);
+        make.right.equalTo(self.view.mas_safeAreaLayoutGuideRight);
+    }];
     UIView *contentView = [[UIView alloc] init];
     contentView.backgroundColor = [UIColor whiteColor];
-    [self.view addSubview:contentView];
-    [contentView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.view).offset(UIDevice.wy_navViewHeight + 20);
-        make.centerX.equalTo(self.view);
-    }];
+    [scrollView addSubview:contentView];
+    contentView.translatesAutoresizingMaskIntoConstraints = NO;
+    [NSLayoutConstraint activateConstraints:@[
+        [contentView.topAnchor constraintEqualToAnchor:scrollView.contentLayoutGuide.topAnchor constant:[UIDevice wy_screenHeight:20 pixels:WYBasisKitConfig.defaultScreenPixels]],
+        [contentView.leftAnchor constraintEqualToAnchor:scrollView.frameLayoutGuide.leftAnchor constant:[UIDevice wy_screenWidth:15 pixels:WYBasisKitConfig.defaultScreenPixels]],
+        [contentView.rightAnchor constraintEqualToAnchor:scrollView.frameLayoutGuide.rightAnchor constant:-[UIDevice wy_screenWidth:15 pixels:WYBasisKitConfig.defaultScreenPixels]]
+    ]];
 
     UIButton *shapeButton = [self createButtonWithTitle:@"裁剪形状(矩形)"
                                                selector:@selector(shapeButtonTapped:)
@@ -175,7 +185,7 @@
                                                 superView:contentView
                                                  leftView:cropZoomButton
                                                   topView:colorRowButton
-                                                   isRight:YES
+                                                   isRight:NO
                                                     isLast:NO];
     [markZoomButton setTitle:@"(禁缩放)标记页" forState:UIControlStateSelected];
 
@@ -262,12 +272,20 @@
                           isLast:YES];
 
 
-    self.tableView = [UITableView wy_sharedWithStyle:UITableViewStylePlain separatorStyle:UITableViewCellSeparatorStyleSingleLine delegate:self dataSource:self backgroundColor:[UIColor whiteColor] superView:self.view];
+    self.tableView = [UITableView wy_sharedWithStyle:UITableViewStylePlain separatorStyle:UITableViewCellSeparatorStyleSingleLine delegate:self dataSource:self backgroundColor:[UIColor whiteColor] superView:scrollView];
     [self.tableView wy_register:[WYTestImageEditorResultCell class] style:WYTableViewRegisterStyleCell];
-    [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(contentView.mas_bottom).offset(20);
-        make.left.right.bottom.equalTo(self.view);
-    }];
+    self.tableView.translatesAutoresizingMaskIntoConstraints = NO;
+    NSLayoutConstraint *bottomConstraint = [self.tableView.bottomAnchor constraintEqualToAnchor:scrollView.frameLayoutGuide.bottomAnchor];
+    bottomConstraint.priority = UILayoutPriorityDefaultLow;
+    [NSLayoutConstraint activateConstraints:@[
+        [self.tableView.topAnchor constraintEqualToAnchor:contentView.bottomAnchor constant:[UIDevice wy_screenHeight:20 pixels:WYBasisKitConfig.defaultScreenPixels]],
+        [self.tableView.leftAnchor constraintEqualToAnchor:scrollView.contentLayoutGuide.leftAnchor],
+        [self.tableView.rightAnchor constraintEqualToAnchor:scrollView.contentLayoutGuide.rightAnchor],
+        [self.tableView.widthAnchor constraintEqualToAnchor:scrollView.frameLayoutGuide.widthAnchor],
+        [self.tableView.bottomAnchor constraintEqualToAnchor:scrollView.contentLayoutGuide.bottomAnchor],
+        [self.tableView.heightAnchor constraintGreaterThanOrEqualToAnchor:scrollView.heightAnchor multiplier:0.3],
+        bottomConstraint
+    ]];
 }
 
 - (UIButton *)createButtonWithTitle:(NSString *)title
@@ -289,7 +307,7 @@
     [button mas_makeConstraints:^(MASConstraintMaker *make) {
 
         if (leftView != nil) {
-            make.left.equalTo(leftView.mas_right).offset(15);
+            make.left.equalTo(leftView.mas_right).offset([UIDevice wy_screenWidth:15 pixels:WYBasisKitConfig.defaultScreenPixels]);
         }else {
             make.left.equalTo(superView);
         }
@@ -299,7 +317,7 @@
         }
 
         if (topView != nil) {
-            make.top.equalTo(topView.mas_bottom).offset(20);
+            make.top.equalTo(topView.mas_bottom).offset([UIDevice wy_screenHeight:20 pixels:WYBasisKitConfig.defaultScreenPixels]);
         }else {
             make.top.equalTo(superView);
         }
@@ -308,7 +326,8 @@
             make.bottom.equalTo(superView);
         }
 
-        make.size.mas_equalTo(CGSizeMake((UIDevice.wy_screenWidth - 60) / 3, 50));
+        make.width.equalTo(superView.mas_width).multipliedBy(1.0 / 3.0).offset(-[UIDevice wy_screenWidth:10 pixels:WYBasisKitConfig.defaultScreenPixels]);
+        make.height.mas_equalTo([UIDevice wy_screenHeight:50 pixels:WYBasisKitConfig.defaultScreenPixels]);
     }];
 
     return button;

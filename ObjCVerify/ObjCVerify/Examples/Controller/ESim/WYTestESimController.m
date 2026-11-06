@@ -37,6 +37,10 @@
 /// 布局界面并挂按钮点击事件
 - (void)setupViews {
 
+    self.lpaTextField = [[UITextField alloc] init];
+    self.installButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    self.qrCodeButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    self.qrCodeImageView = [[UIImageView alloc] init];
     self.lpaTextField.text = @"1$esim.test.example.com$1EXAMPLE1234567-1";
     self.lpaTextField.placeholder = @"LPA 串";
     self.lpaTextField.borderStyle = UITextBorderStyleRoundedRect;
@@ -56,7 +60,7 @@
     [self.view addSubview:self.qrCodeImageView];
 
     [self.lpaTextField mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.view.mas_safeAreaLayoutGuide).offset(24);
+        make.top.equalTo(self.view.mas_safeAreaLayoutGuideTop).offset(24);
         make.left.equalTo(self.view).offset(24);
         make.right.equalTo(self.view).offset(-24);
         make.height.mas_equalTo(44);

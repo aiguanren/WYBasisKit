@@ -49,6 +49,14 @@
 /// 布局界面并挂按钮点击事件
 - (void)setupViews {
 
+    self.scrollView = [[UIScrollView alloc] init];
+    self.stackView = [[UIStackView alloc] init];
+    self.mailToField = [[UITextField alloc] init];
+    self.mailSubjectField = [[UITextField alloc] init];
+    self.mailBodyField = [[UITextField alloc] init];
+    self.phoneField = [[UITextField alloc] init];
+    self.smsBodyField = [[UITextField alloc] init];
+    self.appIdField = [[UITextField alloc] init];
     self.stackView.axis = UILayoutConstraintAxisVertical;
     self.stackView.spacing = 16;
     [self.scrollView addSubview:self.stackView];
@@ -59,7 +67,7 @@
 
     [self.view addSubview:self.scrollView];
     [self.scrollView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.view.mas_safeAreaLayoutGuide).offset(16);
+        make.top.equalTo(self.view.mas_safeAreaLayoutGuideTop).offset(16);
         make.bottom.equalTo(self.view.mas_safeAreaLayoutGuide).offset(-16);
         make.left.equalTo(self.view).offset(16);
         make.right.equalTo(self.view).offset(-16);

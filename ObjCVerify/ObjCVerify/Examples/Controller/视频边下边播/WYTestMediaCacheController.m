@@ -173,9 +173,10 @@
 
     __weak typeof(self) weakSelf = self;
     [self.playerContainer mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.view.mas_safeAreaLayoutGuide).offset(8);
+        make.top.equalTo(self.view.mas_safeAreaLayoutGuideTop).offset(8);
         make.left.and.right.equalTo(self.view);
-        make.height.mas_equalTo(self.playerContainer.mas_width).multipliedBy(9.0 / 16.0);
+        make.height.mas_equalTo(self.playerContainer.mas_width).multipliedBy(9.0 / 16.0).priorityLow();
+        make.height.greaterThanOrEqualTo(@0);
     }];
     [self.mediaSegment mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.playerContainer.mas_bottom).offset(8);
@@ -268,7 +269,9 @@
     self.tableView.tableHeaderView = headerView;
     [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.urlTextField.mas_bottom).offset(8);
-        make.left.and.right.and.bottom.equalTo(self.view);
+        make.left.and.right.equalTo(self.view);
+        make.bottom.equalTo(self.view.mas_safeAreaLayoutGuideBottom);
+        make.height.greaterThanOrEqualTo(self.view.mas_height).multipliedBy(0.2);
     }];
 }
 

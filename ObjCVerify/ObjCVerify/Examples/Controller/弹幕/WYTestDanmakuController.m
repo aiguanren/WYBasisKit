@@ -87,9 +87,10 @@
 
     __weak typeof(self) weakSelf = self;
     [self.playerContainer mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(weakSelf.view.mas_safeAreaLayoutGuide).offset(8);
+        make.top.equalTo(weakSelf.view.mas_safeAreaLayoutGuideTop).offset(8);
         make.left.and.right.equalTo(weakSelf.view);
-        make.height.mas_equalTo(weakSelf.playerContainer.mas_width).multipliedBy(9.0 / 16.0);
+        make.height.mas_equalTo(weakSelf.playerContainer.mas_width).multipliedBy(9.0 / 16.0).priorityLow();
+        make.height.greaterThanOrEqualTo(@0);
     }];
     [self.danmakuView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.edges.equalTo(weakSelf.playerContainer);
@@ -157,7 +158,9 @@
     __weak typeof(self) weakSelf = self;
     [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(weakSelf.inputTextField.mas_bottom).offset(8);
-        make.left.and.right.and.bottom.equalTo(weakSelf.view);
+        make.left.and.right.equalTo(weakSelf.view);
+        make.bottom.equalTo(weakSelf.view.mas_safeAreaLayoutGuideBottom);
+        make.height.greaterThanOrEqualTo(weakSelf.view.mas_height).multipliedBy(0.2);
     }];
 }
 

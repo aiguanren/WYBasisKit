@@ -66,12 +66,17 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        let scrollView = UIScrollView()
+        view.addSubview(scrollView)
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalTo(view.safeAreaLayoutGuide)
+        }
         let contentView: UIView = UIView()
         contentView.backgroundColor = .white
-        view.addSubview(contentView)
+        scrollView.addSubview(contentView)
         contentView.snp.makeConstraints { make in
-            make.top.equalTo(view).offset(UIDevice.wy_navViewHeight + 20)
-            make.centerX.equalTo(view)
+            make.top.equalTo(scrollView.contentLayoutGuide).offset(UIDevice.wy_screenHeight(20, WYBasisKitConfig.defaultScreenPixels))
+            make.left.right.equalTo(scrollView.frameLayoutGuide).inset(UIDevice.wy_screenWidth(15, WYBasisKitConfig.defaultScreenPixels))
         }
 
         let shapeButton: UIButton = createButton(title: "裁剪形状(矩形)", selector: #selector(shapeButtonTapped(sender:)), superView: contentView, leftView: nil, topView: nil)
@@ -119,11 +124,15 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
 
         createButton(title: "静态方法\n一行打开", selector: #selector(staticButtonTapped), superView: contentView, leftView: delegateButton, topView: watermarkImageButton, isRight: true, isLast: true)
 
-        tableView = UITableView.wy_shared(delegate: self, dataSource: self, superView: view)
+        tableView = UITableView.wy_shared(delegate: self, dataSource: self, superView: scrollView)
         tableView?.wy_register(WYTestImageEditorResultCell.self, .cell)
         tableView?.snp.makeConstraints { make in
-            make.top.equalTo(contentView.snp.bottom).offset(20)
-            make.left.right.bottom.equalToSuperview()
+            make.top.equalTo(contentView.snp.bottom).offset(UIDevice.wy_screenHeight(20, WYBasisKitConfig.defaultScreenPixels))
+            make.left.right.equalTo(scrollView.contentLayoutGuide)
+            make.width.equalTo(scrollView.frameLayoutGuide)
+            make.bottom.equalTo(scrollView.contentLayoutGuide)
+            make.bottom.equalTo(scrollView.frameLayoutGuide).priority(.low)
+            make.height.greaterThanOrEqualTo(scrollView.snp.height).multipliedBy(0.3)
         }
 
     }
@@ -142,7 +151,7 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
         button.snp.makeConstraints { make in
 
             if let leftView = leftView {
-                make.left.equalTo(leftView.snp.right).offset(15)
+                make.left.equalTo(leftView.snp.right).offset(UIDevice.wy_screenWidth(15, WYBasisKitConfig.defaultScreenPixels))
             }else {
                 make.left.equalToSuperview()
             }
@@ -152,7 +161,7 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
             }
 
             if let topView = topView {
-                make.top.equalTo(topView.snp.bottom).offset(20)
+                make.top.equalTo(topView.snp.bottom).offset(UIDevice.wy_screenHeight(20, WYBasisKitConfig.defaultScreenPixels))
             }else {
                 make.top.equalToSuperview()
             }
@@ -161,7 +170,8 @@ class WYTestImageEditorController: UIViewController, WYImageEditorViewController
                 make.bottom.equalToSuperview()
             }
 
-            make.size.equalTo(CGSize(width: (UIDevice.wy_screenWidth - 60) / 3, height: 50))
+            make.width.equalTo(superView.snp.width).multipliedBy(1.0 / 3.0).offset(-UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels))
+            make.height.equalTo(UIDevice.wy_screenHeight(50, WYBasisKitConfig.defaultScreenPixels))
         }
 
         return button

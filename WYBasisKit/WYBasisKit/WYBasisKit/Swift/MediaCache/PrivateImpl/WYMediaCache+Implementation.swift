@@ -278,30 +278,27 @@ enum WYMediaCacheAlertPresenter {
 extension WYMediaCache: URLSessionDataDelegate, URLSessionTaskDelegate {
 
     public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
-        guard let task = sessionTasks[dataTask], let item = task.item else {
-            completionHandler(.cancel)
-            return
-        }
         queue.async { [weak self] in
-            guard let self = self, self.sessionTasks[dataTask] === task else { return }
+            guard let self = self, let task = self.sessionTasks[dataTask], let item = task.item else {
+                completionHandler(.cancel)
+                return
+            }
             let disposition = item.handleResponse(task, response: response)
             completionHandler(disposition)
         }
     }
 
     public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
-        guard let task = sessionTasks[dataTask], let item = task.item else { return }
         queue.async { [weak self] in
-            guard let self = self, self.sessionTasks[dataTask] === task else { return }
+            guard let self = self, let task = self.sessionTasks[dataTask], let item = task.item else { return }
             item.handleData(task, data: data)
         }
     }
 
     public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-        guard let dataTask = task as? URLSessionDataTask, let downloadTask = sessionTasks[dataTask], let item = downloadTask.item else { return }
+        guard let dataTask = task as? URLSessionDataTask else { return }
         queue.async { [weak self] in
-            guard let self = self else { return }
-            self.sessionTasks.removeValue(forKey: dataTask)
+            guard let self = self, let downloadTask = self.sessionTasks.removeValue(forKey: dataTask), let item = downloadTask.item else { return }
             item.handleCompletion(downloadTask, error: error)
         }
     }
