@@ -73,7 +73,7 @@ public extension UIDevice {
              iOS26以前默认是44像素
      */
     static var wy_navBarHeight: CGFloat {
-        if let bar = privateVisibleNavigationBar, bar.bounds.height > 0 { return bar.bounds.height }
+        if let bar = privateVisibleNavigationBar { return max(0, bar.bounds.height) }
         return max(0, privateNavigationBar.intrinsicContentSize.height)
     }
     

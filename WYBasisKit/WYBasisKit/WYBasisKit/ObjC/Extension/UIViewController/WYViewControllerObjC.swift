@@ -35,11 +35,11 @@ import WYBasisKitSwift
     }
     
     @objc(wy_currentControllerFromWindowController:)
-    static func wy_currentControllerObjC(windowController: UIViewController? = (UIApplication.shared.delegate?.window)??.rootViewController) -> UIViewController? {
+    static func wy_currentControllerObjC(windowController: UIViewController? = UIApplication.shared.wy_keyWindow.rootViewController) -> UIViewController? {
         
         var topController: UIViewController? = windowController
         if windowController == nil {
-            topController = (UIApplication.shared.delegate?.window)??.rootViewController
+            topController = UIApplication.shared.wy_keyWindow.rootViewController
         }
         return wy_currentController(windowController: topController)
     }
