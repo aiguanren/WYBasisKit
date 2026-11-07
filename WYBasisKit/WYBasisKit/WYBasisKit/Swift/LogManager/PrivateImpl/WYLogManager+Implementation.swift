@@ -9,6 +9,8 @@ extension WYLogManager {
 
     /// 写入日志文件
     static func saveLogToFile(_ log: String) {
+        configurationLock.lock()
+        defer { configurationLock.unlock() }
         let path = logFilePath
         let entry = encryptEntry(log)
         logQueue.async {
@@ -19,7 +21,12 @@ extension WYLogManager {
     /// 写文件使用串行队列，避免并发冲突
     static let logQueue = DispatchQueue(label: "com.WYBasisKit.WYLogManager.queue")
 
-    private static let appendLock = NSLock()
+    static let appendLock = NSLock()
+
+    static let configurationLock = NSRecursiveLock()
+    nonisolated(unsafe) static var configuredFileName: String?
+    nonisolated(unsafe) static var configuredEncryptionMode: WYLogEncryptionMode = .aesGCM
+    nonisolated(unsafe) static var configuredEncryptionKey: Data?
 
     /// 日志分隔符（用于日志条目之间的换行与逻辑隔断）
     internal static let logEntrySeparator = "\n\n\n"

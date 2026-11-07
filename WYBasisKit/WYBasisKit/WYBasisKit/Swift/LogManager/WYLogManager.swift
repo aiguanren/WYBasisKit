@@ -89,19 +89,54 @@ public struct WYLogManager {
     }
 
     /// 自定义日志文件名(不含扩展名，不设置时默认名=本地化App名+本地化"日志"词，如中文名"语音工坊"生成"语音工坊日志"、英文名"VoiceFactory"生成"VoiceFactoryLog")
-    nonisolated(unsafe) public static var logFileName: String?
+    public static var logFileName: String? {
+        get {
+            configurationLock.lock()
+            defer { configurationLock.unlock() }
+            return configuredFileName
+        }
+        set {
+            configurationLock.lock()
+            defer { configurationLock.unlock() }
+            configuredFileName = newValue
+        }
+    }
 
     /// 日志加密模式(默认aesGCM，加密后文件内容与导出附件均为密文，只能通过decryptedLogText()或配套解密脚本阅读)
-    nonisolated(unsafe) public static var encryptionMode: WYLogEncryptionMode = .aesGCM
+    public static var encryptionMode: WYLogEncryptionMode {
+        get {
+            configurationLock.lock()
+            defer { configurationLock.unlock() }
+            return configuredEncryptionMode
+        }
+        set {
+            configurationLock.lock()
+            defer { configurationLock.unlock() }
+            configuredEncryptionMode = newValue
+        }
+    }
 
     /// 日志加密密钥(xor与aesGCM使用，不设置时按包名派生，接入方建议在首次写日志前设置)
-    nonisolated(unsafe) public static var encryptionKey: Data?
+    public static var encryptionKey: Data? {
+        get {
+            configurationLock.lock()
+            defer { configurationLock.unlock() }
+            return configuredEncryptionKey
+        }
+        set {
+            configurationLock.lock()
+            defer { configurationLock.unlock() }
+            configuredEncryptionKey = newValue
+        }
+    }
 
     /**
      * 读取整个日志文件并解密成明文
      * @return 解密后的完整日志文本(历史明文条目原样保留，解密失败的条目自动跳过，文件不存在时返回空串)
      */
     public static func decryptedLogText() -> String {
+        configurationLock.lock()
+        defer { configurationLock.unlock() }
         guard let text = try? String(contentsOfFile: logFilePath, encoding: .utf8) else { return "" }
         return decryptText(text)
     }
@@ -111,6 +146,8 @@ public struct WYLogManager {
      @param content 要写入的完整日志内容(崩溃捕获等进程即将退出的场景用，不走异步队列确保落盘)
      */
     public static func writeEncryptedSynchronously(_ content: String) {
+        configurationLock.lock()
+        defer { configurationLock.unlock() }
         appendLine(encryptEntry(content))
     }
     
@@ -163,6 +200,8 @@ public struct WYLogManager {
     public static func clearLogFile() {
         let path = logFilePath
         logQueue.async {
+            appendLock.lock()
+            defer { appendLock.unlock() }
             let fileManager = FileManager.default
             
             guard fileManager.fileExists(atPath: path) else {

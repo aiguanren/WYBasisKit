@@ -356,13 +356,31 @@ import Foundation
         }
         guard number.doubleValue.isFinite else { return nil }
         let locale = Locale(identifier: "en_US_POSIX")
-        guard var decimal = Decimal(string: number.stringValue, locale: locale),
+        let decimalText: String
+        if let string = value as? String, Double(string) != nil, !string.lowercased().contains("0x") {
+            decimalText = string
+        } else if !(number is NSDecimalNumber), ["f", "d"].contains(String(cString: number.objCType)) {
+            if let integer = Int64(exactly: number.doubleValue) {
+                decimalText = String(integer)
+            } else if let integer = UInt64(exactly: number.doubleValue) {
+                decimalText = String(integer)
+            } else {
+                return nil
+            }
+        } else {
+            decimalText = number.stringValue
+        }
+        guard var decimal = Decimal(string: decimalText, locale: locale),
               let minimum = Decimal(string: bounds.0.stringValue, locale: locale),
-              let maximum = Decimal(string: bounds.1.stringValue, locale: locale) else { return nil }
+              let maximum = Decimal(string: bounds.1.stringValue, locale: locale),
+              NSDecimalNumber(decimal: decimal).doubleValue == number.doubleValue else { return nil }
         var integer = Decimal()
         NSDecimalRound(&integer, &decimal, 0, .down)
         guard decimal == integer, decimal >= minimum, decimal <= maximum else { return nil }
-        return number
+        let integerText = NSDecimalNumber(decimal: integer).stringValue
+        if let integer = Int64(integerText) { return NSNumber(value: integer) }
+        if let integer = UInt64(integerText) { return NSNumber(value: integer) }
+        return nil
     }
 
     /// 自动推断数组元素类型

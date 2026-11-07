@@ -287,7 +287,7 @@ private class WYBothwayVerifyDelegate: SessionDelegate, @unchecked Sendable {
             challenge.sender?.use(credential, for: challenge)
             completionHandler(.useCredential, credential)
         default:
-            completionHandler(.performDefaultHandling, nil)
+            super.urlSession(session, task: task, didReceive: challenge, completionHandler: completionHandler)
         }
     }
     

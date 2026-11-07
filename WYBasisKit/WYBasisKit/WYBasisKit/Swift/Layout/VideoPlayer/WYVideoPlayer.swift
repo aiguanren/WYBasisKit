@@ -281,6 +281,7 @@ public class WYVideoPlayer: UIView {
 
     deinit {
         engine.unload()
+        controlShell?.detach()
     }
 
     /**

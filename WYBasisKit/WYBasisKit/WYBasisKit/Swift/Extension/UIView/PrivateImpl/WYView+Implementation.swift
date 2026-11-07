@@ -413,12 +413,13 @@ extension UIView {
                 }
             }
             self.layer.animationKeys()?.forEach { key in
-                guard let original = self.layer.animation(forKey: key), geometry(original),
-                      let animation = original.copy() as? CAAnimation else { return }
+                guard let original = self.layer.animation(forKey: key), geometry(original) else { return }
+                let animation = UIView.wy_copyVisualAnimation(original)
                 if animation.beginTime != 0 {
                     animation.beginTime = shadowView.layer.convertTime(animation.beginTime, from: self.layer)
                 }
-                shadowView.layer.add(animation, forKey: key)
+                animation.delegate = nil
+                shadowView.layer.add(animation, forKey: UIView.wy_visualSyncAnimationKey + "." + key)
             }
         }
     }
@@ -601,15 +602,20 @@ extension UIView {
     }
 
     /// 监听layer.bounds/transform变化的观察者(销毁时自动停止观察，不需要手动removeObserver)
-    internal final class WYBoundsObserver {
+    internal final class WYBoundsObserver: NSObject {
 
         var observation: NSKeyValueObservation?
 
         var transformObservation: NSKeyValueObservation?
         var observations: [NSKeyValueObservation] = []
 
+        private weak var view: UIView?
+        private var animationDisplayLink: CADisplayLink?
+
         init(view: UIView) {
-            observation = view.layer.observe(\.bounds, options: [.new, .old]) { [weak view] _, change in
+            self.view = view
+            super.init()
+            observation = view.layer.observe(\.bounds, options: [.new, .old]) { [weak view, weak self] _, change in
                 // 防后台线程改动layer属性:只处理主线程上的bounds变化，尺寸没变也不重复刷
                 guard Thread.isMainThread, let view = view, change.newValue != change.oldValue,
                       view.wy_existingVisualConfig?.isApplying != true else { return }
@@ -617,8 +623,56 @@ extension UIView {
                 view.wy_syncShadowView()
                 view.layer.wy_updateBorderFrames()
                 view.wy_refreshVisualLayout()
+                self?.startAnimationSync()
             }
             enableShadowObserving(view: view)
+        }
+
+        func stopAnimationSync() {
+            animationDisplayLink?.invalidate()
+            animationDisplayLink = nil
+        }
+
+        private func startAnimationSync() {
+            guard UIView.inheritedAnimationDuration > 0, animationDisplayLink == nil else { return }
+            let link = CADisplayLink(target: self, selector: #selector(syncAnimationTiming))
+            link.add(to: .main, forMode: .common)
+            animationDisplayLink = link
+        }
+
+        @objc private func syncAnimationTiming() {
+            guard let view = view, view.window != nil,
+                  let config = view.wy_existingVisualConfig, config.isApplied else {
+                stopAnimationSync()
+                return
+            }
+            let prefix = UIView.wy_visualSyncAnimationKey
+            let sourceKeys = (view.layer.animationKeys() ?? []).filter { !$0.hasPrefix(prefix) }
+            let sourceAnimations = sourceKeys.compactMap { view.layer.animation(forKey: $0) as? CAPropertyAnimation }
+            let targets = [view.layer, view.layer.mask, config.borderLayer, config.gradientLayer, config.shadowBackgroundView?.layer].compactMap { $0 }
+            for target in targets {
+                for key in target.animationKeys() ?? [] {
+                    guard key.hasPrefix(prefix),
+                          let current = target.animation(forKey: key)?.copy() as? CAPropertyAnimation else { continue }
+                    if sourceKeys.isEmpty {
+                        target.removeAnimation(forKey: key)
+                        continue
+                    }
+                    let property = current.keyPath ?? ""
+                    let matching = ["path", "shadowPath", "cornerRadius"].contains(property) ? "bounds" : String(property.split(separator: ".").first ?? "")
+                    guard let original = sourceAnimations.first(where: { $0.keyPath == matching + ".size" }) ?? sourceAnimations.first(where: { $0.keyPath == matching || $0.keyPath?.hasPrefix(matching + ".") == true }) else { continue }
+                    let begin = original.beginTime == 0 ? 0 : target.convertTime(original.beginTime, from: view.layer)
+                    guard current.speed != original.speed || current.timeOffset != original.timeOffset || current.duration != original.duration || abs(current.beginTime - begin) > 0.000001 else { continue }
+                    current.speed = original.speed
+                    current.timeOffset = original.timeOffset
+                    current.duration = original.duration
+                    current.beginTime = begin
+                    current.timingFunction = original.timingFunction
+                    current.fillMode = original.fillMode
+                    target.add(current, forKey: key)
+                }
+            }
+            if sourceKeys.isEmpty { stopAnimationSync() }
         }
 
         func enableShadowObserving(view: UIView) {
@@ -660,6 +714,58 @@ extension UIView {
 
     /// 视觉图层同步过渡用的动画key(每次先移除同key旧动画再加新的，防快速连点时动画叠加)
     fileprivate static let wy_visualSyncAnimationKey = "WYBasisKit.visualSyncAnimation"
+
+    fileprivate static func wy_copyVisualAnimation(_ original: CAAnimation) -> CAAnimation {
+        let animation: CAAnimation
+        if let basic = original as? CABasicAnimation {
+            let copy: CABasicAnimation
+            if let spring = basic as? CASpringAnimation {
+                let value = CASpringAnimation(keyPath: spring.keyPath)
+                value.mass = spring.mass
+                value.stiffness = spring.stiffness
+                value.damping = spring.damping
+                value.initialVelocity = spring.initialVelocity
+                copy = value
+            } else {
+                copy = CABasicAnimation(keyPath: basic.keyPath)
+            }
+            copy.fromValue = basic.fromValue
+            copy.toValue = basic.toValue
+            copy.byValue = basic.byValue
+            copy.isAdditive = basic.isAdditive
+            copy.isCumulative = basic.isCumulative
+            copy.valueFunction = basic.valueFunction
+            animation = copy
+        } else if let keyframe = original as? CAKeyframeAnimation {
+            let copy = CAKeyframeAnimation(keyPath: keyframe.keyPath)
+            copy.values = keyframe.values
+            copy.path = keyframe.path
+            copy.keyTimes = keyframe.keyTimes
+            copy.timingFunctions = keyframe.timingFunctions
+            copy.calculationMode = keyframe.calculationMode
+            copy.tensionValues = keyframe.tensionValues
+            copy.continuityValues = keyframe.continuityValues
+            copy.biasValues = keyframe.biasValues
+            copy.rotationMode = keyframe.rotationMode
+            copy.isAdditive = keyframe.isAdditive
+            copy.isCumulative = keyframe.isCumulative
+            animation = copy
+        } else {
+            animation = original.copy() as! CAAnimation
+        }
+        animation.duration = original.duration
+        animation.beginTime = original.beginTime
+        animation.speed = original.speed
+        animation.timeOffset = original.timeOffset
+        animation.repeatCount = original.repeatCount
+        animation.repeatDuration = original.repeatDuration
+        animation.autoreverses = original.autoreverses
+        animation.fillMode = original.fillMode
+        animation.isRemovedOnCompletion = original.isRemovedOnCompletion
+        animation.timingFunction = original.timingFunction
+        animation.delegate = nil
+        return animation
+    }
 
     /// 让视觉图层与view本体同拍过渡(动画上下文里补一份显式动画组再落值，没有动画上下文时禁隐式动画直接落值，frame传nil表示frame不变只更新路径)
     fileprivate static func wy_syncLayerGeometry(_ layer: CALayer, frame: CGRect?, path: CGPath? = nil, shadowPath: CGPath? = nil, cornerRadius: CGFloat? = nil, source: CALayer? = nil) {
@@ -746,7 +852,8 @@ extension UIView {
             }
             @MainActor func animate(_ keyPath: String, from: Any?, to: Any?, matching: String) {
                 let original = template(matching) ?? template(#keyPath(CALayer.bounds)) ?? template(#keyPath(CALayer.position))
-                let animation = (original?.copy() as? CABasicAnimation) ?? CABasicAnimation()
+                let animation = original.flatMap { wy_copyVisualAnimation($0) as? CABasicAnimation } ?? CABasicAnimation()
+                animation.delegate = nil
                 animation.keyPath = keyPath
                 animation.fromValue = from
                 animation.toValue = to

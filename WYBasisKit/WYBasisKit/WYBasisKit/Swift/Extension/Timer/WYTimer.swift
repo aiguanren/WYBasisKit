@@ -57,6 +57,11 @@ public extension Timer {
             }
         }
         wy_timerObserverContainer[alias] = (enterBackgroundObserver, becomeActiveObserver)
+        Task { @MainActor in
+            if UIApplication.shared.applicationState == .background {
+                wy_timerDidEnterBackground(alias, identifier)
+            }
+        }
     }
     
     /// 更新计时器剩余时间，单位 "秒"

@@ -539,6 +539,8 @@ public class WYPhotoBrowser: UIViewController {
 
         coordinator.animate(alongsideTransition: nil) { [weak self] _ in
             guard let self = self else { return }
+            self.flowLayout.invalidateLayout()
+            self.collectionView.layoutIfNeeded()
             self.collectionView.setContentOffset(self.targetOffset(for: self.internalCurrentIndex), animated: false)
             self.layoutIndicator()
         }

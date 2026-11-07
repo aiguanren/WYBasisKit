@@ -44,7 +44,8 @@ final class WYVideoPlayerPlaybackOptions {
     /// 切换条目后恢复视频轨道状态
     func applyVideoTracks() {
         guard let player = player else { return }
-        player.playerLayer.player = isAudioOnly ? nil : player.avPlayer
+        player.playerLayer.isHidden = isAudioOnly
+        if player.playerLayer.player !== player.avPlayer { player.playerLayer.player = player.avPlayer }
         guard let item = player.avPlayer.currentItem else { return }
         for track in item.tracks where track.assetTrack?.mediaType == .video { track.isEnabled = !isAudioOnly }
     }

@@ -610,6 +610,7 @@ extension UIView {
 
     /// 停止bounds监听(指定位置边框和链式视觉全部移除后调用)
     internal func wy_stopBoundsObserving() {
+        (objc_getAssociatedObject(self, &WYAssociatedKeys.borderObserver) as? WYBoundsObserver)?.stopAnimationSync()
         objc_setAssociatedObject(self, &WYAssociatedKeys.borderObserver, nil, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
     }
 
