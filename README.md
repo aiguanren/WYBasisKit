@@ -167,6 +167,10 @@ pod 'WYBasisKit-ObjC/AppleServices'
 
 公开查询没有提供大陆与境外运营商适用范围，不能用系统版本、Locale、当前 SIM 运营商或机型字符串单独判定。[中国大陆 eSIM 还受设备销售地区、所在地与运营商办理条件影响](https://support.apple.com/zh-cn/123879)。可在“设置 → 蜂窝网络”检查“添加 eSIM”，并请运营商核对具体销售型号、设备与套餐资格；有添加入口也不保证指定套餐可安装。
 
+eSIM 的储存和同时启用数量取决于设备机型及销售版本，不取决于所安装套餐的运营商地区。中国大陆销售且支持 eSIM 的 iPhone，在境外开启定位服务后可安装当地运营商的 eSIM，在中国大陆境内不能安装境外运营商 eSIM；储存总数在境外仍最多两个，装满后需先删除一个，回国恢复已删除的大陆 eSIM 需重新到运营商营业厅办理。[大陆销售 iPhone 的安装和数量限制](https://support.apple.com/zh-cn/123879)
+
+境外销售机型也不是无限储存，例如美版 iPhone 15 的规格为可储存八个或更多 eSIM、同时启用两个。储存数量与同时启用数量是独立限制，不能把所有境外机型都视为支持同时启用两个，也不能把这些 iPhone 数量说明直接套用于 iPad，需按具体机型和销售版本核对。本枚举不查询或返回这些数量。[iPhone 15 技术规格](https://support.apple.com/en-us/111831)
+
 [CTCellularPlanProperties](https://developer.apple.com/documentation/coretelephony/ctcellularplanproperties) 的 `supportedRegionCodes` 用于配置指定 eSIM 的服务地区，不是读取设备销售地区或全球安装资格的查询入口。
 
 LPA 支持省略或使用任意大小写的 `LPA:` 前缀，会去掉首尾空白并统一成大写前缀。内容需为 `1$SM-DP+服务器地址$激活码`，允许空激活码及后续可选字段，拒绝缺失字段、非法服务器地址和内部空白或控制字符。激活资料的大小写与特殊字符会保留，链接参数会编码，二维码内容为原始归一 LPA 串。二维码尺寸以像素计，输出采用正方形整数倍点阵且不超过传入宽高，尺寸过小、非有限、非正数或超过 `maximumQRCodeDimension`（4096）时返回 nil。

@@ -8,7 +8,19 @@
 import Foundation
 import UIKit
 
-/// eSIM 能力与适用地区
+/**
+ * eSIM 硬件与运营商地区能力(不表示当前套餐的安装资格、可储存数量或可同时启用数量)
+ *
+ * 地区分类表示支持的运营商范围，不等同设备销售地区或当前所在地，支持两类运营商也需要分别满足安装地点与运营商条件
+ *
+ * 中国大陆销售且支持 eSIM 的 iPhone，在境外启用定位服务后可安装当地运营商 eSIM，在中国大陆境内不能安装境外运营商 eSIM
+ *
+ * 这类大陆销售机型最多储存两个 eSIM，出境后也不增加，装满后添加旅行 eSIM 需要先删除一个，恢复已删除的大陆 eSIM 需到运营商营业厅办理
+ *
+ * 部分境外销售的 iPhone 可储存八个或更多 eSIM，并非数量无限，储存数量与同时启用数量不同，支持双 eSIM 的机型可同时启用两个
+ *
+ * 以上数量说明适用于 iPhone，具体限制需按机型和销售版本核对，不能将本枚举用于判断 iPad 的数量限制
+ */
 @objc public enum WYEsimRegionSupport: Int {
     /// 无法确定 eSIM 能力
     case unknown
@@ -18,7 +30,7 @@ import UIKit
     case chinaMainland
     /// 仅支持境外运营商
     case international
-    /// 支持中国大陆与境外运营商
+    /// 支持中国大陆与境外运营商(安装时需分别满足所在地及运营商条件)
     case chinaMainlandAndInternational
     /// 已确认不支持 eSIM
     case unsupported
@@ -42,7 +54,7 @@ public struct WYAppleServices {
     /// 二维码允许的最大边长(单位为像素)
     public static let maximumQRCodeDimension: CGFloat = 4096
 
-    /// eSIM 硬件与地区能力(无法确认的结果保留 unknown)
+    /// eSIM 硬件与运营商地区能力(不包含当前安装资格或数量限制，无法确认时返回 unknown)
     public static var esimCapability: WYEsimRegionSupport {
         return currentEsimCapability()
     }

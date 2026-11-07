@@ -17,7 +17,7 @@ import WYBasisKitSwift
     /// 二维码允许的最大边长(单位为像素)
     @objc public static var maximumQRCodeDimension: CGFloat { WYAppleServices.maximumQRCodeDimension }
 
-    /// eSIM 硬件与地区能力(无法确认的结果保留 unknown)
+    /// eSIM 硬件与运营商地区能力(不包含当前安装资格或数量限制，无法确认时返回 unknown)
     @objc public static var esimCapability: WYEsimRegionSupport { WYAppleServices.esimCapability }
 
     /// 系统是否提供 eSIM 通用链接入口(不代表设备支持或安装界面已出现)
