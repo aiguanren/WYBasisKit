@@ -147,7 +147,6 @@ pod 'WYBasisKit-ObjC/AppleServices'
 | API | 用途与结果 |
 | --- | --- |
 | `esimCapability` | 返回 `WYEsimRegionSupport`，无法可靠确认时为 `unknown` |
-| `isEsimSupported` | 兼容布尔入口，只有已确认支持才为 true，false 也可能是无法确定 |
 | `isEsimInstallationLinkAvailable` | 系统版本是否提供 eSIM 通用链接入口，不检查设备、地区、套餐或系统是否接受请求 |
 | `esimInstallationURL(lpa:)` | 生成链接，不打开链接、不检查设备能力，不合法时返回 nil |
 | `requestEsimInstallation(lpa:completion:)` | 请求系统处理通用链接，返回非法资料、系统入口不可用、系统拒绝或系统接受，不回退到浏览器 |
@@ -164,7 +163,11 @@ pod 'WYBasisKit-ObjC/AppleServices'
 
 [Apple 将 supportsEmbeddedSIM 定义为硬件支持属性](https://developer.apple.com/documentation/coretelephony/ctcellularplanprovisioning/supportsembeddedsim)，本地 SDK 声明其从 iOS 16 起可用。[所属类文档仍要求运营商授权](https://developer.apple.com/documentation/coretelephony/ctcellularplanprovisioning)，没有明确给出该属性的授权豁免，因此查询返回 false 时保留 unknown。模拟器与没有此属性的系统也返回 unknown。[supportsCellularPlan() 同时检查硬件、激活策略和运营商授权](https://developer.apple.com/documentation/coretelephony/ctcellularplanprovisioning/supportscellularplan())，不能用它的 false 判断设备不支持。
 
+模块面向全球设备与使用地区，设备销售版本、eSIM 硬件、套餐支持地区、运营商锁定与实际安装条件分别影响可用性，不能把人在中国大陆或使用中文当作大陆销售版本，也不能把人在境外当作国际版本。[XS、XS Max、XR 已支持 eSIM](https://support.apple.com/zh-cn/118669)，[美版 iPhone 14 系列的变化是仅使用 eSIM，其他销售地区的 SIM 形态有所不同](https://support.apple.com/zh-cn/118569)。地区枚举表达运营商安装能力，不能等同当前所在地或保证任意运营商套餐都可安装。
+
 公开查询没有提供大陆与境外运营商适用范围，不能用系统版本、Locale、当前 SIM 运营商或机型字符串单独判定。[中国大陆 eSIM 还受设备销售地区、所在地与运营商办理条件影响](https://support.apple.com/zh-cn/123879)。可在“设置 → 蜂窝网络”检查“添加 eSIM”，并请运营商核对具体销售型号、设备与套餐资格；有添加入口也不保证指定套餐可安装。
+
+[CTCellularPlanProperties](https://developer.apple.com/documentation/coretelephony/ctcellularplanproperties) 的 `supportedRegionCodes` 用于配置指定 eSIM 的服务地区，不是读取设备销售地区或全球安装资格的查询入口。
 
 LPA 支持省略或使用任意大小写的 `LPA:` 前缀，会去掉首尾空白并统一成大写前缀。内容需为 `1$SM-DP+服务器地址$激活码`，允许空激活码及后续可选字段，拒绝缺失字段、非法服务器地址和内部空白或控制字符。激活资料的大小写与特殊字符会保留，链接参数会编码，二维码内容为原始归一 LPA 串。二维码尺寸以像素计，输出采用正方形整数倍点阵且不超过传入宽高，尺寸过小、非有限、非正数或超过 `maximumQRCodeDimension`（4096）时返回 nil。
 

@@ -23,9 +23,6 @@ import WYBasisKitSwift
     /// 系统是否提供 eSIM 通用链接入口(不代表设备支持或安装界面已出现)
     @objc public static var isEsimInstallationLinkAvailable: Bool { WYAppleServices.isEsimInstallationLinkAvailable }
 
-    /// 是否已确认支持 eSIM 硬件(false 也可能表示无法确定，请使用 esimCapability 区分)
-    @objc public static var isEsimSupported: Bool { WYAppleServices.isEsimSupported }
-
     /**
      *  唤起系统处理指定链接(系统没有任何应用能处理该链接时回调 false)
      *

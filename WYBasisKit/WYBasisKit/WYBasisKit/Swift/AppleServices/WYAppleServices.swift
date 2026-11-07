@@ -52,14 +52,6 @@ public struct WYAppleServices {
         return installationLinkAvailable
     }
 
-    /// 是否已确认支持 eSIM 硬件(false 也可能表示无法确定，请使用 esimCapability 区分)
-    public static var isEsimSupported: Bool {
-        switch esimCapability {
-        case .supported, .chinaMainland, .international, .chinaMainlandAndInternational: return true
-        case .unknown, .unsupported: return false
-        }
-    }
-
     /**
      *  唤起系统处理指定链接(系统没有任何应用能处理该链接时回调 false)
      *
