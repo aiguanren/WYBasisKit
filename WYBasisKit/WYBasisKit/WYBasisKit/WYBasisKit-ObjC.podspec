@@ -394,6 +394,7 @@ Pod::Spec.new do |kit|
       ]}
       airBubble.frameworks = "Foundation", "UIKit"
       airBubble.dependency "WYBasisKit-swift/Layout/AirBubbleView", kit_swift_version
+      airBubble.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
     end
 
     layout.subspec "SoundWavesView" do |soundWavesView|

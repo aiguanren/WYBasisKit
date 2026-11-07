@@ -23,7 +23,7 @@ public enum WYArrowDirectionObjC: Int {
 }
 
 /// 气泡视图：支持圆角、边框、带三角箭头，箭头可设置方向、尺寸、偏移和圆角等
-@objc public extension WYAirBubbleView {
+@objc extension WYAirBubbleView {
 
     /// 气泡主体的圆角半径
     @objc(cornerRadius)

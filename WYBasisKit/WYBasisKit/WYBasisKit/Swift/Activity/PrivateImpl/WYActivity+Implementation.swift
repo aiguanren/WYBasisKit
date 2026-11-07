@@ -336,8 +336,9 @@ class WYActivityLoadingView: UIView {
             indicator.color = config.indicatorColor
             indicator.startAnimating()
         } else {
-            imageView.animationDuration = config.gifInfo.animationDuration
+            imageView.animationDuration = config.gifInfo.animationDuration.isFinite ? max(0, config.gifInfo.animationDuration) : 0
             imageView.animationImages = config.gifInfo.animationImages
+            imageView.image = config.gifInfo.animatedImage
             imageView.animationRepeatCount = 0
             imageView.startAnimating()
         }
@@ -368,7 +369,7 @@ class WYActivityLoadingView: UIView {
         let right = min(dimension(config.contentInsets.right), maximumWidth / 4)
         let top = min(dimension(config.contentInsets.top), bounds.height / 4)
         let bottom = min(dimension(textlabel.isHidden ? config.contentInsets.bottom : config.textBottomOffset), bounds.height / 4)
-        let spacing = textlabel.isHidden ? 0 : dimension(config.animationTextSpacing)
+        let spacing = textlabel.isHidden ? 0 : min(dimension(config.animationTextSpacing), max(0, bounds.height - top - bottom))
         var animationSize = CGSize(width: dimension(config.animationSize.width), height: dimension(config.animationSize.height))
         let scale = min(1, (maximumWidth - left - right) / max(animationSize.width, 1), (bounds.height - top - bottom) / max(animationSize.height, 1))
         animationSize.width *= scale

@@ -158,6 +158,7 @@ PODS:
     - WYBasisKit-ObjC/Layout/SoundWavesView (= 26.10.2)
     - WYBasisKit-ObjC/Layout/VideoPlayer (= 26.10.2)
   - WYBasisKit-ObjC/Layout/AirBubbleView (26.10.2):
+    - WYBasisKit-ObjC/Imports (= 26.10.2)
     - WYBasisKit-swift/Layout/AirBubbleView (= 26.10.2)
   - WYBasisKit-ObjC/Layout/ContentScrollView (26.10.2):
     - WYBasisKit-ObjC/Imports (= 26.10.2)
@@ -531,7 +532,7 @@ SPEC CHECKSUMS:
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
   SDWebImageWebPCoder: 0e06e365080397465cc73a7a9b472d8a3bd0f377
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
-  WYBasisKit-ObjC: e863a525b1fd96ebc94085c9cf78cbd8e6d1f192
+  WYBasisKit-ObjC: c1ab5ae25945098417e1aa407eea65b6d19c94bd
   WYBasisKit-swift: d2ff3a6f295cecb2e4c0cde1fe5e8df57d931a6e
   WYBasisKit-SwiftUI: 859159655bf83de70b4d8c1905fa318724e66664
 

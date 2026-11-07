@@ -10,7 +10,7 @@
 import UIKit
 import WYBasisKitSwift
 
-@objc public extension WYContentScrollView {
+@objc extension WYContentScrollView {
 
     /// 滑动事件代理
     @objc(contentDelegate)
