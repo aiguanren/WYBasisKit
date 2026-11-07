@@ -7,28 +7,6 @@
 
 import Foundation
 
-/// 自定义Codable协议
-@objc public protocol WYCodableProtocol: NSObjectProtocol {
-    
-    /// 指定属性名映射，解决关键字段冲突，如：@{@"objectProperty": @"json_key"}
-    @objc optional static func wy_objectKeyMapping() -> [String: String]
-    
-    /**
-     指定嵌套对象或数组元素的模型类型
-     @return 属性名与模型类型的对应关系
-     */
-    @objc(wy_objectClassMapping) optional static func wy_objectClassMapping() -> [String: AnyClass]
-
-    /// Key映射开始回调
-    @objc optional func wy_willStartMappingKey()
-    
-    /// Key映射完成回调
-    @objc optional func wy_didFinishMappingKey()
-    
-    /// 自定义类型转换（用于特殊场景处理）
-    @objc optional func wy_convertValue(_ value: Any, forKey key: String) -> Any?
-}
-
 internal class WYCodableProtocolHelper {
     
     /// 安全调用 wy_objectKeyMapping

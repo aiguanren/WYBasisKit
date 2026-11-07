@@ -7,29 +7,15 @@
 
 import Foundation
 
-@objcMembers public class WYCodableConfig: NSObject {
-    
-    /// 日期格式化器（可自定义）
-    @objc public static var dateFormatter: DateFormatter = {
+extension WYCodableConfig {
+
+    @nonobjc static func internal_dateFormatter() -> DateFormatter {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
         return formatter
-    }()
-    
-    /// Data 在 JSON 中的表示前缀
-    @objc public static var dataPrefix: String = "__WYCODABLE_DATA__:"
-    
-    /// 是否启用调试模式
-    @objc public static var debugMode: Bool = false
-    
-    /// 是否忽略未知属性（默认true）
-    @objc public static var ignoreUnknownProperties: Bool = true
-    
-    /// 自定义需要跳过的属性名（如果设置了，将覆盖默认的系统属性过滤）
-    @objc public static var skipProperties: Set<String> = defaultSkipProperties()
-    
-    /// 默认过滤属性
-    @objc public static func defaultSkipProperties() -> Set<String> {
+    }
+
+    @nonobjc static func internal_defaultSkipProperties() -> Set<String> {
         return [
             // NSObject 核心属性
             "hash",                   // 对象的哈希值
@@ -65,8 +51,7 @@ import Foundation
     }
 }
 
-/// DEBUG打印日志
-public func wy_codablePrint(_ messages: Any..., file: String = #file, function: String = #function, line: Int = #line) {
+func internal_wy_codablePrint(_ messages: [Any], file: String, function: String, line: Int) {
 #if DEBUG
     let timeFormatter = DateFormatter()
     timeFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"

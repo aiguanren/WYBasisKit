@@ -7,10 +7,9 @@
 
 import Foundation
 
-@objcMembers public class WYCodableBridge: NSObject {
+extension WYCodableBridge {
     
-    /// 编码：对象 -> JSON
-    @objc public static func jsonFromObject(_ object: NSObject) -> [String: Any] {
+    @nonobjc static func internal_jsonFromObject(_ object: NSObject) -> [String: Any] {
         let visitedObjects = NSHashTable<NSObject>(options: [.weakMemory, .objectPointerPersonality])
         visitedObjects.add(object)
         return jsonFromObject(object, visitedObjects: visitedObjects)
@@ -67,11 +66,11 @@ import Foundation
         return result
     }
     
-    @objc public static func jsonArrayFromObjects(_ objects: [NSObject]) -> [[String: Any]] {
+    @nonobjc static func internal_jsonArrayFromObjects(_ objects: [NSObject]) -> [[String: Any]] {
         return objects.compactMap { jsonFromObject($0) }
     }
     
-    @objc public static func updateObject(_ object: NSObject, with json: [String: Any]) -> Bool {
+    @nonobjc static func internal_updateObject(_ object: NSObject, with json: [String: Any]) -> Bool {
         return updateObject(object, with: json, keyTransform: nil)
     }
 
@@ -167,7 +166,7 @@ import Foundation
         return success
     }
     
-    @objc public static func createObject(from json: [String: Any], className: String) -> NSObject? {
+    @nonobjc static func internal_createObject(from json: [String: Any], className: String) -> NSObject? {
         return createObject(from: json, className: className, keyTransform: nil)
     }
 
@@ -558,13 +557,13 @@ import Foundation
     }
 }
 
-@objc public extension NSObject {
+extension NSObject {
     
-    @objc func wy_toJSONDictionary() -> [String: Any] {
+    @nonobjc func internal_wy_toJSONDictionary() -> [String: Any] {
         return WYCodableBridge.jsonFromObject(self)
     }
     
-    @objc func wy_toJSONData() -> Data? {
+    @nonobjc func internal_wy_toJSONData() -> Data? {
         let dict = wy_toJSONDictionary()
         guard JSONSerialization.isValidJSONObject(dict) else {
             return nil
@@ -572,44 +571,44 @@ import Foundation
         return try? JSONSerialization.data(withJSONObject: dict, options: [])
     }
     
-    @objc func wy_toJSONString() -> String? {
+    @nonobjc func internal_wy_toJSONString() -> String? {
         guard let data = wy_toJSONData() else { return nil }
         return String(data: data, encoding: .utf8)
     }
     
-    @objc func wy_updateWithJSONDictionary(_ dict: [String: Any]) -> Bool {
+    @nonobjc func internal_wy_updateWithJSONDictionary(_ dict: [String: Any]) -> Bool {
         return WYCodableBridge.updateObject(self, with: dict)
     }
     
-    @objc func wy_updateWithJSONData(_ data: Data) -> Bool {
+    @nonobjc func internal_wy_updateWithJSONData(_ data: Data) -> Bool {
         guard let dict = (try? JSONSerialization.jsonObject(with: data, options: [])) as? [String: Any] else {
             return false
         }
         return wy_updateWithJSONDictionary(dict)
     }
     
-    @objc func wy_updateWithJSONString(_ jsonString: String) -> Bool {
+    @nonobjc func internal_wy_updateWithJSONString(_ jsonString: String) -> Bool {
         guard let data = jsonString.data(using: .utf8) else { return false }
         return wy_updateWithJSONData(data)
     }
     
-    @objc static func wy_objectFromJSONDictionary(_ dict: [String: Any]) -> Self? {
+    @nonobjc static func internal_wy_objectFromJSONDictionary(_ dict: [String: Any]) -> Self? {
         return WYCodableBridge.createObject(from: dict, className: NSStringFromClass(self)) as? Self
     }
     
-    @objc static func wy_objectFromJSONData(_ data: Data) -> Self? {
+    @nonobjc static func internal_wy_objectFromJSONData(_ data: Data) -> Self? {
         guard let dict = (try? JSONSerialization.jsonObject(with: data, options: [])) as? [String: Any] else {
             return nil
         }
         return wy_objectFromJSONDictionary(dict)
     }
     
-    @objc static func wy_objectFromJSONString(_ jsonString: String) -> Self? {
+    @nonobjc static func internal_wy_objectFromJSONString(_ jsonString: String) -> Self? {
         guard let data = jsonString.data(using: .utf8) else { return nil }
         return wy_objectFromJSONData(data)
     }
     
-    @objc static func wy_objectsFromJSONArray(_ array: [[String: Any]]) -> [NSObject] {
+    @nonobjc static func internal_wy_objectsFromJSONArray(_ array: [[String: Any]]) -> [NSObject] {
         return array.compactMap { wy_objectFromJSONDictionary($0) }
     }
 }

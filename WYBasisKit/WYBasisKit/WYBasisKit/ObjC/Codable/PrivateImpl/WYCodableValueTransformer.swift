@@ -7,10 +7,9 @@
 
 import Foundation
 
-@objcMembers public class WYCodableValueTransformer: NSObject {
+extension WYCodableValueTransformer {
     
-    /// 基础类型转换
-    @objc public static func transformValue(_ value: Any, toClass className: String) -> Any? {
+    @nonobjc static func internal_transformValue(_ value: Any, toClass className: String) -> Any? {
         if let targetClass = NSClassFromString(className) {
             if targetClass == NSMutableString.self {
                 return transformToString(value).map { NSMutableString(string: $0) }
@@ -59,13 +58,13 @@ import Foundation
         }
     }
     
-    @objc public static func transformToString(_ value: Any) -> String? {
+    @nonobjc static func internal_transformToString(_ value: Any) -> String? {
         if let string = value as? String { return string }
         if let number = value as? NSNumber { return number.stringValue }
         return "\(value)"
     }
     
-    @objc public static func transformToNumber(_ value: Any) -> NSNumber? {
+    @nonobjc static func internal_transformToNumber(_ value: Any) -> NSNumber? {
         if let number = value as? NSNumber { return number }
         if let int = value as? Int { return NSNumber(value: int) }
         if let double = value as? Double { return NSNumber(value: double) }
@@ -87,14 +86,14 @@ import Foundation
         return nil
     }
     
-    @objc public static func transformToDouble(_ value: Any) -> Double {
+    @nonobjc static func internal_transformToDouble(_ value: Any) -> Double {
         if let double = value as? Double { return double }
         if let number = value as? NSNumber { return number.doubleValue }
         if let string = value as? String { return Double(string) ?? 0 }
         return 0
     }
     
-    @objc public static func transformToBool(_ value: Any) -> Bool {
+    @nonobjc static func internal_transformToBool(_ value: Any) -> Bool {
         if let bool = value as? Bool { return bool }
         if let number = value as? NSNumber { return number.boolValue }
         if let string = value as? String {
@@ -104,7 +103,7 @@ import Foundation
         return false
     }
     
-    @objc public static func transformToData(_ value: Any) -> Data? {
+    @nonobjc static func internal_transformToData(_ value: Any) -> Data? {
         if let data = value as? Data { return data }
         if let string = value as? String {
             if string.hasPrefix(WYCodableConfig.dataPrefix) {
@@ -116,7 +115,7 @@ import Foundation
         return nil
     }
     
-    @objc public static func transformToDate(_ value: Any) -> Date? {
+    @nonobjc static func internal_transformToDate(_ value: Any) -> Date? {
         if let date = value as? Date { return date }
         if let timeInterval = value as? TimeInterval { return Date(timeIntervalSince1970: timeInterval) }
         if let timeInterval = value as? Int { return Date(timeIntervalSince1970: TimeInterval(timeInterval)) }
@@ -126,15 +125,15 @@ import Foundation
         return nil
     }
     
-    @objc public static func transformToArray(_ value: Any) -> [Any]? {
+    @nonobjc static func internal_transformToArray(_ value: Any) -> [Any]? {
         return value as? [Any]
     }
     
-    @objc public static func transformToDictionary(_ value: Any) -> [String: Any]? {
+    @nonobjc static func internal_transformToDictionary(_ value: Any) -> [String: Any]? {
         return value as? [String: Any]
     }
     
-    @objc public static func encodeValue(_ value: Any) -> Any? {
+    @nonobjc static func internal_encodeValue(_ value: Any) -> Any? {
         return encodeValue(value, visitedObjects: NSHashTable<NSObject>(options: [.weakMemory, .objectPointerPersonality]))
     }
     
@@ -208,8 +207,7 @@ import Foundation
         return Bundle(for: type(of: object)) == Bundle(for: NSObject.self)
     }
     
-    /// 清空编码对象缓存（用于重置状态）
-    @objc public static func resetEncodingCache() {
+    @nonobjc static func internal_resetEncodingCache() {
         encodingObjects.removeAllObjects()
     }
     
