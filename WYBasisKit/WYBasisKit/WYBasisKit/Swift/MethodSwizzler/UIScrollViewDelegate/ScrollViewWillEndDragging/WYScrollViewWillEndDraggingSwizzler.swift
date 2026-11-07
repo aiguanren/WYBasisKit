@@ -7,6 +7,24 @@
 
 import UIKit
 
+extension WYMethodSwizzler {
+
+    /**
+     交换遵循 `UIScrollViewDelegate` 的对象的 `scrollViewWillEndDragging(_:withVelocity:targetContentOffset:)` 方法。
+
+       @param targetClass 目标代理类。
+       @param before 方法执行前回调，参数依次为：代理对象、滚动视图、速度、目标偏移指针。无返回值。
+       @param after 方法执行后回调，参数依次为：代理对象、滚动视图、速度、目标偏移指针。无返回值（仅通知）。
+     */
+    @objc public static var scrollViewWillEndDragging: @convention(block) (_ targetClass: AnyClass, _ before: ((_ delegate: NSObject, _ scrollView: UIScrollView, _ velocity: CGPoint, _ targetContentOffset: UnsafeMutablePointer<CGPoint>) -> Void)?, _ after: ((_ delegate: NSObject, _ scrollView: UIScrollView, _ velocity: CGPoint, _ targetContentOffset: UnsafeMutablePointer<CGPoint>) -> Void)?) -> Void {
+        return { targetClass, before, after in
+            guard let targetClass = targetClass as? NSObject.Type else { return }
+            guard class_getInstanceMethod(targetClass, #selector(UIScrollViewDelegate.scrollViewWillEndDragging(_:withVelocity:targetContentOffset:))) != nil else { return }
+            wy_swizzlerScrollViewWillEndDragging(for: targetClass, before: before, after: after)
+        }
+    }
+}
+
 /**
  交换遵循 `UIScrollViewDelegate` 的对象的 `scrollViewWillEndDragging(_:withVelocity:targetContentOffset:)` 方法。
  

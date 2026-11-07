@@ -7,6 +7,24 @@
 
 import UIKit
 
+extension WYMethodSwizzler {
+
+    /**
+     交换 `UIViewController` 及其子类的 `present(_:animated:completion:)` 方法。
+
+       @param targetClass 目标视图控制器类（如 `UIViewController.self`）。
+       @param before 方法执行前回调，参数依次为：当前控制器、被 present 的控制器、是否动画、完成闭包。无返回值。
+       @param after 方法执行后回调，参数依次为：当前控制器、被 present 的控制器、是否动画、完成闭包。无返回值（仅通知，不可修改返回值）。
+     */
+    @objc public static var controllerPresent: @convention(block) (_ targetClass: AnyClass, _ before: ((_ currentController: UIViewController, _ presentController: UIViewController, _ animated: Bool, _ completion: (() -> Void)?) -> Void)?, _ after: ((_ currentController: UIViewController, _ presentController: UIViewController, _ animated: Bool, _ completion: (() -> Void)?) -> Void)?) -> Void {
+        return { targetClass, before, after in
+            guard let targetClass = targetClass as? UIViewController.Type else { return }
+            guard class_getInstanceMethod(targetClass, #selector(UIViewController.present(_:animated:completion:))) != nil else { return }
+            wy_swizzlerControllerPresent(for: targetClass, before: before, after: after)
+        }
+    }
+}
+
 /**
  交换 `UIViewController` 及其子类的 `present(_:animated:completion:)` 方法。
  

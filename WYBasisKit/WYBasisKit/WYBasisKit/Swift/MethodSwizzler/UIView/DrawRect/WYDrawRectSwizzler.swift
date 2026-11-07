@@ -7,6 +7,30 @@
 
 import UIKit
 
+extension WYMethodSwizzler {
+
+    /**
+     交换 `UIView` 及其子类的 `draw(_:)` 方法（即 `drawRect:`）。
+
+       @param targetClass 目标视图类（如 `UIView.self`）。
+       @param intercept 拦截决策闭包，返回 `WYRectInterceptResult.proceed` 则使用原始矩形，返回 `WYRectInterceptResult.result(rect)` 则使用新矩形进行绘制，参数依次为：当前视图、原始矩形
+       @param before 方法执行前回调，参数依次为：当前视图、绘制区域矩形。无返回值。
+       @param after 方法执行后回调，参数依次为：当前视图、绘制区域矩形。无返回值（仅通知）。
+     */
+    @objc public static var drawRect: @convention(block) (_ targetClass: AnyClass, _ intercept: ((_ currentView: UIView, _ originalRect: CGRect) -> WYRectInterceptResult?)?, _ before: ((_ currentView: UIView, _ rect: CGRect) -> Void)?, _ after: ((_ currentView: UIView, _ rect: CGRect) -> Void)?) -> Void {
+        return { targetClass, intercept, before, after in
+            guard let targetClass = targetClass as? UIView.Type else { return }
+            guard class_getInstanceMethod(targetClass, #selector(UIView.draw(_:))) != nil else { return }
+            let intercept: ((_ currentView: UIView, _ originalRect: CGRect) -> WYInterceptResult<CGRect>)? = intercept.map { callback in
+                return { currentView, originalRect in
+                    return callback(currentView, originalRect)?.decision ?? .proceed
+                }
+            }
+            wy_swizzlerDrawRect(for: targetClass, intercept: intercept, before: before, after: after)
+        }
+    }
+}
+
 /**
  交换 `UIView` 及其子类的 `draw(_:)` 方法（即 `drawRect:`）。
  

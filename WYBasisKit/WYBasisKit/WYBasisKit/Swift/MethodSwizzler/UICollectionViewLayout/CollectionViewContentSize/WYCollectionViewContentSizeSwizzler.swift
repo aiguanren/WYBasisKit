@@ -7,6 +7,30 @@
 
 import UIKit
 
+extension WYMethodSwizzler {
+
+    /**
+     交换 `UICollectionViewLayout` 及其子类的 `collectionViewContentSize` 属性的 getter 方法。
+
+       @param targetClass 目标布局类。
+       @param intercept 拦截决策闭包，返回 `WYSizeInterceptResult.proceed` 则继续执行原始方法，返回 `WYSizeInterceptResult.result(size)` 则直接返回该尺寸，**不再调用原始方法**，参数为当前布局对象
+       @param before 方法执行前回调，参数为当前布局对象。无返回值。
+       @param after 方法执行后回调，参数依次为：布局对象、原始返回值（`CGSize`）。可返回一个新的 `CGSize` 来替换原始返回值。
+     */
+    @objc public static var collectionViewContentSize: @convention(block) (_ targetClass: AnyClass, _ intercept: ((_ layout: UICollectionViewLayout) -> WYSizeInterceptResult?)?, _ before: ((_ layout: UICollectionViewLayout) -> Void)?, _ after: ((_ layout: UICollectionViewLayout, _ originalResult: CGSize) -> CGSize)?) -> Void {
+        return { targetClass, intercept, before, after in
+            guard let targetClass = targetClass as? UICollectionViewLayout.Type else { return }
+            guard class_getInstanceMethod(targetClass, #selector(getter: UICollectionViewLayout.collectionViewContentSize)) != nil else { return }
+            let intercept: ((_ layout: UICollectionViewLayout) -> WYInterceptResult<CGSize>)? = intercept.map { callback in
+                return { layout in
+                    return callback(layout)?.decision ?? .proceed
+                }
+            }
+            wy_swizzlerCollectionViewContentSize(for: targetClass, intercept: intercept, before: before, after: after)
+        }
+    }
+}
+
 /**
  交换 `UICollectionViewLayout` 及其子类的 `collectionViewContentSize` 属性的 getter 方法。
  

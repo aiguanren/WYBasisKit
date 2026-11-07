@@ -7,6 +7,24 @@
 
 import UIKit
 
+extension WYMethodSwizzler {
+
+    /**
+     交换 `UIViewController` 及其子类的 `viewDidDisappear(_:)` 方法。
+
+       @param targetClass 目标视图控制器类（如 `UIViewController.self`）。
+       @param before 方法执行前回调，参数依次为：当前控制器、是否动画。无返回值。
+       @param after 方法执行后回调，参数依次为：当前控制器、是否动画。无返回值（仅通知）。
+     */
+    @objc public static var viewDidDisappear: @convention(block) (_ targetClass: AnyClass, _ before: ((_ currentController: UIViewController, _ animated: Bool) -> Void)?, _ after: ((_ currentController: UIViewController, _ animated: Bool) -> Void)?) -> Void {
+        return { targetClass, before, after in
+            guard let targetClass = targetClass as? UIViewController.Type else { return }
+            guard class_getInstanceMethod(targetClass, #selector(UIViewController.viewDidDisappear(_:))) != nil else { return }
+            wy_swizzlerViewDidDisappear(for: targetClass, before: before, after: after)
+        }
+    }
+}
+
 /**
  交换 `UIViewController` 及其子类的 `viewDidDisappear(_:)` 方法。
  

@@ -7,6 +7,30 @@
 
 import UIKit
 
+extension WYMethodSwizzler {
+
+    /**
+     交换遵循 `UIGestureRecognizerDelegate` 的对象的 `gestureRecognizerShouldBegin(_:)` 方法。
+
+       @param targetClass 目标代理类（如 `MyViewController.self`）。
+       @param intercept 拦截决策闭包，返回 `WYBoolInterceptResult.proceed` 则继续执行原始方法，返回 `WYBoolInterceptResult.result(shouldBegin)` 则直接返回该布尔值，**不再调用原始方法**，参数依次为：代理对象、手势识别器
+       @param before 方法执行前回调，参数依次为：代理对象、手势识别器。无返回值。
+       @param after 方法执行后回调，参数依次为：代理对象、手势识别器、原始返回值（`Bool`）。可返回一个新的 `Bool` 来替换原始返回值。
+     */
+    @objc public static var gestureRecognizerShouldBegin: @convention(block) (_ targetClass: AnyClass, _ intercept: ((_ delegate: NSObject, _ gestureRecognizer: UIGestureRecognizer) -> WYBoolInterceptResult?)?, _ before: ((_ delegate: NSObject, _ gestureRecognizer: UIGestureRecognizer) -> Void)?, _ after: ((_ delegate: NSObject, _ gestureRecognizer: UIGestureRecognizer, _ originalResult: Bool) -> Bool)?) -> Void {
+        return { targetClass, intercept, before, after in
+            guard let targetClass = targetClass as? NSObject.Type else { return }
+            guard class_getInstanceMethod(targetClass, #selector(UIGestureRecognizerDelegate.gestureRecognizerShouldBegin(_:))) != nil else { return }
+            let intercept: ((_ delegate: NSObject, _ gestureRecognizer: UIGestureRecognizer) -> WYInterceptResult<Bool>)? = intercept.map { callback in
+                return { delegate, gestureRecognizer in
+                    return callback(delegate, gestureRecognizer)?.decision ?? .proceed
+                }
+            }
+            wy_swizzlerGestureRecognizerShouldBegin(for: targetClass, intercept: intercept, before: before, after: after)
+        }
+    }
+}
+
 /**
  交换遵循 `UIGestureRecognizerDelegate` 的对象的 `gestureRecognizerShouldBegin(_:)` 方法。
  

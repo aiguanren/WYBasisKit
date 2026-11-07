@@ -7,6 +7,24 @@
 
 import UIKit
 
+extension WYMethodSwizzler {
+
+    /**
+     交换 `UIView` 及其子类的 `layoutSubviews()` 方法。
+
+       @param targetClass 目标视图类（如 `UIView.self`）。
+       @param before 方法执行前回调，参数为当前视图。无返回值。
+       @param after 方法执行后回调，参数为当前视图。无返回值（仅通知）。
+     */
+    @objc public static var layoutSubviews: @convention(block) (_ targetClass: AnyClass, _ before: ((_ currentView: UIView) -> Void)?, _ after: ((_ currentView: UIView) -> Void)?) -> Void {
+        return { targetClass, before, after in
+            guard let targetClass = targetClass as? UIView.Type else { return }
+            guard class_getInstanceMethod(targetClass, #selector(UIView.layoutSubviews)) != nil else { return }
+            wy_swizzlerLayoutSubviews(for: targetClass, before: before, after: after)
+        }
+    }
+}
+
 /**
  交换 `UIView` 及其子类的 `layoutSubviews()` 方法。
  

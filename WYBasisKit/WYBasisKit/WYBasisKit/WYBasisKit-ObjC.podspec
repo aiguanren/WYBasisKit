@@ -10,7 +10,7 @@ kit_path = "WYBasisKit/WYBasisKit/WYBasisKit/"
 
 Pod::Spec.new do |kit|
   kit.name         = "WYBasisKit-ObjC"
-  kit.version      = "26.10.2"
+  kit.version      = "26.11.1"
   kit.summary      = "WYBasisKit 不仅可以帮助开发者快速构建一个工程，还有基于常用网络框架和系统API而封装的各种实用方法、扩展，开发者只需简单的调用API就可以快速实现相应功能， 大幅提高开发效率。"
   kit.description  = <<-DESC
     Localizable: 国际化解决方案
@@ -30,6 +30,7 @@ Pod::Spec.new do |kit|
     ImageEditor: 相片裁剪与标记(矩形圆形支持固定或自由尺寸，文本矩形圆形箭头划线标记，马赛克涂抹框选打码，文字logo组合水印与整图平铺)
     PhotoBrowser: 图片浏览器(大图缩放浏览与缩放转场拖拽关闭，LivePhoto长按播放，视频封面点击播放回调)
     AudioKit: 音频录制与播放
+    MethodSwizzler: 可按能力选择集成的方法交换工具
     AppleServices: 苹果系统服务唤起(eSIM安装与LPA二维码、邮件、短信、电话、App Store、系统设置页，统一链接唤起与结果回调)
   DESC
   
@@ -81,6 +82,163 @@ Pod::Spec.new do |kit|
   # kit.exclude_files = [
   #   "#{kit_path}aaa/**/*"
   # ]  
+
+  kit.subspec "MethodSwizzler" do |methodSwizzler|
+    methodSwizzler.subspec "General" do |general|
+      general.dependency "WYBasisKit-swift/MethodSwizzler/General", kit_swift_version
+      general.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
+    end
+    methodSwizzler.subspec "KVO" do |group|
+      group.subspec "ObserveValue" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/KVO/ObserveValue", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+    end
+    methodSwizzler.subspec "UICollectionViewLayout" do |group|
+      group.subspec "CollectionViewContentSize" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UICollectionViewLayout/CollectionViewContentSize", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+      group.subspec "LayoutAttributesForElements" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UICollectionViewLayout/LayoutAttributesForElements", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+      group.subspec "LayoutAttributesForItem" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UICollectionViewLayout/LayoutAttributesForItem", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+      group.subspec "LayoutAttributesForSupplementaryView" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UICollectionViewLayout/LayoutAttributesForSupplementaryView", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+      group.subspec "Prepare" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UICollectionViewLayout/Prepare", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+      group.subspec "ShouldInvalidateLayout" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UICollectionViewLayout/ShouldInvalidateLayout", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+    end
+    methodSwizzler.subspec "UIGestureRecognizerDelegate" do |group|
+      group.subspec "GestureRecognizerShouldBegin" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UIGestureRecognizerDelegate/GestureRecognizerShouldBegin", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+    end
+    methodSwizzler.subspec "UILabel" do |group|
+      group.subspec "DrawText" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UILabel/DrawText", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+      group.subspec "TextRect" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UILabel/TextRect", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+    end
+    methodSwizzler.subspec "UINavigationController" do |group|
+      group.subspec "PopViewController" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UINavigationController/PopViewController", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+    end
+    methodSwizzler.subspec "UIResponder" do |group|
+      group.subspec "TouchesBegan" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UIResponder/TouchesBegan", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+      group.subspec "TouchesCancelled" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UIResponder/TouchesCancelled", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+      group.subspec "TouchesEnded" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UIResponder/TouchesEnded", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+      group.subspec "TouchesMoved" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UIResponder/TouchesMoved", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+    end
+    methodSwizzler.subspec "UIScrollViewDelegate" do |group|
+      group.subspec "ScrollViewDidEndDecelerating" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewDidEndDecelerating", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+      group.subspec "ScrollViewDidEndDragging" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewDidEndDragging", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+      group.subspec "ScrollViewDidScroll" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewDidScroll", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+      group.subspec "ScrollViewDidZoom" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewDidZoom", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+      group.subspec "ScrollViewWillBeginDecelerating" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewWillBeginDecelerating", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+      group.subspec "ScrollViewWillBeginDragging" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewWillBeginDragging", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+      group.subspec "ScrollViewWillEndDragging" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UIScrollViewDelegate/ScrollViewWillEndDragging", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+    end
+    methodSwizzler.subspec "UIView" do |group|
+      group.subspec "DrawRect" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UIView/DrawRect", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+      group.subspec "HitTest" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UIView/HitTest", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+      group.subspec "IntrinsicContentSize" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UIView/IntrinsicContentSize", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+      group.subspec "LayoutSubviews" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UIView/LayoutSubviews", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+      group.subspec "SizeThatFits" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UIView/SizeThatFits", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+    end
+    methodSwizzler.subspec "UIViewController" do |group|
+      group.subspec "Present" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UIViewController/Present", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+      group.subspec "ViewDidAppear" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UIViewController/ViewDidAppear", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+      group.subspec "ViewDidDisappear" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UIViewController/ViewDidDisappear", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+      group.subspec "ViewDidLoad" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UIViewController/ViewDidLoad", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+      group.subspec "ViewWillAppear" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UIViewController/ViewWillAppear", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+      group.subspec "ViewWillDisappear" do |hook|
+        hook.dependency "WYBasisKit-swift/MethodSwizzler/UIViewController/ViewWillDisappear", kit_swift_version
+        hook.dependency "WYBasisKit-ObjC/MethodSwizzler/General", kit_swift_version
+      end
+    end
+  end
 
   kit.subspec "Imports" do |imports|
     imports.source_files = [

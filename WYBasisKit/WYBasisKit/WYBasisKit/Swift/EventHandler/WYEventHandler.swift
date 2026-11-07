@@ -14,7 +14,10 @@ public final class WYEventHandler {
     public static let shared = WYEventHandler()
     
     /// 当前所有事件及其监听器数组（只读属性，外部可用于调试或状态查询）
-    public private(set) var eventHandlers: [String: [KitEventHandler]] = [:]
+    public private(set) var eventHandlers: [String: [KitEventHandler]] {
+        get { return wy_eventHandlersSnapshot() }
+        set { wy_replaceEventHandlers(newValue) }
+    }
     
     /**
      *  注册事件监听器
@@ -23,16 +26,7 @@ public final class WYEventHandler {
      *  @param handler   事件回调闭包（参数为触发事件时传入的数据）
      */
     public func register(event: String, target: AnyObject? = nil, handler: @escaping (Any?) -> Void) {
-        lock.lock()
-        defer { lock.unlock() }
-        
-        let wrapper = KitEventHandler(target: target, handler: handler)
-        eventHandlers[event, default: []].append(wrapper)
-        
-        // 设置自动释放监听器
-        if let target = target, !hasDeallocWatcher(for: target) {
-            setupDeallocWatcher(for: target)
-        }
+        wy_register(event: event, target: target, handler: handler)
     }
     
     /**
@@ -41,22 +35,7 @@ public final class WYEventHandler {
      *  @param data      可选数据，将传入监听器的回调中
      */
     public func response(event: String, data: Any? = nil) {
-        let handlers: [KitEventHandler] = {
-            lock.lock()
-            defer { lock.unlock() }
-            
-            guard var handlers = eventHandlers[event] else { return [] }
-            
-            // 过滤掉失效的监听器（target 已释放）
-            handlers = handlers.filter { $0.isValid }
-            eventHandlers[event] = handlers.isEmpty ? nil : handlers
-            return handlers
-        }()
-        
-        // 执行回调
-        handlers.forEach { handler in
-            KitHandlerContext(handler: handler, data: data).execute()
-        }
+        wy_response(event: event, data: data)
     }
     
     /**
@@ -80,14 +59,7 @@ public final class WYEventHandler {
      *  @param target  目标对象，可为 nil（表示所有对象）
      */
     public func remove(event: String? = nil, target: AnyObject? = nil) {
-        lock.lock()
-        defer { lock.unlock() }
-        
-        if let event = event {
-            updateHandlers(for: event, target: target)
-        } else {
-            eventHandlers.keys.forEach { updateHandlers(for: $0, target: target) }
-        }
+        wy_remove(event: event, target: target)
     }
     
     /**
@@ -100,70 +72,11 @@ public final class WYEventHandler {
     
     /// 移除所有监听对象及所有事件监听
     public func removeAll() {
-        lock.lock()
-        defer { lock.unlock() }
-        eventHandlers.removeAll()
+        wy_removeAll()
     }
     
     
-    /// 保证线程安全的互斥锁
-    private let lock = NSLock()
-    
-    /// 更新某个事件对应的监听器列表
-    private func updateHandlers(for event: String, target: AnyObject?) {
-        guard var handlers = eventHandlers[event] else { return }
-        
-        if let target = target {
-            // 保留永久监听器或非该目标对象的监听器
-            handlers = handlers.filter { $0.isPermanent || $0.target !== target }
-        } else {
-            // 全部移除
-            handlers = []
-        }
-        
-        eventHandlers[event] = handlers.isEmpty ? nil : handlers
-    }
-    
-    /// 判断某对象是否已设置自动释放监听器
-    private func hasDeallocWatcher(for target: AnyObject) -> Bool {
-        return objc_getAssociatedObject(target, &WYAssociatedKeys.deallocWatcherKey) != nil
-    }
-    
-    /// 为对象设置释放监听器，用于自动移除绑定的事件监听
-    private func setupDeallocWatcher(for target: AnyObject) {
-        let watcher = KitDeallocWatcher { [weak self] in
-            self?.remove(target: target)
-        }
-        objc_setAssociatedObject(target, &WYAssociatedKeys.deallocWatcherKey, watcher, .OBJC_ASSOCIATION_RETAIN)
-    }
-    
-    /// 对象释放时执行回调（用于自动解绑）
-    private class KitDeallocWatcher {
-        let callback: () -> Void
-        
-        init(callback: @escaping () -> Void) {
-            self.callback = callback
-        }
-        
-        deinit {
-            callback()
-        }
-    }
-    
-    /// 安全执行事件回调的上下文
-    private struct KitHandlerContext {
-        let handler: KitEventHandler
-        let data: Any?
-        
-        func execute() {
-            handler.handler(data)
-        }
-    }
-    
-    /// 用于关联对象的 Key
-    private struct WYAssociatedKeys {
-        static var deallocWatcherKey: UInt8 = 0
-    }
+    internal let state = WYEventHandlerPrivateState()
     
     /// 构造函数私有化，防止外部初始化
     private init() {}

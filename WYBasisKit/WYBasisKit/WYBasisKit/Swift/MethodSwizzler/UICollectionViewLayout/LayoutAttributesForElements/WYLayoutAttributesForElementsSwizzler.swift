@@ -7,6 +7,30 @@
 
 import UIKit
 
+extension WYMethodSwizzler {
+
+    /**
+     交换 `UICollectionViewLayout` 及其子类的 `layoutAttributesForElements(in:)` 方法。
+
+       @param targetClass 目标布局类。
+       @param intercept 拦截决策闭包，返回 `WYLayoutAttributesArrayInterceptResult.proceed` 则继续执行原始方法，返回 `WYLayoutAttributesArrayInterceptResult.result(attributes)` 则直接返回该数组，**不再调用原始方法**，参数依次为：布局对象、矩形区域
+       @param before 方法执行前回调，参数依次为：布局对象、矩形区域。无返回值。
+       @param after 方法执行后回调，参数依次为：布局对象、矩形区域、原始返回值（`[UICollectionViewLayoutAttributes]?`），可返回一个新的数组来替换原始返回值。
+     */
+    @objc public static var layoutAttributesForElements: @convention(block) (_ targetClass: AnyClass, _ intercept: ((_ layout: UICollectionViewLayout, _ rect: CGRect) -> WYLayoutAttributesArrayInterceptResult?)?, _ before: ((_ layout: UICollectionViewLayout, _ rect: CGRect) -> Void)?, _ after: ((_ layout: UICollectionViewLayout, _ rect: CGRect, _ originalResult: [UICollectionViewLayoutAttributes]?) -> [UICollectionViewLayoutAttributes]?)?) -> Void {
+        return { targetClass, intercept, before, after in
+            guard let targetClass = targetClass as? UICollectionViewLayout.Type else { return }
+            guard class_getInstanceMethod(targetClass, #selector(UICollectionViewLayout.layoutAttributesForElements(in:))) != nil else { return }
+            let intercept: ((_ layout: UICollectionViewLayout, _ rect: CGRect) -> WYInterceptResult<[UICollectionViewLayoutAttributes]?>)? = intercept.map { callback in
+                return { layout, rect in
+                    return callback(layout, rect)?.decision ?? .proceed
+                }
+            }
+            wy_swizzlerLayoutAttributesForElements(for: targetClass, intercept: intercept, before: before, after: after)
+        }
+    }
+}
+
 /**
  交换 `UICollectionViewLayout` 及其子类的 `layoutAttributesForElements(in:)` 方法。
  

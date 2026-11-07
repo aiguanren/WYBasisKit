@@ -7,6 +7,24 @@
 
 import UIKit
 
+extension WYMethodSwizzler {
+
+    /**
+     交换遵循 `UIScrollViewDelegate` 的对象的 `scrollViewDidEndDragging(_:willDecelerate:)` 方法。
+
+       @param targetClass 目标代理类。
+       @param before 方法执行前回调，参数依次为：代理对象、滚动视图、是否减速。无返回值。
+       @param after 方法执行后回调，参数依次为：代理对象、滚动视图、是否减速。无返回值（仅通知）。
+     */
+    @objc public static var scrollViewDidEndDragging: @convention(block) (_ targetClass: AnyClass, _ before: ((_ delegate: NSObject, _ scrollView: UIScrollView, _ willDecelerate: Bool) -> Void)?, _ after: ((_ delegate: NSObject, _ scrollView: UIScrollView, _ willDecelerate: Bool) -> Void)?) -> Void {
+        return { targetClass, before, after in
+            guard let targetClass = targetClass as? NSObject.Type else { return }
+            guard class_getInstanceMethod(targetClass, #selector(UIScrollViewDelegate.scrollViewDidEndDragging(_:willDecelerate:))) != nil else { return }
+            wy_swizzlerScrollViewDidEndDragging(for: targetClass, before: before, after: after)
+        }
+    }
+}
+
 /**
  交换遵循 `UIScrollViewDelegate` 的对象的 `scrollViewDidEndDragging(_:willDecelerate:)` 方法。
  

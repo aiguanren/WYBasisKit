@@ -7,6 +7,30 @@
 
 import UIKit
 
+extension WYMethodSwizzler {
+
+    /**
+     交换 `UIView` 及其子类的 `hitTest(_:with:)` 方法。
+
+       @param targetClass 目标视图类（如 `UIView.self`）。
+       @param intercept 拦截决策闭包，返回 `WYViewInterceptResult.proceed` 则继续执行原始方法，返回 `WYViewInterceptResult.result(view)` 则直接返回该视图（可为 `nil`），**不再调用原始方法**，参数依次为：当前视图、点击位置、事件
+       @param before 方法执行前观察闭包（仅在原始方法执行前调用，不影响流程），参数依次为：当前视图、点击位置、事件。无返回值。
+       @param after 方法执行后回调，可修改原始返回值，参数依次为：当前视图、点击位置、事件、原始返回值（`UIView?`），返回一个新的 `UIView?` 作为最终结果。
+     */
+    @objc public static var hitTest: @convention(block) (_ targetClass: AnyClass, _ intercept: ((_ currentView: UIView, _ point: CGPoint, _ event: UIEvent?) -> WYViewInterceptResult?)?, _ before: ((_ currentView: UIView, _ point: CGPoint, _ event: UIEvent?) -> Void)?, _ after: ((_ currentView: UIView, _ point: CGPoint, _ event: UIEvent?, _ originalResult: UIView?) -> UIView?)?) -> Void {
+        return { targetClass, intercept, before, after in
+            guard let targetClass = targetClass as? UIView.Type else { return }
+            guard class_getInstanceMethod(targetClass, #selector(UIView.hitTest(_:with:))) != nil else { return }
+            let intercept: ((_ currentView: UIView, _ point: CGPoint, _ event: UIEvent?) -> WYInterceptResult<UIView?>)? = intercept.map { callback in
+                return { currentView, point, event in
+                    return callback(currentView, point, event)?.decision ?? .proceed
+                }
+            }
+            wy_swizzlerHitTest(for: targetClass, intercept: intercept, before: before, after: after)
+        }
+    }
+}
+
 /**
  交换 `UIView` 及其子类的 `hitTest(_:with:)` 方法。
  

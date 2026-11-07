@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SnapKit
 
 extension WYChatMoreView {
     
@@ -55,5 +56,32 @@ extension WYChatMoreView {
     internal struct WYAssociatedKeys {
         static var pageControl: UInt8 = 0
         static var pageControlSetting: UInt8 = 0
+    }
+}
+
+extension WYChatMoreView {
+
+    func wy_makeCollectionView() -> UICollectionView {
+
+        let numberOfCountInLine: Int = moreViewConfig.scrollDirection == .horizontal ? moreViewConfig.itemMaxCountWithLine : moreViewConfig.itemMaxCountWithColumn
+
+        let minimumInteritemSpacing: CGFloat = (UIDevice.wy_screenWidth - moreViewConfig.contentInset.left - moreViewConfig.contentInset.right - (moreViewConfig.moreItemSize().width * CGFloat(numberOfCountInLine))) / CGFloat(numberOfCountInLine - 1)
+
+        let flowLayout: WYCollectionViewFlowLayout = WYCollectionViewFlowLayout(delegate: self)
+        flowLayout.itemSize = moreViewConfig.moreItemSize()
+        flowLayout.minimumLineSpacing = moreViewConfig.minimumLineSpacing
+        flowLayout.minimumInteritemSpacing = minimumInteritemSpacing
+        flowLayout.scrollDirection = moreViewConfig.scrollDirection
+
+        let collectionView: UICollectionView = UICollectionView.wy_shared(flowLayout: flowLayout, delegate: self, dataSource: self, superView: self)
+
+        collectionView.register(WYMoreViewCell.self, forCellWithReuseIdentifier: "WYMoreViewCell")
+        collectionView.isPagingEnabled = moreViewConfig.isPagingEnabled
+        collectionView.showsVerticalScrollIndicator = false
+        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.snp.makeConstraints { (make) in
+            make.edges.equalToSuperview()
+        }
+        return collectionView
     }
 }

@@ -7,6 +7,24 @@
 
 import UIKit
 
+extension WYMethodSwizzler {
+
+    /**
+     交换 `UIResponder` 及其子类的 `touchesCancelled(_:with:)` 方法。
+
+       @param targetClass 目标响应者类（如 `UIView.self` 或 `UIViewController.self`）。
+       @param before 方法执行前回调，参数依次为：当前响应者、触摸集合、事件。无返回值。
+       @param after 方法执行后回调，参数依次为：当前响应者、触摸集合、事件。无返回值（仅通知）。
+     */
+    @objc public static var touchesCancelled: @convention(block) (_ targetClass: AnyClass, _ before: ((_ responder: UIResponder, _ touches: Set<UITouch>, _ event: UIEvent?) -> Void)?, _ after: ((_ responder: UIResponder, _ touches: Set<UITouch>, _ event: UIEvent?) -> Void)?) -> Void {
+        return { targetClass, before, after in
+            guard let targetClass = targetClass as? UIResponder.Type else { return }
+            guard class_getInstanceMethod(targetClass, #selector(UIResponder.touchesCancelled(_:with:))) != nil else { return }
+            wy_swizzlerTouchesCancelled(for: targetClass, before: before, after: after)
+        }
+    }
+}
+
 /**
  交换 `UIResponder` 及其子类的 `touchesCancelled(_:with:)` 方法。
  

@@ -31,6 +31,109 @@ WYActivity.showLoading(in: player, animation: .gifOrApng, config: WYActivityConf
 WYActivity.dismissLoading(in: self.view)
 ```
 
+##### 方法交换(MethodSwizzler)
+
+Swift 与 Objective-C 共用交换实现，可按单个能力集成，注册和移除操作放在主线程执行。钩子作用于目标类的所有实例，建议为自己的子类注册。
+
+```ruby
+# Swift 最小组合
+pod 'WYBasisKit-swift/MethodSwizzler/UIView/LayoutSubviews'
+
+# Objective-C 最小组合
+pod 'WYBasisKit-ObjC/MethodSwizzler/UIView/HitTest'
+```
+
+```swift
+import WYBasisKitSwift
+
+final class SampleView: UIView {}
+
+wy_swizzlerLayoutSubviews(for: SampleView.self, after: { view in
+    print(view.bounds)
+})
+wy_removeMethodExchangeHooks(for: SampleView.self, selector: #selector(UIView.layoutSubviews))
+```
+
+```objc
+#import <UIKit/UIKit.h>
+#import <WYBasisKitSwift/WYBasisKitSwift-Swift.h>
+
+@interface SampleView : UIView
+@end
+@implementation SampleView
+@end
+
+// 在主线程中注册，返回result(nil)可明确阻止命中，不会被当成继续执行
+WYMethodSwizzler.hitTest(SampleView.class,
+    ^WYViewInterceptResult *(UIView *view, CGPoint point, UIEvent *event) {
+        return CGRectContainsPoint(view.bounds, point)
+            ? WYViewInterceptResult.proceed
+            : WYViewInterceptResult.result(nil);
+    },
+    nil,
+    ^UIView *(UIView *view, CGPoint point, UIEvent *event, UIView *originalResult) {
+        return originalResult;
+    });
+
+WYMethodSwizzler.removeHooks(SampleView.class, @selector(hitTest:withEvent:));
+```
+
+ObjC 最小组合通过依赖的 `WYBasisKitSwift-Swift.h` 导出接口，无需 Swift 宿主源码。`WYMethodSwizzler` 的类属性返回 block，Swift 也可调用这些点语法入口，原有 `wy_swizzler*` 函数保持可用。各入口参数顺序均为目标类、可选 intercept、before、after，不含 intercept 的入口只传目标类、before、after。
+
+同一目标类重复注册时，before 与 after 按注册顺序追加，非 nil intercept 替换已有 intercept，传入 nil 不会删除已有回调。通常执行顺序为 intercept → before → 原方法 → after，after 可修改返回值的入口会把上一个 after 的结果传给下一个 after。intercept 返回 nil 决策对象或 `proceed` 均继续执行，`result(value)` 跳过原方法及 before/after，value 可以明确为 nil、false 或零值。`drawRect` 与 `drawText` 的 `result(rect)` 仅替换绘制矩形，before、原绘制方法、after 仍依次执行。`popViewController` 的 after 只观察弹出的控制器，不替换返回值。
+
+| 决策类型 | result参数 |
+| --- | --- |
+| WYViewInterceptResult | UIView *，允许nil |
+| WYViewControllerInterceptResult | UIViewController *，允许nil |
+| WYSizeInterceptResult | CGSize，允许CGSizeZero |
+| WYRectInterceptResult | CGRect，允许CGRectZero |
+| WYBoolInterceptResult | BOOL，允许false |
+| WYLayoutAttributesInterceptResult | UICollectionViewLayoutAttributes *，允许nil |
+| WYLayoutAttributesArrayInterceptResult | NSArray<UICollectionViewLayoutAttributes *> *，允许nil或空数组 |
+
+每个能力的 subspec 路径在 `MethodSwizzler/` 后追加下表路径。`General` 单独提供决策类型和清理入口，不依赖其他能力。
+
+| 能力路径 | Swift函数 | WYMethodSwizzler点语法入口 |
+| --- | --- | --- |
+| KVO/ObserveValue | wy_swizzlerKVOObserve | kvoObserve |
+| UICollectionViewLayout/CollectionViewContentSize | wy_swizzlerCollectionViewContentSize | collectionViewContentSize |
+| UICollectionViewLayout/LayoutAttributesForElements | wy_swizzlerLayoutAttributesForElements | layoutAttributesForElements |
+| UICollectionViewLayout/LayoutAttributesForItem | wy_swizzlerLayoutAttributesForItem | layoutAttributesForItem |
+| UICollectionViewLayout/LayoutAttributesForSupplementaryView | wy_swizzlerLayoutAttributesForSupplementaryView | layoutAttributesForSupplementaryView |
+| UICollectionViewLayout/Prepare | wy_swizzlerLayoutPrepare | layoutPrepare |
+| UICollectionViewLayout/ShouldInvalidateLayout | wy_swizzlerShouldInvalidateLayout | shouldInvalidateLayout |
+| UIGestureRecognizerDelegate/GestureRecognizerShouldBegin | wy_swizzlerGestureRecognizerShouldBegin | gestureRecognizerShouldBegin |
+| UILabel/DrawText | wy_swizzlerDrawText | drawText |
+| UILabel/TextRect | wy_swizzlerTextRect | textRect |
+| UINavigationController/PopViewController | wy_swizzlerPopViewController | popViewController |
+| UIResponder/TouchesBegan | wy_swizzlerTouchesBegan | touchesBegan |
+| UIResponder/TouchesCancelled | wy_swizzlerTouchesCancelled | touchesCancelled |
+| UIResponder/TouchesEnded | wy_swizzlerTouchesEnded | touchesEnded |
+| UIResponder/TouchesMoved | wy_swizzlerTouchesMoved | touchesMoved |
+| UIScrollViewDelegate/ScrollViewDidEndDecelerating | wy_swizzlerScrollViewDidEndDecelerating | scrollViewDidEndDecelerating |
+| UIScrollViewDelegate/ScrollViewDidEndDragging | wy_swizzlerScrollViewDidEndDragging | scrollViewDidEndDragging |
+| UIScrollViewDelegate/ScrollViewDidScroll | wy_swizzlerScrollViewDidScroll | scrollViewDidScroll |
+| UIScrollViewDelegate/ScrollViewDidZoom | wy_swizzlerScrollViewDidZoom | scrollViewDidZoom |
+| UIScrollViewDelegate/ScrollViewWillBeginDecelerating | wy_swizzlerScrollViewWillBeginDecelerating | scrollViewWillBeginDecelerating |
+| UIScrollViewDelegate/ScrollViewWillBeginDragging | wy_swizzlerScrollViewWillBeginDragging | scrollViewWillBeginDragging |
+| UIScrollViewDelegate/ScrollViewWillEndDragging | wy_swizzlerScrollViewWillEndDragging | scrollViewWillEndDragging |
+| UIView/DrawRect | wy_swizzlerDrawRect | drawRect |
+| UIView/HitTest | wy_swizzlerHitTest | hitTest |
+| UIView/IntrinsicContentSize | wy_swizzlerIntrinsicContentSize | intrinsicContentSize |
+| UIView/LayoutSubviews | wy_swizzlerLayoutSubviews | layoutSubviews |
+| UIView/SizeThatFits | wy_swizzlerSizeThatFits | sizeThatFits |
+| UIViewController/Present | wy_swizzlerControllerPresent | controllerPresent |
+| UIViewController/ViewDidAppear | wy_swizzlerViewDidAppear | viewDidAppear |
+| UIViewController/ViewDidDisappear | wy_swizzlerViewDidDisappear | viewDidDisappear |
+| UIViewController/ViewDidLoad | wy_swizzlerViewDidLoad | viewDidLoad |
+| UIViewController/ViewWillAppear | wy_swizzlerViewWillAppear | viewWillAppear |
+| UIViewController/ViewWillDisappear | wy_swizzlerViewWillDisappear | viewWillDisappear |
+
+`removeHooks(targetClass, selector)` 仅清除指定类和方法的回调，selector 为 NULL 时清除该类全部回调；`removeAllHooks()` 清除全部已注册回调。清理会释放回调持有的对象，保留已安装的方法转发，后续可以重新注册。清理父类不会删除子类独立注册的回调，子类是否调用父类钩子遵循原方法继承和 super 调用关系。全局清理也会移除库内部注册的钩子，正在使用相关扩展时应按自己的目标类和 selector 清理。
+
+错误类型的目标类或缺少目标实例方法时，点语法入口不注册回调。滚动结束拖动回调的 targetContentOffset 是可读写指针，修改值会继续传递给原方法及 after；KVO 的 context 和 present 的 completion 原样传递。回调会被持有到清理为止，捕获控制器或视图时应避免形成引用循环。
+
 ##### Codable使用
 ```
 let assetObj: WYDownloadModel? = try! WYCodable().decode(WYDownloadModel.self, from: success.origin.data(using: .utf8)!)

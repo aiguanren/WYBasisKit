@@ -7,6 +7,30 @@
 
 import UIKit
 
+extension WYMethodSwizzler {
+
+    /**
+     交换 `UILabel` 及其子类的 `drawText(in:)` 方法。
+
+       @param targetClass 目标 Label 类（如 `UILabel.self`）。
+       @param intercept 拦截决策闭包，返回 `WYRectInterceptResult.proceed` 则使用原始矩形，返回 `WYRectInterceptResult.result(rect)` 则使用新矩形进行绘制，参数依次为：当前标签、原始矩形
+       @param before 方法执行前观察闭包（仅在原始方法执行前调用），参数依次为：当前标签、最终使用的矩形。无返回值。
+       @param after 方法执行后回调，参数依次为：当前标签、最终使用的矩形。无返回值（仅通知）。
+     */
+    @objc public static var drawText: @convention(block) (_ targetClass: AnyClass, _ intercept: ((_ currentLabel: UILabel, _ originalRect: CGRect) -> WYRectInterceptResult?)?, _ before: ((_ currentLabel: UILabel, _ rect: CGRect) -> Void)?, _ after: ((_ currentLabel: UILabel, _ rect: CGRect) -> Void)?) -> Void {
+        return { targetClass, intercept, before, after in
+            guard let targetClass = targetClass as? UILabel.Type else { return }
+            guard class_getInstanceMethod(targetClass, #selector(UILabel.drawText(in:))) != nil else { return }
+            let intercept: ((_ currentLabel: UILabel, _ originalRect: CGRect) -> WYInterceptResult<CGRect>)? = intercept.map { callback in
+                return { currentLabel, originalRect in
+                    return callback(currentLabel, originalRect)?.decision ?? .proceed
+                }
+            }
+            wy_swizzlerDrawText(for: targetClass, intercept: intercept, before: before, after: after)
+        }
+    }
+}
+
 /**
  交换 `UILabel` 及其子类的 `drawText(in:)` 方法。
  

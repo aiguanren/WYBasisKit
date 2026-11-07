@@ -7,6 +7,30 @@
 
 import UIKit
 
+extension WYMethodSwizzler {
+
+    /**
+     交换 `UILabel` 及其子类的 `textRect(forBounds:limitedToNumberOfLines:)` 方法。
+
+       @param targetClass 目标 Label 类（如 `UILabel.self`）。
+       @param intercept 拦截决策闭包，返回 `WYRectInterceptResult.proceed` 则继续执行原始方法，返回 `WYRectInterceptResult.result(rect)` 则直接返回该矩形，**不再调用原始方法**，参数依次为：当前标签、建议的边界矩形、最大行数
+       @param before 方法执行前回调，参数依次为：当前标签、建议的边界矩形、最大行数。无返回值。
+       @param after 方法执行后回调，参数依次为：当前标签、建议的边界矩形、最大行数、原始返回值（`CGRect`）。可返回一个新的 `CGRect` 来替换原始返回值。
+     */
+    @objc public static var textRect: @convention(block) (_ targetClass: AnyClass, _ intercept: ((_ currentLabel: UILabel, _ bounds: CGRect, _ numberOfLines: Int) -> WYRectInterceptResult?)?, _ before: ((_ currentLabel: UILabel, _ bounds: CGRect, _ numberOfLines: Int) -> Void)?, _ after: ((_ currentLabel: UILabel, _ bounds: CGRect, _ numberOfLines: Int, _ originalResult: CGRect) -> CGRect)?) -> Void {
+        return { targetClass, intercept, before, after in
+            guard let targetClass = targetClass as? UILabel.Type else { return }
+            guard class_getInstanceMethod(targetClass, #selector(UILabel.textRect(forBounds:limitedToNumberOfLines:))) != nil else { return }
+            let intercept: ((_ currentLabel: UILabel, _ bounds: CGRect, _ numberOfLines: Int) -> WYInterceptResult<CGRect>)? = intercept.map { callback in
+                return { currentLabel, bounds, numberOfLines in
+                    return callback(currentLabel, bounds, numberOfLines)?.decision ?? .proceed
+                }
+            }
+            wy_swizzlerTextRect(for: targetClass, intercept: intercept, before: before, after: after)
+        }
+    }
+}
+
 /**
  交换 `UILabel` 及其子类的 `textRect(forBounds:limitedToNumberOfLines:)` 方法。
  

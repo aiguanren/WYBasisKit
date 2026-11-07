@@ -7,6 +7,30 @@
 
 import UIKit
 
+extension WYMethodSwizzler {
+
+    /**
+     交换 `UIView` 及其子类的 `sizeThatFits(_:)` 方法。
+
+       @param targetClass 目标视图类（如 `UIView.self`）。
+       @param intercept 拦截决策闭包，返回 `WYSizeInterceptResult.proceed` 则继续执行原始方法，返回 `WYSizeInterceptResult.result(size)` 则直接返回该尺寸，**不再调用原始方法**，参数依次为：当前视图、建议的尺寸
+       @param before 方法执行前回调，参数依次为：当前视图、建议的尺寸。无返回值。
+       @param after 方法执行后回调，参数依次为：当前视图、建议的尺寸、原始返回值（`CGSize`），可返回一个新的 `CGSize` 来替换原始返回值。
+     */
+    @objc public static var sizeThatFits: @convention(block) (_ targetClass: AnyClass, _ intercept: ((_ currentView: UIView, _ size: CGSize) -> WYSizeInterceptResult?)?, _ before: ((_ currentView: UIView, _ size: CGSize) -> Void)?, _ after: ((_ currentView: UIView, _ size: CGSize, _ originalResult: CGSize) -> CGSize)?) -> Void {
+        return { targetClass, intercept, before, after in
+            guard let targetClass = targetClass as? UIView.Type else { return }
+            guard class_getInstanceMethod(targetClass, #selector(UIView.sizeThatFits(_:))) != nil else { return }
+            let intercept: ((_ currentView: UIView, _ size: CGSize) -> WYInterceptResult<CGSize>)? = intercept.map { callback in
+                return { currentView, size in
+                    return callback(currentView, size)?.decision ?? .proceed
+                }
+            }
+            wy_swizzlerSizeThatFits(for: targetClass, intercept: intercept, before: before, after: after)
+        }
+    }
+}
+
 /**
  交换 `UIView` 及其子类的 `sizeThatFits(_:)` 方法。
  

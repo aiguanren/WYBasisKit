@@ -7,6 +7,24 @@
 
 import UIKit
 
+extension WYMethodSwizzler {
+
+    /**
+     交换 `UICollectionViewLayout` 及其子类的 `prepare()` 方法。
+
+       @param targetClass 目标布局类（如 `UICollectionViewFlowLayout.self`）。
+       @param before 方法执行前回调，参数为当前布局对象。无返回值。
+       @param after 方法执行后回调，参数为当前布局对象。无返回值（仅通知）。
+     */
+    @objc public static var layoutPrepare: @convention(block) (_ targetClass: AnyClass, _ before: ((_ layout: UICollectionViewLayout) -> Void)?, _ after: ((_ layout: UICollectionViewLayout) -> Void)?) -> Void {
+        return { targetClass, before, after in
+            guard let targetClass = targetClass as? UICollectionViewLayout.Type else { return }
+            guard class_getInstanceMethod(targetClass, #selector(UICollectionViewLayout.prepare as (UICollectionViewLayout) -> () -> Void)) != nil else { return }
+            wy_swizzlerLayoutPrepare(for: targetClass, before: before, after: after)
+        }
+    }
+}
+
 /**
  交换 `UICollectionViewLayout` 及其子类的 `prepare()` 方法。
  
@@ -19,8 +37,8 @@ public func wy_swizzlerLayoutPrepare(
     before: ((_ layout: UICollectionViewLayout) -> Void)? = nil,
     after: ((_ layout: UICollectionViewLayout) -> Void)? = nil
 ) {
-    // 获取要交换的方法选择器（使用字符串，因为 prepare 方法在 Swift 中可能无法直接使用 #selector）
-    let selector = NSSelectorFromString("prepare")
+    // 获取要交换的方法选择器
+    let selector = #selector(UICollectionViewLayout.prepare as (UICollectionViewLayout) -> () -> Void)
     
     // 容错处理，清除可能存在的异常标记
     wy_checkAndCleanSwizzleMark(for: targetClass, selector: selector)

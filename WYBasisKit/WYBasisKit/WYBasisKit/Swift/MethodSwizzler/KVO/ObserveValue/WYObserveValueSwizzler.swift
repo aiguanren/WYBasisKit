@@ -7,6 +7,24 @@
 
 import UIKit
 
+extension WYMethodSwizzler {
+
+    /**
+     交换 `NSObject` 及其子类的 `observeValue(forKeyPath:of:change:context:)` 方法。
+
+       @param targetClass 目标观察者类（如 `NSObject.self`）。
+       @param before 方法执行前回调，参数依次为：观察者、键路径、被观察对象、变化字典、上下文指针。无返回值。
+       @param after 方法执行后回调，参数依次为：观察者、键路径、被观察对象、变化字典、上下文指针。无返回值（仅通知）。
+     */
+    @objc public static var kvoObserve: @convention(block) (_ targetClass: AnyClass, _ before: ((_ observer: NSObject, _ keyPath: String?, _ object: Any?, _ change: [NSKeyValueChangeKey : Any]?, _ context: UnsafeMutableRawPointer?) -> Void)?, _ after: ((_ observer: NSObject, _ keyPath: String?, _ object: Any?, _ change: [NSKeyValueChangeKey : Any]?, _ context: UnsafeMutableRawPointer?) -> Void)?) -> Void {
+        return { targetClass, before, after in
+            guard let targetClass = targetClass as? NSObject.Type else { return }
+            guard class_getInstanceMethod(targetClass, #selector(NSObject.observeValue(forKeyPath:of:change:context:))) != nil else { return }
+            wy_swizzlerKVOObserve(for: targetClass, before: before, after: after)
+        }
+    }
+}
+
 /**
  交换 `NSObject` 及其子类的 `observeValue(forKeyPath:of:change:context:)` 方法。
  

@@ -7,6 +7,30 @@
 
 import UIKit
 
+extension WYMethodSwizzler {
+
+    /**
+     交换 `UICollectionViewLayout` 及其子类的 `layoutAttributesForSupplementaryView(ofKind:at:)` 方法。
+
+       @param targetClass 目标布局类。
+       @param intercept 拦截决策闭包，返回 `WYLayoutAttributesInterceptResult.proceed` 则继续执行原始方法，返回 `WYLayoutAttributesInterceptResult.result(attributes)` 则直接返回该属性对象，**不再调用原始方法**，参数依次为：布局对象、元素类型、索引路径
+       @param before 方法执行前回调，参数依次为：布局对象、元素类型、索引路径。无返回值。
+       @param after 方法执行后回调，参数依次为：布局对象、元素类型、索引路径、原始返回值（`UICollectionViewLayoutAttributes?`）。可返回一个新的属性对象来替换原始返回值。
+     */
+    @objc public static var layoutAttributesForSupplementaryView: @convention(block) (_ targetClass: AnyClass, _ intercept: ((_ layout: UICollectionViewLayout, _ elementKind: String, _ indexPath: IndexPath) -> WYLayoutAttributesInterceptResult?)?, _ before: ((_ layout: UICollectionViewLayout, _ elementKind: String, _ indexPath: IndexPath) -> Void)?, _ after: ((_ layout: UICollectionViewLayout, _ elementKind: String, _ indexPath: IndexPath, _ originalResult: UICollectionViewLayoutAttributes?) -> UICollectionViewLayoutAttributes?)?) -> Void {
+        return { targetClass, intercept, before, after in
+            guard let targetClass = targetClass as? UICollectionViewLayout.Type else { return }
+            guard class_getInstanceMethod(targetClass, #selector(UICollectionViewLayout.layoutAttributesForSupplementaryView(ofKind:at:))) != nil else { return }
+            let intercept: ((_ layout: UICollectionViewLayout, _ elementKind: String, _ indexPath: IndexPath) -> WYInterceptResult<UICollectionViewLayoutAttributes?>)? = intercept.map { callback in
+                return { layout, elementKind, indexPath in
+                    return callback(layout, elementKind, indexPath)?.decision ?? .proceed
+                }
+            }
+            wy_swizzlerLayoutAttributesForSupplementaryView(for: targetClass, intercept: intercept, before: before, after: after)
+        }
+    }
+}
+
 /**
  交换 `UICollectionViewLayout` 及其子类的 `layoutAttributesForSupplementaryView(ofKind:at:)` 方法。
  

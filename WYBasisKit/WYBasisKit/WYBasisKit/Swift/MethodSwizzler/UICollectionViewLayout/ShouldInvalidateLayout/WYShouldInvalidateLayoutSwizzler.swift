@@ -7,6 +7,30 @@
 
 import UIKit
 
+extension WYMethodSwizzler {
+
+    /**
+     交换 `UICollectionViewLayout` 及其子类的 `shouldInvalidateLayout(forBoundsChange:)` 方法。
+
+       @param targetClass 目标布局类。
+       @param intercept 拦截决策闭包，返回 `WYBoolInterceptResult.proceed` 则继续执行原始方法，返回 `WYBoolInterceptResult.result(shouldInvalidate)` 则直接返回该布尔值，**不再调用原始方法**，参数依次为：布局对象、新边界
+       @param before 方法执行前回调，参数依次为：布局对象、新边界。无返回值。
+       @param after 方法执行后回调，参数依次为：布局对象、新边界、原始返回值（`Bool`）。可返回一个新的 `Bool` 来替换原始返回值。
+     */
+    @objc public static var shouldInvalidateLayout: @convention(block) (_ targetClass: AnyClass, _ intercept: ((_ layout: UICollectionViewLayout, _ newBounds: CGRect) -> WYBoolInterceptResult?)?, _ before: ((_ layout: UICollectionViewLayout, _ newBounds: CGRect) -> Void)?, _ after: ((_ layout: UICollectionViewLayout, _ newBounds: CGRect, _ originalResult: Bool) -> Bool)?) -> Void {
+        return { targetClass, intercept, before, after in
+            guard let targetClass = targetClass as? UICollectionViewLayout.Type else { return }
+            guard class_getInstanceMethod(targetClass, #selector(UICollectionViewLayout.shouldInvalidateLayout(forBoundsChange:))) != nil else { return }
+            let intercept: ((_ layout: UICollectionViewLayout, _ newBounds: CGRect) -> WYInterceptResult<Bool>)? = intercept.map { callback in
+                return { layout, newBounds in
+                    return callback(layout, newBounds)?.decision ?? .proceed
+                }
+            }
+            wy_swizzlerShouldInvalidateLayout(for: targetClass, intercept: intercept, before: before, after: after)
+        }
+    }
+}
+
 /**
  交换 `UICollectionViewLayout` 及其子类的 `shouldInvalidateLayout(forBoundsChange:)` 方法。
  

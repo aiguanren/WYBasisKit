@@ -7,6 +7,24 @@
 
 import UIKit
 
+extension WYMethodSwizzler {
+
+    /**
+     交换 `UIViewController` 及其子类的 `viewDidLoad()` 方法。
+
+       @param targetClass 目标视图控制器类（如 `UIViewController.self`）。
+       @param before 方法执行前回调，参数为当前控制器。无返回值。
+       @param after 方法执行后回调，参数为当前控制器。无返回值（仅通知）。
+     */
+    @objc public static var viewDidLoad: @convention(block) (_ targetClass: AnyClass, _ before: ((_ currentController: UIViewController) -> Void)?, _ after: ((_ currentController: UIViewController) -> Void)?) -> Void {
+        return { targetClass, before, after in
+            guard let targetClass = targetClass as? UIViewController.Type else { return }
+            guard class_getInstanceMethod(targetClass, #selector(UIViewController.viewDidLoad)) != nil else { return }
+            wy_swizzlerViewDidLoad(for: targetClass, before: before, after: after)
+        }
+    }
+}
+
 /**
  交换 `UIViewController` 及其子类的 `viewDidLoad()` 方法。
  

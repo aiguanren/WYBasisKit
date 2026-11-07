@@ -326,7 +326,7 @@ import WYBasisKitSwift
     }
 
     /**
-     观察视图所在窗口的折叠状态
+     观察(iPhone折叠屏系列)视图所在窗口的折叠状态
      @param view 接收系统铰链更新的视图
      @param handler 状态回调，state为当前折叠状态
      @return 已加入view的交互对象，停止观察时调用view.removeInteraction移除

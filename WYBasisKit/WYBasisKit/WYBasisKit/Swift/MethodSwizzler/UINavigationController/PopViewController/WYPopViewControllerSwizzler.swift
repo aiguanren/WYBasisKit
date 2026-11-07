@@ -7,6 +7,30 @@
 
 import UIKit
 
+extension WYMethodSwizzler {
+
+    /**
+     交换 `UINavigationController` 及其子类的 `popViewController(animated:)` 方法。
+
+       @param targetClass 目标导航控制器类（如 `UINavigationController.self`）。
+       @param intercept 拦截决策闭包，返回 `WYViewControllerInterceptResult.proceed` 则继续执行原始方法，返回 `WYViewControllerInterceptResult.result(controller)` 则直接返回该控制器（可为 `nil`），**不再调用原始方法**，参数依次为：当前导航控制器、是否动画
+       @param before 方法执行前回调，参数依次为：当前导航控制器、是否动画。无返回值。
+       @param after 方法执行后回调，参数依次为：当前导航控制器、是否动画、被弹出的视图控制器（可能为 `nil`）。无返回值（仅通知）。
+     */
+    @objc public static var popViewController: @convention(block) (_ targetClass: AnyClass, _ intercept: ((_ currentNavigationController: UINavigationController, _ animated: Bool) -> WYViewControllerInterceptResult?)?, _ before: ((_ currentNavigationController: UINavigationController, _ animated: Bool) -> Void)?, _ after: ((_ currentNavigationController: UINavigationController, _ animated: Bool, _ poppedViewController: UIViewController?) -> Void)?) -> Void {
+        return { targetClass, intercept, before, after in
+            guard let targetClass = targetClass as? UINavigationController.Type else { return }
+            guard class_getInstanceMethod(targetClass, #selector(UINavigationController.popViewController(animated:))) != nil else { return }
+            let intercept: ((_ currentNavigationController: UINavigationController, _ animated: Bool) -> WYInterceptResult<UIViewController?>)? = intercept.map { callback in
+                return { currentNavigationController, animated in
+                    return callback(currentNavigationController, animated)?.decision ?? .proceed
+                }
+            }
+            wy_swizzlerPopViewController(for: targetClass, intercept: intercept, before: before, after: after)
+        }
+    }
+}
+
 /**
  交换 `UINavigationController` 及其子类的 `popViewController(animated:)` 方法。
  

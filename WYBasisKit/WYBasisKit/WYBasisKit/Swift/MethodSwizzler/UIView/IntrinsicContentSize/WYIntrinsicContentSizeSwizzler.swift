@@ -7,6 +7,30 @@
 
 import UIKit
 
+extension WYMethodSwizzler {
+
+    /**
+     交换 `UIView` 及其子类的 `intrinsicContentSize` 属性的 getter 方法。
+
+       @param targetClass 目标视图类（如 `UIView.self`）。
+       @param intercept 拦截决策闭包，返回 `WYSizeInterceptResult.proceed` 则继续执行原始方法，返回 `WYSizeInterceptResult.result(size)` 则直接返回该尺寸，**不再调用原始方法**，参数为当前视图
+       @param before 方法执行前回调，参数为当前视图。无返回值。
+       @param after 方法执行后回调，参数依次为：当前视图、原始返回值（`CGSize`），可返回一个新的 `CGSize` 来替换原始返回值。
+     */
+    @objc public static var intrinsicContentSize: @convention(block) (_ targetClass: AnyClass, _ intercept: ((_ currentView: UIView) -> WYSizeInterceptResult?)?, _ before: ((_ currentView: UIView) -> Void)?, _ after: ((_ currentView: UIView, _ originalResult: CGSize) -> CGSize)?) -> Void {
+        return { targetClass, intercept, before, after in
+            guard let targetClass = targetClass as? UIView.Type else { return }
+            guard class_getInstanceMethod(targetClass, #selector(getter: UIView.intrinsicContentSize)) != nil else { return }
+            let intercept: ((_ currentView: UIView) -> WYInterceptResult<CGSize>)? = intercept.map { callback in
+                return { currentView in
+                    return callback(currentView)?.decision ?? .proceed
+                }
+            }
+            wy_swizzlerIntrinsicContentSize(for: targetClass, intercept: intercept, before: before, after: after)
+        }
+    }
+}
+
 /**
  交换 `UIView` 及其子类的 `intrinsicContentSize` 属性的 getter 方法。
  
