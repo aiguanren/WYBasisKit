@@ -23,6 +23,9 @@
 /// LPA 串二维码展示图
 @property (strong, nonatomic) UIImageView *qrCodeImageView;
 
+/// 能力查询按钮
+@property (strong, nonatomic) UIButton *capabilityButton;
+
 @end
 
 @implementation WYTestESimController
@@ -40,15 +43,16 @@
     self.lpaTextField = [[UITextField alloc] init];
     self.installButton = [UIButton buttonWithType:UIButtonTypeSystem];
     self.qrCodeButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    self.capabilityButton = [UIButton buttonWithType:UIButtonTypeSystem];
     self.qrCodeImageView = [[UIImageView alloc] init];
     self.lpaTextField.text = @"1$esim.test.example.com$1EXAMPLE1234567-1";
     self.lpaTextField.placeholder = @"LPA 串";
     self.lpaTextField.borderStyle = UITextBorderStyleRoundedRect;
-    self.lpaTextField.font = [UIFont systemFontOfSize:14];
+    self.lpaTextField.font = [UIFont systemFontOfSize:[UIFont wy_fontSize:14 pixels:WYBasisKitConfig.defaultScreenPixels]];
     self.lpaTextField.clearButtonMode = UITextFieldViewModeWhileEditing;
     [self.view addSubview:self.lpaTextField];
 
-    [self.installButton setTitle:@"立即安装" forState:UIControlStateNormal];
+    [self.installButton setTitle:@"请求打开安装入口" forState:UIControlStateNormal];
     [self.installButton addTarget:self action:@selector(installClicked) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.installButton];
 
@@ -56,54 +60,71 @@
     [self.qrCodeButton addTarget:self action:@selector(qrCodeClicked) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.qrCodeButton];
 
+    [self.capabilityButton setTitle:@"查看 eSIM 能力" forState:UIControlStateNormal];
+    [self.capabilityButton addTarget:self action:@selector(capabilityClicked) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:self.capabilityButton];
+
     self.qrCodeImageView.contentMode = UIViewContentModeScaleAspectFit;
     [self.view addSubview:self.qrCodeImageView];
 
     [self.lpaTextField mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.view.mas_safeAreaLayoutGuideTop).offset(24);
-        make.left.equalTo(self.view).offset(24);
-        make.right.equalTo(self.view).offset(-24);
-        make.height.mas_equalTo(44);
+        make.top.equalTo(self.view.mas_safeAreaLayoutGuideTop).offset([UIDevice wy_screenHeight:24 pixels:WYBasisKitConfig.defaultScreenPixels]);
+        make.left.equalTo(self.view).offset([UIDevice wy_screenWidth:24 pixels:WYBasisKitConfig.defaultScreenPixels]);
+        make.right.equalTo(self.view).offset(-[UIDevice wy_screenWidth:24 pixels:WYBasisKitConfig.defaultScreenPixels]);
+        make.height.mas_equalTo([UIDevice wy_screenHeight:44 pixels:WYBasisKitConfig.defaultScreenPixels]);
+    }];
+
+    [self.capabilityButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.lpaTextField.mas_bottom).offset([UIDevice wy_screenHeight:16 pixels:WYBasisKitConfig.defaultScreenPixels]);
+        make.centerX.equalTo(self.view);
     }];
 
     [self.installButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.lpaTextField.mas_bottom).offset(24);
+        make.top.equalTo(self.capabilityButton.mas_bottom).offset([UIDevice wy_screenHeight:24 pixels:WYBasisKitConfig.defaultScreenPixels]);
         make.centerX.equalTo(self.view);
     }];
 
     [self.qrCodeButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.installButton.mas_bottom).offset(24);
+        make.top.equalTo(self.installButton.mas_bottom).offset([UIDevice wy_screenHeight:24 pixels:WYBasisKitConfig.defaultScreenPixels]);
         make.centerX.equalTo(self.view);
     }];
 
     [self.qrCodeImageView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.qrCodeButton.mas_bottom).offset(24);
+        make.top.equalTo(self.qrCodeButton.mas_bottom).offset([UIDevice wy_screenHeight:24 pixels:WYBasisKitConfig.defaultScreenPixels]);
         make.centerX.equalTo(self.view);
-        make.width.height.mas_equalTo(240);
+        make.width.height.mas_equalTo([UIDevice wy_screenWidth:240 pixels:WYBasisKitConfig.defaultScreenPixels]);
     }];
 }
 
-/// 点击立即安装，唤起系统 eSIM 安装页
+/// 请求打开 eSIM 安装入口
 - (void)installClicked {
 
-    if (!WYAppleServices.isEsimSupported) {
-        [self showResult:@"系统低于 iOS 17.4，没有系统 eSIM 安装页"];
-        return;
-    }
+    __weak typeof(self) weakSelf = self;
+    WYAppleServices.requestEsimInstallation(self.lpaTextField.text ?: @"", ^(WYEsimRequestResult result) {
+        switch (result) {
+            case WYEsimRequestResultInvalidLpa: [weakSelf showResult:@"LPA 格式不合法"]; break;
+            case WYEsimRequestResultLinkUnavailable: [weakSelf showResult:@"系统版本没有 eSIM 通用链接入口，请使用二维码或运营商提供的方式"]; break;
+            case WYEsimRequestResultRequestRejected: [weakSelf showResult:@"系统未接受 eSIM 安装链接，不能据此判断设备不支持"]; break;
+            case WYEsimRequestResultRequestAccepted: [weakSelf showResult:@"系统已接受链接，请在系统设置中确认安装与激活结果"]; break;
+        }
+    });
+}
 
-    if (@available(iOS 17.4, *)) {
-        // 唤起失败由 WYAppleServices 自动弹自定义提示，这里不再重复弹
-        WYAppleServices.install(self.lpaTextField.text, @"此设备无法安装 eSIM，请联系客服", ^(BOOL success) {
-        });
-    }
+/// 查询 eSIM 能力
+- (void)capabilityClicked {
+    WYEsimRegionSupport capability = WYAppleServices.esimCapability;
+    NSString *hardware = capability == WYEsimRegionSupportUnknown ? @"无法确定" : capability == WYEsimRegionSupportUnsupported ? @"已确认不支持" : @"已确认支持";
+    NSString *link = WYAppleServices.isEsimInstallationLinkAvailable ? @"系统版本提供入口" : @"系统版本没有入口";
+    [self showResult:[NSString stringWithFormat:@"eSIM 硬件：%@\n大陆与境外运营商适用范围：无法确定\n链接入口：%@\n可在设置的蜂窝网络中检查添加 eSIM，并由运营商核对设备与套餐资格", hardware, link]];
 }
 
 /// 点击生成二维码，把 LPA 串编成二维码展示
 - (void)qrCodeClicked {
 
     // 按显示尺寸乘屏幕缩放比生成，保证二维码清晰
-    CGFloat side = 240 * MAX(self.traitCollection.displayScale, 1);
-    self.qrCodeImageView.image = WYAppleServices.qrCode(self.lpaTextField.text, CGSizeMake(side, side));
+    CGFloat side = [UIDevice wy_screenWidth:240 pixels:WYBasisKitConfig.defaultScreenPixels] * MAX(self.traitCollection.displayScale, 1);
+    self.qrCodeImageView.image = WYAppleServices.qrCode(self.lpaTextField.text ?: @"", CGSizeMake(side, side));
+    if (self.qrCodeImageView.image == nil) [self showResult:@"LPA 格式不合法或无法生成二维码"];
 }
 
 /// 弹出结果提示

@@ -183,3 +183,5 @@
 "仅支持下载点播视频" = "Vain tilausvideoita voi ladata";
 
 "当前设备不支持 eSIM" = "Tämä laite ei tue eSIM-iä.";
+
+"无法打开 eSIM 安装入口" = "eSIM-käyttöönottoa ei voi avata";

@@ -382,7 +382,6 @@ PODS:
     - WYBasisKit-swift/Localizable
     - WYBasisKit-swift/LogManager
   - WYBasisKit-swift/AppleServices (26.11.1):
-    - WYBasisKit-swift/Extension
     - WYBasisKit-swift/Localizable
   - WYBasisKit-swift/AudioKit (26.11.1):
     - WYBasisKit-swift/Authorization/Microphone
@@ -688,7 +687,7 @@ SPEC CHECKSUMS:
   SDWebImageWebPCoder: 0e06e365080397465cc73a7a9b472d8a3bd0f377
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
   WYBasisKit-ObjC: 2dcedfa7d8ba598325b351ca8c11cd416b3f0370
-  WYBasisKit-swift: d17b3a1ea577bc2b64bc5f7893623f0a1005bea5
+  WYBasisKit-swift: e4e38f837c3f587ea9ff459dc096a27d9a89aa7c
   WYBasisKit-SwiftUI: 859159655bf83de70b4d8c1905fa318724e66664
 
 PODFILE CHECKSUM: c0237d73aa154b85d7e516759a5d5267c9ecb2de

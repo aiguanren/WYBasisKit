@@ -47,16 +47,16 @@ class WYTestAppleServicesController: UIViewController {
     private func setupViews() {
 
         stackView.axis = .vertical
-        stackView.spacing = 16
+        stackView.spacing = UIDevice.wy_screenHeight(16, WYBasisKitConfig.defaultScreenPixels)
         scrollView.addSubview(stackView)
         stackView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
-            make.width.equalToSuperview().offset(-32)
+            make.width.equalTo(scrollView.frameLayoutGuide)
         }
 
         view.addSubview(scrollView)
         scrollView.snp.makeConstraints { make in
-            make.edges.equalTo(view.safeAreaLayoutGuide).inset(16)
+            make.edges.equalTo(view.safeAreaLayoutGuide).inset(UIDevice.wy_screenWidth(16, WYBasisKitConfig.defaultScreenPixels))
         }
 
         configField(mailToField, text: "test@example.com", placeholder: "收件人邮箱")
@@ -80,11 +80,11 @@ class WYTestAppleServicesController: UIViewController {
         field.text = text
         field.placeholder = placeholder
         field.borderStyle = .roundedRect
-        field.font = .systemFont(ofSize: 14)
+        field.font = .systemFont(ofSize: UIFont.wy_fontSize(14, WYBasisKitConfig.defaultScreenPixels))
         field.clearButtonMode = .whileEditing
         stackView.addArrangedSubview(field)
         field.snp.makeConstraints { make in
-            make.height.equalTo(44)
+            make.height.equalTo(UIDevice.wy_screenHeight(44, WYBasisKitConfig.defaultScreenPixels))
         }
     }
 

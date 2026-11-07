@@ -183,3 +183,5 @@
 "仅支持下载点播视频" = "Seules les vidéos à la demande peuvent être téléchargées";
 
 "当前设备不支持 eSIM" = "Cet appareil ne prend pas en charge l'eSIM.";
+
+"无法打开 eSIM 安装入口" = "Impossible d’ouvrir la configuration eSIM";

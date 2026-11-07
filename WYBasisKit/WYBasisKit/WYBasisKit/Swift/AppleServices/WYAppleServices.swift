@@ -8,15 +8,55 @@
 import Foundation
 import UIKit
 
+/// eSIM 能力与适用地区
+@objc public enum WYEsimRegionSupport: Int {
+    /// 无法确定 eSIM 能力
+    case unknown
+    /// 已确认支持 eSIM 硬件，但无法确定适用地区
+    case supported
+    /// 仅支持中国大陆运营商
+    case chinaMainland
+    /// 仅支持境外运营商
+    case international
+    /// 支持中国大陆与境外运营商
+    case chinaMainlandAndInternational
+    /// 已确认不支持 eSIM
+    case unsupported
+}
+
+/// eSIM 链接请求结果(不表示安装界面已出现或套餐已安装或激活)
+@objc public enum WYEsimRequestResult: Int {
+    /// LPA 格式不合法
+    case invalidLpa
+    /// 系统没有提供 eSIM 通用链接入口
+    case linkUnavailable
+    /// 系统未接受通用链接请求
+    case requestRejected
+    /// 系统已接受通用链接请求
+    case requestAccepted
+}
+
 /// Apple系统相关功能封装
 public struct WYAppleServices {
 
-    /// 判断能否唤起系统 eSIM 安装页
+    /// 二维码允许的最大边长(单位为像素)
+    public static let maximumQRCodeDimension: CGFloat = 4096
+
+    /// eSIM 硬件与地区能力(无法确认的结果保留 unknown)
+    public static var esimCapability: WYEsimRegionSupport {
+        return currentEsimCapability()
+    }
+
+    /// 系统是否提供 eSIM 通用链接入口(不代表设备支持或安装界面已出现)
+    public static var isEsimInstallationLinkAvailable: Bool {
+        return installationLinkAvailable
+    }
+
+    /// 是否已确认支持 eSIM 硬件(false 也可能表示无法确定，请使用 esimCapability 区分)
     public static var isEsimSupported: Bool {
-        if #available(iOS 17.4, *) {
-            return true
-        }else {
-            return false
+        switch esimCapability {
+        case .supported, .chinaMainland, .international, .chinaMainlandAndInternational: return true
+        case .unknown, .unsupported: return false
         }
     }
 
@@ -24,15 +64,12 @@ public struct WYAppleServices {
      *  唤起系统处理指定链接(系统没有任何应用能处理该链接时回调 false)
      *
      *  @param url 要唤起的链接(支持 https 通用链接与 tel:、mailto:、sms: 等系统 scheme)
-     *  
+     *
      *  @param completion 唤起结果回调(success 为 true 时系统已接管该链接)
      */
     public static func open(url: URL, completion: ((_ success: Bool) -> Void)?) {
 
-        // 不需要先调 canOpenURL 判断，openURL 处理不了时本来就会回调 false，且自定义 scheme 的 canOpenURL 依赖宿主在 Info.plist 配置 LSApplicationQueriesSchemes，漏配会误判为不支持
-        UIApplication.shared.open(url, options: [:]) { success in
-            completion?(success)
-        }
+        openSystemURL(url, completion: completion)
     }
 
     /**
@@ -42,48 +79,39 @@ public struct WYAppleServices {
      */
     public static func openAppSettings(completion: ((_ success: Bool) -> Void)?) {
 
-        guard let url = URL(string: UIApplication.openSettingsURLString) else {
-            completion?(false)
-            return
-        }
-        open(url: url, completion: completion)
+        openSettings(completion: completion)
     }
 
     /**
-     *  唤起系统 eSIM 安装页安装 eSIM(需要 iOS 17.4 及以上，低版本系统没有该安装页，可先用 isEsimSupported 提前判断)
+     *  创建 eSIM 安装链接(不检查设备能力或打开链接)
      *
-     *  说明：
-     *  1. 唤起成功只代表系统已弹出安装页，eSIM 最终有没有激活成功 App 拿不到结果(系统限制，只能引导用户去系统设置确认或回 App 查询业务状态)
-     *  2. 唤起失败(通常是设备不支持 eSIM 或系统无法处理)时会自动弹出提示，传 unsupportedTip 可自定义提示文案
+     *  @param lpa 完整 LPA 串或省略 LPA: 前缀的激活资料
+     *  @return 安装链接(格式不合法时返回 nil)
+     */
+    public static func esimInstallationURL(lpa: String) -> URL? {
+        return installationURL(lpa)
+    }
+
+    /**
+     *  请求系统处理 eSIM 安装链接(不会回退到浏览器)
      *
-     *  @param lpa 获取到的 LPA 串(兼容带/不带 lpa: 前缀及任意大小写，内部统一归一为大写 LPA: 前缀，形如 LPA:1$SM-DP+地址$激活码，传空串时视为不支持直接弹提示)
+     *  @param lpa 完整 LPA 串或省略 LPA: 前缀的激活资料
+     *  @param completion 请求结果回调(result 仅表示链接请求结果，安装界面是否出现及最终安装或激活结果无法从此回调获取)
+     */
+    public static func requestEsimInstallation(lpa: String, completion: ((_ result: WYEsimRequestResult) -> Void)?) {
+        requestInstallation(lpa, completion: completion)
+    }
+
+    /**
+     *  请求系统处理 eSIM 安装链接(失败时显示提示，不会回退到浏览器)
      *
-     *  @param unsupportedTip 唤起失败时的提示文案(不传时用默认文案"当前设备不支持 eSIM")
-     *
-     *  @param completion 唤起结果回调(success 为 true 时系统已接管并弹出 eSIM 安装页，全程不经过 Safari)
+     *  @param lpa 完整 LPA 串或省略 LPA: 前缀的激活资料
+     *  @param unsupportedTip 请求失败时的提示文案(不传时显示无法打开 eSIM 安装入口)
+     *  @param completion 请求结果回调(success 为 true 仅表示系统接受链接，安装界面是否出现及最终安装或激活结果无法从此回调获取)
      */
     @available(iOS 17.4, *)
     public static func install(lpa: String, unsupportedTip: String? = nil, completion: ((_ success: Bool) -> Void)?) {
-
-        /**
-         * 链接为 esimsetup.apple.com 通用链接，系统拦截后直接弹出内置 eSIM 安装页，域名必须保持小写
-         * carddata 放归一后的完整 LPA 串(含 LPA: 前缀与字面 $)，按 URL 查询串常规编码即可，LPA 串里的 $ 与 : 本就是查询串合法字符，编码后保持字面
-         * 不能改成 esim_qrcode_plugin?lpa= 一类写法(路径与参数名不对，iOS 不会拦截，页面会被甩给 Safari 并报无法与服务器建立安全的连接)
-         */
-        guard let normalized = normalizedLpa(lpa),
-              let carddata = normalized.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-              let url = URL(string: "https://esimsetup.apple.com/esim_qrcode_provisioning?carddata=\(carddata)") else {
-            showUnsupportedTip(unsupportedTip)
-            completion?(false)
-            return
-        }
-
-        open(url: url) { success in
-            if !success {
-                showUnsupportedTip(unsupportedTip)
-            }
-            completion?(success)
-        }
+        installLegacy(lpa, tip: unsupportedTip, completion: completion)
     }
 
     /**
@@ -93,12 +121,11 @@ public struct WYAppleServices {
      *
      *  @param size 二维码图片的尺寸(单位为像素，传显示尺寸乘以屏幕缩放比可以得到清晰图)
      *
-     *  @return 二维码图片(lpa 为空串时返回 nil)
+     *  @return 二维码图片(LPA 不合法、尺寸非有限正数、边长超过 maximumQRCodeDimension 或无法生成时返回 nil)
      */
     public static func qrCode(lpa: String, size: CGSize) -> UIImage? {
 
-        guard let normalized = normalizedLpa(lpa) else { return nil }
-        return UIImage.wy_createQrCode(with: Data(normalized.utf8), size: size)
+        return makeQRCode(lpa, size: size)
     }
 
     /**
@@ -118,11 +145,7 @@ public struct WYAppleServices {
      */
     public static func sendMail(to: [String], cc: [String] = [], bcc: [String] = [], subject: String = "", body: String = "", completion: ((_ success: Bool) -> Void)?) {
 
-        guard let url = mailURL(to: to, cc: cc, bcc: bcc, subject: subject, body: body) else {
-            completion?(false)
-            return
-        }
-        open(url: url, completion: completion)
+        openMail(to: to, cc: cc, bcc: bcc, subject: subject, body: body, completion: completion)
     }
 
     /**
@@ -136,11 +159,7 @@ public struct WYAppleServices {
      */
     public static func sendSms(to: [String], body: String = "", completion: ((_ success: Bool) -> Void)?) {
 
-        guard let url = smsURL(to: to, body: body) else {
-            completion?(false)
-            return
-        }
-        open(url: url, completion: completion)
+        openSms(to: to, body: body, completion: completion)
     }
 
     /**
@@ -152,19 +171,14 @@ public struct WYAppleServices {
      */
     public static func call(number: String, completion: ((_ success: Bool) -> Void)?) {
 
-        let trimmed = number.filter { !$0.isWhitespace }
-        guard !trimmed.isEmpty, let url = URL(string: "tel:\(trimmed)") else {
-            completion?(false)
-            return
-        }
-        open(url: url, completion: completion)
+        openPhone(number, completion: completion)
     }
 
     /**
      *  打开指定 App 的 App Store 详情页
      *
      *  @param appId App 在 App Store 的数字 id(App Store 链接里 id 后面的那串数字)
-     *  
+     *
      *  @param completion 唤起结果回调(success 为 true 时系统已打开 App Store 详情页)
      */
     public static func openAppPage(appId: String, completion: ((_ success: Bool) -> Void)?) {

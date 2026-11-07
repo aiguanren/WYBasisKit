@@ -58,19 +58,19 @@
     self.smsBodyField = [[UITextField alloc] init];
     self.appIdField = [[UITextField alloc] init];
     self.stackView.axis = UILayoutConstraintAxisVertical;
-    self.stackView.spacing = 16;
+    self.stackView.spacing = [UIDevice wy_screenHeight:16 pixels:WYBasisKitConfig.defaultScreenPixels];
     [self.scrollView addSubview:self.stackView];
     [self.stackView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.edges.equalTo(self.scrollView);
-        make.width.equalTo(self.scrollView).offset(-32);
+        make.width.equalTo(self.scrollView);
     }];
 
     [self.view addSubview:self.scrollView];
     [self.scrollView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.view.mas_safeAreaLayoutGuideTop).offset(16);
-        make.bottom.equalTo(self.view.mas_safeAreaLayoutGuide).offset(-16);
-        make.left.equalTo(self.view).offset(16);
-        make.right.equalTo(self.view).offset(-16);
+        make.top.equalTo(self.view.mas_safeAreaLayoutGuideTop).offset([UIDevice wy_screenWidth:16 pixels:WYBasisKitConfig.defaultScreenPixels]);
+        make.bottom.equalTo(self.view.mas_safeAreaLayoutGuide).offset(-[UIDevice wy_screenWidth:16 pixels:WYBasisKitConfig.defaultScreenPixels]);
+        make.left.equalTo(self.view).offset([UIDevice wy_screenWidth:16 pixels:WYBasisKitConfig.defaultScreenPixels]);
+        make.right.equalTo(self.view).offset(-[UIDevice wy_screenWidth:16 pixels:WYBasisKitConfig.defaultScreenPixels]);
     }];
 
     [self configField:self.mailToField text:@"test@example.com" placeholder:@"收件人邮箱"];
@@ -94,11 +94,11 @@
     field.text = text;
     field.placeholder = placeholder;
     field.borderStyle = UITextBorderStyleRoundedRect;
-    field.font = [UIFont systemFontOfSize:14];
+    field.font = [UIFont systemFontOfSize:[UIFont wy_fontSize:14 pixels:WYBasisKitConfig.defaultScreenPixels]];
     field.clearButtonMode = UITextFieldViewModeWhileEditing;
     [self.stackView addArrangedSubview:field];
     [field mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.height.mas_equalTo(44);
+        make.height.mas_equalTo([UIDevice wy_screenHeight:44 pixels:WYBasisKitConfig.defaultScreenPixels]);
     }];
 }
 

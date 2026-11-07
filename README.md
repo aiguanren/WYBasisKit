@@ -134,6 +134,83 @@ ObjC 最小组合通过依赖的 `WYBasisKitSwift-Swift.h` 导出接口，无需
 
 错误类型的目标类或缺少目标实例方法时，点语法入口不注册回调。滚动结束拖动回调的 targetContentOffset 是可读写指针，修改值会继续传递给原方法及 after；KVO 的 context 和 present 的 completion 原样传递。回调会被持有到清理为止，捕获控制器或视图时应避免形成引用循环。
 
+##### 系统服务与 eSIM (AppleServices)
+
+```ruby
+pod 'WYBasisKit-swift/AppleServices'
+# Objective-C 工程
+pod 'WYBasisKit-ObjC/AppleServices'
+```
+
+模块依赖 Localizable 与 Config，使用 Foundation、UIKit、CoreImage、CoreTelephony，不需要整个 Extension。系统链接操作的回调在主线程执行，允许不传回调；Objective-C 点语法操作需要回调参数时，可用空闭包或使用允许 nil 回调的方法入口。
+
+| API | 用途与结果 |
+| --- | --- |
+| `esimCapability` | 返回 `WYEsimRegionSupport`，无法可靠确认时为 `unknown` |
+| `isEsimSupported` | 兼容布尔入口，只有已确认支持才为 true，false 也可能是无法确定 |
+| `isEsimInstallationLinkAvailable` | 系统版本是否提供 eSIM 通用链接入口，不检查设备、地区、套餐或系统是否接受请求 |
+| `esimInstallationURL(lpa:)` | 生成链接，不打开链接、不检查设备能力，不合法时返回 nil |
+| `requestEsimInstallation(lpa:completion:)` | 请求系统处理通用链接，返回非法资料、系统入口不可用、系统拒绝或系统接受，不回退到浏览器 |
+| `install(lpa:unsupportedTip:completion:)` | iOS 17.4 起可用的兼容入口，请求失败显示提示，布尔回调仅表示系统是否接受链接 |
+| `qrCode(lpa:size:)` | 生成完整 LPA 内容的二维码，不能生成时返回 nil |
+| `open(url:completion:)` | 处理系统或自定义 scheme 链接，拒绝无 scheme 的相对链接与文件链接 |
+| `openAppSettings(completion:)` | 请求打开当前 App 的系统设置 |
+| `sendMail(to:cc:bcc:subject:body:completion:)` | 请求处理邮件链接，不自动发送邮件 |
+| `sendSms(to:body:completion:)` | 请求处理短信链接，不自动发送短信 |
+| `call(number:completion:)` | 请求处理拨号链接，不代表已接通电话 |
+| `openAppPage(appId:completion:)` / `writeReview(appId:completion:)` | 请求打开 App Store 详情或评分链接，不代表已完成评分 |
+
+`WYEsimRegionSupport` 同时表达硬件与适用地区，`supported` 表示硬件查询已返回支持、地区未知，`unknown` 表示连硬件能力也无法可靠确认。`chinaMainland`、`international` 分别表示仅支持对应地区运营商，`chinaMainlandAndInternational` 表示两者均支持，`unsupported` 表示已确认不支持。自动查询目前只返回 `supported` 或 `unknown`，不会推测地区或将未知转换为不支持。
+
+[Apple 将 supportsEmbeddedSIM 定义为硬件支持属性](https://developer.apple.com/documentation/coretelephony/ctcellularplanprovisioning/supportsembeddedsim)，本地 SDK 声明其从 iOS 16 起可用。[所属类文档仍要求运营商授权](https://developer.apple.com/documentation/coretelephony/ctcellularplanprovisioning)，没有明确给出该属性的授权豁免，因此查询返回 false 时保留 unknown。模拟器与没有此属性的系统也返回 unknown。[supportsCellularPlan() 同时检查硬件、激活策略和运营商授权](https://developer.apple.com/documentation/coretelephony/ctcellularplanprovisioning/supportscellularplan())，不能用它的 false 判断设备不支持。
+
+公开查询没有提供大陆与境外运营商适用范围，不能用系统版本、Locale、当前 SIM 运营商或机型字符串单独判定。[中国大陆 eSIM 还受设备销售地区、所在地与运营商办理条件影响](https://support.apple.com/zh-cn/123879)。可在“设置 → 蜂窝网络”检查“添加 eSIM”，并请运营商核对具体销售型号、设备与套餐资格；有添加入口也不保证指定套餐可安装。
+
+LPA 支持省略或使用任意大小写的 `LPA:` 前缀，会去掉首尾空白并统一成大写前缀。内容需为 `1$SM-DP+服务器地址$激活码`，允许空激活码及后续可选字段，拒绝缺失字段、非法服务器地址和内部空白或控制字符。激活资料的大小写与特殊字符会保留，链接参数会编码，二维码内容为原始归一 LPA 串。二维码尺寸以像素计，输出采用正方形整数倍点阵且不超过传入宽高，尺寸过小、非有限、非正数或超过 `maximumQRCodeDimension`（4096）时返回 nil。
+
+邮件地址使用裸邮箱地址，不支持显示名称或单个元素中拼入多个地址，多个地址分别放入数组。空白地址会跳过，非空非法地址会拒绝整个请求。电话和短信号码支持前导 `+`、ASCII 数字、空格、连字符、圆括号与小数点，不接受控制字符、查询分隔符或 `*`、`#`。App Store id 必须为包含非零数字的 ASCII 数字串。无效参数回调 false，不会请求系统处理。
+
+```swift
+let capability = WYAppleServices.esimCapability
+if capability == .unknown {
+    // 引导查看系统设置，并向运营商确认资格
+}
+let lpa = "1$example.com$ACTIVATION-CODE"
+let image = WYAppleServices.qrCode(lpa: lpa, size: CGSize(width: 512, height: 512))
+WYAppleServices.requestEsimInstallation(lpa: lpa) { result in
+    switch result {
+    case .requestAccepted:
+        // 系统接受链接，安装与激活结果仍需在系统设置中确认
+        break
+    case .invalidLpa, .linkUnavailable, .requestRejected:
+        // 根据请求结果提供二维码或运营商安装方式
+        break
+    @unknown default:
+        break
+    }
+}
+WYAppleServices.sendMail(to: ["help@example.com"], subject: "咨询", body: "内容") { accepted in
+    // accepted 仅表示系统是否接受链接
+}
+```
+
+```objc
+WYEsimRegionSupport capability = WYAppleServices.esimCapability;
+NSURL *url = WYAppleServices.esimInstallationURL(@"1$example.com$ACTIVATION-CODE");
+UIImage *image = WYAppleServices.qrCode(@"1$example.com$ACTIVATION-CODE", CGSizeMake(512, 512));
+WYAppleServices.requestEsimInstallation(@"1$example.com$ACTIVATION-CODE", ^(WYEsimRequestResult result) {
+    if (result == WYEsimRequestResultRequestAccepted) {
+        // 系统接受链接，安装与激活结果仍需在系统设置中确认
+    }
+});
+WYAppleServices.sendMail(@[@"help@example.com"], @[], @[], @"咨询", @"内容", ^(BOOL accepted) {
+    // accepted 仅表示系统是否接受链接
+});
+[WYAppleServices openAppSettingsWithCompletion:nil];
+```
+
+[Apple 的 eSIM 通用链接从 iOS 17.4 起启用](https://developer.apple.com/documentation/ios-ipados-release-notes/ios-ipados-17_5-release-notes)。模块分别表达设备能力、系统入口版本可用性与链接请求结果，链接回调无法确认安装界面是否实际出现，也无法获知最终安装或激活结果。示例的“ESim”页面提供能力查询、二维码和请求入口，不会自动安装或修改蜂窝套餐。
+
 ##### Codable使用
 ```
 let assetObj: WYDownloadModel? = try! WYCodable().decode(WYDownloadModel.self, from: success.origin.data(using: .utf8)!)

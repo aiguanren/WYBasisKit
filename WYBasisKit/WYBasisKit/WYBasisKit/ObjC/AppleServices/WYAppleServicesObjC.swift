@@ -14,10 +14,17 @@ import WYBasisKitSwift
 @objc(WYAppleServices)
 @objcMembers public class WYAppleServicesObjC: NSObject {
 
-    /// 提前判断能否唤起系统 eSIM 安装页(系统需 iOS 17.4 及以上，设备是否带 eSIM 硬件没有公开 API 可查，install 唤起失败即设备不支持)
-    @objc public static var isEsimSupported: Bool {
-        return WYAppleServices.isEsimSupported
-    }
+    /// 二维码允许的最大边长(单位为像素)
+    @objc public static var maximumQRCodeDimension: CGFloat { WYAppleServices.maximumQRCodeDimension }
+
+    /// eSIM 硬件与地区能力(无法确认的结果保留 unknown)
+    @objc public static var esimCapability: WYEsimRegionSupport { WYAppleServices.esimCapability }
+
+    /// 系统是否提供 eSIM 通用链接入口(不代表设备支持或安装界面已出现)
+    @objc public static var isEsimInstallationLinkAvailable: Bool { WYAppleServices.isEsimInstallationLinkAvailable }
+
+    /// 是否已确认支持 eSIM 硬件(false 也可能表示无法确定，请使用 esimCapability 区分)
+    @objc public static var isEsimSupported: Bool { WYAppleServices.isEsimSupported }
 
     /**
      *  唤起系统处理指定链接(系统没有任何应用能处理该链接时回调 false)
@@ -37,7 +44,7 @@ import WYBasisKitSwift
      *
      *  @param completion 唤起结果回调(success 为 true 时系统已接管该链接)
      */
-    @objc public static var open: @convention(block) (URL, @escaping (Bool) -> Void) -> Void {
+    @objc public static var open: @convention(block) (_ url: URL, _ completion: @escaping (_ success: Bool) -> Void) -> Void {
         return { url, completion in
             WYAppleServices.open(url: url, completion: completion)
         }
@@ -57,24 +64,58 @@ import WYBasisKitSwift
      *
      *  @param completion 唤起结果回调(success 为 true 时系统已打开当前 App 的设置页)
      */
-    @objc public static var openAppSettings: @convention(block) (@escaping (Bool) -> Void) -> Void {
+    @objc public static var openAppSettings: @convention(block) (_ completion: @escaping (_ success: Bool) -> Void) -> Void {
         return { completion in
             WYAppleServices.openAppSettings(completion: completion)
         }
     }
 
     /**
-     *  唤起系统 eSIM 安装页安装 eSIM(需要 iOS 17.4 及以上，低版本系统没有该安装页，可先用 isEsimSupported 提前判断)
+     *  创建 eSIM 安装链接(不检查设备能力或打开链接)
      *
-     *  说明：
-     *  1. 唤起成功只代表系统已弹出安装页，eSIM 最终有没有激活成功 App 拿不到结果(系统限制，只能引导用户去系统设置确认或回 App 查询业务状态)
-     *  2. 唤起失败(通常是设备不支持 eSIM 或系统无法处理)时会自动弹出提示，传 unsupportedTip 可自定义提示文案
+     *  @param lpa 完整 LPA 串或省略 LPA: 前缀的激活资料
+     *  @return 安装链接(格式不合法时返回 nil)
+     */
+    @objc public static func esimInstallationURL(lpa: String) -> URL? {
+        return WYAppleServices.esimInstallationURL(lpa: lpa)
+    }
+
+    /**
+     *  创建 eSIM 安装链接(不检查设备能力或打开链接)
      *
-     *  @param lpa 获取到的 LPA 串(兼容带/不带 lpa: 前缀及任意大小写，内部统一归一为大写 LPA: 前缀，形如 LPA:1$SM-DP+地址$激活码，传空串时视为不支持直接弹提示)
+     *  @param lpa 完整 LPA 串或省略 LPA: 前缀的激活资料
+     *  @return 安装链接(格式不合法时返回 nil)
+     */
+    @objc public static var esimInstallationURL: @convention(block) (_ lpa: String) -> URL? {
+        return { lpa in WYAppleServices.esimInstallationURL(lpa: lpa) }
+    }
+
+    /**
+     *  请求系统处理 eSIM 安装链接(不会回退到浏览器)
      *
-     *  @param unsupportedTip 唤起失败时的提示文案(不传时用默认文案"当前设备不支持 eSIM")
+     *  @param lpa 完整 LPA 串或省略 LPA: 前缀的激活资料
+     *  @param completion 请求结果回调(result 仅表示链接请求结果，安装界面是否出现及最终安装或激活结果无法从此回调获取)
+     */
+    @objc public static func requestEsimInstallation(lpa: String, completion: ((_ result: WYEsimRequestResult) -> Void)?) {
+        WYAppleServices.requestEsimInstallation(lpa: lpa, completion: completion)
+    }
+
+    /**
+     *  请求系统处理 eSIM 安装链接(不会回退到浏览器)
      *
-     *  @param completion 唤起结果回调(success 为 true 时系统已接管并弹出 eSIM 安装页，全程不经过 Safari)
+     *  @param lpa 完整 LPA 串或省略 LPA: 前缀的激活资料
+     *  @param completion 请求结果回调(result 仅表示链接请求结果，安装界面是否出现及最终安装或激活结果无法从此回调获取)
+     */
+    @objc public static var requestEsimInstallation: @convention(block) (_ lpa: String, _ completion: @escaping (_ result: WYEsimRequestResult) -> Void) -> Void {
+        return { lpa, completion in WYAppleServices.requestEsimInstallation(lpa: lpa, completion: completion) }
+    }
+
+    /**
+     *  请求系统处理 eSIM 安装链接(失败时显示提示，不会回退到浏览器)
+     *
+     *  @param lpa 完整 LPA 串或省略 LPA: 前缀的激活资料
+     *  @param unsupportedTip 请求失败时的提示文案(不传时显示无法打开 eSIM 安装入口)
+     *  @param completion 请求结果回调(success 为 true 仅表示系统接受链接，安装界面是否出现及最终安装或激活结果无法从此回调获取)
      */
     @available(iOS 17.4, *)
     @objc public static func install(lpa: String, unsupportedTip: String? = nil, completion: ((_ success: Bool) -> Void)?) {
@@ -82,23 +123,15 @@ import WYBasisKitSwift
     }
 
     /**
-     *  唤起系统 eSIM 安装页安装 eSIM(需要 iOS 17.4 及以上，低版本系统没有该安装页，可先用 isEsimSupported 提前判断)
+     *  请求系统处理 eSIM 安装链接(失败时显示提示，不会回退到浏览器)
      *
-     *  说明：
-     *  1. 唤起成功只代表系统已弹出安装页，eSIM 最终有没有激活成功 App 拿不到结果(系统限制，只能引导用户去系统设置确认或回 App 查询业务状态)
-     *  2. 唤起失败(通常是设备不支持 eSIM 或系统无法处理)时会自动弹出提示，传 unsupportedTip 可自定义提示文案
-     *
-     *  @param lpa 获取到的 LPA 串(兼容带/不带 lpa: 前缀及任意大小写，内部统一归一为大写 LPA: 前缀，形如 LPA:1$SM-DP+地址$激活码，传空串时视为不支持直接弹提示)
-     *
-     *  @param unsupportedTip 唤起失败时的提示文案(不传时用默认文案"当前设备不支持 eSIM")
-     *
-     *  @param completion 唤起结果回调(success 为 true 时系统已接管并弹出 eSIM 安装页，全程不经过 Safari)
+     *  @param lpa 完整 LPA 串或省略 LPA: 前缀的激活资料
+     *  @param unsupportedTip 请求失败时的提示文案(不传时显示无法打开 eSIM 安装入口)
+     *  @param completion 请求结果回调(success 为 true 仅表示系统接受链接，安装界面是否出现及最终安装或激活结果无法从此回调获取)
      */
     @available(iOS 17.4, *)
-    @objc public static var install: @convention(block) (String, String?, @escaping (Bool) -> Void) -> Void {
-        return { lpa, unsupportedTip, completion in
-            WYAppleServices.install(lpa: lpa, unsupportedTip: unsupportedTip, completion: completion)
-        }
+    @objc public static var install: @convention(block) (_ lpa: String, _ unsupportedTip: String?, _ completion: @escaping (_ success: Bool) -> Void) -> Void {
+        return { lpa, unsupportedTip, completion in WYAppleServices.install(lpa: lpa, unsupportedTip: unsupportedTip, completion: completion) }
     }
 
     /**
@@ -108,7 +141,7 @@ import WYBasisKitSwift
      *
      *  @param size 二维码图片的尺寸(单位为像素，传显示尺寸乘以屏幕缩放比可以得到清晰图)
      *
-     *  @return 二维码图片(lpa 为空串时返回 nil)
+     *  @return 二维码图片(LPA 不合法、尺寸非有限正数、边长超过 maximumQRCodeDimension 或无法生成时返回 nil)
      */
     @objc public static func qrCode(lpa: String, size: CGSize) -> UIImage? {
         return WYAppleServices.qrCode(lpa: lpa, size: size)
@@ -121,9 +154,9 @@ import WYBasisKitSwift
      *
      *  @param size 二维码图片的尺寸(单位为像素，传显示尺寸乘以屏幕缩放比可以得到清晰图)
      *
-     *  @return 二维码图片(lpa 为空串时返回 nil)
+     *  @return 二维码图片(LPA 不合法、尺寸非有限正数、边长超过 maximumQRCodeDimension 或无法生成时返回 nil)
      */
-    @objc public static var qrCode: @convention(block) (String, CGSize) -> UIImage? {
+    @objc public static var qrCode: @convention(block) (_ lpa: String, _ size: CGSize) -> UIImage? {
         return { lpa, size in
             WYAppleServices.qrCode(lpa: lpa, size: size)
         }
@@ -163,7 +196,7 @@ import WYBasisKitSwift
      *
      *  @param completion 唤起结果回调(success 为 false 时通常是设备没有可用邮件应用或系统无法处理，需要调用方自行弹提示)
      */
-    @objc public static var sendMail: @convention(block) ([String], [String], [String], String, String, @escaping (Bool) -> Void) -> Void {
+    @objc public static var sendMail: @convention(block) (_ to: [String], _ cc: [String], _ bcc: [String], _ subject: String, _ body: String, _ completion: @escaping (_ success: Bool) -> Void) -> Void {
         return { to, cc, bcc, subject, body, completion in
             WYAppleServices.sendMail(to: to, cc: cc, bcc: bcc, subject: subject, body: body, completion: completion)
         }
@@ -191,7 +224,7 @@ import WYBasisKitSwift
      *
      *  @param completion 唤起结果回调(success 为 false 时通常是设备不支持发短信或系统无法处理，需要调用方自行弹提示)
      */
-    @objc public static var sendSms: @convention(block) ([String], String, @escaping (Bool) -> Void) -> Void {
+    @objc public static var sendSms: @convention(block) (_ to: [String], _ body: String, _ completion: @escaping (_ success: Bool) -> Void) -> Void {
         return { to, body, completion in
             WYAppleServices.sendSms(to: to, body: body, completion: completion)
         }
@@ -215,7 +248,7 @@ import WYBasisKitSwift
      *
      *  @param completion 唤起结果回调(success 为 false 时通常是设备不支持拨号或系统无法处理，需要调用方自行弹提示)
      */
-    @objc public static var call: @convention(block) (String, @escaping (Bool) -> Void) -> Void {
+    @objc public static var call: @convention(block) (_ number: String, _ completion: @escaping (_ success: Bool) -> Void) -> Void {
         return { number, completion in
             WYAppleServices.call(number: number, completion: completion)
         }
@@ -239,7 +272,7 @@ import WYBasisKitSwift
      *
      *  @param completion 唤起结果回调(success 为 true 时系统已打开 App Store 详情页)
      */
-    @objc public static var openAppPage: @convention(block) (String, @escaping (Bool) -> Void) -> Void {
+    @objc public static var openAppPage: @convention(block) (_ appId: String, _ completion: @escaping (_ success: Bool) -> Void) -> Void {
         return { appId, completion in
             WYAppleServices.openAppPage(appId: appId, completion: completion)
         }
@@ -249,7 +282,6 @@ import WYBasisKitSwift
      *  打开指定 App 的 App Store 评分页(用户在页里直接打分评论)
      *
      *  @param appId App 在 App Store 的数字 id(App Store 链接里 id 后面的那串数字)
-     *
      *  @param completion 唤起结果回调(success 为 true 时系统已打开 App Store 评分页)
      */
     @objc public static func writeReview(appId: String, completion: ((_ success: Bool) -> Void)?) {
@@ -260,10 +292,9 @@ import WYBasisKitSwift
      *  打开指定 App 的 App Store 评分页(用户在页里直接打分评论)
      *
      *  @param appId App 在 App Store 的数字 id(App Store 链接里 id 后面的那串数字)
-     *
      *  @param completion 唤起结果回调(success 为 true 时系统已打开 App Store 评分页)
      */
-    @objc public static var writeReview: @convention(block) (String, @escaping (Bool) -> Void) -> Void {
+    @objc public static var writeReview: @convention(block) (_ appId: String, _ completion: @escaping (_ success: Bool) -> Void) -> Void {
         return { appId, completion in
             WYAppleServices.writeReview(appId: appId, completion: completion)
         }

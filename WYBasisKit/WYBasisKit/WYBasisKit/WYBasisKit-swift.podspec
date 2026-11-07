@@ -296,8 +296,7 @@ Pod::Spec.new do |kit|
       "#{kit_path}Swift/AppleServices/**/*.{swift,h,m}"
     ]
     appleServices.resources = [localizable_bundle]
-    appleServices.frameworks = "Foundation", "UIKit"
-    appleServices.dependency "WYBasisKit-swift/Extension"
+    appleServices.frameworks = "Foundation", "UIKit", "CoreImage", "CoreTelephony"
     appleServices.dependency "WYBasisKit-swift/Localizable"
   end
   
