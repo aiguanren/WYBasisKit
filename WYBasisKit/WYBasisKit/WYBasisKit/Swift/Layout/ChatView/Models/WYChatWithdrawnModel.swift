@@ -7,9 +7,6 @@
 
 import Foundation
 
-/// 消息撤回时长最大间隔时间(单位秒)
-public var messageWithdrawalInterval: TimeInterval = 120
-
 /// 消息撤回model
 public struct WYChatWithdrawnModel {
     
@@ -30,7 +27,7 @@ public struct WYChatWithdrawnModel {
     
     /// 初始化方法
     public init(sendTime: String = "",
-                withdrawalInterval: TimeInterval = messageWithdrawalInterval,
+                withdrawalInterval: TimeInterval = 120,
                 withdrawnTime: String = "",
                 content: Data = Data(),
                 messageStyle: WYChatMessageStyle = .none) {

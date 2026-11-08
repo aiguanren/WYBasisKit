@@ -7,7 +7,7 @@
 
 import UIKit
 
-@frozen public enum WYSoundAnimationStatus: Int {
+@objc @frozen public enum WYSoundAnimationStatus: Int {
     
     /// 声播正常录制状态
     case recording = 0
@@ -20,6 +20,10 @@ import UIKit
 }
 
 public class WYSoundAnimationView: WYAirBubbleView {
+
+    /// 当前实例配置
+    public var recordAnimationConfig: WYRecordAnimationConfig = WYRecordAnimationConfig()
+
     
     /// 声波动画组件
     public lazy var soundWavesView: WYSoundWavesView = {
@@ -36,7 +40,8 @@ public class WYSoundAnimationView: WYAirBubbleView {
     }()
     
     /// 初始化方法
-    public init(_ status: WYSoundAnimationStatus = .recording) {
+    public init(_ status: WYSoundAnimationStatus = .recording, configuration: WYRecordAnimationConfig = WYRecordAnimationConfig()) {
+        self.recordAnimationConfig = configuration
         super.init(frame: .zero)
         backgroundColor = .clear
         isUserInteractionEnabled = true
@@ -44,6 +49,7 @@ public class WYSoundAnimationView: WYAirBubbleView {
     }
     
     public func refreshSoundWaves(status: WYSoundAnimationStatus) {
+        currentStatus = status
         
         // 声波动画组件Size
         let soundWavesSize: CGSize = soundWavesSize(for: status)
@@ -163,6 +169,13 @@ public class WYSoundAnimationView: WYAirBubbleView {
         
     }
     
+    public override func layoutSubviews() {
+        wy_layoutSoundBubble()
+        super.layoutSubviews()
+    }
+
+    internal var currentStatus: WYSoundAnimationStatus = .recording
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

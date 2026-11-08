@@ -9,7 +9,7 @@
 import UIKit
 
 /// 静态图不存在时从动图取哪一帧
-@frozen public enum WYEmojiStaticFramePosition: Int {
+@objc @frozen public enum WYEmojiStaticFramePosition: Int {
     /// 首帧
     case first = 0
     /// 末帧(默认)
@@ -25,7 +25,7 @@ public struct WYEmojiViewConfig {
     public var backgroundColor: UIColor = .wy_hex("#f6f6f6")
 
     /// 自定义Emoji控件的高度
-    public var contentHeight: CGFloat = UIDevice.wy_screenWidth(350)
+    public var contentHeight: CGFloat = UIDevice.wy_screenWidth(350, WYBasisKitConfig.defaultScreenPixels)
     
     /// 自定义Emoji控件内collectionView底部距离Emoji控件底部的偏移量
     public var collectionViewBottomOffset: CGFloat = 0
@@ -55,13 +55,13 @@ public struct WYEmojiViewConfig {
     public var recentlyCount: Int = 7
 
     /// 自定义Emoji控件最近使用表情Header文本(设置后会显示一个Header, 仅限scrollDirection == .vertical时生效)
-    public var recentlyHeaderText: String = "最近使用"
+    public var recentlyHeaderText: String = WYLocalized("最近使用", table: WYBasisKitConfig.kitLocalizableTable)
 
     /// 自定义Emoji控件所有表情Header文本(设置后会显示一个Header，仅限scrollDirection == .vertical时生效)
-    public var totalHeaderText: String = "所有表情"
+    public var totalHeaderText: String = WYLocalized("所有表情", table: WYBasisKitConfig.kitLocalizableTable)
 
     /// 自定义Emoji控件Header文本字体、字号
-    public var headerTextFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(15))
+    public var headerTextFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(15, WYBasisKitConfig.defaultScreenPixels))
 
     /// 自定义Emoji控件Header文本字体颜色
     public var headerTextColor: UIColor = .wy_hex("#1B1B1B")
@@ -70,25 +70,25 @@ public struct WYEmojiViewConfig {
     public var headerBackgroundColor: UIColor = .wy_hex("#f6f6f6")
 
     /// 自定义Emoji控件HeaderView高度
-    public var headerHeight: CGFloat = UIDevice.wy_screenWidth(30)
+    public var headerHeight: CGFloat = UIDevice.wy_screenWidth(30, WYBasisKitConfig.defaultScreenPixels)
 
     /// 自定义Emoji控件HeaderView中TextView的偏移量
-    public var headerTextOffset: CGPoint = CGPoint(x: UIDevice.wy_screenWidth(15), y: (UIDevice.wy_screenWidth(30) - UIFont.systemFont(ofSize: UIDevice.wy_screenWidth(15)).lineHeight) / 2)
+    public var headerTextOffset: CGPoint = CGPoint(x: UIDevice.wy_screenWidth(15, WYBasisKitConfig.defaultScreenPixels), y: (UIDevice.wy_screenWidth(30, WYBasisKitConfig.defaultScreenPixels) - UIFont.systemFont(ofSize: UIDevice.wy_screenWidth(15, WYBasisKitConfig.defaultScreenPixels)).lineHeight) / 2)
 
     /// 自定义Emoji控件每行显示几个表情
     public var minimumLineCount: Int = 7
 
     /// 自定义Emoji控件单元格的Size
-    public var itemSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(32), height: UIDevice.wy_screenWidth(32))
+    public var itemSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(32, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(32, WYBasisKitConfig.defaultScreenPixels))
 
     /// 自定义Emoji控件全部表情的sectionInset
-    public var sectionInset: UIEdgeInsets = UIEdgeInsets(top: 0, left: UIDevice.wy_screenWidth(15), bottom: UIDevice.wy_screenWidth(20), right: UIDevice.wy_screenWidth(15))
+    public var sectionInset: UIEdgeInsets = UIEdgeInsets(top: 0, left: UIDevice.wy_screenWidth(15, WYBasisKitConfig.defaultScreenPixels), bottom: UIDevice.wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels), right: UIDevice.wy_screenWidth(15, WYBasisKitConfig.defaultScreenPixels))
 
     /// 自定义Emoji控件最近使用分区的sectionInset
-    public var recentlySectionInset: UIEdgeInsets = UIEdgeInsets(top: 0, left: UIDevice.wy_screenWidth(15), bottom: UIDevice.wy_screenWidth(15), right: UIDevice.wy_screenWidth(15))
+    public var recentlySectionInset: UIEdgeInsets = UIEdgeInsets(top: 0, left: UIDevice.wy_screenWidth(15, WYBasisKitConfig.defaultScreenPixels), bottom: UIDevice.wy_screenWidth(15, WYBasisKitConfig.defaultScreenPixels), right: UIDevice.wy_screenWidth(15, WYBasisKitConfig.defaultScreenPixels))
 
     /// 自定义Emoji控件的行间距
-    public var minimumLineSpacing: CGFloat = UIDevice.wy_screenWidth(16)
+    public var minimumLineSpacing: CGFloat = UIDevice.wy_screenWidth(16, WYBasisKitConfig.defaultScreenPixels)
 
     /// 自定义Emoji控件右下角功能区配置
     public var funcAreaConfig: WYEmojiFuncAreaConfig = WYEmojiFuncAreaConfig()
@@ -158,6 +158,10 @@ public struct WYEmojiViewConfig {
 }
 
 public class WYChatEmojiView: UIView, WYEmojiFuncAreaViewDelegate {
+
+    /// 当前实例配置
+    public var emojiViewConfig: WYEmojiViewConfig = WYEmojiViewConfig() { didSet { wy_reloadEmojiConfiguration() } }
+
     
     public weak var eventsHandler: WYChatEmojiViewEventsHandler? = nil
     
@@ -172,7 +176,8 @@ public class WYChatEmojiView: UIView, WYEmojiFuncAreaViewDelegate {
 
     public lazy var dataSource: [[String]] = wy_makeDataSource()
     
-    public init() {
+    public init(config: WYEmojiViewConfig = WYEmojiViewConfig()) {
+        self.emojiViewConfig = config
         super.init(frame: .zero)
         self.collectionView.backgroundColor = emojiViewConfig.backgroundColor
         self.funcAreaView?.backgroundColor = .clear
@@ -191,6 +196,11 @@ public class WYChatEmojiView: UIView, WYEmojiFuncAreaViewDelegate {
     }
 
     internal let state = WYChatEmojiViewPrivateState()
+
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        wy_layoutEmoji()
+    }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

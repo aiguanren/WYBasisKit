@@ -8,43 +8,62 @@
 import Foundation
 
 /// 聊天消息类型
-@frozen public enum WYChatMessageStyle: String, Codable {
+@objc @frozen public enum WYChatMessageStyle: Int, Codable, CaseIterable {
     /// 未知
-    case none = "WYChatBasicCell"
+    case none
     /// 文本
-    case text = "WYChatTextCell"
+    case text
     /// 语音
-    case voice = "WYChatVoiceCell"
+    case voice
     /// 照片
-    case photo = "WYChatPhotoCell"
+    case photo
     /// 音乐
-    case music = "WYChatMusicCell"
+    case music
     /// 视频
-    case video = "WYChatVideoCell"
+    case video
     /// 红包
-    case luckyMoney = "WYChatLuckyMoneyCell"
+    case luckyMoney
     /// 转账
-    case transfer = "WYChatTransferCell"
+    case transfer
     /// 位置
-    case location = "WYChatLocationCell"
+    case location
     /// 拍一拍
-    case takePat = "WYChatTakePatCell"
+    case takePat
     /// 消息撤回
-    case withdrawn = "WYChatWithdrawnCell"
+    case withdrawn
     /// 音视频通话
-    case call = "WYChatCallCell"
+    case call
     /// 网页、小程序
-    case webpage = "WYChatWebpageCell"
+    case webpage
     /// 文件
-    case file = "WYChatFileCell"
+    case file
     /// 名片
-    case businessCard = "WYChatBusinessCardCell"
+    case businessCard
     /// 聊天记录(合集)
-    case chatRecords = "WYChatRecordsCell"
+    case chatRecords
     
     /// 获取所有枚举属性
-    public static func members() -> [WYChatMessageStyle] {
-        return [.none, .text, .voice, .photo, .music, .video, .luckyMoney, .transfer, .location, .takePat, .withdrawn, .call, .webpage, .file, .businessCard, .chatRecords]
+    public static func members() -> [WYChatMessageStyle] { Array(allCases) }
+
+    internal var cellClass: AnyClass {
+        switch self {
+        case .none: return WYChatBasicCell.self
+        case .text: return WYChatTextCell.self
+        case .voice: return WYChatVoiceCell.self
+        case .photo: return WYChatPhotoCell.self
+        case .music: return WYChatMusicCell.self
+        case .video: return WYChatVideoCell.self
+        case .luckyMoney: return WYChatLuckyMoneyCell.self
+        case .transfer: return WYChatTransferCell.self
+        case .location: return WYChatLocationCell.self
+        case .takePat: return WYChatTakePatCell.self
+        case .withdrawn: return WYChatWithdrawnCell.self
+        case .call: return WYChatCallCell.self
+        case .webpage: return WYChatWebpageCell.self
+        case .file: return WYChatFileCell.self
+        case .businessCard: return WYChatBusinessCardCell.self
+        case .chatRecords: return WYChatRecordsCell.self
+        }
     }
 }
 
@@ -99,8 +118,22 @@ public struct WYChatMessageContentModel {
     /// 获取消息类型
     public func style() -> WYChatMessageStyle {
 
-        let index: Int = [nil, text, voice, photo, music, video, luckyMoney, transfer, location, takePat, withdrawn, call, webpage, file, businessCard, chatRecords].firstIndex(where: { $0 != nil }) ?? 0
-        return WYChatMessageStyle.members()[index]
+        if text != nil { return .text }
+        if voice != nil { return .voice }
+        if photo != nil { return .photo }
+        if music != nil { return .music }
+        if video != nil { return .video }
+        if luckyMoney != nil { return .luckyMoney }
+        if transfer != nil { return .transfer }
+        if location != nil { return .location }
+        if takePat != nil { return .takePat }
+        if withdrawn != nil { return .withdrawn }
+        if call != nil { return .call }
+        if webpage != nil { return .webpage }
+        if file != nil { return .file }
+        if businessCard != nil { return .businessCard }
+        if chatRecords != nil { return .chatRecords }
+        return .none
     }
     
     /// 初始化方法

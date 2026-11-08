@@ -10,6 +10,16 @@ import UIKit
 
 /// 返回一个Bool值来判定各控件的点击或手势事件是否需要内部处理(默认返回true)
 @objc public protocol WYChatViewEventsHandler {
+    /**
+     是否执行消息操作
+     @param chatView 聊天界面
+     @param action 操作
+     @param messageID 消息ID
+     @return false时由调用方接管
+     */
+    @objc(wy_shouldPerformMessageAction:action:messageID:)
+    optional func wy_shouldPerformMessageAction(_ chatView: WYChatView, action: WYChatAction, messageID: String) -> Bool
+
     
     /// 是否需要内部处理 APP变的活跃了 时的事件
     @objc(wy_canManagerApplicationDidBecomeActiveEvents:)
@@ -69,6 +79,35 @@ import UIKit
 }
 
 @objc public protocol WYChatViewDelegate {
+    /**
+     消息操作
+     @param chatView 聊天界面
+     @param action 操作
+     @param messageID 消息ID
+     */
+    @objc(wy_messageAction:action:messageID:)
+    optional func wy_messageAction(_ chatView: WYChatView, action: WYChatAction, messageID: String)
+
+    /**
+     录音结果
+     @param chatView 聊天界面
+     @param url 录音文件
+     @param duration 录音时长
+     @param error 失败原因
+     */
+    @objc(wy_recordingFinished:url:duration:error:)
+    optional func wy_recordingFinished(_ chatView: WYChatView, url: URL?, duration: TimeInterval, error: NSError?)
+
+    /**
+     消息转写结果
+     @param chatView 聊天界面
+     @param messageID 消息ID
+     @param text 识别文本
+     @param error 失败原因
+     */
+    @objc(wy_speechRecognitionFinished:messageID:text:error:)
+    optional func wy_speechRecognitionFinished(_ chatView: WYChatView, messageID: String, text: String?, error: NSError?)
+
     
     /// APP变的活跃了
     @objc(wy_applicationDidBecomeActive:)

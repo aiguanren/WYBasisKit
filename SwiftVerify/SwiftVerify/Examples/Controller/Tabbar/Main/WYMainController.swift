@@ -127,7 +127,7 @@ class WYMainController: UIViewController {
         
         ListItem(title: "气泡图", controller: "WYTestAirBubbleController"),
         
-        ListItem(title: "IM即时通讯(开发中)",
+        ListItem(title: "聊天界面",
                  controller: "WYTestChatController")
     ]
     

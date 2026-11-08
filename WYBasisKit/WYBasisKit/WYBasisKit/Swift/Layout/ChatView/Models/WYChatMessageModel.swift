@@ -8,7 +8,7 @@
 import Foundation
 
 /// 消息发送状态
-@frozen public enum WYChatMessageSendState: Int {
+@objc @frozen public enum WYChatMessageSendState: Int {
     /// 未发送
     case notSent = 0
     /// 发送中
@@ -22,6 +22,13 @@ import Foundation
 /// 消息model
 public struct WYChatMessageModel {
     
+    /// 内容是否正在上传或下载
+    public var isTransferring: Bool = false
+    /// 上传或下载进度，范围0到1
+    public var transferProgress: Double = 0
+    /// 上传或下载失败提示，空字符串表示没有错误
+    public var transferError: String = ""
+
     /// 打招呼的消息说明(如果该条消息是打招呼的消息，则会判断这个字段是否为空，不为空的话就会显示提示信息，如：以上是打招呼的内容)
     public var greetingDescription: String
     
@@ -91,7 +98,7 @@ public struct WYChatMessageModel {
      *  获取上一次显示时间的那一条消息对应的时间
      *  datas 包含WYChatMessageModel的数组
      */
-    public func sharedLastMessageTimestamp(_ datas: [WYChatMessageModel]) -> String {
+    public func sharedLastMessageTimestamp(_ datas: [WYChatMessageModel], minimumTimeSpan: TimeInterval = 300) -> String {
         
         var lastMessageTimestamp: String = ""
         
@@ -99,7 +106,11 @@ public struct WYChatMessageModel {
             if datas.last?.lastMessageTimestamp.isEmpty ?? true {
                 lastMessageTimestamp = datas.last!.timestamp
             }else {
-                let lastShowTime: Bool = ((NumberFormatter().number(from: datas.last!.timestamp)?.doubleValue ?? 0) - (NumberFormatter().number(from: datas.last!.lastMessageTimestamp)?.doubleValue ?? 0) >= chatTextConfig.basic.messageMinimumTimeSpan)
+                let rawCurrent = Double(datas.last!.timestamp) ?? 0
+                let rawPrevious = Double(datas.last!.lastMessageTimestamp) ?? 0
+                let current = rawCurrent > 100_000_000_000 ? rawCurrent / 1000 : rawCurrent
+                let previous = rawPrevious > 100_000_000_000 ? rawPrevious / 1000 : rawPrevious
+                let lastShowTime = current - previous >= minimumTimeSpan
                 if lastShowTime {
                     lastMessageTimestamp = datas.last!.timestamp
                 }else {

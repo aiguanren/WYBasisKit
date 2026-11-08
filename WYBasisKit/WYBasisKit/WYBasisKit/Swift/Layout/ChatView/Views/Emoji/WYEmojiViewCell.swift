@@ -11,6 +11,10 @@ import UIKit
 
 public class WYEmojiViewCell: UICollectionViewCell {
 
+    /// 当前实例配置
+    public var emojiViewConfig: WYEmojiViewConfig = WYEmojiViewConfig()
+
+
     /// 表情图(WYChatEmojiView长按拖动时以它为锚点更新预览浮层)
     let emojiView: UIImageView = UIImageView()
 

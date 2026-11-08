@@ -151,7 +151,7 @@
             
             [[ListItem alloc] initWithTitle:@"气泡图" controller:@"WYTestAirBubbleController"],
             
-            [[ListItem alloc] initWithTitle:@"IM即时通讯(开发中)"
+            [[ListItem alloc] initWithTitle:@"聊天界面"
                                  controller:@"WYTestChatController"]
         ];
     });

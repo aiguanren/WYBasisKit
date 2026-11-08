@@ -7,339 +7,132 @@
 //
 
 import UIKit
-import SnapKit
 
-/// 自定义聊天UITableViewCell
-public var customChatRegisterClasss: [AnyClass] = []
+@objc public enum WYChatTouchStyle: Int { case done, more, emoji }
 
-@frozen public enum WYChatTouchStyle: Int {
-    case done = 0
-    case more
-    case emoji
-}
-
+/// 可配置的聊天界面
 public class WYChatView: UIView {
-    
+    /// 界面配置，设置后刷新当前界面
+    public var configuration: WYChatConfig { didSet { wy_applyConfiguration() } }
+    /// 当前用户信息
+    public var userInfo: WYChatUserModel { didSet { tableView.reloadData() } }
+    /// 消息数据源
+    public var dataSource: [WYChatMessageModel] = [] { didSet { wy_reloadMessages() } }
+    /// 事件接管代理
     public weak var eventsHandler: WYChatViewEventsHandler? = nil
+    /// 界面事件代理
     public weak var delegate: WYChatViewDelegate? = nil
-    
-    public lazy var chatInput: WYChatInputView = {
-        let inputView = WYChatInputView()
-        inputView.eventsHandler = self
-        inputView.delegate = self
-        addSubview(inputView)
-        inputView.snp.makeConstraints { make in
-            make.left.right.bottom.equalToSuperview()
-        }
-        return inputView
-    }()
-    
-    public lazy var tableView: UITableView = {
-
-        let tableView = UITableView.wy_shared(style: .plain, separatorStyle: .none, delegate: self, dataSource: self, superView: self)
-        tableView.wy_swipeOrTapCollapseKeyboard(target: self, action: #selector(inputViewResignFirstResponder), slideMode: .none)
-        let registerClasss: [AnyClass] = [WYChatBasicCell.self,
-                                          WYChatTextCell.self,
-                                          WYChatVoiceCell.self,
-                                          WYChatPhotoCell.self,
-                                          WYChatMusicCell.self,
-                                          WYChatVideoCell.self,
-                                          WYChatLuckyMoneyCell.self,
-                                          WYChatTransferCell.self,
-                                          WYChatLocationCell.self,
-                                          WYChatTakePatCell.self,
-                                          WYChatWithdrawnCell.self,
-                                          WYChatCallCell.self,
-                                          WYChatWebpageCell.self,
-                                          WYChatFileCell.self,
-                                          WYChatBusinessCardCell.self,
-                                          WYChatRecordsCell.self]
-        
-        for register: AnyClass in (registerClasss + customChatRegisterClasss) {
-            let reuseIdentifier = String(describing: register).components(separatedBy: ".").last ?? ""
-            tableView.register(register, forCellReuseIdentifier: reuseIdentifier)
-        }
-        tableView.snp.makeConstraints { (make) in
-            make.left.right.top.equalToSuperview()
-            make.bottom.equalTo(chatInput.snp.top)
-        }
-        return tableView
-    }()
-    
-    /// 表情控件
-    public lazy var emojiView: WYChatEmojiView? = {
-        guard inputBarConfig.emojiTextButtonSize != CGSize.zero else {
-            return nil
-        }
-        let emojiView: WYChatEmojiView = WYChatEmojiView()
-        emojiView.eventsHandler = self
-        emojiView.delegate = self
-        emojiView.isHidden = true
-        addSubview(emojiView)
-        emojiView.snp.makeConstraints { make in
-            make.left.right.equalToSuperview()
-            make.height.equalTo(emojiViewConfig.contentHeight)
-            make.bottom.equalToSuperview().offset(emojiViewConfig.contentHeight)
-        }
-        return emojiView
-    }()
-    
-    /// More控件
-    public lazy var moreView: WYChatMoreView? = {
-        
-        guard inputBarConfig.moreButtonSize != CGSize.zero else {
-            return nil
-        }
-        
-        let moreView: WYChatMoreView = WYChatMoreView()
-        moreView.eventsHandler = self
-        moreView.delegate = self
-        moreView.isHidden = true
-        addSubview(moreView)
-        moreView.snp.makeConstraints { make in
-            make.left.right.equalToSuperview()
-            make.height.equalTo(moreViewConfig.contentHeight())
-            make.bottom.equalToSuperview().offset(moreViewConfig.contentHeight())
-        }
-        return moreView
-    }()
-    
-    /// 记录最近使用表情数据，用于实现延时更新最近使用表情
+    /// 消息操作，参数为聊天界面、操作和消息ID
+    public var actionHandler: ((_ chatView: WYChatView, _ action: WYChatAction, _ messageID: String) -> Void)? = nil
+    /// 多选操作，参数为操作和按消息顺序排列的消息ID
+    public var selectionActionHandler: ((_ action: WYChatAction, _ messageIDs: [String]) -> Void)? = nil
+    /// 已组装的待发送消息，参数为消息模型
+    public var messagePreparedHandler: ((_ message: WYChatMessageModel) -> Void)? = nil
+    /// 录音结果，参数为文件URL、时长及错误
+    public var recordingHandler: ((_ url: URL?, _ duration: TimeInterval, _ error: NSError?) -> Void)? = nil
+    /// 输入栏
+    public var chatInput: WYChatInputView { wy_inputView() }
+    /// 消息列表
+    public lazy var tableView: UITableView = wy_makeTableView()
+    /// 表情面板
+    public var emojiView: WYChatEmojiView? { wy_emojiView() }
+    /// 更多面板
+    public var moreView: WYChatMoreView? { wy_moreView() }
+    /// 新消息提示按钮
+    public let newMessagesButton: UIButton = UIButton(type: .system)
+    /// 引用输入提示
+    public let quoteButton: UIButton = UIButton(type: .system)
+    /// 多选工具条
+    public let selectionToolbar: UIStackView = UIStackView()
+    /// 取消多选按钮
+    public let selectionCancelButton: UIButton = UIButton(type: .system)
+    /// 多选转发按钮
+    public let selectionForwardButton: UIButton = UIButton(type: .system)
+    /// 多选删除按钮
+    public let selectionDeleteButton: UIButton = UIButton(type: .system)
+    /// 当前引用的消息ID，nil表示没有引用
+    public internal(set) var quotedMessageID: String? = nil
+    /// 已选择的消息ID
+    public internal(set) var selectedMessageIDs: Set<String> = []
+    /// 是否开启多选
+    public var isSelectingMessages: Bool = false { didSet { if !isSelectingMessages { selectedMessageIDs.removeAll() }; wy_updateSelectionUI(); tableView.reloadData() } }
+    /// 当前输入面板
+    public internal(set) var touchStyle: WYChatTouchStyle = .done
+    /// 最近输入的表情文本
     public var recentlyEmojis: [String] = []
-    
-    /// 当前登录用户的用户信息
-    public var userInfo: WYChatUserModel!
-    
-    /// tableView数据源
-    public var dataSource: [WYChatMessageModel] = [] {
-        didSet {
-            guard userInfo != nil else {
-                WYLogManager.output("当前登录用户的用户信息为空")
-                return
-            }
-            tableView.reloadData()
-            scrollToLastMessage()
-        }
-    }
-    
-    /// 区分当前点击的是哪个控件
-    public var touchStyle: WYChatTouchStyle = .done
-    
-    public init(userInfo: WYChatUserModel? = nil) {
-        super.init(frame: .zero)
-        
+
+    /**
+     创建聊天界面
+     @param userInfo 当前用户
+     @param configuration 界面配置
+     */
+    public init(userInfo: WYChatUserModel = WYChatUserModel(), configuration: WYChatConfig = WYChatConfig()) {
         self.userInfo = userInfo
-        backgroundColor = .wy_hex("#ECECEC")
-        self.tableView.backgroundColor = .wy_hex("#ECECEC")
-        self.emojiView?.backgroundColor = .clear
-        self.moreView?.backgroundColor = .clear
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(wy_keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
-
-        NotificationCenter.default.addObserver(self, selector: #selector(wy_keyboardWillDismiss), name: UIResponder.keyboardWillHideNotification, object: nil)
-
-        NotificationCenter.default.addObserver(self, selector: #selector(wy_applicationDidBecomeActive(_:)), name: UIApplication.didBecomeActiveNotification, object: nil)
-    }
-    
-    /// 点击空白处收起键盘、表情、更多...
-    @objc public func inputViewResignFirstResponder() {
-        chatInput.textView.resignFirstResponder()
-        chatInput.emojiView.isSelected = false
-        chatInput.moreView.isSelected = false
-        updateEmojiViewConstraints(false)
-        updateMoreViewConstraints(false)
-        emojiView?.isHidden = true
-        moreView?.isHidden = true
-    }
-    
-    /// tableView滚动到底部
-    public func scrollToLastMessage(_ animated: Bool = false) {
-        Task { @MainActor [weak self] in
-            guard let self = self else { return }
-            if self.dataSource.isEmpty == false {
-                self.tableView.scrollToRow(at: IndexPath(row: self.dataSource.count - 1, section: 0), at: .bottom, animated: animated)
-            }
-        }
+        self.configuration = configuration
+        super.init(frame: .zero)
+        wy_setupChat()
     }
 
-    /// 根据消息ID获取对应的消息model(在dataSource里查找，查不到返回nil)
-    public func messageModelFrom(_ messageID: String) -> WYChatMessageModel? {
-        return dataSource.first { $0.messageID == messageID }
-    }
-    
-    @objc public func keyboardWillShowWith(_ notification: Notification, silence: Bool) {
-        if silence == false {
-            guard (eventsHandler?.wy_canManagerKeyboardWillShowEvents?(notification) ?? true) else {
-                return
-            }
-        }
-        
-        let keyboardRect = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
-        updateInputViewOffset(offsety: keyboardRect.size.height - UIDevice.wy_tabbarSafetyZone)
-        updateEmojiViewConstraints(false)
-        updateMoreViewConstraints(false)
-    }
-    
-    @objc public func wy_keyboardWillShow(notification: Notification) {
-        keyboardWillShowWith(notification, silence: false)
-    }
-    
-    @objc public func keyboardWillDismissWith(_ silence: Bool) {
-        if silence == false {
-            guard (eventsHandler?.wy_canManagerKeyboardWillDismissEvents?() ?? true) else {
-                return
-            }
-        }
-        
-        var offsety: CGFloat = 0
-        switch touchStyle {
-        case .emoji:
-            offsety = chatInput.emojiView.isSelected ? emojiViewConfig.contentHeight : 0
-            break
-        case .more:
-            offsety = chatInput.moreView.isSelected ? moreViewConfig.contentHeight() : 0
-            break
-        default:
-            offsety = 0
-            break
-        }
-        updateInputViewOffset(offsety: offsety)
-    }
-    
-    @objc public func wy_keyboardWillDismiss() {
-        keyboardWillDismissWith(false)
-    }
-    
-    public func updateInputViewOffset(offsety: CGFloat) {
-        
-        chatInput.layer.removeAllAnimations()
-        UIView.animate(withDuration: inputBarConfig.animateDuration) { [weak self] in
-            if let self = self {
-                self.chatInput.snp.updateConstraints({ make in
-                    make.bottom.equalToSuperview().offset(-offsety)
-                })
-                self.chatInput.superview?.layoutIfNeeded()
-                self.scrollToLastMessage()
-            }
-        }completion: { [weak self] _ in
-            if let self = self {
-                self.chatInput.updateTextViewOffset()
-            }
-        }
-    }
-    
-    public func updateEmojiViewConstraints(_ isEmoji: Bool) {
-        
-        if (isEmoji == false) && (emojiView?.isHidden == true) {
-            return
-        }
-        
-        updateMoreViewConstraints(false)
-        
-        moreView?.isHidden = true
-        emojiView?.isHidden = false
-        
-        if chatInput.textView.isFirstResponder == false {
-            touchStyle = .emoji
-            keyboardWillDismissWith(true)
-        }
-        
-        if inputBarConfig.emojiTextButtonSize != CGSize.zero {
-            
-            emojiView?.layer.removeAllAnimations()
-            
-            let emojiOffset: CGFloat = isEmoji ? 0 : emojiViewConfig.contentHeight
-            UIView.animate(withDuration: emojiViewConfig.animateDuration) { [weak self] in
-                self?.emojiView?.snp.updateConstraints { make in
-                    make.bottom.equalToSuperview().offset(emojiOffset)
-                }
-                self?.emojiView?.superview?.layoutIfNeeded()
-            }completion: {[weak self] _ in
-                self?.emojiView?.isHidden = !isEmoji
-            }
-        }
-    }
-    
-    public func updateMoreViewConstraints(_ isMore: Bool) {
-        
-        if (isMore == false) && (moreView?.isHidden == true) {
-            return
-        }
-        
-        updateEmojiViewConstraints(false)
-        
-        emojiView?.isHidden = true
-        moreView?.isHidden = false
+    /**
+     追加消息
+     @param messages 要追加的消息
+     */
+    public func appendMessages(_ messages: [WYChatMessageModel]) { dataSource.append(contentsOf: messages) }
 
-        if chatInput.textView.isFirstResponder == false {
-            touchStyle = .more
-            keyboardWillDismissWith(true)
-        }
+    /**
+     插入历史消息并保持阅读位置
+     @param messages 较早的消息
+     */
+    public func prependMessages(_ messages: [WYChatMessageModel]) { wy_prependMessages(messages) }
 
-        if inputBarConfig.moreButtonSize != CGSize.zero {
-            
-            moreView?.layer.removeAllAnimations()
-            
-            let moreOffset: CGFloat = isMore ? 0 : moreViewConfig.contentHeight()
-            UIView.animate(withDuration: moreViewConfig.animateDuration) { [weak self] in
-                self?.moreView?.snp.updateConstraints { make in
-                    make.bottom.equalToSuperview().offset(moreOffset)
-                }
-                self?.moreView?.superview?.layoutIfNeeded()
-            }completion: {[weak self] _ in
-                self?.moreView?.isHidden = !isMore
-            }
-        }
-    }
-    
-    public func scrollViewDidScroll(_ scrollView: UIScrollView, silence: Bool) {
+    /**
+     组装文本消息并按配置加入列表
+     @param text 文本
+     @param messageID 消息ID
+     @return 消息模型
+     */
+    @discardableResult public func sendMessage(_ text: String, messageID: String = UUID().uuidString) -> WYChatMessageModel { wy_sendMessage(text, messageID: messageID) }
 
-        if silence == false {
-            guard (eventsHandler?.wy_canManagerScrollViewDidScrollEvents?(scrollView) ?? true) else {
-                return
-            }
-        }
-        if silence == false {
-            delegate?.wy_scrollViewDidScroll?(scrollView)
-        }
-    }
+    /**
+     查找消息
+     @param messageID 消息ID
+     @return 匹配的消息，未找到返回nil
+     */
+    public func messageModelFrom(_ messageID: String) -> WYChatMessageModel? { dataSource.first { $0.messageID == messageID } }
 
-    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        wy_scrollViewDidScroll(scrollView)
-    }
+    /**
+     滚动到最后一条消息
+     @param animated 是否使用动画
+     */
+    public func scrollToLastMessage(_ animated: Bool = false) { wy_scrollToBottom(animated) }
 
-    /// tableView的滚动事件
-    public func wy_scrollViewDidScroll(_ scrollView: UIScrollView) {
-        scrollViewDidScroll(scrollView, silence: false)
+    /// 收起所有输入面板
+    @objc(wy_resignInput) public func inputViewResignFirstResponder() { wy_setPanel(.done) }
+
+    /**
+     引用消息
+     @param messageID 消息ID，nil表示取消引用
+     */
+    public func quoteMessage(_ messageID: String?) { wy_quoteMessage(messageID) }
+
+    /// 停止录音和识别并释放界面持有的异步任务
+    public func releaseAll() { wy_releaseAll() }
+
+    internal let state = WYChatViewPrivateState()
+    internal var inputBarConfig: WYInputBarConfig { configuration.input }
+    internal var emojiViewConfig: WYEmojiViewConfig { configuration.emoji }
+    internal var moreViewConfig: WYMoreViewConfig { configuration.more }
+
+    @objc func wy_keyboardWillShow(notification: Notification) { wy_handleKeyboard(notification) }
+    @objc func wy_keyboardWillDismiss() { if touchStyle == .done { wy_setInputOffset(0) } }
+    @objc func wy_applicationDidBecomeActive(_ application: UIApplication) { delegate?.wy_applicationDidBecomeActive?(application) }
+    @objc func wy_tableBackgroundTap(_ gesture: UITapGestureRecognizer) {
+        guard configuration.dismissInputOnTap, tableView.indexPathForRow(at: gesture.location(in: tableView)) == nil else { return }
+        inputViewResignFirstResponder()
     }
-    
-    public func updateEmojiFuncAreaViewState() {
-        
-        let userInteractionEnabled: Bool = (chatInput.textView.attributedText.string.utf16.count > 0)
-        emojiView?.funcAreaView?.sendView.isUserInteractionEnabled = userInteractionEnabled
-        emojiView?.funcAreaView?.deleteView.isUserInteractionEnabled = userInteractionEnabled
-        emojiView?.funcAreaView?.sendView.isSelected = !userInteractionEnabled
-        emojiView?.funcAreaView?.deleteView.isSelected = !userInteractionEnabled
-    }
-    
-    /// APP变的活跃了
-    @objc public func wy_applicationDidBecomeActive(_ application: UIApplication) {
-        
-        guard (eventsHandler?.wy_canManagerApplicationDidBecomeActiveEvents?(application) ?? false) == true else {
-            return
-        }
-        
-        delegate?.wy_applicationDidBecomeActive?(application)
-        tableView.reloadData()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-    
-    
+    @objc func wy_cancelQuote() { quoteMessage(nil) }
+    @objc func wy_newMessagesTap() { scrollToLastMessage(true) }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    deinit { NotificationCenter.default.removeObserver(self) }
 }

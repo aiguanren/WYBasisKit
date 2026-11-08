@@ -8,7 +8,7 @@
 import Foundation
 
 /// 通话类型
-@frozen public enum WYChatCallStyle: Int {
+@objc @frozen public enum WYChatCallStyle: Int {
     
     /// 一对一语音
     case oneToOneVoice = 0

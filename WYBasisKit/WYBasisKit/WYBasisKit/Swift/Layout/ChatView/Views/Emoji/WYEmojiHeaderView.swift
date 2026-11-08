@@ -9,6 +9,10 @@
 import UIKit
 
 public class WYEmojiHeaderView: UICollectionReusableView {
+
+    /// 当前实例配置
+    public var emojiViewConfig: WYEmojiViewConfig = WYEmojiViewConfig()
+
         
     public let textView: UILabel = UILabel()
     override init(frame: CGRect) {

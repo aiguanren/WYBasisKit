@@ -8,7 +8,7 @@
 import Foundation
 
 /// 红包、转账收款状态
-@frozen public enum WYChatFundsState: Int {
+@objc @frozen public enum WYChatFundsState: Int {
     
     /// 待收款
     case unreceived = 0

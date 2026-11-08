@@ -6,451 +6,139 @@
 //
 
 import UIKit
-import Kingfisher
-import SnapKit
 
 /// 通用聊天配置选项
 public struct WYBasicChatConfig {
-    
-    /// 消息显示的最小时间跨度(单位秒)，默认300秒
-    public var messageMinimumTimeSpan: Double = 300
-    
-    /// 消息发送失败后cell上显示的状态图标
-    public var messageSendErrorImage: UIImage = UIImage.wy_find("WYChatError", inBundle: WYChatSourceBundle)
-    
-    /// 消息发送中cell上显示的状态图标
-    public var messageSendingGif : WYGifInfo = UIImage.wy_animatedParse(name: "WYChatSending", inBundle: WYChatSourceBundle)!
-    
-    /// 消息发送状态图标size
-    public var messageSendingStateSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(15), height: UIDevice.wy_screenWidth(15))
-    
-    /// 消息发送状态图标距离消息内容(气泡)边界的偏移量
-    public var messageSendingStateOffset: CGFloat = UIDevice.wy_screenWidth(10)
-    
-    /// 默认头像(placeholder)
-    public var defaultAvatar: UIImage = UIImage.wy_createImage(from: .wy_random)
-
-    /// 头像contentMode
-    public var avatarContentMode: UIView.ContentMode = .scaleAspectFit
-    
-    /// 显示昵称时头像距离cell的偏移量
-    public var avatarOffset: (sender: CGPoint, receive: CGPoint) = (
-        
-        sender: CGPoint(x: UIDevice.wy_screenWidth(15), y: 0),
-        
-        receive: CGPoint(x: UIDevice.wy_screenWidth(15), y: 0))
-
-    /// 头像size
-    public var avatarSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(50), height: UIDevice.wy_screenWidth(50))
-
-    /// 头像圆角半径
-    public var avatarCornerRadius: CGFloat = UIDevice.wy_screenWidth(5)
-    
-    /// 单聊时是否显示昵称
-    public var showNicknameForSingle: (sender: Bool, receive: Bool) = (sender: false, receive: false)
-    
-    /// 群聊时是否显示昵称
-    public var showNicknameForGroup: (sender: Bool, receive: Bool) = (sender: false, receive: true)
-    
-    /// 单聊时昵称距离时间控件的偏移量
-    public var nameViewOffsetForSingle: (sender: CGPoint, receive: CGPoint) = (
-        
-        sender: CGPoint(x: -UIDevice.wy_screenWidth(20), y: UIDevice.wy_screenWidth(20)),
-        
-        receive: CGPoint(x: UIDevice.wy_screenWidth(20), y: UIDevice.wy_screenWidth(20)))
-    
-    /// 群聊时昵称距离时间控件的偏移量
-    public var nameViewOffsetForGroup: (sender: CGPoint, receive: CGPoint) = (
-        
-        sender: CGPoint(x: -UIDevice.wy_screenWidth(20), y: UIDevice.wy_screenWidth(20)),
-        
-        receive: CGPoint(x: UIDevice.wy_screenWidth(20), y: UIDevice.wy_screenWidth(20)))
-
-    /// 昵称字体、字号
-    public var nicknameFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(13))
-
-    /// 昵称字体颜色
-    public var nicknameColor: UIColor = .black
-    
-    /// 时间控件顶部距离cell的偏移量
-    public var timeViewOffset: CGFloat = UIDevice.wy_screenWidth(10)
-
-    /// 时间字体、字号
-    public var timeFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(13))
-
-    /// 时间字体颜色
-    public var timeColor: UIColor = .black
-    
-    /// 时间是否显示 上午/下午 标识
+    /// 消息显示的最小时间跨度，单位秒
+    public var messageMinimumTimeSpan: TimeInterval = 300
+    /// 头像尺寸
+    public var avatarSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(40, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(40, WYBasisKitConfig.defaultScreenPixels))
+    /// 默认头像
+    public var defaultAvatar: UIImage? = UIImage(systemName: "person.crop.square")
+    /// 头像显示方式
+    public var avatarContentMode: UIView.ContentMode = .scaleAspectFill
+    /// 头像圆角
+    public var avatarCornerRadius: CGFloat = UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels)
+    /// 昵称字体
+    public var nicknameFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(12, WYBasisKitConfig.defaultScreenPixels))
+    /// 昵称颜色
+    public var nicknameColor: UIColor = .secondaryLabel
+    /// 时间字体
+    public var timeFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(12, WYBasisKitConfig.defaultScreenPixels))
+    /// 时间颜色
+    public var timeColor: UIColor = .secondaryLabel
+    /// 时间与消息间距
+    public var timeViewOffset: CGFloat = UIDevice.wy_screenHeight(10, WYBasisKitConfig.defaultScreenPixels)
+    /// 时间是否显示上午下午标识
     public var showAmPmSymbol: Bool = false
-    
-    /// 是否显示已读未读标识(仅限单聊)
+    /// 是否显示发送方已读标识，默认false
     public var showReadMark: Bool = false
-    
-    /// 已读未读标识的字体
-    public var readMarkFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(10))
-    
-    /// 已读未读标识的字体颜色
-    public var readMarkColor: (browse: UIColor, unread: UIColor) = (browse: .lightGray, unread: .blue)
-    
-    /// 已读未读标识距离消息内容(气泡)边界的偏移量(y用于距离底部的偏移量)
-    public var readMarkOffset: CGPoint = CGPoint(x: UIDevice.wy_screenWidth(5), y: UIDevice.wy_screenWidth(5))
-    
-    /// 已读未读标识的文本
-    public var readMarkText: (browse: String, unread: String) = (browse: "已读", unread: "未读")
-    
+    /// 已读标识字体
+    public var readMarkFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(10, WYBasisKitConfig.defaultScreenPixels))
+    /// 已读标识颜色
+    public var readMarkColor: UIColor = .secondaryLabel
+    /// 已读文本
+    public var readText: String = WYLocalized("已读", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 未读文本
+    public var unreadText: String = WYLocalized("未读", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 发送失败图标
+    public var messageSendErrorImage: UIImage? = UIImage(systemName: "exclamationmark.circle.fill")
+    /// 等待发送的图标
+    public var messagePendingImage: UIImage? = UIImage(systemName: "clock")
+    /// 发送中动画颜色
+    public var messageSendingColor: UIColor = .secondaryLabel
+    /// 发送失败图标颜色
+    public var messageSendErrorColor: UIColor = .systemRed
+    /// 等待发送图标颜色
+    public var messagePendingColor: UIColor = .secondaryLabel
+    /// 发送状态尺寸
+    public var messageSendingStateSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels))
+    /// 发送状态与内容的间距
+    public var messageSendingStateOffset: CGFloat = UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
+    /// 自定义时间显示，参数为消息，返回显示文本
+    public var timeFormatter: ((_ message: WYChatMessageModel) -> String)? = nil
     public init() {}
 }
 
-public class WYChatBasicCell: UITableViewCell {
-    
-    /// 当前登录用户的用户ID
-    public var userID: String = ""
-    
-    /// 消息model
-    public var message: WYChatMessageModel = WYChatMessageModel()
-
-    /// 布局配置
-    private var config: WYBasicChatConfig = WYBasicChatConfig()
-
-    /// 已经加载过头像的URL(防同一条头像重复发起加载用)
-    private var lastLoadedAvatarURL: String = ""
-    
+/// 通用消息Cell
+open class WYChatBasicCell: UITableViewCell {
+    /// 当前界面配置
+    public var configuration: WYChatConfig = WYChatConfig() { didSet { wy_render() } }
+    /// 当前用户ID
+    public var userID: String = "" { didSet { wy_render() } }
+    /// 当前消息
+    public var message: WYChatMessageModel = WYChatMessageModel() { didSet { wy_render() } }
+    /// 消息操作，参数为操作及消息ID
+    public var actionHandler: ((_ action: WYChatAction, _ messageID: String) -> Void)? = nil
     /// 头像控件
-    public lazy var avatarView: UIImageView = {
-        let avatarView: UIImageView = UIImageView()
-        contentView.addSubview(avatarView)
-        return avatarView
-    }()
-    
+    public let avatarView: UIImageView = UIImageView()
     /// 昵称控件
-    public lazy var nicknameView: UILabel = {
-        let nicknameView: UILabel = UILabel()
-        contentView.addSubview(nicknameView)
-        return nicknameView
-    }()
-    
+    public let nicknameView: UILabel = UILabel()
     /// 时间控件
-    public lazy var timeView: UILabel = {
-        let timeView: UILabel = UILabel()
-        contentView.addSubview(timeView)
-        return timeView
-    }()
-    
-    /// 已读、未读状态控件
-    public lazy var readMarkView: UILabel? = {
-        guard config.showReadMark == true else {
-            return nil
-        }
-        let readMarkView: UILabel = UILabel()
-        contentView.addSubview(readMarkView)
-        return readMarkView
-    }()
-    
-    /// loading控件
-    public lazy var loadingView: UIImageView = {
-        let imageView = UIImageView()
-        contentView.addSubview(imageView)
-        return imageView
-    }()
-    
+    public let timeView: UILabel = UILabel()
+    /// 气泡控件
+    public let bubblesView: WYAirBubbleView = WYChatBubbleView()
+    /// 消息内容容器
+    public let bodyView: UIStackView = UIStackView()
+    /// 卡片标题控件
+    public var titleView: UILabel { state.title }
+    /// 卡片摘要控件
+    public var detailView: UILabel { state.detail }
+    /// 卡片底部说明控件
+    public var footerView: UILabel { state.footer }
+    /// 媒体预览控件
+    public var previewImageView: UIImageView { state.image }
+    /// 卡片缩略图控件
+    public var thumbnailImageView: UIImageView { state.thumbnail }
+    /// 引用内容
+    public let referenceView: UILabel = UILabel()
+    /// 已读标识
+    public let readMarkView: UILabel = UILabel()
+    /// 发送失败按钮
+    public let loadingView: UIButton = UIButton(type: .custom)
+    /// 发送中动画
+    public let activityView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
+    /// 当前消息是否已选择
+    public var isMessageSelected: Bool = false { didSet { accessoryType = isMessageSelected ? .checkmark : .none } }
+    /// 当前消息内容配置
+    public var messageContentConfiguration: WYChatContentConfig { configuration.contentOverrides[message.content.style()] ?? configuration.content }
+
     public override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        selectionStyle = .none
-        backgroundColor = .clear
-        contentView.backgroundColor = .clear
-    }
-    
-    /// 数据(页面)刷新
-    public func updateContent(config: WYBasicChatConfig) {
-        
-        self.config = config
-        
-        avatarView.wy_clearVisual()
-        avatarView.contentMode = config.avatarContentMode
-        loadImage(avatarView)
-        
-        nicknameView.font = config.nicknameFont
-        nicknameView.text = message.sender.name
-        nicknameView.textAlignment = message.isSender(userID) ? .right : .left
-        if message.isSender(userID) {
-            if message.group == nil {
-                nicknameView.textColor = config.showNicknameForSingle.sender ? config.nicknameColor : .clear
-            }else {
-                nicknameView.textColor = config.showNicknameForGroup.sender ? config.nicknameColor : .clear
-            }
-        }else {
-            if message.group == nil {
-                nicknameView.textColor = config.showNicknameForSingle.receive ? config.nicknameColor : .clear
-            }else {
-                nicknameView.textColor = config.showNicknameForGroup.receive ? config.nicknameColor : .clear
-            }
-        }
-        nicknameView.backgroundColor = .clear
-        
-        timeView.text = message.timeFormat ?? sharedTimeText(message.timestamp, message.clientTimestamp ?? String.wy_sharedDeviceTimestamp(), message.lastMessageTimestamp)
-        timeView.font = config.timeFont
-        timeView.textColor = config.timeColor
-        
-        updateMessageState()
-        
-        updateConstraints()
-    }
-    
-    public override func updateConstraints() {
-        super.updateConstraints()
-        
-        timeView.snp.updateConstraints { make in
-            make.centerX.equalToSuperview()
-            if timeView.text?.isEmpty ?? true {
-                make.top.equalToSuperview().offset(config.timeViewOffset)
-                make.height.equalTo(0)
-            }else {
-                make.top.equalToSuperview().offset(config.timeViewOffset)
-                make.height.equalTo(config.timeFont.lineHeight)
-            }
-        }
-        
-        nicknameView.snp.updateConstraints { make in
-            make.height.equalTo(((nicknameView.textColor == .clear) ? 0 : config.nicknameFont.lineHeight))
-            if message.isSender(userID) {
-                make.left.equalToSuperview().offset(abs(chatTextConfig.basic.avatarOffset.receive.x) + config.avatarSize.width + abs(chatTextConfig.bubbleMaxOffset))
-                if message.group == nil {
-                    make.width.equalTo(sharedContentMaxWidth() - abs(chatTextConfig.bubbleOffsetForSingle.sender.x))
-                    make.top.equalTo(timeView.snp.bottom).offset((timeView.text?.isEmpty ?? true) ? 0 : config.nameViewOffsetForSingle.sender.y)
-                }else {
-                    make.width.equalTo(sharedContentMaxWidth() - abs(chatTextConfig.bubbleOffsetForGroup.sender.x))
-                    make.top.equalTo(timeView.snp.bottom).offset((timeView .text?.isEmpty ?? true) ? 0 : config.nameViewOffsetForGroup.sender.y)
-                }
-            }else {
-                if message.group == nil {
-                    
-                    make.left.equalToSuperview().offset(abs(chatTextConfig.basic.avatarOffset.receive.x) + config.avatarSize.width + abs(config.nameViewOffsetForSingle.receive.x))
-                    make.width.equalTo(sharedContentMaxWidth() - abs(chatTextConfig.bubbleOffsetForSingle.receive.x))
-                    make.top.equalTo(timeView.snp.bottom).offset((timeView.text?.isEmpty ?? true) ? 0 : config.nameViewOffsetForSingle.receive.y)
-                }else {
-                    make.left.equalToSuperview().offset(abs(chatTextConfig.basic.avatarOffset.receive.x) + config.avatarSize.width + abs(config.nameViewOffsetForGroup.receive.x))
-                    make.width.equalTo(sharedContentMaxWidth() - abs(chatTextConfig.bubbleOffsetForGroup.receive.x))
-                    make.top.equalTo(timeView.snp.bottom).offset((timeView.text?.isEmpty ?? true) ? 0 : config.nameViewOffsetForGroup.receive.y)
-                }
-            }
-        }
-        
-        avatarView.snp.updateConstraints { make in
-            if message.isSender(userID) {
-                make.top.equalTo(nicknameView.snp.bottom).offset(config.avatarOffset.sender.y)
-                make.left.equalToSuperview().offset(wy_width - config.avatarOffset.sender.x - config.avatarSize.width)
-            }else {
-                make.top.equalTo(nicknameView.snp.bottom).offset(config.avatarOffset.receive.y)
-                make.left.equalToSuperview().offset(config.avatarOffset.receive.x)
-            }
-            make.size.equalTo(config.avatarSize)
-        }
-        
-        avatarView.wy_cornerRadius(config.avatarCornerRadius).wy_showVisual()
-    }
-    
-    public func updateOtherConstraints(_ rely: UIView) {
-        loadingView.snp.remakeConstraints { make in
-            make.size.equalTo(config.messageSendingStateSize)
-            make.centerY.equalTo(rely)
-            if message.isSender(userID) {
-                make.right.equalTo(rely.snp.left).offset(-config.messageSendingStateOffset)
-            }else {
-                make.left.equalTo(rely.snp.right).offset(config.messageSendingStateOffset)
-            }
-        }
-        
-        readMarkView?.snp.remakeConstraints { make in
-            if message.isSender(userID) {
-                make.right.equalTo(rely.snp.left).offset(-config.readMarkOffset.x)
-            }else {
-                make.left.equalTo(rely.snp.right).offset(config.readMarkOffset.x)
-            }
-            make.bottom.equalTo(rely).offset(-config.readMarkOffset.y)
-        }
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        wy_setupCell()
     }
 
-    public override func awakeFromNib() {
-        super.awakeFromNib()
-        // Initialization code
+    /// 更新消息内容，子类可提供自己的内容视图
+    @objc open func renderContent() {
+        state.title.text = configuration.unsupportedMessageText
     }
 
-    public override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
-    }
-
-}
-
-public extension WYChatBasicCell {
-    
-    func updateMessageState() {
-        loadingView.isHidden = (message.sendState == .success)
-        switch message.sendState {
-        case .success:
-            loadingView.stopAnimating()
-            break
-        case .sending, .notSent:
-            Task { [weak self] in
-                try? await Task.wy_delay(0.5, cancelThrows: false, onMain: { [weak self] in
-                    guard let self = self else { return }
-                    
-                    self.loadingView.animationDuration = self.config.messageSendingGif.animationDuration.wy_convertTo(Double.self)
-                    self.loadingView.animationImages = self.config.messageSendingGif.animationImages
-                    self.loadingView.animationRepeatCount = 0
-                    self.loadingView.startAnimating()
-                })
-            }
-            break
-        case .failed:
-            loadingView.stopAnimating()
-            loadingView.image = config.messageSendErrorImage
-            break
-        }
-        
-        readMarkView?.font = config.readMarkFont
-        
-        if message.readers.wy_convertTo(Double.self) > 0 {
-            readMarkView?.textColor = config.readMarkColor.browse
-            readMarkView?.text = config.readMarkText.browse
-        }else {
-            readMarkView?.textColor = config.readMarkColor.unread
-            readMarkView?.text = config.readMarkText.unread
-        }
-    }
-    
-    func loadImage(_ imageView: UIImageView) {
-
-        let urlString: String = message.sender.avatar.downloadPath
-
-        guard urlString != lastLoadedAvatarURL else {
-            return
-        }
-
-        let imageCache = try! ImageCache(name: message.sender.name, cacheDirectoryURL: createDirectory(directory: .cachesDirectory, subDirectory: "WYBasisKit/WYChatView/\(message.sender.name)"))
-
-        avatarView.kf.setImage(with: URL(string: urlString), placeholder: config.defaultAvatar, options: [.targetCache(imageCache)]) { [weak self] result in
-
-            guard let self = self else { return }
-
-            switch result {
-            case .success(let source):
-                imageView.image = source.image
-                self.lastLoadedAvatarURL = urlString
-                self.message.sender.avatar.localPath = imageCache.cachePath(forKey: urlString)
-                self.message.sender.avatar.id = urlString.wy_sha256()
-                self.message.sender.avatar.name = urlString.wy_sha256()
-                break
-            case .failure(let error):
-                WYLogManager.output("\(error)")
-                break
-            }
-        }
-    }
-    
-    /// 创建一个指定目录/文件夹
-    func createDirectory(directory: FileManager.SearchPathDirectory, subDirectory: String) -> URL {
-        
-        let directoryURLs = FileManager.default.urls(for: directory,
-                                                        in: .userDomainMask)
-        
-        let savePath = (directoryURLs.first ?? URL(fileURLWithPath: NSTemporaryDirectory())).appendingPathComponent(subDirectory)
-        let isExists: Bool = FileManager.default.fileExists(atPath: savePath.path)
-        
-        if !isExists {
-            guard let _ = try? FileManager.default.createDirectory(at: savePath, withIntermediateDirectories: true, attributes: nil) else {
-                fatalError("创建 \(savePath) 路径失败")
-            }
-        }
-        return savePath
-    }
-    
     /**
-     *  依据message.timestamp显示格式化后的消息发送时间
-     *  默认聊天消息时间显示说明
-          1、当天的消息，以每5分钟为一个跨度显示时间，具体格式为：HH:mm，如 12:12
-          2、昨天的消息，显示格式为：昨天 HH:mm，如 昨天 12:12
-          3、消息超过2天、小于1周，显示星期+收发消息的时间，具体格式为：星期几 HH:mm，如    星期日 12:12
-          4、消息大于1周且是今年的消息，显示格式为：MMdd HH:mm，如 12月12日 12:12
-          5、消息时间不是今年的消息，显示格式为：yyyyMMdd HH:mm，如 2022年12月12日 12:12
+     更新消息与布局配置
+     @param message 消息
+     @param configuration 界面配置
+     @param userID 当前用户ID
      */
-    func sharedTimeText(_ messageTimestamp: String, _ clientTimestamp: String = String.wy_sharedDeviceTimestamp(), _ lastMessageTimestamp: String, _ locale: Locale = Locale(identifier: "zh_CN")) -> String {
-        
-        let showTime: Bool = ((NumberFormatter().number(from: messageTimestamp)?.doubleValue ?? 0) - (NumberFormatter().number(from: lastMessageTimestamp)?.doubleValue ?? 0) >= config.messageMinimumTimeSpan)
-        
-        guard showTime == true else {
-            return ""
-        }
+    public func update(message: WYChatMessageModel, configuration: WYChatConfig, userID: String) {
+        state.isUpdating = true
+        self.configuration = configuration
+        self.userID = userID
+        self.message = message
+        state.isUpdating = false
+        wy_render()
+    }
 
-        let timeDistance: WYTimeDistance = String.wy_timeIntervalCycle(messageTimestamp, clientTimestamp)
-        
-        switch timeDistance {
-        case .today:
-            return messageTimestamp.wy_timestampConvertDate(.HM, config.showAmPmSymbol)
-            
-        case .yesterday:
-            return (WYLocalized("昨天", table: WYBasisKitConfig.kitLocalizableTable) + " " + messageTimestamp.wy_timestampConvertDate(.HM, config.showAmPmSymbol))
-            
-        case .yesterdayBefore, .withinWeek:
-            
-            let whatDay: [String] = [
-                messageTimestamp.wy_timestampConvertDate(.YMDHM, config.showAmPmSymbol),
-                WYLocalized("星期日", table: WYBasisKitConfig.kitLocalizableTable),
-                WYLocalized("星期一", table: WYBasisKitConfig.kitLocalizableTable),
-                WYLocalized("星期二", table: WYBasisKitConfig.kitLocalizableTable),
-                WYLocalized("星期三", table: WYBasisKitConfig.kitLocalizableTable),
-                WYLocalized("星期四", table: WYBasisKitConfig.kitLocalizableTable),
-                WYLocalized("星期五", table: WYBasisKitConfig.kitLocalizableTable),
-                WYLocalized("星期六", table: WYBasisKitConfig.kitLocalizableTable)]
-            
-            return whatDay[messageTimestamp.wy_whatDay.rawValue] + (messageTimestamp.wy_whatDay == .unknown ? "" : (" " + messageTimestamp.wy_timestampConvertDate(.HM, config.showAmPmSymbol)))
-            
-        case .withinSameMonth, .withinSameYear:
-            
-            let mm: String = WYLocalized("月", table: WYBasisKitConfig.kitLocalizableTable)
-            let dd: String = WYLocalized("日", table: WYBasisKitConfig.kitLocalizableTable)
-            
-            return messageTimestamp.wy_timestampConvertDate(.custom(format: "MM\(mm)dd\(dd) HH:mm"), config.showAmPmSymbol)
-            
-        default:
-            
-            let yyyy: String = WYLocalized("年", table: WYBasisKitConfig.kitLocalizableTable)
-            let mm: String = WYLocalized("月", table: WYBasisKitConfig.kitLocalizableTable)
-            let dd: String = WYLocalized("日", table: WYBasisKitConfig.kitLocalizableTable)
-            
-            return messageTimestamp.wy_timestampConvertDate(.custom(format: "yyyy\(yyyy)MM\(mm)dd\(dd) HH:mm"), config.showAmPmSymbol)
-        }
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        wy_updateLayout()
     }
-    
-    // 获取内容(气泡图)的最大显示宽度
-    func sharedContentMaxWidth() -> CGFloat {
-        
-        if message.isSender(userID) {
-            
-            if message.group == nil {
-                
-                return (wy_width - abs(chatTextConfig.basic.avatarOffset.sender.x) - abs(chatTextConfig.basic.avatarOffset.receive.x) - (chatTextConfig.basic.avatarSize.width * 2.0) - abs(chatTextConfig.bubbleMaxOffset)) - abs(config.nameViewOffsetForSingle.sender.x) + abs(chatTextConfig.bubbleOffsetForSingle.sender.x)
-                
-            }else {
-                
-                return (wy_width - abs(chatTextConfig.basic.avatarOffset.sender.x) - abs(chatTextConfig.basic.avatarOffset.receive.x) - (chatTextConfig.basic.avatarSize.width * 2.0) - abs(chatTextConfig.bubbleMaxOffset)) - abs(config.nameViewOffsetForGroup.sender.x) + abs(chatTextConfig.bubbleOffsetForGroup.sender.x)
-            }
-            
-        }else {
-            if message.group == nil {
-                
-                return (wy_width - abs(chatTextConfig.basic.avatarOffset.sender.x) - abs(chatTextConfig.basic.avatarOffset.receive.x) - (chatTextConfig.basic.avatarSize.width * 2.0) - abs(chatTextConfig.bubbleMaxOffset)) - abs(config.nameViewOffsetForSingle.receive.x) + abs(chatTextConfig.bubbleOffsetForSingle.receive.x)
-                
-            }else {
-                
-                return (wy_width - abs(chatTextConfig.basic.avatarOffset.sender.x) - abs(chatTextConfig.basic.avatarOffset.receive.x) - (chatTextConfig.basic.avatarSize.width * 2.0) - abs(chatTextConfig.bubbleMaxOffset)) - abs(config.nameViewOffsetForGroup.receive.x) + abs(chatTextConfig.bubbleOffsetForGroup.receive.x)
-            }
-        }
+
+    public override func prepareForReuse() {
+        super.prepareForReuse()
+        wy_prepareForReuse()
     }
+
+    internal let state = WYChatBasicCellPrivateState()
+
+    public required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 }

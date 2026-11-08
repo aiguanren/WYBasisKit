@@ -32,32 +32,35 @@ public struct WYMoreViewConfig {
     /// 自定义More控件是否需要翻页模式
     public var isPagingEnabled: Bool = true
     
+    /// 图标加载，参数为资源名，返回nil时使用默认资源查找
+    public var imageProvider: ((_ name: String) -> UIImage?)? = nil
+
     /// 自定义More控件数据源
     public var moreSource: [[String: String]] = []
 
     /// 自定义More控件的Inset
-    public var contentInset: UIEdgeInsets = UIEdgeInsets(top: UIDevice.wy_screenWidth(10), left: UIDevice.wy_screenWidth(20), bottom: UIDevice.wy_screenWidth(20), right: UIDevice.wy_screenWidth(20))
+    public var contentInset: UIEdgeInsets = UIEdgeInsets(top: UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels), left: UIDevice.wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels), bottom: UIDevice.wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels), right: UIDevice.wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels))
     
     /// 自定义More控件内imageView的背景色
     public var imageViewBackgroundColor: UIColor = .white
     
     /// 自定义More控件内imageView的Size
-    public var imageViewSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(65), height: UIDevice.wy_screenWidth(60))
+    public var imageViewSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(65, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(60, WYBasisKitConfig.defaultScreenPixels))
     
     /// 自定义More控件内imageView的圆角半径
-    public var imageViewCornerRadius: CGFloat = UIDevice.wy_screenWidth(15)
+    public var imageViewCornerRadius: CGFloat = UIDevice.wy_screenWidth(15, WYBasisKitConfig.defaultScreenPixels)
     
     /// 自定义More控件内imageView的背景色
     public var imageBackgroundColor: UIColor = .white
     
     /// 自定义More控件内文本控件的字体、字号
-    public var textViewFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(13))
+    public var textViewFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(13, WYBasisKitConfig.defaultScreenPixels))
     
     /// 自定义More控件内文本控件的色值
     public var textColor: UIColor = .wy_hex("#1B1B1B")
     
     /// 自定义More控件内文本控件顶部距离图片控件底部的间距
-    public var textTopOffset: CGFloat = UIDevice.wy_screenWidth(10)
+    public var textTopOffset: CGFloat = UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels)
     
     /// 自定义More控件内一行显示几个item
     public var itemMaxCountWithLine: Int = 4
@@ -72,7 +75,7 @@ public struct WYMoreViewConfig {
     public var maxHeightForever: Bool = false
     
     /// 自定义More控件内item的行间距
-    public var minimumLineSpacing: CGFloat = UIDevice.wy_screenWidth(16)
+    public var minimumLineSpacing: CGFloat = UIDevice.wy_screenWidth(16, WYBasisKitConfig.defaultScreenPixels)
     
     /// 分页控件原点位置
     public var pageControlPosition: CGPoint?
@@ -89,22 +92,22 @@ public extension WYMoreViewConfig {
     
     /// 计算每页需要显示几行item
     func numberOfLinesInPage() -> Int {
-        return maxHeightForever ? itemMaxLineWithPage : min(itemMaxLineWithPage, Int(ceil(CGFloat(moreSource.count) / CGFloat(itemMaxCountWithLine))))
+        return maxHeightForever ? itemMaxLineWithPage : min(itemMaxLineWithPage, Int(ceil(CGFloat(moreSource.count) / CGFloat(max(1, itemMaxCountWithLine)))))
     }
     
     /// 计算需要几页才能显示完毕所有Item
     func numberOfPages() -> Int {
-        return Int(ceil(CGFloat(moreViewConfig.moreSource.count) / CGFloat((itemMaxLineWithPage * itemMaxCountWithColumn))))
+        return Int(ceil(CGFloat(moreSource.count) / CGFloat(max(1, itemMaxLineWithPage * itemMaxCountWithColumn))))
     }
     
     /// 返回一个bool值，判断一页是否能否显示完毕所有的item
     func showTotalItemInPage() -> Bool {
         
         if scrollDirection == .horizontal {
-            return moreViewConfig.moreSource.count <= (itemMaxLineWithPage * itemMaxCountWithLine)
+            return moreSource.count <= (itemMaxLineWithPage * itemMaxCountWithLine)
             
         }else {
-            return moreViewConfig.moreSource.count <= (itemMaxLineWithPage * itemMaxCountWithColumn)
+            return moreSource.count <= (itemMaxLineWithPage * itemMaxCountWithColumn)
         }
     }
     
@@ -119,13 +122,13 @@ public extension WYMoreViewConfig {
     }
     
     /// 获取默认的分页控制器原点位置
-    func defaultPageControlPosition(_ pageControl: UIPageControl) -> CGPoint {
+    func defaultPageControlPosition(_ pageControl: UIPageControl, containerWidth: CGFloat) -> CGPoint {
         
         let pageControlSize: CGSize = pageControl.size(forNumberOfPages: pageControl.numberOfPages)
         if scrollDirection == .horizontal {
-            return CGPoint(x: (UIDevice.wy_screenWidth - pageControlSize.width) / 2, y: contentHeight() - pageControlSize.height - UIDevice.wy_screenWidth(15))
+            return CGPoint(x: (containerWidth - pageControlSize.width) / 2, y: contentHeight() - pageControlSize.height - UIDevice.wy_screenWidth(15, WYBasisKitConfig.defaultScreenPixels))
         }else {
-            return CGPoint(x: UIDevice.wy_screenWidth - (pageControlSize.width / 2) - (pageControlSize.height / 2) - UIDevice.wy_screenWidth(15), y: (contentHeight() - pageControlSize.height) / 2)
+            return CGPoint(x: containerWidth - (pageControlSize.width / 2) - (pageControlSize.height / 2) - UIDevice.wy_screenWidth(15, WYBasisKitConfig.defaultScreenPixels), y: (contentHeight() - pageControlSize.height) / 2)
         }
     }
 }
@@ -145,6 +148,10 @@ public extension WYMoreViewConfig {
 }
 
 public class WYChatMoreView: UIView {
+
+    /// 当前实例配置
+    public var moreViewConfig: WYMoreViewConfig = WYMoreViewConfig() { didSet { wy_reloadMoreConfiguration() } }
+
     
     public weak var eventsHandler: WYMoreViewEventsHandler? = nil
     
@@ -153,7 +160,8 @@ public class WYChatMoreView: UIView {
     
     public lazy var collectionView: UICollectionView = wy_makeCollectionView()
     
-    public init() {
+    public init(config: WYMoreViewConfig = WYMoreViewConfig()) {
+        self.moreViewConfig = config
         super.init(frame: .zero)
         backgroundColor = moreViewConfig.backgroundColor
         self.collectionView.backgroundColor = moreViewConfig.backgroundColor
@@ -177,6 +185,11 @@ public class WYChatMoreView: UIView {
         }
     }
     
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        wy_layoutMore()
+    }
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -211,7 +224,10 @@ extension WYChatMoreView: UICollectionViewDelegate, UICollectionViewDataSource, 
         let cell: WYMoreViewCell = collectionView.dequeueReusableCell(withReuseIdentifier: "WYMoreViewCell", for: indexPath) as! WYMoreViewCell
         
         let itemSource: [String: String] = moreViewConfig.moreSource[indexPath.item]
-        cell.iconView.image = UIImage.wy_find(itemSource.values.first ?? "")
+        cell.moreViewConfig = moreViewConfig
+        cell.titleView.font = moreViewConfig.textViewFont
+        cell.titleView.textColor = moreViewConfig.textColor
+        cell.iconView.image = moreViewConfig.imageProvider?(itemSource.values.first ?? "") ?? UIImage.wy_find(itemSource.values.first ?? "")
         cell.titleView.text = itemSource.keys.first ?? ""
         
         return cell
@@ -259,7 +275,7 @@ public extension WYChatMoreView {
                 
                 updatePageControlStyle()
                 
-                let pageControlPosition: CGPoint = (moreViewConfig.pageControlPosition == nil) ? moreViewConfig.defaultPageControlPosition(pagecontrol) : moreViewConfig.pageControlPosition!
+                let pageControlPosition: CGPoint = (moreViewConfig.pageControlPosition == nil) ? moreViewConfig.defaultPageControlPosition(pagecontrol, containerWidth: bounds.width) : moreViewConfig.pageControlPosition!
                 
                 pagecontrol.snp.makeConstraints { make in
                     make.left.equalToSuperview().offset(pageControlPosition.x)

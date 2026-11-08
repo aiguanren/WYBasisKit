@@ -10,6 +10,14 @@ import Foundation
 /// 语音消息Model
 public struct WYChatVoiceModel {
     
+    /// 是否正在识别语音
+    public var isRecognizing: Bool = false
+    /// 语音识别错误提示
+    public var recognitionError: String = ""
+
+    /// 是否正在播放，由调用方更新
+    public var isPlaying: Bool = false
+
     /// id
     public var id: String
     

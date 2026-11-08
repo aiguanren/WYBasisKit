@@ -16,6 +16,7 @@
 		580ED5712EA5DB37006012E7 /* UserResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5702EA5DB37006012E7 /* UserResponse.m */; };
 		580ED5742EA5DB55006012E7 /* WYGenericTypeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5732EA5DB55006012E7 /* WYGenericTypeController.m */; };
 		580ED5822EA62AE9006012E7 /* WYArchivedController.m in Sources */ = {isa = PBXBuildFile; fileRef = 580ED5812EA62AE9006012E7 /* WYArchivedController.m */; };
+		5818A0E630A035A9007F34FC /* WYTestChatController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5818A0E530A035A9007F34FC /* WYTestChatController.m */; };
 		581D2E9A3086236D001C1B9E /* WYTestDanmakuController.m in Sources */ = {isa = PBXBuildFile; fileRef = 581D2E993086236D001C1B9E /* WYTestDanmakuController.m */; };
 		581D2EC430863EB0001C1B9E /* WYTestVideoPlayerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 581D2EC330863EB0001C1B9E /* WYTestVideoPlayerController.m */; };
 		582732112E9F8CDF00DAD1AA /* WYTestDarkNightModeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 582732102E9F8CDF00DAD1AA /* WYTestDarkNightModeController.m */; };
@@ -91,6 +92,8 @@
 		580ED5732EA5DB55006012E7 /* WYGenericTypeController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYGenericTypeController.m; sourceTree = "<group>"; };
 		580ED5802EA62AE9006012E7 /* WYArchivedController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYArchivedController.h; sourceTree = "<group>"; };
 		580ED5812EA62AE9006012E7 /* WYArchivedController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYArchivedController.m; sourceTree = "<group>"; };
+		5818A0E430A035A9007F34FC /* WYTestChatController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestChatController.h; sourceTree = "<group>"; };
+		5818A0E530A035A9007F34FC /* WYTestChatController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestChatController.m; sourceTree = "<group>"; };
 		581D2E983086236D001C1B9E /* WYTestDanmakuController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestDanmakuController.h; sourceTree = "<group>"; };
 		581D2E993086236D001C1B9E /* WYTestDanmakuController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestDanmakuController.m; sourceTree = "<group>"; };
 		581D2EC230863EB0001C1B9E /* WYTestVideoPlayerController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestVideoPlayerController.h; sourceTree = "<group>"; };
@@ -330,6 +333,15 @@
 			path = "归档解归档";
 			sourceTree = "<group>";
 		};
+		5818A0E330A03598007F34FC /* IM即时通讯 */ = {
+			isa = PBXGroup;
+			children = (
+				5818A0E430A035A9007F34FC /* WYTestChatController.h */,
+				5818A0E530A035A9007F34FC /* WYTestChatController.m */,
+			);
+			path = "IM即时通讯";
+			sourceTree = "<group>";
+		};
 		581D2E973086235F001C1B9E /* 弹幕 */ = {
 			isa = PBXGroup;
 			children = (
@@ -459,6 +471,7 @@
 		58B470482E8D329600D04BCA /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				5818A0E330A03598007F34FC /* IM即时通讯 */,
 				58D9A79830946BD400B7B5A4 /* ESim */,
 				58D9A7AB3094730300B7B5A4 /* 系统服务唤起 */,
 				581D2EC130863E9B001C1B9E /* 点播播放器 */,
@@ -1014,6 +1027,7 @@
 				58C359682F3C614D000E6EF0 /* WYTestCombineImagesController.m in Sources */,
 				58BFB8832F14D9950094DDB5 /* WYTestRequestController.m in Sources */,
 				584EAF0E2E939052003A21B8 /* WYWebViewController.m in Sources */,
+				5818A0E630A035A9007F34FC /* WYTestChatController.m in Sources */,
 				9D61E502D868CF5ECE43ACD6 /* WYTestPhotoBrowserController.m in Sources */,
 				C3EE448F3AE440A0B1CBA5C5 /* WYTestMediaCacheController.m in Sources */,
 			);

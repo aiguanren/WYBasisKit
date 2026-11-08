@@ -7,7 +7,7 @@
 
 import UIKit
 
-@frozen public enum WYMoveUpTipsState: Int {
+@objc @frozen public enum WYMoveUpTipsState: Int {
     
     /// 准备取消状态
     case cancel = 0
@@ -17,6 +17,10 @@ import UIKit
 }
 
 public class WYMoveUpTipsView: UIView {
+
+    /// 当前实例配置
+    public var recordAnimationConfig: WYRecordAnimationConfig = WYRecordAnimationConfig()
+
     
     /// 提示文本View
     public var tipsView: UILabel = UILabel()
@@ -24,7 +28,8 @@ public class WYMoveUpTipsView: UIView {
     /// 移动按钮
     public var moveUpView: UIButton = UIButton(type: .custom)
     
-    public init(tipsState: WYMoveUpTipsState) {
+    public init(tipsState: WYMoveUpTipsState, configuration: WYRecordAnimationConfig = WYRecordAnimationConfig()) {
+        self.recordAnimationConfig = configuration
         super.init(frame: .zero)
         
         tipsView.backgroundColor = .clear

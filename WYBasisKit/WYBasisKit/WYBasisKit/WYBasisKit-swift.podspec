@@ -6,7 +6,7 @@ localizable_bundle = "#{kit_path}Swift/Localizable/WYLocalizable.bundle"
 
 Pod::Spec.new do |kit|
   kit.name         = "WYBasisKit-swift"
-  kit.version      = "26.11.2"
+  kit.version      = "26.11.3"
   kit.summary      = "WYBasisKit 不仅可以帮助开发者快速构建一个工程，还有基于常用网络框架和系统API而封装的各种实用方法、扩展，开发者只需简单的调用API就可以快速实现相应功能， 大幅提高开发效率。"
   kit.description  = <<-DESC
     Localizable: 国际化解决方案
@@ -18,7 +18,7 @@ Pod::Spec.new do |kit|
     MediaCache: 视频边下边播缓存(mp4等渐进式资源分块Range下载、缓存区间索引、LRU容量上限淘汰)
     DanmakuView: 弹幕视图(滚动顶部底部三类型、轨道自适应、播放器时钟注入暂停冻结与定位清屏)
     VideoPlayer: 点播播放器(AVPlayer内核，边下边播弹幕字幕手势全屏画中画清晰度切换，控制壳可整体替换)
-    Layout: 各种自定义控件(注意：ChatView尚未开发完毕，敬请期待)
+    Layout: 各种自定义控件
     Codable: 数据解析
     Authorization: 各种权限请求与判断
     LogManager: 日志打印，日志导出等日志管理相关(文件默认AES-GCM加密，四档可选)
@@ -604,15 +604,17 @@ Pod::Spec.new do |kit|
         "#{kit_path}Swift/Layout/ChatView/**/*.{swift,h,m}",
       ]
       chatView.resources = [
+        localizable_bundle,
         "#{kit_path}Swift/Layout/ChatView/WYChatView.bundle"
       ]
       chatView.resource_bundles = {"WYBasisKitSwiftLayoutChatView" => [
         "#{kit_path}Swift/PrivacyInfo.xcprivacy"
       ]}
-      chatView.frameworks = "Foundation", "UIKit"
+      chatView.frameworks = "Foundation", "UIKit", "Speech"
       chatView.dependency "WYBasisKit-swift/Extension"
       chatView.dependency "WYBasisKit-swift/Localizable"
       chatView.dependency "WYBasisKit-swift/Authorization/Microphone"
+      chatView.dependency "WYBasisKit-swift/Authorization/SpeechRecognition"
       chatView.dependency "WYBasisKit-swift/Storage"
       chatView.dependency "WYBasisKit-swift/LogManager"
       chatView.dependency "WYBasisKit-swift/AudioKit"

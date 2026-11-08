@@ -9,6 +9,9 @@ import UIKit
 import SnapKit
 
 final class WYChatEmojiViewPrivateState {
+    var lastWidth: CGFloat = -1
+    var preview: WYEmojiPreviewView?
+
     var appendEmoji: [String] = []
     var longPressIndexPath: IndexPath?
 }
@@ -110,9 +113,9 @@ extension WYChatEmojiView {
 
     func wy_makeCollectionView() -> UICollectionView {
 
-        let minimumInteritemSpacing: CGFloat = (UIDevice.wy_screenWidth - emojiViewConfig.sectionInset.left - emojiViewConfig.sectionInset.right - (CGFloat(emojiViewConfig.minimumLineCount) * emojiViewConfig.itemSize.width)) / (CGFloat(emojiViewConfig.minimumLineCount) - 1.0)
+        let minimumInteritemSpacing: CGFloat = 0
 
-        let collectionView: UICollectionView = UICollectionView.wy_shared(scrollDirection: .vertical, minimumLineSpacing: emojiViewConfig.minimumLineSpacing, minimumInteritemSpacing: minimumInteritemSpacing, itemSize: emojiViewConfig.itemSize, delegate: self, dataSource: self, superView: self)
+        let collectionView: UICollectionView = UICollectionView.wy_shared(scrollDirection: .vertical, minimumLineSpacing: self.emojiViewConfig.minimumLineSpacing, minimumInteritemSpacing: minimumInteritemSpacing, itemSize: self.emojiViewConfig.itemSize, delegate: self, dataSource: self, superView: self)
         collectionView.register(WYEmojiViewCell.self, forCellWithReuseIdentifier: "WYEmojiViewCell")
         collectionView.register(WYEmojiHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "WYEmojiHeaderView")
         collectionView.register(UICollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "UICollectionReusableView")
@@ -122,7 +125,7 @@ extension WYChatEmojiView {
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.snp.makeConstraints { (make) in
             make.left.top.right.equalToSuperview()
-            make.bottom.equalToSuperview().offset(-emojiViewConfig.collectionViewBottomOffset)
+            make.bottom.equalToSuperview().offset(-self.emojiViewConfig.collectionViewBottomOffset)
         }
 
         // 长按预览手势
@@ -135,30 +138,30 @@ extension WYChatEmojiView {
 
     func wy_makeFuncAreaView() -> WYEmojiFuncAreaView? {
 
-        guard emojiViewConfig.funcAreaConfig.show == true else {
+        guard self.emojiViewConfig.funcAreaConfig.show == true else {
             return nil
         }
 
-        let funcAreaView: WYEmojiFuncAreaView = WYEmojiFuncAreaView()
+        let funcAreaView: WYEmojiFuncAreaView = WYEmojiFuncAreaView(config: emojiViewConfig)
         funcAreaView.delegate = self
         addSubview(funcAreaView)
         funcAreaView.snp.makeConstraints { make in
-            make.size.equalTo(CGSize(width: emojiViewConfig.funcAreaConfig.deleteViewLeftOffsetWithArea + emojiViewConfig.funcAreaConfig.deleteViewSize.width + emojiViewConfig.funcAreaConfig.sendViewLeftOffsetWithDeleteView + emojiViewConfig.funcAreaConfig.sendViewSize.width, height: emojiViewConfig.funcAreaConfig.areaHeight))
-            make.right.equalToSuperview().offset(-emojiViewConfig.funcAreaConfig.areaRightOffset)
-            make.bottom.equalToSuperview().offset(-emojiViewConfig.funcAreaConfig.areaBottomOffset)
+            make.size.equalTo(CGSize(width: self.emojiViewConfig.funcAreaConfig.deleteViewLeftOffsetWithArea + self.emojiViewConfig.funcAreaConfig.deleteViewSize.width + self.emojiViewConfig.funcAreaConfig.sendViewLeftOffsetWithDeleteView + self.emojiViewConfig.funcAreaConfig.sendViewSize.width, height: self.emojiViewConfig.funcAreaConfig.areaHeight))
+            make.right.equalToSuperview().offset(-self.emojiViewConfig.funcAreaConfig.areaRightOffset)
+            make.bottom.equalToSuperview().offset(-self.emojiViewConfig.funcAreaConfig.areaBottomOffset)
         }
         return funcAreaView
     }
 
     func wy_makeRecentlyEmoji() -> [String] {
 
-        guard emojiViewConfig.showRecently == true else {
+        guard self.emojiViewConfig.showRecently == true else {
             return []
         }
 
         var recentlyEmoji: [String] = UserDefaults.standard.array(forKey: emojiViewRecentlyCountKey) as? [String] ?? []
-        if recentlyEmoji.count > emojiViewConfig.recentlyCount {
-            let range: Range =  Range(NSMakeRange(emojiViewConfig.recentlyCount - 1, recentlyEmoji.count - emojiViewConfig.recentlyCount))!
+        if recentlyEmoji.count > self.emojiViewConfig.recentlyCount {
+            let range: Range =  Range(NSMakeRange(self.emojiViewConfig.recentlyCount - 1, recentlyEmoji.count - self.emojiViewConfig.recentlyCount))!
             recentlyEmoji.replaceSubrange(range, with: [])
 
             UserDefaults.standard.setValue(recentlyEmoji, forKey: emojiViewRecentlyCountKey)
@@ -169,19 +172,19 @@ extension WYChatEmojiView {
 
     func wy_makeDataSource() -> [[String]] {
         var dataSource: [[String]] = []
-        if (emojiViewConfig.showRecently == true) && (recentlyEmoji.isEmpty == false) {
+        if (self.emojiViewConfig.showRecently == true) && (recentlyEmoji.isEmpty == false) {
             dataSource.append(recentlyEmoji)
         }
 
-        if (emojiViewConfig.funcAreaConfig.show == true) && (emojiViewConfig.funcAreaConfig.wrapLastLineOfEmoji == true) {
+        if (self.emojiViewConfig.funcAreaConfig.show == true) && (self.emojiViewConfig.funcAreaConfig.wrapLastLineOfEmoji == true) {
 
             let flowLayout: UICollectionViewFlowLayout = collectionView.collectionViewLayout as! UICollectionViewFlowLayout
 
-            var leftx: CGFloat = emojiViewConfig.sectionInset.left
+            var leftx: CGFloat = self.emojiViewConfig.sectionInset.left
             var line: Int = 0
-            for _: Int in 0..<emojiViewConfig.minimumLineCount {
-                leftx += emojiViewConfig.itemSize.width
-                if leftx > (self.wy_width - emojiViewConfig.funcAreaConfig.deleteViewLeftOffsetWithArea - emojiViewConfig.funcAreaConfig.areaRightOffset - emojiViewConfig.funcAreaConfig.sendViewRightOffset - emojiViewConfig.funcAreaConfig.sendViewSize.width - emojiViewConfig.funcAreaConfig.deleteViewSize.width - emojiViewConfig.funcAreaConfig.sendViewLeftOffsetWithDeleteView) {
+            for _: Int in 0..<self.emojiViewConfig.minimumLineCount {
+                leftx += self.emojiViewConfig.itemSize.width
+                if leftx > (self.wy_width - self.emojiViewConfig.funcAreaConfig.deleteViewLeftOffsetWithArea - self.emojiViewConfig.funcAreaConfig.areaRightOffset - self.emojiViewConfig.funcAreaConfig.sendViewRightOffset - self.emojiViewConfig.funcAreaConfig.sendViewSize.width - self.emojiViewConfig.funcAreaConfig.deleteViewSize.width - self.emojiViewConfig.funcAreaConfig.sendViewLeftOffsetWithDeleteView) {
                     break
                 }
                 leftx += flowLayout.minimumInteritemSpacing
@@ -189,17 +192,17 @@ extension WYChatEmojiView {
             }
 
             var offsetCount: Int = 0
-            let residual: Int = (emojiViewConfig.emojiSource.count % emojiViewConfig.minimumLineCount)
+            let residual: Int = (self.emojiViewConfig.emojiSource.count % self.emojiViewConfig.minimumLineCount)
 
             if residual > line {
                 offsetCount = (residual - line)
             }
             if residual == 0 {
-                offsetCount = (emojiViewConfig.minimumLineCount - line)
+                offsetCount = (self.emojiViewConfig.minimumLineCount - line)
             }
 
             var emojiSource: [String] = []
-            emojiSource.append(contentsOf: emojiViewConfig.emojiSource)
+            emojiSource.append(contentsOf: self.emojiViewConfig.emojiSource)
             for _ in 0..<offsetCount {
                 let lastEmoji: String = emojiSource.last ?? ""
                 emojiSource.removeLast()
@@ -210,7 +213,7 @@ extension WYChatEmojiView {
                 dataSource.append(appendEmoji)
             }
         }else {
-            dataSource.append(emojiViewConfig.emojiSource)
+            dataSource.append(self.emojiViewConfig.emojiSource)
         }
         return dataSource
     }
@@ -227,7 +230,7 @@ extension WYChatEmojiView {
     }
 
     func wy_impl_updateRecentlyEmoji(_ attributedText: NSAttributedString) {
-        guard emojiViewConfig.showRecently == true else {
+        guard self.emojiViewConfig.showRecently == true else {
             return
         }
 
@@ -243,7 +246,7 @@ extension WYChatEmojiView {
                     recently.remove(at: recently.firstIndex(of: emoji)!)
                 }
                 recently.insert(emoji, at: 0)
-                if recently.count > emojiViewConfig.recentlyCount {
+                if recently.count > self.emojiViewConfig.recentlyCount {
                     recently.removeLast()
                 }
                 UserDefaults.standard.setValue(Array(recently), forKey: emojiViewRecentlyCountKey)
@@ -286,21 +289,21 @@ extension WYChatEmojiView {
     func sectionInset(_ section: Int) -> UIEdgeInsets {
 
         if appendEmoji.isEmpty == true {
-            return emojiViewConfig.sectionInset
+            return self.emojiViewConfig.sectionInset
         }else {
             if section == (dataSource.count - 1) {
-                return UIEdgeInsets(top: emojiViewConfig.minimumLineSpacing, left: emojiViewConfig.sectionInset.left, bottom: emojiViewConfig.sectionInset.bottom, right: emojiViewConfig.sectionInset.right)
+                return UIEdgeInsets(top: self.emojiViewConfig.minimumLineSpacing, left: self.emojiViewConfig.sectionInset.left, bottom: self.emojiViewConfig.sectionInset.bottom, right: self.emojiViewConfig.sectionInset.right)
             }else {
 
-                if (emojiViewConfig.showRecently == true) && (recentlyEmoji.isEmpty == false) {
+                if (self.emojiViewConfig.showRecently == true) && (recentlyEmoji.isEmpty == false) {
 
                     if section == 0 {
-                        return UIEdgeInsets(top: emojiViewConfig.recentlySectionInset.top, left: emojiViewConfig.recentlySectionInset.left, bottom: emojiViewConfig.recentlySectionInset.bottom, right: emojiViewConfig.recentlySectionInset.right)
+                        return UIEdgeInsets(top: self.emojiViewConfig.recentlySectionInset.top, left: self.emojiViewConfig.recentlySectionInset.left, bottom: self.emojiViewConfig.recentlySectionInset.bottom, right: self.emojiViewConfig.recentlySectionInset.right)
                     }else {
-                        return UIEdgeInsets(top: emojiViewConfig.sectionInset.top, left: emojiViewConfig.sectionInset.left, bottom: 0, right: emojiViewConfig.sectionInset.right)
+                        return UIEdgeInsets(top: self.emojiViewConfig.sectionInset.top, left: self.emojiViewConfig.sectionInset.left, bottom: 0, right: self.emojiViewConfig.sectionInset.right)
                     }
                 }else {
-                    return UIEdgeInsets(top: emojiViewConfig.sectionInset.top, left: emojiViewConfig.sectionInset.left, bottom: 0, right: emojiViewConfig.sectionInset.right)
+                    return UIEdgeInsets(top: self.emojiViewConfig.sectionInset.top, left: self.emojiViewConfig.sectionInset.left, bottom: 0, right: self.emojiViewConfig.sectionInset.right)
                 }
             }
         }
@@ -316,9 +319,9 @@ extension WYChatEmojiView {
 
     func wy_impl_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
 
-        if (recentlyEmoji.isEmpty == false) && (emojiViewConfig.showRecently == true) {
+        if (recentlyEmoji.isEmpty == false) && (self.emojiViewConfig.showRecently == true) {
             if (section == 0) {
-                return emojiViewConfig.recentlySectionInset
+                return self.emojiViewConfig.recentlySectionInset
             }else {
                 return sectionInset(section)
             }
@@ -328,21 +331,25 @@ extension WYChatEmojiView {
     }
 
     func wy_impl_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        guard (recentlyEmoji.isEmpty == false) && (emojiViewConfig.showRecently == true)  else {
+        guard (recentlyEmoji.isEmpty == false) && (self.emojiViewConfig.showRecently == true)  else {
             return CGSize.zero
         }
-        return CGSize(width: wy_width, height: (section < 2) ? emojiViewConfig.headerHeight : 0)
+        return CGSize(width: wy_width, height: (section < 2) ? self.emojiViewConfig.headerHeight : 0)
     }
 
     func wy_impl_collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
 
-        guard (recentlyEmoji.isEmpty == false) && (emojiViewConfig.showRecently == true)  else {
+        guard (recentlyEmoji.isEmpty == false) && (self.emojiViewConfig.showRecently == true)  else {
             return collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "UICollectionReusableView", for: indexPath)
         }
 
         if (kind == UICollectionView.elementKindSectionHeader) && (indexPath.section < 2) {
             let headerView: WYEmojiHeaderView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "WYEmojiHeaderView", for: indexPath) as! WYEmojiHeaderView
-            headerView.textView.text = [emojiViewConfig.recentlyHeaderText, emojiViewConfig.totalHeaderText][indexPath.section]
+            headerView.emojiViewConfig = emojiViewConfig
+            headerView.textView.font = emojiViewConfig.headerTextFont
+            headerView.textView.textColor = emojiViewConfig.headerTextColor
+            headerView.backgroundColor = emojiViewConfig.headerBackgroundColor
+            headerView.textView.text = [self.emojiViewConfig.recentlyHeaderText, self.emojiViewConfig.totalHeaderText][indexPath.section]
             return headerView
         }
         return collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "UICollectionReusableView", for: indexPath)
@@ -351,6 +358,7 @@ extension WYChatEmojiView {
     func wy_impl_collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 
         let cell: WYEmojiViewCell = collectionView.dequeueReusableCell(withReuseIdentifier: "WYEmojiViewCell", for: indexPath) as! WYEmojiViewCell
+        cell.emojiViewConfig = emojiViewConfig
         cell.emoji = dataSource[indexPath.section][indexPath.item]
 
         return cell
@@ -383,28 +391,29 @@ extension WYChatEmojiView {
             }
 
             longPressIndexPath = indexPath
-            WYEmojiPreviewView.show(emoji: dataSource[indexPath.section][indexPath.item], according: emojiImageView(at: indexPath))
+            wy_showEmojiPreview(dataSource[indexPath.section][indexPath.item], according: emojiImageView(at: indexPath))
             break
 
         case .changed:
 
             if let indexPath: IndexPath = indexPath {
-                WYEmojiPreviewView.setHidden(false)
+                state.preview?.isHidden = false
                 if indexPath != longPressIndexPath {
                     longPressIndexPath = indexPath
-                    WYEmojiPreviewView.update(emoji: dataSource[indexPath.section][indexPath.item], according: emojiImageView(at: indexPath))
+                    state.preview?.update(emoji: dataSource[indexPath.section][indexPath.item], according: emojiImageView(at: indexPath))
                 }
             }else {
                 // 手指滑到header、行间距、删除键、面板外等无效区域
                 longPressIndexPath = nil
-                WYEmojiPreviewView.setHidden(true)
+                state.preview?.isHidden = true
             }
             break
 
         case .ended, .cancelled, .failed:
 
             longPressIndexPath = nil
-            WYEmojiPreviewView.dismiss()
+            state.preview?.dismiss()
+            state.preview = nil
             break
 
         default:
@@ -415,5 +424,46 @@ extension WYChatEmojiView {
     /// 取indexPath对应cell的表情图(作为预览浮层的锚点)
     func emojiImageView(at indexPath: IndexPath) -> UIImageView {
         return (collectionView.cellForItem(at: indexPath) as? WYEmojiViewCell)?.emojiView ?? UIImageView()
+    }
+}
+
+extension WYChatEmojiView {
+    func wy_showEmojiPreview(_ emoji: String, according: UIView) {
+        state.preview?.dismiss()
+        guard emojiViewConfig.previewConfig.show, let parent = window else { return }
+        let preview = WYEmojiPreviewView(config: emojiViewConfig, emoji: emoji)
+        state.preview = preview
+        parent.addSubview(preview)
+        preview.update(emoji: emoji, according: according)
+        preview.alpha = 1
+    }
+}
+
+extension WYChatEmojiView {
+    func wy_layoutEmoji() {
+        guard bounds.width > 0, state.lastWidth != bounds.width,
+              let flow = collectionView.collectionViewLayout as? UICollectionViewFlowLayout else { return }
+        state.lastWidth = bounds.width
+        let columns = max(1, emojiViewConfig.minimumLineCount)
+        let available = max(1, bounds.width - emojiViewConfig.sectionInset.left - emojiViewConfig.sectionInset.right)
+        let width = min(max(1, emojiViewConfig.itemSize.width), available / CGFloat(columns))
+        flow.itemSize = CGSize(width: width, height: max(1, emojiViewConfig.itemSize.height))
+        flow.minimumInteritemSpacing = columns > 1 ? max(0, (available - CGFloat(columns) * width) / CGFloat(columns - 1)) : 0
+        flow.minimumLineSpacing = max(0, emojiViewConfig.minimumLineSpacing)
+        flow.invalidateLayout()
+    }
+
+    func wy_reloadEmojiConfiguration() {
+        state.preview?.dismiss()
+        state.preview = nil
+        collectionView.removeFromSuperview()
+        funcAreaView?.removeFromSuperview()
+        recentlyEmoji = wy_makeRecentlyEmoji()
+        dataSource = wy_makeDataSource()
+        collectionView = wy_makeCollectionView()
+        funcAreaView = wy_makeFuncAreaView()
+        collectionView.backgroundColor = emojiViewConfig.backgroundColor
+        state.lastWidth = -1
+        setNeedsLayout()
     }
 }

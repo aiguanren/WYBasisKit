@@ -15,36 +15,40 @@ let canSaveLastInputViewStyleKey: String = "canSaveLastInputViewStyleKey"
 extension WYChatInputView {
 
     func wy_makeRecordView() -> WYRecordAnimationView {
-        let recordView: WYRecordAnimationView = WYRecordAnimationView(alpha: 1.0, delegate: self)
+        hasCreatedRecordView = true
+        let recordView: WYRecordAnimationView = WYRecordAnimationView(alpha: 0, delegate: self, configuration: recordAnimationConfig)
+        recordView.resultHandler = { [weak self] url, duration, error in self?.recordingResultHandler?(url, duration, error) }
+        recordView.recognizedTextHandler = { [weak self] text in self?.delegate?.wy_didClickKeyboardEvent?(text: text) }
         superview?.addSubview(recordView)
         recordView.snp.makeConstraints { make in
             make.left.top.right.equalToSuperview()
-            make.bottom.equalToSuperview().offset(recordAnimationConfig.recordViewBottomOffset)
+            make.bottom.equalToSuperview().offset(self.recordAnimationConfig.recordViewBottomOffset)
         }
         return recordView
     }
 
     func wy_makeSpecialSendButton() -> UIButton? {
 
-        guard inputBarConfig.showSpecialSendButton == true else {
+        guard self.inputBarConfig.showSpecialSendButton == true else {
             return nil
         }
 
         let specialSendButton: UIButton = UIButton(type: .custom)
-        specialSendButton.wy_titleFont = inputBarConfig.specialSendButtonFont
-        specialSendButton.wy_nTitle = inputBarConfig.specialSendButtonText
-        specialSendButton.wy_title_nColor = inputBarConfig.specialSendButtonTextColor
-        specialSendButton.setBackgroundImage(inputBarConfig.specialSendButtonImage, for: .normal)
-        specialSendButton.layer.cornerRadius = inputBarConfig.specialSendButtonCornerRadius
-        specialSendButton.layer.borderWidth = inputBarConfig.specialSendButtonBorderWidth
-        specialSendButton.layer.borderColor = inputBarConfig.specialSendButtonBorderColor.cgColor
+        specialSendButton.wy_titleFont = self.inputBarConfig.specialSendButtonFont
+        specialSendButton.wy_nTitle = self.inputBarConfig.specialSendButtonText
+        specialSendButton.wy_title_nColor = self.inputBarConfig.specialSendButtonTextColor
+        specialSendButton.setBackgroundImage(self.inputBarConfig.specialSendButtonImage, for: .normal)
+        specialSendButton.layer.cornerRadius = self.inputBarConfig.specialSendButtonCornerRadius
+        specialSendButton.layer.borderWidth = self.inputBarConfig.specialSendButtonBorderWidth
+        specialSendButton.layer.borderColor = self.inputBarConfig.specialSendButtonBorderColor.cgColor
         specialSendButton.layer.masksToBounds = true
+        specialSendButton.accessibilityIdentifier = "WYChatInput.send"
         specialSendButton.addTarget(self, action: #selector(didClickSendView(_:)), for: .touchUpInside)
         addSubview(specialSendButton)
         specialSendButton.snp.makeConstraints { make in
-            make.right.equalToSuperview().offset(-inputBarConfig.specialSendButtonRightOffset)
-            make.centerX.equalTo(textVoiceContentView.snp.right).offset(inputBarConfig.specialSendButtonLeftOffset + (inputBarConfig.specialSendButtonSize.width / 2))
-            make.centerY.equalTo(textVoiceContentView.snp.bottom).offset(-(inputBarConfig.specialSendButtonBottomOffset + (inputBarConfig.specialSendButtonSize.height / 2)))
+            make.right.equalToSuperview().offset(-self.inputBarConfig.specialSendButtonRightOffset)
+            make.centerX.equalTo(textVoiceContentView.snp.right).offset(self.inputBarConfig.specialSendButtonLeftOffset + (self.inputBarConfig.specialSendButtonSize.width / 2))
+            make.centerY.equalTo(textVoiceContentView.snp.bottom).offset(-(self.inputBarConfig.specialSendButtonBottomOffset + (self.inputBarConfig.specialSendButtonSize.height / 2)))
             make.size.equalTo(CGSize.zero)
         }
         return specialSendButton
@@ -75,33 +79,28 @@ extension WYChatInputView {
     }
 
     @objc func voiceViewLongPressMethod(_ sender: UILongPressGestureRecognizer) {
-
-        guard ((eventsHandler?.wy_canManagerVoiceRecordEvents?(sender) ?? true) && textVoiceView.isSelected == true) else {
-            return
-        }
-        /// 检查是否拥有麦克风权限
-        wy_authorizeMicrophoneAccess(showSettingsAlert: true) { [weak self] authorized in
-
-            guard let self = self else { return }
-            guard authorized == true else { return }
-
-            // 用户已授权使用麦克风，开始录音操作
-            let point: CGPoint = sender.location(in: self.recordView)
-            switch sender.state {
-            case .began:
-                self.isHidden = true
+        guard eventsHandler?.wy_canManagerVoiceRecordEvents?(sender) ?? true, textVoiceView.isSelected else { return }
+        switch sender.state {
+        case .began:
+            let identifier = UUID()
+            recordingGestureID = identifier
+            let begin: (Bool) -> Void = { [weak self, weak sender] authorized in
+                guard let self, let sender, authorized, self.recordingGestureID == identifier, sender.state == .began || sender.state == .changed else { return }
+                self.recordView.recordAnimationConfig = self.recordAnimationConfig
                 self.recordView.start()
-                break
-            case .changed:
-                self.isHidden = true
-                // 传入坐标点，在内部切换选中目标
-                self.recordView.switchStatus(point)
-                break
-            default:
-                self.isHidden = false
-                self.recordView.stop()
-                break
             }
+            if recordAnimationConfig.recorder != nil { begin(true) }
+            else { wy_authorizeMicrophoneAccess(showSettingsAlert: true) { granted in begin(granted) } }
+        case .changed:
+            if recordView.state.requestID != nil { recordView.switchStatus(sender.location(in: recordView)) }
+        case .ended:
+            recordingGestureID = nil
+            recordView.stop()
+        case .cancelled, .failed:
+            recordingGestureID = nil
+            recordView.state.discard = true
+            recordView.stop()
+        default: break
         }
     }
 
@@ -173,7 +172,7 @@ extension WYChatInputView {
             guard let self = self else {return}
 
             self.specialSendButton?.snp.updateConstraints { make in
-                make.size.equalTo(hasText ? inputBarConfig.specialSendButtonSize : CGSize.zero)
+                make.size.equalTo(hasText ? self.inputBarConfig.specialSendButtonSize : CGSize.zero)
             }
             self.specialSendButton?.superview?.layoutIfNeeded()
         }
@@ -181,38 +180,41 @@ extension WYChatInputView {
 
     func wy_impl_sharedEmojiAttributed(string: String) -> NSAttributedString {
 
-        let attributed: NSMutableAttributedString = NSMutableAttributedString.wy_convertEmojiAttributed(emojiString: string, textColor: inputBarConfig.textColor, textFont: inputBarConfig.textFont, emojiTable: emojiViewConfig.emojiSource, sourceBundle: emojiViewConfig.emojiBundle, pattern: inputBarConfig.emojiPattern, customImageLoader: { emojiName, _ in emojiViewConfig.staticEmojiImage(emojiName) })
-        attributed.wy_lineSpacing(inputBarConfig.textLineSpacing, alignment: .left)
+        let attributed: NSMutableAttributedString = NSMutableAttributedString.wy_convertEmojiAttributed(emojiString: string, textColor: self.inputBarConfig.textColor, textFont: self.inputBarConfig.textFont, emojiTable: self.emojiViewConfig.emojiSource, sourceBundle: self.emojiViewConfig.emojiBundle, pattern: self.inputBarConfig.emojiPattern, customImageLoader: { emojiName, _ in self.emojiViewConfig.staticEmojiImage(emojiName) })
+        attributed.wy_lineSpacing(self.inputBarConfig.textLineSpacing, alignment: .left)
 
         return attributed
     }
 
     func wy_impl_sharedEmojiAttributedText(attributed: NSAttributedString) -> NSAttributedString {
-        let attributed: NSMutableAttributedString = NSMutableAttributedString(attributedString: attributed).wy_convertEmojiAttributedString(textColor: inputBarConfig.textColor, textFont: inputBarConfig.textFont)
-        attributed.wy_lineSpacing(inputBarConfig.textLineSpacing, alignment: .left)
+        let attributed: NSMutableAttributedString = NSMutableAttributedString(attributedString: attributed).wy_convertEmojiAttributedString(textColor: self.inputBarConfig.textColor, textFont: self.inputBarConfig.textFont)
+        attributed.wy_lineSpacing(self.inputBarConfig.textLineSpacing, alignment: .left)
         return attributed
     }
 
     func saveLastInputViewStyle() {
-        UserDefaults.standard.setValue(textView.isHidden, forKey: canSaveLastInputViewStyleKey)
+        guard !inputBarConfig.draftStorageKey.isEmpty else { return }
+        UserDefaults.standard.setValue(textView.isHidden, forKey: inputBarConfig.draftStorageKey + canSaveLastInputViewStyleKey)
         UserDefaults.standard.synchronize()
     }
 
     func updateContentViewHeight() {
+        textVoiceContentView.isAccessibilityElement = textView.isHidden
+        textVoiceContentView.accessibilityElements = textView.isHidden ? nil : [textView]
 
-        let textHeight: CGFloat = textView.attributedText.wy_calculateHeight(controlWidth: textViewInputWidth()) + inputBarConfig.inputTextEdgeInsets.top + inputBarConfig.inputTextEdgeInsets.bottom
+        let textHeight: CGFloat = textView.attributedText.wy_calculateHeight(controlWidth: textViewInputWidth()) + self.inputBarConfig.inputTextEdgeInsets.top + self.inputBarConfig.inputTextEdgeInsets.bottom
 
         var contentHeight: CGFloat = [textHeight,
                                       textView.contentSize.height,
-                                      inputBarConfig.inputViewHeight]
+                                      self.inputBarConfig.inputViewHeight]
             .max() ?? 0
 
         if (textVoiceView.isSelected == true) {
-            contentHeight = inputBarConfig.inputViewHeight
+            contentHeight = self.inputBarConfig.inputViewHeight
         }
 
         textVoiceContentView.snp.updateConstraints { make in
-            make.height.equalTo(contentHeight > inputBarConfig.textViewMaxHeight ? inputBarConfig.textViewMaxHeight : contentHeight)
+            make.height.equalTo(contentHeight > self.inputBarConfig.textViewMaxHeight ? self.inputBarConfig.textViewMaxHeight : contentHeight)
         }
 
         textView.contentSize = CGSize(width: self.textView.contentSize.width, height: contentHeight)
@@ -221,11 +223,8 @@ extension WYChatInputView {
 
     // 获取textView可输入的宽度
     func textViewInputWidth() -> CGFloat {
-        if (inputBarConfig.showSpecialSendButton == true) {
-            return ceil(UIDevice.wy_screenWidth - inputBarConfig.inputViewEdgeInsets.left - inputBarConfig.specialSendButtonLeftOffset - inputBarConfig.specialSendButtonRightOffset - inputBarConfig.specialSendButtonSize.width - inputBarConfig.inputTextEdgeInsets.left - inputBarConfig.inputTextEdgeInsets.right - UIDevice.wy_screenWidth(10))
-        }else {
-            return ceil(UIDevice.wy_screenWidth - inputBarConfig.inputViewEdgeInsets.left - inputBarConfig.inputViewEdgeInsets.right - inputBarConfig.inputTextEdgeInsets.left - inputBarConfig.inputTextEdgeInsets.right - UIDevice.wy_screenWidth(10))
-        }
+        let width = textVoiceContentView.bounds.width > 0 ? textVoiceContentView.bounds.width : max(1, bounds.width - inputBarConfig.inputViewEdgeInsets.left - inputBarConfig.inputViewEdgeInsets.right)
+        return max(1, width - inputBarConfig.inputTextEdgeInsets.left - inputBarConfig.inputTextEdgeInsets.right)
     }
 
     func wy_impl_updateTextViewOffset() {
@@ -240,7 +239,7 @@ extension WYChatInputView {
 
     func checkTextCount() {
 
-        if textView.attributedText.string.utf16.count > inputBarConfig.inputTextLength {
+        if textView.attributedText.string.utf16.count > self.inputBarConfig.inputTextLength {
             let selectRange = textView.markedTextRange
             if let selectRange = selectRange {
                 let position =  textView.position(from: (selectRange.start), offset: 0)
@@ -250,8 +249,8 @@ extension WYChatInputView {
             }
             let textContent = textView.attributedText.string
             let textNum = textContent.utf16.count - (textContent.utf16.count - textContent.count)
-            if (textNum > inputBarConfig.inputTextLength) && (inputBarConfig.inputTextLength > 0) {
-                textView.attributedText = textView.attributedText.attributedSubstring(from: NSMakeRange(0, (inputBarConfig.inputTextLength)))
+            if (textNum > self.inputBarConfig.inputTextLength) && (self.inputBarConfig.inputTextLength > 0) {
+                textView.attributedText = textView.attributedText.attributedSubstring(from: NSMakeRange(0, (self.inputBarConfig.inputTextLength)))
             }
         }
     }
@@ -278,7 +277,7 @@ extension WYChatInputView {
         let textHeight: CGFloat = attributedString.wy_calculateHeight(controlWidth: textInputWidth)
 
         // 指定行数文本的高度
-        let targetHeight: CGFloat = ceil(((inputBarConfig.textFont.lineHeight + inputBarConfig.textLineSpacing) * CGFloat(target)) - inputBarConfig.textLineSpacing)
+        let targetHeight: CGFloat = ceil(((self.inputBarConfig.textFont.lineHeight + self.inputBarConfig.textLineSpacing) * CGFloat(target)) - self.inputBarConfig.textLineSpacing)
 
         // textView显示行数是否大于 target
         return (textHeight > targetHeight)
@@ -288,10 +287,10 @@ extension WYChatInputView {
 
         let cursorPosition = textView.offset(from: textView.beginningOfDocument, to: textView.selectedTextRange?.start ?? textView.beginningOfDocument)
 
-        var emojiText: String = NSMutableAttributedString(attributedString: textView.attributedText).wy_convertEmojiAttributedString(textColor: inputBarConfig.textColor, textFont: inputBarConfig.textFont).string
+        var emojiText: String = NSMutableAttributedString(attributedString: textView.attributedText).wy_convertEmojiAttributedString(textColor: self.inputBarConfig.textColor, textFont: self.inputBarConfig.textFont).string
 
-        if inputBarConfig.canInputEmoji == false {
-            emojiText = emojiText.wy_replaceEmoji(inputBarConfig.emojiReplacement)
+        if self.inputBarConfig.canInputEmoji == false {
+            emojiText = emojiText.wy_replaceEmoji(self.inputBarConfig.emojiReplacement)
             textView.text = emojiText
         }
 
@@ -299,7 +298,7 @@ extension WYChatInputView {
 
         checkTextCount()
 
-        emojiText = NSMutableAttributedString(attributedString: textView.attributedText).wy_convertEmojiAttributedString(textColor: inputBarConfig.textColor, textFont: inputBarConfig.textFont).string
+        emojiText = NSMutableAttributedString(attributedString: textView.attributedText).wy_convertEmojiAttributedString(textColor: self.inputBarConfig.textColor, textFont: self.inputBarConfig.textFont).string
 
         textPlaceholderView.isHidden = !emojiText.isEmpty
         if silence == false {
@@ -313,7 +312,7 @@ extension WYChatInputView {
             textView.selectedTextRange = textView.textRange(from: start, to: end)
         }
 
-        UserDefaults.standard.setValue(emojiText, forKey: canSaveLastInputTextKey)
+        if !inputBarConfig.draftStorageKey.isEmpty { UserDefaults.standard.setValue(emojiText, forKey: inputBarConfig.draftStorageKey + canSaveLastInputTextKey) }
         UserDefaults.standard.synchronize()
 
         updateTextViewOffset()
@@ -327,7 +326,7 @@ extension WYChatInputView {
         let primaryLanguage: String = textView.textInputMode?.primaryLanguage ?? ""
 
         // 九宫格输入
-        if inputBarConfig.primaryLanguage.contains(primaryLanguage) {
+        if self.inputBarConfig.primaryLanguage.contains(primaryLanguage) {
             // 拼音输入的时候 selectedRange 会有值 输入完成 selectedRange 会等于nil, 所以在输入完再进行相关的逻辑操作
             if textView.markedTextRange == nil {
                 processingTextViewDidChange(textView, silence: silence)
@@ -343,7 +342,7 @@ extension WYChatInputView {
     }
 
     func wy_impl_didClickSendView(_ sender: UIButton? = nil) {
-        let emojiText: String = NSMutableAttributedString(attributedString: textView.attributedText).wy_convertEmojiAttributedString(textColor: inputBarConfig.textColor, textFont: inputBarConfig.textFont).string
+        let emojiText: String = NSMutableAttributedString(attributedString: textView.attributedText).wy_convertEmojiAttributedString(textColor: self.inputBarConfig.textColor, textFont: self.inputBarConfig.textFont).string
 
         if emojiText.wy_replace(appointSymbol: "\n", replacement: "").count > 0 {
             delegate?.wy_didClickKeyboardEvent?(text: emojiText)
@@ -393,40 +392,17 @@ extension WYChatInputView {
 
     func wy_impl_textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
 
-        // 点击换行
-        if text == "\n" {
-
-            if inputBarConfig.showSpecialSendButton == true {
-                return true
-            }else {
-                didClickSendView()
-                return false
-            }
-        }
-
-        let textContent = textView.attributedText.string + text
-        let textNum = textContent.utf16.count - (textContent.utf16.count - textContent.count)
-
-        if textView.attributedText.string.utf16.count > inputBarConfig.inputTextLength {
-            let selectRange = textView.markedTextRange
-            if let selectRange = selectRange {
-                let position =  textView.position(from: (selectRange.start), offset: 0)
-                if (position != nil) {
-                    return true
-                }
-            }
-        }
-
-        checkTextCount()
-
-        if (textNum > inputBarConfig.inputTextLength) && (inputBarConfig.inputTextLength > 0) {
+        if text == "\n" && !inputBarConfig.showSpecialSendButton {
+            didClickSendView()
             return false
         }
-
-        if textRowGreaterThan(row: inputBarConfig.inputTextMaximumNumberOfLines, attributedText: sharedEmojiAttributed(string: textContent)) {
-            return false
-        }
-
+        if textView.markedTextRange != nil { return true }
+        let current = textView.attributedText.string as NSString
+        guard range.location != NSNotFound, range.location >= 0, range.length >= 0, NSMaxRange(range) <= current.length else { return false }
+        let candidate = current.replacingCharacters(in: range, with: text)
+        let attributed = sharedEmojiAttributed(string: candidate)
+        if inputBarConfig.inputTextLength > 0 && attributed.string.count > inputBarConfig.inputTextLength { return false }
+        if textRowGreaterThan(row: inputBarConfig.inputTextMaximumNumberOfLines, attributedText: attributed) { return false }
         return true
     }
 
@@ -455,58 +431,68 @@ extension WYChatInputView {
 extension WYChatInputView {
 
     func wy_setupInputView() {
+        isAccessibilityElement = false
+        textVoiceContentView.isAccessibilityElement = false
+        textPlaceholderView.isAccessibilityElement = false
 
         isUserInteractionEnabled = true
+        textView.accessibilityIdentifier = "WYChatInput.text"
+        textVoiceView.accessibilityIdentifier = "WYChatInput.voice"
+        emojiView.accessibilityIdentifier = "WYChatInput.emoji"
+        moreView.accessibilityIdentifier = "WYChatInput.more"
+        textVoiceView.accessibilityLabel = WYLocalized("语音输入", table: WYBasisKitConfig.kitLocalizableTable)
+        emojiView.accessibilityLabel = WYLocalized("表情", table: WYBasisKitConfig.kitLocalizableTable)
+        moreView.accessibilityLabel = WYLocalized("更多", table: WYBasisKitConfig.kitLocalizableTable)
         backgroundColor = .clear
-        image = inputBarConfig.backgroundImage
+        image = self.inputBarConfig.backgroundImage
 
-        textVoiceContentView.setBackgroundImage(inputBarConfig.voiceViewBackgroundImage, for: .normal)
-        textVoiceContentView.setBackgroundImage(inputBarConfig.textViewBackgroundImage, for: .selected)
-        textVoiceContentView.setBackgroundImage(inputBarConfig.voiceViewBackgroundImageForHighlighted, for: .highlighted)
-        textVoiceContentView.wy_nTitle = inputBarConfig.voicePlaceholder
-        textVoiceContentView.wy_sTitle = inputBarConfig.voicePlaceholder
-        textVoiceContentView.wy_hTitle = inputBarConfig.voicePlaceholder
-        textVoiceContentView.wy_titleFont = inputBarConfig.voicePlaceholderFont
-        textVoiceContentView.wy_title_nColor = inputBarConfig.voicePlaceholderColor
+        textVoiceContentView.setBackgroundImage(self.inputBarConfig.voiceViewBackgroundImage, for: .normal)
+        textVoiceContentView.setBackgroundImage(self.inputBarConfig.textViewBackgroundImage, for: .selected)
+        textVoiceContentView.setBackgroundImage(self.inputBarConfig.voiceViewBackgroundImageForHighlighted, for: .highlighted)
+        textVoiceContentView.wy_nTitle = self.inputBarConfig.voicePlaceholder
+        textVoiceContentView.wy_sTitle = self.inputBarConfig.voicePlaceholder
+        textVoiceContentView.wy_hTitle = self.inputBarConfig.voicePlaceholder
+        textVoiceContentView.wy_titleFont = self.inputBarConfig.voicePlaceholderFont
+        textVoiceContentView.wy_title_nColor = self.inputBarConfig.voicePlaceholderColor
         textVoiceContentView.wy_title_sColor = .clear
-        textVoiceContentView.layer.cornerRadius = inputBarConfig.textViewCornerRadius
-        textVoiceContentView.layer.borderWidth = inputBarConfig.textViewBorderWidth
-        textVoiceContentView.layer.borderColor = inputBarConfig.textViewBorderColor.cgColor
+        textVoiceContentView.layer.cornerRadius = self.inputBarConfig.textViewCornerRadius
+        textVoiceContentView.layer.borderWidth = self.inputBarConfig.textViewBorderWidth
+        textVoiceContentView.layer.borderColor = self.inputBarConfig.textViewBorderColor.cgColor
         textVoiceContentView.layer.masksToBounds = true
         let longPresssGes = UILongPressGestureRecognizer(target: self, action: #selector(voiceViewLongPressMethod(_:)))
         // 指定该手势允许手指移动的最大距离，如果用户手指按下时移动且超过了该距离，则该手势失效
-        longPresssGes.allowableMovement = inputBarConfig.recordViewLongPressMaxOffset
+        longPresssGes.allowableMovement = self.inputBarConfig.recordViewLongPressMaxOffset
         textVoiceContentView.addGestureRecognizer(longPresssGes)
         addSubview(textVoiceContentView)
         textVoiceContentView.snp.makeConstraints { make in
-            make.height.equalTo(inputBarConfig.inputViewHeight)
-            make.left.equalToSuperview().offset(inputBarConfig.inputViewEdgeInsets.left)
-            make.top.equalToSuperview().offset(inputBarConfig.inputViewEdgeInsets.top)
-            if (inputBarConfig.showSpecialSendButton == true) {
-                make.right.lessThanOrEqualToSuperview().offset(-inputBarConfig.inputViewEdgeInsets.right)
+            make.height.equalTo(self.inputBarConfig.inputViewHeight)
+            make.left.equalToSuperview().offset(self.inputBarConfig.inputViewEdgeInsets.left)
+            make.top.equalToSuperview().offset(self.inputBarConfig.inputViewEdgeInsets.top)
+            if (self.inputBarConfig.showSpecialSendButton == true) {
+                make.right.lessThanOrEqualToSuperview().offset(-self.inputBarConfig.inputViewEdgeInsets.right)
             }else {
-                make.right.equalToSuperview().offset(-inputBarConfig.inputViewEdgeInsets.right)
+                make.right.equalToSuperview().offset(-self.inputBarConfig.inputViewEdgeInsets.right)
             }
-            make.bottom.equalToSuperview().offset(-inputBarConfig.inputViewEdgeInsets.bottom)
+            make.bottom.equalToSuperview().offset(-self.inputBarConfig.inputViewEdgeInsets.bottom)
         }
-        if inputBarConfig.canSaveLastInputViewStyle == true {
-            textVoiceContentView.isSelected = !(UserDefaults.standard.value(forKey: canSaveLastInputViewStyleKey) as? Bool ?? false)
+        if self.inputBarConfig.canSaveLastInputViewStyle == true && !self.inputBarConfig.draftStorageKey.isEmpty {
+            textVoiceContentView.isSelected = !(UserDefaults.standard.value(forKey: inputBarConfig.draftStorageKey + canSaveLastInputViewStyleKey) as? Bool ?? false)
         }else {
             textVoiceContentView.isSelected = true
         }
 
-        specialSendButton?.isHidden = inputBarConfig.showSpecialSendButton
+        specialSendButton?.isHidden = self.inputBarConfig.showSpecialSendButton
 
         textView.backgroundColor = .clear
-        textView.font = inputBarConfig.textFont
-        textView.tintColor = inputBarConfig.inputViewCurvesColor
-        textView.keyboardType = inputBarConfig.chatKeyboardType
-        textView.returnKeyType = inputBarConfig.chatReturnKeyType
-        textView.bounces = inputBarConfig.textViewIsBounces
-        textView.textContainerInset = inputBarConfig.inputTextEdgeInsets
-        textView.textContainer.lineBreakMode = inputBarConfig.textLineBreakMode
-        textView.textContainer.maximumNumberOfLines = inputBarConfig.inputTextMaximumNumberOfLines
-        textView.isScrollEnabled = inputBarConfig.textViewIsScrollEnabled
+        textView.font = self.inputBarConfig.textFont
+        textView.tintColor = self.inputBarConfig.inputViewCurvesColor
+        textView.keyboardType = self.inputBarConfig.chatKeyboardType
+        textView.returnKeyType = self.inputBarConfig.chatReturnKeyType
+        textView.bounces = self.inputBarConfig.textViewIsBounces
+        textView.textContainerInset = self.inputBarConfig.inputTextEdgeInsets
+        textView.textContainer.lineBreakMode = self.inputBarConfig.textLineBreakMode
+        textView.textContainer.maximumNumberOfLines = self.inputBarConfig.inputTextMaximumNumberOfLines
+        textView.isScrollEnabled = self.inputBarConfig.textViewIsScrollEnabled
         if (eventsHandler?.wy_canManagerTextViewDelegateEvents?(textView, placeholderView: textPlaceholderView) ?? true) == true {
             textView.delegate = self
         }
@@ -514,8 +500,8 @@ extension WYChatInputView {
         textView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-        if inputBarConfig.canSaveLastInputText == true {
-            textView.attributedText = sharedEmojiAttributed(string: UserDefaults.standard.value(forKey: canSaveLastInputTextKey) as? String ?? "")
+        if self.inputBarConfig.canSaveLastInputText == true && !self.inputBarConfig.draftStorageKey.isEmpty {
+            textView.attributedText = sharedEmojiAttributed(string: UserDefaults.standard.value(forKey: inputBarConfig.draftStorageKey + canSaveLastInputTextKey) as? String ?? "")
             if (textView.attributedText.string.utf16.count > 0) && (textVoiceContentView.isSelected == true) {
                 updateSpecialSendState(hasText: true)
                 Task {
@@ -527,51 +513,51 @@ extension WYChatInputView {
             }
         }
 
-        if inputBarConfig.canSaveLastInputViewStyle == true {
-            textView.isHidden = UserDefaults.standard.value(forKey: canSaveLastInputViewStyleKey) as? Bool ?? false
+        if self.inputBarConfig.canSaveLastInputViewStyle == true && !self.inputBarConfig.draftStorageKey.isEmpty {
+            textView.isHidden = UserDefaults.standard.value(forKey: inputBarConfig.draftStorageKey + canSaveLastInputViewStyleKey) as? Bool ?? false
         }
 
-        textPlaceholderView.text = inputBarConfig.textPlaceholder
-        textPlaceholderView.textColor = inputBarConfig.textPlaceholderColor
-        textPlaceholderView.font = inputBarConfig.textPlaceholderFont
+        textPlaceholderView.text = self.inputBarConfig.textPlaceholder
+        textPlaceholderView.textColor = self.inputBarConfig.textPlaceholderColor
+        textPlaceholderView.font = self.inputBarConfig.textPlaceholderFont
         textPlaceholderView.textAlignment = .left
         textPlaceholderView.backgroundColor = .clear
         textPlaceholderView.adjustsFontSizeToFitWidth = true
         textPlaceholderView.isHidden = (textView.attributedText.string.utf16.count > 0)
         textView.addSubview(textPlaceholderView)
         textPlaceholderView.snp.makeConstraints { make in
-            make.left.equalToSuperview().offset(inputBarConfig.textPlaceholderOffset.x)
-            make.top.equalToSuperview().offset(inputBarConfig.textPlaceholderOffset.y)
-            make.right.lessThanOrEqualToSuperview().offset(-UIDevice.wy_screenWidth(5))
+            make.left.equalToSuperview().offset(self.inputBarConfig.textPlaceholderOffset.x)
+            make.top.equalToSuperview().offset(self.inputBarConfig.textPlaceholderOffset.y)
+            make.right.lessThanOrEqualToSuperview().offset(-UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels))
         }
 
-        textVoiceView.wy_nImage = inputBarConfig.voiceButtonImage
-        textVoiceView.wy_sImage = inputBarConfig.textBottomImage
-        textVoiceView.wy_sTitle = inputBarConfig.voicePlaceholder
-        textVoiceView.wy_title_sColor = inputBarConfig.voicePlaceholderColor
-        textVoiceView.wy_titleFont = inputBarConfig.voicePlaceholderFont
+        textVoiceView.wy_nImage = self.inputBarConfig.voiceButtonImage
+        textVoiceView.wy_sImage = self.inputBarConfig.textBottomImage
+        textVoiceView.wy_sTitle = self.inputBarConfig.voicePlaceholder
+        textVoiceView.wy_title_sColor = self.inputBarConfig.voicePlaceholderColor
+        textVoiceView.wy_titleFont = self.inputBarConfig.voicePlaceholderFont
         textVoiceView.isSelected = textView.isHidden
         textVoiceView.backgroundColor = .clear
         textVoiceView.addTarget(self, action: #selector(didClickTextVoiceView(sender:)), for: .touchUpInside)
         addSubview(textVoiceView)
         textVoiceView.snp.makeConstraints { make in
-            make.size.equalTo(inputBarConfig.voiceTextButtonSize)
-            make.right.equalTo(textVoiceContentView.snp.left).offset(-inputBarConfig.voiceTextButtonRightOffset)
-            make.bottom.equalTo(textVoiceContentView).offset(-inputBarConfig.voiceTextButtonBottomOffset)
+            make.size.equalTo(self.inputBarConfig.voiceTextButtonSize)
+            make.right.equalTo(textVoiceContentView.snp.left).offset(-self.inputBarConfig.voiceTextButtonRightOffset)
+            make.bottom.equalTo(textVoiceContentView).offset(-self.inputBarConfig.voiceTextButtonBottomOffset)
         }
 
-        emojiView.setBackgroundImage(inputBarConfig.emojiBottomImage, for: .normal)
-        emojiView.setBackgroundImage(inputBarConfig.textBottomImage, for: .selected)
+        emojiView.setBackgroundImage(self.inputBarConfig.emojiBottomImage, for: .normal)
+        emojiView.setBackgroundImage(self.inputBarConfig.textBottomImage, for: .selected)
         emojiView.addTarget(self, action: #selector(didClickEmojiView(sender:)), for: .touchUpInside)
         addSubview(emojiView)
         emojiView.snp.makeConstraints { make in
-            make.size.equalTo(inputBarConfig.emojiTextButtonSize)
-            make.left.equalTo(textVoiceContentView.snp.right).offset(inputBarConfig.emojiTextButtonLeftOffset)
-            make.bottom.equalTo(textVoiceContentView).offset(-inputBarConfig.emojiTextButtonBottomOffset)
+            make.size.equalTo(self.inputBarConfig.emojiTextButtonSize)
+            make.left.equalTo(textVoiceContentView.snp.right).offset(self.inputBarConfig.emojiTextButtonLeftOffset)
+            make.bottom.equalTo(textVoiceContentView).offset(-self.inputBarConfig.emojiTextButtonBottomOffset)
         }
 
-        moreView.setBackgroundImage(inputBarConfig.moreBottomImage, for: .normal)
-        moreView.setBackgroundImage(inputBarConfig.moreBottomImage, for: .highlighted)
+        moreView.setBackgroundImage(self.inputBarConfig.moreBottomImage, for: .normal)
+        moreView.setBackgroundImage(self.inputBarConfig.moreBottomImage, for: .highlighted)
         moreView.addTarget(self, action: #selector(didClickMoreView(sender:)), for: .touchUpInside)
         if specialSendButton != nil {
             insertSubview(moreView, belowSubview: specialSendButton!)
@@ -580,10 +566,28 @@ extension WYChatInputView {
         }
 
         moreView.snp.makeConstraints { make in
-            make.size.equalTo(inputBarConfig.moreButtonSize)
-            make.left.equalTo(textVoiceContentView.snp.right).offset(inputBarConfig.moreButtonLeftOffset)
-            make.bottom.equalTo(textVoiceContentView).offset(-inputBarConfig.moreButtonBottomOffset)
+            make.size.equalTo(self.inputBarConfig.moreButtonSize)
+            make.left.equalTo(textVoiceContentView.snp.right).offset(self.inputBarConfig.moreButtonLeftOffset)
+            make.bottom.equalTo(textVoiceContentView).offset(-self.inputBarConfig.moreButtonBottomOffset)
         }
+        updateContentViewHeight()
+    }
+}
+
+/// 输入实例配置刷新
+extension WYChatInputView {
+    func wy_applyInputConfiguration() {
+        image = inputBarConfig.backgroundImage
+        textView.font = inputBarConfig.textFont
+        textView.textColor = inputBarConfig.textColor
+        textView.keyboardType = inputBarConfig.chatKeyboardType
+        textView.returnKeyType = inputBarConfig.chatReturnKeyType
+        textView.inputBarConfig = inputBarConfig
+        textPlaceholderView.text = inputBarConfig.textPlaceholder
+        textPlaceholderView.font = inputBarConfig.textPlaceholderFont
+        textPlaceholderView.textColor = inputBarConfig.textPlaceholderColor
+        emojiView.setImage(inputBarConfig.emojiBottomImage, for: .normal)
+        moreView.setImage(inputBarConfig.moreBottomImage, for: .normal)
         updateContentViewHeight()
     }
 }

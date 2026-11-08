@@ -23,8 +23,8 @@ extension WYChatMoreView {
     /// 自定义设置分页控件图片及颜色
     internal func updatePageControlStyle() {
         
-        if pageControl?.hidesForSinglePage != moreViewConfig.pageControlHideForSingle {
-            pageControl?.hidesForSinglePage = moreViewConfig.pageControlHideForSingle
+        if pageControl?.hidesForSinglePage != self.moreViewConfig.pageControlHideForSingle {
+            pageControl?.hidesForSinglePage = self.moreViewConfig.pageControlHideForSingle
         }
         
         if let defaultColor: UIColor = pageControlSetting.defaultColor {
@@ -63,25 +63,52 @@ extension WYChatMoreView {
 
     func wy_makeCollectionView() -> UICollectionView {
 
-        let numberOfCountInLine: Int = moreViewConfig.scrollDirection == .horizontal ? moreViewConfig.itemMaxCountWithLine : moreViewConfig.itemMaxCountWithColumn
-
-        let minimumInteritemSpacing: CGFloat = (UIDevice.wy_screenWidth - moreViewConfig.contentInset.left - moreViewConfig.contentInset.right - (moreViewConfig.moreItemSize().width * CGFloat(numberOfCountInLine))) / CGFloat(numberOfCountInLine - 1)
+        let minimumInteritemSpacing: CGFloat = 0
 
         let flowLayout: WYCollectionViewFlowLayout = WYCollectionViewFlowLayout(delegate: self)
-        flowLayout.itemSize = moreViewConfig.moreItemSize()
-        flowLayout.minimumLineSpacing = moreViewConfig.minimumLineSpacing
+        flowLayout.itemSize = self.moreViewConfig.moreItemSize()
+        flowLayout.minimumLineSpacing = self.moreViewConfig.minimumLineSpacing
         flowLayout.minimumInteritemSpacing = minimumInteritemSpacing
-        flowLayout.scrollDirection = moreViewConfig.scrollDirection
+        flowLayout.scrollDirection = self.moreViewConfig.scrollDirection
 
         let collectionView: UICollectionView = UICollectionView.wy_shared(flowLayout: flowLayout, delegate: self, dataSource: self, superView: self)
 
         collectionView.register(WYMoreViewCell.self, forCellWithReuseIdentifier: "WYMoreViewCell")
-        collectionView.isPagingEnabled = moreViewConfig.isPagingEnabled
+        collectionView.isPagingEnabled = self.moreViewConfig.isPagingEnabled
         collectionView.showsVerticalScrollIndicator = false
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.snp.makeConstraints { (make) in
             make.edges.equalToSuperview()
         }
         return collectionView
+    }
+}
+
+extension WYChatMoreView {
+    func wy_layoutMore() {
+        guard bounds.width > 0, let flow = collectionView.collectionViewLayout as? WYCollectionViewFlowLayout else { return }
+        let columns = max(1, moreViewConfig.scrollDirection == .horizontal ? moreViewConfig.itemMaxCountWithLine : moreViewConfig.itemMaxCountWithColumn)
+        let available = max(1, bounds.width - moreViewConfig.contentInset.left - moreViewConfig.contentInset.right)
+        let width = min(max(1, moreViewConfig.imageViewSize.width), available / CGFloat(columns))
+        let spacing = columns > 1 ? max(0, (available - CGFloat(columns) * width) / CGFloat(columns - 1)) : 0
+        let size = CGSize(width: width, height: max(1, moreViewConfig.moreItemSize().height))
+        if flow.itemSize != size || flow.minimumInteritemSpacing != spacing {
+            flow.itemSize = size
+            flow.minimumInteritemSpacing = spacing
+            flow.invalidateLayout()
+        }
+        if let pageControl {
+            let point = moreViewConfig.pageControlPosition ?? moreViewConfig.defaultPageControlPosition(pageControl, containerWidth: bounds.width)
+            pageControl.snp.updateConstraints { make in make.left.equalToSuperview().offset(point.x); make.top.equalToSuperview().offset(point.y) }
+        }
+    }
+
+    func wy_reloadMoreConfiguration() {
+        collectionView.removeFromSuperview()
+        collectionView = wy_makeCollectionView()
+        pageControl?.removeFromSuperview()
+        pageControl = nil
+        backgroundColor = moreViewConfig.backgroundColor
+        setNeedsLayout()
     }
 }

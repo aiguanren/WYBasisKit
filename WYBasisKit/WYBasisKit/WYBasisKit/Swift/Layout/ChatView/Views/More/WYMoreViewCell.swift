@@ -8,6 +8,10 @@
 import UIKit
 
 class WYMoreViewCell: UICollectionViewCell {
+
+    /// 当前实例配置
+    public var moreViewConfig: WYMoreViewConfig = WYMoreViewConfig()
+
     
     let iconView: UIImageView = UIImageView()
     let titleView: UILabel = UILabel()

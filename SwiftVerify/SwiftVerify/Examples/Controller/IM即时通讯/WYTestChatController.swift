@@ -16,41 +16,46 @@ class WYTestChatController: UIViewController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+        navigationItem.title = "聊天界面"
         view.backgroundColor = .wy_hex("#f6f6f6")
         
-        emojiViewConfig.funcAreaConfig.deleteViewText = ""
+        var configuration = WYChatConfig()
+        configuration.emoji.funcAreaConfig.deleteViewText = ""
         
-//        emojiViewConfig.totalHeaderText = ""
-//        emojiViewConfig.recentlyHeaderText = ""
-//        emojiViewConfig.showRecently = false
+//        configuration.emoji.totalHeaderText = ""
+//        configuration.emoji.recentlyHeaderText = ""
+//        configuration.emoji.showRecently = false
         
-        moreViewConfig.moreSource = [["照片": "zhaopian"], ["拍摄": "paishe"], ["位置": "weizhi"], ["语音输入": "yuyinshuru"], ["收藏": "shoucang"], ["个人名片": "gerenmingpian"], ["文件": "wenjianjia"], ["音乐": "yinle"]]
+        configuration.more.moreSource = [["照片": "zhaopian"], ["拍摄": "paishe"], ["位置": "weizhi"], ["语音输入": "yuyinshuru"], ["收藏": "shoucang"], ["个人名片": "gerenmingpian"], ["文件": "wenjianjia"], ["音乐": "yinle"]]
         
-//        moreViewConfig.isPagingEnabled = true
-//        moreViewConfig.scrollDirection = .vertical
-        if (moreViewConfig.scrollDirection == .horizontal) && (moreViewConfig.showTotalItemInPage() == false) {
-            moreViewConfig.contentInset = UIEdgeInsets(top: UIDevice.wy_screenWidth(10), left: UIDevice.wy_screenWidth(20), bottom: UIDevice.wy_screenWidth(40), right: UIDevice.wy_screenWidth(20))
+//        configuration.more.isPagingEnabled = true
+//        configuration.more.scrollDirection = .vertical
+        if (configuration.more.scrollDirection == .horizontal) && (configuration.more.showTotalItemInPage() == false) {
+            configuration.more.contentInset = UIEdgeInsets(top: UIDevice.wy_screenWidth(10), left: UIDevice.wy_screenWidth(20), bottom: UIDevice.wy_screenWidth(40), right: UIDevice.wy_screenWidth(20))
         }
         
-        if (moreViewConfig.scrollDirection == .vertical) && (moreViewConfig.showTotalItemInPage() == false) {
-            moreViewConfig.contentInset = UIEdgeInsets(top: UIDevice.wy_screenWidth(10), left: UIDevice.wy_screenWidth(20), bottom: UIDevice.wy_screenWidth(20), right: UIDevice.wy_screenWidth(40))
+        if (configuration.more.scrollDirection == .vertical) && (configuration.more.showTotalItemInPage() == false) {
+            configuration.more.contentInset = UIEdgeInsets(top: UIDevice.wy_screenWidth(10), left: UIDevice.wy_screenWidth(20), bottom: UIDevice.wy_screenWidth(20), right: UIDevice.wy_screenWidth(40))
         }
         
-        emojiViewConfig.emojiFolders = true
+        configuration.emoji.emojiFolders = true
         
-        chatView = WYChatView()
+        configuration.more.imageProvider = { UIImage(systemName: $0) }
+        configuration.more.moreSource = [["照片": "photo"], ["拍摄": "camera"], ["位置": "location"], ["文件": "doc"]]
+        configuration.imageLoader = { asset, imageView, _ in imageView.image = UIImage(systemName: asset.name.isEmpty ? "person.crop.square" : asset.name) }
+        configuration.recording.supportSpeechRecognition = true
+        chatView = WYChatView(configuration: configuration)
         chatView.userInfo = sharedUserInfo(id: "99999", name: "官人", avatar: "https://tse3-mm.cn.bing.net/th/id/OIP-C.sLiEXoTdJvx0fe3erN8NeAAAAA?pid=ImgDet&rs=1")
-        chatView.dataSource = []
+        chatView.dataSource = sampleMessages()
         chatView.eventsHandler = self
         chatView.delegate = self
         view.addSubview(chatView)
         chatView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(UIDevice.wy_navViewHeight)
+            make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
             make.left.right.equalToSuperview()
-            make.bottom.equalToSuperview().offset(-UIDevice.wy_tabbarSafetyZone)
+            make.bottom.equalToSuperview()
         }
         
-        recordAnimationConfig.supportSpeechRecognition = true
     }
 
     /*

@@ -10,7 +10,7 @@ kit_path = "WYBasisKit/WYBasisKit/WYBasisKit/"
 
 Pod::Spec.new do |kit|
   kit.name         = "WYBasisKit-ObjC"
-  kit.version      = "26.11.2"
+  kit.version      = "26.11.3"
   kit.summary      = "WYBasisKit 不仅可以帮助开发者快速构建一个工程，还有基于常用网络框架和系统API而封装的各种实用方法、扩展，开发者只需简单的调用API就可以快速实现相应功能， 大幅提高开发效率。"
   kit.description  = <<-DESC
     Localizable: 国际化解决方案
@@ -22,7 +22,7 @@ Pod::Spec.new do |kit|
     MediaCache: 视频边下边播缓存(mp4等渐进式资源分块Range下载、缓存区间索引、LRU容量上限淘汰)
     DanmakuView: 弹幕视图(滚动顶部底部三类型、轨道自适应、播放器时钟注入暂停冻结与定位清屏)
     VideoPlayer: 点播播放器(AVPlayer内核，边下边播弹幕字幕手势全屏画中画清晰度切换，控制壳可整体替换)
-    Layout: 各种自定义控件(注意：ChatView尚未开发完毕，敬请期待)
+    Layout: 各种自定义控件
     Codable: 数据解析
     Authorization: 各种权限请求与判断
     LogManager: 日志打印，日志导出等日志管理相关(文件默认AES-GCM加密，四档可选)
@@ -591,18 +591,20 @@ Pod::Spec.new do |kit|
       contentScrollView.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
     end
     
-    # layout.subspec "ChatView" do |chatView|
-    #   chatView.source_files = [
-    #     "#{kit_path}ObjC/Layout/ChatView/**/*.{swift,h,m}"
-    #   ]
-    #   chatView.resource_bundles = {"WYBasisKitObjCLayoutChatView" => [
-    #      "#{kit_path}ObjC/PrivacyInfo.xcprivacy"
-    #   ]}
-    #   chatView.frameworks = "Foundation", "UIKit"
-    #   chatView.dependency "WYBasisKit-swift/Layout/ChatView", kit_swift_version
-    #   chatView.dependency "WYBasisKit-ObjC/Extension", kit_swift_version
-    #   chatView.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
-    # end
+    layout.subspec "ChatView" do |chatView|
+      chatView.source_files = [
+        "#{kit_path}ObjC/Layout/ChatView/**/*.{swift,h,m}"
+      ]
+      chatView.resource_bundles = {"WYBasisKitObjCLayoutChatView" => [
+         "#{kit_path}ObjC/PrivacyInfo.xcprivacy"
+      ]}
+      chatView.frameworks = "Foundation", "UIKit"
+      chatView.dependency "WYBasisKit-swift/Layout/ChatView", kit_swift_version
+      chatView.dependency "WYBasisKit-ObjC/Extension", kit_swift_version
+      chatView.dependency "WYBasisKit-ObjC/Layout/AirBubbleView", kit_swift_version
+      chatView.dependency "WYBasisKit-ObjC/AudioKit", kit_swift_version
+      chatView.dependency "WYBasisKit-ObjC/Imports", kit_swift_version
+    end
 
     layout.subspec "PhotoBrowser" do |photoBrowser|
       photoBrowser.source_files = [

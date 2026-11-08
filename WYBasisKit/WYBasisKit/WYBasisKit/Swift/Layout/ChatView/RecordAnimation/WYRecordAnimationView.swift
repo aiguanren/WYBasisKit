@@ -8,6 +8,77 @@
 import UIKit
 import AVFoundation
 
+/// 语音识别错误域
+public let WYChatSpeechRecognitionErrorDomain = "WYChatSpeechRecognition"
+
+/// 内置语音识别错误
+@objc public enum WYChatSpeechRecognitionErrorCode: Int {
+    /// 功能未启用
+    case disabled = 1
+    /// 文件不存在
+    case fileNotFound
+    /// 等待超时
+    case timedOut
+    /// 外部实现未配置
+    case missingProvider
+    /// 语言不支持
+    case unsupportedLanguage
+    /// 缺少权限用途说明
+    case missingUsageDescription
+    /// 未获得识别权限
+    case authorizationDenied
+    /// 识别服务暂不可用
+    case unavailable
+    /// 不支持本地识别
+    case onDeviceUnavailable
+    /// 未识别出文字
+    case emptyResult
+}
+
+/// 语音识别来源
+@objc public enum WYChatSpeechRecognitionSource: Int { case apple, external }
+
+/// 外部语音识别实现
+@objc public protocol WYChatSpeechRecognizer: NSObjectProtocol {
+    /**
+     识别音频文件
+     @param requestID 本次任务ID
+     @param url 音频文件
+     @param localeIdentifier 识别语言
+     @param requiresOnDevice 是否只允许本地处理
+     @param completion 最终文本及错误，只能完成一次
+     */
+    @objc(wy_recognizeSpeech:url:localeIdentifier:requiresOnDevice:completion:)
+    optional func wy_recognizeSpeech(_ requestID: String, url: URL, localeIdentifier: String, requiresOnDevice: Bool, completion: @escaping (_ text: String?, _ error: NSError?) -> Void)
+    /**
+     取消任务
+     @param requestID 需要取消的任务ID
+     */
+    @objc(wy_cancelSpeechRecognition:)
+    optional func wy_cancelSpeechRecognition(_ requestID: String)
+}
+
+/// 可替换的录音实现
+@objc public protocol WYChatRecorder: NSObjectProtocol {
+    /**
+     开始采集
+     @param requestID 本次采集ID
+     @param settings 录音参数
+     @param maximumDuration 最长时长，单位秒
+     @param progress 时长、峰值和平均音量回调，音量单位为dB
+     @param completion 最终文件、时长及错误，取消后不再提交文件
+     */
+    @objc(wy_startRecording:settings:maximumDuration:progress:completion:)
+    optional func wy_startRecording(_ requestID: String, settings: [String: Any], maximumDuration: TimeInterval, progress: @escaping (_ duration: TimeInterval, _ peakPower: Float, _ averagePower: Float) -> Void, completion: @escaping (_ url: URL?, _ duration: TimeInterval, _ error: NSError?) -> Void)
+    /**
+     停止采集
+     @param requestID 需要停止的采集ID
+     @param cancel 是否丢弃本次采集
+     */
+    @objc(wy_stopRecording:cancel:)
+    optional func wy_stopRecording(_ requestID: String, cancel: Bool)
+}
+
 @objc public protocol WYRecordEventsHandler {
     
     /**
@@ -57,10 +128,23 @@ import AVFoundation
 }
 
 public class WYRecordAnimationView: UIView {
+    /// 语音识别错误域
+    @objc public static var speechRecognitionErrorDomain: String { WYChatSpeechRecognitionErrorDomain }
+
+    /// 当前实例配置
+    public var recordAnimationConfig: WYRecordAnimationConfig = WYRecordAnimationConfig()
+
 
     /// 代理
     public weak var delegate: WYRecordEventsHandler? = nil
     
+    /// 录音文件结果，参数为文件、时长及错误
+    public var resultHandler: ((_ url: URL?, _ duration: TimeInterval, _ error: NSError?) -> Void)? = nil
+    /// 转写结果，参数为最终文本及错误
+    public var recognitionResultHandler: ((_ text: String?, _ error: NSError?) -> Void)? = nil
+    /// 转写文本确认发送，参数为编辑后的文本
+    public var recognizedTextHandler: ((_ text: String) -> Void)? = nil
+
     /// 创建录音器
     public lazy var audioKit: WYAudioKit? = wy_makeAudioKit()
     
@@ -68,11 +152,14 @@ public class WYRecordAnimationView: UIView {
     public var soundAnimationStatus: WYSoundAnimationStatus = .recording
     
     /// 初始化方法
-    public init(alpha: CGFloat = 1.0, delegate: WYRecordEventsHandler? = nil) {
+    public init(alpha: CGFloat = 1.0, delegate: WYRecordEventsHandler? = nil, configuration: WYRecordAnimationConfig = WYRecordAnimationConfig()) {
+        self.recordAnimationConfig = configuration
         super.init(frame: .zero)
         backgroundColor = recordAnimationConfig.fillColor.onExternal
         self.alpha = alpha
         self.delegate = delegate
+        NotificationCenter.default.addObserver(self, selector: #selector(wy_editorKeyboardChanged(_:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(wy_recordingWillResignActive), name: UIApplication.willResignActiveNotification, object: nil)
     }
     
     /// 开始录音动画
@@ -99,6 +186,11 @@ public class WYRecordAnimationView: UIView {
         wy_impl_endRecordVoice()
     }
 
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        wy_layoutRecordingView()
+    }
+
     internal let state = WYRecordAnimationViewPrivateState()
 
     required init?(coder: NSCoder) {
@@ -106,6 +198,7 @@ public class WYRecordAnimationView: UIView {
     }
     
     deinit {
+        NotificationCenter.default.removeObserver(self)
         endRecordVoice()
     }
 

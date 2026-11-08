@@ -7,17 +7,7 @@
 
 import UIKit
 
-class WYChatFileCell: WYChatBasicCell {
-
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        // Initialization code
-    }
-
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
-    }
-
+/// 消息内容Cell
+open class WYChatFileCell: WYChatBasicCell {
+    open override func renderContent() { wy_renderCard() }
 }
