@@ -89,7 +89,7 @@ public class WYVideoPlayerConfig {
     public var qualitySwitchPrerollSeconds: TimeInterval = 3
 
     /// 更多面板的功能项目，按数组顺序展示，可删除、改名或追加自定义项目
-    public var moreActions: [WYVideoPlayerMoreAction] = [WYVideoPlayerMoreActionKind.pictureInPicture, .sleepTimer, .download, .playbackRate, .audioOnly, .backgroundPlayback, .loopPlayback, .quality, .subtitle].map { WYVideoPlayerMoreAction(kind: $0) } {
+    public var moreActions: [WYVideoPlayerMoreAction] = [WYVideoPlayerMoreActionKind.pictureInPicture, .sleepTimer, .download, .playbackRate, .audioOnly, .backgroundPlayback, .loopPlayback, .quality, .subtitle, .audioTrack].map { WYVideoPlayerMoreAction(kind: $0) } {
         didSet { appearanceChanged?() }
     }
 

@@ -365,7 +365,22 @@ public static func clearDiskCache(path: String, asset: String = "", completion:(
 ##### 魔改UICollectionViewFlowLayout，支持各种瀑布流
 ![瀑布流.gif](https://upload-images.jianshu.io/upload_images/2795727-648e17fc376af9a5.gif?imageMogr2/auto-orient/strip)
 
+##### 点播播放器
+
+`WYVideoPlayer` 在视频就绪后通过 `audioTrackNames` 读取声音语言名称，通过 `selectedAudioTrackIndex` 读取当前选项，`selectAudioTrack(at:)` 选择对应下标，传入 `-1` 恢复系统自动选择，其他越界值会被忽略。更多面板通过 `.audioTrack` 显示声音语言入口，只有一条或没有声音轨时不可点击。
+
+```swift
+player.selectAudioTrack(at: 1)
+```
+
+```objc
+player.selectAudioTrack(1);
+[player selectAudioTrackAtIndex:-1];
+```
+
 ##### 直播、点播播放器(也可作为本地播放器)
+
+`WYMediaPlayer` 加载视频后可读取 `pictureInPictureController`，系统不支持画中画时返回 `nil`。设置该控制器的 `delegate` 接收启动、停止和界面还原回调，在 `isPictureInPicturePossible` 为 `true` 时调用 `startPictureInPicture()`，停止时调用 `stopPictureInPicture()`。后台继续播放时调用 `setPauseInBackground(false)`，宿主 App 开启后台音频能力，`releaseAll` 会停止画中画并释放视频源。
 
 ![直播.gif](https://upload-images.jianshu.io/upload_images/2795727-c34a42eccae35729.gif?imageMogr2/auto-orient/strip)
 

@@ -192,6 +192,7 @@ final class WYVideoPlayerMoreController: UIViewController, UITableViewDataSource
             button.isEnabled = action.isEnabled
             if action.kind == .pictureInPicture { button.isEnabled = action.isEnabled && player.configuration.allowsPictureInPicture }
             if action.kind == .subtitle && configuration.shellHidesUnavailableSubtitleButton && player.subtitleTracks.isEmpty { button.isEnabled = false }
+            if action.kind == .audioTrack { button.isEnabled = action.isEnabled && player.audioTrackNames.count > 1 }
             if action.kind == .quality && (player.currentAsset?.qualities.count ?? 0) < 2 { button.isEnabled = false }
             button.alpha = button.isEnabled ? 1 : 0.4
             button.accessibilityLabel = title
@@ -235,6 +236,10 @@ final class WYVideoPlayerMoreController: UIViewController, UITableViewDataSource
             showOptions(title: action.title ?? localized("清晰度"), options: asset.qualities.map { $0.name }, selected: asset.selectedIndex) { [weak player] index in player?.selectQuality(at: index) }
         case .subtitle:
             showOptions(title: action.title ?? localized("字幕"), options: [localized("关闭")] + player.subtitleTracks.map { $0.name }, selected: player.selectedSubtitleIndex + 1) { [weak player] index in player?.selectSubtitle(at: index - 1) }
+        case .audioTrack:
+            let names = player.audioTrackNames
+            guard names.count > 1 else { break }
+            showOptions(title: action.title ?? localized("声音语言"), options: names, selected: player.selectedAudioTrackIndex) { [weak player] index in player?.selectAudioTrack(at: index) }
         case .custom: break
         }
         refreshSelection()
@@ -262,6 +267,7 @@ final class WYVideoPlayerMoreController: UIViewController, UITableViewDataSource
         case .loopPlayback: return "循环播放"
         case .quality: return "清晰度"
         case .subtitle: return "字幕"
+        case .audioTrack: return "声音语言"
         case .custom: return "更多"
         }
     }
@@ -277,6 +283,7 @@ final class WYVideoPlayerMoreController: UIViewController, UITableViewDataSource
         case .loopPlayback: return "repeat"
         case .quality: return "slider.horizontal.3"
         case .subtitle: return "captions.bubble"
+        case .audioTrack: return "speaker.wave.2"
         case .custom: return "ellipsis"
         }
     }

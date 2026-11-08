@@ -184,6 +184,15 @@ import UIKit
     optional func wy_videoPlayer(_ player: WYVideoPlayer, subtitleDidChangeAtIndex trackIndex: Int)
 
     /**
+     *  声音语言选择变化
+     *
+     *  @param player 播放器组件
+     *  @param trackIndex 当前声音语言下标，没有可用选项时为-1
+     */
+    @objc(wy_videoPlayer:audioTrackDidChangeAtIndex:)
+    optional func wy_videoPlayer(_ player: WYVideoPlayer, audioTrackDidChangeAtIndex trackIndex: Int)
+
+    /**
      *  画中画状态变化
      *
      *  @param player       播放器组件

@@ -378,6 +378,9 @@ final class WYVideoPlayerDefaultShell: NSObject, WYVideoPlayerControlShell {
             player.seek(to: duration * TimeInterval(ratio), accurate: true)
             player.resumeShellAutoHide()
         }
+        progressView.onDragCancel = { [weak self] in
+            self?.player?.resumeShellAutoHide()
+        }
         menuPanel.onSelect = { [weak self] (index) in
             self?.handleMenuSelect(index: index)
         }

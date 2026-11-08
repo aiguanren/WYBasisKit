@@ -7,6 +7,7 @@
 
 #if canImport(WYBasisKitSwift) && canImport(IJKPlayerKit)
 import UIKit
+import AVKit
 import IJKPlayerKit
 import WYBasisKitSwift
 
@@ -43,6 +44,12 @@ import WYBasisKitSwift
     @objc(state)
     public var stateObjC: WYMediaPlayerState {
         return state
+    }
+
+    /// 画中画控制器(加载视频后读取，系统不支持时为nil，可设置delegate接收启动、停止与界面还原回调)
+    @objc(pictureInPictureController)
+    public var pictureInPictureControllerObjC: AVPictureInPictureController? {
+        return pictureInPictureController
     }
 
     /// 进度回调间隔(秒，默认0.5，wy_mediaPlayerProgressDidChanged的周期回调由它驱动，设为0则关闭周期回调只保留prepare完成、seek完成这类发生一次才通知一次的事件)

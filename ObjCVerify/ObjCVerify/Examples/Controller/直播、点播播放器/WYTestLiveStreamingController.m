@@ -79,6 +79,7 @@
 
 // 画中画控制器
 @property (nonatomic, strong) AVPictureInPictureController *pipController;
+@property (nonatomic, strong) UIBarButtonItem *audioLanguageItem;
 
 @end
 
@@ -102,7 +103,9 @@
 - (void)setupNavigationBar {
     // 创建菜单按钮
     UIBarButtonItem *menuButton = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"slider.horizontal.3"] style:UIBarButtonItemStylePlain target:self action:@selector(toggleControlPanel)];
-    self.navigationItem.rightBarButtonItem = menuButton;
+    self.audioLanguageItem = [[UIBarButtonItem alloc] initWithTitle:[WYLocalizableManager localizedWithKey:@"声音语言" table:WYBasisKitConfig.kitLocalizableTable] style:UIBarButtonItemStylePlain target:self action:@selector(showAudioLanguages)];
+    self.audioLanguageItem.enabled = self.audioStreams.count > 1;
+    self.navigationItem.rightBarButtonItems = @[menuButton, self.audioLanguageItem];
 }
 
 // 设置播放器
@@ -123,11 +126,11 @@
     }];
 }
 
-// 设置画中画功能(待API支持)
+// 设置画中画功能
 - (void)setupPictureInPicture {
-//    if (!self.player.ijkPlayer) { return; }
-//    self.pipController = [[AVPictureInPictureController alloc] initWithPlayerLayer:self.player.ijkPlayer];
-//    self.pipController.delegate = self;
+    self.pipController = self.player.pictureInPictureController;
+    self.pipController.delegate = self;
+    self.pipButton.enabled = self.pipController != nil;
 }
 
 // 设置UI控件
@@ -528,6 +531,7 @@
     [WYActivity showLoadingIn:self.view option:[self sharedLoadingInfoOptions]];
     
     [self.player playWithUrl:media[@"url"]];
+    [self setupPictureInPicture];
 }
 
 // 启动信息更新定时器
@@ -540,6 +544,7 @@
 
 // 更新播放器信息
 - (void)updatePlayerInfo {
+    self.audioLanguageItem.enabled = self.audioStreams.count > 1;
     if (self.player.state != WYMediaPlayerStatePlaying &&
         self.player.state != WYMediaPlayerStateBuffering &&
         self.player.state != WYMediaPlayerStatePaused) { return; }
@@ -721,6 +726,44 @@
         alert.popoverPresentationController.sourceRect = self.mediaButton.bounds;
     }
     
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+- (NSNumber *)audioStreamIndex:(id)value {
+    NSString *text = [value isKindOfClass:NSString.class] ? value : ([value isKindOfClass:NSNumber.class] ? [value stringValue] : nil);
+    if (text.length == 0) { return nil; }
+    NSScanner *scanner = [NSScanner scannerWithString:text];
+    long long index = 0;
+    if (![scanner scanLongLong:&index] || !scanner.isAtEnd || index < 0 || index > INT32_MAX) { return nil; }
+    return @(index);
+}
+
+- (NSArray<NSDictionary *> *)audioStreams {
+    NSArray *streams = self.player.ijkPlayer.monitor.mediaMeta[IJK_KEY_STREAMS];
+    if (![streams isKindOfClass:NSArray.class]) { return @[]; }
+    return [streams filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id object, NSDictionary *bindings) {
+        return [object isKindOfClass:NSDictionary.class] && [object[IJK_KEY_STREAM_TYPE] isEqual:IJK_VAL_TYPE__AUDIO] && [self audioStreamIndex:object[IJK_KEY_STREAM_IDX]] != nil;
+    }]];
+}
+
+- (void)showAudioLanguages {
+    NSArray<NSDictionary *> *streams = self.audioStreams;
+    if (streams.count < 2) { return; }
+    NSNumber *selected = [self audioStreamIndex:self.player.ijkPlayer.monitor.audioMeta[IJK_KEY_STREAM_IDX]];
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:[WYLocalizableManager localizedWithKey:@"声音语言" table:WYBasisKitConfig.kitLocalizableTable] message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    __weak typeof(self) weakSelf = self;
+    [streams enumerateObjectsUsingBlock:^(NSDictionary *stream, NSUInteger index, BOOL *stop) {
+        NSString *title = [stream[IJK_KEY_TITLE] isKindOfClass:NSString.class] ? stream[IJK_KEY_TITLE] : nil;
+        NSString *language = [stream[IJK_KEY_LANGUAGE] isKindOfClass:NSString.class] ? stream[IJK_KEY_LANGUAGE] : nil;
+        NSString *name = title.length > 0 ? title : (language.length > 0 ? ([NSLocale.currentLocale localizedStringForLanguageCode:language] ?: language) : [NSString stringWithFormat:@"%@ %lu", [WYLocalizableManager localizedWithKey:@"声音语言" table:WYBasisKitConfig.kitLocalizableTable], (unsigned long)index + 1]);
+        NSNumber *streamIndex = [self audioStreamIndex:stream[IJK_KEY_STREAM_IDX]];
+        if ([streamIndex isEqual:selected]) { name = [@"✓ " stringByAppendingString:name]; }
+        [alert addAction:[UIAlertAction actionWithTitle:name style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            [weakSelf.player exchangeSelectedStreamWithIndex:streamIndex.intValue];
+        }]];
+    }];
+    [alert addAction:[UIAlertAction actionWithTitle:[WYLocalizableManager localizedWithKey:@"取消" table:WYBasisKitConfig.kitLocalizableTable] style:UIAlertActionStyleCancel handler:nil]];
+    alert.popoverPresentationController.barButtonItem = self.audioLanguageItem;
     [self presentViewController:alert animated:YES completion:nil];
 }
 
@@ -968,10 +1011,12 @@
     
     if (self.pipController.isPictureInPictureActive) {
         [self.pipController stopPictureInPicture];
-        self.pipButton.backgroundColor = [UIColor systemBlueColor];
     } else {
+        if (!self.pipController.isPictureInPicturePossible) {
+            [self showAlertWithTitle:@"画中画暂不可用" message:@"请等待视频画面就绪后重试"];
+            return;
+        }
         [self.pipController startPictureInPicture];
-        self.pipButton.backgroundColor = [UIColor systemRedColor];
     }
 }
 
@@ -1120,6 +1165,7 @@
 
 - (void)wy_mediaPlayerSubtitleStreamDidChanged:(WYMediaPlayer *)player mediaMeta:(NSDictionary *)mediaMeta {
     self.streamLabel.text = [NSString stringWithFormat:@"流信息: %@", mediaMeta];
+    self.audioLanguageItem.enabled = self.audioStreams.count > 1;
 }
 
 - (WYLoadingInfoOptions *)sharedLoadingInfoOptions {
@@ -1134,13 +1180,32 @@
 // MARK: - 画中画代理
 
 - (void)pictureInPictureControllerDidStartPictureInPicture:(AVPictureInPictureController *)pictureInPictureController {
+    if (pictureInPictureController != self.pipController) { return; }
     self.pipButton.backgroundColor = [UIColor systemRedColor];
     [self.pipButton setTitle:@"退出画中画" forState:UIControlStateNormal];
 }
 
 - (void)pictureInPictureControllerDidStopPictureInPicture:(AVPictureInPictureController *)pictureInPictureController {
+    if (pictureInPictureController != self.pipController) { return; }
     self.pipButton.backgroundColor = [UIColor systemBlueColor];
     [self.pipButton setTitle:@"画中画" forState:UIControlStateNormal];
+}
+
+- (void)pictureInPictureController:(AVPictureInPictureController *)pictureInPictureController failedToStartPictureInPictureWithError:(NSError *)error {
+    if (pictureInPictureController != self.pipController) { return; }
+    self.pipButton.backgroundColor = UIColor.systemBlueColor;
+    [self.pipButton setTitle:@"画中画" forState:UIControlStateNormal];
+    if (self.viewIfLoaded.window != nil) { [self showAlertWithTitle:@"画中画不可用" message:error.localizedDescription]; }
+}
+
+- (void)pictureInPictureController:(AVPictureInPictureController *)pictureInPictureController restoreUserInterfaceForPictureInPictureStopWithCompletionHandler:(void (^)(BOOL))completionHandler {
+    if (pictureInPictureController != self.pipController) { completionHandler(false); return; }
+    if ([self.navigationController.viewControllers containsObject:self]) { [self.navigationController popToViewController:self animated:false]; }
+    if (self.presentedViewController != nil) {
+        [self.presentedViewController dismissViewControllerAnimated:false completion:^{completionHandler(self.viewIfLoaded.window != nil);}];
+    }else {
+        completionHandler(self.viewIfLoaded.window != nil);
+    }
 }
 
 // MARK: - 设置播放列表

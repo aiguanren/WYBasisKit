@@ -11,6 +11,34 @@ import UIKit
 /// 播放器的状态、控制壳与字幕弹幕装配
 extension WYVideoPlayer {
 
+    func audioSelection() -> (group: AVMediaSelectionGroup, options: [AVMediaSelectionOption])? {
+        guard let item = avPlayer.currentItem, item.status == .readyToPlay, let group = item.asset.mediaSelectionGroup(forMediaCharacteristic: .audible) else { return nil }
+        return (group, group.options.filter { $0.isPlayable })
+    }
+
+    func applyAudioTrack(at index: Int) {
+        guard let item = avPlayer.currentItem, let selection = audioSelection(), index == -1 || selection.options.indices.contains(index) else { return }
+        if index == -1 {
+            preferredAudioLanguage = nil
+            preferredAudioName = nil
+            item.selectMediaOptionAutomatically(in: selection.group)
+        }else {
+            let option = selection.options[index]
+            preferredAudioLanguage = option.extendedLanguageTag
+            preferredAudioName = option.displayName
+            item.select(option, in: selection.group)
+        }
+        delegate?.wy_videoPlayer?(self, audioTrackDidChangeAtIndex: selectedAudioTrackIndex)
+    }
+
+    func applyPreferredAudioTrack(to item: AVPlayerItem) {
+        guard preferredAudioLanguage != nil || preferredAudioName != nil, let group = item.asset.mediaSelectionGroup(forMediaCharacteristic: .audible) else { return }
+        let options = group.options.filter { $0.isPlayable }
+        let exact = options.first { $0.displayName == preferredAudioName && (preferredAudioLanguage == nil || $0.extendedLanguageTag == preferredAudioLanguage) }
+        let language = options.first { preferredAudioLanguage != nil && $0.extendedLanguageTag == preferredAudioLanguage }
+        if let option = exact ?? language { item.select(option, in: group) }
+    }
+
     /// 保留当前画面和进度切换播放条目
     func replacePlaybackItem(with replacementAsset: WYVideoPlayerMediaAsset? = nil, qualityIndex: Int? = nil) {
         guard let asset = replacementAsset ?? currentAsset else { return }

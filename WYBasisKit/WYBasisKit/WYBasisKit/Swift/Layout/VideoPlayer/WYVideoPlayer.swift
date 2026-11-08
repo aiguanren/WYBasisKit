@@ -37,6 +37,17 @@ public class WYVideoPlayer: UIView {
     /// 当前播放素材
     public internal(set) var currentAsset: WYVideoPlayerMediaAsset?
 
+    /// 可选声音语言名称(视频就绪后可取，顺序与selectAudioTrack(at:)的下标对应)
+    public var audioTrackNames: [String] {
+        return audioSelection()?.options.map { $0.displayName } ?? []
+    }
+
+    /// 当前声音语言下标(没有可用选项时为-1)
+    public var selectedAudioTrackIndex: Int {
+        guard let selection = audioSelection(), let option = avPlayer.currentItem?.currentMediaSelection.selectedMediaOption(in: selection.group) else { return -1 }
+        return selection.options.firstIndex(of: option) ?? -1
+    }
+
     /// 当前播放状态
     public internal(set) var state: WYVideoPlayerState = .idle
 
@@ -135,6 +146,9 @@ public class WYVideoPlayer: UIView {
     let playbackOptions = WYVideoPlayerPlaybackOptions()
 
     var preferredPlaybackRate: Float = 1
+
+    var preferredAudioLanguage: String?
+    var preferredAudioName: String?
 
     /// 上次应用的默认控制壳开关
     var appliedShowsDefaultShell: Bool?
@@ -430,6 +444,15 @@ public class WYVideoPlayer: UIView {
         subtitleParser.selectTrack(at: index, item: avPlayer.currentItem)
         refreshMediaInfoToShell()
         delegate?.wy_videoPlayer?(self, subtitleDidChangeAtIndex: index)
+    }
+
+    /**
+     *  选择声音语言
+     *
+     *  @param index audioTrackNames中的下标，-1恢复系统自动选择，其他越界值忽略
+     */
+    public func selectAudioTrack(at index: Int) {
+        applyAudioTrack(at: index)
     }
 
     /// 追加一条外挂 SRT 字幕轨(追加后经 selectSubtitle 选中生效)

@@ -311,6 +311,14 @@ import WYBasisKitSwift
         return duration
     }
 
+    /// 可选声音语言名称(视频就绪后可取，顺序与selectAudioTrack(at:)的下标对应)
+    @objc(audioTrackNames)
+    var audioTrackNamesObjC: [String] { audioTrackNames }
+
+    /// 当前声音语言下标(没有可用选项时为-1)
+    @objc(selectedAudioTrackIndex)
+    var selectedAudioTrackIndexObjC: Int { selectedAudioTrackIndex }
+
     /// 内嵌字幕轨清单(条目装载完成后可取)
     @objc(subtitleTracks)
     var subtitleTracksObjC: [WYVideoPlayerSubtitleTrackObjC] {
@@ -400,6 +408,24 @@ import WYBasisKitSwift
     @objc(selectSubtitleAtIndex:)
     func selectSubtitleObjC(at index: Int) {
         selectSubtitle(at: index)
+    }
+
+    /**
+     *  选择声音语言
+     *
+     *  @param index audioTrackNames中的下标，-1恢复系统自动选择，其他越界值忽略
+     */
+    @objc(selectAudioTrackAtIndex:)
+    func selectAudioTrackObjC(at index: Int) { selectAudioTrack(at: index) }
+
+    /**
+     *  选择声音语言
+     *
+     *  @param index audioTrackNames中的下标，-1恢复系统自动选择，其他越界值忽略
+     */
+    @objc(selectAudioTrack)
+    var selectAudioTrackObjC: @convention(block) (Int) -> Void {
+        return { [weak self] index in self?.selectAudioTrack(at: index) }
     }
 
     /// 追加一条外挂 SRT 字幕轨(追加后经 selectSubtitle 选中生效)

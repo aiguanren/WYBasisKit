@@ -69,6 +69,8 @@ import UIKit
     case quality
     /// 字幕
     case subtitle
+    /// 声音语言
+    case audioTrack
 }
 
 /// 更多面板中的功能项目

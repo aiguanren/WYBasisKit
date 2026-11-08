@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AVKit
 
 #if canImport(IJKPlayerKit)
 
@@ -193,6 +194,11 @@ public class WYMediaPlayer: UIImageView {
     /// 播放器状态
     public internal(set) var state: WYMediaPlayerState = .unknown
 
+    /// 画中画控制器(加载视频后读取，系统不支持时为nil，可设置delegate接收启动、停止与界面还原回调)
+    public var pictureInPictureController: AVPictureInPictureController? {
+        return preparePictureInPictureController()
+    }
+
     /// 进度回调间隔(秒，默认0.5，wy_mediaPlayerProgressDidChanged的周期回调由它驱动，设为0则关闭周期回调只保留prepare完成、seek完成这类发生一次才通知一次的事件)
     public var progressCallbackInterval: TimeInterval = 0.5
 
@@ -255,8 +261,17 @@ public class WYMediaPlayer: UIImageView {
 
     /// 渲染帧回调代理(实现IJKVideoRenderingDelegate的videoRenderingWillDisplay可在渲染前替换CVPixelBuffer帧数据，做滤镜/水印处理)
     public weak var renderDisplayDelegate: IJKVideoRenderingDelegate? {
-        get { return ijkPlayer?.view.displayDelegate }
-        set { ijkPlayer?.view.displayDelegate = newValue }
+        get {
+            if let pictureInPictureState = pictureInPictureState { return pictureInPictureState.forwardDelegate }
+            return ijkPlayer?.view.displayDelegate
+        }
+        set {
+            if let pictureInPictureState = pictureInPictureState {
+                pictureInPictureState.forwardDelegate = newValue
+            }else {
+                ijkPlayer?.view.displayDelegate = newValue
+            }
+        }
     }
 
     /// 渲染视图背景色，默认黑色(渲染视图自身默认也是黑色，设置可自定义播放器底色)
@@ -824,6 +839,9 @@ public class WYMediaPlayer: UIImageView {
      *  @param sync true=同步关闭，等内核真正释放完资源才返回(紧接着要重建播放器或退出页面的场景用，防止旧实例还没释放完就叠新实例)，false=异步关闭，立即返回不等内核(默认)
      */
     public func releaseAll(_ sync: Bool = false) {
+
+        pictureInPictureState?.detach()
+        pictureInPictureState = nil
 
         guard let player = ijkPlayer else {
             return

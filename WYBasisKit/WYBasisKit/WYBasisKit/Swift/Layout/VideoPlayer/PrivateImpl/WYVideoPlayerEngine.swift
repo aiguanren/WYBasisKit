@@ -91,6 +91,7 @@ final class WYVideoPlayerEngine: NSObject {
                     player.observeReadyForDisplay()
                     player.snapshotTaker.attach(to: item)
                     player.subtitleParser.collectNativeTracks(from: item)
+                    player.applyPreferredAudioTrack(to: item)
                     player.playbackOptions.applyVideoTracks()
                     player.refreshMediaInfoToShell()
                     player.controlShell?.updateProgress(currentTime: player.playbackTime, duration: player.duration, playableDuration: 0)
@@ -185,6 +186,7 @@ final class WYVideoPlayerEngine: NSObject {
         }
         player.snapshotTaker.attach(to: item)
         player.subtitleParser.collectNativeTracks(from: item)
+        player.applyPreferredAudioTrack(to: item)
     }
 
     /// 全部监听拆除(播放器销毁时调)

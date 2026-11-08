@@ -17,6 +17,8 @@ final class WYVideoPlayerProgressView: UIView {
     /// 拖动结束回调，参数为落定的进度 0~1
     var onDragEnd: ((CGFloat) -> Void)?
 
+    var onDragCancel: (() -> Void)?
+
     /// 底轨颜色
     var trackColor: UIColor = UIColor(white: 1, alpha: 0.3) {
         didSet { trackLayer.backgroundColor = trackColor.cgColor }
@@ -64,6 +66,7 @@ final class WYVideoPlayerProgressView: UIView {
 
     /// 是否正在拖动
     private(set) var isDragging = false
+    private var progressBeforeDragging: CGFloat = 0
 
     /// 底轨层
     private let trackLayer = CALayer()
@@ -120,16 +123,21 @@ final class WYVideoPlayerProgressView: UIView {
         let ratio = max(0, min(1, location.x / max(bounds.width, 1)))
         switch gesture.state {
         case .began:
+            progressBeforeDragging = progress
             isDragging = true
             progress = ratio
             onDragging?(ratio)
         case .changed:
             progress = ratio
             onDragging?(ratio)
-        case .ended, .cancelled, .failed:
+        case .ended:
             isDragging = false
             progress = ratio
             onDragEnd?(ratio)
+        case .cancelled, .failed:
+            isDragging = false
+            progress = progressBeforeDragging
+            onDragCancel?()
         default:
             break
         }

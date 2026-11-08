@@ -87,6 +87,7 @@ class WYTestLiveStreamingController: UIViewController {
     
     // 画中画控制器
     var pipController: AVPictureInPictureController?
+    var audioLanguageItem: UIBarButtonItem?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -109,7 +110,10 @@ class WYTestLiveStreamingController: UIViewController {
             style: .plain,
             target: self,
             action: #selector(toggleControlPanel))
-        navigationItem.rightBarButtonItem = menuButton
+        let audioItem = UIBarButtonItem(title: WYLocalized("声音语言", table: WYBasisKitConfig.kitLocalizableTable), style: .plain, target: self, action: #selector(showAudioLanguages))
+        audioItem.isEnabled = audioStreams().count > 1
+        audioLanguageItem = audioItem
+        navigationItem.rightBarButtonItems = [menuButton, audioItem]
     }
     
     // 设置播放器
@@ -129,11 +133,11 @@ class WYTestLiveStreamingController: UIViewController {
         }
     }
     
-    // 设置画中画功能(待API支持)
+    // 设置画中画功能
     func setupPictureInPicture() {
-//        guard let playerLayer = player.ijkPlayer else { return }
-//        pipController = AVPictureInPictureController(playerLayer: playerLayer)
-//        pipController?.delegate = self
+        pipController = player.pictureInPictureController
+        pipController?.delegate = self
+        pipButton.isEnabled = pipController != nil
     }
     
     // 设置UI控件
@@ -505,6 +509,7 @@ class WYTestLiveStreamingController: UIViewController {
         
         WYActivity.showLoading(in: view, animation: .gifOrApng, config: WYActivityConfig.concise)
         player.play(with: media.url)
+        setupPictureInPicture()
     }
     
     // 启动信息更新定时器
@@ -516,6 +521,7 @@ class WYTestLiveStreamingController: UIViewController {
     
     // 更新播放器信息
     func updatePlayerInfo() {
+        audioLanguageItem?.isEnabled = audioStreams().count > 1
         guard player.state == .playing || player.state == .buffering || player.state == .paused else { return }
         
         let duration = player.videoDuration()
@@ -677,6 +683,36 @@ class WYTestLiveStreamingController: UIViewController {
         present(alert, animated: true)
     }
     
+    func audioStreamIndex(_ value: Any?) -> Int32? {
+        guard let text = value as? String ?? (value as? NSNumber)?.stringValue, let index = Int32(text), index >= 0 else { return nil }
+        return index
+    }
+
+    func audioStreams() -> [(index: Int32, name: String)] {
+        let streams = player.ijkPlayer?.monitor.mediaMeta?[IJK_KEY_STREAMS] as? [[String: Any]] ?? []
+        return streams.filter { $0[IJK_KEY_STREAM_TYPE] as? String == IJK_VAL_TYPE__AUDIO }.enumerated().compactMap { offset, stream in
+            guard let index = audioStreamIndex(stream[IJK_KEY_STREAM_IDX]) else { return nil }
+            let title = stream[IJK_KEY_TITLE] as? String
+            let language = (stream[IJK_KEY_LANGUAGE] as? String).flatMap { $0.isEmpty ? nil : Locale.current.localizedString(forLanguageCode: $0) ?? $0 }
+            let fallback = WYLocalized("声音语言", table: WYBasisKitConfig.kitLocalizableTable) + " " + String(offset + 1)
+            return (index, title?.isEmpty == false ? title! : language ?? fallback)
+        }
+    }
+
+    @objc func showAudioLanguages() {
+        let streams = audioStreams()
+        guard streams.count > 1 else { return }
+        let selected = audioStreamIndex(player.ijkPlayer?.monitor.audioMeta?[IJK_KEY_STREAM_IDX])
+        let alert = UIAlertController(title: WYLocalized("声音语言", table: WYBasisKitConfig.kitLocalizableTable), message: nil, preferredStyle: .actionSheet)
+        for stream in streams {
+            let name = (stream.index == selected ? "✓ " : "") + stream.name
+            alert.addAction(UIAlertAction(title: name, style: .default) { [weak self] _ in self?.player.exchangeSelectedStream(stream.index) })
+        }
+        alert.addAction(UIAlertAction(title: WYLocalized("取消", table: WYBasisKitConfig.kitLocalizableTable), style: .cancel))
+        alert.popoverPresentationController?.barButtonItem = audioLanguageItem
+        present(alert, animated: true)
+    }
+
     @objc func handleSubtitle() {
         let alert = UIAlertController(title: "字幕操作", message: nil, preferredStyle: .actionSheet)
         
@@ -875,10 +911,12 @@ class WYTestLiveStreamingController: UIViewController {
         
         if pipController.isPictureInPictureActive {
             pipController.stopPictureInPicture()
-            pipButton.backgroundColor = .systemBlue
         } else {
+            guard pipController.isPictureInPicturePossible else {
+                showAlert(title: "画中画暂不可用", message: "请等待视频画面就绪后重试")
+                return
+            }
             pipController.startPictureInPicture()
-            pipButton.backgroundColor = .systemRed
         }
     }
     
@@ -1017,13 +1055,34 @@ extension WYTestLiveStreamingController: WYMediaPlayerDelegate {
 
 extension WYTestLiveStreamingController: AVPictureInPictureControllerDelegate {
     func pictureInPictureControllerDidStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+        guard pictureInPictureController === pipController else { return }
         pipButton.backgroundColor = .systemRed
         pipButton.setTitle("退出画中画", for: .normal)
     }
     
     func pictureInPictureControllerDidStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+        guard pictureInPictureController === pipController else { return }
         pipButton.backgroundColor = .systemBlue
         pipButton.setTitle("画中画", for: .normal)
+    }
+
+    func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, failedToStartPictureInPictureWithError error: Error) {
+        guard pictureInPictureController === pipController else { return }
+        pipButton.backgroundColor = .systemBlue
+        pipButton.setTitle("画中画", for: .normal)
+        if viewIfLoaded?.window != nil { showAlert(title: "画中画不可用", message: error.localizedDescription) }
+    }
+
+    func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
+        guard pictureInPictureController === pipController else { completionHandler(false); return }
+        if let navigationController = navigationController, navigationController.viewControllers.contains(where: { $0 === self }) {
+            navigationController.popToViewController(self, animated: false)
+        }
+        if let presented = presentedViewController {
+            presented.dismiss(animated: false) { completionHandler(self.viewIfLoaded?.window != nil) }
+        }else {
+            completionHandler(viewIfLoaded?.window != nil)
+        }
     }
 }
 

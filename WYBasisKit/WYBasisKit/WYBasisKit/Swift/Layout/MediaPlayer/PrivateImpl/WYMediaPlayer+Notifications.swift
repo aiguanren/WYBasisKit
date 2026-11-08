@@ -22,6 +22,10 @@ extension WYMediaPlayer {
 
     /// 状态去重后回调代理(与上次相同的状态不重复通知)
     func callback(with currentState: WYMediaPlayerState) {
+        defer {
+            pictureInPictureState?.syncPlaybackState()
+            pictureInPictureState?.controller?.invalidatePlaybackState()
+        }
         guard currentState != state else {
             return
         }
