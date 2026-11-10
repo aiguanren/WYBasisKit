@@ -93,6 +93,9 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
         contentView.addSubview(progressContainerView)
         contentView.addSubview(retryButton)
         contentView.addSubview(originalButton)
+        playButton.addTarget(self, action: #selector(playButtonTapped), for: .touchUpInside)
+        retryButton.addTarget(self, action: #selector(retryButtonTapped), for: .touchUpInside)
+        originalButton.addTarget(self, action: #selector(originalButtonTapped), for: .touchUpInside)
 
         progressContainerView.layer.addSublayer(progressTrackLayer)
         progressContainerView.layer.addSublayer(progressRingLayer)
@@ -101,6 +104,7 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
         zoomScrollView.addGestureRecognizer(doubleTapGesture)
         zoomScrollView.panGestureRecognizer.isEnabled = false
         let singleTap = UITapGestureRecognizer(target: self, action: #selector(singleTapped))
+        singleTap.delegate = self
         singleTap.require(toFail: doubleTapGesture)
         contentView.addGestureRecognizer(singleTap)
 
@@ -227,6 +231,11 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
         self.item = item
         self.index = index
         self.configuration = configuration
+        contentView.layer.cornerRadius = configuration.layoutStyle == .stackedCards ? max(0, configuration.stackedCardCornerRadius) : 0
+        contentView.clipsToBounds = configuration.layoutStyle == .stackedCards
+        doubleTapGesture.isEnabled = !configuration.isEmbedded
+        zoomScrollView.pinchGestureRecognizer?.isEnabled = !configuration.isEmbedded
+        contentImageView.contentMode = configuration.layoutStyle == .stackedCards ? configuration.stackedCardContentMode : .scaleAspectFit
         zoomScrollView.maximumZoomScale = max(1, configuration.maxZoomScale)
 
         cancelLoadingTasks()
@@ -237,13 +246,14 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
         isDraggingToDismiss = false
         originalButtonState = .hidden
         displayedImageSize = nil
-        transform = .identity
+        if configuration.layoutStyle != .stackedCards { transform = .identity }
         contentImageView.image = nil
         livePhotoView.livePhoto = nil
         livePhotoView.isHidden = true
         retryButton.isHidden = true
         progressContainerView.isHidden = true
         originalButton.isHidden = true
+        playButton.isHidden = item.mediaType != .video
 
         applyAppearance()
 
@@ -485,6 +495,14 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
 
     /// 摆放图片内容(适配进滚动视图并居中，重置缩放)
     func layoutMainContent() {
+        if configuration.layoutStyle == .stackedCards {
+            zoomScrollView.setZoomScale(1, animated: false)
+            zoomContainer.frame = zoomScrollView.bounds
+            contentImageView.frame = zoomContainer.bounds
+            livePhotoView.frame = zoomContainer.bounds
+            zoomScrollView.contentSize = zoomScrollView.bounds.size
+            return
+        }
         guard let imageSize = displayedImageSize else {
             zoomContainer.frame = contentView.bounds
             contentImageView.frame = zoomContainer.bounds
@@ -947,6 +965,16 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
         guard canBeginDragDismiss() else { return false }
         let velocity = pan.velocity(in: contentView)
         return abs(velocity.y) > abs(velocity.x)
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        guard gestureRecognizer is UITapGestureRecognizer else { return true }
+        var view = touch.view
+        while let current = view, current !== contentView {
+            if current is UIControl { return false }
+            view = current.superview
+        }
+        return true
     }
 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {

@@ -133,6 +133,7 @@ extension WYPhotoBrowser {
 
     /// 单击关闭(尊重配置开关，转场与拖拽进行中不响应)
     func dismissByTap() {
+        if configuration.isEmbedded { browserDelegate?.wy_photoBrowser?(self, didTapItemAt: internalCurrentIndex); return }
         guard configuration.allowsTapDismiss, isTransitioningContent == false, isDragDismissing == false else { return }
         dismissBrowser(animated: true)
     }
@@ -454,6 +455,7 @@ extension WYPhotoBrowser: UIScrollViewDelegate {
     /// 按布局样式配置集合视图布局(整页铺满按视口分页，多页同屏按页宽加间距分页并露出两侧)
     func configureFlowLayout() {
         guard collectionView.bounds.width > 0, collectionView.bounds.height > 0 else { return }
+        (flowLayout as? WYPhotoBrowserStackLayout)?.configuration = configuration
         if configuration.layoutStyle == .multiPage {
             let reveal = UIDevice.wy_screenWidth(configuration.multiPageRevealWidth, WYBasisKitConfig.defaultScreenPixels)
             let spacing = UIDevice.wy_screenWidth(configuration.multiPageSpacing, WYBasisKitConfig.defaultScreenPixels)

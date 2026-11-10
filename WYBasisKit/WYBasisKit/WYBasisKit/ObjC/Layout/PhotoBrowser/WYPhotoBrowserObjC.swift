@@ -182,6 +182,27 @@ import WYBasisKitSwift
     /// 同屏布局样式(默认整页一次一张，多页同屏时一次看到多张一起滑动)
     public var layoutStyle: WYPhotoBrowserLayoutStyle = .fullPage
 
+    /// 是否嵌入其他界面显示，默认false，嵌入时单击回调didTapItemAt
+    public var isEmbedded: Bool = false
+
+    /// 叠卡显示层数，至少1层
+    public var stackedCardCount: Int = 3
+
+    /// 叠卡层间偏移
+    public var stackedCardOffset: CGSize = CGSize(width: UIDevice.wy_screenWidth(4, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenHeight(5, WYBasisKitConfig.defaultScreenPixels))
+
+    /// 叠卡静止时的旋转角度，单位弧度
+    public var stackedCardRotationAngle: CGFloat = .pi / 90
+
+    /// 叠卡滑动时的旋转角度，单位弧度
+    public var stackedCardDragRotationAngle: CGFloat = .pi / 12
+
+    /// 叠卡圆角
+    public var stackedCardCornerRadius: CGFloat = UIDevice.wy_screenWidth(12, WYBasisKitConfig.defaultScreenPixels)
+
+    /// 叠卡图片显示方式
+    public var stackedCardContentMode: UIView.ContentMode = .scaleAspectFill
+
     /// 多页同屏时两侧露出相邻页的宽度(设计值，按基准屏换算，仅layoutStyle为multiPage时生效)
     public var multiPageRevealWidth: CGFloat = -1
 
@@ -237,6 +258,11 @@ import WYBasisKitSwift
 /// 图片浏览器入口(封装WYPhotoBrowser的弹出，数据源实现WYPhotoBrowserDataSourceObjC返回WYPhotoBrowserItemObjC)
 @objc(WYPhotoBrowserController)
 @objcMembers public class WYPhotoBrowserObjC: NSObject {
+    /// 创建可独立嵌入的图片浏览器，参数为行为与外观配置
+    public static var create: @convention(block) (_ configuration: WYPhotoBrowserConfigurationObjC?) -> WYPhotoBrowser {
+        { configuration in WYPhotoBrowser(configuration: convertConfiguration(configuration)) }
+    }
+
 
     /**
      * 便利弹出入口(一行代码从指定控制器弹出浏览器，需要进一步操作浏览器实例的场合改用init构造)
@@ -259,60 +285,17 @@ import WYBasisKitSwift
         viewController.present(browser, animated: true)
     }
 
-    /// 桥接配置转Swift配置(nil项保留Swift默认值)
-    private static func convertConfiguration(_ bridgeConfiguration: WYPhotoBrowserConfigurationObjC?) -> WYPhotoBrowserConfiguration {
-        var configuration = WYPhotoBrowserConfiguration()
-        if let bridgeConfiguration = bridgeConfiguration {
-            configuration.scrollDirection = bridgeConfiguration.scrollDirection
-            configuration.layoutStyle = bridgeConfiguration.layoutStyle
-            if bridgeConfiguration.multiPageRevealWidth >= 0 { configuration.multiPageRevealWidth = bridgeConfiguration.multiPageRevealWidth }
-            if bridgeConfiguration.multiPageSpacing >= 0 { configuration.multiPageSpacing = bridgeConfiguration.multiPageSpacing }
-            configuration.transformStyle = bridgeConfiguration.transformStyle
-            configuration.transitionStyle = bridgeConfiguration.transitionStyle
-            configuration.pageIndicatorStyle = bridgeConfiguration.pageIndicatorStyle
-            configuration.originalLoadStyle = bridgeConfiguration.originalLoadStyle
-            if bridgeConfiguration.doubleTapZoomScale > 0 { configuration.doubleTapZoomScale = bridgeConfiguration.doubleTapZoomScale }
-            if bridgeConfiguration.maxZoomScale > 0 { configuration.maxZoomScale = bridgeConfiguration.maxZoomScale }
-            configuration.allowsTapDismiss = bridgeConfiguration.allowsTapDismiss
-            configuration.allowsDragDismiss = bridgeConfiguration.allowsDragDismiss
-            if bridgeConfiguration.dragDismissThreshold > 0 { configuration.dragDismissThreshold = bridgeConfiguration.dragDismissThreshold }
-            configuration.showsSaveAction = bridgeConfiguration.showsSaveAction
-            if let customActions = bridgeConfiguration.customActions, customActions.isEmpty == false { configuration.customActions = customActions }
-            if bridgeConfiguration.prefetchCount >= 0 { configuration.prefetchCount = bridgeConfiguration.prefetchCount }
-            configuration.allowsLoopScrolling = bridgeConfiguration.allowsLoopScrolling
-            if bridgeConfiguration.autoCarouselInterval > 0 { configuration.autoCarouselInterval = bridgeConfiguration.autoCarouselInterval }
-            if let bridgeAppearance = bridgeConfiguration.appearance {
-                var appearance = WYPhotoBrowserAppearance()
-                if let color = bridgeAppearance.backgroundColor { appearance.backgroundColor = color }
-                if let color = bridgeAppearance.pageIndicatorTextColor { appearance.pageIndicatorTextColor = color }
-                if bridgeAppearance.pageIndicatorFontSize >= 0 { appearance.pageIndicatorFontSize = bridgeAppearance.pageIndicatorFontSize }
-                if let color = bridgeAppearance.pageIndicatorDotColor { appearance.pageIndicatorDotColor = color }
-                if let color = bridgeAppearance.pageIndicatorCurrentDotColor { appearance.pageIndicatorCurrentDotColor = color }
-                if let icon = bridgeAppearance.playButtonIcon { appearance.playButtonIcon = icon }
-                if let color = bridgeAppearance.playButtonIconColor { appearance.playButtonIconColor = color }
-                if let color = bridgeAppearance.playButtonBackgroundColor { appearance.playButtonBackgroundColor = color }
-                if let color = bridgeAppearance.livePhotoBadgeBackgroundColor { appearance.livePhotoBadgeBackgroundColor = color }
-                if let color = bridgeAppearance.livePhotoBadgeTextColor { appearance.livePhotoBadgeTextColor = color }
-                if bridgeAppearance.livePhotoBadgeFontSize >= 0 { appearance.livePhotoBadgeFontSize = bridgeAppearance.livePhotoBadgeFontSize }
-                if let color = bridgeAppearance.progressRingColor { appearance.progressRingColor = color }
-                if let color = bridgeAppearance.progressRingTrackColor { appearance.progressRingTrackColor = color }
-                if let color = bridgeAppearance.progressLabelColor { appearance.progressLabelColor = color }
-                if bridgeAppearance.progressLabelFontSize >= 0 { appearance.progressLabelFontSize = bridgeAppearance.progressLabelFontSize }
-                if let color = bridgeAppearance.retryButtonBackgroundColor { appearance.retryButtonBackgroundColor = color }
-                if let color = bridgeAppearance.retryButtonTextColor { appearance.retryButtonTextColor = color }
-                if bridgeAppearance.retryButtonFontSize >= 0 { appearance.retryButtonFontSize = bridgeAppearance.retryButtonFontSize }
-                if let color = bridgeAppearance.originalButtonBackgroundColor { appearance.originalButtonBackgroundColor = color }
-                if let color = bridgeAppearance.originalButtonTextColor { appearance.originalButtonTextColor = color }
-                if bridgeAppearance.originalButtonFontSize >= 0 { appearance.originalButtonFontSize = bridgeAppearance.originalButtonFontSize }
-                if let color = bridgeAppearance.menuBackgroundColor { appearance.menuBackgroundColor = color }
-                if let color = bridgeAppearance.menuTextColor { appearance.menuTextColor = color }
-                if bridgeAppearance.menuFontSize >= 0 { appearance.menuFontSize = bridgeAppearance.menuFontSize }
-                if let color = bridgeAppearance.menuHighlightBackgroundColor { appearance.menuHighlightBackgroundColor = color }
-                if bridgeAppearance.menuCornerRadius >= 0 { appearance.menuCornerRadius = bridgeAppearance.menuCornerRadius }
-                configuration.appearance = appearance
-            }
-        }
-        return configuration
-    }
+
 }
+public extension WYPhotoBrowser {
+    /// 数据源(浏览项数量与内容，Swift返回结构体浏览项、OC返回WYPhotoBrowserItemObjC都行)
+    @objc(dataSource) var dataSourceObjC: WYPhotoBrowserDataSource? { get { dataSource } set { dataSource = newValue } }
+    /// 代理(转场来源与各类事件回调，全部方法可选)
+    @objc(browserDelegate) var browserDelegateObjC: WYPhotoBrowserDelegate? { get { browserDelegate } set { browserDelegate = newValue } }
+    /// 行为与外观配置(弹出前设置生效，弹出后修改不保证生效)
+    @objc(configuration) var configurationObjC: WYPhotoBrowserConfigurationObjC { get { wy_photoBrowserBridge(configuration) } set { configuration = WYPhotoBrowserObjC.convertConfiguration(newValue) } }
+    /// 获取当前可见媒体的图片视图，参数为媒体下标
+    @objc(sourceViewAtIndex) var sourceViewAtIndexObjC: @convention(block) (_ index: Int) -> UIView? { { [self] index in self.sourceView(at: index) } }
+}
+
 #endif

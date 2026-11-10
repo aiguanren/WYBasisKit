@@ -26,6 +26,8 @@ import Kingfisher
     case fullPage = 0
     /// 多页同屏(当前页居中，两侧露出相邻页边缘，多张一起联动滑动)
     case multiPage = 1
+    /// 叠卡浏览，相邻媒体叠放并随滑动移出和补位
+    case stackedCards = 2
 }
 
 /// 多页同屏布局下非当前页的过渡特效(滑动过程中随离中心距离变化)
@@ -273,6 +275,21 @@ public struct WYPhotoBrowserConfiguration {
     /// 同屏布局样式(默认整页一次一张，多页同屏时一次看到多张一起滑动)
     public var layoutStyle: WYPhotoBrowserLayoutStyle = .fullPage
 
+    /// 是否嵌入其他界面显示，默认false，嵌入时单击回调didTapItemAt
+    public var isEmbedded: Bool = false
+    /// 叠卡显示层数，至少1层
+    public var stackedCardCount: Int = 3
+    /// 叠卡层间偏移
+    public var stackedCardOffset: CGSize = CGSize(width: UIDevice.wy_screenWidth(4, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenHeight(5, WYBasisKitConfig.defaultScreenPixels))
+    /// 叠卡静止时的旋转角度，单位弧度
+    public var stackedCardRotationAngle: CGFloat = .pi / 90
+    /// 叠卡滑动时的旋转角度，单位弧度
+    public var stackedCardDragRotationAngle: CGFloat = .pi / 12
+    /// 叠卡圆角
+    public var stackedCardCornerRadius: CGFloat = UIDevice.wy_screenWidth(12, WYBasisKitConfig.defaultScreenPixels)
+    /// 叠卡图片显示方式
+    public var stackedCardContentMode: UIView.ContentMode = .scaleAspectFill
+
     /// 多页同屏时两侧露出相邻页的宽度(设计值，按基准屏换算，仅layoutStyle为multiPage时生效)
     public var multiPageRevealWidth: CGFloat = 40
 
@@ -350,6 +367,14 @@ public struct WYPhotoBrowserConfiguration {
 
 /// 浏览器代理(全部方法可选实现)
 @objc public protocol WYPhotoBrowserDelegate: AnyObject {
+    /**
+     嵌入显示时点击媒体
+     @param photoBrowser 图片浏览器
+     @param index 媒体下标
+     */
+    @objc(wy_photoBrowser:didTapItemAt:)
+    optional func wy_photoBrowser(_ photoBrowser: WYPhotoBrowser, didTapItemAt index: Int)
+
 
     /**
      * 缩放转场的来源视图(进出页转场样式为zoom时取该视图的屏幕位置做缩放动画，返回nil或视图不在窗口上时该页降级为渐隐)
@@ -417,6 +442,13 @@ public class WYPhotoBrowser: UIViewController {
     /// 行为与外观配置(弹出前设置生效，弹出后修改不保证生效)
     public var configuration: WYPhotoBrowserConfiguration
 
+    /**
+     获取当前可见媒体的图片视图
+     @param index 媒体下标
+     @return 图片视图，不可见时为nil
+     */
+    public func sourceView(at index: Int) -> UIView? { guard index >= 0 && index < numberOfItems else { return nil }; return cellForItem(at: index)?.contentImageView }
+
     /// 当前页下标(翻页与跳页后更新，写入会立即跳到该页不带动画)
     @objc public var currentIndex: Int {
         get {
@@ -469,14 +501,19 @@ public class WYPhotoBrowser: UIViewController {
      */
     @objc public func scrollToItem(at index: Int, animated: Bool) {
         guard numberOfItems > 0, index >= 0, index < numberOfItems else { return }
-        internalCurrentIndex = index
-        guard isViewLoaded else { return }
+        let changed = internalCurrentIndex != index
+        guard isViewLoaded else { internalCurrentIndex = index; return }
         let target = targetOffset(for: index)
         if animated {
             collectionView.setContentOffset(target, animated: true)
         } else {
+            internalCurrentIndex = index
             collectionView.setContentOffset(target, animated: false)
+            collectionView.layoutIfNeeded()
             refreshIndicator()
+            if changed { browserDelegate?.wy_photoBrowser?(self, didShowItemAt: index) }
+            applyTransformToVisibleCells()
+            prefetchNeighbors()
         }
     }
 
@@ -511,6 +548,7 @@ public class WYPhotoBrowser: UIViewController {
 
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(collectionLongPressed(_:)))
         longPress.minimumPressDuration = 0.5
+        longPress.isEnabled = !configuration.isEmbedded
         collectionView.addGestureRecognizer(longPress)
 
         configureFlowLayout()
@@ -576,7 +614,7 @@ public class WYPhotoBrowser: UIViewController {
 
     /// 翻页集合视图布局(整页一个浏览项，无页间距)
     let flowLayout: UICollectionViewFlowLayout = {
-        let layout = UICollectionViewFlowLayout()
+        let layout = WYPhotoBrowserStackLayout()
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         return layout
@@ -586,6 +624,7 @@ public class WYPhotoBrowser: UIViewController {
     lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
         collectionView.backgroundColor = .clear
+        collectionView.accessibilityIdentifier = configuration.layoutStyle == .stackedCards ? "WYPhotoBrowser.stackedCards" : "WYPhotoBrowser.pages"
         collectionView.isPagingEnabled = true
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.showsVerticalScrollIndicator = false

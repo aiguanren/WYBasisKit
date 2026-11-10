@@ -369,6 +369,8 @@
 		CF080236B6634685A6318861 /* WYImageCropperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B46C27D2941B4A85A99A2E30 /* WYImageCropperView.swift */; };
 		F8CDEF0FEB4C2E16D7D25654 /* WYPhotoBrowserMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4EE578F5C81426AA5BC1D29 /* WYPhotoBrowserMenuView.swift */; };
 		F9B01DB67BCA4F268210F6EF /* WYMediaCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20024D929D9487584DE7607 /* WYMediaCache.swift */; };
+		866D972E6CFDED0A63E1AC9A /* WYPhotoBrowserStackLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C509474459EBEE397425A8 /* WYPhotoBrowserStackLayout.swift */; };
+
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -753,6 +755,8 @@
 		E4EE578F5C81426AA5BC1D29 /* WYPhotoBrowserMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPhotoBrowserMenuView.swift; sourceTree = "<group>"; };
 		E5BA55F71D1EFB496EE59FDE /* WYMediaPlayer+Properties.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+Properties.swift"; sourceTree = "<group>"; };
 		FBBDFDBDB8276D3319F55684 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		E9C509474459EBEE397425A8 /* WYPhotoBrowserStackLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYPhotoBrowserStackLayout.swift; sourceTree = "<group>"; };
+
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -802,6 +806,7 @@
 			isa = PBXGroup;
 			children = (
 				42FC218D652F6064335DAD12 /* WYPhotoBrowserPageCell.swift */,
+				E9C509474459EBEE397425A8 /* WYPhotoBrowserStackLayout.swift */,
 				084E7EAF0CAC71E9AABDF813 /* WYPhotoBrowserTransition.swift */,
 				E4EE578F5C81426AA5BC1D29 /* WYPhotoBrowserMenuView.swift */,
 				587246583088BDE80093EC33 /* WYPhotoBrowser+Implementation.swift */,
@@ -3798,6 +3803,7 @@
 				583E04F82E869051004F1034 /* WYTextFieldObjC.swift in Sources */,
 				B33989045E87D56FF65D7C1D /* WYPhotoBrowser.swift in Sources */,
 				15F3D3C618E93B7564F1EFC0 /* WYPhotoBrowserPageCell.swift in Sources */,
+				866D972E6CFDED0A63E1AC9A /* WYPhotoBrowserStackLayout.swift in Sources */,
 				B768B9625EDE9F3363234579 /* WYPhotoBrowserTransition.swift in Sources */,
 				58D99B93309043B700B7B5A4 /* WYCryptor+Implementation.swift in Sources */,
 				F8CDEF0FEB4C2E16D7D25654 /* WYPhotoBrowserMenuView.swift in Sources */,
