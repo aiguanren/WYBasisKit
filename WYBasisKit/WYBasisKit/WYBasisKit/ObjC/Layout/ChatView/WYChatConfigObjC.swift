@@ -231,12 +231,26 @@ import WYBasisKitSwift
     public var content: WYChatContentConfigObjC
     /// 各类型内容覆盖配置，未提供时使用content
     public var contentOverrides: [NSNumber: WYChatContentConfigObjC]
+    /// 是否显示输入栏，默认true
+    public var showsInputBar: Bool
     /// 输入栏配置
     public var input: WYInputBarConfigObjC
     /// 表情配置
     public var emoji: WYEmojiViewConfigObjC
     /// 更多面板配置
     public var more: WYMoreViewConfigObjC
+    /// 图片和视频展示
+    public var media: WYChatMediaConfigObjC
+    /// 引用消息与输入预览
+    public var quote: WYChatQuoteConfigObjC
+    /// 撤回与重新编辑
+    public var notice: WYChatNoticeConfigObjC
+    /// 合并聊天记录明细
+    public var records: WYChatRecordsConfigObjC
+    /// 多选操作与转发
+    public var selection: WYChatSelectionConfigObjC
+    /// 语音播放倍速
+    public var voicePlayback: WYChatVoicePlaybackConfigObjC
     /// 录音配置
     public var recording: WYRecordAnimationConfigObjC
     /// 聊天背景色
@@ -250,7 +264,7 @@ import WYBasisKitSwift
     /// 是否启用长按菜单，默认true
     public var enablesMessageMenu: Bool
     /// 默认菜单操作，宿主通过回调执行外部操作
-    public var menuActions: [WYChatAction]
+    public var menuActions: [NSNumber]
     /// 允许自动滚动到底部的距离
     public var bottomDistance: CGFloat
     /// 发送后是否自动加入消息列表，默认true
@@ -279,16 +293,23 @@ import WYBasisKitSwift
         self.text = WYTextChatConfigObjC(value.text)
         self.content = WYChatContentConfigObjC(value.content)
         self.contentOverrides = Dictionary(uniqueKeysWithValues: value.contentOverrides.map { (NSNumber(value: $0.key.rawValue), WYChatContentConfigObjC($0.value)) })
+        self.showsInputBar = value.showsInputBar
         self.input = WYInputBarConfigObjC(value.input)
         self.emoji = WYEmojiViewConfigObjC(value.emoji)
         self.more = WYMoreViewConfigObjC(value.more)
+        self.media = WYChatMediaConfigObjC(value.media)
+        self.quote = WYChatQuoteConfigObjC(value.quote)
+        self.notice = WYChatNoticeConfigObjC(value.notice)
+        self.records = WYChatRecordsConfigObjC(value.records)
+        self.selection = WYChatSelectionConfigObjC(value.selection)
+        self.voicePlayback = WYChatVoicePlaybackConfigObjC(value.voicePlayback)
         self.recording = WYRecordAnimationConfigObjC(value.recording)
         self.backgroundColor = value.backgroundColor
         self.messageSpacing = value.messageSpacing
         self.nicknameSpacing = value.nicknameSpacing
         self.dismissInputOnTap = value.dismissInputOnTap
         self.enablesMessageMenu = value.enablesMessageMenu
-        self.menuActions = value.menuActions
+        self.menuActions = value.menuActions.map { NSNumber(value: $0.rawValue) }
         self.bottomDistance = value.bottomDistance
         self.automaticallyInsertsSentMessages = value.automaticallyInsertsSentMessages
         self.unsupportedMessageText = value.unsupportedMessageText
@@ -313,16 +334,23 @@ import WYBasisKitSwift
         value.text = text.toValue()
         value.content = content.toValue()
         value.contentOverrides = Dictionary(uniqueKeysWithValues: contentOverrides.compactMap { key, value in WYChatMessageStyle(rawValue: key.intValue).map { ($0, value.toValue()) } })
+        value.showsInputBar = showsInputBar
         value.input = input.toValue()
         value.emoji = emoji.toValue()
         value.more = more.toValue()
+        value.media = media.toValue()
+        value.quote = quote.toValue()
+        value.notice = notice.toValue()
+        value.records = records.toValue()
+        value.selection = selection.toValue()
+        value.voicePlayback = voicePlayback.toValue()
         value.recording = recording.toValue()
         value.backgroundColor = backgroundColor
         value.messageSpacing = messageSpacing
         value.nicknameSpacing = nicknameSpacing
         value.dismissInputOnTap = dismissInputOnTap
         value.enablesMessageMenu = enablesMessageMenu
-        value.menuActions = menuActions
+        value.menuActions = menuActions.compactMap { WYChatAction(rawValue: $0.intValue) }
         value.bottomDistance = bottomDistance
         value.automaticallyInsertsSentMessages = automaticallyInsertsSentMessages
         value.unsupportedMessageText = unsupportedMessageText
@@ -340,6 +368,31 @@ import WYBasisKitSwift
 
 @objc(WYRecordAnimationConfig)
 @objcMembers public class WYRecordAnimationConfigObjC: NSObject {
+    /// 录音浮层遮罩颜色
+    public var overlayBackgroundColor: UIColor
+    /// 录音提示距离声波气泡底部的间距
+    public var recordingHintSpacing: CGFloat
+    /// 直接转写录音时的松手提示
+    public var dictationReleaseText: String
+
+    /// 录音操作按钮外观，默认弧形条状
+    public var actionStyle: WYRecordingActionStyle
+    /// 弧形操作按钮尺寸
+    public var curvedActionSize: CGSize
+    /// 弧形操作按钮圆角
+    public var curvedActionCornerRadius: CGFloat
+    /// 弧形操作按钮中间向上弯曲的高度，0时为直条
+    public var curvedActionBendHeight: CGFloat
+    /// 弧形操作按钮文字向屏幕中间的水平偏移
+    public var curvedActionTitleOffsetX: CGFloat
+    /// 弧形操作按钮倾斜角度，单位弧度
+    public var curvedActionTiltAngle: CGFloat
+    /// 弧形操作按钮中心相对容器中心的水平距离
+    public var curvedActionCenterOffsetX: CGFloat
+    /// 弧形操作按钮普通背景色
+    public var curvedActionNormalColor: UIColor
+    /// 弧形操作按钮选中背景色
+    public var curvedActionSelectedColor: UIColor
     /// 是否启用语音识别，默认false
     public var supportSpeechRecognition: Bool
     /// 声波线宽度
@@ -420,7 +473,7 @@ import WYBasisKitSwift
     public var arrowTipRadiusForMoveUpCancel: CGFloat
     /// 录音、取消录音与转文字时声波动画气泡三角箭头的圆角半径
     public var arrowTipRadiusForMoveUpTransfer: CGFloat
-    /// 转文字时声波动画距离气泡右侧与底部偏移量(录音和取消录音固定居中显示)
+    /// 转文字及显示实时文本时声波距离气泡右侧与底部的间距
     public var soundWavesRightOffsetForAirBubble: CGPoint
     /// 取消按钮背景图
     public var cancelRecordViewImageOnInterior: UIImage
@@ -472,21 +525,13 @@ import WYBasisKitSwift
     public var transferViewTextInfoForExternalColor: UIColor
     /// 取消录音按钮和转文字按钮的偏转角度
     public var moveUpViewDeviationAngle: CGFloat
-    /// 录音按钮背景色
-    public var recordViewColorOnInterior: UIColor
-    /// 录音按钮背景色
-    public var recordViewColorOnExternal: UIColor
-    /// 录音按钮阴影色值
-    public var recordViewShadowColorOnInterior: UIColor
-    /// 录音按钮阴影色值
-    public var recordViewShadowColorOnExternal: UIColor
     /// 声波动画滑动区域圆弧的半径
     public var arcRadian: CGFloat
     /// 声波动画可滑动区域的高度
     public var areaHeight: CGFloat
     /// 整个声波动画组件向下偏移多少(可兼顾齐刘海)
     public var recordViewBottomOffset: CGFloat
-    /// 录音按钮内部提示文本距离滑动区域顶部的间距
+    /// 圆形样式的录音提示距离底部操作区顶部的间距
     public var recordTipViewTopOffset: CGFloat
     /// 取消录音或者语音转文字按钮直径
     public var moveUpButtonDiameterOnInterior: CGFloat
@@ -520,11 +565,29 @@ import WYBasisKitSwift
     public var recordTimeMin: TimeInterval
     /// 最多可以录制多少秒(最短和最长录音时间)
     public var recordTimeMax: TimeInterval
+    /// 普通语音录音区是否显示实时文本，默认false，滑入转文字后显示
+    public var showsLiveTextWhileRecording: Bool
+    /// 实时转写文本距离气泡边缘的间距
+    public var liveTextInsets: UIEdgeInsets
+    /// 实时转写文本与底部声波的间距
+    public var liveTextWaveformSpacing: CGFloat
+    /// 直接转写在录音区松手后是否发送文本，默认true，false时进入编辑
+    public var dictationSendsOnRelease: Bool
+    /// 直接转写的编辑操作文字
+    public var dictationEditText: String
+    /// 直接转写是否显示声波，默认false
+    public var dictationShowsWaveform: Bool
+    /// 转写编辑时是否显示发送原语音按钮，默认true
+    public var showsOriginalVoiceButton: Bool
+    /// 发送原语音按钮文字
+    public var recognitionSendVoiceText: String
     /// 语音识别来源，默认使用Apple
     public var speechRecognitionSource: WYChatSpeechRecognitionSource
+    /// 语音识别时机，默认边录音边识别
+    public var speechRecognitionMode: WYChatSpeechRecognitionMode
     /// 外部语音识别实现
     public var speechRecognitionProvider: WYChatSpeechRecognizer?
-    /// 外部录音实现，nil时使用WYAudioKit
+    /// 外部录音实现，nil时使用内置采集
     public var recorder: WYChatRecorder?
     /// 识别语言
     public var speechLocaleIdentifier: String
@@ -554,12 +617,104 @@ import WYBasisKitSwift
     public var recognitionBackgroundColor: UIColor
     /// 转写编辑面板高度
     public var recognitionPanelHeight: CGFloat
+    /// 转写编辑最小高度
+    public var recognitionMinimumHeight: CGFloat
+    /// 转写编辑面板外边距，底部相对键盘顶部
+    public var recognitionPanelOuterInsets: UIEdgeInsets
+    /// 转写编辑面板内边距
+    public var recognitionPanelInsets: UIEdgeInsets
+    /// 转写编辑面板圆角
+    public var recognitionPanelCornerRadius: CGFloat
+    /// 转写编辑控件行高度
+    public var recognitionControlHeight: CGFloat
+    /// 转写编辑控件间距
+    public var recognitionControlSpacing: CGFloat
+    /// 转写编辑顶部操作行高度
+    public var recognitionHeaderHeight: CGFloat
+    /// 转写编辑顶部操作行与气泡的间距
+    public var recognitionHeaderSpacing: CGFloat
+    /// 转写编辑气泡与底部操作行的间距
+    public var recognitionFooterSpacing: CGFloat
+    /// 转写编辑发送及原语音按钮宽度，空间不足时自动缩小
+    public var recognitionActionWidth: CGFloat
+    /// 转写编辑语言及翻译按钮宽度
+    public var recognitionHeaderButtonWidth: CGFloat
+    /// 转写编辑关闭及表情按钮宽度
+    public var recognitionAccessoryWidth: CGFloat
+    /// 转写编辑关闭及表情图标尺寸
+    public var recognitionAccessoryImageSize: CGFloat
+    /// 转写编辑关闭及表情按钮颜色
+    public var recognitionAccessoryColor: UIColor
+    /// 转写编辑发送按钮文字颜色
+    public var recognitionSendColor: UIColor
+    /// 转写编辑发送按钮背景色
+    public var recognitionSendBackgroundColor: UIColor
+    /// 自定义转写编辑控件，参数为操作和已应用默认外观的按钮
+    public var recognitionControlAppearance: ((_ control: WYChatRecordingEditorControl, _ button: UIButton) -> Void)?
+    /// 转写编辑按钮字体
+    public var recognitionControlFont: UIFont
+    /// 转写编辑按钮颜色
+    public var recognitionControlColor: UIColor
+    /// 转写编辑按钮背景色
+    public var recognitionControlBackgroundColor: UIColor
+    /// 转写编辑按钮圆角
+    public var recognitionControlCornerRadius: CGFloat
+    /// 转写编辑文字内边距
+    public var recognitionTextInsets: UIEdgeInsets
+    /// 转写编辑文本背景色
+    public var recognitionTextBackgroundColor: UIColor
+    /// 转写编辑关闭图标，nil时只显示文字
+    public var recognitionCloseImage: UIImage?
+    /// 转写编辑表情图标
+    public var recognitionEmojiImage: UIImage?
+    /// 转写编辑键盘图标
+    public var recognitionKeyboardImage: UIImage?
+    /// 转写编辑是否显示表情按钮，默认true
+    public var showsRecognitionEmojiButton: Bool
+    /// 转写编辑表情配置
+    public var recognitionEmoji: WYEmojiViewConfigObjC
+    /// 转写编辑是否显示识别语言按钮，默认false
+    public var showsRecognitionLanguageButton: Bool
+    /// 识别语言列表，空数组时Apple使用系统支持的语言，外部识别仅显示当前语言
+    public var speechRecognitionLanguages: [String]
+    /// 识别语言按钮文字
+    public var recognitionLanguageText: String
+    /// 是否启用外部文本翻译，默认false
+    public var enablesTranslation: Bool
+    /// 外部文本翻译服务
+    public var translationProvider: WYChatTextTranslator?
+    /// 翻译源语言，nil时自动识别
+    public var translationSourceLocaleIdentifier: String?
+    /// 翻译目标语言
+    public var translationTargetLocaleIdentifier: String
+    /// 翻译目标语言列表，空数组时使用translationTargetLocaleIdentifier
+    public var translationTargetLanguages: [String]
+    /// 翻译超时，单位秒
+    public var translationTimeout: TimeInterval
+    /// 翻译失败提示
+    public var translationFailureText: String
+    /// 翻译等待提示
+    public var translationWaitingText: String
+    /// 翻译按钮文字
+    public var translationText: String
     /// 录音文件保存地址
     public var chatAudioUrl: URL
 
     public override convenience init() { self.init(WYRecordAnimationConfig()) }
 
     @nonobjc public init(_ value: WYRecordAnimationConfig) {
+        self.overlayBackgroundColor = value.overlayBackgroundColor
+        self.recordingHintSpacing = value.recordingHintSpacing
+        self.dictationReleaseText = value.dictationReleaseText
+        self.actionStyle = value.actionStyle
+        self.curvedActionSize = value.curvedActionSize
+        self.curvedActionCornerRadius = value.curvedActionCornerRadius
+        self.curvedActionBendHeight = value.curvedActionBendHeight
+        self.curvedActionTitleOffsetX = value.curvedActionTitleOffsetX
+        self.curvedActionTiltAngle = value.curvedActionTiltAngle
+        self.curvedActionCenterOffsetX = value.curvedActionCenterOffsetX
+        self.curvedActionNormalColor = value.curvedActionColors.normal
+        self.curvedActionSelectedColor = value.curvedActionColors.selected
         self.supportSpeechRecognition = value.supportSpeechRecognition
         self.soundWavesWidth = value.soundWavesWidth
         self.soundWavesMaxHeightRecording = value.soundWavesMaxHeight.recording
@@ -626,10 +781,6 @@ import WYBasisKitSwift
         self.transferViewTextInfoForExternalFont = value.transferViewTextInfoForExternal.font
         self.transferViewTextInfoForExternalColor = value.transferViewTextInfoForExternal.color
         self.moveUpViewDeviationAngle = value.moveUpViewDeviationAngle
-        self.recordViewColorOnInterior = value.recordViewColor.onInterior
-        self.recordViewColorOnExternal = value.recordViewColor.onExternal
-        self.recordViewShadowColorOnInterior = value.recordViewShadowColor.onInterior
-        self.recordViewShadowColorOnExternal = value.recordViewShadowColor.onExternal
         self.arcRadian = value.arcRadian
         self.areaHeight = value.areaHeight
         self.recordViewBottomOffset = value.recordViewBottomOffset
@@ -650,7 +801,16 @@ import WYBasisKitSwift
         self.shadowOpacity = value.shadowOpacity
         self.recordTimeMin = value.recordTime.min
         self.recordTimeMax = value.recordTime.max
+        self.showsLiveTextWhileRecording = value.showsLiveTextWhileRecording
+        self.liveTextInsets = value.liveTextInsets
+        self.liveTextWaveformSpacing = value.liveTextWaveformSpacing
+        self.dictationSendsOnRelease = value.dictationSendsOnRelease
+        self.dictationEditText = value.dictationEditText
+        self.dictationShowsWaveform = value.dictationShowsWaveform
+        self.showsOriginalVoiceButton = value.showsOriginalVoiceButton
+        self.recognitionSendVoiceText = value.recognitionSendVoiceText
         self.speechRecognitionSource = value.speechRecognitionSource
+        self.speechRecognitionMode = value.speechRecognitionMode
         self.speechRecognitionProvider = value.speechRecognitionProvider
         self.recorder = value.recorder
         self.speechLocaleIdentifier = value.speechLocaleIdentifier
@@ -667,12 +827,63 @@ import WYBasisKitSwift
         self.recognitionTextColor = value.recognitionTextColor
         self.recognitionBackgroundColor = value.recognitionBackgroundColor
         self.recognitionPanelHeight = value.recognitionPanelHeight
+        self.recognitionMinimumHeight = value.recognitionMinimumHeight
+        self.recognitionPanelOuterInsets = value.recognitionPanelOuterInsets
+        self.recognitionPanelInsets = value.recognitionPanelInsets
+        self.recognitionPanelCornerRadius = value.recognitionPanelCornerRadius
+        self.recognitionControlHeight = value.recognitionControlHeight
+        self.recognitionControlSpacing = value.recognitionControlSpacing
+        self.recognitionHeaderHeight = value.recognitionHeaderHeight
+        self.recognitionHeaderSpacing = value.recognitionHeaderSpacing
+        self.recognitionFooterSpacing = value.recognitionFooterSpacing
+        self.recognitionActionWidth = value.recognitionActionWidth
+        self.recognitionHeaderButtonWidth = value.recognitionHeaderButtonWidth
+        self.recognitionAccessoryWidth = value.recognitionAccessoryWidth
+        self.recognitionAccessoryImageSize = value.recognitionAccessoryImageSize
+        self.recognitionAccessoryColor = value.recognitionAccessoryColor
+        self.recognitionSendColor = value.recognitionSendColor
+        self.recognitionSendBackgroundColor = value.recognitionSendBackgroundColor
+        self.recognitionControlAppearance = value.recognitionControlAppearance
+        self.recognitionControlFont = value.recognitionControlFont
+        self.recognitionControlColor = value.recognitionControlColor
+        self.recognitionControlBackgroundColor = value.recognitionControlBackgroundColor
+        self.recognitionControlCornerRadius = value.recognitionControlCornerRadius
+        self.recognitionTextInsets = value.recognitionTextInsets
+        self.recognitionTextBackgroundColor = value.recognitionTextBackgroundColor
+        self.recognitionCloseImage = value.recognitionCloseImage
+        self.recognitionEmojiImage = value.recognitionEmojiImage
+        self.recognitionKeyboardImage = value.recognitionKeyboardImage
+        self.showsRecognitionEmojiButton = value.showsRecognitionEmojiButton
+        self.recognitionEmoji = WYEmojiViewConfigObjC(value.recognitionEmoji)
+        self.showsRecognitionLanguageButton = value.showsRecognitionLanguageButton
+        self.speechRecognitionLanguages = value.speechRecognitionLanguages
+        self.recognitionLanguageText = value.recognitionLanguageText
+        self.enablesTranslation = value.enablesTranslation
+        self.translationProvider = value.translationProvider
+        self.translationSourceLocaleIdentifier = value.translationSourceLocaleIdentifier
+        self.translationTargetLocaleIdentifier = value.translationTargetLocaleIdentifier
+        self.translationTargetLanguages = value.translationTargetLanguages
+        self.translationTimeout = value.translationTimeout
+        self.translationFailureText = value.translationFailureText
+        self.translationWaitingText = value.translationWaitingText
+        self.translationText = value.translationText
         self.chatAudioUrl = value.chatAudioUrl
         super.init()
     }
 
     @nonobjc public func toValue() -> WYRecordAnimationConfig {
         var value = WYRecordAnimationConfig()
+        value.overlayBackgroundColor = overlayBackgroundColor
+        value.recordingHintSpacing = recordingHintSpacing
+        value.dictationReleaseText = dictationReleaseText
+        value.actionStyle = actionStyle
+        value.curvedActionSize = curvedActionSize
+        value.curvedActionCornerRadius = curvedActionCornerRadius
+        value.curvedActionBendHeight = curvedActionBendHeight
+        value.curvedActionTitleOffsetX = curvedActionTitleOffsetX
+        value.curvedActionTiltAngle = curvedActionTiltAngle
+        value.curvedActionCenterOffsetX = curvedActionCenterOffsetX
+        value.curvedActionColors = (curvedActionNormalColor, curvedActionSelectedColor)
         value.supportSpeechRecognition = supportSpeechRecognition
         value.soundWavesWidth = soundWavesWidth
         value.soundWavesMaxHeight.recording = soundWavesMaxHeightRecording
@@ -739,10 +950,6 @@ import WYBasisKitSwift
         value.transferViewTextInfoForExternal.font = transferViewTextInfoForExternalFont
         value.transferViewTextInfoForExternal.color = transferViewTextInfoForExternalColor
         value.moveUpViewDeviationAngle = moveUpViewDeviationAngle
-        value.recordViewColor.onInterior = recordViewColorOnInterior
-        value.recordViewColor.onExternal = recordViewColorOnExternal
-        value.recordViewShadowColor.onInterior = recordViewShadowColorOnInterior
-        value.recordViewShadowColor.onExternal = recordViewShadowColorOnExternal
         value.arcRadian = arcRadian
         value.areaHeight = areaHeight
         value.recordViewBottomOffset = recordViewBottomOffset
@@ -763,7 +970,16 @@ import WYBasisKitSwift
         value.shadowOpacity = shadowOpacity
         value.recordTime.min = recordTimeMin
         value.recordTime.max = recordTimeMax
+        value.showsLiveTextWhileRecording = showsLiveTextWhileRecording
+        value.liveTextInsets = liveTextInsets
+        value.liveTextWaveformSpacing = liveTextWaveformSpacing
+        value.dictationSendsOnRelease = dictationSendsOnRelease
+        value.dictationEditText = dictationEditText
+        value.dictationShowsWaveform = dictationShowsWaveform
+        value.showsOriginalVoiceButton = showsOriginalVoiceButton
+        value.recognitionSendVoiceText = recognitionSendVoiceText
         value.speechRecognitionSource = speechRecognitionSource
+        value.speechRecognitionMode = speechRecognitionMode
         value.speechRecognitionProvider = speechRecognitionProvider
         value.recorder = recorder
         value.speechLocaleIdentifier = speechLocaleIdentifier
@@ -780,6 +996,46 @@ import WYBasisKitSwift
         value.recognitionTextColor = recognitionTextColor
         value.recognitionBackgroundColor = recognitionBackgroundColor
         value.recognitionPanelHeight = recognitionPanelHeight
+        value.recognitionMinimumHeight = recognitionMinimumHeight
+        value.recognitionPanelOuterInsets = recognitionPanelOuterInsets
+        value.recognitionPanelInsets = recognitionPanelInsets
+        value.recognitionPanelCornerRadius = recognitionPanelCornerRadius
+        value.recognitionControlHeight = recognitionControlHeight
+        value.recognitionControlSpacing = recognitionControlSpacing
+        value.recognitionHeaderHeight = recognitionHeaderHeight
+        value.recognitionHeaderSpacing = recognitionHeaderSpacing
+        value.recognitionFooterSpacing = recognitionFooterSpacing
+        value.recognitionActionWidth = recognitionActionWidth
+        value.recognitionHeaderButtonWidth = recognitionHeaderButtonWidth
+        value.recognitionAccessoryWidth = recognitionAccessoryWidth
+        value.recognitionAccessoryImageSize = recognitionAccessoryImageSize
+        value.recognitionAccessoryColor = recognitionAccessoryColor
+        value.recognitionSendColor = recognitionSendColor
+        value.recognitionSendBackgroundColor = recognitionSendBackgroundColor
+        value.recognitionControlAppearance = recognitionControlAppearance
+        value.recognitionControlFont = recognitionControlFont
+        value.recognitionControlColor = recognitionControlColor
+        value.recognitionControlBackgroundColor = recognitionControlBackgroundColor
+        value.recognitionControlCornerRadius = recognitionControlCornerRadius
+        value.recognitionTextInsets = recognitionTextInsets
+        value.recognitionTextBackgroundColor = recognitionTextBackgroundColor
+        value.recognitionCloseImage = recognitionCloseImage
+        value.recognitionEmojiImage = recognitionEmojiImage
+        value.recognitionKeyboardImage = recognitionKeyboardImage
+        value.showsRecognitionEmojiButton = showsRecognitionEmojiButton
+        value.recognitionEmoji = recognitionEmoji.toValue()
+        value.showsRecognitionLanguageButton = showsRecognitionLanguageButton
+        value.speechRecognitionLanguages = speechRecognitionLanguages
+        value.recognitionLanguageText = recognitionLanguageText
+        value.enablesTranslation = enablesTranslation
+        value.translationProvider = translationProvider
+        value.translationSourceLocaleIdentifier = translationSourceLocaleIdentifier
+        value.translationTargetLocaleIdentifier = translationTargetLocaleIdentifier
+        value.translationTargetLanguages = translationTargetLanguages
+        value.translationTimeout = translationTimeout
+        value.translationFailureText = translationFailureText
+        value.translationWaitingText = translationWaitingText
+        value.translationText = translationText
         value.chatAudioUrl = chatAudioUrl
         return value
     }
@@ -805,6 +1061,24 @@ import WYBasisKitSwift
     public var avatarContentMode: UIView.ContentMode
     /// 头像圆角
     public var avatarCornerRadius: CGFloat
+    /// 头像单击操作，默认打开用户信息
+    public var avatarTapAction: WYChatAvatarAction
+    /// 头像长按操作，默认提及用户
+    public var avatarLongPressAction: WYChatAvatarAction
+    /// 头像双击操作，默认请求拍一拍
+    public var avatarDoubleTapAction: WYChatAvatarAction
+    /// 头像长按识别时间，单位秒
+    public var avatarLongPressDuration: TimeInterval
+    /// 拍一拍反馈动画时长，0表示不播放
+    public var avatarPatAnimationDuration: TimeInterval
+    /// 拍一拍反馈的旋转角度序列，单位弧度
+    public var avatarPatAnimationAngles: [CGFloat]
+    /// 头像提及时是否自动插入输入框，默认true
+    public var automaticallyInsertsMentions: Bool
+    /// 提及用户的前缀
+    public var mentionPrefix: String
+    /// 提及用户后的分隔文本
+    public var mentionSuffix: String
     /// 昵称字体
     public var nicknameFont: UIFont
     /// 昵称颜色
@@ -844,6 +1118,15 @@ import WYBasisKitSwift
         self.defaultAvatar = value.defaultAvatar
         self.avatarContentMode = value.avatarContentMode
         self.avatarCornerRadius = value.avatarCornerRadius
+        avatarTapAction = value.avatarTapAction
+        avatarLongPressAction = value.avatarLongPressAction
+        avatarDoubleTapAction = value.avatarDoubleTapAction
+        avatarLongPressDuration = value.avatarLongPressDuration
+        avatarPatAnimationDuration = value.avatarPatAnimationDuration
+        avatarPatAnimationAngles = value.avatarPatAnimationAngles
+        automaticallyInsertsMentions = value.automaticallyInsertsMentions
+        mentionPrefix = value.mentionPrefix
+        mentionSuffix = value.mentionSuffix
         self.nicknameFont = value.nicknameFont
         self.nicknameColor = value.nicknameColor
         self.timeFont = value.timeFont
@@ -873,6 +1156,15 @@ import WYBasisKitSwift
         value.defaultAvatar = defaultAvatar
         value.avatarContentMode = avatarContentMode
         value.avatarCornerRadius = avatarCornerRadius
+        value.avatarTapAction = avatarTapAction
+        value.avatarLongPressAction = avatarLongPressAction
+        value.avatarDoubleTapAction = avatarDoubleTapAction
+        value.avatarLongPressDuration = avatarLongPressDuration
+        value.avatarPatAnimationDuration = avatarPatAnimationDuration
+        value.avatarPatAnimationAngles = avatarPatAnimationAngles
+        value.automaticallyInsertsMentions = automaticallyInsertsMentions
+        value.mentionPrefix = mentionPrefix
+        value.mentionSuffix = mentionSuffix
         value.nicknameFont = nicknameFont
         value.nicknameColor = nicknameColor
         value.timeFont = timeFont
@@ -939,12 +1231,34 @@ import WYBasisKitSwift
 @objcMembers public class WYInputBarConfigObjC: NSObject {
     /// 草稿保存键，空字符串时不跨实例保存草稿
     public var draftStorageKey: String = ""
+    /// 是否允许长按语音切换按钮直接转写，默认true，需要启用语音识别
+    public var enablesVoiceButtonDictation: Bool
+    /// 长按语音切换按钮开始转写的等待时间，单位秒
+    public var voiceButtonLongPressDuration: TimeInterval
     /// 录音按钮长按手势允许手指移动的最大距离
     public var recordViewLongPressMaxOffset: CGFloat
     /// inputBar弹起或者收回时动画持续时长
     public var animateDuration: TimeInterval
     /// inputBar背景图
-    public var backgroundImage: UIImage
+    public var backgroundImage: UIImage?
+    /// 输入栏背景色，背景图覆盖在此颜色上
+    public var backgroundColor: UIColor
+
+    /// 文本输入框背景色
+    public var textViewBackgroundColor: UIColor
+
+    /// 语音输入框背景色
+    public var voiceViewBackgroundColor: UIColor
+
+    /// 语音输入框按压时的背景色
+    public var voiceViewHighlightedBackgroundColor: UIColor
+
+    /// 输入栏图标颜色
+    public var iconTintColor: UIColor
+
+    /// 是否用iconTintColor绘制输入栏图标，默认true
+    public var rendersIconsAsTemplate: Bool
+
     /// 是否需要保存上次退出时输入框中的文本
     public var canSaveLastInputText: Bool
     /// 是否需要保存上次退出时输入框模式(语音输入还是文本输入)
@@ -964,11 +1278,11 @@ import WYBasisKitSwift
     /// 更多切换按钮图片
     public var moreBottomImage: UIImage
     /// 文本输入框背景图
-    public var textViewBackgroundImage: UIImage
+    public var textViewBackgroundImage: UIImage?
     /// 语音输入框背景图
-    public var voiceViewBackgroundImage: UIImage
+    public var voiceViewBackgroundImage: UIImage?
     /// 语音输入框按压状态背景图
-    public var voiceViewBackgroundImageForHighlighted: UIImage
+    public var voiceViewBackgroundImageForHighlighted: UIImage?
     /// 语音输入框占位文本
     public var voicePlaceholder: String
     /// 语音输入框占位文本色值
@@ -1013,7 +1327,10 @@ import WYBasisKitSwift
     public var textLineSpacing: CGFloat
     /// 输入框的最高高度
     public var textViewMaxHeight: CGFloat
-    /// 输入框、语音框的圆角半径
+    /// 语音框的圆角半径
+    public var voiceViewCornerRadius: CGFloat
+
+    /// 输入框的圆角半径
     public var textViewCornerRadius: CGFloat
     /// 输入框、语音框的边框颜色
     public var textViewBorderColor: UIColor
@@ -1069,9 +1386,18 @@ import WYBasisKitSwift
     public override convenience init() { self.init(WYInputBarConfig()) }
 
     @nonobjc public init(_ value: WYInputBarConfig) {
+        self.enablesVoiceButtonDictation = value.enablesVoiceButtonDictation
+        self.voiceButtonLongPressDuration = value.voiceButtonLongPressDuration
         self.recordViewLongPressMaxOffset = value.recordViewLongPressMaxOffset
         self.animateDuration = value.animateDuration
         self.backgroundImage = value.backgroundImage
+        self.backgroundColor = value.backgroundColor
+        self.textViewBackgroundColor = value.textViewBackgroundColor
+        self.voiceViewBackgroundColor = value.voiceViewBackgroundColor
+        self.voiceViewHighlightedBackgroundColor = value.voiceViewHighlightedBackgroundColor
+        self.iconTintColor = value.iconTintColor
+        self.rendersIconsAsTemplate = value.rendersIconsAsTemplate
+
         self.canSaveLastInputText = value.canSaveLastInputText
         self.canSaveLastInputViewStyle = value.canSaveLastInputViewStyle
         self.canInputEmoji = value.canInputEmoji
@@ -1106,6 +1432,7 @@ import WYBasisKitSwift
         self.textFont = value.textFont
         self.textLineSpacing = value.textLineSpacing
         self.textViewMaxHeight = value.textViewMaxHeight
+        self.voiceViewCornerRadius = value.voiceViewCornerRadius
         self.textViewCornerRadius = value.textViewCornerRadius
         self.textViewBorderColor = value.textViewBorderColor
         self.textViewBorderWidth = value.textViewBorderWidth
@@ -1138,9 +1465,18 @@ import WYBasisKitSwift
 
     @nonobjc public func toValue() -> WYInputBarConfig {
         var value = WYInputBarConfig()
+        value.enablesVoiceButtonDictation = enablesVoiceButtonDictation
+        value.voiceButtonLongPressDuration = voiceButtonLongPressDuration
         value.recordViewLongPressMaxOffset = recordViewLongPressMaxOffset
         value.animateDuration = animateDuration
         value.backgroundImage = backgroundImage
+        value.backgroundColor = backgroundColor
+        value.textViewBackgroundColor = textViewBackgroundColor
+        value.voiceViewBackgroundColor = voiceViewBackgroundColor
+        value.voiceViewHighlightedBackgroundColor = voiceViewHighlightedBackgroundColor
+        value.iconTintColor = iconTintColor
+        value.rendersIconsAsTemplate = rendersIconsAsTemplate
+
         value.canSaveLastInputText = canSaveLastInputText
         value.canSaveLastInputViewStyle = canSaveLastInputViewStyle
         value.canInputEmoji = canInputEmoji
@@ -1175,6 +1511,7 @@ import WYBasisKitSwift
         value.textFont = textFont
         value.textLineSpacing = textLineSpacing
         value.textViewMaxHeight = textViewMaxHeight
+        value.voiceViewCornerRadius = voiceViewCornerRadius
         value.textViewCornerRadius = textViewCornerRadius
         value.textViewBorderColor = textViewBorderColor
         value.textViewBorderWidth = textViewBorderWidth
@@ -1218,6 +1555,10 @@ import WYBasisKitSwift
     public var areaHeight: CGFloat
     /// 删除按钮是否需要支持长按连续删除输入框内容
     public var longPressDelete: Bool
+    /// 连续删除开始前的按住时长
+    public var longPressDeleteDuration: TimeInterval
+    /// 连续删除的重复间隔
+    public var deleteRepeatInterval: TimeInterval
     /// 整个功能区距离emoji控件右侧的间距
     public var areaRightOffset: CGFloat
     /// 整个功能区距离emoji控件底部的间距
@@ -1277,6 +1618,8 @@ import WYBasisKitSwift
         self.wrapLastLineOfEmoji = value.wrapLastLineOfEmoji
         self.areaHeight = value.areaHeight
         self.longPressDelete = value.longPressDelete
+        longPressDeleteDuration = value.longPressDeleteDuration
+        deleteRepeatInterval = value.deleteRepeatInterval
         self.areaRightOffset = value.areaRightOffset
         self.areaBottomOffset = value.areaBottomOffset
         self.deleteViewLeftOffsetWithArea = value.deleteViewLeftOffsetWithArea
@@ -1312,6 +1655,8 @@ import WYBasisKitSwift
         value.wrapLastLineOfEmoji = wrapLastLineOfEmoji
         value.areaHeight = areaHeight
         value.longPressDelete = longPressDelete
+        value.longPressDeleteDuration = longPressDeleteDuration
+        value.deleteRepeatInterval = deleteRepeatInterval
         value.areaRightOffset = areaRightOffset
         value.areaBottomOffset = areaBottomOffset
         value.deleteViewLeftOffsetWithArea = deleteViewLeftOffsetWithArea
@@ -1367,6 +1712,8 @@ import WYBasisKitSwift
     public var instantUpdatesRecently: Bool
     /// 自定义Emoji控件最近使用的表情显示几个(表情默认显示7列，这里就默认设置7个)
     public var recentlyCount: Int
+    /// 最近使用表情的保存键，可按账号分别设置
+    public var recentlyStorageKey: String
     /// 自定义Emoji控件最近使用表情Header文本(设置后会显示一个Header, 仅限scrollDirection == .vertical时生效)
     public var recentlyHeaderText: String
     /// 自定义Emoji控件所有表情Header文本(设置后会显示一个Header，仅限scrollDirection == .vertical时生效)
@@ -1411,6 +1758,7 @@ import WYBasisKitSwift
         self.showRecently = value.showRecently
         self.instantUpdatesRecently = value.instantUpdatesRecently
         self.recentlyCount = value.recentlyCount
+        self.recentlyStorageKey = value.recentlyStorageKey
         self.recentlyHeaderText = value.recentlyHeaderText
         self.totalHeaderText = value.totalHeaderText
         self.headerTextFont = value.headerTextFont
@@ -1442,6 +1790,7 @@ import WYBasisKitSwift
         value.showRecently = showRecently
         value.instantUpdatesRecently = instantUpdatesRecently
         value.recentlyCount = recentlyCount
+        value.recentlyStorageKey = recentlyStorageKey
         value.recentlyHeaderText = recentlyHeaderText
         value.totalHeaderText = totalHeaderText
         value.headerTextFont = headerTextFont
@@ -1464,6 +1813,12 @@ import WYBasisKitSwift
 @objcMembers public class WYEmojiPreviewConfigObjC: NSObject {
     /// Emoji表情是否需要支持长按预览详情
     public var show: Bool
+    /// 表情预览长按识别时间，单位秒
+    public var minimumPressDuration: TimeInterval
+    /// 表情长按识别前允许的移动距离
+    public var allowableMovement: CGFloat
+    /// 表情预览文字左右内边距
+    public var textHorizontalInset: CGFloat
     /// 表情预览控件的背景图
     public var backgroundImage: UIImage
     /// 表情预览控件的size
@@ -1483,6 +1838,10 @@ import WYBasisKitSwift
 
     @nonobjc public init(_ value: WYEmojiPreviewConfig) {
         self.show = value.show
+        self.minimumPressDuration = value.minimumPressDuration
+        self.allowableMovement = value.allowableMovement
+        self.textHorizontalInset = value.textHorizontalInset
+
         self.backgroundImage = value.backgroundImage
         self.previewSize = value.previewSize
         self.emojiSize = value.emojiSize
@@ -1496,6 +1855,10 @@ import WYBasisKitSwift
     @nonobjc public func toValue() -> WYEmojiPreviewConfig {
         var value = WYEmojiPreviewConfig()
         value.show = show
+        value.minimumPressDuration = minimumPressDuration
+        value.allowableMovement = allowableMovement
+        value.textHorizontalInset = textHorizontalInset
+
         value.backgroundImage = backgroundImage
         value.previewSize = previewSize
         value.emojiSize = emojiSize

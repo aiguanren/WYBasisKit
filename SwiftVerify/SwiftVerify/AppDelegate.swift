@@ -46,6 +46,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         IQKeyboardManager.shared.isEnabled = true
         IQKeyboardManager.shared.resignOnTouchOutside = true
         IQKeyboardToolbarManager.shared.isEnabled = true
+        IQKeyboardManager.shared.disabledDistanceHandlingClasses += [WYTestChatController.self, WYChatTestPanelController.self, WYChatTestHostController.self, WYChatTestConfigurationController.self, WYChatTestConfigurationValueController.self, WYChatTestConfigurationPreviewController.self]
+        IQKeyboardManager.shared.disabledTouchResignedClasses += [WYTestChatController.self, WYChatTestPanelController.self, WYChatTestHostController.self, WYChatTestConfigurationController.self, WYChatTestConfigurationValueController.self, WYChatTestConfigurationPreviewController.self]
+        IQKeyboardToolbarManager.shared.disabledToolbarClasses += [WYTestChatController.self, WYChatTestPanelController.self, WYChatTestHostController.self, WYChatTestConfigurationController.self, WYChatTestConfigurationValueController.self, WYChatTestConfigurationPreviewController.self]
         // 播放器区域不触发点外收回(键盘管理的窗口点按手势不与播放器单击抢事件)
         IQKeyboardManager.shared.touchResignedGestureIgnoreClasses.append(WYVideoPlayer.self)
 

@@ -8,7 +8,7 @@
 import Foundation
 
 /// 消息撤回model
-public struct WYChatWithdrawnModel {
+public struct WYChatWithdrawnModel: Equatable {
     
     /// 发送时间
     public var sendTime: String
@@ -25,6 +25,13 @@ public struct WYChatWithdrawnModel {
     /// 消息类型
     public var messageStyle: WYChatMessageStyle
     
+    /// 可重新编辑的原始文本，nil表示不提供重新编辑
+    public var originalText: String? = nil
+    /// 原始引用快照，nil表示发送时没有引用
+    public var reference: WYChatQuoteModel? = nil
+    /// 原始文本中的用户提及
+    public var mentions: [WYChatMention] = []
+
     /// 初始化方法
     public init(sendTime: String = "",
                 withdrawalInterval: TimeInterval = 120,

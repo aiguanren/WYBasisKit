@@ -58,6 +58,12 @@ extension WYChatMessageContentModel {
     var wy_summary: String {
         if let text { return text }
         if let value = voice { return value.voiceToText.isEmpty ? WYLocalized("[语音]", table: WYBasisKitConfig.kitLocalizableTable) : value.voiceToText }
+        if let mediaGroup {
+            let photo = WYLocalized("[图片]", table: WYBasisKitConfig.kitLocalizableTable)
+            let video = WYLocalized("[视频]", table: WYBasisKitConfig.kitLocalizableTable)
+            let title = mediaGroup.items.allSatisfy { $0.kind == .video } ? video : mediaGroup.items.allSatisfy { $0.kind == .photo } ? photo : photo + "/" + video
+            return title + " (\(mediaGroup.items.count))"
+        }
         if photo != nil { return WYLocalized("[图片]", table: WYBasisKitConfig.kitLocalizableTable) }
         if video != nil { return WYLocalized("[视频]", table: WYBasisKitConfig.kitLocalizableTable) }
         if let music { return music.name }

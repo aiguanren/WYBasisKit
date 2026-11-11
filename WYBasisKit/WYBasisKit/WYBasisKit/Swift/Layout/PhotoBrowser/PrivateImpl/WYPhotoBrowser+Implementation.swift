@@ -243,6 +243,7 @@ extension WYPhotoBrowser {
 
     /// 刷新页码显示(翻页落定与数据刷新后调用)
     func refreshIndicator() {
+        collectionView.accessibilityValue = numberOfItems > 0 ? "\(internalCurrentIndex + 1)/\(numberOfItems)" : nil
         let indicatorVisible = numberOfItems > 1
         switch configuration.pageIndicatorStyle {
         case .none:

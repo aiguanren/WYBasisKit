@@ -244,3 +244,41 @@
 "%@撤回了一条消息" = "%@ bir mesajı geri aldı";
 
 "%@拍了拍%@%@" = "%@ dürttü %@%@";
+
+"语言" = "Dil";
+
+"翻译" = "Çevir";
+
+"翻译失败，请重试" = "Çeviri başarısız oldu. Lütfen tekrar deneyin.";
+
+"正在翻译…" = "Çevriliyor…";
+
+"展开" = "Genişlet";
+
+"收起" = "Daralt";
+
+"重新编辑" = "Yeniden düzenle";
+
+"选择到这里" = "Buraya kadar seç";
+
+"逐条转发" = "Ayrı ayrı ilet";
+
+"合并转发" = "Birlikte ilet";
+
+"聊天记录" = "Sohbet geçmişi";
+
+"收藏" = "Favori";
+
+"提醒" = "Hatırlat";
+
+"搜索" = "Ara";
+
+"标记已读" = "Okundu olarak işaretle";
+
+"标记未读" = "Okunmadı olarak işaretle";
+
+"松手 编辑" = "Düzenlemek için bırakın";
+
+"发送原语音" = "Orijinal sesi gönder";
+
+"松手 发语音" = "Sesli mesajı göndermek için bırakın";

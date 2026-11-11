@@ -24,7 +24,7 @@ import Foundation
 }
 
 /// 红包消息Model
-public struct WYChatLuckyMoneyModel {
+public struct WYChatLuckyMoneyModel: Equatable {
     
     /// id
     public var id: String

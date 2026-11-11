@@ -8,7 +8,7 @@
 import Foundation
 
 /// 文件model
-public struct WYChatFileModel {
+public struct WYChatFileModel: Equatable {
     
     /// id
     public var id: String

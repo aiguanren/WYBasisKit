@@ -31,7 +31,7 @@ public struct WYEmojiViewConfig {
     public var collectionViewBottomOffset: CGFloat = 0
 
     /// 自定义Emoji数据源(默认读WYChatView.bundle的WYChatViewEmoji.plist，资源缺失或格式不符时降级为空数组)，示例：["[玫瑰](表情图片名)","[色](表情图片名)","[嘻嘻](表情图片名)"]
-    public var emojiSource: [String] = ((try? NSArray(contentsOf: URL(fileURLWithPath: emojiPath), error: ())) as? [String]) ?? []
+    public var emojiSource: [String] = WYChatDefaultResources.emojis
     
     /// 自定义加载Emoji图片的Bundle
     public var emojiBundle: WYSourceBundle? = WYSourceBundle(bundleName: "WYChatView", subdirectory: "WYChatViewEmoji")
@@ -53,6 +53,9 @@ public struct WYEmojiViewConfig {
 
     /// 自定义Emoji控件最近使用的表情显示几个(表情默认显示7列，这里就默认设置7个)
     public var recentlyCount: Int = 7
+
+    /// 最近使用表情的保存键，可按账号分别设置
+    public var recentlyStorageKey: String = emojiViewRecentlyCountKey
 
     /// 自定义Emoji控件最近使用表情Header文本(设置后会显示一个Header, 仅限scrollDirection == .vertical时生效)
     public var recentlyHeaderText: String = WYLocalized("最近使用", table: WYBasisKitConfig.kitLocalizableTable)

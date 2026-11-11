@@ -24,7 +24,7 @@ import Foundation
 }
 
 /// 音视频通话model
-public struct WYChatCallModel {
+public struct WYChatCallModel: Equatable {
     
     /// 通话时长
     public var durationOfCall: TimeInterval

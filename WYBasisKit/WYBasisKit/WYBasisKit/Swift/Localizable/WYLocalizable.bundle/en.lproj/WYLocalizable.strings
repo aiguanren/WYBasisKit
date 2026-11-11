@@ -244,3 +244,41 @@
 "%@撤回了一条消息" = "%@ recalled a message";
 
 "%@拍了拍%@%@" = "%@ patted %@%@";
+
+"语言" = "Language";
+
+"翻译" = "Translate";
+
+"翻译失败，请重试" = "Translation failed. Please try again.";
+
+"正在翻译…" = "Translating…";
+
+"展开" = "Expand";
+
+"收起" = "Collapse";
+
+"重新编辑" = "Edit again";
+
+"选择到这里" = "Select through here";
+
+"逐条转发" = "Forward individually";
+
+"合并转发" = "Forward together";
+
+"聊天记录" = "Chat history";
+
+"收藏" = "Favorite";
+
+"提醒" = "Remind";
+
+"搜索" = "Search";
+
+"标记已读" = "Mark as read";
+
+"标记未读" = "Mark as unread";
+
+"松手 编辑" = "Release to edit";
+
+"发送原语音" = "Send original voice";
+
+"松手 发语音" = "Release to send voice";

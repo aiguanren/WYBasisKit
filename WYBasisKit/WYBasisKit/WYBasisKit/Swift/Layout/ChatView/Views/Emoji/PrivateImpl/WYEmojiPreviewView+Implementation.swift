@@ -69,9 +69,11 @@ extension WYEmojiPreviewView {
         textView.textAlignment = .center
         textView.adjustsFontSizeToFitWidth = true
         addSubview(textView)
+        let inset = emojiViewConfig.previewConfig.textHorizontalInset
+        let horizontal = inset.isFinite ? max(0, min(inset, max(0, emojiViewConfig.previewConfig.previewSize.width / 2))) : 0
         textView.snp.makeConstraints { make in
-            make.left.equalToSuperview().offset(UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels))
-            make.right.equalToSuperview().offset(UIDevice.wy_screenWidth(-5, WYBasisKitConfig.defaultScreenPixels))
+            make.left.equalToSuperview().offset(horizontal)
+            make.right.equalToSuperview().offset(-horizontal)
             make.top.equalTo(emojiView.snp.bottom).offset(self.emojiViewConfig.previewConfig.textTopOffsetWithEmoji)
         }
     }

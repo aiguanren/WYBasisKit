@@ -244,3 +244,41 @@
 "%@撤回了一条消息" = "%@ menarik kembali pesan";
 
 "%@拍了拍%@%@" = "%@ menepuk %@%@";
+
+"语言" = "Bahasa";
+
+"翻译" = "Terjemahkan";
+
+"翻译失败，请重试" = "Terjemahan gagal. Silakan coba lagi.";
+
+"正在翻译…" = "Menerjemahkan…";
+
+"展开" = "Perluas";
+
+"收起" = "Ciutkan";
+
+"重新编辑" = "Edit ulang";
+
+"选择到这里" = "Pilih hingga di sini";
+
+"逐条转发" = "Teruskan satu per satu";
+
+"合并转发" = "Teruskan bersama";
+
+"聊天记录" = "Riwayat percakapan";
+
+"收藏" = "Favorit";
+
+"提醒" = "Pengingat";
+
+"搜索" = "Cari";
+
+"标记已读" = "Tandai sudah dibaca";
+
+"标记未读" = "Tandai belum dibaca";
+
+"松手 编辑" = "Lepaskan untuk mengedit";
+
+"发送原语音" = "Kirim suara asli";
+
+"松手 发语音" = "Lepaskan untuk mengirim pesan suara";

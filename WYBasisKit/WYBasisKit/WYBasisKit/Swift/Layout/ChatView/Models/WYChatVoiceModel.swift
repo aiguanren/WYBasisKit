@@ -8,7 +8,7 @@
 import Foundation
 
 /// 语音消息Model
-public struct WYChatVoiceModel {
+public struct WYChatVoiceModel: Equatable {
     
     /// 是否正在识别语音
     public var isRecognizing: Bool = false
@@ -17,6 +17,9 @@ public struct WYChatVoiceModel {
 
     /// 是否正在播放，由调用方更新
     public var isPlaying: Bool = false
+
+    /// 当前语音播放倍速，由调用方用于播放器
+    public var playbackRate: Float = 1
 
     /// id
     public var id: String

@@ -8,7 +8,7 @@
 import Foundation
 
 /// 聊天记录(合集)model
-public struct WYChatRecordsModel {
+public struct WYChatRecordsModel: Equatable {
     
     /// 标题(xxx的聊天记录)
     public var title: String

@@ -244,3 +244,41 @@
 "%@撤回了一条消息" = "%@ visszavont egy üzenetet";
 
 "%@拍了拍%@%@" = "%@ megbökte %@%@";
+
+"语言" = "Nyelv";
+
+"翻译" = "Fordítás";
+
+"翻译失败，请重试" = "A fordítás sikertelen. Próbáld újra.";
+
+"正在翻译…" = "Fordítás…";
+
+"展开" = "Kibontás";
+
+"收起" = "Összecsukás";
+
+"重新编辑" = "Újraszerkesztés";
+
+"选择到这里" = "Kijelölés idáig";
+
+"逐条转发" = "Továbbítás egyenként";
+
+"合并转发" = "Továbbítás együtt";
+
+"聊天记录" = "Csevegési előzmények";
+
+"收藏" = "Kedvenc";
+
+"提醒" = "Emlékeztető";
+
+"搜索" = "Keresés";
+
+"标记已读" = "Megjelölés olvasottként";
+
+"标记未读" = "Megjelölés olvasatlanként";
+
+"松手 编辑" = "Engedd el a szerkesztéshez";
+
+"发送原语音" = "Eredeti hang küldése";
+
+"松手 发语音" = "Engedd el a hangüzenet küldéséhez";

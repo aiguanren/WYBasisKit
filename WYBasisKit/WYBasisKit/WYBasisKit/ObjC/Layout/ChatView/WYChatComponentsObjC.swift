@@ -99,8 +99,6 @@ public extension WYRecordAnimationView {
     @objc(delegate) var delegateObjC: WYRecordEventsHandler? { get { delegate } set { delegate = newValue } }
     /// 录音文件结果，参数为文件、时长及错误
     @objc(resultHandler) var resultHandlerObjC: ((_ url: URL?, _ duration: TimeInterval, _ error: NSError?) -> Void)? { get { resultHandler } set { resultHandler = newValue } }
-    /// 创建录音器
-    @objc(audioKit) var audioKitObjC: WYAudioKit? { get { audioKit } set { audioKit = newValue } }
     /// 当前录音状态
     @objc(soundAnimationStatus) var soundAnimationStatusObjC: WYSoundAnimationStatus {
         get { soundAnimationStatus }
@@ -108,10 +106,28 @@ public extension WYRecordAnimationView {
     }
     /// 转写结果，参数为最终文本及错误
     @objc(recognitionResultHandler) var recognitionResultHandlerObjC: ((_ text: String?, _ error: NSError?) -> Void)? { get { recognitionResultHandler } set { recognitionResultHandler = newValue } }
+    /// 录音中的识别文本，参数为可被后续结果修订的完整文本
+    @objc(recognitionPartialResultHandler) var recognitionPartialResultHandlerObjC: ((_ text: String) -> Void)? { get { recognitionPartialResultHandler } set { recognitionPartialResultHandler = newValue } }
     /// 转写文本确认发送，参数为编辑后的文本
     @objc(recognizedTextHandler) var recognizedTextHandlerObjC: ((_ text: String) -> Void)? { get { recognizedTextHandler } set { recognizedTextHandler = newValue } }
     /// 开始录音动画
     @objc(start) var startObjC: @convention(block) () -> WYRecordAnimationView { { [self] in self.start(); return self } }
+    /// 翻译结果，参数为翻译文本和错误
+    @objc(translationResultHandler) var translationResultHandlerObjC: ((_ text: String?, _ error: NSError?) -> Void)? { get { translationResultHandler } set { translationResultHandler = newValue } }
+    /// 识别语言切换，参数为语言标识
+    @objc(recognitionLanguageChangedHandler) var recognitionLanguageChangedHandlerObjC: ((_ localeIdentifier: String) -> Void)? { get { recognitionLanguageChangedHandler } set { recognitionLanguageChangedHandler = newValue } }
+    /// 翻译当前编辑文本，参数为目标语言
+    @objc(translateRecognizedText) var translateRecognizedTextObjC: @convention(block) (_ localeIdentifier: String) -> WYRecordAnimationView { { [self] locale in self.translateRecognizedText(to: locale); return self } }
+    /// 取消当前翻译并保留编辑文本
+    @objc(cancelTranslation) var cancelTranslationObjC: @convention(block) () -> WYRecordAnimationView { { [self] in self.cancelTranslation(); return self } }
+    /// 重新识别录音的语言，参数为识别语言
+    @objc(changeRecognitionLanguage) var changeRecognitionLanguageObjC: @convention(block) (_ localeIdentifier: String) -> WYRecordAnimationView { { [self] locale in self.changeRecognitionLanguage(to: locale); return self } }
+    /// 当前录音用途
+    @objc(recordingMode) var recordingModeObjC: WYChatRecordingMode { recordingMode }
+    /// 开始指定用途的录音，参数为录音用途，直接转写需要启用语音识别
+    @objc(startWithMode) var startWithModeObjC: @convention(block) (_ mode: WYChatRecordingMode) -> WYRecordAnimationView { { [self] mode in self.start(mode: mode); return self } }
+    /// 发送转写编辑前的原始录音，文件由调用方保存或清理
+    @objc(sendOriginalRecording) var sendOriginalRecordingObjC: @convention(block) () -> WYRecordAnimationView { { [self] in self.sendOriginalRecording(); return self } }
     /// 结束录音动画
     @objc(stop) var stopObjC: @convention(block) () -> WYRecordAnimationView { { [self] in self.stop(); return self } }
     /// 释放录音任务

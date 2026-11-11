@@ -244,3 +244,41 @@
 "%@撤回了一条消息" = "%@ retirou uma mensagem";
 
 "%@拍了拍%@%@" = "%@ deu um toque a %@%@";
+
+"语言" = "Idioma";
+
+"翻译" = "Traduzir";
+
+"翻译失败，请重试" = "A tradução falhou. Tente novamente.";
+
+"正在翻译…" = "A traduzir…";
+
+"展开" = "Expandir";
+
+"收起" = "Recolher";
+
+"重新编辑" = "Editar novamente";
+
+"选择到这里" = "Selecionar até aqui";
+
+"逐条转发" = "Reencaminhar individualmente";
+
+"合并转发" = "Reencaminhar em conjunto";
+
+"聊天记录" = "Histórico da conversa";
+
+"收藏" = "Favorito";
+
+"提醒" = "Lembrete";
+
+"搜索" = "Pesquisar";
+
+"标记已读" = "Marcar como lida";
+
+"标记未读" = "Marcar como não lida";
+
+"松手 编辑" = "Solte para editar";
+
+"发送原语音" = "Enviar áudio original";
+
+"松手 发语音" = "Solte para enviar a mensagem de voz";

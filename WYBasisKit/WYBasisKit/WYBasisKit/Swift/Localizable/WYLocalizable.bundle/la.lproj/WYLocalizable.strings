@@ -244,3 +244,41 @@
 "%@撤回了一条消息" = "%@ nuntium revocavit";
 
 "%@拍了拍%@%@" = "%@ leniter tetigit %@%@";
+
+"语言" = "Lingua";
+
+"翻译" = "Vertere";
+
+"翻译失败，请重试" = "Interpretatio non successit. Iterum tempta.";
+
+"正在翻译…" = "Interpretatur…";
+
+"展开" = "Expande";
+
+"收起" = "Contrahe";
+
+"重新编辑" = "Iterum recensere";
+
+"选择到这里" = "Usque huc elige";
+
+"逐条转发" = "Singillatim mitte";
+
+"合并转发" = "Simul mitte";
+
+"聊天记录" = "Historia colloquii";
+
+"收藏" = "Favorita";
+
+"提醒" = "Admone";
+
+"搜索" = "Quaere";
+
+"标记已读" = "Lectum nota";
+
+"标记未读" = "Non lectum nota";
+
+"松手 编辑" = "Dimitte ad emendandum";
+
+"发送原语音" = "Vocem originalem mitte";
+
+"松手 发语音" = "Dimitte ad vocem mittendam";

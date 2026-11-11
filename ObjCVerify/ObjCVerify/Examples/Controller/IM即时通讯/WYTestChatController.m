@@ -6,6 +6,7 @@
 //
 
 #import "WYTestChatController.h"
+#import "WYChatTestSuite.h"
 #import <WYBasisKitObjC/WYBasisKitObjC.h>
 
 @interface WYTestChatController () <WYChatViewDelegate>
@@ -17,6 +18,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.title = @"聊天界面";
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"测试" style:UIBarButtonItemStylePlain target:self action:@selector(showChatTests)];
     WYChatConfig *config = [[WYChatConfig alloc] init];
     config.input.draftStorageKey = @"objc-chat-example";
     config.recording.supportSpeechRecognition = true;
@@ -47,6 +49,11 @@
     message.sendState = WYChatMessageSendStateSuccess;
     self.chatView.appendMessages(@[message]);
     self.chatView.scrollToLastMessage(false);
+}
+
+- (void)showChatTests {
+    WYChatTestSuite *tests = [[WYChatTestSuite alloc] initWithChatView:self.chatView];
+    [self presentViewController:[[UINavigationController alloc] initWithRootViewController:tests] animated:true completion:nil];
 }
 
 - (void)wy_keyboardSendMessage:(NSString *)messageID {

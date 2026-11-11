@@ -170,6 +170,9 @@ import WYBasisKitSwift
 
     /// 长按菜单圆角(设计值，按基准屏换算)
     public var menuCornerRadius: CGFloat = -1
+
+    /// 保存结果提示窗口配置(nil用Activity全局默认样式，保存成功或失败时借WYActivity显示提示)
+    public var toastConfig: WYMessageInfoConfigObjC?
 }
 
 /// 浏览器行为配置(全部属性都有默认值，按需覆盖，不设置时与默认行为一致)

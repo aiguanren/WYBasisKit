@@ -227,6 +227,7 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
      *   @param configuration 浏览器行为与外观配置
      */
     func configure(item: WYPhotoBrowserItem, index: Int, configuration: WYPhotoBrowserConfiguration) {
+        accessibilityIdentifier = "WYPhotoBrowser.item.\(index)"
         configureGeneration += 1
         self.item = item
         self.index = index

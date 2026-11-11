@@ -19,6 +19,24 @@ public struct WYBasicChatConfig {
     public var avatarContentMode: UIView.ContentMode = .scaleAspectFill
     /// 头像圆角
     public var avatarCornerRadius: CGFloat = UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels)
+    /// 头像单击操作，默认打开用户信息
+    public var avatarTapAction: WYChatAvatarAction = .profile
+    /// 头像长按操作，默认提及用户
+    public var avatarLongPressAction: WYChatAvatarAction = .mention
+    /// 头像双击操作，默认请求拍一拍
+    public var avatarDoubleTapAction: WYChatAvatarAction = .takePat
+    /// 头像长按识别时间，单位秒
+    public var avatarLongPressDuration: TimeInterval = 0.35
+    /// 拍一拍反馈动画时长，0表示不播放
+    public var avatarPatAnimationDuration: TimeInterval = 0.4
+    /// 拍一拍反馈的旋转角度序列，单位弧度
+    public var avatarPatAnimationAngles: [CGFloat] = [0, -.pi / 36, .pi / 36, -.pi / 72, .pi / 72, 0]
+    /// 头像提及时是否自动插入输入框，默认true
+    public var automaticallyInsertsMentions: Bool = true
+    /// 提及用户的前缀
+    public var mentionPrefix: String = "@"
+    /// 提及用户后的分隔文本
+    public var mentionSuffix: String = " "
     /// 昵称字体
     public var nicknameFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(12, WYBasisKitConfig.defaultScreenPixels))
     /// 昵称颜色
@@ -67,11 +85,16 @@ open class WYChatBasicCell: UITableViewCell {
     /// 当前用户ID
     public var userID: String = "" { didSet { wy_render() } }
     /// 当前消息
-    public var message: WYChatMessageModel = WYChatMessageModel() { didSet { wy_render() } }
+    public var message: WYChatMessageModel = WYChatMessageModel() { didSet { if !state.updatingMediaPage { wy_render() } } }
     /// 消息操作，参数为操作及消息ID
     public var actionHandler: ((_ action: WYChatAction, _ messageID: String) -> Void)? = nil
+    /// 媒体组操作，参数为操作、消息ID和媒体下标
+    public var mediaActionHandler: ((_ action: WYChatMediaAction, _ messageID: String, _ index: Int) -> Void)? = nil
+    /// 媒体组展示视图
+    public var mediaContentView: UIView { state.mediaView }
+
     /// 头像控件
-    public let avatarView: UIImageView = UIImageView()
+    public let avatarView: UIImageView = WYChatAvatarImageView()
     /// 昵称控件
     public let nicknameView: UILabel = UILabel()
     /// 时间控件
@@ -91,17 +114,23 @@ open class WYChatBasicCell: UITableViewCell {
     /// 卡片缩略图控件
     public var thumbnailImageView: UIImageView { state.thumbnail }
     /// 引用内容
-    public let referenceView: UILabel = UILabel()
+    public let referenceView = WYChatQuoteView()
     /// 已读标识
     public let readMarkView: UILabel = UILabel()
     /// 发送失败按钮
     public let loadingView: UIButton = UIButton(type: .custom)
     /// 发送中动画
     public let activityView: UIActivityIndicatorView = UIActivityIndicatorView(style: .medium)
+    /// 语音倍速请求，参数为消息ID和倍速
+    public var voicePlaybackRateHandler: ((_ messageID: String, _ rate: Float) -> Void)?
     /// 当前消息是否已选择
-    public var isMessageSelected: Bool = false { didSet { accessoryType = isMessageSelected ? .checkmark : .none } }
+    public var isMessageSelected: Bool = false { didSet { wy_updateSelectionIndicator() } }
     /// 当前消息内容配置
-    public var messageContentConfiguration: WYChatContentConfig { configuration.contentOverrides[message.content.style()] ?? configuration.content }
+    public var messageContentConfiguration: WYChatContentConfig {
+        var value = configuration.contentOverrides[message.content.style()] ?? configuration.content
+        if message.content.mediaGroup != nil && configuration.contentOverrides[.mediaGroup] == nil { value.showsBubble = configuration.media.showsBubble; value.insets = configuration.media.contentInsets }
+        return value
+    }
 
     public override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -131,12 +160,21 @@ open class WYChatBasicCell: UITableViewCell {
     public override func layoutSubviews() {
         super.layoutSubviews()
         wy_updateLayout()
+        contentView.layoutIfNeeded()
+        wy_layoutMediaToggle()
+    }
+
+    public override func systemLayoutSizeFitting(_ targetSize: CGSize, withHorizontalFittingPriority horizontalFittingPriority: UILayoutPriority, verticalFittingPriority: UILayoutPriority) -> CGSize {
+        wy_updateLayout(width: targetSize.width)
+        return super.systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: horizontalFittingPriority, verticalFittingPriority: verticalFittingPriority)
     }
 
     public override func prepareForReuse() {
         super.prepareForReuse()
         wy_prepareForReuse()
     }
+
+    internal var wy_isSelectingMessages = false { didSet { wy_updateSelectionIndicator() } }
 
     internal let state = WYChatBasicCellPrivateState()
 

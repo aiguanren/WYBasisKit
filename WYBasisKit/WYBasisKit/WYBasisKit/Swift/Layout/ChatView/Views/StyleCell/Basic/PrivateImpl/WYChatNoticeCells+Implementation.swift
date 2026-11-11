@@ -12,7 +12,10 @@ extension WYChatBasicCell {
     func wy_renderNotice() {
         switch message.content.style() {
         case .withdrawn:
-            state.title.text = String(format: WYLocalized("%@撤回了一条消息", table: WYBasisKitConfig.kitLocalizableTable), message.sender.name)
+            let isPat = message.content.withdrawn?.messageStyle == .takePat
+            let template = isPat && !configuration.notice.patWithdrawnText.isEmpty ? configuration.notice.patWithdrawnText : configuration.notice.withdrawnText
+            state.title.text = template.replacingOccurrences(of: "%@", with: message.sender.name)
+            wy_renderReedit()
         case .takePat:
             guard let value = message.content.takePat else { return }
             state.title.text = String(format: WYLocalized("%@拍了拍%@%@", table: WYBasisKitConfig.kitLocalizableTable), value.striking.name, value.beaten.name, value.notes)

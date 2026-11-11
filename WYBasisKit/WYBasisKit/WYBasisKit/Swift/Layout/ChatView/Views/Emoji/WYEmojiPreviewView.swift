@@ -12,6 +12,15 @@ public struct WYEmojiPreviewConfig {
     /// Emoji表情是否需要支持长按预览详情
     public var show: Bool = true
     
+    /// 表情预览长按识别时间，单位秒
+    public var minimumPressDuration: TimeInterval = 0.5
+
+    /// 表情长按识别前允许的移动距离
+    public var allowableMovement: CGFloat = UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels)
+
+    /// 表情预览文字左右内边距
+    public var textHorizontalInset: CGFloat = UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels)
+
     /// 表情预览控件的背景图
     public var backgroundImage: UIImage = UIImage.wy_find("WYChatEmojiPreview", inBundle: WYChatSourceBundle)
     

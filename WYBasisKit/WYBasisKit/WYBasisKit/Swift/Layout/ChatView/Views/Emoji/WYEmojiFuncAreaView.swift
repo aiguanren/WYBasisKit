@@ -23,6 +23,10 @@ public struct WYEmojiFuncAreaConfig {
     
     /// 删除按钮是否需要支持长按连续删除输入框内容
     public var longPressDelete: Bool = true
+    /// 连续删除开始前的按住时长
+    public var longPressDeleteDuration: TimeInterval = 1
+    /// 连续删除的重复间隔
+    public var deleteRepeatInterval: TimeInterval = 0.25
     
     /// 整个功能区距离emoji控件右侧的间距
     public var areaRightOffset: CGFloat = UIDevice.wy_screenWidth(15, WYBasisKitConfig.defaultScreenPixels)
@@ -169,7 +173,8 @@ public class WYEmojiFuncAreaView: UIView {
         deleteView.wy_titleFont = emojiViewConfig.funcAreaConfig.deleteViewFont
         if (emojiViewConfig.funcAreaConfig.longPressDelete == true) {
             let longPress: UILongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(didLongPress(sender:)))
-            longPress.minimumPressDuration = 1
+            let duration = emojiViewConfig.funcAreaConfig.longPressDeleteDuration
+            longPress.minimumPressDuration = duration.isFinite ? max(0, duration) : WYEmojiFuncAreaConfig().longPressDeleteDuration
             deleteView.addGestureRecognizer(longPress)
         }
         contentView.addSubview(deleteView)
@@ -199,8 +204,8 @@ public class WYEmojiFuncAreaView: UIView {
     }
 
     public func updateFuncAreaStyle() {
-        sendView.isSelected = isUserInteractionEnabled
-        deleteView.isSelected = sendView.isSelected
+        sendView.isSelected = !isUserInteractionEnabled || !sendView.isUserInteractionEnabled
+        deleteView.isSelected = !isUserInteractionEnabled || !deleteView.isUserInteractionEnabled
     }
     
     @objc public func didLongPress(sender: UILongPressGestureRecognizer) {
@@ -208,10 +213,11 @@ public class WYEmojiFuncAreaView: UIView {
             cancelLongPressTimer()
             
             longPressTimer = DispatchSource.makeTimerSource()
-            longPressTimer?.schedule(deadline: .now(), repeating: 0.25)
-            longPressTimer?.setEventHandler(handler: {
-                Task { @MainActor in
-                    self.clickDeleteView()
+            let interval = emojiViewConfig.funcAreaConfig.deleteRepeatInterval
+            longPressTimer?.schedule(deadline: .now(), repeating: interval.isFinite ? max(0.05, interval) : WYEmojiFuncAreaConfig().deleteRepeatInterval)
+            longPressTimer?.setEventHandler(handler: { [weak self] in
+                Task { @MainActor [weak self] in
+                    self?.clickDeleteView()
                 }
             })
             longPressTimer?.resume()

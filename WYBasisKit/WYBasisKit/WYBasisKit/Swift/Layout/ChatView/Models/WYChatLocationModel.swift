@@ -8,7 +8,7 @@
 import Foundation
 
 /// 定位消息Model
-public struct WYChatLocationModel {
+public struct WYChatLocationModel: Equatable {
     
     /// 定位封面
     public var cover: WYChatAssetsModel

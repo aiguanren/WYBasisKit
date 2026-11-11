@@ -50,6 +50,7 @@ public class WYSoundAnimationView: WYAirBubbleView {
     
     public func refreshSoundWaves(status: WYSoundAnimationStatus) {
         currentStatus = status
+        waveLayout = nil
         
         // 声波动画组件Size
         let soundWavesSize: CGSize = soundWavesSize(for: status)
@@ -172,7 +173,13 @@ public class WYSoundAnimationView: WYAirBubbleView {
     public override func layoutSubviews() {
         wy_layoutSoundBubble()
         super.layoutSubviews()
+        wy_layoutTranscriptText()
     }
+
+    internal var showsLiveText = false
+    internal var waveLayout: CGRect?
+    internal var lastScrolledText = ""
+    internal var lastTextBounds = CGRect.zero
 
     internal var currentStatus: WYSoundAnimationStatus = .recording
 

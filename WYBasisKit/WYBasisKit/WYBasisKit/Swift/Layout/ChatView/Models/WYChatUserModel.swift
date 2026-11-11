@@ -8,7 +8,7 @@
 import Foundation
 
 /// 聊天用户model
-public struct WYChatUserModel {
+public struct WYChatUserModel: Equatable {
     
     /// 用户id
     public var id: String

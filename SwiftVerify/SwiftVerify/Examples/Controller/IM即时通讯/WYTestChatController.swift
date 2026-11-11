@@ -11,12 +11,15 @@ import UIKit
 class WYTestChatController: UIViewController {
     
     var chatView: WYChatView!
+    private var chatTests: WYChatTestSuite?
+    private var scrollProbe: WYChatScrollProbe?
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
         navigationItem.title = "聊天界面"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "测试", style: .plain, target: self, action: #selector(showChatTests))
         view.backgroundColor = .wy_hex("#f6f6f6")
         
         var configuration = WYChatConfig()
@@ -43,10 +46,16 @@ class WYTestChatController: UIViewController {
         configuration.more.imageProvider = { UIImage(systemName: $0) }
         configuration.more.moreSource = [["照片": "photo"], ["拍摄": "camera"], ["位置": "location"], ["文件": "doc"]]
         configuration.imageLoader = { asset, imageView, _ in imageView.image = UIImage(systemName: asset.name.isEmpty ? "person.crop.square" : asset.name) }
+        configuration.media.albumMoreItemIndex = 0
         configuration.recording.supportSpeechRecognition = true
         chatView = WYChatView(configuration: configuration)
         chatView.userInfo = sharedUserInfo(id: "99999", name: "官人", avatar: "https://tse3-mm.cn.bing.net/th/id/OIP-C.sLiEXoTdJvx0fe3erN8NeAAAAA?pid=ImgDet&rs=1")
         chatView.dataSource = sampleMessages()
+        chatView.openAlbumHandler = { [weak self] in
+            let alert = UIAlertController(title: "相册由宿主接入", message: "使用第三方选择器后，将照片或视频文件通过sendMedia交回。测试页提供逐条和合并展示检查。", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "关闭", style: .cancel))
+            self?.present(alert, animated: true)
+        }
         chatView.eventsHandler = self
         chatView.delegate = self
         view.addSubview(chatView)
@@ -56,6 +65,19 @@ class WYTestChatController: UIViewController {
             make.bottom.equalToSuperview()
         }
         
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if scrollProbe == nil { scrollProbe = WYChatScrollProbe(table: chatView.tableView) }
+        if chatTests == nil { chatTests = WYChatTestSuite(chatView: chatView, scrollProbe: scrollProbe) }
+    }
+
+    @objc private func showChatTests() {
+        if chatTests == nil { chatTests = WYChatTestSuite(chatView: chatView, scrollProbe: scrollProbe) }
+        guard let chatTests else { return }
+        let panel = WYChatTestPanelController(suite: chatTests)
+        present(UINavigationController(rootViewController: panel), animated: true)
     }
 
     /*

@@ -8,7 +8,7 @@
 import Foundation
 
 /// 图片、视频等资源文件相关信息
-public struct WYChatAssetsModel {
+public struct WYChatAssetsModel: Equatable {
     
     /// id
     public var id: String

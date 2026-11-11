@@ -8,7 +8,7 @@
 import Foundation
 
 /// 视频消息Model
-public struct WYChatVideoModel {
+public struct WYChatVideoModel: Equatable {
     
     /// id
     public var id: String

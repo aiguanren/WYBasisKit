@@ -68,6 +68,13 @@ extension WYChatInputView {
 
         if sender.isSelected {
             textView.resignFirstResponder()
+            let prepareSpeech: () -> Void = { [weak self] in
+                guard let self, self.textVoiceView.isSelected, self.recordAnimationConfig.supportSpeechRecognition, self.recordAnimationConfig.speechRecognitionSource == .apple else { return }
+                wy_authorizeSpeechRecognition(showSettingsAlert: false) { _ in }
+            }
+            if recordAnimationConfig.recorder == nil {
+                wy_authorizeMicrophoneAccess(showSettingsAlert: false) { granted in if granted { prepareSpeech() } }
+            } else { prepareSpeech() }
         }else {
             textView.becomeFirstResponder()
         }
@@ -91,6 +98,34 @@ extension WYChatInputView {
             }
             if recordAnimationConfig.recorder != nil { begin(true) }
             else { wy_authorizeMicrophoneAccess(showSettingsAlert: true) { granted in begin(granted) } }
+        case .changed:
+            if recordView.state.requestID != nil { recordView.switchStatus(sender.location(in: recordView)) }
+        case .ended:
+            recordingGestureID = nil
+            recordView.stop()
+        case .cancelled, .failed:
+            recordingGestureID = nil
+            recordView.state.discard = true
+            recordView.stop()
+        default: break
+        }
+    }
+
+    @objc func voiceButtonDictationLongPress(_ sender: UILongPressGestureRecognizer) {
+        guard inputBarConfig.enablesVoiceButtonDictation, recordAnimationConfig.supportSpeechRecognition,
+              eventsHandler?.wy_canManagerVoiceRecordEvents?(sender) ?? true else { return }
+        switch sender.state {
+        case .began:
+            let identifier = UUID()
+            recordingGestureID = identifier
+            let begin: (Bool) -> Void = { [weak self, weak sender] authorized in
+                guard let self, let sender, authorized, self.recordingGestureID == identifier, sender.state == .began || sender.state == .changed else { return }
+                self.textView.resignFirstResponder()
+                self.recordView.recordAnimationConfig = self.recordAnimationConfig
+                self.recordView.start(mode: .dictation)
+            }
+            if recordAnimationConfig.recorder != nil { begin(true) }
+            else { wy_authorizeMicrophoneAccess(showSettingsAlert: true) { begin($0) } }
         case .changed:
             if recordView.state.requestID != nil { recordView.switchStatus(sender.location(in: recordView)) }
         case .ended:
@@ -396,13 +431,14 @@ extension WYChatInputView {
             didClickSendView()
             return false
         }
-        if textView.markedTextRange != nil { return true }
+        if textView.markedTextRange != nil { textEditingHandler?(range, text); return true }
         let current = textView.attributedText.string as NSString
         guard range.location != NSNotFound, range.location >= 0, range.length >= 0, NSMaxRange(range) <= current.length else { return false }
         let candidate = current.replacingCharacters(in: range, with: text)
         let attributed = sharedEmojiAttributed(string: candidate)
         if inputBarConfig.inputTextLength > 0 && attributed.string.count > inputBarConfig.inputTextLength { return false }
         if textRowGreaterThan(row: inputBarConfig.inputTextMaximumNumberOfLines, attributedText: attributed) { return false }
+        textEditingHandler?(range, text)
         return true
     }
 
@@ -539,6 +575,10 @@ extension WYChatInputView {
         textVoiceView.isSelected = textView.isHidden
         textVoiceView.backgroundColor = .clear
         textVoiceView.addTarget(self, action: #selector(didClickTextVoiceView(sender:)), for: .touchUpInside)
+        let dictation = UILongPressGestureRecognizer(target: self, action: #selector(voiceButtonDictationLongPress(_:)))
+        dictation.minimumPressDuration = max(0, inputBarConfig.voiceButtonLongPressDuration)
+        dictation.allowableMovement = inputBarConfig.recordViewLongPressMaxOffset
+        textVoiceView.addGestureRecognizer(dictation)
         addSubview(textVoiceView)
         textVoiceView.snp.makeConstraints { make in
             make.size.equalTo(self.inputBarConfig.voiceTextButtonSize)
@@ -570,6 +610,7 @@ extension WYChatInputView {
             make.left.equalTo(textVoiceContentView.snp.right).offset(self.inputBarConfig.moreButtonLeftOffset)
             make.bottom.equalTo(textVoiceContentView).offset(-self.inputBarConfig.moreButtonBottomOffset)
         }
+        wy_applyInputAppearance()
         updateContentViewHeight()
     }
 }
@@ -577,7 +618,7 @@ extension WYChatInputView {
 /// 输入实例配置刷新
 extension WYChatInputView {
     func wy_applyInputConfiguration() {
-        image = inputBarConfig.backgroundImage
+        wy_applyInputAppearance()
         textView.font = inputBarConfig.textFont
         textView.textColor = inputBarConfig.textColor
         textView.keyboardType = inputBarConfig.chatKeyboardType
@@ -586,8 +627,6 @@ extension WYChatInputView {
         textPlaceholderView.text = inputBarConfig.textPlaceholder
         textPlaceholderView.font = inputBarConfig.textPlaceholderFont
         textPlaceholderView.textColor = inputBarConfig.textPlaceholderColor
-        emojiView.setImage(inputBarConfig.emojiBottomImage, for: .normal)
-        moreView.setImage(inputBarConfig.moreBottomImage, for: .normal)
         updateContentViewHeight()
     }
 }

@@ -8,7 +8,7 @@
 import Foundation
 
 /// 照片消息Model
-public struct WYChatPhotoModel {
+public struct WYChatPhotoModel: Equatable {
     
     /// 原图
     public var original: WYChatAssetsModel

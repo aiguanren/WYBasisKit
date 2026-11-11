@@ -10,14 +10,24 @@
 		00B2C4C299944D2E9BC3331F /* WYAudioStreamRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D589747BE2548B98D33E818 /* WYAudioStreamRecorder.swift */; };
 		02317E95937A422D4510B1BE /* Pods_WYBasisKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5B0A12B6CD08A1EADB40EC1C /* Pods_WYBasisKit.framework */; };
 		04B0542BD68343EB808C882D /* WYImageEditorObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E7D9319DA254FEBB18880DB /* WYImageEditorObjC.swift */; };
+		0594479FF1EAB4D037E832F6 /* WYChatRecordsObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD535451D36D2A8D86B741EF /* WYChatRecordsObjC.swift */; };
 		0DF424E5A4DB473A82F3F396 /* WYLogManager+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6844B385DD164265A0D10707 /* WYLogManager+Implementation.swift */; };
+		12729C783BC749FC1FC96CA0 /* WYChatTranscriptEditor+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF4FC28D00DB7BBE4ED0D660 /* WYChatTranscriptEditor+Implementation.swift */; };
 		15F3D3C618E93B7564F1EFC0 /* WYPhotoBrowserPageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42FC218D652F6064335DAD12 /* WYPhotoBrowserPageCell.swift */; };
+		209DB6C0B100C4FA9A9F0C06 /* WYChatMessageModel+Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0F28AA2FE16AEF75F64E58 /* WYChatMessageModel+Storage.swift */; };
 		24397A41A7A0493D8AC83BC4 /* WYImageMarkerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFF8F17400C4B01BA509737 /* WYImageMarkerView.swift */; };
+		2B8A76F2C0C25FA46D9D70D0 /* WYChatSelectionConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 207C12155709A65F4D639C9D /* WYChatSelectionConfig.swift */; };
+		2D82FF1A8011865EF375AD2B /* WYChatMessageContentModel+Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FCE4A401DE668A92A2EF5A8 /* WYChatMessageContentModel+Storage.swift */; };
 		34695EBADD85427988DC5616 /* WYImageEditorIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BA3CE4FE747490FBA5C36BB /* WYImageEditorIcons.swift */; };
+		3B07A84CBE1E65ACF8122475 /* WYChatRecordsConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85C375BC46BFFCAB46D92B1F /* WYChatRecordsConfig.swift */; };
+		42EE1DDC31B755B5011013DB /* WYChatDefaults+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1C702F77856AA08624B2589 /* WYChatDefaults+Implementation.swift */; };
 		434CB74727D04EABB783E5F9 /* WYMediaCacheItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 501D44946B964750878E0E27 /* WYMediaCacheItem.swift */; };
+		43EACB5D335E7DC87A277230 /* WYChatView+VoicePlayback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6592021EB5F2D0028A139B56 /* WYChatView+VoicePlayback.swift */; };
 		45228F4741BA4567BFCFC0B3 /* WYMediaCacheResourceLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C607C62B1F874EA7A3F5024E /* WYMediaCacheResourceLoader.swift */; };
 		49D5798A0DBD037562F370D2 /* WYPhotoBrowserObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36E83887783410A035B5E89 /* WYPhotoBrowserObjC.swift */; };
 		4A1B2C3D4E5F60718293A0B5 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1B2C3D4E5F60718293A0B4 /* SceneDelegate.swift */; };
+		4B56E14FE5C7D2A8A2AD1DF9 /* WYChatMediaGroupCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1037FAEB949FCB4D36CC501E /* WYChatMediaGroupCell.swift */; };
+		4EAF54BD2AE283D3080C10B3 /* WYChatQuoteModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D374E933E651429CE7A7377B /* WYChatQuoteModel.swift */; };
 		5802B28E2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5802B28D2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift */; };
 		5806BD102FD3D25400FEA501 /* WYTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5806BD0F2FD3D25400FEA501 /* WYTask.swift */; };
 		58091AFA4B9C481B9B06472E /* WYMediaCacheConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72295827F44C4697B2FB4907 /* WYMediaCacheConfig.swift */; };
@@ -357,34 +367,71 @@
 		58D9A79430946B5F00B7B5A4 /* WYAppleServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D9A79330946B5F00B7B5A4 /* WYAppleServices.swift */; };
 		58D9A79F30946E2000B7B5A4 /* WYAppleServices+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D9A79E30946E2000B7B5A4 /* WYAppleServices+Implementation.swift */; };
 		58EE7B0B2FB84A65009AA0CC /* WYTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EE7B0A2FB84A65009AA0CC /* WYTextView.swift */; };
+		5B7E40FD0E1C742F1D238A91 /* WYChatMediaObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83620C98350853B1E4B5DE3B /* WYChatMediaObjC.swift */; };
 		5D9B7A1D5BA64CD79951FD91 /* WYMediaCacheDownloadTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2933A783B02A48DA9F08F495 /* WYMediaCacheDownloadTask.swift */; };
+		621C27F7F797BBC4C38DEA39 /* WYChatMention.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7134F13BB5F9FA54F41BB9DD /* WYChatMention.swift */; };
+		676AA53359A72964BC041011 /* WYChatView+Measurement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3436092A2D4A2CC907ACD618 /* WYChatView+Measurement.swift */; };
 		682A1481F5DBCD823E4E7C2F /* WYCryptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AC33A9B8043652655C0FF86 /* WYCryptor.swift */; };
+		76385DA85788AAAE4959F663 /* WYChatAvatarGestures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AECD1D23C2462BD872CAB58 /* WYChatAvatarGestures.swift */; };
 		7B66B79DFD684ACE8B6652F7 /* WYImageEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 724E997D3636410EA290CD51 /* WYImageEditor.swift */; };
+		7C8D980F822870E6D0E9CD3F /* WYChatRecordsViewController+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E7CE19E574CF84D06F15370 /* WYChatRecordsViewController+Implementation.swift */; };
+		809FEAEEA001BFCE26E3510E /* WYChatSelectionObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541D7605FE69E115EB890020 /* WYChatSelectionObjC.swift */; };
+		85AACD8C81E4E4CA3F90F29C /* WYChatQuoteView+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54EFB49C166A256DB8B411AD /* WYChatQuoteView+Implementation.swift */; };
+		866D972E6CFDED0A63E1AC9A /* WYPhotoBrowserStackLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C509474459EBEE397425A8 /* WYPhotoBrowserStackLayout.swift */; };
+		88512033621C0CC634F8B02F /* WYChatMediaGroup+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8559AACDAF116C5399111DD2 /* WYChatMediaGroup+Implementation.swift */; };
+		8B7BD60DD85BE78CB7EB77EA /* WYChatMediaModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7FF7B3433642D56BAA8EF79 /* WYChatMediaModel.swift */; };
+		92990B263FD45CB956623AFD /* WYChatQuoteConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33103A2F8DBE1BFDA6D73832 /* WYChatQuoteConfig.swift */; };
+		94EF338866AD366EDB4DACCD /* WYChatVoicePlaybackConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1CE52DF60B5DEE3B264A84A /* WYChatVoicePlaybackConfig.swift */; };
+		A66C068D313911CEC7698416 /* WYChatView+Mentions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBFC6A9D7F2EE92A9327FA33 /* WYChatView+Mentions.swift */; };
 		AAC46AD02E07E28F0068B0DF /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = AAC46ACF2E07E28F0068B0DF /* libc++.tbd */; };
 		AD72FABA68B94803A54AC716 /* WYNetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D9BF75B6B7C45429E451E50 /* WYNetworkMonitor.swift */; };
 		ADED48648DE64BE587893515 /* WYMediaCacheObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4563C02952724E24B18AC302 /* WYMediaCacheObjC.swift */; };
 		B33989045E87D56FF65D7C1D /* WYPhotoBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94836A6EC0A19FB965B458EC /* WYPhotoBrowser.swift */; };
 		B61CA42A4DA447BCE604C620 /* WYCryptorObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 684CA039106944C16D6C83B2 /* WYCryptorObjC.swift */; };
 		B768B9625EDE9F3363234579 /* WYPhotoBrowserTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 084E7EAF0CAC71E9AABDF813 /* WYPhotoBrowserTransition.swift */; };
+		BFD3C610B2D05DB424EFC5C0 /* WYChatVoicePlaybackObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE38298E71602073644A2BC6 /* WYChatVoicePlaybackObjC.swift */; };
+		C1EBA5A4815BC374195A1E4B /* WYChatView+Media.swift in Sources */ = {isa = PBXBuildFile; fileRef = F859B51587B3708BFA490F24 /* WYChatView+Media.swift */; };
+		C8991F2DF2E6241FF280C565 /* WYChatQuoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0A0A7638C47A01F94EFE41C /* WYChatQuoteView.swift */; };
+		CBDFA221F9CB8BEE73702414 /* WYChatView+Withdrawal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168ACCBC3BF28CA95DBC1847 /* WYChatView+Withdrawal.swift */; };
+		CCD6D1ABCF1AC0115581CE67 /* WYChatQuoteObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6868B6DF959E13EA61EBEFE /* WYChatQuoteObjC.swift */; };
 		CF080236B6634685A6318861 /* WYImageCropperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B46C27D2941B4A85A99A2E30 /* WYImageCropperView.swift */; };
+		D025A0EFBF00FA54BB358E9E /* WYChatInputView+Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A6E07FFBEBE9306B17823AB /* WYChatInputView+Appearance.swift */; };
+		D190D4EBBD1C603BA3D8BC30 /* WYChatView+Selection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB354A6428D738C029DE7F8E /* WYChatView+Selection.swift */; };
+		D5972AB03C4D296510655E2F /* WYChatMediaConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C14B2AE055BAA87974058FC /* WYChatMediaConfig.swift */; };
+		E79A0DC72FC13BEC27107B85 /* WYChatMentionObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49E66D2A10CF59CE8F55B0BD /* WYChatMentionObjC.swift */; };
+		E95F8DD3C1633A555E414C5A /* WYChatView+Quotes.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED108BEA1AEC8EBF785C3F8C /* WYChatView+Quotes.swift */; };
+		EF95CDF0BA778FACF01CDBEA /* WYChatNoticeConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446776AC2F2997CC2B75606B /* WYChatNoticeConfig.swift */; };
+		F70A65CA8CEDE1589F2FDFB9 /* WYChatVoicePlayback+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA80A0BF7163EDA67AB1371D /* WYChatVoicePlayback+Implementation.swift */; };
 		F8CDEF0FEB4C2E16D7D25654 /* WYPhotoBrowserMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4EE578F5C81426AA5BC1D29 /* WYPhotoBrowserMenuView.swift */; };
 		F9B01DB67BCA4F268210F6EF /* WYMediaCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20024D929D9487584DE7607 /* WYMediaCache.swift */; };
-		866D972E6CFDED0A63E1AC9A /* WYPhotoBrowserStackLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C509474459EBEE397425A8 /* WYPhotoBrowserStackLayout.swift */; };
-
+		FAAAFD2AEDDDD64EA5D052C1 /* WYChatRecordsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77D44C9729C163751CC7B632 /* WYChatRecordsViewController.swift */; };
+		FF694FBFFE84B28FC1A5FDDF /* WYChatLiveRecorder+Implementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = C07797E6EF642E3A9C7EC589 /* WYChatLiveRecorder+Implementation.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		084E7EAF0CAC71E9AABDF813 /* WYPhotoBrowserTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPhotoBrowserTransition.swift; sourceTree = "<group>"; };
+		0A6E07FFBEBE9306B17823AB /* WYChatInputView+Appearance.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYChatInputView+Appearance.swift"; sourceTree = "<group>"; };
+		1037FAEB949FCB4D36CC501E /* WYChatMediaGroupCell.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatMediaGroupCell.swift; sourceTree = "<group>"; };
+		168ACCBC3BF28CA95DBC1847 /* WYChatView+Withdrawal.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYChatView+Withdrawal.swift"; sourceTree = "<group>"; };
+		207C12155709A65F4D639C9D /* WYChatSelectionConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatSelectionConfig.swift; sourceTree = "<group>"; };
 		2933A783B02A48DA9F08F495 /* WYMediaCacheDownloadTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaCacheDownloadTask.swift; sourceTree = "<group>"; };
 		2D8AB1CA014BB35F5E33F61B /* WYMediaPlayer+LoadCore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+LoadCore.swift"; sourceTree = "<group>"; };
+		33103A2F8DBE1BFDA6D73832 /* WYChatQuoteConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatQuoteConfig.swift; sourceTree = "<group>"; };
+		3436092A2D4A2CC907ACD618 /* WYChatView+Measurement.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYChatView+Measurement.swift"; sourceTree = "<group>"; };
+		3C0F28AA2FE16AEF75F64E58 /* WYChatMessageModel+Storage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYChatMessageModel+Storage.swift"; sourceTree = "<group>"; };
 		42FC218D652F6064335DAD12 /* WYPhotoBrowserPageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPhotoBrowserPageCell.swift; sourceTree = "<group>"; };
+		446776AC2F2997CC2B75606B /* WYChatNoticeConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatNoticeConfig.swift; sourceTree = "<group>"; };
 		4563C02952724E24B18AC302 /* WYMediaCacheObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaCacheObjC.swift; sourceTree = "<group>"; };
+		49E66D2A10CF59CE8F55B0BD /* WYChatMentionObjC.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatMentionObjC.swift; sourceTree = "<group>"; };
 		4A1B2C3D4E5F60718293A0B4 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		4B3F177B4EB89C79E90E629A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		4FCE4A401DE668A92A2EF5A8 /* WYChatMessageContentModel+Storage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYChatMessageContentModel+Storage.swift"; sourceTree = "<group>"; };
 		501D44946B964750878E0E27 /* WYMediaCacheItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaCacheItem.swift; sourceTree = "<group>"; };
 		53C11964B2A3BC35D119E938 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		53C1C8E1255F64288E08B8AC /* Pods-WYBasisKit.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.release.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.release.xcconfig"; sourceTree = "<group>"; };
+		541D7605FE69E115EB890020 /* WYChatSelectionObjC.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatSelectionObjC.swift; sourceTree = "<group>"; };
 		54858D7CC1A14C3AB19CE19A /* WYMediaCacheMetaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaCacheMetaData.swift; sourceTree = "<group>"; };
+		54EFB49C166A256DB8B411AD /* WYChatQuoteView+Implementation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYChatQuoteView+Implementation.swift"; sourceTree = "<group>"; };
 		5802B28D2F4431D600D7A8B7 /* WYRecordAnimationConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYRecordAnimationConfig.swift; sourceTree = "<group>"; };
 		5806BD0F2FD3D25400FEA501 /* WYTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTask.swift; sourceTree = "<group>"; };
 		580BB8A82FF63D2200C1B986 /* WYAirBubbleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAirBubbleView.swift; sourceTree = "<group>"; };
@@ -734,29 +781,52 @@
 		58EE23712F874CEB0031D8BF /* WYLogManagerMacro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYLogManagerMacro.h; sourceTree = "<group>"; };
 		58EE7B0A2FB84A65009AA0CC /* WYTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTextView.swift; sourceTree = "<group>"; };
 		5B0A12B6CD08A1EADB40EC1C /* Pods_WYBasisKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WYBasisKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		6592021EB5F2D0028A139B56 /* WYChatView+VoicePlayback.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYChatView+VoicePlayback.swift"; sourceTree = "<group>"; };
 		6844B385DD164265A0D10707 /* WYLogManager+Implementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WYLogManager+Implementation.swift"; sourceTree = "<group>"; };
 		684CA039106944C16D6C83B2 /* WYCryptorObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCryptorObjC.swift; sourceTree = "<group>"; };
 		6BA3CE4FE747490FBA5C36BB /* WYImageEditorIcons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYImageEditorIcons.swift; sourceTree = "<group>"; };
+		6C14B2AE055BAA87974058FC /* WYChatMediaConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatMediaConfig.swift; sourceTree = "<group>"; };
+		7134F13BB5F9FA54F41BB9DD /* WYChatMention.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatMention.swift; sourceTree = "<group>"; };
 		72295827F44C4697B2FB4907 /* WYMediaCacheConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaCacheConfig.swift; sourceTree = "<group>"; };
 		724E997D3636410EA290CD51 /* WYImageEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYImageEditor.swift; sourceTree = "<group>"; };
+		77D44C9729C163751CC7B632 /* WYChatRecordsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatRecordsViewController.swift; sourceTree = "<group>"; };
 		7D589747BE2548B98D33E818 /* WYAudioStreamRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYAudioStreamRecorder.swift; sourceTree = "<group>"; };
 		7D9BF75B6B7C45429E451E50 /* WYNetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYNetworkMonitor.swift; sourceTree = "<group>"; };
+		83620C98350853B1E4B5DE3B /* WYChatMediaObjC.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatMediaObjC.swift; sourceTree = "<group>"; };
+		8559AACDAF116C5399111DD2 /* WYChatMediaGroup+Implementation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYChatMediaGroup+Implementation.swift"; sourceTree = "<group>"; };
+		85C375BC46BFFCAB46D92B1F /* WYChatRecordsConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatRecordsConfig.swift; sourceTree = "<group>"; };
 		8B8A3708E351CE0BB9E30715 /* Pods-WYBasisKit.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKit.debug.xcconfig"; path = "Target Support Files/Pods-WYBasisKit/Pods-WYBasisKit.debug.xcconfig"; sourceTree = "<group>"; };
 		8E7D9319DA254FEBB18880DB /* WYImageEditorObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYImageEditorObjC.swift; sourceTree = "<group>"; };
 		94836A6EC0A19FB965B458EC /* WYPhotoBrowser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPhotoBrowser.swift; sourceTree = "<group>"; };
 		9AC33A9B8043652655C0FF86 /* WYCryptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCryptor.swift; sourceTree = "<group>"; };
+		9AECD1D23C2462BD872CAB58 /* WYChatAvatarGestures.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatAvatarGestures.swift; sourceTree = "<group>"; };
+		9E7CE19E574CF84D06F15370 /* WYChatRecordsViewController+Implementation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYChatRecordsViewController+Implementation.swift"; sourceTree = "<group>"; };
+		A7FF7B3433642D56BAA8EF79 /* WYChatMediaModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatMediaModel.swift; sourceTree = "<group>"; };
 		AAC46ACF2E07E28F0068B0DF /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+		AB354A6428D738C029DE7F8E /* WYChatView+Selection.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYChatView+Selection.swift"; sourceTree = "<group>"; };
 		B36E83887783410A035B5E89 /* WYPhotoBrowserObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPhotoBrowserObjC.swift; sourceTree = "<group>"; };
 		B46C27D2941B4A85A99A2E30 /* WYImageCropperView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYImageCropperView.swift; sourceTree = "<group>"; };
+		BA80A0BF7163EDA67AB1371D /* WYChatVoicePlayback+Implementation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYChatVoicePlayback+Implementation.swift"; sourceTree = "<group>"; };
+		BD535451D36D2A8D86B741EF /* WYChatRecordsObjC.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatRecordsObjC.swift; sourceTree = "<group>"; };
+		BF4FC28D00DB7BBE4ED0D660 /* WYChatTranscriptEditor+Implementation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYChatTranscriptEditor+Implementation.swift"; sourceTree = "<group>"; };
+		C07797E6EF642E3A9C7EC589 /* WYChatLiveRecorder+Implementation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYChatLiveRecorder+Implementation.swift"; sourceTree = "<group>"; };
+		C1CE52DF60B5DEE3B264A84A /* WYChatVoicePlaybackConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatVoicePlaybackConfig.swift; sourceTree = "<group>"; };
 		C20024D929D9487584DE7607 /* WYMediaCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaCache.swift; sourceTree = "<group>"; };
 		C607C62B1F874EA7A3F5024E /* WYMediaCacheResourceLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMediaCacheResourceLoader.swift; sourceTree = "<group>"; };
+		D374E933E651429CE7A7377B /* WYChatQuoteModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatQuoteModel.swift; sourceTree = "<group>"; };
+		D6868B6DF959E13EA61EBEFE /* WYChatQuoteObjC.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatQuoteObjC.swift; sourceTree = "<group>"; };
 		DAED5053645E21395CF44805 /* WYMediaPlayer+Notifications.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+Notifications.swift"; sourceTree = "<group>"; };
+		DBFC6A9D7F2EE92A9327FA33 /* WYChatView+Mentions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYChatView+Mentions.swift"; sourceTree = "<group>"; };
 		DCFF8F17400C4B01BA509737 /* WYImageMarkerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYImageMarkerView.swift; sourceTree = "<group>"; };
+		E0A0A7638C47A01F94EFE41C /* WYChatQuoteView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatQuoteView.swift; sourceTree = "<group>"; };
 		E4EE578F5C81426AA5BC1D29 /* WYPhotoBrowserMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYPhotoBrowserMenuView.swift; sourceTree = "<group>"; };
 		E5BA55F71D1EFB496EE59FDE /* WYMediaPlayer+Properties.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYMediaPlayer+Properties.swift"; sourceTree = "<group>"; };
-		FBBDFDBDB8276D3319F55684 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		E9C509474459EBEE397425A8 /* WYPhotoBrowserStackLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYPhotoBrowserStackLayout.swift; sourceTree = "<group>"; };
-
+		ED108BEA1AEC8EBF785C3F8C /* WYChatView+Quotes.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYChatView+Quotes.swift"; sourceTree = "<group>"; };
+		EE38298E71602073644A2BC6 /* WYChatVoicePlaybackObjC.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatVoicePlaybackObjC.swift; sourceTree = "<group>"; };
+		F1C702F77856AA08624B2589 /* WYChatDefaults+Implementation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYChatDefaults+Implementation.swift"; sourceTree = "<group>"; };
+		F859B51587B3708BFA490F24 /* WYChatView+Media.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "WYChatView+Media.swift"; sourceTree = "<group>"; };
+		FBBDFDBDB8276D3319F55684 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -784,6 +854,26 @@
 			path = MediaCache;
 			sourceTree = "<group>";
 		};
+		13DEB87C8662BB748C120389 /* Records */ = {
+			isa = PBXGroup;
+			children = (
+				C9E315CA3D569148777DF81B /* PrivateImpl */,
+				77D44C9729C163751CC7B632 /* WYChatRecordsViewController.swift */,
+			);
+			name = Records;
+			path = Records;
+			sourceTree = "<group>";
+		};
+		15FD6B1717941B285E95670A /* Quote */ = {
+			isa = PBXGroup;
+			children = (
+				B9D2C0C0FFD47E39B46DB5E3 /* PrivateImpl */,
+				E0A0A7638C47A01F94EFE41C /* WYChatQuoteView.swift */,
+			);
+			name = Quote;
+			path = Quote;
+			sourceTree = "<group>";
+		};
 		1F7B4E87F622409FBACCCE18 /* NetworkMonitor */ = {
 			isa = PBXGroup;
 			children = (
@@ -806,10 +896,10 @@
 			isa = PBXGroup;
 			children = (
 				42FC218D652F6064335DAD12 /* WYPhotoBrowserPageCell.swift */,
-				E9C509474459EBEE397425A8 /* WYPhotoBrowserStackLayout.swift */,
 				084E7EAF0CAC71E9AABDF813 /* WYPhotoBrowserTransition.swift */,
 				E4EE578F5C81426AA5BC1D29 /* WYPhotoBrowserMenuView.swift */,
 				587246583088BDE80093EC33 /* WYPhotoBrowser+Implementation.swift */,
+				E9C509474459EBEE397425A8 /* WYPhotoBrowserStackLayout.swift */,
 			);
 			path = PrivateImpl;
 			sourceTree = "<group>";
@@ -820,6 +910,14 @@
 				8E7D9319DA254FEBB18880DB /* WYImageEditorObjC.swift */,
 			);
 			path = ImageEditor;
+			sourceTree = "<group>";
+		};
+		324BDF04B1A34E6D7CD307A8 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				F1C702F77856AA08624B2589 /* WYChatDefaults+Implementation.swift */,
+			);
+			path = PrivateImpl;
 			sourceTree = "<group>";
 		};
 		48FBEE3DF5D843EAB1BFB5CE /* MediaCache */ = {
@@ -871,6 +969,12 @@
 			isa = PBXGroup;
 			children = (
 				5818A0C230A03378007F34FC /* WYChatBasicCell+Implementation.swift */,
+				5818A0C930A033D8007F34FC /* WYChatMediaCells+Implementation.swift */,
+				5818A0CB30A033F0007F34FC /* WYChatCardCells+Implementation.swift */,
+				5818A0CD30A033FE007F34FC /* WYChatNoticeCells+Implementation.swift */,
+				8559AACDAF116C5399111DD2 /* WYChatMediaGroup+Implementation.swift */,
+				9AECD1D23C2462BD872CAB58 /* WYChatAvatarGestures.swift */,
+				BA80A0BF7163EDA67AB1371D /* WYChatVoicePlayback+Implementation.swift */,
 			);
 			path = PrivateImpl;
 			sourceTree = "<group>";
@@ -883,21 +987,18 @@
 			path = PrivateImpl;
 			sourceTree = "<group>";
 		};
-		5818A0C830A033BF007F34FC /* PrivateImpl */ = {
-			isa = PBXGroup;
-			children = (
-				5818A0C930A033D8007F34FC /* WYChatMediaCells+Implementation.swift */,
-				5818A0CB30A033F0007F34FC /* WYChatCardCells+Implementation.swift */,
-				5818A0CD30A033FE007F34FC /* WYChatNoticeCells+Implementation.swift */,
-			);
-			path = PrivateImpl;
-			sourceTree = "<group>";
-		};
 		5818A0CF30A03420007F34FC /* PrivateImpl */ = {
 			isa = PBXGroup;
 			children = (
 				5818A0D230A0343C007F34FC /* WYChatView+Interactions.swift */,
 				5818A0D030A0342B007F34FC /* WYChatView+Implementation.swift */,
+				3436092A2D4A2CC907ACD618 /* WYChatView+Measurement.swift */,
+				F859B51587B3708BFA490F24 /* WYChatView+Media.swift */,
+				DBFC6A9D7F2EE92A9327FA33 /* WYChatView+Mentions.swift */,
+				ED108BEA1AEC8EBF785C3F8C /* WYChatView+Quotes.swift */,
+				168ACCBC3BF28CA95DBC1847 /* WYChatView+Withdrawal.swift */,
+				AB354A6428D738C029DE7F8E /* WYChatView+Selection.swift */,
+				6592021EB5F2D0028A139B56 /* WYChatView+VoicePlayback.swift */,
 			);
 			path = PrivateImpl;
 			sourceTree = "<group>";
@@ -911,6 +1012,12 @@
 				5818A0DD30A03519007F34FC /* WYChatViewObjC.swift */,
 				5818A0DF30A03522007F34FC /* WYChatComponentsObjC.swift */,
 				5818A0E130A0352C007F34FC /* WYChatCellObjC.swift */,
+				83620C98350853B1E4B5DE3B /* WYChatMediaObjC.swift */,
+				49E66D2A10CF59CE8F55B0BD /* WYChatMentionObjC.swift */,
+				D6868B6DF959E13EA61EBEFE /* WYChatQuoteObjC.swift */,
+				BD535451D36D2A8D86B741EF /* WYChatRecordsObjC.swift */,
+				541D7605FE69E115EB890020 /* WYChatSelectionObjC.swift */,
+				EE38298E71602073644A2BC6 /* WYChatVoicePlaybackObjC.swift */,
 			);
 			path = ChatView;
 			sourceTree = "<group>";
@@ -2484,6 +2591,13 @@
 			isa = PBXGroup;
 			children = (
 				58C68D2D2E84E436005FD054 /* WYChatConfig.swift */,
+				324BDF04B1A34E6D7CD307A8 /* PrivateImpl */,
+				6C14B2AE055BAA87974058FC /* WYChatMediaConfig.swift */,
+				446776AC2F2997CC2B75606B /* WYChatNoticeConfig.swift */,
+				33103A2F8DBE1BFDA6D73832 /* WYChatQuoteConfig.swift */,
+				207C12155709A65F4D639C9D /* WYChatSelectionConfig.swift */,
+				85C375BC46BFFCAB46D92B1F /* WYChatRecordsConfig.swift */,
+				C1CE52DF60B5DEE3B264A84A /* WYChatVoicePlaybackConfig.swift */,
 			);
 			path = Config;
 			sourceTree = "<group>";
@@ -2510,6 +2624,10 @@
 				584B5A05306A0CB9002B81C5 /* WYChatGroupModel.swift */,
 				584B5A07306A0CCC002B81C5 /* WYChatSessionModel.swift */,
 				584B5A09306A0CDC002B81C5 /* WYChatMessageModel.swift */,
+				88A501475F6E5DDA837CAF03 /* PrivateImpl */,
+				A7FF7B3433642D56BAA8EF79 /* WYChatMediaModel.swift */,
+				7134F13BB5F9FA54F41BB9DD /* WYChatMention.swift */,
+				D374E933E651429CE7A7377B /* WYChatQuoteModel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -2542,7 +2660,6 @@
 		58C68D3E2E84E436005FD054 /* Handler */ = {
 			isa = PBXGroup;
 			children = (
-				58C68D3B2E84E436005FD054 /* WYChatView.swift */,
 				58C68D3C2E84E436005FD054 /* WYChatViewDelegateHandler.swift */,
 				58C68D3D2E84E436005FD054 /* WYChatViewEventHandler.swift */,
 				5818A0CF30A03420007F34FC /* PrivateImpl */,
@@ -2702,7 +2819,6 @@
 		58C68D642E84E436005FD054 /* StyleCell */ = {
 			isa = PBXGroup;
 			children = (
-				5818A0C830A033BF007F34FC /* PrivateImpl */,
 				58C68D452E84E436005FD054 /* Basic */,
 				58C68D472E84E436005FD054 /* BusinessCard */,
 				58C68D492E84E436005FD054 /* Call */,
@@ -2719,6 +2835,7 @@
 				58C68D5F2E84E436005FD054 /* Voice */,
 				58C68D612E84E436005FD054 /* Webpage */,
 				58C68D632E84E436005FD054 /* Withdrawn */,
+				EB6C07FC992427FCE5CBCB25 /* MediaGroup */,
 			);
 			path = StyleCell;
 			sourceTree = "<group>";
@@ -2726,11 +2843,14 @@
 		58C68D652E84E436005FD054 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				58C68D3B2E84E436005FD054 /* WYChatView.swift */,
 				58C68D3A2E84E436005FD054 /* Emoji */,
 				58C68D3E2E84E436005FD054 /* Handler */,
 				58C68D402E84E436005FD054 /* Input */,
 				58C68D432E84E436005FD054 /* More */,
 				58C68D642E84E436005FD054 /* StyleCell */,
+				15FD6B1717941B285E95670A /* Quote */,
+				13DEB87C8662BB748C120389 /* Records */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -3016,6 +3136,8 @@
 				58D99B7030903F6200B7B5A4 /* WYRecordAnimationView+Implementation.swift */,
 				5818A0D430A034A1007F34FC /* WYChatSpeechRecognition+Implementation.swift */,
 				5818A19B30A05CAD007F34FC /* WYChatRecording+Implementation.swift */,
+				C07797E6EF642E3A9C7EC589 /* WYChatLiveRecorder+Implementation.swift */,
+				BF4FC28D00DB7BBE4ED0D660 /* WYChatTranscriptEditor+Implementation.swift */,
 			);
 			path = PrivateImpl;
 			sourceTree = "<group>";
@@ -3024,6 +3146,7 @@
 			isa = PBXGroup;
 			children = (
 				58D99B7330903F8200B7B5A4 /* WYChatInputView+Implementation.swift */,
+				0A6E07FFBEBE9306B17823AB /* WYChatInputView+Appearance.swift */,
 			);
 			path = PrivateImpl;
 			sourceTree = "<group>";
@@ -3247,6 +3370,15 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		88A501475F6E5DDA837CAF03 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				4FCE4A401DE668A92A2EF5A8 /* WYChatMessageContentModel+Storage.swift */,
+				3C0F28AA2FE16AEF75F64E58 /* WYChatMessageModel+Storage.swift */,
+			);
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
 		956B53CAD48C42A69A58E7C5 /* PrivateImpl */ = {
 			isa = PBXGroup;
 			children = (
@@ -3287,6 +3419,24 @@
 			name = MediaPlayer;
 			sourceTree = "<group>";
 		};
+		B9D2C0C0FFD47E39B46DB5E3 /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				54EFB49C166A256DB8B411AD /* WYChatQuoteView+Implementation.swift */,
+			);
+			name = PrivateImpl;
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
+		C9E315CA3D569148777DF81B /* PrivateImpl */ = {
+			isa = PBXGroup;
+			children = (
+				9E7CE19E574CF84D06F15370 /* WYChatRecordsViewController+Implementation.swift */,
+			);
+			name = PrivateImpl;
+			path = PrivateImpl;
+			sourceTree = "<group>";
+		};
 		D52D2B5B95689E2FC8A2D0BF /* PhotoBrowser */ = {
 			isa = PBXGroup;
 			children = (
@@ -3303,6 +3453,15 @@
 			);
 			name = Pods;
 			path = ../Pods;
+			sourceTree = "<group>";
+		};
+		EB6C07FC992427FCE5CBCB25 /* MediaGroup */ = {
+			isa = PBXGroup;
+			children = (
+				1037FAEB949FCB4D36CC501E /* WYChatMediaGroupCell.swift */,
+			);
+			name = MediaGroup;
+			path = MediaGroup;
 			sourceTree = "<group>";
 		};
 		F17F492151E72F3008F59919 /* PrivateImpl */ = {
@@ -3803,11 +3962,47 @@
 				583E04F82E869051004F1034 /* WYTextFieldObjC.swift in Sources */,
 				B33989045E87D56FF65D7C1D /* WYPhotoBrowser.swift in Sources */,
 				15F3D3C618E93B7564F1EFC0 /* WYPhotoBrowserPageCell.swift in Sources */,
-				866D972E6CFDED0A63E1AC9A /* WYPhotoBrowserStackLayout.swift in Sources */,
 				B768B9625EDE9F3363234579 /* WYPhotoBrowserTransition.swift in Sources */,
 				58D99B93309043B700B7B5A4 /* WYCryptor+Implementation.swift in Sources */,
 				F8CDEF0FEB4C2E16D7D25654 /* WYPhotoBrowserMenuView.swift in Sources */,
 				49D5798A0DBD037562F370D2 /* WYPhotoBrowserObjC.swift in Sources */,
+				FF694FBFFE84B28FC1A5FDDF /* WYChatLiveRecorder+Implementation.swift in Sources */,
+				42EE1DDC31B755B5011013DB /* WYChatDefaults+Implementation.swift in Sources */,
+				676AA53359A72964BC041011 /* WYChatView+Measurement.swift in Sources */,
+				2D82FF1A8011865EF375AD2B /* WYChatMessageContentModel+Storage.swift in Sources */,
+				209DB6C0B100C4FA9A9F0C06 /* WYChatMessageModel+Storage.swift in Sources */,
+				12729C783BC749FC1FC96CA0 /* WYChatTranscriptEditor+Implementation.swift in Sources */,
+				D5972AB03C4D296510655E2F /* WYChatMediaConfig.swift in Sources */,
+				8B7BD60DD85BE78CB7EB77EA /* WYChatMediaModel.swift in Sources */,
+				C1EBA5A4815BC374195A1E4B /* WYChatView+Media.swift in Sources */,
+				88512033621C0CC634F8B02F /* WYChatMediaGroup+Implementation.swift in Sources */,
+				4B56E14FE5C7D2A8A2AD1DF9 /* WYChatMediaGroupCell.swift in Sources */,
+				866D972E6CFDED0A63E1AC9A /* WYPhotoBrowserStackLayout.swift in Sources */,
+				621C27F7F797BBC4C38DEA39 /* WYChatMention.swift in Sources */,
+				A66C068D313911CEC7698416 /* WYChatView+Mentions.swift in Sources */,
+				76385DA85788AAAE4959F663 /* WYChatAvatarGestures.swift in Sources */,
+				EF95CDF0BA778FACF01CDBEA /* WYChatNoticeConfig.swift in Sources */,
+				92990B263FD45CB956623AFD /* WYChatQuoteConfig.swift in Sources */,
+				4EAF54BD2AE283D3080C10B3 /* WYChatQuoteModel.swift in Sources */,
+				E95F8DD3C1633A555E414C5A /* WYChatView+Quotes.swift in Sources */,
+				CBDFA221F9CB8BEE73702414 /* WYChatView+Withdrawal.swift in Sources */,
+				85AACD8C81E4E4CA3F90F29C /* WYChatQuoteView+Implementation.swift in Sources */,
+				C8991F2DF2E6241FF280C565 /* WYChatQuoteView.swift in Sources */,
+				2B8A76F2C0C25FA46D9D70D0 /* WYChatSelectionConfig.swift in Sources */,
+				D190D4EBBD1C603BA3D8BC30 /* WYChatView+Selection.swift in Sources */,
+				3B07A84CBE1E65ACF8122475 /* WYChatRecordsConfig.swift in Sources */,
+				7C8D980F822870E6D0E9CD3F /* WYChatRecordsViewController+Implementation.swift in Sources */,
+				FAAAFD2AEDDDD64EA5D052C1 /* WYChatRecordsViewController.swift in Sources */,
+				94EF338866AD366EDB4DACCD /* WYChatVoicePlaybackConfig.swift in Sources */,
+				43EACB5D335E7DC87A277230 /* WYChatView+VoicePlayback.swift in Sources */,
+				F70A65CA8CEDE1589F2FDFB9 /* WYChatVoicePlayback+Implementation.swift in Sources */,
+				D025A0EFBF00FA54BB358E9E /* WYChatInputView+Appearance.swift in Sources */,
+				5B7E40FD0E1C742F1D238A91 /* WYChatMediaObjC.swift in Sources */,
+				E79A0DC72FC13BEC27107B85 /* WYChatMentionObjC.swift in Sources */,
+				CCD6D1ABCF1AC0115581CE67 /* WYChatQuoteObjC.swift in Sources */,
+				0594479FF1EAB4D037E832F6 /* WYChatRecordsObjC.swift in Sources */,
+				809FEAEEA001BFCE26E3510E /* WYChatSelectionObjC.swift in Sources */,
+				BFD3C610B2D05DB424EFC5C0 /* WYChatVoicePlaybackObjC.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

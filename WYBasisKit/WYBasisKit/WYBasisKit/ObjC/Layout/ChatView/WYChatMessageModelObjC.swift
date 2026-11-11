@@ -250,8 +250,10 @@ import WYBasisKitSwift
     public var group: WYChatGroupModelObjC?
     /// 消息内容
     public var content: WYChatMessageContentModelObjC
+    /// 文本中提及的用户及其位置
+    public var mentions: [WYChatMentionObjC]
     /// 引用消息
-    public var reference: WYChatMessageContentModelObjC?
+    public var reference: WYChatQuoteModelObjC?
     /// model在数组中对应的下标
     public var index: Int
 
@@ -271,7 +273,8 @@ import WYBasisKitSwift
         self.sender = WYChatUserModelObjC(value.sender)
         self.group = value.group.map { WYChatGroupModelObjC($0) }
         self.content = WYChatMessageContentModelObjC(value.content)
-        self.reference = value.reference.map { WYChatMessageContentModelObjC($0) }
+        self.mentions = value.mentions.map(WYChatMentionObjC.init)
+        self.reference = value.reference.map(WYChatQuoteModelObjC.init)
         self.index = value.index
         self.isTransferring = value.isTransferring
         self.transferProgress = value.transferProgress
@@ -294,6 +297,7 @@ import WYBasisKitSwift
         value.sender = sender.toValue()
         value.group = group.map { $0.toValue() }
         value.content = content.toValue()
+        value.mentions = mentions.map { $0.toValue() }
         value.reference = reference.map { $0.toValue() }
         value.index = index
         value.isTransferring = isTransferring

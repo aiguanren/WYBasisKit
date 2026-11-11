@@ -17,6 +17,9 @@ extension WYChatTextCell {
         textView.textContainer.lineFragmentPadding = 0
         textView.setContentCompressionResistancePriority(.required, for: .vertical)
         bodyView.insertArrangedSubview(textView, at: 0)
+        state.textHeight = textView.heightAnchor.constraint(equalToConstant: 1)
+        state.textHeight?.isActive = true
+        state.measuredText = nil
         state.title.isHidden = true
         wy_render()
     }
@@ -24,14 +27,18 @@ extension WYChatTextCell {
     func wy_renderText() {
         let value = configuration.text
         state.title.isHidden = true
-        textView.font = value.textFont
-        textView.textColor = value.textColor
-        textView.isSelectable = value.isSelectable
-        textView.dataDetectorTypes = value.dataDetectorTypes
-        textView.textContainer.maximumNumberOfLines = max(0, value.textMaximumNumberOfLines)
         let emoji = configuration.emoji
         let attributed = NSMutableAttributedString.wy_convertEmojiAttributed(emojiString: message.content.text ?? "", textColor: value.textColor, textFont: value.textFont, emojiTable: emoji.emojiSource, sourceBundle: emoji.emojiBundle, pattern: configuration.input.emojiPattern, customImageLoader: { name, _ in emoji.staticEmojiImage(name) })
         attributed.wy_lineSpacing(value.textLineSpacing, alignment: .natural)
+        textView.textColor = value.textColor
+        textView.isSelectable = value.isSelectable
+        textView.dataDetectorTypes = state.isMeasuring ? [] : value.dataDetectorTypes
+        textView.textContainer.maximumNumberOfLines = max(0, value.textMaximumNumberOfLines)
         textView.attributedText = attributed
+        textView.font = value.textFont
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.lineSpacing = value.textLineSpacing
+        textView.typingAttributes = [.font: value.textFont, .foregroundColor: value.textColor, .paragraphStyle: paragraph]
+        state.measuredText = nil
     }
 }

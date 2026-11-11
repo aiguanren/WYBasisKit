@@ -244,3 +244,41 @@
 "%@撤回了一条消息" = "%@ trak en besked tilbage";
 
 "%@拍了拍%@%@" = "%@ prikkede til %@%@";
+
+"语言" = "Sprog";
+
+"翻译" = "Oversæt";
+
+"翻译失败，请重试" = "Oversættelsen mislykkedes. Prøv igen.";
+
+"正在翻译…" = "Oversætter…";
+
+"展开" = "Fold ud";
+
+"收起" = "Fold ind";
+
+"重新编辑" = "Rediger igen";
+
+"选择到这里" = "Vælg hertil";
+
+"逐条转发" = "Videresend enkeltvis";
+
+"合并转发" = "Videresend samlet";
+
+"聊天记录" = "Chathistorik";
+
+"收藏" = "Favorit";
+
+"提醒" = "Påmindelse";
+
+"搜索" = "Søg";
+
+"标记已读" = "Markér som læst";
+
+"标记未读" = "Markér som ulæst";
+
+"松手 编辑" = "Slip for at redigere";
+
+"发送原语音" = "Send original lyd";
+
+"松手 发语音" = "Slip for at sende en talebesked";

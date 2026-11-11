@@ -18,6 +18,8 @@ import UIKit
 
 public class WYMoveUpTipsView: UIView {
 
+    internal var actionTipsState: WYMoveUpTipsState = .cancel
+
     /// 当前实例配置
     public var recordAnimationConfig: WYRecordAnimationConfig = WYRecordAnimationConfig()
 
@@ -26,11 +28,12 @@ public class WYMoveUpTipsView: UIView {
     public var tipsView: UILabel = UILabel()
     
     /// 移动按钮
-    public var moveUpView: UIButton = UIButton(type: .custom)
+    public var moveUpView: UIButton = WYChatRecordingActionButton(type: .custom)
     
     public init(tipsState: WYMoveUpTipsState, configuration: WYRecordAnimationConfig = WYRecordAnimationConfig()) {
         self.recordAnimationConfig = configuration
         super.init(frame: .zero)
+        (moveUpView as? WYChatRecordingActionButton)?.layoutHandler = { [weak self] in self?.wy_layoutAction() }
         
         tipsView.backgroundColor = .clear
         tipsView.textAlignment = .center
@@ -61,41 +64,23 @@ public class WYMoveUpTipsView: UIView {
             make.width.height.equalTo(recordAnimationConfig.moveUpButtonDiameter.onExternal)
             make.left.bottom.right.equalToSuperview()
         }
+        wy_refreshAction(tipsState: tipsState, isTouched: false)
     }
     
     /// 刷新取消录音或者转文字按钮状态
     public func refresh(tipsState: WYMoveUpTipsState, isTouched: Bool) {
         
-        moveUpView.isSelected = isTouched
-        
-        if recordAnimationConfig.supportSpeechRecognition {
-            moveUpView.transform = CGAffineTransform(rotationAngle: (tipsState == .cancel) ? -recordAnimationConfig.moveUpViewDeviationAngle : recordAnimationConfig.moveUpViewDeviationAngle)
-        }
-        
-        if moveUpView.isSelected == true {
-            
-            tipsView.text = (tipsState == .cancel) ? recordAnimationConfig.cancelRecordViewText.tips : recordAnimationConfig.transferViewText.tips
-            
-            moveUpView.titleLabel?.font = (tipsState == .cancel) ? recordAnimationConfig.cancelRecordViewTextInfoForExternal.font : recordAnimationConfig.transferViewTextInfoForExternal.font
-            
-            moveUpView.snp.updateConstraints { make in
-                make.width.height.equalTo(recordAnimationConfig.moveUpButtonDiameter.onInterior)
-            }
-            
-        }else {
-            
-            tipsView.text = ""
-            
-            moveUpView.titleLabel?.font = (tipsState == .cancel) ? recordAnimationConfig.cancelRecordViewTextInfoForInterior.font : recordAnimationConfig.transferViewTextInfoForInterior.font
-            
-            moveUpView.snp.updateConstraints { make in
-                make.width.height.equalTo(recordAnimationConfig.moveUpButtonDiameter.onExternal)
-            }
-        }
+        wy_refreshAction(tipsState: tipsState, isTouched: isTouched)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        moveUpView.layoutIfNeeded()
+        if !(moveUpView is WYChatRecordingActionButton) { wy_layoutAction() }
     }
 
     

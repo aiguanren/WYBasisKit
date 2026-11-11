@@ -69,6 +69,7 @@
 		9D61E502D868CF5ECE43ACD6 /* WYTestPhotoBrowserController.m in Sources */ = {isa = PBXBuildFile; fileRef = F3DEB7D7A2F69158C475ADEE /* WYTestPhotoBrowserController.m */; };
 		9D92C688B58547468C29E0EF /* WYTestImageEditorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 45DF6DE539F0497CABCFF185 /* WYTestImageEditorController.m */; };
 		C3EE448F3AE440A0B1CBA5C5 /* WYTestMediaCacheController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A3E5455F0CC4CA98B4F4929 /* WYTestMediaCacheController.m */; };
+		FE249DC843136E205BEB2CE6 /* WYChatTestSuite.m in Sources */ = {isa = PBXBuildFile; fileRef = 827D2B7D3441B1B093308CF9 /* WYChatTestSuite.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -246,8 +247,10 @@
 		58EE7B162FBED002009AA0CC /* WYTestLabelCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestLabelCell.m; sourceTree = "<group>"; };
 		6FEB1F1398008F4A28D3A5AD /* WYTestPhotoBrowserController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestPhotoBrowserController.h; sourceTree = "<group>"; };
 		76D6AAEE5EB24C9CA2CD4A1F /* WYTestImageEditorController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestImageEditorController.h; sourceTree = "<group>"; };
+		827D2B7D3441B1B093308CF9 /* WYChatTestSuite.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = WYChatTestSuite.m; sourceTree = "<group>"; };
 		C46CD550F75C96CF7AD29356 /* Pods-SharedPods-ObjCVerify.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SharedPods-ObjCVerify.release.xcconfig"; path = "Target Support Files/Pods-SharedPods-ObjCVerify/Pods-SharedPods-ObjCVerify.release.xcconfig"; sourceTree = "<group>"; };
 		CC8256BD473181184828AE62 /* Pods_SharedPods_ObjCVerify.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SharedPods_ObjCVerify.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D056B99B78D548FEC6D27226 /* WYChatTestSuite.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = WYChatTestSuite.h; sourceTree = "<group>"; };
 		DF8E77A7EA5B000E32A36E8B /* Pods-SharedPods-ObjCVerify.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SharedPods-ObjCVerify.debug.xcconfig"; path = "Target Support Files/Pods-SharedPods-ObjCVerify/Pods-SharedPods-ObjCVerify.debug.xcconfig"; sourceTree = "<group>"; };
 		EA2CC6464AD7489BBD8943FF /* WYTestMediaCacheController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WYTestMediaCacheController.h; sourceTree = "<group>"; };
 		F3DEB7D7A2F69158C475ADEE /* WYTestPhotoBrowserController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WYTestPhotoBrowserController.m; sourceTree = "<group>"; };
@@ -338,6 +341,8 @@
 			children = (
 				5818A0E430A035A9007F34FC /* WYTestChatController.h */,
 				5818A0E530A035A9007F34FC /* WYTestChatController.m */,
+				D056B99B78D548FEC6D27226 /* WYChatTestSuite.h */,
+				827D2B7D3441B1B093308CF9 /* WYChatTestSuite.m */,
 			);
 			path = "IM即时通讯";
 			sourceTree = "<group>";
@@ -1030,6 +1035,7 @@
 				5818A0E630A035A9007F34FC /* WYTestChatController.m in Sources */,
 				9D61E502D868CF5ECE43ACD6 /* WYTestPhotoBrowserController.m in Sources */,
 				C3EE448F3AE440A0B1CBA5C5 /* WYTestMediaCacheController.m in Sources */,
+				FE249DC843136E205BEB2CE6 /* WYChatTestSuite.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -11,6 +11,17 @@ import UIKit
 /// 返回一个Bool值来判定各控件的点击或手势事件是否需要内部处理(默认返回true)
 @objc public protocol WYChatViewEventsHandler {
     /**
+     是否由组件处理媒体操作
+     @param chatView 聊天界面
+     @param action 媒体操作
+     @param messageID 消息ID
+     @param index 媒体下标
+     @return true由组件继续处理
+     */
+    @objc(wy_shouldPerformMediaAction:action:messageID:index:)
+    optional func wy_shouldPerformMediaAction(_ chatView: WYChatView, action: WYChatMediaAction, messageID: String, index: Int) -> Bool
+
+    /**
      是否执行消息操作
      @param chatView 聊天界面
      @param action 操作
@@ -79,6 +90,32 @@ import UIKit
 }
 
 @objc public protocol WYChatViewDelegate {
+    /**
+     语音播放倍速发生变化
+     @param chatView 聊天界面
+     @param messageID 语音消息ID
+     @param rate 当前倍速
+     */
+    @objc(wy_voicePlaybackRateChanged:messageID:rate:)
+    optional func wy_voicePlaybackRateChanged(_ chatView: WYChatView, messageID: String, rate: Float)
+
+
+    /**
+     请求宿主打开相册
+     @param chatView 聊天界面
+     */
+    @objc(wy_chatViewDidRequestAlbum:)
+    optional func wy_chatViewDidRequestAlbum(_ chatView: WYChatView)
+    /**
+     媒体组操作
+     @param chatView 聊天界面
+     @param action 媒体操作
+     @param messageID 消息ID
+     @param index 媒体下标
+     */
+    @objc(wy_chatView:mediaAction:messageID:index:)
+    optional func wy_chatView(_ chatView: WYChatView, mediaAction action: WYChatMediaAction, messageID: String, index: Int)
+
     /**
      消息操作
      @param chatView 聊天界面

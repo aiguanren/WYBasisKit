@@ -72,6 +72,7 @@ extension WYChatMoreView {
         flowLayout.scrollDirection = self.moreViewConfig.scrollDirection
 
         let collectionView: UICollectionView = UICollectionView.wy_shared(flowLayout: flowLayout, delegate: self, dataSource: self, superView: self)
+        collectionView.accessibilityIdentifier = "WYChatMore.items"
 
         collectionView.register(WYMoreViewCell.self, forCellWithReuseIdentifier: "WYMoreViewCell")
         collectionView.isPagingEnabled = self.moreViewConfig.isPagingEnabled

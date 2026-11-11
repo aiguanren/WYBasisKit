@@ -244,3 +244,41 @@
 "%@撤回了一条消息" = "%@ đã thu hồi một tin nhắn";
 
 "%@拍了拍%@%@" = "%@ đã vỗ nhẹ %@%@";
+
+"语言" = "Ngôn ngữ";
+
+"翻译" = "Dịch";
+
+"翻译失败，请重试" = "Dịch không thành công. Vui lòng thử lại.";
+
+"正在翻译…" = "Đang dịch…";
+
+"展开" = "Mở rộng";
+
+"收起" = "Thu gọn";
+
+"重新编辑" = "Chỉnh sửa lại";
+
+"选择到这里" = "Chọn đến đây";
+
+"逐条转发" = "Chuyển tiếp riêng lẻ";
+
+"合并转发" = "Chuyển tiếp cùng nhau";
+
+"聊天记录" = "Lịch sử trò chuyện";
+
+"收藏" = "Yêu thích";
+
+"提醒" = "Nhắc nhở";
+
+"搜索" = "Tìm kiếm";
+
+"标记已读" = "Đánh dấu đã đọc";
+
+"标记未读" = "Đánh dấu chưa đọc";
+
+"松手 编辑" = "Thả để chỉnh sửa";
+
+"发送原语音" = "Gửi giọng nói gốc";
+
+"松手 发语音" = "Thả để gửi tin nhắn thoại";

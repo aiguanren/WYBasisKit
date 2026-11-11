@@ -8,7 +8,7 @@
 import Foundation
 
 /// 音乐消息Model
-public struct WYChatMusicModel {
+public struct WYChatMusicModel: Equatable {
     
     /// id
     public var id: String = ""

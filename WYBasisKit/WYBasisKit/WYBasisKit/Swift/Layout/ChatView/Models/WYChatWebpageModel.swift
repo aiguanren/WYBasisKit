@@ -8,7 +8,7 @@
 import Foundation
 
 /// 网页、小程序model
-public struct WYChatWebpageModel {
+public struct WYChatWebpageModel: Equatable {
     
     /// id
     public var id: String

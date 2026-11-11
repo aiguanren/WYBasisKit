@@ -620,6 +620,7 @@ Pod::Spec.new do |kit|
       chatView.dependency "WYBasisKit-swift/AudioKit"
       chatView.dependency "WYBasisKit-swift/Layout/AirBubbleView"
       chatView.dependency "WYBasisKit-swift/Layout/SoundWavesView"
+      chatView.dependency "WYBasisKit-swift/Layout/PhotoBrowser"
       chatView.dependency "SnapKit"
       chatView.dependency "Kingfisher"
     end

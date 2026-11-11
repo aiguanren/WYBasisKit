@@ -14,6 +14,11 @@ public struct WYInputBarConfig {
     /// 草稿保存键，空字符串时不跨实例保存草稿
     public var draftStorageKey: String = ""
 
+    /// 是否允许长按语音切换按钮直接转写，默认true，需要启用语音识别
+    public var enablesVoiceButtonDictation: Bool = true
+    /// 长按语音切换按钮开始转写的等待时间，单位秒
+    public var voiceButtonLongPressDuration: TimeInterval = 0.35
+
     /// 录音按钮长按手势允许手指移动的最大距离
     public var recordViewLongPressMaxOffset: CGFloat = UIDevice.wy_screenWidth(100, WYBasisKitConfig.defaultScreenPixels)
     
@@ -21,8 +26,26 @@ public struct WYInputBarConfig {
     public var animateDuration: TimeInterval = 0.25
     
     /// inputBar背景图
-    public var backgroundImage: UIImage = UIImage.wy_createImage(from: .wy_hex("#f6f6f6"))
+    public var backgroundImage: UIImage? = nil
     
+    /// 输入栏背景色，背景图覆盖在此颜色上
+    public var backgroundColor: UIColor = .secondarySystemBackground
+
+    /// 文本输入框背景色
+    public var textViewBackgroundColor: UIColor = .secondarySystemGroupedBackground
+
+    /// 语音输入框背景色
+    public var voiceViewBackgroundColor: UIColor = .secondarySystemGroupedBackground
+
+    /// 语音输入框按压时的背景色
+    public var voiceViewHighlightedBackgroundColor: UIColor = .tertiarySystemFill
+
+    /// 输入栏图标颜色
+    public var iconTintColor: UIColor = .label
+
+    /// 是否用iconTintColor绘制输入栏图标，默认true
+    public var rendersIconsAsTemplate: Bool = true
+
     /// 是否需要保存上次退出时输入框中的文本
     public var canSaveLastInputText: Bool = true
 
@@ -51,19 +74,19 @@ public struct WYInputBarConfig {
     public var moreBottomImage: UIImage = UIImage.wy_find("WYChatViewMore", inBundle: WYChatSourceBundle)
     
     /// 文本输入框背景图
-    public var textViewBackgroundImage: UIImage = UIImage.wy_createImage(from: .white)
+    public var textViewBackgroundImage: UIImage? = nil
     
     /// 语音输入框背景图
-    public var voiceViewBackgroundImage: UIImage = UIImage.wy_createImage(from: .white)
+    public var voiceViewBackgroundImage: UIImage? = nil
     
     /// 语音输入框按压状态背景图
-    public var voiceViewBackgroundImageForHighlighted: UIImage = UIImage.wy_createImage(from: .white)
+    public var voiceViewBackgroundImageForHighlighted: UIImage? = nil
     
     /// 语音输入框占位文本
     public var voicePlaceholder: String = WYLocalized("按住 说话", table: WYBasisKitConfig.kitLocalizableTable)
 
     /// 语音输入框占位文本色值
-    public var voicePlaceholderColor: UIColor = .black
+    public var voicePlaceholderColor: UIColor = .label
 
     /// 语音框输入占位文本字体、字号
     public var voicePlaceholderFont: UIFont = .boldSystemFont(ofSize: UIFont.wy_fontSize(15, WYBasisKitConfig.defaultScreenPixels))
@@ -78,7 +101,7 @@ public struct WYInputBarConfig {
     public var textPlaceholder: String = WYLocalized("请输入消息", table: WYBasisKitConfig.kitLocalizableTable)
     
     /// 输入框占位文本色值
-    public var textPlaceholderColor: UIColor = .lightGray
+    public var textPlaceholderColor: UIColor = .placeholderText
 
     /// 输入框占位文本字体、字号
     public var textPlaceholderFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(15, WYBasisKitConfig.defaultScreenPixels))
@@ -114,7 +137,7 @@ public struct WYInputBarConfig {
     public var textViewCanUserInteractionMenu: Bool = true
     
     /// 输入框输入文本色值
-    public var textColor: UIColor = .black
+    public var textColor: UIColor = .label
 
     /// 输入框输入文本字体、字号
     public var textFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(15, WYBasisKitConfig.defaultScreenPixels))
@@ -123,16 +146,19 @@ public struct WYInputBarConfig {
     public var textLineSpacing: CGFloat = UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels)
 
     /// 输入框的最高高度
-    public var textViewMaxHeight: CGFloat = .greatestFiniteMagnitude
+    public var textViewMaxHeight: CGFloat = UIDevice.wy_screenHeight(120, WYBasisKitConfig.defaultScreenPixels)
     
-    /// 输入框、语音框的圆角半径
+    /// 语音框的圆角半径
+    public var voiceViewCornerRadius: CGFloat = UIDevice.wy_screenWidth(24, WYBasisKitConfig.defaultScreenPixels)
+
+    /// 输入框的圆角半径
     public var textViewCornerRadius: CGFloat = UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
 
     /// 输入框、语音框的边框颜色
     public var textViewBorderColor: UIColor = .gray
 
     /// 输入框、语音框的边框宽度
-    public var textViewBorderWidth: CGFloat = 1
+    public var textViewBorderWidth: CGFloat = 0
 
     /// 输入框、语音框的高度
     public var inputViewHeight: CGFloat = UIDevice.wy_screenWidth(42, WYBasisKitConfig.defaultScreenPixels)
@@ -262,7 +288,7 @@ public class WYChatInputView: UIImageView {
     public var inputBarConfig: WYInputBarConfig = WYInputBarConfig()
 
     
-    public let textVoiceContentView: UIButton = UIButton(type: .custom)
+    public let textVoiceContentView: UIButton = WYChatInputBackgroundButton(frame: .zero)
     public let textView: WYChatInputTextView = WYChatInputTextView()
     public let textPlaceholderView = UILabel()
     public let textVoiceView: UIButton = UIButton(type: .custom)
@@ -274,6 +300,7 @@ public class WYChatInputView: UIImageView {
     public var recordAnimationConfig: WYRecordAnimationConfig = WYRecordAnimationConfig()
     /// 录音结果，参数为文件URL、时长和错误
     public var recordingResultHandler: ((_ url: URL?, _ duration: TimeInterval, _ error: NSError?) -> Void)? = nil
+    internal var textEditingHandler: ((NSRange, String) -> Void)?
     internal var hasCreatedRecordView = false
     internal var recordingGestureID: UUID? = nil
     public lazy var recordView: WYRecordAnimationView = wy_makeRecordView()
@@ -288,6 +315,11 @@ public class WYChatInputView: UIImageView {
         super.init(frame: .zero)
         textView.inputBarConfig = config
         wy_setupInputView()
+    }
+
+    public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) { wy_applyInputAppearance() }
     }
 
     public func updateSpecialSendState(hasText: Bool) {

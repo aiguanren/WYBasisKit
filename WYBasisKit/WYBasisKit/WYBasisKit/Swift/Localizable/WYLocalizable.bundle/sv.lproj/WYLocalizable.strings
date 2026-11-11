@@ -244,3 +244,41 @@
 "%@撤回了一条消息" = "%@ återkallade ett meddelande";
 
 "%@拍了拍%@%@" = "%@ puffade på %@%@";
+
+"语言" = "Språk";
+
+"翻译" = "Översätt";
+
+"翻译失败，请重试" = "Översättningen misslyckades. Försök igen.";
+
+"正在翻译…" = "Översätter…";
+
+"展开" = "Expandera";
+
+"收起" = "Fäll ihop";
+
+"重新编辑" = "Redigera igen";
+
+"选择到这里" = "Markera hit";
+
+"逐条转发" = "Vidarebefordra separat";
+
+"合并转发" = "Vidarebefordra tillsammans";
+
+"聊天记录" = "Chatthistorik";
+
+"收藏" = "Favorit";
+
+"提醒" = "Påminnelse";
+
+"搜索" = "Sök";
+
+"标记已读" = "Markera som läst";
+
+"标记未读" = "Markera som oläst";
+
+"松手 编辑" = "Släpp för att redigera";
+
+"发送原语音" = "Skicka ursprungligt röstmeddelande";
+
+"松手 发语音" = "Släpp för att skicka röstmeddelande";

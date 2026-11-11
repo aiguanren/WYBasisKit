@@ -8,7 +8,7 @@
 import Foundation
 
 /// 名片model
-public struct WYChatBusinessCardModel {
+public struct WYChatBusinessCardModel: Equatable {
     
     /// id
     public var id: String

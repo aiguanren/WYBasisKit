@@ -10,6 +10,11 @@ import UIKit
 import WYBasisKitSwift
 
 public extension WYChatBasicCell {
+    /// 媒体组操作，参数为操作、消息ID和媒体下标
+    @objc(mediaActionHandler) var mediaActionHandlerObjC: ((_ action: WYChatMediaAction, _ messageID: String, _ index: Int) -> Void)? { get { mediaActionHandler } set { mediaActionHandler = newValue } }
+    /// 媒体组展示视图
+    @objc(mediaContentView) var mediaContentViewObjC: UIView { mediaContentView }
+
     /// 当前消息内容配置
     @objc(messageContentConfiguration) var messageContentConfigurationObjC: WYChatContentConfigObjC { WYChatContentConfigObjC(messageContentConfiguration) }
     /// 当前消息是否已选择
@@ -17,7 +22,7 @@ public extension WYChatBasicCell {
     /// 已读标识
     @objc(readMarkView) var readMarkViewObjC: UILabel { readMarkView }
     /// 引用内容
-    @objc(referenceView) var referenceViewObjC: UILabel { referenceView }
+    @objc(referenceView) var referenceViewObjC: WYChatQuoteView { referenceView }
     /// 发送失败按钮
     @objc(loadingView) var loadingViewObjC: UIButton { loadingView }
     /// 发送中动画

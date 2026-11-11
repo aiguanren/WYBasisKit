@@ -8,8 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		0AD9F7307AE9E37A608956C9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 74328580694DD5EDF903599C /* Foundation.framework */; };
+		0F89B90BCE37AE6185855470 /* WYChatTestConfigurationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C34E05CA4DE4004E7FE0796B /* WYChatTestConfigurationController.swift */; };
 		10F9D70B486C41BCB9F38283 /* WYTestMediaCacheController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78011E74F07D4B40A356BBFE /* WYTestMediaCacheController.swift */; };
 		1C1A742B2AE2D4E8EC7CA2CD /* Pods_SharedPods_SwiftVerify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB15FA56305133FC2FC9D800 /* Pods_SharedPods_SwiftVerify.framework */; };
+		31A92201BBAD53C511FD4ED8 /* ChatViewSpeechSample.caf in Resources */ = {isa = PBXBuildFile; fileRef = FAFA7A5666AE843FBF2DA845 /* ChatViewSpeechSample.caf */; };
+		45F4741155D6F9C1E8FDD086 /* WYChatTestSuite.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A8A49C2D3218C6BD471D9DF /* WYChatTestSuite.swift */; };
 		580BB8AC2FF63F6900C1B986 /* WYTestAirBubbleController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580BB8AB2FF63F6900C1B986 /* WYTestAirBubbleController.swift */; };
 		5814080D2EC83F1B0099D41B /* WYTestSideslipCellController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5814080C2EC83F1B0099D41B /* WYTestSideslipCellController.swift */; };
 		581D2E9630862355001C1B9E /* WYTestDanmakuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581D2E9530862355001C1B9E /* WYTestDanmakuController.swift */; };
@@ -71,10 +74,16 @@
 		58EE7B102FB990FB009AA0CC /* WYTestTextViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EE7B0F2FB990FB009AA0CC /* WYTestTextViewCell.swift */; };
 		58EE7B122FBA0001009AA0CC /* WYTestLabelViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EE7B112FBA0001009AA0CC /* WYTestLabelViewController.swift */; };
 		58EE7B142FBA0001009AA0CC /* WYTestLabelCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EE7B132FBA0001009AA0CC /* WYTestLabelCell.swift */; };
+		58FE30ACF33F9117155D31D3 /* WYChatTestPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62FC1533618AB8974B760C38 /* WYChatTestPanelController.swift */; };
+		5EE10906FE63E8F3E1BEB86B /* WYChatTestConfigurationFields.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E734C5227C0E93D3246A26A /* WYChatTestConfigurationFields.swift */; };
 		9297DDF3C7B90802E65D0E27 /* WYTestPhotoBrowserController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 785A9E48AEF94E7CE4DA876E /* WYTestPhotoBrowserController.swift */; };
 		AAA708702E1C11060040F2ED /* WYArchivedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA7086F2E1C11060040F2ED /* WYArchivedController.swift */; };
+		B20DAB6CC58589BCBB01A5B6 /* WYChatTestConfigurationChecks.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8F9B7634782CF0DDC2525B5 /* WYChatTestConfigurationChecks.swift */; };
+		C55B02355FF413B6A8046ECD /* WYChatViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC4BCA60A7F69EF12A910C86 /* WYChatViewTests.swift */; };
+		C74CEB16EE221D7C18584EB3 /* WYChatTestConfigurationField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1448E22BA68A8B112192D36F /* WYChatTestConfigurationField.swift */; };
 		E6A893588DCF4135BE3091D0 /* WYTestImageEditorController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843E9914E8E3471E89D812AB /* WYTestImageEditorController.swift */; };
 		EC0A62CF24FBF13B39EB8567 /* WYBasisKitRegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587246643089AA5C0093EC33 /* WYBasisKitRegressionTests.swift */; };
+		F2B3A8194E224C439F4715BD /* WYChatTestAdvancedConfigurationChecks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49F041BC763B68191669DF4B /* WYChatTestAdvancedConfigurationChecks.swift */; };
 		FFB0597CE7F979C4F146E2B3 /* AppIntents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 80573060528CB78FD589FBD8 /* AppIntents.framework */; };
 /* End PBXBuildFile section */
 
@@ -91,9 +100,13 @@
 /* Begin PBXFileReference section */
 		039BD45456A5083D50E3564E /* Pods-SwiftVerify.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftVerify.release.xcconfig"; path = "Target Support Files/Pods-SwiftVerify/Pods-SwiftVerify.release.xcconfig"; sourceTree = "<group>"; };
 		0953BDDD566655048899DC64 /* Pods-SwiftVerify.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftVerify.debug.xcconfig"; path = "Target Support Files/Pods-SwiftVerify/Pods-SwiftVerify.debug.xcconfig"; sourceTree = "<group>"; };
+		0A8A49C2D3218C6BD471D9DF /* WYChatTestSuite.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatTestSuite.swift; sourceTree = "<group>"; };
+		0E734C5227C0E93D3246A26A /* WYChatTestConfigurationFields.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatTestConfigurationFields.swift; sourceTree = "<group>"; };
+		1448E22BA68A8B112192D36F /* WYChatTestConfigurationField.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatTestConfigurationField.swift; sourceTree = "<group>"; };
 		2DB9925AC3DD1E2ABC6B0159 /* Pods-WYBasisKitVerify.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKitVerify.release.xcconfig"; path = "Target Support Files/Pods-WYBasisKitVerify/Pods-WYBasisKitVerify.release.xcconfig"; sourceTree = "<group>"; };
 		36C6640364725F7848269A13 /* Pods-WYBasisKitVerify.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WYBasisKitVerify.debug.xcconfig"; path = "Target Support Files/Pods-WYBasisKitVerify/Pods-WYBasisKitVerify.debug.xcconfig"; sourceTree = "<group>"; };
 		3D0D7C96161C4B2DD9D60AEB /* Pods-SharedPods-SwiftVerify.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SharedPods-SwiftVerify.release.xcconfig"; path = "Target Support Files/Pods-SharedPods-SwiftVerify/Pods-SharedPods-SwiftVerify.release.xcconfig"; sourceTree = "<group>"; };
+		49F041BC763B68191669DF4B /* WYChatTestAdvancedConfigurationChecks.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatTestAdvancedConfigurationChecks.swift; sourceTree = "<group>"; };
 		4AD2DFB76C253072911A0F1C /* Pods-SharedPods-SwiftVerify.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SharedPods-SwiftVerify.debug.xcconfig"; path = "Target Support Files/Pods-SharedPods-SwiftVerify/Pods-SharedPods-SwiftVerify.debug.xcconfig"; sourceTree = "<group>"; };
 		55A929A1299D0C9896669930 /* WYBasisKitRegressionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WYBasisKitRegressionTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		580BB8AB2FF63F6900C1B986 /* WYTestAirBubbleController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestAirBubbleController.swift; sourceTree = "<group>"; };
@@ -215,17 +228,32 @@
 		58EE7B0F2FB990FB009AA0CC /* WYTestTextViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestTextViewCell.swift; sourceTree = "<group>"; };
 		58EE7B112FBA0001009AA0CC /* WYTestLabelViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestLabelViewController.swift; sourceTree = "<group>"; };
 		58EE7B132FBA0001009AA0CC /* WYTestLabelCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestLabelCell.swift; sourceTree = "<group>"; };
+		62FC1533618AB8974B760C38 /* WYChatTestPanelController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatTestPanelController.swift; sourceTree = "<group>"; };
 		74328580694DD5EDF903599C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		78011E74F07D4B40A356BBFE /* WYTestMediaCacheController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestMediaCacheController.swift; sourceTree = "<group>"; };
 		785A9E48AEF94E7CE4DA876E /* WYTestPhotoBrowserController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestPhotoBrowserController.swift; sourceTree = "<group>"; };
 		80573060528CB78FD589FBD8 /* AppIntents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppIntents.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/AppIntents.framework; sourceTree = DEVELOPER_DIR; };
 		843E9914E8E3471E89D812AB /* WYTestImageEditorController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestImageEditorController.swift; sourceTree = "<group>"; };
 		AAA7086F2E1C11060040F2ED /* WYArchivedController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYArchivedController.swift; sourceTree = "<group>"; };
+		AC4BCA60A7F69EF12A910C86 /* WYChatViewTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatViewTests.swift; sourceTree = "<group>"; };
+		C34E05CA4DE4004E7FE0796B /* WYChatTestConfigurationController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatTestConfigurationController.swift; sourceTree = "<group>"; };
+		E8F9B7634782CF0DDC2525B5 /* WYChatTestConfigurationChecks.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatTestConfigurationChecks.swift; sourceTree = "<group>"; };
 		EB15FA56305133FC2FC9D800 /* Pods_SharedPods_SwiftVerify.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SharedPods_SwiftVerify.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		FAFA7A5666AE843FBF2DA845 /* ChatViewSpeechSample.caf */ = {isa = PBXFileReference; includeInIndex = 1; path = ChatViewSpeechSample.caf; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		587B34EE308B318400E26CCF /* Resource */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Resource; sourceTree = "<group>"; };
+		587B34EE308B318400E26CCF /* Resource */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = Resource;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -261,6 +289,19 @@
 			);
 			name = Pods;
 			path = ../Pods;
+			sourceTree = "<group>";
+		};
+		3877B159D60857AEEC43ADBE /* TestConfiguration */ = {
+			isa = PBXGroup;
+			children = (
+				1448E22BA68A8B112192D36F /* WYChatTestConfigurationField.swift */,
+				0E734C5227C0E93D3246A26A /* WYChatTestConfigurationFields.swift */,
+				C34E05CA4DE4004E7FE0796B /* WYChatTestConfigurationController.swift */,
+				E8F9B7634782CF0DDC2525B5 /* WYChatTestConfigurationChecks.swift */,
+				49F041BC763B68191669DF4B /* WYChatTestAdvancedConfigurationChecks.swift */,
+			);
+			name = TestConfiguration;
+			path = TestConfiguration;
 			sourceTree = "<group>";
 		};
 		580BB8AA2FF63F3B00C1B986 /* 气泡图 */ = {
@@ -482,6 +523,10 @@
 			children = (
 				585B3A742DF819DC00E6E08F /* WYTestChatController.swift */,
 				585B3A752DF819DC00E6E08F /* WYTestChatDataSource.swift */,
+				62FC1533618AB8974B760C38 /* WYChatTestPanelController.swift */,
+				0A8A49C2D3218C6BD471D9DF /* WYChatTestSuite.swift */,
+				F99E10CE0B62E93902A502A2 /* TestAssets */,
+				3877B159D60857AEEC43ADBE /* TestConfiguration */,
 			);
 			path = "IM即时通讯";
 			sourceTree = "<group>";
@@ -624,6 +669,7 @@
 			isa = PBXGroup;
 			children = (
 				587246643089AA5C0093EC33 /* WYBasisKitRegressionTests.swift */,
+				AC4BCA60A7F69EF12A910C86 /* WYChatViewTests.swift */,
 			);
 			path = SwiftVerifyUITests;
 			sourceTree = "<group>";
@@ -743,6 +789,15 @@
 			name = iOS;
 			sourceTree = "<group>";
 		};
+		F99E10CE0B62E93902A502A2 /* TestAssets */ = {
+			isa = PBXGroup;
+			children = (
+				FAFA7A5666AE843FBF2DA845 /* ChatViewSpeechSample.caf */,
+			);
+			name = TestAssets;
+			path = TestAssets;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -859,6 +914,7 @@
 				585B3AAE2DF819DC00E6E08F /* Assets.xcassets in Resources */,
 				585B3AB02DF819DC00E6E08F /* LaunchScreen.storyboard in Resources */,
 				585B3AB12DF819DC00E6E08F /* Main.storyboard in Resources */,
+				31A92201BBAD53C511FD4ED8 /* ChatViewSpeechSample.caf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1091,6 +1147,13 @@
 				AAA708702E1C11060040F2ED /* WYArchivedController.swift in Sources */,
 				10F9D70B486C41BCB9F38283 /* WYTestMediaCacheController.swift in Sources */,
 				9297DDF3C7B90802E65D0E27 /* WYTestPhotoBrowserController.swift in Sources */,
+				58FE30ACF33F9117155D31D3 /* WYChatTestPanelController.swift in Sources */,
+				45F4741155D6F9C1E8FDD086 /* WYChatTestSuite.swift in Sources */,
+				C74CEB16EE221D7C18584EB3 /* WYChatTestConfigurationField.swift in Sources */,
+				5EE10906FE63E8F3E1BEB86B /* WYChatTestConfigurationFields.swift in Sources */,
+				0F89B90BCE37AE6185855470 /* WYChatTestConfigurationController.swift in Sources */,
+				B20DAB6CC58589BCBB01A5B6 /* WYChatTestConfigurationChecks.swift in Sources */,
+				F2B3A8194E224C439F4715BD /* WYChatTestAdvancedConfigurationChecks.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1099,6 +1162,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EC0A62CF24FBF13B39EB8567 /* WYBasisKitRegressionTests.swift in Sources */,
+				C55B02355FF413B6A8046ECD /* WYChatViewTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

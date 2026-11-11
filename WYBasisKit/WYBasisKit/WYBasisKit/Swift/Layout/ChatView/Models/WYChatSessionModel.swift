@@ -8,7 +8,7 @@
 import Foundation
 
 /// 聊天model
-public struct WYChatSessionModel {
+public struct WYChatSessionModel: Equatable {
     
     /// 会话ID(用户ID或者群ID)
     public var sessionID: String

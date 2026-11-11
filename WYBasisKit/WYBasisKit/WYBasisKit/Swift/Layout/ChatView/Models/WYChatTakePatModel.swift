@@ -8,7 +8,7 @@
 import Foundation
 
 /// 拍一拍model
-public struct WYChatTakePatModel {
+public struct WYChatTakePatModel: Equatable {
     
     /// 拍人者
     public var striking: WYChatUserModel

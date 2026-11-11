@@ -230,6 +230,8 @@ import WYBasisKitSwift
     public var businessCard: WYChatBusinessCardModelObjC?
     /// 聊天记录(合集)
     public var chatRecords: WYChatRecordsModelObjC?
+    /// 合并图片和视频
+    public var mediaGroup: WYChatMediaGroupModelObjC?
 
     public override convenience init() { self.init(WYChatMessageContentModel()) }
 
@@ -249,6 +251,7 @@ import WYBasisKitSwift
         self.file = value.file.map { WYChatFileModelObjC($0) }
         self.businessCard = value.businessCard.map { WYChatBusinessCardModelObjC($0) }
         self.chatRecords = value.chatRecords.map { WYChatRecordsModelObjC($0) }
+        self.mediaGroup = value.mediaGroup.map(WYChatMediaGroupModelObjC.init)
         super.init()
     }
 
@@ -269,6 +272,7 @@ import WYBasisKitSwift
         value.file = file.map { $0.toValue() }
         value.businessCard = businessCard.map { $0.toValue() }
         value.chatRecords = chatRecords.map { $0.toValue() }
+        value.mediaGroup = mediaGroup.map { $0.toValue() }
         return value
     }
 }
@@ -489,6 +493,9 @@ import WYBasisKitSwift
 
 @objc(WYChatVoiceModel)
 @objcMembers public class WYChatVoiceModelObjC: NSObject {
+    /// 当前语音播放倍速，由调用方用于播放器
+    public var playbackRate: Float
+
     /// 是否正在识别语音
     public var isRecognizing: Bool = false
     /// 语音识别错误提示
@@ -536,6 +543,7 @@ import WYBasisKitSwift
         self.amrPath = value.amrPath
         self.cafPath = value.cafPath
         self.aacPath = value.aacPath
+        self.playbackRate = value.playbackRate
         self.isPlaying = value.isPlaying
         isRecognizing = value.isRecognizing
         recognitionError = value.recognitionError
@@ -556,6 +564,7 @@ import WYBasisKitSwift
         value.amrPath = amrPath
         value.cafPath = cafPath
         value.aacPath = aacPath
+        value.playbackRate = playbackRate
         value.isPlaying = isPlaying
         value.isRecognizing = isRecognizing
         value.recognitionError = recognitionError
@@ -576,6 +585,13 @@ import WYBasisKitSwift
     /// 消息类型
     public var messageStyle: WYChatMessageStyle
 
+    /// 可重新编辑的原始文本，nil表示不提供重新编辑
+    public var originalText: String?
+    /// 原始引用快照，nil表示发送时没有引用
+    public var reference: WYChatQuoteModelObjC?
+    /// 原始文本中的用户提及
+    public var mentions: [WYChatMentionObjC]
+
     public override convenience init() { self.init(WYChatWithdrawnModel()) }
 
     @nonobjc public init(_ value: WYChatWithdrawnModel) {
@@ -584,6 +600,9 @@ import WYBasisKitSwift
         self.withdrawnTime = value.withdrawnTime
         self.content = value.content
         self.messageStyle = value.messageStyle
+        originalText = value.originalText
+        reference = value.reference.map(WYChatQuoteModelObjC.init)
+        mentions = value.mentions.map(WYChatMentionObjC.init)
         super.init()
     }
 
@@ -594,6 +613,9 @@ import WYBasisKitSwift
         value.withdrawnTime = withdrawnTime
         value.content = content
         value.messageStyle = messageStyle
+        value.originalText = originalText
+        value.reference = reference?.toValue()
+        value.mentions = mentions.map { $0.toValue() }
         return value
     }
 }

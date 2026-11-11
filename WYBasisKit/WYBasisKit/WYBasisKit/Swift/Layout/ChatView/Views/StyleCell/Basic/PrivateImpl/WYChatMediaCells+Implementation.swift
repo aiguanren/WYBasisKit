@@ -10,12 +10,12 @@ import UIKit
 /// 媒体消息内容
 extension WYChatBasicCell {
     func wy_showThumbnail(_ asset: WYChatAssetsModel) {
-        state.thumbnail.isHidden = false
+        state.usesThumbnail = true
         wy_loadImage(asset, into: state.thumbnail)
     }
 
     func wy_showImage(_ asset: WYChatAssetsModel, height: CGFloat? = nil) {
-        state.image.isHidden = false
+        state.usesImage = true
         state.imageHeight?.constant = max(1, height ?? messageContentConfiguration.mediaSize.height)
         wy_loadImage(asset, into: state.image)
     }

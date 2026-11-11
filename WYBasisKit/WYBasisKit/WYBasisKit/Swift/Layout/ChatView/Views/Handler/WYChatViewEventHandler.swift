@@ -10,30 +10,60 @@ import UIKit
 extension WYChatView: UITableViewDelegate, UITableViewDataSource {
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { dataSource.count }
 
+    public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat { wy_cachedHeight(at: indexPath) ?? UITableView.automaticDimension }
+
+    public func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat { wy_cachedHeight(at: indexPath) ?? tableView.estimatedRowHeight }
+
+    public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        guard dataSource.indices.contains(indexPath.row), configuration.customCellClasses.isEmpty,
+              let cell = cell as? WYChatBasicCell, cell.message.messageID == dataSource[indexPath.row].messageID else { return }
+        state.measuredHeights[wy_measurementKey(at: indexPath)] = WYChatMeasuredHeight(width: tableView.bounds.width, height: cell.bounds.height)
+    }
+
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let custom = eventsHandler?.wy_canManagerCellForRowEvents?(self, tableView: tableView, indexPath: indexPath) { return custom }
         let model = dataSource[indexPath.row]
         let cell = tableView.dequeueReusableCell(withIdentifier: String(describing: model.content.style().cellClass), for: indexPath)
         if let cell = cell as? WYChatBasicCell {
             cell.update(message: model, configuration: configuration.messageConfiguration?(model, configuration) ?? configuration, userID: userInfo.id)
+            cell.wy_isSelectingMessages = isSelectingMessages
             cell.isMessageSelected = selectedMessageIDs.contains(model.messageID)
+            cell.wy_updateLayout(width: tableView.bounds.width)
             cell.actionHandler = { [weak self] action, identifier in self?.wy_performAction(action, messageID: identifier) }
+            cell.voicePlaybackRateHandler = { [weak self] identifier, rate in self?.setVoicePlaybackRate(rate, messageID: identifier) }
+            cell.mediaActionHandler = { [weak self] action, identifier, index in self?.wy_performMediaAction(action, messageID: identifier, index: index) }
+            if model.content.mediaGroup != nil { state.mediaViews.add(cell.state.mediaView) }
         }
         return cell
     }
 
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        guard isSelectingMessages || dataSource[indexPath.row].content.mediaGroup == nil else { return }
         wy_performAction(isSelectingMessages ? .select : .content, messageID: dataSource[indexPath.row].messageID)
     }
 
     public func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
-        guard configuration.enablesMessageMenu, !isSelectingMessages else { return nil }
+        guard configuration.enablesMessageMenu else { return nil }
+        var target = tableView.hitTest(point, with: nil)
+        while let view = target, view !== tableView {
+            if view.gestureRecognizers?.contains(where: { $0 is UILongPressGestureRecognizer && $0.isEnabled && $0.delegate is WYChatAvatarGestures }) == true { return nil }
+            target = view.superview
+        }
         let model = dataSource[indexPath.row]
         return UIContextMenuConfiguration(identifier: model.messageID as NSString, previewProvider: nil) { [weak self] _ in self?.wy_menu(model) }
     }
 
+    public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) { wy_cancelAutomaticScroll() }
+
+    public func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        state.followsBottom = wy_isNearBottom
+        state.readingAnchor = nil
+        wy_captureReadingPosition()
+    }
+
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        for view in state.mediaViews.allObjects { view.updateVisibleImages() }
         guard eventsHandler?.wy_canManagerScrollViewDidScrollEvents?(scrollView) ?? true else { return }
         if wy_isNearBottom { newMessagesButton.isHidden = true }
         delegate?.wy_scrollViewDidScroll?(scrollView)
@@ -44,7 +74,7 @@ extension WYChatView: WYChatInputViewDelegate, WYChatInputViewEventsHandler {
     public func wy_didClickMoreView(isText: Bool) { wy_setPanel(isText ? .done : .more, dismissKeyboard: !isText); delegate?.wy_didClickMoreView?(isText: isText) }
     public func wy_didClickEmojiTextView(isText: Bool) { wy_setPanel(isText ? .done : .emoji, dismissKeyboard: !isText); delegate?.wy_didClickEmojiTextView?(isText: isText) }
     public func wy_didClickTextVoiceView(isText: Bool) { if !isText { wy_setPanel(.done) }; delegate?.wy_didClickTextVoiceView?(isText: isText) }
-    public func wy_textDidChanged(text: String) { updateEmojiFuncAreaViewState(); delegate?.wy_textDidChanged?(text: text) }
+    public func wy_textDidChanged(text: String) { wy_updateInputMentions(text: text); updateEmojiFuncAreaViewState(); delegate?.wy_textDidChanged?(text: text) }
     public func wy_didClickKeyboardEvent(text: String) { didClickKeyboardEvent(text, silence: false) }
     public func didClickKeyboardEvent(_ text: String, silence: Bool) {
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
@@ -52,6 +82,7 @@ extension WYChatView: WYChatInputViewDelegate, WYChatInputViewEventsHandler {
         emojiView?.updateRecentlyEmoji(chatInput.textView.attributedText)
         let message = sendMessage(text)
         chatInput.textView.text = ""
+        wy_updateInputMentions(text: "")
         chatInput.textViewDidChange(chatInput.textView, silence: true)
         updateEmojiFuncAreaViewState()
         delegate?.wy_keyboardSendMessage?(messageID: message.messageID)
@@ -87,6 +118,9 @@ extension WYChatView: WYChatEmojiViewDelegate, WYChatEmojiViewEventsHandler {
 }
 
 extension WYChatView: WYChatMoreViewDelegate, WYMoreViewEventsHandler {
-    public func wy_didClickMoreViewAtIndex(itemIndex: Int) { if let moreView { delegate?.wy_didClickMoreView?(moreView, itemIndex: itemIndex) } }
+    public func wy_didClickMoreViewAtIndex(itemIndex: Int) {
+        if itemIndex == configuration.media.albumMoreItemIndex && itemIndex >= 0 { requestAlbum() }
+        if let moreView { delegate?.wy_didClickMoreView?(moreView, itemIndex: itemIndex) }
+    }
     public func wy_canManagerMoreViewClickEvents(_ view: WYChatMoreView, itemIndex: Int) -> Bool { eventsHandler?.wy_canManagerMoreViewClickEvents?(view, itemIndex: itemIndex) ?? true }
 }

@@ -244,3 +244,41 @@
 "%@撤回了一条消息" = "%@ perui viestin lähetyksen";
 
 "%@拍了拍%@%@" = "%@ napautti %@%@";
+
+"语言" = "Kieli";
+
+"翻译" = "Käännä";
+
+"翻译失败，请重试" = "Käännös epäonnistui. Yritä uudelleen.";
+
+"正在翻译…" = "Käännetään…";
+
+"展开" = "Laajenna";
+
+"收起" = "Supista";
+
+"重新编辑" = "Muokkaa uudelleen";
+
+"选择到这里" = "Valitse tähän asti";
+
+"逐条转发" = "Lähetä edelleen erikseen";
+
+"合并转发" = "Lähetä edelleen yhdessä";
+
+"聊天记录" = "Keskusteluhistoria";
+
+"收藏" = "Suosikki";
+
+"提醒" = "Muistutus";
+
+"搜索" = "Hae";
+
+"标记已读" = "Merkitse luetuksi";
+
+"标记未读" = "Merkitse lukemattomaksi";
+
+"松手 编辑" = "Vapauta muokataksesi";
+
+"发送原语音" = "Lähetä alkuperäinen ääni";
+
+"松手 发语音" = "Vapauta lähettääksesi ääniviestin";

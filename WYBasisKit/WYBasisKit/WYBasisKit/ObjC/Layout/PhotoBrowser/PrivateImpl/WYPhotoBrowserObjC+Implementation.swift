@@ -68,6 +68,7 @@ extension WYPhotoBrowserObjC {
                 if bridgeAppearance.menuFontSize >= 0 { appearance.menuFontSize = bridgeAppearance.menuFontSize }
                 if let color = bridgeAppearance.menuHighlightBackgroundColor { appearance.menuHighlightBackgroundColor = color }
                 if bridgeAppearance.menuCornerRadius >= 0 { appearance.menuCornerRadius = bridgeAppearance.menuCornerRadius }
+                if let toast = bridgeAppearance.toastConfig { appearance.toastConfig = WYMessageInfoConfig(backgroundColor: toast.backgroundColor, textColor: toast.textColor, textFont: toast.textFont) }
                 configuration.appearance = appearance
             }
         }
@@ -129,6 +130,7 @@ func wy_photoBrowserBridge(_ value: WYPhotoBrowserConfiguration) -> WYPhotoBrows
     appearance.menuFontSize = value.appearance.menuFontSize
     appearance.menuHighlightBackgroundColor = value.appearance.menuHighlightBackgroundColor
     appearance.menuCornerRadius = value.appearance.menuCornerRadius
+    if let toast = value.appearance.toastConfig { appearance.toastConfig = WYMessageInfoConfigObjC(backgroundColor: toast.backgroundColor, textColor: toast.textColor, textFont: toast.textFont) }
     result.appearance = appearance
     return result
 }

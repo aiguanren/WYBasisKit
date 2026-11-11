@@ -10,8 +10,11 @@ import UIKit
 
 /// 消息操作
 @objc public enum WYChatAction: Int {
-    case content, avatar, nickname, retry, copy, quote, forward, delete, withdraw, select, translate, play, pause
+    case content, avatar, nickname, retry, copy, quote, forward, delete, withdraw, select, translate, play, pause, mention, takePat, reference, reedit, selectRange, playbackRate, favorite, remind, search, markRead, markUnread
 }
+
+/// 头像手势操作
+@objc public enum WYChatAvatarAction: Int { case none, profile, mention, takePat }
 
 /// 收发方向的布局配置
 public struct WYChatSideLayout {
@@ -111,7 +114,7 @@ public struct WYChatConfig {
     /// 接收方布局
     public var receiver: WYChatSideLayout = WYChatSideLayout()
     /// 发送方气泡
-    public var senderBubble: WYChatBubbleConfig = { var value = WYChatBubbleConfig(); value.fillColor = .wy_rgb(149, 236, 105); return value }()
+    public var senderBubble: WYChatBubbleConfig = { var value = WYChatBubbleConfig(); value.fillColor = UIColor { $0.userInterfaceStyle == .dark ? .wy_hex("#33415F") : .wy_hex("#DDE3FF") }; return value }()
     /// 接收方气泡
     public var receiverBubble: WYChatBubbleConfig = WYChatBubbleConfig()
     /// 文本配置
@@ -120,12 +123,26 @@ public struct WYChatConfig {
     public var content: WYChatContentConfig = WYChatContentConfig()
     /// 各类型内容覆盖配置，未提供时使用content
     public var contentOverrides: [WYChatMessageStyle: WYChatContentConfig] = [:]
+    /// 是否显示输入栏，默认true
+    public var showsInputBar = true
     /// 输入栏配置
     public var input: WYInputBarConfig = WYInputBarConfig()
     /// 表情配置
     public var emoji: WYEmojiViewConfig = WYEmojiViewConfig()
     /// 更多面板配置
     public var more: WYMoreViewConfig = WYMoreViewConfig()
+    /// 图片和视频展示
+    public var media: WYChatMediaConfig = WYChatMediaConfig()
+    /// 引用消息与输入预览
+    public var quote: WYChatQuoteConfig = WYChatQuoteConfig()
+    /// 撤回与重新编辑
+    public var notice: WYChatNoticeConfig = WYChatNoticeConfig()
+    /// 合并聊天记录明细
+    public var records = WYChatRecordsConfig()
+    /// 多选操作与转发
+    public var selection = WYChatSelectionConfig()
+    /// 语音播放倍速
+    public var voicePlayback = WYChatVoicePlaybackConfig()
     /// 录音配置
     public var recording: WYRecordAnimationConfig = WYRecordAnimationConfig()
     /// 聊天背景色
@@ -141,7 +158,7 @@ public struct WYChatConfig {
     /// 是否启用长按菜单，默认true
     public var enablesMessageMenu: Bool = true
     /// 默认菜单操作，宿主通过回调执行外部操作
-    public var menuActions: [WYChatAction] = [.copy, .quote, .forward, .delete, .select, .translate]
+    public var menuActions: [WYChatAction] = [.copy, .quote, .forward, .favorite, .delete, .withdraw, .reedit, .select, .translate]
     /// 多选时是否显示内置工具条，默认true
     public var showsSelectionToolbar: Bool = true
     /// 多选取消按钮文本

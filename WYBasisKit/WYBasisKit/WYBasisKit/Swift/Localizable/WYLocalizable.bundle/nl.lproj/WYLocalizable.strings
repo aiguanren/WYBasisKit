@@ -244,3 +244,41 @@
 "%@撤回了一条消息" = "%@ heeft een bericht ingetrokken";
 
 "%@拍了拍%@%@" = "%@ tikte op %@%@";
+
+"语言" = "Taal";
+
+"翻译" = "Vertalen";
+
+"翻译失败，请重试" = "Vertalen mislukt. Probeer het opnieuw.";
+
+"正在翻译…" = "Bezig met vertalen…";
+
+"展开" = "Uitvouwen";
+
+"收起" = "Invouwen";
+
+"重新编辑" = "Opnieuw bewerken";
+
+"选择到这里" = "Tot hier selecteren";
+
+"逐条转发" = "Afzonderlijk doorsturen";
+
+"合并转发" = "Samen doorsturen";
+
+"聊天记录" = "Chatgeschiedenis";
+
+"收藏" = "Favoriet";
+
+"提醒" = "Herinnering";
+
+"搜索" = "Zoeken";
+
+"标记已读" = "Markeren als gelezen";
+
+"标记未读" = "Markeren als ongelezen";
+
+"松手 编辑" = "Laat los om te bewerken";
+
+"发送原语音" = "Originele spraak verzenden";
+
+"松手 发语音" = "Laat los om het spraakbericht te verzenden";

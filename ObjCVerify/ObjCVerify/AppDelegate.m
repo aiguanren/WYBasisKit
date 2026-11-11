@@ -9,6 +9,8 @@
 #import <WYBasisKitObjC-Swift.h>
 @import IQKeyboardManagerSwift;
 @import IQKeyboardToolbarManager;
+#import "WYTestChatController.h"
+#import "WYChatTestSuite.h"
 #import <SDWebImage/SDImageCodersManager.h>
 #import <SDWebImageWebPCoder/SDImageWebPCoder.h>
 
@@ -33,6 +35,9 @@
     [IQKeyboardManager shared].isEnabled = YES;
     [IQKeyboardManager shared].resignOnTouchOutside = YES;
     IQKeyboardToolbarManager.shared.isEnabled = YES;
+    IQKeyboardManager.shared.disabledDistanceHandlingClasses = [IQKeyboardManager.shared.disabledDistanceHandlingClasses arrayByAddingObjectsFromArray:@[WYTestChatController.class, WYChatTestSuite.class]];
+    IQKeyboardManager.shared.disabledTouchResignedClasses = [IQKeyboardManager.shared.disabledTouchResignedClasses arrayByAddingObjectsFromArray:@[WYTestChatController.class, WYChatTestSuite.class]];
+    IQKeyboardToolbarManager.shared.disabledToolbarClasses = [IQKeyboardToolbarManager.shared.disabledToolbarClasses arrayByAddingObjectsFromArray:@[WYTestChatController.class, WYChatTestSuite.class]];
     // 播放器区域不触发点外收回(键盘管理的窗口点按手势不与播放器单击抢事件)
     {
         NSMutableArray<Class> *ignoreClasses = [[IQKeyboardManager shared].touchResignedGestureIgnoreClasses mutableCopy];

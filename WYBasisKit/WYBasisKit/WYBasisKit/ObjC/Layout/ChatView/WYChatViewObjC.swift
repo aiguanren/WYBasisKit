@@ -50,13 +50,44 @@ public extension WYChatView {
         get { messagePreparedHandler.map { handler in { message in handler(message.toValue()) } } }
         set { messagePreparedHandler = newValue.map { handler in { message in handler(WYChatMessageModelObjC(message)) } } }
     }
+    /// 输入框引用预览
+    @objc(quotePreview) var quotePreviewObjC: WYChatQuoteView { quotePreview }
+    /// 查询消息是否可请求撤回，参数为消息ID与判断时刻
+    @objc(canWithdrawMessage) var canWithdrawMessageObjC: @convention(block) (_ messageID: String, _ date: Date) -> Bool { { [self] identifier, date in canWithdrawMessage(identifier, at: date) } }
+    /// 在宿主确认撤回成功后更新消息及其引用快照，参数为消息ID、撤回时刻及是否保留自己的文本供重新编辑
+    @objc(markMessageWithdrawn) var markMessageWithdrawnObjC: @convention(block) (_ messageID: String, _ date: Date, _ allowsReedit: Bool) -> Bool { { [self] identifier, date, reedit in markMessageWithdrawn(identifier, at: date, allowsReedit: reedit) } }
+    /// 查询撤回文本是否可重新编辑，参数为消息ID与判断时刻
+    @objc(canReeditMessage) var canReeditMessageObjC: @convention(block) (_ messageID: String, _ date: Date) -> Bool { { [self] identifier, date in canReeditMessage(identifier, at: date) } }
+    /// 恢复撤回文本及发送时的引用，参数为消息ID
+    @objc(reeditMessage) var reeditMessageObjC: @convention(block) (_ messageID: String) -> Bool { { [self] identifier in reeditMessage(identifier) } }
+    /// 输入框中仍然有效的用户提及
+    @objc(inputMentions) var inputMentionsObjC: [WYChatMentionObjC] { inputMentions.map(WYChatMentionObjC.init) }
+    /// 在输入框当前选区插入用户提及，参数为被提及的用户，返回是否已完整插入提及文本
+    @objc(mentionUser) var mentionUserObjC: @convention(block) (_ user: WYChatUserModelObjC) -> Bool { { [self] user in mentionUser(user.toValue()) } }
+    /// 请求宿主打开相册，选择结果通过sendMedia交回
+    @objc(openAlbumHandler) var openAlbumHandlerObjC: (() -> Void)? { get { openAlbumHandler } set { openAlbumHandler = newValue } }
+    /// 媒体操作，参数为操作、消息ID和媒体下标
+    @objc(mediaActionHandler) var mediaActionHandlerObjC: ((_ action: WYChatMediaAction, _ messageID: String, _ index: Int) -> Void)? { get { mediaActionHandler } set { mediaActionHandler = newValue } }
+    /// 宿主接管媒体预览，参数为媒体列表、初始下标和来源视图
+    @objc(mediaPreviewHandler) var mediaPreviewHandlerObjC: ((_ items: [WYChatMediaItemObjC], _ index: Int, _ sourceView: UIView?) -> Void)? {
+        get { mediaPreviewHandler.map { handler in { items, index, source in handler(items.map { $0.toValue() }, index, source) } } }
+        set { mediaPreviewHandler = newValue.map { handler in { items, index, source in handler(items.map(WYChatMediaItemObjC.init), index, source) } } }
+    }
+    /// 请求宿主打开相册
+    @objc(requestAlbum) var requestAlbumObjC: @convention(block) () -> WYChatView { { [self] in self.requestAlbum(); return self } }
+    /// 组装选中的图片和视频并按配置加入列表，参数为宿主选择的媒体
+    @objc(sendMedia) var sendMediaObjC: @convention(block) (_ items: [WYChatMediaItemObjC]) -> [WYChatMessageModelObjC] { { [self] items in self.sendMedia(items.map { $0.toValue() }).map(WYChatMessageModelObjC.init) } }
+    /// 展开或收起媒体组，参数为是否展开和媒体组消息ID
+    @objc(setMediaGroupExpanded) var setMediaGroupExpandedObjC: @convention(block) (_ expanded: Bool, _ messageID: String) -> WYChatView { { [self] expanded, identifier in self.setMediaGroupExpanded(expanded, messageID: identifier); return self } }
+    /// 打开媒体组中的图片或视频，参数为消息ID和媒体下标
+    @objc(previewMedia) var previewMediaObjC: @convention(block) (_ messageID: String, _ index: Int) -> WYChatView { { [self] identifier, index in self.previewMedia(messageID: identifier, index: index); return self } }
     /// 录音结果，参数为文件URL、时长及错误
     @objc(recordingHandler) var recordingHandlerObjC: ((_ url: URL?, _ duration: TimeInterval, _ error: NSError?) -> Void)? { get { recordingHandler } set { recordingHandler = newValue } }
     /// 当前引用的消息ID，nil表示没有引用
     @objc(quotedMessageID) var quotedMessageIDObjC: String? { quotedMessageID }
     /// 新消息提示按钮
     @objc(newMessagesButton) var newMessagesButtonObjC: UIButton { newMessagesButton }
-    /// 引用输入提示
+    /// 取消输入框引用的按钮
     @objc(quoteButton) var quoteButtonObjC: UIButton { quoteButton }
     /// 输入栏
     @objc(chatInput) var chatInputObjC: WYChatInputView { chatInput }
@@ -72,8 +103,6 @@ public extension WYChatView {
     @objc(selectedMessageIDs) var selectedMessageIDsObjC: [String] { selectedMessageIDs.sorted() }
     /// 当前输入面板
     @objc(touchStyle) var touchStyleObjC: WYChatTouchStyle { touchStyle }
-    /// 最近输入的表情文本
-    @objc(recentlyEmojis) var recentlyEmojisObjC: [String] { get { recentlyEmojis } set { recentlyEmojis = newValue } }
     /// 追加消息，参数为消息数组
     @objc(appendMessages) var appendMessagesObjC: @convention(block) (_ messages: [WYChatMessageModelObjC]) -> WYChatView {
         { [self] messages in self.appendMessages(messages.map { $0.toValue() }); return self }

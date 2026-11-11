@@ -116,6 +116,7 @@ extension WYChatEmojiView {
         let minimumInteritemSpacing: CGFloat = 0
 
         let collectionView: UICollectionView = UICollectionView.wy_shared(scrollDirection: .vertical, minimumLineSpacing: self.emojiViewConfig.minimumLineSpacing, minimumInteritemSpacing: minimumInteritemSpacing, itemSize: self.emojiViewConfig.itemSize, delegate: self, dataSource: self, superView: self)
+        collectionView.accessibilityIdentifier = "WYChatEmoji.items"
         collectionView.register(WYEmojiViewCell.self, forCellWithReuseIdentifier: "WYEmojiViewCell")
         collectionView.register(WYEmojiHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "WYEmojiHeaderView")
         collectionView.register(UICollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "UICollectionReusableView")
@@ -130,7 +131,10 @@ extension WYChatEmojiView {
 
         // 长按预览手势
         let longPress: UILongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(didLongPressEmoji(_:)))
-        longPress.minimumPressDuration = 0.5
+        let duration = emojiViewConfig.previewConfig.minimumPressDuration
+        let movement = emojiViewConfig.previewConfig.allowableMovement
+        longPress.minimumPressDuration = duration.isFinite ? max(0, duration) : 0.5
+        longPress.allowableMovement = movement.isFinite ? max(0, movement) : 0
         collectionView.addGestureRecognizer(longPress)
 
         return collectionView
@@ -159,15 +163,8 @@ extension WYChatEmojiView {
             return []
         }
 
-        var recentlyEmoji: [String] = UserDefaults.standard.array(forKey: emojiViewRecentlyCountKey) as? [String] ?? []
-        if recentlyEmoji.count > self.emojiViewConfig.recentlyCount {
-            let range: Range =  Range(NSMakeRange(self.emojiViewConfig.recentlyCount - 1, recentlyEmoji.count - self.emojiViewConfig.recentlyCount))!
-            recentlyEmoji.replaceSubrange(range, with: [])
-
-            UserDefaults.standard.setValue(recentlyEmoji, forKey: emojiViewRecentlyCountKey)
-            UserDefaults.standard.synchronize()
-        }
-        return recentlyEmoji
+        let recentlyEmoji = UserDefaults.standard.array(forKey: emojiViewConfig.recentlyStorageKey) as? [String] ?? []
+        return Array(recentlyEmoji.prefix(max(0, emojiViewConfig.recentlyCount)))
     }
 
     func wy_makeDataSource() -> [[String]] {
@@ -230,27 +227,24 @@ extension WYChatEmojiView {
     }
 
     func wy_impl_updateRecentlyEmoji(_ attributedText: NSAttributedString) {
-        guard self.emojiViewConfig.showRecently == true else {
+        guard self.emojiViewConfig.showRecently == true, self.emojiViewConfig.recentlyCount > 0 else {
             return
         }
-
-        let _: NSMutableString = NSMutableString(string: attributedText.string)
         attributedText.enumerateAttribute(NSAttributedString.Key.attachment, in: NSMakeRange(0, attributedText.string.utf16.count), options: NSAttributedString.EnumerationOptions.longestEffectiveRangeNotRequired) { value, range, stop in
             if value is WYTextAttachment {
                 // 拿到文本附件
                 let attachment: WYTextAttachment = value as! WYTextAttachment
                 let emoji: String = String(format: "%@", attachment.imageName)
                 // 更新最近使用的表情
-                var recently: [String] = UserDefaults.standard.array(forKey: emojiViewRecentlyCountKey) as? [String] ?? []
+                var recently: [String] = UserDefaults.standard.array(forKey: emojiViewConfig.recentlyStorageKey) as? [String] ?? []
+                let retainedCount = max(recently.count, self.emojiViewConfig.recentlyCount)
                 if recently.contains(emoji) {
                     recently.remove(at: recently.firstIndex(of: emoji)!)
                 }
                 recently.insert(emoji, at: 0)
-                if recently.count > self.emojiViewConfig.recentlyCount {
-                    recently.removeLast()
-                }
-                UserDefaults.standard.setValue(Array(recently), forKey: emojiViewRecentlyCountKey)
-                UserDefaults.standard.synchronize()
+                recently = Array(recently.prefix(retainedCount))
+                UserDefaults.standard.setValue(recently, forKey: emojiViewConfig.recentlyStorageKey)
+                recently = Array(recently.prefix(self.emojiViewConfig.recentlyCount))
 
                 if recentlyEmoji.isEmpty == false {
                     dataSource[0] = Array(recently)
