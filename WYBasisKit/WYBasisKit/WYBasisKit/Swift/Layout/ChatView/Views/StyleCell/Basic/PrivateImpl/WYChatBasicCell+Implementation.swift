@@ -17,6 +17,9 @@ final class WYChatBubbleView: WYAirBubbleView {
     var configuredOffset: CGFloat = 0
     var configuredPadding: CGFloat = 0
     var alignmentFromTop: CGFloat?
+    let arrowImageView = UIImageView()
+    var arrowImageSize: CGSize = .zero
+    var arrowImageOffset: CGPoint = .zero
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
@@ -50,6 +53,12 @@ final class WYChatBubbleView: WYAirBubbleView {
         let offset = (alignmentFromTop.map { $0 - height / 2 } ?? 0) + (configuredOffset.isFinite ? configuredOffset : 0)
         let limit = max(0, space - arrowEdgePadding)
         arrowOffset = hasArrow ? min(limit, max(-limit, offset)) : 0
+        if arrowImageView.image != nil {
+            showsArrow = false
+            if arrowImageView.superview == nil { addSubview(arrowImageView) }
+            let imageSize = CGSize(width: max(0, arrowImageSize.width), height: max(0, arrowImageSize.height))
+            arrowImageView.frame = CGRect(x: (arrowDirection == .left ? 1 - imageSize.width : width - 1) + arrowImageOffset.x, y: (alignmentFromTop ?? height / 2) + configuredOffset - imageSize.height / 2 + arrowImageOffset.y, width: imageSize.width, height: imageSize.height)
+        }
         super.layoutSubviews()
     }
 }
@@ -66,6 +75,7 @@ final class WYChatBasicCellPrivateState {
     var nicknameHeight: NSLayoutConstraint!
     var timeHeight: NSLayoutConstraint!
     var timeBottom: NSLayoutConstraint!
+    var nicknameTop: NSLayoutConstraint!
     var bodyInsets: [NSLayoutConstraint] = []
     var bubbleTop: NSLayoutConstraint!
     var bubbleBottom: NSLayoutConstraint!
@@ -202,6 +212,7 @@ extension WYChatBasicCell {
         state.timeHeight = timeView.heightAnchor.constraint(equalToConstant: 0)
         state.nicknameHeight = nicknameView.heightAnchor.constraint(equalToConstant: 0)
         state.timeBottom = avatarView.topAnchor.constraint(equalTo: timeView.bottomAnchor)
+        state.nicknameTop = nicknameView.topAnchor.constraint(equalTo: timeView.bottomAnchor)
         state.bubbleTop = bubblesView.topAnchor.constraint(equalTo: nicknameView.bottomAnchor)
         state.bubbleBottom = bubblesView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         state.center = bubblesView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor)
@@ -212,7 +223,7 @@ extension WYChatBasicCell {
         state.common = [
             timeView.topAnchor.constraint(equalTo: contentView.topAnchor), timeView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             state.timeHeight, state.avatarWidth, state.avatarHeight, state.timeBottom, state.nicknameHeight,
-            nicknameView.topAnchor.constraint(equalTo: avatarView.topAnchor), state.bubbleTop, state.bubbleBottom, state.width, state.contentMinimum,
+            state.nicknameTop, state.bubbleTop, state.bubbleBottom, state.width, state.contentMinimum,
             avatarView.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor),
             loadingView.centerYAnchor.constraint(equalTo: bubblesView.centerYAnchor), state.statusWidth, state.statusHeight,
             activityView.centerXAnchor.constraint(equalTo: loadingView.centerXAnchor), activityView.centerYAnchor.constraint(equalTo: loadingView.centerYAnchor),
@@ -364,10 +375,16 @@ extension WYChatBasicCell {
         state.timeHeight.constant = timeHeight
         state.timeBottom.constant = max(0, configuration.messageSpacing / 2)
         let nicknameHeight = nicknameView.isHidden || wy_isNotice ? 0 : basic.nicknameFont.lineHeight + max(0, configuration.nicknameSpacing)
+        let bubbleConfig = sender ? configuration.senderBubble : configuration.receiverBubble
+        let arrowInset = max(bubbleConfig.cornerRadius.isFinite ? max(0, bubbleConfig.cornerRadius) : 0, bubbleConfig.arrowEdgePadding.isFinite ? max(0, bubbleConfig.arrowEdgePadding) : 0) + (bubbleConfig.arrowSize.width.isFinite ? max(0, bubbleConfig.arrowSize.width) : 0) / 2
+        let alignsArrow = bubbleConfig.alignsArrowWithAvatar && bubbleConfig.showsArrow && messageContentConfiguration.showsBubble && !avatarView.isHidden && !wy_isNotice
+        let avatarShift = alignsArrow ? max(0, nicknameHeight + side.contentTopOffset + arrowInset - avatarHeight / 2) : 0
+        state.nicknameTop.constant = max(0, configuration.messageSpacing / 2)
+        state.timeBottom.constant += avatarShift
         state.nicknameHeight.constant = nicknameHeight
         state.bubbleTop.constant = side.contentTopOffset
         state.bubbleBottom.constant = -max(0, configuration.messageSpacing / 2)
-        state.contentMinimum.constant = wy_isNotice ? 0 : max(0, avatarHeight - nicknameHeight)
+        state.contentMinimum.constant = wy_isNotice ? 0 : max(0, avatarHeight - nicknameHeight, alignsArrow ? avatarShift + avatarHeight / 2 - nicknameHeight - side.contentTopOffset + arrowInset : 0)
         let style = messageContentConfiguration
         let ratio = style.maximumWidthRatio.isFinite ? min(1, max(0.1, style.maximumWidthRatio)) : 0.75
         wy_updateSelectionIndicator()
@@ -382,7 +399,6 @@ extension WYChatBasicCell {
         state.referenceHeight.constant = referenceHeight
         state.referenceTop.constant = referenceGap
         state.bubbleBottom.constant -= referenceHeight + referenceGap
-        let bubbleConfig = sender ? configuration.senderBubble : configuration.receiverBubble
         let arrow = style.showsBubble && bubbleConfig.showsArrow && !wy_isNotice ? max(0, bubbleConfig.arrowSize.height) : 0
         wy_layoutVoicePlayback(width: max(1, state.width.constant - max(0, style.insets.left) - max(0, style.insets.right) - arrow))
         if let cell = self as? WYChatTextCell {
@@ -416,7 +432,7 @@ extension WYChatBasicCell {
         state.bodyInsets[1].constant = max(0, style.insets.left) + (sender ? 0 : arrow)
         state.bodyInsets[2].constant = -max(0, style.insets.bottom)
         state.bodyInsets[3].constant = -max(0, style.insets.right) - (sender ? arrow : 0)
-        (bubblesView as? WYChatBubbleView)?.alignmentFromTop = bubbleConfig.alignsArrowWithAvatar && !wy_isNotice ? max(0, basic.avatarSize.height / 2 - nicknameHeight - side.contentTopOffset) : nil
+        (bubblesView as? WYChatBubbleView)?.alignmentFromTop = alignsArrow ? max(0, avatarShift + avatarHeight / 2 - nicknameHeight - side.contentTopOffset) : nil
     }
 
     func wy_applyBubble(_ value: WYChatBubbleConfig) {
@@ -427,6 +443,13 @@ extension WYChatBasicCell {
             bubble.configuredShowsArrow = show && value.showsArrow
             bubble.configuredOffset = value.arrowOffset
             bubble.configuredPadding = value.arrowEdgePadding
+            bubble.arrowImageView.image = show && value.showsArrow ? value.arrowImage?.withRenderingMode(value.arrowImageTintColor == nil ? .alwaysOriginal : .alwaysTemplate) : nil
+            bubble.arrowImageView.isHidden = bubble.arrowImageView.image == nil
+            bubble.arrowImageView.tintColor = value.arrowImageTintColor
+            bubble.arrowImageView.contentMode = .scaleAspectFit
+            bubble.arrowImageSize = value.arrowImageSize
+            bubble.arrowImageOffset = value.arrowImageOffset
+            bubble.configuredShowsArrow = show && value.showsArrow && value.arrowImage == nil
         }
         bubblesView.fillColor = show ? value.fillColor : .clear
         bubblesView.cornerRadius = value.cornerRadius
@@ -445,6 +468,7 @@ extension WYChatBasicCell {
         bubblesView.shadowOffset = value.shadowOffset
         bubblesView.shadowRadius = value.shadowRadius
         bubblesView.shadowOpacity = value.shadowOpacity
+        bubblesView.setNeedsLayout()
     }
 
     func wy_loadImage(_ asset: WYChatAssetsModel, into imageView: UIImageView, isAvatar: Bool = false) {

@@ -158,6 +158,7 @@ extension WYChatView {
         value.textEditingHandler = { [weak self] range, replacement in self?.wy_recordInputEdit(range: range, replacement: replacement) }
         value.recordingResultHandler = { [weak self] url, duration, error in
             guard let self else { return }
+            if error == nil, let url { _ = self.sendVoiceRecording(url, duration: duration) }
             self.recordingHandler?(url, duration, error)
             self.delegate?.wy_recordingFinished?(self, url: url, duration: duration, error: error)
         }
@@ -439,6 +440,7 @@ extension WYChatView {
     }
 
     func wy_releaseAll() {
+        state.input?.wy_stopInputDictation(cancel: true)
         state.mediaBrowser?.dispose()
         state.mediaBrowser = nil
         state.mediaViews.removeAllObjects()

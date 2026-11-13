@@ -20,6 +20,7 @@ import UIKit
 }
 
 public class WYSoundAnimationView: WYAirBubbleView {
+    internal let customArrowView = UIImageView()
 
     /// 当前实例配置
     public var recordAnimationConfig: WYRecordAnimationConfig = WYRecordAnimationConfig()

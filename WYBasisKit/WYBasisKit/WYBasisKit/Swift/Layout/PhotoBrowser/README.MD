@@ -26,6 +26,8 @@ browser.didMove(toParent: parent)
 
 `stackedCardCount`控制显示层数，`stackedCardOffset`控制层间偏移，`stackedCardRotationAngle`和`stackedCardDragRotationAngle`分别控制静止与滑动的旋转角度，`stackedCardCornerRadius`和`stackedCardContentMode`控制图片外观。`scrollDirection`支持横向或纵向翻页。
 
+`stackedCardAnchorPoint`配置旋转支点，默认底部中心。打开`allowsLoopScrolling`可持续循环，末尾仍保留叠层。再打开`stackedCardCyclesForward`，向任一方向划走顶图均显示下一张，滑出的图片回到底层，默认关闭时按翻页方向切换。
+
 嵌入模式单击通过`wy_photoBrowser(_:didTapItemAt:)`回调，不关闭父页面，关闭缩放和长按菜单。展开、收起按钮及事件由容器界面管理。
 
 ```objc

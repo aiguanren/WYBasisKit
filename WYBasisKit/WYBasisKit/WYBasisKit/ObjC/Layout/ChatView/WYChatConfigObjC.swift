@@ -60,6 +60,14 @@ import WYBasisKitSwift
     public var cornersPosition: UIRectCorner
     /// 是否显示箭头，默认true
     public var showsArrow: Bool
+    /// 自定义箭头图片，nil时使用气泡箭头
+    public var arrowImage: UIImage?
+    /// 自定义箭头图片显示尺寸
+    public var arrowImageSize: CGSize
+    /// 自定义箭头图片偏移
+    public var arrowImageOffset: CGPoint
+    /// 自定义箭头图片颜色，nil时保留图片颜色
+    public var arrowImageTintColor: UIColor?
     /// 箭头尺寸，宽为底边长度，高为突出长度
     public var arrowSize: CGSize
     /// 箭头相对所在边中心的偏移
@@ -92,6 +100,10 @@ import WYBasisKitSwift
         self.cornerRadius = value.cornerRadius
         self.cornersPosition = value.cornersPosition
         self.showsArrow = value.showsArrow
+        self.arrowImage = value.arrowImage
+        self.arrowImageSize = value.arrowImageSize
+        self.arrowImageOffset = value.arrowImageOffset
+        self.arrowImageTintColor = value.arrowImageTintColor
         self.arrowSize = value.arrowSize
         self.arrowOffset = value.arrowOffset
         self.arrowEdgePadding = value.arrowEdgePadding
@@ -114,6 +126,10 @@ import WYBasisKitSwift
         value.cornerRadius = cornerRadius
         value.cornersPosition = cornersPosition
         value.showsArrow = showsArrow
+        value.arrowImage = arrowImage
+        value.arrowImageSize = arrowImageSize
+        value.arrowImageOffset = arrowImageOffset
+        value.arrowImageTintColor = arrowImageTintColor
         value.arrowSize = arrowSize
         value.arrowOffset = arrowOffset
         value.arrowEdgePadding = arrowEdgePadding
@@ -370,6 +386,12 @@ import WYBasisKitSwift
 @objcMembers public class WYRecordAnimationConfigObjC: NSObject {
     /// 录音浮层遮罩颜色
     public var overlayBackgroundColor: UIColor
+    /// 录音及转写气泡的自定义箭头图片，nil时使用气泡箭头
+    public var bubbleArrowImage: UIImage?
+    /// 录音及转写气泡的自定义箭头图片颜色，nil时保留图片颜色
+    public var bubbleArrowImageTintColor: UIColor?
+    /// 录音及转写气泡的自定义箭头图片偏移
+    public var bubbleArrowImageOffset: CGPoint
     /// 录音提示距离声波气泡底部的间距
     public var recordingHintSpacing: CGFloat
     /// 直接转写录音时的松手提示
@@ -704,6 +726,9 @@ import WYBasisKitSwift
 
     @nonobjc public init(_ value: WYRecordAnimationConfig) {
         self.overlayBackgroundColor = value.overlayBackgroundColor
+        self.bubbleArrowImage = value.bubbleArrowImage
+        self.bubbleArrowImageTintColor = value.bubbleArrowImageTintColor
+        self.bubbleArrowImageOffset = value.bubbleArrowImageOffset
         self.recordingHintSpacing = value.recordingHintSpacing
         self.dictationReleaseText = value.dictationReleaseText
         self.actionStyle = value.actionStyle
@@ -874,6 +899,9 @@ import WYBasisKitSwift
     @nonobjc public func toValue() -> WYRecordAnimationConfig {
         var value = WYRecordAnimationConfig()
         value.overlayBackgroundColor = overlayBackgroundColor
+        value.bubbleArrowImage = bubbleArrowImage
+        value.bubbleArrowImageTintColor = bubbleArrowImageTintColor
+        value.bubbleArrowImageOffset = bubbleArrowImageOffset
         value.recordingHintSpacing = recordingHintSpacing
         value.dictationReleaseText = dictationReleaseText
         value.actionStyle = actionStyle
@@ -1235,6 +1263,22 @@ import WYBasisKitSwift
     public var enablesVoiceButtonDictation: Bool
     /// 长按语音切换按钮开始转写的等待时间，单位秒
     public var voiceButtonLongPressDuration: TimeInterval
+    /// 文本占位对齐方式，居中且未编辑时支持长按转文字
+    public var textPlaceholderAlignment: NSTextAlignment
+    /// 是否允许长按居中占位区域转文字，需要启用语音识别
+    public var enablesPlaceholderDictation: Bool
+    /// 是否在键盘展开时显示输入框内的语音识别按钮，需要启用语音识别
+    public var enablesKeyboardDictation: Bool
+    /// 输入框语音识别按钮图片
+    public var keyboardDictationImage: UIImage?
+    /// 输入框语音识别进行中按钮图片
+    public var keyboardDictationStopImage: UIImage?
+    /// 输入框语音识别按钮尺寸
+    public var keyboardDictationSize: CGSize
+    /// 输入框语音识别按钮内边距
+    public var keyboardDictationInsets: UIEdgeInsets
+    /// 输入框语音识别按钮颜色
+    public var keyboardDictationTintColor: UIColor
     /// 录音按钮长按手势允许手指移动的最大距离
     public var recordViewLongPressMaxOffset: CGFloat
     /// inputBar弹起或者收回时动画持续时长
@@ -1388,6 +1432,14 @@ import WYBasisKitSwift
     @nonobjc public init(_ value: WYInputBarConfig) {
         self.enablesVoiceButtonDictation = value.enablesVoiceButtonDictation
         self.voiceButtonLongPressDuration = value.voiceButtonLongPressDuration
+        self.textPlaceholderAlignment = value.textPlaceholderAlignment
+        self.enablesPlaceholderDictation = value.enablesPlaceholderDictation
+        self.enablesKeyboardDictation = value.enablesKeyboardDictation
+        self.keyboardDictationImage = value.keyboardDictationImage
+        self.keyboardDictationStopImage = value.keyboardDictationStopImage
+        self.keyboardDictationSize = value.keyboardDictationSize
+        self.keyboardDictationInsets = value.keyboardDictationInsets
+        self.keyboardDictationTintColor = value.keyboardDictationTintColor
         self.recordViewLongPressMaxOffset = value.recordViewLongPressMaxOffset
         self.animateDuration = value.animateDuration
         self.backgroundImage = value.backgroundImage
@@ -1467,6 +1519,14 @@ import WYBasisKitSwift
         var value = WYInputBarConfig()
         value.enablesVoiceButtonDictation = enablesVoiceButtonDictation
         value.voiceButtonLongPressDuration = voiceButtonLongPressDuration
+        value.textPlaceholderAlignment = textPlaceholderAlignment
+        value.enablesPlaceholderDictation = enablesPlaceholderDictation
+        value.enablesKeyboardDictation = enablesKeyboardDictation
+        value.keyboardDictationImage = keyboardDictationImage
+        value.keyboardDictationStopImage = keyboardDictationStopImage
+        value.keyboardDictationSize = keyboardDictationSize
+        value.keyboardDictationInsets = keyboardDictationInsets
+        value.keyboardDictationTintColor = keyboardDictationTintColor
         value.recordViewLongPressMaxOffset = recordViewLongPressMaxOffset
         value.animateDuration = animateDuration
         value.backgroundImage = backgroundImage

@@ -216,6 +216,15 @@ public class WYChatView: UIView {
     public func requestAlbum() { inputViewResignFirstResponder(); openAlbumHandler?(); delegate?.wy_chatViewDidRequestAlbum?(self) }
 
     /**
+     组装录音消息并按配置加入列表
+     @param url 已存在的本地录音文件
+     @param duration 有效录音时长，单位秒
+     @param messageID 消息ID
+     @return 待发送消息，文件或时长无效时返回nil
+     */
+    @discardableResult public func sendVoiceRecording(_ url: URL, duration: TimeInterval, messageID: String = UUID().uuidString) -> WYChatMessageModel? { wy_sendRecordedVoice(url, duration: duration, messageID: messageID) }
+
+    /**
      组装选中的图片和视频并按配置加入列表
      @param items 宿主选择的媒体
      @return 待发送消息

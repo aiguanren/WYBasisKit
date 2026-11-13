@@ -77,6 +77,9 @@ public extension WYChatView {
     @objc(requestAlbum) var requestAlbumObjC: @convention(block) () -> WYChatView { { [self] in self.requestAlbum(); return self } }
     /// 组装选中的图片和视频并按配置加入列表，参数为宿主选择的媒体
     @objc(sendMedia) var sendMediaObjC: @convention(block) (_ items: [WYChatMediaItemObjC]) -> [WYChatMessageModelObjC] { { [self] items in self.sendMedia(items.map { $0.toValue() }).map(WYChatMessageModelObjC.init) } }
+
+    /// 组装录音消息并按配置加入列表，参数为本地文件、时长和消息ID，文件或时长无效时返回nil
+    @objc(sendVoiceRecording) var sendVoiceRecordingObjC: @convention(block) (_ url: URL, _ duration: TimeInterval, _ messageID: String) -> WYChatMessageModelObjC? { { [self] url, duration, identifier in self.sendVoiceRecording(url, duration: duration, messageID: identifier).map(WYChatMessageModelObjC.init) } }
     /// 展开或收起媒体组，参数为是否展开和媒体组消息ID
     @objc(setMediaGroupExpanded) var setMediaGroupExpandedObjC: @convention(block) (_ expanded: Bool, _ messageID: String) -> WYChatView { { [self] expanded, identifier in self.setMediaGroupExpanded(expanded, messageID: identifier); return self } }
     /// 打开媒体组中的图片或视频，参数为消息ID和媒体下标

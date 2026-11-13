@@ -517,6 +517,9 @@ import WYBasisKitSwift
     public var currentPlayDuration: TimeInterval
     /// 语音转换后的文本
     public var voiceToText: String
+
+    /// 录音文件本地路径，适用于任意音频格式
+    public var localPath: String
     /// wav格式本地路径
     public var wavPath: String
     /// mp3格式本地路径
@@ -538,6 +541,7 @@ import WYBasisKitSwift
         self.pauseWithTimestamp = value.pauseWithTimestamp
         self.currentPlayDuration = value.currentPlayDuration
         self.voiceToText = value.voiceToText
+        self.localPath = value.localPath
         self.wavPath = value.wavPath
         self.mp3Path = value.mp3Path
         self.amrPath = value.amrPath
@@ -564,6 +568,7 @@ import WYBasisKitSwift
         value.amrPath = amrPath
         value.cafPath = cafPath
         value.aacPath = aacPath
+        value.localPath = localPath
         value.playbackRate = playbackRate
         value.isPlaying = isPlaying
         value.isRecognizing = isRecognizing

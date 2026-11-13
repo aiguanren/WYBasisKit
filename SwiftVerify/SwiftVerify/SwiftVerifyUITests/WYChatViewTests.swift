@@ -720,6 +720,9 @@ final class WYChatViewTests: XCTestCase {
         let secondPage = NSPredicate { _, _ in cards.value as? String == "2/3" && !app.collectionViews["WYPhotoBrowser.pages"].exists }
         XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: secondPage, object: nil)], timeout: 5), .completed, "value=\(String(describing: cards.value)), preview=\(app.collectionViews["WYPhotoBrowser.pages"].exists), before=\(before), collection=\(cards.frame)")
         cards.swipeRight()
+        let thirdPage = NSPredicate { _, _ in cards.value as? String == "3/3" && !app.collectionViews["WYPhotoBrowser.pages"].exists }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: thirdPage, object: nil)], timeout: 5), .completed)
+        cards.swipeLeft()
         let firstPage = NSPredicate { _, _ in cards.value as? String == "1/3" && !app.collectionViews["WYPhotoBrowser.pages"].exists }
         XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: firstPage, object: nil)], timeout: 5), .completed)
         let cardImage = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
@@ -818,6 +821,113 @@ final class WYChatViewTests: XCTestCase {
         collection.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         let passed = row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "通过")).firstMatch
         XCTAssertTrue(passed.waitForExistence(timeout: 10))
+    }
+
+    func testStackContinuousBidirectionalCycles() {
+        let app = openChat()
+        app.navigationBars.buttons["测试"].tap()
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        search.tap()
+        search.typeText("叠卡连续双向循环")
+        let row = app.tables.cells.containing(.staticText, identifier: "叠卡连续双向循环").firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        row.tap()
+        app.alerts.buttons["运行"].tap()
+        let cards = app.otherElements["WYChatTests.browserStackHost"].collectionViews.firstMatch
+        XCTAssertTrue(cards.waitForExistence(timeout: 5))
+        cards.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).press(forDuration: 0.15, thenDragTo: cards.coordinate(withNormalizedOffset: CGVector(dx: 0.55, dy: 0.5)), withVelocity: .slow, thenHoldForDuration: 0.2)
+        let returned = NSPredicate { _, _ in cards.value as? String == "1/6" }
+        XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: returned, object: nil)], timeout: 5), .completed, "after small drag=\(String(describing: cards.value))")
+        for turn in 0..<12 {
+            if turn < 6 { cards.swipeLeft() } else { cards.swipeRight() }
+            let expected = "\((turn + 1) % 6 + 1)/6"
+            let settled = NSPredicate { _, _ in cards.value as? String == expected }
+            XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: settled, object: nil)], timeout: 5), .completed, "turn=\(turn), value=\(String(describing: cards.value))")
+            let image = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+            image.name = "stack-cycle-\(turn)"
+            image.lifetime = .keepAlways
+            add(image)
+        }
+        cards.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        let passed = row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "通过")).firstMatch
+        XCTAssertTrue(passed.waitForExistence(timeout: 10))
+    }
+
+    func testRepairAPICases() {
+        let app = openChat()
+        app.navigationBars.buttons["测试"].tap()
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        for title in ["回弹、气泡与录音入列", "输入框实时识别与占位配置"] {
+            search.tap()
+            if !(search.value as? String ?? "").isEmpty, search.buttons.firstMatch.exists { search.buttons.firstMatch.tap() }
+            search.typeText(title)
+            let row = app.tables.cells.containing(.staticText, identifier: title).firstMatch
+            XCTAssertTrue(row.waitForExistence(timeout: 5))
+            row.tap()
+            app.alerts.buttons["运行"].tap()
+            let passed = row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "通过")).firstMatch
+            XCTAssertTrue(passed.waitForExistence(timeout: 15), title)
+        }
+    }
+
+    func testCenteredPlaceholderLongPress() {
+        let app = openChat()
+        app.navigationBars.buttons["测试"].tap()
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        search.tap()
+        search.typeText("居中占位长按真实手势")
+        let row = app.tables.cells.containing(.staticText, identifier: "居中占位长按真实手势").firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        row.tap()
+        app.alerts.buttons["运行"].tap()
+        let placeholder = app.buttons["WYChatInput.placeholder"].firstMatch
+        XCTAssertTrue(placeholder.waitForExistence(timeout: 5))
+        placeholder.press(forDuration: 1.2)
+        XCTAssertTrue(app.textViews["WYChatRecording.editor"].waitForExistence(timeout: 5))
+        app.buttons["WYChatRecording.sendText"].tap()
+        let passed = row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "通过")).firstMatch
+        XCTAssertTrue(passed.waitForExistence(timeout: 10))
+    }
+
+    func testRecordingSendAndRegionGestures() {
+        let app = openChat()
+        app.navigationBars.buttons["测试"].tap()
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        search.tap()
+        search.typeText("录音发送真实手势")
+        let row = app.tables.cells.containing(.staticText, identifier: "录音发送真实手势").firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        row.tap()
+        app.alerts.buttons["运行"].tap()
+        let record = app.buttons["WYChatInput.record"].firstMatch
+        XCTAssertTrue(record.waitForExistence(timeout: 5))
+        record.press(forDuration: 1.2)
+        record.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).press(forDuration: 0.7, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.25)), withVelocity: .slow, thenHoldForDuration: 0.3)
+        record.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).press(forDuration: 0.7, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.80)), withVelocity: .slow, thenHoldForDuration: 0.3)
+        let passed = row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "通过")).firstMatch
+        XCTAssertTrue(passed.waitForExistence(timeout: 15))
+    }
+
+    func testTopElasticBounce() {
+        let app = openChat()
+        app.navigationBars.buttons["测试"].tap()
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        search.tap()
+        search.typeText("顶部回弹真实手势")
+        let row = app.tables.cells.containing(.staticText, identifier: "顶部回弹真实手势").firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        row.tap()
+        app.alerts.buttons["运行"].tap()
+        let table = app.tables["WYChatTests.bounceTable"]
+        XCTAssertTrue(table.waitForExistence(timeout: 5))
+        table.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.25)).press(forDuration: 0.2, thenDragTo: table.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.65)), withVelocity: .slow, thenHoldForDuration: 0.3)
+        let passed = row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "通过")).firstMatch
+        XCTAssertTrue(passed.waitForExistence(timeout: 15))
     }
 
     func testFunctionalSuite() {

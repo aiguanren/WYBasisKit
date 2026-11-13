@@ -55,6 +55,7 @@ extension WYChatInputView {
     }
 
     @objc func didClickTextVoiceView(sender: UIButton) {
+        wy_stopInputDictation(cancel: true)
 
         guard (eventsHandler?.wy_canManagerTextVoiceViewEvents?(sender) ?? true) else {
             return
@@ -112,7 +113,8 @@ extension WYChatInputView {
     }
 
     @objc func voiceButtonDictationLongPress(_ sender: UILongPressGestureRecognizer) {
-        guard inputBarConfig.enablesVoiceButtonDictation, recordAnimationConfig.supportSpeechRecognition,
+        let enabled = sender.view === placeholderGate ? inputBarConfig.enablesPlaceholderDictation && inputBarConfig.textPlaceholderAlignment == .center : inputBarConfig.enablesVoiceButtonDictation
+        guard enabled, recordAnimationConfig.supportSpeechRecognition,
               eventsHandler?.wy_canManagerVoiceRecordEvents?(sender) ?? true else { return }
         switch sender.state {
         case .began:
@@ -140,6 +142,7 @@ extension WYChatInputView {
     }
 
     @objc func didClickMoreView(sender: UIButton) {
+        wy_stopInputDictation(cancel: true)
 
         guard (eventsHandler?.wy_canManagerMoreViewEvents?(sender) ?? true) else {
             return
@@ -168,6 +171,7 @@ extension WYChatInputView {
     }
 
     @objc func didClickEmojiView(sender: UIButton) {
+        wy_stopInputDictation(cancel: true)
 
         guard (eventsHandler?.wy_canManagerTextEmojiViewEvents?(sender) ?? true) else {
             return
@@ -235,6 +239,7 @@ extension WYChatInputView {
 
     func updateContentViewHeight() {
         textVoiceContentView.isAccessibilityElement = textView.isHidden
+        textVoiceContentView.accessibilityIdentifier = textView.isHidden ? "WYChatInput.record" : nil
         textVoiceContentView.accessibilityElements = textView.isHidden ? nil : [textView]
 
         let textHeight: CGFloat = textView.attributedText.wy_calculateHeight(controlWidth: textViewInputWidth()) + self.inputBarConfig.inputTextEdgeInsets.top + self.inputBarConfig.inputTextEdgeInsets.bottom
@@ -254,12 +259,13 @@ extension WYChatInputView {
 
         textView.contentSize = CGSize(width: self.textView.contentSize.width, height: contentHeight)
         updateTextViewOffset()
+        wy_updateDictationControls()
     }
 
     // 获取textView可输入的宽度
     func textViewInputWidth() -> CGFloat {
         let width = textVoiceContentView.bounds.width > 0 ? textVoiceContentView.bounds.width : max(1, bounds.width - inputBarConfig.inputViewEdgeInsets.left - inputBarConfig.inputViewEdgeInsets.right)
-        return max(1, width - inputBarConfig.inputTextEdgeInsets.left - inputBarConfig.inputTextEdgeInsets.right)
+        return max(1, width - inputBarConfig.inputTextEdgeInsets.left - inputBarConfig.inputTextEdgeInsets.right - wy_dictationReservedWidth)
     }
 
     func wy_impl_updateTextViewOffset() {
@@ -377,6 +383,7 @@ extension WYChatInputView {
     }
 
     func wy_impl_didClickSendView(_ sender: UIButton? = nil) {
+        wy_stopInputDictation(cancel: true)
         let emojiText: String = NSMutableAttributedString(attributedString: textView.attributedText).wy_convertEmojiAttributedString(textColor: self.inputBarConfig.textColor, textFont: self.inputBarConfig.textFont).string
 
         if emojiText.wy_replace(appointSymbol: "\n", replacement: "").count > 0 {
@@ -426,6 +433,7 @@ extension WYChatInputView {
     }
 
     func wy_impl_textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        if !isApplyingDictationText { wy_stopInputDictation(cancel: true) }
 
         if text == "\n" && !inputBarConfig.showSpecialSendButton {
             didClickSendView()
@@ -561,11 +569,7 @@ extension WYChatInputView {
         textPlaceholderView.adjustsFontSizeToFitWidth = true
         textPlaceholderView.isHidden = (textView.attributedText.string.utf16.count > 0)
         textView.addSubview(textPlaceholderView)
-        textPlaceholderView.snp.makeConstraints { make in
-            make.left.equalToSuperview().offset(self.inputBarConfig.textPlaceholderOffset.x)
-            make.top.equalToSuperview().offset(self.inputBarConfig.textPlaceholderOffset.y)
-            make.right.lessThanOrEqualToSuperview().offset(-UIDevice.wy_screenWidth(5, WYBasisKitConfig.defaultScreenPixels))
-        }
+        wy_setupDictationControls()
 
         textVoiceView.wy_nImage = self.inputBarConfig.voiceButtonImage
         textVoiceView.wy_sImage = self.inputBarConfig.textBottomImage
@@ -618,6 +622,7 @@ extension WYChatInputView {
 /// 输入实例配置刷新
 extension WYChatInputView {
     func wy_applyInputConfiguration() {
+        if !inputBarConfig.enablesKeyboardDictation { wy_stopInputDictation(cancel: true) }
         wy_applyInputAppearance()
         textView.font = inputBarConfig.textFont
         textView.textColor = inputBarConfig.textColor
@@ -627,6 +632,7 @@ extension WYChatInputView {
         textPlaceholderView.text = inputBarConfig.textPlaceholder
         textPlaceholderView.font = inputBarConfig.textPlaceholderFont
         textPlaceholderView.textColor = inputBarConfig.textPlaceholderColor
+        wy_updateDictationControls()
         updateContentViewHeight()
     }
 }

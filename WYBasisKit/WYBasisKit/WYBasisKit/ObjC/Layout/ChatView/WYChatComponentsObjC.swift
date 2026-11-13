@@ -10,6 +10,10 @@ import UIKit
 import WYBasisKitSwift
 
 public extension WYChatInputView {
+    /// 输入框是否正在采集或等待语音识别结果
+    @objc(isInputDictating) var isInputDictatingObjC: Bool { isInputDictating }
+    /// 输入框语音识别错误，参数为错误信息，nil时显示默认提示
+    @objc(inputDictationErrorHandler) var inputDictationErrorHandlerObjC: ((_ error: NSError) -> Void)? { get { inputDictationErrorHandler } set { inputDictationErrorHandler = newValue } }
     /// 语音或文本输入容器
     @objc(textVoiceContentView) var textVoiceContentViewObjC: UIButton { textVoiceContentView }
     /// 语音切换按钮

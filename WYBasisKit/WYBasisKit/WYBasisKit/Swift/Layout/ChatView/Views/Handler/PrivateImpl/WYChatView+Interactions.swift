@@ -9,6 +9,30 @@ import UIKit
 
 /// 消息操作与引用
 extension WYChatView {
+    func wy_sendRecordedVoice(_ url: URL, duration: TimeInterval, messageID: String) -> WYChatMessageModel? {
+        var directory: ObjCBool = false
+        guard url.isFileURL, FileManager.default.fileExists(atPath: url.path, isDirectory: &directory), !directory.boolValue, duration.isFinite, duration > 0 else { return nil }
+        var voice = WYChatVoiceModel(id: messageID, duration: duration)
+        voice.localPath = url.path
+        switch url.pathExtension.lowercased() {
+        case "wav": voice.wavPath = url.path
+        case "mp3": voice.mp3Path = url.path
+        case "amr": voice.amrPath = url.path
+        case "caf": voice.cafPath = url.path
+        case "aac", "m4a": voice.aacPath = url.path
+        default: break
+        }
+        var model = WYChatMessageModel(messageID: messageID, timestamp: String(Date().timeIntervalSince1970), sender: userInfo, content: WYChatMessageContentModel(voice: voice))
+        model.lastMessageTimestamp = model.sharedLastMessageTimestamp(dataSource, minimumTimeSpan: configuration.basic.messageMinimumTimeSpan)
+        model.reference = state.inputQuote
+        model.sendState = .sending
+        model.index = dataSource.count
+        if configuration.automaticallyInsertsSentMessages { dataSource.append(model); scrollToLastMessage() }
+        quoteMessage(nil)
+        messagePreparedHandler?(model)
+        return model
+    }
+
     func wy_sendMessage(_ text: String, messageID: String) -> WYChatMessageModel {
         var model = WYChatMessageModel(messageID: messageID, timestamp: String(Date().timeIntervalSince1970), sender: userInfo, content: WYChatMessageContentModel(text: text))
         if !state.inputMentions.isEmpty && text == chatInput.sharedEmojiAttributedText(attributed: chatInput.textView.attributedText).string { model.mentions = inputMentions }
@@ -122,7 +146,7 @@ extension WYChatView {
     func wy_transcribeMessage(_ model: WYChatMessageModel) {
         guard configuration.recording.supportSpeechRecognition, let voice = model.content.voice else { return }
         wy_cancelMessageRecognition()
-        let path = [voice.aacPath, voice.wavPath, voice.cafPath, voice.mp3Path, voice.amrPath].first { !$0.isEmpty }
+        let path = [voice.localPath, voice.aacPath, voice.wavPath, voice.cafPath, voice.mp3Path, voice.amrPath].first { !$0.isEmpty }
         guard let path else {
             let error = NSError(domain: WYChatSpeechRecognitionErrorDomain, code: WYChatSpeechRecognitionErrorCode.fileNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: WYLocalized("录音文件不存在", table: WYBasisKitConfig.kitLocalizableTable)])
             if let index = dataSource.firstIndex(where: { $0.messageID == model.messageID }) { dataSource[index].content.voice?.recognitionError = error.localizedDescription }

@@ -21,6 +21,12 @@ import UIKit
 public struct WYRecordAnimationConfig {
     /// 录音浮层遮罩颜色
     public var overlayBackgroundColor: UIColor = .black.withAlphaComponent(0.7)
+    /// 录音及转写气泡的自定义箭头图片，nil时使用气泡箭头
+    public var bubbleArrowImage: UIImage? = nil
+    /// 录音及转写气泡的自定义箭头图片颜色，nil时保留图片颜色
+    public var bubbleArrowImageTintColor: UIColor? = nil
+    /// 录音及转写气泡的自定义箭头图片偏移
+    public var bubbleArrowImageOffset: CGPoint = .zero
     /// 录音提示距离声波气泡底部的间距
     public var recordingHintSpacing: CGFloat = UIDevice.wy_screenHeight(12, WYBasisKitConfig.defaultScreenPixels)
     /// 直接转写录音时的松手提示

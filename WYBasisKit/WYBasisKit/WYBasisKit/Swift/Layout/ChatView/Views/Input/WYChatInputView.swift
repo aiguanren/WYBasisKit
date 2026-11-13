@@ -18,6 +18,22 @@ public struct WYInputBarConfig {
     public var enablesVoiceButtonDictation: Bool = true
     /// 长按语音切换按钮开始转写的等待时间，单位秒
     public var voiceButtonLongPressDuration: TimeInterval = 0.35
+    /// 文本占位对齐方式，居中且未编辑时支持长按转文字
+    public var textPlaceholderAlignment: NSTextAlignment = .left
+    /// 是否允许长按居中占位区域转文字，需要启用语音识别
+    public var enablesPlaceholderDictation: Bool = true
+    /// 是否在键盘展开时显示输入框内的语音识别按钮，需要启用语音识别
+    public var enablesKeyboardDictation: Bool = true
+    /// 输入框语音识别按钮图片
+    public var keyboardDictationImage: UIImage? = UIImage(systemName: "waveform")
+    /// 输入框语音识别进行中按钮图片
+    public var keyboardDictationStopImage: UIImage? = UIImage(systemName: "stop.circle.fill")
+    /// 输入框语音识别按钮尺寸
+    public var keyboardDictationSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(26, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenHeight(26, WYBasisKitConfig.defaultScreenPixels))
+    /// 输入框语音识别按钮内边距
+    public var keyboardDictationInsets: UIEdgeInsets = UIEdgeInsets(top: 0, left: UIDevice.wy_screenWidth(6, WYBasisKitConfig.defaultScreenPixels), bottom: UIDevice.wy_screenHeight(8, WYBasisKitConfig.defaultScreenPixels), right: UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels))
+    /// 输入框语音识别按钮颜色
+    public var keyboardDictationTintColor: UIColor = .label
 
     /// 录音按钮长按手势允许手指移动的最大距离
     public var recordViewLongPressMaxOffset: CGFloat = UIDevice.wy_screenWidth(100, WYBasisKitConfig.defaultScreenPixels)
@@ -62,7 +78,7 @@ public struct WYInputBarConfig {
     public var emojiPattern: String = "\\[[^\\[\\]]+\\]"
     
     /// 文本切换按钮图片
-    public var textBottomImage: UIImage = UIImage.wy_find("WYChatViewTogglekeyboard", inBundle: WYChatSourceBundle)
+    public var textBottomImage: UIImage = UIImage(systemName: "keyboard") ?? UIImage.wy_find("WYChatViewTogglekeyboard", inBundle: WYChatSourceBundle)
     
     /// 语音切换按钮图片
     public var voiceButtonImage: UIImage = UIImage.wy_find("WYChatViewVoice", inBundle: WYChatSourceBundle)
@@ -297,12 +313,22 @@ public class WYChatInputView: UIImageView {
     /// 表情解析配置
     public var emojiViewConfig: WYEmojiViewConfig = WYEmojiViewConfig()
     /// 录音配置
-    public var recordAnimationConfig: WYRecordAnimationConfig = WYRecordAnimationConfig()
+    public var recordAnimationConfig: WYRecordAnimationConfig = WYRecordAnimationConfig() { didSet { wy_updateDictationControls(); if !recordAnimationConfig.supportSpeechRecognition { wy_stopInputDictation(cancel: true) } } }
     /// 录音结果，参数为文件URL、时长和错误
     public var recordingResultHandler: ((_ url: URL?, _ duration: TimeInterval, _ error: NSError?) -> Void)? = nil
     internal var textEditingHandler: ((NSRange, String) -> Void)?
     internal var hasCreatedRecordView = false
     internal var recordingGestureID: UUID? = nil
+    internal let placeholderGate = UIButton(type: .custom)
+    internal let keyboardDictationButton = UIButton(type: .custom)
+    internal var inputDictation: WYChatInputDictationSession?
+    internal var dictationRequestID: UUID?
+    internal var dictationRange = NSRange(location: 0, length: 0)
+    internal var isApplyingDictationText = false
+    /// 输入框语音识别错误，参数为错误信息，nil时显示默认提示
+    public var inputDictationErrorHandler: ((_ error: NSError) -> Void)?
+    /// 输入框是否正在采集或等待语音识别结果
+    public var isInputDictating: Bool { dictationRequestID != nil }
     public lazy var recordView: WYRecordAnimationView = wy_makeRecordView()
     
     public lazy var specialSendButton: UIButton? = wy_makeSpecialSendButton()
@@ -321,6 +347,18 @@ public class WYChatInputView: UIImageView {
         super.traitCollectionDidChange(previousTraitCollection)
         if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) { wy_applyInputAppearance() }
     }
+
+    public override func layoutSubviews() {
+        super.layoutSubviews()
+        wy_updateDictationControls()
+    }
+
+    public override func didMoveToWindow() {
+        super.didMoveToWindow()
+        if window == nil { wy_stopInputDictation(cancel: true) }
+    }
+
+    deinit { inputDictation?.cancel() }
 
     public func updateSpecialSendState(hasText: Bool) {
         wy_impl_updateSpecialSendState(hasText: hasText)
@@ -363,6 +401,8 @@ extension WYChatInputView: WYRecordEventsHandler {
 }
 
 extension WYChatInputView: UITextViewDelegate {
+    public func textViewDidBeginEditing(_ textView: UITextView) { wy_updateDictationControls(); updateContentViewHeight() }
+    public func textViewDidEndEditing(_ textView: UITextView) { wy_stopInputDictation(cancel: true); wy_updateDictationControls(); updateContentViewHeight() }
     
     @available(iOS, introduced: 10.0, deprecated: 17.0, message: "Use textView(_:primaryActionForTextItem:defaultAction:) instead")
     public func textView(_ textView: UITextView, shouldInteractWith textAttachment: NSTextAttachment, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {

@@ -57,6 +57,7 @@ raw_ui = {
     'UIKeyboardType': list(range(12)),
     'UIReturnKeyType': list(range(12)),
     'NSLineBreakMode': list(range(6)),
+    'NSTextAlignment': list(range(5)),
     'UICollectionView.ScrollDirection': [0, 1],
     'UIModalPresentationStyle': [-2, -1, *range(8)],
     'UIScrollView.KeyboardDismissMode': [0, 1, 2],

@@ -41,6 +41,9 @@ public struct WYChatVoiceModel: Equatable {
     
     /// 语音转换后的文本
     public var voiceToText: String
+
+    /// 录音文件本地路径，适用于任意音频格式
+    public var localPath: String = ""
     
     /// wav格式本地路径
     public var wavPath: String

@@ -42,9 +42,13 @@ extension WYChatInputView {
         textVoiceContentView.layer.borderColor = config.textViewBorderColor.resolvedColor(with: traitCollection).cgColor
         func icon(_ value: UIImage) -> UIImage { value.withRenderingMode(config.rendersIconsAsTemplate ? .alwaysTemplate : .alwaysOriginal) }
         for button in [textVoiceView, emojiView, moreView] {
+            button.configuration = nil
             button.tintColor = config.iconTintColor
             button.imageView?.contentMode = .scaleAspectFit
-            for state in [UIControl.State.normal, .selected, .highlighted] { button.setBackgroundImage(nil, for: state) }
+            for state in [UIControl.State.normal, .selected, .highlighted, [.selected, .highlighted]] {
+                button.setBackgroundImage(nil, for: state)
+                button.setTitle(nil, for: state)
+            }
         }
         textVoiceView.setImage(icon(config.voiceButtonImage), for: .normal)
         textVoiceView.setImage(icon(config.textBottomImage), for: .selected)

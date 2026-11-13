@@ -43,6 +43,14 @@ public struct WYChatBubbleConfig {
     public var cornersPosition: UIRectCorner = .allCorners
     /// 是否显示箭头，默认true
     public var showsArrow: Bool = true
+    /// 自定义箭头图片，nil时使用气泡箭头
+    public var arrowImage: UIImage? = nil
+    /// 自定义箭头图片显示尺寸
+    public var arrowImageSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(6, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenHeight(10, WYBasisKitConfig.defaultScreenPixels))
+    /// 自定义箭头图片偏移
+    public var arrowImageOffset: CGPoint = .zero
+    /// 自定义箭头图片颜色，nil时保留图片颜色
+    public var arrowImageTintColor: UIColor? = nil
     /// 箭头尺寸，宽为底边长度，高为突出长度
     public var arrowSize: CGSize = CGSize(width: UIDevice.wy_screenHeight(10, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(6, WYBasisKitConfig.defaultScreenPixels))
     /// 箭头是否默认对齐头像中心，默认true
@@ -52,7 +60,7 @@ public struct WYChatBubbleConfig {
     /// 箭头距离圆角的间距
     public var arrowEdgePadding: CGFloat = 0
     /// 箭头尖端圆角半径
-    public var arrowTipRadius: CGFloat = 0
+    public var arrowTipRadius: CGFloat = UIDevice.wy_screenWidth(2, WYBasisKitConfig.defaultScreenPixels)
     /// 边框色
     public var borderColor: UIColor = .clear
     /// 边框宽度

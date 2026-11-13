@@ -395,6 +395,16 @@
         check(@"voice-playback-config-bridge", self.chatView.configuration.voicePlayback.rates.count == 3 && CGSizeEqualToSize(self.chatView.configuration.voicePlayback.size, CGSizeMake(64, 31)));
         check(@"voice-playback-rate-bridge", self.chatView.setVoicePlaybackRate(1.5, @"objc-1-0") && changedRate == 1.5 && self.chatView.messageModelFrom(@"objc-1-0").content.voice.playbackRate == 1.5);
         check(@"voice-playback-invalid-bridge", !self.chatView.setVoicePlaybackRate(3, @"objc-1-0"));
+        check(@"voice-recording-invalid-file", self.chatView.sendVoiceRecording([NSURL URLWithString:@"https://example.com/voice.caf"], 1, @"objc-invalid-recording") == nil);
+        WYChatVoiceModel *recordedVoice = WYChatVoiceModel.new;
+        recordedVoice.localPath = @"/recordings/sample.caf";
+        WYChatMessageContentModel *recordedContent = WYChatMessageContentModel.new;
+        recordedContent.voice = recordedVoice;
+        WYChatMessageModel *recordedMessage = WYChatMessageModel.new;
+        recordedMessage.messageID = @"objc-recorded-path";
+        recordedMessage.content = recordedContent;
+        self.chatView.dataSource = @[recordedMessage];
+        check(@"voice-local-path-bridge", [self.chatView.dataSource.firstObject.content.voice.localPath isEqualToString:recordedVoice.localPath]);
         self.chatView.inputViewResignFirstResponder();
         NSInteger failed = 0;
         for (NSDictionary *item in checks) { if (![item[@"passed"] boolValue]) { failed += 1; } }

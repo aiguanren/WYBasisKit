@@ -308,7 +308,7 @@ extension WYRecordAnimationView {
         } else if bottomLayer.path?.contains(bottomView.convert(touchPoint, from: self)) ?? bottomView.frame.contains(touchPoint) {
             status = .recording
         } else {
-            status = .cancel
+            status = .recording
         }
 
         guard soundAnimationStatus != status else {
@@ -643,9 +643,27 @@ extension WYSoundAnimationView {
         let actualArrow = visible ? CGSize(width: base, height: arrowDepth) : .zero
         if arrowSize != actualArrow { arrowSize = actualArrow }
         if arrowEdgePadding != 0 { arrowEdgePadding = 0 }
-        let limit = max(0, edge - cornerRadius * 2 - base)
+        let limit = max(0, (edge - cornerRadius * 2 - base) / 2)
         let actualOffset = visible ? min(limit, max(-limit, arrowOffset.isFinite ? arrowOffset : 0)) : 0
         if arrowOffset != actualOffset { arrowOffset = actualOffset }
+        if customArrowView.superview == nil { addSubview(customArrowView) }
+        customArrowView.image = recordAnimationConfig.bubbleArrowImage?.withRenderingMode(recordAnimationConfig.bubbleArrowImageTintColor == nil ? .alwaysOriginal : .alwaysTemplate)
+        customArrowView.tintColor = recordAnimationConfig.bubbleArrowImageTintColor
+        customArrowView.contentMode = .scaleAspectFit
+        customArrowView.isHidden = customArrowView.image == nil
+        if !customArrowView.isHidden {
+            showsArrow = false
+            let point = recordAnimationConfig.bubbleArrowImageOffset
+            let center = edge / 2 + actualOffset
+            let rect: CGRect
+            switch arrowDirection {
+            case .top: rect = CGRect(x: center - base / 2, y: 1 - arrowDepth, width: base, height: arrowDepth)
+            case .bottom: rect = CGRect(x: center - base / 2, y: bounds.height - 1, width: base, height: arrowDepth)
+            case .left: rect = CGRect(x: 1 - arrowDepth, y: center - base / 2, width: arrowDepth, height: base)
+            case .right: rect = CGRect(x: bounds.width - 1, y: center - base / 2, width: arrowDepth, height: base)
+            }
+            customArrowView.frame = rect.offsetBy(dx: point.x, dy: point.y)
+        }
         let desired = soundWavesSize(for: currentStatus)
         let width = min(max(0, desired.width), max(0, bounds.width - cornerRadius * 2))
         let height = min(max(0, desired.height), max(0, bounds.height - cornerRadius * 2))
@@ -705,6 +723,7 @@ extension WYMoveUpTipsView {
         let config = recordAnimationConfig
         actionTipsState = tipsState
         let cancel = tipsState == .cancel
+        moveUpView.accessibilityIdentifier = cancel ? "WYChatRecording.cancel" : "WYChatRecording.transcribe"
         let interior = cancel ? config.cancelRecordViewTextInfoForInterior : config.transferViewTextInfoForInterior
         let exterior = cancel ? config.cancelRecordViewTextInfoForExternal : config.transferViewTextInfoForExternal
         moveUpView.isSelected = isTouched
@@ -741,8 +760,13 @@ extension WYMoveUpTipsView {
     }
 
     func wy_containsActionPoint(_ point: CGPoint) -> Bool {
+        guard moveUpView.bounds.contains(point) else { return false }
         if let path = (moveUpView.layer.mask as? CAShapeLayer)?.path { return path.contains(point) }
-        return moveUpView.bounds.contains(point)
+        let bounds = moveUpView.bounds
+        guard bounds.width > 0, bounds.height > 0 else { return false }
+        let x = (point.x - bounds.midX) / (bounds.width / 2)
+        let y = (point.y - bounds.midY) / (bounds.height / 2)
+        return x * x + y * y <= 1
     }
 
     func wy_layoutAction() {

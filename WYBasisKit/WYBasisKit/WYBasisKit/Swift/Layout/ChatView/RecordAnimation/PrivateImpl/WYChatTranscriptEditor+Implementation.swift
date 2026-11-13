@@ -81,6 +81,7 @@ extension WYRecordAnimationView {
         state.voiceButton.accessibilityIdentifier = "WYChatRecording.sendVoice"
         state.voiceButton.addTarget(self, action: #selector(wy_sendOriginalRecording), for: .touchUpInside)
         state.sendButton.setTitle(config.recognitionSendText, for: .normal)
+        state.sendButton.accessibilityIdentifier = "WYChatRecording.sendText"
         state.sendButton.addTarget(self, action: #selector(wy_sendTranscript), for: .touchUpInside)
         state.editorEmojiButton.setImage(state.editText.inputView == nil ? config.recognitionEmojiImage : config.recognitionKeyboardImage, for: .normal)
         state.editorEmojiButton.isHidden = !config.showsRecognitionEmojiButton
@@ -112,8 +113,18 @@ extension WYRecordAnimationView {
         bubble.fillColor = config.recognitionBackgroundColor
         bubble.cornerRadius = max(0, config.recognitionPanelCornerRadius)
         bubble.arrowSize = config.arrowSizeForMoveUp.transfer
+        bubble.arrowTipRadius = config.arrowTipRadiusForMoveUp.transfer
         bubble.arrowDirection = .bottom
         bubble.arrowOffset = max(0, config.soundWavesViewWidth.transfer / 2 - config.moveUpButtonDiameter.onInterior / 2)
+        if let image = config.bubbleArrowImage {
+            bubble.showsArrow = false
+            let view = UIImageView(image: image.withRenderingMode(config.bubbleArrowImageTintColor == nil ? .alwaysOriginal : .alwaysTemplate))
+            view.tintColor = config.bubbleArrowImageTintColor
+            view.contentMode = .scaleAspectFit
+            view.translatesAutoresizingMaskIntoConstraints = false
+            bubble.addSubview(view)
+            NSLayoutConstraint.activate([view.widthAnchor.constraint(equalToConstant: config.arrowSizeForMoveUp.transfer.width), view.heightAnchor.constraint(equalToConstant: config.arrowSizeForMoveUp.transfer.height), view.topAnchor.constraint(equalTo: bubble.bottomAnchor, constant: config.bubbleArrowImageOffset.y - 1), view.centerXAnchor.constraint(equalTo: bubble.centerXAnchor, constant: bubble.arrowOffset + config.bubbleArrowImageOffset.x)])
+        }
         bubble.translatesAutoresizingMaskIntoConstraints = false
         state.editText.translatesAutoresizingMaskIntoConstraints = false
         bubble.addSubview(state.editText)

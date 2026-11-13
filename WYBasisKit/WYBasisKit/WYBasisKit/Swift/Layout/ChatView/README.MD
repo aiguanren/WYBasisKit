@@ -34,6 +34,12 @@ chatView.recordingHandler = { url, duration, error in
 
 把chatView添加到宿主布局并约束其四边。控件根据实际容器尺寸和安全区布局，不负责宿主导航栏或会话列表。
 
+录音成功后通过同一发送流程生成语音消息，并调用`messagePreparedHandler`。`automaticallyInsertsSentMessages`决定是否自动入列，宿主无需重复追加。外部已有录音可调用`sendVoiceRecording(_:duration:messageID:)`，文件地址保存在`voice.localPath`，宿主通过语音操作事件负责播放与上传。
+
+`input.textPlaceholderAlignment`默认居左，设置`.center`时空输入框居中显示占位文字，并可通过`enablesPlaceholderDictation`配置长按转文字。`input.enablesKeyboardDictation`控制键盘展开后的输入框内识别按钮，识别文字替换当前选区，颜色、图标、尺寸和间距分别配置。以上入口同时受`recording.supportSpeechRecognition`控制，识别来源沿用Apple或外部服务配置，失败可通过`chatInput.inputDictationErrorHandler`接收。
+
+消息气泡可用`senderBubble/receiverBubble.arrowImage`替换尾部图片，并配置`arrowImageSize`、`arrowImageOffset`和`arrowImageTintColor`。录音与转写界面对应`recording.bubbleArrowImage`、`bubbleArrowImageOffset`和`bubbleArrowImageTintColor`，尺寸沿用`arrowSizeForMoveUp`。未设置着色时保留图片原色。
+
 ## ObjC接入
 
 ```objc

@@ -305,12 +305,20 @@ extension WYPhotoBrowser: UICollectionViewDataSource, UICollectionViewDelegateFl
 
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: WYPhotoBrowserPageCell.reuseIdentifier, for: indexPath) as! WYPhotoBrowserPageCell
+        configurePageCell(cell, at: indexPath)
+        return cell
+    }
+
+    func configurePageCell(_ cell: WYPhotoBrowserPageCell, at indexPath: IndexPath) {
         cell.browser = self
         let displayIndex = displayIndex(fromCollection: indexPath.item)
         if let item = item(at: displayIndex) {
             cell.configure(item: item, index: displayIndex, configuration: configuration)
         }
-        return cell
+    }
+
+    public func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        if let cell = cell as? WYPhotoBrowserPageCell, cell.index != displayIndex(fromCollection: indexPath.item) { configurePageCell(cell, at: indexPath) }
     }
 
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -319,6 +327,10 @@ extension WYPhotoBrowser: UICollectionViewDataSource, UICollectionViewDelegateFl
 }
 
 extension WYPhotoBrowser: UIScrollViewDelegate {
+
+    public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if !decelerate { settleCurrentPage() }
+    }
 
     public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         settleCurrentPage()
@@ -330,6 +342,27 @@ extension WYPhotoBrowser: UIScrollViewDelegate {
 
     public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         pauseCarouselTimer()
+        guard configuration.layoutStyle == .stackedCards, configuration.stackedCardCyclesForward, isLoopScrollingEnabled, pageStep > 0 else { return }
+        let horizontal = flowLayout.scrollDirection == .horizontal
+        let velocity = collectionView.panGestureRecognizer.velocity(in: collectionView)
+        let direction = (horizontal ? velocity.x : velocity.y) > 0 ? -1 : 1
+        let index = Int(round(((horizontal ? collectionView.contentOffset.x : collectionView.contentOffset.y) - pageStepLeading) / pageStep))
+        stackedGestureOrigin = (index, internalCurrentIndex)
+        updateStackedCycleDirection(direction)
+    }
+
+    func updateStackedCycleDirection(_ direction: Int) {
+        guard let origin = stackedGestureOrigin, numberOfItems > 1 else { return }
+        let offset = ((origin.item - direction * (origin.page - loopPadding)) % numberOfItems + numberOfItems) % numberOfItems
+        guard direction != stackedCycleDirection || offset != stackedCycleOffset else { return }
+        stackedCycleDirection = direction
+        (flowLayout as? WYPhotoBrowserStackLayout)?.cycleDirection = direction
+        stackedCycleOffset = offset
+        for index in 0..<loopCollectionItemCount {
+            let path = IndexPath(item: index, section: 0)
+            if let cell = collectionView.cellForItem(at: path) as? WYPhotoBrowserPageCell, cell.index != displayIndex(fromCollection: index) { configurePageCell(cell, at: path) }
+        }
+        flowLayout.invalidateLayout()
     }
 
     /// 多页同屏的松手吸附(按单页步长取整落位，快速甩动按速度方向跳页)
@@ -357,6 +390,11 @@ extension WYPhotoBrowser: UIScrollViewDelegate {
 
     /// 滚动中给可见页施加多页同屏过渡特效(按页中心离视口中心的比例变化)
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if configuration.layoutStyle == .stackedCards, configuration.stackedCardCyclesForward, isLoopScrollingEnabled, collectionView.isDragging, pageStep > 0, let origin = stackedGestureOrigin {
+            let axis = flowLayout.scrollDirection == .horizontal ? collectionView.contentOffset.x : collectionView.contentOffset.y
+            let delta = (axis - pageStepLeading) / pageStep - CGFloat(origin.page)
+            if abs(delta) > 0.001 { updateStackedCycleDirection(delta < 0 ? -1 : 1) }
+        }
         applyTransformToVisibleCells()
     }
 
@@ -381,6 +419,7 @@ extension WYPhotoBrowser: UIScrollViewDelegate {
         let displayIndex = displayIndex(fromCollection: collectionIndex)
         let changed = displayIndex != internalCurrentIndex
         internalCurrentIndex = displayIndex
+        stackedGestureOrigin = nil
         normalizeLoopPosition(collectionIndex: collectionIndex)
         refreshIndicator()
         if changed {
@@ -396,10 +435,12 @@ extension WYPhotoBrowser: UIScrollViewDelegate {
         return configuration.allowsLoopScrolling && numberOfItems > 1
     }
 
+    var loopPadding: Int { configuration.layoutStyle == .stackedCards ? min(numberOfItems, max(1, configuration.stackedCardCount)) : 1 }
+
     /// 集合视图页数(循环模式下首尾各插一页缓冲，0页显示末页、末页后一页显示首页)
     var loopCollectionItemCount: Int {
         if isLoopScrollingEnabled {
-            return numberOfItems + 2
+            return numberOfItems + loopPadding * 2
         }
         return numberOfItems
     }
@@ -411,13 +452,9 @@ extension WYPhotoBrowser: UIScrollViewDelegate {
      */
     func displayIndex(fromCollection collectionIndex: Int) -> Int {
         guard isLoopScrollingEnabled else { return collectionIndex }
-        if collectionIndex <= 0 {
-            return numberOfItems - 1
-        }
-        if collectionIndex >= numberOfItems + 1 {
-            return 0
-        }
-        return collectionIndex - 1
+        let directional = configuration.layoutStyle == .stackedCards && configuration.stackedCardCyclesForward
+        let index = directional ? stackedCycleDirection * (collectionIndex - loopPadding) + stackedCycleOffset : collectionIndex - loopPadding
+        return (index % numberOfItems + numberOfItems) % numberOfItems
     }
 
     /**
@@ -427,17 +464,19 @@ extension WYPhotoBrowser: UIScrollViewDelegate {
      */
     func collectionIndex(for displayIndex: Int) -> Int {
         guard isLoopScrollingEnabled else { return displayIndex }
-        return displayIndex + 1
+        let directional = configuration.layoutStyle == .stackedCards && configuration.stackedCardCyclesForward
+        let index = directional ? stackedCycleDirection * (displayIndex - stackedCycleOffset) : displayIndex
+        return ((index % numberOfItems + numberOfItems) % numberOfItems) + loopPadding
     }
 
     /// 停在缓冲页时无动画跳回对应真实页(视觉无感，用户继续滑像无限循环)
     func normalizeLoopPosition(collectionIndex: Int) {
         guard isLoopScrollingEnabled else { return }
         var targetCollectionIndex: Int? = nil
-        if collectionIndex <= 0 {
-            targetCollectionIndex = numberOfItems
-        } else if collectionIndex >= numberOfItems + 1 {
-            targetCollectionIndex = 1
+        if collectionIndex < loopPadding {
+            targetCollectionIndex = collectionIndex + numberOfItems
+        } else if collectionIndex >= numberOfItems + loopPadding {
+            targetCollectionIndex = collectionIndex - numberOfItems
         }
         if let targetCollectionIndex = targetCollectionIndex {
             collectionView.setContentOffset(targetRawOffset(collectionIndex: targetCollectionIndex), animated: false)
@@ -457,6 +496,7 @@ extension WYPhotoBrowser: UIScrollViewDelegate {
     func configureFlowLayout() {
         guard collectionView.bounds.width > 0, collectionView.bounds.height > 0 else { return }
         (flowLayout as? WYPhotoBrowserStackLayout)?.configuration = configuration
+        (flowLayout as? WYPhotoBrowserStackLayout)?.sourceItemCount = numberOfItems
         if configuration.layoutStyle == .multiPage {
             let reveal = UIDevice.wy_screenWidth(configuration.multiPageRevealWidth, WYBasisKitConfig.defaultScreenPixels)
             let spacing = UIDevice.wy_screenWidth(configuration.multiPageSpacing, WYBasisKitConfig.defaultScreenPixels)

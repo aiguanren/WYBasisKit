@@ -50,6 +50,7 @@ final class WYChatTestSuite {
         self.scrollProbe = scrollProbe
         registerBehaviorCases()
         registerCoreEventCase()
+        registerRepairCases()
         cases.append(WYChatTestCase("消息事件与输入面板：高级配置", group: "配置", explanation: "实际调用按消息配置、资源加载、时间格式、表情资源、分页样式和富文本复制粘贴") { [weak self] in
             guard let self else { return [] }
             return await WYChatTestAdvancedConfigurationChecks.run(source: self.chatView)
@@ -140,6 +141,231 @@ final class WYChatTestSuite {
         item.status = !item.results.isEmpty && item.results.allSatisfy(\.passed) ? .passed : .failed
         saveReport(isBatch: false)
         progress?()
+    }
+
+    private func registerRepairCases() {
+        cases.append(WYChatTestCase("回弹、气泡与录音入列", group: "返修", explanation: "检查边界回弹不被强制归位、头像中心与尾部对齐、自定义图片、录音结果入列和命中区域") { [weak self] in
+            guard let self else { return [] }
+            let recorder: WYChatRecordingFixture
+            do { recorder = try WYChatRecordingFixture() } catch { return [WYChatTestResult(name: "repair-fixture", passed: false, detail: error.localizedDescription, milliseconds: 0)] }
+            defer { try? FileManager.default.removeItem(at: recorder.url) }
+            var config = self.chatView.configuration
+            config.recording.recorder = recorder
+            config.recording.supportSpeechRecognition = false
+            config.recording.recordTime.min = 0
+            config.sender.showsSingleNickname = true
+            config.receiver.showsSingleNickname = true
+            let view = WYChatView(userInfo: self.chatView.userInfo, configuration: config)
+            let host = self.chatView.window ?? self.chatView
+            view.frame = host.bounds
+            host.addSubview(view)
+            defer { view.releaseAll(); view.removeFromSuperview() }
+            var checks: [WYChatTestResult] = []
+            func check(_ name: String, _ passed: Bool, _ detail: String = "") { checks.append(WYChatTestResult(name: name, passed: passed, detail: detail, milliseconds: 0)) }
+            view.dataSource = (0..<30).map { WYChatMessageModel(messageID: "bounce-\($0)", content: WYChatMessageContentModel(text: "回弹检查 \($0)")) }
+            view.layoutIfNeeded()
+            view.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: false)
+            view.tableView.layoutIfNeeded()
+            let pull = -view.tableView.adjustedContentInset.top - 70
+            view.tableView.setContentOffset(CGPoint(x: 0, y: pull), animated: false)
+            view.tableView.layoutIfNeeded()
+            check("overscroll-not-clamped", abs(view.tableView.contentOffset.y - pull) < 1, "offset=\(view.tableView.contentOffset.y), requested=\(pull)")
+            view.tableView.setContentOffset(.zero, animated: false)
+            for sender in [false, true] {
+                for top: CGFloat in [-12, 0, 8] {
+                    var sample = config
+                    sample.sender.contentTopOffset = top
+                    sample.receiver.contentTopOffset = top
+                    let cell = WYChatTextCell(style: .default, reuseIdentifier: nil)
+                    cell.frame = CGRect(x: 0, y: 0, width: 393, height: 240)
+                    host.addSubview(cell)
+                    let user = sender ? view.userInfo : WYChatUserModel(id: "repair-other", name: "昵称")
+                    cell.update(message: WYChatMessageModel(sender: user, content: WYChatMessageContentModel(text: "气泡中心检查")), configuration: sample, userID: view.userInfo.id)
+                    cell.layoutIfNeeded()
+                    let bubble = cell.bubblesView
+                    let tip = bubble.convert(CGPoint(x: 0, y: bubble.bounds.midY + bubble.arrowOffset), to: cell).y
+                    let avatar = cell.avatarView.convert(CGPoint(x: 0, y: cell.avatarView.bounds.midY), to: cell).y
+                    check("bubble-avatar-center-\(sender)-\(top)", abs(tip - avatar) < 1, "tip=\(tip), avatar=\(avatar)")
+                    sample.senderBubble.arrowImage = UIImage(systemName: "arrowtriangle.right.fill")
+                    sample.receiverBubble.arrowImage = UIImage(systemName: "arrowtriangle.left.fill")
+                    cell.configuration = sample
+                    cell.layoutIfNeeded()
+                    let image = bubble.subviews.compactMap { $0 as? UIImageView }.first
+                    check("bubble-image-override-\(sender)-\(top)", !bubble.showsArrow && image?.image != nil)
+                    cell.removeFromSuperview()
+                }
+            }
+            check("recording-rejects-directory", view.sendVoiceRecording(FileManager.default.temporaryDirectory, duration: 1) == nil)
+            let before = view.dataSource.count
+            var prepared: [WYChatMessageModel] = []
+            view.messagePreparedHandler = { prepared.append($0) }
+            view.chatInput.recordView.start()
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            view.chatInput.recordView.stop()
+            try? await Task.sleep(nanoseconds: 200_000_000)
+            check("recording-prepares-message", prepared.count == 1 && view.dataSource.count == before + 1)
+            check("recording-retains-local-file", prepared.last?.content.voice?.localPath == recorder.url.path && FileManager.default.fileExists(atPath: recorder.url.path))
+            recorder.completeAgain()
+            try? await Task.sleep(nanoseconds: 50_000_000)
+            check("recording-result-once", prepared.count == 1)
+            for style in [WYRecordingActionStyle.circular, .curved] {
+                var value = config.recording
+                value.actionStyle = style
+                value.supportSpeechRecognition = true
+                let overlay = WYRecordAnimationView(alpha: 0, configuration: value)
+                overlay.frame = host.bounds
+                host.addSubview(overlay)
+                overlay.start()
+                overlay.layoutIfNeeded()
+                overlay.switchStatus(CGPoint(x: host.bounds.midX, y: host.bounds.midY / 2))
+                check("recording-outside-regions-\(style.rawValue)", overlay.soundAnimationStatus == .recording)
+                let targets = overlay.subviews.compactMap { $0 as? WYMoveUpTipsView }
+                if let cancel = targets.first(where: { $0.moveUpView.currentTitle == value.cancelRecordViewText.onInterior }) {
+                    let center = cancel.moveUpView.convert(CGPoint(x: cancel.moveUpView.bounds.midX, y: cancel.moveUpView.bounds.midY), to: overlay)
+                    overlay.switchStatus(center)
+                    check("recording-cancel-center-\(style.rawValue)", overlay.soundAnimationStatus == .cancel)
+                    overlay.switchStatus(cancel.moveUpView.convert(CGPoint(x: 1, y: 1), to: overlay))
+                    check("recording-excludes-button-corner-\(style.rawValue)", overlay.soundAnimationStatus == .recording)
+                }
+                overlay.endRecordVoice()
+                overlay.removeFromSuperview()
+            }
+            return checks
+        })
+        cases.append(WYChatTestCase("输入框实时识别与占位配置", group: "返修", explanation: "检查居中占位、键盘识别入口、当前选区替换、最终结果、取消迟到回调和关闭识别") { [weak self] in
+            guard let self else { return [] }
+            let recorder: WYChatRecordingFixture
+            do { recorder = try WYChatRecordingFixture() } catch { return [] }
+            defer { try? FileManager.default.removeItem(at: recorder.url) }
+            let speech = WYChatRecognitionFixture()
+            var config = self.chatView.configuration
+            config.input.textPlaceholderAlignment = .center
+            config.recording.recorder = recorder
+            config.recording.speechRecognitionSource = .external
+            config.recording.speechRecognitionProvider = speech
+            config.recording.supportSpeechRecognition = true
+            config.recording.speechRecognitionMode = .whileRecording
+            let view = WYChatView(userInfo: self.chatView.userInfo, configuration: config)
+            let host = self.chatView.window ?? self.chatView
+            view.frame = host.bounds
+            host.addSubview(view)
+            defer { view.inputViewResignFirstResponder(); view.releaseAll(); view.removeFromSuperview() }
+            view.layoutIfNeeded()
+            let input = view.chatInput
+            input.layoutIfNeeded()
+            var checks: [WYChatTestResult] = []
+            func check(_ name: String, _ value: Bool) { checks.append(WYChatTestResult(name: name, passed: value, detail: "", milliseconds: 0)) }
+            check("placeholder-centered", input.textPlaceholderView.textAlignment == .center)
+            input.textView.becomeFirstResponder()
+            input.textView.text = "前缀后缀"
+            input.textViewDidChange(input.textView, silence: true)
+            input.textView.selectedRange = NSRange(location: 2, length: 0)
+            view.layoutIfNeeded()
+            try? await Task.sleep(nanoseconds: 150_000_000)
+            let button = input.subviews.compactMap { $0 as? UIButton }.first { $0.accessibilityIdentifier == "WYChatInput.dictation" }
+            check("keyboard-dictation-entry", button != nil && button?.isHidden == false)
+            button?.sendActions(for: .touchUpInside)
+            try? await Task.sleep(nanoseconds: 200_000_000)
+            check("keyboard-dictation-partial", input.textView.text == "前缀" + speech.partialText + "后缀" && input.textView.isFirstResponder && input.isInputDictating)
+            button?.sendActions(for: .touchUpInside)
+            try? await Task.sleep(nanoseconds: 200_000_000)
+            check("keyboard-dictation-final", input.textView.text == "前缀" + speech.finalText + "后缀" && !input.isInputDictating)
+            button?.sendActions(for: .touchUpInside)
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            _ = input.textView(input.textView, shouldChangeTextIn: input.textView.selectedRange, replacementText: "A")
+            let saved = input.textView.text
+            speech.emitLateResult()
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            check("keyboard-dictation-late-result", !input.isInputDictating && input.textView.text == saved)
+            var disabled = config.recording
+            disabled.supportSpeechRecognition = false
+            input.recordAnimationConfig = disabled
+            input.layoutIfNeeded()
+            check("keyboard-dictation-disabled", button?.isHidden == true && !input.isInputDictating)
+            for button in [input.textVoiceView, input.emojiView] {
+                button.isSelected = true
+                button.layoutIfNeeded()
+                check("toggle-icon-no-title-\(button.accessibilityIdentifier ?? "")", button.currentTitle == nil && button.currentImage != nil && (button.imageView?.bounds.width ?? 0) > 10)
+            }
+            return checks
+        })
+        cases.append(WYChatTestCase("居中占位长按真实手势", group: "返修", explanation: "长按空输入框的居中占位，松手后编辑并发送识别文本", requiresInteraction: true) { [weak self] in
+            guard let self, let root = self.chatView.window?.rootViewController, let recorder = try? WYChatRecordingFixture() else { return [] }
+            defer { try? FileManager.default.removeItem(at: recorder.url) }
+            let speech = WYChatRecognitionFixture()
+            var presenter = root
+            while let shown = presenter.presentedViewController { presenter = shown }
+            let host = WYChatTestHostController()
+            host.modalPresentationStyle = .fullScreen
+            presenter.present(host, animated: false)
+            var config = self.chatView.configuration
+            config.input.textPlaceholderAlignment = .center
+            config.recording.recorder = recorder
+            config.recording.speechRecognitionSource = .external
+            config.recording.speechRecognitionProvider = speech
+            config.recording.supportSpeechRecognition = true
+            config.recording.recordTime.min = 0
+            config.recording.dictationSendsOnRelease = false
+            let view = WYChatView(userInfo: self.chatView.userInfo, configuration: config)
+            host.view.addSubview(view)
+            view.frame = host.view.bounds
+            view.layoutIfNeeded()
+            defer { view.releaseAll(); host.dismiss(animated: false) }
+            for _ in 0..<450 {
+                if !view.dataSource.isEmpty { break }
+                try? await Task.sleep(nanoseconds: 100_000_000)
+            }
+            return [WYChatTestResult(name: "placeholder-long-press-sends-text", passed: speech.starts == 1 && view.dataSource.count == 1 && view.dataSource.first?.content.text == speech.finalText, detail: "starts=\(speech.starts), messages=\(view.dataSource.count)", milliseconds: 0)]
+        })
+        cases.append(WYChatTestCase("录音发送真实手势", group: "返修", explanation: "按住录音后松手发送，再拖到操作区域外松手发送，最后拖到取消区域松手取消", requiresInteraction: true) { [weak self] in
+            guard let self, let root = self.chatView.window?.rootViewController, let recorder = try? WYChatRecordingFixture() else { return [] }
+            defer { try? FileManager.default.removeItem(at: recorder.url) }
+            var presenter = root
+            while let shown = presenter.presentedViewController { presenter = shown }
+            let host = WYChatTestHostController()
+            host.modalPresentationStyle = .fullScreen
+            presenter.present(host, animated: false)
+            var config = self.chatView.configuration
+            config.recording.recorder = recorder
+            config.recording.supportSpeechRecognition = false
+            config.recording.recordTime.min = 0
+            config.recording.actionStyle = .curved
+            let view = WYChatView(userInfo: self.chatView.userInfo, configuration: config)
+            host.view.addSubview(view)
+            view.frame = host.view.bounds
+            view.chatInput.textVoiceView.sendActions(for: .touchUpInside)
+            view.layoutIfNeeded()
+            defer { view.releaseAll(); host.dismiss(animated: false) }
+            for _ in 0..<600 {
+                if recorder.stops >= 3 { break }
+                try? await Task.sleep(nanoseconds: 100_000_000)
+            }
+            let voices = view.dataSource.compactMap { $0.content.voice }
+            return [WYChatTestResult(name: "recording-real-send-cancel", passed: recorder.stops == 3 && voices.count == 2 && voices.allSatisfy { $0.localPath == recorder.url.path }, detail: "stops=\(recorder.stops), voices=\(voices.count)", milliseconds: 0)]
+        })
+        cases.append(WYChatTestCase("顶部回弹真实手势", group: "返修", explanation: "在列表顶部向下拖动后松手，检查回弹经过多个显示帧并回到顶部", requiresInteraction: true) { [weak self] in
+            guard let self, let root = self.chatView.window?.rootViewController else { return [] }
+            var presenter = root
+            while let shown = presenter.presentedViewController { presenter = shown }
+            let host = WYChatTestHostController()
+            host.modalPresentationStyle = .fullScreen
+            presenter.present(host, animated: false)
+            let view = WYChatView(userInfo: self.chatView.userInfo, configuration: self.chatView.configuration)
+            host.view.addSubview(view)
+            view.frame = host.view.bounds
+            view.tableView.accessibilityIdentifier = "WYChatTests.bounceTable"
+            view.dataSource = (0..<50).map { WYChatMessageModel(content: WYChatMessageContentModel(text: "顶部回弹 \($0)")) }
+            view.layoutIfNeeded()
+            view.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: false)
+            view.tableView.layoutIfNeeded()
+            let probe = WYChatBounceProbe(table: view.tableView)
+            defer { probe.stop(); view.releaseAll(); host.dismiss(animated: false) }
+            for _ in 0..<120 {
+                try? await Task.sleep(nanoseconds: 100_000_000)
+                if probe.minimum < -20 && !view.tableView.isDragging && !view.tableView.isDecelerating && abs(view.tableView.contentOffset.y + view.tableView.adjustedContentInset.top) < 1 { break }
+            }
+            return [WYChatTestResult(name: "native-bounce-frames", passed: probe.minimum < -20 && probe.recoveryFrames >= 3 && abs(view.tableView.contentOffset.y + view.tableView.adjustedContentInset.top) < 1, detail: "minimum=\(probe.minimum), recoveryFrames=\(probe.recoveryFrames), final=\(view.tableView.contentOffset.y)", milliseconds: 0)]
+        })
     }
 
     private func registerBehaviorCases() {
@@ -1597,6 +1823,47 @@ final class WYChatTestSuite {
             let valid = movedForward && browser.currentIndex == 0 && source.taps > 0
             return [WYChatTestResult(name: "browser-stack-real-swipes", passed: valid, detail: "shown=\(source.shown), index=\(browser.currentIndex), taps=\(source.taps)", milliseconds: 0)]
         })
+        cases.append(WYChatTestCase("叠卡连续双向循环", group: "媒体", explanation: "连续向左向右划走顶图，检查循环顺序和叠层完整性", requiresInteraction: true) { [weak self] in
+            guard let self else { return [] }
+            let source = WYChatBrowserStackFixture()
+            var config = WYPhotoBrowserConfiguration()
+            config.layoutStyle = .stackedCards
+            config.allowsLoopScrolling = true
+            config.stackedCardCyclesForward = true
+            config.isEmbedded = true
+            config.pageIndicatorStyle = .none
+            config.appearance.backgroundColor = .systemGroupedBackground
+            let browser = WYPhotoBrowser(configuration: config)
+            browser.dataSource = source
+            browser.browserDelegate = source
+            let host = self.chatView.window ?? self.chatView
+            browser.view.frame = host.bounds.insetBy(dx: 20, dy: 130)
+            browser.view.accessibilityIdentifier = "WYChatTests.browserStackHost"
+            host.addSubview(browser.view)
+            defer { browser.view.removeFromSuperview() }
+            browser.view.layoutIfNeeded()
+            @MainActor func descendants(_ view: UIView) -> [UIView] { view.subviews.flatMap { [$0] + descendants($0) } }
+            let collection = descendants(browser.view).compactMap { $0 as? UICollectionView }.first
+            var correctImages = true
+            var fullDepth = true
+            var inspected = Set<Int>()
+            for _ in 0..<900 {
+                if let collection, !collection.isDragging, !collection.isDecelerating {
+                    collection.layoutIfNeeded()
+                    let index = browser.currentIndex
+                    let actual = (browser.sourceView(at: index) as? UIImageView)?.image?.pngData()
+                    correctImages = correctImages && actual != nil && actual == source.items[index].placeholder?.pngData()
+                    let attributes = collection.collectionViewLayout.layoutAttributesForElements(in: collection.bounds) ?? []
+                    fullDepth = fullDepth && attributes.filter { !$0.isHidden && $0.alpha > 0.99 }.count == config.stackedCardCount
+                    inspected.insert(index)
+                }
+                if source.taps > 0 { break }
+                try? await Task.sleep(nanoseconds: 100_000_000)
+            }
+            let movedForward = source.shown == Array(1...5) + [0] + Array(1...5) + [0]
+            let valid = movedForward && browser.currentIndex == 0 && source.taps > 0 && correctImages && fullDepth && inspected.count == source.items.count
+            return [WYChatTestResult(name: "browser-stack-real-swipes", passed: valid, detail: "shown=\(source.shown), index=\(browser.currentIndex), taps=\(source.taps), images=\(correctImages), depth=\(fullDepth), inspected=\(inspected.sorted())", milliseconds: 0)]
+        })
     }
 
     private func registerMediaGestureCase() {
@@ -2601,6 +2868,31 @@ private final class WYChatRecordingEventsFixture: NSObject, WYRecordEventsHandle
     func wy_recordingTimeUpdated(_ view: WYRecordAnimationView, currentTime: TimeInterval, maximumDuration: TimeInterval) { times += 1 }
     func wy_recordingMeteringUpdated(_ view: WYRecordAnimationView, peakPower: Float, averagePower: Float) { meters += 1 }
     func wy_recordingDidFinish(_ view: WYRecordAnimationView, url: URL?, duration: TimeInterval, cancelled: Bool, timedOut: Bool, error: NSError?) { finishes += 1; if cancelled { self.cancelled += 1 } }
+}
+
+@MainActor
+private final class WYChatBounceProbe: NSObject {
+    private weak var table: UITableView?
+    private var displayLink: CADisplayLink?
+    private(set) var minimum: CGFloat = 0
+    private(set) var recoveryFrames = 0
+
+    init(table: UITableView) {
+        self.table = table
+        super.init()
+        let link = CADisplayLink(target: self, selector: #selector(sample))
+        displayLink = link
+        link.add(to: .main, forMode: .common)
+    }
+
+    func stop() { displayLink?.invalidate(); displayLink = nil }
+
+    @objc private func sample() {
+        guard let table else { stop(); return }
+        let offset = table.contentOffset.y + table.adjustedContentInset.top
+        minimum = min(minimum, offset)
+        if offset < -1 && !table.isDragging && !table.isTracking { recoveryFrames += 1 }
+    }
 }
 
 /// 记录实际拖动时的消息位置与显示帧间隔

@@ -285,6 +285,10 @@ public struct WYPhotoBrowserConfiguration {
     public var stackedCardRotationAngle: CGFloat = .pi / 90
     /// 叠卡滑动时的旋转角度，单位弧度
     public var stackedCardDragRotationAngle: CGFloat = .pi / 12
+    /// 叠卡旋转支点，横纵坐标范围0到1，默认底部中心
+    public var stackedCardAnchorPoint: CGPoint = CGPoint(x: 0.5, y: 1)
+    /// 循环叠卡是否向任一方向划走顶图后显示下一张，默认false
+    public var stackedCardCyclesForward: Bool = false
     /// 叠卡圆角
     public var stackedCardCornerRadius: CGFloat = UIDevice.wy_screenWidth(12, WYBasisKitConfig.defaultScreenPixels)
     /// 叠卡图片显示方式
@@ -519,6 +523,10 @@ public class WYPhotoBrowser: UIViewController {
 
     /// 刷新浏览项(数据源内容或数量变化后调用，尽量保持当前页下标)
     @objc public func reloadData() {
+        stackedCycleDirection = 1
+        (flowLayout as? WYPhotoBrowserStackLayout)?.cycleDirection = 1
+        stackedCycleOffset = 0
+        stackedGestureOrigin = nil
         guard isViewLoaded else { return }
         livePhotoCache.removeAll()
         collectionView.reloadData()
@@ -674,6 +682,9 @@ public class WYPhotoBrowser: UIViewController {
 
     /// 当前页下标(内部真源，公开属性读写都走它)
     var internalCurrentIndex: Int = 0
+    var stackedCycleDirection: Int = 1
+    var stackedCycleOffset: Int = 0
+    var stackedGestureOrigin: (page: Int, item: Int)?
 
     /// 上次布局尺寸(尺寸变化时重刷集合视图布局，避免旋转后页宽不匹配)
     var lastLayoutSize: CGSize = .zero

@@ -70,6 +70,6 @@ public struct WYChatMediaConfig {
     /// 是否显示系统视频播放控件，默认true
     public var showsVideoPlaybackControls: Bool = true
     /// 媒体浏览器配置
-    public var browser: WYPhotoBrowserConfiguration = WYPhotoBrowserConfiguration()
+    public var browser: WYPhotoBrowserConfiguration = { var value = WYPhotoBrowserConfiguration(); value.allowsLoopScrolling = true; value.stackedCardCyclesForward = true; return value }()
     public init() {}
 }

@@ -28,6 +28,13 @@ struct WYChatReadingAnchor {
 }
 
 extension WYChatView {
+    var wy_isOverscrolling: Bool {
+        let table = tableView
+        let lower = -table.adjustedContentInset.top
+        let upper = max(lower, table.contentSize.height + table.adjustedContentInset.bottom - table.bounds.height)
+        return table.contentOffset.y < lower || table.contentOffset.y > upper
+    }
+
     func wy_cancelAutomaticScroll() {
         state.followsBottom = false
         state.readingAnchor = nil
@@ -36,7 +43,7 @@ extension WYChatView {
     }
 
     func wy_captureReadingPosition() {
-        guard !state.followsBottom, !state.pendingScrollToBottom, state.readingAnchor == nil,
+        guard !wy_isOverscrolling, !state.followsBottom, !state.pendingScrollToBottom, state.readingAnchor == nil,
               let row = tableView.indexPathsForVisibleRows?.min(), dataSource.indices.contains(row.row) else { return }
         state.readingAnchor = wy_readingAnchor(at: row)
     }
@@ -47,7 +54,7 @@ extension WYChatView {
     }
 
     func wy_restoreReadingPosition() {
-        guard let anchor = state.readingAnchor, dataSource.indices.contains(anchor.row), tableView.bounds.height > 0,
+        guard !wy_isOverscrolling, let anchor = state.readingAnchor, dataSource.indices.contains(anchor.row), tableView.bounds.height > 0,
               let table = tableView as? WYChatMessageTableView else { return }
         let path = IndexPath(row: anchor.row, section: 0)
         if table.indexPathsForVisibleRows?.contains(path) != true { table.wy_scrollInternally(to: path, at: .top, animated: false) }
@@ -64,7 +71,7 @@ extension WYChatView {
     }
 
     func wy_followBottomLayout() {
-        guard state.followsBottom, window != nil, !dataSource.isEmpty, tableView.bounds.height > 0 else { return }
+        guard !wy_isOverscrolling, state.followsBottom, window != nil, !dataSource.isEmpty, tableView.bounds.height > 0 else { return }
         let last = IndexPath(row: dataSource.count - 1, section: 0)
         let bottom = max(-tableView.adjustedContentInset.top, tableView.contentSize.height + tableView.adjustedContentInset.bottom - tableView.bounds.height)
         if tableView.indexPathsForVisibleRows?.contains(last) != true || abs(tableView.contentOffset.y - bottom) > 1 / max(1, traitCollection.displayScale) {
@@ -119,7 +126,7 @@ extension WYChatView {
         let bodyHeight = wy_contentHeight(cell.bodyView, width: bodyWidth, cell: cell)
         let bubbleHeight = max(cell.state.contentMinimum.constant, bodyHeight + cell.state.bodyInsets[0].constant - cell.state.bodyInsets[2].constant)
         let top = cell.state.timeHeight.constant + cell.state.timeBottom.constant
-        let measured = max(top + cell.state.avatarHeight.constant, top + cell.state.nicknameHeight.constant + cell.state.bubbleTop.constant + bubbleHeight - cell.state.bubbleBottom.constant)
+        let measured = max(top + cell.state.avatarHeight.constant, cell.state.timeHeight.constant + cell.state.nicknameTop.constant + cell.state.nicknameHeight.constant + cell.state.bubbleTop.constant + bubbleHeight - cell.state.bubbleBottom.constant)
         let scale = max(1, traitCollection.displayScale)
         let height = max(1, ceil(measured * scale) / scale)
         state.measuredHeights[key] = WYChatMeasuredHeight(width: width, height: height)
