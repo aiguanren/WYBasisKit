@@ -864,7 +864,6 @@
 				C9E315CA3D569148777DF81B /* PrivateImpl */,
 				77D44C9729C163751CC7B632 /* WYChatRecordsViewController.swift */,
 			);
-			name = Records;
 			path = Records;
 			sourceTree = "<group>";
 		};
@@ -874,7 +873,6 @@
 				B9D2C0C0FFD47E39B46DB5E3 /* PrivateImpl */,
 				E0A0A7638C47A01F94EFE41C /* WYChatQuoteView.swift */,
 			);
-			name = Quote;
 			path = Quote;
 			sourceTree = "<group>";
 		};
@@ -2847,7 +2845,6 @@
 		58C68D652E84E436005FD054 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				58C68D3B2E84E436005FD054 /* WYChatView.swift */,
 				58C68D3A2E84E436005FD054 /* Emoji */,
 				58C68D3E2E84E436005FD054 /* Handler */,
 				58C68D402E84E436005FD054 /* Input */,
@@ -2862,6 +2859,7 @@
 		58C68D682E84E436005FD054 /* ChatView */ = {
 			isa = PBXGroup;
 			children = (
+				58C68D3B2E84E436005FD054 /* WYChatView.swift */,
 				58C68D2E2E84E436005FD054 /* Config */,
 				58C68D302E84E436005FD054 /* Models */,
 				58C68D342E84E436005FD054 /* RecordAnimation */,
@@ -3430,7 +3428,6 @@
 			children = (
 				54EFB49C166A256DB8B411AD /* WYChatQuoteView+Implementation.swift */,
 			);
-			name = PrivateImpl;
 			path = PrivateImpl;
 			sourceTree = "<group>";
 		};
@@ -3439,7 +3436,6 @@
 			children = (
 				9E7CE19E574CF84D06F15370 /* WYChatRecordsViewController+Implementation.swift */,
 			);
-			name = PrivateImpl;
 			path = PrivateImpl;
 			sourceTree = "<group>";
 		};
@@ -3466,7 +3462,6 @@
 			children = (
 				1037FAEB949FCB4D36CC501E /* WYChatMediaGroupCell.swift */,
 			);
-			name = MediaGroup;
 			path = MediaGroup;
 			sourceTree = "<group>";
 		};
