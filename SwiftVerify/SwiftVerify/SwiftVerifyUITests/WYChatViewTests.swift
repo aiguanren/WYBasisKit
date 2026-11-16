@@ -334,6 +334,18 @@ final class WYChatViewTests: XCTestCase {
         }
     }
 
+    func testBundledVoiceImages() {
+        let app = openChat()
+        app.navigationBars.buttons["测试"].tap()
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        search.tap(); search.typeText("内置图片与语音播放帧")
+        let row = app.tables.cells.containing(.staticText, identifier: "内置图片与语音播放帧").firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        row.tap(); app.alerts.buttons["运行"].tap()
+        XCTAssertTrue(row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "通过")).firstMatch.waitForExistence(timeout: 15))
+    }
+
     func testExampleVoiceSendAndPlayback() {
         let app = openChat()
         app.navigationBars.buttons["测试"].tap()
@@ -437,9 +449,9 @@ final class WYChatViewTests: XCTestCase {
         XCTAssertTrue(font.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "26.0")).firstMatch.waitForExistence(timeout: 5))
         _ = find("input.rendersIconsAsTemplate")
         let toggle = app.switches["WYChatConfiguration.switch.input.rendersIconsAsTemplate"]
-        XCTAssertEqual(toggle.value as? String, "1")
-        toggle.tap()
         XCTAssertEqual(toggle.value as? String, "0")
+        toggle.tap()
+        XCTAssertEqual(toggle.value as? String, "1")
         edit(find("basic.avatarSize"), "38, 38")
         app.navigationBars.buttons["预览"].tap()
         XCTAssertTrue(app.navigationBars["配置预览"].waitForExistence(timeout: 5))

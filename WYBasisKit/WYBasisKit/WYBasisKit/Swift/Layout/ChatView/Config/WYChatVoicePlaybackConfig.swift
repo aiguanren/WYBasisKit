@@ -9,6 +9,18 @@ import UIKit
 
 /// 语音播放倍速外观
 public struct WYChatVoicePlaybackConfig {
+    /// 共用语音播放帧，静止时显示最后一帧
+    public var waveformImages: [UIImage] = (1...3).map { UIImage.wy_find("WYChatViewVoiceWave\($0)", inBundle: WYChatSourceBundle) }
+    /// 是否水平翻转发送方的语音播放帧，默认true
+    public var mirrorsSenderWaveform: Bool = true
+    /// 语音播放帧每轮时长，单位秒
+    public var waveformDuration: TimeInterval = 0.75
+    /// 语音播放帧的显示尺寸
+    public var waveformSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenHeight(20, WYBasisKitConfig.defaultScreenPixels))
+    /// 语音播放或继续播放图标
+    public var playImage: UIImage? = UIImage.wy_find("WYChatViewAudioPlay", inBundle: WYChatSourceBundle)
+    /// 语音播放时的暂停图标
+    public var pauseImage: UIImage? = UIImage.wy_find("WYChatViewAudioSuspend", inBundle: WYChatSourceBundle)
     /// 可选择的语音倍速，忽略非正数、非有限值和重复值
     public var rates: [Float] = [1, 1.25, 1.5, 2]
     /// 是否显示语音倍速按钮，默认true

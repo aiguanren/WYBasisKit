@@ -44,11 +44,11 @@ public struct WYChatQuoteStyle {
     /// 引用媒体缩略图圆角
     public var thumbnailCornerRadius: CGFloat = UIDevice.wy_screenWidth(4, WYBasisKitConfig.defaultScreenPixels)
     /// 引用媒体占位图
-    public var thumbnailPlaceholder: UIImage? = UIImage(systemName: "photo")
+    public var thumbnailPlaceholder: UIImage? = UIImage.wy_find("WYChatViewImagePlaceholder", inBundle: WYChatSourceBundle)
     /// 是否显示关闭按钮，默认false
     public var showsCloseButton: Bool = false
     /// 引用关闭按钮图片
-    public var closeImage: UIImage? = UIImage(systemName: "xmark.circle.fill")
+    public var closeImage: UIImage? = UIImage.wy_find("WYChatViewClose", inBundle: WYChatSourceBundle)
     /// 引用关闭按钮颜色
     public var closeColor: UIColor = .tertiaryLabel
     /// 引用关闭按钮尺寸

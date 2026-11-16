@@ -207,7 +207,20 @@ final class WYChatTestSuite {
             overlay.start()
             try? await Task.sleep(nanoseconds: 350_000_000)
             check("gradient-visible", descendants(overlay).contains { $0.accessibilityIdentifier == "WYChatRecording.gradient" })
+            overlay.switchStatus(CGPoint(x: host.bounds.midX, y: host.bounds.height - 60))
             snapshot("recording")
+            let gradient = descendants(overlay).first { $0.accessibilityIdentifier == "WYChatRecording.gradient" }
+            let layers = gradient?.layer.sublayers?.compactMap { $0 as? CAGradientLayer } ?? []
+            let moving = layers.filter { $0.animationKeys()?.isEmpty == false }
+            let positions = moving.map { $0.presentation()?.position }
+            try? await Task.sleep(nanoseconds: 800_000_000)
+            check("gradient-continuous-motion", !moving.isEmpty && zip(moving, positions).contains { $0.0.presentation()?.position != $0.1 })
+            snapshot("motion")
+            let touch = CGPoint(x: host.bounds.midX + 55, y: host.bounds.height - 75)
+            overlay.switchStatus(touch)
+            try? await Task.sleep(nanoseconds: 250_000_000)
+            check("gradient-touch-follows", layers.contains { $0.position == touch && $0.opacity > 0 })
+            snapshot("pressed")
             overlay.switchStatus(CGPoint(x: 0, y: 0))
             check("gradient-up-cancel", overlay.soundAnimationStatus == .cancel)
             snapshot("cancel")
@@ -1161,6 +1174,43 @@ final class WYChatTestSuite {
     }
 
     private func registerVoicePlaybackCases() {
+        cases.append(WYChatTestCase("内置图片与语音播放帧", group: "功能", explanation: "检查内置图标原色、共用声波方向、播放帧与复用清理") { [weak self] in
+            guard let self else { return [] }
+            let view = WYChatView(userInfo: self.chatView.userInfo)
+            let host = self.chatView.window ?? self.chatView
+            view.frame = host.bounds
+            host.addSubview(view)
+            defer { view.releaseAll(); view.removeFromSuperview() }
+            var voice = WYChatVoiceModel(duration: 8)
+            voice.isPlaying = true
+            view.dataSource = [WYChatMessageModel(messageID: "asset-voice", sender: view.userInfo, content: WYChatMessageContentModel(voice: voice))]
+            view.layoutIfNeeded(); view.tableView.layoutIfNeeded()
+            let cell = view.tableView.visibleCells.compactMap { $0 as? WYChatBasicCell }.first
+            var checks: [WYChatTestResult] = []
+            func check(_ name: String, _ value: Bool) { checks.append(WYChatTestResult(name: name, passed: value, detail: "", milliseconds: 0)) }
+            check("builtin-keyboard-original", !view.configuration.input.textBottomImage.isSymbolImage && !view.configuration.input.rendersIconsAsTemplate)
+            check("voice-frames-loaded", view.configuration.voicePlayback.waveformImages.count == 3 && view.configuration.voicePlayback.waveformImages.allSatisfy { $0.size.width > 1 })
+            check("voice-animation-playing", cell?.thumbnailImageView.isAnimating == true)
+            check("voice-sender-mirrored", cell?.thumbnailImageView.image?.imageOrientation == .upMirrored)
+            cell?.prepareForReuse()
+            check("voice-animation-reuse-cleared", cell?.thumbnailImageView.isAnimating == false && cell?.thumbnailImageView.animationImages == nil)
+            var moreConfig = WYMoreViewConfig()
+            moreConfig.moreSource = [["照片": "WYChatViewAlbum"], ["拍摄": "WYChatViewCamera"]]
+            moreConfig.imageProvider = { UIImage.wy_find($0, inBundle: WYChatSourceBundle) }
+            let more = WYChatMoreView(config: moreConfig)
+            more.frame = CGRect(x: 0, y: host.bounds.height - 250, width: host.bounds.width, height: 250)
+            host.addSubview(more)
+            defer { more.removeFromSuperview() }
+            more.layoutIfNeeded(); more.collectionView.layoutIfNeeded()
+            @MainActor func images(_ root: UIView) -> [UIImageView] { root.subviews.flatMap { ($0 as? UIImageView).map { [$0] } ?? images($0) } }
+            let icons = more.collectionView.visibleCells.flatMap { images($0) }.filter { $0.image != nil }
+            check("more-icons-sized", icons.count == 2 && icons.allSatisfy { abs($0.bounds.width - moreConfig.iconSize.width) < 1 && abs($0.bounds.height - moreConfig.iconSize.height) < 1 })
+            let folder = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("ChatView-VisualResults", isDirectory: true)
+            try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            let image = UIGraphicsImageRenderer(bounds: host.bounds).image { _ in host.drawHierarchy(in: host.bounds, afterScreenUpdates: true) }
+            try? image.pngData()?.write(to: folder.appendingPathComponent("builtin-icon-sizes.png"))
+            return checks
+        })
         cases.append(WYChatTestCase("示例语音发送与本地播放", group: "功能", explanation: "使用真实音频检查发送完成、播放、暂停、恢复和播放结束，识别失败后仍可播放原语音") { [weak self] in
             guard let self, let url = Bundle.main.url(forResource: "ChatViewSpeechSample", withExtension: "caf") else { return [] }
             let view = self.chatView

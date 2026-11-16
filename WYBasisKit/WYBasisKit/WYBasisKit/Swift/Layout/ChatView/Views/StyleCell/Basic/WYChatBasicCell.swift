@@ -14,7 +14,7 @@ public struct WYBasicChatConfig {
     /// 头像尺寸
     public var avatarSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(40, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(40, WYBasisKitConfig.defaultScreenPixels))
     /// 默认头像
-    public var defaultAvatar: UIImage? = UIImage(systemName: "person.crop.square")
+    public var defaultAvatar: UIImage? = UIImage.wy_find("WYChatViewAvatarPlaceholder", inBundle: WYChatSourceBundle)
     /// 头像显示方式
     public var avatarContentMode: UIView.ContentMode = .scaleAspectFill
     /// 头像圆角
@@ -60,9 +60,9 @@ public struct WYBasicChatConfig {
     /// 未读文本
     public var unreadText: String = WYLocalized("未读", table: WYBasisKitConfig.kitLocalizableTable)
     /// 发送失败图标
-    public var messageSendErrorImage: UIImage? = UIImage(systemName: "exclamationmark.circle.fill")
+    public var messageSendErrorImage: UIImage? = UIImage.wy_find("WYChatViewSendFailed", inBundle: WYChatSourceBundle)
     /// 等待发送的图标
-    public var messagePendingImage: UIImage? = UIImage(systemName: "clock")
+    public var messagePendingImage: UIImage? = UIImage.wy_find("WYChatViewPending", inBundle: WYChatSourceBundle)
     /// 发送中动画颜色
     public var messageSendingColor: UIColor = .secondaryLabel
     /// 发送失败图标颜色

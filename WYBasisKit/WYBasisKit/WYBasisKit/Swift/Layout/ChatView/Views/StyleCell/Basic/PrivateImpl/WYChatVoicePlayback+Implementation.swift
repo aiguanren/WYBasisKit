@@ -22,10 +22,11 @@ extension WYChatBasicCell {
         guard let voice = message.content.voice else { return }
         let style = messageContentConfiguration
         let ratesWidth = state.voiceRateButton.isHidden ? 0 : (state.voiceRateWidth?.constant ?? 0) + max(0, style.spacing)
+        let waveformWidth = state.usesThumbnail ? max(0, configuration.voicePlayback.waveformSize.width) + max(0, style.spacing) : 0
         let titleWidth = ceil(state.title.sizeThatFits(CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)).width)
         let fraction = voice.duration.isFinite ? min(1, max(0, voice.duration / max(1, configuration.recording.recordTime.max))) : 0
         let preferred = state.detail.text?.isEmpty == false ? style.preferredWidth : style.preferredWidth * CGFloat(fraction)
-        state.preferredWidth?.constant = max(1, min(width, max(preferred, titleWidth + ratesWidth)))
+        state.preferredWidth?.constant = max(1, min(width, max(preferred, titleWidth + ratesWidth + waveformWidth)))
     }
     func wy_renderVoicePlayback() {
         let style = configuration.voicePlayback

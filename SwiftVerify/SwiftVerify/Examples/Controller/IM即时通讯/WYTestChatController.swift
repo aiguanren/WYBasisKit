@@ -46,9 +46,12 @@ class WYTestChatController: UIViewController {
         
         configuration.emoji.emojiFolders = true
         
-        configuration.more.imageProvider = { UIImage(systemName: $0) }
-        configuration.more.moreSource = [["照片": "photo"], ["拍摄": "camera"], ["位置": "location"], ["文件": "doc"]]
-        configuration.imageLoader = { asset, imageView, _ in imageView.image = UIImage(systemName: asset.name.isEmpty ? "person.crop.square" : asset.name) }
+        configuration.more.imageProvider = { UIImage.wy_find($0, inBundle: WYChatSourceBundle) }
+        configuration.more.moreSource = [["照片": "WYChatViewAlbum"], ["拍摄": "WYChatViewCamera"], ["位置": "WYChatViewLocation"], ["文件": "WYChatViewFile"]]
+        configuration.imageLoader = { asset, imageView, _ in
+            let names = ["person.crop.square": "WYChatViewAvatarPlaceholder", "photo": "WYChatViewImagePlaceholder", "doc": "WYChatViewFile"]
+            if !asset.name.isEmpty { imageView.image = UIImage.wy_find(names[asset.name] ?? asset.name, inBundle: WYChatSourceBundle) }
+        }
         configuration.media.albumMoreItemIndex = 0
         configuration.recording.supportSpeechRecognition = true
         chatView = WYChatView(configuration: configuration)

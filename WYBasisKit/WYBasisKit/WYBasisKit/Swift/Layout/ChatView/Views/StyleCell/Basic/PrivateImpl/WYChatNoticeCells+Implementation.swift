@@ -22,7 +22,8 @@ extension WYChatBasicCell {
         case .call:
             guard let value = message.content.call else { return }
             let video = value.callStyle == .oneToOneVideo || value.callStyle == .multipleVideos
-            state.title.text = (video ? "▣  " : "☎  ") + (value.durationOfCall > 0 ? wy_duration(value.durationOfCall) : WYLocalized("通话未接通", table: WYBasisKitConfig.kitLocalizableTable))
+            wy_showMessageIcon(video ? "WYChatViewVideoCall" : "WYChatViewAudioCall")
+            state.title.text = value.durationOfCall > 0 ? wy_duration(value.durationOfCall) : WYLocalized("通话未接通", table: WYBasisKitConfig.kitLocalizableTable)
         default: break
         }
         if wy_isNotice {

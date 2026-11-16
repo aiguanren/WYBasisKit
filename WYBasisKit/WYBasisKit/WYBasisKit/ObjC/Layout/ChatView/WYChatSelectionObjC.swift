@@ -60,7 +60,7 @@ import WYBasisKitSwift
     public var selectedColor: UIColor
     /// 未选中图标颜色
     public var unselectedColor: UIColor
-    /// 是否使用模板方式渲染多选图标，默认true
+    /// 是否使用模板方式渲染多选图标，默认false
     public var rendersIndicatorAsTemplate: Bool
     public override convenience init() { self.init(WYChatSelectionConfig()) }
     @nonobjc public init(_ value: WYChatSelectionConfig) {

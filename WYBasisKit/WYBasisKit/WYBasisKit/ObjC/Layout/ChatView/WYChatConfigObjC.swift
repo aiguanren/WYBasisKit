@@ -149,6 +149,11 @@ import WYBasisKitSwift
 
 @objc(WYChatContentConfig)
 @objcMembers public class WYChatContentConfigObjC: NSObject {
+    /// 消息卡片图标，nil时使用对应消息类型的内置图片
+    public var iconImage: UIImage?
+    /// 消息卡片图标的显示尺寸
+    public var iconSize: CGSize
+
     /// 内容内边距
     public var insets: UIEdgeInsets
     /// 内容最大宽度占可用宽度的比例，范围0到1
@@ -181,6 +186,8 @@ import WYBasisKitSwift
     public override convenience init() { self.init(WYChatContentConfig()) }
 
     @nonobjc public init(_ value: WYChatContentConfig) {
+        self.iconSize = value.iconSize
+        self.iconImage = value.iconImage
         self.insets = value.insets
         self.maximumWidthRatio = value.maximumWidthRatio
         self.maximumWidth = value.maximumWidth
@@ -200,6 +207,8 @@ import WYBasisKitSwift
 
     @nonobjc public func toValue() -> WYChatContentConfig {
         var value = WYChatContentConfig()
+        value.iconSize = iconSize
+        value.iconImage = iconImage
         value.insets = insets
         value.maximumWidthRatio = maximumWidthRatio
         value.maximumWidth = maximumWidth
@@ -402,6 +411,32 @@ import WYBasisKitSwift
     public var gradientColorLocations: [NSNumber]
     /// 渐变各位置的不透明度，取值0到1，数量与gradientColorLocations一致
     public var gradientColorOpacities: [NSNumber]
+    /// 是否持续播放渐变流动动画，默认true
+    public var gradientMotionEnabled: Bool
+    /// 渐变流动动画每轮时长，单位秒，非正数时停止动画
+    public var gradientMotionDuration: TimeInterval
+    /// 渐变流动的水平和垂直移动幅度
+    public var gradientMotionAmplitude: CGSize
+    /// 渐变流动的缩放幅度，取值0到0.5
+    public var gradientMotionScale: CGFloat
+    /// 渐变流动亮部颜色
+    public var gradientMotionHighlightColor: UIColor
+    /// 渐变流动暗部颜色
+    public var gradientMotionShadowColor: UIColor
+    /// 渐变流动亮部不透明度，取值0到1
+    public var gradientMotionHighlightOpacity: CGFloat
+    /// 渐变流动暗部不透明度，取值0到1
+    public var gradientMotionShadowOpacity: CGFloat
+    /// 是否显示跟随手指的渐变按压效果，默认true
+    public var gradientPressEnabled: Bool
+    /// 渐变按压效果的尺寸
+    public var gradientPressSize: CGSize
+    /// 渐变按压效果的颜色
+    public var gradientPressColor: UIColor
+    /// 渐变按压效果的不透明度，取值0到1
+    public var gradientPressOpacity: CGFloat
+    /// 渐变按压效果跟随手指移动的过渡时长，单位秒
+    public var gradientPressFollowingDuration: TimeInterval
     /// 渐变录音声波两端淡出的宽度比例，取值0到0.5
     public var gradientWaveformEdgeFade: CGFloat
     /// 渐变录音声波区域尺寸
@@ -783,6 +818,19 @@ import WYBasisKitSwift
         self.gradientWaveformEdgeFade = value.gradientWaveformEdgeFade
         self.gradientColorLocations = value.gradientColorLocations.map { NSNumber(value: Double($0)) }
         self.gradientColorOpacities = value.gradientColorOpacities.map { NSNumber(value: Double($0)) }
+        self.gradientMotionEnabled = value.gradientMotionEnabled
+        self.gradientMotionDuration = value.gradientMotionDuration
+        self.gradientMotionAmplitude = value.gradientMotionAmplitude
+        self.gradientMotionScale = value.gradientMotionScale
+        self.gradientMotionHighlightColor = value.gradientMotionHighlightColor
+        self.gradientMotionShadowColor = value.gradientMotionShadowColor
+        self.gradientMotionHighlightOpacity = value.gradientMotionHighlightOpacity
+        self.gradientMotionShadowOpacity = value.gradientMotionShadowOpacity
+        self.gradientPressEnabled = value.gradientPressEnabled
+        self.gradientPressSize = value.gradientPressSize
+        self.gradientPressColor = value.gradientPressColor
+        self.gradientPressOpacity = value.gradientPressOpacity
+        self.gradientPressFollowingDuration = value.gradientPressFollowingDuration
         self.interactionStyle = value.interactionStyle
         self.gradientHeight = value.gradientHeight
         self.gradientRecordingColor = value.gradientRecordingColor
@@ -979,6 +1027,19 @@ import WYBasisKitSwift
         value.gradientWaveformEdgeFade = gradientWaveformEdgeFade
         value.gradientColorLocations = gradientColorLocations.map { CGFloat($0.doubleValue) }
         value.gradientColorOpacities = gradientColorOpacities.map { CGFloat($0.doubleValue) }
+        value.gradientMotionEnabled = gradientMotionEnabled
+        value.gradientMotionDuration = gradientMotionDuration
+        value.gradientMotionAmplitude = gradientMotionAmplitude
+        value.gradientMotionScale = gradientMotionScale
+        value.gradientMotionHighlightColor = gradientMotionHighlightColor
+        value.gradientMotionShadowColor = gradientMotionShadowColor
+        value.gradientMotionHighlightOpacity = gradientMotionHighlightOpacity
+        value.gradientMotionShadowOpacity = gradientMotionShadowOpacity
+        value.gradientPressEnabled = gradientPressEnabled
+        value.gradientPressSize = gradientPressSize
+        value.gradientPressColor = gradientPressColor
+        value.gradientPressOpacity = gradientPressOpacity
+        value.gradientPressFollowingDuration = gradientPressFollowingDuration
         value.interactionStyle = interactionStyle
         value.gradientHeight = gradientHeight
         value.gradientRecordingColor = gradientRecordingColor
@@ -1393,7 +1454,7 @@ import WYBasisKitSwift
     /// 输入栏图标颜色
     public var iconTintColor: UIColor
 
-    /// 是否用iconTintColor绘制输入栏图标，默认true
+    /// 是否用iconTintColor绘制输入栏图标，默认false
     public var rendersIconsAsTemplate: Bool
 
     /// 是否需要保存上次退出时输入框中的文本
@@ -2049,6 +2110,8 @@ import WYBasisKitSwift
     public var imageViewBackgroundColor: UIColor
     /// 自定义More控件内imageView的Size
     public var imageViewSize: CGSize
+    /// 更多面板图标的显示尺寸
+    public var iconSize: CGSize
     /// 自定义More控件内imageView的圆角半径
     public var imageViewCornerRadius: CGFloat
     /// 自定义More控件内imageView的背景色
@@ -2086,6 +2149,7 @@ import WYBasisKitSwift
         self.contentInset = value.contentInset
         self.imageViewBackgroundColor = value.imageViewBackgroundColor
         self.imageViewSize = value.imageViewSize
+        self.iconSize = value.iconSize
         self.imageViewCornerRadius = value.imageViewCornerRadius
         self.imageBackgroundColor = value.imageBackgroundColor
         self.textViewFont = value.textViewFont
@@ -2114,6 +2178,7 @@ import WYBasisKitSwift
         value.contentInset = contentInset
         value.imageViewBackgroundColor = imageViewBackgroundColor
         value.imageViewSize = imageViewSize
+        value.iconSize = iconSize
         value.imageViewCornerRadius = imageViewCornerRadius
         value.imageBackgroundColor = imageBackgroundColor
         value.textViewFont = textViewFont

@@ -58,7 +58,7 @@ public struct WYChatMediaConfig {
     /// 收起按钮文字
     public var collapseText: String = WYLocalized("收起", table: WYBasisKitConfig.kitLocalizableTable)
     /// 视频播放图标
-    public var videoPlayImage: UIImage? = UIImage(systemName: "play.circle.fill")
+    public var videoPlayImage: UIImage? = UIImage.wy_find("WYChatViewPlay", inBundle: WYChatSourceBundle)
     /// 视频播放图标尺寸
     public var videoPlaySize: CGSize = CGSize(width: UIDevice.wy_screenWidth(40, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(40, WYBasisKitConfig.defaultScreenPixels))
     /// 视频播放图标颜色

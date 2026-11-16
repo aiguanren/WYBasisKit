@@ -42,6 +42,12 @@ chatView.recordingHandler = { url, duration, error in
 
 SwiftVerify示例的“聊天界面→测试→配置”提供中文分组设置，选择“输入框操作→单击输入，长按识别”后点击“保存”，即可返回聊天页体验。未保存退出会放弃修改。“全部属性设置”提供完整属性目录和专项预览，其中的修改同样需要返回“聊天设置”后保存。
 
+默认图标从`WYChatView.bundle`加载，输入栏和多选图标默认保留图片原色。`input`、`basic`、`selection`、`quote`、`media`和`recording`中的图片配置均可由宿主覆盖；需要单色着色时可显式选择模板渲染。卡片图标可通过`content.iconImage/iconSize`或对应`contentOverrides`配置，默认图标尺寸28。更多面板通过`more.iconSize`配置图标尺寸，默认32，按钮底板由`more.imageViewSize`单独配置。
+
+语音播放帧统一使用`WYChatViewVoiceWave1–3`，由`voicePlayback.waveformImages`覆盖，静止显示最后一帧，发送侧通过`mirrorsSenderWaveform`水平翻转。`waveformDuration`和`waveformSize`控制动画时长及尺寸，`playImage/pauseImage`控制播放继续与暂停图标，点击语音消息仍通过宿主播放回调处理。
+
+渐变流动由`recording.gradientMotionEnabled`控制，周期、位移、缩放及明暗颜色和不透明度分别配置。`gradientPressEnabled`控制跟随手指的局部按压效果，尺寸、颜色、不透明度和跟随过渡时长均可配。移除录音界面或进入后台时停止流动，系统开启减弱动态效果时不播放持续动画。
+
 消息气泡可用`senderBubble/receiverBubble.arrowImage`替换尾部图片，并配置`arrowImageSize`、`arrowImageOffset`和`arrowImageTintColor`。录音与转写界面对应`recording.bubbleArrowImage`、`bubbleArrowImageOffset`和`bubbleArrowImageTintColor`，尺寸沿用`arrowSizeForMoveUp`。未设置着色时保留图片原色。
 
 ## ObjC接入

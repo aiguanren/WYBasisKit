@@ -45,6 +45,32 @@ public struct WYRecordAnimationConfig {
     public var gradientColorLocations: [CGFloat] = [0, 0.38, 0.65, 0.8, 1]
     /// 渐变各位置的不透明度，取值0到1，数量与gradientColorLocations一致
     public var gradientColorOpacities: [CGFloat] = [1, 1, 0.85, 0.35, 0]
+    /// 是否持续播放渐变流动动画，默认true
+    public var gradientMotionEnabled: Bool = true
+    /// 渐变流动动画每轮时长，单位秒，非正数时停止动画
+    public var gradientMotionDuration: TimeInterval = 2.4
+    /// 渐变流动的水平和垂直移动幅度
+    public var gradientMotionAmplitude: CGSize = CGSize(width: UIDevice.wy_screenWidth(18, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenHeight(12, WYBasisKitConfig.defaultScreenPixels))
+    /// 渐变流动的缩放幅度，取值0到0.5
+    public var gradientMotionScale: CGFloat = 0.12
+    /// 渐变流动亮部颜色
+    public var gradientMotionHighlightColor: UIColor = .white
+    /// 渐变流动暗部颜色
+    public var gradientMotionShadowColor: UIColor = .black
+    /// 渐变流动亮部不透明度，取值0到1
+    public var gradientMotionHighlightOpacity: CGFloat = 0.16
+    /// 渐变流动暗部不透明度，取值0到1
+    public var gradientMotionShadowOpacity: CGFloat = 0.035
+    /// 是否显示跟随手指的渐变按压效果，默认true
+    public var gradientPressEnabled: Bool = true
+    /// 渐变按压效果的尺寸
+    public var gradientPressSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(160, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenHeight(140, WYBasisKitConfig.defaultScreenPixels))
+    /// 渐变按压效果的颜色
+    public var gradientPressColor: UIColor = .white
+    /// 渐变按压效果的不透明度，取值0到1
+    public var gradientPressOpacity: CGFloat = 0.08
+    /// 渐变按压效果跟随手指移动的过渡时长，单位秒
+    public var gradientPressFollowingDuration: TimeInterval = 0.16
     /// 渐变录音声波两端淡出的宽度比例，取值0到0.5
     public var gradientWaveformEdgeFade: CGFloat = 0.12
     /// 渐变录音声波区域尺寸
@@ -406,11 +432,11 @@ public struct WYRecordAnimationConfig {
     /// 转写编辑文本背景色
     public var recognitionTextBackgroundColor: UIColor = .clear
     /// 转写编辑关闭图标，nil时只显示文字
-    public var recognitionCloseImage: UIImage? = UIImage(systemName: "xmark")
+    public var recognitionCloseImage: UIImage? = UIImage.wy_find("WYChatViewClose", inBundle: WYChatSourceBundle)
     /// 转写编辑表情图标
-    public var recognitionEmojiImage: UIImage? = UIImage(systemName: "face.smiling")
+    public var recognitionEmojiImage: UIImage? = UIImage.wy_find("WYChatViewToggleEmoji", inBundle: WYChatSourceBundle)
     /// 转写编辑键盘图标
-    public var recognitionKeyboardImage: UIImage? = UIImage(systemName: "keyboard")
+    public var recognitionKeyboardImage: UIImage? = UIImage.wy_find("WYChatViewTogglekeyboard", inBundle: WYChatSourceBundle)
     /// 转写编辑是否显示表情按钮，默认true
     public var showsRecognitionEmojiButton: Bool = true
     /// 转写编辑表情配置

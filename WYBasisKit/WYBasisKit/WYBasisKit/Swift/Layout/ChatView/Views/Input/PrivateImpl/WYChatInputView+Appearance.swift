@@ -16,10 +16,14 @@ final class WYChatInputBackgroundButton: UIButton {
     var selectedCornerRadius: CGFloat = 0 { didSet { wy_updateAppearance() } }
     override var isSelected: Bool { didSet { wy_updateAppearance() } }
     override var isHighlighted: Bool { didSet { wy_updateAppearance() } }
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        wy_updateAppearance()
+    }
     private func wy_updateAppearance() {
         backgroundColor = isHighlighted ? highlightedColor : isSelected ? selectedColor : normalColor
         let value = isSelected ? selectedCornerRadius : normalCornerRadius
-        layer.cornerRadius = value.isFinite ? max(0, value) : 0
+        layer.cornerRadius = value.isFinite ? min(max(0, value), min(bounds.width, bounds.height) / 2) : 0
     }
 }
 

@@ -11,7 +11,7 @@ import AVFoundation
 
 final class WYRecordAnimationViewPrivateState {
     var gradientView: WYChatGradientRecordingView?
-    var gradientGestureOrigin: CGPoint?
+    var gradientGestureOrigin: CGPoint? { didSet { if let gradientGestureOrigin { gradientView?.updateTouchPoint(gradientGestureOrigin, animated: false) } } }
     var mode: WYChatRecordingMode = .voice
     var automaticallySendsTranscript = false
     let voiceButton = UIButton(type: .system)
@@ -320,6 +320,7 @@ extension WYRecordAnimationView {
     func wy_impl_switchStatus(_ touchPoint: CGPoint) {
 
         if wy_captureConfiguration.interactionStyle == .gradient {
+            state.gradientView?.updateTouchPoint(touchPoint, animated: true)
             let origin = state.gradientGestureOrigin ?? CGPoint(x: bounds.midX, y: bounds.height - safeAreaInsets.bottom)
             let distance = wy_captureConfiguration.gradientCancelDistance
             let cancelled = origin.y - touchPoint.y >= (distance.isFinite ? max(0, distance) : 0)

@@ -82,6 +82,10 @@ public struct WYChatBubbleConfig {
 
 /// 消息内容外观配置
 public struct WYChatContentConfig {
+    /// 消息卡片图标，nil时使用对应消息类型的内置图片
+    public var iconImage: UIImage? = nil
+    /// 消息卡片图标的显示尺寸
+    public var iconSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(28, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenHeight(28, WYBasisKitConfig.defaultScreenPixels))
     /// 内容内边距
     public var insets: UIEdgeInsets = UIEdgeInsets(top: UIDevice.wy_screenHeight(10, WYBasisKitConfig.defaultScreenPixels), left: UIDevice.wy_screenWidth(12, WYBasisKitConfig.defaultScreenPixels), bottom: UIDevice.wy_screenHeight(10, WYBasisKitConfig.defaultScreenPixels), right: UIDevice.wy_screenWidth(12, WYBasisKitConfig.defaultScreenPixels))
     /// 内容最大宽度占可用宽度的比例，范围0到1
@@ -107,7 +111,7 @@ public struct WYChatContentConfig {
     /// 摘要行数，0表示不限
     public var detailNumberOfLines: Int = 3
     /// 图片占位图
-    public var placeholderImage: UIImage? = UIImage(systemName: "photo")
+    public var placeholderImage: UIImage? = UIImage.wy_find("WYChatViewImagePlaceholder", inBundle: WYChatSourceBundle)
     /// 是否显示气泡，默认true
     public var showsBubble: Bool = true
     public init() {}

@@ -26,10 +26,12 @@
     config.input.draftStorageKey = @"objc-chat-example";
     config.recording.supportSpeechRecognition = true;
     config.recording.speechRecognitionSource = WYChatSpeechRecognitionSourceApple;
-    config.more.moreSource = @[@{@"照片": @"photo"}, @{@"文件": @"doc"}];
-    config.more.imageProvider = ^UIImage * _Nullable(NSString *name) { return [UIImage systemImageNamed:name]; };
+    WYSourceBundle *resources = [[WYSourceBundle alloc] initWithTargetClass:nil bundleName:@"WYChatView" subdirectory:@""];
+    config.more.moreSource = @[@{@"照片": @"WYChatViewAlbum"}, @{@"文件": @"WYChatViewFile"}];
+    config.more.imageProvider = ^UIImage * _Nullable(NSString *name) { return [UIImage wy_find:name bundle:resources]; };
     config.imageLoader = ^(WYChatAssetsModel *asset, UIImageView *imageView, NSString *messageID) {
-        imageView.image = [UIImage systemImageNamed:asset.name.length > 0 ? asset.name : @"person.crop.square"];
+        NSDictionary *names = @{@"person.crop.square": @"WYChatViewAvatarPlaceholder", @"photo": @"WYChatViewImagePlaceholder", @"doc": @"WYChatViewFile"};
+        if (asset.name.length > 0) { imageView.image = [UIImage wy_find:names[asset.name] ?: asset.name bundle:resources]; }
     };
     WYChatUserModel *user = [[WYChatUserModel alloc] init];
     user.id = @"current-user";

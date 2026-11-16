@@ -270,6 +270,8 @@ extension WYChatBasicCell {
         state.textStack.spacing = max(0, style.spacing)
         state.header.spacing = max(0, style.spacing)
         state.usesThumbnail = false
+        state.thumbnail.stopAnimating()
+        state.thumbnail.animationImages = nil
         state.thumbnailSize[0].constant = max(0, configuration.basic.avatarSize.width)
         state.thumbnailSize[1].constant = max(0, configuration.basic.avatarSize.height)
         state.title.textAlignment = .natural
@@ -477,6 +479,7 @@ extension WYChatBasicCell {
         imageView.image = isAvatar || imageView === avatarView ? configuration.basic.defaultAvatar : messageContentConfiguration.placeholderImage
         if let loader = configuration.imageLoader { loader(asset, imageView, message.messageID); return }
         if !asset.localPath.isEmpty, let image = UIImage(contentsOfFile: asset.localPath) { imageView.image = image; return }
+        if !asset.name.isEmpty { imageView.image = UIImage.wy_find(asset.name, inBundle: WYChatSourceBundle); return }
         guard let url = URL(string: asset.downloadPath), ["https", "http"].contains(url.scheme?.lowercased() ?? "") else { return }
         imageView.kf.setImage(with: url, placeholder: imageView.image)
     }
@@ -509,6 +512,8 @@ extension WYChatBasicCell {
         avatarView.kf.cancelDownloadTask()
         state.image.kf.cancelDownloadTask()
         state.thumbnail.kf.cancelDownloadTask()
+        state.thumbnail.stopAnimating()
+        state.thumbnail.animationImages = nil
         activityView.stopAnimating()
         actionHandler = nil
         wy_isSelectingMessages = false

@@ -30,6 +30,7 @@ extension WYChatBasicCell {
             wy_showThumbnail(value.userInfo.avatar)
         case .chatRecords:
             guard let value = message.content.chatRecords else { return }
+            wy_showMessageIcon("WYChatViewChatRecords")
             state.title.text = value.title
             state.detail.text = value.messages.prefix(max(1, messageContentConfiguration.detailNumberOfLines)).map { $0.sender.name + ": " + $0.content.wy_summary }.joined(separator: "\n")
             state.footer.text = value.remarks
@@ -49,6 +50,7 @@ extension WYChatBasicCell {
             }
             state.footer.text = value.amounts
             if !value.smallCover.downloadPath.isEmpty || !value.smallCover.localPath.isEmpty { wy_showThumbnail(value.smallCover) }
+            else { wy_showMessageIcon(message.content.style() == .luckyMoney ? "WYChatViewRedPacket" : "WYChatViewTransfer") }
         default: break
         }
     }

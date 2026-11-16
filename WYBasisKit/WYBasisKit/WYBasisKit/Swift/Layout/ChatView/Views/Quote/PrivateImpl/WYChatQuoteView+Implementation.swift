@@ -68,7 +68,7 @@ extension WYChatQuoteView {
                     thumbnailView.kf.setImage(with: .provider(LocalFileImageDataProvider(fileURL: url)), placeholder: style.thumbnailPlaceholder)
                 } else if let url = URL(string: asset.downloadPath), ["http", "https"].contains(url.scheme?.lowercased() ?? "") {
                     thumbnailView.kf.setImage(with: url, placeholder: style.thumbnailPlaceholder)
-                } else if !asset.name.isEmpty { thumbnailView.image = UIImage(systemName: asset.name) ?? UIImage.wy_find(asset.name, inBundle: WYChatSourceBundle) }
+                } else if !asset.name.isEmpty { thumbnailView.image = UIImage.wy_find(asset.name, inBundle: WYChatSourceBundle) }
             }
         }
         invalidateIntrinsicContentSize()

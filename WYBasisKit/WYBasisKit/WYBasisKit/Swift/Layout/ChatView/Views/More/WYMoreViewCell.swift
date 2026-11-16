@@ -10,7 +10,15 @@ import UIKit
 class WYMoreViewCell: UICollectionViewCell {
 
     /// 当前实例配置
-    public var moreViewConfig: WYMoreViewConfig = WYMoreViewConfig()
+    public var moreViewConfig: WYMoreViewConfig = WYMoreViewConfig() {
+        didSet {
+            guard iconView.superview != nil else { return }
+            let size = moreViewConfig.iconSize
+            iconView.snp.updateConstraints { make in
+                make.size.equalTo(CGSize(width: size.width.isFinite ? max(0, size.width) : 0, height: size.height.isFinite ? max(0, size.height) : 0)).priority(999)
+            }
+        }
+    }
 
     
     let iconView: UIImageView = UIImageView()
@@ -35,6 +43,7 @@ class WYMoreViewCell: UICollectionViewCell {
         cornerView.addSubview(iconView)
         iconView.snp.makeConstraints { make in
             make.size.lessThanOrEqualToSuperview()
+            make.size.equalTo(moreViewConfig.iconSize).priority(999)
             make.center.equalToSuperview()
         }
         

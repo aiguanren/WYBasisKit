@@ -53,14 +53,14 @@ public struct WYChatSelectionConfig {
     /// 多选指示图标周围间距
     public var indicatorInsets: UIEdgeInsets = UIEdgeInsets(top: 0, left: UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels), bottom: 0, right: UIDevice.wy_screenWidth(12, WYBasisKitConfig.defaultScreenPixels))
     /// 选中图标
-    public var selectedImage: UIImage? = UIImage(systemName: "checkmark.circle.fill")
+    public var selectedImage: UIImage? = UIImage.wy_find("WYChatViewSelected", inBundle: WYChatSourceBundle)
     /// 未选中图标
-    public var unselectedImage: UIImage? = UIImage(systemName: "circle")
+    public var unselectedImage: UIImage? = UIImage.wy_find("WYChatViewUnselected", inBundle: WYChatSourceBundle)
     /// 选中图标颜色
     public var selectedColor: UIColor = .systemIndigo
     /// 未选中图标颜色
     public var unselectedColor: UIColor = .tertiaryLabel
-    /// 是否使用模板方式渲染多选图标，默认true
-    public var rendersIndicatorAsTemplate: Bool = true
+    /// 是否使用模板方式渲染多选图标，默认false
+    public var rendersIndicatorAsTemplate: Bool = false
     public init() {}
 }

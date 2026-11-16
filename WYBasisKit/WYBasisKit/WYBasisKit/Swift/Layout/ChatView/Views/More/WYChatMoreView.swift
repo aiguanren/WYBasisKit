@@ -46,6 +46,9 @@ public struct WYMoreViewConfig {
     
     /// 自定义More控件内imageView的Size
     public var imageViewSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(65, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(60, WYBasisKitConfig.defaultScreenPixels))
+
+    /// 更多面板图标的显示尺寸
+    public var iconSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(32, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenHeight(32, WYBasisKitConfig.defaultScreenPixels))
     
     /// 自定义More控件内imageView的圆角半径
     public var imageViewCornerRadius: CGFloat = UIDevice.wy_screenWidth(15, WYBasisKitConfig.defaultScreenPixels)

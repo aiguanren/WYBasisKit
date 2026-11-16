@@ -35,11 +35,11 @@ public struct WYInputBarConfig {
     /// 是否在键盘展开时显示输入框内的语音识别按钮，需要启用语音识别
     public var enablesKeyboardDictation: Bool = true
     /// 输入框语音识别按钮图片
-    public var keyboardDictationImage: UIImage? = UIImage(systemName: "waveform")
+    public var keyboardDictationImage: UIImage? = UIImage.wy_find("WYChatViewDictation", inBundle: WYChatSourceBundle)
     /// 输入框语音识别进行中按钮图片
-    public var keyboardDictationStopImage: UIImage? = UIImage(systemName: "stop.circle.fill")
+    public var keyboardDictationStopImage: UIImage? = UIImage.wy_find("WYChatViewDictationStop", inBundle: WYChatSourceBundle)
     /// 输入框语音识别按钮尺寸
-    public var keyboardDictationSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(26, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenHeight(26, WYBasisKitConfig.defaultScreenPixels))
+    public var keyboardDictationSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(22, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenHeight(22, WYBasisKitConfig.defaultScreenPixels))
     /// 输入框语音识别按钮内边距
     public var keyboardDictationInsets: UIEdgeInsets = UIEdgeInsets(top: 0, left: UIDevice.wy_screenWidth(6, WYBasisKitConfig.defaultScreenPixels), bottom: UIDevice.wy_screenHeight(8, WYBasisKitConfig.defaultScreenPixels), right: UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels))
     /// 输入框语音识别按钮颜色
@@ -69,8 +69,8 @@ public struct WYInputBarConfig {
     /// 输入栏图标颜色
     public var iconTintColor: UIColor = .label
 
-    /// 是否用iconTintColor绘制输入栏图标，默认true
-    public var rendersIconsAsTemplate: Bool = true
+    /// 是否用iconTintColor绘制输入栏图标，默认false
+    public var rendersIconsAsTemplate: Bool = false
 
     /// 是否需要保存上次退出时输入框中的文本
     public var canSaveLastInputText: Bool = true
@@ -88,7 +88,7 @@ public struct WYInputBarConfig {
     public var emojiPattern: String = "\\[[^\\[\\]]+\\]"
     
     /// 文本切换按钮图片
-    public var textBottomImage: UIImage = UIImage(systemName: "keyboard") ?? UIImage.wy_find("WYChatViewTogglekeyboard", inBundle: WYChatSourceBundle)
+    public var textBottomImage: UIImage = UIImage.wy_find("WYChatViewTogglekeyboard", inBundle: WYChatSourceBundle)
     
     /// 语音切换按钮图片
     public var voiceButtonImage: UIImage = UIImage.wy_find("WYChatViewVoice", inBundle: WYChatSourceBundle)
@@ -175,7 +175,7 @@ public struct WYInputBarConfig {
     public var textViewMaxHeight: CGFloat = UIDevice.wy_screenHeight(120, WYBasisKitConfig.defaultScreenPixels)
     
     /// 语音框的圆角半径
-    public var voiceViewCornerRadius: CGFloat = UIDevice.wy_screenWidth(24, WYBasisKitConfig.defaultScreenPixels)
+    public var voiceViewCornerRadius: CGFloat = UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
 
     /// 输入框的圆角半径
     public var textViewCornerRadius: CGFloat = UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)

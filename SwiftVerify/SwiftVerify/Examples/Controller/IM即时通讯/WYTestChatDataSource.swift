@@ -9,7 +9,7 @@ import UIKit
 
 extension WYTestChatController {
     func sampleMessages() -> [WYChatMessageModel] {
-        let assets = WYChatAssetsModel(name: "photo.fill")
+        let assets = WYChatAssetsModel(name: "WYChatViewImagePlaceholder")
         let user = WYChatUserModel(id: "sample", name: "示例联系人")
         let mediaItems = (0..<4).map { index -> WYChatMediaItem in
             var item = WYChatMediaItem()
@@ -33,7 +33,7 @@ extension WYTestChatController {
             WYChatMessageContentModel(withdrawn: WYChatWithdrawnModel()),
             WYChatMessageContentModel(call: WYChatCallModel(durationOfCall: 75)),
             WYChatMessageContentModel(webpage: WYChatWebpageModel(cover: assets, title: "示例链接", remarks: "链接摘要", name: "网页", path: "https://www.apple.com")),
-            WYChatMessageContentModel(file: WYChatFileModel(title: "示例文档.pdf", icon: WYChatAssetsModel(name: "doc.fill"), size: "128 KB", name: "文档")),
+            WYChatMessageContentModel(file: WYChatFileModel(title: "示例文档.pdf", icon: WYChatAssetsModel(name: "WYChatViewFile"), size: "128 KB", name: "文档")),
             WYChatMessageContentModel(businessCard: WYChatBusinessCardModel(userInfo: user, remarks: "个人名片")),
             WYChatMessageContentModel(chatRecords: WYChatRecordsModel(title: "聊天记录", messages: [WYChatMessageModel(sender: user, content: WYChatMessageContentModel(text: "一条聊天记录摘要"))], remarks: "聊天记录合集")),
             WYChatMessageContentModel(mediaGroup: WYChatMediaGroupModel(items: mediaItems)),

@@ -348,6 +348,11 @@ final class WYChatSettingsController: UITableViewController, UIColorPickerViewCo
                 Item(title: "最长录音秒数", path: "recording.recordTime.max")
             ]),
             ("渐变声波外观", [
+                Item(title: "渐变流动动画", path: "recording.gradientMotionEnabled"),
+                Item(title: "渐变流动周期（秒）", path: "recording.gradientMotionDuration"),
+                Item(title: "手指按压效果", path: "recording.gradientPressEnabled"),
+                Item(title: "按压效果颜色", path: "recording.gradientPressColor"),
+                Item(title: "按压效果不透明度", path: "recording.gradientPressOpacity"),
                 Item(title: "录音渐变颜色", path: "recording.gradientRecordingColor"),
                 Item(title: "取消渐变颜色", path: "recording.gradientCancelColor"),
                 Item(title: "普通声波颜色", path: "recording.gradientWaveform.wavesColor"),
