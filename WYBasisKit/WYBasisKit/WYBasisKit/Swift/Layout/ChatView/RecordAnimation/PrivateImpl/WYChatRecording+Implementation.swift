@@ -95,10 +95,14 @@ extension WYRecordAnimationView {
         if duration.isFinite { state.duration = max(0, duration) }
         let peak = peak.isFinite ? min(0, max(-160, peak)) : -160
         let average = average.isFinite ? min(0, max(-160, average)) : -160
-        let sound = soundAnimationView
-        sound.soundWavesConfigUpdate(status: soundAnimationStatus, config: &sound.soundWavesView.config)
-        let power = sound.soundWavesView.makeWaveformLevels(peakPower: peak, averagePower: average)
-        sound.soundWavesView.updateMeters(power: power)
+        if wy_captureConfiguration.interactionStyle == .gradient, let waveform = state.gradientView?.waveform {
+            waveform.updateMeters(power: waveform.makeWaveformLevels(peakPower: peak, averagePower: average))
+        } else {
+            let sound = soundAnimationView
+            sound.soundWavesConfigUpdate(status: soundAnimationStatus, config: &sound.soundWavesView.config)
+            let power = sound.soundWavesView.makeWaveformLevels(peakPower: peak, averagePower: average)
+            sound.soundWavesView.updateMeters(power: power)
+        }
         let identifier = state.requestID
         if reportsTime { delegate?.wy_recordingTimeUpdated?(self, currentTime: state.duration, maximumDuration: wy_captureConfiguration.recordTime.max) }
         guard state.requestID == identifier, !state.captureStopRequested else { return }
@@ -116,6 +120,7 @@ extension WYRecordAnimationView {
         state.watchdog = nil
         state.liveRecorder = nil
         for view in [state.leftView, state.rightView, state.bottomView, state.soundAnimationView] { view?.alpha = 0 }
+        state.gradientView?.removeFromSuperview()
         alpha = 0
         let cancelled = state.discard || soundAnimationStatus == .cancel
         let duration = duration.isFinite ? max(0, duration) : 0
@@ -209,6 +214,7 @@ extension WYRecordAnimationView {
     }
 
     func wy_updateLiveText() {
+        guard wy_captureConfiguration.interactionStyle != .gradient else { return }
         let sound = soundAnimationView
         guard wy_captureConfiguration.supportSpeechRecognition, wy_captureConfiguration.speechRecognitionMode == .whileRecording else {
             sound.textView.text = ""

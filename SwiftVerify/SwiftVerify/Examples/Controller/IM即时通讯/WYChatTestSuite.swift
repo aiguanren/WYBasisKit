@@ -51,6 +51,7 @@ final class WYChatTestSuite {
         registerBehaviorCases()
         registerCoreEventCase()
         registerRepairCases()
+        registerGradientRecordingCases()
         cases.append(WYChatTestCase("消息事件与输入面板：高级配置", group: "配置", explanation: "实际调用按消息配置、资源加载、时间格式、表情资源、分页样式和富文本复制粘贴") { [weak self] in
             guard let self else { return [] }
             return await WYChatTestAdvancedConfigurationChecks.run(source: self.chatView)
@@ -141,6 +142,149 @@ final class WYChatTestSuite {
         item.status = !item.results.isEmpty && item.results.allSatisfy(\.passed) ? .passed : .failed
         saveReport(isBatch: false)
         progress?()
+    }
+
+    private func registerGradientRecordingCases() {
+        for style in [WYRecordingInteractionStyle.actionRegions, .gradient] {
+            let title = "输入框长按发语音·" + (style == .gradient ? "渐变" : "分区")
+            cases.append(WYChatTestCase(title, group: "录音", explanation: "不切换输入模式，关闭语音识别后直接长按空输入框发送原语音", requiresInteraction: true) { [weak self] in
+                guard let self, let root = self.chatView.window?.rootViewController, let recorder = try? WYChatRecordingFixture() else { return [] }
+                defer { try? FileManager.default.removeItem(at: recorder.url) }
+                var presenter = root
+                while let shown = presenter.presentedViewController { presenter = shown }
+                let host = WYChatTestHostController()
+                host.modalPresentationStyle = .fullScreen
+                presenter.present(host, animated: false)
+                var config = self.chatView.configuration
+                config.input.placeholderLongPressAction = .voice
+                config.recording.interactionStyle = style
+                config.recording.recorder = recorder
+                config.recording.supportSpeechRecognition = false
+                config.recording.recordTime.min = 0
+                let view = WYChatView(userInfo: self.chatView.userInfo, configuration: config)
+                host.view.addSubview(view)
+                view.frame = host.view.bounds
+                view.layoutIfNeeded()
+                defer { view.releaseAll(); host.dismiss(animated: false) }
+                for _ in 0..<450 {
+                    if recorder.stops > 0 { break }
+                    try? await Task.sleep(nanoseconds: 100_000_000)
+                }
+                let voices = view.dataSource.compactMap { $0.content.voice }
+                return [WYChatTestResult(name: "placeholder-hold-voice", passed: recorder.stops == 1 && voices.count == 1 && !view.chatInput.textVoiceView.isSelected, detail: "stops=\(recorder.stops), voices=\(voices.count)", milliseconds: 0)]
+            })
+        }
+        cases.append(WYChatTestCase("渐变录音方案与配置", group: "录音", explanation: "检查上滑取消、滑回发送、转文字、外观配置和方案切换") { [weak self] in
+            guard let self, let recorder = try? WYChatRecordingFixture() else { return [] }
+            defer { try? FileManager.default.removeItem(at: recorder.url) }
+            let speech = WYChatRecognitionFixture()
+            var config = self.chatView.configuration.recording
+            config.interactionStyle = .gradient
+            config.recorder = recorder
+            config.recordTime.min = 0
+            config.gradientTransitionDuration = 0
+            let host = UIView(frame: self.chatView.window?.bounds ?? self.chatView.bounds)
+            host.backgroundColor = .white
+            (self.chatView.window ?? self.chatView).addSubview(host)
+            let overlay = WYRecordAnimationView(configuration: config)
+            host.addSubview(overlay)
+            overlay.frame = host.bounds
+            defer { overlay.endRecordVoice(); host.removeFromSuperview() }
+            var checks: [WYChatTestResult] = []
+            func check(_ name: String, _ passed: Bool, _ detail: String = "") { checks.append(WYChatTestResult(name: name, passed: passed, detail: detail, milliseconds: 0)) }
+            @MainActor func descendants(_ view: UIView) -> [UIView] { [view] + view.subviews.flatMap { descendants($0) } }
+            let folder = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("ChatView-VisualResults", isDirectory: true)
+            try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            @MainActor func snapshot(_ name: String) {
+                overlay.layoutIfNeeded()
+                let image = UIGraphicsImageRenderer(bounds: host.bounds).image { _ in host.drawHierarchy(in: host.bounds, afterScreenUpdates: true) }
+                try? image.pngData()?.write(to: folder.appendingPathComponent("gradient-\(name).png"))
+            }
+            var voices = 0
+            var texts: [String] = []
+            overlay.resultHandler = { url, _, error in if url != nil && error == nil { voices += 1 } }
+            overlay.recognizedTextHandler = { texts.append($0) }
+            overlay.start()
+            try? await Task.sleep(nanoseconds: 350_000_000)
+            check("gradient-visible", descendants(overlay).contains { $0.accessibilityIdentifier == "WYChatRecording.gradient" })
+            snapshot("recording")
+            overlay.switchStatus(CGPoint(x: 0, y: 0))
+            check("gradient-up-cancel", overlay.soundAnimationStatus == .cancel)
+            snapshot("cancel")
+            overlay.switchStatus(CGPoint(x: host.bounds.midX, y: host.bounds.height))
+            check("gradient-return-recording", overlay.soundAnimationStatus == .recording)
+            overlay.stop()
+            try? await Task.sleep(nanoseconds: 150_000_000)
+            check("gradient-return-release-voice", voices == 1)
+            check("gradient-waveform-detached", !descendants(overlay).contains { $0.accessibilityIdentifier == "WYChatRecording.gradient" })
+            overlay.start()
+            overlay.switchStatus(.zero)
+            overlay.stop()
+            try? await Task.sleep(nanoseconds: 150_000_000)
+            check("gradient-cancel-no-send", voices == 1 && recorder.stops == 2)
+            config.supportSpeechRecognition = true
+            config.speechRecognitionSource = .external
+            config.speechRecognitionProvider = speech
+            config.dictationSendsOnRelease = true
+            overlay.recordAnimationConfig = config
+            overlay.start(mode: .dictation)
+            try? await Task.sleep(nanoseconds: 150_000_000)
+            overlay.stop()
+            try? await Task.sleep(nanoseconds: 300_000_000)
+            check("gradient-dictation-sends", texts == [speech.finalText] && voices == 1)
+            config.supportSpeechRecognition = false
+            overlay.recordAnimationConfig = config
+            var disabledError = false
+            overlay.recognitionResultHandler = { _, error in disabledError = error != nil }
+            overlay.start(mode: .dictation)
+            check("gradient-dictation-disabled", disabledError)
+            for width: CGFloat in [320, 393, 768] {
+                host.frame.size = CGSize(width: width, height: 852)
+                overlay.frame = host.bounds
+                config.gradientRecordingColor = .systemTeal
+                config.gradientHintFont = .systemFont(ofSize: 20)
+                overlay.recordAnimationConfig = config
+                overlay.start()
+                overlay.layoutIfNeeded()
+                let hint = descendants(overlay).compactMap { $0 as? UILabel }.first { $0.accessibilityIdentifier == "WYChatRecording.gradientHint" }
+                check("gradient-custom-layout-\(width)", hint?.font.pointSize == 20 && (hint?.frame.maxX ?? .infinity) <= width)
+                snapshot("custom-\(Int(width))")
+                overlay.stop()
+                try? await Task.sleep(nanoseconds: 100_000_000)
+            }
+            config.interactionStyle = .actionRegions
+            overlay.recordAnimationConfig = config
+            overlay.start()
+            check("gradient-switch-to-regions", !descendants(overlay).contains { $0.accessibilityIdentifier == "WYChatRecording.gradient" } && descendants(overlay).contains { $0.accessibilityIdentifier == "WYChatRecording.cancel" })
+            overlay.stop()
+            return checks
+        })
+        cases.append(WYChatTestCase("渐变录音真实手势", group: "录音", explanation: "普通松手发送、上滑松手取消、水平滑动松手发送", requiresInteraction: true) { [weak self] in
+            guard let self, let root = self.chatView.window?.rootViewController, let recorder = try? WYChatRecordingFixture() else { return [] }
+            defer { try? FileManager.default.removeItem(at: recorder.url) }
+            var presenter = root
+            while let shown = presenter.presentedViewController { presenter = shown }
+            let host = WYChatTestHostController()
+            host.modalPresentationStyle = .fullScreen
+            presenter.present(host, animated: false)
+            var config = self.chatView.configuration
+            config.recording.interactionStyle = .gradient
+            config.recording.recorder = recorder
+            config.recording.supportSpeechRecognition = false
+            config.recording.recordTime.min = 0
+            let view = WYChatView(userInfo: self.chatView.userInfo, configuration: config)
+            host.view.addSubview(view)
+            view.frame = host.view.bounds
+            view.chatInput.textVoiceView.sendActions(for: .touchUpInside)
+            view.layoutIfNeeded()
+            defer { view.releaseAll(); host.dismiss(animated: false) }
+            for _ in 0..<450 {
+                if recorder.stops >= 3 { break }
+                try? await Task.sleep(nanoseconds: 100_000_000)
+            }
+            let voices = view.dataSource.compactMap { $0.content.voice }
+            return [WYChatTestResult(name: "gradient-real-send-cancel", passed: recorder.stops == 3 && voices.count == 2, detail: "stops=\(recorder.stops), voices=\(voices.count)", milliseconds: 0)]
+        })
     }
 
     private func registerRepairCases() {
@@ -240,6 +384,7 @@ final class WYChatTestSuite {
             let speech = WYChatRecognitionFixture()
             var config = self.chatView.configuration
             config.input.textPlaceholderAlignment = .center
+            config.input.placeholderLongPressAction = .dictation
             config.recording.recorder = recorder
             config.recording.speechRecognitionSource = .external
             config.recording.speechRecognitionProvider = speech
@@ -300,6 +445,7 @@ final class WYChatTestSuite {
             presenter.present(host, animated: false)
             var config = self.chatView.configuration
             config.input.textPlaceholderAlignment = .center
+            config.input.placeholderLongPressAction = .dictation
             config.recording.recorder = recorder
             config.recording.speechRecognitionSource = .external
             config.recording.speechRecognitionProvider = speech
@@ -1015,6 +1161,35 @@ final class WYChatTestSuite {
     }
 
     private func registerVoicePlaybackCases() {
+        cases.append(WYChatTestCase("示例语音发送与本地播放", group: "功能", explanation: "使用真实音频检查发送完成、播放、暂停、恢复和播放结束，识别失败后仍可播放原语音") { [weak self] in
+            guard let self, let url = Bundle.main.url(forResource: "ChatViewSpeechSample", withExtension: "caf") else { return [] }
+            let view = self.chatView
+            let original = view.dataSource
+            let identifier = UUID().uuidString
+            defer {
+                view.delegate?.wy_messageAction?(view, action: .pause, messageID: identifier)
+                view.dataSource = original
+            }
+            var checks: [WYChatTestResult] = []
+            func check(_ name: String, _ value: Bool) { checks.append(WYChatTestResult(name: name, passed: value, detail: identifier, milliseconds: 0)) }
+            check("voice-file-prepared", view.sendVoiceRecording(url, duration: 4.04, messageID: identifier) != nil)
+            try? await Task.sleep(nanoseconds: 1_300_000_000)
+            check("voice-send-completed", view.messageModelFrom(identifier)?.sendState == .success)
+            if let index = view.dataSource.firstIndex(where: { $0.messageID == identifier }) { view.dataSource[index].content.voice?.recognitionError = "识别失败请重试" }
+            view.scrollToLastMessage(false)
+            view.tableView.layoutIfNeeded()
+            let cell = view.tableView.visibleCells.compactMap { $0 as? WYChatBasicCell }.first { $0.message.messageID == identifier }
+            check("voice-cell-visible", cell != nil)
+            cell?.actionHandler?(.content, identifier)
+            check("voice-plays-after-recognition-error", view.messageModelFrom(identifier)?.content.voice?.isPlaying == true)
+            cell?.actionHandler?(.content, identifier)
+            check("voice-pauses", view.messageModelFrom(identifier)?.content.voice?.isPlaying == false)
+            cell?.actionHandler?(.content, identifier)
+            check("voice-resumes", view.messageModelFrom(identifier)?.content.voice?.isPlaying == true)
+            try? await Task.sleep(nanoseconds: 4_500_000_000)
+            check("voice-finishes", view.messageModelFrom(identifier)?.content.voice?.isPlaying == false)
+            return checks
+        })
         cases.append(WYChatTestCase("语音倍速与播放接管", group: "功能", explanation: "检查倍速菜单、宿主和代理回调、重复/非法请求、模型快照、显示配置与消息复用") { [weak self] in
             guard let self else { return [] }
             var config = self.chatView.configuration

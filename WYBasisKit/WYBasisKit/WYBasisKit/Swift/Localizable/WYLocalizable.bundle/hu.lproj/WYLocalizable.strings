@@ -282,3 +282,7 @@
 "发送原语音" = "Eredeti hang küldése";
 
 "松手 发语音" = "Engedd el a hangüzenet küldéséhez";
+
+"松手发送，上滑取消" = "Küldéshez engedje el, megszakításhoz húzza felfelé";
+
+"松手取消" = "Megszakításhoz engedje el";

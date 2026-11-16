@@ -17,6 +17,7 @@ extension WYRecordAnimationView {
     func wy_configureTranscriptEditor() {
         alpha = 1
         let config = wy_captureConfiguration
+        backgroundColor = config.overlayBackgroundColor
         state.editPanel?.removeFromSuperview()
         NSLayoutConstraint.deactivate(state.editorControlConstraints)
         state.editorControlConstraints.removeAll()

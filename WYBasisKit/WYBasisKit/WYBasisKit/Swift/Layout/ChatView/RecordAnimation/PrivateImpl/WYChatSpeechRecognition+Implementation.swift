@@ -79,14 +79,26 @@ final class WYChatSpeechRecognitionTask {
         let requested = Locale(identifier: configuration.speechLocaleIdentifier)
         let supported = SFSpeechRecognizer.supportedLocales()
         let requestedID = Locale.canonicalIdentifier(from: requested.identifier)
+        let candidates = supported.filter { locale in
+            if #available(iOS 16.0, *) { return locale.language.languageCode == requested.language.languageCode }
+            return locale.languageCode == requested.languageCode
+        }.sorted { $0.identifier < $1.identifier }
         resolvedLocale = supported.first { Locale.canonicalIdentifier(from: $0.identifier) == requestedID }
-            ?? supported.first { locale in
-                if #available(iOS 16.0, *) {
-                    return locale.language.languageCode == requested.language.languageCode && locale.region == requested.region
-                } else {
-                    return locale.languageCode == requested.languageCode && locale.regionCode == requested.regionCode
-                }
+        if resolvedLocale == nil {
+            if #available(iOS 16.0, *) {
+                let script = requested.language.script
+                let region = requested.language.region
+                let defaultRegion = requested.language.languageCode.flatMap { Locale.Language(identifier: $0.identifier).region }
+                resolvedLocale = candidates.first { $0.language.script == script && $0.language.region == region }
+                    ?? candidates.first { $0.language.script == script && $0.language.region == defaultRegion }
+                    ?? candidates.first { $0.language.script == script }
+                    ?? candidates.first
+            } else {
+                resolvedLocale = candidates.first { $0.regionCode == requested.regionCode && (requested.scriptCode == nil || $0.scriptCode == requested.scriptCode) }
+                    ?? candidates.first { requested.scriptCode != nil && $0.scriptCode == requested.scriptCode }
+                    ?? candidates.first
             }
+        }
         guard resolvedLocale != nil else { finish(nil, error: failure(WYLocalized("不支持当前识别语言", table: WYBasisKitConfig.kitLocalizableTable), code: .unsupportedLanguage)); return }
         guard Bundle.main.object(forInfoDictionaryKey: speechRecognitionKey) as? String != nil else { finish(nil, error: failure(WYLocalized("缺少语音识别权限用途说明", table: WYBasisKitConfig.kitLocalizableTable), code: .missingUsageDescription)); return }
         wy_authorizeSpeechRecognition(showSettingsAlert: false) { [weak self] granted in

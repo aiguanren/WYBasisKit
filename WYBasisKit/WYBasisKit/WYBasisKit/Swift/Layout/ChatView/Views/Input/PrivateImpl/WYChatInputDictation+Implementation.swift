@@ -110,7 +110,7 @@ extension WYChatInputView {
     func wy_setupDictationControls() {
         placeholderGate.accessibilityIdentifier = "WYChatInput.placeholder"
         placeholderGate.addTarget(self, action: #selector(wy_focusTextInput), for: .touchUpInside)
-        let press = UILongPressGestureRecognizer(target: self, action: #selector(voiceButtonDictationLongPress(_:)))
+        let press = UILongPressGestureRecognizer(target: self, action: #selector(inputRecordingLongPress(_:)))
         press.minimumPressDuration = max(0, inputBarConfig.voiceButtonLongPressDuration)
         press.allowableMovement = inputBarConfig.recordViewLongPressMaxOffset
         placeholderGate.addGestureRecognizer(press)
@@ -128,7 +128,8 @@ extension WYChatInputView {
         let labelHeight = textPlaceholderView.font.lineHeight
         textPlaceholderView.frame = CGRect(x: config.textPlaceholderOffset.x, y: centered ? max(0, (textView.bounds.height - labelHeight) / 2) : config.textPlaceholderOffset.y, width: max(0, textView.bounds.width - config.textPlaceholderOffset.x * 2 - wy_dictationReservedWidth), height: labelHeight)
         placeholderGate.frame = textVoiceContentView.convert(textView.frame, to: self)
-        placeholderGate.isHidden = !centered || textView.isHidden || !textView.text.isEmpty
+        let allowsLongPress = config.placeholderLongPressAction == .voice || config.placeholderLongPressAction == .dictation && recordAnimationConfig.supportSpeechRecognition
+        placeholderGate.isHidden = !allowsLongPress || textView.isFirstResponder || textView.isHidden || !textView.text.isEmpty
         placeholderGate.accessibilityLabel = config.textPlaceholder
         let visible = wy_showsKeyboardDictation
         keyboardDictationButton.isHidden = !visible

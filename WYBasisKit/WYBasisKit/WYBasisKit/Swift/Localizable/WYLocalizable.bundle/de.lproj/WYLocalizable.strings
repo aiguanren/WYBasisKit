@@ -282,3 +282,7 @@
 "发送原语音" = "Originalaufnahme senden";
 
 "松手 发语音" = "Zum Senden der Sprachnachricht loslassen";
+
+"松手发送，上滑取消" = "Zum Senden loslassen, zum Abbrechen nach oben wischen";
+
+"松手取消" = "Zum Abbrechen loslassen";

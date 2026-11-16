@@ -58,3 +58,12 @@ extension WYChatInputView {
         moreView.setImage(icon(config.moreBottomImage), for: .highlighted)
     }
 }
+
+/// 输入切换图标按按钮配置尺寸显示
+final class WYChatInputIconButton: UIButton {
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        imageView?.frame = bounds
+        imageView?.contentMode = .scaleAspectFit
+    }
+}

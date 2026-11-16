@@ -384,6 +384,53 @@ import WYBasisKitSwift
 
 @objc(WYRecordAnimationConfig)
 @objcMembers public class WYRecordAnimationConfigObjC: NSObject {
+    /// 录音手势与界面方案，默认分区操作
+    public var interactionStyle: WYRecordingInteractionStyle
+    /// 渐变录音区域高度
+    public var gradientHeight: CGFloat
+    /// 渐变录音普通状态主色
+    public var gradientRecordingColor: UIColor
+    /// 渐变录音取消状态主色
+    public var gradientCancelColor: UIColor
+    /// 渐变录音区域以外的遮罩颜色
+    public var gradientOverlayColor: UIColor
+    /// 渐变中心位置，使用0到1的相对坐标
+    public var gradientStartPoint: CGPoint
+    /// 渐变外边缘位置，使用相对坐标
+    public var gradientEndPoint: CGPoint
+    /// 渐变颜色位置，升序排列且取值0到1，数量与gradientColorOpacities一致
+    public var gradientColorLocations: [NSNumber]
+    /// 渐变各位置的不透明度，取值0到1，数量与gradientColorLocations一致
+    public var gradientColorOpacities: [NSNumber]
+    /// 渐变录音声波两端淡出的宽度比例，取值0到0.5
+    public var gradientWaveformEdgeFade: CGFloat
+    /// 渐变录音声波区域尺寸
+    public var gradientWaveformSize: CGSize
+    /// 渐变录音声波距离底部安全区的间距
+    public var gradientWaveformBottomOffset: CGFloat
+    /// 渐变录音提示距离声波顶部的间距
+    public var gradientHintSpacing: CGFloat
+    /// 渐变录音普通状态提示，空字符串时根据录音用途显示提示
+    public var gradientRecordingHint: String
+    /// 渐变录音取消状态提示
+    public var gradientCancelHint: String
+    /// 渐变录音提示字体
+    public var gradientHintFont: UIFont
+    /// 渐变录音普通状态提示颜色
+    public var gradientHintColor: UIColor
+    /// 渐变录音取消状态提示颜色
+    public var gradientCancelHintColor: UIColor
+    /// 渐变录音取消状态声波颜色
+    public var gradientCancelWaveformColor: UIColor
+    /// 渐变录音提示文字边距
+    public var gradientHintInsets: UIEdgeInsets
+    /// 渐变录音从长按起点向上滑动进入取消的距离
+    public var gradientCancelDistance: CGFloat
+    /// 渐变录音状态过渡时长，单位秒
+    public var gradientTransitionDuration: TimeInterval
+    /// 渐变录音声波动画配置
+    public var gradientWaveform: WYSoundWaveConfigObjC
+
     /// 录音浮层遮罩颜色
     public var overlayBackgroundColor: UIColor
     /// 录音及转写气泡的自定义箭头图片，nil时使用气泡箭头
@@ -731,6 +778,29 @@ import WYBasisKitSwift
         self.bubbleArrowImageOffset = value.bubbleArrowImageOffset
         self.recordingHintSpacing = value.recordingHintSpacing
         self.dictationReleaseText = value.dictationReleaseText
+        self.gradientRecordingHint = value.gradientRecordingHint
+        self.gradientCancelHint = value.gradientCancelHint
+        self.gradientWaveformEdgeFade = value.gradientWaveformEdgeFade
+        self.gradientColorLocations = value.gradientColorLocations.map { NSNumber(value: Double($0)) }
+        self.gradientColorOpacities = value.gradientColorOpacities.map { NSNumber(value: Double($0)) }
+        self.interactionStyle = value.interactionStyle
+        self.gradientHeight = value.gradientHeight
+        self.gradientRecordingColor = value.gradientRecordingColor
+        self.gradientCancelColor = value.gradientCancelColor
+        self.gradientOverlayColor = value.gradientOverlayColor
+        self.gradientStartPoint = value.gradientStartPoint
+        self.gradientEndPoint = value.gradientEndPoint
+        self.gradientWaveformSize = value.gradientWaveformSize
+        self.gradientWaveformBottomOffset = value.gradientWaveformBottomOffset
+        self.gradientHintSpacing = value.gradientHintSpacing
+        self.gradientHintFont = value.gradientHintFont
+        self.gradientHintColor = value.gradientHintColor
+        self.gradientCancelHintColor = value.gradientCancelHintColor
+        self.gradientCancelWaveformColor = value.gradientCancelWaveformColor
+        self.gradientHintInsets = value.gradientHintInsets
+        self.gradientCancelDistance = value.gradientCancelDistance
+        self.gradientTransitionDuration = value.gradientTransitionDuration
+        self.gradientWaveform = WYSoundWaveConfigObjC().convertToObjC(value.gradientWaveform)
         self.actionStyle = value.actionStyle
         self.curvedActionSize = value.curvedActionSize
         self.curvedActionCornerRadius = value.curvedActionCornerRadius
@@ -904,6 +974,29 @@ import WYBasisKitSwift
         value.bubbleArrowImageOffset = bubbleArrowImageOffset
         value.recordingHintSpacing = recordingHintSpacing
         value.dictationReleaseText = dictationReleaseText
+        value.gradientRecordingHint = gradientRecordingHint
+        value.gradientCancelHint = gradientCancelHint
+        value.gradientWaveformEdgeFade = gradientWaveformEdgeFade
+        value.gradientColorLocations = gradientColorLocations.map { CGFloat($0.doubleValue) }
+        value.gradientColorOpacities = gradientColorOpacities.map { CGFloat($0.doubleValue) }
+        value.interactionStyle = interactionStyle
+        value.gradientHeight = gradientHeight
+        value.gradientRecordingColor = gradientRecordingColor
+        value.gradientCancelColor = gradientCancelColor
+        value.gradientOverlayColor = gradientOverlayColor
+        value.gradientStartPoint = gradientStartPoint
+        value.gradientEndPoint = gradientEndPoint
+        value.gradientWaveformSize = gradientWaveformSize
+        value.gradientWaveformBottomOffset = gradientWaveformBottomOffset
+        value.gradientHintSpacing = gradientHintSpacing
+        value.gradientHintFont = gradientHintFont
+        value.gradientHintColor = gradientHintColor
+        value.gradientCancelHintColor = gradientCancelHintColor
+        value.gradientCancelWaveformColor = gradientCancelWaveformColor
+        value.gradientHintInsets = gradientHintInsets
+        value.gradientCancelDistance = gradientCancelDistance
+        value.gradientTransitionDuration = gradientTransitionDuration
+        value.gradientWaveform = gradientWaveform.convertToSwift(&value.gradientWaveform)
         value.actionStyle = actionStyle
         value.curvedActionSize = curvedActionSize
         value.curvedActionCornerRadius = curvedActionCornerRadius
@@ -1263,10 +1356,10 @@ import WYBasisKitSwift
     public var enablesVoiceButtonDictation: Bool
     /// 长按语音切换按钮开始转写的等待时间，单位秒
     public var voiceButtonLongPressDuration: TimeInterval
-    /// 文本占位对齐方式，居中且未编辑时支持长按转文字
+    /// 文本占位对齐方式
     public var textPlaceholderAlignment: NSTextAlignment
-    /// 是否允许长按居中占位区域转文字，需要启用语音识别
-    public var enablesPlaceholderDictation: Bool
+    /// 空输入框的长按操作，默认disabled，dictation需要启用语音识别
+    public var placeholderLongPressAction: WYChatInputLongPressAction
     /// 是否在键盘展开时显示输入框内的语音识别按钮，需要启用语音识别
     public var enablesKeyboardDictation: Bool
     /// 输入框语音识别按钮图片
@@ -1433,7 +1526,7 @@ import WYBasisKitSwift
         self.enablesVoiceButtonDictation = value.enablesVoiceButtonDictation
         self.voiceButtonLongPressDuration = value.voiceButtonLongPressDuration
         self.textPlaceholderAlignment = value.textPlaceholderAlignment
-        self.enablesPlaceholderDictation = value.enablesPlaceholderDictation
+        self.placeholderLongPressAction = value.placeholderLongPressAction
         self.enablesKeyboardDictation = value.enablesKeyboardDictation
         self.keyboardDictationImage = value.keyboardDictationImage
         self.keyboardDictationStopImage = value.keyboardDictationStopImage
@@ -1520,7 +1613,7 @@ import WYBasisKitSwift
         value.enablesVoiceButtonDictation = enablesVoiceButtonDictation
         value.voiceButtonLongPressDuration = voiceButtonLongPressDuration
         value.textPlaceholderAlignment = textPlaceholderAlignment
-        value.enablesPlaceholderDictation = enablesPlaceholderDictation
+        value.placeholderLongPressAction = placeholderLongPressAction
         value.enablesKeyboardDictation = enablesKeyboardDictation
         value.keyboardDictationImage = keyboardDictationImage
         value.keyboardDictationStopImage = keyboardDictationStopImage

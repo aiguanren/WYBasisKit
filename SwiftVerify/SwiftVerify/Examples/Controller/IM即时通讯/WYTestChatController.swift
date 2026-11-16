@@ -7,12 +7,15 @@
 //
 
 import UIKit
+import AVFoundation
 
 class WYTestChatController: UIViewController {
     
     var chatView: WYChatView!
     private var chatTests: WYChatTestSuite?
     private var scrollProbe: WYChatScrollProbe?
+    private var voicePlayer: AVAudioPlayer?
+    private var playingVoiceID: String?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -56,6 +59,11 @@ class WYTestChatController: UIViewController {
             alert.addAction(UIAlertAction(title: "关闭", style: .cancel))
             self?.present(alert, animated: true)
         }
+        chatView.messagePreparedHandler = { [weak self] message in self?.prepareExampleMessage(message) }
+        chatView.voicePlaybackRateHandler = { [weak self] messageID, rate in
+            guard let self, self.playingVoiceID == messageID else { return }
+            self.voicePlayer?.rate = rate
+        }
         chatView.eventsHandler = self
         chatView.delegate = self
         view.addSubview(chatView)
@@ -69,8 +77,58 @@ class WYTestChatController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        chatView.chatInput.recordView.recognitionResultHandler = { [weak self] _, error in if let error { self?.showVoiceError(error) } }
         if scrollProbe == nil { scrollProbe = WYChatScrollProbe(table: chatView.tableView) }
         if chatTests == nil { chatTests = WYChatTestSuite(chatView: chatView, scrollProbe: scrollProbe) }
+    }
+
+    private func prepareExampleMessage(_ message: WYChatMessageModel) {
+        guard message.content.text == nil else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+            guard let self, let index = self.chatView.dataSource.firstIndex(where: { $0.messageID == message.messageID }) else { return }
+            self.chatView.dataSource[index].sendState = .success
+        }
+    }
+
+    private func playExampleVoice(_ messageID: String) {
+        guard let voice = chatView.messageModelFrom(messageID)?.content.voice else { return }
+        do {
+            if playingVoiceID != messageID || voicePlayer == nil {
+                stopExampleVoice()
+                let paths = [voice.localPath, voice.aacPath, voice.wavPath, voice.cafPath, voice.mp3Path, voice.amrPath]
+                guard let path = paths.first(where: { !$0.isEmpty && FileManager.default.fileExists(atPath: $0) }) else {
+                    throw NSError(domain: NSCocoaErrorDomain, code: NSFileNoSuchFileError, userInfo: [NSLocalizedDescriptionKey: "没有找到这条语音的本地音频文件"])
+                }
+                voicePlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: path))
+                voicePlayer?.delegate = self
+                voicePlayer?.enableRate = true
+                playingVoiceID = messageID
+            }
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+            try AVAudioSession.sharedInstance().setActive(true)
+            voicePlayer?.rate = voice.playbackRate
+            guard voicePlayer?.play() == true else { throw NSError(domain: NSOSStatusErrorDomain, code: -50) }
+            updateExampleVoice(messageID, playing: true)
+        } catch { stopExampleVoice(); showVoiceError(error as NSError) }
+    }
+
+    private func updateExampleVoice(_ messageID: String, playing: Bool) {
+        guard let index = chatView.dataSource.firstIndex(where: { $0.messageID == messageID }) else { return }
+        chatView.dataSource[index].content.voice?.isPlaying = playing
+        chatView.dataSource[index].content.voice?.played = true
+        chatView.dataSource[index].content.voice?.pause = !playing
+        chatView.dataSource[index].content.voice?.currentPlayDuration = voicePlayer?.currentTime ?? 0
+    }
+
+    private func stopExampleVoice() {
+        if let playingVoiceID { updateExampleVoice(playingVoiceID, playing: false) }
+        voicePlayer?.stop()
+        voicePlayer = nil
+        playingVoiceID = nil
+    }
+
+    private func showVoiceError(_ error: NSError) {
+        WYActivity.showInfo("\(error.localizedDescription)\n\(error.domain) (\(error.code))", in: view.window)
     }
 
     @objc private func showChatTests() {
@@ -92,6 +150,20 @@ class WYTestChatController: UIViewController {
 }
 
 extension WYTestChatController: WYChatViewDelegate {
+
+    func wy_messageAction(_ chatView: WYChatView, action: WYChatAction, messageID: String) {
+        if action == .play { playExampleVoice(messageID) }
+        if action == .pause, playingVoiceID == messageID { voicePlayer?.pause(); updateExampleVoice(messageID, playing: false) }
+        if action == .retry, let message = chatView.messageModelFrom(messageID) { prepareExampleMessage(message) }
+    }
+
+    func wy_speechRecognitionFinished(_ chatView: WYChatView, messageID: String, text: String?, error: NSError?) {
+        if let error { showVoiceError(error) }
+    }
+
+    func wy_recordingFinished(_ chatView: WYChatView, url: URL?, duration: TimeInterval, error: NSError?) {
+        if let error { showVoiceError(error) }
+    }
     
     /// APP变的活跃了
     func wy_applicationDidBecomeActive(_ application: UIApplication) {
@@ -223,6 +295,7 @@ extension WYTestChatController: WYChatViewEventsHandler {
     
     /// 是否需要内部处理chatInput控件内 语音 按钮的长按事件
     func wy_canManagerVoiceRecordEvents(_ longPress: UILongPressGestureRecognizer) -> Bool {
+        if longPress.state == .began { stopExampleVoice() }
         //wy_print("是否需要内部处理chatInput控件内 语音 按钮的长按事件, longPress = \(longPress)")
         return true
     }
@@ -301,5 +374,13 @@ extension WYTestChatController {
         userModel.thumbnailAvatar = assets
     
         return userModel
+    }
+}
+
+extension WYTestChatController: AVAudioPlayerDelegate {
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) { stopExampleVoice() }
+    func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
+        stopExampleVoice()
+        if let error { showVoiceError(error as NSError) }
     }
 }

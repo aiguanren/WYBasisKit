@@ -92,7 +92,7 @@ final class WYChatTestConfigurationController: UITableViewController, UISearchRe
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let field = filtered[indexPath.row]
-        if field.kind == .boolean, let chatView { _ = apply(field, text: String(field.read(chatView.configuration) != "true")); return }
+        if field.kind == .boolean { return }
         withSearchClosed { [weak self] in self?.open(field) }
     }
     private func withSearchClosed(_ action: @escaping @MainActor () -> Void) {
@@ -293,4 +293,249 @@ final class WYChatTestConfigurationPreviewController: UIViewController {
         NSLayoutConstraint.activate([chatView.leadingAnchor.constraint(equalTo: view.leadingAnchor), chatView.trailingAnchor.constraint(equalTo: view.trailingAnchor), chatView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor), chatView.bottomAnchor.constraint(equalTo: view.bottomAnchor)])
     }
     deinit { chatView.releaseAll() }
+}
+
+/// 聊天常用设置，保存后统一应用到聊天页面
+final class WYChatSettingsController: UITableViewController, UIColorPickerViewControllerDelegate {
+    var showRelatedTests: ((String) -> Void)?
+    private struct Item {
+        let title: String
+        let path: String
+        var choices: [(String, String)] = []
+        var explanation = ""
+    }
+    private weak var chatView: WYChatView?
+    private let draftView: WYChatView
+    private var pendingColor: WYChatTestConfigurationField?
+    private var groups: [(String, [Item])] = []
+    private let fields = WYChatSettingsController.makeFields()
+
+    private static func makeFields() -> [String: WYChatTestConfigurationField] {
+        var fields = Dictionary(uniqueKeysWithValues: WYChatTestConfigurationFields.all.map { ($0.path, $0) })
+        fields["basic.avatarSize.width"] = .scalar("basic.avatarSize.width", "头像尺寸", "CGFloat", get: { Double($0.basic.avatarSize.width) }, set: { $0.basic.avatarSize.width = CGFloat($1) })
+        fields["basic.avatarSize.height"] = .scalar("basic.avatarSize.height", "头像尺寸", "CGFloat", get: { Double($0.basic.avatarSize.height) }, set: { $0.basic.avatarSize.height = CGFloat($1) })
+        fields["input.voiceTextButtonSize.width"] = .scalar("input.voiceTextButtonSize.width", "语音切换按钮尺寸", "CGFloat", get: { Double($0.input.voiceTextButtonSize.width) }, set: { $0.input.voiceTextButtonSize.width = CGFloat($1) })
+        fields["input.voiceTextButtonSize.height"] = .scalar("input.voiceTextButtonSize.height", "语音切换按钮尺寸", "CGFloat", get: { Double($0.input.voiceTextButtonSize.height) }, set: { $0.input.voiceTextButtonSize.height = CGFloat($1) })
+        fields["input.emojiTextButtonSize.width"] = .scalar("input.emojiTextButtonSize.width", "表情切换按钮尺寸", "CGFloat", get: { Double($0.input.emojiTextButtonSize.width) }, set: { $0.input.emojiTextButtonSize.width = CGFloat($1) })
+        fields["input.emojiTextButtonSize.height"] = .scalar("input.emojiTextButtonSize.height", "表情切换按钮尺寸", "CGFloat", get: { Double($0.input.emojiTextButtonSize.height) }, set: { $0.input.emojiTextButtonSize.height = CGFloat($1) })
+        fields["recording.gradientWaveformSize.width"] = .scalar("recording.gradientWaveformSize.width", "渐变声波尺寸", "CGFloat", get: { Double($0.recording.gradientWaveformSize.width) }, set: { $0.recording.gradientWaveformSize.width = CGFloat($1) })
+        fields["recording.gradientWaveformSize.height"] = .scalar("recording.gradientWaveformSize.height", "渐变声波尺寸", "CGFloat", get: { Double($0.recording.gradientWaveformSize.height) }, set: { $0.recording.gradientWaveformSize.height = CGFloat($1) })
+        return fields
+    }
+
+    init(chatView: WYChatView) {
+        self.chatView = chatView
+        draftView = WYChatView(userInfo: chatView.userInfo, configuration: chatView.configuration)
+        draftView.dataSource = chatView.dataSource
+        super.init(style: .insetGrouped)
+        groups = [
+            ("输入方式", [
+                Item(title: "输入框操作", path: "inputBehavior", choices: [("切换到语音模式后录音", "0"), ("单击输入，长按发语音", "1"), ("单击输入，长按识别", "2")], explanation: "单击输入框弹出键盘，长按适用于空输入框"),
+                Item(title: "占位文字位置", path: "input.textPlaceholderAlignment", choices: [("居左", "0"), ("居中", "1"), ("居右", "2")]),
+                Item(title: "占位提示文字", path: "input.textPlaceholder"),
+                Item(title: "键盘内显示语音识别按钮", path: "input.enablesKeyboardDictation"),
+                Item(title: "长按语音图标转文字", path: "input.enablesVoiceButtonDictation")
+            ]),
+            ("语音录制与识别", [
+                Item(title: "启用语音识别", path: "recording.supportSpeechRecognition"),
+                Item(title: "录音交互效果", path: "recording.interactionStyle", choices: [("分区操作", "0"), ("底部渐变声波", "1")]),
+                Item(title: "分区按钮外观", path: "recording.actionStyle", choices: [("圆形", "0"), ("弧形", "1")]),
+                Item(title: "转文字后松手直接发送", path: "recording.dictationSendsOnRelease", explanation: "关闭后进入文字编辑界面，确认后发送"),
+                Item(title: "识别时机", path: "recording.speechRecognitionMode", choices: [("边录音边识别", "0"), ("录音结束后识别", "1")]),
+                Item(title: "识别服务", path: "recording.speechRecognitionSource", choices: [("Apple 系统识别", "0"), ("宿主接入的识别服务", "1")], explanation: "外部服务需要宿主提供识别实现"),
+                Item(title: "识别语言", path: "recording.speechLocaleIdentifier", choices: [("跟随系统语言", Locale.preferredLanguages.first ?? Locale.current.identifier), ("简体中文", "zh-CN"), ("繁體中文", "zh-TW"), ("English", "en-US"), ("日本語", "ja-JP"), ("한국어", "ko-KR")]),
+                Item(title: "仅使用设备本地识别", path: "recording.requiresOnDeviceRecognition"),
+                Item(title: "最长录音秒数", path: "recording.recordTime.max")
+            ]),
+            ("渐变声波外观", [
+                Item(title: "录音渐变颜色", path: "recording.gradientRecordingColor"),
+                Item(title: "取消渐变颜色", path: "recording.gradientCancelColor"),
+                Item(title: "普通声波颜色", path: "recording.gradientWaveform.wavesColor"),
+                Item(title: "取消声波颜色", path: "recording.gradientCancelWaveformColor"),
+                Item(title: "普通提示文字颜色", path: "recording.gradientHintColor"),
+                Item(title: "取消提示文字颜色", path: "recording.gradientCancelHintColor"),
+                Item(title: "渐变高度", path: "recording.gradientHeight"),
+                Item(title: "声波宽度", path: "recording.gradientWaveformSize.width"),
+                Item(title: "声波高度", path: "recording.gradientWaveformSize.height"),
+                Item(title: "声波底部间距", path: "recording.gradientWaveformBottomOffset"),
+                Item(title: "提示与声波间距", path: "recording.gradientHintSpacing"),
+                Item(title: "提示字体大小", path: "recording.gradientHintFont"),
+                Item(title: "上滑取消距离", path: "recording.gradientCancelDistance")
+            ]),
+            ("头像与昵称", [
+                Item(title: "显示自己的头像", path: "sender.showsAvatar"),
+                Item(title: "显示对方的头像", path: "receiver.showsAvatar"),
+                Item(title: "单聊显示自己的昵称", path: "sender.showsSingleNickname"),
+                Item(title: "单聊显示对方的昵称", path: "receiver.showsSingleNickname"),
+                Item(title: "群聊显示自己的昵称", path: "sender.showsGroupNickname"),
+                Item(title: "群聊显示对方的昵称", path: "receiver.showsGroupNickname"),
+                Item(title: "头像宽度", path: "basic.avatarSize.width"),
+                Item(title: "头像高度", path: "basic.avatarSize.height"),
+                Item(title: "自己头像与消息间距", path: "sender.contentSpacing"),
+                Item(title: "对方头像与消息间距", path: "receiver.contentSpacing"),
+                Item(title: "昵称字体大小", path: "basic.nicknameFont"),
+                Item(title: "显示已读与未读", path: "basic.showReadMark"),
+                Item(title: "已读提示文字", path: "basic.readText"),
+                Item(title: "未读提示文字", path: "basic.unreadText")
+            ]),
+            ("消息与输入栏外观", [
+                Item(title: "消息间距", path: "messageSpacing"),
+                Item(title: "自己发送的气泡颜色", path: "senderBubble.fillColor"),
+                Item(title: "对方发送的气泡颜色", path: "receiverBubble.fillColor"),
+                Item(title: "消息文字大小", path: "text.textFont"),
+                Item(title: "输入文字大小", path: "input.textFont"),
+                Item(title: "输入栏背景颜色", path: "input.backgroundColor"),
+                Item(title: "语音切换按钮宽度", path: "input.voiceTextButtonSize.width"),
+                Item(title: "语音切换按钮高度", path: "input.voiceTextButtonSize.height"),
+                Item(title: "表情切换按钮宽度", path: "input.emojiTextButtonSize.width"),
+                Item(title: "表情切换按钮高度", path: "input.emojiTextButtonSize.height"),
+                Item(title: "媒体消息展示", path: "media.presentation", choices: [("逐条展示", "0"), ("合并展示", "1")])
+            ]),
+            ("高级与恢复", [Item(title: "全部属性设置", path: "advanced", explanation: "完整属性目录与专项预览"), Item(title: "恢复默认设置", path: "defaults")])
+        ]
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = "聊天设置"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "保存", style: .done, target: self, action: #selector(save))
+        tableView.accessibilityIdentifier = "WYChatSettings.groups"
+        let hint = UILabel(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: UIDevice.wy_screenHeight(64, WYBasisKitConfig.defaultScreenPixels)))
+        hint.text = "选择需要的效果，点击保存后返回聊天页\n返回而不保存时，聊天页保持原设置"
+        hint.textAlignment = .center
+        hint.numberOfLines = 0
+        hint.font = .preferredFont(forTextStyle: .footnote)
+        tableView.tableHeaderView = hint
+    }
+
+    override func viewWillAppear(_ animated: Bool) { super.viewWillAppear(animated); tableView.reloadData() }
+    override func numberOfSections(in tableView: UITableView) -> Int { groups.count }
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? { groups[section].0 }
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { groups[section].1.count }
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let item = groups[indexPath.section].1[indexPath.row]
+        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: nil)
+        cell.textLabel?.text = item.title
+        cell.textLabel?.numberOfLines = 0
+        cell.detailTextLabel?.numberOfLines = 0
+        cell.accessoryType = .disclosureIndicator
+        let value = fields[item.path]?.read(draftView.configuration) ?? ""
+        if item.path == "inputBehavior" {
+            cell.detailTextLabel?.text = item.choices.first { $0.1 == String(draftView.configuration.input.placeholderLongPressAction.rawValue) }?.0
+        } else if let field = fields[item.path], field.kind == .boolean {
+            let toggle = UISwitch()
+            toggle.isOn = value == "true"
+            toggle.accessibilityIdentifier = "WYChatSettings.switch." + item.path
+            toggle.addAction(UIAction { [weak self, weak toggle] _ in
+                guard let self, let toggle else { return }
+                self.apply(field, text: String(toggle.isOn))
+            }, for: .valueChanged)
+            cell.accessoryView = toggle
+            cell.accessoryType = .none
+        } else if fields[item.path]?.kind == .color {
+            let swatch = UIView(frame: CGRect(x: 0, y: 0, width: UIDevice.wy_screenWidth(24, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenHeight(24, WYBasisKitConfig.defaultScreenPixels)))
+            swatch.backgroundColor = fields[item.path]?.color?(draftView.configuration)
+            swatch.layer.cornerRadius = UIDevice.wy_screenWidth(6, WYBasisKitConfig.defaultScreenPixels)
+            cell.accessoryView = swatch
+        } else if fields[item.path]?.type == "UIFont" { cell.detailTextLabel?.text = (value.components(separatedBy: ",").last?.trimmingCharacters(in: .whitespaces) ?? "") + " 号" }
+        else { cell.detailTextLabel?.text = item.choices.first(where: { $0.1 == value })?.0 ?? value }
+        if !item.explanation.isEmpty { cell.detailTextLabel?.text = [cell.detailTextLabel?.text ?? "", item.explanation].filter { !$0.isEmpty }.joined(separator: "\n") }
+        return cell
+    }
+
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        let item = groups[indexPath.section].1[indexPath.row]
+        if item.path == "defaults" {
+            let alert = UIAlertController(title: "恢复默认设置？", message: "点击保存后应用到聊天页", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "恢复默认", style: .destructive) { [weak self] _ in self?.draftView.configuration = WYChatConfig(); self?.tableView.reloadData() })
+            alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+            present(alert, animated: true)
+            return
+        }
+        if item.path == "advanced" {
+            let controller = WYChatTestConfigurationController(chatView: draftView)
+            controller.showRelatedTests = showRelatedTests
+            navigationController?.pushViewController(controller, animated: true)
+            return
+        }
+        if !item.choices.isEmpty {
+            let alert = UIAlertController(title: item.title, message: item.explanation.isEmpty ? nil : item.explanation, preferredStyle: .actionSheet)
+            for choice in item.choices {
+                alert.addAction(UIAlertAction(title: choice.0, style: .default) { [weak self] _ in
+                    guard let self else { return }
+                    if item.path == "inputBehavior" {
+                        var config = self.draftView.configuration
+                        config.input.placeholderLongPressAction = WYChatInputLongPressAction(rawValue: Int(choice.1) ?? 0) ?? .disabled
+                        if config.input.placeholderLongPressAction == .dictation { config.recording.supportSpeechRecognition = true }
+                        self.draftView.configuration = config
+                    } else if let field = self.fields[item.path] { self.apply(field, text: choice.1) }
+                    self.tableView.reloadData()
+                })
+            }
+            alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+            alert.popoverPresentationController?.sourceView = tableView.cellForRow(at: indexPath)
+            alert.popoverPresentationController?.sourceRect = tableView.cellForRow(at: indexPath)?.bounds ?? .zero
+            present(alert, animated: true)
+            return
+        }
+        guard let field = fields[item.path] else { return }
+        if field.kind == .boolean { return }
+        if field.kind == .color {
+            pendingColor = field
+            let picker = UIColorPickerViewController()
+            picker.selectedColor = field.color?(draftView.configuration) ?? .clear
+            picker.supportsAlpha = true
+            picker.delegate = self
+            present(picker, animated: true)
+            return
+        }
+        let alert = UIAlertController(title: item.title, message: nil, preferredStyle: .alert)
+        alert.addTextField { text in
+            let value = field.read(self.draftView.configuration)
+            text.text = field.type == "UIFont" ? value.components(separatedBy: ",").last?.trimmingCharacters(in: .whitespaces) : value
+            text.keyboardType = field.type == "String" ? .default : .decimalPad
+        }
+        alert.addAction(UIAlertAction(title: "确定", style: .default) { [weak self, weak alert] _ in
+            guard let self, let text = alert?.textFields?.first?.text else { return }
+            self.apply(field, text: text)
+            self.tableView.reloadData()
+        })
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+        present(alert, animated: true)
+    }
+
+    private func apply(_ field: WYChatTestConfigurationField, text: String) {
+        var config = draftView.configuration
+        guard field.apply?(&config, text) == true else {
+            let alert = UIAlertController(title: "这个值不能使用", message: "请检查输入的内容和数值范围", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "知道了", style: .cancel))
+            present(alert, animated: true)
+            return
+        }
+        draftView.configuration = config
+    }
+
+    func colorPickerViewControllerDidSelectColor(_ viewController: UIColorPickerViewController) {
+        guard let field = pendingColor else { return }
+        var config = draftView.configuration
+        field.setColor?(&config, viewController.selectedColor)
+        draftView.configuration = config
+        tableView.reloadData()
+    }
+
+    @objc private func save() {
+        let config = draftView.configuration
+        if config.recording.supportSpeechRecognition && config.recording.speechRecognitionSource == .external && config.recording.speechRecognitionProvider == nil {
+            let alert = UIAlertController(title: "外部识别服务尚未接入", message: "请选择 Apple 系统识别，或由宿主先提供识别服务", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "知道了", style: .cancel))
+            present(alert, animated: true)
+            return
+        }
+        chatView?.configuration = config
+        chatView?.layoutIfNeeded()
+        dismiss(animated: true)
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 }

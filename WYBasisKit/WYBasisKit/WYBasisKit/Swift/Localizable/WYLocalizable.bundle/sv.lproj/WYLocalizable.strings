@@ -282,3 +282,7 @@
 "发送原语音" = "Skicka ursprungligt röstmeddelande";
 
 "松手 发语音" = "Släpp för att skicka röstmeddelande";
+
+"松手发送，上滑取消" = "Släpp för att skicka, svep uppåt för att avbryta";
+
+"松手取消" = "Släpp för att avbryta";

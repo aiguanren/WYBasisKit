@@ -314,10 +314,99 @@ final class WYChatViewTests: XCTestCase {
         XCTAssertTrue(passed.waitForExistence(timeout: 25))
     }
 
+    func testPlaceholderHoldSendsVoiceWithoutSwitching() {
+        let app = openChat()
+        app.navigationBars.buttons["测试"].tap()
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        for title in ["输入框长按发语音·分区", "输入框长按发语音·渐变"] {
+            search.tap()
+            if search.buttons.firstMatch.exists { search.buttons.firstMatch.tap() }
+            search.typeText(title)
+            let row = app.tables.cells.containing(.staticText, identifier: title).firstMatch
+            XCTAssertTrue(row.waitForExistence(timeout: 5))
+            row.tap()
+            app.alerts.buttons["运行"].tap()
+            let input = app.buttons["WYChatInput.placeholder"].firstMatch
+            XCTAssertTrue(input.waitForExistence(timeout: 5))
+            input.press(forDuration: 1.2)
+            XCTAssertTrue(row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "通过")).firstMatch.waitForExistence(timeout: 15))
+        }
+    }
+
+    func testExampleVoiceSendAndPlayback() {
+        let app = openChat()
+        app.navigationBars.buttons["测试"].tap()
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        search.tap()
+        search.typeText("示例语音发送与本地播放")
+        let row = app.tables.cells.containing(.staticText, identifier: "示例语音发送与本地播放").firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        row.tap()
+        app.alerts.buttons["运行"].tap()
+        XCTAssertTrue(row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "通过")).firstMatch.waitForExistence(timeout: 20))
+    }
+
+    func testFriendlySettingsSaveAndDiscard() {
+        let app = openChat()
+        func settings() {
+            app.navigationBars.buttons["测试"].tap()
+            app.navigationBars.buttons["配置"].tap()
+            XCTAssertTrue(app.navigationBars["聊天设置"].waitForExistence(timeout: 5))
+        }
+        settings()
+        let settingsImage = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        settingsImage.name = "chat-friendly-settings"
+        settingsImage.lifetime = .keepAlways
+        add(settingsImage)
+        app.staticTexts["输入框操作"].tap()
+        app.buttons["单击输入，长按识别"].tap()
+        app.navigationBars.buttons["保存"].tap()
+        XCTAssertTrue(app.navigationBars["聊天界面"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["WYChatInput.placeholder"].isHittable)
+        settings()
+        let inputRow = app.tables.cells.containing(.staticText, identifier: "输入框操作").firstMatch
+        XCTAssertTrue(inputRow.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "单击输入，长按识别")).firstMatch.exists)
+        app.staticTexts["输入框操作"].tap()
+        app.buttons["切换到语音模式后录音"].tap()
+        app.navigationBars["聊天设置"].buttons.element(boundBy: 0).tap()
+        app.navigationBars.buttons["关闭"].tap()
+        XCTAssertTrue(app.buttons["WYChatInput.placeholder"].isHittable)
+        settings()
+        app.staticTexts["输入框操作"].tap()
+        app.buttons["切换到语音模式后录音"].tap()
+        app.navigationBars.buttons["保存"].tap()
+        XCTAssertTrue(app.navigationBars["聊天界面"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["WYChatInput.placeholder"].isHittable)
+        app.textViews["WYChatInput.text"].tap()
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 5))
+    }
+
+    func testFriendlyRecordingStyleSelection() {
+        let app = openChat()
+        app.navigationBars.buttons["测试"].tap()
+        app.navigationBars.buttons["配置"].tap()
+        let effect = app.staticTexts["录音交互效果"]
+        for _ in 0..<4 { if effect.isHittable { break }; app.tables.firstMatch.swipeUp() }
+        effect.tap()
+        app.buttons["底部渐变声波"].tap()
+        app.navigationBars.buttons["保存"].tap()
+        XCTAssertTrue(app.navigationBars["聊天界面"].waitForExistence(timeout: 5))
+        app.navigationBars.buttons["测试"].tap()
+        app.navigationBars.buttons["配置"].tap()
+        for _ in 0..<4 { if effect.isHittable { break }; app.tables.firstMatch.swipeUp() }
+        let row = app.tables.cells.containing(.staticText, identifier: "录音交互效果").firstMatch
+        XCTAssertTrue(row.staticTexts["底部渐变声波"].exists)
+    }
+
     func testConfigurationEditorActualWorkflow() {
         let app = openChat()
         app.navigationBars.buttons["测试"].tap()
         app.navigationBars.buttons["配置"].tap()
+        let allSettings = app.staticTexts["全部属性设置"]
+        for _ in 0..<10 { if allSettings.isHittable { break }; app.tables.firstMatch.swipeUp() }
+        allSettings.tap()
         XCTAssertTrue(app.staticTexts["WYChatConfiguration.summary"].waitForExistence(timeout: 5))
         let search = app.searchFields.firstMatch
         func find(_ path: String) -> XCUIElement {
@@ -376,6 +465,9 @@ final class WYChatViewTests: XCTestCase {
         let app = openChat()
         app.navigationBars.buttons["测试"].tap()
         app.navigationBars.buttons["配置"].tap()
+        let allSettings = app.staticTexts["全部属性设置"]
+        for _ in 0..<10 { if allSettings.isHittable { break }; app.tables.firstMatch.swipeUp() }
+        allSettings.tap()
         let search = app.searchFields.firstMatch
         XCTAssertTrue(search.waitForExistence(timeout: 5))
         search.tap()
@@ -447,6 +539,9 @@ final class WYChatViewTests: XCTestCase {
         let app = openChat()
         app.navigationBars.buttons["测试"].tap()
         app.navigationBars.buttons["配置"].tap()
+        let allSettings = app.staticTexts["全部属性设置"]
+        for _ in 0..<10 { if allSettings.isHittable { break }; app.tables.firstMatch.swipeUp() }
+        allSettings.tap()
         let search = app.searchFields.firstMatch
         XCTAssertTrue(search.waitForExistence(timeout: 5))
         search.tap()
@@ -908,6 +1003,42 @@ final class WYChatViewTests: XCTestCase {
         record.press(forDuration: 1.2)
         record.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).press(forDuration: 0.7, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.25)), withVelocity: .slow, thenHoldForDuration: 0.3)
         record.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).press(forDuration: 0.7, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.80)), withVelocity: .slow, thenHoldForDuration: 0.3)
+        let passed = row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "通过")).firstMatch
+        XCTAssertTrue(passed.waitForExistence(timeout: 15))
+    }
+
+    func testGradientRecordingConfiguration() {
+        let app = openChat()
+        app.navigationBars.buttons["测试"].tap()
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        search.tap()
+        search.typeText("渐变录音方案与配置")
+        let row = app.tables.cells.containing(.staticText, identifier: "渐变录音方案与配置").firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        row.tap()
+        app.alerts.buttons["运行"].tap()
+        let passed = row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "通过")).firstMatch
+        XCTAssertTrue(passed.waitForExistence(timeout: 20))
+    }
+
+    func testGradientRecordingGestures() {
+        let app = openChat()
+        app.navigationBars.buttons["测试"].tap()
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        search.tap()
+        search.typeText("渐变录音真实手势")
+        let row = app.tables.cells.containing(.staticText, identifier: "渐变录音真实手势").firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        row.tap()
+        app.alerts.buttons["运行"].tap()
+        let record = app.buttons["WYChatInput.record"].firstMatch
+        XCTAssertTrue(record.waitForExistence(timeout: 5))
+        record.press(forDuration: 1.2)
+        let start = record.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        start.press(forDuration: 0.7, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.45)), withVelocity: .slow, thenHoldForDuration: 0.3)
+        start.press(forDuration: 0.7, thenDragTo: start.withOffset(CGVector(dx: 60, dy: 0)), withVelocity: .slow, thenHoldForDuration: 0.3)
         let passed = row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "通过")).firstMatch
         XCTAssertTrue(passed.waitForExistence(timeout: 15))
     }

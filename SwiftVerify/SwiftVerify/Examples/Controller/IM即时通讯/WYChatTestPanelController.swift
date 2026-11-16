@@ -74,7 +74,7 @@ final class WYChatTestPanelController: UITableViewController, UISearchResultsUpd
     }
 
     @objc private func showConfiguration() {
-        let controller = WYChatTestConfigurationController(chatView: suite.chatView)
+        let controller = WYChatSettingsController(chatView: suite.chatView)
         controller.showRelatedTests = { [weak self] query in
             guard let self else { return }
             self.navigationController?.popToViewController(self, animated: true)

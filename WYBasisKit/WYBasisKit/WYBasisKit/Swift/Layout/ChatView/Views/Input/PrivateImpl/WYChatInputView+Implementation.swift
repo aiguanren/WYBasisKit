@@ -96,6 +96,7 @@ extension WYChatInputView {
                 guard let self, let sender, authorized, self.recordingGestureID == identifier, sender.state == .began || sender.state == .changed else { return }
                 self.recordView.recordAnimationConfig = self.recordAnimationConfig
                 self.recordView.start()
+                self.recordView.state.gradientGestureOrigin = sender.location(in: self.recordView)
             }
             if recordAnimationConfig.recorder != nil { begin(true) }
             else { wy_authorizeMicrophoneAccess(showSettingsAlert: true) { granted in begin(granted) } }
@@ -112,9 +113,9 @@ extension WYChatInputView {
         }
     }
 
-    @objc func voiceButtonDictationLongPress(_ sender: UILongPressGestureRecognizer) {
-        let enabled = sender.view === placeholderGate ? inputBarConfig.enablesPlaceholderDictation && inputBarConfig.textPlaceholderAlignment == .center : inputBarConfig.enablesVoiceButtonDictation
-        guard enabled, recordAnimationConfig.supportSpeechRecognition,
+    @objc func inputRecordingLongPress(_ sender: UILongPressGestureRecognizer) {
+        let action: WYChatInputLongPressAction = sender.view === placeholderGate ? inputBarConfig.placeholderLongPressAction : inputBarConfig.enablesVoiceButtonDictation ? .dictation : .disabled
+        guard action != .disabled, action != .dictation || recordAnimationConfig.supportSpeechRecognition,
               eventsHandler?.wy_canManagerVoiceRecordEvents?(sender) ?? true else { return }
         switch sender.state {
         case .began:
@@ -124,7 +125,8 @@ extension WYChatInputView {
                 guard let self, let sender, authorized, self.recordingGestureID == identifier, sender.state == .began || sender.state == .changed else { return }
                 self.textView.resignFirstResponder()
                 self.recordView.recordAnimationConfig = self.recordAnimationConfig
-                self.recordView.start(mode: .dictation)
+                self.recordView.start(mode: action == .voice ? .voice : .dictation)
+                self.recordView.state.gradientGestureOrigin = sender.location(in: self.recordView)
             }
             if recordAnimationConfig.recorder != nil { begin(true) }
             else { wy_authorizeMicrophoneAccess(showSettingsAlert: true) { begin($0) } }
@@ -579,7 +581,7 @@ extension WYChatInputView {
         textVoiceView.isSelected = textView.isHidden
         textVoiceView.backgroundColor = .clear
         textVoiceView.addTarget(self, action: #selector(didClickTextVoiceView(sender:)), for: .touchUpInside)
-        let dictation = UILongPressGestureRecognizer(target: self, action: #selector(voiceButtonDictationLongPress(_:)))
+        let dictation = UILongPressGestureRecognizer(target: self, action: #selector(inputRecordingLongPress(_:)))
         dictation.minimumPressDuration = max(0, inputBarConfig.voiceButtonLongPressDuration)
         dictation.allowableMovement = inputBarConfig.recordViewLongPressMaxOffset
         textVoiceView.addGestureRecognizer(dictation)

@@ -282,3 +282,7 @@
 "发送原语音" = "Envoyer le message vocal original";
 
 "松手 发语音" = "Relâcher pour envoyer le message vocal";
+
+"松手发送，上滑取消" = "Relâchez pour envoyer, glissez vers le haut pour annuler";
+
+"松手取消" = "Relâchez pour annuler";

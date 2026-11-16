@@ -10,6 +10,8 @@ import SnapKit
 import AVFoundation
 
 final class WYRecordAnimationViewPrivateState {
+    var gradientView: WYChatGradientRecordingView?
+    var gradientGestureOrigin: CGPoint?
     var mode: WYChatRecordingMode = .voice
     var automaticallySendsTranscript = false
     let voiceButton = UIButton(type: .system)
@@ -231,6 +233,7 @@ extension WYRecordAnimationView {
     }
 
     func wy_impl_start(mode: WYChatRecordingMode = .voice) {
+        let gradient = recordAnimationConfig.interactionStyle == .gradient
         guard state.requestID == nil else { return }
         guard mode != .dictation || recordAnimationConfig.supportSpeechRecognition else {
             recognitionResultHandler?(nil, wy_recordError(WYLocalized("语音识别未启用", table: WYBasisKitConfig.kitLocalizableTable)))
@@ -239,6 +242,21 @@ extension WYRecordAnimationView {
         state.mode = mode
         state.animationRevision += 1
         soundAnimationStatus = .recording
+        state.gradientGestureOrigin = nil
+        if gradient {
+            for view in [state.leftView, state.rightView, state.bottomView, state.soundAnimationView, state.recordingHint] { view?.isHidden = true }
+            let view = state.gradientView ?? WYChatGradientRecordingView()
+            state.gradientView = view
+            view.frame = bounds
+            addSubview(view)
+            view.refresh(configuration: recordAnimationConfig, cancelled: false, mode: mode, animated: false)
+            backgroundColor = .clear
+            alpha = 1
+            wy_beginCapture()
+            return
+        }
+        state.gradientView?.removeFromSuperview()
+        for view in [state.leftView, state.bottomView, state.soundAnimationView, state.recordingHint] { view?.isHidden = false }
         rightView.isHidden = !recordAnimationConfig.supportSpeechRecognition
         leftView.recordAnimationConfig = recordAnimationConfig
         rightView.recordAnimationConfig = recordAnimationConfig
@@ -279,6 +297,8 @@ extension WYRecordAnimationView {
             state.automaticallySendsTranscript = soundAnimationStatus == .recording && wy_captureConfiguration.dictationSendsOnRelease
             soundAnimationStatus = .transfer
         }
+        state.gradientView?.removeFromSuperview()
+        if wy_captureConfiguration.interactionStyle == .gradient { wy_stopCapture(); return }
         state.animationRevision += 1
         let revision = state.animationRevision
         UIView.animate(withDuration: 0.2,
@@ -299,6 +319,17 @@ extension WYRecordAnimationView {
 
     func wy_impl_switchStatus(_ touchPoint: CGPoint) {
 
+        if wy_captureConfiguration.interactionStyle == .gradient {
+            let origin = state.gradientGestureOrigin ?? CGPoint(x: bounds.midX, y: bounds.height - safeAreaInsets.bottom)
+            let distance = wy_captureConfiguration.gradientCancelDistance
+            let cancelled = origin.y - touchPoint.y >= (distance.isFinite ? max(0, distance) : 0)
+            let status: WYSoundAnimationStatus = cancelled ? .cancel : .recording
+            guard status != soundAnimationStatus else { return }
+            soundAnimationStatus = status
+            state.gradientView?.refresh(configuration: wy_captureConfiguration, cancelled: cancelled, mode: state.mode, animated: true)
+            if wy_captureConfiguration.vibrationFeedback { UIDevice.wy_vibrate(.light) }
+            return
+        }
         let status: WYSoundAnimationStatus
         // 判断触摸点是否在 指定View 上面
         if leftView.wy_containsActionPoint(leftView.moveUpView.convert(touchPoint, from: self)) {
@@ -446,6 +477,8 @@ extension WYRecordAnimationView {
     }
 
     func wy_impl_endRecordVoice() {
+        state.gradientView?.removeFromSuperview()
+        state.gradientGestureOrigin = nil
         state.animationRevision += 1
         state.discard = true
         if state.requestID != nil { wy_stopCapture() }
@@ -533,6 +566,10 @@ extension WYRecordAnimationView {
 
     func wy_layoutRecordingView() {
         wy_layoutTranscriptEditor()
+        if let gradient = state.gradientView, gradient.superview != nil {
+            gradient.frame = bounds
+            return
+        }
         wy_layoutRecordingHint()
         guard bounds.width > 0, bounds.height > 0, state.lastLayoutSize != bounds.size else { return }
         state.lastLayoutSize = bounds.size

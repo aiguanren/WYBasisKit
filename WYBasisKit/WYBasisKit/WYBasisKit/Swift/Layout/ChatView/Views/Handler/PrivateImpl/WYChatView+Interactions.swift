@@ -105,7 +105,7 @@ extension WYChatView {
         let action: WYChatAction
         if isSelectingMessages && [.content, .avatar, .nickname, .mention, .takePat, .reference].contains(requested) { action = .select }
         else if requested == .content && !model.transferError.isEmpty { action = .retry }
-        else if requested == .content, let voice = model.content.voice { action = configuration.recording.supportSpeechRecognition && !voice.recognitionError.isEmpty ? .translate : voice.isPlaying ? .pause : .play }
+        else if requested == .content, let voice = model.content.voice { action = voice.isPlaying ? .pause : .play }
         else { action = requested }
         guard eventsHandler?.wy_shouldPerformMessageAction?(self, action: action, messageID: messageID) ?? true else { return }
         switch action {

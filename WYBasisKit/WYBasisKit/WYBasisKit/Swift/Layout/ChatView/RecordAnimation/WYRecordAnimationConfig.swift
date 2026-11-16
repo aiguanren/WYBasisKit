@@ -7,6 +7,14 @@
 
 import UIKit
 
+/// 录音手势与界面方案
+@objc public enum WYRecordingInteractionStyle: Int {
+    /// 分区操作，滑入取消或转文字区域后松手执行
+    case actionRegions
+    /// 底部渐变声波，上滑取消、滑回继续录音
+    case gradient
+}
+
 /// 录音操作按钮外观
 @objc public enum WYRecordingActionStyle: Int {
     /// 圆形按钮
@@ -19,6 +27,65 @@ import UIKit
 @objc public enum WYChatRecordingEditorControl: Int { case close, language, translation, emoji, retry, originalVoice, send }
 
 public struct WYRecordAnimationConfig {
+    /// 录音手势与界面方案，默认分区操作
+    public var interactionStyle: WYRecordingInteractionStyle = .actionRegions
+    /// 渐变录音区域高度
+    public var gradientHeight: CGFloat = UIDevice.wy_screenHeight(320, WYBasisKitConfig.defaultScreenPixels)
+    /// 渐变录音普通状态主色
+    public var gradientRecordingColor: UIColor = .wy_hex("#1677FF")
+    /// 渐变录音取消状态主色
+    public var gradientCancelColor: UIColor = .wy_hex("#FF8A8D")
+    /// 渐变录音区域以外的遮罩颜色
+    public var gradientOverlayColor: UIColor = .clear
+    /// 渐变中心位置，使用0到1的相对坐标
+    public var gradientStartPoint: CGPoint = CGPoint(x: 0.5, y: 1)
+    /// 渐变外边缘位置，使用相对坐标
+    public var gradientEndPoint: CGPoint = CGPoint(x: 1.55, y: 0)
+    /// 渐变颜色位置，升序排列且取值0到1，数量与gradientColorOpacities一致
+    public var gradientColorLocations: [CGFloat] = [0, 0.38, 0.65, 0.8, 1]
+    /// 渐变各位置的不透明度，取值0到1，数量与gradientColorLocations一致
+    public var gradientColorOpacities: [CGFloat] = [1, 1, 0.85, 0.35, 0]
+    /// 渐变录音声波两端淡出的宽度比例，取值0到0.5
+    public var gradientWaveformEdgeFade: CGFloat = 0.12
+    /// 渐变录音声波区域尺寸
+    public var gradientWaveformSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(248, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenHeight(40, WYBasisKitConfig.defaultScreenPixels))
+    /// 渐变录音声波距离底部安全区的间距
+    public var gradientWaveformBottomOffset: CGFloat = UIDevice.wy_screenHeight(66, WYBasisKitConfig.defaultScreenPixels)
+    /// 渐变录音提示距离声波顶部的间距
+    public var gradientHintSpacing: CGFloat = UIDevice.wy_screenHeight(28, WYBasisKitConfig.defaultScreenPixels)
+    /// 渐变录音普通状态提示，空字符串时根据录音用途显示提示
+    public var gradientRecordingHint: String = WYLocalized("松手发送，上滑取消", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 渐变录音取消状态提示
+    public var gradientCancelHint: String = WYLocalized("松手取消", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 渐变录音提示字体
+    public var gradientHintFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(13, WYBasisKitConfig.defaultScreenPixels))
+    /// 渐变录音普通状态提示颜色
+    public var gradientHintColor: UIColor = .white.withAlphaComponent(0.8)
+    /// 渐变录音取消状态提示颜色
+    public var gradientCancelHintColor: UIColor = .wy_hex("#CE6068")
+    /// 渐变录音取消状态声波颜色
+    public var gradientCancelWaveformColor: UIColor = .wy_hex("#EA6770")
+    /// 渐变录音提示文字边距
+    public var gradientHintInsets: UIEdgeInsets = UIEdgeInsets(top: 0, left: UIDevice.wy_screenWidth(24, WYBasisKitConfig.defaultScreenPixels), bottom: 0, right: UIDevice.wy_screenWidth(24, WYBasisKitConfig.defaultScreenPixels))
+    /// 渐变录音从长按起点向上滑动进入取消的距离
+    public var gradientCancelDistance: CGFloat = UIDevice.wy_screenHeight(90, WYBasisKitConfig.defaultScreenPixels)
+    /// 渐变录音状态过渡时长，单位秒
+    public var gradientTransitionDuration: TimeInterval = 0.2
+    /// 渐变录音声波动画配置
+    public var gradientWaveform: WYSoundWaveConfig = {
+        var value = WYSoundWaveConfig()
+        value.noiseGate = 0.2
+        value.gain = 3
+        value.numberOfColumns = 61
+        value.barWidth = UIDevice.wy_screenWidth(1, WYBasisKitConfig.defaultScreenPixels)
+        value.barSpacing = UIDevice.wy_screenWidth(3, WYBasisKitConfig.defaultScreenPixels)
+        value.minBarHeight = UIDevice.wy_screenHeight(1, WYBasisKitConfig.defaultScreenPixels)
+        value.maxBarHeight = UIDevice.wy_screenHeight(32, WYBasisKitConfig.defaultScreenPixels)
+        value.idleBaseHeight = value.minBarHeight
+        value.idleAmplitude = value.minBarHeight
+        return value
+    }()
+
     /// 录音浮层遮罩颜色
     public var overlayBackgroundColor: UIColor = .black.withAlphaComponent(0.7)
     /// 录音及转写气泡的自定义箭头图片，nil时使用气泡箭头

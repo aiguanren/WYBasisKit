@@ -9,6 +9,16 @@
 import UIKit
 import SnapKit
 
+/// 空输入框的长按操作
+@objc public enum WYChatInputLongPressAction: Int {
+    /// 使用语音切换按钮进入录音模式
+    case disabled
+    /// 长按输入框录音，松手发送语音
+    case voice
+    /// 长按输入框识别文字
+    case dictation
+}
+
 public struct WYInputBarConfig {
     
     /// 草稿保存键，空字符串时不跨实例保存草稿
@@ -18,10 +28,10 @@ public struct WYInputBarConfig {
     public var enablesVoiceButtonDictation: Bool = true
     /// 长按语音切换按钮开始转写的等待时间，单位秒
     public var voiceButtonLongPressDuration: TimeInterval = 0.35
-    /// 文本占位对齐方式，居中且未编辑时支持长按转文字
+    /// 文本占位对齐方式
     public var textPlaceholderAlignment: NSTextAlignment = .left
-    /// 是否允许长按居中占位区域转文字，需要启用语音识别
-    public var enablesPlaceholderDictation: Bool = true
+    /// 空输入框的长按操作，默认disabled，dictation需要启用语音识别
+    public var placeholderLongPressAction: WYChatInputLongPressAction = .disabled
     /// 是否在键盘展开时显示输入框内的语音识别按钮，需要启用语音识别
     public var enablesKeyboardDictation: Bool = true
     /// 输入框语音识别按钮图片
@@ -307,9 +317,9 @@ public class WYChatInputView: UIImageView {
     public let textVoiceContentView: UIButton = WYChatInputBackgroundButton(frame: .zero)
     public let textView: WYChatInputTextView = WYChatInputTextView()
     public let textPlaceholderView = UILabel()
-    public let textVoiceView: UIButton = UIButton(type: .custom)
-    public let emojiView: UIButton = UIButton(type: .custom)
-    public let moreView: UIButton = UIButton(type: .custom)
+    public let textVoiceView: UIButton = WYChatInputIconButton(type: .custom)
+    public let emojiView: UIButton = WYChatInputIconButton(type: .custom)
+    public let moreView: UIButton = WYChatInputIconButton(type: .custom)
     /// 表情解析配置
     public var emojiViewConfig: WYEmojiViewConfig = WYEmojiViewConfig()
     /// 录音配置
@@ -350,6 +360,7 @@ public class WYChatInputView: UIImageView {
 
     public override func layoutSubviews() {
         super.layoutSubviews()
+        textVoiceContentView.layoutIfNeeded()
         wy_updateDictationControls()
     }
 

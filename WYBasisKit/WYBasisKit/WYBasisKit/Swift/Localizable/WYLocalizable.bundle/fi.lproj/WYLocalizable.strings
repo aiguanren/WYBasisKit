@@ -282,3 +282,7 @@
 "发送原语音" = "Lähetä alkuperäinen ääni";
 
 "松手 发语音" = "Vapauta lähettääksesi ääniviestin";
+
+"松手发送，上滑取消" = "Lähetä vapauttamalla, peruuta pyyhkäisemällä ylös";
+
+"松手取消" = "Peruuta vapauttamalla";
