@@ -44,9 +44,8 @@ final class WYChatViewPrivateState {
 
 /// 列表空白区域的点击识别
 final class WYChatBackgroundTapDelegate: NSObject, UIGestureRecognizerDelegate {
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        guard let table = gestureRecognizer.view as? UITableView else { return false }
-        return table.indexPathForRow(at: touch.location(in: table)) == nil
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        !(otherGestureRecognizer is UILongPressGestureRecognizer)
     }
 }
 
@@ -180,11 +179,8 @@ extension WYChatView {
         value.delegate = self
         value.dataSource = self
         value.separatorStyle = .none
-        value.keyboardDismissMode = configuration.keyboardDismissMode
-        let tap = UITapGestureRecognizer(target: self, action: #selector(wy_tableBackgroundTap(_:)))
+        let tap = value.wy_swipeOrTapCollapseKeyboard(target: self, action: #selector(wy_tableBackgroundTap(_:)), slideMode: configuration.keyboardDismissMode)
         tap.delegate = state.backgroundTapDelegate
-        tap.cancelsTouchesInView = false
-        value.addGestureRecognizer(tap)
         value.backgroundColor = configuration.backgroundColor
         value.rowHeight = UITableView.automaticDimension
         value.estimatedRowHeight = configuration.basic.avatarSize.height + configuration.messageSpacing

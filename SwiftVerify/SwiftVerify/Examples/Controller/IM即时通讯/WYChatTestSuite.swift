@@ -2575,7 +2575,7 @@ final class WYChatTestSuite {
                     await settle()
                     check("dictation-mode-\(timing.rawValue)-\(style.rawValue)", overlay.recordingMode == .dictation)
                     let bubble = descendants(overlay).compactMap { $0 as? WYSoundAnimationView }.first
-                    check("dictation-waveform-\(timing.rawValue)-\(style.rawValue)", bubble?.soundWavesView.isHidden == true)
+                    check("dictation-waveform-\(timing.rawValue)-\(style.rawValue)", bubble?.soundWavesView.isHidden == !config.dictationShowsWaveform)
                     overlay.stop()
                     overlay.stop()
                     await settle()

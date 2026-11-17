@@ -288,6 +288,8 @@ import WYBasisKitSwift
     public var dismissInputOnTap: Bool
     /// 是否启用长按菜单，默认true
     public var enablesMessageMenu: Bool
+    /// 长按消息菜单时是否高亮整行，默认false，仅预览消息气泡
+    public var highlightsEntireCellOnLongPress: Bool
     /// 默认菜单操作，宿主通过回调执行外部操作
     public var menuActions: [NSNumber]
     /// 允许自动滚动到底部的距离
@@ -334,6 +336,7 @@ import WYBasisKitSwift
         self.nicknameSpacing = value.nicknameSpacing
         self.dismissInputOnTap = value.dismissInputOnTap
         self.enablesMessageMenu = value.enablesMessageMenu
+        self.highlightsEntireCellOnLongPress = value.highlightsEntireCellOnLongPress
         self.menuActions = value.menuActions.map { NSNumber(value: $0.rawValue) }
         self.bottomDistance = value.bottomDistance
         self.automaticallyInsertsSentMessages = value.automaticallyInsertsSentMessages
@@ -375,6 +378,7 @@ import WYBasisKitSwift
         value.nicknameSpacing = nicknameSpacing
         value.dismissInputOnTap = dismissInputOnTap
         value.enablesMessageMenu = enablesMessageMenu
+        value.highlightsEntireCellOnLongPress = highlightsEntireCellOnLongPress
         value.menuActions = menuActions.compactMap { WYChatAction(rawValue: $0.intValue) }
         value.bottomDistance = bottomDistance
         value.automaticallyInsertsSentMessages = automaticallyInsertsSentMessages
@@ -679,7 +683,7 @@ import WYBasisKitSwift
     public var dictationSendsOnRelease: Bool
     /// 直接转写的编辑操作文字
     public var dictationEditText: String
-    /// 直接转写是否显示声波，默认false
+    /// 直接转写是否显示声波，默认true
     public var dictationShowsWaveform: Bool
     /// 转写编辑时是否显示发送原语音按钮，默认true
     public var showsOriginalVoiceButton: Bool

@@ -9,6 +9,16 @@ import UIKit
 
 /// 消息操作与引用
 extension WYChatView {
+    func wy_messageMenuPreview(_ tableView: UITableView, configuration menu: UIContextMenuConfiguration) -> UITargetedPreview? {
+        guard let identifier = menu.identifier as? String,
+              let index = dataSource.firstIndex(where: { $0.messageID == identifier }),
+              let cell = tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? WYChatBasicCell,
+              !(configuration.messageConfiguration?(dataSource[index], configuration) ?? configuration).highlightsEntireCellOnLongPress else { return nil }
+        let parameters = UIPreviewParameters()
+        parameters.backgroundColor = .clear
+        return UITargetedPreview(view: cell.bubblesView, parameters: parameters)
+    }
+
     func wy_sendRecordedVoice(_ url: URL, duration: TimeInterval, messageID: String) -> WYChatMessageModel? {
         var directory: ObjCBool = false
         guard url.isFileURL, FileManager.default.fileExists(atPath: url.path, isDirectory: &directory), !directory.boolValue, duration.isFinite, duration > 0 else { return nil }

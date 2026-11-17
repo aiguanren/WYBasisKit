@@ -330,6 +330,8 @@ final class WYChatSettingsController: UITableViewController, UIColorPickerViewCo
         super.init(style: .insetGrouped)
         groups = [
             ("输入方式", [
+                Item(title: "长按消息时整行高亮", path: "highlightsEntireCellOnLongPress"),
+                Item(title: "点击消息列表收起输入", path: "dismissInputOnTap"),
                 Item(title: "输入框操作", path: "inputBehavior", choices: [("切换到语音模式后录音", "0"), ("单击输入，长按发语音", "1"), ("单击输入，长按识别", "2")], explanation: "单击输入框弹出键盘，长按适用于空输入框"),
                 Item(title: "占位文字位置", path: "input.textPlaceholderAlignment", choices: [("居左", "0"), ("居中", "1"), ("居右", "2")]),
                 Item(title: "占位提示文字", path: "input.textPlaceholder"),
@@ -341,6 +343,7 @@ final class WYChatSettingsController: UITableViewController, UIColorPickerViewCo
                 Item(title: "启用语音识别", path: "recording.supportSpeechRecognition"),
                 Item(title: "录音交互效果", path: "recording.interactionStyle", choices: [("分区操作", "0"), ("底部渐变声波", "1")]),
                 Item(title: "分区按钮外观", path: "recording.actionStyle", choices: [("圆形", "0"), ("弧形", "1")]),
+                Item(title: "长按识别显示声波", path: "recording.dictationShowsWaveform"),
                 Item(title: "转文字后松手直接发送", path: "recording.dictationSendsOnRelease", explanation: "关闭后进入文字编辑界面，确认后发送"),
                 Item(title: "识别时机", path: "recording.speechRecognitionMode", choices: [("边录音边识别", "0"), ("录音结束后识别", "1")]),
                 Item(title: "识别服务", path: "recording.speechRecognitionSource", choices: [("Apple 系统识别", "0"), ("宿主接入的识别服务", "1")], explanation: "外部服务需要宿主提供识别实现"),

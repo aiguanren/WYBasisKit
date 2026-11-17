@@ -341,8 +341,8 @@ public struct WYRecordAnimationConfig {
     public var dictationSendsOnRelease: Bool = true
     /// 直接转写的编辑操作文字
     public var dictationEditText: String = WYLocalized("编辑", table: WYBasisKitConfig.kitLocalizableTable)
-    /// 直接转写是否显示声波，默认false
-    public var dictationShowsWaveform: Bool = false
+    /// 直接转写是否显示声波，默认true
+    public var dictationShowsWaveform: Bool = true
     /// 转写编辑时是否显示发送原语音按钮，默认true
     public var showsOriginalVoiceButton: Bool = true
     /// 发送原语音按钮文字

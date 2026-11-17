@@ -272,10 +272,10 @@ public class WYChatView: UIView {
     @objc func wy_keyboardWillDismiss() { wy_handleKeyboardDismiss() }
     @objc func wy_applicationDidBecomeActive(_ notification: Notification) { wy_handleApplicationActive(notification) }
     @objc func wy_tableBackgroundTap(_ gesture: UITapGestureRecognizer) {
-        guard configuration.dismissInputOnTap, tableView.indexPathForRow(at: gesture.location(in: tableView)) == nil else { return }
+        guard configuration.dismissInputOnTap else { return }
         inputViewResignFirstResponder()
     }
-    @objc func wy_newMessagesTap() { scrollToLastMessage(true) }
+    @objc func wy_newMessagesTap() { if configuration.dismissInputOnTap { inputViewResignFirstResponder() }; scrollToLastMessage(true) }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     deinit { NotificationCenter.default.removeObserver(self) }

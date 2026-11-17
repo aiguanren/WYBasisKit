@@ -54,6 +54,14 @@ extension WYChatView: UITableViewDelegate, UITableViewDataSource {
         return UIContextMenuConfiguration(identifier: model.messageID as NSString, previewProvider: nil) { [weak self] _ in self?.wy_menu(model) }
     }
 
+    public func tableView(_ tableView: UITableView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+        wy_messageMenuPreview(tableView, configuration: configuration)
+    }
+
+    public func tableView(_ tableView: UITableView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
+        wy_messageMenuPreview(tableView, configuration: configuration)
+    }
+
     public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) { wy_cancelAutomaticScroll() }
 
     public func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {

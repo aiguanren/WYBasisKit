@@ -295,3 +295,7 @@ SwiftVerify的聊天测试页点击“配置”可搜索并调整配置属性，
 媒体展开/收起按钮默认显示在首个媒体靠页面中间的一侧，`media.buttonPlacement`可切换为下方显示。按钮宽高、圆角、间距、字体和颜色均可配置，`showsItemCountInButton`控制是否显示媒体数量。
 
 输入栏默认无描边，文字输入和语音输入分别使用独立圆角。`input.textViewMaxHeight`默认限制输入框高度为适配后的120，超出部分在输入框内滚动。
+
+点击消息列表的空白、行间距、消息内容及头像等区域时，`dismissInputOnTap`控制是否收起键盘和输入面板；输入栏及面板内控件保持各自操作。`highlightsEntireCellOnLongPress`默认`false`，长按菜单仅预览消息气泡，设为`true`使用系统整行预览。
+
+长按输入框直接识别时，`recording.dictationShowsWaveform`默认`true`，分区操作模式同时显示转写文本和动态声波，设为`false`可隐藏声波。
