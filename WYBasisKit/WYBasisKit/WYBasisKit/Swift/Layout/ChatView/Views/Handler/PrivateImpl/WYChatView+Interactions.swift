@@ -109,6 +109,24 @@ extension WYChatView {
         else { action = requested }
         guard eventsHandler?.wy_shouldPerformMessageAction?(self, action: action, messageID: messageID) ?? true else { return }
         switch action {
+        case .play, .pause:
+            if configuration.dismissInputOnTap { inputViewResignFirstResponder() }
+            var messages = dataSource
+            let stopped = action == .play ? messages.filter { $0.messageID != messageID && $0.content.voice?.isPlaying == true }.map(\.messageID) : []
+            for index in messages.indices where messages[index].content.voice != nil {
+                let selected = messages[index].messageID == messageID
+                if selected || action == .play && messages[index].content.voice?.isPlaying == true {
+                    messages[index].content.voice?.isPlaying = selected && action == .play
+                    messages[index].content.voice?.pause = !configuration.voicePlayback.restartsOnTap && !(selected && action == .play)
+                    if configuration.voicePlayback.restartsOnTap { messages[index].content.voice?.currentPlayDuration = 0 }
+                    if selected && action == .play { messages[index].content.voice?.played = true }
+                }
+            }
+            dataSource = messages
+            for identifier in stopped {
+                actionHandler?(self, .pause, identifier)
+                delegate?.wy_messageAction?(self, action: .pause, messageID: identifier)
+            }
         case .mention: if configuration.basic.automaticallyInsertsMentions { mentionUser(model.sender) }
         case .reedit: _ = reeditMessage(messageID)
         case .copy: UIPasteboard.general.string = model.content.text ?? model.content.voice?.voiceToText

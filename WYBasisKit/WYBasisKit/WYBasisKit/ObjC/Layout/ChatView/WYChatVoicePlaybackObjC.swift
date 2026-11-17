@@ -19,6 +19,16 @@ import WYBasisKitSwift
 /// 语音播放倍速外观
 @objc(WYChatVoicePlaybackConfig)
 @objcMembers public class WYChatVoicePlaybackConfigObjC: NSObject {
+    /// 语音内容的最小宽度，不含气泡内边距
+    public var minimumWidth: CGFloat
+    /// 保持最小宽度的语音时长，单位秒
+    public var minimumWidthDuration: TimeInterval
+    /// 超过minimumWidthDuration后每秒增加的内容宽度
+    public var widthGrowthPerSecond: CGFloat
+    /// 语音秒数后的文字
+    public var durationSuffix: String
+    /// 语音秒数字体
+    public var durationFont: UIFont
     /// 共用语音播放帧，静止时显示最后一帧
     public var waveformImages: [UIImage]
     /// 是否水平翻转发送方的语音播放帧，默认true
@@ -27,13 +37,23 @@ import WYBasisKitSwift
     public var waveformDuration: TimeInterval
     /// 语音播放帧的显示尺寸
     public var waveformSize: CGSize
+    /// 声波图片颜色，默认label，nil时保留原图颜色
+    public var waveformTintColor: UIColor?
+    /// 是否显示额外的播放或暂停图标，默认false
+    public var showsPlaybackSymbol: Bool
+    /// 再次播放时是否从头开始，默认true
+    public var restartsOnTap: Bool
+    /// 收到的未播放语音提示颜色
+    public var unreadColor: UIColor
+    /// 收到的未播放语音提示直径
+    public var unreadSize: CGFloat
     /// 语音播放或继续播放图标
     public var playImage: UIImage?
     /// 语音播放时的暂停图标
     public var pauseImage: UIImage?
     /// 可选择的语音倍速，忽略非正数、非有限值和重复值
     public var rates: [NSNumber]
-    /// 是否显示语音倍速按钮，默认true
+    /// 是否显示语音倍速按钮，默认false
     public var showsRateControl: Bool
     /// 是否只在播放时显示倍速按钮，默认true
     public var showsOnlyWhilePlaying: Bool
@@ -51,10 +71,20 @@ import WYBasisKitSwift
     public var cornerRadius: CGFloat
     public override convenience init() { self.init(WYChatVoicePlaybackConfig()) }
     @nonobjc public init(_ value: WYChatVoicePlaybackConfig) {
+        minimumWidth = value.minimumWidth
+        minimumWidthDuration = value.minimumWidthDuration
+        widthGrowthPerSecond = value.widthGrowthPerSecond
+        durationSuffix = value.durationSuffix
+        durationFont = value.durationFont
         waveformImages = value.waveformImages
         mirrorsSenderWaveform = value.mirrorsSenderWaveform
         waveformDuration = value.waveformDuration
         waveformSize = value.waveformSize
+        waveformTintColor = value.waveformTintColor
+        showsPlaybackSymbol = value.showsPlaybackSymbol
+        restartsOnTap = value.restartsOnTap
+        unreadColor = value.unreadColor
+        unreadSize = value.unreadSize
         playImage = value.playImage
         pauseImage = value.pauseImage
         rates = value.rates.map { NSNumber(value: $0) }
@@ -70,10 +100,20 @@ import WYBasisKitSwift
     }
     @nonobjc public func toValue() -> WYChatVoicePlaybackConfig {
         var value = WYChatVoicePlaybackConfig()
+        value.minimumWidth = minimumWidth
+        value.minimumWidthDuration = minimumWidthDuration
+        value.widthGrowthPerSecond = widthGrowthPerSecond
+        value.durationSuffix = durationSuffix
+        value.durationFont = durationFont
         value.waveformImages = waveformImages
         value.mirrorsSenderWaveform = mirrorsSenderWaveform
         value.waveformDuration = waveformDuration
         value.waveformSize = waveformSize
+        value.waveformTintColor = waveformTintColor
+        value.showsPlaybackSymbol = showsPlaybackSymbol
+        value.restartsOnTap = restartsOnTap
+        value.unreadColor = unreadColor
+        value.unreadSize = unreadSize
         value.playImage = playImage
         value.pauseImage = pauseImage
         value.rates = rates.map { $0.floatValue }

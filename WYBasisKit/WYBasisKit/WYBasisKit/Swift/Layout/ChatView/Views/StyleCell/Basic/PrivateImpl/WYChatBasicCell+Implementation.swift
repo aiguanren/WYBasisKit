@@ -102,6 +102,9 @@ final class WYChatBasicCellPrivateState {
     var mediaToggleHeight: NSLayoutConstraint?
     let header = UIStackView()
     let voiceRateButton = UIButton(type: .system)
+    let voiceUnreadView = UIView()
+    var voiceUnreadSize: [NSLayoutConstraint] = []
+    var voiceUnreadLeading: NSLayoutConstraint?
     var voiceRateWidth: NSLayoutConstraint?
     var voiceRateHeight: NSLayoutConstraint?
     let textStack = UIStackView()
@@ -259,6 +262,9 @@ extension WYChatBasicCell {
         wy_loadImage(message.sender.avatar, into: avatarView)
         let style = messageContentConfiguration
         state.title.font = style.titleFont
+        state.title.textAlignment = .natural
+        state.header.removeArrangedSubview(state.thumbnail)
+        state.header.insertArrangedSubview(state.thumbnail, at: 0)
         state.title.textColor = style.titleColor
         state.title.numberOfLines = max(0, style.titleNumberOfLines)
         state.detail.font = style.detailFont
@@ -266,6 +272,7 @@ extension WYChatBasicCell {
         state.detail.numberOfLines = max(0, style.detailNumberOfLines)
         state.footer.font = style.detailFont
         state.footer.textColor = style.detailColor
+        for label in [state.title, state.detail, state.footer] { label.preferredMaxLayoutWidth = 0 }
         bodyView.spacing = max(0, style.spacing)
         state.textStack.spacing = max(0, style.spacing)
         state.header.spacing = max(0, style.spacing)

@@ -244,12 +244,17 @@ extension WYRecordAnimationView {
         soundAnimationStatus = .recording
         state.gradientGestureOrigin = nil
         if gradient {
+            UIView.performWithoutAnimation {
+                superview?.layoutIfNeeded()
+                layoutIfNeeded()
+            }
             for view in [state.leftView, state.rightView, state.bottomView, state.soundAnimationView, state.recordingHint] { view?.isHidden = true }
             let view = state.gradientView ?? WYChatGradientRecordingView()
             state.gradientView = view
             view.frame = bounds
             addSubview(view)
             view.refresh(configuration: recordAnimationConfig, cancelled: false, mode: mode, animated: false)
+            UIView.performWithoutAnimation { view.layoutIfNeeded() }
             backgroundColor = .clear
             alpha = 1
             wy_beginCapture()

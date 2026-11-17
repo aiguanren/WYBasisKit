@@ -362,6 +362,7 @@ extension WYChatInputView {
     }
 
     func wy_impl_textViewDidChange(_ textView: UITextView, silence: Bool) {
+        wy_reconcileInputDictationText()
 
         // 以下获取键盘输入模式及判断selectedRange相关目的是为了解决textViewDidChange回调两次的问题
 
@@ -435,8 +436,6 @@ extension WYChatInputView {
     }
 
     func wy_impl_textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        if !isApplyingDictationText { wy_stopInputDictation(cancel: true) }
-
         if text == "\n" && !inputBarConfig.showSpecialSendButton {
             didClickSendView()
             return false

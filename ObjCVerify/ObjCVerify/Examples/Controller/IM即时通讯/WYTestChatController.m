@@ -80,7 +80,7 @@
         if ([item.messageID isEqualToString:messageID]) {
             item.content.voice.isPlaying = playing;
             item.content.voice.played = true;
-            item.content.voice.pause = !playing;
+            item.content.voice.pause = !playing && !self.chatView.configuration.voicePlayback.restartsOnTap;
             item.content.voice.currentPlayDuration = self.voicePlayer.currentTime;
         }
     }
@@ -88,8 +88,9 @@
 }
 
 - (void)stopExampleVoice {
-    if (self.playingVoiceID) { [self updateExampleVoice:self.playingVoiceID playing:false]; }
     [self.voicePlayer stop];
+    self.voicePlayer.currentTime = 0;
+    if (self.playingVoiceID) { [self updateExampleVoice:self.playingVoiceID playing:false]; }
     self.voicePlayer = nil;
     self.playingVoiceID = nil;
 }
@@ -104,8 +105,8 @@
     WYChatMessageModel *message = chatView.messageModelFrom(messageID);
     if (action == WYChatActionRetry) { [self prepareExampleMessage:message]; return; }
     if (action == WYChatActionPause && [self.playingVoiceID isEqualToString:messageID]) {
-        [self.voicePlayer pause];
-        [self updateExampleVoice:messageID playing:false];
+        if (chatView.configuration.voicePlayback.restartsOnTap) { [self stopExampleVoice]; }
+        else { [self.voicePlayer pause]; [self updateExampleVoice:messageID playing:false]; }
         return;
     }
     if (action != WYChatActionPlay || !message.content.voice) { return; }
@@ -127,6 +128,7 @@
         [AVAudioSession.sharedInstance setCategory:AVAudioSessionCategoryPlayback error:&error];
         if (!error) { [AVAudioSession.sharedInstance setActive:true error:&error]; }
         self.voicePlayer.rate = voice.playbackRate;
+        if (chatView.configuration.voicePlayback.restartsOnTap) { self.voicePlayer.currentTime = 0; }
         if (!error && ![self.voicePlayer play]) { error = [NSError errorWithDomain:NSOSStatusErrorDomain code:-50 userInfo:nil]; }
     }
     if (error) { [self stopExampleVoice]; [self showVoiceError:error]; }

@@ -68,9 +68,12 @@ extension WYChatBasicCell {
         case .voice:
             guard let value = message.content.voice else { return }
             let playback = configuration.voicePlayback
+            state.title.font = playback.durationFont
             let frames = playback.waveformImages.map { image in
-                playback.mirrorsSenderWaveform && message.isSender(userID) ? image.withHorizontallyFlippedOrientation() : image
+                let frame = playback.mirrorsSenderWaveform && message.isSender(userID) ? image.withHorizontallyFlippedOrientation() : image
+                return frame.withRenderingMode(playback.waveformTintColor == nil ? .alwaysOriginal : .alwaysTemplate)
             }
+            state.thumbnail.tintColor = playback.waveformTintColor ?? messageContentConfiguration.titleColor
             state.usesThumbnail = !frames.isEmpty
             state.thumbnail.image = frames.last
             state.thumbnail.animationImages = frames
@@ -78,7 +81,14 @@ extension WYChatBasicCell {
             state.thumbnailSize.first?.constant = playback.waveformSize.width.isFinite ? max(0, playback.waveformSize.width) : 0
             state.thumbnailSize.last?.constant = playback.waveformSize.height.isFinite ? max(0, playback.waveformSize.height) : 0
             if value.isPlaying && frames.count > 1 && !state.isMeasuring { state.thumbnail.startAnimating() }
-            wy_showPlaybackSymbol(value.isPlaying ? playback.pauseImage : playback.playImage, text: wy_duration(value.duration) + (value.played ? "" : "  •"))
+            let duration = String(Int(ceil(min(86400, max(0, value.duration.isFinite ? value.duration : 0))))) + playback.durationSuffix
+            if playback.showsPlaybackSymbol { wy_showPlaybackSymbol(value.isPlaying ? playback.pauseImage : playback.playImage, text: duration) }
+            else { state.title.text = duration }
+            if message.isSender(userID) {
+                state.header.removeArrangedSubview(state.thumbnail)
+                state.header.insertArrangedSubview(state.thumbnail, at: 1)
+                state.title.textAlignment = .right
+            } else { state.title.textAlignment = .left }
             state.detail.text = value.isRecognizing ? configuration.recording.recognizingText : value.recognitionError.isEmpty ? value.voiceToText : value.recognitionError
             let fraction = value.duration.isFinite ? min(1, max(0, value.duration / max(1, configuration.recording.recordTime.max))) : 0
             state.preferredWidth?.constant = max(messageContentConfiguration.titleFont.lineHeight * 3, messageContentConfiguration.preferredWidth * CGFloat(fraction))

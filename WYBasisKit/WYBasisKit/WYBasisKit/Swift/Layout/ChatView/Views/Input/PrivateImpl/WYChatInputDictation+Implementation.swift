@@ -160,6 +160,9 @@ extension WYChatInputView {
             guard granted, self.wy_showsKeyboardDictation else { self.wy_stopInputDictation(cancel: true); return }
             self.textView.unmarkText()
             self.dictationRange = self.textView.selectedRange
+            self.dictationTextSnapshot = self.textView.attributedText.string
+            self.dictationRecognizedText = ""
+            self.dictationCommittedTextCount = 0
             let session = WYChatInputDictationSession(configuration: self.recordAnimationConfig, update: { [weak self] text in
                 guard let self, self.dictationRequestID == identifier else { return }
                 self.wy_applyInputDictation(text)
@@ -180,14 +183,34 @@ extension WYChatInputView {
         else { wy_authorizeMicrophoneAccess(showSettingsAlert: true) { granted in begin(granted) } }
     }
 
+    func wy_reconcileInputDictationText() {
+        guard isInputDictating, !isApplyingDictationText else { return }
+        let current = textView.attributedText.string
+        guard current != dictationTextSnapshot else { return }
+        if inputBarConfig.stopsKeyboardDictationOnTextChange {
+            wy_stopInputDictation(cancel: true)
+        } else {
+            let selection = textView.selectedRange
+            let location = selection.location == NSNotFound ? current.utf16.count : min(NSMaxRange(selection), current.utf16.count)
+            dictationRange = NSRange(location: location, length: 0)
+            dictationCommittedTextCount = dictationRecognizedText.count
+            dictationTextSnapshot = current
+        }
+    }
+
     func wy_applyInputDictation(_ text: String) {
+        wy_reconcileInputDictationText()
+        guard isInputDictating, textView.markedTextRange == nil else { return }
+        let replacement = String(text.dropFirst(dictationCommittedTextCount))
         let current = textView.attributedText.string as NSString
         guard dictationRange.location != NSNotFound, NSMaxRange(dictationRange) <= current.length else { wy_stopInputDictation(cancel: true); return }
         isApplyingDictationText = true
         defer { isApplyingDictationText = false }
-        guard self.textView(textView, shouldChangeTextIn: dictationRange, replacementText: text) else { return }
-        textView.attributedText = sharedEmojiAttributed(string: current.replacingCharacters(in: dictationRange, with: text))
-        dictationRange.length = text.utf16.count
+        guard self.textView(textView, shouldChangeTextIn: dictationRange, replacementText: replacement) else { return }
+        textView.attributedText = sharedEmojiAttributed(string: current.replacingCharacters(in: dictationRange, with: replacement))
+        dictationRange.length = replacement.utf16.count
+        dictationRecognizedText = text
+        dictationTextSnapshot = textView.attributedText.string
         textView.selectedRange = NSRange(location: NSMaxRange(dictationRange), length: 0)
         textViewDidChange(textView)
     }

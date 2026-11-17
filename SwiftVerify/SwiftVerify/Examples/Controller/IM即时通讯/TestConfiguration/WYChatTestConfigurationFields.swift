@@ -188,6 +188,7 @@ enum WYChatTestConfigurationFields {
         "input.specialSendButtonSize",
         "input.specialSendButtonText",
         "input.specialSendButtonTextColor",
+        "input.stopsKeyboardDictationOnTextChange",
         "input.textBottomImage",
         "input.textColor",
         "input.textFont",
@@ -746,19 +747,29 @@ enum WYChatTestConfigurationFields {
         "unsupportedMessageText",
         "voicePlayback.backgroundColor",
         "voicePlayback.cornerRadius",
+        "voicePlayback.durationFont",
+        "voicePlayback.durationSuffix",
         "voicePlayback.font",
         "voicePlayback.insets",
+        "voicePlayback.minimumWidth",
+        "voicePlayback.minimumWidthDuration",
         "voicePlayback.mirrorsSenderWaveform",
         "voicePlayback.pauseImage",
         "voicePlayback.playImage",
         "voicePlayback.rates",
+        "voicePlayback.restartsOnTap",
         "voicePlayback.showsOnlyWhilePlaying",
+        "voicePlayback.showsPlaybackSymbol",
         "voicePlayback.showsRateControl",
         "voicePlayback.size",
         "voicePlayback.textColor",
+        "voicePlayback.unreadColor",
+        "voicePlayback.unreadSize",
         "voicePlayback.waveformDuration",
         "voicePlayback.waveformImages",
         "voicePlayback.waveformSize",
+        "voicePlayback.waveformTintColor",
+        "voicePlayback.widthGrowthPerSecond",
     ]
     static let expandedTypes: Set<String> = ["WYBasicChatConfig", "WYChatBubbleConfig", "WYChatConfig", "WYChatContentConfig", "WYChatMediaConfig", "WYChatNoticeConfig", "WYChatQuoteConfig", "WYChatQuoteStyle", "WYChatRecordsConfig", "WYChatSelectionConfig", "WYChatSideLayout", "WYChatVoicePlaybackConfig", "WYEmojiFuncAreaConfig", "WYEmojiPreviewConfig", "WYEmojiViewConfig", "WYInputBarConfig", "WYMoreViewConfig", "WYPhotoBrowserAppearance", "WYPhotoBrowserConfiguration", "WYRecordAnimationConfig", "WYSoundWaveConfig", "WYTextChatConfig"]
     static let all: [WYChatTestConfigurationField] = makeFields()
@@ -978,6 +989,7 @@ enum WYChatTestConfigurationFields {
         .vector("input.specialSendButtonSize", "独立发送按钮的Size", "CGSize", labels: ["width", "height"], get: { [Double($0.input.specialSendButtonSize.width), Double($0.input.specialSendButtonSize.height)] }, set: { $0.input.specialSendButtonSize = CGSize(width: CGFloat($1[0]), height: CGFloat($1[1])) }),
         .string("input.specialSendButtonText", "独立发送按钮的文本", get: { $0.input.specialSendButtonText }, set: { $0.input.specialSendButtonText = $1 }),
         .color("input.specialSendButtonTextColor", "独立发送按钮的字体颜色", get: { $0.input.specialSendButtonTextColor }, set: { $0.input.specialSendButtonTextColor = $1 }),
+        .boolean("input.stopsKeyboardDictationOnTextChange", "手动修改输入文本时是否关闭正在进行的语音识别，默认true", get: { $0.input.stopsKeyboardDictationOnTextChange }, set: { $0.input.stopsKeyboardDictationOnTextChange = $1 }),
         .image("input.textBottomImage", "文本切换按钮图片", get: { $0.input.textBottomImage }, set: { $0.input.textBottomImage = $1 }),
         .color("input.textColor", "输入框输入文本色值", get: { $0.input.textColor }, set: { $0.input.textColor = $1 }),
         .font("input.textFont", "输入框输入文本字体、字号", get: { $0.input.textFont }, set: { $0.input.textFont = $1 }),
@@ -993,9 +1005,9 @@ enum WYChatTestConfigurationFields {
         .color("input.textViewBorderColor", "输入框、语音框的边框颜色", get: { $0.input.textViewBorderColor }, set: { $0.input.textViewBorderColor = $1 }),
         .scalar("input.textViewBorderWidth", "输入框、语音框的边框宽度", "CGFloat", get: { Double($0.input.textViewBorderWidth) }, set: { $0.input.textViewBorderWidth = CGFloat($1) }),
         .boolean("input.textViewCanUserInteractionMenu", "字符输入控件是否允许弹出用户交互菜单", get: { $0.input.textViewCanUserInteractionMenu }, set: { $0.input.textViewCanUserInteractionMenu = $1 }),
-        .scalar("input.textViewCornerRadius", "输入框的圆角半径", "CGFloat", get: { Double($0.input.textViewCornerRadius) }, set: { $0.input.textViewCornerRadius = CGFloat($1) }),
     ] }
     private static func group6() -> [WYChatTestConfigurationField] { [
+        .scalar("input.textViewCornerRadius", "输入框的圆角半径", "CGFloat", get: { Double($0.input.textViewCornerRadius) }, set: { $0.input.textViewCornerRadius = CGFloat($1) }),
         .boolean("input.textViewIsBounces", "字符输入控件是否允许弹跳效果", get: { $0.input.textViewIsBounces }, set: { $0.input.textViewIsBounces = $1 }),
         .boolean("input.textViewIsScrollEnabled", "字符输入控件是否允许滑动", get: { $0.input.textViewIsScrollEnabled }, set: { $0.input.textViewIsScrollEnabled = $1 }),
         .scalar("input.textViewMaxHeight", "输入框的最高高度", "CGFloat", get: { Double($0.input.textViewMaxHeight) }, set: { $0.input.textViewMaxHeight = CGFloat($1) }),
@@ -1027,9 +1039,9 @@ enum WYChatTestConfigurationFields {
         .scalar("media.browser.appearance.menuFontSize", "长按菜单字号(设计值，按基准屏换算)", "CGFloat", get: { Double($0.media.browser.appearance.menuFontSize) }, set: { $0.media.browser.appearance.menuFontSize = CGFloat($1) }),
         .color("media.browser.appearance.menuHighlightBackgroundColor", "长按菜单动作按住高亮色(手指按住某行动作的背景色)", get: { $0.media.browser.appearance.menuHighlightBackgroundColor }, set: { $0.media.browser.appearance.menuHighlightBackgroundColor = $1 }),
         .color("media.browser.appearance.menuTextColor", "长按菜单文字颜色", get: { $0.media.browser.appearance.menuTextColor }, set: { $0.media.browser.appearance.menuTextColor = $1 }),
-        .color("media.browser.appearance.originalButtonBackgroundColor", "查看原图按钮底色(底部居中的查看原图与原图进度按钮)", get: { $0.media.browser.appearance.originalButtonBackgroundColor }, set: { $0.media.browser.appearance.originalButtonBackgroundColor = $1 }),
     ] }
     private static func group7() -> [WYChatTestConfigurationField] { [
+        .color("media.browser.appearance.originalButtonBackgroundColor", "查看原图按钮底色(底部居中的查看原图与原图进度按钮)", get: { $0.media.browser.appearance.originalButtonBackgroundColor }, set: { $0.media.browser.appearance.originalButtonBackgroundColor = $1 }),
         .scalar("media.browser.appearance.originalButtonFontSize", "查看原图按钮字号(设计值，按基准屏换算)", "CGFloat", get: { Double($0.media.browser.appearance.originalButtonFontSize) }, set: { $0.media.browser.appearance.originalButtonFontSize = CGFloat($1) }),
         .color("media.browser.appearance.originalButtonTextColor", "查看原图按钮文字颜色", get: { $0.media.browser.appearance.originalButtonTextColor }, set: { $0.media.browser.appearance.originalButtonTextColor = $1 }),
         .color("media.browser.appearance.pageIndicatorCurrentDotColor", "圆点页码当前页圆点颜色", get: { $0.media.browser.appearance.pageIndicatorCurrentDotColor }, set: { $0.media.browser.appearance.pageIndicatorCurrentDotColor = $1 }),
@@ -1061,9 +1073,9 @@ enum WYChatTestConfigurationFields {
         .integer("media.browser.prefetchCount", "相邻页预加载数量(翻页落定后预下载前后各几页的图片，0不预加载)", get: { $0.media.browser.prefetchCount }, set: { $0.media.browser.prefetchCount = $1 }),
         .raw("media.browser.scrollDirection", "翻页方向(默认横向左右翻页)", options: [String(WYPhotoBrowserScrollDirection.horizontal.rawValue) + " horizontal", String(WYPhotoBrowserScrollDirection.vertical.rawValue) + " vertical"].joined(separator: "\n"), get: { $0.media.browser.scrollDirection }, set: { $0.media.browser.scrollDirection = $1 }),
         .boolean("media.browser.showsSaveAction", "长按菜单是否显示内置保存动作(保存当前页图片到系统相册，false时只显示自定义动作)", get: { $0.media.browser.showsSaveAction }, set: { $0.media.browser.showsSaveAction = $1 }),
-        .vector("media.browser.stackedCardAnchorPoint", "叠卡旋转支点，横纵坐标范围0到1，默认底部中心", "CGPoint", labels: ["x", "y"], get: { [Double($0.media.browser.stackedCardAnchorPoint.x), Double($0.media.browser.stackedCardAnchorPoint.y)] }, set: { $0.media.browser.stackedCardAnchorPoint = CGPoint(x: CGFloat($1[0]), y: CGFloat($1[1])) }),
     ] }
     private static func group8() -> [WYChatTestConfigurationField] { [
+        .vector("media.browser.stackedCardAnchorPoint", "叠卡旋转支点，横纵坐标范围0到1，默认底部中心", "CGPoint", labels: ["x", "y"], get: { [Double($0.media.browser.stackedCardAnchorPoint.x), Double($0.media.browser.stackedCardAnchorPoint.y)] }, set: { $0.media.browser.stackedCardAnchorPoint = CGPoint(x: CGFloat($1[0]), y: CGFloat($1[1])) }),
         .raw("media.browser.stackedCardContentMode", "叠卡图片显示方式", options: "使用UIView.ContentMode的rawValue", allowed: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], get: { $0.media.browser.stackedCardContentMode }, set: { $0.media.browser.stackedCardContentMode = $1 }),
         .scalar("media.browser.stackedCardCornerRadius", "叠卡圆角", "CGFloat", get: { Double($0.media.browser.stackedCardCornerRadius) }, set: { $0.media.browser.stackedCardCornerRadius = CGFloat($1) }),
         .integer("media.browser.stackedCardCount", "叠卡显示层数，至少1层", get: { $0.media.browser.stackedCardCount }, set: { $0.media.browser.stackedCardCount = $1 }),
@@ -1095,9 +1107,9 @@ enum WYChatTestConfigurationFields {
         .boolean("media.showsVideoPlaybackControls", "是否显示系统视频播放控件，默认true", get: { $0.media.showsVideoPlaybackControls }, set: { $0.media.showsVideoPlaybackControls = $1 }),
         .boolean("media.usesOriginalAspectRatio", "展开后是否使用原始宽高比，默认true", get: { $0.media.usesOriginalAspectRatio }, set: { $0.media.usesOriginalAspectRatio = $1 }),
         .color("media.videoPlayColor", "视频播放图标颜色", get: { $0.media.videoPlayColor }, set: { $0.media.videoPlayColor = $1 }),
-        .image("media.videoPlayImage", "视频播放图标", get: { $0.media.videoPlayImage }, set: { $0.media.videoPlayImage = $1 }, clear: { $0.media.videoPlayImage = nil }),
     ] }
     private static func group9() -> [WYChatTestConfigurationField] { [
+        .image("media.videoPlayImage", "视频播放图标", get: { $0.media.videoPlayImage }, set: { $0.media.videoPlayImage = $1 }, clear: { $0.media.videoPlayImage = nil }),
         .vector("media.videoPlaySize", "视频播放图标尺寸", "CGSize", labels: ["width", "height"], get: { [Double($0.media.videoPlaySize.width), Double($0.media.videoPlaySize.height)] }, set: { $0.media.videoPlaySize = CGSize(width: CGFloat($1[0]), height: CGFloat($1[1])) }),
         .raw("media.videoPresentationStyle", "视频播放器的展示方式，默认全屏", options: "使用UIModalPresentationStyle的rawValue", allowed: [-2, -1, 0, 1, 2, 3, 4, 5, 6, 7], get: { $0.media.videoPresentationStyle }, set: { $0.media.videoPresentationStyle = $1 }),
         .rawArray("menuActions", "默认菜单操作，宿主通过回调执行外部操作", options: "用逗号分隔WYChatAction的rawValue", get: { $0.menuActions }, set: { $0.menuActions = $1 }),
@@ -1129,9 +1141,9 @@ enum WYChatTestConfigurationFields {
         .font("more.textViewFont", "自定义More控件内文本控件的字体、字号", get: { $0.more.textViewFont }, set: { $0.more.textViewFont = $1 }),
         .scalar("nicknameSpacing", "昵称与内容的间距", "CGFloat", get: { Double($0.nicknameSpacing) }, set: { $0.nicknameSpacing = CGFloat($1) }),
         .boolean("notice.allowsPatWithdrawal", "是否提供拍一拍撤回操作，默认true", get: { $0.notice.allowsPatWithdrawal }, set: { $0.notice.allowsPatWithdrawal = $1 }),
-        .boolean("notice.allowsReedit", "是否显示文本消息重新编辑入口，默认true", get: { $0.notice.allowsReedit }, set: { $0.notice.allowsReedit = $1 }),
     ] }
     private static func group10() -> [WYChatTestConfigurationField] { [
+        .boolean("notice.allowsReedit", "是否显示文本消息重新编辑入口，默认true", get: { $0.notice.allowsReedit }, set: { $0.notice.allowsReedit = $1 }),
         .scalar("notice.patWithdrawalTimeLimit", "拍一拍可请求撤回的时长，单位秒，0表示不限", "TimeInterval", get: { Double($0.notice.patWithdrawalTimeLimit) }, set: { $0.notice.patWithdrawalTimeLimit = TimeInterval($1) }),
         .string("notice.patWithdrawnText", "拍一拍撤回提示，空字符串时使用withdrawnText，%@替换为发送者名称", get: { $0.notice.patWithdrawnText }, set: { $0.notice.patWithdrawnText = $1 }),
         .color("notice.reeditColor", "重新编辑按钮颜色", get: { $0.notice.reeditColor }, set: { $0.notice.reeditColor = $1 }),
@@ -1163,9 +1175,9 @@ enum WYChatTestConfigurationFields {
         .scalar("quote.input.thumbnailCornerRadius", "引用媒体缩略图圆角", "CGFloat", get: { Double($0.quote.input.thumbnailCornerRadius) }, set: { $0.quote.input.thumbnailCornerRadius = CGFloat($1) }),
         .image("quote.input.thumbnailPlaceholder", "引用媒体占位图", get: { $0.quote.input.thumbnailPlaceholder }, set: { $0.quote.input.thumbnailPlaceholder = $1 }, clear: { $0.quote.input.thumbnailPlaceholder = nil }),
         .vector("quote.input.thumbnailSize", "引用媒体缩略图尺寸", "CGSize", labels: ["width", "height"], get: { [Double($0.quote.input.thumbnailSize.width), Double($0.quote.input.thumbnailSize.height)] }, set: { $0.quote.input.thumbnailSize = CGSize(width: CGFloat($1[0]), height: CGFloat($1[1])) }),
-        .color("quote.input.titleColor", "引用发送者颜色", get: { $0.quote.input.titleColor }, set: { $0.quote.input.titleColor = $1 }),
     ] }
     private static func group11() -> [WYChatTestConfigurationField] { [
+        .color("quote.input.titleColor", "引用发送者颜色", get: { $0.quote.input.titleColor }, set: { $0.quote.input.titleColor = $1 }),
         .font("quote.input.titleFont", "引用发送者字体", get: { $0.quote.input.titleFont }, set: { $0.quote.input.titleFont = $1 }),
         .vector("quote.inputOuterInsets", "输入框引用外边距", "UIEdgeInsets", labels: ["top", "left", "bottom", "right"], get: { [Double($0.quote.inputOuterInsets.top), Double($0.quote.inputOuterInsets.left), Double($0.quote.inputOuterInsets.bottom), Double($0.quote.inputOuterInsets.right)] }, set: { $0.quote.inputOuterInsets = UIEdgeInsets(top: CGFloat($1[0]), left: CGFloat($1[1]), bottom: CGFloat($1[2]), right: CGFloat($1[3])) }),
         .color("quote.message.backgroundColor", "引用背景色", get: { $0.quote.message.backgroundColor }, set: { $0.quote.message.backgroundColor = $1 }),
@@ -1197,9 +1209,9 @@ enum WYChatTestConfigurationFields {
         .scalar("receiver.edgeInset", "头像距离容器边缘的间距", "CGFloat", get: { Double($0.receiver.edgeInset) }, set: { $0.receiver.edgeInset = CGFloat($1) }),
         .boolean("receiver.showsAvatar", "是否显示头像，默认true", get: { $0.receiver.showsAvatar }, set: { $0.receiver.showsAvatar = $1 }),
         .boolean("receiver.showsGroupNickname", "群聊是否显示昵称，默认true", get: { $0.receiver.showsGroupNickname }, set: { $0.receiver.showsGroupNickname = $1 }),
-        .boolean("receiver.showsSingleNickname", "单聊是否显示昵称，默认false", get: { $0.receiver.showsSingleNickname }, set: { $0.receiver.showsSingleNickname = $1 }),
     ] }
     private static func group12() -> [WYChatTestConfigurationField] { [
+        .boolean("receiver.showsSingleNickname", "单聊是否显示昵称，默认false", get: { $0.receiver.showsSingleNickname }, set: { $0.receiver.showsSingleNickname = $1 }),
         .boolean("receiverBubble.alignsArrowWithAvatar", "箭头是否默认对齐头像中心，默认true", get: { $0.receiverBubble.alignsArrowWithAvatar }, set: { $0.receiverBubble.alignsArrowWithAvatar = $1 }),
         .scalar("receiverBubble.arrowEdgePadding", "箭头距离圆角的间距", "CGFloat", get: { Double($0.receiverBubble.arrowEdgePadding) }, set: { $0.receiverBubble.arrowEdgePadding = CGFloat($1) }),
         .image("receiverBubble.arrowImage", "自定义箭头图片，nil时使用气泡箭头", get: { $0.receiverBubble.arrowImage }, set: { $0.receiverBubble.arrowImage = $1 }, clear: { $0.receiverBubble.arrowImage = nil }),
@@ -1231,9 +1243,9 @@ enum WYChatTestConfigurationFields {
         .scalar("recording.arrowTipRadiusForMoveUp.cancel", "录音、取消录音与转文字时声波动画气泡三角箭头的圆角半径 / cancel", "CGFloat", get: { Double($0.recording.arrowTipRadiusForMoveUp.cancel) }, set: { $0.recording.arrowTipRadiusForMoveUp.cancel = CGFloat($1) }),
         .scalar("recording.arrowTipRadiusForMoveUp.recording", "录音、取消录音与转文字时声波动画气泡三角箭头的圆角半径 / recording", "CGFloat", get: { Double($0.recording.arrowTipRadiusForMoveUp.recording) }, set: { $0.recording.arrowTipRadiusForMoveUp.recording = CGFloat($1) }),
         .scalar("recording.arrowTipRadiusForMoveUp.transfer", "录音、取消录音与转文字时声波动画气泡三角箭头的圆角半径 / transfer", "CGFloat", get: { Double($0.recording.arrowTipRadiusForMoveUp.transfer) }, set: { $0.recording.arrowTipRadiusForMoveUp.transfer = CGFloat($1) }),
-        .color("recording.backgroundColorForMoveUp.cancel", "录音、取消录音与转文字时声波动画气泡背景色 / cancel", get: { $0.recording.backgroundColorForMoveUp.cancel }, set: { $0.recording.backgroundColorForMoveUp.cancel = $1 }),
     ] }
     private static func group13() -> [WYChatTestConfigurationField] { [
+        .color("recording.backgroundColorForMoveUp.cancel", "录音、取消录音与转文字时声波动画气泡背景色 / cancel", get: { $0.recording.backgroundColorForMoveUp.cancel }, set: { $0.recording.backgroundColorForMoveUp.cancel = $1 }),
         .color("recording.backgroundColorForMoveUp.recording", "录音、取消录音与转文字时声波动画气泡背景色 / recording", get: { $0.recording.backgroundColorForMoveUp.recording }, set: { $0.recording.backgroundColorForMoveUp.recording = $1 }),
         .color("recording.backgroundColorForMoveUp.transfer", "录音、取消录音与转文字时声波动画气泡背景色 / transfer", get: { $0.recording.backgroundColorForMoveUp.transfer }, set: { $0.recording.backgroundColorForMoveUp.transfer = $1 }),
         .color("recording.borderColorForMoveUp.cancel", "录音、取消录音与转文字时声波动画气泡边框的颜色 / cancel", get: { $0.recording.borderColorForMoveUp.cancel }, set: { $0.recording.borderColorForMoveUp.cancel = $1 }),
@@ -1265,9 +1277,9 @@ enum WYChatTestConfigurationFields {
         .color("recording.curvedActionColors.normal", "弧形操作按钮普通和选中背景色 / normal", get: { $0.recording.curvedActionColors.normal }, set: { $0.recording.curvedActionColors.normal = $1 }),
         .color("recording.curvedActionColors.selected", "弧形操作按钮普通和选中背景色 / selected", get: { $0.recording.curvedActionColors.selected }, set: { $0.recording.curvedActionColors.selected = $1 }),
         .scalar("recording.curvedActionCornerRadius", "弧形操作按钮圆角", "CGFloat", get: { Double($0.recording.curvedActionCornerRadius) }, set: { $0.recording.curvedActionCornerRadius = CGFloat($1) }),
-        .vector("recording.curvedActionSize", "弧形操作按钮尺寸", "CGSize", labels: ["width", "height"], get: { [Double($0.recording.curvedActionSize.width), Double($0.recording.curvedActionSize.height)] }, set: { $0.recording.curvedActionSize = CGSize(width: CGFloat($1[0]), height: CGFloat($1[1])) }),
     ] }
     private static func group14() -> [WYChatTestConfigurationField] { [
+        .vector("recording.curvedActionSize", "弧形操作按钮尺寸", "CGSize", labels: ["width", "height"], get: { [Double($0.recording.curvedActionSize.width), Double($0.recording.curvedActionSize.height)] }, set: { $0.recording.curvedActionSize = CGSize(width: CGFloat($1[0]), height: CGFloat($1[1])) }),
         .scalar("recording.curvedActionTiltAngle", "弧形操作按钮倾斜角度，单位弧度", "CGFloat", get: { Double($0.recording.curvedActionTiltAngle) }, set: { $0.recording.curvedActionTiltAngle = CGFloat($1) }),
         .scalar("recording.curvedActionTitleOffsetX", "弧形操作按钮文字向屏幕中间的水平偏移", "CGFloat", get: { Double($0.recording.curvedActionTitleOffsetX) }, set: { $0.recording.curvedActionTitleOffsetX = CGFloat($1) }),
         .string("recording.dictationEditText", "直接转写的编辑操作文字", get: { $0.recording.dictationEditText }, set: { $0.recording.dictationEditText = $1 }),
@@ -1299,9 +1311,9 @@ enum WYChatTestConfigurationFields {
         .color("recording.gradientMotionShadowColor", "渐变流动暗部颜色", get: { $0.recording.gradientMotionShadowColor }, set: { $0.recording.gradientMotionShadowColor = $1 }),
         .scalar("recording.gradientMotionShadowOpacity", "渐变流动暗部不透明度，取值0到1", "CGFloat", get: { Double($0.recording.gradientMotionShadowOpacity) }, set: { $0.recording.gradientMotionShadowOpacity = CGFloat($1) }),
         .color("recording.gradientOverlayColor", "渐变录音区域以外的遮罩颜色", get: { $0.recording.gradientOverlayColor }, set: { $0.recording.gradientOverlayColor = $1 }),
-        .color("recording.gradientPressColor", "渐变按压效果的颜色", get: { $0.recording.gradientPressColor }, set: { $0.recording.gradientPressColor = $1 }),
     ] }
     private static func group15() -> [WYChatTestConfigurationField] { [
+        .color("recording.gradientPressColor", "渐变按压效果的颜色", get: { $0.recording.gradientPressColor }, set: { $0.recording.gradientPressColor = $1 }),
         .boolean("recording.gradientPressEnabled", "是否显示跟随手指的渐变按压效果，默认true", get: { $0.recording.gradientPressEnabled }, set: { $0.recording.gradientPressEnabled = $1 }),
         .scalar("recording.gradientPressFollowingDuration", "渐变按压效果跟随手指移动的过渡时长，单位秒", "TimeInterval", get: { Double($0.recording.gradientPressFollowingDuration) }, set: { $0.recording.gradientPressFollowingDuration = TimeInterval($1) }),
         .scalar("recording.gradientPressOpacity", "渐变按压效果的不透明度，取值0到1", "CGFloat", get: { Double($0.recording.gradientPressOpacity) }, set: { $0.recording.gradientPressOpacity = CGFloat($1) }),
@@ -1333,9 +1345,9 @@ enum WYChatTestConfigurationFields {
         .scalar("recording.gradientWaveform.minBarHeight", "声波柱子全局最低高度（默认 6.0），所有状态下声波柱子均不得低于此值，包括 stop/idle/dance 状态", "CGFloat", get: { Double($0.recording.gradientWaveform.minBarHeight) }, set: { $0.recording.gradientWaveform.minBarHeight = CGFloat($1) }),
         .scalar("recording.gradientWaveform.minDb", "dB 下限（默认 -60），越小 → 越“灵敏”（能感知更小声音），建议：-80 ~ -40", "Float", get: { Double($0.recording.gradientWaveform.minDb) }, set: { $0.recording.gradientWaveform.minDb = Float($1) }),
         .scalar("recording.gradientWaveform.noiseGate", "降噪阈值（默认 0.35），越大越不灵敏（小声音不动），越小越灵敏（环境声也会触发），建议：0.15 ~ 0.60", "CGFloat", get: { Double($0.recording.gradientWaveform.noiseGate) }, set: { $0.recording.gradientWaveform.noiseGate = CGFloat($1) }),
-        .integer("recording.gradientWaveform.numberOfColumns", "声波柱子数量（默认 25），越多越细腻，越少越粗犷，建议：10 ~ 40", get: { $0.recording.gradientWaveform.numberOfColumns }, set: { $0.recording.gradientWaveform.numberOfColumns = $1 }),
     ] }
     private static func group16() -> [WYChatTestConfigurationField] { [
+        .integer("recording.gradientWaveform.numberOfColumns", "声波柱子数量（默认 25），越多越细腻，越少越粗犷，建议：10 ~ 40", get: { $0.recording.gradientWaveform.numberOfColumns }, set: { $0.recording.gradientWaveform.numberOfColumns = $1 }),
         .scalar("recording.gradientWaveform.powerExponent", "非线性指数（曲线变换），>1：压制小声音，保留大声音（更稳），<1：放大小声音（更灵敏），建议：1.05 ~ 1.3", "CGFloat", get: { Double($0.recording.gradientWaveform.powerExponent) }, set: { $0.recording.gradientWaveform.powerExponent = CGFloat($1) }),
         .integer("recording.gradientWaveform.preferredFramesPerSecond", "屏幕刷新帧率（默认 36），人眼几乎无感知，省电约 40%，建议范围：24 ~ 60", get: { $0.recording.gradientWaveform.preferredFramesPerSecond }, set: { $0.recording.gradientWaveform.preferredFramesPerSecond = $1 }),
         .scalar("recording.gradientWaveform.smoothingFactor", "低通滤波平滑系数（默认 0.5），值越小越平滑（延迟稍高），值越大越灵敏（更跟手），建议范围：0.3 ~ 0.7", "CGFloat", get: { Double($0.recording.gradientWaveform.smoothingFactor) }, set: { $0.recording.gradientWaveform.smoothingFactor = CGFloat($1) }),
@@ -1367,9 +1379,9 @@ enum WYChatTestConfigurationFields {
         .color("recording.recognitionControlColor", "转写编辑按钮颜色", get: { $0.recording.recognitionControlColor }, set: { $0.recording.recognitionControlColor = $1 }),
         .scalar("recording.recognitionControlCornerRadius", "转写编辑按钮圆角", "CGFloat", get: { Double($0.recording.recognitionControlCornerRadius) }, set: { $0.recording.recognitionControlCornerRadius = CGFloat($1) }),
         .font("recording.recognitionControlFont", "转写编辑按钮字体", get: { $0.recording.recognitionControlFont }, set: { $0.recording.recognitionControlFont = $1 }),
-        .scalar("recording.recognitionControlHeight", "转写编辑控件行高度", "CGFloat", get: { Double($0.recording.recognitionControlHeight) }, set: { $0.recording.recognitionControlHeight = CGFloat($1) }),
     ] }
     private static func group17() -> [WYChatTestConfigurationField] { [
+        .scalar("recording.recognitionControlHeight", "转写编辑控件行高度", "CGFloat", get: { Double($0.recording.recognitionControlHeight) }, set: { $0.recording.recognitionControlHeight = CGFloat($1) }),
         .scalar("recording.recognitionControlSpacing", "转写编辑控件间距", "CGFloat", get: { Double($0.recording.recognitionControlSpacing) }, set: { $0.recording.recognitionControlSpacing = CGFloat($1) }),
         .scalar("recording.recognitionEmoji.animateDuration", "自定义Emoji控件弹起或者收回时动画持续时长", "TimeInterval", get: { Double($0.recording.recognitionEmoji.animateDuration) }, set: { $0.recording.recognitionEmoji.animateDuration = TimeInterval($1) }),
         .color("recording.recognitionEmoji.backgroundColor", "自定义Emoji控件背景色", get: { $0.recording.recognitionEmoji.backgroundColor }, set: { $0.recording.recognitionEmoji.backgroundColor = $1 }),
@@ -1401,9 +1413,9 @@ enum WYChatTestConfigurationFields {
         .font("recording.recognitionEmoji.funcAreaConfig.sendViewFont", "发送按钮字体字号", get: { $0.recording.recognitionEmoji.funcAreaConfig.sendViewFont }, set: { $0.recording.recognitionEmoji.funcAreaConfig.sendViewFont = $1 }),
         .image("recording.recognitionEmoji.funcAreaConfig.sendViewImageWithDisabled", "发送按钮不可点击时背景图", get: { $0.recording.recognitionEmoji.funcAreaConfig.sendViewImageWithDisabled }, set: { $0.recording.recognitionEmoji.funcAreaConfig.sendViewImageWithDisabled = $1 }),
         .image("recording.recognitionEmoji.funcAreaConfig.sendViewImageWithEnable", "发送按钮可点击时背景图", get: { $0.recording.recognitionEmoji.funcAreaConfig.sendViewImageWithEnable }, set: { $0.recording.recognitionEmoji.funcAreaConfig.sendViewImageWithEnable = $1 }),
-        .image("recording.recognitionEmoji.funcAreaConfig.sendViewImageWithHighly", "发送按钮按压状态背景图", get: { $0.recording.recognitionEmoji.funcAreaConfig.sendViewImageWithHighly }, set: { $0.recording.recognitionEmoji.funcAreaConfig.sendViewImageWithHighly = $1 }),
     ] }
     private static func group18() -> [WYChatTestConfigurationField] { [
+        .image("recording.recognitionEmoji.funcAreaConfig.sendViewImageWithHighly", "发送按钮按压状态背景图", get: { $0.recording.recognitionEmoji.funcAreaConfig.sendViewImageWithHighly }, set: { $0.recording.recognitionEmoji.funcAreaConfig.sendViewImageWithHighly = $1 }),
         .scalar("recording.recognitionEmoji.funcAreaConfig.sendViewLeftOffsetWithDeleteView", "发送按钮左侧和删除按钮右侧之间的间距", "CGFloat", get: { Double($0.recording.recognitionEmoji.funcAreaConfig.sendViewLeftOffsetWithDeleteView) }, set: { $0.recording.recognitionEmoji.funcAreaConfig.sendViewLeftOffsetWithDeleteView = CGFloat($1) }),
         .scalar("recording.recognitionEmoji.funcAreaConfig.sendViewRightOffset", "发送按钮距离功能区右侧间距", "CGFloat", get: { Double($0.recording.recognitionEmoji.funcAreaConfig.sendViewRightOffset) }, set: { $0.recording.recognitionEmoji.funcAreaConfig.sendViewRightOffset = CGFloat($1) }),
         .vector("recording.recognitionEmoji.funcAreaConfig.sendViewSize", "发送按钮size", "CGSize", labels: ["width", "height"], get: { [Double($0.recording.recognitionEmoji.funcAreaConfig.sendViewSize.width), Double($0.recording.recognitionEmoji.funcAreaConfig.sendViewSize.height)] }, set: { $0.recording.recognitionEmoji.funcAreaConfig.sendViewSize = CGSize(width: CGFloat($1[0]), height: CGFloat($1[1])) }),
@@ -1435,9 +1447,9 @@ enum WYChatTestConfigurationFields {
         .scalar("recording.recognitionEmoji.previewConfig.textTopOffsetWithEmoji", "表情预览控件内文本控件顶部距离Emoji控件底部的间距", "CGFloat", get: { Double($0.recording.recognitionEmoji.previewConfig.textTopOffsetWithEmoji) }, set: { $0.recording.recognitionEmoji.previewConfig.textTopOffsetWithEmoji = CGFloat($1) }),
         .integer("recording.recognitionEmoji.recentlyCount", "自定义Emoji控件最近使用的表情显示几个(表情默认显示7列，这里就默认设置7个)", get: { $0.recording.recognitionEmoji.recentlyCount }, set: { $0.recording.recognitionEmoji.recentlyCount = $1 }),
         .string("recording.recognitionEmoji.recentlyHeaderText", "自定义Emoji控件最近使用表情Header文本(设置后会显示一个Header, 仅限scrollDirection == .vertical时生效)", get: { $0.recording.recognitionEmoji.recentlyHeaderText }, set: { $0.recording.recognitionEmoji.recentlyHeaderText = $1 }),
-        .vector("recording.recognitionEmoji.recentlySectionInset", "自定义Emoji控件最近使用分区的sectionInset", "UIEdgeInsets", labels: ["top", "left", "bottom", "right"], get: { [Double($0.recording.recognitionEmoji.recentlySectionInset.top), Double($0.recording.recognitionEmoji.recentlySectionInset.left), Double($0.recording.recognitionEmoji.recentlySectionInset.bottom), Double($0.recording.recognitionEmoji.recentlySectionInset.right)] }, set: { $0.recording.recognitionEmoji.recentlySectionInset = UIEdgeInsets(top: CGFloat($1[0]), left: CGFloat($1[1]), bottom: CGFloat($1[2]), right: CGFloat($1[3])) }),
     ] }
     private static func group19() -> [WYChatTestConfigurationField] { [
+        .vector("recording.recognitionEmoji.recentlySectionInset", "自定义Emoji控件最近使用分区的sectionInset", "UIEdgeInsets", labels: ["top", "left", "bottom", "right"], get: { [Double($0.recording.recognitionEmoji.recentlySectionInset.top), Double($0.recording.recognitionEmoji.recentlySectionInset.left), Double($0.recording.recognitionEmoji.recentlySectionInset.bottom), Double($0.recording.recognitionEmoji.recentlySectionInset.right)] }, set: { $0.recording.recognitionEmoji.recentlySectionInset = UIEdgeInsets(top: CGFloat($1[0]), left: CGFloat($1[1]), bottom: CGFloat($1[2]), right: CGFloat($1[3])) }),
         .string("recording.recognitionEmoji.recentlyStorageKey", "最近使用表情的保存键，可按账号分别设置", get: { $0.recording.recognitionEmoji.recentlyStorageKey }, set: { $0.recording.recognitionEmoji.recentlyStorageKey = $1 }),
         .vector("recording.recognitionEmoji.sectionInset", "自定义Emoji控件全部表情的sectionInset", "UIEdgeInsets", labels: ["top", "left", "bottom", "right"], get: { [Double($0.recording.recognitionEmoji.sectionInset.top), Double($0.recording.recognitionEmoji.sectionInset.left), Double($0.recording.recognitionEmoji.sectionInset.bottom), Double($0.recording.recognitionEmoji.sectionInset.right)] }, set: { $0.recording.recognitionEmoji.sectionInset = UIEdgeInsets(top: CGFloat($1[0]), left: CGFloat($1[1]), bottom: CGFloat($1[2]), right: CGFloat($1[3])) }),
         .boolean("recording.recognitionEmoji.showRecently", "自定义Emoji控件是否需要显示最近使用的表情", get: { $0.recording.recognitionEmoji.showRecently }, set: { $0.recording.recognitionEmoji.showRecently = $1 }),
@@ -1469,9 +1481,9 @@ enum WYChatTestConfigurationFields {
         .json("recording.recordSettings", "自定义录音设置，空字典时使用AAC单声道设置", get: { $0.recording.recordSettings }, set: { $0.recording.recordSettings = $1 }),
         .scalar("recording.recordTime.max", "最多可以录制多少秒(最短和最长录音时间) / max", "TimeInterval", get: { Double($0.recording.recordTime.max) }, set: { $0.recording.recordTime.max = TimeInterval($1) }),
         .scalar("recording.recordTime.min", "最多可以录制多少秒(最短和最长录音时间) / min", "TimeInterval", get: { Double($0.recording.recordTime.min) }, set: { $0.recording.recordTime.min = TimeInterval($1) }),
-        .scalar("recording.recordTipViewTopOffset", "圆形样式的录音提示距离底部操作区顶部的间距", "CGFloat", get: { Double($0.recording.recordTipViewTopOffset) }, set: { $0.recording.recordTipViewTopOffset = CGFloat($1) }),
     ] }
     private static func group20() -> [WYChatTestConfigurationField] { [
+        .scalar("recording.recordTipViewTopOffset", "圆形样式的录音提示距离底部操作区顶部的间距", "CGFloat", get: { Double($0.recording.recordTipViewTopOffset) }, set: { $0.recording.recordTipViewTopOffset = CGFloat($1) }),
         .scalar("recording.recordViewBottomOffset", "整个声波动画组件向下偏移多少(可兼顾齐刘海)", "CGFloat", get: { Double($0.recording.recordViewBottomOffset) }, set: { $0.recording.recordViewBottomOffset = CGFloat($1) }),
         .string("recording.recordViewTips.onExternal", "录音按钮提示文本 / onExternal", get: { $0.recording.recordViewTips.onExternal }, set: { $0.recording.recordViewTips.onExternal = $1 }),
         .string("recording.recordViewTips.onInterior", "录音按钮提示文本 / onInterior", get: { $0.recording.recordViewTips.onInterior }, set: { $0.recording.recordViewTips.onInterior = $1 }),
@@ -1503,9 +1515,9 @@ enum WYChatTestConfigurationFields {
         .scalar("recording.soundWavesViewBottomOffset", "录音、取消录音与转文字时气泡控件距离屏幕底部间距", "CGFloat", get: { Double($0.recording.soundWavesViewBottomOffset) }, set: { $0.recording.soundWavesViewBottomOffset = CGFloat($1) }),
         .scalar("recording.soundWavesViewHeight.cancel", "录音、取消录音与转文字时气泡控件高度 / cancel", "CGFloat", get: { Double($0.recording.soundWavesViewHeight.cancel) }, set: { $0.recording.soundWavesViewHeight.cancel = CGFloat($1) }),
         .scalar("recording.soundWavesViewHeight.recording", "录音、取消录音与转文字时气泡控件高度 / recording", "CGFloat", get: { Double($0.recording.soundWavesViewHeight.recording) }, set: { $0.recording.soundWavesViewHeight.recording = CGFloat($1) }),
-        .scalar("recording.soundWavesViewHeight.transfer", "录音、取消录音与转文字时气泡控件高度 / transfer", "CGFloat", get: { Double($0.recording.soundWavesViewHeight.transfer) }, set: { $0.recording.soundWavesViewHeight.transfer = CGFloat($1) }),
     ] }
     private static func group21() -> [WYChatTestConfigurationField] { [
+        .scalar("recording.soundWavesViewHeight.transfer", "录音、取消录音与转文字时气泡控件高度 / transfer", "CGFloat", get: { Double($0.recording.soundWavesViewHeight.transfer) }, set: { $0.recording.soundWavesViewHeight.transfer = CGFloat($1) }),
         .scalar("recording.soundWavesViewWidth.cancel", "录音、取消录音与转文字时气泡控件宽度 / cancel", "CGFloat", get: { Double($0.recording.soundWavesViewWidth.cancel) }, set: { $0.recording.soundWavesViewWidth.cancel = CGFloat($1) }),
         .scalar("recording.soundWavesViewWidth.recording", "录音、取消录音与转文字时气泡控件宽度 / recording", "CGFloat", get: { Double($0.recording.soundWavesViewWidth.recording) }, set: { $0.recording.soundWavesViewWidth.recording = CGFloat($1) }),
         .scalar("recording.soundWavesViewWidth.transfer", "录音、取消录音与转文字时气泡控件宽度 / transfer", "CGFloat", get: { Double($0.recording.soundWavesViewWidth.transfer) }, set: { $0.recording.soundWavesViewWidth.transfer = CGFloat($1) }),
@@ -1537,9 +1549,9 @@ enum WYChatTestConfigurationFields {
         .scalar("recording.translationTimeout", "翻译超时，单位秒", "TimeInterval", get: { Double($0.recording.translationTimeout) }, set: { $0.recording.translationTimeout = TimeInterval($1) }),
         .string("recording.translationWaitingText", "翻译等待提示", get: { $0.recording.translationWaitingText }, set: { $0.recording.translationWaitingText = $1 }),
         .boolean("recording.vibrationFeedback", "声波动画操作区切换时是否需要震动反馈", get: { $0.recording.vibrationFeedback }, set: { $0.recording.vibrationFeedback = $1 }),
-        .boolean("records.automaticallyPresentsDetail", "是否自动展示合并记录明细，默认true", get: { $0.records.automaticallyPresentsDetail }, set: { $0.records.automaticallyPresentsDetail = $1 }),
     ] }
     private static func group22() -> [WYChatTestConfigurationField] { [
+        .boolean("records.automaticallyPresentsDetail", "是否自动展示合并记录明细，默认true", get: { $0.records.automaticallyPresentsDetail }, set: { $0.records.automaticallyPresentsDetail = $1 }),
         .color("records.closeColor", "关闭按钮颜色", get: { $0.records.closeColor }, set: { $0.records.closeColor = $1 }),
         .font("records.closeFont", "关闭按钮字体", get: { $0.records.closeFont }, set: { $0.records.closeFont = $1 }),
         .string("records.closeText", "关闭按钮文字", get: { $0.records.closeText }, set: { $0.records.closeText = $1 }),
@@ -1571,9 +1583,9 @@ enum WYChatTestConfigurationFields {
         .boolean("selection.showsIndicator", "是否显示多选指示图标，默认true", get: { $0.selection.showsIndicator }, set: { $0.selection.showsIndicator = $1 }),
         .scalar("selection.spacing", "工具条按钮间距", "CGFloat", get: { Double($0.selection.spacing) }, set: { $0.selection.spacing = CGFloat($1) }),
         .color("selection.tintColor", "普通操作颜色", get: { $0.selection.tintColor }, set: { $0.selection.tintColor = $1 }),
-        .color("selection.unselectedColor", "未选中图标颜色", get: { $0.selection.unselectedColor }, set: { $0.selection.unselectedColor = $1 }),
     ] }
     private static func group23() -> [WYChatTestConfigurationField] { [
+        .color("selection.unselectedColor", "未选中图标颜色", get: { $0.selection.unselectedColor }, set: { $0.selection.unselectedColor = $1 }),
         .image("selection.unselectedImage", "未选中图标", get: { $0.selection.unselectedImage }, set: { $0.selection.unselectedImage = $1 }, clear: { $0.selection.unselectedImage = nil }),
         .string("selectionCancelText", "多选取消按钮文本", get: { $0.selectionCancelText }, set: { $0.selectionCancelText = $1 }),
         .scalar("sender.contentSpacing", "头像与内容的间距", "CGFloat", get: { Double($0.sender.contentSpacing) }, set: { $0.sender.contentSpacing = CGFloat($1) }),
@@ -1605,9 +1617,9 @@ enum WYChatTestConfigurationFields {
         .boolean("senderBubble.showsArrow", "是否显示箭头，默认true", get: { $0.senderBubble.showsArrow }, set: { $0.senderBubble.showsArrow = $1 }),
         .boolean("showsInputBar", "是否显示输入栏，默认true", get: { $0.showsInputBar }, set: { $0.showsInputBar = $1 }),
         .boolean("showsSelectionToolbar", "多选时是否显示内置工具条，默认true", get: { $0.showsSelectionToolbar }, set: { $0.showsSelectionToolbar = $1 }),
-        .raw("text.dataDetectorTypes", "自动识别的链接类型", options: "使用UIDataDetectorTypes的rawValue", get: { $0.text.dataDetectorTypes }, set: { $0.text.dataDetectorTypes = $1 }),
     ] }
     private static func group24() -> [WYChatTestConfigurationField] { [
+        .raw("text.dataDetectorTypes", "自动识别的链接类型", options: "使用UIDataDetectorTypes的rawValue", get: { $0.text.dataDetectorTypes }, set: { $0.text.dataDetectorTypes = $1 }),
         .boolean("text.isSelectable", "是否支持选择文本，默认true", get: { $0.text.isSelectable }, set: { $0.text.isSelectable = $1 }),
         .color("text.textColor", "文本颜色", get: { $0.text.textColor }, set: { $0.text.textColor = $1 }),
         .font("text.textFont", "文本字体", get: { $0.text.textFont }, set: { $0.text.textFont = $1 }),
@@ -1616,18 +1628,28 @@ enum WYChatTestConfigurationFields {
         .string("unsupportedMessageText", "未知消息提示", get: { $0.unsupportedMessageText }, set: { $0.unsupportedMessageText = $1 }),
         .color("voicePlayback.backgroundColor", "语音倍速按钮背景色", get: { $0.voicePlayback.backgroundColor }, set: { $0.voicePlayback.backgroundColor = $1 }),
         .scalar("voicePlayback.cornerRadius", "语音倍速按钮圆角", "CGFloat", get: { Double($0.voicePlayback.cornerRadius) }, set: { $0.voicePlayback.cornerRadius = CGFloat($1) }),
+        .font("voicePlayback.durationFont", "语音秒数字体", get: { $0.voicePlayback.durationFont }, set: { $0.voicePlayback.durationFont = $1 }),
+        .string("voicePlayback.durationSuffix", "语音秒数后的文字", get: { $0.voicePlayback.durationSuffix }, set: { $0.voicePlayback.durationSuffix = $1 }),
         .font("voicePlayback.font", "语音倍速按钮字体", get: { $0.voicePlayback.font }, set: { $0.voicePlayback.font = $1 }),
         .vector("voicePlayback.insets", "语音倍速按钮内边距", "UIEdgeInsets", labels: ["top", "left", "bottom", "right"], get: { [Double($0.voicePlayback.insets.top), Double($0.voicePlayback.insets.left), Double($0.voicePlayback.insets.bottom), Double($0.voicePlayback.insets.right)] }, set: { $0.voicePlayback.insets = UIEdgeInsets(top: CGFloat($1[0]), left: CGFloat($1[1]), bottom: CGFloat($1[2]), right: CGFloat($1[3])) }),
+        .scalar("voicePlayback.minimumWidth", "语音内容的最小宽度，不含气泡内边距", "CGFloat", get: { Double($0.voicePlayback.minimumWidth) }, set: { $0.voicePlayback.minimumWidth = CGFloat($1) }),
+        .scalar("voicePlayback.minimumWidthDuration", "保持最小宽度的语音时长，单位秒", "TimeInterval", get: { Double($0.voicePlayback.minimumWidthDuration) }, set: { $0.voicePlayback.minimumWidthDuration = TimeInterval($1) }),
         .boolean("voicePlayback.mirrorsSenderWaveform", "是否水平翻转发送方的语音播放帧，默认true", get: { $0.voicePlayback.mirrorsSenderWaveform }, set: { $0.voicePlayback.mirrorsSenderWaveform = $1 }),
         .image("voicePlayback.pauseImage", "语音播放时的暂停图标", get: { $0.voicePlayback.pauseImage }, set: { $0.voicePlayback.pauseImage = $1 }, clear: { $0.voicePlayback.pauseImage = nil }),
         .image("voicePlayback.playImage", "语音播放或继续播放图标", get: { $0.voicePlayback.playImage }, set: { $0.voicePlayback.playImage = $1 }, clear: { $0.voicePlayback.playImage = nil }),
         .numbers("voicePlayback.rates", "可选择的语音倍速，忽略非正数、非有限值和重复值", "[Float]", get: { $0.voicePlayback.rates.map { Double($0) } }, set: { $0.voicePlayback.rates = $1.map { Float($0) } }),
+        .boolean("voicePlayback.restartsOnTap", "再次播放时是否从头开始，默认true", get: { $0.voicePlayback.restartsOnTap }, set: { $0.voicePlayback.restartsOnTap = $1 }),
         .boolean("voicePlayback.showsOnlyWhilePlaying", "是否只在播放时显示倍速按钮，默认true", get: { $0.voicePlayback.showsOnlyWhilePlaying }, set: { $0.voicePlayback.showsOnlyWhilePlaying = $1 }),
-        .boolean("voicePlayback.showsRateControl", "是否显示语音倍速按钮，默认true", get: { $0.voicePlayback.showsRateControl }, set: { $0.voicePlayback.showsRateControl = $1 }),
+        .boolean("voicePlayback.showsPlaybackSymbol", "是否显示额外的播放或暂停图标，默认false", get: { $0.voicePlayback.showsPlaybackSymbol }, set: { $0.voicePlayback.showsPlaybackSymbol = $1 }),
+        .boolean("voicePlayback.showsRateControl", "是否显示语音倍速按钮，默认false", get: { $0.voicePlayback.showsRateControl }, set: { $0.voicePlayback.showsRateControl = $1 }),
         .vector("voicePlayback.size", "语音倍速按钮尺寸", "CGSize", labels: ["width", "height"], get: { [Double($0.voicePlayback.size.width), Double($0.voicePlayback.size.height)] }, set: { $0.voicePlayback.size = CGSize(width: CGFloat($1[0]), height: CGFloat($1[1])) }),
         .color("voicePlayback.textColor", "语音倍速按钮文字颜色", get: { $0.voicePlayback.textColor }, set: { $0.voicePlayback.textColor = $1 }),
+        .color("voicePlayback.unreadColor", "收到的未播放语音提示颜色", get: { $0.voicePlayback.unreadColor }, set: { $0.voicePlayback.unreadColor = $1 }),
+        .scalar("voicePlayback.unreadSize", "收到的未播放语音提示直径", "CGFloat", get: { Double($0.voicePlayback.unreadSize) }, set: { $0.voicePlayback.unreadSize = CGFloat($1) }),
         .scalar("voicePlayback.waveformDuration", "语音播放帧每轮时长，单位秒", "TimeInterval", get: { Double($0.voicePlayback.waveformDuration) }, set: { $0.voicePlayback.waveformDuration = TimeInterval($1) }),
         .special("voicePlayback.waveformImages", "共用语音播放帧，静止时显示最后一帧", "[UIImage]", related: "消息事件与输入面板", get: { $0.voicePlayback.waveformImages }, set: { $0.voicePlayback.waveformImages = $1 }),
         .vector("voicePlayback.waveformSize", "语音播放帧的显示尺寸", "CGSize", labels: ["width", "height"], get: { [Double($0.voicePlayback.waveformSize.width), Double($0.voicePlayback.waveformSize.height)] }, set: { $0.voicePlayback.waveformSize = CGSize(width: CGFloat($1[0]), height: CGFloat($1[1])) }),
+        .color("voicePlayback.waveformTintColor", "声波图片颜色，默认label，nil时保留原图颜色", get: { $0.voicePlayback.waveformTintColor }, set: { $0.voicePlayback.waveformTintColor = $1 }, clear: { $0.voicePlayback.waveformTintColor = nil }),
+        .scalar("voicePlayback.widthGrowthPerSecond", "超过minimumWidthDuration后每秒增加的内容宽度", "CGFloat", get: { Double($0.voicePlayback.widthGrowthPerSecond) }, set: { $0.voicePlayback.widthGrowthPerSecond = CGFloat($1) }),
     ] }
 }

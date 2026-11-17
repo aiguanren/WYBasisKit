@@ -96,7 +96,8 @@ final class WYChatGradientRecordingView: UIView {
     func updateTouchPoint(_ point: CGPoint, animated: Bool) {
         guard point.x.isFinite, point.y.isFinite else { return }
         let first = touchPoint == nil
-        touchPoint = CGPoint(x: min(max(0, point.x), bounds.width), y: min(max(0, point.y), bounds.height))
+        touchPoint = point
+        layoutIfNeeded()
         let previous = pressGlow.presentation()?.position ?? pressGlow.position
         CATransaction.begin()
         CATransaction.setDisableActions(true)
@@ -132,7 +133,7 @@ final class WYChatGradientRecordingView: UIView {
     private func updateMotion() {
         let config = configuration
         let duration = config.gradientMotionDuration
-        let active = window != nil && UIApplication.shared.applicationState != .background && !UIAccessibility.isReduceMotionEnabled && config.gradientMotionEnabled && duration.isFinite && duration > 0 && bounds.width > 0
+        let active = window != nil && UIApplication.shared.applicationState != .background && !UIAccessibility.isReduceMotionEnabled && config.gradientMotionEnabled && duration.isFinite && duration > 0 && motionHighlight.bounds.width > 0 && motionHighlight.bounds.height > 0
         guard active else {
             for effect in [motionHighlight, motionShadow] { effect.removeAllAnimations(); effect.isHidden = true }
             glow.removeAnimation(forKey: "flow")
@@ -143,7 +144,7 @@ final class WYChatGradientRecordingView: UIView {
         let x = amplitude.width.isFinite ? min(bounds.width / 4, max(0, amplitude.width)) : 0
         let y = amplitude.height.isFinite ? min(bounds.height / 4, max(0, amplitude.height)) : 0
         let scale = config.gradientMotionScale.isFinite ? min(0.5, max(0, config.gradientMotionScale)) : 0
-        let settings = [duration, Double(x), Double(y), Double(scale), Double(bounds.width), Double(bounds.height), Double(glow.startPoint.x), Double(glow.startPoint.y), Double(glow.endPoint.x), Double(glow.endPoint.y)]
+        let settings = [duration, Double(x), Double(y), Double(scale), Double(bounds.width), Double(bounds.height), Double(glow.bounds.height), Double(motionHighlight.position.x), Double(motionHighlight.position.y), Double(motionShadow.position.x), Double(motionShadow.position.y), Double(glow.startPoint.x), Double(glow.startPoint.y), Double(glow.endPoint.x), Double(glow.endPoint.y)]
         guard settings != motionSettings else { return }
         motionSettings = settings
         let drift = CGSize(width: x / max(1, bounds.width) * 0.3, height: y / max(1, glow.bounds.height) * 0.3)
@@ -153,6 +154,7 @@ final class WYChatGradientRecordingView: UIView {
             let animation = CABasicAnimation(keyPath: key)
             animation.fromValue = NSValue(cgPoint: CGPoint(x: point.x - drift.width, y: point.y - drift.height))
             animation.toValue = NSValue(cgPoint: CGPoint(x: point.x + drift.width, y: point.y + drift.height))
+            animation.duration = duration / 2
             animation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
             return animation
         }
@@ -173,6 +175,7 @@ final class WYChatGradientRecordingView: UIView {
             let brightness = CAKeyframeAnimation(keyPath: "opacity")
             brightness.values = [0.5, 1, 0.65, 0.5]
             brightness.calculationMode = .cubic
+            for component in [movement, expansion, brightness] { component.duration = duration * (index == 0 ? 1 : 1.3) }
             let animation = CAAnimationGroup()
             animation.animations = [movement, expansion, brightness]
             animation.duration = duration * (index == 0 ? 1 : 1.3)

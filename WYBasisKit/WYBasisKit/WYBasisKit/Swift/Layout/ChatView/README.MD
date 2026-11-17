@@ -36,7 +36,7 @@ chatView.recordingHandler = { url, duration, error in
 
 录音成功后通过同一发送流程生成语音消息，并调用`messagePreparedHandler`。`automaticallyInsertsSentMessages`决定是否自动入列，宿主无需重复追加。外部已有录音可调用`sendVoiceRecording(_:duration:messageID:)`，文件地址保存在`voice.localPath`，宿主通过语音操作事件负责播放与上传。
 
-`input.textPlaceholderAlignment`控制占位文字对齐。`input.placeholderLongPressAction`配置空输入框长按操作，`.disabled`使用语音切换按钮进入录音模式，`.voice`直接录音并发送语音，`.dictation`直接识别文字，单击输入框均可弹出键盘。直接发语音不依赖识别开关，转文字需要启用识别。`input.enablesKeyboardDictation`控制键盘展开后的输入框内识别按钮，识别文字替换当前选区，颜色、图标、尺寸和间距分别配置。识别入口同时受`recording.supportSpeechRecognition`控制，识别来源沿用Apple或外部服务配置，失败可通过`chatInput.inputDictationErrorHandler`接收。
+`input.textPlaceholderAlignment`控制占位文字对齐。`input.placeholderLongPressAction`配置空输入框长按操作，`.disabled`使用语音切换按钮进入录音模式，`.voice`直接录音并发送语音，`.dictation`直接识别文字，单击输入框均可弹出键盘。直接发语音不依赖识别开关，转文字需要启用识别。`input.enablesKeyboardDictation`控制键盘展开后的输入框内识别按钮，识别文字替换当前选区，颜色、图标、尺寸和间距分别配置。`input.stopsKeyboardDictationOnTextChange`默认`true`，手动修改文本时关闭已开启的识别；设为`false`时保持识别，保留手动修改的内容，后续新增识别文本从编辑后的光标位置继续插入。语音转写结果不会触发关闭，输入框有文字时识别按钮仍显示。识别入口同时受`recording.supportSpeechRecognition`控制，识别来源沿用Apple或外部服务配置，失败可通过`chatInput.inputDictationErrorHandler`接收。
 
 录音交互通过`recording.interactionStyle`选择`.actionRegions`分区操作或`.gradient`底部渐变声波。分区按钮的圆形和弧形由`recording.actionStyle`选择。渐变方案普通状态松手发送，上滑超过`gradientCancelDistance`后松手取消，滑回后恢复发送。`gradientRecordingColor`和`gradientCancelColor`分别控制两种状态的颜色，其他`gradient*`属性控制渐变范围、声波、字体、间距和提示文字。渐变方案可与空输入框长按发语音或转文字配合使用，识别总开关与来源配置继续生效。
 
@@ -44,7 +44,7 @@ SwiftVerify示例的“聊天界面→测试→配置”提供中文分组设置
 
 默认图标从`WYChatView.bundle`加载，输入栏和多选图标默认保留图片原色。`input`、`basic`、`selection`、`quote`、`media`和`recording`中的图片配置均可由宿主覆盖；需要单色着色时可显式选择模板渲染。卡片图标可通过`content.iconImage/iconSize`或对应`contentOverrides`配置，默认图标尺寸28。更多面板通过`more.iconSize`配置图标尺寸，默认32，按钮底板由`more.imageViewSize`单独配置。
 
-语音播放帧统一使用`WYChatViewVoiceWave1–3`，由`voicePlayback.waveformImages`覆盖，静止显示最后一帧，发送侧通过`mirrorsSenderWaveform`水平翻转。`waveformDuration`和`waveformSize`控制动画时长及尺寸，`playImage/pauseImage`控制播放继续与暂停图标，点击语音消息仍通过宿主播放回调处理。
+语音播放帧统一使用`WYChatViewVoiceWave1–3`，由`voicePlayback.waveformImages`覆盖，静止显示最后一帧，发送侧通过`mirrorsSenderWaveform`水平翻转。`waveformDuration`和`waveformSize`控制动画时长及尺寸，`waveformTintColor`控制声波颜色，默认随明暗主题变化，设为nil时保留原图颜色，默认只显示秒数和声波，发送方声波在右，接收方声波在左。`durationSuffix`配置秒数后缀，`minimumWidth/minimumWidthDuration/widthGrowthPerSecond`配置气泡随时长增长的宽度。`unreadColor/unreadSize`配置接收方未播放提示。`showsPlaybackSymbol`开启额外播放图标，图片由`playImage/pauseImage`覆盖。点击语音触发宿主播放事件，正在播放时再次点击停止，`restartsOnTap`默认true，再次播放从头开始，切换语音停止前一条。
 
 渐变流动由`recording.gradientMotionEnabled`控制，周期、位移、缩放及明暗颜色和不透明度分别配置。`gradientPressEnabled`控制跟随手指的局部按压效果，尺寸、颜色、不透明度和跟随过渡时长均可配。移除录音界面或进入后台时停止流动，系统开启减弱动态效果时不播放持续动画。
 
@@ -234,9 +234,10 @@ let messages = chatView.makeForwardMessages(ids, mode: .merged, title: "聊天�
 
 ## 语音播放倍速
 
-`voicePlayback.rates`控制可选倍速，忽略非正数、非有限值和重复值。按钮默认只在`voice.isPlaying`为true时显示，可通过`showsOnlyWhilePlaying`改为常显，通过`showsRateControl`隐藏。尺寸、字体、颜色、圆角和内边距可配置。
+`voicePlayback.rates`控制可选倍速，忽略非正数、非有限值和重复值。按钮默认隐藏，通过`showsRateControl`开启，开启后只在`voice.isPlaying`为true时显示，可通过`showsOnlyWhilePlaying`改为常显。尺寸、字体、颜色、圆角和内边距可配置。
 
 ```swift
+config.voicePlayback.showsRateControl = true
 config.voicePlayback.rates = [1, 1.25, 1.5, 2]
 chatView.voicePlaybackRateHandler = { messageID, rate in
     playerForMessage(messageID)?.rate = rate
@@ -244,7 +245,7 @@ chatView.voicePlaybackRateHandler = { messageID, rate in
 chatView.setVoicePlaybackRate(1.5, messageID: voiceMessageID)
 ```
 
-选择倍速更新消息的`voice.playbackRate`并通知宿主，不启动或暂停播放器。播放、暂停和播放进度由宿主处理，`isPlaying`也由宿主更新。重复设置同一倍速不重复通知，非法倍速和消息ID保持原状态。
+选择倍速更新消息的`voice.playbackRate`并通知宿主，不启动或暂停播放器。实际音频播放与播放进度由宿主处理，点击会更新选中语音及其他语音的`isPlaying`，宿主在播放失败或结束时同步恢复状态。重复设置同一倍速不重复通知，非法倍速和消息ID保持原状态。
 
 
 ## 输入栏外观与表情预览

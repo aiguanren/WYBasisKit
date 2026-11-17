@@ -165,8 +165,9 @@ extension WYChatView {
         value.translatesAutoresizingMaskIntoConstraints = false
         addSubview(value)
         state.input = value
-        state.inputBottom = value.bottomAnchor.constraint(equalTo: keyboardLayoutGuide.topAnchor)
-        NSLayoutConstraint.activate([value.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor), value.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor), state.inputBottom!])
+        state.inputBottom = value.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor)
+        state.inputBottom?.priority = .defaultHigh
+        NSLayoutConstraint.activate([value.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor), value.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor), value.bottomAnchor.constraint(lessThanOrEqualTo: keyboardLayoutGuide.topAnchor), state.inputBottom!])
         return value
     }
 
@@ -404,13 +405,21 @@ extension WYChatView {
         emojiView?.isHidden = panel != .emoji
         moreView?.isHidden = panel != .more
         let height: CGFloat = panel == .emoji ? configuration.emoji.contentHeight : panel == .more ? configuration.more.contentHeight() : 0
-        wy_setInputOffset(height)
+        if panel != .done || dismissKeyboard { wy_setInputOffset(height) }
     }
 
-    func wy_setInputOffset(_ offset: CGFloat) {
+    func wy_setInputOffset(_ offset: CGFloat, notification: Notification? = nil) {
+        let constant = -max(0, offset.isFinite ? offset : 0)
+        guard state.inputBottom?.constant != constant else { return }
         let nearBottom = wy_isNearBottom
-        state.inputBottom?.constant = -max(0, offset.isFinite ? offset : 0)
-        UIView.animate(withDuration: max(0, configuration.input.animateDuration)) { self.layoutIfNeeded() }
+        state.inputBottom?.constant = constant
+        let duration = (notification?.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? configuration.input.animateDuration
+        let curve = (notification?.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber)?.uintValue ?? UInt(UIView.AnimationCurve.easeInOut.rawValue)
+        UIView.animate(withDuration: max(0, duration), delay: 0, options: [UIView.AnimationOptions(rawValue: curve << 16), .beginFromCurrentState, .allowUserInteraction]) { self.layoutIfNeeded() } completion: { [weak self] finished in
+            guard let self, finished, notification != nil, self.touchStyle == .done, self.chatInput.textView.isFirstResponder, self.state.inputBottom?.constant == constant else { return }
+            self.state.inputBottom?.constant = 0
+            UIView.performWithoutAnimation { self.layoutIfNeeded() }
+        }
         if nearBottom { scrollToLastMessage() }
     }
 
@@ -421,7 +430,12 @@ extension WYChatView {
         touchStyle = .done
         state.emoji?.isHidden = true
         state.more?.isHidden = true
-        wy_setInputOffset(0)
+        if let screenFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect, let window {
+            let frame = convert(window.convert(screenFrame, from: window.screen.coordinateSpace), from: window)
+            let bottom = safeAreaLayoutGuide.layoutFrame.maxY
+            let overlap = frame.maxY >= bottom && frame.maxX > bounds.minX && frame.minX < bounds.maxX ? max(0, bottom - frame.minY) : 0
+            wy_setInputOffset(overlap, notification: notification)
+        }
         delegate?.wy_keyboardWillShow?(notification)
     }
 

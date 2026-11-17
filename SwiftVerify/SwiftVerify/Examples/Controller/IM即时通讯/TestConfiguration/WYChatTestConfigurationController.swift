@@ -334,6 +334,7 @@ final class WYChatSettingsController: UITableViewController, UIColorPickerViewCo
                 Item(title: "占位文字位置", path: "input.textPlaceholderAlignment", choices: [("居左", "0"), ("居中", "1"), ("居右", "2")]),
                 Item(title: "占位提示文字", path: "input.textPlaceholder"),
                 Item(title: "键盘内显示语音识别按钮", path: "input.enablesKeyboardDictation"),
+                Item(title: "手动修改文本时关闭语音识别", path: "input.stopsKeyboardDictationOnTextChange"),
                 Item(title: "长按语音图标转文字", path: "input.enablesVoiceButtonDictation")
             ]),
             ("语音录制与识别", [

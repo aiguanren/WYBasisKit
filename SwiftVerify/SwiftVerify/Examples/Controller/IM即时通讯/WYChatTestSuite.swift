@@ -135,6 +135,9 @@ final class WYChatTestSuite {
     }
 
     private func execute(_ item: WYChatTestCase) async {
+        if chatView.window?.endEditing(true) == true {
+            try? await Task.sleep(nanoseconds: UInt64(max(0, chatView.configuration.input.animateDuration) * 1_000_000_000))
+        }
         item.status = .running
         saveReport(isBatch: false)
         progress?()
@@ -430,7 +433,12 @@ final class WYChatTestSuite {
             check("keyboard-dictation-final", input.textView.text == "前缀" + speech.finalText + "后缀" && !input.isInputDictating)
             button?.sendActions(for: .touchUpInside)
             try? await Task.sleep(nanoseconds: 100_000_000)
-            _ = input.textView(input.textView, shouldChangeTextIn: input.textView.selectedRange, replacementText: "A")
+            let edit = input.textView.selectedRange
+            if input.textView(input.textView, shouldChangeTextIn: edit, replacementText: "A") {
+                input.textView.text = (input.textView.text as NSString).replacingCharacters(in: edit, with: "A")
+                input.textView.selectedRange = NSRange(location: edit.location + 1, length: 0)
+                input.textViewDidChange(input.textView)
+            }
             let saved = input.textView.text
             speech.emitLateResult()
             try? await Task.sleep(nanoseconds: 100_000_000)
@@ -1103,6 +1111,7 @@ final class WYChatTestSuite {
             var config = self.chatView.configuration
             config.input.draftStorageKey = ""
             config.sender.showsSingleNickname = true
+            config.input.rendersIconsAsTemplate = true
             config.basic.showReadMark = true
             let view = WYChatView(userInfo: self.chatView.userInfo, configuration: config)
             let host = self.chatView.window ?? self.chatView
@@ -1245,6 +1254,7 @@ final class WYChatTestSuite {
             var config = self.chatView.configuration
             config.input.draftStorageKey = ""
             config.voicePlayback.rates = [1, 1.5, 2, 2, -.infinity, .nan, 0, -1]
+            config.voicePlayback.showsRateControl = true
             let view = WYChatView(userInfo: self.chatView.userInfo, configuration: config)
             let host = self.chatView.window ?? self.chatView
             view.frame = host.bounds
@@ -1303,6 +1313,7 @@ final class WYChatTestSuite {
                 for factor: CGFloat in [1, 1.5] {
                     var layout = config
                     layout.content.titleFont = config.content.titleFont.withSize(config.content.titleFont.pointSize * factor)
+                    layout.voicePlayback.durationFont = config.voicePlayback.durationFont.withSize(config.voicePlayback.durationFont.pointSize * factor)
                     layout.content.titleNumberOfLines = 0
                     view.configuration = layout
                     view.frame.size.width = width
@@ -1336,6 +1347,7 @@ final class WYChatTestSuite {
             defer { view.releaseAll(); host.dismiss(animated: false) }
             var voice = WYChatVoiceModel(duration: 12)
             voice.isPlaying = true
+            view.configuration.voicePlayback.showsRateControl = true
             view.dataSource = [WYChatMessageModel(messageID: "rate-touch", sender: view.userInfo, content: WYChatMessageContentModel(voice: voice))]
             var received: Float?
             view.voicePlaybackRateHandler = { identifier, rate in if identifier == "rate-touch" { received = rate } }
@@ -1426,6 +1438,7 @@ final class WYChatTestSuite {
             config.selection.indicatorInsets = UIEdgeInsets(top: 2, left: 9, bottom: 4, right: 13)
             config.selection.selectedColor = .systemOrange
             config.selection.unselectedColor = .systemCyan
+            config.selection.rendersIndicatorAsTemplate = true
             let view = WYChatView(userInfo: self.chatView.userInfo, configuration: config)
             let host = self.chatView.window ?? self.chatView
             view.frame = host.bounds

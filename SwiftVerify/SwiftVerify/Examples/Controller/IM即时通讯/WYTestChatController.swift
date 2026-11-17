@@ -110,22 +110,24 @@ class WYTestChatController: UIViewController {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
             try AVAudioSession.sharedInstance().setActive(true)
             voicePlayer?.rate = voice.playbackRate
+            if chatView.configuration.voicePlayback.restartsOnTap { voicePlayer?.currentTime = 0 }
             guard voicePlayer?.play() == true else { throw NSError(domain: NSOSStatusErrorDomain, code: -50) }
             updateExampleVoice(messageID, playing: true)
-        } catch { stopExampleVoice(); showVoiceError(error as NSError) }
+        } catch { stopExampleVoice(); updateExampleVoice(messageID, playing: false); showVoiceError(error as NSError) }
     }
 
     private func updateExampleVoice(_ messageID: String, playing: Bool) {
         guard let index = chatView.dataSource.firstIndex(where: { $0.messageID == messageID }) else { return }
         chatView.dataSource[index].content.voice?.isPlaying = playing
         chatView.dataSource[index].content.voice?.played = true
-        chatView.dataSource[index].content.voice?.pause = !playing
+        chatView.dataSource[index].content.voice?.pause = !playing && !chatView.configuration.voicePlayback.restartsOnTap
         chatView.dataSource[index].content.voice?.currentPlayDuration = voicePlayer?.currentTime ?? 0
     }
 
     private func stopExampleVoice() {
-        if let playingVoiceID { updateExampleVoice(playingVoiceID, playing: false) }
         voicePlayer?.stop()
+        voicePlayer?.currentTime = 0
+        if let playingVoiceID { updateExampleVoice(playingVoiceID, playing: false) }
         voicePlayer = nil
         playingVoiceID = nil
     }
@@ -156,7 +158,10 @@ extension WYTestChatController: WYChatViewDelegate {
 
     func wy_messageAction(_ chatView: WYChatView, action: WYChatAction, messageID: String) {
         if action == .play { playExampleVoice(messageID) }
-        if action == .pause, playingVoiceID == messageID { voicePlayer?.pause(); updateExampleVoice(messageID, playing: false) }
+        if action == .pause, playingVoiceID == messageID {
+            if chatView.configuration.voicePlayback.restartsOnTap { stopExampleVoice() }
+            else { voicePlayer?.pause(); updateExampleVoice(messageID, playing: false) }
+        }
         if action == .retry, let message = chatView.messageModelFrom(messageID) { prepareExampleMessage(message) }
     }
 

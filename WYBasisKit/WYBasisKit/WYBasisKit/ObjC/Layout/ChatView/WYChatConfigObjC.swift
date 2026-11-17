@@ -1423,6 +1423,8 @@ import WYBasisKitSwift
     public var placeholderLongPressAction: WYChatInputLongPressAction
     /// 是否在键盘展开时显示输入框内的语音识别按钮，需要启用语音识别
     public var enablesKeyboardDictation: Bool
+    /// 手动修改输入文本时是否关闭正在进行的语音识别，默认true
+    public var stopsKeyboardDictationOnTextChange: Bool
     /// 输入框语音识别按钮图片
     public var keyboardDictationImage: UIImage?
     /// 输入框语音识别进行中按钮图片
@@ -1589,6 +1591,7 @@ import WYBasisKitSwift
         self.textPlaceholderAlignment = value.textPlaceholderAlignment
         self.placeholderLongPressAction = value.placeholderLongPressAction
         self.enablesKeyboardDictation = value.enablesKeyboardDictation
+        self.stopsKeyboardDictationOnTextChange = value.stopsKeyboardDictationOnTextChange
         self.keyboardDictationImage = value.keyboardDictationImage
         self.keyboardDictationStopImage = value.keyboardDictationStopImage
         self.keyboardDictationSize = value.keyboardDictationSize
@@ -1676,6 +1679,7 @@ import WYBasisKitSwift
         value.textPlaceholderAlignment = textPlaceholderAlignment
         value.placeholderLongPressAction = placeholderLongPressAction
         value.enablesKeyboardDictation = enablesKeyboardDictation
+        value.stopsKeyboardDictationOnTextChange = stopsKeyboardDictationOnTextChange
         value.keyboardDictationImage = keyboardDictationImage
         value.keyboardDictationStopImage = keyboardDictationStopImage
         value.keyboardDictationSize = keyboardDictationSize

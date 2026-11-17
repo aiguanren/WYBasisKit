@@ -34,6 +34,8 @@ public struct WYInputBarConfig {
     public var placeholderLongPressAction: WYChatInputLongPressAction = .disabled
     /// 是否在键盘展开时显示输入框内的语音识别按钮，需要启用语音识别
     public var enablesKeyboardDictation: Bool = true
+    /// 手动修改输入文本时是否关闭正在进行的语音识别，默认true
+    public var stopsKeyboardDictationOnTextChange: Bool = true
     /// 输入框语音识别按钮图片
     public var keyboardDictationImage: UIImage? = UIImage.wy_find("WYChatViewDictation", inBundle: WYChatSourceBundle)
     /// 输入框语音识别进行中按钮图片
@@ -334,6 +336,9 @@ public class WYChatInputView: UIImageView {
     internal var inputDictation: WYChatInputDictationSession?
     internal var dictationRequestID: UUID?
     internal var dictationRange = NSRange(location: 0, length: 0)
+    internal var dictationTextSnapshot = ""
+    internal var dictationRecognizedText = ""
+    internal var dictationCommittedTextCount = 0
     internal var isApplyingDictationText = false
     /// 输入框语音识别错误，参数为错误信息，nil时显示默认提示
     public var inputDictationErrorHandler: ((_ error: NSError) -> Void)?
