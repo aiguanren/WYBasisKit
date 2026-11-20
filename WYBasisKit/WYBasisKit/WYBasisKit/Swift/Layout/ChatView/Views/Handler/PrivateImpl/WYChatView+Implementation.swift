@@ -10,6 +10,8 @@ import UIKit
 /// 聊天界面实例状态
 final class WYChatViewPrivateState {
     let backgroundTapDelegate = WYChatBackgroundTapDelegate()
+    weak var menuPreviewBubble: WYChatBubbleView?
+    var menuPreview: UITargetedPreview?
     var mediaBrowser: WYChatMediaBrowserAdapter?
     let mediaViews = NSHashTable<WYChatMediaGroupView>.weakObjects()
     var input: WYChatInputView?
@@ -453,6 +455,7 @@ extension WYChatView {
     }
 
     func wy_releaseAll() {
+        wy_endMessageMenuPreview(animator: nil)
         state.input?.wy_stopInputDictation(cancel: true)
         state.mediaBrowser?.dispose()
         state.mediaBrowser = nil

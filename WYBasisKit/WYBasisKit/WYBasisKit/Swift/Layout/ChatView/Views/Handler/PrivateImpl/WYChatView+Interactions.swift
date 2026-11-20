@@ -10,13 +10,66 @@ import UIKit
 /// 消息操作与引用
 extension WYChatView {
     func wy_messageMenuPreview(_ tableView: UITableView, configuration menu: UIContextMenuConfiguration) -> UITargetedPreview? {
+        wy_endMessageMenuPreview(animator: nil)
         guard let identifier = menu.identifier as? String,
               let index = dataSource.firstIndex(where: { $0.messageID == identifier }),
-              let cell = tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? WYChatBasicCell,
-              !(configuration.messageConfiguration?(dataSource[index], configuration) ?? configuration).highlightsEntireCellOnLongPress else { return nil }
+              let cell = tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? WYChatBasicCell else { return nil }
+        let config = cell.configuration
+        guard !config.highlightsEntireCellOnLongPress else { return nil }
+        guard let bubble = cell.bubblesView as? WYChatBubbleView else { return nil }
+        bubble.layoutIfNeeded()
+        guard bubble.window != nil, !bubble.bounds.isEmpty, let container = bubble.superview,
+              let snapshot = bubble.snapshotView(afterScreenUpdates: false) else { return nil }
         let parameters = UIPreviewParameters()
         parameters.backgroundColor = .clear
-        return UITargetedPreview(view: cell.bubblesView, parameters: parameters)
+        let path = bubble.bubblePath.map { UIBezierPath(cgPath: $0) }
+        let avatar = cell.avatarView
+        var center = bubble.center
+        let showsAvatar = !avatar.isHidden && !avatar.bounds.isEmpty
+        let previewScale: CGFloat = showsAvatar ? 0.88 : 1
+        if showsAvatar {
+            let avatarFrame = avatar.convert(avatar.bounds, to: container)
+            let spacing = config.menuPreviewAvatarSpacing.isFinite ? max(0, config.menuPreviewAvatarSpacing) : 0
+            let halfWidth = bubble.bounds.width / 2
+            if avatarFrame.midX > center.x {
+                center.x = max(container.bounds.minX + halfWidth, min(center.x, avatarFrame.minX - spacing - halfWidth))
+            } else {
+                center.x = min(container.bounds.maxX - halfWidth, max(center.x, avatarFrame.maxX + spacing + halfWidth))
+            }
+        }
+        let scale = CGAffineTransform(scaleX: previewScale, y: previewScale)
+        let preview = UIView(frame: CGRect(origin: .zero, size: bubble.bounds.size.applying(scale)))
+        preview.layer.cornerRadius = bubble.cornerRadius * previewScale
+        preview.clipsToBounds = true
+        snapshot.center = CGPoint(x: preview.bounds.midX, y: preview.bounds.midY)
+        snapshot.transform = scale
+        preview.addSubview(snapshot)
+        path?.apply(scale)
+        parameters.visiblePath = path
+        let target = UIPreviewTarget(container: container, center: center)
+        let targetedPreview = UITargetedPreview(view: preview, parameters: parameters, target: target)
+        state.menuPreviewBubble = bubble
+        state.menuPreview = targetedPreview
+        return targetedPreview
+    }
+
+    func wy_messageMenuDismissingPreview() -> UITargetedPreview? {
+        guard let preview = state.menuPreview, let bubble = state.menuPreviewBubble,
+              bubble.window != nil, let container = bubble.superview else { return nil }
+        let target = UIPreviewTarget(container: container, center: bubble.center)
+        return preview.retargetedPreview(with: target)
+    }
+
+    func wy_endMessageMenuPreview(animator: UIContextMenuInteractionAnimating?) {
+        let bubble = state.menuPreviewBubble
+        state.menuPreviewBubble = nil
+        state.menuPreview = nil
+        guard let bubble else { return }
+        if let animator {
+            animator.addCompletion { [weak bubble] in bubble?.wy_endMenuPreview() }
+        } else {
+            bubble.wy_endMenuPreview()
+        }
     }
 
     func wy_sendRecordedVoice(_ url: URL, duration: TimeInterval, messageID: String) -> WYChatMessageModel? {

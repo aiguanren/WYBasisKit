@@ -290,6 +290,8 @@ import WYBasisKitSwift
     public var enablesMessageMenu: Bool
     /// 长按消息菜单时是否高亮整行，默认false，仅预览消息气泡
     public var highlightsEntireCellOnLongPress: Bool
+    /// 长按气泡预览与相邻头像的最小水平间距，默认适配后的16点
+    public var menuPreviewAvatarSpacing: CGFloat
     /// 默认菜单操作，宿主通过回调执行外部操作
     public var menuActions: [NSNumber]
     /// 允许自动滚动到底部的距离
@@ -337,6 +339,7 @@ import WYBasisKitSwift
         self.dismissInputOnTap = value.dismissInputOnTap
         self.enablesMessageMenu = value.enablesMessageMenu
         self.highlightsEntireCellOnLongPress = value.highlightsEntireCellOnLongPress
+        self.menuPreviewAvatarSpacing = value.menuPreviewAvatarSpacing
         self.menuActions = value.menuActions.map { NSNumber(value: $0.rawValue) }
         self.bottomDistance = value.bottomDistance
         self.automaticallyInsertsSentMessages = value.automaticallyInsertsSentMessages
@@ -379,6 +382,7 @@ import WYBasisKitSwift
         value.dismissInputOnTap = dismissInputOnTap
         value.enablesMessageMenu = enablesMessageMenu
         value.highlightsEntireCellOnLongPress = highlightsEntireCellOnLongPress
+        value.menuPreviewAvatarSpacing = menuPreviewAvatarSpacing
         value.menuActions = menuActions.compactMap { WYChatAction(rawValue: $0.intValue) }
         value.bottomDistance = bottomDistance
         value.automaticallyInsertsSentMessages = automaticallyInsertsSentMessages

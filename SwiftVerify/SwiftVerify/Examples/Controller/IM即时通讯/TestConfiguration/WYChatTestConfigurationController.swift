@@ -331,6 +331,7 @@ final class WYChatSettingsController: UITableViewController, UIColorPickerViewCo
         groups = [
             ("输入方式", [
                 Item(title: "长按消息时整行高亮", path: "highlightsEntireCellOnLongPress"),
+                Item(title: "长按气泡与头像的最小间距", path: "menuPreviewAvatarSpacing"),
                 Item(title: "点击消息列表收起输入", path: "dismissInputOnTap"),
                 Item(title: "输入框操作", path: "inputBehavior", choices: [("切换到语音模式后录音", "0"), ("单击输入，长按发语音", "1"), ("单击输入，长按识别", "2")], explanation: "单击输入框弹出键盘，长按适用于空输入框"),
                 Item(title: "占位文字位置", path: "input.textPlaceholderAlignment", choices: [("居左", "0"), ("居中", "1"), ("居右", "2")]),

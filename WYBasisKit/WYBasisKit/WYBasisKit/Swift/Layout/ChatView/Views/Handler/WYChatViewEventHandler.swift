@@ -59,7 +59,15 @@ extension WYChatView: UITableViewDelegate, UITableViewDataSource {
     }
 
     public func tableView(_ tableView: UITableView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-        wy_messageMenuPreview(tableView, configuration: configuration)
+        wy_messageMenuDismissingPreview()
+    }
+
+    public func tableView(_ tableView: UITableView, willDisplayContextMenu configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionAnimating?) {
+        state.menuPreviewBubble?.wy_beginMenuPreview()
+    }
+
+    public func tableView(_ tableView: UITableView, willEndContextMenuInteraction configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionAnimating?) {
+        wy_endMessageMenuPreview(animator: animator)
     }
 
     public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) { wy_cancelAutomaticScroll() }
