@@ -50,24 +50,33 @@ extension WYChatView {
         let targetedPreview = UITargetedPreview(view: preview, parameters: parameters, target: target)
         state.menuPreviewBubble = bubble
         state.menuPreview = targetedPreview
+        bubble.wy_beginMenuPreview()
         return targetedPreview
     }
 
     func wy_messageMenuDismissingPreview() -> UITargetedPreview? {
         guard let preview = state.menuPreview, let bubble = state.menuPreviewBubble,
               bubble.window != nil, let container = bubble.superview else { return nil }
-        let target = UIPreviewTarget(container: container, center: bubble.center)
+        let scale = bubble.bounds.width / preview.view.bounds.width
+        let target = UIPreviewTarget(container: container, center: bubble.center,
+                                     transform: CGAffineTransform(scaleX: scale, y: scale))
         return preview.retargetedPreview(with: target)
     }
 
     func wy_endMessageMenuPreview(animator: UIContextMenuInteractionAnimating?) {
         let bubble = state.menuPreviewBubble
-        state.menuPreviewBubble = nil
-        state.menuPreview = nil
         guard let bubble else { return }
+        let preview = state.menuPreview
         if let animator {
-            animator.addCompletion { [weak bubble] in bubble?.wy_endMenuPreview() }
+            animator.addAnimations { [weak bubble] in bubble?.wy_endMenuPreview() }
+            animator.addCompletion { [weak self, weak preview] in
+                guard let self, self.state.menuPreview === preview else { return }
+                self.state.menuPreviewBubble = nil
+                self.state.menuPreview = nil
+            }
         } else {
+            state.menuPreviewBubble = nil
+            state.menuPreview = nil
             bubble.wy_endMenuPreview()
         }
     }
