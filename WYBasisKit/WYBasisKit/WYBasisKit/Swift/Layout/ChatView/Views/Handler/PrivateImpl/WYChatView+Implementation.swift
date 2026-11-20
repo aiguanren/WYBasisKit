@@ -406,17 +406,20 @@ extension WYChatView {
 
     func wy_setInputOffset(_ offset: CGFloat, notification: Notification? = nil) {
         let constant = -max(0, offset.isFinite ? offset : 0)
-        guard state.inputBottom?.constant != constant else { return }
-        let nearBottom = wy_isNearBottom
+        let nearBottom = state.followsBottom || wy_isNearBottom
         state.inputBottom?.constant = constant
         let duration = (notification?.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? configuration.input.animateDuration
         let curve = (notification?.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber)?.uintValue ?? UInt(UIView.AnimationCurve.easeInOut.rawValue)
-        UIView.animate(withDuration: max(0, duration), delay: 0, options: [UIView.AnimationOptions(rawValue: curve << 16), .beginFromCurrentState, .allowUserInteraction]) { self.layoutIfNeeded() } completion: { [weak self] finished in
-            guard let self, finished, notification != nil, self.touchStyle == .done, self.chatInput.textView.isFirstResponder, self.state.inputBottom?.constant == constant else { return }
+        UIView.animate(withDuration: max(0, duration), delay: 0, options: [UIView.AnimationOptions(rawValue: curve << 16), .beginFromCurrentState, .allowUserInteraction]) {
+            self.layoutIfNeeded()
+            if nearBottom { self.scrollToLastMessage() }
+        } completion: { [weak self] finished in
+            guard let self, finished else { return }
+            if nearBottom, !self.tableView.isTracking, !self.tableView.isDecelerating { self.scrollToLastMessage() }
+            guard notification != nil, self.touchStyle == .done, self.chatInput.textView.isFirstResponder, self.state.inputBottom?.constant == constant else { return }
             self.state.inputBottom?.constant = 0
             UIView.performWithoutAnimation { self.layoutIfNeeded() }
         }
-        if nearBottom { scrollToLastMessage() }
     }
 
     func wy_handleKeyboard(_ notification: Notification) {
