@@ -135,8 +135,14 @@ extension WYChatInputView {
         keyboardDictationButton.isHidden = !visible
         keyboardDictationButton.isSelected = isInputDictating
         let insets = config.keyboardDictationInsets
-        let size = CGSize(width: min(max(0, config.keyboardDictationSize.width), textVoiceContentView.bounds.width), height: min(max(0, config.keyboardDictationSize.height), textVoiceContentView.bounds.height))
-        keyboardDictationButton.frame = textVoiceContentView.convert(CGRect(x: max(0, textVoiceContentView.bounds.width - max(0, insets.right) - size.width), y: max(0, textVoiceContentView.bounds.height - max(0, insets.bottom) - size.height), width: size.width, height: size.height), to: self)
+        let bounds = textVoiceContentView.bounds
+        let top = min(bounds.height, max(0, insets.top))
+        let availableHeight = max(0, bounds.height - top - max(0, insets.bottom))
+        let size = CGSize(width: min(max(0, config.keyboardDictationSize.width), bounds.width), height: min(max(0, config.keyboardDictationSize.height), availableHeight))
+        let frame = CGRect(x: max(bounds.minX, bounds.maxX - max(0, insets.right) - size.width),
+                           y: bounds.minY + top + (availableHeight - size.height) / 2,
+                           width: size.width, height: size.height)
+        keyboardDictationButton.frame = textVoiceContentView.convert(frame, to: self)
         keyboardDictationButton.tintColor = config.keyboardDictationTintColor
         keyboardDictationButton.setImage((isInputDictating ? config.keyboardDictationStopImage : config.keyboardDictationImage)?.withRenderingMode(config.rendersIconsAsTemplate ? .alwaysTemplate : .alwaysOriginal), for: .normal)
         keyboardDictationButton.accessibilityLabel = WYLocalized(isInputDictating ? "完成" : "语音输入", table: WYBasisKitConfig.kitLocalizableTable)

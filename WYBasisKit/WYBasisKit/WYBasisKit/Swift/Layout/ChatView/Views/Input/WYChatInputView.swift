@@ -43,7 +43,7 @@ public struct WYInputBarConfig {
     /// 输入框语音识别按钮尺寸
     public var keyboardDictationSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(22, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenHeight(22, WYBasisKitConfig.defaultScreenPixels))
     /// 输入框语音识别按钮内边距
-    public var keyboardDictationInsets: UIEdgeInsets = UIEdgeInsets(top: 0, left: UIDevice.wy_screenWidth(6, WYBasisKitConfig.defaultScreenPixels), bottom: UIDevice.wy_screenHeight(8, WYBasisKitConfig.defaultScreenPixels), right: UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels))
+    public var keyboardDictationInsets: UIEdgeInsets = UIEdgeInsets(top: 0, left: UIDevice.wy_screenWidth(6, WYBasisKitConfig.defaultScreenPixels), bottom: 0, right: UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels))
     /// 输入框语音识别按钮颜色
     public var keyboardDictationTintColor: UIColor = .label
 
