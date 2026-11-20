@@ -340,6 +340,13 @@ final class WYChatSettingsController: UITableViewController, UIColorPickerViewCo
                 Item(title: "手动修改文本时关闭语音识别", path: "input.stopsKeyboardDictationOnTextChange"),
                 Item(title: "长按语音图标转文字", path: "input.enablesVoiceButtonDictation")
             ]),
+            ("消息菜单", [
+                Item(title: "菜单背景色", path: "menuBackgroundColor"),
+                Item(title: "菜单文字颜色", path: "menuTextColor"),
+                Item(title: "危险操作文字颜色", path: "menuDestructiveTextColor"),
+                Item(title: "菜单字体和字号", path: "menuItemFont"),
+                Item(title: "显示的菜单功能", path: "menuActions")
+            ]),
             ("语音录制与识别", [
                 Item(title: "启用语音识别", path: "recording.supportSpeechRecognition"),
                 Item(title: "录音交互效果", path: "recording.interactionStyle", choices: [("分区操作", "0"), ("底部渐变声波", "1")]),

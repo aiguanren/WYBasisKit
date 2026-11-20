@@ -49,7 +49,8 @@ extension WYChatView {
         let inset = UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
         let width = min(UIDevice.wy_screenWidth(256, WYBasisKitConfig.defaultScreenPixels), visible.width - inset * 2)
         guard width > 0 else { return }
-        let rowHeight = max(44, UIFont.preferredFont(forTextStyle: .subheadline).lineHeight + inset * 2)
+        let config = cell.configuration
+        let rowHeight = max(44, config.menuItemFont.lineHeight + inset * 2)
         let naturalHeight = CGFloat((menu.children.count + 1) / 2) * rowHeight + inset * 2
         let above = bubble.minY - visible.minY - inset * 2
         let below = visible.maxY - bubble.maxY - inset * 2
@@ -60,7 +61,7 @@ extension WYChatView {
         var x = bubble.midX - width / 2
         if !cell.avatarView.isHidden && !cell.avatarView.bounds.isEmpty {
             let avatar = cell.avatarView.convert(cell.avatarView.bounds, to: self)
-            let spacing = cell.configuration.menuPreviewAvatarSpacing
+            let spacing = config.menuPreviewAvatarSpacing
             let gap = spacing.isFinite ? max(0, spacing) : 0
             x = avatar.midX > bubble.midX ? min(x, avatar.minX - gap - width) : max(x, avatar.maxX + gap)
         }
@@ -72,7 +73,7 @@ extension WYChatView {
         overlay.accessibilityViewIsModal = true
 
         let panel = UIScrollView(frame: CGRect(x: x, y: y, width: width, height: height))
-        panel.backgroundColor = .secondarySystemGroupedBackground
+        panel.backgroundColor = config.menuBackgroundColor
         panel.layer.cornerRadius = inset * 2
         panel.layer.borderWidth = 1 / max(1, traitCollection.displayScale)
         panel.layer.borderColor = UIColor.separator.resolvedColor(with: traitCollection).cgColor
@@ -85,10 +86,11 @@ extension WYChatView {
             for element in menu.children[index..<min(index + 2, menu.children.count)] {
                 let button = UIButton(type: .system)
                 button.setTitle(element.title, for: .normal)
-                button.titleLabel?.font = .preferredFont(forTextStyle: .subheadline)
+                button.titleLabel?.font = config.menuItemFont
+                button.setTitleColor(config.menuTextColor, for: .normal)
                 button.titleLabel?.numberOfLines = 2
                 if let action = element as? UIAction {
-                    if action.attributes.contains(.destructive) { button.setTitleColor(.systemRed, for: .normal) }
+                    if action.attributes.contains(.destructive) { button.setTitleColor(config.menuDestructiveTextColor, for: .normal) }
                     button.addAction(action, for: .touchUpInside)
                     button.addAction(UIAction { [weak self, weak overlay] _ in
                         if self?.state.messageMenuOverlay === overlay { self?.wy_closeMessageMenu() }
