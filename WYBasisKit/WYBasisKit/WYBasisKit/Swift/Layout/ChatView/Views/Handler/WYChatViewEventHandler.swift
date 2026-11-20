@@ -44,26 +44,18 @@ extension WYChatView: UITableViewDelegate, UITableViewDataSource {
     }
 
     public func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
-        guard configuration.enablesMessageMenu else { return nil }
-        var target = tableView.hitTest(point, with: nil)
-        while let view = target, view !== tableView {
-            if view.gestureRecognizers?.contains(where: { $0 is UILongPressGestureRecognizer && $0.isEnabled && $0.delegate is WYChatAvatarGestures }) == true { return nil }
-            target = view.superview
-        }
+        guard let cell = wy_messageMenuCell(at: point, in: tableView), wy_usesWholeCellMenu(cell),
+              dataSource.indices.contains(indexPath.row) else { return nil }
         let model = dataSource[indexPath.row]
         return UIContextMenuConfiguration(identifier: model.messageID as NSString, previewProvider: nil) { [weak self] _ in self?.wy_menu(model) }
     }
 
-    public func tableView(_ tableView: UITableView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-        wy_messageMenuPreview(tableView, configuration: configuration)
-    }
+    public func tableView(_ tableView: UITableView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? { nil }
 
-    public func tableView(_ tableView: UITableView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? {
-        wy_messageMenuDismissingPreview()
-    }
+    public func tableView(_ tableView: UITableView, previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? { nil }
 
     public func tableView(_ tableView: UITableView, willEndContextMenuInteraction configuration: UIContextMenuConfiguration, animator: UIContextMenuInteractionAnimating?) {
-        wy_endMessageMenuPreview(animator: animator)
+        wy_closeMessageMenu()
     }
 
     public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) { wy_cancelAutomaticScroll() }

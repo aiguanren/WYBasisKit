@@ -288,9 +288,9 @@ import WYBasisKitSwift
     public var dismissInputOnTap: Bool
     /// 是否启用长按菜单，默认true
     public var enablesMessageMenu: Bool
-    /// 长按消息菜单时是否高亮整行，默认false，仅预览消息气泡
+    /// 长按消息时是否使用系统整行高亮菜单，默认false，菜单在消息旁出现
     public var highlightsEntireCellOnLongPress: Bool
-    /// 长按气泡预览与相邻头像的最小水平间距，默认适配后的16点
+    /// 消息旁菜单与相邻头像的最小水平间距，默认适配后的16点
     public var menuPreviewAvatarSpacing: CGFloat
     /// 默认菜单操作，宿主通过回调执行外部操作
     public var menuActions: [NSNumber]

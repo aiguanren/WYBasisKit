@@ -10,8 +10,7 @@ import UIKit
 /// 聊天界面实例状态
 final class WYChatViewPrivateState {
     let backgroundTapDelegate = WYChatBackgroundTapDelegate()
-    weak var menuPreviewBubble: WYChatBubbleView?
-    var menuPreview: UITargetedPreview?
+    var messageMenuOverlay: UIControl?
     var mediaBrowser: WYChatMediaBrowserAdapter?
     let mediaViews = NSHashTable<WYChatMediaGroupView>.weakObjects()
     var input: WYChatInputView?
@@ -46,6 +45,13 @@ final class WYChatViewPrivateState {
 
 /// 列表空白区域的点击识别
 final class WYChatBackgroundTapDelegate: NSObject, UIGestureRecognizerDelegate {
+    var allowsMessageMenu: ((CGPoint) -> Bool)?
+
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        guard gestureRecognizer is UILongPressGestureRecognizer else { return true }
+        return allowsMessageMenu?(gestureRecognizer.location(in: gestureRecognizer.view)) ?? false
+    }
+
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         !(otherGestureRecognizer is UILongPressGestureRecognizer)
     }
@@ -183,6 +189,13 @@ extension WYChatView {
         value.separatorStyle = .none
         let tap = value.wy_swipeOrTapCollapseKeyboard(target: self, action: #selector(wy_tableBackgroundTap(_:)), slideMode: configuration.keyboardDismissMode)
         tap.delegate = state.backgroundTapDelegate
+        let menuPress = UILongPressGestureRecognizer(target: self, action: #selector(wy_showMessageMenu(_:)))
+        state.backgroundTapDelegate.allowsMessageMenu = { [weak self] point in
+            guard let self, let cell = self.wy_messageMenuCell(at: point, in: self.tableView) else { return false }
+            return !self.wy_usesWholeCellMenu(cell)
+        }
+        menuPress.delegate = state.backgroundTapDelegate
+        value.addGestureRecognizer(menuPress)
         value.backgroundColor = configuration.backgroundColor
         value.rowHeight = UITableView.automaticDimension
         value.estimatedRowHeight = configuration.basic.avatarSize.height + configuration.messageSpacing
@@ -225,6 +238,7 @@ extension WYChatView {
     }
 
     func wy_applyConfiguration() {
+        wy_closeMessageMenu()
         guard state.ready else { return }
         state.measuredHeights.removeAll()
         let text = chatInput.textView.attributedText
@@ -264,6 +278,7 @@ extension WYChatView {
     }
 
     func wy_reloadMessages(previous: [WYChatMessageModel]) {
+        wy_closeMessageMenu()
         guard state.ready else { return }
         UIView.performWithoutAnimation {
             if let table = tableView as? WYChatMessageTableView { table.wy_performInternalUpdates { wy_reloadMessageRows(previous: previous) } }
@@ -455,7 +470,7 @@ extension WYChatView {
     }
 
     func wy_releaseAll() {
-        wy_endMessageMenuPreview(animator: nil)
+        wy_closeMessageMenu()
         state.input?.wy_stopInputDictation(cancel: true)
         state.mediaBrowser?.dispose()
         state.mediaBrowser = nil

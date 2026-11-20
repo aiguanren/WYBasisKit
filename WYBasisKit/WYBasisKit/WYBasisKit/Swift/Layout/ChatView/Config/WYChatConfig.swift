@@ -169,9 +169,9 @@ public struct WYChatConfig {
     public var keyboardDismissMode: UIScrollView.KeyboardDismissMode = .interactive
     /// 是否启用长按菜单，默认true
     public var enablesMessageMenu: Bool = true
-    /// 长按消息菜单时是否高亮整行，默认false，仅预览消息气泡
+    /// 长按消息时是否使用系统整行高亮菜单，默认false，菜单在消息旁出现
     public var highlightsEntireCellOnLongPress: Bool = false
-    /// 长按气泡预览与相邻头像的最小水平间距，默认适配后的16点
+    /// 消息旁菜单与相邻头像的最小水平间距，默认适配后的16点
     public var menuPreviewAvatarSpacing: CGFloat = UIDevice.wy_screenWidth(16, WYBasisKitConfig.defaultScreenPixels)
     /// 默认菜单操作，宿主通过回调执行外部操作
     public var menuActions: [WYChatAction] = [.copy, .quote, .forward, .favorite, .delete, .withdraw, .reedit, .select, .translate]

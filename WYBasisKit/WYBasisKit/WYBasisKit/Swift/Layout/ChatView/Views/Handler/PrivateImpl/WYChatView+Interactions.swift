@@ -9,76 +9,107 @@ import UIKit
 
 /// 消息操作与引用
 extension WYChatView {
-    func wy_messageMenuPreview(_ tableView: UITableView, configuration menu: UIContextMenuConfiguration) -> UITargetedPreview? {
-        wy_endMessageMenuPreview(animator: nil)
-        guard let identifier = menu.identifier as? String,
-              let index = dataSource.firstIndex(where: { $0.messageID == identifier }),
-              let cell = tableView.cellForRow(at: IndexPath(row: index, section: 0)) as? WYChatBasicCell else { return nil }
-        let config = cell.configuration
-        guard !config.highlightsEntireCellOnLongPress else { return nil }
-        guard let bubble = cell.bubblesView as? WYChatBubbleView else { return nil }
-        bubble.layoutIfNeeded()
-        guard bubble.window != nil, !bubble.bounds.isEmpty, let container = bubble.superview,
-              let snapshot = bubble.snapshotView(afterScreenUpdates: false) else { return nil }
-        let parameters = UIPreviewParameters()
-        parameters.backgroundColor = .clear
-        let path = bubble.bubblePath.map { UIBezierPath(cgPath: $0) }
-        let avatar = cell.avatarView
-        var center = bubble.center
-        let showsAvatar = !avatar.isHidden && !avatar.bounds.isEmpty
-        let previewScale: CGFloat = showsAvatar ? 0.88 : 1
-        if showsAvatar {
-            let avatarFrame = avatar.convert(avatar.bounds, to: container)
-            let spacing = config.menuPreviewAvatarSpacing.isFinite ? max(0, config.menuPreviewAvatarSpacing) : 0
-            let halfWidth = bubble.bounds.width / 2
-            if avatarFrame.midX > center.x {
-                center.x = max(container.bounds.minX + halfWidth, min(center.x, avatarFrame.minX - spacing - halfWidth))
-            } else {
-                center.x = min(container.bounds.maxX - halfWidth, max(center.x, avatarFrame.maxX + spacing + halfWidth))
+    func wy_messageMenuCell(at point: CGPoint, in table: UITableView) -> UITableViewCell? {
+        guard configuration.enablesMessageMenu, let indexPath = table.indexPathForRow(at: point),
+              let cell = table.cellForRow(at: indexPath) else { return nil }
+        var target = table.hitTest(point, with: nil)
+        while let view = target, view !== table {
+            if view.gestureRecognizers?.contains(where: { $0 is UILongPressGestureRecognizer && $0.isEnabled && $0.delegate is WYChatAvatarGestures }) == true {
+                return nil
             }
+            target = view.superview
         }
-        let scale = CGAffineTransform(scaleX: previewScale, y: previewScale)
-        let preview = UIView(frame: CGRect(origin: .zero, size: bubble.bounds.size.applying(scale)))
-        preview.layer.cornerRadius = bubble.cornerRadius * previewScale
-        preview.clipsToBounds = true
-        snapshot.center = CGPoint(x: preview.bounds.midX, y: preview.bounds.midY)
-        snapshot.transform = scale
-        preview.addSubview(snapshot)
-        path?.apply(scale)
-        parameters.visiblePath = path
-        let target = UIPreviewTarget(container: container, center: center)
-        let targetedPreview = UITargetedPreview(view: preview, parameters: parameters, target: target)
-        state.menuPreviewBubble = bubble
-        state.menuPreview = targetedPreview
-        bubble.wy_beginMenuPreview()
-        return targetedPreview
+        return cell
     }
 
-    func wy_messageMenuDismissingPreview() -> UITargetedPreview? {
-        guard let preview = state.menuPreview, let bubble = state.menuPreviewBubble,
-              bubble.window != nil, let container = bubble.superview else { return nil }
-        let scale = bubble.bounds.width / preview.view.bounds.width
-        let target = UIPreviewTarget(container: container, center: bubble.center,
-                                     transform: CGAffineTransform(scaleX: scale, y: scale))
-        return preview.retargetedPreview(with: target)
+    func wy_usesWholeCellMenu(_ cell: UITableViewCell) -> Bool {
+        (cell as? WYChatBasicCell)?.configuration.highlightsEntireCellOnLongPress ?? true
     }
 
-    func wy_endMessageMenuPreview(animator: UIContextMenuInteractionAnimating?) {
-        let bubble = state.menuPreviewBubble
-        guard let bubble else { return }
-        let preview = state.menuPreview
-        if let animator {
-            animator.addAnimations { [weak bubble] in bubble?.wy_endMenuPreview() }
-            animator.addCompletion { [weak self, weak preview] in
-                guard let self, self.state.menuPreview === preview else { return }
-                self.state.menuPreviewBubble = nil
-                self.state.menuPreview = nil
-            }
-        } else {
-            state.menuPreviewBubble = nil
-            state.menuPreview = nil
-            bubble.wy_endMenuPreview()
+    @objc func wy_showMessageMenu(_ gesture: UILongPressGestureRecognizer) {
+        guard gesture.state == .began, let table = gesture.view as? UITableView,
+              let cell = wy_messageMenuCell(at: gesture.location(in: table), in: table) as? WYChatBasicCell,
+              !wy_usesWholeCellMenu(cell),
+              let index = table.indexPath(for: cell), dataSource.indices.contains(index.row) else { return }
+        wy_presentMessageMenu(wy_menu(dataSource[index.row]), for: cell)
+    }
+
+    @objc func wy_closeMessageMenu() {
+        state.messageMenuOverlay?.removeFromSuperview()
+        state.messageMenuOverlay = nil
+    }
+
+    func wy_presentMessageMenu(_ menu: UIMenu, for cell: WYChatBasicCell) {
+        wy_closeMessageMenu()
+        guard !menu.children.isEmpty, cell.window != nil else { return }
+        let visible = bounds.intersection(tableView.convert(tableView.bounds, to: self))
+        guard !visible.isNull, !visible.isEmpty else { return }
+        let bubble = cell.bubblesView.convert(cell.bubblesView.bounds, to: self).intersection(visible)
+        guard !bubble.isEmpty, !bubble.isNull else { return }
+        let inset = UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
+        let width = min(UIDevice.wy_screenWidth(256, WYBasisKitConfig.defaultScreenPixels), visible.width - inset * 2)
+        guard width > 0 else { return }
+        let rowHeight = max(44, UIFont.preferredFont(forTextStyle: .subheadline).lineHeight + inset * 2)
+        let naturalHeight = CGFloat((menu.children.count + 1) / 2) * rowHeight + inset * 2
+        let above = bubble.minY - visible.minY - inset * 2
+        let below = visible.maxY - bubble.maxY - inset * 2
+        let opensAbove = above >= naturalHeight || above >= below
+        let height = min(naturalHeight, opensAbove ? above : below)
+        guard height > 0 else { return }
+
+        var x = bubble.midX - width / 2
+        if !cell.avatarView.isHidden && !cell.avatarView.bounds.isEmpty {
+            let avatar = cell.avatarView.convert(cell.avatarView.bounds, to: self)
+            let spacing = cell.configuration.menuPreviewAvatarSpacing
+            let gap = spacing.isFinite ? max(0, spacing) : 0
+            x = avatar.midX > bubble.midX ? min(x, avatar.minX - gap - width) : max(x, avatar.maxX + gap)
         }
+        x = min(visible.maxX - inset - width, max(visible.minX + inset, x))
+        let y = opensAbove ? bubble.minY - inset - height : bubble.maxY + inset
+        let overlay = UIControl(frame: bounds)
+        overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        overlay.addTarget(self, action: #selector(wy_closeMessageMenu), for: .touchUpInside)
+        overlay.accessibilityViewIsModal = true
+
+        let panel = UIScrollView(frame: CGRect(x: x, y: y, width: width, height: height))
+        panel.backgroundColor = .secondarySystemGroupedBackground
+        panel.layer.cornerRadius = inset * 2
+        panel.layer.borderWidth = 1 / max(1, traitCollection.displayScale)
+        panel.layer.borderColor = UIColor.separator.resolvedColor(with: traitCollection).cgColor
+        panel.accessibilityIdentifier = "WYChatMessageMenu"
+        let rows = UIStackView()
+        rows.axis = .vertical
+        for index in stride(from: 0, to: menu.children.count, by: 2) {
+            let row = UIStackView()
+            row.distribution = .fillEqually
+            for element in menu.children[index..<min(index + 2, menu.children.count)] {
+                let button = UIButton(type: .system)
+                button.setTitle(element.title, for: .normal)
+                button.titleLabel?.font = .preferredFont(forTextStyle: .subheadline)
+                button.titleLabel?.numberOfLines = 2
+                if let action = element as? UIAction {
+                    if action.attributes.contains(.destructive) { button.setTitleColor(.systemRed, for: .normal) }
+                    button.addAction(action, for: .touchUpInside)
+                    button.addAction(UIAction { [weak self, weak overlay] _ in
+                        if self?.state.messageMenuOverlay === overlay { self?.wy_closeMessageMenu() }
+                    }, for: .touchUpInside)
+                } else if let submenu = element as? UIMenu {
+                    button.addAction(UIAction { [weak self, weak cell] _ in
+                        guard let cell else { return }
+                        self?.wy_presentMessageMenu(submenu, for: cell)
+                    }, for: .touchUpInside)
+                }
+                row.addArrangedSubview(button)
+            }
+            row.heightAnchor.constraint(equalToConstant: rowHeight).isActive = true
+            rows.addArrangedSubview(row)
+        }
+        rows.frame = CGRect(x: inset, y: inset, width: width - inset * 2, height: naturalHeight - inset * 2)
+        panel.contentSize = CGSize(width: width, height: naturalHeight)
+        panel.addSubview(rows)
+        overlay.addSubview(panel)
+        addSubview(overlay)
+        state.messageMenuOverlay = overlay
     }
 
     func wy_sendRecordedVoice(_ url: URL, duration: TimeInterval, messageID: String) -> WYChatMessageModel? {

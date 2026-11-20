@@ -11,7 +11,6 @@ import Kingfisher
 /// 随消息实际尺寸调整箭头位置与安全尺寸
 final class WYChatBubbleView: WYAirBubbleView {
     private var colorStyle: UIUserInterfaceStyle?
-    private var alphaBeforeMenuPreview: CGFloat?
     var configuredRadius: CGFloat = 0
     var configuredArrow: CGSize = .zero
     var configuredShowsArrow = false
@@ -21,18 +20,6 @@ final class WYChatBubbleView: WYAirBubbleView {
     let arrowImageView = UIImageView()
     var arrowImageSize: CGSize = .zero
     var arrowImageOffset: CGPoint = .zero
-
-    func wy_beginMenuPreview() {
-        guard alphaBeforeMenuPreview == nil else { return }
-        alphaBeforeMenuPreview = alpha
-        alpha = 0
-    }
-
-    func wy_endMenuPreview() {
-        guard let alphaBeforeMenuPreview else { return }
-        alpha = alphaBeforeMenuPreview
-        self.alphaBeforeMenuPreview = nil
-    }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
@@ -527,7 +514,6 @@ extension WYChatBasicCell {
     }
 
     func wy_prepareForReuse() {
-        (bubblesView as? WYChatBubbleView)?.wy_endMenuPreview()
         state.mediaView.reset()
         mediaActionHandler = nil
         avatarView.kf.cancelDownloadTask()

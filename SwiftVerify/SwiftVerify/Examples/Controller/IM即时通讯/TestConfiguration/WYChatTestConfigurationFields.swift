@@ -938,7 +938,7 @@ enum WYChatTestConfigurationFields {
         .raw("emoji.staticFramePosition", "静态图不存在时从动图取哪一帧当静态图(默认末帧)", options: [String(WYEmojiStaticFramePosition.first.rawValue) + " first", String(WYEmojiStaticFramePosition.last.rawValue) + " last"].joined(separator: "\n"), get: { $0.emoji.staticFramePosition }, set: { $0.emoji.staticFramePosition = $1 }),
         .string("emoji.totalHeaderText", "自定义Emoji控件所有表情Header文本(设置后会显示一个Header，仅限scrollDirection == .vertical时生效)", get: { $0.emoji.totalHeaderText }, set: { $0.emoji.totalHeaderText = $1 }),
         .boolean("enablesMessageMenu", "是否启用长按菜单，默认true", get: { $0.enablesMessageMenu }, set: { $0.enablesMessageMenu = $1 }),
-        .boolean("highlightsEntireCellOnLongPress", "长按消息菜单时是否高亮整行，默认false，仅预览消息气泡", get: { $0.highlightsEntireCellOnLongPress }, set: { $0.highlightsEntireCellOnLongPress = $1 }),
+        .boolean("highlightsEntireCellOnLongPress", "长按消息时是否使用系统整行高亮菜单，默认false，菜单在消息旁出现", get: { $0.highlightsEntireCellOnLongPress }, set: { $0.highlightsEntireCellOnLongPress = $1 }),
         .special("imageLoader", "自定义图片加载，参数为资源、目标控件及消息ID", "((WYChatAssetsModel, UIImageView, String) -> Void)?", related: "消息事件与输入面板", get: { $0.imageLoader }, set: { $0.imageLoader = $1 }),
     ] }
     private static func group4() -> [WYChatTestConfigurationField] { [
@@ -1117,7 +1117,7 @@ enum WYChatTestConfigurationFields {
         .vector("media.videoPlaySize", "视频播放图标尺寸", "CGSize", labels: ["width", "height"], get: { [Double($0.media.videoPlaySize.width), Double($0.media.videoPlaySize.height)] }, set: { $0.media.videoPlaySize = CGSize(width: CGFloat($1[0]), height: CGFloat($1[1])) }),
         .raw("media.videoPresentationStyle", "视频播放器的展示方式，默认全屏", options: "使用UIModalPresentationStyle的rawValue", allowed: [-2, -1, 0, 1, 2, 3, 4, 5, 6, 7], get: { $0.media.videoPresentationStyle }, set: { $0.media.videoPresentationStyle = $1 }),
         .rawArray("menuActions", "默认菜单操作，宿主通过回调执行外部操作", options: "用逗号分隔WYChatAction的rawValue", get: { $0.menuActions }, set: { $0.menuActions = $1 }),
-        .scalar("menuPreviewAvatarSpacing", "长按气泡预览与相邻头像的最小水平间距，默认适配后的16点", "CGFloat", get: { Double($0.menuPreviewAvatarSpacing) }, set: { $0.menuPreviewAvatarSpacing = CGFloat($1) }),
+        .scalar("menuPreviewAvatarSpacing", "消息旁菜单与相邻头像的最小水平间距，默认适配后的16点", "CGFloat", get: { Double($0.menuPreviewAvatarSpacing) }, set: { $0.menuPreviewAvatarSpacing = CGFloat($1) }),
         .special("messageConfiguration", "按消息调整配置，参数为消息及当前界面配置", "((WYChatMessageModel, WYChatConfig) -> WYChatConfig)?", related: "消息事件与输入面板", get: { $0.messageConfiguration }, set: { $0.messageConfiguration = $1 }),
         .scalar("messageSpacing", "Cell上下间距", "CGFloat", get: { Double($0.messageSpacing) }, set: { $0.messageSpacing = CGFloat($1) }),
         .scalar("more.animateDuration", "自定义More控件弹起或者收回时动画持续时长", "TimeInterval", get: { Double($0.more.animateDuration) }, set: { $0.more.animateDuration = TimeInterval($1) }),
