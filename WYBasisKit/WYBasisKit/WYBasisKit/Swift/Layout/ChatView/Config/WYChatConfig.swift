@@ -174,13 +174,15 @@ public struct WYChatConfig {
     /// 消息旁菜单与相邻头像的最小水平间距，默认适配后的16点
     public var menuPreviewAvatarSpacing: CGFloat = UIDevice.wy_screenWidth(16, WYBasisKitConfig.defaultScreenPixels)
     /// 消息旁菜单背景色
-    public var menuBackgroundColor: UIColor = .secondarySystemGroupedBackground
+    public var menuBackgroundColor: UIColor = .wy_hex("#283341")
     /// 消息旁菜单文字颜色
-    public var menuTextColor: UIColor = .label
+    public var menuTextColor: UIColor = .wy_hex("#F3F6FA")
     /// 消息旁菜单危险操作文字颜色
-    public var menuDestructiveTextColor: UIColor = .systemRed
+    public var menuDestructiveTextColor: UIColor = .wy_hex("#FF9A8D")
     /// 消息旁菜单功能文字的字体与字号
     public var menuItemFont: UIFont = .preferredFont(forTextStyle: .subheadline)
+    /// 消息旁菜单每行最多显示的功能数，默认4，空间不足时自动减少
+    public var menuMaximumColumns: Int = 4
     /// 默认菜单操作，宿主通过回调执行外部操作
     public var menuActions: [WYChatAction] = [.copy, .quote, .forward, .favorite, .delete, .withdraw, .reedit, .select, .translate]
     /// 多选时是否显示内置工具条，默认true

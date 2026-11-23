@@ -345,6 +345,7 @@ final class WYChatSettingsController: UITableViewController, UIColorPickerViewCo
                 Item(title: "菜单文字颜色", path: "menuTextColor"),
                 Item(title: "危险操作文字颜色", path: "menuDestructiveTextColor"),
                 Item(title: "菜单字体和字号", path: "menuItemFont"),
+                Item(title: "每行最多显示几项", path: "menuMaximumColumns"),
                 Item(title: "显示的菜单功能", path: "menuActions")
             ]),
             ("语音录制与识别", [

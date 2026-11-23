@@ -300,6 +300,8 @@ import WYBasisKitSwift
     public var menuDestructiveTextColor: UIColor
     /// 消息旁菜单功能文字的字体与字号
     public var menuItemFont: UIFont
+    /// 消息旁菜单每行最多显示的功能数，默认4，空间不足时自动减少
+    public var menuMaximumColumns: Int
     /// 默认菜单操作，宿主通过回调执行外部操作
     public var menuActions: [NSNumber]
     /// 允许自动滚动到底部的距离
@@ -352,6 +354,7 @@ import WYBasisKitSwift
         self.menuTextColor = value.menuTextColor
         self.menuDestructiveTextColor = value.menuDestructiveTextColor
         self.menuItemFont = value.menuItemFont
+        self.menuMaximumColumns = value.menuMaximumColumns
         self.menuActions = value.menuActions.map { NSNumber(value: $0.rawValue) }
         self.bottomDistance = value.bottomDistance
         self.automaticallyInsertsSentMessages = value.automaticallyInsertsSentMessages
@@ -399,6 +402,7 @@ import WYBasisKitSwift
         value.menuTextColor = menuTextColor
         value.menuDestructiveTextColor = menuDestructiveTextColor
         value.menuItemFont = menuItemFont
+        value.menuMaximumColumns = menuMaximumColumns
         value.menuActions = menuActions.compactMap { WYChatAction(rawValue: $0.intValue) }
         value.bottomDistance = bottomDistance
         value.automaticallyInsertsSentMessages = automaticallyInsertsSentMessages

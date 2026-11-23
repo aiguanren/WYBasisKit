@@ -47,11 +47,17 @@ extension WYChatView {
         let bubble = cell.bubblesView.convert(cell.bubblesView.bounds, to: self).intersection(visible)
         guard !bubble.isEmpty, !bubble.isNull else { return }
         let inset = UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
-        let width = min(UIDevice.wy_screenWidth(256, WYBasisKitConfig.defaultScreenPixels), visible.width - inset * 2)
-        guard width > 0 else { return }
         let config = cell.configuration
-        let rowHeight = max(44, config.menuItemFont.lineHeight + inset * 2)
-        let naturalHeight = CGFloat((menu.children.count + 1) / 2) * rowHeight + inset * 2
+        let availableWidth = visible.width - inset * 2
+        guard availableWidth > inset * 2 else { return }
+        let iconSize = UIDevice.wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels)
+        let iconSpacing = inset / 2
+        let labelWidth = menu.children.map { ($0.title as NSString).size(withAttributes: [.font: config.menuItemFont]).width }.max() ?? 0
+        let itemWidth = max(UIDevice.wy_screenWidth(58, WYBasisKitConfig.defaultScreenPixels), ceil(labelWidth) + inset * 2)
+        let columns = min(menu.children.count, max(1, config.menuMaximumColumns), max(1, Int((availableWidth - inset * 2) / itemWidth)))
+        let width = min(availableWidth, itemWidth * CGFloat(columns) + inset * 2)
+        let rowHeight = max(44, config.menuItemFont.lineHeight + iconSize + iconSpacing + inset * 2)
+        let naturalHeight = CGFloat((menu.children.count + columns - 1) / columns) * rowHeight + inset
         let above = bubble.minY - visible.minY - inset * 2
         let below = visible.maxY - bubble.maxY - inset * 2
         let opensAbove = above >= naturalHeight || above >= below
@@ -74,23 +80,30 @@ extension WYChatView {
 
         let panel = UIScrollView(frame: CGRect(x: x, y: y, width: width, height: height))
         panel.backgroundColor = config.menuBackgroundColor
-        panel.layer.cornerRadius = inset * 2
+        panel.layer.cornerRadius = inset * 1.5
         panel.layer.borderWidth = 1 / max(1, traitCollection.displayScale)
-        panel.layer.borderColor = UIColor.separator.resolvedColor(with: traitCollection).cgColor
+        panel.layer.borderColor = config.menuTextColor.withAlphaComponent(0.18).resolvedColor(with: traitCollection).cgColor
         panel.accessibilityIdentifier = "WYChatMessageMenu"
+        panel.showsVerticalScrollIndicator = height < naturalHeight
         let rows = UIStackView()
         rows.axis = .vertical
-        for index in stride(from: 0, to: menu.children.count, by: 2) {
+        for index in stride(from: 0, to: menu.children.count, by: columns) {
             let row = UIStackView()
             row.distribution = .fillEqually
-            for element in menu.children[index..<min(index + 2, menu.children.count)] {
+            let elements = menu.children[index..<min(index + columns, menu.children.count)]
+            for element in elements {
                 let button = UIButton(type: .system)
-                button.setTitle(element.title, for: .normal)
-                button.titleLabel?.font = config.menuItemFont
-                button.setTitleColor(config.menuTextColor, for: .normal)
-                button.titleLabel?.numberOfLines = 2
-                if let action = element as? UIAction {
-                    if action.attributes.contains(.destructive) { button.setTitleColor(config.menuDestructiveTextColor, for: .normal) }
+                var appearance = UIButton.Configuration.plain()
+                appearance.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: inset / 2, bottom: 0, trailing: inset / 2)
+                appearance.imagePlacement = .top
+                appearance.imagePadding = iconSpacing
+                let action = element as? UIAction
+                appearance.baseForegroundColor = action?.attributes.contains(.destructive) == true ? config.menuDestructiveTextColor : config.menuTextColor
+                appearance.attributedTitle = AttributedString(element.title, attributes: AttributeContainer([.font: config.menuItemFont]))
+                appearance.image = element.image ?? wy_messageMenuIcon(.content)
+                button.configuration = appearance
+                button.accessibilityLabel = element.title
+                if let action {
                     button.addAction(action, for: .touchUpInside)
                     button.addAction(UIAction { [weak self, weak overlay] _ in
                         if self?.state.messageMenuOverlay === overlay { self?.wy_closeMessageMenu() }
@@ -103,10 +116,11 @@ extension WYChatView {
                 }
                 row.addArrangedSubview(button)
             }
+            for _ in elements.count..<columns { row.addArrangedSubview(UIView()) }
             row.heightAnchor.constraint(equalToConstant: rowHeight).isActive = true
             rows.addArrangedSubview(row)
         }
-        rows.frame = CGRect(x: inset, y: inset, width: width - inset * 2, height: naturalHeight - inset * 2)
+        rows.frame = CGRect(x: inset, y: inset / 2, width: width - inset * 2, height: naturalHeight - inset)
         panel.contentSize = CGSize(width: width, height: naturalHeight)
         panel.addSubview(rows)
         overlay.addSubview(panel)
@@ -159,7 +173,7 @@ extension WYChatView {
     func wy_menu(_ model: WYChatMessageModel) -> UIMenu {
         if isSelectingMessages {
             guard configuration.selection.allowsRangeSelection, !selectedMessageIDs.isEmpty, configuration.allowsAction?(.selectRange, model) ?? true else { return UIMenu(children: []) }
-            return UIMenu(children: [UIAction(title: configuration.selection.rangeTitle) { [weak self] _ in self?.wy_performAction(.selectRange, messageID: model.messageID) }])
+            return UIMenu(children: [UIAction(title: configuration.selection.rangeTitle, image: wy_messageMenuIcon(.selectRange)) { [weak self] _ in self?.wy_performAction(.selectRange, messageID: model.messageID) }])
         }
         let actions = configuration.menuActions.filter { action in
             guard configuration.allowsAction?(action, model) ?? true else { return false }
@@ -173,9 +187,43 @@ extension WYChatView {
             return true
         }
         return UIMenu(children: actions.map { action -> UIMenuElement in
-            if action == .forward, forwardHandler != nil { return UIMenu(title: configuration.actionTitle?(.forward) ?? wy_actionTitle(.forward), children: wy_forwardMenu([model.messageID]).children) }
-            return UIAction(title: configuration.actionTitle?(action) ?? wy_actionTitle(action), attributes: action == .delete ? .destructive : []) { [weak self] _ in self?.wy_performAction(action, messageID: model.messageID) }
+            if action == .forward, forwardHandler != nil { return UIMenu(title: configuration.actionTitle?(.forward) ?? wy_actionTitle(.forward), image: wy_messageMenuIcon(.forward), children: wy_forwardMenu([model.messageID]).children) }
+            return UIAction(title: configuration.actionTitle?(action) ?? wy_actionTitle(action), image: wy_messageMenuIcon(action), attributes: action == .delete ? .destructive : []) { [weak self] _ in self?.wy_performAction(action, messageID: model.messageID) }
         })
+    }
+
+    func wy_messageMenuIcon(_ action: WYChatAction) -> UIImage {
+        let strokes: [[CGPoint]]
+        func line(_ coordinates: [CGFloat]) -> [CGPoint] {
+            stride(from: 0, to: coordinates.count, by: 2).map { CGPoint(x: coordinates[$0], y: coordinates[$0 + 1]) }
+        }
+        switch action {
+        case .copy: strokes = [line([8, 8, 20, 8, 20, 20, 8, 20, 8, 8]), line([4, 16, 4, 4, 16, 4])]
+        case .quote, .reference: strokes = [line([19, 6, 5, 6, 5, 16, 9, 16, 9, 20, 14, 16, 19, 16, 19, 6]), line([9, 10, 15, 10]), line([9, 13, 12, 13])]
+        case .forward: strokes = [line([4, 18, 4, 14, 8, 10, 16, 10]), line([13, 5, 20, 10, 13, 15])]
+        case .delete: strokes = [line([4, 7, 20, 7]), line([9, 7, 9, 4, 15, 4, 15, 7]), line([6, 7, 7, 20, 17, 20, 18, 7]), line([10, 10, 10, 17]), line([14, 10, 14, 17])]
+        case .withdraw, .retry: strokes = [line([3, 10, 12, 10, 17, 12, 20, 16, 20, 19]), line([9, 4, 3, 10, 9, 16])]
+        case .select, .selectRange, .markRead: strokes = [line([4, 4, 20, 4, 20, 20, 4, 20, 4, 4]), line([8, 12, 11, 15, 16, 9])]
+        case .translate: strokes = [line([3, 6, 11, 6]), line([7, 3, 7, 6]), line([10, 7, 8, 11, 4, 14]), line([5, 9, 10, 14]), line([12, 20, 16, 10, 21, 20]), line([14, 16, 19, 16])]
+        case .favorite: strokes = [line([7, 4, 17, 4, 17, 20, 12, 16, 7, 20, 7, 4])]
+        case .reedit: strokes = [line([4, 20, 9, 19, 20, 8, 16, 4, 5, 15, 4, 20]), line([13, 7, 17, 11])]
+        case .search: strokes = [line([10, 4, 14, 5, 16, 9, 15, 13, 11, 16, 7, 15, 4, 12, 4, 8, 6, 5, 10, 4]), line([15, 15, 20, 20])]
+        case .remind: strokes = [line([4, 17, 6, 14, 6, 9, 8, 6, 12, 4, 16, 6, 18, 9, 18, 14, 20, 17, 4, 17]), line([10, 20, 14, 20])]
+        case .play: strokes = [line([8, 4, 20, 12, 8, 20, 8, 4])]
+        case .pause: strokes = [line([8, 5, 8, 19]), line([16, 5, 16, 19])]
+        default: strokes = [line([4, 7, 20, 7]), line([4, 12, 20, 12]), line([4, 17, 14, 17])]
+        }
+        let size = UIDevice.wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels)
+        return UIGraphicsImageRenderer(size: CGSize(width: size, height: size)).image { renderer in
+            let context = renderer.cgContext
+            context.scaleBy(x: size / 24, y: size / 24)
+            context.setStrokeColor(UIColor.black.cgColor)
+            context.setLineWidth(1.7)
+            context.setLineCap(.round)
+            context.setLineJoin(.round)
+            for stroke in strokes { context.addLines(between: stroke) }
+            context.strokePath()
+        }.withRenderingMode(.alwaysTemplate)
     }
 
     func wy_actionTitle(_ action: WYChatAction) -> String {

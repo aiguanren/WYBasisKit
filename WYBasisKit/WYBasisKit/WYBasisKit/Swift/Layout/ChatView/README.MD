@@ -296,6 +296,6 @@ SwiftVerify的聊天测试页点击“配置”可搜索并调整配置属性，
 
 输入栏默认无描边，文字输入和语音输入分别使用独立圆角。`input.textViewMaxHeight`默认限制输入框高度为适配后的120，超出部分在输入框内滚动。
 
-点击消息列表的空白、行间距、消息内容及头像等区域时，`dismissInputOnTap`控制是否收起键盘和输入面板；输入栏及面板内控件保持各自操作。`highlightsEntireCellOnLongPress`默认`false`，长按时菜单在消息旁出现，气泡保持原位。设为`true`使用系统整行预览。消息旁菜单与头像的最小水平间距可用`menuPreviewAvatarSpacing`调整，默认适配后的16点，空间不足时以列表可见宽度为准。 `menuBackgroundColor`、`menuTextColor`和`menuDestructiveTextColor`配置菜单颜色。`menuItemFont`设置字体和字号。`menuActions`按数组顺序显示可用的功能，`allowsAction`可进一步按消息筛选。
+点击消息列表的空白、行间距、消息内容及头像等区域时，`dismissInputOnTap`控制是否收起键盘和输入面板；输入栏及面板内控件保持各自操作。`highlightsEntireCellOnLongPress`默认`false`，长按时菜单在消息旁出现，气泡保持原位。设为`true`使用系统整行预览。消息旁菜单与头像的最小水平间距可用`menuPreviewAvatarSpacing`调整，默认适配后的16点，空间不足时以列表可见宽度为准。 `menuBackgroundColor`、`menuTextColor`和`menuDestructiveTextColor`配置菜单颜色。`menuItemFont`设置字体和字号。`menuMaximumColumns`控制每行最多显示几项，默认4，空间不足时自动减少，末行从第一列排列。`menuActions`按数组顺序显示可用的功能，`allowsAction`可进一步按消息筛选。
 
 长按输入框直接识别时，`recording.dictationShowsWaveform`默认`true`，分区操作模式同时显示转写文本和动态声波，设为`false`可隐藏声波。
