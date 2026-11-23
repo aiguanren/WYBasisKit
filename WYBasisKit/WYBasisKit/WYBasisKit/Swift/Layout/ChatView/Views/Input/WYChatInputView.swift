@@ -260,7 +260,7 @@ public struct WYInputBarConfig {
     public init() {}
 }
 
-public let WYChatSourceBundle: WYSourceBundle = WYSourceBundle(bundleName: "WYChatView")
+public let WYChatSourceBundle: WYSourceBundle = WYSourceBundle(bundleName: "WYChatView", subdirectory: "Configs")
 
 /// 返回一个Bool值来判定各控件的点击或手势事件是否需要内部处理(默认返回true)
 @objc public protocol WYChatInputViewEventsHandler {

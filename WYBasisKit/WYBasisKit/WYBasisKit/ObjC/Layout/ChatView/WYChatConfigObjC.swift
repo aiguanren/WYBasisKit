@@ -1946,7 +1946,7 @@ import WYBasisKitSwift
     public var emojiSource: [String]
     /// 自定义加载Emoji图片的Bundle
     public var emojiBundle: WYSourceBundleObjC?
-    /// 表情资源是否放在同名子文件夹中(如WYChatViewEmoji/微笑/[微笑].png + [微笑].gif)
+    /// 表情资源是否放在同名子文件夹中(如Emojis/微笑/[微笑].png + [微笑].gif)
     public var emojiFolders: Bool
     /// 自定义表情图片加载器(传入表情名和bundle返回UIImage，返回nil时走内部加载链)，适合接入Lottie等内部不支持的格式
     public var customImageLoader: ((_ emojiName: String, _ bundle: WYSourceBundleObjC?) -> UIImage)?

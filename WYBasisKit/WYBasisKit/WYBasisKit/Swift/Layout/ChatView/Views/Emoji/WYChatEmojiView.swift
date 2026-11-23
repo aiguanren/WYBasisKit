@@ -34,9 +34,9 @@ public struct WYEmojiViewConfig {
     public var emojiSource: [String] = WYChatDefaultResources.emojis
     
     /// 自定义加载Emoji图片的Bundle
-    public var emojiBundle: WYSourceBundle? = WYSourceBundle(bundleName: "WYChatView", subdirectory: "WYChatViewEmoji")
+    public var emojiBundle: WYSourceBundle? = WYSourceBundle(bundleName: "WYChatView", subdirectory: "Emojis")
 
-    /// 表情资源是否放在同名子文件夹中(如WYChatViewEmoji/微笑/[微笑].png + [微笑].gif)
+    /// 表情资源是否放在同名子文件夹中(如Emojis/微笑/[微笑].png + [微笑].gif)
     public var emojiFolders: Bool = false
 
     /// 自定义表情图片加载器(传入表情名和bundle返回UIImage，返回nil时走内部加载链)，适合接入Lottie等内部不支持的格式

@@ -202,13 +202,18 @@ extension WYChatView {
         case .quote, .reference: resource = "WYChatViewMenuQuote"
         case .forward: resource = "WYChatViewMenuForward"
         case .delete: resource = "WYChatViewMenuDelete"
+        case .withdraw: resource = "WYChatViewMenuWithdraw"
         case .select, .selectRange: resource = "WYChatViewMenuSelect"
         case .favorite: resource = "WYChatViewMenuFavorite"
         default: resource = nil
         }
         if let resource {
             let image = UIImage.wy_find(resource, inBundle: WYChatSourceBundle)
-            return renderer.image { _ in
+            return renderer.image { renderer in
+                if action == .withdraw {
+                    renderer.cgContext.translateBy(x: size, y: 0)
+                    renderer.cgContext.scaleBy(x: -1, y: 1)
+                }
                 image.draw(in: CGRect(x: 0, y: 0, width: size, height: size))
             }.withRenderingMode(.alwaysTemplate)
         }
@@ -218,7 +223,7 @@ extension WYChatView {
             stride(from: 0, to: coordinates.count, by: 2).map { CGPoint(x: coordinates[$0], y: coordinates[$0 + 1]) }
         }
         switch action {
-        case .withdraw, .retry: strokes = [line([3, 10, 12, 10, 17, 12, 20, 16, 20, 19]), line([9, 4, 3, 10, 9, 16])]
+        case .retry: strokes = [line([3, 10, 12, 10, 17, 12, 20, 16, 20, 19]), line([9, 4, 3, 10, 9, 16])]
         case .markRead: strokes = [line([4, 4, 20, 4, 20, 20, 4, 20, 4, 4]), line([8, 12, 11, 15, 16, 9])]
         case .translate: strokes = [line([3, 6, 11, 6]), line([7, 3, 7, 6]), line([10, 7, 8, 11, 4, 14]), line([5, 9, 10, 14]), line([12, 20, 16, 10, 21, 20]), line([14, 16, 19, 16])]
         case .reedit: strokes = [line([4, 20, 9, 19, 20, 8, 16, 4, 5, 15, 4, 20]), line([13, 7, 17, 11])]

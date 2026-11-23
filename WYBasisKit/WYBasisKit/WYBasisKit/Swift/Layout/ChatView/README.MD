@@ -42,7 +42,7 @@ chatView.recordingHandler = { url, duration, error in
 
 SwiftVerify示例的“聊天界面→测试→配置”提供中文分组设置，选择“输入框操作→单击输入，长按识别”后点击“保存”，即可返回聊天页体验。未保存退出会放弃修改。“全部属性设置”提供完整属性目录和专项预览，其中的修改同样需要返回“聊天设置”后保存。
 
-默认图标从`WYChatView.bundle`加载，输入栏和多选图标默认保留图片原色。`input`、`basic`、`selection`、`quote`、`media`和`recording`中的图片配置均可由宿主覆盖；需要单色着色时可显式选择模板渲染。卡片图标可通过`content.iconImage/iconSize`或对应`contentOverrides`配置，默认图标尺寸28。更多面板通过`more.iconSize`配置图标尺寸，默认32，按钮底板由`more.imageViewSize`单独配置。
+默认图标从`WYChatView.bundle/Configs`加载，表情图片从`WYChatView.bundle/Emojis`加载，输入栏和多选图标默认保留图片原色。`input`、`basic`、`selection`、`quote`、`media`和`recording`中的图片配置均可由宿主覆盖；需要单色着色时可显式选择模板渲染。卡片图标可通过`content.iconImage/iconSize`或对应`contentOverrides`配置，默认图标尺寸28。更多面板通过`more.iconSize`配置图标尺寸，默认32，按钮底板由`more.imageViewSize`单独配置。
 
 语音播放帧统一使用`WYChatViewVoiceWave1–3`，由`voicePlayback.waveformImages`覆盖，静止显示最后一帧，发送侧通过`mirrorsSenderWaveform`水平翻转。`waveformDuration`和`waveformSize`控制动画时长及尺寸，`waveformTintColor`控制声波颜色，默认随明暗主题变化，设为nil时保留原图颜色，默认只显示秒数和声波，发送方声波在右，接收方声波在左。`durationSuffix`配置秒数后缀，`minimumWidth/minimumWidthDuration/widthGrowthPerSecond`配置气泡随时长增长的宽度。`unreadColor/unreadSize`配置接收方未播放提示。`showsPlaybackSymbol`开启额外播放图标，图片由`playImage/pauseImage`覆盖。点击语音触发宿主播放事件，正在播放时再次点击停止，`restartsOnTap`默认true，再次播放从头开始，切换语音停止前一条。
 

@@ -876,7 +876,7 @@ enum WYChatTestConfigurationFields {
         .scalar("emoji.contentHeight", "自定义Emoji控件的高度", "CGFloat", get: { Double($0.emoji.contentHeight) }, set: { $0.emoji.contentHeight = CGFloat($1) }),
         .special("emoji.customImageLoader", "自定义表情图片加载器(传入表情名和bundle返回UIImage，返回nil时走内部加载链)，适合接入Lottie等内部不支持的格式", "((String, WYSourceBundle?) -> UIImage)?", related: "表情", get: { $0.emoji.customImageLoader }, set: { $0.emoji.customImageLoader = $1 }),
         .sourceBundle("emoji.emojiBundle", "自定义加载Emoji图片的Bundle", get: { $0.emoji.emojiBundle }, set: { $0.emoji.emojiBundle = $1 }),
-        .boolean("emoji.emojiFolders", "表情资源是否放在同名子文件夹中(如WYChatViewEmoji/微笑/[微笑].png + [微笑].gif)", get: { $0.emoji.emojiFolders }, set: { $0.emoji.emojiFolders = $1 }),
+        .boolean("emoji.emojiFolders", "表情资源是否放在同名子文件夹中(如Emojis/微笑/[微笑].png + [微笑].gif)", get: { $0.emoji.emojiFolders }, set: { $0.emoji.emojiFolders = $1 }),
     ] }
     private static func group2() -> [WYChatTestConfigurationField] { [
         .json("emoji.emojiSource", "自定义Emoji数据源(默认读WYChatView.bundle的WYChatViewEmoji.plist，资源缺失或格式不符时降级为空数组)，示例：[\"[玫瑰](表情图片名)\",\"[色](表情图片名)\",\"[嘻嘻](表情图片名)\"]", get: { $0.emoji.emojiSource }, set: { $0.emoji.emojiSource = $1 }),
@@ -1404,7 +1404,7 @@ enum WYChatTestConfigurationFields {
         .scalar("recording.recognitionEmoji.contentHeight", "自定义Emoji控件的高度", "CGFloat", get: { Double($0.recording.recognitionEmoji.contentHeight) }, set: { $0.recording.recognitionEmoji.contentHeight = CGFloat($1) }),
         .special("recording.recognitionEmoji.customImageLoader", "自定义表情图片加载器(传入表情名和bundle返回UIImage，返回nil时走内部加载链)，适合接入Lottie等内部不支持的格式", "((String, WYSourceBundle?) -> UIImage)?", related: "录音", get: { $0.recording.recognitionEmoji.customImageLoader }, set: { $0.recording.recognitionEmoji.customImageLoader = $1 }),
         .sourceBundle("recording.recognitionEmoji.emojiBundle", "自定义加载Emoji图片的Bundle", get: { $0.recording.recognitionEmoji.emojiBundle }, set: { $0.recording.recognitionEmoji.emojiBundle = $1 }),
-        .boolean("recording.recognitionEmoji.emojiFolders", "表情资源是否放在同名子文件夹中(如WYChatViewEmoji/微笑/[微笑].png + [微笑].gif)", get: { $0.recording.recognitionEmoji.emojiFolders }, set: { $0.recording.recognitionEmoji.emojiFolders = $1 }),
+        .boolean("recording.recognitionEmoji.emojiFolders", "表情资源是否放在同名子文件夹中(如Emojis/微笑/[微笑].png + [微笑].gif)", get: { $0.recording.recognitionEmoji.emojiFolders }, set: { $0.recording.recognitionEmoji.emojiFolders = $1 }),
         .json("recording.recognitionEmoji.emojiSource", "自定义Emoji数据源(默认读WYChatView.bundle的WYChatViewEmoji.plist，资源缺失或格式不符时降级为空数组)，示例：[\"[玫瑰](表情图片名)\",\"[色](表情图片名)\",\"[嘻嘻](表情图片名)\"]", get: { $0.recording.recognitionEmoji.emojiSource }, set: { $0.recording.recognitionEmoji.emojiSource = $1 }),
         .scalar("recording.recognitionEmoji.funcAreaConfig.areaBottomOffset", "整个功能区距离emoji控件底部的间距", "CGFloat", get: { Double($0.recording.recognitionEmoji.funcAreaConfig.areaBottomOffset) }, set: { $0.recording.recognitionEmoji.funcAreaConfig.areaBottomOffset = CGFloat($1) }),
         .scalar("recording.recognitionEmoji.funcAreaConfig.areaHeight", "整个功能区高度", "CGFloat", get: { Double($0.recording.recognitionEmoji.funcAreaConfig.areaHeight) }, set: { $0.recording.recognitionEmoji.funcAreaConfig.areaHeight = CGFloat($1) }),
