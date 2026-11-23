@@ -194,6 +194,7 @@
 "不支持的消息类型" = "Tipo de mensaje no compatible";
 "发送" = "Enviar";
 "复制" = "Copiar";
+"粘贴" = "Pegar";
 "外部录音实现缺少必要方法" = "Al grabador externo le faltan métodos obligatorios";
 "多选" = "Selección múltiple";
 "已读" = "Leído";

@@ -182,6 +182,7 @@ extension WYChatView {
             if action == .reedit { return canReeditMessage(model.messageID) }
             if model.content.withdrawn != nil { return action == .delete || action == .select }
             if action == .copy { return model.content.text != nil || !(model.content.voice?.voiceToText.isEmpty ?? true) }
+            if action == .paste { return model.content.style() == .text && configuration.showsInputBar && chatInput.textView.isEditable && UIPasteboard.general.hasStrings }
             if action == .withdraw { return wy_canWithdraw(model, at: Date()) }
             if action == .translate { return configuration.recording.supportSpeechRecognition && model.content.voice != nil }
             return true
@@ -193,19 +194,33 @@ extension WYChatView {
     }
 
     func wy_messageMenuIcon(_ action: WYChatAction) -> UIImage {
+        let size = UIDevice.wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels)
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: size, height: size))
+        let resource: String?
+        switch action {
+        case .copy, .paste: resource = "WYChatViewMenuCopyPaste"
+        case .quote, .reference: resource = "WYChatViewMenuQuote"
+        case .forward: resource = "WYChatViewMenuForward"
+        case .delete: resource = "WYChatViewMenuDelete"
+        case .select, .selectRange: resource = "WYChatViewMenuSelect"
+        case .favorite: resource = "WYChatViewMenuFavorite"
+        default: resource = nil
+        }
+        if let resource {
+            let image = UIImage.wy_find(resource, inBundle: WYChatSourceBundle)
+            return renderer.image { _ in
+                image.draw(in: CGRect(x: 0, y: 0, width: size, height: size))
+            }.withRenderingMode(.alwaysTemplate)
+        }
+
         let strokes: [[CGPoint]]
         func line(_ coordinates: [CGFloat]) -> [CGPoint] {
             stride(from: 0, to: coordinates.count, by: 2).map { CGPoint(x: coordinates[$0], y: coordinates[$0 + 1]) }
         }
         switch action {
-        case .copy: strokes = [line([8, 8, 20, 8, 20, 20, 8, 20, 8, 8]), line([4, 16, 4, 4, 16, 4])]
-        case .quote, .reference: strokes = [line([19, 6, 5, 6, 5, 16, 9, 16, 9, 20, 14, 16, 19, 16, 19, 6]), line([9, 10, 15, 10]), line([9, 13, 12, 13])]
-        case .forward: strokes = [line([4, 18, 4, 14, 8, 10, 16, 10]), line([13, 5, 20, 10, 13, 15])]
-        case .delete: strokes = [line([4, 7, 20, 7]), line([9, 7, 9, 4, 15, 4, 15, 7]), line([6, 7, 7, 20, 17, 20, 18, 7]), line([10, 10, 10, 17]), line([14, 10, 14, 17])]
         case .withdraw, .retry: strokes = [line([3, 10, 12, 10, 17, 12, 20, 16, 20, 19]), line([9, 4, 3, 10, 9, 16])]
-        case .select, .selectRange, .markRead: strokes = [line([4, 4, 20, 4, 20, 20, 4, 20, 4, 4]), line([8, 12, 11, 15, 16, 9])]
+        case .markRead: strokes = [line([4, 4, 20, 4, 20, 20, 4, 20, 4, 4]), line([8, 12, 11, 15, 16, 9])]
         case .translate: strokes = [line([3, 6, 11, 6]), line([7, 3, 7, 6]), line([10, 7, 8, 11, 4, 14]), line([5, 9, 10, 14]), line([12, 20, 16, 10, 21, 20]), line([14, 16, 19, 16])]
-        case .favorite: strokes = [line([7, 4, 17, 4, 17, 20, 12, 16, 7, 20, 7, 4])]
         case .reedit: strokes = [line([4, 20, 9, 19, 20, 8, 16, 4, 5, 15, 4, 20]), line([13, 7, 17, 11])]
         case .search: strokes = [line([10, 4, 14, 5, 16, 9, 15, 13, 11, 16, 7, 15, 4, 12, 4, 8, 6, 5, 10, 4]), line([15, 15, 20, 20])]
         case .remind: strokes = [line([4, 17, 6, 14, 6, 9, 8, 6, 12, 4, 16, 6, 18, 9, 18, 14, 20, 17, 4, 17]), line([10, 20, 14, 20])]
@@ -213,8 +228,7 @@ extension WYChatView {
         case .pause: strokes = [line([8, 5, 8, 19]), line([16, 5, 16, 19])]
         default: strokes = [line([4, 7, 20, 7]), line([4, 12, 20, 12]), line([4, 17, 14, 17])]
         }
-        let size = UIDevice.wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels)
-        return UIGraphicsImageRenderer(size: CGSize(width: size, height: size)).image { renderer in
+        return renderer.image { renderer in
             let context = renderer.cgContext
             context.scaleBy(x: size / 24, y: size / 24)
             context.setStrokeColor(UIColor.black.cgColor)
@@ -234,6 +248,7 @@ extension WYChatView {
         case .markRead: return WYLocalized("标记已读", table: WYBasisKitConfig.kitLocalizableTable)
         case .markUnread: return WYLocalized("标记未读", table: WYBasisKitConfig.kitLocalizableTable)
         case .copy: return WYLocalized("复制", table: WYBasisKitConfig.kitLocalizableTable)
+        case .paste: return WYLocalized("粘贴", table: WYBasisKitConfig.kitLocalizableTable)
         case .selectRange: return configuration.selection.rangeTitle
         case .reference: return WYLocalized("引用", table: WYBasisKitConfig.kitLocalizableTable)
         case .reedit: return configuration.notice.reeditText
@@ -283,6 +298,11 @@ extension WYChatView {
         case .mention: if configuration.basic.automaticallyInsertsMentions { mentionUser(model.sender) }
         case .reedit: _ = reeditMessage(messageID)
         case .copy: UIPasteboard.general.string = model.content.text ?? model.content.voice?.voiceToText
+        case .paste:
+            guard model.content.style() == .text, configuration.showsInputBar, chatInput.textView.isEditable,
+                  let text = UIPasteboard.general.string, !text.isEmpty,
+                  wy_applyInputDraft(text, mentions: [], replacesInput: false) else { return }
+            wy_activateInputDraft()
         case .quote: quoteMessage(messageID)
         case .select:
             var selected = selectedMessageIDs

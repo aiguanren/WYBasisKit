@@ -194,6 +194,7 @@
 "不支持的消息类型" = "Unsupported message type";
 "发送" = "Send";
 "复制" = "Copy";
+"粘贴" = "Paste";
 "外部录音实现缺少必要方法" = "The external recorder is missing required methods";
 "多选" = "Select multiple";
 "已读" = "Read";

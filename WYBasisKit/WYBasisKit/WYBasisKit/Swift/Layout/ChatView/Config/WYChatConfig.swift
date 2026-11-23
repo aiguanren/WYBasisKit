@@ -10,7 +10,7 @@ import UIKit
 
 /// 消息操作
 @objc public enum WYChatAction: Int {
-    case content, avatar, nickname, retry, copy, quote, forward, delete, withdraw, select, translate, play, pause, mention, takePat, reference, reedit, selectRange, playbackRate, favorite, remind, search, markRead, markUnread
+    case content, avatar, nickname, retry, copy, quote, forward, delete, withdraw, select, translate, play, pause, mention, takePat, reference, reedit, selectRange, playbackRate, favorite, remind, search, markRead, markUnread, paste
 }
 
 /// 头像手势操作
@@ -184,7 +184,7 @@ public struct WYChatConfig {
     /// 消息旁菜单每行最多显示的功能数，默认4，空间不足时自动减少
     public var menuMaximumColumns: Int = 4
     /// 默认菜单操作，宿主通过回调执行外部操作
-    public var menuActions: [WYChatAction] = [.copy, .quote, .forward, .favorite, .delete, .withdraw, .reedit, .select, .translate]
+    public var menuActions: [WYChatAction] = [.copy, .paste, .quote, .forward, .favorite, .delete, .withdraw, .reedit, .select, .translate]
     /// 多选时是否显示内置工具条，默认true
     public var showsSelectionToolbar: Bool = true
     /// 多选取消按钮文本

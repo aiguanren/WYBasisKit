@@ -194,6 +194,7 @@
 "不支持的消息类型" = "Beskedtypen understøttes ikke";
 "发送" = "Send";
 "复制" = "Kopiér";
+"粘贴" = "Indsæt";
 "外部录音实现缺少必要方法" = "Den eksterne optager mangler nødvendige metoder";
 "多选" = "Vælg flere";
 "已读" = "Læst";

@@ -194,6 +194,7 @@
 "不支持的消息类型" = "Nem támogatott üzenettípus";
 "发送" = "Küldés";
 "复制" = "Másolás";
+"粘贴" = "Beillesztés";
 "外部录音实现缺少必要方法" = "A külső hangrögzítőből hiányoznak a szükséges metódusok";
 "多选" = "Több kijelölése";
 "已读" = "Olvasott";

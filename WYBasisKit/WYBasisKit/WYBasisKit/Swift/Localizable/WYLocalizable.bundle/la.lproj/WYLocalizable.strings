@@ -194,6 +194,7 @@
 "不支持的消息类型" = "Genus nuntii non sustentum";
 "发送" = "Mitte";
 "复制" = "Exscribe";
+"粘贴" = "Insere";
 "外部录音实现缺少必要方法" = "Instrumento externo ad vocem registrandam desunt rationes necessariae";
 "多选" = "Plura selige";
 "已读" = "Lectum";

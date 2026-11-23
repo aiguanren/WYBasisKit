@@ -194,6 +194,7 @@
 "不支持的消息类型" = "Viestityyppiä ei tueta";
 "发送" = "Lähetä";
 "复制" = "Kopioi";
+"粘贴" = "Liitä";
 "外部录音实现缺少必要方法" = "Ulkoisesta tallentimesta puuttuu vaadittuja metodeja";
 "多选" = "Valitse useita";
 "已读" = "Luettu";

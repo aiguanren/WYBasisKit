@@ -194,6 +194,7 @@
 "不支持的消息类型" = "Nieobsługiwany typ wiadomości";
 "发送" = "Wyślij";
 "复制" = "Kopiuj";
+"粘贴" = "Wklej";
 "外部录音实现缺少必要方法" = "W zewnętrznym rejestratorze brakuje wymaganych metod";
 "多选" = "Wybierz wiele";
 "已读" = "Przeczytana";

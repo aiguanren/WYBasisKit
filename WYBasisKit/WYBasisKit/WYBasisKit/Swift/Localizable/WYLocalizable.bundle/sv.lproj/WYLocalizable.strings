@@ -194,6 +194,7 @@
 "不支持的消息类型" = "Meddelandetypen stöds inte";
 "发送" = "Skicka";
 "复制" = "Kopiera";
+"粘贴" = "Klistra in";
 "外部录音实现缺少必要方法" = "Den externa inspelaren saknar nödvändiga metoder";
 "多选" = "Välj flera";
 "已读" = "Läst";

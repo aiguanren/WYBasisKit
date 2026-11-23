@@ -194,6 +194,7 @@
 "不支持的消息类型" = "Type de message non pris en charge";
 "发送" = "Envoyer";
 "复制" = "Copier";
+"粘贴" = "Coller";
 "外部录音实现缺少必要方法" = "L’enregistreur externe ne fournit pas les méthodes requises";
 "多选" = "Sélection multiple";
 "已读" = "Lu";

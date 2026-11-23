@@ -256,6 +256,33 @@ final class WYChatViewTests: XCTestCase {
         XCTAssertTrue(passed.waitForExistence(timeout: 15))
     }
 
+    func testTextMessageMenuCopiesAndPastesIntoDraft() {
+        let app = openChat()
+        let editor = app.textViews["WYChatInput.text"]
+        let text = "Clipboard message"
+        editor.tap()
+        editor.typeText(text)
+        let send = app.buttons["WYChatInput.send"]
+        XCTAssertTrue(send.waitForExistence(timeout: 5))
+        send.tap()
+
+        let message = app.tables.firstMatch.textViews.matching(NSPredicate(format: "value == %@", text)).firstMatch
+        XCTAssertTrue(message.waitForExistence(timeout: 5))
+        message.press(forDuration: 0.8)
+        let copy = app.buttons["复制"].firstMatch
+        XCTAssertTrue(copy.waitForExistence(timeout: 5))
+        copy.tap()
+
+        editor.tap()
+        editor.typeText("Draft: ")
+        message.press(forDuration: 0.8)
+        let paste = app.buttons["粘贴"].firstMatch
+        XCTAssertTrue(paste.waitForExistence(timeout: 5))
+        paste.tap()
+        XCTAssertEqual(editor.value as? String, "Draft: " + text)
+        XCTAssertEqual(app.tables.firstMatch.textViews.matching(NSPredicate(format: "value == %@", text)).count, 1)
+    }
+
     func testExternalMessageActionsActualMenu() {
         let app = openChat()
         app.navigationBars.buttons["测试"].tap()

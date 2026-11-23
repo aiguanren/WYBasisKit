@@ -194,6 +194,7 @@
 "不支持的消息类型" = "Loại tin nhắn không được hỗ trợ";
 "发送" = "Gửi";
 "复制" = "Sao chép";
+"粘贴" = "Dán";
 "外部录音实现缺少必要方法" = "Trình ghi âm bên ngoài thiếu các phương thức bắt buộc";
 "多选" = "Chọn nhiều";
 "已读" = "Đã đọc";

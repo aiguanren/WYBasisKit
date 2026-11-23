@@ -194,6 +194,7 @@
 "不支持的消息类型" = "Desteklenmeyen mesaj türü";
 "发送" = "Gönder";
 "复制" = "Kopyala";
+"粘贴" = "Yapıştır";
 "外部录音实现缺少必要方法" = "Harici kayıt uygulamasında gerekli yöntemler eksik";
 "多选" = "Çoklu seçim";
 "已读" = "Okundu";
