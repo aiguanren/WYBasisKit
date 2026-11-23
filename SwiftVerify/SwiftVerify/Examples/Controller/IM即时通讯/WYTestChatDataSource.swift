@@ -24,7 +24,7 @@ extension WYTestChatController {
             WYChatMessageContentModel(text: "这是一条较长的消息，用于展示文本换行、表情[彩虹]、电话号码13800138000以及链接https://www.apple.com。"),
             WYChatMessageContentModel(voice: WYChatVoiceModel(duration: 12, voiceToText: "语音识别结果可以在这里展示")),
             WYChatMessageContentModel(photo: WYChatPhotoModel(original: assets, thumbnail: assets)),
-            WYChatMessageContentModel(music: WYChatMusicModel(name: "示例音乐", singer: "演唱者", duration: 180, cover: assets, thumbnailCover: assets)),
+            WYChatMessageContentModel(music: WYChatMusicModel(name: "示例音乐", singer: "演唱者", duration: 180)),
             WYChatMessageContentModel(video: WYChatVideoModel(cover: assets, thumbnailCover: assets, duration: 25)),
             WYChatMessageContentModel(luckyMoney: WYChatLuckyMoneyModel(amounts: "20.00", remarks: "祝你开心", notes: "红包")),
             WYChatMessageContentModel(transfer: WYChatLuckyMoneyModel(amounts: "100.00", state: .received, remarks: "示例转账")),
