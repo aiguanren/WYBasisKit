@@ -209,11 +209,7 @@ extension WYChatView {
         }
         if let resource {
             let image = UIImage.wy_find(resource, inBundle: WYChatSourceBundle)
-            return renderer.image { renderer in
-                if action == .withdraw {
-                    renderer.cgContext.translateBy(x: size, y: 0)
-                    renderer.cgContext.scaleBy(x: -1, y: 1)
-                }
+            return renderer.image { _ in
                 image.draw(in: CGRect(x: 0, y: 0, width: size, height: size))
             }.withRenderingMode(.alwaysTemplate)
         }
