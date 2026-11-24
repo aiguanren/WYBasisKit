@@ -65,6 +65,7 @@ final class WYChatTestSuite {
         registerAppearanceCases()
         registerConfigurationColorPickerCase()
         registerEmojiGestureCase()
+        registerMessageEmojiPlaybackCase()
         registerReadingPositionCase()
         registerEmojiLimitCase()
         registerRecordingCases()
@@ -1395,7 +1396,7 @@ final class WYChatTestSuite {
                 WYChatTestResult(name: "records-real-close", passed: closed, detail: "", milliseconds: 0)
             ]
         })
-        cases.append(WYChatTestCase("区间选择与合并转发真实操作", group: "手势", explanation: "长按进入多选，再长按选择连续区间，通过工具条选择合并转发，检查宿主收到的顺序和原发送者", requiresInteraction: true) { [weak self] in
+        cases.append(WYChatTestCase("区间选择与合并转发真实操作", group: "手势", explanation: "长按进入多选，通过长按菜单和浮动按钮扩展区间，再合并转发，检查宿主收到的顺序和原发送者", requiresInteraction: true) { [weak self] in
             guard let self, let root = self.chatView.window?.rootViewController else { return [] }
             var presenter = root
             while let next = presenter.presentedViewController { presenter = next }
@@ -1404,6 +1405,8 @@ final class WYChatTestSuite {
             presenter.present(host, animated: false)
             var config = self.chatView.configuration
             config.input.draftStorageKey = ""
+            config.selection.rangeTitle = "选到这条消息"
+            config.selection.rangeButton.title = "全选到这里"
             let view = WYChatView(userInfo: self.chatView.userInfo, configuration: config)
             view.translatesAutoresizingMaskIntoConstraints = false
             host.view.addSubview(view)
@@ -1421,7 +1424,7 @@ final class WYChatTestSuite {
             }
             return [
                 WYChatTestResult(name: "selection-real-merged-mode", passed: mode == .merged, detail: "", milliseconds: 0),
-                WYChatTestResult(name: "selection-real-range-order", passed: received.map(\.messageID) == ["range-touch-1", "range-touch-2", "range-touch-3", "range-touch-4"], detail: received.map(\.messageID).joined(separator: ","), milliseconds: 0),
+                WYChatTestResult(name: "selection-real-range-order", passed: received.map(\.messageID) == (1...5).map { "range-touch-\($0)" }, detail: received.map(\.messageID).joined(separator: ","), milliseconds: 0),
                 WYChatTestResult(name: "selection-real-original-authors", passed: received.allSatisfy { $0.sender == author } && !received.isEmpty, detail: "", milliseconds: 0),
                 WYChatTestResult(name: "selection-real-exits-after-forward", passed: !view.isSelectingMessages && view.selectedMessageIDs.isEmpty && !view.chatInput.isHidden, detail: "", milliseconds: 0)
             ]
@@ -1436,9 +1439,15 @@ final class WYChatTestSuite {
             config.selection.insets = UIEdgeInsets(top: 5, left: 7, bottom: 9, right: 11)
             config.selection.indicatorSize = CGSize(width: 28, height: 22)
             config.selection.indicatorInsets = UIEdgeInsets(top: 2, left: 9, bottom: 4, right: 13)
+            config.selection.indicatorPosition = WYChatSelectionConfig().indicatorPosition
             config.selection.selectedColor = .systemOrange
             config.selection.unselectedColor = .systemCyan
             config.selection.rendersIndicatorAsTemplate = true
+            config.selection.rangeButton.edgeInset = 12
+            config.selection.rangeButton.tintColor = .systemOrange
+            config.selection.rangeButton.backgroundColor = .systemYellow
+            config.selection.rangeButton.cornerRadius = 9
+            config.selection.rangeButton.topImage = nil
             let view = WYChatView(userInfo: self.chatView.userInfo, configuration: config)
             let host = self.chatView.window ?? self.chatView
             view.frame = host.bounds
@@ -1447,7 +1456,7 @@ final class WYChatTestSuite {
             var checks: [WYChatTestResult] = []
             func check(_ name: String, _ value: Bool, _ detail: String = "") { checks.append(WYChatTestResult(name: name, passed: value, detail: detail, milliseconds: 0)) }
             let author = WYChatUserModel(id: "forward-author", name: "原发送者")
-            let sources = (0..<6).map { WYChatMessageModel(messageID: "forward-\($0)", sender: author, content: WYChatMessageContentModel(text: "消息\($0)")) }
+            let sources = (0..<6).map { WYChatMessageModel(messageID: "forward-\($0)", sender: $0 == 0 ? view.userInfo : author, content: WYChatMessageContentModel(text: "消息\($0)")) }
             view.dataSource = sources
             check("selection-explicit", view.selectMessages(["forward-1", "forward-1"]) && view.selectedMessageIDs == ["forward-1"])
             check("selection-forward-range", view.selectMessages(from: "forward-1", through: "forward-3") && view.selectedMessageIDs == ["forward-1", "forward-2", "forward-3"])
@@ -1457,13 +1466,48 @@ final class WYChatTestSuite {
             view.tableView.layoutIfNeeded()
             let beforeCells = view.tableView.visibleCells.compactMap { $0 as? WYChatBasicCell }
             let beforeWidths = Dictionary(uniqueKeysWithValues: beforeCells.map { ($0.message.messageID, $0.bubblesView.bounds.width) })
-            let indicators = beforeCells.compactMap { cell in cell.contentView.subviews.first { $0.accessibilityIdentifier == "WYChatSelection.indicator" } as? UIImageView }
+            @MainActor func indicator(in cell: WYChatBasicCell) -> UIImageView? {
+                cell.contentView.subviews.first { $0.accessibilityIdentifier == "WYChatSelection.indicator" } as? UIImageView
+            }
+            let indicators = beforeCells.compactMap { indicator(in: $0) }
             check("selection-indicator-size", !indicators.isEmpty && indicators.allSatisfy { !$0.isHidden && $0.bounds.size == config.selection.indicatorSize })
             check("selection-indicator-colors", indicators.contains { $0.tintColor == config.selection.selectedColor } && indicators.contains { $0.tintColor == config.selection.unselectedColor })
             check("selection-indicator-template", indicators.allSatisfy { $0.image?.renderingMode == .alwaysTemplate })
+            check("selection-indicator-leading", beforeCells.contains { $0.message.isSender(view.userInfo.id) }
+                  && beforeCells.contains { !$0.message.isSender(view.userInfo.id) }
+                  && beforeCells.allSatisfy { cell in
+                guard let image = indicator(in: cell) else { return false }
+                return abs(image.frame.minX - config.selection.indicatorInsets.left) < 1 && image.frame.maxX <= cell.bubblesView.frame.minX
+            })
+            let beforeOffset = view.tableView.contentOffset
             _ = view.selectMessages(["forward-0"])
             view.tableView.layoutIfNeeded()
-            check("selection-toggle-preserves-width", view.tableView.visibleCells.compactMap { $0 as? WYChatBasicCell }.allSatisfy { cell in beforeWidths[cell.message.messageID].map { abs($0 - cell.bubblesView.bounds.width) < 1 } ?? false })
+            let toggledCells = view.tableView.visibleCells.compactMap { $0 as? WYChatBasicCell }
+            check("selection-toggle-preserves-width", toggledCells.allSatisfy { cell in beforeWidths[cell.message.messageID].map { abs($0 - cell.bubblesView.bounds.width) < 1 } ?? false })
+            check("selection-toggle-updates-existing-cells", toggledCells.map(ObjectIdentifier.init) == beforeCells.map(ObjectIdentifier.init)
+                  && view.tableView.contentOffset == beforeOffset && toggledCells.allSatisfy { cell in
+                indicator(in: cell)?.accessibilityValue == (cell.message.messageID == "forward-0" ? "1" : "0")
+            })
+            let rangeButton = view.subviews.first { $0.accessibilityIdentifier == "WYChatView.selectionRange" } as? UIButton
+            view.layoutIfNeeded()
+            let inset = config.selection.rangeButton.edgeInset
+            check("selection-range-button-bottom", rangeButton.map { !$0.isHidden && abs($0.frame.maxY - view.tableView.frame.maxY + inset) < 1 && abs($0.frame.minX - view.tableView.frame.minX - inset) < 1 } == true)
+            check("selection-range-button-appearance", rangeButton?.configuration?.baseForegroundColor == config.selection.rangeButton.tintColor
+                  && rangeButton?.configuration?.baseBackgroundColor == config.selection.rangeButton.backgroundColor
+                  && rangeButton?.configuration?.background.cornerRadius == config.selection.rangeButton.cornerRadius
+                  && rangeButton?.configuration?.image != nil)
+            _ = view.selectMessages(["forward-5"])
+            view.layoutIfNeeded()
+            check("selection-range-button-top", rangeButton.map { !$0.isHidden && abs($0.frame.minY - view.tableView.frame.minY - inset) < 1 && $0.configuration?.image == nil } == true)
+            rangeButton?.sendActions(for: .touchUpInside)
+            check("selection-range-button-selects-earlier", view.selectedMessageIDs == Set(sources.map(\.messageID)) && rangeButton?.isHidden == true)
+            _ = view.selectMessages(["forward-5"])
+            var withoutRangeButton = view.configuration
+            withoutRangeButton.selection.showsRangeButton = false
+            view.configuration = withoutRangeButton
+            check("selection-range-button-configured-hidden", rangeButton?.isHidden == true)
+            check("selection-range-button-hidden-keeps-range-selection", view.selectMessages(from: "forward-5", through: "forward-4"))
+            view.configuration = config
             _ = view.selectMessages(["forward-1", "forward-2", "forward-3"])
             let before = view.selectedMessageIDs
             check("selection-invalid-atomic", !view.selectMessages(["forward-0", "missing"]) && view.selectedMessageIDs == before)
@@ -1472,7 +1516,16 @@ final class WYChatTestSuite {
             check("selection-reverse-range", view.selectMessages(from: "forward-4", through: "forward-2") && view.selectedMessageIDs == ["forward-2", "forward-3", "forward-4"])
             var limited = view.configuration
             limited.selection.maximumCount = 3
+            limited.selection.indicatorPosition = .trailing
             view.configuration = limited
+            view.layoutIfNeeded()
+            check("selection-range-button-at-limit", rangeButton?.isHidden == true)
+            let trailingCells = view.tableView.visibleCells.compactMap { $0 as? WYChatBasicCell }
+            check("selection-indicator-trailing", !trailingCells.isEmpty && trailingCells.allSatisfy { cell in
+                guard let image = indicator(in: cell) else { return false }
+                return abs(cell.contentView.bounds.width - image.frame.maxX - limited.selection.indicatorInsets.right) < 1
+                    && image.frame.minX >= cell.bubblesView.frame.maxX
+            })
             check("selection-limit-atomic", !view.selectMessages(from: "forward-0", through: "forward-5") && view.selectedMessageIDs == ["forward-2", "forward-3", "forward-4"])
             limited.selection.allowsRangeSelection = false
             view.configuration = limited
@@ -1539,6 +1592,7 @@ final class WYChatTestSuite {
             guard let self else { return [] }
             var config = self.chatView.configuration
             config.input.draftStorageKey = ""
+            config.imageLoader = nil
             let view = WYChatView(userInfo: self.chatView.userInfo, configuration: config)
             let host = self.chatView.window ?? self.chatView
             view.frame = host.bounds
@@ -1554,8 +1608,11 @@ final class WYChatTestSuite {
             view.layoutIfNeeded()
             check("quote-composer-snapshot", view.quotePreview.quote?.messageID == source.messageID && view.quotePreview.quote?.sender == other && !view.quotePreview.isHidden)
             let inputFrame = view.chatInput.convert(view.chatInput.bounds, to: view)
+            let field = view.chatInput.textVoiceContentView
+            let fieldFrame = field.convert(field.bounds, to: view)
             let quoteFrame = view.quotePreview.convert(view.quotePreview.bounds, to: view)
-            check("quote-composer-above-input", quoteFrame.height > 0 && quoteFrame.maxY <= inputFrame.minY && view.tableView.frame.maxY <= quoteFrame.minY)
+            check("quote-composer-below-text-field", quoteFrame.height > 0 && quoteFrame.minY >= fieldFrame.maxY && quoteFrame.maxY <= inputFrame.maxY && view.tableView.frame.maxY <= inputFrame.minY)
+            check("quote-composer-follows-text-width", abs(quoteFrame.minX - fieldFrame.minX) < 1 && abs(quoteFrame.width - fieldFrame.width) < 1)
             source.content.text = "源消息后来被更新"
             view.dataSource[0] = source
             check("quote-content-value-snapshot", view.quotePreview.quote?.content.text == "保留原始引用内容")
@@ -1568,6 +1625,7 @@ final class WYChatTestSuite {
             let bubble = cell.map { $0.bubblesView.convert($0.bubblesView.bounds, to: $0.contentView) } ?? .zero
             let reference = cell.map { $0.referenceView.convert($0.referenceView.bounds, to: $0.contentView) } ?? .zero
             check("quote-outside-bubble", cell != nil && reference.minY >= bubble.maxY && reference.height > 0 && reference.maxY <= (cell?.contentView.bounds.height ?? 0) + 1, "bubble=\(bubble), reference=\(reference), cell=\(String(describing: cell?.bounds))")
+            check("quote-fits-short-summary", reference.width > 0 && reference.width < config.quote.messageWidth)
             var action: (WYChatAction, String)?
             view.actionHandler = { _, value, identifier in action = (value, identifier) }
             cell?.referenceView.tapHandler?()
@@ -1635,6 +1693,76 @@ final class WYChatTestSuite {
                 preview.layoutIfNeeded()
                 check("quote-preview-layout-\(Int(width))", preview.bounds.contains(preview.closeButton.frame) && preview.bounds.contains(preview.textView.frame) && !preview.titleView.frame.intersects(preview.textView.frame) && !preview.textView.frame.intersects(preview.closeButton.frame))
             }
+
+            let coverURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".png")
+            defer { try? FileManager.default.removeItem(at: coverURL) }
+            let cover = UIGraphicsImageRenderer(size: CGSize(width: 32, height: 24)).image { context in
+                UIColor.systemIndigo.setFill()
+                context.fill(CGRect(x: 0, y: 0, width: 32, height: 24))
+            }
+            try? cover.pngData()?.write(to: coverURL)
+            var asset = WYChatAssetsModel()
+            asset.localPath = coverURL.path
+            let contents = [
+                WYChatMessageContentModel(text: "[微笑]"),
+                WYChatMessageContentModel(text: "图文混排 [微笑]"),
+                WYChatMessageContentModel(photo: WYChatPhotoModel(original: asset)),
+                WYChatMessageContentModel(video: WYChatVideoModel(cover: asset))
+            ]
+            @MainActor func hasEmoji(_ preview: WYChatQuoteView) -> Bool {
+                guard let text = preview.textView.attributedText else { return false }
+                var hasImage = false
+                text.enumerateAttribute(.attachment, in: NSRange(location: 0, length: text.length)) { value, _, _ in
+                    if (value as? NSTextAttachment)?.image != nil { hasImage = true }
+                }
+                return hasImage && !text.string.contains("[微笑]")
+            }
+            for (index, content) in contents.enumerated() {
+                let id = "visual-quote-\(index)"
+                let message = WYChatMessageModel(messageID: id, sender: other, content: content)
+                view.dataSource = [message]
+                view.quoteMessage(id)
+                view.layoutIfNeeded()
+                let composer = view.quotePreview
+                let inputHasEmoji = hasEmoji(composer)
+                for _ in 0..<20 where content.text == nil && (composer.thumbnailView.image == nil || composer.thumbnailView.image === config.quote.input.thumbnailPlaceholder) {
+                    try? await Task.sleep(nanoseconds: 25_000_000)
+                }
+                let inputHasCover = !composer.thumbnailView.isHidden && composer.thumbnailView.image != nil && composer.thumbnailView.image !== config.quote.input.thumbnailPlaceholder
+                let reply = view.sendMessage("引用预览", messageID: id + "-reply")
+                view.layoutIfNeeded()
+                view.tableView.layoutIfNeeded()
+                let cell = view.tableView.cellForRow(at: IndexPath(row: 1, section: 0)) as? WYChatBasicCell
+                if let reference = cell?.referenceView, content.text == nil {
+                    for _ in 0..<20 where reference.thumbnailView.image == nil || reference.thumbnailView.image === config.quote.message.thumbnailPlaceholder {
+                        try? await Task.sleep(nanoseconds: 25_000_000)
+                    }
+                }
+                let messageHasCover = cell.map { !$0.referenceView.thumbnailView.isHidden && $0.referenceView.thumbnailView.image != nil && $0.referenceView.thumbnailView.image !== config.quote.message.thumbnailPlaceholder } ?? false
+                check("quote-format-\(index)", reply.reference?.messageID == id && (content.text != nil ? inputHasEmoji && cell.map { hasEmoji($0.referenceView) } == true : inputHasCover && messageHasCover))
+            }
+
+            view.dataSource = [source] + (0..<30).map {
+                WYChatMessageModel(messageID: "quote-history-\($0)", sender: other, content: WYChatMessageContentModel(text: "聊天记录 \($0)"))
+            }
+            view.quoteMessage(source.messageID)
+            view.scrollToLastMessage()
+            view.layoutIfNeeded()
+            view.tableView.layoutIfNeeded()
+            let sourcePath = IndexPath(row: 0, section: 0)
+            let originallyOffscreen = view.tableView.indexPathsForVisibleRows?.contains(sourcePath) == false
+            view.quotePreview.tapHandler?()
+            for _ in 0..<30 where view.tableView.indexPathsForVisibleRows?.contains(sourcePath) != true {
+                try? await Task.sleep(nanoseconds: 30_000_000)
+            }
+            check("quote-jump-to-offscreen-source", originallyOffscreen && view.tableView.indexPathsForVisibleRows?.contains(sourcePath) == true && view.quotedMessageID == source.messageID)
+            config.quote.inputBelowTextField = false
+            config.quote.inputAlignsWithTextField = false
+            config.quote.inputOuterInsets = UIEdgeInsets(top: 6, left: 10, bottom: 8, right: 12)
+            view.configuration = config
+            view.layoutIfNeeded()
+            let fullWidthQuote = view.quotePreview.convert(view.quotePreview.bounds, to: view)
+            check("quote-composer-custom-position", fullWidthQuote.maxY + 8 <= view.chatInput.frame.minY + 1 && abs(fullWidthQuote.width - (view.safeAreaLayoutGuide.layoutFrame.width - 22)) < 1)
             return checks
         })
         cases.append(WYChatTestCase("引用与重编辑真实操作", group: "手势", explanation: "点击消息引用，长按回复请求撤回，重新编辑后取消引用再发送，检查原生键盘与实际发送结果", requiresInteraction: true) { [weak self] in
@@ -1643,6 +1771,7 @@ final class WYChatTestSuite {
             while let shown = presenter.presentedViewController { presenter = shown }
             let host = WYChatTestHostController()
             host.modalPresentationStyle = .fullScreen
+            host.view.accessibilityIdentifier = "WYChatTests.quoteHost"
             presenter.present(host, animated: false)
             var config = self.chatView.configuration
             config.input.draftStorageKey = ""
@@ -1653,7 +1782,7 @@ final class WYChatTestSuite {
             NSLayoutConstraint.activate([view.leadingAnchor.constraint(equalTo: host.view.leadingAnchor), view.trailingAnchor.constraint(equalTo: host.view.trailingAnchor), view.topAnchor.constraint(equalTo: host.view.safeAreaLayoutGuide.topAnchor), view.bottomAnchor.constraint(equalTo: host.view.bottomAnchor)])
             host.view.layoutIfNeeded()
             defer { view.inputViewResignFirstResponder(); view.releaseAll(); host.dismiss(animated: false) }
-            let source = WYChatMessageModel(messageID: "quote-touch-source", timestamp: String(Date().timeIntervalSince1970), sender: WYChatUserModel(id: "quote-touch-user", name: "引用联系人"), content: WYChatMessageContentModel(text: "被引用的消息"))
+            let source = WYChatMessageModel(messageID: "quote-touch-source", timestamp: String(Date().timeIntervalSince1970), sender: WYChatUserModel(id: "quote-touch-user", name: "引用联系人"), content: WYChatMessageContentModel(text: "被引用的消息 [微笑]"))
             view.dataSource = [source]
             view.quoteMessage(source.messageID)
             let reply = view.sendMessage("重新编辑的回复", messageID: "quote-touch-reply")
@@ -2905,6 +3034,82 @@ final class WYChatTestSuite {
             var changedReference = referenced
             changedReference.reference?.content.photo?.original.localPath = "after"
             check("nested-reference-isolation", referenced.reference?.content.photo?.original.localPath == "" && changedReference.reference?.content.photo?.original.localPath == "after")
+            return results
+        })
+    }
+
+    private func registerMessageEmojiPlaybackCase() {
+        cases.append(WYChatTestCase("消息表情动画", group: "表情", explanation: "验证发送后首轮播放、滚出后恢复静态帧，以及重新进入可见区域时的三种播放策略") { [weak self] in
+            guard let self else { return [] }
+            var results: [WYChatTestResult] = []
+            func check(_ name: String, _ passed: Bool) {
+                results.append(WYChatTestResult(name: name, passed: passed, detail: "", milliseconds: 0))
+            }
+
+            for mode: WYChatEmojiPlaybackMode in [.firstDisplay, .everyDisplay, .staticOnly] {
+                var config = WYChatConfig()
+                config.text.emojiPlaybackMode = mode
+                config.showsInputBar = false
+                let view = WYChatView(configuration: config)
+                view.frame = CGRect(x: 0, y: 0, width: 360, height: 400)
+                let host = self.chatView.window ?? self.chatView
+                host.addSubview(view)
+                defer { view.removeFromSuperview() }
+                view.dataSource = (0..<24).map { index in
+                    WYChatMessageModel(messageID: "emoji-history-\(index)", content: WYChatMessageContentModel(text: "历史消息 \(index)"))
+                }
+                view.sendMessage("发送[微笑]", messageID: "animated-emoji")
+                let table = view.tableView
+                let row = IndexPath(row: view.dataSource.count - 1, section: 0)
+                view.layoutIfNeeded()
+                table.layoutIfNeeded()
+                view.scrollToLastMessage()
+                table.layoutIfNeeded()
+
+                let staticImage = config.emoji.staticEmojiImage("[微笑]").pngData()
+                @MainActor func emojiImage() -> Data? {
+                    guard let cell = table.cellForRow(at: row) as? WYChatTextCell,
+                          let text = cell.textView.attributedText, text.length > 0 else { return nil }
+                    return (text.attribute(.attachment, at: text.length - 1, effectiveRange: nil) as? WYTextAttachment)?.image?.pngData()
+                }
+                @MainActor func renderedText() -> Data? {
+                    guard let cell = table.cellForRow(at: row) as? WYChatTextCell, !cell.textView.bounds.isEmpty else { return nil }
+                    let textView = cell.textView
+                    let renderer = UIGraphicsImageRenderer(bounds: textView.bounds)
+                    return renderer.pngData { textView.layer.render(in: $0.cgContext) }
+                }
+                @MainActor func hasAnimatedFrame() async -> Bool {
+                    for _ in 0..<10 {
+                        if let image = emojiImage(), image != staticImage { return true }
+                        try? await Task.sleep(nanoseconds: 45_000_000)
+                    }
+                    return false
+                }
+
+                check("\(mode)-attachment-present", emojiImage() != nil)
+                let initialRendering = renderedText()
+                let animated = await hasAnimatedFrame()
+                check("\(mode)-first-display", animated == (mode != .staticOnly))
+                if animated {
+                    var didRedraw = false
+                    for _ in 0..<10 {
+                        try? await Task.sleep(nanoseconds: 45_000_000)
+                        if let rendering = renderedText(), rendering != initialRendering { didRedraw = true; break }
+                    }
+                    check("\(mode)-visible-frame-redrawn", initialRendering != nil && didRedraw)
+                }
+
+                table.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: false)
+                table.layoutIfNeeded()
+                check("\(mode)-scrolled-out", table.indexPathsForVisibleRows?.contains(row) == false)
+                view.scrollToLastMessage()
+                table.layoutIfNeeded()
+                check("\(mode)-redisplayed", emojiImage() != nil)
+                let replayed = await hasAnimatedFrame()
+                check("\(mode)-replay", replayed == (mode == .everyDisplay))
+                if mode == .everyDisplay { try? await Task.sleep(nanoseconds: 3_000_000_000) }
+                check("\(mode)-static-frame", staticImage != nil && emojiImage() == staticImage)
+            }
             return results
         })
     }

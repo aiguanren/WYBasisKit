@@ -52,6 +52,8 @@ import WYBasisKitSwift
     public var maximumHeight: CGFloat
     /// 是否显示引用发送者，默认true
     public var showsSender: Bool
+    /// 是否将发送者与摘要显示在同一段
+    public var showsSenderInline: Bool
     /// 引用内容的前缀
     public var prefix: String
     /// 是否显示引用媒体缩略图，默认true
@@ -68,7 +70,7 @@ import WYBasisKitSwift
     public var closeImage: UIImage?
     /// 引用关闭按钮颜色
     public var closeColor: UIColor
-    /// 引用关闭按钮尺寸
+    /// 引用关闭按钮的图标尺寸
     public var closeSize: CGSize
     public override convenience init() { self.init(WYChatQuoteStyle()) }
     @nonobjc public init(_ value: WYChatQuoteStyle) {
@@ -85,6 +87,7 @@ import WYBasisKitSwift
         minimumHeight = value.minimumHeight
         maximumHeight = value.maximumHeight
         showsSender = value.showsSender
+        showsSenderInline = value.showsSenderInline
         prefix = value.prefix
         showsThumbnail = value.showsThumbnail
         thumbnailSize = value.thumbnailSize
@@ -111,6 +114,7 @@ import WYBasisKitSwift
         value.minimumHeight = minimumHeight
         value.maximumHeight = maximumHeight
         value.showsSender = showsSender
+        value.showsSenderInline = showsSenderInline
         value.prefix = prefix
         value.showsThumbnail = showsThumbnail
         value.thumbnailSize = thumbnailSize
@@ -133,17 +137,26 @@ import WYBasisKitSwift
     public var message: WYChatQuoteStyleObjC
     /// 输入框引用外边距
     public var inputOuterInsets: UIEdgeInsets
+    /// 是否将引用预览放在输入框下方，关闭时显示在输入栏上方
+    public var inputBelowTextField: Bool
+    /// 是否按文本框宽度对齐引用预览，关闭时按输入栏宽度对齐
+    public var inputAlignsWithTextField: Bool
     /// 消息引用与气泡的间距
     public var messageSpacing: CGFloat
     /// 消息引用首选宽度
     public var messageWidth: CGFloat
+    /// 是否按内容缩小消息引用宽度，启用时首选宽度作为上限
+    public var fitsMessageContent: Bool
     public override convenience init() { self.init(WYChatQuoteConfig()) }
     @nonobjc public init(_ value: WYChatQuoteConfig) {
         input = WYChatQuoteStyleObjC(value.input)
         message = WYChatQuoteStyleObjC(value.message)
         inputOuterInsets = value.inputOuterInsets
+        inputBelowTextField = value.inputBelowTextField
+        inputAlignsWithTextField = value.inputAlignsWithTextField
         messageSpacing = value.messageSpacing
         messageWidth = value.messageWidth
+        fitsMessageContent = value.fitsMessageContent
         super.init()
     }
     @nonobjc public func toValue() -> WYChatQuoteConfig {
@@ -151,8 +164,11 @@ import WYBasisKitSwift
         value.input = input.toValue()
         value.message = message.toValue()
         value.inputOuterInsets = inputOuterInsets
+        value.inputBelowTextField = inputBelowTextField
+        value.inputAlignsWithTextField = inputAlignsWithTextField
         value.messageSpacing = messageSpacing
         value.messageWidth = messageWidth
+        value.fitsMessageContent = fitsMessageContent
         return value
     }
 }

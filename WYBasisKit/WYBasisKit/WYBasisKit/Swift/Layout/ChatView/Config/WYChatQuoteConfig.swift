@@ -35,6 +35,8 @@ public struct WYChatQuoteStyle {
     public var maximumHeight: CGFloat = UIDevice.wy_screenHeight(120, WYBasisKitConfig.defaultScreenPixels)
     /// 是否显示引用发送者，默认true
     public var showsSender: Bool = true
+    /// 是否将发送者与摘要显示在同一段
+    public var showsSenderInline: Bool = false
     /// 引用内容的前缀
     public var prefix: String = "↪ "
     /// 是否显示引用媒体缩略图，默认true
@@ -48,10 +50,10 @@ public struct WYChatQuoteStyle {
     /// 是否显示关闭按钮，默认false
     public var showsCloseButton: Bool = false
     /// 引用关闭按钮图片
-    public var closeImage: UIImage? = UIImage.wy_find("WYChatViewClose", inBundle: WYChatSourceBundle)
+    public var closeImage: UIImage? = UIImage.wy_find("WYChatViewQuoteDelete", inBundle: WYChatSourceBundle)
     /// 引用关闭按钮颜色
     public var closeColor: UIColor = .tertiaryLabel
-    /// 引用关闭按钮尺寸
+    /// 引用关闭按钮的图标尺寸
     public var closeSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels))
     public init() {}
 }
@@ -59,14 +61,43 @@ public struct WYChatQuoteStyle {
 /// 引用消息与输入预览配置
 public struct WYChatQuoteConfig {
     /// 输入框引用外观
-    public var input: WYChatQuoteStyle = { var value = WYChatQuoteStyle(); value.showsCloseButton = true; return value }()
+    public var input: WYChatQuoteStyle = {
+        var value = WYChatQuoteStyle()
+        value.showsSenderInline = true
+        value.showsCloseButton = true
+        value.prefix = ""
+        value.backgroundColor = .quaternarySystemFill
+        value.textColor = .secondaryLabel
+        value.minimumHeight = UIDevice.wy_screenHeight(28, WYBasisKitConfig.defaultScreenPixels)
+        value.insets.top = UIDevice.wy_screenHeight(5, WYBasisKitConfig.defaultScreenPixels)
+        value.insets.bottom = value.insets.top
+        value.closeSize = CGSize(width: UIDevice.wy_screenWidth(16, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(16, WYBasisKitConfig.defaultScreenPixels))
+        return value
+    }()
     /// 消息引用外观
-    public var message: WYChatQuoteStyle = WYChatQuoteStyle()
+    public var message: WYChatQuoteStyle = {
+        var value = WYChatQuoteStyle()
+        value.showsSenderInline = true
+        value.prefix = ""
+        value.backgroundColor = .tertiarySystemFill
+        value.textColor = .secondaryLabel
+        value.minimumHeight = UIDevice.wy_screenHeight(28, WYBasisKitConfig.defaultScreenPixels)
+        value.insets.top = UIDevice.wy_screenHeight(5, WYBasisKitConfig.defaultScreenPixels)
+        value.insets.bottom = value.insets.top
+        value.thumbnailSize = CGSize(width: UIDevice.wy_screenWidth(28, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(28, WYBasisKitConfig.defaultScreenPixels))
+        return value
+    }()
     /// 输入框引用外边距
-    public var inputOuterInsets: UIEdgeInsets = UIEdgeInsets(top: UIDevice.wy_screenHeight(8, WYBasisKitConfig.defaultScreenPixels), left: UIDevice.wy_screenWidth(12, WYBasisKitConfig.defaultScreenPixels), bottom: UIDevice.wy_screenHeight(8, WYBasisKitConfig.defaultScreenPixels), right: UIDevice.wy_screenWidth(12, WYBasisKitConfig.defaultScreenPixels))
+    public var inputOuterInsets: UIEdgeInsets = UIEdgeInsets(top: UIDevice.wy_screenHeight(4, WYBasisKitConfig.defaultScreenPixels), left: 0, bottom: 0, right: 0)
+    /// 是否将引用预览放在输入框下方，关闭时显示在输入栏上方
+    public var inputBelowTextField: Bool = true
+    /// 是否按文本框宽度对齐引用预览，关闭时按输入栏宽度对齐
+    public var inputAlignsWithTextField: Bool = true
     /// 消息引用与气泡的间距
     public var messageSpacing: CGFloat = UIDevice.wy_screenHeight(6, WYBasisKitConfig.defaultScreenPixels)
     /// 消息引用首选宽度
     public var messageWidth: CGFloat = UIDevice.wy_screenWidth(220, WYBasisKitConfig.defaultScreenPixels)
+    /// 是否按内容缩小消息引用宽度，启用时首选宽度作为上限
+    public var fitsMessageContent: Bool = true
     public init() {}
 }

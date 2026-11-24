@@ -22,7 +22,7 @@ public class WYChatQuoteView: UIView {
     /// 引用关闭控件
     public let closeButton = UIButton(type: .system)
     /// 点击引用内容
-    public var tapHandler: (() -> Void)?
+    public var tapHandler: (() -> Void)? { didSet { wy_updateQuoteAccessibility() } }
     /// 关闭引用
     public var closeHandler: (() -> Void)?
     /// 自定义图片加载，参数为资源、目标控件及被引用消息ID
@@ -39,7 +39,6 @@ public class WYChatQuoteView: UIView {
         self.quote = quote
         self.style = style
         self.imageLoader = imageLoader
-        state.asset = nil
         state.isUpdating = false
         wy_renderQuote()
     }

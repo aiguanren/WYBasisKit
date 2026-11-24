@@ -10,13 +10,48 @@ import UIKit
 /// 消息转发形式
 @objc public enum WYChatForwardMode: Int { case individual, merged }
 
+/// 多选指示图标所在的一侧
+@objc public enum WYChatSelectionIndicatorPosition: Int { case leading, trailing }
+
+/// 浮动区间选择按钮外观
+public struct WYChatRangeButtonConfig {
+    /// 按钮文案，nil时使用selection.rangeTitle
+    public var title: String?
+    /// 按钮字体
+    public var font: UIFont = .preferredFont(forTextStyle: .subheadline)
+    /// 文案和模板图标颜色
+    public var tintColor: UIColor = .systemIndigo
+    /// 按钮背景色
+    public var backgroundColor: UIColor = .secondarySystemGroupedBackground
+    /// 按钮圆角
+    public var cornerRadius: CGFloat = 12
+    /// 按钮边框宽度，0表示隐藏边框
+    public var borderWidth: CGFloat = 1
+    /// 按钮边框颜色，nil时使用淡化后的tintColor
+    public var borderColor: UIColor?
+    /// 按钮与列表边缘的间距
+    public var edgeInset: CGFloat = 8
+    /// 按钮内容内边距
+    public var contentInsets = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
+    /// 列表上缘按钮的图标，nil表示隐藏图标
+    public var topImage: UIImage? = UIImage(systemName: "arrow.down")
+    /// 列表下缘按钮的图标，nil表示隐藏图标
+    public var bottomImage: UIImage? = UIImage(systemName: "arrow.up")
+
+    public init() {}
+}
+
 /// 多选操作与转发外观
 public struct WYChatSelectionConfig {
     /// 最多可选择的消息数，0表示不限
     public var maximumCount: Int = 0
-    /// 是否允许长按选择连续区间，默认true
+    /// 是否允许选择连续区间，默认true
     public var allowsRangeSelection = true
-    /// 区间选择菜单标题
+    /// 是否显示浮动的区间选择按钮，默认true
+    public var showsRangeButton = true
+    /// 浮动区间选择按钮外观
+    public var rangeButton = WYChatRangeButtonConfig()
+    /// 区间选择菜单标题及浮动按钮的默认文案
     public var rangeTitle = WYLocalized("选择到这里", table: WYBasisKitConfig.kitLocalizableTable)
     /// 工具条背景色
     public var backgroundColor: UIColor = .secondarySystemBackground
@@ -48,19 +83,25 @@ public struct WYChatSelectionConfig {
     public var recordsTitle = WYLocalized("聊天记录", table: WYBasisKitConfig.kitLocalizableTable)
     /// 是否显示多选指示图标，默认true
     public var showsIndicator: Bool = true
+    /// 多选指示图标的位置，默认在消息列表起始侧
+    public var indicatorPosition: WYChatSelectionIndicatorPosition = .leading
     /// 多选指示图标尺寸
-    public var indicatorSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(24, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenHeight(24, WYBasisKitConfig.defaultScreenPixels))
+    public var indicatorSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(24, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(24, WYBasisKitConfig.defaultScreenPixels))
     /// 多选指示图标周围间距
-    public var indicatorInsets: UIEdgeInsets = UIEdgeInsets(top: 0, left: UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels), bottom: 0, right: UIDevice.wy_screenWidth(12, WYBasisKitConfig.defaultScreenPixels))
-    /// 选中图标
-    public var selectedImage: UIImage? = UIImage.wy_find("WYChatViewSelected", inBundle: WYChatSourceBundle)
-    /// 未选中图标
-    public var unselectedImage: UIImage? = UIImage.wy_find("WYChatViewUnselected", inBundle: WYChatSourceBundle)
+    public var indicatorInsets: UIEdgeInsets = UIEdgeInsets(top: 0, left: UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels), bottom: 0, right: UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels))
+    /// 选中图标，默认使用圆形勾选模板图标
+    public var selectedImage: UIImage? = WYChatSelectionConfig.defaultSelectedImage
+    /// 未选中图标，默认使用空心圆形模板图标
+    public var unselectedImage: UIImage? = WYChatSelectionConfig.defaultUnselectedImage
     /// 选中图标颜色
     public var selectedColor: UIColor = .systemIndigo
     /// 未选中图标颜色
-    public var unselectedColor: UIColor = .tertiaryLabel
-    /// 是否使用模板方式渲染多选图标，默认false
+    public var unselectedColor: UIColor = .systemGray
+    /// 是否强制使用模板方式渲染多选图标，默认false
     public var rendersIndicatorAsTemplate: Bool = false
+
+    private static let defaultSelectedImage = UIImage(systemName: "checkmark.circle.fill")?.withRenderingMode(.alwaysTemplate)
+    private static let defaultUnselectedImage = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(weight: .light))?.withRenderingMode(.alwaysTemplate)
+
     public init() {}
 }

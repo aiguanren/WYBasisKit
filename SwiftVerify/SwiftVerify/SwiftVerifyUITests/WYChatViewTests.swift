@@ -139,16 +139,37 @@ final class WYChatViewTests: XCTestCase {
         XCTAssertTrue(row.waitForExistence(timeout: 5))
         row.tap()
         app.alerts.buttons["运行"].tap()
-        let reference = app.tables.cells.buttons["↪ 引用联系人"].firstMatch
+        let reference = app.buttons["WYChatReference.quote-touch-reply.open"]
         XCTAssertTrue(reference.waitForExistence(timeout: 5))
+        let editor = app.otherElements["WYChatTests.quoteHost"].textViews["WYChatInput.text"].firstMatch
         let initial = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         initial.name = "chat-message-reference-below-bubble"
         initial.lifetime = .keepAlways
         add(initial)
         reference.tap()
+        let source = app.textViews.matching(NSPredicate(format: "value BEGINSWITH %@", "被引用的消息")).firstMatch
+        XCTAssertTrue(source.waitForExistence(timeout: 5))
+        source.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0.5)).withOffset(CGVector(dx: -5, dy: 0)).press(forDuration: 0.8)
+        let quote = app.buttons["引用"].firstMatch
+        XCTAssertTrue(quote.waitForExistence(timeout: 5))
+        quote.tap()
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 5))
+        let composer = app.buttons["WYChatView.quotePreview.open"]
+        XCTAssertTrue(composer.waitForExistence(timeout: 5))
+        XCTAssertGreaterThanOrEqual(composer.frame.minY, editor.frame.maxY)
+        XCTAssertLessThanOrEqual(composer.frame.maxY, app.keyboards.firstMatch.frame.minY)
+        XCTAssertEqual(composer.frame.minX, editor.frame.minX, accuracy: 1)
+        let preview = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        preview.name = "chat-emoji-quote-below-input"
+        preview.lifetime = .keepAlways
+        add(preview)
+        composer.tap()
+        XCTAssertTrue(app.keyboards.firstMatch.waitForNonExistence(timeout: 5))
+        XCTAssertTrue(composer.exists)
+        app.buttons["WYChatView.quote"].tap()
         let reply = app.textViews.matching(NSPredicate(format: "value == %@", "重新编辑的回复")).firstMatch
         XCTAssertTrue(reply.waitForExistence(timeout: 5))
-        reply.press(forDuration: 0.8)
+        reply.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0.5)).withOffset(CGVector(dx: -5, dy: 0)).press(forDuration: 0.8)
         let withdraw = app.buttons["撤回"].firstMatch
         XCTAssertTrue(withdraw.waitForExistence(timeout: 5))
         withdraw.tap()
@@ -157,13 +178,15 @@ final class WYChatViewTests: XCTestCase {
         reedit.tap()
         XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["WYChatView.quote"].firstMatch.waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons["↪ 引用联系人"].firstMatch.exists)
+        XCTAssertTrue(composer.exists)
         let image = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         image.name = "chat-reedit-quote-above-native-keyboard"
         image.lifetime = .keepAlways
         add(image)
         XCTAssertFalse(app.buttons["Done"].exists)
         app.buttons["WYChatView.quote"].firstMatch.tap()
+        XCTAssertFalse(composer.exists)
+        XCTAssertEqual(editor.value as? String, "重新编辑的回复")
         app.buttons["WYChatInput.send"].firstMatch.tap()
         let passed = row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "通过")).firstMatch
         XCTAssertTrue(passed.waitForExistence(timeout: 15))
@@ -182,6 +205,15 @@ final class WYChatViewTests: XCTestCase {
         app.alerts.buttons["运行"].tap()
         let rate = app.buttons["WYChatVoice.rate.rate-touch"].firstMatch
         XCTAssertTrue(rate.waitForExistence(timeout: 5))
+        let voiceCell = app.cells.containing(.button, identifier: "WYChatVoice.rate.rate-touch").firstMatch
+        let bubble = voiceCell.staticTexts["12″"]
+        XCTAssertTrue(bubble.waitForExistence(timeout: 5))
+        bubble.press(forDuration: 0.8)
+        let favorite = app.buttons["收藏"].firstMatch
+        XCTAssertTrue(favorite.waitForExistence(timeout: 5))
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.01, dy: 0.5)).tap()
+        XCTAssertFalse(favorite.exists)
+        XCTAssertTrue(rate.isHittable)
         let image = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         image.name = "chat-voice-playback-rate"
         image.lifetime = .keepAlways
@@ -239,16 +271,30 @@ final class WYChatViewTests: XCTestCase {
         let select = app.buttons["多选"].firstMatch
         XCTAssertTrue(select.waitForExistence(timeout: 5))
         select.tap()
+        let forward = app.buttons["WYChatView.selectionForward"].firstMatch
+        XCTAssertTrue(forward.waitForExistence(timeout: 5))
+        let rangeButton = app.buttons["WYChatView.selectionRange"]
+        XCTAssertTrue(rangeButton.waitForExistence(timeout: 5))
+        XCTAssertEqual(rangeButton.label, "全选到这里")
+        let firstIndicator = app.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(dx: 22, dy: first.frame.midY - app.frame.minY))
+        firstIndicator.tap()
+        XCTAssertFalse(forward.isEnabled)
+        XCTAssertFalse(rangeButton.exists)
+        firstIndicator.tap()
+        XCTAssertTrue(forward.isEnabled)
         let last = app.textViews.matching(NSPredicate(format: "value == %@", "区间消息4")).firstMatch
         last.press(forDuration: 0.8)
-        let range = app.buttons["选择到这里"].firstMatch
+        let range = app.scrollViews["WYChatMessageMenu"].buttons["选到这条消息"].firstMatch
         XCTAssertTrue(range.waitForExistence(timeout: 5))
         range.tap()
+        XCTAssertTrue(rangeButton.isHittable)
         let image = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         image.name = "chat-range-selection-toolbar"
         image.lifetime = .keepAlways
         add(image)
-        app.buttons["WYChatView.selectionForward"].firstMatch.tap()
+        rangeButton.tap()
+        XCTAssertFalse(rangeButton.exists)
+        forward.tap()
         let merged = app.buttons["合并转发"].firstMatch
         XCTAssertTrue(merged.waitForExistence(timeout: 5))
         merged.tap()
@@ -549,6 +595,45 @@ final class WYChatViewTests: XCTestCase {
         XCTAssertEqual(row.staticTexts.allElementsBoundByIndex.map(\.label).joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines), initial)
     }
 
+    func testMessageEmojiPlaybackModes() {
+        let app = openChat()
+        app.navigationBars.buttons["测试"].tap()
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        search.tap()
+        search.typeText("消息表情动画")
+        let row = app.tables.cells.containing(.staticText, identifier: "消息表情动画").firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        row.tap()
+        app.alerts.buttons["运行"].tap()
+        let passed = row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "通过")).firstMatch
+        XCTAssertTrue(passed.waitForExistence(timeout: 20), row.debugDescription)
+    }
+
+    func testLongPressMessageEmojiUsesChatMenu() {
+        let app = openChat()
+        let editor = app.textViews["WYChatInput.text"]
+        editor.tap()
+        editor.typeText("Emoji target ")
+        app.buttons["WYChatInput.emoji"].tap()
+        let emojis = app.collectionViews["WYChatEmoji.items"]
+        XCTAssertTrue(emojis.cells.firstMatch.waitForExistence(timeout: 5))
+        emojis.cells.firstMatch.tap()
+        let send = app.buttons["WYChatInput.send"]
+        XCTAssertTrue(send.waitForExistence(timeout: 5))
+        send.tap()
+
+        let message = app.tables.firstMatch.textViews.matching(NSPredicate(format: "value BEGINSWITH %@", "Emoji target")).firstMatch
+        XCTAssertTrue(message.waitForExistence(timeout: 5))
+        message.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5)).press(forDuration: 0.9)
+        let menu = app.scrollViews["WYChatMessageMenu"]
+        XCTAssertTrue(menu.waitForExistence(timeout: 5))
+        XCTAssertTrue(menu.buttons["复制"].exists || menu.buttons["Copy"].exists)
+        for title in ["拷贝图像", "保存到相机胶卷", "Copy Image", "Save Image", "Save to Camera Roll", "Save to Photos"] {
+            XCTAssertFalse(app.descendants(matching: .any)[title].firstMatch.exists)
+        }
+    }
+
     func testInputEmojiAndMoreActualWorkflow() {
         let app = openChat()
         let input = app.textViews["WYChatInput.text"]
@@ -709,8 +794,12 @@ final class WYChatViewTests: XCTestCase {
         XCTAssertTrue(row.waitForExistence(timeout: 5))
         row.tap()
         app.alerts.buttons["运行"].tap()
-        let passed = row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "通过")).firstMatch
-        XCTAssertTrue(passed.waitForExistence(timeout: 25))
+        let outcome = row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@ OR label CONTAINS %@", "通过", "失败")).firstMatch
+        XCTAssertTrue(outcome.waitForExistence(timeout: 25))
+        if outcome.label.contains("失败") {
+            row.tap()
+            XCTFail(app.alerts.firstMatch.staticTexts.allElementsBoundByIndex.map(\.label).joined(separator: "\n"))
+        }
     }
 
     func testAvatarMentions() {
@@ -845,6 +934,16 @@ final class WYChatViewTests: XCTestCase {
         XCTAssertTrue(toggle.waitForExistence(timeout: 10))
         let cards = host.collectionViews["WYPhotoBrowser.stackedCards"].firstMatch
         XCTAssertTrue(cards.waitForExistence(timeout: 5))
+        func checkLongPressOpensOnlyMessageMenu() {
+            cards.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).press(forDuration: 0.8)
+            let favorite = app.buttons["收藏"].firstMatch
+            XCTAssertTrue(favorite.waitForExistence(timeout: 5))
+            XCTAssertFalse(app.collectionViews["WYPhotoBrowser.pages"].exists)
+            XCTAssertFalse(app.otherElements["WYChatMedia.videoPlayer"].exists)
+            app.coordinate(withNormalizedOffset: CGVector(dx: 0.01, dy: 0.5)).tap()
+            XCTAssertFalse(favorite.exists)
+        }
+        checkLongPressOpensOnlyMessageMenu()
         let before = cards.frame
         let initial = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
         initial.name = "chat-media-before-first-swipe"
@@ -857,6 +956,7 @@ final class WYChatViewTests: XCTestCase {
         add(after)
         let secondPage = NSPredicate { _, _ in cards.value as? String == "2/3" && !app.collectionViews["WYPhotoBrowser.pages"].exists }
         XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: secondPage, object: nil)], timeout: 5), .completed, "value=\(String(describing: cards.value)), preview=\(app.collectionViews["WYPhotoBrowser.pages"].exists), before=\(before), collection=\(cards.frame)")
+        checkLongPressOpensOnlyMessageMenu()
         cards.swipeRight()
         let thirdPage = NSPredicate { _, _ in cards.value as? String == "3/3" && !app.collectionViews["WYPhotoBrowser.pages"].exists }
         XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: thirdPage, object: nil)], timeout: 5), .completed)

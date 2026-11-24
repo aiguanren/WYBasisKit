@@ -251,10 +251,15 @@ extension WYChatBasicCell {
         let frame = state.mediaView.convert(state.mediaView.bounds, to: contentView)
         let center = state.mediaView.convert(CGPoint(x: 0, y: state.mediaView.firstItemCenterY), to: contentView).y
         let sender = message.isSender(userID)
+        let bubbleIsOnRight = sender == (contentView.effectiveUserInterfaceLayoutDirection == .leftToRight)
         let pending = sender && (!loadingView.isHidden || !activityView.isHidden) ? finite(configuration.basic.messageSendingStateOffset) + finite(configuration.basic.messageSendingStateSize.width) : 0
-        let desired = sender ? frame.minX - finite(config.buttonSpacing) - width - pending : frame.maxX + finite(config.buttonSpacing)
+        let spacing = finite(config.buttonSpacing) + pending
+        let desired = bubbleIsOnRight ? frame.minX - spacing - width : frame.maxX + spacing
         let inset = finite(sender ? configuration.sender.edgeInset : configuration.receiver.edgeInset)
-        let x = min(max(0, contentView.bounds.width - width - inset - wy_selectionIndicatorWidth), max(inset, desired))
+        let selectionWidth = wy_selectionIndicatorWidth
+        let leftInset = inset + (wy_selectionIndicatorIsOnLeft ? selectionWidth : 0)
+        let rightInset = inset + (wy_selectionIndicatorIsOnLeft ? 0 : selectionWidth)
+        let x = min(max(0, contentView.bounds.width - width - rightInset), max(leftInset, desired))
         state.mediaToggle.frame = CGRect(x: x, y: max(0, center - height / 2), width: width, height: height)
     }
 

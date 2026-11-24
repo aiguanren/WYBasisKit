@@ -169,6 +169,7 @@ open class WYChatBasicCell: UITableViewCell {
         super.layoutSubviews()
         wy_updateLayout()
         contentView.layoutIfNeeded()
+        wy_layoutSelectionIndicator()
         wy_layoutMediaToggle()
     }
 

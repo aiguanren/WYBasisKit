@@ -108,7 +108,7 @@ public struct WYEmojiViewConfig {
             return staticImage
         }
         let frameIndex = (staticFramePosition == .first) ? 0 : -1
-        for ext in ["gif", "webp"] {
+        for ext in ["gif", "webp", "apng"] {
             if let frameImage = emojiAnimatedFrame(emojiName, ext: ext, frameIndex: frameIndex) {
                 return frameImage
             }

@@ -329,6 +329,8 @@ public class WYChatInputView: UIImageView {
     /// 录音结果，参数为文件URL、时长和错误
     public var recordingResultHandler: ((_ url: URL?, _ duration: TimeInterval, _ error: NSError?) -> Void)? = nil
     internal var textEditingHandler: ((NSRange, String) -> Void)?
+    internal var quoteLayoutHandler: (() -> Void)?
+    internal var quoteReservedHeight: CGFloat = 0 { didSet { wy_updateQuoteSpacing() } }
     internal var hasCreatedRecordView = false
     internal var recordingGestureID: UUID? = nil
     internal let placeholderGate = UIButton(type: .custom)
@@ -367,6 +369,7 @@ public class WYChatInputView: UIImageView {
         super.layoutSubviews()
         textVoiceContentView.layoutIfNeeded()
         wy_updateDictationControls()
+        quoteLayoutHandler?()
     }
 
     public override func didMoveToWindow() {
@@ -428,6 +431,12 @@ extension WYChatInputView: UITextViewDelegate {
     @available(iOS 17.0, *)
     public func textView(_ textView: UITextView, primaryActionFor textItem: UITextItem, defaultAction: UIAction) -> UIAction? {
         return wy_impl_textView(textView, primaryActionFor: textItem, defaultAction: defaultAction)
+    }
+
+    @available(iOS 17.0, *)
+    public func textView(_ textView: UITextView, menuConfigurationFor textItem: UITextItem, defaultMenu: UIMenu) -> UITextItem.MenuConfiguration? {
+        if case let .textAttachment(attachment) = textItem.content, attachment is WYTextAttachment { return nil }
+        return UITextItem.MenuConfiguration(menu: defaultMenu)
     }
     
     public func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {

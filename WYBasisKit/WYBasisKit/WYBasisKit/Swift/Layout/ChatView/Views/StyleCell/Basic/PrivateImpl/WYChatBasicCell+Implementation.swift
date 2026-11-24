@@ -336,7 +336,7 @@ extension WYChatBasicCell {
         state.preferredWidth?.isActive = true
         referenceView.accessibilityIdentifier = "WYChatReference.\(message.messageID)"
         referenceView.isMeasuring = state.isMeasuring
-        referenceView.update(quote: message.reference, style: configuration.quote.message) { [weak self] asset, view, _ in self?.wy_loadImage(asset, into: view) }
+        referenceView.wy_updateQuote(message.reference, style: configuration.quote.message, configuration: configuration)
         renderContent()
         wy_renderVoicePlayback()
         state.title.setContentCompressionResistancePriority(state.voiceRateButton.isHidden ? .defaultHigh : UILayoutPriority(999), for: .horizontal)
@@ -373,6 +373,11 @@ extension WYChatBasicCell {
         let style = configuration.selection
         return max(0, style.indicatorSize.width) + max(0, style.indicatorInsets.left) + max(0, style.indicatorInsets.right)
     }
+
+    var wy_selectionIndicatorIsOnLeft: Bool {
+        (configuration.selection.indicatorPosition == .leading) == (contentView.effectiveUserInterfaceLayoutDirection == .leftToRight)
+    }
+
     func wy_updateSelectionIndicator() {
         let style = configuration.selection
         let indicator = state.selectionIndicator
@@ -386,12 +391,23 @@ extension WYChatBasicCell {
             state.rendersSelectionIndicatorAsTemplate = style.rendersIndicatorAsTemplate
         }
         indicator.tintColor = isMessageSelected ? style.selectedColor : style.unselectedColor
-        let size = CGSize(width: max(0, style.indicatorSize.width), height: max(0, style.indicatorSize.height))
+        indicator.accessibilityValue = isMessageSelected ? "1" : "0"
+    }
+
+    func wy_layoutSelectionIndicator() {
+        let indicator = state.selectionIndicator
+        guard !indicator.isHidden else { return }
+        let style = configuration.selection
         let insets = style.indicatorInsets
         let top = max(0, insets.top)
-        let height = max(0, contentView.bounds.height - top - max(0, insets.bottom))
-        indicator.frame = CGRect(x: max(0, contentView.bounds.width - max(0, insets.right) - size.width), y: top + max(0, (height - size.height) / 2), width: size.width, height: min(height, size.height))
-        indicator.accessibilityValue = isMessageSelected ? "1" : "0"
+        let bottom = max(0, insets.bottom)
+        let width = max(0, style.indicatorSize.width)
+        let height = min(max(0, style.indicatorSize.height), max(0, contentView.bounds.height - top - bottom))
+        let x = wy_selectionIndicatorIsOnLeft ? max(0, insets.left) : max(0, contentView.bounds.width - max(0, insets.right) - width)
+        let firstLineHeight = min(bubblesView.bounds.height, max(height, configuration.basic.avatarSize.height))
+        let centerY = avatarView.isHidden ? bubblesView.frame.minY + firstLineHeight / 2 : avatarView.frame.midY
+        let y = max(top, min(contentView.bounds.height - bottom - height, centerY - height / 2 + (top - bottom) / 2))
+        indicator.frame = CGRect(x: x, y: y, width: width, height: height)
     }
 
     func wy_updateLayout(width: CGFloat? = nil) {
@@ -412,9 +428,14 @@ extension WYChatBasicCell {
         let avatarHeight = avatarView.isHidden ? 0 : max(0, basic.avatarSize.height)
         state.avatarWidth.constant = avatarWidth
         state.avatarHeight.constant = avatarHeight
-        state.left[0].constant = max(0, configuration.receiver.edgeInset)
-        state.left[3].constant = -wy_selectionIndicatorWidth
-        state.right[0].constant = -max(0, configuration.sender.edgeInset) - wy_selectionIndicatorWidth
+        let selectionWidth = wy_selectionIndicatorWidth
+        let leadingInset = configuration.selection.indicatorPosition == .leading ? selectionWidth : 0
+        let trailingInset = selectionWidth - leadingInset
+        state.left[0].constant = max(0, configuration.receiver.edgeInset) + leadingInset
+        state.left[3].constant = -trailingInset
+        state.right[0].constant = -max(0, configuration.sender.edgeInset) - trailingInset
+        state.right[3].constant = leadingInset
+        state.center.constant = (wy_selectionIndicatorIsOnLeft ? selectionWidth : -selectionWidth) / 2
         let gap = avatarWidth > 0 ? max(0, side.contentSpacing) : 0
         (sender ? state.right : state.left)[1].constant = sign * gap
         (sender ? state.right : state.left)[4].constant = sign * basic.messageSendingStateOffset
@@ -438,11 +459,12 @@ extension WYChatBasicCell {
         let ratio = style.maximumWidthRatio.isFinite ? min(1, max(0.1, style.maximumWidthRatio)) : 0.75
         wy_updateSelectionIndicator()
         let layoutWidth = width ?? contentView.bounds.width
-        let available = max(1, layoutWidth - wy_selectionIndicatorWidth - max(0, side.edgeInset) * 2 - avatarWidth - gap - max(0, basic.messageSendingStateOffset) - max(0, basic.messageSendingStateSize.width))
+        let available = max(1, layoutWidth - selectionWidth - max(0, side.edgeInset) * 2 - avatarWidth - gap - max(0, basic.messageSendingStateOffset) - max(0, basic.messageSendingStateSize.width))
         state.width.constant = style.maximumWidth > 0 && style.maximumWidth.isFinite ? min(available, style.maximumWidth) : max(1, available * ratio)
         state.preferredWidth?.constant = max(1, min(state.preferredContentWidth ?? style.preferredWidth, state.width.constant - style.insets.left - style.insets.right))
         let referenceWidth = configuration.quote.messageWidth.isFinite ? configuration.quote.messageWidth : state.width.constant
-        state.referenceWidth.constant = max(1, min(state.width.constant, referenceWidth > 0 ? referenceWidth : state.width.constant))
+        let maximumReferenceWidth = max(1, min(state.width.constant, referenceWidth > 0 ? referenceWidth : state.width.constant))
+        state.referenceWidth.constant = configuration.quote.fitsMessageContent && message.reference != nil ? referenceView.wy_fittedQuoteWidth(maximum: maximumReferenceWidth) : maximumReferenceWidth
         let referenceHeight = message.reference == nil ? 0 : referenceView.sizeThatFits(CGSize(width: state.referenceWidth.constant, height: .greatestFiniteMagnitude)).height
         let referenceGap = message.reference == nil ? 0 : max(0, configuration.quote.messageSpacing)
         state.referenceHeight.constant = referenceHeight

@@ -1498,6 +1498,8 @@ import WYBasisKitSwift
     public var isSelectable: Bool
     /// 自动识别的链接类型
     public var dataDetectorTypes: UIDataDetectorTypes
+    /// 文本消息内表情的播放方式，默认仅首次展示时播放
+    public var emojiPlaybackMode: WYChatEmojiPlaybackMode
 
     public override convenience init() { self.init(WYTextChatConfig()) }
 
@@ -1508,6 +1510,7 @@ import WYBasisKitSwift
         self.textLineSpacing = value.textLineSpacing
         self.isSelectable = value.isSelectable
         self.dataDetectorTypes = value.dataDetectorTypes
+        self.emojiPlaybackMode = value.emojiPlaybackMode
         super.init()
     }
 
@@ -1519,6 +1522,7 @@ import WYBasisKitSwift
         value.textLineSpacing = textLineSpacing
         value.isSelectable = isSelectable
         value.dataDetectorTypes = dataDetectorTypes
+        value.emojiPlaybackMode = emojiPlaybackMode
         return value
     }
 }

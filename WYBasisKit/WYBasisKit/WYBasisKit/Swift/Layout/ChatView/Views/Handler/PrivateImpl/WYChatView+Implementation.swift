@@ -30,6 +30,7 @@ final class WYChatViewPrivateState {
     var measuredHeights: [WYChatMeasurementKey: WYChatMeasuredHeight] = [:]
     var measuringCells: [WYChatMessageStyle: WYChatBasicCell] = [:]
     var hasUniqueMessageIDs = true
+    var playedEmojiMessages: Set<WYChatEmojiMessageKey> = []
     var inputMentions: [WYChatMention] = []
     var mentionText = ""
     var inputQuote: WYChatQuoteModel?
@@ -39,11 +40,16 @@ final class WYChatViewPrivateState {
     var pendingMentionEdit: (old: String, range: NSRange, replacement: String)?
     var selectionAnchorID: String?
     var selectionHeight: NSLayoutConstraint?
+    let selectionRangeButton = UIButton(type: .system)
+    var selectionRangeEdges: (top: NSLayoutConstraint, bottom: NSLayoutConstraint, leading: NSLayoutConstraint, trailing: NSLayoutConstraint)?
+    var selectionRangeAnchorRow: Int?
+    var selectionRangePrefersEarlier = false
+    var selectionRangeScrollOffset: CGFloat?
     var recognizingMessageID: String?
     var speech: WYChatSpeechRecognitionTask?
 }
 
-/// 列表空白区域的点击识别
+/// 列表点击与消息菜单长按的协调
 final class WYChatBackgroundTapDelegate: NSObject, UIGestureRecognizerDelegate {
     var allowsMessageMenu: ((CGPoint) -> Bool)?
 
@@ -52,8 +58,22 @@ final class WYChatBackgroundTapDelegate: NSObject, UIGestureRecognizerDelegate {
         return allowsMessageMenu?(gestureRecognizer.location(in: gestureRecognizer.view)) ?? false
     }
 
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        guard gestureRecognizer is UITapGestureRecognizer else { return true }
+        var view = touch.view
+        while let target = view, target !== gestureRecognizer.view {
+            if target is WYChatQuoteView { return false }
+            view = target.superview
+        }
+        return true
+    }
+
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        !(otherGestureRecognizer is UILongPressGestureRecognizer)
+        gestureRecognizer is UITapGestureRecognizer && !(otherGestureRecognizer is UILongPressGestureRecognizer)
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        gestureRecognizer is UILongPressGestureRecognizer && otherGestureRecognizer is UITapGestureRecognizer
     }
 }
 
@@ -162,6 +182,7 @@ extension WYChatView {
         value.recordAnimationConfig = configuration.recording
         value.delegate = self
         value.eventsHandler = self
+        value.quoteLayoutHandler = { [weak self] in self?.wy_layoutQuoteComposer() }
         value.textEditingHandler = { [weak self] range, replacement in self?.wy_recordInputEdit(range: range, replacement: replacement) }
         value.recordingResultHandler = { [weak self] url, duration, error in
             guard let self else { return }
@@ -180,7 +201,13 @@ extension WYChatView {
 
     func wy_makeTableView() -> UITableView {
         let value = WYChatMessageTableView(frame: .zero, style: .plain)
-        value.layoutHandler = { [weak self] in self?.wy_restoreReadingPosition(); self?.wy_followBottomLayout(); self?.wy_captureReadingPosition() }
+        value.layoutHandler = { [weak self] in
+            guard let self else { return }
+            self.wy_restoreReadingPosition()
+            self.wy_followBottomLayout()
+            self.wy_captureReadingPosition()
+            self.wy_updateRangeSelectionButton()
+        }
         value.geometryHandler = { [weak self] in self?.wy_restoreReadingPosition(); self?.wy_followBottomLayout() }
         value.widthChangeHandler = { [weak self] in self?.wy_captureReadingPosition() }
         value.manualScrollHandler = { [weak self] in self?.wy_cancelAutomaticScroll() }
@@ -270,10 +297,29 @@ extension WYChatView {
 
     func wy_refreshInputAnchors() {
         NSLayoutConstraint.deactivate(state.inputDependent)
-        let insets = configuration.quote.inputOuterInsets
+        let quote = configuration.quote
+        let insets = quote.inputOuterInsets
+        let input = chatInput
+        let previewParent: UIView = quote.inputBelowTextField ? input : self
+        if quotePreview.superview !== previewParent { previewParent.addSubview(quotePreview) }
         let selection = isSelectingMessages && configuration.showsSelectionToolbar
-        let bottom = selection ? selectionToolbar.topAnchor : !configuration.showsInputBar ? safeAreaLayoutGuide.bottomAnchor : state.inputQuote == nil ? chatInput.topAnchor : quotePreview.topAnchor
-        state.inputDependent = [tableView.bottomAnchor.constraint(equalTo: bottom, constant: selection || !configuration.showsInputBar || state.inputQuote == nil ? 0 : -max(0, insets.top)), quotePreview.bottomAnchor.constraint(equalTo: chatInput.topAnchor, constant: -max(0, insets.bottom)), quotePreview.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: max(0, insets.left)), quotePreview.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -max(0, insets.right)), newMessagesButton.bottomAnchor.constraint(equalTo: chatInput.topAnchor, constant: -configuration.messageSpacing)]
+        let showsQuote = !selection && configuration.showsInputBar && state.inputQuote != nil
+        quotePreview.isHidden = !showsQuote
+        let quoteAboveInput = showsQuote && !quote.inputBelowTextField
+        let composerTop = quoteAboveInput ? quotePreview.topAnchor : input.topAnchor
+        let bottom = selection ? selectionToolbar.topAnchor : !configuration.showsInputBar ? safeAreaLayoutGuide.bottomAnchor : composerTop
+        let previewLeft = quote.inputAlignsWithTextField ? input.textVoiceContentView.leftAnchor : safeAreaLayoutGuide.leftAnchor
+        let previewRight = quote.inputAlignsWithTextField ? input.textVoiceContentView.rightAnchor : safeAreaLayoutGuide.rightAnchor
+        let quoteVertical = quote.inputBelowTextField
+            ? quotePreview.topAnchor.constraint(equalTo: input.textVoiceContentView.bottomAnchor, constant: max(0, insets.top))
+            : quotePreview.bottomAnchor.constraint(equalTo: input.topAnchor, constant: -max(0, insets.bottom))
+        state.inputDependent = [
+            tableView.bottomAnchor.constraint(equalTo: bottom, constant: quoteAboveInput ? -max(0, insets.top) : 0),
+            quoteVertical,
+            quotePreview.leftAnchor.constraint(equalTo: previewLeft, constant: max(0, insets.left)),
+            quotePreview.rightAnchor.constraint(equalTo: previewRight, constant: -max(0, insets.right)),
+            newMessagesButton.bottomAnchor.constraint(equalTo: composerTop, constant: -configuration.messageSpacing)
+        ]
         NSLayoutConstraint.activate(state.inputDependent)
     }
 
@@ -432,7 +478,7 @@ extension WYChatView {
             if nearBottom { self.scrollToLastMessage() }
         } completion: { [weak self] finished in
             guard let self, finished else { return }
-            if nearBottom, !self.tableView.isTracking, !self.tableView.isDecelerating { self.scrollToLastMessage() }
+            if nearBottom, self.state.followsBottom, !self.tableView.isTracking, !self.tableView.isDecelerating { self.scrollToLastMessage() }
             guard notification != nil, self.touchStyle == .done, self.chatInput.textView.isFirstResponder, self.state.inputBottom?.constant == constant else { return }
             self.state.inputBottom?.constant = 0
             UIView.performWithoutAnimation { self.layoutIfNeeded() }

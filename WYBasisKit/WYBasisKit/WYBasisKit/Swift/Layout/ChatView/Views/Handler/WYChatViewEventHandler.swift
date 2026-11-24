@@ -15,9 +15,19 @@ extension WYChatView: UITableViewDelegate, UITableViewDataSource {
     public func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat { wy_cachedHeight(at: indexPath) ?? tableView.estimatedRowHeight }
 
     public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        guard dataSource.indices.contains(indexPath.row), configuration.customCellClasses.isEmpty,
+        (cell as? WYChatTextCell)?.wy_beginEmojiDisplay(in: self)
+        guard dataSource.indices.contains(indexPath.row),
               let cell = cell as? WYChatBasicCell, cell.message.messageID == dataSource[indexPath.row].messageID else { return }
+        if cell.wy_isSelectingMessages {
+            let selected = selectedMessageIDs.contains(cell.message.messageID)
+            if cell.isMessageSelected != selected { cell.isMessageSelected = selected }
+        }
+        guard configuration.customCellClasses.isEmpty else { return }
         state.measuredHeights[wy_measurementKey(at: indexPath)] = WYChatMeasuredHeight(width: tableView.bounds.width, height: cell.bounds.height)
+    }
+
+    public func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        (cell as? WYChatTextCell)?.wy_endEmojiDisplay()
     }
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -68,6 +78,7 @@ extension WYChatView: UITableViewDelegate, UITableViewDataSource {
 
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         for view in state.mediaViews.allObjects { view.updateVisibleImages() }
+        wy_updateRangeSelectionScroll(scrollView)
         guard eventsHandler?.wy_canManagerScrollViewDidScrollEvents?(scrollView) ?? true else { return }
         if wy_isNearBottom { newMessagesButton.isHidden = true }
         delegate?.wy_scrollViewDidScroll?(scrollView)

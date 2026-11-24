@@ -333,11 +333,16 @@
         WYChatConfig *quoteConfig = self.chatView.configuration;
         quoteConfig.quote.input.titleFont = [UIFont systemFontOfSize:19];
         quoteConfig.quote.message.spacing = 9;
+        quoteConfig.quote.message.showsSenderInline = NO;
+        quoteConfig.quote.fitsMessageContent = NO;
+        quoteConfig.quote.inputBelowTextField = NO;
+        quoteConfig.quote.inputAlignsWithTextField = NO;
         quoteConfig.quote.inputOuterInsets = UIEdgeInsetsMake(3, 14, 7, 18);
         quoteConfig.notice.reeditTimeLimit = 0;
         quoteConfig.notice.withdrawalTimeLimit = 0;
         self.chatView.configuration = quoteConfig;
-        check(@"quote-config-roundtrip", self.chatView.configuration.quote.input.titleFont.pointSize == 19 && self.chatView.configuration.quote.message.spacing == 9 && UIEdgeInsetsEqualToEdgeInsets(self.chatView.configuration.quote.inputOuterInsets, UIEdgeInsetsMake(3, 14, 7, 18)));
+        WYChatQuoteConfig *configuredQuote = self.chatView.configuration.quote;
+        check(@"quote-config-roundtrip", configuredQuote.input.titleFont.pointSize == 19 && configuredQuote.message.spacing == 9 && !configuredQuote.message.showsSenderInline && !configuredQuote.fitsMessageContent && !configuredQuote.inputBelowTextField && !configuredQuote.inputAlignsWithTextField && UIEdgeInsetsEqualToEdgeInsets(configuredQuote.inputOuterInsets, UIEdgeInsetsMake(3, 14, 7, 18)));
         check(@"notice-config-roundtrip", self.chatView.configuration.notice.reeditTimeLimit == 0 && self.chatView.configuration.notice.withdrawalTimeLimit == 0);
         self.chatView.quoteMessage(@"objc-mention-message");
         check(@"quote-composer-snapshot", [self.chatView.quotePreview.quote.messageID isEqualToString:@"objc-mention-message"] && [self.chatView.quotePreview.quote.content.text isEqualToString:@"#用户 "]);

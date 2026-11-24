@@ -396,20 +396,21 @@ extension WYChatInputView {
 
     @available(iOS, introduced: 10.0, deprecated: 17.0, message: "Use textView(_:primaryActionForTextItem:defaultAction:) instead")
     func wy_impl_textView(_ textView: UITextView, shouldInteractWith textAttachment: NSTextAttachment, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        if textAttachment is WYTextAttachment, interaction != .invokeDefaultAction { return false }
         handleTextAttachmentSelection(in: textView, range: characterRange)
-        return true
+        return !(textAttachment is WYTextAttachment)
     }
 
     @available(iOS 17.0, *)
     func wy_impl_textView(_ textView: UITextView, primaryActionFor textItem: UITextItem, defaultAction: UIAction) -> UIAction? {
         // 使用 switch 语句处理不同的 content 类型
         switch textItem.content {
-        case .textAttachment(_):
+        case .textAttachment(let attachment):
 
             // 处理文本附件
             handleTextAttachmentSelection(in: textView, range: textItem.range)
 
-            return defaultAction
+            return attachment is WYTextAttachment ? nil : defaultAction
 
         case .tag(_):
             // 处理标签
@@ -474,6 +475,12 @@ extension WYChatInputView {
 }
 
 extension WYChatInputView {
+
+    func wy_updateQuoteSpacing() {
+        textVoiceContentView.snp.updateConstraints { make in
+            make.bottom.equalToSuperview().offset(-inputBarConfig.inputViewEdgeInsets.bottom - quoteReservedHeight)
+        }
+    }
 
     func wy_setupInputView() {
         isAccessibilityElement = false

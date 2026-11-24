@@ -304,12 +304,16 @@ extension WYChatView {
                   let text = UIPasteboard.general.string, !text.isEmpty,
                   wy_applyInputDraft(text, mentions: [], replacesInput: false) else { return }
             wy_activateInputDraft()
-        case .quote: quoteMessage(messageID)
+        case .quote:
+            quoteMessage(messageID)
+            if state.inputQuote != nil, configuration.showsInputBar, !chatInput.isHidden, chatInput.textView.isEditable {
+                wy_activateInputDraft()
+            }
         case .select:
             var selected = selectedMessageIDs
             if selected.contains(messageID) { selected.remove(messageID) } else { selected.insert(messageID) }
-            guard wy_setSelectedMessages(dataSource.map(\.messageID).filter { selected.contains($0) }) else { return }
-            state.selectionAnchorID = messageID
+            let anchor = selected.contains(messageID) ? messageID : state.selectionAnchorID
+            guard wy_setSelectedMessages(dataSource.map(\.messageID).filter { selected.contains($0) }, anchorID: anchor) else { return }
         case .selectRange:
             guard configuration.allowsAction?(.selectRange, model) ?? true,
                   let first = state.selectionAnchorID ?? dataSource.first(where: { selectedMessageIDs.contains($0.messageID) })?.messageID,
@@ -384,12 +388,14 @@ extension WYChatView {
         addSubview(selectionToolbar)
         state.selectionHeight = selectionToolbar.heightAnchor.constraint(equalToConstant: configuration.selection.height)
         NSLayoutConstraint.activate([selectionToolbar.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor), selectionToolbar.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor), selectionToolbar.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor), state.selectionHeight!])
+        wy_setupRangeSelectionButton()
         wy_updateSelectionUI()
     }
 
     func wy_updateSelectionUI() {
         guard state.ready else { return }
         let show = isSelectingMessages && configuration.showsSelectionToolbar
+        let wasVisible = !selectionToolbar.isHidden
         wy_refreshSelectionStyle()
         selectionToolbar.isHidden = !show
         chatInput.isHidden = show || !configuration.showsInputBar
@@ -398,7 +404,8 @@ extension WYChatView {
         selectionDeleteButton.setTitle(configuration.actionTitle?(.delete) ?? wy_actionTitle(.delete), for: .normal)
         selectionForwardButton.isEnabled = !selectedMessageIDs.isEmpty && (forwardHandler == nil || !configuration.selection.forwardModes.isEmpty)
         selectionDeleteButton.isEnabled = !selectedMessageIDs.isEmpty
-        wy_refreshInputAnchors()
+        if show != wasVisible { wy_refreshInputAnchors() }
+        wy_refreshRangeSelectionButton()
     }
 
     @objc func wy_cancelSelection() { isSelectingMessages = false }

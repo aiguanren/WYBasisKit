@@ -401,6 +401,7 @@ final class WYChatSettingsController: UITableViewController, UIColorPickerViewCo
                 Item(title: "自己发送的气泡颜色", path: "senderBubble.fillColor"),
                 Item(title: "对方发送的气泡颜色", path: "receiverBubble.fillColor"),
                 Item(title: "消息文字大小", path: "text.textFont"),
+                Item(title: "消息表情动画", path: "text.emojiPlaybackMode", choices: [("首次展示时播放", "0"), ("每次展示时播放", "1"), ("始终静态", "2")]),
                 Item(title: "输入文字大小", path: "input.textFont"),
                 Item(title: "输入栏背景颜色", path: "input.backgroundColor"),
                 Item(title: "语音切换按钮宽度", path: "input.voiceTextButtonSize.width"),

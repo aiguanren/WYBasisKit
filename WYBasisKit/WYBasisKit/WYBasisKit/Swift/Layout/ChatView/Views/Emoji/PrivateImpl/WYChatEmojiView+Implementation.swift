@@ -27,7 +27,78 @@ private let wy_emojiFrameCache: NSCache<NSString, UIImage> = {
     return cache
 }()
 
+/// 一轮表情动画，每一帧保留资源指定的停留时间。
+final class WYChatEmojiAnimation {
+    let frames: [UIImage]
+    let frameEndTimes: [TimeInterval]
+
+    init(frames: [UIImage], delays: [TimeInterval]) {
+        self.frames = frames
+        var elapsed: TimeInterval = 0
+        frameEndTimes = delays.map {
+            elapsed += $0
+            return elapsed
+        }
+    }
+
+    convenience init?(image: UIImage) {
+        guard let frames = image.images, frames.count > 1 else { return nil }
+        let delay = image.duration / Double(frames.count)
+        self.init(frames: frames, delays: Array(repeating: delay.isFinite && delay > 0 ? delay : 0.1, count: frames.count))
+    }
+
+    func frame(at elapsed: TimeInterval) -> UIImage? {
+        frameEndTimes.firstIndex(where: { elapsed < $0 }).map { frames[$0] }
+    }
+}
+
+private let wy_emojiAnimationCache: NSCache<NSString, WYChatEmojiAnimation> = {
+    let cache = NSCache<NSString, WYChatEmojiAnimation>()
+    cache.countLimit = 48
+    cache.totalCostLimit = 24 * 1024 * 1024
+    return cache
+}()
+
 extension WYEmojiViewConfig {
+
+    func emojiAnimation(_ emojiName: String) -> WYChatEmojiAnimation? {
+        for ext in ["gif", "webp", "png", "apng"] {
+            guard let path = emojiFilePath(emojiName, ext: ext) else { continue }
+            let key = path as NSString
+            if let cached = wy_emojiAnimationCache.object(forKey: key) { return cached }
+            guard let source = CGImageSourceCreateWithURL(URL(fileURLWithPath: path) as CFURL, nil) else { continue }
+            let count = CGImageSourceGetCount(source)
+            guard count > 1 else { continue }
+            let dictionaryKey: CFString
+            let delayKey: CFString
+            let unclampedKey: CFString
+            switch ext {
+            case "gif":
+                (dictionaryKey, delayKey, unclampedKey) = (kCGImagePropertyGIFDictionary, kCGImagePropertyGIFDelayTime, kCGImagePropertyGIFUnclampedDelayTime)
+            case "webp":
+                (dictionaryKey, delayKey, unclampedKey) = (kCGImagePropertyWebPDictionary, kCGImagePropertyWebPDelayTime, kCGImagePropertyWebPUnclampedDelayTime)
+            default:
+                (dictionaryKey, delayKey, unclampedKey) = (kCGImagePropertyPNGDictionary, kCGImagePropertyAPNGDelayTime, kCGImagePropertyAPNGUnclampedDelayTime)
+            }
+            var frames: [UIImage] = []
+            var delays: [TimeInterval] = []
+            var cost = 0
+            for index in 0..<count {
+                guard let image = CGImageSourceCreateImageAtIndex(source, index, nil) else { continue }
+                let properties = CGImageSourceCopyPropertiesAtIndex(source, index, nil) as? [CFString: Any]
+                let timing = properties?[dictionaryKey] as? [CFString: Any]
+                let delay = (timing?[unclampedKey] as? NSNumber ?? timing?[delayKey] as? NSNumber)?.doubleValue ?? 0
+                delays.append(delay.isFinite && delay > 0 ? delay : 0.1)
+                frames.append(UIImage(cgImage: image))
+                cost += image.bytesPerRow * image.height
+            }
+            guard frames.count > 1 else { continue }
+            let animation = WYChatEmojiAnimation(frames: frames, delays: delays)
+            wy_emojiAnimationCache.setObject(animation, forKey: key, cost: cost)
+            return animation
+        }
+        return nil
+    }
 
     /// 查找表情的静态图文件(单帧png直接用，多帧apng按staticFramePosition取帧)
     func emojiStaticFile(_ emojiName: String) -> UIImage? {
@@ -73,9 +144,11 @@ extension WYEmojiViewConfig {
 
     /// 拼接表情文件的完整路径(emojiFolders时在subdirectory后加表情名子目录)
     func emojiFilePath(_ emojiName: String, ext: String) -> String? {
-        guard let config = emojiBundle, config.bundleName.isEmpty == false else {
-            return nil
+        guard let config = emojiBundle else {
+            return Bundle(for: WYChatEmojiView.self).path(forResource: emojiName, ofType: ext)
+                ?? Bundle.main.path(forResource: emojiName, ofType: ext)
         }
+        guard !config.bundleName.isEmpty else { return nil }
         let searchBundles: [Bundle] = {
             if let targetClass = config.targetClass {
                 return [Bundle(for: targetClass), Bundle.main]
@@ -84,22 +157,17 @@ extension WYEmojiViewConfig {
             }
         }()
         let baseSubDir = config.subdirectory.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-        let subDir = {
-            if emojiFolders {
-                let plain = emojiName.trimmingCharacters(in: CharacterSet(charactersIn: "[]"))
-                return baseSubDir.isEmpty ? plain : baseSubDir + "/" + plain
-            }
-            return baseSubDir
-        }()
+        let plain = emojiName.trimmingCharacters(in: CharacterSet(charactersIn: "[]"))
+        let emojiSubDir = baseSubDir.isEmpty ? plain : baseSubDir + "/" + plain
+        var directories = emojiFolders ? [emojiSubDir] : [baseSubDir]
+        if !emojiFolders && config.bundleName == "WYChatView" && baseSubDir == "Emojis" {
+            directories.append(emojiSubDir)
+        }
         for searchBundle in searchBundles {
             if let bundlePath = searchBundle.path(forResource: config.bundleName, ofType: "bundle"),
                let resourceBundle = Bundle(path: bundlePath) {
-                if subDir.isEmpty {
-                    if let filePath = resourceBundle.path(forResource: emojiName, ofType: ext) {
-                        return filePath
-                    }
-                } else {
-                    if let filePath = resourceBundle.path(forResource: emojiName, ofType: ext, inDirectory: subDir) {
+                for directory in directories {
+                    if let filePath = resourceBundle.path(forResource: emojiName, ofType: ext, inDirectory: directory.isEmpty ? nil : directory) {
                         return filePath
                     }
                 }

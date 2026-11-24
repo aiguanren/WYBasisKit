@@ -42,7 +42,7 @@ chatView.recordingHandler = { url, duration, error in
 
 SwiftVerify示例的“聊天界面→测试→配置”提供中文分组设置，选择“输入框操作→单击输入，长按识别”后点击“保存”，即可返回聊天页体验。未保存退出会放弃修改。“全部属性设置”提供完整属性目录和专项预览，其中的修改同样需要返回“聊天设置”后保存。
 
-默认图标从`WYChatView.bundle/Configs`加载，表情图片从`WYChatView.bundle/Emojis`加载，输入栏和多选图标默认保留图片原色。`input`、`basic`、`selection`、`quote`、`media`和`recording`中的图片配置均可由宿主覆盖；需要单色着色时可显式选择模板渲染。卡片图标可通过`content.iconImage/iconSize`或对应`contentOverrides`配置，默认图标尺寸28。更多面板通过`more.iconSize`配置图标尺寸，默认32，按钮底板由`more.imageViewSize`单独配置。
+默认资源图标从`WYChatView.bundle/Configs`加载，表情图片从`WYChatView.bundle/Emojis`加载，输入栏图标默认保留图片原色。`input`、`basic`、`selection`、`quote`、`media`和`recording`中的图片配置均可由宿主覆盖，需要单色着色时可显式选择模板渲染。卡片图标可通过`content.iconImage/iconSize`或对应`contentOverrides`配置，默认图标尺寸28。更多面板通过`more.iconSize`配置图标尺寸，默认32，按钮底板由`more.imageViewSize`单独配置。
 
 头像默认使用浅灰圆形占位。通过`basic.avatarPlaceholderColor`设置纯色，或通过`avatarPlaceholderGradientColors`和`avatarPlaceholderGradientDirection`设置渐变。`avatarPlaceholderCornerRadius`为负值时按头像尺寸取圆角，为`0`时显示直角。传入`basic.defaultAvatar`时优先显示自定义图片，沿用`avatarCornerRadius`和`avatarContentMode`。
 
@@ -106,7 +106,7 @@ ObjC读取chatView.configuration取得配置快照，需要修改后重新赋给
 
 点击失败状态、预览、头像和昵称会产生相应操作。复制、引用及选择状态由控件处理，转发、删除、撤回、文件打开及实际播放由宿主处理。宿主通过sendState、readers、语音isPlaying、isTransferring、transferProgress与transferError更新界面，不把一次点击当作外部操作已经成功。
 
-用户正在阅读历史时，追加消息显示新消息提示；接近底部时自动跟随。引用消息在输入栏上方显示，点击引用提示可取消。多选使用isSelectingMessages和selectedMessageIDs，内置工具条提供取消、转发与删除，selectionActionHandler一次接收按消息顺序排列的ID。showsSelectionToolbar可以关闭内置工具条，宿主可以提供自己的操作入口。
+用户正在阅读历史时，追加消息显示新消息提示；接近底部时自动跟随。引用预览默认显示在文本框下方，点击关闭按钮可取消引用并保留草稿。多选使用isSelectingMessages和selectedMessageIDs，内置工具条提供取消、转发与删除，selectionActionHandler一次接收按消息顺序排列的ID。showsSelectionToolbar可以关闭内置工具条，宿主可以提供自己的操作入口。
 
 ## 图片和视频接入
 
@@ -202,7 +202,11 @@ UIKit界面和配置刷新在主线程执行。外部录音与识别回调会统
 
 ## 引用、撤回与重新编辑
 
-`WYChatQuoteModel`保存被引用消息ID、发送者及内容快照，消息的`reference`和输入区的`quotePreview`使用相同模型。输入区外观由`quote.input`配置，气泡外引用由`quote.message`配置，字体、颜色、缩略图、行数、高度、内外边距和关闭按钮可分别调整。`reference`操作回调提供被引用的原消息ID，原消息未加载时宿主仍可接管跳转。
+`WYChatQuoteModel`保存被引用消息ID、发送者及内容快照，消息的`reference`和输入区的`quotePreview`使用相同模型。输入预览和气泡下方的引用条分别使用`quote.input`和`quote.message`，两处均可设置字体、颜色、圆角、缩略图、行数、高度、内边距和关闭按钮。`showsSenderInline`默认开启，关闭后发送者单独占一行。
+
+输入预览默认贴在文本框下方并随文本框宽度变化。关闭`quote.inputBelowTextField`可移至输入栏上方，关闭`quote.inputAlignsWithTextField`可改为按输入栏宽度对齐。`quote.inputOuterInsets`控制输入预览外边距，`quote.messageSpacing`控制引用条与气泡的间距。`quote.fitsMessageContent`默认开启，此时`quote.messageWidth`为引用条宽度上限，关闭后为首选宽度。
+
+文字引用沿用聊天的表情配置，将表情标记显示为对应图片。媒体引用使用缩略图与内容摘要，自定义图片加载器收到被引用消息的ID。点击引用条或输入预览的内容区域会定位到原消息，`reference`操作回调提供原消息ID，原消息未加载时可由宿主接管跳转。
 
 ```swift
 chatView.quoteMessage(messageID)
@@ -224,7 +228,11 @@ chatView.actionHandler = { [weak chatView] _, action, identifier in
 
 ## 区间多选与转发
 
-`selectMessages`设置选择，`selectMessages(from:through:)`在当前选择中加入连续区间，支持反向区间。无效ID或超过`selection.maximumCount`时保持原选择，0表示不限。多选时长按另一条消息可选择到该消息，工具条字体、颜色、高度、内边距、间距和按钮显示通过`selection`配置。
+`selectMessages`设置选择，`selectMessages(from:through:)`在当前选择中加入连续区间，支持反向区间。无效ID或超过`selection.maximumCount`时保持原选择，0表示不限。多选时长按另一条消息可选择到该消息。
+
+多选后，列表边缘的「选择到这里」按钮会按滚动方向切换位置。向历史消息滚动时，选择到当前可见的第一条。向较新的消息滚动时，选择到当前可见的最后一条。区间会并入当前选择。
+
+在 Swift 和 Objective-C 中可用`selection.showsRangeButton`单独控制浮动入口，`allowsRangeSelection`控制整个区间选择功能。`selection.rangeButton`配置浮动按钮的独立外观，包括文案、字体、配色、圆角、边框、边距和上下图标。未设置`rangeButton.title`时，按钮沿用长按菜单的`selection.rangeTitle`。
 
 ```swift
 chatView.selectMessages([firstID])
@@ -237,7 +245,9 @@ let messages = chatView.makeForwardMessages(ids, mode: .merged, title: "聊天�
 
 设置`forwardHandler`后，内置转发入口提供`selection.forwardModes`中的形式。回调传出按列表顺序排列的原消息快照，取消菜单保留选择。`makeForwardMessages`只组装数据，不插入当前列表或发起发送；逐条模式生成独立消息，合并模式生成`content.chatRecords`卡片，明细保留原发送者和消息顺序。未设置`forwardHandler`时使用`selectionActionHandler`处理批量操作。
 
-多选期间每条消息固定预留指示图标空间，勾选不会改变消息可用宽度。`selection.showsIndicator`控制显示，`indicatorSize`和`indicatorInsets`控制尺寸、间距，`selectedImage`、`unselectedImage`、`selectedColor`、`unselectedColor`和`rendersIndicatorAsTemplate`控制图标与颜色。
+进入多选后，收发消息统一在列表起始侧显示圆形指示图标。选中时显示实心圆和勾，未选中时显示空心圆。图标与头像对齐，无头像时靠近消息顶部。勾选和取消勾选直接更新内置消息单元格上的图标。
+
+`selection.indicatorPosition`默认为`.leading`，也可设置为`.trailing`。`showsIndicator`控制显示，`indicatorSize`和`indicatorInsets`控制尺寸与间距。默认图标使用`selectedColor`和`unselectedColor`着色，宿主可通过`selectedImage`和`unselectedImage`提供自己的图标，并通过`rendersIndicatorAsTemplate`控制着色。
 
 合并记录点击可由`recordsPreviewHandler`接管，也可使用内置`WYChatRecordsViewController`展示。明细复用ChatView的消息和媒体展示，隐藏输入栏，昵称和导航栏外观通过`records`配置。`showsInputBar`也可用于宿主自己的只读聊天界面。
 
@@ -257,6 +267,10 @@ chatView.setVoicePlaybackRate(1.5, messageID: voiceMessageID)
 
 选择倍速更新消息的`voice.playbackRate`并通知宿主，不启动或暂停播放器。实际音频播放与播放进度由宿主处理，点击会更新选中语音及其他语音的`isPlaying`，宿主在播放失败或结束时同步恢复状态。重复设置同一倍速不重复通知，非法倍速和消息ID保持原状态。
 
+
+## 消息表情动画
+
+`config.text.emojiPlaybackMode` 默认是 `.firstDisplay`，每条含动图表情的文本消息在当前聊天界面首次进入可见区域时播放一轮。设为 `.everyDisplay` 可在消息每次进入可见区域时重播一轮，设为 `.staticOnly` 可始终显示静态图。播放结束后恢复静态图，静态图缺失时按 `config.emoji.staticFramePosition` 取帧。支持 GIF、动态 WebP、APNG 以及由 `customImageLoader` 返回的动图 `UIImage`。
 
 ## 输入栏外观与表情预览
 
