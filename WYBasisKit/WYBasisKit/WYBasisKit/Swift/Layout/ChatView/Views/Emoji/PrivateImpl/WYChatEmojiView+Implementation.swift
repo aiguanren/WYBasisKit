@@ -9,6 +9,7 @@ import UIKit
 import SnapKit
 
 final class WYChatEmojiViewPrivateState {
+    var preparedViewportSize: CGSize?
     var lastWidth: CGFloat = -1
     var preview: WYEmojiPreviewView?
 
@@ -193,7 +194,9 @@ extension WYChatEmojiView {
         collectionView.showsVerticalScrollIndicator = false
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.snp.makeConstraints { (make) in
-            make.left.top.right.equalToSuperview()
+            make.left.right.equalToSuperview()
+            let top = self.emojiViewConfig.collectionViewTopOffset
+            make.top.equalToSuperview().offset(top.isFinite ? max(0, top) : 0)
             make.bottom.equalToSuperview().offset(-self.emojiViewConfig.collectionViewBottomOffset)
         }
 
@@ -298,35 +301,29 @@ extension WYChatEmojiView {
         guard self.emojiViewConfig.showRecently == true, self.emojiViewConfig.recentlyCount > 0 else {
             return
         }
-        attributedText.enumerateAttribute(NSAttributedString.Key.attachment, in: NSMakeRange(0, attributedText.string.utf16.count), options: NSAttributedString.EnumerationOptions.longestEffectiveRangeNotRequired) { value, range, stop in
-            if value is WYTextAttachment {
-                // 拿到文本附件
-                let attachment: WYTextAttachment = value as! WYTextAttachment
-                let emoji: String = String(format: "%@", attachment.imageName)
-                // 更新最近使用的表情
-                var recently: [String] = UserDefaults.standard.array(forKey: emojiViewConfig.recentlyStorageKey) as? [String] ?? []
-                let retainedCount = max(recently.count, self.emojiViewConfig.recentlyCount)
-                if recently.contains(emoji) {
-                    recently.remove(at: recently.firstIndex(of: emoji)!)
-                }
-                recently.insert(emoji, at: 0)
-                recently = Array(recently.prefix(retainedCount))
-                UserDefaults.standard.setValue(recently, forKey: emojiViewConfig.recentlyStorageKey)
-                recently = Array(recently.prefix(self.emojiViewConfig.recentlyCount))
-
-                if recentlyEmoji.isEmpty == false {
-                    dataSource[0] = Array(recently)
-                }else {
-                    dataSource.insert(Array(recently), at: 0)
-                }
-
-                recentlyEmoji = Array(recently)
-
-                if range == NSMakeRange(0, 1) {
-                    collectionView.reloadData()
-                }
-            }
+        let key = emojiViewConfig.recentlyStorageKey
+        let saved = UserDefaults.standard.stringArray(forKey: key) ?? []
+        var updated = saved
+        let retainedCount = max(emojiViewConfig.recentlyCount, saved.count)
+        attributedText.enumerateAttribute(.attachment, in: NSRange(location: 0, length: attributedText.length)) { value, _, _ in
+            guard let attachment = value as? WYTextAttachment else { return }
+            let emoji = attachment.imageName
+            if let index = updated.firstIndex(of: emoji) { updated.remove(at: index) }
+            updated.insert(emoji, at: 0)
+            if updated.count > retainedCount { updated.removeLast() }
         }
+        if updated != saved { UserDefaults.standard.set(updated, forKey: key) }
+        wy_refreshRecentlyEmoji()
+    }
+
+    func wy_refreshRecentlyEmoji() {
+        let updated = wy_makeRecentlyEmoji()
+        guard updated != recentlyEmoji else { return }
+        if !recentlyEmoji.isEmpty { dataSource.removeFirst() }
+        if !updated.isEmpty { dataSource.insert(updated, at: 0) }
+        recentlyEmoji = updated
+        state.preparedViewportSize = nil
+        collectionView.reloadData()
     }
 
     func wy_impl_wy_didClickEmojiSendView(_ sendView: UIButton) {
@@ -490,6 +487,24 @@ extension WYChatEmojiView {
 }
 
 extension WYChatEmojiView {
+    func wy_prepareFirstViewport() {
+        guard bounds.width > 0, bounds.height > 0, state.preparedViewportSize != bounds.size else { return }
+        let wasHidden = isHidden
+        let previousAlpha = alpha
+        alpha = 0
+        isHidden = false
+        layoutIfNeeded()
+        collectionView.layoutIfNeeded()
+        for case let cell as WYEmojiViewCell in collectionView.visibleCells {
+            if let prepared = cell.emojiView.image?.preparingForDisplay() {
+                cell.emojiView.image = prepared
+            }
+        }
+        state.preparedViewportSize = bounds.size
+        isHidden = wasHidden
+        alpha = previousAlpha
+    }
+
     func wy_showEmojiPreview(_ emoji: String, according: UIView) {
         state.preview?.dismiss()
         guard emojiViewConfig.previewConfig.show, let parent = window else { return }
@@ -526,6 +541,7 @@ extension WYChatEmojiView {
         funcAreaView = wy_makeFuncAreaView()
         collectionView.backgroundColor = emojiViewConfig.backgroundColor
         state.lastWidth = -1
+        state.preparedViewportSize = nil
         setNeedsLayout()
     }
 }

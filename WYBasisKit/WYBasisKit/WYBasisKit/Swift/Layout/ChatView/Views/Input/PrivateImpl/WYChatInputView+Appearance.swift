@@ -56,18 +56,51 @@ extension WYChatInputView {
         }
         textVoiceView.setImage(icon(config.voiceButtonImage), for: .normal)
         textVoiceView.setImage(icon(config.textBottomImage), for: .selected)
-        emojiView.setImage(icon(config.emojiBottomImage), for: .normal)
-        emojiView.setImage(icon(config.textBottomImage), for: .selected)
+        func preparedToggleIcon(_ image: UIImage) -> UIImage {
+            guard image.cgImage != nil, image.images == nil else { return icon(image) }
+            return icon(image.preparingForDisplay() ?? image)
+        }
+        let emoji = preparedToggleIcon(config.emojiBottomImage)
+        let keyboard = preparedToggleIcon(config.textBottomImage)
+        emojiView.setImage(emoji, for: .normal)
+        emojiView.setImage(emoji, for: .highlighted)
+        emojiView.setImage(keyboard, for: .selected)
+        emojiView.setImage(keyboard, for: [.selected, .highlighted])
         moreView.setImage(icon(config.moreBottomImage), for: .normal)
         moreView.setImage(icon(config.moreBottomImage), for: .highlighted)
     }
 }
 
 /// 输入切换图标按按钮配置尺寸显示
-final class WYChatInputIconButton: UIButton {
+class WYChatInputIconButton: UIButton {
     override func layoutSubviews() {
         super.layoutSubviews()
         imageView?.frame = bounds
         imageView?.contentMode = .scaleAspectFit
+    }
+}
+
+/// 表情和键盘的图标与输入面板分别更新，按压及切换状态时立即替换已准备好的图片。
+final class WYChatEmojiToggleButton: WYChatInputIconButton {
+    override var isSelected: Bool {
+        get { super.isSelected }
+        set {
+            guard newValue != super.isSelected else { return }
+            UIView.performWithoutAnimation {
+                super.isSelected = newValue
+                layoutIfNeeded()
+            }
+        }
+    }
+
+    override var isHighlighted: Bool {
+        get { super.isHighlighted }
+        set {
+            guard newValue != super.isHighlighted else { return }
+            UIView.performWithoutAnimation {
+                super.isHighlighted = newValue
+                layoutIfNeeded()
+            }
+        }
     }
 }

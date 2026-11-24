@@ -252,6 +252,11 @@ public class WYChatView: UIView {
     /// 停止录音和识别并释放界面持有的异步任务
     public func releaseAll() { wy_releaseAll() }
 
+    public override func didMoveToWindow() {
+        super.didMoveToWindow()
+        wy_scheduleEmojiPreparation()
+    }
+
     public override func layoutSubviews() {
         super.layoutSubviews()
         if tableView.bounds.width > 0, tableView.bounds.height > 0, state.tableLayoutWidth != tableView.bounds.width {
@@ -278,5 +283,8 @@ public class WYChatView: UIView {
     @objc func wy_newMessagesTap() { if configuration.dismissInputOnTap { inputViewResignFirstResponder() }; scrollToLastMessage(true) }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
-    deinit { NotificationCenter.default.removeObserver(self) }
+    deinit {
+        state.inputSurfaceAnimation?.cancel()
+        NotificationCenter.default.removeObserver(self)
+    }
 }

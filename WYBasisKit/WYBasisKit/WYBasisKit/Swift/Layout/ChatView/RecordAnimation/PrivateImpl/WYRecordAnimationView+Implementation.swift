@@ -46,6 +46,14 @@ final class WYRecordAnimationViewPrivateState {
     let editorFailureImage = UIImageView()
     var editorFailureView: UIStackView?
     var editorEmoji: WYChatEmojiView?
+    var editorEmojiBackground: UIView?
+    var editorEmojiTop: NSLayoutConstraint?
+    var editorEmojiHeight: NSLayoutConstraint?
+    var showsEditorEmoji = false
+    var editorInputGuide: UILayoutGuide?
+    var editorInputTop: NSLayoutConstraint?
+    var editorKeyboardTop: NSLayoutConstraint?
+    var editorKeyboardRequest: UUID?
     var editorTranslationRequest: (id: String, target: String)?
     var editorTranslatedLocale: String?
     var editorHeight: NSLayoutConstraint?

@@ -444,6 +444,21 @@ final class WYChatTestSuite {
             speech.emitLateResult()
             try? await Task.sleep(nanoseconds: 100_000_000)
             check("keyboard-dictation-late-result", !input.isInputDictating && input.textView.text == saved)
+            input.emojiView.sendActions(for: .touchUpInside)
+            try? await Task.sleep(nanoseconds: 350_000_000)
+            check("emoji-dictation-visible-by-default", view.emojiView?.isHidden == false && !input.textView.isFirstResponder && button?.isHidden == false)
+            button?.sendActions(for: .touchUpInside)
+            try? await Task.sleep(nanoseconds: 200_000_000)
+            check("emoji-dictation-records-with-panel-open", input.isInputDictating && !input.textView.isFirstResponder && view.emojiView?.isHidden == false)
+            button?.sendActions(for: .touchUpInside)
+            try? await Task.sleep(nanoseconds: 200_000_000)
+            input.inputBarConfig.showsKeyboardDictationInEmojiPanel = false
+            input.setNeedsLayout()
+            input.layoutIfNeeded()
+            check("emoji-dictation-config-hidden", button?.isHidden == true)
+            input.emojiView.sendActions(for: .touchUpInside)
+            try? await Task.sleep(nanoseconds: 350_000_000)
+            check("keyboard-dictation-visible-after-emoji", input.textView.isFirstResponder && button?.isHidden == false)
             var disabled = config.recording
             disabled.supportSpeechRecognition = false
             input.recordAnimationConfig = disabled
@@ -1951,6 +1966,145 @@ final class WYChatTestSuite {
             check("duplicate-id-update", view.tableView.numberOfRows(inSection: 0) == 2 && second?.textView.text == duplicate.content.text)
             return checks
         })
+        cases.append(WYChatTestCase("键盘与表情连续切换", group: "功能", explanation: "同一聊天页连续从键盘打开表情，逐帧检查阅读位置和最后一条消息") { [weak self] in
+            guard let self else { return [] }
+            let host = self.chatView.window ?? self.chatView
+            let view = WYChatView(userInfo: self.chatView.userInfo, configuration: self.chatView.configuration)
+            view.frame = host.bounds
+            host.addSubview(view)
+            defer { view.releaseAll(); view.removeFromSuperview() }
+            let messages = (0..<36).map { index in
+                WYChatMessageModel(messageID: "keyboard-\(index)", content: WYChatMessageContentModel(text: String(repeating: "阅读位置和可变高度检查，", count: index % 5 + 1)))
+            }
+            var checks: [WYChatTestResult] = []
+            func check(_ name: String, _ value: Bool, _ detail: String = "") { checks.append(WYChatTestResult(name: name, passed: value, detail: detail, milliseconds: 0)) }
+            host.endEditing(true)
+            var config = view.configuration
+            config.emoji.contentHeight = 160
+            config.bottomDistance = 180
+            view.configuration = config
+            view.frame = host.bounds
+            view.dataSource = messages
+            view.layoutIfNeeded()
+            view.scrollToLastMessage()
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            let preparedPanel = view.subviews.compactMap { $0 as? WYChatEmojiView }.first
+            check("emoji-first-viewport-prepared", preparedPanel?.isHidden == true
+                && (preparedPanel?.collectionView.visibleCells.count ?? 0) > 0)
+            for opening in 1...2 {
+                view.chatInput.emojiView.sendActions(for: .touchUpInside)
+                var positions: [CGFloat] = []
+                var gaps: [CGFloat] = []
+                if let panel = view.emojiView {
+                    for _ in 0..<25 {
+                        try? await Task.sleep(nanoseconds: 16_000_000)
+                        let panelTop = (panel.layer.presentation() ?? panel.layer).frame.minY
+                        let inputBottom = (view.chatInput.layer.presentation() ?? view.chatInput.layer).frame.maxY
+                        positions.append(panelTop)
+                        gaps.append(abs(panelTop - inputBottom))
+                    }
+                    check("emoji-opening-motion-\(opening)", !panel.isHidden
+                        && (positions.first ?? 0) > panel.frame.minY + 8
+                        && abs((positions.last ?? 0) - panel.frame.minY) < 2
+                        && (gaps.max() ?? .infinity) < 3,
+                        "top=\(positions.map { Int($0.rounded()) }), maxGap=\(gaps.max() ?? 0)")
+                }
+                if opening == 1 {
+                    view.inputViewResignFirstResponder()
+                    try? await Task.sleep(nanoseconds: 350_000_000)
+                }
+            }
+            let table = view.tableView
+            table.contentOffset.y -= 120
+            table.layoutIfNeeded()
+            if let first = table.indexPathsForVisibleRows?.min() {
+                let before = table.rectForRow(at: first).minY - table.contentOffset.y
+                let oldBottom = table.frame.maxY
+                let toggle = view.chatInput.emojiView
+                toggle.isHighlighted = true
+                check("emoji-toggle-selected-image-while-pressed", toggle.currentImage === toggle.image(for: .selected))
+                toggle.sendActions(for: .touchUpInside)
+                check("emoji-toggle-normal-image-before-release", toggle.currentImage === toggle.image(for: .normal))
+                toggle.isHighlighted = false
+                var positions = [oldBottom]
+                var blankIconFrames = 0
+                for _ in 0..<32 {
+                    try? await Task.sleep(nanoseconds: 16_000_000)
+                    positions.append((table.layer.presentation()?.frame ?? table.frame).maxY)
+                    if let icon = toggle.imageView {
+                        let layer = icon.layer.presentation() ?? icon.layer
+                        if icon.image == nil || layer.isHidden || layer.opacity == 0 || layer.bounds.isEmpty || layer.contents == nil {
+                            blankIconFrames += 1
+                        }
+                    } else {
+                        blankIconFrames += 1
+                    }
+                }
+                check("emoji-toggle-no-blank-on-first-keyboard-return", blankIconFrames == 0, "blankFrames=\(blankIconFrames)")
+                let after = table.rectForRow(at: first).minY - table.contentOffset.y
+                check("emoji-to-keyboard-preserves-reading", view.chatInput.textView.isFirstResponder && view.emojiView?.isHidden == true && abs(before - after) < 1, "before=\(before), after=\(after)")
+                let limit = max(oldBottom, table.frame.maxY) + 3
+                check("emoji-to-keyboard-no-viewport-bounce", positions.allSatisfy { $0 <= limit }, "endpoints=\(oldBottom),\(table.frame.maxY), max=\(positions.max() ?? 0)")
+            } else { check("emoji-to-keyboard-preserves-reading", false) }
+            view.inputViewResignFirstResponder()
+            let bottomView = WYChatView(userInfo: view.userInfo, configuration: self.chatView.configuration)
+            bottomView.frame = host.bounds
+            host.addSubview(bottomView)
+            defer { bottomView.releaseAll(); bottomView.removeFromSuperview() }
+            bottomView.dataSource = Array(messages.prefix(24))
+            bottomView.layoutIfNeeded()
+            bottomView.chatInput.emojiView.sendActions(for: .touchUpInside)
+            try? await Task.sleep(nanoseconds: 400_000_000)
+            bottomView.scrollToLastMessage()
+            let bottomTable = bottomView.tableView
+            bottomTable.layoutIfNeeded()
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            let lastRow = IndexPath(row: bottomView.dataSource.count - 1, section: 0)
+            let initialGap = abs(bottomTable.bounds.maxY - bottomTable.rectForRow(at: lastRow).maxY)
+            bottomView.chatInput.emojiView.sendActions(for: .touchUpInside)
+            var bottomGaps: [CGFloat] = []
+            for _ in 0..<32 {
+                try? await Task.sleep(nanoseconds: 16_000_000)
+                if let lastCell = bottomTable.cellForRow(at: lastRow) {
+                    let messageBottom = (lastCell.layer.presentation() ?? lastCell.layer).frame.maxY
+                    bottomGaps.append(abs((bottomTable.layer.presentation() ?? bottomTable.layer).bounds.maxY - messageBottom))
+                }
+            }
+            check("emoji-to-keyboard-keeps-last-message-at-bottom", initialGap < 4 && bottomGaps.count == 32 && (bottomGaps.max() ?? .infinity) < 4, "initialGap=\(initialGap), maxGap=\(bottomGaps.max() ?? 0), samples=\(bottomGaps.count)")
+            for turn in 1...3 {
+                let before = bottomTable.frame.maxY
+                bottomView.chatInput.emojiView.sendActions(for: .touchUpInside)
+                var positions = [before]
+                var gaps: [CGFloat] = []
+                for _ in 0..<30 {
+                    try? await Task.sleep(nanoseconds: 16_000_000)
+                    let layer = bottomTable.layer.presentation() ?? bottomTable.layer
+                    positions.append(layer.frame.maxY)
+                    if let lastCell = bottomTable.cellForRow(at: lastRow) {
+                        gaps.append(abs(layer.bounds.maxY - (lastCell.layer.presentation() ?? lastCell.layer).frame.maxY))
+                    }
+                }
+                let after = bottomTable.frame.maxY
+                let direction: CGFloat = after >= before ? 1 : -1
+                var furthest = before * direction
+                var backtrack: CGFloat = 0
+                for position in positions {
+                    let progress = position * direction
+                    backtrack = max(backtrack, furthest - progress)
+                    furthest = max(furthest, progress)
+                }
+                check("keyboard-to-emoji-repeat-\(turn)", bottomView.emojiView?.isHidden == false
+                    && !bottomView.chatInput.textView.isFirstResponder
+                    && backtrack < 3 && gaps.count == 30 && (gaps.max() ?? .infinity) < 4,
+                    "endpoints=\(before),\(after), backtrack=\(backtrack), maxGap=\(gaps.max() ?? 0), samples=\(gaps.count), positions=\(positions.map { Int($0.rounded()) })")
+                if turn < 3 {
+                    bottomView.chatInput.emojiView.sendActions(for: .touchUpInside)
+                    try? await Task.sleep(nanoseconds: 550_000_000)
+                }
+            }
+            bottomView.inputViewResignFirstResponder()
+            return checks
+        })
     }
 
     private func registerRecordingActionStyles() {
@@ -2545,6 +2699,11 @@ final class WYChatTestSuite {
             defer { try? FileManager.default.removeItem(at: recorder.url) }
             let recognizer = WYChatRecognitionFixture()
             var config = WYRecordAnimationConfig()
+            let recentKey = "WYChatTests.transcriptRecent.\(UUID().uuidString)"
+            config.recognitionEmoji.recentlyStorageKey = recentKey
+            let recentEmoji = config.recognitionEmoji.emojiSource.first
+            UserDefaults.standard.set([recentEmoji].compactMap { $0 }, forKey: recentKey)
+            defer { UserDefaults.standard.removeObject(forKey: recentKey) }
             config.supportSpeechRecognition = true
             config.dictationSendsOnRelease = false
             config.recorder = recorder
@@ -2653,27 +2812,65 @@ final class WYChatTestSuite {
             overlay.changeRecognitionLanguage(to: "en-US")
             await settle()
             check("recognition-language-is-independent", changedLanguage == "en-US" && recognizer.files > 0 && actions.count == oldRequests && text.text == recognizer.finalText)
+            overlay.frame = host.bounds
             let emojiButton = descendants(overlay).compactMap { $0 as? UIButton }.first { $0.accessibilityIdentifier == "WYChatRecording.emoji" }
+            emojiButton?.layoutIfNeeded()
+            let emojiIconSize = emojiButton?.imageView?.bounds.size
             emojiButton?.sendActions(for: .touchUpInside)
             await settle()
             let activeText = editor()
-            check("editor-emoji-input", activeText?.inputView is WYChatEmojiView && activeText?.isFirstResponder == true)
-            check("editor-keyboard-image-preserves-artwork", emojiButton?.currentImage?.renderingMode == .alwaysOriginal)
-            if let emoji = activeText?.inputView as? WYChatEmojiView, let section = emoji.dataSource.indices.first(where: { !emoji.dataSource[$0].isEmpty }) {
+            let emojiPanel = descendants(overlay).compactMap { $0 as? WYChatEmojiView }.first
+            check("editor-emoji-input", emojiPanel?.isHidden == false && activeText?.isFirstResponder == false)
+            let backdrop = emojiPanel?.superview?.subviews.first {
+                $0 !== emojiPanel && !$0.isHidden && $0.alpha == 1 && $0.backgroundColor == config.recognitionEmoji.backgroundColor
+                    && abs($0.frame.maxY - overlay.bounds.maxY) < 1
+            }
+            check("editor-emoji-fills-bottom-safe-area", backdrop != nil && overlay.safeAreaInsets.bottom > 0)
+            let styles: [UIUserInterfaceStyle] = [.light, .dark]
+            check("editor-emoji-matches-overlay", styles.allSatisfy { style in
+                let traits = UITraitCollection(userInterfaceStyle: style)
+                return overlay.backgroundColor?.resolvedColor(with: traits) == backdrop?.backgroundColor?.resolvedColor(with: traits)
+            })
+            emojiButton?.layoutIfNeeded()
+            check("editor-toggle-icon-size", emojiIconSize != nil && emojiIconSize == emojiButton?.imageView?.bounds.size)
+            if let emoji = emojiPanel, let section = emoji.dataSource.indices.first(where: { !emoji.dataSource[$0].isEmpty }) {
+                let topOffset = emoji.collectionView.frame.minY
+                check("editor-emoji-uses-chat-spacing", abs(topOffset - WYEmojiViewConfig().collectionViewTopOffset) < 1)
+                let headers = emoji.collectionView.visibleSupplementaryViews(ofKind: UICollectionView.elementKindSectionHeader)
+                let visibleTitles = headers.compactMap { ($0 as? WYEmojiHeaderView)?.textView.text }
+                check("editor-emoji-recent-header", recentEmoji != nil && emoji.dataSource.first?.first == recentEmoji
+                    && visibleTitles.contains(config.recognitionEmoji.recentlyHeaderText), "visible=\(visibleTitles)")
                 let buttons = emoji.funcAreaView.map { descendants($0).compactMap { $0 as? UIButton }.filter { !$0.isHidden } } ?? []
                 check("editor-emoji-only-visible-delete", buttons.count == 1 && buttons.first?.currentTitle?.isEmpty != false)
+                let original = activeText?.attributedText.string
                 emoji.delegate?.wy_didClickEmojiView?(emoji, indexPath: IndexPath(item: 0, section: section))
-                check("editor-emoji-insertion", !(activeText?.attributedText.string.isEmpty ?? true))
+                check("editor-emoji-insertion", activeText?.attributedText.string != original)
+                if let delete = buttons.first { emoji.delegate?.wy_didClickEmojiDeleteView?(delete) }
+                check("editor-emoji-deletion", activeText?.attributedText.string == original)
             } else { check("editor-emoji-insertion", false) }
+            let editorPanel = descendants(overlay).first { $0.accessibilityIdentifier == "WYChatRecording.panel" }
+            let oldBottom = editorPanel?.frame.maxY ?? 0
             emojiButton?.sendActions(for: .touchUpInside)
-            await settle()
-            check("editor-keyboard-return", activeText?.inputView == nil && activeText?.isFirstResponder == true)
+            var editorPositions = [oldBottom]
+            for _ in 0..<38 {
+                try? await Task.sleep(nanoseconds: 16_000_000)
+                if let panel = editorPanel { editorPositions.append((panel.layer.presentation()?.frame ?? panel.frame).maxY) }
+            }
+            check("editor-keyboard-return", emojiPanel?.isHidden == true && activeText?.isFirstResponder == true)
+            let newBottom = editorPanel?.frame.maxY ?? 0
+            check("editor-emoji-to-keyboard-no-bounce", oldBottom > 0 && newBottom > 0 && editorPositions.allSatisfy { $0 <= max(oldBottom, newBottom) + 3 && $0 >= min(oldBottom, newBottom) - 3 }, "endpoints=\(oldBottom),\(newBottom), min=\(editorPositions.min() ?? 0), max=\(editorPositions.max() ?? 0)")
             var keyboardSentText: String?
             overlay.recognizedTextHandler = { keyboardSentText = $0 }
             if let activeText {
+                if let emojiPanel, let recentEmoji,
+                   let item = emojiPanel.dataSource.dropFirst().first?.firstIndex(where: { $0 != recentEmoji }) {
+                    emojiPanel.delegate?.wy_didClickEmojiView?(emojiPanel, indexPath: IndexPath(item: item, section: 1))
+                }
                 _ = activeText.delegate?.textView?(activeText, shouldChangeTextIn: activeText.selectedRange, replacementText: "\n")
             }
             check("editor-keyboard-send", keyboardSentText != nil)
+            let savedRecent = UserDefaults.standard.stringArray(forKey: recentKey)
+            check("editor-emoji-sent-to-recent", savedRecent?.count == 2 && savedRecent?.last == recentEmoji)
             config.speechRecognitionTimeout = 0.1
             config.recognitionFailureImage = config.recognitionCloseImage
             recognizer.shouldComplete = false
@@ -2692,6 +2889,44 @@ final class WYChatTestSuite {
             check("editor-window-overlay", windowPanel?.superview?.superview === overlay.window)
             overlay.endRecordVoice()
             check("editor-window-overlay-cleared", windowPanel?.superview?.superview == nil)
+            let previewChat = WYChatView()
+            previewChat.frame = host.bounds
+            host.addSubview(previewChat)
+            defer { previewChat.releaseAll(); previewChat.removeFromSuperview() }
+            previewChat.tableView.backgroundColor = .systemGroupedBackground
+            let hostedEditor = previewChat.chatInput.recordView
+            hostedEditor.presentsTranscriptInWindow = false
+            config.recognitionFailureImage = nil
+            config.recognitionCloseImage = WYRecordAnimationConfig().recognitionCloseImage
+            config.speechRecognitionTimeout = 3
+            recognizer.shouldComplete = true
+            hostedEditor.recordAnimationConfig = config
+            let visualFolder = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                .appendingPathComponent("ChatView-VisualResults", isDirectory: true)
+            try? FileManager.default.createDirectory(at: visualFolder, withIntermediateDirectories: true)
+            for style in styles {
+                previewChat.overrideUserInterfaceStyle = style
+                let name = style == .dark ? "dark" : "light"
+                hostedEditor.start(mode: .dictation)
+                await settle()
+                hostedEditor.stop()
+                await settle()
+                hostedEditor.layoutIfNeeded()
+                descendants(hostedEditor).compactMap { $0 as? UIButton }
+                    .first { $0.accessibilityIdentifier == "WYChatRecording.emoji" }?.sendActions(for: .touchUpInside)
+                await settle()
+                let hostedEmoji = descendants(hostedEditor).compactMap { $0 as? WYChatEmojiView }.first
+                let listColor = previewChat.tableView.backgroundColor
+                check("editor-uses-chat-table-background-\(name)", listColor != nil && hostedEditor.backgroundColor == listColor
+                    && hostedEmoji?.collectionView.backgroundColor == listColor && hostedEditor.traitCollection.userInterfaceStyle == style)
+                hostedEditor.traitCollection.performAsCurrent {
+                    let image = UIGraphicsImageRenderer(bounds: hostedEditor.bounds).image { _ in
+                        hostedEditor.drawHierarchy(in: hostedEditor.bounds, afterScreenUpdates: true)
+                    }
+                    try? image.pngData()?.write(to: visualFolder.appendingPathComponent("transcript-editor-emoji-\(name).png"))
+                }
+                hostedEditor.endRecordVoice()
+            }
             return checks
         })
     }

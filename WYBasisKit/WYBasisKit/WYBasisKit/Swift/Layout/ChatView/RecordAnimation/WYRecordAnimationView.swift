@@ -195,6 +195,7 @@ public class WYRecordAnimationView: UIView {
     public var recordAnimationConfig: WYRecordAnimationConfig = WYRecordAnimationConfig()
     /// 在所在窗口展示转写页，独立使用录音视图时可保留原有容器。
     @objc public var presentsTranscriptInWindow = false
+    var transcriptBackgroundColorProvider: (() -> UIColor?)?
 
 
     /// 代理
@@ -229,6 +230,7 @@ public class WYRecordAnimationView: UIView {
         self.delegate = delegate
         keyboardLayoutGuide.followsUndockedKeyboard = true
         NotificationCenter.default.addObserver(self, selector: #selector(wy_editorKeyboardChanged(_:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(wy_finishEditorKeyboardLayout), name: UIResponder.keyboardDidChangeFrameNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(wy_recordingWillResignActive), name: UIApplication.willResignActiveNotification, object: nil)
     }
     

@@ -34,6 +34,8 @@ public struct WYInputBarConfig {
     public var placeholderLongPressAction: WYChatInputLongPressAction = .disabled
     /// 是否在键盘展开时显示输入框内的语音识别按钮，需要启用语音识别
     public var enablesKeyboardDictation: Bool = true
+    /// 打开表情面板时是否保留输入框内的语音识别按钮
+    public var showsKeyboardDictationInEmojiPanel: Bool = true
     /// 手动修改输入文本时是否关闭正在进行的语音识别，默认true
     public var stopsKeyboardDictationOnTextChange: Bool = true
     /// 输入框语音识别按钮图片
@@ -320,7 +322,7 @@ public class WYChatInputView: UIImageView {
     public let textView: WYChatInputTextView = WYChatInputTextView()
     public let textPlaceholderView = UILabel()
     public let textVoiceView: UIButton = WYChatInputIconButton(type: .custom)
-    public let emojiView: UIButton = WYChatInputIconButton(type: .custom)
+    public let emojiView: UIButton = WYChatEmojiToggleButton(type: .custom)
     public let moreView: UIButton = WYChatInputIconButton(type: .custom)
     /// 表情解析配置
     public var emojiViewConfig: WYEmojiViewConfig = WYEmojiViewConfig()

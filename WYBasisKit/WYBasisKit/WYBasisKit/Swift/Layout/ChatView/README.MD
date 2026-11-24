@@ -36,7 +36,7 @@ chatView.recordingHandler = { url, duration, error in
 
 录音成功后通过同一发送流程生成语音消息，并调用`messagePreparedHandler`。`automaticallyInsertsSentMessages`决定是否自动入列，宿主无需重复追加。外部已有录音可调用`sendVoiceRecording(_:duration:messageID:)`，文件地址保存在`voice.localPath`，宿主通过语音操作事件负责播放与上传。
 
-`input.textPlaceholderAlignment`控制占位文字对齐。`input.placeholderLongPressAction`配置空输入框长按操作，`.disabled`使用语音切换按钮进入录音模式，`.voice`直接录音并发送语音，`.dictation`直接识别文字，单击输入框均可弹出键盘。直接发语音不依赖识别开关，转文字需要启用识别。`input.enablesKeyboardDictation`控制键盘展开后的输入框内识别按钮，识别文字替换当前选区，颜色、图标、尺寸和间距分别配置。`input.stopsKeyboardDictationOnTextChange`默认`true`，手动修改文本时关闭已开启的识别；设为`false`时保持识别，保留手动修改的内容，后续新增识别文本从编辑后的光标位置继续插入。语音转写结果不会触发关闭，输入框有文字时识别按钮仍显示。识别入口同时受`recording.supportSpeechRecognition`控制，识别来源沿用Apple或外部服务配置，失败可通过`chatInput.inputDictationErrorHandler`接收。
+`input.textPlaceholderAlignment`控制占位文字对齐。`input.placeholderLongPressAction`配置空输入框长按操作，`.disabled`使用语音切换按钮进入录音模式，`.voice`直接录音并发送语音，`.dictation`直接识别文字，单击输入框均可弹出键盘。直接发语音不依赖识别开关，转文字需要启用识别。`input.enablesKeyboardDictation`控制键盘展开后的输入框内识别按钮，识别文字替换当前选区，颜色、图标、尺寸和间距分别配置。`input.showsKeyboardDictationInEmojiPanel`默认开启，在键盘与表情面板之间切换时保留输入框内识别按钮，设为`false`时在表情面板中隐藏。`input.stopsKeyboardDictationOnTextChange`默认`true`，手动修改文本时关闭已开启的识别；设为`false`时保持识别，保留手动修改的内容，后续新增识别文本从编辑后的光标位置继续插入。语音转写结果不会触发关闭，输入框有文字时识别按钮仍显示。识别入口同时受`recording.supportSpeechRecognition`控制，识别来源沿用Apple或外部服务配置，失败可通过`chatInput.inputDictationErrorHandler`接收。
 
 录音交互通过`recording.interactionStyle`选择`.actionRegions`分区操作或`.gradient`底部渐变声波。分区按钮的圆形和弧形由`recording.actionStyle`选择。渐变方案普通状态松手发送，上滑超过`gradientCancelDistance`后松手取消，滑回后恢复发送。`gradientRecordingColor`和`gradientCancelColor`分别控制两种状态的颜色，其他`gradient*`属性控制渐变范围、声波、字体、间距和提示文字。渐变方案可与空输入框长按发语音或转文字配合使用，识别总开关与来源配置继续生效。
 
@@ -319,6 +319,8 @@ SwiftVerify的聊天测试页点击“配置”可搜索并调整配置属性，
 转写成功后默认聚焦正文，面板停靠在键盘上方。长文随内容增高，到可用高度后在正文内滚动。失败时面板默认居中，文本发送和表情按钮处于禁用状态，语音录音模式仍可发送原语音。`recognitionAutomaticallyFocusesText`、`recognitionSendsOnReturn`、`recognitionCentersFailurePanel`和`showsRecognitionRetryButton`控制这些行为。
 
 转写面板可通过`recognitionEditorAppearance`定制，回调提供面板堆栈、正文、结果容器和失败提示。`recognitionControlAppearance`提供每个操作按钮。遮罩、锚点、字体、颜色、圆角、边距、间距和图标尺寸均有对应配置。可在资源包中提供`WYChatViewRecognitionFailed.png`或通过`recognitionFailureImage`传入失败图标，图标缺省时显示文字。聊天输入栏默认在当前窗口展示转写遮罩，需要限制在聊天容器内时可关闭`recordView.presentsTranscriptInWindow`。
+
+`recording.recognitionEmoji.collectionViewTopOffset`可单独调整转写表情列表顶部留白，默认采用聊天表情列表的布局。有使用记录时，两处均显示「最近使用」分区。聊天内的转写页与表情面板默认沿用消息列表背景色，可分别通过`recording.recognitionOverlayBackgroundColor`和`recording.recognitionEmoji.backgroundColor`覆盖。`recording.recognitionEmoji.animateDuration`控制表情面板和切换图标的动画时长，设为 0 可关闭动效。`recognitionEmojiImage`和`recognitionKeyboardImage`可更换图标，`recognitionAccessoryImageSize`和`recognitionAccessoryColor`控制显示尺寸和模板图标颜色。主聊天页使用`input.animateDuration`调整键盘与表情切换时输入栏的过渡时长。
 
 需要翻译入口时，开启`recording.enablesTranslation`并设置`recording.transcriptTranslationHandler`。回调收到编辑器、操作、请求ID、当前文本和语种，翻译、朗读、切换语言及取消由宿主决定如何处理。宿主在主线程调用`updateTranscriptText(_:translatedLocaleIdentifier:requestID:)`显示结果并切换到译文操作，语言传`nil`时恢复普通编辑态。去重、过期或已编辑的请求会返回`false`。按钮文字和显示开关独立可配置。此前配置`translationProvider`的接入可迁移到此回调。
 

@@ -249,10 +249,40 @@ extension WYRecordAnimationView {
     func wy_showTranscriptPanel() { wy_configureTranscriptEditor() }
 
     @objc func wy_editorKeyboardChanged(_ notification: Notification) {
-        guard state.editPanel?.isHidden == false else { return }
+        guard let panel = state.editPanel, !panel.isHidden, let container = panel.superview else { return }
+        var keyboardOffset: CGFloat?
+        if state.editText.isFirstResponder,
+           let frame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect, let window = container.window {
+            let localFrame = container.convert(window.convert(frame, from: window.screen.coordinateSpace), from: window)
+            let overlap = container.bounds.intersection(localFrame)
+            if !overlap.isEmpty {
+                keyboardOffset = max(0, container.safeAreaLayoutGuide.layoutFrame.maxY - overlap.minY)
+            }
+        }
+        if state.showsEditorEmoji {
+            if state.editorKeyboardRequest != nil, let keyboardOffset, keyboardOffset > 0 {
+                wy_setEditorEmojiVisible(false, keyboardOffset: keyboardOffset, notification: notification)
+            }
+            return
+        }
         wy_invalidateTranscriptLayout()
-        let container: UIView = state.editorOverlay as UIView? ?? self
-        UIView.animate(withDuration: wy_captureConfiguration.animationDuration) { container.layoutIfNeeded() }
+        let duration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? wy_captureConfiguration.animationDuration
+        let curve = (notification.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber)?.uintValue ?? UInt(UIView.AnimationCurve.easeInOut.rawValue)
+        UIView.animate(withDuration: max(0, duration), delay: 0, options: [UIView.AnimationOptions(rawValue: curve << 16), .beginFromCurrentState, .allowUserInteraction]) {
+            if self.state.editorInputTop?.isActive == true {
+                self.state.editorInputTop?.constant = -(keyboardOffset ?? 0)
+            }
+            container.layoutIfNeeded()
+        }
+    }
+
+    @objc func wy_finishEditorKeyboardLayout() {
+        guard !state.showsEditorEmoji, let inputTop = state.editorInputTop, inputTop.isActive,
+              let container = state.editPanel?.superview else { return }
+        let target = container.safeAreaLayoutGuide.layoutFrame.maxY + inputTop.constant
+        guard abs(container.keyboardLayoutGuide.layoutFrame.minY - target) <= 1 / max(1, container.traitCollection.displayScale) else { return }
+        inputTop.isActive = false
+        state.editorKeyboardTop?.isActive = true
     }
 
     @objc func wy_recordingWillResignActive() {
@@ -264,6 +294,7 @@ extension WYRecordAnimationView {
     @objc func wy_sendTranscript() {
         let text = wy_editorPlainText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty, state.sendButton.isEnabled else { return }
+        state.editorEmoji?.updateRecentlyEmoji(state.editText.attributedText)
         let handler = recognizedTextHandler
         wy_cancelTranscript()
         handler?(text)
@@ -287,8 +318,7 @@ extension WYRecordAnimationView {
     func wy_clearTranscript() {
         state.editorTranslationRequest = nil
         state.editorTranslatedLocale = nil
-        state.editText.inputView = nil
-        state.editorEmoji = nil
+        wy_removeEditorEmoji()
         state.automaticallySendsTranscript = false
         state.speech?.cancel()
         state.speech = nil

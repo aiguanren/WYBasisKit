@@ -18,10 +18,13 @@ final class WYChatViewPrivateState {
     var more: WYChatMoreView?
     var inputDependent: [NSLayoutConstraint] = []
     var inputBottom: NSLayoutConstraint?
+    var inputKeyboardLimit: NSLayoutConstraint?
     var ready = false
     var preservingHistory = false
     var updatingMediaPage = false
     var keyboardIsPresented = false
+    var isLayingOutInputSurfaceSwitch = false
+    var inputSurfaceAnimation: WYChatInputSurfaceAnimation?
     var pendingScrollToBottom = false
     var followsBottom = false
     var tableLayoutWidth: CGFloat = 0
@@ -47,6 +50,41 @@ final class WYChatViewPrivateState {
     var selectionRangeScrollOffset: CGFloat?
     var recognizingMessageID: String?
     var speech: WYChatSpeechRecognitionTask?
+}
+
+/// 键盘与应用面板交接时，每帧只写入一个输入栏位置。
+final class WYChatInputSurfaceAnimation: NSObject {
+    let target: CGFloat
+    private var link: CADisplayLink?
+    private let start = CACurrentMediaTime()
+    private let duration: TimeInterval
+    private let update: (CGFloat) -> Void
+    private let completion: () -> Void
+
+    init(target: CGFloat, duration: TimeInterval, update: @escaping (CGFloat) -> Void, completion: @escaping () -> Void) {
+        self.target = target
+        self.duration = duration
+        self.update = update
+        self.completion = completion
+        super.init()
+        let link = CADisplayLink(target: self, selector: #selector(tick(_:)))
+        self.link = link
+        link.add(to: .main, forMode: .common)
+    }
+
+    func cancel() {
+        link?.invalidate()
+        link = nil
+    }
+
+    @objc private func tick(_ link: CADisplayLink) {
+        let progress = min(1, max(0, (link.targetTimestamp - start) / duration))
+        update(CGFloat(progress * progress * (3 - 2 * progress)))
+        if progress == 1 {
+            cancel()
+            completion()
+        }
+    }
 }
 
 /// 列表点击与消息菜单长按的协调
@@ -170,6 +208,7 @@ extension WYChatView {
         wy_refreshQuote()
         wy_setupSelectionToolbar()
         NotificationCenter.default.addObserver(self, selector: #selector(wy_keyboardWillShow(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(wy_finishKeyboardLayout), name: UIResponder.keyboardDidChangeFrameNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(wy_keyboardWillDismiss), name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(wy_applicationDidBecomeActive(_:)), name: UIApplication.didBecomeActiveNotification, object: nil)
         backgroundColor = configuration.backgroundColor
@@ -195,7 +234,9 @@ extension WYChatView {
         state.input = value
         state.inputBottom = value.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor)
         state.inputBottom?.priority = .defaultHigh
-        NSLayoutConstraint.activate([value.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor), value.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor), value.bottomAnchor.constraint(lessThanOrEqualTo: keyboardLayoutGuide.topAnchor), state.inputBottom!])
+        let keyboardLimit = value.bottomAnchor.constraint(lessThanOrEqualTo: keyboardLayoutGuide.topAnchor)
+        state.inputKeyboardLimit = keyboardLimit
+        NSLayoutConstraint.activate([value.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor), value.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor), keyboardLimit, state.inputBottom!])
         return value
     }
 
@@ -246,6 +287,20 @@ extension WYChatView {
         return value
     }
 
+    func wy_scheduleEmojiPreparation() {
+        guard window != nil, configuration.input.emojiTextButtonSize != .zero,
+              configuration.emoji.customImageLoader == nil else { return }
+        DispatchQueue.main.async { [weak self] in
+            guard let self, self.window != nil, self.bounds.width > 0,
+                  self.touchStyle != .emoji, self.configuration.emoji.customImageLoader == nil,
+                  let emoji = self.emojiView else { return }
+            UIView.performWithoutAnimation {
+                self.layoutIfNeeded()
+                emoji.wy_prepareFirstViewport()
+            }
+        }
+    }
+
     func wy_moreView() -> WYChatMoreView? {
         guard configuration.input.moreButtonSize != .zero else { return nil }
         if let value = state.more { return value }
@@ -293,6 +348,7 @@ extension WYChatView {
         wy_refreshQuote()
         wy_scheduleReeditExpiration()
         tableView.reloadData()
+        wy_scheduleEmojiPreparation()
     }
 
     func wy_refreshInputAnchors() {
@@ -459,44 +515,158 @@ extension WYChatView {
     }
 
     func wy_setPanel(_ panel: WYChatTouchStyle, dismissKeyboard: Bool = true) {
+        let switchesFromKeyboard = panel != .done && chatInput.textView.isFirstResponder
+        if switchesFromKeyboard || panel == .emoji {
+            state.inputSurfaceAnimation?.cancel()
+            state.inputSurfaceAnimation = nil
+            // 键盘隐藏前先锁定输入栏当前的位置，避免两个布局来源先后改变列表高度。
+            let frame = chatInput.layer.presentation()?.frame ?? chatInput.frame
+            let offset = frame.maxY - safeAreaLayoutGuide.layoutFrame.maxY
+            state.inputBottom?.constant = min(0, offset)
+        }
         touchStyle = panel
-        if panel != .done { chatInput.textView.resignFirstResponder() } else if dismissKeyboard { endEditing(true) }
-        emojiView?.isHidden = panel != .emoji
-        moreView?.isHidden = panel != .more
+        chatInput.emojiView.isSelected = panel == .emoji
+        chatInput.wy_updateDictationControls()
+        if panel != .done { state.inputKeyboardLimit?.isActive = false }
+        if panel == .done, dismissKeyboard {
+            chatInput.wy_stopInputDictation(cancel: true)
+            endEditing(true)
+        }
+        if panel == .emoji, let emoji = emojiView {
+            UIView.performWithoutAnimation {
+                self.layoutIfNeeded()
+                emoji.wy_refreshRecentlyEmoji()
+                if emoji.isHidden {
+                    emoji.wy_prepareFirstViewport()
+                    let offset = self.chatInput.frame.maxY - self.safeAreaLayoutGuide.layoutFrame.maxY
+                    emoji.transform = CGAffineTransform(translationX: 0, y: max(0, emoji.bounds.height + offset))
+                    emoji.isHidden = false
+                }
+            }
+        } else {
+            state.emoji?.isHidden = true
+        }
+        if panel == .more { moreView?.isHidden = false } else { state.more?.isHidden = true }
         let height: CGFloat = panel == .emoji ? configuration.emoji.contentHeight : panel == .more ? configuration.more.contentHeight() : 0
-        if panel != .done || dismissKeyboard { wy_setInputOffset(height) }
+        if switchesFromKeyboard {
+            let input = chatInput
+            layoutIfNeeded()
+            input.textView.resignFirstResponder()
+            // 键盘退场会同步触发输入框的布局回调。等回调退出后再开始表情面板动画。
+            DispatchQueue.main.async { [weak self, weak input] in
+                guard let self, let input, self.state.input === input, self.touchStyle == panel else { return }
+                self.wy_setInputOffset(height, switchesInputSurface: true)
+            }
+            return
+        }
+        if panel != .done || dismissKeyboard {
+            wy_setInputOffset(height, switchesInputSurface: panel == .emoji)
+        } else if state.inputKeyboardLimit?.isActive == false {
+            // 使用外接键盘时，系统可能不会发出键盘位置通知。
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
+                guard let self, self.touchStyle == .done, !self.state.keyboardIsPresented else { return }
+                self.wy_setInputOffset(0, switchesInputSurface: true)
+            }
+        }
+        if panel != .done { chatInput.textView.resignFirstResponder() }
     }
 
-    func wy_setInputOffset(_ offset: CGFloat, notification: Notification? = nil) {
+    func wy_setInputOffset(_ offset: CGFloat, notification: Notification? = nil, switchesInputSurface: Bool = false) {
         let constant = -max(0, offset.isFinite ? offset : 0)
-        let nearBottom = state.followsBottom || wy_isNearBottom
-        state.inputBottom?.constant = constant
-        let duration = (notification?.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue ?? configuration.input.animateDuration
-        let curve = (notification?.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber)?.uintValue ?? UInt(UIView.AnimationCurve.easeInOut.rawValue)
-        UIView.animate(withDuration: max(0, duration), delay: 0, options: [UIView.AnimationOptions(rawValue: curve << 16), .beginFromCurrentState, .allowUserInteraction]) {
+        if switchesInputSurface, state.inputSurfaceAnimation?.target == constant { return }
+        state.inputSurfaceAnimation?.cancel()
+        state.inputSurfaceAnimation = nil
+        let table = tableView
+        let pixel = 1 / max(1, traitCollection.displayScale)
+        let bottom = max(-table.adjustedContentInset.top, table.contentSize.height + table.adjustedContentInset.bottom - table.bounds.height)
+        let shouldFollow = switchesInputSurface ? abs(table.contentOffset.y - bottom) <= pixel : wy_isNearBottom
+        if !table.isTracking, !table.isDecelerating, state.followsBottom || shouldFollow {
+            state.followsBottom = true
+            state.readingAnchor = nil
+        } else {
+            wy_captureReadingPosition()
+        }
+        if switchesInputSurface {
+            wy_animateInputSurfaceSwitch(to: constant)
+            return
+        }
+        let keyboardDuration = (notification?.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue
+        let duration = keyboardDuration ?? configuration.input.animateDuration
+        let keyboardCurve = (notification?.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber)?.uintValue ?? UInt(UIView.AnimationCurve.easeInOut.rawValue)
+        let curve = UIView.AnimationOptions(rawValue: keyboardCurve << 16)
+        UIView.animate(withDuration: duration.isFinite ? max(0, duration) : 0, delay: 0, options: [curve, .beginFromCurrentState, .allowUserInteraction]) {
+            self.state.inputBottom?.constant = constant
             self.layoutIfNeeded()
-            if nearBottom { self.scrollToLastMessage() }
         } completion: { [weak self] finished in
-            guard let self, finished else { return }
-            if nearBottom, self.state.followsBottom, !self.tableView.isTracking, !self.tableView.isDecelerating { self.scrollToLastMessage() }
-            guard notification != nil, self.touchStyle == .done, self.chatInput.textView.isFirstResponder, self.state.inputBottom?.constant == constant else { return }
-            self.state.inputBottom?.constant = 0
-            UIView.performWithoutAnimation { self.layoutIfNeeded() }
+            if finished { self?.wy_finishKeyboardLayout() }
         }
     }
 
+    private func wy_animateInputSurfaceSwitch(to target: CGFloat) {
+        let start = state.inputBottom?.constant ?? 0
+        let duration = configuration.input.animateDuration
+        let update: (CGFloat) -> Void = { [weak self] progress in
+            guard let self, let messageTable = self.tableView as? WYChatMessageTableView else { return }
+            self.state.isLayingOutInputSurfaceSwitch = true
+            defer { self.state.isLayingOutInputSurfaceSwitch = false }
+            UIView.performWithoutAnimation {
+                let offset = start + (target - start) * progress
+                self.state.inputBottom?.constant = offset
+                self.wy_positionEmojiPanel(inputOffset: offset)
+                messageTable.wy_performInternalUpdates {
+                    self.layoutIfNeeded()
+                    messageTable.layoutIfNeeded()
+                    self.wy_followBottomLayout()
+                }
+            }
+        }
+        let completion: () -> Void = { [weak self] in
+            self?.state.inputSurfaceAnimation = nil
+            self?.wy_finishKeyboardLayout()
+        }
+        chatInput.layer.removeAllAnimations()
+        tableView.layer.removeAllAnimations()
+        guard duration.isFinite, duration > 0, start != target, !UIAccessibility.isReduceMotionEnabled else {
+            update(1)
+            completion()
+            return
+        }
+        update(0)
+        state.inputSurfaceAnimation = WYChatInputSurfaceAnimation(target: target, duration: duration, update: update, completion: completion)
+    }
+
+    private func wy_positionEmojiPanel(inputOffset: CGFloat) {
+        guard touchStyle == .emoji, let emoji = state.emoji, !emoji.isHidden else { return }
+        emoji.transform = CGAffineTransform(translationX: 0, y: max(0, emoji.bounds.height + inputOffset))
+    }
+
+    @objc func wy_finishKeyboardLayout() {
+        guard state.inputSurfaceAnimation == nil, touchStyle == .done, let inputBottom = state.inputBottom else { return }
+        let keyboardTop = keyboardLayoutGuide.layoutFrame.minY
+        let target = safeAreaLayoutGuide.layoutFrame.maxY + inputBottom.constant
+        guard abs(keyboardTop - target) <= 1 / max(1, traitCollection.displayScale) else { return }
+        state.inputKeyboardLimit?.isActive = true
+        inputBottom.constant = 0
+    }
+
     func wy_handleKeyboard(_ notification: Notification) {
-        guard chatInput.textView.isFirstResponder else { return }
+        guard chatInput.textView.isFirstResponder,
+              touchStyle == .done || (!chatInput.emojiView.isSelected && !chatInput.moreView.isSelected) else { return }
+        let switchesInputSurface = state.inputKeyboardLimit?.isActive == false && (state.inputBottom?.constant ?? 0) < 0
+        var overlap: CGFloat?
+        if let screenFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect, let window {
+            let frame = convert(window.convert(screenFrame, from: window.screen.coordinateSpace), from: window)
+            let bottom = safeAreaLayoutGuide.layoutFrame.maxY
+            overlap = frame.maxY >= bottom && frame.maxX > bounds.minX && frame.minX < bounds.maxX ? max(0, bottom - frame.minY) : 0
+        }
+        if switchesInputSurface, overlap == 0 { return }
         state.keyboardIsPresented = true
         guard eventsHandler?.wy_canManagerKeyboardWillShowEvents?(notification) ?? true else { return }
         touchStyle = .done
         state.emoji?.isHidden = true
         state.more?.isHidden = true
-        if let screenFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect, let window {
-            let frame = convert(window.convert(screenFrame, from: window.screen.coordinateSpace), from: window)
-            let bottom = safeAreaLayoutGuide.layoutFrame.maxY
-            let overlap = frame.maxY >= bottom && frame.maxX > bounds.minX && frame.minX < bounds.maxX ? max(0, bottom - frame.minY) : 0
-            wy_setInputOffset(overlap, notification: notification)
+        if let overlap {
+            wy_setInputOffset(overlap, notification: notification, switchesInputSurface: switchesInputSurface)
         }
         delegate?.wy_keyboardWillShow?(notification)
     }
@@ -505,7 +675,7 @@ extension WYChatView {
         guard state.keyboardIsPresented else { return }
         state.keyboardIsPresented = false
         guard eventsHandler?.wy_canManagerKeyboardWillDismissEvents?() ?? true else { return }
-        if touchStyle == .done { wy_setInputOffset(0) }
+        if touchStyle == .done, !chatInput.emojiView.isSelected, !chatInput.moreView.isSelected { wy_setInputOffset(0) }
         delegate?.wy_keyboardWillDismiss?()
     }
 
@@ -516,6 +686,8 @@ extension WYChatView {
     }
 
     func wy_releaseAll() {
+        state.inputSurfaceAnimation?.cancel()
+        state.inputSurfaceAnimation = nil
         wy_closeMessageMenu()
         state.input?.wy_stopInputDictation(cancel: true)
         state.mediaBrowser?.dispose()

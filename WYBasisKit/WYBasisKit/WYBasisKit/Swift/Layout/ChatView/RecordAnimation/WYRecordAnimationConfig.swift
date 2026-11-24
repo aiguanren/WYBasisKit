@@ -35,6 +35,19 @@ import UIKit
 }
 
 public struct WYRecordAnimationConfig {
+    private static let recognitionSurfaceColor = UIColor { traits in
+        traits.userInterfaceStyle == .dark ? .wy_hex("#25262A") : .wy_hex("#F6F6F6")
+    }
+
+    func wy_withChatBackground(_ background: UIColor?) -> Self {
+        guard let background, recognitionOverlayBackgroundColor === Self.recognitionSurfaceColor else { return self }
+        var config = self
+        config.recognitionOverlayBackgroundColor = background
+        if recognitionEmoji.backgroundColor === Self.recognitionSurfaceColor { config.recognitionEmoji.backgroundColor = background }
+        if recognitionEmoji.headerBackgroundColor === Self.recognitionSurfaceColor { config.recognitionEmoji.headerBackgroundColor = config.recognitionEmoji.backgroundColor }
+        return config
+    }
+
     /// 录音手势与界面方案，默认分区操作
     public var interactionStyle: WYRecordingInteractionStyle = .actionRegions
     /// 渐变录音区域高度
@@ -402,7 +415,7 @@ public struct WYRecordAnimationConfig {
     /// 转写编辑文字颜色
     public var recognitionTextColor: UIColor = .label
     /// 转写编辑背景色
-    public var recognitionBackgroundColor: UIColor = UIColor { $0.userInterfaceStyle == .dark ? .wy_hex("#232A39") : .wy_hex("#F2F5FF") }
+    public var recognitionBackgroundColor: UIColor = UIColor { $0.userInterfaceStyle == .dark ? .wy_hex("#33343A") : .white }
     /// 转写编辑面板是否停靠在键盘或安全区底边上方
     public var recognitionPanelAnchorsToBottom: Bool = true
     /// 识别失败时是否将面板居中显示
@@ -414,7 +427,7 @@ public struct WYRecordAnimationConfig {
     /// 识别失败时是否显示重试按钮
     public var showsRecognitionRetryButton: Bool = false
     /// 转写页遮罩颜色，nil时沿用录音遮罩
-    public var recognitionOverlayBackgroundColor: UIColor? = .wy_hex("#313747")
+    public var recognitionOverlayBackgroundColor: UIColor? = WYRecordAnimationConfig.recognitionSurfaceColor
     /// 是否显示转写编辑卡片的箭头
     public var recognitionPanelShowsArrow: Bool = false
     /// 转写编辑面板高度
@@ -444,14 +457,14 @@ public struct WYRecordAnimationConfig {
     public var recognitionHeaderButtonWidth: CGFloat = UIDevice.wy_screenWidth(68, WYBasisKitConfig.defaultScreenPixels)
     /// 转写编辑关闭及表情按钮宽度
     public var recognitionAccessoryWidth: CGFloat = UIDevice.wy_screenWidth(40, WYBasisKitConfig.defaultScreenPixels)
-    /// 转写编辑关闭及表情图标尺寸
+    /// 转写编辑关闭、表情及键盘图标尺寸
     public var recognitionAccessoryImageSize: CGFloat = UIDevice.wy_screenWidth(24, WYBasisKitConfig.defaultScreenPixels)
     /// 转写编辑关闭及表情按钮颜色
-    public var recognitionAccessoryColor: UIColor = .white
+    public var recognitionAccessoryColor: UIColor = .label
     /// 转写编辑发送按钮文字颜色
-    public var recognitionSendColor: UIColor = .wy_hex("#111111")
+    public var recognitionSendColor: UIColor = UIColor { $0.userInterfaceStyle == .dark ? .wy_hex("#25262A") : .white }
     /// 转写编辑发送按钮背景色
-    public var recognitionSendBackgroundColor: UIColor = .white
+    public var recognitionSendBackgroundColor: UIColor = UIColor { $0.userInterfaceStyle == .dark ? .wy_hex("#EAEBEF") : .wy_hex("#343840") }
     /// 自定义转写编辑控件，参数为操作和已应用默认外观的按钮
     public var recognitionControlAppearance: ((_ control: WYChatRecordingEditorControl, _ button: UIButton) -> Void)? = nil
     /// 定制面板、正文、结果容器和失败状态，可调整面板内的行布局
@@ -461,9 +474,9 @@ public struct WYRecordAnimationConfig {
     /// 转写编辑按钮字体
     public var recognitionControlFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(16, WYBasisKitConfig.defaultScreenPixels))
     /// 转写编辑按钮颜色
-    public var recognitionControlColor: UIColor = .white
+    public var recognitionControlColor: UIColor = .label
     /// 转写编辑按钮背景色
-    public var recognitionControlBackgroundColor: UIColor = .white.withAlphaComponent(0.12)
+    public var recognitionControlBackgroundColor: UIColor = UIColor { $0.userInterfaceStyle == .dark ? .wy_hex("#3A3B41") : .wy_hex("#E8E9EC") }
     /// 转写编辑按钮圆角
     public var recognitionControlCornerRadius: CGFloat = UIDevice.wy_screenWidth(24, WYBasisKitConfig.defaultScreenPixels)
     /// 转写编辑文字内边距
@@ -471,15 +484,21 @@ public struct WYRecordAnimationConfig {
     /// 转写编辑文本背景色
     public var recognitionTextBackgroundColor: UIColor = .clear
     /// 转写编辑关闭图标，nil时只显示文字
-    public var recognitionCloseImage: UIImage? = UIImage.wy_find("WYChatViewClose", inBundle: WYChatSourceBundle)
+    public var recognitionCloseImage: UIImage? = UIImage.wy_find("WYChatViewClose", inBundle: WYChatSourceBundle).withRenderingMode(.alwaysTemplate)
     /// 转写编辑表情图标
-    public var recognitionEmojiImage: UIImage? = UIImage.wy_find("WYChatViewToggleEmoji", inBundle: WYChatSourceBundle)
+    public var recognitionEmojiImage: UIImage? = UIImage.wy_findIfPresent("WYChatViewToggleEmoji", inBundle: WYChatSourceBundle)?.withRenderingMode(.alwaysTemplate)
     /// 转写编辑键盘图标
-    public var recognitionKeyboardImage: UIImage? = UIImage.wy_findIfPresent("WYChatViewTogglekeyboard", inBundle: WYChatSourceBundle)?.withRenderingMode(.alwaysOriginal)
+    public var recognitionKeyboardImage: UIImage? = UIImage.wy_findIfPresent("WYChatViewTranscriptKeyboard", inBundle: WYChatSourceBundle)?.withRenderingMode(.alwaysTemplate)
     /// 转写编辑是否显示表情按钮，默认true
     public var showsRecognitionEmojiButton: Bool = true
     /// 转写编辑表情配置
-    public var recognitionEmoji: WYEmojiViewConfig = WYEmojiViewConfig()
+    public var recognitionEmoji: WYEmojiViewConfig = {
+        var config = WYEmojiViewConfig()
+        config.backgroundColor = WYRecordAnimationConfig.recognitionSurfaceColor
+        config.headerBackgroundColor = config.backgroundColor
+        config.headerTextColor = .label
+        return config
+    }()
     /// 转写编辑是否显示识别语言按钮，默认false
     public var showsRecognitionLanguageButton: Bool = false
     /// 识别语言列表，空数组时Apple使用系统支持的语言，外部识别仅显示当前语言

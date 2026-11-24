@@ -1592,6 +1592,8 @@ import WYBasisKitSwift
     public var placeholderLongPressAction: WYChatInputLongPressAction
     /// 是否在键盘展开时显示输入框内的语音识别按钮，需要启用语音识别
     public var enablesKeyboardDictation: Bool
+    /// 打开表情面板时是否保留输入框内的语音识别按钮
+    public var showsKeyboardDictationInEmojiPanel: Bool
     /// 手动修改输入文本时是否关闭正在进行的语音识别，默认true
     public var stopsKeyboardDictationOnTextChange: Bool
     /// 输入框语音识别按钮图片
@@ -1760,6 +1762,7 @@ import WYBasisKitSwift
         self.textPlaceholderAlignment = value.textPlaceholderAlignment
         self.placeholderLongPressAction = value.placeholderLongPressAction
         self.enablesKeyboardDictation = value.enablesKeyboardDictation
+        self.showsKeyboardDictationInEmojiPanel = value.showsKeyboardDictationInEmojiPanel
         self.stopsKeyboardDictationOnTextChange = value.stopsKeyboardDictationOnTextChange
         self.keyboardDictationImage = value.keyboardDictationImage
         self.keyboardDictationStopImage = value.keyboardDictationStopImage
@@ -1848,6 +1851,7 @@ import WYBasisKitSwift
         value.textPlaceholderAlignment = textPlaceholderAlignment
         value.placeholderLongPressAction = placeholderLongPressAction
         value.enablesKeyboardDictation = enablesKeyboardDictation
+        value.showsKeyboardDictationInEmojiPanel = showsKeyboardDictationInEmojiPanel
         value.stopsKeyboardDictationOnTextChange = stopsKeyboardDictationOnTextChange
         value.keyboardDictationImage = keyboardDictationImage
         value.keyboardDictationStopImage = keyboardDictationStopImage
@@ -2083,6 +2087,8 @@ import WYBasisKitSwift
     public var contentHeight: CGFloat
     /// 自定义Emoji控件内collectionView底部距离Emoji控件底部的偏移量
     public var collectionViewBottomOffset: CGFloat
+    /// 表情列表顶部与面板顶部的间距，包含第一个分区标题之前的留白
+    public var collectionViewTopOffset: CGFloat
     /// 自定义Emoji数据源(默认读WYChatView.bundle的WYChatViewEmoji.plist，资源缺失或格式不符时降级为空数组)，示例：["[玫瑰](表情图片名)","[色](表情图片名)","[嘻嘻](表情图片名)"]
     public var emojiSource: [String]
     /// 自定义加载Emoji图片的Bundle
@@ -2137,6 +2143,7 @@ import WYBasisKitSwift
         self.backgroundColor = value.backgroundColor
         self.contentHeight = value.contentHeight
         self.collectionViewBottomOffset = value.collectionViewBottomOffset
+        self.collectionViewTopOffset = value.collectionViewTopOffset
         self.emojiSource = value.emojiSource
         self.emojiBundle = value.emojiBundle.map { WYSourceBundleObjC(targetClass: $0.targetClass, bundleName: $0.bundleName, subdirectory: $0.subdirectory) }
         self.emojiFolders = value.emojiFolders
@@ -2169,6 +2176,7 @@ import WYBasisKitSwift
         value.backgroundColor = backgroundColor
         value.contentHeight = contentHeight
         value.collectionViewBottomOffset = collectionViewBottomOffset
+        value.collectionViewTopOffset = collectionViewTopOffset
         value.emojiSource = emojiSource
         value.emojiBundle = emojiBundle.map { WYSourceBundle(targetClass: $0.targetClass, bundleName: $0.bundleName, subdirectory: $0.subdirectory) }
         value.emojiFolders = emojiFolders

@@ -46,9 +46,11 @@ extension WYRecordAnimationView {
 
     func wy_configureTranscriptEditor() {
         alpha = 1
-        let config = wy_captureConfiguration
+        let config = wy_captureConfiguration.wy_withChatBackground(transcriptBackgroundColorProvider?())
         backgroundColor = config.recognitionOverlayBackgroundColor ?? config.overlayBackgroundColor
+        wy_removeEditorEmoji()
         state.editPanel?.removeFromSuperview()
+        if let guide = state.editorInputGuide { guide.owningView?.removeLayoutGuide(guide) }
         let container: UIView
         if presentsTranscriptInWindow, let window {
             let overlay = state.editorOverlay ?? WYChatTranscriptOverlay(frame: window.bounds)
@@ -154,7 +156,7 @@ extension WYRecordAnimationView {
         state.languageButton.showsMenuAsPrimaryAction = true
         wy_configureTranslationControls()
         let bubble = WYAirBubbleView()
-        bubble.fillColor = config.recognitionBackgroundColor
+        bubble.fillColor = config.recognitionBackgroundColor.resolvedColor(with: container.traitCollection)
         bubble.cornerRadius = max(0, config.recognitionPanelCornerRadius)
         bubble.showsArrow = config.recognitionPanelShowsArrow
         bubble.arrowSize = config.recognitionPanelShowsArrow ? config.arrowSizeForMoveUp.transfer : .zero
@@ -229,6 +231,17 @@ extension WYRecordAnimationView {
         container.addSubview(panel)
         let safeAreaLayoutGuide = container.safeAreaLayoutGuide
         let keyboardLayoutGuide = container.keyboardLayoutGuide
+        let input = UILayoutGuide()
+        container.addLayoutGuide(input)
+        state.editorInputTop = input.topAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor)
+        state.editorKeyboardTop = input.topAnchor.constraint(equalTo: keyboardLayoutGuide.topAnchor)
+        NSLayoutConstraint.activate([
+            input.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor),
+            input.widthAnchor.constraint(equalToConstant: 0),
+            input.heightAnchor.constraint(equalToConstant: 0),
+            state.editorKeyboardTop!
+        ])
+        state.editorInputGuide = input
         let top = config.recognitionPanelOuterInsets.top
         let bottom = -config.recognitionPanelOuterInsets.bottom
         let height = panel.heightAnchor.constraint(equalToConstant: max(1, config.recognitionMinimumHeight))
@@ -237,11 +250,11 @@ extension WYRecordAnimationView {
             panel.topAnchor.constraint(greaterThanOrEqualTo: safeAreaLayoutGuide.topAnchor, constant: top),
             panel.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: config.recognitionPanelOuterInsets.left),
             panel.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -config.recognitionPanelOuterInsets.right),
-            panel.bottomAnchor.constraint(lessThanOrEqualTo: keyboardLayoutGuide.topAnchor, constant: bottom),
+            panel.bottomAnchor.constraint(lessThanOrEqualTo: input.topAnchor, constant: bottom),
             height
         ])
         NSLayoutConstraint.deactivate(state.editorAlignmentConstraints)
-        state.editorAlignmentConstraints = [panel.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: top), panel.bottomAnchor.constraint(equalTo: keyboardLayoutGuide.topAnchor, constant: bottom), panel.centerYAnchor.constraint(equalTo: safeAreaLayoutGuide.centerYAnchor)]
+        state.editorAlignmentConstraints = [panel.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: top), panel.bottomAnchor.constraint(equalTo: input.topAnchor, constant: bottom), panel.centerYAnchor.constraint(equalTo: safeAreaLayoutGuide.centerYAnchor)]
         state.editorAlignmentConstraints.forEach { $0.priority = .defaultHigh }
         state.editorHeight = height
         state.editorHeader = header
@@ -261,6 +274,11 @@ extension WYRecordAnimationView {
         let safeAreaInsets = container.safeAreaInsets
         let keyboardLayoutGuide = container.keyboardLayoutGuide
         let config = wy_captureConfiguration
+        if let bubble = state.editorBubble {
+            let color = state.editorFailureView?.isHidden == false ? config.recognitionFailureBackgroundColor : config.recognitionBackgroundColor
+            let fill = color.resolvedColor(with: container.traitCollection)
+            if bubble.fillColor != fill { bubble.fillColor = fill }
+        }
         let margins = panel.layoutMargins
         let width = max(1, bounds.width - safeAreaInsets.left - safeAreaInsets.right - config.recognitionPanelOuterInsets.left - config.recognitionPanelOuterInsets.right - margins.left - margins.right)
         func fitActions(_ widths: [NSLayoutConstraint], accessory: UIButton, preferredWidth: CGFloat, spacing: CGFloat) {
@@ -285,12 +303,25 @@ extension WYRecordAnimationView {
         }
         let textHeight = contentHeight + max(0, state.editorBubble?.arrowSize.height ?? 0)
         let controls = max(1, config.recognitionHeaderHeight) + max(1, config.recognitionControlHeight) + max(0, config.recognitionHeaderSpacing) + max(0, config.recognitionFooterSpacing) + margins.top + margins.bottom
+        let safeBottom = bounds.height - safeAreaInsets.bottom
+        let outerInsets = config.recognitionPanelOuterInsets
+        let availableHeight = safeBottom - safeAreaInsets.top - outerInsets.top - outerInsets.bottom
+        let emojiHeight = min(
+            max(0, config.recognitionEmoji.contentHeight),
+            max(0, availableHeight - max(config.recognitionMinimumHeight, controls))
+        )
+        if let constraint = state.editorEmojiHeight, constraint.constant != emojiHeight { constraint.constant = emojiHeight }
+        let emojiTop = state.showsEditorEmoji ? -emojiHeight : 0
+        if let constraint = state.editorEmojiTop, constraint.constant != emojiTop { constraint.constant = emojiTop }
+        if state.showsEditorEmoji { state.editorInputTop?.constant = emojiTop }
         let guideTop = keyboardLayoutGuide.layoutFrame.minY
-        let available = max(1, (guideTop > 0 ? guideTop : bounds.height - safeAreaInsets.bottom) - safeAreaInsets.top - config.recognitionPanelOuterInsets.top - config.recognitionPanelOuterInsets.bottom)
+        let inputTop = state.editorInputTop?.isActive == true
+            ? safeBottom + (state.editorInputTop?.constant ?? 0)
+            : (guideTop > 0 ? guideTop : safeBottom)
+        let available = max(1, inputTop - safeAreaInsets.top - outerInsets.top - outerInsets.bottom)
         let maximum = min(available, max(1, config.recognitionPanelHeight))
         let height = min(maximum, max(min(maximum, max(1, config.recognitionMinimumHeight)), textHeight + controls))
         if state.editorHeight?.constant != height { state.editorHeight?.constant = height }
-        state.editorEmoji?.frame.size.width = bounds.width
     }
 
     func wy_updateTranscriptContent(_ text: String?, isRecognizing: Bool = false, failed: Bool = false) {
@@ -299,13 +330,15 @@ extension WYRecordAnimationView {
         let canEdit = !isRecognizing && !isFailure
         state.editorTranslationRequest = nil
         state.editorTranslatedLocale = nil
-        if !canEdit { state.editText.resignFirstResponder() }
+        if !canEdit {
+            wy_removeEditorEmoji()
+            state.editText.resignFirstResponder()
+        }
         state.editText.text = isFailure ? nil : text
         state.editText.isHidden = isFailure
         state.editText.isEditable = canEdit
         state.editText.isSelectable = canEdit
         state.editorFailureView?.isHidden = !isFailure
-        state.editorBubble?.fillColor = isFailure ? config.recognitionFailureBackgroundColor : config.recognitionBackgroundColor
         state.retryButton.isHidden = !isFailure || !config.showsRecognitionRetryButton
         state.sendButton.isHidden = false
         state.editorEmojiButton.isHidden = !config.showsRecognitionEmojiButton
@@ -330,23 +363,110 @@ extension WYRecordAnimationView {
 
     @objc func wy_toggleEditorEmoji() {
         guard state.editText.isEditable else { return }
-        if state.editText.inputView != nil { state.editText.inputView = nil }
-        else {
-            let emoji = WYChatEmojiView(config: wy_captureConfiguration.recognitionEmoji)
-            emoji.frame = CGRect(x: 0, y: 0, width: state.editorOverlay?.bounds.width ?? bounds.width, height: max(1, wy_captureConfiguration.recognitionEmoji.contentHeight))
-            emoji.delegate = state.editorDelegate
-            state.editorEmoji = emoji
-            state.editText.inputView = emoji
+        if state.showsEditorEmoji {
+            if state.editText.isFirstResponder {
+                state.editText.resignFirstResponder()
+                state.editorKeyboardRequest = nil
+            } else {
+                state.editText.becomeFirstResponder()
+            }
+        } else {
+            wy_setEditorEmojiVisible(true)
+            state.editText.resignFirstResponder()
         }
-        wy_updateEditorEmojiButton()
+    }
+
+    func wy_requestEditorKeyboard() {
+        guard state.showsEditorEmoji else { return }
+        let request = UUID()
+        state.editorKeyboardRequest = request
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
+            guard let self, self.state.editorKeyboardRequest == request else { return }
+            self.wy_setEditorEmojiVisible(false, keyboardOffset: 0)
+        }
+    }
+
+    func wy_setEditorEmojiVisible(_ visible: Bool, keyboardOffset: CGFloat = 0, notification: Notification? = nil) {
+        guard visible != state.showsEditorEmoji, let panel = state.editPanel, let container = panel.superview else { return }
+        let config = wy_captureConfiguration.wy_withChatBackground(transcriptBackgroundColorProvider?()).recognitionEmoji
+        if state.editorEmoji == nil {
+            let emoji = WYChatEmojiView(config: config)
+            let background = UIView()
+            background.backgroundColor = config.backgroundColor
+            background.isUserInteractionEnabled = false
+            background.translatesAutoresizingMaskIntoConstraints = false
+            background.alpha = 0
+            container.insertSubview(background, belowSubview: panel)
+            emoji.delegate = state.editorDelegate
+            emoji.translatesAutoresizingMaskIntoConstraints = false
+            emoji.alpha = 0
+            container.insertSubview(emoji, belowSubview: panel)
+            let safeArea = container.safeAreaLayoutGuide
+            let top = emoji.topAnchor.constraint(equalTo: safeArea.bottomAnchor)
+            let height = emoji.heightAnchor.constraint(equalToConstant: 0)
+            NSLayoutConstraint.activate([
+                emoji.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor),
+                emoji.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor),
+                top, height,
+                background.topAnchor.constraint(equalTo: emoji.topAnchor),
+                background.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+                background.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+                background.trailingAnchor.constraint(equalTo: container.trailingAnchor)
+            ])
+            state.editorEmoji = emoji
+            state.editorEmojiBackground = background
+            state.editorEmojiTop = top
+            state.editorEmojiHeight = height
+        }
+        guard let emoji = state.editorEmoji else { return }
+        if visible { emoji.wy_refreshRecentlyEmoji() }
+        container.layoutIfNeeded()
+        state.editorKeyboardRequest = nil
+        state.showsEditorEmoji = visible
+        emoji.isHidden = false
+        emoji.isUserInteractionEnabled = visible
+        emoji.accessibilityElementsHidden = !visible
+        if !visible { emoji.state.preview?.dismiss() }
         wy_updateEditorActions()
-        state.editText.becomeFirstResponder()
-        state.editText.reloadInputViews()
+        let duration = config.animateDuration.isFinite && !UIAccessibility.isReduceMotionEnabled ? max(0, config.animateDuration) : 0
+        UIView.transition(with: state.editorEmojiButton, duration: duration, options: [.transitionCrossDissolve, .beginFromCurrentState, .allowUserInteraction]) {
+            self.wy_updateEditorEmojiButton()
+        }
+        let curve = (notification?.userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? NSNumber)?.uintValue ?? UInt(UIView.AnimationCurve.easeInOut.rawValue)
+        UIView.animate(withDuration: duration, delay: 0, options: [.beginFromCurrentState, .allowUserInteraction, UIView.AnimationOptions(rawValue: curve << 16)]) {
+            self.state.editorKeyboardTop?.isActive = false
+            self.state.editorInputTop?.constant = -keyboardOffset
+            self.state.editorInputTop?.isActive = true
+            self.wy_layoutTranscriptEditor()
+            emoji.alpha = visible ? 1 : 0
+            self.state.editorEmojiBackground?.alpha = emoji.alpha
+            container.layoutIfNeeded()
+        } completion: { [weak self, weak emoji] finished in
+            guard finished, let self, let emoji, self.state.editorEmoji === emoji else { return }
+            emoji.isHidden = !self.state.showsEditorEmoji
+            self.wy_finishEditorKeyboardLayout()
+        }
+    }
+
+    func wy_removeEditorEmoji() {
+        state.editorKeyboardRequest = nil
+        guard let emoji = state.editorEmoji else { return }
+        emoji.state.preview?.dismiss()
+        emoji.removeFromSuperview()
+        state.editorEmojiBackground?.removeFromSuperview()
+        state.editorEmojiBackground = nil
+        state.editorEmoji = nil
+        state.editorEmojiTop = nil
+        state.editorEmojiHeight = nil
+        state.showsEditorEmoji = false
+        state.editorInputTop?.isActive = false
+        state.editorKeyboardTop?.isActive = true
+        wy_updateEditorEmojiButton()
     }
 
     private func wy_updateEditorEmojiButton() {
         let config = wy_captureConfiguration
-        let showsKeyboard = state.editText.inputView != nil
+        let showsKeyboard = state.showsEditorEmoji
         let image = showsKeyboard ? config.recognitionKeyboardImage : config.recognitionEmojiImage
         let label = WYLocalized(showsKeyboard ? "键盘" : "表情", table: WYBasisKitConfig.kitLocalizableTable)
         state.editorEmojiButton.setImage(image, for: .normal)
@@ -464,6 +584,10 @@ extension WYRecordAnimationView {
 /// 编辑文本与表情操作转发
 final class WYChatTranscriptEditorDelegate: NSObject, UITextViewDelegate, WYChatEmojiViewDelegate {
     weak var owner: WYRecordAnimationView?
+    func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
+        owner?.wy_requestEditorKeyboard()
+        return true
+    }
     func textViewDidChange(_ textView: UITextView) { owner?.wy_editorTextChanged() }
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         guard text == "\n", textView.markedTextRange == nil, let owner, owner.wy_captureConfiguration.recognitionSendsOnReturn else { return true }

@@ -30,6 +30,9 @@ public struct WYEmojiViewConfig {
     /// 自定义Emoji控件内collectionView底部距离Emoji控件底部的偏移量
     public var collectionViewBottomOffset: CGFloat = 0
 
+    /// 表情列表顶部与面板顶部的间距，包含第一个分区标题之前的留白
+    public var collectionViewTopOffset: CGFloat = 0
+
     /// 自定义Emoji数据源(默认读WYChatView.bundle的WYChatViewEmoji.plist，资源缺失或格式不符时降级为空数组)，示例：["[玫瑰](表情图片名)","[色](表情图片名)","[嘻嘻](表情图片名)"]
     public var emojiSource: [String] = WYChatDefaultResources.emojis
     

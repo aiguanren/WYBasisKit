@@ -104,11 +104,6 @@ abstract_target "SharedPods" do
     if xcode_version_less_than_or_equal_to(14, 2)
       # 网络请求
       pod "Alamofire", "5.9.1"
-
-      # 管理键盘弹出时的界面适配
-      pod "IQKeyboardManagerSwift", "7.0.0"
-    else
-      pod "IQKeyboardManagerSwift"  # 当前版本号 8.0.3 集成更新日期：2026.10.21
     end
 
     # Kingfisher扩展库，支持显示webp格式图片
@@ -147,11 +142,6 @@ abstract_target "SharedPods" do
     if xcode_version_less_than_or_equal_to(14, 2)
       # 网络请求
       pod "Alamofire", "5.9.1"
-
-      # 管理键盘弹出时的界面适配
-      pod "IQKeyboardManagerSwift", "7.0.0"
-    else
-      pod "IQKeyboardManagerSwift"  # 当前版本号 8.0.3 集成更新日期：2026.10.21
     end
 
   end

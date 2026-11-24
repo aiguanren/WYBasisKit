@@ -71,6 +71,15 @@ extension WYChatView {
     }
 
     func wy_followBottomLayout() {
+        if state.isLayingOutInputSurfaceSwitch {
+            guard state.followsBottom, !dataSource.isEmpty, let table = tableView as? WYChatMessageTableView,
+                  !table.isTracking, !table.isDecelerating else { return }
+            let bottom = max(-table.adjustedContentInset.top, table.contentSize.height + table.adjustedContentInset.bottom - table.bounds.height)
+            if abs(table.contentOffset.y - bottom) > 1 / max(1, traitCollection.displayScale) {
+                table.wy_setOffsetInternally(CGPoint(x: table.contentOffset.x, y: bottom))
+            }
+            return
+        }
         guard !wy_isOverscrolling, state.followsBottom, window != nil, !dataSource.isEmpty, tableView.bounds.height > 0 else { return }
         let last = IndexPath(row: dataSource.count - 1, section: 0)
         let bottom = max(-tableView.adjustedContentInset.top, tableView.contentSize.height + tableView.adjustedContentInset.bottom - tableView.bounds.height)

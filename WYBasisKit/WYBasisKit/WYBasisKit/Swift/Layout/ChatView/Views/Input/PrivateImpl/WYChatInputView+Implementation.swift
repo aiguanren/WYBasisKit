@@ -18,6 +18,9 @@ extension WYChatInputView {
         hasCreatedRecordView = true
         let recordView: WYRecordAnimationView = WYRecordAnimationView(alpha: 0, delegate: self, configuration: recordAnimationConfig)
         recordView.presentsTranscriptInWindow = true
+        recordView.transcriptBackgroundColorProvider = { [weak self] in
+            (self?.superview as? WYChatView)?.tableView.backgroundColor
+        }
         recordView.resultHandler = { [weak self] url, duration, error in self?.recordingResultHandler?(url, duration, error) }
         recordView.recognizedTextHandler = { [weak self] text in self?.delegate?.wy_didClickKeyboardEvent?(text: text) }
         superview?.addSubview(recordView)
@@ -187,18 +190,15 @@ extension WYChatInputView {
         textVoiceView.isSelected = false
         moreView.isSelected = false
 
-        if sender.isSelected {
-            if textView.canResignFirstResponder {
-                textView.resignFirstResponder()
-            }
-        }else {
-            if textView.canBecomeFirstResponder {
-                textView.becomeFirstResponder()
-            }
-        }
         updateContentViewHeight()
-
-        delegate?.wy_didClickEmojiTextView?(isText: !sender.isSelected)
+        if sender.isSelected {
+            // 先交接面板布局，再结束输入，避免系统键盘先移走输入栏。
+            delegate?.wy_didClickEmojiTextView?(isText: false)
+            textView.resignFirstResponder()
+        } else {
+            textView.becomeFirstResponder()
+            delegate?.wy_didClickEmojiTextView?(isText: true)
+        }
         saveLastInputViewStyle()
     }
 
@@ -599,8 +599,6 @@ extension WYChatInputView {
             make.bottom.equalTo(textVoiceContentView).offset(-self.inputBarConfig.voiceTextButtonBottomOffset)
         }
 
-        emojiView.setBackgroundImage(self.inputBarConfig.emojiBottomImage, for: .normal)
-        emojiView.setBackgroundImage(self.inputBarConfig.textBottomImage, for: .selected)
         emojiView.addTarget(self, action: #selector(didClickEmojiView(sender:)), for: .touchUpInside)
         addSubview(emojiView)
         emojiView.snp.makeConstraints { make in

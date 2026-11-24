@@ -637,8 +637,14 @@ final class WYChatViewTests: XCTestCase {
     func testInputEmojiAndMoreActualWorkflow() {
         let app = openChat()
         let input = app.textViews["WYChatInput.text"]
-        app.buttons["WYChatInput.emoji"].tap()
+        let toggle = app.buttons["WYChatInput.emoji"]
+        toggle.tap()
         let emoji = app.collectionViews["WYChatEmoji.items"]
+        XCTAssertTrue(emoji.waitForExistence(timeout: 5))
+        toggle.tap()
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 5))
+        XCTAssertTrue(toggle.isHittable)
+        toggle.tap()
         XCTAssertTrue(emoji.waitForExistence(timeout: 5))
         XCTAssertGreaterThan(emoji.cells.count, 0)
         emoji.cells.firstMatch.tap()
@@ -854,18 +860,30 @@ final class WYChatViewTests: XCTestCase {
     }
 
     func testHistoryReadingPosition() {
+        runChatCheck("历史消息与阅读位置")
+    }
+
+    func testRepeatedKeyboardToEmojiSwitch() {
+        runChatCheck("键盘与表情连续切换")
+    }
+
+    private func runChatCheck(_ name: String) {
         let app = openChat()
         app.navigationBars.buttons["测试"].tap()
         let search = app.searchFields.firstMatch
         XCTAssertTrue(search.waitForExistence(timeout: 5))
         search.tap()
-        search.typeText("历史消息与阅读位置")
-        let row = app.tables.cells.containing(.staticText, identifier: "历史消息与阅读位置").firstMatch
+        search.typeText(name)
+        let row = app.tables.cells.containing(.staticText, identifier: name).firstMatch
         XCTAssertTrue(row.waitForExistence(timeout: 5))
         row.tap()
         app.alerts.buttons["运行"].tap()
-        let passed = row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "通过")).firstMatch
-        XCTAssertTrue(passed.waitForExistence(timeout: 30))
+        let outcome = row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@ OR label CONTAINS %@", "通过", "失败")).firstMatch
+        XCTAssertTrue(outcome.waitForExistence(timeout: 40))
+        if outcome.label.contains("失败") {
+            row.tap()
+            XCTFail(app.alerts.firstMatch.staticTexts.allElementsBoundByIndex.map(\.label).joined(separator: "\n"))
+        }
     }
 
     func testDictationAndOriginalVoice() {

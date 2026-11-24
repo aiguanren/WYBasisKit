@@ -104,7 +104,11 @@ final class WYChatInputDictationSession {
 
 /// 占位区域与键盘内语音输入
 extension WYChatInputView {
-    var wy_showsKeyboardDictation: Bool { window != nil && inputBarConfig.enablesKeyboardDictation && recordAnimationConfig.supportSpeechRecognition && textView.isFirstResponder && !textView.isHidden }
+    var wy_showsKeyboardDictation: Bool {
+        guard window != nil, inputBarConfig.enablesKeyboardDictation, recordAnimationConfig.supportSpeechRecognition,
+              !textView.isHidden else { return false }
+        return textView.isFirstResponder || (inputBarConfig.showsKeyboardDictationInEmojiPanel && emojiView.isSelected)
+    }
     var wy_dictationReservedWidth: CGFloat { wy_showsKeyboardDictation ? max(0, inputBarConfig.keyboardDictationSize.width) + max(0, inputBarConfig.keyboardDictationInsets.left) + max(0, inputBarConfig.keyboardDictationInsets.right) : 0 }
 
     func wy_setupDictationControls() {
