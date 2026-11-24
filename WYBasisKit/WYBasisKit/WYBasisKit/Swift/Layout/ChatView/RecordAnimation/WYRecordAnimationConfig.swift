@@ -24,7 +24,15 @@ import UIKit
 }
 
 /// 转写编辑操作控件
-@objc public enum WYChatRecordingEditorControl: Int { case close, language, translation, emoji, retry, originalVoice, send }
+@objc public enum WYChatRecordingEditorControl: Int {
+    case close, language, translation, emoji, retry, originalVoice, send
+    case readTranslation, changeTranslationLanguage, cancelTranslation
+}
+
+/// 转写编辑页交给宿主的翻译操作。
+@objc public enum WYChatTranscriptTranslationAction: Int {
+    case translate, readAloud, changeLanguage, cancel
+}
 
 public struct WYRecordAnimationConfig {
     /// 录音手势与界面方案，默认分区操作
@@ -390,13 +398,23 @@ public struct WYRecordAnimationConfig {
     public var recognitionBackgroundColor: UIColor = UIColor { $0.userInterfaceStyle == .dark ? .wy_hex("#232A39") : .wy_hex("#F2F5FF") }
     /// 转写编辑面板是否停靠在键盘或安全区底边上方
     public var recognitionPanelAnchorsToBottom: Bool = true
+    /// 识别失败时是否将面板居中显示
+    public var recognitionCentersFailurePanel: Bool = true
+    /// 识别成功后是否自动打开键盘
+    public var recognitionAutomaticallyFocusesText: Bool = true
+    /// 键盘回车是否发送文本，关闭时用于换行
+    public var recognitionSendsOnReturn: Bool = true
+    /// 识别失败时是否显示重试按钮
+    public var showsRecognitionRetryButton: Bool = false
+    /// 转写页遮罩颜色，nil时沿用录音遮罩
+    public var recognitionOverlayBackgroundColor: UIColor? = .wy_hex("#313747")
     /// 是否显示转写编辑卡片的箭头
     public var recognitionPanelShowsArrow: Bool = false
     /// 转写编辑面板高度
     public var recognitionPanelHeight: CGFloat = UIDevice.wy_screenHeight(480, WYBasisKitConfig.defaultScreenPixels)
 
     /// 转写编辑最小高度
-    public var recognitionMinimumHeight: CGFloat = UIDevice.wy_screenHeight(220, WYBasisKitConfig.defaultScreenPixels)
+    public var recognitionMinimumHeight: CGFloat = UIDevice.wy_screenHeight(178, WYBasisKitConfig.defaultScreenPixels)
     /// 转写编辑面板外边距，底部相对键盘顶部
     public var recognitionPanelOuterInsets: UIEdgeInsets = UIEdgeInsets(top: UIDevice.wy_screenHeight(8, WYBasisKitConfig.defaultScreenPixels), left: UIDevice.wy_screenWidth(24, WYBasisKitConfig.defaultScreenPixels), bottom: UIDevice.wy_screenHeight(16, WYBasisKitConfig.defaultScreenPixels), right: UIDevice.wy_screenWidth(24, WYBasisKitConfig.defaultScreenPixels))
     /// 转写编辑面板内边距
@@ -429,6 +447,10 @@ public struct WYRecordAnimationConfig {
     public var recognitionSendBackgroundColor: UIColor = .white
     /// 自定义转写编辑控件，参数为操作和已应用默认外观的按钮
     public var recognitionControlAppearance: ((_ control: WYChatRecordingEditorControl, _ button: UIButton) -> Void)? = nil
+    /// 定制面板、正文、结果容器和失败状态，可调整面板内的行布局
+    public var recognitionEditorAppearance: ((_ panel: UIStackView, _ textView: UITextView, _ resultView: WYAirBubbleView, _ failureLabel: UILabel, _ failureIcon: UIImageView) -> Void)?
+    /// 不可用的操作按钮透明度，范围0到1
+    public var recognitionDisabledActionOpacity: CGFloat = 0.44
     /// 转写编辑按钮字体
     public var recognitionControlFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(16, WYBasisKitConfig.defaultScreenPixels))
     /// 转写编辑按钮颜色
@@ -459,8 +481,10 @@ public struct WYRecordAnimationConfig {
     public var recognitionLanguageText: String = WYLocalized("语言", table: WYBasisKitConfig.kitLocalizableTable)
     /// 是否启用外部文本翻译，默认false
     public var enablesTranslation: Bool = false
-    /// 外部文本翻译服务
+    /// 旧版翻译服务配置，转写编辑器的翻译操作由transcriptTranslationHandler处理
     public var translationProvider: WYChatTextTranslator? = nil
+    /// 翻译、朗读、切换译文语言及取消翻译均由宿主处理
+    public var transcriptTranslationHandler: ((_ editor: WYRecordAnimationView, _ action: WYChatTranscriptTranslationAction, _ requestID: String, _ text: String, _ sourceLocaleIdentifier: String?, _ targetLocaleIdentifier: String) -> Void)?
     /// 翻译源语言，nil时自动识别
     public var translationSourceLocaleIdentifier: String? = nil
     /// 翻译目标语言
@@ -475,6 +499,18 @@ public struct WYRecordAnimationConfig {
     public var translationWaitingText: String = WYLocalized("正在翻译…", table: WYBasisKitConfig.kitLocalizableTable)
     /// 翻译按钮文字
     public var translationText: String = WYLocalized("翻译", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 译文朗读按钮文字
+    public var translationReadAloudText: String = WYLocalized("朗读", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 译文切换语言按钮文字
+    public var translationChangeLanguageText: String = WYLocalized("切换语言", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 取消翻译按钮文字
+    public var translationCancelText: String = WYLocalized("取消翻译", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 是否显示译文朗读入口
+    public var showsTranslationReadAloudButton: Bool = true
+    /// 是否显示译文切换语言入口
+    public var showsTranslationChangeLanguageButton: Bool = true
+    /// 是否显示取消翻译入口
+    public var showsTranslationCancelButton: Bool = true
 
     /// 录音文件保存地址
     public var chatAudioUrl: URL = (FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first ?? FileManager.default.temporaryDirectory).appendingPathComponent("WYChatAudio", isDirectory: true)

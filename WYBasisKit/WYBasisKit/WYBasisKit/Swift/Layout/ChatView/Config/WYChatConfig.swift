@@ -86,6 +86,10 @@ public struct WYChatContentConfig {
     public var fundsIconBackgroundColor: UIColor?
     /// 消息卡片图标，nil时使用对应消息类型的内置图片
     public var iconImage: UIImage? = nil
+    /// 卡片图标着色，nil时使用内置类型颜色或原图颜色
+    public var iconTintColor: UIColor?
+    /// 是否给内置图标应用默认类型颜色
+    public var usesDefaultIconTint: Bool = true
     /// 消息卡片图标的显示尺寸
     public var iconSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(28, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenHeight(28, WYBasisKitConfig.defaultScreenPixels))
     /// 内容内边距
@@ -131,8 +135,10 @@ public struct WYChatContentConfig {
 
 /// 位置消息的地图预览外观
 public struct WYChatLocationConfig {
-    /// 地图预览的占位图片，nil时沿用通用占位
-    public var placeholderImage: UIImage? = UIImage.wy_findIfPresent("WYChatViewMapPlaceholder", inBundle: WYChatSourceBundle)
+    /// 地图预览未就绪时显示的大头针，nil时仅显示底色
+    public var placeholderImage: UIImage? = UIImage.wy_findIfPresent("WYChatViewMapPin", inBundle: WYChatSourceBundle)
+    /// 大头针最长边的点数，0表示按预览区等比显示
+    public var placeholderIconSize: CGFloat = UIDevice.wy_screenWidth(36, WYBasisKitConfig.defaultScreenPixels)
     /// 地图预览的占位底色
     public var placeholderBackgroundColor: UIColor = .tertiarySystemFill
     /// 地图预览的圆角

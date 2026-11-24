@@ -38,7 +38,7 @@ extension WYRecordAnimationView {
     func wy_configureTranscriptEditor() {
         alpha = 1
         let config = wy_captureConfiguration
-        backgroundColor = config.overlayBackgroundColor
+        backgroundColor = config.recognitionOverlayBackgroundColor ?? config.overlayBackgroundColor
         state.editPanel?.removeFromSuperview()
         NSLayoutConstraint.deactivate(state.editorControlConstraints)
         state.editorControlConstraints.removeAll()
@@ -65,24 +65,30 @@ extension WYRecordAnimationView {
         state.editText.textContainer.lineFragmentPadding = 0
         state.editText.isScrollEnabled = true
         state.editText.accessibilityIdentifier = "WYChatRecording.editor"
-        let header = UIStackView(arrangedSubviews: [state.cancelButton, UIView(), state.languageButton, state.translationButton])
+        state.editText.returnKeyType = config.recognitionSendsOnReturn ? .send : .default
+        state.editText.enablesReturnKeyAutomatically = config.recognitionSendsOnReturn
+        let headerActions = [state.languageButton, state.translationButton, state.translationReadButton, state.translationLanguageButton, state.translationCancelButton]
+        let footerActions = [state.retryButton, state.voiceButton, state.sendButton]
+        let header = UIStackView(arrangedSubviews: [state.cancelButton, UIView()] + headerActions)
         let footer = UIStackView(arrangedSubviews: [state.editorEmojiButton, UIView(), state.retryButton, state.voiceButton, state.sendButton])
         header.alignment = .center
         footer.alignment = .center
         for row in [header, footer] { row.spacing = max(0, config.recognitionControlSpacing) }
         header.heightAnchor.constraint(equalToConstant: max(1, config.recognitionHeaderHeight)).isActive = true
         footer.heightAnchor.constraint(equalToConstant: max(1, config.recognitionControlHeight)).isActive = true
-        for button in [state.cancelButton, state.languageButton, state.translationButton] {
+        _ = fixed(state.cancelButton.heightAnchor, max(1, config.recognitionHeaderHeight))
+        _ = fixed(state.cancelButton.widthAnchor, max(0, config.recognitionAccessoryWidth))
+        state.editorHeaderWidths = headerActions.map { button in
             _ = fixed(button.heightAnchor, max(1, config.recognitionHeaderHeight))
-            _ = fixed(button.widthAnchor, max(0, button === state.cancelButton ? config.recognitionAccessoryWidth : config.recognitionHeaderButtonWidth))
+            return fixed(button.widthAnchor, max(0, config.recognitionHeaderButtonWidth))
         }
         _ = fixed(state.editorEmojiButton.widthAnchor, max(0, config.recognitionAccessoryWidth))
-        state.editorActionWidths = [state.retryButton, state.voiceButton, state.sendButton].map { button in
+        state.editorActionWidths = footerActions.map { button in
             _ = fixed(button.heightAnchor, max(1, config.recognitionControlHeight))
             return fixed(button.widthAnchor, max(0, config.recognitionActionWidth))
         }
         _ = fixed(state.editorEmojiButton.heightAnchor, max(1, config.recognitionControlHeight))
-        for button in [state.cancelButton, state.languageButton, state.translationButton, state.editorEmojiButton, state.retryButton, state.voiceButton, state.sendButton] {
+        for button in [state.cancelButton, state.editorEmojiButton] + headerActions + footerActions {
             button.removeTarget(nil, action: nil, for: .touchUpInside)
             button.titleLabel?.font = config.recognitionControlFont
             button.titleLabel?.adjustsFontSizeToFitWidth = true
@@ -98,6 +104,7 @@ extension WYRecordAnimationView {
         state.cancelButton.accessibilityIdentifier = "WYChatRecording.close"
         state.cancelButton.addTarget(self, action: #selector(wy_cancelTranscript), for: .touchUpInside)
         state.retryButton.setTitle(config.recognitionRetryText, for: .normal)
+        state.retryButton.accessibilityIdentifier = "WYChatRecording.retry"
         state.retryButton.addTarget(self, action: #selector(wy_retryTranscript), for: .touchUpInside)
         state.voiceButton.setTitle(config.recognitionSendVoiceText, for: .normal)
         state.voiceButton.isHidden = state.mode == .dictation || !config.showsOriginalVoiceButton
@@ -107,9 +114,8 @@ extension WYRecordAnimationView {
         state.sendButton.setTitle(config.recognitionSendText, for: .normal)
         state.sendButton.accessibilityIdentifier = "WYChatRecording.sendText"
         state.sendButton.addTarget(self, action: #selector(wy_sendTranscript), for: .touchUpInside)
-        state.editorEmojiButton.setImage(state.editText.inputView == nil ? config.recognitionEmojiImage : config.recognitionKeyboardImage, for: .normal)
+        wy_updateEditorEmojiButton()
         state.editorEmojiButton.isHidden = !config.showsRecognitionEmojiButton
-        state.editorEmojiButton.accessibilityLabel = WYLocalized("表情", table: WYBasisKitConfig.kitLocalizableTable)
         state.editorEmojiButton.accessibilityIdentifier = "WYChatRecording.emoji"
         state.editorEmojiButton.addTarget(self, action: #selector(wy_toggleEditorEmoji), for: .touchUpInside)
         state.languageButton.isHidden = !config.showsRecognitionLanguageButton
@@ -120,19 +126,7 @@ extension WYRecordAnimationView {
             UIAction(title: Locale.current.localizedString(forIdentifier: identifier) ?? identifier, state: identifier == config.speechLocaleIdentifier ? .on : .off) { [weak self] _ in self?.wy_changeRecognitionLanguage(to: identifier) }
         })
         state.languageButton.showsMenuAsPrimaryAction = true
-        state.translationButton.isHidden = !config.enablesTranslation
-        state.translationButton.isEnabled = state.translationID == nil
-        state.translationButton.setTitle(config.translationText, for: .normal)
-        state.translationButton.accessibilityIdentifier = "WYChatRecording.translate"
-        let targets = config.translationTargetLanguages.isEmpty ? [config.translationTargetLocaleIdentifier] : config.translationTargetLanguages
-        state.translationButton.menu = UIMenu(children: targets.map { identifier in
-            UIAction(title: Locale.current.localizedString(forIdentifier: identifier) ?? identifier) { [weak self] _ in self?.wy_translateTranscript(to: identifier) }
-        })
-        state.translationButton.showsMenuAsPrimaryAction = true
-        state.editorStatusLabel.font = config.recognitionControlFont
-        state.editorStatusLabel.textColor = config.recognitionTextColor
-        state.editorStatusLabel.numberOfLines = 0
-        state.editorStatusLabel.isHidden = state.translationID == nil
+        wy_configureTranslationControls()
         let bubble = WYAirBubbleView()
         bubble.fillColor = config.recognitionBackgroundColor
         bubble.cornerRadius = max(0, config.recognitionPanelCornerRadius)
@@ -154,7 +148,9 @@ extension WYRecordAnimationView {
         state.editText.translatesAutoresizingMaskIntoConstraints = false
         bubble.addSubview(state.editText)
         NSLayoutConstraint.activate([state.editText.topAnchor.constraint(equalTo: bubble.topAnchor), state.editText.leadingAnchor.constraint(equalTo: bubble.leadingAnchor), state.editText.trailingAnchor.constraint(equalTo: bubble.trailingAnchor), state.editText.bottomAnchor.constraint(equalTo: bubble.bottomAnchor, constant: -max(0, bubble.arrowSize.height))])
-        let failure = UIStackView(arrangedSubviews: [state.editorFailureImage, state.editorFailureLabel])
+        let leadingSpace = UIView()
+        let trailingSpace = UIView()
+        let failure = UIStackView(arrangedSubviews: [leadingSpace, state.editorFailureImage, state.editorFailureLabel, trailingSpace])
         failure.translatesAutoresizingMaskIntoConstraints = false
         failure.alignment = .center
         failure.spacing = max(0, config.recognitionControlSpacing)
@@ -168,7 +164,9 @@ extension WYRecordAnimationView {
         state.editorFailureLabel.font = config.recognitionFont
         state.editorFailureLabel.textColor = config.recognitionFailureColor
         state.editorFailureLabel.numberOfLines = 0
+        state.editorFailureLabel.textAlignment = .center
         state.editorFailureLabel.accessibilityIdentifier = "WYChatRecording.failure"
+        leadingSpace.widthAnchor.constraint(equalTo: trailingSpace.widthAnchor).isActive = true
         bubble.addSubview(failure)
         let insets = config.recognitionTextInsets
         NSLayoutConstraint.activate([
@@ -181,7 +179,6 @@ extension WYRecordAnimationView {
         state.editorFailureView = failure
         state.editorBubble = bubble
         panel.addArrangedSubview(header)
-        panel.addArrangedSubview(state.editorStatusLabel)
         panel.addArrangedSubview(bubble)
         panel.addArrangedSubview(footer)
         panel.setCustomSpacing(max(0, config.recognitionHeaderSpacing), after: header)
@@ -195,33 +192,48 @@ extension WYRecordAnimationView {
         }
         state.sendButton.setTitleColor(config.recognitionSendColor, for: .normal)
         state.sendButton.backgroundColor = config.recognitionSendBackgroundColor
-        let controls: [(WYChatRecordingEditorControl, UIButton)] = [(.close, state.cancelButton), (.language, state.languageButton), (.translation, state.translationButton), (.emoji, state.editorEmojiButton), (.retry, state.retryButton), (.originalVoice, state.voiceButton), (.send, state.sendButton)]
+        let controls: [(WYChatRecordingEditorControl, UIButton)] = [(.close, state.cancelButton), (.language, state.languageButton), (.translation, state.translationButton), (.emoji, state.editorEmojiButton), (.retry, state.retryButton), (.originalVoice, state.voiceButton), (.send, state.sendButton), (.readTranslation, state.translationReadButton), (.changeTranslationLanguage, state.translationLanguageButton), (.cancelTranslation, state.translationCancelButton)]
         for (control, button) in controls { config.recognitionControlAppearance?(control, button) }
+        config.recognitionEditorAppearance?(panel, state.editText, bubble, state.editorFailureLabel, state.editorFailureImage)
         addSubview(panel)
         let top = config.recognitionPanelOuterInsets.top
         let bottom = -config.recognitionPanelOuterInsets.bottom
-        let topConstraint = config.recognitionPanelAnchorsToBottom ? panel.topAnchor.constraint(greaterThanOrEqualTo: safeAreaLayoutGuide.topAnchor, constant: top) : panel.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: top)
-        state.editorBottom = config.recognitionPanelAnchorsToBottom ? panel.bottomAnchor.constraint(equalTo: keyboardLayoutGuide.topAnchor, constant: bottom) : panel.bottomAnchor.constraint(lessThanOrEqualTo: keyboardLayoutGuide.topAnchor, constant: bottom)
-        if config.recognitionPanelAnchorsToBottom { state.editorBottom?.priority = .defaultHigh }
-        state.editorHeight = panel.heightAnchor.constraint(equalToConstant: max(1, config.recognitionMinimumHeight))
-        NSLayoutConstraint.activate([topConstraint, panel.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: config.recognitionPanelOuterInsets.left), panel.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -config.recognitionPanelOuterInsets.right), state.editorBottom!, state.editorHeight!])
+        let height = panel.heightAnchor.constraint(equalToConstant: max(1, config.recognitionMinimumHeight))
+        NSLayoutConstraint.activate([
+            panel.topAnchor.constraint(greaterThanOrEqualTo: safeAreaLayoutGuide.topAnchor, constant: top),
+            panel.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: config.recognitionPanelOuterInsets.left),
+            panel.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -config.recognitionPanelOuterInsets.right),
+            panel.bottomAnchor.constraint(lessThanOrEqualTo: keyboardLayoutGuide.topAnchor, constant: bottom),
+            height
+        ])
+        NSLayoutConstraint.deactivate(state.editorAlignmentConstraints)
+        state.editorAlignmentConstraints = [panel.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: top), panel.bottomAnchor.constraint(equalTo: keyboardLayoutGuide.topAnchor, constant: bottom), panel.centerYAnchor.constraint(equalTo: safeAreaLayoutGuide.centerYAnchor)]
+        state.editorAlignmentConstraints.forEach { $0.priority = .defaultHigh }
+        state.editorHeight = height
+        state.editorHeader = header
+        state.editorFooter = footer
         state.editPanel = panel
+        panel.accessibilityIdentifier = "WYChatRecording.panel"
         setNeedsLayout()
     }
 
     func wy_layoutTranscriptEditor() {
         guard let panel = state.editPanel, !panel.isHidden, bounds.width > 0 else { return }
         let config = wy_captureConfiguration
-        let width = max(1, bounds.width - safeAreaInsets.left - safeAreaInsets.right - config.recognitionPanelOuterInsets.left - config.recognitionPanelOuterInsets.right - config.recognitionPanelInsets.left - config.recognitionPanelInsets.right)
-        let actionButtons = [state.retryButton, state.voiceButton, state.sendButton]
-        let count = actionButtons.filter { !$0.isHidden }.count
-        let accessory = state.editorEmojiButton.isHidden ? 0 : max(0, config.recognitionAccessoryWidth)
-        let gaps = CGFloat(max(0, count + (state.editorEmojiButton.isHidden ? 0 : 1))) * max(0, config.recognitionControlSpacing)
-        let actionWidth = min(max(0, config.recognitionActionWidth), max(0, width - accessory - gaps) / CGFloat(max(1, count)))
-        for constraint in state.editorActionWidths where constraint.constant != actionWidth { constraint.constant = actionWidth }
+        let margins = panel.layoutMargins
+        let width = max(1, bounds.width - safeAreaInsets.left - safeAreaInsets.right - config.recognitionPanelOuterInsets.left - config.recognitionPanelOuterInsets.right - margins.left - margins.right)
+        func fitActions(_ widths: [NSLayoutConstraint], accessory: UIButton, preferredWidth: CGFloat, spacing: CGFloat) {
+            let count = widths.filter { ($0.firstItem as? UIButton)?.isHidden == false }.count
+            let accessoryWidth = accessory.isHidden ? 0 : max(0, config.recognitionAccessoryWidth)
+            let gaps = CGFloat(count + (accessory.isHidden ? 0 : 1)) * max(0, spacing)
+            let buttonWidth = min(max(0, preferredWidth), max(0, width - accessoryWidth - gaps) / CGFloat(max(1, count)))
+            for constraint in widths where constraint.constant != buttonWidth { constraint.constant = buttonWidth }
+        }
+        fitActions(state.editorHeaderWidths, accessory: state.cancelButton, preferredWidth: config.recognitionHeaderButtonWidth, spacing: state.editorHeader?.spacing ?? 0)
+        fitActions(state.editorActionWidths, accessory: state.editorEmojiButton, preferredWidth: config.recognitionActionWidth, spacing: state.editorFooter?.spacing ?? 0)
         let contentHeight: CGFloat
         if let failure = state.editorFailureView, !failure.isHidden {
-            let insets = config.recognitionTextInsets
+            let insets = state.editText.textContainerInset
             let iconSize = state.editorFailureImage.isHidden ? 0 : max(0, config.recognitionAccessoryImageSize)
             let labelWidth = max(1, width - insets.left - insets.right - iconSize - (iconSize > 0 ? failure.spacing : 0))
             let labelHeight = state.editorFailureLabel.sizeThatFits(CGSize(width: labelWidth, height: .greatestFiniteMagnitude)).height
@@ -230,8 +242,7 @@ extension WYRecordAnimationView {
             contentHeight = state.editText.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude)).height
         }
         let textHeight = contentHeight + max(0, state.editorBubble?.arrowSize.height ?? 0)
-        let statusHeight = state.editorStatusLabel.isHidden ? 0 : state.editorStatusLabel.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude)).height + max(0, config.recognitionControlSpacing)
-        let controls = max(1, config.recognitionHeaderHeight) + max(1, config.recognitionControlHeight) + max(0, config.recognitionHeaderSpacing) + max(0, config.recognitionFooterSpacing) + config.recognitionPanelInsets.top + config.recognitionPanelInsets.bottom + statusHeight
+        let controls = max(1, config.recognitionHeaderHeight) + max(1, config.recognitionControlHeight) + max(0, config.recognitionHeaderSpacing) + max(0, config.recognitionFooterSpacing) + margins.top + margins.bottom
         let guideTop = keyboardLayoutGuide.layoutFrame.minY
         let available = max(1, (guideTop > 0 ? guideTop : bounds.height - safeAreaInsets.bottom) - safeAreaInsets.top - config.recognitionPanelOuterInsets.top - config.recognitionPanelOuterInsets.bottom)
         let maximum = min(available, max(1, config.recognitionPanelHeight))
@@ -242,23 +253,36 @@ extension WYRecordAnimationView {
 
     func wy_updateTranscriptContent(_ text: String?, isRecognizing: Bool = false, failed: Bool = false) {
         let config = wy_captureConfiguration
-        let canEdit = !isRecognizing && !failed
-        state.editText.text = failed ? nil : text
-        state.editText.isHidden = failed
+        let isFailure = !isRecognizing && (failed || (text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true))
+        let canEdit = !isRecognizing && !isFailure
+        state.editorTranslationRequest = nil
+        state.editorTranslatedLocale = nil
+        if !canEdit { state.editText.resignFirstResponder() }
+        state.editText.text = isFailure ? nil : text
+        state.editText.isHidden = isFailure
         state.editText.isEditable = canEdit
-        state.editorFailureView?.isHidden = !failed
-        state.editorBubble?.fillColor = failed ? config.recognitionFailureBackgroundColor : config.recognitionBackgroundColor
-        state.retryButton.isHidden = !failed
-        state.sendButton.isHidden = failed
-        state.sendButton.isEnabled = canEdit && !(text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
-        state.editorEmojiButton.isHidden = !canEdit || !config.showsRecognitionEmojiButton
-        state.translationButton.isHidden = !canEdit || !config.enablesTranslation
+        state.editText.isSelectable = canEdit
+        state.editorFailureView?.isHidden = !isFailure
+        state.editorBubble?.fillColor = isFailure ? config.recognitionFailureBackgroundColor : config.recognitionBackgroundColor
+        state.retryButton.isHidden = !isFailure || !config.showsRecognitionRetryButton
+        state.sendButton.isHidden = false
+        state.editorEmojiButton.isHidden = !config.showsRecognitionEmojiButton
+        state.editorEmojiButton.isEnabled = canEdit
+        NSLayoutConstraint.deactivate(state.editorAlignmentConstraints)
+        let alignment = isFailure && config.recognitionCentersFailurePanel ? 2 : (config.recognitionPanelAnchorsToBottom ? 1 : 0)
+        if state.editorAlignmentConstraints.indices.contains(alignment) { state.editorAlignmentConstraints[alignment].isActive = true }
+        wy_updateEditorActions()
+        if canEdit, !state.automaticallySendsTranscript, config.recognitionAutomaticallyFocusesText {
+            let end = (state.editText.text as NSString?)?.length ?? 0
+            state.editText.selectedRange = NSRange(location: end, length: 0)
+            state.editText.becomeFirstResponder()
+        }
         setNeedsLayout()
     }
 
     func wy_editorTextChanged() {
-        wy_cancelTranslation()
-        if state.editText.isEditable { state.sendButton.isEnabled = !wy_editorPlainText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        state.editorTranslationRequest = nil
+        wy_updateEditorActions()
         setNeedsLayout()
     }
 
@@ -272,9 +296,19 @@ extension WYRecordAnimationView {
             state.editorEmoji = emoji
             state.editText.inputView = emoji
         }
-        state.editorEmojiButton.setImage(state.editText.inputView == nil ? wy_captureConfiguration.recognitionEmojiImage : wy_captureConfiguration.recognitionKeyboardImage, for: .normal)
+        wy_updateEditorEmojiButton()
         state.editText.becomeFirstResponder()
         state.editText.reloadInputViews()
+    }
+
+    private func wy_updateEditorEmojiButton() {
+        let config = wy_captureConfiguration
+        let showsKeyboard = state.editText.inputView != nil
+        let image = showsKeyboard ? config.recognitionKeyboardImage : config.recognitionEmojiImage
+        let label = WYLocalized(showsKeyboard ? "键盘" : "表情", table: WYBasisKitConfig.kitLocalizableTable)
+        state.editorEmojiButton.setImage(image, for: .normal)
+        state.editorEmojiButton.setTitle(image == nil ? label : nil, for: .normal)
+        state.editorEmojiButton.accessibilityLabel = label
     }
 
     func wy_insertEditorEmoji(_ emoji: String) {
@@ -299,66 +333,83 @@ extension WYRecordAnimationView {
         wy_recognizeRecording(true)
     }
 
-    func wy_translateTranscript(to identifier: String) {
-        guard wy_captureConfiguration.enablesTranslation, state.editPanel?.isHidden == false, state.editText.isEditable else { return }
-        wy_cancelTranslation()
-        let text = wy_editorPlainText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !text.isEmpty else { return }
+    private func wy_configureTranslationControls() {
         let config = wy_captureConfiguration
-        guard !identifier.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, config.translationTimeout.isFinite, config.translationTimeout > 0,
-              let provider = config.translationProvider,
-              provider.responds(to: #selector(WYChatTextTranslator.wy_translateText(_:text:sourceLocaleIdentifier:targetLocaleIdentifier:completion:))) else {
-            wy_finishTranslation(nil, error: NSError(domain: Self.translationErrorDomain, code: 1, userInfo: [NSLocalizedDescriptionKey: config.translationFailureText]))
-            return
+        let targets = config.translationTargetLanguages.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        state.translationButton.setTitle(config.translationText, for: .normal)
+        state.translationButton.accessibilityIdentifier = "WYChatRecording.translate"
+        state.translationButton.menu = targets.count > 1 ? wy_translationMenu(.translate, targets: targets) : nil
+        state.translationButton.showsMenuAsPrimaryAction = state.translationButton.menu != nil
+        if state.translationButton.menu == nil {
+            state.translationButton.addTarget(self, action: #selector(wy_didTapTranslate), for: .touchUpInside)
         }
-        let request = UUID().uuidString
-        state.translationID = request
-        state.translationProvider = provider
-        state.translationButton.isEnabled = false
-        state.editorStatusLabel.text = config.translationWaitingText
-        state.editorStatusLabel.isHidden = false
-        setNeedsLayout()
-        let timeout = DispatchWorkItem { [weak self] in
-            guard let self, self.state.translationID == request else { return }
-            self.wy_cancelTranslation()
-            self.wy_finishTranslation(nil, error: NSError(domain: Self.translationErrorDomain, code: 2, userInfo: [NSLocalizedDescriptionKey: config.translationFailureText]))
+        state.translationReadButton.setTitle(config.translationReadAloudText, for: .normal)
+        state.translationReadButton.accessibilityIdentifier = "WYChatRecording.translationRead"
+        state.translationReadButton.addTarget(self, action: #selector(wy_didTapReadTranslation), for: .touchUpInside)
+        state.translationLanguageButton.setTitle(config.translationChangeLanguageText, for: .normal)
+        state.translationLanguageButton.accessibilityIdentifier = "WYChatRecording.translationLanguage"
+        state.translationLanguageButton.menu = targets.count > 1 ? wy_translationMenu(.changeLanguage, targets: targets) : nil
+        state.translationLanguageButton.showsMenuAsPrimaryAction = state.translationLanguageButton.menu != nil
+        if state.translationLanguageButton.menu == nil {
+            state.translationLanguageButton.addTarget(self, action: #selector(wy_didTapTranslationLanguage), for: .touchUpInside)
         }
-        state.translationTimeoutWork = timeout
-        DispatchQueue.main.asyncAfter(deadline: .now() + config.translationTimeout, execute: timeout)
-        provider.wy_translateText?(request, text: text, sourceLocaleIdentifier: config.translationSourceLocaleIdentifier, targetLocaleIdentifier: identifier, completion: { [weak self] translated, error in
-            DispatchQueue.main.async {
-                guard let self, self.state.translationID == request else { return }
-                self.state.translationID = nil
-                self.state.translationProvider = nil
-                self.state.translationTimeoutWork?.cancel()
-                self.state.translationTimeoutWork = nil
-                guard self.wy_editorPlainText.trimmingCharacters(in: .whitespacesAndNewlines) == text else { self.state.translationButton.isEnabled = true; self.state.editorStatusLabel.isHidden = true; return }
-                let result = translated?.trimmingCharacters(in: .whitespacesAndNewlines)
-                let failure = error ?? ((result?.isEmpty ?? true) ? NSError(domain: Self.translationErrorDomain, code: 3, userInfo: [NSLocalizedDescriptionKey: config.translationFailureText]) : nil)
-                self.wy_finishTranslation(result, error: failure)
+        state.translationCancelButton.setTitle(config.translationCancelText, for: .normal)
+        state.translationCancelButton.accessibilityIdentifier = "WYChatRecording.translationCancel"
+        state.translationCancelButton.addTarget(self, action: #selector(wy_didTapCancelTranslation), for: .touchUpInside)
+    }
+
+    private func wy_translationMenu(_ action: WYChatTranscriptTranslationAction, targets: [String]) -> UIMenu {
+        UIMenu(children: targets.map { identifier in
+            UIAction(title: Locale.current.localizedString(forIdentifier: identifier) ?? identifier) { [weak self] _ in
+                self?.wy_requestTranslation(action, target: identifier)
             }
         })
     }
 
-    func wy_finishTranslation(_ text: String?, error: NSError?) {
-        state.translationButton.isEnabled = true
-        state.editorStatusLabel.isHidden = error == nil
-        state.editorStatusLabel.text = error?.localizedDescription
-        if error == nil, let text { state.editText.text = text; state.sendButton.isEnabled = !text.isEmpty }
-        setNeedsLayout()
-        translationResultHandler?(error == nil ? text : nil, error)
+    func wy_updateEditorActions() {
+        let config = wy_captureConfiguration
+        let canEdit = state.editText.isEditable
+        let hasText = !(state.editText.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        let enablesTranslation = canEdit && config.enablesTranslation && config.transcriptTranslationHandler != nil
+        let isTranslated = state.editorTranslatedLocale != nil
+        state.sendButton.isEnabled = canEdit && hasText
+        let opacity = config.recognitionDisabledActionOpacity.isFinite ? min(1, max(0, config.recognitionDisabledActionOpacity)) : 0.44
+        state.sendButton.alpha = state.sendButton.isEnabled ? 1 : opacity
+        state.editorEmojiButton.alpha = state.editorEmojiButton.isEnabled ? 1 : opacity
+        state.languageButton.isHidden = !canEdit || !config.showsRecognitionLanguageButton || isTranslated
+        state.translationButton.isHidden = !enablesTranslation || isTranslated
+        state.translationButton.isEnabled = hasText
+        state.translationReadButton.isHidden = !enablesTranslation || !isTranslated || !config.showsTranslationReadAloudButton
+        state.translationReadButton.isEnabled = hasText
+        state.translationLanguageButton.isHidden = !enablesTranslation || !isTranslated || !config.showsTranslationChangeLanguageButton
+        state.translationCancelButton.isHidden = !enablesTranslation || !isTranslated || !config.showsTranslationCancelButton
     }
 
-    func wy_cancelTranslation() {
-        let identifier = state.translationID
-        let provider = state.translationProvider
-        state.translationID = nil
-        state.translationProvider = nil
-        state.translationTimeoutWork?.cancel()
-        state.translationTimeoutWork = nil
-        state.translationButton.isEnabled = true
-        state.editorStatusLabel.isHidden = true
-        if let identifier { provider?.wy_cancelTranslation?(identifier) }
+    @objc private func wy_didTapTranslate() {
+        let config = wy_captureConfiguration
+        translateRecognizedText(to: config.translationTargetLanguages.first { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty } ?? config.translationTargetLocaleIdentifier)
+    }
+
+    @objc private func wy_didTapReadTranslation() {
+        if let locale = state.editorTranslatedLocale { wy_requestTranslation(.readAloud, target: locale) }
+    }
+
+    @objc private func wy_didTapTranslationLanguage() {
+        if let locale = state.editorTranslatedLocale { wy_requestTranslation(.changeLanguage, target: locale) }
+    }
+
+    @objc private func wy_didTapCancelTranslation() { cancelTranslation() }
+
+    func wy_requestTranslation(_ action: WYChatTranscriptTranslationAction, target: String) {
+        let config = wy_captureConfiguration
+        guard config.enablesTranslation, let handler = config.transcriptTranslationHandler,
+              state.editPanel?.isHidden == false, state.editText.isEditable else { return }
+        let locale = target.trimmingCharacters(in: .whitespacesAndNewlines)
+        let text = wy_editorPlainText
+        guard !locale.isEmpty, action == .cancel || !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        let requestID = UUID().uuidString
+        if action != .readAloud { state.editorTranslationRequest = (requestID, locale) }
+        handler(self, action, requestID, text, config.translationSourceLocaleIdentifier, locale)
     }
 }
 
@@ -366,6 +417,11 @@ extension WYRecordAnimationView {
 final class WYChatTranscriptEditorDelegate: NSObject, UITextViewDelegate, WYChatEmojiViewDelegate {
     weak var owner: WYRecordAnimationView?
     func textViewDidChange(_ textView: UITextView) { owner?.wy_editorTextChanged() }
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        guard text == "\n", textView.markedTextRange == nil, let owner, owner.wy_captureConfiguration.recognitionSendsOnReturn else { return true }
+        owner.wy_sendTranscript()
+        return false
+    }
     func wy_didClickEmojiView(_ emojiView: WYChatEmojiView, indexPath: IndexPath) {
         guard emojiView.dataSource.indices.contains(indexPath.section), emojiView.dataSource[indexPath.section].indices.contains(indexPath.item) else { return }
         owner?.wy_insertEditorEmoji(emojiView.dataSource[indexPath.section][indexPath.item])

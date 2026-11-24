@@ -62,8 +62,9 @@ extension WYChatBasicCell {
             let cover = value.smallCover
             if cover.name.isEmpty && cover.downloadPath.isEmpty && cover.localPath.isEmpty { wy_showMessageIcon(iconName) }
             else { wy_showThumbnail(cover) }
-            let accent: UIColor = isPacket ? .systemPink : .systemIndigo
-            state.thumbnail.backgroundColor = messageContentConfiguration.fundsIconBackgroundColor ?? accent.withAlphaComponent(value.state == .unreceived ? 0.18 : 0.09)
+            let style = messageContentConfiguration
+            let accent = style.iconTintColor ?? WYChatDefaultResources.iconTint(for: iconName)
+            state.thumbnail.backgroundColor = style.fundsIconBackgroundColor ?? accent?.withAlphaComponent(value.state == .unreceived ? 0.14 : 0.07)
             state.thumbnail.layer.cornerRadius = min(state.thumbnailSize[0].constant, state.thumbnailSize[1].constant) * 0.25
         default: break
         }

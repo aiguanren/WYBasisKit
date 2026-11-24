@@ -7,6 +7,16 @@
 
 import UIKit
 
+/// 为内置及异步加载的图标应用显式指定的着色。
+final class WYChatIconImageView: UIImageView {
+    var tintsImage = false
+
+    override var image: UIImage? {
+        get { super.image }
+        set { super.image = tintsImage ? newValue?.withRenderingMode(.alwaysTemplate) : newValue }
+    }
+}
+
 /// 视频封面的播放标记和时长。
 final class WYChatVideoOverlayView: UIView {
     private let playBackground = UIView()
@@ -29,9 +39,9 @@ final class WYChatVideoOverlayView: UIView {
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    func apply(_ config: WYChatMediaConfig, font: UIFont, duration text: String) {
-        play.image = config.videoPlayImage.map { $0.renderingMode == .alwaysOriginal ? $0 : $0.withRenderingMode(.alwaysTemplate) }
-        play.tintColor = config.videoPlayColor
+    func apply(_ config: WYChatMediaConfig, icon: UIImage?, tint: UIColor?, font: UIFont, duration text: String) {
+        play.image = tint == nil ? icon : icon?.withRenderingMode(.alwaysTemplate)
+        play.tintColor = tint
         playSize = CGSize(width: config.videoPlaySize.width.isFinite ? max(0, config.videoPlaySize.width) : 0,
                           height: config.videoPlaySize.height.isFinite ? max(0, config.videoPlaySize.height) : 0)
         playBackground.isHidden = play.image == nil || playSize.width == 0 || playSize.height == 0
@@ -74,6 +84,11 @@ extension WYChatBasicCell {
             let names: [WYChatMessageStyle: String] = [.file: "WYChatViewFile", .music: "WYChatViewMusic", .businessCard: "WYChatViewContact", .webpage: "WYChatViewLink"]
             if let name = names[message.content.style()] { wy_showMessageIcon(name); return }
         }
+        let style = messageContentConfiguration
+        let usesNamedIcon = asset.localPath.isEmpty && asset.downloadPath.isEmpty && style.usesDefaultIconTint
+        let tint = style.iconTintColor ?? (usesNamedIcon ? WYChatDefaultResources.iconTint(for: asset.name) : nil)
+        state.thumbnail.tintsImage = tint != nil
+        state.thumbnail.tintColor = tint
         wy_loadImage(asset, into: state.thumbnail)
     }
 
@@ -82,7 +97,11 @@ extension WYChatBasicCell {
         let size = messageContentConfiguration.iconSize
         state.thumbnailSize.first?.constant = size.width.isFinite ? max(0, size.width) : 0
         state.thumbnailSize.last?.constant = size.height.isFinite ? max(0, size.height) : 0
-        state.thumbnail.image = messageContentConfiguration.iconImage ?? UIImage.wy_find(name, inBundle: WYChatSourceBundle)
+        let style = messageContentConfiguration
+        let tint = style.iconTintColor ?? (style.iconImage == nil && style.usesDefaultIconTint ? WYChatDefaultResources.iconTint(for: name) : nil)
+        state.thumbnail.tintsImage = tint != nil
+        state.thumbnail.tintColor = tint
+        state.thumbnail.image = style.iconImage ?? UIImage.wy_find(name, inBundle: WYChatSourceBundle)
     }
 
     func wy_showPlaybackSymbol(_ image: UIImage?, text: String) {
@@ -127,7 +146,8 @@ extension WYChatBasicCell {
                 state.videoOverlay = overlay
             }
             overlay.isHidden = false
-            overlay.apply(media, font: style.detailFont, duration: wy_duration(value.duration))
+            let tint = style.iconTintColor ?? (media.tintsVideoPlayImage && style.usesDefaultIconTint ? media.videoPlayColor : nil)
+            overlay.apply(media, icon: style.iconImage ?? media.videoPlayImage, tint: tint, font: style.detailFont, duration: wy_duration(value.duration))
         case .music:
             guard let value = message.content.music else { return }
             wy_showThumbnail(value.thumbnailCover.localPath.isEmpty && value.thumbnailCover.downloadPath.isEmpty ? value.cover : value.thumbnailCover)

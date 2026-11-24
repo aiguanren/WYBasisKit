@@ -152,6 +152,8 @@ import WYBasisKitSwift
     public var fundsIconBackgroundColor: UIColor?
     /// 消息卡片图标，nil时使用对应消息类型的内置图片
     public var iconImage: UIImage?
+    public var iconTintColor: UIColor?
+    public var usesDefaultIconTint: Bool
     /// 消息卡片图标的显示尺寸
     public var iconSize: CGSize
 
@@ -200,6 +202,8 @@ import WYBasisKitSwift
         fundsIconBackgroundColor = value.fundsIconBackgroundColor
         self.iconSize = value.iconSize
         self.iconImage = value.iconImage
+        iconTintColor = value.iconTintColor
+        usesDefaultIconTint = value.usesDefaultIconTint
         self.insets = value.insets
         self.maximumWidthRatio = value.maximumWidthRatio
         self.maximumWidth = value.maximumWidth
@@ -227,6 +231,8 @@ import WYBasisKitSwift
         value.fundsIconBackgroundColor = fundsIconBackgroundColor
         value.iconSize = iconSize
         value.iconImage = iconImage
+        value.iconTintColor = iconTintColor
+        value.usesDefaultIconTint = usesDefaultIconTint
         value.insets = insets
         value.maximumWidthRatio = maximumWidthRatio
         value.maximumWidth = maximumWidth
@@ -252,8 +258,9 @@ import WYBasisKitSwift
 
 @objc(WYChatLocationConfig)
 @objcMembers public class WYChatLocationConfigObjC: NSObject {
-    /// 地图预览的占位图片，nil时沿用通用占位
+    /// 地图预览未就绪时显示的大头针，nil时仅显示底色
     public var placeholderImage: UIImage?
+    public var placeholderIconSize: CGFloat
     public var placeholderBackgroundColor: UIColor
     public var cornerRadius: CGFloat
     public var showsPreviewBelowAddress: Bool
@@ -262,6 +269,7 @@ import WYBasisKitSwift
 
     @nonobjc public init(_ value: WYChatLocationConfig) {
         placeholderImage = value.placeholderImage
+        placeholderIconSize = value.placeholderIconSize
         placeholderBackgroundColor = value.placeholderBackgroundColor
         cornerRadius = value.cornerRadius
         showsPreviewBelowAddress = value.showsPreviewBelowAddress
@@ -271,6 +279,7 @@ import WYBasisKitSwift
     @nonobjc public func toValue() -> WYChatLocationConfig {
         var value = WYChatLocationConfig()
         value.placeholderImage = placeholderImage
+        value.placeholderIconSize = placeholderIconSize
         value.placeholderBackgroundColor = placeholderBackgroundColor
         value.cornerRadius = cornerRadius
         value.showsPreviewBelowAddress = showsPreviewBelowAddress
@@ -793,6 +802,20 @@ import WYBasisKitSwift
     public var recognitionFailureBackgroundColor: UIColor
     public var recognitionPanelAnchorsToBottom: Bool
     public var recognitionPanelShowsArrow: Bool
+    public var recognitionCentersFailurePanel: Bool
+    public var recognitionAutomaticallyFocusesText: Bool
+    public var recognitionSendsOnReturn: Bool
+    public var showsRecognitionRetryButton: Bool
+    public var recognitionOverlayBackgroundColor: UIColor?
+    public var recognitionEditorAppearance: ((_ panel: UIStackView, _ textView: UITextView, _ resultView: WYAirBubbleView, _ failureLabel: UILabel, _ failureIcon: UIImageView) -> Void)?
+    public var recognitionDisabledActionOpacity: CGFloat
+    public var transcriptTranslationHandler: ((_ editor: WYRecordAnimationView, _ action: WYChatTranscriptTranslationAction, _ requestID: String, _ text: String, _ sourceLocaleIdentifier: String?, _ targetLocaleIdentifier: String) -> Void)?
+    public var translationReadAloudText: String
+    public var translationChangeLanguageText: String
+    public var translationCancelText: String
+    public var showsTranslationReadAloudButton: Bool
+    public var showsTranslationChangeLanguageButton: Bool
+    public var showsTranslationCancelButton: Bool
     /// 转写等待提示
     public var recognizingText: String
     /// 转写确认按钮文字
@@ -1055,6 +1078,20 @@ import WYBasisKitSwift
         recognitionFailureBackgroundColor = value.recognitionFailureBackgroundColor
         recognitionPanelAnchorsToBottom = value.recognitionPanelAnchorsToBottom
         recognitionPanelShowsArrow = value.recognitionPanelShowsArrow
+        recognitionCentersFailurePanel = value.recognitionCentersFailurePanel
+        recognitionAutomaticallyFocusesText = value.recognitionAutomaticallyFocusesText
+        recognitionSendsOnReturn = value.recognitionSendsOnReturn
+        showsRecognitionRetryButton = value.showsRecognitionRetryButton
+        recognitionOverlayBackgroundColor = value.recognitionOverlayBackgroundColor
+        recognitionEditorAppearance = value.recognitionEditorAppearance
+        recognitionDisabledActionOpacity = value.recognitionDisabledActionOpacity
+        transcriptTranslationHandler = value.transcriptTranslationHandler
+        translationReadAloudText = value.translationReadAloudText
+        translationChangeLanguageText = value.translationChangeLanguageText
+        translationCancelText = value.translationCancelText
+        showsTranslationReadAloudButton = value.showsTranslationReadAloudButton
+        showsTranslationChangeLanguageButton = value.showsTranslationChangeLanguageButton
+        showsTranslationCancelButton = value.showsTranslationCancelButton
         self.recognizingText = value.recognizingText
         self.recognitionSendText = value.recognitionSendText
         self.recognitionRetryText = value.recognitionRetryText
@@ -1268,6 +1305,20 @@ import WYBasisKitSwift
         value.recognitionFailureBackgroundColor = recognitionFailureBackgroundColor
         value.recognitionPanelAnchorsToBottom = recognitionPanelAnchorsToBottom
         value.recognitionPanelShowsArrow = recognitionPanelShowsArrow
+        value.recognitionCentersFailurePanel = recognitionCentersFailurePanel
+        value.recognitionAutomaticallyFocusesText = recognitionAutomaticallyFocusesText
+        value.recognitionSendsOnReturn = recognitionSendsOnReturn
+        value.showsRecognitionRetryButton = showsRecognitionRetryButton
+        value.recognitionOverlayBackgroundColor = recognitionOverlayBackgroundColor
+        value.recognitionEditorAppearance = recognitionEditorAppearance
+        value.recognitionDisabledActionOpacity = recognitionDisabledActionOpacity
+        value.transcriptTranslationHandler = transcriptTranslationHandler
+        value.translationReadAloudText = translationReadAloudText
+        value.translationChangeLanguageText = translationChangeLanguageText
+        value.translationCancelText = translationCancelText
+        value.showsTranslationReadAloudButton = showsTranslationReadAloudButton
+        value.showsTranslationChangeLanguageButton = showsTranslationChangeLanguageButton
+        value.showsTranslationCancelButton = showsTranslationCancelButton
         value.recognizingText = recognizingText
         value.recognitionSendText = recognitionSendText
         value.recognitionRetryText = recognitionRetryText
@@ -2234,6 +2285,7 @@ import WYBasisKitSwift
     public var imageViewSize: CGSize
     /// 更多面板图标的显示尺寸
     public var iconSize: CGSize
+    public var iconTintColors: [String: UIColor]
     /// 自定义More控件内imageView的圆角半径
     public var imageViewCornerRadius: CGFloat
     /// 自定义More控件内imageView的背景色
@@ -2272,6 +2324,7 @@ import WYBasisKitSwift
         self.imageViewBackgroundColor = value.imageViewBackgroundColor
         self.imageViewSize = value.imageViewSize
         self.iconSize = value.iconSize
+        iconTintColors = value.iconTintColors
         self.imageViewCornerRadius = value.imageViewCornerRadius
         self.imageBackgroundColor = value.imageBackgroundColor
         self.textViewFont = value.textViewFont
@@ -2301,6 +2354,7 @@ import WYBasisKitSwift
         value.imageViewBackgroundColor = imageViewBackgroundColor
         value.imageViewSize = imageViewSize
         value.iconSize = iconSize
+        value.iconTintColors = iconTintColors
         value.imageViewCornerRadius = imageViewCornerRadius
         value.imageBackgroundColor = imageBackgroundColor
         value.textViewFont = textViewFont

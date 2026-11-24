@@ -231,7 +231,6 @@ extension WYRecordAnimationView {
     }
 
     func wy_recognizeRecording(_ usesLatestConfiguration: Bool = false) {
-        wy_cancelTranslation()
         guard let url = state.transcriptionURL else { return }
         state.speech?.cancel()
         wy_showTranscriptPanel()
@@ -241,6 +240,7 @@ extension WYRecordAnimationView {
         task.recognize(url: url) { [weak self, weak task] text, error in
             guard let self, let task, self.state.speech === task else { return }
             self.recognitionResultHandler?(text, error)
+            guard self.state.speech === task else { return }
             self.wy_updateTranscriptContent(text, failed: error != nil)
             self.wy_sendAutomaticTranscriptIfReady()
         }
@@ -269,7 +269,7 @@ extension WYRecordAnimationView {
     }
     func wy_sendAutomaticTranscriptIfReady() {
         guard state.automaticallySendsTranscript else { return }
-        if !state.retryButton.isHidden { state.automaticallySendsTranscript = false; return }
+        if state.editorFailureView?.isHidden == false { state.automaticallySendsTranscript = false; return }
         if state.sendButton.isEnabled { state.automaticallySendsTranscript = false; wy_sendTranscript() }
     }
 
@@ -284,7 +284,8 @@ extension WYRecordAnimationView {
     @objc func wy_retryTranscript() { wy_recognizeRecording(true) }
     @objc func wy_cancelTranscript() { state.speech?.cancel(); wy_clearTranscript(); alpha = 0 }
     func wy_clearTranscript() {
-        wy_cancelTranslation()
+        state.editorTranslationRequest = nil
+        state.editorTranslatedLocale = nil
         state.editText.inputView = nil
         state.editorEmoji = nil
         state.automaticallySendsTranscript = false
@@ -294,7 +295,6 @@ extension WYRecordAnimationView {
         state.transcriptionURL = nil
         state.ownsTranscriptionFile = false
         state.editPanel?.isHidden = true
-        state.editorBottom?.constant = 0
         state.editText.resignFirstResponder()
         state.captureConfiguration = nil
     }

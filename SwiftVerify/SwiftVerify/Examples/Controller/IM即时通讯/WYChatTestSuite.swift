@@ -2537,24 +2537,34 @@ final class WYChatTestSuite {
     }
 
     private func registerTranscriptEditorCases() {
-        cases.append(WYChatTestCase("转写编辑与外部翻译", group: "录音", explanation: "检查编辑高度、空文本、表情切换、识别语言以及外部翻译成功、失败、超时、取消和迟到结果") { [weak self] in
+        cases.append(WYChatTestCase("转写编辑与外部翻译", group: "录音", explanation: "检查面板随键盘布局、失败回退、按钮外观以及宿主翻译操作和过期回调") { [weak self] in
             guard let self else { return [] }
             let recorder: WYChatRecordingFixture
             do { recorder = try WYChatRecordingFixture() }
             catch { return [WYChatTestResult(name: "editor-fixture", passed: false, detail: error.localizedDescription, milliseconds: 0)] }
             defer { try? FileManager.default.removeItem(at: recorder.url) }
             let recognizer = WYChatRecognitionFixture()
-            let translator = WYChatTranslationFixture()
             var config = WYRecordAnimationConfig()
             config.supportSpeechRecognition = true
             config.dictationSendsOnRelease = false
             config.recorder = recorder
             config.speechRecognitionSource = .external
             config.speechRecognitionProvider = recognizer
-            config.translationProvider = translator
             config.showsRecognitionLanguageButton = true
             config.speechRecognitionLanguages = ["en-US", "zh-CN"]
             config.recognitionCloseImage = UIImage(named: "banner_0")?.withRenderingMode(.alwaysOriginal) ?? config.recognitionCloseImage
+            config.translationSourceLocaleIdentifier = "zh-CN"
+            config.translationTargetLocaleIdentifier = "ja-JP"
+            var actions: [(action: WYChatTranscriptTranslationAction, id: String, text: String, source: String?, target: String)] = []
+            config.transcriptTranslationHandler = { _, action, id, text, source, target in
+                actions.append((action, id, text, source, target))
+            }
+            var appearanceApplied = false
+            config.recognitionEditorAppearance = { panel, text, _, _, _ in
+                appearanceApplied = true
+                panel.backgroundColor = .clear
+                text.tintColor = .systemIndigo
+            }
             var styledControls: Set<Int> = []
             config.recognitionControlAppearance = { control, _ in styledControls.insert(control.rawValue) }
             let overlay = WYRecordAnimationView(alpha: 0, configuration: config)
@@ -2568,25 +2578,24 @@ final class WYChatTestSuite {
             @MainActor func descendants(_ view: UIView) -> [UIView] { view.subviews.flatMap { [$0] + descendants($0) } }
             @MainActor func editor() -> UITextView? { descendants(overlay).compactMap { $0 as? UITextView }.first { $0.accessibilityIdentifier == "WYChatRecording.editor" } }
             func settle() async { try? await Task.sleep(nanoseconds: 250_000_000) }
-            @MainActor func show() async {
+            @MainActor func show(mode: WYChatRecordingMode = .dictation) async {
                 overlay.endRecordVoice()
                 overlay.recordAnimationConfig = config
-                overlay.start(mode: .dictation)
+                overlay.start(mode: mode)
                 await settle()
+                if mode == .voice { overlay.soundAnimationStatus = .transfer }
                 overlay.stop()
                 await settle()
                 overlay.layoutIfNeeded()
             }
-            var results: [(String?, NSError?)] = []
-            overlay.translationResultHandler = { results.append(($0, $1)) }
             await show()
-            check("editor-control-appearance", styledControls == Set((0...6)))
+            check("editor-control-appearance", styledControls == Set(0...9) && appearanceApplied)
             overlay.translateRecognizedText(to: "en-US")
-            check("translation-disabled", translator.requests == 0)
+            check("translation-disabled", actions.isEmpty)
             config.enablesTranslation = true
             await show()
             guard let text = editor() else { return checks + [WYChatTestResult(name: "editor-visible", passed: false, detail: "", milliseconds: 0)] }
-            check("editor-recognized-text", text.text == recognizer.finalText && text.isEditable)
+            check("editor-recognized-text", text.text == recognizer.finalText && text.isEditable && text.isFirstResponder && text.returnKeyType == .send)
             let close = descendants(overlay).compactMap { $0 as? UIButton }.first { $0.accessibilityIdentifier == "WYChatRecording.close" }
             close?.layoutIfNeeded()
             if let size = close?.currentImage?.size, let imageFrame = close?.imageView?.frame, size.height > 0, imageFrame.height > 0 {
@@ -2614,47 +2623,36 @@ final class WYChatTestSuite {
             }
             text.text = recognizer.finalText
             text.delegate?.textViewDidChange?(text)
-            overlay.translateRecognizedText(to: "ja-JP")
-            await settle()
-            check("translation-host-service", translator.requests == 1 && translator.target == "ja-JP" && text.text == translator.output && results.last?.0 == translator.output && Thread.isMainThread)
-            let delivered = results.count
-            translator.completeAgain()
-            await settle()
-            check("translation-duplicate-ignored", results.count == delivered)
-            text.text = "保留原文"
-            translator.output = ""
+            @MainActor func button(_ suffix: String) -> UIButton? {
+                descendants(overlay).compactMap { $0 as? UIButton }.first { $0.accessibilityIdentifier == "WYChatRecording." + suffix }
+            }
+            button("translate")?.sendActions(for: .touchUpInside)
+            let request = actions.last
+            check("translation-host-only", request?.action == .translate && request?.text == recognizer.finalText && request?.source == "zh-CN" && request?.target == "ja-JP" && text.text == recognizer.finalText)
+            if let request {
+                check("translation-explicit-host-result", overlay.updateTranscriptText("外部译文", translatedLocaleIdentifier: "ja-JP", requestID: request.id) && text.text == "外部译文")
+                check("translation-duplicate-ignored", !overlay.updateTranscriptText("重复", translatedLocaleIdentifier: "ja-JP", requestID: request.id))
+            }
+            check("translated-header-actions", button("translate")?.isHidden == true && button("translationRead")?.isHidden == false && button("translationLanguage")?.isHidden == false && button("translationCancel")?.isHidden == false)
+            button("translationRead")?.sendActions(for: .touchUpInside)
+            check("translation-read-host-action", actions.last?.action == .readAloud && actions.last?.target == "ja-JP")
+            button("translationLanguage")?.sendActions(for: .touchUpInside)
+            check("translation-language-host-action", actions.last?.action == .changeLanguage)
+            button("translationCancel")?.sendActions(for: .touchUpInside)
+            if let cancel = actions.last {
+                check("translation-cancel-host-action", cancel.action == .cancel && overlay.updateTranscriptText(recognizer.finalText, translatedLocaleIdentifier: nil, requestID: cancel.id) && button("translate")?.isHidden == false)
+            }
             overlay.translateRecognizedText(to: "en-US")
-            await settle()
-            check("translation-empty-keeps-text", text.text == "保留原文" && results.last?.1?.code == 3)
-            translator.output = "翻译后的文字"
-            translator.completes = false
-            overlay.translateRecognizedText(to: "en-US")
+            let edited = actions.last
             text.text = "翻译期间的新编辑"
             text.delegate?.textViewDidChange?(text)
-            let editedCount = results.count
-            translator.completeAgain()
-            await settle()
-            check("translation-edit-cancels-late-result", translator.cancels > 0 && text.text == "翻译期间的新编辑" && results.count == editedCount)
-            overlay.translateRecognizedText(to: "en-US")
-            overlay.cancelTranslation()
-            translator.completeAgain()
-            await settle()
-            check("translation-explicit-cancel", text.text == "翻译期间的新编辑" && results.count == editedCount)
+            check("translation-edit-rejects-late-result", edited.map { !overlay.updateTranscriptText("迟到译文", translatedLocaleIdentifier: "en-US", requestID: $0.id) } == true && text.text == "翻译期间的新编辑")
             var changedLanguage: String?
             overlay.recognitionLanguageChangedHandler = { changedLanguage = $0 }
-            let oldRequests = translator.requests
+            let oldRequests = actions.count
             overlay.changeRecognitionLanguage(to: "en-US")
             await settle()
-            check("recognition-language-is-independent", changedLanguage == "en-US" && recognizer.files > 0 && translator.requests == oldRequests && text.text == recognizer.finalText)
-            config.translationTimeout = 0.05
-            await show()
-            overlay.translateRecognizedText(to: "en-US")
-            await settle()
-            check("translation-timeout", results.last?.1?.code == 2 && results.last?.1?.domain == WYRecordAnimationView.translationErrorDomain)
-            config.translationProvider = nil
-            await show()
-            overlay.translateRecognizedText(to: "en-US")
-            check("translation-missing-provider", results.last?.1?.code == 1)
+            check("recognition-language-is-independent", changedLanguage == "en-US" && recognizer.files > 0 && actions.count == oldRequests && text.text == recognizer.finalText)
             let emojiButton = descendants(overlay).compactMap { $0 as? UIButton }.first { $0.accessibilityIdentifier == "WYChatRecording.emoji" }
             emojiButton?.sendActions(for: .touchUpInside)
             await settle()
@@ -2667,15 +2665,21 @@ final class WYChatTestSuite {
             emojiButton?.sendActions(for: .touchUpInside)
             await settle()
             check("editor-keyboard-return", activeText?.inputView == nil && activeText?.isFirstResponder == true)
+            var keyboardSentText: String?
+            overlay.recognizedTextHandler = { keyboardSentText = $0 }
+            if let activeText {
+                _ = activeText.delegate?.textView?(activeText, shouldChangeTextIn: activeText.selectedRange, replacementText: "\n")
+            }
+            check("editor-keyboard-send", keyboardSentText != nil)
             config.speechRecognitionTimeout = 0.1
             config.recognitionFailureImage = config.recognitionCloseImage
             recognizer.shouldComplete = false
-            await show()
+            await show(mode: .voice)
             let failedViews = descendants(overlay)
             let failure = failedViews.compactMap { $0 as? UILabel }.first { $0.accessibilityIdentifier == "WYChatRecording.failure" }
             let failureImage = failure?.superview?.subviews.compactMap { $0 as? UIImageView }.first
             let retry = failedViews.compactMap { $0 as? UIButton }.first { $0.currentTitle == config.recognitionRetryText }
-            check("editor-separate-failure-state", failure?.text == config.recognitionFailureText && failure?.superview?.isHidden == false && editor()?.isHidden == true && retry?.isHidden == false)
+            check("editor-separate-failure-state", failure?.text == config.recognitionFailureText && failure?.superview?.isHidden == false && editor()?.isHidden == true && editor()?.isFirstResponder == false && retry?.isHidden == true && button("sendText")?.isEnabled == false && button("sendText")?.isHidden == false && button("sendVoice")?.isEnabled == true && button("sendVoice")?.isHidden == false)
             check("editor-failure-image-aspect-fit", failureImage?.image === config.recognitionFailureImage && failureImage?.contentMode == .scaleAspectFit)
             return checks
         })
@@ -2809,6 +2813,7 @@ final class WYChatTestSuite {
             config.speechRecognitionTimeout = 0.1
             config.recognitionSendText = "确认文本"
             config.recognitionCancelText = "关闭文本"
+            config.showsRecognitionRetryButton = true
             config.recognitionRetryText = "重试文本"
             let events = WYChatRecordingEventsFixture()
             let overlay = WYRecordAnimationView(alpha: 0, delegate: events, configuration: config)
@@ -3568,24 +3573,6 @@ private final class WYChatViewEventsFixture: NSObject, WYChatViewDelegate, WYCha
     func wy_keyboardWillShow(_ notification: Notification) { keyboardShows += 1 }
     func wy_keyboardWillDismiss() { keyboardHides += 1 }
     func wy_recordingFinished(_ chatView: WYChatView, url: URL?, duration: TimeInterval, error: NSError?) { recordingURL = url; recordingResults += 1 }
-}
-
-/// 可控制返回时机的外部翻译实现
-private final class WYChatTranslationFixture: NSObject, WYChatTextTranslator {
-    var requests = 0
-    var cancels = 0
-    var target = ""
-    var output = "外部翻译结果"
-    var completes = true
-    private var completion: ((String?, NSError?) -> Void)?
-    func wy_translateText(_ requestID: String, text: String, sourceLocaleIdentifier: String?, targetLocaleIdentifier: String, completion: @escaping (String?, NSError?) -> Void) {
-        requests += 1
-        target = targetLocaleIdentifier
-        self.completion = completion
-        if completes { completion(output, nil) }
-    }
-    func wy_cancelTranslation(_ requestID: String) { cancels += 1 }
-    func completeAgain() { completion?(output, nil) }
 }
 
 /// 原图片浏览器的叠卡检查数据源

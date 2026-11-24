@@ -128,7 +128,8 @@ enum WYChatTestConfigurationChecks {
         location.layoutIfNeeded()
         let map = location.previewImageView
         let titleFrame = location.titleView.convert(location.titleView.bounds, to: location.bodyView)
-        check("configuration-location-resource-and-order", defaults.location.placeholderImage != nil && map.image === defaults.location.placeholderImage && map.contentMode == .scaleAspectFit && titleFrame.maxY < map.frame.minY)
+        let mapPinSize = map.image.map { max($0.size.width, $0.size.height) } ?? 0
+        check("configuration-location-pin-and-order", defaults.location.placeholderImage != nil && abs(mapPinSize - defaults.location.placeholderIconSize) < 0.5 && map.contentMode == .center && titleFrame.maxY < map.frame.minY)
 
         placeholderConfig.location.showsPreviewBelowAddress = false
         placeholderConfig.location.cornerRadius = 13
@@ -136,6 +137,19 @@ enum WYChatTestConfigurationChecks {
         location.layoutIfNeeded()
         let updatedTitleFrame = location.titleView.convert(location.titleView.bounds, to: location.bodyView)
         check("configuration-location-custom-preview", map.image === customPhoto && map.layer.cornerRadius == 13 && map.frame.maxY < updatedTitleFrame.minY)
+
+        let packet = WYChatLuckyMoneyCell(style: .default, reuseIdentifier: nil)
+        let packetMessage = WYChatMessageModel(messageID: "packet-tint", content: WYChatMessageContentModel(luckyMoney: WYChatLuckyMoneyModel(amounts: "8.00")))
+        packet.update(message: packetMessage, configuration: defaults, userID: "self")
+        check("configuration-default-packet-tint", packet.thumbnailImageView.image?.renderingMode == .alwaysTemplate && packet.thumbnailImageView.tintColor.isEqual(UIColor.systemRed))
+        var tinted = defaults
+        tinted.content.iconTintColor = .systemPurple
+        packet.update(message: packetMessage, configuration: tinted, userID: "self")
+        check("configuration-card-tint-override", packet.thumbnailImageView.tintColor.isEqual(UIColor.systemPurple))
+        tinted.content.iconTintColor = nil
+        tinted.content.usesDefaultIconTint = false
+        packet.update(message: packetMessage, configuration: tinted, userID: "self")
+        check("configuration-card-original-icon", packet.thumbnailImageView.image?.renderingMode != .alwaysTemplate)
         return results
     }
 }

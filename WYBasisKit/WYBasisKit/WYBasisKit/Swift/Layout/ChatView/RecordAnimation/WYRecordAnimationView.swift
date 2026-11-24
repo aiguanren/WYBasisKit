@@ -185,7 +185,7 @@ public let WYChatSpeechRecognitionErrorDomain = "WYChatSpeechRecognition"
 }
 
 public class WYRecordAnimationView: UIView {
-    /// 文本翻译错误域，错误码1表示配置无效，2表示超时，3表示空结果
+    /// 旧版文本翻译错误域，宿主回调可自行选择错误域
     @objc public static var translationErrorDomain: String { "WYChatTextTranslation" }
 
     /// 语音识别错误域
@@ -210,7 +210,7 @@ public class WYRecordAnimationView: UIView {
     /// 当前录音用途
     public var recordingMode: WYChatRecordingMode { state.mode }
 
-    /// 翻译结果，参数为翻译文本和错误
+    /// 兼容旧版宿主代码的翻译结果回调，转写编辑器使用配置中的transcriptTranslationHandler
     public var translationResultHandler: ((_ text: String?, _ error: NSError?) -> Void)? = nil
     /// 识别语言切换，参数为语言标识
     public var recognitionLanguageChangedHandler: ((_ localeIdentifier: String) -> Void)? = nil
@@ -245,10 +245,27 @@ public class WYRecordAnimationView: UIView {
      翻译当前编辑文本
      @param localeIdentifier 目标语言
      */
-    public func translateRecognizedText(to localeIdentifier: String) { wy_translateTranscript(to: localeIdentifier) }
+    public func translateRecognizedText(to localeIdentifier: String) { wy_requestTranslation(.translate, target: localeIdentifier) }
 
-    /// 取消当前翻译并保留编辑文本
-    public func cancelTranslation() { wy_cancelTranslation() }
+    /// 将取消翻译操作交给宿主
+    public func cancelTranslation() {
+        guard let target = state.editorTranslationRequest?.target ?? state.editorTranslatedLocale else { return }
+        wy_requestTranslation(.cancel, target: target)
+    }
+
+    /// 显示宿主返回的文本，传入译文语言显示译文操作，nil恢复普通编辑态。过期的requestID返回false。
+    @discardableResult public func updateTranscriptText(_ text: String, translatedLocaleIdentifier: String?, requestID: String) -> Bool {
+        guard state.editPanel?.isHidden == false, state.editText.isEditable, state.editorTranslationRequest?.id == requestID else { return false }
+        state.editorTranslationRequest = nil
+        let locale = translatedLocaleIdentifier?.trimmingCharacters(in: .whitespacesAndNewlines)
+        state.editorTranslatedLocale = locale?.isEmpty == true ? nil : locale
+        state.editText.text = text
+        let end = (text as NSString).length
+        state.editText.selectedRange = NSRange(location: end, length: 0)
+        wy_updateEditorActions()
+        setNeedsLayout()
+        return true
+    }
 
     /**
      重新识别录音的语言

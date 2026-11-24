@@ -9,6 +9,14 @@ import UIKit
 
 /// 共享只读默认资源
 enum WYChatDefaultResources {
+    static func iconTint(for name: String) -> UIColor? {
+        switch name {
+        case "WYChatViewRedPacket": return .systemRed
+        case "WYChatViewTransfer": return UIColor { $0.userInterfaceStyle == .dark ? .wy_hex("#FFC47E") : .wy_hex("#A45516") }
+        case "WYChatViewMusic": return .systemIndigo
+        default: return nil
+        }
+    }
     static let placeholderColor = UIColor(white: 0.88, alpha: 1)
     static let solidPlaceholder = UIImage.wy_createImage(from: placeholderColor)
     static let recordActionBackground = UIImage.wy_createImage(from: .wy_rgb(57, 57, 57), size: CGSize(width: UIDevice.wy_screenWidth(80, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(80, WYBasisKitConfig.defaultScreenPixels))).wy_cuttingRound()

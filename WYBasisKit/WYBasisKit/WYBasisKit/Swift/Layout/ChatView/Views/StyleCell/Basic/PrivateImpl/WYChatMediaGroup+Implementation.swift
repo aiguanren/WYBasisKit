@@ -55,8 +55,10 @@ final class WYChatMediaGroupView: UIView, WYPhotoBrowserDataSource, WYPhotoBrows
                 addSubview(image)
                 images[index] = image
                 if model.items[index].kind == .video {
-                    let play = UIImageView(image: configuration.videoPlayImage)
-                    play.tintColor = configuration.videoPlayColor
+                    let tint = contentConfiguration.iconTintColor ?? (configuration.tintsVideoPlayImage && contentConfiguration.usesDefaultIconTint ? configuration.videoPlayColor : nil)
+                    let icon = contentConfiguration.iconImage ?? configuration.videoPlayImage
+                    let play = UIImageView(image: tint == nil ? icon : icon?.withRenderingMode(.alwaysTemplate))
+                    play.tintColor = tint
                     play.contentMode = .scaleAspectFit
                     play.frame.size = configuration.videoPlaySize
                     image.addSubview(play)

@@ -105,6 +105,7 @@ import WYBasisKitSwift
     public var videoPlaySize: CGSize
     /// 视频播放图标颜色
     public var videoPlayColor: UIColor
+    public var tintsVideoPlayImage: Bool
     public var showsVideoDuration: Bool
     public var videoOverlayBackgroundColor: UIColor
     public var videoDurationColor: UIColor
@@ -142,6 +143,7 @@ import WYBasisKitSwift
         videoPlayImage = value.videoPlayImage
         videoPlaySize = value.videoPlaySize
         videoPlayColor = value.videoPlayColor
+        tintsVideoPlayImage = value.tintsVideoPlayImage
         showsVideoDuration = value.showsVideoDuration
         videoOverlayBackgroundColor = value.videoOverlayBackgroundColor
         videoDurationColor = value.videoDurationColor
@@ -177,6 +179,7 @@ import WYBasisKitSwift
         value.videoPlayImage = videoPlayImage
         value.videoPlaySize = videoPlaySize
         value.videoPlayColor = videoPlayColor
+        value.tintsVideoPlayImage = tintsVideoPlayImage
         value.showsVideoDuration = showsVideoDuration
         value.videoOverlayBackgroundColor = videoOverlayBackgroundColor
         value.videoDurationColor = videoDurationColor

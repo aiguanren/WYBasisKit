@@ -48,9 +48,11 @@ SwiftVerify示例的“聊天界面→测试→配置”提供中文分组设置
 
 图片消息默认使用浅灰直角占位。`content.placeholderColor`、`placeholderCornerRadius`、`placeholderGradientColors`和`placeholderGradientDirection`控制默认占位外观，渐变至少需要两个颜色。`content.placeholderImage`优先于颜色和渐变，可用`contentOverrides`为指定消息类型单独设置。内置加载流程会在网络图片的默认占位上显示动画，可通过`content.showsPlaceholderLoadingIndicator`关闭。
 
-位置卡片先显示地点和地址，再显示地图预览。地图资源由`location.placeholderImage`提供，也可以用对应的`contentOverrides[.location].placeholderImage`优先覆盖。`location.placeholderBackgroundColor`和`cornerRadius`控制预览，`showsPreviewBelowAddress`可切换图文顺序。地点和地址的字体、颜色、行数以及预览尺寸沿用`contentOverrides[.location]`。
+位置卡片先显示地点和地址，再显示地图预览。封面未就绪时居中显示`WYChatViewMapPin`里的大头针。`location.placeholderImage`和`placeholderIconSize`可替换大头针并调整点数，`placeholderBackgroundColor`和`cornerRadius`控制预览底色与圆角。`showsPreviewBelowAddress`可切换图文顺序。需要整张自定义预览时，可用`contentOverrides[.location].placeholderImage`。
 
 红包优先显示留言，转账优先显示金额，收款状态单独显示。可通过各自的`contentOverrides`设置文字、间距、图标尺寸和底板颜色`fundsIconBackgroundColor`。拍一拍以居中提示呈现，`notice.patBackgroundColor`、`patCornerRadius`和`patText`配置底色、圆角和文案。
+
+红包、转账和音乐的内置图标默认分别为红色、琥珀色和靛蓝色。用`contentOverrides[消息类型].iconTintColor`覆盖，或用`usesDefaultIconTint`关闭类型配色。外部图标和封面默认保留原色，显式设置`iconTintColor`后按模板着色。更多面板的`more.iconTintColors`按资源名覆盖。视频播放图标用`media.videoPlayColor`着色，可用`tintsVideoPlayImage`关闭，浏览器里的播放按钮由`media.browser.appearance.playButtonIconColor`单独配置。
 
 单条视频将播放图标和时长叠放在封面上。`media.videoPlayImage`、`videoPlaySize`和`videoPlayColor`配置图标，`showsVideoDuration`、`videoDurationColor`和`videoOverlayBackgroundColor`配置时长及控件底色。视频的预览尺寸与时长字体可以通过`.video`内容覆盖配置。
 
@@ -314,7 +316,11 @@ SwiftVerify的聊天测试页点击“配置”可搜索并调整配置属性，
 
 `recording.curvedActionSize`、`curvedActionCornerRadius`、`curvedActionTiltAngle`及`curvedActionTitleOffsetX`分别控制操作条大小、端头圆角、倾斜角度和文字位置。`overlayBackgroundColor`配置整页遮罩，底部录音区域使用独立颜色；气泡下方提示的字体、颜色及间距也可单独设置。
 
-转写编辑默认停靠在键盘或底部安全区上方。识别成功后可编辑文字，失败时单独显示提示与重试入口。`recognitionPanelAnchorsToBottom`、`recognitionPanelShowsArrow`、行高度、间距和按钮宽度分别配置布局。`recognitionFailureText`、`recognitionFailureColor`、`recognitionFailureBackgroundColor`和可选的`recognitionFailureImage`配置失败卡片。关闭、表情及键盘图标按`recognitionAccessoryImageSize`等比适配，可传入项目自身的图片。`recognitionControlAppearance`可按操作进一步调整按钮外观。
+转写成功后默认聚焦正文，面板停靠在键盘上方。长文随内容增高，到可用高度后在正文内滚动。失败时面板默认居中，文本发送和表情按钮处于禁用状态，语音录音模式仍可发送原语音。`recognitionAutomaticallyFocusesText`、`recognitionSendsOnReturn`、`recognitionCentersFailurePanel`和`showsRecognitionRetryButton`控制这些行为。
+
+转写面板的结点可通过`recognitionEditorAppearance`定制，回调提供面板堆栈、正文、结果容器和失败提示。`recognitionControlAppearance`提供每个操作按钮。遮罩、锚点、字体、颜色、圆角、边距、间距和图标尺寸均有对应配置。失败图标使用`recognitionFailureImage`，未提供时显示文字提示。
+
+需要翻译入口时，开启`recording.enablesTranslation`并设置`recording.transcriptTranslationHandler`。回调收到编辑器、操作、请求ID、当前文本和语种，翻译、朗读、切换语言及取消由宿主决定如何处理。宿主在主线程调用`updateTranscriptText(_:translatedLocaleIdentifier:requestID:)`显示结果并切换到译文操作，语言传`nil`时恢复普通编辑态。去重、过期或已编辑的请求会返回`false`。按钮文字和显示开关独立可配置。此前配置`translationProvider`的接入可迁移到此回调。
 
 媒体展开/收起按钮默认显示在首个媒体靠页面中间的一侧，`media.buttonPlacement`可切换为下方显示。按钮宽高、圆角、间距、字体和颜色均可配置，`showsItemCountInButton`控制是否显示媒体数量。
 

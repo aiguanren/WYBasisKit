@@ -34,6 +34,8 @@ public struct WYMoreViewConfig {
     
     /// 图标加载，参数为资源名，返回nil时使用默认资源查找
     public var imageProvider: ((_ name: String) -> UIImage?)? = nil
+    /// 按资源名覆盖更多面板的图标着色
+    public var iconTintColors: [String: UIColor] = [:]
 
     /// 自定义More控件数据源
     public var moreSource: [[String: String]] = []
@@ -230,7 +232,11 @@ extension WYChatMoreView: UICollectionViewDelegate, UICollectionViewDataSource, 
         cell.moreViewConfig = moreViewConfig
         cell.titleView.font = moreViewConfig.textViewFont
         cell.titleView.textColor = moreViewConfig.textColor
-        cell.iconView.image = moreViewConfig.imageProvider?(itemSource.values.first ?? "") ?? UIImage.wy_find(itemSource.values.first ?? "")
+        let name = itemSource.values.first ?? ""
+        let icon = moreViewConfig.imageProvider?(name) ?? UIImage.wy_findIfPresent(name) ?? UIImage.wy_findIfPresent(name, inBundle: WYChatSourceBundle) ?? UIImage.wy_find(name)
+        let tint = moreViewConfig.iconTintColors[name] ?? (icon.renderingMode == .alwaysOriginal ? nil : WYChatDefaultResources.iconTint(for: name))
+        cell.iconView.image = tint == nil ? icon : icon.withRenderingMode(.alwaysTemplate)
+        cell.iconView.tintColor = tint
         cell.titleView.text = itemSource.keys.first ?? ""
         
         return cell

@@ -122,8 +122,12 @@ public extension WYRecordAnimationView {
     @objc(recognitionLanguageChangedHandler) var recognitionLanguageChangedHandlerObjC: ((_ localeIdentifier: String) -> Void)? { get { recognitionLanguageChangedHandler } set { recognitionLanguageChangedHandler = newValue } }
     /// 翻译当前编辑文本，参数为目标语言
     @objc(translateRecognizedText) var translateRecognizedTextObjC: @convention(block) (_ localeIdentifier: String) -> WYRecordAnimationView { { [self] locale in self.translateRecognizedText(to: locale); return self } }
-    /// 取消当前翻译并保留编辑文本
+    /// 向宿主发出取消翻译操作
     @objc(cancelTranslation) var cancelTranslationObjC: @convention(block) () -> WYRecordAnimationView { { [self] in self.cancelTranslation(); return self } }
+    /// 显示宿主返回的文本，语言为nil时恢复普通编辑态
+    @objc(updateTranscriptText) var updateTranscriptTextObjC: @convention(block) (_ text: String, _ translatedLocaleIdentifier: String?, _ requestID: String) -> Bool {
+        { [self] text, locale, requestID in self.updateTranscriptText(text, translatedLocaleIdentifier: locale, requestID: requestID) }
+    }
     /// 重新识别录音的语言，参数为识别语言
     @objc(changeRecognitionLanguage) var changeRecognitionLanguageObjC: @convention(block) (_ localeIdentifier: String) -> WYRecordAnimationView { { [self] locale in self.changeRecognitionLanguage(to: locale); return self } }
     /// 当前录音用途

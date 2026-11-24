@@ -63,6 +63,8 @@ public struct WYChatMediaConfig {
     public var videoPlaySize: CGSize = CGSize(width: UIDevice.wy_screenWidth(40, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(40, WYBasisKitConfig.defaultScreenPixels))
     /// 视频播放图标颜色
     public var videoPlayColor: UIColor = .white
+    /// 是否给视频播放图标应用videoPlayColor
+    public var tintsVideoPlayImage: Bool = true
     /// 单条视频消息是否显示时长
     public var showsVideoDuration: Bool = true
     /// 单条视频的播放和时长底板颜色
@@ -76,6 +78,12 @@ public struct WYChatMediaConfig {
     /// 是否显示系统视频播放控件，默认true
     public var showsVideoPlaybackControls: Bool = true
     /// 媒体浏览器配置
-    public var browser: WYPhotoBrowserConfiguration = { var value = WYPhotoBrowserConfiguration(); value.allowsLoopScrolling = true; value.stackedCardCyclesForward = true; return value }()
+    public var browser: WYPhotoBrowserConfiguration = {
+        var value = WYPhotoBrowserConfiguration()
+        value.allowsLoopScrolling = true
+        value.stackedCardCyclesForward = true
+        value.appearance.playButtonIcon = UIImage.wy_findIfPresent("WYChatViewPlay", inBundle: WYChatSourceBundle)
+        return value
+    }()
     public init() {}
 }

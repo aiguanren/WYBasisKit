@@ -319,7 +319,8 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
         let iconSize = UIDevice.wy_screenWidth(28, WYBasisKitConfig.defaultScreenPixels)
         let playIcon = appearance.playButtonIcon ?? UIImage(systemName: "play.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.wy_fontSize(24, WYBasisKitConfig.defaultScreenPixels), weight: .medium))
         let sizedIcon = scaleIconIfNeeded(playIcon, maxSize: iconSize)
-        playButton.setImage(sizedIcon?.withTintColor(appearance.playButtonIconColor, renderingMode: .alwaysOriginal), for: .normal)
+        let tintedIcon = playIcon?.renderingMode == .alwaysOriginal ? sizedIcon : sizedIcon?.withTintColor(appearance.playButtonIconColor, renderingMode: .alwaysOriginal)
+        playButton.setImage(tintedIcon, for: .normal)
         playButton.imageView?.contentMode = .center
         playButton.wy_backgroundColor(appearance.playButtonBackgroundColor, forState: .normal)
         playButton.layer.cornerRadius = UIDevice.wy_screenWidth(31, WYBasisKitConfig.defaultScreenPixels)

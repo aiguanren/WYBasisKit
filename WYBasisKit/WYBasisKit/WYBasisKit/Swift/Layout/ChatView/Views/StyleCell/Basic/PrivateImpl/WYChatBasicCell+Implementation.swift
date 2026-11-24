@@ -135,7 +135,7 @@ final class WYChatBasicCellPrivateState {
     var voiceRateWidth: NSLayoutConstraint?
     var voiceRateHeight: NSLayoutConstraint?
     let textStack = UIStackView()
-    let thumbnail = UIImageView()
+    let thumbnail = WYChatIconImageView()
     var thumbnailSize: [NSLayoutConstraint] = []
     let title = UILabel()
     let detail = UILabel()
@@ -309,6 +309,7 @@ extension WYChatBasicCell {
         state.thumbnail.backgroundColor = nil
         state.thumbnail.layer.cornerRadius = 0
         state.thumbnail.tintColor = nil
+        state.thumbnail.tintsImage = false
         state.thumbnailSize[0].constant = max(0, configuration.basic.avatarSize.width)
         state.thumbnailSize[1].constant = max(0, configuration.basic.avatarSize.height)
         state.title.textAlignment = .natural
@@ -558,13 +559,26 @@ extension WYChatBasicCell {
             avatarView.placeholderCornerRadius = basic.avatarPlaceholderCornerRadius.isFinite ? basic.avatarPlaceholderCornerRadius : -1
             placeholder = basic.defaultAvatar ?? WYChatDefaultResources.makePlaceholder(color: basic.avatarPlaceholderColor, gradientColors: basic.avatarPlaceholderGradientColors, direction: basic.avatarPlaceholderGradientDirection, traits: imageView.traitCollection)
             avatarView.generatedPlaceholder = basic.defaultAvatar == nil ? placeholder : nil
-        } else if imageView === state.image, message.content.location != nil,
-                  let map = style.placeholderImage ?? configuration.location.placeholderImage {
-            placeholder = map
-            state.image.generatedPlaceholder = map
-            state.image.placeholderCornerRadius = state.image.imageCornerRadius
+        } else if imageView === state.image, message.content.location != nil {
+            let location = configuration.location
+            let iconSize = location.placeholderIconSize
             state.image.placeholderContentMode = .scaleAspectFit
-            state.image.placeholderBackgroundColor = configuration.location.placeholderBackgroundColor
+            if let custom = style.placeholderImage {
+                placeholder = custom
+            } else if let pin = location.placeholderImage {
+                if let pixels = pin.cgImage, iconSize.isFinite, iconSize > 0 {
+                    let scale = CGFloat(max(pixels.width, pixels.height)) / iconSize
+                    placeholder = UIImage(cgImage: pixels, scale: scale, orientation: pin.imageOrientation).withRenderingMode(pin.renderingMode)
+                    state.image.placeholderContentMode = .center
+                } else {
+                    placeholder = pin
+                }
+            } else {
+                placeholder = UIImage()
+            }
+            state.image.generatedPlaceholder = placeholder
+            state.image.placeholderCornerRadius = state.image.imageCornerRadius
+            state.image.placeholderBackgroundColor = location.placeholderBackgroundColor
         } else {
             placeholder = style.placeholderImage ?? WYChatDefaultResources.makePlaceholder(color: style.placeholderColor, gradientColors: style.placeholderGradientColors, direction: style.placeholderGradientDirection, traits: imageView.traitCollection)
             if let view = imageView as? WYChatPlaceholderImageView {
