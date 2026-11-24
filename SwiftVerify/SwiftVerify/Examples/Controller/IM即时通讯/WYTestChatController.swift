@@ -81,7 +81,6 @@ class WYTestChatController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        chatView.chatInput.recordView.recognitionResultHandler = { [weak self] _, error in if let error { self?.showVoiceError(error) } }
         if scrollProbe == nil { scrollProbe = WYChatScrollProbe(table: chatView.tableView) }
         if chatTests == nil { chatTests = WYChatTestSuite(chatView: chatView, scrollProbe: scrollProbe) }
     }

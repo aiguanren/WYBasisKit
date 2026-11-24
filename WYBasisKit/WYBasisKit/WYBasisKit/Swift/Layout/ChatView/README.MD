@@ -318,7 +318,7 @@ SwiftVerify的聊天测试页点击“配置”可搜索并调整配置属性，
 
 转写成功后默认聚焦正文，面板停靠在键盘上方。长文随内容增高，到可用高度后在正文内滚动。失败时面板默认居中，文本发送和表情按钮处于禁用状态，语音录音模式仍可发送原语音。`recognitionAutomaticallyFocusesText`、`recognitionSendsOnReturn`、`recognitionCentersFailurePanel`和`showsRecognitionRetryButton`控制这些行为。
 
-转写面板的结点可通过`recognitionEditorAppearance`定制，回调提供面板堆栈、正文、结果容器和失败提示。`recognitionControlAppearance`提供每个操作按钮。遮罩、锚点、字体、颜色、圆角、边距、间距和图标尺寸均有对应配置。失败图标使用`recognitionFailureImage`，未提供时显示文字提示。
+转写面板可通过`recognitionEditorAppearance`定制，回调提供面板堆栈、正文、结果容器和失败提示。`recognitionControlAppearance`提供每个操作按钮。遮罩、锚点、字体、颜色、圆角、边距、间距和图标尺寸均有对应配置。可在资源包中提供`WYChatViewRecognitionFailed.png`或通过`recognitionFailureImage`传入失败图标，图标缺省时显示文字。聊天输入栏默认在当前窗口展示转写遮罩，需要限制在聊天容器内时可关闭`recordView.presentsTranscriptInWindow`。
 
 需要翻译入口时，开启`recording.enablesTranslation`并设置`recording.transcriptTranslationHandler`。回调收到编辑器、操作、请求ID、当前文本和语种，翻译、朗读、切换语言及取消由宿主决定如何处理。宿主在主线程调用`updateTranscriptText(_:translatedLocaleIdentifier:requestID:)`显示结果并切换到译文操作，语言传`nil`时恢复普通编辑态。去重、过期或已编辑的请求会返回`false`。按钮文字和显示开关独立可配置。此前配置`translationProvider`的接入可迁移到此回调。
 

@@ -17,6 +17,7 @@ extension WYChatInputView {
     func wy_makeRecordView() -> WYRecordAnimationView {
         hasCreatedRecordView = true
         let recordView: WYRecordAnimationView = WYRecordAnimationView(alpha: 0, delegate: self, configuration: recordAnimationConfig)
+        recordView.presentsTranscriptInWindow = true
         recordView.resultHandler = { [weak self] url, duration, error in self?.recordingResultHandler?(url, duration, error) }
         recordView.recognizedTextHandler = { [weak self] text in self?.delegate?.wy_didClickKeyboardEvent?(text: text) }
         superview?.addSubview(recordView)

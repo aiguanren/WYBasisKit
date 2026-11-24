@@ -2658,7 +2658,10 @@ final class WYChatTestSuite {
             await settle()
             let activeText = editor()
             check("editor-emoji-input", activeText?.inputView is WYChatEmojiView && activeText?.isFirstResponder == true)
+            check("editor-keyboard-image-preserves-artwork", emojiButton?.currentImage?.renderingMode == .alwaysOriginal)
             if let emoji = activeText?.inputView as? WYChatEmojiView, let section = emoji.dataSource.indices.first(where: { !emoji.dataSource[$0].isEmpty }) {
+                let buttons = emoji.funcAreaView.map { descendants($0).compactMap { $0 as? UIButton }.filter { !$0.isHidden } } ?? []
+                check("editor-emoji-only-visible-delete", buttons.count == 1 && buttons.first?.currentTitle?.isEmpty != false)
                 emoji.delegate?.wy_didClickEmojiView?(emoji, indexPath: IndexPath(item: 0, section: section))
                 check("editor-emoji-insertion", !(activeText?.attributedText.string.isEmpty ?? true))
             } else { check("editor-emoji-insertion", false) }
@@ -2681,6 +2684,14 @@ final class WYChatTestSuite {
             let retry = failedViews.compactMap { $0 as? UIButton }.first { $0.currentTitle == config.recognitionRetryText }
             check("editor-separate-failure-state", failure?.text == config.recognitionFailureText && failure?.superview?.isHidden == false && editor()?.isHidden == true && editor()?.isFirstResponder == false && retry?.isHidden == true && button("sendText")?.isEnabled == false && button("sendText")?.isHidden == false && button("sendVoice")?.isEnabled == true && button("sendVoice")?.isHidden == false)
             check("editor-failure-image-aspect-fit", failureImage?.image === config.recognitionFailureImage && failureImage?.contentMode == .scaleAspectFit)
+            overlay.presentsTranscriptInWindow = true
+            await show(mode: .voice)
+            let windowPanel = overlay.window.flatMap { window in
+                descendants(window).first { $0.accessibilityIdentifier == "WYChatRecording.panel" && !$0.isHidden }
+            }
+            check("editor-window-overlay", windowPanel?.superview?.superview === overlay.window)
+            overlay.endRecordVoice()
+            check("editor-window-overlay-cleared", windowPanel?.superview?.superview == nil)
             return checks
         })
     }

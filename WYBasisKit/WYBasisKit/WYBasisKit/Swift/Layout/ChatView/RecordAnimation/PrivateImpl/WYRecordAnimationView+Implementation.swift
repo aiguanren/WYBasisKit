@@ -51,6 +51,7 @@ final class WYRecordAnimationViewPrivateState {
     var editorHeight: NSLayoutConstraint?
     var editorAlignmentConstraints: [NSLayoutConstraint] = []
     var editPanel: UIStackView?
+    var editorOverlay: WYChatTranscriptOverlay?
     var editorBubble: WYAirBubbleView?
     var editorHeader: UIStackView?
     var editorFooter: UIStackView?

@@ -375,13 +375,20 @@ public struct WYRecordAnimationConfig {
     /// 录音面板动画时长
     public var animationDuration: TimeInterval = 0.25
     /// 转写失败提示
-    public var recognitionFailureText: String = WYLocalized("识别失败，请重试", table: WYBasisKitConfig.kitLocalizableTable)
+    public var recognitionFailureText: String = {
+        switch WYLocalizableManager.currentLanguage() {
+        case .zh_Hans: return "未识别到文字"
+        case .zh_Hant: return "未辨識到文字"
+        case .english: return "No text recognized"
+        default: return WYLocalized("识别失败，请重试", table: WYBasisKitConfig.kitLocalizableTable)
+        }
+    }()
     /// 转写失败图标，nil时仅显示提示文字
-    public var recognitionFailureImage: UIImage?
+    public var recognitionFailureImage: UIImage? = UIImage.wy_findIfPresent("WYChatViewRecognitionFailed", inBundle: WYChatSourceBundle)?.withRenderingMode(.alwaysOriginal)
     /// 转写失败提示色
-    public var recognitionFailureColor: UIColor = UIColor { $0.userInterfaceStyle == .dark ? .wy_hex("#FFD6DC") : .wy_hex("#922C49") }
+    public var recognitionFailureColor: UIColor = .white
     /// 转写失败卡片底色
-    public var recognitionFailureBackgroundColor: UIColor = UIColor { $0.userInterfaceStyle == .dark ? .wy_hex("#3B2630") : .wy_hex("#FFF2F4") }
+    public var recognitionFailureBackgroundColor: UIColor = .wy_hex("#CC3652")
     /// 转写等待提示
     public var recognizingText: String = WYLocalized("正在识别…", table: WYBasisKitConfig.kitLocalizableTable)
     /// 转写确认按钮文字
@@ -468,7 +475,7 @@ public struct WYRecordAnimationConfig {
     /// 转写编辑表情图标
     public var recognitionEmojiImage: UIImage? = UIImage.wy_find("WYChatViewToggleEmoji", inBundle: WYChatSourceBundle)
     /// 转写编辑键盘图标
-    public var recognitionKeyboardImage: UIImage? = UIImage.wy_find("WYChatViewTogglekeyboard", inBundle: WYChatSourceBundle)
+    public var recognitionKeyboardImage: UIImage? = UIImage.wy_findIfPresent("WYChatViewTogglekeyboard", inBundle: WYChatSourceBundle)?.withRenderingMode(.alwaysOriginal)
     /// 转写编辑是否显示表情按钮，默认true
     public var showsRecognitionEmojiButton: Bool = true
     /// 转写编辑表情配置

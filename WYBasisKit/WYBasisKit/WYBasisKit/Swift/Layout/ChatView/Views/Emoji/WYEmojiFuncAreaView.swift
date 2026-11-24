@@ -73,8 +73,8 @@ public struct WYEmojiFuncAreaConfig {
     /// 发送按钮按压状态背景图
     public var sendViewImageWithHighly: UIImage = UIImage.wy_createImage(from: .wy_rgb(64, 118, 246), size: CGSize(width: UIDevice.wy_screenWidth(60, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(50, WYBasisKitConfig.defaultScreenPixels)))
     
-    /// 删除按钮文本
-    public var deleteViewText: String = WYLocalized("删除", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 删除按钮文本，默认只显示图标
+    public var deleteViewText: String = ""
     
     /// 发送按钮文本
     public var sendViewText: String = WYLocalized("发送", table: WYBasisKitConfig.kitLocalizableTable)
@@ -103,13 +103,13 @@ public struct WYEmojiFuncAreaConfig {
     /// 发送按钮按压状态文本颜色
     public var sendViewTextColorWithHighly: UIColor = .white
     
-    public init() {
-        /// 在这里判断是否需要调整功能区内发送按钮相关的间距、size等设置
-        if removeSendView == true {
-            sendViewSize = .zero
-            sendViewLeftOffsetWithDeleteView = 0
-        }
+    var showsSendButton: Bool { !removeSendView && sendViewSize.width > 0 && sendViewSize.height > 0 }
+    var actionAreaWidth: CGFloat {
+        deleteViewLeftOffsetWithArea + deleteViewSize.width + sendViewRightOffset
+            + (showsSendButton ? sendViewLeftOffsetWithDeleteView + sendViewSize.width : 0)
     }
+
+    public init() {}
 }
 
 @objc public protocol WYEmojiFuncAreaViewDelegate {
@@ -162,15 +162,20 @@ public class WYEmojiFuncAreaView: UIView {
 
         sendView = createFuncButton(text: emojiViewConfig.funcAreaConfig.sendViewText, textColorWithDisabled: emojiViewConfig.funcAreaConfig.sendViewTextColorWithDisabled, textColorWithEnable: emojiViewConfig.funcAreaConfig.sendViewTextColorWithEnable, textColorWithHighly: emojiViewConfig.funcAreaConfig.sendViewTextColorWithHighly, backgroundImageWithDisabled: emojiViewConfig.funcAreaConfig.sendViewImageWithDisabled, backgroundImageWithEnable: emojiViewConfig.funcAreaConfig.sendViewImageWithEnable, backgroundImageWithHighly: emojiViewConfig.funcAreaConfig.sendViewImageWithHighly, target: self, selector: #selector(clickSendView))
         sendView.wy_titleFont = emojiViewConfig.funcAreaConfig.sendViewFont
+        let showsSendButton = emojiViewConfig.funcAreaConfig.showsSendButton
+        sendView.isHidden = !showsSendButton
         contentView.addSubview(sendView)
         sendView.snp.makeConstraints { make in
-            make.size.equalTo(emojiViewConfig.funcAreaConfig.sendViewSize)
+            make.size.equalTo(showsSendButton ? emojiViewConfig.funcAreaConfig.sendViewSize : .zero)
             make.right.equalToSuperview().offset(-emojiViewConfig.funcAreaConfig.sendViewRightOffset)
             make.top.equalToSuperview()
         }
 
         deleteView = createFuncButton(text: emojiViewConfig.funcAreaConfig.deleteViewText, textColorWithDisabled: emojiViewConfig.funcAreaConfig.deleteViewTextColorWithDisabled, textColorWithEnable: emojiViewConfig.funcAreaConfig.deleteViewTextColorWithEnable, textColorWithHighly: emojiViewConfig.funcAreaConfig.deleteViewTextColorWithHighly, backgroundImageWithDisabled: emojiViewConfig.funcAreaConfig.deleteViewImageWithDisabled, backgroundImageWithEnable: emojiViewConfig.funcAreaConfig.deleteViewImageWithEnable, backgroundImageWithHighly: emojiViewConfig.funcAreaConfig.deleteViewImageWithHighly, target: self, selector: #selector(clickDeleteView))
         deleteView.wy_titleFont = emojiViewConfig.funcAreaConfig.deleteViewFont
+        deleteView.accessibilityLabel = emojiViewConfig.funcAreaConfig.deleteViewText.isEmpty
+            ? WYLocalized("删除", table: WYBasisKitConfig.kitLocalizableTable)
+            : emojiViewConfig.funcAreaConfig.deleteViewText
         if (emojiViewConfig.funcAreaConfig.longPressDelete == true) {
             let longPress: UILongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(didLongPress(sender:)))
             let duration = emojiViewConfig.funcAreaConfig.longPressDeleteDuration
@@ -180,7 +185,7 @@ public class WYEmojiFuncAreaView: UIView {
         contentView.addSubview(deleteView)
         deleteView.snp.makeConstraints { make in
             make.size.equalTo(emojiViewConfig.funcAreaConfig.deleteViewSize)
-            make.right.equalTo(sendView.snp.left).offset(-emojiViewConfig.funcAreaConfig.sendViewLeftOffsetWithDeleteView)
+            make.right.equalTo(sendView.snp.left).offset(showsSendButton ? -emojiViewConfig.funcAreaConfig.sendViewLeftOffsetWithDeleteView : 0)
             make.top.equalToSuperview()
         }
     }

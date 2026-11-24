@@ -218,7 +218,7 @@ extension WYChatEmojiView {
         funcAreaView.delegate = self
         addSubview(funcAreaView)
         funcAreaView.snp.makeConstraints { make in
-            make.size.equalTo(CGSize(width: self.emojiViewConfig.funcAreaConfig.deleteViewLeftOffsetWithArea + self.emojiViewConfig.funcAreaConfig.deleteViewSize.width + self.emojiViewConfig.funcAreaConfig.sendViewLeftOffsetWithDeleteView + self.emojiViewConfig.funcAreaConfig.sendViewSize.width, height: self.emojiViewConfig.funcAreaConfig.areaHeight))
+            make.size.equalTo(CGSize(width: self.emojiViewConfig.funcAreaConfig.actionAreaWidth, height: self.emojiViewConfig.funcAreaConfig.areaHeight))
             make.right.equalToSuperview().offset(-self.emojiViewConfig.funcAreaConfig.areaRightOffset)
             make.bottom.equalToSuperview().offset(-self.emojiViewConfig.funcAreaConfig.areaBottomOffset)
         }
@@ -249,7 +249,7 @@ extension WYChatEmojiView {
             var line: Int = 0
             for _: Int in 0..<self.emojiViewConfig.minimumLineCount {
                 leftx += self.emojiViewConfig.itemSize.width
-                if leftx > (self.wy_width - self.emojiViewConfig.funcAreaConfig.deleteViewLeftOffsetWithArea - self.emojiViewConfig.funcAreaConfig.areaRightOffset - self.emojiViewConfig.funcAreaConfig.sendViewRightOffset - self.emojiViewConfig.funcAreaConfig.sendViewSize.width - self.emojiViewConfig.funcAreaConfig.deleteViewSize.width - self.emojiViewConfig.funcAreaConfig.sendViewLeftOffsetWithDeleteView) {
+                if leftx > self.wy_width - self.emojiViewConfig.funcAreaConfig.areaRightOffset - self.emojiViewConfig.funcAreaConfig.actionAreaWidth {
                     break
                 }
                 leftx += flowLayout.minimumInteritemSpacing

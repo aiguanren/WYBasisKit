@@ -193,6 +193,8 @@ public class WYRecordAnimationView: UIView {
 
     /// 当前实例配置
     public var recordAnimationConfig: WYRecordAnimationConfig = WYRecordAnimationConfig()
+    /// 在所在窗口展示转写页，独立使用录音视图时可保留原有容器。
+    @objc public var presentsTranscriptInWindow = false
 
 
     /// 代理
@@ -263,7 +265,7 @@ public class WYRecordAnimationView: UIView {
         let end = (text as NSString).length
         state.editText.selectedRange = NSRange(location: end, length: 0)
         wy_updateEditorActions()
-        setNeedsLayout()
+        wy_invalidateTranscriptLayout()
         return true
     }
 
@@ -298,6 +300,11 @@ public class WYRecordAnimationView: UIView {
     public override func layoutSubviews() {
         super.layoutSubviews()
         wy_layoutRecordingView()
+    }
+
+    public override func didMoveToWindow() {
+        super.didMoveToWindow()
+        if window == nil, state.editorOverlay != nil { wy_cancelTranscript() }
     }
 
     internal let state = WYRecordAnimationViewPrivateState()

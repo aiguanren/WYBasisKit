@@ -250,8 +250,9 @@ extension WYRecordAnimationView {
 
     @objc func wy_editorKeyboardChanged(_ notification: Notification) {
         guard state.editPanel?.isHidden == false else { return }
-        setNeedsLayout()
-        UIView.animate(withDuration: wy_captureConfiguration.animationDuration) { self.layoutIfNeeded() }
+        wy_invalidateTranscriptLayout()
+        let container: UIView = state.editorOverlay as UIView? ?? self
+        UIView.animate(withDuration: wy_captureConfiguration.animationDuration) { container.layoutIfNeeded() }
     }
 
     @objc func wy_recordingWillResignActive() {
@@ -296,6 +297,8 @@ extension WYRecordAnimationView {
         state.ownsTranscriptionFile = false
         state.editPanel?.isHidden = true
         state.editText.resignFirstResponder()
+        state.editorOverlay?.removeFromSuperview()
+        state.editorOverlay = nil
         state.captureConfiguration = nil
     }
     func wy_recordError(_ text: String) -> NSError { NSError(domain: String(describing: WYRecordAnimationView.self), code: 1, userInfo: [NSLocalizedDescriptionKey: text]) }
