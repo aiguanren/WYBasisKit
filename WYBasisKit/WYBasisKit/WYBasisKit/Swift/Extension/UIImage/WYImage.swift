@@ -750,10 +750,22 @@ public extension UIImage {
             return wy_createImage(from: randomColor)
         }
         
-        guard !imageName.isEmpty else {
+        if let image = wy_findIfPresent(imageName, inBundle: bundle) { return image }
+        if imageName.isEmpty {
             WYLogManager.output("imageName 为空，已返回随机颜色图片")
-            return randomImage()
+        } else if let bundle, !bundle.bundleName.isEmpty {
+            let subdirectory = bundle.subdirectory.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+            let pathDesc = subdirectory.isEmpty ? "" : "/\(bundle.subdirectory)"
+            WYLogManager.output("在 \(bundle.bundleName).bundle\(pathDesc) 中没有找到图片 \(imageName)，已返回随机颜色图片")
+        } else {
+            WYLogManager.output("未找到图片 \(imageName)（已尝试 SDK 与 Main Bundle），已返回随机颜色图片")
         }
+        return randomImage()
+    }
+
+    /// 加载本地图片，找不到时由调用方决定占位。
+    internal static func wy_findIfPresent(_ imageName: String, inBundle bundle: WYSourceBundle? = nil) -> UIImage? {
+        guard !imageName.isEmpty else { return nil }
         
         let searchBundles: [Bundle] = {
             if let config = bundle, let targetClass = config.targetClass {
@@ -791,9 +803,7 @@ public extension UIImage {
                 }
             }
             
-            let pathDesc = subDir.isEmpty ? "" : "/\(config.subdirectory)"
-            WYLogManager.output("在 \(config.bundleName).bundle\(pathDesc) 中没有找到图片 \(imageName)，已返回随机颜色图片")
-            return randomImage()
+            return nil
         }
         
         // 未指定 bundleName → 正常从 .xcassets 或根目录加载
@@ -803,8 +813,7 @@ public extension UIImage {
             }
         }
         
-        WYLogManager.output("未找到图片 \(imageName)（已尝试 SDK 与 Main Bundle），已返回随机颜色图片")
-        return randomImage()
+        return nil
     }
     
     /**

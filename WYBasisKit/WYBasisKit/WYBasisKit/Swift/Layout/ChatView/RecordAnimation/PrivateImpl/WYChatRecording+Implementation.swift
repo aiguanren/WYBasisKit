@@ -150,10 +150,7 @@ extension WYRecordAnimationView {
                 wy_showTranscriptPanel()
                 if state.liveFinished { wy_completeLiveTranscript() }
                 else {
-                    state.editText.text = state.liveText.isEmpty ? wy_captureConfiguration.recognizingText : state.liveText
-                    state.editText.isEditable = false
-                    state.sendButton.isEnabled = false
-                    state.retryButton.isHidden = true
+                    wy_updateTranscriptContent(state.liveText.isEmpty ? wy_captureConfiguration.recognizingText : state.liveText, isRecognizing: true)
                     state.speech?.finishStreaming()
                 }
             } else { wy_recognizeRecording() }
@@ -205,11 +202,7 @@ extension WYRecordAnimationView {
     }
 
     private func wy_completeLiveTranscript() {
-        state.editText.text = state.liveError == nil ? state.liveText : wy_captureConfiguration.recognitionFailureText
-        state.editText.isEditable = state.liveError == nil
-        state.sendButton.isEnabled = state.liveError == nil && !state.liveText.isEmpty
-        state.retryButton.isHidden = state.liveError == nil
-        setNeedsLayout()
+        wy_updateTranscriptContent(state.liveText, failed: state.liveError != nil)
         wy_sendAutomaticTranscriptIfReady()
     }
 
@@ -242,20 +235,13 @@ extension WYRecordAnimationView {
         guard let url = state.transcriptionURL else { return }
         state.speech?.cancel()
         wy_showTranscriptPanel()
-        state.editText.text = wy_captureConfiguration.recognizingText
-        state.editText.isEditable = false
-        state.sendButton.isEnabled = false
-        state.retryButton.isHidden = true
+        wy_updateTranscriptContent(wy_captureConfiguration.recognizingText, isRecognizing: true)
         let task = WYChatSpeechRecognitionTask(configuration: usesLatestConfiguration ? recordAnimationConfig : wy_captureConfiguration)
         state.speech = task
         task.recognize(url: url) { [weak self, weak task] text, error in
             guard let self, let task, self.state.speech === task else { return }
             self.recognitionResultHandler?(text, error)
-            self.state.editText.text = error == nil ? text : self.wy_captureConfiguration.recognitionFailureText
-            self.state.editText.isEditable = error == nil
-            self.state.sendButton.isEnabled = error == nil && !(text?.isEmpty ?? true)
-            self.state.retryButton.isHidden = error == nil
-            self.setNeedsLayout()
+            self.wy_updateTranscriptContent(text, failed: error != nil)
             self.wy_sendAutomaticTranscriptIfReady()
         }
     }

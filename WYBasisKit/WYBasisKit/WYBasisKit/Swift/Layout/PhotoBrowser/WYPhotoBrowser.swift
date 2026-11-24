@@ -115,6 +115,10 @@ public struct WYPhotoBrowserItem {
     /// 缩略占位图(进入页面立即可见的本地小图，通常传消息列表里已显示的缩略图)
     public var placeholder: UIImage?
 
+    /// 聊天叠卡的占位外观
+    internal var placeholderCornerRadius: CGFloat?
+    internal var showsPlaceholderLoadingIndicator = false
+
     /// 缩略图本地文件路径(有本地缩略图时先显示它，绝对路径沙盒路径均可)
     public var thumbnailPath: String?
 

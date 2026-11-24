@@ -105,6 +105,9 @@ import WYBasisKitSwift
     public var videoPlaySize: CGSize
     /// 视频播放图标颜色
     public var videoPlayColor: UIColor
+    public var showsVideoDuration: Bool
+    public var videoOverlayBackgroundColor: UIColor
+    public var videoDurationColor: UIColor
     /// 是否自动打开内置媒体浏览器，默认true，设置mediaPreviewHandler后由宿主处理
     public var automaticallyPresentsBrowser: Bool
     /// 视频播放器的展示方式，默认全屏
@@ -139,6 +142,9 @@ import WYBasisKitSwift
         videoPlayImage = value.videoPlayImage
         videoPlaySize = value.videoPlaySize
         videoPlayColor = value.videoPlayColor
+        showsVideoDuration = value.showsVideoDuration
+        videoOverlayBackgroundColor = value.videoOverlayBackgroundColor
+        videoDurationColor = value.videoDurationColor
         automaticallyPresentsBrowser = value.automaticallyPresentsBrowser
         videoPresentationStyle = value.videoPresentationStyle
         showsVideoPlaybackControls = value.showsVideoPlaybackControls
@@ -171,6 +177,9 @@ import WYBasisKitSwift
         value.videoPlayImage = videoPlayImage
         value.videoPlaySize = videoPlaySize
         value.videoPlayColor = videoPlayColor
+        value.showsVideoDuration = showsVideoDuration
+        value.videoOverlayBackgroundColor = videoOverlayBackgroundColor
+        value.videoDurationColor = videoDurationColor
         value.automaticallyPresentsBrowser = automaticallyPresentsBrowser
         value.videoPresentationStyle = videoPresentationStyle
         value.showsVideoPlaybackControls = showsVideoPlaybackControls

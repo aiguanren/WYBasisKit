@@ -18,7 +18,15 @@ extension WYChatBasicCell {
             wy_renderReedit()
         case .takePat:
             guard let value = message.content.takePat else { return }
-            state.title.text = String(format: WYLocalized("%@拍了拍%@%@", table: WYBasisKitConfig.kitLocalizableTable), value.striking.name, value.beaten.name, value.notes)
+            if let template = configuration.notice.patText {
+                state.title.text = template.replacingOccurrences(of: "{sender}", with: value.striking.name)
+                    .replacingOccurrences(of: "{recipient}", with: value.beaten.name)
+                    .replacingOccurrences(of: "{note}", with: value.notes)
+            } else {
+                state.title.text = String(format: WYLocalized("%@拍了拍%@%@", table: WYBasisKitConfig.kitLocalizableTable), value.striking.name, value.beaten.name, value.notes)
+            }
+            let font = messageContentConfiguration.detailFont
+            state.preferredContentWidth = ceil(((state.title.text ?? "") as NSString).size(withAttributes: [.font: font]).width)
         case .call:
             guard let value = message.content.call else { return }
             let video = value.callStyle == .oneToOneVideo || value.callStyle == .multipleVideos

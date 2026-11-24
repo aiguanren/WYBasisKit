@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class WYChatAvatarImageView: UIImageView {
+final class WYChatAvatarImageView: WYChatPlaceholderImageView {
     override var alignmentRectInsets: UIEdgeInsets { .zero }
 }
 

@@ -44,6 +44,16 @@ SwiftVerify示例的“聊天界面→测试→配置”提供中文分组设置
 
 默认图标从`WYChatView.bundle/Configs`加载，表情图片从`WYChatView.bundle/Emojis`加载，输入栏和多选图标默认保留图片原色。`input`、`basic`、`selection`、`quote`、`media`和`recording`中的图片配置均可由宿主覆盖；需要单色着色时可显式选择模板渲染。卡片图标可通过`content.iconImage/iconSize`或对应`contentOverrides`配置，默认图标尺寸28。更多面板通过`more.iconSize`配置图标尺寸，默认32，按钮底板由`more.imageViewSize`单独配置。
 
+头像默认使用浅灰圆形占位。通过`basic.avatarPlaceholderColor`设置纯色，或通过`avatarPlaceholderGradientColors`和`avatarPlaceholderGradientDirection`设置渐变。`avatarPlaceholderCornerRadius`为负值时按头像尺寸取圆角，为`0`时显示直角。传入`basic.defaultAvatar`时优先显示自定义图片，沿用`avatarCornerRadius`和`avatarContentMode`。
+
+图片消息默认使用浅灰直角占位。`content.placeholderColor`、`placeholderCornerRadius`、`placeholderGradientColors`和`placeholderGradientDirection`控制默认占位外观，渐变至少需要两个颜色。`content.placeholderImage`优先于颜色和渐变，可用`contentOverrides`为指定消息类型单独设置。内置加载流程会在网络图片的默认占位上显示动画，可通过`content.showsPlaceholderLoadingIndicator`关闭。
+
+位置卡片先显示地点和地址，再显示地图预览。地图资源由`location.placeholderImage`提供，也可以用对应的`contentOverrides[.location].placeholderImage`优先覆盖。`location.placeholderBackgroundColor`和`cornerRadius`控制预览，`showsPreviewBelowAddress`可切换图文顺序。地点和地址的字体、颜色、行数以及预览尺寸沿用`contentOverrides[.location]`。
+
+红包优先显示留言，转账优先显示金额，收款状态单独显示。可通过各自的`contentOverrides`设置文字、间距、图标尺寸和底板颜色`fundsIconBackgroundColor`。拍一拍以居中提示呈现，`notice.patBackgroundColor`、`patCornerRadius`和`patText`配置底色、圆角和文案。
+
+单条视频将播放图标和时长叠放在封面上。`media.videoPlayImage`、`videoPlaySize`和`videoPlayColor`配置图标，`showsVideoDuration`、`videoDurationColor`和`videoOverlayBackgroundColor`配置时长及控件底色。视频的预览尺寸与时长字体可以通过`.video`内容覆盖配置。
+
 语音播放帧统一使用`WYChatViewVoiceWave1–3`，由`voicePlayback.waveformImages`覆盖，静止显示最后一帧，发送侧通过`mirrorsSenderWaveform`水平翻转。`waveformDuration`和`waveformSize`控制动画时长及尺寸，`waveformTintColor`控制声波颜色，默认随明暗主题变化，设为nil时保留原图颜色，默认只显示秒数和声波，发送方声波在右，接收方声波在左。`durationSuffix`配置秒数后缀，`minimumWidth/minimumWidthDuration/widthGrowthPerSecond`配置气泡随时长增长的宽度。`unreadColor/unreadSize`配置接收方未播放提示。`showsPlaybackSymbol`开启额外播放图标，图片由`playImage/pauseImage`覆盖。点击语音触发宿主播放事件，正在播放时再次点击停止，`restartsOnTap`默认true，再次播放从头开始，切换语音停止前一条。
 
 渐变流动由`recording.gradientMotionEnabled`控制，周期、位移、缩放及明暗颜色和不透明度分别配置。`gradientPressEnabled`控制跟随手指的局部按压效果，尺寸、颜色、不透明度和跟随过渡时长均可配。移除录音界面或进入后台时停止流动，系统开启减弱动态效果时不播放持续动画。
@@ -290,7 +300,7 @@ SwiftVerify的聊天测试页点击“配置”可搜索并调整配置属性，
 
 `recording.curvedActionSize`、`curvedActionCornerRadius`、`curvedActionTiltAngle`及`curvedActionTitleOffsetX`分别控制操作条大小、端头圆角、倾斜角度和文字位置。`overlayBackgroundColor`配置整页遮罩，底部录音区域使用独立颜色；气泡下方提示的字体、颜色及间距也可单独设置。
 
-转写编辑的关闭、语言和翻译入口位于气泡上方，表情、原语音和发送位于气泡下方。`recognitionHeaderHeight`、`recognitionHeaderSpacing`、`recognitionFooterSpacing`及按钮宽度分别配置布局，`recognitionControlAppearance`可按操作单独调整按钮的字体、颜色、图标及其他外观。识别语言入口由`showsRecognitionLanguageButton`控制，默认隐藏。
+转写编辑默认停靠在键盘或底部安全区上方。识别成功后可编辑文字，失败时单独显示提示与重试入口。`recognitionPanelAnchorsToBottom`、`recognitionPanelShowsArrow`、行高度、间距和按钮宽度分别配置布局。`recognitionFailureText`、`recognitionFailureColor`、`recognitionFailureBackgroundColor`和可选的`recognitionFailureImage`配置失败卡片。关闭、表情及键盘图标按`recognitionAccessoryImageSize`等比适配，可传入项目自身的图片。`recognitionControlAppearance`可按操作进一步调整按钮外观。
 
 媒体展开/收起按钮默认显示在首个媒体靠页面中间的一侧，`media.buttonPlacement`可切换为下方显示。按钮宽高、圆角、间距、字体和颜色均可配置，`showsItemCountInButton`控制是否显示媒体数量。
 

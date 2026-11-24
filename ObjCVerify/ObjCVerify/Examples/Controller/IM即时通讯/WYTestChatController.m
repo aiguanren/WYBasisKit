@@ -30,8 +30,9 @@
     config.more.moreSource = @[@{@"照片": @"WYChatViewAlbum"}, @{@"文件": @"WYChatViewFile"}];
     config.more.imageProvider = ^UIImage * _Nullable(NSString *name) { return [UIImage wy_find:name bundle:resources]; };
     config.imageLoader = ^(WYChatAssetsModel *asset, UIImageView *imageView, NSString *messageID) {
-        NSDictionary *names = @{@"person.crop.square": @"WYChatViewAvatarPlaceholder", @"photo": @"WYChatViewImagePlaceholder", @"doc": @"WYChatViewFile"};
-        if (asset.name.length > 0) { imageView.image = [UIImage wy_find:names[asset.name] ?: asset.name bundle:resources]; }
+        if (asset.name.length == 0) { return; }
+        NSString *name = [asset.name isEqualToString:@"doc"] ? @"WYChatViewFile" : asset.name;
+        imageView.image = [UIImage imageNamed:name] ?: [UIImage systemImageNamed:name] ?: [UIImage wy_find:name bundle:resources];
     };
     WYChatUserModel *user = [[WYChatUserModel alloc] init];
     user.id = @"current-user";

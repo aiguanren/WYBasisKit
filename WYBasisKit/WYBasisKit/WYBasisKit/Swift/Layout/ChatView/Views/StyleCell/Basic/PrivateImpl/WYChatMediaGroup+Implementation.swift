@@ -16,41 +16,38 @@ final class WYChatMediaGroupView: UIView, WYPhotoBrowserDataSource, WYPhotoBrows
     private var avatarGestures: [Int: WYChatAvatarGestures] = [:]
     private var model = WYChatMediaGroupModel()
     private var configuration = WYChatMediaConfig()
+    private var contentConfiguration = WYChatContentConfig()
     private var browser: WYPhotoBrowser?
     private var images: [Int: UIImageView] = [:]
     private var avatars: [Int: UIImageView] = [:]
     private var frames: [CGRect] = []
     private var loaded = Set<Int>()
-    private var loader: ((WYChatAssetsModel, UIImageView, Bool) -> Void)?
+    private var loader: ((_ asset: WYChatAssetsModel, _ imageView: UIImageView, _ isPhoto: Bool, _ loadsRemoteImage: Bool) -> Void)?
     private var avatar = WYChatAssetsModel()
     private var avatarSize = CGSize.zero
     private var avatarSpacing: CGFloat = 0
-    private var avatarCornerRadius: CGFloat = 0
-    private var avatarContentMode = UIView.ContentMode.scaleAspectFill
     private var sender = false
     private var measuring = false
     private var lastSize = CGSize.zero
 
-    func configure(_ model: WYChatMediaGroupModel, configuration: WYChatMediaConfig, avatarConfiguration: WYBasicChatConfig, avatar: WYChatAssetsModel, avatarSize: CGSize, avatarSpacing: CGFloat, avatarCornerRadius: CGFloat, avatarContentMode: UIView.ContentMode, sender: Bool, measuring: Bool, loader: @escaping (WYChatAssetsModel, UIImageView, Bool) -> Void) {
+    func configure(_ model: WYChatMediaGroupModel, configuration: WYChatMediaConfig, contentConfiguration: WYChatContentConfig, avatarConfiguration: WYBasicChatConfig, avatar: WYChatAssetsModel, avatarSize: CGSize, avatarSpacing: CGFloat, sender: Bool, measuring: Bool, loader: @escaping (WYChatAssetsModel, UIImageView, Bool, Bool) -> Void) {
         reset()
         self.model = model
         self.configuration = configuration
+        self.contentConfiguration = contentConfiguration
         self.avatarConfiguration = avatarConfiguration
         self.avatar = avatar
         self.avatarSize = avatarSize
         self.avatarSpacing = avatarSpacing
-        self.avatarCornerRadius = avatarCornerRadius
-        self.avatarContentMode = avatarContentMode
         self.sender = sender
         self.measuring = measuring
         self.loader = loader
         guard !measuring else { return }
         if model.isExpanded {
             for index in model.items.indices {
-                let image = UIImageView()
-                image.contentMode = .scaleAspectFill
+                let image = WYChatPlaceholderImageView()
                 image.clipsToBounds = true
-                image.layer.cornerRadius = finite(configuration.cornerRadius)
+                image.imageCornerRadius = finite(configuration.cornerRadius)
                 image.tag = index
                 image.isUserInteractionEnabled = true
                 image.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapped(_:))))
@@ -133,22 +130,25 @@ final class WYChatMediaGroupView: UIView, WYPhotoBrowserDataSource, WYPhotoBrows
         while lower < upper { let middle = (lower + upper) / 2; if frames[middle].maxY < visible.minY { lower = middle + 1 } else { upper = middle } }
         var wanted = Set<Int>()
         while lower < frames.count && frames[lower].minY <= visible.maxY { wanted.insert(lower); lower += 1 }
-        for index in loaded.subtracting(wanted) { images[index]?.kf.cancelDownloadTask(); images[index]?.image = nil; avatars[index]?.isHidden = true }
+        for index in loaded.subtracting(wanted) {
+            images[index]?.kf.cancelDownloadTask()
+            images[index]?.kf.indicatorType = .none
+            images[index]?.kf.setImage(with: nil as Source?)
+            avatars[index]?.isHidden = true
+        }
         for index in wanted.subtracting(loaded) {
             guard let image = images[index] else { continue }
             let item = model.items[index]
-            loader?(item.thumbnail.localPath.isEmpty && item.thumbnail.downloadPath.isEmpty ? item.original : item.thumbnail, image, false)
+            loader?(thumbnail(for: item), image, item.kind == .photo, true)
             if index > 0 && configuration.showsExpandedAvatars && avatarSize.width > 0 && avatars[index] == nil {
-                let view = UIImageView()
+                let view = WYChatAvatarImageView()
                 view.clipsToBounds = true
-                view.layer.cornerRadius = finite(avatarCornerRadius)
-                view.contentMode = avatarContentMode
                 addSubview(view)
                 avatars[index] = view
                 let gestures = WYChatAvatarGestures(view: view) { [weak self] action in self?.avatarAction?(action) }
                 gestures.apply(avatarConfiguration)
                 avatarGestures[index] = gestures
-                loader?(avatar, view, true)
+                loader?(avatar, view, false, true)
             }
         }
         for index in wanted {
@@ -177,6 +177,10 @@ final class WYChatMediaGroupView: UIView, WYPhotoBrowserDataSource, WYPhotoBrows
         guard let url = URL(string: path), ["https", "http"].contains(url.scheme?.lowercased() ?? "") else { return nil }
         return url
     }
+    private func thumbnail(for item: WYChatMediaItem) -> WYChatAssetsModel {
+        let thumbnail = item.thumbnail
+        return thumbnail.localPath.isEmpty && thumbnail.downloadPath.isEmpty && thumbnail.name.isEmpty ? item.original : thumbnail
+    }
     func numberOfItems(in photoBrowser: WYPhotoBrowser) -> Int { model.items.count }
     func photoBrowser(_ photoBrowser: WYPhotoBrowser, itemAt index: Int) -> Any {
         guard model.items.indices.contains(index) else { return WYPhotoBrowserItem() }
@@ -184,13 +188,17 @@ final class WYChatMediaGroupView: UIView, WYPhotoBrowserDataSource, WYPhotoBrows
         var result = WYPhotoBrowserItem()
         result.identifier = item.id
         result.mediaType = item.kind == .video ? .video : .photo
-        let thumb = item.thumbnail.localPath.isEmpty && item.thumbnail.downloadPath.isEmpty ? item.original : item.thumbnail
+        let thumb = thumbnail(for: item)
         result.thumbnailPath = thumb.localPath.isEmpty ? nil : thumb.localPath
         result.thumbnailURL = remoteURL(thumb.downloadPath)
         if item.kind == .photo { result.originalPath = item.original.localPath.isEmpty ? nil : item.original.localPath; result.originalURL = remoteURL(item.original.downloadPath) }
-        let image = UIImageView()
-        loader?(thumb, image, false)
+        let image = WYChatPlaceholderImageView()
+        loader?(thumb, image, false, false)
         result.placeholder = image.image
+        if let generated = image.generatedPlaceholder, generated === image.image {
+            result.placeholderCornerRadius = finite(contentConfiguration.placeholderCornerRadius)
+            result.showsPlaceholderLoadingIndicator = item.kind == .photo && contentConfiguration.showsPlaceholderLoadingIndicator
+        }
         return result
     }
     func wy_photoBrowser(_ photoBrowser: WYPhotoBrowser, didShowItemAt index: Int) { if index != model.visibleIndex { action?(.pageChanged, index) } }
@@ -207,7 +215,9 @@ extension WYChatBasicCell {
         state.mediaView.isHidden = false
         let sender = message.isSender(userID)
         let side = sender ? configuration.sender : configuration.receiver
-        state.mediaView.configure(group, configuration: configuration.media, avatarConfiguration: configuration.basic, avatar: message.sender.avatar, avatarSize: side.showsAvatar ? configuration.basic.avatarSize : .zero, avatarSpacing: side.contentSpacing, avatarCornerRadius: configuration.basic.avatarCornerRadius, avatarContentMode: configuration.basic.avatarContentMode, sender: sender, measuring: state.isMeasuring) { [weak self] asset, image, avatar in self?.wy_loadImage(asset, into: image, isAvatar: avatar) }
+        state.mediaView.configure(group, configuration: configuration.media, contentConfiguration: messageContentConfiguration, avatarConfiguration: configuration.basic, avatar: message.sender.avatar, avatarSize: side.showsAvatar ? configuration.basic.avatarSize : .zero, avatarSpacing: side.contentSpacing, sender: sender, measuring: state.isMeasuring) { [weak self] asset, image, isPhoto, loadsRemoteImage in
+            self?.wy_loadImage(asset, into: image, isPhoto: isPhoto, loadsRemoteImage: loadsRemoteImage)
+        }
         state.mediaView.avatarAction = { [weak self] action in self?.wy_avatarAction(action) }
         let identifier = message.messageID
         state.mediaView.action = { [weak self] action, index in self?.mediaActionHandler?(action, identifier, index) }

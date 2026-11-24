@@ -149,6 +149,7 @@ import WYBasisKitSwift
 
 @objc(WYChatContentConfig)
 @objcMembers public class WYChatContentConfigObjC: NSObject {
+    public var fundsIconBackgroundColor: UIColor?
     /// 消息卡片图标，nil时使用对应消息类型的内置图片
     public var iconImage: UIImage?
     /// 消息卡片图标的显示尺寸
@@ -178,14 +179,25 @@ import WYBasisKitSwift
     public var titleNumberOfLines: Int
     /// 摘要行数，0表示不限
     public var detailNumberOfLines: Int
-    /// 图片占位图
+    /// 自定义图片占位图，nil时使用纯色或渐变占位
     public var placeholderImage: UIImage?
+    /// 默认图片占位颜色
+    public var placeholderColor: UIColor
+    /// 默认图片占位圆角半径，0表示直角
+    public var placeholderCornerRadius: CGFloat
+    /// 默认图片占位渐变颜色
+    public var placeholderGradientColors: [UIColor]
+    /// 默认图片占位渐变方向
+    public var placeholderGradientDirection: WYGradientDirectionObjC
+    /// 图片消息在使用默认占位加载网络图片时是否显示动画
+    public var showsPlaceholderLoadingIndicator: Bool
     /// 是否显示气泡，默认true
     public var showsBubble: Bool
 
     public override convenience init() { self.init(WYChatContentConfig()) }
 
     @nonobjc public init(_ value: WYChatContentConfig) {
+        fundsIconBackgroundColor = value.fundsIconBackgroundColor
         self.iconSize = value.iconSize
         self.iconImage = value.iconImage
         self.insets = value.insets
@@ -201,12 +213,18 @@ import WYBasisKitSwift
         self.titleNumberOfLines = value.titleNumberOfLines
         self.detailNumberOfLines = value.detailNumberOfLines
         self.placeholderImage = value.placeholderImage
+        placeholderColor = value.placeholderColor
+        placeholderCornerRadius = value.placeholderCornerRadius
+        placeholderGradientColors = value.placeholderGradientColors
+        placeholderGradientDirection = WYGradientDirectionObjC(rawValue: value.placeholderGradientDirection.rawValue) ?? .leftToRight
+        showsPlaceholderLoadingIndicator = value.showsPlaceholderLoadingIndicator
         self.showsBubble = value.showsBubble
         super.init()
     }
 
     @nonobjc public func toValue() -> WYChatContentConfig {
         var value = WYChatContentConfig()
+        value.fundsIconBackgroundColor = fundsIconBackgroundColor
         value.iconSize = iconSize
         value.iconImage = iconImage
         value.insets = insets
@@ -222,7 +240,40 @@ import WYBasisKitSwift
         value.titleNumberOfLines = titleNumberOfLines
         value.detailNumberOfLines = detailNumberOfLines
         value.placeholderImage = placeholderImage
+        value.placeholderColor = placeholderColor
+        value.placeholderCornerRadius = placeholderCornerRadius
+        value.placeholderGradientColors = placeholderGradientColors
+        value.placeholderGradientDirection = WYGradientDirection(rawValue: placeholderGradientDirection.rawValue) ?? .leftToRight
+        value.showsPlaceholderLoadingIndicator = showsPlaceholderLoadingIndicator
         value.showsBubble = showsBubble
+        return value
+    }
+}
+
+@objc(WYChatLocationConfig)
+@objcMembers public class WYChatLocationConfigObjC: NSObject {
+    /// 地图预览的占位图片，nil时沿用通用占位
+    public var placeholderImage: UIImage?
+    public var placeholderBackgroundColor: UIColor
+    public var cornerRadius: CGFloat
+    public var showsPreviewBelowAddress: Bool
+
+    public override convenience init() { self.init(WYChatLocationConfig()) }
+
+    @nonobjc public init(_ value: WYChatLocationConfig) {
+        placeholderImage = value.placeholderImage
+        placeholderBackgroundColor = value.placeholderBackgroundColor
+        cornerRadius = value.cornerRadius
+        showsPreviewBelowAddress = value.showsPreviewBelowAddress
+        super.init()
+    }
+
+    @nonobjc public func toValue() -> WYChatLocationConfig {
+        var value = WYChatLocationConfig()
+        value.placeholderImage = placeholderImage
+        value.placeholderBackgroundColor = placeholderBackgroundColor
+        value.cornerRadius = cornerRadius
+        value.showsPreviewBelowAddress = showsPreviewBelowAddress
         return value
     }
 }
@@ -266,6 +317,8 @@ import WYBasisKitSwift
     public var more: WYMoreViewConfigObjC
     /// 图片和视频展示
     public var media: WYChatMediaConfigObjC
+    /// 位置消息展示
+    public var location: WYChatLocationConfigObjC
     /// 引用消息与输入预览
     public var quote: WYChatQuoteConfigObjC
     /// 撤回与重新编辑
@@ -337,6 +390,7 @@ import WYBasisKitSwift
         self.emoji = WYEmojiViewConfigObjC(value.emoji)
         self.more = WYMoreViewConfigObjC(value.more)
         self.media = WYChatMediaConfigObjC(value.media)
+        self.location = WYChatLocationConfigObjC(value.location)
         self.quote = WYChatQuoteConfigObjC(value.quote)
         self.notice = WYChatNoticeConfigObjC(value.notice)
         self.records = WYChatRecordsConfigObjC(value.records)
@@ -385,6 +439,7 @@ import WYBasisKitSwift
         value.emoji = emoji.toValue()
         value.more = more.toValue()
         value.media = media.toValue()
+        value.location = location.toValue()
         value.quote = quote.toValue()
         value.notice = notice.toValue()
         value.records = records.toValue()
@@ -733,6 +788,11 @@ import WYBasisKitSwift
     public var animationDuration: TimeInterval
     /// 转写失败提示
     public var recognitionFailureText: String
+    public var recognitionFailureImage: UIImage?
+    public var recognitionFailureColor: UIColor
+    public var recognitionFailureBackgroundColor: UIColor
+    public var recognitionPanelAnchorsToBottom: Bool
+    public var recognitionPanelShowsArrow: Bool
     /// 转写等待提示
     public var recognizingText: String
     /// 转写确认按钮文字
@@ -990,6 +1050,11 @@ import WYBasisKitSwift
         self.recordSettings = value.recordSettings
         self.animationDuration = value.animationDuration
         self.recognitionFailureText = value.recognitionFailureText
+        recognitionFailureImage = value.recognitionFailureImage
+        recognitionFailureColor = value.recognitionFailureColor
+        recognitionFailureBackgroundColor = value.recognitionFailureBackgroundColor
+        recognitionPanelAnchorsToBottom = value.recognitionPanelAnchorsToBottom
+        recognitionPanelShowsArrow = value.recognitionPanelShowsArrow
         self.recognizingText = value.recognizingText
         self.recognitionSendText = value.recognitionSendText
         self.recognitionRetryText = value.recognitionRetryText
@@ -1198,6 +1263,11 @@ import WYBasisKitSwift
         value.recordSettings = recordSettings
         value.animationDuration = animationDuration
         value.recognitionFailureText = recognitionFailureText
+        value.recognitionFailureImage = recognitionFailureImage
+        value.recognitionFailureColor = recognitionFailureColor
+        value.recognitionFailureBackgroundColor = recognitionFailureBackgroundColor
+        value.recognitionPanelAnchorsToBottom = recognitionPanelAnchorsToBottom
+        value.recognitionPanelShowsArrow = recognitionPanelShowsArrow
         value.recognizingText = recognizingText
         value.recognitionSendText = recognitionSendText
         value.recognitionRetryText = recognitionRetryText
@@ -1265,8 +1335,16 @@ import WYBasisKitSwift
     public var messageMinimumTimeSpan: TimeInterval
     /// 头像尺寸
     public var avatarSize: CGSize
-    /// 默认头像
+    /// 自定义头像占位图，nil时使用纯色或渐变占位
     public var defaultAvatar: UIImage?
+    /// 默认头像占位颜色
+    public var avatarPlaceholderColor: UIColor
+    /// 默认头像占位圆角半径，负值表示圆形，0表示直角
+    public var avatarPlaceholderCornerRadius: CGFloat
+    /// 默认头像占位渐变颜色
+    public var avatarPlaceholderGradientColors: [UIColor]
+    /// 默认头像占位渐变方向
+    public var avatarPlaceholderGradientDirection: WYGradientDirectionObjC
     /// 头像显示方式
     public var avatarContentMode: UIView.ContentMode
     /// 头像圆角
@@ -1326,6 +1404,10 @@ import WYBasisKitSwift
         self.messageMinimumTimeSpan = value.messageMinimumTimeSpan
         self.avatarSize = value.avatarSize
         self.defaultAvatar = value.defaultAvatar
+        avatarPlaceholderColor = value.avatarPlaceholderColor
+        avatarPlaceholderCornerRadius = value.avatarPlaceholderCornerRadius
+        avatarPlaceholderGradientColors = value.avatarPlaceholderGradientColors
+        avatarPlaceholderGradientDirection = WYGradientDirectionObjC(rawValue: value.avatarPlaceholderGradientDirection.rawValue) ?? .leftToRight
         self.avatarContentMode = value.avatarContentMode
         self.avatarCornerRadius = value.avatarCornerRadius
         avatarTapAction = value.avatarTapAction
@@ -1364,6 +1446,10 @@ import WYBasisKitSwift
         value.messageMinimumTimeSpan = messageMinimumTimeSpan
         value.avatarSize = avatarSize
         value.defaultAvatar = defaultAvatar
+        value.avatarPlaceholderColor = avatarPlaceholderColor
+        value.avatarPlaceholderCornerRadius = avatarPlaceholderCornerRadius
+        value.avatarPlaceholderGradientColors = avatarPlaceholderGradientColors
+        value.avatarPlaceholderGradientDirection = WYGradientDirection(rawValue: avatarPlaceholderGradientDirection.rawValue) ?? .leftToRight
         value.avatarContentMode = avatarContentMode
         value.avatarCornerRadius = avatarCornerRadius
         value.avatarTapAction = avatarTapAction

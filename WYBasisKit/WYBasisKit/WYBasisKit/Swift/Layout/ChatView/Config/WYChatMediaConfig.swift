@@ -63,6 +63,12 @@ public struct WYChatMediaConfig {
     public var videoPlaySize: CGSize = CGSize(width: UIDevice.wy_screenWidth(40, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(40, WYBasisKitConfig.defaultScreenPixels))
     /// 视频播放图标颜色
     public var videoPlayColor: UIColor = .white
+    /// 单条视频消息是否显示时长
+    public var showsVideoDuration: Bool = true
+    /// 单条视频的播放和时长底板颜色
+    public var videoOverlayBackgroundColor: UIColor = .black.withAlphaComponent(0.54)
+    /// 单条视频的时长文字颜色
+    public var videoDurationColor: UIColor = .white
     /// 是否自动打开内置媒体浏览器，默认true，设置mediaPreviewHandler后由宿主处理
     public var automaticallyPresentsBrowser: Bool = true
     /// 视频播放器的展示方式，默认全屏

@@ -241,6 +241,7 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
 
         cancelLoadingTasks()
         contentImageView.kf.cancelDownloadTask()
+        contentImageView.kf.indicatorType = item.showsPlaceholderLoadingIndicator && !UIAccessibility.isReduceMotionEnabled ? .activity : .none
         isOriginalLoaded = false
         isLivePhotoReady = false
         isLivePhotoPlaying = false
@@ -274,6 +275,7 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
         configureGeneration += 1
         cancelLoadingTasks()
         contentImageView.kf.cancelDownloadTask()
+        contentImageView.kf.indicatorType = .none
         contentImageView.image = nil
         livePhotoView.livePhoto = nil
         livePhotoView.isHidden = true
@@ -488,6 +490,13 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
     /// 显示图片并按新尺寸重摆(用户正在缩放时只换图不重摆，避免打断手势)
     func applyImage(_ image: UIImage) {
         contentImageView.image = image
+        if configuration.layoutStyle == .stackedCards {
+            let isPlaceholder = image === item?.placeholder
+            let placeholderRadius = isPlaceholder ? item?.placeholderCornerRadius : nil
+            contentView.layer.cornerRadius = placeholderRadius ?? max(0, configuration.stackedCardCornerRadius)
+            contentImageView.contentMode = placeholderRadius == nil ? configuration.stackedCardContentMode : .scaleToFill
+            if !isPlaceholder, item?.showsPlaceholderLoadingIndicator == true { contentImageView.kf.indicatorType = .none }
+        }
         displayedImageSize = image.size
         if zoomScrollView.zoomScale <= 1.01 {
             layoutMainContent()
@@ -563,9 +572,13 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
     /// 加载缩略图(本地路径与网络地址都走Kingfisher保留GIF动画，无可显内容时显示进度环)
     func loadThumbnail(item: WYPhotoBrowserItem) {
         let generation = configureGeneration
+        var options: KingfisherOptionsInfo = [.backgroundDecode]
+        if configuration.isEmbedded && configuration.layoutStyle == .stackedCards {
+            options.append(.keepCurrentImageWhileLoading)
+        }
         if let thumbnailPath = item.thumbnailPath {
             let fileURL = URL(string: thumbnailPath).flatMap { $0.isFileURL ? $0 : nil } ?? URL(fileURLWithPath: thumbnailPath)
-            contentImageView.kf.setImage(with: .provider(LocalFileImageDataProvider(fileURL: fileURL)), options: [.backgroundDecode]) { [weak self] result in
+            contentImageView.kf.setImage(with: .provider(LocalFileImageDataProvider(fileURL: fileURL)), options: options) { [weak self] result in
                 guard let self = self, generation == self.configureGeneration else { return }
                 if case .success(let value) = result {
                     self.hideProgressAndRetry()
@@ -578,7 +591,7 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
             return
         }
         if let thumbnailURL = item.thumbnailURL {
-            contentImageView.kf.setImage(with: thumbnailURL, options: [.backgroundDecode, .transition(.fade(0.15))], progressBlock: { [weak self] received, total in
+            contentImageView.kf.setImage(with: thumbnailURL, options: options + [.transition(.fade(0.15))], progressBlock: { [weak self] received, total in
                 guard let self = self, generation == self.configureGeneration, total > 0 else { return }
                 if self.contentImageView.image == nil {
                     self.showProgress(percent: CGFloat(received) / CGFloat(total))

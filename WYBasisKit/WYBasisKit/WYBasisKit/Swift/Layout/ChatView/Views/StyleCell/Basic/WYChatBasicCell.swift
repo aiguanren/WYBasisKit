@@ -13,8 +13,16 @@ public struct WYBasicChatConfig {
     public var messageMinimumTimeSpan: TimeInterval = 300
     /// 头像尺寸
     public var avatarSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(40, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(40, WYBasisKitConfig.defaultScreenPixels))
-    /// 默认头像
-    public var defaultAvatar: UIImage? = UIImage.wy_find("WYChatViewAvatarPlaceholder", inBundle: WYChatSourceBundle)
+    /// 自定义头像占位图，nil时使用纯色或渐变占位
+    public var defaultAvatar: UIImage? = nil
+    /// 默认头像占位颜色
+    public var avatarPlaceholderColor: UIColor = WYChatDefaultResources.placeholderColor
+    /// 默认头像占位圆角半径，负值表示圆形，0表示直角
+    public var avatarPlaceholderCornerRadius: CGFloat = -1
+    /// 默认头像占位渐变颜色，少于两个颜色时使用纯色
+    public var avatarPlaceholderGradientColors: [UIColor] = []
+    /// 默认头像占位渐变方向
+    public var avatarPlaceholderGradientDirection: WYGradientDirection = .leftToRight
     /// 头像显示方式
     public var avatarContentMode: UIView.ContentMode = .scaleAspectFill
     /// 头像圆角

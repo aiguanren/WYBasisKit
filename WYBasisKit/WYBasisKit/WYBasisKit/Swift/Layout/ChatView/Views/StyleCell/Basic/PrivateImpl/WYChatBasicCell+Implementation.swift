@@ -63,6 +63,33 @@ final class WYChatBubbleView: WYAirBubbleView {
     }
 }
 
+/// 纯色或渐变占位铺满视图，资源到达后恢复图片的显示方式。
+class WYChatPlaceholderImageView: UIImageView {
+    var generatedPlaceholder: UIImage?
+    var placeholderCornerRadius: CGFloat = 0
+    var imageCornerRadius: CGFloat = 0
+    var imageContentMode: UIView.ContentMode = .scaleAspectFill
+    var placeholderContentMode: UIView.ContentMode = .scaleToFill
+    var placeholderBackgroundColor: UIColor?
+
+    override var image: UIImage? { didSet { updateAppearance() } }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        updateAppearance()
+    }
+
+    private func updateAppearance() {
+        let isPlaceholder = generatedPlaceholder != nil && image === generatedPlaceholder
+        let radius = isPlaceholder ? placeholderCornerRadius : imageCornerRadius
+        let limit = min(bounds.width, bounds.height) / 2
+        layer.cornerRadius = radius < 0 ? limit : min(radius, limit)
+        backgroundColor = isPlaceholder ? placeholderBackgroundColor : nil
+        let mode = isPlaceholder ? placeholderContentMode : imageContentMode
+        if contentMode != mode { contentMode = mode }
+    }
+}
+
 /// 消息公共布局与内容视图
 final class WYChatBasicCellPrivateState {
     var left: [NSLayoutConstraint] = []
@@ -112,10 +139,12 @@ final class WYChatBasicCellPrivateState {
     var thumbnailSize: [NSLayoutConstraint] = []
     let title = UILabel()
     let detail = UILabel()
-    let image = UIImageView()
+    let image = WYChatPlaceholderImageView()
     let footer = UILabel()
     var imageHeight: NSLayoutConstraint?
     var preferredWidth: NSLayoutConstraint?
+    var preferredContentWidth: CGFloat?
+    var videoOverlay: WYChatVideoOverlayView?
     var textHeight: NSLayoutConstraint?
     var measuredText: NSAttributedString?
     var measuredWidth: CGFloat = 0
@@ -257,8 +286,6 @@ extension WYChatBasicCell {
         nicknameView.textAlignment = sender ? .right : .left
         nicknameView.isHidden = !(message.group == nil ? side.showsSingleNickname : side.showsGroupNickname)
         avatarView.isHidden = !side.showsAvatar || wy_isNotice
-        avatarView.contentMode = basic.avatarContentMode
-        avatarView.layer.cornerRadius = max(0, basic.avatarCornerRadius)
         wy_loadImage(message.sender.avatar, into: avatarView)
         let style = messageContentConfiguration
         state.title.font = style.titleFont
@@ -279,6 +306,9 @@ extension WYChatBasicCell {
         state.usesThumbnail = false
         state.thumbnail.stopAnimating()
         state.thumbnail.animationImages = nil
+        state.thumbnail.backgroundColor = nil
+        state.thumbnail.layer.cornerRadius = 0
+        state.thumbnail.tintColor = nil
         state.thumbnailSize[0].constant = max(0, configuration.basic.avatarSize.width)
         state.thumbnailSize[1].constant = max(0, configuration.basic.avatarSize.height)
         state.title.textAlignment = .natural
@@ -287,6 +317,16 @@ extension WYChatBasicCell {
         state.detail.text = nil
         state.footer.text = nil
         state.usesImage = false
+        state.preferredContentWidth = nil
+        state.image.imageCornerRadius = 0
+        state.image.placeholderContentMode = .scaleToFill
+        state.image.placeholderBackgroundColor = nil
+        state.videoOverlay?.isHidden = true
+        if let imageIndex = bodyView.arrangedSubviews.firstIndex(of: state.image),
+           let headerIndex = bodyView.arrangedSubviews.firstIndex(of: state.header), imageIndex > headerIndex {
+            bodyView.removeArrangedSubview(state.image)
+            bodyView.insertArrangedSubview(state.image, at: headerIndex)
+        }
         state.reeditButton.isHidden = true
         bodyView.setCustomSpacing(UIStackView.spacingUseDefault, after: state.header)
         state.mediaView.isHidden = true
@@ -400,7 +440,7 @@ extension WYChatBasicCell {
         let layoutWidth = width ?? contentView.bounds.width
         let available = max(1, layoutWidth - wy_selectionIndicatorWidth - max(0, side.edgeInset) * 2 - avatarWidth - gap - max(0, basic.messageSendingStateOffset) - max(0, basic.messageSendingStateSize.width))
         state.width.constant = style.maximumWidth > 0 && style.maximumWidth.isFinite ? min(available, style.maximumWidth) : max(1, available * ratio)
-        state.preferredWidth?.constant = max(1, min(style.preferredWidth, state.width.constant - style.insets.left - style.insets.right))
+        state.preferredWidth?.constant = max(1, min(state.preferredContentWidth ?? style.preferredWidth, state.width.constant - style.insets.left - style.insets.right))
         let referenceWidth = configuration.quote.messageWidth.isFinite ? configuration.quote.messageWidth : state.width.constant
         state.referenceWidth.constant = max(1, min(state.width.constant, referenceWidth > 0 ? referenceWidth : state.width.constant))
         let referenceHeight = message.reference == nil ? 0 : referenceView.sizeThatFits(CGSize(width: state.referenceWidth.constant, height: .greatestFiniteMagnitude)).height
@@ -446,8 +486,11 @@ extension WYChatBasicCell {
 
     func wy_applyBubble(_ value: WYChatBubbleConfig) {
         let show = messageContentConfiguration.showsBubble && !wy_isNotice
+        let patColor = message.content.takePat != nil && messageContentConfiguration.showsBubble ? configuration.notice.patBackgroundColor : nil
+        let patRadius = configuration.notice.patCornerRadius
+        let radius = patColor != nil && patRadius.isFinite ? max(0, patRadius) : value.cornerRadius
         if let bubble = bubblesView as? WYChatBubbleView {
-            bubble.configuredRadius = value.cornerRadius
+            bubble.configuredRadius = radius
             bubble.configuredArrow = value.arrowSize
             bubble.configuredShowsArrow = show && value.showsArrow
             bubble.configuredOffset = value.arrowOffset
@@ -460,9 +503,9 @@ extension WYChatBasicCell {
             bubble.arrowImageOffset = value.arrowImageOffset
             bubble.configuredShowsArrow = show && value.showsArrow && value.arrowImage == nil
         }
-        bubblesView.fillColor = show ? value.fillColor : .clear
-        bubblesView.cornerRadius = value.cornerRadius
-        bubblesView.cornersPosition = value.cornersPosition
+        bubblesView.fillColor = show ? value.fillColor : patColor ?? .clear
+        bubblesView.cornerRadius = radius
+        bubblesView.cornersPosition = patColor == nil ? value.cornersPosition : .allCorners
         bubblesView.showsArrow = show && value.showsArrow
         bubblesView.arrowDirection = message.isSender(userID) ? .right : .left
         bubblesView.arrowSize = value.arrowSize
@@ -480,15 +523,43 @@ extension WYChatBasicCell {
         bubblesView.setNeedsLayout()
     }
 
-    func wy_loadImage(_ asset: WYChatAssetsModel, into imageView: UIImageView, isAvatar: Bool = false) {
+    func wy_loadImage(_ asset: WYChatAssetsModel, into imageView: UIImageView, isPhoto: Bool = false, loadsRemoteImage: Bool = true) {
         guard !state.isMeasuring else { return }
         imageView.kf.cancelDownloadTask()
-        imageView.image = isAvatar || imageView === avatarView ? configuration.basic.defaultAvatar : messageContentConfiguration.placeholderImage
+        imageView.kf.indicatorType = .none
+        let style = messageContentConfiguration
+        let placeholder: UIImage
+        if let avatarView = imageView as? WYChatAvatarImageView {
+            let basic = configuration.basic
+            avatarView.imageCornerRadius = basic.avatarCornerRadius.isFinite ? max(0, basic.avatarCornerRadius) : 0
+            avatarView.imageContentMode = basic.avatarContentMode
+            avatarView.placeholderCornerRadius = basic.avatarPlaceholderCornerRadius.isFinite ? basic.avatarPlaceholderCornerRadius : -1
+            placeholder = basic.defaultAvatar ?? WYChatDefaultResources.makePlaceholder(color: basic.avatarPlaceholderColor, gradientColors: basic.avatarPlaceholderGradientColors, direction: basic.avatarPlaceholderGradientDirection, traits: imageView.traitCollection)
+            avatarView.generatedPlaceholder = basic.defaultAvatar == nil ? placeholder : nil
+        } else if imageView === state.image, message.content.location != nil,
+                  let map = style.placeholderImage ?? configuration.location.placeholderImage {
+            placeholder = map
+            state.image.generatedPlaceholder = map
+            state.image.placeholderCornerRadius = state.image.imageCornerRadius
+            state.image.placeholderContentMode = .scaleAspectFit
+            state.image.placeholderBackgroundColor = configuration.location.placeholderBackgroundColor
+        } else {
+            placeholder = style.placeholderImage ?? WYChatDefaultResources.makePlaceholder(color: style.placeholderColor, gradientColors: style.placeholderGradientColors, direction: style.placeholderGradientDirection, traits: imageView.traitCollection)
+            if let view = imageView as? WYChatPlaceholderImageView {
+                view.placeholderCornerRadius = style.placeholderCornerRadius.isFinite ? max(0, style.placeholderCornerRadius) : 0
+                view.generatedPlaceholder = style.placeholderImage == nil ? placeholder : nil
+            }
+        }
+        // 清除旧请求的占位和动画，避免复用时影响当前图片。
+        imageView.kf.setImage(with: nil as Source?, placeholder: placeholder)
         if let loader = configuration.imageLoader { loader(asset, imageView, message.messageID); return }
         if !asset.localPath.isEmpty, let image = UIImage(contentsOfFile: asset.localPath) { imageView.image = image; return }
-        if !asset.name.isEmpty { imageView.image = UIImage.wy_find(asset.name, inBundle: WYChatSourceBundle); return }
-        guard let url = URL(string: asset.downloadPath), ["https", "http"].contains(url.scheme?.lowercased() ?? "") else { return }
-        imageView.kf.setImage(with: url, placeholder: imageView.image)
+        if let image = UIImage.wy_findIfPresent(asset.name, inBundle: WYChatSourceBundle) { imageView.image = image; return }
+        guard loadsRemoteImage, let url = URL(string: asset.downloadPath), ["https", "http"].contains(url.scheme?.lowercased() ?? "") else { return }
+        if isPhoto && style.placeholderImage == nil && style.showsPlaceholderLoadingIndicator && !UIAccessibility.isReduceMotionEnabled {
+            imageView.kf.indicatorType = .activity
+        }
+        imageView.kf.setImage(with: url, placeholder: placeholder)
     }
 
     func wy_timeText() -> String {
@@ -518,6 +589,7 @@ extension WYChatBasicCell {
         mediaActionHandler = nil
         avatarView.kf.cancelDownloadTask()
         state.image.kf.cancelDownloadTask()
+        state.image.kf.indicatorType = .none
         state.thumbnail.kf.cancelDownloadTask()
         state.thumbnail.stopAnimating()
         state.thumbnail.animationImages = nil

@@ -82,6 +82,8 @@ public struct WYChatBubbleConfig {
 
 /// 消息内容外观配置
 public struct WYChatContentConfig {
+    /// 红包或转账的图标底板颜色，nil时使用随类型和状态变化的配色
+    public var fundsIconBackgroundColor: UIColor?
     /// 消息卡片图标，nil时使用对应消息类型的内置图片
     public var iconImage: UIImage? = nil
     /// 消息卡片图标的显示尺寸
@@ -110,10 +112,33 @@ public struct WYChatContentConfig {
     public var titleNumberOfLines: Int = 2
     /// 摘要行数，0表示不限
     public var detailNumberOfLines: Int = 3
-    /// 图片占位图
-    public var placeholderImage: UIImage? = UIImage.wy_find("WYChatViewImagePlaceholder", inBundle: WYChatSourceBundle)
+    /// 自定义图片占位图，nil时使用纯色或渐变占位
+    public var placeholderImage: UIImage? = nil
+    /// 默认图片占位颜色
+    public var placeholderColor: UIColor = WYChatDefaultResources.placeholderColor
+    /// 默认图片占位圆角半径，0表示直角
+    public var placeholderCornerRadius: CGFloat = 0
+    /// 默认图片占位渐变颜色，少于两个颜色时使用纯色
+    public var placeholderGradientColors: [UIColor] = []
+    /// 默认图片占位渐变方向
+    public var placeholderGradientDirection: WYGradientDirection = .leftToRight
+    /// 图片消息通过内置流程加载网络图片时，是否在默认占位上显示加载动画
+    public var showsPlaceholderLoadingIndicator: Bool = true
     /// 是否显示气泡，默认true
     public var showsBubble: Bool = true
+    public init() {}
+}
+
+/// 位置消息的地图预览外观
+public struct WYChatLocationConfig {
+    /// 地图预览的占位图片，nil时沿用通用占位
+    public var placeholderImage: UIImage? = UIImage.wy_findIfPresent("WYChatViewMapPlaceholder", inBundle: WYChatSourceBundle)
+    /// 地图预览的占位底色
+    public var placeholderBackgroundColor: UIColor = .tertiarySystemFill
+    /// 地图预览的圆角
+    public var cornerRadius: CGFloat = UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels)
+    /// 地图放在地点和地址下方，关闭时放在上方
+    public var showsPreviewBelowAddress: Bool = true
     public init() {}
 }
 
@@ -145,6 +170,8 @@ public struct WYChatConfig {
     public var more: WYMoreViewConfig = WYMoreViewConfig()
     /// 图片和视频展示
     public var media: WYChatMediaConfig = WYChatMediaConfig()
+    /// 位置消息展示
+    public var location = WYChatLocationConfig()
     /// 引用消息与输入预览
     public var quote: WYChatQuoteConfig = WYChatQuoteConfig()
     /// 撤回与重新编辑

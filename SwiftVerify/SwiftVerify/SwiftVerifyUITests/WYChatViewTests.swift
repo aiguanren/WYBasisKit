@@ -805,8 +805,12 @@ final class WYChatViewTests: XCTestCase {
         XCTAssertTrue(row.waitForExistence(timeout: 5))
         row.tap()
         app.alerts.buttons["运行"].tap()
-        let passed = row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "通过")).firstMatch
-        XCTAssertTrue(passed.waitForExistence(timeout: 25))
+        let outcome = row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@ OR label CONTAINS %@", "通过", "失败")).firstMatch
+        XCTAssertTrue(outcome.waitForExistence(timeout: 25))
+        if outcome.label.contains("失败") {
+            row.tap()
+            XCTFail(app.alerts.firstMatch.staticTexts.allElementsBoundByIndex.map(\.label).joined(separator: "\n"))
+        }
     }
 
     func testMediaSelectionAndGroups() {

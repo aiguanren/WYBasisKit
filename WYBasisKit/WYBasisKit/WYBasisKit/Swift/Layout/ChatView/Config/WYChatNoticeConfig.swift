@@ -35,5 +35,11 @@ public struct WYChatNoticeConfig {
     public var withdrawnText: String = WYLocalized("%@撤回了一条消息", table: WYBasisKitConfig.kitLocalizableTable)
     /// 拍一拍撤回提示，空字符串时使用withdrawnText，%@替换为发送者名称
     public var patWithdrawnText: String = ""
+    /// 拍一拍提示底色，nil时仅显示文字
+    public var patBackgroundColor: UIColor? = .tertiarySystemFill
+    /// 拍一拍提示圆角
+    public var patCornerRadius: CGFloat = UIDevice.wy_screenWidth(12, WYBasisKitConfig.defaultScreenPixels)
+    /// 自定义拍一拍文案，支持{sender}、{recipient}和{note}，nil时使用本地化文案
+    public var patText: String?
     public init() {}
 }

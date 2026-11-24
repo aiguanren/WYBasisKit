@@ -8,6 +8,27 @@
 import UIKit
 import Speech
 
+/// 按钮区域与图标尺寸独立，保留宿主图片的宽高比。
+final class WYChatTranscriptIconButton: UIButton {
+    var iconSize: CGFloat = 0
+
+    override func imageRect(forContentRect contentRect: CGRect) -> CGRect {
+        guard let image = currentImage, image.size.width > 0, image.size.height > 0, currentTitle?.isEmpty != false else {
+            return super.imageRect(forContentRect: contentRect)
+        }
+        let limit = max(0, min(iconSize, contentRect.width, contentRect.height))
+        let scale = limit / max(image.size.width, image.size.height)
+        let size = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+        return CGRect(x: contentRect.midX - size.width / 2, y: contentRect.midY - size.height / 2, width: size.width, height: size.height)
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        guard currentImage != nil, currentTitle?.isEmpty != false else { return }
+        imageView?.frame = imageRect(forContentRect: contentRect(forBounds: bounds))
+    }
+}
+
 /// 转写编辑、语言切换与外部翻译
 extension WYRecordAnimationView {
     var wy_editorPlainText: String {
@@ -73,6 +94,8 @@ extension WYRecordAnimationView {
         }
         state.cancelButton.setTitle(config.recognitionCloseImage == nil ? config.recognitionCancelText : nil, for: .normal)
         state.cancelButton.setImage(config.recognitionCloseImage, for: .normal)
+        state.cancelButton.accessibilityLabel = config.recognitionCancelText
+        state.cancelButton.accessibilityIdentifier = "WYChatRecording.close"
         state.cancelButton.addTarget(self, action: #selector(wy_cancelTranscript), for: .touchUpInside)
         state.retryButton.setTitle(config.recognitionRetryText, for: .normal)
         state.retryButton.addTarget(self, action: #selector(wy_retryTranscript), for: .touchUpInside)
@@ -113,11 +136,12 @@ extension WYRecordAnimationView {
         let bubble = WYAirBubbleView()
         bubble.fillColor = config.recognitionBackgroundColor
         bubble.cornerRadius = max(0, config.recognitionPanelCornerRadius)
-        bubble.arrowSize = config.arrowSizeForMoveUp.transfer
+        bubble.showsArrow = config.recognitionPanelShowsArrow
+        bubble.arrowSize = config.recognitionPanelShowsArrow ? config.arrowSizeForMoveUp.transfer : .zero
         bubble.arrowTipRadius = config.arrowTipRadiusForMoveUp.transfer
         bubble.arrowDirection = .bottom
         bubble.arrowOffset = max(0, config.soundWavesViewWidth.transfer / 2 - config.moveUpButtonDiameter.onInterior / 2)
-        if let image = config.bubbleArrowImage {
+        if config.recognitionPanelShowsArrow, let image = config.bubbleArrowImage {
             bubble.showsArrow = false
             let view = UIImageView(image: image.withRenderingMode(config.bubbleArrowImageTintColor == nil ? .alwaysOriginal : .alwaysTemplate))
             view.tintColor = config.bubbleArrowImageTintColor
@@ -130,6 +154,31 @@ extension WYRecordAnimationView {
         state.editText.translatesAutoresizingMaskIntoConstraints = false
         bubble.addSubview(state.editText)
         NSLayoutConstraint.activate([state.editText.topAnchor.constraint(equalTo: bubble.topAnchor), state.editText.leadingAnchor.constraint(equalTo: bubble.leadingAnchor), state.editText.trailingAnchor.constraint(equalTo: bubble.trailingAnchor), state.editText.bottomAnchor.constraint(equalTo: bubble.bottomAnchor, constant: -max(0, bubble.arrowSize.height))])
+        let failure = UIStackView(arrangedSubviews: [state.editorFailureImage, state.editorFailureLabel])
+        failure.translatesAutoresizingMaskIntoConstraints = false
+        failure.alignment = .center
+        failure.spacing = max(0, config.recognitionControlSpacing)
+        failure.isHidden = true
+        state.editorFailureImage.contentMode = .scaleAspectFit
+        state.editorFailureImage.image = config.recognitionFailureImage
+        state.editorFailureImage.tintColor = config.recognitionFailureColor
+        let iconSize = config.recognitionAccessoryImageSize.isFinite ? max(0, config.recognitionAccessoryImageSize) : 0
+        state.editorFailureImage.isHidden = config.recognitionFailureImage == nil || iconSize == 0
+        state.editorFailureLabel.text = config.recognitionFailureText
+        state.editorFailureLabel.font = config.recognitionFont
+        state.editorFailureLabel.textColor = config.recognitionFailureColor
+        state.editorFailureLabel.numberOfLines = 0
+        state.editorFailureLabel.accessibilityIdentifier = "WYChatRecording.failure"
+        bubble.addSubview(failure)
+        let insets = config.recognitionTextInsets
+        NSLayoutConstraint.activate([
+            failure.leadingAnchor.constraint(equalTo: bubble.leadingAnchor, constant: insets.left),
+            failure.trailingAnchor.constraint(equalTo: bubble.trailingAnchor, constant: -insets.right),
+            failure.centerYAnchor.constraint(equalTo: bubble.centerYAnchor, constant: -max(0, bubble.arrowSize.height) / 2)
+        ])
+        _ = fixed(state.editorFailureImage.widthAnchor, iconSize)
+        _ = fixed(state.editorFailureImage.heightAnchor, iconSize)
+        state.editorFailureView = failure
         state.editorBubble = bubble
         panel.addArrangedSubview(header)
         panel.addArrangedSubview(state.editorStatusLabel)
@@ -141,16 +190,21 @@ extension WYRecordAnimationView {
             button.backgroundColor = .clear
             button.tintColor = config.recognitionAccessoryColor
             button.setTitleColor(config.recognitionAccessoryColor, for: .normal)
-            button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: max(1, config.recognitionAccessoryImageSize)), forImageIn: .normal)
+            button.iconSize = iconSize
+            button.imageView?.contentMode = .scaleAspectFit
         }
         state.sendButton.setTitleColor(config.recognitionSendColor, for: .normal)
         state.sendButton.backgroundColor = config.recognitionSendBackgroundColor
         let controls: [(WYChatRecordingEditorControl, UIButton)] = [(.close, state.cancelButton), (.language, state.languageButton), (.translation, state.translationButton), (.emoji, state.editorEmojiButton), (.retry, state.retryButton), (.originalVoice, state.voiceButton), (.send, state.sendButton)]
         for (control, button) in controls { config.recognitionControlAppearance?(control, button) }
         addSubview(panel)
-        state.editorBottom = panel.bottomAnchor.constraint(lessThanOrEqualTo: keyboardLayoutGuide.topAnchor, constant: -config.recognitionPanelOuterInsets.bottom)
+        let top = config.recognitionPanelOuterInsets.top
+        let bottom = -config.recognitionPanelOuterInsets.bottom
+        let topConstraint = config.recognitionPanelAnchorsToBottom ? panel.topAnchor.constraint(greaterThanOrEqualTo: safeAreaLayoutGuide.topAnchor, constant: top) : panel.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: top)
+        state.editorBottom = config.recognitionPanelAnchorsToBottom ? panel.bottomAnchor.constraint(equalTo: keyboardLayoutGuide.topAnchor, constant: bottom) : panel.bottomAnchor.constraint(lessThanOrEqualTo: keyboardLayoutGuide.topAnchor, constant: bottom)
+        if config.recognitionPanelAnchorsToBottom { state.editorBottom?.priority = .defaultHigh }
         state.editorHeight = panel.heightAnchor.constraint(equalToConstant: max(1, config.recognitionMinimumHeight))
-        NSLayoutConstraint.activate([panel.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: config.recognitionPanelOuterInsets.top), panel.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: config.recognitionPanelOuterInsets.left), panel.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -config.recognitionPanelOuterInsets.right), state.editorBottom!, state.editorHeight!])
+        NSLayoutConstraint.activate([topConstraint, panel.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: config.recognitionPanelOuterInsets.left), panel.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -config.recognitionPanelOuterInsets.right), state.editorBottom!, state.editorHeight!])
         state.editPanel = panel
         setNeedsLayout()
     }
@@ -165,7 +219,17 @@ extension WYRecordAnimationView {
         let gaps = CGFloat(max(0, count + (state.editorEmojiButton.isHidden ? 0 : 1))) * max(0, config.recognitionControlSpacing)
         let actionWidth = min(max(0, config.recognitionActionWidth), max(0, width - accessory - gaps) / CGFloat(max(1, count)))
         for constraint in state.editorActionWidths where constraint.constant != actionWidth { constraint.constant = actionWidth }
-        let textHeight = state.editText.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude)).height + max(0, config.arrowSizeForMoveUp.transfer.height)
+        let contentHeight: CGFloat
+        if let failure = state.editorFailureView, !failure.isHidden {
+            let insets = config.recognitionTextInsets
+            let iconSize = state.editorFailureImage.isHidden ? 0 : max(0, config.recognitionAccessoryImageSize)
+            let labelWidth = max(1, width - insets.left - insets.right - iconSize - (iconSize > 0 ? failure.spacing : 0))
+            let labelHeight = state.editorFailureLabel.sizeThatFits(CGSize(width: labelWidth, height: .greatestFiniteMagnitude)).height
+            contentHeight = max(labelHeight, iconSize) + insets.top + insets.bottom
+        } else {
+            contentHeight = state.editText.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude)).height
+        }
+        let textHeight = contentHeight + max(0, state.editorBubble?.arrowSize.height ?? 0)
         let statusHeight = state.editorStatusLabel.isHidden ? 0 : state.editorStatusLabel.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude)).height + max(0, config.recognitionControlSpacing)
         let controls = max(1, config.recognitionHeaderHeight) + max(1, config.recognitionControlHeight) + max(0, config.recognitionHeaderSpacing) + max(0, config.recognitionFooterSpacing) + config.recognitionPanelInsets.top + config.recognitionPanelInsets.bottom + statusHeight
         let guideTop = keyboardLayoutGuide.layoutFrame.minY
@@ -174,6 +238,22 @@ extension WYRecordAnimationView {
         let height = min(maximum, max(min(maximum, max(1, config.recognitionMinimumHeight)), textHeight + controls))
         if state.editorHeight?.constant != height { state.editorHeight?.constant = height }
         state.editorEmoji?.frame.size.width = width
+    }
+
+    func wy_updateTranscriptContent(_ text: String?, isRecognizing: Bool = false, failed: Bool = false) {
+        let config = wy_captureConfiguration
+        let canEdit = !isRecognizing && !failed
+        state.editText.text = failed ? nil : text
+        state.editText.isHidden = failed
+        state.editText.isEditable = canEdit
+        state.editorFailureView?.isHidden = !failed
+        state.editorBubble?.fillColor = failed ? config.recognitionFailureBackgroundColor : config.recognitionBackgroundColor
+        state.retryButton.isHidden = !failed
+        state.sendButton.isHidden = failed
+        state.sendButton.isEnabled = canEdit && !(text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
+        state.editorEmojiButton.isHidden = !canEdit || !config.showsRecognitionEmojiButton
+        state.translationButton.isHidden = !canEdit || !config.enablesTranslation
+        setNeedsLayout()
     }
 
     func wy_editorTextChanged() {

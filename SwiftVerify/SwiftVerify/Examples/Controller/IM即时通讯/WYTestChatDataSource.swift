@@ -9,7 +9,7 @@ import UIKit
 
 extension WYTestChatController {
     func sampleMessages() -> [WYChatMessageModel] {
-        let assets = WYChatAssetsModel(name: "WYChatViewImagePlaceholder")
+        let assets = WYChatAssetsModel(name: "banner_0")
         let user = WYChatUserModel(id: "sample", name: "示例联系人")
         let mediaItems = (0..<4).map { index -> WYChatMediaItem in
             var item = WYChatMediaItem()
@@ -28,7 +28,7 @@ extension WYTestChatController {
             WYChatMessageContentModel(video: WYChatVideoModel(cover: assets, thumbnailCover: assets, duration: 25)),
             WYChatMessageContentModel(luckyMoney: WYChatLuckyMoneyModel(amounts: "20.00", remarks: "祝你开心", notes: "红包")),
             WYChatMessageContentModel(transfer: WYChatLuckyMoneyModel(amounts: "100.00", state: .received, remarks: "示例转账")),
-            WYChatMessageContentModel(location: WYChatLocationModel(cover: assets, title: "示例位置", address: "示例地址")),
+            WYChatMessageContentModel(location: WYChatLocationModel(title: "示例位置", address: "示例地址")),
             WYChatMessageContentModel(takePat: WYChatTakePatModel(striking: user, beaten: user, notes: "的肩膀")),
             WYChatMessageContentModel(withdrawn: WYChatWithdrawnModel()),
             WYChatMessageContentModel(call: WYChatCallModel(durationOfCall: 75)),

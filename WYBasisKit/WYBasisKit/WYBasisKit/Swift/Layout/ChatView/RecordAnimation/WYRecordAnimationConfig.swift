@@ -368,6 +368,12 @@ public struct WYRecordAnimationConfig {
     public var animationDuration: TimeInterval = 0.25
     /// 转写失败提示
     public var recognitionFailureText: String = WYLocalized("识别失败，请重试", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 转写失败图标，nil时仅显示提示文字
+    public var recognitionFailureImage: UIImage?
+    /// 转写失败提示色
+    public var recognitionFailureColor: UIColor = UIColor { $0.userInterfaceStyle == .dark ? .wy_hex("#FFD6DC") : .wy_hex("#922C49") }
+    /// 转写失败卡片底色
+    public var recognitionFailureBackgroundColor: UIColor = UIColor { $0.userInterfaceStyle == .dark ? .wy_hex("#3B2630") : .wy_hex("#FFF2F4") }
     /// 转写等待提示
     public var recognizingText: String = WYLocalized("正在识别…", table: WYBasisKitConfig.kitLocalizableTable)
     /// 转写确认按钮文字
@@ -379,9 +385,13 @@ public struct WYRecordAnimationConfig {
     /// 转写编辑字体
     public var recognitionFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(24, WYBasisKitConfig.defaultScreenPixels))
     /// 转写编辑文字颜色
-    public var recognitionTextColor: UIColor = .wy_hex("#111111")
+    public var recognitionTextColor: UIColor = .label
     /// 转写编辑背景色
-    public var recognitionBackgroundColor: UIColor = .wy_hex("#DDE3FF")
+    public var recognitionBackgroundColor: UIColor = UIColor { $0.userInterfaceStyle == .dark ? .wy_hex("#232A39") : .wy_hex("#F2F5FF") }
+    /// 转写编辑面板是否停靠在键盘或安全区底边上方
+    public var recognitionPanelAnchorsToBottom: Bool = true
+    /// 是否显示转写编辑卡片的箭头
+    public var recognitionPanelShowsArrow: Bool = false
     /// 转写编辑面板高度
     public var recognitionPanelHeight: CGFloat = UIDevice.wy_screenHeight(480, WYBasisKitConfig.defaultScreenPixels)
 

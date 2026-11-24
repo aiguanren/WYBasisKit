@@ -44,7 +44,7 @@ public struct WYChatQuoteStyle {
     /// 引用媒体缩略图圆角
     public var thumbnailCornerRadius: CGFloat = UIDevice.wy_screenWidth(4, WYBasisKitConfig.defaultScreenPixels)
     /// 引用媒体占位图
-    public var thumbnailPlaceholder: UIImage? = UIImage.wy_find("WYChatViewImagePlaceholder", inBundle: WYChatSourceBundle)
+    public var thumbnailPlaceholder: UIImage? = WYChatDefaultResources.solidPlaceholder
     /// 是否显示关闭按钮，默认false
     public var showsCloseButton: Bool = false
     /// 引用关闭按钮图片

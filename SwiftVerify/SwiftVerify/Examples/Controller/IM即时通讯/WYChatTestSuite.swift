@@ -2425,6 +2425,7 @@ final class WYChatTestSuite {
             config.translationProvider = translator
             config.showsRecognitionLanguageButton = true
             config.speechRecognitionLanguages = ["en-US", "zh-CN"]
+            config.recognitionCloseImage = UIImage(named: "banner_0")?.withRenderingMode(.alwaysOriginal) ?? config.recognitionCloseImage
             var styledControls: Set<Int> = []
             config.recognitionControlAppearance = { control, _ in styledControls.insert(control.rawValue) }
             let overlay = WYRecordAnimationView(alpha: 0, configuration: config)
@@ -2457,6 +2458,13 @@ final class WYChatTestSuite {
             await show()
             guard let text = editor() else { return checks + [WYChatTestResult(name: "editor-visible", passed: false, detail: "", milliseconds: 0)] }
             check("editor-recognized-text", text.text == recognizer.finalText && text.isEditable)
+            let close = descendants(overlay).compactMap { $0 as? UIButton }.first { $0.accessibilityIdentifier == "WYChatRecording.close" }
+            close?.layoutIfNeeded()
+            if let size = close?.currentImage?.size, let imageFrame = close?.imageView?.frame, size.height > 0, imageFrame.height > 0 {
+                check("editor-accessory-aspect-ratio", abs(imageFrame.width / imageFrame.height - size.width / size.height) < 0.12 && max(imageFrame.width, imageFrame.height) <= config.recognitionAccessoryImageSize + 1, "image=\(size), frame=\(imageFrame), limit=\(config.recognitionAccessoryImageSize)")
+            } else {
+                check("editor-accessory-aspect-ratio", false, "button=\(close != nil), image=\(String(describing: close?.currentImage?.size)), frame=\(String(describing: close?.imageView?.frame))")
+            }
             let send = descendants(overlay).compactMap { $0 as? UIButton }.first { $0.currentTitle == config.recognitionSendText }
             text.text = ""
             text.delegate?.textViewDidChange?(text)
@@ -2530,6 +2538,16 @@ final class WYChatTestSuite {
             emojiButton?.sendActions(for: .touchUpInside)
             await settle()
             check("editor-keyboard-return", activeText?.inputView == nil && activeText?.isFirstResponder == true)
+            config.speechRecognitionTimeout = 0.1
+            config.recognitionFailureImage = config.recognitionCloseImage
+            recognizer.shouldComplete = false
+            await show()
+            let failedViews = descendants(overlay)
+            let failure = failedViews.compactMap { $0 as? UILabel }.first { $0.accessibilityIdentifier == "WYChatRecording.failure" }
+            let failureImage = failure?.superview?.subviews.compactMap { $0 as? UIImageView }.first
+            let retry = failedViews.compactMap { $0 as? UIButton }.first { $0.currentTitle == config.recognitionRetryText }
+            check("editor-separate-failure-state", failure?.text == config.recognitionFailureText && failure?.superview?.isHidden == false && editor()?.isHidden == true && retry?.isHidden == false)
+            check("editor-failure-image-aspect-fit", failureImage?.image === config.recognitionFailureImage && failureImage?.contentMode == .scaleAspectFit)
             return checks
         })
     }
@@ -2748,7 +2766,8 @@ final class WYChatTestSuite {
             check("stream-timeout-cancels-provider", finalError?.domain == WYChatSpeechRecognitionErrorDomain && finalError?.code == WYChatSpeechRecognitionErrorCode.timedOut.rawValue && recognizer.cancels == 2 && editor?.isEditable == false)
             recognizer.emitLateResult()
             await settle()
-            check("timeout-late-result-ignored", finalCount == 3 && editor?.text == config.recognitionFailureText)
+            let failure = descendants(overlay).compactMap { $0 as? UILabel }.first { $0.accessibilityIdentifier == "WYChatRecording.failure" }
+            check("timeout-late-result-ignored", finalCount == 3 && (editor?.text?.isEmpty ?? true) && failure?.text == config.recognitionFailureText && failure?.superview?.isHidden == false)
             recognizer.shouldComplete = true
             recognizer.supportsFiles = false
             overlay.recordAnimationConfig.speechRecognitionTimeout = 2

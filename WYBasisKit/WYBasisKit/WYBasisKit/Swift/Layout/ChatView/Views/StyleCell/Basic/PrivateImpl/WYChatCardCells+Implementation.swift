@@ -36,21 +36,35 @@ extension WYChatBasicCell {
             state.footer.text = value.remarks
         case .location:
             guard let value = message.content.location else { return }
-            state.title.text = value.title
-            state.detail.text = value.address
+            state.title.text = value.title.isEmpty ? value.address : value.title
+            state.detail.text = state.title.text == value.address ? nil : value.address
+            let radius = configuration.location.cornerRadius
+            state.image.imageCornerRadius = radius.isFinite ? max(0, radius) : 0
+            if configuration.location.showsPreviewBelowAddress, let index = bodyView.arrangedSubviews.firstIndex(of: state.image) {
+                bodyView.removeArrangedSubview(state.header)
+                bodyView.insertArrangedSubview(state.header, at: index)
+            }
             wy_showImage(value.cover)
         case .luckyMoney, .transfer:
             guard let value = message.content.luckyMoney ?? message.content.transfer else { return }
-            state.title.text = value.remarks.isEmpty ? value.amounts : value.remarks
+            let isPacket = message.content.luckyMoney != nil
+            let priority = isPacket ? value.remarks : value.amounts
+            let secondary = isPacket ? value.amounts : value.remarks
+            state.title.text = [priority, secondary, value.notes].first { !$0.isEmpty }
+            state.detail.text = [secondary, value.notes].filter { !$0.isEmpty && $0 != state.title.text }.joined(separator: " · ")
             switch value.state {
-            case .unreceived: state.detail.text = value.notes
-            case .received: state.detail.text = WYLocalized("已领取", table: WYBasisKitConfig.kitLocalizableTable)
-            case .timeout: state.detail.text = WYLocalized("已过期", table: WYBasisKitConfig.kitLocalizableTable)
-            case .return: state.detail.text = WYLocalized("已退回", table: WYBasisKitConfig.kitLocalizableTable)
+            case .unreceived: break
+            case .received: state.footer.text = WYLocalized("已领取", table: WYBasisKitConfig.kitLocalizableTable)
+            case .timeout: state.footer.text = WYLocalized("已过期", table: WYBasisKitConfig.kitLocalizableTable)
+            case .return: state.footer.text = WYLocalized("已退回", table: WYBasisKitConfig.kitLocalizableTable)
             }
-            state.footer.text = value.amounts
-            if !value.smallCover.downloadPath.isEmpty || !value.smallCover.localPath.isEmpty { wy_showThumbnail(value.smallCover) }
-            else { wy_showMessageIcon(message.content.style() == .luckyMoney ? "WYChatViewRedPacket" : "WYChatViewTransfer") }
+            let iconName = isPacket ? "WYChatViewRedPacket" : "WYChatViewTransfer"
+            let cover = value.smallCover
+            if cover.name.isEmpty && cover.downloadPath.isEmpty && cover.localPath.isEmpty { wy_showMessageIcon(iconName) }
+            else { wy_showThumbnail(cover) }
+            let accent: UIColor = isPacket ? .systemPink : .systemIndigo
+            state.thumbnail.backgroundColor = messageContentConfiguration.fundsIconBackgroundColor ?? accent.withAlphaComponent(value.state == .unreceived ? 0.18 : 0.09)
+            state.thumbnail.layer.cornerRadius = min(state.thumbnailSize[0].constant, state.thumbnailSize[1].constant) * 0.25
         default: break
         }
     }

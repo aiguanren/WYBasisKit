@@ -186,6 +186,9 @@ import WYBasisKitSwift
     public var withdrawnText: String
     /// 拍一拍撤回提示，空字符串时使用withdrawnText，%@替换为发送者名称
     public var patWithdrawnText: String
+    public var patBackgroundColor: UIColor?
+    public var patCornerRadius: CGFloat
+    public var patText: String?
     public override convenience init() { self.init(WYChatNoticeConfig()) }
     @nonobjc public init(_ value: WYChatNoticeConfig) {
         withdrawalTimeLimit = value.withdrawalTimeLimit
@@ -201,6 +204,9 @@ import WYBasisKitSwift
         reeditSpacing = value.reeditSpacing
         withdrawnText = value.withdrawnText
         patWithdrawnText = value.patWithdrawnText
+        patBackgroundColor = value.patBackgroundColor
+        patCornerRadius = value.patCornerRadius
+        patText = value.patText
         super.init()
     }
     @nonobjc public func toValue() -> WYChatNoticeConfig {
@@ -218,6 +224,9 @@ import WYBasisKitSwift
         value.reeditSpacing = reeditSpacing
         value.withdrawnText = withdrawnText
         value.patWithdrawnText = patWithdrawnText
+        value.patBackgroundColor = patBackgroundColor
+        value.patCornerRadius = patCornerRadius
+        value.patText = patText
         return value
     }
 }

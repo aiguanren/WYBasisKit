@@ -83,6 +83,59 @@ enum WYChatTestConfigurationChecks {
                 check("configuration-avatar-physical-\(symbol)-\(size.width)-\(size.height)", abs(avatarCell.avatarView.bounds.width - size.width) < 0.5 && abs(avatarCell.avatarView.bounds.height - size.height) < 0.5, "actual=\(avatarCell.avatarView.bounds), imageInsets=\(String(describing: config.basic.defaultAvatar?.alignmentRectInsets))")
             }
         }
+        let photoCell = WYChatPhotoCell(style: .default, reuseIdentifier: nil)
+        host.addSubview(photoCell)
+        let missingAsset = WYChatAssetsModel(name: "missing-test-image")
+        let photoMessage = WYChatMessageModel(messageID: "placeholder", sender: WYChatUserModel(id: "contact", avatar: missingAsset), content: WYChatMessageContentModel(photo: WYChatPhotoModel(thumbnail: missingAsset)))
+        func renderPhoto(_ config: WYChatConfig) {
+            photoCell.frame = host.bounds
+            photoCell.update(message: photoMessage, configuration: config, userID: "self")
+            photoCell.layoutIfNeeded()
+        }
+
+        renderPhoto(defaults)
+        let avatar = photoCell.avatarView
+        let photo = photoCell.previewImageView
+        check("configuration-avatar-placeholder-circle", avatar.image?.size == CGSize(width: 1, height: 1) && avatar.layer.cornerRadius == avatar.bounds.width / 2 && avatar.bounds.width > 0)
+        check("configuration-photo-placeholder-square-corners", photo.image?.size == CGSize(width: 1, height: 1) && photo.layer.cornerRadius == 0)
+
+        var placeholderConfig = defaults
+        placeholderConfig.basic.avatarPlaceholderColor = .systemPink
+        placeholderConfig.basic.avatarPlaceholderCornerRadius = 7
+        placeholderConfig.content.placeholderGradientColors = [.red, .blue]
+        placeholderConfig.content.placeholderGradientDirection = .topToBottom
+        placeholderConfig.content.placeholderCornerRadius = 9
+        renderPhoto(placeholderConfig)
+        check("configuration-avatar-placeholder-color", avatar.layer.cornerRadius == 7 && avatar.image?.pngData() == UIImage.wy_createImage(from: UIColor.systemPink.resolvedColor(with: avatar.traitCollection)).pngData())
+        let verticalGradient = photo.image?.pngData()
+        placeholderConfig.content.placeholderGradientDirection = .leftToRight
+        renderPhoto(placeholderConfig)
+        check("configuration-photo-placeholder-gradient", photo.layer.cornerRadius == 9 && verticalGradient != nil && photo.image?.pngData() != verticalGradient)
+
+        let customAvatar = UIImage.wy_createImage(from: .systemBlue)
+        let customPhoto = UIImage.wy_createImage(from: .systemGreen)
+        placeholderConfig.basic.avatarPlaceholderGradientColors = [.red, .blue]
+        placeholderConfig.basic.defaultAvatar = customAvatar
+        placeholderConfig.content.placeholderImage = customPhoto
+        renderPhoto(placeholderConfig)
+        check("configuration-placeholder-custom-images", avatar.image === customAvatar && photo.image === customPhoto)
+
+        let location = WYChatLocationCell(style: .default, reuseIdentifier: nil)
+        host.addSubview(location)
+        location.frame = host.bounds
+        let located = WYChatMessageModel(messageID: "map-card", content: WYChatMessageContentModel(location: WYChatLocationModel(title: "地点", address: "详细地址")))
+        location.update(message: located, configuration: defaults, userID: "self")
+        location.layoutIfNeeded()
+        let map = location.previewImageView
+        let titleFrame = location.titleView.convert(location.titleView.bounds, to: location.bodyView)
+        check("configuration-location-resource-and-order", defaults.location.placeholderImage != nil && map.image === defaults.location.placeholderImage && map.contentMode == .scaleAspectFit && titleFrame.maxY < map.frame.minY)
+
+        placeholderConfig.location.showsPreviewBelowAddress = false
+        placeholderConfig.location.cornerRadius = 13
+        location.update(message: located, configuration: placeholderConfig, userID: "self")
+        location.layoutIfNeeded()
+        let updatedTitleFrame = location.titleView.convert(location.titleView.bounds, to: location.bodyView)
+        check("configuration-location-custom-preview", map.image === customPhoto && map.layer.cornerRadius == 13 && map.frame.maxY < updatedTitleFrame.minY)
         return results
     }
 }
