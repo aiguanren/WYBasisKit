@@ -1582,16 +1582,14 @@ import WYBasisKitSwift
 @objcMembers public class WYInputBarConfigObjC: NSObject {
     /// 草稿保存键，空字符串时不跨实例保存草稿
     public var draftStorageKey: String = ""
-    /// 是否允许长按语音切换按钮直接转写，默认true，需要启用语音识别
-    public var enablesVoiceButtonDictation: Bool
-    /// 长按语音切换按钮开始转写的等待时间，单位秒
-    public var voiceButtonLongPressDuration: TimeInterval
     /// 文本占位对齐方式
     public var textPlaceholderAlignment: NSTextAlignment
     /// 空输入框的长按操作，默认disabled，dictation需要启用语音识别
     public var placeholderLongPressAction: WYChatInputLongPressAction
     /// 是否在键盘展开时显示输入框内的语音识别按钮，需要启用语音识别
     public var enablesKeyboardDictation: Bool
+    /// 输入框有内容时是否继续显示语音识别按钮，默认 false，识别进行中仍显示完成按钮
+    public var showsKeyboardDictationWithText: Bool
     /// 打开表情面板时是否保留输入框内的语音识别按钮
     public var showsKeyboardDictationInEmojiPanel: Bool
     /// 手动修改输入文本时是否关闭正在进行的语音识别，默认true
@@ -1757,11 +1755,10 @@ import WYBasisKitSwift
     public override convenience init() { self.init(WYInputBarConfig()) }
 
     @nonobjc public init(_ value: WYInputBarConfig) {
-        self.enablesVoiceButtonDictation = value.enablesVoiceButtonDictation
-        self.voiceButtonLongPressDuration = value.voiceButtonLongPressDuration
         self.textPlaceholderAlignment = value.textPlaceholderAlignment
         self.placeholderLongPressAction = value.placeholderLongPressAction
         self.enablesKeyboardDictation = value.enablesKeyboardDictation
+        self.showsKeyboardDictationWithText = value.showsKeyboardDictationWithText
         self.showsKeyboardDictationInEmojiPanel = value.showsKeyboardDictationInEmojiPanel
         self.stopsKeyboardDictationOnTextChange = value.stopsKeyboardDictationOnTextChange
         self.keyboardDictationImage = value.keyboardDictationImage
@@ -1846,11 +1843,10 @@ import WYBasisKitSwift
 
     @nonobjc public func toValue() -> WYInputBarConfig {
         var value = WYInputBarConfig()
-        value.enablesVoiceButtonDictation = enablesVoiceButtonDictation
-        value.voiceButtonLongPressDuration = voiceButtonLongPressDuration
         value.textPlaceholderAlignment = textPlaceholderAlignment
         value.placeholderLongPressAction = placeholderLongPressAction
         value.enablesKeyboardDictation = enablesKeyboardDictation
+        value.showsKeyboardDictationWithText = showsKeyboardDictationWithText
         value.showsKeyboardDictationInEmojiPanel = showsKeyboardDictationInEmojiPanel
         value.stopsKeyboardDictationOnTextChange = stopsKeyboardDictationOnTextChange
         value.keyboardDictationImage = keyboardDictationImage

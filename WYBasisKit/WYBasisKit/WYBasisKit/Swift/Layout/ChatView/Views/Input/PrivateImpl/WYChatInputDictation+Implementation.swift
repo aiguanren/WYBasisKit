@@ -106,7 +106,8 @@ final class WYChatInputDictationSession {
 extension WYChatInputView {
     var wy_showsKeyboardDictation: Bool {
         guard window != nil, inputBarConfig.enablesKeyboardDictation, recordAnimationConfig.supportSpeechRecognition,
-              !textView.isHidden else { return false }
+              !textView.isHidden,
+              inputBarConfig.showsKeyboardDictationWithText || !textView.hasText || inputDictation != nil else { return false }
         return textView.isFirstResponder || (inputBarConfig.showsKeyboardDictationInEmojiPanel && emojiView.isSelected)
     }
     var wy_dictationReservedWidth: CGFloat { wy_showsKeyboardDictation ? max(0, inputBarConfig.keyboardDictationSize.width) + max(0, inputBarConfig.keyboardDictationInsets.left) + max(0, inputBarConfig.keyboardDictationInsets.right) : 0 }
@@ -114,8 +115,8 @@ extension WYChatInputView {
     func wy_setupDictationControls() {
         placeholderGate.accessibilityIdentifier = "WYChatInput.placeholder"
         placeholderGate.addTarget(self, action: #selector(wy_focusTextInput), for: .touchUpInside)
-        let press = UILongPressGestureRecognizer(target: self, action: #selector(inputRecordingLongPress(_:)))
-        press.minimumPressDuration = max(0, inputBarConfig.voiceButtonLongPressDuration)
+        let press = UILongPressGestureRecognizer(target: self, action: #selector(placeholderRecordingLongPress(_:)))
+        press.minimumPressDuration = 0.35
         press.allowableMovement = inputBarConfig.recordViewLongPressMaxOffset
         placeholderGate.addGestureRecognizer(press)
         addSubview(placeholderGate)
@@ -141,10 +142,13 @@ extension WYChatInputView {
         let insets = config.keyboardDictationInsets
         let bounds = textVoiceContentView.bounds
         let top = min(bounds.height, max(0, insets.top))
-        let availableHeight = max(0, bounds.height - top - max(0, insets.bottom))
+        let bottom = max(0, insets.bottom)
+        let availableHeight = max(0, bounds.height - top - bottom)
         let size = CGSize(width: min(max(0, config.keyboardDictationSize.width), bounds.width), height: min(max(0, config.keyboardDictationSize.height), availableHeight))
+        let singleLineHeight = max(config.inputViewHeight, ceil(config.textFont.lineHeight) + config.inputTextEdgeInsets.top + config.inputTextEdgeInsets.bottom)
+        let alignmentHeight = min(availableHeight, singleLineHeight - top - bottom)
         let frame = CGRect(x: max(bounds.minX, bounds.maxX - max(0, insets.right) - size.width),
-                           y: bounds.minY + top + (availableHeight - size.height) / 2,
+                           y: bounds.minY + top + max(0, alignmentHeight - size.height) / 2,
                            width: size.width, height: size.height)
         keyboardDictationButton.frame = textVoiceContentView.convert(frame, to: self)
         keyboardDictationButton.tintColor = config.keyboardDictationTintColor
@@ -180,7 +184,7 @@ extension WYChatInputView {
                 guard let self, self.dictationRequestID == identifier else { return }
                 self.dictationRequestID = nil
                 self.inputDictation = nil
-                self.wy_updateDictationControls()
+                self.updateContentViewHeight()
                 if let error {
                     if let handler = self.inputDictationErrorHandler { handler(error) }
                     else { WYActivity.showInfo(error.localizedDescription, in: self.window) }

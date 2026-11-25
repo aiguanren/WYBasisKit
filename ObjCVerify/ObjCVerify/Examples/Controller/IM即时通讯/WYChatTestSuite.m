@@ -229,8 +229,6 @@
     speechConfig.recording.speechRecognitionLanguages = @[@"zh-CN", @"en-US"];
     speechConfig.recording.recognitionPanelOuterInsets = UIEdgeInsetsMake(3, 7, 5, 9);
     speechConfig.recording.recognitionControlFont = [UIFont systemFontOfSize:19];
-    speechConfig.input.enablesVoiceButtonDictation = false;
-    speechConfig.input.voiceButtonLongPressDuration = 0.8;
     self.chatView.configuration = speechConfig;
     WYRecordAnimationConfig *recording = self.chatView.configuration.recording;
     check(@"recording-action-style", recording.actionStyle == WYRecordingActionStyleCurved && CGSizeEqualToSize(recording.curvedActionSize, CGSizeMake(210, 58)) && recording.curvedActionCornerRadius == 21 && recording.curvedActionBendHeight == 13 && UIEdgeInsetsEqualToEdgeInsets(recording.liveTextInsets, UIEdgeInsetsMake(11, 12, 13, 14)) && recording.liveTextWaveformSpacing == 9 && recording.curvedActionTiltAngle == 0.12 && recording.curvedActionCenterOffsetX == 115);
@@ -241,7 +239,6 @@
     check(@"dictation-config", !recording.dictationSendsOnRelease && recording.dictationShowsWaveform && [recording.dictationEditText isEqualToString:@"编辑转写"] && !recording.showsOriginalVoiceButton && [recording.recognitionSendVoiceText isEqualToString:@"原语音"]);
     check(@"translation-shared-provider", recording.enablesTranslation && recording.translationProvider == translator && recording.translationTimeout == 12 && recording.translationTargetLanguages.count == 2);
     check(@"editor-config", UIEdgeInsetsEqualToEdgeInsets(recording.recognitionPanelOuterInsets, UIEdgeInsetsMake(3, 7, 5, 9)) && recording.recognitionControlFont.pointSize == 19 && recording.speechRecognitionLanguages.count == 2);
-    check(@"dictation-input-config", !self.chatView.configuration.input.enablesVoiceButtonDictation && self.chatView.configuration.input.voiceButtonLongPressDuration == 0.8);
     WYRecordAnimationConfig *disabled = [[WYRecordAnimationConfig alloc] init];
     WYRecordAnimationView *recordView = WYRecordAnimationView.create(disabled);
     __block NSInteger disabledErrors = 0;

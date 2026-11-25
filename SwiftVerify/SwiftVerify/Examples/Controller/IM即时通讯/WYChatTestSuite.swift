@@ -426,20 +426,57 @@ final class WYChatTestSuite {
             var checks: [WYChatTestResult] = []
             func check(_ name: String, _ value: Bool) { checks.append(WYChatTestResult(name: name, passed: value, detail: "", milliseconds: 0)) }
             check("placeholder-centered", input.textPlaceholderView.textAlignment == .center)
+            check("keyboard-dictation-hides-with-text-by-default", !WYInputBarConfig().showsKeyboardDictationWithText)
+            input.inputBarConfig.enablesKeyboardDictation = true
+            input.inputBarConfig.showsKeyboardDictationWithText = false
             input.textView.becomeFirstResponder()
+            let button = input.subviews.compactMap { $0 as? UIButton }.first { $0.accessibilityIdentifier == "WYChatInput.dictation" }
+            input.textView.text = "前缀后缀"
+            input.textViewDidChange(input.textView, silence: true)
+            check("keyboard-dictation-hidden-with-text", button?.isHidden == true)
+            input.textView.text = ""
+            input.textViewDidChange(input.textView, silence: true)
+            check("keyboard-dictation-visible-after-clearing-text", button?.isHidden == false)
+            input.inputBarConfig.showsKeyboardDictationWithText = true
+            input.textView.text = "前缀后缀"
+            input.textViewDidChange(input.textView, silence: true)
+            view.layoutIfNeeded()
+            let singleLineInputFrame = input.textVoiceContentView.frame
+            let singleLineButtonFrame = button?.frame ?? .zero
+            let singleLineRightInset = input.textView.textContainerInset.right
+
+            input.textView.text = "第一行\n第二行\n第三行"
+            input.textViewDidChange(input.textView, silence: true)
+            view.layoutIfNeeded()
+            let multilineInputFrame = input.textVoiceContentView.frame
+            let multilineButtonFrame = button?.frame ?? .zero
+            check("keyboard-dictation-input-grows-with-lines", multilineInputFrame.height > singleLineInputFrame.height)
+            check("keyboard-dictation-stays-at-upper-right", button?.isHidden == false &&
+                  abs((multilineButtonFrame.minY - multilineInputFrame.minY) - (singleLineButtonFrame.minY - singleLineInputFrame.minY)) < 1 &&
+                  abs((multilineInputFrame.maxX - multilineButtonFrame.maxX) - (singleLineInputFrame.maxX - singleLineButtonFrame.maxX)) < 1)
+            check("keyboard-dictation-reserves-right-inset-for-all-lines", input.textView.textContainerInset.right == singleLineRightInset &&
+                  singleLineRightInset > input.inputBarConfig.inputTextEdgeInsets.right)
+
             input.textView.text = "前缀后缀"
             input.textViewDidChange(input.textView, silence: true)
             input.textView.selectedRange = NSRange(location: 2, length: 0)
             view.layoutIfNeeded()
             try? await Task.sleep(nanoseconds: 150_000_000)
-            let button = input.subviews.compactMap { $0 as? UIButton }.first { $0.accessibilityIdentifier == "WYChatInput.dictation" }
-            check("keyboard-dictation-entry", button != nil && button?.isHidden == false)
+            check("keyboard-dictation-entry", button?.isHidden == false)
             button?.sendActions(for: .touchUpInside)
             try? await Task.sleep(nanoseconds: 200_000_000)
             check("keyboard-dictation-partial", input.textView.text == "前缀" + speech.partialText + "后缀" && input.textView.isFirstResponder && input.isInputDictating)
+            input.inputBarConfig.showsKeyboardDictationWithText = false
+            input.setNeedsLayout()
+            input.layoutIfNeeded()
+            check("keyboard-dictation-finish-visible-with-text", button?.isHidden == false && button?.isSelected == true)
             button?.sendActions(for: .touchUpInside)
             try? await Task.sleep(nanoseconds: 200_000_000)
             check("keyboard-dictation-final", input.textView.text == "前缀" + speech.finalText + "后缀" && !input.isInputDictating)
+            check("keyboard-dictation-hidden-after-finishing", button?.isHidden == true)
+            input.inputBarConfig.showsKeyboardDictationWithText = true
+            input.setNeedsLayout()
+            input.layoutIfNeeded()
             button?.sendActions(for: .touchUpInside)
             try? await Task.sleep(nanoseconds: 100_000_000)
             let edit = input.textView.selectedRange

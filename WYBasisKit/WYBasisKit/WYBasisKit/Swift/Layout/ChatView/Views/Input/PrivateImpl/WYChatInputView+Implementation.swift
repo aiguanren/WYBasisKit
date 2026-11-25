@@ -117,8 +117,8 @@ extension WYChatInputView {
         }
     }
 
-    @objc func inputRecordingLongPress(_ sender: UILongPressGestureRecognizer) {
-        let action: WYChatInputLongPressAction = sender.view === placeholderGate ? inputBarConfig.placeholderLongPressAction : inputBarConfig.enablesVoiceButtonDictation ? .dictation : .disabled
+    @objc func placeholderRecordingLongPress(_ sender: UILongPressGestureRecognizer) {
+        let action = inputBarConfig.placeholderLongPressAction
         guard action != .disabled, action != .dictation || recordAnimationConfig.supportSpeechRecognition,
               eventsHandler?.wy_canManagerVoiceRecordEvents?(sender) ?? true else { return }
         switch sender.state {
@@ -378,6 +378,7 @@ extension WYChatInputView {
             }else {
                 // bar上的拼音监听
                 textPlaceholderView.isHidden = true
+                wy_updateDictationControls()
             }
         }else {
             // 英文输入
@@ -588,10 +589,6 @@ extension WYChatInputView {
         textVoiceView.isSelected = textView.isHidden
         textVoiceView.backgroundColor = .clear
         textVoiceView.addTarget(self, action: #selector(didClickTextVoiceView(sender:)), for: .touchUpInside)
-        let dictation = UILongPressGestureRecognizer(target: self, action: #selector(inputRecordingLongPress(_:)))
-        dictation.minimumPressDuration = max(0, inputBarConfig.voiceButtonLongPressDuration)
-        dictation.allowableMovement = inputBarConfig.recordViewLongPressMaxOffset
-        textVoiceView.addGestureRecognizer(dictation)
         addSubview(textVoiceView)
         textVoiceView.snp.makeConstraints { make in
             make.size.equalTo(self.inputBarConfig.voiceTextButtonSize)
