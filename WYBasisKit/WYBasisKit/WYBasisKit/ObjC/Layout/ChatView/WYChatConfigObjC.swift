@@ -505,11 +505,11 @@ import WYBasisKitSwift
     public var gradientColorOpacities: [NSNumber]
     /// 是否持续播放渐变流动动画，默认true
     public var gradientMotionEnabled: Bool
-    /// 渐变流动动画每轮时长，单位秒，非正数时停止动画
+    /// 渐变流动的时间尺度，单位秒，非正数时停止动画
     public var gradientMotionDuration: TimeInterval
     /// 渐变流动的水平和垂直移动幅度
     public var gradientMotionAmplitude: CGSize
-    /// 渐变流动的缩放幅度，取值0到0.5
+    /// 渐变流动的纹理强度，取值0到0.5
     public var gradientMotionScale: CGFloat
     /// 渐变流动亮部颜色
     public var gradientMotionHighlightColor: UIColor
@@ -521,13 +521,13 @@ import WYBasisKitSwift
     public var gradientMotionShadowOpacity: CGFloat
     /// 是否显示跟随手指的渐变按压效果，默认true
     public var gradientPressEnabled: Bool
-    /// 渐变按压效果的尺寸
+    /// 渐变按压光晕的固定尺寸，单位pt
     public var gradientPressSize: CGSize
     /// 渐变按压效果的颜色
     public var gradientPressColor: UIColor
     /// 渐变按压效果的不透明度，取值0到1
     public var gradientPressOpacity: CGFloat
-    /// 渐变按压效果跟随手指移动的过渡时长，单位秒
+    /// 渐变按压效果跟随手指移动的过渡时长，单位秒，默认为0（直接跟随）
     public var gradientPressFollowingDuration: TimeInterval
     /// 渐变录音声波两端淡出的宽度比例，取值0到0.5
     public var gradientWaveformEdgeFade: CGFloat

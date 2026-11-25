@@ -68,11 +68,11 @@ public struct WYRecordAnimationConfig {
     public var gradientColorOpacities: [CGFloat] = [1, 1, 0.85, 0.35, 0]
     /// 是否持续播放渐变流动动画，默认true
     public var gradientMotionEnabled: Bool = true
-    /// 渐变流动动画每轮时长，单位秒，非正数时停止动画
+    /// 渐变流动的时间尺度，单位秒，非正数时停止动画
     public var gradientMotionDuration: TimeInterval = 2.4
     /// 渐变流动的水平和垂直移动幅度
     public var gradientMotionAmplitude: CGSize = CGSize(width: UIDevice.wy_screenWidth(18, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenHeight(12, WYBasisKitConfig.defaultScreenPixels))
-    /// 渐变流动的缩放幅度，取值0到0.5
+    /// 渐变流动的纹理强度，取值0到0.5
     public var gradientMotionScale: CGFloat = 0.12
     /// 渐变流动亮部颜色
     public var gradientMotionHighlightColor: UIColor = .white
@@ -84,14 +84,14 @@ public struct WYRecordAnimationConfig {
     public var gradientMotionShadowOpacity: CGFloat = 0.035
     /// 是否显示跟随手指的渐变按压效果，默认true
     public var gradientPressEnabled: Bool = true
-    /// 渐变按压效果的尺寸
+    /// 渐变按压光晕的固定尺寸，单位pt
     public var gradientPressSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(160, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenHeight(140, WYBasisKitConfig.defaultScreenPixels))
     /// 渐变按压效果的颜色
     public var gradientPressColor: UIColor = .white
     /// 渐变按压效果的不透明度，取值0到1
-    public var gradientPressOpacity: CGFloat = 0.08
-    /// 渐变按压效果跟随手指移动的过渡时长，单位秒
-    public var gradientPressFollowingDuration: TimeInterval = 0.16
+    public var gradientPressOpacity: CGFloat = 0.14
+    /// 渐变按压效果跟随手指移动的过渡时长，单位秒，默认为0（直接跟随）
+    public var gradientPressFollowingDuration: TimeInterval = 0
     /// 渐变录音声波两端淡出的宽度比例，取值0到0.5
     public var gradientWaveformEdgeFade: CGFloat = 0.12
     /// 渐变录音声波区域尺寸

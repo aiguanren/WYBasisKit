@@ -13,12 +13,17 @@ final class WYChatGradientRecordingView: UIView {
     let hint = UILabel()
     private let glow = CAGradientLayer()
     private let waveformMask = CAGradientLayer()
-    private let motionHighlight = CAGradientLayer()
-    private let motionShadow = CAGradientLayer()
+    private let flow = CALayer()
+    private let flowMask = CALayer()
+    private let flowLight = CALayer()
     private let pressGlow = CAGradientLayer()
     private var configuration = WYRecordAnimationConfig()
     private var touchPoint: CGPoint?
-    private var motionSettings: [Double] = []
+    private var motionLink: CADisplayLink?
+    private var motionStart: CFTimeInterval?
+    private var gradientStops: [CGFloat] = []
+    private var highlight: (r: CGFloat, g: CGFloat, b: CGFloat) = (r: 1.0, g: 1.0, b: 1.0)
+    private var shadow: (r: CGFloat, g: CGFloat, b: CGFloat) = (r: 0.0, g: 0.0, b: 0.0)
     private var observers: [NSObjectProtocol] = []
 
     override init(frame: CGRect) {
@@ -27,13 +32,17 @@ final class WYChatGradientRecordingView: UIView {
         accessibilityIdentifier = "WYChatRecording.gradient"
         glow.type = .radial
         layer.addSublayer(glow)
-        for effect in [motionHighlight, motionShadow, pressGlow] {
-            effect.type = .radial
-            effect.startPoint = CGPoint(x: 0.5, y: 0.5)
-            effect.endPoint = CGPoint(x: 1, y: 1)
-            layer.addSublayer(effect)
-        }
+        flow.mask = flowMask
+        flow.isHidden = true
+        flowLight.isHidden = true
+        layer.addSublayer(flow)
+        layer.addSublayer(flowLight)
+        pressGlow.type = .radial
+        pressGlow.startPoint = CGPoint(x: 0.5, y: 0.5)
+        pressGlow.endPoint = CGPoint(x: 1, y: 1)
+        pressGlow.locations = [0, 0.28, 0.55, 1]
         pressGlow.opacity = 0
+        layer.addSublayer(pressGlow)
         for name in [UIApplication.didEnterBackgroundNotification, UIApplication.didBecomeActiveNotification, UIAccessibility.reduceMotionStatusDidChangeNotification] {
             observers.append(NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in self?.updateMotion() })
         }
@@ -56,32 +65,36 @@ final class WYChatGradientRecordingView: UIView {
         let positions = configuration.gradientColorLocations
         let opacities = configuration.gradientColorOpacities
         let valid = positions.count >= 2 && positions.count == opacities.count && positions.allSatisfy { $0.isFinite && $0 >= 0 && $0 <= 1 } && zip(positions, positions.dropFirst()).allSatisfy { $0.0 <= $0.1 } && opacities.allSatisfy { $0.isFinite && $0 >= 0 && $0 <= 1 }
-        let colors = (valid ? opacities : defaults.gradientColorOpacities).map { color.withAlphaComponent($0).cgColor }
-        let previous = glow.presentation()?.colors ?? glow.colors
+        let gradientOpacities = valid ? opacities : defaults.gradientColorOpacities
+        let colors = gradientOpacities.map { color.withAlphaComponent($0).cgColor }
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        glow.colors = colors
+        let transition = animated && !UIAccessibility.isReduceMotionEnabled ? duration : 0
+        setColors(colors, on: glow, duration: transition)
         glow.locations = (valid ? positions : defaults.gradientColorLocations).map { NSNumber(value: Double($0)) }
         glow.startPoint = configuration.gradientStartPoint.x.isFinite && configuration.gradientStartPoint.y.isFinite ? configuration.gradientStartPoint : defaults.gradientStartPoint
         glow.endPoint = configuration.gradientEndPoint.x.isFinite && configuration.gradientEndPoint.y.isFinite ? configuration.gradientEndPoint : defaults.gradientEndPoint
-        CATransaction.commit()
-        if animated, let previous, duration > 0 {
-            let animation = CABasicAnimation(keyPath: "colors")
-            animation.fromValue = previous
-            animation.toValue = colors
-            animation.duration = duration
-            glow.add(animation, forKey: "colors")
-        }
         backgroundColor = configuration.gradientOverlayColor
-        CATransaction.begin()
-        CATransaction.setDisableActions(true)
-        let highlight = opacity(configuration.gradientMotionHighlightOpacity)
-        let shadow = opacity(configuration.gradientMotionShadowOpacity)
-        motionHighlight.colors = [configuration.gradientMotionHighlightColor.withAlphaComponent(highlight).cgColor, configuration.gradientMotionHighlightColor.withAlphaComponent(highlight * 0.6).cgColor, UIColor.clear.cgColor]
-        motionShadow.colors = [configuration.gradientMotionShadowColor.withAlphaComponent(shadow).cgColor, UIColor.clear.cgColor]
-        let press = opacity(configuration.gradientPressOpacity)
-        pressGlow.colors = [configuration.gradientPressColor.withAlphaComponent(0).cgColor, configuration.gradientPressColor.withAlphaComponent(press * 0.2).cgColor, configuration.gradientPressColor.withAlphaComponent(press).cgColor, UIColor.clear.cgColor]
-        pressGlow.locations = [0, 0.2, 0.55, 1]
+        gradientStops = Self.gradientRamp(
+            positions: valid ? positions : defaults.gradientColorLocations,
+            opacities: gradientOpacities
+        )
+        highlight = Self.rgb(configuration.gradientMotionHighlightColor.resolvedColor(with: traitCollection), fallback: 1)
+        shadow = Self.rgb(configuration.gradientMotionShadowColor.resolvedColor(with: traitCollection), fallback: 0)
+        let previousColor = flow.presentation()?.backgroundColor ?? flow.backgroundColor
+        let flowColor = color.withAlphaComponent(1).cgColor
+        flow.backgroundColor = flowColor
+        flow.removeAnimation(forKey: "backgroundColor")
+        if transition > 0, let previousColor {
+            let animation = CABasicAnimation(keyPath: "backgroundColor")
+            animation.fromValue = previousColor
+            animation.toValue = flowColor
+            animation.duration = transition
+            flow.add(animation, forKey: "backgroundColor")
+        }
+        let pressColor = configuration.gradientPressColor
+        let pressOpacity = opacity(configuration.gradientPressOpacity)
+        pressGlow.colors = [0.3, 0.45, 1, 0].map { pressColor.withAlphaComponent(pressOpacity * $0).cgColor }
         pressGlow.opacity = configuration.gradientPressEnabled && touchPoint != nil ? 1 : 0
         CATransaction.commit()
         hint.font = configuration.gradientHintFont
@@ -96,16 +109,19 @@ final class WYChatGradientRecordingView: UIView {
     func updateTouchPoint(_ point: CGPoint, animated: Bool) {
         guard point.x.isFinite, point.y.isFinite else { return }
         let first = touchPoint == nil
-        touchPoint = point
-        layoutIfNeeded()
+        let duration = configuration.gradientPressFollowingDuration
+        let animates = configuration.gradientPressEnabled && duration.isFinite && duration > 0 && !UIAccessibility.isReduceMotionEnabled
         let previous = pressGlow.presentation()?.position ?? pressGlow.position
+        touchPoint = point
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        pressGlow.position = touchPoint!
+        pressGlow.position = point
         pressGlow.opacity = configuration.gradientPressEnabled ? 1 : 0
         CATransaction.commit()
-        let duration = configuration.gradientPressFollowingDuration
-        guard configuration.gradientPressEnabled, duration.isFinite, duration > 0, !UIAccessibility.isReduceMotionEnabled else { return }
+        guard animates else {
+            pressGlow.removeAllAnimations()
+            return
+        }
         if animated && !first {
             let movement = CABasicAnimation(keyPath: "position")
             movement.fromValue = NSValue(cgPoint: previous)
@@ -115,7 +131,7 @@ final class WYChatGradientRecordingView: UIView {
             pressGlow.add(movement, forKey: "following")
         } else if first {
             let entrance = CABasicAnimation(keyPath: "transform.scale")
-            entrance.fromValue = 0.8
+            entrance.fromValue = 0.85
             entrance.toValue = 1
             entrance.duration = duration
             pressGlow.add(entrance, forKey: "press")
@@ -124,64 +140,199 @@ final class WYChatGradientRecordingView: UIView {
 
     override func didMoveToWindow() {
         super.didMoveToWindow()
-        if window == nil { touchPoint = nil; pressGlow.opacity = 0; pressGlow.removeAllAnimations() }
+        if window == nil {
+            touchPoint = nil
+            pressGlow.opacity = 0
+            pressGlow.removeAllAnimations()
+        }
         updateMotion()
     }
 
     private func opacity(_ value: CGFloat) -> CGFloat { value.isFinite ? min(1, max(0, value)) : 0 }
 
+    private func setColors(_ colors: [CGColor], on layer: CAGradientLayer, duration: TimeInterval) {
+        let previous = layer.presentation()?.colors ?? layer.colors
+        layer.colors = colors
+        layer.removeAnimation(forKey: "colors")
+        guard duration > 0, let previous, previous.count == colors.count else { return }
+        let animation = CABasicAnimation(keyPath: "colors")
+        animation.fromValue = previous
+        animation.toValue = colors
+        animation.duration = duration
+        layer.add(animation, forKey: "colors")
+    }
+
+    private static func rgb(_ color: UIColor, fallback: CGFloat) -> (r: CGFloat, g: CGFloat, b: CGFloat) {
+        var red = fallback, green = fallback, blue = fallback
+        if !color.getRed(&red, green: &green, blue: &blue, alpha: nil) { return (fallback, fallback, fallback) }
+        return (min(1, max(0, red)), min(1, max(0, green)), min(1, max(0, blue)))
+    }
+
+    private static func gradientRamp(positions: [CGFloat], opacities: [CGFloat]) -> [CGFloat] {
+        var stop = 0
+        return (0...255).map { index in
+            let location = CGFloat(index) / 255
+            while stop + 1 < positions.count && positions[stop + 1] <= location { stop += 1 }
+            guard location > positions[stop], stop + 1 < positions.count else { return opacities[stop] }
+            let fraction = (location - positions[stop]) / (positions[stop + 1] - positions[stop])
+            return opacities[stop] + (opacities[stop + 1] - opacities[stop]) * fraction
+        }
+    }
+
     private func updateMotion() {
         let config = configuration
         let duration = config.gradientMotionDuration
-        let active = window != nil && UIApplication.shared.applicationState != .background && !UIAccessibility.isReduceMotionEnabled && config.gradientMotionEnabled && duration.isFinite && duration > 0 && motionHighlight.bounds.width > 0 && motionHighlight.bounds.height > 0
-        guard active else {
-            for effect in [motionHighlight, motionShadow] { effect.removeAllAnimations(); effect.isHidden = true }
-            glow.removeAnimation(forKey: "flow")
-            motionSettings = []
-            return
+        let reducedMotion = UIAccessibility.isReduceMotionEnabled
+        if reducedMotion { pressGlow.removeAllAnimations() }
+        let radialWidth = abs(glow.endPoint.x - glow.startPoint.x)
+        let radialHeight = abs(glow.endPoint.y - glow.startPoint.y)
+        let active = window != nil && UIApplication.shared.applicationState != .background && !reducedMotion
+            && config.gradientMotionEnabled && duration.isFinite && duration > 0
+            && glow.bounds.width > 0 && glow.bounds.height > 0
+            && radialWidth.isFinite && radialWidth > 0 && radialHeight.isFinite && radialHeight > 0
+            && !gradientStops.isEmpty
+        if active {
+            guard motionLink == nil else { return }
+            let target = WYChatGradientMotionTarget(view: self)
+            let link = CADisplayLink(target: target, selector: #selector(WYChatGradientMotionTarget.tick(_:)))
+            link.preferredFramesPerSecond = 30
+            link.add(to: .main, forMode: .common)
+            motionLink = link
+        } else {
+            motionLink?.invalidate()
+            motionLink = nil
+            motionStart = nil
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            glow.isHidden = false
+            flow.isHidden = true
+            flowLight.isHidden = true
+            flowMask.contents = nil
+            flowLight.contents = nil
+            CATransaction.commit()
         }
-        let amplitude = config.gradientMotionAmplitude
-        let x = amplitude.width.isFinite ? min(bounds.width / 4, max(0, amplitude.width)) : 0
-        let y = amplitude.height.isFinite ? min(bounds.height / 4, max(0, amplitude.height)) : 0
-        let scale = config.gradientMotionScale.isFinite ? min(0.5, max(0, config.gradientMotionScale)) : 0
-        let settings = [duration, Double(x), Double(y), Double(scale), Double(bounds.width), Double(bounds.height), Double(glow.bounds.height), Double(motionHighlight.position.x), Double(motionHighlight.position.y), Double(motionShadow.position.x), Double(motionShadow.position.y), Double(glow.startPoint.x), Double(glow.startPoint.y), Double(glow.endPoint.x), Double(glow.endPoint.y)]
-        guard settings != motionSettings else { return }
-        motionSettings = settings
-        let drift = CGSize(width: x / max(1, bounds.width) * 0.3, height: y / max(1, glow.bounds.height) * 0.3)
-        let baseMotion = CAAnimationGroup()
-        baseMotion.animations = ["startPoint", "endPoint"].map { key in
-            let point = key == "startPoint" ? glow.startPoint : glow.endPoint
-            let animation = CABasicAnimation(keyPath: key)
-            animation.fromValue = NSValue(cgPoint: CGPoint(x: point.x - drift.width, y: point.y - drift.height))
-            animation.toValue = NSValue(cgPoint: CGPoint(x: point.x + drift.width, y: point.y + drift.height))
-            animation.duration = duration / 2
-            animation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-            return animation
+    }
+
+    fileprivate func drawMotion(at timestamp: CFTimeInterval) {
+        let start = motionStart ?? timestamp
+        motionStart = start
+        let config = configuration
+        let time = CGFloat((timestamp - start) / max(0.12, config.gradientMotionDuration))
+        let width = 56
+        let height = 48
+        let xAmplitude = min(0.14, opacity(config.gradientMotionAmplitude.width / glow.bounds.width))
+        let yAmplitude = min(0.14, opacity(config.gradientMotionAmplitude.height / glow.bounds.height))
+        let turbulence = min(0.5, opacity(config.gradientMotionScale))
+        let highlightOpacity = opacity(config.gradientMotionHighlightOpacity)
+        let shadowOpacity = opacity(config.gradientMotionShadowOpacity)
+        let origin = glow.startPoint
+        let radiusX = abs(glow.endPoint.x - origin.x)
+        let radiusY = abs(glow.endPoint.y - origin.y)
+        let leftFlare = ShoulderFlare(time: time, rate: 2.55, phase: 0.18, direction: 1)
+        let rightFlare = ShoulderFlare(time: time, rate: 2.12, phase: 0.64, direction: -1)
+        var maskPixels = [UInt8](repeating: 0, count: width * height * 2)
+        var lightPixels = [UInt8](repeating: 0, count: width * height * 4)
+
+        for row in 0..<height {
+            let y = CGFloat(row) / CGFloat(height - 1)
+            // 根部的摆幅小一些，同一阵起伏先经过底部，再向上延伸。
+            let phase = time + y * 0.62
+            let edge = min(1, y * 7, (1 - y) * 3)
+            let upper = Self.smoothStep((0.64 - y) / 0.30)
+            let sway = (0.76 * sin(4.6 * phase) + 0.24 * sin(7.3 * phase + 0.8)) * (1 - y) * edge
+            let mainCenter = 0.5 + xAmplitude * sin(3.1 * phase + 0.5)
+            let mainWidth = 0.25 + 0.035 * sin(3.9 * phase)
+            let mainHeight = 0.72 + 0.14 * sin(4.4 * phase - 0.7)
+            let leftHeight = 0.12 + 0.42 * (0.5 + 0.5 * sin(5.2 * phase + 1.2))
+            let rightHeight = 0.1 + 0.44 * (0.5 + 0.5 * sin(4.1 * phase + 3.4))
+            for column in 0..<width {
+                let x = CGFloat(column) / CGFloat(width - 1)
+                let warpedX = x - 1.5 * xAmplitude * sway
+                // 宽缓的中央火势与两侧起伏叠在同一片光里，较弱的一侧会融入轮廓。
+                let main = mainHeight * Self.roundedPeak(warpedX, center: mainCenter, width: mainWidth)
+                let left = leftHeight * Self.roundedPeak(warpedX, center: 0.19 + 0.7 * (mainCenter - 0.5), width: 0.17)
+                let right = rightHeight * Self.roundedPeak(warpedX, center: 0.81 + 0.6 * (mainCenter - 0.5), width: 0.18)
+                let rise = main + left + right
+                let leftSample = leftFlare.sample(x: warpedX, y: y)
+                let rightSample = rightFlare.sample(x: warpedX, y: y)
+                let front = leftSample.front + rightSample.front - leftSample.front * rightSample.front
+                let wake = leftSample.wake + rightSample.wake - leftSample.wake * rightSample.wake
+                // 两肩的亮纹掀起局部圆弧，随后从上缘向火焰内部淡去。
+                let flare = (front - 0.48 * wake) * upper
+                let warpedY = y + yAmplitude * (0.56 * (rise - 0.23) + 1.35 * flare) * edge
+                let distance = hypot((warpedX - origin.x) / radiusX, (warpedY - origin.y) / radiusY)
+                let stop = min(1, distance) * 255
+                let lower = Int(stop)
+                let next = min(255, lower + 1)
+                let coverage = gradientStops[lower] + (gradientStops[next] - gradientStops[lower]) * (stop - CGFloat(lower))
+                let index = row * width + column
+                maskPixels[index * 2] = UInt8(255 * min(1, max(0, coverage)))
+                maskPixels[index * 2 + 1] = maskPixels[index * 2]
+
+                let light = (0.78 * wake - 0.52 * front) * upper * edge * coverage * (0.72 + turbulence)
+                let amount = 255 * min(1, abs(light)) * (light >= 0 ? highlightOpacity : shadowOpacity)
+                let color = light >= 0 ? highlight : shadow
+                lightPixels[index * 4] = UInt8(amount * color.r)
+                lightPixels[index * 4 + 1] = UInt8(amount * color.g)
+                lightPixels[index * 4 + 2] = UInt8(amount * color.b)
+                lightPixels[index * 4 + 3] = UInt8(amount)
+            }
         }
-        baseMotion.duration = duration / 2
-        baseMotion.autoreverses = true
-        baseMotion.repeatCount = .infinity
-        glow.add(baseMotion, forKey: "flow")
-        for (index, effect) in [motionHighlight, motionShadow].enumerated() {
-            effect.isHidden = false
-            let sign: CGFloat = index == 0 ? 1 : -1
-            let center = effect.position
-            let movement = CAKeyframeAnimation(keyPath: "position")
-            movement.values = [CGPoint(x: center.x - x * sign, y: center.y - y), CGPoint(x: center.x + x * sign, y: center.y + y), CGPoint(x: center.x + x * sign * 0.3, y: center.y - y * 0.5), CGPoint(x: center.x - x * sign, y: center.y - y)].map { NSValue(cgPoint: $0) }
-            movement.calculationMode = .cubic
-            let expansion = CAKeyframeAnimation(keyPath: "transform.scale")
-            expansion.values = [1 - scale, 1 + scale, 1 - scale * 0.5, 1 - scale]
-            expansion.calculationMode = .cubic
-            let brightness = CAKeyframeAnimation(keyPath: "opacity")
-            brightness.values = [0.5, 1, 0.65, 0.5]
-            brightness.calculationMode = .cubic
-            for component in [movement, expansion, brightness] { component.duration = duration * (index == 0 ? 1 : 1.3) }
-            let animation = CAAnimationGroup()
-            animation.animations = [movement, expansion, brightness]
-            animation.duration = duration * (index == 0 ? 1 : 1.3)
-            animation.repeatCount = .infinity
-            effect.add(animation, forKey: "flow")
+
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        flowMask.contents = Self.makeImage(maskPixels, width: width, height: height, space: CGColorSpaceCreateDeviceGray())
+        flowLight.contents = Self.makeImage(lightPixels, width: width, height: height, space: CGColorSpaceCreateDeviceRGB())
+        glow.isHidden = flowMask.contents != nil
+        flow.isHidden = glow.isHidden == false
+        flowLight.isHidden = flow.isHidden
+        CATransaction.commit()
+    }
+
+    private static func roundedPeak(_ x: CGFloat, center: CGFloat, width: CGFloat) -> CGFloat {
+        let distance = (x - center) / width
+        return exp(-distance * distance)
+    }
+
+    private static func smoothStep(_ value: CGFloat) -> CGFloat {
+        let t = min(1, max(0, value))
+        return t * t * (3 - 2 * t)
+    }
+
+    private struct ShoulderFlare {
+        let center: CGPoint
+        let strength: CGFloat
+        let direction: CGFloat
+
+        init(time: CGFloat, rate: CGFloat, phase: CGFloat, direction: CGFloat) {
+            let clock = time * rate + phase + 0.16 * sin(5.1 * time + phase * 4)
+            let cycle = floor(clock)
+            let age = clock - cycle
+            let travel = age * (2 - age)
+            let offset = direction * (0.22 * travel - 0.31) + 0.05 * sin(time * 5 + phase * 3)
+            center = CGPoint(x: 0.5 + offset, y: 0.45 - 0.31 * travel)
+            let ignition = WYChatGradientRecordingView.smoothStep(age / 0.19)
+            let fade = WYChatGradientRecordingView.smoothStep((0.86 - age) / 0.62)
+            strength = ignition * fade * (0.78 + 0.22 * sin(2.38 * cycle + phase * 7))
+            self.direction = direction
         }
+
+        func sample(x: CGFloat, y: CGFloat) -> (front: CGFloat, wake: CGFloat) {
+            let offset = x - center.x
+            let arc = center.y + 0.8 * offset * offset - 0.26 * direction * offset
+            let weight = strength * WYChatGradientRecordingView.roundedPeak(x, center: center.x, width: 0.27)
+            return (weight * WYChatGradientRecordingView.roundedPeak(y, center: arc, width: 0.12),
+                    weight * WYChatGradientRecordingView.roundedPeak(y, center: arc + 0.12, width: 0.15))
+        }
+    }
+
+    private static func makeImage(_ bytes: [UInt8], width: Int, height: Int, space: CGColorSpace) -> CGImage? {
+        guard let provider = CGDataProvider(data: Data(bytes) as CFData) else { return nil }
+        let components = space.numberOfComponents + 1
+        return CGImage(width: width, height: height, bitsPerComponent: 8, bitsPerPixel: components * 8,
+                       bytesPerRow: width * components, space: space,
+                       bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue),
+                       provider: provider, decode: nil, shouldInterpolate: true, intent: .defaultIntent)
     }
 
     override func layoutSubviews() {
@@ -192,9 +343,11 @@ final class WYChatGradientRecordingView: UIView {
         CATransaction.setDisableActions(true)
         let height = min(bounds.height, valid(config.gradientHeight))
         glow.frame = CGRect(x: 0, y: bounds.height - height, width: bounds.width, height: height)
-        motionHighlight.frame = CGRect(x: bounds.width * 0.12, y: bounds.height - height * 0.75, width: bounds.width * 0.72, height: height * 0.85)
-        motionShadow.frame = CGRect(x: bounds.width * 0.3, y: bounds.height - height * 0.65, width: bounds.width * 0.6, height: height * 0.8)
-        pressGlow.bounds = CGRect(origin: .zero, size: CGSize(width: min(bounds.width, valid(config.gradientPressSize.width)), height: min(bounds.height, valid(config.gradientPressSize.height))))
+        flow.frame = glow.frame
+        flowMask.frame = flow.bounds
+        flowLight.frame = glow.frame
+        let pressSize = config.gradientPressSize
+        pressGlow.bounds = CGRect(x: 0, y: 0, width: min(bounds.width, valid(pressSize.width)), height: min(bounds.height, valid(pressSize.height)))
         if let touchPoint { pressGlow.position = touchPoint }
         CATransaction.commit()
         let width = min(bounds.width, valid(config.gradientWaveformSize.width))
@@ -213,6 +366,22 @@ final class WYChatGradientRecordingView: UIView {
         updateMotion()
     }
 
-    deinit { observers.forEach { NotificationCenter.default.removeObserver($0) } }
+    deinit {
+        motionLink?.invalidate()
+        observers.forEach { NotificationCenter.default.removeObserver($0) }
+    }
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+}
+
+
+private final class WYChatGradientMotionTarget: NSObject {
+    private weak var view: WYChatGradientRecordingView?
+
+    init(view: WYChatGradientRecordingView) {
+        self.view = view
+    }
+
+    @objc func tick(_ link: CADisplayLink) {
+        view?.drawMotion(at: link.timestamp)
+    }
 }

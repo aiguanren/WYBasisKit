@@ -214,16 +214,24 @@ final class WYChatTestSuite {
             overlay.switchStatus(CGPoint(x: host.bounds.midX, y: host.bounds.height - 60))
             snapshot("recording")
             let gradient = descendants(overlay).first { $0.accessibilityIdentifier == "WYChatRecording.gradient" }
-            let layers = gradient?.layer.sublayers?.compactMap { $0 as? CAGradientLayer } ?? []
-            let moving = layers.filter { $0.animationKeys()?.isEmpty == false }
-            let positions = moving.map { $0.presentation()?.position }
+            let layers = gradient?.layer.sublayers ?? []
+            // 动态光纹由连续更新的位图绘制。
+            let textureLayer = layers.first { $0.contents != nil }
+            let initialTexture = textureLayer?.contents.map { $0 as AnyObject }
             try? await Task.sleep(nanoseconds: 800_000_000)
-            check("gradient-continuous-motion", !moving.isEmpty && zip(moving, positions).contains { $0.0.presentation()?.position != $0.1 })
+            let currentTexture = textureLayer?.contents.map { $0 as AnyObject }
+            let textureChanges = initialTexture != nil && currentTexture != nil && initialTexture !== currentTexture
+            check("gradient-continuous-motion", UIAccessibility.isReduceMotionEnabled ? textureLayer == nil : textureChanges)
             snapshot("motion")
             let touch = CGPoint(x: host.bounds.midX + 55, y: host.bounds.height - 75)
             overlay.switchStatus(touch)
+            let press = layers.first { $0.position == touch && $0.opacity > 0 }
+            check("gradient-touch-follows", press != nil && press?.animation(forKey: "following") == nil)
+            let pressSize = press?.bounds.size
+            let movedTouch = CGPoint(x: touch.x - 25, y: touch.y)
+            overlay.switchStatus(movedTouch)
+            check("gradient-touch-fixed-size", pressSize == config.gradientPressSize && press?.bounds.size == pressSize && press?.position == movedTouch)
             try? await Task.sleep(nanoseconds: 250_000_000)
-            check("gradient-touch-follows", layers.contains { $0.position == touch && $0.opacity > 0 })
             snapshot("pressed")
             overlay.switchStatus(CGPoint(x: 0, y: 0))
             check("gradient-up-cancel", overlay.soundAnimationStatus == .cancel)
@@ -447,11 +455,32 @@ final class WYChatTestSuite {
             input.emojiView.sendActions(for: .touchUpInside)
             try? await Task.sleep(nanoseconds: 350_000_000)
             check("emoji-dictation-visible-by-default", view.emojiView?.isHidden == false && !input.textView.isFirstResponder && button?.isHidden == false)
+            var insertedEmojis: [String] = []
+            if let panel = view.emojiView,
+               let section = panel.dataSource.firstIndex(where: { $0.count >= 2 }) {
+                input.textView.attributedText = NSAttributedString(string: "")
+                input.textView.selectedRange = NSRange(location: 0, length: 0)
+                for item in 0..<2 {
+                    view.wy_didClickEmojiView(panel, indexPath: IndexPath(item: item, section: section))
+                    insertedEmojis.append(panel.dataSource[section][item])
+                }
+                input.textView.selectedRange = NSRange(location: 1, length: 0)
+            }
+            @MainActor func draftMatches(_ transcript: String) -> Bool {
+                guard insertedEmojis.count == 2, let draft = input.textView.attributedText else { return false }
+                var attachments = 0
+                draft.enumerateAttribute(.attachment, in: NSRange(location: 0, length: draft.length)) { value, _, _ in
+                    if value is WYTextAttachment { attachments += 1 }
+                }
+                return attachments == 2 && input.sharedEmojiAttributedText(attributed: draft).string == insertedEmojis[0] + transcript + insertedEmojis[1]
+            }
             button?.sendActions(for: .touchUpInside)
             try? await Task.sleep(nanoseconds: 200_000_000)
+            check("emoji-dictation-preserves-attachments-in-partial", draftMatches(speech.partialText))
             check("emoji-dictation-records-with-panel-open", input.isInputDictating && !input.textView.isFirstResponder && view.emojiView?.isHidden == false)
             button?.sendActions(for: .touchUpInside)
             try? await Task.sleep(nanoseconds: 200_000_000)
+            check("emoji-dictation-preserves-attachments-in-final", draftMatches(speech.finalText))
             input.inputBarConfig.showsKeyboardDictationInEmojiPanel = false
             input.setNeedsLayout()
             input.layoutIfNeeded()
