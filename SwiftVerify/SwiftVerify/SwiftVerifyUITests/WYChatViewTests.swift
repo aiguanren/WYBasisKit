@@ -14,9 +14,21 @@ final class WYChatViewTests: XCTestCase {
         XCTAssertTrue(app.navigationBars["聊天界面"].waitForExistence(timeout: 15))
         let input = app.textViews["WYChatInput.text"]
         XCTAssertTrue(input.waitForExistence(timeout: 10))
-        let stable = NSPredicate { _, _ in input.isHittable && input.frame.maxX <= app.frame.width }
+        let placeholder = app.buttons["WYChatInput.placeholder"]
+        let stable = NSPredicate { _, _ in
+            (placeholder.isHittable || input.isHittable) && input.frame.maxX <= app.frame.width
+        }
         XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: stable, object: nil)], timeout: 10), .completed)
         return app
+    }
+
+    private func tapChatInput(in app: XCUIApplication) {
+        let placeholder = app.buttons["WYChatInput.placeholder"]
+        if placeholder.isHittable {
+            placeholder.tap()
+        } else {
+            app.textViews["WYChatInput.text"].tap()
+        }
     }
 
     func testReenterAfterScrollingTop() {
@@ -53,7 +65,8 @@ final class WYChatViewTests: XCTestCase {
     func testInitialLayoutAndKeyboard() {
         let app = openChat()
         let input = app.textViews["WYChatInput.text"]
-        input.tap()
+        XCTAssertTrue(app.buttons["WYChatInput.placeholder"].isHittable)
+        tapChatInput(in: app)
         XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 5))
         XCTAssertLessThanOrEqual(input.frame.maxY, app.keyboards.firstMatch.frame.minY)
         XCTAssertFalse(app.buttons["Done"].exists)
@@ -306,7 +319,7 @@ final class WYChatViewTests: XCTestCase {
         let app = openChat()
         let editor = app.textViews["WYChatInput.text"]
         let text = "Clipboard message"
-        editor.tap()
+        tapChatInput(in: app)
         editor.typeText(text)
         let send = app.buttons["WYChatInput.send"]
         XCTAssertTrue(send.waitForExistence(timeout: 5))
@@ -445,21 +458,30 @@ final class WYChatViewTests: XCTestCase {
         settingsImage.name = "chat-friendly-settings"
         settingsImage.lifetime = .keepAlways
         add(settingsImage)
-        app.staticTexts["输入框操作"].tap()
+        let table = app.tables["WYChatSettings.groups"]
+        let inputRow = table.cells["WYChatSettings.item.inputBehavior"]
+        func showInputSetting() {
+            for _ in 0..<5 where !inputRow.isHittable { table.swipeUp() }
+            XCTAssertTrue(inputRow.isHittable)
+        }
+        showInputSetting()
+        XCTAssertTrue(inputRow.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "单击输入，长按发语音")).firstMatch.exists)
+        inputRow.tap()
         app.buttons["单击输入，长按识别"].tap()
         app.navigationBars.buttons["保存"].tap()
         XCTAssertTrue(app.navigationBars["聊天界面"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["WYChatInput.placeholder"].isHittable)
         settings()
-        let inputRow = app.tables.cells.containing(.staticText, identifier: "输入框操作").firstMatch
+        showInputSetting()
         XCTAssertTrue(inputRow.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "单击输入，长按识别")).firstMatch.exists)
-        app.staticTexts["输入框操作"].tap()
+        inputRow.tap()
         app.buttons["切换到语音模式后录音"].tap()
         app.navigationBars["聊天设置"].buttons.element(boundBy: 0).tap()
         app.navigationBars.buttons["关闭"].tap()
         XCTAssertTrue(app.buttons["WYChatInput.placeholder"].isHittable)
         settings()
-        app.staticTexts["输入框操作"].tap()
+        showInputSetting()
+        inputRow.tap()
         app.buttons["切换到语音模式后录音"].tap()
         app.navigationBars.buttons["保存"].tap()
         XCTAssertTrue(app.navigationBars["聊天界面"].waitForExistence(timeout: 5))
@@ -468,21 +490,61 @@ final class WYChatViewTests: XCTestCase {
         XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 5))
     }
 
+    func testFriendlySettingsShowAndEditNamedMessageMenuActions() {
+        let app = openChat()
+        func openSettings() {
+            app.navigationBars.buttons["测试"].tap()
+            app.navigationBars.buttons["配置"].tap()
+            XCTAssertTrue(app.navigationBars["聊天设置"].waitForExistence(timeout: 5))
+        }
+        let settings = app.tables["WYChatSettings.groups"]
+        let columns = settings.cells["WYChatSettings.item.menuMaximumColumns"]
+        let actions = settings.cells["WYChatSettings.item.menuActions"]
+        func showMenuSettings() {
+            for _ in 0..<4 where !actions.isHittable { settings.swipeUp() }
+            XCTAssertTrue(actions.isHittable)
+        }
+
+        openSettings()
+        showMenuSettings()
+        XCTAssertTrue(columns.staticTexts["气泡旁菜单每行最多显示几项"].exists)
+        XCTAssertTrue(actions.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "复制、粘贴、引用")).firstMatch.exists)
+        actions.tap()
+        let menuSettings = app.tables["WYChatSettings.menuActions"]
+        XCTAssertTrue(menuSettings.waitForExistence(timeout: 5))
+        let copy = menuSettings.cells.containing(.staticText, identifier: "复制").firstMatch
+        XCTAssertTrue(copy.isHittable)
+        copy.tap()
+        app.navigationBars.buttons["确定"].tap()
+        XCTAssertTrue(actions.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "粘贴、引用、转发")).firstMatch.waitForExistence(timeout: 5))
+        app.navigationBars.buttons["保存"].tap()
+        XCTAssertTrue(app.navigationBars["聊天界面"].waitForExistence(timeout: 5))
+
+        openSettings()
+        showMenuSettings()
+        XCTAssertTrue(actions.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "粘贴、引用、转发")).firstMatch.exists)
+    }
+
     func testFriendlyRecordingStyleSelection() {
         let app = openChat()
+        let table = app.tables["WYChatSettings.groups"]
+        let row = table.cells["WYChatSettings.item.recording.interactionStyle"]
+        func showRecordingStyle() {
+            for _ in 0..<5 where !row.isHittable { table.swipeUp() }
+            XCTAssertTrue(row.isHittable)
+        }
         app.navigationBars.buttons["测试"].tap()
         app.navigationBars.buttons["配置"].tap()
-        let effect = app.staticTexts["录音交互效果"]
-        for _ in 0..<4 { if effect.isHittable { break }; app.tables.firstMatch.swipeUp() }
-        effect.tap()
-        app.buttons["底部渐变声波"].tap()
+        showRecordingStyle()
+        XCTAssertTrue(row.staticTexts.matching(NSPredicate(format: "label ENDSWITH %@", "底部渐变声波")).firstMatch.exists)
+        row.tap()
+        app.buttons["分区操作"].tap()
         app.navigationBars.buttons["保存"].tap()
         XCTAssertTrue(app.navigationBars["聊天界面"].waitForExistence(timeout: 5))
         app.navigationBars.buttons["测试"].tap()
         app.navigationBars.buttons["配置"].tap()
-        for _ in 0..<4 { if effect.isHittable { break }; app.tables.firstMatch.swipeUp() }
-        let row = app.tables.cells.containing(.staticText, identifier: "录音交互效果").firstMatch
-        XCTAssertTrue(row.staticTexts["底部渐变声波"].exists)
+        showRecordingStyle()
+        XCTAssertTrue(row.staticTexts.matching(NSPredicate(format: "label ENDSWITH %@", "分区操作")).firstMatch.exists)
     }
 
     func testConfigurationEditorActualWorkflow() {
@@ -533,7 +595,7 @@ final class WYChatViewTests: XCTestCase {
         XCTAssertNotNil(avatar)
         if let avatar { XCTAssertEqual(avatar.frame.width, 38, accuracy: 1); XCTAssertEqual(avatar.frame.height, 38, accuracy: 1) }
         let input = app.textViews["WYChatInput.text"].firstMatch
-        input.tap()
+        tapChatInput(in: app)
         input.typeText("配置字体预览")
         XCTAssertFalse(app.buttons["Done"].exists)
         let image = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
@@ -613,7 +675,7 @@ final class WYChatViewTests: XCTestCase {
     func testLongPressMessageEmojiUsesChatMenu() {
         let app = openChat()
         let editor = app.textViews["WYChatInput.text"]
-        editor.tap()
+        tapChatInput(in: app)
         editor.typeText("Emoji target ")
         app.buttons["WYChatInput.emoji"].tap()
         let emojis = app.collectionViews["WYChatEmoji.items"]

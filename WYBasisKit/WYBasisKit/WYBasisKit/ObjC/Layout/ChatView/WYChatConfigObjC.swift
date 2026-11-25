@@ -485,7 +485,7 @@ import WYBasisKitSwift
 
 @objc(WYRecordAnimationConfig)
 @objcMembers public class WYRecordAnimationConfigObjC: NSObject {
-    /// 录音手势与界面方案，默认分区操作
+    /// 录音手势与界面方案，默认底部渐变声波
     public var interactionStyle: WYRecordingInteractionStyle
     /// 渐变录音区域高度
     public var gradientHeight: CGFloat
@@ -1584,7 +1584,7 @@ import WYBasisKitSwift
     public var draftStorageKey: String = ""
     /// 文本占位对齐方式
     public var textPlaceholderAlignment: NSTextAlignment
-    /// 空输入框的长按操作，默认disabled，dictation需要启用语音识别
+    /// 空输入框的长按操作，默认 voice（长按发语音），dictation 需要启用语音识别
     public var placeholderLongPressAction: WYChatInputLongPressAction
     /// 是否在键盘展开时显示输入框内的语音识别按钮，需要启用语音识别
     public var enablesKeyboardDictation: Bool

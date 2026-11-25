@@ -48,8 +48,8 @@ public struct WYRecordAnimationConfig {
         return config
     }
 
-    /// 录音手势与界面方案，默认分区操作
-    public var interactionStyle: WYRecordingInteractionStyle = .actionRegions
+    /// 录音手势与界面方案，默认底部渐变声波
+    public var interactionStyle: WYRecordingInteractionStyle = .gradient
     /// 渐变录音区域高度
     public var gradientHeight: CGFloat = UIDevice.wy_screenHeight(320, WYBasisKitConfig.defaultScreenPixels)
     /// 渐变录音普通状态主色
@@ -274,7 +274,7 @@ public struct WYRecordAnimationConfig {
     public var cancelRecordViewText: (onInterior: String, tips: String) = (onInterior: WYLocalized("取消", table: WYBasisKitConfig.kitLocalizableTable), tips: WYLocalized("松手 取消", table: WYBasisKitConfig.kitLocalizableTable))
     
     /// 转文字按钮内部文本和提示文本
-    public var transferViewText: (onInterior: String, tips: String) = (onInterior: WYLocalized("滑到这里\n转文字", table: WYBasisKitConfig.kitLocalizableTable).replacingOccurrences(of: "\n", with: " "), tips: WYLocalized("松手 编辑", table: WYBasisKitConfig.kitLocalizableTable))
+    public var transferViewText: (onInterior: String, tips: String) = (onInterior: WYLocalized("滑到这里\n转文字", table: WYBasisKitConfig.kitLocalizableTable), tips: WYLocalized("松手 编辑", table: WYBasisKitConfig.kitLocalizableTable))
     
     /// 录音按钮提示文本
     public var recordViewTips: (onInterior: String, onExternal: String) = (onInterior: WYLocalized("松手 发语音", table: WYBasisKitConfig.kitLocalizableTable), onExternal: WYLocalized("语音", table: WYBasisKitConfig.kitLocalizableTable))

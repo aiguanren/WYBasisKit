@@ -160,7 +160,7 @@ final class WYChatTestSuite {
                 host.modalPresentationStyle = .fullScreen
                 presenter.present(host, animated: false)
                 var config = self.chatView.configuration
-                config.input.placeholderLongPressAction = .voice
+                config.input.placeholderLongPressAction = WYInputBarConfig().placeholderLongPressAction
                 config.recording.interactionStyle = style
                 config.recording.recorder = recorder
                 config.recording.supportSpeechRecognition = false
@@ -379,6 +379,7 @@ final class WYChatTestSuite {
             check("recording-result-once", prepared.count == 1)
             for style in [WYRecordingActionStyle.circular, .curved] {
                 var value = config.recording
+                value.interactionStyle = .actionRegions
                 value.actionStyle = style
                 value.supportSpeechRecognition = true
                 let overlay = WYRecordAnimationView(alpha: 0, configuration: value)
@@ -578,6 +579,7 @@ final class WYChatTestSuite {
             config.recording.recorder = recorder
             config.recording.supportSpeechRecognition = false
             config.recording.recordTime.min = 0
+            config.recording.interactionStyle = .actionRegions
             config.recording.actionStyle = .curved
             let view = WYChatView(userInfo: self.chatView.userInfo, configuration: config)
             host.view.addSubview(view)
@@ -2177,6 +2179,7 @@ final class WYChatTestSuite {
         cases.append(WYChatTestCase("录音操作双样式", group: "录音", explanation: "切换圆形与弧形按钮，检查普通/选中状态、尺寸、颜色、文案、配置刷新和不同宽度下的滑入操作") { [weak self] in
             guard let self else { return [] }
             var config = WYRecordAnimationConfig()
+            config.interactionStyle = .actionRegions
             config.supportSpeechRecognition = true
             let view = WYMoveUpTipsView(tipsState: .cancel, configuration: config)
             view.translatesAutoresizingMaskIntoConstraints = false
@@ -2197,6 +2200,13 @@ final class WYChatTestSuite {
                     checks.append(WYChatTestResult(name: "size-\(style.rawValue)-\(touched)", passed: abs(actual.width - size.width) < 1 && abs(actual.height - size.height) < 1, detail: "actual=\(actual), expected=\(size)", milliseconds: 0))
                     let background = style == .curved ? view.moveUpView.currentBackgroundImage == nil && view.moveUpView.backgroundColor == (touched ? config.curvedActionColors.selected : config.curvedActionColors.normal) : view.moveUpView.currentBackgroundImage != nil
                     checks.append(WYChatTestResult(name: "appearance-\(style.rawValue)-\(touched)", passed: background && view.moveUpView.currentTitle == "停止采集" && view.moveUpView.isSelected == touched, detail: "", milliseconds: 0))
+                    view.refresh(tipsState: .transfer, isTouched: touched)
+                    self.chatView.layoutIfNeeded()
+                    view.layoutIfNeeded()
+                    let title = view.moveUpView.currentTitle ?? ""
+                    let label = view.moveUpView.titleLabel
+                    let hasRoomForTwoLines = label.map { $0.bounds.height > $0.font.lineHeight * 1.5 } ?? false
+                    checks.append(WYChatTestResult(name: "transcribe-title-\(style.rawValue)-\(touched)", passed: title.contains("\n") && hasRoomForTwoLines, detail: title.debugDescription, milliseconds: 0))
                 }
             }
             config.actionStyle = .curved
@@ -3119,6 +3129,7 @@ final class WYChatTestSuite {
             let recognizer = WYChatRecognitionFixture()
             var config = WYRecordAnimationConfig()
             config.supportSpeechRecognition = true
+            config.interactionStyle = .actionRegions
             config.speechRecognitionSource = .external
             config.speechRecognitionProvider = recognizer
             config.recorder = recorder

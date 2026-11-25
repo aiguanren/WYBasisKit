@@ -26,8 +26,8 @@ public struct WYInputBarConfig {
 
     /// 文本占位对齐方式
     public var textPlaceholderAlignment: NSTextAlignment = .left
-    /// 空输入框的长按操作，默认disabled，dictation需要启用语音识别
-    public var placeholderLongPressAction: WYChatInputLongPressAction = .disabled
+    /// 空输入框的长按操作，默认 voice（长按发语音），dictation 需要启用语音识别
+    public var placeholderLongPressAction: WYChatInputLongPressAction = .voice
     /// 是否在键盘展开时显示输入框内的语音识别按钮，需要启用语音识别
     public var enablesKeyboardDictation: Bool = true
     /// 输入框有内容时是否继续显示语音识别按钮，默认 false，识别进行中仍显示完成按钮

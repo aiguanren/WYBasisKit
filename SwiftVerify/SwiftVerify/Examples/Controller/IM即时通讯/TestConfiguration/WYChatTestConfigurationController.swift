@@ -302,7 +302,7 @@ final class WYChatSettingsController: UITableViewController, UIColorPickerViewCo
         let title: String
         let path: String
         var choices: [(String, String)] = []
-        var explanation = ""
+        let explanation: String
     }
     private weak var chatView: WYChatView?
     private let draftView: WYChatView
@@ -329,88 +329,93 @@ final class WYChatSettingsController: UITableViewController, UIColorPickerViewCo
         draftView.dataSource = chatView.dataSource
         super.init(style: .insetGrouped)
         groups = [
-            ("输入方式", [
-                Item(title: "长按消息时整行高亮", path: "highlightsEntireCellOnLongPress"),
-                Item(title: "长按菜单与头像的最小间距", path: "menuPreviewAvatarSpacing"),
-                Item(title: "点击消息列表收起输入", path: "dismissInputOnTap"),
-                Item(title: "输入框操作", path: "inputBehavior", choices: [("切换到语音模式后录音", "0"), ("单击输入，长按发语音", "1"), ("单击输入，长按识别", "2")], explanation: "单击输入框弹出键盘，长按适用于空输入框"),
-                Item(title: "占位文字位置", path: "input.textPlaceholderAlignment", choices: [("居左", "0"), ("居中", "1"), ("居右", "2")]),
-                Item(title: "占位提示文字", path: "input.textPlaceholder"),
-                Item(title: "键盘内显示语音识别按钮", path: "input.enablesKeyboardDictation"),
-                Item(title: "输入框有内容时显示语音识别按钮", path: "input.showsKeyboardDictationWithText"),
-                Item(title: "手动修改文本时关闭语音识别", path: "input.stopsKeyboardDictationOnTextChange")
+            ("长按消息后的菜单", [
+                Item(title: "长按时使用系统整行预览", path: "highlightsEntireCellOnLongPress", explanation: "开启时突出整条消息并弹出系统菜单。关闭时气泡留在原位，菜单出现在气泡上方或下方。"),
+                Item(title: "气泡旁菜单与头像的最小横向间距", path: "menuPreviewAvatarSpacing", explanation: "调整菜单边缘与这条消息头像之间的横向距离，单位为点。列表可用宽度不足时会缩小间距。"),
+                Item(title: "气泡旁菜单背景色", path: "menuBackgroundColor", explanation: "调整长按消息后，气泡旁整块菜单面板的底色。"),
+                Item(title: "气泡旁菜单普通按钮颜色", path: "menuTextColor", explanation: "调整「复制」「转发」等普通按钮的文字和图标颜色。"),
+                Item(title: "气泡旁菜单「删除」按钮颜色", path: "menuDestructiveTextColor", explanation: "调整长按消息后「删除」按钮的文字和图标颜色。"),
+                Item(title: "气泡旁菜单按钮字号", path: "menuItemFont", explanation: "调整长按菜单按钮下方「复制」「引用」等文字的大小。"),
+                Item(title: "气泡旁菜单每行最多显示几项", path: "menuMaximumColumns", explanation: "例如设为 3，菜单每行最多排 3 个按钮，其余按钮换行。宽度不足时会自动少排。"),
+                Item(title: "长按消息菜单的按钮与顺序", path: "menuActions", explanation: "选择长按消息后可出现的按钮，例如「复制」「引用」「删除」。实际显示项取决于消息类型和当前状态。")
             ]),
-            ("消息菜单", [
-                Item(title: "菜单背景色", path: "menuBackgroundColor"),
-                Item(title: "菜单文字颜色", path: "menuTextColor"),
-                Item(title: "危险操作文字颜色", path: "menuDestructiveTextColor"),
-                Item(title: "菜单字体和字号", path: "menuItemFont"),
-                Item(title: "每行最多显示几项", path: "menuMaximumColumns"),
-                Item(title: "显示的菜单功能", path: "menuActions")
+            ("底部输入栏与键盘", [
+                Item(title: "点击消息列表时收起键盘和面板", path: "dismissInputOnTap", explanation: "轻点消息气泡、头像或列表空白处时，收起底部键盘、表情面板或「＋」面板。"),
+                Item(title: "空输入框的长按操作", path: "inputBehavior", choices: [("切换到语音模式后录音", "0"), ("单击输入，长按发语音", "1"), ("单击输入，长按识别", "2")], explanation: "针对聊天页底部没有文字的输入框。轻点打开键盘，长按可录音发语音或转成文字。"),
+                Item(title: "空输入框提示文字的对齐位置", path: "input.textPlaceholderAlignment", choices: [("居左", "0"), ("居中", "1"), ("居右", "2")], explanation: "调整空输入框里灰色提示文字的位置。选居中时，点进输入框后会靠左。"),
+                Item(title: "空输入框的提示文字", path: "input.textPlaceholder", explanation: "输入框为空时显示的灰色文字，输入内容后消失。"),
+                Item(title: "显示输入框右侧的语音识别按钮", path: "input.enablesKeyboardDictation", explanation: "展开键盘时，文字输入框右侧可出现麦克风按钮。需要先启用语音转文字。"),
+                Item(title: "输入框有文字时仍显示麦克风按钮", path: "input.showsKeyboardDictationWithText", explanation: "控制文字输入框右侧的语音识别按钮在已有内容时是否仍可用于开始识别。"),
+                Item(title: "编辑输入文字时结束语音识别", path: "input.stopsKeyboardDictationOnTextChange", explanation: "通过输入框右侧麦克风识别时，手动输入或删除文字会结束正在进行的识别。")
             ]),
-            ("语音录制与识别", [
-                Item(title: "启用语音识别", path: "recording.supportSpeechRecognition"),
-                Item(title: "录音交互效果", path: "recording.interactionStyle", choices: [("分区操作", "0"), ("底部渐变声波", "1")]),
-                Item(title: "分区按钮外观", path: "recording.actionStyle", choices: [("圆形", "0"), ("弧形", "1")]),
-                Item(title: "长按识别显示声波", path: "recording.dictationShowsWaveform"),
-                Item(title: "转文字后松手直接发送", path: "recording.dictationSendsOnRelease", explanation: "关闭后进入文字编辑界面，确认后发送"),
-                Item(title: "识别时机", path: "recording.speechRecognitionMode", choices: [("边录音边识别", "0"), ("录音结束后识别", "1")]),
-                Item(title: "识别服务", path: "recording.speechRecognitionSource", choices: [("Apple 系统识别", "0"), ("宿主接入的识别服务", "1")], explanation: "外部服务需要宿主提供识别实现"),
-                Item(title: "识别语言", path: "recording.speechLocaleIdentifier", choices: [("跟随系统语言", Locale.preferredLanguages.first ?? Locale.current.identifier), ("简体中文", "zh-CN"), ("繁體中文", "zh-TW"), ("English", "en-US"), ("日本語", "ja-JP"), ("한국어", "ko-KR")]),
-                Item(title: "仅使用设备本地识别", path: "recording.requiresOnDeviceRecognition"),
-                Item(title: "最长录音秒数", path: "recording.recordTime.max")
+            ("录音界面与语音转文字", [
+                Item(title: "启用语音转文字", path: "recording.supportSpeechRecognition", explanation: "启用语音转文字后，可使用录音界面的转文字操作、语音消息的「转文字」和输入框右侧的麦克风按钮。"),
+                Item(title: "长按录音时的界面样式", path: "recording.interactionStyle", choices: [("分区操作", "0"), ("底部渐变声波", "1")], explanation: "开始录音后，可以向取消或转文字区域滑动，也可以用底部渐变声波样式上滑取消。"),
+                Item(title: "分区录音的「取消」与「转文字」按钮形状", path: "recording.actionStyle", choices: [("圆形", "0"), ("弧形", "1")], explanation: "使用「分区操作」样式时，调整录音界面下方两个操作区的形状。"),
+                Item(title: "长按空输入框转文字时显示声波", path: "recording.dictationShowsWaveform", explanation: "使用「分区操作」样式直接转写时，控制录音界面内的音量声波是否显示。"),
+                Item(title: "长按空输入框转文字，松手后发送", path: "recording.dictationSendsOnRelease", explanation: "长按空输入框转写时，开启后松手会自动发送识别结果。关闭后先进入文字编辑界面，确认后发送。"),
+                Item(title: "录音何时开始转文字", path: "recording.speechRecognitionMode", choices: [("边录音边识别", "0"), ("录音结束后识别", "1")], explanation: "决定转写可在录音中返回文字，还是等录音完成后开始识别。"),
+                Item(title: "语音转文字使用的识别服务", path: "recording.speechRecognitionSource", choices: [("Apple 系统识别", "0"), ("宿主接入的识别服务", "1")], explanation: "外部识别服务需要由应用接入后才能使用。"),
+                Item(title: "语音转文字识别语言", path: "recording.speechLocaleIdentifier", choices: [("系统首选语言", Locale.preferredLanguages.first ?? Locale.current.identifier), ("简体中文", "zh-CN"), ("繁體中文", "zh-TW"), ("English", "en-US"), ("日本語", "ja-JP"), ("한국어", "ko-KR")], explanation: "选择识别录音时使用的语言。"),
+                Item(title: "语音转文字仅使用设备本地识别", path: "recording.requiresOnDeviceRecognition", explanation: "使用 Apple 识别时，设备和所选语言都需支持本地识别。"),
+                Item(title: "单次录音最长时间（秒）", path: "recording.recordTime.max", explanation: "限制一次录音可持续的时间，到达上限后结束录音。")
             ]),
-            ("渐变声波外观", [
-                Item(title: "渐变流动动画", path: "recording.gradientMotionEnabled"),
-                Item(title: "渐变流动周期（秒）", path: "recording.gradientMotionDuration"),
-                Item(title: "手指按压效果", path: "recording.gradientPressEnabled"),
-                Item(title: "按压效果颜色", path: "recording.gradientPressColor"),
-                Item(title: "按压效果不透明度", path: "recording.gradientPressOpacity"),
-                Item(title: "录音渐变颜色", path: "recording.gradientRecordingColor"),
-                Item(title: "取消渐变颜色", path: "recording.gradientCancelColor"),
-                Item(title: "普通声波颜色", path: "recording.gradientWaveform.wavesColor"),
-                Item(title: "取消声波颜色", path: "recording.gradientCancelWaveformColor"),
-                Item(title: "普通提示文字颜色", path: "recording.gradientHintColor"),
-                Item(title: "取消提示文字颜色", path: "recording.gradientCancelHintColor"),
-                Item(title: "渐变高度", path: "recording.gradientHeight"),
-                Item(title: "声波宽度", path: "recording.gradientWaveformSize.width"),
-                Item(title: "声波高度", path: "recording.gradientWaveformSize.height"),
-                Item(title: "声波底部间距", path: "recording.gradientWaveformBottomOffset"),
-                Item(title: "提示与声波间距", path: "recording.gradientHintSpacing"),
-                Item(title: "提示字体大小", path: "recording.gradientHintFont"),
-                Item(title: "上滑取消距离", path: "recording.gradientCancelDistance")
+            ("底部渐变声波录音界面", [
+                Item(title: "录音背景的渐变流动动画", path: "recording.gradientMotionEnabled", explanation: "录音时让底部渐变背景持续流动。"),
+                Item(title: "录音背景的渐变流动周期（秒）", path: "recording.gradientMotionDuration", explanation: "数值越大，底部渐变背景流动越慢。"),
+                Item(title: "录音时显示手指按压光晕", path: "recording.gradientPressEnabled", explanation: "在手指按住或滑动的位置显示跟随手指的光晕。"),
+                Item(title: "手指按压光晕颜色", path: "recording.gradientPressColor", explanation: "调整跟随手指移动的光晕颜色。"),
+                Item(title: "手指按压光晕不透明度", path: "recording.gradientPressOpacity", explanation: "调整光晕的可见程度，0 为透明，1 为不透明。"),
+                Item(title: "正常录音时的底部渐变色", path: "recording.gradientRecordingColor", explanation: "调整手指仍在录音区域时的背景主色。"),
+                Item(title: "上滑待取消时的底部渐变色", path: "recording.gradientCancelColor", explanation: "手指上滑进入待取消状态后，底部背景会切换到此颜色。"),
+                Item(title: "正常录音时的声波颜色", path: "recording.gradientWaveform.wavesColor", explanation: "调整录音界面底部随音量跳动的声波颜色。"),
+                Item(title: "上滑待取消时的声波颜色", path: "recording.gradientCancelWaveformColor", explanation: "手指进入待取消状态后，底部声波会切换到此颜色。"),
+                Item(title: "正常录音时的提示文字颜色", path: "recording.gradientHintColor", explanation: "调整声波上方「松手发送，上滑取消」等提示的颜色。"),
+                Item(title: "上滑待取消时的提示文字颜色", path: "recording.gradientCancelHintColor", explanation: "调整上滑后声波上方取消提示的颜色。"),
+                Item(title: "录音底部渐变背景高度", path: "recording.gradientHeight", explanation: "调整渐变背景从聊天页底部向上铺开的高度，单位为点。"),
+                Item(title: "录音界面底部的声波宽度", path: "recording.gradientWaveformSize.width", explanation: "调整随音量跳动的声波在水平方向占用的宽度，单位为点。"),
+                Item(title: "录音界面底部的声波高度", path: "recording.gradientWaveformSize.height", explanation: "调整随音量跳动的声波在垂直方向占用的高度，单位为点。"),
+                Item(title: "声波与屏幕底部安全区的距离", path: "recording.gradientWaveformBottomOffset", explanation: "数值越大，声波位置越靠上，单位为点。"),
+                Item(title: "录音提示与声波之间的距离", path: "recording.gradientHintSpacing", explanation: "调整提示文字下沿与声波上沿之间的距离，单位为点。"),
+                Item(title: "声波上方的录音提示字号", path: "recording.gradientHintFont", explanation: "调整「松手发送，上滑取消」等录音提示文字的大小。"),
+                Item(title: "从按下位置上滑取消的距离", path: "recording.gradientCancelDistance", explanation: "录音时从手指按下的位置向上滑到该距离后，松手即取消。单位为点。")
             ]),
-            ("头像与昵称", [
-                Item(title: "显示自己的头像", path: "sender.showsAvatar"),
-                Item(title: "显示对方的头像", path: "receiver.showsAvatar"),
-                Item(title: "单聊显示自己的昵称", path: "sender.showsSingleNickname"),
-                Item(title: "单聊显示对方的昵称", path: "receiver.showsSingleNickname"),
-                Item(title: "群聊显示自己的昵称", path: "sender.showsGroupNickname"),
-                Item(title: "群聊显示对方的昵称", path: "receiver.showsGroupNickname"),
-                Item(title: "头像宽度", path: "basic.avatarSize.width"),
-                Item(title: "头像高度", path: "basic.avatarSize.height"),
-                Item(title: "自己头像与消息间距", path: "sender.contentSpacing"),
-                Item(title: "对方头像与消息间距", path: "receiver.contentSpacing"),
-                Item(title: "昵称字体大小", path: "basic.nicknameFont"),
-                Item(title: "显示已读与未读", path: "basic.showReadMark"),
-                Item(title: "已读提示文字", path: "basic.readText"),
-                Item(title: "未读提示文字", path: "basic.unreadText")
+            ("消息列表的头像、昵称与阅读状态", [
+                Item(title: "显示自己消息旁的头像", path: "sender.showsAvatar", explanation: "控制聊天列表右侧自己发出的消息旁是否显示头像。"),
+                Item(title: "显示收到的消息旁的头像", path: "receiver.showsAvatar", explanation: "控制聊天列表左侧收到的消息旁是否显示发件人头像。"),
+                Item(title: "单聊时在自己的气泡上方显示昵称", path: "sender.showsSingleNickname", explanation: "只影响一对一聊天中自己发出的消息。"),
+                Item(title: "单聊时在对方的气泡上方显示昵称", path: "receiver.showsSingleNickname", explanation: "只影响一对一聊天中收到的消息。"),
+                Item(title: "群聊时在自己的气泡上方显示昵称", path: "sender.showsGroupNickname", explanation: "只影响群聊中自己发出的消息。"),
+                Item(title: "群聊时在成员的气泡上方显示昵称", path: "receiver.showsGroupNickname", explanation: "只影响群聊中其他成员发出的消息。"),
+                Item(title: "消息气泡旁头像的宽度", path: "basic.avatarSize.width", explanation: "同时调整自己和其他人的头像宽度，单位为点。"),
+                Item(title: "消息气泡旁头像的高度", path: "basic.avatarSize.height", explanation: "同时调整自己和其他人的头像高度，单位为点。"),
+                Item(title: "自己的头像与消息气泡的距离", path: "sender.contentSpacing", explanation: "调整聊天列表右侧头像与气泡之间的横向间距，单位为点。"),
+                Item(title: "其他人的头像与消息气泡的距离", path: "receiver.contentSpacing", explanation: "调整聊天列表左侧头像与气泡之间的横向间距，单位为点。"),
+                Item(title: "消息气泡上方的昵称字号", path: "basic.nicknameFont", explanation: "同时调整单聊和群聊中已显示的昵称大小。"),
+                Item(title: "显示自己消息旁的已读或未读标识", path: "basic.showReadMark", explanation: "标识出现在自己成功发出的消息气泡旁。"),
+                Item(title: "自己发出的消息被阅读后显示的文字", path: "basic.readText", explanation: "开启阅读状态标识后，消息被阅读时在气泡旁显示这段文字。"),
+                Item(title: "自己发出的消息尚未被阅读时显示的文字", path: "basic.unreadText", explanation: "开启阅读状态标识后，消息尚未被阅读时在气泡旁显示这段文字。")
             ]),
-            ("消息与输入栏外观", [
-                Item(title: "消息间距", path: "messageSpacing"),
-                Item(title: "自己发送的气泡颜色", path: "senderBubble.fillColor"),
-                Item(title: "对方发送的气泡颜色", path: "receiverBubble.fillColor"),
-                Item(title: "消息文字大小", path: "text.textFont"),
-                Item(title: "消息表情动画", path: "text.emojiPlaybackMode", choices: [("首次展示时播放", "0"), ("每次展示时播放", "1"), ("始终静态", "2")]),
-                Item(title: "输入文字大小", path: "input.textFont"),
-                Item(title: "输入栏背景颜色", path: "input.backgroundColor"),
-                Item(title: "语音切换按钮宽度", path: "input.voiceTextButtonSize.width"),
-                Item(title: "语音切换按钮高度", path: "input.voiceTextButtonSize.height"),
-                Item(title: "表情切换按钮宽度", path: "input.emojiTextButtonSize.width"),
-                Item(title: "表情切换按钮高度", path: "input.emojiTextButtonSize.height"),
-                Item(title: "媒体消息展示", path: "media.presentation", choices: [("逐条展示", "0"), ("合并展示", "1")])
+            ("消息列表外观与多媒体发送", [
+                Item(title: "消息列表中相邻消息的上下间距", path: "messageSpacing", explanation: "调整上一条与下一条消息之间的垂直留白，单位为点。"),
+                Item(title: "自己发出的消息气泡底色", path: "senderBubble.fillColor", explanation: "调整聊天列表右侧自己发出的消息气泡颜色。"),
+                Item(title: "收到的消息气泡底色", path: "receiverBubble.fillColor", explanation: "调整聊天列表左侧其他人发出的消息气泡颜色。"),
+                Item(title: "文本消息气泡内的字号", path: "text.textFont", explanation: "调整已显示在消息列表里的文本消息文字大小。"),
+                Item(title: "文本消息气泡内的动态表情播放方式", path: "text.emojiPlaybackMode", choices: [("首次展示时播放", "0"), ("每次展示时播放", "1"), ("始终静态", "2")], explanation: "控制气泡内的动态表情首次出现、滚动后再次出现时如何播放。"),
+                Item(title: "一次选择多张图片或视频后的发送方式", path: "media.presentation", choices: [("每个文件发一条消息", "0"), ("合并成一条叠卡消息", "1")], explanation: "从「＋」面板打开相册并多选后，决定新发出的图片和视频如何排列在聊天列表中。")
             ]),
-            ("高级与恢复", [Item(title: "全部属性设置", path: "advanced", explanation: "完整属性目录与专项预览"), Item(title: "恢复默认设置", path: "defaults")])
+            ("底部输入栏外观", [
+                Item(title: "输入框中正在编辑的文字字号", path: "input.textFont", explanation: "调整底部输入框里已输入、尚未发送的文字大小。"),
+                Item(title: "整条底部输入栏的背景色", path: "input.backgroundColor", explanation: "调整承载输入框、语音、表情和「＋」按钮的底部栏背景。"),
+                Item(title: "输入框左侧语音切换按钮的宽度", path: "input.voiceTextButtonSize.width", explanation: "调整切换文字输入和按住说话的按钮宽度，单位为点。"),
+                Item(title: "输入框左侧语音切换按钮的高度", path: "input.voiceTextButtonSize.height", explanation: "调整切换文字输入和按住说话的按钮高度，单位为点。"),
+                Item(title: "输入框右侧表情切换按钮的宽度", path: "input.emojiTextButtonSize.width", explanation: "调整切换表情面板和键盘的按钮宽度，单位为点。"),
+                Item(title: "输入框右侧表情切换按钮的高度", path: "input.emojiTextButtonSize.height", explanation: "调整切换表情面板和键盘的按钮高度，单位为点。")
+            ]),
+            ("高级与恢复", [
+                Item(title: "全部属性设置", path: "advanced", explanation: "按属性路径查找聊天组件配置，并打开聊天预览检查效果。"),
+                Item(title: "恢复默认设置", path: "defaults", explanation: "把本页和全部属性中的配置恢复为默认值，点击「保存」后应用到聊天页。")
+            ])
         ]
     }
 
@@ -420,7 +425,7 @@ final class WYChatSettingsController: UITableViewController, UIColorPickerViewCo
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "保存", style: .done, target: self, action: #selector(save))
         tableView.accessibilityIdentifier = "WYChatSettings.groups"
         let hint = UILabel(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: UIDevice.wy_screenHeight(64, WYBasisKitConfig.defaultScreenPixels)))
-        hint.text = "选择需要的效果，点击保存后返回聊天页\n返回而不保存时，聊天页保持原设置"
+        hint.text = "点右上角「保存」，在聊天页查看修改效果"
         hint.textAlignment = .center
         hint.numberOfLines = 0
         hint.font = .preferredFont(forTextStyle: .footnote)
@@ -434,13 +439,25 @@ final class WYChatSettingsController: UITableViewController, UIColorPickerViewCo
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let item = groups[indexPath.section].1[indexPath.row]
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: nil)
+        cell.accessibilityIdentifier = "WYChatSettings.item." + item.path
         cell.textLabel?.text = item.title
         cell.textLabel?.numberOfLines = 0
         cell.detailTextLabel?.numberOfLines = 0
+        cell.detailTextLabel?.font = .preferredFont(forTextStyle: .footnote)
+        cell.detailTextLabel?.adjustsFontForContentSizeCategory = true
+        cell.detailTextLabel?.textColor = .secondaryLabel
         cell.accessoryType = .disclosureIndicator
         let value = fields[item.path]?.read(draftView.configuration) ?? ""
+        var currentValue = ""
         if item.path == "inputBehavior" {
-            cell.detailTextLabel?.text = item.choices.first { $0.1 == String(draftView.configuration.input.placeholderLongPressAction.rawValue) }?.0
+            currentValue = item.choices.first { $0.1 == String(draftView.configuration.input.placeholderLongPressAction.rawValue) }?.0 ?? ""
+        } else if item.path == "menuActions" {
+            let config = draftView.configuration
+            let actions = config.menuActions
+            let names = actions.prefix(3).map { WYChatSettingsMenuActionsController.title(for: $0, configuration: config) }.joined(separator: "、")
+            currentValue = actions.isEmpty ? "未选择按钮" : actions.count > 3 ? "\(names)等 \(actions.count) 项" : names
+        } else if item.path == "menuMaximumColumns" {
+            currentValue = "每行最多 \(max(1, draftView.configuration.menuMaximumColumns)) 项"
         } else if let field = fields[item.path], field.kind == .boolean {
             let toggle = UISwitch()
             toggle.isOn = value == "true"
@@ -456,9 +473,12 @@ final class WYChatSettingsController: UITableViewController, UIColorPickerViewCo
             swatch.backgroundColor = fields[item.path]?.color?(draftView.configuration)
             swatch.layer.cornerRadius = UIDevice.wy_screenWidth(6, WYBasisKitConfig.defaultScreenPixels)
             cell.accessoryView = swatch
-        } else if fields[item.path]?.type == "UIFont" { cell.detailTextLabel?.text = (value.components(separatedBy: ",").last?.trimmingCharacters(in: .whitespaces) ?? "") + " 号" }
-        else { cell.detailTextLabel?.text = item.choices.first(where: { $0.1 == value })?.0 ?? value }
-        if !item.explanation.isEmpty { cell.detailTextLabel?.text = [cell.detailTextLabel?.text ?? "", item.explanation].filter { !$0.isEmpty }.joined(separator: "\n") }
+        } else if fields[item.path]?.type == "UIFont" {
+            currentValue = (value.components(separatedBy: ",").last?.trimmingCharacters(in: .whitespaces) ?? "") + " 号"
+        } else {
+            currentValue = item.choices.first(where: { $0.1 == value })?.0 ?? value
+        }
+        cell.detailTextLabel?.text = [item.explanation, currentValue].filter { !$0.isEmpty }.joined(separator: "\n")
         return cell
     }
 
@@ -478,8 +498,20 @@ final class WYChatSettingsController: UITableViewController, UIColorPickerViewCo
             navigationController?.pushViewController(controller, animated: true)
             return
         }
+        if item.path == "menuActions" {
+            let controller = WYChatSettingsMenuActionsController(configuration: draftView.configuration, title: item.title)
+            controller.applyActions = { [weak self] actions in
+                guard let self else { return }
+                var config = self.draftView.configuration
+                config.menuActions = actions
+                self.draftView.configuration = config
+                self.tableView.reloadData()
+            }
+            navigationController?.pushViewController(controller, animated: true)
+            return
+        }
         if !item.choices.isEmpty {
-            let alert = UIAlertController(title: item.title, message: item.explanation.isEmpty ? nil : item.explanation, preferredStyle: .actionSheet)
+            let alert = UIAlertController(title: item.title, message: item.explanation, preferredStyle: .actionSheet)
             for choice in item.choices {
                 alert.addAction(UIAlertAction(title: choice.0, style: .default) { [weak self] _ in
                     guard let self else { return }
@@ -509,11 +541,15 @@ final class WYChatSettingsController: UITableViewController, UIColorPickerViewCo
             present(picker, animated: true)
             return
         }
-        let alert = UIAlertController(title: item.title, message: nil, preferredStyle: .alert)
+        let alert = UIAlertController(title: item.title, message: item.explanation, preferredStyle: .alert)
         alert.addTextField { text in
             let value = field.read(self.draftView.configuration)
             text.text = field.type == "UIFont" ? value.components(separatedBy: ",").last?.trimmingCharacters(in: .whitespaces) : value
-            text.keyboardType = field.type == "String" ? .default : .decimalPad
+            if item.path == "menuMaximumColumns" {
+                text.keyboardType = .numberPad
+            } else {
+                text.keyboardType = field.type == "String" ? .default : .decimalPad
+            }
         }
         alert.addAction(UIAlertAction(title: "确定", style: .default) { [weak self, weak alert] _ in
             guard let self, let text = alert?.textFields?.first?.text else { return }
@@ -557,4 +593,125 @@ final class WYChatSettingsController: UITableViewController, UIColorPickerViewCo
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+}
+
+/// 按名称选择长按消息菜单的按钮，并调整显示顺序
+private final class WYChatSettingsMenuActionsController: UITableViewController {
+    private static let allActions: [WYChatAction] = [
+        .copy, .paste, .quote, .forward, .favorite, .delete, .withdraw, .reedit, .select, .translate,
+        .reference, .selectRange, .markRead, .markUnread, .remind, .search, .retry, .play, .pause,
+        .mention, .takePat, .playbackRate, .content, .avatar, .nickname
+    ]
+    private let configuration: WYChatConfig
+    private var selectedActions: [WYChatAction]
+    private var availableActions: [WYChatAction] {
+        Self.allActions.filter { !selectedActions.contains($0) }
+    }
+    var applyActions: (([WYChatAction]) -> Void)?
+
+    init(configuration: WYChatConfig, title: String) {
+        self.configuration = configuration
+        selectedActions = configuration.menuActions
+        super.init(style: .insetGrouped)
+        self.title = title
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "确定", style: .done, target: self, action: #selector(apply))
+        tableView.accessibilityIdentifier = "WYChatSettings.menuActions"
+        tableView.allowsSelectionDuringEditing = true
+        tableView.setEditing(true, animated: false)
+    }
+
+    override func numberOfSections(in tableView: UITableView) -> Int { 2 }
+
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        section == 0 ? "已选按钮" : "可添加按钮"
+    }
+
+    override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+        guard section == 0 else { return nil }
+        return "点按已选按钮可移除，拖动右侧手柄可改变顺序。点按「可添加按钮」里的项目可加入菜单。"
+    }
+
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        section == 0 ? selectedActions.count : availableActions.count
+    }
+
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "menuAction") ?? UITableViewCell(style: .default, reuseIdentifier: "menuAction")
+        let selected = indexPath.section == 0
+        let action = selected ? selectedActions[indexPath.row] : availableActions[indexPath.row]
+        cell.textLabel?.text = Self.title(for: action, configuration: configuration)
+        cell.textLabel?.numberOfLines = 0
+        cell.showsReorderControl = selected
+        cell.accessibilityIdentifier = "WYChatSettings.menuAction.\(action.rawValue)"
+        cell.accessibilityHint = selected ? "点按以移除" : "点按以添加"
+        return cell
+    }
+
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        if indexPath.section == 0 {
+            selectedActions.remove(at: indexPath.row)
+        } else {
+            selectedActions.append(availableActions[indexPath.row])
+        }
+        tableView.reloadData()
+    }
+
+    override func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle { .none }
+
+    override func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool { false }
+
+    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool { indexPath.section == 0 }
+
+    override func tableView(_ tableView: UITableView, targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
+        proposedDestinationIndexPath.section == 0 ? proposedDestinationIndexPath : IndexPath(row: selectedActions.count - 1, section: 0)
+    }
+
+    override func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        let action = selectedActions.remove(at: sourceIndexPath.row)
+        selectedActions.insert(action, at: destinationIndexPath.row)
+    }
+
+    @objc private func apply() {
+        applyActions?(selectedActions)
+        navigationController?.popViewController(animated: true)
+    }
+
+    static func title(for action: WYChatAction, configuration: WYChatConfig) -> String {
+        if let title = configuration.actionTitle?(action) { return title }
+        switch action {
+        case .copy: return "复制"
+        case .paste: return "粘贴"
+        case .quote: return "引用"
+        case .forward: return "转发"
+        case .favorite: return "收藏"
+        case .delete: return "删除"
+        case .withdraw: return "撤回"
+        case .reedit: return configuration.notice.reeditText
+        case .select: return "多选"
+        case .translate: return "转文字"
+        case .reference: return "查看被引用的消息"
+        case .selectRange: return configuration.selection.rangeTitle
+        case .markRead: return "标记已读"
+        case .markUnread: return "标记未读"
+        case .remind: return "提醒"
+        case .search: return "搜索"
+        case .retry: return "重试"
+        case .play: return "播放"
+        case .pause: return "暂停"
+        case .mention: return "提及成员"
+        case .takePat: return "拍一拍"
+        case .playbackRate: return "播放倍速"
+        case .content: return "打开消息内容"
+        case .avatar: return "打开头像"
+        case .nickname: return "打开昵称"
+        @unknown default: return "操作 \(action.rawValue)"
+        }
+    }
 }
