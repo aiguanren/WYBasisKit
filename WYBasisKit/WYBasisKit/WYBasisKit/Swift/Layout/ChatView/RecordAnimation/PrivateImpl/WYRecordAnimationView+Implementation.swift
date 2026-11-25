@@ -34,7 +34,9 @@ final class WYRecordAnimationViewPrivateState {
     var liveHeight: CGFloat = 0
     var transcriptionURL: URL?
     var ownsTranscriptionFile = false
-    var watchdog: Timer?
+    let countdown = WYChatRecordingCountdown()
+    let countdownLabel = WYChatRecordingCountdownLabel(identifier: "WYChatRecording.countdown")
+    var countdownSeconds: Int?
     let editorDelegate = WYChatTranscriptEditorDelegate()
     let languageButton = UIButton(type: .system)
     let translationButton = UIButton(type: .system)
@@ -505,8 +507,7 @@ extension WYRecordAnimationView {
         state.discard = true
         if state.requestID != nil { wy_stopCapture() }
         state.speech?.cancel()
-        state.watchdog?.invalidate()
-        state.watchdog = nil
+        wy_clearRecordingCountdown()
         wy_clearTranscript()
         state.audioKit?.releaseAll()
         state.audioKit = nil
@@ -516,7 +517,7 @@ extension WYRecordAnimationView {
     func wy_impl_wy_audioRecorderDidStop(audioKit: WYAudioKit, isPause: Bool, isTimeout: Bool) {
 
         guard !isPause, state.requestID != nil else { return }
-        state.timedOut = isTimeout
+        state.timedOut = state.timedOut || isTimeout
         if state.discard {
             try? audioKit.deleteRecordingFile()
             wy_captureFinished(nil, duration: state.duration, error: nil)

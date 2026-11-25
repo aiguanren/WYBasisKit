@@ -342,6 +342,7 @@ final class WYChatSettingsController: UITableViewController, UIColorPickerViewCo
             ("底部输入栏与键盘", [
                 Item(title: "点击消息列表时收起键盘和面板", path: "dismissInputOnTap", explanation: "轻点消息气泡、头像或列表空白处时，收起底部键盘、表情面板或「＋」面板。"),
                 Item(title: "空输入框的长按操作", path: "inputBehavior", choices: [("切换到语音模式后录音", "0"), ("单击输入，长按发语音", "1"), ("单击输入，长按识别", "2")], explanation: "针对聊天页底部没有文字的输入框。轻点打开键盘，长按可录音发语音或转成文字。"),
+                Item(title: "长按空输入框的录音界面", path: "input.placeholderRecordingInteractionStyle", choices: [("分区操作", "0"), ("底部渐变声波", "1")], explanation: "在文字输入模式直接长按空输入框时使用，默认显示底部渐变声波。"),
                 Item(title: "空输入框提示文字的对齐位置", path: "input.textPlaceholderAlignment", choices: [("居左", "0"), ("居中", "1"), ("居右", "2")], explanation: "调整空输入框里灰色提示文字的位置。选居中时，点进输入框后会靠左。"),
                 Item(title: "空输入框的提示文字", path: "input.textPlaceholder", explanation: "输入框为空时显示的灰色文字，输入内容后消失。"),
                 Item(title: "显示输入框右侧的语音识别按钮", path: "input.enablesKeyboardDictation", explanation: "展开键盘时，文字输入框右侧可出现麦克风按钮。需要先启用语音转文字。"),
@@ -350,7 +351,7 @@ final class WYChatSettingsController: UITableViewController, UIColorPickerViewCo
             ]),
             ("录音界面与语音转文字", [
                 Item(title: "启用语音转文字", path: "recording.supportSpeechRecognition", explanation: "启用语音转文字后，可使用录音界面的转文字操作、语音消息的「转文字」和输入框右侧的麦克风按钮。"),
-                Item(title: "长按录音时的界面样式", path: "recording.interactionStyle", choices: [("分区操作", "0"), ("底部渐变声波", "1")], explanation: "开始录音后，可以向取消或转文字区域滑动，也可以用底部渐变声波样式上滑取消。"),
+                Item(title: "语音模式「按住 说话」的录音界面", path: "recording.interactionStyle", choices: [("分区操作", "0"), ("底部渐变声波", "1")], explanation: "点输入框左侧按钮切到语音模式后，长按「按住 说话」时使用，默认显示分区操作。"),
                 Item(title: "分区录音的「取消」与「转文字」按钮形状", path: "recording.actionStyle", choices: [("圆形", "0"), ("弧形", "1")], explanation: "使用「分区操作」样式时，调整录音界面下方两个操作区的形状。"),
                 Item(title: "长按空输入框转文字时显示声波", path: "recording.dictationShowsWaveform", explanation: "使用「分区操作」样式直接转写时，控制录音界面内的音量声波是否显示。"),
                 Item(title: "长按空输入框转文字，松手后发送", path: "recording.dictationSendsOnRelease", explanation: "长按空输入框转写时，开启后松手会自动发送识别结果。关闭后先进入文字编辑界面，确认后发送。"),
@@ -358,7 +359,10 @@ final class WYChatSettingsController: UITableViewController, UIColorPickerViewCo
                 Item(title: "语音转文字使用的识别服务", path: "recording.speechRecognitionSource", choices: [("Apple 系统识别", "0"), ("宿主接入的识别服务", "1")], explanation: "外部识别服务需要由应用接入后才能使用。"),
                 Item(title: "语音转文字识别语言", path: "recording.speechLocaleIdentifier", choices: [("系统首选语言", Locale.preferredLanguages.first ?? Locale.current.identifier), ("简体中文", "zh-CN"), ("繁體中文", "zh-TW"), ("English", "en-US"), ("日本語", "ja-JP"), ("한국어", "ko-KR")], explanation: "选择识别录音时使用的语言。"),
                 Item(title: "语音转文字仅使用设备本地识别", path: "recording.requiresOnDeviceRecognition", explanation: "使用 Apple 识别时，设备和所选语言都需支持本地识别。"),
-                Item(title: "单次录音最长时间（秒）", path: "recording.recordTime.max", explanation: "限制一次录音可持续的时间，到达上限后结束录音。")
+                Item(title: "单次录音最长时间（秒）", path: "recording.recordTime.max", explanation: "限制一次录音可持续的时间，到达上限后结束录音。"),
+                Item(title: "长按发语音倒计时", path: "recording.voiceCountdown.leadTime", explanation: "剩余多少秒时显示，设为 0 关闭。"),
+                Item(title: "长按转文字倒计时", path: "recording.dictationCountdown.leadTime", explanation: "长按直接识别或滑到转文字区域时使用。"),
+                Item(title: "输入框麦克风倒计时", path: "recording.keyboardDictationCountdown.leadTime", explanation: "点击输入框内的麦克风开始识别时使用。")
             ]),
             ("底部渐变声波录音界面", [
                 Item(title: "录音背景的渐变流动动画", path: "recording.gradientMotionEnabled", explanation: "录音时让底部渐变背景持续流动。"),

@@ -161,7 +161,8 @@ final class WYChatTestSuite {
                 presenter.present(host, animated: false)
                 var config = self.chatView.configuration
                 config.input.placeholderLongPressAction = WYInputBarConfig().placeholderLongPressAction
-                config.recording.interactionStyle = style
+                config.input.placeholderRecordingInteractionStyle = style
+                config.recording.interactionStyle = style == .gradient ? .actionRegions : .gradient
                 config.recording.recorder = recorder
                 config.recording.supportSpeechRecognition = false
                 config.recording.recordTime.min = 0
@@ -175,7 +176,11 @@ final class WYChatTestSuite {
                     try? await Task.sleep(nanoseconds: 100_000_000)
                 }
                 let voices = view.dataSource.compactMap { $0.content.voice }
-                return [WYChatTestResult(name: "placeholder-hold-voice", passed: recorder.stops == 1 && voices.count == 1 && !view.chatInput.textVoiceView.isSelected, detail: "stops=\(recorder.stops), voices=\(voices.count)", milliseconds: 0)]
+                let actualStyle = view.chatInput.recordView.recordAnimationConfig.interactionStyle
+                return [
+                    WYChatTestResult(name: "placeholder-hold-voice", passed: recorder.stops == 1 && voices.count == 1 && !view.chatInput.textVoiceView.isSelected, detail: "stops=\(recorder.stops), voices=\(voices.count)", milliseconds: 0),
+                    WYChatTestResult(name: "placeholder-recording-style", passed: actualStyle == style, detail: "style=\(actualStyle)", milliseconds: 0)
+                ]
             })
         }
         cases.append(WYChatTestCase("渐变录音方案与配置", group: "录音", explanation: "检查上滑取消、滑回发送、转文字、外观配置和方案切换") { [weak self] in
@@ -416,6 +421,8 @@ final class WYChatTestSuite {
             config.recording.speechRecognitionProvider = speech
             config.recording.supportSpeechRecognition = true
             config.recording.speechRecognitionMode = .whileRecording
+            config.recording.recordTime.max = 8
+            config.recording.keyboardDictationCountdown.text = "输入 {seconds}"
             let view = WYChatView(userInfo: self.chatView.userInfo, configuration: config)
             let host = self.chatView.window ?? self.chatView
             view.frame = host.bounds
@@ -466,6 +473,8 @@ final class WYChatTestSuite {
             check("keyboard-dictation-entry", button?.isHidden == false)
             button?.sendActions(for: .touchUpInside)
             try? await Task.sleep(nanoseconds: 200_000_000)
+            let countdown = input.subviews.compactMap { $0 as? UILabel }.first { $0.accessibilityIdentifier == "WYChatInput.dictationCountdown" }
+            check("keyboard-dictation-countdown", countdown?.isHidden == false && countdown?.text == "输入 8")
             check("keyboard-dictation-partial", input.textView.text == "前缀" + speech.partialText + "后缀" && input.textView.isFirstResponder && input.isInputDictating)
             input.inputBarConfig.showsKeyboardDictationWithText = false
             input.setNeedsLayout()
@@ -474,7 +483,7 @@ final class WYChatTestSuite {
             button?.sendActions(for: .touchUpInside)
             try? await Task.sleep(nanoseconds: 200_000_000)
             check("keyboard-dictation-final", input.textView.text == "前缀" + speech.finalText + "后缀" && !input.isInputDictating)
-            check("keyboard-dictation-hidden-after-finishing", button?.isHidden == true)
+            check("keyboard-dictation-hidden-after-finishing", button?.isHidden == true && countdown?.isHidden == true)
             input.inputBarConfig.showsKeyboardDictationWithText = true
             input.setNeedsLayout()
             input.layoutIfNeeded()
@@ -3235,6 +3244,29 @@ final class WYChatTestSuite {
             overlay.endRecordVoice()
             check("release-hides-overlay", overlay.alpha == 0)
             check("recording-events-all-providers", events.starts == 5 && events.finishes == 5 && events.cancelled == 1 && events.times == 5 && events.meters == 5 && events.view === overlay)
+            overlay.recordAnimationConfig.recordTime.max = 1.5
+            overlay.recordAnimationConfig.voiceCountdown.leadTime = 1
+            overlay.recordAnimationConfig.voiceCountdown.text = "发送 {seconds}"
+            overlay.recordAnimationConfig.dictationCountdown.text = "转写 {seconds}"
+            @MainActor func countdown() -> UILabel? {
+                descendants(overlay).compactMap { $0 as? UILabel }.first { $0.accessibilityIdentifier == "WYChatRecording.countdown" }
+            }
+            overlay.start()
+            check("countdown-hidden-before-threshold", countdown() == nil)
+            try? await Task.sleep(nanoseconds: 650_000_000)
+            check("voice-countdown-visible", countdown()?.text == "发送 1" && countdown()?.isHidden == false)
+            overlay.soundAnimationStatus = .cancel
+            check("countdown-hidden-in-cancel-region", countdown()?.isHidden == true)
+            overlay.soundAnimationStatus = .recording
+            let previousVoiceCount = voiceCount
+            try? await Task.sleep(nanoseconds: 1_050_000_000)
+            check("countdown-timeout-sends-and-clears", voiceCount == previousVoiceCount + 1 && countdown() == nil)
+
+            overlay.recordAnimationConfig.interactionStyle = .gradient
+            overlay.start(mode: .dictation)
+            check("gradient-dictation-countdown", countdown()?.text == "转写 2" && countdown()?.isHidden == false)
+            overlay.endRecordVoice()
+            check("countdown-clears-on-cancel", countdown() == nil)
             return results
         })
     }

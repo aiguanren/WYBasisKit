@@ -528,23 +528,33 @@ final class WYChatViewTests: XCTestCase {
     func testFriendlyRecordingStyleSelection() {
         let app = openChat()
         let table = app.tables["WYChatSettings.groups"]
-        let row = table.cells["WYChatSettings.item.recording.interactionStyle"]
-        func showRecordingStyle() {
+        let placeholderStyle = table.cells["WYChatSettings.item.input.placeholderRecordingInteractionStyle"]
+        let voiceStyle = table.cells["WYChatSettings.item.recording.interactionStyle"]
+        func show(_ row: XCUIElement) {
             for _ in 0..<5 where !row.isHittable { table.swipeUp() }
             XCTAssertTrue(row.isHittable)
         }
+        func showsStyle(_ style: String, in row: XCUIElement) -> Bool {
+            row.staticTexts.matching(NSPredicate(format: "label ENDSWITH %@", style)).firstMatch.exists
+        }
         app.navigationBars.buttons["测试"].tap()
         app.navigationBars.buttons["配置"].tap()
-        showRecordingStyle()
-        XCTAssertTrue(row.staticTexts.matching(NSPredicate(format: "label ENDSWITH %@", "底部渐变声波")).firstMatch.exists)
-        row.tap()
+        show(placeholderStyle)
+        XCTAssertTrue(showsStyle("底部渐变声波", in: placeholderStyle))
+        placeholderStyle.tap()
         app.buttons["分区操作"].tap()
+        show(voiceStyle)
+        XCTAssertTrue(showsStyle("分区操作", in: voiceStyle))
+        voiceStyle.tap()
+        app.buttons["底部渐变声波"].tap()
         app.navigationBars.buttons["保存"].tap()
         XCTAssertTrue(app.navigationBars["聊天界面"].waitForExistence(timeout: 5))
         app.navigationBars.buttons["测试"].tap()
         app.navigationBars.buttons["配置"].tap()
-        showRecordingStyle()
-        XCTAssertTrue(row.staticTexts.matching(NSPredicate(format: "label ENDSWITH %@", "分区操作")).firstMatch.exists)
+        show(placeholderStyle)
+        XCTAssertTrue(showsStyle("分区操作", in: placeholderStyle))
+        show(voiceStyle)
+        XCTAssertTrue(showsStyle("底部渐变声波", in: voiceStyle))
     }
 
     func testConfigurationEditorActualWorkflow() {

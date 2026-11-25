@@ -483,9 +483,43 @@ import WYBasisKitSwift
     }
 }
 
+@objc(WYChatRecordingCountdownConfig)
+@objcMembers public class WYChatRecordingCountdownConfigObjC: NSObject {
+    /// 剩余多少秒时开始显示，0 或负值关闭倒计时
+    public var leadTime: Int
+    /// 提示文案，用 {seconds} 表示剩余秒数
+    public var text: String
+    public var font: UIFont
+    public var textColor: UIColor
+    public var backgroundColor: UIColor
+    public var spacing: CGFloat
+
+    public override convenience init() { self.init(WYChatRecordingCountdownConfig()) }
+
+    @nonobjc public init(_ value: WYChatRecordingCountdownConfig) {
+        leadTime = value.leadTime
+        text = value.text
+        font = value.font
+        textColor = value.textColor
+        backgroundColor = value.backgroundColor
+        spacing = value.spacing
+    }
+
+    @nonobjc public var swiftValue: WYChatRecordingCountdownConfig {
+        var value = WYChatRecordingCountdownConfig()
+        value.leadTime = leadTime
+        value.text = text
+        value.font = font
+        value.textColor = textColor
+        value.backgroundColor = backgroundColor
+        value.spacing = spacing
+        return value
+    }
+}
+
 @objc(WYRecordAnimationConfig)
 @objcMembers public class WYRecordAnimationConfigObjC: NSObject {
-    /// 录音手势与界面方案，默认底部渐变声波
+    /// 语音模式「按住 说话」的录音界面，默认分区操作
     public var interactionStyle: WYRecordingInteractionStyle
     /// 渐变录音区域高度
     public var gradientHeight: CGFloat
@@ -761,6 +795,12 @@ import WYBasisKitSwift
     public var recordTimeMin: TimeInterval
     /// 最多可以录制多少秒(最短和最长录音时间)
     public var recordTimeMax: TimeInterval
+    /// 长按发语音的倒计时
+    public var voiceCountdown: WYChatRecordingCountdownConfigObjC
+    /// 长按直接转写或滑到转文字区域的倒计时
+    public var dictationCountdown: WYChatRecordingCountdownConfigObjC
+    /// 点击输入框内语音输入按钮的倒计时
+    public var keyboardDictationCountdown: WYChatRecordingCountdownConfigObjC
     /// 普通语音录音区是否显示实时文本，默认false，滑入转文字后显示
     public var showsLiveTextWhileRecording: Bool
     /// 实时转写文本距离气泡边缘的间距
@@ -1055,6 +1095,9 @@ import WYBasisKitSwift
         self.shadowOpacity = value.shadowOpacity
         self.recordTimeMin = value.recordTime.min
         self.recordTimeMax = value.recordTime.max
+        self.voiceCountdown = WYChatRecordingCountdownConfigObjC(value.voiceCountdown)
+        self.dictationCountdown = WYChatRecordingCountdownConfigObjC(value.dictationCountdown)
+        self.keyboardDictationCountdown = WYChatRecordingCountdownConfigObjC(value.keyboardDictationCountdown)
         self.showsLiveTextWhileRecording = value.showsLiveTextWhileRecording
         self.liveTextInsets = value.liveTextInsets
         self.liveTextWaveformSpacing = value.liveTextWaveformSpacing
@@ -1282,6 +1325,9 @@ import WYBasisKitSwift
         value.shadowOpacity = shadowOpacity
         value.recordTime.min = recordTimeMin
         value.recordTime.max = recordTimeMax
+        value.voiceCountdown = voiceCountdown.swiftValue
+        value.dictationCountdown = dictationCountdown.swiftValue
+        value.keyboardDictationCountdown = keyboardDictationCountdown.swiftValue
         value.showsLiveTextWhileRecording = showsLiveTextWhileRecording
         value.liveTextInsets = liveTextInsets
         value.liveTextWaveformSpacing = liveTextWaveformSpacing
@@ -1586,6 +1632,8 @@ import WYBasisKitSwift
     public var textPlaceholderAlignment: NSTextAlignment
     /// 空输入框的长按操作，默认 voice（长按发语音），dictation 需要启用语音识别
     public var placeholderLongPressAction: WYChatInputLongPressAction
+    /// 长按空输入框开始录音时的界面样式，默认底部渐变声波
+    public var placeholderRecordingInteractionStyle: WYRecordingInteractionStyle
     /// 是否在键盘展开时显示输入框内的语音识别按钮，需要启用语音识别
     public var enablesKeyboardDictation: Bool
     /// 输入框有内容时是否继续显示语音识别按钮，默认 false，识别进行中仍显示完成按钮
@@ -1757,6 +1805,7 @@ import WYBasisKitSwift
     @nonobjc public init(_ value: WYInputBarConfig) {
         self.textPlaceholderAlignment = value.textPlaceholderAlignment
         self.placeholderLongPressAction = value.placeholderLongPressAction
+        self.placeholderRecordingInteractionStyle = value.placeholderRecordingInteractionStyle
         self.enablesKeyboardDictation = value.enablesKeyboardDictation
         self.showsKeyboardDictationWithText = value.showsKeyboardDictationWithText
         self.showsKeyboardDictationInEmojiPanel = value.showsKeyboardDictationInEmojiPanel
@@ -1845,6 +1894,7 @@ import WYBasisKitSwift
         var value = WYInputBarConfig()
         value.textPlaceholderAlignment = textPlaceholderAlignment
         value.placeholderLongPressAction = placeholderLongPressAction
+        value.placeholderRecordingInteractionStyle = placeholderRecordingInteractionStyle
         value.enablesKeyboardDictation = enablesKeyboardDictation
         value.showsKeyboardDictationWithText = showsKeyboardDictationWithText
         value.showsKeyboardDictationInEmojiPanel = showsKeyboardDictationInEmojiPanel

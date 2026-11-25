@@ -34,6 +34,20 @@ import UIKit
     case translate, readAloud, changeLanguage, cancel
 }
 
+public struct WYChatRecordingCountdownConfig {
+    /// 剩余多少秒时开始显示，0 或负值关闭倒计时
+    public var leadTime: Int = 10
+    /// 提示文案，用 {seconds} 表示剩余秒数
+    public var text: String = WYLocalized("{seconds} 秒后自动发送", table: WYBasisKitConfig.kitLocalizableTable)
+    public var font: UIFont = .systemFont(ofSize: 22, weight: .medium)
+    public var textColor: UIColor = .white
+    public var backgroundColor: UIColor = .clear
+    /// 与录音提示或输入栏的垂直间距
+    public var spacing: CGFloat = 16
+
+    public init() {}
+}
+
 public struct WYRecordAnimationConfig {
     private static let recognitionSurfaceColor = UIColor { traits in
         traits.userInterfaceStyle == .dark ? .wy_hex("#25262A") : .wy_hex("#F6F6F6")
@@ -48,8 +62,8 @@ public struct WYRecordAnimationConfig {
         return config
     }
 
-    /// 录音手势与界面方案，默认底部渐变声波
-    public var interactionStyle: WYRecordingInteractionStyle = .gradient
+    /// 语音模式「按住 说话」的录音界面，默认分区操作
+    public var interactionStyle: WYRecordingInteractionStyle = .actionRegions
     /// 渐变录音区域高度
     public var gradientHeight: CGFloat = UIDevice.wy_screenHeight(320, WYBasisKitConfig.defaultScreenPixels)
     /// 渐变录音普通状态主色
@@ -351,6 +365,24 @@ public struct WYRecordAnimationConfig {
     
     /// 最多可以录制多少秒(最短和最长录音时间)
     public var recordTime: (min: TimeInterval, max: TimeInterval) = (min: 0.1, max: 60)
+    /// 长按发语音的倒计时
+    public var voiceCountdown = WYChatRecordingCountdownConfig()
+    /// 长按直接转写或滑到转文字区域的倒计时
+    public var dictationCountdown: WYChatRecordingCountdownConfig = {
+        var config = WYChatRecordingCountdownConfig()
+        config.text = WYLocalized("{seconds} 秒后停止录音", table: WYBasisKitConfig.kitLocalizableTable)
+        return config
+    }()
+    /// 点击输入框内语音输入按钮的倒计时
+    public var keyboardDictationCountdown: WYChatRecordingCountdownConfig = {
+        var config = WYChatRecordingCountdownConfig()
+        config.text = WYLocalized("{seconds} 秒后结束语音输入", table: WYBasisKitConfig.kitLocalizableTable)
+        config.font = .systemFont(ofSize: 15, weight: .medium)
+        config.textColor = .systemBackground
+        config.backgroundColor = .label
+        config.spacing = 8
+        return config
+    }()
     
     /// 普通语音录音区是否显示实时文本，默认false，滑入转文字后显示
     public var showsLiveTextWhileRecording: Bool = false

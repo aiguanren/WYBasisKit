@@ -186,6 +186,7 @@ enum WYChatTestConfigurationFields {
         "input.moreButtonLeftOffset",
         "input.moreButtonSize",
         "input.placeholderLongPressAction",
+        "input.placeholderRecordingInteractionStyle",
         "input.primaryLanguage",
         "input.recordViewLongPressMaxOffset",
         "input.rendersIconsAsTemplate",
@@ -679,6 +680,9 @@ enum WYChatTestConfigurationFields {
         "recording.recognizingText",
         "recording.recordSettings",
         "recording.recordTime",
+        "recording.voiceCountdown",
+        "recording.dictationCountdown",
+        "recording.keyboardDictationCountdown",
         "recording.recordTipViewTopOffset",
         "recording.recordViewBottomOffset",
         "recording.recordViewTips",
@@ -873,8 +877,23 @@ enum WYChatTestConfigurationFields {
         result += group23()
         result += group24()
         result += group25()
+        result += countdownFields("voiceCountdown", title: "长按发语音", keyPath: \.recording.voiceCountdown)
+        result += countdownFields("dictationCountdown", title: "长按转文字", keyPath: \.recording.dictationCountdown)
+        result += countdownFields("keyboardDictationCountdown", title: "点击麦克风", keyPath: \.recording.keyboardDictationCountdown)
         return result
     }
+    private static func countdownFields(_ name: String, title: String, keyPath: WritableKeyPath<WYChatConfig, WYChatRecordingCountdownConfig>) -> [WYChatTestConfigurationField] {
+        let path = "recording." + name
+        return [
+            .integer(path + ".leadTime", title + "倒计时秒数，0 关闭", get: { $0[keyPath: keyPath].leadTime }, set: { $0[keyPath: keyPath].leadTime = $1 }),
+            .string(path + ".text", title + "倒计时文案，用 {seconds} 表示剩余秒数", get: { $0[keyPath: keyPath].text }, set: { $0[keyPath: keyPath].text = $1 }),
+            .font(path + ".font", title + "倒计时字体", get: { $0[keyPath: keyPath].font }, set: { $0[keyPath: keyPath].font = $1 }),
+            .color(path + ".textColor", title + "倒计时文字颜色", get: { $0[keyPath: keyPath].textColor }, set: { $0[keyPath: keyPath].textColor = $1 }),
+            .color(path + ".backgroundColor", title + "倒计时背景色", get: { $0[keyPath: keyPath].backgroundColor }, set: { $0[keyPath: keyPath].backgroundColor = $1 }),
+            .scalar(path + ".spacing", title + "倒计时提示间距", "CGFloat", get: { Double($0[keyPath: keyPath].spacing) }, set: { $0[keyPath: keyPath].spacing = CGFloat($1) })
+        ]
+    }
+
     private static func group0() -> [WYChatTestConfigurationField] { [
         .special("actionTitle", "自定义菜单标题，参数为操作，返回nil时使用默认标题", "((WYChatAction) -> String?)?", related: "消息事件与输入面板", get: { $0.actionTitle }, set: { $0.actionTitle = $1 }),
         .special("allowsAction", "是否显示某项菜单，参数为操作及消息", "((WYChatAction, WYChatMessageModel) -> Bool)?", related: "消息事件与输入面板", get: { $0.allowsAction }, set: { $0.allowsAction = $1 }),
@@ -1060,6 +1079,7 @@ enum WYChatTestConfigurationFields {
     private static func group5() -> [WYChatTestConfigurationField] { [
         .vector("input.moreButtonSize", "更多按钮的size", "CGSize", labels: ["width", "height"], get: { [Double($0.input.moreButtonSize.width), Double($0.input.moreButtonSize.height)] }, set: { $0.input.moreButtonSize = CGSize(width: CGFloat($1[0]), height: CGFloat($1[1])) }),
         .raw("input.placeholderLongPressAction", "空输入框的长按操作，默认 voice（长按发语音），dictation 需要启用语音识别", options: [String(WYChatInputLongPressAction.dictation.rawValue) + " dictation", String(WYChatInputLongPressAction.disabled.rawValue) + " disabled", String(WYChatInputLongPressAction.voice.rawValue) + " voice"].joined(separator: "\n"), get: { $0.input.placeholderLongPressAction }, set: { $0.input.placeholderLongPressAction = $1 }),
+        .raw("input.placeholderRecordingInteractionStyle", "长按空输入框开始录音时的界面样式，默认底部渐变声波", options: [String(WYRecordingInteractionStyle.actionRegions.rawValue) + " actionRegions", String(WYRecordingInteractionStyle.gradient.rawValue) + " gradient"].joined(separator: "\n"), get: { $0.input.placeholderRecordingInteractionStyle }, set: { $0.input.placeholderRecordingInteractionStyle = $1 }),
         .json("input.primaryLanguage", "输入框键盘语言(解决textViewDidChange回调两次的问题)", get: { $0.input.primaryLanguage }, set: { $0.input.primaryLanguage = $1 }),
         .scalar("input.recordViewLongPressMaxOffset", "录音按钮长按手势允许手指移动的最大距离", "CGFloat", get: { Double($0.input.recordViewLongPressMaxOffset) }, set: { $0.input.recordViewLongPressMaxOffset = CGFloat($1) }),
         .boolean("input.rendersIconsAsTemplate", "是否用iconTintColor绘制输入栏图标，默认false", get: { $0.input.rendersIconsAsTemplate }, set: { $0.input.rendersIconsAsTemplate = $1 }),
@@ -1466,7 +1486,7 @@ enum WYChatTestConfigurationFields {
         .scalar("recording.gradientWaveformBottomOffset", "渐变录音声波距离底部安全区的间距", "CGFloat", get: { Double($0.recording.gradientWaveformBottomOffset) }, set: { $0.recording.gradientWaveformBottomOffset = CGFloat($1) }),
         .scalar("recording.gradientWaveformEdgeFade", "渐变录音声波两端淡出的宽度比例，取值0到0.5", "CGFloat", get: { Double($0.recording.gradientWaveformEdgeFade) }, set: { $0.recording.gradientWaveformEdgeFade = CGFloat($1) }),
         .vector("recording.gradientWaveformSize", "渐变录音声波区域尺寸", "CGSize", labels: ["width", "height"], get: { [Double($0.recording.gradientWaveformSize.width), Double($0.recording.gradientWaveformSize.height)] }, set: { $0.recording.gradientWaveformSize = CGSize(width: CGFloat($1[0]), height: CGFloat($1[1])) }),
-        .raw("recording.interactionStyle", "录音手势与界面方案，默认底部渐变声波", options: [String(WYRecordingInteractionStyle.actionRegions.rawValue) + " actionRegions", String(WYRecordingInteractionStyle.gradient.rawValue) + " gradient"].joined(separator: "\n"), get: { $0.recording.interactionStyle }, set: { $0.recording.interactionStyle = $1 }),
+        .raw("recording.interactionStyle", "语音模式「按住 说话」的录音界面，默认分区操作", options: [String(WYRecordingInteractionStyle.actionRegions.rawValue) + " actionRegions", String(WYRecordingInteractionStyle.gradient.rawValue) + " gradient"].joined(separator: "\n"), get: { $0.recording.interactionStyle }, set: { $0.recording.interactionStyle = $1 }),
         .vector("recording.liveTextInsets", "实时转写文本距离气泡边缘的间距", "UIEdgeInsets", labels: ["top", "left", "bottom", "right"], get: { [Double($0.recording.liveTextInsets.top), Double($0.recording.liveTextInsets.left), Double($0.recording.liveTextInsets.bottom), Double($0.recording.liveTextInsets.right)] }, set: { $0.recording.liveTextInsets = UIEdgeInsets(top: CGFloat($1[0]), left: CGFloat($1[1]), bottom: CGFloat($1[2]), right: CGFloat($1[3])) }),
         .scalar("recording.liveTextWaveformSpacing", "实时转写文本与底部声波的间距", "CGFloat", get: { Double($0.recording.liveTextWaveformSpacing) }, set: { $0.recording.liveTextWaveformSpacing = CGFloat($1) }),
         .scalar("recording.moveUpButtonCenterOffsetX", "取消录音按钮和转文字按钮中心点X值距离屏幕父控件左侧或者右侧的间距(如果supportSpeechRecognition为false，则此属性无效，内部会强制水平居中)", "CGFloat", get: { Double($0.recording.moveUpButtonCenterOffsetX) }, set: { $0.recording.moveUpButtonCenterOffsetX = CGFloat($1) }),

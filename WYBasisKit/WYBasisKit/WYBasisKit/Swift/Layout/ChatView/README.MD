@@ -38,7 +38,7 @@ chatView.recordingHandler = { url, duration, error in
 
 `input.textPlaceholderAlignment`控制占位文字对齐。`input.placeholderLongPressAction`配置空输入框长按操作，`.disabled`使用语音切换按钮进入录音模式，默认的 `.voice` 直接录音并发送语音，`.dictation`直接识别文字，单击输入框均可弹出键盘。直接发语音不依赖识别开关，转文字需要启用识别。`input.enablesKeyboardDictation`控制键盘展开后的输入框内识别按钮，识别文字替换当前选区，颜色、图标、尺寸和间距分别配置。`input.showsKeyboardDictationInEmojiPanel`默认开启，在键盘与表情面板之间切换时保留输入框内识别按钮，设为`false`时在表情面板中隐藏。`input.stopsKeyboardDictationOnTextChange`默认`true`，手动修改文本时关闭已开启的识别；设为`false`时保持识别，保留手动修改的内容，后续新增识别文本从编辑后的光标位置继续插入。语音转写结果不会触发关闭。输入框有内容时默认隐藏识别按钮，清空后恢复显示。将`input.showsKeyboardDictationWithText`设为`true`可在有内容时继续显示。识别进行中保留「完成」按钮。识别入口同时受`recording.supportSpeechRecognition`控制，识别来源沿用Apple或外部服务配置，失败可通过`chatInput.inputDictationErrorHandler`接收。
 
-录音交互通过`recording.interactionStyle`默认为 `.gradient` 底部渐变声波，可切换为 `.actionRegions` 分区操作。分区按钮的圆形和弧形由`recording.actionStyle`选择。渐变方案普通状态松手发送，上滑超过`gradientCancelDistance`后松手取消，滑回后恢复发送。`gradientRecordingColor`和`gradientCancelColor`分别控制两种状态的颜色，其他`gradient*`属性控制渐变范围、声波、字体、间距和提示文字。渐变方案可与空输入框长按发语音或转文字配合使用，识别总开关与来源配置继续生效。
+直接长按空输入框时，`input.placeholderRecordingInteractionStyle` 默认为 `.gradient` 底部渐变声波。点左侧按钮切到语音模式后，「按住 说话」使用 `recording.interactionStyle`，默认是 `.actionRegions` 分区操作。两个入口都可以独立选择分区操作或底部渐变声波。分区按钮的圆形和弧形由`recording.actionStyle`选择。渐变方案普通状态松手发送，上滑超过`gradientCancelDistance`后松手取消，滑回后恢复发送。`gradientRecordingColor`和`gradientCancelColor`分别控制两种状态的颜色，其他`gradient*`属性控制渐变范围、声波、字体、间距和提示文字。渐变方案可与空输入框长按发语音或转文字配合使用，识别总开关与来源配置继续生效。
 
 SwiftVerify示例的“聊天界面→测试→配置”提供中文分组设置，选择“输入框操作→单击输入，长按识别”后点击“保存”，即可返回聊天页体验。未保存退出会放弃修改。“全部属性设置”提供完整属性目录和专项预览，其中的修改同样需要返回“聊天设置”后保存。
 
@@ -328,5 +328,7 @@ SwiftVerify的聊天测试页点击“配置”可搜索并调整配置属性，
 输入栏默认无描边，文字输入和语音输入分别使用独立圆角。`input.textViewMaxHeight`默认限制输入框高度为适配后的120，超出部分在输入框内滚动。
 
 点击消息列表的空白、行间距、消息内容及头像等区域时，`dismissInputOnTap`控制是否收起键盘和输入面板；输入栏及面板内控件保持各自操作。`highlightsEntireCellOnLongPress`默认`false`，长按时菜单在消息旁出现，气泡保持原位。设为`true`使用系统整行预览。消息旁菜单与头像的最小水平间距可用`menuPreviewAvatarSpacing`调整，默认适配后的16点，空间不足时以列表可见宽度为准。 `menuBackgroundColor`、`menuTextColor`和`menuDestructiveTextColor`配置菜单颜色。`menuItemFont`设置字体和字号。`menuMaximumColumns`控制每行最多显示几项，默认4，空间不足时自动减少，末行从第一列排列。`menuActions`按数组顺序显示可用的功能，`allowsAction`可进一步按消息筛选。纯文本消息默认提供复制，剪贴板有文本且输入栏可编辑时也提供粘贴。粘贴会在输入框光标处插入文本或替换选区，可通过`menuActions`移除`.paste`。
+
+录音默认在剩余 10 秒时显示倒计时。用 `recording.voiceCountdown`、`recording.dictationCountdown` 和 `recording.keyboardDictationCountdown` 分别配置长按发语音、长按转文字（或滑到转文字区）及点击输入框内麦克风的提示。每组支持 `leadTime`（设为 0 可关闭）、`text`（用 `{seconds}` 插入秒数）、`font`、`textColor`、`backgroundColor` 和 `spacing`。Swift 与 Objective-C 使用相同的属性名。
 
 长按输入框直接识别时，`recording.dictationShowsWaveform`默认`true`，分区操作模式同时显示转写文本和动态声波，设为`false`可隐藏声波。

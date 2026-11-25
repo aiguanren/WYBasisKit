@@ -17,12 +17,15 @@ final class WYChatInputDictationSession {
     private var active = true
     private var stopping = false
     private var captureStarted = false
+    private let countdown = WYChatRecordingCountdown()
+    private let countdownUpdate: (Int?, WYChatRecordingCountdownConfig) -> Void
     private var observer: NSObjectProtocol?
     private let update: (String) -> Void
     private let completion: (NSError?) -> Void
 
-    init(configuration: WYRecordAnimationConfig, update: @escaping (String) -> Void, completion: @escaping (NSError?) -> Void) {
+    init(configuration: WYRecordAnimationConfig, update: @escaping (String) -> Void, countdownUpdate: @escaping (Int?, WYChatRecordingCountdownConfig) -> Void, completion: @escaping (NSError?) -> Void) {
         self.configuration = configuration
+        self.countdownUpdate = countdownUpdate
         self.update = update
         self.completion = completion
     }
@@ -39,6 +42,8 @@ final class WYChatInputDictationSession {
         let captured: (URL?, TimeInterval, NSError?) -> Void = { [weak self] url, _, error in
             DispatchQueue.main.async {
                 guard let self, self.active else { if ownsFile, let url { try? FileManager.default.removeItem(at: url) }; return }
+                self.stopping = true
+                self.stopCountdown()
                 if let error { if ownsFile, let url { try? FileManager.default.removeItem(at: url) }; self.complete(text: nil, error: error); return }
                 if self.configuration.speechRecognitionMode == .whileRecording {
                     if ownsFile, let url { try? FileManager.default.removeItem(at: url) }
@@ -73,10 +78,22 @@ final class WYChatInputDictationSession {
             let streaming = configuration.speechRecognitionMode == .whileRecording
             recorder.start(configuration: configuration, audio: { [weak task] buffer in if streaming { task?.appendAudio(buffer) } }, progress: progress, completion: captured)
         }
+        let appearance = configuration.keyboardDictationCountdown
+        countdown.start(maximum: configuration.recordTime.max, leadTime: appearance.leadTime, update: { [weak self] seconds in
+            self?.countdownUpdate(seconds, appearance)
+        }, timeout: { [weak self] in
+            self?.finish(cancel: false)
+        })
+    }
+
+    private func stopCountdown() {
+        countdown.stop()
+        countdownUpdate(nil, configuration.keyboardDictationCountdown)
     }
 
     func finish(cancel: Bool) {
         guard active else { return }
+        stopCountdown()
         if cancel { active = false; speech?.cancel() }
         if !stopping && captureStarted { stopping = true; recorder?.stop(cancel: cancel); configuration.recorder?.wy_stopRecording?(identifier, cancel: cancel) }
         if cancel { completion(nil) }
@@ -88,6 +105,7 @@ final class WYChatInputDictationSession {
         guard active else { return }
         if let text, !text.isEmpty { update(text) }
         active = false
+        stopCountdown()
         if !stopping && captureStarted { stopping = true; recorder?.stop(cancel: true); configuration.recorder?.wy_stopRecording?(identifier, cancel: true) }
         completion(error)
     }
@@ -180,6 +198,9 @@ extension WYChatInputView {
             let session = WYChatInputDictationSession(configuration: self.recordAnimationConfig, update: { [weak self] text in
                 guard let self, self.dictationRequestID == identifier else { return }
                 self.wy_applyInputDictation(text)
+            }, countdownUpdate: { [weak self] seconds, appearance in
+                guard let self, self.dictationRequestID == identifier else { return }
+                self.keyboardDictationCountdownLabel.show(seconds: seconds, configuration: appearance, above: self.textVoiceContentView, in: self)
             }, completion: { [weak self] error in
                 guard let self, self.dictationRequestID == identifier else { return }
                 self.dictationRequestID = nil
@@ -235,6 +256,7 @@ extension WYChatInputView {
     func wy_stopInputDictation(cancel: Bool) {
         guard isInputDictating else { return }
         if cancel {
+            keyboardDictationCountdownLabel.isHidden = true
             dictationRequestID = nil
             let session = inputDictation
             inputDictation = nil

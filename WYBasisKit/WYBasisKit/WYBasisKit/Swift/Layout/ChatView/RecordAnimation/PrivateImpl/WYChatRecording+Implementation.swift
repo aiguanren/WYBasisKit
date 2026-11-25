@@ -7,6 +7,86 @@
 
 import UIKit
 import AVFoundation
+import SnapKit
+
+/// 使用单调时钟，在手势追踪期间也能更新倒计时并处理录音上限
+final class WYChatRecordingCountdown {
+    private var timer: Timer?
+
+    func start(maximum: TimeInterval, leadTime: Int, update: @escaping (Int?) -> Void, timeout: @escaping () -> Void) {
+        stop()
+        guard maximum.isFinite, maximum > 0 else { return }
+        let start = ProcessInfo.processInfo.systemUptime
+
+        func tick(_ countdown: WYChatRecordingCountdown) {
+            let remaining = maximum - (ProcessInfo.processInfo.systemUptime - start)
+            guard remaining > 0 else {
+                countdown.stop()
+                update(nil)
+                timeout()
+                return
+            }
+            let seconds = Int(exactly: ceil(remaining))
+            let visible = seconds.map { $0 <= leadTime } ?? false
+            let delay = visible ? remaining - (ceil(remaining) - 1) : remaining - Double(max(0, leadTime))
+            let timer = Timer(timeInterval: max(0.001, delay), repeats: false) { [weak countdown] _ in
+                if let countdown { tick(countdown) }
+            }
+            countdown.timer = timer
+            RunLoop.main.add(timer, forMode: .common)
+            update(visible ? seconds : nil)
+        }
+        tick(self)
+    }
+
+    func stop() {
+        timer?.invalidate()
+        timer = nil
+    }
+
+    deinit { stop() }
+}
+
+final class WYChatRecordingCountdownLabel: UILabel {
+    private weak var anchorView: UIView?
+    private var bottomConstraint: Constraint?
+
+    init(identifier: String) {
+        super.init(frame: .zero)
+        isHidden = true
+        isUserInteractionEnabled = false
+        textAlignment = .center
+        numberOfLines = 0
+        accessibilityIdentifier = identifier
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    func show(seconds: Int?, configuration: WYChatRecordingCountdownConfig, above anchor: UIView, in container: UIView) {
+        guard let seconds, seconds <= configuration.leadTime, !configuration.text.isEmpty else {
+            isHidden = true
+            return
+        }
+        font = configuration.font
+        textColor = configuration.textColor
+        backgroundColor = configuration.backgroundColor
+        text = configuration.text.replacingOccurrences(of: "{seconds}", with: String(seconds))
+        let offset = configuration.spacing.isFinite ? -configuration.spacing : 0
+        if superview !== container || anchorView !== anchor {
+            container.addSubview(self)
+            anchorView = anchor
+            snp.remakeConstraints { make in
+                make.centerX.equalToSuperview()
+                make.leading.greaterThanOrEqualToSuperview().inset(12)
+                make.trailing.lessThanOrEqualToSuperview().inset(12)
+                bottomConstraint = make.bottom.equalTo(anchor.snp.top).offset(offset).constraint
+            }
+        } else {
+            bottomConstraint?.update(offset: offset)
+        }
+        isHidden = false
+    }
+}
 
 /// 录音结果与转写编辑流程
 extension WYRecordAnimationView {
@@ -58,14 +138,37 @@ extension WYRecordAnimationView {
     }
 
     private func wy_startRecordingWatchdog() {
-        let maximum = wy_captureConfiguration.recordTime.max
-        if maximum.isFinite && maximum > 0 && state.requestID != nil {
-            state.watchdog = Timer.scheduledTimer(withTimeInterval: maximum, repeats: false) { [weak self] _ in
-                guard let self else { return }
-                self.state.timedOut = true
-                self.stop()
-            }
+        guard let identifier = state.requestID, !state.captureStopRequested else { return }
+        let config = wy_captureConfiguration
+        let leadTime = state.mode == .dictation ? config.dictationCountdown.leadTime :
+            max(config.voiceCountdown.leadTime, config.supportSpeechRecognition ? config.dictationCountdown.leadTime : 0)
+        state.countdown.start(maximum: config.recordTime.max, leadTime: leadTime, update: { [weak self] seconds in
+            guard let self, self.state.requestID == identifier else { return }
+            self.state.countdownSeconds = seconds
+            self.wy_updateRecordingCountdown()
+        }, timeout: { [weak self] in
+            guard let self, self.state.requestID == identifier else { return }
+            self.state.timedOut = true
+            self.stop()
+        })
+    }
+
+    func wy_updateRecordingCountdown() {
+        let config = wy_captureConfiguration
+        let gradient = config.interactionStyle == .gradient
+        let anchor: UIView? = gradient ? state.gradientView?.hint : state.soundAnimationView
+        guard soundAnimationStatus != .cancel, let seconds = state.countdownSeconds, let anchor, anchor.isDescendant(of: self) else {
+            state.countdownLabel.isHidden = true
+            return
         }
+        let appearance = state.mode == .dictation || soundAnimationStatus == .transfer ? config.dictationCountdown : config.voiceCountdown
+        state.countdownLabel.show(seconds: seconds, configuration: appearance, above: anchor, in: self)
+    }
+
+    func wy_clearRecordingCountdown() {
+        state.countdown.stop()
+        state.countdownSeconds = nil
+        state.countdownLabel.removeFromSuperview()
     }
 
     func wy_stopCapture() {
@@ -73,8 +176,7 @@ extension WYRecordAnimationView {
         state.captureStopRequested = true
         if !state.captureStarted { wy_captureFinished(nil, duration: 0, error: nil); return }
         state.duration = max(state.duration, state.startedAt.map { Date().timeIntervalSince($0) } ?? 0)
-        state.watchdog?.invalidate()
-        state.watchdog = nil
+        wy_clearRecordingCountdown()
         if state.discard || soundAnimationStatus == .cancel { state.speech?.cancel() }
         if let recorder = state.liveRecorder {
             recorder.stop(cancel: state.discard || soundAnimationStatus == .cancel)
@@ -116,8 +218,7 @@ extension WYRecordAnimationView {
             soundAnimationStatus = .transfer
         }
         state.requestID = nil
-        state.watchdog?.invalidate()
-        state.watchdog = nil
+        wy_clearRecordingCountdown()
         state.liveRecorder = nil
         for view in [state.leftView, state.rightView, state.bottomView, state.soundAnimationView] { view?.alpha = 0 }
         state.gradientView?.removeFromSuperview()

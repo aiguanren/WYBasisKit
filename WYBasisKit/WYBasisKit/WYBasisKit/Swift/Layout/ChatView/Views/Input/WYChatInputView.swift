@@ -28,6 +28,8 @@ public struct WYInputBarConfig {
     public var textPlaceholderAlignment: NSTextAlignment = .left
     /// 空输入框的长按操作，默认 voice（长按发语音），dictation 需要启用语音识别
     public var placeholderLongPressAction: WYChatInputLongPressAction = .voice
+    /// 长按空输入框开始录音时的界面样式，默认底部渐变声波
+    public var placeholderRecordingInteractionStyle: WYRecordingInteractionStyle = .gradient
     /// 是否在键盘展开时显示输入框内的语音识别按钮，需要启用语音识别
     public var enablesKeyboardDictation: Bool = true
     /// 输入框有内容时是否继续显示语音识别按钮，默认 false，识别进行中仍显示完成按钮
@@ -335,6 +337,7 @@ public class WYChatInputView: UIImageView {
     internal var recordingGestureID: UUID? = nil
     internal let placeholderGate = UIButton(type: .custom)
     internal let keyboardDictationButton = UIButton(type: .custom)
+    internal let keyboardDictationCountdownLabel = WYChatRecordingCountdownLabel(identifier: "WYChatInput.dictationCountdown")
     internal var inputDictation: WYChatInputDictationSession?
     internal var dictationRequestID: UUID?
     internal var dictationRange = NSRange(location: 0, length: 0)

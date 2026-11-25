@@ -287,3 +287,7 @@
 "松手发送，上滑取消" = "Release to send, slide up to cancel";
 
 "松手取消" = "Release to cancel";
+
+"{seconds} 秒后自动发送" = "Sending in {seconds}s";
+"{seconds} 秒后停止录音" = "Recording ends in {seconds}s";
+"{seconds} 秒后结束语音输入" = "Dictation ends in {seconds}s";

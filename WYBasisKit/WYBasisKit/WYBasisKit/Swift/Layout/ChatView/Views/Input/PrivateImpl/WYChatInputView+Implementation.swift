@@ -128,7 +128,9 @@ extension WYChatInputView {
             let begin: (Bool) -> Void = { [weak self, weak sender] authorized in
                 guard let self, let sender, authorized, self.recordingGestureID == identifier, sender.state == .began || sender.state == .changed else { return }
                 self.textView.resignFirstResponder()
-                self.recordView.recordAnimationConfig = self.recordAnimationConfig
+                var configuration = self.recordAnimationConfig
+                configuration.interactionStyle = self.inputBarConfig.placeholderRecordingInteractionStyle
+                self.recordView.recordAnimationConfig = configuration
                 self.recordView.start(mode: action == .voice ? .voice : .dictation)
                 self.recordView.state.gradientGestureOrigin = sender.location(in: self.recordView)
             }

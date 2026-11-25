@@ -219,7 +219,11 @@ public class WYRecordAnimationView: UIView {
     public var recognitionLanguageChangedHandler: ((_ localeIdentifier: String) -> Void)? = nil
 
     /// 当前录音状态
-    public var soundAnimationStatus: WYSoundAnimationStatus = .recording
+    public var soundAnimationStatus: WYSoundAnimationStatus = .recording {
+        didSet {
+            if oldValue != soundAnimationStatus, state.countdownSeconds != nil { wy_updateRecordingCountdown() }
+        }
+    }
     
     /// 初始化方法
     public init(alpha: CGFloat = 1.0, delegate: WYRecordEventsHandler? = nil, configuration: WYRecordAnimationConfig = WYRecordAnimationConfig()) {
