@@ -76,7 +76,7 @@ final class WYChatViewTests: XCTestCase {
         add(screenshot)
     }
 
-    func testMorePanelOpensWithoutShowingKeyboard() {
+    func testMoreButtonTogglesPanelAndKeyboard() {
         let app = openChat()
         let more = app.buttons["WYChatInput.more"]
         let panel = app.collectionViews["WYChatMore.items"]
@@ -91,11 +91,9 @@ final class WYChatViewTests: XCTestCase {
         XCTAssertFalse(keyboard.exists)
 
         more.tap()
-        XCTAssertTrue(photo.isHittable)
-        XCTAssertFalse(keyboard.exists)
-
-        tapChatInput(in: app)
         XCTAssertTrue(keyboard.waitForExistence(timeout: 5))
+        XCTAssertTrue(panel.waitForNonExistence(timeout: 5))
+
         more.tap()
         XCTAssertTrue(keyboard.waitForNonExistence(timeout: 5))
         XCTAssertTrue(photo.waitForExistence(timeout: 5))

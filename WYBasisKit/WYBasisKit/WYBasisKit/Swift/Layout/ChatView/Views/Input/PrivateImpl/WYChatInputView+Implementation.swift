@@ -156,15 +156,21 @@ extension WYChatInputView {
             return
         }
 
-        sender.isSelected = true
+        let opensKeyboard = sender.isSelected
+        sender.isSelected = !opensKeyboard
         textVoiceContentView.isSelected = true
         textView.isHidden = false
         textVoiceView.isSelected = false
         emojiView.isSelected = false
 
         updateContentViewHeight()
-        delegate?.wy_didClickMoreView?(isText: false)
-        textView.resignFirstResponder()
+        if opensKeyboard {
+            textView.becomeFirstResponder()
+            delegate?.wy_didClickMoreView?(isText: true)
+        } else {
+            delegate?.wy_didClickMoreView?(isText: false)
+            textView.resignFirstResponder()
+        }
         saveLastInputViewStyle()
     }
 
