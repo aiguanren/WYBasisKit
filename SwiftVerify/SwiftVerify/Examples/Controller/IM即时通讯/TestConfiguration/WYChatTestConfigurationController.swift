@@ -356,7 +356,7 @@ final class WYChatSettingsController: UITableViewController, UIColorPickerViewCo
                 Item(title: "长按空输入框转文字时显示声波", path: "recording.dictationShowsWaveform", explanation: "使用「分区操作」样式直接转写时，控制录音界面内的音量声波是否显示。"),
                 Item(title: "长按空输入框转文字，松手后发送", path: "recording.dictationSendsOnRelease", explanation: "长按空输入框转写时，开启后松手会自动发送识别结果。关闭后先进入文字编辑界面，确认后发送。"),
                 Item(title: "录音何时开始转文字", path: "recording.speechRecognitionMode", choices: [("边录音边识别", "0"), ("录音结束后识别", "1")], explanation: "决定转写可在录音中返回文字，还是等录音完成后开始识别。"),
-                Item(title: "语音转文字使用的识别服务", path: "recording.speechRecognitionSource", choices: [("Apple 系统识别", "0"), ("宿主接入的识别服务", "1")], explanation: "外部识别服务需要由应用接入后才能使用。"),
+                Item(title: "语音转文字使用的识别服务", path: "recording.speechRecognitionSource", choices: [("Apple 系统识别", "0"), ("接入应用提供的识别服务", "1")], explanation: "外部识别服务需要由应用接入后才能使用。"),
                 Item(title: "语音转文字识别语言", path: "recording.speechLocaleIdentifier", choices: [("系统首选语言", Locale.preferredLanguages.first ?? Locale.current.identifier), ("简体中文", "zh-CN"), ("繁體中文", "zh-TW"), ("English", "en-US"), ("日本語", "ja-JP"), ("한국어", "ko-KR")], explanation: "选择识别录音时使用的语言。"),
                 Item(title: "语音转文字仅使用设备本地识别", path: "recording.requiresOnDeviceRecognition", explanation: "使用 Apple 识别时，设备和所选语言都需支持本地识别。"),
                 Item(title: "单次录音最长时间（秒）", path: "recording.recordTime.max", explanation: "限制一次录音可持续的时间，到达上限后结束录音。"),
@@ -586,7 +586,7 @@ final class WYChatSettingsController: UITableViewController, UIColorPickerViewCo
     @objc private func save() {
         let config = draftView.configuration
         if config.recording.supportSpeechRecognition && config.recording.speechRecognitionSource == .external && config.recording.speechRecognitionProvider == nil {
-            let alert = UIAlertController(title: "外部识别服务尚未接入", message: "请选择 Apple 系统识别，或由宿主先提供识别服务", preferredStyle: .alert)
+            let alert = UIAlertController(title: "外部识别服务尚未接入", message: "请选择 Apple 系统识别，或由接入应用先提供识别服务", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "知道了", style: .cancel))
             present(alert, animated: true)
             return

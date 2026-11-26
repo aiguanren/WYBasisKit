@@ -100,7 +100,8 @@ extension WYChatView {
 
     func wy_prepareBottomMeasurements() {
         guard tableView.bounds.width > 0, tableView.bounds.height > 0, configuration.customCellClasses.isEmpty else { return }
-        var remaining = tableView.bounds.height * 2
+        var remaining = tableView.bounds.height * wy_chatNonnegative(configuration.bottomPremeasurementViewportCount)
+        guard remaining > 0 else { return }
         for row in dataSource.indices.reversed() {
             let height = wy_heightForMessage(at: IndexPath(row: row, section: 0))
             remaining -= max(1, height)

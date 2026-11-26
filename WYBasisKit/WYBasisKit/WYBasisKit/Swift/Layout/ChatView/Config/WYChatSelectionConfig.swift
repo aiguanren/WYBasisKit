@@ -15,6 +15,10 @@ import UIKit
 
 /// 浮动区间选择按钮外观
 public struct WYChatRangeButtonConfig {
+    /// 未设置borderColor时的边框透明度
+    public var defaultBorderOpacity: CGFloat = 0.25
+    /// 浮动区间选择按钮图标和文字间距
+    public var imageSpacing: CGFloat = 6
     /// 按钮文案，nil时使用selection.rangeTitle
     public var title: String?
     /// 按钮字体
@@ -43,6 +47,16 @@ public struct WYChatRangeButtonConfig {
 
 /// 多选操作与转发外观
 public struct WYChatSelectionConfig {
+    /// 多选工具条按钮的排列方式
+    public var toolbarDistribution: UIStackView.Distribution = .fillEqually
+    /// 多选状态图标的显示方式
+    public var indicatorContentMode: UIView.ContentMode = .scaleAspectFit
+    /// 格式化多选转发按钮的标题和消息数
+    public var forwardCountTitle: ((_ title: String, _ count: Int) -> String)? = nil
+    /// 多选工具条的转发按钮是否显示消息数
+    public var showsForwardCount: Bool = true
+    /// 浮动区间选择按钮最小高度
+    public var rangeButtonMinimumHeight: CGFloat = 44
     /// 最多可选择的消息数，0表示不限
     public var maximumCount: Int = 0
     /// 是否允许选择连续区间，默认true

@@ -59,7 +59,7 @@ class WYTestChatController: UIViewController {
         chatView.userInfo = sharedUserInfo(id: "99999", name: "官人", avatar: "https://tse3-mm.cn.bing.net/th/id/OIP-C.sLiEXoTdJvx0fe3erN8NeAAAAA?pid=ImgDet&rs=1")
         chatView.dataSource = sampleMessages()
         chatView.openAlbumHandler = { [weak self] in
-            let alert = UIAlertController(title: "相册由宿主接入", message: "使用第三方选择器后，将照片或视频文件通过sendMedia交回。测试页提供逐条和合并展示检查。", preferredStyle: .alert)
+            let alert = UIAlertController(title: "相册由接入应用提供", message: "使用第三方选择器后，将照片或视频文件通过sendMedia交回。测试页提供逐条和合并展示检查。", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "关闭", style: .cancel))
             self?.present(alert, animated: true)
         }

@@ -12,6 +12,14 @@ import WYBasisKitSwift
 /// 合并聊天记录明细外观
 @objc(WYChatRecordsConfig)
 @objcMembers public class WYChatRecordsConfigObjC: NSObject {
+    /// 合并记录导航标题是否缩小以适应宽度
+    public var titleAdjustsFontSizeToFitWidth: Bool
+    /// 合并记录详情中排除的菜单操作
+    public var excludedMenuActions: [NSNumber]
+    /// 合并记录摘要中发送者与消息之间的分隔文字
+    public var summarySenderSeparator: String
+    /// 合并记录的多条摘要之间的分隔文字
+    public var summaryLineSeparator: String
     /// 是否自动展示合并记录明细，默认true
     public var automaticallyPresentsDetail: Bool
     /// 明细是否显示发送者昵称，默认true
@@ -32,6 +40,10 @@ import WYBasisKitSwift
     public var closeColor: UIColor
     public override convenience init() { self.init(WYChatRecordsConfig()) }
     @nonobjc public init(_ value: WYChatRecordsConfig) {
+        self.titleAdjustsFontSizeToFitWidth = value.titleAdjustsFontSizeToFitWidth
+        self.excludedMenuActions = value.excludedMenuActions.map { NSNumber(value: $0.rawValue) }
+        self.summarySenderSeparator = value.summarySenderSeparator
+        self.summaryLineSeparator = value.summaryLineSeparator
         automaticallyPresentsDetail = value.automaticallyPresentsDetail
         showsNicknames = value.showsNicknames
         presentationStyle = value.presentationStyle
@@ -45,6 +57,10 @@ import WYBasisKitSwift
     }
     @nonobjc public func toValue() -> WYChatRecordsConfig {
         var value = WYChatRecordsConfig()
+        value.titleAdjustsFontSizeToFitWidth = titleAdjustsFontSizeToFitWidth
+        value.excludedMenuActions = excludedMenuActions.compactMap { WYChatAction(rawValue: $0.intValue) }
+        value.summarySenderSeparator = summarySenderSeparator
+        value.summaryLineSeparator = summaryLineSeparator
         value.automaticallyPresentsDetail = automaticallyPresentsDetail
         value.showsNicknames = showsNicknames
         value.presentationStyle = presentationStyle
@@ -59,7 +75,7 @@ import WYBasisKitSwift
 }
 
 public extension WYChatView {
-    /// 宿主接管合并记录明细，参数为记录快照
+    /// 接入方接管合并记录明细，参数为记录快照
     @objc(recordsPreviewHandler) var recordsPreviewHandlerObjC: ((_ records: WYChatRecordsModelObjC) -> Void)? {
         get { recordsPreviewHandler.map { handler in { records in handler(records.toValue()) } } }
         set { recordsPreviewHandler = newValue.map { handler in { records in handler(WYChatRecordsModelObjC(records)) } } }

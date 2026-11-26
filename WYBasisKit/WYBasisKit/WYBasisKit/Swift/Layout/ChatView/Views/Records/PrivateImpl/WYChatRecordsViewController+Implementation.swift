@@ -26,7 +26,7 @@ extension WYChatRecordsViewController {
         label.text = title
         label.font = style.titleFont
         label.textColor = style.titleColor
-        label.adjustsFontSizeToFitWidth = true
+        label.adjustsFontSizeToFitWidth = style.titleAdjustsFontSizeToFitWidth
         label.sizeToFit()
         navigationItem.titleView = label
         closeButton.title = style.closeText
@@ -44,16 +44,17 @@ extension WYChatRecordsViewController {
         detail.basic.avatarDoubleTapAction = .none
         detail.sender.showsSingleNickname = style.showsNicknames
         detail.receiver.showsSingleNickname = style.showsNicknames
-        detail.menuActions.removeAll { [.quote, .withdraw, .reedit, .mention, .takePat].contains($0) }
+        detail.menuActions.removeAll { style.excludedMenuActions.contains($0) }
         chatView.configuration = detail
         chatView.dataSource = records.messages
-        chatView.tableView.setContentOffset(.zero, animated: false)
+        let insets = chatView.tableView.adjustedContentInset
+        chatView.tableView.setContentOffset(CGPoint(x: -insets.left, y: -insets.top), animated: false)
         view.backgroundColor = configuration.backgroundColor
     }
     @objc func wy_closeRecords() { dismiss(animated: true) }
 }
 
-/// 宿主接管或内置展示合并记录
+/// 接入方接管或内置展示合并记录
 extension WYChatView {
     func wy_previewRecords(_ messageID: String) {
         guard let records = messageModelFrom(messageID)?.content.chatRecords else { return }

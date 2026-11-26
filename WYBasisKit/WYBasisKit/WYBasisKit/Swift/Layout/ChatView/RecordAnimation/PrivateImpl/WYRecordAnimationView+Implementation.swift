@@ -254,7 +254,7 @@ extension WYRecordAnimationView {
         let gradient = recordAnimationConfig.interactionStyle == .gradient
         guard state.requestID == nil else { return }
         guard mode != .dictation || recordAnimationConfig.supportSpeechRecognition else {
-            recognitionResultHandler?(nil, wy_recordError(WYLocalized("语音识别未启用", table: WYBasisKitConfig.kitLocalizableTable)))
+            recognitionResultHandler?(nil, wy_recordError(wy_captureConfiguration.recognitionDisabledText))
             return
         }
         state.mode = mode
@@ -294,10 +294,10 @@ extension WYRecordAnimationView {
         }
         superview?.layoutIfNeeded()
         layoutIfNeeded()
-        UIView.animate(withDuration: 0.18,
+        UIView.animate(withDuration: wy_chatNonnegative(wy_captureConfiguration.overlayShowDuration),
                        delay: 0,
-                       usingSpringWithDamping: 0.9,
-                       initialSpringVelocity: 1.0,
+                       usingSpringWithDamping: min(1, wy_chatNonnegative(wy_captureConfiguration.overlayShowDamping)),
+                       initialSpringVelocity: wy_chatNonnegative(wy_captureConfiguration.overlaySpringVelocity),
                        options: .curveEaseIn) { [weak self] in
 
             guard let self = self else { return }
@@ -324,10 +324,10 @@ extension WYRecordAnimationView {
         if wy_captureConfiguration.interactionStyle == .gradient { wy_stopCapture(); return }
         state.animationRevision += 1
         let revision = state.animationRevision
-        UIView.animate(withDuration: 0.2,
+        UIView.animate(withDuration: wy_chatNonnegative(wy_captureConfiguration.overlayHideDuration),
                        delay: 0,
-                       usingSpringWithDamping: 1,
-                       initialSpringVelocity: 1,
+                       usingSpringWithDamping: min(1, wy_chatNonnegative(wy_captureConfiguration.overlayHideDamping)),
+                       initialSpringVelocity: wy_chatNonnegative(wy_captureConfiguration.overlaySpringVelocity),
                        options: .curveEaseOut) { [weak self] in
             guard let self else { return }
             for view in [self.leftView, self.rightView, self.bottomView, self.soundAnimationView] { view.alpha = 0 }
@@ -373,7 +373,7 @@ extension WYRecordAnimationView {
         wy_updateLiveText()
         state.lastLayoutSize = .zero
 
-        UIView.animate(withDuration: 0.25) { [weak self] in
+        UIView.animate(withDuration: wy_chatNonnegative(wy_captureConfiguration.overlayStatusAnimationDuration)) { [weak self] in
             guard let self = self else { return }
 
             refresh(subview: leftView, status: status)
@@ -524,7 +524,7 @@ extension WYRecordAnimationView {
             return
         }
         guard let source = audioKit.currentRecordFileURL else {
-            wy_captureFinished(nil, duration: state.duration, error: wy_recordError(WYLocalized("录音时间太短", table: WYBasisKitConfig.kitLocalizableTable)))
+            wy_captureFinished(nil, duration: state.duration, error: wy_recordError(wy_captureConfiguration.shortRecordingText))
             return
         }
         do {

@@ -9,6 +9,14 @@ import UIKit
 
 /// 合并聊天记录明细外观
 public struct WYChatRecordsConfig {
+    /// 合并记录导航标题是否缩小以适应宽度
+    public var titleAdjustsFontSizeToFitWidth: Bool = true
+    /// 合并记录详情中排除的菜单操作
+    public var excludedMenuActions: [WYChatAction] = [.quote, .withdraw, .reedit, .mention, .takePat]
+    /// 合并记录摘要中发送者与消息之间的分隔文字
+    public var summarySenderSeparator: String = ": "
+    /// 合并记录的多条摘要之间的分隔文字
+    public var summaryLineSeparator: String = "\n"
     /// 是否自动展示合并记录明细，默认true
     public var automaticallyPresentsDetail = true
     /// 明细是否显示发送者昵称，默认true

@@ -14,20 +14,18 @@ final class WYChatQuoteViewPrivateState {
     var isUpdating = false
     var emoji: WYEmojiViewConfig?
     var emojiPattern: String?
+    var summaryProvider: ((WYChatMessageContentModel) -> String?)?
+    var unsupportedMessageText = WYLocalized("不支持的消息类型", table: WYBasisKitConfig.kitLocalizableTable)
     var accessibilitySummary: String?
 }
 
 extension WYChatQuoteView {
     func wy_setupQuote() {
         for view in [state.openButton, titleView, textView, thumbnailView, closeButton] { addSubview(view) }
-        titleView.numberOfLines = 1
-        textView.lineBreakMode = .byTruncatingTail
         thumbnailView.clipsToBounds = true
-        thumbnailView.contentMode = .scaleAspectFill
         state.openButton.addTarget(self, action: #selector(wy_tapQuote), for: .touchUpInside)
         closeButton.addTarget(self, action: #selector(wy_closeQuote), for: .touchUpInside)
         closeButton.accessibilityIdentifier = "WYChatQuote.close"
-        closeButton.accessibilityLabel = WYLocalized("取消", table: WYBasisKitConfig.kitLocalizableTable)
         accessibilityIdentifier = "WYChatQuote.preview"
         wy_renderQuote()
     }
@@ -35,6 +33,8 @@ extension WYChatQuoteView {
     func wy_updateQuote(_ quote: WYChatQuoteModel?, style: WYChatQuoteStyle, configuration: WYChatConfig) {
         state.emoji = configuration.emoji
         state.emojiPattern = configuration.input.emojiPattern
+        state.summaryProvider = configuration.messageSummary
+        state.unsupportedMessageText = configuration.unsupportedMessageText
         update(quote: quote, style: style, imageLoader: configuration.imageLoader)
     }
 
@@ -58,14 +58,18 @@ extension WYChatQuoteView {
 
         let name = quote?.sender.name ?? ""
         let showsSender = style.showsSender && !name.isEmpty
-        let summary = quote?.content.wy_summary ?? ""
-        let sender = showsSender ? style.prefix + name + (style.showsSenderInline ? "： " : "") : ""
+        closeButton.accessibilityLabel = style.closeAccessibilityLabel
+        let summary = quote?.content.wy_summary(provider: state.summaryProvider, unsupportedText: state.unsupportedMessageText) ?? ""
+        let sender = showsSender ? style.prefix + name + (style.showsSenderInline ? style.inlineSenderSeparator : "") : ""
         let body = showsSender ? summary : style.prefix + summary
         titleView.isHidden = !showsSender || style.showsSenderInline
         titleView.text = titleView.isHidden ? nil : sender
         titleView.font = style.titleFont
+        titleView.numberOfLines = max(0, style.titleNumberOfLines)
         titleView.textColor = style.titleColor
         textView.font = style.textFont
+        textView.lineBreakMode = style.textLineBreakMode
+        thumbnailView.contentMode = style.thumbnailContentMode
         textView.textColor = style.textColor
         textView.numberOfLines = max(0, style.maximumTextLines)
         let text: NSMutableAttributedString
@@ -79,7 +83,7 @@ extension WYChatQuoteView {
             text.insert(NSAttributedString(string: sender, attributes: [.font: style.titleFont, .foregroundColor: style.titleColor]), at: 0)
         }
         textView.attributedText = text
-        state.accessibilitySummary = showsSender && !style.showsSenderInline ? sender + "，" + body : sender + body
+        state.accessibilitySummary = showsSender && !style.showsSenderInline ? sender + style.accessibilitySeparator + body : sender + body
         textView.accessibilityLabel = titleView.isHidden ? state.accessibilitySummary : body
         wy_updateQuoteAccessibility()
 
@@ -133,7 +137,7 @@ extension WYChatQuoteView {
 
     private var sideWidths: (thumbnail: CGFloat, close: CGFloat, spacing: CGFloat) {
         (thumbnailView.isHidden ? 0 : finite(style.thumbnailSize.width),
-         closeButton.isHidden ? 0 : max(44, finite(style.closeSize.width)),
+         closeButton.isHidden ? 0 : max(finite(style.closeMinimumTouchWidth), finite(style.closeSize.width)),
          finite(style.itemSpacing))
     }
 

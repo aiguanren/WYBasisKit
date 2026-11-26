@@ -101,7 +101,7 @@ import UIKit
 
 
     /**
-     请求宿主打开相册
+     请求接入方打开相册
      @param chatView 聊天界面
      */
     @objc(wy_chatViewDidRequestAlbum:)

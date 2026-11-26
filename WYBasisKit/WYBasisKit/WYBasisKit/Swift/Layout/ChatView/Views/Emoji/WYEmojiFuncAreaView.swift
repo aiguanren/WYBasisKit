@@ -8,6 +8,8 @@
 import UIKit
 
 public struct WYEmojiFuncAreaConfig {
+    /// 删除按钮无可见标题时使用的无障碍标签
+    public var deleteAccessibilityLabel: String = WYLocalized("删除", table: WYBasisKitConfig.kitLocalizableTable)
     
     /// 是否需要在右下角显示功能区(内含删除按钮和发送按钮)
     public var show: Bool = true
@@ -174,7 +176,7 @@ public class WYEmojiFuncAreaView: UIView {
         deleteView = createFuncButton(text: emojiViewConfig.funcAreaConfig.deleteViewText, textColorWithDisabled: emojiViewConfig.funcAreaConfig.deleteViewTextColorWithDisabled, textColorWithEnable: emojiViewConfig.funcAreaConfig.deleteViewTextColorWithEnable, textColorWithHighly: emojiViewConfig.funcAreaConfig.deleteViewTextColorWithHighly, backgroundImageWithDisabled: emojiViewConfig.funcAreaConfig.deleteViewImageWithDisabled, backgroundImageWithEnable: emojiViewConfig.funcAreaConfig.deleteViewImageWithEnable, backgroundImageWithHighly: emojiViewConfig.funcAreaConfig.deleteViewImageWithHighly, target: self, selector: #selector(clickDeleteView))
         deleteView.wy_titleFont = emojiViewConfig.funcAreaConfig.deleteViewFont
         deleteView.accessibilityLabel = emojiViewConfig.funcAreaConfig.deleteViewText.isEmpty
-            ? WYLocalized("删除", table: WYBasisKitConfig.kitLocalizableTable)
+            ? emojiViewConfig.funcAreaConfig.deleteAccessibilityLabel
             : emojiViewConfig.funcAreaConfig.deleteViewText
         if (emojiViewConfig.funcAreaConfig.longPressDelete == true) {
             let longPress: UILongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(didLongPress(sender:)))

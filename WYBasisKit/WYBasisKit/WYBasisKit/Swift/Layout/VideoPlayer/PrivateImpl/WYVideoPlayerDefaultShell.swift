@@ -9,7 +9,7 @@
 import AVKit
 import UIKit
 
-/// 壳的宿主视图(尺寸变化时回调给壳重排，只被默认壳使用)
+/// 壳的容器视图(尺寸变化时回调给壳重排，只被默认壳使用)
 final class WYVideoPlayerShellHostView: UIView {
 
     /// 布局回调
@@ -27,12 +27,12 @@ final class WYVideoPlayerDefaultShell: NSObject, WYVideoPlayerControlShell {
     /// 绑定的播放器
     private weak var player: WYVideoPlayer?
 
-    /// 壳根视图(就是壳宿主视图，协议要求暴露成 UIView)
+    /// 壳根视图(就是壳的容器视图，协议要求暴露成 UIView)
     var shellView: UIView {
         return shellHostView
     }
 
-    /// 壳宿主视图(尺寸变化时回调重排)
+    /// 壳的容器视图(尺寸变化时回调重排)
     private let shellHostView = WYVideoPlayerShellHostView()
 
     /// 顶栏(返回加标题)
@@ -218,7 +218,7 @@ final class WYVideoPlayerDefaultShell: NSObject, WYVideoPlayerControlShell {
     }
 
     func updateMuted(_ isMuted: Bool) {
-        // 默认壳不单独摆静音按钮，静音经竖滑音量手势或宿主调用设置，配置里的 muteImage/volumeImage 留给自定义壳用
+        // 默认壳不单独摆静音按钮，静音经竖滑音量手势或接入方调用设置，配置里的 muteImage/volumeImage 留给自定义壳用
     }
 
     func updateFullscreen(_ isFullscreen: Bool) {

@@ -78,7 +78,7 @@ WYMethodSwizzler.hitTest(SampleView.class,
 WYMethodSwizzler.removeHooks(SampleView.class, @selector(hitTest:withEvent:));
 ```
 
-ObjC 最小组合通过依赖的 `WYBasisKitSwift-Swift.h` 导出接口，无需 Swift 宿主源码。`WYMethodSwizzler` 的类属性返回 block，Swift 也可调用这些点语法入口，原有 `wy_swizzler*` 函数保持可用。各入口参数顺序均为目标类、可选 intercept、before、after，不含 intercept 的入口只传目标类、before、after。
+ObjC 最小组合通过依赖的 `WYBasisKitSwift-Swift.h` 导出接口，无需 接入应用的 Swift 源码。`WYMethodSwizzler` 的类属性返回 block，Swift 也可调用这些点语法入口，原有 `wy_swizzler*` 函数保持可用。各入口参数顺序均为目标类、可选 intercept、before、after，不含 intercept 的入口只传目标类、before、after。
 
 同一目标类重复注册时，before 与 after 按注册顺序追加，非 nil intercept 替换已有 intercept，传入 nil 不会删除已有回调。通常执行顺序为 intercept → before → 原方法 → after，after 可修改返回值的入口会把上一个 after 的结果传给下一个 after。intercept 返回 nil 决策对象或 `proceed` 均继续执行，`result(value)` 跳过原方法及 before/after，value 可以明确为 nil、false 或零值。`drawRect` 与 `drawText` 的 `result(rect)` 仅替换绘制矩形，before、原绘制方法、after 仍依次执行。`popViewController` 的 after 只观察弹出的控制器，不替换返回值。
 
@@ -380,7 +380,7 @@ player.selectAudioTrack(1);
 
 ##### 直播、点播播放器(也可作为本地播放器)
 
-`WYMediaPlayer` 加载视频后可读取 `pictureInPictureController`，系统不支持画中画时返回 `nil`。设置该控制器的 `delegate` 接收启动、停止和界面还原回调，在 `isPictureInPicturePossible` 为 `true` 时调用 `startPictureInPicture()`，停止时调用 `stopPictureInPicture()`。后台继续播放时调用 `setPauseInBackground(false)`，宿主 App 开启后台音频能力，`releaseAll` 会停止画中画并释放视频源。
+`WYMediaPlayer` 加载视频后可读取 `pictureInPictureController`，系统不支持画中画时返回 `nil`。设置该控制器的 `delegate` 接收启动、停止和界面还原回调，在 `isPictureInPicturePossible` 为 `true` 时调用 `startPictureInPicture()`，停止时调用 `stopPictureInPicture()`。后台继续播放时调用 `setPauseInBackground(false)`，接入应用 开启后台音频能力，`releaseAll` 会停止画中画并释放视频源。
 
 ![直播.gif](https://upload-images.jianshu.io/upload_images/2795727-c34a42eccae35729.gif?imageMogr2/auto-orient/strip)
 

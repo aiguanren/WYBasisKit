@@ -57,6 +57,34 @@ import WYBasisKitSwift
 
 @objc(WYChatMediaConfig)
 @objcMembers public class WYChatMediaConfigObjC: NSObject {
+    /// 折叠媒体组在消息列表内的布局
+    public var embeddedLayoutStyle: WYPhotoBrowserLayoutStyle
+    /// 折叠媒体组在消息列表内的页码指示样式
+    public var embeddedPageIndicatorStyle: WYPhotoBrowserPageIndicatorStyle
+    /// 折叠媒体组在消息列表内的背景色
+    public var embeddedBackgroundColor: UIColor
+    /// 折叠媒体组内是否提供保存操作
+    public var embeddedShowsSaveAction: Bool
+    /// 展开媒体在视口上下的预加载距离，nil时采用折叠卡片高度
+    public var expandedPrefetchDistance: NSNumber?
+    /// 格式化展开或收起按钮的标题和媒体数
+    public var itemCountText: ((_ title: String, _ count: Int) -> String)?
+    /// 视频播放底板圆角，nil时采用圆形
+    public var videoPlayBackgroundCornerRadius: NSNumber?
+    /// 视频播放图标的显示方式
+    public var videoPlayContentMode: UIView.ContentMode
+    /// 视频时长文字对齐方式
+    public var videoDurationTextAlignment: NSTextAlignment
+    /// 视频播放图标在背景内的单侧留白比例
+    public var videoPlayIconInsetRatio: CGFloat
+    /// 时长标签距离视频封面边缘的间距
+    public var videoDurationEdgeInset: CGFloat
+    /// 时长标签的水平与垂直总内边距
+    public var videoDurationPadding: CGSize
+    /// 时长标签圆角
+    public var videoDurationCornerRadius: CGFloat
+    /// 设置视频、音乐和通话时长文字的格式
+    public var durationFormatter: ((_ duration: TimeInterval) -> String)?
     /// 选择多个媒体后的排布，默认合并
     public var presentation: WYChatMediaPresentation
     /// 更多面板中的相册项目下标，负数时不自动关联
@@ -109,7 +137,7 @@ import WYBasisKitSwift
     public var showsVideoDuration: Bool
     public var videoOverlayBackgroundColor: UIColor
     public var videoDurationColor: UIColor
-    /// 是否自动打开内置媒体浏览器，默认true，设置mediaPreviewHandler后由宿主处理
+    /// 是否自动打开内置媒体浏览器，默认true，设置mediaPreviewHandler后由接入方处理
     public var automaticallyPresentsBrowser: Bool
     /// 视频播放器的展示方式，默认全屏
     public var videoPresentationStyle: UIModalPresentationStyle
@@ -119,6 +147,20 @@ import WYBasisKitSwift
     public var browser: WYPhotoBrowserConfigurationObjC
     public override convenience init() { self.init(WYChatMediaConfig()) }
     @nonobjc public init(_ value: WYChatMediaConfig) {
+        self.embeddedLayoutStyle = value.embeddedLayoutStyle
+        self.embeddedPageIndicatorStyle = value.embeddedPageIndicatorStyle
+        self.embeddedBackgroundColor = value.embeddedBackgroundColor
+        self.embeddedShowsSaveAction = value.embeddedShowsSaveAction
+        self.expandedPrefetchDistance = value.expandedPrefetchDistance.map { NSNumber(value: Double($0)) }
+        self.itemCountText = value.itemCountText
+        self.videoPlayBackgroundCornerRadius = value.videoPlayBackgroundCornerRadius.map { NSNumber(value: Double($0)) }
+        self.videoPlayContentMode = value.videoPlayContentMode
+        self.videoDurationTextAlignment = value.videoDurationTextAlignment
+        self.videoPlayIconInsetRatio = value.videoPlayIconInsetRatio
+        self.videoDurationEdgeInset = value.videoDurationEdgeInset
+        self.videoDurationPadding = value.videoDurationPadding
+        self.videoDurationCornerRadius = value.videoDurationCornerRadius
+        self.durationFormatter = value.durationFormatter
         presentation = value.presentation
         albumMoreItemIndex = value.albumMoreItemIndex
         cardSize = value.cardSize
@@ -155,6 +197,20 @@ import WYBasisKitSwift
     }
     @nonobjc public func toValue() -> WYChatMediaConfig {
         var value = WYChatMediaConfig()
+        value.embeddedLayoutStyle = embeddedLayoutStyle
+        value.embeddedPageIndicatorStyle = embeddedPageIndicatorStyle
+        value.embeddedBackgroundColor = embeddedBackgroundColor
+        value.embeddedShowsSaveAction = embeddedShowsSaveAction
+        value.expandedPrefetchDistance = expandedPrefetchDistance.map { CGFloat($0.doubleValue) }
+        value.itemCountText = itemCountText
+        value.videoPlayBackgroundCornerRadius = videoPlayBackgroundCornerRadius.map { CGFloat($0.doubleValue) }
+        value.videoPlayContentMode = videoPlayContentMode
+        value.videoDurationTextAlignment = videoDurationTextAlignment
+        value.videoPlayIconInsetRatio = videoPlayIconInsetRatio
+        value.videoDurationEdgeInset = videoDurationEdgeInset
+        value.videoDurationPadding = videoDurationPadding
+        value.videoDurationCornerRadius = videoDurationCornerRadius
+        value.durationFormatter = durationFormatter
         value.presentation = presentation
         value.albumMoreItemIndex = albumMoreItemIndex
         value.cardSize = cardSize

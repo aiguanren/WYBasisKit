@@ -54,7 +54,7 @@ public extension WYChatView {
     @objc(quotePreview) var quotePreviewObjC: WYChatQuoteView { quotePreview }
     /// 查询消息是否可请求撤回，参数为消息ID与判断时刻
     @objc(canWithdrawMessage) var canWithdrawMessageObjC: @convention(block) (_ messageID: String, _ date: Date) -> Bool { { [self] identifier, date in canWithdrawMessage(identifier, at: date) } }
-    /// 在宿主确认撤回成功后更新消息及其引用快照，参数为消息ID、撤回时刻及是否保留自己的文本供重新编辑
+    /// 在接入方确认撤回成功后更新消息及其引用快照，参数为消息ID、撤回时刻及是否保留自己的文本供重新编辑
     @objc(markMessageWithdrawn) var markMessageWithdrawnObjC: @convention(block) (_ messageID: String, _ date: Date, _ allowsReedit: Bool) -> Bool { { [self] identifier, date, reedit in markMessageWithdrawn(identifier, at: date, allowsReedit: reedit) } }
     /// 查询撤回文本是否可重新编辑，参数为消息ID与判断时刻
     @objc(canReeditMessage) var canReeditMessageObjC: @convention(block) (_ messageID: String, _ date: Date) -> Bool { { [self] identifier, date in canReeditMessage(identifier, at: date) } }
@@ -64,18 +64,18 @@ public extension WYChatView {
     @objc(inputMentions) var inputMentionsObjC: [WYChatMentionObjC] { inputMentions.map(WYChatMentionObjC.init) }
     /// 在输入框当前选区插入用户提及，参数为被提及的用户，返回是否已完整插入提及文本
     @objc(mentionUser) var mentionUserObjC: @convention(block) (_ user: WYChatUserModelObjC) -> Bool { { [self] user in mentionUser(user.toValue()) } }
-    /// 请求宿主打开相册，选择结果通过sendMedia交回
+    /// 请求接入方打开相册，选择结果通过sendMedia交回
     @objc(openAlbumHandler) var openAlbumHandlerObjC: (() -> Void)? { get { openAlbumHandler } set { openAlbumHandler = newValue } }
     /// 媒体操作，参数为操作、消息ID和媒体下标
     @objc(mediaActionHandler) var mediaActionHandlerObjC: ((_ action: WYChatMediaAction, _ messageID: String, _ index: Int) -> Void)? { get { mediaActionHandler } set { mediaActionHandler = newValue } }
-    /// 宿主接管媒体预览，参数为媒体列表、初始下标和来源视图
+    /// 接入方接管媒体预览，参数为媒体列表、初始下标和来源视图
     @objc(mediaPreviewHandler) var mediaPreviewHandlerObjC: ((_ items: [WYChatMediaItemObjC], _ index: Int, _ sourceView: UIView?) -> Void)? {
         get { mediaPreviewHandler.map { handler in { items, index, source in handler(items.map { $0.toValue() }, index, source) } } }
         set { mediaPreviewHandler = newValue.map { handler in { items, index, source in handler(items.map(WYChatMediaItemObjC.init), index, source) } } }
     }
-    /// 请求宿主打开相册
+    /// 请求接入方打开相册
     @objc(requestAlbum) var requestAlbumObjC: @convention(block) () -> WYChatView { { [self] in self.requestAlbum(); return self } }
-    /// 组装选中的图片和视频并按配置加入列表，参数为宿主选择的媒体
+    /// 组装选中的图片和视频并按配置加入列表，参数为接入方选择的媒体
     @objc(sendMedia) var sendMediaObjC: @convention(block) (_ items: [WYChatMediaItemObjC]) -> [WYChatMessageModelObjC] { { [self] items in self.sendMedia(items.map { $0.toValue() }).map(WYChatMessageModelObjC.init) } }
 
     /// 组装录音消息并按配置加入列表，参数为本地文件、时长和消息ID，文件或时长无效时返回nil

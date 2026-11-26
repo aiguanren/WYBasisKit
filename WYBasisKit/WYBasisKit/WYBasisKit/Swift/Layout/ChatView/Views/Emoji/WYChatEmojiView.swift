@@ -17,6 +17,16 @@ import UIKit
 }
 
 public struct WYEmojiViewConfig {
+    /// 表情分区标题对齐方式
+    public var headerTextAlignment: NSTextAlignment = .left
+    /// 没有最近使用分区时是否仍显示全部表情标题
+    public var showsAllHeaderWithoutRecent: Bool = false
+    /// 表情动图未提供有效帧时长时采用的默认秒数
+    public var defaultAnimationFrameDelay: TimeInterval = 0.1
+    /// 是否显示垂直滚动条
+    public var showsVerticalScrollIndicator: Bool = false
+    /// 是否显示水平滚动条
+    public var showsHorizontalScrollIndicator: Bool = false
     
     /// 自定义Emoji控件弹起或者收回时动画持续时长
     public var animateDuration: TimeInterval = 0.25

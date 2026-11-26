@@ -59,6 +59,9 @@ raw_ui = {
     'NSLineBreakMode': list(range(6)),
     'NSTextAlignment': list(range(5)),
     'UICollectionView.ScrollDirection': [0, 1],
+    'UIActivityIndicatorView.Style': [0, 1, 2, 100, 101],
+    'UITableViewCell.SeparatorStyle': [0, 1],
+    'UIStackView.Distribution': list(range(5)),
     'UIModalPresentationStyle': [-2, -1, *range(8)],
     'UIScrollView.KeyboardDismissMode': [0, 1, 2],
     'UIRectCorner': None,
@@ -80,6 +83,14 @@ def build(path, name, kind):
     if kind == 'Int': return '.integer(' + lead + ', ' + get + ', ' + setter + ')'
     if kind in ['CGFloat', 'Float', 'Double', 'TimeInterval']:
         return '.scalar(' + lead + ', ' + quote(kind) + ', get: { Double($0.' + path + ') }, set: { $0.' + path + ' = ' + kind + '($1) })'
+    if kind == 'CGFloat?':
+        return '.optionalScalar(' + lead + ', ' + get + ', ' + setter + ')'
+    if kind == 'NSTextAlignment?':
+        return '.optionalTextAlignment(' + lead + ', ' + get + ', ' + setter + ')'
+    if kind == 'UIEdgeInsets?':
+        return '.optionalInsets(' + lead + ', ' + get + ', ' + setter + ')'
+    if kind == 'UIFont?':
+        return '.optionalFont(' + lead + ', ' + get + ', ' + setter + ')'
     methods = {'[UIColor]': 'colors', 'CGPoint?': 'optionalPoint', 'URL': 'directory', 'WYSourceBundle?': 'sourceBundle', '[AnyClass]': 'classes'}
     if kind in methods: return '.' + methods[kind] + '(' + lead + ', ' + get + ', ' + setter + ')'
     if kind in ['String', 'String?']:

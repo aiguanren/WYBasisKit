@@ -57,7 +57,10 @@ extension WYChatView: UITableViewDelegate, UITableViewDataSource {
         guard let cell = wy_messageMenuCell(at: point, in: tableView), wy_usesWholeCellMenu(cell),
               dataSource.indices.contains(indexPath.row) else { return nil }
         let model = dataSource[indexPath.row]
-        return UIContextMenuConfiguration(identifier: model.messageID as NSString, previewProvider: nil) { [weak self] _ in self?.wy_menu(model) }
+        let menuConfiguration = (cell as? WYChatBasicCell)?.configuration ?? configuration
+        return UIContextMenuConfiguration(identifier: model.messageID as NSString, previewProvider: nil) { [weak self] _ in
+            self?.wy_menu(model, configuration: menuConfiguration)
+        }
     }
 
     public func tableView(_ tableView: UITableView, previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration) -> UITargetedPreview? { nil }

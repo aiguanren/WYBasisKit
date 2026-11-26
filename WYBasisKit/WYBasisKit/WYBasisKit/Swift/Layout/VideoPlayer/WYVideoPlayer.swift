@@ -9,7 +9,7 @@
 import AVFoundation
 import UIKit
 
-/// 点播播放器(画面层直接是 AVPlayerLayer，边下边播经 WYMediaCache，弹幕字幕全屏画中画手势壳全配齐，透出 avPlayer 供宿主做更多系统操作)
+/// 点播播放器(画面层直接是 AVPlayerLayer，边下边播经 WYMediaCache，弹幕字幕全屏画中画手势壳全配齐，透出 avPlayer 供接入方做更多系统操作)
 public class WYVideoPlayer: UIView {
 
     /// 播放配置(实例级，外观与开关全量可配)
@@ -70,7 +70,7 @@ public class WYVideoPlayer: UIView {
         set { playbackOptions.setAudioOnly(newValue) }
     }
 
-    /// 是否允许后台继续播放，宿主需声明 audio 后台模式，默认 false
+    /// 是否允许后台继续播放，接入应用需声明 audio 后台模式，默认 false
     public var isBackgroundPlaybackEnabled: Bool {
         get { return playbackOptions.isBackgroundPlaybackEnabled }
         set { playbackOptions.setBackgroundPlayback(newValue) }
@@ -129,7 +129,7 @@ public class WYVideoPlayer: UIView {
         }
     }
 
-    /// 内置弹幕视图(配置 showsDanmaku 开启时才有，宿主可直接发弹幕)
+    /// 内置弹幕视图(配置 showsDanmaku 开启时才有，接入方可直接发弹幕)
     public internal(set) var danmakuView: WYDanmakuView?
 
     /// 当前播放位置，单位为秒

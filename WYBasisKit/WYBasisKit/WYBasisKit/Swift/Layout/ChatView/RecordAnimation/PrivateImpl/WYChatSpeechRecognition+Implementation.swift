@@ -31,19 +31,19 @@ final class WYChatSpeechRecognitionTask {
 
     func recognize(url: URL, completion: @escaping (_ text: String?, _ error: NSError?) -> Void) {
         self.completion = completion
-        guard configuration.supportSpeechRecognition else { finish(nil, error: failure(WYLocalized("语音识别未启用", table: WYBasisKitConfig.kitLocalizableTable), code: .disabled)); return }
-        guard FileManager.default.fileExists(atPath: url.path) else { finish(nil, error: failure(WYLocalized("录音文件不存在", table: WYBasisKitConfig.kitLocalizableTable), code: .fileNotFound)); return }
+        guard configuration.supportSpeechRecognition else { finish(nil, error: failure(configuration.recognitionDisabledText, code: .disabled)); return }
+        guard FileManager.default.fileExists(atPath: url.path) else { finish(nil, error: failure(configuration.recordingNotFoundText, code: .fileNotFound)); return }
         let deadline = configuration.speechRecognitionTimeout
         let work = DispatchWorkItem { [weak self] in
             guard let self, !self.cancelled, !self.completed else { return }
             self.recognitionTask?.cancel()
             self.configuration.speechRecognitionProvider?.wy_cancelSpeechRecognition?(self.identifier)
-            self.finish(nil, error: self.failure(WYLocalized("语音识别超时", table: WYBasisKitConfig.kitLocalizableTable), code: .timedOut))
+            self.finish(nil, error: self.failure(self.configuration.recognitionTimeoutText, code: .timedOut))
         }
         timeout = work
         DispatchQueue.main.asyncAfter(deadline: .now() + (deadline.isFinite && deadline > 0 ? deadline : 30), execute: work)
         if configuration.speechRecognitionSource == .external {
-            guard let provider = configuration.speechRecognitionProvider else { finish(nil, error: failure(WYLocalized("未配置外部语音识别实现", table: WYBasisKitConfig.kitLocalizableTable), code: .missingProvider)); return }
+            guard let provider = configuration.speechRecognitionProvider else { finish(nil, error: failure(configuration.recognitionMissingProviderText, code: .missingProvider)); return }
             if !provider.responds(to: #selector(WYChatSpeechRecognizer.wy_recognizeSpeech(_:url:localeIdentifier:requiresOnDevice:completion:))) {
                 startStreaming(partialResult: { _ in }, completion: completion)
                 guard !cancelled, !completed else { return }
@@ -63,7 +63,7 @@ final class WYChatSpeechRecognitionTask {
     private func replayNextBuffer() {
         guard !cancelled, !completed, let file = replayFile else { return }
         guard file.framePosition < file.length else { replayFile = nil; finishStreaming(); return }
-        guard let buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: 1024) else { finish(nil, error: failure(WYLocalized("录音文件无效或录音时间太短", table: WYBasisKitConfig.kitLocalizableTable), code: .fileNotFound)); return }
+        guard let buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: configuration.wy_audioBufferFrameCount) else { finish(nil, error: failure(configuration.invalidRecordingText, code: .fileNotFound)); return }
         do { try file.read(into: buffer) }
         catch { finish(nil, error: error as NSError); return }
         if buffer.frameLength == 0 {
@@ -99,11 +99,11 @@ final class WYChatSpeechRecognitionTask {
                     ?? candidates.first
             }
         }
-        guard resolvedLocale != nil else { finish(nil, error: failure(WYLocalized("不支持当前识别语言", table: WYBasisKitConfig.kitLocalizableTable), code: .unsupportedLanguage)); return }
-        guard Bundle.main.object(forInfoDictionaryKey: speechRecognitionKey) as? String != nil else { finish(nil, error: failure(WYLocalized("缺少语音识别权限用途说明", table: WYBasisKitConfig.kitLocalizableTable), code: .missingUsageDescription)); return }
+        guard resolvedLocale != nil else { finish(nil, error: failure(configuration.recognitionUnsupportedLanguageText, code: .unsupportedLanguage)); return }
+        guard Bundle.main.object(forInfoDictionaryKey: speechRecognitionKey) as? String != nil else { finish(nil, error: failure(configuration.recognitionMissingUsageDescriptionText, code: .missingUsageDescription)); return }
         wy_authorizeSpeechRecognition(showSettingsAlert: false) { [weak self] granted in
             guard let self, !self.cancelled, self.completion != nil else { return }
-            guard granted else { self.finish(nil, error: self.failure(WYLocalized("没有语音识别权限", table: WYBasisKitConfig.kitLocalizableTable), code: .authorizationDenied)); return }
+            guard granted else { self.finish(nil, error: self.failure(configuration.recognitionAuthorizationDeniedText, code: .authorizationDenied)); return }
             start()
         }
     }
@@ -112,13 +112,13 @@ final class WYChatSpeechRecognitionTask {
         self.completion = completion
         self.partialResult = partialResult
         streaming = true
-        guard configuration.supportSpeechRecognition else { finish(nil, error: failure(WYLocalized("语音识别未启用", table: WYBasisKitConfig.kitLocalizableTable), code: .disabled)); return }
+        guard configuration.supportSpeechRecognition else { finish(nil, error: failure(configuration.recognitionDisabledText, code: .disabled)); return }
         if configuration.speechRecognitionSource == .external {
             guard let provider = configuration.speechRecognitionProvider,
                   provider.responds(to: #selector(WYChatSpeechRecognizer.wy_startStreamingSpeech(_:localeIdentifier:requiresOnDevice:partialResult:completion:))),
                   provider.responds(to: #selector(WYChatSpeechRecognizer.wy_appendSpeechAudio(_:buffer:))),
                   provider.responds(to: #selector(WYChatSpeechRecognizer.wy_finishStreamingSpeech(_:))) else {
-                finish(nil, error: failure(WYLocalized("未配置外部语音识别实现", table: WYBasisKitConfig.kitLocalizableTable), code: .missingProvider))
+                finish(nil, error: failure(configuration.recognitionMissingProviderText, code: .missingProvider))
                 return
             }
             provider.wy_startStreamingSpeech?(identifier, localeIdentifier: configuration.speechLocaleIdentifier, requiresOnDevice: configuration.requiresOnDeviceRecognition, partialResult: { [weak self] text in
@@ -131,8 +131,8 @@ final class WYChatSpeechRecognitionTask {
 
     private func startAppleStreaming() {
         guard !cancelled, !completed else { return }
-        guard let recognizer = SFSpeechRecognizer(locale: resolvedLocale ?? Locale(identifier: configuration.speechLocaleIdentifier)), recognizer.isAvailable else { finish(nil, error: failure(WYLocalized("当前语言的语音识别不可用", table: WYBasisKitConfig.kitLocalizableTable), code: .unavailable)); return }
-        guard !configuration.requiresOnDeviceRecognition || recognizer.supportsOnDeviceRecognition else { finish(nil, error: failure(WYLocalized("当前设备或语言不支持本地识别", table: WYBasisKitConfig.kitLocalizableTable), code: .onDeviceUnavailable)); return }
+        guard let recognizer = SFSpeechRecognizer(locale: resolvedLocale ?? Locale(identifier: configuration.speechLocaleIdentifier)), recognizer.isAvailable else { finish(nil, error: failure(configuration.recognitionUnavailableText, code: .unavailable)); return }
+        guard !configuration.requiresOnDeviceRecognition || recognizer.supportsOnDeviceRecognition else { finish(nil, error: failure(configuration.recognitionOnDeviceUnavailableText, code: .onDeviceUnavailable)); return }
         self.recognizer = recognizer
         let request = SFSpeechAudioBufferRecognitionRequest()
         request.requiresOnDeviceRecognition = configuration.requiresOnDeviceRecognition
@@ -189,7 +189,7 @@ final class WYChatSpeechRecognitionTask {
             guard let self, !self.completed, !self.cancelled else { return }
             self.recognitionTask?.cancel()
             if self.configuration.speechRecognitionSource == .external { self.configuration.speechRecognitionProvider?.wy_cancelSpeechRecognition?(self.identifier) }
-            self.finish(nil, error: self.failure(WYLocalized("语音识别超时", table: WYBasisKitConfig.kitLocalizableTable), code: .timedOut))
+            self.finish(nil, error: self.failure(self.configuration.recognitionTimeoutText, code: .timedOut))
         }
         timeout?.cancel()
         timeout = work
@@ -198,8 +198,8 @@ final class WYChatSpeechRecognitionTask {
     }
 
     private func startApple(_ url: URL) {
-        guard let recognizer = SFSpeechRecognizer(locale: resolvedLocale ?? Locale(identifier: configuration.speechLocaleIdentifier)), recognizer.isAvailable else { finish(nil, error: failure(WYLocalized("当前语言的语音识别不可用", table: WYBasisKitConfig.kitLocalizableTable), code: .unavailable)); return }
-        if configuration.requiresOnDeviceRecognition && !recognizer.supportsOnDeviceRecognition { finish(nil, error: failure(WYLocalized("当前设备或语言不支持本地识别", table: WYBasisKitConfig.kitLocalizableTable), code: .onDeviceUnavailable)); return }
+        guard let recognizer = SFSpeechRecognizer(locale: resolvedLocale ?? Locale(identifier: configuration.speechLocaleIdentifier)), recognizer.isAvailable else { finish(nil, error: failure(configuration.recognitionUnavailableText, code: .unavailable)); return }
+        if configuration.requiresOnDeviceRecognition && !recognizer.supportsOnDeviceRecognition { finish(nil, error: failure(configuration.recognitionOnDeviceUnavailableText, code: .onDeviceUnavailable)); return }
         self.recognizer = recognizer
         let request = SFSpeechURLRecognitionRequest(url: url)
         request.requiresOnDeviceRecognition = configuration.requiresOnDeviceRecognition
@@ -228,7 +228,7 @@ final class WYChatSpeechRecognitionTask {
         recognitionTask = nil
         recognizer = nil
         let value = text?.trimmingCharacters(in: .whitespacesAndNewlines)
-        completion(value, error ?? ((value?.isEmpty ?? true) ? failure(WYLocalized("没有识别到文字", table: WYBasisKitConfig.kitLocalizableTable), code: .emptyResult) : nil))
+        completion(value, error ?? ((value?.isEmpty ?? true) ? failure(configuration.recognitionEmptyResultText, code: .emptyResult) : nil))
     }
 
     func cancel() {

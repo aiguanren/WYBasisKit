@@ -10,7 +10,7 @@ import UIKit
 /// 媒体内容类型
 @objc public enum WYChatMediaKind: Int { case photo, video }
 
-/// 宿主选择的图片或视频
+/// 接入方选择的图片或视频
 public struct WYChatMediaItem: Equatable {
     /// 媒体ID
     public var id: String = UUID().uuidString

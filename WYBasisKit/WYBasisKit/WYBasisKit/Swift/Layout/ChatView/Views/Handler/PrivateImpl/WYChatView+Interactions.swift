@@ -31,7 +31,7 @@ extension WYChatView {
               let cell = wy_messageMenuCell(at: gesture.location(in: table), in: table) as? WYChatBasicCell,
               !wy_usesWholeCellMenu(cell),
               let index = table.indexPath(for: cell), dataSource.indices.contains(index.row) else { return }
-        wy_presentMessageMenu(wy_menu(dataSource[index.row]), for: cell)
+        wy_presentMessageMenu(wy_menu(dataSource[index.row], configuration: cell.configuration), for: cell)
     }
 
     @objc func wy_closeMessageMenu() {
@@ -46,17 +46,19 @@ extension WYChatView {
         guard !visible.isNull, !visible.isEmpty else { return }
         let bubble = cell.bubblesView.convert(cell.bubblesView.bounds, to: self).intersection(visible)
         guard !bubble.isEmpty, !bubble.isNull else { return }
-        let inset = UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
         let config = cell.configuration
+        let inset = wy_chatNonnegative(config.menuInset)
         let availableWidth = visible.width - inset * 2
         guard availableWidth > inset * 2 else { return }
-        let iconSize = UIDevice.wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels)
-        let iconSpacing = inset / 2
+        let iconSize = wy_chatNonnegative(config.menuIconSize)
+        let iconSpacing = wy_chatNonnegative(config.menuIconSpacing ?? inset / 2)
         let labelWidth = menu.children.map { ($0.title as NSString).size(withAttributes: [.font: config.menuItemFont]).width }.max() ?? 0
-        let itemWidth = max(UIDevice.wy_screenWidth(58, WYBasisKitConfig.defaultScreenPixels), ceil(labelWidth) + inset * 2)
-        let columns = min(menu.children.count, max(1, config.menuMaximumColumns), max(1, Int((availableWidth - inset * 2) / itemWidth)))
+        let itemWidth = max(max(1, wy_chatNonnegative(config.menuMinimumItemWidth)), ceil(labelWidth) + inset * 2)
+        let fittingColumns = min(CGFloat(menu.children.count), (availableWidth - inset * 2) / itemWidth)
+        let columns = min(max(1, config.menuMaximumColumns), max(1, Int(fittingColumns)))
         let width = min(availableWidth, itemWidth * CGFloat(columns) + inset * 2)
-        let rowHeight = max(44, config.menuItemFont.lineHeight + iconSize + iconSpacing + inset * 2)
+        let titleLines = max(1, config.menuItemTitleLineLimit)
+        let rowHeight = max(wy_chatNonnegative(config.menuMinimumItemHeight), config.menuItemFont.lineHeight * CGFloat(titleLines) + iconSize + iconSpacing + inset * 2)
         let naturalHeight = CGFloat((menu.children.count + columns - 1) / columns) * rowHeight + inset
         let above = bubble.minY - visible.minY - inset * 2
         let below = visible.maxY - bubble.maxY - inset * 2
@@ -80,11 +82,11 @@ extension WYChatView {
 
         let panel = UIScrollView(frame: CGRect(x: x, y: y, width: width, height: height))
         panel.backgroundColor = config.menuBackgroundColor
-        panel.layer.cornerRadius = inset * 1.5
-        panel.layer.borderWidth = 1 / max(1, traitCollection.displayScale)
-        panel.layer.borderColor = config.menuTextColor.withAlphaComponent(0.18).resolvedColor(with: traitCollection).cgColor
+        panel.layer.cornerRadius = wy_chatNonnegative(config.menuCornerRadius ?? inset * 1.5)
+        panel.layer.borderWidth = wy_chatNonnegative(config.menuBorderWidth ?? 1 / max(1, traitCollection.displayScale))
+        panel.layer.borderColor = (config.menuBorderColor ?? config.menuTextColor.withAlphaComponent(min(1, wy_chatNonnegative(config.menuBorderOpacity)))).resolvedColor(with: traitCollection).cgColor
         panel.accessibilityIdentifier = "WYChatMessageMenu"
-        panel.showsVerticalScrollIndicator = height < naturalHeight
+        panel.showsVerticalScrollIndicator = config.menuShowsVerticalScrollIndicator && height < naturalHeight
         let rows = UIStackView()
         rows.axis = .vertical
         for index in stride(from: 0, to: menu.children.count, by: columns) {
@@ -100,8 +102,9 @@ extension WYChatView {
                 let action = element as? UIAction
                 appearance.baseForegroundColor = action?.attributes.contains(.destructive) == true ? config.menuDestructiveTextColor : config.menuTextColor
                 appearance.attributedTitle = AttributedString(element.title, attributes: AttributeContainer([.font: config.menuItemFont]))
-                appearance.image = element.image ?? wy_messageMenuIcon(.content)
+                appearance.image = element.image ?? wy_messageMenuIcon(.content, configuration: config)
                 button.configuration = appearance
+                if titleLines > 1 { button.titleLabel?.numberOfLines = titleLines; button.titleLabel?.textAlignment = .center }
                 button.accessibilityLabel = element.title
                 if let action {
                     button.addAction(action, for: .touchUpInside)
@@ -170,10 +173,10 @@ extension WYChatView {
         wy_refreshQuote()
     }
 
-    func wy_menu(_ model: WYChatMessageModel) -> UIMenu {
+    func wy_menu(_ model: WYChatMessageModel, configuration: WYChatConfig) -> UIMenu {
         if isSelectingMessages {
             guard configuration.selection.allowsRangeSelection, !selectedMessageIDs.isEmpty, configuration.allowsAction?(.selectRange, model) ?? true else { return UIMenu(children: []) }
-            return UIMenu(children: [UIAction(title: configuration.selection.rangeTitle, image: wy_messageMenuIcon(.selectRange)) { [weak self] _ in self?.wy_performAction(.selectRange, messageID: model.messageID) }])
+            return UIMenu(children: [UIAction(title: configuration.selection.rangeTitle, image: wy_messageMenuIcon(.selectRange, configuration: configuration)) { [weak self] _ in self?.wy_performAction(.selectRange, messageID: model.messageID) }])
         }
         let actions = configuration.menuActions.filter { action in
             guard configuration.allowsAction?(action, model) ?? true else { return false }
@@ -188,13 +191,21 @@ extension WYChatView {
             return true
         }
         return UIMenu(children: actions.map { action -> UIMenuElement in
-            if action == .forward, forwardHandler != nil { return UIMenu(title: configuration.actionTitle?(.forward) ?? wy_actionTitle(.forward), image: wy_messageMenuIcon(.forward), children: wy_forwardMenu([model.messageID]).children) }
-            return UIAction(title: configuration.actionTitle?(action) ?? wy_actionTitle(action), image: wy_messageMenuIcon(action), attributes: action == .delete ? .destructive : []) { [weak self] _ in self?.wy_performAction(action, messageID: model.messageID) }
+            if action == .forward, forwardHandler != nil { return UIMenu(title: configuration.actionTitle?(.forward) ?? wy_actionTitle(.forward, configuration: configuration), image: wy_messageMenuIcon(.forward, configuration: configuration), children: wy_forwardMenu([model.messageID]).children) }
+            return UIAction(title: configuration.actionTitle?(action) ?? wy_actionTitle(action, configuration: configuration), image: wy_messageMenuIcon(action, configuration: configuration), attributes: action == .delete ? .destructive : []) { [weak self] _ in self?.wy_performAction(action, messageID: model.messageID) }
         })
     }
 
-    func wy_messageMenuIcon(_ action: WYChatAction) -> UIImage {
-        let size = UIDevice.wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels)
+    func wy_messageMenuIcon(_ action: WYChatAction, configuration: WYChatConfig) -> UIImage? {
+        let size = wy_chatNonnegative(configuration.menuIconSize)
+        guard size > 0 else { return nil }
+        if let image = configuration.actionImage?(action), image.size.width > 0, image.size.height > 0 {
+            let scale = size / max(image.size.width, image.size.height)
+            let target = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+            return UIGraphicsImageRenderer(size: target).image { _ in
+                image.draw(in: CGRect(origin: .zero, size: target))
+            }.withRenderingMode(image.renderingMode)
+        }
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: size, height: size))
         let resource: String?
         switch action {
@@ -233,7 +244,7 @@ extension WYChatView {
             let context = renderer.cgContext
             context.scaleBy(x: size / 24, y: size / 24)
             context.setStrokeColor(UIColor.black.cgColor)
-            context.setLineWidth(1.7)
+            context.setLineWidth(wy_chatNonnegative(configuration.menuIconStrokeWidth))
             context.setLineCap(.round)
             context.setLineJoin(.round)
             for stroke in strokes { context.addLines(between: stroke) }
@@ -241,7 +252,7 @@ extension WYChatView {
         }.withRenderingMode(.alwaysTemplate)
     }
 
-    func wy_actionTitle(_ action: WYChatAction) -> String {
+    func wy_actionTitle(_ action: WYChatAction, configuration: WYChatConfig) -> String {
         switch action {
         case .favorite: return WYLocalized("收藏", table: WYBasisKitConfig.kitLocalizableTable)
         case .remind: return WYLocalized("提醒", table: WYBasisKitConfig.kitLocalizableTable)
@@ -344,7 +355,7 @@ extension WYChatView {
         wy_cancelMessageRecognition()
         let path = [voice.localPath, voice.aacPath, voice.wavPath, voice.cafPath, voice.mp3Path, voice.amrPath].first { !$0.isEmpty }
         guard let path else {
-            let error = NSError(domain: WYChatSpeechRecognitionErrorDomain, code: WYChatSpeechRecognitionErrorCode.fileNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: WYLocalized("录音文件不存在", table: WYBasisKitConfig.kitLocalizableTable)])
+            let error = NSError(domain: WYChatSpeechRecognitionErrorDomain, code: WYChatSpeechRecognitionErrorCode.fileNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: configuration.recording.recordingNotFoundText])
             if let index = dataSource.firstIndex(where: { $0.messageID == model.messageID }) { dataSource[index].content.voice?.recognitionError = error.localizedDescription }
             delegate?.wy_speechRecognitionFinished?(self, messageID: model.messageID, text: nil, error: error)
             return
@@ -375,8 +386,7 @@ extension WYChatView {
     func wy_setupSelectionToolbar() {
         selectionToolbar.translatesAutoresizingMaskIntoConstraints = false
         selectionToolbar.axis = .horizontal
-        selectionToolbar.distribution = .fillEqually
-        selectionToolbar.backgroundColor = .secondarySystemBackground
+        selectionToolbar.distribution = configuration.selection.toolbarDistribution
         for button in [selectionCancelButton, selectionForwardButton, selectionDeleteButton] { selectionToolbar.addArrangedSubview(button) }
         selectionCancelButton.accessibilityIdentifier = "WYChatView.selectionCancel"
         selectionForwardButton.accessibilityIdentifier = "WYChatView.selectionForward"
@@ -384,7 +394,6 @@ extension WYChatView {
         selectionCancelButton.addTarget(self, action: #selector(wy_cancelSelection), for: .touchUpInside)
         selectionForwardButton.addTarget(self, action: #selector(wy_forwardSelection), for: .touchUpInside)
         selectionDeleteButton.addTarget(self, action: #selector(wy_deleteSelection), for: .touchUpInside)
-        selectionDeleteButton.tintColor = .systemRed
         addSubview(selectionToolbar)
         state.selectionHeight = selectionToolbar.heightAnchor.constraint(equalToConstant: configuration.selection.height)
         NSLayoutConstraint.activate([selectionToolbar.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor), selectionToolbar.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor), selectionToolbar.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor), state.selectionHeight!])
@@ -400,8 +409,12 @@ extension WYChatView {
         selectionToolbar.isHidden = !show
         chatInput.isHidden = show || !configuration.showsInputBar
         selectionCancelButton.setTitle(configuration.selectionCancelText, for: .normal)
-        selectionForwardButton.setTitle((configuration.actionTitle?(.forward) ?? wy_actionTitle(.forward)) + " (\(selectedMessageIDs.count))", for: .normal)
-        selectionDeleteButton.setTitle(configuration.actionTitle?(.delete) ?? wy_actionTitle(.delete), for: .normal)
+        let forwardTitle = configuration.actionTitle?(.forward) ?? wy_actionTitle(.forward, configuration: configuration)
+        let selection = configuration.selection
+        let count = selectedMessageIDs.count
+        let title = selection.showsForwardCount ? (selection.forwardCountTitle?(forwardTitle, count) ?? "\(forwardTitle) (\(count))") : forwardTitle
+        selectionForwardButton.setTitle(title, for: .normal)
+        selectionDeleteButton.setTitle(configuration.actionTitle?(.delete) ?? wy_actionTitle(.delete, configuration: configuration), for: .normal)
         selectionForwardButton.isEnabled = !selectedMessageIDs.isEmpty && (forwardHandler == nil || !configuration.selection.forwardModes.isEmpty)
         selectionDeleteButton.isEnabled = !selectedMessageIDs.isEmpty
         if show != wasVisible { wy_refreshInputAnchors() }

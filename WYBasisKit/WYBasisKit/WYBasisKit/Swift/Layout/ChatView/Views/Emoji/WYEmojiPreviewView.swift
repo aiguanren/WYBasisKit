@@ -8,6 +8,10 @@
 import UIKit
 
 public struct WYEmojiPreviewConfig {
+    /// 表情预览标题对齐方式
+    public var textAlignment: NSTextAlignment = .center
+    /// 提供表情预览标题，返回nil时使用本地化表情名
+    public var textProvider: ((_ emoji: String) -> String?)? = nil
     
     /// Emoji表情是否需要支持长按预览详情
     public var show: Bool = true

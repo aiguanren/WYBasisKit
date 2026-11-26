@@ -26,6 +26,20 @@ import WYBasisKitSwift
 /// 引用预览外观
 @objc(WYChatQuoteStyle)
 @objcMembers public class WYChatQuoteStyleObjC: NSObject {
+    /// 引用关闭按钮的最小触控宽度
+    public var closeMinimumTouchWidth: CGFloat
+    /// 引用发送者名称最大行数，0表示不限
+    public var titleNumberOfLines: Int
+    /// 引用摘要的换行或截断方式
+    public var textLineBreakMode: NSLineBreakMode
+    /// 引用缩略图的显示方式
+    public var thumbnailContentMode: UIView.ContentMode
+    /// 分行引用的无障碍朗读分隔文字
+    public var accessibilitySeparator: String
+    /// 关闭引用按钮的无障碍标签
+    public var closeAccessibilityLabel: String
+    /// 行内引用发送者与摘要之间的分隔文字
+    public var inlineSenderSeparator: String
     /// 引用内容内边距
     public var insets: UIEdgeInsets
     /// 发送者与内容的间距
@@ -74,6 +88,13 @@ import WYBasisKitSwift
     public var closeSize: CGSize
     public override convenience init() { self.init(WYChatQuoteStyle()) }
     @nonobjc public init(_ value: WYChatQuoteStyle) {
+        self.closeMinimumTouchWidth = value.closeMinimumTouchWidth
+        self.titleNumberOfLines = value.titleNumberOfLines
+        self.textLineBreakMode = value.textLineBreakMode
+        self.thumbnailContentMode = value.thumbnailContentMode
+        self.accessibilitySeparator = value.accessibilitySeparator
+        self.closeAccessibilityLabel = value.closeAccessibilityLabel
+        self.inlineSenderSeparator = value.inlineSenderSeparator
         insets = value.insets
         spacing = value.spacing
         itemSpacing = value.itemSpacing
@@ -101,6 +122,13 @@ import WYBasisKitSwift
     }
     @nonobjc public func toValue() -> WYChatQuoteStyle {
         var value = WYChatQuoteStyle()
+        value.closeMinimumTouchWidth = closeMinimumTouchWidth
+        value.titleNumberOfLines = titleNumberOfLines
+        value.textLineBreakMode = textLineBreakMode
+        value.thumbnailContentMode = thumbnailContentMode
+        value.accessibilitySeparator = accessibilitySeparator
+        value.closeAccessibilityLabel = closeAccessibilityLabel
+        value.inlineSenderSeparator = inlineSenderSeparator
         value.insets = insets
         value.spacing = spacing
         value.itemSpacing = itemSpacing
@@ -176,6 +204,10 @@ import WYBasisKitSwift
 /// 撤回与重新编辑配置
 @objc(WYChatNoticeConfig)
 @objcMembers public class WYChatNoticeConfigObjC: NSObject {
+    /// 居中系统提示的文字对齐方式
+    public var centeredTextAlignment: NSTextAlignment
+    /// 未接通的通话提示
+    public var unconnectedCallText: String
     /// 普通消息可请求撤回的时长，单位秒，0表示不限
     public var withdrawalTimeLimit: TimeInterval
     /// 是否提供拍一拍撤回操作，默认true
@@ -207,6 +239,8 @@ import WYBasisKitSwift
     public var patText: String?
     public override convenience init() { self.init(WYChatNoticeConfig()) }
     @nonobjc public init(_ value: WYChatNoticeConfig) {
+        self.centeredTextAlignment = value.centeredTextAlignment
+        self.unconnectedCallText = value.unconnectedCallText
         withdrawalTimeLimit = value.withdrawalTimeLimit
         allowsPatWithdrawal = value.allowsPatWithdrawal
         patWithdrawalTimeLimit = value.patWithdrawalTimeLimit
@@ -227,6 +261,8 @@ import WYBasisKitSwift
     }
     @nonobjc public func toValue() -> WYChatNoticeConfig {
         var value = WYChatNoticeConfig()
+        value.centeredTextAlignment = centeredTextAlignment
+        value.unconnectedCallText = unconnectedCallText
         value.withdrawalTimeLimit = withdrawalTimeLimit
         value.allowsPatWithdrawal = allowsPatWithdrawal
         value.patWithdrawalTimeLimit = patWithdrawalTimeLimit

@@ -20,7 +20,7 @@ func wy_chatCanReedit(_ message: WYChatMessageModel, userID: String, configurati
     return max(0, date.timeIntervalSince1970 - timestamp) < configuration.reeditTimeLimit
 }
 
-/// 宿主撤回结果与文本恢复
+/// 接入方撤回结果与文本恢复
 extension WYChatView {
     func wy_canWithdraw(_ message: WYChatMessageModel, at date: Date) -> Bool {
         guard message.content.withdrawn == nil else { return false }

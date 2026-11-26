@@ -20,6 +20,8 @@ final class WYChatLiveRecorder {
     private var outputURL: URL?
     private var frames: AVAudioFramePosition = 0
     private var lastProgress: TimeInterval = 0
+    private var progressInterval: TimeInterval = 0
+    private var bufferFrameCount: AVAudioFrameCount = 1
     private var stopping = false
     private var tapInstalled = false
     private var completion: ((_ url: URL?, _ duration: TimeInterval, _ error: NSError?) -> Void)?
@@ -30,6 +32,8 @@ final class WYChatLiveRecorder {
         queue.async { [self] in
             self.audio = audio
             self.progress = progress
+            progressInterval = wy_chatNonnegative(configuration.recordingProgressInterval)
+            bufferFrameCount = configuration.wy_audioBufferFrameCount
             self.completion = completion
             do {
                 guard Self.activeOwner == nil else { throw NSError(domain: NSOSStatusErrorDomain, code: Int(AVAudioSession.ErrorCode.isBusy.rawValue)) }
@@ -49,7 +53,7 @@ final class WYChatLiveRecorder {
                 self.engine = engine
                 let input = engine.inputNode
                 let format = input.outputFormat(forBus: 0)
-                guard format.sampleRate > 0, format.channelCount > 0 else { throw NSError(domain: String(describing: Self.self), code: 1, userInfo: [NSLocalizedDescriptionKey: WYLocalized("录音文件无效或录音时间太短", table: WYBasisKitConfig.kitLocalizableTable)]) }
+                guard format.sampleRate > 0, format.channelCount > 0 else { throw NSError(domain: String(describing: Self.self), code: 1, userInfo: [NSLocalizedDescriptionKey: configuration.invalidRecordingText]) }
                 var settings = configuration.recordSettings
                 if settings[AVFormatIDKey] == nil { settings[AVFormatIDKey] = kAudioFormatMPEG4AAC }
                 if settings[AVSampleRateKey] == nil { settings[AVSampleRateKey] = format.sampleRate }
@@ -67,7 +71,7 @@ final class WYChatLiveRecorder {
                 }
                 self.converter = AVAudioConverter(from: format, to: file.processingFormat)
                 guard self.converter != nil else { throw NSError(domain: String(describing: Self.self), code: 2) }
-                input.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in
+                input.installTap(onBus: 0, bufferSize: bufferFrameCount, format: format) { [weak self] buffer, _ in
                     guard let self, let copy = Self.copy(buffer) else { return }
                     self.queue.async { [self] in self.consume(copy) }
                 }
@@ -118,7 +122,7 @@ final class WYChatLiveRecorder {
         frames += AVAudioFramePosition(converted.frameLength)
         audio?(converted)
         let duration = Double(frames) / file.processingFormat.sampleRate
-        guard duration - lastProgress >= 0.05 else { return }
+        guard duration - lastProgress >= progressInterval else { return }
         lastProgress = duration
         var peak: Float = 0
         var squares: Float = 0
@@ -140,7 +144,7 @@ final class WYChatLiveRecorder {
         guard let file, let converter else { return }
         while completion != nil {
             if let maximumFrames, frames >= maximumFrames { return }
-            guard let output = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: 1024) else { return }
+            guard let output = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: bufferFrameCount) else { return }
             var error: NSError?
             let status = converter.convert(to: output, error: &error) { _, state in state.pointee = .endOfStream; return nil }
             if let error { throw error }

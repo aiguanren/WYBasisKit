@@ -23,6 +23,11 @@ final class WYChatVideoOverlayView: UIView {
     private let play = UIImageView()
     private let duration = UILabel()
     private var playSize = CGSize.zero
+    private var playInsetRatio: CGFloat = 0
+    private var durationInset: CGFloat = 0
+    private var durationPadding = CGSize.zero
+    private var durationCornerRadius: CGFloat = 0
+    private var playBackgroundCornerRadius: CGFloat?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -30,8 +35,6 @@ final class WYChatVideoOverlayView: UIView {
         addSubview(playBackground)
         playBackground.addSubview(play)
         addSubview(duration)
-        play.contentMode = .scaleAspectFit
-        duration.textAlignment = .center
         duration.adjustsFontSizeToFitWidth = true
         duration.accessibilityIdentifier = "WYChatVideo.duration"
         play.accessibilityIdentifier = "WYChatVideo.play"
@@ -40,6 +43,13 @@ final class WYChatVideoOverlayView: UIView {
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     func apply(_ config: WYChatMediaConfig, icon: UIImage?, tint: UIColor?, font: UIFont, duration text: String) {
+        play.contentMode = config.videoPlayContentMode
+        duration.textAlignment = config.videoDurationTextAlignment
+        playBackgroundCornerRadius = config.videoPlayBackgroundCornerRadius
+        playInsetRatio = min(0.5, wy_chatNonnegative(config.videoPlayIconInsetRatio))
+        durationInset = wy_chatNonnegative(config.videoDurationEdgeInset)
+        durationPadding = CGSize(width: wy_chatNonnegative(config.videoDurationPadding.width), height: wy_chatNonnegative(config.videoDurationPadding.height))
+        durationCornerRadius = wy_chatNonnegative(config.videoDurationCornerRadius)
         play.image = tint == nil ? icon : icon?.withRenderingMode(.alwaysTemplate)
         play.tintColor = tint
         playSize = CGSize(width: config.videoPlaySize.width.isFinite ? max(0, config.videoPlaySize.width) : 0,
@@ -58,15 +68,16 @@ final class WYChatVideoOverlayView: UIView {
         super.layoutSubviews()
         let size = CGSize(width: min(bounds.width, playSize.width), height: min(bounds.height, playSize.height))
         playBackground.frame = CGRect(x: bounds.midX - size.width / 2, y: bounds.midY - size.height / 2, width: size.width, height: size.height)
-        playBackground.layer.cornerRadius = min(size.width, size.height) / 2
-        play.frame = playBackground.bounds.insetBy(dx: size.width * 0.18, dy: size.height * 0.18)
+        let maximumRadius = min(size.width, size.height) / 2
+        playBackground.layer.cornerRadius = min(maximumRadius, wy_chatNonnegative(playBackgroundCornerRadius ?? maximumRadius))
+        play.frame = playBackground.bounds.insetBy(dx: size.width * playInsetRatio, dy: size.height * playInsetRatio)
         let textSize = duration.intrinsicContentSize
-        let inset: CGFloat = 6
-        let width = min(max(0, bounds.width - 2 * inset), max(0, textSize.width + 12))
-        let height = min(max(0, bounds.height - 2 * inset), max(0, textSize.height + 4))
+        let inset = durationInset
+        let width = min(max(0, bounds.width - 2 * inset), max(0, textSize.width + durationPadding.width))
+        let height = min(max(0, bounds.height - 2 * inset), max(0, textSize.height + durationPadding.height))
         let x = effectiveUserInterfaceLayoutDirection == .rightToLeft ? inset : bounds.width - inset - width
         duration.frame = CGRect(x: x, y: bounds.height - inset - height, width: width, height: height)
-        duration.layer.cornerRadius = min(6, height / 2)
+        duration.layer.cornerRadius = min(durationCornerRadius, height / 2)
         duration.clipsToBounds = true
     }
 }
@@ -109,9 +120,10 @@ extension WYChatBasicCell {
         let attachment = NSTextAttachment()
         attachment.image = image.withRenderingMode(.alwaysOriginal)
         let font = messageContentConfiguration.titleFont
-        attachment.bounds = CGRect(x: 0, y: font.descender, width: font.lineHeight, height: font.lineHeight)
+        let size = font.lineHeight * wy_chatNonnegative(configuration.voicePlayback.playbackSymbolScale)
+        attachment.bounds = CGRect(x: 0, y: font.descender, width: size, height: size)
         let content = NSMutableAttributedString(attachment: attachment)
-        content.append(NSAttributedString(string: "  " + text))
+        content.append(NSAttributedString(string: configuration.voicePlayback.playbackSymbolSeparator + text))
         state.title.attributedText = content
     }
 
@@ -152,7 +164,7 @@ extension WYChatBasicCell {
             guard let value = message.content.music else { return }
             wy_showThumbnail(value.thumbnailCover.localPath.isEmpty && value.thumbnailCover.downloadPath.isEmpty ? value.cover : value.thumbnailCover)
             state.title.text = value.name
-            state.detail.text = [value.singer, value.composer].filter { !$0.isEmpty }.joined(separator: " · ")
+            state.detail.text = [value.singer, value.composer].filter { !$0.isEmpty }.joined(separator: messageContentConfiguration.detailsSeparator)
             state.footer.text = wy_duration(value.duration)
         case .voice:
             guard let value = message.content.voice else { return }
@@ -173,11 +185,12 @@ extension WYChatBasicCell {
             let duration = String(Int(ceil(min(86400, max(0, value.duration.isFinite ? value.duration : 0))))) + playback.durationSuffix
             if playback.showsPlaybackSymbol { wy_showPlaybackSymbol(value.isPlaying ? playback.pauseImage : playback.playImage, text: duration) }
             else { state.title.text = duration }
-            if message.isSender(userID) {
+            let sender = message.isSender(userID)
+            if sender && playback.showsSenderWaveformOnTrailingSide {
                 state.header.removeArrangedSubview(state.thumbnail)
                 state.header.insertArrangedSubview(state.thumbnail, at: 1)
-                state.title.textAlignment = .right
-            } else { state.title.textAlignment = .left }
+            }
+            state.title.textAlignment = sender ? playback.senderDurationAlignment : playback.receiverDurationAlignment
             state.detail.text = value.isRecognizing ? configuration.recording.recognizingText : value.recognitionError.isEmpty ? value.voiceToText : value.recognitionError
             if !value.isRecognizing && !value.recognitionError.isEmpty { state.detail.textColor = configuration.recording.recognitionFailureColor }
             let style = messageContentConfiguration
@@ -193,6 +206,7 @@ extension WYChatBasicCell {
     }
 
     func wy_duration(_ duration: TimeInterval) -> String {
+        if let formatter = configuration.media.durationFormatter { return formatter(duration) }
         let seconds = Int(min(86400, max(0, duration.isFinite ? duration : 0)))
         return String(format: "%d:%02d", seconds / 60, seconds % 60)
     }

@@ -102,7 +102,7 @@ extension WYVideoPlayer {
         return AVPlayerItem(url: url)
     }
 
-    /// 将播放默认值变化绑定到实例，保留宿主直接设置倍速和静音的能力
+    /// 将播放默认值变化绑定到实例，保留接入方直接设置倍速和静音的能力
     func bindPlaybackConfiguration() {
         configuration.preferredRateChanged = { [weak self] in
             guard let self = self else { return }

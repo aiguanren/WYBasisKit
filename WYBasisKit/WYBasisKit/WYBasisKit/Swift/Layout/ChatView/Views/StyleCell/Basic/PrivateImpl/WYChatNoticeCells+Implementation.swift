@@ -31,15 +31,15 @@ extension WYChatBasicCell {
             guard let value = message.content.call else { return }
             let video = value.callStyle == .oneToOneVideo || value.callStyle == .multipleVideos
             wy_showMessageIcon(video ? "WYChatViewVideoCall" : "WYChatViewAudioCall")
-            state.title.text = value.durationOfCall > 0 ? wy_duration(value.durationOfCall) : WYLocalized("通话未接通", table: WYBasisKitConfig.kitLocalizableTable)
+            state.title.text = value.durationOfCall > 0 ? wy_duration(value.durationOfCall) : configuration.notice.unconnectedCallText
         default: break
         }
         if wy_isNotice {
-            state.title.textAlignment = .center
+            state.title.textAlignment = configuration.notice.centeredTextAlignment
             state.title.font = messageContentConfiguration.detailFont
             state.title.textColor = messageContentConfiguration.detailColor
         } else {
-            state.title.textAlignment = .natural
+            state.title.textAlignment = messageContentConfiguration.titleTextAlignment
         }
     }
 }

@@ -9,6 +9,20 @@ import UIKit
 
 /// 引用预览外观
 public struct WYChatQuoteStyle {
+    /// 引用关闭按钮的最小触控宽度
+    public var closeMinimumTouchWidth: CGFloat = 44
+    /// 引用发送者名称最大行数，0表示不限
+    public var titleNumberOfLines: Int = 1
+    /// 引用摘要的换行或截断方式
+    public var textLineBreakMode: NSLineBreakMode = .byTruncatingTail
+    /// 引用缩略图的显示方式
+    public var thumbnailContentMode: UIView.ContentMode = .scaleAspectFill
+    /// 分行引用的无障碍朗读分隔文字
+    public var accessibilitySeparator: String = "，"
+    /// 关闭引用按钮的无障碍标签
+    public var closeAccessibilityLabel: String = WYLocalized("取消", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 行内引用发送者与摘要之间的分隔文字
+    public var inlineSenderSeparator: String = "： "
     /// 引用内容内边距
     public var insets: UIEdgeInsets = UIEdgeInsets(top: UIDevice.wy_screenHeight(8, WYBasisKitConfig.defaultScreenPixels), left: UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels), bottom: UIDevice.wy_screenHeight(8, WYBasisKitConfig.defaultScreenPixels), right: UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels))
     /// 发送者与内容的间距

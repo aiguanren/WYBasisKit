@@ -19,6 +19,20 @@ import WYBasisKitSwift
 /// 语音播放倍速外观
 @objc(WYChatVoicePlaybackConfig)
 @objcMembers public class WYChatVoicePlaybackConfigObjC: NSObject {
+    /// 发送方语音时长对齐方式
+    public var senderDurationAlignment: NSTextAlignment
+    /// 接收方语音时长对齐方式
+    public var receiverDurationAlignment: NSTextAlignment
+    /// 发送方语音声波是否放在时长之后
+    public var showsSenderWaveformOnTrailingSide: Bool
+    /// 内联播放图标占时长字体行高的比例
+    public var playbackSymbolScale: CGFloat
+    /// 内联播放图标与时长之间的分隔文字
+    public var playbackSymbolSeparator: String
+    /// 未播放标记圆角，nil时采用圆形
+    public var unreadCornerRadius: NSNumber?
+    /// 自定义语音倍速按钮和菜单的标题
+    public var rateTitle: ((_ rate: Float) -> String)?
     /// 语音内容的最小宽度，不含气泡内边距
     public var minimumWidth: CGFloat
     /// 保持最小宽度的语音时长，单位秒
@@ -71,6 +85,13 @@ import WYBasisKitSwift
     public var cornerRadius: CGFloat
     public override convenience init() { self.init(WYChatVoicePlaybackConfig()) }
     @nonobjc public init(_ value: WYChatVoicePlaybackConfig) {
+        self.senderDurationAlignment = value.senderDurationAlignment
+        self.receiverDurationAlignment = value.receiverDurationAlignment
+        self.showsSenderWaveformOnTrailingSide = value.showsSenderWaveformOnTrailingSide
+        self.playbackSymbolScale = value.playbackSymbolScale
+        self.playbackSymbolSeparator = value.playbackSymbolSeparator
+        self.unreadCornerRadius = value.unreadCornerRadius.map { NSNumber(value: Double($0)) }
+        self.rateTitle = value.rateTitle
         minimumWidth = value.minimumWidth
         minimumWidthDuration = value.minimumWidthDuration
         widthGrowthPerSecond = value.widthGrowthPerSecond
@@ -100,6 +121,13 @@ import WYBasisKitSwift
     }
     @nonobjc public func toValue() -> WYChatVoicePlaybackConfig {
         var value = WYChatVoicePlaybackConfig()
+        value.senderDurationAlignment = senderDurationAlignment
+        value.receiverDurationAlignment = receiverDurationAlignment
+        value.showsSenderWaveformOnTrailingSide = showsSenderWaveformOnTrailingSide
+        value.playbackSymbolScale = playbackSymbolScale
+        value.playbackSymbolSeparator = playbackSymbolSeparator
+        value.unreadCornerRadius = unreadCornerRadius.map { CGFloat($0.doubleValue) }
+        value.rateTitle = rateTitle
         value.minimumWidth = minimumWidth
         value.minimumWidthDuration = minimumWidthDuration
         value.widthGrowthPerSecond = widthGrowthPerSecond

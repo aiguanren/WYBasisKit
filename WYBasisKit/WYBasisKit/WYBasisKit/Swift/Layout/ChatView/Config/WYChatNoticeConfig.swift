@@ -9,6 +9,10 @@ import UIKit
 
 /// 撤回与重新编辑配置
 public struct WYChatNoticeConfig {
+    /// 居中系统提示的文字对齐方式
+    public var centeredTextAlignment: NSTextAlignment = .center
+    /// 未接通的通话提示
+    public var unconnectedCallText: String = WYLocalized("通话未接通", table: WYBasisKitConfig.kitLocalizableTable)
     /// 普通消息可请求撤回的时长，单位秒，0表示不限
     public var withdrawalTimeLimit: TimeInterval = 120
     /// 是否提供拍一拍撤回操作，默认true

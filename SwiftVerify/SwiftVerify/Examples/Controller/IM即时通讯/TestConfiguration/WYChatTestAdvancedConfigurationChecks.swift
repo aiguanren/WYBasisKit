@@ -53,6 +53,19 @@ enum WYChatTestAdvancedConfigurationChecks {
         var configuredIDs: [String] = []
         var config = WYChatConfig()
         config.input.draftStorageKey = ""
+        config.input.moreAccessibilityLabel = "打开扩展操作"
+        config.input.iconContentMode = .scaleAspectFill
+        config.listContentInset = UIEdgeInsets(top: 4, left: 0, bottom: 10, right: 0)
+        config.listBounces = false
+        config.listSeparatorStyle = .singleLine
+        config.listSeparatorColor = .systemPurple
+        config.listSeparatorInset = UIEdgeInsets(top: 0, left: 24, bottom: 0, right: 0)
+        config.basic.timeTextAlignment = .right
+        config.content.previewContentMode = .scaleAspectFit
+        config.newMessagesText = "查看未读消息"
+        config.newMessagesButtonCornerRadius = 11
+        config.messageSummary = { $0.photo == nil ? nil : "自定义图片摘要" }
+        config.quote.input.closeAccessibilityLabel = "清除回复"
         config.basic.timeFormatter = { _ in "自定义时间" }
         config.imageLoader = { _, target, identifier in loadedIDs.append(identifier); target.image = image }
         config.messageConfiguration = { message, original in
@@ -75,6 +88,31 @@ enum WYChatTestAdvancedConfigurationChecks {
         check("advanced-message-configuration", configuredIDs.contains(message.messageID) && cell?.configuration.content.titleFont.pointSize == 23 && view.configuration.content.titleFont.pointSize != 23)
         check("advanced-image-loader", loadedIDs.contains(message.messageID) && cell?.previewImageView.image === image)
         check("advanced-time-formatter", cell?.timeView.text == "自定义时间")
+        check("advanced-list-appearance", view.tableView.contentInset == config.listContentInset && !view.tableView.bounces && view.tableView.separatorStyle == .singleLine && view.tableView.separatorColor == .systemPurple && view.tableView.separatorInset == config.listSeparatorInset)
+        check("advanced-cell-appearance", cell?.timeView.textAlignment == .right && cell?.previewImageView.contentMode == .scaleAspectFit)
+        view.chatInput.moreView.layoutIfNeeded()
+        check("advanced-input-icon-mode", view.chatInput.moreView.imageView?.contentMode == .scaleAspectFill)
+        check("advanced-new-messages-appearance", view.newMessagesButton.title(for: .normal) == "查看未读消息" && view.newMessagesButton.layer.cornerRadius == 11)
+        check("advanced-input-accessibility", view.chatInput.moreView.accessibilityLabel == "打开扩展操作")
+        view.quoteMessage(message.messageID)
+        check("advanced-quote-configuration", view.quotePreview.textView.text?.contains("自定义图片摘要") == true && view.quotePreview.closeButton.accessibilityLabel == "清除回复")
+        view.quoteMessage(nil)
+        var refreshed = config
+        refreshed.newMessagesText = "返回最新消息"
+        refreshed.showsNewMessagesButton = false
+        refreshed.newMessagesButtonCornerRadius = nil
+        refreshed.input.moreAccessibilityLabel = "更多操作"
+        refreshed.listContentInset = .zero
+        refreshed.listBounces = true
+        refreshed.listSeparatorStyle = .none
+        refreshed.listSeparatorInset = nil
+        refreshed.content.previewContentMode = .center
+        view.configuration = refreshed
+        check("advanced-new-messages-refresh", view.newMessagesButton.title(for: .normal) == "返回最新消息" && view.newMessagesButton.layer.cornerRadius == refreshed.basic.avatarCornerRadius && view.newMessagesButton.isHidden)
+        check("advanced-input-accessibility-refresh", view.chatInput.moreView.accessibilityLabel == "更多操作")
+        view.tableView.layoutIfNeeded()
+        let refreshedCell = view.tableView.cellForRow(at: IndexPath(row: 0, section: 0)) as? WYChatBasicCell
+        check("advanced-list-and-cell-refresh", view.tableView.contentInset == .zero && view.tableView.bounces && view.tableView.separatorStyle == .none && view.tableView.separatorInset != config.listSeparatorInset && refreshedCell?.previewImageView.contentMode == .center)
         check("advanced-message-style-members", WYChatMessageStyle.members() == Array(WYChatMessageStyle.allCases))
 
         var emojiLoads: [String] = []

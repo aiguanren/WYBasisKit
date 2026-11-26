@@ -228,7 +228,7 @@ extension WYChatBasicCell {
         state.imageHeight = state.image.heightAnchor.constraint(equalToConstant: 0)
         state.imageHeight?.priority = UILayoutPriority(999)
         state.imageHeight?.isActive = true
-        state.preferredWidth = bodyView.widthAnchor.constraint(equalToConstant: 240)
+        state.preferredWidth = bodyView.widthAnchor.constraint(equalToConstant: configuration.content.preferredWidth)
         state.preferredWidth?.priority = .defaultHigh
         state.preferredWidth?.isActive = true
         avatarView.clipsToBounds = true
@@ -239,8 +239,8 @@ extension WYChatBasicCell {
         bubblesView.isUserInteractionEnabled = true
         bubblesView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(wy_contentTap)))
         loadingView.addTarget(self, action: #selector(wy_retryTap), for: .touchUpInside)
-        state.avatarWidth = avatarView.widthAnchor.constraint(equalToConstant: 40)
-        state.avatarHeight = avatarView.heightAnchor.constraint(equalToConstant: 40)
+        state.avatarWidth = avatarView.widthAnchor.constraint(equalToConstant: configuration.basic.avatarSize.width)
+        state.avatarHeight = avatarView.heightAnchor.constraint(equalToConstant: configuration.basic.avatarSize.height)
         state.timeHeight = timeView.heightAnchor.constraint(equalToConstant: 0)
         state.nicknameHeight = nicknameView.heightAnchor.constraint(equalToConstant: 0)
         state.timeBottom = avatarView.topAnchor.constraint(equalTo: timeView.bottomAnchor)
@@ -248,10 +248,10 @@ extension WYChatBasicCell {
         state.bubbleTop = bubblesView.topAnchor.constraint(equalTo: nicknameView.bottomAnchor)
         state.bubbleBottom = bubblesView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         state.center = bubblesView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor)
-        state.width = bubblesView.widthAnchor.constraint(lessThanOrEqualToConstant: 280)
-        state.statusWidth = loadingView.widthAnchor.constraint(equalToConstant: 20)
-        state.statusHeight = loadingView.heightAnchor.constraint(equalToConstant: 20)
-        state.contentMinimum = bubblesView.heightAnchor.constraint(greaterThanOrEqualToConstant: 40)
+        state.width = bubblesView.widthAnchor.constraint(lessThanOrEqualToConstant: 0)
+        state.statusWidth = loadingView.widthAnchor.constraint(equalToConstant: configuration.basic.messageSendingStateSize.width)
+        state.statusHeight = loadingView.heightAnchor.constraint(equalToConstant: configuration.basic.messageSendingStateSize.height)
+        state.contentMinimum = bubblesView.heightAnchor.constraint(greaterThanOrEqualToConstant: configuration.content.minimumBubbleHeight)
         state.common = [
             timeView.topAnchor.constraint(equalTo: contentView.topAnchor), timeView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             state.timeHeight, state.avatarWidth, state.avatarHeight, state.timeBottom, state.nicknameHeight,
@@ -278,18 +278,18 @@ extension WYChatBasicCell {
         let side = sender ? configuration.sender : configuration.receiver
         timeView.font = basic.timeFont
         timeView.textColor = basic.timeColor
+        activityView.style = basic.loadingIndicatorStyle
         timeView.text = basic.timeFormatter?(message) ?? message.timeFormat ?? wy_timeText()
-        timeView.textAlignment = .center
+        timeView.textAlignment = basic.timeTextAlignment
         nicknameView.text = message.sender.name
         nicknameView.font = basic.nicknameFont
         nicknameView.textColor = basic.nicknameColor
-        nicknameView.textAlignment = sender ? .right : .left
+        nicknameView.textAlignment = side.nicknameAlignment ?? (sender ? .right : .left)
         nicknameView.isHidden = !(message.group == nil ? side.showsSingleNickname : side.showsGroupNickname)
         avatarView.isHidden = !side.showsAvatar || wy_isNotice
         wy_loadImage(message.sender.avatar, into: avatarView)
         let style = messageContentConfiguration
         state.title.font = style.titleFont
-        state.title.textAlignment = .natural
         state.header.removeArrangedSubview(state.thumbnail)
         state.header.insertArrangedSubview(state.thumbnail, at: 0)
         state.title.textColor = style.titleColor
@@ -312,7 +312,12 @@ extension WYChatBasicCell {
         state.thumbnail.tintsImage = false
         state.thumbnailSize[0].constant = max(0, configuration.basic.avatarSize.width)
         state.thumbnailSize[1].constant = max(0, configuration.basic.avatarSize.height)
-        state.title.textAlignment = .natural
+        state.title.textAlignment = style.titleTextAlignment
+        state.detail.textAlignment = style.detailTextAlignment
+        state.footer.textAlignment = style.footerTextAlignment
+        state.footer.numberOfLines = max(0, style.footerNumberOfLines)
+        state.image.imageContentMode = style.previewContentMode
+        state.thumbnail.contentMode = style.thumbnailContentMode
         state.title.isHidden = false
         state.title.text = nil
         state.detail.text = nil
@@ -320,7 +325,7 @@ extension WYChatBasicCell {
         state.usesImage = false
         state.preferredContentWidth = nil
         state.image.imageCornerRadius = 0
-        state.image.placeholderContentMode = .scaleToFill
+        state.image.placeholderContentMode = style.placeholderContentMode
         state.image.placeholderBackgroundColor = nil
         state.videoOverlay?.isHidden = true
         if let imageIndex = bodyView.arrangedSubviews.firstIndex(of: state.image),
@@ -345,7 +350,7 @@ extension WYChatBasicCell {
         state.thumbnail.isHidden = !state.usesThumbnail
         if message.isTransferring {
             let progress = message.transferProgress.isFinite ? min(1, max(0, message.transferProgress)) : 0
-            state.footer.text = String(format: "%.0f%%", progress * 100)
+            state.footer.text = messageContentConfiguration.transferProgressFormatter?(progress) ?? String(format: "%.0f%%", progress * 100)
         } else if !message.transferError.isEmpty {
             state.footer.text = message.transferError
         }
@@ -360,7 +365,7 @@ extension WYChatBasicCell {
         loadingView.isHidden = !sender || (message.sendState != .failed && message.sendState != .notSent) || wy_isNotice
         if sender && message.sendState == .sending && !wy_isNotice { activityView.startAnimating() } else { activityView.stopAnimating() }
         readMarkView.isHidden = !sender || !basic.showReadMark || message.sendState != .success || wy_isNotice
-        readMarkView.text = (Double(message.readers) ?? 0) > 0 ? basic.readText : basic.unreadText
+        readMarkView.text = basic.readMarkFormatter?(message) ?? ((Double(message.readers) ?? 0) > 0 ? basic.readText : basic.unreadText)
         readMarkView.font = basic.readMarkFont
         readMarkView.textColor = basic.readMarkColor
         wy_updateLayout()
@@ -391,6 +396,7 @@ extension WYChatBasicCell {
             state.selectionIndicatorImage = image
             state.rendersSelectionIndicatorAsTemplate = style.rendersIndicatorAsTemplate
         }
+        indicator.contentMode = style.indicatorContentMode
         indicator.tintColor = isMessageSelected ? style.selectedColor : style.unselectedColor
         indicator.accessibilityValue = isMessageSelected ? "1" : "0"
     }
@@ -444,23 +450,26 @@ extension WYChatBasicCell {
         state.statusHeight.constant = max(0, basic.messageSendingStateSize.height)
         let timeHeight: CGFloat = (timeView.text?.isEmpty ?? true) ? 0 : basic.timeFont.lineHeight + max(0, basic.timeViewOffset)
         state.timeHeight.constant = timeHeight
-        state.timeBottom.constant = max(0, configuration.messageSpacing / 2)
+        let topSpacing = wy_chatNonnegative(configuration.messageTopSpacing ?? configuration.messageSpacing / 2)
+        state.timeBottom.constant = topSpacing
         let nicknameHeight = nicknameView.isHidden || wy_isNotice ? 0 : basic.nicknameFont.lineHeight + max(0, configuration.nicknameSpacing)
         let bubbleConfig = sender ? configuration.senderBubble : configuration.receiverBubble
         let arrowInset = max(bubbleConfig.cornerRadius.isFinite ? max(0, bubbleConfig.cornerRadius) : 0, bubbleConfig.arrowEdgePadding.isFinite ? max(0, bubbleConfig.arrowEdgePadding) : 0) + (bubbleConfig.arrowSize.width.isFinite ? max(0, bubbleConfig.arrowSize.width) : 0) / 2
         let alignsArrow = bubbleConfig.alignsArrowWithAvatar && bubbleConfig.showsArrow && messageContentConfiguration.showsBubble && !avatarView.isHidden && !wy_isNotice
         let avatarShift = alignsArrow ? max(0, nicknameHeight + side.contentTopOffset + arrowInset - avatarHeight / 2) : 0
-        state.nicknameTop.constant = max(0, configuration.messageSpacing / 2)
+        state.nicknameTop.constant = topSpacing
         state.timeBottom.constant += avatarShift
         state.nicknameHeight.constant = nicknameHeight
         state.bubbleTop.constant = side.contentTopOffset
-        state.bubbleBottom.constant = -max(0, configuration.messageSpacing / 2)
-        state.contentMinimum.constant = wy_isNotice ? 0 : max(0, avatarHeight - nicknameHeight, alignsArrow ? avatarShift + avatarHeight / 2 - nicknameHeight - side.contentTopOffset + arrowInset : 0)
+        state.bubbleBottom.constant = -wy_chatNonnegative(configuration.messageBottomSpacing ?? configuration.messageSpacing / 2)
         let style = messageContentConfiguration
+        let automaticMinimum = wy_isNotice ? 0 : max(0, avatarHeight - nicknameHeight, alignsArrow ? avatarShift + avatarHeight / 2 - nicknameHeight - side.contentTopOffset + arrowInset : 0)
+        state.contentMinimum.constant = max(automaticMinimum, wy_chatNonnegative(style.minimumBubbleHeight))
         let ratio = style.maximumWidthRatio.isFinite ? min(1, max(0.1, style.maximumWidthRatio)) : 0.75
         wy_updateSelectionIndicator()
         let layoutWidth = width ?? contentView.bounds.width
-        let available = max(1, layoutWidth - selectionWidth - max(0, side.edgeInset) * 2 - avatarWidth - gap - max(0, basic.messageSendingStateOffset) - max(0, basic.messageSendingStateSize.width))
+        let statusWidth = basic.reservesSendingStatusSpace || !loadingView.isHidden || (sender && message.sendState == .sending && !wy_isNotice) ? wy_chatNonnegative(basic.messageSendingStateOffset) + wy_chatNonnegative(basic.messageSendingStateSize.width) : 0
+        let available = max(1, layoutWidth - selectionWidth - max(0, side.edgeInset) * 2 - avatarWidth - gap - statusWidth)
         state.width.constant = style.maximumWidth > 0 && style.maximumWidth.isFinite ? min(available, style.maximumWidth) : max(1, available * ratio)
         state.preferredWidth?.constant = max(1, min(state.preferredContentWidth ?? style.preferredWidth, state.width.constant - style.insets.left - style.insets.right))
         let referenceWidth = configuration.quote.messageWidth.isFinite ? configuration.quote.messageWidth : state.width.constant
@@ -521,7 +530,7 @@ extension WYChatBasicCell {
             bubble.arrowImageView.image = show && value.showsArrow ? value.arrowImage?.withRenderingMode(value.arrowImageTintColor == nil ? .alwaysOriginal : .alwaysTemplate) : nil
             bubble.arrowImageView.isHidden = bubble.arrowImageView.image == nil
             bubble.arrowImageView.tintColor = value.arrowImageTintColor
-            bubble.arrowImageView.contentMode = .scaleAspectFit
+            bubble.arrowImageView.contentMode = value.arrowImageContentMode
             bubble.arrowImageSize = value.arrowImageSize
             bubble.arrowImageOffset = value.arrowImageOffset
             bubble.configuredShowsArrow = show && value.showsArrow && value.arrowImage == nil
@@ -582,6 +591,7 @@ extension WYChatBasicCell {
         } else {
             placeholder = style.placeholderImage ?? WYChatDefaultResources.makePlaceholder(color: style.placeholderColor, gradientColors: style.placeholderGradientColors, direction: style.placeholderGradientDirection, traits: imageView.traitCollection)
             if let view = imageView as? WYChatPlaceholderImageView {
+                view.placeholderContentMode = style.placeholderContentMode
                 view.placeholderCornerRadius = style.placeholderCornerRadius.isFinite ? max(0, style.placeholderCornerRadius) : 0
                 view.generatedPlaceholder = style.placeholderImage == nil ? placeholder : nil
             }
@@ -608,16 +618,17 @@ extension WYChatBasicCell {
         let date = Date(timeIntervalSince1970: timestamp)
         let calendar = Calendar.current
         let formatter = state.dateFormatter
-        formatter.dateFormat = configuration.basic.showAmPmSymbol ? "a h:mm" : "HH:mm"
+        let config = configuration.basic
+        formatter.dateFormat = config.showAmPmSymbol ? config.amPmTimeFormat : config.timeFormat
         let time = formatter.string(from: date)
         if calendar.isDateInToday(date) { return time }
-        if calendar.isDateInYesterday(date) { return WYLocalized("昨天", table: WYBasisKitConfig.kitLocalizableTable) + " " + time }
-        if let days = calendar.dateComponents([.day], from: date, to: Date()).day, days >= 0 && days < 7 {
-            formatter.dateFormat = "EEEE"
-            return formatter.string(from: date) + " " + time
+        if calendar.isDateInYesterday(date) { return config.yesterdayText.isEmpty ? time : config.yesterdayText + config.dateTimeSeparator + time }
+        if let days = calendar.dateComponents([.day], from: date, to: Date()).day, days >= 0 && days < config.weekdayDisplayDays {
+            formatter.dateFormat = config.weekdayFormat
+            return formatter.string(from: date) + config.dateTimeSeparator + time
         }
-        formatter.setLocalizedDateFormatFromTemplate(calendar.component(.year, from: date) == calendar.component(.year, from: Date()) ? "MMMd" : "yyyyMMMd")
-        return formatter.string(from: date) + " " + time
+        formatter.setLocalizedDateFormatFromTemplate(calendar.component(.year, from: date) == calendar.component(.year, from: Date()) ? config.currentYearDateTemplate : config.previousYearDateTemplate)
+        return formatter.string(from: date) + config.dateTimeSeparator + time
     }
 
     func wy_prepareForReuse() {

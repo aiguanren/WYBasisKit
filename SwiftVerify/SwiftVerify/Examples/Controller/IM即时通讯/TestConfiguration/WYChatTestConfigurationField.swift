@@ -65,6 +65,15 @@ struct WYChatTestConfigurationField {
     static func scalar(_ path: String, _ title: String, _ type: String, get: @escaping @MainActor (WYChatConfig) -> Double, set: @escaping @MainActor (inout WYChatConfig, Double) -> Void) -> Self {
         Self(path: path, title: title, type: type, kind: .text, read: { String(get($0)) }, apply: { config, text in guard let value = Double(text.trimmingCharacters(in: .whitespacesAndNewlines)), value.isFinite, type != "Float" || Float(value).isFinite else { return false }; set(&config, value); return true }, reset: { config in set(&config, get(WYChatTestConfigurationFields.defaults)) })
     }
+    static func optionalScalar(_ path: String, _ title: String, get: @escaping @MainActor (WYChatConfig) -> CGFloat?, set: @escaping @MainActor (inout WYChatConfig, CGFloat?) -> Void) -> Self {
+        Self(path: path, title: title, type: "CGFloat?", kind: .text, read: { get($0).map { String(Double($0)) } ?? "nil" }, apply: { config, text in
+            let input = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            if input == "nil" { set(&config, nil); return true }
+            guard let value = Double(input), value.isFinite else { return false }
+            set(&config, CGFloat(value))
+            return true
+        }, reset: { config in set(&config, get(WYChatTestConfigurationFields.defaults)) }, clear: { set(&$0, nil) }, help: "nil表示使用自动值")
+    }
     static func integer(_ path: String, _ title: String, get: @escaping @MainActor (WYChatConfig) -> Int, set: @escaping @MainActor (inout WYChatConfig, Int) -> Void) -> Self {
         Self(path: path, title: title, type: "Int", kind: .text, read: { String(get($0)) }, apply: { config, text in guard let value = Int(text.trimmingCharacters(in: .whitespacesAndNewlines)) else { return false }; set(&config, value); return true }, reset: { config in set(&config, get(WYChatTestConfigurationFields.defaults)) })
     }
@@ -86,21 +95,35 @@ struct WYChatTestConfigurationField {
         Self(path: path, title: title, type: clear == nil ? "UIColor" : "UIColor?", kind: .color, read: { get($0).map(hex) ?? "nil" }, apply: { config, text in if text.trimmingCharacters(in: .whitespacesAndNewlines) == "nil", let clear { clear(&config); return true }; guard let value = parseColor(text) else { return false }; set(&config, value); return true }, reset: { config in if let value = get(WYChatTestConfigurationFields.defaults) { set(&config, value) } else { clear?(&config) } }, clear: clear, color: get, setColor: set, help: "#RRGGBB 或 #RRGGBBAA")
     }
     static func font(_ path: String, _ title: String, get: @escaping @MainActor (WYChatConfig) -> UIFont, set: @escaping @MainActor (inout WYChatConfig, UIFont) -> Void) -> Self {
-        Self(path: path, title: title, type: "UIFont", kind: .text, read: { get($0).fontName + ", " + String(Double(get($0).pointSize)) }, apply: { config, text in
+        optionalFont(path, title, get: { get($0) }, set: { config, font in
+            if let font { set(&config, font) }
+        }, acceptsNil: false)
+    }
+    static func optionalFont(_ path: String, _ title: String, get: @escaping @MainActor (WYChatConfig) -> UIFont?, set: @escaping @MainActor (inout WYChatConfig, UIFont?) -> Void, acceptsNil: Bool = true) -> Self {
+        let clear: Reset?
+        if acceptsNil { clear = { config in set(&config, nil) } } else { clear = nil }
+        return Self(path: path, title: title, type: acceptsNil ? "UIFont?" : "UIFont", kind: .text, read: { config in
+            guard let font = get(config) else { return "nil" }
+            return font.fontName + ", " + String(Double(font.pointSize))
+        }, apply: { config, text in
+            if acceptsNil, text.trimmingCharacters(in: .whitespacesAndNewlines) == "nil" {
+                set(&config, nil)
+                return true
+            }
             let parts = text.split(separator: ",", omittingEmptySubsequences: false).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             guard let size = Double(parts.last ?? ""), size.isFinite, size > 0 else { return false }
-            let original = get(config)
+            let original = get(config) ?? .systemFont(ofSize: UIFont.buttonFontSize)
             let name = parts.count > 1 ? parts.dropLast().joined(separator: ",") : original.fontName
             guard let font = name == original.fontName ? original.withSize(CGFloat(size)) : UIFont(name: name, size: CGFloat(size)) else { return false }
             set(&config, font); return true
-        }, reset: { config in set(&config, get(WYChatTestConfigurationFields.defaults)) }, help: "字体名称, 字号，省略字体名称时保留当前字体")
+        }, reset: { config in set(&config, get(WYChatTestConfigurationFields.defaults)) }, clear: clear, help: "字体名称, 字号，省略字体名称时保留当前字体")
     }
     static func image(_ path: String, _ title: String, get: @escaping @MainActor (WYChatConfig) -> UIImage?, set: @escaping @MainActor (inout WYChatConfig, UIImage) -> Void, clear: Reset? = nil) -> Self {
         Self(path: path, title: title, type: clear == nil ? "UIImage" : "UIImage?", kind: .text, read: { get($0).map { "UIImage \($0.size.width)×\($0.size.height)" } ?? "nil" }, apply: { config, text in
             let name = text.trimmingCharacters(in: .whitespacesAndNewlines)
             guard let image = UIImage(systemName: name) ?? UIImage(named: name) ?? UIImage(contentsOfFile: name) else { return false }
             set(&config, image); return true
-        }, reset: { config in if let image = get(WYChatTestConfigurationFields.defaults) { set(&config, image) } else { clear?(&config) } }, clear: clear, help: "输入SF Symbols名称、宿主资源名或本地图片路径")
+        }, reset: { config in if let image = get(WYChatTestConfigurationFields.defaults) { set(&config, image) } else { clear?(&config) } }, clear: clear, help: "输入SF Symbols名称、应用资源名或本地图片路径")
     }
     static func raw<T: RawRepresentable>(_ path: String, _ title: String, options: String, allowed: [T.RawValue]? = nil, get: @escaping @MainActor (WYChatConfig) -> T, set: @escaping @MainActor (inout WYChatConfig, T) -> Void) -> Self where T.RawValue: FixedWidthInteger {
         Self(path: path, title: title, type: String(describing: T.self), kind: .text, read: { String(get($0).rawValue) }, apply: { config, text in guard let raw = T.RawValue(text.trimmingCharacters(in: .whitespacesAndNewlines), radix: 10), let value = T(rawValue: raw), allowed?.contains(raw) ?? true else { return false }; set(&config, value); return true }, reset: { config in set(&config, get(WYChatTestConfigurationFields.defaults)) }, help: options)
@@ -131,6 +154,31 @@ struct WYChatTestConfigurationField {
             set(&config, values); return true
         }, reset: { config in set(&config, get(WYChatTestConfigurationFields.defaults)) }, help: "用逗号或换行分隔#RRGGBB或#RRGGBBAA，空文本表示空数组")
     }
+    static func optionalInsets(_ path: String, _ title: String, get: @escaping @MainActor (WYChatConfig) -> UIEdgeInsets?, set: @escaping @MainActor (inout WYChatConfig, UIEdgeInsets?) -> Void) -> Self {
+        Self(path: path, title: title, type: "UIEdgeInsets?", kind: .text, read: { config in
+            guard let insets = get(config) else { return "nil" }
+            return [insets.top, insets.left, insets.bottom, insets.right].map { String(Double($0)) }.joined(separator: ", ")
+        }, apply: { config, text in
+            let input = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            if input == "nil" { set(&config, nil); return true }
+            let parts = input.replacingOccurrences(of: "，", with: ",").split(separator: ",", omittingEmptySubsequences: false)
+            let values = parts.compactMap { Double($0.trimmingCharacters(in: .whitespacesAndNewlines)) }.filter(\.isFinite)
+            guard parts.count == 4, values.count == 4 else { return false }
+            set(&config, UIEdgeInsets(top: values[0], left: values[1], bottom: values[2], right: values[3]))
+            return true
+        }, reset: { config in set(&config, get(WYChatTestConfigurationFields.defaults)) }, clear: { set(&$0, nil) }, help: "top, left, bottom, right，nil表示使用系统值")
+    }
+
+    static func optionalTextAlignment(_ path: String, _ title: String, get: @escaping @MainActor (WYChatConfig) -> NSTextAlignment?, set: @escaping @MainActor (inout WYChatConfig, NSTextAlignment?) -> Void) -> Self {
+        Self(path: path, title: title, type: "NSTextAlignment?", kind: .text, read: { get($0).map { String($0.rawValue) } ?? "nil" }, apply: { config, text in
+            let input = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            if input == "nil" { set(&config, nil); return true }
+            guard let raw = Int(input), let value = NSTextAlignment(rawValue: raw) else { return false }
+            set(&config, value)
+            return true
+        }, reset: { config in set(&config, get(WYChatTestConfigurationFields.defaults)) }, clear: { set(&$0, nil) }, help: "输入NSTextAlignment的rawValue，nil表示自动对齐")
+    }
+
     static func optionalPoint(_ path: String, _ title: String, get: @escaping @MainActor (WYChatConfig) -> CGPoint?, set: @escaping @MainActor (inout WYChatConfig, CGPoint?) -> Void) -> Self {
         Self(path: path, title: title, type: "CGPoint?", kind: .text, read: { get($0).map { String(Double($0.x)) + ", " + String(Double($0.y)) } ?? "nil" }, apply: { config, text in
             if text.trimmingCharacters(in: .whitespacesAndNewlines) == "nil" { set(&config, nil); return true }

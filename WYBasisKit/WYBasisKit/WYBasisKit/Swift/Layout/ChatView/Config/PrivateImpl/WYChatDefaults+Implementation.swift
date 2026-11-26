@@ -7,6 +7,11 @@
 
 import UIKit
 
+/// 为布局和动画提供有效的非负配置值
+func wy_chatNonnegative<T: FloatingPoint>(_ value: T) -> T {
+    value.isFinite ? max(0, value) : 0
+}
+
 /// 共享只读默认资源
 enum WYChatDefaultResources {
     static func iconTint(for name: String) -> UIColor? {

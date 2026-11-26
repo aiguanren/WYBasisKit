@@ -11,20 +11,26 @@ import UIKit
 public class WYEmojiHeaderView: UICollectionReusableView {
 
     /// 当前实例配置
-    public var emojiViewConfig: WYEmojiViewConfig = WYEmojiViewConfig()
+    public var emojiViewConfig: WYEmojiViewConfig = WYEmojiViewConfig() {
+        didSet { wy_applyHeaderConfiguration() }
+    }
 
         
     public let textView: UILabel = UILabel()
     override init(frame: CGRect) {
         super.init(frame: frame)
+        addSubview(textView)
+        wy_applyHeaderConfiguration()
+    }
+
+    private func wy_applyHeaderConfiguration() {
         backgroundColor = emojiViewConfig.headerBackgroundColor
-        
         textView.textColor = emojiViewConfig.headerTextColor
         textView.font = emojiViewConfig.headerTextFont
-        textView.textAlignment = .left
-        addSubview(textView)
-        textView.snp.makeConstraints { make in
+        textView.textAlignment = emojiViewConfig.headerTextAlignment
+        textView.snp.updateConstraints { make in
             make.left.equalToSuperview().offset(emojiViewConfig.headerTextOffset.x)
+            make.right.equalToSuperview().offset(-emojiViewConfig.headerTextOffset.x)
             make.top.equalToSuperview().offset(emojiViewConfig.headerTextOffset.y)
         }
     }

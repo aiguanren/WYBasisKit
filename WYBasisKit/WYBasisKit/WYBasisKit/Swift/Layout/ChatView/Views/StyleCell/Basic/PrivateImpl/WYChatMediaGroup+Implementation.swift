@@ -47,6 +47,7 @@ final class WYChatMediaGroupView: UIView, WYPhotoBrowserDataSource, WYPhotoBrows
             for index in model.items.indices {
                 let image = WYChatPlaceholderImageView()
                 image.clipsToBounds = true
+                image.imageContentMode = contentConfiguration.previewContentMode
                 image.imageCornerRadius = finite(configuration.cornerRadius)
                 image.tag = index
                 image.isUserInteractionEnabled = true
@@ -59,20 +60,20 @@ final class WYChatMediaGroupView: UIView, WYPhotoBrowserDataSource, WYPhotoBrows
                     let icon = contentConfiguration.iconImage ?? configuration.videoPlayImage
                     let play = UIImageView(image: tint == nil ? icon : icon?.withRenderingMode(.alwaysTemplate))
                     play.tintColor = tint
-                    play.contentMode = .scaleAspectFit
+                    play.contentMode = configuration.videoPlayContentMode
                     play.frame.size = configuration.videoPlaySize
                     image.addSubview(play)
                 }
             }
         } else {
             var config = configuration.browser
-            config.layoutStyle = .stackedCards
+            config.layoutStyle = configuration.embeddedLayoutStyle
             config.isEmbedded = true
             config.allowsTapDismiss = false
             config.allowsDragDismiss = false
-            config.pageIndicatorStyle = .none
-            config.appearance.backgroundColor = .clear
-            config.showsSaveAction = false
+            config.pageIndicatorStyle = configuration.embeddedPageIndicatorStyle
+            config.appearance.backgroundColor = configuration.embeddedBackgroundColor
+            config.showsSaveAction = configuration.embeddedShowsSaveAction
             let controller = WYPhotoBrowser(configuration: config)
             controller.dataSource = self
             controller.browserDelegate = self
@@ -126,7 +127,8 @@ final class WYChatMediaGroupView: UIView, WYPhotoBrowserDataSource, WYPhotoBrows
     }
     func updateVisibleImages() {
         guard model.isExpanded, !frames.isEmpty, window != nil else { return }
-        let visible = window.map { convert($0.bounds, from: $0).insetBy(dx: 0, dy: -max(1, finite(configuration.cardSize.height))) } ?? bounds
+        let prefetchDistance = configuration.expandedPrefetchDistance.map(finite) ?? max(1, finite(configuration.cardSize.height))
+        let visible = window.map { convert($0.bounds, from: $0).insetBy(dx: 0, dy: -prefetchDistance) } ?? bounds
         var lower = 0
         var upper = frames.count
         while lower < upper { let middle = (lower + upper) / 2; if frames[middle].maxY < visible.minY { lower = middle + 1 } else { upper = middle } }
@@ -226,7 +228,10 @@ extension WYChatBasicCell {
         state.preferredWidth?.constant = max(1, configuration.media.cardSize.width)
         state.mediaToggle.isHidden = group.items.count < 2
         let title = group.isExpanded ? configuration.media.collapseText : configuration.media.expandText
-        state.mediaToggle.setTitle(configuration.media.showsItemCountInButton ? "\(title) (\(group.items.count))" : title, for: .normal)
+        let media = configuration.media
+        let count = group.items.count
+        let buttonTitle = media.showsItemCountInButton ? (media.itemCountText?(title, count) ?? "\(title) (\(count))") : title
+        state.mediaToggle.setTitle(buttonTitle, for: .normal)
         state.mediaToggle.titleLabel?.font = configuration.media.buttonFont
         state.mediaToggle.setTitleColor(configuration.media.buttonColor, for: .normal)
         state.mediaToggle.backgroundColor = configuration.media.buttonBackgroundColor

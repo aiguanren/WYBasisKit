@@ -9,6 +9,30 @@ import UIKit
 
 /// 通用聊天配置选项
 public struct WYBasicChatConfig {
+    /// 按消息定制已读标记，返回nil时使用默认已读或未读文本
+    public var readMarkFormatter: ((_ message: WYChatMessageModel) -> String?)? = nil
+    /// 消息时间的文字对齐方式
+    public var timeTextAlignment: NSTextAlignment = .center
+    /// 日期与时间之间的分隔文字
+    public var dateTimeSeparator: String = " "
+    /// 计算气泡最大宽度时是否为发送状态预留空间
+    public var reservesSendingStatusSpace: Bool = true
+    /// 消息发送中的系统活动指示器样式
+    public var loadingIndicatorStyle: UIActivityIndicatorView.Style = .medium
+    /// 24小时制消息时间格式
+    public var timeFormat: String = "HH:mm"
+    /// 12小时制消息时间格式
+    public var amPmTimeFormat: String = "a h:mm"
+    /// 昨天的消息日期标签
+    public var yesterdayText: String = WYLocalized("昨天", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 近期消息的星期格式
+    public var weekdayFormat: String = "EEEE"
+    /// 按星期显示的天数，0时关闭
+    public var weekdayDisplayDays: Int = 7
+    /// 今年的消息日期模板
+    public var currentYearDateTemplate: String = "MMMd"
+    /// 其他年份的消息日期模板
+    public var previousYearDateTemplate: String = "yyyyMMMd"
     /// 消息显示的最小时间跨度，单位秒
     public var messageMinimumTimeSpan: TimeInterval = 300
     /// 头像尺寸

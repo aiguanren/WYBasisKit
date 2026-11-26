@@ -13,6 +13,14 @@ class WYMoreViewCell: UICollectionViewCell {
     public var moreViewConfig: WYMoreViewConfig = WYMoreViewConfig() {
         didSet {
             guard iconView.superview != nil else { return }
+            iconView.contentMode = moreViewConfig.iconContentMode
+            titleView.adjustsFontSizeToFitWidth = moreViewConfig.titleAdjustsFontSizeToFitWidth
+            titleView.textAlignment = moreViewConfig.textAlignment
+            contentView.backgroundColor = moreViewConfig.backgroundColor
+            imageBackgroundView.backgroundColor = moreViewConfig.imageBackgroundColor
+            imageBackgroundView.layer.cornerRadius = wy_chatNonnegative(moreViewConfig.imageViewCornerRadius)
+            imageBackgroundView.snp.updateConstraints { $0.height.equalTo(wy_chatNonnegative(moreViewConfig.imageViewSize.height)) }
+            titleView.snp.updateConstraints { $0.top.equalTo(imageBackgroundView.snp.bottom).offset(moreViewConfig.textTopOffset) }
             let size = moreViewConfig.iconSize
             iconView.snp.updateConstraints { make in
                 make.size.equalTo(CGSize(width: size.width.isFinite ? max(0, size.width) : 0, height: size.height.isFinite ? max(0, size.height) : 0)).priority(999)
@@ -21,6 +29,7 @@ class WYMoreViewCell: UICollectionViewCell {
     }
 
     
+    private let imageBackgroundView = UIView()
     let iconView: UIImageView = UIImageView()
     let titleView: UILabel = UILabel()
     
@@ -28,7 +37,7 @@ class WYMoreViewCell: UICollectionViewCell {
         super.init(frame: frame)
         contentView.backgroundColor = moreViewConfig.backgroundColor
         
-        let cornerView: UIView = UIView()
+        let cornerView = imageBackgroundView
         cornerView.backgroundColor = moreViewConfig.imageBackgroundColor
         contentView.addSubview(cornerView)
         cornerView.wy_makeVisual { make in
@@ -39,7 +48,7 @@ class WYMoreViewCell: UICollectionViewCell {
             make.height.equalTo(moreViewConfig.imageViewSize.height)
         }
         
-        iconView.contentMode = .scaleAspectFit
+        iconView.contentMode = moreViewConfig.iconContentMode
         cornerView.addSubview(iconView)
         iconView.snp.makeConstraints { make in
             make.size.lessThanOrEqualToSuperview()
@@ -49,8 +58,8 @@ class WYMoreViewCell: UICollectionViewCell {
         
         titleView.textColor = moreViewConfig.textColor
         titleView.font = moreViewConfig.textViewFont
-        titleView.adjustsFontSizeToFitWidth = true
-        titleView.textAlignment = .center
+        titleView.adjustsFontSizeToFitWidth = moreViewConfig.titleAdjustsFontSizeToFitWidth
+        titleView.textAlignment = moreViewConfig.textAlignment
         contentView.addSubview(titleView)
         titleView.snp.makeConstraints { make in
             make.left.right.bottom.equalToSuperview()

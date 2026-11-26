@@ -54,7 +54,7 @@ enum WYChatTestConfigurationChecks {
                 check("configuration-clear-default-" + field.path, field.read(config) == original)
             }
         }
-        let content = fields.filter { $0.path.hasPrefix("content.") }
+        let content = fields.filter { $0.path.hasPrefix("content.") && $0.apply != nil }
         for style in WYChatMessageStyle.allCases {
             for field in content {
                 let wrapped = field.contentOverride(style, key: String(style.rawValue))

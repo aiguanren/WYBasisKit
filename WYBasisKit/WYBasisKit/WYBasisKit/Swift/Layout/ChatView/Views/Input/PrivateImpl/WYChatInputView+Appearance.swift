@@ -48,7 +48,7 @@ extension WYChatInputView {
         for button in [textVoiceView, emojiView, moreView] {
             button.configuration = nil
             button.tintColor = config.iconTintColor
-            button.imageView?.contentMode = .scaleAspectFit
+            (button as? WYChatInputIconButton)?.iconContentMode = config.iconContentMode
             for state in [UIControl.State.normal, .selected, .highlighted, [.selected, .highlighted]] {
                 button.setBackgroundImage(nil, for: state)
                 button.setTitle(nil, for: state)
@@ -73,10 +73,12 @@ extension WYChatInputView {
 
 /// 输入切换图标按按钮配置尺寸显示
 class WYChatInputIconButton: UIButton {
+    var iconContentMode: UIView.ContentMode = .scaleAspectFit { didSet { setNeedsLayout() } }
+
     override func layoutSubviews() {
         super.layoutSubviews()
         imageView?.frame = bounds
-        imageView?.contentMode = .scaleAspectFit
+        imageView?.contentMode = iconContentMode
     }
 }
 

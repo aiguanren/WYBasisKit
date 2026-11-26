@@ -12,6 +12,10 @@ import WYBasisKitSwift
 /// 浮动区间选择按钮外观
 @objc(WYChatRangeButtonConfig)
 @objcMembers public class WYChatRangeButtonConfigObjC: NSObject {
+    /// 未设置borderColor时的边框透明度
+    public var defaultBorderOpacity: CGFloat
+    /// 浮动区间选择按钮图标和文字间距
+    public var imageSpacing: CGFloat
     /// 按钮文案，nil时使用selection.rangeTitle
     public var title: String?
     /// 按钮字体
@@ -36,6 +40,8 @@ import WYBasisKitSwift
     public var bottomImage: UIImage?
     public override convenience init() { self.init(WYChatRangeButtonConfig()) }
     @nonobjc public init(_ value: WYChatRangeButtonConfig) {
+        self.defaultBorderOpacity = value.defaultBorderOpacity
+        self.imageSpacing = value.imageSpacing
         title = value.title
         font = value.font
         tintColor = value.tintColor
@@ -51,6 +57,8 @@ import WYBasisKitSwift
     }
     @nonobjc public func toValue() -> WYChatRangeButtonConfig {
         var value = WYChatRangeButtonConfig()
+        value.defaultBorderOpacity = defaultBorderOpacity
+        value.imageSpacing = imageSpacing
         value.title = title
         value.font = font
         value.tintColor = tintColor
@@ -69,6 +77,16 @@ import WYBasisKitSwift
 /// 多选操作与转发外观
 @objc(WYChatSelectionConfig)
 @objcMembers public class WYChatSelectionConfigObjC: NSObject {
+    /// 多选工具条按钮的排列方式
+    public var toolbarDistribution: UIStackView.Distribution
+    /// 多选状态图标的显示方式
+    public var indicatorContentMode: UIView.ContentMode
+    /// 格式化多选转发按钮的标题和消息数
+    public var forwardCountTitle: ((_ title: String, _ count: Int) -> String)?
+    /// 多选工具条的转发按钮是否显示消息数
+    public var showsForwardCount: Bool
+    /// 浮动区间选择按钮最小高度
+    public var rangeButtonMinimumHeight: CGFloat
     /// 最多可选择的消息数，0表示不限
     public var maximumCount: Int
     /// 是否允许选择连续区间，默认true
@@ -127,6 +145,11 @@ import WYBasisKitSwift
     public var rendersIndicatorAsTemplate: Bool
     public override convenience init() { self.init(WYChatSelectionConfig()) }
     @nonobjc public init(_ value: WYChatSelectionConfig) {
+        self.toolbarDistribution = value.toolbarDistribution
+        self.indicatorContentMode = value.indicatorContentMode
+        self.forwardCountTitle = value.forwardCountTitle
+        self.showsForwardCount = value.showsForwardCount
+        self.rangeButtonMinimumHeight = value.rangeButtonMinimumHeight
         maximumCount = value.maximumCount
         allowsRangeSelection = value.allowsRangeSelection
         showsRangeButton = value.showsRangeButton
@@ -159,6 +182,11 @@ import WYBasisKitSwift
     }
     @nonobjc public func toValue() -> WYChatSelectionConfig {
         var value = WYChatSelectionConfig()
+        value.toolbarDistribution = toolbarDistribution
+        value.indicatorContentMode = indicatorContentMode
+        value.forwardCountTitle = forwardCountTitle
+        value.showsForwardCount = showsForwardCount
+        value.rangeButtonMinimumHeight = rangeButtonMinimumHeight
         value.maximumCount = maximumCount
         value.allowsRangeSelection = allowsRangeSelection
         value.showsRangeButton = showsRangeButton

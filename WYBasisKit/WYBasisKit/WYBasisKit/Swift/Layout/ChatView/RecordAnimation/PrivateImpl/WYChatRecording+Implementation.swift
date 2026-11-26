@@ -115,7 +115,7 @@ extension WYRecordAnimationView {
             return
         }
         if let provider = wy_captureConfiguration.recorder {
-            guard provider.responds(to: #selector(WYChatRecorder.wy_startRecording(_:settings:maximumDuration:progress:completion:))), provider.responds(to: #selector(WYChatRecorder.wy_stopRecording(_:cancel:))) else { wy_captureFinished(nil, duration: 0, error: wy_recordError(WYLocalized("外部录音实现缺少必要方法", table: WYBasisKitConfig.kitLocalizableTable))); return }
+            guard provider.responds(to: #selector(WYChatRecorder.wy_startRecording(_:settings:maximumDuration:progress:completion:))), provider.responds(to: #selector(WYChatRecorder.wy_stopRecording(_:cancel:))) else { wy_captureFinished(nil, duration: 0, error: wy_recordError(wy_captureConfiguration.missingRecorderText)); return }
             provider.wy_startRecording?(identifier, settings: wy_captureConfiguration.recordSettings, maximumDuration: wy_captureConfiguration.recordTime.max, progress: { [weak self] duration, peak, average in
                 DispatchQueue.main.async {
                     guard let self, self.state.requestID == identifier else { return }
@@ -229,7 +229,7 @@ extension WYRecordAnimationView {
         let maximum = wy_captureConfiguration.recordTime.max
         let timedOut = state.timedOut || (maximum.isFinite && maximum > 0 && duration >= maximum)
         let valid = url.map { FileManager.default.fileExists(atPath: $0.path) } == true && duration >= max(0, wy_captureConfiguration.recordTime.min)
-        let error = cancelled ? nil : error ?? (valid ? nil : wy_recordError(WYLocalized("录音文件无效或录音时间太短", table: WYBasisKitConfig.kitLocalizableTable)))
+        let error = cancelled ? nil : error ?? (valid ? nil : wy_recordError(wy_captureConfiguration.invalidRecordingText))
         let delegate = delegate
         defer { delegate?.wy_recordingDidFinish?(self, url: cancelled || error != nil ? nil : url, duration: duration, cancelled: cancelled, timedOut: timedOut, error: error) }
         guard !cancelled else {
@@ -290,7 +290,7 @@ extension WYRecordAnimationView {
         }
         if let recorder = wy_captureConfiguration.recorder {
             guard recorder.responds(to: #selector(WYChatRecorder.wy_startStreamingRecording(_:settings:maximumDuration:audioBuffer:progress:completion:))), recorder.responds(to: #selector(WYChatRecorder.wy_stopRecording(_:cancel:))) else {
-                wy_captureFinished(nil, duration: 0, error: wy_recordError(WYLocalized("外部录音实现缺少必要方法", table: WYBasisKitConfig.kitLocalizableTable)))
+                wy_captureFinished(nil, duration: 0, error: wy_recordError(wy_captureConfiguration.missingRecorderText))
                 return
             }
             recorder.wy_startStreamingRecording?(identifier, settings: wy_captureConfiguration.recordSettings, maximumDuration: wy_captureConfiguration.recordTime.max, audioBuffer: { [weak task] buffer in task?.appendAudio(buffer) }, progress: { duration, peak, average in DispatchQueue.main.async { progress(duration, peak, average) } }, completion: completion)

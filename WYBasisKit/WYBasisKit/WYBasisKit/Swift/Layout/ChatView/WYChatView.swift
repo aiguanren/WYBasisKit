@@ -33,14 +33,14 @@ public class WYChatView: UIView {
     public var forwardHandler: ((_ mode: WYChatForwardMode, _ messages: [WYChatMessageModel]) -> Void)? { didSet { wy_updateSelectionUI() } }
     /// 已组装的待发送消息，参数为消息模型
     public var messagePreparedHandler: ((_ message: WYChatMessageModel) -> Void)? = nil
-    /// 请求宿主打开相册，选择结果通过sendMedia交回
+    /// 请求接入方打开相册，选择结果通过sendMedia交回
     public var openAlbumHandler: (() -> Void)? = nil
     /// 媒体操作，参数为操作、消息ID和媒体下标
     public var mediaActionHandler: ((_ action: WYChatMediaAction, _ messageID: String, _ index: Int) -> Void)? = nil
-    /// 宿主接管媒体预览，参数为媒体列表、初始下标和来源视图
+    /// 接入方接管媒体预览，参数为媒体列表、初始下标和来源视图
     public var mediaPreviewHandler: ((_ items: [WYChatMediaItem], _ index: Int, _ sourceView: UIView?) -> Void)? = nil
 
-    /// 宿主接管合并记录明细，参数为记录快照
+    /// 接入方接管合并记录明细，参数为记录快照
     public var recordsPreviewHandler: ((_ records: WYChatRecordsModel) -> Void)?
 
     /// 语音倍速变更，参数为消息ID和倍速，调用方同步更新播放器
@@ -189,7 +189,7 @@ public class WYChatView: UIView {
     public func canWithdrawMessage(_ messageID: String, at date: Date = Date()) -> Bool { messageModelFrom(messageID).map { wy_canWithdraw($0, at: date) } ?? false }
 
     /**
-     在宿主确认撤回成功后更新消息及其引用快照
+     在接入方确认撤回成功后更新消息及其引用快照
      @param messageID 消息ID
      @param date 撤回时刻
      @param allowsReedit 是否保留自己的文本供重新编辑
@@ -212,7 +212,7 @@ public class WYChatView: UIView {
      */
     @discardableResult public func reeditMessage(_ messageID: String) -> Bool { wy_reeditMessage(messageID) }
 
-    /// 请求宿主打开相册
+    /// 请求接入方打开相册
     public func requestAlbum() { inputViewResignFirstResponder(); openAlbumHandler?(); delegate?.wy_chatViewDidRequestAlbum?(self) }
 
     /**
@@ -226,7 +226,7 @@ public class WYChatView: UIView {
 
     /**
      组装选中的图片和视频并按配置加入列表
-     @param items 宿主选择的媒体
+     @param items 接入方选择的媒体
      @return 待发送消息
      */
     @discardableResult public func sendMedia(_ items: [WYChatMediaItem]) -> [WYChatMessageModel] { wy_sendMedia(items) }

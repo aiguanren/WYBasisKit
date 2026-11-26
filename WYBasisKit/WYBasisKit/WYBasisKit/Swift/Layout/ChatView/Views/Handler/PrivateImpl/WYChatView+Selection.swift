@@ -60,7 +60,6 @@ extension WYChatView {
         button.isHidden = true
         var appearance = UIButton.Configuration.filled()
         appearance.cornerStyle = .fixed
-        appearance.imagePadding = 6
         button.configuration = appearance
         button.addTarget(self, action: #selector(wy_selectToVisibleMessage), for: .touchUpInside)
         addSubview(button)
@@ -70,12 +69,15 @@ extension WYChatView {
         let trailing = button.trailingAnchor.constraint(lessThanOrEqualTo: tableView.trailingAnchor)
         trailing.priority = UILayoutPriority(999)
         state.selectionRangeEdges = (top, bottom, leading, trailing)
-        NSLayoutConstraint.activate([bottom, leading, trailing, button.heightAnchor.constraint(greaterThanOrEqualToConstant: 44)])
+        let minimumHeight = button.heightAnchor.constraint(greaterThanOrEqualToConstant: wy_chatNonnegative(configuration.selection.rangeButtonMinimumHeight))
+        state.selectionRangeMinimumHeight = minimumHeight
+        NSLayoutConstraint.activate([bottom, leading, trailing, minimumHeight])
     }
 
     func wy_refreshRangeSelectionButton() {
         let button = state.selectionRangeButton
         let style = configuration.selection
+        state.selectionRangeMinimumHeight?.constant = wy_chatNonnegative(style.rangeButtonMinimumHeight)
         guard isSelectingMessages, style.allowsRangeSelection, style.showsRangeButton, !selectedMessageIDs.isEmpty,
               let edges = state.selectionRangeEdges else {
             state.selectionRangeAnchorRow = nil
@@ -99,7 +101,8 @@ extension WYChatView {
             appearance.baseBackgroundColor = rangeButton.backgroundColor
             appearance.background.cornerRadius = max(0, rangeButton.cornerRadius)
             appearance.background.strokeWidth = max(0, rangeButton.borderWidth)
-            appearance.background.strokeColor = rangeButton.borderColor ?? rangeButton.tintColor.withAlphaComponent(0.25)
+            appearance.background.strokeColor = rangeButton.borderColor ?? rangeButton.tintColor.withAlphaComponent(min(1, wy_chatNonnegative(rangeButton.defaultBorderOpacity)))
+            appearance.imagePadding = wy_chatNonnegative(rangeButton.imageSpacing)
             appearance.image = edges.top.isActive ? rangeButton.topImage : rangeButton.bottomImage
             let padding = rangeButton.contentInsets
             appearance.contentInsets = NSDirectionalEdgeInsets(top: padding.top, leading: padding.left, bottom: padding.bottom, trailing: padding.right)
@@ -201,6 +204,7 @@ extension WYChatView {
     func wy_refreshSelectionStyle() {
         let style = configuration.selection
         selectionToolbar.backgroundColor = style.backgroundColor
+        selectionToolbar.distribution = style.toolbarDistribution
         selectionToolbar.isLayoutMarginsRelativeArrangement = true
         selectionToolbar.layoutMargins = style.insets
         selectionToolbar.spacing = max(0, style.spacing)

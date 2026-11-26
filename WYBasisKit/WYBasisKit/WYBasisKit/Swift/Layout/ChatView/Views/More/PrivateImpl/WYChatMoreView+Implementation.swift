@@ -76,8 +76,8 @@ extension WYChatMoreView {
 
         collectionView.register(WYMoreViewCell.self, forCellWithReuseIdentifier: "WYMoreViewCell")
         collectionView.isPagingEnabled = self.moreViewConfig.isPagingEnabled
-        collectionView.showsVerticalScrollIndicator = false
-        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.showsVerticalScrollIndicator = moreViewConfig.showsVerticalScrollIndicator
+        collectionView.showsHorizontalScrollIndicator = moreViewConfig.showsHorizontalScrollIndicator
         collectionView.snp.makeConstraints { (make) in
             make.edges.equalToSuperview()
         }

@@ -18,6 +18,8 @@ import UIKit
 
 /// 收发方向的布局配置
 public struct WYChatSideLayout {
+    /// 消息昵称对齐方式，nil时按收发侧对齐
+    public var nicknameAlignment: NSTextAlignment? = nil
     /// 是否显示头像，默认true
     public var showsAvatar: Bool = true
     /// 头像距离容器边缘的间距
@@ -35,6 +37,8 @@ public struct WYChatSideLayout {
 
 /// 气泡外观配置
 public struct WYChatBubbleConfig {
+    /// 自定义气泡箭头图片的显示方式
+    public var arrowImageContentMode: UIView.ContentMode = .scaleAspectFit
     /// 气泡填充色
     public var fillColor: UIColor = .secondarySystemGroupedBackground
     /// 气泡圆角半径
@@ -82,6 +86,40 @@ public struct WYChatBubbleConfig {
 
 /// 消息内容外观配置
 public struct WYChatContentConfig {
+    /// 内置媒体占位图的显示方式
+    public var placeholderContentMode: UIView.ContentMode = .scaleToFill
+    /// 消息气泡额外要求的最小高度，单位点
+    public var minimumBubbleHeight: CGFloat = 0
+    /// 消息卡片标题文字对齐方式
+    public var titleTextAlignment: NSTextAlignment = .natural
+    /// 消息卡片详情文字对齐方式
+    public var detailTextAlignment: NSTextAlignment = .natural
+    /// 消息卡片底部文字对齐方式
+    public var footerTextAlignment: NSTextAlignment = .natural
+    /// 消息卡片底部文字最大行数，0表示不限
+    public var footerNumberOfLines: Int = 0
+    /// 卡片和展开媒体预览图的显示方式
+    public var previewContentMode: UIView.ContentMode = .scaleAspectFill
+    /// 卡片缩略图的显示方式
+    public var thumbnailContentMode: UIView.ContentMode = .scaleAspectFit
+    /// 音乐和资金卡片多段详情之间的分隔文字
+    public var detailsSeparator: String = " · "
+    /// 设置传输进度文案，进度范围为0到1，nil时显示百分比
+    public var transferProgressFormatter: ((_ progress: Double) -> String)? = nil
+    /// 红包或转账已领取提示
+    public var fundsReceivedText: String = WYLocalized("已领取", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 红包或转账已过期提示
+    public var fundsExpiredText: String = WYLocalized("已过期", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 红包或转账已退回提示
+    public var fundsReturnedText: String = WYLocalized("已退回", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 待领取资金图标默认底色透明度
+    public var fundsAvailableIconBackgroundOpacity: CGFloat = 0.14
+    /// 已处理资金图标默认底色透明度
+    public var fundsInactiveIconBackgroundOpacity: CGFloat = 0.07
+    /// 资金图标背景圆角占短边的比例
+    public var fundsIconCornerRadiusRatio: CGFloat = 0.25
+    /// 网页封面高度占媒体配置高度的比例
+    public var webpageCoverHeightRatio: CGFloat = 0.5
     /// 红包或转账的图标底板颜色，nil时使用随类型和状态变化的配色
     public var fundsIconBackgroundColor: UIColor?
     /// 消息卡片图标，nil时使用对应消息类型的内置图片
@@ -150,6 +188,72 @@ public struct WYChatLocationConfig {
 
 /// 聊天界面实例配置
 public struct WYChatConfig {
+    /// 消息列表的内容内边距
+    public var listContentInset: UIEdgeInsets = .zero
+    /// 消息列表滚动条的内边距
+    public var listScrollIndicatorInsets: UIEdgeInsets = .zero
+    /// 是否显示消息列表的垂直滚动条
+    public var listShowsVerticalScrollIndicator: Bool = true
+    /// 消息列表是否允许边缘回弹
+    public var listBounces: Bool = true
+    /// 消息列表的系统分隔线样式
+    public var listSeparatorStyle: UITableViewCell.SeparatorStyle = .none
+    /// 消息列表的分隔线颜色，nil时使用系统颜色
+    public var listSeparatorColor: UIColor? = nil
+    /// 消息列表分隔线内边距，nil时使用系统值
+    public var listSeparatorInset: UIEdgeInsets? = nil
+    /// 滚到底部时预先测量的屏幕高度倍数，0时关闭
+    public var bottomPremeasurementViewportCount: CGFloat = 2
+    /// 消息上方间距，nil时采用messageSpacing的一半
+    public var messageTopSpacing: CGFloat? = nil
+    /// 消息下方间距，nil时采用messageSpacing的一半
+    public var messageBottomSpacing: CGFloat? = nil
+    /// 新消息按钮距列表末端的间距，nil时采用接收侧边距
+    public var newMessagesTrailingInset: CGFloat? = nil
+    /// 新消息按钮距输入栏的间距，nil时采用messageSpacing
+    public var newMessagesBottomSpacing: CGFloat? = nil
+    /// 内置线条菜单图标的描边宽度，以24点图标为基准
+    public var menuIconStrokeWidth: CGFloat = 1.7
+    /// 未设置menuBorderColor时的边框透明度
+    public var menuBorderOpacity: CGFloat = 0.18
+    /// 菜单内容可滚动时是否显示滚动条
+    public var menuShowsVerticalScrollIndicator: Bool = true
+    /// 气泡菜单标题最大行数，至少一行
+    public var menuItemTitleLineLimit: Int = 1
+    /// 新消息按钮圆角，nil时沿用头像圆角
+    public var newMessagesButtonCornerRadius: CGFloat? = nil
+    /// 自定义菜单圆角，nil时根据菜单边距计算
+    public var menuCornerRadius: CGFloat? = nil
+    /// 自定义菜单边框宽度，nil时采用一个物理像素
+    public var menuBorderWidth: CGFloat? = nil
+    /// 自定义菜单图标与文字的间距，nil时采用菜单边距的一半
+    public var menuIconSpacing: CGFloat? = nil
+    /// 消息气泡菜单长按触发时长，单位秒
+    public var menuLongPressDuration: TimeInterval = 0.5
+    /// 阅读历史消息时是否显示新消息按钮
+    public var showsNewMessagesButton: Bool = true
+    /// 新消息按钮标题
+    public var newMessagesText: String = WYLocalized("新消息 ↓", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 新消息按钮底色
+    public var newMessagesButtonBackgroundColor: UIColor = .secondarySystemBackground
+    /// 新消息按钮文字颜色，nil时使用系统按钮颜色
+    public var newMessagesButtonTextColor: UIColor? = nil
+    /// 新消息按钮字体，nil时使用系统按钮字体
+    public var newMessagesButtonFont: UIFont? = nil
+    /// 消息菜单的面板边距
+    public var menuInset: CGFloat = UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
+    /// 消息菜单图标边长
+    public var menuIconSize: CGFloat = UIDevice.wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels)
+    /// 消息菜单项的最小宽度
+    public var menuMinimumItemWidth: CGFloat = UIDevice.wy_screenWidth(58, WYBasisKitConfig.defaultScreenPixels)
+    /// 消息菜单项的最小高度
+    public var menuMinimumItemHeight: CGFloat = 44
+    /// 消息菜单边框颜色，nil时按菜单文字颜色生成
+    public var menuBorderColor: UIColor? = nil
+    /// 按消息操作提供菜单图标，返回nil时使用内置图标
+    public var actionImage: ((_ action: WYChatAction) -> UIImage?)? = nil
+    /// 返回引用和合并记录中的消息摘要，返回nil时使用默认摘要
+    public var messageSummary: ((_ content: WYChatMessageContentModel) -> String?)? = nil
     /// 公共布局
     public var basic: WYBasicChatConfig = WYBasicChatConfig()
     /// 发送方布局
@@ -216,7 +320,7 @@ public struct WYChatConfig {
     public var menuItemFont: UIFont = .preferredFont(forTextStyle: .subheadline)
     /// 消息旁菜单每行最多显示的功能数，默认4，空间不足时自动减少
     public var menuMaximumColumns: Int = 4
-    /// 默认菜单操作，宿主通过回调执行外部操作
+    /// 默认菜单操作，接入方通过回调执行外部操作
     public var menuActions: [WYChatAction] = [.copy, .paste, .quote, .forward, .favorite, .delete, .withdraw, .reedit, .select, .translate]
     /// 多选时是否显示内置工具条，默认true
     public var showsSelectionToolbar: Bool = true

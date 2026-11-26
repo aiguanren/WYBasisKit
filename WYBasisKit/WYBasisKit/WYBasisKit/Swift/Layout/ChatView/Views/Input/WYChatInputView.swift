@@ -20,6 +20,34 @@ import SnapKit
 }
 
 public struct WYInputBarConfig {
+    /// 按住说话按钮的长按触发时间，单位秒
+    public var voiceLongPressDuration: TimeInterval = 0.5
+    /// 输入超过指定行数时滚到末尾，0表示关闭自动滚动
+    public var autoScrollAfterLineCount: Int = 1
+    /// 输入栏功能图标的显示方式
+    public var iconContentMode: UIView.ContentMode = .scaleAspectFit
+    /// 键盘听写图标的显示方式
+    public var dictationIconContentMode: UIView.ContentMode = .scaleAspectFit
+    /// 输入占位文案是否自动缩小以适应宽度
+    public var placeholderAdjustsFontSizeToFitWidth: Bool = true
+    /// 输入光标在文字行高以外增加的高度
+    public var caretExtraHeight: CGFloat = 2
+    /// 语音按钮的无障碍标签
+    public var voiceAccessibilityLabel: String = WYLocalized("语音输入", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 表情按钮的无障碍标签
+    public var emojiAccessibilityLabel: String = WYLocalized("表情", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 更多按钮的无障碍标签
+    public var moreAccessibilityLabel: String = WYLocalized("更多", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 结束听写按钮的无障碍标签
+    public var dictationDoneAccessibilityLabel: String = WYLocalized("完成", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 占位区域长按触发时长，单位秒
+    public var placeholderLongPressDuration: TimeInterval = 0.35
+    /// 输入栏高度变化动画时长，单位秒
+    public var heightAnimationDuration: TimeInterval = 0.25
+    /// 恢复草稿时等待键盘环境稳定的时长，单位秒
+    public var draftFocusDelay: TimeInterval = 0.5
+    /// 等待外接键盘布局通知的时长，单位秒
+    public var keyboardNotificationTimeout: TimeInterval = 0.35
     
     /// 草稿保存键，空字符串时不跨实例保存草稿
     public var draftStorageKey: String = ""
@@ -361,6 +389,7 @@ public class WYChatInputView: UIImageView {
         super.init(frame: .zero)
         textView.inputBarConfig = config
         wy_setupInputView()
+        wy_applyInputAccessibilityLabels()
     }
 
     public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -496,7 +525,7 @@ public class WYChatInputTextView: UITextView {
     override public  func caretRect(for position: UITextPosition) -> CGRect {
         var originalRect = super.caretRect(for: position)
         // 设置光标高度
-        originalRect.size.height = inputBarConfig.textFont.lineHeight + 2
+        originalRect.size.height = inputBarConfig.textFont.lineHeight + wy_chatNonnegative(inputBarConfig.caretExtraHeight)
         return originalRect
     }
 }

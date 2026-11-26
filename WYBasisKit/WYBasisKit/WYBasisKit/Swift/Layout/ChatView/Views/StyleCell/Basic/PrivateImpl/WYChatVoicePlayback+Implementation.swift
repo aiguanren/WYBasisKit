@@ -52,7 +52,7 @@ extension WYChatBasicCell {
         state.voiceUnreadSize.forEach { $0.constant = unreadSize }
         state.voiceUnreadLeading?.constant = max(0, messageContentConfiguration.spacing)
         unread.backgroundColor = style.unreadColor
-        unread.layer.cornerRadius = unreadSize / 2
+        unread.layer.cornerRadius = min(unreadSize / 2, wy_chatNonnegative(style.unreadCornerRadius ?? unreadSize / 2))
         let button = state.voiceRateButton
         let rates = wy_chatPlaybackRates(style)
         guard let voice = message.content.voice, style.showsRateControl, !rates.isEmpty, !style.showsOnlyWhilePlaying || voice.isPlaying else { button.isHidden = true; button.menu = nil; return }
@@ -62,7 +62,7 @@ extension WYChatBasicCell {
         var appearance = UIButton.Configuration.plain()
         var attributes = AttributeContainer()
         attributes.font = style.font
-        appearance.attributedTitle = AttributedString(String(format: "%g×", rate), attributes: attributes)
+        appearance.attributedTitle = AttributedString(style.rateTitle?(rate) ?? String(format: "%g×", rate), attributes: attributes)
         appearance.baseForegroundColor = style.textColor
         appearance.background.backgroundColor = style.backgroundColor
         appearance.background.cornerRadius = style.cornerRadius.isFinite ? max(0, style.cornerRadius) : 0
@@ -73,7 +73,7 @@ extension WYChatBasicCell {
         state.voiceRateHeight?.constant = style.size.height.isFinite ? max(0, style.size.height) : 0
         let identifier = message.messageID
         button.menu = UIMenu(children: rates.map { value in
-            UIAction(title: String(format: "%g×", value), state: value == rate ? .on : .off) { [weak self] _ in self?.voicePlaybackRateHandler?(identifier, value) }
+            UIAction(title: style.rateTitle?(value) ?? String(format: "%g×", value), state: value == rate ? .on : .off) { [weak self] _ in self?.voicePlaybackRateHandler?(identifier, value) }
         })
     }
 }

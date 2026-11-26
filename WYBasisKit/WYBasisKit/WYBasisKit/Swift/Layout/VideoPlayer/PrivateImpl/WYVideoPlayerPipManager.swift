@@ -165,7 +165,7 @@ final class WYVideoPlayerPipManager: NSObject, AVPictureInPictureControllerDeleg
     }
 
     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
-        // 用户点小窗还原按钮，宿主页面可能已销毁，把持住的播放器窗口化展示等宿主接管
+        // 用户点小窗还原按钮，播放器所在页面可能已销毁，把持住的播放器窗口化展示等接入方接管
         if let player = retainedPlayer {
             isRestoring = true
             if player.superview == nil {

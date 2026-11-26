@@ -21,7 +21,7 @@ final class WYDanmakuEngine {
     /// 上一次系统时间戳(算两帧之间的增量用)
     private var lastLinkTimestamp: CFTimeInterval = 0
 
-    /// 引擎时间，单位为秒(自驱时按帧累加，注入时由宿主给的播放时间驱动)
+    /// 引擎时间，单位为秒(自驱时按帧累加，注入时由外部传入的播放时间驱动)
     private(set) var currentTime: TimeInterval = 0
 
     /// 在屏条目

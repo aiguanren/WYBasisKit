@@ -19,6 +19,8 @@ import UIKit
 
 /// 文本聊天配置选项
 public struct WYTextChatConfig {
+    /// 动态表情刷新间隔，单位秒，0时关闭动图播放
+    public var emojiAnimationFrameInterval: TimeInterval = 1.0 / 30.0
     /// 文本行数，0表示不限
     public var textMaximumNumberOfLines: Int = 0
     /// 文本字体

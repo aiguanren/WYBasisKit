@@ -43,7 +43,7 @@ extension WYEmojiPreviewView {
             emojiView.image = self.emojiViewConfig.staticEmojiImage(emoji)
         }
 
-        textView.text = WYLocalized(emoji.wy_substring(from: 1, to: emoji.count - 1), table: WYBasisKitConfig.kitLocalizableTable)
+        textView.text = emojiViewConfig.previewConfig.textProvider?(emoji) ?? WYLocalized(emoji.wy_substring(from: 1, to: emoji.count - 1), table: WYBasisKitConfig.kitLocalizableTable)
     }
 
 }
@@ -66,7 +66,7 @@ extension WYEmojiPreviewView {
 
         textView.textColor = self.emojiViewConfig.previewConfig.textColor
         textView.font = self.emojiViewConfig.previewConfig.textFont
-        textView.textAlignment = .center
+        textView.textAlignment = emojiViewConfig.previewConfig.textAlignment
         textView.adjustsFontSizeToFitWidth = true
         addSubview(textView)
         let inset = emojiViewConfig.previewConfig.textHorizontalInset

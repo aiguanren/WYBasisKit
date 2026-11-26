@@ -10,6 +10,18 @@ import UIKit
 import SnapKit
 
 public struct WYMoreViewConfig {
+    /// 更多面板图标的显示方式
+    public var iconContentMode: UIView.ContentMode = .scaleAspectFit
+    /// 更多面板标题对齐方式
+    public var textAlignment: NSTextAlignment = .center
+    /// 更多面板标题是否自动缩小以适应按钮宽度
+    public var titleAdjustsFontSizeToFitWidth: Bool = true
+    /// 更多面板分页指示器的背景色
+    public var pageControlBackgroundColor: UIColor = .clear
+    /// 是否显示垂直滚动条
+    public var showsVerticalScrollIndicator: Bool = false
+    /// 是否显示水平滚动条
+    public var showsHorizontalScrollIndicator: Bool = false
     
     /// 自定义More控件弹起或者收回时动画持续时长
     public var animateDuration: TimeInterval = 0.25
@@ -170,7 +182,7 @@ public class WYChatMoreView: UIView {
         super.init(frame: .zero)
         backgroundColor = moreViewConfig.backgroundColor
         self.collectionView.backgroundColor = moreViewConfig.backgroundColor
-        self.pageControl?.backgroundColor = .clear
+        self.pageControl?.backgroundColor = moreViewConfig.pageControlBackgroundColor
     }
     
     // 如果放scrollViewDidScroll里面的话，当从右往左滑动的时候就会出现刚一滑动就切换页码的问题

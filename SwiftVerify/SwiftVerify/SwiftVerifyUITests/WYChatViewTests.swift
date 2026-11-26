@@ -348,12 +348,12 @@ final class WYChatViewTests: XCTestCase {
         let search = app.searchFields.firstMatch
         XCTAssertTrue(search.waitForExistence(timeout: 5))
         search.tap()
-        search.typeText("宿主消息菜单真实操作")
-        let row = app.tables.cells.containing(.staticText, identifier: "宿主消息菜单真实操作").firstMatch
+        search.typeText("外部消息菜单真实操作")
+        let row = app.tables.cells.containing(.staticText, identifier: "外部消息菜单真实操作").firstMatch
         XCTAssertTrue(row.waitForExistence(timeout: 5))
         row.tap()
         app.alerts.buttons["运行"].tap()
-        let message = app.textViews.matching(NSPredicate(format: "value == %@", "宿主操作测试消息")).firstMatch
+        let message = app.textViews.matching(NSPredicate(format: "value == %@", "外部操作测试消息")).firstMatch
         XCTAssertTrue(message.waitForExistence(timeout: 5))
         for title in ["收藏", "安排提醒", "搜索", "标记已读", "标记未读"] {
             message.press(forDuration: 0.8)
@@ -391,8 +391,8 @@ final class WYChatViewTests: XCTestCase {
         let search = app.searchFields.firstMatch
         XCTAssertTrue(search.waitForExistence(timeout: 5))
         search.tap()
-        search.typeText("宿主消息操作入口")
-        let row = app.tables.cells.containing(.staticText, identifier: "宿主消息操作入口").firstMatch
+        search.typeText("外部消息操作入口")
+        let row = app.tables.cells.containing(.staticText, identifier: "外部消息操作入口").firstMatch
         XCTAssertTrue(row.waitForExistence(timeout: 5))
         row.tap()
         app.alerts.buttons["运行"].tap()
@@ -733,7 +733,7 @@ final class WYChatViewTests: XCTestCase {
         let more = app.collectionViews["WYChatMore.items"]
         XCTAssertTrue(more.waitForExistence(timeout: 5))
         more.cells.containing(.staticText, identifier: "照片").firstMatch.tap()
-        XCTAssertTrue(app.alerts["相册由宿主接入"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.alerts["相册由接入应用提供"].waitForExistence(timeout: 5))
         app.alerts.buttons["关闭"].tap()
     }
 
@@ -783,7 +783,10 @@ final class WYChatViewTests: XCTestCase {
         row.tap()
         app.alerts.buttons["运行"].tap()
         let passed = row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "通过")).firstMatch
-        XCTAssertTrue(passed.waitForExistence(timeout: 25))
+        if !passed.waitForExistence(timeout: 25) {
+            row.tap()
+            XCTFail(app.alerts.firstMatch.staticTexts.allElementsBoundByIndex.map(\.label).joined(separator: "\n"))
+        }
     }
 
     func testConfigurationDirectoryValidation() {
@@ -1004,7 +1007,10 @@ final class WYChatViewTests: XCTestCase {
         row.tap()
         app.alerts.buttons["运行"].tap()
         let passed = row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "通过")).firstMatch
-        XCTAssertTrue(passed.waitForExistence(timeout: 25))
+        if !passed.waitForExistence(timeout: 25) {
+            row.tap()
+            XCTFail(app.alerts.firstMatch.staticTexts.allElementsBoundByIndex.map(\.label).joined(separator: "\n"))
+        }
     }
 
     func testChatMediaPreviewGestures() {
@@ -1252,7 +1258,10 @@ final class WYChatViewTests: XCTestCase {
         row.tap()
         app.alerts.buttons["运行"].tap()
         let passed = row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "通过")).firstMatch
-        XCTAssertTrue(passed.waitForExistence(timeout: 20))
+        if !passed.waitForExistence(timeout: 20) {
+            row.tap()
+            XCTFail(app.alerts.firstMatch.staticTexts.allElementsBoundByIndex.map(\.label).joined(separator: "\n"))
+        }
     }
 
     func testGradientRecordingGestures() {

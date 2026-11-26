@@ -100,7 +100,7 @@ extension WYChatTextCell {
             let staticImage = (emoji.staticFramePosition == .first ? frames?.first : frames?.last) ?? image
             attachment.image = staticImage
             if !state.isMeasuring && value.emojiPlaybackMode != .staticOnly {
-                emojiPlayback.emojis.append(WYChatTextEmoji(range: range, attachment: attachment, staticImage: staticImage, customAnimation: WYChatEmojiAnimation(image: image)))
+                emojiPlayback.emojis.append(WYChatTextEmoji(range: range, attachment: attachment, staticImage: staticImage, customAnimation: WYChatEmojiAnimation(image: image, defaultFrameDelay: emoji.wy_defaultAnimationFrameDelay)))
             }
         }
         attributed.wy_lineSpacing(value.textLineSpacing, alignment: .natural)
@@ -142,7 +142,8 @@ extension WYChatTextCell {
 
     private func wy_startEmojiPlaybackIfNeeded() {
         let mode = configuration.text.emojiPlaybackMode
-        guard window != nil, let chatView = emojiPlayback.chatView, let key = emojiPlayback.messageKey,
+        let interval = wy_chatNonnegative(configuration.text.emojiAnimationFrameInterval)
+        guard interval > 0, window != nil, let chatView = emojiPlayback.chatView, let key = emojiPlayback.messageKey,
               !emojiPlayback.attempted, !emojiPlayback.emojis.isEmpty, mode != .staticOnly,
               let path = chatView.tableView.indexPath(for: self),
               chatView.tableView.indexPathsForVisibleRows?.contains(path) == true else { return }
@@ -157,7 +158,7 @@ extension WYChatTextCell {
         guard !emojiPlayback.animations.isEmpty else { return }
         chatView.state.playedEmojiMessages.insert(key)
         emojiPlayback.startedAt = CACurrentMediaTime()
-        let timer = Timer(timeInterval: 1.0 / 30.0, repeats: true) { [weak self] _ in
+        let timer = Timer(timeInterval: max(1.0 / 120.0, interval), repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.wy_advanceEmojiPlayback() }
         }
         emojiPlayback.timer = timer

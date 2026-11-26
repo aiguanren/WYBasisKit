@@ -192,6 +192,10 @@ final class WYChatTestSuite {
             config.recorder = recorder
             config.recordTime.min = 0
             config.gradientTransitionDuration = 0
+            config.gradientPressLocations = [0, 0.7, 1]
+            config.gradientPressOpacities = [1, 0.6, 0]
+            config.gradientHintTextAlignment = .left
+            config.gradientHintNumberOfLines = 2
             let host = UIView(frame: self.chatView.window?.bounds ?? self.chatView.bounds)
             host.backgroundColor = .white
             (self.chatView.window ?? self.chatView).addSubview(host)
@@ -232,6 +236,10 @@ final class WYChatTestSuite {
             overlay.switchStatus(touch)
             let press = layers.first { $0.position == touch && $0.opacity > 0 }
             check("gradient-touch-follows", press != nil && press?.animation(forKey: "following") == nil)
+            let pressGradient = press as? CAGradientLayer
+            let hintLabel = descendants(overlay).compactMap { $0 as? UILabel }.first { $0.accessibilityIdentifier == "WYChatRecording.gradientHint" }
+            check("gradient-press-stops", pressGradient?.locations?.map { $0.doubleValue } == [0, 0.7, 1] && pressGradient?.colors?.count == 3)
+            check("gradient-hint-layout", hintLabel?.numberOfLines == 2 && hintLabel?.textAlignment == .left)
             let pressSize = press?.bounds.size
             let movedTouch = CGPoint(x: touch.x - 25, y: touch.y)
             overlay.switchStatus(movedTouch)
@@ -282,6 +290,24 @@ final class WYChatTestSuite {
                 overlay.stop()
                 try? await Task.sleep(nanoseconds: 100_000_000)
             }
+            var maskCalls = 0
+            let motionMask = UIGraphicsImageRenderer(size: CGSize(width: 16, height: 16)).image { context in
+                UIColor.white.setFill()
+                context.fill(CGRect(x: 0, y: 0, width: 16, height: 8))
+            }
+            config.gradientMotionMaskProvider = { phase, size in
+                if (0..<1).contains(phase), size.width > 0 { maskCalls += 1 }
+                return motionMask
+            }
+            overlay.recordAnimationConfig = config
+            overlay.start()
+            overlay.layoutIfNeeded()
+            try? await Task.sleep(nanoseconds: 180_000_000)
+            let motionView = descendants(overlay).first { $0.accessibilityIdentifier == "WYChatRecording.gradient" }
+            let maskApplied = motionView?.layer.sublayers?.contains { $0.mask?.contents != nil && !$0.isHidden } == true
+            check("gradient-custom-motion-mask", UIAccessibility.isReduceMotionEnabled ? maskCalls == 0 : maskCalls > 0 && maskApplied)
+            overlay.stop()
+            try? await Task.sleep(nanoseconds: 100_000_000)
             config.interactionStyle = .actionRegions
             overlay.recordAnimationConfig = config
             overlay.start()
@@ -1064,7 +1090,7 @@ final class WYChatTestSuite {
     }
 
     private func registerExternalActionCases() {
-        cases.append(WYChatTestCase("宿主消息操作入口", group: "功能", explanation: "检查收藏、提醒、搜索和已读标记请求及事件接管，组件不伪造服务结果") { [weak self] in
+        cases.append(WYChatTestCase("外部消息操作入口", group: "功能", explanation: "检查收藏、提醒、搜索和已读标记请求及事件接管，组件不伪造服务结果") { [weak self] in
             guard let self else { return [] }
             var config = self.chatView.configuration
             config.input.draftStorageKey = ""
@@ -1098,7 +1124,7 @@ final class WYChatTestSuite {
             results.append(WYChatTestResult(name: "host-actions-veto", passed: received == actions && events.actions == actions.count && view.dataSource == source, detail: "", milliseconds: 0))
             return results
         })
-        cases.append(WYChatTestCase("宿主消息菜单真实操作", group: "手势", explanation: "逐项长按执行收藏、提醒、搜索和已读标记，检查可配置标题及原消息不变", requiresInteraction: true) { [weak self] in
+        cases.append(WYChatTestCase("外部消息菜单真实操作", group: "手势", explanation: "逐项长按执行收藏、提醒、搜索和已读标记，检查可配置标题及原消息不变", requiresInteraction: true) { [weak self] in
             guard let self, let root = self.chatView.window?.rootViewController else { return [] }
             var presenter = root
             while let next = presenter.presentedViewController { presenter = next }
@@ -1116,7 +1142,7 @@ final class WYChatTestSuite {
             NSLayoutConstraint.activate([view.leadingAnchor.constraint(equalTo: host.view.leadingAnchor), view.trailingAnchor.constraint(equalTo: host.view.trailingAnchor), view.topAnchor.constraint(equalTo: host.view.safeAreaLayoutGuide.topAnchor), view.bottomAnchor.constraint(equalTo: host.view.bottomAnchor)])
             host.view.layoutIfNeeded()
             defer { view.releaseAll(); host.dismiss(animated: false) }
-            let source = [WYChatMessageModel(messageID: "external-action-touch", sender: view.userInfo, content: WYChatMessageContentModel(text: "宿主操作测试消息"))]
+            let source = [WYChatMessageModel(messageID: "external-action-touch", sender: view.userInfo, content: WYChatMessageContentModel(text: "外部操作测试消息"))]
             view.dataSource = source
             var received: [WYChatAction] = []
             view.actionHandler = { _, action, identifier in if actions.contains(action) && identifier == source[0].messageID { received.append(action) } }
@@ -1342,7 +1368,7 @@ final class WYChatTestSuite {
             check("voice-finishes", view.messageModelFrom(identifier)?.content.voice?.isPlaying == false)
             return checks
         })
-        cases.append(WYChatTestCase("语音倍速与播放接管", group: "功能", explanation: "检查倍速菜单、宿主和代理回调、重复/非法请求、模型快照、显示配置与消息复用") { [weak self] in
+        cases.append(WYChatTestCase("语音倍速与播放接管", group: "功能", explanation: "检查倍速菜单、接入方和代理回调、重复/非法请求、模型快照、显示配置与消息复用") { [weak self] in
             guard let self else { return [] }
             var config = self.chatView.configuration
             config.input.draftStorageKey = ""
@@ -1423,7 +1449,7 @@ final class WYChatTestSuite {
             }
             return checks
         })
-        cases.append(WYChatTestCase("语音倍速真实菜单", group: "手势", explanation: "点击播放中的语音倍速按钮，选择2倍速并检查宿主回调及消息状态", requiresInteraction: true) { [weak self] in
+        cases.append(WYChatTestCase("语音倍速真实菜单", group: "手势", explanation: "点击播放中的语音倍速按钮，选择2倍速并检查接入方回调及消息状态", requiresInteraction: true) { [weak self] in
             guard let self, let root = self.chatView.window?.rootViewController else { return [] }
             var presenter = root
             while let next = presenter.presentedViewController { presenter = next }
@@ -1488,7 +1514,7 @@ final class WYChatTestSuite {
                 WYChatTestResult(name: "records-real-close", passed: closed, detail: "", milliseconds: 0)
             ]
         })
-        cases.append(WYChatTestCase("区间选择与合并转发真实操作", group: "手势", explanation: "长按进入多选，通过长按菜单和浮动按钮扩展区间，再合并转发，检查宿主收到的顺序和原发送者", requiresInteraction: true) { [weak self] in
+        cases.append(WYChatTestCase("区间选择与合并转发真实操作", group: "手势", explanation: "长按进入多选，通过长按菜单和浮动按钮扩展区间，再合并转发，检查接入方收到的顺序和原发送者", requiresInteraction: true) { [weak self] in
             guard let self, let root = self.chatView.window?.rootViewController else { return [] }
             var presenter = root
             while let next = presenter.presentedViewController { presenter = next }
@@ -1680,7 +1706,7 @@ final class WYChatTestSuite {
     }
 
     private func registerQuoteWithdrawalCases() {
-        cases.append(WYChatTestCase("引用快照与撤回重编辑", group: "功能", explanation: "检查引用身份和快照、气泡外布局、宿主撤回确认、重新编辑时恢复引用/提及、取消引用和到期隐藏") { [weak self] in
+        cases.append(WYChatTestCase("引用快照与撤回重编辑", group: "功能", explanation: "检查引用身份和快照、气泡外布局、应用确认撤回、重新编辑时恢复引用/提及、取消引用和到期隐藏") { [weak self] in
             guard let self else { return [] }
             var config = self.chatView.configuration
             config.input.draftStorageKey = ""
@@ -2732,13 +2758,25 @@ final class WYChatTestSuite {
             check("collapse-retains-page", view.messageModelFrom(identifier)?.content.mediaGroup?.isExpanded == false && view.messageModelFrom(identifier)?.content.mediaGroup?.visibleIndex == 3)
             config.media.buttonPlacement = .below
             config.media.showsItemCountInButton = true
+            config.media.itemCountText = { title, count in "\(title) · 共\(count)项" }
+            config.media.embeddedLayoutStyle = .fullPage
+            config.media.embeddedPageIndicatorStyle = .dots
+            config.media.embeddedBackgroundColor = .systemTeal
             view.configuration = config
             view.tableView.layoutIfNeeded()
             let belowCell = view.tableView.cellForRow(at: path) as? WYChatMediaGroupCell
             let belowButton = belowCell?.bodyView.arrangedSubviews.compactMap { $0 as? UIButton }.first { $0.accessibilityIdentifier == "WYChatMedia.toggle" }
-            check("media-toggle-below-option", belowButton != nil && belowButton?.currentTitle?.contains("\(items.count)") == true)
+            check("media-toggle-below-option", belowButton?.currentTitle == "\(config.media.expandText) · 共\(items.count)项")
+            @MainActor func hasEmbeddedBackground(_ view: UIView) -> Bool {
+                view.backgroundColor == .systemTeal || view.subviews.contains { hasEmbeddedBackground($0) }
+            }
+            let embedded = belowCell.map { hasEmbeddedBackground($0.mediaContentView) }
+            check("media-embedded-appearance", embedded == true)
             config.media.buttonPlacement = .beside
             config.media.showsItemCountInButton = false
+            config.media.embeddedLayoutStyle = .stackedCards
+            config.media.embeddedPageIndicatorStyle = .none
+            config.media.embeddedBackgroundColor = .clear
             view.configuration = config
             view.tableView.layoutIfNeeded()
             let directory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("ChatView-VisualResults", isDirectory: true)
@@ -2776,7 +2814,7 @@ final class WYChatTestSuite {
     }
 
     private func registerTranscriptEditorCases() {
-        cases.append(WYChatTestCase("转写编辑与外部翻译", group: "录音", explanation: "检查面板随键盘布局、失败回退、按钮外观以及宿主翻译操作和过期回调") { [weak self] in
+        cases.append(WYChatTestCase("转写编辑与外部翻译", group: "录音", explanation: "检查面板随键盘布局、失败回退、按钮外观以及接入方翻译操作和过期回调") { [weak self] in
             guard let self else { return [] }
             let recorder: WYChatRecordingFixture
             do { recorder = try WYChatRecordingFixture() }

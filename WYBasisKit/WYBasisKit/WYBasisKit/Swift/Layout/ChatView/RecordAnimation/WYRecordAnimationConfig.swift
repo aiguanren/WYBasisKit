@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AVFoundation
 
 /// 录音手势与界面方案
 @objc public enum WYRecordingInteractionStyle: Int {
@@ -29,7 +30,7 @@ import UIKit
     case readTranslation, changeTranslationLanguage, cancelTranslation
 }
 
-/// 转写编辑页交给宿主的翻译操作。
+/// 转写编辑页交给接入方的翻译操作。
 @objc public enum WYChatTranscriptTranslationAction: Int {
     case translate, readAloud, changeLanguage, cancel
 }
@@ -49,6 +50,87 @@ public struct WYChatRecordingCountdownConfig {
 }
 
 public struct WYRecordAnimationConfig {
+    /// 内置实时录音和识别回放使用的缓冲帧数，有效范围1到65536
+    public var audioBufferFrameCount: Int = 1024
+    var wy_audioBufferFrameCount: AVAudioFrameCount { AVAudioFrameCount(min(65_536, max(1, audioBufferFrameCount))) }
+    /// 内置流动幅度占渐变宽高的最大比例
+    public var gradientMotionMaximumAmplitudeRatio: CGFloat = 0.14
+    /// 内置渐变流动的最大扰动强度
+    public var gradientMotionMaximumTurbulence: CGFloat = 0.5
+    /// 按下光点渐变的停靠位置
+    public var gradientPressLocations: [CGFloat] = [0, 0.28, 0.55, 1]
+    /// 按下光点各停靠位置的相对透明度
+    public var gradientPressOpacities: [CGFloat] = [0.3, 0.45, 1, 0]
+    /// 按下光点渐变起点，采用单位坐标
+    public var gradientPressStartPoint: CGPoint = CGPoint(x: 0.5, y: 0.5)
+    /// 按下光点渐变终点，采用单位坐标
+    public var gradientPressEndPoint: CGPoint = CGPoint(x: 1, y: 1)
+    /// 按下光点出现动画的起始缩放比例
+    public var gradientPressEntranceScale: CGFloat = 0.85
+    /// 渐变流动动画的目标帧率
+    public var gradientMotionFramesPerSecond: Int = 30
+    /// 内置渐变流动的采样网格尺寸，每边为2到256
+    public var gradientMotionRenderSize: CGSize = CGSize(width: 56, height: 48)
+    /// 按动画周期进度和显示尺寸生成自定义透明遮罩，返回nil时使用内置流动
+    public var gradientMotionMaskProvider: ((_ phase: TimeInterval, _ size: CGSize) -> UIImage?)? = nil
+    /// 渐变录音提示文字对齐方式
+    public var gradientHintTextAlignment: NSTextAlignment = .center
+    /// 渐变录音提示最大行数，0表示不限
+    public var gradientHintNumberOfLines: Int = 0
+    /// 转写失败提示文字的对齐方式
+    public var recognitionFailureTextAlignment: NSTextAlignment = .center
+    /// 录音面板进入动画的弹簧阻尼
+    public var overlayShowDamping: CGFloat = 0.9
+    /// 录音面板退出动画的弹簧阻尼
+    public var overlayHideDamping: CGFloat = 1
+    /// 录音面板进出动画的初始弹簧速度
+    public var overlaySpringVelocity: CGFloat = 1
+    /// 转写编辑器操作标题最小缩放比例
+    public var recognitionControlMinimumScaleFactor: CGFloat = 0.7
+    /// 转写气泡箭头与气泡边缘的重叠长度
+    public var recognitionBubbleArrowOverlap: CGFloat = 1
+    /// 实时录音进度通知的最小间隔，单位秒
+    public var recordingProgressInterval: TimeInterval = 0.05
+    /// 录音面板进入动画时长，单位秒
+    public var overlayShowDuration: TimeInterval = 0.18
+    /// 录音面板退出动画时长，单位秒
+    public var overlayHideDuration: TimeInterval = 0.2
+    /// 录音面板状态变化动画时长，单位秒
+    public var overlayStatusAnimationDuration: TimeInterval = 0.25
+    /// 转写编辑器等待键盘布局通知的时长，单位秒
+    public var recognitionKeyboardNotificationTimeout: TimeInterval = 0.35
+    /// 转写编辑器的键盘按钮标题及无障碍标签
+    public var recognitionKeyboardText: String = WYLocalized("键盘", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 转写编辑器的表情按钮标题及无障碍标签
+    public var recognitionEmojiText: String = WYLocalized("表情", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 追加到默认录音引导后的上滑取消提示
+    public var gradientCancelInstruction: String = " · ↑ " + WYLocalized("取消", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 外部录音实现缺少必要方法时的错误说明
+    public var missingRecorderText: String = WYLocalized("外部录音实现缺少必要方法", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 录音时间太短时的错误说明
+    public var shortRecordingText: String = WYLocalized("录音时间太短", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 录音文件无效或录音时间太短时的错误说明
+    public var invalidRecordingText: String = WYLocalized("录音文件无效或录音时间太短", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 语音识别未启用时的错误说明
+    public var recognitionDisabledText: String = WYLocalized("语音识别未启用", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 录音文件不存在时的错误说明
+    public var recordingNotFoundText: String = WYLocalized("录音文件不存在", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 语音识别超时时的错误说明
+    public var recognitionTimeoutText: String = WYLocalized("语音识别超时", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 未配置外部语音识别实现时的错误说明
+    public var recognitionMissingProviderText: String = WYLocalized("未配置外部语音识别实现", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 不支持当前识别语言时的错误说明
+    public var recognitionUnsupportedLanguageText: String = WYLocalized("不支持当前识别语言", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 缺少语音识别权限用途说明时的错误说明
+    public var recognitionMissingUsageDescriptionText: String = WYLocalized("缺少语音识别权限用途说明", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 没有语音识别权限时的错误说明
+    public var recognitionAuthorizationDeniedText: String = WYLocalized("没有语音识别权限", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 当前语言的语音识别不可用时的错误说明
+    public var recognitionUnavailableText: String = WYLocalized("当前语言的语音识别不可用", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 当前设备或语言不支持本地识别时的错误说明
+    public var recognitionOnDeviceUnavailableText: String = WYLocalized("当前设备或语言不支持本地识别", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 没有识别到文字时的错误说明
+    public var recognitionEmptyResultText: String = WYLocalized("没有识别到文字", table: WYBasisKitConfig.kitLocalizableTable)
     private static let recognitionSurfaceColor = UIColor { traits in
         traits.userInterfaceStyle == .dark ? .wy_hex("#25262A") : .wy_hex("#F6F6F6")
     }
@@ -541,7 +623,7 @@ public struct WYRecordAnimationConfig {
     public var enablesTranslation: Bool = false
     /// 旧版翻译服务配置，转写编辑器的翻译操作由transcriptTranslationHandler处理
     public var translationProvider: WYChatTextTranslator? = nil
-    /// 翻译、朗读、切换译文语言及取消翻译均由宿主处理
+    /// 翻译、朗读、切换译文语言及取消翻译均由接入方处理
     public var transcriptTranslationHandler: ((_ editor: WYRecordAnimationView, _ action: WYChatTranscriptTranslationAction, _ requestID: String, _ text: String, _ sourceLocaleIdentifier: String?, _ targetLocaleIdentifier: String) -> Void)?
     /// 翻译源语言，nil时自动识别
     public var translationSourceLocaleIdentifier: String? = nil

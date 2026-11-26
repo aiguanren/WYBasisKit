@@ -8,7 +8,7 @@
 import UIKit
 import AVKit
 
-/// 宿主选择结果接入与媒体操作
+/// 接入方选择结果接入与媒体操作
 extension WYChatView {
     func wy_sendMedia(_ items: [WYChatMediaItem]) -> [WYChatMessageModel] {
         guard !items.isEmpty else { return [] }

@@ -1,12 +1,12 @@
 # ChatView
 
-ChatView提供聊天消息列表、输入栏、表情与更多面板、录音和语音转写界面。消息传输、下载服务、账号、支付、通话连接和语音识别服务端由宿主App负责。
+ChatView提供聊天消息列表、输入栏、表情与更多面板、录音和语音转写界面。消息传输、下载服务、账号、支付、通话连接和语音识别服务端由接入方App负责。
 
 ## 消息类型
 
 支持文本、语音、图片、视频、音乐、文件、网页、名片、位置、聊天记录、红包、转账、通话记录、撤回和拍一拍。未知内容显示可配置占位。红包、转账和通话记录仅提供展示及操作事件。
 
-全部气泡使用WYAirBubbleView，布局采用单一WYChatBasicCell。发送方和接收方可分别设置头像、昵称、边距及气泡外观。撤回与拍一拍默认居中。图片与视频预览、语音播放及文件打开通过消息操作回调交给宿主。
+全部气泡使用WYAirBubbleView，布局采用单一WYChatBasicCell。发送方和接收方可分别设置头像、昵称、边距及气泡外观。撤回与拍一拍默认居中。图片与视频预览、语音播放及文件打开通过消息操作回调交给接入方。
 
 ## Swift接入
 
@@ -22,7 +22,7 @@ config.recording.supportSpeechRecognition = false
 let user = WYChatUserModel(id: "current-user", name: "自己")
 let chatView = WYChatView(userInfo: user, configuration: config)
 chatView.messagePreparedHandler = { message in
-    // 使用message向宿主的消息服务提交发送请求
+    // 使用message向应用的消息服务提交发送请求
 }
 chatView.actionHandler = { chatView, action, messageID in
     // 依据action处理预览、播放、重试、转发、删除等操作
@@ -32,9 +32,9 @@ chatView.recordingHandler = { url, duration, error in
 }
 ```
 
-把chatView添加到宿主布局并约束其四边。控件根据实际容器尺寸和安全区布局，不负责宿主导航栏或会话列表。
+把chatView添加到接入方布局并约束其四边。控件根据实际容器尺寸和安全区布局，不负责接入方导航栏或会话列表。
 
-录音成功后通过同一发送流程生成语音消息，并调用`messagePreparedHandler`。`automaticallyInsertsSentMessages`决定是否自动入列，宿主无需重复追加。外部已有录音可调用`sendVoiceRecording(_:duration:messageID:)`，文件地址保存在`voice.localPath`，宿主通过语音操作事件负责播放与上传。
+录音成功后通过同一发送流程生成语音消息，并调用`messagePreparedHandler`。`automaticallyInsertsSentMessages`决定是否自动入列，接入方无需重复追加。外部已有录音可调用`sendVoiceRecording(_:duration:messageID:)`，文件地址保存在`voice.localPath`，接入方通过语音操作事件负责播放与上传。
 
 `input.textPlaceholderAlignment`控制占位文字对齐。`input.placeholderLongPressAction`配置空输入框长按操作，`.disabled`使用语音切换按钮进入录音模式，默认的 `.voice` 直接录音并发送语音，`.dictation`直接识别文字，单击输入框均可弹出键盘。直接发语音不依赖识别开关，转文字需要启用识别。`input.enablesKeyboardDictation`控制键盘展开后的输入框内识别按钮，识别文字替换当前选区，颜色、图标、尺寸和间距分别配置。`input.showsKeyboardDictationInEmojiPanel`默认开启，在键盘与表情面板之间切换时保留输入框内识别按钮，设为`false`时在表情面板中隐藏。`input.stopsKeyboardDictationOnTextChange`默认`true`，手动修改文本时关闭已开启的识别；设为`false`时保持识别，保留手动修改的内容，后续新增识别文本从编辑后的光标位置继续插入。语音转写结果不会触发关闭。输入框有内容时默认隐藏识别按钮，清空后恢复显示。将`input.showsKeyboardDictationWithText`设为`true`可在有内容时继续显示。识别进行中保留「完成」按钮。识别入口同时受`recording.supportSpeechRecognition`控制，识别来源沿用Apple或外部服务配置，失败可通过`chatInput.inputDictationErrorHandler`接收。
 
@@ -42,7 +42,7 @@ chatView.recordingHandler = { url, duration, error in
 
 SwiftVerify示例的“聊天界面→测试→配置”提供中文分组设置，选择“输入框操作→单击输入，长按识别”后点击“保存”，即可返回聊天页体验。未保存退出会放弃修改。“全部属性设置”提供完整属性目录和专项预览，其中的修改同样需要返回“聊天设置”后保存。
 
-默认资源图标从`WYChatView.bundle/Configs`加载，表情图片从`WYChatView.bundle/Emojis`加载，输入栏图标默认保留图片原色。`input`、`basic`、`selection`、`quote`、`media`和`recording`中的图片配置均可由宿主覆盖，需要单色着色时可显式选择模板渲染。卡片图标可通过`content.iconImage/iconSize`或对应`contentOverrides`配置，默认图标尺寸28。更多面板通过`more.iconSize`配置图标尺寸，默认32，按钮底板由`more.imageViewSize`单独配置。
+默认资源图标从`WYChatView.bundle/Configs`加载，表情图片从`WYChatView.bundle/Emojis`加载，输入栏图标默认保留图片原色。`input`、`basic`、`selection`、`quote`、`media`和`recording`中的图片配置均可由接入方覆盖，需要单色着色时可显式选择模板渲染。卡片图标可通过`content.iconImage/iconSize`或对应`contentOverrides`配置，默认图标尺寸28。更多面板通过`more.iconSize`配置图标尺寸，默认32，按钮底板由`more.imageViewSize`单独配置。
 
 头像默认使用浅灰圆形占位。通过`basic.avatarPlaceholderColor`设置纯色，或通过`avatarPlaceholderGradientColors`和`avatarPlaceholderGradientDirection`设置渐变。`avatarPlaceholderCornerRadius`为负值时按头像尺寸取圆角，为`0`时显示直角。传入`basic.defaultAvatar`时优先显示自定义图片，沿用`avatarCornerRadius`和`avatarContentMode`。
 
@@ -56,7 +56,7 @@ SwiftVerify示例的“聊天界面→测试→配置”提供中文分组设置
 
 单条视频将播放图标和时长叠放在封面上。`media.videoPlayImage`、`videoPlaySize`和`videoPlayColor`配置图标，`showsVideoDuration`、`videoDurationColor`和`videoOverlayBackgroundColor`配置时长及控件底色。视频的预览尺寸与时长字体可以通过`.video`内容覆盖配置。
 
-语音播放帧统一使用`WYChatViewVoiceWave1–3`，由`voicePlayback.waveformImages`覆盖，静止显示最后一帧，发送侧通过`mirrorsSenderWaveform`水平翻转。`waveformDuration`和`waveformSize`控制动画时长及尺寸，`waveformTintColor`控制声波颜色，默认随明暗主题变化，设为nil时保留原图颜色，默认只显示秒数和声波，发送方声波在右，接收方声波在左。`durationSuffix`配置秒数后缀，`minimumWidth/minimumWidthDuration/widthGrowthPerSecond`配置气泡随时长增长的宽度。`unreadColor/unreadSize`配置接收方未播放提示。`showsPlaybackSymbol`开启额外播放图标，图片由`playImage/pauseImage`覆盖。点击语音触发宿主播放事件，正在播放时再次点击停止，`restartsOnTap`默认true，再次播放从头开始，切换语音停止前一条。
+语音播放帧统一使用`WYChatViewVoiceWave1–3`，由`voicePlayback.waveformImages`覆盖，静止显示最后一帧，发送侧通过`mirrorsSenderWaveform`水平翻转。`waveformDuration`和`waveformSize`控制动画时长及尺寸，`waveformTintColor`控制声波颜色，默认随明暗主题变化，设为nil时保留原图颜色，默认只显示秒数和声波，发送方声波在右，接收方声波在左。`durationSuffix`配置秒数后缀，`minimumWidth/minimumWidthDuration/widthGrowthPerSecond`配置气泡随时长增长的宽度。`unreadColor/unreadSize`配置接收方未播放提示。`showsPlaybackSymbol`开启额外播放图标，图片由`playImage/pauseImage`覆盖。点击语音触发接入方播放事件，正在播放时再次点击停止，`restartsOnTap`默认true，再次播放从头开始，切换语音停止前一条。
 
 渐变流动由`recording.gradientMotionEnabled`控制，周期、位移、缩放及明暗颜色和不透明度分别配置。`gradientPressEnabled`控制跟随手指的局部按压效果，尺寸、颜色、不透明度和跟随过渡时长均可配。移除录音界面或进入后台时停止流动，系统开启减弱动态效果时不播放持续动画。
 
@@ -74,7 +74,7 @@ user.id = @"current-user";
 user.name = @"自己";
 WYChatView *chatView = WYChatView.create(user, config);
 chatView.messagePreparedHandler = ^(WYChatMessageModel *message) {
-    // 使用message向宿主的消息服务提交发送请求
+    // 使用message向应用的消息服务提交发送请求
 };
 chatView.appendMessages(messages).scrollToLastMessage(false);
 ```
@@ -104,24 +104,24 @@ ObjC读取chatView.configuration取得配置快照，需要修改后重新赋给
 
 ## 消息操作
 
-发送文本返回完整消息模型，并触发messagePreparedHandler。automaticallyInsertsSentMessages控制是否自动加入列表，关闭后由宿主更新消息数据源。插入历史消息使用prependMessages，追加消息使用appendMessages。
+发送文本返回完整消息模型，并触发messagePreparedHandler。automaticallyInsertsSentMessages控制是否自动加入列表，关闭后由接入方更新消息数据源。插入历史消息使用prependMessages，追加消息使用appendMessages。
 
-点击失败状态、预览、头像和昵称会产生相应操作。复制、引用及选择状态由控件处理，转发、删除、撤回、文件打开及实际播放由宿主处理。宿主通过sendState、readers、语音isPlaying、isTransferring、transferProgress与transferError更新界面，不把一次点击当作外部操作已经成功。
+点击失败状态、预览、头像和昵称会产生相应操作。复制、引用及选择状态由控件处理，转发、删除、撤回、文件打开及实际播放由接入方处理。接入方通过sendState、readers、语音isPlaying、isTransferring、transferProgress与transferError更新界面，不把一次点击当作外部操作已经成功。
 
-用户正在阅读历史时，追加消息显示新消息提示；接近底部时自动跟随。引用预览默认显示在文本框下方，点击关闭按钮可取消引用并保留草稿。多选使用isSelectingMessages和selectedMessageIDs，内置工具条提供取消、转发与删除，selectionActionHandler一次接收按消息顺序排列的ID。showsSelectionToolbar可以关闭内置工具条，宿主可以提供自己的操作入口。
+用户正在阅读历史时，追加消息显示新消息提示；接近底部时自动跟随。引用预览默认显示在文本框下方，点击关闭按钮可取消引用并保留草稿。多选使用isSelectingMessages和selectedMessageIDs，内置工具条提供取消、转发与删除，selectionActionHandler一次接收按消息顺序排列的ID。showsSelectionToolbar可以关闭内置工具条，接入方可以提供自己的操作入口。
 
 ## 图片和视频接入
 
-相册选择器由宿主提供。通过`openAlbumHandler`或`wy_chatViewDidRequestAlbum`接收打开请求，选择完成后调用`sendMedia(_:)`交回`WYChatMediaItem`数组。`media.albumMoreItemIndex`将更多面板的指定项目关联到相册事件，负数时不自动关联。
+相册选择器由接入方提供。通过`openAlbumHandler`或`wy_chatViewDidRequestAlbum`接收打开请求，选择完成后调用`sendMedia(_:)`交回`WYChatMediaItem`数组。`media.albumMoreItemIndex`将更多面板的指定项目关联到相册事件，负数时不自动关联。
 
 ```swift
 config.media.presentation = .merged
 chatView.openAlbumHandler = {
-    // 打开宿主选择器，完成后调用chatView.sendMedia(selectedItems)
+    // 打开应用提供的选择器，完成后调用chatView.sendMedia(selectedItems)
 }
 ```
 
-`media.presentation`支持`.individual`逐条和`.merged`合并。待发送消息的`content.mediaGroup`保存原始媒体顺序和身份，逐条模式中每组只有一个项目。`automaticallyInsertsSentMessages`决定是否自动插入，`messagePreparedHandler`逐条交付待发送消息，上传完成后由宿主更新发送状态。
+`media.presentation`支持`.individual`逐条和`.merged`合并。待发送消息的`content.mediaGroup`保存原始媒体顺序和身份，逐条模式中每组只有一个项目。`automaticallyInsertsSentMessages`决定是否自动插入，`messagePreparedHandler`逐条交付待发送消息，上传完成后由接入方更新发送状态。
 
 折叠时复用PhotoBrowser的`.stackedCards`布局与左右滑动，展开/收起按钮及事件由聊天Cell管理。层数、偏移、旋转和圆角通过`media.browser`配置，展开尺寸、间距、按钮文案和样式通过`media`配置。PhotoBrowser自身不提供展开/收起按钮。
 
@@ -136,7 +136,7 @@ chatView.previewMedia(messageID: messageID, index: 2)
 
 ## 录音与语音识别
 
-按住开始，松手结束，滑入取消区后松手丢弃，滑入转文字区后松手编辑并发送文本。最长时长、最短时长、保存目录、录音设置和外观可配置。录音文件名自动唯一化，正常结果由recordingHandler交付，宿主负责发送成功后的长期保存或清理。App失去活跃状态时取消正在进行的录音。
+按住开始，松手结束，滑入取消区后松手丢弃，滑入转文字区后松手编辑并发送文本。最长时长、最短时长、保存目录、录音设置和外观可配置。录音文件名自动唯一化，正常结果由recordingHandler交付，接入方负责发送成功后的长期保存或清理。App失去活跃状态时取消正在进行的录音。
 
 ```swift
 config.recording.dictationSendsOnRelease = true
@@ -186,7 +186,7 @@ SwiftVerify与ObjCVerify的聊天页面均提供“测试”入口，可运行�
 
 可继承WYChatBasicCell或具体Cell并覆写renderContent，内容添加到bodyView。titleView、detailView、footerView、previewImageView和thumbnailImageView提供标准内容视图访问。自定义Cell可通过事件接管代理提供，注册列表由实例配置持有。
 
-组件自带输入栏及表情资源。状态图标使用系统图标和系统活动指示器。自定义图片可由宿主配置或通过加载接口提供，不要求使用固定图片气泡。
+组件自带输入栏及表情资源。状态图标使用系统图标和系统活动指示器。自定义图片可由接入方配置或通过加载接口提供，不要求使用固定图片气泡。
 
 UIKit界面和配置刷新在主线程执行。外部录音与识别回调会统一转到主线程处理。离开页面或不再使用时调用releaseAll，停止控件持有的录音和识别任务。
 
@@ -194,7 +194,7 @@ UIKit界面和配置刷新在主线程执行。外部录音与识别回调会统
 
 `basic.avatarTapAction`、`basic.avatarLongPressAction`和`basic.avatarDoubleTapAction`分别配置头像的单击、长按、双击，可选`.none`、`.profile`、`.mention`和`.takePat`。默认依次为打开用户信息、提及用户和请求拍一拍，长按时间由`basic.avatarLongPressDuration`控制，展开媒体旁的头像使用相同配置。`basic.avatarPatAnimationDuration`与`basic.avatarPatAnimationAngles`配置拍一拍反馈动画，时长为0时关闭动画。
 
-头像操作通过`actionHandler`和共享代理报告，拍一拍由宿主处理实际发送和结果。`basic.automaticallyInsertsMentions`控制头像提及时是否自动插入输入框，关闭后由宿主处理`.mention`操作。也可调用`mentionUser(_:)`在当前选区插入，`basic.mentionPrefix`和`basic.mentionSuffix`配置前缀与分隔文本。
+头像操作通过`actionHandler`和共享代理报告，拍一拍由接入方处理实际发送和结果。`basic.automaticallyInsertsMentions`控制头像提及时是否自动插入输入框，关闭后由接入方处理`.mention`操作。也可调用`mentionUser(_:)`在当前选区插入，`basic.mentionPrefix`和`basic.mentionSuffix`配置前缀与分隔文本。
 
 `inputMentions`返回仍然有效的提及，发送的文本与输入框一致时，消息的`mentions`保留用户身份及文本中的UTF16范围。同名用户分别保存各自ID，删除或编辑提及文本会移除对应身份，修改前面的文本会同步范围。Objective-C对应`chatView.mentionUser(user)`、`chatView.inputMentions`和`message.mentions`。
 
@@ -207,7 +207,7 @@ UIKit界面和配置刷新在主线程执行。外部录音与识别回调会统
 
 输入预览默认贴在文本框下方并随文本框宽度变化。关闭`quote.inputBelowTextField`可移至输入栏上方，关闭`quote.inputAlignsWithTextField`可改为按输入栏宽度对齐。`quote.inputOuterInsets`控制输入预览外边距，`quote.messageSpacing`控制引用条与气泡的间距。`quote.fitsMessageContent`默认开启，此时`quote.messageWidth`为引用条宽度上限，关闭后为首选宽度。
 
-文字引用沿用聊天的表情配置，将表情标记显示为对应图片。媒体引用使用缩略图与内容摘要，自定义图片加载器收到被引用消息的ID。点击引用条或输入预览的内容区域会定位到原消息，`reference`操作回调提供原消息ID，原消息未加载时可由宿主接管跳转。
+文字引用沿用聊天的表情配置，将表情标记显示为对应图片。媒体引用使用缩略图与内容摘要，自定义图片加载器收到被引用消息的ID。点击引用条或输入预览的内容区域会定位到原消息，`reference`操作回调提供原消息ID，原消息未加载时可由接入方接管跳转。
 
 ```swift
 chatView.quoteMessage(messageID)
@@ -225,7 +225,7 @@ chatView.actionHandler = { [weak chatView] _, action, identifier in
 }
 ```
 
-撤回操作向宿主发出请求，宿主确认成功后调用`markMessageWithdrawn`更新列表。`canWithdrawMessage`判断当前用户和时间限制，普通消息与拍一拍分别配置。`canReeditMessage`和`reeditMessage`用于恢复自己的文本、提及身份及发送时的引用，取消过的引用不会在重新编辑时恢复。`notice.reeditTimeLimit`为0时不限时，入口到期后自动隐藏。被引用的原消息撤回后，现有引用同步改为撤回摘要。
+撤回操作向接入方发出请求，接入方确认成功后调用`markMessageWithdrawn`更新列表。`canWithdrawMessage`判断当前用户和时间限制，普通消息与拍一拍分别配置。`canReeditMessage`和`reeditMessage`用于恢复自己的文本、提及身份及发送时的引用，取消过的引用不会在重新编辑时恢复。`notice.reeditTimeLimit`为0时不限时，入口到期后自动隐藏。被引用的原消息撤回后，现有引用同步改为撤回摘要。
 
 ## 区间多选与转发
 
@@ -239,7 +239,7 @@ chatView.actionHandler = { [weak chatView] _, action, identifier in
 chatView.selectMessages([firstID])
 chatView.selectMessages(from: firstID, through: lastID)
 chatView.forwardHandler = { mode, originalMessages in
-    // 将原消息及转发形式交给宿主选择目标会话
+    // 将原消息及转发形式交给接入方选择目标会话
 }
 let messages = chatView.makeForwardMessages(ids, mode: .merged, title: "聊天记录")
 ```
@@ -248,9 +248,9 @@ let messages = chatView.makeForwardMessages(ids, mode: .merged, title: "聊天�
 
 进入多选后，收发消息统一在列表起始侧显示圆形指示图标。选中时显示实心圆和勾，未选中时显示空心圆。图标与头像对齐，无头像时靠近消息顶部。勾选和取消勾选直接更新内置消息单元格上的图标。
 
-`selection.indicatorPosition`默认为`.leading`，也可设置为`.trailing`。`showsIndicator`控制显示，`indicatorSize`和`indicatorInsets`控制尺寸与间距。默认图标使用`selectedColor`和`unselectedColor`着色，宿主可通过`selectedImage`和`unselectedImage`提供自己的图标，并通过`rendersIndicatorAsTemplate`控制着色。
+`selection.indicatorPosition`默认为`.leading`，也可设置为`.trailing`。`showsIndicator`控制显示，`indicatorSize`和`indicatorInsets`控制尺寸与间距。默认图标使用`selectedColor`和`unselectedColor`着色，接入方可通过`selectedImage`和`unselectedImage`提供自己的图标，并通过`rendersIndicatorAsTemplate`控制着色。
 
-合并记录点击可由`recordsPreviewHandler`接管，也可使用内置`WYChatRecordsViewController`展示。明细复用ChatView的消息和媒体展示，隐藏输入栏，昵称和导航栏外观通过`records`配置。`showsInputBar`也可用于宿主自己的只读聊天界面。
+合并记录点击可由`recordsPreviewHandler`接管，也可使用内置`WYChatRecordsViewController`展示。明细复用ChatView的消息和媒体展示，隐藏输入栏，昵称和导航栏外观通过`records`配置。`showsInputBar`也可用于接入方自己的只读聊天界面。
 
 
 ## 语音播放倍速
@@ -266,7 +266,7 @@ chatView.voicePlaybackRateHandler = { messageID, rate in
 chatView.setVoicePlaybackRate(1.5, messageID: voiceMessageID)
 ```
 
-选择倍速更新消息的`voice.playbackRate`并通知宿主，不启动或暂停播放器。实际音频播放与播放进度由宿主处理，点击会更新选中语音及其他语音的`isPlaying`，宿主在播放失败或结束时同步恢复状态。重复设置同一倍速不重复通知，非法倍速和消息ID保持原状态。
+选择倍速更新消息的`voice.playbackRate`并通知接入方，不启动或暂停播放器。实际音频播放与播放进度由接入方处理，点击会更新选中语音及其他语音的`isPlaying`，接入方在播放失败或结束时同步恢复状态。重复设置同一倍速不重复通知，非法倍速和消息ID保持原状态。
 
 
 ## 消息表情动画
@@ -289,9 +289,23 @@ config.emoji.previewConfig.textHorizontalInset = 9
 
 表情长按后可跨行滑动更新预览文字和锚定位置，移出有效区域隐藏预览，松手关闭并且不插入表情。
 
-## 宿主消息操作
+## 调整默认界面与文案
 
-收藏、提醒、搜索、标记已读和标记未读通过`WYChatAction.favorite/remind/search/markRead/markUnread`报告，由宿主实现服务和数据更新。`menuActions`控制入口，`actionTitle`自定义标题，`allowsAction`控制逐条消息的菜单可见性，`eventsHandler`可接管执行。
+- 用 `showsNewMessagesButton` 和 `newMessagesText` 控制新消息按钮的显示与标题。可单独设置按钮的底色、文字颜色、字体和圆角。
+- 用 `actionTitle` 和 `actionImage` 按操作替换菜单文字和图标。菜单的内边距、图标大小、最小项尺寸、边框和圆角可在聊天配置中调整。
+- 用 `basic.timeFormat`、`basic.amPmTimeFormat` 和日期模板调整默认时间格式。需要按消息生成整段时间文字时，使用 `basic.timeFormatter`。
+- 用 `messageSummary` 定制引用和合并记录的摘要，用 `media.durationFormatter` 定制视频、音乐和通话时长。红包和转账状态文案在 `content` 及对应的 `contentOverrides` 中设置。
+- 输入栏和转写面板的按钮标签、长按时长和动画参数在 `input`、`emoji` 和 `recording` 中设置。录音和语音识别错误说明也可通过 `recording` 修改。
+
+- `listContentInset`、`listScrollIndicatorInsets`、`listBounces` 和 `listSeparatorStyle` 等属性控制消息列表。用 `messageTopSpacing`、`messageBottomSpacing` 与 `content.minimumBubbleHeight` 调整每条消息的排版。卡片标题、详情、底部文字和预览图外观在 `content` 中设置，也可用 `contentOverrides` 按消息类型设置。
+- `media.embeddedLayoutStyle`、`media.embeddedPageIndicatorStyle` 和 `media.embeddedBackgroundColor` 控制列表中折叠媒体的浏览器。用 `media.expandedPrefetchDistance` 调整展开后图片的预加载范围，并用 `media.itemCountText` 格式化按钮文案。
+- `recording.gradientPressLocations` 和 `recording.gradientPressOpacities` 控制按下光点的渐变。用 `recording.gradientMotionFramesPerSecond` 和 `recording.gradientMotionRenderSize` 调整绘制开销，或用 `recording.gradientMotionMaskProvider` 为每帧提供带透明通道的图像。回调在界面线程执行，可返回 `nil` 使用内置绘制。
+
+Swift 通过 `WYChatConfig` 设置这些属性。Objective-C 通过 `WYChatConfig` 及其子配置设置同名属性，可选数值使用 `NSNumber`。已有视图可重新赋值 `configuration` 以应用新配置。
+
+## 外部消息操作
+
+收藏、提醒、搜索、标记已读和标记未读通过`WYChatAction.favorite/remind/search/markRead/markUnread`报告，由接入方实现服务和数据更新。`menuActions`控制入口，`actionTitle`自定义标题，`allowsAction`控制逐条消息的菜单可见性，`eventsHandler`可接管执行。
 
 ```swift
 config.menuActions = [.copy, .quote, .forward, .favorite, .remind, .search]
@@ -321,7 +335,7 @@ SwiftVerify的聊天测试页点击“配置”可搜索并调整配置属性，
 
 `recording.recognitionEmoji.collectionViewTopOffset`可单独调整转写表情列表顶部留白，默认采用聊天表情列表的布局。有使用记录时，两处均显示「最近使用」分区。聊天内的转写页与表情面板默认沿用消息列表背景色，可分别通过`recording.recognitionOverlayBackgroundColor`和`recording.recognitionEmoji.backgroundColor`覆盖。`recording.recognitionEmoji.animateDuration`控制表情面板和切换图标的动画时长，设为 0 可关闭动效。`recognitionEmojiImage`和`recognitionKeyboardImage`可更换图标，`recognitionAccessoryImageSize`和`recognitionAccessoryColor`控制显示尺寸和模板图标颜色。主聊天页使用`input.animateDuration`调整键盘与表情切换时输入栏的过渡时长。
 
-需要翻译入口时，开启`recording.enablesTranslation`并设置`recording.transcriptTranslationHandler`。回调收到编辑器、操作、请求ID、当前文本和语种，翻译、朗读、切换语言及取消由宿主决定如何处理。宿主在主线程调用`updateTranscriptText(_:translatedLocaleIdentifier:requestID:)`显示结果并切换到译文操作，语言传`nil`时恢复普通编辑态。去重、过期或已编辑的请求会返回`false`。按钮文字和显示开关独立可配置。此前配置`translationProvider`的接入可迁移到此回调。
+需要翻译入口时，开启`recording.enablesTranslation`并设置`recording.transcriptTranslationHandler`。回调收到编辑器、操作、请求ID、当前文本和语种，翻译、朗读、切换语言及取消由接入方决定如何处理。接入方在主线程调用`updateTranscriptText(_:translatedLocaleIdentifier:requestID:)`显示结果并切换到译文操作，语言传`nil`时恢复普通编辑态。去重、过期或已编辑的请求会返回`false`。按钮文字和显示开关独立可配置。此前配置`translationProvider`的接入可迁移到此回调。
 
 媒体展开/收起按钮默认显示在首个媒体靠页面中间的一侧，`media.buttonPlacement`可切换为下方显示。按钮宽高、圆角、间距、字体和颜色均可配置，`showsItemCountInButton`控制是否显示媒体数量。
 

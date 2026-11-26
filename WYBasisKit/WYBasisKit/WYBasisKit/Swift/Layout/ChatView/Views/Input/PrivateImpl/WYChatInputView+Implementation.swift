@@ -211,7 +211,7 @@ extension WYChatInputView {
         }
 
         specialSendButton?.isHidden = false
-        UIView.animate(withDuration: 0.25) { [weak self] in
+        UIView.animate(withDuration: wy_chatNonnegative(inputBarConfig.heightAnimationDuration)) { [weak self] in
 
             guard let self = self else {return}
 
@@ -274,8 +274,9 @@ extension WYChatInputView {
     }
 
     func wy_impl_updateTextViewOffset() {
-        if textView.attributedText.string.utf16.count > 0 {
-            if textRowGreaterThan(row: 1) {
+        let lineCount = inputBarConfig.autoScrollAfterLineCount
+        if lineCount > 0, textView.attributedText.string.utf16.count > 0 {
+            if textRowGreaterThan(row: lineCount) {
                 textView.contentOffset = CGPoint(x: 0, y: textView.contentSize.height - textView.wy_height)
             }else {
                 textView.contentOffset = CGPoint(x: 0, y: 0)
@@ -496,9 +497,6 @@ extension WYChatInputView {
         textVoiceView.accessibilityIdentifier = "WYChatInput.voice"
         emojiView.accessibilityIdentifier = "WYChatInput.emoji"
         moreView.accessibilityIdentifier = "WYChatInput.more"
-        textVoiceView.accessibilityLabel = WYLocalized("语音输入", table: WYBasisKitConfig.kitLocalizableTable)
-        emojiView.accessibilityLabel = WYLocalized("表情", table: WYBasisKitConfig.kitLocalizableTable)
-        moreView.accessibilityLabel = WYLocalized("更多", table: WYBasisKitConfig.kitLocalizableTable)
         backgroundColor = .clear
         image = self.inputBarConfig.backgroundImage
 
@@ -517,7 +515,8 @@ extension WYChatInputView {
         textVoiceContentView.layer.masksToBounds = true
         let longPresssGes = UILongPressGestureRecognizer(target: self, action: #selector(voiceViewLongPressMethod(_:)))
         // 指定该手势允许手指移动的最大距离，如果用户手指按下时移动且超过了该距离，则该手势失效
-        longPresssGes.allowableMovement = self.inputBarConfig.recordViewLongPressMaxOffset
+        longPresssGes.minimumPressDuration = wy_chatNonnegative(inputBarConfig.voiceLongPressDuration)
+        longPresssGes.allowableMovement = wy_chatNonnegative(inputBarConfig.recordViewLongPressMaxOffset)
         textVoiceContentView.addGestureRecognizer(longPresssGes)
         addSubview(textVoiceContentView)
         textVoiceContentView.snp.makeConstraints { make in
@@ -562,8 +561,10 @@ extension WYChatInputView {
                 updateSpecialSendState(hasText: true)
                 Task {
                     // 需延时调用 becomeFirstResponder()，否则键盘弹出初期 trait 未稳定，会出现暗色 → 浅色的瞬间渲染切换（闪烁问题）
-                    try? await Task.wy_delay(0.5) {
-                        self.textView.becomeFirstResponder()
+                    let delay = wy_chatNonnegative(inputBarConfig.draftFocusDelay)
+                    guard delay < Double(Int64.max) / 1_000_000_000 else { return }
+                    try? await Task.wy_delay(delay) { [weak self] in
+                        self?.textView.becomeFirstResponder()
                     }
                 }
             }
@@ -578,7 +579,7 @@ extension WYChatInputView {
         textPlaceholderView.font = self.inputBarConfig.textPlaceholderFont
         textPlaceholderView.textAlignment = .left
         textPlaceholderView.backgroundColor = .clear
-        textPlaceholderView.adjustsFontSizeToFitWidth = true
+        textPlaceholderView.adjustsFontSizeToFitWidth = inputBarConfig.placeholderAdjustsFontSizeToFitWidth
         textPlaceholderView.isHidden = (textView.attributedText.string.utf16.count > 0)
         textView.addSubview(textPlaceholderView)
         wy_setupDictationControls()
@@ -627,9 +628,16 @@ extension WYChatInputView {
 
 /// 输入实例配置刷新
 extension WYChatInputView {
+    func wy_applyInputAccessibilityLabels() {
+        textVoiceView.accessibilityLabel = inputBarConfig.voiceAccessibilityLabel
+        emojiView.accessibilityLabel = inputBarConfig.emojiAccessibilityLabel
+        moreView.accessibilityLabel = inputBarConfig.moreAccessibilityLabel
+    }
+
     func wy_applyInputConfiguration() {
         if !inputBarConfig.enablesKeyboardDictation { wy_stopInputDictation(cancel: true) }
         wy_applyInputAppearance()
+        wy_applyInputAccessibilityLabels()
         textView.font = inputBarConfig.textFont
         textView.textColor = inputBarConfig.textColor
         textView.keyboardType = inputBarConfig.chatKeyboardType

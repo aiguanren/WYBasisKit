@@ -42,10 +42,10 @@ final class WYChatEmojiAnimation {
         }
     }
 
-    convenience init?(image: UIImage) {
+    convenience init?(image: UIImage, defaultFrameDelay: TimeInterval) {
         guard let frames = image.images, frames.count > 1 else { return nil }
         let delay = image.duration / Double(frames.count)
-        self.init(frames: frames, delays: Array(repeating: delay.isFinite && delay > 0 ? delay : 0.1, count: frames.count))
+        self.init(frames: frames, delays: Array(repeating: delay.isFinite && delay > 0 ? delay : defaultFrameDelay, count: frames.count))
     }
 
     func frame(at elapsed: TimeInterval) -> UIImage? {
@@ -62,10 +62,15 @@ private let wy_emojiAnimationCache: NSCache<NSString, WYChatEmojiAnimation> = {
 
 extension WYEmojiViewConfig {
 
+    var wy_defaultAnimationFrameDelay: TimeInterval {
+        defaultAnimationFrameDelay.isFinite && defaultAnimationFrameDelay > 0 ? defaultAnimationFrameDelay : 0.1
+    }
+
     func emojiAnimation(_ emojiName: String) -> WYChatEmojiAnimation? {
+        let defaultFrameDelay = wy_defaultAnimationFrameDelay
         for ext in ["gif", "webp", "png", "apng"] {
             guard let path = emojiFilePath(emojiName, ext: ext) else { continue }
-            let key = path as NSString
+            let key = "\(path)#\(defaultFrameDelay)" as NSString
             if let cached = wy_emojiAnimationCache.object(forKey: key) { return cached }
             guard let source = CGImageSourceCreateWithURL(URL(fileURLWithPath: path) as CFURL, nil) else { continue }
             let count = CGImageSourceGetCount(source)
@@ -89,7 +94,7 @@ extension WYEmojiViewConfig {
                 let properties = CGImageSourceCopyPropertiesAtIndex(source, index, nil) as? [CFString: Any]
                 let timing = properties?[dictionaryKey] as? [CFString: Any]
                 let delay = (timing?[unclampedKey] as? NSNumber ?? timing?[delayKey] as? NSNumber)?.doubleValue ?? 0
-                delays.append(delay.isFinite && delay > 0 ? delay : 0.1)
+                delays.append(delay.isFinite && delay > 0 ? delay : defaultFrameDelay)
                 frames.append(UIImage(cgImage: image))
                 cost += image.bytesPerRow * image.height
             }
@@ -191,8 +196,8 @@ extension WYChatEmojiView {
         collectionView.register(UICollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "UICollectionReusableView")
         collectionView.register(UICollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: "UICollectionReusableView")
         collectionView.isPagingEnabled = false
-        collectionView.showsVerticalScrollIndicator = false
-        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.showsVerticalScrollIndicator = emojiViewConfig.showsVerticalScrollIndicator
+        collectionView.showsHorizontalScrollIndicator = emojiViewConfig.showsHorizontalScrollIndicator
         collectionView.snp.makeConstraints { (make) in
             make.left.right.equalToSuperview()
             let top = self.emojiViewConfig.collectionViewTopOffset
@@ -390,28 +395,30 @@ extension WYChatEmojiView {
     }
 
     func wy_impl_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        guard (recentlyEmoji.isEmpty == false) && (self.emojiViewConfig.showRecently == true)  else {
-            return CGSize.zero
-        }
-        return CGSize(width: wy_width, height: (section < 2) ? self.emojiViewConfig.headerHeight : 0)
+        guard wy_emojiHeaderTitle(for: section) != nil else { return .zero }
+        return CGSize(width: wy_width, height: emojiViewConfig.headerHeight)
     }
 
     func wy_impl_collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
 
-        guard (recentlyEmoji.isEmpty == false) && (self.emojiViewConfig.showRecently == true)  else {
-            return collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "UICollectionReusableView", for: indexPath)
-        }
-
-        if (kind == UICollectionView.elementKindSectionHeader) && (indexPath.section < 2) {
+        if kind == UICollectionView.elementKindSectionHeader, let title = wy_emojiHeaderTitle(for: indexPath.section) {
             let headerView: WYEmojiHeaderView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "WYEmojiHeaderView", for: indexPath) as! WYEmojiHeaderView
             headerView.emojiViewConfig = emojiViewConfig
-            headerView.textView.font = emojiViewConfig.headerTextFont
-            headerView.textView.textColor = emojiViewConfig.headerTextColor
-            headerView.backgroundColor = emojiViewConfig.headerBackgroundColor
-            headerView.textView.text = [self.emojiViewConfig.recentlyHeaderText, self.emojiViewConfig.totalHeaderText][indexPath.section]
+            headerView.textView.text = title
             return headerView
         }
         return collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "UICollectionReusableView", for: indexPath)
+    }
+
+    private func wy_emojiHeaderTitle(for section: Int) -> String? {
+        if emojiViewConfig.showRecently && !recentlyEmoji.isEmpty {
+            switch section {
+            case 0: return emojiViewConfig.recentlyHeaderText
+            case 1: return emojiViewConfig.totalHeaderText
+            default: return nil
+            }
+        }
+        return section == 0 && emojiViewConfig.showsAllHeaderWithoutRecent ? emojiViewConfig.totalHeaderText : nil
     }
 
     func wy_impl_collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

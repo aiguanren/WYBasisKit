@@ -38,16 +38,11 @@ final class WYChatGradientRecordingView: UIView {
         layer.addSublayer(flow)
         layer.addSublayer(flowLight)
         pressGlow.type = .radial
-        pressGlow.startPoint = CGPoint(x: 0.5, y: 0.5)
-        pressGlow.endPoint = CGPoint(x: 1, y: 1)
-        pressGlow.locations = [0, 0.28, 0.55, 1]
         pressGlow.opacity = 0
         layer.addSublayer(pressGlow)
         for name in [UIApplication.didEnterBackgroundNotification, UIApplication.didBecomeActiveNotification, UIAccessibility.reduceMotionStatusDidChangeNotification] {
             observers.append(NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in self?.updateMotion() })
         }
-        hint.numberOfLines = 0
-        hint.textAlignment = .center
         hint.accessibilityIdentifier = "WYChatRecording.gradientHint"
         addSubview(hint)
         addSubview(waveform)
@@ -64,7 +59,7 @@ final class WYChatGradientRecordingView: UIView {
         let defaults = WYRecordAnimationConfig()
         let positions = configuration.gradientColorLocations
         let opacities = configuration.gradientColorOpacities
-        let valid = positions.count >= 2 && positions.count == opacities.count && positions.allSatisfy { $0.isFinite && $0 >= 0 && $0 <= 1 } && zip(positions, positions.dropFirst()).allSatisfy { $0.0 <= $0.1 } && opacities.allSatisfy { $0.isFinite && $0 >= 0 && $0 <= 1 }
+        let valid = Self.validStops(positions: positions, opacities: opacities)
         let gradientOpacities = valid ? opacities : defaults.gradientColorOpacities
         let colors = gradientOpacities.map { color.withAlphaComponent($0).cgColor }
         CATransaction.begin()
@@ -94,12 +89,20 @@ final class WYChatGradientRecordingView: UIView {
         }
         let pressColor = configuration.gradientPressColor
         let pressOpacity = opacity(configuration.gradientPressOpacity)
-        pressGlow.colors = [0.3, 0.45, 1, 0].map { pressColor.withAlphaComponent(pressOpacity * $0).cgColor }
+        let pressPositions = configuration.gradientPressLocations
+        let pressOpacities = configuration.gradientPressOpacities
+        let validPressStops = Self.validStops(positions: pressPositions, opacities: pressOpacities)
+        pressGlow.locations = (validPressStops ? pressPositions : defaults.gradientPressLocations).map { NSNumber(value: Double($0)) }
+        pressGlow.colors = (validPressStops ? pressOpacities : defaults.gradientPressOpacities).map { pressColor.withAlphaComponent(pressOpacity * $0).cgColor }
+        pressGlow.startPoint = Self.finitePoint(configuration.gradientPressStartPoint, fallback: defaults.gradientPressStartPoint)
+        pressGlow.endPoint = Self.finitePoint(configuration.gradientPressEndPoint, fallback: defaults.gradientPressEndPoint)
         pressGlow.opacity = configuration.gradientPressEnabled && touchPoint != nil ? 1 : 0
         CATransaction.commit()
         hint.font = configuration.gradientHintFont
+        hint.numberOfLines = max(0, configuration.gradientHintNumberOfLines)
+        hint.textAlignment = configuration.gradientHintTextAlignment
         hint.textColor = cancelled ? configuration.gradientCancelHintColor : configuration.gradientHintColor
-        hint.text = cancelled ? configuration.gradientCancelHint : configuration.gradientRecordingHint.isEmpty ? (mode == .dictation ? configuration.dictationReleaseText : configuration.recordViewTips.onInterior) + " · ↑ " + WYLocalized("取消", table: WYBasisKitConfig.kitLocalizableTable) : configuration.gradientRecordingHint
+        hint.text = cancelled ? configuration.gradientCancelHint : configuration.gradientRecordingHint.isEmpty ? (mode == .dictation ? configuration.dictationReleaseText : configuration.recordViewTips.onInterior) + configuration.gradientCancelInstruction : configuration.gradientRecordingHint
         waveform.config = configuration.gradientWaveform
         if cancelled { waveform.config.wavesColor = configuration.gradientCancelWaveformColor }
         accessibilityValue = cancelled ? "cancel" : "recording"
@@ -131,7 +134,7 @@ final class WYChatGradientRecordingView: UIView {
             pressGlow.add(movement, forKey: "following")
         } else if first {
             let entrance = CABasicAnimation(keyPath: "transform.scale")
-            entrance.fromValue = 0.85
+            entrance.fromValue = wy_chatNonnegative(configuration.gradientPressEntranceScale)
             entrance.toValue = 1
             entrance.duration = duration
             pressGlow.add(entrance, forKey: "press")
@@ -168,6 +171,17 @@ final class WYChatGradientRecordingView: UIView {
         return (min(1, max(0, red)), min(1, max(0, green)), min(1, max(0, blue)))
     }
 
+    private static func validStops(positions: [CGFloat], opacities: [CGFloat]) -> Bool {
+        positions.count >= 2 && positions.count == opacities.count
+            && positions.allSatisfy { (0...1).contains($0) }
+            && zip(positions, positions.dropFirst()).allSatisfy { $0.0 <= $0.1 }
+            && opacities.allSatisfy { (0...1).contains($0) }
+    }
+
+    private static func finitePoint(_ point: CGPoint, fallback: CGPoint) -> CGPoint {
+        point.x.isFinite && point.y.isFinite ? point : fallback
+    }
+
     private static func gradientRamp(positions: [CGFloat], opacities: [CGFloat]) -> [CGFloat] {
         var stop = 0
         return (0...255).map { index in
@@ -192,10 +206,14 @@ final class WYChatGradientRecordingView: UIView {
             && radialWidth.isFinite && radialWidth > 0 && radialHeight.isFinite && radialHeight > 0
             && !gradientStops.isEmpty
         if active {
-            guard motionLink == nil else { return }
+            let framesPerSecond = min(120, max(1, config.gradientMotionFramesPerSecond))
+            if let motionLink {
+                if motionLink.preferredFramesPerSecond != framesPerSecond { motionLink.preferredFramesPerSecond = framesPerSecond }
+                return
+            }
             let target = WYChatGradientMotionTarget(view: self)
             let link = CADisplayLink(target: target, selector: #selector(WYChatGradientMotionTarget.tick(_:)))
-            link.preferredFramesPerSecond = 30
+            link.preferredFramesPerSecond = framesPerSecond
             link.add(to: .main, forMode: .common)
             motionLink = link
         } else {
@@ -217,26 +235,32 @@ final class WYChatGradientRecordingView: UIView {
         let start = motionStart ?? timestamp
         motionStart = start
         let config = configuration
-        let time = CGFloat((timestamp - start) / max(0.12, config.gradientMotionDuration))
-        let width = 56
-        let height = 48
-        let xAmplitude = min(0.14, opacity(config.gradientMotionAmplitude.width / glow.bounds.width))
-        let yAmplitude = min(0.14, opacity(config.gradientMotionAmplitude.height / glow.bounds.height))
-        let turbulence = min(0.5, opacity(config.gradientMotionScale))
+        let time = (timestamp - start) / max(0.12, config.gradientMotionDuration)
+        let phase = time.truncatingRemainder(dividingBy: 1)
+        if let mask = config.gradientMotionMaskProvider?(phase, glow.bounds.size)?.cgImage {
+            wy_setMotionImages(mask: mask, light: nil)
+            return
+        }
+        let width = Int(min(256, max(2, wy_chatNonnegative(config.gradientMotionRenderSize.width))))
+        let height = Int(min(256, max(2, wy_chatNonnegative(config.gradientMotionRenderSize.height))))
+        let maximumAmplitude = opacity(config.gradientMotionMaximumAmplitudeRatio)
+        let xAmplitude = min(maximumAmplitude, opacity(config.gradientMotionAmplitude.width / glow.bounds.width))
+        let yAmplitude = min(maximumAmplitude, opacity(config.gradientMotionAmplitude.height / glow.bounds.height))
+        let turbulence = min(opacity(config.gradientMotionMaximumTurbulence), opacity(config.gradientMotionScale))
         let highlightOpacity = opacity(config.gradientMotionHighlightOpacity)
         let shadowOpacity = opacity(config.gradientMotionShadowOpacity)
         let origin = glow.startPoint
         let radiusX = abs(glow.endPoint.x - origin.x)
         let radiusY = abs(glow.endPoint.y - origin.y)
-        let leftFlare = ShoulderFlare(time: time, rate: 2.55, phase: 0.18, direction: 1)
-        let rightFlare = ShoulderFlare(time: time, rate: 2.12, phase: 0.64, direction: -1)
+        let leftFlare = ShoulderFlare(time: CGFloat(time), rate: 2.55, phase: 0.18, direction: 1)
+        let rightFlare = ShoulderFlare(time: CGFloat(time), rate: 2.12, phase: 0.64, direction: -1)
         var maskPixels = [UInt8](repeating: 0, count: width * height * 2)
         var lightPixels = [UInt8](repeating: 0, count: width * height * 4)
 
         for row in 0..<height {
             let y = CGFloat(row) / CGFloat(height - 1)
             // 根部的摆幅小一些，同一阵起伏先经过底部，再向上延伸。
-            let phase = time + y * 0.62
+            let phase = CGFloat(time) + y * 0.62
             let edge = min(1, y * 7, (1 - y) * 3)
             let upper = Self.smoothStep((0.64 - y) / 0.30)
             let sway = (0.76 * sin(4.6 * phase) + 0.24 * sin(7.3 * phase + 0.8)) * (1 - y) * edge
@@ -279,13 +303,20 @@ final class WYChatGradientRecordingView: UIView {
             }
         }
 
+        wy_setMotionImages(
+            mask: Self.makeImage(maskPixels, width: width, height: height, space: CGColorSpaceCreateDeviceGray()),
+            light: Self.makeImage(lightPixels, width: width, height: height, space: CGColorSpaceCreateDeviceRGB())
+        )
+    }
+
+    private func wy_setMotionImages(mask: CGImage?, light: CGImage?) {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        flowMask.contents = Self.makeImage(maskPixels, width: width, height: height, space: CGColorSpaceCreateDeviceGray())
-        flowLight.contents = Self.makeImage(lightPixels, width: width, height: height, space: CGColorSpaceCreateDeviceRGB())
-        glow.isHidden = flowMask.contents != nil
-        flow.isHidden = glow.isHidden == false
-        flowLight.isHidden = flow.isHidden
+        flowMask.contents = mask
+        flowLight.contents = light
+        glow.isHidden = mask != nil
+        flow.isHidden = mask == nil
+        flowLight.isHidden = mask == nil || light == nil
         CATransaction.commit()
     }
 

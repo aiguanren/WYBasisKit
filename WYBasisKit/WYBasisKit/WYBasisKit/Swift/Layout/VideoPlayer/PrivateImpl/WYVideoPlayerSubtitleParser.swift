@@ -37,7 +37,7 @@ final class WYVideoPlayerSubtitleParser: NSObject {
     /// 当前解析出的外挂字幕条目
     private var cues: [WYVideoPlayerSubtitleCue] = []
 
-    /// 全部可选字幕轨(内嵌轨在条目装载后收集，外挂轨由宿主追加，首项恒为 关闭 占位由播放器拼)
+    /// 全部可选字幕轨(内嵌轨在条目装载后收集，外挂轨由接入方追加，首项恒为 关闭 占位由播放器拼)
     private(set) var tracks: [WYVideoPlayerSubtitleTrack] = []
 
     /// 当前轨下标(-1 关闭)

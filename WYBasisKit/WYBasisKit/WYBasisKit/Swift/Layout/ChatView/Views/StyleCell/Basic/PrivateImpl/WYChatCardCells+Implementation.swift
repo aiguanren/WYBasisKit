@@ -16,7 +16,7 @@ extension WYChatBasicCell {
             state.title.text = value.title
             state.detail.text = value.remarks
             state.footer.text = value.name
-            wy_showImage(value.cover, height: messageContentConfiguration.mediaSize.height / 2)
+            wy_showImage(value.cover, height: messageContentConfiguration.mediaSize.height * wy_chatNonnegative(messageContentConfiguration.webpageCoverHeightRatio))
         case .file:
             guard let value = message.content.file else { return }
             state.title.text = value.title.isEmpty ? value.name : value.title
@@ -32,7 +32,10 @@ extension WYChatBasicCell {
             guard let value = message.content.chatRecords else { return }
             wy_showMessageIcon("WYChatViewChatRecords")
             state.title.text = value.title
-            state.detail.text = value.messages.prefix(max(1, messageContentConfiguration.detailNumberOfLines)).map { $0.sender.name + ": " + $0.content.wy_summary }.joined(separator: "\n")
+            state.detail.text = value.messages.prefix(max(1, messageContentConfiguration.detailNumberOfLines)).map {
+                let summary = $0.content.wy_summary(provider: configuration.messageSummary, unsupportedText: configuration.unsupportedMessageText)
+                return $0.sender.name + configuration.records.summarySenderSeparator + summary
+            }.joined(separator: configuration.records.summaryLineSeparator)
             state.footer.text = value.remarks
         case .location:
             guard let value = message.content.location else { return }
@@ -51,12 +54,12 @@ extension WYChatBasicCell {
             let priority = isPacket ? value.remarks : value.amounts
             let secondary = isPacket ? value.amounts : value.remarks
             state.title.text = [priority, secondary, value.notes].first { !$0.isEmpty }
-            state.detail.text = [secondary, value.notes].filter { !$0.isEmpty && $0 != state.title.text }.joined(separator: " · ")
+            state.detail.text = [secondary, value.notes].filter { !$0.isEmpty && $0 != state.title.text }.joined(separator: messageContentConfiguration.detailsSeparator)
             switch value.state {
             case .unreceived: break
-            case .received: state.footer.text = WYLocalized("已领取", table: WYBasisKitConfig.kitLocalizableTable)
-            case .timeout: state.footer.text = WYLocalized("已过期", table: WYBasisKitConfig.kitLocalizableTable)
-            case .return: state.footer.text = WYLocalized("已退回", table: WYBasisKitConfig.kitLocalizableTable)
+            case .received: state.footer.text = messageContentConfiguration.fundsReceivedText
+            case .timeout: state.footer.text = messageContentConfiguration.fundsExpiredText
+            case .return: state.footer.text = messageContentConfiguration.fundsReturnedText
             }
             let iconName = isPacket ? "WYChatViewRedPacket" : "WYChatViewTransfer"
             let cover = value.smallCover
@@ -64,15 +67,17 @@ extension WYChatBasicCell {
             else { wy_showThumbnail(cover) }
             let style = messageContentConfiguration
             let accent = style.iconTintColor ?? WYChatDefaultResources.iconTint(for: iconName)
-            state.thumbnail.backgroundColor = style.fundsIconBackgroundColor ?? accent?.withAlphaComponent(value.state == .unreceived ? 0.14 : 0.07)
-            state.thumbnail.layer.cornerRadius = min(state.thumbnailSize[0].constant, state.thumbnailSize[1].constant) * 0.25
+            let opacity = value.state == .unreceived ? style.fundsAvailableIconBackgroundOpacity : style.fundsInactiveIconBackgroundOpacity
+            state.thumbnail.backgroundColor = style.fundsIconBackgroundColor ?? accent?.withAlphaComponent(min(1, wy_chatNonnegative(opacity)))
+            state.thumbnail.layer.cornerRadius = min(state.thumbnailSize[0].constant, state.thumbnailSize[1].constant) * min(0.5, wy_chatNonnegative(style.fundsIconCornerRadiusRatio))
         default: break
         }
     }
 }
 
 extension WYChatMessageContentModel {
-    var wy_summary: String {
+    func wy_summary(provider: ((WYChatMessageContentModel) -> String?)?, unsupportedText: String) -> String {
+        if let text = provider?(self) { return text }
         if let text { return text }
         if let value = voice { return value.voiceToText.isEmpty ? WYLocalized("[语音]", table: WYBasisKitConfig.kitLocalizableTable) : value.voiceToText }
         if let mediaGroup {
@@ -93,6 +98,6 @@ extension WYChatMessageContentModel {
         if withdrawn != nil { return WYLocalized("消息已撤回", table: WYBasisKitConfig.kitLocalizableTable) }
         if takePat != nil { return WYLocalized("拍一拍", table: WYBasisKitConfig.kitLocalizableTable) }
         if call != nil { return WYLocalized("通话记录", table: WYBasisKitConfig.kitLocalizableTable) }
-        return WYLocalized("不支持的消息类型", table: WYBasisKitConfig.kitLocalizableTable)
+        return unsupportedText
     }
 }

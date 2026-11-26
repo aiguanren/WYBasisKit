@@ -110,7 +110,7 @@ final class WYChatInputDictationSession {
         completion(error)
     }
 
-    private func failure() -> NSError { NSError(domain: String(describing: Self.self), code: 1, userInfo: [NSLocalizedDescriptionKey: WYLocalized("外部录音实现缺少必要方法", table: WYBasisKitConfig.kitLocalizableTable)]) }
+    private func failure() -> NSError { NSError(domain: String(describing: Self.self), code: 1, userInfo: [NSLocalizedDescriptionKey: configuration.missingRecorderText]) }
 
     deinit {
         if let observer { NotificationCenter.default.removeObserver(observer) }
@@ -134,13 +134,12 @@ extension WYChatInputView {
         placeholderGate.accessibilityIdentifier = "WYChatInput.placeholder"
         placeholderGate.addTarget(self, action: #selector(wy_focusTextInput), for: .touchUpInside)
         let press = UILongPressGestureRecognizer(target: self, action: #selector(placeholderRecordingLongPress(_:)))
-        press.minimumPressDuration = 0.35
-        press.allowableMovement = inputBarConfig.recordViewLongPressMaxOffset
+        press.minimumPressDuration = wy_chatNonnegative(inputBarConfig.placeholderLongPressDuration)
+        press.allowableMovement = wy_chatNonnegative(inputBarConfig.recordViewLongPressMaxOffset)
         placeholderGate.addGestureRecognizer(press)
         addSubview(placeholderGate)
         keyboardDictationButton.accessibilityIdentifier = "WYChatInput.dictation"
         keyboardDictationButton.addTarget(self, action: #selector(wy_toggleInputDictation), for: .touchUpInside)
-        keyboardDictationButton.imageView?.contentMode = .scaleAspectFit
         addSubview(keyboardDictationButton)
     }
 
@@ -171,7 +170,8 @@ extension WYChatInputView {
         keyboardDictationButton.frame = textVoiceContentView.convert(frame, to: self)
         keyboardDictationButton.tintColor = config.keyboardDictationTintColor
         keyboardDictationButton.setImage((isInputDictating ? config.keyboardDictationStopImage : config.keyboardDictationImage)?.withRenderingMode(config.rendersIconsAsTemplate ? .alwaysTemplate : .alwaysOriginal), for: .normal)
-        keyboardDictationButton.accessibilityLabel = WYLocalized(isInputDictating ? "完成" : "语音输入", table: WYBasisKitConfig.kitLocalizableTable)
+        keyboardDictationButton.imageView?.contentMode = config.dictationIconContentMode
+        keyboardDictationButton.accessibilityLabel = isInputDictating ? config.dictationDoneAccessibilityLabel : config.voiceAccessibilityLabel
         var textInsets = config.inputTextEdgeInsets
         textInsets.right += wy_dictationReservedWidth
         if textView.textContainerInset != textInsets { textView.textContainerInset = textInsets }

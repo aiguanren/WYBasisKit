@@ -20,6 +20,8 @@ final class WYChatViewPrivateState {
     var inputBottom: NSLayoutConstraint?
     var inputKeyboardLimit: NSLayoutConstraint?
     var ready = false
+    var listDefaultSeparatorColor: UIColor?
+    var listDefaultSeparatorInset = UIEdgeInsets.zero
     var preservingHistory = false
     var updatingMediaPage = false
     var keyboardIsPresented = false
@@ -44,6 +46,9 @@ final class WYChatViewPrivateState {
     var selectionAnchorID: String?
     var selectionHeight: NSLayoutConstraint?
     let selectionRangeButton = UIButton(type: .system)
+    weak var menuPress: UILongPressGestureRecognizer?
+    var newMessagesDefaultFont: UIFont?
+    var selectionRangeMinimumHeight: NSLayoutConstraint?
     var selectionRangeEdges: (top: NSLayoutConstraint, bottom: NSLayoutConstraint, leading: NSLayoutConstraint, trailing: NSLayoutConstraint)?
     var selectionRangeAnchorRow: Int?
     var selectionRangePrefersEarlier = false
@@ -182,13 +187,11 @@ extension WYChatView {
     func wy_setupChat() {
         state.ready = true
         _ = tableView
-        for button in [newMessagesButton] {
-            button.translatesAutoresizingMaskIntoConstraints = false
-            button.backgroundColor = .secondarySystemBackground
-            button.layer.cornerRadius = configuration.basic.avatarCornerRadius
-            addSubview(button)
-            button.isHidden = true
-        }
+        newMessagesButton.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(newMessagesButton)
+        newMessagesButton.isHidden = true
+        state.newMessagesDefaultFont = newMessagesButton.titleLabel?.font
+        wy_applyNewMessagesAppearance()
         quoteButton.accessibilityIdentifier = "WYChatView.quote"
         quotePreview.translatesAutoresizingMaskIntoConstraints = false
         quotePreview.isHidden = true
@@ -199,11 +202,7 @@ extension WYChatView {
         quotePreview.closeHandler = { [weak self] in self?.quoteMessage(nil) }
         quotePreview.tapHandler = { [weak self] in if let quote = self?.state.inputQuote { self?.wy_openReference(quote) } }
         newMessagesButton.accessibilityIdentifier = "WYChatView.newMessages"
-        newMessagesButton.setTitle(WYLocalized("新消息 ↓", table: WYBasisKitConfig.kitLocalizableTable), for: .normal)
         newMessagesButton.addTarget(self, action: #selector(wy_newMessagesTap), for: .touchUpInside)
-        NSLayoutConstraint.activate([
-            newMessagesButton.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -configuration.receiver.edgeInset)
-        ])
         wy_refreshInputAnchors()
         wy_refreshQuote()
         wy_setupSelectionToolbar()
@@ -254,10 +253,14 @@ extension WYChatView {
         value.manualScrollHandler = { [weak self] in self?.wy_cancelAutomaticScroll() }
         value.delegate = self
         value.dataSource = self
-        value.separatorStyle = .none
+        state.listDefaultSeparatorColor = value.separatorColor
+        state.listDefaultSeparatorInset = value.separatorInset
+        wy_applyListAppearance(value)
         let tap = value.wy_swipeOrTapCollapseKeyboard(target: self, action: #selector(wy_tableBackgroundTap(_:)), slideMode: configuration.keyboardDismissMode)
         tap.delegate = state.backgroundTapDelegate
         let menuPress = UILongPressGestureRecognizer(target: self, action: #selector(wy_showMessageMenu(_:)))
+        menuPress.minimumPressDuration = wy_chatNonnegative(configuration.menuLongPressDuration)
+        state.menuPress = menuPress
         state.backgroundTapDelegate.allowsMessageMenu = { [weak self] point in
             guard let self, let cell = self.wy_messageMenuCell(at: point, in: self.tableView) else { return false }
             return !self.wy_usesWholeCellMenu(cell)
@@ -266,7 +269,6 @@ extension WYChatView {
         value.addGestureRecognizer(menuPress)
         value.backgroundColor = configuration.backgroundColor
         value.rowHeight = UITableView.automaticDimension
-        value.estimatedRowHeight = configuration.basic.avatarSize.height + configuration.messageSpacing
         value.contentInsetAdjustmentBehavior = .never
         value.translatesAutoresizingMaskIntoConstraints = false
         addSubview(value)
@@ -319,9 +321,31 @@ extension WYChatView {
         NSLayoutConstraint.activate([value.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor), value.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor), value.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor), value.heightAnchor.constraint(equalToConstant: max(0, height))])
     }
 
+    private func wy_applyListAppearance(_ table: UITableView) {
+        table.contentInset = configuration.listContentInset
+        table.verticalScrollIndicatorInsets = configuration.listScrollIndicatorInsets
+        table.showsVerticalScrollIndicator = configuration.listShowsVerticalScrollIndicator
+        table.bounces = configuration.listBounces
+        table.separatorStyle = configuration.listSeparatorStyle
+        table.separatorColor = configuration.listSeparatorColor ?? state.listDefaultSeparatorColor
+        table.separatorInset = configuration.listSeparatorInset ?? state.listDefaultSeparatorInset
+        table.estimatedRowHeight = wy_chatNonnegative(configuration.basic.avatarSize.height) + wy_chatNonnegative(configuration.messageTopSpacing ?? configuration.messageSpacing / 2) + wy_chatNonnegative(configuration.messageBottomSpacing ?? configuration.messageSpacing / 2)
+    }
+
+    private func wy_applyNewMessagesAppearance() {
+        newMessagesButton.setTitle(configuration.newMessagesText, for: .normal)
+        newMessagesButton.setTitleColor(configuration.newMessagesButtonTextColor, for: .normal)
+        newMessagesButton.titleLabel?.font = configuration.newMessagesButtonFont ?? state.newMessagesDefaultFont
+        newMessagesButton.backgroundColor = configuration.newMessagesButtonBackgroundColor
+        newMessagesButton.layer.cornerRadius = wy_chatNonnegative(configuration.newMessagesButtonCornerRadius ?? configuration.basic.avatarCornerRadius)
+        if !configuration.showsNewMessagesButton { newMessagesButton.isHidden = true }
+    }
+
     func wy_applyConfiguration() {
         wy_closeMessageMenu()
         guard state.ready else { return }
+        wy_applyNewMessagesAppearance()
+        state.menuPress?.minimumPressDuration = wy_chatNonnegative(configuration.menuLongPressDuration)
         state.measuredHeights.removeAll()
         let text = chatInput.textView.attributedText
         inputViewResignFirstResponder()
@@ -342,6 +366,7 @@ extension WYChatView {
         state.more = nil
         backgroundColor = configuration.backgroundColor
         tableView.backgroundColor = configuration.backgroundColor
+        wy_applyListAppearance(tableView)
         tableView.keyboardDismissMode = configuration.keyboardDismissMode
         for type in configuration.customCellClasses { tableView.register(type, forCellReuseIdentifier: String(describing: type)) }
         wy_updateSelectionUI()
@@ -374,7 +399,8 @@ extension WYChatView {
             quoteVertical,
             quotePreview.leftAnchor.constraint(equalTo: previewLeft, constant: max(0, insets.left)),
             quotePreview.rightAnchor.constraint(equalTo: previewRight, constant: -max(0, insets.right)),
-            newMessagesButton.bottomAnchor.constraint(equalTo: composerTop, constant: -configuration.messageSpacing)
+            newMessagesButton.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -wy_chatNonnegative(configuration.newMessagesTrailingInset ?? configuration.receiver.edgeInset)),
+            newMessagesButton.bottomAnchor.constraint(equalTo: composerTop, constant: -wy_chatNonnegative(configuration.newMessagesBottomSpacing ?? configuration.messageSpacing))
         ]
         NSLayoutConstraint.activate(state.inputDependent)
     }
@@ -459,10 +485,10 @@ extension WYChatView {
         }
         wy_updateSelectionUI()
         guard !state.preservingHistory else { return }
-        if nearBottom { wy_scrollToBottom(false) } else { newMessagesButton.isHidden = dataSource.isEmpty }
+        if nearBottom { wy_scrollToBottom(false) } else { newMessagesButton.isHidden = dataSource.isEmpty || !configuration.showsNewMessagesButton }
     }
 
-    var wy_isNearBottom: Bool { tableView.contentSize.height - tableView.contentOffset.y - tableView.bounds.height <= configuration.bottomDistance }
+    var wy_isNearBottom: Bool { tableView.contentSize.height + tableView.adjustedContentInset.bottom - tableView.contentOffset.y - tableView.bounds.height <= configuration.bottomDistance }
 
     func wy_scrollToBottom(_ animated: Bool) {
         state.readingAnchor = nil
@@ -563,7 +589,7 @@ extension WYChatView {
             wy_setInputOffset(height, switchesInputSurface: panel == .emoji)
         } else if state.inputKeyboardLimit?.isActive == false {
             // 使用外接键盘时，系统可能不会发出键盘位置通知。
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
+            DispatchQueue.main.asyncAfter(deadline: .now() + wy_chatNonnegative(configuration.input.keyboardNotificationTimeout)) { [weak self] in
                 guard let self, self.touchStyle == .done, !self.state.keyboardIsPresented else { return }
                 self.wy_setInputOffset(0, switchesInputSurface: true)
             }

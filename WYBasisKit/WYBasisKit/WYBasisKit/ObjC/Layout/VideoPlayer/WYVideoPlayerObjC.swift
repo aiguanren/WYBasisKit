@@ -258,7 +258,7 @@ import WYBasisKitSwift
         set { isAudioOnly = newValue }
     }
 
-    /// 是否允许后台继续播放，宿主需声明 audio 后台模式，默认 false
+    /// 是否允许后台继续播放，接入应用需声明 audio 后台模式，默认 false
     @objc(isBackgroundPlaybackEnabled)
     var isBackgroundPlaybackEnabledObjC: Bool {
         get { return isBackgroundPlaybackEnabled }

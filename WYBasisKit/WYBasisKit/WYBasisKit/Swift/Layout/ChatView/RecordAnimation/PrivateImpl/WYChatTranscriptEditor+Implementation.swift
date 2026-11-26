@@ -17,7 +17,7 @@ final class WYChatTranscriptOverlay: UIView {
     }
 }
 
-/// 按钮区域与图标尺寸独立，保留宿主图片的宽高比。
+/// 按钮区域与图标尺寸独立，保留接入方提供的图片的宽高比。
 final class WYChatTranscriptIconButton: UIButton {
     var iconSize: CGFloat = 0
 
@@ -120,7 +120,7 @@ extension WYRecordAnimationView {
             button.removeTarget(nil, action: nil, for: .touchUpInside)
             button.titleLabel?.font = config.recognitionControlFont
             button.titleLabel?.adjustsFontSizeToFitWidth = true
-            button.titleLabel?.minimumScaleFactor = 0.7
+            button.titleLabel?.minimumScaleFactor = min(1, wy_chatNonnegative(config.recognitionControlMinimumScaleFactor))
             button.tintColor = config.recognitionControlColor
             button.setTitleColor(config.recognitionControlColor, for: .normal)
             button.backgroundColor = config.recognitionControlBackgroundColor
@@ -170,7 +170,7 @@ extension WYRecordAnimationView {
             view.contentMode = .scaleAspectFit
             view.translatesAutoresizingMaskIntoConstraints = false
             bubble.addSubview(view)
-            NSLayoutConstraint.activate([view.widthAnchor.constraint(equalToConstant: config.arrowSizeForMoveUp.transfer.width), view.heightAnchor.constraint(equalToConstant: config.arrowSizeForMoveUp.transfer.height), view.topAnchor.constraint(equalTo: bubble.bottomAnchor, constant: config.bubbleArrowImageOffset.y - 1), view.centerXAnchor.constraint(equalTo: bubble.centerXAnchor, constant: bubble.arrowOffset + config.bubbleArrowImageOffset.x)])
+            NSLayoutConstraint.activate([view.widthAnchor.constraint(equalToConstant: config.arrowSizeForMoveUp.transfer.width), view.heightAnchor.constraint(equalToConstant: config.arrowSizeForMoveUp.transfer.height), view.topAnchor.constraint(equalTo: bubble.bottomAnchor, constant: config.bubbleArrowImageOffset.y - wy_chatNonnegative(config.recognitionBubbleArrowOverlap)), view.centerXAnchor.constraint(equalTo: bubble.centerXAnchor, constant: bubble.arrowOffset + config.bubbleArrowImageOffset.x)])
         }
         bubble.translatesAutoresizingMaskIntoConstraints = false
         state.editText.translatesAutoresizingMaskIntoConstraints = false
@@ -197,7 +197,7 @@ extension WYRecordAnimationView {
         state.editorFailureLabel.font = config.recognitionFont
         state.editorFailureLabel.textColor = config.recognitionFailureColor
         state.editorFailureLabel.numberOfLines = 0
-        state.editorFailureLabel.textAlignment = .center
+        state.editorFailureLabel.textAlignment = config.recognitionFailureTextAlignment
         state.editorFailureLabel.accessibilityIdentifier = "WYChatRecording.failure"
         leadingSpace.widthAnchor.constraint(equalTo: trailingSpace.widthAnchor).isActive = true
         bubble.addSubview(failure)
@@ -380,7 +380,7 @@ extension WYRecordAnimationView {
         guard state.showsEditorEmoji else { return }
         let request = UUID()
         state.editorKeyboardRequest = request
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + wy_chatNonnegative(wy_captureConfiguration.recognitionKeyboardNotificationTimeout)) { [weak self] in
             guard let self, self.state.editorKeyboardRequest == request else { return }
             self.wy_setEditorEmojiVisible(false, keyboardOffset: 0)
         }
@@ -468,7 +468,7 @@ extension WYRecordAnimationView {
         let config = wy_captureConfiguration
         let showsKeyboard = state.showsEditorEmoji
         let image = showsKeyboard ? config.recognitionKeyboardImage : config.recognitionEmojiImage
-        let label = WYLocalized(showsKeyboard ? "键盘" : "表情", table: WYBasisKitConfig.kitLocalizableTable)
+        let label = showsKeyboard ? config.recognitionKeyboardText : config.recognitionEmojiText
         state.editorEmojiButton.setImage(image, for: .normal)
         state.editorEmojiButton.setTitle(image == nil ? label : nil, for: .normal)
         state.editorEmojiButton.accessibilityLabel = label
