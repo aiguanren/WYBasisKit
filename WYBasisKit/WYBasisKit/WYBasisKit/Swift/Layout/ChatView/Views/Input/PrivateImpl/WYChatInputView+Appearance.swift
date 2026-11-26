@@ -48,7 +48,7 @@ extension WYChatInputView {
         for button in [textVoiceView, emojiView, moreView] {
             button.configuration = nil
             button.tintColor = config.iconTintColor
-            (button as? WYChatInputIconButton)?.iconContentMode = config.iconContentMode
+            button.wy_imageLayout = .fillBounds(contentMode: config.iconContentMode)
             for state in [UIControl.State.normal, .selected, .highlighted, [.selected, .highlighted]] {
                 button.setBackgroundImage(nil, for: state)
                 button.setTitle(nil, for: state)
@@ -71,19 +71,8 @@ extension WYChatInputView {
     }
 }
 
-/// 输入切换图标按按钮配置尺寸显示
-class WYChatInputIconButton: UIButton {
-    var iconContentMode: UIView.ContentMode = .scaleAspectFit { didSet { setNeedsLayout() } }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        imageView?.frame = bounds
-        imageView?.contentMode = iconContentMode
-    }
-}
-
 /// 表情和键盘的图标与输入面板分别更新，按压及切换状态时立即替换已准备好的图片。
-final class WYChatEmojiToggleButton: WYChatInputIconButton {
+final class WYChatEmojiToggleButton: UIButton {
     override var isSelected: Bool {
         get { super.isSelected }
         set {

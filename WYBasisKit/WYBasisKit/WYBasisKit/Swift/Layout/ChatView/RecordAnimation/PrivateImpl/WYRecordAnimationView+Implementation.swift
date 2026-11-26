@@ -43,7 +43,7 @@ final class WYRecordAnimationViewPrivateState {
     let translationReadButton = UIButton(type: .system)
     let translationLanguageButton = UIButton(type: .system)
     let translationCancelButton = UIButton(type: .system)
-    let editorEmojiButton = WYChatTranscriptIconButton(type: .system)
+    let editorEmojiButton = UIButton(type: .system)
     let editorFailureLabel = UILabel()
     let editorFailureImage = UIImageView()
     var editorFailureView: UIStackView?
@@ -71,7 +71,7 @@ final class WYRecordAnimationViewPrivateState {
     let editText = UITextView()
     let sendButton = UIButton(type: .system)
     let retryButton = UIButton(type: .system)
-    let cancelButton = WYChatTranscriptIconButton(type: .system)
+    let cancelButton = UIButton(type: .system)
     var lastLayoutSize: CGSize = .zero
     var bottomLayer: CAShapeLayer?
     var bottomTitleView: UILabel?

@@ -17,27 +17,6 @@ final class WYChatTranscriptOverlay: UIView {
     }
 }
 
-/// 按钮区域与图标尺寸独立，保留接入方提供的图片的宽高比。
-final class WYChatTranscriptIconButton: UIButton {
-    var iconSize: CGFloat = 0
-
-    override func imageRect(forContentRect contentRect: CGRect) -> CGRect {
-        guard let image = currentImage, image.size.width > 0, image.size.height > 0, currentTitle?.isEmpty != false else {
-            return super.imageRect(forContentRect: contentRect)
-        }
-        let limit = max(0, min(iconSize, contentRect.width, contentRect.height))
-        let scale = limit / max(image.size.width, image.size.height)
-        let size = CGSize(width: image.size.width * scale, height: image.size.height * scale)
-        return CGRect(x: contentRect.midX - size.width / 2, y: contentRect.midY - size.height / 2, width: size.width, height: size.height)
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        guard currentImage != nil, currentTitle?.isEmpty != false else { return }
-        imageView?.frame = imageRect(forContentRect: contentRect(forBounds: bounds))
-    }
-}
-
 /// 转写编辑、语言切换与外部翻译
 extension WYRecordAnimationView {
     var wy_editorPlainText: String {
@@ -220,8 +199,7 @@ extension WYRecordAnimationView {
             button.backgroundColor = .clear
             button.tintColor = config.recognitionAccessoryColor
             button.setTitleColor(config.recognitionAccessoryColor, for: .normal)
-            button.iconSize = iconSize
-            button.imageView?.contentMode = .scaleAspectFit
+            button.wy_imageLayout = .centered(maximumSide: iconSize)
         }
         state.sendButton.setTitleColor(config.recognitionSendColor, for: .normal)
         state.sendButton.backgroundColor = config.recognitionSendBackgroundColor

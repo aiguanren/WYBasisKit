@@ -349,9 +349,9 @@ public class WYChatInputView: UIImageView {
     public let textVoiceContentView: UIButton = WYChatInputBackgroundButton(frame: .zero)
     public let textView: WYChatInputTextView = WYChatInputTextView()
     public let textPlaceholderView = UILabel()
-    public let textVoiceView: UIButton = WYChatInputIconButton(type: .custom)
+    public let textVoiceView: UIButton = UIButton(type: .custom)
     public let emojiView: UIButton = WYChatEmojiToggleButton(type: .custom)
-    public let moreView: UIButton = WYChatInputIconButton(type: .custom)
+    public let moreView: UIButton = UIButton(type: .custom)
     /// 表情解析配置
     public var emojiViewConfig: WYEmojiViewConfig = WYEmojiViewConfig()
     /// 录音配置

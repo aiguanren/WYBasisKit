@@ -555,11 +555,11 @@ extension WYChatInputView {
             textView.attributedText = sharedEmojiAttributed(string: UserDefaults.standard.value(forKey: inputBarConfig.draftStorageKey + canSaveLastInputTextKey) as? String ?? "")
             if (textView.attributedText.string.utf16.count > 0) && (textVoiceContentView.isSelected == true) {
                 updateSpecialSendState(hasText: true)
-                Task {
-                    // 需延时调用 becomeFirstResponder()，否则键盘弹出初期 trait 未稳定，会出现暗色 → 浅色的瞬间渲染切换（闪烁问题）
-                    let delay = wy_chatNonnegative(inputBarConfig.draftFocusDelay)
+                // 需延时调用 becomeFirstResponder()，否则键盘弹出初期 trait 未稳定，会出现暗色 → 浅色的瞬间渲染切换（闪烁问题）
+                let delay = wy_chatNonnegative(inputBarConfig.draftFocusDelay)
+                Task { @MainActor [weak self] in
                     guard delay < Double(Int64.max) / 1_000_000_000 else { return }
-                    try? await Task.wy_delay(delay) { [weak self] in
+                    try? await Task.wy_delay(delay) {
                         self?.textView.becomeFirstResponder()
                     }
                 }
