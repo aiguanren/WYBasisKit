@@ -511,7 +511,7 @@ public struct WYRecordAnimationConfig {
         }
     }()
     /// 转写失败图标，nil时仅显示提示文字
-    public var recognitionFailureImage: UIImage? = UIImage.wy_findIfPresent("WYChatViewRecognitionFailed", inBundle: WYChatSourceBundle)?.withRenderingMode(.alwaysOriginal)
+    public var recognitionFailureImage: UIImage? = WYChatSourceBundle.image(named: "WYChatViewRecognitionFailed")?.withRenderingMode(.alwaysOriginal)
     /// 转写失败提示色
     public var recognitionFailureColor: UIColor = .white
     /// 转写失败卡片底色
@@ -600,9 +600,9 @@ public struct WYRecordAnimationConfig {
     /// 转写编辑关闭图标，nil时只显示文字
     public var recognitionCloseImage: UIImage? = UIImage.wy_find("WYChatViewClose", inBundle: WYChatSourceBundle).withRenderingMode(.alwaysTemplate)
     /// 转写编辑表情图标
-    public var recognitionEmojiImage: UIImage? = UIImage.wy_findIfPresent("WYChatViewToggleEmoji", inBundle: WYChatSourceBundle)?.withRenderingMode(.alwaysTemplate)
+    public var recognitionEmojiImage: UIImage? = WYChatSourceBundle.image(named: "WYChatViewToggleEmoji")?.withRenderingMode(.alwaysTemplate)
     /// 转写编辑键盘图标
-    public var recognitionKeyboardImage: UIImage? = UIImage.wy_findIfPresent("WYChatViewTranscriptKeyboard", inBundle: WYChatSourceBundle)?.withRenderingMode(.alwaysTemplate)
+    public var recognitionKeyboardImage: UIImage? = WYChatSourceBundle.image(named: "WYChatViewTranscriptKeyboard")?.withRenderingMode(.alwaysTemplate)
     /// 转写编辑是否显示表情按钮，默认true
     public var showsRecognitionEmojiButton: Bool = true
     /// 转写编辑表情配置

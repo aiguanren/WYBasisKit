@@ -600,7 +600,7 @@ extension WYChatBasicCell {
         imageView.kf.setImage(with: nil as Source?, placeholder: placeholder)
         if let loader = configuration.imageLoader { loader(asset, imageView, message.messageID); return }
         if !asset.localPath.isEmpty, let image = UIImage(contentsOfFile: asset.localPath) { imageView.image = image; return }
-        if let image = UIImage.wy_findIfPresent(asset.name, inBundle: WYChatSourceBundle) { imageView.image = image; return }
+        if let image = WYChatSourceBundle.image(named: asset.name) { imageView.image = image; return }
         guard loadsRemoteImage, let url = URL(string: asset.downloadPath), ["https", "http"].contains(url.scheme?.lowercased() ?? "") else { return }
         if isPhoto && style.placeholderImage == nil && style.showsPlaceholderLoadingIndicator && !UIAccessibility.isReduceMotionEnabled {
             imageView.kf.indicatorType = .activity

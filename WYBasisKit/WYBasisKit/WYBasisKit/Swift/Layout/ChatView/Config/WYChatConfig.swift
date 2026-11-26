@@ -174,7 +174,7 @@ public struct WYChatContentConfig {
 /// 位置消息的地图预览外观
 public struct WYChatLocationConfig {
     /// 地图预览未就绪时显示的大头针，nil时仅显示底色
-    public var placeholderImage: UIImage? = UIImage.wy_findIfPresent("WYChatViewMapPin", inBundle: WYChatSourceBundle)
+    public var placeholderImage: UIImage? = WYChatSourceBundle.image(named: "WYChatViewMapPin")
     /// 大头针最长边的点数，0表示按预览区等比显示
     public var placeholderIconSize: CGFloat = UIDevice.wy_screenWidth(36, WYBasisKitConfig.defaultScreenPixels)
     /// 地图预览的占位底色

@@ -39,6 +39,36 @@ public struct WYSourceBundle {
         self.bundleName = bundleName
         self.subdirectory = subdirectory
     }
+
+    /// 查找资源包内的图片，缺失时返回 nil。
+    func image(named imageName: String) -> UIImage? {
+        guard !imageName.isEmpty else { return nil }
+
+        let searchBundles = [Bundle(for: targetClass ?? WYLocalizableClass.self), Bundle.main]
+        guard !bundleName.isEmpty else {
+            for searchBundle in searchBundles {
+                if let image = UIImage(named: imageName, in: searchBundle, compatibleWith: nil) {
+                    return image
+                }
+            }
+            return nil
+        }
+
+        let directory = subdirectory.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        let fullImageName = directory.isEmpty ? imageName : directory + "/" + imageName
+        for searchBundle in searchBundles {
+            guard let bundlePath = searchBundle.path(forResource: bundleName, ofType: "bundle"),
+                  let resourceBundle = Bundle(path: bundlePath) else { continue }
+            if let image = UIImage(named: fullImageName, in: resourceBundle, compatibleWith: nil) {
+                return image
+            }
+            if let filePath = resourceBundle.path(forResource: fullImageName, ofType: nil),
+               let image = UIImage(contentsOfFile: filePath) {
+                return image
+            }
+        }
+        return nil
+    }
 }
 
 public extension UIImage {
@@ -732,90 +762,39 @@ public extension UIImage {
     /**
      *  加载本地图片
      *
-     *  @param imageName             要加载的图片名
+     *  @param imageName    要加载的图片名
      *
-     *  @param bundle                从哪个bundle文件内查找，如果为空，则直接在本地路径下查找
+     *  @param bundle       资源包配置，默认为 nil，依次从 SDK 和 Main Bundle 查找
      *
-     *  @return 找到则返回对应图片，名称为空或找不到时返回随机颜色占位图(并打印日志)
+     *  @param placeholder  图片缺失时使用的占位图，默认为 nil，为nil时将展示随机颜色的图
+     *
+     *  @return 找到则返回对应图片，缺失时记录日志并返回自定义占位图，未提供占位图时返回随机颜色图片
      */
-    static func wy_find(_ imageName: String, inBundle bundle: WYSourceBundle? = nil) -> UIImage {
-        
-        func randomImage() -> UIImage {
-            let randomColor = UIColor(
-                red: CGFloat.random(in: 0...1),
-                green: CGFloat.random(in: 0...1),
-                blue: CGFloat.random(in: 0...1),
-                alpha: 1.0
-            )
-            return wy_createImage(from: randomColor)
-        }
-        
-        if let image = wy_findIfPresent(imageName, inBundle: bundle) { return image }
+    static func wy_find(_ imageName: String, inBundle bundle: WYSourceBundle? = nil, placeholder: UIImage? = nil) -> UIImage {
+        if let image = (bundle ?? WYSourceBundle()).image(named: imageName) { return image }
+
+        let fallbackDescription = placeholder == nil ? "随机颜色图片" : "自定义占位图"
         if imageName.isEmpty {
-            WYLogManager.output("imageName 为空，已返回随机颜色图片")
+            WYLogManager.output("imageName 为空，已返回\(fallbackDescription)")
         } else if let bundle, !bundle.bundleName.isEmpty {
             let subdirectory = bundle.subdirectory.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-            let pathDesc = subdirectory.isEmpty ? "" : "/\(bundle.subdirectory)"
-            WYLogManager.output("在 \(bundle.bundleName).bundle\(pathDesc) 中没有找到图片 \(imageName)，已返回随机颜色图片")
+            let pathDesc = subdirectory.isEmpty ? "" : "/\(subdirectory)"
+            WYLogManager.output("在 \(bundle.bundleName).bundle\(pathDesc) 中没有找到图片 \(imageName)，已返回\(fallbackDescription)")
         } else {
-            WYLogManager.output("未找到图片 \(imageName)（已尝试 SDK 与 Main Bundle），已返回随机颜色图片")
+            WYLogManager.output("未找到图片 \(imageName)（已尝试 SDK 与 Main Bundle），已返回\(fallbackDescription)")
         }
-        return randomImage()
+
+        if let placeholder { return placeholder }
+
+        let randomColor = UIColor(
+            red: CGFloat.random(in: 0...1),
+            green: CGFloat.random(in: 0...1),
+            blue: CGFloat.random(in: 0...1),
+            alpha: 1.0
+        )
+        return wy_createImage(from: randomColor)
     }
 
-    /// 加载本地图片，找不到时由调用方决定占位。
-    internal static func wy_findIfPresent(_ imageName: String, inBundle bundle: WYSourceBundle? = nil) -> UIImage? {
-        guard !imageName.isEmpty else { return nil }
-        
-        let searchBundles: [Bundle] = {
-            if let config = bundle, let targetClass = config.targetClass {
-                return [Bundle(for: targetClass), Bundle.main]
-            } else {
-                return [Bundle(for: WYLocalizableClass.self), Bundle.main]
-            }
-        }()
-        
-        // 指定了 bundleName → 从 xxx.bundle 中加载
-        if let config = bundle, !config.bundleName.isEmpty {
-            
-            let subDir = {
-                let dir = config.subdirectory.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-                return dir.isEmpty ? "" : dir + "/"
-            }()
-            
-            let fullImageName = subDir + imageName
-            
-            for searchBundle in searchBundles {
-                guard let bundlePath = searchBundle.path(forResource: config.bundleName, ofType: "bundle"),
-                      let resourceBundle = Bundle(path: bundlePath) else {
-                    continue
-                }
-                
-                // 当用户指定了 subdirectory 时，只尝试带路径的名称，优先使用 UIImage(named:)
-                if let image = UIImage(named: fullImageName, in: resourceBundle, compatibleWith: nil) {
-                    return image
-                }
-                
-                // 使用文件路径查找（对子目录散图支持最可靠）
-                if let filePath = resourceBundle.path(forResource: fullImageName, ofType: nil),
-                   let image = UIImage(contentsOfFile: filePath) {
-                    return image
-                }
-            }
-            
-            return nil
-        }
-        
-        // 未指定 bundleName → 正常从 .xcassets 或根目录加载
-        for searchBundle in searchBundles {
-            if let image = UIImage(named: imageName, in: searchBundle, compatibleWith: nil) {
-                return image
-            }
-        }
-        
-        return nil
-    }
-    
     /**
      *  解析 Gif、APNG 或 WebP 动图
      *

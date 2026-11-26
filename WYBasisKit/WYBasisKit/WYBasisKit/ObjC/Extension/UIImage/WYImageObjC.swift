@@ -460,7 +460,7 @@ import WYBasisKitSwift
      *
      *  @param imageName             要加载的图片名
      *
-     *  @param bundle                从哪个bundle文件内查找，如果为空，则直接在本地路径下查找
+     *  @param bundle       资源包配置，默认为 nil，依次从 SDK 和 Main Bundle 查找
      *
      *  @return 找到则返回对应图片，名称为空或找不到时返回随机颜色占位图(并打印日志)
      */
@@ -470,7 +470,23 @@ import WYBasisKitSwift
     }
     @objc(wy_find:bundle:)
     static func wy_findObjC(_ imageName: String, bundle: WYSourceBundleObjC? = nil) -> UIImage {
-        return wy_find(imageName, inBundle: bundle?.wy_convertToSwift())
+        return wy_findObjC(imageName, bundle: bundle, placeholder: nil)
+    }
+
+    /**
+     *  加载本地图片
+     *
+     *  @param imageName    要加载的图片名
+     *
+     *  @param bundle       资源包配置，默认为 nil，依次从 SDK 和 Main Bundle 查找
+     *
+     *  @param placeholder  图片缺失时使用的占位图，默认为 nil，为nil时将展示随机颜色的图
+     *
+     *  @return 找到则返回对应图片，缺失时记录日志并返回自定义占位图，未提供占位图时返回随机颜色图片
+     */
+    @objc(wy_find:bundle:placeholder:)
+    static func wy_findObjC(_ imageName: String, bundle: WYSourceBundleObjC?, placeholder: UIImage?) -> UIImage {
+        return wy_find(imageName, inBundle: bundle?.wy_convertToSwift(), placeholder: placeholder)
     }
     
     /**

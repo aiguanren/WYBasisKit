@@ -110,7 +110,7 @@ public struct WYChatMediaConfig {
         var value = WYPhotoBrowserConfiguration()
         value.allowsLoopScrolling = true
         value.stackedCardCyclesForward = true
-        value.appearance.playButtonIcon = UIImage.wy_findIfPresent("WYChatViewPlay", inBundle: WYChatSourceBundle)
+        value.appearance.playButtonIcon = WYChatSourceBundle.image(named: "WYChatViewPlay")
         return value
     }()
     public init() {}
