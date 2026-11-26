@@ -542,7 +542,8 @@ extension WYChatView {
 
     func wy_setPanel(_ panel: WYChatTouchStyle, dismissKeyboard: Bool = true) {
         let switchesFromKeyboard = panel != .done && chatInput.textView.isFirstResponder
-        if switchesFromKeyboard || panel == .emoji {
+        if panel == .more, touchStyle == .more, state.more?.isHidden == false, !switchesFromKeyboard { return }
+        if panel != .done {
             state.inputSurfaceAnimation?.cancel()
             state.inputSurfaceAnimation = nil
             // 键盘隐藏前先锁定输入栏当前的位置，避免两个布局来源先后改变列表高度。
@@ -552,33 +553,36 @@ extension WYChatView {
         }
         touchStyle = panel
         chatInput.emojiView.isSelected = panel == .emoji
+        chatInput.moreView.isSelected = panel == .more
         chatInput.wy_updateDictationControls()
         if panel != .done { state.inputKeyboardLimit?.isActive = false }
         if panel == .done, dismissKeyboard {
             chatInput.wy_stopInputDictation(cancel: true)
             endEditing(true)
         }
-        if panel == .emoji, let emoji = emojiView {
+        if panel != .emoji { state.emoji?.isHidden = true }
+        if panel != .more { state.more?.isHidden = true }
+        let visiblePanel: UIView? = panel == .emoji ? emojiView : panel == .more ? moreView : nil
+        if let visiblePanel {
             UIView.performWithoutAnimation {
                 self.layoutIfNeeded()
-                emoji.wy_refreshRecentlyEmoji()
-                if emoji.isHidden {
-                    emoji.wy_prepareFirstViewport()
+                let emoji = visiblePanel as? WYChatEmojiView
+                emoji?.wy_refreshRecentlyEmoji()
+                if visiblePanel.isHidden {
+                    emoji?.wy_prepareFirstViewport()
+                    visiblePanel.layoutIfNeeded()
                     let offset = self.chatInput.frame.maxY - self.safeAreaLayoutGuide.layoutFrame.maxY
-                    emoji.transform = CGAffineTransform(translationX: 0, y: max(0, emoji.bounds.height + offset))
-                    emoji.isHidden = false
+                    self.wy_positionInputPanel(visiblePanel, inputOffset: offset)
+                    visiblePanel.isHidden = false
                 }
             }
-        } else {
-            state.emoji?.isHidden = true
         }
-        if panel == .more { moreView?.isHidden = false } else { state.more?.isHidden = true }
         let height: CGFloat = panel == .emoji ? configuration.emoji.contentHeight : panel == .more ? configuration.more.contentHeight() : 0
         if switchesFromKeyboard {
             let input = chatInput
             layoutIfNeeded()
             input.textView.resignFirstResponder()
-            // 键盘退场会同步触发输入框的布局回调。等回调退出后再开始表情面板动画。
+            // 键盘退场会同步触发输入框的布局回调。等回调退出后再开始面板动画。
             DispatchQueue.main.async { [weak self, weak input] in
                 guard let self, let input, self.state.input === input, self.touchStyle == panel else { return }
                 self.wy_setInputOffset(height, switchesInputSurface: true)
@@ -586,7 +590,7 @@ extension WYChatView {
             return
         }
         if panel != .done || dismissKeyboard {
-            wy_setInputOffset(height, switchesInputSurface: panel == .emoji)
+            wy_setInputOffset(height, switchesInputSurface: panel != .done)
         } else if state.inputKeyboardLimit?.isActive == false {
             // 使用外接键盘时，系统可能不会发出键盘位置通知。
             DispatchQueue.main.asyncAfter(deadline: .now() + wy_chatNonnegative(configuration.input.keyboardNotificationTimeout)) { [weak self] in
@@ -638,7 +642,10 @@ extension WYChatView {
             UIView.performWithoutAnimation {
                 let offset = start + (target - start) * progress
                 self.state.inputBottom?.constant = offset
-                self.wy_positionEmojiPanel(inputOffset: offset)
+                if let panel = self.touchStyle == .emoji ? self.state.emoji as UIView? : self.state.more,
+                   self.touchStyle != .done, !panel.isHidden {
+                    self.wy_positionInputPanel(panel, inputOffset: offset)
+                }
                 messageTable.wy_performInternalUpdates {
                     self.layoutIfNeeded()
                     messageTable.layoutIfNeeded()
@@ -661,9 +668,8 @@ extension WYChatView {
         state.inputSurfaceAnimation = WYChatInputSurfaceAnimation(target: target, duration: duration, update: update, completion: completion)
     }
 
-    private func wy_positionEmojiPanel(inputOffset: CGFloat) {
-        guard touchStyle == .emoji, let emoji = state.emoji, !emoji.isHidden else { return }
-        emoji.transform = CGAffineTransform(translationX: 0, y: max(0, emoji.bounds.height + inputOffset))
+    private func wy_positionInputPanel(_ panel: UIView, inputOffset: CGFloat) {
+        panel.transform = CGAffineTransform(translationX: 0, y: max(0, panel.bounds.height + inputOffset))
     }
 
     @objc func wy_finishKeyboardLayout() {

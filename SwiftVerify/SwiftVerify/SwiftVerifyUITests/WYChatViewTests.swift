@@ -76,6 +76,41 @@ final class WYChatViewTests: XCTestCase {
         add(screenshot)
     }
 
+    func testMorePanelOpensWithoutShowingKeyboard() {
+        let app = openChat()
+        let more = app.buttons["WYChatInput.more"]
+        let panel = app.collectionViews["WYChatMore.items"]
+        let photo = panel.staticTexts["照片"]
+        let keyboard = app.keyboards.firstMatch
+
+        more.tap()
+        XCTAssertTrue(photo.waitForExistence(timeout: 5))
+        XCTAssertTrue(photo.isHittable)
+        XCTAssertEqual(panel.frame.minX, app.frame.minX, accuracy: 1)
+        XCTAssertGreaterThanOrEqual(panel.frame.minY, more.frame.maxY)
+        XCTAssertFalse(keyboard.exists)
+
+        more.tap()
+        XCTAssertTrue(photo.isHittable)
+        XCTAssertFalse(keyboard.exists)
+
+        tapChatInput(in: app)
+        XCTAssertTrue(keyboard.waitForExistence(timeout: 5))
+        more.tap()
+        XCTAssertTrue(keyboard.waitForNonExistence(timeout: 5))
+        XCTAssertTrue(photo.waitForExistence(timeout: 5))
+        XCTAssertTrue(photo.isHittable)
+
+        app.buttons["WYChatInput.emoji"].tap()
+        let emoji = app.collectionViews["WYChatEmoji.items"]
+        XCTAssertTrue(emoji.waitForExistence(timeout: 5))
+        more.tap()
+        XCTAssertTrue(emoji.waitForNonExistence(timeout: 5))
+        XCTAssertTrue(photo.waitForExistence(timeout: 5))
+        XCTAssertTrue(photo.isHittable)
+        XCTAssertFalse(keyboard.exists)
+    }
+
     func testGestureScrollingFromFreshEntry() {
         let app = openChat()
         let table = app.tables.firstMatch
