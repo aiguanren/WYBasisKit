@@ -208,6 +208,9 @@ import WYBasisKitSwift
 
     /// 上传或下载进度，范围0到1
     public var transferProgress: Double = 0
+    /// 附件传输状态，默认由原有传输字段决定
+    public var transferState: WYChatTransferState = .automatic
+    public var sendStartedAt: Date?
 
     /// 上传或下载失败提示，空字符串表示没有错误
     public var transferError: String = ""
@@ -278,6 +281,8 @@ import WYBasisKitSwift
         self.index = value.index
         self.isTransferring = value.isTransferring
         self.transferProgress = value.transferProgress
+        self.transferState = value.transferState
+        self.sendStartedAt = value.sendStartedAt
         self.transferError = value.transferError
         super.init()
     }
@@ -288,6 +293,7 @@ import WYBasisKitSwift
         value.readers = readers
         value.readBackState = readBackState
         value.sendState = sendState
+        if let sendStartedAt { value.sendStartedAt = sendStartedAt }
         value.messageID = messageID
         value.sessionID = sessionID
         value.clientTimestamp = clientTimestamp
@@ -302,6 +308,7 @@ import WYBasisKitSwift
         value.index = index
         value.isTransferring = isTransferring
         value.transferProgress = transferProgress
+        value.transferState = transferState
         value.transferError = transferError
         return value
     }

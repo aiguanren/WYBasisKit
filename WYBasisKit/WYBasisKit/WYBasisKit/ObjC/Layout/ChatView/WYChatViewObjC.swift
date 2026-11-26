@@ -35,6 +35,25 @@ public extension WYChatView {
     @objc(eventsHandler) var eventsHandlerObjC: WYChatViewEventsHandler? { get { eventsHandler } set { eventsHandler = newValue } }
     /// 消息操作，参数为聊天界面、操作和消息ID
     @objc(actionHandler) var actionHandlerObjC: ((_ chatView: WYChatView, _ action: WYChatAction, _ messageID: String) -> Void)? { get { actionHandler } set { actionHandler = newValue } }
+    /// 自定义消息详情，返回 YES 时接管内置预览
+    @objc(messageDetailHandler) var messageDetailHandlerObjC: ((_ message: WYChatMessageModelObjC) -> Bool)? {
+        get { messageDetailHandler.map { handler in { message in handler(message.toValue()) } } }
+        set { messageDetailHandler = newValue.map { handler in { message in handler(WYChatMessageModelObjC(message)) } } }
+    }
+    /// 自定义发送确认，回调 YES 后继续发送
+    @objc(sendConfirmationHandler) var sendConfirmationHandlerObjC: ((_ contents: [WYChatMessageContentModelObjC], _ completion: @escaping (Bool) -> Void) -> Void)? {
+        get { sendConfirmationHandler.map { handler in { contents, completion in handler(contents.map { $0.toValue() }, completion) } } }
+        set { sendConfirmationHandler = newValue.map { handler in { contents, completion in handler(contents.map(WYChatMessageContentModelObjC.init), completion) } } }
+    }
+    /// 自定义多选转发弹窗，回调枚举的 NSNumber 或 nil
+    @objc(forwardOptionsHandler) var forwardOptionsHandlerObjC: ((_ modes: [NSNumber], _ messageIDs: [String], _ source: UIView, _ completion: @escaping (NSNumber?) -> Void) -> Void)? {
+        get { forwardOptionsHandler.map { handler in { modes, ids, source, completion in
+            handler(modes.compactMap { WYChatForwardMode(rawValue: $0.intValue) }, ids, source) { completion($0.map { NSNumber(value: $0.rawValue) }) }
+        } } }
+        set { forwardOptionsHandler = newValue.map { handler in { modes, ids, source, completion in
+            handler(modes.map { NSNumber(value: $0.rawValue) }, ids, source) { completion($0.flatMap { WYChatForwardMode(rawValue: $0.intValue) }) }
+        } } }
+    }
     /// 多选操作，参数为操作和按消息顺序排列的消息ID
     @objc(selectionActionHandler) var selectionActionHandlerObjC: ((_ action: WYChatAction, _ messageIDs: [String]) -> Void)? { get { selectionActionHandler } set { selectionActionHandler = newValue } }
     /// 多选工具条
@@ -68,6 +87,15 @@ public extension WYChatView {
     @objc(openAlbumHandler) var openAlbumHandlerObjC: (() -> Void)? { get { openAlbumHandler } set { openAlbumHandler = newValue } }
     /// 媒体操作，参数为操作、消息ID和媒体下标
     @objc(mediaActionHandler) var mediaActionHandlerObjC: ((_ action: WYChatMediaAction, _ messageID: String, _ index: Int) -> Void)? { get { mediaActionHandler } set { mediaActionHandler = newValue } }
+    @objc(mediaTransferActionHandler) var mediaTransferActionHandlerObjC: ((_ action: WYChatAction, _ messageID: String, _ itemID: String) -> Void)? {
+        get { mediaTransferActionHandler }
+        set { mediaTransferActionHandler = newValue }
+    }
+    @objc(updateMediaTransfer) var updateMediaTransferObjC: @convention(block) (_ messageID: String, _ itemID: String, _ phase: WYChatTransferState, _ progress: NSNumber?, _ error: String) -> Bool {
+        { [self] messageID, itemID, phase, progress, error in
+            updateMediaTransfer(messageID: messageID, itemID: itemID, state: phase, progress: progress?.doubleValue, error: error)
+        }
+    }
     /// 接入方接管媒体预览，参数为媒体列表、初始下标和来源视图
     @objc(mediaPreviewHandler) var mediaPreviewHandlerObjC: ((_ items: [WYChatMediaItemObjC], _ index: Int, _ sourceView: UIView?) -> Void)? {
         get { mediaPreviewHandler.map { handler in { items, index, source in handler(items.map { $0.toValue() }, index, source) } } }
@@ -77,6 +105,26 @@ public extension WYChatView {
     @objc(requestAlbum) var requestAlbumObjC: @convention(block) () -> WYChatView { { [self] in self.requestAlbum(); return self } }
     /// 组装选中的图片和视频并按配置加入列表，参数为接入方选择的媒体
     @objc(sendMedia) var sendMediaObjC: @convention(block) (_ items: [WYChatMediaItemObjC]) -> [WYChatMessageModelObjC] { { [self] items in self.sendMedia(items.map { $0.toValue() }).map(WYChatMessageModelObjC.init) } }
+
+    /// 组装选中的媒体，本次发送使用指定的展示方式
+    @objc(sendMediaWithPresentation) var sendMediaWithPresentationObjC: @convention(block) (_ items: [WYChatMediaItemObjC], _ presentation: WYChatMediaPresentation) -> [WYChatMessageModelObjC] {
+        { [self] items, presentation in sendMedia(items.map { $0.toValue() }, presentation: presentation).map(WYChatMessageModelObjC.init) }
+    }
+    /// 转发请求，交付已经组装的待发送消息
+    @objc(preparedForwardHandler) var preparedForwardHandlerObjC: ((_ mode: WYChatForwardMode, _ messages: [WYChatMessageModelObjC]) -> Void)? {
+        get { preparedForwardHandler.map { handler in { mode, messages in handler(mode, messages.map { $0.toValue() }) } } }
+        set { preparedForwardHandler = newValue.map { handler in { mode, messages in handler(mode, messages.map(WYChatMessageModelObjC.init)) } } }
+    }
+    /// 当前聊天控件中的收藏快照
+    @objc(favoriteMessages) var favoriteMessagesObjC: [WYChatMessageModelObjC] { favoriteMessages.map(WYChatMessageModelObjC.init) }
+    /// 收藏或取消收藏消息，参数为收藏状态及消息ID
+    @objc(setMessageFavorited) var setMessageFavoritedObjC: @convention(block) (_ isFavorited: Bool, _ messageID: String) -> Bool {
+        { [self] favorited, identifier in setMessageFavorited(favorited, messageID: identifier) }
+    }
+    /// 移除消息，返回按列表顺序排列的已移除消息
+    @objc(removeMessages) var removeMessagesObjC: @convention(block) (_ messageIDs: [String]) -> [WYChatMessageModelObjC] {
+        { [self] identifiers in removeMessages(identifiers).map(WYChatMessageModelObjC.init) }
+    }
 
     /// 组装录音消息并按配置加入列表，参数为本地文件、时长和消息ID，文件或时长无效时返回nil
     @objc(sendVoiceRecording) var sendVoiceRecordingObjC: @convention(block) (_ url: URL, _ duration: TimeInterval, _ messageID: String) -> WYChatMessageModelObjC? { { [self] url, duration, identifier in self.sendVoiceRecording(url, duration: duration, messageID: identifier).map(WYChatMessageModelObjC.init) } }
@@ -106,6 +154,22 @@ public extension WYChatView {
     @objc(selectedMessageIDs) var selectedMessageIDsObjC: [String] { selectedMessageIDs.sorted() }
     /// 当前输入面板
     @objc(touchStyle) var touchStyleObjC: WYChatTouchStyle { touchStyle }
+    /// 组装任意类型的待发送消息
+    @objc(sendContent) var sendContentObjC: @convention(block) (_ content: WYChatMessageContentModelObjC, _ messageID: String) -> WYChatMessageModelObjC {
+        { [self] content, id in WYChatMessageModelObjC(sendContent(content.toValue(), messageID: id)) }
+    }
+    /// 请求接入方确认发送
+    @objc(confirmSending) var confirmSendingObjC: @convention(block) (_ contents: [WYChatMessageContentModelObjC], _ send: @escaping () -> Void) -> Void {
+        { [self] contents, send in confirmSending(contents.map { $0.toValue() }, send: send) }
+    }
+    /// 更新附件的上传或下载状态，progress 为 nil 时保留现有进度
+    @objc(updateTransfer) var updateTransferObjC: @convention(block) (_ messageID: String, _ state: WYChatTransferState, _ progress: NSNumber?, _ error: String) -> Bool {
+        { [self] id, state, progress, error in updateTransfer(messageID: id, state: state, progress: progress?.doubleValue, error: error) }
+    }
+    /// 确认收款并按需追加回执，actorName 为 nil 时只更新卡片
+    @objc(markFundsReceived) var markFundsReceivedObjC: @convention(block) (_ messageID: String, _ actorName: String?) -> Bool {
+        { [self] id, actor in markFundsReceived(id, actorName: actor) }
+    }
     /// 追加消息，参数为消息数组
     @objc(appendMessages) var appendMessagesObjC: @convention(block) (_ messages: [WYChatMessageModelObjC]) -> WYChatView {
         { [self] messages in self.appendMessages(messages.map { $0.toValue() }); return self }

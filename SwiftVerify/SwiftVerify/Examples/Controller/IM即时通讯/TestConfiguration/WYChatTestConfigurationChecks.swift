@@ -54,6 +54,14 @@ enum WYChatTestConfigurationChecks {
                 check("configuration-clear-default-" + field.path, field.read(config) == original)
             }
         }
+        if let albumLimit = fields.first(where: { $0.path == "media.albumSelectionLimit" }) {
+            check("album-selection-limit-default", defaults.media.albumSelectionLimit == 9)
+            for limit in [1, 3, 0] {
+                var config = defaults
+                let didApply = albumLimit.apply?(&config, String(limit)) == true
+                check("album-selection-limit-\(limit)", didApply && config.media.albumSelectionLimit == limit)
+            }
+        }
         let content = fields.filter { $0.path.hasPrefix("content.") && $0.apply != nil }
         for style in WYChatMessageStyle.allCases {
             for field in content {
@@ -141,11 +149,16 @@ enum WYChatTestConfigurationChecks {
         let packet = WYChatLuckyMoneyCell(style: .default, reuseIdentifier: nil)
         let packetMessage = WYChatMessageModel(messageID: "packet-tint", content: WYChatMessageContentModel(luckyMoney: WYChatLuckyMoneyModel(amounts: "8.00")))
         packet.update(message: packetMessage, configuration: defaults, userID: "self")
-        check("configuration-default-packet-tint", packet.thumbnailImageView.image?.renderingMode == .alwaysTemplate && packet.thumbnailImageView.tintColor.isEqual(UIColor.systemRed))
+        check("configuration-default-packet-tint", packet.thumbnailImageView.image?.renderingMode == .alwaysTemplate && packet.thumbnailImageView.tintColor == defaults.content.fundsAvailableIconTintColor)
         var tinted = defaults
         tinted.content.iconTintColor = .systemPurple
         packet.update(message: packetMessage, configuration: tinted, userID: "self")
         check("configuration-card-tint-override", packet.thumbnailImageView.tintColor.isEqual(UIColor.systemPurple))
+        tinted.content.fundsIconTintColor = .systemMint
+        tinted.content.fundsIconSide = 41
+        packet.update(message: packetMessage, configuration: tinted, userID: "self")
+        check("configuration-funds-icon-custom-tint", packet.thumbnailImageView.tintColor == .systemMint)
+        tinted.content.fundsIconTintColor = nil
         tinted.content.iconTintColor = nil
         tinted.content.usesDefaultIconTint = false
         packet.update(message: packetMessage, configuration: tinted, userID: "self")

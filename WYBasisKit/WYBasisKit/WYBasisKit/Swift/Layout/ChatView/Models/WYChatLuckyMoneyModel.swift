@@ -84,3 +84,18 @@ public struct WYChatLuckyMoneyModel: Equatable {
         self.notes = notes
     }
 }
+
+/// 红包或转账的收款回执，发送方与接收方可分别生成回执消息
+public struct WYChatFundsReceiptModel: Equatable {
+    public var originalMessageID: String
+    public var isRedPacket: Bool
+    public var actorName: String
+    public var isOriginalSender: Bool
+
+    public init(originalMessageID: String = "", isRedPacket: Bool = false, actorName: String = "", isOriginalSender: Bool = false) {
+        self.originalMessageID = originalMessageID
+        self.isRedPacket = isRedPacket
+        self.actorName = actorName
+        self.isOriginalSender = isOriginalSender
+    }
+}

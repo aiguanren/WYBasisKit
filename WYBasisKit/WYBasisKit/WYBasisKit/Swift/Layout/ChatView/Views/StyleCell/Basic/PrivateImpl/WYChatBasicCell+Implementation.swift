@@ -141,6 +141,12 @@ final class WYChatBasicCellPrivateState {
     let detail = UILabel()
     let image = WYChatPlaceholderImageView()
     let footer = UILabel()
+    let fundsCaption = UILabel()
+    let inlineProgress = WYChatAttachmentProgressView()
+    let mediaProgress = WYChatAttachmentProgressView()
+    var inlineProgressHeight: NSLayoutConstraint?
+    var transferAction: WYChatAction?
+    var progressReveal: DispatchWorkItem?
     var imageHeight: NSLayoutConstraint?
     var preferredWidth: NSLayoutConstraint?
     var preferredContentWidth: CGFloat?
@@ -216,6 +222,19 @@ extension WYChatBasicCell {
         state.mediaToggleHeight?.isActive = false
         bodyView.addArrangedSubview(state.image)
         bodyView.addArrangedSubview(state.header)
+        bodyView.addArrangedSubview(state.fundsCaption)
+        bodyView.addArrangedSubview(state.inlineProgress)
+        state.fundsCaption.numberOfLines = 0
+        state.fundsCaption.isHidden = true
+        state.inlineProgress.isHidden = true
+        state.mediaProgress.isHidden = true
+        state.inlineProgressHeight = state.inlineProgress.heightAnchor.constraint(equalToConstant: 30)
+        state.inlineProgressHeight?.priority = UILayoutPriority(999)
+        state.inlineProgressHeight?.isActive = true
+        bubblesView.addSubview(state.mediaProgress)
+        for view in [state.inlineProgress, state.mediaProgress] {
+            view.button.addTarget(self, action: #selector(wy_attachmentProgressTapped), for: .touchUpInside)
+        }
         bodyView.addArrangedSubview(state.reeditButton)
         referenceView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(referenceView)
@@ -322,6 +341,7 @@ extension WYChatBasicCell {
         state.title.text = nil
         state.detail.text = nil
         state.footer.text = nil
+        state.fundsCaption.isHidden = true
         state.usesImage = false
         state.preferredContentWidth = nil
         state.image.imageCornerRadius = 0
@@ -348,12 +368,7 @@ extension WYChatBasicCell {
         state.title.setContentCompressionResistancePriority(state.voiceRateButton.isHidden ? .defaultHigh : UILayoutPriority(999), for: .horizontal)
         state.image.isHidden = !state.usesImage
         state.thumbnail.isHidden = !state.usesThumbnail
-        if message.isTransferring {
-            let progress = message.transferProgress.isFinite ? min(1, max(0, message.transferProgress)) : 0
-            state.footer.text = messageContentConfiguration.transferProgressFormatter?(progress) ?? String(format: "%.0f%%", progress * 100)
-        } else if !message.transferError.isEmpty {
-            state.footer.text = message.transferError
-        }
+        wy_renderAttachmentProgress()
         state.detail.isHidden = state.detail.text?.isEmpty ?? true
         state.footer.isHidden = state.footer.text?.isEmpty ?? true
         state.header.isHidden = state.title.isHidden && state.detail.isHidden && state.footer.isHidden && state.thumbnail.isHidden
@@ -363,7 +378,6 @@ extension WYChatBasicCell {
         loadingView.isUserInteractionEnabled = message.sendState == .failed
         activityView.color = basic.messageSendingColor
         loadingView.isHidden = !sender || (message.sendState != .failed && message.sendState != .notSent) || wy_isNotice
-        if sender && message.sendState == .sending && !wy_isNotice { activityView.startAnimating() } else { activityView.stopAnimating() }
         readMarkView.isHidden = !sender || !basic.showReadMark || message.sendState != .success || wy_isNotice
         readMarkView.text = basic.readMarkFormatter?(message) ?? ((Double(message.readers) ?? 0) > 0 ? basic.readText : basic.unreadText)
         readMarkView.font = basic.readMarkFont
@@ -372,7 +386,7 @@ extension WYChatBasicCell {
         setNeedsLayout()
     }
 
-    var wy_isNotice: Bool { message.content.style() == .withdrawn || message.content.style() == .takePat }
+    var wy_isNotice: Bool { message.content.style() == .withdrawn || message.content.style() == .takePat || message.content.style() == .fundsReceipt }
 
     var wy_selectionIndicatorWidth: CGFloat {
         guard wy_isSelectingMessages, configuration.selection.showsIndicator else { return 0 }
@@ -516,11 +530,21 @@ extension WYChatBasicCell {
         (bubblesView as? WYChatBubbleView)?.alignmentFromTop = alignsArrow ? max(0, avatarShift + avatarHeight / 2 - nicknameHeight - side.contentTopOffset) : nil
     }
 
+    func wy_moveThumbnailToTrailing() {
+        state.header.removeArrangedSubview(state.thumbnail)
+        state.header.addArrangedSubview(state.thumbnail)
+    }
+
     func wy_applyBubble(_ value: WYChatBubbleConfig) {
         let show = messageContentConfiguration.showsBubble && !wy_isNotice
-        let patColor = message.content.takePat != nil && messageContentConfiguration.showsBubble ? configuration.notice.patBackgroundColor : nil
+        let noticeColor: UIColor?
+        if messageContentConfiguration.showsBubble, message.content.fundsReceipt != nil { noticeColor = configuration.notice.fundsReceiptBackgroundColor }
+        else if messageContentConfiguration.showsBubble, message.content.takePat != nil { noticeColor = configuration.notice.patBackgroundColor }
+        else { noticeColor = nil }
+        let funds = message.content.luckyMoney ?? message.content.transfer
+        let fundsColor = funds.map { $0.state == .unreceived ? messageContentConfiguration.fundsAvailableBubbleColor : messageContentConfiguration.fundsInactiveBubbleColor } ?? nil
         let patRadius = configuration.notice.patCornerRadius
-        let radius = patColor != nil && patRadius.isFinite ? max(0, patRadius) : value.cornerRadius
+        let radius = noticeColor != nil && message.content.takePat != nil && patRadius.isFinite ? max(0, patRadius) : value.cornerRadius
         if let bubble = bubblesView as? WYChatBubbleView {
             bubble.configuredRadius = radius
             bubble.configuredArrow = value.arrowSize
@@ -535,9 +559,9 @@ extension WYChatBasicCell {
             bubble.arrowImageOffset = value.arrowImageOffset
             bubble.configuredShowsArrow = show && value.showsArrow && value.arrowImage == nil
         }
-        bubblesView.fillColor = show ? value.fillColor : patColor ?? .clear
+        bubblesView.fillColor = show ? fundsColor ?? value.fillColor : noticeColor ?? .clear
         bubblesView.cornerRadius = radius
-        bubblesView.cornersPosition = patColor == nil ? value.cornersPosition : .allCorners
+        bubblesView.cornersPosition = noticeColor == nil ? value.cornersPosition : .allCorners
         bubblesView.showsArrow = show && value.showsArrow
         bubblesView.arrowDirection = message.isSender(userID) ? .right : .left
         bubblesView.arrowSize = value.arrowSize
@@ -546,7 +570,7 @@ extension WYChatBasicCell {
         bubblesView.arrowTipRadius = value.arrowTipRadius
         bubblesView.borderColor = show ? value.borderColor : .clear
         bubblesView.borderWidth = show ? value.borderWidth : 0
-        bubblesView.gradientColors = show ? value.gradientColors : []
+        bubblesView.gradientColors = show && fundsColor == nil ? value.gradientColors : []
         bubblesView.gradientDirection = value.gradientDirection
         bubblesView.shadowColor = show ? value.shadowColor : nil
         bubblesView.shadowOffset = value.shadowOffset
@@ -598,8 +622,8 @@ extension WYChatBasicCell {
         }
         // 清除旧请求的占位和动画，避免复用时影响当前图片。
         imageView.kf.setImage(with: nil as Source?, placeholder: placeholder)
-        if let loader = configuration.imageLoader { loader(asset, imageView, message.messageID); return }
         if !asset.localPath.isEmpty, let image = UIImage(contentsOfFile: asset.localPath) { imageView.image = image; return }
+        if let loader = configuration.imageLoader { loader(asset, imageView, message.messageID); return }
         if let image = WYChatSourceBundle.image(named: asset.name) { imageView.image = image; return }
         guard loadsRemoteImage, let url = URL(string: asset.downloadPath), ["https", "http"].contains(url.scheme?.lowercased() ?? "") else { return }
         if isPhoto && style.placeholderImage == nil && style.showsPlaceholderLoadingIndicator && !UIAccessibility.isReduceMotionEnabled {
@@ -633,6 +657,9 @@ extension WYChatBasicCell {
 
     func wy_prepareForReuse() {
         state.mediaView.reset()
+        state.transferAction = nil
+        state.progressReveal?.cancel()
+        state.progressReveal = nil
         mediaActionHandler = nil
         avatarView.kf.cancelDownloadTask()
         state.image.kf.cancelDownloadTask()

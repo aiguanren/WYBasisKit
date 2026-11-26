@@ -226,6 +226,20 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
      *   @param index 该页下标
      *   @param configuration 浏览器行为与外观配置
      */
+    private var itemOverlay: UIView?
+    private var chromeHidden = false
+    var isInlineVideoPlaying = false { didSet { updatePlayButtonVisibility() } }
+
+    func setItemOverlay(_ overlay: UIView?) {
+        itemOverlay?.removeFromSuperview()
+        itemOverlay = overlay
+        updatePlayButtonVisibility()
+        guard let overlay else { return }
+        overlay.frame = contentView.bounds
+        overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        contentView.addSubview(overlay)
+    }
+
     func configure(item: WYPhotoBrowserItem, index: Int, configuration: WYPhotoBrowserConfiguration) {
         accessibilityIdentifier = "WYPhotoBrowser.item.\(index)"
         configureGeneration += 1
@@ -255,7 +269,8 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
         retryButton.isHidden = true
         progressContainerView.isHidden = true
         originalButton.isHidden = true
-        playButton.isHidden = item.mediaType != .video
+        chromeHidden = false
+        isInlineVideoPlaying = false
 
         applyAppearance()
 
@@ -318,7 +333,7 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
 
         let iconSize = UIDevice.wy_screenWidth(28, WYBasisKitConfig.defaultScreenPixels)
         let playIcon = appearance.playButtonIcon ?? UIImage(systemName: "play.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.wy_fontSize(24, WYBasisKitConfig.defaultScreenPixels), weight: .medium))
-        let sizedIcon = scaleIconIfNeeded(playIcon, maxSize: iconSize)
+        let sizedIcon = playIcon?.isSymbolImage == true ? playIcon : scaleIconIfNeeded(playIcon, maxSize: iconSize)
         let tintedIcon = playIcon?.renderingMode == .alwaysOriginal ? sizedIcon : sizedIcon?.withTintColor(appearance.playButtonIconColor, renderingMode: .alwaysOriginal)
         playButton.setImage(tintedIcon, for: .normal)
         playButton.imageView?.contentMode = .center
@@ -355,11 +370,11 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
      */
     func scaleIconIfNeeded(_ icon: UIImage?, maxSize: CGFloat) -> UIImage? {
         guard let icon = icon else { return nil }
-        let longest = max(icon.size.width, icon.size.height) / icon.scale
+        let longest = max(icon.size.width, icon.size.height)
         guard longest > maxSize, longest > 0 else { return icon }
         let scale = maxSize / longest
         let format = UIGraphicsImageRendererFormat.default()
-        format.scale = icon.scale * scale
+        format.scale = max(icon.scale, traitCollection.displayScale)
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: icon.size.width * scale, height: icon.size.height * scale), format: format)
         return renderer.image { _ in
             icon.draw(in: CGRect(origin: .zero, size: CGSize(width: icon.size.width * scale, height: icon.size.height * scale)))
@@ -395,9 +410,14 @@ class WYPhotoBrowserPageCell: UICollectionViewCell, UIScrollViewDelegate, UIGest
 
     /// 页内覆盖层隐藏开关(拖拽与转场时淡出播放按钮、角标与按钮)
     func setChromeHidden(_ hidden: Bool) {
-        playButton.isHidden = hidden || item?.mediaType != .video
+        chromeHidden = hidden
+        updatePlayButtonVisibility()
         livePhotoBadge.isHidden = hidden || isLivePhotoReady == false
         originalButton.isHidden = hidden || originalButtonState == .hidden
+    }
+
+    private func updatePlayButtonVisibility() {
+        playButton.isHidden = chromeHidden || item?.mediaType != .video || itemOverlay != nil || isInlineVideoPlaying
     }
 
     /// 图片内容的屏幕位置(拖拽关闭动画的起点)

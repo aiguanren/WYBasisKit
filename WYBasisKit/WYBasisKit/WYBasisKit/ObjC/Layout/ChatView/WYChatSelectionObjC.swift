@@ -111,12 +111,30 @@ import WYBasisKitSwift
     public var tintColor: UIColor
     /// 删除操作颜色
     public var deleteColor: UIColor
+    /// 启用菜单和多选工具条的本地删除，默认关闭
+    public var automaticallyDeletesMessages: Bool
+    /// 启用菜单收藏，将消息快照保存在当前聊天控件中，默认关闭
+    public var automaticallyFavoritesMessages: Bool
     /// 是否显示删除按钮，默认true
     public var showsDeleteButton: Bool
     /// 是否显示转发按钮，默认true
     public var showsForwardButton: Bool
     /// 是否显示取消按钮，默认true
     public var showsCancelButton: Bool
+    /// 多选转发是否使用系统底部弹窗
+    public var usesForwardActionSheet: Bool
+    /// 多选转发弹窗标题，nil时使用转发按钮文案
+    public var forwardSheetTitle: String?
+    /// 多选转发弹窗说明，nil时隐藏
+    public var forwardSheetMessage: String?
+    /// 多选转发弹窗的取消文案
+    public var forwardSheetCancelTitle: String
+    /// 多选转发弹窗的按钮颜色，nil时使用系统颜色
+    public var forwardSheetTintColor: UIColor?
+    /// 逐条转发菜单图标
+    public var forwardIndividualImage: UIImage?
+    /// 合并转发菜单图标
+    public var forwardMergedImage: UIImage?
     /// 可用转发形式，空数组时禁用内置转发入口
     public var forwardModes: [NSNumber]
     /// 逐条转发菜单标题
@@ -162,9 +180,18 @@ import WYBasisKitSwift
         font = value.font
         tintColor = value.tintColor
         deleteColor = value.deleteColor
+        automaticallyDeletesMessages = value.automaticallyDeletesMessages
+        automaticallyFavoritesMessages = value.automaticallyFavoritesMessages
         showsDeleteButton = value.showsDeleteButton
         showsForwardButton = value.showsForwardButton
         showsCancelButton = value.showsCancelButton
+        self.usesForwardActionSheet = value.usesForwardActionSheet
+        self.forwardSheetTitle = value.forwardSheetTitle
+        self.forwardSheetMessage = value.forwardSheetMessage
+        self.forwardSheetCancelTitle = value.forwardSheetCancelTitle
+        self.forwardSheetTintColor = value.forwardSheetTintColor
+        self.forwardIndividualImage = value.forwardIndividualImage
+        self.forwardMergedImage = value.forwardMergedImage
         forwardModes = value.forwardModes.map { NSNumber(value: $0.rawValue) }
         individualTitle = value.individualTitle
         mergedTitle = value.mergedTitle
@@ -199,9 +226,18 @@ import WYBasisKitSwift
         value.font = font
         value.tintColor = tintColor
         value.deleteColor = deleteColor
+        value.automaticallyDeletesMessages = automaticallyDeletesMessages
+        value.automaticallyFavoritesMessages = automaticallyFavoritesMessages
         value.showsDeleteButton = showsDeleteButton
         value.showsForwardButton = showsForwardButton
         value.showsCancelButton = showsCancelButton
+        value.usesForwardActionSheet = usesForwardActionSheet
+        value.forwardSheetTitle = forwardSheetTitle
+        value.forwardSheetMessage = forwardSheetMessage
+        value.forwardSheetCancelTitle = forwardSheetCancelTitle
+        value.forwardSheetTintColor = forwardSheetTintColor
+        value.forwardIndividualImage = forwardIndividualImage
+        value.forwardMergedImage = forwardMergedImage
         value.forwardModes = forwardModes.compactMap { WYChatForwardMode(rawValue: $0.intValue) }
         value.individualTitle = individualTitle
         value.mergedTitle = mergedTitle

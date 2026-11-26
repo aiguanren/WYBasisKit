@@ -12,12 +12,20 @@ import Kingfisher
 final class WYChatMediaGroupView: UIView, WYPhotoBrowserDataSource, WYPhotoBrowserDelegate {
     var action: ((WYChatMediaAction, Int) -> Void)?
     var avatarAction: ((WYChatAvatarAction) -> Void)?
+    var transferAction: ((WYChatAction, String) -> Void)?
+    var transferTitle: ((WYChatAction) -> String?)?
+    private var transferProgressVisible = false
+    private var expandedProgress: [Int: UIView] = [:]
+    private var expandedVideoChrome: [Int: WYChatVideoOverlayView] = [:]
     private var avatarConfiguration = WYBasicChatConfig()
     private var avatarGestures: [Int: WYChatAvatarGestures] = [:]
     private var model = WYChatMediaGroupModel()
     private var configuration = WYChatMediaConfig()
     private var contentConfiguration = WYChatContentConfig()
     private var browser: WYPhotoBrowser?
+    private let inlinePlayback = WYChatInlineVideoPlayback()
+    private var embeddedPage: Int?
+    private var swipeAutoplayItemID: String?
     private var images: [Int: UIImageView] = [:]
     private var avatars: [Int: UIImageView] = [:]
     private var frames: [CGRect] = []
@@ -58,11 +66,14 @@ final class WYChatMediaGroupView: UIView, WYPhotoBrowserDataSource, WYPhotoBrows
                 if model.items[index].kind == .video {
                     let tint = contentConfiguration.iconTintColor ?? (configuration.tintsVideoPlayImage && contentConfiguration.usesDefaultIconTint ? configuration.videoPlayColor : nil)
                     let icon = contentConfiguration.iconImage ?? configuration.videoPlayImage
-                    let play = UIImageView(image: tint == nil ? icon : icon?.withRenderingMode(.alwaysTemplate))
-                    play.tintColor = tint
-                    play.contentMode = configuration.videoPlayContentMode
-                    play.frame.size = configuration.videoPlaySize
-                    image.addSubview(play)
+                    let chrome = WYChatVideoOverlayView()
+                    chrome.frame = image.bounds
+                    chrome.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+                    let seconds = Int(min(86_400, finite(model.items[index].duration)))
+                    let duration = configuration.durationFormatter?(Double(seconds)) ?? String(format: "%d:%02d", seconds / 60, seconds % 60)
+                    chrome.apply(configuration, icon: icon, tint: tint, font: contentConfiguration.detailFont, duration: duration)
+                    image.addSubview(chrome)
+                    expandedVideoChrome[index] = chrome
                 }
             }
         } else {
@@ -75,6 +86,19 @@ final class WYChatMediaGroupView: UIView, WYPhotoBrowserDataSource, WYPhotoBrows
             config.appearance.backgroundColor = configuration.embeddedBackgroundColor
             config.showsSaveAction = configuration.embeddedShowsSaveAction
             let controller = WYPhotoBrowser(configuration: config)
+            controller.itemDidSettleAfterSwipe = { [weak self] index in
+                guard let self, self.model.items.indices.contains(index) else { return }
+                self.swipeAutoplayItemID = self.model.items[index].id
+            }
+            controller.itemDidSettle = { [weak self] index in
+                guard let self else { return }
+                if !self.model.items.indices.contains(index) || self.model.items[index].id != self.swipeAutoplayItemID {
+                    self.swipeAutoplayItemID = nil
+                }
+                self.resumeEmbeddedPlayback()
+            }
+            controller.itemDidBeginDrag = { [weak self] in self?.stopEmbeddedPlayback() }
+            controller.itemOverlayProvider = { [weak self] index in self?.makeTransferOverlay(index) }
             controller.dataSource = self
             controller.browserDelegate = self
             browser = controller
@@ -96,7 +120,11 @@ final class WYChatMediaGroupView: UIView, WYPhotoBrowserDataSource, WYPhotoBrows
         if !model.isExpanded { return max(1, finite(configuration.cardSize.height)) }
         return model.items.indices.reduce(CGFloat.zero) { $0 + itemHeight($1, width: max(1, width)) } + CGFloat(max(0, model.items.count - 1)) * finite(configuration.expandedSpacing)
     }
-    override func didMoveToWindow() { super.didMoveToWindow(); if window == nil { detachBrowser() } else { attachBrowser() } }
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        if window == nil { stopEmbeddedPlayback(); detachBrowser() }
+        else { attachBrowser(); setNeedsLayout() }
+    }
     private func attachBrowser() {
         guard let browser, browser.parent == nil, window != nil else { return }
         var responder: UIResponder? = self
@@ -110,6 +138,7 @@ final class WYChatMediaGroupView: UIView, WYPhotoBrowserDataSource, WYPhotoBrows
         super.layoutSubviews()
         browser?.view.frame = bounds
         browser?.view.layoutIfNeeded()
+        resumeEmbeddedPlayback()
         guard model.isExpanded, !measuring else { return }
         if lastSize != bounds.size {
             lastSize = bounds.size
@@ -160,13 +189,85 @@ final class WYChatMediaGroupView: UIView, WYPhotoBrowserDataSource, WYPhotoBrows
         }
         loaded = wanted
     }
+    func setTransferProgressVisible(_ visible: Bool) {
+        guard transferProgressVisible != visible else { return }
+        transferProgressVisible = visible
+        refreshTransferOverlays()
+    }
+
+    func updateTransferItems(_ items: [WYChatMediaItem]) {
+        model.items = items
+        refreshTransferOverlays()
+        resumeEmbeddedPlayback()
+    }
+
+    private func refreshTransferOverlays() {
+        browser?.refreshItemOverlays()
+        for index in images.keys { updateExpandedTransferOverlay(index) }
+    }
+
+    private func updateExpandedTransferOverlay(_ index: Int) {
+        expandedProgress.removeValue(forKey: index)?.removeFromSuperview()
+        let progress = makeTransferOverlay(index)
+        expandedVideoChrome[index]?.setPlaySuppressed(progress != nil)
+        guard let image = images[index], let overlay = progress else { return }
+        overlay.frame = image.bounds
+        overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        image.addSubview(overlay)
+        expandedProgress[index] = overlay
+    }
+
+    private func makeTransferOverlay(_ index: Int) -> UIView? {
+        guard transferProgressVisible, contentConfiguration.transferShowsProgress, model.items.indices.contains(index) else { return nil }
+        let item = model.items[index]
+        guard item.transferState != .automatic, item.transferState != .completed else { return nil }
+        let overlay = WYChatAttachmentProgressView()
+        overlay.accessibilityIdentifier = "WYChatTransfer.mediaItem.\(index)"
+        let action = overlay.showPhase(item.transferState, progress: item.transferProgress, error: item.transferError, style: contentConfiguration,
+                                       overlaysMedia: true, sender: sender, title: transferTitle, mediaConfig: configuration)
+        if let action {
+            overlay.button.addAction(UIAction { [weak self] _ in self?.transferAction?(action, item.id) }, for: .touchUpInside)
+        }
+        return overlay
+    }
+
     func updatePage(_ index: Int) {
         guard model.items.indices.contains(index) else { return }
         model.visibleIndex = index
         if browser?.currentIndex != index { browser?.currentIndex = index }
     }
     func sourceView(at index: Int) -> UIView? { model.isExpanded ? images[index] : browser?.sourceView(at: index) }
+    func resumeEmbeddedPlayback() {
+        guard window != nil, let browser,
+              (browser.parent?.presentedViewController == nil || browser.parent?.presentedViewController?.isBeingDismissed == true),
+              browser.swipeStartIndex == nil, !browser.collectionView.isDragging, !browser.collectionView.isDecelerating else { return }
+        let index = browser.currentIndex
+        guard model.items.indices.contains(index) else { stopEmbeddedPlayback(); return }
+        let item = model.items[index]
+        let autoplay: Bool
+        switch configuration.foldedVideoAutoplayMode {
+        case .firstItem: autoplay = index == 0
+        case .onSwipe: autoplay = item.id == swipeAutoplayItemID
+        case .allVideos: autoplay = true
+        }
+        guard autoplay, let url = item.wy_videoURL,
+              item.transferState == .automatic || item.transferState == .completed,
+              let image = browser.sourceView(at: index) else { stopEmbeddedPlayback(); return }
+        if let previous = embeddedPage, previous != index { browser.setInlineVideoPlaying(false, at: previous) }
+        embeddedPage = index
+        inlinePlayback.play(url, in: image.layer, bounds: image.bounds, muted: configuration.automaticVideoStartsMuted, fillsCard: true)
+        browser.setInlineVideoPlaying(true, at: index)
+    }
+
+    func stopEmbeddedPlayback() {
+        if let embeddedPage { browser?.setInlineVideoPlaying(false, at: embeddedPage) }
+        embeddedPage = nil
+        inlinePlayback.stop()
+    }
+
     func reset() {
+        stopEmbeddedPlayback()
+        swipeAutoplayItemID = nil
         detachBrowser()
         browser?.view.removeFromSuperview()
         browser?.dataSource = nil
@@ -175,6 +276,9 @@ final class WYChatMediaGroupView: UIView, WYPhotoBrowserDataSource, WYPhotoBrows
         for image in images.values { image.kf.cancelDownloadTask(); image.removeFromSuperview() }
         for avatar in avatars.values { avatar.kf.cancelDownloadTask(); avatar.removeFromSuperview() }
         avatarGestures.removeAll()
+        expandedProgress.removeAll()
+        expandedVideoChrome.removeAll()
+        transferProgressVisible = false
         images.removeAll(); avatars.removeAll(); frames.removeAll(); loaded.removeAll(); lastSize = .zero
     }
     private func remoteURL(_ path: String) -> URL? {
@@ -182,8 +286,13 @@ final class WYChatMediaGroupView: UIView, WYPhotoBrowserDataSource, WYPhotoBrows
         return url
     }
     private func thumbnail(for item: WYChatMediaItem) -> WYChatAssetsModel {
-        let thumbnail = item.thumbnail
-        return thumbnail.localPath.isEmpty && thumbnail.downloadPath.isEmpty && thumbnail.name.isEmpty ? item.original : thumbnail
+        var thumbnail = item.thumbnail
+        guard item.kind == .photo else { return thumbnail }
+        if thumbnail.localPath.isEmpty && thumbnail.downloadPath.isEmpty && thumbnail.name.isEmpty { return item.original }
+        if !thumbnail.localPath.isEmpty && thumbnail.downloadPath.isEmpty && thumbnail.name.isEmpty {
+            thumbnail.downloadPath = item.original.downloadPath
+        }
+        return thumbnail
     }
     func numberOfItems(in photoBrowser: WYPhotoBrowser) -> Int { model.items.count }
     func photoBrowser(_ photoBrowser: WYPhotoBrowser, itemAt index: Int) -> Any {
@@ -221,6 +330,11 @@ extension WYChatBasicCell {
         let side = sender ? configuration.sender : configuration.receiver
         state.mediaView.configure(group, configuration: configuration.media, contentConfiguration: messageContentConfiguration, avatarConfiguration: configuration.basic, avatar: message.sender.avatar, avatarSize: side.showsAvatar ? configuration.basic.avatarSize : .zero, avatarSpacing: side.contentSpacing, sender: sender, measuring: state.isMeasuring) { [weak self] asset, image, isPhoto, loadsRemoteImage in
             self?.wy_loadImage(asset, into: image, isPhoto: isPhoto, loadsRemoteImage: loadsRemoteImage)
+        }
+        state.mediaView.transferTitle = configuration.actionTitle
+        state.mediaView.transferAction = { [weak self] action, id in
+            guard let self else { return }
+            self.mediaTransferHandler?(action, self.message.messageID, id)
         }
         state.mediaView.avatarAction = { [weak self] action in self?.wy_avatarAction(action) }
         let identifier = message.messageID

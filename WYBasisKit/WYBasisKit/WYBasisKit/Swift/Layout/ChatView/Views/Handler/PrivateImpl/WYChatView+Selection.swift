@@ -181,6 +181,10 @@ extension WYChatView {
     }
     func wy_makeForwardMessages(_ identifiers: [String], mode: WYChatForwardMode, title: String?) -> [WYChatMessageModel] {
         guard let sources = wy_selectedSources(identifiers) else { return [] }
+        return wy_makeForwardMessages(from: sources, mode: mode, title: title)
+    }
+
+    private func wy_makeForwardMessages(from sources: [WYChatMessageModel], mode: WYChatForwardMode, title: String?) -> [WYChatMessageModel] {
         let content: [WYChatMessageContentModel]
         if mode == .merged { content = [WYChatMessageContentModel(chatRecords: WYChatRecordsModel(title: title ?? configuration.selection.recordsTitle, messages: sources))] }
         else { content = sources.map(\.content) }
@@ -190,17 +194,87 @@ extension WYChatView {
             return result
         }
     }
-    func wy_forwardMenu(_ identifiers: [String]) -> UIMenu {
+    private var wy_forwardModes: [WYChatForwardMode] {
         var included = Set<Int>()
-        return UIMenu(children: configuration.selection.forwardModes.filter { included.insert($0.rawValue).inserted }.map { mode in
-            UIAction(title: mode == .merged ? configuration.selection.mergedTitle : configuration.selection.individualTitle) { [weak self] _ in
-                guard let self, let sources = self.wy_selectedSources(identifiers), let handler = self.forwardHandler else { return }
-                guard sources.allSatisfy({ self.eventsHandler?.wy_shouldPerformMessageAction?(self, action: .forward, messageID: $0.messageID) ?? true }) else { return }
-                handler(mode, sources)
-                self.isSelectingMessages = false
+        return configuration.selection.forwardModes.filter { included.insert($0.rawValue).inserted }
+    }
+
+    private func wy_forwardTitle(_ mode: WYChatForwardMode) -> String {
+        let style = configuration.selection
+        return mode == .merged ? style.mergedTitle : style.individualTitle
+    }
+
+    var wy_usesForwardMenu: Bool {
+        wy_hasForwardHandler && forwardOptionsHandler == nil && !configuration.selection.usesForwardActionSheet
+    }
+
+    func wy_forwardMenu(_ identifiers: [String]) -> UIMenu {
+        let style = configuration.selection
+        return UIMenu(children: wy_forwardModes.map { mode in
+            let image = mode == .merged ? style.forwardMergedImage : style.forwardIndividualImage
+            return UIAction(title: wy_forwardTitle(mode), image: image) { [weak self] _ in
+                self?.wy_dispatchForward(identifiers, mode: mode)
             }
         })
     }
+
+    func wy_presentForwardOptions() {
+        let identifiers = dataSource.map(\.messageID).filter { selectedMessageIDs.contains($0) }
+        let modes = wy_forwardModes
+        guard !identifiers.isEmpty, !modes.isEmpty else { return }
+        if let handler = forwardOptionsHandler {
+            var answered = false
+            handler(modes, identifiers, selectionForwardButton) { [weak self] mode in
+                let finish = {
+                    guard !answered else { return }
+                    answered = true
+                    if let mode, modes.contains(mode) { self?.wy_dispatchForward(identifiers, mode: mode) }
+                }
+                if Thread.isMainThread { finish() } else { DispatchQueue.main.async(execute: finish) }
+            }
+            return
+        }
+        var responder: UIResponder? = self
+        while let next = responder?.next {
+            if let presenter = next as? UIViewController {
+                guard presenter.presentedViewController == nil else { return }
+                let style = configuration.selection
+                let title = style.forwardSheetTitle ?? configuration.actionTitle?(.forward) ?? wy_actionTitle(.forward, configuration: configuration)
+                let alert = UIAlertController(title: title, message: style.forwardSheetMessage, preferredStyle: .actionSheet)
+                alert.view.tintColor = style.forwardSheetTintColor
+                for mode in modes {
+                    alert.addAction(UIAlertAction(title: wy_forwardTitle(mode), style: .default) { [weak self, weak alert] _ in
+                        let forward = { [weak self] in self?.wy_dispatchForward(identifiers, mode: mode) }
+                        if alert?.transitionCoordinator?.animate(alongsideTransition: nil, completion: { _ in forward() }) != true {
+                            DispatchQueue.main.async { forward() }
+                        }
+                    })
+                }
+                alert.addAction(UIAlertAction(title: style.forwardSheetCancelTitle, style: .cancel))
+                alert.popoverPresentationController?.sourceView = selectionForwardButton
+                alert.popoverPresentationController?.sourceRect = selectionForwardButton.bounds
+                presenter.present(alert, animated: true)
+                return
+            }
+            responder = next
+        }
+    }
+
+    func wy_dispatchForward(_ identifiers: [String], mode: WYChatForwardMode) {
+        guard wy_hasForwardHandler, let sources = wy_selectedSources(identifiers),
+              configuration.selection.forwardModes.contains(mode),
+              sources.allSatisfy({ message in
+                  (configuration.allowsAction?(.forward, message) ?? true) &&
+                  (eventsHandler?.wy_shouldPerformMessageAction?(self, action: .forward, messageID: message.messageID) ?? true)
+              }) else { return }
+        if let forwardHandler {
+            forwardHandler(mode, sources)
+        } else {
+            preparedForwardHandler?(mode, wy_makeForwardMessages(from: sources, mode: mode, title: nil))
+        }
+        if isSelectingMessages { isSelectingMessages = false }
+    }
+
     func wy_refreshSelectionStyle() {
         let style = configuration.selection
         selectionToolbar.backgroundColor = style.backgroundColor
@@ -216,7 +290,7 @@ extension WYChatView {
         selectionCancelButton.isHidden = !style.showsCancelButton
         selectionForwardButton.isHidden = !style.showsForwardButton
         selectionDeleteButton.isHidden = !style.showsDeleteButton
-        selectionForwardButton.showsMenuAsPrimaryAction = forwardHandler != nil
-        selectionForwardButton.menu = forwardHandler == nil ? nil : wy_forwardMenu(dataSource.map(\.messageID).filter { selectedMessageIDs.contains($0) })
+        selectionForwardButton.showsMenuAsPrimaryAction = wy_usesForwardMenu
+        selectionForwardButton.menu = wy_usesForwardMenu ? wy_forwardMenu(dataSource.map(\.messageID).filter { selectedMessageIDs.contains($0) }) : nil
     }
 }

@@ -23,14 +23,23 @@ import WYBasisKitSwift
     public var size: CGSize
     /// 视频时长，单位秒
     public var duration: TimeInterval
+    public var transferState: WYChatTransferState
+    public var transferProgress: Double
+    public var transferError: String
     public override convenience init() { self.init(WYChatMediaItem()) }
     @nonobjc public init(_ value: WYChatMediaItem) {
         id = value.id; kind = value.kind; original = WYChatAssetsModelObjC(value.original); thumbnail = WYChatAssetsModelObjC(value.thumbnail); size = value.size; duration = value.duration
+        transferState = value.transferState
+        transferProgress = value.transferProgress
+        transferError = value.transferError
         super.init()
     }
     @nonobjc public func toValue() -> WYChatMediaItem {
         var value = WYChatMediaItem()
         value.id = id; value.kind = kind; value.original = original.toValue(); value.thumbnail = thumbnail.toValue(); value.size = size; value.duration = duration
+        value.transferState = transferState
+        value.transferProgress = transferProgress
+        value.transferError = transferError
         return value
     }
 }
@@ -89,6 +98,20 @@ import WYBasisKitSwift
     public var presentation: WYChatMediaPresentation
     /// 更多面板中的相册项目下标，负数时不自动关联
     public var albumMoreItemIndex: Int
+    /// 相册一次最多可选的照片数，默认9，小于等于0时不限
+    public var albumSelectionLimit: Int
+    /// 是否允许在同一个相册选择器中混合选择照片与视频
+    public var albumAllowsVideos: Bool
+    /// 折叠媒体组的视频自动播放策略，默认滑动落位后播放
+    public var foldedVideoAutoplayMode: WYChatFoldedVideoAutoplayMode
+    /// 是否自动播放全屏预览中的视频
+    public var automaticallyPlaysVideo: Bool
+    /// 自动播放预览视频时是否静音
+    public var automaticVideoStartsMuted: Bool
+    /// 是否在合并媒体的单项进度环下显示状态文字
+    public var showsItemTransferCaption: Bool
+    /// 合并媒体的单项进度环颜色，nil 时使用收发方各自的传输颜色
+    public var itemTransferRingColor: UIColor?
     /// 叠卡主体尺寸
     public var cardSize: CGSize
     /// 图片圆角
@@ -163,6 +186,13 @@ import WYBasisKitSwift
         self.durationFormatter = value.durationFormatter
         presentation = value.presentation
         albumMoreItemIndex = value.albumMoreItemIndex
+        albumSelectionLimit = value.albumSelectionLimit
+        self.albumAllowsVideos = value.albumAllowsVideos
+        self.foldedVideoAutoplayMode = value.foldedVideoAutoplayMode
+        self.automaticallyPlaysVideo = value.automaticallyPlaysVideo
+        self.automaticVideoStartsMuted = value.automaticVideoStartsMuted
+        self.showsItemTransferCaption = value.showsItemTransferCaption
+        self.itemTransferRingColor = value.itemTransferRingColor
         cardSize = value.cardSize
         cornerRadius = value.cornerRadius
         expandedSpacing = value.expandedSpacing
@@ -213,6 +243,13 @@ import WYBasisKitSwift
         value.durationFormatter = durationFormatter
         value.presentation = presentation
         value.albumMoreItemIndex = albumMoreItemIndex
+        value.albumSelectionLimit = albumSelectionLimit
+        value.albumAllowsVideos = albumAllowsVideos
+        value.foldedVideoAutoplayMode = foldedVideoAutoplayMode
+        value.automaticallyPlaysVideo = automaticallyPlaysVideo
+        value.automaticVideoStartsMuted = automaticVideoStartsMuted
+        value.showsItemTransferCaption = showsItemTransferCaption
+        value.itemTransferRingColor = itemTransferRingColor
         value.cardSize = cardSize
         value.cornerRadius = cornerRadius
         value.expandedSpacing = expandedSpacing

@@ -34,6 +34,7 @@ final class WYChatContentStorage: Equatable {
     var businessCard: WYChatContentValue<WYChatBusinessCardModel>?
     var chatRecords: WYChatContentValue<WYChatRecordsModel>?
     var mediaGroup: WYChatContentValue<WYChatMediaGroupModel>?
+    var fundsReceipt: WYChatContentValue<WYChatFundsReceiptModel>?
 
     func copy() -> WYChatContentStorage {
         let result = WYChatContentStorage()
@@ -53,6 +54,7 @@ final class WYChatContentStorage: Equatable {
         result.businessCard = businessCard
         result.chatRecords = chatRecords
         result.mediaGroup = mediaGroup
+        result.fundsReceipt = fundsReceipt
         return result
     }
 
@@ -74,6 +76,7 @@ final class WYChatContentStorage: Equatable {
             && lhs.businessCard == rhs.businessCard
             && lhs.chatRecords == rhs.chatRecords
             && lhs.mediaGroup == rhs.mediaGroup
+            && lhs.fundsReceipt == rhs.fundsReceipt
     }
 }
 

@@ -7,7 +7,12 @@
 //
 
 import UIKit
+import Kingfisher
 import AVFoundation
+import Photos
+import PhotosUI
+import QuickLook
+import UniformTypeIdentifiers
 
 class WYTestChatController: UIViewController {
     
@@ -16,6 +21,16 @@ class WYTestChatController: UIViewController {
     private var scrollProbe: WYChatScrollProbe?
     private var voicePlayer: AVAudioPlayer?
     private var playingVoiceID: String?
+    private let attachmentDirectory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    private var importedFiles: [String: URL] = [:]
+    private var previewFileURL: URL?
+    private var isImportingPhotos = false
+    private var exampleTransferTasks: [String: UUID] = [:]
+    private var exampleConfirmationTitle: String?
+
+    deinit {
+        try? FileManager.default.removeItem(at: attachmentDirectory)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -57,19 +72,39 @@ class WYTestChatController: UIViewController {
         configuration.emoji.emojiFolders = true
         
         configuration.imageLoader = { asset, imageView, _ in
-            guard !asset.name.isEmpty else { return }
             let name = asset.name == "doc" ? "WYChatViewFile" : asset.name
-            imageView.image = UIImage(named: name) ?? UIImage(systemName: name) ?? UIImage.wy_find(name, inBundle: WYChatSourceBundle)
+            if !name.isEmpty {
+                let image = UIImage(named: name) ?? UIImage(systemName: name) ?? UIImage.wy_find(name, inBundle: WYChatSourceBundle)
+                if image.size != .zero { imageView.image = image; return }
+            }
+            if let url = URL(string: asset.downloadPath), ["http", "https"].contains(url.scheme?.lowercased() ?? "") {
+                imageView.kf.setImage(with: url, placeholder: imageView.image)
+            }
         }
         configuration.media.albumMoreItemIndex = 0
+        configuration.media.albumAllowsVideos = true
+        configuration.selection.usesForwardActionSheet = true
+        configuration.selection.automaticallyDeletesMessages = true
+        configuration.selection.automaticallyFavoritesMessages = true
         configuration.recording.supportSpeechRecognition = true
         chatView = WYChatView(configuration: configuration)
         chatView.userInfo = sharedUserInfo(id: "99999", name: "官人", avatar: "https://tse3-mm.cn.bing.net/th/id/OIP-C.sLiEXoTdJvx0fe3erN8NeAAAAA?pid=ImgDet&rs=1")
-        chatView.dataSource = sampleMessages()
-        chatView.openAlbumHandler = { [weak self] in
-            let alert = UIAlertController(title: "相册由接入应用提供", message: "使用第三方选择器后，将照片或视频文件通过sendMedia交回。测试页提供逐条和合并展示检查。", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "关闭", style: .cancel))
-            self?.present(alert, animated: true)
+        //chatView.dataSource = sampleMessages()
+        chatView.openAlbumHandler = { [weak self] in self?.openExampleAlbum() }
+        chatView.preparedForwardHandler = { [weak self] _, messages in self?.deliverExampleForward(messages) }
+        chatView.sendConfirmationHandler = { [weak self] _, completion in
+            guard let self else { completion(false); return }
+            self.presentExampleConfirmation(completion)
+        }
+        chatView.messageDetailHandler = { [weak self] message in self?.presentExampleFundsDetail(message) ?? false }
+        chatView.mediaTransferActionHandler = { [weak self] action, messageID, itemID in
+            guard let self else { return }
+            if action == .pauseTransfer {
+                self.exampleTransferTasks.removeValue(forKey: messageID + "/" + itemID)
+                self.chatView.updateMediaTransfer(messageID: messageID, itemID: itemID, state: .paused)
+            } else {
+                self.startExampleMediaTransfer(messageID, itemID: itemID)
+            }
         }
         chatView.messagePreparedHandler = { [weak self] message in self?.prepareExampleMessage(message) }
         chatView.voicePlaybackRateHandler = { [weak self] messageID, rate in
@@ -95,6 +130,16 @@ class WYTestChatController: UIViewController {
 
     private func prepareExampleMessage(_ message: WYChatMessageModel) {
         guard message.content.text == nil else { return }
+        if let group = message.content.mediaGroup {
+            for item in group.items where item.transferState != .completed { startExampleMediaTransfer(message.messageID, itemID: item.id) }
+            return
+        }
+        switch message.content.style() {
+        case .mediaGroup, .photo, .video, .file, .location, .businessCard, .music, .webpage:
+            startExampleTransfer(message.messageID)
+            return
+        default: break
+        }
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
             guard let self, let index = self.chatView.dataSource.firstIndex(where: { $0.messageID == message.messageID }) else { return }
             self.chatView.dataSource[index].sendState = .success
@@ -165,6 +210,26 @@ class WYTestChatController: UIViewController {
 extension WYTestChatController: WYChatViewDelegate {
 
     func wy_messageAction(_ chatView: WYChatView, action: WYChatAction, messageID: String) {
+        if action == .startTransfer || action == .resumeTransfer {
+            startExampleTransfer(messageID)
+        } else if action == .pauseTransfer {
+            exampleTransferTasks.removeValue(forKey: messageID)
+            chatView.updateTransfer(messageID: messageID, state: .paused)
+        } else if action == .delete {
+            exampleTransferTasks.removeValue(forKey: messageID)
+        }
+        if action == .withdraw { chatView.markMessageWithdrawn(messageID) }
+        if action == .favorite, chatView.configuration.selection.automaticallyFavoritesMessages {
+            WYActivity.showInfo("已收藏", in: view.window)
+        }
+        if action == .takePat, let target = chatView.messageModelFrom(messageID)?.sender {
+            let pat = WYChatTakePatModel(striking: chatView.userInfo, beaten: target, notes: "的肩膀")
+            appendExampleMessage(WYChatMessageContentModel(takePat: pat))
+        }
+        if action == .content, let fileID = chatView.messageModelFrom(messageID)?.content.file?.id,
+           let url = importedFiles[fileID] {
+            previewExampleFile(url)
+        }
         if action == .play { playExampleVoice(messageID) }
         if action == .pause, playingVoiceID == messageID {
             if chatView.configuration.voicePlayback.restartsOnTap { stopExampleVoice() }
@@ -280,13 +345,17 @@ extension WYTestChatController: WYChatViewDelegate {
     /// 点击了More控件内某个item
     func wy_didClickMoreView(_ moreView: WYChatMoreView, itemIndex: Int) {
         let items = moreView.moreViewConfig.moreSource
-        guard items.indices.contains(itemIndex),
-              let title = items[itemIndex].keys.first,
-              ["发红包", "转账", "音乐", "个人名片"].contains(title) else { return }
-
-        let alert = UIAlertController(title: title, message: "已收到更多菜单点击事件，接入方可在此打开对应功能。", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "关闭", style: .cancel))
-        present(alert, animated: true)
+        guard !isImportingPhotos, presentedViewController == nil,
+              items.indices.contains(itemIndex), let title = items[itemIndex].keys.first else { return }
+        // 照片已由 albumMoreItemIndex 转交给 openAlbumHandler。
+        if itemIndex == chatView.configuration.media.albumMoreItemIndex { return }
+        chatView.inputViewResignFirstResponder()
+        switch title {
+        case "拍摄": openExampleCamera()
+        case "文件": openExampleFiles()
+        default:
+            if let content = exampleContent(for: title) { confirmExampleContent(content, title: title) }
+        }
     }
 }
 
@@ -405,5 +474,397 @@ extension WYTestChatController: AVAudioPlayerDelegate {
     func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
         stopExampleVoice()
         if let error { showVoiceError(error as NSError) }
+    }
+}
+
+
+extension WYTestChatController {
+    private func appendExampleMessage(_ content: WYChatMessageContentModel) {
+        let timestamp = String(Date().timeIntervalSince1970)
+        var message = WYChatMessageModel(messageID: UUID().uuidString, timestamp: timestamp, sender: chatView.userInfo, content: content)
+        message.index = chatView.dataSource.count
+        message.lastMessageTimestamp = message.sharedLastMessageTimestamp(chatView.dataSource, minimumTimeSpan: chatView.configuration.basic.messageMinimumTimeSpan)
+        message.sendState = .success
+        chatView.appendMessages([message])
+        chatView.scrollToLastMessage()
+    }
+
+    private func confirmExampleContent(_ content: WYChatMessageContentModel, title: String) {
+        exampleConfirmationTitle = title
+        chatView.confirmSending([content]) { [weak self] in
+            guard let self else { return }
+            if content.text != nil { self.appendExampleMessage(content) }
+            else { self.chatView.sendContent(content) }
+        }
+    }
+
+    private func presentExampleConfirmation(_ completion: @escaping (Bool) -> Void) {
+        let title = exampleConfirmationTitle ?? "发送消息"
+        exampleConfirmationTitle = nil
+        guard presentedViewController == nil else { completion(false); return }
+        let prompt = title == "收藏" && !chatView.favoriteMessages.isEmpty ? "发送最近收藏的消息？" : "确认发送？"
+        let alert = UIAlertController(title: title, message: prompt, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel) { _ in completion(false) })
+        alert.addAction(UIAlertAction(title: "发送", style: .default) { _ in completion(true) })
+        present(alert, animated: true)
+    }
+
+    private func presentExampleFundsDetail(_ tapped: WYChatMessageModel) -> Bool {
+        let original = tapped.content.fundsReceipt.flatMap { chatView.messageModelFrom($0.originalMessageID) } ?? tapped
+        guard let funds = original.content.luckyMoney ?? original.content.transfer else { return false }
+        guard presentedViewController == nil else { return true }
+        let alert = UIAlertController(title: original.content.luckyMoney != nil ? "红包示例" : "转账示例", message: "金额 ¥\(funds.amounts)", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "关闭", style: .cancel))
+        if funds.state == .unreceived {
+            alert.addAction(UIAlertAction(title: "模拟收款", style: .default) { [weak self] _ in
+                self?.chatView.markFundsReceived(original.messageID, actorName: "示例联系人")
+            })
+        }
+        present(alert, animated: true)
+        return true
+    }
+
+    private func startExampleMediaTransfer(_ messageID: String, itemID: String) {
+        let key = messageID + "/" + itemID
+        let token = UUID()
+        exampleTransferTasks[key] = token
+        chatView.updateMediaTransfer(messageID: messageID, itemID: itemID, state: .transferring)
+        advanceExampleMediaTransfer(messageID, itemID: itemID, token: token)
+    }
+
+    private func advanceExampleMediaTransfer(_ messageID: String, itemID: String, token: UUID) {
+        let key = messageID + "/" + itemID
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) { [weak self] in
+            guard let self, self.exampleTransferTasks[key] == token else { return }
+            guard let group = self.chatView.messageModelFrom(messageID)?.content.mediaGroup,
+                  let offset = group.items.firstIndex(where: { $0.id == itemID }) else {
+                self.exampleTransferTasks.removeValue(forKey: key)
+                return
+            }
+            let item = group.items[offset]
+            let next = min(1, item.transferProgress + (item.kind == .video ? 0.035 : 0.055) / (1 + Double(offset) * 0.12))
+            let phase: WYChatTransferState = next == 1 ? .completed : .transferring
+            self.chatView.updateMediaTransfer(messageID: messageID, itemID: itemID, state: phase, progress: next)
+            if phase == .transferring {
+                self.advanceExampleMediaTransfer(messageID, itemID: itemID, token: token)
+            } else {
+                self.exampleTransferTasks.removeValue(forKey: key)
+                if let row = self.chatView.dataSource.firstIndex(where: { $0.messageID == messageID }),
+                   self.chatView.dataSource[row].content.mediaGroup?.items.allSatisfy({ $0.transferState == .completed }) == true {
+                    self.chatView.dataSource[row].sendState = .success
+                }
+            }
+        }
+    }
+
+    private func startExampleTransfer(_ messageID: String) {
+        guard let message = chatView.messageModelFrom(messageID) else { return }
+        let token = UUID()
+        exampleTransferTasks[messageID] = token
+        let progress = message.transferProgress < 1 ? message.transferProgress : 0
+        chatView.updateTransfer(messageID: messageID, state: .transferring, progress: progress)
+        advanceExampleTransfer(messageID, token: token)
+    }
+
+    private func advanceExampleTransfer(_ messageID: String, token: UUID) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) { [weak self] in
+            guard let self, self.exampleTransferTasks[messageID] == token else { return }
+            guard let message = self.chatView.messageModelFrom(messageID) else {
+                self.exampleTransferTasks.removeValue(forKey: messageID)
+                return
+            }
+            let next = min(1, message.transferProgress + 0.12)
+            if next >= 1 {
+                self.exampleTransferTasks.removeValue(forKey: messageID)
+                self.chatView.updateTransfer(messageID: messageID, state: .completed)
+                if let index = self.chatView.dataSource.firstIndex(where: { $0.messageID == messageID }),
+                   self.chatView.dataSource[index].sendState == .sending {
+                    self.chatView.dataSource[index].sendState = .success
+                }
+            } else {
+                self.chatView.updateTransfer(messageID: messageID, state: .transferring, progress: next)
+                self.advanceExampleTransfer(messageID, token: token)
+            }
+        }
+    }
+
+    private func deliverExampleForward(_ messages: [WYChatMessageModel]) {
+        // 模拟目标会话收到消息，示例使用当前会话展示转发结果。
+        let startIndex = chatView.dataSource.count
+        let forwarded = messages.enumerated().map { offset, message in
+            var result = message
+            result.index = startIndex + offset
+            result.sendState = .success
+            return result
+        }
+        chatView.appendMessages(forwarded)
+        chatView.scrollToLastMessage()
+    }
+
+    private func exampleContent(for title: String) -> WYChatMessageContentModel? {
+        switch title {
+        case "位置":
+            return WYChatMessageContentModel(location: WYChatLocationModel(title: "示例位置 · 测试公园", address: "示例路 100 号", longitude: "121.4737", latitude: "31.2304"))
+        case "收藏":
+            if let favorite = chatView.favoriteMessages.last { return favorite.content }
+            // ChatView 使用网页卡片展示示例收藏。
+            return WYChatMessageContentModel(webpage: WYChatWebpageModel(title: "示例收藏 · 聊天接入指南", remarks: "来自我的收藏", name: "收藏", path: "https://example.com"))
+        case "个人名片":
+            let user = WYChatUserModel(id: "example-card", name: "示例联系人")
+            return WYChatMessageContentModel(businessCard: WYChatBusinessCardModel(userInfo: user, remarks: "个人名片"))
+        case "音乐":
+            return WYChatMessageContentModel(music: WYChatMusicModel(name: "示例音乐", singer: "示例歌手", duration: 180))
+        case "发红包":
+            return WYChatMessageContentModel(luckyMoney: WYChatLuckyMoneyModel(amounts: "8.88", remarks: "示例红包 · 祝你开心", notes: "红包"))
+        case "转账":
+            return WYChatMessageContentModel(transfer: WYChatLuckyMoneyModel(amounts: "20.00", remarks: "示例转账", notes: "转账"))
+        default:
+            return nil
+        }
+    }
+
+    private func showAttachmentNotice(_ message: String) {
+        let alert = UIAlertController(title: "聊天附件", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "确定", style: .cancel))
+        present(alert, animated: true)
+    }
+
+    private func openExampleAlbum() {
+        guard !isImportingPhotos, presentedViewController == nil else { return }
+        var configuration = PHPickerConfiguration(photoLibrary: .shared())
+        configuration.filter = chatView.configuration.media.albumAllowsVideos ? .any(of: [.images, .videos]) : .images
+        configuration.selection = .ordered
+        configuration.selectionLimit = max(0, chatView.configuration.media.albumSelectionLimit)
+        configuration.preferredAssetRepresentationMode = .current
+        let picker = PHPickerViewController(configuration: configuration)
+        picker.delegate = self
+        present(picker, animated: true)
+    }
+
+    private func openExampleCamera() {
+        guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
+            showAttachmentNotice("当前设备无法使用相机，请在支持拍照的 iPhone 上测试。")
+            return
+        }
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        guard status != .denied, status != .restricted else {
+            showAttachmentNotice("相机访问受限，请检查系统设置中的相机权限。")
+            return
+        }
+        let camera = UIImagePickerController()
+        camera.sourceType = .camera
+        let supported = UIImagePickerController.availableMediaTypes(for: .camera) ?? [UTType.image.identifier]
+        camera.mediaTypes = [UTType.image.identifier, UTType.movie.identifier].filter { supported.contains($0) }
+        camera.delegate = self
+        present(camera, animated: true)
+    }
+
+    private func openExampleFiles() {
+        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.item], asCopy: true)
+        picker.delegate = self
+        present(picker, animated: true)
+    }
+
+    private func previewExampleFile(_ url: URL) {
+        guard QLPreviewController.canPreview(url as NSURL) else {
+            showAttachmentNotice("系统无法预览此文件格式。")
+            return
+        }
+        previewFileURL = url
+        let preview = QLPreviewController()
+        preview.dataSource = self
+        present(preview, animated: true)
+    }
+
+    private func sendExamplePhotos(_ items: [WYChatMediaItem], selectedCount: Int) {
+        guard !items.isEmpty else {
+            showAttachmentNotice("无法读取所选照片。")
+            return
+        }
+        let includesVideo = items.contains { $0.kind == .video }
+        let unit = includesVideo ? "项媒体" : "张照片"
+        let message = items.count == selectedCount
+            ? "已选 \(items.count) \(unit)，请选择发送后的展示方式。"
+            : "成功读取 \(items.count) / \(selectedCount) \(unit)，请选择发送后的展示方式。"
+        let alert = UIAlertController(title: includesVideo ? "媒体展示方式" : "照片展示方式", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "折叠展示", style: .default) { [weak self] _ in
+            self?.sendExamplePhotos(items, presentation: .merged)
+        })
+        alert.addAction(UIAlertAction(title: "单独展示", style: .default) { [weak self] _ in
+            self?.sendExamplePhotos(items, presentation: .individual)
+        })
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel) { _ in
+            for item in items { try? FileManager.default.removeItem(atPath: item.original.localPath) }
+        })
+        present(alert, animated: true)
+    }
+
+    private func sendExamplePhotos(_ items: [WYChatMediaItem], presentation: WYChatMediaPresentation) {
+        chatView.sendMedia(items, presentation: presentation)
+    }
+}
+
+extension WYTestChatController: PHPickerViewControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIDocumentPickerDelegate, QLPreviewControllerDataSource {
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        isImportingPhotos = !results.isEmpty
+        let allowsVideos = chatView.configuration.media.albumAllowsVideos
+        picker.dismiss(animated: true) { [weak self] in
+            guard let self, !results.isEmpty else { return }
+            Task {
+                var items: [WYChatMediaItem] = []
+                for result in results {
+                    if let item = await self.importExampleMedia(result.itemProvider, allowsVideos: allowsVideos) { items.append(item) }
+                }
+                self.isImportingPhotos = false
+                guard self.viewIfLoaded?.window != nil, self.presentedViewController == nil else {
+                    for item in items { try? FileManager.default.removeItem(atPath: item.original.localPath) }
+                    return
+                }
+                self.sendExamplePhotos(items, selectedCount: results.count)
+            }
+        }
+    }
+
+    private func importExampleMedia(_ provider: NSItemProvider, allowsVideos: Bool) async -> WYChatMediaItem? {
+        let directory = attachmentDirectory
+        let kind: WYChatMediaKind = allowsVideos && provider.hasItemConformingToTypeIdentifier(UTType.movie.identifier)
+            && !provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) ? .video : .photo
+        let type = kind == .video ? UTType.movie : .image
+        let destination: URL? = await withCheckedContinuation { continuation in
+            provider.loadFileRepresentation(forTypeIdentifier: type.identifier) { url, _ in
+                guard let url else { continuation.resume(returning: nil); return }
+                let destination = directory.appendingPathComponent(UUID().uuidString).appendingPathExtension(url.pathExtension)
+                do {
+                    try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+                    try FileManager.default.copyItem(at: url, to: destination)
+                    continuation.resume(returning: destination)
+                } catch {
+                    continuation.resume(returning: nil)
+                }
+            }
+        }
+        guard let destination else { return nil }
+        if kind == .video { return await exampleVideoItem(at: destination) }
+        guard let image = UIImage(contentsOfFile: destination.path) else {
+            try? FileManager.default.removeItem(at: destination)
+            return nil
+        }
+        return Self.examplePhotoItem(at: destination, size: image.size)
+    }
+
+    nonisolated private static func examplePhotoItem(at url: URL, size: CGSize) -> WYChatMediaItem {
+        let asset = WYChatAssetsModel(localPath: url.path)
+        var item = WYChatMediaItem()
+        item.original = asset
+        item.thumbnail = asset
+        item.size = size
+        return item
+    }
+
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true)
+    }
+
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+        if let movie = info[.mediaURL] as? URL {
+            prepareCapturedVideo(movie, picker: picker)
+            return
+        }
+        let image = info[.originalImage] as? UIImage
+        picker.dismiss(animated: true) { [weak self] in
+            guard let self else { return }
+            do {
+                guard let image, let data = image.jpegData(compressionQuality: 0.9) else {
+                    showAttachmentNotice("无法读取拍摄结果。")
+                    return
+                }
+                try FileManager.default.createDirectory(at: attachmentDirectory, withIntermediateDirectories: true)
+                let url = attachmentDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension("jpg")
+                try data.write(to: url, options: .atomic)
+                chatView.sendMedia([Self.examplePhotoItem(at: url, size: image.size)])
+            } catch {
+                showAttachmentNotice("无法保存拍摄结果。")
+            }
+        }
+    }
+
+    private func prepareCapturedVideo(_ source: URL, picker: UIImagePickerController) {
+        let destination = attachmentDirectory.appendingPathComponent(UUID().uuidString).appendingPathExtension(source.pathExtension)
+        do {
+            try FileManager.default.createDirectory(at: attachmentDirectory, withIntermediateDirectories: true)
+            try FileManager.default.copyItem(at: source, to: destination)
+        } catch {
+            picker.dismiss(animated: true) { [weak self] in self?.showAttachmentNotice("无法保存拍摄的视频。") }
+            return
+        }
+        picker.dismiss(animated: true) { [weak self] in
+            guard let self else { return }
+            Task {
+                let item = await self.exampleVideoItem(at: destination)
+                guard self.viewIfLoaded?.window != nil else { return }
+                let content = WYChatMessageContentModel(mediaGroup: WYChatMediaGroupModel(items: [item]))
+                self.exampleConfirmationTitle = "视频"
+                self.confirmVideoSending(content, item: item)
+            }
+        }
+    }
+
+    private func confirmVideoSending(_ content: WYChatMessageContentModel, item: WYChatMediaItem) {
+        chatView.confirmSending([content]) { [weak self] in self?.chatView.sendMedia([item]) }
+    }
+
+    private func exampleVideoItem(at destination: URL) async -> WYChatMediaItem {
+        let asset = AVURLAsset(url: destination)
+        let generator = AVAssetImageGenerator(asset: asset)
+        generator.appliesPreferredTrackTransform = true
+        generator.maximumSize = CGSize(width: 640, height: 640)
+        var item = WYChatMediaItem()
+        item.kind = .video
+        item.original.localPath = destination.path
+        let seconds = (try? await asset.load(.duration).seconds) ?? 0
+        item.duration = seconds.isFinite ? seconds : 0
+        let thumbnail: CGImage? = await withCheckedContinuation { continuation in
+            generator.generateCGImagesAsynchronously(forTimes: [NSValue(time: .zero)]) { _, image, _, _, _ in
+                continuation.resume(returning: image)
+            }
+        }
+        if let thumbnail {
+            let image = UIImage(cgImage: thumbnail)
+            let coverURL = destination.deletingPathExtension().appendingPathExtension("jpg")
+            if let data = image.jpegData(compressionQuality: 0.8), (try? data.write(to: coverURL, options: .atomic)) != nil {
+                item.thumbnail.localPath = coverURL.path
+                item.size = image.size
+            }
+        }
+        return item
+    }
+
+    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+        guard let url = urls.first else { return }
+        let fileID = UUID().uuidString
+        let directory = attachmentDirectory.appendingPathComponent(fileID, isDirectory: true)
+        do {
+            let localURL = directory.appendingPathComponent(url.lastPathComponent)
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            try FileManager.default.copyItem(at: url, to: localURL)
+            let byteCount = try localURL.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
+            importedFiles[fileID] = localURL
+            let size = ByteCountFormatter.string(fromByteCount: Int64(byteCount), countStyle: .file)
+            let file = WYChatFileModel(id: fileID, title: url.lastPathComponent, size: size, name: url.pathExtension.uppercased())
+            let content = WYChatMessageContentModel(file: file)
+            let confirm = { [weak self] in self?.confirmExampleContent(content, title: "文件") }
+            if controller.transitionCoordinator?.animate(alongsideTransition: nil, completion: { _ in confirm() }) != true {
+                confirm()
+            }
+        } catch {
+            try? FileManager.default.removeItem(at: directory)
+            showAttachmentNotice("无法读取所选文件。")
+        }
+    }
+
+    func numberOfPreviewItems(in controller: QLPreviewController) -> Int { previewFileURL == nil ? 0 : 1 }
+
+    func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
+        previewFileURL! as NSURL
     }
 }

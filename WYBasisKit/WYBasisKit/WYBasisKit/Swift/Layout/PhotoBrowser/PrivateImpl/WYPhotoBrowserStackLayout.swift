@@ -12,6 +12,7 @@ final class WYPhotoBrowserStackLayout: UICollectionViewFlowLayout {
     var configuration = WYPhotoBrowserConfiguration()
     var sourceItemCount = 0
     var cycleDirection = 1
+    var gestureOrigin: Int?
     private var wasMovingBack = false
 
     override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
@@ -25,7 +26,7 @@ final class WYPhotoBrowserStackLayout: UICollectionViewFlowLayout {
         let length = horizontal ? collectionView.bounds.width : collectionView.bounds.height
         guard length > 0 else { return [] }
         let progress = (horizontal ? collectionView.contentOffset.x : collectionView.contentOffset.y) / length
-        let center = min(max(0, Int(floor(progress))), count - 1)
+        let center = min(max(0, gestureOrigin ?? Int(floor(progress))), count - 1)
         let depth = min(count, max(1, configuration.stackedCardCount))
         let lower = max(0, center - depth)
         let upper = min(count - 1, center + depth)
@@ -41,13 +42,14 @@ final class WYPhotoBrowserStackLayout: UICollectionViewFlowLayout {
         guard length > 0 else { return original }
         let progress = (horizontal ? collectionView.contentOffset.x : collectionView.contentOffset.y) / length
         if collectionView.panGestureRecognizer.state == .changed { wasMovingBack = (horizontal ? collectionView.panGestureRecognizer.translation(in: collectionView).x : collectionView.panGestureRecognizer.translation(in: collectionView).y) > 0 }
-        else if !collectionView.isDragging && !collectionView.isDecelerating { wasMovingBack = false }
+        else if gestureOrigin == nil && !collectionView.isDragging && !collectionView.isDecelerating { wasMovingBack = false }
         let movingBack = configuration.stackedCardCyclesForward && configuration.allowsLoopScrolling ? cycleDirection < 0 : wasMovingBack
         let count = collectionView.numberOfItems(inSection: 0)
-        let front = min(max(0, movingBack ? Int(ceil(progress)) : Int(floor(progress))), max(0, count - 1))
+        let front = min(max(0, gestureOrigin ?? (movingBack ? Int(ceil(progress)) : Int(floor(progress)))), max(0, count - 1))
         let depth = (indexPath.item - front) * (movingBack ? -1 : 1)
         let visible = min(max(1, sourceItemCount), max(1, configuration.stackedCardCount))
-        let fraction = min(1, abs(progress - CGFloat(front)))
+        let canAdvance = (0..<count).contains(front + (movingBack ? -1 : 1))
+        let fraction = canAdvance ? min(1, abs(progress - CGFloat(front))) : 0
         guard depth >= 0 && (depth < visible || (depth == visible && fraction > 0)) else { original.alpha = 0; original.isHidden = true; return original }
         let finite: (CGFloat) -> CGFloat = { $0.isFinite ? $0 : 0 }
         let offset = CGSize(width: max(0, finite(configuration.stackedCardOffset.width)), height: max(0, finite(configuration.stackedCardOffset.height)))
@@ -59,14 +61,27 @@ final class WYPhotoBrowserStackLayout: UICollectionViewFlowLayout {
         original.size = CGSize(width: max(1, width - insetX * 2), height: max(1, height - insetY * 2))
         let direction: CGFloat = movingBack ? 1 : -1
         let depthPosition = depth == 0 ? fraction * CGFloat(visible - 1) : CGFloat(depth) - fraction
-        let movement = depth == 0 ? direction * sin(fraction * .pi) * length * 0.25 : 0
-        original.center = CGPoint(x: collectionView.bounds.midX + depthPosition * offset.width + (horizontal ? movement : 0), y: collectionView.bounds.midY + depthPosition * offset.height + (horizontal ? 0 : movement))
+        let travel = min(1.5, max(0, finite(configuration.stackedCardDragTravelFraction)))
+        let movement = depth == 0 ? direction * sin(fraction * .pi / 2) * length * travel : 0
+        let viewport = collectionView.bounds
+        original.center = CGPoint(x: viewport.midX + depthPosition * offset.width + (horizontal ? movement : 0),
+                                  y: viewport.midY + depthPosition * offset.height + (horizontal ? 0 : movement))
         let restAngle: (Int) -> CGFloat = { $0 == 0 ? 0 : ($0.isMultiple(of: 2) ? -stillAngle : stillAngle) }
-        let angle = depth == 0 ? direction * sin(fraction * .pi) * dragAngle + restAngle(visible - 1) * fraction : restAngle(depth) * (1 - fraction) + restAngle(depth - 1) * fraction
+        // 起手先平移，到边缘再倾斜。角度和交接都由当前拖动距离决定，反向拖动可以原路返回。
+        let tilt = min(1, max(0, (fraction - 0.2) / 0.6))
+        let angle = depth == 0 ? direction * tilt * tilt * dragAngle : restAngle(depth) * (1 - fraction) + restAngle(depth - 1) * fraction
         let pivot = CGPoint(x: (anchor.x - 0.5) * original.size.width, y: (anchor.y - 0.5) * original.size.height)
         original.transform = CGAffineTransform(translationX: pivot.x, y: pivot.y).rotated(by: angle).translatedBy(x: -pivot.x, y: -pivot.y)
-        original.zIndex = depth == 0 && fraction >= 0.5 ? 0 : visible - depth + 1
-        original.alpha = depth == visible ? fraction : (depth == 0 && sourceItemCount > visible ? 1 - max(0, fraction - 0.5) * 2 : 1)
+        original.zIndex = visible - depth + 1
+        let fadeStart = min(0.99, max(0, finite(configuration.stackedCardFadeStart)))
+        let handoff = max(0, fraction - fadeStart) / (1 - fadeStart)
+        let fade = handoff * handoff * (3 - 2 * handoff)
+        if depth == visible {
+            // 循环副本在前卡淡出时接续；手指反向拖动时，两张卡按相同比例还原。
+            original.alpha = configuration.allowsLoopScrolling && visible == sourceItemCount ? fade : fraction
+        } else {
+            original.alpha = depth == 0 ? 1 - fade : 1
+        }
         original.isHidden = false
         return original
     }

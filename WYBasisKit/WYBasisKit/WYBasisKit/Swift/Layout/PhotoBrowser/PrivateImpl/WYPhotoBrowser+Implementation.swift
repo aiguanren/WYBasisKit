@@ -314,11 +314,29 @@ extension WYPhotoBrowser: UICollectionViewDataSource, UICollectionViewDelegateFl
         let displayIndex = displayIndex(fromCollection: indexPath.item)
         if let item = item(at: displayIndex) {
             cell.configure(item: item, index: displayIndex, configuration: configuration)
+            cell.setItemOverlay(itemOverlayProvider?(displayIndex))
+        }
+    }
+
+    func setInlineVideoPlaying(_ playing: Bool, at index: Int) {
+        guard let cell = cellForItem(at: index), cell.isInlineVideoPlaying != playing else { return }
+        cell.isInlineVideoPlaying = playing
+    }
+
+    func refreshItemOverlays() {
+        for case let cell as WYPhotoBrowserPageCell in collectionView.visibleCells {
+            cell.setItemOverlay(itemOverlayProvider?(cell.index))
         }
     }
 
     public func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        if let cell = cell as? WYPhotoBrowserPageCell, cell.index != displayIndex(fromCollection: indexPath.item) { configurePageCell(cell, at: indexPath) }
+        guard let cell = cell as? WYPhotoBrowserPageCell else { return }
+        let index = displayIndex(fromCollection: indexPath.item)
+        if cell.index != index {
+            configurePageCell(cell, at: indexPath)
+        } else if let itemOverlayProvider {
+            cell.setItemOverlay(itemOverlayProvider(index))
+        }
     }
 
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -329,11 +347,11 @@ extension WYPhotoBrowser: UICollectionViewDataSource, UICollectionViewDelegateFl
 extension WYPhotoBrowser: UIScrollViewDelegate {
 
     public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        if !decelerate { settleCurrentPage() }
+        if !decelerate { settleCurrentPage(afterSwipe: true) }
     }
 
     public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        settleCurrentPage()
+        settleCurrentPage(afterSwipe: true)
     }
 
     public func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
@@ -341,14 +359,19 @@ extension WYPhotoBrowser: UIScrollViewDelegate {
     }
 
     public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        swipeStartIndex = internalCurrentIndex
+        itemDidBeginDrag?()
         pauseCarouselTimer()
-        guard configuration.layoutStyle == .stackedCards, configuration.stackedCardCyclesForward, isLoopScrollingEnabled, pageStep > 0 else { return }
+        guard configuration.layoutStyle == .stackedCards, pageStep > 0 else { return }
         let horizontal = flowLayout.scrollDirection == .horizontal
         let velocity = collectionView.panGestureRecognizer.velocity(in: collectionView)
         let direction = (horizontal ? velocity.x : velocity.y) > 0 ? -1 : 1
         let index = Int(round(((horizontal ? collectionView.contentOffset.x : collectionView.contentOffset.y) - pageStepLeading) / pageStep))
-        stackedGestureOrigin = (index, internalCurrentIndex)
-        updateStackedCycleDirection(direction)
+        stackedGestureOrigin = (index, displayIndex(fromCollection: index))
+        if let stack = flowLayout as? WYPhotoBrowserStackLayout {
+            stack.gestureOrigin = index
+        }
+        if configuration.stackedCardCyclesForward && isLoopScrollingEnabled { updateStackedCycleDirection(direction) }
     }
 
     func updateStackedCycleDirection(_ direction: Int) {
@@ -367,7 +390,7 @@ extension WYPhotoBrowser: UIScrollViewDelegate {
 
     /// 多页同屏的松手吸附(按单页步长取整落位，快速甩动按速度方向跳页)
     public func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-        guard configuration.layoutStyle == .multiPage, pageStep > 0 else { return }
+        guard configuration.layoutStyle == .multiPage || configuration.layoutStyle == .stackedCards, pageStep > 0 else { return }
         let isHorizontal = flowLayout.scrollDirection == .horizontal
         let rawTarget = isHorizontal ? targetContentOffset.pointee.x : targetContentOffset.pointee.y
         let velocityValue = isHorizontal ? velocity.x : velocity.y
@@ -378,6 +401,15 @@ extension WYPhotoBrowser: UIScrollViewDelegate {
             pageIndex = floor(pageIndex + 0.2)
         } else {
             pageIndex = round(pageIndex)
+        }
+        if configuration.layoutStyle == .stackedCards, let origin = stackedGestureOrigin {
+            if abs(velocityValue) <= 0.5 {
+                // 慢拖松手时按手指实际拖动的距离决定落位，允许把卡片拖回原页。
+                let position = isHorizontal ? scrollView.contentOffset.x : scrollView.contentOffset.y
+                let distance = (position - pageStepLeading) / pageStep - CGFloat(origin.page)
+                pageIndex = CGFloat(origin.page) + distance.rounded()
+            }
+            pageIndex = min(CGFloat(origin.page + 1), max(CGFloat(origin.page - 1), pageIndex))
         }
         let bounded = max(0, min(pageIndex, CGFloat(loopCollectionItemCount - 1)))
         let snappedTarget = pageStepLeading + bounded * pageStep
@@ -412,7 +444,9 @@ extension WYPhotoBrowser: UIScrollViewDelegate {
     }
 
     /// 翻页落定(算出当前页、循环模式缓冲页无感回跳、刷页码、回调代理、预加载相邻页、重启自动轮播)
-    func settleCurrentPage() {
+    func settleCurrentPage(afterSwipe: Bool = false) {
+        let startIndex = afterSwipe ? swipeStartIndex : nil
+        swipeStartIndex = nil
         guard pageStep > 0, numberOfItems > 0 else { return }
         let offset = collectionView.contentOffset.x + collectionView.contentOffset.y
         let collectionIndex = Int(round((offset - pageStepLeading) / pageStep))
@@ -420,7 +454,15 @@ extension WYPhotoBrowser: UIScrollViewDelegate {
         let changed = displayIndex != internalCurrentIndex
         internalCurrentIndex = displayIndex
         stackedGestureOrigin = nil
+        if let stack = flowLayout as? WYPhotoBrowserStackLayout {
+            stack.gestureOrigin = nil
+            flowLayout.invalidateLayout()
+        }
         normalizeLoopPosition(collectionIndex: collectionIndex)
+        if itemOverlayProvider != nil {
+            collectionView.layoutIfNeeded()
+            refreshItemOverlays()
+        }
         refreshIndicator()
         if changed {
             browserDelegate?.wy_photoBrowser?(self, didShowItemAt: internalCurrentIndex)
@@ -428,6 +470,8 @@ extension WYPhotoBrowser: UIScrollViewDelegate {
         applyTransformToVisibleCells()
         prefetchNeighbors()
         restartCarouselTimer()
+        if let startIndex, startIndex != displayIndex { itemDidSettleAfterSwipe?(displayIndex) }
+        itemDidSettle?(displayIndex)
     }
 
     /// 循环翻页生效判定(多于一张且配置开启)

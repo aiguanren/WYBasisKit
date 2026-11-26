@@ -13,6 +13,16 @@ import UIKit
 /// 媒体展开与收起按钮位置
 @objc public enum WYChatMediaButtonPlacement: Int { case beside, below }
 
+/// 折叠媒体组的视频自动播放策略
+@objc public enum WYChatFoldedVideoAutoplayMode: Int {
+    /// 仅首项是视频且当前停在首项时自动播放
+    case firstItem = 1
+    /// 仅用户滑动切页并停在视频上时自动播放
+    case onSwipe = 2
+    /// 当前项为视频时自动播放，包括初次展示和程序切页
+    case allVideos = 3
+}
+
 /// 图片和视频消息展示配置
 public struct WYChatMediaConfig {
     /// 折叠媒体组在消息列表内的布局
@@ -47,6 +57,20 @@ public struct WYChatMediaConfig {
     public var presentation: WYChatMediaPresentation = .merged
     /// 更多面板中的相册项目下标，负数时不自动关联
     public var albumMoreItemIndex: Int = -1
+    /// 相册一次最多可选的照片数，默认9，小于等于0时不限
+    public var albumSelectionLimit: Int = 9
+    /// 是否允许在同一个相册选择器中混合选择照片与视频
+    public var albumAllowsVideos: Bool = false
+    /// 折叠媒体组的视频自动播放策略，默认滑动落位后播放
+    public var foldedVideoAutoplayMode: WYChatFoldedVideoAutoplayMode = .onSwipe
+    /// 是否自动播放全屏预览中的视频
+    public var automaticallyPlaysVideo: Bool = false
+    /// 自动播放预览视频时是否静音
+    public var automaticVideoStartsMuted: Bool = true
+    /// 是否在合并媒体的单项进度环下显示状态文字
+    public var showsItemTransferCaption: Bool = true
+    /// 合并媒体的单项进度环颜色，nil 时使用收发方各自的传输颜色
+    public var itemTransferRingColor: UIColor? = .white
     /// 叠卡主体尺寸
     public var cardSize: CGSize = CGSize(width: UIDevice.wy_screenWidth(200, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenHeight(240, WYBasisKitConfig.defaultScreenPixels))
     /// 图片圆角
@@ -86,7 +110,7 @@ public struct WYChatMediaConfig {
     /// 收起按钮文字
     public var collapseText: String = WYLocalized("收起", table: WYBasisKitConfig.kitLocalizableTable)
     /// 视频播放图标
-    public var videoPlayImage: UIImage? = UIImage.wy_find("WYChatViewPlay", inBundle: WYChatSourceBundle)
+    public var videoPlayImage: UIImage? = UIImage(systemName: "play.fill")
     /// 视频播放图标尺寸
     public var videoPlaySize: CGSize = CGSize(width: UIDevice.wy_screenWidth(40, WYBasisKitConfig.defaultScreenPixels), height: UIDevice.wy_screenWidth(40, WYBasisKitConfig.defaultScreenPixels))
     /// 视频播放图标颜色
@@ -110,7 +134,7 @@ public struct WYChatMediaConfig {
         var value = WYPhotoBrowserConfiguration()
         value.allowsLoopScrolling = true
         value.stackedCardCyclesForward = true
-        value.appearance.playButtonIcon = WYChatSourceBundle.image(named: "WYChatViewPlay")
+        value.appearance.playButtonBackgroundColor = UIColor.black.withAlphaComponent(0.62)
         return value
     }()
     public init() {}

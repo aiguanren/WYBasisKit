@@ -232,6 +232,8 @@ import WYBasisKitSwift
     public var chatRecords: WYChatRecordsModelObjC?
     /// 合并图片和视频
     public var mediaGroup: WYChatMediaGroupModelObjC?
+    /// 红包或转账的收款回执
+    public var fundsReceipt: WYChatFundsReceiptModelObjC?
 
     public override convenience init() { self.init(WYChatMessageContentModel()) }
 
@@ -252,6 +254,7 @@ import WYBasisKitSwift
         self.businessCard = value.businessCard.map { WYChatBusinessCardModelObjC($0) }
         self.chatRecords = value.chatRecords.map { WYChatRecordsModelObjC($0) }
         self.mediaGroup = value.mediaGroup.map(WYChatMediaGroupModelObjC.init)
+        self.fundsReceipt = value.fundsReceipt.map(WYChatFundsReceiptModelObjC.init)
         super.init()
     }
 
@@ -273,7 +276,28 @@ import WYBasisKitSwift
         value.businessCard = businessCard.map { $0.toValue() }
         value.chatRecords = chatRecords.map { $0.toValue() }
         value.mediaGroup = mediaGroup.map { $0.toValue() }
+        value.fundsReceipt = fundsReceipt.map { $0.toValue() }
         return value
+    }
+}
+
+@objc(WYChatFundsReceiptModel)
+@objcMembers public class WYChatFundsReceiptModelObjC: NSObject {
+    public var originalMessageID: String
+    public var isRedPacket: Bool
+    public var actorName: String
+    public var isOriginalSender: Bool
+
+    public override convenience init() { self.init(WYChatFundsReceiptModel()) }
+    @nonobjc public init(_ value: WYChatFundsReceiptModel) {
+        originalMessageID = value.originalMessageID
+        isRedPacket = value.isRedPacket
+        actorName = value.actorName
+        isOriginalSender = value.isOriginalSender
+        super.init()
+    }
+    @nonobjc public func toValue() -> WYChatFundsReceiptModel {
+        WYChatFundsReceiptModel(originalMessageID: originalMessageID, isRedPacket: isRedPacket, actorName: actorName, isOriginalSender: isOriginalSender)
     }
 }
 

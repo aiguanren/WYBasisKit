@@ -41,6 +41,16 @@ extension WYChatView: UITableViewDelegate, UITableViewDataSource {
             cell.wy_updateLayout(width: tableView.bounds.width)
             cell.actionHandler = { [weak self] action, identifier in self?.wy_performAction(action, messageID: identifier) }
             cell.voicePlaybackRateHandler = { [weak self] identifier, rate in self?.setVoicePlaybackRate(rate, messageID: identifier) }
+            cell.progressVisibilityChanged = { [weak self] identifier in
+                guard let self, let row = self.dataSource.firstIndex(where: { $0.messageID == identifier }) else { return }
+                let path = IndexPath(row: row, section: 0)
+                guard self.tableView.cellForRow(at: path) != nil else { return }
+                self.state.measuredHeights.removeValue(forKey: .identifier(identifier))
+                self.tableView.reconfigureRows(at: [path])
+            }
+            cell.mediaTransferHandler = { [weak self] action, identifier, itemID in
+                self?.wy_performMediaTransferAction(action, messageID: identifier, itemID: itemID)
+            }
             cell.mediaActionHandler = { [weak self] action, identifier, index in self?.wy_performMediaAction(action, messageID: identifier, index: index) }
             if model.content.mediaGroup != nil { state.mediaViews.add(cell.state.mediaView) }
         }

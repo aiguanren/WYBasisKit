@@ -144,20 +144,17 @@ extension WYChatView {
         case "aac", "m4a": voice.aacPath = url.path
         default: break
         }
-        var model = WYChatMessageModel(messageID: messageID, timestamp: String(Date().timeIntervalSince1970), sender: userInfo, content: WYChatMessageContentModel(voice: voice))
-        model.lastMessageTimestamp = model.sharedLastMessageTimestamp(dataSource, minimumTimeSpan: configuration.basic.messageMinimumTimeSpan)
-        model.reference = state.inputQuote
-        model.sendState = .sending
-        model.index = dataSource.count
-        if configuration.automaticallyInsertsSentMessages { dataSource.append(model); scrollToLastMessage() }
-        quoteMessage(nil)
-        messagePreparedHandler?(model)
-        return model
+        return wy_sendContent(WYChatMessageContentModel(voice: voice), messageID: messageID)
     }
 
     func wy_sendMessage(_ text: String, messageID: String) -> WYChatMessageModel {
-        var model = WYChatMessageModel(messageID: messageID, timestamp: String(Date().timeIntervalSince1970), sender: userInfo, content: WYChatMessageContentModel(text: text))
-        if !state.inputMentions.isEmpty && text == chatInput.sharedEmojiAttributedText(attributed: chatInput.textView.attributedText).string { model.mentions = inputMentions }
+        let mentions = !state.inputMentions.isEmpty && text == chatInput.sharedEmojiAttributedText(attributed: chatInput.textView.attributedText).string ? inputMentions : []
+        return wy_sendContent(WYChatMessageContentModel(text: text), messageID: messageID, mentions: mentions)
+    }
+
+    func wy_sendContent(_ content: WYChatMessageContentModel, messageID: String, mentions: [WYChatMention] = []) -> WYChatMessageModel {
+        var model = WYChatMessageModel(messageID: messageID, timestamp: String(Date().timeIntervalSince1970), sender: userInfo, content: content)
+        model.mentions = mentions
         model.lastMessageTimestamp = model.sharedLastMessageTimestamp(dataSource, minimumTimeSpan: configuration.basic.messageMinimumTimeSpan)
         model.reference = state.inputQuote
         model.sendState = .sending
@@ -180,7 +177,7 @@ extension WYChatView {
         }
         let actions = configuration.menuActions.filter { action in
             guard configuration.allowsAction?(action, model) ?? true else { return false }
-            if action == .forward, forwardHandler != nil, configuration.selection.forwardModes.isEmpty { return false }
+            if action == .forward, wy_hasForwardHandler, configuration.selection.forwardModes.isEmpty { return false }
             if action == .reference { return model.reference != nil }
             if action == .reedit { return canReeditMessage(model.messageID) }
             if model.content.withdrawn != nil { return action == .delete || action == .select }
@@ -191,7 +188,7 @@ extension WYChatView {
             return true
         }
         return UIMenu(children: actions.map { action -> UIMenuElement in
-            if action == .forward, forwardHandler != nil { return UIMenu(title: configuration.actionTitle?(.forward) ?? wy_actionTitle(.forward, configuration: configuration), image: wy_messageMenuIcon(.forward, configuration: configuration), children: wy_forwardMenu([model.messageID]).children) }
+            if action == .forward, wy_hasForwardHandler { return UIMenu(title: configuration.actionTitle?(.forward) ?? wy_actionTitle(.forward, configuration: configuration), image: wy_messageMenuIcon(.forward, configuration: configuration), children: wy_forwardMenu([model.messageID]).children) }
             return UIAction(title: configuration.actionTitle?(action) ?? wy_actionTitle(action, configuration: configuration), image: wy_messageMenuIcon(action, configuration: configuration), attributes: action == .delete ? .destructive : []) { [weak self] _ in self?.wy_performAction(action, messageID: model.messageID) }
         })
     }
@@ -283,12 +280,18 @@ extension WYChatView {
         guard let model = messageModelFrom(messageID) else { return }
         if requested == .reference, !isSelectingMessages, let reference = model.reference { wy_openReference(reference); return }
         let action: WYChatAction
-        if isSelectingMessages && [.content, .avatar, .nickname, .mention, .takePat, .reference].contains(requested) { action = .select }
-        else if requested == .content && !model.transferError.isEmpty { action = .retry }
+        if isSelectingMessages && [.content, .avatar, .nickname, .mention, .takePat, .reference, .startTransfer, .pauseTransfer, .resumeTransfer].contains(requested) { action = .select }
+        else if requested == .content && model.wy_effectiveTransferState == .failed { action = .retry }
         else if requested == .content, let voice = model.content.voice { action = voice.isPlaying ? .pause : .play }
         else { action = requested }
         guard eventsHandler?.wy_shouldPerformMessageAction?(self, action: action, messageID: messageID) ?? true else { return }
         switch action {
+        case .startTransfer:
+            guard model.wy_effectiveTransferState == .waiting else { return }
+        case .pauseTransfer:
+            guard model.wy_effectiveTransferState == .transferring else { return }
+        case .resumeTransfer:
+            guard model.wy_effectiveTransferState == .paused else { return }
         case .play, .pause:
             if configuration.dismissInputOnTap { inputViewResignFirstResponder() }
             var messages = dataSource
@@ -331,8 +334,16 @@ extension WYChatView {
                   wy_selectRange(from: first, through: messageID) else { return }
         case .content:
             if configuration.dismissInputOnTap { inputViewResignFirstResponder() }
-            if model.content.chatRecords != nil { wy_previewRecords(messageID) }
-            if !wy_mediaItems(model).isEmpty { wy_performMediaAction(.preview, messageID: messageID, index: model.content.mediaGroup?.visibleIndex ?? 0) }
+            if messageDetailHandler?(model) != true {
+                if model.content.chatRecords != nil { wy_previewRecords(messageID) }
+                if !wy_mediaItems(model).isEmpty { wy_performMediaAction(.preview, messageID: messageID, index: model.content.mediaGroup?.visibleIndex ?? 0) }
+            }
+        case .delete where configuration.selection.automaticallyDeletesMessages:
+            guard configuration.allowsAction?(.delete, model) ?? true else { return }
+            removeMessages([messageID])
+        case .favorite where configuration.selection.automaticallyFavoritesMessages:
+            guard configuration.allowsAction?(.favorite, model) ?? true else { return }
+            setMessageFavorited(true, messageID: messageID)
         case .translate: wy_transcribeMessage(model)
         default: break
         }
@@ -415,21 +426,37 @@ extension WYChatView {
         let title = selection.showsForwardCount ? (selection.forwardCountTitle?(forwardTitle, count) ?? "\(forwardTitle) (\(count))") : forwardTitle
         selectionForwardButton.setTitle(title, for: .normal)
         selectionDeleteButton.setTitle(configuration.actionTitle?(.delete) ?? wy_actionTitle(.delete, configuration: configuration), for: .normal)
-        selectionForwardButton.isEnabled = !selectedMessageIDs.isEmpty && (forwardHandler == nil || !configuration.selection.forwardModes.isEmpty)
+        selectionForwardButton.isEnabled = !selectedMessageIDs.isEmpty && (!wy_hasForwardHandler || !configuration.selection.forwardModes.isEmpty)
         selectionDeleteButton.isEnabled = !selectedMessageIDs.isEmpty
         if show != wasVisible { wy_refreshInputAnchors() }
         wy_refreshRangeSelectionButton()
     }
 
     @objc func wy_cancelSelection() { isSelectingMessages = false }
-    @objc func wy_forwardSelection() { if forwardHandler == nil { wy_selectionAction(.forward) } }
+    @objc func wy_forwardSelection() {
+        if !wy_hasForwardHandler { wy_selectionAction(.forward) }
+        else if !wy_usesForwardMenu { wy_presentForwardOptions() }
+    }
     @objc func wy_deleteSelection() { wy_selectionAction(.delete) }
 
     func wy_selectionAction(_ action: WYChatAction) {
         let identifiers = dataSource.map { $0.messageID }.filter { selectedMessageIDs.contains($0) }
         guard !identifiers.isEmpty else { return }
-        if let selectionActionHandler { selectionActionHandler(action, identifiers) }
-        else { for identifier in identifiers { wy_performAction(action, messageID: identifier) } }
+        if let selectionActionHandler {
+            selectionActionHandler(action, identifiers)
+        } else if action == .delete && configuration.selection.automaticallyDeletesMessages {
+            let allowed = dataSource.filter { message in
+                selectedMessageIDs.contains(message.messageID) &&
+                (configuration.allowsAction?(.delete, message) ?? true) &&
+                (eventsHandler?.wy_shouldPerformMessageAction?(self, action: .delete, messageID: message.messageID) ?? true)
+            }
+            for message in removeMessages(allowed.map(\.messageID)) {
+                actionHandler?(self, .delete, message.messageID)
+                delegate?.wy_messageAction?(self, action: .delete, messageID: message.messageID)
+            }
+        } else {
+            for identifier in identifiers { wy_performAction(action, messageID: identifier) }
+        }
         isSelectingMessages = false
     }
 }

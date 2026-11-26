@@ -95,6 +95,10 @@
     self.chatView.configuration = initial;
     WYChatCheckConfigurationProperties(initial, self.chatView.configuration, @"", check);
     WYChatConfig *savedConfiguration = self.chatView.configuration;
+    check(@"folded-video-autoplay-default", WYChatMediaConfig.new.foldedVideoAutoplayMode == WYChatFoldedVideoAutoplayModeOnSwipe);
+    initial.media.foldedVideoAutoplayMode = WYChatFoldedVideoAutoplayModeAllVideos;
+    self.chatView.configuration = initial;
+    check(@"folded-video-autoplay-enum-bridge", self.chatView.configuration.media.foldedVideoAutoplayMode == WYChatFoldedVideoAutoplayModeAllVideos);
     WYChatContentConfig *fileContent = WYChatContentConfig.new;
     fileContent.titleFont = [UIFont systemFontOfSize:21];
     initial.setContentConfiguration(WYChatMessageStyleFile, fileContent);
@@ -265,6 +269,7 @@
         [NSFileManager.defaultManager removeItemAtPath:audioPath error:nil];
         WYChatConfig *mediaConfig = self.chatView.configuration;
         mediaConfig.media.presentation = WYChatMediaPresentationMerged;
+        mediaConfig.media.albumSelectionLimit = 3;
         mediaConfig.media.automaticallyPresentsBrowser = false;
         mediaConfig.media.videoPresentationStyle = UIModalPresentationOverFullScreen;
         mediaConfig.media.showsVideoPlaybackControls = false;
@@ -273,6 +278,7 @@
         mediaConfig.media.browser.stackedCardRotationAngle = 0.08;
         self.chatView.configuration = mediaConfig;
         WYChatMediaConfig *mediaValue = self.chatView.configuration.media;
+        check(@"album-selection-limit-roundtrip", mediaValue.albumSelectionLimit == 3);
         check(@"media-video-controls-roundtrip", mediaValue.videoPresentationStyle == UIModalPresentationOverFullScreen && !mediaValue.showsVideoPlaybackControls);
         check(@"media-browser-stack-roundtrip", mediaValue.browser.stackedCardCount == 4 && CGSizeEqualToSize(mediaValue.browser.stackedCardOffset, CGSizeMake(7, 9)) && mediaValue.browser.stackedCardRotationAngle == 0.08);
         WYChatMediaItem *photo = [[WYChatMediaItem alloc] init];
@@ -359,12 +365,19 @@
         self.chatView.quoteMessage(nil);
         check(@"quote-cancel-bridge", self.chatView.quotedMessageID == nil && self.chatView.quotePreview.hidden);
         WYChatConfig *selectionConfig = self.chatView.configuration;
+        selectionConfig.selection.automaticallyDeletesMessages = YES;
+        selectionConfig.selection.automaticallyFavoritesMessages = YES;
+        selectionConfig.media.presentation = WYChatMediaPresentationMerged;
         selectionConfig.selection.maximumCount = 3;
         selectionConfig.selection.height = 83;
         selectionConfig.selection.font = [UIFont systemFontOfSize:21];
         selectionConfig.selection.forwardModes = @[@(WYChatForwardModeMerged)];
         self.chatView.configuration = selectionConfig;
         check(@"selection-config-roundtrip", self.chatView.configuration.selection.maximumCount == 3 && self.chatView.configuration.selection.height == 83 && self.chatView.configuration.selection.font.pointSize == 21 && self.chatView.configuration.selection.forwardModes.count == 1);
+        check(@"local-actions-config-bridge", self.chatView.configuration.selection.automaticallyDeletesMessages && self.chatView.configuration.selection.automaticallyFavoritesMessages);
+        check(@"favorite-bridge", self.chatView.setMessageFavorited(YES, @"objc-mention-message") && self.chatView.favoriteMessages.count == 1);
+        check(@"favorite-dedup-bridge", !self.chatView.setMessageFavorited(YES, @"objc-mention-message"));
+        check(@"favorite-removal-bridge", self.chatView.setMessageFavorited(NO, @"objc-mention-message") && self.chatView.favoriteMessages.count == 0);
         check(@"selection-explicit-bridge", self.chatView.selectMessages(@[@"objc-mention-message"]));
         check(@"selection-range-bridge", self.chatView.selectMessageRange(@"objc-mention-message", @"objc-quoted-reply") && self.chatView.selectedMessageIDs.count == 2);
         check(@"selection-invalid-atomic", !self.chatView.selectMessages(@[@"missing"]) && self.chatView.selectedMessageIDs.count == 2);
@@ -386,6 +399,10 @@
         self.chatView.appendMessages(forwarded);
         self.chatView.previewRecords(forwarded.firstObject.messageID);
         check(@"records-host-preview-bridge", recordsPreviewed);
+        check(@"remove-messages-bridge", self.chatView.removeMessages(@[forwarded.firstObject.messageID, @"missing"]).count == 1 && !self.chatView.messageModelFrom(forwarded.firstObject.messageID));
+        WYChatMediaItem *mediaItem = [[WYChatMediaItem alloc] init];
+        NSArray<WYChatMessageModel *> *separateMedia = self.chatView.sendMediaWithPresentation(@[mediaItem, mediaItem], WYChatMediaPresentationIndividual);
+        check(@"per-send-media-presentation-bridge", separateMedia.count == 2 && self.chatView.configuration.media.presentation == WYChatMediaPresentationMerged);
         detail.chatView.releaseAll();
         WYChatConfig *playbackConfig = self.chatView.configuration;
         playbackConfig.voicePlayback.rates = @[@1, @1.5, @2];
@@ -407,6 +424,25 @@
         recordedMessage.content = recordedContent;
         self.chatView.dataSource = @[recordedMessage];
         check(@"voice-local-path-bridge", [self.chatView.dataSource.firstObject.content.voice.localPath isEqualToString:recordedVoice.localPath]);
+        WYChatMessageContentModel *packet = WYChatMessageContentModel.new;
+        packet.luckyMoney = WYChatLuckyMoneyModel.new;
+        packet.luckyMoney.amounts = @"8.88";
+        WYChatMessageModel *packetMessage = self.chatView.sendContent(packet, @"objc-packet-receipt");
+        if (!self.chatView.messageModelFrom(packetMessage.messageID)) { self.chatView.appendMessages(@[packetMessage]); }
+        check(@"funds-receipt-state-bridge", self.chatView.markFundsReceived(packetMessage.messageID, @"示例联系人") &&
+              !self.chatView.markFundsReceived(packetMessage.messageID, @"示例联系人") &&
+              self.chatView.messageModelFrom(packetMessage.messageID).content.luckyMoney.state == WYChatFundsStateReceived);
+        check(@"funds-receipt-content-bridge", [self.chatView.dataSource.lastObject.content.fundsReceipt.originalMessageID isEqualToString:packetMessage.messageID] &&
+              self.chatView.dataSource.lastObject.content.style == WYChatMessageStyleFundsReceipt);
+        check(@"transfer-state-bridge", self.chatView.updateTransfer(recordedMessage.messageID, WYChatTransferStateTransferring, @0.45, @"") &&
+              self.chatView.updateTransfer(recordedMessage.messageID, WYChatTransferStatePaused, nil, @"") &&
+              self.chatView.messageModelFrom(recordedMessage.messageID).transferState == WYChatTransferStatePaused &&
+              fabs(self.chatView.messageModelFrom(recordedMessage.messageID).transferProgress - 0.45) < 0.001);
+        __block NSInteger confirmations = 0;
+        self.chatView.sendConfirmationHandler = ^(NSArray<WYChatMessageContentModel *> *contents, void (^answer)(BOOL)) { answer(YES); answer(YES); };
+        self.chatView.confirmSending(@[packet], ^{ confirmations++; });
+        check(@"send-confirmation-bridge", confirmations == 1);
+        self.chatView.sendConfirmationHandler = nil;
         self.chatView.inputViewResignFirstResponder();
         NSInteger failed = 0;
         for (NSDictionary *item in checks) { if (![item[@"passed"] boolValue]) { failed += 1; } }

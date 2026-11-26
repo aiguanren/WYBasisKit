@@ -18,8 +18,8 @@ public class WYChatView: UIView {
     public var userInfo: WYChatUserModel { didSet { state.measuredHeights.removeAll(); tableView.reloadData() } }
     /// 消息数据源
     public var dataSource: [WYChatMessageModel] = [] {
-        willSet { if state.ready && !state.updatingMediaPage { tableView.layoutIfNeeded(); wy_captureReadingPosition() } }
-        didSet { if !state.updatingMediaPage { wy_reloadMessages(previous: oldValue) } }
+        willSet { if state.ready && !state.updatingMediaPage && !state.updatingAttachmentProgress { tableView.layoutIfNeeded(); wy_captureReadingPosition() } }
+        didSet { if !state.updatingMediaPage && !state.updatingAttachmentProgress { wy_reloadMessages(previous: oldValue) } }
     }
     /// 事件接管代理
     public weak var eventsHandler: WYChatViewEventsHandler? = nil
@@ -27,16 +27,29 @@ public class WYChatView: UIView {
     public weak var delegate: WYChatViewDelegate? = nil
     /// 消息操作，参数为聊天界面、操作和消息ID
     public var actionHandler: ((_ chatView: WYChatView, _ action: WYChatAction, _ messageID: String) -> Void)? = nil
+    /// 自定义消息详情入口。返回 true 时接管内置预览，仍报告普通消息点击事件
+    public var messageDetailHandler: ((_ message: WYChatMessageModel) -> Bool)?
+    /// 自定义发送确认。传入待发送内容，回调 true 后继续发送
+    public var sendConfirmationHandler: ((_ contents: [WYChatMessageContentModel], _ completion: @escaping (Bool) -> Void) -> Void)?
+    /// 自定义多选转发方式弹窗。回传所选方式，nil 表示取消
+    public var forwardOptionsHandler: ((_ modes: [WYChatForwardMode], _ messageIDs: [String], _ source: UIView, _ completion: @escaping (WYChatForwardMode?) -> Void) -> Void)? { didSet { wy_updateSelectionUI() } }
     /// 多选操作，参数为操作和按消息顺序排列的消息ID
     public var selectionActionHandler: ((_ action: WYChatAction, _ messageIDs: [String]) -> Void)? = nil
     /// 转发请求，参数为转发形式及按列表顺序排列的原消息快照
     public var forwardHandler: ((_ mode: WYChatForwardMode, _ messages: [WYChatMessageModel]) -> Void)? { didSet { wy_updateSelectionUI() } }
+    /// 转发请求，交付按菜单所选形式组装的待发送消息，由接入方发送到目标会话。forwardHandler 优先
+    public var preparedForwardHandler: ((_ mode: WYChatForwardMode, _ messages: [WYChatMessageModel]) -> Void)? { didSet { wy_updateSelectionUI() } }
+    var wy_hasForwardHandler: Bool { forwardHandler != nil || preparedForwardHandler != nil }
+    /// 当前聊天控件中的收藏快照，按收藏顺序排列
+    public private(set) var favoriteMessages: [WYChatMessageModel] = []
     /// 已组装的待发送消息，参数为消息模型
     public var messagePreparedHandler: ((_ message: WYChatMessageModel) -> Void)? = nil
     /// 请求接入方打开相册，选择结果通过sendMedia交回
     public var openAlbumHandler: (() -> Void)? = nil
     /// 媒体操作，参数为操作、消息ID和媒体下标
     public var mediaActionHandler: ((_ action: WYChatMediaAction, _ messageID: String, _ index: Int) -> Void)? = nil
+    /// 单项媒体的开始、暂停、继续和重试请求
+    public var mediaTransferActionHandler: ((_ action: WYChatAction, _ messageID: String, _ itemID: String) -> Void)?
     /// 接入方接管媒体预览，参数为媒体列表、初始下标和来源视图
     public var mediaPreviewHandler: ((_ items: [WYChatMediaItem], _ index: Int, _ sourceView: UIView?) -> Void)? = nil
 
@@ -137,6 +150,32 @@ public class WYChatView: UIView {
      */
     public func appendMessages(_ messages: [WYChatMessageModel]) { dataSource.append(contentsOf: messages) }
 
+    /// 从列表移除匹配的消息，返回按列表顺序排列的已移除消息
+    @discardableResult public func removeMessages(_ messageIDs: [String]) -> [WYChatMessageModel] {
+        let ids = Set(messageIDs)
+        let removed = dataSource.filter { ids.contains($0.messageID) }
+        guard !removed.isEmpty else { return [] }
+        if let quotedMessageID, ids.contains(quotedMessageID) { quoteMessage(nil) }
+        dataSource.removeAll { ids.contains($0.messageID) }
+        for message in removed where message.content.voice?.isPlaying == true {
+            actionHandler?(self, .pause, message.messageID)
+            delegate?.wy_messageAction?(self, action: .pause, messageID: message.messageID)
+        }
+        return removed
+    }
+
+    /// 收藏列表中的消息或移除先前收藏，返回收藏是否发生变化
+    @discardableResult public func setMessageFavorited(_ isFavorited: Bool, messageID: String) -> Bool {
+        if let index = favoriteMessages.firstIndex(where: { $0.messageID == messageID }) {
+            guard !isFavorited else { return false }
+            favoriteMessages.remove(at: index)
+        } else {
+            guard isFavorited, let message = messageModelFrom(messageID) else { return false }
+            favoriteMessages.append(message)
+        }
+        return true
+    }
+
     /**
      插入历史消息并保持阅读位置
      @param messages 较早的消息
@@ -150,6 +189,92 @@ public class WYChatView: UIView {
      @return 消息模型
      */
     @discardableResult public func sendMessage(_ text: String, messageID: String = UUID().uuidString) -> WYChatMessageModel { wy_sendMessage(text, messageID: messageID) }
+
+    /// 组装任意类型的聊天消息并按配置加入列表及报告待发送结果
+    @discardableResult public func sendContent(_ content: WYChatMessageContentModel, messageID: String = UUID().uuidString) -> WYChatMessageModel {
+        wy_sendContent(content, messageID: messageID)
+    }
+
+    /// 在接入方确认后执行发送；每次请求只采纳第一次回答
+    public func confirmSending(_ contents: [WYChatMessageContentModel], send: @escaping () -> Void) {
+        guard !contents.isEmpty else { return }
+        guard let handler = sendConfirmationHandler else { send(); return }
+        var answered = false
+        handler(contents) { [weak self] approved in
+            let finish = {
+                guard self != nil, !answered else { return }
+                answered = true
+                if approved { send() }
+            }
+            if Thread.isMainThread { finish() } else { DispatchQueue.main.async(execute: finish) }
+        }
+    }
+
+    /// 更新附件传输状态，progress 为 nil 时保留现有进度。消息送达状态由接入方独立更新
+    @discardableResult public func updateTransfer(messageID: String, state: WYChatTransferState, progress: Double? = nil, error: String = "") -> Bool {
+        guard let index = dataSource.firstIndex(where: { $0.messageID == messageID }) else { return false }
+        var message = dataSource[index]
+        message.transferState = state
+        message.isTransferring = state == .transferring
+        message.transferError = state == .failed ? error : ""
+        if let progress, progress.isFinite { message.transferProgress = min(1, max(0, progress)) }
+        if state == .completed { message.transferProgress = 1 }
+        let previous = dataSource[index]
+        guard message != previous else { return true }
+        if previous.transferState == .transferring, state == .transferring, previous.isTransferring, previous.transferError.isEmpty {
+            self.state.updatingAttachmentProgress = true
+            dataSource[index] = message
+            self.state.updatingAttachmentProgress = false
+            let path = IndexPath(row: index, section: 0)
+            (tableView.cellForRow(at: path) as? WYChatBasicCell)?.wy_updateAttachmentProgress(message)
+        } else {
+            dataSource[index] = message
+        }
+        return true
+    }
+
+    /// 更新合并媒体中指定图片或视频的传输状态，其他项目和当前页保持原样
+    @discardableResult public func updateMediaTransfer(messageID: String, itemID: String, state phase: WYChatTransferState, progress: Double? = nil, error: String = "") -> Bool {
+        guard let row = dataSource.firstIndex(where: { $0.messageID == messageID }),
+              var group = dataSource[row].content.mediaGroup,
+              let index = group.items.firstIndex(where: { $0.id == itemID }) else { return false }
+        let previous = group.items[index]
+        group.items[index].transferState = phase
+        group.items[index].transferError = phase == .failed ? error : ""
+        if let progress, progress.isFinite { group.items[index].transferProgress = min(1, max(0, progress)) }
+        if phase == .completed { group.items[index].transferProgress = 1 }
+        guard previous != group.items[index] else { return true }
+
+        state.updatingAttachmentProgress = true
+        dataSource[row].content.mediaGroup = group
+        state.updatingAttachmentProgress = false
+        let path = IndexPath(row: row, section: 0)
+        (tableView.cellForRow(at: path) as? WYChatBasicCell)?.wy_updateAttachmentProgress(dataSource[row])
+        state.mediaBrowser?.refreshProgress(for: messageID)
+        return true
+    }
+
+    /// 在接入方确认收款后更新卡片，提供 actorName 时追加一条独立回执
+    @discardableResult public func markFundsReceived(_ messageID: String, actorName: String? = nil) -> Bool {
+        guard let index = dataSource.firstIndex(where: { $0.messageID == messageID }),
+              var funds = dataSource[index].content.luckyMoney ?? dataSource[index].content.transfer,
+              funds.state == .unreceived else { return false }
+        var messages = dataSource
+        let isRedPacket = messages[index].content.luckyMoney != nil
+        funds.state = .received
+        if isRedPacket { messages[index].content.luckyMoney = funds }
+        else { messages[index].content.transfer = funds }
+        if let actorName {
+            let receipt = WYChatFundsReceiptModel(originalMessageID: messageID, isRedPacket: isRedPacket, actorName: actorName, isOriginalSender: messages[index].isSender(userInfo.id))
+            var message = WYChatMessageModel(messageID: UUID().uuidString, timestamp: String(Date().timeIntervalSince1970), sender: messages[index].sender, content: WYChatMessageContentModel(fundsReceipt: receipt))
+            message.index = messages.count
+            message.lastMessageTimestamp = message.sharedLastMessageTimestamp(messages, minimumTimeSpan: configuration.basic.messageMinimumTimeSpan)
+            message.sendState = .success
+            messages.append(message)
+        }
+        dataSource = messages
+        return true
+    }
 
     /**
      查找消息
@@ -229,7 +354,12 @@ public class WYChatView: UIView {
      @param items 接入方选择的媒体
      @return 待发送消息
      */
-    @discardableResult public func sendMedia(_ items: [WYChatMediaItem]) -> [WYChatMessageModel] { wy_sendMedia(items) }
+    @discardableResult public func sendMedia(_ items: [WYChatMediaItem]) -> [WYChatMessageModel] { sendMedia(items, presentation: configuration.media.presentation) }
+
+    /// 组装选中的媒体，本次发送使用指定的展示方式
+    @discardableResult public func sendMedia(_ items: [WYChatMediaItem], presentation: WYChatMediaPresentation) -> [WYChatMessageModel] {
+        wy_sendMedia(items, presentation: presentation)
+    }
 
     /**
      展开或收起媒体组

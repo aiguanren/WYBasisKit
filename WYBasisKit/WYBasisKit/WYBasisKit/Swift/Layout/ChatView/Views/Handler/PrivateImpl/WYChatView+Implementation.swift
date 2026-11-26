@@ -24,6 +24,7 @@ final class WYChatViewPrivateState {
     var listDefaultSeparatorInset = UIEdgeInsets.zero
     var preservingHistory = false
     var updatingMediaPage = false
+    var updatingAttachmentProgress = false
     var keyboardIsPresented = false
     var isLayingOutInputSurfaceSwitch = false
     var inputSurfaceAnimation: WYChatInputSurfaceAnimation?

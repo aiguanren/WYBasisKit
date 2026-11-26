@@ -24,6 +24,10 @@ public struct WYChatMediaItem: Equatable {
     public var size: CGSize = .zero
     /// 视频时长，单位秒
     public var duration: TimeInterval = 0
+    /// 单张图片或单个视频的传输状态
+    public var transferState: WYChatTransferState = .automatic
+    public var transferProgress: Double = 0
+    public var transferError: String = ""
     public init() {}
 }
 

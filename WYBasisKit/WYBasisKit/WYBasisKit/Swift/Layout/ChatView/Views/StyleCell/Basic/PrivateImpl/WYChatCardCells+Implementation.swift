@@ -23,6 +23,7 @@ extension WYChatBasicCell {
             state.detail.text = value.size
             state.footer.text = value.name
             wy_showThumbnail(value.icon)
+            if messageContentConfiguration.fileUsesTrailingIcon { wy_moveThumbnailToTrailing() }
         case .businessCard:
             guard let value = message.content.businessCard else { return }
             state.title.text = value.userInfo.name
@@ -54,10 +55,16 @@ extension WYChatBasicCell {
             let priority = isPacket ? value.remarks : value.amounts
             let secondary = isPacket ? value.amounts : value.remarks
             state.title.text = [priority, secondary, value.notes].first { !$0.isEmpty }
-            state.detail.text = [secondary, value.notes].filter { !$0.isEmpty && $0 != state.title.text }.joined(separator: messageContentConfiguration.detailsSeparator)
+            if !isPacket, let amount = state.title.text, !value.amounts.isEmpty && amount == value.amounts {
+                state.title.text = amount.first?.isNumber == true ? messageContentConfiguration.fundsAmountPrefix + amount : amount
+            }
+            let style = messageContentConfiguration
+            if !isPacket && !secondary.isEmpty && secondary != state.title.text { state.detail.text = secondary }
             switch value.state {
-            case .unreceived: break
-            case .received: state.footer.text = messageContentConfiguration.fundsReceivedText
+            case .unreceived: state.footer.text = isPacket ? nil : style.fundsPendingTransferText
+            case .received:
+                if isPacket { state.footer.text = style.fundsReceivedText }
+                else { state.footer.text = message.isSender(userID) ? style.fundsSentTransferReceivedText : style.fundsIncomingTransferReceivedText }
             case .timeout: state.footer.text = messageContentConfiguration.fundsExpiredText
             case .return: state.footer.text = messageContentConfiguration.fundsReturnedText
             }
@@ -65,7 +72,34 @@ extension WYChatBasicCell {
             let cover = value.smallCover
             if cover.name.isEmpty && cover.downloadPath.isEmpty && cover.localPath.isEmpty { wy_showMessageIcon(iconName) }
             else { wy_showThumbnail(cover) }
-            let style = messageContentConfiguration
+            if value.state == .received && (style.fundsReceivedIcon != nil || (!isPacket && style.iconImage == nil && cover.name.isEmpty && cover.downloadPath.isEmpty && cover.localPath.isEmpty)) {
+                state.thumbnail.tintsImage = style.iconTintColor != nil
+                state.thumbnail.image = style.fundsReceivedIcon ?? UIImage(systemName: "checkmark.circle")
+            }
+            let explicitTint = style.fundsIconTintColor ?? style.iconTintColor
+            let isBuiltIn = style.iconImage == nil && cover.name.isEmpty && cover.downloadPath.isEmpty && cover.localPath.isEmpty
+            let defaultTint = value.state == .unreceived ? style.fundsAvailableIconTintColor : style.fundsInactiveIconTintColor
+            let tint = explicitTint ?? (isBuiltIn && style.usesDefaultIconTint ? defaultTint : nil)
+            state.thumbnail.tintsImage = tint != nil
+            state.thumbnail.tintColor = tint
+            if let image = state.thumbnail.image {
+                state.thumbnail.image = image.withRenderingMode(tint == nil ? .alwaysOriginal : .alwaysTemplate)
+            }
+            let iconSide = wy_chatNonnegative(style.fundsIconSide)
+            state.thumbnailSize[0].constant = iconSide
+            state.thumbnailSize[1].constant = iconSide
+            let textColor = value.state == .unreceived ? style.fundsAvailableTextColor : style.fundsInactiveTextColor
+            if let textColor {
+                state.title.textColor = textColor
+                state.detail.textColor = textColor
+                state.footer.textColor = textColor
+            }
+            state.fundsCaption.text = value.notes.isEmpty ? (isPacket ? style.fundsPacketCaption : style.fundsTransferCaption) : value.notes
+            state.fundsCaption.textAlignment = style.footerTextAlignment
+            state.fundsCaption.font = style.detailFont
+            state.fundsCaption.alpha = min(1, wy_chatNonnegative(style.fundsCaptionOpacity))
+            state.fundsCaption.textColor = textColor ?? style.detailColor
+            state.fundsCaption.isHidden = state.fundsCaption.text?.isEmpty ?? true
             let accent = style.iconTintColor ?? WYChatDefaultResources.iconTint(for: iconName)
             let opacity = value.state == .unreceived ? style.fundsAvailableIconBackgroundOpacity : style.fundsInactiveIconBackgroundOpacity
             state.thumbnail.backgroundColor = style.fundsIconBackgroundColor ?? accent?.withAlphaComponent(min(1, wy_chatNonnegative(opacity)))
@@ -96,6 +130,7 @@ extension WYChatMessageContentModel {
         if let chatRecords { return chatRecords.title }
         if let value = luckyMoney ?? transfer { return value.remarks }
         if withdrawn != nil { return WYLocalized("消息已撤回", table: WYBasisKitConfig.kitLocalizableTable) }
+        if fundsReceipt != nil { return WYLocalized("收款回执", table: WYBasisKitConfig.kitLocalizableTable) }
         if takePat != nil { return WYLocalized("拍一拍", table: WYBasisKitConfig.kitLocalizableTable) }
         if call != nil { return WYLocalized("通话记录", table: WYBasisKitConfig.kitLocalizableTable) }
         return unsupportedText

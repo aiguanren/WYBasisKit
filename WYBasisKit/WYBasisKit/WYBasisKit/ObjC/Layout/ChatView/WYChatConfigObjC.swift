@@ -175,6 +175,84 @@ import WYBasisKitSwift
     public var thumbnailContentMode: UIView.ContentMode
     /// 音乐和资金卡片多段详情之间的分隔文字
     public var detailsSeparator: String
+    /// 是否显示附件传输控件
+    public var transferShowsProgress: Bool
+    /// 是否显示附件传输百分比
+    public var transferShowsPercentage: Bool
+    /// 是否允许从进度控件请求暂停或继续
+    public var transferAllowsPause: Bool
+    /// 媒体传输控件直径，单位点
+    public var transferControlSize: CGFloat
+    /// 发出附件的进度颜色
+    public var transferSenderColor: UIColor
+    /// 接收附件的进度颜色
+    public var transferReceiverColor: UIColor
+    /// 附件进度轨道颜色
+    public var transferTrackColor: UIColor
+    /// 媒体传输时封面的遮罩颜色
+    public var transferOverlayColor: UIColor
+    /// 等待上传图标，nil时使用内置图标
+    public var transferUploadImage: UIImage?
+    /// 等待下载图标，nil时使用内置图标
+    public var transferDownloadImage: UIImage?
+    /// 暂停传输图标，nil时使用内置图标
+    public var transferPauseImage: UIImage?
+    /// 继续传输图标，nil时使用内置图标
+    public var transferResumeImage: UIImage?
+    /// 重试传输图标，nil时使用内置图标
+    public var transferRetryImage: UIImage?
+    /// 等待上传的提示文字
+    public var transferUploadText: String
+    /// 待下载的提示文字
+    public var transferDownloadText: String
+    /// 暂停传输的提示文字
+    public var transferPausedText: String
+    /// 没有传输错误详情时的提示文字
+    public var transferFailedText: String
+    /// 待领取资金卡片背景色，nil时使用普通消息气泡
+    public var fundsAvailableBubbleColor: UIColor?
+    /// 已处理资金卡片背景色，nil时使用普通消息气泡
+    public var fundsInactiveBubbleColor: UIColor?
+    /// 待领取资金卡片文字颜色，nil时使用通用卡片配色
+    public var fundsAvailableTextColor: UIColor?
+    /// 已处理资金卡片文字颜色，nil时使用通用卡片配色
+    public var fundsInactiveTextColor: UIColor?
+    /// 已收款卡片图标，nil时使用内置勾选图标
+    public var fundsReceivedIcon: UIImage?
+    /// 发出的转账被接收时的状态文字
+    public var fundsSentTransferReceivedText: String
+    /// 收到的转账被接收时的状态文字
+    public var fundsIncomingTransferReceivedText: String
+    /// 转账待收款的状态文字
+    public var fundsPendingTransferText: String
+    /// 红包卡片底部文案
+    public var fundsPacketCaption: String
+    /// 转账卡片底部文案
+    public var fundsTransferCaption: String
+    /// 媒体进度环与卡片进度条的线宽
+    public var transferLineWidth: CGFloat
+    /// 进度操作图标的模板颜色，nil时使用默认配色
+    public var transferControlTintColor: UIColor?
+    /// 进度状态文字颜色，nil时使用默认配色
+    public var transferStatusTextColor: UIColor?
+    /// 是否将传输操作图标作为模板着色
+    public var transferTintsControlImages: Bool
+    /// 文件卡片图标是否放在内容尾侧
+    public var fileUsesTrailingIcon: Bool
+    /// 出站消息显示发送进度前的等待秒数，默认 0.5 秒
+    public var transferProgressDelay: TimeInterval
+    /// 资金卡片图标着色，nil时使用当前状态的默认颜色
+    public var fundsIconTintColor: UIColor?
+    /// 资金卡片图标的默认边长，单位点
+    public var fundsIconSide: CGFloat
+    /// 资金卡片底部说明的透明度
+    public var fundsCaptionOpacity: CGFloat
+    /// 转账金额未自带符号时使用的货币前缀
+    public var fundsAmountPrefix: String
+    /// 待领取资金卡片内置图标的默认着色
+    public var fundsAvailableIconTintColor: UIColor?
+    /// 已处理资金卡片内置图标的默认着色
+    public var fundsInactiveIconTintColor: UIColor?
     /// 设置传输进度文案，进度范围为0到1，nil时显示百分比
     public var transferProgressFormatter: ((_ progress: Double) -> String)?
     /// 红包或转账已领取提示
@@ -250,6 +328,45 @@ import WYBasisKitSwift
         self.previewContentMode = value.previewContentMode
         self.thumbnailContentMode = value.thumbnailContentMode
         self.detailsSeparator = value.detailsSeparator
+        self.transferShowsProgress = value.transferShowsProgress
+        self.transferShowsPercentage = value.transferShowsPercentage
+        self.transferAllowsPause = value.transferAllowsPause
+        self.transferControlSize = value.transferControlSize
+        self.transferSenderColor = value.transferSenderColor
+        self.transferReceiverColor = value.transferReceiverColor
+        self.transferTrackColor = value.transferTrackColor
+        self.transferOverlayColor = value.transferOverlayColor
+        self.transferUploadImage = value.transferUploadImage
+        self.transferDownloadImage = value.transferDownloadImage
+        self.transferPauseImage = value.transferPauseImage
+        self.transferResumeImage = value.transferResumeImage
+        self.transferRetryImage = value.transferRetryImage
+        self.transferUploadText = value.transferUploadText
+        self.transferDownloadText = value.transferDownloadText
+        self.transferPausedText = value.transferPausedText
+        self.transferFailedText = value.transferFailedText
+        self.fundsAvailableBubbleColor = value.fundsAvailableBubbleColor
+        self.fundsInactiveBubbleColor = value.fundsInactiveBubbleColor
+        self.fundsAvailableTextColor = value.fundsAvailableTextColor
+        self.fundsInactiveTextColor = value.fundsInactiveTextColor
+        self.fundsReceivedIcon = value.fundsReceivedIcon
+        self.fundsSentTransferReceivedText = value.fundsSentTransferReceivedText
+        self.fundsIncomingTransferReceivedText = value.fundsIncomingTransferReceivedText
+        self.fundsPendingTransferText = value.fundsPendingTransferText
+        self.fundsPacketCaption = value.fundsPacketCaption
+        self.fundsTransferCaption = value.fundsTransferCaption
+        self.transferLineWidth = value.transferLineWidth
+        self.transferControlTintColor = value.transferControlTintColor
+        self.transferStatusTextColor = value.transferStatusTextColor
+        self.transferTintsControlImages = value.transferTintsControlImages
+        self.fileUsesTrailingIcon = value.fileUsesTrailingIcon
+        self.transferProgressDelay = value.transferProgressDelay
+        self.fundsIconTintColor = value.fundsIconTintColor
+        self.fundsIconSide = value.fundsIconSide
+        self.fundsCaptionOpacity = value.fundsCaptionOpacity
+        self.fundsAmountPrefix = value.fundsAmountPrefix
+        self.fundsAvailableIconTintColor = value.fundsAvailableIconTintColor
+        self.fundsInactiveIconTintColor = value.fundsInactiveIconTintColor
         self.transferProgressFormatter = value.transferProgressFormatter
         self.fundsReceivedText = value.fundsReceivedText
         self.fundsExpiredText = value.fundsExpiredText
@@ -296,6 +413,45 @@ import WYBasisKitSwift
         value.previewContentMode = previewContentMode
         value.thumbnailContentMode = thumbnailContentMode
         value.detailsSeparator = detailsSeparator
+        value.transferShowsProgress = transferShowsProgress
+        value.transferShowsPercentage = transferShowsPercentage
+        value.transferAllowsPause = transferAllowsPause
+        value.transferControlSize = transferControlSize
+        value.transferSenderColor = transferSenderColor
+        value.transferReceiverColor = transferReceiverColor
+        value.transferTrackColor = transferTrackColor
+        value.transferOverlayColor = transferOverlayColor
+        value.transferUploadImage = transferUploadImage
+        value.transferDownloadImage = transferDownloadImage
+        value.transferPauseImage = transferPauseImage
+        value.transferResumeImage = transferResumeImage
+        value.transferRetryImage = transferRetryImage
+        value.transferUploadText = transferUploadText
+        value.transferDownloadText = transferDownloadText
+        value.transferPausedText = transferPausedText
+        value.transferFailedText = transferFailedText
+        value.fundsAvailableBubbleColor = fundsAvailableBubbleColor
+        value.fundsInactiveBubbleColor = fundsInactiveBubbleColor
+        value.fundsAvailableTextColor = fundsAvailableTextColor
+        value.fundsInactiveTextColor = fundsInactiveTextColor
+        value.fundsReceivedIcon = fundsReceivedIcon
+        value.fundsSentTransferReceivedText = fundsSentTransferReceivedText
+        value.fundsIncomingTransferReceivedText = fundsIncomingTransferReceivedText
+        value.fundsPendingTransferText = fundsPendingTransferText
+        value.fundsPacketCaption = fundsPacketCaption
+        value.fundsTransferCaption = fundsTransferCaption
+        value.transferLineWidth = transferLineWidth
+        value.transferControlTintColor = transferControlTintColor
+        value.transferStatusTextColor = transferStatusTextColor
+        value.transferTintsControlImages = transferTintsControlImages
+        value.fileUsesTrailingIcon = fileUsesTrailingIcon
+        value.transferProgressDelay = transferProgressDelay
+        value.fundsIconTintColor = fundsIconTintColor
+        value.fundsIconSide = fundsIconSide
+        value.fundsCaptionOpacity = fundsCaptionOpacity
+        value.fundsAmountPrefix = fundsAmountPrefix
+        value.fundsAvailableIconTintColor = fundsAvailableIconTintColor
+        value.fundsInactiveIconTintColor = fundsInactiveIconTintColor
         value.transferProgressFormatter = transferProgressFormatter
         value.fundsReceivedText = fundsReceivedText
         value.fundsExpiredText = fundsExpiredText

@@ -44,6 +44,8 @@ import Foundation
     
     /// 合并图片和视频
     case mediaGroup
+    /// 红包或转账收款回执
+    case fundsReceipt
 
     /// 获取所有枚举属性
     public static func members() -> [WYChatMessageStyle] { Array(allCases) }
@@ -69,6 +71,7 @@ import Foundation
         case .file: return Self.registration { WYChatFileCell(style: .default, reuseIdentifier: nil) }
         case .businessCard: return Self.registration { WYChatBusinessCardCell(style: .default, reuseIdentifier: nil) }
         case .chatRecords: return Self.registration { WYChatRecordsCell(style: .default, reuseIdentifier: nil) }
+        case .fundsReceipt: return Self.registration { WYChatFundsReceiptCell(style: .default, reuseIdentifier: nil) }
         case .mediaGroup: return Self.registration { WYChatMediaGroupCell(style: .default, reuseIdentifier: nil) }
         }
     }
@@ -178,6 +181,12 @@ public struct WYChatMessageContentModel: Equatable {
         set { wy_prepareContentStorage(); state.mediaGroup = newValue.map(WYChatContentValue.init) }
     }
 
+    /// 红包或转账的收款回执
+    public var fundsReceipt: WYChatFundsReceiptModel? {
+        get { state.fundsReceipt?.value }
+        set { wy_prepareContentStorage(); state.fundsReceipt = newValue.map(WYChatContentValue.init) }
+    }
+
     /// 获取消息类型
     public func style() -> WYChatMessageStyle {
 
@@ -197,6 +206,7 @@ public struct WYChatMessageContentModel: Equatable {
         if state.businessCard != nil { return .businessCard }
         if state.chatRecords != nil { return .chatRecords }
         if state.mediaGroup != nil { return .mediaGroup }
+        if state.fundsReceipt != nil { return .fundsReceipt }
         return .none
     }
     
@@ -216,7 +226,8 @@ public struct WYChatMessageContentModel: Equatable {
                 file: WYChatFileModel? = nil,
                 businessCard: WYChatBusinessCardModel? = nil,
                 chatRecords: WYChatRecordsModel? = nil,
-                mediaGroup: WYChatMediaGroupModel? = nil) {
+                mediaGroup: WYChatMediaGroupModel? = nil,
+                fundsReceipt: WYChatFundsReceiptModel? = nil) {
         state.text = text.map(WYChatContentValue.init)
         state.voice = voice.map(WYChatContentValue.init)
         state.photo = photo.map(WYChatContentValue.init)
@@ -233,6 +244,7 @@ public struct WYChatMessageContentModel: Equatable {
         state.businessCard = businessCard.map(WYChatContentValue.init)
         state.chatRecords = chatRecords.map(WYChatContentValue.init)
         state.mediaGroup = mediaGroup.map(WYChatContentValue.init)
+        state.fundsReceipt = fundsReceipt.map(WYChatContentValue.init)
     }
 
     internal var state = WYChatContentStorage()

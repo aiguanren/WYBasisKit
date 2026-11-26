@@ -205,8 +205,8 @@ final class WYChatTestConfigurationController: UITableViewController, UISearchRe
 
 /// 消息类型配置入口
 final class WYChatTestConfigurationTypeController: UITableViewController {
-    private let names = ["未知", "文本", "语音", "图片", "音乐", "视频", "红包", "转账", "位置", "拍一拍", "撤回", "通话", "网页", "文件", "名片", "聊天记录", "媒体组"]
-    private let keys = ["none", "text", "voice", "photo", "music", "video", "luckyMoney", "transfer", "location", "takePat", "withdrawn", "call", "webpage", "file", "businessCard", "chatRecords", "mediaGroup"]
+    private let names = ["未知", "文本", "语音", "图片", "音乐", "视频", "红包", "转账", "位置", "拍一拍", "撤回", "通话", "网页", "文件", "名片", "聊天记录", "媒体组", "收款回执"]
+    private let keys = ["none", "text", "voice", "photo", "music", "video", "luckyMoney", "transfer", "location", "takePat", "withdrawn", "call", "webpage", "file", "businessCard", "chatRecords", "mediaGroup", "fundsReceipt"]
     var selectStyle: ((_ style: WYChatMessageStyle, _ name: String, _ key: String) -> Void)?
     init() { super.init(style: .insetGrouped) }
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
@@ -401,12 +401,15 @@ final class WYChatSettingsController: UITableViewController, UIColorPickerViewCo
                 Item(title: "自己发出的消息尚未被阅读时显示的文字", path: "basic.unreadText", explanation: "开启阅读状态标识后，消息尚未被阅读时在气泡旁显示这段文字。")
             ]),
             ("消息列表外观与多媒体发送", [
+                Item(title: "发送进度显示延时（秒）", path: "content.transferProgressDelay", explanation: "适用于文字、文件、图片、视频等消息。默认 0.5 秒，支持小数。设为 0 时立即显示。"),
                 Item(title: "消息列表中相邻消息的上下间距", path: "messageSpacing", explanation: "调整上一条与下一条消息之间的垂直留白，单位为点。"),
                 Item(title: "自己发出的消息气泡底色", path: "senderBubble.fillColor", explanation: "调整聊天列表右侧自己发出的消息气泡颜色。"),
                 Item(title: "收到的消息气泡底色", path: "receiverBubble.fillColor", explanation: "调整聊天列表左侧其他人发出的消息气泡颜色。"),
                 Item(title: "文本消息气泡内的字号", path: "text.textFont", explanation: "调整已显示在消息列表里的文本消息文字大小。"),
                 Item(title: "文本消息气泡内的动态表情播放方式", path: "text.emojiPlaybackMode", choices: [("首次展示时播放", "0"), ("每次展示时播放", "1"), ("始终静态", "2")], explanation: "控制气泡内的动态表情首次出现、滚动后再次出现时如何播放。"),
-                Item(title: "一次选择多张图片或视频后的发送方式", path: "media.presentation", choices: [("每个文件发一条消息", "0"), ("合并成一条叠卡消息", "1")], explanation: "从「＋」面板打开相册并多选后，决定新发出的图片和视频如何排列在聊天列表中。")
+                Item(title: "一次选择多张图片或视频后的发送方式", path: "media.presentation", choices: [("每个文件发一条消息", "0"), ("合并成一条叠卡消息", "1")], explanation: "从「＋」面板打开相册并多选后，决定新发出的图片和视频如何排列在聊天列表中。"),
+                Item(title: "折叠媒体组的视频自动播放", path: "media.foldedVideoAutoplayMode", choices: [("首项视频自动播放", "1"), ("滑到视频后自动播放", "2"), ("当前项是视频就自动播放", "3")], explanation: "滑动模式只在手势切页并停在视频后开始播放。"),
+                Item(title: "折叠媒体组循环滑动", path: "media.browser.allowsLoopScrolling", choices: [("关闭", "false"), ("开启", "true")], explanation: "滑到末端后是否可以继续滑动查看下一张卡片。"),
             ]),
             ("底部输入栏外观", [
                 Item(title: "输入框中正在编辑的文字字号", path: "input.textFont", explanation: "调整底部输入框里已输入、尚未发送的文字大小。"),
@@ -709,6 +712,9 @@ private final class WYChatSettingsMenuActionsController: UITableViewController {
         case .retry: return "重试"
         case .play: return "播放"
         case .pause: return "暂停"
+        case .startTransfer: return "开始传输"
+        case .pauseTransfer: return "暂停传输"
+        case .resumeTransfer: return "继续传输"
         case .mention: return "提及成员"
         case .takePat: return "拍一拍"
         case .playbackRate: return "播放倍速"

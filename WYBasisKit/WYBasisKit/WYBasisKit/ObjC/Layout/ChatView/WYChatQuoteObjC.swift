@@ -204,8 +204,34 @@ import WYBasisKitSwift
 /// 撤回与重新编辑配置
 @objc(WYChatNoticeConfig)
 @objcMembers public class WYChatNoticeConfigObjC: NSObject {
+    /// 发出红包的领取回执，{actor}替换为领取者名称
+    public var fundsSentPacketReceiptText: String
+    /// 收到红包的领取回执，{actor}替换为发出者名称
+    public var fundsIncomingPacketReceiptText: String
+    /// 发出转账的接收回执，{actor}替换为接收者名称
+    public var fundsSentTransferReceiptText: String
+    /// 收到转账的接收回执，{actor}替换为发出者名称
+    public var fundsIncomingTransferReceiptText: String
+    /// 红包回执图标，nil时隐藏
+    public var fundsPacketReceiptImage: UIImage?
+    /// 转账回执图标，nil时隐藏
+    public var fundsTransferReceiptImage: UIImage?
+    /// 回执中红包或转账关键词及模板图标的颜色
+    public var fundsReceiptAccentColor: UIColor?
+    /// 收款回执背景色，nil时只显示文字与图标
+    public var fundsReceiptBackgroundColor: UIColor?
+    /// 红包回执图标着色，nil时保留图片原色
+    public var fundsPacketReceiptTintColor: UIColor?
+    /// 转账回执图标着色，nil时保留图片原色
+    public var fundsTransferReceiptTintColor: UIColor?
+    /// 资金回执图标的默认边长，单位点
+    public var fundsReceiptIconSide: CGFloat
     /// 居中系统提示的文字对齐方式
     public var centeredTextAlignment: NSTextAlignment
+    /// 发出的通话记录图标是否放在尾侧
+    public var outgoingCallIconOnTrailing: Bool
+    /// 通话时长文案，{duration}替换为格式化时长
+    public var callDurationText: String
     /// 未接通的通话提示
     public var unconnectedCallText: String
     /// 普通消息可请求撤回的时长，单位秒，0表示不限
@@ -239,7 +265,20 @@ import WYBasisKitSwift
     public var patText: String?
     public override convenience init() { self.init(WYChatNoticeConfig()) }
     @nonobjc public init(_ value: WYChatNoticeConfig) {
+        self.fundsSentPacketReceiptText = value.fundsSentPacketReceiptText
+        self.fundsIncomingPacketReceiptText = value.fundsIncomingPacketReceiptText
+        self.fundsSentTransferReceiptText = value.fundsSentTransferReceiptText
+        self.fundsIncomingTransferReceiptText = value.fundsIncomingTransferReceiptText
+        self.fundsPacketReceiptImage = value.fundsPacketReceiptImage
+        self.fundsTransferReceiptImage = value.fundsTransferReceiptImage
+        self.fundsReceiptAccentColor = value.fundsReceiptAccentColor
+        self.fundsReceiptBackgroundColor = value.fundsReceiptBackgroundColor
+        self.fundsPacketReceiptTintColor = value.fundsPacketReceiptTintColor
+        self.fundsTransferReceiptTintColor = value.fundsTransferReceiptTintColor
+        self.fundsReceiptIconSide = value.fundsReceiptIconSide
         self.centeredTextAlignment = value.centeredTextAlignment
+        self.outgoingCallIconOnTrailing = value.outgoingCallIconOnTrailing
+        self.callDurationText = value.callDurationText
         self.unconnectedCallText = value.unconnectedCallText
         withdrawalTimeLimit = value.withdrawalTimeLimit
         allowsPatWithdrawal = value.allowsPatWithdrawal
@@ -261,7 +300,20 @@ import WYBasisKitSwift
     }
     @nonobjc public func toValue() -> WYChatNoticeConfig {
         var value = WYChatNoticeConfig()
+        value.fundsSentPacketReceiptText = fundsSentPacketReceiptText
+        value.fundsIncomingPacketReceiptText = fundsIncomingPacketReceiptText
+        value.fundsSentTransferReceiptText = fundsSentTransferReceiptText
+        value.fundsIncomingTransferReceiptText = fundsIncomingTransferReceiptText
+        value.fundsPacketReceiptImage = fundsPacketReceiptImage
+        value.fundsTransferReceiptImage = fundsTransferReceiptImage
+        value.fundsReceiptAccentColor = fundsReceiptAccentColor
+        value.fundsReceiptBackgroundColor = fundsReceiptBackgroundColor
+        value.fundsPacketReceiptTintColor = fundsPacketReceiptTintColor
+        value.fundsTransferReceiptTintColor = fundsTransferReceiptTintColor
+        value.fundsReceiptIconSide = fundsReceiptIconSide
         value.centeredTextAlignment = centeredTextAlignment
+        value.outgoingCallIconOnTrailing = outgoingCallIconOnTrailing
+        value.callDurationText = callDurationText
         value.unconnectedCallText = unconnectedCallText
         value.withdrawalTimeLimit = withdrawalTimeLimit
         value.allowsPatWithdrawal = allowsPatWithdrawal

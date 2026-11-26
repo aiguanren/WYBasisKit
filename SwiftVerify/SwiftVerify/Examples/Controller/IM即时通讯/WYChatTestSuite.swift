@@ -1480,6 +1480,53 @@ final class WYChatTestSuite {
     }
 
     private func registerSelectionForwardCases() {
+        cases.append(WYChatTestCase("内置删除与收藏", group: "功能", explanation: "检查开关、单条菜单、批量删除权限、收藏去重、原消息变化和取消收藏") {
+            var config = WYChatConfig()
+            config.input.draftStorageKey = ""
+            config.allowsAction = { action, message in action != .delete || message.messageID != "protected" }
+            let view = WYChatView(configuration: config)
+            let host = UIView(frame: CGRect(x: 0, y: 0, width: 390, height: 720))
+            host.addSubview(view)
+            view.frame = host.bounds
+            defer { view.releaseAll() }
+            let ids = ["favorite", "other", "protected"]
+            view.dataSource = ids.map { WYChatMessageModel(messageID: $0, content: WYChatMessageContentModel(text: $0)) }
+            view.layoutIfNeeded()
+            view.tableView.layoutIfNeeded()
+            let cell = view.tableView.cellForRow(at: IndexPath(row: 0, section: 0)) as? WYChatBasicCell
+            cell?.actionHandler?(.favorite, "favorite")
+            cell?.actionHandler?(.delete, "favorite")
+            let defaults = cell != nil && view.favoriteMessages.isEmpty && view.dataSource.count == 3
+            config.selection.automaticallyFavoritesMessages = true
+            config.selection.automaticallyDeletesMessages = true
+            view.configuration = config
+            view.layoutIfNeeded()
+            view.tableView.layoutIfNeeded()
+            let configuredCell = view.tableView.cellForRow(at: IndexPath(row: 0, section: 0)) as? WYChatBasicCell
+            configuredCell?.actionHandler?(.favorite, "favorite")
+            configuredCell?.actionHandler?(.favorite, "favorite")
+            let favorited = view.favoriteMessages.map(\.messageID) == ["favorite"]
+            view.dataSource[0].content.text = "updated"
+            view.quoteMessage("favorite")
+            let membership = view.removeMessages(["favorite", "missing"]).map(\.messageID) == ["favorite"]
+            let deleted = membership && view.quotedMessageID == nil
+            let snapshot = view.favoriteMessages.first?.content.text == "favorite"
+            let unfavorited = view.setMessageFavorited(false, messageID: "favorite") && view.favoriteMessages.isEmpty
+            var removed: [String] = []
+            view.actionHandler = { _, action, id in if action == .delete { removed.append(id) } }
+            _ = view.selectMessages(["other", "protected"])
+            view.selectionDeleteButton.sendActions(for: .touchUpInside)
+            let bulk = view.dataSource.map(\.messageID) == ["protected"] && removed == ["other"]
+                && !view.isSelectingMessages && view.selectedMessageIDs.isEmpty
+            return [
+                WYChatTestResult(name: "local-actions-defaults", passed: defaults, detail: "", milliseconds: 0),
+                WYChatTestResult(name: "favorite-action-deduplicates", passed: favorited, detail: "", milliseconds: 0),
+                WYChatTestResult(name: "remove-message-clears-input-quote", passed: deleted, detail: "", milliseconds: 0),
+                WYChatTestResult(name: "favorite-retains-snapshot-after-deletion", passed: snapshot, detail: "", milliseconds: 0),
+                WYChatTestResult(name: "favorite-can-remove-deleted-message", passed: unfavorited, detail: "", milliseconds: 0),
+                WYChatTestResult(name: "bulk-delete-respects-policy", passed: bulk, detail: "", milliseconds: 0)
+            ]
+        })
         cases.append(WYChatTestCase("合并记录明细真实操作", group: "手势", explanation: "点击合并卡片打开明细，核对原发送者、只读列表和关闭后返回", requiresInteraction: true) { [weak self] in
             guard let self, let root = self.chatView.window?.rootViewController else { return [] }
             var presenter = root
@@ -1693,6 +1740,9 @@ final class WYChatTestSuite {
             check("forward-records-snapshot-isolation", merged.first?.content.chatRecords?.messages.first?.content.text == "消息2")
             view.dataSource.removeAll { $0.messageID == "forward-3" }
             check("selection-prunes-removed", view.selectedMessageIDs == ["forward-2", "forward-4"])
+            var menuConfiguration = view.configuration
+            menuConfiguration.selection.usesForwardActionSheet = false
+            view.configuration = menuConfiguration
             view.forwardHandler = { _, _ in }
             check("forward-choice-menu", view.selectionForwardButton.showsMenuAsPrimaryAction && view.selectionForwardButton.menu?.children.count == 2)
             var noForward = view.configuration
@@ -2381,11 +2431,43 @@ final class WYChatTestSuite {
                 check("browser-stack-rendered-rotation-\(Int(size.width))", rendered != nil && rendered?.transform == attributes.dropFirst().first?.transform, "rendered=\(String(describing: rendered?.transform)), expected=\(String(describing: attributes.dropFirst().first?.transform))")
                 check("browser-stack-source-\(Int(size.width))", (browser.sourceView(at: 2) as? UIImageView)?.image != nil && browser.currentIndex == 2)
                 let origin = collection.contentOffset
+                browser.scrollViewWillBeginDragging(collection)
+                collection.setContentOffset(CGPoint(x: origin.x + size.width * 0.12, y: origin.y), animated: false)
+                collection.layoutIfNeeded()
+                let start = collection.collectionViewLayout.layoutAttributesForItem(at: IndexPath(item: 2, section: 0))
+                check("browser-stack-starts-flat-\(Int(size.width))", start?.transform.isIdentity == true)
                 collection.setContentOffset(CGPoint(x: origin.x + size.width * 0.35, y: origin.y), animated: false)
                 collection.layoutIfNeeded()
                 let front = collection.collectionViewLayout.layoutAttributesForItem(at: IndexPath(item: 2, section: 0))
                 let next = collection.collectionViewLayout.layoutAttributesForItem(at: IndexPath(item: 3, section: 0))
-                check("browser-stack-moving-\(Int(size.width))", front != nil && next != nil && (front?.transform.isIdentity == false) && (front?.center.x ?? 0) < (next?.center.x ?? 0))
+                @MainActor func renderedMidX(_ attributes: UICollectionViewLayoutAttributes) -> CGFloat {
+                    let localBounds = CGRect(x: -attributes.size.width / 2, y: -attributes.size.height / 2,
+                                             width: attributes.size.width, height: attributes.size.height)
+                    return attributes.center.x + localBounds.applying(attributes.transform).midX
+                }
+                if let front, let next {
+                    check("browser-stack-moving-\(Int(size.width))", !front.transform.isIdentity && renderedMidX(front) < renderedMidX(next),
+                          "front=\(renderedMidX(front)), next=\(renderedMidX(next))")
+                } else {
+                    check("browser-stack-moving-\(Int(size.width))", false, "Missing layout attributes")
+                }
+                let midDragX = front.map { renderedMidX($0) - collection.bounds.midX }
+                collection.setContentOffset(CGPoint(x: origin.x + size.width * 0.96, y: origin.y), animated: false)
+                collection.layoutIfNeeded()
+                let held = collection.collectionViewLayout.layoutAttributesForItem(at: IndexPath(item: 2, section: 0))
+                let following = collection.collectionViewLayout.layoutAttributesForItem(at: IndexPath(item: 3, section: 0))
+                check("browser-stack-edge-handoff-\(Int(size.width))", (held?.alpha ?? 0) > 0 && (held?.alpha ?? 1) < 0.2
+                    && (held?.zIndex ?? 0) > (following?.zIndex ?? 0) && browser.currentIndex == 2)
+                if let held, let midDragX {
+                    check("browser-stack-card-stays-outward-\(Int(size.width))", renderedMidX(held) - collection.bounds.midX < midDragX)
+                }
+                collection.setContentOffset(CGPoint(x: origin.x + size.width * 0.35, y: origin.y), animated: false)
+                collection.layoutIfNeeded()
+                let returned = collection.collectionViewLayout.layoutAttributesForItem(at: IndexPath(item: 2, section: 0))
+                check("browser-stack-reverses-before-release-\(Int(size.width))", returned?.alpha == 1 && returned?.transform == front?.transform)
+                collection.setContentOffset(CGPoint(x: origin.x + size.width, y: origin.y), animated: false)
+                browser.scrollViewDidEndDragging(collection, willDecelerate: false)
+                check("browser-stack-releases-front-\(Int(size.width))", browser.currentIndex == 3)
                 browser.currentIndex = 0
                 collection.layoutIfNeeded()
             }
@@ -2665,17 +2747,289 @@ final class WYChatTestSuite {
             browser.dismissBrowser(animated: false)
             try? await Task.sleep(nanoseconds: 150_000_000)
             check("media-preview-dismissed", host.presentedViewController == nil)
+            config.media.automaticallyPlaysVideo = true
+            config.media.automaticVideoStartsMuted = true
+            view.configuration = config
+            view.previewMedia(messageID: identifier, index: 1)
+            try? await Task.sleep(nanoseconds: 450_000_000)
+            let automatic = host.presentedViewController as? WYPhotoBrowser
+            var inline: AVPlayer?
+            for _ in 0..<30 {
+                inline = automatic?.sourceView(at: 1)?.layer.sublayers?.compactMap { ($0 as? AVPlayerLayer)?.player }.first
+                if (inline?.currentTime().seconds ?? 0) > 0 { break }
+                try? await Task.sleep(nanoseconds: 100_000_000)
+            }
+            check("video-autoplay-plays-inline-muted", inline?.isMuted == true
+                && (inline?.currentTime().seconds ?? 0) > 0 && automatic?.presentedViewController == nil)
+            automatic?.currentIndex = 0
+            check("video-autoplay-pauses-when-page-changes", inline?.rate == 0)
+            automatic?.dismissBrowser(animated: false)
+            try? await Task.sleep(nanoseconds: 200_000_000)
+            let row = IndexPath(row: 0, section: 0)
+            @MainActor func foldedCell() -> WYChatMediaGroupCell? {
+                view.layoutIfNeeded()
+                view.tableView.layoutIfNeeded()
+                let card = view.tableView.cellForRow(at: row) as? WYChatMediaGroupCell
+                card?.layoutIfNeeded()
+                return card
+            }
+            @MainActor func foldedPlayer() -> AVPlayer? {
+                guard let card = foldedCell() else { return nil }
+                return descendants(card.mediaContentView).lazy.flatMap { $0.layer.sublayers ?? [] }
+                    .compactMap { ($0 as? AVPlayerLayer)?.player }.first
+            }
+            @MainActor func waitForFoldedPlayback() async -> AVPlayer? {
+                for _ in 0..<30 {
+                    if let player = foldedPlayer(), player.currentTime().seconds > 0 { return player }
+                    try? await Task.sleep(nanoseconds: 100_000_000)
+                }
+                return nil
+            }
+            config.media.foldedVideoAutoplayMode = .firstItem
+            view.configuration = config
+            view.dataSource[0].content.mediaGroup?.visibleIndex = 1
+            check("media-first-item-mode-skips-later-video", foldedPlayer() == nil)
+            view.dataSource[0].content.mediaGroup?.visibleIndex = 0
+            var nextVideo = video
+            nextVideo.id = UUID().uuidString
+            view.dataSource[0].content.mediaGroup?.items = [video, photo, nextVideo]
+            let firstVideo = await waitForFoldedPlayback()
+            check("media-first-folded-video-autoplays-in-first-item-mode", firstVideo?.isMuted == true)
+
+            config.media.foldedVideoAutoplayMode = WYChatMediaConfig().foldedVideoAutoplayMode
+            check("media-folded-autoplay-defaults-to-swipe", config.media.foldedVideoAutoplayMode == .onSwipe)
+            view.configuration = config
+            check("media-swipe-mode-skips-initial-video", foldedPlayer() == nil && firstVideo?.rate == 0)
+            view.dataSource[0].content.mediaGroup?.visibleIndex = 2
+            check("media-swipe-mode-skips-programmatic-video", foldedPlayer() == nil)
+            view.dataSource[0].content.mediaGroup?.visibleIndex = 1
+
+            guard let card = foldedCell(), let collection = descendants(card.mediaContentView)
+                .compactMap({ $0 as? UICollectionView }).first, let folded = collection.delegate as? WYPhotoBrowser else {
+                check("media-swipe-browser", false)
+                return checks
+            }
+            @MainActor func holdSwipe(_ fraction: CGFloat) -> CGPoint {
+                folded.scrollViewWillBeginDragging(collection)
+                let start = collection.contentOffset
+                collection.setContentOffset(CGPoint(x: start.x + collection.bounds.width * fraction, y: start.y), animated: false)
+                collection.layoutIfNeeded()
+                return start
+            }
+            let shortDrag = holdSwipe(0.25)
+            var predicted = CGPoint(x: shortDrag.x + collection.bounds.width, y: shortDrag.y)
+            folded.scrollViewWillEndDragging(collection, withVelocity: .zero, targetContentOffset: &predicted)
+            check("media-short-drag-snaps-to-original-card", predicted == shortDrag)
+            collection.setContentOffset(predicted, animated: false)
+            folded.scrollViewDidEndDragging(collection, willDecelerate: false)
+            check("media-cancelled-swipe-does-not-start-video", folded.currentIndex == 1 && foldedPlayer() == nil)
+
+            _ = holdSwipe(1)
+            check("media-swipe-waits-for-finger-release", foldedPlayer() == nil)
+            folded.scrollViewDidEndDragging(collection, willDecelerate: true)
+            check("media-swipe-waits-for-deceleration", foldedPlayer() == nil)
+            folded.scrollViewDidEndDecelerating(collection)
+            let reachedVideo = await waitForFoldedPlayback()
+            check("media-swipe-autoplays-after-settling", folded.currentIndex == 2 && reachedVideo?.isMuted == true)
+
+            _ = holdSwipe(1)
+            check("media-swipe-stops-previous-video", reachedVideo?.rate == 0 && foldedPlayer() == nil)
+            folded.scrollViewDidEndDragging(collection, willDecelerate: false)
+            let loopedVideo = await waitForFoldedPlayback()
+            check("media-swipe-loops-to-next-video", folded.currentIndex == 0 && loopedVideo?.isMuted == true
+                && loopedVideo !== reachedVideo && reachedVideo?.rate == 0)
+
+            config.media.foldedVideoAutoplayMode = .allVideos
+            view.configuration = config
+            let presentedVideo = await waitForFoldedPlayback()
+            check("media-all-videos-autoplays-current-video-on-presentation", presentedVideo?.isMuted == true)
+            view.dataSource[0].content.mediaGroup?.visibleIndex = 2
+            let jumpedVideo = await waitForFoldedPlayback()
+            check("media-all-videos-autoplays-after-programmatic-page-change", jumpedVideo?.isMuted == true
+                && jumpedVideo !== presentedVideo && presentedVideo?.rate == 0)
             return checks
         })
     }
 
     private func registerMediaCases() {
+        cases.append(WYChatTestCase("附件传输与收款回执", group: "媒体", explanation: "检查视频发送和接收的进度、暂停继续事件、文件进度条、确认发送以及红包和转账详情回调") { [weak self] in
+            guard let self else { return [] }
+            var config = WYChatConfig()
+            config.content.transferProgressDelay = 0
+            config.notice.fundsSentPacketReceiptText = "{actor}已打开红包"
+            config.selection.usesForwardActionSheet = true
+            let chat = WYChatView(userInfo: WYChatUserModel(id: "self", name: "本人"), configuration: config)
+            let host = self.chatView.window ?? self.chatView
+            chat.frame = host.bounds
+            host.addSubview(chat)
+            defer { chat.releaseAll(); chat.removeFromSuperview() }
+            var results: [WYChatTestResult] = []
+            func check(_ name: String, _ passed: Bool, _ detail: String = "") { results.append(WYChatTestResult(name: name, passed: passed, detail: detail, milliseconds: 0)) }
+            @MainActor func button(in view: UIView) -> UIButton? {
+                if let button = view as? UIButton, button.accessibilityIdentifier == "WYChatTransfer.control", !button.isHidden { return button }
+                guard !view.isHidden else { return nil }
+                return view.subviews.lazy.compactMap { button(in: $0) }.first
+            }
+            @MainActor func cell(_ row: Int) -> WYChatBasicCell? {
+                let path = IndexPath(row: row, section: 0)
+                chat.layoutIfNeeded()
+                chat.tableView.scrollToRow(at: path, at: .top, animated: false)
+                chat.tableView.layoutIfNeeded()
+                let cell = chat.tableView.cellForRow(at: path) as? WYChatBasicCell
+                cell?.layoutIfNeeded()
+                return cell
+            }
+
+            let video = WYChatMessageContentModel(video: WYChatVideoModel())
+            var incoming = WYChatMessageModel(messageID: "incoming-video", sender: WYChatUserModel(id: "other"), content: video)
+            incoming.transferState = .waiting
+            chat.appendMessages([incoming])
+            var events: [WYChatAction] = []
+            chat.actionHandler = { _, action, _ in events.append(action) }
+            let firstControl = cell(0).flatMap { button(in: $0) }
+            check("incoming-video-download-control", firstControl?.accessibilityLabel == config.content.transferDownloadText && firstControl?.currentImage != nil)
+            firstControl?.sendActions(for: .touchUpInside)
+
+            let sent = chat.sendContent(video, messageID: "outgoing-video")
+            check("send-video-prepares-message", sent.sendState == .sending && sent.sender.id == "self")
+            check("outgoing-video-progress-update", chat.updateTransfer(messageID: sent.messageID, state: .transferring, progress: 0.2))
+            let outgoingCell = cell(1)
+            let pauseControl = outgoingCell.flatMap { button(in: $0) }
+            check("outgoing-video-pause-control", pauseControl?.accessibilityValue == "20%" && pauseControl?.currentImage != nil)
+            pauseControl?.sendActions(for: .touchUpInside)
+            check("video-pause-preserves-progress", chat.updateTransfer(messageID: sent.messageID, state: .paused)
+                && chat.messageModelFrom(sent.messageID)?.transferProgress == 0.2)
+            cell(1).flatMap { button(in: $0) }?.sendActions(for: .touchUpInside)
+            check("video-transfer-controls-emit-actions", events == [.startTransfer, .pauseTransfer, .resumeTransfer])
+            chat.updateTransfer(messageID: sent.messageID, state: .transferring, progress: 0.2)
+            let control = cell(1).flatMap { button(in: $0) }
+            chat.updateTransfer(messageID: sent.messageID, state: .transferring, progress: 0.65)
+            check("video-progress-updates-without-replacing-control", control != nil && control?.accessibilityValue == "65%")
+            chat.updateTransfer(messageID: sent.messageID, state: .completed)
+            check("completed-transfer-control-hidden", cell(1).flatMap { button(in: $0) } == nil)
+
+            let file = WYChatMessageContentModel(file: WYChatFileModel(title: "示例.pdf"))
+            var approved = 0
+            chat.sendConfirmationHandler = { _, answer in answer(false); answer(true) }
+            chat.confirmSending([file]) { approved += 1 }
+            chat.sendConfirmationHandler = { _, answer in answer(true); answer(true) }
+            chat.confirmSending([file]) { approved += 1 }
+            check("send-confirmation-can-cancel-and-complete-once", approved == 1)
+            let fileMessage = chat.sendContent(file, messageID: "file")
+            chat.updateTransfer(messageID: fileMessage.messageID, state: .transferring, progress: 0.5)
+            check("file-renders-inline-progress", cell(2).flatMap { button(in: $0) }?.accessibilityValue == "50%")
+
+            let packet = chat.sendContent(WYChatMessageContentModel(luckyMoney: WYChatLuckyMoneyModel(amounts: "8.88")), messageID: "packet")
+            let initialColor = cell(3)?.bubblesView.fillColor
+            var displayedDetail = ""
+            chat.messageDetailHandler = { message in displayedDetail = message.messageID; return true }
+            cell(3)?.actionHandler?(.content, packet.messageID)
+            check("packet-detail-delivered-to-host", displayedDetail == packet.messageID)
+            let didReceive = chat.markFundsReceived(packet.messageID, actorName: "小明")
+            check("packet-only-accepts-receipt-once", didReceive && !chat.markFundsReceived(packet.messageID, actorName: "小明"))
+            check("received-packet-changes-color", initialColor != nil && cell(3)?.bubblesView.fillColor != initialColor)
+            check("funds-receipt-template-and-original-id", cell(4)?.titleView.text == "小明已打开红包"
+                && chat.dataSource.last?.content.fundsReceipt?.originalMessageID == packet.messageID)
+            let transfer = chat.sendContent(WYChatMessageContentModel(transfer: WYChatLuckyMoneyModel(amounts: "20.00")), messageID: "transfer")
+            check("transfer-pending-copy", cell(5)?.footerView.text == config.content.fundsPendingTransferText)
+            chat.markFundsReceived(transfer.messageID)
+            check("outgoing-transfer-received-copy", cell(5)?.footerView.text == config.content.fundsSentTransferReceivedText)
+            let defaultProgressDelay = WYChatConfig().content.transferProgressDelay
+            check("send-progress-delay-default", defaultProgressDelay == 0.5)
+            config.content.transferProgressDelay = defaultProgressDelay
+            chat.configuration = config
+            let slowRow = chat.dataSource.count
+            _ = chat.sendContent(WYChatMessageContentModel(text: "较慢的文本发送"), messageID: "slow-text")
+            let fastRow = chat.dataSource.count
+            _ = chat.sendContent(WYChatMessageContentModel(text: "快速文本发送"), messageID: "fast-text")
+            let fileRow = chat.dataSource.count
+            _ = chat.sendContent(file, messageID: "slow-file")
+            chat.updateTransfer(messageID: "slow-file", state: .transferring, progress: 0.25)
+            check("slow-message-progress-starts-hidden", cell(slowRow)?.activityView.isAnimating == false)
+            check("file-progress-uses-same-fractional-delay", cell(fileRow).flatMap { button(in: $0) } == nil)
+            chat.dataSource[fastRow].sendState = .success
+            try? await Task.sleep(nanoseconds: 650_000_000)
+            check("slow-message-reveals-progress", cell(slowRow)?.activityView.isAnimating == true)
+            check("fast-message-never-needs-progress", cell(fastRow)?.activityView.isAnimating == false)
+            check("file-progress-revealed-after-delay", cell(fileRow).flatMap { button(in: $0) }?.accessibilityValue == "25%")
+
+            config.content.transferProgressDelay = 0
+            chat.configuration = config
+            var movie = WYChatMediaItem()
+            movie.kind = .video
+            let photo = WYChatMediaItem()
+            let groupRow = chat.dataSource.count
+            if let mixed = chat.sendMedia([photo, movie], presentation: .merged).first {
+                check("mixed-media-keeps-selection-order", mixed.content.mediaGroup?.items.map(\.kind) == [.photo, .video])
+                chat.updateMediaTransfer(messageID: mixed.messageID, itemID: photo.id, state: .transferring, progress: 0.35)
+                chat.updateMediaTransfer(messageID: mixed.messageID, itemID: movie.id, state: .paused, progress: 0.72)
+                let media = chat.messageModelFrom(mixed.messageID)?.content.mediaGroup?.items
+                check("mixed-media-progress-is-independent", media?.first?.transferProgress == 0.35 && media?.last?.transferProgress == 0.72
+                    && media?.first?.transferState == .transferring && media?.last?.transferState == .paused)
+                @MainActor func find(_ id: String, in view: UIView) -> UIView? {
+                    guard !view.isHidden else { return nil }
+                    if view.accessibilityIdentifier == id { return view }
+                    return view.subviews.lazy.compactMap { find(id, in: $0) }.first
+                }
+                if let folded = cell(groupRow)?.mediaContentView {
+                    folded.layoutIfNeeded()
+                    let first = find("WYChatTransfer.mediaItem.0", in: folded)
+                    let second = find("WYChatTransfer.mediaItem.1", in: folded)
+                    check("folded-shows-progress-on-both-covers", first.flatMap { button(in: $0) }?.accessibilityValue == "35%"
+                        && second.flatMap { button(in: $0) }?.accessibilityValue?.contains("72%") == true)
+                    check("folded-shows-percentage-labels", (first.flatMap { find("WYChatTransfer.status", in: $0) } as? UILabel)?.text == "35%"
+                        && (second.flatMap { find("WYChatTransfer.status", in: $0) } as? UILabel)?.text?.contains("72%") == true)
+                    if let collection = folded.subviews.flatMap(\.subviews).compactMap({ $0 as? UICollectionView }).first,
+                       let browser = collection.delegate as? WYPhotoBrowser {
+                        var seen: [Int] = []
+                        for _ in 0..<4 {
+                            browser.scrollViewWillBeginDragging(collection)
+                            let offset = collection.contentOffset
+                            collection.setContentOffset(CGPoint(x: offset.x + collection.bounds.width, y: offset.y), animated: false)
+                            browser.scrollViewDidEndDragging(collection, willDecelerate: false)
+                            seen.append(browser.currentIndex)
+                            let id = "WYChatTransfer.mediaItem.\(browser.currentIndex)"
+                            let value = find(id, in: folded).flatMap { button(in: $0) }?.accessibilityValue
+                            check("folded-progress-persists-after-swipe-\(seen.count)",
+                                  value?.contains(browser.currentIndex == 0 ? "35%" : "72%") == true)
+                        }
+                        check("folded-progress-swipes-loop", seen == [1, 0, 1, 0], "\(seen)")
+                    } else {
+                        check("folded-progress-swipes-loop", false, "Missing embedded browser")
+                    }
+                } else {
+                    check("folded-shows-progress-on-both-covers", false)
+                }
+                var action: (WYChatAction, String, String)?
+                chat.mediaTransferActionHandler = { action = ($0, $1, $2) }
+                chat.setMediaGroupExpanded(true, messageID: mixed.messageID)
+                try? await Task.sleep(nanoseconds: 200_000_000)
+                let mediaControl = cell(groupRow).flatMap { button(in: $0.mediaContentView) }
+                let secondControl = cell(groupRow).flatMap { find("WYChatTransfer.mediaItem.1", in: $0.mediaContentView) }
+                    .flatMap { button(in: $0) }
+                check("expanded-video-retains-own-progress", secondControl?.accessibilityValue?.contains("72%") == true)
+
+                check("expanded-media-has-item-control", mediaControl?.accessibilityValue == "35%")
+                mediaControl?.sendActions(for: .touchUpInside)
+                check("media-control-reports-its-id", action?.0 == .pauseTransfer && action?.1 == mixed.messageID && action?.2 == photo.id)
+            } else {
+                check("mixed-media-message", false)
+            }
+            return results
+        })
+
         cases.append(WYChatTestCase("相册结果与媒体合并", group: "媒体", explanation: "检查外部相册事件、逐条/合并、混合照片视频、展开收起、翻页状态、预览索引和实际布局") { [weak self] in
             guard let self else { return [] }
             let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
             do { try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true) }
             catch { return [WYChatTestResult(name: "media-fixture", passed: false, detail: error.localizedDescription, milliseconds: 0)] }
             defer { try? FileManager.default.removeItem(at: folder) }
+            let remoteURL = "https://example.com/chat-expanded.png"
+            let remoteImage = UIGraphicsImageRenderer(size: CGSize(width: 20, height: 20)).image { context in
+                UIColor.systemOrange.setFill()
+                context.fill(CGRect(x: 0, y: 0, width: 20, height: 20))
+            }
+            var remoteRequests = 0
             let items = (0..<6).map { index -> WYChatMediaItem in
                 let image = UIGraphicsImageRenderer(size: CGSize(width: 180, height: index.isMultiple(of: 2) ? 120 : 220)).image { context in
                     UIColor(hue: CGFloat(index) / 6, saturation: 0.55, brightness: 0.85, alpha: 1).setFill()
@@ -2689,12 +3043,20 @@ final class WYChatTestSuite {
                 item.kind = index == 2 ? .video : .photo
                 item.original = WYChatAssetsModel(id: item.id, localPath: path.path)
                 item.thumbnail = item.original
+                if index == 1 {
+                    item.original = WYChatAssetsModel(downloadPath: remoteURL)
+                    item.thumbnail = WYChatAssetsModel(localPath: folder.appendingPathComponent("expired-thumbnail.png").path)
+                }
                 item.size = image.size
                 item.duration = index == 2 ? 12 : 0
                 return item
             }
             var config = self.chatView.configuration
-            config.imageLoader = nil
+            config.imageLoader = { asset, imageView, _ in
+                guard asset.downloadPath == remoteURL else { return }
+                remoteRequests += 1
+                imageView.image = remoteImage
+            }
             config.media.automaticallyPresentsBrowser = false
             config.media.albumMoreItemIndex = 0
             let view = WYChatView(userInfo: self.chatView.userInfo, configuration: config)
@@ -2717,6 +3079,8 @@ final class WYChatTestSuite {
             let separate = view.sendMedia(items)
             check("individual-media-messages", separate.count == items.count && view.dataSource.count == items.count && separate.enumerated().allSatisfy { $0.element.content.mediaGroup?.items == [items[$0.offset]] })
             check("individual-unique-message-ids", Set(separate.map(\.messageID)).count == separate.count && prepared.count == items.count)
+            let oneBatch = view.sendMedia(items, presentation: .merged)
+            check("per-send-media-presentation", oneBatch.count == 1 && oneBatch.first?.content.mediaGroup?.items == items && view.configuration.media.presentation == .individual)
             config.media.presentation = .merged
             view.configuration = config
             view.dataSource = []
@@ -2754,6 +3118,14 @@ final class WYChatTestSuite {
             try? await Task.sleep(nanoseconds: 50_000_000)
             let expanded = view.tableView.rectForRow(at: path).height
             check("expanded-media-height", view.messageModelFrom(identifier)?.content.mediaGroup?.isExpanded == true && expanded > collapsed * 3, "collapsed=\(collapsed), expanded=\(expanded)")
+            let expandedCell = view.tableView.cellForRow(at: path) as? WYChatMediaGroupCell
+            expandedCell?.layoutIfNeeded()
+            let expandedImages = expandedCell?.mediaContentView.subviews.compactMap { $0 as? UIImageView } ?? []
+            let local = expandedImages.first { $0.accessibilityIdentifier == "WYChatMedia.item.0" }?.image
+            let remote = expandedImages.first { $0.accessibilityIdentifier == "WYChatMedia.item.1" }?.image
+            let localFixture = UIImage(contentsOfFile: items[0].original.localPath)
+            check("expanded-local-image-with-custom-loader", local != nil && local?.size == localFixture?.size)
+            check("expanded-remote-image-through-custom-loader", remote === remoteImage && remoteRequests > 0)
             view.setMediaGroupExpanded(false, messageID: identifier)
             view.tableView.layoutIfNeeded()
             check("collapse-retains-page", view.messageModelFrom(identifier)?.content.mediaGroup?.isExpanded == false && view.messageModelFrom(identifier)?.content.mediaGroup?.visibleIndex == 3)

@@ -9,12 +9,14 @@ import Foundation
 
 /// 消息快照的写入隔离
 final class WYChatMessageStorage: Equatable {
+    var transferState: WYChatTransferState = .automatic
     var isTransferring: Bool
     var transferProgress: Double
     var transferError: String
     var greetingDescription: String
     var readers: String
     var readBackState: WYChatMessageSendState
+    var sendStartedAt: Date?
     var sendState: WYChatMessageSendState
     var messageID: String
     var sessionID: String
@@ -56,6 +58,7 @@ final class WYChatMessageStorage: Equatable {
         self.readers = readers
         self.readBackState = readBackState
         self.sendState = sendState
+        self.sendStartedAt = sendState == .sending ? Date() : nil
         self.messageID = messageID
         self.sessionID = sessionID
         self.clientTimestamp = clientTimestamp
@@ -90,19 +93,23 @@ final class WYChatMessageStorage: Equatable {
             reference: reference,
             index: index
         )
+        value.sendStartedAt = sendStartedAt
+        value.transferState = transferState
         value.mentions = mentions
         return value
     }
 
     static func == (lhs: WYChatMessageStorage, rhs: WYChatMessageStorage) -> Bool {
         if lhs === rhs { return true }
-        return lhs.isTransferring == rhs.isTransferring
+        return lhs.transferState == rhs.transferState
+            && lhs.isTransferring == rhs.isTransferring
             && lhs.transferProgress == rhs.transferProgress
             && lhs.transferError == rhs.transferError
             && lhs.greetingDescription == rhs.greetingDescription
             && lhs.readers == rhs.readers
             && lhs.readBackState == rhs.readBackState
             && lhs.sendState == rhs.sendState
+            && lhs.sendStartedAt == rhs.sendStartedAt
             && lhs.messageID == rhs.messageID
             && lhs.sessionID == rhs.sessionID
             && lhs.clientTimestamp == rhs.clientTimestamp

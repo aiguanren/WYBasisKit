@@ -10,13 +10,19 @@ import AVKit
 
 /// 接入方选择结果接入与媒体操作
 extension WYChatView {
-    func wy_sendMedia(_ items: [WYChatMediaItem]) -> [WYChatMessageModel] {
+    func wy_sendMedia(_ items: [WYChatMediaItem], presentation: WYChatMediaPresentation) -> [WYChatMessageModel] {
         guard !items.isEmpty else { return [] }
-        let batches = configuration.media.presentation == .merged ? [items] : items.map { [$0] }
+        let batches = presentation == .merged ? [items] : items.map { [$0] }
         let reference = state.inputQuote
         var messages: [WYChatMessageModel] = []
         for batch in batches {
-            var message = WYChatMessageModel(messageID: UUID().uuidString, timestamp: String(Date().timeIntervalSince1970), sender: userInfo, content: WYChatMessageContentModel(mediaGroup: WYChatMediaGroupModel(items: batch)))
+            var identifiers = Set<String>()
+            let entries = batch.map { source -> WYChatMediaItem in
+                var item = source
+                while item.id.isEmpty || !identifiers.insert(item.id).inserted { item.id = UUID().uuidString }
+                return item
+            }
+            var message = WYChatMessageModel(messageID: UUID().uuidString, timestamp: String(Date().timeIntervalSince1970), sender: userInfo, content: WYChatMessageContentModel(mediaGroup: WYChatMediaGroupModel(items: entries)))
             message.index = dataSource.count + messages.count
             message.reference = reference
             message.sendState = .sending
@@ -50,6 +56,18 @@ extension WYChatView {
         return []
     }
 
+    func wy_performMediaTransferAction(_ action: WYChatAction, messageID: String, itemID: String) {
+        guard let message = messageModelFrom(messageID),
+              let item = message.content.mediaGroup?.items.first(where: { $0.id == itemID }) else { return }
+        if isSelectingMessages { wy_performAction(.select, messageID: messageID); return }
+        switch (action, item.transferState) {
+        case (.startTransfer, .waiting), (.pauseTransfer, .transferring), (.resumeTransfer, .paused), (.retry, .failed):
+            guard eventsHandler?.wy_shouldPerformMessageAction?(self, action: action, messageID: messageID) ?? true else { return }
+            mediaTransferActionHandler?(action, messageID, itemID)
+        default: break
+        }
+    }
+
     func wy_performMediaAction(_ action: WYChatMediaAction, messageID: String, index: Int) {
         guard let row = dataSource.firstIndex(where: { $0.messageID == messageID }) else { return }
         let model = dataSource[row]
@@ -76,6 +94,7 @@ extension WYChatView {
             inputViewResignFirstResponder()
             let cell = tableView.cellForRow(at: IndexPath(row: row, section: 0)) as? WYChatBasicCell
             let source = cell?.state.mediaView.sourceView(at: index) ?? cell?.previewImageView
+            cell?.state.mediaView.stopEmbeddedPlayback()
             if let handler = mediaPreviewHandler { handler(items, index, source) }
             else if configuration.media.automaticallyPresentsBrowser {
                 var responder: UIResponder? = self
@@ -88,6 +107,7 @@ extension WYChatView {
                         var browserConfiguration = configuration.media.browser
                         browserConfiguration.isEmbedded = false
                         adapter.browser = WYPhotoBrowser.show(from: controller, index: index, dataSource: adapter, configuration: browserConfiguration, delegate: adapter)
+                        adapter.configureBrowser()
                         break
                     }
                     responder = next
@@ -99,11 +119,55 @@ extension WYChatView {
     }
 }
 
+extension WYChatMediaItem {
+    var wy_videoURL: URL? {
+        guard kind == .video else { return nil }
+        if !original.localPath.isEmpty, FileManager.default.fileExists(atPath: original.localPath) {
+            return URL(fileURLWithPath: original.localPath)
+        }
+        return URL(string: original.downloadPath).flatMap { ["https", "http"].contains($0.scheme?.lowercased() ?? "") ? $0 : nil }
+    }
+}
+
+/// 全屏预览和折叠叠卡共用的内联视频窗口。
+final class WYChatInlineVideoPlayback {
+    private var layer: AVPlayerLayer?
+    private var url: URL?
+
+    func play(_ url: URL, in container: CALayer, bounds: CGRect, muted: Bool, fillsCard: Bool) {
+        if self.url == url, let layer, layer.superlayer === container {
+            layer.frame = bounds
+            layer.player?.isMuted = muted
+            return
+        }
+        stop()
+        let player = AVPlayer(url: url)
+        player.isMuted = muted
+        let layer = AVPlayerLayer(player: player)
+        layer.frame = bounds
+        layer.videoGravity = fillsCard ? .resizeAspectFill : .resizeAspect
+        container.addSublayer(layer)
+        self.layer = layer
+        self.url = url
+        player.play()
+    }
+
+    func stop() {
+        layer?.player?.pause()
+        layer?.removeFromSuperlayer()
+        layer = nil
+        url = nil
+    }
+
+    deinit { stop() }
+}
+
 /// 浏览器数据、转场来源与视频播放
 final class WYChatMediaBrowserAdapter: NSObject, WYPhotoBrowserDataSource, WYPhotoBrowserDelegate {
     weak var chatView: WYChatView?
     weak var browser: WYPhotoBrowser?
     weak var player: AVPlayerViewController?
+    private let inlinePlayback = WYChatInlineVideoPlayback()
     let messageID: String
     let items: [WYChatMediaItem]
 
@@ -112,6 +176,61 @@ final class WYChatMediaBrowserAdapter: NSObject, WYPhotoBrowserDataSource, WYPho
         self.messageID = messageID
         self.items = items
     }
+    func configureBrowser() {
+        browser?.itemOverlayProvider = { [weak self] index in self?.transferOverlay(at: index) }
+        browser?.itemDidSettle = { [weak self] index in self?.autoplay(at: index) }
+        browser?.itemDidBeginDrag = { [weak self] in self?.inlinePlayback.stop() }
+        browser?.refreshItemOverlays()
+        if let chatView, let message = chatView.messageModelFrom(messageID), message.sendState == .sending {
+            let style = chatView.configuration.contentOverrides[.mediaGroup] ?? chatView.configuration.content
+            let elapsed = Date().timeIntervalSince(message.sendStartedAt ?? .distantPast)
+            let remaining = wy_chatNonnegative(style.transferProgressDelay) - elapsed
+            if remaining > 0 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + remaining) { [weak self] in self?.browser?.refreshItemOverlays() }
+            }
+        }
+    }
+
+    func refreshProgress(for identifier: String) {
+        guard identifier == messageID else { return }
+        browser?.refreshItemOverlays()
+        if let browser, !browser.collectionView.isDragging, !browser.collectionView.isDecelerating {
+            autoplay(at: browser.currentIndex)
+        }
+    }
+
+    private func transferOverlay(at index: Int) -> UIView? {
+        guard let chatView, let message = chatView.messageModelFrom(messageID),
+              let group = message.content.mediaGroup, group.items.indices.contains(index) else { return nil }
+        let style = chatView.configuration.contentOverrides[.mediaGroup] ?? chatView.configuration.content
+        let sender = message.isSender(chatView.userInfo.id)
+        let item = group.items[index]
+        let delay = wy_chatNonnegative(style.transferProgressDelay)
+        let lifetime = Date().timeIntervalSince(message.sendStartedAt ?? .distantPast)
+        guard style.transferShowsProgress, item.transferState != .automatic, item.transferState != .completed,
+              !sender || message.sendState != .sending || lifetime >= delay else { return nil }
+        let overlay = WYChatAttachmentProgressView()
+        if let action = overlay.showPhase(item.transferState, progress: item.transferProgress, error: item.transferError,
+                                          style: style, overlaysMedia: true, sender: sender, title: chatView.configuration.actionTitle,
+                                          mediaConfig: chatView.configuration.media) {
+            overlay.button.addAction(UIAction { [weak chatView] _ in
+                chatView?.wy_performMediaTransferAction(action, messageID: message.messageID, itemID: item.id)
+            }, for: .touchUpInside)
+        }
+        return overlay
+    }
+
+    private func autoplay(at index: Int) {
+        guard let chatView, chatView.configuration.media.automaticallyPlaysVideo, let browser,
+              browser.presentedViewController == nil, items.indices.contains(index), let url = items[index].wy_videoURL,
+              let image = browser.sourceView(at: index) else { inlinePlayback.stop(); return }
+        if let group = chatView.messageModelFrom(messageID)?.content.mediaGroup, group.items.indices.contains(index) {
+            let phase = group.items[index].transferState
+            guard phase == .automatic || phase == .completed else { inlinePlayback.stop(); return }
+        }
+        inlinePlayback.play(url, in: image.layer, bounds: image.bounds, muted: chatView.configuration.media.automaticVideoStartsMuted, fillsCard: false)
+    }
+
     func numberOfItems(in photoBrowser: WYPhotoBrowser) -> Int { items.count }
     func photoBrowser(_ photoBrowser: WYPhotoBrowser, itemAt index: Int) -> Any {
         guard items.indices.contains(index) else { return WYPhotoBrowserItem() }
@@ -135,12 +254,8 @@ final class WYChatMediaBrowserAdapter: NSObject, WYPhotoBrowserDataSource, WYPho
     func wy_photoBrowser(_ photoBrowser: WYPhotoBrowser, sourceViewForItemAt index: Int) -> UIView? { wy_sourceView(index) }
     func wy_photoBrowser(_ photoBrowser: WYPhotoBrowser, didShowItemAt index: Int) { chatView?.wy_performMediaAction(.pageChanged, messageID: messageID, index: index) }
     func wy_photoBrowser(_ photoBrowser: WYPhotoBrowser, didTapPlayVideoItemAt index: Int) {
-        guard items.indices.contains(index), items[index].kind == .video, photoBrowser.presentedViewController == nil else { return }
-        let asset = items[index].original
-        let url: URL?
-        if !asset.localPath.isEmpty { url = URL(fileURLWithPath: asset.localPath) }
-        else { url = URL(string: asset.downloadPath).flatMap { ["https", "http"].contains($0.scheme?.lowercased() ?? "") ? $0 : nil } }
-        guard let url else { return }
+        guard photoBrowser.presentedViewController == nil, items.indices.contains(index), let url = items[index].wy_videoURL else { return }
+        inlinePlayback.stop()
         let controller = AVPlayerViewController()
         controller.modalPresentationStyle = chatView?.configuration.media.videoPresentationStyle ?? .fullScreen
         controller.showsPlaybackControls = chatView?.configuration.media.showsVideoPlaybackControls ?? true
@@ -150,8 +265,14 @@ final class WYChatMediaBrowserAdapter: NSObject, WYPhotoBrowserDataSource, WYPho
         photoBrowser.present(controller, animated: true) { [weak controller] in controller?.player?.play() }
     }
     func wy_photoBrowserDidDismiss(_ photoBrowser: WYPhotoBrowser) {
+        inlinePlayback.stop()
         player?.player?.pause()
-        if chatView?.state.mediaBrowser === self { chatView?.state.mediaBrowser = nil }
+        guard let chatView, chatView.state.mediaBrowser === self else { return }
+        chatView.state.mediaBrowser = nil
+        if let row = chatView.dataSource.firstIndex(where: { $0.messageID == messageID }),
+           let cell = chatView.tableView.cellForRow(at: IndexPath(row: row, section: 0)) as? WYChatBasicCell {
+            cell.state.mediaView.resumeEmbeddedPlayback()
+        }
     }
-    func dispose() { player?.player?.pause(); browser?.dismiss(animated: false) }
+    func dispose() { inlinePlayback.stop(); player?.player?.pause(); browser?.dismiss(animated: false) }
 }

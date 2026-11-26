@@ -64,6 +64,10 @@ final class WYChatVideoOverlayView: UIView {
         setNeedsLayout()
     }
 
+    func setPlaySuppressed(_ suppressed: Bool) {
+        playBackground.isHidden = suppressed || play.image == nil || playSize.width == 0 || playSize.height == 0
+    }
+
     override func layoutSubviews() {
         super.layoutSubviews()
         let size = CGSize(width: min(bounds.width, playSize.width), height: min(bounds.height, playSize.height))
@@ -209,5 +213,211 @@ extension WYChatBasicCell {
         if let formatter = configuration.media.durationFormatter { return formatter(duration) }
         let seconds = Int(min(86400, max(0, duration.isFinite ? duration : 0)))
         return String(format: "%d:%02d", seconds / 60, seconds % 60)
+    }
+}
+
+/// 附件传输条与媒体封面内的传输控件。
+final class WYChatAttachmentProgressView: UIView {
+    let button = UIButton(type: .system)
+    private let caption = UILabel()
+    private let bar = UIProgressView(progressViewStyle: .default)
+    private let track = CAShapeLayer()
+    private let ring = CAShapeLayer()
+    private var controlSize: CGFloat = 42
+    private var lineWidth: CGFloat = 2.5
+    private var overlaysMedia = false
+    private var trackColor: UIColor = .clear
+    private var progressColor: UIColor = .clear
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        clipsToBounds = true
+        addSubview(bar)
+        for shape in [track, ring] {
+            shape.fillColor = UIColor.clear.cgColor
+            shape.lineWidth = 2.5
+            shape.lineCap = .round
+            layer.addSublayer(shape)
+        }
+        addSubview(button)
+        addSubview(caption)
+        caption.adjustsFontSizeToFitWidth = true
+        caption.minimumScaleFactor = 0.8
+        caption.accessibilityIdentifier = "WYChatTransfer.status"
+        button.accessibilityIdentifier = "WYChatTransfer.control"
+        button.imageView?.contentMode = .scaleAspectFit
+        button.contentHorizontalAlignment = .fill
+        button.contentVerticalAlignment = .fill
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    func apply(style: WYChatContentConfig, overlaysMedia: Bool, sender: Bool, progress: Double, text: String, image: UIImage?, actionTitle: String?,
+               mediaConfig: WYChatMediaConfig?) {
+        self.overlaysMedia = overlaysMedia
+        controlSize = wy_chatNonnegative(style.transferControlSize)
+        lineWidth = wy_chatNonnegative(style.transferLineWidth)
+        progressColor = mediaConfig?.itemTransferRingColor ?? (sender ? style.transferSenderColor : style.transferReceiverColor)
+        trackColor = style.transferTrackColor
+        backgroundColor = overlaysMedia ? style.transferOverlayColor : .clear
+        bar.isHidden = overlaysMedia
+        bar.progress = Float(progress)
+        bar.progressTintColor = progressColor
+        bar.trackTintColor = trackColor
+        track.isHidden = !overlaysMedia
+        ring.isHidden = !overlaysMedia
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        ring.strokeEnd = CGFloat(progress)
+        CATransaction.commit()
+        caption.font = style.detailFont
+        caption.textColor = style.transferStatusTextColor ?? (overlaysMedia ? .white : style.detailColor)
+        caption.textAlignment = overlaysMedia ? .center : .natural
+        caption.text = text
+        caption.isHidden = mediaConfig?.showsItemTransferCaption == false
+        let symbol = image?.withRenderingMode(style.transferTintsControlImages ? .alwaysTemplate : .alwaysOriginal)
+        button.setImage(symbol, for: .normal)
+        button.isUserInteractionEnabled = actionTitle != nil
+        button.isAccessibilityElement = actionTitle != nil && symbol != nil
+        button.accessibilityLabel = actionTitle
+        button.accessibilityValue = text
+        button.tintColor = style.transferControlTintColor ?? (overlaysMedia ? .white : progressColor)
+        button.isHidden = symbol == nil
+        setNeedsLayout()
+    }
+
+    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        !button.isHidden && button.isUserInteractionEnabled && button.frame.contains(point)
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        guard !bounds.isEmpty else { return }
+        if overlaysMedia {
+            let diameter = min(controlSize, bounds.width, bounds.height)
+            let center = CGPoint(x: bounds.midX, y: bounds.midY)
+            let stroke = min(lineWidth, diameter / 2)
+            let radius = max(0, (diameter - stroke) / 2)
+            let path = UIBezierPath(arcCenter: center, radius: radius, startAngle: -.pi / 2, endAngle: 1.5 * .pi, clockwise: true).cgPath
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            track.lineWidth = stroke
+            ring.lineWidth = stroke
+            track.path = path
+            track.strokeColor = trackColor.resolvedColor(with: traitCollection).cgColor
+            ring.path = path
+            ring.strokeColor = progressColor.resolvedColor(with: traitCollection).cgColor
+            CATransaction.commit()
+            button.frame = CGRect(x: center.x - diameter / 2, y: center.y - diameter / 2, width: diameter, height: diameter)
+            let inset = diameter * 0.29
+            button.contentEdgeInsets = UIEdgeInsets(top: inset, left: inset, bottom: inset, right: inset)
+            let captionTop = button.frame.maxY + 4
+            caption.frame = CGRect(x: 4, y: captionTop, width: max(0, bounds.width - 8), height: min(caption.font.lineHeight, max(0, bounds.height - captionTop)))
+        } else {
+            let buttonWidth = button.isHidden ? 0 : min(32, controlSize, bounds.width)
+            button.frame = CGRect(x: 0, y: 0, width: buttonWidth, height: bounds.height)
+            button.contentEdgeInsets = UIEdgeInsets(top: 6, left: 4, bottom: 6, right: 4)
+            let labelWidth = min(max(0, bounds.width - buttonWidth) * 0.6, max(0, caption.intrinsicContentSize.width))
+            caption.frame = CGRect(x: bounds.width - labelWidth, y: 0, width: labelWidth, height: bounds.height)
+            let thickness = min(bounds.height, lineWidth)
+            bar.frame = CGRect(x: buttonWidth, y: bounds.midY - thickness / 2, width: max(0, caption.frame.minX - buttonWidth - 6), height: thickness)
+        }
+    }
+}
+
+extension WYChatAttachmentProgressView {
+    func showPhase(_ phase: WYChatTransferState, progress rawProgress: Double, error: String, style: WYChatContentConfig, overlaysMedia: Bool, sender: Bool, title: ((WYChatAction) -> String?)?,
+                   mediaConfig: WYChatMediaConfig? = nil) -> WYChatAction? {
+        let progress = rawProgress.isFinite ? min(1, max(0, rawProgress)) : 0
+        let percentage = style.transferShowsPercentage ? (style.transferProgressFormatter?(progress) ?? String(format: "%.0f%%", progress * 100)) : ""
+        let text: String
+        let image: UIImage?
+        let action: WYChatAction?
+        let actionTitle: String?
+        switch phase {
+        case .waiting:
+            text = sender ? style.transferUploadText : style.transferDownloadText
+            image = sender ? style.transferUploadImage ?? WYChatSourceBundle.image(named: "WYChatTransferUpload") : style.transferDownloadImage ?? WYChatSourceBundle.image(named: "WYChatTransferDownload")
+            action = .startTransfer
+            actionTitle = title?(.startTransfer) ?? text
+        case .transferring:
+            text = percentage
+            image = style.transferAllowsPause ? style.transferPauseImage ?? WYChatSourceBundle.image(named: "WYChatTransferPause") : nil
+            action = style.transferAllowsPause ? .pauseTransfer : nil
+            actionTitle = style.transferAllowsPause ? (title?(.pauseTransfer) ?? "暂停传输") : nil
+        case .paused:
+            text = [style.transferPausedText, percentage].filter { !$0.isEmpty }.joined(separator: " · ")
+            image = style.transferAllowsPause ? style.transferResumeImage ?? WYChatSourceBundle.image(named: "WYChatTransferResume") : nil
+            action = style.transferAllowsPause ? .resumeTransfer : nil
+            actionTitle = style.transferAllowsPause ? (title?(.resumeTransfer) ?? "继续传输") : nil
+        case .failed:
+            text = error.isEmpty ? style.transferFailedText : error
+            image = style.transferRetryImage ?? UIImage(systemName: "arrow.clockwise")
+            action = .retry
+            actionTitle = title?(.retry) ?? "重试"
+        case .automatic, .completed:
+            return nil
+        }
+        apply(style: style, overlaysMedia: overlaysMedia, sender: sender, progress: progress, text: text, image: image, actionTitle: actionTitle, mediaConfig: mediaConfig)
+        return action
+    }
+}
+
+extension WYChatBasicCell {
+    func wy_renderAttachmentProgress() {
+        state.progressReveal?.cancel()
+        state.progressReveal = nil
+        state.inlineProgress.isHidden = true
+        state.mediaProgress.isHidden = true
+        state.transferAction = nil
+        let style = messageContentConfiguration
+        let phase = message.wy_effectiveTransferState
+        let sender = message.isSender(userID)
+        let sending = sender && message.sendState == .sending && !wy_isNotice
+        let startedAt = message.sendStartedAt ?? Date.distantPast
+        let remaining = max(0, wy_chatNonnegative(style.transferProgressDelay) - max(0, Date().timeIntervalSince(startedAt)))
+        let hasItemProgress = message.content.mediaGroup?.items.contains { $0.transferState != .automatic } ?? false
+        if style.transferShowsProgress && remaining > 0 && sending && !state.isMeasuring {
+            let task = DispatchWorkItem { [weak self] in
+                guard let self else { return }
+                let wasHidden = self.state.inlineProgress.isHidden
+                self.wy_renderAttachmentProgress()
+                if wasHidden && !self.state.inlineProgress.isHidden { self.progressVisibilityChanged?(self.message.messageID) }
+            }
+            state.progressReveal = task
+            DispatchQueue.main.asyncAfter(deadline: .now() + remaining, execute: task)
+        }
+        if style.transferShowsProgress && sending && remaining == 0 && !hasItemProgress && (phase == .automatic || phase == .completed) {
+            activityView.startAnimating()
+        } else {
+            activityView.stopAnimating()
+        }
+        state.mediaView.setTransferProgressVisible(!sending || remaining == 0)
+        guard style.transferShowsProgress, !hasItemProgress, !wy_isNotice, phase != .automatic, phase != .completed else { return }
+        let overlaysMedia = message.content.photo != nil || message.content.video != nil || message.content.mediaGroup != nil
+        let view = overlaysMedia ? state.mediaProgress : state.inlineProgress
+        let shouldHide = sending && remaining > 0 && phase == .transferring
+        view.isHidden = shouldHide
+        state.transferAction = view.showPhase(phase, progress: message.transferProgress, error: message.transferError, style: style,
+                                              overlaysMedia: overlaysMedia, sender: sender, title: configuration.actionTitle)
+        state.inlineProgressHeight?.constant = max(30, style.detailFont.lineHeight + 8)
+    }
+
+    func wy_layoutAttachmentProgress() {
+        guard !state.mediaProgress.isHidden else { return }
+        if let group = message.content.mediaGroup {
+            let media = state.mediaView
+            var frame = media.convert(media.bounds, to: bubblesView)
+            if group.isExpanded { frame.size.height = min(frame.height, media.firstItemCenterY * 2) }
+            state.mediaProgress.frame = frame
+        } else {
+            state.mediaProgress.frame = state.image.convert(state.image.bounds, to: bubblesView)
+        }
+        state.mediaProgress.layer.cornerRadius = message.content.mediaGroup == nil ? state.image.imageCornerRadius : wy_chatNonnegative(configuration.media.cornerRadius)
+    }
+
+    @objc func wy_attachmentProgressTapped() {
+        guard let action = state.transferAction else { return }
+        actionHandler?(action, message.messageID)
     }
 }

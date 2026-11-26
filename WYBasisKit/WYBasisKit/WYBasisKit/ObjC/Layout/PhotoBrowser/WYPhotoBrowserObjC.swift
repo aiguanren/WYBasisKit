@@ -198,7 +198,11 @@ import WYBasisKitSwift
     public var stackedCardRotationAngle: CGFloat = .pi / 90
 
     /// 叠卡滑动时的旋转角度，单位弧度
-    public var stackedCardDragRotationAngle: CGFloat = .pi / 12
+    public var stackedCardDragRotationAngle: CGFloat = .pi / 10
+    /// 拖动时叠卡沿滚动轴展开的幅度
+    public var stackedCardDragTravelFraction: CGFloat = 0.25
+    /// 拖动达到该比例后前卡开始淡出
+    public var stackedCardFadeStart: CGFloat = 0.72
     /// 叠卡旋转支点，横纵坐标范围0到1，默认底部中心
     public var stackedCardAnchorPoint: CGPoint = CGPoint(x: 0.5, y: 1)
     /// 循环叠卡是否向任一方向划走顶图后显示下一张，默认false

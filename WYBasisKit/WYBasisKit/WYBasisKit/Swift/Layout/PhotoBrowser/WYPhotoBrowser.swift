@@ -288,7 +288,11 @@ public struct WYPhotoBrowserConfiguration {
     /// 叠卡静止时的旋转角度，单位弧度
     public var stackedCardRotationAngle: CGFloat = .pi / 90
     /// 叠卡滑动时的旋转角度，单位弧度
-    public var stackedCardDragRotationAngle: CGFloat = .pi / 12
+    public var stackedCardDragRotationAngle: CGFloat = .pi / 10
+    /// 拖动时叠卡沿滚动轴展开的幅度
+    public var stackedCardDragTravelFraction: CGFloat = 0.25
+    /// 拖动达到该比例后，前卡才开始淡出
+    public var stackedCardFadeStart: CGFloat = 0.72
     /// 叠卡旋转支点，横纵坐标范围0到1，默认底部中心
     public var stackedCardAnchorPoint: CGPoint = CGPoint(x: 0.5, y: 1)
     /// 循环叠卡是否向任一方向划走顶图后显示下一张，默认false
@@ -455,6 +459,12 @@ public class WYPhotoBrowser: UIViewController {
      @param index 媒体下标
      @return 图片视图，不可见时为nil
      */
+    var itemOverlayProvider: ((Int) -> UIView?)?
+    var itemDidSettle: ((Int) -> Void)?
+    var itemDidSettleAfterSwipe: ((Int) -> Void)?
+    var swipeStartIndex: Int?
+    var itemDidBeginDrag: (() -> Void)?
+
     public func sourceView(at index: Int) -> UIView? { guard index >= 0 && index < numberOfItems else { return nil }; return cellForItem(at: index)?.contentImageView }
 
     /// 当前页下标(翻页与跳页后更新，写入会立即跳到该页不带动画)
@@ -522,13 +532,16 @@ public class WYPhotoBrowser: UIViewController {
             if changed { browserDelegate?.wy_photoBrowser?(self, didShowItemAt: index) }
             applyTransformToVisibleCells()
             prefetchNeighbors()
+            itemDidSettle?(index)
         }
     }
 
     /// 刷新浏览项(数据源内容或数量变化后调用，尽量保持当前页下标)
     @objc public func reloadData() {
+        swipeStartIndex = nil
         stackedCycleDirection = 1
         (flowLayout as? WYPhotoBrowserStackLayout)?.cycleDirection = 1
+        (flowLayout as? WYPhotoBrowserStackLayout)?.gestureOrigin = nil
         stackedCycleOffset = 0
         stackedGestureOrigin = nil
         guard isViewLoaded else { return }
@@ -601,6 +614,7 @@ public class WYPhotoBrowser: UIViewController {
         isTransitioningContent = false
         applyTransformToVisibleCells()
         restartCarouselTimer()
+        itemDidSettle?(internalCurrentIndex)
     }
 
     override public func viewDidDisappear(_ animated: Bool) {

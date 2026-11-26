@@ -117,7 +117,7 @@ open class WYChatBasicCell: UITableViewCell {
     /// 当前用户ID
     public var userID: String = "" { didSet { wy_render() } }
     /// 当前消息
-    public var message: WYChatMessageModel = WYChatMessageModel() { didSet { if !state.updatingMediaPage { wy_render() } } }
+    public var message: WYChatMessageModel = WYChatMessageModel() { didSet { if !state.updatingMediaPage && !state.isUpdating { wy_render() } } }
     /// 消息操作，参数为操作及消息ID
     public var actionHandler: ((_ action: WYChatAction, _ messageID: String) -> Void)? = nil
     /// 媒体组操作，参数为操作、消息ID和媒体下标
@@ -189,12 +189,26 @@ open class WYChatBasicCell: UITableViewCell {
         wy_render()
     }
 
+    var progressVisibilityChanged: ((String) -> Void)?
+    var mediaTransferHandler: ((WYChatAction, String, String) -> Void)?
+
+    func wy_updateAttachmentProgress(_ message: WYChatMessageModel) {
+        guard self.message.messageID == message.messageID else { return }
+        state.isUpdating = true
+        self.message = message
+        state.isUpdating = false
+        if let group = message.content.mediaGroup { state.mediaView.updateTransferItems(group.items) }
+        wy_renderAttachmentProgress()
+        setNeedsLayout()
+    }
+
     public override func layoutSubviews() {
         super.layoutSubviews()
         wy_updateLayout()
         contentView.layoutIfNeeded()
         wy_layoutSelectionIndicator()
         wy_layoutMediaToggle()
+        wy_layoutAttachmentProgress()
     }
 
     public override func systemLayoutSizeFitting(_ targetSize: CGSize, withHorizontalFittingPriority horizontalFittingPriority: UILayoutPriority, verticalFittingPriority: UILayoutPriority) -> CGSize {

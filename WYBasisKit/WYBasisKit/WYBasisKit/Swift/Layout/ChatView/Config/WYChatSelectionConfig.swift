@@ -81,12 +81,30 @@ public struct WYChatSelectionConfig {
     public var tintColor: UIColor = .systemIndigo
     /// 删除操作颜色
     public var deleteColor: UIColor = .systemRed
+    /// 启用菜单和多选工具条的本地删除，默认关闭，由接入方决定何时移除消息
+    public var automaticallyDeletesMessages = false
+    /// 启用菜单收藏，将消息快照保存在当前聊天控件中，默认关闭
+    public var automaticallyFavoritesMessages = false
     /// 是否显示删除按钮，默认true
     public var showsDeleteButton = true
     /// 是否显示转发按钮，默认true
     public var showsForwardButton = true
     /// 是否显示取消按钮，默认true
     public var showsCancelButton = true
+    /// 多选转发是否使用系统底部弹窗
+    public var usesForwardActionSheet: Bool = false
+    /// 多选转发弹窗标题，nil时使用转发按钮文案
+    public var forwardSheetTitle: String? = nil
+    /// 多选转发弹窗说明，nil时隐藏
+    public var forwardSheetMessage: String? = nil
+    /// 多选转发弹窗的取消文案
+    public var forwardSheetCancelTitle: String = WYLocalized("取消", table: WYBasisKitConfig.kitLocalizableTable)
+    /// 多选转发弹窗的按钮颜色，nil时使用系统颜色
+    public var forwardSheetTintColor: UIColor? = nil
+    /// 逐条转发菜单图标
+    public var forwardIndividualImage: UIImage? = nil
+    /// 合并转发菜单图标
+    public var forwardMergedImage: UIImage? = nil
     /// 可用转发形式，空数组时禁用内置转发入口
     public var forwardModes: [WYChatForwardMode] = [.individual, .merged]
     /// 逐条转发菜单标题

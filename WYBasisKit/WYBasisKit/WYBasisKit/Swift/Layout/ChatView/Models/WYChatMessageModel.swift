@@ -19,9 +19,34 @@ import Foundation
     case failed
 }
 
+/// 附件的上传或下载状态
+@objc public enum WYChatTransferState: Int {
+    /// 使用原有 isTransferring 和 transferError 字段
+    case automatic
+    case waiting, transferring, paused, failed, completed
+}
+
 /// 消息model
 public struct WYChatMessageModel: Equatable {
     
+    /// 本次消息发送开始时间，供延迟显示进度与接入层的消息快照使用
+    public var sendStartedAt: Date? {
+        get { state.sendStartedAt }
+        set { wy_prepareMessageStorage(); state.sendStartedAt = newValue }
+    }
+
+    /// 附件传输状态，默认由原有传输字段决定
+    public var transferState: WYChatTransferState {
+        get { state.transferState }
+        set { wy_prepareMessageStorage(); state.transferState = newValue }
+    }
+
+    var wy_effectiveTransferState: WYChatTransferState {
+        guard transferState == .automatic else { return transferState }
+        if !transferError.isEmpty { return .failed }
+        return isTransferring ? .transferring : .automatic
+    }
+
     /// 内容是否正在上传或下载
     public var isTransferring: Bool {
         get { state.isTransferring }
@@ -63,7 +88,11 @@ public struct WYChatMessageModel: Equatable {
     /// 消息发送状态
     public var sendState: WYChatMessageSendState {
         get { state.sendState }
-        set { wy_prepareMessageStorage(); state.sendState = newValue }
+        set {
+            wy_prepareMessageStorage()
+            if newValue == .sending && state.sendState != .sending { state.sendStartedAt = Date() }
+            state.sendState = newValue
+        }
     }
 
     /// 消息ID

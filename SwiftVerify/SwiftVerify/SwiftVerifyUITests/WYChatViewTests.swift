@@ -766,8 +766,98 @@ final class WYChatViewTests: XCTestCase {
         let more = app.collectionViews["WYChatMore.items"]
         XCTAssertTrue(more.waitForExistence(timeout: 5))
         more.cells.containing(.staticText, identifier: "照片").firstMatch.tap()
-        XCTAssertTrue(app.alerts["相册由接入应用提供"].waitForExistence(timeout: 5))
-        app.alerts.buttons["关闭"].tap()
+        let pickerCancel = app.buttons.matching(NSPredicate(format: "label IN %@", ["Cancel", "取消"])).firstMatch
+        XCTAssertTrue(pickerCancel.waitForExistence(timeout: 10))
+        pickerCancel.tap()
+        XCTAssertTrue(app.buttons["WYChatInput.more"].isHittable)
+    }
+
+    func testMoreLocationAndAvatarPat() {
+        let app = openChat()
+        let moreButton = app.buttons["WYChatInput.more"]
+        let more = app.collectionViews["WYChatMore.items"]
+        let location = more.cells.containing(.staticText, identifier: "位置").firstMatch
+        let locationCard = app.tables.cells.staticTexts["示例位置 · 测试公园"].firstMatch
+
+        moreButton.tap()
+        XCTAssertTrue(location.waitForExistence(timeout: 5))
+        location.tap()
+        let locationAlert = app.alerts["位置"]
+        XCTAssertTrue(locationAlert.waitForExistence(timeout: 5))
+        locationAlert.buttons["取消"].tap()
+        XCTAssertFalse(locationCard.exists)
+
+        moreButton.tap()
+        location.tap()
+        locationAlert.buttons["发送"].tap()
+        XCTAssertTrue(locationCard.waitForExistence(timeout: 5))
+
+        let locationCell = app.tables.cells.containing(.staticText, identifier: "示例位置 · 测试公园").firstMatch
+        let avatar = locationCell.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH %@", "WYChatAvatar.")).firstMatch
+        XCTAssertTrue(avatar.isHittable)
+        avatar.doubleTap()
+        let pat = app.tables.cells.staticTexts["官人拍了拍官人的肩膀"].firstMatch
+        XCTAssertTrue(pat.waitForExistence(timeout: 5))
+    }
+
+    func testLocalMessageActions() {
+        let app = openChat()
+        app.navigationBars.buttons["测试"].tap()
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        search.tap()
+        search.typeText("内置删除与收藏")
+        let row = app.tables.cells.containing(.staticText, identifier: "内置删除与收藏").firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        row.tap()
+        app.alerts.buttons["运行"].tap()
+        let passed = row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "通过")).firstMatch
+        if !passed.waitForExistence(timeout: 15) {
+            row.tap()
+            XCTFail(app.alerts.firstMatch.staticTexts.allElementsBoundByIndex.map(\.label).joined(separator: "\n"))
+        }
+    }
+
+    func testExampleMessageMenuFavoriteForwardAndDelete() {
+        let app = openChat()
+        let table = app.tables.firstMatch
+        let input = app.textViews["WYChatInput.text"]
+        let text = "Menu action fixture"
+        tapChatInput(in: app)
+        input.typeText(text)
+        app.buttons["WYChatInput.send"].tap()
+
+        let matchingMessages = table.textViews.matching(NSPredicate(format: "value == %@", text))
+        let menu = app.scrollViews["WYChatMessageMenu"]
+        let original = matchingMessages.firstMatch
+        XCTAssertTrue(original.waitForExistence(timeout: 5))
+        original.press(forDuration: 0.8)
+        let favorite = menu.buttons["收藏"]
+        XCTAssertTrue(favorite.waitForExistence(timeout: 5))
+        favorite.tap()
+
+        app.buttons["WYChatInput.more"].tap()
+        let more = app.collectionViews["WYChatMore.items"]
+        let favoriteItem = more.cells.containing(.staticText, identifier: "收藏").firstMatch
+        XCTAssertTrue(favoriteItem.waitForExistence(timeout: 5))
+        favoriteItem.tap()
+        app.alerts["收藏"].buttons["发送"].tap()
+        XCTAssertTrue(matchingMessages.element(boundBy: 1).waitForExistence(timeout: 5))
+
+        matchingMessages.element(boundBy: 1).press(forDuration: 0.8)
+        let forward = menu.buttons["转发"]
+        XCTAssertTrue(forward.waitForExistence(timeout: 5))
+        forward.tap()
+        let merged = app.buttons["合并转发"].firstMatch
+        XCTAssertTrue(merged.waitForExistence(timeout: 5))
+        merged.tap()
+        XCTAssertTrue(table.cells.staticTexts["聊天记录"].firstMatch.waitForExistence(timeout: 5))
+
+        matchingMessages.element(boundBy: 1).press(forDuration: 0.8)
+        let delete = menu.buttons["删除"]
+        XCTAssertTrue(delete.waitForExistence(timeout: 5))
+        delete.tap()
+        XCTAssertTrue(matchingMessages.element(boundBy: 1).waitForNonExistence(timeout: 5))
     }
 
     func testConfigurationToastActualWorkflow() {
@@ -1028,6 +1118,24 @@ final class WYChatViewTests: XCTestCase {
         }
     }
 
+    func testAttachmentTransferAndFundsReceipt() {
+        let app = openChat()
+        app.navigationBars.buttons["测试"].tap()
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        search.tap()
+        search.typeText("附件传输与收款回执")
+        let row = app.tables.cells.containing(.staticText, identifier: "附件传输与收款回执").firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        row.tap()
+        app.alerts.buttons["运行"].tap()
+        let passed = row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "通过")).firstMatch
+        if !passed.waitForExistence(timeout: 25) {
+            row.tap()
+            XCTFail(app.alerts.firstMatch.staticTexts.allElementsBoundByIndex.map(\.label).joined(separator: "\n"))
+        }
+    }
+
     func testMediaSelectionAndGroups() {
         let app = openChat()
         app.navigationBars.buttons["测试"].tap()
@@ -1207,7 +1315,15 @@ final class WYChatViewTests: XCTestCase {
         let returned = NSPredicate { _, _ in cards.value as? String == "1/6" }
         XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: returned, object: nil)], timeout: 5), .completed, "after small drag=\(String(describing: cards.value))")
         for turn in 0..<12 {
-            if turn < 6 { cards.swipeLeft() } else { cards.swipeRight() }
+            if turn == 0 {
+                let start = cards.coordinate(withNormalizedOffset: CGVector(dx: 0.90, dy: 0.48))
+                let end = cards.coordinate(withNormalizedOffset: CGVector(dx: 0.16, dy: 0.48))
+                start.press(forDuration: 0.15, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 0.2)
+            } else if turn < 6 {
+                cards.swipeLeft()
+            } else {
+                cards.swipeRight()
+            }
             let expected = "\((turn + 1) % 6 + 1)/6"
             let settled = NSPredicate { _, _ in cards.value as? String == expected }
             XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: settled, object: nil)], timeout: 5), .completed, "turn=\(turn), value=\(String(describing: cards.value))")

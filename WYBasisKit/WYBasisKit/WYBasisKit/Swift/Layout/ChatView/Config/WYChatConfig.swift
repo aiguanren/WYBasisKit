@@ -10,7 +10,7 @@ import UIKit
 
 /// 消息操作
 @objc public enum WYChatAction: Int {
-    case content, avatar, nickname, retry, copy, quote, forward, delete, withdraw, select, translate, play, pause, mention, takePat, reference, reedit, selectRange, playbackRate, favorite, remind, search, markRead, markUnread, paste
+    case content, avatar, nickname, retry, copy, quote, forward, delete, withdraw, select, translate, play, pause, mention, takePat, reference, reedit, selectRange, playbackRate, favorite, remind, search, markRead, markUnread, paste, startTransfer, pauseTransfer, resumeTransfer
 }
 
 /// 头像手势操作
@@ -104,6 +104,84 @@ public struct WYChatContentConfig {
     public var thumbnailContentMode: UIView.ContentMode = .scaleAspectFit
     /// 音乐和资金卡片多段详情之间的分隔文字
     public var detailsSeparator: String = " · "
+    /// 是否显示附件传输控件
+    public var transferShowsProgress: Bool = true
+    /// 是否显示附件传输百分比
+    public var transferShowsPercentage: Bool = true
+    /// 是否允许从进度控件请求暂停或继续
+    public var transferAllowsPause: Bool = true
+    /// 媒体传输控件直径，单位点
+    public var transferControlSize: CGFloat = 42
+    /// 发出附件的进度颜色
+    public var transferSenderColor: UIColor = .systemTeal
+    /// 接收附件的进度颜色
+    public var transferReceiverColor: UIColor = .systemBlue
+    /// 附件进度轨道颜色
+    public var transferTrackColor: UIColor = .secondarySystemFill
+    /// 媒体传输时封面的遮罩颜色
+    public var transferOverlayColor: UIColor = .black.withAlphaComponent(0.35)
+    /// 等待上传图标，nil时使用内置图标
+    public var transferUploadImage: UIImage? = nil
+    /// 等待下载图标，nil时使用内置图标
+    public var transferDownloadImage: UIImage? = nil
+    /// 暂停传输图标，nil时使用内置图标
+    public var transferPauseImage: UIImage? = nil
+    /// 继续传输图标，nil时使用内置图标
+    public var transferResumeImage: UIImage? = nil
+    /// 重试传输图标，nil时使用内置图标
+    public var transferRetryImage: UIImage? = nil
+    /// 等待上传的提示文字
+    public var transferUploadText: String = "等待上传"
+    /// 待下载的提示文字
+    public var transferDownloadText: String = "待下载"
+    /// 暂停传输的提示文字
+    public var transferPausedText: String = "已暂停"
+    /// 没有传输错误详情时的提示文字
+    public var transferFailedText: String = "传输失败"
+    /// 待领取资金卡片背景色，nil时使用普通消息气泡
+    public var fundsAvailableBubbleColor: UIColor? = UIColor(red: 0.72, green: 0.29, blue: 0.12, alpha: 1)
+    /// 已处理资金卡片背景色，nil时使用普通消息气泡
+    public var fundsInactiveBubbleColor: UIColor? = UIColor(red: 0.98, green: 0.89, blue: 0.81, alpha: 1)
+    /// 待领取资金卡片文字颜色，nil时使用通用卡片配色
+    public var fundsAvailableTextColor: UIColor? = .white
+    /// 已处理资金卡片文字颜色，nil时使用通用卡片配色
+    public var fundsInactiveTextColor: UIColor? = UIColor(red: 0.32, green: 0.15, blue: 0.09, alpha: 1)
+    /// 已收款卡片图标，nil时使用内置勾选图标
+    public var fundsReceivedIcon: UIImage? = nil
+    /// 发出的转账被接收时的状态文字
+    public var fundsSentTransferReceivedText: String = "已被接收"
+    /// 收到的转账被接收时的状态文字
+    public var fundsIncomingTransferReceivedText: String = "已收款"
+    /// 转账待收款的状态文字
+    public var fundsPendingTransferText: String = "待收款"
+    /// 红包卡片底部文案
+    public var fundsPacketCaption: String = "红包"
+    /// 转账卡片底部文案
+    public var fundsTransferCaption: String = "转账"
+    /// 媒体进度环与卡片进度条的线宽
+    public var transferLineWidth: CGFloat = 2.5
+    /// 进度操作图标的模板颜色，nil时使用默认配色
+    public var transferControlTintColor: UIColor? = nil
+    /// 进度状态文字颜色，nil时使用默认配色
+    public var transferStatusTextColor: UIColor? = nil
+    /// 是否将传输操作图标作为模板着色
+    public var transferTintsControlImages: Bool = true
+    /// 文件卡片图标是否放在内容尾侧
+    public var fileUsesTrailingIcon: Bool = true
+    /// 出站消息显示发送进度前的等待秒数，默认 0.5 秒
+    public var transferProgressDelay: TimeInterval = 0.5
+    /// 资金卡片图标着色，nil时使用当前状态的默认颜色
+    public var fundsIconTintColor: UIColor? = nil
+    /// 资金卡片图标的默认边长，单位点
+    public var fundsIconSide: CGFloat = 36
+    /// 资金卡片底部说明的透明度
+    public var fundsCaptionOpacity: CGFloat = 0.82
+    /// 转账金额未自带符号时使用的货币前缀
+    public var fundsAmountPrefix: String = "¥"
+    /// 待领取资金卡片内置图标的默认着色
+    public var fundsAvailableIconTintColor: UIColor? = .white
+    /// 已处理资金卡片内置图标的默认着色
+    public var fundsInactiveIconTintColor: UIColor? = UIColor(red: 0.65, green: 0.27, blue: 0.13, alpha: 1)
     /// 设置传输进度文案，进度范围为0到1，nil时显示百分比
     public var transferProgressFormatter: ((_ progress: Double) -> String)? = nil
     /// 红包或转账已领取提示
@@ -113,9 +191,9 @@ public struct WYChatContentConfig {
     /// 红包或转账已退回提示
     public var fundsReturnedText: String = WYLocalized("已退回", table: WYBasisKitConfig.kitLocalizableTable)
     /// 待领取资金图标默认底色透明度
-    public var fundsAvailableIconBackgroundOpacity: CGFloat = 0.14
+    public var fundsAvailableIconBackgroundOpacity: CGFloat = 0.10
     /// 已处理资金图标默认底色透明度
-    public var fundsInactiveIconBackgroundOpacity: CGFloat = 0.07
+    public var fundsInactiveIconBackgroundOpacity: CGFloat = 0
     /// 资金图标背景圆角占短边的比例
     public var fundsIconCornerRadiusRatio: CGFloat = 0.25
     /// 网页封面高度占媒体配置高度的比例

@@ -9,8 +9,34 @@ import UIKit
 
 /// 撤回与重新编辑配置
 public struct WYChatNoticeConfig {
+    /// 发出红包的领取回执，{actor}替换为领取者名称
+    public var fundsSentPacketReceiptText: String = "{actor}领取了你的红包"
+    /// 收到红包的领取回执，{actor}替换为发出者名称
+    public var fundsIncomingPacketReceiptText: String = "你领取了{actor}的红包"
+    /// 发出转账的接收回执，{actor}替换为接收者名称
+    public var fundsSentTransferReceiptText: String = "{actor}已接收你的转账"
+    /// 收到转账的接收回执，{actor}替换为发出者名称
+    public var fundsIncomingTransferReceiptText: String = "你已接收{actor}的转账"
+    /// 红包回执图标，nil时隐藏
+    public var fundsPacketReceiptImage: UIImage? = UIImage.wy_find("WYChatViewRedPacket", inBundle: WYChatSourceBundle)
+    /// 转账回执图标，nil时隐藏
+    public var fundsTransferReceiptImage: UIImage? = WYChatSourceBundle.image(named: "WYChatViewTransfer")
+    /// 回执中红包或转账关键词及模板图标的颜色
+    public var fundsReceiptAccentColor: UIColor? = .systemOrange
+    /// 收款回执背景色，nil时只显示文字与图标
+    public var fundsReceiptBackgroundColor: UIColor? = nil
+    /// 红包回执图标着色，nil时保留图片原色
+    public var fundsPacketReceiptTintColor: UIColor? = .systemRed
+    /// 转账回执图标着色，nil时保留图片原色
+    public var fundsTransferReceiptTintColor: UIColor? = .systemOrange
+    /// 资金回执图标的默认边长，单位点
+    public var fundsReceiptIconSide: CGFloat = 16
     /// 居中系统提示的文字对齐方式
     public var centeredTextAlignment: NSTextAlignment = .center
+    /// 发出的通话记录图标是否放在尾侧
+    public var outgoingCallIconOnTrailing: Bool = true
+    /// 通话时长文案，{duration}替换为格式化时长
+    public var callDurationText: String = "通话时长 {duration}"
     /// 未接通的通话提示
     public var unconnectedCallText: String = WYLocalized("通话未接通", table: WYBasisKitConfig.kitLocalizableTable)
     /// 普通消息可请求撤回的时长，单位秒，0表示不限

@@ -106,7 +106,7 @@ ObjC读取chatView.configuration取得配置快照，需要修改后重新赋给
 
 发送文本返回完整消息模型，并触发messagePreparedHandler。automaticallyInsertsSentMessages控制是否自动加入列表，关闭后由接入方更新消息数据源。插入历史消息使用prependMessages，追加消息使用appendMessages。
 
-点击失败状态、预览、头像和昵称会产生相应操作。复制、引用及选择状态由控件处理，转发、删除、撤回、文件打开及实际播放由接入方处理。接入方通过sendState、readers、语音isPlaying、isTransferring、transferProgress与transferError更新界面，不把一次点击当作外部操作已经成功。
+点击失败状态、预览、头像和昵称会产生相应操作。控件处理复制、粘贴、引用、多选、转发消息组装和媒体预览，可开启本地删除与收藏。接入方负责目标会话、消息传输、持久化收藏、文件打开和实际语音播放。发送与传输状态可通过`sendState`、`readers`、`isPlaying`、`isTransferring`、`transferProgress`及`transferError`更新。
 
 用户正在阅读历史时，追加消息显示新消息提示；接近底部时自动跟随。引用预览默认显示在文本框下方，点击关闭按钮可取消引用并保留草稿。多选使用isSelectingMessages和selectedMessageIDs，内置工具条提供取消、转发与删除，selectionActionHandler一次接收按消息顺序排列的ID。showsSelectionToolbar可以关闭内置工具条，接入方可以提供自己的操作入口。
 
@@ -120,7 +120,7 @@ if let image = UIImage(named: "custom-contact-card") {
 }
 ```
 
-相册选择器由接入方提供。通过`openAlbumHandler`或`wy_chatViewDidRequestAlbum`接收打开请求，选择完成后调用`sendMedia(_:)`交回`WYChatMediaItem`数组。`media.albumMoreItemIndex`将更多面板的指定项目关联到相册事件，负数时不自动关联。
+相册选择器由接入方提供。通过`openAlbumHandler`或`wy_chatViewDidRequestAlbum`接收打开请求，选择完成后调用`sendMedia(_:)`交回`WYChatMediaItem`数组。`media.albumMoreItemIndex`将更多面板的指定项目关联到相册事件，负数时不自动关联。`media.albumSelectionLimit`配置相册一次最多可选的照片数，默认 9 张，小于等于 0 时不限。Swift 和 Objective-C 示例在打开系统照片选择器时读取这个值。`media.albumAllowsVideos` 控制选择器是仅照片还是同时显示照片与视频，示例已启用混合选择，选择上限合计计算。自定义选择器可读取同一配置并应用上限。
 
 ```swift
 config.media.presentation = .merged
@@ -131,7 +131,9 @@ chatView.openAlbumHandler = {
 
 `media.presentation`支持`.individual`逐条和`.merged`合并。待发送消息的`content.mediaGroup`保存原始媒体顺序和身份，逐条模式中每组只有一个项目。`automaticallyInsertsSentMessages`决定是否自动插入，`messagePreparedHandler`逐条交付待发送消息，上传完成后由接入方更新发送状态。
 
-折叠时复用PhotoBrowser的`.stackedCards`布局与左右滑动，展开/收起按钮及事件由聊天Cell管理。层数、偏移、旋转和圆角通过`media.browser`配置，展开尺寸、间距、按钮文案和样式通过`media`配置。PhotoBrowser自身不提供展开/收起按钮。
+应用可通过 `sendMedia(_:presentation:)` 为本次发送指定 `.merged` 或 `.individual`，Objective-C 对应 `chatView.sendMediaWithPresentation(items, mode)`。两套测试页都提供系统照片多选，选完后可选择折叠展示、单独展示或取消。原生相机用于拍照，文件入口使用系统「文件」选择器导入并通过 Quick Look 预览。位置、名片、音乐、红包和转账使用示例数据。收藏入口可以发送最近收藏的消息，空列表时发送示例卡片。
+
+折叠时复用PhotoBrowser的`.stackedCards`布局与左右滑动。`media.browser.allowsLoopScrolling` 开关循环，`stackedCardDragRotationAngle`、`stackedCardDragTravelFraction`、`stackedCardFadeStart` 控制拖动时的角度、位移和淡出。`media.foldedVideoAutoplayMode` 有三种模式：`.firstItem` 仅首项是视频且停在首项时自动播放，`.onSwipe` 仅用户滑动切页并停在视频时自动播放（默认），`.allVideos` 当前项为视频时自动播放，包括初次展示和程序切页。滑动时停止上一段视频。`media.automaticallyPlaysVideo` 控制全屏预览（默认关闭），`media.automaticVideoStartsMuted` 控制自动播放是否静音。展开/收起按钮及事件由聊天Cell管理。层数、偏移、旋转和圆角通过`media.browser`配置，展开尺寸、间距、按钮文案和样式通过`media`配置。PhotoBrowser自身不提供展开/收起按钮。
 
 ```swift
 config.media.browser.stackedCardCount = 3
@@ -141,6 +143,26 @@ chatView.previewMedia(messageID: messageID, index: 2)
 ```
 
 `mediaPreviewHandler`可接管媒体列表、初始下标及转场来源视图。未接管且`media.automaticallyPresentsBrowser`为true时使用内置浏览器。`mediaActionHandler`报告预览、展开、收起和页码变化。
+
+## 附件进度与发送确认
+
+使用 `sendContent(_:messageID:)` 发送红包、转账和其他结构化消息，使用 `sendMedia` 发送照片与视频。通过 `messagePreparedHandler` 取得待发送消息。需要二次确认时，从业务入口调用 `confirmSending(_:send:)`。接入方用 `sendConfirmationHandler` 展示自己的页面并回传结果。确认通过后执行传入的发送逻辑，每次请求只采纳第一个结果。
+
+所有出站消息的发送进度默认延时 0.5 秒显示，可通过 `content.transferProgressDelay` 或具体类型的内容配置调整。所有消息类型都接受小数秒，例如 `0.5`，设为 `0` 时立即显示。发送在延时结束前成功时，进度控件不会闪现。接入方只提供发送状态时显示等待指示，提供已知百分比时显示进度条或进度环。
+
+附件传输由接入方负责。用 `updateTransfer(messageID:state:progress:error:)` 将等待、传输中、暂停、失败或完成状态同步到聊天列表，进度范围为 0 到 1。通过 `actionHandler` 或代理处理 `.startTransfer`、`.pauseTransfer`、`.resumeTransfer` 和 `.retry`，并在实际操作后回写状态。更新时不传进度可保留原值。消息送达仍通过 `sendState` 更新。
+
+折叠、展开和全屏预览均在各自封面中央显示单项进度环。通过 `media.itemTransferRingColor` 设置进度环颜色，设为 `nil` 时沿用收发传输颜色；通过 `media.showsItemTransferCaption` 控制环下状态文字，默认显示百分比。合并消息中的图片和视频可通过 `updateMediaTransfer(messageID:itemID:state:progress:error:)` 分别更新，连同单项操作通过 `mediaTransferActionHandler` 报告消息及媒体 ID。
+
+视频和照片在封面上显示进度环，文件、位置、名片和音乐在卡片下显示进度条。可通过 `content` 和各消息类型的 `contentOverrides` 调整收发颜色、线宽、轨道、封面遮罩、图标及其着色、状态文案和控件可见性。`transferProgressFormatter` 自定义百分比文案。SDK 自带上传、下载、暂停和继续四个本地图标，也可用 `transferUploadImage`、`transferDownloadImage`、`transferPauseImage`、`transferResumeImage` 和 `transferRetryImage` 替换。
+
+展开媒体组会优先读取可解码的本地图片，随后支持自定义 `imageLoader`、资源包图片和 SDK 的默认 HTTP(S) 加载。为远程图片安装接管加载器时，请在该加载器处理下载以及视图复用。
+
+## 红包、转账与收款回执
+
+点击资金卡片或回执会触发 `messageDetailHandler` 与常规消息点击事件。接入方可根据 `fundsReceipt.originalMessageID` 定位原消息并展示自己的详情页。接入方确认到账后调用 `markFundsReceived(_:actorName:)`，将对应卡片切换为已收款。提供 `actorName` 时还会追加居中的回执消息。同一消息只接受一次从待收款到已收款的更新。
+
+资金卡片的待领取和已处理颜色、文字、图标与底部文案均可配置，也可按红包或转账单独覆盖。`fundsIconTintColor`、`fundsIconSide` 配置卡片图标。回执图标通过资金类型对应的 `notice.fundsPacketReceiptTintColor`、`notice.fundsTransferReceiptTintColor` 与共同的 `notice.fundsReceiptIconSide` 配置。转账已收款文案区分发送侧和接收侧。四种回执的模板、图标、背景和强调色在 `notice` 中配置，字体、图标尺寸与间距使用 `.fundsReceipt` 对应的内容配置。
 
 ## 录音与语音识别
 
@@ -202,7 +224,7 @@ UIKit界面和配置刷新在主线程执行。外部录音与识别回调会统
 
 `basic.avatarTapAction`、`basic.avatarLongPressAction`和`basic.avatarDoubleTapAction`分别配置头像的单击、长按、双击，可选`.none`、`.profile`、`.mention`和`.takePat`。默认依次为打开用户信息、提及用户和请求拍一拍，长按时间由`basic.avatarLongPressDuration`控制，展开媒体旁的头像使用相同配置。`basic.avatarPatAnimationDuration`与`basic.avatarPatAnimationAngles`配置拍一拍反馈动画，时长为0时关闭动画。
 
-头像操作通过`actionHandler`和共享代理报告，拍一拍由接入方处理实际发送和结果。`basic.automaticallyInsertsMentions`控制头像提及时是否自动插入输入框，关闭后由接入方处理`.mention`操作。也可调用`mentionUser(_:)`在当前选区插入，`basic.mentionPrefix`和`basic.mentionSuffix`配置前缀与分隔文本。
+头像操作通过`actionHandler`和共享代理报告。SwiftVerify 与 ObjCVerify 在收到拍一拍事件后，使用被点击头像对应的发送者构造 `WYChatTakePatModel` 并追加到列表。正式接入可以在发送成功后追加同类消息。`basic.automaticallyInsertsMentions`控制头像提及时是否自动插入输入框，关闭后由接入方处理`.mention`操作。也可调用`mentionUser(_:)`在当前选区插入，`basic.mentionPrefix`和`basic.mentionSuffix`配置前缀与分隔文本。
 
 `inputMentions`返回仍然有效的提及，发送的文本与输入框一致时，消息的`mentions`保留用户身份及文本中的UTF16范围。同名用户分别保存各自ID，删除或编辑提及文本会移除对应身份，修改前面的文本会同步范围。Objective-C对应`chatView.mentionUser(user)`、`chatView.inputMentions`和`message.mentions`。
 
@@ -246,13 +268,19 @@ chatView.actionHandler = { [weak chatView] _, action, identifier in
 ```swift
 chatView.selectMessages([firstID])
 chatView.selectMessages(from: firstID, through: lastID)
-chatView.forwardHandler = { mode, originalMessages in
-    // 将原消息及转发形式交给接入方选择目标会话
+chatView.preparedForwardHandler = { mode, messages in
+    // 接入方将组装好的消息发送到目标会话
 }
 let messages = chatView.makeForwardMessages(ids, mode: .merged, title: "聊天记录")
 ```
 
-设置`forwardHandler`后，内置转发入口提供`selection.forwardModes`中的形式。回调传出按列表顺序排列的原消息快照，取消菜单保留选择。`makeForwardMessages`只组装数据，不插入当前列表或发起发送；逐条模式生成独立消息，合并模式生成`content.chatRecords`卡片，明细保留原发送者和消息顺序。未设置`forwardHandler`时使用`selectionActionHandler`处理批量操作。
+设置 `preparedForwardHandler` 后，单条长按菜单与多选工具条按 `selection.forwardModes` 提供转发形式。逐条模式生成独立消息，合并模式生成聊天记录卡片并保留原作者和顺序。已有的 `forwardHandler` 优先，继续交付原消息快照。需自行组装时可调用 `makeForwardMessages`。测试页在当前会话模拟展示转发结果。
+
+`selection.automaticallyDeletesMessages` 开启后，长按菜单和多选工具条会移除允许删除的消息，`removeMessages(_:)` 可在接入方确认后直接移除指定消息。设置 `selectionActionHandler` 可接管多选操作。`selection.automaticallyFavoritesMessages` 开启后，菜单将消息快照保存到当前控件的 `favoriteMessages`，同一个消息 ID 只保留一个快照。用 `setMessageFavorited(_:messageID:)` 可以取消收藏。两个开关默认关闭，现有代理仍可接管操作。需要跨会话或重启后保留收藏时，由接入方持久化。
+
+`menuActions`、`actionTitle`、`actionImage` 和 `allowsAction` 分别控制菜单项、标题、图标和单条消息权限。`selection` 还可配置工具条和按钮的显示、字体、颜色和布局，以及转发模式及文案。这些配置与新增操作 API 均提供 Objective-C 桥接。
+
+多选转发可通过 `selection.usesForwardActionSheet` 使用系统底部弹窗。标题、说明、取消文案、按钮色及转发方式名称均可配置。系统菜单还支持为两种转发方式各设图标。需要自定义布局、动画或图片时，设置 `forwardOptionsHandler`，它会收到可用方式、消息 ID 及来源按钮。回传所选方式后由 SDK 组装消息，回传 nil 则保留当前选择。
 
 进入多选后，收发消息统一在列表起始侧显示圆形指示图标。选中时显示实心圆和勾，未选中时显示空心圆。图标与头像对齐，无头像时靠近消息顶部。勾选和取消勾选直接更新内置消息单元格上的图标。
 
