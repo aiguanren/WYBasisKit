@@ -48,7 +48,6 @@
 		585B3AC82DF819DC00E6E08F /* WYCenterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A702DF819DC00E6E08F /* WYCenterController.swift */; };
 		585B3AC92DF819DC00E6E08F /* WYParseGifController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A722DF819DC00E6E08F /* WYParseGifController.swift */; };
 		585B3ACA2DF819DC00E6E08F /* WYTestChatController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A742DF819DC00E6E08F /* WYTestChatController.swift */; };
-		585B3ACB2DF819DC00E6E08F /* WYTestChatDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A752DF819DC00E6E08F /* WYTestChatDataSource.swift */; };
 		585B3ACC2DF819DC00E6E08F /* WYMainController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A772DF819DC00E6E08F /* WYMainController.swift */; };
 		585B3ACD2DF819DC00E6E08F /* WYTestRichTextController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A792DF819DC00E6E08F /* WYTestRichTextController.swift */; };
 		585B3ACE2DF819DC00E6E08F /* WYRightController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3A7B2DF819DC00E6E08F /* WYRightController.swift */; };
@@ -65,6 +64,7 @@
 		585B3B022DF819DC00E6E08F /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B3B012DF819DC00E6E08F /* SceneDelegate.swift */; };
 		585E7C333017050B00C461A3 /* WYTestInfiniteSwitchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585E7C323017050B00C461A3 /* WYTestInfiniteSwitchController.swift */; };
 		5882EAF12E518A5D00638FD3 /* WYTestVibrateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5882EAF02E518A5D00638FD3 /* WYTestVibrateController.swift */; };
+		588E10DA30B80895007312E8 /* WYTestChatDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588E10D930B80895007312E8 /* WYTestChatDataSource.swift */; };
 		58C3596A2F3C6159000E6EF0 /* WYTestCombineImagesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C359692F3C6159000E6EF0 /* WYTestCombineImagesController.swift */; };
 		58CDEE5D2E34907800ACE975 /* WYLogController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CDEE5C2E34907800ACE975 /* WYLogController.swift */; };
 		58D9A79730946BC800B7B5A4 /* WYTestESimController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D9A79630946BC800B7B5A4 /* WYTestESimController.swift */; };
@@ -193,7 +193,6 @@
 		585B3A702DF819DC00E6E08F /* WYCenterController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYCenterController.swift; sourceTree = "<group>"; };
 		585B3A722DF819DC00E6E08F /* WYParseGifController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYParseGifController.swift; sourceTree = "<group>"; };
 		585B3A742DF819DC00E6E08F /* WYTestChatController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestChatController.swift; sourceTree = "<group>"; };
-		585B3A752DF819DC00E6E08F /* WYTestChatDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestChatDataSource.swift; sourceTree = "<group>"; };
 		585B3A772DF819DC00E6E08F /* WYMainController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYMainController.swift; sourceTree = "<group>"; };
 		585B3A792DF819DC00E6E08F /* WYTestRichTextController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestRichTextController.swift; sourceTree = "<group>"; };
 		585B3A7B2DF819DC00E6E08F /* WYRightController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYRightController.swift; sourceTree = "<group>"; };
@@ -219,6 +218,7 @@
 		5874BC852DF9176700703A4B /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
 		5874BC892DF9179300703A4B /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Main.strings"; sourceTree = "<group>"; };
 		5882EAF02E518A5D00638FD3 /* WYTestVibrateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestVibrateController.swift; sourceTree = "<group>"; };
+		588E10D930B80895007312E8 /* WYTestChatDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestChatDataSource.swift; sourceTree = "<group>"; };
 		58C359692F3C6159000E6EF0 /* WYTestCombineImagesController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestCombineImagesController.swift; sourceTree = "<group>"; };
 		58CDEE5C2E34907800ACE975 /* WYLogController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYLogController.swift; sourceTree = "<group>"; };
 		58D9A79630946BC800B7B5A4 /* WYTestESimController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WYTestESimController.swift; sourceTree = "<group>"; };
@@ -239,21 +239,11 @@
 		C34E05CA4DE4004E7FE0796B /* WYChatTestConfigurationController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatTestConfigurationController.swift; sourceTree = "<group>"; };
 		E8F9B7634782CF0DDC2525B5 /* WYChatTestConfigurationChecks.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WYChatTestConfigurationChecks.swift; sourceTree = "<group>"; };
 		EB15FA56305133FC2FC9D800 /* Pods_SharedPods_SwiftVerify.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SharedPods_SwiftVerify.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		FAFA7A5666AE843FBF2DA845 /* ChatViewSpeechSample.caf */ = {isa = PBXFileReference; includeInIndex = 1; path = ChatViewSpeechSample.caf; sourceTree = "<group>"; };
+		FAFA7A5666AE843FBF2DA845 /* ChatViewSpeechSample.caf */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file; path = ChatViewSpeechSample.caf; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		587B34EE308B318400E26CCF /* Resource */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			path = Resource;
-			sourceTree = "<group>";
-		};
+		587B34EE308B318400E26CCF /* Resource */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Resource; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -300,7 +290,6 @@
 				E8F9B7634782CF0DDC2525B5 /* WYChatTestConfigurationChecks.swift */,
 				49F041BC763B68191669DF4B /* WYChatTestAdvancedConfigurationChecks.swift */,
 			);
-			name = TestConfiguration;
 			path = TestConfiguration;
 			sourceTree = "<group>";
 		};
@@ -522,7 +511,7 @@
 			isa = PBXGroup;
 			children = (
 				585B3A742DF819DC00E6E08F /* WYTestChatController.swift */,
-				585B3A752DF819DC00E6E08F /* WYTestChatDataSource.swift */,
+				588E10D930B80895007312E8 /* WYTestChatDataSource.swift */,
 				62FC1533618AB8974B760C38 /* WYChatTestPanelController.swift */,
 				0A8A49C2D3218C6BD471D9DF /* WYChatTestSuite.swift */,
 				F99E10CE0B62E93902A502A2 /* TestAssets */,
@@ -794,7 +783,6 @@
 			children = (
 				FAFA7A5666AE843FBF2DA845 /* ChatViewSpeechSample.caf */,
 			);
-			name = TestAssets;
 			path = TestAssets;
 			sourceTree = "<group>";
 		};
@@ -1106,7 +1094,6 @@
 				581D2EC730863ED3001C1B9E /* WYTestVideoPlayerController.swift in Sources */,
 				585B3AC92DF819DC00E6E08F /* WYParseGifController.swift in Sources */,
 				585B3ACA2DF819DC00E6E08F /* WYTestChatController.swift in Sources */,
-				585B3ACB2DF819DC00E6E08F /* WYTestChatDataSource.swift in Sources */,
 				585B3ACC2DF819DC00E6E08F /* WYMainController.swift in Sources */,
 				580BB8AC2FF63F6900C1B986 /* WYTestAirBubbleController.swift in Sources */,
 				58D9A79730946BC800B7B5A4 /* WYTestESimController.swift in Sources */,
@@ -1119,6 +1106,7 @@
 				585B3ACF2DF819DC00E6E08F /* WYTableViewGroupedController.swift in Sources */,
 				585B3AD02DF819DC00E6E08F /* WYTableViewPlainController.swift in Sources */,
 				585B3AD12DF819DC00E6E08F /* WYWebViewController.swift in Sources */,
+				588E10DA30B80895007312E8 /* WYTestChatDataSource.swift in Sources */,
 				585B3AD22DF819DC00E6E08F /* WYLeftControllerHeaderView.swift in Sources */,
 				585B3AD32DF819DC00E6E08F /* WYTestTableViewFooterView.swift in Sources */,
 				585B3AD42DF819DC00E6E08F /* WYTestTableViewHeaderView.swift in Sources */,
