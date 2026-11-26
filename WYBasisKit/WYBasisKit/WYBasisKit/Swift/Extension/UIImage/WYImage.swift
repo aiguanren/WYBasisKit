@@ -41,7 +41,7 @@ public struct WYSourceBundle {
     }
 
     /// 查找资源包内的图片，缺失时返回 nil。
-    func image(named imageName: String) -> UIImage? {
+    internal func image(named imageName: String) -> UIImage? {
         guard !imageName.isEmpty else { return nil }
 
         let searchBundles = [Bundle(for: targetClass ?? WYLocalizableClass.self), Bundle.main]
