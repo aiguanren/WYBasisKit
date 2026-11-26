@@ -52,7 +52,7 @@ SwiftVerify示例的“聊天界面→测试→配置”提供中文分组设置
 
 红包优先显示留言，转账优先显示金额，收款状态单独显示。可通过各自的`contentOverrides`设置文字、间距、图标尺寸和底板颜色`fundsIconBackgroundColor`。拍一拍以居中提示呈现，`notice.patBackgroundColor`、`patCornerRadius`和`patText`配置底色、圆角和文案。
 
-红包、转账和音乐的内置图标默认分别为红色、琥珀色和靛蓝色。用`contentOverrides[消息类型].iconTintColor`覆盖，或用`usesDefaultIconTint`关闭类型配色。外部图标和封面默认保留原色，显式设置`iconTintColor`后按模板着色。更多面板的`more.iconTintColors`按资源名覆盖。视频播放图标用`media.videoPlayColor`着色，可用`tintsVideoPlayImage`关闭，浏览器里的播放按钮由`media.browser.appearance.playButtonIconColor`单独配置。
+红包、转账和音乐的内置图标默认分别为红色、琥珀色和靛蓝色。用`contentOverrides[消息类型].iconTintColor`覆盖，或用`usesDefaultIconTint`关闭类型配色。外部图标和封面默认保留原色，显式设置`iconTintColor`后按模板着色。更多面板的`more.iconTintColors`按菜单标题覆盖。视频播放图标用`media.videoPlayColor`着色，可用`tintsVideoPlayImage`关闭，浏览器里的播放按钮由`media.browser.appearance.playButtonIconColor`单独配置。
 
 单条视频将播放图标和时长叠放在封面上。`media.videoPlayImage`、`videoPlaySize`和`videoPlayColor`配置图标，`showsVideoDuration`、`videoDurationColor`和`videoOverlayBackgroundColor`配置时长及控件底色。视频的预览尺寸与时长字体可以通过`.video`内容覆盖配置。
 
@@ -111,6 +111,14 @@ ObjC读取chatView.configuration取得配置快照，需要修改后重新赋给
 用户正在阅读历史时，追加消息显示新消息提示；接近底部时自动跟随。引用预览默认显示在文本框下方，点击关闭按钮可取消引用并保留草稿。多选使用isSelectingMessages和selectedMessageIDs，内置工具条提供取消、转发与删除，selectionActionHandler一次接收按消息顺序排列的ID。showsSelectionToolbar可以关闭内置工具条，接入方可以提供自己的操作入口。
 
 ## 图片和视频接入
+
+更多面板通过 `configuration.more.moreSource` 接收 `[[String: UIImage]]`。每项提供一个标题和一张图片，数组顺序决定菜单顺序。接入方可用资源图片、系统图标或运行时生成的图片配置发红包、转账、音乐、名片等入口，并在 `wy_didClickMoreView(_:itemIndex:)` 中处理点击。
+
+```swift
+if let image = UIImage(named: "custom-contact-card") {
+    configuration.more.moreSource = [["个人名片": image]]
+}
+```
 
 相册选择器由接入方提供。通过`openAlbumHandler`或`wy_chatViewDidRequestAlbum`接收打开请求，选择完成后调用`sendMedia(_:)`交回`WYChatMediaItem`数组。`media.albumMoreItemIndex`将更多面板的指定项目关联到相册事件，负数时不自动关联。
 

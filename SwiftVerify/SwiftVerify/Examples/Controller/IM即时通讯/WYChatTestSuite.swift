@@ -1323,8 +1323,9 @@ final class WYChatTestSuite {
             cell?.prepareForReuse()
             check("voice-animation-reuse-cleared", cell?.thumbnailImageView.isAnimating == false && cell?.thumbnailImageView.animationImages == nil)
             var moreConfig = WYMoreViewConfig()
-            moreConfig.moreSource = [["照片": "WYChatViewAlbum"], ["拍摄": "WYChatViewCamera"]]
-            moreConfig.imageProvider = { UIImage.wy_find($0, inBundle: WYChatSourceBundle) }
+            let photoIcon = UIImage.wy_find("zhaopian")
+            let cameraIcon = UIImage.wy_find("paishe")
+            moreConfig.moreSource = [["照片": photoIcon], ["拍摄": cameraIcon]]
             let more = WYChatMoreView(config: moreConfig)
             more.frame = CGRect(x: 0, y: host.bounds.height - 250, width: host.bounds.width, height: 250)
             host.addSubview(more)

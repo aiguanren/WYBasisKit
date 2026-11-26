@@ -44,13 +44,11 @@ public struct WYMoreViewConfig {
     /// 自定义More控件是否需要翻页模式
     public var isPagingEnabled: Bool = true
     
-    /// 图标加载，参数为资源名，返回nil时使用默认资源查找
-    public var imageProvider: ((_ name: String) -> UIImage?)? = nil
-    /// 按资源名覆盖更多面板的图标着色
+    /// 按菜单标题覆盖图标着色
     public var iconTintColors: [String: UIColor] = [:]
 
-    /// 自定义More控件数据源
-    public var moreSource: [[String: String]] = []
+    /// 更多面板的数据源，数组决定显示顺序，每项包含一个标题及其图片
+    public var moreSource: [[String: UIImage]] = []
 
     /// 自定义More控件的Inset
     public var contentInset: UIEdgeInsets = UIEdgeInsets(top: UIDevice.wy_screenWidth(10, WYBasisKitConfig.defaultScreenPixels), left: UIDevice.wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels), bottom: UIDevice.wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels), right: UIDevice.wy_screenWidth(20, WYBasisKitConfig.defaultScreenPixels))
@@ -240,17 +238,15 @@ extension WYChatMoreView: UICollectionViewDelegate, UICollectionViewDataSource, 
         
         let cell: WYMoreViewCell = collectionView.dequeueReusableCell(withReuseIdentifier: "WYMoreViewCell", for: indexPath) as! WYMoreViewCell
         
-        let itemSource: [String: String] = moreViewConfig.moreSource[indexPath.item]
+        let item = moreViewConfig.moreSource[indexPath.item].first
         cell.moreViewConfig = moreViewConfig
         cell.titleView.font = moreViewConfig.textViewFont
         cell.titleView.textColor = moreViewConfig.textColor
-        let name = itemSource.values.first ?? ""
-        let icon = moreViewConfig.imageProvider?(name) ?? UIImage.wy_findIfPresent(name) ?? UIImage.wy_findIfPresent(name, inBundle: WYChatSourceBundle) ?? UIImage.wy_find(name)
-        let tint = moreViewConfig.iconTintColors[name] ?? (icon.renderingMode == .alwaysOriginal ? nil : WYChatDefaultResources.iconTint(for: name))
-        cell.iconView.image = tint == nil ? icon : icon.withRenderingMode(.alwaysTemplate)
+        let tint = item.flatMap { moreViewConfig.iconTintColors[$0.key] }
+        cell.iconView.image = tint == nil ? item?.value : item?.value.withRenderingMode(.alwaysTemplate)
         cell.iconView.tintColor = tint
-        cell.titleView.text = itemSource.keys.first ?? ""
-        
+        cell.titleView.text = item?.key ?? ""
+
         return cell
     }
     

@@ -124,10 +124,8 @@ enum WYChatTestAdvancedConfigurationChecks {
         check("advanced-emoji-source-folder", emojiConfig.emojiSourceBundle(for: "[配置表情]")?.subdirectory == "Emoji/配置表情")
         emojiConfig.emojiFolders = false
         check("advanced-emoji-source-flat", emojiConfig.emojiSourceBundle(for: "[配置表情]")?.subdirectory == "Emoji")
-        var iconNames: [String] = []
         var moreConfig = WYMoreViewConfig()
-        moreConfig.moreSource = (0..<20).map { ["入口\($0)": "icon-\($0)"] }
-        moreConfig.imageProvider = { name in iconNames.append(name); return image }
+        moreConfig.moreSource = (0..<20).map { ["入口\($0)": image] }
         let more = WYChatMoreView(config: moreConfig)
         more.frame = CGRect(x: 0, y: 0, width: 393, height: moreConfig.contentHeight())
         host.addSubview(more)
@@ -136,7 +134,9 @@ enum WYChatTestAdvancedConfigurationChecks {
         more.collectionView.layoutIfNeeded()
         let moreCell = more.collectionView.cellForItem(at: IndexPath(item: 0, section: 0))
         @MainActor func descendants(_ root: UIView) -> [UIView] { root.subviews + root.subviews.flatMap { descendants($0) } }
-        check("advanced-more-image-provider", iconNames.contains("icon-0") && (moreCell.map { descendants($0) } ?? []).compactMap { $0 as? UIImageView }.contains { $0.image === image })
+        let moreCellViews = moreCell.map { descendants($0) } ?? []
+        check("advanced-more-source", moreCellViews.compactMap { $0 as? UIImageView }.contains { $0.image === image }
+              && moreCellViews.compactMap { $0 as? UILabel }.contains { $0.text == "入口0" })
         more.updatePageControl(defaultColor: .systemOrange, currentColor: .systemPurple)
         more.updatePageControl(defaultImage: image, currentImage: image)
         await Task.yield()

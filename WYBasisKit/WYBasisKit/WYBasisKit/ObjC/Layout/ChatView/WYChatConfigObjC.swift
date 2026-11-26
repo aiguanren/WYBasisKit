@@ -2833,8 +2833,6 @@ import WYBasisKitSwift
     public var showsVerticalScrollIndicator: Bool
     /// 是否显示水平滚动条
     public var showsHorizontalScrollIndicator: Bool
-    /// 图标加载，参数为资源名，返回nil时使用默认资源查找
-    public var imageProvider: ((_ name: String) -> UIImage?)? = nil
     /// 自定义More控件弹起或者收回时动画持续时长
     public var animateDuration: TimeInterval
     /// 自定义More控件背景色
@@ -2849,8 +2847,8 @@ import WYBasisKitSwift
     public var pageControlUserInteractionEnabled: Bool
     /// 自定义More控件是否需要翻页模式
     public var isPagingEnabled: Bool
-    /// 自定义More控件数据源
-    public var moreSource: [[String: String]]
+    /// 更多面板的数据源，数组决定显示顺序，每项包含一个标题及其图片
+    public var moreSource: [[String: UIImage]]
     /// 自定义More控件的Inset
     public var contentInset: UIEdgeInsets
     /// 自定义More控件内imageView的背景色
@@ -2859,6 +2857,7 @@ import WYBasisKitSwift
     public var imageViewSize: CGSize
     /// 更多面板图标的显示尺寸
     public var iconSize: CGSize
+    /// 按菜单标题覆盖图标着色
     public var iconTintColors: [String: UIColor]
     /// 自定义More控件内imageView的圆角半径
     public var imageViewCornerRadius: CGFloat
@@ -2916,7 +2915,6 @@ import WYBasisKitSwift
         self.maxHeightForever = value.maxHeightForever
         self.minimumLineSpacing = value.minimumLineSpacing
         self.pageControlPosition = value.pageControlPosition.map { NSValue(cgPoint: $0) }
-        self.imageProvider = value.imageProvider
         super.init()
     }
 
@@ -2952,7 +2950,6 @@ import WYBasisKitSwift
         value.maxHeightForever = maxHeightForever
         value.minimumLineSpacing = minimumLineSpacing
         value.pageControlPosition = pageControlPosition?.cgPointValue
-        value.imageProvider = imageProvider
         return value
     }
 }

@@ -32,7 +32,17 @@ class WYTestChatController: UIViewController {
 //        configuration.emoji.recentlyHeaderText = ""
 //        configuration.emoji.showRecently = false
         
-        configuration.more.moreSource = [["照片": "zhaopian"], ["拍摄": "paishe"], ["位置": "weizhi"], ["语音输入": "yuyinshuru"], ["收藏": "shoucang"], ["个人名片": "gerenmingpian"], ["文件": "wenjianjia"], ["音乐": "yinle"]]
+        configuration.more.moreSource = [
+            ["照片": UIImage.wy_find("zhaopian")],
+            ["拍摄": UIImage.wy_find("paishe")],
+            ["位置": UIImage.wy_find("weizhi")],
+            ["文件": UIImage.wy_find("wenjianjia")],
+            ["收藏": UIImage.wy_find("shoucang")],
+            ["个人名片": UIImage.wy_find("gerenmingpian")],
+            ["音乐": UIImage.wy_find("yinle")],
+            ["发红包": UIImage(systemName: "gift") ?? UIImage()],
+            ["转账": UIImage(systemName: "arrow.left.arrow.right") ?? UIImage()]
+        ]
         
 //        configuration.more.isPagingEnabled = true
 //        configuration.more.scrollDirection = .vertical
@@ -46,8 +56,6 @@ class WYTestChatController: UIViewController {
         
         configuration.emoji.emojiFolders = true
         
-        configuration.more.imageProvider = { UIImage.wy_find($0, inBundle: WYChatSourceBundle) }
-        configuration.more.moreSource = [["照片": "WYChatViewAlbum"], ["拍摄": "WYChatViewCamera"], ["位置": "WYChatViewLocation"], ["文件": "WYChatViewFile"]]
         configuration.imageLoader = { asset, imageView, _ in
             guard !asset.name.isEmpty else { return }
             let name = asset.name == "doc" ? "WYChatViewFile" : asset.name
@@ -271,7 +279,14 @@ extension WYTestChatController: WYChatViewDelegate {
 
     /// 点击了More控件内某个item
     func wy_didClickMoreView(_ moreView: WYChatMoreView, itemIndex: Int) {
-        //wy_print("点击More控件 \(moreView) 内第 \(itemIndex) 个item")
+        let items = moreView.moreViewConfig.moreSource
+        guard items.indices.contains(itemIndex),
+              let title = items[itemIndex].keys.first,
+              ["发红包", "转账", "音乐", "个人名片"].contains(title) else { return }
+
+        let alert = UIAlertController(title: title, message: "已收到更多菜单点击事件，接入方可在此打开对应功能。", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "关闭", style: .cancel))
+        present(alert, animated: true)
     }
 }
 

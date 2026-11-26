@@ -27,8 +27,20 @@
     config.recording.supportSpeechRecognition = true;
     config.recording.speechRecognitionSource = WYChatSpeechRecognitionSourceApple;
     WYSourceBundle *resources = [[WYSourceBundle alloc] initWithTargetClass:nil bundleName:@"WYChatView" subdirectory:@""];
-    config.more.moreSource = @[@{@"照片": @"WYChatViewAlbum"}, @{@"文件": @"WYChatViewFile"}];
-    config.more.imageProvider = ^UIImage * _Nullable(NSString *name) { return [UIImage wy_find:name bundle:resources]; };
+    config.more.moreSource = @[
+        @{@"照片": [UIImage wy_find:@"zhaopian" bundle:nil]},
+        @{@"拍摄": [UIImage wy_find:@"paishe" bundle:nil]},
+        @{@"位置": [UIImage wy_find:@"weizhi" bundle:nil]},
+        @{@"文件": [UIImage wy_find:@"wenjianjia" bundle:nil]},
+        @{@"收藏": [UIImage wy_find:@"shoucang" bundle:nil]},
+        @{@"个人名片": [UIImage wy_find:@"gerenmingpian" bundle:nil]},
+        @{@"音乐": [UIImage wy_find:@"yinle" bundle:nil]},
+        @{@"发红包": [UIImage systemImageNamed:@"gift"] ?: [[UIImage alloc] init]},
+        @{@"转账": [UIImage systemImageNamed:@"arrow.left.arrow.right"] ?: [[UIImage alloc] init]}
+    ];
+    UIEdgeInsets moreInset = config.more.contentInset;
+    moreInset.bottom = [UIDevice wy_screenWidth:40];
+    config.more.contentInset = moreInset;
     config.imageLoader = ^(WYChatAssetsModel *asset, UIImageView *imageView, NSString *messageID) {
         if (asset.name.length == 0) { return; }
         NSString *name = [asset.name isEqualToString:@"doc"] ? @"WYChatViewFile" : asset.name;
@@ -60,6 +72,17 @@
     message.sendState = WYChatMessageSendStateSuccess;
     self.chatView.appendMessages(@[message]);
     self.chatView.scrollToLastMessage(false);
+}
+
+- (void)wy_didClickMoreView:(WYChatMoreView *)moreView itemIndex:(NSInteger)itemIndex {
+    NSArray<NSDictionary<NSString *, UIImage *> *> *items = moreView.moreViewConfig.moreSource;
+    if (itemIndex < 0 || (NSUInteger)itemIndex >= items.count) { return; }
+    NSString *title = items[itemIndex].allKeys.firstObject;
+    if (!title || ![@[@"发红包", @"转账", @"音乐", @"个人名片"] containsObject:title]) { return; }
+
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:@"已收到更多菜单点击事件，接入方可在此打开对应功能。" preferredStyle:UIAlertControllerStyleAlert];
+    [alert addAction:[UIAlertAction actionWithTitle:@"关闭" style:UIAlertActionStyleCancel handler:nil]];
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)prepareExampleMessage:(WYChatMessageModel *)message {
