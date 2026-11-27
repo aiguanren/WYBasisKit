@@ -9,5 +9,7 @@ import UIKit
 
 /// 消息内容Cell
 open class WYChatMusicCell: WYChatBasicCell {
-    open override func renderContent() { wy_renderMedia() }
+    override var wy_transferProgressPresentation: WYChatTransferProgressPresentation { .attachment }
+
+    open override func renderContent() { wy_musicRender() }
 }

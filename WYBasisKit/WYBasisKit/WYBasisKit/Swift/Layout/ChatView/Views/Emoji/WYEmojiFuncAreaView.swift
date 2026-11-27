@@ -104,12 +104,6 @@ public struct WYEmojiFuncAreaConfig {
     
     /// 发送按钮按压状态文本颜色
     public var sendViewTextColorWithHighly: UIColor = .white
-    
-    var showsSendButton: Bool { !removeSendView && sendViewSize.width > 0 && sendViewSize.height > 0 }
-    var actionAreaWidth: CGFloat {
-        deleteViewLeftOffsetWithArea + deleteViewSize.width + sendViewRightOffset
-            + (showsSendButton ? sendViewLeftOffsetWithDeleteView + sendViewSize.width : 0)
-    }
 
     public init() {}
 }
@@ -129,11 +123,7 @@ public class WYEmojiFuncAreaView: UIView {
 
     /// 当前实例配置
     public var emojiViewConfig: WYEmojiViewConfig = WYEmojiViewConfig()
-
-    
-    var sendView: UIButton!
-    var deleteView: UIButton!
-    var longPressTimer: DispatchSourceTimer?
+    let state = WYEmojiFuncAreaViewPrivateState()
     
     public weak var delegate: WYEmojiFuncAreaViewDelegate? = nil
     
@@ -143,110 +133,27 @@ public class WYEmojiFuncAreaView: UIView {
         self.emojiViewConfig = config
         super.init(frame: .zero)
         
-        addSubview(gradualView)
-        gradualView.snp.makeConstraints { make in
-            make.top.width.right.equalToSuperview()
-            make.height.equalTo(emojiViewConfig.funcAreaConfig.sendViewAndDeleteViewTopOffset)
-        }
-        gradualView.wy_makeVisual { make in
-            make.wy_gradualColors([emojiViewConfig.backgroundColor.withAlphaComponent(0),emojiViewConfig.backgroundColor.withAlphaComponent(0.3),emojiViewConfig.backgroundColor.withAlphaComponent(0.6),emojiViewConfig.backgroundColor.withAlphaComponent(0.8), emojiViewConfig.backgroundColor])
-            make.wy_gradientDirection(.topToBottom)
-        }
-
-        let contentView: UIView = UIView()
-        contentView.backgroundColor = emojiViewConfig.backgroundColor
-        addSubview(contentView)
-        contentView.snp.makeConstraints { make in
-            make.right.bottom.equalToSuperview()
-            make.top.equalToSuperview().offset(emojiViewConfig.funcAreaConfig.sendViewAndDeleteViewTopOffset)
-            make.left.equalTo(gradualView)
-        }
-
-        sendView = createFuncButton(text: emojiViewConfig.funcAreaConfig.sendViewText, textColorWithDisabled: emojiViewConfig.funcAreaConfig.sendViewTextColorWithDisabled, textColorWithEnable: emojiViewConfig.funcAreaConfig.sendViewTextColorWithEnable, textColorWithHighly: emojiViewConfig.funcAreaConfig.sendViewTextColorWithHighly, backgroundImageWithDisabled: emojiViewConfig.funcAreaConfig.sendViewImageWithDisabled, backgroundImageWithEnable: emojiViewConfig.funcAreaConfig.sendViewImageWithEnable, backgroundImageWithHighly: emojiViewConfig.funcAreaConfig.sendViewImageWithHighly, target: self, selector: #selector(clickSendView))
-        sendView.wy_titleFont = emojiViewConfig.funcAreaConfig.sendViewFont
-        let showsSendButton = emojiViewConfig.funcAreaConfig.showsSendButton
-        sendView.isHidden = !showsSendButton
-        contentView.addSubview(sendView)
-        sendView.snp.makeConstraints { make in
-            make.size.equalTo(showsSendButton ? emojiViewConfig.funcAreaConfig.sendViewSize : .zero)
-            make.right.equalToSuperview().offset(-emojiViewConfig.funcAreaConfig.sendViewRightOffset)
-            make.top.equalToSuperview()
-        }
-
-        deleteView = createFuncButton(text: emojiViewConfig.funcAreaConfig.deleteViewText, textColorWithDisabled: emojiViewConfig.funcAreaConfig.deleteViewTextColorWithDisabled, textColorWithEnable: emojiViewConfig.funcAreaConfig.deleteViewTextColorWithEnable, textColorWithHighly: emojiViewConfig.funcAreaConfig.deleteViewTextColorWithHighly, backgroundImageWithDisabled: emojiViewConfig.funcAreaConfig.deleteViewImageWithDisabled, backgroundImageWithEnable: emojiViewConfig.funcAreaConfig.deleteViewImageWithEnable, backgroundImageWithHighly: emojiViewConfig.funcAreaConfig.deleteViewImageWithHighly, target: self, selector: #selector(clickDeleteView))
-        deleteView.wy_titleFont = emojiViewConfig.funcAreaConfig.deleteViewFont
-        deleteView.accessibilityLabel = emojiViewConfig.funcAreaConfig.deleteViewText.isEmpty
-            ? emojiViewConfig.funcAreaConfig.deleteAccessibilityLabel
-            : emojiViewConfig.funcAreaConfig.deleteViewText
-        if (emojiViewConfig.funcAreaConfig.longPressDelete == true) {
-            let longPress: UILongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(didLongPress(sender:)))
-            let duration = emojiViewConfig.funcAreaConfig.longPressDeleteDuration
-            longPress.minimumPressDuration = duration.isFinite ? max(0, duration) : WYEmojiFuncAreaConfig().longPressDeleteDuration
-            deleteView.addGestureRecognizer(longPress)
-        }
-        contentView.addSubview(deleteView)
-        deleteView.snp.makeConstraints { make in
-            make.size.equalTo(emojiViewConfig.funcAreaConfig.deleteViewSize)
-            make.right.equalTo(sendView.snp.left).offset(showsSendButton ? -emojiViewConfig.funcAreaConfig.sendViewLeftOffsetWithDeleteView : 0)
-            make.top.equalToSuperview()
-        }
+        wy_setupFuncArea()
     }
 
-    public func createFuncButton(text: String, textColorWithDisabled: UIColor, textColorWithEnable: UIColor, textColorWithHighly: UIColor, backgroundImageWithDisabled: UIImage, backgroundImageWithEnable: UIImage, backgroundImageWithHighly: UIImage, target: Any?, selector: Selector) -> UIButton {
-
-        let button: UIButton = UIButton(type: .custom)
-        button.wy_sTitle = text
-        button.wy_nTitle = text
-        button.wy_hTitle = text
-        button.wy_title_sColor = textColorWithDisabled
-        button.wy_title_nColor = textColorWithEnable
-        button.wy_title_hColor = textColorWithHighly
-        button.setBackgroundImage(backgroundImageWithDisabled, for: .selected)
-        button.setBackgroundImage(backgroundImageWithEnable, for: .normal)
-        button.setBackgroundImage(backgroundImageWithHighly, for: .highlighted)
-        button.wy_cornerRadius(emojiViewConfig.funcAreaConfig.deleteViewAndSendViewCornerRadius).wy_showVisual()
-        button.addTarget(target, action: selector, for: .touchUpInside)
-
-        return button
-    }
+    public func createFuncButton(text: String, textColorWithDisabled: UIColor, textColorWithEnable: UIColor, textColorWithHighly: UIColor, backgroundImageWithDisabled: UIImage, backgroundImageWithEnable: UIImage, backgroundImageWithHighly: UIImage, target: Any?, selector: Selector) -> UIButton { wy_createFuncButton(text: text, textColorWithDisabled: textColorWithDisabled, textColorWithEnable: textColorWithEnable, textColorWithHighly: textColorWithHighly, backgroundImageWithDisabled: backgroundImageWithDisabled, backgroundImageWithEnable: backgroundImageWithEnable, backgroundImageWithHighly: backgroundImageWithHighly, target: target, selector: selector) }
 
     public func updateFuncAreaStyle() {
-        sendView.isSelected = !isUserInteractionEnabled || !sendView.isUserInteractionEnabled
-        deleteView.isSelected = !isUserInteractionEnabled || !deleteView.isUserInteractionEnabled
+        state.sendView.isSelected = !isUserInteractionEnabled || !state.sendView.isUserInteractionEnabled
+        state.deleteView.isSelected = !isUserInteractionEnabled || !state.deleteView.isUserInteractionEnabled
     }
     
-    @objc public func didLongPress(sender: UILongPressGestureRecognizer) {
-        if sender.state == .began {
-            cancelLongPressTimer()
-            
-            longPressTimer = DispatchSource.makeTimerSource()
-            let interval = emojiViewConfig.funcAreaConfig.deleteRepeatInterval
-            longPressTimer?.schedule(deadline: .now(), repeating: interval.isFinite ? max(0.05, interval) : WYEmojiFuncAreaConfig().deleteRepeatInterval)
-            longPressTimer?.setEventHandler(handler: { [weak self] in
-                Task { @MainActor [weak self] in
-                    self?.clickDeleteView()
-                }
-            })
-            longPressTimer?.resume()
-        }
-        
-        if (sender.state == .cancelled) || (sender.state == .ended) {
-            cancelLongPressTimer()
-        }
-    }
+    @objc public func didLongPress(sender: UILongPressGestureRecognizer) { wy_didLongPress(sender: sender) }
     
     @objc public func clickDeleteView() {
-        delegate?.wy_didClickEmojiDeleteView?(deleteView)
+        delegate?.wy_didClickEmojiDeleteView?(state.deleteView)
     }
     
     @objc public func clickSendView() {
-        delegate?.wy_didClickEmojiSendView?(sendView)
+        delegate?.wy_didClickEmojiSendView?(state.sendView)
     }
     
-    public func cancelLongPressTimer() {
-        longPressTimer?.cancel()
-        longPressTimer = nil
-    }
+    public func cancelLongPressTimer() { wy_cancelLongPressTimer() }
 
     public override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
         let hitView: UIView? = super.hitTest(point, with: event)
@@ -261,5 +168,4 @@ public class WYEmojiFuncAreaView: UIView {
         cancelLongPressTimer()
     }
 
-    
 }

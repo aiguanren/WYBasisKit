@@ -214,7 +214,9 @@ SwiftVerify与ObjCVerify的聊天页面均提供“测试”入口，可运行�
 
 ## 扩展与资源
 
-可继承 `WYChatBasicCell` 或可继承的具体 Cell 并覆写 `renderContent`，将内容添加到 `bodyView`。内置类型的公开 Cell 类保留，渲染逻辑由 Basic 层共享。接入方可用 `customCellClasses` 注册自定义类，并通过 `wy_canManagerCellForRowEvents` 为 SDK 未内置的消息提供 Cell。
+可继承 `WYChatBasicCell` 或可继承的具体 Cell 并覆写 `renderContent`，将内容添加到 `bodyView`。各类型的内容和专用控件由对应的 Cell 管理。Basic 层负责公共布局、发送状态及可复用的渲染逻辑。接入方可用 `customCellClasses` 注册自定义类，并通过 `wy_canManagerCellForRowEvents` 为 SDK 未内置的消息提供 Cell。
+
+ChatView 的内部状态与实现位于各组件的 `PrivateImpl`。Cell 的公开声明、可覆写入口及连接内部状态的属性留在对应的 Cell 文件。
 
 组件自带输入栏及表情资源。状态图标使用系统图标和系统活动指示器。自定义图片可由接入方配置或通过加载接口提供，不要求使用固定图片气泡。
 

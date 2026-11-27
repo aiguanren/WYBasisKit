@@ -129,13 +129,15 @@ open class WYChatBasicCell: UITableViewCell {
     /// 当前用户ID
     public var userID: String = "" { didSet { wy_render() } }
     /// 当前消息
-    public var message: WYChatMessageModel = WYChatMessageModel() { didSet { if !state.updatingMediaPage && !state.isUpdating { wy_render() } } }
+    public var message: WYChatMessageModel = WYChatMessageModel() { didSet { if !state.isUpdating { wy_render() } } }
     /// 消息操作，参数为操作及消息ID
     public var actionHandler: ((_ action: WYChatAction, _ messageID: String) -> Void)? = nil
     /// 媒体组操作，参数为操作、消息ID和媒体下标
     public var mediaActionHandler: ((_ action: WYChatMediaAction, _ messageID: String, _ index: Int) -> Void)? = nil
     /// 媒体组展示视图
-    public var mediaContentView: UIView { state.mediaView }
+    public var mediaContentView: UIView { wy_mediaContentView }
+
+    var wy_mediaContentView: UIView { state.emptyMediaContentView }
 
     /// 头像控件
     public let avatarView: UIImageView = WYChatAvatarImageView()
@@ -171,9 +173,7 @@ open class WYChatBasicCell: UITableViewCell {
     public var isMessageSelected: Bool = false { didSet { wy_updateSelectionIndicator() } }
     /// 当前消息内容配置
     public var messageContentConfiguration: WYChatContentConfig {
-        var value = configuration.contentOverrides[message.content.style()] ?? configuration.content
-        if message.content.mediaGroup != nil && configuration.contentOverrides[.mediaGroup] == nil { value.showsBubble = configuration.media.showsBubble; value.insets = configuration.media.contentInsets }
-        return value
+        configuration.contentOverrides[message.content.style()] ?? wy_defaultContentConfiguration
     }
 
     public override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -201,25 +201,13 @@ open class WYChatBasicCell: UITableViewCell {
         wy_render()
     }
 
-    var progressVisibilityChanged: ((String) -> Void)?
-    var mediaTransferHandler: ((WYChatAction, String, String) -> Void)?
-
-    func wy_updateAttachmentProgress(_ message: WYChatMessageModel) {
-        guard self.message.messageID == message.messageID else { return }
-        state.isUpdating = true
-        self.message = message
-        state.isUpdating = false
-        if let group = message.content.mediaGroup { state.mediaView.updateTransferItems(group.items) }
-        wy_renderAttachmentProgress()
-        setNeedsLayout()
-    }
+    func wy_updateAttachmentProgress(_ message: WYChatMessageModel) { wy_applyAttachmentProgress(message) }
 
     public override func layoutSubviews() {
         super.layoutSubviews()
         wy_updateLayout()
         contentView.layoutIfNeeded()
         wy_layoutSelectionIndicator()
-        wy_layoutMediaToggle()
         wy_layoutAttachmentProgress()
     }
 
@@ -233,7 +221,25 @@ open class WYChatBasicCell: UITableViewCell {
         wy_prepareForReuse()
     }
 
-    internal var wy_isSelectingMessages = false { didSet { wy_updateSelectionIndicator() } }
+    var wy_isNotice: Bool { false }
+    var wy_hidesContent: Bool { false }
+    var wy_bubbleFillColor: UIColor? { nil }
+    var wy_noticeBackgroundColor: UIColor? { nil }
+    var wy_noticeCornerRadius: CGFloat? { nil }
+
+    var wy_defaultContentConfiguration: WYChatContentConfig { configuration.content }
+
+    func wy_setupContent() {}
+    func wy_resetContent() {}
+    func wy_layoutContent(width: CGFloat) {}
+    func wy_measureContent(_ view: UIView, width: CGFloat) -> CGSize? { nil }
+    var wy_transferProgressPresentation: WYChatTransferProgressPresentation { .inline }
+    func wy_updatesItemTransferProgress(visible: Bool) -> Bool { false }
+
+    func wy_transferPreviewGeometry() -> (frame: CGRect, cornerRadius: CGFloat) {
+        (previewImageView.convert(previewImageView.bounds, to: bubblesView), state.image.imageCornerRadius)
+    }
+
 
     internal let state = WYChatBasicCellPrivateState()
 

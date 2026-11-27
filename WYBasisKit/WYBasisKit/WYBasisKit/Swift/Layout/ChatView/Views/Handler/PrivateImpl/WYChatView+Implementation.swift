@@ -230,8 +230,8 @@ extension WYChatView {
         value.recordAnimationConfig = configuration.recording
         value.delegate = self
         value.eventsHandler = self
-        value.quoteLayoutHandler = { [weak self] in self?.wy_layoutQuoteComposer() }
-        value.textEditingHandler = { [weak self] range, replacement in self?.wy_recordInputEdit(range: range, replacement: replacement) }
+        value.state.quoteLayoutHandler = { [weak self] in self?.wy_layoutQuoteComposer() }
+        value.state.textEditingHandler = { [weak self] range, replacement in self?.wy_recordInputEdit(range: range, replacement: replacement) }
         value.recordingResultHandler = { [weak self] url, duration, error in
             guard let self else { return }
             if error == nil, let url { _ = self.sendVoiceRecording(url, duration: duration) }
@@ -360,7 +360,7 @@ extension WYChatView {
         let text = chatInput.textView.attributedText
         inputViewResignFirstResponder()
         wy_cancelMessageRecognition()
-        if state.input?.hasCreatedRecordView == true {
+        if state.input?.state.hasCreatedRecordView == true {
             state.input?.recordView.endRecordVoice()
             state.input?.recordView.removeFromSuperview()
         }
@@ -818,6 +818,41 @@ extension WYChatView {
         state.pendingScrollToBottom = false
         state.followsBottom = false
         wy_cancelMessageRecognition()
-        if state.input?.hasCreatedRecordView == true { state.input?.recordView.endRecordVoice() }
+        if state.input?.state.hasCreatedRecordView == true { state.input?.recordView.endRecordVoice() }
+    }
+}
+
+extension WYChatView {
+    var wy_hasForwardHandler: Bool { forwardHandler != nil || preparedForwardHandler != nil }
+
+    internal var inputBarConfig: WYInputBarConfig { configuration.input }
+
+    internal var emojiViewConfig: WYEmojiViewConfig { configuration.emoji }
+
+    internal var moreViewConfig: WYMoreViewConfig { configuration.more }
+
+    @objc func wy_keyboardWillShow(notification: Notification) { wy_handleKeyboard(notification) }
+
+    @objc func wy_keyboardWillDismiss() { wy_handleKeyboardDismiss() }
+
+    @objc func wy_applicationDidBecomeActive(_ notification: Notification) { wy_handleApplicationActive(notification) }
+
+    @objc func wy_tableBackgroundTap(_ gesture: UITapGestureRecognizer) {
+        guard configuration.dismissInputOnTap else { return }
+        inputViewResignFirstResponder()
+    }
+
+    @objc func wy_newMessagesTap() { if configuration.dismissInputOnTap { inputViewResignFirstResponder() }; scrollToLastMessage(true) }
+}
+
+extension WYChatView {
+    func wy_layoutChat() {
+        if tableView.bounds.width > 0, tableView.bounds.height > 0, state.tableLayoutWidth != tableView.bounds.width {
+            state.tableLayoutWidth = tableView.bounds.width
+            wy_prepareBottomMeasurements()
+            tableView.reloadData()
+        }
+        wy_layoutQuoteComposer()
+        if state.pendingScrollToBottom { wy_scrollToBottom(false) }
     }
 }

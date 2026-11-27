@@ -78,17 +78,14 @@ extension WYChatView {
             state.updatingMediaPage = true
             dataSource[row].content.mediaGroup?.visibleIndex = index
             state.updatingMediaPage = false
-            if let cell = tableView.cellForRow(at: IndexPath(row: row, section: 0)) as? WYChatBasicCell {
-                cell.state.updatingMediaPage = true
-                cell.message = dataSource[row]
-                cell.state.updatingMediaPage = false
-                cell.state.mediaView.updatePage(index)
-            }
+            let cell = tableView.cellForRow(at: IndexPath(row: row, section: 0)) as? WYChatMediaGroupCell
+            cell?.wy_updateMediaPage(dataSource[row], at: index)
         case .preview:
             inputViewResignFirstResponder()
             let cell = tableView.cellForRow(at: IndexPath(row: row, section: 0)) as? WYChatBasicCell
-            let source = cell?.state.mediaView.sourceView(at: index) ?? cell?.previewImageView
-            cell?.state.mediaView.stopEmbeddedPlayback()
+            let mediaView = (cell as? WYChatMediaGroupCell)?.mediaView
+            let source = mediaView?.sourceView(at: index) ?? cell?.previewImageView
+            mediaView?.stopEmbeddedPlayback()
             if let handler = mediaPreviewHandler { handler(items, index, source) }
             else if configuration.media.automaticallyPresentsBrowser {
                 var responder: UIResponder? = self
@@ -243,7 +240,7 @@ final class WYChatMediaBrowserAdapter: NSObject, WYPhotoBrowserDataSource, WYPho
     }
     private func wy_sourceView(_ index: Int) -> UIView? {
         guard let chatView, let row = chatView.dataSource.firstIndex(where: { $0.messageID == messageID }), let cell = chatView.tableView.cellForRow(at: IndexPath(row: row, section: 0)) as? WYChatBasicCell else { return nil }
-        return cell.state.mediaView.sourceView(at: index) ?? cell.previewImageView
+        return (cell as? WYChatMediaGroupCell)?.mediaView.sourceView(at: index) ?? cell.previewImageView
     }
     func wy_photoBrowser(_ photoBrowser: WYPhotoBrowser, sourceViewForItemAt index: Int) -> UIView? { wy_sourceView(index) }
     func wy_photoBrowser(_ photoBrowser: WYPhotoBrowser, didShowItemAt index: Int) { chatView?.wy_performMediaAction(.pageChanged, messageID: messageID, index: index) }
@@ -264,8 +261,8 @@ final class WYChatMediaBrowserAdapter: NSObject, WYPhotoBrowserDataSource, WYPho
         guard let chatView, chatView.state.mediaBrowser === self else { return }
         chatView.state.mediaBrowser = nil
         if let row = chatView.dataSource.firstIndex(where: { $0.messageID == messageID }),
-           let cell = chatView.tableView.cellForRow(at: IndexPath(row: row, section: 0)) as? WYChatBasicCell {
-            cell.state.mediaView.resumeEmbeddedPlayback()
+           let cell = chatView.tableView.cellForRow(at: IndexPath(row: row, section: 0)) as? WYChatMediaGroupCell {
+            cell.mediaView.resumeEmbeddedPlayback()
         }
     }
     func dispose() { inlinePlayback.stop(); player?.player?.pause(); browser?.dismiss(animated: false) }

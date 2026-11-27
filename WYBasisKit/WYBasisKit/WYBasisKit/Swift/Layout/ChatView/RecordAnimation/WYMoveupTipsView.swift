@@ -18,7 +18,7 @@ import UIKit
 
 public class WYMoveUpTipsView: UIView {
 
-    internal var actionTipsState: WYMoveUpTipsState = .cancel
+    let state = WYMoveUpTipsViewPrivateState()
 
     /// 当前实例配置
     public var recordAnimationConfig: WYRecordAnimationConfig = WYRecordAnimationConfig()

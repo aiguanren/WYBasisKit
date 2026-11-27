@@ -212,55 +212,6 @@ public class WYChatMoreView: UIView {
     
 }
 
-extension WYChatMoreView: UICollectionViewDelegate, UICollectionViewDataSource, WYCollectionViewFlowLayoutDelegate {
-    
-    public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return moreViewConfig.moreSource.count
-    }
-    
-    public func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, numberOfLinesInSection section: Int) -> Int {
-        return moreViewConfig.numberOfLinesInPage()
-    }
-    
-    public func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, numberOfColumnsInSection section: Int) -> Int {
-        return moreViewConfig.itemMaxCountWithColumn
-    }
-    
-    public func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSection section: Int) -> UIEdgeInsets {
-        return moreViewConfig.contentInset
-    }
-    
-    public func wy_collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, horizontalScrollItemArrangementDirectionForSection section: Int) -> Bool {
-        return true
-    }
-    
-    public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
-        let cell: WYMoreViewCell = collectionView.dequeueReusableCell(withReuseIdentifier: "WYMoreViewCell", for: indexPath) as! WYMoreViewCell
-        
-        let item = moreViewConfig.moreSource[indexPath.item].first
-        cell.moreViewConfig = moreViewConfig
-        cell.titleView.font = moreViewConfig.textViewFont
-        cell.titleView.textColor = moreViewConfig.textColor
-        let tint = item.flatMap { moreViewConfig.iconTintColors[$0.key] }
-        cell.iconView.image = tint == nil ? item?.value : item?.value.withRenderingMode(.alwaysTemplate)
-        cell.iconView.tintColor = tint
-        cell.titleView.text = item?.key ?? ""
-
-        return cell
-    }
-    
-    public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
-        guard (eventsHandler?.wy_canManagerMoreViewClickEvents?(self, itemIndex: indexPath.item) ?? true) else {
-            return
-        }
-        
-        collectionView.deselectItem(at: indexPath, animated: true)
-        delegate?.wy_didClickMoreViewAtIndex?(itemIndex: indexPath.item)
-    }
-}
-
 public extension WYChatMoreView {
     
     /// 分页控件

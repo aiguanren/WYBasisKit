@@ -15,10 +15,10 @@ let canSaveLastInputViewStyleKey: String = "canSaveLastInputViewStyleKey"
 extension WYChatInputView {
 
     func wy_makeRecordView() -> WYRecordAnimationView {
-        hasCreatedRecordView = true
+        state.hasCreatedRecordView = true
         let recordView: WYRecordAnimationView = WYRecordAnimationView(alpha: 0, delegate: self, configuration: recordAnimationConfig)
         recordView.presentsTranscriptInWindow = true
-        recordView.transcriptBackgroundColorProvider = { [weak self] in
+        recordView.state.transcriptBackgroundColorProvider = { [weak self] in
             (self?.superview as? WYChatView)?.tableView.backgroundColor
         }
         recordView.resultHandler = { [weak self] url, duration, error in self?.recordingResultHandler?(url, duration, error) }
@@ -95,9 +95,9 @@ extension WYChatInputView {
         switch sender.state {
         case .began:
             let identifier = UUID()
-            recordingGestureID = identifier
+            state.recordingGestureID = identifier
             let begin: (Bool) -> Void = { [weak self, weak sender] authorized in
-                guard let self, let sender, authorized, self.recordingGestureID == identifier, sender.state == .began || sender.state == .changed else { return }
+                guard let self, let sender, authorized, self.state.recordingGestureID == identifier, sender.state == .began || sender.state == .changed else { return }
                 self.recordView.recordAnimationConfig = self.recordAnimationConfig
                 self.recordView.start()
                 self.recordView.state.gradientGestureOrigin = sender.location(in: self.recordView)
@@ -107,10 +107,10 @@ extension WYChatInputView {
         case .changed:
             if recordView.state.requestID != nil { recordView.switchStatus(sender.location(in: recordView)) }
         case .ended:
-            recordingGestureID = nil
+            state.recordingGestureID = nil
             recordView.stop()
         case .cancelled, .failed:
-            recordingGestureID = nil
+            state.recordingGestureID = nil
             recordView.state.discard = true
             recordView.stop()
         default: break
@@ -124,9 +124,9 @@ extension WYChatInputView {
         switch sender.state {
         case .began:
             let identifier = UUID()
-            recordingGestureID = identifier
+            state.recordingGestureID = identifier
             let begin: (Bool) -> Void = { [weak self, weak sender] authorized in
-                guard let self, let sender, authorized, self.recordingGestureID == identifier, sender.state == .began || sender.state == .changed else { return }
+                guard let self, let sender, authorized, self.state.recordingGestureID == identifier, sender.state == .began || sender.state == .changed else { return }
                 self.textView.resignFirstResponder()
                 var configuration = self.recordAnimationConfig
                 configuration.interactionStyle = self.inputBarConfig.placeholderRecordingInteractionStyle
@@ -139,10 +139,10 @@ extension WYChatInputView {
         case .changed:
             if recordView.state.requestID != nil { recordView.switchStatus(sender.location(in: recordView)) }
         case .ended:
-            recordingGestureID = nil
+            state.recordingGestureID = nil
             recordView.stop()
         case .cancelled, .failed:
-            recordingGestureID = nil
+            state.recordingGestureID = nil
             recordView.state.discard = true
             recordView.stop()
         default: break
@@ -442,14 +442,14 @@ extension WYChatInputView {
             didClickSendView()
             return false
         }
-        if textView.markedTextRange != nil { textEditingHandler?(range, text); return true }
+        if textView.markedTextRange != nil { state.textEditingHandler?(range, text); return true }
         let current = textView.attributedText.string as NSString
         guard range.location != NSNotFound, range.location >= 0, range.length >= 0, NSMaxRange(range) <= current.length else { return false }
         let candidate = current.replacingCharacters(in: range, with: text)
         let attributed = sharedEmojiAttributed(string: candidate)
         if inputBarConfig.inputTextLength > 0 && attributed.string.count > inputBarConfig.inputTextLength { return false }
         if textRowGreaterThan(row: inputBarConfig.inputTextMaximumNumberOfLines, attributedText: attributed) { return false }
-        textEditingHandler?(range, text)
+        state.textEditingHandler?(range, text)
         return true
     }
 
@@ -479,7 +479,7 @@ extension WYChatInputView {
 
     func wy_updateQuoteSpacing() {
         textVoiceContentView.snp.updateConstraints { make in
-            make.bottom.equalToSuperview().offset(-inputBarConfig.inputViewEdgeInsets.bottom - quoteReservedHeight)
+            make.bottom.equalToSuperview().offset(-inputBarConfig.inputViewEdgeInsets.bottom - state.quoteReservedHeight)
         }
     }
 
@@ -644,5 +644,77 @@ extension WYChatInputView {
         textPlaceholderView.textColor = inputBarConfig.textPlaceholderColor
         wy_updateDictationControls()
         updateContentViewHeight()
+    }
+}
+
+final class WYChatInputViewPrivateState {
+    var textEditingHandler: ((NSRange, String) -> Void)?
+    var quoteLayoutHandler: (() -> Void)?
+    var quoteReservedHeight: CGFloat = 0
+    var hasCreatedRecordView = false
+    var recordingGestureID: UUID? = nil
+    let placeholderGate = UIButton(type: .custom)
+    let keyboardDictationButton = UIButton(type: .custom)
+    let keyboardDictationCountdownLabel = WYChatRecordingCountdownLabel(identifier: "WYChatInput.dictationCountdown")
+    var inputDictation: WYChatInputDictationSession?
+    var dictationRequestID: UUID?
+    var dictationRange = NSRange(location: 0, length: 0)
+    var dictationTextSnapshot = ""
+    var dictationRecognizedText = ""
+    var dictationCommittedTextCount = 0
+    var isApplyingDictationText = false
+}
+
+extension WYChatInputView {
+    func updateTextViewOffset() {
+        wy_impl_updateTextViewOffset()
+    }
+}
+
+extension WYChatInputView: WYRecordEventsHandler {
+
+}
+
+extension WYChatInputView: UITextViewDelegate {
+    public func textViewDidBeginEditing(_ textView: UITextView) { wy_updateDictationControls(); updateContentViewHeight() }
+    public func textViewDidEndEditing(_ textView: UITextView) { wy_stopInputDictation(cancel: true); wy_updateDictationControls(); updateContentViewHeight() }
+
+    @available(iOS, introduced: 10.0, deprecated: 17.0, message: "Use textView(_:primaryActionForTextItem:defaultAction:) instead")
+    public func textView(_ textView: UITextView, shouldInteractWith textAttachment: NSTextAttachment, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        return wy_impl_textView(textView, shouldInteractWith: textAttachment, in: characterRange, interaction: interaction)
+    }
+
+    @available(iOS 17.0, *)
+    public func textView(_ textView: UITextView, primaryActionFor textItem: UITextItem, defaultAction: UIAction) -> UIAction? {
+        return wy_impl_textView(textView, primaryActionFor: textItem, defaultAction: defaultAction)
+    }
+
+    @available(iOS 17.0, *)
+    public func textView(_ textView: UITextView, menuConfigurationFor textItem: UITextItem, defaultMenu: UIMenu) -> UITextItem.MenuConfiguration? {
+        if case let .textAttachment(attachment) = textItem.content, attachment is WYTextAttachment { return nil }
+        return UITextItem.MenuConfiguration(menu: defaultMenu)
+    }
+
+    public func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
+        return wy_impl_textViewShouldBeginEditing(textView)
+    }
+
+    public func textViewDidChange(_ textView: UITextView) {
+        wy_impl_textViewDidChange(textView)
+    }
+
+    public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        return wy_impl_textView(textView, shouldChangeTextIn: range, replacementText: text)
+    }
+
+}
+
+extension WYChatInputView {
+    var quoteReservedHeight: CGFloat {
+        get { state.quoteReservedHeight }
+        set {
+            state.quoteReservedHeight = newValue
+            wy_updateQuoteSpacing()
+        }
     }
 }

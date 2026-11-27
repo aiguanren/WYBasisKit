@@ -10,6 +10,7 @@ import Kingfisher
 
 /// 引用预览资源与布局
 final class WYChatQuoteViewPrivateState {
+    var isMeasuring = false
     let openButton = UIButton(type: .custom)
     var isUpdating = false
     var emoji: WYEmojiViewConfig?
@@ -20,6 +21,10 @@ final class WYChatQuoteViewPrivateState {
 }
 
 extension WYChatQuoteView {
+    var isMeasuring: Bool {
+        get { state.isMeasuring }
+        set { state.isMeasuring = newValue }
+    }
     func wy_setupQuote() {
         for view in [state.openButton, titleView, textView, thumbnailView, closeButton] { addSubview(view) }
         thumbnailView.clipsToBounds = true
@@ -201,4 +206,10 @@ extension WYChatQuoteView {
         closeButton.frame = CGRect(x: columns.closeX, y: 0, width: columns.closeWidth, height: bounds.height)
         state.openButton.frame = CGRect(x: 0, y: 0, width: closeButton.isHidden ? bounds.width : columns.closeX, height: bounds.height)
     }
+}
+
+extension WYChatQuoteView {
+    @objc func wy_closeQuote() { closeHandler?() }
+
+    @objc func wy_tapQuote() { tapHandler?() }
 }

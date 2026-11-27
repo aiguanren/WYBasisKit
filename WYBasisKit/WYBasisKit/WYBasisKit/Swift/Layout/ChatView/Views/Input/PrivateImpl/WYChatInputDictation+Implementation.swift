@@ -125,22 +125,22 @@ extension WYChatInputView {
     var wy_showsKeyboardDictation: Bool {
         guard window != nil, inputBarConfig.enablesKeyboardDictation, recordAnimationConfig.supportSpeechRecognition,
               !textView.isHidden,
-              inputBarConfig.showsKeyboardDictationWithText || !textView.hasText || inputDictation != nil else { return false }
+              inputBarConfig.showsKeyboardDictationWithText || !textView.hasText || state.inputDictation != nil else { return false }
         return textView.isFirstResponder || (inputBarConfig.showsKeyboardDictationInEmojiPanel && emojiView.isSelected)
     }
     var wy_dictationReservedWidth: CGFloat { wy_showsKeyboardDictation ? max(0, inputBarConfig.keyboardDictationSize.width) + max(0, inputBarConfig.keyboardDictationInsets.left) + max(0, inputBarConfig.keyboardDictationInsets.right) : 0 }
 
     func wy_setupDictationControls() {
-        placeholderGate.accessibilityIdentifier = "WYChatInput.placeholder"
-        placeholderGate.addTarget(self, action: #selector(wy_focusTextInput), for: .touchUpInside)
+        state.placeholderGate.accessibilityIdentifier = "WYChatInput.placeholder"
+        state.placeholderGate.addTarget(self, action: #selector(wy_focusTextInput), for: .touchUpInside)
         let press = UILongPressGestureRecognizer(target: self, action: #selector(placeholderRecordingLongPress(_:)))
         press.minimumPressDuration = wy_chatNonnegative(inputBarConfig.placeholderLongPressDuration)
         press.allowableMovement = wy_chatNonnegative(inputBarConfig.recordViewLongPressMaxOffset)
-        placeholderGate.addGestureRecognizer(press)
-        addSubview(placeholderGate)
-        keyboardDictationButton.accessibilityIdentifier = "WYChatInput.dictation"
-        keyboardDictationButton.addTarget(self, action: #selector(wy_toggleInputDictation), for: .touchUpInside)
-        addSubview(keyboardDictationButton)
+        state.placeholderGate.addGestureRecognizer(press)
+        addSubview(state.placeholderGate)
+        state.keyboardDictationButton.accessibilityIdentifier = "WYChatInput.dictation"
+        state.keyboardDictationButton.addTarget(self, action: #selector(wy_toggleInputDictation), for: .touchUpInside)
+        addSubview(state.keyboardDictationButton)
     }
 
     func wy_updateDictationControls() {
@@ -149,13 +149,13 @@ extension WYChatInputView {
         textPlaceholderView.textAlignment = centered ? .center : config.textPlaceholderAlignment == .center ? .left : config.textPlaceholderAlignment
         let labelHeight = textPlaceholderView.font.lineHeight
         textPlaceholderView.frame = CGRect(x: config.textPlaceholderOffset.x, y: centered ? max(0, (textView.bounds.height - labelHeight) / 2) : config.textPlaceholderOffset.y, width: max(0, textView.bounds.width - config.textPlaceholderOffset.x * 2 - wy_dictationReservedWidth), height: labelHeight)
-        placeholderGate.frame = textVoiceContentView.convert(textView.frame, to: self)
+        state.placeholderGate.frame = textVoiceContentView.convert(textView.frame, to: self)
         let allowsLongPress = config.placeholderLongPressAction == .voice || config.placeholderLongPressAction == .dictation && recordAnimationConfig.supportSpeechRecognition
-        placeholderGate.isHidden = !allowsLongPress || textView.isFirstResponder || textView.isHidden || !textView.text.isEmpty
-        placeholderGate.accessibilityLabel = config.textPlaceholder
+        state.placeholderGate.isHidden = !allowsLongPress || textView.isFirstResponder || textView.isHidden || !textView.text.isEmpty
+        state.placeholderGate.accessibilityLabel = config.textPlaceholder
         let visible = wy_showsKeyboardDictation
-        keyboardDictationButton.isHidden = !visible
-        keyboardDictationButton.isSelected = isInputDictating
+        state.keyboardDictationButton.isHidden = !visible
+        state.keyboardDictationButton.isSelected = isInputDictating
         let insets = config.keyboardDictationInsets
         let bounds = textVoiceContentView.bounds
         let top = min(bounds.height, max(0, insets.top))
@@ -167,16 +167,16 @@ extension WYChatInputView {
         let frame = CGRect(x: max(bounds.minX, bounds.maxX - max(0, insets.right) - size.width),
                            y: bounds.minY + top + max(0, alignmentHeight - size.height) / 2,
                            width: size.width, height: size.height)
-        keyboardDictationButton.frame = textVoiceContentView.convert(frame, to: self)
-        keyboardDictationButton.tintColor = config.keyboardDictationTintColor
-        keyboardDictationButton.setImage((isInputDictating ? config.keyboardDictationStopImage : config.keyboardDictationImage)?.withRenderingMode(config.rendersIconsAsTemplate ? .alwaysTemplate : .alwaysOriginal), for: .normal)
-        keyboardDictationButton.imageView?.contentMode = config.dictationIconContentMode
-        keyboardDictationButton.accessibilityLabel = isInputDictating ? config.dictationDoneAccessibilityLabel : config.voiceAccessibilityLabel
+        state.keyboardDictationButton.frame = textVoiceContentView.convert(frame, to: self)
+        state.keyboardDictationButton.tintColor = config.keyboardDictationTintColor
+        state.keyboardDictationButton.setImage((isInputDictating ? config.keyboardDictationStopImage : config.keyboardDictationImage)?.withRenderingMode(config.rendersIconsAsTemplate ? .alwaysTemplate : .alwaysOriginal), for: .normal)
+        state.keyboardDictationButton.imageView?.contentMode = config.dictationIconContentMode
+        state.keyboardDictationButton.accessibilityLabel = isInputDictating ? config.dictationDoneAccessibilityLabel : config.voiceAccessibilityLabel
         var textInsets = config.inputTextEdgeInsets
         textInsets.right += wy_dictationReservedWidth
         if textView.textContainerInset != textInsets { textView.textContainerInset = textInsets }
-        bringSubviewToFront(placeholderGate)
-        bringSubviewToFront(keyboardDictationButton)
+        bringSubviewToFront(state.placeholderGate)
+        bringSubviewToFront(state.keyboardDictationButton)
     }
 
     @objc func wy_focusTextInput() { textView.becomeFirstResponder(); wy_updateDictationControls() }
@@ -185,33 +185,33 @@ extension WYChatInputView {
         if isInputDictating { wy_stopInputDictation(cancel: false); return }
         guard wy_showsKeyboardDictation else { return }
         let identifier = UUID()
-        dictationRequestID = identifier
+        state.dictationRequestID = identifier
         wy_updateDictationControls()
         let begin: (Bool) -> Void = { [weak self] granted in
-            guard let self, self.dictationRequestID == identifier else { return }
+            guard let self, self.state.dictationRequestID == identifier else { return }
             guard granted, self.wy_showsKeyboardDictation else { self.wy_stopInputDictation(cancel: true); return }
             self.textView.unmarkText()
-            self.dictationRange = self.textView.selectedRange
-            self.dictationTextSnapshot = self.sharedEmojiAttributedText(attributed: self.textView.attributedText).string
-            self.dictationRecognizedText = ""
-            self.dictationCommittedTextCount = 0
+            self.state.dictationRange = self.textView.selectedRange
+            self.state.dictationTextSnapshot = self.sharedEmojiAttributedText(attributed: self.textView.attributedText).string
+            self.state.dictationRecognizedText = ""
+            self.state.dictationCommittedTextCount = 0
             let session = WYChatInputDictationSession(configuration: self.recordAnimationConfig, update: { [weak self] text in
-                guard let self, self.dictationRequestID == identifier else { return }
+                guard let self, self.state.dictationRequestID == identifier else { return }
                 self.wy_applyInputDictation(text)
             }, countdownUpdate: { [weak self] seconds, appearance in
-                guard let self, self.dictationRequestID == identifier else { return }
-                self.keyboardDictationCountdownLabel.show(seconds: seconds, configuration: appearance, above: self.textVoiceContentView, in: self)
+                guard let self, self.state.dictationRequestID == identifier else { return }
+                self.state.keyboardDictationCountdownLabel.show(seconds: seconds, configuration: appearance, above: self.textVoiceContentView, in: self)
             }, completion: { [weak self] error in
-                guard let self, self.dictationRequestID == identifier else { return }
-                self.dictationRequestID = nil
-                self.inputDictation = nil
+                guard let self, self.state.dictationRequestID == identifier else { return }
+                self.state.dictationRequestID = nil
+                self.state.inputDictation = nil
                 self.updateContentViewHeight()
                 if let error {
                     if let handler = self.inputDictationErrorHandler { handler(error) }
                     else { WYActivity.showInfo(error.localizedDescription, in: self.window) }
                 }
             })
-            self.inputDictation = session
+            self.state.inputDictation = session
             session.start()
         }
         if recordAnimationConfig.recorder != nil { begin(true) }
@@ -219,50 +219,50 @@ extension WYChatInputView {
     }
 
     func wy_reconcileInputDictationText() {
-        guard isInputDictating, !isApplyingDictationText else { return }
+        guard isInputDictating, !state.isApplyingDictationText else { return }
         let current = sharedEmojiAttributedText(attributed: textView.attributedText).string
-        guard current != dictationTextSnapshot else { return }
+        guard current != state.dictationTextSnapshot else { return }
         if inputBarConfig.stopsKeyboardDictationOnTextChange {
             wy_stopInputDictation(cancel: true)
         } else {
             let selection = textView.selectedRange
             let length = textView.attributedText.length
             let location = selection.location == NSNotFound ? length : min(NSMaxRange(selection), length)
-            dictationRange = NSRange(location: location, length: 0)
-            dictationCommittedTextCount = dictationRecognizedText.count
-            dictationTextSnapshot = current
+            state.dictationRange = NSRange(location: location, length: 0)
+            state.dictationCommittedTextCount = state.dictationRecognizedText.count
+            state.dictationTextSnapshot = current
         }
     }
 
     func wy_applyInputDictation(_ text: String) {
         wy_reconcileInputDictationText()
         guard isInputDictating, textView.markedTextRange == nil else { return }
-        let replacement = String(text.dropFirst(dictationCommittedTextCount))
+        let replacement = String(text.dropFirst(state.dictationCommittedTextCount))
         let current = NSMutableAttributedString(attributedString: textView.attributedText)
-        guard dictationRange.location != NSNotFound, NSMaxRange(dictationRange) <= current.length else { wy_stopInputDictation(cancel: true); return }
-        isApplyingDictationText = true
-        defer { isApplyingDictationText = false }
-        guard self.textView(textView, shouldChangeTextIn: dictationRange, replacementText: replacement) else { return }
+        guard state.dictationRange.location != NSNotFound, NSMaxRange(state.dictationRange) <= current.length else { wy_stopInputDictation(cancel: true); return }
+        state.isApplyingDictationText = true
+        defer { state.isApplyingDictationText = false }
+        guard self.textView(textView, shouldChangeTextIn: state.dictationRange, replacementText: replacement) else { return }
         let inserted = sharedEmojiAttributed(string: replacement)
-        current.replaceCharacters(in: dictationRange, with: inserted)
+        current.replaceCharacters(in: state.dictationRange, with: inserted)
         textView.attributedText = current
-        dictationRange.length = inserted.length
-        dictationRecognizedText = text
-        textView.selectedRange = NSRange(location: NSMaxRange(dictationRange), length: 0)
+        state.dictationRange.length = inserted.length
+        state.dictationRecognizedText = text
+        textView.selectedRange = NSRange(location: NSMaxRange(state.dictationRange), length: 0)
         textViewDidChange(textView)
-        dictationTextSnapshot = sharedEmojiAttributedText(attributed: textView.attributedText).string
+        state.dictationTextSnapshot = sharedEmojiAttributedText(attributed: textView.attributedText).string
     }
 
     func wy_stopInputDictation(cancel: Bool) {
         guard isInputDictating else { return }
         if cancel {
-            keyboardDictationCountdownLabel.isHidden = true
-            dictationRequestID = nil
-            let session = inputDictation
-            inputDictation = nil
+            state.keyboardDictationCountdownLabel.isHidden = true
+            state.dictationRequestID = nil
+            let session = state.inputDictation
+            state.inputDictation = nil
             session?.cancel()
-        } else if let inputDictation { inputDictation.finish(cancel: false) }
-        else { dictationRequestID = nil }
+        } else if let inputDictation = state.inputDictation { inputDictation.finish(cancel: false) }
+        else { state.dictationRequestID = nil }
         wy_updateDictationControls()
     }
 }

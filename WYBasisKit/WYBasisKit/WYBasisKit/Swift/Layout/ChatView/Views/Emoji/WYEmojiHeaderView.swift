@@ -22,18 +22,6 @@ public class WYEmojiHeaderView: UICollectionReusableView {
         addSubview(textView)
         wy_applyHeaderConfiguration()
     }
-
-    private func wy_applyHeaderConfiguration() {
-        backgroundColor = emojiViewConfig.headerBackgroundColor
-        textView.textColor = emojiViewConfig.headerTextColor
-        textView.font = emojiViewConfig.headerTextFont
-        textView.textAlignment = emojiViewConfig.headerTextAlignment
-        textView.snp.updateConstraints { make in
-            make.left.equalToSuperview().offset(emojiViewConfig.headerTextOffset.x)
-            make.right.equalToSuperview().offset(-emojiViewConfig.headerTextOffset.x)
-            make.top.equalToSuperview().offset(emojiViewConfig.headerTextOffset.y)
-        }
-    }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

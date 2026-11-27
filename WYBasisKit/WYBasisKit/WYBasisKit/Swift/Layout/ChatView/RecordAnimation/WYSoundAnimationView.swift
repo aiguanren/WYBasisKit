@@ -20,7 +20,7 @@ import UIKit
 }
 
 public class WYSoundAnimationView: WYAirBubbleView {
-    internal let customArrowView = UIImageView()
+    let state = WYSoundAnimationViewPrivateState()
 
     /// 当前实例配置
     public var recordAnimationConfig: WYRecordAnimationConfig = WYRecordAnimationConfig()
@@ -49,140 +49,19 @@ public class WYSoundAnimationView: WYAirBubbleView {
         refreshSoundWaves(status: status)
     }
     
-    public func refreshSoundWaves(status: WYSoundAnimationStatus) {
-        currentStatus = status
-        waveLayout = nil
-        
-        // 声波动画组件Size
-        let soundWavesSize: CGSize = soundWavesSize(for: status)
-        
-        switch status {
-        case .recording:
-            cornerRadius = recordAnimationConfig.cornerRadiusForMoveUp.recording
-            fillColor = recordAnimationConfig.backgroundColorForMoveUp.recording
-            borderColor = recordAnimationConfig.borderColorForMoveUp.recording
-            borderWidth = recordAnimationConfig.borderWidthForMoveUp.recording
-            arrowSize = recordAnimationConfig.arrowSizeForMoveUp.recording
-            arrowTipRadius = recordAnimationConfig.arrowTipRadiusForMoveUp.recording
-            arrowOffset = 0
-            
-            soundWavesView.snp.updateConstraints { make in
-                make.centerX.equalToSuperview().offset(0)
-                make.centerY.equalToSuperview().offset(0)
-                make.size.equalTo(soundWavesSize)
-            }
-            break
-        case .transfer:
-            cornerRadius = recordAnimationConfig.cornerRadiusForMoveUp.transfer
-            fillColor = recordAnimationConfig.backgroundColorForMoveUp.transfer
-            borderColor = recordAnimationConfig.borderColorForMoveUp.transfer
-            borderWidth = recordAnimationConfig.borderWidthForMoveUp.transfer
-            arrowSize = recordAnimationConfig.arrowSizeForMoveUp.transfer
-            arrowTipRadius = recordAnimationConfig.arrowTipRadiusForMoveUp.transfer
-            arrowOffset = (recordAnimationConfig.soundWavesViewWidth.transfer - recordAnimationConfig.moveUpButtonDiameter.onInterior - arrowSize.width) / 2
-            
-            soundWavesView.snp.updateConstraints { make in
-                make.centerX.equalToSuperview().offset((recordAnimationConfig.soundWavesViewWidth.transfer / 2) - recordAnimationConfig.soundWavesRightOffsetForAirBubble.x - (soundWavesSize.width / 2))
-                make.centerY.equalToSuperview().offset((recordAnimationConfig.soundWavesViewHeight.transfer / 2) - recordAnimationConfig.soundWavesRightOffsetForAirBubble.y - (soundWavesSize.height / 2))
-                make.size.equalTo(soundWavesSize)
-            }
-            break
-        case .cancel:
-            cornerRadius = recordAnimationConfig.cornerRadiusForMoveUp.cancel
-            fillColor = recordAnimationConfig.backgroundColorForMoveUp.cancel
-            borderColor = recordAnimationConfig.borderColorForMoveUp.cancel
-            borderWidth = recordAnimationConfig.borderWidthForMoveUp.cancel
-            arrowSize = recordAnimationConfig.arrowSizeForMoveUp.cancel
-            arrowTipRadius = recordAnimationConfig.arrowTipRadiusForMoveUp.cancel
-            arrowOffset = 0
-            
-            soundWavesView.snp.updateConstraints { make in
-                make.centerX.equalToSuperview().offset(0)
-                make.centerY.equalToSuperview().offset(0)
-                make.size.equalTo(soundWavesSize)
-            }
-            break
-        }
-        
-        // 更新声波柱子配置
-        soundWavesConfigUpdate(status: status, config: &soundWavesView.config)
-    }
+    public func refreshSoundWaves(status: WYSoundAnimationStatus) { wy_refreshSoundWaves(status: status) }
     
     /// 根据录制状态获取对应声波配置
-    public func soundWavesConfigUpdate(status: WYSoundAnimationStatus, config: inout WYSoundWaveConfig) {
-        
-        let soundWavesWidth = recordAnimationConfig.soundWavesWidth
-        let soundWavesSpace = recordAnimationConfig.soundWavesSpace
-        
-        let soundWavesColor: UIColor
-        let soundWavesMaxHeight: CGFloat
-        let soundWavesMinHeight: CGFloat
-        let severalSoundWaves: Int
-        switch status {
-        case .recording:
-            soundWavesColor = recordAnimationConfig.colorOfSoundWavesOnRecording.recording
-            soundWavesMaxHeight = recordAnimationConfig.soundWavesMaxHeight.recording
-            soundWavesMinHeight = recordAnimationConfig.soundWavesMinHeight.recording
-            severalSoundWaves = recordAnimationConfig.severalSoundWaves.recording
-            break
-        case .transfer:
-            soundWavesColor = recordAnimationConfig.colorOfSoundWavesOnRecording.transfer
-            soundWavesMaxHeight = recordAnimationConfig.soundWavesMaxHeight.transfer
-            soundWavesMinHeight = recordAnimationConfig.soundWavesMinHeight.transfer
-            severalSoundWaves = recordAnimationConfig.severalSoundWaves.transfer
-            break
-        case .cancel:
-            soundWavesColor = recordAnimationConfig.colorOfSoundWavesOnRecording.cancel
-            soundWavesMaxHeight = recordAnimationConfig.soundWavesMaxHeight.cancel
-            soundWavesMinHeight = recordAnimationConfig.soundWavesMinHeight.cancel
-            severalSoundWaves = recordAnimationConfig.severalSoundWaves.cancel
-            break
-        }
-        
-        config.wavesColor = soundWavesColor
-        config.barWidth = soundWavesWidth
-        config.barSpacing = soundWavesSpace
-        config.maxBarHeight = soundWavesMaxHeight
-        config.minBarHeight = soundWavesMinHeight
-        config.numberOfColumns = severalSoundWaves
-    }
+    public func soundWavesConfigUpdate(status: WYSoundAnimationStatus, config: inout WYSoundWaveConfig) { wy_soundWavesConfigUpdate(status: status, config: &config) }
     
     /// 获取录音、取消录音、转文字时声波动画的Size
-    public func soundWavesSize(for status: WYSoundAnimationStatus) -> CGSize {
-        
-        let soundWavesWidth: CGFloat
-        let soundWavesHeight: CGFloat
-        
-        switch status {
-        case .recording:
-            soundWavesWidth = ((recordAnimationConfig.soundWavesWidth + recordAnimationConfig.soundWavesSpace) * CGFloat(recordAnimationConfig.severalSoundWaves.recording)) - recordAnimationConfig.soundWavesSpace
-            soundWavesHeight = recordAnimationConfig.soundWavesMaxHeight.recording
-            break
-        case .transfer:
-            soundWavesWidth = ((recordAnimationConfig.soundWavesWidth + recordAnimationConfig.soundWavesSpace) * CGFloat(recordAnimationConfig.severalSoundWaves.transfer)) - recordAnimationConfig.soundWavesSpace
-            soundWavesHeight = recordAnimationConfig.soundWavesMaxHeight.transfer
-            break
-        case .cancel:
-            soundWavesWidth = ((recordAnimationConfig.soundWavesWidth + recordAnimationConfig.soundWavesSpace) * CGFloat(recordAnimationConfig.severalSoundWaves.cancel)) - recordAnimationConfig.soundWavesSpace
-            soundWavesHeight = recordAnimationConfig.soundWavesMaxHeight.cancel
-            break
-        }
-        return CGSize(width: soundWavesWidth, height: soundWavesHeight)
-        
-    }
+    public func soundWavesSize(for status: WYSoundAnimationStatus) -> CGSize { wy_soundWavesSize(for: status) }
     
     public override func layoutSubviews() {
         wy_layoutSoundBubble()
         super.layoutSubviews()
         wy_layoutTranscriptText()
     }
-
-    internal var showsLiveText = false
-    internal var waveLayout: CGRect?
-    internal var lastScrolledText = ""
-    internal var lastTextBounds = CGRect.zero
-
-    internal var currentStatus: WYSoundAnimationStatus = .recording
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

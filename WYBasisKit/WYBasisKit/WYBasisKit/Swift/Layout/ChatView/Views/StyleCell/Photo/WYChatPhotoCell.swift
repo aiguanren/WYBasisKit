@@ -9,5 +9,7 @@ import UIKit
 
 /// 消息内容Cell
 open class WYChatPhotoCell: WYChatBasicCell {
-    open override func renderContent() { wy_renderMedia() }
+    override var wy_transferProgressPresentation: WYChatTransferProgressPresentation { .preview }
+
+    open override func renderContent() { wy_photoRender() }
 }

@@ -358,25 +358,11 @@ public class WYChatInputView: UIImageView {
     public var recordAnimationConfig: WYRecordAnimationConfig = WYRecordAnimationConfig() { didSet { wy_updateDictationControls(); if !recordAnimationConfig.supportSpeechRecognition { wy_stopInputDictation(cancel: true) } } }
     /// 录音结果，参数为文件URL、时长和错误
     public var recordingResultHandler: ((_ url: URL?, _ duration: TimeInterval, _ error: NSError?) -> Void)? = nil
-    internal var textEditingHandler: ((NSRange, String) -> Void)?
-    internal var quoteLayoutHandler: (() -> Void)?
-    internal var quoteReservedHeight: CGFloat = 0 { didSet { wy_updateQuoteSpacing() } }
-    internal var hasCreatedRecordView = false
-    internal var recordingGestureID: UUID? = nil
-    internal let placeholderGate = UIButton(type: .custom)
-    internal let keyboardDictationButton = UIButton(type: .custom)
-    internal let keyboardDictationCountdownLabel = WYChatRecordingCountdownLabel(identifier: "WYChatInput.dictationCountdown")
-    internal var inputDictation: WYChatInputDictationSession?
-    internal var dictationRequestID: UUID?
-    internal var dictationRange = NSRange(location: 0, length: 0)
-    internal var dictationTextSnapshot = ""
-    internal var dictationRecognizedText = ""
-    internal var dictationCommittedTextCount = 0
-    internal var isApplyingDictationText = false
+    let state = WYChatInputViewPrivateState()
     /// 输入框语音识别错误，参数为错误信息，nil时显示默认提示
     public var inputDictationErrorHandler: ((_ error: NSError) -> Void)?
     /// 输入框是否正在采集或等待语音识别结果
-    public var isInputDictating: Bool { dictationRequestID != nil }
+    public var isInputDictating: Bool { state.dictationRequestID != nil }
     public lazy var recordView: WYRecordAnimationView = wy_makeRecordView()
     
     public lazy var specialSendButton: UIButton? = wy_makeSpecialSendButton()
@@ -401,7 +387,7 @@ public class WYChatInputView: UIImageView {
         super.layoutSubviews()
         textVoiceContentView.layoutIfNeeded()
         wy_updateDictationControls()
-        quoteLayoutHandler?()
+        state.quoteLayoutHandler?()
     }
 
     public override func didMoveToWindow() {
@@ -409,7 +395,7 @@ public class WYChatInputView: UIImageView {
         if window == nil { wy_stopInputDictation(cancel: true) }
     }
 
-    deinit { inputDictation?.cancel() }
+    deinit { state.inputDictation?.cancel() }
 
     public func updateSpecialSendState(hasText: Bool) {
         wy_impl_updateSpecialSendState(hasText: hasText)
@@ -423,10 +409,6 @@ public class WYChatInputView: UIImageView {
     // 将表情富文本生成对应的富文本字符串，例如表情富文本 "哈哈😄" 会生成 "哈哈[哈哈]"
     public func sharedEmojiAttributedText(attributed: NSAttributedString) -> NSAttributedString {
         return wy_impl_sharedEmojiAttributedText(attributed: attributed)
-    }
-
-    func updateTextViewOffset() {
-        wy_impl_updateTextViewOffset()
     }
 
     public func processingTextViewDidChange(_ textView: UITextView, silence: Bool) {
@@ -443,44 +425,6 @@ public class WYChatInputView: UIImageView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-}
-
-extension WYChatInputView: WYRecordEventsHandler {
-
-}
-
-extension WYChatInputView: UITextViewDelegate {
-    public func textViewDidBeginEditing(_ textView: UITextView) { wy_updateDictationControls(); updateContentViewHeight() }
-    public func textViewDidEndEditing(_ textView: UITextView) { wy_stopInputDictation(cancel: true); wy_updateDictationControls(); updateContentViewHeight() }
-    
-    @available(iOS, introduced: 10.0, deprecated: 17.0, message: "Use textView(_:primaryActionForTextItem:defaultAction:) instead")
-    public func textView(_ textView: UITextView, shouldInteractWith textAttachment: NSTextAttachment, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
-        return wy_impl_textView(textView, shouldInteractWith: textAttachment, in: characterRange, interaction: interaction)
-    }
-    
-    @available(iOS 17.0, *)
-    public func textView(_ textView: UITextView, primaryActionFor textItem: UITextItem, defaultAction: UIAction) -> UIAction? {
-        return wy_impl_textView(textView, primaryActionFor: textItem, defaultAction: defaultAction)
-    }
-
-    @available(iOS 17.0, *)
-    public func textView(_ textView: UITextView, menuConfigurationFor textItem: UITextItem, defaultMenu: UIMenu) -> UITextItem.MenuConfiguration? {
-        if case let .textAttachment(attachment) = textItem.content, attachment is WYTextAttachment { return nil }
-        return UITextItem.MenuConfiguration(menu: defaultMenu)
-    }
-    
-    public func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
-        return wy_impl_textViewShouldBeginEditing(textView)
-    }
-    
-    public func textViewDidChange(_ textView: UITextView) {
-        wy_impl_textViewDidChange(textView)
-    }
-    
-    public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        return wy_impl_textView(textView, shouldChangeTextIn: range, replacementText: text)
     }
 
 }

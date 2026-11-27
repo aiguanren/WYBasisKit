@@ -195,7 +195,6 @@ public class WYRecordAnimationView: UIView {
     public var recordAnimationConfig: WYRecordAnimationConfig = WYRecordAnimationConfig()
     /// 在所在窗口展示转写页，独立使用录音视图时可保留原有容器。
     @objc public var presentsTranscriptInWindow = false
-    var transcriptBackgroundColorProvider: (() -> UIColor?)?
 
 
     /// 代理

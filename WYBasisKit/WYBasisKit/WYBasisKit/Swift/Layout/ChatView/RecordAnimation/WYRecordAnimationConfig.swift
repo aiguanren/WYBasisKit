@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import AVFoundation
 
 /// 录音手势与界面方案
 @objc public enum WYRecordingInteractionStyle: Int {
@@ -52,7 +51,6 @@ public struct WYChatRecordingCountdownConfig {
 public struct WYRecordAnimationConfig {
     /// 内置实时录音和识别回放使用的缓冲帧数，有效范围1到65536
     public var audioBufferFrameCount: Int = 1024
-    var wy_audioBufferFrameCount: AVAudioFrameCount { AVAudioFrameCount(min(65_536, max(1, audioBufferFrameCount))) }
     /// 内置流动幅度占渐变宽高的最大比例
     public var gradientMotionMaximumAmplitudeRatio: CGFloat = 0.14
     /// 内置渐变流动的最大扰动强度
@@ -131,18 +129,6 @@ public struct WYRecordAnimationConfig {
     public var recognitionOnDeviceUnavailableText: String = WYLocalized("当前设备或语言不支持本地识别", table: WYBasisKitConfig.kitLocalizableTable)
     /// 没有识别到文字时的错误说明
     public var recognitionEmptyResultText: String = WYLocalized("没有识别到文字", table: WYBasisKitConfig.kitLocalizableTable)
-    private static let recognitionSurfaceColor = UIColor { traits in
-        traits.userInterfaceStyle == .dark ? .wy_hex("#25262A") : .wy_hex("#F6F6F6")
-    }
-
-    func wy_withChatBackground(_ background: UIColor?) -> Self {
-        guard let background, recognitionOverlayBackgroundColor === Self.recognitionSurfaceColor else { return self }
-        var config = self
-        config.recognitionOverlayBackgroundColor = background
-        if recognitionEmoji.backgroundColor === Self.recognitionSurfaceColor { config.recognitionEmoji.backgroundColor = background }
-        if recognitionEmoji.headerBackgroundColor === Self.recognitionSurfaceColor { config.recognitionEmoji.headerBackgroundColor = config.recognitionEmoji.backgroundColor }
-        return config
-    }
 
     /// 语音模式「按住 说话」的录音界面，默认分区操作
     public var interactionStyle: WYRecordingInteractionStyle = .actionRegions

@@ -50,36 +50,6 @@ import Foundation
     /// 获取所有枚举属性
     public static func members() -> [WYChatMessageStyle] { Array(allCases) }
 
-    internal var cellClass: AnyClass { registration.type }
-    internal var makeCell: () -> WYChatBasicCell { registration.factory }
-
-    private var registration: (type: AnyClass, factory: () -> WYChatBasicCell) {
-        switch self {
-        case .none: return Self.registration { WYChatBasicCell(style: .default, reuseIdentifier: nil) }
-        case .text: return Self.registration { WYChatTextCell(style: .default, reuseIdentifier: nil) }
-        case .voice: return Self.registration { WYChatVoiceCell(style: .default, reuseIdentifier: nil) }
-        case .photo: return Self.registration { WYChatPhotoCell(style: .default, reuseIdentifier: nil) }
-        case .music: return Self.registration { WYChatMusicCell(style: .default, reuseIdentifier: nil) }
-        case .video: return Self.registration { WYChatVideoCell(style: .default, reuseIdentifier: nil) }
-        case .luckyMoney: return Self.registration { WYChatLuckyMoneyCell(style: .default, reuseIdentifier: nil) }
-        case .transfer: return Self.registration { WYChatTransferCell(style: .default, reuseIdentifier: nil) }
-        case .location: return Self.registration { WYChatLocationCell(style: .default, reuseIdentifier: nil) }
-        case .takePat: return Self.registration { WYChatTakePatCell(style: .default, reuseIdentifier: nil) }
-        case .withdrawn: return Self.registration { WYChatWithdrawnCell(style: .default, reuseIdentifier: nil) }
-        case .call: return Self.registration { WYChatCallCell(style: .default, reuseIdentifier: nil) }
-        case .webpage: return Self.registration { WYChatWebpageCell(style: .default, reuseIdentifier: nil) }
-        case .file: return Self.registration { WYChatFileCell(style: .default, reuseIdentifier: nil) }
-        case .businessCard: return Self.registration { WYChatBusinessCardCell(style: .default, reuseIdentifier: nil) }
-        case .chatRecords: return Self.registration { WYChatRecordsCell(style: .default, reuseIdentifier: nil) }
-        case .fundsReceipt: return Self.registration { WYChatFundsReceiptCell(style: .default, reuseIdentifier: nil) }
-        case .mediaGroup: return Self.registration { WYChatMediaGroupCell(style: .default, reuseIdentifier: nil) }
-        }
-    }
-
-    private static func registration<Cell: WYChatBasicCell>(_ factory: @escaping () -> Cell) -> (type: AnyClass, factory: () -> WYChatBasicCell) {
-        (Cell.self, { factory() })
-    }
-
 }
 
 /// 消息体

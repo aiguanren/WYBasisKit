@@ -9,5 +9,5 @@ import UIKit
 
 /// 消息内容Cell
 open class WYChatCallCell: WYChatBasicCell {
-    open override func renderContent() { wy_renderNotice() }
+    open override func renderContent() { wy_callRender() }
 }

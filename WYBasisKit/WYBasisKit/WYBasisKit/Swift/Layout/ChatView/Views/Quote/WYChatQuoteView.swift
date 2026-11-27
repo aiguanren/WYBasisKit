@@ -50,7 +50,4 @@ public class WYChatQuoteView: UIView {
     public override var intrinsicContentSize: CGSize { CGSize(width: UIView.noIntrinsicMetric, height: wy_quoteSize(width: bounds.width).height) }
 
     internal let state = WYChatQuoteViewPrivateState()
-    internal var isMeasuring = false
-    @objc func wy_closeQuote() { closeHandler?() }
-    @objc func wy_tapQuote() { tapHandler?() }
 }

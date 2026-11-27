@@ -39,7 +39,6 @@ public class WYChatView: UIView {
     public var forwardHandler: ((_ mode: WYChatForwardMode, _ messages: [WYChatMessageModel]) -> Void)? { didSet { wy_updateSelectionUI() } }
     /// 转发请求，交付按菜单所选形式组装的待发送消息，由接入方发送到目标会话。forwardHandler 优先
     public var preparedForwardHandler: ((_ mode: WYChatForwardMode, _ messages: [WYChatMessageModel]) -> Void)? { didSet { wy_updateSelectionUI() } }
-    var wy_hasForwardHandler: Bool { forwardHandler != nil || preparedForwardHandler != nil }
     /// 当前聊天控件中的收藏快照，按收藏顺序排列
     public private(set) var favoriteMessages: [WYChatMessageModel] = []
     /// 已组装的待发送消息，参数为消息模型
@@ -389,28 +388,10 @@ public class WYChatView: UIView {
 
     public override func layoutSubviews() {
         super.layoutSubviews()
-        if tableView.bounds.width > 0, tableView.bounds.height > 0, state.tableLayoutWidth != tableView.bounds.width {
-            state.tableLayoutWidth = tableView.bounds.width
-            wy_prepareBottomMeasurements()
-            tableView.reloadData()
-        }
-        wy_layoutQuoteComposer()
-        if state.pendingScrollToBottom { wy_scrollToBottom(false) }
+        wy_layoutChat()
     }
 
     internal let state = WYChatViewPrivateState()
-    internal var inputBarConfig: WYInputBarConfig { configuration.input }
-    internal var emojiViewConfig: WYEmojiViewConfig { configuration.emoji }
-    internal var moreViewConfig: WYMoreViewConfig { configuration.more }
-
-    @objc func wy_keyboardWillShow(notification: Notification) { wy_handleKeyboard(notification) }
-    @objc func wy_keyboardWillDismiss() { wy_handleKeyboardDismiss() }
-    @objc func wy_applicationDidBecomeActive(_ notification: Notification) { wy_handleApplicationActive(notification) }
-    @objc func wy_tableBackgroundTap(_ gesture: UITapGestureRecognizer) {
-        guard configuration.dismissInputOnTap else { return }
-        inputViewResignFirstResponder()
-    }
-    @objc func wy_newMessagesTap() { if configuration.dismissInputOnTap { inputViewResignFirstResponder() }; scrollToLastMessage(true) }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     deinit {

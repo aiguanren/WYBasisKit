@@ -9,5 +9,13 @@ import UIKit
 
 /// 消息内容Cell
 open class WYChatVideoCell: WYChatBasicCell {
-    open override func renderContent() { wy_renderMedia() }
+    let videoState = WYChatVideoCellPrivateState()
+
+    override func wy_resetContent() { videoState.videoOverlay?.isHidden = true }
+
+    override var wy_transferProgressPresentation: WYChatTransferProgressPresentation { .preview }
+
+    open override func renderContent() { wy_videoRender() }
 }
+
+/// 媒体消息内容

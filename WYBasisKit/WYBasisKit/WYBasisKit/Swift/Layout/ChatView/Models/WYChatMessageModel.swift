@@ -41,12 +41,6 @@ public struct WYChatMessageModel: Equatable {
         set { wy_prepareMessageStorage(); state.transferState = newValue }
     }
 
-    var wy_effectiveTransferState: WYChatTransferState {
-        guard transferState == .automatic else { return transferState }
-        if !transferError.isEmpty { return .failed }
-        return isTransferring ? .transferring : .automatic
-    }
-
     /// 内容是否正在上传或下载
     public var isTransferring: Bool {
         get { state.isTransferring }

@@ -46,9 +46,11 @@ open class WYChatTextCell: WYChatBasicCell {
         if #available(iOS 16.0, *) { return WYChatMessageTextView(usingTextLayoutManager: false) }
         return WYChatMessageTextView()
     }()
+    let textState = WYChatTextCellPrivateState()
 
-    let emojiPlayback = WYChatTextEmojiPlayback()
-    let textInteractionDelegate = WYChatMessageTextInteractionDelegate()
+    override func wy_layoutContent(width maximum: CGFloat) { wy_textLayout(width: maximum) }
+
+    override func wy_measureContent(_ view: UIView, width: CGFloat) -> CGSize? { wy_textMeasure(view, width: width) }
 
     public override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)

@@ -17,87 +17,17 @@ final class WYChatIconImageView: UIImageView {
     }
 }
 
-/// 视频封面的播放标记和时长。
-final class WYChatVideoOverlayView: UIView {
-    private let playBackground = UIView()
-    private let play = UIImageView()
-    private let duration = UILabel()
-    private var playSize = CGSize.zero
-    private var playInsetRatio: CGFloat = 0
-    private var durationInset: CGFloat = 0
-    private var durationPadding = CGSize.zero
-    private var durationCornerRadius: CGFloat = 0
-    private var playBackgroundCornerRadius: CGFloat?
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        isUserInteractionEnabled = false
-        addSubview(playBackground)
-        playBackground.addSubview(play)
-        addSubview(duration)
-        duration.adjustsFontSizeToFitWidth = true
-        duration.accessibilityIdentifier = "WYChatVideo.duration"
-        play.accessibilityIdentifier = "WYChatVideo.play"
-    }
-
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
-
-    func apply(_ config: WYChatMediaConfig, icon: UIImage?, tint: UIColor?, font: UIFont, duration text: String) {
-        play.contentMode = config.videoPlayContentMode
-        duration.textAlignment = config.videoDurationTextAlignment
-        playBackgroundCornerRadius = config.videoPlayBackgroundCornerRadius
-        playInsetRatio = min(0.5, wy_chatNonnegative(config.videoPlayIconInsetRatio))
-        durationInset = wy_chatNonnegative(config.videoDurationEdgeInset)
-        durationPadding = CGSize(width: wy_chatNonnegative(config.videoDurationPadding.width), height: wy_chatNonnegative(config.videoDurationPadding.height))
-        durationCornerRadius = wy_chatNonnegative(config.videoDurationCornerRadius)
-        play.image = tint == nil ? icon : icon?.withRenderingMode(.alwaysTemplate)
-        play.tintColor = tint
-        playSize = CGSize(width: config.videoPlaySize.width.isFinite ? max(0, config.videoPlaySize.width) : 0,
-                          height: config.videoPlaySize.height.isFinite ? max(0, config.videoPlaySize.height) : 0)
-        playBackground.isHidden = play.image == nil || playSize.width == 0 || playSize.height == 0
-        playBackground.backgroundColor = config.videoOverlayBackgroundColor
-        duration.text = text
-        duration.font = font
-        duration.textColor = config.videoDurationColor
-        duration.backgroundColor = config.videoOverlayBackgroundColor
-        duration.isHidden = !config.showsVideoDuration
-        setNeedsLayout()
-    }
-
-    func setPlaySuppressed(_ suppressed: Bool) {
-        playBackground.isHidden = suppressed || play.image == nil || playSize.width == 0 || playSize.height == 0
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        let size = CGSize(width: min(bounds.width, playSize.width), height: min(bounds.height, playSize.height))
-        playBackground.frame = CGRect(x: bounds.midX - size.width / 2, y: bounds.midY - size.height / 2, width: size.width, height: size.height)
-        let maximumRadius = min(size.width, size.height) / 2
-        playBackground.layer.cornerRadius = min(maximumRadius, wy_chatNonnegative(playBackgroundCornerRadius ?? maximumRadius))
-        play.frame = playBackground.bounds.insetBy(dx: size.width * playInsetRatio, dy: size.height * playInsetRatio)
-        let textSize = duration.intrinsicContentSize
-        let inset = durationInset
-        let width = min(max(0, bounds.width - 2 * inset), max(0, textSize.width + durationPadding.width))
-        let height = min(max(0, bounds.height - 2 * inset), max(0, textSize.height + durationPadding.height))
-        let x = effectiveUserInterfaceLayoutDirection == .rightToLeft ? inset : bounds.width - inset - width
-        duration.frame = CGRect(x: x, y: bounds.height - inset - height, width: width, height: height)
-        duration.layer.cornerRadius = min(durationCornerRadius, height / 2)
-        duration.clipsToBounds = true
-    }
-}
-
-/// 媒体消息内容
 extension WYChatBasicCell {
-    func wy_showThumbnail(_ asset: WYChatAssetsModel) {
+    func wy_showThumbnail(_ asset: WYChatAssetsModel, fallbackIcon: String? = nil, usesIconSize: Bool = false) {
         state.usesThumbnail = true
-        if message.content.file != nil || message.content.luckyMoney != nil || message.content.transfer != nil {
+        if usesIconSize {
             let size = messageContentConfiguration.iconSize
             state.thumbnailSize.first?.constant = size.width.isFinite ? max(0, size.width) : 0
             state.thumbnailSize.last?.constant = size.height.isFinite ? max(0, size.height) : 0
         }
-        if asset.localPath.isEmpty && asset.downloadPath.isEmpty && asset.name.isEmpty {
-            let names: [WYChatMessageStyle: String] = [.file: "WYChatViewFile", .music: "WYChatViewMusic", .businessCard: "WYChatViewContact", .webpage: "WYChatViewLink"]
-            if let name = names[message.content.style()] { wy_showMessageIcon(name); return }
+        if let fallbackIcon, asset.localPath.isEmpty && asset.downloadPath.isEmpty && asset.name.isEmpty {
+            wy_showMessageIcon(fallbackIcon)
+            return
         }
         let style = messageContentConfiguration
         let usesNamedIcon = asset.localPath.isEmpty && asset.downloadPath.isEmpty && style.usesDefaultIconTint
@@ -119,83 +49,10 @@ extension WYChatBasicCell {
         state.thumbnail.image = style.iconImage ?? UIImage.wy_find(name, inBundle: WYChatSourceBundle)
     }
 
-    func wy_showPlaybackSymbol(_ image: UIImage?, text: String) {
-        guard let image else { state.title.text = text; return }
-        let attachment = NSTextAttachment()
-        attachment.image = image.withRenderingMode(.alwaysOriginal)
-        let font = messageContentConfiguration.titleFont
-        let size = font.lineHeight * wy_chatNonnegative(configuration.voicePlayback.playbackSymbolScale)
-        attachment.bounds = CGRect(x: 0, y: font.descender, width: size, height: size)
-        let content = NSMutableAttributedString(attachment: attachment)
-        content.append(NSAttributedString(string: configuration.voicePlayback.playbackSymbolSeparator + text))
-        state.title.attributedText = content
-    }
-
-    func wy_showImage(_ asset: WYChatAssetsModel, height: CGFloat? = nil) {
+    func wy_showImage(_ asset: WYChatAssetsModel, height: CGFloat? = nil, isPhoto: Bool = false, previewPlaceholder: (() -> UIImage)? = nil) {
         state.usesImage = true
         state.imageHeight?.constant = max(1, height ?? messageContentConfiguration.mediaSize.height)
-        wy_loadImage(asset, into: state.image, isPhoto: message.content.style() == .photo)
-    }
-
-    func wy_renderMedia() {
-        switch message.content.style() {
-        case .photo:
-            guard let value = message.content.photo else { return }
-            state.title.isHidden = true
-            let thumbnail = value.thumbnail
-            wy_showImage(thumbnail.localPath.isEmpty && thumbnail.downloadPath.isEmpty && thumbnail.name.isEmpty ? value.original : thumbnail)
-            state.preferredWidth?.constant = messageContentConfiguration.mediaSize.width
-        case .video:
-            guard let value = message.content.video else { return }
-            let style = messageContentConfiguration
-            let media = configuration.media
-            let cover = value.thumbnailCover
-            state.title.isHidden = true
-            state.preferredContentWidth = style.mediaSize.width.isFinite ? max(1, style.mediaSize.width) : nil
-            state.image.imageCornerRadius = media.cornerRadius.isFinite ? max(0, media.cornerRadius) : 0
-            wy_showImage(cover.localPath.isEmpty && cover.downloadPath.isEmpty && cover.name.isEmpty ? value.cover : cover)
-            if state.isMeasuring { return }
-            let overlay = state.videoOverlay ?? WYChatVideoOverlayView(frame: state.image.bounds)
-            if overlay.superview == nil {
-                overlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-                state.image.addSubview(overlay)
-                state.videoOverlay = overlay
-            }
-            overlay.isHidden = false
-            let tint = style.iconTintColor ?? (media.tintsVideoPlayImage && style.usesDefaultIconTint ? media.videoPlayColor : nil)
-            overlay.apply(media, icon: style.iconImage ?? media.videoPlayImage, tint: tint, font: style.detailFont, duration: wy_duration(value.duration))
-        case .music:
-            guard let value = message.content.music else { return }
-            wy_showThumbnail(value.thumbnailCover.localPath.isEmpty && value.thumbnailCover.downloadPath.isEmpty ? value.cover : value.thumbnailCover)
-            state.title.text = value.name
-            state.detail.text = [value.singer, value.composer].filter { !$0.isEmpty }.joined(separator: messageContentConfiguration.detailsSeparator)
-            state.footer.text = wy_duration(value.duration)
-        case .voice:
-            guard let value = message.content.voice else { return }
-            let playback = configuration.voicePlayback
-            state.title.font = playback.durationFont
-            let frames = playback.waveformImages.map { image in
-                let frame = playback.mirrorsSenderWaveform && message.isSender(userID) ? image.withHorizontallyFlippedOrientation() : image
-                return frame.withRenderingMode(playback.waveformTintColor == nil ? .alwaysOriginal : .alwaysTemplate)
-            }
-            state.thumbnail.tintColor = playback.waveformTintColor ?? messageContentConfiguration.titleColor
-            state.usesThumbnail = !frames.isEmpty
-            state.thumbnail.image = frames.last
-            state.thumbnail.animationImages = frames
-            state.thumbnail.animationDuration = playback.waveformDuration.isFinite ? max(0.1, playback.waveformDuration) : 0.75
-            state.thumbnailSize.first?.constant = playback.waveformSize.width.isFinite ? max(0, playback.waveformSize.width) : 0
-            state.thumbnailSize.last?.constant = playback.waveformSize.height.isFinite ? max(0, playback.waveformSize.height) : 0
-            wy_renderVoicePlayingState(value)
-            let sender = message.isSender(userID)
-            if sender && playback.showsSenderWaveformOnTrailingSide {
-                state.header.removeArrangedSubview(state.thumbnail)
-                state.header.insertArrangedSubview(state.thumbnail, at: 1)
-            }
-            state.title.textAlignment = sender ? playback.senderDurationAlignment : playback.receiverDurationAlignment
-            state.detail.text = value.isRecognizing ? configuration.recording.recognizingText : value.recognitionError.isEmpty ? value.voiceToText : value.recognitionError
-            if !value.isRecognizing && !value.recognitionError.isEmpty { state.detail.textColor = configuration.recording.recognitionFailureColor }
-        default: break
-        }
+        wy_loadImage(asset, into: state.image, isPhoto: isPhoto, previewPlaceholder: previewPlaceholder)
     }
 
     func wy_duration(_ duration: TimeInterval) -> String {
@@ -390,14 +247,13 @@ extension WYChatAttachmentProgressView {
     }
 }
 
-extension WYChatBasicCell {
-    private var wy_usesAttachmentProgressCard: Bool {
-        switch message.content.style() {
-        case .music, .file, .businessCard, .chatRecords, .location, .webpage: return true
-        default: return false
-        }
-    }
+enum WYChatTransferProgressPresentation {
+    case inline
+    case attachment
+    case preview
+}
 
+extension WYChatBasicCell {
     func wy_renderAttachmentProgress() {
         state.progressReveal?.cancel()
         state.progressReveal = nil
@@ -410,7 +266,7 @@ extension WYChatBasicCell {
         let sending = sender && message.sendState == .sending && !wy_isNotice
         let startedAt = message.sendStartedAt ?? Date.distantPast
         let remaining = max(0, wy_chatNonnegative(style.transferProgressDelay) - max(0, Date().timeIntervalSince(startedAt)))
-        let hasItemProgress = message.content.mediaGroup?.items.contains { $0.transferState != .automatic } ?? false
+        let hasItemProgress = wy_updatesItemTransferProgress(visible: !sending || remaining == 0)
         if style.transferShowsProgress && remaining > 0 && sending && !state.isMeasuring {
             let task = DispatchWorkItem { [weak self] in
                 guard let self else { return }
@@ -419,10 +275,10 @@ extension WYChatBasicCell {
                 let wasOverlayHidden = self.state.mediaProgress.isHidden
                 self.wy_renderAttachmentProgress()
                 if wasOverlayHidden != self.state.mediaProgress.isHidden
-                    || self.message.content.mediaGroup != nil && wasAnimating != self.activityView.isAnimating {
+                    || wasAnimating != self.activityView.isAnimating {
                     self.setNeedsLayout()
                 }
-                if wasHidden && !self.state.inlineProgress.isHidden { self.progressVisibilityChanged?(self.message.messageID) }
+                if wasHidden && !self.state.inlineProgress.isHidden { self.state.progressVisibilityChanged?(self.message.messageID) }
             }
             state.progressReveal = task
             DispatchQueue.main.asyncAfter(deadline: .now() + remaining, execute: task)
@@ -432,11 +288,10 @@ extension WYChatBasicCell {
         } else {
             activityView.stopAnimating()
         }
-        state.mediaView.setTransferProgressVisible(!sending || remaining == 0)
         guard style.transferShowsProgress, !hasItemProgress, !wy_isNotice, phase != .automatic, phase != .completed else { return }
-        let attachmentCard = wy_usesAttachmentProgressCard
-        let overlaysMedia = message.content.photo != nil || message.content.video != nil || message.content.mediaGroup != nil
-            || attachmentCard && style.attachmentProgressPlacement == .overlay
+        let presentation = wy_transferProgressPresentation
+        let attachmentCard = presentation == .attachment
+        let overlaysMedia = presentation == .preview || attachmentCard && style.attachmentProgressPlacement == .overlay
         let view = overlaysMedia ? state.mediaProgress : state.inlineProgress
         let shouldHide = sending && remaining > 0 && phase == .transferring
         view.isHidden = shouldHide
@@ -452,24 +307,29 @@ extension WYChatBasicCell {
     func wy_layoutAttachmentProgress() {
         let progress = state.mediaProgress
         guard !progress.isHidden else { return }
-        if wy_usesAttachmentProgressCard {
+        if wy_transferProgressPresentation == .attachment {
             progress.layoutOverBubble(bubblesView)
             return
         }
         progress.layer.mask = nil
-        if let group = message.content.mediaGroup {
-            let media = state.mediaView
-            var frame = media.convert(media.bounds, to: bubblesView)
-            if group.isExpanded { frame.size.height = min(frame.height, media.firstItemCenterY * 2) }
-            progress.frame = frame
-        } else {
-            progress.frame = state.image.convert(state.image.bounds, to: bubblesView)
-        }
-        progress.layer.cornerRadius = message.content.mediaGroup == nil ? state.image.imageCornerRadius : wy_chatNonnegative(configuration.media.cornerRadius)
+        let geometry = wy_transferPreviewGeometry()
+        progress.frame = geometry.frame
+        progress.layer.cornerRadius = geometry.cornerRadius
     }
 
     @objc func wy_attachmentProgressTapped() {
         guard let action = state.transferAction else { return }
         actionHandler?(action, message.messageID)
+    }
+}
+
+extension WYChatBasicCell {
+    func wy_applyAttachmentProgress(_ message: WYChatMessageModel) {
+        guard self.message.messageID == message.messageID else { return }
+        state.isUpdating = true
+        self.message = message
+        state.isUpdating = false
+        wy_renderAttachmentProgress()
+        setNeedsLayout()
     }
 }

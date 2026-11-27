@@ -155,18 +155,10 @@ extension WYChatView {
 
     private func wy_contentHeight(_ view: UIView, width: CGFloat, cell: WYChatBasicCell) -> CGFloat {
         if view.isHidden { return 0 }
-        if view === cell.state.voiceRateButton { return cell.state.voiceRateHeight?.constant ?? 0 }
-        if view === cell.state.reeditButton { return cell.state.reeditHeight?.constant ?? 0 }
-        if view === cell.state.mediaToggle { return cell.state.mediaToggleHeight?.constant ?? 0 }
+        if let size = cell.wy_measureContent(view, width: width) { return size.height }
         if view === cell.state.inlineProgress { return cell.state.inlineProgressHeight?.constant ?? 0 }
-        if view === cell.state.fundsCaptionContainer {
-            let captionWidth = max(1, width - (cell.state.fundsCaptionLeft?.constant ?? 0))
-            return cell.state.fundsCaption.sizeThatFits(CGSize(width: captionWidth, height: .greatestFiniteMagnitude)).height
-        }
-        if view === cell.state.mediaView { return cell.state.mediaView.height(for: width) }
         if view === cell.previewImageView { return cell.state.imageHeight?.constant ?? 0 }
         if view === cell.thumbnailImageView { return cell.state.thumbnailSize[1].constant }
-        if let textCell = cell as? WYChatTextCell, view === textCell.textView { return cell.state.textHeight?.constant ?? 0 }
         if let stack = view as? UIStackView {
             let visible = stack.arrangedSubviews.filter { !$0.isHidden }
             let gaps = visible.dropLast().reduce(CGFloat.zero) { sum, child in
@@ -175,8 +167,8 @@ extension WYChatView {
             }
             if stack.axis == .vertical { return visible.reduce(gaps) { $0 + wy_contentHeight($1, width: width, cell: cell) } }
             let thumbnailWidth = visible.contains { $0 === cell.thumbnailImageView } ? cell.state.thumbnailSize[0].constant : 0
-            let rateWidth = visible.contains { $0 === cell.state.voiceRateButton } ? cell.state.voiceRateWidth?.constant ?? 0 : 0
-            return visible.map { wy_contentHeight($0, width: max(1, width - thumbnailWidth - rateWidth - gaps), cell: cell) }.max() ?? 0
+            let accessoryWidth = visible.reduce(CGFloat.zero) { $0 + (cell.wy_measureContent($1, width: width)?.width ?? 0) }
+            return visible.map { wy_contentHeight($0, width: max(1, width - thumbnailWidth - accessoryWidth - gaps), cell: cell) }.max() ?? 0
         }
         return view.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude)).height
     }

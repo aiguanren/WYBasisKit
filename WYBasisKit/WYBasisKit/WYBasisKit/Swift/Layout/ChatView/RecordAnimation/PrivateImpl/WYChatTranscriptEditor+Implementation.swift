@@ -25,7 +25,7 @@ extension WYRecordAnimationView {
 
     func wy_configureTranscriptEditor() {
         alpha = 1
-        let config = wy_captureConfiguration.wy_withChatBackground(transcriptBackgroundColorProvider?())
+        let config = wy_captureConfiguration.wy_withChatBackground(state.transcriptBackgroundColorProvider?())
         backgroundColor = config.recognitionOverlayBackgroundColor ?? config.overlayBackgroundColor
         wy_removeEditorEmoji()
         state.editPanel?.removeFromSuperview()
@@ -366,7 +366,7 @@ extension WYRecordAnimationView {
 
     func wy_setEditorEmojiVisible(_ visible: Bool, keyboardOffset: CGFloat = 0, notification: Notification? = nil) {
         guard visible != state.showsEditorEmoji, let panel = state.editPanel, let container = panel.superview else { return }
-        let config = wy_captureConfiguration.wy_withChatBackground(transcriptBackgroundColorProvider?()).recognitionEmoji
+        let config = wy_captureConfiguration.wy_withChatBackground(state.transcriptBackgroundColorProvider?()).recognitionEmoji
         if state.editorEmoji == nil {
             let emoji = WYChatEmojiView(config: config)
             let background = UIView()

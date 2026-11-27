@@ -313,7 +313,7 @@ extension WYRecordAnimationView {
         guard wy_captureConfiguration.supportSpeechRecognition, wy_captureConfiguration.speechRecognitionMode == .whileRecording else {
             sound.textView.text = ""
             sound.textView.isHidden = true
-            sound.showsLiveText = false
+            sound.state.showsLiveText = false
             state.lastLayoutSize = .zero
             setNeedsLayout()
             return
@@ -325,7 +325,7 @@ extension WYRecordAnimationView {
         sound.textView.isEditable = false
         sound.textView.isSelectable = false
         sound.textView.isHidden = soundAnimationStatus == .cancel || (soundAnimationStatus == .recording && state.mode == .voice && !wy_captureConfiguration.showsLiveTextWhileRecording)
-        sound.showsLiveText = !sound.textView.isHidden
+        sound.state.showsLiveText = !sound.textView.isHidden
         sound.textView.accessibilityIdentifier = "WYChatRecording.liveText"
         state.lastLayoutSize = .zero
         setNeedsLayout()

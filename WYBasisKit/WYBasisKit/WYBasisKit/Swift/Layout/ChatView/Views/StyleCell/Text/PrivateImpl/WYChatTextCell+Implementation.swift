@@ -92,15 +92,15 @@ extension WYChatTextCell {
     func wy_setupText() {
         textView.backgroundColor = .clear
         textView.isEditable = false
-        textView.delegate = textInteractionDelegate
+        textView.delegate = textState.textInteractionDelegate
         textView.isScrollEnabled = false
         textView.textContainerInset = .zero
         textView.textContainer.lineFragmentPadding = 0
         textView.setContentCompressionResistancePriority(.required, for: .vertical)
         bodyView.insertArrangedSubview(textView, at: 0)
-        state.textHeight = textView.heightAnchor.constraint(equalToConstant: 1)
-        state.textHeight?.isActive = true
-        state.measuredText = nil
+        textState.textHeight = textView.heightAnchor.constraint(equalToConstant: 1)
+        textState.textHeight?.isActive = true
+        textState.measuredText = nil
         state.title.isHidden = true
         wy_render()
     }
@@ -111,15 +111,15 @@ extension WYChatTextCell {
         let value = configuration.text
         if !state.isMeasuring {
             let key = WYChatEmojiMessageKey(message)
-            if emojiPlayback.messageKey != key || value.emojiPlaybackMode == .staticOnly {
+            if textState.emojiPlayback.messageKey != key || value.emojiPlaybackMode == .staticOnly {
                 wy_suspendEmojiPlayback()
-                emojiPlayback.messageKey = key
+                textState.emojiPlayback.messageKey = key
             }
         }
         state.title.isHidden = true
         let emoji = configuration.emoji
         let attributed = NSMutableAttributedString.wy_convertEmojiAttributed(emojiString: message.content.text ?? "", textColor: value.textColor, textFont: value.textFont, emojiTable: emoji.emojiSource, sourceBundle: emoji.emojiBundle, pattern: configuration.input.emojiPattern, customImageLoader: { name, _ in emoji.staticEmojiImage(name) })
-        emojiPlayback.emojis.removeAll(keepingCapacity: true)
+        textState.emojiPlayback.emojis.removeAll(keepingCapacity: true)
         var hasEmojiAttachments = false
         attributed.enumerateAttribute(.attachment, in: NSRange(location: 0, length: attributed.length)) { item, range, _ in
             guard let attachment = item as? WYTextAttachment else { return }
@@ -129,7 +129,7 @@ extension WYChatTextCell {
             let staticImage = (emoji.staticFramePosition == .first ? frames?.first : frames?.last) ?? image
             attachment.image = staticImage
             if !state.isMeasuring && value.emojiPlaybackMode != .staticOnly {
-                emojiPlayback.emojis.append(WYChatTextEmoji(range: range, attachment: attachment, staticImage: staticImage, customAnimation: WYChatEmojiAnimation(image: image, defaultFrameDelay: emoji.wy_defaultAnimationFrameDelay)))
+                textState.emojiPlayback.emojis.append(WYChatTextEmoji(range: range, attachment: attachment, staticImage: staticImage, customAnimation: WYChatEmojiAnimation(image: image, defaultFrameDelay: emoji.wy_defaultAnimationFrameDelay)))
             }
         }
         attributed.wy_lineSpacing(value.textLineSpacing, alignment: .natural)
@@ -143,29 +143,29 @@ extension WYChatTextCell {
         let paragraph = NSMutableParagraphStyle()
         paragraph.lineSpacing = value.textLineSpacing
         textView.typingAttributes = [.font: value.textFont, .foregroundColor: value.textColor, .paragraphStyle: paragraph]
-        state.measuredText = nil
-        if emojiPlayback.timer != nil { wy_advanceEmojiPlayback() }
+        textState.measuredText = nil
+        if textState.emojiPlayback.timer != nil { wy_advanceEmojiPlayback() }
         else { wy_scheduleEmojiPlayback() }
     }
 
     func wy_beginEmojiDisplay(in chatView: WYChatView) {
-        emojiPlayback.chatView = chatView
+        textState.emojiPlayback.chatView = chatView
         wy_scheduleEmojiPlayback()
     }
 
     func wy_endEmojiDisplay() {
         wy_suspendEmojiPlayback()
-        emojiPlayback.chatView = nil
+        textState.emojiPlayback.chatView = nil
     }
 
     func wy_suspendEmojiPlayback() {
         wy_finishEmojiPlayback()
-        emojiPlayback.attempted = false
+        textState.emojiPlayback.attempted = false
     }
 
     func wy_scheduleEmojiPlayback() {
-        guard window != nil, emojiPlayback.chatView != nil,
-              !emojiPlayback.attempted, !emojiPlayback.emojis.isEmpty else { return }
+        guard window != nil, textState.emojiPlayback.chatView != nil,
+              !textState.emojiPlayback.attempted, !textState.emojiPlayback.emojis.isEmpty else { return }
         // 首次布局可能重载列表，等当前布局完成后再记为已播放。
         DispatchQueue.main.async { [weak self] in self?.wy_startEmojiPlaybackIfNeeded() }
     }
@@ -173,34 +173,34 @@ extension WYChatTextCell {
     private func wy_startEmojiPlaybackIfNeeded() {
         let mode = configuration.text.emojiPlaybackMode
         let interval = wy_chatNonnegative(configuration.text.emojiAnimationFrameInterval)
-        guard interval > 0, window != nil, let chatView = emojiPlayback.chatView, let key = emojiPlayback.messageKey,
-              !emojiPlayback.attempted, !emojiPlayback.emojis.isEmpty, mode != .staticOnly,
+        guard interval > 0, window != nil, let chatView = textState.emojiPlayback.chatView, let key = textState.emojiPlayback.messageKey,
+              !textState.emojiPlayback.attempted, !textState.emojiPlayback.emojis.isEmpty, mode != .staticOnly,
               let path = chatView.tableView.indexPath(for: self),
               chatView.tableView.indexPathsForVisibleRows?.contains(path) == true else { return }
-        emojiPlayback.attempted = true
+        textState.emojiPlayback.attempted = true
         guard mode == .everyDisplay || !chatView.state.playedEmojiMessages.contains(key) else { return }
 
         var resolved: Set<String> = []
-        for emoji in emojiPlayback.emojis where resolved.insert(emoji.attachment.imageName).inserted {
+        for emoji in textState.emojiPlayback.emojis where resolved.insert(emoji.attachment.imageName).inserted {
             let name = emoji.attachment.imageName
-            emojiPlayback.animations[name] = emoji.customAnimation ?? configuration.emoji.emojiAnimation(name)
+            textState.emojiPlayback.animations[name] = emoji.customAnimation ?? configuration.emoji.emojiAnimation(name)
         }
-        guard !emojiPlayback.animations.isEmpty else { return }
+        guard !textState.emojiPlayback.animations.isEmpty else { return }
         chatView.state.playedEmojiMessages.insert(key)
-        emojiPlayback.startedAt = CACurrentMediaTime()
+        textState.emojiPlayback.startedAt = CACurrentMediaTime()
         let timer = Timer(timeInterval: max(1.0 / 120.0, interval), repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.wy_advanceEmojiPlayback() }
         }
-        emojiPlayback.timer = timer
+        textState.emojiPlayback.timer = timer
         RunLoop.main.add(timer, forMode: .common)
         wy_advanceEmojiPlayback()
     }
 
     private func wy_advanceEmojiPlayback() {
-        let elapsed = CACurrentMediaTime() - emojiPlayback.startedAt
+        let elapsed = CACurrentMediaTime() - textState.emojiPlayback.startedAt
         var isPlaying = false
-        for emoji in emojiPlayback.emojis {
-            let frame = emojiPlayback.animations[emoji.attachment.imageName]?.frame(at: elapsed)
+        for emoji in textState.emojiPlayback.emojis {
+            let frame = textState.emojiPlayback.animations[emoji.attachment.imageName]?.frame(at: elapsed)
             if frame != nil { isPlaying = true }
             wy_drawEmoji(emoji, image: frame ?? emoji.staticImage)
         }
@@ -208,11 +208,11 @@ extension WYChatTextCell {
     }
 
     private func wy_finishEmojiPlayback() {
-        guard let timer = emojiPlayback.timer else { return }
+        guard let timer = textState.emojiPlayback.timer else { return }
         timer.invalidate()
-        emojiPlayback.timer = nil
-        emojiPlayback.animations.removeAll()
-        for emoji in emojiPlayback.emojis { wy_drawEmoji(emoji, image: emoji.staticImage) }
+        textState.emojiPlayback.timer = nil
+        textState.emojiPlayback.animations.removeAll()
+        for emoji in textState.emojiPlayback.emojis { wy_drawEmoji(emoji, image: emoji.staticImage) }
     }
 
     private func wy_drawEmoji(_ emoji: WYChatTextEmoji, image: UIImage) {
@@ -220,5 +220,47 @@ extension WYChatTextCell {
               textView.textStorage.attribute(.attachment, at: emoji.range.location, effectiveRange: nil) as? WYTextAttachment === emoji.attachment else { return }
         emoji.attachment.image = image
         textView.layoutManager.invalidateDisplay(forCharacterRange: emoji.range)
+    }
+}
+
+final class WYChatTextCellPrivateState {
+    var textHeight: NSLayoutConstraint?
+    var measuredText: NSAttributedString?
+    var measuredWidth: CGFloat = 0
+    var measuredContentWidth: CGFloat = 0
+    var measuredMaximumLines = 0
+    var laidOutTextFont: UIFont?
+    var laidOutTextLineSpacing: CGFloat?
+    var laidOutTextMaximumLines: Int?
+    let emojiPlayback = WYChatTextEmojiPlayback()
+    let textInteractionDelegate = WYChatMessageTextInteractionDelegate()
+}
+
+extension WYChatTextCell {
+    func wy_textLayout(width maximum: CGFloat) {
+        let text = textView.attributedText ?? NSAttributedString()
+        let maximumLines = max(0, configuration.text.textMaximumNumberOfLines)
+        if textState.measuredWidth != maximum || textState.measuredMaximumLines != maximumLines || textState.measuredText?.isEqual(to: text) != true {
+            let rect = text.boundingRect(with: CGSize(width: maximum, height: .greatestFiniteMagnitude), options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
+            let fittedWidth = min(maximum, max(1, ceil(rect.width)))
+            textState.measuredContentWidth = fittedWidth
+            if textState.laidOutTextFont != configuration.text.textFont || textState.laidOutTextLineSpacing != configuration.text.textLineSpacing || textState.laidOutTextMaximumLines != maximumLines {
+                textView.setNeedsLayout()
+                textView.layoutIfNeeded()
+                textState.laidOutTextFont = configuration.text.textFont
+                textState.laidOutTextLineSpacing = configuration.text.textLineSpacing
+                textState.laidOutTextMaximumLines = maximumLines
+            }
+            textState.textHeight?.constant = max(1, ceil(textView.sizeThatFits(CGSize(width: fittedWidth, height: .greatestFiniteMagnitude)).height))
+            self.textState.measuredWidth = maximum
+            textState.measuredMaximumLines = maximumLines
+            textState.measuredText = text.copy() as? NSAttributedString
+        }
+        state.preferredWidth?.constant = textState.measuredContentWidth
+    }
+
+    func wy_textMeasure(_ view: UIView, width: CGFloat) -> CGSize? {
+        guard view === textView else { return nil }
+        return CGSize(width: 0, height: textState.textHeight?.constant ?? 0)
     }
 }

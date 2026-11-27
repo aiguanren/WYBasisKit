@@ -132,8 +132,5 @@ public struct WYChatSelectionConfig {
     /// 是否强制使用模板方式渲染多选图标，默认false
     public var rendersIndicatorAsTemplate: Bool = false
 
-    private static let defaultSelectedImage = UIImage(systemName: "checkmark.circle.fill")?.withRenderingMode(.alwaysTemplate)
-    private static let defaultUnselectedImage = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(weight: .light))?.withRenderingMode(.alwaysTemplate)
-
     public init() {}
 }

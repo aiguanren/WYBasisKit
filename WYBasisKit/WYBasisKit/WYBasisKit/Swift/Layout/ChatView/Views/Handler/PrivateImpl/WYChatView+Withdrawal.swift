@@ -96,16 +96,3 @@ extension WYChatView {
         DispatchQueue.main.asyncAfter(deadline: .now() + max(0, deadline - now), execute: item)
     }
 }
-
-extension WYChatBasicCell {
-    func wy_renderReedit() {
-        let show = wy_chatCanReedit(message, userID: userID, configuration: configuration.notice, at: Date())
-        state.reeditButton.isHidden = !show
-        state.reeditButton.setTitle(configuration.notice.reeditText, for: .normal)
-        state.reeditButton.titleLabel?.font = configuration.notice.reeditFont
-        state.reeditButton.setTitleColor(configuration.notice.reeditColor, for: .normal)
-        state.reeditHeight?.constant = max(0, configuration.notice.reeditHeight)
-        bodyView.setCustomSpacing(max(0, configuration.notice.reeditSpacing), after: state.header)
-    }
-    @objc func wy_reeditMessage() { actionHandler?(.reedit, message.messageID) }
-}
