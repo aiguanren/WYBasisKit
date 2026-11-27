@@ -8,6 +8,8 @@
 import UIKit
 
 public struct WYEmojiFuncAreaConfig {
+    /// 操作区顶部渐变的各停靠点透明度，空数组隐藏渐变
+    public var backgroundFadeOpacities: [CGFloat] = [0, 0.3, 0.6, 0.8, 1]
     /// 删除按钮无可见标题时使用的无障碍标签
     public var deleteAccessibilityLabel: String = WYLocalized("删除", table: WYBasisKitConfig.kitLocalizableTable)
     

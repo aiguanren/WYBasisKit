@@ -50,13 +50,13 @@ final class WYChatRecordingCountdown {
 final class WYChatRecordingCountdownLabel: UILabel {
     private weak var anchorView: UIView?
     private var bottomConstraint: Constraint?
+    private var leadingConstraint: Constraint?
+    private var trailingConstraint: Constraint?
 
     init(identifier: String) {
         super.init(frame: .zero)
         isHidden = true
         isUserInteractionEnabled = false
-        textAlignment = .center
-        numberOfLines = 0
         accessibilityIdentifier = identifier
     }
 
@@ -68,21 +68,26 @@ final class WYChatRecordingCountdownLabel: UILabel {
             return
         }
         font = configuration.font
+        textAlignment = configuration.textAlignment
+        numberOfLines = max(0, configuration.maximumNumberOfLines)
         textColor = configuration.textColor
         backgroundColor = configuration.backgroundColor
         text = configuration.text.replacingOccurrences(of: "{seconds}", with: String(seconds))
         let offset = configuration.spacing.isFinite ? -configuration.spacing : 0
+        let inset = wy_chatNonnegative(configuration.horizontalInset)
         if superview !== container || anchorView !== anchor {
             container.addSubview(self)
             anchorView = anchor
             snp.remakeConstraints { make in
                 make.centerX.equalToSuperview()
-                make.leading.greaterThanOrEqualToSuperview().inset(12)
-                make.trailing.lessThanOrEqualToSuperview().inset(12)
+                leadingConstraint = make.leading.greaterThanOrEqualToSuperview().offset(inset).constraint
+                trailingConstraint = make.trailing.lessThanOrEqualToSuperview().offset(-inset).constraint
                 bottomConstraint = make.bottom.equalTo(anchor.snp.top).offset(offset).constraint
             }
         } else {
             bottomConstraint?.update(offset: offset)
+            leadingConstraint?.update(offset: inset)
+            trailingConstraint?.update(offset: -inset)
         }
         isHidden = false
     }
@@ -130,9 +135,11 @@ extension WYRecordAnimationView {
         } else {
             state.audioKit?.delegate = nil
             state.audioKit?.releaseAll()
-            state.audioKit = wy_makeAudioKit()
-            do { try state.audioKit?.startRecording() }
-            catch { wy_captureFinished(nil, duration: 0, error: error as NSError) }
+            do {
+                let recorder = try wy_makeAudioKit()
+                state.audioKit = recorder
+                try recorder.startRecording(format: wy_captureConfiguration.wy_classicRecordingFormat)
+            } catch { wy_captureFinished(nil, duration: 0, error: error as NSError) }
         }
         wy_startRecordingWatchdog()
     }
@@ -211,8 +218,15 @@ extension WYRecordAnimationView {
         delegate?.wy_recordingMeteringUpdated?(self, peakPower: peak, averagePower: average)
     }
 
+    func wy_releaseClassicRecordingSession() {
+        guard let options = state.classicSessionDeactivationOptions else { return }
+        state.classicSessionDeactivationOptions = nil
+        try? AVAudioSession.sharedInstance().setActive(false, options: options)
+    }
+
     func wy_captureFinished(_ url: URL?, duration: TimeInterval, error: NSError?) {
         guard state.requestID != nil else { return }
+        wy_releaseClassicRecordingSession()
         if state.mode == .dictation && soundAnimationStatus == .recording && !state.discard {
             state.automaticallySendsTranscript = wy_captureConfiguration.dictationSendsOnRelease
             soundAnimationStatus = .transfer

@@ -15,6 +15,8 @@
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import <WYBasisKitObjC/WYBasisKitObjC.h>
 
+static NSString *const WYTextDetectionSampleID = @"text-detection-example";
+
 @interface WYTestChatController () <WYChatViewDelegate, AVAudioPlayerDelegate, PHPickerViewControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIDocumentPickerDelegate, QLPreviewControllerDataSource>
 @property (nonatomic, strong) WYChatView *chatView;
 @property (nonatomic, strong) AVAudioPlayer *voicePlayer;
@@ -35,7 +37,10 @@
     self.importedFiles = [NSMutableDictionary dictionary];
     self.exampleTransferTasks = [NSMutableDictionary dictionary];
     self.title = @"聊天界面";
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"测试" style:UIBarButtonItemStylePlain target:self action:@selector(showChatTests)];
+    self.navigationItem.rightBarButtonItems = @[
+        [[UIBarButtonItem alloc] initWithTitle:@"测试" style:UIBarButtonItemStylePlain target:self action:@selector(showChatTests)],
+        [[UIBarButtonItem alloc] initWithTitle:@"文本识别" style:UIBarButtonItemStylePlain target:self action:@selector(showTextDetection:)]
+    ];
     WYChatConfig *config = [[WYChatConfig alloc] init];
     config.input.draftStorageKey = @"objc-chat-example";
     config.recording.supportSpeechRecognition = true;
@@ -124,6 +129,53 @@
     // message.sendState = WYChatMessageSendStateSuccess;
     // self.chatView.appendMessages(@[message]);
     // self.chatView.scrollToLastMessage(false);
+}
+
+- (void)showTextDetection:(UIBarButtonItem *)sender {
+    UIAlertController *sheet = [UIAlertController alertControllerWithTitle:@"文本识别" message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    NSArray<NSString *> *titles = @[@"关闭识别", @"仅识别邮箱", @"识别电话、邮箱和网址", @"使用系统识别"];
+    NSArray<NSArray<NSNumber *> *> *modes = @[
+        @[], @[@(WYChatTextDetectionTypeEmail)],
+        @[@(WYChatTextDetectionTypePhoneNumber), @(WYChatTextDetectionTypeEmail), @(WYChatTextDetectionTypeLink)]
+    ];
+    __weak typeof(self) weakSelf = self;
+    [titles enumerateObjectsUsingBlock:^(NSString *title, NSUInteger index, BOOL *stop) {
+        [sheet addAction:[UIAlertAction actionWithTitle:title style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            [weakSelf applyTextDetection:index < modes.count ? modes[index] : nil];
+        }]];
+    }];
+    [sheet addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
+    sheet.popoverPresentationController.barButtonItem = sender;
+    [self presentViewController:sheet animated:YES completion:nil];
+}
+
+- (void)applyTextDetection:(NSArray<NSNumber *> *)types {
+    WYChatConfig *config = self.chatView.configuration;
+    config.text.detectedTextTypes = types;
+    config.text.detectedTextStyle = [[WYChatTextDetectionStyle alloc] initWithColor:UIColor.systemPurpleColor isUnderlined:YES];
+    config.text.detectedTextStyles = @{
+        @(WYChatTextDetectionTypePhoneNumber): [[WYChatTextDetectionStyle alloc] initWithColor:UIColor.systemOrangeColor isUnderlined:NO],
+        @(WYChatTextDetectionTypeEmail): [[WYChatTextDetectionStyle alloc] initWithColor:UIColor.systemTealColor isUnderlined:NO]
+    };
+    __weak typeof(self) weakSelf = self;
+    config.text.detectedTextTapHandler = ^(WYChatTextDetectionType type, NSString *text, WYChatMessageModel *message) {
+        NSString *title = @[@"电话", @"邮箱", @"网址"][type];
+        NSString *detail = [NSString stringWithFormat:@"%@\n%@", text, message.messageID];
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:detail preferredStyle:UIAlertControllerStyleAlert];
+        [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil]];
+        [weakSelf presentViewController:alert animated:YES completion:nil];
+    };
+    self.chatView.configuration = config;
+    if (!self.chatView.messageModelFrom(WYTextDetectionSampleID)) {
+        WYChatMessageModel *sample = [[WYChatMessageModel alloc] init];
+        sample.messageID = WYTextDetectionSampleID;
+        sample.timestamp = @(NSDate.date.timeIntervalSince1970).stringValue;
+        sample.sender = self.chatView.userInfo;
+        sample.sendState = WYChatMessageSendStateSuccess;
+        sample.content.text = @"+1 (415) 555-0132\nhello@example.com\nhttps://example.org";
+        self.chatView.appendMessages(@[sample]);
+    }
+    self.chatView.scrollToLastMessage(false);
 }
 
 - (void)wy_didClickMoreView:(WYChatMoreView *)moreView itemIndex:(NSInteger)itemIndex {

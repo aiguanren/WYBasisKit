@@ -17,6 +17,19 @@ import UIKit
 }
 
 public struct WYEmojiViewConfig {
+    /// 表情单帧缓存数量，0 或负数关闭单帧缓存
+    public var staticFrameCacheCountLimit: Int = 256 {
+        didSet { if oldValue != staticFrameCacheCountLimit { _imageCache = wy_makeImageCache() } }
+    }
+    /// 表情动图缓存数量，0 或负数关闭动图缓存
+    public var animationCacheCountLimit: Int = 48 {
+        didSet { if oldValue != animationCacheCountLimit { _imageCache = wy_makeImageCache() } }
+    }
+    /// 表情动图缓存像素数据预算，单位字节，0 表示不限
+    public var animationCacheByteLimit: Int = 24 * 1024 * 1024 {
+        didSet { if oldValue != animationCacheByteLimit { _imageCache = wy_makeImageCache() } }
+    }
+    var _imageCache: WYChatEmojiImageCache?
     /// 表情分区标题对齐方式
     public var headerTextAlignment: NSTextAlignment = .left
     /// 没有最近使用分区时是否仍显示全部表情标题

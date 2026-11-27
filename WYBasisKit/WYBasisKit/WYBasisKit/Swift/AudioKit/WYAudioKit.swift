@@ -450,11 +450,15 @@ public final class WYAudioKit: NSObject {
         }
     }
     
-    /// 唯一初始化方法
-    public override init() {
+    /// 初始化音频组件。
+    public override convenience init() {
+        self.init(configuresAudioSession: true)
+    }
+
+    init(configuresAudioSession: Bool) {
         super.init()
-        
-        setupAudioSession()
+
+        if configuresAudioSession { setupAudioSession() }
         state.recordingDirectoryURL = createDirectory(for: recordingsDirectory, subdirectory: recordingsSubdirectory)
         state.downloadsDirectoryURL = createDirectory(for: downloadsDirectory, subdirectory: downloadsSubdirectory)
         ensureDownloadSession()

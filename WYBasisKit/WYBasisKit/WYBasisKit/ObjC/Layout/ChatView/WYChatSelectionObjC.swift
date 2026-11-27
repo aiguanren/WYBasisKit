@@ -77,6 +77,12 @@ import WYBasisKitSwift
 /// 多选操作与转发外观
 @objc(WYChatSelectionConfig)
 @objcMembers public class WYChatSelectionConfigObjC: NSObject {
+    /// 已选中消息指示图标的无障碍值
+    public var selectedAccessibilityValue: String
+    /// 未选中消息指示图标的无障碍值
+    public var unselectedAccessibilityValue: String
+    /// 显示跨屏范围选择按钮时，列表在边缘留白之外所需的最小高度
+    public var rangeMinimumViewportHeight: CGFloat
     /// 多选工具条按钮的排列方式
     public var toolbarDistribution: UIStackView.Distribution
     /// 多选状态图标的显示方式
@@ -163,6 +169,9 @@ import WYBasisKitSwift
     public var rendersIndicatorAsTemplate: Bool
     public override convenience init() { self.init(WYChatSelectionConfig()) }
     @nonobjc public init(_ value: WYChatSelectionConfig) {
+        self.selectedAccessibilityValue = value.selectedAccessibilityValue
+        self.unselectedAccessibilityValue = value.unselectedAccessibilityValue
+        self.rangeMinimumViewportHeight = value.rangeMinimumViewportHeight
         self.toolbarDistribution = value.toolbarDistribution
         self.indicatorContentMode = value.indicatorContentMode
         self.forwardCountTitle = value.forwardCountTitle
@@ -209,6 +218,9 @@ import WYBasisKitSwift
     }
     @nonobjc public func toValue() -> WYChatSelectionConfig {
         var value = WYChatSelectionConfig()
+        value.selectedAccessibilityValue = selectedAccessibilityValue
+        value.unselectedAccessibilityValue = unselectedAccessibilityValue
+        value.rangeMinimumViewportHeight = rangeMinimumViewportHeight
         value.toolbarDistribution = toolbarDistribution
         value.indicatorContentMode = indicatorContentMode
         value.forwardCountTitle = forwardCountTitle

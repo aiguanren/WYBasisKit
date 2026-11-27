@@ -194,7 +194,7 @@ extension WYChatBasicCell {
         bodyView.addArrangedSubview(state.inlineProgress)
         state.inlineProgress.isHidden = true
         state.mediaProgress.isHidden = true
-        state.inlineProgressHeight = state.inlineProgress.heightAnchor.constraint(equalToConstant: 30)
+        state.inlineProgressHeight = state.inlineProgress.heightAnchor.constraint(equalToConstant: 0)
         state.inlineProgressHeight?.priority = UILayoutPriority(999)
         state.inlineProgressHeight?.isActive = true
         bubblesView.addSubview(state.mediaProgress)
@@ -371,7 +371,7 @@ extension WYChatBasicCell {
         }
         indicator.contentMode = style.indicatorContentMode
         indicator.tintColor = isMessageSelected ? style.selectedColor : style.unselectedColor
-        indicator.accessibilityValue = isMessageSelected ? "1" : "0"
+        indicator.accessibilityValue = isMessageSelected ? style.selectedAccessibilityValue : style.unselectedAccessibilityValue
     }
 
     func wy_layoutSelectionIndicator() {
@@ -438,7 +438,7 @@ extension WYChatBasicCell {
         let style = messageContentConfiguration
         let automaticMinimum = wy_isNotice ? 0 : max(0, avatarHeight - nicknameHeight, alignsArrow ? avatarShift + avatarHeight / 2 - nicknameHeight - side.contentTopOffset + arrowInset : 0)
         state.contentMinimum.constant = max(automaticMinimum, wy_chatNonnegative(style.minimumBubbleHeight))
-        let ratio = style.maximumWidthRatio.isFinite ? min(1, max(0.1, style.maximumWidthRatio)) : 0.75
+        let ratio = style.maximumWidthRatio.isFinite ? min(1, max(0.1, style.maximumWidthRatio)) : WYChatContentConfig().maximumWidthRatio
         wy_updateSelectionIndicator()
         let layoutWidth = width ?? contentView.bounds.width
         let statusWidth = basic.reservesSendingStatusSpace || !loadingView.isHidden || (sender && message.sendState == .sending && !wy_isNotice) ? wy_chatNonnegative(basic.messageSendingStateOffset) + wy_chatNonnegative(basic.messageSendingStateSize.width) : 0
@@ -543,10 +543,9 @@ extension WYChatBasicCell {
     }
 
     func wy_timeText() -> String {
-        guard var timestamp = Double(message.timestamp), timestamp.isFinite else { return "" }
-        if timestamp > 100_000_000_000 { timestamp /= 1000 }
-        if var previous = Double(message.lastMessageTimestamp), previous.isFinite {
-            if previous > 100_000_000_000 { previous /= 1000 }
+        let unit = configuration.basic.timestampUnit
+        guard let timestamp = unit.wy_epochSeconds(from: message.timestamp) else { return "" }
+        if let previous = unit.wy_epochSeconds(from: message.lastMessageTimestamp) {
             if timestamp - previous < max(0, configuration.basic.messageMinimumTimeSpan) { return "" }
         }
         let date = Date(timeIntervalSince1970: timestamp)

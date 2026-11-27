@@ -114,6 +114,14 @@
     config.emoji.previewConfig.minimumPressDuration = 0.4;
     config.emoji.previewConfig.allowableMovement = 28;
     config.emoji.previewConfig.textHorizontalInset = 9;
+    config.listInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAlways;
+    config.menuItemContentHorizontalInset = @13;
+    config.content.transferInlineControlMaximumWidth = 24;
+    config.media.maximumDefaultFormattedDuration = 15;
+    config.emoji.funcAreaConfig.backgroundFadeOpacities = @[@0, @1];
+    config.emoji.animationCacheCountLimit = 0;
+    config.recording.recordingAudioSessionCategoryOptions = @0;
+    config.recording.speechRecognitionPreflightBufferDuration = 0;
     config.input.textFont = [UIFont systemFontOfSize:22];
     config.input.backgroundImage = nil;
     config.input.backgroundColor = UIColor.magentaColor;
@@ -133,6 +141,12 @@
     check(@"tuple-config-roundtrip", self.chatView.configuration.recording.recordTimeMin == 0.5 && self.chatView.configuration.recording.recordTimeMax == 42);
     check(@"emoji-preview-config-bridge", self.chatView.configuration.emoji.previewConfig.minimumPressDuration == 0.4 && self.chatView.configuration.emoji.previewConfig.allowableMovement == 28 && self.chatView.configuration.emoji.previewConfig.textHorizontalInset == 9);
     check(@"nested-config-roundtrip", CGSizeEqualToSize(self.chatView.configuration.emoji.previewConfig.previewSize, CGSizeMake(88, 130)));
+    WYChatConfig *audit = self.chatView.configuration;
+    check(@"component-config-roundtrip", audit.menuItemContentHorizontalInset.doubleValue == 13
+          && self.chatView.tableView.contentInsetAdjustmentBehavior == UIScrollViewContentInsetAdjustmentAlways
+          && audit.content.transferInlineControlMaximumWidth == 24 && audit.media.maximumDefaultFormattedDuration == 15
+          && [audit.emoji.funcAreaConfig.backgroundFadeOpacities isEqualToArray:@[@0, @1]] && audit.emoji.animationCacheCountLimit == 0
+          && [audit.recording.recordingAudioSessionCategoryOptions isEqualToNumber:@0] && audit.recording.speechRecognitionPreflightBufferDuration == 0);
     WYChatConfig *snapshot = self.chatView.configuration;
     snapshot.receiver.edgeInset = 16;
     self.chatView.configuration = snapshot;
@@ -381,6 +395,14 @@
         check(@"quote-composer-snapshot", [self.chatView.quotePreview.quote.messageID isEqualToString:@"objc-mention-message"] && [self.chatView.quotePreview.quote.content.text isEqualToString:@"#用户 "]);
         WYChatMessageModel *quoted = self.chatView.sendMessage(@"ObjC引用回复", @"objc-quoted-reply");
         self.chatView.appendMessages(@[quoted]);
+        NSDate *sentAt = [NSDate dateWithTimeIntervalSince1970:quoted.timestamp.doubleValue];
+        check(@"withdraw-default-120-seconds", [[WYChatNoticeConfig alloc] init].withdrawalTimeLimit == 120);
+        quoteConfig.notice.withdrawalTimeLimit = 30;
+        self.chatView.configuration = quoteConfig;
+        check(@"withdraw-custom-30-seconds", self.chatView.canWithdrawMessage(quoted.messageID, [sentAt dateByAddingTimeInterval:29])
+              && !self.chatView.canWithdrawMessage(quoted.messageID, [sentAt dateByAddingTimeInterval:30]));
+        quoteConfig.notice.withdrawalTimeLimit = 0;
+        self.chatView.configuration = quoteConfig;
         check(@"quote-message-snapshot", [self.chatView.messageModelFrom(quoted.messageID).reference.messageID isEqualToString:@"objc-mention-message"]);
         WYChatQuoteModel *quoteSnapshot = self.chatView.messageModelFrom(quoted.messageID).reference;
         quoteSnapshot.content.text = @"外部修改";

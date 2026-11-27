@@ -23,11 +23,11 @@ extension WYChatView {
                 while item.id.isEmpty || !identifiers.insert(item.id).inserted { item.id = UUID().uuidString }
                 return item
             }
-            var message = WYChatMessageModel(messageID: UUID().uuidString, timestamp: String(Date().timeIntervalSince1970), sender: userInfo, content: WYChatMessageContentModel(mediaGroup: WYChatMediaGroupModel(items: entries)))
+            var message = WYChatMessageModel(messageID: UUID().uuidString, timestamp: configuration.basic.timestampUnit.wy_timestamp(), sender: userInfo, content: WYChatMessageContentModel(mediaGroup: WYChatMediaGroupModel(items: entries)))
             message.index = dataSource.count + messages.count
             message.reference = reference
             message.sendState = .sending
-            message.lastMessageTimestamp = message.sharedLastMessageTimestamp((messages.last ?? dataSource.last).map { [$0] } ?? [], minimumTimeSpan: configuration.basic.messageMinimumTimeSpan)
+            message.lastMessageTimestamp = message.wy_lastMessageTimestamp((messages.last ?? dataSource.last).map { [$0] } ?? [], minimumTimeSpan: configuration.basic.messageMinimumTimeSpan, unit: configuration.basic.timestampUnit)
             messages.append(message)
         }
         if configuration.automaticallyInsertsSentMessages { dataSource.append(contentsOf: messages); scrollToLastMessage() }
@@ -86,16 +86,17 @@ extension WYChatView {
             let mediaView = (cell as? WYChatMediaGroupCell)?.mediaView
             let source = mediaView?.sourceView(at: index) ?? cell?.previewImageView
             mediaView?.stopEmbeddedPlayback()
+            let resolved = cell?.configuration ?? wy_configuration(forMessage: model)
             if let handler = mediaPreviewHandler { handler(items, index, source) }
-            else if configuration.media.automaticallyPresentsBrowser {
+            else if resolved.media.automaticallyPresentsBrowser {
                 var responder: UIResponder? = self
                 while let next = responder?.next {
                     if let controller = next as? UIViewController {
                         guard controller.presentedViewController == nil else { break }
                         state.mediaBrowser?.dispose()
-                        let adapter = WYChatMediaBrowserAdapter(chatView: self, messageID: messageID, items: items)
+                        let adapter = WYChatMediaBrowserAdapter(chatView: self, messageID: messageID, items: items, media: resolved.media)
                         state.mediaBrowser = adapter
-                        var browserConfiguration = configuration.media.browser
+                        var browserConfiguration = resolved.media.browser
                         browserConfiguration.isEmbedded = false
                         adapter.browser = WYPhotoBrowser.show(from: controller, index: index, dataSource: adapter, configuration: browserConfiguration, delegate: adapter)
                         adapter.configureBrowser()
@@ -161,11 +162,19 @@ final class WYChatMediaBrowserAdapter: NSObject, WYPhotoBrowserDataSource, WYPho
     private let inlinePlayback = WYChatInlineVideoPlayback()
     let messageID: String
     let items: [WYChatMediaItem]
+    private let initialMedia: WYChatMediaConfig
 
-    init(chatView: WYChatView, messageID: String, items: [WYChatMediaItem]) {
+    init(chatView: WYChatView, messageID: String, items: [WYChatMediaItem], media: WYChatMediaConfig) {
         self.chatView = chatView
         self.messageID = messageID
         self.items = items
+        self.initialMedia = media
+    }
+
+    private var mediaConfiguration: WYChatMediaConfig {
+        guard let chatView else { return initialMedia }
+        guard let message = chatView.messageModelFrom(messageID) else { return chatView.configuration.media }
+        return chatView.wy_configuration(forMessage: message).media
     }
     func configureBrowser() {
         browser?.itemOverlayProvider = { [weak self] index in self?.transferOverlay(at: index) }
@@ -173,7 +182,8 @@ final class WYChatMediaBrowserAdapter: NSObject, WYPhotoBrowserDataSource, WYPho
         browser?.itemDidBeginDrag = { [weak self] in self?.inlinePlayback.stop() }
         browser?.refreshItemOverlays()
         if let chatView, let message = chatView.messageModelFrom(messageID), message.sendState == .sending {
-            let style = chatView.configuration.contentOverrides[.mediaGroup] ?? chatView.configuration.content
+            let configuration = chatView.wy_configuration(forMessage: message)
+            let style = configuration.contentOverrides[.mediaGroup] ?? configuration.content
             let elapsed = Date().timeIntervalSince(message.sendStartedAt ?? .distantPast)
             let remaining = wy_chatNonnegative(style.transferProgressDelay) - elapsed
             if remaining > 0 {
@@ -193,7 +203,8 @@ final class WYChatMediaBrowserAdapter: NSObject, WYPhotoBrowserDataSource, WYPho
     private func transferOverlay(at index: Int) -> UIView? {
         guard let chatView, let message = chatView.messageModelFrom(messageID),
               let group = message.content.mediaGroup, group.items.indices.contains(index) else { return nil }
-        let style = chatView.configuration.contentOverrides[.mediaGroup] ?? chatView.configuration.content
+        let configuration = chatView.wy_configuration(forMessage: message)
+        let style = configuration.contentOverrides[.mediaGroup] ?? configuration.content
         let sender = message.isSender(chatView.userInfo.id)
         let item = group.items[index]
         let delay = wy_chatNonnegative(style.transferProgressDelay)
@@ -202,8 +213,8 @@ final class WYChatMediaBrowserAdapter: NSObject, WYPhotoBrowserDataSource, WYPho
               !sender || message.sendState != .sending || lifetime >= delay else { return nil }
         let overlay = WYChatAttachmentProgressView()
         if let action = overlay.showPhase(item.transferState, progress: item.transferProgress, error: item.transferError,
-                                          style: style, overlaysMedia: true, sender: sender, title: chatView.configuration.actionTitle,
-                                          mediaConfig: chatView.configuration.media) {
+                                          style: style, overlaysMedia: true, sender: sender, title: configuration.actionTitle,
+                                          mediaConfig: configuration.media) {
             overlay.button.addAction(UIAction { [weak chatView] _ in
                 chatView?.wy_performMediaTransferAction(action, messageID: message.messageID, itemID: item.id)
             }, for: .touchUpInside)
@@ -212,14 +223,15 @@ final class WYChatMediaBrowserAdapter: NSObject, WYPhotoBrowserDataSource, WYPho
     }
 
     private func autoplay(at index: Int) {
-        guard let chatView, chatView.configuration.media.automaticallyPlaysVideo, let browser,
+        let media = mediaConfiguration
+        guard let chatView, media.automaticallyPlaysVideo, let browser,
               browser.presentedViewController == nil, items.indices.contains(index), let url = items[index].wy_videoURL,
               let image = browser.sourceView(at: index) else { inlinePlayback.stop(); return }
         if let group = chatView.messageModelFrom(messageID)?.content.mediaGroup, group.items.indices.contains(index) {
             let phase = group.items[index].transferState
             guard phase == .automatic || phase == .completed else { inlinePlayback.stop(); return }
         }
-        inlinePlayback.play(url, in: image.layer, bounds: image.bounds, muted: chatView.configuration.media.automaticVideoStartsMuted, fillsCard: false)
+        inlinePlayback.play(url, in: image.layer, bounds: image.bounds, muted: media.automaticVideoStartsMuted, fillsCard: false)
     }
 
     func numberOfItems(in photoBrowser: WYPhotoBrowser) -> Int { items.count }
@@ -247,9 +259,10 @@ final class WYChatMediaBrowserAdapter: NSObject, WYPhotoBrowserDataSource, WYPho
     func wy_photoBrowser(_ photoBrowser: WYPhotoBrowser, didTapPlayVideoItemAt index: Int) {
         guard photoBrowser.presentedViewController == nil, items.indices.contains(index), let url = items[index].wy_videoURL else { return }
         inlinePlayback.stop()
+        let media = mediaConfiguration
         let controller = AVPlayerViewController()
-        controller.modalPresentationStyle = chatView?.configuration.media.videoPresentationStyle ?? .fullScreen
-        controller.showsPlaybackControls = chatView?.configuration.media.showsVideoPlaybackControls ?? true
+        controller.modalPresentationStyle = media.videoPresentationStyle
+        controller.showsPlaybackControls = media.showsVideoPlaybackControls
         controller.view.accessibilityIdentifier = "WYChatMedia.videoPlayer"
         controller.player = AVPlayer(url: url)
         player = controller

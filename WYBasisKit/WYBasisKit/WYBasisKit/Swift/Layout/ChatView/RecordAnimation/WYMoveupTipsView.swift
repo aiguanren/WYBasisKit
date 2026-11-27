@@ -36,7 +36,6 @@ public class WYMoveUpTipsView: UIView {
         (moveUpView as? WYChatRecordingActionButton)?.layoutHandler = { [weak self] in self?.wy_layoutAction() }
         
         tipsView.backgroundColor = .clear
-        tipsView.textAlignment = .center
         tipsView.font = recordAnimationConfig.tipsInfoForMoveUp.font
         tipsView.textColor = recordAnimationConfig.tipsInfoForMoveUp.color
         addSubview(tipsView)
@@ -48,7 +47,6 @@ public class WYMoveUpTipsView: UIView {
         addSubview(moveUpView)
         moveUpView.backgroundColor = .clear
         moveUpView.titleLabel?.numberOfLines = 0
-        moveUpView.titleLabel?.textAlignment = .center
         
         moveUpView.setBackgroundImage((tipsState == .cancel) ? recordAnimationConfig.cancelRecordViewImage.onExternal : recordAnimationConfig.transferViewImage.onExternal, for: .normal)
         moveUpView.setBackgroundImage((tipsState == .cancel) ? recordAnimationConfig.cancelRecordViewImage.onInterior : recordAnimationConfig.transferViewImage.onInterior, for: .selected)

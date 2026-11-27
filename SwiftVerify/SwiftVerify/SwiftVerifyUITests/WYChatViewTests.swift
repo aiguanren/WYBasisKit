@@ -31,6 +31,62 @@ final class WYChatViewTests: XCTestCase {
         }
     }
 
+    func testSwiftTextDetection() {
+        verifyTextDetection(in: openChat())
+    }
+
+    func testObjCTextDetection() {
+        verifyTextDetection(in: openChat(XCUIApplication(bundleIdentifier: "com.guanren.ObjCVerify")))
+    }
+
+    private func verifyTextDetection(in app: XCUIApplication) {
+        let sample = app.textViews.matching(NSPredicate(format: "value CONTAINS %@", "hello@example.com")).firstMatch
+        func choose(_ title: String) {
+            app.navigationBars.buttons["文本识别"].tap()
+            let option = app.buttons[title]
+            XCTAssertTrue(option.waitForExistence(timeout: 5))
+            option.tap()
+            XCTAssertTrue(sample.waitForExistence(timeout: 5))
+        }
+        func tap(_ line: Int) {
+            sample.coordinate(withNormalizedOffset: CGVector(dx: 0.36, dy: (Double(line) + 0.5) / 3)).tap()
+        }
+        func verifyTap(_ line: Int, type: String, text: String) {
+            tap(line)
+            let alert = app.alerts[type]
+            XCTAssertTrue(alert.waitForExistence(timeout: 5), app.debugDescription)
+            let context = alert.staticTexts.matching(NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@", text, "text-detection-example"))
+            XCTAssertEqual(context.count, 1)
+            alert.buttons["确定"].tap()
+        }
+
+        choose("识别电话、邮箱和网址")
+        let styled = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        styled.name = "text-detection-styles"
+        styled.lifetime = .keepAlways
+        add(styled)
+        verifyTap(0, type: "电话", text: "+1 (415) 555-0132")
+        verifyTap(1, type: "邮箱", text: "hello@example.com")
+        verifyTap(2, type: "网址", text: "https://example.org")
+
+        choose("仅识别邮箱")
+        tap(0)
+        XCTAssertFalse(app.alerts.firstMatch.exists)
+        tap(2)
+        XCTAssertFalse(app.alerts.firstMatch.exists)
+        verifyTap(1, type: "邮箱", text: "hello@example.com")
+
+        choose("关闭识别")
+        for line in 0..<3 {
+            tap(line)
+            XCTAssertFalse(app.alerts.firstMatch.exists)
+        }
+        let plain = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        plain.name = "text-detection-disabled"
+        plain.lifetime = .keepAlways
+        add(plain)
+    }
+
     func testReenterAfterScrollingTop() {
         let app = openChat()
         for turn in 0..<3 {

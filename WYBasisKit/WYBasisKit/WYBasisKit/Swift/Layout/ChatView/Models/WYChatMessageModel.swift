@@ -182,26 +182,7 @@ public struct WYChatMessageModel: Equatable {
      *  datas 包含WYChatMessageModel的数组
      */
     public func sharedLastMessageTimestamp(_ datas: [WYChatMessageModel], minimumTimeSpan: TimeInterval = 300) -> String {
-        
-        var lastMessageTimestamp: String = ""
-        
-        if datas.isEmpty == false {
-            if datas.last?.lastMessageTimestamp.isEmpty ?? true {
-                lastMessageTimestamp = datas.last!.timestamp
-            }else {
-                let rawCurrent = Double(datas.last!.timestamp) ?? 0
-                let rawPrevious = Double(datas.last!.lastMessageTimestamp) ?? 0
-                let current = rawCurrent > 100_000_000_000 ? rawCurrent / 1000 : rawCurrent
-                let previous = rawPrevious > 100_000_000_000 ? rawPrevious / 1000 : rawPrevious
-                let lastShowTime = current - previous >= minimumTimeSpan
-                if lastShowTime {
-                    lastMessageTimestamp = datas.last!.timestamp
-                }else {
-                    lastMessageTimestamp = datas.last!.lastMessageTimestamp
-                }
-            }
-        }
-        return lastMessageTimestamp
+        wy_lastMessageTimestamp(datas, minimumTimeSpan: minimumTimeSpan, unit: .automatic)
     }
     
     /// 初始化方法

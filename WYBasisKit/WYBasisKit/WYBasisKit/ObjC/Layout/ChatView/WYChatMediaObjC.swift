@@ -66,6 +66,8 @@ import WYBasisKitSwift
 
 @objc(WYChatMediaConfig)
 @objcMembers public class WYChatMediaConfigObjC: NSObject {
+    /// 内置时长格式显示的上限，单位秒，0 表示不限
+    public var maximumDefaultFormattedDuration: TimeInterval
     /// 折叠媒体组在消息列表内的布局
     public var embeddedLayoutStyle: WYPhotoBrowserLayoutStyle
     /// 折叠媒体组在消息列表内的页码指示样式
@@ -174,6 +176,7 @@ import WYBasisKitSwift
     public var browser: WYPhotoBrowserConfigurationObjC
     public override convenience init() { self.init(WYChatMediaConfig()) }
     @nonobjc public init(_ value: WYChatMediaConfig) {
+        self.maximumDefaultFormattedDuration = value.maximumDefaultFormattedDuration
         self.embeddedLayoutStyle = value.embeddedLayoutStyle
         self.embeddedPageIndicatorStyle = value.embeddedPageIndicatorStyle
         self.embeddedBackgroundColor = value.embeddedBackgroundColor
@@ -233,6 +236,7 @@ import WYBasisKitSwift
     }
     @nonobjc public func toValue() -> WYChatMediaConfig {
         var value = WYChatMediaConfig()
+        value.maximumDefaultFormattedDuration = maximumDefaultFormattedDuration
         value.embeddedLayoutStyle = embeddedLayoutStyle
         value.embeddedPageIndicatorStyle = embeddedPageIndicatorStyle
         value.embeddedBackgroundColor = embeddedBackgroundColor

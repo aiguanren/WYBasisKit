@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AVFoundation
 
 /// 录音手势与界面方案
 @objc public enum WYRecordingInteractionStyle: Int {
@@ -44,11 +45,51 @@ public struct WYChatRecordingCountdownConfig {
     public var backgroundColor: UIColor = .clear
     /// 与录音提示或输入栏的垂直间距
     public var spacing: CGFloat = 16
+    /// 倒计时文字距容器左右边缘的最小距离
+    public var horizontalInset: CGFloat = 12
+    /// 倒计时文字对齐方式
+    public var textAlignment: NSTextAlignment = .center
+    /// 倒计时最大行数，0表示不限
+    public var maximumNumberOfLines: Int = 0
 
     public init() {}
 }
 
 public struct WYRecordAnimationConfig {
+    /// 渐变录音界面录音状态的无障碍值
+    public var gradientRecordingAccessibilityValue: String = "recording"
+    /// 渐变录音界面取消状态的无障碍值
+    public var gradientCancelAccessibilityValue: String = "cancel"
+    /// 录音滑动操作提示的对齐方式
+    public var moveUpTipsTextAlignment: NSTextAlignment = .center
+    /// 录音滑动操作按钮标题的对齐方式
+    public var moveUpButtonTextAlignment: NSTextAlignment = .center
+    /// 系统实时识别准备就绪前保留音频的时长，0 表示关闭缓存
+    public var speechRecognitionPreflightBufferDuration: TimeInterval = 2
+    /// 分区录音底部提示文字的对齐方式
+    public var recordingInteriorTitleAlignment: NSTextAlignment = .left
+    /// 弧形录音正在录音或取消时提示文字的对齐方式
+    public var recordingHintAlignment: NSTextAlignment = .center
+    /// 弧形录音进入转写区域时提示文字的对齐方式
+    public var recordingTransferHintAlignment: NSTextAlignment = .right
+    /// 是否由内置录音器配置并激活音频会话，关闭后由接入方管理
+    public var managesRecordingAudioSession: Bool = true
+    /// 内置录音的音频会话类别，可使用 AVAudioSession.Category 的原始值
+    public var recordingAudioSessionCategory: String = AVAudioSession.Category.playAndRecord.rawValue
+    /// 内置录音的音频会话模式，可使用 AVAudioSession.Mode 的原始值
+    public var recordingAudioSessionMode: String = AVAudioSession.Mode.default.rawValue
+    /// AVAudioSession.CategoryOptions 的组合原始值，nil 使用当前内置录音器的默认路由
+    public var recordingAudioSessionCategoryOptions: UInt? = nil
+    /// 普通内置录音结束后是否停用音频会话，默认继续保持活跃
+    public var deactivatesAudioSessionAfterClassicRecording: Bool = false
+    /// 录音会话停用时是否通知其他音频会话恢复
+    public var notifiesOthersWhenDeactivatingRecordingSession: Bool = true
+    /// 实时录音收到音频会话中断通知时是否结束
+    public var stopsRecordingOnAudioInterruption: Bool = true
+    /// 实时录音时音频设备断开是否结束录音
+    public var stopsRecordingWhenAudioDeviceDisconnects: Bool = true
+    /// 内置录音文件扩展名，nil 按录音编码选取容器
+    public var recordingFileExtension: String? = nil
     /// 内置实时录音和识别回放使用的缓冲帧数，有效范围1到65536
     public var audioBufferFrameCount: Int = 1024
     /// 内置流动幅度占渐变宽高的最大比例

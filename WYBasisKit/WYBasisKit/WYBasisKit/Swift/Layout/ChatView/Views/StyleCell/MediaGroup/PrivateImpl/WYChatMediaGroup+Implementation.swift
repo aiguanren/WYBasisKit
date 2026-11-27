@@ -69,8 +69,7 @@ final class WYChatMediaGroupView: UIView, WYPhotoBrowserDataSource, WYPhotoBrows
                     let chrome = WYChatVideoOverlayView()
                     chrome.frame = image.bounds
                     chrome.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-                    let seconds = Int(min(86_400, finite(model.items[index].duration)))
-                    let duration = configuration.durationFormatter?(Double(seconds)) ?? String(format: "%d:%02d", seconds / 60, seconds % 60)
+                    let duration = configuration.wy_formattedDuration(model.items[index].duration)
                     chrome.apply(configuration, icon: icon, tint: tint, font: contentConfiguration.detailFont, duration: duration)
                     image.addSubview(chrome)
                     expandedVideoChrome[index] = chrome

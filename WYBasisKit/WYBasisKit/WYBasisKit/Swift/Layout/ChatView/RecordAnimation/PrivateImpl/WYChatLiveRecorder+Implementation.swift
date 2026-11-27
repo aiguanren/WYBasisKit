@@ -7,12 +7,40 @@
 
 import AVFoundation
 
+extension WYRecordAnimationConfig {
+    func wy_activateRecordingAudioSession(defaultOptions: AVAudioSession.CategoryOptions) throws {
+        let session = AVAudioSession.sharedInstance()
+        let options = recordingAudioSessionCategoryOptions.map(AVAudioSession.CategoryOptions.init(rawValue:)) ?? defaultOptions
+        try session.setCategory(AVAudioSession.Category(rawValue: recordingAudioSessionCategory),
+                                mode: AVAudioSession.Mode(rawValue: recordingAudioSessionMode), options: options)
+        try session.setActive(true)
+    }
+
+    var wy_classicRecordingFormat: WYAudioFormat {
+        let formats = WYAudioFormat.allCases.filter(\.isRecordable)
+        if let fileExtension = recordingFileExtension?.lowercased(),
+           let format = formats.first(where: { $0.extensionName == fileExtension }) {
+            return format
+        }
+        if let setting = recordSettings[AVFormatIDKey] as? NSNumber,
+           let format = formats.first(where: { $0.audioFormatID == setting.uint32Value }) {
+            return format
+        }
+        return .aac
+    }
+
+    var wy_recordingSessionDeactivationOptions: AVAudioSession.SetActiveOptions {
+        notifiesOthersWhenDeactivatingRecordingSession ? .notifyOthersOnDeactivation : []
+    }
+}
+
 /// 同一路音频采集提供录音文件与实时识别数据
 final class WYChatLiveRecorder {
     private static let captureQueue = DispatchQueue(label: "WYChatLiveRecorder", qos: .userInitiated)
     private static weak var activeOwner: WYChatLiveRecorder?
     private let queue = WYChatLiveRecorder.captureQueue
     private var observers: [NSObjectProtocol] = []
+    private var deactivationOptions: AVAudioSession.SetActiveOptions?
     private var maximumFrames: AVAudioFramePosition?
     private var engine: AVAudioEngine?
     private var file: AVAudioFile?
@@ -38,17 +66,23 @@ final class WYChatLiveRecorder {
             do {
                 guard Self.activeOwner == nil else { throw NSError(domain: NSOSStatusErrorDomain, code: Int(AVAudioSession.ErrorCode.isBusy.rawValue)) }
                 let session = AVAudioSession.sharedInstance()
-                try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker])
-                try session.setActive(true)
+                if configuration.managesRecordingAudioSession {
+                    try configuration.wy_activateRecordingAudioSession(defaultOptions: .defaultToSpeaker)
+                    deactivationOptions = configuration.wy_recordingSessionDeactivationOptions
+                }
                 Self.activeOwner = self
-                observers.append(NotificationCenter.default.addObserver(forName: AVAudioSession.interruptionNotification, object: session, queue: nil) { [weak self] notification in
-                    guard let raw = notification.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt, AVAudioSession.InterruptionType(rawValue: raw) == .began else { return }
-                    self?.stop(cancel: false)
-                })
-                observers.append(NotificationCenter.default.addObserver(forName: AVAudioSession.routeChangeNotification, object: session, queue: nil) { [weak self] notification in
-                    guard let raw = notification.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt, AVAudioSession.RouteChangeReason(rawValue: raw) == .oldDeviceUnavailable else { return }
-                    self?.stop(cancel: false)
-                })
+                if configuration.stopsRecordingOnAudioInterruption {
+                    observers.append(NotificationCenter.default.addObserver(forName: AVAudioSession.interruptionNotification, object: session, queue: nil) { [weak self] notification in
+                        guard let raw = notification.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt, AVAudioSession.InterruptionType(rawValue: raw) == .began else { return }
+                        self?.stop(cancel: false)
+                    })
+                }
+                if configuration.stopsRecordingWhenAudioDeviceDisconnects {
+                    observers.append(NotificationCenter.default.addObserver(forName: AVAudioSession.routeChangeNotification, object: session, queue: nil) { [weak self] notification in
+                        guard let raw = notification.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt, AVAudioSession.RouteChangeReason(rawValue: raw) == .oldDeviceUnavailable else { return }
+                        self?.stop(cancel: false)
+                    })
+                }
                 let engine = AVAudioEngine()
                 self.engine = engine
                 let input = engine.inputNode
@@ -59,7 +93,7 @@ final class WYChatLiveRecorder {
                 if settings[AVSampleRateKey] == nil { settings[AVSampleRateKey] = format.sampleRate }
                 if settings[AVNumberOfChannelsKey] == nil { settings[AVNumberOfChannelsKey] = 1 }
                 let formatID = (settings[AVFormatIDKey] as? NSNumber)?.uint32Value ?? kAudioFormatMPEG4AAC
-                let suffix = formatID == kAudioFormatMPEG4AAC ? "m4a" : "caf"
+                let suffix = configuration.recordingFileExtension ?? (formatID == kAudioFormatMPEG4AAC ? "m4a" : "caf")
                 try FileManager.default.createDirectory(at: configuration.chatAudioUrl, withIntermediateDirectories: true)
                 let url = configuration.chatAudioUrl.appendingPathComponent(UUID().uuidString).appendingPathExtension(suffix)
                 self.outputURL = url
@@ -178,7 +212,10 @@ final class WYChatLiveRecorder {
         if discarded, let url { try? FileManager.default.removeItem(at: url) }
         if Self.activeOwner === self {
             Self.activeOwner = nil
-            try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+            if let deactivationOptions {
+                try? AVAudioSession.sharedInstance().setActive(false, options: deactivationOptions)
+                self.deactivationOptions = nil
+            }
         }
         DispatchQueue.main.async { completion(discarded ? nil : url, duration, error) }
     }

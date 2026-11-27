@@ -339,6 +339,12 @@ config.emoji.previewConfig.textHorizontalInset = 9
 - `media.embeddedLayoutStyle`、`media.embeddedPageIndicatorStyle` 和 `media.embeddedBackgroundColor` 控制列表中折叠媒体的浏览器。用 `media.expandedPrefetchDistance` 调整展开后图片的预加载范围，并用 `media.itemCountText` 格式化按钮文案。
 - `recording.gradientPressLocations` 和 `recording.gradientPressOpacities` 控制按下光点的渐变。用 `recording.gradientMotionFramesPerSecond` 和 `recording.gradientMotionRenderSize` 调整绘制开销，或用 `recording.gradientMotionMaskProvider` 为每帧提供带透明通道的图像。回调在界面线程执行，可返回 `nil` 使用内置绘制。
 
+- `basic.timestampUnit` 可明确指定消息时间戳使用秒或毫秒，并用于发送、时间显示、撤回和重新编辑。默认读取兼容两种单位，写入使用秒。撤回窗口仍以秒配置，默认 120 秒。
+- `content.transferInline…` 和 `content.transferOverlay…` 分别控制底部进度条与封面进度环的图标留白和文字排版。暂停、继续、重试的无障碍文案也可配置。内置媒体时长显示上限由 `media.maximumDefaultFormattedDuration` 设置。
+- `emoji.funcAreaConfig.backgroundFadeOpacities` 控制表情操作区的渐变。用 `emoji.staticFrameCacheCountLimit`、`emoji.animationCacheCountLimit` 和 `emoji.animationCacheByteLimit` 调整表情缓存。转写编辑器有独立的 `recording.recognitionEmoji` 配置。
+- `listInsetAdjustmentBehavior` 控制列表的安全区行为。用 `selection.rangeMinimumViewportHeight` 控制区间选择按钮的出现条件，用 `records` 配置合并记录明细的输入栏、关闭按钮与头像手势。
+- 内置录音可通过 `recording` 自定义音频会话类别、模式、路由、文件扩展名与倒计时排版。将 `recording.managesRecordingAudioSession` 设为 `false` 可让接入方管理音频会话。路由选项为 `nil` 时使用各录音器原有的默认路由。
+
 Swift 通过 `WYChatConfig` 设置这些属性。Objective-C 通过 `WYChatConfig` 及其子配置设置同名属性，可选数值使用 `NSNumber`。已有视图可重新赋值 `configuration` 以应用新配置。
 
 ## 外部消息操作

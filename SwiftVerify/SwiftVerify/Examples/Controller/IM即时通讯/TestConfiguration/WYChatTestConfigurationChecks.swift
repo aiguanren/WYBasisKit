@@ -19,7 +19,7 @@ enum WYChatTestConfigurationChecks {
             let name = String(describing: type(of: value))
             guard WYChatTestConfigurationFields.expandedTypes.contains(name) else { return [String(prefix.dropLast())] }
             return Mirror(reflecting: value).children.flatMap { child -> [String] in
-                guard let label = child.label else { return [] }
+                guard let label = child.label, !label.hasPrefix("_") else { return [] }
                 return paths(child.value, prefix: prefix + label + ".")
             }
         }
@@ -78,6 +78,13 @@ enum WYChatTestConfigurationChecks {
         let host = UIView(frame: CGRect(x: 0, y: 0, width: 393, height: 300))
         let avatarCell = WYChatTextCell(style: .default, reuseIdentifier: nil)
         host.addSubview(avatarCell)
+        let singleEmoji = WYChatMessageModel(content: WYChatMessageContentModel(text: "😀"))
+        avatarCell.update(message: singleEmoji, configuration: defaults, userID: "self")
+        check("configuration-single-emoji-default", !avatarCell.textView.isSelectable)
+        var selectableEmoji = defaults
+        selectableEmoji.text.allowsSingleEmojiSelection = true
+        avatarCell.update(message: singleEmoji, configuration: selectableEmoji, userID: "self")
+        check("configuration-single-emoji-selection", avatarCell.textView.isSelectable)
         for symbol in ["person.crop.square", "person.crop.circle", "person.fill"] {
             for size in [CGSize(width: 38, height: 38), CGSize(width: 40, height: 60)] {
                 var config = defaults

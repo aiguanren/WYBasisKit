@@ -52,10 +52,11 @@ private func wy_chatIsSingleEmoji(_ text: NSAttributedString) -> Bool {
 
 final class WYChatMessageTextView: UITextView {
     var hasEmojiAttachments = false
+    var forwardsSingleEmojiTouches = true
 
     override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
         guard super.point(inside: point, with: event) else { return false }
-        if wy_chatIsSingleEmoji(textStorage) { return false }
+        if wy_chatIsSingleEmoji(textStorage) { return !forwardsSingleEmojiTouches }
         guard hasEmojiAttachments else { return true }
         // 让消息菜单处理表情字形上的触点，普通文字仍交给文本控件。
         let location = CGPoint(x: point.x - textContainerInset.left, y: point.y - textContainerInset.top)
@@ -69,6 +70,21 @@ final class WYChatMessageTextView: UITextView {
 }
 
 final class WYChatMessageTextInteractionDelegate: NSObject, UITextViewDelegate {
+    weak var cell: WYChatTextCell?
+    var detections: [URL: (type: WYChatTextDetectionType, text: String)] = [:]
+
+    private func activate(_ url: URL) {
+        guard let cell, let detected = detections[url] else { return }
+        cell.configuration.text.detectedTextTapHandler?(detected.type, detected.text, cell.message)
+    }
+
+    @available(iOS, introduced: 10.0, deprecated: 17.0)
+    func textView(_ textView: UITextView, shouldInteractWith url: URL, in range: NSRange, interaction: UITextItemInteraction) -> Bool {
+        guard detections[url] != nil else { return true }
+        if interaction == .invokeDefaultAction { activate(url) }
+        return false
+    }
+
     @available(iOS, introduced: 10.0, deprecated: 17.0)
     func textView(_ textView: UITextView, shouldInteractWith attachment: NSTextAttachment, in range: NSRange, interaction: UITextItemInteraction) -> Bool {
         !(attachment is WYTextAttachment)
@@ -77,12 +93,17 @@ final class WYChatMessageTextInteractionDelegate: NSObject, UITextViewDelegate {
     @available(iOS 17.0, *)
     func textView(_ textView: UITextView, primaryActionFor textItem: UITextItem, defaultAction: UIAction) -> UIAction? {
         if case let .textAttachment(attachment) = textItem.content, attachment is WYTextAttachment { return nil }
+        if case let .link(url) = textItem.content, detections[url] != nil {
+            guard cell?.configuration.text.detectedTextTapHandler != nil else { return nil }
+            return UIAction { [weak self] _ in self?.activate(url) }
+        }
         return defaultAction
     }
 
     @available(iOS 17.0, *)
     func textView(_ textView: UITextView, menuConfigurationFor textItem: UITextItem, defaultMenu: UIMenu) -> UITextItem.MenuConfiguration? {
         if case let .textAttachment(attachment) = textItem.content, attachment is WYTextAttachment { return nil }
+        if case let .link(url) = textItem.content, detections[url] != nil { return nil }
         return UITextItem.MenuConfiguration(menu: defaultMenu)
     }
 }
@@ -92,6 +113,7 @@ extension WYChatTextCell {
     func wy_setupText() {
         textView.backgroundColor = .clear
         textView.isEditable = false
+        textState.textInteractionDelegate.cell = self
         textView.delegate = textState.textInteractionDelegate
         textView.isScrollEnabled = false
         textView.textContainerInset = .zero
@@ -105,7 +127,9 @@ extension WYChatTextCell {
         wy_render()
     }
 
-    var wy_isSingleEmoji: Bool { wy_chatIsSingleEmoji(textView.textStorage) }
+    var wy_usesSingleEmojiBubbleMenu: Bool {
+        configuration.text.usesBubbleMenuForSingleEmoji && wy_chatIsSingleEmoji(textView.textStorage)
+    }
 
     func wy_renderText() {
         let value = configuration.text
@@ -134,18 +158,62 @@ extension WYChatTextCell {
         }
         attributed.wy_lineSpacing(value.textLineSpacing, alignment: .natural)
         textView.textColor = value.textColor
-        (textView as? WYChatMessageTextView)?.hasEmojiAttachments = hasEmojiAttachments
-        textView.isSelectable = value.isSelectable && !wy_chatIsSingleEmoji(attributed)
-        textView.dataDetectorTypes = state.isMeasuring ? [] : value.dataDetectorTypes
+        if let messageTextView = textView as? WYChatMessageTextView {
+            messageTextView.hasEmojiAttachments = hasEmojiAttachments
+            messageTextView.forwardsSingleEmojiTouches = !(value.isSelectable && value.allowsSingleEmojiSelection)
+        }
+        textView.isSelectable = value.isSelectable && (value.allowsSingleEmojiSelection || !wy_chatIsSingleEmoji(attributed))
+        wy_applyTextDetection(to: attributed, config: value)
         textView.textContainer.maximumNumberOfLines = max(0, value.textMaximumNumberOfLines)
-        textView.attributedText = attributed
         textView.font = value.textFont
+        textView.attributedText = attributed
         let paragraph = NSMutableParagraphStyle()
         paragraph.lineSpacing = value.textLineSpacing
         textView.typingAttributes = [.font: value.textFont, .foregroundColor: value.textColor, .paragraphStyle: paragraph]
         textState.measuredText = nil
         if textState.emojiPlayback.timer != nil { wy_advanceEmojiPlayback() }
         else { wy_scheduleEmojiPlayback() }
+    }
+
+    private static let textDetector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType([.link, .phoneNumber]).rawValue)
+
+    private func wy_applyTextDetection(to attributed: NSMutableAttributedString, config: WYTextChatConfig) {
+        let delegate = textState.textInteractionDelegate
+        delegate.detections.removeAll(keepingCapacity: true)
+        textView.dataDetectorTypes = state.isMeasuring || config.detectedTextTypes != nil ? [] : config.dataDetectorTypes
+
+        guard let types = config.detectedTextTypes, !types.isEmpty else {
+            if let previous = textState.previousLinkTextAttributes {
+                textView.linkTextAttributes = previous
+                textState.previousLinkTextAttributes = nil
+            }
+            return
+        }
+        // 由每个匹配范围的属性决定颜色和下划线。
+        if textState.previousLinkTextAttributes == nil {
+            textState.previousLinkTextAttributes = textView.linkTextAttributes
+            textView.linkTextAttributes = [:]
+        }
+        guard !state.isMeasuring, let detector = Self.textDetector else { return }
+        let enabled = Set(types)
+        let source = attributed.string as NSString
+        for match in detector.matches(in: source as String, range: NSRange(location: 0, length: source.length)) {
+            let type: WYChatTextDetectionType
+            switch match.resultType {
+            case .phoneNumber: type = .phoneNumber
+            case .link: type = match.url?.scheme?.lowercased() == "mailto" ? .email : .link
+            default: continue
+            }
+            guard enabled.contains(type),
+                  let url = URL(string: "wy-chat-text:\(UUID().uuidString)") else { continue }
+            let style = config.detectedTextStyles[type] ?? config.detectedTextStyle
+            attributed.addAttributes([
+                .link: url,
+                .foregroundColor: style.color,
+                .underlineStyle: style.isUnderlined ? NSUnderlineStyle.single.rawValue : 0
+            ], range: match.range)
+            delegate.detections[url] = (type, source.substring(with: match.range))
+        }
     }
 
     func wy_beginEmojiDisplay(in chatView: WYChatView) {
@@ -188,7 +256,7 @@ extension WYChatTextCell {
         guard !textState.emojiPlayback.animations.isEmpty else { return }
         chatView.state.playedEmojiMessages.insert(key)
         textState.emojiPlayback.startedAt = CACurrentMediaTime()
-        let timer = Timer(timeInterval: max(1.0 / 120.0, interval), repeats: true) { [weak self] _ in
+        let timer = Timer(timeInterval: max(wy_chatNonnegative(configuration.text.minimumEmojiAnimationFrameInterval), interval), repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.wy_advanceEmojiPlayback() }
         }
         textState.emojiPlayback.timer = timer
@@ -232,6 +300,7 @@ final class WYChatTextCellPrivateState {
     var laidOutTextFont: UIFont?
     var laidOutTextLineSpacing: CGFloat?
     var laidOutTextMaximumLines: Int?
+    var previousLinkTextAttributes: [NSAttributedString.Key: Any]?
     let emojiPlayback = WYChatTextEmojiPlayback()
     let textInteractionDelegate = WYChatMessageTextInteractionDelegate()
 }

@@ -20,6 +20,8 @@ import SnapKit
 }
 
 public struct WYInputBarConfig {
+    /// 居中占位文案在输入框聚焦后的对齐方式
+    public var focusedCenteredPlaceholderAlignment: NSTextAlignment = .left
     /// 按住说话按钮的长按触发时间，单位秒
     public var voiceLongPressDuration: TimeInterval = 0.5
     /// 输入超过指定行数时滚到末尾，0表示关闭自动滚动

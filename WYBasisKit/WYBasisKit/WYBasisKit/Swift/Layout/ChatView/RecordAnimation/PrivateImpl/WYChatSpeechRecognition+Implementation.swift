@@ -41,7 +41,7 @@ final class WYChatSpeechRecognitionTask {
             self.finish(nil, error: self.failure(self.configuration.recognitionTimeoutText, code: .timedOut))
         }
         timeout = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + (deadline.isFinite && deadline > 0 ? deadline : 30), execute: work)
+        DispatchQueue.main.asyncAfter(deadline: .now() + (deadline.isFinite && deadline > 0 ? deadline : WYRecordAnimationConfig().speechRecognitionTimeout), execute: work)
         if configuration.speechRecognitionSource == .external {
             guard let provider = configuration.speechRecognitionProvider else { finish(nil, error: failure(configuration.recognitionMissingProviderText, code: .missingProvider)); return }
             if !provider.responds(to: #selector(WYChatSpeechRecognizer.wy_recognizeSpeech(_:url:localeIdentifier:requiresOnDevice:completion:))) {
@@ -170,9 +170,13 @@ final class WYChatSpeechRecognitionTask {
         if let request = bufferRequest {
             request.append(buffer)
         } else {
+            let duration = wy_chatNonnegative(configuration.speechRecognitionPreflightBufferDuration)
+            guard duration > 0 else { return }
             pendingBuffers.append(buffer)
-            let maximumFrames = buffer.format.sampleRate * 2
-            while pendingBuffers.count > 1 && pendingBuffers.reduce(0, { $0 + Double($1.frameLength) }) > maximumFrames { pendingBuffers.removeFirst() }
+            let maximumFrames = buffer.format.sampleRate * duration
+            while pendingBuffers.count > 1 && pendingBuffers.reduce(0, { $0 + Double($1.frameLength) }) > maximumFrames {
+                pendingBuffers.removeFirst()
+            }
         }
     }
 
@@ -194,7 +198,7 @@ final class WYChatSpeechRecognitionTask {
         timeout?.cancel()
         timeout = work
         let limit = configuration.speechRecognitionTimeout
-        DispatchQueue.main.asyncAfter(deadline: .now() + (limit.isFinite && limit > 0 ? limit : 30), execute: work)
+        DispatchQueue.main.asyncAfter(deadline: .now() + (limit.isFinite && limit > 0 ? limit : WYRecordAnimationConfig().speechRecognitionTimeout), execute: work)
     }
 
     private func startApple(_ url: URL) {

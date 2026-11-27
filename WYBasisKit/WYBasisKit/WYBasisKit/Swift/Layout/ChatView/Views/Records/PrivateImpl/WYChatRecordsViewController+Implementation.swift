@@ -16,7 +16,6 @@ extension WYChatRecordsViewController {
         closeButton.target = self
         closeButton.action = #selector(wy_closeRecords)
         closeButton.accessibilityIdentifier = "WYChatRecords.close"
-        navigationItem.leftBarButtonItem = closeButton
         wy_renderRecords()
     }
     func wy_renderRecords() {
@@ -29,6 +28,7 @@ extension WYChatRecordsViewController {
         label.adjustsFontSizeToFitWidth = style.titleAdjustsFontSizeToFitWidth
         label.sizeToFit()
         navigationItem.titleView = label
+        navigationItem.leftBarButtonItem = style.showsCloseButton ? closeButton : nil
         closeButton.title = style.closeText
         closeButton.tintColor = style.closeColor
         for state in [UIControl.State.normal, .highlighted, .disabled] { closeButton.setTitleTextAttributes([.font: style.closeFont], for: state) }
@@ -39,9 +39,9 @@ extension WYChatRecordsViewController {
         navigationItem.scrollEdgeAppearance = appearance
         navigationItem.compactAppearance = appearance
         var detail = configuration
-        detail.showsInputBar = false
-        detail.basic.avatarLongPressAction = .none
-        detail.basic.avatarDoubleTapAction = .none
+        detail.showsInputBar = style.showsInputBar
+        detail.basic.avatarLongPressAction = style.avatarLongPressAction
+        detail.basic.avatarDoubleTapAction = style.avatarDoubleTapAction
         detail.sender.showsSingleNickname = style.showsNicknames
         detail.receiver.showsSingleNickname = style.showsNicknames
         detail.menuActions.removeAll { style.excludedMenuActions.contains($0) }
@@ -57,9 +57,10 @@ extension WYChatRecordsViewController {
 /// 接入方接管或内置展示合并记录
 extension WYChatView {
     func wy_previewRecords(_ messageID: String) {
-        guard let records = messageModelFrom(messageID)?.content.chatRecords else { return }
+        guard let message = messageModelFrom(messageID), let records = message.content.chatRecords else { return }
         inputViewResignFirstResponder()
         if let recordsPreviewHandler { recordsPreviewHandler(records); return }
+        let configuration = wy_configuration(forMessage: message)
         guard configuration.records.automaticallyPresentsDetail else { return }
         var responder: UIResponder? = self
         while let next = responder?.next {

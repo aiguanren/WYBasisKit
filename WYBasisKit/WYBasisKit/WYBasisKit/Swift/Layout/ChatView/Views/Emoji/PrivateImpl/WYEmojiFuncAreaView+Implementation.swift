@@ -77,7 +77,14 @@ extension WYEmojiFuncAreaView {
             make.height.equalTo(emojiViewConfig.funcAreaConfig.sendViewAndDeleteViewTopOffset)
         }
         gradualView.wy_makeVisual { make in
-            make.wy_gradualColors([emojiViewConfig.backgroundColor.withAlphaComponent(0),emojiViewConfig.backgroundColor.withAlphaComponent(0.3),emojiViewConfig.backgroundColor.withAlphaComponent(0.6),emojiViewConfig.backgroundColor.withAlphaComponent(0.8), emojiViewConfig.backgroundColor])
+            let color = emojiViewConfig.backgroundColor
+            let opacities = emojiViewConfig.funcAreaConfig.backgroundFadeOpacities.map {
+                min(1, wy_chatNonnegative($0))
+            }
+            let colors = opacities.map { $0 == 1 ? color : color.withAlphaComponent($0) }
+            if let first = colors.first {
+                make.wy_gradualColors(colors.count == 1 ? [first, first] : colors)
+            }
             make.wy_gradientDirection(.topToBottom)
         }
 

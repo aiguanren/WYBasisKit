@@ -9,6 +9,14 @@ import UIKit
 
 /// 合并聊天记录明细外观
 public struct WYChatRecordsConfig {
+    /// 合并记录详情是否显示输入栏
+    public var showsInputBar: Bool = false
+    /// 合并记录详情是否显示导航栏的关闭按钮
+    public var showsCloseButton: Bool = true
+    /// 合并记录详情的头像长按操作
+    public var avatarLongPressAction: WYChatAvatarAction = .none
+    /// 合并记录详情的头像双击操作
+    public var avatarDoubleTapAction: WYChatAvatarAction = .none
     /// 合并记录导航标题是否缩小以适应宽度
     public var titleAdjustsFontSizeToFitWidth: Bool = true
     /// 合并记录详情中排除的菜单操作

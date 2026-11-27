@@ -39,7 +39,7 @@ extension WYChatWithdrawnCell {
         let template = configuration.notice.wy_withdrawalTemplate(for: message, userID: userID)
         state.title.text = template.replacingOccurrences(of: "%@", with: message.sender.name)
         state.title.isHidden = template.isEmpty
-        let show = wy_chatCanReedit(message, userID: userID, configuration: configuration.notice, at: Date())
+        let show = wy_chatCanReedit(message, userID: userID, configuration: configuration.notice, unit: configuration.basic.timestampUnit, at: Date())
         withdrawnState.reeditButton.isHidden = !show
         withdrawnState.reeditButton.setTitle(configuration.notice.reeditText, for: .normal)
         withdrawnState.reeditButton.titleLabel?.font = configuration.notice.reeditFont

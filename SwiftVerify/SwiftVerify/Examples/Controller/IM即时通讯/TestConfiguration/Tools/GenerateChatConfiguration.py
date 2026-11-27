@@ -64,6 +64,7 @@ raw_ui = {
     'UIStackView.Distribution': list(range(5)),
     'UIModalPresentationStyle': [-2, -1, *range(8)],
     'UIScrollView.KeyboardDismissMode': [0, 1, 2],
+    'UIScrollView.ContentInsetAdjustmentBehavior': [0, 1, 2, 3],
     'UIRectCorner': None,
     'UIDataDetectorTypes': None
 }

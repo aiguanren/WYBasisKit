@@ -12,6 +12,14 @@ import WYBasisKitSwift
 /// 合并聊天记录明细外观
 @objc(WYChatRecordsConfig)
 @objcMembers public class WYChatRecordsConfigObjC: NSObject {
+    /// 合并记录详情是否显示输入栏
+    public var showsInputBar: Bool
+    /// 合并记录详情是否显示导航栏的关闭按钮
+    public var showsCloseButton: Bool
+    /// 合并记录详情的头像长按操作
+    public var avatarLongPressAction: WYChatAvatarAction
+    /// 合并记录详情的头像双击操作
+    public var avatarDoubleTapAction: WYChatAvatarAction
     /// 合并记录导航标题是否缩小以适应宽度
     public var titleAdjustsFontSizeToFitWidth: Bool
     /// 合并记录详情中排除的菜单操作
@@ -40,6 +48,10 @@ import WYBasisKitSwift
     public var closeColor: UIColor
     public override convenience init() { self.init(WYChatRecordsConfig()) }
     @nonobjc public init(_ value: WYChatRecordsConfig) {
+        self.showsInputBar = value.showsInputBar
+        self.showsCloseButton = value.showsCloseButton
+        self.avatarLongPressAction = value.avatarLongPressAction
+        self.avatarDoubleTapAction = value.avatarDoubleTapAction
         self.titleAdjustsFontSizeToFitWidth = value.titleAdjustsFontSizeToFitWidth
         self.excludedMenuActions = value.excludedMenuActions.map { NSNumber(value: $0.rawValue) }
         self.summarySenderSeparator = value.summarySenderSeparator
@@ -57,6 +69,10 @@ import WYBasisKitSwift
     }
     @nonobjc public func toValue() -> WYChatRecordsConfig {
         var value = WYChatRecordsConfig()
+        value.showsInputBar = showsInputBar
+        value.showsCloseButton = showsCloseButton
+        value.avatarLongPressAction = avatarLongPressAction
+        value.avatarDoubleTapAction = avatarDoubleTapAction
         value.titleAdjustsFontSizeToFitWidth = titleAdjustsFontSizeToFitWidth
         value.excludedMenuActions = excludedMenuActions.compactMap { WYChatAction(rawValue: $0.intValue) }
         value.summarySenderSeparator = summarySenderSeparator

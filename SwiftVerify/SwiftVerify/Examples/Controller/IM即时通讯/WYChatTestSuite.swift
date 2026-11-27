@@ -1834,6 +1834,53 @@ final class WYChatTestSuite {
             view.dataSource[0] = source
             check("quote-content-value-snapshot", view.quotePreview.quote?.content.text == "保留原始引用内容")
             let reply = view.sendMessage("带引用的回复", messageID: "quote-reply")
+            if let sentAt = Double(reply.timestamp).map(Date.init(timeIntervalSince1970:)) {
+                check("withdraw-default-120-seconds", config.notice.withdrawalTimeLimit == 120
+                      && view.canWithdrawMessage(reply.messageID, at: sentAt.addingTimeInterval(119))
+                      && !view.canWithdrawMessage(reply.messageID, at: sentAt.addingTimeInterval(120)))
+                var limited = config
+                limited.notice.withdrawalTimeLimit = 30
+                view.configuration = limited
+                check("withdraw-custom-30-seconds", view.canWithdrawMessage(reply.messageID, at: sentAt.addingTimeInterval(29))
+                      && !view.canWithdrawMessage(reply.messageID, at: sentAt.addingTimeInterval(30)))
+                view.dataSource[1].timestamp = String(now.timeIntervalSince1970 - 31)
+                var expiredRequest = false
+                view.actionHandler = { _, action, _ in expiredRequest = action == .withdraw }
+                view.layoutIfNeeded()
+                view.tableView.layoutIfNeeded()
+                let expiredCell = view.tableView.cellForRow(at: IndexPath(row: 1, section: 0)) as? WYChatBasicCell
+                expiredCell?.actionHandler?(.withdraw, reply.messageID)
+                check("withdraw-stale-menu-blocks-request", expiredCell?.actionHandler != nil && !expiredRequest)
+                view.dataSource[1].timestamp = reply.timestamp
+                view.configuration = config
+            } else {
+                check("withdraw-valid-send-timestamp", false, reply.timestamp)
+            }
+            let originalMessages = view.dataSource
+            var milliseconds = config
+            milliseconds.basic.timestampUnit = .milliseconds
+            milliseconds.messageConfiguration = { message, base in
+                var resolved = base
+                if message.messageID == "milliseconds" {
+                    resolved.notice.withdrawalTimeLimit = 20
+                    resolved.notice.reeditTimeLimit = 40
+                }
+                return resolved
+            }
+            view.configuration = milliseconds
+            let clockMessage = view.sendMessage("毫秒时间戳", messageID: "milliseconds")
+            let written = Double(clockMessage.timestamp) ?? 0
+            let sentAt = Date(timeIntervalSince1970: written / 1000)
+            check("withdraw-configurable-timestamp-unit", written > now.timeIntervalSince1970 * 999
+                  && view.canWithdrawMessage(clockMessage.messageID, at: sentAt.addingTimeInterval(19))
+                  && !view.canWithdrawMessage(clockMessage.messageID, at: sentAt.addingTimeInterval(20)))
+            let marked = view.markMessageWithdrawn(clockMessage.messageID, at: sentAt)
+            let withdrawnTimestamp = Double(view.messageModelFrom(clockMessage.messageID)?.content.withdrawn?.withdrawnTime ?? "") ?? 0
+            check("reedit-configurable-timestamp-unit", marked && abs(withdrawnTimestamp - written) < 1
+                  && view.canReeditMessage(clockMessage.messageID, at: sentAt.addingTimeInterval(39))
+                  && !view.canReeditMessage(clockMessage.messageID, at: sentAt.addingTimeInterval(40)))
+            view.dataSource = originalMessages
+            view.configuration = config
             check("quote-sent-identity", reply.reference?.messageID == source.messageID && reply.reference?.sender.id == other.id && reply.reference?.content.text == "保留原始引用内容" && view.quotedMessageID == nil)
             view.layoutIfNeeded()
             view.tableView.layoutIfNeeded()
@@ -2953,6 +3000,11 @@ final class WYChatTestSuite {
             config.content.transferProgressDelay = 0
             config.content.transferRingRadius = 15
             config.content.transferLineWidth = 3
+            config.content.transferPauseActionTitle = "暂停附件"
+            config.content.transferResumeActionTitle = "恢复附件"
+            config.content.transferStatusSeparator = " / "
+            config.content.transferOverlayIconInsetRatio = 0.2
+            config.media.maximumDefaultFormattedDuration = 9
             config.notice.fundsSentPacketReceiptText = "{actor}已打开红包"
             config.selection.usesForwardActionSheet = true
             let chat = WYChatView(userInfo: WYChatUserModel(id: "self", name: "本人"), configuration: config)
@@ -2977,7 +3029,9 @@ final class WYChatTestSuite {
                 return cell
             }
 
-            let video = WYChatMessageContentModel(video: WYChatVideoModel())
+            var videoModel = WYChatVideoModel()
+            videoModel.duration = 32
+            let video = WYChatMessageContentModel(video: videoModel)
             var incoming = WYChatMessageModel(messageID: "incoming-video", sender: WYChatUserModel(id: "other"), content: video)
             incoming.transferState = .waiting
             chat.appendMessages([incoming])
@@ -2992,13 +3046,21 @@ final class WYChatTestSuite {
             check("outgoing-video-progress-update", chat.updateTransfer(messageID: sent.messageID, state: .transferring, progress: 0.2))
             let outgoingCell = cell(1)
             let pauseControl = outgoingCell.flatMap { button(in: $0) }
+            let durationLabel = outgoingCell?.previewImageView.subviews.flatMap(\.subviews).compactMap { $0 as? UILabel }
+                .first { $0.accessibilityIdentifier == "WYChatVideo.duration" }
+            check("video-configurable-duration-limit", durationLabel?.text == "0:09")
             check("outgoing-video-pause-control", pauseControl?.accessibilityValue == "20%" && pauseControl?.currentImage != nil)
+            check("video-transfer-custom-action-and-insets", pauseControl?.accessibilityLabel == "暂停附件"
+                && abs((pauseControl?.configuration?.contentInsets.leading ?? 0) - (pauseControl?.frame.width ?? 0) * 0.2) < 0.5)
             let stroke = pauseControl?.superview?.layer.sublayers?.compactMap { $0 as? CAShapeLayer }.first { $0.strokeEnd == 0.2 }
             check("video-uses-configured-radius-and-line-width", stroke?.lineWidth == 3 && abs((stroke?.path?.boundingBox.width ?? 0) - 27) < 1)
             pauseControl?.sendActions(for: .touchUpInside)
             check("video-pause-preserves-progress", chat.updateTransfer(messageID: sent.messageID, state: .paused)
                 && chat.messageModelFrom(sent.messageID)?.transferProgress == 0.2)
-            cell(1).flatMap { button(in: $0) }?.sendActions(for: .touchUpInside)
+            let resumeControl = cell(1).flatMap { button(in: $0) }
+            check("video-transfer-custom-caption-and-resume", resumeControl?.accessibilityLabel == "恢复附件"
+                && resumeControl?.accessibilityValue == config.content.transferPausedText + " / 20%")
+            resumeControl?.sendActions(for: .touchUpInside)
             check("video-transfer-controls-emit-actions", events == [.startTransfer, .pauseTransfer, .resumeTransfer])
             chat.updateTransfer(messageID: sent.messageID, state: .transferring, progress: 0.2)
             let control = cell(1).flatMap { button(in: $0) }

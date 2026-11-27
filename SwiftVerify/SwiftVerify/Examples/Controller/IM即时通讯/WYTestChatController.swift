@@ -15,6 +15,7 @@ import QuickLook
 import UniformTypeIdentifiers
 
 class WYTestChatController: UIViewController {
+    private let detectionSampleID = "text-detection-example"
     
     var chatView: WYChatView!
     private var chatTests: WYChatTestSuite?
@@ -37,7 +38,10 @@ class WYTestChatController: UIViewController {
 
         // Do any additional setup after loading the view.
         navigationItem.title = "聊天界面"
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "测试", style: .plain, target: self, action: #selector(showChatTests))
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(title: "测试", style: .plain, target: self, action: #selector(showChatTests)),
+            UIBarButtonItem(title: "文本识别", style: .plain, target: self, action: #selector(showTextDetection))
+        ]
         view.backgroundColor = .wy_hex("#f6f6f6")
         
         var configuration = WYChatConfig()
@@ -189,6 +193,49 @@ class WYTestChatController: UIViewController {
 
     private func showVoiceError(_ error: NSError) {
         WYActivity.showInfo("\(error.localizedDescription)\n\(error.domain) (\(error.code))", in: view.window)
+    }
+
+    @objc private func showTextDetection(_ sender: UIBarButtonItem) {
+        let sheet = UIAlertController(title: "文本识别", message: nil, preferredStyle: .actionSheet)
+        let choices: [(String, [WYChatTextDetectionType]?)] = [
+            ("关闭识别", []), ("仅识别邮箱", [.email]),
+            ("识别电话、邮箱和网址", [.phoneNumber, .email, .link]), ("使用系统识别", nil)
+        ]
+        for (title, types) in choices {
+            sheet.addAction(UIAlertAction(title: title, style: .default) { [weak self] _ in self?.applyTextDetection(types) })
+        }
+        sheet.addAction(UIAlertAction(title: "取消", style: .cancel))
+        sheet.popoverPresentationController?.barButtonItem = sender
+        present(sheet, animated: true)
+    }
+
+    private func applyTextDetection(_ types: [WYChatTextDetectionType]?) {
+        var config = chatView.configuration
+        config.text.detectedTextTypes = types
+        config.text.detectedTextStyle = WYChatTextDetectionStyle(color: .systemPurple)
+        config.text.detectedTextStyles = [
+            .phoneNumber: WYChatTextDetectionStyle(color: .systemOrange, isUnderlined: false),
+            .email: WYChatTextDetectionStyle(color: .systemTeal, isUnderlined: false)
+        ]
+        config.text.detectedTextTapHandler = { [weak self] type, text, message in
+            let title: String
+            switch type {
+            case .phoneNumber: title = "电话"
+            case .email: title = "邮箱"
+            case .link: title = "网址"
+            }
+            let alert = UIAlertController(title: title, message: "\(text)\n\(message.messageID)", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "确定", style: .cancel))
+            self?.present(alert, animated: true)
+        }
+        chatView.configuration = config
+        if chatView.messageModelFrom(detectionSampleID) == nil {
+            let sample = WYChatMessageModel(sendState: .success, messageID: detectionSampleID,
+                                            timestamp: String(Date().timeIntervalSince1970), sender: chatView.userInfo,
+                                            content: WYChatMessageContentModel(text: "+1 (415) 555-0132\nhello@example.com\nhttps://example.org"))
+            chatView.appendMessages([sample])
+        }
+        chatView.scrollToLastMessage()
     }
 
     @objc private func showChatTests() {

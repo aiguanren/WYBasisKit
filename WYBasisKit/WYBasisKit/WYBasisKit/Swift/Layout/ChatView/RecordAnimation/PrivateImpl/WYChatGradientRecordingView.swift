@@ -105,7 +105,7 @@ final class WYChatGradientRecordingView: UIView {
         hint.text = cancelled ? configuration.gradientCancelHint : configuration.gradientRecordingHint.isEmpty ? (mode == .dictation ? configuration.dictationReleaseText : configuration.recordViewTips.onInterior) + configuration.gradientCancelInstruction : configuration.gradientRecordingHint
         waveform.config = configuration.gradientWaveform
         if cancelled { waveform.config.wavesColor = configuration.gradientCancelWaveformColor }
-        accessibilityValue = cancelled ? "cancel" : "recording"
+        accessibilityValue = cancelled ? configuration.gradientCancelAccessibilityValue : configuration.gradientRecordingAccessibilityValue
         setNeedsLayout()
     }
 

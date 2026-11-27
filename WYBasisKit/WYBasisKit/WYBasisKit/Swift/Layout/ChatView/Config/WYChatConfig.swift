@@ -92,6 +92,38 @@ public struct WYChatBubbleConfig {
 
 /// 消息内容外观配置
 public struct WYChatContentConfig {
+    /// 传输状态文字缩小时允许的最小比例，有效范围 0 到 1
+    public var transferStatusMinimumScaleFactor: CGFloat = 0.8
+    /// 媒体进度环与下方状态文字的间距
+    public var transferOverlayCaptionSpacing: CGFloat = 4
+    /// 媒体传输状态文字距封面两侧的间距
+    public var transferOverlayCaptionHorizontalInset: CGFloat = 4
+    /// 媒体传输状态文字为进度环预留的最小高度
+    public var transferOverlayMinimumControlHeight: CGFloat = 20
+    /// 媒体传输操作图标的四边留白占按钮边长的比例
+    public var transferOverlayIconInsetRatio: CGFloat = 0.29
+    /// 卡片底部传输操作按钮最大宽度
+    public var transferInlineControlMaximumWidth: CGFloat = 32
+    /// 卡片底部传输操作图标的内边距
+    public var transferInlineIconInsets: UIEdgeInsets = UIEdgeInsets(top: 6, left: 4, bottom: 6, right: 4)
+    /// 卡片底部传输状态文字最多占按钮以外宽度的比例
+    public var transferInlineCaptionMaximumWidthRatio: CGFloat = 0.6
+    /// 传输状态和卡片底部进度条的垂直间距
+    public var transferInlineBarSpacing: CGFloat = 2
+    /// 传输进度条与同一行状态文字之间的水平间距
+    public var transferInlineCaptionSpacing: CGFloat = 6
+    /// 卡片底部传输进度区的最小高度
+    public var transferInlineMinimumHeight: CGFloat = 30
+    /// 卡片底部传输进度区在文字和进度条之外预留的高度
+    public var transferInlineVerticalPadding: CGFloat = 8
+    /// 合并传输状态与进度文案时的分隔文字
+    public var transferStatusSeparator: String = " · "
+    /// 未通过 actionTitle 覆盖时使用的暂停传输无障碍标签
+    public var transferPauseActionTitle: String = "暂停传输"
+    /// 未通过 actionTitle 覆盖时使用的继续传输无障碍标签
+    public var transferResumeActionTitle: String = "继续传输"
+    /// 未通过 actionTitle 覆盖时使用的重试传输无障碍标签
+    public var transferRetryActionTitle: String = "重试"
     /// 内置媒体占位图的显示方式
     public var placeholderContentMode: UIView.ContentMode = .scaleToFill
     /// 消息气泡额外要求的最小高度，单位点
@@ -282,6 +314,12 @@ public struct WYChatLocationConfig {
 
 /// 聊天界面实例配置
 public struct WYChatConfig {
+    /// 聊天列表是否由 UIKit 按安全区自动调整内容边距
+    public var listInsetAdjustmentBehavior: UIScrollView.ContentInsetAdjustmentBehavior = .never
+    /// 气泡旁菜单的按钮标题对齐方式
+    public var menuItemTitleAlignment: NSTextAlignment = .center
+    /// 气泡旁菜单按钮横向内边距，nil 使用 menuInset 的一半
+    public var menuItemContentHorizontalInset: CGFloat? = nil
     /// 消息列表的内容内边距
     public var listContentInset: UIEdgeInsets = .zero
     /// 消息列表滚动条的内边距

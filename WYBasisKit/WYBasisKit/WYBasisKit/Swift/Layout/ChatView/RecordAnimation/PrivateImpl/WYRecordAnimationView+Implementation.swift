@@ -27,6 +27,7 @@ final class WYRecordAnimationViewPrivateState {
     var speech: WYChatSpeechRecognitionTask?
     var liveRecorder: WYChatLiveRecorder?
     var audioKit: WYAudioKit?
+    var classicSessionDeactivationOptions: AVAudioSession.SetActiveOptions?
     let audioDelegate = WYChatAudioRecorderDelegate()
     var timedOut = false
     var liveText = ""
@@ -85,9 +86,15 @@ final class WYRecordAnimationViewPrivateState {
 
 extension WYRecordAnimationView {
 
-    func wy_makeAudioKit() -> WYAudioKit? {
-
-        let kit = WYAudioKit()
+    func wy_makeAudioKit() throws -> WYAudioKit {
+        let config = wy_captureConfiguration
+        if config.managesRecordingAudioSession {
+            try config.wy_activateRecordingAudioSession(defaultOptions: [.allowBluetoothHFP, .defaultToSpeaker, .allowAirPlay])
+            if config.deactivatesAudioSessionAfterClassicRecording {
+                state.classicSessionDeactivationOptions = config.wy_recordingSessionDeactivationOptions
+            }
+        }
+        let kit = WYAudioKit(configuresAudioSession: false)
         state.audioDelegate.owner = self
         kit.delegate = state.audioDelegate
         kit.minimumRecordDuration = self.recordAnimationConfig.recordTime.min
@@ -106,8 +113,10 @@ extension WYRecordAnimationView {
         settingDictionary[AVLinearPCMIsFloatKey] = false
         settingDictionary[AVEncoderAudioQualityKey] = AVAudioQuality.high.rawValue
 
-        kit.recordSettings = self.recordAnimationConfig.recordSettings.isEmpty ? settingDictionary : self.recordAnimationConfig.recordSettings
-
+        kit.recordSettings = config.recordSettings.isEmpty ? settingDictionary : config.recordSettings
+        if let raw = config.recordSettings[AVEncoderAudioQualityKey] as? NSNumber, let quality = AVAudioQuality(rawValue: raw.intValue) {
+            kit.recordQuality = quality
+        }
         return kit
     }
 
@@ -140,7 +149,7 @@ extension WYRecordAnimationView {
     func wy_makeBottomTitleView() -> UILabel {
 
         let label: UILabel = UILabel()
-        label.textAlignment = .left
+        label.textAlignment = recordAnimationConfig.recordingInteriorTitleAlignment
         label.font = self.recordAnimationConfig.recordViewTipsInfoForInterior.font
         label.textColor = self.recordAnimationConfig.recordViewTipsInfoForInterior.color
         label.text = self.recordAnimationConfig.recordViewTips.onInterior
@@ -507,6 +516,7 @@ extension WYRecordAnimationView {
         state.animationRevision += 1
         state.discard = true
         if state.requestID != nil { wy_stopCapture() }
+        wy_releaseClassicRecordingSession()
         state.speech?.cancel()
         wy_clearRecordingCountdown()
         wy_clearTranscript()
@@ -529,8 +539,9 @@ extension WYRecordAnimationView {
             return
         }
         do {
-            try FileManager.default.createDirectory(at: recordAnimationConfig.chatAudioUrl, withIntermediateDirectories: true)
-            let destination = recordAnimationConfig.chatAudioUrl.appendingPathComponent(UUID().uuidString).appendingPathExtension(source.pathExtension)
+            let config = wy_captureConfiguration
+            try FileManager.default.createDirectory(at: config.chatAudioUrl, withIntermediateDirectories: true)
+            let destination = config.chatAudioUrl.appendingPathComponent(UUID().uuidString).appendingPathExtension(config.recordingFileExtension ?? source.pathExtension)
             try audioKit.saveRecording(destinationUrl: destination)
             try audioKit.deleteRecordingFile(localUrl: source)
             wy_captureFinished(destination, duration: state.duration, error: nil)
@@ -559,6 +570,7 @@ extension WYRecordAnimationView {
         let config = recordAnimationConfig
         let curved = config.actionStyle == .curved
         state.bottomTitleView?.isHidden = curved
+        state.bottomTitleView?.textAlignment = config.recordingInteriorTitleAlignment
         state.leftView?.tipsView.isHidden = curved
         state.rightView?.tipsView.isHidden = curved
         let label: UILabel
@@ -577,7 +589,7 @@ extension WYRecordAnimationView {
         label.isHidden = !curved || state.editPanel?.isHidden == false
         label.font = config.tipsInfoForMoveUp.font
         label.textColor = config.tipsInfoForMoveUp.color
-        label.textAlignment = soundAnimationStatus == .transfer ? .right : .center
+        label.textAlignment = soundAnimationStatus == .transfer ? config.recordingTransferHintAlignment : config.recordingHintAlignment
         let text: String
         switch soundAnimationStatus {
         case .recording: text = state.mode == .dictation ? config.dictationReleaseText : config.recordViewTips.onInterior

@@ -47,6 +47,12 @@ public struct WYChatRangeButtonConfig {
 
 /// 多选操作与转发外观
 public struct WYChatSelectionConfig {
+    /// 已选中消息指示图标的无障碍值
+    public var selectedAccessibilityValue: String = "1"
+    /// 未选中消息指示图标的无障碍值
+    public var unselectedAccessibilityValue: String = "0"
+    /// 显示跨屏范围选择按钮时，列表在边缘留白之外所需的最小高度
+    public var rangeMinimumViewportHeight: CGFloat = 44
     /// 多选工具条按钮的排列方式
     public var toolbarDistribution: UIStackView.Distribution = .fillEqually
     /// 多选状态图标的显示方式

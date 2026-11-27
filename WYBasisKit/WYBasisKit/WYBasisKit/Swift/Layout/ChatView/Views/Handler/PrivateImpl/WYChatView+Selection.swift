@@ -149,7 +149,7 @@ extension WYChatView {
         guard let anchor = state.selectionRangeAnchorRow, dataSource.indices.contains(anchor),
               let edges = state.selectionRangeEdges,
               selectedMessageIDs.contains(dataSource[anchor].messageID),
-              tableView.bounds.height >= 44 + 2 * edges.top.constant,
+              tableView.bounds.height >= wy_chatNonnegative(configuration.selection.rangeMinimumViewportHeight) + max(0, edges.top.constant) + max(0, -edges.bottom.constant),
               tableView.bounds.width > 2 * edges.leading.constant,
               let rows = tableView.indexPathsForVisibleRows?.map(\.row),
               let first = rows.min(), let last = rows.max() else { return nil }
@@ -189,7 +189,7 @@ extension WYChatView {
         if mode == .merged { content = [WYChatMessageContentModel(chatRecords: WYChatRecordsModel(title: title ?? configuration.selection.recordsTitle, messages: sources))] }
         else { content = sources.map(\.content) }
         return content.map { value in
-            var result = WYChatMessageModel(messageID: UUID().uuidString, timestamp: String(Date().timeIntervalSince1970), sender: userInfo, content: value)
+            var result = WYChatMessageModel(messageID: UUID().uuidString, timestamp: configuration.basic.timestampUnit.wy_timestamp(), sender: userInfo, content: value)
             result.sendState = .sending
             return result
         }

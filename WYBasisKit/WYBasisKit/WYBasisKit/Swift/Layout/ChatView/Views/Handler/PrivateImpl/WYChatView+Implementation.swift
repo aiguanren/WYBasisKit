@@ -279,7 +279,6 @@ extension WYChatView {
         value.addGestureRecognizer(menuPress)
         value.backgroundColor = configuration.backgroundColor
         value.rowHeight = UITableView.automaticDimension
-        value.contentInsetAdjustmentBehavior = .never
         value.translatesAutoresizingMaskIntoConstraints = false
         addSubview(value)
         NSLayoutConstraint.activate([value.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor), value.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor), value.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor)])
@@ -332,6 +331,7 @@ extension WYChatView {
     }
 
     private func wy_applyListAppearance(_ table: UITableView) {
+        table.contentInsetAdjustmentBehavior = configuration.listInsetAdjustmentBehavior
         table.contentInset = configuration.listContentInset
         table.verticalScrollIndicatorInsets = configuration.listScrollIndicatorInsets
         table.showsVerticalScrollIndicator = configuration.listShowsVerticalScrollIndicator

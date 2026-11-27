@@ -265,9 +265,9 @@ public class WYChatView: UIView {
         else { messages[index].content.transfer = funds }
         if let actorName {
             let receipt = WYChatFundsReceiptModel(originalMessageID: messageID, isRedPacket: isRedPacket, actorName: actorName, isOriginalSender: messages[index].isSender(userInfo.id))
-            var message = WYChatMessageModel(messageID: UUID().uuidString, timestamp: String(Date().timeIntervalSince1970), sender: messages[index].sender, content: WYChatMessageContentModel(fundsReceipt: receipt))
+            var message = WYChatMessageModel(messageID: UUID().uuidString, timestamp: configuration.basic.timestampUnit.wy_timestamp(), sender: messages[index].sender, content: WYChatMessageContentModel(fundsReceipt: receipt))
             message.index = messages.count
-            message.lastMessageTimestamp = message.sharedLastMessageTimestamp(messages, minimumTimeSpan: configuration.basic.messageMinimumTimeSpan)
+            message.lastMessageTimestamp = message.wy_lastMessageTimestamp(messages, minimumTimeSpan: configuration.basic.messageMinimumTimeSpan, unit: configuration.basic.timestampUnit)
             message.sendState = .success
             messages.append(message)
         }
@@ -327,7 +327,11 @@ public class WYChatView: UIView {
      @param date 判断时刻
      @return 是否可重新编辑
      */
-    public func canReeditMessage(_ messageID: String, at date: Date = Date()) -> Bool { messageModelFrom(messageID).map { wy_chatCanReedit($0, userID: userInfo.id, configuration: configuration.notice, at: date) } ?? false }
+    public func canReeditMessage(_ messageID: String, at date: Date = Date()) -> Bool {
+        guard let message = messageModelFrom(messageID) else { return false }
+        let config = wy_configuration(forMessage: message)
+        return wy_chatCanReedit(message, userID: userInfo.id, configuration: config.notice, unit: config.basic.timestampUnit, at: date)
+    }
 
     /**
      恢复撤回文本及发送时的引用

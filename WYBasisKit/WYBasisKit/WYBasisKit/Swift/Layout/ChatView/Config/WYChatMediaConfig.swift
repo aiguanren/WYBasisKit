@@ -25,6 +25,8 @@ import UIKit
 
 /// 图片和视频消息展示配置
 public struct WYChatMediaConfig {
+    /// 内置时长格式显示的上限，单位秒，0 表示不限
+    public var maximumDefaultFormattedDuration: TimeInterval = 86_400
     /// 折叠媒体组在消息列表内的布局
     public var embeddedLayoutStyle: WYPhotoBrowserLayoutStyle = .stackedCards
     /// 折叠媒体组在消息列表内的页码指示样式

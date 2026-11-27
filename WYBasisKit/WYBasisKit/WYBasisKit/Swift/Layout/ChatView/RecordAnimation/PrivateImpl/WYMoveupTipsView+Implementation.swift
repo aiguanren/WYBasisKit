@@ -29,6 +29,7 @@ extension WYMoveUpTipsView {
         let interior = cancel ? config.cancelRecordViewTextInfoForInterior : config.transferViewTextInfoForInterior
         let exterior = cancel ? config.cancelRecordViewTextInfoForExternal : config.transferViewTextInfoForExternal
         moveUpView.isSelected = isTouched
+        tipsView.textAlignment = config.moveUpTipsTextAlignment
         tipsView.font = config.tipsInfoForMoveUp.font
         tipsView.textColor = config.tipsInfoForMoveUp.color
         tipsView.text = isTouched ? (cancel ? config.cancelRecordViewText.tips : config.transferViewText.tips) : ""
@@ -37,6 +38,7 @@ extension WYMoveUpTipsView {
         moveUpView.setTitle(title, for: .selected)
         moveUpView.setTitleColor(exterior.color, for: .normal)
         moveUpView.setTitleColor(interior.color, for: .selected)
+        moveUpView.titleLabel?.textAlignment = config.moveUpButtonTextAlignment
         moveUpView.titleLabel?.font = isTouched ? interior.font : exterior.font
         let size = wy_actionSize(touched: isTouched)
         if config.actionStyle == .curved {

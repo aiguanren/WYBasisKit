@@ -15,8 +15,19 @@ import UIKit
     case everyone
 }
 
+/// 消息发送与撤回时间戳的单位。
+@objc public enum WYChatTimestampUnit: Int {
+    /// 读取时兼容秒和常见的 13 位毫秒时间戳，写入时使用秒。
+    case automatic
+    case seconds
+    case milliseconds
+}
+
 /// 通用聊天配置选项
 public struct WYBasicChatConfig {
+    /// 消息发送时间和撤回时间的单位。
+    public var timestampUnit: WYChatTimestampUnit = .automatic
+
     /// 按消息定制已读标记，返回nil时使用默认已读或未读文本
     public var readMarkFormatter: ((_ message: WYChatMessageModel) -> String?)? = nil
     /// 消息时间的文字对齐方式

@@ -17,8 +17,32 @@ import UIKit
     case staticOnly
 }
 
+/// 文本消息可自动识别的内容类型
+@objc public enum WYChatTextDetectionType: Int {
+    case phoneNumber
+    case email
+    case link
+}
+
+/// 自动识别内容的显示样式
+public struct WYChatTextDetectionStyle {
+    public var color: UIColor
+    public var isUnderlined: Bool
+
+    public init(color: UIColor = .link, isUnderlined: Bool = true) {
+        self.color = color
+        self.isUnderlined = isUnderlined
+    }
+}
+
 /// 文本聊天配置选项
 public struct WYTextChatConfig {
+    /// 是否允许选择单表情消息的文本
+    public var allowsSingleEmojiSelection: Bool = false
+    /// 单表情消息是否优先使用气泡旁菜单
+    public var usesBubbleMenuForSingleEmoji: Bool = true
+    /// 消息动图刷新间隔的下限，单位秒
+    public var minimumEmojiAnimationFrameInterval: TimeInterval = 1.0 / 120.0
     /// 动态表情刷新间隔，单位秒，0时关闭动图播放
     public var emojiAnimationFrameInterval: TimeInterval = 1.0 / 30.0
     /// 文本行数，0表示不限
@@ -31,8 +55,16 @@ public struct WYTextChatConfig {
     public var textLineSpacing: CGFloat = UIDevice.wy_screenHeight(4, WYBasisKitConfig.defaultScreenPixels)
     /// 是否支持选择文本，默认true
     public var isSelectable: Bool = true
-    /// 自动识别的链接类型
+    /// detectedTextTypes 为 nil 时使用的 UIKit 自动识别类型
     public var dataDetectorTypes: UIDataDetectorTypes = [.link, .phoneNumber]
+    /// nil 沿用 dataDetectorTypes，空数组关闭识别，其余仅识别数组中的类型
+    public var detectedTextTypes: [WYChatTextDetectionType]? = nil
+    /// 自动识别内容的默认样式
+    public var detectedTextStyle = WYChatTextDetectionStyle()
+    /// 按类型覆盖默认样式
+    public var detectedTextStyles: [WYChatTextDetectionType: WYChatTextDetectionStyle] = [:]
+    /// 点击显式配置识别出的内容时收到类型、原文和消息模型。需要启用 isSelectable
+    public var detectedTextTapHandler: (@MainActor (_ type: WYChatTextDetectionType, _ text: String, _ message: WYChatMessageModel) -> Void)?
     /// 文本消息内表情的播放方式，默认仅首次展示时播放
     public var emojiPlaybackMode: WYChatEmojiPlaybackMode = .firstDisplay
     public init() {}

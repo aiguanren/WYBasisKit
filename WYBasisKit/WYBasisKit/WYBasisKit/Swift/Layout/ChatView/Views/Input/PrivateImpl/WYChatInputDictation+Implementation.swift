@@ -146,7 +146,7 @@ extension WYChatInputView {
     func wy_updateDictationControls() {
         let config = inputBarConfig
         let centered = config.textPlaceholderAlignment == .center && !textView.isFirstResponder
-        textPlaceholderView.textAlignment = centered ? .center : config.textPlaceholderAlignment == .center ? .left : config.textPlaceholderAlignment
+        textPlaceholderView.textAlignment = centered ? .center : config.textPlaceholderAlignment == .center ? config.focusedCenteredPlaceholderAlignment : config.textPlaceholderAlignment
         let labelHeight = textPlaceholderView.font.lineHeight
         textPlaceholderView.frame = CGRect(x: config.textPlaceholderOffset.x, y: centered ? max(0, (textView.bounds.height - labelHeight) / 2) : config.textPlaceholderOffset.y, width: max(0, textView.bounds.width - config.textPlaceholderOffset.x * 2 - wy_dictationReservedWidth), height: labelHeight)
         state.placeholderGate.frame = textVoiceContentView.convert(textView.frame, to: self)

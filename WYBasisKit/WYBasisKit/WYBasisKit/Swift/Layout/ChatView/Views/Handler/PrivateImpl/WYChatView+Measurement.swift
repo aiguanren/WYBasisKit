@@ -96,9 +96,9 @@ extension WYChatView {
         guard dataSource.indices.contains(path.row) else { return false }
         let model = dataSource[path.row]
         guard model.content.withdrawn != nil else { return false }
-        let notice = (configuration.messageConfiguration?(model, configuration) ?? configuration).notice
-        return notice.wy_withdrawalTemplate(for: model, userID: userInfo.id).isEmpty
-            && !wy_chatCanReedit(model, userID: userInfo.id, configuration: notice, at: Date())
+        let resolved = wy_configuration(forMessage: model)
+        return resolved.notice.wy_withdrawalTemplate(for: model, userID: userInfo.id).isEmpty
+            && !wy_chatCanReedit(model, userID: userInfo.id, configuration: resolved.notice, unit: resolved.basic.timestampUnit, at: Date())
     }
 
     func wy_cachedHeight(at indexPath: IndexPath) -> CGFloat? {

@@ -157,6 +157,38 @@ import WYBasisKitSwift
 
 @objc(WYChatContentConfig)
 @objcMembers public class WYChatContentConfigObjC: NSObject {
+    /// 传输状态文字缩小时允许的最小比例，有效范围 0 到 1
+    public var transferStatusMinimumScaleFactor: CGFloat
+    /// 媒体进度环与下方状态文字的间距
+    public var transferOverlayCaptionSpacing: CGFloat
+    /// 媒体传输状态文字距封面两侧的间距
+    public var transferOverlayCaptionHorizontalInset: CGFloat
+    /// 媒体传输状态文字为进度环预留的最小高度
+    public var transferOverlayMinimumControlHeight: CGFloat
+    /// 媒体传输操作图标的四边留白占按钮边长的比例
+    public var transferOverlayIconInsetRatio: CGFloat
+    /// 卡片底部传输操作按钮最大宽度
+    public var transferInlineControlMaximumWidth: CGFloat
+    /// 卡片底部传输操作图标的内边距
+    public var transferInlineIconInsets: UIEdgeInsets
+    /// 卡片底部传输状态文字最多占按钮以外宽度的比例
+    public var transferInlineCaptionMaximumWidthRatio: CGFloat
+    /// 传输状态和卡片底部进度条的垂直间距
+    public var transferInlineBarSpacing: CGFloat
+    /// 传输进度条与同一行状态文字之间的水平间距
+    public var transferInlineCaptionSpacing: CGFloat
+    /// 卡片底部传输进度区的最小高度
+    public var transferInlineMinimumHeight: CGFloat
+    /// 卡片底部传输进度区在文字和进度条之外预留的高度
+    public var transferInlineVerticalPadding: CGFloat
+    /// 合并传输状态与进度文案时的分隔文字
+    public var transferStatusSeparator: String
+    /// 未通过 actionTitle 覆盖时使用的暂停传输无障碍标签
+    public var transferPauseActionTitle: String
+    /// 未通过 actionTitle 覆盖时使用的继续传输无障碍标签
+    public var transferResumeActionTitle: String
+    /// 未通过 actionTitle 覆盖时使用的重试传输无障碍标签
+    public var transferRetryActionTitle: String
     /// 内置媒体占位图的显示方式
     public var placeholderContentMode: UIView.ContentMode
     /// 消息气泡额外要求的最小高度，单位点
@@ -329,6 +361,22 @@ import WYBasisKitSwift
     public override convenience init() { self.init(WYChatContentConfig()) }
 
     @nonobjc public init(_ value: WYChatContentConfig) {
+        self.transferStatusMinimumScaleFactor = value.transferStatusMinimumScaleFactor
+        self.transferOverlayCaptionSpacing = value.transferOverlayCaptionSpacing
+        self.transferOverlayCaptionHorizontalInset = value.transferOverlayCaptionHorizontalInset
+        self.transferOverlayMinimumControlHeight = value.transferOverlayMinimumControlHeight
+        self.transferOverlayIconInsetRatio = value.transferOverlayIconInsetRatio
+        self.transferInlineControlMaximumWidth = value.transferInlineControlMaximumWidth
+        self.transferInlineIconInsets = value.transferInlineIconInsets
+        self.transferInlineCaptionMaximumWidthRatio = value.transferInlineCaptionMaximumWidthRatio
+        self.transferInlineBarSpacing = value.transferInlineBarSpacing
+        self.transferInlineCaptionSpacing = value.transferInlineCaptionSpacing
+        self.transferInlineMinimumHeight = value.transferInlineMinimumHeight
+        self.transferInlineVerticalPadding = value.transferInlineVerticalPadding
+        self.transferStatusSeparator = value.transferStatusSeparator
+        self.transferPauseActionTitle = value.transferPauseActionTitle
+        self.transferResumeActionTitle = value.transferResumeActionTitle
+        self.transferRetryActionTitle = value.transferRetryActionTitle
         self.placeholderContentMode = value.placeholderContentMode
         self.minimumBubbleHeight = value.minimumBubbleHeight
         self.titleTextAlignment = value.titleTextAlignment
@@ -419,6 +467,22 @@ import WYBasisKitSwift
 
     @nonobjc public func toValue() -> WYChatContentConfig {
         var value = WYChatContentConfig()
+        value.transferStatusMinimumScaleFactor = transferStatusMinimumScaleFactor
+        value.transferOverlayCaptionSpacing = transferOverlayCaptionSpacing
+        value.transferOverlayCaptionHorizontalInset = transferOverlayCaptionHorizontalInset
+        value.transferOverlayMinimumControlHeight = transferOverlayMinimumControlHeight
+        value.transferOverlayIconInsetRatio = transferOverlayIconInsetRatio
+        value.transferInlineControlMaximumWidth = transferInlineControlMaximumWidth
+        value.transferInlineIconInsets = transferInlineIconInsets
+        value.transferInlineCaptionMaximumWidthRatio = transferInlineCaptionMaximumWidthRatio
+        value.transferInlineBarSpacing = transferInlineBarSpacing
+        value.transferInlineCaptionSpacing = transferInlineCaptionSpacing
+        value.transferInlineMinimumHeight = transferInlineMinimumHeight
+        value.transferInlineVerticalPadding = transferInlineVerticalPadding
+        value.transferStatusSeparator = transferStatusSeparator
+        value.transferPauseActionTitle = transferPauseActionTitle
+        value.transferResumeActionTitle = transferResumeActionTitle
+        value.transferRetryActionTitle = transferRetryActionTitle
         value.placeholderContentMode = placeholderContentMode
         value.minimumBubbleHeight = minimumBubbleHeight
         value.titleTextAlignment = titleTextAlignment
@@ -541,6 +605,12 @@ import WYBasisKitSwift
 
 @objc(WYChatConfig)
 @objcMembers public class WYChatConfigObjC: NSObject {
+    /// 聊天列表是否由 UIKit 按安全区自动调整内容边距
+    public var listInsetAdjustmentBehavior: UIScrollView.ContentInsetAdjustmentBehavior
+    /// 气泡旁菜单的按钮标题对齐方式
+    public var menuItemTitleAlignment: NSTextAlignment
+    /// 气泡旁菜单按钮横向内边距，nil 使用 menuInset 的一半
+    public var menuItemContentHorizontalInset: NSNumber?
     /// 消息列表的内容内边距
     public var listContentInset: UIEdgeInsets
     /// 消息列表滚动条的内边距
@@ -704,6 +774,9 @@ import WYBasisKitSwift
     public override convenience init() { self.init(WYChatConfig()) }
 
     @nonobjc public init(_ value: WYChatConfig) {
+        self.listInsetAdjustmentBehavior = value.listInsetAdjustmentBehavior
+        self.menuItemTitleAlignment = value.menuItemTitleAlignment
+        self.menuItemContentHorizontalInset = value.menuItemContentHorizontalInset.map { NSNumber(value: Double($0)) }
         self.listContentInset = value.listContentInset
         self.listScrollIndicatorInsets = value.listScrollIndicatorInsets
         self.listShowsVerticalScrollIndicator = value.listShowsVerticalScrollIndicator
@@ -786,6 +859,9 @@ import WYBasisKitSwift
 
     @nonobjc public func toValue() -> WYChatConfig {
         var value = WYChatConfig()
+        value.listInsetAdjustmentBehavior = listInsetAdjustmentBehavior
+        value.menuItemTitleAlignment = menuItemTitleAlignment
+        value.menuItemContentHorizontalInset = menuItemContentHorizontalInset.map { CGFloat($0.doubleValue) }
         value.listContentInset = listContentInset
         value.listScrollIndicatorInsets = listScrollIndicatorInsets
         value.listShowsVerticalScrollIndicator = listShowsVerticalScrollIndicator
@@ -869,6 +945,12 @@ import WYBasisKitSwift
 
 @objc(WYChatRecordingCountdownConfig)
 @objcMembers public class WYChatRecordingCountdownConfigObjC: NSObject {
+    /// 倒计时文字距容器左右边缘的最小距离
+    public var horizontalInset: CGFloat
+    /// 倒计时文字对齐方式
+    public var textAlignment: NSTextAlignment
+    /// 倒计时最大行数，0表示不限
+    public var maximumNumberOfLines: Int
     /// 剩余多少秒时开始显示，0 或负值关闭倒计时
     public var leadTime: Int
     /// 提示文案，用 {seconds} 表示剩余秒数
@@ -881,6 +963,9 @@ import WYBasisKitSwift
     public override convenience init() { self.init(WYChatRecordingCountdownConfig()) }
 
     @nonobjc public init(_ value: WYChatRecordingCountdownConfig) {
+        horizontalInset = value.horizontalInset
+        textAlignment = value.textAlignment
+        maximumNumberOfLines = value.maximumNumberOfLines
         leadTime = value.leadTime
         text = value.text
         font = value.font
@@ -891,6 +976,9 @@ import WYBasisKitSwift
 
     @nonobjc public var swiftValue: WYChatRecordingCountdownConfig {
         var value = WYChatRecordingCountdownConfig()
+        value.horizontalInset = horizontalInset
+        value.textAlignment = textAlignment
+        value.maximumNumberOfLines = maximumNumberOfLines
         value.leadTime = leadTime
         value.text = text
         value.font = font
@@ -903,6 +991,40 @@ import WYBasisKitSwift
 
 @objc(WYRecordAnimationConfig)
 @objcMembers public class WYRecordAnimationConfigObjC: NSObject {
+    /// 渐变录音界面录音状态的无障碍值
+    public var gradientRecordingAccessibilityValue: String
+    /// 渐变录音界面取消状态的无障碍值
+    public var gradientCancelAccessibilityValue: String
+    /// 录音滑动操作提示的对齐方式
+    public var moveUpTipsTextAlignment: NSTextAlignment
+    /// 录音滑动操作按钮标题的对齐方式
+    public var moveUpButtonTextAlignment: NSTextAlignment
+    /// 系统实时识别准备就绪前保留音频的时长，0 表示关闭缓存
+    public var speechRecognitionPreflightBufferDuration: TimeInterval
+    /// 分区录音底部提示文字的对齐方式
+    public var recordingInteriorTitleAlignment: NSTextAlignment
+    /// 弧形录音正在录音或取消时提示文字的对齐方式
+    public var recordingHintAlignment: NSTextAlignment
+    /// 弧形录音进入转写区域时提示文字的对齐方式
+    public var recordingTransferHintAlignment: NSTextAlignment
+    /// 是否由内置录音器配置并激活音频会话，关闭后由接入方管理
+    public var managesRecordingAudioSession: Bool
+    /// 内置录音的音频会话类别，可使用 AVAudioSession.Category 的原始值
+    public var recordingAudioSessionCategory: String
+    /// 内置录音的音频会话模式，可使用 AVAudioSession.Mode 的原始值
+    public var recordingAudioSessionMode: String
+    /// AVAudioSession.CategoryOptions 的组合原始值，nil 使用当前内置录音器的默认路由
+    public var recordingAudioSessionCategoryOptions: NSNumber?
+    /// 普通内置录音结束后是否停用音频会话，默认继续保持活跃
+    public var deactivatesAudioSessionAfterClassicRecording: Bool
+    /// 录音会话停用时是否通知其他音频会话恢复
+    public var notifiesOthersWhenDeactivatingRecordingSession: Bool
+    /// 实时录音收到音频会话中断通知时是否结束
+    public var stopsRecordingOnAudioInterruption: Bool
+    /// 实时录音时音频设备断开是否结束录音
+    public var stopsRecordingWhenAudioDeviceDisconnects: Bool
+    /// 内置录音文件扩展名，nil 按录音编码选取容器
+    public var recordingFileExtension: String?
     /// 内置实时录音和识别回放使用的缓冲帧数，有效范围1到65536
     public var audioBufferFrameCount: Int
     /// 内置流动幅度占渐变宽高的最大比例
@@ -1422,6 +1544,23 @@ import WYBasisKitSwift
     public override convenience init() { self.init(WYRecordAnimationConfig()) }
 
     @nonobjc public init(_ value: WYRecordAnimationConfig) {
+        self.gradientRecordingAccessibilityValue = value.gradientRecordingAccessibilityValue
+        self.gradientCancelAccessibilityValue = value.gradientCancelAccessibilityValue
+        self.moveUpTipsTextAlignment = value.moveUpTipsTextAlignment
+        self.moveUpButtonTextAlignment = value.moveUpButtonTextAlignment
+        self.speechRecognitionPreflightBufferDuration = value.speechRecognitionPreflightBufferDuration
+        self.recordingInteriorTitleAlignment = value.recordingInteriorTitleAlignment
+        self.recordingHintAlignment = value.recordingHintAlignment
+        self.recordingTransferHintAlignment = value.recordingTransferHintAlignment
+        self.managesRecordingAudioSession = value.managesRecordingAudioSession
+        self.recordingAudioSessionCategory = value.recordingAudioSessionCategory
+        self.recordingAudioSessionMode = value.recordingAudioSessionMode
+        self.recordingAudioSessionCategoryOptions = value.recordingAudioSessionCategoryOptions.map { NSNumber(value: $0) }
+        self.deactivatesAudioSessionAfterClassicRecording = value.deactivatesAudioSessionAfterClassicRecording
+        self.notifiesOthersWhenDeactivatingRecordingSession = value.notifiesOthersWhenDeactivatingRecordingSession
+        self.stopsRecordingOnAudioInterruption = value.stopsRecordingOnAudioInterruption
+        self.stopsRecordingWhenAudioDeviceDisconnects = value.stopsRecordingWhenAudioDeviceDisconnects
+        self.recordingFileExtension = value.recordingFileExtension
         self.audioBufferFrameCount = value.audioBufferFrameCount
         self.gradientMotionMaximumAmplitudeRatio = value.gradientMotionMaximumAmplitudeRatio
         self.gradientMotionMaximumTurbulence = value.gradientMotionMaximumTurbulence
@@ -1693,6 +1832,23 @@ import WYBasisKitSwift
 
     @nonobjc public func toValue() -> WYRecordAnimationConfig {
         var value = WYRecordAnimationConfig()
+        value.gradientRecordingAccessibilityValue = gradientRecordingAccessibilityValue
+        value.gradientCancelAccessibilityValue = gradientCancelAccessibilityValue
+        value.moveUpTipsTextAlignment = moveUpTipsTextAlignment
+        value.moveUpButtonTextAlignment = moveUpButtonTextAlignment
+        value.speechRecognitionPreflightBufferDuration = speechRecognitionPreflightBufferDuration
+        value.recordingInteriorTitleAlignment = recordingInteriorTitleAlignment
+        value.recordingHintAlignment = recordingHintAlignment
+        value.recordingTransferHintAlignment = recordingTransferHintAlignment
+        value.managesRecordingAudioSession = managesRecordingAudioSession
+        value.recordingAudioSessionCategory = recordingAudioSessionCategory
+        value.recordingAudioSessionMode = recordingAudioSessionMode
+        value.recordingAudioSessionCategoryOptions = recordingAudioSessionCategoryOptions?.uintValue
+        value.deactivatesAudioSessionAfterClassicRecording = deactivatesAudioSessionAfterClassicRecording
+        value.notifiesOthersWhenDeactivatingRecordingSession = notifiesOthersWhenDeactivatingRecordingSession
+        value.stopsRecordingOnAudioInterruption = stopsRecordingOnAudioInterruption
+        value.stopsRecordingWhenAudioDeviceDisconnects = stopsRecordingWhenAudioDeviceDisconnects
+        value.recordingFileExtension = recordingFileExtension
         value.audioBufferFrameCount = audioBufferFrameCount
         value.gradientMotionMaximumAmplitudeRatio = gradientMotionMaximumAmplitudeRatio
         value.gradientMotionMaximumTurbulence = gradientMotionMaximumTurbulence
@@ -1964,6 +2120,8 @@ import WYBasisKitSwift
 
 @objc(WYBasicChatConfig)
 @objcMembers public class WYBasicChatConfigObjC: NSObject {
+    /// 消息发送时间和撤回时间的单位。
+    public var timestampUnit: WYChatTimestampUnit
     /// 按消息定制已读标记，返回nil时使用默认已读或未读文本
     public var readMarkFormatter: ((_ message: WYChatMessageModelObjC) -> String?)?
     /// 消息时间的文字对齐方式
@@ -2070,6 +2228,7 @@ import WYBasisKitSwift
     public override convenience init() { self.init(WYBasicChatConfig()) }
 
     @nonobjc public init(_ value: WYBasicChatConfig) {
+        timestampUnit = value.timestampUnit
         self.readMarkFormatter = value.readMarkFormatter.map { source in { message in source(message.toValue()) } }
         self.timeTextAlignment = value.timeTextAlignment
         self.dateTimeSeparator = value.dateTimeSeparator
@@ -2126,6 +2285,7 @@ import WYBasisKitSwift
 
     @nonobjc public func toValue() -> WYBasicChatConfig {
         var value = WYBasicChatConfig()
+        value.timestampUnit = timestampUnit
         value.readMarkFormatter = readMarkFormatter.map { source in { message in source(WYChatMessageModelObjC(message)) } }
         value.timeTextAlignment = timeTextAlignment
         value.dateTimeSeparator = dateTimeSeparator
@@ -2181,8 +2341,36 @@ import WYBasisKitSwift
     }
 }
 
+@objc(WYChatTextDetectionStyle)
+@objcMembers public class WYChatTextDetectionStyleObjC: NSObject {
+    public var color: UIColor
+    public var isUnderlined: Bool
+
+    public override convenience init() { self.init(color: .link, isUnderlined: true) }
+
+    public init(color: UIColor, isUnderlined: Bool) {
+        self.color = color
+        self.isUnderlined = isUnderlined
+        super.init()
+    }
+
+    @nonobjc convenience init(_ style: WYChatTextDetectionStyle) {
+        self.init(color: style.color, isUnderlined: style.isUnderlined)
+    }
+
+    @nonobjc var value: WYChatTextDetectionStyle {
+        WYChatTextDetectionStyle(color: color, isUnderlined: isUnderlined)
+    }
+}
+
 @objc(WYTextChatConfig)
 @objcMembers public class WYTextChatConfigObjC: NSObject {
+    /// 是否允许选择单表情消息的文本
+    public var allowsSingleEmojiSelection: Bool
+    /// 单表情消息是否优先使用气泡旁菜单
+    public var usesBubbleMenuForSingleEmoji: Bool
+    /// 消息动图刷新间隔的下限，单位秒
+    public var minimumEmojiAnimationFrameInterval: TimeInterval
     /// 动态表情刷新间隔，单位秒，0时关闭动图播放
     public var emojiAnimationFrameInterval: TimeInterval
     /// 文本行数，0表示不限
@@ -2195,14 +2383,25 @@ import WYBasisKitSwift
     public var textLineSpacing: CGFloat
     /// 是否支持选择文本，默认true
     public var isSelectable: Bool
-    /// 自动识别的链接类型
+    /// detectedTextTypes 为 nil 时使用的 UIKit 自动识别类型
     public var dataDetectorTypes: UIDataDetectorTypes
+    /// NSNumber 封装 WYChatTextDetectionType。nil 沿用 dataDetectorTypes，空数组关闭识别
+    public var detectedTextTypes: [NSNumber]?
+    /// 自动识别内容的默认样式
+    public var detectedTextStyle: WYChatTextDetectionStyleObjC
+    /// 按类型覆盖默认样式，键为 NSNumber 封装的 WYChatTextDetectionType
+    public var detectedTextStyles: [NSNumber: WYChatTextDetectionStyleObjC]
+    /// 点击显式配置识别出的内容时收到类型、原文和消息模型。需要启用 isSelectable
+    public var detectedTextTapHandler: ((_ type: WYChatTextDetectionType, _ text: String, _ message: WYChatMessageModelObjC) -> Void)?
     /// 文本消息内表情的播放方式，默认仅首次展示时播放
     public var emojiPlaybackMode: WYChatEmojiPlaybackMode
 
     public override convenience init() { self.init(WYTextChatConfig()) }
 
     @nonobjc public init(_ value: WYTextChatConfig) {
+        self.allowsSingleEmojiSelection = value.allowsSingleEmojiSelection
+        self.usesBubbleMenuForSingleEmoji = value.usesBubbleMenuForSingleEmoji
+        self.minimumEmojiAnimationFrameInterval = value.minimumEmojiAnimationFrameInterval
         self.emojiAnimationFrameInterval = value.emojiAnimationFrameInterval
         self.textMaximumNumberOfLines = value.textMaximumNumberOfLines
         self.textFont = value.textFont
@@ -2210,12 +2409,25 @@ import WYBasisKitSwift
         self.textLineSpacing = value.textLineSpacing
         self.isSelectable = value.isSelectable
         self.dataDetectorTypes = value.dataDetectorTypes
+        self.detectedTextTypes = value.detectedTextTypes?.map { NSNumber(value: $0.rawValue) }
+        self.detectedTextStyle = WYChatTextDetectionStyleObjC(value.detectedTextStyle)
+        self.detectedTextStyles = Dictionary(uniqueKeysWithValues: value.detectedTextStyles.map {
+            (NSNumber(value: $0.key.rawValue), WYChatTextDetectionStyleObjC($0.value))
+        })
+        if let handler = value.detectedTextTapHandler {
+            self.detectedTextTapHandler = { type, text, message in
+                MainActor.assumeIsolated { handler(type, text, message.toValue()) }
+            }
+        }
         self.emojiPlaybackMode = value.emojiPlaybackMode
         super.init()
     }
 
     @nonobjc public func toValue() -> WYTextChatConfig {
         var value = WYTextChatConfig()
+        value.allowsSingleEmojiSelection = allowsSingleEmojiSelection
+        value.usesBubbleMenuForSingleEmoji = usesBubbleMenuForSingleEmoji
+        value.minimumEmojiAnimationFrameInterval = minimumEmojiAnimationFrameInterval
         value.emojiAnimationFrameInterval = emojiAnimationFrameInterval
         value.textMaximumNumberOfLines = textMaximumNumberOfLines
         value.textFont = textFont
@@ -2223,6 +2435,15 @@ import WYBasisKitSwift
         value.textLineSpacing = textLineSpacing
         value.isSelectable = isSelectable
         value.dataDetectorTypes = dataDetectorTypes
+        value.detectedTextTypes = detectedTextTypes?.compactMap { WYChatTextDetectionType(rawValue: $0.intValue) }
+        value.detectedTextStyle = detectedTextStyle.value
+        for (key, style) in detectedTextStyles {
+            guard let type = WYChatTextDetectionType(rawValue: key.intValue) else { continue }
+            value.detectedTextStyles[type] = style.value
+        }
+        if let handler = detectedTextTapHandler {
+            value.detectedTextTapHandler = { type, text, message in handler(type, text, WYChatMessageModelObjC(message)) }
+        }
         value.emojiPlaybackMode = emojiPlaybackMode
         return value
     }
@@ -2230,6 +2451,8 @@ import WYBasisKitSwift
 
 @objc(WYInputBarConfig)
 @objcMembers public class WYInputBarConfigObjC: NSObject {
+    /// 居中占位文案在输入框聚焦后的对齐方式
+    public var focusedCenteredPlaceholderAlignment: NSTextAlignment
     /// 按住说话按钮的长按触发时间，单位秒
     public var voiceLongPressDuration: TimeInterval
     /// 输入超过指定行数时滚到末尾，0表示关闭自动滚动
@@ -2435,6 +2658,7 @@ import WYBasisKitSwift
     public override convenience init() { self.init(WYInputBarConfig()) }
 
     @nonobjc public init(_ value: WYInputBarConfig) {
+        self.focusedCenteredPlaceholderAlignment = value.focusedCenteredPlaceholderAlignment
         self.voiceLongPressDuration = value.voiceLongPressDuration
         self.autoScrollAfterLineCount = value.autoScrollAfterLineCount
         self.iconContentMode = value.iconContentMode
@@ -2538,6 +2762,7 @@ import WYBasisKitSwift
 
     @nonobjc public func toValue() -> WYInputBarConfig {
         var value = WYInputBarConfig()
+        value.focusedCenteredPlaceholderAlignment = focusedCenteredPlaceholderAlignment
         value.voiceLongPressDuration = voiceLongPressDuration
         value.autoScrollAfterLineCount = autoScrollAfterLineCount
         value.iconContentMode = iconContentMode
@@ -2642,6 +2867,8 @@ import WYBasisKitSwift
 
 @objc(WYEmojiFuncAreaConfig)
 @objcMembers public class WYEmojiFuncAreaConfigObjC: NSObject {
+    /// 操作区顶部渐变的各停靠点透明度，空数组隐藏渐变
+    public var backgroundFadeOpacities: [NSNumber]
     /// 删除按钮无可见标题时使用的无障碍标签
     public var deleteAccessibilityLabel: String
     /// 是否需要在右下角显示功能区(内含删除按钮和发送按钮)
@@ -2712,6 +2939,7 @@ import WYBasisKitSwift
     public override convenience init() { self.init(WYEmojiFuncAreaConfig()) }
 
     @nonobjc public init(_ value: WYEmojiFuncAreaConfig) {
+        self.backgroundFadeOpacities = value.backgroundFadeOpacities.map { NSNumber(value: Double($0)) }
         self.deleteAccessibilityLabel = value.deleteAccessibilityLabel
         self.show = value.show
         self.removeSendView = value.removeSendView
@@ -2750,6 +2978,7 @@ import WYBasisKitSwift
 
     @nonobjc public func toValue() -> WYEmojiFuncAreaConfig {
         var value = WYEmojiFuncAreaConfig()
+        value.backgroundFadeOpacities = backgroundFadeOpacities.map { CGFloat($0.doubleValue) }
         value.deleteAccessibilityLabel = deleteAccessibilityLabel
         value.show = show
         value.removeSendView = removeSendView
@@ -2789,6 +3018,12 @@ import WYBasisKitSwift
 
 @objc(WYEmojiViewConfig)
 @objcMembers public class WYEmojiViewConfigObjC: NSObject {
+    /// 表情单帧缓存数量，0 或负数关闭单帧缓存
+    public var staticFrameCacheCountLimit: Int
+    /// 表情动图缓存数量，0 或负数关闭动图缓存
+    public var animationCacheCountLimit: Int
+    /// 表情动图缓存像素数据预算，单位字节，0 表示不限
+    public var animationCacheByteLimit: Int
     /// 表情分区标题对齐方式
     public var headerTextAlignment: NSTextAlignment
     /// 没有最近使用分区时是否仍显示全部表情标题
@@ -2859,6 +3094,9 @@ import WYBasisKitSwift
     public override convenience init() { self.init(WYEmojiViewConfig()) }
 
     @nonobjc public init(_ value: WYEmojiViewConfig) {
+        self.staticFrameCacheCountLimit = value.staticFrameCacheCountLimit
+        self.animationCacheCountLimit = value.animationCacheCountLimit
+        self.animationCacheByteLimit = value.animationCacheByteLimit
         self.headerTextAlignment = value.headerTextAlignment
         self.showsAllHeaderWithoutRecent = value.showsAllHeaderWithoutRecent
         self.defaultAnimationFrameDelay = value.defaultAnimationFrameDelay
@@ -2897,6 +3135,9 @@ import WYBasisKitSwift
 
     @nonobjc public func toValue() -> WYEmojiViewConfig {
         var value = WYEmojiViewConfig()
+        value.staticFrameCacheCountLimit = staticFrameCacheCountLimit
+        value.animationCacheCountLimit = animationCacheCountLimit
+        value.animationCacheByteLimit = animationCacheByteLimit
         value.headerTextAlignment = headerTextAlignment
         value.showsAllHeaderWithoutRecent = showsAllHeaderWithoutRecent
         value.defaultAnimationFrameDelay = defaultAnimationFrameDelay

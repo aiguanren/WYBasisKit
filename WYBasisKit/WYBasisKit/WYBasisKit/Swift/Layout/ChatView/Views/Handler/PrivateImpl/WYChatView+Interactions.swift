@@ -23,7 +23,7 @@ extension WYChatView {
     }
 
     func wy_usesWholeCellMenu(_ cell: UITableViewCell) -> Bool {
-        if (cell as? WYChatTextCell)?.wy_isSingleEmoji == true { return false }
+        if (cell as? WYChatTextCell)?.wy_usesSingleEmojiBubbleMenu == true { return false }
         return (cell as? WYChatBasicCell)?.configuration.highlightsEntireCellOnLongPress ?? true
     }
 
@@ -53,8 +53,9 @@ extension WYChatView {
         guard availableWidth > inset * 2 else { return }
         let iconSize = wy_chatNonnegative(config.menuIconSize)
         let iconSpacing = wy_chatNonnegative(config.menuIconSpacing ?? inset / 2)
+        let itemContentInset = wy_chatNonnegative(config.menuItemContentHorizontalInset ?? inset / 2)
         let labelWidth = menu.children.map { ($0.title as NSString).size(withAttributes: [.font: config.menuItemFont]).width }.max() ?? 0
-        let itemWidth = max(max(1, wy_chatNonnegative(config.menuMinimumItemWidth)), ceil(labelWidth) + inset * 2)
+        let itemWidth = max(max(1, wy_chatNonnegative(config.menuMinimumItemWidth)), ceil(labelWidth) + max(inset, itemContentInset) * 2)
         let fittingColumns = min(CGFloat(menu.children.count), (availableWidth - inset * 2) / itemWidth)
         let columns = min(max(1, config.menuMaximumColumns), max(1, Int(fittingColumns)))
         let width = min(availableWidth, itemWidth * CGFloat(columns) + inset * 2)
@@ -97,7 +98,7 @@ extension WYChatView {
             for element in elements {
                 let button = UIButton(type: .system)
                 var appearance = UIButton.Configuration.plain()
-                appearance.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: inset / 2, bottom: 0, trailing: inset / 2)
+                appearance.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: itemContentInset, bottom: 0, trailing: itemContentInset)
                 appearance.imagePlacement = .top
                 appearance.imagePadding = iconSpacing
                 let action = element as? UIAction
@@ -105,7 +106,8 @@ extension WYChatView {
                 appearance.attributedTitle = AttributedString(element.title, attributes: AttributeContainer([.font: config.menuItemFont]))
                 appearance.image = element.image ?? wy_messageMenuIcon(.content, configuration: config)
                 button.configuration = appearance
-                if titleLines > 1 { button.titleLabel?.numberOfLines = titleLines; button.titleLabel?.textAlignment = .center }
+                button.titleLabel?.numberOfLines = titleLines
+                button.titleLabel?.textAlignment = config.menuItemTitleAlignment
                 button.accessibilityLabel = element.title
                 if let action {
                     button.addAction(action, for: .touchUpInside)
@@ -154,9 +156,9 @@ extension WYChatView {
     }
 
     func wy_sendContent(_ content: WYChatMessageContentModel, messageID: String, mentions: [WYChatMention] = []) -> WYChatMessageModel {
-        var model = WYChatMessageModel(messageID: messageID, timestamp: String(Date().timeIntervalSince1970), sender: userInfo, content: content)
+        var model = WYChatMessageModel(messageID: messageID, timestamp: configuration.basic.timestampUnit.wy_timestamp(), sender: userInfo, content: content)
         model.mentions = mentions
-        model.lastMessageTimestamp = model.sharedLastMessageTimestamp(dataSource, minimumTimeSpan: configuration.basic.messageMinimumTimeSpan)
+        model.lastMessageTimestamp = model.wy_lastMessageTimestamp(dataSource, minimumTimeSpan: configuration.basic.messageMinimumTimeSpan, unit: configuration.basic.timestampUnit)
         model.reference = state.inputQuote
         model.sendState = .sending
         model.index = dataSource.count
@@ -184,7 +186,7 @@ extension WYChatView {
             if model.content.withdrawn != nil { return action == .delete || action == .select }
             if action == .copy { return model.content.text != nil || !(model.content.voice?.voiceToText.isEmpty ?? true) }
             if action == .paste { return model.content.style() == .text && configuration.showsInputBar && chatInput.textView.isEditable && UIPasteboard.general.hasStrings }
-            if action == .withdraw { return wy_canWithdraw(model, at: Date()) }
+            if action == .withdraw { return wy_canWithdraw(model, at: Date(), configuration: configuration) }
             if action == .translate { return configuration.recording.supportSpeechRecognition && model.content.voice != nil }
             return true
         }
@@ -285,6 +287,7 @@ extension WYChatView {
         else if requested == .content && model.wy_effectiveTransferState == .failed { action = .retry }
         else if requested == .content, let voice = model.content.voice { action = voice.isPlaying ? .pause : .play }
         else { action = requested }
+        if action == .withdraw, !wy_canWithdraw(model, at: Date()) { return }
         guard eventsHandler?.wy_shouldPerformMessageAction?(self, action: action, messageID: messageID) ?? true else { return }
         switch action {
         case .startTransfer:

@@ -21,12 +21,6 @@ let emojiViewRecentlyCountKey: String = "emojiViewRecentlyCountKey"
 
 let emojiPath: String = Bundle(path: (((Bundle(for: WYChatEmojiView.self).path(forResource: "WYChatView", ofType: "bundle")) ?? (Bundle.main.path(forResource: "WYChatView", ofType: "bundle"))) ?? ""))?.path(forResource: "WYChatViewEmoji", ofType: "plist") ?? ""
 
-/// 表情动图取帧缓存(同一路径同一帧只解码一次)
-private let wy_emojiFrameCache: NSCache<NSString, UIImage> = {
-    let cache = NSCache<NSString, UIImage>()
-    cache.countLimit = 256
-    return cache
-}()
 
 /// 一轮表情动画，每一帧保留资源指定的停留时间。
 final class WYChatEmojiAnimation {
@@ -53,25 +47,42 @@ final class WYChatEmojiAnimation {
     }
 }
 
-private let wy_emojiAnimationCache: NSCache<NSString, WYChatEmojiAnimation> = {
-    let cache = NSCache<NSString, WYChatEmojiAnimation>()
-    cache.countLimit = 48
-    cache.totalCostLimit = 24 * 1024 * 1024
-    return cache
-}()
+final class WYChatEmojiImageCache {
+    let frames: NSCache<NSString, UIImage>?
+    let animations: NSCache<NSString, WYChatEmojiAnimation>?
+
+    init(frameCount: Int, animationCount: Int, animationBytes: Int) {
+        frames = Self.makeCache(count: frameCount)
+        animations = Self.makeCache(count: animationCount)
+        animations?.totalCostLimit = max(0, animationBytes)
+    }
+
+    private static func makeCache<Value: AnyObject>(count: Int) -> NSCache<NSString, Value>? {
+        guard count > 0 else { return nil }
+        let cache = NSCache<NSString, Value>()
+        cache.countLimit = count
+        return cache
+    }
+}
 
 extension WYEmojiViewConfig {
+    private static let sharedImageCache = WYEmojiViewConfig().wy_makeImageCache()
+
+    func wy_makeImageCache() -> WYChatEmojiImageCache {
+        WYChatEmojiImageCache(frameCount: staticFrameCacheCountLimit, animationCount: animationCacheCountLimit, animationBytes: animationCacheByteLimit)
+    }
 
     var wy_defaultAnimationFrameDelay: TimeInterval {
-        defaultAnimationFrameDelay.isFinite && defaultAnimationFrameDelay > 0 ? defaultAnimationFrameDelay : 0.1
+        defaultAnimationFrameDelay.isFinite && defaultAnimationFrameDelay > 0 ? defaultAnimationFrameDelay : WYEmojiViewConfig().defaultAnimationFrameDelay
     }
 
     func emojiAnimation(_ emojiName: String) -> WYChatEmojiAnimation? {
+        let cache = (_imageCache ?? Self.sharedImageCache).animations
         let defaultFrameDelay = wy_defaultAnimationFrameDelay
         for ext in ["gif", "webp", "png", "apng"] {
             guard let path = emojiFilePath(emojiName, ext: ext) else { continue }
             let key = "\(path)#\(defaultFrameDelay)" as NSString
-            if let cached = wy_emojiAnimationCache.object(forKey: key) { return cached }
+            if let cached = cache?.object(forKey: key) { return cached }
             guard let source = CGImageSourceCreateWithURL(URL(fileURLWithPath: path) as CFURL, nil) else { continue }
             let count = CGImageSourceGetCount(source)
             guard count > 1 else { continue }
@@ -100,7 +111,7 @@ extension WYEmojiViewConfig {
             }
             guard frames.count > 1 else { continue }
             let animation = WYChatEmojiAnimation(frames: frames, delays: delays)
-            wy_emojiAnimationCache.setObject(animation, forKey: key, cost: cost)
+            cache?.setObject(animation, forKey: key, cost: cost)
             return animation
         }
         return nil
@@ -130,8 +141,9 @@ extension WYEmojiViewConfig {
         guard let filePath = emojiFilePath(emojiName, ext: ext) else {
             return nil
         }
+        let cache = (_imageCache ?? Self.sharedImageCache).frames
         let cacheKey = "\(filePath)#\(frameIndex)" as NSString
-        if let cached = wy_emojiFrameCache.object(forKey: cacheKey) {
+        if let cached = cache?.object(forKey: cacheKey) {
             return cached
         }
         guard let source = CGImageSourceCreateWithURL(URL(fileURLWithPath: filePath) as CFURL, nil) else {
@@ -144,7 +156,7 @@ extension WYEmojiViewConfig {
             return nil
         }
         let image = UIImage(cgImage: cgImage)
-        wy_emojiFrameCache.setObject(image, forKey: cacheKey)
+        cache?.setObject(image, forKey: cacheKey)
         return image
     }
 
@@ -209,7 +221,7 @@ extension WYChatEmojiView {
         let longPress: UILongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(didLongPressEmoji(_:)))
         let duration = emojiViewConfig.previewConfig.minimumPressDuration
         let movement = emojiViewConfig.previewConfig.allowableMovement
-        longPress.minimumPressDuration = duration.isFinite ? max(0, duration) : 0.5
+        longPress.minimumPressDuration = duration.isFinite ? max(0, duration) : WYEmojiPreviewConfig().minimumPressDuration
         longPress.allowableMovement = movement.isFinite ? max(0, movement) : 0
         collectionView.addGestureRecognizer(longPress)
 

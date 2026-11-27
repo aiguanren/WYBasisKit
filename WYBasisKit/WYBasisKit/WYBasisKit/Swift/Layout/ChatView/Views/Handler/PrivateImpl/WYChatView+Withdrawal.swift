@@ -7,35 +7,35 @@
 
 import UIKit
 
-/// 撤回和重新编辑的时间判断
-func wy_chatEpoch(_ text: String) -> TimeInterval? {
-    guard let value = Double(text), value.isFinite else { return nil }
-    return value > 100_000_000_000 ? value / 1000 : value
-}
-
-func wy_chatCanReedit(_ message: WYChatMessageModel, userID: String, configuration: WYChatNoticeConfig, at date: Date) -> Bool {
+func wy_chatCanReedit(_ message: WYChatMessageModel, userID: String, configuration: WYChatNoticeConfig, unit: WYChatTimestampUnit, at date: Date) -> Bool {
     guard configuration.allowsReedit, message.isSender(userID), let value = message.content.withdrawn, value.originalText?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false else { return false }
     if configuration.reeditTimeLimit == 0 { return true }
-    guard configuration.reeditTimeLimit.isFinite, configuration.reeditTimeLimit > 0, let timestamp = wy_chatEpoch(value.withdrawnTime) else { return false }
+    guard configuration.reeditTimeLimit.isFinite, configuration.reeditTimeLimit > 0, let timestamp = unit.wy_epochSeconds(from: value.withdrawnTime) else { return false }
     return max(0, date.timeIntervalSince1970 - timestamp) < configuration.reeditTimeLimit
 }
 
 /// 接入方撤回结果与文本恢复
 extension WYChatView {
-    func wy_canWithdraw(_ message: WYChatMessageModel, at date: Date) -> Bool {
+    func wy_configuration(forMessage message: WYChatMessageModel) -> WYChatConfig {
+        configuration.messageConfiguration?(message, configuration) ?? configuration
+    }
+
+    func wy_canWithdraw(_ message: WYChatMessageModel, at date: Date, configuration resolved: WYChatConfig? = nil) -> Bool {
+        let configuration = resolved ?? wy_configuration(forMessage: message)
         guard message.content.withdrawn == nil else { return false }
         let pat = message.content.takePat
         guard (pat?.striking.id ?? message.sender.id) == userInfo.id, pat == nil || configuration.notice.allowsPatWithdrawal else { return false }
         let limit = pat == nil ? configuration.notice.withdrawalTimeLimit : configuration.notice.patWithdrawalTimeLimit
         if limit == 0 { return true }
-        guard limit.isFinite, limit > 0, let timestamp = wy_chatEpoch(message.timestamp) else { return false }
+        guard limit.isFinite, limit > 0, let timestamp = configuration.basic.timestampUnit.wy_epochSeconds(from: message.timestamp) else { return false }
         return max(0, date.timeIntervalSince1970 - timestamp) < limit
     }
 
     func wy_markWithdrawn(_ messageID: String, at date: Date, allowsReedit: Bool) -> Bool {
         guard let row = dataSource.firstIndex(where: { $0.messageID == messageID }), dataSource[row].content.withdrawn == nil else { return false }
         var message = dataSource[row]
-        var value = WYChatWithdrawnModel(sendTime: message.timestamp, withdrawalInterval: message.content.takePat == nil ? configuration.notice.withdrawalTimeLimit : configuration.notice.patWithdrawalTimeLimit, withdrawnTime: String(date.timeIntervalSince1970), messageStyle: message.content.style())
+        let configuration = wy_configuration(forMessage: message)
+        var value = WYChatWithdrawnModel(sendTime: message.timestamp, withdrawalInterval: message.content.takePat == nil ? configuration.notice.withdrawalTimeLimit : configuration.notice.patWithdrawalTimeLimit, withdrawnTime: configuration.basic.timestampUnit.wy_timestamp(for: date), messageStyle: message.content.style())
         if allowsReedit && message.isSender(userInfo.id), let text = message.content.text {
             value.originalText = text
             value.reference = message.reference
@@ -61,8 +61,10 @@ extension WYChatView {
     }
 
     func wy_reeditMessage(_ messageID: String) -> Bool {
-        guard canReeditMessage(messageID), let value = messageModelFrom(messageID)?.content.withdrawn, let text = value.originalText,
-              wy_applyInputDraft(text, mentions: value.mentions, replacesInput: configuration.notice.reeditReplacesInput) else { return false }
+        guard let message = messageModelFrom(messageID), let value = message.content.withdrawn, let text = value.originalText else { return false }
+        let config = wy_configuration(forMessage: message)
+        guard wy_chatCanReedit(message, userID: userInfo.id, configuration: config.notice, unit: config.basic.timestampUnit, at: Date()),
+              wy_applyInputDraft(text, mentions: value.mentions, replacesInput: config.notice.reeditReplacesInput) else { return false }
         state.inputQuote = value.reference
         wy_refreshQuote()
         wy_activateInputDraft()
@@ -73,11 +75,13 @@ extension WYChatView {
         state.reeditTimer?.cancel()
         state.reeditTimer = nil
         state.reeditRequestID = nil
-        let limit = configuration.notice.reeditTimeLimit
-        guard configuration.notice.allowsReedit, limit.isFinite, limit > 0 else { return }
         let now = Date().timeIntervalSince1970
         let expirations = dataSource.compactMap { message -> TimeInterval? in
-            guard message.isSender(userInfo.id), let value = message.content.withdrawn, value.originalText != nil, let date = wy_chatEpoch(value.withdrawnTime), date + limit > now else { return nil }
+            guard message.isSender(userInfo.id), let value = message.content.withdrawn, value.originalText != nil else { return nil }
+            let resolved = wy_configuration(forMessage: message)
+            let limit = resolved.notice.reeditTimeLimit
+            guard resolved.notice.allowsReedit, limit.isFinite, limit > 0,
+                  let date = resolved.basic.timestampUnit.wy_epochSeconds(from: value.withdrawnTime), date + limit > now else { return nil }
             return date + limit
         }
         guard let deadline = expirations.min() else { return }
