@@ -156,7 +156,7 @@ public struct WYInputBarConfig {
     public var chatReturnKeyType: UIReturnKeyType = .default
     
     /// 输入框占位文本
-    public var textPlaceholder: String = WYLocalized("请输入消息", table: WYBasisKitConfig.kitLocalizableTable)
+    public var textPlaceholder: String = "输入消息或长按发语音"
     
     /// 输入框占位文本色值
     public var textPlaceholderColor: UIColor = .placeholderText

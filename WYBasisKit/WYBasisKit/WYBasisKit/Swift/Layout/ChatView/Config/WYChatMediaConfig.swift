@@ -59,6 +59,8 @@ public struct WYChatMediaConfig {
     public var albumMoreItemIndex: Int = -1
     /// 相册一次最多可选的照片数，默认9，小于等于0时不限
     public var albumSelectionLimit: Int = 9
+    /// 选中的媒体数大于此值才折叠，最小有效阈值为 1
+    public var foldingThreshold: Int = 1
     /// 是否允许在同一个相册选择器中混合选择照片与视频
     public var albumAllowsVideos: Bool = false
     /// 折叠媒体组的视频自动播放策略，默认滑动落位后播放
@@ -99,6 +101,8 @@ public struct WYChatMediaConfig {
     public var buttonHeight: CGFloat = UIDevice.wy_screenHeight(24, WYBasisKitConfig.defaultScreenPixels)
     /// 按钮距离图片的间距
     public var buttonSpacing: CGFloat = UIDevice.wy_screenHeight(8, WYBasisKitConfig.defaultScreenPixels)
+    /// 侧边展开收起按钮和发送状态指示器之间的间距，单位点
+    public var buttonSendingStatusSpacing: CGFloat = 6
     /// 展开和收起按钮字体
     public var buttonFont: UIFont = .systemFont(ofSize: UIFont.wy_fontSize(13, WYBasisKitConfig.defaultScreenPixels))
     /// 展开和收起按钮颜色
@@ -134,6 +138,7 @@ public struct WYChatMediaConfig {
         var value = WYPhotoBrowserConfiguration()
         value.allowsLoopScrolling = true
         value.stackedCardCyclesForward = true
+        value.stackedCardInsets = UIEdgeInsets(top: 4, left: 28, bottom: 6, right: 28)
         value.appearance.playButtonBackgroundColor = UIColor.black.withAlphaComponent(0.62)
         return value
     }()

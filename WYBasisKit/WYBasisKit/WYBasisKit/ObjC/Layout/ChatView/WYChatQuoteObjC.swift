@@ -256,9 +256,11 @@ import WYBasisKitSwift
     public var reeditHeight: CGFloat
     /// 重新编辑按钮与提示文字的间距
     public var reeditSpacing: CGFloat
-    /// 普通消息撤回提示，%@替换为发送者名称
+    /// 普通消息撤回提示，%@ 替换为发送者名称，空字符串隐藏提示
     public var withdrawnText: String
-    /// 拍一拍撤回提示，空字符串时使用withdrawnText，%@替换为发送者名称
+    /// 发出的普通消息撤回文案，nil 沿用 withdrawnText，空字符串隐藏提示
+    public var outgoingWithdrawnText: String?
+    /// 拍一拍撤回提示，空字符串沿用对应收发方的普通模板，%@ 替换为发送者名称
     public var patWithdrawnText: String
     public var patBackgroundColor: UIColor?
     public var patCornerRadius: CGFloat
@@ -292,6 +294,7 @@ import WYBasisKitSwift
         reeditHeight = value.reeditHeight
         reeditSpacing = value.reeditSpacing
         withdrawnText = value.withdrawnText
+        outgoingWithdrawnText = value.outgoingWithdrawnText
         patWithdrawnText = value.patWithdrawnText
         patBackgroundColor = value.patBackgroundColor
         patCornerRadius = value.patCornerRadius
@@ -327,6 +330,7 @@ import WYBasisKitSwift
         value.reeditHeight = reeditHeight
         value.reeditSpacing = reeditSpacing
         value.withdrawnText = withdrawnText
+        value.outgoingWithdrawnText = outgoingWithdrawnText
         value.patWithdrawnText = patWithdrawnText
         value.patBackgroundColor = patBackgroundColor
         value.patCornerRadius = patCornerRadius

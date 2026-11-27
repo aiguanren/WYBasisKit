@@ -737,6 +737,18 @@ final class WYChatViewTests: XCTestCase {
         for title in ["拷贝图像", "保存到相机胶卷", "Copy Image", "Save Image", "Save to Camera Roll", "Save to Photos"] {
             XCTAssertFalse(app.descendants(matching: .any)[title].firstMatch.exists)
         }
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.04, dy: 0.42)).tap()
+        if !emojis.isHittable { app.buttons["WYChatInput.emoji"].tap() }
+        XCTAssertTrue(emojis.cells.firstMatch.waitForExistence(timeout: 5))
+        emojis.cells.firstMatch.tap()
+        send.tap()
+        let singleEmoji = app.tables.firstMatch.textViews.matching(NSPredicate(format: "value == %@", "\u{FFFC}")).firstMatch
+        XCTAssertTrue(singleEmoji.waitForExistence(timeout: 5))
+        let initial = singleEmoji.frame
+        app.coordinate(withNormalizedOffset: .zero).withOffset(CGVector(dx: initial.midX, dy: initial.midY)).press(forDuration: 0.9)
+        XCTAssertTrue(menu.waitForExistence(timeout: 5))
+        XCTAssertEqual(singleEmoji.frame, initial)
+        XCTAssertTrue(menu.buttons["复制"].exists || menu.buttons["Copy"].exists)
     }
 
     func testInputEmojiAndMoreActualWorkflow() {
@@ -968,8 +980,12 @@ final class WYChatViewTests: XCTestCase {
         XCTAssertTrue(row.waitForExistence(timeout: 5))
         row.tap()
         app.alerts.buttons["运行"].tap()
-        let passed = row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "通过")).firstMatch
-        XCTAssertTrue(passed.waitForExistence(timeout: 25))
+        let outcome = row.staticTexts.matching(NSPredicate(format: "label CONTAINS %@ OR label CONTAINS %@", "通过", "失败")).firstMatch
+        XCTAssertTrue(outcome.waitForExistence(timeout: 25))
+        if outcome.label.contains("失败") {
+            row.tap()
+            XCTFail(app.alerts.firstMatch.staticTexts.allElementsBoundByIndex.map(\.label).joined(separator: "\n"))
+        }
     }
 
     func testSelectionForwarding() {
@@ -1463,4 +1479,22 @@ final class WYChatViewTests: XCTestCase {
         XCTAssertEqual(XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: completed, object: status)], timeout: 240), .completed)
         XCTAssertTrue(status.label.contains("失败0"), status.label)
     }
+    func testRetestSettingsPreview() {
+        let app = openChat()
+        app.navigationBars.buttons["测试"].tap()
+        app.navigationBars.buttons["配置"].tap()
+        let settings = app.tables["WYChatSettings.groups"]
+        let preview = settings.cells["WYChatSettings.item.reviewMessages"]
+        for _ in 0..<12 where !preview.isHittable { settings.swipeUp() }
+        XCTAssertTrue(preview.isHittable)
+        XCTAssertTrue(settings.cells["WYChatSettings.item.media.foldingThreshold"].exists)
+        preview.tap()
+        XCTAssertTrue(app.navigationBars["配置预览"].waitForExistence(timeout: 5))
+        let examples = app.tables["WYChatConfiguration.previewMessages"]
+        let file = examples.staticTexts["示例文件.pdf"]
+        for _ in 0..<10 where !file.isHittable { examples.swipeDown() }
+        XCTAssertTrue(file.isHittable)
+        XCTAssertTrue(examples.buttons["WYChatTransfer.control"].firstMatch.exists)
+    }
+
 }

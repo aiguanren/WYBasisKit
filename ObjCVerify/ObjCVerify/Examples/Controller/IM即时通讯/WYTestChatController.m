@@ -275,6 +275,10 @@
         [self showAttachmentNotice:@"无法读取所选照片。"];
         return;
     }
+    if (items.count <= (NSUInteger)MAX(1, self.chatView.configuration.media.foldingThreshold)) {
+        [self sendExamplePhotos:items presentation:WYChatMediaPresentationIndividual];
+        return;
+    }
     BOOL includesVideo = [items indexOfObjectPassingTest:^BOOL(WYChatMediaItem *item, NSUInteger index, BOOL *stop) { return item.kind == WYChatMediaKindVideo; }] != NSNotFound;
     NSString *unit = includesVideo ? @"项媒体" : @"张照片";
     NSString *prompt = items.count == selectedCount
@@ -630,16 +634,20 @@
 }
 
 - (void)updateExampleVoice:(NSString *)messageID playing:(BOOL)playing {
-    NSMutableArray<WYChatMessageModel *> *messages = self.chatView.dataSource.mutableCopy;
+    NSArray<WYChatMessageModel *> *messages = self.chatView.dataSource;
+    BOOL pauses = !playing && !self.chatView.configuration.voicePlayback.restartsOnTap;
+    NSTimeInterval duration = self.voicePlayer.currentTime;
     for (WYChatMessageModel *item in messages) {
-        if ([item.messageID isEqualToString:messageID]) {
-            item.content.voice.isPlaying = playing;
-            item.content.voice.played = true;
-            item.content.voice.pause = !playing && !self.chatView.configuration.voicePlayback.restartsOnTap;
-            item.content.voice.currentPlayDuration = self.voicePlayer.currentTime;
-        }
+        WYChatVoiceModel *voice = item.content.voice;
+        if (![item.messageID isEqualToString:messageID] || voice == nil) { continue; }
+        if (voice.isPlaying == playing && voice.played && voice.pause == pauses && voice.currentPlayDuration == duration) { return; }
+        voice.isPlaying = playing;
+        voice.played = true;
+        voice.pause = pauses;
+        voice.currentPlayDuration = duration;
+        self.chatView.dataSource = messages;
+        return;
     }
-    self.chatView.dataSource = messages;
 }
 
 - (void)stopExampleVoice {

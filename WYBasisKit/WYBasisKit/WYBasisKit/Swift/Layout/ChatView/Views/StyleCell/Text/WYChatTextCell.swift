@@ -43,8 +43,8 @@ open class WYChatTextCell: WYChatBasicCell {
     /// 文本控件
     public let textView: UITextView = {
         // 播放时仅重绘附件字形，避免逐帧重新布局文本。
-        if #available(iOS 16.0, *) { return UITextView(usingTextLayoutManager: false) }
-        return UITextView()
+        if #available(iOS 16.0, *) { return WYChatMessageTextView(usingTextLayoutManager: false) }
+        return WYChatMessageTextView()
     }()
 
     let emojiPlayback = WYChatTextEmojiPlayback()

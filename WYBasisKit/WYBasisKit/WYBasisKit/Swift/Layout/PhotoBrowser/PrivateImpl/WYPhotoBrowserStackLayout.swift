@@ -58,14 +58,26 @@ final class WYPhotoBrowserStackLayout: UICollectionViewFlowLayout {
         let anchor = CGPoint(x: min(1, max(0, finite(configuration.stackedCardAnchorPoint.x))), y: min(1, max(0, finite(configuration.stackedCardAnchorPoint.y))))
         let insetX = CGFloat(visible - 1) * offset.width + height * sin(stillAngle) * max(anchor.y, 1 - anchor.y)
         let insetY = CGFloat(visible - 1) * offset.height + width * sin(stillAngle) * max(anchor.x, 1 - anchor.x)
-        original.size = CGSize(width: max(1, width - insetX * 2), height: max(1, height - insetY * 2))
+        let insets = configuration.stackedCardInsets
+        let left = min(width, max(0, finite(insets.left)))
+        let right = min(width, max(0, finite(insets.right)))
+        let top = min(height, max(0, finite(insets.top)))
+        let bottom = min(height, max(0, finite(insets.bottom)))
+        // 比例缩放过大的间距，保证视口内至少保留一个点给卡片。
+        let horizontalScale = min(1, max(0, width - insetX * 2 - 1) / max(1, left + right))
+        let verticalScale = min(1, max(0, height - insetY * 2 - 1) / max(1, top + bottom))
+        original.size = CGSize(width: max(1, width - insetX * 2 - (left + right) * horizontalScale),
+                               height: max(1, height - insetY * 2 - (top + bottom) * verticalScale))
         let direction: CGFloat = movingBack ? 1 : -1
         let depthPosition = depth == 0 ? fraction * CGFloat(visible - 1) : CGFloat(depth) - fraction
         let travel = min(1.5, max(0, finite(configuration.stackedCardDragTravelFraction)))
-        let movement = depth == 0 ? direction * sin(fraction * .pi / 2) * length * travel : 0
+        let sideInset = (movingBack ? right : left) * horizontalScale
+        let threshold = max(0, finite(configuration.stackedCardHorizontalInsetThreshold))
+        let extraTravel = horizontal && sideInset >= threshold ? sideInset : 0
+        let movement = depth == 0 ? direction * sin(fraction * .pi / 2) * (length * travel + extraTravel) : 0
         let viewport = collectionView.bounds
-        original.center = CGPoint(x: viewport.midX + depthPosition * offset.width + (horizontal ? movement : 0),
-                                  y: viewport.midY + depthPosition * offset.height + (horizontal ? 0 : movement))
+        original.center = CGPoint(x: viewport.midX + (left - right) * horizontalScale / 2 + depthPosition * offset.width + (horizontal ? movement : 0),
+                                  y: viewport.midY + (top - bottom) * verticalScale / 2 + depthPosition * offset.height + (horizontal ? 0 : movement))
         let restAngle: (Int) -> CGFloat = { $0 == 0 ? 0 : ($0.isMultiple(of: 2) ? -stillAngle : stillAngle) }
         // 起手先平移，到边缘再倾斜。角度和交接都由当前拖动距离决定，反向拖动可以原路返回。
         let tilt = min(1, max(0, (fraction - 0.2) / 0.6))

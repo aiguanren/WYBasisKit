@@ -185,10 +185,7 @@ extension WYChatBasicCell {
             state.thumbnail.animationDuration = playback.waveformDuration.isFinite ? max(0.1, playback.waveformDuration) : 0.75
             state.thumbnailSize.first?.constant = playback.waveformSize.width.isFinite ? max(0, playback.waveformSize.width) : 0
             state.thumbnailSize.last?.constant = playback.waveformSize.height.isFinite ? max(0, playback.waveformSize.height) : 0
-            if value.isPlaying && frames.count > 1 && !state.isMeasuring { state.thumbnail.startAnimating() }
-            let duration = String(Int(ceil(min(86400, max(0, value.duration.isFinite ? value.duration : 0))))) + playback.durationSuffix
-            if playback.showsPlaybackSymbol { wy_showPlaybackSymbol(value.isPlaying ? playback.pauseImage : playback.playImage, text: duration) }
-            else { state.title.text = duration }
+            wy_renderVoicePlayingState(value)
             let sender = message.isSender(userID)
             if sender && playback.showsSenderWaveformOnTrailingSide {
                 state.header.removeArrangedSubview(state.thumbnail)
@@ -197,14 +194,6 @@ extension WYChatBasicCell {
             state.title.textAlignment = sender ? playback.senderDurationAlignment : playback.receiverDurationAlignment
             state.detail.text = value.isRecognizing ? configuration.recording.recognizingText : value.recognitionError.isEmpty ? value.voiceToText : value.recognitionError
             if !value.isRecognizing && !value.recognitionError.isEmpty { state.detail.textColor = configuration.recording.recognitionFailureColor }
-            let style = messageContentConfiguration
-            let minimum = playback.minimumWidth.isFinite ? max(0, playback.minimumWidth) : 0
-            let minimumDuration = playback.minimumWidthDuration.isFinite ? max(0, playback.minimumWidthDuration) : 0
-            let growth = playback.widthGrowthPerSecond.isFinite ? max(0, playback.widthGrowthPerSecond) : 0
-            let seconds = value.duration.isFinite ? min(86_400, max(0, value.duration)) : 0
-            let transcriptWidth = ((state.detail.text ?? "") as NSString).size(withAttributes: [.font: style.detailFont]).width
-            let targetWidth = max(minimum + CGFloat(max(0, seconds - minimumDuration)) * growth, transcriptWidth)
-            state.preferredContentWidth = max(minimum, min(style.preferredWidth, targetWidth))
         default: break
         }
     }
@@ -220,11 +209,17 @@ extension WYChatBasicCell {
 final class WYChatAttachmentProgressView: UIView {
     let button = UIButton(type: .system)
     private let caption = UILabel()
-    private let bar = UIProgressView(progressViewStyle: .default)
+    private let barTrack = UIView()
+    private let barFill = UIView()
     private let track = CAShapeLayer()
     private let ring = CAShapeLayer()
+    private lazy var bubbleMask = CAShapeLayer()
     private var controlSize: CGFloat = 42
     private var lineWidth: CGFloat = 2.5
+    private var ringRadius: CGFloat = -1
+    private var barRadius: CGFloat = -1
+    private var progress: Double = 0
+    private var anchorsBarToBottom = false
     private var overlaysMedia = false
     private var trackColor: UIColor = .clear
     private var progressColor: UIColor = .clear
@@ -232,7 +227,9 @@ final class WYChatAttachmentProgressView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         clipsToBounds = true
-        addSubview(bar)
+        addSubview(barTrack)
+        barTrack.addSubview(barFill)
+        barTrack.clipsToBounds = true
         for shape in [track, ring] {
             shape.fillColor = UIColor.clear.cgColor
             shape.lineWidth = 2.5
@@ -245,6 +242,7 @@ final class WYChatAttachmentProgressView: UIView {
         caption.minimumScaleFactor = 0.8
         caption.accessibilityIdentifier = "WYChatTransfer.status"
         button.accessibilityIdentifier = "WYChatTransfer.control"
+        button.configuration = .plain()
         button.imageView?.contentMode = .scaleAspectFit
         button.contentHorizontalAlignment = .fill
         button.contentVerticalAlignment = .fill
@@ -252,25 +250,41 @@ final class WYChatAttachmentProgressView: UIView {
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
+    func layoutOverBubble(_ bubble: WYAirBubbleView) {
+        bubble.layoutIfNeeded()
+        frame = bubble.bounds
+        layer.cornerRadius = 0
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        bubbleMask.frame = bounds
+        bubbleMask.bounds.origin = bubble.bounds.origin
+        bubbleMask.path = bubble.bubblePath
+        if layer.mask !== bubbleMask { layer.mask = bubbleMask }
+        CATransaction.commit()
+    }
+
     func apply(style: WYChatContentConfig, overlaysMedia: Bool, sender: Bool, progress: Double, text: String, image: UIImage?, actionTitle: String?,
-               mediaConfig: WYChatMediaConfig?) {
+               mediaConfig: WYChatMediaConfig?, anchorsBarToBottom: Bool) {
         self.overlaysMedia = overlaysMedia
+        self.anchorsBarToBottom = anchorsBarToBottom
+        self.progress = progress
         controlSize = wy_chatNonnegative(style.transferControlSize)
+        ringRadius = style.transferRingRadius
+        barRadius = style.transferBarCornerRadius
         lineWidth = wy_chatNonnegative(style.transferLineWidth)
         progressColor = mediaConfig?.itemTransferRingColor ?? (sender ? style.transferSenderColor : style.transferReceiverColor)
         trackColor = style.transferTrackColor
         backgroundColor = overlaysMedia ? style.transferOverlayColor : .clear
-        bar.isHidden = overlaysMedia
-        bar.progress = Float(progress)
-        bar.progressTintColor = progressColor
-        bar.trackTintColor = trackColor
+        barTrack.isHidden = overlaysMedia
+        barTrack.backgroundColor = trackColor
+        barFill.backgroundColor = progressColor
         track.isHidden = !overlaysMedia
         ring.isHidden = !overlaysMedia
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         ring.strokeEnd = CGFloat(progress)
         CATransaction.commit()
-        caption.font = style.detailFont
+        caption.font = style.transferStatusFont ?? style.detailFont
         caption.textColor = style.transferStatusTextColor ?? (overlaysMedia ? .white : style.detailColor)
         caption.textAlignment = overlaysMedia ? .center : .natural
         caption.text = text
@@ -294,8 +308,11 @@ final class WYChatAttachmentProgressView: UIView {
         super.layoutSubviews()
         guard !bounds.isEmpty else { return }
         if overlaysMedia {
-            let diameter = min(controlSize, bounds.width, bounds.height)
-            let center = CGPoint(x: bounds.midX, y: bounds.midY)
+            let captionHeight = caption.isHidden || caption.text?.isEmpty != false ? 0 : caption.font.lineHeight + 4
+            let controlHeight = bounds.height >= captionHeight + 20 ? bounds.height - captionHeight : bounds.height
+            let available = min(bounds.width, controlHeight)
+            let diameter = ringRadius.isFinite && ringRadius >= 0 ? min(available / 2, ringRadius) * 2 : min(available, controlSize)
+            let center = CGPoint(x: bounds.midX, y: min(bounds.midY, controlHeight - max(diameter, min(available, controlSize)) / 2))
             let stroke = min(lineWidth, diameter / 2)
             let radius = max(0, (diameter - stroke) / 2)
             let path = UIBezierPath(arcCenter: center, radius: radius, startAngle: -.pi / 2, endAngle: 1.5 * .pi, clockwise: true).cgPath
@@ -308,26 +325,36 @@ final class WYChatAttachmentProgressView: UIView {
             ring.path = path
             ring.strokeColor = progressColor.resolvedColor(with: traitCollection).cgColor
             CATransaction.commit()
-            button.frame = CGRect(x: center.x - diameter / 2, y: center.y - diameter / 2, width: diameter, height: diameter)
-            let inset = diameter * 0.29
-            button.contentEdgeInsets = UIEdgeInsets(top: inset, left: inset, bottom: inset, right: inset)
-            let captionTop = button.frame.maxY + 4
+            let buttonSide = min(available, controlSize)
+            button.frame = CGRect(x: center.x - buttonSide / 2, y: center.y - buttonSide / 2, width: buttonSide, height: buttonSide)
+            let inset = buttonSide * 0.29
+            button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: inset, leading: inset, bottom: inset, trailing: inset)
+            let captionTop = max(button.frame.maxY, center.y + diameter / 2) + 4
             caption.frame = CGRect(x: 4, y: captionTop, width: max(0, bounds.width - 8), height: min(caption.font.lineHeight, max(0, bounds.height - captionTop)))
         } else {
             let buttonWidth = button.isHidden ? 0 : min(32, controlSize, bounds.width)
-            button.frame = CGRect(x: 0, y: 0, width: buttonWidth, height: bounds.height)
-            button.contentEdgeInsets = UIEdgeInsets(top: 6, left: 4, bottom: 6, right: 4)
-            let labelWidth = min(max(0, bounds.width - buttonWidth) * 0.6, max(0, caption.intrinsicContentSize.width))
-            caption.frame = CGRect(x: bounds.width - labelWidth, y: 0, width: labelWidth, height: bounds.height)
             let thickness = min(bounds.height, lineWidth)
-            bar.frame = CGRect(x: buttonWidth, y: bounds.midY - thickness / 2, width: max(0, caption.frame.minX - buttonWidth - 6), height: thickness)
+            let statusHeight = anchorsBarToBottom ? max(0, bounds.height - thickness - 2) : bounds.height
+            button.frame = CGRect(x: 0, y: 0, width: buttonWidth, height: statusHeight)
+            button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 4, bottom: 6, trailing: 4)
+            let labelWidth = min(max(0, bounds.width - buttonWidth) * 0.6, max(0, caption.intrinsicContentSize.width))
+            caption.frame = CGRect(x: bounds.width - labelWidth, y: 0, width: labelWidth, height: statusHeight)
+            if anchorsBarToBottom {
+                barTrack.frame = CGRect(x: 0, y: bounds.height - thickness, width: bounds.width, height: thickness)
+            } else {
+                barTrack.frame = CGRect(x: buttonWidth, y: bounds.midY - thickness / 2, width: max(0, caption.frame.minX - buttonWidth - 6), height: thickness)
+            }
+            let cornerRadius = barRadius.isFinite && barRadius >= 0 ? min(thickness / 2, barRadius) : thickness / 2
+            barTrack.layer.cornerRadius = cornerRadius
+            barFill.frame = CGRect(x: 0, y: 0, width: barTrack.bounds.width * CGFloat(progress), height: thickness)
+            barFill.layer.cornerRadius = min(cornerRadius, barFill.bounds.width / 2)
         }
     }
 }
 
 extension WYChatAttachmentProgressView {
     func showPhase(_ phase: WYChatTransferState, progress rawProgress: Double, error: String, style: WYChatContentConfig, overlaysMedia: Bool, sender: Bool, title: ((WYChatAction) -> String?)?,
-                   mediaConfig: WYChatMediaConfig? = nil) -> WYChatAction? {
+                   mediaConfig: WYChatMediaConfig? = nil, anchorsBarToBottom: Bool = false) -> WYChatAction? {
         let progress = rawProgress.isFinite ? min(1, max(0, rawProgress)) : 0
         let percentage = style.transferShowsPercentage ? (style.transferProgressFormatter?(progress) ?? String(format: "%.0f%%", progress * 100)) : ""
         let text: String
@@ -358,12 +385,19 @@ extension WYChatAttachmentProgressView {
         case .automatic, .completed:
             return nil
         }
-        apply(style: style, overlaysMedia: overlaysMedia, sender: sender, progress: progress, text: text, image: image, actionTitle: actionTitle, mediaConfig: mediaConfig)
+        apply(style: style, overlaysMedia: overlaysMedia, sender: sender, progress: progress, text: text, image: image, actionTitle: actionTitle, mediaConfig: mediaConfig, anchorsBarToBottom: anchorsBarToBottom)
         return action
     }
 }
 
 extension WYChatBasicCell {
+    private var wy_usesAttachmentProgressCard: Bool {
+        switch message.content.style() {
+        case .music, .file, .businessCard, .chatRecords, .location, .webpage: return true
+        default: return false
+        }
+    }
+
     func wy_renderAttachmentProgress() {
         state.progressReveal?.cancel()
         state.progressReveal = nil
@@ -381,7 +415,13 @@ extension WYChatBasicCell {
             let task = DispatchWorkItem { [weak self] in
                 guard let self else { return }
                 let wasHidden = self.state.inlineProgress.isHidden
+                let wasAnimating = self.activityView.isAnimating
+                let wasOverlayHidden = self.state.mediaProgress.isHidden
                 self.wy_renderAttachmentProgress()
+                if wasOverlayHidden != self.state.mediaProgress.isHidden
+                    || self.message.content.mediaGroup != nil && wasAnimating != self.activityView.isAnimating {
+                    self.setNeedsLayout()
+                }
                 if wasHidden && !self.state.inlineProgress.isHidden { self.progressVisibilityChanged?(self.message.messageID) }
             }
             state.progressReveal = task
@@ -394,26 +434,38 @@ extension WYChatBasicCell {
         }
         state.mediaView.setTransferProgressVisible(!sending || remaining == 0)
         guard style.transferShowsProgress, !hasItemProgress, !wy_isNotice, phase != .automatic, phase != .completed else { return }
+        let attachmentCard = wy_usesAttachmentProgressCard
         let overlaysMedia = message.content.photo != nil || message.content.video != nil || message.content.mediaGroup != nil
+            || attachmentCard && style.attachmentProgressPlacement == .overlay
         let view = overlaysMedia ? state.mediaProgress : state.inlineProgress
         let shouldHide = sending && remaining > 0 && phase == .transferring
         view.isHidden = shouldHide
+        let cardHasBottomProgress = attachmentCard && !overlaysMedia
         state.transferAction = view.showPhase(phase, progress: message.transferProgress, error: message.transferError, style: style,
-                                              overlaysMedia: overlaysMedia, sender: sender, title: configuration.actionTitle)
-        state.inlineProgressHeight?.constant = max(30, style.detailFont.lineHeight + 8)
+                                              overlaysMedia: overlaysMedia, sender: sender, title: configuration.actionTitle,
+                                              anchorsBarToBottom: cardHasBottomProgress)
+        let font = style.transferStatusFont ?? style.detailFont
+        let barHeight = cardHasBottomProgress ? wy_chatNonnegative(style.transferLineWidth) + 2 : 0
+        state.inlineProgressHeight?.constant = max(30, font.lineHeight + 8 + barHeight)
     }
 
     func wy_layoutAttachmentProgress() {
-        guard !state.mediaProgress.isHidden else { return }
+        let progress = state.mediaProgress
+        guard !progress.isHidden else { return }
+        if wy_usesAttachmentProgressCard {
+            progress.layoutOverBubble(bubblesView)
+            return
+        }
+        progress.layer.mask = nil
         if let group = message.content.mediaGroup {
             let media = state.mediaView
             var frame = media.convert(media.bounds, to: bubblesView)
             if group.isExpanded { frame.size.height = min(frame.height, media.firstItemCenterY * 2) }
-            state.mediaProgress.frame = frame
+            progress.frame = frame
         } else {
-            state.mediaProgress.frame = state.image.convert(state.image.bounds, to: bubblesView)
+            progress.frame = state.image.convert(state.image.bounds, to: bubblesView)
         }
-        state.mediaProgress.layer.cornerRadius = message.content.mediaGroup == nil ? state.image.imageCornerRadius : wy_chatNonnegative(configuration.media.cornerRadius)
+        progress.layer.cornerRadius = message.content.mediaGroup == nil ? state.image.imageCornerRadius : wy_chatNonnegative(configuration.media.cornerRadius)
     }
 
     @objc func wy_attachmentProgressTapped() {

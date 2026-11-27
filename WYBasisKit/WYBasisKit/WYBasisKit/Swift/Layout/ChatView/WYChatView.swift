@@ -18,8 +18,8 @@ public class WYChatView: UIView {
     public var userInfo: WYChatUserModel { didSet { state.measuredHeights.removeAll(); tableView.reloadData() } }
     /// 消息数据源
     public var dataSource: [WYChatMessageModel] = [] {
-        willSet { if state.ready && !state.updatingMediaPage && !state.updatingAttachmentProgress { tableView.layoutIfNeeded(); wy_captureReadingPosition() } }
-        didSet { if !state.updatingMediaPage && !state.updatingAttachmentProgress { wy_reloadMessages(previous: oldValue) } }
+        willSet { if state.ready && !state.updatingMediaPage && !state.updatingAttachmentProgress && !state.updatingMessageRows { tableView.layoutIfNeeded(); wy_captureReadingPosition() } }
+        didSet { if !state.updatingMediaPage && !state.updatingAttachmentProgress && !state.updatingMessageRows { wy_reloadMessages(previous: oldValue) } }
     }
     /// 事件接管代理
     public weak var eventsHandler: WYChatViewEventsHandler? = nil

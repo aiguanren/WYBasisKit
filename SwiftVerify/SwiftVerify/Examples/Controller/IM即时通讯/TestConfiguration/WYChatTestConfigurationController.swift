@@ -281,7 +281,58 @@ final class WYChatTestConfigurationValueController: UIViewController {
 /// 当前配置的完整聊天预览
 final class WYChatTestConfigurationPreviewController: UIViewController {
     let chatView: WYChatView
-    init(source: WYChatView, style: WYChatMessageStyle? = nil) { chatView = WYChatView(userInfo: source.userInfo, configuration: source.configuration); chatView.dataSource = style.map { selected in source.dataSource.filter { $0.content.style() == selected } } ?? source.dataSource; super.init(nibName: nil, bundle: nil) }
+    init(source: WYChatView, style: WYChatMessageStyle? = nil, reviewsChanges: Bool = false) {
+        var configuration = source.configuration
+        if reviewsChanges { configuration.input.draftStorageKey = "" }
+        chatView = WYChatView(userInfo: source.userInfo, configuration: configuration)
+        if reviewsChanges {
+            chatView.dataSource = Self.reviewMessages(user: source.userInfo)
+        } else {
+            chatView.dataSource = style.map { selected in source.dataSource.filter { $0.content.style() == selected } } ?? source.dataSource
+        }
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    private static func reviewMessages(user: WYChatUserModel) -> [WYChatMessageModel] {
+        let other = WYChatUserModel(id: "review-other", name: "联系人")
+        var messages: [WYChatMessageModel] = []
+        func append(_ content: WYChatMessageContentModel, outgoing: Bool = false, transferring: Bool = false) {
+            var message = WYChatMessageModel(messageID: "review-\(messages.count)", sender: outgoing ? user : other, content: content)
+            message.sendState = .success
+            if transferring {
+                message.transferState = .transferring
+                message.transferProgress = 0.42
+            }
+            messages.append(message)
+        }
+        let covers = ["樱花", "蓝色小屋", "帆船"].map { name -> WYChatMediaItem in
+            var item = WYChatMediaItem()
+            item.thumbnail = WYChatAssetsModel(name: name)
+            item.original = item.thumbnail
+            item.transferState = .transferring
+            item.transferProgress = 0.42
+            return item
+        }
+        append(WYChatMessageContentModel(mediaGroup: WYChatMediaGroupModel(items: covers)), outgoing: true)
+        var mixed = covers
+        mixed[1].kind = .video
+        mixed[1].original.localPath = Bundle.main.path(forResource: "树屋", ofType: "mp4") ?? ""
+        append(WYChatMessageContentModel(mediaGroup: WYChatMediaGroupModel(items: mixed)))
+        append(WYChatMessageContentModel(file: WYChatFileModel(title: "示例文件.pdf")), outgoing: true, transferring: true)
+        append(WYChatMessageContentModel(music: WYChatMusicModel(name: "示例音乐")), transferring: true)
+        append(WYChatMessageContentModel(businessCard: WYChatBusinessCardModel(userInfo: other)), transferring: true)
+        append(WYChatMessageContentModel(chatRecords: WYChatRecordsModel(title: "收藏的聊天记录")), outgoing: true, transferring: true)
+        append(WYChatMessageContentModel(location: WYChatLocationModel(title: "示例地点")), transferring: true)
+        append(WYChatMessageContentModel(luckyMoney: WYChatLuckyMoneyModel(amounts: "8.88")), outgoing: true)
+        append(WYChatMessageContentModel(transfer: WYChatLuckyMoneyModel(amounts: "20.00")))
+        for duration in [8.0, 20.0, 60.0] {
+            append(WYChatMessageContentModel(voice: WYChatVoiceModel(duration: duration)), outgoing: duration == 20)
+        }
+        append(WYChatMessageContentModel(text: "😀"), outgoing: true)
+        append(WYChatMessageContentModel(withdrawn: WYChatWithdrawnModel()))
+        append(WYChatMessageContentModel(withdrawn: WYChatWithdrawnModel()), outgoing: true)
+        return messages
+    }
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -401,6 +452,7 @@ final class WYChatSettingsController: UITableViewController, UIColorPickerViewCo
                 Item(title: "自己发出的消息尚未被阅读时显示的文字", path: "basic.unreadText", explanation: "开启阅读状态标识后，消息尚未被阅读时在气泡旁显示这段文字。")
             ]),
             ("消息列表外观与多媒体发送", [
+                Item(title: "展开／收起按钮与发送状态的间距", path: "media.buttonSendingStatusSpacing", explanation: "按钮在卡片侧边时，与发送中和发送失败指示器之间的距离，单位为点。横向空间不足时按钮会上下避让。"),
                 Item(title: "发送进度显示延时（秒）", path: "content.transferProgressDelay", explanation: "适用于文字、文件、图片、视频等消息。默认 0.5 秒，支持小数。设为 0 时立即显示。"),
                 Item(title: "消息列表中相邻消息的上下间距", path: "messageSpacing", explanation: "调整上一条与下一条消息之间的垂直留白，单位为点。"),
                 Item(title: "自己发出的消息气泡底色", path: "senderBubble.fillColor", explanation: "调整聊天列表右侧自己发出的消息气泡颜色。"),
@@ -418,6 +470,25 @@ final class WYChatSettingsController: UITableViewController, UIColorPickerViewCo
                 Item(title: "输入框左侧语音切换按钮的高度", path: "input.voiceTextButtonSize.height", explanation: "调整切换文字输入和按住说话的按钮高度，单位为点。"),
                 Item(title: "输入框右侧表情切换按钮的宽度", path: "input.emojiTextButtonSize.width", explanation: "调整切换表情面板和键盘的按钮宽度，单位为点。"),
                 Item(title: "输入框右侧表情切换按钮的高度", path: "input.emojiTextButtonSize.height", explanation: "调整切换表情面板和键盘的按钮高度，单位为点。")
+            ]),
+            ("本轮复测", [
+                Item(title: "打开复测消息", path: "reviewMessages", explanation: "查看折叠图组、传输中的附件、红包转账、语音、表情和撤回提示。"),
+                Item(title: "折叠卡四边留白", path: "media.browser.stackedCardInsets", explanation: "依次输入上、左、下、右。左右改为 0 可复测紧凑叠卡。"),
+                Item(title: "切换大间距拖动的阈值", path: "media.browser.stackedCardHorizontalInsetThreshold", explanation: "拖向一侧的有效留白达到此值时增加拖动行程。"),
+                Item(title: "媒体数量折叠阈值", path: "media.foldingThreshold", explanation: "实际读取到的媒体数量超过此值才询问。设置为 2 时三项起可折叠。"),
+                Item(title: "附件进度样式", path: "content.attachmentProgressPlacement", choices: [("共用媒体进度环", "0"), ("底部进度条", "1")], explanation: "适用于文件、音乐、名片、位置、网页和聊天记录等卡片。"),
+                Item(title: "发送进度颜色", path: "content.transferSenderColor", explanation: "应用于发送方附件的进度环或进度条。"),
+                Item(title: "接收进度颜色", path: "content.transferReceiverColor", explanation: "应用于接收方附件的进度环或进度条。"),
+                Item(title: "进度环半径", path: "content.transferRingRadius", explanation: "单位为点，负数使用默认尺寸。"),
+                Item(title: "进度线宽", path: "content.transferLineWidth", explanation: "单位为点。"),
+                Item(title: "进度状态字体", path: "content.transferStatusFont", explanation: "可调整字体和字号，清除后使用消息详情字体。"),
+                Item(title: "红包和转账的图标底色", path: "content.fundsIconBackgroundColor", explanation: "清除后使用默认浅色底板。"),
+                Item(title: "红包和转账底部文字左间距", path: "content.fundsCaptionLeftInset", explanation: "单位为点，负数与图标左侧对齐。"),
+                Item(title: "按录音时长调整语音气泡长度", path: "voicePlayback.usesProportionalWidth", explanation: "开启时用单次录音最长时间作为气泡宽度的参考。"),
+                Item(title: "双击头像拍一拍的范围", path: "basic.avatarDoubleTapPatScope", choices: [("禁用", "0"), ("仅对方", "1"), ("仅自己", "2"), ("双方", "3")], explanation: "只影响双击头像触发拍一拍。"),
+                Item(title: "拍一拍时轻触反馈", path: "basic.enablesAvatarPatHaptics", explanation: "使用支持触觉反馈的真机可感受震动。"),
+                Item(title: "撤回提示", path: "notice.withdrawnText", explanation: "留空隐藏，%@ 替换为发送者。"),
+                Item(title: "自己发出的消息撤回提示", path: "notice.outgoingWithdrawnText", explanation: "nil 沿用通用文案，空字符串隐藏。")
             ]),
             ("高级与恢复", [
                 Item(title: "全部属性设置", path: "advanced", explanation: "按属性路径查找聊天组件配置，并打开聊天预览检查效果。"),
@@ -497,6 +568,10 @@ final class WYChatSettingsController: UITableViewController, UIColorPickerViewCo
             alert.addAction(UIAlertAction(title: "恢复默认", style: .destructive) { [weak self] _ in self?.draftView.configuration = WYChatConfig(); self?.tableView.reloadData() })
             alert.addAction(UIAlertAction(title: "取消", style: .cancel))
             present(alert, animated: true)
+            return
+        }
+        if item.path == "reviewMessages" {
+            navigationController?.pushViewController(WYChatTestConfigurationPreviewController(source: draftView, reviewsChanges: true), animated: true)
             return
         }
         if item.path == "advanced" {

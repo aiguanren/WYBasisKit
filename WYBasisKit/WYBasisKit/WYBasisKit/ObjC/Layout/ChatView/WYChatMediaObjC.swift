@@ -100,6 +100,8 @@ import WYBasisKitSwift
     public var albumMoreItemIndex: Int
     /// 相册一次最多可选的照片数，默认9，小于等于0时不限
     public var albumSelectionLimit: Int
+    /// 选中的媒体数大于此值才折叠，最小有效阈值为 1
+    public var foldingThreshold: Int
     /// 是否允许在同一个相册选择器中混合选择照片与视频
     public var albumAllowsVideos: Bool
     /// 折叠媒体组的视频自动播放策略，默认滑动落位后播放
@@ -140,6 +142,8 @@ import WYBasisKitSwift
     public var buttonHeight: CGFloat
     /// 按钮距离图片的间距
     public var buttonSpacing: CGFloat
+    /// 侧边展开收起按钮和发送状态指示器之间的间距，单位点
+    public var buttonSendingStatusSpacing: CGFloat
     /// 展开和收起按钮字体
     public var buttonFont: UIFont
     /// 展开和收起按钮颜色
@@ -187,6 +191,7 @@ import WYBasisKitSwift
         presentation = value.presentation
         albumMoreItemIndex = value.albumMoreItemIndex
         albumSelectionLimit = value.albumSelectionLimit
+        foldingThreshold = value.foldingThreshold
         self.albumAllowsVideos = value.albumAllowsVideos
         self.foldedVideoAutoplayMode = value.foldedVideoAutoplayMode
         self.automaticallyPlaysVideo = value.automaticallyPlaysVideo
@@ -207,6 +212,7 @@ import WYBasisKitSwift
         buttonCornerRadius = value.buttonCornerRadius
         buttonHeight = value.buttonHeight
         buttonSpacing = value.buttonSpacing
+        buttonSendingStatusSpacing = value.buttonSendingStatusSpacing
         buttonFont = value.buttonFont
         buttonColor = value.buttonColor
         buttonBackgroundColor = value.buttonBackgroundColor
@@ -244,6 +250,7 @@ import WYBasisKitSwift
         value.presentation = presentation
         value.albumMoreItemIndex = albumMoreItemIndex
         value.albumSelectionLimit = albumSelectionLimit
+        value.foldingThreshold = foldingThreshold
         value.albumAllowsVideos = albumAllowsVideos
         value.foldedVideoAutoplayMode = foldedVideoAutoplayMode
         value.automaticallyPlaysVideo = automaticallyPlaysVideo
@@ -264,6 +271,7 @@ import WYBasisKitSwift
         value.buttonCornerRadius = buttonCornerRadius
         value.buttonHeight = buttonHeight
         value.buttonSpacing = buttonSpacing
+        value.buttonSendingStatusSpacing = buttonSendingStatusSpacing
         value.buttonFont = buttonFont
         value.buttonColor = buttonColor
         value.buttonBackgroundColor = buttonBackgroundColor

@@ -99,10 +99,9 @@ extension WYChatBasicCell {
             state.fundsCaption.font = style.detailFont
             state.fundsCaption.alpha = min(1, wy_chatNonnegative(style.fundsCaptionOpacity))
             state.fundsCaption.textColor = textColor ?? style.detailColor
-            state.fundsCaption.isHidden = state.fundsCaption.text?.isEmpty ?? true
-            let accent = style.iconTintColor ?? WYChatDefaultResources.iconTint(for: iconName)
+            state.fundsCaptionContainer.isHidden = state.fundsCaption.text?.isEmpty ?? true
             let opacity = value.state == .unreceived ? style.fundsAvailableIconBackgroundOpacity : style.fundsInactiveIconBackgroundOpacity
-            state.thumbnail.backgroundColor = style.fundsIconBackgroundColor ?? accent?.withAlphaComponent(min(1, wy_chatNonnegative(opacity)))
+            state.thumbnail.backgroundColor = style.fundsIconBackgroundColor ?? UIColor.white.withAlphaComponent(min(1, wy_chatNonnegative(opacity)))
             state.thumbnail.layer.cornerRadius = min(state.thumbnailSize[0].constant, state.thumbnailSize[1].constant) * min(0.5, wy_chatNonnegative(style.fundsIconCornerRadiusRatio))
         default: break
         }

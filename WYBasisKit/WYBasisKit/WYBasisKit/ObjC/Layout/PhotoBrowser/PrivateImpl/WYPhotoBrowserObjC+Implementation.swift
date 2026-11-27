@@ -21,6 +21,8 @@ extension WYPhotoBrowserObjC {
             configuration.stackedCardCornerRadius = bridgeConfiguration.stackedCardCornerRadius
             configuration.stackedCardDragRotationAngle = bridgeConfiguration.stackedCardDragRotationAngle
             configuration.stackedCardDragTravelFraction = bridgeConfiguration.stackedCardDragTravelFraction
+            configuration.stackedCardInsets = bridgeConfiguration.stackedCardInsets
+            configuration.stackedCardHorizontalInsetThreshold = bridgeConfiguration.stackedCardHorizontalInsetThreshold
             configuration.stackedCardFadeStart = bridgeConfiguration.stackedCardFadeStart
             configuration.stackedCardAnchorPoint = bridgeConfiguration.stackedCardAnchorPoint
             configuration.stackedCardCyclesForward = bridgeConfiguration.stackedCardCyclesForward
@@ -90,6 +92,8 @@ func wy_photoBrowserBridge(_ value: WYPhotoBrowserConfiguration) -> WYPhotoBrows
     result.stackedCardRotationAngle = value.stackedCardRotationAngle
     result.stackedCardDragRotationAngle = value.stackedCardDragRotationAngle
     result.stackedCardDragTravelFraction = value.stackedCardDragTravelFraction
+    result.stackedCardInsets = value.stackedCardInsets
+    result.stackedCardHorizontalInsetThreshold = value.stackedCardHorizontalInsetThreshold
     result.stackedCardFadeStart = value.stackedCardFadeStart
     result.stackedCardAnchorPoint = value.stackedCardAnchorPoint
     result.stackedCardCyclesForward = value.stackedCardCyclesForward

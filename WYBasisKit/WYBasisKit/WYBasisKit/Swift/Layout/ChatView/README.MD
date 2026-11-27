@@ -36,7 +36,7 @@ chatView.recordingHandler = { url, duration, error in
 
 录音成功后通过同一发送流程生成语音消息，并调用`messagePreparedHandler`。`automaticallyInsertsSentMessages`决定是否自动入列，接入方无需重复追加。外部已有录音可调用`sendVoiceRecording(_:duration:messageID:)`，文件地址保存在`voice.localPath`，接入方通过语音操作事件负责播放与上传。
 
-`input.textPlaceholderAlignment`控制占位文字对齐。`input.placeholderLongPressAction`配置空输入框长按操作，`.disabled`使用语音切换按钮进入录音模式，默认的 `.voice` 直接录音并发送语音，`.dictation`直接识别文字，单击输入框均可弹出键盘。直接发语音不依赖识别开关，转文字需要启用识别。`input.enablesKeyboardDictation`控制键盘展开后的输入框内识别按钮，识别文字替换当前选区，颜色、图标、尺寸和间距分别配置。`input.showsKeyboardDictationInEmojiPanel`默认开启，在键盘与表情面板之间切换时保留输入框内识别按钮，设为`false`时在表情面板中隐藏。`input.stopsKeyboardDictationOnTextChange`默认`true`，手动修改文本时关闭已开启的识别；设为`false`时保持识别，保留手动修改的内容，后续新增识别文本从编辑后的光标位置继续插入。语音转写结果不会触发关闭。输入框有内容时默认隐藏识别按钮，清空后恢复显示。将`input.showsKeyboardDictationWithText`设为`true`可在有内容时继续显示。识别进行中保留「完成」按钮。识别入口同时受`recording.supportSpeechRecognition`控制，识别来源沿用Apple或外部服务配置，失败可通过`chatInput.inputDictationErrorHandler`接收。
+`input.textPlaceholder` 默认是「输入消息或长按发语音」，接入方可直接传入所需文案。 `input.textPlaceholderAlignment`控制占位文字对齐。`input.placeholderLongPressAction`配置空输入框长按操作，`.disabled`使用语音切换按钮进入录音模式，默认的 `.voice` 直接录音并发送语音，`.dictation`直接识别文字，单击输入框均可弹出键盘。直接发语音不依赖识别开关，转文字需要启用识别。`input.enablesKeyboardDictation`控制键盘展开后的输入框内识别按钮，识别文字替换当前选区，颜色、图标、尺寸和间距分别配置。`input.showsKeyboardDictationInEmojiPanel`默认开启，在键盘与表情面板之间切换时保留输入框内识别按钮，设为`false`时在表情面板中隐藏。`input.stopsKeyboardDictationOnTextChange`默认`true`，手动修改文本时关闭已开启的识别；设为`false`时保持识别，保留手动修改的内容，后续新增识别文本从编辑后的光标位置继续插入。语音转写结果不会触发关闭。输入框有内容时默认隐藏识别按钮，清空后恢复显示。将`input.showsKeyboardDictationWithText`设为`true`可在有内容时继续显示。识别进行中保留「完成」按钮。识别入口同时受`recording.supportSpeechRecognition`控制，识别来源沿用Apple或外部服务配置，失败可通过`chatInput.inputDictationErrorHandler`接收。
 
 直接长按空输入框时，`input.placeholderRecordingInteractionStyle` 默认为 `.gradient` 底部渐变声波。点左侧按钮切到语音模式后，「按住 说话」使用 `recording.interactionStyle`，默认是 `.actionRegions` 分区操作。两个入口都可以独立选择分区操作或底部渐变声波。分区按钮的圆形和弧形由`recording.actionStyle`选择。渐变方案普通状态松手发送，上滑超过`gradientCancelDistance`后松手取消，滑回后恢复发送。`gradientRecordingColor`和`gradientCancelColor`分别控制两种状态的颜色，其他`gradient*`属性控制渐变范围、声波、字体、间距和提示文字。渐变方案可与空输入框长按发语音或转文字配合使用，识别总开关与来源配置继续生效。
 
@@ -154,7 +154,7 @@ chatView.previewMedia(messageID: messageID, index: 2)
 
 折叠、展开和全屏预览均在各自封面中央显示单项进度环。通过 `media.itemTransferRingColor` 设置进度环颜色，设为 `nil` 时沿用收发传输颜色；通过 `media.showsItemTransferCaption` 控制环下状态文字，默认显示百分比。合并消息中的图片和视频可通过 `updateMediaTransfer(messageID:itemID:state:progress:error:)` 分别更新，连同单项操作通过 `mediaTransferActionHandler` 报告消息及媒体 ID。
 
-视频和照片在封面上显示进度环，文件、位置、名片和音乐在卡片下显示进度条。可通过 `content` 和各消息类型的 `contentOverrides` 调整收发颜色、线宽、轨道、封面遮罩、图标及其着色、状态文案和控件可见性。`transferProgressFormatter` 自定义百分比文案。SDK 自带上传、下载、暂停和继续四个本地图标，也可用 `transferUploadImage`、`transferDownloadImage`、`transferPauseImage`、`transferResumeImage` 和 `transferRetryImage` 替换。
+视频、照片和折叠媒体在封面上显示进度环。音乐、文件、名片、收藏示例的网页卡片、位置及聊天记录默认共用该进度环。设置 `content.attachmentProgressPlacement = .bottom` 可在附件卡片底部显示进度条。颜色、线宽、圆角、字体、字号、图标和文案可通过 `content` 或单一消息类型的 `contentOverrides` 调整。
 
 展开媒体组会优先读取可解码的本地图片，随后支持自定义 `imageLoader`、资源包图片和 SDK 的默认 HTTP(S) 加载。为远程图片安装接管加载器时，请在该加载器处理下载以及视图复用。
 
@@ -214,7 +214,7 @@ SwiftVerify与ObjCVerify的聊天页面均提供“测试”入口，可运行�
 
 ## 扩展与资源
 
-可继承WYChatBasicCell或具体Cell并覆写renderContent，内容添加到bodyView。titleView、detailView、footerView、previewImageView和thumbnailImageView提供标准内容视图访问。自定义Cell可通过事件接管代理提供，注册列表由实例配置持有。
+可继承 `WYChatBasicCell` 或可继承的具体 Cell 并覆写 `renderContent`，将内容添加到 `bodyView`。内置类型的公开 Cell 类保留，渲染逻辑由 Basic 层共享。接入方可用 `customCellClasses` 注册自定义类，并通过 `wy_canManagerCellForRowEvents` 为 SDK 未内置的消息提供 Cell。
 
 组件自带输入栏及表情资源。状态图标使用系统图标和系统活动指示器。自定义图片可由接入方配置或通过加载接口提供，不要求使用固定图片气泡。
 
@@ -373,7 +373,7 @@ SwiftVerify的聊天测试页点击“配置”可搜索并调整配置属性，
 
 需要翻译入口时，开启`recording.enablesTranslation`并设置`recording.transcriptTranslationHandler`。回调收到编辑器、操作、请求ID、当前文本和语种，翻译、朗读、切换语言及取消由接入方决定如何处理。接入方在主线程调用`updateTranscriptText(_:translatedLocaleIdentifier:requestID:)`显示结果并切换到译文操作，语言传`nil`时恢复普通编辑态。去重、过期或已编辑的请求会返回`false`。按钮文字和显示开关独立可配置。此前配置`translationProvider`的接入可迁移到此回调。
 
-媒体展开/收起按钮默认显示在首个媒体靠页面中间的一侧，`media.buttonPlacement`可切换为下方显示。按钮宽高、圆角、间距、字体和颜色均可配置，`showsItemCountInButton`控制是否显示媒体数量。
+媒体展开/收起按钮默认显示在首个媒体靠页面中间的一侧，`media.buttonPlacement`可切换为下方显示。按钮宽高、圆角、间距、字体和颜色均可配置，`showsItemCountInButton`控制是否显示媒体数量。 `media.buttonSpacing` 设置按钮和媒体的间距，`media.buttonSendingStatusSpacing` 设置侧边按钮和发送中、发送失败指示器的间距，默认 6 点。横向空间不足时按钮上下避让。普通消息的发送状态位置和尺寸继续由 `basic.messageSendingStateOffset`、`basic.messageSendingStateSize` 控制。
 
 输入栏默认无描边，文字输入和语音输入分别使用独立圆角。`input.textViewMaxHeight`默认限制输入框高度为适配后的120，超出部分在输入框内滚动。
 
@@ -382,3 +382,14 @@ SwiftVerify的聊天测试页点击“配置”可搜索并调整配置属性，
 录音默认在剩余 10 秒时显示倒计时。用 `recording.voiceCountdown`、`recording.dictationCountdown` 和 `recording.keyboardDictationCountdown` 分别配置长按发语音、长按转文字（或滑到转文字区）及点击输入框内麦克风的提示。每组支持 `leadTime`（设为 0 可关闭）、`text`（用 `{seconds}` 插入秒数）、`font`、`textColor`、`backgroundColor` 和 `spacing`。Swift 与 Objective-C 使用相同的属性名。
 
 长按输入框直接识别时，`recording.dictationShowsWaveform`默认`true`，分区操作模式同时显示转写文本和动态声波，设为`false`可隐藏声波。
+
+叠卡的 `stackedCardInsets` 为浏览视口内的额外四边间距。横向拖动时，所拖向一侧的留白达到 `stackedCardHorizontalInsetThreshold` 后，该侧留白也会计入顶卡的滑动行程。留白较小时沿用紧凑叠卡行程。手势仍覆盖整个浏览视口，卡片在视口边界裁剪。通过 `media.browser` 可为 ChatView 的折叠叠卡配置相同参数。
+
+`basic.avatarDoubleTapPatScope` 仅在双击头像动作配置为拍一拍时生效。可选 `.disabled`、`.othersOnly`、`.selfOnly`、`.everyone`，默认 `.everyone`。`content.fundsCaptionLeftInset` 设置资金气泡底部类型文字到气泡实际左边缘的距离，负值时对齐图标。
+
+语音默认使用 `recording.recordTime.max`，在 `voicePlayback.minimumWidthDuration` 到最大时长之间按比例增加气泡宽度。关闭 `voicePlayback.usesProportionalWidth` 可使用原有的 `widthGrowthPerSecond`。撤回的文字由 `notice.withdrawnText` 配置，`%@` 替换为消息发送者。可用 `notice.outgoingWithdrawnText` 单独配置发出消息，`nil` 沿用通用文案，空字符串隐藏提示。可以重新编辑的撤回消息仍提供按钮。拍一拍可沿用其已有的 `patWithdrawnText` 专用模板。
+
+
+聊天折叠卡默认使用较大的两侧留白。相册只有成功读取的项目数大于 `media.foldingThreshold` 时才询问是否折叠。默认阈值为 1，单张照片或单段视频直接发送，低于或等于阈值的组合分别发送。阈值也适用于 SDK 的合并发送入口。
+
+`basic.enablesAvatarPatHaptics` 默认开启，使用支持触觉反馈的设备会在拍一拍时播放轻触反馈。红包和转账图标默认带浅色底板，使用 `content.fundsIconBackgroundColor`、两种状态的底板透明度及圆角比例可调整效果。

@@ -92,6 +92,15 @@ extension WYChatView {
         state.hasUniqueMessageIDs ? .identifier(dataSource[indexPath.row].messageID) : .index(indexPath.row)
     }
 
+    func wy_hidesWithdrawal(at path: IndexPath) -> Bool {
+        guard dataSource.indices.contains(path.row) else { return false }
+        let model = dataSource[path.row]
+        guard model.content.withdrawn != nil else { return false }
+        let notice = (configuration.messageConfiguration?(model, configuration) ?? configuration).notice
+        return notice.wy_withdrawalTemplate(for: model, userID: userInfo.id).isEmpty
+            && !wy_chatCanReedit(model, userID: userInfo.id, configuration: notice, at: Date())
+    }
+
     func wy_cachedHeight(at indexPath: IndexPath) -> CGFloat? {
         guard dataSource.indices.contains(indexPath.row), configuration.customCellClasses.isEmpty,
               let cached = state.measuredHeights[wy_measurementKey(at: indexPath)], cached.width == tableView.bounds.width else { return nil }
@@ -110,6 +119,7 @@ extension WYChatView {
     }
 
     func wy_heightForMessage(at indexPath: IndexPath) -> CGFloat {
+        if wy_hidesWithdrawal(at: indexPath) { return .leastNormalMagnitude }
         guard dataSource.indices.contains(indexPath.row), configuration.customCellClasses.isEmpty else { return UITableView.automaticDimension }
         let width = tableView.bounds.width
         guard width > 0 else { return UITableView.automaticDimension }
@@ -148,6 +158,11 @@ extension WYChatView {
         if view === cell.state.voiceRateButton { return cell.state.voiceRateHeight?.constant ?? 0 }
         if view === cell.state.reeditButton { return cell.state.reeditHeight?.constant ?? 0 }
         if view === cell.state.mediaToggle { return cell.state.mediaToggleHeight?.constant ?? 0 }
+        if view === cell.state.inlineProgress { return cell.state.inlineProgressHeight?.constant ?? 0 }
+        if view === cell.state.fundsCaptionContainer {
+            let captionWidth = max(1, width - (cell.state.fundsCaptionLeft?.constant ?? 0))
+            return cell.state.fundsCaption.sizeThatFits(CGSize(width: captionWidth, height: .greatestFiniteMagnitude)).height
+        }
         if view === cell.state.mediaView { return cell.state.mediaView.height(for: width) }
         if view === cell.previewImageView { return cell.state.imageHeight?.constant ?? 0 }
         if view === cell.thumbnailImageView { return cell.state.thumbnailSize[1].constant }

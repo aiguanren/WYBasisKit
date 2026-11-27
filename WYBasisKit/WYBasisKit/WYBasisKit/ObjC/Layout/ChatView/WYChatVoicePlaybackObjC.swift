@@ -39,6 +39,8 @@ import WYBasisKitSwift
     public var minimumWidthDuration: TimeInterval
     /// 超过minimumWidthDuration后每秒增加的内容宽度
     public var widthGrowthPerSecond: CGFloat
+    /// 按最大录音时长分配语音气泡宽度，关闭时使用每秒宽度增量
+    public var usesProportionalWidth: Bool
     /// 语音秒数后的文字
     public var durationSuffix: String
     /// 语音秒数字体
@@ -95,6 +97,7 @@ import WYBasisKitSwift
         minimumWidth = value.minimumWidth
         minimumWidthDuration = value.minimumWidthDuration
         widthGrowthPerSecond = value.widthGrowthPerSecond
+        usesProportionalWidth = value.usesProportionalWidth
         durationSuffix = value.durationSuffix
         durationFont = value.durationFont
         waveformImages = value.waveformImages
@@ -131,6 +134,7 @@ import WYBasisKitSwift
         value.minimumWidth = minimumWidth
         value.minimumWidthDuration = minimumWidthDuration
         value.widthGrowthPerSecond = widthGrowthPerSecond
+        value.usesProportionalWidth = usesProportionalWidth
         value.durationSuffix = durationSuffix
         value.durationFont = durationFont
         value.waveformImages = waveformImages

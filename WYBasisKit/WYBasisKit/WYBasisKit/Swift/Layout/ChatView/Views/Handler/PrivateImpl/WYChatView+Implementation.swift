@@ -24,6 +24,7 @@ final class WYChatViewPrivateState {
     var listDefaultSeparatorInset = UIEdgeInsets.zero
     var preservingHistory = false
     var updatingMediaPage = false
+    var updatingMessageRows = false
     var updatingAttachmentProgress = false
     var keyboardIsPresented = false
     var isLayingOutInputSurfaceSwitch = false
@@ -117,7 +118,15 @@ final class WYChatBackgroundTapDelegate: NSObject, UIGestureRecognizerDelegate {
     }
 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        gestureRecognizer is UILongPressGestureRecognizer && otherGestureRecognizer is UITapGestureRecognizer
+        guard gestureRecognizer is UILongPressGestureRecognizer else { return false }
+        if otherGestureRecognizer is UITapGestureRecognizer { return true }
+        guard otherGestureRecognizer is UILongPressGestureRecognizer else { return false }
+        var view = otherGestureRecognizer.view
+        while let target = view, target !== gestureRecognizer.view {
+            if target is WYChatMessageTextView { return true }
+            view = target.superview
+        }
+        return false
     }
 }
 
@@ -406,13 +415,89 @@ extension WYChatView {
         NSLayoutConstraint.activate(state.inputDependent)
     }
 
+    func wy_refreshVoicePlaybackRows(_ paths: [IndexPath]) {
+        guard configuration.messageConfiguration == nil, configuration.customCellClasses.isEmpty else {
+            wy_refreshMessageRows(paths)
+            return
+        }
+        var relayouts = false
+        var customRows: [IndexPath] = []
+        UIView.performWithoutAnimation {
+            for path in paths {
+                let key = wy_measurementKey(at: path)
+                guard let cell = tableView.cellForRow(at: path) else {
+                    state.measuredHeights.removeValue(forKey: key)
+                    continue
+                }
+                guard let voiceCell = cell as? WYChatVoiceCell, type(of: voiceCell) == WYChatVoiceCell.self,
+                      voiceCell.message.messageID == dataSource[path.row].messageID else {
+                    customRows.append(path)
+                    continue
+                }
+                if voiceCell.wy_updateVoicePlayingState(dataSource[path.row]) {
+                    state.measuredHeights.removeValue(forKey: key)
+                    relayouts = true
+                }
+            }
+            if relayouts { tableView.performBatchUpdates(nil) }
+        }
+        if !customRows.isEmpty { wy_refreshMessageRows(customRows) }
+    }
+
+    func wy_refreshMessageRows(_ paths: [IndexPath]) {
+        guard state.ready, !paths.isEmpty else { return }
+        wy_closeMessageMenu()
+        tableView.layoutIfNeeded()
+        let anchor = wy_isOverscrolling ? nil : tableView.indexPathsForVisibleRows?.min().map { wy_readingAnchor(at: $0) }
+        let wasFollowingBottom = state.followsBottom
+        state.followsBottom = false
+        state.readingAnchor = anchor
+        defer {
+            state.readingAnchor = nil
+            state.followsBottom = wasFollowingBottom && wy_isNearBottom
+        }
+        let update = {
+            for path in paths { self.state.measuredHeights.removeValue(forKey: self.wy_measurementKey(at: path)) }
+            self.tableView.reconfigureRows(at: paths)
+            self.tableView.layoutIfNeeded()
+            self.wy_restoreReadingPosition()
+        }
+        UIView.performWithoutAnimation {
+            if let table = tableView as? WYChatMessageTableView { table.wy_performInternalUpdates(update) }
+            else { update() }
+        }
+    }
+
     func wy_reloadMessages(previous: [WYChatMessageModel]) {
         wy_closeMessageMenu()
         guard state.ready else { return }
+        if !state.preservingHistory, let paths = wy_voicePlaybackChanges(previous: previous), !paths.isEmpty {
+            wy_refreshVoicePlaybackRows(paths)
+            return
+        }
         UIView.performWithoutAnimation {
             if let table = tableView as? WYChatMessageTableView { table.wy_performInternalUpdates { wy_reloadMessageRows(previous: previous) } }
             else { wy_reloadMessageRows(previous: previous) }
         }
+    }
+
+    private func wy_voicePlaybackChanges(previous: [WYChatMessageModel]) -> [IndexPath]? {
+        guard previous.count == dataSource.count else { return nil }
+        var paths: [IndexPath] = []
+        for row in previous.indices where previous[row] != dataSource[row] {
+            let next = dataSource[row]
+            var candidate = previous[row]
+            guard var voice = candidate.content.voice, let playback = next.content.voice else { return nil }
+            voice.isPlaying = playback.isPlaying
+            voice.played = playback.played
+            voice.pause = playback.pause
+            voice.currentPlayDuration = playback.currentPlayDuration
+            voice.playbackRate = playback.playbackRate
+            candidate.content.voice = voice
+            guard candidate == next else { return nil }
+            paths.append(IndexPath(row: row, section: 0))
+        }
+        return paths
     }
 
     private func wy_reloadMessageRows(previous: [WYChatMessageModel]) {

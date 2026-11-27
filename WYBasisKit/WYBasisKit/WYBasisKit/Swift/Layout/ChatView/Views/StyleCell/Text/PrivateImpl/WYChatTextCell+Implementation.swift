@@ -44,6 +44,30 @@ final class WYChatTextEmojiPlayback {
     deinit { timer?.invalidate() }
 }
 
+private func wy_chatIsSingleEmoji(_ text: NSAttributedString) -> Bool {
+    if text.length == 1 && text.attribute(.attachment, at: 0, effectiveRange: nil) is WYTextAttachment { return true }
+    guard text.string.count == 1 else { return false }
+    return text.string.unicodeScalars.contains { $0.properties.isEmojiPresentation || $0.value == 0xFE0F || $0.value == 0x20E3 }
+}
+
+final class WYChatMessageTextView: UITextView {
+    var hasEmojiAttachments = false
+
+    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        guard super.point(inside: point, with: event) else { return false }
+        if wy_chatIsSingleEmoji(textStorage) { return false }
+        guard hasEmojiAttachments else { return true }
+        // 让消息菜单处理表情字形上的触点，普通文字仍交给文本控件。
+        let location = CGPoint(x: point.x - textContainerInset.left, y: point.y - textContainerInset.top)
+        let glyph = layoutManager.glyphIndex(for: location, in: textContainer)
+        guard glyph < layoutManager.numberOfGlyphs,
+              layoutManager.boundingRect(forGlyphRange: NSRange(location: glyph, length: 1), in: textContainer).contains(location) else { return true }
+        let index = layoutManager.characterIndexForGlyph(at: glyph)
+        guard index < textStorage.length else { return true }
+        return !(textStorage.attribute(.attachment, at: index, effectiveRange: nil) is WYTextAttachment)
+    }
+}
+
 final class WYChatMessageTextInteractionDelegate: NSObject, UITextViewDelegate {
     @available(iOS, introduced: 10.0, deprecated: 17.0)
     func textView(_ textView: UITextView, shouldInteractWith attachment: NSTextAttachment, in range: NSRange, interaction: UITextItemInteraction) -> Bool {
@@ -81,6 +105,8 @@ extension WYChatTextCell {
         wy_render()
     }
 
+    var wy_isSingleEmoji: Bool { wy_chatIsSingleEmoji(textView.textStorage) }
+
     func wy_renderText() {
         let value = configuration.text
         if !state.isMeasuring {
@@ -94,8 +120,11 @@ extension WYChatTextCell {
         let emoji = configuration.emoji
         let attributed = NSMutableAttributedString.wy_convertEmojiAttributed(emojiString: message.content.text ?? "", textColor: value.textColor, textFont: value.textFont, emojiTable: emoji.emojiSource, sourceBundle: emoji.emojiBundle, pattern: configuration.input.emojiPattern, customImageLoader: { name, _ in emoji.staticEmojiImage(name) })
         emojiPlayback.emojis.removeAll(keepingCapacity: true)
+        var hasEmojiAttachments = false
         attributed.enumerateAttribute(.attachment, in: NSRange(location: 0, length: attributed.length)) { item, range, _ in
-            guard let attachment = item as? WYTextAttachment, let image = attachment.image else { return }
+            guard let attachment = item as? WYTextAttachment else { return }
+            hasEmojiAttachments = true
+            guard let image = attachment.image else { return }
             let frames = image.images
             let staticImage = (emoji.staticFramePosition == .first ? frames?.first : frames?.last) ?? image
             attachment.image = staticImage
@@ -105,7 +134,8 @@ extension WYChatTextCell {
         }
         attributed.wy_lineSpacing(value.textLineSpacing, alignment: .natural)
         textView.textColor = value.textColor
-        textView.isSelectable = value.isSelectable
+        (textView as? WYChatMessageTextView)?.hasEmojiAttachments = hasEmojiAttachments
+        textView.isSelectable = value.isSelectable && !wy_chatIsSingleEmoji(attributed)
         textView.dataDetectorTypes = state.isMeasuring ? [] : value.dataDetectorTypes
         textView.textContainer.maximumNumberOfLines = max(0, value.textMaximumNumberOfLines)
         textView.attributedText = attributed

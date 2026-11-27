@@ -32,10 +32,12 @@ final class WYChatAvatarGestures: NSObject, UIGestureRecognizerDelegate {
         tap.require(toFail: doubleTap)
         for gesture in [tap, doubleTap, longPress] { gesture.delegate = self; view.addGestureRecognizer(gesture) }
     }
-    func apply(_ configuration: WYBasicChatConfig) {
+    func apply(_ configuration: WYBasicChatConfig, isOwnAvatar: Bool) {
         self.configuration = configuration
         tap.isEnabled = configuration.avatarTapAction != .none
-        doubleTap.isEnabled = configuration.avatarDoubleTapAction != .none
+        let scope = configuration.avatarDoubleTapPatScope
+        let canPat = scope == .everyone || scope == (isOwnAvatar ? .selfOnly : .othersOnly)
+        doubleTap.isEnabled = configuration.avatarDoubleTapAction != .none && (configuration.avatarDoubleTapAction != .takePat || canPat)
         longPress.isEnabled = configuration.avatarLongPressAction != .none
         longPress.minimumPressDuration = configuration.avatarLongPressDuration.isFinite ? max(0, configuration.avatarLongPressDuration) : WYBasicChatConfig().avatarLongPressDuration
     }

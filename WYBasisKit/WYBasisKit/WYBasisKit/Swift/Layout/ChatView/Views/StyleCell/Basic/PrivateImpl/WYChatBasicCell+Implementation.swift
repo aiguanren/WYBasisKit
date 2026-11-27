@@ -142,6 +142,9 @@ final class WYChatBasicCellPrivateState {
     let image = WYChatPlaceholderImageView()
     let footer = UILabel()
     let fundsCaption = UILabel()
+    let fundsCaptionContainer = UIView()
+    var fundsCaptionLeft: NSLayoutConstraint?
+    var hidesWithdrawnContent = false
     let inlineProgress = WYChatAttachmentProgressView()
     let mediaProgress = WYChatAttachmentProgressView()
     var inlineProgressHeight: NSLayoutConstraint?
@@ -222,10 +225,20 @@ extension WYChatBasicCell {
         state.mediaToggleHeight?.isActive = false
         bodyView.addArrangedSubview(state.image)
         bodyView.addArrangedSubview(state.header)
-        bodyView.addArrangedSubview(state.fundsCaption)
+        bodyView.addArrangedSubview(state.fundsCaptionContainer)
+        state.fundsCaptionContainer.addSubview(state.fundsCaption)
+        state.fundsCaption.translatesAutoresizingMaskIntoConstraints = false
+        let captionLeft = state.fundsCaption.leftAnchor.constraint(equalTo: state.fundsCaptionContainer.leftAnchor)
+        state.fundsCaptionLeft = captionLeft
+        NSLayoutConstraint.activate([
+            captionLeft,
+            state.fundsCaption.rightAnchor.constraint(equalTo: state.fundsCaptionContainer.rightAnchor),
+            state.fundsCaption.topAnchor.constraint(equalTo: state.fundsCaptionContainer.topAnchor),
+            state.fundsCaption.bottomAnchor.constraint(equalTo: state.fundsCaptionContainer.bottomAnchor)
+        ])
         bodyView.addArrangedSubview(state.inlineProgress)
         state.fundsCaption.numberOfLines = 0
-        state.fundsCaption.isHidden = true
+        state.fundsCaptionContainer.isHidden = true
         state.inlineProgress.isHidden = true
         state.mediaProgress.isHidden = true
         state.inlineProgressHeight = state.inlineProgress.heightAnchor.constraint(equalToConstant: 30)
@@ -291,9 +304,9 @@ extension WYChatBasicCell {
     func wy_render() {
         guard state.isReady, !state.isUpdating else { return }
         let basic = configuration.basic
-        state.avatarGestures?.apply(basic)
-        avatarView.accessibilityIdentifier = "WYChatAvatar.\(message.messageID)"
         let sender = message.isSender(userID)
+        state.avatarGestures?.apply(basic, isOwnAvatar: sender)
+        avatarView.accessibilityIdentifier = "WYChatAvatar.\(message.messageID)"
         let side = sender ? configuration.sender : configuration.receiver
         timeView.font = basic.timeFont
         timeView.textColor = basic.timeColor
@@ -341,7 +354,7 @@ extension WYChatBasicCell {
         state.title.text = nil
         state.detail.text = nil
         state.footer.text = nil
-        state.fundsCaption.isHidden = true
+        state.fundsCaptionContainer.isHidden = true
         state.usesImage = false
         state.preferredContentWidth = nil
         state.image.imageCornerRadius = 0
@@ -363,7 +376,10 @@ extension WYChatBasicCell {
         referenceView.accessibilityIdentifier = "WYChatReference.\(message.messageID)"
         referenceView.isMeasuring = state.isMeasuring
         referenceView.wy_updateQuote(message.reference, style: configuration.quote.message, configuration: configuration)
+        if state.hidesWithdrawnContent { contentView.isHidden = false }
         renderContent()
+        state.hidesWithdrawnContent = message.content.withdrawn != nil && state.title.isHidden && state.reeditButton.isHidden
+        if state.hidesWithdrawnContent { contentView.isHidden = true }
         wy_renderVoicePlayback()
         state.title.setContentCompressionResistancePriority(state.voiceRateButton.isHidden ? .defaultHigh : UILayoutPriority(999), for: .horizontal)
         state.image.isHidden = !state.usesImage
@@ -495,7 +511,8 @@ extension WYChatBasicCell {
         state.referenceTop.constant = referenceGap
         state.bubbleBottom.constant -= referenceHeight + referenceGap
         let arrow = style.showsBubble && bubbleConfig.showsArrow && !wy_isNotice ? max(0, bubbleConfig.arrowSize.height) : 0
-        wy_layoutVoicePlayback(width: max(1, state.width.constant - max(0, style.insets.left) - max(0, style.insets.right) - arrow))
+        let availableContentWidth = max(1, state.width.constant - max(0, style.insets.left) - max(0, style.insets.right) - arrow)
+        wy_layoutVoicePlayback(width: availableContentWidth)
         if let cell = self as? WYChatTextCell {
             let text = cell.textView.attributedText ?? NSAttributedString()
             let maximumLines = max(0, configuration.text.textMaximumNumberOfLines)
@@ -527,6 +544,13 @@ extension WYChatBasicCell {
         state.bodyInsets[1].constant = max(0, style.insets.left) + (sender ? 0 : arrow)
         state.bodyInsets[2].constant = -max(0, style.insets.bottom)
         state.bodyInsets[3].constant = -max(0, style.insets.right) - (sender ? arrow : 0)
+        if !state.fundsCaptionContainer.isHidden {
+            let bodyLeftInset = bodyView.effectiveUserInterfaceLayoutDirection == .rightToLeft ? -state.bodyInsets[3].constant : state.bodyInsets[1].constant
+            let leftInset = style.fundsCaptionLeftInset
+            let proposed = leftInset.isFinite && leftInset >= 0 ? leftInset - bodyLeftInset : 0
+            let captionWidth = min(availableContentWidth, state.preferredWidth?.constant ?? availableContentWidth)
+            state.fundsCaptionLeft?.constant = min(captionWidth - 1, proposed)
+        }
         (bubblesView as? WYChatBubbleView)?.alignmentFromTop = alignsArrow ? max(0, avatarShift + avatarHeight / 2 - nicknameHeight - side.contentTopOffset) : nil
     }
 

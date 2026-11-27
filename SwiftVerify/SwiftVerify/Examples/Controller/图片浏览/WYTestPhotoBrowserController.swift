@@ -16,7 +16,7 @@ struct PhotoBrowserSettingsModel {
     /// 翻页方向(0横向 1纵向)
     var scrollDirection: Int = 0
 
-    /// 同屏布局(0整页 1多页同屏)
+    /// 同屏布局(0整页 1多页同屏 2紧凑叠卡 3带侧边空间的叠卡)
     var layoutStyle: Int = 0
 
     /// 多页同屏两侧露出宽度档位(0窄20 1宽40)
@@ -162,7 +162,11 @@ class WYTestPhotoBrowserController: UIViewController, WYPhotoBrowserDataSource, 
     func buildConfiguration() -> WYPhotoBrowserConfiguration {
         var configuration = WYPhotoBrowserConfiguration()
         configuration.scrollDirection = settings.scrollDirection == 0 ? .horizontal : .vertical
-        configuration.layoutStyle = settings.layoutStyle == 0 ? .fullPage : .multiPage
+        configuration.layoutStyle = [.fullPage, .multiPage, .stackedCards, .stackedCards][settings.layoutStyle]
+        if settings.layoutStyle == 3 {
+            configuration.stackedCardInsets = UIEdgeInsets(top: 20, left: 56, bottom: 32, right: 48)
+            configuration.stackedCardHorizontalInsetThreshold = 24
+        }
         configuration.multiPageRevealWidth = [40, 60][settings.revealWidthLevel]
         configuration.multiPageSpacing = [10, 20][settings.multiPageSpacingLevel]
         configuration.transformStyle = WYPhotoBrowserTransformStyle(rawValue: settings.transformStyle) ?? .none
@@ -583,7 +587,7 @@ class WYTestPhotoBrowserSettingsViewController: UIViewController, UITableViewDat
             ("浏览与转场", [
                 optionRow("翻页方向", options: ["横向左右翻页", "纵向上下翻页"], currentIndex: { [weak self] in self?.settings.scrollDirection ?? 0 }, apply: { [weak self] index in self?.settings.scrollDirection = index }),
                 optionRow("转场样式", options: ["缩放(从缩略图飞入)", "渐隐"], currentIndex: { [weak self] in self?.settings.transitionStyle ?? 0 }, apply: { [weak self] index in self?.settings.transitionStyle = index }),
-                optionRow("同屏布局", options: ["整页(一次一张)", "多页同屏(一次多张)"], currentIndex: { [weak self] in self?.settings.layoutStyle ?? 0 }, apply: { [weak self] index in self?.settings.layoutStyle = index }),
+                optionRow("同屏布局", options: ["整页(一次一张)", "多页同屏(一次多张)", "紧凑叠卡", "带侧边空间的叠卡"], currentIndex: { [weak self] in self?.settings.layoutStyle ?? 0 }, apply: { [weak self] index in self?.settings.layoutStyle = index }),
                 optionRow("两侧露出宽度", options: ["常规(40)", "宽(60)"], currentIndex: { [weak self] in self?.settings.revealWidthLevel ?? 0 }, apply: { [weak self] index in self?.settings.revealWidthLevel = index }),
                 optionRow("页间距", options: ["窄(10)", "宽(20)"], currentIndex: { [weak self] in self?.settings.multiPageSpacingLevel ?? 0 }, apply: { [weak self] index in self?.settings.multiPageSpacingLevel = index }),
                 optionRow("滑动过渡特效", options: ["无", "等比缩小", "缩小并压暗", "横向压缩", "向旁堆叠", "相邻页重叠"], currentIndex: { [weak self] in self?.settings.transformStyle ?? 0 }, apply: { [weak self] index in self?.settings.transformStyle = index }),

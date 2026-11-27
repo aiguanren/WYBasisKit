@@ -10,9 +10,15 @@ import UIKit
 extension WYChatView: UITableViewDelegate, UITableViewDataSource {
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { dataSource.count }
 
-    public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat { wy_cachedHeight(at: indexPath) ?? UITableView.automaticDimension }
+    public func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        if wy_hidesWithdrawal(at: indexPath) { return .leastNormalMagnitude }
+        return wy_cachedHeight(at: indexPath) ?? UITableView.automaticDimension
+    }
 
-    public func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat { wy_cachedHeight(at: indexPath) ?? tableView.estimatedRowHeight }
+    public func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        if wy_hidesWithdrawal(at: indexPath) { return .leastNormalMagnitude }
+        return wy_cachedHeight(at: indexPath) ?? tableView.estimatedRowHeight
+    }
 
     public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         (cell as? WYChatTextCell)?.wy_beginEmojiDisplay(in: self)
@@ -58,7 +64,8 @@ extension WYChatView: UITableViewDelegate, UITableViewDataSource {
     }
 
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
+        guard dataSource.indices.contains(indexPath.row) else { return }
+        tableView.deselectRow(at: indexPath, animated: dataSource[indexPath.row].content.voice == nil)
         guard isSelectingMessages || dataSource[indexPath.row].content.mediaGroup == nil else { return }
         wy_performAction(isSelectingMessages ? .select : .content, messageID: dataSource[indexPath.row].messageID)
     }

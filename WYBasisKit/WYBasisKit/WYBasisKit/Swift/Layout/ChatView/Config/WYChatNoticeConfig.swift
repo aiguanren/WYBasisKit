@@ -61,9 +61,11 @@ public struct WYChatNoticeConfig {
     public var reeditHeight: CGFloat = UIDevice.wy_screenHeight(24, WYBasisKitConfig.defaultScreenPixels)
     /// 重新编辑按钮与提示文字的间距
     public var reeditSpacing: CGFloat = UIDevice.wy_screenHeight(4, WYBasisKitConfig.defaultScreenPixels)
-    /// 普通消息撤回提示，%@替换为发送者名称
+    /// 普通消息撤回提示，%@ 替换为发送者名称，空字符串隐藏提示
     public var withdrawnText: String = WYLocalized("%@撤回了一条消息", table: WYBasisKitConfig.kitLocalizableTable)
-    /// 拍一拍撤回提示，空字符串时使用withdrawnText，%@替换为发送者名称
+    /// 发出的普通消息撤回文案，nil 沿用 withdrawnText，空字符串隐藏提示
+    public var outgoingWithdrawnText: String? = nil
+    /// 拍一拍撤回提示，空字符串沿用对应收发方的普通模板，%@ 替换为发送者名称
     public var patWithdrawnText: String = ""
     /// 拍一拍提示底色，nil时仅显示文字
     public var patBackgroundColor: UIColor? = .tertiarySystemFill
@@ -72,4 +74,11 @@ public struct WYChatNoticeConfig {
     /// 自定义拍一拍文案，支持{sender}、{recipient}和{note}，nil时使用本地化文案
     public var patText: String?
     public init() {}
+}
+
+extension WYChatNoticeConfig {
+    func wy_withdrawalTemplate(for message: WYChatMessageModel, userID: String) -> String {
+        if message.content.withdrawn?.messageStyle == .takePat && !patWithdrawnText.isEmpty { return patWithdrawnText }
+        return message.isSender(userID) ? outgoingWithdrawnText ?? withdrawnText : withdrawnText
+    }
 }

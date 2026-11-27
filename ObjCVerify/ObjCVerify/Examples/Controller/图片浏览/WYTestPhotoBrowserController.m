@@ -272,6 +272,22 @@
         }],
     ]);
 
+    appendSection(@"横向叠卡", @[
+        [WYTestEntryObjC entryWithTitle:@"紧凑叠卡" items:^{ return weakSelf.localItems; } config:^{
+            WYPhotoBrowserConfiguration *configuration = [[WYPhotoBrowserConfiguration alloc] init];
+            configuration.layoutStyle = WYPhotoBrowserLayoutStyleStackedCards;
+            return configuration;
+        }],
+        [WYTestEntryObjC entryWithTitle:@"带侧边空间的叠卡" items:^{ return weakSelf.localItems; } config:^{
+            WYPhotoBrowserConfiguration *configuration = [[WYPhotoBrowserConfiguration alloc] init];
+            configuration.layoutStyle = WYPhotoBrowserLayoutStyleStackedCards;
+            configuration.stackedCardInsets = UIEdgeInsetsMake(20, 56, 32, 48);
+            configuration.stackedCardHorizontalInsetThreshold = 24;
+            configuration.allowsLoopScrolling = YES;
+            return configuration;
+        }],
+    ]);
+
     appendSection(@"外观与菜单", @[
         [WYTestEntryObjC entryWithTitle:@"深蓝定制主题(外观字段全赋值)" items:^{ return [weakSelf.localItems arrayByAddingObjectsFromArray:weakSelf.remoteItems]; } config:^{
             WYPhotoBrowserConfiguration *configuration = [[WYPhotoBrowserConfiguration alloc] init];

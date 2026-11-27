@@ -201,6 +201,10 @@ import WYBasisKitSwift
     public var stackedCardDragRotationAngle: CGFloat = .pi / 10
     /// 拖动时叠卡沿滚动轴展开的幅度
     public var stackedCardDragTravelFraction: CGFloat = 0.25
+    /// 卡片静止时在浏览视口内保留的额外四边间距，单位点。
+    public var stackedCardInsets: UIEdgeInsets = .zero
+    /// 横向拖动两侧各自启用额外行程所需的最小配置间距，默认 24 点。
+    public var stackedCardHorizontalInsetThreshold: CGFloat = 24
     /// 拖动达到该比例后前卡开始淡出
     public var stackedCardFadeStart: CGFloat = 0.72
     /// 叠卡旋转支点，横纵坐标范围0到1，默认底部中心

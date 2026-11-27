@@ -16,6 +16,12 @@ import UIKit
 /// 头像手势操作
 @objc public enum WYChatAvatarAction: Int { case none, profile, mention, takePat }
 
+/// 音乐、文件等附件卡片的进度位置。
+@objc public enum WYChatAttachmentProgressPlacement: Int {
+    case overlay
+    case bottom
+}
+
 /// 收发方向的布局配置
 public struct WYChatSideLayout {
     /// 消息昵称对齐方式，nil时按收发侧对齐
@@ -160,10 +166,18 @@ public struct WYChatContentConfig {
     public var fundsTransferCaption: String = "转账"
     /// 媒体进度环与卡片进度条的线宽
     public var transferLineWidth: CGFloat = 2.5
+    /// 传输进度环的外半径，负数时沿用 transferControlSize
+    public var transferRingRadius: CGFloat = -1
+    /// 传输进度条圆角，负数时使用线宽的一半
+    public var transferBarCornerRadius: CGFloat = -1
     /// 进度操作图标的模板颜色，nil时使用默认配色
     public var transferControlTintColor: UIColor? = nil
     /// 进度状态文字颜色，nil时使用默认配色
     public var transferStatusTextColor: UIColor? = nil
+    /// 进度状态文字字体及字号，nil 时使用 detailFont
+    public var transferStatusFont: UIFont? = nil
+    /// 附件卡片默认使用媒体进度环，切换为 bottom 可在卡片底部显示进度条
+    public var attachmentProgressPlacement: WYChatAttachmentProgressPlacement = .overlay
     /// 是否将传输操作图标作为模板着色
     public var transferTintsControlImages: Bool = true
     /// 文件卡片图标是否放在内容尾侧
@@ -176,6 +190,8 @@ public struct WYChatContentConfig {
     public var fundsIconSide: CGFloat = 36
     /// 资金卡片底部说明的透明度
     public var fundsCaptionOpacity: CGFloat = 0.82
+    /// 资金卡片底部文字距气泡实际左边缘的距离，负数时与图标左边缘对齐
+    public var fundsCaptionLeftInset: CGFloat = -1
     /// 转账金额未自带符号时使用的货币前缀
     public var fundsAmountPrefix: String = "¥"
     /// 待领取资金卡片内置图标的默认着色
@@ -191,9 +207,9 @@ public struct WYChatContentConfig {
     /// 红包或转账已退回提示
     public var fundsReturnedText: String = WYLocalized("已退回", table: WYBasisKitConfig.kitLocalizableTable)
     /// 待领取资金图标默认底色透明度
-    public var fundsAvailableIconBackgroundOpacity: CGFloat = 0.10
+    public var fundsAvailableIconBackgroundOpacity: CGFloat = 0.24
     /// 已处理资金图标默认底色透明度
-    public var fundsInactiveIconBackgroundOpacity: CGFloat = 0
+    public var fundsInactiveIconBackgroundOpacity: CGFloat = 0.64
     /// 资金图标背景圆角占短边的比例
     public var fundsIconCornerRadiusRatio: CGFloat = 0.25
     /// 网页封面高度占媒体配置高度的比例

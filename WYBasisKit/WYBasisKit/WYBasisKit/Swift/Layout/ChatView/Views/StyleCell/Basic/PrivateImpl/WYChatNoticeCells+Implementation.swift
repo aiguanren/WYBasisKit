@@ -12,9 +12,9 @@ extension WYChatBasicCell {
     func wy_renderNotice() {
         switch message.content.style() {
         case .withdrawn:
-            let isPat = message.content.withdrawn?.messageStyle == .takePat
-            let template = isPat && !configuration.notice.patWithdrawnText.isEmpty ? configuration.notice.patWithdrawnText : configuration.notice.withdrawnText
+            let template = configuration.notice.wy_withdrawalTemplate(for: message, userID: userID)
             state.title.text = template.replacingOccurrences(of: "%@", with: message.sender.name)
+            state.title.isHidden = template.isEmpty
             wy_renderReedit()
         case .takePat:
             guard let value = message.content.takePat else { return }

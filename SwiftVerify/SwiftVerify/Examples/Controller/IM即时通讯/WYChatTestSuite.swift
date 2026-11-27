@@ -969,6 +969,17 @@ final class WYChatTestSuite {
             config.basic.avatarLongPressDuration = 0.6
             cell.update(message: message, configuration: config, userID: self.chatView.userInfo.id)
             check("avatar-gesture-configuration", cell.avatarView.gestureRecognizers?.allSatisfy(\.isEnabled) == true && cell.avatarView.gestureRecognizers?.compactMap { $0 as? UILongPressGestureRecognizer }.first?.minimumPressDuration == 0.6)
+            let scopes: [(WYChatAvatarDoubleTapPatScope, Bool, Bool)] = [
+                (.disabled, false, false), (.othersOnly, false, true), (.selfOnly, true, false), (.everyone, true, true)
+            ]
+            for (scope, allowsSelf, allowsOthers) in scopes {
+                config.basic.avatarDoubleTapPatScope = scope
+                for (userID, allowed) in [(message.sender.id, allowsSelf), (self.chatView.userInfo.id, allowsOthers)] {
+                    cell.update(message: message, configuration: config, userID: userID)
+                    let doubleTap = cell.avatarView.gestureRecognizers?.compactMap { $0 as? UITapGestureRecognizer }.first { $0.numberOfTapsRequired == 2 }
+                    check("avatar-pat-scope-\(scope)-\(message.isSender(userID))", doubleTap?.isEnabled == allowed)
+                }
+            }
             config.basic.avatarLongPressDuration = .nan
             cell.update(message: message, configuration: config, userID: self.chatView.userInfo.id)
             check("avatar-invalid-duration-default", cell.avatarView.gestureRecognizers?.compactMap { $0 as? UILongPressGestureRecognizer }.first?.minimumPressDuration == WYBasicChatConfig().avatarLongPressDuration)
@@ -1429,6 +1440,43 @@ final class WYChatTestSuite {
             check("voice-rate-disabled-hidden", button()?.isHidden != false)
             view.dataSource[0].content = WYChatMessageContentModel(text: "替换为文本")
             check("voice-rate-nonvoice", !view.setVoicePlaybackRate(2, messageID: "rate-api"))
+            var proportional = config
+            proportional.voicePlayback.showsRateControl = false
+            proportional.voicePlayback.minimumWidthDuration = 0
+            proportional.recording.recordTime.max = 60
+            var avatarLoads = 0
+            let avatarImage = UIImage(systemName: "person.crop.circle")
+            proportional.imageLoader = { _, imageView, _ in
+                if imageView.accessibilityIdentifier == "WYChatAvatar.voice-width-1" { avatarLoads += 1 }
+                imageView.image = avatarImage
+            }
+            view.configuration = proportional
+            view.dataSource = [0.0, 20.0, 60.0].enumerated().map { index, duration in
+                WYChatMessageModel(messageID: "voice-width-\(index)", sender: view.userInfo, content: WYChatMessageContentModel(voice: WYChatVoiceModel(duration: duration)))
+            }
+            view.layoutIfNeeded()
+            view.tableView.layoutIfNeeded()
+            let visibleVoiceCells = (0..<3).compactMap { view.tableView.cellForRow(at: IndexPath(row: $0, section: 0)) as? WYChatBasicCell }
+            let widths = visibleVoiceCells.map { $0.bodyView.bounds.width }
+            check("voice-width-20-of-60", widths.count == 3 && widths[2] > widths[0] && abs((widths[1] - widths[0]) / (widths[2] - widths[0]) - 1.0 / 3.0) < 0.03, "\(widths)")
+            let voicePath = IndexPath(row: 1, section: 0)
+            let neighborPath = IndexPath(row: 0, section: 0)
+            let neighbor = view.tableView.cellForRow(at: neighborPath)
+            let voiceCell = view.tableView.cellForRow(at: voicePath) as? WYChatVoiceCell
+            let loadCount = avatarLoads
+            let origin = view.tableView.contentOffset
+            view.tableView(view.tableView, didSelectRowAt: voicePath)
+            check("voice-tap-preserves-neighbor-and-viewport", view.dataSource[1].content.voice?.isPlaying == true
+                && neighbor != nil && neighbor === view.tableView.cellForRow(at: neighborPath)
+                && abs(view.tableView.contentOffset.y - origin.y) < 1)
+            view.tableView(view.tableView, didSelectRowAt: voicePath)
+            check("voice-second-tap-pauses", view.dataSource[1].content.voice?.isPlaying == false)
+            view.dataSource[1].content.voice?.isPlaying = true
+            check("voice-rate-updates-in-place", view.setVoicePlaybackRate(1.5, messageID: "voice-width-1") && voiceCell?.message.content.voice?.playbackRate == 1.5)
+            view.tableView.layoutIfNeeded()
+            check("voice-playback-does-not-reload-avatar", voiceCell != nil && voiceCell === view.tableView.cellForRow(at: voicePath)
+                && voiceCell?.thumbnailImageView.isAnimating == true && loadCount > 0 && avatarLoads == loadCount
+                && voiceCell?.avatarView.image === avatarImage, "loads=\(loadCount)/\(avatarLoads)")
             for width: CGFloat in [320, 393, 768] {
                 for factor: CGFloat in [1, 1.5] {
                     var layout = config
@@ -1823,6 +1871,21 @@ final class WYChatTestSuite {
             check("reedit-restores-mention-identity", view.reeditMessage(mentioned.messageID) && view.inputMentions == mentioned.mentions && !view.inputMentions.isEmpty)
             check("receiver-withdrawal-does-not-preserve-editable-text", view.markMessageWithdrawn(source.messageID, at: now) && !view.canReeditMessage(source.messageID) && view.messageModelFrom(source.messageID)?.content.withdrawn?.originalText == nil)
             check("withdraw-updates-quoted-snapshots", view.messageModelFrom(reply.messageID)?.content.withdrawn?.reference?.content.withdrawn != nil)
+            var noticeStyle = config
+            noticeStyle.notice.withdrawnText = "已撤回：%@"
+            noticeStyle.notice.outgoingWithdrawnText = ""
+            view.configuration = noticeStyle
+            view.tableView.layoutIfNeeded()
+            let incomingNotice = view.tableView.cellForRow(at: IndexPath(row: 0, section: 0)) as? WYChatBasicCell
+            let outgoingNotice = view.tableView.cellForRow(at: IndexPath(row: 1, section: 0)) as? WYChatBasicCell
+            check("incoming-custom-withdrawal-text", incomingNotice?.titleView.text == "已撤回：被引用用户")
+            check("outgoing-hidden-text-retains-reedit", outgoingNotice?.titleView.isHidden == true && view.canReeditMessage(reply.messageID))
+            noticeStyle.notice.withdrawnText = ""
+            view.configuration = noticeStyle
+            view.tableView.layoutIfNeeded()
+            check("empty-incoming-withdrawal-collapses-row", view.tableView.rectForRow(at: IndexPath(row: 0, section: 0)).height < 1
+                && view.messageModelFrom(source.messageID)?.content.withdrawn != nil)
+            view.configuration = config
             var pat = WYChatTakePatModel()
             pat.striking = view.userInfo
             pat.beaten = other
@@ -2471,6 +2534,34 @@ final class WYChatTestSuite {
                 browser.currentIndex = 0
                 collection.layoutIfNeeded()
             }
+            var travel: [CGFloat] = []
+            for threshold: CGFloat in [100, 24] {
+                var spaced = config
+                spaced.stackedCardInsets = UIEdgeInsets(top: 7, left: 48, bottom: 19, right: 34)
+                spaced.stackedCardHorizontalInsetThreshold = threshold
+                let wider = WYPhotoBrowser(configuration: spaced)
+                wider.dataSource = source
+                wider.view.frame = CGRect(x: 0, y: 0, width: 320, height: 390)
+                host.addSubview(wider.view)
+                defer { wider.view.removeFromSuperview() }
+                wider.view.layoutIfNeeded()
+                guard let pages = descendants(wider.view).compactMap({ $0 as? UICollectionView }).first else { continue }
+                let path = IndexPath(item: 1, section: 0)
+                wider.currentIndex = path.item
+                pages.layoutIfNeeded()
+                let start = pages.collectionViewLayout.layoutAttributesForItem(at: path)
+                let viewport = pages.bounds
+                wider.scrollViewWillBeginDragging(pages)
+                pages.setContentOffset(CGPoint(x: viewport.origin.x + viewport.width / 2, y: viewport.origin.y), animated: false)
+                pages.layoutIfNeeded()
+                let moved = pages.collectionViewLayout.layoutAttributesForItem(at: path)
+                if let start, let moved {
+                    check("browser-stack-asymmetric-insets-\(Int(threshold))",
+                          abs(start.center.x - viewport.midX - 7) < 1 && abs(start.center.y - viewport.midY + 6) < 1)
+                    travel.append((start.center.x - viewport.midX) - (moved.center.x - pages.bounds.midX))
+                }
+            }
+            check("browser-stack-threshold-adds-side-travel", travel.count == 2 && travel[1] > travel[0] + 30, "\(travel)")
             let expand = WYLocalized("展开", table: WYBasisKitConfig.kitLocalizableTable)
             let collapse = WYLocalized("收起", table: WYBasisKitConfig.kitLocalizableTable)
             check("browser-has-no-fold-controls", !descendants(browser.view).compactMap { $0 as? UIButton }.contains { $0.currentTitle == expand || $0.currentTitle == collapse })
@@ -2545,6 +2636,8 @@ final class WYChatTestSuite {
             config.layoutStyle = .stackedCards
             config.allowsLoopScrolling = true
             config.stackedCardCyclesForward = true
+            config.stackedCardInsets = UIEdgeInsets(top: 12, left: 42, bottom: 18, right: 50)
+            config.stackedCardHorizontalInsetThreshold = 24
             config.isEmbedded = true
             config.pageIndicatorStyle = .none
             config.appearance.backgroundColor = .systemGroupedBackground
@@ -2613,6 +2706,8 @@ final class WYChatTestSuite {
             var config = self.chatView.configuration
             config.media.presentation = .merged
             config.media.automaticallyPresentsBrowser = true
+            config.media.browser.stackedCardInsets = UIEdgeInsets(top: 4, left: 28, bottom: 6, right: 32)
+            config.media.browser.stackedCardHorizontalInsetThreshold = 24
             host.view.accessibilityIdentifier = "WYChatTests.mediaGestureHost"
             let view = WYChatView(userInfo: self.chatView.userInfo, configuration: config)
             host.view.addSubview(view)
@@ -2856,6 +2951,8 @@ final class WYChatTestSuite {
             guard let self else { return [] }
             var config = WYChatConfig()
             config.content.transferProgressDelay = 0
+            config.content.transferRingRadius = 15
+            config.content.transferLineWidth = 3
             config.notice.fundsSentPacketReceiptText = "{actor}已打开红包"
             config.selection.usesForwardActionSheet = true
             let chat = WYChatView(userInfo: WYChatUserModel(id: "self", name: "本人"), configuration: config)
@@ -2896,6 +2993,8 @@ final class WYChatTestSuite {
             let outgoingCell = cell(1)
             let pauseControl = outgoingCell.flatMap { button(in: $0) }
             check("outgoing-video-pause-control", pauseControl?.accessibilityValue == "20%" && pauseControl?.currentImage != nil)
+            let stroke = pauseControl?.superview?.layer.sublayers?.compactMap { $0 as? CAShapeLayer }.first { $0.strokeEnd == 0.2 }
+            check("video-uses-configured-radius-and-line-width", stroke?.lineWidth == 3 && abs((stroke?.path?.boundingBox.width ?? 0) - 27) < 1)
             pauseControl?.sendActions(for: .touchUpInside)
             check("video-pause-preserves-progress", chat.updateTransfer(messageID: sent.messageID, state: .paused)
                 && chat.messageModelFrom(sent.messageID)?.transferProgress == 0.2)
@@ -2917,10 +3016,20 @@ final class WYChatTestSuite {
             check("send-confirmation-can-cancel-and-complete-once", approved == 1)
             let fileMessage = chat.sendContent(file, messageID: "file")
             chat.updateTransfer(messageID: fileMessage.messageID, state: .transferring, progress: 0.5)
-            check("file-renders-inline-progress", cell(2).flatMap { button(in: $0) }?.accessibilityValue == "50%")
+            let fileControl = cell(2).flatMap { button(in: $0) }
+            let fileRing = fileControl?.superview?.layer.sublayers?.compactMap { $0 as? CAShapeLayer }.first { $0.strokeEnd == 0.5 }
+            check("file-default-reuses-media-ring", fileControl?.accessibilityValue == "50%" && fileRing?.path != nil)
 
             let packet = chat.sendContent(WYChatMessageContentModel(luckyMoney: WYChatLuckyMoneyModel(amounts: "8.88")), messageID: "packet")
-            let initialColor = cell(3)?.bubblesView.fillColor
+            let packetCell = cell(3)
+            let initialColor = packetCell?.bubblesView.fillColor
+            check("packet-icon-has-light-background", (packetCell?.thumbnailImageView.backgroundColor?.cgColor.alpha ?? 0) > 0.15)
+            let packetCaption = packetCell?.bodyView.arrangedSubviews.flatMap(\.subviews).compactMap { $0 as? UILabel }.first { $0.text == config.content.fundsPacketCaption }
+            if let packetCell, let packetCaption {
+                let captionLeft = packetCaption.convert(packetCaption.bounds, to: packetCell.bubblesView).minX
+                let iconLeft = packetCell.thumbnailImageView.convert(packetCell.thumbnailImageView.bounds, to: packetCell.bubblesView).minX
+                check("funds-caption-default-aligns-to-icon", abs(captionLeft - iconLeft) < 1)
+            } else { check("funds-caption-default-aligns-to-icon", false) }
             var displayedDetail = ""
             chat.messageDetailHandler = { message in displayedDetail = message.messageID; return true }
             cell(3)?.actionHandler?(.content, packet.messageID)
@@ -2933,6 +3042,7 @@ final class WYChatTestSuite {
             let transfer = chat.sendContent(WYChatMessageContentModel(transfer: WYChatLuckyMoneyModel(amounts: "20.00")), messageID: "transfer")
             check("transfer-pending-copy", cell(5)?.footerView.text == config.content.fundsPendingTransferText)
             chat.markFundsReceived(transfer.messageID)
+            check("processed-transfer-icon-retains-light-background", (cell(5)?.thumbnailImageView.backgroundColor?.cgColor.alpha ?? 0) > 0.5)
             check("outgoing-transfer-received-copy", cell(5)?.footerView.text == config.content.fundsSentTransferReceivedText)
             let defaultProgressDelay = WYChatConfig().content.transferProgressDelay
             check("send-progress-delay-default", defaultProgressDelay == 0.5)
@@ -3015,6 +3125,58 @@ final class WYChatTestSuite {
             } else {
                 check("mixed-media-message", false)
             }
+            config.content.transferStatusFont = .monospacedDigitSystemFont(ofSize: 17, weight: .semibold)
+            config.content.transferStatusTextColor = .systemPurple
+            config.content.transferLineWidth = 4
+            config.content.transferBarCornerRadius = 1
+            config.content.transferSenderColor = .systemOrange
+            config.content.transferReceiverColor = .systemTeal
+            config.content.fundsCaptionLeftInset = 24
+            config.senderBubble.showsArrow = true
+            config.senderBubble.cornerRadius = 14
+            config.receiverBubble.showsArrow = true
+            config.receiverBubble.cornerRadius = 18
+            config.receiverBubble.cornersPosition = [.topLeft, .bottomRight]
+            config.receiverBubble.borderWidth = 2
+            chat.configuration = config
+            let styledTransfer = cell(5)
+            let caption = styledTransfer?.bodyView.arrangedSubviews.flatMap(\.subviews).compactMap { $0 as? UILabel }.first { $0.text == config.content.fundsTransferCaption }
+            check("funds-caption-custom-physical-left", styledTransfer.flatMap { value in
+                caption.map { abs($0.convert($0.bounds, to: value.bubblesView).minX - 24) < 1 }
+            } == true)
+            @MainActor func views(_ view: UIView) -> [UIView] {
+                guard !view.isHidden else { return [] }
+                return [view] + view.subviews.flatMap { views($0) }
+            }
+            let cards = [file, WYChatMessageContentModel(music: WYChatMusicModel()),
+                         WYChatMessageContentModel(businessCard: WYChatBusinessCardModel()),
+                         WYChatMessageContentModel(chatRecords: WYChatRecordsModel()),
+                         WYChatMessageContentModel(webpage: WYChatWebpageModel(title: "示例收藏")),
+                         WYChatMessageContentModel(location: WYChatLocationModel())]
+            for (index, content) in cards.enumerated() {
+                let sender = index.isMultiple(of: 2)
+                var message = WYChatMessageModel(messageID: "bottom-progress-\(index)", sender: sender ? chat.userInfo : incoming.sender, content: content)
+                message.transferState = .transferring
+                message.transferProgress = 0.4
+                let row = chat.dataSource.count
+                chat.appendMessages([message])
+                let rendered = cell(row)
+                let status = rendered.flatMap { views($0).first { $0.accessibilityIdentifier == "WYChatTransfer.status" } as? UILabel }
+                let tint = sender ? config.content.transferSenderColor : config.content.transferReceiverColor
+                let ring = status?.superview?.layer.sublayers?.compactMap { $0 as? CAShapeLayer }.first { $0.strokeEnd == 0.4 }
+                let bubble = rendered?.bubblesView
+                let overlay = status?.superview
+                let mask = overlay?.layer.mask as? CAShapeLayer
+                check("card-shared-progress-ring-\(content.style())", status?.font == config.content.transferStatusFont && status?.textColor == .systemPurple
+                    && status?.frame.height ?? 0 > 0 && ring?.lineWidth == 4 && ring?.strokeColor == tint.resolvedColor(with: chat.traitCollection).cgColor)
+                check("card-progress-follows-bubble-path-\(content.style())", bubble?.showsArrow == true && bubble?.bubblePath != nil
+                    && overlay?.superview === bubble && overlay?.frame == bubble?.bounds && mask?.path == bubble?.bubblePath)
+            }
+            config.content.attachmentProgressPlacement = .bottom
+            chat.configuration = config
+            let status = cell(chat.dataSource.count - 1).flatMap { views($0).first { $0.accessibilityIdentifier == "WYChatTransfer.status" } as? UILabel }
+            let track = status?.superview?.subviews.first { $0.bounds.height == 4 && !$0.subviews.isEmpty }
+            check("attachment-can-choose-bottom-progress", track?.frame.maxY == status?.superview?.bounds.maxY && track?.layer.cornerRadius == 1)
             return results
         })
 
@@ -3059,6 +3221,8 @@ final class WYChatTestSuite {
             }
             config.media.automaticallyPresentsBrowser = false
             config.media.albumMoreItemIndex = 0
+            config.content.transferProgressDelay = 0.5
+            config.media.buttonSendingStatusSpacing = 11
             let view = WYChatView(userInfo: self.chatView.userInfo, configuration: config)
             let host = self.chatView.window ?? self.chatView
             view.frame = host.bounds
@@ -3072,6 +3236,18 @@ final class WYChatTestSuite {
             view.wy_didClickMoreViewAtIndex(itemIndex: 0)
             check("album-external-event", albumRequests == 2 && view.dataSource.isEmpty)
             check("empty-selection", view.sendMedia([]).isEmpty && view.dataSource.isEmpty)
+            let defaultMedia = WYChatMediaConfig()
+            check("embedded-stack-default-has-side-space", defaultMedia.browser.stackedCardInsets.left >= defaultMedia.browser.stackedCardHorizontalInsetThreshold
+                && defaultMedia.browser.stackedCardInsets.right >= defaultMedia.browser.stackedCardHorizontalInsetThreshold)
+            var thresholdConfig = config
+            thresholdConfig.automaticallyInsertsSentMessages = false
+            thresholdConfig.media.foldingThreshold = 2
+            let thresholdView = WYChatView(userInfo: self.chatView.userInfo, configuration: thresholdConfig)
+            defer { thresholdView.releaseAll() }
+            let singleVideo = thresholdView.sendMedia([items[2]], presentation: .merged)
+            check("single-album-video-is-individual", singleVideo.count == 1 && singleVideo.first?.content.mediaGroup?.items.map(\.kind) == [.video])
+            check("folding-threshold-is-exclusive", thresholdView.sendMedia(Array(items.prefix(2)), presentation: .merged).count == 2
+                && thresholdView.sendMedia(Array(items.prefix(3)), presentation: .merged).first?.content.mediaGroup?.items.count == 3)
             var prepared: [WYChatMessageModel] = []
             view.messagePreparedHandler = { prepared.append($0) }
             config.media.presentation = .individual
@@ -3106,6 +3282,17 @@ final class WYChatTestSuite {
             let sideButton = cell?.contentView.subviews.compactMap { $0 as? UIButton }.first { $0.accessibilityIdentifier == "WYChatMedia.toggle" }
             let mediaFrame = cell.map { $0.mediaContentView.convert($0.mediaContentView.bounds, to: $0.contentView) } ?? .zero
             check("media-toggle-beside-first-item", sideButton != nil && abs((sideButton?.frame.midY ?? 0) - mediaFrame.midY) < 1 && (sideButton?.frame.maxX ?? .infinity) <= mediaFrame.minX + 1 && sideButton?.currentTitle == config.media.expandText)
+            @MainActor func separation(_ first: CGRect, _ second: CGRect) -> CGFloat {
+                max(first.minX - second.maxX, second.minX - first.maxX, first.minY - second.maxY, second.minY - first.maxY)
+            }
+            try? await Task.sleep(nanoseconds: 600_000_000)
+            cell?.layoutIfNeeded()
+            if let cell, let sideButton {
+                let spinner = cell.activityView.convert(cell.activityView.bounds, to: cell.contentView)
+                check("media-toggle-clears-delayed-spinner", cell.activityView.isAnimating
+                      && separation(spinner, sideButton.frame) >= config.media.buttonSendingStatusSpacing - 0.5,
+                      "spinner=\(spinner), toggle=\(sideButton.frame), gap=\(config.media.buttonSendingStatusSpacing)")
+            } else { check("media-toggle-clears-delayed-spinner", false) }
             @MainActor func collection(in view: UIView) -> UICollectionView? { if let value = view as? UICollectionView { return value }; return view.subviews.compactMap { collection(in: $0) }.first }
             let originalCollection = cell.flatMap { collection(in: $0.mediaContentView) }
             cell?.mediaActionHandler?(.pageChanged, identifier, 3)
@@ -3113,7 +3300,8 @@ final class WYChatTestSuite {
             check("stack-page-preserves-browser", originalCollection != nil && originalCollection === currentCell.flatMap { collection(in: $0.mediaContentView) } && currentCell?.message.content.mediaGroup?.visibleIndex == 3)
             check("stack-page-state", view.messageModelFrom(identifier)?.content.mediaGroup?.visibleIndex == 3)
             let collapsed = view.tableView.rectForRow(at: path).height
-            view.setMediaGroupExpanded(true, messageID: identifier)
+            sideButton?.sendActions(for: .touchUpInside)
+            check("expand-keeps-cell-and-updates-title", cell != nil && cell === view.tableView.cellForRow(at: path) && sideButton?.currentTitle == config.media.collapseText)
             view.tableView.layoutIfNeeded()
             try? await Task.sleep(nanoseconds: 50_000_000)
             let expanded = view.tableView.rectForRow(at: path).height
@@ -3129,6 +3317,7 @@ final class WYChatTestSuite {
             view.setMediaGroupExpanded(false, messageID: identifier)
             view.tableView.layoutIfNeeded()
             check("collapse-retains-page", view.messageModelFrom(identifier)?.content.mediaGroup?.isExpanded == false && view.messageModelFrom(identifier)?.content.mediaGroup?.visibleIndex == 3)
+            check("collapse-keeps-cell-and-updates-title", cell != nil && cell === view.tableView.cellForRow(at: path) && sideButton?.currentTitle == config.media.expandText)
             config.media.buttonPlacement = .below
             config.media.showsItemCountInButton = true
             config.media.itemCountText = { title, count in "\(title) · 共\(count)项" }
@@ -3173,6 +3362,24 @@ final class WYChatTestSuite {
                     try? image.pngData()?.write(to: directory.appendingPathComponent("media-group-width-\(Int(width))-expanded-\(expanded).png"))
                 }
             }
+            view.setMediaGroupExpanded(false, messageID: identifier)
+            config.media.buttonWidth = 180
+            config.media.buttonSendingStatusSpacing = 17
+            view.frame.size.width = 280
+            view.configuration = config
+            view.dataSource[0].sendState = .failed
+            view.layoutIfNeeded()
+            view.tableView.layoutIfNeeded()
+            if let compact = view.tableView.cellForRow(at: path) as? WYChatMediaGroupCell,
+               let toggle = compact.contentView.subviews.first(where: { $0.accessibilityIdentifier == "WYChatMedia.toggle" }) {
+                compact.layoutIfNeeded()
+                let failure = compact.loadingView.convert(compact.loadingView.bounds, to: compact.contentView)
+                let verticalGap = max(failure.minY - toggle.frame.maxY, toggle.frame.minY - failure.maxY)
+                check("media-toggle-clears-failed-state-on-narrow-list", !compact.loadingView.isHidden
+                      && verticalGap >= config.media.buttonSendingStatusSpacing - 0.5
+                      && compact.contentView.bounds.insetBy(dx: -1, dy: -1).contains(toggle.frame),
+                      "failure=\(failure), toggle=\(toggle.frame), gap=\(config.media.buttonSendingStatusSpacing)")
+            } else { check("media-toggle-clears-failed-state-on-narrow-list", false) }
             var copied = merged[0]
             copied.content.mediaGroup?.items[0].original.localPath = "changed"
             check("media-group-value-isolation", merged[0].content.mediaGroup?.items[0].original.localPath == items[0].original.localPath)

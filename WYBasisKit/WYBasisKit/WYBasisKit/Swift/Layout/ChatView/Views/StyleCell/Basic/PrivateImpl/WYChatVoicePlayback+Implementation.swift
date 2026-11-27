@@ -34,16 +34,52 @@ extension WYChatBasicCell {
         let waveformWidth = state.usesThumbnail ? max(0, configuration.voicePlayback.waveformSize.width) + max(0, style.spacing) : 0
         let titleWidth = ceil(state.title.sizeThatFits(CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)).width)
         let playback = configuration.voicePlayback
-        let duration = voice.duration.isFinite ? max(0, voice.duration) : 0
-        let minimum = playback.minimumWidth.isFinite ? max(0, playback.minimumWidth) : 0
-        let threshold = playback.minimumWidthDuration.isFinite ? max(0, playback.minimumWidthDuration) : 0
-        let growth = playback.widthGrowthPerSecond.isFinite ? max(0, playback.widthGrowthPerSecond) : 0
-        let preferred = state.detail.text?.isEmpty == false ? style.preferredWidth : minimum + CGFloat(max(0, duration - threshold)) * growth
+        let minimum = min(width, wy_chatNonnegative(playback.minimumWidth))
+        let maximum = min(width, max(minimum, wy_chatNonnegative(style.preferredWidth)))
+        let threshold = wy_chatNonnegative(playback.minimumWidthDuration)
+        let duration = max(0, wy_chatNonnegative(voice.duration) - threshold)
+        let limit = wy_chatNonnegative(configuration.recording.recordTime.max)
+        let preferred: CGFloat
+        if state.detail.text?.isEmpty == false {
+            preferred = maximum
+        } else if playback.usesProportionalWidth && limit > threshold {
+            let fraction = min(1, duration / (limit - threshold))
+            preferred = minimum + (maximum - minimum) * CGFloat(fraction)
+        } else {
+            preferred = minimum + CGFloat(duration) * wy_chatNonnegative(playback.widthGrowthPerSecond)
+        }
         state.preferredWidth?.constant = max(1, min(width, max(preferred, titleWidth + ratesWidth + waveformWidth)))
         let textWidth = max(1, (state.preferredWidth?.constant ?? width) - ratesWidth - waveformWidth)
         let scale = max(1, traitCollection.displayScale)
         for label in [state.title, state.detail, state.footer] { label.preferredMaxLayoutWidth = floor(textWidth * scale) / scale }
     }
+    func wy_renderVoicePlayingState(_ voice: WYChatVoiceModel) {
+        if voice.isPlaying && (state.thumbnail.animationImages?.count ?? 0) > 1 && !state.isMeasuring {
+            if !state.thumbnail.isAnimating { state.thumbnail.startAnimating() }
+        } else if state.thumbnail.isAnimating {
+            state.thumbnail.stopAnimating()
+        }
+        let playback = configuration.voicePlayback
+        let duration = String(Int(ceil(min(86_400, wy_chatNonnegative(voice.duration))))) + playback.durationSuffix
+        if playback.showsPlaybackSymbol { wy_showPlaybackSymbol(voice.isPlaying ? playback.pauseImage : playback.playImage, text: duration) }
+        else if state.title.text != duration { state.title.text = duration }
+    }
+
+    func wy_updateVoicePlayingState(_ model: WYChatMessageModel) -> Bool {
+        guard let voice = model.content.voice, let previous = message.content.voice else { return false }
+        state.isUpdating = true
+        message = model
+        state.isUpdating = false
+        guard voice.isPlaying != previous.isPlaying || voice.played != previous.played || voice.playbackRate != previous.playbackRate else { return false }
+
+        let rateWasHidden = state.voiceRateButton.isHidden
+        if voice.isPlaying != previous.isPlaying { wy_renderVoicePlayingState(voice) }
+        wy_renderVoicePlayback()
+        state.title.setContentCompressionResistancePriority(state.voiceRateButton.isHidden ? .defaultHigh : UILayoutPriority(999), for: .horizontal)
+        setNeedsLayout()
+        return rateWasHidden != state.voiceRateButton.isHidden || (voice.isPlaying != previous.isPlaying && configuration.voicePlayback.showsPlaybackSymbol)
+    }
+
     func wy_renderVoicePlayback() {
         let style = configuration.voicePlayback
         let unread = state.voiceUnreadView

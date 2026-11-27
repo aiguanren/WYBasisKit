@@ -29,6 +29,8 @@ public struct WYChatVoicePlaybackConfig {
     public var minimumWidthDuration: TimeInterval = 3
     /// 超过minimumWidthDuration后每秒增加的内容宽度
     public var widthGrowthPerSecond: CGFloat = UIDevice.wy_screenWidth(8, WYBasisKitConfig.defaultScreenPixels)
+    /// 按最大录音时长分配语音气泡宽度，关闭时使用每秒宽度增量
+    public var usesProportionalWidth: Bool = true
     /// 语音秒数后的文字
     public var durationSuffix: String = "″"
     /// 语音秒数字体

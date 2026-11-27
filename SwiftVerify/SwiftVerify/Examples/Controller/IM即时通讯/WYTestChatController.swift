@@ -170,11 +170,13 @@ class WYTestChatController: UIViewController {
     }
 
     private func updateExampleVoice(_ messageID: String, playing: Bool) {
-        guard let index = chatView.dataSource.firstIndex(where: { $0.messageID == messageID }) else { return }
-        chatView.dataSource[index].content.voice?.isPlaying = playing
-        chatView.dataSource[index].content.voice?.played = true
-        chatView.dataSource[index].content.voice?.pause = !playing && !chatView.configuration.voicePlayback.restartsOnTap
-        chatView.dataSource[index].content.voice?.currentPlayDuration = voicePlayer?.currentTime ?? 0
+        guard let index = chatView.dataSource.firstIndex(where: { $0.messageID == messageID }),
+              var voice = chatView.dataSource[index].content.voice else { return }
+        voice.isPlaying = playing
+        voice.played = true
+        voice.pause = !playing && !chatView.configuration.voicePlayback.restartsOnTap
+        voice.currentPlayDuration = voicePlayer?.currentTime ?? 0
+        if voice != chatView.dataSource[index].content.voice { chatView.dataSource[index].content.voice = voice }
     }
 
     private func stopExampleVoice() {
@@ -679,6 +681,10 @@ extension WYTestChatController {
     private func sendExamplePhotos(_ items: [WYChatMediaItem], selectedCount: Int) {
         guard !items.isEmpty else {
             showAttachmentNotice("无法读取所选照片。")
+            return
+        }
+        guard items.count > max(1, chatView.configuration.media.foldingThreshold) else {
+            sendExamplePhotos(items, presentation: .individual)
             return
         }
         let includesVideo = items.contains { $0.kind == .video }

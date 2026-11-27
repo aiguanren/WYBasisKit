@@ -23,7 +23,8 @@ extension WYChatView {
     }
 
     func wy_usesWholeCellMenu(_ cell: UITableViewCell) -> Bool {
-        (cell as? WYChatBasicCell)?.configuration.highlightsEntireCellOnLongPress ?? true
+        if (cell as? WYChatTextCell)?.wy_isSingleEmoji == true { return false }
+        return (cell as? WYChatBasicCell)?.configuration.highlightsEntireCellOnLongPress ?? true
     }
 
     @objc func wy_showMessageMenu(_ gesture: UILongPressGestureRecognizer) {
@@ -293,23 +294,38 @@ extension WYChatView {
         case .resumeTransfer:
             guard model.wy_effectiveTransferState == .paused else { return }
         case .play, .pause:
-            if configuration.dismissInputOnTap { inputViewResignFirstResponder() }
-            var messages = dataSource
-            let stopped = action == .play ? messages.filter { $0.messageID != messageID && $0.content.voice?.isPlaying == true }.map(\.messageID) : []
-            for index in messages.indices where messages[index].content.voice != nil {
-                let selected = messages[index].messageID == messageID
-                if selected || action == .play && messages[index].content.voice?.isPlaying == true {
-                    messages[index].content.voice?.isPlaying = selected && action == .play
-                    messages[index].content.voice?.pause = !configuration.voicePlayback.restartsOnTap && !(selected && action == .play)
-                    if configuration.voicePlayback.restartsOnTap { messages[index].content.voice?.currentPlayDuration = 0 }
-                    if selected && action == .play { messages[index].content.voice?.played = true }
-                }
+            if configuration.dismissInputOnTap && (touchStyle != .done || chatInput.textView.isFirstResponder) {
+                inputViewResignFirstResponder()
             }
-            dataSource = messages
+            var messages = dataSource
+            var paths: [IndexPath] = []
+            var stopped: [String] = []
+            for index in messages.indices {
+                guard var voice = messages[index].content.voice else { continue }
+                let selected = messages[index].messageID == messageID
+                guard selected || action == .play && voice.isPlaying else { continue }
+                if !selected { stopped.append(messages[index].messageID) }
+                let plays = selected && action == .play
+                voice.isPlaying = plays
+                voice.pause = !configuration.voicePlayback.restartsOnTap && !plays
+                if configuration.voicePlayback.restartsOnTap { voice.currentPlayDuration = 0 }
+                if plays { voice.played = true }
+                messages[index].content.voice = voice
+                paths.append(IndexPath(row: index, section: 0))
+            }
+            if !paths.isEmpty {
+                state.updatingMessageRows = true
+                dataSource = messages
+                state.updatingMessageRows = false
+                wy_refreshVoicePlaybackRows(paths)
+            }
             for identifier in stopped {
                 actionHandler?(self, .pause, identifier)
                 delegate?.wy_messageAction?(self, action: .pause, messageID: identifier)
             }
+        case .takePat:
+            let basic = (configuration.messageConfiguration?(model, configuration) ?? configuration).basic
+            if basic.enablesAvatarPatHaptics { UIDevice.wy_vibrate(.light) }
         case .mention: if configuration.basic.automaticallyInsertsMentions { mentionUser(model.sender) }
         case .reedit: _ = reeditMessage(messageID)
         case .copy: UIPasteboard.general.string = model.content.text ?? model.content.voice?.voiceToText

@@ -7,6 +7,14 @@
 
 import UIKit
 
+/// 双击头像时可以触发拍一拍的对象。
+@objc public enum WYChatAvatarDoubleTapPatScope: Int {
+    case disabled
+    case othersOnly
+    case selfOnly
+    case everyone
+}
+
 /// 通用聊天配置选项
 public struct WYBasicChatConfig {
     /// 按消息定制已读标记，返回nil时使用默认已读或未读文本
@@ -57,6 +65,10 @@ public struct WYBasicChatConfig {
     public var avatarLongPressAction: WYChatAvatarAction = .mention
     /// 头像双击操作，默认请求拍一拍
     public var avatarDoubleTapAction: WYChatAvatarAction = .takePat
+    /// 双击头像的拍一拍对象范围
+    public var avatarDoubleTapPatScope: WYChatAvatarDoubleTapPatScope = .everyone
+    /// 拍一拍时提供轻触反馈，默认开启
+    public var enablesAvatarPatHaptics: Bool = true
     /// 头像长按识别时间，单位秒
     public var avatarLongPressDuration: TimeInterval = 0.35
     /// 拍一拍反馈动画时长，0表示不播放

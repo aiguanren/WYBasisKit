@@ -79,6 +79,7 @@ final class WYChatMediaGroupView: UIView, WYPhotoBrowserDataSource, WYPhotoBrows
         } else {
             var config = configuration.browser
             config.layoutStyle = configuration.embeddedLayoutStyle
+            if model.items.count == 1 { config.stackedCardInsets = .zero }
             config.isEmbedded = true
             config.allowsTapDismiss = false
             config.allowsDragDismiss = false
@@ -179,7 +180,7 @@ final class WYChatMediaGroupView: UIView, WYPhotoBrowserDataSource, WYPhotoBrows
                 addSubview(view)
                 avatars[index] = view
                 let gestures = WYChatAvatarGestures(view: view) { [weak self] action in self?.avatarAction?(action) }
-                gestures.apply(avatarConfiguration)
+                gestures.apply(avatarConfiguration, isOwnAvatar: sender)
                 avatarGestures[index] = gestures
                 loader?(avatar, view, false, true)
             }
@@ -366,22 +367,44 @@ extension WYChatBasicCell {
     func wy_layoutMediaToggle() {
         guard !state.mediaToggle.isHidden, configuration.media.buttonPlacement == .beside else { return }
         let config = configuration.media
-        func finite(_ value: CGFloat) -> CGFloat { value.isFinite ? max(0, value) : 0 }
-        let width = min(contentView.bounds.width, finite(config.buttonWidth))
-        let height = finite(config.buttonHeight)
-        let frame = state.mediaView.convert(state.mediaView.bounds, to: contentView)
+        let bounds = contentView.bounds
+        let mediaFrame = state.mediaView.convert(state.mediaView.bounds, to: contentView)
         let center = state.mediaView.convert(CGPoint(x: 0, y: state.mediaView.firstItemCenterY), to: contentView).y
         let sender = message.isSender(userID)
         let bubbleIsOnRight = sender == (contentView.effectiveUserInterfaceLayoutDirection == .leftToRight)
-        let pending = sender && (!loadingView.isHidden || !activityView.isHidden) ? finite(configuration.basic.messageSendingStateOffset) + finite(configuration.basic.messageSendingStateSize.width) : 0
-        let spacing = finite(config.buttonSpacing) + pending
-        let desired = bubbleIsOnRight ? frame.minX - spacing - width : frame.maxX + spacing
-        let inset = finite(sender ? configuration.sender.edgeInset : configuration.receiver.edgeInset)
+        let inset = wy_chatNonnegative(sender ? configuration.sender.edgeInset : configuration.receiver.edgeInset)
         let selectionWidth = wy_selectionIndicatorWidth
-        let leftInset = inset + (wy_selectionIndicatorIsOnLeft ? selectionWidth : 0)
-        let rightInset = inset + (wy_selectionIndicatorIsOnLeft ? 0 : selectionWidth)
-        let x = min(max(0, contentView.bounds.width - width - rightInset), max(leftInset, desired))
-        state.mediaToggle.frame = CGRect(x: x, y: max(0, center - height / 2), width: width, height: height)
+        let left = min(bounds.width, inset + (wy_selectionIndicatorIsOnLeft ? selectionWidth : 0))
+        let right = max(left, bounds.width - inset - (wy_selectionIndicatorIsOnLeft ? 0 : selectionWidth))
+        let width = min(right - left, wy_chatNonnegative(config.buttonWidth))
+        let height = min(bounds.height, wy_chatNonnegative(config.buttonHeight))
+        let spacing = wy_chatNonnegative(config.buttonSpacing)
+        let x = bubbleIsOnRight ? mediaFrame.minX - spacing - width : mediaFrame.maxX + spacing
+        let y = min(bounds.height - height, max(0, center - height / 2))
+        var frame = CGRect(x: min(right - width, max(left, x)), y: y, width: width, height: height)
+
+        if sender && (!loadingView.isHidden || activityView.isAnimating) {
+            let indicator: UIView = loadingView.isHidden ? activityView : loadingView
+            let statusFrame = indicator.convert(indicator.bounds, to: contentView)
+            let gap = wy_chatNonnegative(config.buttonSendingStatusSpacing)
+            let exclusion = statusFrame.insetBy(dx: -gap, dy: -gap)
+            if !statusFrame.isEmpty && frame.intersects(exclusion) {
+                let besideX = bubbleIsOnRight ? exclusion.minX - width : exclusion.maxX
+                if besideX >= left && besideX + width <= right {
+                    frame.origin.x = besideX
+                } else {
+                    let roomAbove = max(0, statusFrame.minY)
+                    let roomBelow = max(0, bounds.height - statusFrame.maxY)
+                    let room = max(roomAbove, roomBelow)
+                    let verticalGap = min(gap, max(0, room - height))
+                    frame.size.height = min(height, room - verticalGap)
+                    frame.origin.y = roomAbove >= roomBelow
+                        ? statusFrame.minY - verticalGap - frame.height
+                        : statusFrame.maxY + verticalGap
+                }
+            }
+        }
+        state.mediaToggle.frame = frame
     }
 
     @objc func wy_toggleMediaGroup() {

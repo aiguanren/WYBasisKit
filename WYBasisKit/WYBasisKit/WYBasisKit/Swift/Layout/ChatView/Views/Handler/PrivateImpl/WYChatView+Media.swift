@@ -12,7 +12,8 @@ import AVKit
 extension WYChatView {
     func wy_sendMedia(_ items: [WYChatMediaItem], presentation: WYChatMediaPresentation) -> [WYChatMessageModel] {
         guard !items.isEmpty else { return [] }
-        let batches = presentation == .merged ? [items] : items.map { [$0] }
+        let folds = presentation == .merged && items.count > max(1, configuration.media.foldingThreshold)
+        let batches = folds ? [items] : items.map { [$0] }
         let reference = state.inputQuote
         var messages: [WYChatMessageModel] = []
         for batch in batches {
@@ -33,19 +34,6 @@ extension WYChatView {
         quoteMessage(nil)
         for message in messages { messagePreparedHandler?(message) }
         return messages
-    }
-
-    private func wy_updateMediaGroup(row: Int, change: (inout WYChatMediaGroupModel) -> Void) {
-        guard dataSource.indices.contains(row), var group = dataSource[row].content.mediaGroup else { return }
-        tableView.layoutIfNeeded()
-        let anchor = tableView.indexPathsForVisibleRows?.min()
-        let reading = anchor.map { wy_readingAnchor(at: $0) }
-        let preserving = state.preservingHistory
-        state.preservingHistory = true
-        change(&group)
-        dataSource[row].content.mediaGroup = group
-        state.preservingHistory = preserving
-        if let reading { state.readingAnchor = reading; tableView.layoutIfNeeded(); wy_restoreReadingPosition() }
     }
 
     func wy_mediaItems(_ message: WYChatMessageModel) -> [WYChatMediaItem] {
@@ -76,8 +64,14 @@ extension WYChatView {
         if isSelectingMessages { wy_performAction(.select, messageID: messageID); return }
         switch action {
         case .expand, .collapse:
-            guard model.content.mediaGroup != nil else { return }
-            wy_updateMediaGroup(row: row) { $0.isExpanded = action == .expand }
+            let expanded = action == .expand
+            guard let group = model.content.mediaGroup else { return }
+            if group.isExpanded != expanded {
+                state.updatingMessageRows = true
+                dataSource[row].content.mediaGroup?.isExpanded = expanded
+                state.updatingMessageRows = false
+                wy_refreshMessageRows([IndexPath(row: row, section: 0)])
+            }
         case .pageChanged:
             guard model.content.mediaGroup != nil else { return }
             guard model.content.mediaGroup?.visibleIndex != index else { return }
